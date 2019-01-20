@@ -58,7 +58,7 @@ public:
     bool gameControlsLocked() const;
     bool hasActiveBehavior();
 
-    int getCurrentBehavior();
+    CameraBehaviors GetCurrentBehavior() { return m_current_behavior; }
 
     void NotifyContextChange();
     void NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle);

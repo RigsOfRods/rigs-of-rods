@@ -39,7 +39,6 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
     EngineSim* engine = vehicle->ar_engine;
 
     if ((engine->GetGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE) > 0.05f) ||
-        (engine->GetGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f) ||
         (engine->GetGear() > 0 && vehicle->cc_target_speed < vehicle->cc_target_speed_lower_limit) ||
         (engine->GetGear() > 0 && vehicle->ar_parking_brake) ||
         (engine->GetGear() < 0) ||
@@ -49,6 +48,9 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
         vehicle->ToggleCruiseControl();
         return;
     }
+
+    if (engine->GetGear() != 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f)
+        return;
 
     float acc = engine->GetAccToHoldRPM();
 
@@ -143,7 +145,7 @@ void LandVehicleSimulation::CheckSpeedLimit(Actor* vehicle, float dt)
 
 void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_last_frame)
 {
-    if (vehicle->ar_replay_mode)
+    if (vehicle->isBeingReset() || vehicle->ar_physics_paused || vehicle->ar_replay_mode)
         return;
 #ifdef USE_ANGELSCRIPT
     if (vehicle->ar_vehicle_ai && vehicle->ar_vehicle_ai->IsActive())
@@ -196,7 +198,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
 
 void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_since_last_frame)
 {
-    if (vehicle->ar_replay_mode)
+    if (vehicle->isBeingReset() || vehicle->ar_physics_paused || vehicle->ar_replay_mode)
         return;
 #ifdef USE_ANGELSCRIPT
     if (vehicle->ar_vehicle_ai && vehicle->ar_vehicle_ai->IsActive())

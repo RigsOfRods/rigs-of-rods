@@ -1753,20 +1753,17 @@ void SimController::UpdateSimulation(float dt)
 #endif // USE_MUMBLE
     }
 
-    if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
+    if (simRUNNING(s) || simEDITOR(s))
     {
-        if ((!simPAUSED(s)) && (dt != 0.f))
-        {
-            m_camera_manager.Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
+        m_camera_manager.Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
 #ifdef USE_OPENAL
-            // update audio listener position
-            static Vector3 lastCameraPosition;
-            Vector3 cameraSpeed = (gEnv->mainCamera->getPosition() - lastCameraPosition) / dt;
-            lastCameraPosition = gEnv->mainCamera->getPosition();
+        // update audio listener position
+        static Vector3 lastCameraPosition;
+        Vector3 cameraSpeed = (gEnv->mainCamera->getPosition() - lastCameraPosition) / dt;
+        lastCameraPosition = gEnv->mainCamera->getPosition();
 
-            SoundScriptManager::getSingleton().setCamera(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(), cameraSpeed);
+        SoundScriptManager::getSingleton().setCamera(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(), cameraSpeed);
 #endif // USE_OPENAL
-        }
     }
 
     m_physics_simulation_time = m_physics_simulation_paused ? 0.0f : dt;
@@ -2405,8 +2402,7 @@ CameraManager::CameraBehaviors SimController::GetCameraBehavior()
 {
     if (m_camera_manager.IsCameraReady())
     {
-        return static_cast<CameraManager::CameraBehaviors>(
-            m_camera_manager.getCurrentBehavior());
+        return m_camera_manager.GetCurrentBehavior();
     }
     return CameraManager::CAMERA_BEHAVIOR_INVALID;
 }
@@ -2455,8 +2451,6 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
         {
             actor->ToggleSlideNodeLock();
         }
-
-        RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
 
         // add own username to the actor
         if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)

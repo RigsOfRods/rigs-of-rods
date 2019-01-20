@@ -66,7 +66,8 @@ Ogre::String ActorManager::ExtractSceneName(Ogre::String filename)
     rapidjson::Document j_doc;
     j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(isw);
 
-    if (!j_doc.IsObject() || !j_doc.HasMember("scene_name") || !j_doc["scene_name"].IsString())
+    if (!j_doc.IsObject() || !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber() ||
+            !j_doc.HasMember("scene_name") || !j_doc["scene_name"].IsString())
         return "";
 
     return j_doc["scene_name"].GetString();
@@ -119,10 +120,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
             App::sim_savegame.SetActive(filename.c_str());
             App::sim_load_savegame.SetActive(true);
         }
-        else
-        {
-            App::GetSimController()->SetPhysicsPausedInternal(j_doc["physics_paused"].GetBool());
-        }
+        m_savegame_terrain_has_changed = true;
         return true;
     }
 
@@ -137,6 +135,11 @@ bool ActorManager::LoadScene(Ogre::String filename)
 #endif // USE_CAELUM
 
     m_forced_awake = j_doc["forced_awake"].GetBool();
+
+    if (m_savegame_terrain_has_changed)
+    {
+        App::GetSimController()->SetPhysicsPausedInternal(j_doc["physics_paused"].GetBool());
+    }
 
     // Character
     auto player_data = j_doc["player_position"].GetArray();
@@ -245,6 +248,9 @@ bool ActorManager::LoadScene(Ogre::String filename)
         actor->ar_hydro_rudder_state = j_entry["hydro_rudder_state"].GetFloat();
         actor->ar_hydro_elevator_state = j_entry["hydro_elevator_state"].GetFloat();
         actor->ar_parking_brake = j_entry["parking_brake"].GetBool();
+        actor->ar_avg_wheel_speed = j_entry["avg_wheel_speed"].GetFloat();
+        actor->ar_wheel_speed = j_entry["wheel_speed"].GetFloat();
+        actor->ar_wheel_spin = j_entry["wheel_spin"].GetFloat();
 
         if (actor->ar_lights != j_entry["lights"].GetInt())
         {
@@ -329,13 +335,13 @@ bool ActorManager::LoadScene(Ogre::String filename)
         for (int i = 0; i < MAX_COMMANDS; i++)
         {
             auto& command_key = actor->ar_command_key[i];
-            command_key.commandValue = commands[i]["command_value"].GetFloat();
-            command_key.triggerInputValue = commands[i]["trigger_input_value"].GetFloat();
-            auto command_beams = commands[i]["command_beams"].GetArray();
+            command_key.commandValue = commands[i][0].GetFloat();
+            command_key.triggerInputValue = commands[i][1].GetFloat();
+            auto command_beams = commands[i][2].GetArray();
             for (int j = 0; j < (int)command_key.beams.size(); j++)
             {
-                command_key.beams[j].cmb_state->auto_moving_mode = command_beams[j]["auto_moving_mode"].GetInt();
-                command_key.beams[j].cmb_state->pressed_center_mode = command_beams[j]["pressed_center_mode"].GetBool();
+                command_key.beams[j].cmb_state->auto_moving_mode = command_beams[j][0].GetInt();
+                command_key.beams[j].cmb_state->pressed_center_mode = command_beams[j][1].GetBool();
             }
         }
 
@@ -428,9 +434,14 @@ bool ActorManager::LoadScene(Ogre::String filename)
         {
             actor->ToggleSlideNodeLock();
         }
+
+        actor->UpdateBoundingBoxes();
+        actor->calculateAveragePosition();
+        actor->m_avg_node_position_prev = actor->m_avg_node_position;
     }
 
     App::sim_load_savegame.SetActive(false);
+    m_savegame_terrain_has_changed = false;
 
     if (filename != "autosave.sav")
     {
@@ -523,6 +534,9 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_entry.AddMember("hydro_rudder_state", actor->ar_hydro_rudder_state, j_doc.GetAllocator());
         j_entry.AddMember("hydro_elevator_state", actor->ar_hydro_elevator_state, j_doc.GetAllocator());
         j_entry.AddMember("parking_brake", actor->ar_parking_brake, j_doc.GetAllocator());
+        j_entry.AddMember("avg_wheel_speed", actor->ar_avg_wheel_speed, j_doc.GetAllocator());
+        j_entry.AddMember("wheel_speed", actor->ar_wheel_speed, j_doc.GetAllocator());
+        j_entry.AddMember("wheel_spin", actor->ar_wheel_spin, j_doc.GetAllocator());
 
         j_entry.AddMember("lights", actor->ar_lights, j_doc.GetAllocator());
         j_entry.AddMember("beacon_light", actor->m_beacon_light_is_active, j_doc.GetAllocator());
@@ -610,20 +624,20 @@ bool ActorManager::SaveScene(Ogre::String filename)
         rapidjson::Value j_commands(rapidjson::kArrayType);
         for (int i = 0; i < MAX_COMMANDS; i++)
         {
-            rapidjson::Value j_command(rapidjson::kObjectType);
-            j_command.AddMember("command_value", actor->ar_command_key[i].commandValue, j_doc.GetAllocator());
-            j_command.AddMember("trigger_input_value", actor->ar_command_key[i].triggerInputValue, j_doc.GetAllocator());
+            rapidjson::Value j_command(rapidjson::kArrayType);
+            j_command.PushBack(actor->ar_command_key[i].commandValue, j_doc.GetAllocator());
+            j_command.PushBack(actor->ar_command_key[i].triggerInputValue, j_doc.GetAllocator());
 
             rapidjson::Value j_command_beams(rapidjson::kArrayType);
             for (int j = 0; j < (int)actor->ar_command_key[i].beams.size(); j++)
             {
-                rapidjson::Value j_cmb(rapidjson::kObjectType);
+                rapidjson::Value j_cmb(rapidjson::kArrayType);
                 auto& beam = actor->ar_command_key[i].beams[j];
-                j_cmb.AddMember("auto_moving_mode", beam.cmb_state->auto_moving_mode, j_doc.GetAllocator());
-                j_cmb.AddMember("pressed_center_mode", beam.cmb_state->pressed_center_mode, j_doc.GetAllocator());
+                j_cmb.PushBack(beam.cmb_state->auto_moving_mode, j_doc.GetAllocator());
+                j_cmb.PushBack(beam.cmb_state->pressed_center_mode, j_doc.GetAllocator());
                 j_command_beams.PushBack(j_cmb, j_doc.GetAllocator());
             }
-            j_command.AddMember("command_beams", j_command_beams, j_doc.GetAllocator());
+            j_command.PushBack(j_command_beams, j_doc.GetAllocator());
 
             j_commands.PushBack(j_command, j_doc.GetAllocator());
         }

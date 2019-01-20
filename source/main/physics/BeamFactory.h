@@ -118,6 +118,7 @@ private:
     float           m_dt_remainder;     ///< Keeps track of the rounding error in the time step calculation
     float           m_simulation_speed; ///< slow motion < 1.0 < fast motion
     int             m_actor_counter;    ///< Used to generate unique actor ids
+    bool            m_savegame_terrain_has_changed;
 };
 
 } // namespace RoR

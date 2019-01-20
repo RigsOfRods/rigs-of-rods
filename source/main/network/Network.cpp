@@ -452,7 +452,6 @@ void RecvThread()
                     m_users.erase(user);
                 }
             }
-            RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
         }
         else if (header.command == MSG2_USER_INFO || header.command == MSG2_USER_JOIN)
         {
@@ -494,7 +493,6 @@ void RecvThread()
                         LOG(Ogre::UTFString(user_info.username) + _L(" joined the game"));
                     }
                 }
-                RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
             }
             continue;
         }

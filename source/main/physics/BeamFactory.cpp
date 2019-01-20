@@ -60,6 +60,7 @@ ActorManager::ActorManager()
     , m_physics_steps(2000)
     , m_simulation_speed(1.0f)
     , m_actor_counter(0)
+    , m_savegame_terrain_has_changed(false)
 {
     // Create worker thread (used for physics calculations)
     m_sim_thread_pool = std::unique_ptr<ThreadPool>(new ThreadPool(1));
@@ -423,7 +424,6 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
                     actor->ar_net_stream_id = reg->origin_streamid;
                     actor->UpdateNetworkInfo();
 
-                    RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
                     net_result = 1; // Success
                 }
 
@@ -865,8 +865,6 @@ void ActorManager::DeleteActorInternal(Actor* actor)
     // Upate actor indices
     for (unsigned int i = 0; i < m_actors.size(); i++)
         m_actors[i]->ar_vector_index = i;
-
-    RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
 }
 
 int FindPivotActorId(Actor* player, Actor* prev_player)
@@ -1003,7 +1001,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
             actor->updateVisual(dt);
             actor->updateSkidmarks();
             actor->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
-            if (dt > 0.0f && !actor->ar_replay_mode )
+            if (dt > 0.0f && !actor->ar_replay_mode && !actor->ar_physics_paused)
             {
                 actor->m_gfx_actor->UpdateParticles(dt); // TODO: move it to GfxActor ~ only_a_ptr, 06/2018
             }

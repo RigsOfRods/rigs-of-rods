@@ -1468,6 +1468,9 @@ void Actor::SyncReset(bool reset_position)
     ar_fusedrag = Vector3::ZERO;
     m_blink_type = BLINK_NONE;
     ar_parking_brake = false;
+    ar_avg_wheel_speed = 0.0f;
+    ar_wheel_speed = 0.0f;
+    ar_wheel_spin = 0.0f;
     cc_mode = false;
 
     ar_origin = Vector3::ZERO;
@@ -1538,6 +1541,7 @@ void Actor::SyncReset(bool reset_position)
     {
         ar_wheels[i].wh_speed = 0.0;
         ar_wheels[i].wh_torque = 0.0;
+        ar_wheels[i].wh_avg_speed = 0.0;
         ar_wheels[i].wh_is_detached = false;
     }
 
@@ -1586,6 +1590,11 @@ void Actor::SyncReset(bool reset_position)
         {
             this->ResetPosition(ar_nodes[0].AbsPosition - agl * Vector3::UNIT_Y, false);
         }
+    }
+    else
+    {
+        this->UpdateBoundingBoxes();
+        this->calculateAveragePosition();
     }
 
     for (int i = 0; i < MAX_COMMANDS; i++)

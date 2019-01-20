@@ -279,43 +279,43 @@ void MainMenu::HandleSavegameShortcuts()
     int slot = -1;
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_01, 1.0f))
     {
-        slot = 0;
+        slot = 1;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_02, 1.0f))
     {
-        slot = 1;
+        slot = 2;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_03, 1.0f))
     {
-        slot = 2;
+        slot = 3;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_04, 1.0f))
     {
-        slot = 3;
+        slot = 4;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_05, 1.0f))
     {
-        slot = 4;
+        slot = 5;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_06, 1.0f))
     {
-        slot = 5;
+        slot = 6;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_07, 1.0f))
     {
-        slot = 6;
+        slot = 7;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_08, 1.0f))
     {
-        slot = 7;
+        slot = 8;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_09, 1.0f))
     {
-        slot = 8;
+        slot = 9;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_10, 1.0f))
     {
-        slot = 9;
+        slot = 0;
     }
     if (slot != -1)
     {
