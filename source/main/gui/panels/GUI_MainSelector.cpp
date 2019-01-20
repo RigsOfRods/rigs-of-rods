@@ -244,7 +244,11 @@ void CLASS::Cancel()
         RoR::App::GetMainMenu()->LeaveMultiplayerServer();
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
-    App::sim_state.SetActive(SimState::RUNNING); // TODO: use 'Pending' mechanism!
+
+    if (App::sim_state.GetActive() == SimState::SELECTING)
+    {    
+        App::sim_state.SetActive(SimState::RUNNING);
+    }
 }
 
 void CLASS::EventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender)
