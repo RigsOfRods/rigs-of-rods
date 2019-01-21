@@ -322,6 +322,7 @@ public:
     float             ar_sleep_counter;               //!< Sim state; idle time counter
     ground_model_t*   ar_submesh_ground_model;
     bool              ar_parking_brake;
+    bool              ar_trailer_parking_brake;
     int               ar_lights;                      //!< boolean 1/0
     float             ar_left_mirror_angle;           //!< Sim state; rear view mirror angle
     float             ar_right_mirror_angle;          //!< Sim state; rear view mirror angle
