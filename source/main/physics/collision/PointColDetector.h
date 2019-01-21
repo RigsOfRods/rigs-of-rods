@@ -35,7 +35,7 @@ public:
 
     PointColDetector(Actor* actor): m_actor(actor), m_object_list_size(-1) {};
 
-    void UpdateIntraPoint();
+    void UpdateIntraPoint(bool contactables = false);
     void UpdateInterPoint(bool ignorestate = false);
     void query(const Ogre::Vector3& vec1, const Ogre::Vector3& vec2, const Ogre::Vector3& vec3, const float enlargeBB);
 
@@ -70,5 +70,5 @@ private:
     void queryrec(int kdindex, int axis);
     void build_kdtree_incr(int axis, int index);
     void partintwo(const int start, const int median, const int end, const int axis, float& minex, float& maxex);
-    void update_structures_for_contacters();
+    void update_structures_for_contacters(bool ignoreinternal);
 };

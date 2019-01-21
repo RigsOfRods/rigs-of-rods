@@ -823,7 +823,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
     direction.normalise();
 
     if (m_intra_point_col_detector)
-        m_intra_point_col_detector->UpdateIntraPoint();
+        m_intra_point_col_detector->UpdateIntraPoint(true);
 
     if (m_inter_point_col_detector)
         m_inter_point_col_detector->UpdateInterPoint(true);
@@ -846,20 +846,20 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
             if (!bb.intersects(actor->ar_bounding_box))
                 continue;
 
-            // Test own contacters against others cabs
+            // Test own contactables against others cabs
             if (m_intra_point_col_detector)
             {
                 for (int i = 0; i < actor->ar_num_collcabs; i++)
                 {
                     int tmpv = actor->ar_collcabs[i] * 3;
-                    node_t* no = &actor->ar_nodes[ar_cabs[tmpv]];
-                    node_t* na = &actor->ar_nodes[ar_cabs[tmpv + 1]];
-                    node_t* nb = &actor->ar_nodes[ar_cabs[tmpv + 2]];
+                    node_t* no = &actor->ar_nodes[actor->ar_cabs[tmpv]];
+                    node_t* na = &actor->ar_nodes[actor->ar_cabs[tmpv + 1]];
+                    node_t* nb = &actor->ar_nodes[actor->ar_cabs[tmpv + 2]];
 
                     m_intra_point_col_detector->query(no->AbsPosition - collision_offset,
                         na->AbsPosition - collision_offset,
                         nb->AbsPosition - collision_offset,
-                        actor->ar_collision_range);
+                        actor->ar_collision_range * 3.0f);
 
                     if (!m_intra_point_col_detector->hit_list.empty())
                     {
@@ -872,20 +872,21 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
                     break;
             }
 
-            float proximity = std::max(0.05f, std::max(m_min_camera_radius, actor->m_min_camera_radius) / 25.0f);
+            float proximity = std::max(.05f, std::sqrt(std::max(m_min_camera_radius, actor->m_min_camera_radius)) / 50.f);
 
             // Test proximity of own nodes against others nodes
             for (int i = 0; i < ar_num_nodes; i++)
             {
-                if (ar_nodes[i].nd_no_ground_contact)
+                if (!ar_nodes[i].nd_contacter && !ar_nodes[i].nd_contactable)
                     continue;
 
                 Vector3 query_position = ar_nodes[i].AbsPosition + collision_offset;
 
                 for (int j = 0; j < actor->ar_num_nodes; j++)
                 {
-                    if (actor->ar_nodes[j].nd_no_ground_contact)
+                    if (!actor->ar_nodes[j].nd_contacter && !actor->ar_nodes[j].nd_contactable)
                         continue;
+
                     if (query_position.squaredDistance(actor->ar_nodes[j].AbsPosition) < proximity)
                     {
                         collision = true;
@@ -896,6 +897,9 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
                 if (collision)
                     break;
             }
+
+            if (collision)
+                break;
         }
 
         // Test own cabs against others contacters
@@ -911,7 +915,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
                 m_inter_point_col_detector->query(no->AbsPosition + collision_offset,
                     na->AbsPosition + collision_offset,
                     nb->AbsPosition + collision_offset,
-                    ar_collision_range);
+                    ar_collision_range * 3.0f);
 
                 if (!m_inter_point_col_detector->hit_list.empty())
                 {
@@ -924,7 +928,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
         if (!collision)
             break;
 
-        collision_offset += direction * 0.02f;
+        collision_offset += direction * 0.05f;
     }
 
     return collision_offset;
