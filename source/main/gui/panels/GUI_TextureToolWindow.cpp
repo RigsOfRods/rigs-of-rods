@@ -53,28 +53,23 @@ TextureToolWindow::TextureToolWindow()
     mCBo->eventComboChangePosition += MyGUI::newDelegate(this, &TextureToolWindow::eventSelectTexture2);
 
     mChkDynamic->eventMouseButtonClick += MyGUI::newDelegate(this, &TextureToolWindow::eventClickDynamicButton);
+    mChkDynamic->setStateSelected(true);
 
     MAIN_WIDGET->setVisible(false);
-}
-
-TextureToolWindow::~TextureToolWindow()
-{
 }
 
 void TextureToolWindow::SetVisible(bool v)
 {
     MAIN_WIDGET->setVisible(v);
+    if (v)
+    {
+        fillCombo();
+    }
 }
 
 bool TextureToolWindow::IsVisible()
 {
     return MAIN_WIDGET->getVisible();
-}
-
-void TextureToolWindow::show()
-{
-    ((MyGUI::Window*)mMainWidget)->setVisibleSmooth(true);
-    fillCombo();
 }
 
 void TextureToolWindow::fillCombo()
@@ -84,6 +79,7 @@ void TextureToolWindow::fillCombo()
 
     ResourceManager::ResourceMapIterator it = TextureManager::getSingleton().getResourceIterator();
 
+    std::vector<std::pair<String, String>> texture_names;
     while (it.hasMoreElements())
     {
         TexturePtr txt(it.getNext().staticCast<Texture>());
@@ -91,20 +87,31 @@ void TextureToolWindow::fillCombo()
         if (dynamicOnly && ((txt->getUsage() & TU_STATIC) != 0))
             continue;
 
-        mCBo->addItem(txt->getName());
+        String name = txt->getName();
+        StringUtil::toLowerCase(name);
+        texture_names.push_back({name, txt->getName()});
+    }
+
+    std::sort(texture_names.begin(), texture_names.end());
+
+    for (auto name : texture_names)
+    {
+        mCBo->addItem(name.second);
     }
 
     if (mCBo->getItemCount() > 0)
     {
-        mCBo->setIndexSelected(0);
+        int index = 0;
+        const auto it = std::find_if(texture_names.begin(), texture_names.end(),
+                [](const std::pair<std::string, std::string>& t) { return t.second.substr(0, 9) == "MapRttTex"; });
+        if (it != texture_names.end())
+        {
+            index = std::distance(texture_names.begin(), it);
+        }
+        mCBo->setIndexSelected(index);
         mCBo->beginToItemSelected();
-        updateControls(mCBo->getItemNameAt(0));
+        updateControls(mCBo->getItemNameAt(index));
     }
-}
-
-void TextureToolWindow::hide()
-{
-    ((MyGUI::Window*)mMainWidget)->setVisibleSmooth(false);
 }
 
 void TextureToolWindow::saveTexture(String texName, bool usePNG)
@@ -119,7 +126,7 @@ void TextureToolWindow::saveTexture(String texName, bool usePNG)
         tex->convertToImage(img);
 
         // Save to disk!
-        String outname = PathCombine(App::sys_user_dir.GetActive(), texName);
+        String outname = PathCombine(App::sys_user_dir.GetActive(), StringUtil::replaceAll(texName, "/", "_"));
         if (usePNG)
             outname += ".png";
 
@@ -228,9 +235,10 @@ void TextureToolWindow::eventClickDynamicButton(MyGUI::WidgetPtr _sender)
 
 void TextureToolWindow::notifyWindowPressed(MyGUI::Window* _widget, const std::string& _name)
 {
-    //MyGUI::WindowPtr window = _widget->castType<MyGUI::Window>();
     if (_name == "close")
-        hide();
+    {
+        SetVisible(false);
+    }
 }
 
 void TextureToolWindow::eventClickSavePNGButton(MyGUI::WidgetPtr _sender)

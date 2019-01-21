@@ -99,7 +99,7 @@ UTFString formatBytes(double bytes)
     wchar_t tmp[128] = L"";
     const wchar_t* si_prefix[] = {L"B", L"KB", L"MB", L"GB", L"TB", L"EB", L"ZB", L"YB"};
     int base = 1024;
-    int c = std::min((int)(log(bytes) / log((float)base)), (int)sizeof(si_prefix) - 1);
+    int c = bytes > 0 ? std::min((int)(log(bytes) / log((float)base)), (int)sizeof(si_prefix) - 1) : 0;
     swprintf(tmp, 128, L"%1.2f %ls", bytes / pow((float)base, c), si_prefix[c]);
     return UTFString(tmp);
 }
