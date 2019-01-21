@@ -126,21 +126,20 @@ bool ActorManager::LoadScene(Ogre::String filename)
         return true;
     }
 
-#ifdef USE_CAELUM
-    if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
-    {
-        if (j_doc.HasMember("daytime"))
-        {
-            App::GetSimTerrain()->getSkyManager()->SetTime(j_doc["daytime"].GetDouble());
-        }
-    }
-#endif // USE_CAELUM
-
     m_forced_awake = j_doc["forced_awake"].GetBool();
 
     if (m_savegame_terrain_has_changed)
     {
         App::GetSimController()->SetPhysicsPausedInternal(j_doc["physics_paused"].GetBool());
+#ifdef USE_CAELUM
+        if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
+        {
+            if (j_doc.HasMember("daytime"))
+            {
+                App::GetSimTerrain()->getSkyManager()->SetTime(j_doc["daytime"].GetDouble());
+            }
+        }
+#endif // USE_CAELUM
     }
 
     // Character
