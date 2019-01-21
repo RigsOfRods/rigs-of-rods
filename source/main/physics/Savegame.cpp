@@ -27,14 +27,16 @@
 #include "BeamEngine.h"
 #include "Buoyance.h"
 #include "CacheSystem.h"
+#include "ContentManager.h"
 #include "GUIManager.h"
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RoRFrameListener.h"
-#include "Skidmark.h"
-#include "TerrainManager.h"
 #include "ScrewProp.h"
+#include "Skidmark.h"
+#include "SkinManager.h"
 #include "SkyManager.h"
+#include "TerrainManager.h"
 
 #ifdef Bool // Conflicts with RapidJSON, see https://github.com/Tencent/rapidjson/issues/628
 #   undef Bool
@@ -156,9 +158,22 @@ bool ActorManager::LoadScene(Ogre::String filename)
         Actor* actor = nullptr;
         int index = actors.size();
 
+        SkinDef* skin = nullptr;
+        if (j_entry.HasMember("skin"))
+        {
+            skin = App::GetContentManager()->GetSkinManager()->GetSkin(j_entry["skin"].GetString());
+        }
+
+        std::vector<String> actor_config;
+        for (rapidjson::Value& j_config : j_entry["actor_config"].GetArray())
+        {
+            actor_config.push_back(j_config.GetString());
+        }
+
         if (index < m_actors.size())
         {
-            if (j_entry["filename"].GetString() != m_actors[index]->ar_filename)
+            if (j_entry["filename"].GetString() != m_actors[index]->ar_filename || skin != m_actors[index]->m_used_skin ||
+                    actor_config != m_actors[index]->getActorConfig())
             {
                 if (m_actors[index] == App::GetSimController()->GetPlayerActor())
                 {
@@ -183,6 +198,8 @@ bool ActorManager::LoadScene(Ogre::String filename)
             rq.asr_position.y    = preloaded ? j_entry["position"][1].GetFloat() : j_entry["min_height"].GetFloat();
             rq.asr_position.z    = j_entry["position"][2].GetFloat();
             rq.asr_rotation      = Quaternion(Degree(270) - Radian(j_entry["rotation"].GetFloat()), Vector3::UNIT_Y);
+            rq.asr_skin          = skin;
+            rq.asr_config        = actor_config;
             rq.asr_origin        = preloaded ? ActorSpawnRequest::Origin::TERRN_DEF : ActorSpawnRequest::Origin::USER;
             rq.asr_free_position = preloaded;
             actor                = App::GetSimController()->SpawnActorDirectly(rq);
@@ -513,6 +530,21 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_entry.AddMember("physics_paused", actor->ar_physics_paused, j_doc.GetAllocator());
         j_entry.AddMember("player_actor", actor==App::GetSimController()->GetPlayerActor(), j_doc.GetAllocator());
         j_entry.AddMember("prev_player_actor", actor==App::GetSimController()->GetPrevPlayerActor(), j_doc.GetAllocator());
+
+        if (actor->m_used_skin)
+        {
+            j_entry.AddMember("skin", rapidjson::StringRef(actor->m_used_skin->name.c_str()), j_doc.GetAllocator());
+        }
+
+        // Section info
+        rapidjson::Value j_actor_config(rapidjson::kArrayType);
+        for (const auto& config : actor->m_actor_config)
+        {
+            j_actor_config.PushBack(rapidjson::StringRef(config.c_str()), j_doc.GetAllocator());
+        }
+        j_entry.AddMember("actor_config", j_actor_config, j_doc.GetAllocator());
+
+        // Engine, anti-lock brake, traction control
         if (actor->ar_engine)
         {
             j_entry.AddMember("engine_gear", actor->ar_engine->GetGear(), j_doc.GetAllocator());
