@@ -198,7 +198,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_APS<int>         gfx_fov_external        ("gfx_fov_external",        "FOV External",              60,                      60,     60);
  GVarPod_APS<int>         gfx_fov_internal        ("gfx_fov_internal",        "FOV Internal",              75,                      75,     75);
  GVarPod_A<int>           gfx_fps_limit           ("gfx_fps_limit",           "FPS-Limiter",               0); // 0 = unlimited
- GVarPod_A<bool>          gfx_speedo_digital      ("gfx_speedo_digital",      "DigitalSpeedo",             false);
+ GVarPod_A<bool>          gfx_speedo_digital      ("gfx_speedo_digital",      "DigitalSpeedo",             true);
  GVarPod_A<bool>          gfx_speedo_imperial     ("gfx_speedo_imperial",     "gfx_speedo_imperial",       false);
  GVarPod_A<bool>          gfx_flexbody_lods       ("gfx_flexbody_lods",       "Flexbody_EnableLODs",       false);
  GVarPod_A<bool>          gfx_flexbody_cache      ("gfx_flexbody_cache",      "Flexbody_UseCache",         false);
