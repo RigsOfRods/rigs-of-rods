@@ -34,10 +34,6 @@ class TextureToolWindow : public wraps::BaseLayout, public ZeroedMemoryAllocator
 public:
 
     TextureToolWindow();
-    ~TextureToolWindow();
-
-    void show();
-    void hide();
 
     bool IsVisible();
     void SetVisible(bool value);
