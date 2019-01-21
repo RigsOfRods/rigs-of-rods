@@ -814,6 +814,72 @@ void Actor::calcNodeConnectivityGraph()
     }
 }
 
+bool Actor::Intersects(Actor* actor, Vector3 offset)
+{
+    Vector3 bb_min = ar_bounding_box.getMinimum() + offset;
+    Vector3 bb_max = ar_bounding_box.getMaximum() + offset;
+    AxisAlignedBox bb = AxisAlignedBox(bb_min, bb_max);
+
+    if (!bb.intersects(actor->ar_bounding_box))
+        return false;
+
+    // Test own (contactable) beams against others cabs
+    for (int i = 0; i < ar_num_beams; i++)
+    {
+        if (!(ar_beams[i].p1->nd_contacter || ar_beams[i].p1->nd_contactable) ||
+            !(ar_beams[i].p2->nd_contacter || ar_beams[i].p2->nd_contactable))
+            continue;
+
+        Vector3 origin = ar_beams[i].p1->AbsPosition + offset;
+        Vector3 target = ar_beams[i].p2->AbsPosition + offset;
+
+        Ray ray(origin, target - origin);
+
+        for (int j = 0; j < actor->ar_num_collcabs; j++)
+        {
+            int index = actor->ar_collcabs[j] * 3;
+            Vector3 a = actor->ar_nodes[actor->ar_cabs[index + 0]].AbsPosition;
+            Vector3 b = actor->ar_nodes[actor->ar_cabs[index + 1]].AbsPosition;
+            Vector3 c = actor->ar_nodes[actor->ar_cabs[index + 2]].AbsPosition;
+
+            auto result = Ogre::Math::intersects(ray, a, b, c);
+            if (result.first && result.second < 1.0f)
+            {
+                return true;
+            }
+        }
+    }
+
+    // Test own cabs against others (contactable) beams
+    for (int i = 0; i < actor->ar_num_beams; i++)
+    {
+        if (!(actor->ar_beams[i].p1->nd_contacter || actor->ar_beams[i].p1->nd_contactable) ||
+            !(actor->ar_beams[i].p2->nd_contacter || actor->ar_beams[i].p2->nd_contactable))
+            continue;
+
+        Vector3 origin = actor->ar_beams[i].p1->AbsPosition;
+        Vector3 target = actor->ar_beams[i].p2->AbsPosition;
+
+        Ray ray(origin, target - origin);
+
+        for (int j = 0; j < ar_num_collcabs; j++)
+        {
+            int index = ar_collcabs[j] * 3;
+            Vector3 a = ar_nodes[ar_cabs[index + 0]].AbsPosition + offset;
+            Vector3 b = ar_nodes[ar_cabs[index + 1]].AbsPosition + offset;
+            Vector3 c = ar_nodes[ar_cabs[index + 2]].AbsPosition + offset;
+
+            auto result = Ogre::Math::intersects(ray, a, b, c);
+            if (result.first && result.second < 1.0f)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 Vector3 Actor::calculateCollisionOffset(Vector3 direction)
 {
     if (direction == Vector3::ZERO)
@@ -922,6 +988,17 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
                     collision = true;
                     break;
                 }
+            }
+        }
+
+        if (!collision)
+        {
+            for (auto actor : App::GetSimController()->GetActors())
+            {
+                if (actor == this)
+                    continue;
+                if (collision = this->Intersects(actor, collision_offset))
+                    break;
             }
         }
 

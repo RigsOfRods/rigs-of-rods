@@ -112,6 +112,7 @@ public:
     void              ToggleCruiseControl();               //!< Event handler
     void              ToggleBeacons();                     //!< Event handler
     void              setReplayMode(bool rm);              //!< Event handler; toggle replay mode.
+    bool              Intersects(Actor* actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
     /// Virtually moves the actor at most 'direction.length()' meters towards 'direction' trying to resolve any collisions
     /// Returns a minimal offset by which the actor needs to be moved to resolve any collisions
     Ogre::Vector3     calculateCollisionOffset(Ogre::Vector3 direction);
