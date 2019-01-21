@@ -2080,6 +2080,7 @@ bool SimController::SetupGameplayLoop()
         {
             String filename = m_actor_manager.GetQuicksaveFilename(App::diag_preset_terrain.GetActive());
             App::sim_savegame.SetActive(filename.c_str());
+            App::diag_preset_terrain.SetActive("");
         }
         m_actor_manager.LoadScene(App::sim_savegame.GetActive());
     } else if (!App::diag_preset_terrain.IsActiveEmpty())
