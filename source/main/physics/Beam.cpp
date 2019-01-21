@@ -1472,6 +1472,7 @@ void Actor::SyncReset(bool reset_position)
     ar_fusedrag = Vector3::ZERO;
     m_blink_type = BLINK_NONE;
     ar_parking_brake = false;
+    ar_trailer_parking_brake = false;
     ar_avg_wheel_speed = 0.0f;
     ar_wheel_speed = 0.0f;
     ar_wheel_spin = 0.0f;
@@ -4387,6 +4388,7 @@ Actor::Actor(
     , m_net_reverse_light(false)
     , m_replay_pos_prev(-1)
     , ar_parking_brake(false)
+    , ar_trailer_parking_brake(false)
     , m_avg_node_position(rq.asr_position)
     , m_previous_gear(0)
     , m_ref_tyre_pressure(50.0)

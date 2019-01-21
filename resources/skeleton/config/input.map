@@ -254,6 +254,7 @@ TRUCK_LIGHTTOGGLE9             Keyboard             EXPL+CTRL+9
 TRUCK_LIGHTTOGGLE10            Keyboard             EXPL+CTRL+0 
 TRUCK_MANUAL_CLUTCH            Keyboard             LSHIFT 
 TRUCK_PARKING_BRAKE            Keyboard             P 
+TRUCK_TRAILER_PARKING_BRAKE    Keyboard             V
 TRUCK_SHIFT_DOWN               Keyboard             Z 
 TRUCK_SHIFT_NEUTRAL            Keyboard             D 
 TRUCK_SHIFT_UP                 Keyboard             A 

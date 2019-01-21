@@ -1190,6 +1190,14 @@ void SimController::UpdateInputEvents(float dt)
                         }
                     }
 
+                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TRAILER_PARKING_BRAKE))
+                    {
+                        if (m_player_actor->ar_driveable == TRUCK)
+                            m_player_actor->ar_trailer_parking_brake = !m_player_actor->ar_trailer_parking_brake;
+                        else if (m_player_actor->ar_driveable == NOT_DRIVEABLE)
+                            m_player_actor->ToggleParkingBrake();
+                    }
+
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_VIDEOCAMERA, 0.5f))
                     {
                         if (m_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_DISABLED)

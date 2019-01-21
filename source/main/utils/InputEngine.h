@@ -310,6 +310,7 @@ enum events
     EV_TRUCK_LIGHTTOGGLE10, //!< toggle custom light 10
     EV_TRUCK_MANUAL_CLUTCH, //!< manual clutch (for manual transmission)
     EV_TRUCK_PARKING_BRAKE, //!< toggle parking brake
+    EV_TRUCK_TRAILER_PARKING_BRAKE, //!< toggle trailer parking brake
     EV_TRUCK_RIGHT_MIRROR_LEFT,
     EV_TRUCK_RIGHT_MIRROR_RIGHT,
     EV_TRUCK_SHIFT_DOWN, //!< shift one gear down in manual transmission mode
