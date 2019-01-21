@@ -26,13 +26,15 @@
 
 using namespace Ogre;
 
-void PointColDetector::UpdateIntraPoint()
+void PointColDetector::UpdateIntraPoint(bool contactables)
 {
-    if (m_actor->ar_num_contacters != m_object_list_size)
+    int contacters_size = contactables ? m_actor->ar_num_contactable_nodes : m_actor->ar_num_contacters;
+
+    if (contacters_size != m_object_list_size)
     {
         m_collision_partners = {m_actor};
-        m_object_list_size = m_actor->ar_num_contacters;
-        update_structures_for_contacters();
+        m_object_list_size = contacters_size;
+        update_structures_for_contacters(contactables);
     }
 
     m_kdtree[0].ref = NULL;
@@ -76,7 +78,7 @@ void PointColDetector::UpdateInterPoint(bool ignorestate)
     {
         m_collision_partners = collision_partners;
         m_object_list_size = contacters_size;
-        update_structures_for_contacters();
+        update_structures_for_contacters(false);
     }
 
     m_kdtree[0].ref = NULL;
@@ -84,7 +86,7 @@ void PointColDetector::UpdateInterPoint(bool ignorestate)
     m_kdtree[0].end = -m_object_list_size;
 }
 
-void PointColDetector::update_structures_for_contacters()
+void PointColDetector::update_structures_for_contacters(bool ignoreinternal)
 {
     m_ref_list.resize(m_object_list_size);
     m_pointid_list.resize(m_object_list_size);
@@ -94,7 +96,7 @@ void PointColDetector::update_structures_for_contacters()
     for (auto actor : m_collision_partners)
     {
         bool is_linked = std::find(m_linked_actors.begin(), m_linked_actors.end(), actor) != m_linked_actors.end();
-        bool internal_collision = (actor == m_actor) || is_linked;
+        bool internal_collision = !ignoreinternal && ((actor == m_actor) || is_linked);
         for (int i = 0; i < actor->ar_num_nodes; i++)
         {
             if (actor->ar_nodes[i].nd_contacter || (!internal_collision && actor->ar_nodes[i].nd_contactable))
