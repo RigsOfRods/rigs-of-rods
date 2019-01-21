@@ -128,6 +128,16 @@ void RoR::SkinManager::ParseSkinAttribute(const std::string& line, SkinDef* skin
     if (attrib == "name"            && params.size() >= 2) { skin_def->name = params[1]; Ogre::StringUtil::trim(skin_def->name); return; }
 }
 
+RoR::SkinDef* RoR::SkinManager::GetSkin(std::string name)
+{
+    auto search = m_skins.find(name);
+    if (search != m_skins.end())
+    {
+        return search->second;
+    }
+    return nullptr;
+}
+
 void RoR::SkinManager::GetUsableSkins(std::string guid, std::vector<SkinDef *> &out_skins)
 {
     Ogre::StringUtil::toLowerCase(guid);
