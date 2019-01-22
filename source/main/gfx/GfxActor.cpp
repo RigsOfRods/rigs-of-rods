@@ -1892,7 +1892,7 @@ void RoR::GfxActor::UpdateWheelVisuals()
 
     for (WheelGfx& w: m_wheels)
     {
-        if ((w.wx_scenenode != nullptr) && w.wx_flex_mesh->flexitPrepare())
+        if (w.wx_flex_mesh != nullptr && w.wx_flex_mesh->flexitPrepare())
         {
             auto func = std::function<void()>([this, w]()
                 {
@@ -1912,7 +1912,7 @@ void RoR::GfxActor::FinishWheelUpdates()
     }
     for (WheelGfx& w: m_wheels)
     {
-        if (w.wx_scenenode != nullptr)
+        if (w.wx_scenenode != nullptr && w.wx_flex_mesh != nullptr)
         {
             w.wx_scenenode->setPosition(w.wx_flex_mesh->flexitFinal());
         }
