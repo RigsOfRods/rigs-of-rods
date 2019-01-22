@@ -778,7 +778,7 @@ void SimController::UpdateInputEvents(float dt)
         m_character_factory.update(dt);
         if (!this->AreControlsLocked())
         {
-            if (m_player_actor) // we are in a vehicle
+            if (m_player_actor && m_player_actor->ar_sim_state != Actor::SimState::NETWORKED_OK) // we are in a vehicle
             {
                 if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_PHYSICS))
                 {
