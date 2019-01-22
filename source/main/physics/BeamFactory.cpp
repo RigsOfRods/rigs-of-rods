@@ -1290,6 +1290,17 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(const char* filename, 
     }
 }
 
+std::vector<Actor*> ActorManager::GetLocalActors()
+{
+    std::vector<Actor*> actors;
+    for (auto actor : m_actors)
+    {
+        if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK && actor->ar_sim_state != Actor::SimState::INVALID)
+            actors.push_back(actor);
+    }
+    return actors;
+}
+
 ActorSpawnRequest::ActorSpawnRequest()
     : asr_position(Ogre::Vector3::ZERO)
     , asr_rotation(Ogre::Quaternion::ZERO)

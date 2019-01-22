@@ -93,6 +93,7 @@ public:
     bool           SaveScene(Ogre::String filename);
 
     std::vector<Actor*> GetActors() const                  { return m_actors; };
+    std::vector<Actor*> GetLocalActors();
 
     // A list of all beams interconnecting two actors
     std::map<beam_t*, std::pair<Actor*, Actor*>> inter_actor_links;
