@@ -220,6 +220,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         DrawGCheckbox(App::mp_chat_auto_hide,     "Auto hide chat");
         DrawGCheckbox(App::mp_hide_net_labels,    "Hide net labels");
         DrawGCheckbox(App::mp_hide_own_net_label, "Hide own net label");
+        DrawGCheckbox(App::mp_pseudo_collisions,  "Multiplayer collisions");
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
         ImGui::Separator();

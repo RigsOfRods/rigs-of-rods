@@ -1102,7 +1102,8 @@ void ActorManager::UpdatePhysicsSimulation()
             std::vector<std::function<void()>> tasks;
             for (auto actor : m_actors)
             {
-                if (actor->ar_update_physics && actor->m_inter_point_col_detector != nullptr)
+                if (actor->m_inter_point_col_detector != nullptr && (actor->ar_update_physics ||
+                        (App::mp_pseudo_collisions.GetActive() && actor->ar_sim_state == Actor::SimState::NETWORKED_OK)))
                 {
                     auto func = std::function<void()>([this, actor]()
                         {
