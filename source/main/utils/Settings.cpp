@@ -522,6 +522,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::mp_chat_auto_hide,         k, v)) { return true; }
     if (CheckBool (App::mp_hide_net_labels,        k, v)) { return true; }
     if (CheckBool (App::mp_hide_own_net_label,     k, v)) { return true; }
+    if (CheckBool (App::mp_pseudo_collisions,      k, v)) { return true; }
     if (CheckStr  (App::mp_player_name,            k, v)) { return true; }
     if (CheckStr  (App::mp_server_host,            k, v)) { return true; }
     if (CheckInt  (App::mp_server_port,            k, v)) { return true; }
@@ -799,6 +800,7 @@ void Settings::SaveSettings()
     WriteYN  (f, App::mp_chat_auto_hide);
     WriteYN  (f, App::mp_hide_net_labels);
     WriteYN  (f, App::mp_hide_own_net_label);
+    WriteYN  (f, App::mp_pseudo_collisions);
     WriteStr (f, App::mp_player_name);
     WriteStr (f, App::mp_server_host);
     WritePod (f, App::mp_server_port);

@@ -109,6 +109,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<bool>          mp_chat_auto_hide       ("mp_chat_auto_hide",       "ChatAutoHide",              true);
  GVarPod_A<bool>          mp_hide_net_labels      ("mp_hide_net_labels",      "HideNetLabels",             false);
  GVarPod_A<bool>          mp_hide_own_net_label   ("mp_hide_own_net_label",   "HideOwnNetLabel",           true);
+ GVarPod_A<bool>          mp_pseudo_collisions    ("mp_pseudo_collisions",    "Multiplayer Collisions",    false);
  GVarStr_AP<200>          mp_server_host          ("mp_server_host",          "Server name",               "",                      "");
  GVarPod_A<int>           mp_server_port          ("mp_server_port",          "Server port",               0);
  GVarStr_APS<100>         mp_server_password      ("mp_server_password",      "Server password",           "",                      "",         "");

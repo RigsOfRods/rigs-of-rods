@@ -683,6 +683,7 @@ extern GVarPod_A<bool>         mp_join_on_startup;
 extern GVarPod_A<bool>         mp_chat_auto_hide;
 extern GVarPod_A<bool>         mp_hide_net_labels;
 extern GVarPod_A<bool>         mp_hide_own_net_label;
+extern GVarPod_A<bool>         mp_pseudo_collisions;
 extern GVarStr_AP<200>         mp_server_host;
 extern GVarPod_A<int>          mp_server_port;
 extern GVarStr_APS<100>        mp_server_password;
