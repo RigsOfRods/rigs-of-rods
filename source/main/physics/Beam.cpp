@@ -885,14 +885,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
     if (direction == Vector3::ZERO)
         return Vector3::ZERO;
 
-    Real max_distance = direction.length();
-    direction.normalise();
-
-    if (m_intra_point_col_detector)
-        m_intra_point_col_detector->UpdateIntraPoint(true);
-
-    if (m_inter_point_col_detector)
-        m_inter_point_col_detector->UpdateInterPoint(true);
+    Real max_distance = direction.normalise();
 
     // collision displacement
     Vector3 collision_offset = Vector3::ZERO;
@@ -927,11 +920,8 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
                         nb->AbsPosition - collision_offset,
                         actor->ar_collision_range * 3.0f);
 
-                    if (!m_intra_point_col_detector->hit_list.empty())
-                    {
-                        collision = true;
+                    if (collision = !m_intra_point_col_detector->hit_list.empty())
                         break;
-                    }
                 }
 
                 if (collision)
@@ -953,11 +943,8 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
                     if (!actor->ar_nodes[j].nd_contacter && !actor->ar_nodes[j].nd_contactable)
                         continue;
 
-                    if (query_position.squaredDistance(actor->ar_nodes[j].AbsPosition) < proximity)
-                    {
-                        collision = true;
+                    if (collision = query_position.squaredDistance(actor->ar_nodes[j].AbsPosition) < proximity)
                         break;
-                    }
                 }
 
                 if (collision)
@@ -983,14 +970,12 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
                     nb->AbsPosition + collision_offset,
                     ar_collision_range * 3.0f);
 
-                if (!m_inter_point_col_detector->hit_list.empty())
-                {
-                    collision = true;
+                if (collision = !m_inter_point_col_detector->hit_list.empty())
                     break;
-                }
             }
         }
 
+        // Test beams (between contactable nodes) against cabs
         if (!collision)
         {
             for (auto actor : App::GetSimController()->GetActors())
@@ -1013,6 +998,12 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
 
 void Actor::resolveCollisions(Vector3 direction)
 {
+    if (m_intra_point_col_detector)
+        m_intra_point_col_detector->UpdateIntraPoint(true);
+
+    if (m_inter_point_col_detector)
+        m_inter_point_col_detector->UpdateInterPoint(true);
+
     Vector3 offset = calculateCollisionOffset(direction);
 
     if (offset == Vector3::ZERO)
@@ -1026,29 +1017,31 @@ void Actor::resolveCollisions(Vector3 direction)
 
 void Actor::resolveCollisions(float max_distance, bool consider_up)
 {
-    Vector3 offset = Vector3::ZERO;
+    if (m_intra_point_col_detector)
+        m_intra_point_col_detector->UpdateIntraPoint(true);
 
-    Vector3 f = max_distance * Vector3(getDirection().x, 0.0f, getDirection().z).normalisedCopy();
-    Vector3 l = max_distance * Vector3(-sin(getRotation() + Math::HALF_PI), 0.0f, cos(getRotation() + Math::HALF_PI));
-    Vector3 u = max_distance * Vector3::UNIT_Y;
+    if (m_inter_point_col_detector)
+        m_inter_point_col_detector->UpdateInterPoint(true);
+
+    Vector3 u = Vector3::UNIT_Y;
+    Vector3 f = Vector3(getDirection().x, 0.0f, getDirection().z).normalisedCopy();
+    Vector3 l = u.crossProduct(f);
 
     // Calculate an ideal collision avoidance direction (prefer left over right over [front / back / up])
+    Vector3 left  = calculateCollisionOffset(+l * max_distance);
+    Vector3 right = calculateCollisionOffset(-l * left.length());
+    Vector3 lateral = left.length() < right.length() * 1.1f ? left : right;
 
-    Vector3 front = calculateCollisionOffset(+f);
-    Vector3 back = calculateCollisionOffset(-f);
-    Vector3 left = calculateCollisionOffset(+l);
-    Vector3 right = calculateCollisionOffset(-l);
+    Vector3 front = calculateCollisionOffset(+f * lateral.length());
+    Vector3 back  = calculateCollisionOffset(-f * front.length());
+    Vector3 sagittal = front.length() < back.length() * 1.1f ? front : back;
 
-    offset = front.length() < back.length() * 1.2f ? front : back;
-
-    Vector3 side = left.length() < right.length() * 1.1f ? left : right;
-    if (side.length() < offset.length() + m_min_camera_radius / 2.0f)
-        offset = side;
+    Vector3 offset = lateral.length() < sagittal.length() * 1.2f ? lateral : sagittal;
 
     if (consider_up)
     {
-        Vector3 up = calculateCollisionOffset(+u);
-        if (up.length() < offset.length())
+        Vector3 up = calculateCollisionOffset(+u * offset.length());
+        if (up.length() * 1.2f < offset.length())
             offset = up;
     }
 
