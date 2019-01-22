@@ -58,7 +58,10 @@ Ogre::String ActorManager::GetQuicksaveFilename(Ogre::String terrain_name)
     {
         terrain_name = App::sim_terrain_name.GetActive();
     }
-    return String("quicksave_") + StringUtil::replaceAll(terrain_name, ".terrn2", "") + String(".sav");
+
+    String mp = (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED) ? "_mp" : "";
+
+    return "quicksave_" + StringUtil::replaceAll(terrain_name, ".terrn2", "") + mp + ".sav";
 }
 
 Ogre::String ActorManager::ExtractSceneName(Ogre::String filename)
@@ -77,15 +80,6 @@ Ogre::String ActorManager::ExtractSceneName(Ogre::String filename)
 
 bool ActorManager::LoadScene(Ogre::String filename)
 {
-    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
-    {
-        if (filename != "autosave.sav")
-        {
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Savegames are not available in multiplayer"));
-        }
-        return false;
-    }
-
     // Read from disk
     String path = PathCombine(App::sys_savegames_dir.GetActive(), filename);
     RoR::LogFormat("[RoR|Savegame] Reading savegame from file '%s' ...", path.c_str());
@@ -111,6 +105,22 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
     // Terrain
     String terrain_name = j_doc["terrain_name"].GetString();
+
+    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+    {
+        if (filename == "autosave.sav")
+            return false;
+        if (terrain_name != App::sim_terrain_name.GetActive())
+        {
+            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Error while loading scene: Terrain mismatch"));
+            return false;
+        }
+        if (j_doc["actors"].GetArray().Size() > 3)
+        {
+            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Error while loading scene: Too many vehicles"));
+            return false;
+        }
+    }
 
     if (terrain_name != App::sim_terrain_name.GetActive() || App::sim_state.GetActive() != SimState::RUNNING)
     {
@@ -152,6 +162,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
     App::GetSimController()->SetPrevPlayerActorInternal(nullptr);
 
     std::vector<Actor*> actors;
+    std::vector<Actor*> x_actors = GetLocalActors();
     for (rapidjson::Value& j_entry: j_doc["actors"].GetArray())
     {
         Actor* actor = nullptr;
@@ -169,20 +180,20 @@ bool ActorManager::LoadScene(Ogre::String filename)
             actor_config.push_back(j_config.GetString());
         }
 
-        if (index < m_actors.size())
+        if (index < x_actors.size())
         {
-            if (j_entry["filename"].GetString() != m_actors[index]->ar_filename || skin != m_actors[index]->m_used_skin ||
-                    actor_config != m_actors[index]->getActorConfig())
+            if (j_entry["filename"].GetString() != x_actors[index]->ar_filename || skin != x_actors[index]->m_used_skin ||
+                    actor_config != x_actors[index]->getActorConfig())
             {
-                if (m_actors[index] == App::GetSimController()->GetPlayerActor())
+                if (x_actors[index] == App::GetSimController()->GetPlayerActor())
                 {
                     App::GetSimController()->ChangePlayerActor(nullptr);
                 }
-                App::GetSimController()->RemoveActorDirectly(m_actors[index]);
+                App::GetSimController()->RemoveActorDirectly(x_actors[index]);
             }
             else
             {
-                actor = m_actors[index];
+                actor = x_actors[index];
                 actor->SyncReset(false);
             }
         }
@@ -206,13 +217,13 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
         actors.push_back(actor);
     }
-    for (int index = actors.size(); index < m_actors.size(); index++)
+    for (int index = actors.size(); index < x_actors.size(); index++)
     {
-        if (m_actors[index] == App::GetSimController()->GetPlayerActor())
+        if (x_actors[index] == App::GetSimController()->GetPlayerActor())
         {
             App::GetSimController()->ChangePlayerActor(nullptr);
         }
-        App::GetSimController()->RemoveActorDirectly(m_actors[index]);
+        App::GetSimController()->RemoveActorDirectly(x_actors[index]);
     }
 
     for (int index = 0; index < j_doc["actors"].Size(); index++)
@@ -470,13 +481,17 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
 bool ActorManager::SaveScene(Ogre::String filename)
 {
+    std::vector<Actor*> x_actors = GetLocalActors();
+
     if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
-        if (filename != "autosave.sav")
+        if (filename == "autosave.sav")
+            return false;
+        if (x_actors.size() > 3)
         {
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Savegames are not available in multiplayer"));
+            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Error while saving scene: Too many vehicles"));
+            return false;
         }
-        return false;
     }
 
     rapidjson::Document j_doc;
@@ -485,7 +500,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
     // Pretty name
     String pretty_name = App::GetCacheSystem()->getPrettyName(App::sim_terrain_name.GetActive());
-    String scene_name = StringUtil::format("%s [%d]", pretty_name.c_str(), m_actors.size());
+    String scene_name = StringUtil::format("%s [%d]", pretty_name.c_str(), x_actors.size());
     j_doc.AddMember("scene_name", rapidjson::StringRef(scene_name.c_str()), j_doc.GetAllocator());
 
     // Terrain
@@ -512,7 +527,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
     // Actors
     rapidjson::Value j_actors(rapidjson::kArrayType);
-    for (auto actor : m_actors)
+    for (auto actor : x_actors)
     {
         rapidjson::Value j_entry(rapidjson::kObjectType);
 
