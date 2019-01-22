@@ -2074,6 +2074,23 @@ bool SimController::SetupGameplayLoop()
     // Loading map
     // ============================================================================
 
+    // Terrain name lookup
+    if (!App::diag_preset_terrain.IsActiveEmpty())
+    {
+        String name = App::diag_preset_terrain.GetActive();
+        StringUtil::toLowerCase(name);
+        for (const auto& entry : *App::GetCacheSystem()->getEntries())
+        {
+            String fname = entry.fname_without_uid;
+            StringUtil::toLowerCase(fname);
+            if (entry.fext == "terrn2" && fname.find(name) != std::string::npos) 
+            {
+                App::diag_preset_terrain.SetActive(entry.fname.c_str());
+                break;
+            }
+        }
+    }
+
     if (App::sim_load_savegame.GetActive())
     {
         if (!App::diag_preset_terrain.IsActiveEmpty())
@@ -2117,6 +2134,20 @@ bool SimController::SetupGameplayLoop()
 
     if (!App::diag_preset_vehicle.IsActiveEmpty())
     {
+        // Vehicle name lookup
+        String name = App::diag_preset_vehicle.GetActive();
+        StringUtil::toLowerCase(name);
+        for (const auto& entry : *App::GetCacheSystem()->getEntries())
+        {
+            String fname = entry.fname_without_uid;
+            StringUtil::toLowerCase(fname);
+            if (entry.fext != "terrn2" && fname.find(name) != std::string::npos) 
+            {
+                App::diag_preset_vehicle.SetActive(entry.fname.c_str());
+                break;
+            }
+        }
+
         RoR::LogFormat("[RoR|Diag] Preselected Truck: %s", App::diag_preset_vehicle.GetActive());
         if (!App::diag_preset_veh_config.IsActiveEmpty())
         {
