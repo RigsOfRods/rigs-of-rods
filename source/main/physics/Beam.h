@@ -113,9 +113,6 @@ public:
     void              ToggleBeacons();                     //!< Event handler
     void              setReplayMode(bool rm);              //!< Event handler; toggle replay mode.
     bool              Intersects(Actor* actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
-    /// Virtually moves the actor at most 'direction.length()' meters towards 'direction' trying to resolve any collisions
-    /// Returns a minimal offset by which the actor needs to be moved to resolve any collisions
-    Ogre::Vector3     calculateCollisionOffset(Ogre::Vector3 direction);
     /// Moves the actor at most 'direction.length()' meters towards 'direction' to resolve any collisions
     void              resolveCollisions(Ogre::Vector3 direction);
     /// Auto detects an ideal collision avoidance direction (front, back, left, right, up)
@@ -412,6 +409,10 @@ private:
     void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
     void              ResetAngle(float rot);
     void              calculateLocalGForces();             //!< Derive the truck local g-forces from the global ones
+    /// Virtually moves the actor at most 'direction.length()' meters towards 'direction' trying to resolve any collisions
+    /// Returns a minimal offset by which the actor needs to be moved to resolve any collisions
+    //  Both PointColDetectors need to be updated accordingly before calling this
+    Ogre::Vector3     calculateCollisionOffset(Ogre::Vector3 direction);
     /// @param actor which actor to retrieve the closest Rail from
     /// @param node which SlideNode is being checked against
     /// @return a pair containing the rail, and the distant to the SlideNode
