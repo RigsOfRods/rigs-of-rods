@@ -178,6 +178,8 @@ private:
 
     float                    m_pressure_pressed_timer;
 
+    bool                     m_screenshot_request;
+
     Ogre::Vector3            m_reload_pos;
     Ogre::Quaternion         m_reload_dir;
 

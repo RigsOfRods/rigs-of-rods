@@ -120,6 +120,7 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_race_start_time(0),
     m_reload_dir(Quaternion::IDENTITY),
     m_reload_pos(Vector3::ZERO),
+    m_screenshot_request(false),
     m_stats_on(0),
     m_time(0),
     m_time_until_next_toggle(0),
@@ -331,7 +332,7 @@ void SimController::UpdateInputEvents(float dt)
         gui_man->SetVisible_ChatBox(true);
     }
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.25f))
+    if (m_screenshot_request)
     {
         std::time_t t = std::time(nullptr);
         std::stringstream date;
@@ -358,12 +359,6 @@ void SimController::UpdateInputEvents(float dt)
         fn_name = fn_name + TOSTRING(m_last_screenshot_id);
 
         String tmpfn = fn_prefix + fn_name + fn_suffix;
-
-        RoR::App::GetGuiManager()->HideNotification();
-        RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
-        RoR::App::GetOgreSubsystem()->GetRenderWindow()->update();
-
-        // TODO: Find a way to show ImGUI on the screenshot
 
         if (std::strcmp(App::app_screenshot_format.GetActive(), "png") == 0)
         {
@@ -408,6 +403,16 @@ void SimController::UpdateInputEvents(float dt)
         LOG(ssmsg);
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "camera.png", 10000, false);
         RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
+
+        m_screenshot_request = false;
+    }
+
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.25f))
+    {
+        // Nasty workaround to avoid calling 'GetRenderWindow()->update()' which overwrites the (ImGUI) skeleton view
+        m_screenshot_request = true;
+        RoR::App::GetGuiManager()->HideNotification();
+        RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
     }
 
     if ((m_player_actor != nullptr) &&
