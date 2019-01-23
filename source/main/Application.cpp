@@ -141,6 +141,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<bool>          diag_simple_materials   ("diag_simple_materials",    "SimpleMaterials",          false);
  GVarPod_A<bool>          diag_warning_texture    ("diag_warning_texture",    "Warning texture",           false);
  GVarPod_A<bool>          diag_hide_broken_beams  ("diag_hide_broken_beams",  "Hide broken beams",         false);
+ GVarPod_A<bool>          diag_hide_wheel_nb_info ("diag_hide_wheel_nb_info", "Hide wheel n/b info",       false);
  GVarPod_A<float>         diag_physics_dt         ("diag_physics_dt",          "PhysicsTimeStep",          0.0005f);
 
 // System                                         (all paths are without ending slash!)
@@ -196,8 +197,11 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<int>           gfx_shadow_quality      ("gfx_shadow_quality",      "Shadows Quality",           2);
  GVarPod_A<int>           gfx_skidmarks_mode      ("gfx_skidmarks_mode",      "Skidmarks",                 0);
  GVarPod_A<int>           gfx_sight_range         ("gfx_sight_range",         "SightRange",                3000); // Previously either 2000 or 4500 (inconsistent)
+ GVarPod_A<int>           gfx_camera_height       ("gfx_camera_height",       "Static camera height",      5);
  GVarPod_APS<int>         gfx_fov_external        ("gfx_fov_external",        "FOV External",              60,                      60,     60);
  GVarPod_APS<int>         gfx_fov_internal        ("gfx_fov_internal",        "FOV Internal",              75,                      75,     75);
+ GVarPod_A<float>         gfx_static_cam_fov_exp  ("gfx_static_cam_fov_exp",  nullptr,                     1.f);
+ GVarPod_A<bool>          gfx_fixed_cam_tracking  ("gfx_fixed_cam_tracking",  nullptr,                     false);
  GVarPod_A<int>           gfx_fps_limit           ("gfx_fps_limit",           "FPS-Limiter",               0); // 0 = unlimited
  GVarPod_A<bool>          gfx_speedo_digital      ("gfx_speedo_digital",      "DigitalSpeedo",             true);
  GVarPod_A<bool>          gfx_speedo_imperial     ("gfx_speedo_imperial",     "gfx_speedo_imperial",       false);

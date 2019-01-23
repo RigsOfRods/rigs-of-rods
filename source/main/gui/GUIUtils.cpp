@@ -135,7 +135,7 @@ void RoR::DrawGFloatBox(GVarPod_A<float>& gvar, const char* label)
 
 void RoR::DrawGFloatBox(GVarPod_APS<float>& gvar, const char* label)
 {
-    float fval = gvar.GetStored();
+    float fval = gvar.GetActive();
     if (ImGui::InputFloat(label, &fval, 0.f, 0.f, -1, ImGuiInputTextFlags_EnterReturnsTrue))
     {
         gvar.SetActive(fval);

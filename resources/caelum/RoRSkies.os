@@ -1,7 +1,7 @@
 caelum_sky_system ror_default_sky
 {
     // J2000
-    julian_day 2451545.0
+    julian_day 0
     time_scale 1
 
     point_starfield {

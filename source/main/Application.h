@@ -715,6 +715,7 @@ extern GVarPod_A<bool>         diag_log_beam_trigger;
 extern GVarPod_A<bool>         diag_simple_materials;
 extern GVarPod_A<bool>         diag_warning_texture;
 extern GVarPod_A<bool>         diag_hide_broken_beams;
+extern GVarPod_A<bool>         diag_hide_wheel_nb_info;
 extern GVarPod_A<float>        diag_physics_dt;
 
 // System
@@ -770,8 +771,11 @@ extern GVarPod_A<int>          gfx_envmap_rate;
 extern GVarPod_A<int>          gfx_shadow_quality;
 extern GVarPod_A<int>          gfx_skidmarks_mode;
 extern GVarPod_A<int>          gfx_sight_range;
+extern GVarPod_A<int>          gfx_camera_height;
 extern GVarPod_APS<int>        gfx_fov_external;
 extern GVarPod_APS<int>        gfx_fov_internal;
+extern GVarPod_A<float>        gfx_static_cam_fov_exp;
+extern GVarPod_A<bool>         gfx_fixed_cam_tracking;
 extern GVarPod_A<int>          gfx_fps_limit;
 extern GVarPod_A<bool>         gfx_speedo_digital;
 extern GVarPod_A<bool>         gfx_speedo_imperial;

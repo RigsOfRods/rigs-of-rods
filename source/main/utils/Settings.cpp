@@ -575,6 +575,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckB2I  (App::gfx_skidmarks_mode,        k, v)) { return true; }
     if (CheckBool (App::gfx_envmap_enabled,        k, v)) { return true; }
     if (CheckInt  (App::gfx_sight_range,           k, v)) { return true; }
+    if (CheckInt  (App::gfx_camera_height,         k, v)) { return true; }
     if (CheckFOV  (App::gfx_fov_external,          k, v)) { return true; }
     if (CheckFOV  (App::gfx_fov_internal,          k, v)) { return true; }
     if (CheckInt  (App::gfx_fps_limit,             k, v)) { return true; }
@@ -609,6 +610,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::diag_simple_materials,     k, v)) { return true; }
     if (CheckBool (App::diag_warning_texture,      k, v)) { return true; }
     if (CheckBool (App::diag_hide_broken_beams,    k, v)) { return true; }
+    if (CheckBool (App::diag_hide_wheel_nb_info,   k, v)) { return true; }
     if (CheckFloat(App::diag_physics_dt,           k, v)) { return true; }
     // Sim
     if (CheckSimGearboxMode                       (k, v)) { return true; }
@@ -857,6 +859,7 @@ void Settings::SaveSettings()
     WritePod (f, App::gfx_envmap_rate     );
     WritePod (f, App::gfx_shadow_quality  );
     WritePod (f, App::gfx_sight_range     );
+    WritePod (f, App::gfx_camera_height   );
     WritePod (f, App::gfx_fps_limit       );
     WritePod (f, App::gfx_fov_external    );
     WritePod (f, App::gfx_fov_internal    );
@@ -892,6 +895,7 @@ void Settings::SaveSettings()
     WriteYN  (f, App::diag_simple_materials   );
     WriteYN  (f, App::diag_warning_texture    );
     WriteYN  (f, App::diag_hide_broken_beams  );
+    WriteYN  (f, App::diag_hide_wheel_nb_info );
     WritePod (f, App::diag_physics_dt         );
 
     f << std::endl << "; Application"<< std::endl;
