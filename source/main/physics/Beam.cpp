@@ -412,13 +412,8 @@ void Actor::CalcNetwork()
 {
     using namespace RoRnet;
 
-    if (m_net_update_counter < 1)
+    if (m_net_update_counter < 2)
         return;
-
-    if (m_net_update_counter == 1)
-    {
-        memcpy((char*)oob1, oob2, sizeof(RoRnet::VehicleState));
-    }
 
     // we must update Nodes positions from available network informations
     int tnow = ar_net_timer.getMilliseconds();
@@ -477,13 +472,15 @@ void Actor::CalcNetwork()
         }
 
         // linear interpolation
-        ar_nodes[i].AbsPosition = p1 + tratio * (p2 - p1);
+        ar_nodes[i].AbsPosition = p1 + tratio * (p2 - p1) + ar_net_offset;
         ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
         ar_nodes[i].Velocity    = (p2 - p1) * 1000.0f / (float)(oob2->time - oob1->time);
 
         apos += ar_nodes[i].AbsPosition;
     }
     m_avg_node_position = apos / m_net_first_wheel_node;
+
+    ar_net_offset = ar_net_offset * 0.9f + (p2ref - p1ref) * 0.1f;
 
     for (int i = 0; i < ar_num_wheels; i++)
     {
@@ -4435,6 +4432,7 @@ Actor::Actor(
     , m_inter_point_col_detector(nullptr)
     , m_intra_point_col_detector(nullptr)
     , ar_net_last_update_time(0)
+    , ar_net_offset(Ogre::Vector3::ZERO)
     , m_avg_node_position_prev(rq.asr_position)
     , ar_left_mirror_angle(0.52)
     , ar_lights(1)

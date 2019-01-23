@@ -338,6 +338,7 @@ public:
     std::map<int,int> ar_net_stream_results;
     Ogre::Timer       ar_net_timer;
     unsigned long     ar_net_last_update_time;
+    Ogre::Vector3     ar_net_offset;
     DashBoardManager* ar_dashboard;
     SimState          ar_sim_state;                   //!< Sim state
     float             ar_collision_range;             //!< Physics attr
