@@ -158,7 +158,7 @@ Turboprop::~Turboprop()
 
     if (smokePS != nullptr)
     {
-        delete smokePS;
+        smokePS->removeAllEmitters();
     }
 }
 
