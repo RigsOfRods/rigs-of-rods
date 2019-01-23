@@ -329,6 +329,7 @@ void RoR::GUI::GameSettings::Draw()
             "Static\0"
             "Pitching\0\0");
 
+        DrawGIntSlider(App::gfx_camera_height, _LC("GameSettings", "Static camera height (meters)"), 1, 50);
         DrawGIntSlider(App::gfx_fov_external, _LC("GameSettings", "Exterior field of view"), 10, 120);
         DrawGIntSlider(App::gfx_fov_internal, _LC("GameSettings", "Interior field of view"), 10, 120);
     }
@@ -356,6 +357,7 @@ void RoR::GUI::GameSettings::Draw()
         DrawGCheckbox(App::diag_videocameras,        _LC("GameSettings", "Debug videocameras"));
         DrawGCheckbox(App::diag_warning_texture,     _LC("GameSettings", "Debug textures"));
         DrawGCheckbox(App::diag_hide_broken_beams,   _LC("GameSettings", "Hide broken beams"));
+        DrawGCheckbox(App::diag_hide_wheel_nb_info,  _LC("GameSettings", "Hide wheel n/b info"));
         DrawGCheckbox(App::diag_log_console_echo,    _LC("GameSettings", "Echo log to console"));
         DrawGCheckbox(App::diag_log_beam_break,      _LC("GameSettings", "Log beam breaking"));
         DrawGCheckbox(App::diag_log_beam_deform,     _LC("GameSettings", "Log beam deforming"));

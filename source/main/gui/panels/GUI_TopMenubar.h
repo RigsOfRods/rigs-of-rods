@@ -44,9 +44,9 @@ public:
     const ImVec4  GREEN_TEXT            = ImVec4(0.0f, 0.9f, 0.0f, 1.f);
     const ImVec4  ORANGE_TEXT           = ImVec4(0.9f, 0.6f, 0.0f, 1.f);
 
-    enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_TOOLS };
+    enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS };
 
-    TopMenubar(): m_open_menu(TopMenu::TOPMENU_NONE), m_confirm_remove_all(false) {}
+    TopMenubar(): m_open_menu(TopMenu::TOPMENU_NONE), m_daytime(0), m_confirm_remove_all(false) {}
 
     void Update();
     bool ShouldDisplay(ImVec2 window_pos);
@@ -59,7 +59,8 @@ private:
     ImVec2  m_open_menu_hoverbox_max;
     TopMenu m_open_menu;
     bool    m_confirm_remove_all;
-    
+
+    float   m_daytime;
     std::vector<std::string> m_savegame_names;
 };
 

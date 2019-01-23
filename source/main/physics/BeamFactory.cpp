@@ -299,7 +299,12 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
         actor->m_net_node_buf_size = sizeof(float) * 3 + (actor->m_net_first_wheel_node - 1) * sizeof(short int) * 3;
         actor->m_net_buffer_size = actor->m_net_node_buf_size + actor->ar_num_wheels * sizeof(float);
 
-        if (rq.asr_origin == ActorSpawnRequest::Origin::NETWORK)
+        if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
+        {
+            // local truck
+            actor->sendStreamSetup();
+        }
+        else
         {
             // remote truck
             actor->ar_sim_state = Actor::SimState::NETWORKED_OK;
@@ -315,15 +320,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
             {
                 actor->ar_engine->StartEngine();
             }
-        }
-        else
-        {
-            // local truck
-            actor->sendStreamSetup();
-        }
 
-        if (!App::mp_hide_net_labels.GetActive() && (rq.asr_origin == ActorSpawnRequest::Origin::NETWORK || !App::mp_hide_own_net_label.GetActive()))
-        {
             RoR::Str<100> element_name;
             ActorSpawner::ComposeName(element_name, "NetLabel", 0, actor->ar_instance_id);
             actor->m_net_label_mt = new MovableText(element_name.ToCStr(), actor->m_net_username);

@@ -207,6 +207,7 @@ public:
         float                       simbuf_tyre_pressure;
         Ogre::AxisAlignedBox        simbuf_aabb;
         std::string                 simbuf_net_username;
+        bool                        simbuf_is_remote;
         int                         simbuf_gear;
         int                         simbuf_autoshift;
         float                       simbuf_wheel_speed;

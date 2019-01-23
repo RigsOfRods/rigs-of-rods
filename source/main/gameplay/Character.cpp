@@ -613,7 +613,7 @@ GfxCharacter* Character::SetupGfx()
     m_gfx_character->xc_instance_name = m_instance_name;
 
 #ifdef USE_SOCKETW
-    if ((App::mp_state.GetActive() == MpState::CONNECTED) && !App::mp_hide_net_labels.GetActive() && (m_is_remote || !App::mp_hide_own_net_label.GetActive()))
+    if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
         m_gfx_character->xc_movable_text = new MovableText("netlabel-" + m_instance_name, "");
         scenenode->attachObject(m_gfx_character->xc_movable_text);
@@ -764,6 +764,12 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
 
         if (xc_movable_text != nullptr)
         {
+            if (App::mp_hide_net_labels.GetActive() || (!xc_simbuf.simbuf_is_remote && App::mp_hide_own_net_label.GetActive()))
+            {
+                xc_movable_text->setVisible(false);
+                return;
+            }
+
             float camDist = (xc_scenenode->getPosition() - gEnv->mainCamera->getPosition()).length();
 
             xc_movable_text->setCaption(xc_simbuf.simbuf_net_username);
@@ -776,6 +782,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
 
             float h = std::max(9.0f, camDist * 1.2f);
             xc_movable_text->setCharacterHeight(h);
+            xc_movable_text->setVisible(true);
         }
     }
 #endif // USE_SOCKETW

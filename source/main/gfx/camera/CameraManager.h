@@ -84,6 +84,7 @@ protected:
     void UpdateCameraBehaviorStatic();
     bool CameraBehaviorStaticMouseMoved(const OIS::MouseEvent& _arg);
     void UpdateCameraBehaviorFree();
+    void UpdateCameraBehaviorFixed();
     void UpdateCameraBehaviorVehicle();
     void CameraBehaviorVehicleReset();
     bool CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);

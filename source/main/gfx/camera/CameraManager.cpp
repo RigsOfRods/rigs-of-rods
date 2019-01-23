@@ -201,6 +201,7 @@ void CameraManager::UpdateCurrentBehavior()
     }
 
     case CAMERA_BEHAVIOR_STATIC:
+        m_staticcam_fov_exponent = App::gfx_static_cam_fov_exp.GetActive();
         this->UpdateCameraBehaviorStatic();
         return;
 
@@ -233,7 +234,7 @@ void CameraManager::UpdateCurrentBehavior()
         return;
     }
     case CAMERA_BEHAVIOR_FREE:            this->UpdateCameraBehaviorFree(); return;
-    case CAMERA_BEHAVIOR_FIXED:           return;
+    case CAMERA_BEHAVIOR_FIXED:           this->UpdateCameraBehaviorFixed(); return;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return;
     case CAMERA_BEHAVIOR_INVALID:         return;
     default:                              return;
@@ -319,6 +320,7 @@ void CameraManager::ResetCurrentBehavior()
 
     case CAMERA_BEHAVIOR_STATIC:
         m_staticcam_fov_exponent = 1.0f;
+        App::gfx_static_cam_fov_exp.SetActive(1.0f);
         return;
 
     case CAMERA_BEHAVIOR_VEHICLE:
@@ -726,10 +728,10 @@ void CameraManager::UpdateCameraBehaviorStatic()
                 {
                     surface_height = std::max(surface_height, water->GetStaticWaterHeight());
                 }
-                pos.y = std::max(pos.y + std::sqrt(radius) * 2.89f, surface_height + 5.0f);
+                pos.y = std::max(pos.y + std::sqrt(radius) * 2.89f, surface_height + App::gfx_camera_height.GetActive());
                 if (!intersectsTerrain(pos, lookAt, lookAtPrediction, interval))
                 {
-                    float hdiff = std::abs(pos.y - lookAt.y - 5.0f);
+                    float hdiff = std::abs(pos.y - lookAt.y - App::gfx_camera_height.GetActive());
                     viable_positions.push_back({hdiff, pos});
                     if (hdiff < 1.0f)
                         break;
@@ -765,6 +767,7 @@ bool CameraManager::CameraBehaviorStaticMouseMoved(const OIS::MouseEvent& _arg)
         float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.00002f : 0.0002f;
         m_staticcam_fov_exponent += ms.Z.rel * scale;
         m_staticcam_fov_exponent = Math::Clamp(m_staticcam_fov_exponent, 0.8f, 1.50f);
+        App::gfx_static_cam_fov_exp.SetActive(m_staticcam_fov_exponent);
         return true;
     }
 
@@ -989,6 +992,15 @@ void CameraManager::UpdateCameraBehaviorFree()
     Vector3 camPosition = gEnv->mainCamera->getPosition() + gEnv->mainCamera->getOrientation() * mTrans.normalisedCopy() * cct_trans_scale;
 
     gEnv->mainCamera->setPosition(camPosition);
+}
+
+void CameraManager::UpdateCameraBehaviorFixed()
+{
+	if (App::gfx_fixed_cam_tracking.GetActive())
+    {
+        Vector3 look_at = m_cct_player_actor ? m_cct_player_actor->getPosition() : gEnv->player->getPosition();
+        gEnv->mainCamera->lookAt(look_at);
+    }
 }
 
 void CameraManager::UpdateCameraBehaviorVehicle()

@@ -29,11 +29,13 @@
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "GUIManager.h"
+#include "GUIUtils.h"
 #include "GUI_MainSelector.h"
-#include "MainMenu.h"
 #include "Network.h"
 #include "PlatformUtils.h"
 #include "RoRFrameListener.h"
+#include "SkyManager.h"
+#include "TerrainManager.h"
 
 #include <algorithm>
 
@@ -48,13 +50,14 @@ void RoR::GUI::TopMenubar::Update()
     int num_playable_actors = std::count_if(actors.begin(), actors.end(), [](Actor* a) {return !a->ar_hide_in_actor_list;});
     actors_title << "Vehicles (" << num_playable_actors << ")";
     const char* savegames_title = "Saves";
+    const char* settings_title = "Settings";
     const char* tools_title = "Tools";
 
-    float panel_target_width = 
-        (ImGui::GetStyle().WindowPadding.x * 2) + (ImGui::GetStyle().FramePadding.x * 2) + // Left+right window padding
+    float panel_target_width = (ImGui::GetStyle().ItemSpacing.x * 10) + // Item spacing
+        (ImGui::GetStyle().WindowPadding.x) + (ImGui::GetStyle().FramePadding.x) + // Left + Right padding
         ImGui::CalcTextSize(sim_title).x + ImGui::CalcTextSize(actors_title.GetBuffer()).x + // Items
-        ImGui::CalcTextSize(savegames_title).x + ImGui::CalcTextSize(tools_title).x +  // Items
-        (ImGui::GetStyle().ItemSpacing.x * 4); // Item spacing
+        ImGui::CalcTextSize(savegames_title).x + ImGui::CalcTextSize(settings_title).x + // Items
+        ImGui::CalcTextSize(tools_title).x; // Items
 
     ImVec2 window_target_pos = ImVec2((ImGui::GetIO().DisplaySize.x/2.f) - (panel_target_width / 2.f), ImGui::GetStyle().WindowPadding.y);
     if (!this->ShouldDisplay(window_target_pos))
@@ -111,6 +114,19 @@ void RoR::GUI::TopMenubar::Update()
             Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
             m_savegame_names.push_back(App::GetSimController()->GetBeamFactory()->ExtractSceneName(filename));
         }
+    }
+
+    ImGui::SameLine();
+
+    // The 'settings' button
+    ImVec2 settings_cursor = ImGui::GetCursorPos();
+    ImGui::Button(settings_title);
+    if ((m_open_menu != TopMenu::TOPMENU_SETTINGS) && ImGui::IsItemHovered())
+    {
+        m_open_menu = TopMenu::TOPMENU_SETTINGS;
+#ifdef USE_CAELUM
+        m_daytime = App::GetSimTerrain()->getSkyManager()->GetTime();
+#endif // USE_CAELUM
     }
 
     ImGui::SameLine();
@@ -332,6 +348,99 @@ void RoR::GUI::TopMenubar::Update()
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() * 2;
+            ImGui::End();
+        }
+        break;
+
+    case TopMenu::TOPMENU_SETTINGS:
+        menu_pos.y = window_pos.y + settings_cursor.y + MENU_Y_OFFSET;
+        menu_pos.x = settings_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
+        ImGui::SetNextWindowPos(menu_pos);
+        if (ImGui::Begin("Settings menu", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+        {
+            ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
+            ImGui::TextColored(GRAY_HINT_TEXT, "Audio:");
+            DrawGFloatSlider(App::audio_master_volume, "Volume", 0, 1);
+            ImGui::Separator();
+            ImGui::TextColored(GRAY_HINT_TEXT, "Frames per second:");
+            if (App::gfx_envmap_enabled.GetActive())
+            {
+                DrawGIntSlider(App::gfx_envmap_rate, "Reflections", 0, 6);
+            }
+            DrawGIntSlider(App::gfx_fps_limit, "Graphics", 0, 240);
+            int physics_fps = std::round(1.0f / App::diag_physics_dt.GetActive());
+            if (ImGui::SliderInt("Physics", &physics_fps, 2000, 10000))
+            {
+                App::diag_physics_dt.SetActive(Ogre::Math::Clamp(1.0f / physics_fps, 0.0001f, 0.0005f));
+            }
+            ImGui::Separator();
+            ImGui::TextColored(GRAY_HINT_TEXT, "Simulation:");
+            float slowmotion = std::min(App::GetSimController()->GetBeamFactory()->GetSimulationSpeed(), 1.0f);
+            if (ImGui::SliderFloat("Slow motion", &slowmotion, 0.01f, 1.0f))
+            {
+                App::GetSimController()->GetBeamFactory()->SetSimulationSpeed(slowmotion);
+            }
+            float timelapse = std::max(App::GetSimController()->GetBeamFactory()->GetSimulationSpeed(), 1.0f);
+            if (ImGui::SliderFloat("Time lapse", &timelapse, 1.0f, 10.0f))
+            {
+                App::GetSimController()->GetBeamFactory()->SetSimulationSpeed(timelapse);
+            }
+            if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
+            {
+                ImGui::Separator();
+                ImGui::TextColored(GRAY_HINT_TEXT, "Camera:");
+                DrawGIntSlider(App::gfx_camera_height, "Height", 1, 50);
+                DrawGFloatSlider(App::gfx_static_cam_fov_exp, "FOV", 0.8f, 1.5f);
+            }
+            else if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
+            {
+                ImGui::Separator();
+                ImGui::TextColored(GRAY_HINT_TEXT, "Camera:");
+                DrawGCheckbox(App::gfx_fixed_cam_tracking, "Tracking");
+            }
+            else
+            {
+                ImGui::Separator();
+                ImGui::TextColored(GRAY_HINT_TEXT, "Camera:");
+                if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+                {
+                    int fov = App::gfx_fov_internal.GetActive();
+                    if (ImGui::SliderInt("FOV", &fov, 10, 120))
+                    {
+                        App::gfx_fov_internal.SetActive(fov);
+                        gEnv->mainCamera->setFOVy(Ogre::Degree(fov));
+                    }
+                }
+                else
+                {
+                    int fov = App::gfx_fov_external.GetActive();
+                    if (ImGui::SliderInt("FOV", &fov, 10, 120))
+                    {
+                        App::gfx_fov_external.SetActive(fov);
+                        gEnv->mainCamera->setFOVy(Ogre::Degree(fov));
+                    }
+                }
+            }
+#ifdef USE_CAELUM
+            ImGui::Separator();
+            ImGui::TextColored(GRAY_HINT_TEXT, "Time of day:");
+            float time = App::GetSimTerrain()->getSkyManager()->GetTime();
+            if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
+            {
+                App::GetSimTerrain()->getSkyManager()->SetTime(time);
+            }
+#endif // USE_CAELUM
+            if (App::mp_state.GetActive() == MpState::CONNECTED)
+            {
+                ImGui::Separator();
+                ImGui::TextColored(GRAY_HINT_TEXT, "Multiplayer:");
+                DrawGCheckbox(App::mp_pseudo_collisions, "Collisions");
+                DrawGCheckbox(App::mp_hide_net_labels,   "Hide labels");
+            }
+            ImGui::PopItemWidth();
+            m_open_menu_hoverbox_min = menu_pos;
+            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
             ImGui::End();
         }
         break;

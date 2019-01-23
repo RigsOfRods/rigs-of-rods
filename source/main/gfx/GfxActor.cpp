@@ -799,6 +799,9 @@ void RoR::GfxActor::UpdateDebugView()
         {
             for (size_t i = 0; i < num_nodes; ++i)
             {
+                if (App::diag_hide_wheel_nb_info.GetActive() && (nodes[i].nd_tyre_node || nodes[i].nd_rim_node))
+                    continue;
+
                 Ogre::Vector3 pos = world2screen.Convert(nodes[i].AbsPosition);
 
                 if (pos.z < 0.f)
@@ -824,6 +827,11 @@ void RoR::GfxActor::UpdateDebugView()
         {
             for (size_t i = 0; i < num_beams; ++i)
             {
+                if (App::diag_hide_wheel_nb_info.GetActive() &&
+                        (beams[i].p1->nd_tyre_node || beams[i].p1->nd_rim_node ||
+                         beams[i].p2->nd_tyre_node || beams[i].p2->nd_rim_node))
+                    continue;
+
                 // Position
                 Ogre::Vector3 world_pos = (beams[i].p1->AbsPosition + beams[i].p2->AbsPosition) / 2.f;
                 Ogre::Vector3 pos_xyz = world2screen.Convert(world_pos);
@@ -836,9 +844,17 @@ void RoR::GfxActor::UpdateDebugView()
                 // Strength is usually in thousands or millions - we shorten it.
                 const size_t BUF_LEN = 50;
                 char buf[BUF_LEN];
-                if (beams[i].strength >= 1000000.f)
+                if (beams[i].strength >= 1000000000000.f)
                 {
-                    snprintf(buf, BUF_LEN, "%.2fM", (beams[i].strength / 1000000.f));
+                    snprintf(buf, BUF_LEN, "%.1fT", (beams[i].strength / 1000000000000.f));
+                }
+                else if (beams[i].strength >= 1000000000.f)
+                {
+                    snprintf(buf, BUF_LEN, "%.1fG", (beams[i].strength / 1000000000.f));
+                }
+                else if (beams[i].strength >= 1000000.f)
+                {
+                    snprintf(buf, BUF_LEN, "%.1fM", (beams[i].strength / 1000000.f));
                 }
                 else if (beams[i].strength >= 1000.f)
                 {
@@ -846,14 +862,14 @@ void RoR::GfxActor::UpdateDebugView()
                 }
                 else
                 {
-                    snprintf(buf, BUF_LEN, "%.2f", beams[i].strength);
+                    snprintf(buf, BUF_LEN, "%.1f", beams[i].strength);
                 }
-                drawlist->AddText(pos, BEAM_STRENGTH_TEXT_COLOR, buf);
                 const ImVec2 stren_text_size = ImGui::CalcTextSize(buf);
+                drawlist->AddText(ImVec2(pos.x - stren_text_size.x, pos.y), BEAM_STRENGTH_TEXT_COLOR, buf);
 
                 // Stress
-                snprintf(buf, BUF_LEN, "|%.2f",  beams[i].stress);
-                drawlist->AddText(ImVec2(pos.x + stren_text_size.x, pos.y), BEAM_STRESS_TEXT_COLOR, buf);
+                snprintf(buf, BUF_LEN, "|%.1f",  beams[i].stress);
+                drawlist->AddText(pos, BEAM_STRESS_TEXT_COLOR, buf);
             }
         }
     } else if (m_debug_view == DebugViewType::DEBUGVIEW_WHEELS)
@@ -1766,6 +1782,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     {
         m_simbuf.simbuf_net_username = m_actor->m_net_username;
     }
+    m_simbuf.simbuf_is_remote = m_actor->ar_sim_state == Actor::SimState::NETWORKED_OK;
 
     // nodes
     const int num_nodes = m_actor->ar_num_nodes;
@@ -2035,6 +2052,12 @@ void RoR::GfxActor::UpdateNetLabels(float dt)
     // TODO: Remake network player labels via GUI... they shouldn't be billboards inside the scene ~ only_a_ptr, 05/2018
     if (m_actor->m_net_label_node && m_actor->m_net_label_mt)
     {
+        if (App::mp_hide_net_labels.GetActive() || (!m_simbuf.simbuf_is_remote && App::mp_hide_own_net_label.GetActive()))
+        {
+            m_actor->m_net_label_mt->setVisible(false);
+            return;
+        }
+
         // this ensures that the nickname is always in a readable size
         Ogre::Vector3 label_pos = m_simbuf.simbuf_pos;
         label_pos.y += (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_aabb.getMinimum().y);
@@ -2058,6 +2081,7 @@ void RoR::GfxActor::UpdateNetLabels(float dt)
         {
             m_actor->m_net_label_mt->setCaption(m_simbuf.simbuf_net_username);
         }
+        m_actor->m_net_label_mt->setVisible(true);
     }
 }
 
