@@ -529,7 +529,6 @@ private:
     bool m_trigger_debug_enabled:1;     //!< Logging state
     bool m_disable_default_sounds:1;    //!< Spawner context; TODO: remove
     bool m_disable_smoke:1;             //!< Gfx state
-    bool m_use_skidmarks:1;             //!< Gfx attr; filled at spawn from GVar
 
     struct VehicleForceSensors
     {
