@@ -2814,9 +2814,6 @@ void Actor::setAirbrakeIntensity(float intensity)
 // call this once per frame in order to update the skidmarks
 void Actor::updateSkidmarks()
 {
-    if (!m_use_skidmarks)
-        return;
-
     for (int i = 0; i < ar_num_wheels; i++)
     {
         if (!m_skid_trails[i])
@@ -4527,7 +4524,6 @@ Actor::Actor(
     , ar_last_fuzzy_ground_model(nullptr)
     , m_transfer_case(nullptr)
 {
-    m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
 }
 
 float Actor::getSteeringAngle()

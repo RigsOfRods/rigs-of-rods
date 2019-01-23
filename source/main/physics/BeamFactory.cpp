@@ -1002,10 +1002,13 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
         else if (actor->ar_sim_state != Actor::SimState::INVALID)
         {
             actor->updateVisual(dt);
-            actor->updateSkidmarks();
             actor->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
             if (dt > 0.0f && !actor->ar_replay_mode && !actor->ar_physics_paused)
             {
+                if (App::gfx_skidmarks_mode.GetActive() > 0)
+                {
+                    actor->updateSkidmarks();
+                }
                 actor->m_gfx_actor->UpdateParticles(dt); // TODO: move it to GfxActor ~ only_a_ptr, 06/2018
             }
             if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
