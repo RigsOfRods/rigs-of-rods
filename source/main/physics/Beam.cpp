@@ -479,6 +479,7 @@ void Actor::CalcNetwork()
         // linear interpolation
         ar_nodes[i].AbsPosition = p1 + tratio * (p2 - p1);
         ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
+        ar_nodes[i].Velocity    = (p2 - p1) * 1000.0f / (float)(oob2->time - oob1->time);
 
         apos += ar_nodes[i].AbsPosition;
     }
