@@ -114,12 +114,17 @@ Turbojet::~Turbojet()
 
     if (flameMesh != nullptr)
     {
-        flameMesh->setVisible(false);
+        delete flameMesh;
     }
 
     if (nozzleMesh != nullptr)
     {
-        nozzleMesh->setVisible(false);
+        delete nozzleMesh;
+    }
+
+    if (smokePS != nullptr)
+    {
+        delete smokePS;
     }
 }
 

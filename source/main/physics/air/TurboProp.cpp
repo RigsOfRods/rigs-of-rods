@@ -152,7 +152,14 @@ Turboprop::~Turboprop()
     SOUND_STOP(trucknum, src_id);
 
     if (airfoil != nullptr)
+    {
         delete airfoil;
+    }
+
+    if (smokePS != nullptr)
+    {
+        delete smokePS;
+    }
 }
 
 void Turboprop::updateVisuals(RoR::GfxActor* gfx_actor)
