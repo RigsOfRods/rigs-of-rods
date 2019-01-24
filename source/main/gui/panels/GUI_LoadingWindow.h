@@ -37,17 +37,16 @@ class LoadingWindow :
 public:
 
     LoadingWindow();
-    ~LoadingWindow();
 
-    void setProgress(int _percent, const Ogre::UTFString& _text = "", bool _updateRenderFrame = true);
-    void setAutotrack(const Ogre::UTFString& _text = "", bool _updateRenderFrame = true);
+    void setProgress(int _percent, const Ogre::UTFString& _text = "");
+    void setAutotrack(const Ogre::UTFString& _text = "");
 
     void SetVisible(bool v);
     bool IsVisible();
 
 private:
 
-    void renderOneFrame(bool force = false);
+    void renderOneFrame();
 
     ATTRIBUTE_FIELD_WIDGET_NAME(LoadingWindow, mBarProgress, "Bar");
 
@@ -55,8 +54,6 @@ private:
     ATTRIBUTE_FIELD_WIDGET_NAME(LoadingWindow, mInfoStaticText, "Info");
 
     MyGUI::TextBox* mInfoStaticText;
-
-    Ogre::Timer* t;
 };
 
 } // namespace GUI

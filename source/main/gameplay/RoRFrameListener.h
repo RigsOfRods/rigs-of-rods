@@ -120,8 +120,6 @@ public:
 private:
 
     // Ogre::WindowEventListener interface
-    void   windowMoved             (Ogre::RenderWindow* rw);
-    void   windowClosed            (Ogre::RenderWindow* rw);
     void   windowFocusChange       (Ogre::RenderWindow* rw);
     void   windowResized           (Ogre::RenderWindow* rw);
 
@@ -155,7 +153,6 @@ private:
     float                    m_time;
     RoR::ForceFeedback*      m_force_feedback;
     bool                     m_hide_gui;
-    bool                     m_was_app_window_closed;
     bool                     m_actor_info_gui_visible;
     bool                     m_pressure_pressed;
 

@@ -103,7 +103,6 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_force_feedback(ff),
     m_skidmark_conf(skid_conf),
     m_hide_gui(false),
-    m_was_app_window_closed(false),
     m_is_pace_reset_pressed(false),
     m_last_cache_selection(nullptr),
     m_last_screenshot_date(""),
@@ -1877,23 +1876,8 @@ void SimController::windowResized(Ogre::RenderWindow* rw)
     m_actor_manager.NotifyActorsWindowResized();
 }
 
-//Unattach OIS before window shutdown (very important under Linux)
-void SimController::windowClosed(Ogre::RenderWindow* rw)
-{
-    // No on-screen rendering must be performed after window is closed -> crashes!
-    LOG("[RoR|Simulation] Received \"WindowClosed\" event. Stopping rendering.");
-    m_was_app_window_closed = true;
-}
-
-void SimController::windowMoved(Ogre::RenderWindow* rw)
-{
-    LOG("*** windowMoved");
-}
-
 void SimController::windowFocusChange(Ogre::RenderWindow* rw)
 {
-    // Too verbose
-    //LOG("*** windowFocusChange");
     RoR::App::GetInputEngine()->resetKeys();
 }
 
@@ -2289,7 +2273,7 @@ void SimController::EnterGameplayLoop()
 
     m_actor_manager.SyncWithSimThread(); // Wait for background tasks to finish
     App::sim_state.SetActive(SimState::OFF);
-    App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Unloading Terrain"), !m_was_app_window_closed); // Renders a frame
+    App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Unloading Terrain")); // Renders a frame
     this->CleanupAfterSimulation();
     OgreBites::WindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
 }

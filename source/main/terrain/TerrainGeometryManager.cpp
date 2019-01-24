@@ -315,15 +315,13 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
 
     configureTerrainDefaults();
 
-    auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
     for (OTCPage& page : m_spec->pages)
     {
-        loading_win->setProgress(43, _L("preparing terrain page ") + XZSTR(page.pos_x, page.pos_z));
         this->SetupGeometry(page, m_spec->is_flat);
     }
 
     // sync load since we want everything in place when we start
-    loading_win->setProgress(44, _L("loading terrain pages"));
+    App::GetGuiManager()->GetLoadingWindow()->setProgress(44, _L("Loading terrain pages ..."));
     m_ogre_terrain_group->loadAllTerrains(true);
 
     Terrain* terrain = m_ogre_terrain_group->getTerrain(0, 0);
@@ -350,9 +348,9 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
     }
     mIsFlat = std::abs(mMaxHeight - mMinHeight) < std::numeric_limits<float>::epsilon();
 
-    // update the blend maps
     if (m_was_new_geometry_generated)
     {
+        // update the blend maps
         if (terrainManager->GetDef().custom_material_name.empty())
         {
             for (OTCPage& page : m_spec->pages)
@@ -361,9 +359,7 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
 
                 if (terrain != nullptr)
                 {
-                    loading_win->setProgress(45, _L("loading terrain page layers ") + XZSTR(page.pos_x, page.pos_z));
                     this->SetupLayers(page, terrain);
-                    loading_win->setProgress(45, _L("loading terrain page blend maps ") + XZSTR(page.pos_x, page.pos_z));
                     this->SetupBlendMaps(page, terrain);
                 }
             }
@@ -372,7 +368,7 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
         // always save the results when it was imported
         if (!m_spec->disable_cache)
         {
-            loading_win->setProgress(50, _L("saving all terrain pages ..."));
+            App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Saving all terrain pages ..."));
             m_ogre_terrain_group->saveAllTerrains(false);
         }
     }
