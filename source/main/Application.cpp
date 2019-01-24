@@ -105,7 +105,7 @@ static TerrainManager*  g_sim_terrain;
 
 // Multiplayer
  GVarEnum_AP<MpState>     mp_state                ("mp_state",                nullptr,                     MpState::DISABLED,       MpState::DISABLED);
- GVarPod_A<bool>          mp_join_on_startup      ("mp_join_on_startup",      "Network enable",            false);
+ GVarPod_APS<bool>        mp_join_on_startup      ("mp_join_on_startup",      "Network enable",            false,                   false,      false);
  GVarPod_A<bool>          mp_chat_auto_hide       ("mp_chat_auto_hide",       "ChatAutoHide",              true);
  GVarPod_A<bool>          mp_hide_net_labels      ("mp_hide_net_labels",      "HideNetLabels",             false);
  GVarPod_A<bool>          mp_hide_own_net_label   ("mp_hide_own_net_label",   "HideOwnNetLabel",           true);
