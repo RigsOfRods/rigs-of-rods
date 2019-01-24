@@ -183,7 +183,7 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
             const int colon = static_cast<int>(server_args.rfind(":"));
             if (colon != std::string::npos)
             {
-                App::mp_state.SetPending(RoR::MpState::CONNECTED);
+                App::mp_join_on_startup.SetActive(true);
 
                 std::string host_str;
                 std::string port_str;

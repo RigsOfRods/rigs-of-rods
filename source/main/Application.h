@@ -679,7 +679,7 @@ extern GVarEnum_AP<SimGearboxMode> sim_gearbox_mode;
 
 // Multiplayer
 extern GVarEnum_AP<MpState>    mp_state;
-extern GVarPod_A<bool>         mp_join_on_startup;
+extern GVarPod_APS<bool>       mp_join_on_startup;
 extern GVarPod_A<bool>         mp_chat_auto_hide;
 extern GVarPod_A<bool>         mp_hide_net_labels;
 extern GVarPod_A<bool>         mp_hide_own_net_label;
