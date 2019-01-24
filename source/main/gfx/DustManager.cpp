@@ -93,6 +93,10 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     // Particles
     if (RoR::App::gfx_particles_mode.GetActive() == 1)
     {
+        for (GfxActor* gfx_actor: m_all_gfx_actors)
+        {
+            gfx_actor->UpdateParticles(m_simbuf.simbuf_sim_speed * dt_sec);
+        }
         for (auto itor : m_dustpools)
         {
             itor.second->update();
