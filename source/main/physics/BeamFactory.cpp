@@ -691,7 +691,7 @@ void ActorManager::ForwardCommands(Actor* source_actor)
         // just send brake and lights to the connected trucks, and no one else :)
         for (auto hook : source_actor->ar_hooks)
         {
-            if (!hook.hk_locked_actor)
+            if (!hook.hk_locked_actor || hook.hk_locked_actor == source_actor)
                 continue;
 
             // forward brakes
