@@ -47,7 +47,11 @@ void LoadingWindow::setProgress(int _percent, const Ogre::UTFString& _text)
     mBarProgress->setProgressAutoTrack(false);
     mBarProgress->setProgressPosition(_percent);
 
-    renderOneFrame();
+    if (m_timer.getMilliseconds() > 10)
+    {
+        renderOneFrame();
+        m_timer.reset();
+    }
 }
 
 void LoadingWindow::setAutotrack(const Ogre::UTFString& _text)

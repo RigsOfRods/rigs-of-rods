@@ -23,7 +23,9 @@
 
 #include "RoRPrerequisites.h"
 #include "mygui/BaseLayout.h"
+
 #include <Ogre.h>
+#include <OgreTimer.h>
 
 namespace RoR {
 namespace GUI {
@@ -54,6 +56,8 @@ private:
     ATTRIBUTE_FIELD_WIDGET_NAME(LoadingWindow, mInfoStaticText, "Info");
 
     MyGUI::TextBox* mInfoStaticText;
+
+    Ogre::Timer m_timer;
 };
 
 } // namespace GUI
