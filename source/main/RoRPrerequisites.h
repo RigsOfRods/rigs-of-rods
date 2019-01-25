@@ -69,6 +69,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define strnlen(str,len) strlen(str)
 #endif
 
+#define ACTOR_RESOURCE_GROUP "ActorRG"
+
 #define CHARACTER_ANIM_NAME_LEN 25 // Restricted for networking
 
 enum VisibilityMasks {

@@ -79,8 +79,6 @@ public:
 
 private:
 
-    void exploreFolders(Ogre::String rg);
-    void exploreZipFolders(Ogre::String rg);
     void InitManagedMaterials();
 
     // implementation for resource loading listener
