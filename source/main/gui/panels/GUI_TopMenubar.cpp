@@ -125,7 +125,8 @@ void RoR::GUI::TopMenubar::Update()
     {
         m_open_menu = TopMenu::TOPMENU_SETTINGS;
 #ifdef USE_CAELUM
-        m_daytime = App::GetSimTerrain()->getSkyManager()->GetTime();
+        if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
+            m_daytime = App::GetSimTerrain()->getSkyManager()->GetTime();
 #endif // USE_CAELUM
     }
 
@@ -422,13 +423,16 @@ void RoR::GUI::TopMenubar::Update()
                 }
             }
 #ifdef USE_CAELUM
-            ImGui::Separator();
-            ImGui::TextColored(GRAY_HINT_TEXT, "Time of day:");
-            float time = App::GetSimTerrain()->getSkyManager()->GetTime();
-            if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
+            if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
             {
-                App::GetSimTerrain()->getSkyManager()->SetTime(time);
-            }
+                ImGui::Separator();
+                ImGui::TextColored(GRAY_HINT_TEXT, "Time of day:");
+                float time = App::GetSimTerrain()->getSkyManager()->GetTime();
+                if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
+                {
+                    App::GetSimTerrain()->getSkyManager()->SetTime(time);
+                }
+            }       
 #endif // USE_CAELUM
             if (App::mp_state.GetActive() == MpState::CONNECTED)
             {
