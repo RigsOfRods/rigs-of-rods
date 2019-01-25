@@ -226,7 +226,8 @@ RoR::GfxActor::~GfxActor()
         m_cab_mesh = nullptr;
     }
 
-    Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(m_custom_resource_group);
+    // Destroying the resource group here results in: https://github.com/RigsOfRods/rigs-of-rods/issues/2118
+    Ogre::ResourceGroupManager::getSingleton().unloadUnreferencedResourcesInGroup(m_custom_resource_group);
 }
 
 void RoR::GfxActor::AddMaterialFlare(int flareid, Ogre::MaterialPtr m)
