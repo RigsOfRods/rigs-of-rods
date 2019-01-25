@@ -387,6 +387,7 @@ void CLASS::UpdateGuiData()
     }
 
     int ts = getTimeStamp();
+    std::vector<int> timestamps;
     std::vector<CacheEntry>* entries = RoR::App::GetCacheSystem()->getEntries();
     std::sort(entries->begin(), entries->end(), sort_entries<CacheEntry>());
     for (std::vector<CacheEntry>::iterator it = entries->begin(); it != entries->end(); it++)
@@ -425,11 +426,20 @@ void CLASS::UpdateGuiData()
         // category all
         mCategoryUsage[CacheSystem::CID_All]++;
 
-        // category fresh
-        if (ts - it->addtimestamp < CACHE_FILE_FRESHNESS)
-            mCategoryUsage[CacheSystem::CID_Fresh]++;
+        timestamps.push_back(it->addtimestamp);
 
         m_entries.push_back(*it);
+    }
+    // Find fresh cache entries
+    if (timestamps.size() > 0)
+    {
+        std::sort(timestamps.begin(), timestamps.end());
+        m_cache_file_freshness = timestamps[std::max((size_t)0, timestamps.size() - 10)];
+        for (std::vector<CacheEntry>::iterator it = m_entries.begin(); it != m_entries.end(); it++)
+        {
+            if (it->addtimestamp >= m_cache_file_freshness)
+                mCategoryUsage[CacheSystem::CID_Fresh]++;
+        }
     }
     int tally_categories = 0, current_category = 0;
     std::map<int, Ogre::String>* cats = RoR::App::GetCacheSystem()->getCategories();
@@ -612,7 +622,7 @@ void CLASS::OnCategorySelected(int categoryID)
         for (auto it = m_entries.begin(); it != m_entries.end(); it++)
         {
             if (it->categoryid == categoryID || categoryID == CacheSystem::CID_All
-                || categoryID == CacheSystem::CID_Fresh && (ts - it->addtimestamp < CACHE_FILE_FRESHNESS))
+                || (categoryID == CacheSystem::CID_Fresh && (it->addtimestamp >= m_cache_file_freshness)))
             {
                 counter++;
                 Ogre::String txt = TOSTRING(counter) + ". " + it->dname;

@@ -34,9 +34,6 @@
 #define CACHE_FILE "mods.cache"
 #define CACHE_FILE_FORMAT 8
 
-// 60*60*24 = one day
-#define CACHE_FILE_FRESHNESS 86400
-
 struct AuthorInfo
 {
     int id;
