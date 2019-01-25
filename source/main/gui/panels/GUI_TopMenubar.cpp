@@ -108,6 +108,8 @@ void RoR::GUI::TopMenubar::Update()
     if ((m_open_menu != TopMenu::TOPMENU_SAVEGAMES) && ImGui::IsItemHovered())
     {
         m_open_menu = TopMenu::TOPMENU_SAVEGAMES;
+        m_quicksave_name = App::GetSimController()->GetBeamFactory()->GetQuicksaveFilename();
+        m_quickload = FileExists(PathCombine(App::sys_savegames_dir.GetActive(), m_quicksave_name));
         m_savegame_names.clear();
         for (int i = 0; i <= 9; i++)
         {
@@ -290,21 +292,19 @@ void RoR::GUI::TopMenubar::Update()
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin("Savegames", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
-            Ogre::String quicksave_filename = App::GetSimController()->GetBeamFactory()->GetQuicksaveFilename();
-
             if (ImGui::Button("Quicksave"))
             {
-                App::GetSimController()->GetBeamFactory()->SaveScene(quicksave_filename);
+                App::GetSimController()->GetBeamFactory()->SaveScene(m_quicksave_name);
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
             ImGui::SameLine();
             ImGui::TextColored(GRAY_HINT_TEXT, "('NUMPAD: /')");
 
-            if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), quicksave_filename)))
+            if (m_quickload)
             {
                 if (ImGui::Button("Quickload"))
                 {
-                    App::GetSimController()->GetBeamFactory()->LoadScene(quicksave_filename);
+                    App::GetSimController()->GetBeamFactory()->LoadScene(m_quicksave_name);
                     m_open_menu = TopMenu::TOPMENU_NONE;
                 }
                 ImGui::SameLine();

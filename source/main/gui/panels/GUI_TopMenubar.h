@@ -46,7 +46,7 @@ public:
 
     enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS };
 
-    TopMenubar(): m_open_menu(TopMenu::TOPMENU_NONE), m_daytime(0), m_confirm_remove_all(false) {}
+    TopMenubar(): m_open_menu(TopMenu::TOPMENU_NONE), m_daytime(0), m_quickload(false), m_confirm_remove_all(false) {}
 
     void Update();
     bool ShouldDisplay(ImVec2 window_pos);
@@ -61,6 +61,8 @@ private:
     bool    m_confirm_remove_all;
 
     float   m_daytime;
+    bool    m_quickload;
+    std::string m_quicksave_name;
     std::vector<std::string> m_savegame_names;
 };
 
