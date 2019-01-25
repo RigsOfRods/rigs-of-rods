@@ -25,75 +25,45 @@
 #include "MeshObject.h"
 
 #include "Application.h"
-#include "OgreSubsystem.h"
-#include "TerrainManager.h"
 #include "MeshLodGenerator/OgreMeshLodGenerator.h"
 
 using namespace Ogre;
-using namespace RoR;
 
 MeshObject::MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode* sceneNode)
     : meshName(meshName)
     , entityName(entityName)
     , sceneNode(sceneNode)
     , ent(0)
-    , loaded(false)
-    , materialName()
     , castshadows(true)
-    , enabled(true)
-    , visible(true)
 {
-    // create a new sceneNode if not existing
-    if (!sceneNode)
-        sceneNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-
     loadMesh();
-}
-
-MeshObject::~MeshObject()
-{
-    if (!mesh.isNull())
-        mesh->unload();
 }
 
 void MeshObject::setMaterialName(Ogre::String m)
 {
-    if (m.empty())
-        return;
-    materialName = m;
-    if (loaded && ent)
+    if (ent)
     {
-        ent->setMaterialName(materialName);
+        ent->setMaterialName(m);
     }
 }
 
 void MeshObject::setCastShadows(bool b)
 {
     castshadows = b;
-    if (loaded && sceneNode && ent && sceneNode->numAttachedObjects())
+    if (sceneNode && sceneNode->numAttachedObjects())
     {
         sceneNode->getAttachedObject(0)->setCastShadows(b);
     }
 }
 
-void MeshObject::setMeshEnabled(bool e)
-{
-    setVisible(e);
-    enabled = e;
-}
-
 void MeshObject::setVisible(bool b)
 {
-    if (!enabled)
-        return;
-    visible = b;
-    if (loaded && sceneNode)
+    if (sceneNode)
         sceneNode->setVisible(b);
 }
 
 void MeshObject::postProcess()
 {
-    loaded = true;
     if (!sceneNode)
         return;
 
@@ -104,7 +74,7 @@ void MeshObject::postProcess()
         String basename, ext;
         StringUtil::splitBaseFilename(meshName, basename, ext);
 
-        String group = ResourceGroupManager::getSingleton().findGroupContainingResource(meshName);
+        Ogre::String group = Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
 
         // the classic LODs
         FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(group, basename + "_lod*.mesh");
@@ -117,38 +87,7 @@ void MeshObject::postProcess()
             if (r <= 0 || i < 0)
                 continue;
 
-            float distance = 3;
-
-            // we need to tune this according to our sightrange
-            if (App::gfx_sight_range.GetActive() > App::GetSimTerrain()->UNLIMITED_SIGHTRANGE)
-            {
-                // unlimited
-                if (i == 1)
-                    distance = 200;
-                else if (i == 2)
-                    distance = 600;
-                else if (i == 3)
-                    distance = 2000;
-                else if (i == 4)
-                    distance = 5000;
-            }
-            else
-            {
-                // limited
-                int sightrange = App::gfx_sight_range.GetActive();
-                if (i == 1)
-                    distance = std::max(20.0f, sightrange * 0.1f);
-                else if (i == 2)
-                    distance = std::max(20.0f, sightrange * 0.2f);
-                else if (i == 3)
-                    distance = std::max(20.0f, sightrange * 0.3f);
-                else if (i == 4)
-                    distance = std::max(20.0f, sightrange * 0.4f);
-            }
-
             Ogre::MeshManager::getSingleton().load(iterFiles->filename, mesh->getGroup());
-            //mesh->createManualLodLevel(distance, iterFiles->filename);
-            //MeshLodGenerator::getSingleton().generateAutoconfiguredLodLevels(mesh);
         }
 
         // the custom LODs
@@ -163,8 +102,6 @@ void MeshObject::postProcess()
                 continue;
 
             Ogre::MeshManager::getSingleton().load(iterFiles->filename, mesh->getGroup());
-            //mesh->createManualLodLevel(i, iterFiles->filename);
-            //MeshLodGenerator::getSingleton().generateAutoconfiguredLodLevels(mesh);
         }
     }
 
@@ -188,15 +125,15 @@ void MeshObject::postProcess()
     if (!castshadows && sceneNode && sceneNode->numAttachedObjects() > 0)
         sceneNode->getAttachedObject(0)->setCastShadows(castshadows);
 
-    sceneNode->setVisible(visible);
+    sceneNode->setVisible(true);
 }
 
 void MeshObject::loadMesh()
 {
     try
     {
-        Ogre::String resourceGroup = Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
-        mesh = static_cast<Ogre::MeshPtr>(Ogre::MeshManager::getSingleton().create(meshName, resourceGroup));
+        Ogre::String group = Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
+        mesh = static_cast<Ogre::MeshPtr>(Ogre::MeshManager::getSingleton().create(meshName, group));
         postProcess();
     }
     catch (Ogre::Exception* e)

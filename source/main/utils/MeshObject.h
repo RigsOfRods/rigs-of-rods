@@ -32,14 +32,11 @@
 class MeshObject : public Ogre::Resource::Listener, public ZeroedMemoryAllocator
 {
 public:
-    MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode* sceneNode = 0);
-    ~MeshObject();
+    MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode* sceneNode);
 
     void setMaterialName(Ogre::String m);
     void setCastShadows(bool b);
-    void setMeshEnabled(bool e);
     void setVisible(bool b);
-    inline Ogre::MeshPtr    getMesh() { return mesh; };
     inline Ogre::Entity*    getEntity() { return ent; };
     inline Ogre::SceneNode* GetSceneNode() { return sceneNode; }
 
@@ -49,12 +46,8 @@ protected:
     Ogre::SceneNode* sceneNode;
     Ogre::Entity* ent;
     Ogre::MeshPtr mesh;
-    bool loaded;
 
-    Ogre::String materialName;
     bool castshadows;
-    bool enabled;
-    bool visible;
 
     void postProcess();
     void loadMesh();
