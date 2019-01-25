@@ -320,22 +320,22 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
             {
                 actor->ar_engine->StartEngine();
             }
-
-            RoR::Str<100> element_name;
-            ActorSpawner::ComposeName(element_name, "NetLabel", 0, actor->ar_instance_id);
-            actor->m_net_label_mt = new MovableText(element_name.ToCStr(), actor->m_net_username);
-            actor->m_net_label_mt->setFontName("CyberbitEnglish");
-            actor->m_net_label_mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
-            actor->m_net_label_mt->showOnTop(false);
-            actor->m_net_label_mt->setCharacterHeight(2);
-            actor->m_net_label_mt->setColor(ColourValue::Black);
-            actor->m_net_label_mt->setVisible(true);
-
-            actor->m_net_label_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-            actor->m_net_label_node->attachObject(actor->m_net_label_mt);
-            actor->m_net_label_node->setVisible(true);
-            actor->m_deletion_scene_nodes.emplace_back(actor->m_net_label_node);
         }
+
+        RoR::Str<100> element_name;
+        ActorSpawner::ComposeName(element_name, "NetLabel", 0, actor->ar_instance_id);
+        actor->m_net_label_mt = new MovableText(element_name.ToCStr(), actor->m_net_username);
+        actor->m_net_label_mt->setFontName("CyberbitEnglish");
+        actor->m_net_label_mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
+        actor->m_net_label_mt->showOnTop(false);
+        actor->m_net_label_mt->setCharacterHeight(2);
+        actor->m_net_label_mt->setColor(ColourValue::Black);
+        actor->m_net_label_mt->setVisible(true);
+
+        actor->m_net_label_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        actor->m_net_label_node->attachObject(actor->m_net_label_mt);
+        actor->m_net_label_node->setVisible(true);
+        actor->m_deletion_scene_nodes.emplace_back(actor->m_net_label_node);
     }
     else if (App::sim_replay_enabled.GetActive())
     {

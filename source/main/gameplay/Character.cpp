@@ -747,7 +747,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
 
     // Multiplayer label
 #ifdef USE_SOCKETW
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
+    if (App::mp_state.GetActive() == MpState::CONNECTED && !xc_simbuf.simbuf_actor_coupling)
     {
         // From 'updateCharacterNetworkColor()'
         const String materialName = "tracks/" + xc_instance_name;
