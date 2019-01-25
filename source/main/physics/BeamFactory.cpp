@@ -54,12 +54,13 @@
 using namespace Ogre;
 using namespace RoR;
 
+static int m_actor_counter = 0;
+
 ActorManager::ActorManager()
     : m_dt_remainder(0.0f)
     , m_forced_awake(false)
     , m_physics_steps(2000)
     , m_simulation_speed(1.0f)
-    , m_actor_counter(0)
     , m_savegame_terrain_has_changed(false)
 {
     // Create worker thread (used for physics calculations)

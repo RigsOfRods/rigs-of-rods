@@ -235,7 +235,6 @@ void ContentManager::InitContentManager()
 
 void ContentManager::InitModCache()
 {
-
     ResourceGroupManager::getSingleton().addResourceLocation(App::sys_cache_dir.GetActive(), "FileSystem", "cache", false, false);
 
     // and the content; TODO: Is this code necessary beyond modcache-generation/update? ~ only_a_ptr, 10/2018
@@ -245,32 +244,12 @@ void ContentManager::InitModCache()
     if (!App::app_extra_mod_path.IsActiveEmpty())
     {
         std::string extra_mod_path = App::app_extra_mod_path.GetActive();
-        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path            , "FileSystem", "Packs", true);
+        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path           , "FileSystem", ACTOR_RESOURCE_GROUP, true);
     }
-    ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "content" , "FileSystem", "Packs", true);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "packs"   , "FileSystem", "Packs", true);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "mods"    , "FileSystem", "Packs", true);
-
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "vehicles", "FileSystem", "VehicleFolders");
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "terrains", "FileSystem", "TerrainFolders");
-
-    exploreFolders("VehicleFolders"); //TODO: These traversals of 'resource bundles' (see CacheSystem doc) are duplicate with traversals during cache-update. Unify it! ~ only_a_ptr, 10/2018
-    exploreFolders("TerrainFolders");
-    exploreZipFolders("Packs"); // this is required for skins to work
-
-    ResourceGroupManager::getSingleton().addResourceLocation(
-        content_base + "resources" + PATH_SLASH + "beamobjects.zip", "Zip", "RoR_BeamObjects", true);
-    exploreZipFolders("RoR_BeamObjects");
-
-    LOG("RoR|ContentManager: Calling initialiseAllResourceGroups() - Content");
-    try
-    {
-        ResourceGroupManager::getSingleton().initialiseResourceGroup("Packs");
-    }
-    catch (Ogre::Exception& e)
-    {
-        LOG("RoR|ContentManager: catched error while initializing Content Resource groups: " + e.getFullDescription());
-    }
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "mods"   , "FileSystem", ACTOR_RESOURCE_GROUP, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "packs"  , "FileSystem", ACTOR_RESOURCE_GROUP, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "content", "FileSystem", ACTOR_RESOURCE_GROUP, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "resources" + PATH_SLASH + "beamobjects.zip", "Zip", ACTOR_RESOURCE_GROUP, true);
 
     CacheSystem::CacheValidityState validity = m_mod_cache.EvaluateCacheValidity();
     m_mod_cache.LoadModCache(validity);
@@ -303,49 +282,6 @@ bool ContentManager::resourceCollision(Ogre::Resource* resource, Ogre::ResourceM
     }
     */
     return false;
-}
-
-void ContentManager::exploreZipFolders(Ogre::String rg)
-{
-    ResourceGroupManager& rgm = ResourceGroupManager::getSingleton();
-
-    FileInfoListPtr files = rgm.findResourceFileInfo(rg, "*.skinzip"); //search for skins
-    FileInfoList::iterator iterFiles = files->begin();
-    for (; iterFiles != files->end(); ++iterFiles)
-    {
-        if (!iterFiles->archive)
-            continue;
-        String fullpath = iterFiles->archive->getName() + PATH_SLASH;
-        rgm.addResourceLocation(fullpath + iterFiles->filename, "Zip", rg);
-    }
-    // DO NOT initialize ...
-}
-
-void ContentManager::exploreFolders(Ogre::String rg)
-{
-    ResourceGroupManager& rgm = ResourceGroupManager::getSingleton();
-
-    FileInfoListPtr files = rgm.findResourceFileInfo(rg, "*", true); // searching for dirs
-    FileInfoList::iterator iterFiles = files->begin();
-    for (; iterFiles != files->end(); ++iterFiles)
-    {
-        if (!iterFiles->archive)
-            continue;
-        if (iterFiles->filename == String(".svn"))
-            continue;
-        // trying to get the full path
-        String fullpath = iterFiles->archive->getName() + PATH_SLASH;
-        rgm.addResourceLocation(fullpath + iterFiles->filename, "FileSystem", rg);
-    }
-    LOG("initialiseResourceGroups: "+rg);
-    try
-    {
-        ResourceGroupManager::getSingleton().initialiseResourceGroup(rg);
-    }
-    catch (Ogre::Exception& e)
-    {
-        LOG("catched error while initializing Resource group '" + rg + "' : " + e.getFullDescription());
-    }
 }
 
 void ContentManager::InitManagedMaterials()
