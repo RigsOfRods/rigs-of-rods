@@ -193,7 +193,7 @@ void Character::update(float dt)
         {
             m_can_jump = true;
             m_character_v_speed = std::max(0.0f, m_character_v_speed);
-            position.y += std::min(depth, 0.025f);
+            position.y += std::min(depth, 2.0f * dt);
         }
 
         // Submesh "collision"
