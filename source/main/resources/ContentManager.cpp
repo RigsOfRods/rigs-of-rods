@@ -244,11 +244,13 @@ void ContentManager::InitModCache()
     if (!App::app_extra_mod_path.IsActiveEmpty())
     {
         std::string extra_mod_path = App::app_extra_mod_path.GetActive();
-        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path           , "FileSystem", ACTOR_RESOURCE_GROUP, true);
+        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path            , "FileSystem", ACTOR_RESOURCE_GROUP, true);
     }
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "mods"   , "FileSystem", ACTOR_RESOURCE_GROUP, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "packs"  , "FileSystem", ACTOR_RESOURCE_GROUP, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "content", "FileSystem", ACTOR_RESOURCE_GROUP, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "mods"    , "FileSystem", ACTOR_RESOURCE_GROUP, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "packs"   , "FileSystem", ACTOR_RESOURCE_GROUP, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "terrains", "FileSystem", ACTOR_RESOURCE_GROUP, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "vehicles", "FileSystem", ACTOR_RESOURCE_GROUP, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "content" , "FileSystem", ACTOR_RESOURCE_GROUP, true);
     ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "resources" + PATH_SLASH + "beamobjects.zip", "Zip", ACTOR_RESOURCE_GROUP, true);
 
     CacheSystem::CacheValidityState validity = m_mod_cache.EvaluateCacheValidity();
