@@ -57,10 +57,11 @@
 #include <OgreTextureManager.h>
 #include <OgreTextureUnitState.h>
 
-RoR::GfxActor::GfxActor(Actor* actor,
+RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group,
                         std::vector<NodeGfx>& gfx_nodes, std::vector<prop_t>& props,
                         int driverseat_prop_idx):
     m_actor(actor),
+    m_custom_resource_group(ogre_resource_group),
     m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE),
     m_debug_view(DebugViewType::DEBUGVIEW_NONE),
     m_last_debug_view(DebugViewType::DEBUGVIEW_SKELETON),
@@ -225,7 +226,7 @@ RoR::GfxActor::~GfxActor()
         m_cab_mesh = nullptr;
     }
 
-    Ogre::ResourceGroupManager::getSingleton().unloadUnreferencedResourcesInGroup(ACTOR_RESOURCE_GROUP);
+    Ogre::ResourceGroupManager::getSingleton().unloadUnreferencedResourcesInGroup(m_custom_resource_group);
 }
 
 void RoR::GfxActor::AddMaterialFlare(int flareid, Ogre::MaterialPtr m)
@@ -322,9 +323,9 @@ void RoR::GfxActor::RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr
     if (mat->getTechnique(0)->getNumPasses() == 1)
         return; // No emissive pass -> nothing to do.
 
-    m_cab_mat_template_emissive = mat->clone("CabMaterialEmissive-" + mat->getName(), true, ACTOR_RESOURCE_GROUP);
+    m_cab_mat_template_emissive = mat->clone("CabMaterialEmissive-" + mat->getName(), true, m_custom_resource_group);
 
-    m_cab_mat_template_plain = mat->clone("CabMaterialPlain-" + mat->getName(), true, ACTOR_RESOURCE_GROUP);
+    m_cab_mat_template_plain = mat->clone("CabMaterialPlain-" + mat->getName(), true, m_custom_resource_group);
     m_cab_mat_template_plain->getTechnique(0)->removePass(1);
     m_cab_mat_template_plain->compile();
 }

@@ -251,7 +251,7 @@ public:
         bool             xa_has_autopilot;
     };
 
-    GfxActor(Actor* actor,
+    GfxActor(Actor* actor, std::string ogre_resource_group,
         std::vector<NodeGfx>& gfx_nodes, std::vector<prop_t>& props, int driverseat_prop_idx);
 
     ~GfxActor();
@@ -325,6 +325,7 @@ private:
 
     Actor*                      m_actor;
 
+    std::string                 m_custom_resource_group;
     std::vector<FlareMaterial>  m_flare_materials;
     VideoCamState               m_vidcam_state;
     std::vector<VideoCamera>    m_videocameras;
