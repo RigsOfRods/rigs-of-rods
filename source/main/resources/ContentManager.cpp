@@ -336,37 +336,18 @@ void ContentManager::LoadGameplayResources()
 
 std::string ContentManager::ListAllUserContent()
 {
-    // Define temporary OGRE resource group
-    const Ogre::String RG_NAME = "RoR-Temp-ModCacheScan";
-    Ogre::ResourceGroupManager& ogre_rgm = Ogre::ResourceGroupManager::getSingleton();
-
-    // Add user content locations
-    const Ogre::String homedir     = Ogre::String(App::sys_user_dir.GetActive())    + PATH_SLASH;
-    const Ogre::String process_dir = Ogre::String(App::sys_process_dir.GetActive()) + PATH_SLASH;
-
-    bool recursive = true; // For clarity
-    if (!App::app_extra_mod_path.IsActiveEmpty())
-    {
-        std::string extra_mod_path = App::app_extra_mod_path.GetActive();
-        ogre_rgm.addResourceLocation(extra_mod_path       , "FileSystem", RG_NAME, recursive);
-    }
-    ogre_rgm.addResourceLocation(process_dir  + "content" , "FileSystem", RG_NAME, recursive); // TODO: Does anybody use this one? ~ only_a_ptr, 10/2018
-    ogre_rgm.addResourceLocation(homedir      + "packs"   , "FileSystem", RG_NAME, recursive);
-    ogre_rgm.addResourceLocation(homedir      + "mods"    , "FileSystem", RG_NAME, recursive); // TODO: Does anybody use this one? ~ only_a_ptr, 10/2018
-
-    ogre_rgm.addResourceLocation(homedir      + "vehicles", "FileSystem", RG_NAME, recursive);
-    ogre_rgm.addResourceLocation(homedir      + "terrains", "FileSystem", RG_NAME, recursive);
-
-    // Gather filenames
     std::stringstream buf;
-    Ogre::FileInfoListPtr dir_list = ogre_rgm.listResourceFileInfo(RG_NAME, true); // true = List only directories
+
+    auto dir_list = Ogre::ResourceGroupManager::getSingleton().listResourceFileInfo(ACTOR_RESOURCE_GROUP, true);
     for (auto dir: *dir_list)
     {
         buf << dir.filename << std::endl;
     }
 
-    std::regex file_whitelist("^.\\.(airplane|boat|car|fixed|load|machine|terrn2|train|truck)$", std::regex::icase); // Any filename + listed extensions, ignore case
-    Ogre::FileInfoListPtr file_list = ogre_rgm.listResourceFileInfo(RG_NAME, false); // false = List only files
+    // Any filename + listed extensions, ignore case
+    std::regex file_whitelist("^.\\.(airplane|boat|car|fixed|load|machine|terrn2|train|truck)$", std::regex::icase);
+
+    auto file_list = Ogre::ResourceGroupManager::getSingleton().listResourceFileInfo(ACTOR_RESOURCE_GROUP, false);
     for (auto file: *file_list)
     {
         if ((file.archive != nullptr) || std::regex_match(file.filename, file_whitelist))
@@ -374,9 +355,6 @@ std::string ContentManager::ListAllUserContent()
             buf << file.filename << std::endl;
         }
     }
-
-    // Cleanup
-    ogre_rgm.destroyResourceGroup(RG_NAME);
 
     return buf.str();
 }
