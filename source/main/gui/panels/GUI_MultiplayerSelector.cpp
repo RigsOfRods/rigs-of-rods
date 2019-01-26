@@ -264,13 +264,14 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         ImGui::PushItemWidth(250.f);
         DrawGTextEdit(App::mp_server_host, "Server host", m_server_host_buf);
         DrawGIntBox(App::mp_server_port, "Server port");
-        DrawGTextEdit(App::mp_server_password, "Server password", m_password_buf);
+        ImGui::InputText("Server password", m_password_buf.GetBuffer(), m_password_buf.GetCapacity());
         ImGui::PopItemWidth();
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
         if (ImGui::Button("Join"))
         {
-            App::mp_state.SetPending (MpState::CONNECTED);
+            App::mp_server_password.SetActive(m_password_buf.GetBuffer());
+            App::mp_state.SetPending(MpState::CONNECTED);
         }
 
         ImGui::PopID();
@@ -368,16 +369,17 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
                 MpServerlistData::ServerInfo& server = m_serverlist_data->servers[m_selected_item];
                 if (ImGui::Button("Join", ImVec2(200.f, 0.f)))
                 {
+                    App::mp_server_password.SetActive(m_password_buf.GetBuffer());
                     App::mp_server_host.SetActive(server.net_host);
                     App::mp_server_port.SetActive(server.net_port);
                     App::mp_state.SetPending(MpState::CONNECTED);
                 }
-                if (server.has_password);
+                if (server.has_password)
                 {
                     // TODO: Find out why this is always visible ~ ulteq 01/2019
                     ImGui::SameLine();
                     ImGui::PushItemWidth(250.f);
-                    DrawGTextEdit(App::mp_server_password, "Server password", m_password_buf);
+                    ImGui::InputText("Server password", m_password_buf.GetBuffer(), m_password_buf.GetCapacity());
                     ImGui::PopItemWidth();
                 }
             }
@@ -432,5 +434,6 @@ void RoR::GUI::MultiplayerSelector::SetVisible(bool visible)
     if (visible && (m_serverlist_data == nullptr)) // Do an initial refresh
     {
         this->RefreshServerlist();
+        m_password_buf = App::mp_server_password.GetActive();
     }
 }
