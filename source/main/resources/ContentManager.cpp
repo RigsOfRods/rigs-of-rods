@@ -245,19 +245,30 @@ void ContentManager::InitModCache()
     if (!App::app_extra_mod_path.IsActiveEmpty())
     {
         std::string extra_mod_path = App::app_extra_mod_path.GetActive();
-        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path            , "FileSystem", RGN_MODCACHE, true);
+        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path            , "FileSystem", RGN_MODCACHE);
     }
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "mods"    , "FileSystem", RGN_MODCACHE, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "packs"   , "FileSystem", RGN_MODCACHE, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "terrains", "FileSystem", RGN_MODCACHE, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "vehicles", "FileSystem", RGN_MODCACHE, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "content" , "FileSystem", RGN_MODCACHE, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "mods"    , "FileSystem", RGN_MODCACHE);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "packs"   , "FileSystem", RGN_MODCACHE);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "terrains", "FileSystem", RGN_MODCACHE);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "vehicles", "FileSystem", RGN_MODCACHE);
+    ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "content" , "FileSystem", RGN_MODCACHE);
+
+    // Search for unzipped content
+    FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_MODCACHE, "*", true);
+    for (const auto& file : *files)
+    {
+        if (!file.archive)
+            continue;
+        String fullpath = PathCombine(file.archive->getName(), file.basename);
+        ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "FileSystem", RGN_MODCACHE);
+    }
+
+    // Required for skins to work on unzipped content
+    ResourceGroupManager::getSingleton().initialiseResourceGroup(RGN_MODCACHE);
 
     CacheSystem::CacheValidityState validity = m_mod_cache.EvaluateCacheValidity();
     m_mod_cache.LoadModCache(validity);
     App::SetCacheSystem(&m_mod_cache); // Temporary solution until Modcache+ContentManager are fully merged and `App::GetCacheSystem()` is removed ~ only_a_ptr, 10/2018
-
-    ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_MODCACHE);
 }
 
 Ogre::DataStreamPtr ContentManager::resourceLoading(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource)
