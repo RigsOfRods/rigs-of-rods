@@ -39,6 +39,7 @@
 #include "BeamFactory.h"
 #include "BitFlags.h"
 #include "Buoyance.h"
+#include "CacheSystem.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
 #include "DashBoardManager.h"
@@ -112,6 +113,8 @@ void ActorSpawner::Setup(
     m_messages_num_errors = 0;
     m_messages_num_warnings = 0;
     m_messages_num_other = 0;
+
+    App::GetCacheSystem()->checkResourceLoaded(m_actor->ar_filename, m_custom_resource_group);
 }
 
 void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::File::Module* module_def)
@@ -2250,7 +2253,7 @@ Ogre::MaterialPtr ActorSpawner::InstantiateManagedMaterial(Ogre::String const & 
         return Ogre::MaterialPtr();
     }
 
-    return src_mat->clone(clone_name, true, ACTOR_RESOURCE_GROUP);
+    return src_mat->clone(clone_name, true, m_custom_resource_group);
 }
 
 void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
@@ -2266,7 +2269,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
     // - if not found, OGRE substitutes them with 'BaseWhite' which breaks subsequent processing.
     if (RoR::OgreSubsystem::GetMaterialByName(def.name).isNull())
     {
-        m_placeholder_managedmat->clone(def.name, /*changeGroup=*/true, ACTOR_RESOURCE_GROUP);
+        m_placeholder_managedmat->clone(def.name, /*changeGroup=*/true, m_custom_resource_group);
     }
 
     std::string custom_name = def.name + ACTOR_ID_TOKEN + TOSTRING(m_actor->ar_instance_id);
@@ -6347,7 +6350,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
             static int mirror_counter = 0;
             const std::string new_mat_name = this->ComposeName("RenderMaterial", mirror_counter);
             ++mirror_counter;
-            lookup_entry.material = RoR::OgreSubsystem::GetMaterialByName("mirror")->clone(new_mat_name, true, ACTOR_RESOURCE_GROUP);
+            lookup_entry.material = RoR::OgreSubsystem::GetMaterialByName("mirror")->clone(new_mat_name, true, m_custom_resource_group);
             // Special case - register under generated name. This is because all mirrors use the same material 'mirror'
             m_material_substitutions.insert(std::make_pair(new_mat_name, lookup_entry));
             return lookup_entry.material; // Done!
@@ -6372,7 +6375,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
             {
                 lookup_entry.video_camera_def = videocam_def;
                 const std::string video_mat_name = this->ComposeName(videocam_def->material_name.c_str(), 0);
-                lookup_entry.material = video_mat_shared->clone(video_mat_name, true, ACTOR_RESOURCE_GROUP);
+                lookup_entry.material = video_mat_shared->clone(video_mat_name, true, m_custom_resource_group);
                 m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry));
                 return lookup_entry.material; // Done!
             }
@@ -6402,7 +6405,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
                 {
                     std::stringstream name_buf;
                     name_buf << skin_mat->getName() << ACTOR_ID_TOKEN << m_actor->ar_instance_id;
-                    lookup_entry.material = skin_mat->clone(name_buf.str(), true, ACTOR_RESOURCE_GROUP);
+                    lookup_entry.material = skin_mat->clone(name_buf.str(), true, m_custom_resource_group);
                     m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry));
                     return lookup_entry.material;
                 }
@@ -6436,7 +6439,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
 
             std::stringstream name_buf;
             name_buf << orig_mat->getName() << ACTOR_ID_TOKEN << m_actor->ar_instance_id;
-            lookup_entry.material = orig_mat->clone(name_buf.str(), true, ACTOR_RESOURCE_GROUP);
+            lookup_entry.material = orig_mat->clone(name_buf.str(), true, m_custom_resource_group);
         }
 
         // Finally, query SkinZip textures
@@ -6516,7 +6519,7 @@ void ActorSpawner::CreateGfxActor()
 {
     // Create the actor
     m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
-        new RoR::GfxActor(m_actor, m_gfx_nodes, m_props, m_driverseat_prop_index));
+        new RoR::GfxActor(m_actor, m_custom_resource_group, m_gfx_nodes, m_props, m_driverseat_prop_index));
 
     m_actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill (to setup flexbodies + flexbodywheels)
 }
@@ -7118,7 +7121,7 @@ void ActorSpawner::CreateMirrorPropVideoCam(
         // Create rendering texture
         const std::string mirror_tex_name = this->ComposeName("MirrorPropTexture-", static_cast<int>(mprop_counter));
         vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(mirror_tex_name
-            , ACTOR_RESOURCE_GROUP
+            , m_custom_resource_group
             , Ogre::TEX_TYPE_2D
             , 128
             , 256

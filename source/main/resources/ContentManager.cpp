@@ -57,7 +57,6 @@
 #include <sstream>
 
 using namespace Ogre;
-using namespace std;
 using namespace RoR;
 
 // ================================================================================
@@ -195,6 +194,9 @@ void ContentManager::InitContentManager()
     // add scripts folder
     ResourceGroupManager::getSingleton().addResourceLocation(std::string(App::sys_user_dir.GetActive()) + PATH_SLASH + "scripts", "FileSystem", "Scripts");
 
+    // beamobjects
+    ResourceGroupManager::getSingleton().addResourceLocation(std::string(App::sys_process_dir.GetActive()) + PATH_SLASH + "resources" + PATH_SLASH + "beamobjects.zip", "Zip", "BeamObjects", true);
+
     // init skin manager, important to happen before trucks resource loading!
     LOG("RoR|ContentManager: Registering Skin Manager");
     m_skin_manager = new RoR::SkinManager(); // SkinManager registers itself
@@ -237,25 +239,25 @@ void ContentManager::InitModCache()
 {
     ResourceGroupManager::getSingleton().addResourceLocation(App::sys_cache_dir.GetActive(), "FileSystem", "cache", false, false);
 
-    // and the content; TODO: Is this code necessary beyond modcache-generation/update? ~ only_a_ptr, 10/2018
     std::string user_content_base = std::string(App::sys_user_dir.GetActive())    + PATH_SLASH;
     std::string content_base      = std::string(App::sys_process_dir.GetActive()) + PATH_SLASH;
 
     if (!App::app_extra_mod_path.IsActiveEmpty())
     {
         std::string extra_mod_path = App::app_extra_mod_path.GetActive();
-        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path            , "FileSystem", ACTOR_RESOURCE_GROUP, true);
+        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path            , "FileSystem", RGN_MODCACHE, true);
     }
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "mods"    , "FileSystem", ACTOR_RESOURCE_GROUP, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "packs"   , "FileSystem", ACTOR_RESOURCE_GROUP, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "terrains", "FileSystem", ACTOR_RESOURCE_GROUP, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "vehicles", "FileSystem", ACTOR_RESOURCE_GROUP, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "content" , "FileSystem", ACTOR_RESOURCE_GROUP, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "resources" + PATH_SLASH + "beamobjects.zip", "Zip", ACTOR_RESOURCE_GROUP, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "mods"    , "FileSystem", RGN_MODCACHE, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "packs"   , "FileSystem", RGN_MODCACHE, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "terrains", "FileSystem", RGN_MODCACHE, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "vehicles", "FileSystem", RGN_MODCACHE, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "content" , "FileSystem", RGN_MODCACHE, true);
 
     CacheSystem::CacheValidityState validity = m_mod_cache.EvaluateCacheValidity();
     m_mod_cache.LoadModCache(validity);
     App::SetCacheSystem(&m_mod_cache); // Temporary solution until Modcache+ContentManager are fully merged and `App::GetCacheSystem()` is removed ~ only_a_ptr, 10/2018
+
+    ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_MODCACHE);
 }
 
 Ogre::DataStreamPtr ContentManager::resourceLoading(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource)
@@ -338,7 +340,7 @@ std::string ContentManager::ListAllUserContent()
 {
     std::stringstream buf;
 
-    auto dir_list = Ogre::ResourceGroupManager::getSingleton().listResourceFileInfo(ACTOR_RESOURCE_GROUP, true);
+    auto dir_list = Ogre::ResourceGroupManager::getSingleton().listResourceFileInfo(RGN_MODCACHE, true);
     for (auto dir: *dir_list)
     {
         buf << dir.filename << std::endl;
@@ -347,7 +349,7 @@ std::string ContentManager::ListAllUserContent()
     // Any filename + listed extensions, ignore case
     std::regex file_whitelist("^.\\.(airplane|boat|car|fixed|load|machine|terrn2|train|truck)$", std::regex::icase);
 
-    auto file_list = Ogre::ResourceGroupManager::getSingleton().listResourceFileInfo(ACTOR_RESOURCE_GROUP, false);
+    auto file_list = Ogre::ResourceGroupManager::getSingleton().listResourceFileInfo(RGN_MODCACHE, false);
     for (auto file: *file_list)
     {
         if ((file.archive != nullptr) || std::regex_match(file.filename, file_whitelist))

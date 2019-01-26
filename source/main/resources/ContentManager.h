@@ -28,6 +28,8 @@
 
 #include <OgreResourceGroupManager.h>
 
+#define RGN_MODCACHE "ModCache"
+
 namespace RoR {
 
 class ContentManager : public Ogre::ResourceLoadingListener

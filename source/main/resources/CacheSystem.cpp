@@ -122,8 +122,8 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
     {
         RoR::Log("[RoR|ModCache] Performing full rebuild");
 
-        this->loadAllZipsInResourceGroup(ACTOR_RESOURCE_GROUP);
-        this->loadAllDirectoriesInResourceGroup(ACTOR_RESOURCE_GROUP);
+        this->loadAllZipsInResourceGroup(RGN_MODCACHE);
+        this->loadAllDirectoriesInResourceGroup(RGN_MODCACHE);
 
         this->checkForNewKnownFiles(); // TODO: does some duplicate work, but needed to pick up flat files in 'HOME/vehicles' dir
 
@@ -1499,7 +1499,7 @@ void CacheSystem::checkForNewContent() // Only used when performing "incremental
         resource_bundles.insert(this->getVirtualPath(it->resource_bundle_path));
     }
 
-    checkForNewZipsInResourceGroup(resource_bundles, ACTOR_RESOURCE_GROUP);
-    checkForNewDirectoriesInResourceGroup(resource_bundles, ACTOR_RESOURCE_GROUP);
+    checkForNewZipsInResourceGroup(resource_bundles, RGN_MODCACHE);
+    checkForNewDirectoriesInResourceGroup(resource_bundles, RGN_MODCACHE);
 }
 
