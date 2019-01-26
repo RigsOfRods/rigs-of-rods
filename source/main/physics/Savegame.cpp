@@ -165,8 +165,13 @@ bool ActorManager::LoadScene(Ogre::String filename)
     std::vector<Actor*> x_actors = GetLocalActors();
     for (rapidjson::Value& j_entry: j_doc["actors"].GetArray())
     {
-        Actor* actor = nullptr;
-        int index = actors.size();
+        String filename = j_entry["filename"].GetString();
+        if (!App::GetCacheSystem()->checkResourceLoaded(filename))
+        {
+            RoR::LogFormat("[RoR|Savegame] Missing content ... failed to create actor: '%s'", filename.c_str());
+            actors.push_back(nullptr);
+            continue;
+        }
 
         SkinDef* skin = nullptr;
         if (j_entry.HasMember("skin"))
@@ -180,6 +185,8 @@ bool ActorManager::LoadScene(Ogre::String filename)
             actor_config.push_back(j_config.GetString());
         }
 
+        Actor* actor = nullptr;
+        int index = actors.size();
         if (index < x_actors.size())
         {
             if (j_entry["filename"].GetString() != x_actors[index]->ar_filename || skin != x_actors[index]->m_used_skin ||
@@ -203,7 +210,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
             bool preloaded = j_entry["preloaded_with_terrain"].GetBool();
 
             ActorSpawnRequest rq;
-            rq.asr_filename      = j_entry["filename"].GetString();
+            rq.asr_filename      = filename;
             rq.asr_position.x    = j_entry["position"][0].GetFloat();
             rq.asr_position.y    = preloaded ? j_entry["position"][1].GetFloat() : j_entry["min_height"].GetFloat();
             rq.asr_position.z    = j_entry["position"][2].GetFloat();
