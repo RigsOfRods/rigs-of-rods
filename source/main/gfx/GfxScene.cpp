@@ -26,6 +26,8 @@
 #include "BeamFactory.h"
 #include "DustPool.h"
 #include "HydraxWater.h"
+#include "GUIManager.h"
+#include "GUI_SimUtils.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"
@@ -230,6 +232,8 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
             RoR::App::GetOverlayWrapper()->UpdateAerialHUD(player_gfx_actor);
         }
     }
+
+    App::GetGuiManager()->DrawSimGuiBuffered(player_gfx_actor);
 
     App::GetSimController()->GetSceneMouse().UpdateVisuals();
 

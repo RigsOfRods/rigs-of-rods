@@ -223,6 +223,9 @@ public:
         float                       simbuf_engine_crankfactor;
         float                       simbuf_engine_turbo_psi;
         float                       simbuf_engine_accel;
+        float                       simbuf_engine_torque;
+        float                       simbuf_inputshaft_rpm; // Land vehicle only
+        float                       simbuf_drive_ratio; // Land vehicle only
         bool                        simbuf_beaconlight_active;
         float                       simbuf_hydro_dir_state; // State of steering actuator ('hydro'), for steeringwheel display
         float                       simbuf_hydro_aileron_state;
@@ -242,6 +245,7 @@ public:
         float                       simbuf_wing4_aoa;
         bool                        simbuf_headlight_on;
         Ogre::Vector3               simbuf_direction; //!< Output of `Actor::getDirection()`
+        float                       simbuf_top_speed;
         // Autopilot
         int                         simbuf_ap_heading_mode;
         int                         simbuf_ap_heading_value;
@@ -264,7 +268,9 @@ public:
         float            xa_engine_max_rpm;
         int              xa_camera0_pos_node;
         int              xa_camera0_roll_node;
+        int              xa_driveable;
         bool             xa_has_autopilot;
+        bool             xa_has_engine;
     };
 
     GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
@@ -327,6 +333,10 @@ public:
     SurveyMapEntity*          GetSurveyMapEntity ()                       { return m_survey_map_entity; }
     std::set<GfxActor*>       GetLinkedGfxActors ()                       { return m_linked_gfx_actors; }
     Ogre::String              GetResourceGroup   ()                       { return m_custom_resource_group; }
+    std::string               FetchActorDesignName() const;
+    int                       FetchNumBeams      () const ;
+    int                       FetchNumNodes      () const ;
+    int                       FetchNumWheelNodes () const ;
     bool                 HasDriverSeatProp   () const { return m_driverseat_prop_index != -1; }
     void                 UpdateBeaconFlare   (prop_t & prop, float dt, bool is_player_actor);
     void                 UpdateProps         (float dt, bool is_player_actor);

@@ -51,6 +51,7 @@
 #include "GUI_MainSelector.h"
 #include "GUI_NodeBeamUtils.h"
 #include "GUI_RigSpawnerReportWindow.h"
+#include "GUI_SimActorStats.h"
 #include "GUI_SimUtils.h"
 #include "GUI_TextureToolWindow.h"
 #include "GUI_TopMenubar.h"
@@ -74,6 +75,7 @@ struct GuiManagerImpl
     GUI::GameAbout              panel_GameAbout;
     GUI::GamePauseMenu          panel_GamePauseMenu;
     GUI::GameSettings           panel_GameSettings;
+    GUI::SimActorStats          panel_SimActorStats;
     GUI::SimUtils               panel_SimUtils;
     GUI::MessageBoxDialog       panel_MessageBox;
     GUI::MultiplayerSelector    panel_MultiplayerSelector;
@@ -97,7 +99,8 @@ GUIManager::GuiTheme::GuiTheme():
     in_progress_text_color(1.f, 0.832031f, 0.f, 1.f),
     no_entries_text_color(0.7f, 0.7f, 0.7f, 1.f),
     error_text_color(1.f, 0.175439f, 0.175439f, 1.f),
-    selected_entry_text_color(.9f, 0.7f, 0.05f, 1.f)
+    selected_entry_text_color(.9f, 0.7f, 0.05f, 1.f),
+    highlight_text_color(0.78f, 0.39f, 0.f, 1.f)
 {
     try
     {
@@ -131,6 +134,7 @@ void GUIManager::SetVisible_LoadingWindow       (bool v) { m_impl->panel_Loading
 void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_GameConsole        .SetVisible(v); }
 void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSettings       .SetVisible(v); }
 void GUIManager::SetVisible_NodeBeamUtils       (bool v) { m_impl->panel_NodeBeamUtils      .SetVisible(v); }
+void GUIManager::SetVisible_SimActorStats       (bool v) { m_impl->panel_SimActorStats      .SetVisible(v); }
 
 bool GUIManager::IsVisible_GameMainMenu         () { return m_impl->panel_GameMainMenu       .IsVisible(); }
 bool GUIManager::IsVisible_GameAbout            () { return m_impl->panel_GameAbout          .IsVisible(); }
@@ -147,6 +151,7 @@ bool GUIManager::IsVisible_Console              () { return m_impl->panel_GameCo
 bool GUIManager::IsVisible_GameSettings         () { return m_impl->panel_GameSettings       .IsVisible(); }
 bool GUIManager::IsVisible_TopMenubar           () { return m_impl->panel_TopMenubar         .IsVisible(); }
 bool GUIManager::IsVisible_NodeBeamUtils        () { return m_impl->panel_NodeBeamUtils      .IsVisible(); }
+bool GUIManager::IsVisible_SimActorStats        () { return m_impl->panel_SimActorStats      .IsVisible(); }
 
 // GUI GetInstance*()
 Console*                    GUIManager::GetConsole()           { return &m_impl->panel_GameConsole         ; }
@@ -274,6 +279,14 @@ void GUIManager::DrawSimulationGui(float dt)
     }
 };
 
+void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
+{
+    if (player_gfx_actor && this->IsVisible_SimActorStats())
+    {
+        m_impl->panel_SimActorStats.Draw(player_gfx_actor);
+    }
+}
+
 void GUIManager::PushNotification(Ogre::String Title, Ogre::UTFString text)
 {
     m_impl->panel_SimUtils.PushNotification(Title, text);
@@ -355,7 +368,7 @@ void GUIManager::hideGUI(bool hidden)
     {
         m_impl->panel_SimUtils.HideNotificationBox();
         m_impl->panel_SimUtils.SetFPSBoxVisible(false);
-        m_impl->panel_SimUtils.SetActorInfoBoxVisible(false);
+        m_impl->panel_SimActorStats.SetVisible(false);
         m_impl->panel_ChatBox.Hide();
     }
     m_impl->panel_SimUtils.DisableNotifications(hidden);
@@ -399,6 +412,7 @@ void GUIManager::ReflectGameState()
         m_impl->panel_TextureToolWindow  .SetVisible(false);
         m_impl->panel_VehicleDescription .SetVisible(false);
         m_impl->panel_SpawnerReport      .SetVisible(false);
+        m_impl->panel_SimActorStats      .SetVisible(false);
         m_impl->panel_SimUtils           .SetBaseVisible(false);
         m_impl->panel_MpClientList       .SetVisible(mp_state == MpState::CONNECTED);
         return;

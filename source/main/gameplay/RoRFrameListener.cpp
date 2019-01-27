@@ -121,7 +121,6 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_soft_reset_mode(false),
     m_advanced_vehicle_repair(false),
     m_advanced_vehicle_repair_timer(0.f),
-    m_actor_info_gui_visible(false),
     m_terrain_editor_mouse_ray(Ray(Vector3::ZERO, Vector3::ZERO))
 {
 }
@@ -1459,8 +1458,7 @@ void SimController::UpdateInputEvents(float dt)
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_INFO) && m_player_actor)
     {
-        m_actor_info_gui_visible = ! m_actor_info_gui_visible;
-        gui_man->GetSimUtils()->SetActorInfoBoxVisible(m_actor_info_gui_visible);
+        gui_man->SetVisible_SimActorStats(!gui_man->IsVisible_SimActorStats());
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_DESCRIPTION) && m_player_actor)

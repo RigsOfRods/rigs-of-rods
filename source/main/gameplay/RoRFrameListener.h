@@ -158,7 +158,6 @@ private:
     float                    m_time;
     RoR::ForceFeedback*      m_force_feedback;
     bool                     m_hide_gui;
-    bool                     m_actor_info_gui_visible;
     bool                     m_pressure_pressed;
 
     CacheEntry*              m_last_cache_selection; //!< Vehicle/load

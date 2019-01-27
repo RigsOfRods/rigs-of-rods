@@ -47,15 +47,6 @@ protected:
     ATTRIBUTE_FIELD_WIDGET_NAME(SimUtilsLayout, m_batch_count, "batch_count");
     MyGUI::EditBox* m_batch_count;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(SimUtilsLayout, m_truckinfo_box, "truckinfo_box");
-    MyGUI::ImageBox* m_truckinfo_box;
-
-    ATTRIBUTE_FIELD_WIDGET_NAME(SimUtilsLayout, m_truck_name, "truck_name");
-    MyGUI::EditBox* m_truck_name;
-
-    ATTRIBUTE_FIELD_WIDGET_NAME(SimUtilsLayout, m_truck_stats, "truck_stats");
-    MyGUI::EditBox* m_truck_stats;
-
     ATTRIBUTE_FIELD_WIDGET_NAME(SimUtilsLayout, m_notification, "notification");
     MyGUI::ImageBox* m_notification;
 

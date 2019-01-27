@@ -50,6 +50,9 @@ public:
         ImVec4 no_entries_text_color;
         ImVec4 error_text_color;
         ImVec4 selected_entry_text_color;
+        ImVec4 highlight_text_color;
+        ImVec4 value_red_text_color;
+        ImVec4 value_blue_text_color;
 
         ImFont* default_font;
     };
@@ -79,6 +82,7 @@ public:
     void SetVisible_NodeBeamUtils       (bool visible);
     void SetVisible_LoadingWindow       (bool visible);
     void SetVisible_Console             (bool visible);
+    void SetVisible_SimActorStats       (bool visible);
 
     // GUI IsVisible*()
     bool IsVisible_GameMainMenu         ();
@@ -97,6 +101,7 @@ public:
     bool IsVisible_NodeBeamUtils        ();
     bool IsVisible_LoadingWindow        ();
     bool IsVisible_Console              ();
+    bool IsVisible_SimActorStats        ();
 
     // GUI GetInstance*()
     Console* GetConsole();
@@ -121,7 +126,8 @@ public:
     void UpdateSimUtils(float dt, Actor* truck);
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
-    void DrawSimulationGui(float dt);
+    void DrawSimulationGui(float dt); //!< Touches live data; must be called in sync with sim. thread
+    void DrawSimGuiBuffered(GfxActor* player_gfx_actor); //!< Reads data from simbuffer
 
     void SetMpConnectingStatusMsg(std::string const & msg) { m_net_connect_status = msg; }
     void DrawMpConnectingStatusBox();
