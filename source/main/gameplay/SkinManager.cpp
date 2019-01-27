@@ -151,7 +151,7 @@ void RoR::SkinManager::GetUsableSkins(std::string guid, std::vector<SkinDef *> &
 void RoR::SkinManager::ReplaceMaterialTextures(SkinDef* skin_def, std::string materialName) // Static
 {
     const auto not_found = skin_def->replace_textures.end();
-    Ogre::MaterialPtr mat = RoR::OgreSubsystem::GetMaterialByName(materialName);
+    Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(materialName);
     if (!mat.isNull())
     {
         for (int t = 0; t < mat->getNumTechniques(); t++)

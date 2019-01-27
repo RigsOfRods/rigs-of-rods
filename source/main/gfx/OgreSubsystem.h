@@ -68,8 +68,6 @@ public:
         m_viewport = viewport;
     }
 
-    static Ogre::MaterialPtr GetMaterialByName(std::string const & name);
-
 private:
 
     Ogre::String        m_hwnd;
