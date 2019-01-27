@@ -43,6 +43,7 @@ namespace GUI {
 class SimUtils: public SimUtilsLayout
 {
 public:
+
     SimUtils();
     ~SimUtils();
 
@@ -51,8 +52,6 @@ public:
 
     void SetFPSBoxVisible(bool v);
     bool IsFPSBoxVisible() { return m_fps_box_visible; }
-
-    void SetActorInfoBoxVisible(bool v);
 
     void UpdateStats(float dt, Actor* actor); //different from Framestep!
     void FrameStepSimGui(float dt);
@@ -74,7 +73,6 @@ private:
     long         m_last_notifi_push_time;
     bool         m_notifications_disabled;
     bool         m_fps_box_visible;
-    bool         m_actor_info_visible;
 };
 
 } // namespace GUI

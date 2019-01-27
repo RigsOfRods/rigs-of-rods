@@ -33,19 +33,7 @@
                 <Property key="FontName" value="DefaultSmall"/>
             </Widget>
         </Widget>
-        <Widget type="ImageBox" skin="ImageBox" position="5 170 340 450" align="Left Bottom" name="truckinfo_box">
-            <Property key="ImageTexture" value="truckinfobox.png"/>
-            <Property key="Visible" value="false"/>
-            <Widget type="EditBox" skin="WordWrapEmpty" position="10 10 320 20" name="truck_name">
-                <Property key="Caption" value="Truck name"/>
-                <Property key="FontName" value="DefaultBig"/>
-            </Widget>
-            <Widget type="ScrollBar" skin="SliderV" position="10 35 320 1"/>
-            <Widget type="EditBox" skin="WordWrapEmpty" position="10 30 320 430" name="truck_stats">
-              <Property key="FontName" value="DefaultSmall"/>
-              <Property key="MaxTextLength" value="99999"/>
-            </Widget>
-        </Widget>
+        
         <Widget type="ImageBox" skin="ImageBox" position="535 5 485 80" align="Top Center" name="notification">
             <Property key="ImageTexture" value="NotificationBg.png"/>
             <Property key="Visible" value="false"/>

@@ -116,12 +116,14 @@ RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_re
     m_attr.xa_camera0_pos_node  = 0;
     m_attr.xa_camera0_roll_node = 0;
     m_attr.xa_has_autopilot = (actor->ar_autopilot != nullptr);
+    m_attr.xa_has_engine = (actor->ar_engine != nullptr);
+    m_attr.xa_driveable = actor->ar_driveable;
     if (actor->ar_num_cameras > 0)
     {
         m_attr.xa_camera0_pos_node  = actor->ar_camera_node_pos[0];
         m_attr.xa_camera0_roll_node = actor->ar_camera_node_roll[0];
     }
-    if (actor->ar_engine != nullptr)
+    if (m_attr.xa_has_engine)
     {
         m_attr.xa_num_gears = actor->ar_engine->getNumGears();
         m_attr.xa_engine_max_rpm = actor->ar_engine->getMaxRPM();
@@ -1821,6 +1823,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_airbrake_state = m_actor->ar_airbrake_intensity;
     m_simbuf.simbuf_headlight_on = m_actor->ar_lights != 0;
     m_simbuf.simbuf_direction = m_actor->getDirection();
+    m_simbuf.simbuf_top_speed = m_actor->ar_top_speed;
     m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
     m_simbuf.simbuf_net_username = m_actor->m_net_username;
     m_simbuf.simbuf_is_remote = m_actor->ar_sim_state == Actor::SimState::NETWORKED_OK;
@@ -1865,8 +1868,11 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_gear            = m_actor->ar_engine->GetGear();
         m_simbuf.simbuf_autoshift       = m_actor->ar_engine->getAutoShift();
         m_simbuf.simbuf_engine_rpm      = m_actor->ar_engine->GetEngineRpm();
-        m_simbuf.simbuf_engine_turbo_psi= m_actor->ar_engine->GetTurboPsi(); 
+        m_simbuf.simbuf_engine_turbo_psi= m_actor->ar_engine->GetTurboPsi();
         m_simbuf.simbuf_engine_accel    = m_actor->ar_engine->GetAcceleration();
+        m_simbuf.simbuf_engine_torque   = m_actor->ar_engine->GetEngineTorque();
+        m_simbuf.simbuf_inputshaft_rpm  = m_actor->ar_engine->GetInputShaftRpm();
+        m_simbuf.simbuf_drive_ratio     = m_actor->ar_engine->GetDriveRatio();
         m_simbuf.simbuf_clutch          = m_actor->ar_engine->GetClutch();
     }
     if (m_actor->m_num_wheel_diffs > 0)
@@ -1890,6 +1896,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         dst.simbuf_ae_throttle   = src->getThrottle();
         dst.simbuf_ae_rpm        = src->getRPM();
         dst.simbuf_ae_rpmpc      = src->getRPMpc();
+        dst.simbuf_ae_rpm        = src->getRPM();
         dst.simbuf_ae_turboprop  = (src->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP);
         dst.simbuf_ae_ignition   = src->getIgnition();
         dst.simbuf_ae_failed     = src->isFailed();
@@ -3370,3 +3377,8 @@ void RoR::GfxActor::UpdateWingMeshes()
         wing.fa->uploadVertices();
     }
 }
+
+std::string   RoR::GfxActor::FetchActorDesignName() const                { return m_actor->GetActorDesignName(); }
+int           RoR::GfxActor::FetchNumBeams      () const                 { return m_actor->ar_num_beams; }
+int           RoR::GfxActor::FetchNumNodes      () const                 { return m_actor->ar_num_nodes; }
+int           RoR::GfxActor::FetchNumWheelNodes () const                 { return m_actor->getWheelNodeCount(); }

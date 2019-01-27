@@ -805,7 +805,7 @@ void Actor::DetermineLinkedActors() //TODO: Refactor this - logic iterating over
     }
 }
 
-int Actor::getWheelNodeCount()
+int Actor::getWheelNodeCount() const
 {
     return m_wheel_node_count;
 }

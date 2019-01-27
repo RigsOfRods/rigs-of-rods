@@ -121,7 +121,7 @@ public:
     Ogre::Vector3     GetGForcesCur() { return m_camera_local_gforces_cur; };
     Ogre::Vector3     GetGForcesMax() { return m_camera_local_gforces_max; };
     float             getSteeringAngle();
-    float             getMinCameraRadius() { return m_min_camera_radius; }; 
+    float             getMinCameraRadius() { return m_min_camera_radius; };
     std::string       GetActorDesignName() { return ar_design_name; };
     std::string       GetActorFileName() { return ar_filename; };
     std::string       GetActorFileHash() { return ar_filehash; };
@@ -132,7 +132,7 @@ public:
     void              UnmuteAllSounds();
     float             getTotalMass(bool withLocked=true);
     float             getAvgPropedWheelRadius() { return m_avg_proped_wheel_radius; };
-    int               getWheelNodeCount();
+    int               getWheelNodeCount() const;
     void              setMass(float m);
     bool              getBrakeLightVisible();
     bool              getReverseLightVisible();            //!< Tells if the reverse-light is currently lit.
