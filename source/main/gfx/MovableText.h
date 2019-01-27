@@ -71,7 +71,7 @@ protected:
 
     /******************************** public methods ******************************/
 public:
-    MovableText(const UTFString &name, const UTFString &caption, const UTFString &fontName = "CyberbitEnglish", Real charHeight = 1.0, const ColourValue &color = ColourValue::Black);
+    MovableText(const UTFString &name, const UTFString &caption, const UTFString &fontName = "highcontrast_black", Real charHeight = 1.0, const ColourValue &color = ColourValue::Black);
     virtual ~MovableText();
 
     // Add to build on Shoggoth:

@@ -708,11 +708,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         if (xc_movable_text == nullptr)
         {
             xc_movable_text = new MovableText("netlabel-" + xc_instance_name, "");
-            xc_movable_text->setFontName("CyberbitEnglish");
-            xc_movable_text->setSpaceWidth(0.2f);
             xc_movable_text->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
-            xc_movable_text->setAdditionalHeight(2);
-            xc_movable_text->showOnTop(false);
             xc_movable_text->setColor(ColourValue::Black);
             xc_scenenode->attachObject(xc_movable_text);
         }
@@ -751,6 +747,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
                 xc_movable_text->setCaption(xc_simbuf.simbuf_net_username);
 
             float h = std::max(9.0f, camDist * 1.2f);
+            xc_movable_text->setAdditionalHeight(1.9f + camDist / 100.0f);
             xc_movable_text->setCharacterHeight(h);
             xc_movable_text->setVisible(true);
         }

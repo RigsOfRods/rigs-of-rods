@@ -1760,7 +1760,7 @@ void RoR::GfxActor::SetRodsVisible(bool visible)
 void RoR::GfxActor::UpdateSimDataBuffer()
 {
     m_simbuf.simbuf_live_local = (m_actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED);
-    m_simbuf.simbuf_pos = m_actor->getPosition();
+    m_simbuf.simbuf_pos = m_actor->GetRotationCenter();
     m_simbuf.simbuf_rotation = m_actor->getRotation();
     m_simbuf.simbuf_tyre_pressure = m_actor->GetTyrePressure();
     m_simbuf.simbuf_aabb = m_actor->ar_bounding_box;
