@@ -717,25 +717,13 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
     Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
 
-    // try to load with UID first!
     String odefgroup = "";
     String odefname = name + ".odef";
-
-    bool odefFound = false;
-
-    bool exists = ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(odefname);
-    if (exists)
-    {
-        odefgroup = ResourceGroupManager::getSingleton().findGroupContainingResource(odefname);
-        odefFound = true;
-    }
-
     if (!RoR::App::GetCacheSystem()->checkResourceLoaded(odefname, odefgroup))
-        if (!odefFound)
-        {
-            LOG("Error while loading Terrain: could not find required .odef file: " + odefname + ". Ignoring entry.");
-            return;
-        }
+    {
+        LOG("Error while loading Terrain: could not find required .odef file: " + odefname + ". Ignoring entry.");
+        return;
+    }
 
     DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(odefname, odefgroup);
 
