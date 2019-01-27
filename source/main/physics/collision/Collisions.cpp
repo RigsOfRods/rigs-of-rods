@@ -616,10 +616,9 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
             if (scripthandler != -1)
                 labelCaption += "\nhandler:" + TOSTRING(scripthandler);
             MovableText *mt = new MovableText(labelName, labelCaption);
-            mt->setFontName("highcontrast_black");
             mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
+            mt->setFontName("CyberbitEnglish");
             mt->setAdditionalHeight(1);
-            mt->showOnTop(false);
             mt->setCharacterHeight(0.3);
             mt->setColor(ColourValue::Black);
             mt->setRenderingDistance(200);
@@ -1453,12 +1452,11 @@ int Collisions::createCollisionDebugVisualization()
                 String labelName = "label_"+cell_name;
                 String labelCaption = cell_name+" "+TOSTRING(percent*100,2) + "% usage ("+TOSTRING(cc)+"/"+TOSTRING(CELL_BLOCKSIZE)+") DEEP: " + TOSTRING(deep);
                 MovableText *mt = new MovableText(labelName, labelCaption);
-                mt->setFontName("highcontrast_black");
                 mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
+                mt->setFontName("CyberbitEnglish");
                 mt->setAdditionalHeight(1);
-                mt->showOnTop(false);
                 mt->setCharacterHeight(0.3);
-                mt->setColor(ColourValue::Black);
+                mt->setColor(ColourValue::White);
                 mo_node->attachObject(mt);
 #endif
 
@@ -1514,10 +1512,9 @@ int Collisions::addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre:
         String labelName = "collision_mesh_label_"+TOSTRING(this->GetNumCollisionTris());
         String labelCaption = "COLLMESH\nmeshname:"+meshname + "\ngroundmodel:" + String(gm->name);
         MovableText *mt = new MovableText(labelName, labelCaption);
-        mt->setFontName("highcontrast_black");
         mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
+        mt->setFontName("CyberbitEnglish");
         mt->setAdditionalHeight(1);
-        mt->showOnTop(false);
         mt->setCharacterHeight(0.3);
         mt->setColor(ColourValue::Black);
         mt->setRenderingDistance(200);

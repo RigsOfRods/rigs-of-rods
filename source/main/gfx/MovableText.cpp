@@ -44,7 +44,7 @@ MovableText::MovableText(const UTFString& name, const UTFString& caption, const 
     , mColor(color)
     , mType("MovableText")
     , mTimeUntilNextToggle(0)
-    , mSpaceWidth(0)
+    , mSpaceWidth(0.2f)
     , mUpdateColors(true)
     , mOnTop(false)
     , mHorizontalAlignment(H_LEFT)

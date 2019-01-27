@@ -328,10 +328,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
         RoR::Str<100> element_name;
         ActorSpawner::ComposeName(element_name, "NetLabel", 0, actor->ar_instance_id);
         actor->m_net_label_mt = new MovableText(element_name.ToCStr(), actor->m_net_username);
-        actor->m_net_label_mt->setFontName("CyberbitEnglish");
-        actor->m_net_label_mt->setSpaceWidth(0.2f);
         actor->m_net_label_mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
-        actor->m_net_label_mt->showOnTop(false);
 #ifdef USE_SOCKETW
         actor->m_net_label_mt->setColor(Networking::GetPlayerColor((rq.asr_net_color)));
 #endif // USE_SOCKETW
