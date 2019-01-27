@@ -30,7 +30,7 @@ class Character
 {
 public:
 
-    Character(int source = -1, unsigned int streamid = 0, int color_number = 0, bool is_remote = true);
+    Character(int source = -1, unsigned int streamid = 0, Ogre::UTFString playerName = "", int color_number = 0, bool is_remote = true);
     ~Character();
        
     int            getSourceID() const                  { return m_source_id; }
@@ -51,7 +51,6 @@ public:
     void           move(Ogre::Vector3 offset);
     void           update(float dt);
     void           updateCharacterRotation();
-    void           updateLabels();
     void           receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer);
     void           SetActorCoupling(bool enabled, Actor* actor = nullptr);
     RoR::GfxCharacter*  SetupGfx();

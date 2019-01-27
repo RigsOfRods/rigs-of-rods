@@ -3810,32 +3810,6 @@ void Actor::setReplayMode(bool rm)
     m_replay_handler->setVisible(ar_replay_mode);
 }
 
-void Actor::UpdateNetworkInfo()
-{
-    if (!(RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED))
-        return;
-
-#ifdef USE_SOCKETW
-
-    RoRnet::UserInfo info;
-
-    if (ar_sim_state == SimState::NETWORKED_OK)
-    {
-        if (!RoR::Networking::GetUserInfo(ar_net_source_id, info))
-        {
-            return;
-        }
-    }
-    else
-    {
-        info = RoR::Networking::GetLocalUserData();
-    }
-
-    m_net_username = UTFString(info.username);
-
-#endif //SOCKETW
-}
-
 bool Actor::getReverseLightVisible()
 {
     if (ar_sim_state == SimState::NETWORKED_OK)

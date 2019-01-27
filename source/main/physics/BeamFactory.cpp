@@ -323,14 +323,18 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
             }
         }
 
+        actor->m_net_username = rq.asr_net_username;
+
         RoR::Str<100> element_name;
         ActorSpawner::ComposeName(element_name, "NetLabel", 0, actor->ar_instance_id);
         actor->m_net_label_mt = new MovableText(element_name.ToCStr(), actor->m_net_username);
         actor->m_net_label_mt->setFontName("CyberbitEnglish");
+        actor->m_net_label_mt->setSpaceWidth(0.2f);
         actor->m_net_label_mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
         actor->m_net_label_mt->showOnTop(false);
-        actor->m_net_label_mt->setCharacterHeight(2);
-        actor->m_net_label_mt->setColor(ColourValue::Black);
+#ifdef USE_SOCKETW
+        actor->m_net_label_mt->setColor(Networking::GetPlayerColor((rq.asr_net_color)));
+#endif // USE_SOCKETW
         actor->m_net_label_mt->setVisible(true);
 
         actor->m_net_label_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -416,11 +420,12 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
                             break;
                         rq.asr_config.push_back(String(actor_reg->actorconfig[t]));
                     }
+                    rq.asr_net_username = tryConvertUTF(info.username);
+                    rq.asr_net_color    = info.colournum;
 
                     Actor* actor = App::GetSimController()->SpawnActorDirectly(rq);
                     actor->ar_net_source_id = reg->origin_sourceid;
                     actor->ar_net_stream_id = reg->origin_streamid;
-                    actor->UpdateNetworkInfo();
 
                     net_result = 1; // Success
                 }
@@ -1309,4 +1314,6 @@ ActorSpawnRequest::ActorSpawnRequest()
     , asr_cache_entry(nullptr)
     , asr_free_position(false)
     , asr_terrn_machine(false)
+    , asr_net_username("")
+    , asr_net_color(0)
 {}
