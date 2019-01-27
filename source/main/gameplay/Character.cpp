@@ -39,7 +39,7 @@ using namespace RoR;
 
 #define LOGSTREAM Ogre::LogManager::getSingleton().stream()
 
-Character::Character(int source, unsigned int streamid, int color_number, bool is_remote) :
+Character::Character(int source, unsigned int streamid, UTFString player_name, int color_number, bool is_remote) :
       m_actor_coupling(nullptr)
     , m_can_jump(false)
     , m_character_rotation(0.0f)
@@ -48,7 +48,7 @@ Character::Character(int source, unsigned int streamid, int color_number, bool i
     , m_character_visible(false)
     , m_color_number(color_number)
     , m_anim_time(0.f)
-    , m_net_username("")
+    , m_net_username(player_name)
     , m_is_remote(is_remote)
     , m_source_id(source)
     , m_stream_id(streamid)
@@ -81,34 +81,6 @@ Character::~Character()
 void Character::updateCharacterRotation()
 {
     setRotation(m_character_rotation);
-}
-
-void Character::updateLabels() // called every frame by CharacterFactory
-{
-    if (App::mp_state.GetActive() != MpState::CONNECTED) { return; }
-
-#ifdef USE_SOCKETW
-    RoRnet::UserInfo info;
-
-    if (m_is_remote)
-    {
-        if (!RoR::Networking::GetUserInfo(m_source_id, info))
-            return;
-    }
-    else
-    {
-        info = RoR::Networking::GetLocalUserData();
-    }
-
-    m_color_number = info.colournum;
-    //ASYNCSCENE OLD    this->updateCharacterNetworkColour();
-
-    if (String(info.username).empty())
-        return;
-    m_net_username = tryConvertUTF(info.username);
-
-    //+ASYNCSCENE+OLD this->ResizePersonNetLabel();
-#endif //SOCKETW
 }
 
 void Character::setPosition(Vector3 position) // TODO: updates OGRE objects --> belongs to GfxScene ~ only_a_ptr, 05/2018
@@ -623,8 +595,6 @@ GfxCharacter* Character::SetupGfx()
         m_gfx_character->xc_movable_text->showOnTop(false);
         m_gfx_character->xc_movable_text->setCharacterHeight(8);
         m_gfx_character->xc_movable_text->setColor(ColourValue::Black);
-
-        updateLabels();
     }
 #endif //SOCKETW
 
@@ -760,6 +730,8 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
             Ogre::ColourValue color = Networking::GetPlayerColor(xc_simbuf.simbuf_color_number);
             state->setAlphaOperation(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, 0.8);
             state->setColourOperationEx(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, color, color, 1);
+            if (xc_movable_text != nullptr)
+                xc_movable_text->setColor(color);
         }
 
         if (xc_movable_text != nullptr)

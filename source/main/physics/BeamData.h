@@ -552,6 +552,8 @@ struct ActorSpawnRequest
     collision_box_t*  asr_spawnbox;
     RoR::SkinDef*     asr_skin;
     Origin            asr_origin;
+    Ogre::UTFString   asr_net_username;
+    int               asr_net_color;
     bool              asr_free_position:1;   //!< Disables the automatic spawn position adjustment
     bool              asr_terrn_machine:1;   //!< This is a fixed machinery
 };

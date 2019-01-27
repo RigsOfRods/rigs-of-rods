@@ -1778,10 +1778,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_headlight_on = m_actor->ar_lights != 0;
     m_simbuf.simbuf_direction = m_actor->getDirection();
     m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
-    if (m_simbuf.simbuf_net_username != m_actor->m_net_username)
-    {
-        m_simbuf.simbuf_net_username = m_actor->m_net_username;
-    }
+    m_simbuf.simbuf_net_username = m_actor->m_net_username;
     m_simbuf.simbuf_is_remote = m_actor->ar_sim_state == Actor::SimState::NETWORKED_OK;
 
     // nodes
@@ -2058,24 +2055,23 @@ void RoR::GfxActor::UpdateNetLabels(float dt)
             return;
         }
 
-        // this ensures that the nickname is always in a readable size
-        Ogre::Vector3 label_pos = m_simbuf.simbuf_pos;
-        label_pos.y += (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_aabb.getMinimum().y);
-        m_actor->m_net_label_node->setPosition(label_pos);
-        Ogre::Vector3 vdir = m_simbuf.simbuf_pos - gEnv->mainCamera->getPosition();
-        float vlen = vdir.length();
-        float h = std::max(0.6, vlen / 30.0);
+        float vlen = m_simbuf.simbuf_pos.distance(gEnv->mainCamera->getPosition());
 
-        m_actor->m_net_label_mt->setCharacterHeight(h);
+        float y_offset = (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_pos.y) + (vlen / 100.0);
+        m_actor->m_net_label_node->setPosition(m_simbuf.simbuf_pos + Ogre::Vector3::UNIT_Y * y_offset);
+
+        // this ensures that the nickname is always in a readable size
+        m_actor->m_net_label_mt->setCharacterHeight(std::max(0.6, vlen / 40.0));
+
         if (vlen > 1000) // 1000 ... vlen
         {
             m_actor->m_net_label_mt->setCaption(
-                m_simbuf.simbuf_net_username + "  (" + TOSTRING((float)(ceil(vlen / 100) / 10.0) ) + " km)");
+                m_simbuf.simbuf_net_username + " (" + TOSTRING((float)(ceil(vlen / 100) / 10.0) ) + " km)");
         }
         else if (vlen > 20) // 20 ... vlen ... 1000
         {
             m_actor->m_net_label_mt->setCaption(
-                m_simbuf.simbuf_net_username + "  (" + TOSTRING((int)vlen) + " m)");
+                m_simbuf.simbuf_net_username + " (" + TOSTRING((int)vlen) + " m)");
         }
         else // 0 ... vlen ... 20
         {

@@ -2040,6 +2040,7 @@ bool SimController::SetupGameplayLoop()
     m_gfx_scene.InitScene(gEnv->sceneManager); // TODO: de-globalize SceneManager
 
     int colourNum = -1;
+    Ogre::UTFString playerName = "";
 
 #ifdef USE_SOCKETW
     if (App::mp_state.GetActive() == MpState::CONNECTED)
@@ -2051,10 +2052,11 @@ bool SimController::SetupGameplayLoop()
 
         RoRnet::UserInfo info = RoR::Networking::GetLocalUserData();
         colourNum = info.colournum;
+        playerName = tryConvertUTF(info.username);
     }
 #endif // USE_SOCKETW
 
-    gEnv->player = m_character_factory.createLocal(colourNum);
+    gEnv->player = m_character_factory.createLocal(playerName, colourNum);
 
     // init camera manager after mygui and after we have a character
     m_camera_manager.SetCameraReady(); // TODO: get rid of this hack; see == SimCam == ~ only_a_ptr, 06/2018
@@ -2474,22 +2476,25 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
         return nullptr; // Error already reported
     }
 
+#ifdef USE_SOCKETW
+    if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
+    {
+        if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+        {
+            RoRnet::UserInfo info = RoR::Networking::GetLocalUserData();
+            rq.asr_net_username = tryConvertUTF(info.username);
+            rq.asr_net_color    = info.colournum;
+        }
+    }
+#endif //SOCKETW
+
     LOG(" ===== LOADING VEHICLE: " + rq.asr_filename);
     Actor* actor = m_actor_manager.CreateActorInstance(rq, def);
 
-    if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
+    // lock slide nodes after spawning the actor?
+    if (def->slide_nodes_connect_instantly)
     {
-        // lock slide nodes after spawning the actor?
-        if (def->slide_nodes_connect_instantly)
-        {
-            actor->ToggleSlideNodeLock();
-        }
-
-        // add own username to the actor
-        if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
-        {
-            actor->UpdateNetworkInfo();
-        }
+        actor->ToggleSlideNodeLock();
     }
 
     return actor;

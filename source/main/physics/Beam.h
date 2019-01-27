@@ -66,7 +66,6 @@ public:
 
     void              PushNetwork(char* data, int size);   //!< Parses network data; fills actor's data buffers and flips them. Called by the network thread.
     void              CalcNetwork();
-    void              UpdateNetworkInfo();
     bool              AddTyrePressure(float v);
     float             GetTyrePressure();
     float             getRotation();
@@ -461,7 +460,7 @@ private:
     int               m_net_update_counter;
     Ogre::MovableText* m_net_label_mt;
     Ogre::SceneNode*  m_net_label_node;
-    Ogre::String      m_net_username;
+    Ogre::UTFString   m_net_username;
     Ogre::Timer       m_reset_timer;
     float             m_custom_light_toggle_countdown; //!< Input system helper status
     Ogre::Vector3     m_rotation_request_center;

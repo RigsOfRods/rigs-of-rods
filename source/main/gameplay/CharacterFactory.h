@@ -32,7 +32,7 @@ class CharacterFactory
 {
 public:
     CharacterFactory() {}
-    Character* createLocal(int playerColour);
+    Character* createLocal(Ogre::UTFString playerName, int playerColour);
     void DeleteAllRemoteCharacters();
     void update(float dt);
 #ifdef USE_SOCKETW

@@ -24,12 +24,13 @@
 #include "Application.h"
 #include "Character.h"
 #include "RoRFrameListener.h" // SimController
+#include "Utils.h"
 
 using namespace RoR;
 
-Character* CharacterFactory::createLocal(int playerColour)
+Character* CharacterFactory::createLocal(Ogre::UTFString playerName, int playerColour)
 {
-    Character* ch = new Character(-1, 0, playerColour, false);
+    Character* ch = new Character(-1, 0, playerName, playerColour, false);
     App::GetSimController()->GetGfxScene().RegisterGfxCharacter(ch->SetupGfx());
     return ch;
 }
@@ -40,10 +41,11 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
     RoRnet::UserInfo info;
     RoR::Networking::GetUserInfo(sourceid, info);
     int colour = info.colournum;
+    Ogre::UTFString name = tryConvertUTF(info.username);
 
     LOG(" new character for " + TOSTRING(sourceid) + ":" + TOSTRING(streamid) + ", colour: " + TOSTRING(colour));
 
-    Character* ch = new Character(sourceid, streamid, colour, true);
+    Character* ch = new Character(sourceid, streamid, name, colour, true);
     App::GetSimController()->GetGfxScene().RegisterGfxCharacter(ch->SetupGfx());
     m_remote_characters.push_back(std::unique_ptr<Character>(ch));
 #endif // USE_SOCKETW
@@ -65,12 +67,10 @@ void CharacterFactory::removeStreamSource(int sourceid)
 void CharacterFactory::update(float dt)
 {
     gEnv->player->update(dt);
-    gEnv->player->updateLabels();
 
     for (auto& c : m_remote_characters)
     {
         c->update(dt);
-        c->updateLabels();
     }
 }
 
