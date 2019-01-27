@@ -2133,6 +2133,15 @@ bool SimController::SetupGameplayLoop()
             if (entry.fext != "terrn2" && fname.find(name) != std::string::npos) 
             {
                 App::diag_preset_vehicle.SetActive(entry.fname.c_str());
+                // Section config lookup
+                if (!entry.sectionconfigs.empty())
+                {
+                    auto cfgs = entry.sectionconfigs;
+                    if (std::find(cfgs.begin(), cfgs.end(), App::diag_preset_veh_config.GetActive()) == cfgs.end())
+                    {
+                        App::diag_preset_veh_config.SetActive(cfgs[0].c_str());
+                    }
+                }
                 break;
             }
         }
