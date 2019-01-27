@@ -584,20 +584,6 @@ GfxCharacter* Character::SetupGfx()
     m_gfx_character->xc_character = this;
     m_gfx_character->xc_instance_name = m_instance_name;
 
-#ifdef USE_SOCKETW
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
-    {
-        m_gfx_character->xc_movable_text = new MovableText("netlabel-" + m_instance_name, "");
-        scenenode->attachObject(m_gfx_character->xc_movable_text);
-        m_gfx_character->xc_movable_text->setFontName("CyberbitEnglish");
-        m_gfx_character->xc_movable_text->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
-        m_gfx_character->xc_movable_text->setAdditionalHeight(2);
-        m_gfx_character->xc_movable_text->showOnTop(false);
-        m_gfx_character->xc_movable_text->setCharacterHeight(8);
-        m_gfx_character->xc_movable_text->setColor(ColourValue::Black);
-    }
-#endif //SOCKETW
-
     return m_gfx_character;
 }
 
@@ -719,6 +705,18 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
 #ifdef USE_SOCKETW
     if (App::mp_state.GetActive() == MpState::CONNECTED && !xc_simbuf.simbuf_actor_coupling)
     {
+        if (xc_movable_text == nullptr)
+        {
+            xc_movable_text = new MovableText("netlabel-" + xc_instance_name, "");
+            xc_movable_text->setFontName("CyberbitEnglish");
+            xc_movable_text->setSpaceWidth(0.2f);
+            xc_movable_text->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
+            xc_movable_text->setAdditionalHeight(2);
+            xc_movable_text->showOnTop(false);
+            xc_movable_text->setColor(ColourValue::Black);
+            xc_scenenode->attachObject(xc_movable_text);
+        }
+
         // From 'updateCharacterNetworkColor()'
         const String materialName = "tracks/" + xc_instance_name;
         const int textureUnitStateNum = 2;
