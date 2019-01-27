@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
         Ogre::String dst_path = PathCombine(App::sys_user_dir.GetActive(), "");
         for (auto file : *fl)
         {
-            CreateFolder(dst_path + file.filename);
+            CreateFolder(dst_path + file.basename);
         }
         fl = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo("SrcRG", "*");
         if (fl->empty())
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
         {
             if (file.uncompressedSize == 0)
                 continue;
-            Ogre::String path = file.path + file.filename;
+            Ogre::String path = file.path + file.basename;
             if (!Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo("DstRG", path)->empty())
                 continue;
             Ogre::DataStreamPtr src_ds = Ogre::ResourceGroupManager::getSingleton().openResource(path, "SrcRG");
