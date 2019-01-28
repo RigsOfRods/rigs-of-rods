@@ -1282,35 +1282,22 @@ bool CacheSystem::checkResourceLoaded(CacheEntry& t)
     {
         return true; // Already loaded
     }
-
     if (t.resource_bundle_type == "Zip")
     {
+        static int rg_counter = 0;
+        String group = "Mod-" + std::to_string(rg_counter++);
+        ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
         try
         {
-            static int rgcountera = 0;
-            rgcountera++;
-            String name = "General-Reloaded-" + TOSTRING(rgcountera);
-            ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, name);
-            m_loaded_resource_bundles[t.resource_bundle_path] = true;
-            ResourceGroupManager::getSingleton().initialiseResourceGroup(name);
-            return true;
-        }
-        catch (ItemIdentityException& e)
-        {
-            LOG("Error opening: '" + t.resource_bundle_path + "': some files are duplicates of existing files. The archive/directory will be ignored.");
-            LOG("Error description: " + e.getFullDescription());
-        }
-        catch (Ogre::InvalidStateException& e) // the tokenizer choked..
-        {
-            LOG(" *** error opening '"+t.resource_bundle_path+"': some files are duplicates of existing files. The archive/directory will be ignored. Message: "+ e.getFullDescription());
+            ResourceGroupManager::getSingleton().initialiseResourceGroup(group);
         }
         catch (Ogre::Exception& e)
         {
-            LOG("error opening '"+t.resource_bundle_path+"', skipping it, message:" + e.getFullDescription());
+            LOG("Error while loading '" + t.resource_bundle_path + "': " + e.getFullDescription());
         }
-        LOG("trying to continue ...");
     }
-    return false;
+    m_loaded_resource_bundles[t.resource_bundle_path] = true;
+    return true;
 }
 
 void CacheSystem::loadSingleZip(Ogre::FileInfo f)
@@ -1325,59 +1312,40 @@ void CacheSystem::loadSingleDirectory(String dirname, String group)
     {
         parseKnownFilesOneRGDirectory(group, dirname);
     }
-    catch (ItemIdentityException& e)
-    {
-        LOG(" *** error opening directory '" + dirname + "': some files are duplicates of existing files. The directory will be ignored.");
-        LOG("error while opening resource: " + e.getFullDescription());
-    }
     catch (Ogre::Exception& e)
     {
-        LOG("error while loading directory: " + e.getFullDescription());
-        LOG("error opening directory '"+dirname+"'");
-        LOG("trying to continue ...");
+        RoR::LogFormat("[RoR|ModCache] Error while loading '%s': %s", dirname.c_str(), e.getFullDescription().c_str());
     }
 }
 
 void CacheSystem::loadSingleZipInternal(String zippath)
 {
-    String realzipPath = getRealPath(zippath);
+    String path = getRealPath(zippath);
 
-    LOG("Adding archive " + realzipPath);
+    RoR::LogFormat("[RoR|ModCache] Adding archive '%s'", path.c_str());
 
-    static int rg_counter = 0;
-    String rgname = "General-" + std::to_string(rg_counter++);
+    String group = "ModCacheTemp";
+    ResourceGroupManager::getSingleton().createResourceGroup(group, false);
+    ResourceGroupManager::getSingleton().addResourceLocation(path, "Zip", group);
 
     try
     {
-        ResourceGroupManager& rgm = ResourceGroupManager::getSingleton();
-
-        // load it into a new resource group
-        LOG("Loading " + realzipPath);
-        rgm.addResourceLocation(realzipPath, "Zip", rgname);
-        rgm.initialiseResourceGroup(rgname);
-
-        // parse everything
-        parseKnownFilesOneRG(rgname);
-
-        // unload it again
-        LOG("Unloading " + realzipPath);
-#ifdef USE_OPENAL
-        SoundScriptManager::getSingleton().clearNonBaseTemplates();
-#endif //OPENAL
-        ParticleSystemManager::getSingleton().removeTemplatesByResourceGroup(rgname);
-        rgm.destroyResourceGroup(rgname);
-    }
-    catch (ItemIdentityException& e)
-    {
-        LOG(" *** error opening archive '"+realzipPath+"': some files are duplicates of existing files. The archive will be ignored.");
-        LOG("error while opening resource: " + e.getFullDescription());
+        RoR::LogFormat("[RoR|ModCache] Loading archive '%s' ...", path.c_str());
+        ResourceGroupManager::getSingleton().initialiseResourceGroup(group);
     }
     catch (Ogre::Exception& e)
     {
-        LOG("error while loading single Zip: " + e.getFullDescription());
-        LOG("error opening archive '"+realzipPath+"'. Is it corrupt? Ignoring that archive ...");
-        LOG("trying to continue ...");
+        RoR::LogFormat("[RoR|ModCache] Error while loading '%s': %s", path.c_str(), e.getFullDescription().c_str());
     }
+
+    parseKnownFilesOneRG(group);
+
+    RoR::LogFormat("[RoR|ModCache] Unloading archive '%s'", path.c_str());
+#ifdef USE_OPENAL
+    SoundScriptManager::getSingleton().clearNonBaseTemplates();
+#endif //OPENAL
+    ParticleSystemManager::getSingleton().removeTemplatesByResourceGroup(group);
+    ResourceGroupManager::getSingleton().destroyResourceGroup(group);
 }
 
 void CacheSystem::loadAllZipsInResourceGroup(String group)
