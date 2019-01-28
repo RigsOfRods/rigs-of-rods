@@ -74,6 +74,8 @@ public:
     std::vector<AuthorInfo> authors;    //!< authors
     Ogre::String filecachename;         //!< preview image filename
 
+    Ogre::String resource_group;        //!< the name of the resource group this entry belongs to
+
     std::shared_ptr<RigDef::File> actor_def; //!< Cached actor definition (aka truckfile) after first spawn
 
     // following all TRUCK detail information:
@@ -145,7 +147,7 @@ public:
     void                  UnloadActorDefFromMemory(std::string const & filename);
     CacheValidityState    EvaluateCacheValidity();
 
-    bool checkResourceLoaded(CacheEntry& t); //!< Loads the associated resource bundle if not already done. Updates the bundle (resource group, loaded state)
+    void loadResource(CacheEntry& t); //!< Loads the associated resource bundle if not already done.
     bool checkResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
     bool checkResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
 

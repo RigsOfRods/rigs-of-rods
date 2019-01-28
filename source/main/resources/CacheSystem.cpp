@@ -125,8 +125,6 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
         this->loadAllZipsInResourceGroup(RGN_MODCACHE);
         this->loadAllDirectoriesInResourceGroup(RGN_MODCACHE);
 
-        this->checkForNewKnownFiles(); // TODO: does some duplicate work, but needed to pick up flat files in 'HOME/vehicles' dir
-
         this->detectDuplicates();
 
         this->WriteCacheFileJson();
@@ -1049,32 +1047,21 @@ void CacheSystem::generateFileCache(CacheEntry& entry)
         StringUtil::splitBaseFilename(entry.fname, fbase, fext);
         String minifn = fbase + "-mini." + entry.minitype;
 
-        String group = "";
-        bool exists = ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(minifn);
-        if (!exists)
+        if (!ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(minifn))
         {
             String base, ext;
             StringUtil::splitBaseFilename(entry.fname, base, ext);
             entry.minitype = detectFilesMiniType(base + "-mini");
-            exists = ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(minifn);
-            if (!exists)
+            if (!ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(minifn))
             {
                 // no minipic found
                 entry.filecachename = "none";
                 return;
             }
-            else
-            {
-                group = ResourceGroupManager::getSingleton().findGroupContainingResource(minifn);
-            }
-        }
-        else
-        {
-            group = ResourceGroupManager::getSingleton().findGroupContainingResource(minifn);
         }
 
-        FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(group, minifn);
-        if (files->empty())
+        String group = ResourceGroupManager::getSingleton().findGroupContainingResource(minifn);
+        if (ResourceGroupManager::getSingleton().findResourceFileInfo(group, minifn)->empty())
         {
             this->deleteFileCache(dst);
         }
@@ -1172,13 +1159,12 @@ void CacheSystem::checkForNewKnownFiles()
 
 void CacheSystem::checkForNewFiles(Ogre::String ext)
 {
-    char fname[256];
-    sprintf(fname, "*.%s", ext.c_str());
+    String pattern = StringUtil::format("*.%s", ext.c_str());
 
     StringVector sv = ResourceGroupManager::getSingleton().getResourceGroups();
     for (StringVector::iterator it = sv.begin(); it != sv.end(); ++it)
     {
-        FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(*it, fname);
+        FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(*it, pattern);
         for (FileInfoList::iterator iterFiles = files->begin(); iterFiles != files->end(); ++iterFiles)
         {
             String fn = iterFiles->filename.c_str();
@@ -1236,54 +1222,48 @@ bool CacheSystem::checkResourceLoaded(Ogre::String & filename, Ogre::String& gro
         return true;
     }
 
-    std::vector<CacheEntry>::iterator it;
-
-    for (it = m_entries.begin(); it != m_entries.end(); it++)
+    for (auto& entry : m_entries)
     {
         // case insensitive comparison
-        String fname = it->fname;
-        String filename_lower = filename;
-        String fname_without_uid_lower = it->fname_without_uid;
+        String fname = entry.fname;
+        String fname_without_uid = entry.fname_without_uid;
         StringUtil::toLowerCase(fname);
-        StringUtil::toLowerCase(filename_lower);
-        StringUtil::toLowerCase(fname_without_uid_lower);
-        if (fname == filename_lower || fname_without_uid_lower == filename_lower)
+        StringUtil::toLowerCase(filename);
+        StringUtil::toLowerCase(fname_without_uid);
+        if (fname == filename || fname_without_uid == filename)
         {
             // we found the file, load it
-            filename = it->fname;
-            bool res = checkResourceLoaded(*it);
-            bool exists = ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename);
-            if (!exists)
-                return false;
-            group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
-            return res;
+            loadResource(entry);
+            filename = entry.fname;
+            group = entry.resource_group;
+            return ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename);
         }
     }
+
     return false;
 }
 
-bool CacheSystem::checkResourceLoaded(CacheEntry& t)
+void CacheSystem::loadResource(CacheEntry& t)
 {
     if (m_loaded_resource_bundles[t.resource_bundle_path])
     {
-        return true; // Already loaded
+        return;
     }
-    if (t.resource_bundle_type == "Zip")
+
+    static int rg_counter = 0;
+    String group = "Mod-" + std::to_string(rg_counter++);
+    ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+    try
     {
-        static int rg_counter = 0;
-        String group = "Mod-" + std::to_string(rg_counter++);
-        ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
-        try
-        {
-            ResourceGroupManager::getSingleton().initialiseResourceGroup(group);
-        }
-        catch (Ogre::Exception& e)
-        {
-            LOG("Error while loading '" + t.resource_bundle_path + "': " + e.getFullDescription());
-        }
+        ResourceGroupManager::getSingleton().initialiseResourceGroup(group);
     }
+    catch (Ogre::Exception& e)
+    {
+        LOG("Error while loading '" + t.resource_bundle_path + "': " + e.getFullDescription());
+    }
+    t.resource_group = group;
+
     m_loaded_resource_bundles[t.resource_bundle_path] = true;
-    return true;
 }
 
 void CacheSystem::loadSingleZip(Ogre::FileInfo f)
