@@ -503,9 +503,8 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
                 continue;
             }
 
-            String group = "";
             String actor_filename(type);
-            if (!RoR::App::GetCacheSystem()->checkResourceLoaded(actor_filename, group))
+            if (!RoR::App::GetCacheSystem()->checkResourceLoaded(actor_filename))
             {
                 LOG("Error while loading Terrain: truck " + actor_filename + " not found. ignoring.");
                 continue;

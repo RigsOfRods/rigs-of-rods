@@ -195,20 +195,6 @@ String CacheSystem::getCacheConfigFilename()
     return PathCombine(App::sys_cache_dir.GetActive(), CACHE_FILE);
 }
 
-// we implement this on our own, since we cannot reply on the ogre version
-bool CacheSystem::resourceExistsInAllGroups(Ogre::String filename)
-{
-    try
-    {
-        String group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
-        return !group.empty();
-    }
-    catch (...)
-    {
-        return false;
-    }
-}
-
 CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
 {
     this->GenerateHashFromFilenames();
@@ -709,7 +695,7 @@ void CacheSystem::addFile(String filename, String filepath, String archiveType, 
 
     //read first line
     CacheEntry entry;
-    if (!resourceExistsInAllGroups(filename))
+    if (!ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename))
         return;
 
     String group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
@@ -1013,13 +999,13 @@ void CacheSystem::deleteFileCache(const char* full_path)
 
 Ogre::String CacheSystem::detectFilesMiniType(String filename)
 {
-    if (resourceExistsInAllGroups(filename + ".dds"))
+    if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename + ".dds"))
         return "dds";
 
-    if (resourceExistsInAllGroups(filename + ".png"))
+    if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename + ".png"))
         return "png";
 
-    if (resourceExistsInAllGroups(filename + ".jpg"))
+    if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename + ".jpg"))
         return "jpg";
 
     return "none";

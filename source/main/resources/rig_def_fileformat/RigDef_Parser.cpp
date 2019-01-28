@@ -2907,17 +2907,19 @@ void Parser::ParseManagedMaterials()
         return;
     }
 
-    if (!RoR::App::GetCacheSystem()->resourceExistsInAllGroups(managed_mat.diffuse_map))
+    Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
+
+    if (!rgm.resourceExistsInAnyGroup(managed_mat.diffuse_map))
     {
         this->AddMessage(Message::TYPE_WARNING, "Missing texture file: " + managed_mat.diffuse_map);
         return;
     }
-    if (managed_mat.HasDamagedDiffuseMap() && !RoR::App::GetCacheSystem()->resourceExistsInAllGroups(managed_mat.damaged_diffuse_map))
+    if (managed_mat.HasDamagedDiffuseMap() && !rgm.resourceExistsInAnyGroup(managed_mat.damaged_diffuse_map))
     {
         this->AddMessage(Message::TYPE_WARNING, "Missing texture file: " + managed_mat.damaged_diffuse_map);
         managed_mat.damaged_diffuse_map = "-";
     }
-    if (managed_mat.HasSpecularMap() && !RoR::App::GetCacheSystem()->resourceExistsInAllGroups(managed_mat.specular_map))
+    if (managed_mat.HasSpecularMap() && !rgm.resourceExistsInAnyGroup(managed_mat.specular_map))
     {
         this->AddMessage(Message::TYPE_WARNING, "Missing texture file: " + managed_mat.specular_map);
         managed_mat.specular_map = "-";
