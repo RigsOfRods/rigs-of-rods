@@ -10,17 +10,17 @@ material tracks/character: RoR/Managed_Mats/Base
 			{
 				texture character.dds
 			}
-			
+		}
+		pass ColorChange
+		{
+			scene_blend alpha_blend
 			texture_unit
 			{
 				texture character-alpha.png
-				colour_op alpha_blend
 			}
-			
 			texture_unit
 			{
-				colour_op_ex blend_current_alpha src_manual src_current 0 0 0
-				alpha_op_ex blend_current_alpha src_manual src_current 0
+				colour_op_ex blend_current_alpha src_manual src_current 0
 			}
 		}
 	}
