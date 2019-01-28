@@ -29,6 +29,7 @@
 
 #include "CacheSystem.h"
 #include "ChatSystem.h"
+#include "ContentManager.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
@@ -201,6 +202,20 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
     }
 #endif // USE_SOCKETW
 
+    if (App::app_force_cache_udpate.GetActive() || App::app_force_cache_purge.GetActive())
+    {
+        if (App::GetGuiManager()->IsVisible_GameSettings())
+        {
+            App::GetGuiManager()->SetVisible_GameSettings(false);
+            App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+        }
+        else
+        {
+            App::GetContentManager()->InitModCache();
+            App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        }
+    }
+
     RoR::App::GetInputEngine()->Capture();
 
     MainMenuLoopUpdateEvents(seconds_since_last_frame);
@@ -331,10 +346,8 @@ void MainMenu::LeaveMultiplayerServer()
 #ifdef USE_SOCKETW
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
-        App::GetGuiManager()->GetLoadingWindow()->setAutotrack(_L("Disconnecting, wait 10 seconds ..."));
         RoR::Networking::Disconnect();
         App::GetGuiManager()->SetVisible_MpClientList(false);
-        App::GetGuiManager()->SetVisible_LoadingWindow(false);
     }
 #endif //SOCKETW
 }

@@ -24,6 +24,7 @@
 #include "Application.h"
 #include "GUIManager.h"
 #include "Language.h"
+#include "OgreSubsystem.h"
 #include "Utils.h"
 
 namespace RoR {
@@ -54,21 +55,15 @@ void LoadingWindow::setProgress(int _percent, const Ogre::UTFString& _text)
     }
 }
 
-void LoadingWindow::setAutotrack(const Ogre::UTFString& _text)
-{
-    mMainWidget->setVisible(true);
-    mInfoStaticText->setCaption(convertToMyGUIString(_text));
-    mBarProgress->setProgressPosition(0);
-    mBarProgress->setProgressAutoTrack(true);
-
-    renderOneFrame();
-}
-
 void LoadingWindow::renderOneFrame()
 {
     // we must pump the window messages, otherwise the window will get white on Vista ...
     OgreBites::WindowEventUtilities::messagePump();
     Ogre::Root::getSingleton().renderOneFrame();
+    if (App::app_state.GetActive() == AppState::MAIN_MENU)
+    {
+        App::GetOgreSubsystem()->GetRenderWindow()->update();
+    }
 }
 
 bool LoadingWindow::IsVisible() { return mMainWidget->getVisible(); }

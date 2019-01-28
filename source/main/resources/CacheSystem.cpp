@@ -122,6 +122,8 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
     {
         RoR::Log("[RoR|ModCache] Performing full rebuild");
 
+        this->ClearCache();
+
         this->loadAllZipsInResourceGroup(RGN_MODCACHE);
         this->loadAllDirectoriesInResourceGroup(RGN_MODCACHE);
 
@@ -207,27 +209,33 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
         !j_doc.HasMember("format_version") ||!j_doc["format_version"].IsNumber() ||
         !j_doc.HasMember("entries") || !j_doc["entries"].IsArray())
     {
-        RoR::Log("[RoR|ModCache] Invalid or missing cache file, performing full rebuild.");
+        RoR::Log("[RoR|ModCache] Invalid or missing cache file ...");
         return CACHE_NEEDS_UPDATE_FULL; 
     }
 
     if (j_doc["format_version"].GetInt() != CACHE_FILE_FORMAT)
     {
-        m_entries.clear();
-        RoR::Log("[RoR|ModCache] Invalid cache file format, performing full rebuild.");
+        RoR::Log("[RoR|ModCache] Invalid cache file format ...");
+        return CACHE_NEEDS_UPDATE_FULL;
+    }
+
+    if (App::app_force_cache_purge.GetActive())
+    {
+        App::app_force_cache_purge.SetActive(false);
+        RoR::Log("[RoR|ModCache] Cache rebuild requested ...");
         return CACHE_NEEDS_UPDATE_FULL;
     }
 
     if (j_doc["global_hash"].GetString() != m_filenames_hash)
     {
-        RoR::Log("[RoR|ModCache] Cache file out of date, regenerating new one ...");
+        RoR::Log("[RoR|ModCache] Cache file out of date ...");
         return CACHE_NEEDS_UPDATE_INCREMENTAL;
     }
 
     if (App::app_force_cache_udpate.GetActive())
     {
         App::app_force_cache_udpate.SetActive(false);
-        RoR::Log("[RoR|ModCache] Cache file check requested, regenerating new one ...");
+        RoR::Log("[RoR|ModCache] Cache update requested ...");
         return CACHE_NEEDS_UPDATE_INCREMENTAL;
     }
 
@@ -405,7 +413,7 @@ void CacheSystem::incrementalCacheUpdate()
             loading_win->setProgress(20, tmp);
             if (!it->deleted)
             {
-                removeFileFromFileCache(it);
+                removeFileCache(*it);
             }
             it->deleted = true;
             // do not try: entries.erase(it)
@@ -440,7 +448,6 @@ void CacheSystem::incrementalCacheUpdate()
     LOG("* incremental check (5/5): duplicates ...");
     loading_win->setProgress(90, _L("incremental check: duplicates\n"));
     detectDuplicates();
-    loading_win->setAutotrack(_L("loading...\n"));
 
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
     LOG("* incremental check done.");
@@ -656,6 +663,22 @@ void CacheSystem::WriteCacheFileJson()
     {
         RoR::LogFormat("[RoR|ModCache] Error writing '%s'", path.c_str());
     }
+}
+
+void CacheSystem::ClearCache()
+{
+    std::remove(this->getCacheConfigFilename().c_str());
+    for (auto& entry : m_entries)
+    {
+        String group = entry.resource_group;
+        if (!group.empty())
+        {
+            if (ResourceGroupManager::getSingleton().resourceGroupExists(group))
+                ResourceGroupManager::getSingleton().destroyResourceGroup(group);
+        }
+        this->removeFileCache(entry);
+    }
+    m_entries.clear();
 }
 
 Ogre::String CacheSystem::stripUIDfromString(Ogre::String uidstr)
@@ -986,15 +1009,6 @@ int CacheSystem::getTimeStamp()
     return (int)time(NULL); //this will overflow in 2038
 }
 
-void CacheSystem::deleteFileCache(const char* full_path)
-{
-    int result = std::remove(full_path);
-    if (result != 0)
-    {
-        RoR::LogFormat("[RoR] Error deleting file '%s' from ModCache, result code: %d", full_path, result);
-    }
-}
-
 Ogre::String CacheSystem::detectFilesMiniType(String filename)
 {
     if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename + ".dds"))
@@ -1009,12 +1023,12 @@ Ogre::String CacheSystem::detectFilesMiniType(String filename)
     return "none";
 }
 
-void CacheSystem::removeFileFromFileCache(std::vector<CacheEntry>::iterator iter)
+void CacheSystem::removeFileCache(CacheEntry& entry)
 {
-    if (iter->minitype != "none")
+    if (entry.minitype != "none")
     {
-        String fn = Ogre::String(App::sys_cache_dir.GetActive())  + PATH_SLASH + iter->filecachename;
-        this->deleteFileCache(fn);
+        String path = PathCombine(App::sys_cache_dir.GetActive(), entry.filecachename);
+        std::remove(path.c_str());
     }
 }
 
@@ -1063,7 +1077,7 @@ void CacheSystem::generateFileCache(CacheEntry& entry)
         String group = ResourceGroupManager::getSingleton().findGroupContainingResource(minifn);
         if (ResourceGroupManager::getSingleton().findResourceFileInfo(group, minifn)->empty())
         {
-            this->deleteFileCache(dst);
+            std::remove(dst.c_str());
         }
 
         size_t fsize = 0;
@@ -1095,7 +1109,7 @@ void CacheSystem::generateFileCache(CacheEntry& entry)
         }
         if (!written)
         {
-            this->deleteFileCache(dst);
+            std::remove(dst.c_str());
         }
     }
     catch (Ogre::Exception& e)

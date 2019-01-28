@@ -157,18 +157,20 @@ public:
     CacheEntry *getEntry(int modid);
     Ogre::String getPrettyName(Ogre::String fname);
 
-    Ogre::String getCacheConfigFilename(); // returns absolute path of the cache file
-
     int getTimeStamp();
 
     enum CategoryID {CID_Max=9000, CID_Unsorted=9990, CID_All=9991, CID_Fresh=9992, CID_Hidden=9993, CID_SearchResults=9994};
 
 private:
 
+    void ClearCache();
+
     void WriteCacheFileJson();
     void ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Document& j_doc, CacheEntry const & entry);
     void LoadCacheFileJson();
     void ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & out_entry);
+
+    Ogre::String getCacheConfigFilename(); // returns absolute path of the cache file
 
     static Ogre::String stripUIDfromString(Ogre::String uidstr); // helper
     int addUniqueString(std::set<Ogre::String> &list, Ogre::String str);
@@ -193,16 +195,14 @@ private:
     void incrementalCacheUpdate();             // tries to update parts of the Cache only
     void detectDuplicates();                   // tries to detect duplicates
 
-    void generateFileCache(CacheEntry &entry);	// generates a new cache
-    void deleteFileCache(const char *full_path); //!< Delete single file from cache
-    void deleteFileCache(std::string const& full_path) { this->deleteFileCache(full_path.c_str()); }
+    void generateFileCache(CacheEntry &entry);
+    void removeFileCache(CacheEntry &entry);
 
     // adds a zip to the cache
     void loadSingleZip(Ogre::FileInfo f);
     void loadSingleZipInternal(Ogre::String zippath);
 
     Ogre::String detectFilesMiniType(Ogre::String filename);
-    void removeFileFromFileCache(std::vector<CacheEntry>::iterator it);
     void loadSingleDirectory(Ogre::String dirname, Ogre::String group);
 
     Ogre::String getRealPath(Ogre::String path);
