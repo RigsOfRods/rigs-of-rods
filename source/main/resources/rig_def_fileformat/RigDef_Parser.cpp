@@ -2910,6 +2910,7 @@ void Parser::ParseManagedMaterials()
     if (!RoR::App::GetCacheSystem()->resourceExistsInAllGroups(managed_mat.diffuse_map))
     {
         this->AddMessage(Message::TYPE_WARNING, "Missing texture file: " + managed_mat.diffuse_map);
+        return;
     }
     if (managed_mat.HasDamagedDiffuseMap() && !RoR::App::GetCacheSystem()->resourceExistsInAllGroups(managed_mat.damaged_diffuse_map))
     {
