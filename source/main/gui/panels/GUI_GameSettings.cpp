@@ -59,6 +59,11 @@ void RoR::GUI::GameSettings::Draw()
     if (ImGui::Button(_LC("GameSettings", "Controls")))      { m_tab = SettingsTab::CONTROL;       }
     ImGui::SameLine();
     if (ImGui::Button(_LC("GameSettings", "Diagnostic")))    { m_tab = SettingsTab::DIAG;          }
+    ImGui::SameLine();
+    if (ImGui::Button(_LC("GameSettings", "Update cache")))
+    {
+        App::app_force_cache_udpate.SetActive(true);
+    }
 
     ImGui::PopStyleVar(1);
 
@@ -362,15 +367,9 @@ void RoR::GUI::GameSettings::Draw()
         DrawGCheckbox(App::diag_log_beam_break,      _LC("GameSettings", "Log beam breaking"));
         DrawGCheckbox(App::diag_log_beam_deform,     _LC("GameSettings", "Log beam deforming"));
         DrawGCheckbox(App::diag_log_beam_trigger,    _LC("GameSettings", "Log beam triggers"));
-        if (ImGui::Button(_LC("GameSettings", "Trigger cache update (and quit)")))
+        if (ImGui::Button(_LC("GameSettings", "Rebuild cache")))
         {
-            App::app_force_cache_udpate.SetActive(true);
-            App::app_state.SetPending(AppState::SHUTDOWN);
-        }
-        if (ImGui::Button(_LC("GameSettings", "Clear cache (and quit)")))
-        {
-            std::remove(App::GetCacheSystem()->getCacheConfigFilename().c_str());
-            App::app_state.SetPending(AppState::SHUTDOWN);
+            App::app_force_cache_purge.SetActive(true);
         }
     }
     else if (m_tab == SettingsTab::CONTROL)

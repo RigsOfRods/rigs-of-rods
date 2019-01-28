@@ -239,6 +239,11 @@ void ContentManager::InitModCache()
 {
     ResourceGroupManager::getSingleton().addResourceLocation(App::sys_cache_dir.GetActive(), "FileSystem", "cache", false, false);
 
+    if (ResourceGroupManager::getSingleton().resourceGroupExists(RGN_MODCACHE))
+    {
+        ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_MODCACHE);
+    }
+
     std::string user_content_base = std::string(App::sys_user_dir.GetActive())    + PATH_SLASH;
     std::string content_base      = std::string(App::sys_process_dir.GetActive()) + PATH_SLASH;
 

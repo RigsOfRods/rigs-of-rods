@@ -41,7 +41,6 @@ public:
     LoadingWindow();
 
     void setProgress(int _percent, const Ogre::UTFString& _text = "");
-    void setAutotrack(const Ogre::UTFString& _text = "");
 
     void SetVisible(bool v);
     bool IsVisible();

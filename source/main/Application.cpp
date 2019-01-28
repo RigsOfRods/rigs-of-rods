@@ -85,7 +85,8 @@ static TerrainManager*  g_sim_terrain;
  GVarStr_AP<50>           app_screenshot_format   ("app_screenshot_format",   "Screenshot Format",         "jpg",                   "jpg");
  GVarStr_A<100>           app_rendersys_override  ("app_rendersys_override",  "Render system",             "");
  GVarStr_A<300>           app_extra_mod_path      ("app_extra_mod_path",      "Extra mod path",            "");
- GVarPod_A<bool>          app_force_cache_udpate  ("app_force_cache_udpate",  "Force cache update",        false);
+ GVarPod_A<bool>          app_force_cache_purge   ("app_force_cache_purge",   nullptr,                     false);
+ GVarPod_A<bool>          app_force_cache_udpate  ("app_force_cache_udpate",  nullptr,                     false);
 
 
 // Simulation
