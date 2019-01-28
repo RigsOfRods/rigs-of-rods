@@ -443,7 +443,7 @@ void CacheSystem::incrementalCacheUpdate()
     loading_win->setProgress(40, _L("incremental check: processing changed zips\n"));
     for (auto zippath : changed_entries)
     {
-        loadSingleZipInternal(zippath, -1);
+        loadSingleZipInternal(zippath);
     }
     LOG("* incremental check (3/5): new content ...");
     loading_win->setProgress(60, _L("incremental check: new content\n"));
@@ -1316,10 +1316,7 @@ bool CacheSystem::checkResourceLoaded(CacheEntry& t)
 void CacheSystem::loadSingleZip(Ogre::FileInfo f)
 {
     String zippath = f.archive->getName() + "/" + f.filename;
-    int cfactor = -1;
-    if (f.uncompressedSize > 0)
-        cfactor = (f.compressedSize / f.uncompressedSize) * 100.0f;
-    loadSingleZipInternal(zippath, cfactor);
+    loadSingleZipInternal(zippath);
 }
 
 void CacheSystem::loadSingleDirectory(String dirname, String group)
@@ -1341,16 +1338,11 @@ void CacheSystem::loadSingleDirectory(String dirname, String group)
     }
 }
 
-void CacheSystem::loadSingleZipInternal(String zippath, int cfactor)
+void CacheSystem::loadSingleZipInternal(String zippath)
 {
     String realzipPath = getRealPath(zippath);
 
-    String compr = "";
-    if (cfactor > 99)
-        compr = " (No Compression)";
-    else if (cfactor > 0)
-        compr = " (Compression: " + TOSTRING(cfactor) + ")";
-    LOG("Adding archive " + realzipPath + compr);
+    LOG("Adding archive " + realzipPath);
 
     static int rg_counter = 0;
     String rgname = "General-" + std::to_string(rg_counter++);

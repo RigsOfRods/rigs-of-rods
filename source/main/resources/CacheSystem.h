@@ -199,7 +199,7 @@ private:
 
     // adds a zip to the cache
     void loadSingleZip(Ogre::FileInfo f);
-    void loadSingleZipInternal(Ogre::String zippath, int cfactor);
+    void loadSingleZipInternal(Ogre::String zippath);
 
     Ogre::String detectFilesMiniType(Ogre::String filename);
     void removeFileFromFileCache(std::vector<CacheEntry>::iterator it);
