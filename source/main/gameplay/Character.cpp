@@ -715,15 +715,14 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
 
         // From 'updateCharacterNetworkColor()'
         const String materialName = "tracks/" + xc_instance_name;
-        const int textureUnitStateNum = 2;
 
         MaterialPtr mat = MaterialManager::getSingleton().getByName(materialName);
-        if (!mat.isNull() && mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 0 && textureUnitStateNum < mat->getTechnique(0)->getPass(0)->getNumTextureUnitStates())
+        if (!mat.isNull() && mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 1 &&
+                mat->getTechnique(0)->getPass(1)->getNumTextureUnitStates() > 1)
         {
-            auto state = mat->getTechnique(0)->getPass(0)->getTextureUnitState(textureUnitStateNum);
+            const auto& state = mat->getTechnique(0)->getPass(1)->getTextureUnitState(1);
             Ogre::ColourValue color = Networking::GetPlayerColor(xc_simbuf.simbuf_color_number);
-            state->setAlphaOperation(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, 0.8);
-            state->setColourOperationEx(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, color, color, 1);
+            state->setColourOperationEx(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, color);
             if (xc_movable_text != nullptr)
                 xc_movable_text->setColor(color);
         }
