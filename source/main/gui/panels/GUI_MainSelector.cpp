@@ -715,7 +715,7 @@ void CLASS::OnSelectionDone()
 
         //Only load vehicles via the selector
         if (m_loader_type != LT_Terrain)
-            RoR::App::GetCacheSystem()->checkResourceLoaded(*m_selected_entry);
+            RoR::App::GetCacheSystem()->loadResource(*m_selected_entry);
 
         m_current_skins.clear();
         m_skin_manager->GetUsableSkins(m_selected_entry->guid, this->m_current_skins);
