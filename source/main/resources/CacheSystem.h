@@ -149,8 +149,6 @@ public:
     bool checkResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
     bool checkResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
 
-    static bool resourceExistsInAllGroups(Ogre::String filename);
-
     std::map<int, Ogre::String> *getCategories();
     std::vector<CacheEntry> *getEntries();
 

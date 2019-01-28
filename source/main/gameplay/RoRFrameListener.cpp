@@ -1914,18 +1914,11 @@ bool SimController::LoadTerrain()
     Ogre::String terrain_file = App::sim_terrain_name.GetPending();
     if (! RoR::App::GetCacheSystem()->checkResourceLoaded(terrain_file)) // Input-output argument.
     {
-        // fallback for terrains, add .terrn if not found and retry
-        terrain_file = Ogre::StringUtil::replaceAll(terrain_file, ".terrn2", "");
-        terrain_file = Ogre::StringUtil::replaceAll(terrain_file, ".terrn", "");
-        terrain_file = terrain_file + ".terrn2";
-        if (!RoR::App::GetCacheSystem()->checkResourceLoaded(terrain_file))
-        {
-            LOG("Terrain not found: " + terrain_file);
-            Ogre::UTFString title(_L("Terrain loading error"));
-            Ogre::UTFString msg(_L("Terrain not found: ") + terrain_file);
-            App::GetGuiManager()->ShowMessageBox(title.asUTF8_c_str(), msg.asUTF8_c_str());
-            return false;
-        }
+        LOG("Terrain not found: " + terrain_file);
+        Ogre::UTFString title(_L("Terrain loading error"));
+        Ogre::UTFString msg(_L("Terrain not found: ") + terrain_file);
+        App::GetGuiManager()->ShowMessageBox(title.asUTF8_c_str(), msg.asUTF8_c_str());
+        return false;
     }
 
     App::GetGuiManager()->GetLoadingWindow()->setProgress(0, _L("Loading Terrain"));
