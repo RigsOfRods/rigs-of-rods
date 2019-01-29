@@ -59,7 +59,7 @@ public:
     int categoryid;                     //!< category id
     Ogre::String categoryname;          //!< category name
     
-    int addtimestamp;                   //!< timestamp when this file was added to the cache
+    std::time_t addtimestamp;           //!< timestamp when this file was added to the cache
     
     Ogre::String uniqueid;              //!< file's unique id
     Ogre::String guid;                  //!< global unique id
@@ -157,8 +157,6 @@ public:
     CacheEntry *getEntry(int modid);
     Ogre::String getPrettyName(Ogre::String fname);
 
-    int getTimeStamp();
-
     enum CategoryID {CID_Max=9000, CID_Unsorted=9990, CID_All=9991, CID_Fresh=9992, CID_Hidden=9993, CID_SearchResults=9994};
 
 private:
@@ -220,6 +218,7 @@ private:
     void loadAllDirectoriesInResourceGroup(Ogre::String group);
     void loadAllZipsInResourceGroup(Ogre::String group);
 
+    std::time_t                          m_update_time;      //!< Ensures that all inserted files share the same timestamp
     std::string                          m_filenames_hash;   //!< stores hash over the content, for quick update detection
     std::map<Ogre::String, bool>         m_loaded_resource_bundles;
     std::vector<CacheEntry>              m_entries;
