@@ -268,7 +268,17 @@ void ContentManager::InitModCache()
         ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "FileSystem", RGN_MODCACHE);
     }
 
-    // Required for skins to work on unzipped content
+    // Search for skinzips
+    FileInfoListPtr skinzips = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_MODCACHE, "*.skinzip");
+    for (const auto& file : *skinzips)
+    {
+        if (!file.archive)
+            continue;
+        String fullpath = PathCombine(file.archive->getName(), file.basename);
+        ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "Zip", RGN_MODCACHE);
+    }
+
+    // Required for skins
     ResourceGroupManager::getSingleton().initialiseResourceGroup(RGN_MODCACHE);
 
     CacheSystem::CacheValidityState validity = m_mod_cache.EvaluateCacheValidity();
