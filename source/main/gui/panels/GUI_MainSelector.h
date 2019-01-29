@@ -90,7 +90,7 @@ private:
     bool m_keys_bound;
     RoR::SkinManager* m_skin_manager;
     ActorSpawnRequest m_actor_spawn_rq; //!< Pre-configured by on-terrain spawner scripts
-    int m_cache_file_freshness;
+    std::time_t m_cache_file_freshness;
     bool m_actor_spawn_rq_valid;
 };
 

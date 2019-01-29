@@ -42,7 +42,7 @@ Ogre::UTFString tryConvertUTF(const char* buffer);
 
 Ogre::UTFString formatBytes(double bytes);
 
-int getTimeStamp();
+std::time_t getTimeStamp();
 
 Ogre::String getVersionString(bool multiline = true);
 

@@ -104,9 +104,9 @@ UTFString formatBytes(double bytes)
     return UTFString(tmp);
 }
 
-int getTimeStamp()
+std::time_t getTimeStamp()
 {
-    return (int)time(NULL); //this will overflow in 2038
+    return time(NULL); //this will overflow in 2038
 }
 
 String getVersionString(bool multiline)

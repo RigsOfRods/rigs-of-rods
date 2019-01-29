@@ -386,8 +386,7 @@ void CLASS::UpdateGuiData()
         m_Cancel->setEnabled(true);
     }
 
-    int ts = getTimeStamp();
-    std::vector<int> timestamps;
+    std::vector<std::time_t> timestamps;
     std::vector<CacheEntry>* entries = RoR::App::GetCacheSystem()->getEntries();
     std::sort(entries->begin(), entries->end(), sort_entries<CacheEntry>());
     for (std::vector<CacheEntry>::iterator it = entries->begin(); it != entries->end(); it++)
@@ -433,11 +432,10 @@ void CLASS::UpdateGuiData()
     // Find fresh cache entries
     if (timestamps.size() > 0)
     {
-        std::sort(timestamps.begin(), timestamps.end());
-        m_cache_file_freshness = timestamps[std::max((size_t)0, timestamps.size() - 10)];
+        m_cache_file_freshness = *std::max_element(timestamps.begin(), timestamps.end());
         for (std::vector<CacheEntry>::iterator it = m_entries.begin(); it != m_entries.end(); it++)
         {
-            if (it->addtimestamp >= m_cache_file_freshness)
+            if (it->addtimestamp >= m_cache_file_freshness || it->filetime >= m_cache_file_freshness - 86400)
                 mCategoryUsage[CacheSystem::CID_Fresh]++;
         }
     }
@@ -585,7 +583,6 @@ void CLASS::OnCategorySelected(int categoryID)
     Ogre::StringUtil::toLowerCase(search_cmd);
 
     int counter = 0;
-    int ts = getTimeStamp();
 
     m_Model->removeAllItems();
 
@@ -622,7 +619,8 @@ void CLASS::OnCategorySelected(int categoryID)
         for (auto it = m_entries.begin(); it != m_entries.end(); it++)
         {
             if (it->categoryid == categoryID || categoryID == CacheSystem::CID_All
-                || (categoryID == CacheSystem::CID_Fresh && (it->addtimestamp >= m_cache_file_freshness)))
+                || (categoryID == CacheSystem::CID_Fresh &&
+                    (it->addtimestamp >= m_cache_file_freshness || it->filetime >= m_cache_file_freshness - 86400)))
             {
                 counter++;
                 Ogre::String txt = TOSTRING(counter) + ". " + it->dname;
@@ -879,12 +877,15 @@ void CLASS::UpdateControls(CacheEntry* entry)
     if (entry->usagecounter > 0)
         descriptiontxt = descriptiontxt + _L("Times used: ") + c + TOUTFSTRING(entry->usagecounter) + nc + newline;
 
+    if (entry->filetime > 0)
+    {
+        Ogre::String filetime = Ogre::StringUtil::format("%s", asctime(gmtime(&entry->filetime)));
+        descriptiontxt = descriptiontxt + _L("Date and Time modified: ") + c + filetime + nc;
+    }
     if (entry->addtimestamp > 0)
     {
-        char tmp[255] = "";
-        time_t epch = entry->addtimestamp;
-        sprintf(tmp, "%s", asctime(gmtime(&epch)));
-        descriptiontxt = descriptiontxt + _L("Date and Time installed: ") + c + Ogre::String(tmp) + nc + newline;
+        Ogre::String addtimestamp = Ogre::StringUtil::format("%s", asctime(gmtime(&entry->addtimestamp)));
+        descriptiontxt = descriptiontxt + _L("Date and Time installed: ") + c + addtimestamp + nc;
     }
 
     Ogre::UTFString driveableStr[5] = {_L("Non-Driveable"), _L("Truck"), _L("Airplane"), _L("Boat"), _L("Machine")};
