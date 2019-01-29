@@ -156,6 +156,9 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
         exit(1337);
     }
 
+    App::app_force_cache_purge.SetActive(false);
+    App::app_force_cache_udpate.SetActive(false);
+
     LOG("cache loaded!");
 }
 
@@ -223,7 +226,6 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
 
     if (App::app_force_cache_purge.GetActive())
     {
-        App::app_force_cache_purge.SetActive(false);
         RoR::Log("[RoR|ModCache] Cache rebuild requested ...");
         return CACHE_NEEDS_UPDATE_FULL;
     }
@@ -236,7 +238,6 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
 
     if (App::app_force_cache_udpate.GetActive())
     {
-        App::app_force_cache_udpate.SetActive(false);
         RoR::Log("[RoR|ModCache] Cache update requested ...");
         return CACHE_NEEDS_UPDATE_INCREMENTAL;
     }
