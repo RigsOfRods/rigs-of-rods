@@ -279,7 +279,14 @@ void ContentManager::InitModCache()
     }
 
     // Required for skins
-    ResourceGroupManager::getSingleton().initialiseResourceGroup(RGN_MODCACHE);
+    try 
+    {   
+        ResourceGroupManager::getSingleton().initialiseResourceGroup(RGN_MODCACHE);
+    }   
+    catch (Ogre::Exception& e)
+    {   
+        LOG("RoR|ContentManager: Error while initializing mod cache: " + e.getFullDescription());
+    }  
 
     CacheSystem::CacheValidityState validity = m_mod_cache.EvaluateCacheValidity();
     m_mod_cache.LoadModCache(validity);
