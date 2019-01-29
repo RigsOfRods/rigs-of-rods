@@ -106,7 +106,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     LOG(" == Spawning vehicle: " + def->name);
 
     ActorSpawner spawner;
-    spawner.Setup(actor, def, parent_scene_node, rq.asr_position, rq.asr_cache_entry_num);
+    spawner.Setup(actor, def, parent_scene_node, rq.asr_cache_entry_num);
     /* Setup modules */
     spawner.AddModule(def->root_module);
     if (def->user_modules.size() > 0) /* The vehicle-selector may return selected modules even for vehicle with no modules defined! Hence this check. */
@@ -136,61 +136,78 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     actor->ar_initial_node_positions.resize(actor->ar_num_nodes);
 
+    actor->UpdateBoundingBoxes();
+
     // Apply spawn position & spawn rotation
     for (int i = 0; i < actor->ar_num_nodes; i++)
     {
-        actor->ar_nodes[i].AbsPosition = rq.asr_position + rq.asr_rotation * (actor->ar_nodes[i].AbsPosition - rq.asr_position);
-        actor->ar_nodes[i].RelPosition = actor->ar_nodes[i].AbsPosition - actor->ar_origin;
-    };
+        actor->ar_nodes[i].AbsPosition = rq.asr_position + rq.asr_rotation * actor->ar_nodes[i].AbsPosition;
+        actor->ar_nodes[i].RelPosition = actor->ar_nodes[i].AbsPosition;
+    }
 
     /* Place correctly */
-    if (! def->HasFixes())
+    if (actor->m_preloaded_with_terrain)
     {
-        Ogre::Vector3 vehicle_position = rq.asr_position;
-
-        // check if over-sized
-        actor->UpdateBoundingBoxes();
-        vehicle_position.x += vehicle_position.x - actor->ar_bounding_box.getCenter().x;
-        vehicle_position.z += vehicle_position.z - actor->ar_bounding_box.getCenter().z;
-
-        float miny = 0.0f;
-
-        if (!actor->m_preloaded_with_terrain)
+        if (!def->HasFixes())
         {
-            miny = vehicle_position.y;
-        }
-
-        if (rq.asr_spawnbox != nullptr)
-        {
-            miny = rq.asr_spawnbox->relo.y + rq.asr_spawnbox->center.y;
-        }
-
-        if (rq.asr_free_position)
-            actor->ResetPosition(vehicle_position, true);
-        else
-            actor->ResetPosition(vehicle_position.x, vehicle_position.z, true, miny);
-
-        if (rq.asr_spawnbox != nullptr)
-        {
-            bool inside = true;
-
-            for (int i = 0; i < actor->ar_num_nodes; i++)
-                inside = (inside && gEnv->collisions->isInside(actor->ar_nodes[i].AbsPosition, rq.asr_spawnbox, 0.2f));
-
-            if (!inside)
+            actor->UpdateBoundingBoxes();
+            Ogre::Vector3 position = rq.asr_position;
+            position.x += position.x - actor->ar_bounding_box.getCenter().x;
+            position.z += position.z - actor->ar_bounding_box.getCenter().z;
+            actor->ResetPosition(position);
+            if (!rq.asr_free_position)
             {
-                Vector3 gpos = Vector3(vehicle_position.x, 0.0f, vehicle_position.z);
-
-                gpos -= rq.asr_rotation * Vector3((rq.asr_spawnbox->hi.x - rq.asr_spawnbox->lo.x + actor->ar_bounding_box.getMaximum().x - actor->ar_bounding_box.getMinimum().x) * 0.6f, 0.0f, 0.0f);
-
-                actor->ResetPosition(gpos.x, gpos.z, true, miny);
+                float offset = -actor->ResolveSurfaceCollision();
+                // Required for the Monorail on North St Helens
+                for (int i = 0; i < actor->ar_num_nodes; i++)
+                {
+                    if (actor->ar_nodes[i].nd_no_ground_contact)
+                        continue;
+                    Vector3 query = actor->ar_nodes[i].AbsPosition + Vector3::UNIT_Y * offset;
+                    if (gEnv->collisions->collisionCorrect(&query))
+                        offset = std::max(offset, query.y - actor->ar_nodes[i].AbsPosition.y);
+                }
+                actor->ResetPosition(actor->ar_nodes[0].AbsPosition + Vector3::UNIT_Y * offset);
             }
         }
+        else if (rq.asr_free_position)
+        {
+            actor->ResetPosition(rq.asr_position);
+        }
+    }
+    else if (rq.asr_spawnbox != nullptr)
+    {
+        Vector3 translation = rq.asr_position - actor->GetRotationCenter();
+        translation.y = rq.asr_spawnbox->lo.y - actor->GetMinHeight(true);
+        Vector3 veh_aabb_size = actor->ar_bounding_box.getSize();
+        Vector3 box_aabb_size = AxisAlignedBox(rq.asr_spawnbox->lo, rq.asr_spawnbox->hi).getSize();
+        if (veh_aabb_size.y > box_aabb_size.y || veh_aabb_size.z > box_aabb_size.z)
+        {
+            translation -= rq.asr_rotation * Vector3::UNIT_X * (veh_aabb_size.x + box_aabb_size.x) * 0.5f;
+        }
+        else if (veh_aabb_size.x > box_aabb_size.x)
+        {
+            translation -= rq.asr_rotation * Vector3::UNIT_X * (veh_aabb_size.x - box_aabb_size.x);
+        }
+        actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation);
+        float agl = actor->GetHeightAboveGroundBelow(actor->GetMaxHeight(true), true);
+        if (agl > 0.0f)
+        {
+            actor->ResetPosition(actor->ar_nodes[0].AbsPosition - Vector3::UNIT_Y * agl);
+        }
+        actor->ResolveSurfaceCollision();
+    }
+    else if (!rq.asr_free_position)
+    {
+        Vector3 translation = rq.asr_position - actor->GetRotationCenter();
+        actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation);
+        actor->ResolveSurfaceCollision();
     }
     else
     {
-        actor->ResetPosition(rq.asr_position, true);
+        actor->ResetPosition(rq.asr_position);
     }
+    actor->UpdateInitPosition();
 
     //compute final mass
     actor->RecalculateNodeMasses(actor->m_dry_mass);
@@ -202,9 +219,6 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     //compute node connectivity graph
     actor->calcNodeConnectivityGraph();
-
-    actor->UpdateBoundingBoxes();
-    actor->calculateAveragePosition();
 
     // calculate minimum camera radius
     for (int i = 0; i < actor->ar_num_nodes; i++)

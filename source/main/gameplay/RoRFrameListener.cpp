@@ -1504,6 +1504,8 @@ void SimController::TeleportPlayerXZ(float x, float z)
     {
         for (int i = 0; i < actor->ar_num_nodes; i++)
         {
+            if (actor->ar_nodes[i].nd_no_ground_contact)
+                continue;
             Vector3 pos = actor->ar_nodes[i].AbsPosition;
             src_agl = std::min(pos.y - gEnv->collisions->getSurfaceHeight(pos.x, pos.z), src_agl);
             pos += translation;
@@ -1515,30 +1517,12 @@ void SimController::TeleportPlayerXZ(float x, float z)
 
     for (auto actor : actors)
     {
-        actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
+        actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation);
     }
 }
 
 void SimController::FinalizeActorSpawning(Actor* actor, ActorSpawnRequest rq)
 {
-    if (rq.asr_spawnbox == nullptr)
-    {
-        // Calculate translational offset for node[0] to align the actor's rotation center with m_reload_pos
-        Vector3 translation = rq.asr_position - actor->GetRotationCenter();
-        translation.y = 0;
-        // and to avoid ground collisions
-        float bgl = 0.0f; 
-        for (int i = 0; i < actor->ar_num_nodes; i++)
-        {
-            float h = actor->GetMaxHeight(true);
-            Vector3 pos = actor->ar_nodes[i].AbsPosition + translation;
-            bgl = std::max(bgl, gEnv->collisions->getSurfaceHeightBelow(pos.x, pos.z, h) - pos.y);
-        }
-        translation.y += bgl;
-
-        actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation, true);
-    }
-
     if (actor->ar_engine != nullptr && App::sim_spawn_running.GetActive())
     {
         actor->ar_engine->StartEngine();
@@ -1685,6 +1669,7 @@ void SimController::UpdateSimulation(float dt)
                 {
                     // Try to resolve collisions with other actors
                     fresh_actor->resolveCollisions(50.0f, m_player_actor == nullptr);
+                    fresh_actor->UpdateInitPosition();
                 }
             }
         }
