@@ -30,13 +30,16 @@
 #include "BeamData.h"
 #include "BeamEngine.h"
 #include "ContentManager.h"
+#include "DustManager.h"
 #include "ErrorUtils.h"
 #include "GUI_LoadingWindow.h"
 #include "GUIManager.h"
+#include "GfxActor.h"
 #include "ImprovedConfigFile.h"
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RigDef_Parser.h"
+#include "RoRFrameListener.h"
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
@@ -176,12 +179,30 @@ CacheEntry* CacheSystem::FindEntryByFilename(std::string const & filename)
     return nullptr;
 }
 
-void CacheSystem::UnloadActorDefFromMemory(std::string const & filename)
+void CacheSystem::UnloadActorFromMemory(std::string const & filename)
 {
     CacheEntry* cache_entry = this->FindEntryByFilename(filename);
     if (cache_entry != nullptr)
     {
         cache_entry->actor_def.reset();
+        String group = cache_entry->resource_group;
+        if (!group.empty())
+        {
+            bool unused = true;
+            for (auto gfx_actor : App::GetSimController()->GetGfxScene().GetGfxActors())
+            {
+                if (gfx_actor->GetResourceGroup() == group)
+                {
+                    unused = false;
+                    break;
+                }
+            }
+            if (unused)
+            {
+                ResourceGroupManager::getSingleton().destroyResourceGroup(group);
+                m_loaded_resource_bundles[cache_entry->resource_bundle_path] = false;
+            }
+        }
     }
 }
 

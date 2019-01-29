@@ -1634,7 +1634,7 @@ void SimController::UpdateSimulation(float dt)
                 m_prev_player_actor = nullptr;
                 this->ChangePlayerActor(nullptr);
                 this->RemoveActorDirectly(rq.amr_actor);
-                App::GetCacheSystem()->UnloadActorDefFromMemory(filename); // Force reload from filesystem
+                App::GetCacheSystem()->UnloadActorFromMemory(filename); // Force reload from filesystem
 
                 ActorSpawnRequest srq;
                 srq.asr_position = reload_pos;

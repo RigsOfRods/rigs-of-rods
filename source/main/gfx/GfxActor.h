@@ -309,6 +309,7 @@ public:
     void                      SetSurveyMapEntity (SurveyMapEntity* e)     { m_survey_map_entity = e; }
     SurveyMapEntity*          GetSurveyMapEntity ()                       { return m_survey_map_entity; }
     std::set<GfxActor*>       GetLinkedGfxActors ()                       { return m_linked_gfx_actors; }
+    Ogre::String              GetResourceGroup   ()                       { return m_custom_resource_group; }
     bool                 HasDriverSeatProp   () const { return m_driverseat_prop_index != -1; }
     void                 UpdateBeaconFlare   (prop_t & prop, float dt, bool is_player_actor);
     void                 UpdateProps         (float dt, bool is_player_actor);
