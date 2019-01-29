@@ -76,6 +76,7 @@ public:
     SimBuffer&     GetSimDataBuffer() { return m_simbuf; }
     void           InitSurveyMap(); //!< Must be called after terrain was loaded
     SurveyMapManager* GetSurveyMap() { return m_survey_map.get(); }
+    std::vector<GfxActor*> GetGfxActors() { return m_all_gfx_actors; }
 
 private:
 
