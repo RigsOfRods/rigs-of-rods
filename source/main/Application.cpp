@@ -142,7 +142,10 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<bool>          diag_simple_materials   ("diag_simple_materials",    "SimpleMaterials",          false);
  GVarPod_A<bool>          diag_warning_texture    ("diag_warning_texture",    "Warning texture",           false);
  GVarPod_A<bool>          diag_hide_broken_beams  ("diag_hide_broken_beams",  "Hide broken beams",         false);
- GVarPod_A<bool>          diag_hide_wheel_nb_info ("diag_hide_wheel_nb_info", "Hide wheel n/b info",       false);
+ GVarPod_A<bool>          diag_hide_beam_stress   ("diag_hide_beam_stress",   "Hide beam stress",          true);
+ GVarPod_A<bool>          diag_hide_wheel_info    ("diag_hide_wheel_info",    "Hide wheel info",           true);
+ GVarPod_A<bool>          diag_hide_wheels        ("diag_hide_wheels",        "Hide wheels",               false);
+ GVarPod_A<bool>          diag_hide_nodes         ("diag_hide_nodes",         "Hide nodes",                false);
  GVarPod_A<float>         diag_physics_dt         ("diag_physics_dt",          "PhysicsTimeStep",          0.0005f);
 
 // System                                         (all paths are without ending slash!)

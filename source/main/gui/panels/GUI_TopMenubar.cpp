@@ -584,6 +584,20 @@ void RoR::GUI::TopMenubar::Update()
                 {
                     current_actor->GetGfxActor()->SetDebugView(static_cast<GfxActor::DebugViewType>(debug_view_type));
                 }
+
+                if (debug_view_type >= 1 && debug_view_type <= static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_BEAMS)) 
+                {
+                    ImGui::Separator();
+                    ImGui::TextColored(GRAY_HINT_TEXT,           "Settings:");
+                    DrawGCheckbox(App::diag_hide_broken_beams,   "Hide broken beams");
+                    DrawGCheckbox(App::diag_hide_beam_stress,    "Hide beam stress");
+                    DrawGCheckbox(App::diag_hide_wheels,         "Hide wheels");
+                    DrawGCheckbox(App::diag_hide_nodes,          "Hide nodes");
+                    if (debug_view_type >= 2)
+                    {
+                        DrawGCheckbox(App::diag_hide_wheel_info, "Hide wheel info");
+                    }
+                }
             }
 
             m_open_menu_hoverbox_min = menu_pos;

@@ -362,7 +362,9 @@ void RoR::GUI::GameSettings::Draw()
         DrawGCheckbox(App::diag_videocameras,        _LC("GameSettings", "Debug videocameras"));
         DrawGCheckbox(App::diag_warning_texture,     _LC("GameSettings", "Debug textures"));
         DrawGCheckbox(App::diag_hide_broken_beams,   _LC("GameSettings", "Hide broken beams"));
-        DrawGCheckbox(App::diag_hide_wheel_nb_info,  _LC("GameSettings", "Hide wheel n/b info"));
+        DrawGCheckbox(App::diag_hide_wheel_info,     _LC("GameSettings", "Hide wheel info"));
+        DrawGCheckbox(App::diag_hide_wheels,         _LC("GameSettings", "Hide wheels"));
+        DrawGCheckbox(App::diag_hide_nodes,          _LC("GameSettings", "Hide nodes"));
         DrawGCheckbox(App::diag_log_console_echo,    _LC("GameSettings", "Echo log to console"));
         DrawGCheckbox(App::diag_log_beam_break,      _LC("GameSettings", "Log beam breaking"));
         DrawGCheckbox(App::diag_log_beam_deform,     _LC("GameSettings", "Log beam deforming"));
