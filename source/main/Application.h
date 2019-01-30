@@ -716,7 +716,10 @@ extern GVarPod_A<bool>         diag_log_beam_trigger;
 extern GVarPod_A<bool>         diag_simple_materials;
 extern GVarPod_A<bool>         diag_warning_texture;
 extern GVarPod_A<bool>         diag_hide_broken_beams;
-extern GVarPod_A<bool>         diag_hide_wheel_nb_info;
+extern GVarPod_A<bool>         diag_hide_beam_stress;
+extern GVarPod_A<bool>         diag_hide_wheel_info;
+extern GVarPod_A<bool>         diag_hide_wheels;
+extern GVarPod_A<bool>         diag_hide_nodes;
 extern GVarPod_A<float>        diag_physics_dt;
 
 // System

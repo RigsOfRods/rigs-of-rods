@@ -609,7 +609,10 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::diag_simple_materials,     k, v)) { return true; }
     if (CheckBool (App::diag_warning_texture,      k, v)) { return true; }
     if (CheckBool (App::diag_hide_broken_beams,    k, v)) { return true; }
-    if (CheckBool (App::diag_hide_wheel_nb_info,   k, v)) { return true; }
+    if (CheckBool (App::diag_hide_beam_stress,     k, v)) { return true; }
+    if (CheckBool (App::diag_hide_wheel_info,      k, v)) { return true; }
+    if (CheckBool (App::diag_hide_wheels,          k, v)) { return true; }
+    if (CheckBool (App::diag_hide_nodes,           k, v)) { return true; }
     if (CheckFloat(App::diag_physics_dt,           k, v)) { return true; }
     // Sim
     if (CheckSimGearboxMode                       (k, v)) { return true; }
@@ -894,7 +897,10 @@ void Settings::SaveSettings()
     WriteYN  (f, App::diag_simple_materials   );
     WriteYN  (f, App::diag_warning_texture    );
     WriteYN  (f, App::diag_hide_broken_beams  );
-    WriteYN  (f, App::diag_hide_wheel_nb_info );
+    WriteYN  (f, App::diag_hide_beam_stress   );
+    WriteYN  (f, App::diag_hide_wheel_info    );
+    WriteYN  (f, App::diag_hide_wheels        );
+    WriteYN  (f, App::diag_hide_nodes         );
     WritePod (f, App::diag_physics_dt         );
 
     f << std::endl << "; Application"<< std::endl;

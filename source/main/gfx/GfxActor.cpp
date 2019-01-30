@@ -731,6 +731,11 @@ void RoR::GfxActor::UpdateDebugView()
         const size_t num_beams = static_cast<size_t>(m_actor->ar_num_beams);
         for (size_t i = 0; i < num_beams; ++i)
         {
+            if (App::diag_hide_wheels.GetActive() &&
+                    (beams[i].p1->nd_tyre_node || beams[i].p1->nd_rim_node ||
+                     beams[i].p2->nd_tyre_node || beams[i].p2->nd_rim_node))
+                continue;
+
             Ogre::Vector3 pos1 = world2screen.Convert(beams[i].p1->AbsPosition);
             Ogre::Vector3 pos2 = world2screen.Convert(beams[i].p2->AbsPosition);
 
@@ -753,7 +758,7 @@ void RoR::GfxActor::UpdateDebugView()
                 else
                 {
                     ImU32 color = BEAM_COLOR;
-                    if (m_debug_view == DebugViewType::DEBUGVIEW_BEAMS)
+                    if (!App::diag_hide_beam_stress.GetActive())
                     {
                         if (beams[i].stress > 0)
                         {
@@ -773,50 +778,57 @@ void RoR::GfxActor::UpdateDebugView()
             }
         }
 
-        // Nodes
-        const node_t* nodes = m_actor->ar_nodes;
-        const size_t num_nodes = static_cast<size_t>(m_actor->ar_num_nodes);
-        for (size_t i = 0; i < num_nodes; ++i)
+        if (!App::diag_hide_nodes.GetActive())
         {
-            Ogre::Vector3 pos_xyz = world2screen.Convert(nodes[i].AbsPosition);
-
-            if (pos_xyz.z < 0.f)
-            {
-                ImVec2 pos(pos_xyz.x, pos_xyz.y);
-                if (nodes[i].nd_immovable)
-                {
-                    drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_IMMOVABLE_COLOR);
-                }
-                else
-                {
-                    drawlist->AddCircleFilled(pos, NODE_RADIUS, NODE_COLOR);
-                }
-            }
-        }
-
-        // Node info; drawn after nodes to have higher Z-order
-        if ((m_debug_view == DebugViewType::DEBUGVIEW_NODES) || (m_debug_view == DebugViewType::DEBUGVIEW_BEAMS))
-        {
+            // Nodes
+            const node_t* nodes = m_actor->ar_nodes;
+            const size_t num_nodes = static_cast<size_t>(m_actor->ar_num_nodes);
             for (size_t i = 0; i < num_nodes; ++i)
             {
-                if (App::diag_hide_wheel_nb_info.GetActive() && (nodes[i].nd_tyre_node || nodes[i].nd_rim_node))
+                if (App::diag_hide_wheels.GetActive() && (nodes[i].nd_tyre_node || nodes[i].nd_rim_node))
                     continue;
 
-                Ogre::Vector3 pos = world2screen.Convert(nodes[i].AbsPosition);
+                Ogre::Vector3 pos_xyz = world2screen.Convert(nodes[i].AbsPosition);
 
-                if (pos.z < 0.f)
+                if (pos_xyz.z < 0.f)
                 {
-                    ImVec2 pos_xy(pos.x, pos.y);
-                    Str<25> id_buf;
-                    id_buf << nodes[i].pos;
-                    drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
-
-                    if (m_debug_view != DebugViewType::DEBUGVIEW_BEAMS)
+                    ImVec2 pos(pos_xyz.x, pos_xyz.y);
+                    if (nodes[i].nd_immovable)
                     {
-                        char mass_buf[50];
-                        snprintf(mass_buf, 50, "|%.1fKg", nodes[i].mass);
-                        ImVec2 offset = ImGui::CalcTextSize(id_buf.ToCStr());
-                        drawlist->AddText(ImVec2(pos.x + offset.x, pos.y), NODE_MASS_TEXT_COLOR, mass_buf);
+                        drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_IMMOVABLE_COLOR);
+                    }
+                    else
+                    {
+                        drawlist->AddCircleFilled(pos, NODE_RADIUS, NODE_COLOR);
+                    }
+                }
+            }
+
+            // Node info; drawn after nodes to have higher Z-order
+            if ((m_debug_view == DebugViewType::DEBUGVIEW_NODES) || (m_debug_view == DebugViewType::DEBUGVIEW_BEAMS))
+            {
+                for (size_t i = 0; i < num_nodes; ++i)
+                {
+                    if ((App::diag_hide_wheels.GetActive() || App::diag_hide_wheel_info.GetActive()) && 
+                            (nodes[i].nd_tyre_node || nodes[i].nd_rim_node))
+                        continue;
+
+                    Ogre::Vector3 pos = world2screen.Convert(nodes[i].AbsPosition);
+
+                    if (pos.z < 0.f)
+                    {
+                        ImVec2 pos_xy(pos.x, pos.y);
+                        Str<25> id_buf;
+                        id_buf << nodes[i].pos;
+                        drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
+
+                        if (m_debug_view != DebugViewType::DEBUGVIEW_BEAMS)
+                        {
+                            char mass_buf[50];
+                            snprintf(mass_buf, 50, "|%.1fKg", nodes[i].mass);
+                            ImVec2 offset = ImGui::CalcTextSize(id_buf.ToCStr());
+                            drawlist->AddText(ImVec2(pos.x + offset.x, pos.y), NODE_MASS_TEXT_COLOR, mass_buf);
+                        }
                     }
                 }
             }
@@ -827,7 +839,7 @@ void RoR::GfxActor::UpdateDebugView()
         {
             for (size_t i = 0; i < num_beams; ++i)
             {
-                if (App::diag_hide_wheel_nb_info.GetActive() &&
+                if ((App::diag_hide_wheels.GetActive() || App::diag_hide_wheel_info.GetActive()) &&
                         (beams[i].p1->nd_tyre_node || beams[i].p1->nd_rim_node ||
                          beams[i].p2->nd_tyre_node || beams[i].p2->nd_rim_node))
                     continue;
