@@ -131,6 +131,8 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
 
         this->loadAllZipsInResourceGroup(RGN_MODCACHE);
         this->loadAllDirectoriesInResourceGroup(RGN_MODCACHE);
+        
+        this->checkForNewKnownFiles(); // TODO: does some duplicate work, but needed to pick up flat files
 
         this->detectDuplicates();
 
