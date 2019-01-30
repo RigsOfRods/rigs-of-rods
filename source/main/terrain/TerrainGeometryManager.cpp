@@ -22,6 +22,7 @@
 #include "TerrainGeometryManager.h"
 
 #include "Application.h"
+#include "ContentManager.h"
 #include "Language.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
@@ -311,7 +312,7 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
     m_ogre_terrain_group = OGRE_NEW TerrainGroup(gEnv->sceneManager, Terrain::ALIGN_X_Z, m_spec->page_size, m_spec->world_size);
     m_ogre_terrain_group->setFilenameConvention(cache_filename_format, "mapbin");
     m_ogre_terrain_group->setOrigin(m_spec->origin_pos);
-    m_ogre_terrain_group->setResourceGroup("cache");
+    m_ogre_terrain_group->setResourceGroup(RGN_CACHE);
 
     configureTerrainDefaults();
 

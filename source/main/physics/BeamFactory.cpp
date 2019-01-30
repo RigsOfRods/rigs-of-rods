@@ -106,7 +106,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     LOG(" == Spawning vehicle: " + def->name);
 
     ActorSpawner spawner;
-    spawner.Setup(actor, def, parent_scene_node, rq.asr_cache_entry_num);
+    spawner.Setup(actor, def, parent_scene_node);
     /* Setup modules */
     spawner.AddModule(def->root_module);
     if (def->user_modules.size() > 0) /* The vehicle-selector may return selected modules even for vehicle with no modules defined! Hence this check. */
@@ -1164,7 +1164,7 @@ void ActorManager::SyncWithSimThread()
         m_sim_task->join();
 }
 
-void HandleErrorLoadingTruckfile(const char* filename, const char* exception_msg)
+void HandleErrorLoadingTruckfile(std::string filename, std::string exception_msg)
 {
     RoR::Str<200> msg;
     msg << "Failed to load actor '" << filename << "', message: " << exception_msg;
@@ -1178,7 +1178,7 @@ void HandleErrorLoadingTruckfile(const char* filename, const char* exception_msg
     }
 }
 
-std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(const char* filename, bool predefined_on_terrain)
+std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, bool predefined_on_terrain)
 {
     // Find the user content
     CacheEntry* cache_entry = App::GetCacheSystem()->FindEntryByFilename(filename);
@@ -1318,7 +1318,6 @@ std::vector<Actor*> ActorManager::GetLocalActors()
 ActorSpawnRequest::ActorSpawnRequest()
     : asr_position(Ogre::Vector3::ZERO)
     , asr_rotation(Ogre::Quaternion::ZERO)
-    , asr_cache_entry_num(-1) // flexbody cache disabled
     , asr_spawnbox(nullptr)
     , asr_skin(nullptr)
     , asr_origin(Origin::UNKNOWN)

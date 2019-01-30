@@ -237,11 +237,11 @@ void ContentManager::InitContentManager()
 
 void ContentManager::InitModCache()
 {
-    ResourceGroupManager::getSingleton().addResourceLocation(App::sys_cache_dir.GetActive(), "FileSystem", "cache", false, false);
+    ResourceGroupManager::getSingleton().addResourceLocation(App::sys_cache_dir.GetActive(), "FileSystem", RGN_CACHE, false, false);
 
-    if (ResourceGroupManager::getSingleton().resourceGroupExists(RGN_MODCACHE))
+    if (ResourceGroupManager::getSingleton().resourceGroupExists(RGN_CONTENT))
     {
-        ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_MODCACHE);
+        ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_CONTENT);
     }
 
     std::string user_content_base = std::string(App::sys_user_dir.GetActive())    + PATH_SLASH;
@@ -250,38 +250,38 @@ void ContentManager::InitModCache()
     if (!App::app_extra_mod_path.IsActiveEmpty())
     {
         std::string extra_mod_path = App::app_extra_mod_path.GetActive();
-        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path            , "FileSystem", RGN_MODCACHE);
+        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path            , "FileSystem", RGN_CONTENT);
     }
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "mods"    , "FileSystem", RGN_MODCACHE);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "packs"   , "FileSystem", RGN_MODCACHE);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "terrains", "FileSystem", RGN_MODCACHE);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "vehicles", "FileSystem", RGN_MODCACHE);
-    ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "content" , "FileSystem", RGN_MODCACHE);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "mods"    , "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "packs"   , "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "terrains", "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "vehicles", "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "content" , "FileSystem", RGN_CONTENT);
 
     // Search for unzipped content
-    FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_MODCACHE, "*", true);
+    FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_CONTENT, "*", true);
     for (const auto& file : *files)
     {
         if (!file.archive)
             continue;
         String fullpath = PathCombine(file.archive->getName(), file.basename);
-        ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "FileSystem", RGN_MODCACHE);
+        ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "FileSystem", RGN_CONTENT);
     }
 
     // Search for skinzips
-    FileInfoListPtr skinzips = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_MODCACHE, "*.skinzip");
+    FileInfoListPtr skinzips = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_CONTENT, "*.skinzip");
     for (const auto& file : *skinzips)
     {
         if (!file.archive)
             continue;
         String fullpath = PathCombine(file.archive->getName(), file.basename);
-        ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "Zip", RGN_MODCACHE);
+        ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "Zip", RGN_CONTENT);
     }
 
     // Required for skins
     try 
     {   
-        ResourceGroupManager::getSingleton().initialiseResourceGroup(RGN_MODCACHE);
+        ResourceGroupManager::getSingleton().initialiseResourceGroup(RGN_CONTENT);
     }   
     catch (Ogre::Exception& e)
     {   
@@ -373,7 +373,7 @@ std::string ContentManager::ListAllUserContent()
 {
     std::stringstream buf;
 
-    auto dir_list = Ogre::ResourceGroupManager::getSingleton().listResourceFileInfo(RGN_MODCACHE, true);
+    auto dir_list = Ogre::ResourceGroupManager::getSingleton().listResourceFileInfo(RGN_CONTENT, true);
     for (auto dir: *dir_list)
     {
         buf << dir.filename << std::endl;
@@ -382,7 +382,7 @@ std::string ContentManager::ListAllUserContent()
     // Any filename + listed extensions, ignore case
     std::regex file_whitelist("^.\\.(airplane|boat|car|fixed|load|machine|terrn2|train|truck)$", std::regex::icase);
 
-    auto file_list = Ogre::ResourceGroupManager::getSingleton().listResourceFileInfo(RGN_MODCACHE, false);
+    auto file_list = Ogre::ResourceGroupManager::getSingleton().listResourceFileInfo(RGN_CONTENT, false);
     for (auto file: *file_list)
     {
         if ((file.archive != nullptr) || std::regex_match(file.filename, file_whitelist))

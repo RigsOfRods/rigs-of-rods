@@ -548,7 +548,6 @@ struct ActorSpawnRequest
     std::vector<Ogre::String> asr_config;
     Ogre::Vector3     asr_position;
     Ogre::Quaternion  asr_rotation;
-    int               asr_cache_entry_num;
     collision_box_t*  asr_spawnbox;
     RoR::SkinDef*     asr_skin;
     Origin            asr_origin;

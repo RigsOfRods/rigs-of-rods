@@ -28,7 +28,8 @@
 
 #include <OgreResourceGroupManager.h>
 
-#define RGN_MODCACHE "ModCache"
+#define RGN_CACHE "Cache"
+#define RGN_CONTENT "Content"
 
 namespace RoR {
 

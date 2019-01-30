@@ -55,7 +55,6 @@
 #include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/prettywriter.h>
 #include <fstream>
-#include <regex>
 
 using namespace Ogre;
 using namespace RoR;
@@ -129,8 +128,8 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
 
         this->ClearCache();
 
-        this->loadAllZipsInResourceGroup(RGN_MODCACHE);
-        this->loadAllDirectoriesInResourceGroup(RGN_MODCACHE);
+        this->loadAllZipsInResourceGroup(RGN_CONTENT);
+        this->loadAllDirectoriesInResourceGroup(RGN_CONTENT);
         
         this->checkForNewKnownFiles(); // TODO: does some duplicate work, but needed to pick up flat files
 
@@ -157,31 +156,32 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
     // show error on zero content
     if (m_entries.empty())
     {
-        ErrorUtils::ShowError(_L("No content installed"), _L("You have no content installed"));
-        exit(1337);
+        ErrorUtils::ShowError(_L("No content found"), _L("Failed to generate list of installed content"));
+        exit(1);
     }
 
     App::app_force_cache_purge.SetActive(false);
     App::app_force_cache_udpate.SetActive(false);
 
-    LOG("cache loaded!");
+    RoR::Log("[RoR|ModCache] Cache loaded");
 }
 
-CacheEntry* CacheSystem::FindEntryByFilename(std::string const & filename)
+CacheEntry* CacheSystem::FindEntryByFilename(std::string filename)
 {
-    std::regex needle("^" + filename + "$", std::regex::icase); // Ignore case
     for (CacheEntry& entry : m_entries)
     {
-        if (std::regex_match(entry.fname, needle) || std::regex_match(entry.fname_without_uid, needle))
-        {
+        if (entry.fname == filename)
             return &entry;
-        }
     }
-
+    for (CacheEntry& entry : m_entries)
+    {
+        if (entry.fname_without_uid == filename)
+            return &entry;
+    }
     return nullptr;
 }
 
-void CacheSystem::UnloadActorFromMemory(std::string const & filename)
+void CacheSystem::UnloadActorFromMemory(std::string filename)
 {
     CacheEntry* cache_entry = this->FindEntryByFilename(filename);
     if (cache_entry != nullptr)
@@ -559,7 +559,7 @@ String CacheSystem::getPrettyName(String fname)
 {
     for (std::vector<CacheEntry>::iterator it = m_entries.begin(); it != m_entries.end(); it++)
     {
-        if (fname == it->fname || fname == StringUtil::replaceAll(it->fname, ".terrn2", ""))
+        if (fname == it->fname)
             return it->dname;
     }
     return "";
@@ -1464,7 +1464,7 @@ void CacheSystem::checkForNewContent() // Only used when performing "incremental
         resource_bundles.insert(this->getVirtualPath(it->resource_bundle_path));
     }
 
-    checkForNewZipsInResourceGroup(resource_bundles, RGN_MODCACHE);
-    checkForNewDirectoriesInResourceGroup(resource_bundles, RGN_MODCACHE);
+    checkForNewZipsInResourceGroup(resource_bundles, RGN_CONTENT);
+    checkForNewDirectoriesInResourceGroup(resource_bundles, RGN_CONTENT);
 }
 

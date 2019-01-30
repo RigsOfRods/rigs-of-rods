@@ -84,13 +84,11 @@ using namespace RoR;
 void ActorSpawner::Setup(
     Actor *rig,
     std::shared_ptr<RigDef::File> file,
-    Ogre::SceneNode *parent,
-    int cache_entry_number
+    Ogre::SceneNode *parent
 )
 {
     m_actor = rig;
     m_file = file;
-    m_cache_entry_number = cache_entry_number;
     m_particles_parent_scenenode = parent;
     m_current_keyword = RigDef::File::KEYWORD_INVALID;
     m_wing_area = 0.f;
@@ -358,10 +356,7 @@ void ActorSpawner::InitializeRig()
 
     m_actor->m_definition = m_file;
 
-    m_flex_factory = RoR::FlexFactory(
-        this,
-        m_cache_entry_number
-        );
+    m_flex_factory = RoR::FlexFactory(this);
 
     m_flex_factory.CheckAndLoadFlexbodyCache();
 

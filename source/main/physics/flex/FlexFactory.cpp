@@ -51,16 +51,12 @@ using namespace RoR;
 // Static
 const char * FlexBodyFileIO::SIGNATURE = "RoR FlexBody";
 
-FlexFactory::FlexFactory(
-        ActorSpawner*               rig_spawner,
-        int                       cache_entry_number
-        ):
+FlexFactory::FlexFactory(ActorSpawner* rig_spawner):
     m_rig_spawner(rig_spawner),
     m_is_flexbody_cache_loaded(false),
     m_is_flexbody_cache_enabled(App::gfx_flexbody_cache.GetActive()),
     m_flexbody_cache_next_index(0)
 {
-    m_flexbody_cache.SetCacheEntryNumber(cache_entry_number);
 }
 
 FlexBody* FlexFactory::CreateFlexBody(
@@ -398,7 +394,7 @@ FlexBodyFileIO::ResultCode FlexBodyFileIO::LoadFile()
 FlexBodyFileIO::FlexBodyFileIO():
     m_file(nullptr),
     m_fileformat_version(0),
-    m_cache_entry_number(0)
+    m_cache_entry_number(-1) // flexbody cache disabled (shouldn't be based on the cache entry number ...) ~ ulteq 01/19
     {}
 
 void FlexFactory::CheckAndLoadFlexbodyCache()

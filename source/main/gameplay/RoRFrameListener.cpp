@@ -2443,12 +2443,11 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
 {
     if (rq.asr_cache_entry != nullptr)
     {
-        rq.asr_cache_entry_num = rq.asr_cache_entry->number;
         rq.asr_filename = rq.asr_cache_entry->fname;
     }
 
     std::shared_ptr<RigDef::File> def = m_actor_manager.FetchActorDef(
-        rq.asr_filename.c_str(), rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF);
+        rq.asr_filename, rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF);
     if (def == nullptr)
     {
         return nullptr; // Error already reported
