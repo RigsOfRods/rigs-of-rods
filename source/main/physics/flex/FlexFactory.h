@@ -116,7 +116,6 @@ public:
 
     std::vector<FlexBody*> &  GetList();
     inline void               AddItemToSave(FlexBody* fb)     { m_items_to_save.push_back(fb); }
-    inline void               SetCacheEntryNumber(int n)      { m_cache_entry_number = n; }
     inline FlexBodyCacheData* GetLoadedItem(unsigned index)   { return & m_loaded_items[index]; }
     ResultCode                SaveFile();
     ResultCode                LoadFile();
@@ -166,10 +165,7 @@ class FlexFactory
 public:
     FlexFactory() {}
 
-    FlexFactory(
-        ActorSpawner*               spawner,
-        int                       cache_entry_number = -1
-        );
+    FlexFactory(ActorSpawner* spawner);
 
     FlexBody* CreateFlexBody(
         RigDef::Flexbody* def,

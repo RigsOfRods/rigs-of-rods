@@ -143,8 +143,8 @@ public:
     };
 
     void                  LoadModCache(CacheValidityState validity);
-    CacheEntry*           FindEntryByFilename(std::string const & filename); //<! Returns NULL if none found
-    void                  UnloadActorFromMemory(std::string const & filename);
+    CacheEntry*           FindEntryByFilename(std::string filename); //<! Returns NULL if none found
+    void                  UnloadActorFromMemory(std::string filename);
     CacheValidityState    EvaluateCacheValidity();
 
     void loadResource(CacheEntry& t); //!< Loads the associated resource bundle if not already done.
