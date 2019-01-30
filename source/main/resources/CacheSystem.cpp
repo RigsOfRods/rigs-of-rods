@@ -271,7 +271,7 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
 {
     // Common details
     out_entry.usagecounter =           j_entry["usagecounter"].GetInt();
-    out_entry.addtimestamp =           j_entry["addtimestamp"].GetUint64();
+    out_entry.addtimestamp =           j_entry["addtimestamp"].GetUint();
     out_entry.minitype =               j_entry["minitype"].GetString();
     out_entry.resource_bundle_type =   j_entry["resource_bundle_type"].GetString();
     out_entry.resource_bundle_path =   j_entry["resource_bundle_path"].GetString();
@@ -279,7 +279,7 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
     out_entry.fname =                  j_entry["fname"].GetString();
     out_entry.fname_without_uid =      j_entry["fname_without_uid"].GetString();
     out_entry.fext =                   j_entry["fext"].GetString();
-    out_entry.filetime =               j_entry["filetime"].GetUint64();
+    out_entry.filetime =               j_entry["filetime"].GetUint();
     out_entry.dname =                  j_entry["dname"].GetString();
     out_entry.uniqueid =               j_entry["uniqueid"].GetString();
     out_entry.version =                j_entry["version"].GetInt();
@@ -569,7 +569,7 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
 
     // Common details
     j_entry.AddMember("usagecounter",         entry.usagecounter,                                          j_doc.GetAllocator());
-    j_entry.AddMember("addtimestamp",         entry.addtimestamp,                                          j_doc.GetAllocator());
+    j_entry.AddMember("addtimestamp",         (long)entry.addtimestamp,                                    j_doc.GetAllocator());
     j_entry.AddMember("minitype",             rapidjson::StringRef(entry.minitype.c_str()),                j_doc.GetAllocator());
     j_entry.AddMember("resource_bundle_type", rapidjson::StringRef(entry.resource_bundle_type.c_str()),    j_doc.GetAllocator());
     j_entry.AddMember("resource_bundle_path", rapidjson::StringRef(entry.resource_bundle_path.c_str()),    j_doc.GetAllocator());
@@ -577,7 +577,7 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
     j_entry.AddMember("fname",                rapidjson::StringRef(entry.fname.c_str()),                   j_doc.GetAllocator());
     j_entry.AddMember("fname_without_uid",    rapidjson::StringRef(entry.fname_without_uid.c_str()),       j_doc.GetAllocator());
     j_entry.AddMember("fext",                 rapidjson::StringRef(entry.fext.c_str()),                    j_doc.GetAllocator());
-    j_entry.AddMember("filetime",             entry.filetime,                                              j_doc.GetAllocator()); 
+    j_entry.AddMember("filetime",             (long)entry.filetime,                                        j_doc.GetAllocator()); 
     j_entry.AddMember("dname",                rapidjson::StringRef(entry.dname.c_str()),                   j_doc.GetAllocator());
     j_entry.AddMember("categoryid",           entry.categoryid,                                            j_doc.GetAllocator());
     j_entry.AddMember("uniqueid",             rapidjson::StringRef(entry.uniqueid.c_str()),                j_doc.GetAllocator());
