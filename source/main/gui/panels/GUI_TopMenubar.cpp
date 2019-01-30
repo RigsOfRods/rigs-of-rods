@@ -390,14 +390,8 @@ void RoR::GUI::TopMenubar::Update()
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "Camera:");
-                DrawGIntSlider(App::gfx_camera_height, "Height", 1, 50);
                 DrawGFloatSlider(App::gfx_static_cam_fov_exp, "FOV", 0.8f, 1.5f);
-            }
-            else if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, "Camera:");
-                DrawGCheckbox(App::gfx_fixed_cam_tracking, "Tracking");
+                DrawGIntSlider(App::gfx_camera_height, "Height", 1, 50);
             }
             else
             {
@@ -420,6 +414,10 @@ void RoR::GUI::TopMenubar::Update()
                         App::gfx_fov_external.SetActive(fov);
                         gEnv->mainCamera->setFOVy(Ogre::Degree(fov));
                     }
+                }
+                if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
+                {
+                    DrawGCheckbox(App::gfx_fixed_cam_tracking, "Tracking");
                 }
             }
 #ifdef USE_CAELUM
