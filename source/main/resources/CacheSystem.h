@@ -32,7 +32,7 @@
 #include <Ogre.h>
 
 #define CACHE_FILE "mods.cache"
-#define CACHE_FILE_FORMAT 8
+#define CACHE_FILE_FORMAT 9
 
 struct AuthorInfo
 {
@@ -50,7 +50,6 @@ public:
     /** default constructor resets the data. */
     CacheEntry();
 
-    Ogre::String minitype;              //!< type of preview picture, either png or dds
     Ogre::String fpath;                 //!< filepath relative to the .zip file
     Ogre::String fname;                 //!< filename
     Ogre::String fname_without_uid;     //!< filename
