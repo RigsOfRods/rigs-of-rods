@@ -194,9 +194,6 @@ void ContentManager::InitContentManager()
     // add scripts folder
     ResourceGroupManager::getSingleton().addResourceLocation(std::string(App::sys_user_dir.GetActive()) + PATH_SLASH + "scripts", "FileSystem", "Scripts");
 
-    // beamobjects
-    ResourceGroupManager::getSingleton().addResourceLocation(std::string(App::sys_process_dir.GetActive()) + PATH_SLASH + "resources" + PATH_SLASH + "beamobjects.zip", "Zip", "BeamObjects", true);
-
     // init skin manager, important to happen before trucks resource loading!
     LOG("RoR|ContentManager: Registering Skin Manager");
     m_skin_manager = new RoR::SkinManager(); // SkinManager registers itself
@@ -244,19 +241,22 @@ void ContentManager::InitModCache()
         ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_CONTENT);
     }
 
-    std::string user_content_base = std::string(App::sys_user_dir.GetActive())    + PATH_SLASH;
-    std::string content_base      = std::string(App::sys_process_dir.GetActive()) + PATH_SLASH;
+    std::string user = App::sys_user_dir.GetActive();
+    std::string base = App::sys_process_dir.GetActive();
+    std::string objects = PathCombine("resources", "beamobjects.zip");
 
     if (!App::app_extra_mod_path.IsActiveEmpty())
     {
         std::string extra_mod_path = App::app_extra_mod_path.GetActive();
-        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path            , "FileSystem", RGN_CONTENT);
+        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path           , "FileSystem", RGN_CONTENT);
     }
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "mods"    , "FileSystem", RGN_CONTENT);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "packs"   , "FileSystem", RGN_CONTENT);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "terrains", "FileSystem", RGN_CONTENT);
-    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "vehicles", "FileSystem", RGN_CONTENT);
-    ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "content" , "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "mods")    , "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "packs")   , "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "terrains"), "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "vehicles"), "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, "content") , "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, objects)   , "Zip"       , RGN_CONTENT);
+
 
     // Search for unzipped content
     FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_CONTENT, "*", true);
