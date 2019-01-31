@@ -1332,24 +1332,7 @@ void CacheSystem::loadSingleZipInternal(String zippath)
     String group = "ModCacheTemp";
     ResourceGroupManager::getSingleton().createResourceGroup(group, false);
     ResourceGroupManager::getSingleton().addResourceLocation(path, "Zip", group);
-
-    try
-    {
-        RoR::LogFormat("[RoR|ModCache] Loading archive '%s' ...", path.c_str());
-        ResourceGroupManager::getSingleton().initialiseResourceGroup(group);
-    }
-    catch (Ogre::Exception& e)
-    {
-        RoR::LogFormat("[RoR|ModCache] Error while loading '%s': %s", path.c_str(), e.getFullDescription().c_str());
-    }
-
     parseKnownFilesOneRG(group);
-
-    RoR::LogFormat("[RoR|ModCache] Unloading archive '%s'", path.c_str());
-#ifdef USE_OPENAL
-    SoundScriptManager::getSingleton().clearNonBaseTemplates();
-#endif //OPENAL
-    ParticleSystemManager::getSingleton().removeTemplatesByResourceGroup(group);
     ResourceGroupManager::getSingleton().destroyResourceGroup(group);
 }
 

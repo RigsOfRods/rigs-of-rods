@@ -334,32 +334,6 @@ SoundScriptTemplate* SoundScriptManager::createTemplate(String name, String grou
     return ssi;
 }
 
-void SoundScriptManager::clearNonBaseTemplates()
-{
-    int counter = 0;
-
-    for (std::map<Ogre::String, SoundScriptTemplate*>::iterator it = templates.begin(); it != templates.end();)
-    {
-        if (it->second && !it->second->base_template)
-        {
-            //delete(it->second);
-            it->second = 0;
-            counter++;
-
-            it = templates.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-
-    if (counter > 0)
-    {
-        LOG("SoundScriptManager: removed " + TOSTRING(counter) + " non-base templates");
-    }
-}
-
 SoundScriptInstance* SoundScriptManager::createInstance(Ogre::String templatename, int actor_id, Ogre::SceneNode* toAttach, int soundLinkType, int soundLinkItemId)
 {
     //first, search template
