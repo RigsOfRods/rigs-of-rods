@@ -265,7 +265,6 @@ public:
     Ogre::Real getLoadingOrder(void) const;
 
     SoundScriptInstance* createInstance(Ogre::String templatename, int actor_id, Ogre::SceneNode *toAttach=NULL, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
-    void clearNonBaseTemplates();
 
     // functions
     void trigOnce    (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
