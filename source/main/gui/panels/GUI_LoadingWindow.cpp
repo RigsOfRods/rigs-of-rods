@@ -40,7 +40,7 @@ LoadingWindow::LoadingWindow()
     mMainWidget->setVisible(false);
 }
 
-void LoadingWindow::setProgress(int _percent, const Ogre::UTFString& _text)
+void LoadingWindow::setProgress(int _percent, const Ogre::UTFString& _text, bool force_update)
 {
     mMainWidget->setVisible(true);
     mInfoStaticText->setCaption(convertToMyGUIString(_text));
@@ -48,7 +48,7 @@ void LoadingWindow::setProgress(int _percent, const Ogre::UTFString& _text)
     mBarProgress->setProgressAutoTrack(false);
     mBarProgress->setProgressPosition(_percent);
 
-    if (m_timer.getMilliseconds() > 10)
+    if (force_update || m_timer.getMicroseconds() > 20)
     {
         renderOneFrame();
         m_timer.reset();
