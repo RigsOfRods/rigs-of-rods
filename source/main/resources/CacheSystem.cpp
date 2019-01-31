@@ -53,7 +53,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/ostreamwrapper.h>
-#include <rapidjson/prettywriter.h>
+#include <rapidjson/writer.h>
 #include <fstream>
 
 using namespace Ogre;
@@ -229,7 +229,7 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
     std::ifstream ifs(this->getCacheConfigFilename()); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
     rapidjson::IStreamWrapper isw(ifs);
     rapidjson::Document j_doc;
-    j_doc.ParseStream(isw);
+    j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(isw);
     if (!j_doc.IsObject() ||
         !j_doc.HasMember("global_hash") || !j_doc["global_hash"].IsString() || 
         !j_doc.HasMember("format_version") ||!j_doc["format_version"].IsNumber() ||
@@ -271,14 +271,14 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
 {
     // Common details
     out_entry.usagecounter =           j_entry["usagecounter"].GetInt();
-    out_entry.addtimestamp =           j_entry["addtimestamp"].GetUint();
+    out_entry.addtimestamp =           j_entry["addtimestamp"].GetInt();
     out_entry.resource_bundle_type =   j_entry["resource_bundle_type"].GetString();
     out_entry.resource_bundle_path =   j_entry["resource_bundle_path"].GetString();
     out_entry.fpath =                  j_entry["fpath"].GetString();
     out_entry.fname =                  j_entry["fname"].GetString();
     out_entry.fname_without_uid =      j_entry["fname_without_uid"].GetString();
     out_entry.fext =                   j_entry["fext"].GetString();
-    out_entry.filetime =               j_entry["filetime"].GetUint();
+    out_entry.filetime =               j_entry["filetime"].GetInt();
     out_entry.dname =                  j_entry["dname"].GetString();
     out_entry.uniqueid =               j_entry["uniqueid"].GetString();
     out_entry.version =                j_entry["version"].GetInt();
@@ -364,7 +364,7 @@ void CacheSystem::LoadCacheFileJson()
     std::ifstream ifs(this->getCacheConfigFilename()); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
     rapidjson::IStreamWrapper isw(ifs);
     rapidjson::Document j_doc;
-    j_doc.ParseStream(isw);
+    j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(isw);
 
     if (!j_doc.IsObject() || !j_doc.HasMember("entries") || !j_doc["entries"].IsArray())
     {
@@ -568,14 +568,14 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
 
     // Common details
     j_entry.AddMember("usagecounter",         entry.usagecounter,                                          j_doc.GetAllocator());
-    j_entry.AddMember("addtimestamp",         (long)entry.addtimestamp,                                    j_doc.GetAllocator());
+    j_entry.AddMember("addtimestamp",         entry.addtimestamp,                                          j_doc.GetAllocator());
     j_entry.AddMember("resource_bundle_type", rapidjson::StringRef(entry.resource_bundle_type.c_str()),    j_doc.GetAllocator());
     j_entry.AddMember("resource_bundle_path", rapidjson::StringRef(entry.resource_bundle_path.c_str()),    j_doc.GetAllocator());
     j_entry.AddMember("fpath",                rapidjson::StringRef(entry.fpath.c_str()),                   j_doc.GetAllocator());
     j_entry.AddMember("fname",                rapidjson::StringRef(entry.fname.c_str()),                   j_doc.GetAllocator());
     j_entry.AddMember("fname_without_uid",    rapidjson::StringRef(entry.fname_without_uid.c_str()),       j_doc.GetAllocator());
     j_entry.AddMember("fext",                 rapidjson::StringRef(entry.fext.c_str()),                    j_doc.GetAllocator());
-    j_entry.AddMember("filetime",             (long)entry.filetime,                                        j_doc.GetAllocator()); 
+    j_entry.AddMember("filetime",             entry.filetime,                                              j_doc.GetAllocator()); 
     j_entry.AddMember("dname",                rapidjson::StringRef(entry.dname.c_str()),                   j_doc.GetAllocator());
     j_entry.AddMember("categoryid",           entry.categoryid,                                            j_doc.GetAllocator());
     j_entry.AddMember("uniqueid",             rapidjson::StringRef(entry.uniqueid.c_str()),                j_doc.GetAllocator());
@@ -672,7 +672,8 @@ void CacheSystem::WriteCacheFileJson()
 
     std::ofstream ofs(path);
     rapidjson::OStreamWrapper j_ofs(ofs);
-    rapidjson::PrettyWriter<rapidjson::OStreamWrapper> j_writer(j_ofs);
+    rapidjson::Writer<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>, rapidjson::CrtAllocator, 
+        rapidjson::kWriteNanAndInfFlag> j_writer(j_ofs);
     const bool written_ok = j_doc.Accept(j_writer);
     if (written_ok)
     {
