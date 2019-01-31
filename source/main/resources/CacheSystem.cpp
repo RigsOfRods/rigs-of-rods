@@ -168,17 +168,15 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
 
 CacheEntry* CacheSystem::FindEntryByFilename(std::string filename)
 {
+    CacheEntry* fallback = nullptr;
     for (CacheEntry& entry : m_entries)
     {
         if (entry.fname == filename)
             return &entry;
+        else if (entry.fname_without_uid == filename)
+            fallback = &entry;
     }
-    for (CacheEntry& entry : m_entries)
-    {
-        if (entry.fname_without_uid == filename)
-            return &entry;
-    }
-    return nullptr;
+    return fallback;
 }
 
 void CacheSystem::UnloadActorFromMemory(std::string filename)
@@ -450,15 +448,15 @@ void CacheSystem::incrementalCacheUpdate()
         {
             LOG("- "+fn+" changed");
             it->deleted = true; // see below
-            changed_entries.insert(it->resource_bundle_path);
+            changed_entries.insert(this->getRealPath(it->resource_bundle_path));
         }
     }
 
     LOG("* incremental check (2/5): processing changed zips ...");
     loading_win->setProgress(40, _L("incremental check: processing changed zips\n"));
-    for (auto zippath : changed_entries)
+    for (auto path : changed_entries)
     {
-        loadSingleZipInternal(zippath);
+        loadSingleZip(path);
     }
     LOG("* incremental check (3/5): new content ...");
     loading_win->setProgress(60, _L("incremental check: new content\n"));
@@ -1016,24 +1014,6 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     /* NOTE: std::shared_ptr cleans everything up. */
 }
 
-int CacheSystem::addUniqueString(std::set<Ogre::String>& list, Ogre::String str)
-{
-    // ignore some render texture targets
-    if (str == "mirror")
-        return 0;
-    if (str == "renderdash")
-        return 0;
-
-    str = stripUIDfromString(str);
-
-    if (list.find(str) == list.end())
-    {
-        list.insert(str);
-        return 1;
-    }
-    return 0;
-}
-
 Ogre::String CacheSystem::detectFilesMiniType(String filename)
 {
     if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename + ".dds"))
@@ -1145,75 +1125,34 @@ void CacheSystem::generateFileCache(CacheEntry& entry)
     LOG("done generating file cache!");
 }
 
-void CacheSystem::parseKnownFilesOneRG(Ogre::String rg)
+void CacheSystem::parseKnownFiles(Ogre::String group, Ogre::String dirname)
 {
-    for (std::vector<Ogre::String>::iterator sit = m_known_extensions.begin(); sit != m_known_extensions.end(); sit++)
-        parseFilesOneRG(*sit, rg);
-}
+    dirname = getVirtualPath(dirname);
 
-void CacheSystem::parseKnownFilesOneRGDirectory(Ogre::String rg, Ogre::String dir)
-{
-    String dirb = getVirtualPath(dir);
-
-    for (std::vector<Ogre::String>::iterator it = m_known_extensions.begin(); it != m_known_extensions.end(); ++it)
+    for (auto ext : m_known_extensions)
     {
-        FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(rg, "*." + *it);
-        for (FileInfoList::iterator iterFiles = files->begin(); iterFiles != files->end(); ++iterFiles)
+        auto files = ResourceGroupManager::getSingleton().findResourceFileInfo(group, "*." + ext);
+        for (const auto& file : *files)
         {
-            if (!iterFiles->archive)
-                continue;
-
-            String dira = getVirtualPath(iterFiles->archive->getName());
-
-            if (dira == dirb)
-                addFile(*iterFiles, *it);
+            if (dirname.empty() || (file.archive && getVirtualPath(file.archive->getName()) == dirname))
+                addFile(file, ext);
         }
     }
 }
 
-void CacheSystem::parseFilesOneRG(Ogre::String ext, Ogre::String rg)
-{
-    FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(rg, "*." + ext);
-    for (FileInfoList::iterator iterFiles = files->begin(); iterFiles != files->end(); ++iterFiles)
-    {
-        addFile(*iterFiles, ext);
-    }
-}
-
-bool CacheSystem::isFileInEntries(Ogre::String filename)
-{
-    for (std::vector<CacheEntry>::iterator it = m_entries.begin(); it != m_entries.end(); ++it)
-    {
-        if (it->fname == filename)
-            return true;
-    }
-    return false;
-}
-
 void CacheSystem::checkForNewKnownFiles()
 {
-    for (std::vector<Ogre::String>::iterator it = m_known_extensions.begin(); it != m_known_extensions.end(); ++it)
-        checkForNewFiles(*it);
-}
-
-void CacheSystem::checkForNewFiles(Ogre::String ext)
-{
-    String pattern = StringUtil::format("*.%s", ext.c_str());
-
-    StringVector sv = ResourceGroupManager::getSingleton().getResourceGroups();
-    for (StringVector::iterator it = sv.begin(); it != sv.end(); ++it)
+    for (auto ext : m_known_extensions)
     {
-        FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(*it, pattern);
-        for (FileInfoList::iterator iterFiles = files->begin(); iterFiles != files->end(); ++iterFiles)
+        auto files = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_CONTENT, "*." + ext);
+        for (const auto& file : *files)
         {
-            String fn = iterFiles->filename.c_str();
-            if (!isFileInEntries(fn))
+            std::string fn = file.filename;
+            if (std::find_if(m_entries.begin(), m_entries.end(),
+                [fn](CacheEntry& e) { return e.fname == fn; }) == m_entries.end())
             {
-                if (iterFiles->archive->getType() == "Zip")
-                LOG("- " + fn + " is new (in zip)");
-                else
                 LOG("- " + fn + " is new");
-                addFile(*iterFiles, ext);
+                addFile(file, ext);
             }
         }
     }
@@ -1305,35 +1244,16 @@ void CacheSystem::loadResource(CacheEntry& t)
     m_loaded_resource_bundles[t.resource_bundle_path] = true;
 }
 
-void CacheSystem::loadSingleZip(Ogre::FileInfo f)
+void CacheSystem::loadSingleZip(String path)
 {
-    String zippath = f.archive->getName() + "/" + f.filename;
-    loadSingleZipInternal(zippath);
-}
-
-void CacheSystem::loadSingleDirectory(String dirname, String group)
-{
-    try
-    {
-        parseKnownFilesOneRGDirectory(group, dirname);
-    }
-    catch (Ogre::Exception& e)
-    {
-        RoR::LogFormat("[RoR|ModCache] Error while loading '%s': %s", dirname.c_str(), e.getFullDescription().c_str());
-    }
-}
-
-void CacheSystem::loadSingleZipInternal(String zippath)
-{
-    String path = getRealPath(zippath);
-
     RoR::LogFormat("[RoR|ModCache] Adding archive '%s'", path.c_str());
 
-    String group = "ModCacheTemp";
-    ResourceGroupManager::getSingleton().createResourceGroup(group, false);
-    ResourceGroupManager::getSingleton().addResourceLocation(path, "Zip", group);
-    parseKnownFilesOneRG(group);
-    ResourceGroupManager::getSingleton().destroyResourceGroup(group);
+    ResourceGroupManager::getSingleton().createResourceGroup(RGN_TEMP, false);
+    ResourceGroupManager::getSingleton().addResourceLocation(path, "Zip", RGN_TEMP);
+
+    parseKnownFiles(RGN_TEMP, "");
+
+    ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_TEMP);
 }
 
 void CacheSystem::loadAllZipsInResourceGroup(String group)
@@ -1357,7 +1277,7 @@ void CacheSystem::loadAllZipsInResourceGroup(String group)
         auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
         loading_win->setProgress(progress, tmp);
 
-        loadSingleZip((Ogre::FileInfo)*iterFiles);
+        loadSingleZip(PathCombine(iterFiles->archive->getName(), iterFiles->filename));
         loadedZips[iterFiles->filename] = true;
     }
     // hide loader again
@@ -1376,7 +1296,7 @@ void CacheSystem::loadAllDirectoriesInResourceGroup(String group)
         // update loader
         int progress = ((float)i / (float)filecount) * 100;
         RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading directory\n") + Utils::SanitizeUtf8String(listitem->filename));
-        loadSingleDirectory(dirname, group);
+        parseKnownFiles(group, dirname);
     }
     // hide loader again
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
@@ -1410,7 +1330,7 @@ void CacheSystem::checkForNewZipsInResourceGroup(std::set<std::string>const & re
         {
             RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new zips in ") + group + "\n" + _L("loading new zip: ") + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
             LOG("- "+zippath+" is new");
-            loadSingleZip((Ogre::FileInfo)*iterFiles);
+            loadSingleZip(PathCombine(iterFiles->archive->getName(), iterFiles->filename));
         }
     }
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
@@ -1433,7 +1353,7 @@ void CacheSystem::checkForNewDirectoriesInResourceGroup(std::set<std::string>con
         {
             RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + _L("loading new directory: ") + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
             LOG("- "+dirname+" is new");
-            loadSingleDirectory(dirname, group);
+            parseKnownFiles(group, dirname);
         }
     }
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);

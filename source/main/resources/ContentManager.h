@@ -28,6 +28,7 @@
 
 #include <OgreResourceGroupManager.h>
 
+#define RGN_TEMP "Temp"
 #define RGN_CACHE "Cache"
 #define RGN_CONTENT "Content"
 
