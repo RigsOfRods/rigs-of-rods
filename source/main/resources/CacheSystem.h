@@ -171,16 +171,11 @@ private:
     Ogre::String getCacheConfigFilename(); // returns absolute path of the cache file
 
     static Ogre::String stripUIDfromString(Ogre::String uidstr); // helper
-    int addUniqueString(std::set<Ogre::String> &list, Ogre::String str);
-
     static Ogre::String stripSHA1fromString(Ogre::String sha1str); // helper
 
-    /** parses all files loaded with a certain extension */
-    void parseFilesOneRG(Ogre::String ext, Ogre::String rg);
-    void parseKnownFilesOneRG(Ogre::String rg);
-    void parseKnownFilesOneRGDirectory(Ogre::String rg, Ogre::String dir);
-
     void checkForNewKnownFiles();
+
+    void parseKnownFiles(Ogre::String group, Ogre::String dirname);
 
     void addFile(Ogre::FileInfo f, Ogre::String ext);	// adds a file to entries
     void addFile(Ogre::String filename, Ogre::String filepath, Ogre::String archiveType, Ogre::String archiveDirectory, Ogre::String ext);
@@ -197,23 +192,16 @@ private:
     void removeFileCache(CacheEntry &entry);
 
     // adds a zip to the cache
-    void loadSingleZip(Ogre::FileInfo f);
-    void loadSingleZipInternal(Ogre::String zippath);
+    void loadSingleZip(Ogre::String path);
 
     Ogre::String detectFilesMiniType(Ogre::String filename);
-    void loadSingleDirectory(Ogre::String dirname, Ogre::String group);
 
     Ogre::String getRealPath(Ogre::String path);
     Ogre::String getVirtualPath(Ogre::String path);
 
-    void checkForNewFiles(Ogre::String ext);
-
     void checkForNewContent();
-
     void checkForNewZipsInResourceGroup(std::set<std::string> const& resource_bundles, Ogre::String group);
     void checkForNewDirectoriesInResourceGroup(std::set<std::string>const & resource_bundles, Ogre::String group);
-
-    bool isFileInEntries(Ogre::String filename);
 
     void loadAllDirectoriesInResourceGroup(Ogre::String group);
     void loadAllZipsInResourceGroup(Ogre::String group);
