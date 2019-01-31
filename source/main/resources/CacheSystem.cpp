@@ -272,7 +272,6 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
     // Common details
     out_entry.usagecounter =           j_entry["usagecounter"].GetInt();
     out_entry.addtimestamp =           j_entry["addtimestamp"].GetUint();
-    out_entry.minitype =               j_entry["minitype"].GetString();
     out_entry.resource_bundle_type =   j_entry["resource_bundle_type"].GetString();
     out_entry.resource_bundle_path =   j_entry["resource_bundle_path"].GetString();
     out_entry.fpath =                  j_entry["fpath"].GetString();
@@ -570,7 +569,6 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
     // Common details
     j_entry.AddMember("usagecounter",         entry.usagecounter,                                          j_doc.GetAllocator());
     j_entry.AddMember("addtimestamp",         (long)entry.addtimestamp,                                    j_doc.GetAllocator());
-    j_entry.AddMember("minitype",             rapidjson::StringRef(entry.minitype.c_str()),                j_doc.GetAllocator());
     j_entry.AddMember("resource_bundle_type", rapidjson::StringRef(entry.resource_bundle_type.c_str()),    j_doc.GetAllocator());
     j_entry.AddMember("resource_bundle_path", rapidjson::StringRef(entry.resource_bundle_path.c_str()),    j_doc.GetAllocator());
     j_entry.AddMember("fpath",                rapidjson::StringRef(entry.fpath.c_str()),                   j_doc.GetAllocator());
@@ -775,10 +773,6 @@ void CacheSystem::addFile(String filename, String filepath, String archiveType, 
             entry.addtimestamp = m_update_time;
             entry.usagecounter = 0;
             entry.deleted = false;
-            String basen;
-            String fnextension;
-            StringUtil::splitBaseFilename(entry.fname, basen, fnextension);
-            entry.minitype = detectFilesMiniType(basen + "-mini");
             generateFileCache(entry);
             m_entries.push_back(entry);
         }
@@ -1025,12 +1019,12 @@ Ogre::String CacheSystem::detectFilesMiniType(String filename)
     if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename + ".jpg"))
         return "jpg";
 
-    return "none";
+    return "";
 }
 
 void CacheSystem::removeFileCache(CacheEntry& entry)
 {
-    if (entry.minitype != "none")
+    if (!entry.filecachename.empty())
     {
         String path = PathCombine(App::sys_cache_dir.GetActive(), entry.filecachename);
         std::remove(path.c_str());
@@ -1039,89 +1033,45 @@ void CacheSystem::removeFileCache(CacheEntry& entry)
 
 void CacheSystem::generateFileCache(CacheEntry& entry)
 {
+    if (entry.fname.empty())
+        return;
+
+    String fbase = "", fext = "";
+    StringUtil::splitBaseFilename(entry.fname, fbase, fext);
+    String minitype = detectFilesMiniType(fbase + "-mini");
+
+    if (minitype.empty())
+        return;
+
+    String src_path = fbase + "-mini." + minitype;
+
+    if (!ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(src_path))
+        return;
+
+    String outBasename = "";
+    String outPath = "";
+    StringUtil::splitFilename(entry.resource_bundle_path, outBasename, outPath);
+
+    // no path info in the cache file name ...
+    String dst_path = outBasename + "_" + entry.fname + ".mini." + minitype;
+
     try
     {
-        if (entry.fname == "")
-            return;
-
-        LOG(" -"+entry.fname+" ...");
-        if (entry.minitype == "none")
+        DataStreamPtr src_ds = ResourceGroupManager::getSingleton().openResource(src_path, RGN_TEMP);
+        DataStreamPtr dst_ds = ResourceGroupManager::getSingleton().createResource(dst_path, RGN_CACHE);
+        std::vector<char> buf(src_ds->size());
+        size_t read = src_ds->read(buf.data(), src_ds->size());
+        if (read > 0)
         {
-            entry.filecachename = "none";
-            return;
-        }
-
-        String outBasename = "";
-        String outPath = "";
-        StringUtil::splitFilename(entry.resource_bundle_path, outBasename, outPath);
-
-        String directory = Ogre::String(App::sys_cache_dir.GetActive()) + PATH_SLASH;
-
-        String dst = directory + outBasename + "_" + entry.fname + ".mini." + entry.minitype;
-
-        // no path info in the cache file name ...
-        entry.filecachename = outBasename + "_" + entry.fname + ".mini." + entry.minitype;
-
-        String fbase = "", fext = "";
-        StringUtil::splitBaseFilename(entry.fname, fbase, fext);
-        String minifn = fbase + "-mini." + entry.minitype;
-
-        if (!ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(minifn))
-        {
-            String base, ext;
-            StringUtil::splitBaseFilename(entry.fname, base, ext);
-            entry.minitype = detectFilesMiniType(base + "-mini");
-            if (!ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(minifn))
-            {
-                // no minipic found
-                entry.filecachename = "none";
-                return;
-            }
-        }
-
-        String group = ResourceGroupManager::getSingleton().findGroupContainingResource(minifn);
-        if (ResourceGroupManager::getSingleton().findResourceFileInfo(group, minifn)->empty())
-        {
-            std::remove(dst.c_str());
-        }
-
-        size_t fsize = 0;
-        char* buffer = 0;
-        {
-            DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(minifn, group);
-            fsize = ds->size();
-            buffer = (char*)malloc(fsize);
-            memset(buffer, 0, fsize);
-            size_t read = ds->read(buffer, fsize);
-            if (read != fsize)
-            {
-                free(buffer);
-                return;
-            }
-        }
-
-        bool written = false;
-        if (buffer)
-        {
-            FILE* f = fopen(dst.c_str(), "wb");
-            if (f)
-            {
-                fwrite(buffer, 1, fsize, f);
-                fclose(f);
-                written = true;
-            }
-            free(buffer);
-        }
-        if (!written)
-        {
-            std::remove(dst.c_str());
+            dst_ds->write(buf.data(), read); 
+            entry.filecachename = dst_path;
         }
     }
     catch (Ogre::Exception& e)
     {
-        LOG("error while generating File cache: " + e.getFullDescription());
-        LOG("trying to continue ...");
+        LOG("error while generating file cache: " + e.getFullDescription());
     }
+
     LOG("done generating file cache!");
 }
 
