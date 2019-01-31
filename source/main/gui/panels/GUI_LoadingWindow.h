@@ -40,7 +40,7 @@ public:
 
     LoadingWindow();
 
-    void setProgress(int _percent, const Ogre::UTFString& _text = "");
+    void setProgress(int _percent, const Ogre::UTFString& _text = "", bool force_update = true);
 
     void SetVisible(bool v);
     bool IsVisible();

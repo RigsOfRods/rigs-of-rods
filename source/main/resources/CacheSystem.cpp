@@ -418,7 +418,7 @@ void CacheSystem::incrementalCacheUpdate()
     {
         int progress = ((float)counter / (float)(m_entries.size())) * 100;
         UTFString tmp = _L("incremental check: deleted and changed files\n") + ANSI_TO_UTF(it->resource_bundle_type) + _L(": ") + ANSI_TO_UTF(it->fname);
-        loading_win->setProgress(progress, tmp);
+        loading_win->setProgress(progress, tmp, false);
 
         std::string fn; // file path
         if (it->resource_bundle_type == "Zip")
@@ -1275,7 +1275,7 @@ void CacheSystem::loadAllZipsInResourceGroup(String group)
         int progress = ((float)i / (float)filecount) * 100;
         UTFString tmp = _L("Loading zips in group ") + ANSI_TO_UTF(group) + L"\n" + ANSI_TO_UTF(iterFiles->filename) + L"\n" + ANSI_TO_UTF(TOSTRING(i)) + L"/" + ANSI_TO_UTF(TOSTRING(filecount));
         auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
-        loading_win->setProgress(progress, tmp);
+        loading_win->setProgress(progress, tmp, false);
 
         loadSingleZip(PathCombine(iterFiles->archive->getName(), iterFiles->filename));
         loadedZips[iterFiles->filename] = true;
@@ -1295,7 +1295,7 @@ void CacheSystem::loadAllDirectoriesInResourceGroup(String group)
         String dirname = listitem->archive->getName() + PATH_SLASH + listitem->filename;
         // update loader
         int progress = ((float)i / (float)filecount) * 100;
-        RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading directory\n") + Utils::SanitizeUtf8String(listitem->filename));
+        RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading directory\n") + Utils::SanitizeUtf8String(listitem->filename), false);
         parseKnownFiles(group, dirname);
     }
     // hide loader again
@@ -1324,7 +1324,7 @@ void CacheSystem::checkForNewZipsInResourceGroup(std::set<std::string>const & re
 #endif
         int progress = ((float)i / (float)filecount) * 100;
         std::string filename_utf8 = Utils::SanitizeUtf8String(iterFiles->filename);
-        RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new zips in ") + group + "\n" + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
+        RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new zips in ") + group + "\n" + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount), false);
         const bool bundle_exists = resource_bundles.find(this->getVirtualPath(zippath2)) != resource_bundles.end();
         if (!bundle_exists)
         {
@@ -1347,7 +1347,7 @@ void CacheSystem::checkForNewDirectoriesInResourceGroup(std::set<std::string>con
         String dirname = listitem->archive->getName() + PATH_SLASH + listitem->filename;
         int progress = ((float)i / (float)filecount) * 100;
         std::string filename_utf8 = Utils::SanitizeUtf8String(listitem->filename);
-        RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
+        RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount), false);
         const bool bundle_exists = resource_bundles.find(this->getVirtualPath(dirname)) != resource_bundles.end();
         if (!bundle_exists)
         {
