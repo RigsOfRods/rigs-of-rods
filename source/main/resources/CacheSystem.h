@@ -193,8 +193,6 @@ private:
     // adds a zip to the cache
     void loadSingleZip(Ogre::String path);
 
-    Ogre::String detectFilesMiniType(Ogre::String filename);
-
     Ogre::String getRealPath(Ogre::String path);
     Ogre::String getVirtualPath(Ogre::String path);
 
