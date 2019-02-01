@@ -133,7 +133,7 @@ void Parser::ProcessCurrentLine()
         case File::KEYWORD_COMMANDS2:                this->ChangeSection(File::SECTION_COMMANDS_2);       return;
         case File::KEYWORD_CONTACTERS:               this->ChangeSection(File::SECTION_CONTACTERS);       return;
         case File::KEYWORD_CRUISECONTROL:            this->ParseCruiseControl();                          return;
-        case File::KEYWORD_DESCRIPTION:              m_in_description_section = true;                     return;
+        case File::KEYWORD_DESCRIPTION:              this->ChangeSection(File::SECTION_NONE); m_in_description_section = true; return;
         case File::KEYWORD_DETACHER_GROUP:           this->ParseDirectiveDetacherGroup();                 return;
         case File::KEYWORD_DISABLEDEFAULTSOUNDS:     this->ProcessGlobalDirective(keyword);               return;
         case File::KEYWORD_ENABLE_ADVANCED_DEFORM:   this->ProcessGlobalDirective(keyword);               return;
@@ -316,7 +316,7 @@ bool Parser::CheckNumArguments(int num_required_args)
 void Parser::ParseActorNameLine()
 {
     m_definition->name = m_current_line; // Already trimmed
-    m_current_section = File::SECTION_NONE;
+    this->ChangeSection(File::SECTION_NONE);
 }
 
 void Parser::ParseWing()
@@ -1241,6 +1241,8 @@ void Parser::ParseFileFormatVersion()
     {
         m_sequential_importer.Disable();
     }
+
+    this->ChangeSection(File::SECTION_NONE);
 }
 
 void Parser::ParseDirectiveDetacherGroup()
@@ -2540,6 +2542,8 @@ void Parser::ParseFileinfo()
     if (m_num_args > 3) { fileinfo.file_version = this->GetArgInt(3); }
 
     m_definition->file_info = std::shared_ptr<Fileinfo>( new Fileinfo(fileinfo) );
+
+    this->ChangeSection(File::SECTION_NONE);
 }
 
 void Parser::ParseRopes()
@@ -2809,6 +2813,8 @@ void Parser::ParseNodeCollision()
 
 void Parser::ParseMinimass()
 {
+    this->ChangeSection(File::SECTION_NONE);
+
     if (m_definition->_minimum_mass_set)
     {
         this->AddMessage(Message::TYPE_WARNING, "Minimass defined more than once.");
@@ -3121,6 +3127,8 @@ void Parser::ParseAuthor()
     if (m_num_args > 3) { author.name             = this->GetArgStr(3); }
     if (m_num_args > 4) { author.email            = this->GetArgStr(4); }
     m_definition->authors.push_back(author);
+
+    this->ChangeSection(File::SECTION_NONE);
 }
 
 // -------------------------------------------------------------------------- 
@@ -3239,33 +3247,6 @@ void Parser::ChangeSection(RigDef::File::Section new_section)
 {
     // ## Section-specific switch logic ##
 
-    this->ExitSections();
-
-    // Enter sections
-    m_current_section = new_section;
-    if (new_section == File::SECTION_SUBMESH)
-    {
-        m_current_submesh = std::shared_ptr<Submesh>( new Submesh() );
-    }
-    else if (new_section == File::SECTION_CAMERA_RAIL)
-    {
-        m_current_camera_rail = std::shared_ptr<CameraRail>( new CameraRail() );
-    }
-    else if (new_section == File::SECTION_FLEXBODIES)
-    {
-        m_current_subsection = File::SUBSECTION__FLEXBODIES__PROPLIKE_LINE;
-    }
-    else if (new_section == File::SECTION_GUI_SETTINGS)
-    {
-        if (m_current_module->gui_settings == nullptr)
-        {
-            m_current_module->gui_settings = std::shared_ptr<GuiSettings> ( new GuiSettings() );
-        }
-    }
-}
-
-void Parser::ExitSections()
-{
     if (m_current_submesh != nullptr)
     {
         m_current_module->submeshes.push_back(*m_current_submesh);
@@ -3289,6 +3270,28 @@ void Parser::ExitSections()
     if (m_current_section == File::SECTION_FLEXBODIES)
     {
         m_current_subsection = File::SUBSECTION_NONE;
+    }
+
+    // Enter sections
+    m_current_section = new_section;
+    if (new_section == File::SECTION_SUBMESH)
+    {
+        m_current_submesh = std::shared_ptr<Submesh>( new Submesh() );
+    }
+    else if (new_section == File::SECTION_CAMERA_RAIL)
+    {
+        m_current_camera_rail = std::shared_ptr<CameraRail>( new CameraRail() );
+    }
+    else if (new_section == File::SECTION_FLEXBODIES)
+    {
+        m_current_subsection = File::SUBSECTION__FLEXBODIES__PROPLIKE_LINE;
+    }
+    else if (new_section == File::SECTION_GUI_SETTINGS)
+    {
+        if (m_current_module->gui_settings == nullptr)
+        {
+            m_current_module->gui_settings = std::shared_ptr<GuiSettings> ( new GuiSettings() );
+        }
     }
 }
 
@@ -3344,7 +3347,7 @@ void Parser::ProcessChangeModuleLine(File::Keyword keyword)
 
 void Parser::Finalize()
 {
-    this->ExitSections();
+    this->ChangeSection(File::SECTION_NONE);
 
     if (m_sequential_importer.IsEnabled())
     {

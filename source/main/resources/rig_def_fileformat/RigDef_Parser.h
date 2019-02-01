@@ -217,7 +217,6 @@ private:
     int              TokenizeCurrentLine();
     bool             CheckNumArguments(int num_required_args);
     void             ChangeSection(RigDef::File::Section new_section);
-    void             ExitSections();
     void             ProcessChangeModuleLine(File::Keyword keyword);
 
     std::string        GetArgStr          (int index);
