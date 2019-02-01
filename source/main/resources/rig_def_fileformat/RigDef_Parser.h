@@ -89,7 +89,7 @@ public:
 
     void Prepare();
     void Finalize();
-    void ProcessOgreStream(Ogre::DataStream* stream);
+    void ProcessOgreStream(Ogre::DataStream* stream, Ogre::String resource_group);
     void ProcessRawLine(const char* line);
 
     std::list<Message> const & GetMessages()
@@ -310,6 +310,8 @@ private:
     std::shared_ptr<Flexbody>            m_last_flexbody;
 
     SequentialImporter                   m_sequential_importer;
+
+    Ogre::String                         m_resource_group;
 
     std::shared_ptr<RigDef::File>        m_definition;
     std::list<Message>                   m_messages;

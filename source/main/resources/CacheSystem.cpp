@@ -733,7 +733,7 @@ void CacheSystem::addFile(String group, Ogre::FileInfo f, String ext)
         }
         else
         {
-            fillTruckDetailInfo(entry, ds, f.filename);
+            fillTruckDetailInfo(entry, ds, f.filename, group);
         }
         entry.fpath = f.path;
         entry.fname = f.filename;
@@ -751,7 +751,7 @@ void CacheSystem::addFile(String group, Ogre::FileInfo f, String ext)
         entry.resource_bundle_path = archiveDirectory;
         entry.number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
         entry.addtimestamp = m_update_time;
-        generateFileCache(entry);
+        generateFileCache(entry, group);
         m_entries.push_back(entry);
     }
     catch (Ogre::Exception& e)
@@ -760,12 +760,12 @@ void CacheSystem::addFile(String group, Ogre::FileInfo f, String ext)
     }
 }
 
-void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr stream, Ogre::String file_name)
+void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr stream, String file_name, String group)
 {
     /* LOAD AND PARSE THE VEHICLE */
     RigDef::Parser parser;
     parser.Prepare();
-    parser.ProcessOgreStream(stream.getPointer());
+    parser.ProcessOgreStream(stream.getPointer(), group);
     parser.Finalize();
 
     /* Report messages */
@@ -1000,7 +1000,7 @@ void CacheSystem::removeFileCache(CacheEntry& entry)
     }
 }
 
-void CacheSystem::generateFileCache(CacheEntry& entry)
+void CacheSystem::generateFileCache(CacheEntry& entry, String group)
 {
     if (entry.fname.empty())
         return;
@@ -1024,7 +1024,7 @@ void CacheSystem::generateFileCache(CacheEntry& entry)
 
     try
     {
-        DataStreamPtr src_ds = ResourceGroupManager::getSingleton().openResource(src_path, RGN_TEMP);
+        DataStreamPtr src_ds = ResourceGroupManager::getSingleton().openResource(src_path, group);
         DataStreamPtr dst_ds = ResourceGroupManager::getSingleton().createResource(dst_path, RGN_CACHE, true);
         std::vector<char> buf(src_ds->size());
         size_t read = src_ds->read(buf.data(), src_ds->size());

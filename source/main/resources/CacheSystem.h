@@ -179,13 +179,13 @@ private:
 
     // reads all advanced information out of the entry's file
     void fillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
-    void fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
+    void fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname, Ogre::String group);
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
     void incrementalCacheUpdate();             // tries to update parts of the Cache only
     void detectDuplicates();                   // tries to detect duplicates
 
-    void generateFileCache(CacheEntry &entry);
+    void generateFileCache(CacheEntry &entry, Ogre::String group);
     void removeFileCache(CacheEntry &entry);
 
     // adds a zip to the cache
