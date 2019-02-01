@@ -175,8 +175,7 @@ private:
 
     void parseKnownFiles(Ogre::String group, Ogre::String dirname);
 
-    void addFile(Ogre::FileInfo f, Ogre::String ext);	// adds a file to entries
-    void addFile(Ogre::String filename, Ogre::String filepath, Ogre::String archiveType, Ogre::String archiveDirectory, Ogre::String ext);
+    void addFile(Ogre::String group, Ogre::FileInfo f, Ogre::String ext); // adds a file to entries
 
     // reads all advanced information out of the entry's file
     void fillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
