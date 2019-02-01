@@ -766,6 +766,7 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     RigDef::Parser parser;
     parser.Prepare();
     parser.ProcessOgreStream(stream.getPointer(), group);
+    parser.GetSequentialImporter()->Disable();
     parser.Finalize();
 
     /* Report messages */
