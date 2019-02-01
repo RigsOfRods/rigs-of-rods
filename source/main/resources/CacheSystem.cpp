@@ -714,77 +714,49 @@ Ogre::String CacheSystem::stripSHA1fromString(Ogre::String sha1str)
     return sha1str;
 }
 
-void CacheSystem::addFile(Ogre::FileInfo f, String ext)
+void CacheSystem::addFile(String group, Ogre::FileInfo f, String ext)
 {
-    String archiveType = "FileSystem";
-    String archiveDirectory = "";
-    if (f.archive)
+    LOG("Preparing to add " + f.filename);
+
+    String archiveType = f.archive ? f.archive->getType() : "FileSystem";
+    String archiveDirectory = f.archive ? f.archive->getName() : "";
+
+    try
     {
-        archiveType = f.archive->getType();
-        archiveDirectory = f.archive->getName();
+        DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(f.filename, group);
+        // ds closes automatically, so do _not_ close it explicitly below
+
+        CacheEntry entry;
+        if (ext == "terrn2")
+        {
+            fillTerrainDetailInfo(entry, ds, f.filename);
+        }
+        else
+        {
+            fillTruckDetailInfo(entry, ds, f.filename);
+        }
+        entry.fpath = f.path;
+        entry.fname = f.filename;
+        entry.fname_without_uid = stripUIDfromString(f.filename);
+        entry.fext = ext;
+        if (archiveType == "Zip")
+        {
+            entry.filetime = RoR::GetFileLastModifiedTime(archiveDirectory);
+        }
+        else
+        {
+            entry.filetime = RoR::GetFileLastModifiedTime(PathCombine(archiveDirectory, f.filename));
+        }
+        entry.resource_bundle_type = archiveType;
+        entry.resource_bundle_path = archiveDirectory;
+        entry.number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
+        entry.addtimestamp = m_update_time;
+        generateFileCache(entry);
+        m_entries.push_back(entry);
     }
-
-    addFile(f.filename, f.path, archiveType, archiveDirectory, ext);
-}
-
-void CacheSystem::addFile(String filename, String filepath, String archiveType, String archiveDirectory, String ext)
-{
-    LOG("Preparing to add " + filename);
-
-    //read first line
-    CacheEntry entry;
-    if (!ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename))
-        return;
-
-    String group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
-    if (ResourceGroupManager::getSingleton().resourceExists(group, filename))
+    catch (Ogre::Exception& e)
     {
-        try
-        {
-            DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(filename, group);
-
-            if (ext == "terrn2")
-            {
-                fillTerrainDetailInfo(entry, ds, filename);
-            }
-            else
-            {
-                fillTruckDetailInfo(entry, ds, filename);
-            }
-
-            // ds closes automatically, so do _not_ close it explicitly below
-            entry.fpath = filepath;
-            entry.fname = filename;
-            entry.fname_without_uid = stripUIDfromString(filename);
-            entry.fext = ext;
-            if (archiveType == "Zip")
-            {
-                entry.filetime = RoR::GetFileLastModifiedTime(archiveDirectory);
-            }
-            else
-            {
-                entry.filetime = RoR::GetFileLastModifiedTime(PathCombine(archiveDirectory, filename));
-            }
-            entry.resource_bundle_type = archiveType;
-            entry.resource_bundle_path = archiveDirectory;
-            entry.number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
-            entry.addtimestamp = m_update_time;
-            entry.usagecounter = 0;
-            entry.deleted = false;
-            generateFileCache(entry);
-            m_entries.push_back(entry);
-        }
-        catch (ItemIdentityException& e)
-        {
-            LOG(" *** error opening archive '"+filename+"': some files are duplicates of existing files. The file will be ignored.");
-            LOG("error while opening resource: " + e.getFullDescription());
-        }
-        catch (Ogre::Exception& e)
-        {
-            LOG("error while opening resource: " + e.getFullDescription());
-            LOG("error opening archive '"+String(filename)+"'. Is it corrupt?");
-            LOG("trying to continue ...");
-        }
+        LOG("Error while opening resource: '" + f.filename + "': " + e.getFullDescription());
     }
 }
 
@@ -1080,7 +1052,7 @@ void CacheSystem::parseKnownFiles(Ogre::String group, Ogre::String dirname)
         for (const auto& file : *files)
         {
             if (dirname.empty() || (file.archive && getVirtualPath(file.archive->getName()) == dirname))
-                addFile(file, ext);
+                addFile(group, file, ext);
         }
     }
 }
@@ -1097,7 +1069,7 @@ void CacheSystem::checkForNewKnownFiles()
                 [fn](CacheEntry& e) { return e.fname == fn; }) == m_entries.end())
             {
                 LOG("- " + fn + " is new");
-                addFile(file, ext);
+                addFile(RGN_CONTENT, file, ext);
             }
         }
     }
