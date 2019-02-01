@@ -1215,7 +1215,7 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, 
         RoR::LogFormat("[RoR] Parsing truckfile '%s'", filename);
         RigDef::Parser parser;
         parser.Prepare();
-        parser.ProcessOgreStream(stream.getPointer());
+        parser.ProcessOgreStream(stream.getPointer(), resource_groupname);
         parser.Finalize();
 
         auto def = parser.GetFile();

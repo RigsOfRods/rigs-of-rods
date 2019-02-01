@@ -2909,17 +2909,17 @@ void Parser::ParseManagedMaterials()
 
     Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
 
-    if (!rgm.resourceExistsInAnyGroup(managed_mat.diffuse_map))
+    if (!rgm.resourceExists(m_resource_group, managed_mat.diffuse_map))
     {
         this->AddMessage(Message::TYPE_WARNING, "Missing texture file: " + managed_mat.diffuse_map);
         return;
     }
-    if (managed_mat.HasDamagedDiffuseMap() && !rgm.resourceExistsInAnyGroup(managed_mat.damaged_diffuse_map))
+    if (managed_mat.HasDamagedDiffuseMap() && !rgm.resourceExists(m_resource_group, managed_mat.damaged_diffuse_map))
     {
         this->AddMessage(Message::TYPE_WARNING, "Missing texture file: " + managed_mat.damaged_diffuse_map);
         managed_mat.damaged_diffuse_map = "-";
     }
-    if (managed_mat.HasSpecularMap() && !rgm.resourceExistsInAnyGroup(managed_mat.specular_map))
+    if (managed_mat.HasSpecularMap() && !rgm.resourceExists(m_resource_group, managed_mat.specular_map))
     {
         this->AddMessage(Message::TYPE_WARNING, "Missing texture file: " + managed_mat.specular_map);
         managed_mat.specular_map = "-";
@@ -3661,8 +3661,10 @@ int Parser::TokenizeCurrentLine()
     return cur_arg;
 }
 
-void Parser::ProcessOgreStream(Ogre::DataStream* stream)
+void Parser::ProcessOgreStream(Ogre::DataStream* stream, Ogre::String resource_group)
 {
+    m_resource_group = resource_group;
+
     char raw_line_buf[LINE_BUFFER_LENGTH];
     while (!stream->eof())
     {
