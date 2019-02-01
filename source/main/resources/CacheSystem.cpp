@@ -1005,15 +1005,15 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     /* NOTE: std::shared_ptr cleans everything up. */
 }
 
-Ogre::String CacheSystem::detectFilesMiniType(String filename)
+Ogre::String detectMiniType(String filename)
 {
-    if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename + ".dds"))
+    if (ResourceGroupManager::getSingleton().resourceExists(RGN_TEMP, filename + "dds"))
         return "dds";
 
-    if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename + ".png"))
+    if (ResourceGroupManager::getSingleton().resourceExists(RGN_TEMP, filename + "png"))
         return "png";
 
-    if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename + ".jpg"))
+    if (ResourceGroupManager::getSingleton().resourceExists(RGN_TEMP, filename + "jpg"))
         return "jpg";
 
     return "";
@@ -1035,15 +1035,13 @@ void CacheSystem::generateFileCache(CacheEntry& entry)
 
     String fbase = "", fext = "";
     StringUtil::splitBaseFilename(entry.fname, fbase, fext);
-    String minitype = detectFilesMiniType(fbase + "-mini");
+    String minifn = fbase + "-mini.";
+    String minitype = detectMiniType(minifn);
 
     if (minitype.empty())
         return;
 
-    String src_path = fbase + "-mini." + minitype;
-
-    if (!ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(src_path))
-        return;
+    String src_path = minifn + minitype;
 
     String outBasename = "";
     String outPath = "";
