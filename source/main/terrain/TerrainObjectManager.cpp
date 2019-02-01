@@ -128,7 +128,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
         int progress = ((float)(ds->tell()) / (float)(ds->size())) * 100.0f;
         if (progress > lastprogress)
         {
-            RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading Terrain Objects"));
+            RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading Terrain Objects"), false);
             lastprogress = progress;
         }
 

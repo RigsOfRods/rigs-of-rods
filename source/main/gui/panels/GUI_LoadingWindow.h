@@ -42,12 +42,10 @@ public:
 
     void setProgress(int _percent, const Ogre::UTFString& _text = "", bool force_update = true);
 
-    void SetVisible(bool v);
-    bool IsVisible();
+    void SetVisible(bool v) { mMainWidget->setVisible(v); }
+    bool IsVisible() { return mMainWidget->getVisible(); }
 
 private:
-
-    void renderOneFrame();
 
     ATTRIBUTE_FIELD_WIDGET_NAME(LoadingWindow, mBarProgress, "Bar");
 
