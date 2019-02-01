@@ -109,7 +109,6 @@ public:
     bool custom_particles;
     bool forwardcommands;
     bool importcommands;
-    bool rollon;
     bool rescuer;
 
     int driveable;
