@@ -88,7 +88,6 @@ CacheEntry::CacheEntry() :
     propscount(0),
     propwheelcount(0),
     rescuer(false),
-    rollon(false),
     rotatorscount(0),
     shockcount(0),
     soundsourcescount(0),
@@ -343,7 +342,6 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
     out_entry.custom_particles =  j_entry["custom_particles"].GetBool();
     out_entry.forwardcommands =   j_entry["forwardcommands"].GetBool();
     out_entry.importcommands =    j_entry["importcommands"].GetBool();
-    out_entry.rollon =            j_entry["rollon"].GetBool();
     out_entry.rescuer =           j_entry["rescuer"].GetBool();
     out_entry.driveable =         j_entry["driveable"].GetInt();
     out_entry.numgears =          j_entry["numgears"].GetInt();
@@ -629,7 +627,6 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
     j_entry.AddMember("custom_particles",    entry.custom_particles,  j_doc.GetAllocator());
     j_entry.AddMember("forwardcommands",     entry.forwardcommands,   j_doc.GetAllocator());
     j_entry.AddMember("importcommands",      entry.importcommands,    j_doc.GetAllocator());
-    j_entry.AddMember("rollon",              entry.rollon,            j_doc.GetAllocator());
     j_entry.AddMember("rescuer",             entry.rescuer,           j_doc.GetAllocator());
     j_entry.AddMember("driveable",           entry.driveable,         j_doc.GetAllocator());
     j_entry.AddMember("numgears",            entry.numgears,          j_doc.GetAllocator());
@@ -951,7 +948,6 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     
     entry.forwardcommands = def->forward_commands;
     entry.importcommands = def->import_commands;
-    entry.rollon = def->rollon;
     entry.rescuer = def->rescuer;
     entry.guid = def->guid;
     entry.fileformatversion = def->file_format_version;

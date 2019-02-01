@@ -898,8 +898,6 @@ void CLASS::UpdateControls(CacheEntry* entry)
         descriptiontxt = descriptiontxt + _L("[forwards commands]") + newline;
     if (entry->importcommands)
         descriptiontxt = descriptiontxt + _L("[imports commands]") + newline;
-    if (entry->rollon)
-        descriptiontxt = descriptiontxt + _L("[is rollon]") + newline;
     if (entry->rescuer)
         descriptiontxt = descriptiontxt + _L("[is rescuer]") + newline;
     if (entry->custom_particles)
