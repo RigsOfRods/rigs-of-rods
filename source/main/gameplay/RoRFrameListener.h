@@ -126,7 +126,6 @@ private:
     void   UpdateForceFeedback     ();
     void   HandleSavegameShortcuts ();
     void   UpdateInputEvents       (float dt);
-    void   FinalizeActorSpawning   (Actor* actor, RoR::ActorSpawnRequest rq);
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
     void   UpdateSimulation        (float dt);

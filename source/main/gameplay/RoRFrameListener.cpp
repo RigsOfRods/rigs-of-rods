@@ -1521,19 +1521,6 @@ void SimController::TeleportPlayerXZ(float x, float z)
     }
 }
 
-void SimController::FinalizeActorSpawning(Actor* actor, ActorSpawnRequest rq)
-{
-    if (actor->ar_engine != nullptr && App::sim_spawn_running.GetActive())
-    {
-        actor->ar_engine->StartEngine();
-    }
-
-    if (actor->ar_driveable != NOT_DRIVEABLE)
-    {
-        this->SetPendingPlayerActor(actor);
-    }
-}
-
 void SimController::UpdateSimulation(float dt)
 {
     m_actor_manager.SyncWithSimThread();
@@ -1628,7 +1615,6 @@ void SimController::UpdateSimulation(float dt)
                 Actor* new_actor = this->SpawnActorDirectly(srq); // try to load the same actor again
                 if (new_actor)
                 {
-                    this->FinalizeActorSpawning(new_actor, srq);
                     new_actor->GetGfxActor()->SetDebugView(debug_view);
                 }
             }
@@ -1664,7 +1650,6 @@ void SimController::UpdateSimulation(float dt)
             Actor* fresh_actor = this->SpawnActorDirectly(rq);
             if (fresh_actor != nullptr)
             {
-                this->FinalizeActorSpawning(fresh_actor, rq);
                 if (rq.asr_spawnbox == nullptr)
                 {
                     // Try to resolve collisions with other actors
@@ -1678,7 +1663,6 @@ void SimController::UpdateSimulation(float dt)
             Actor* fresh_actor = this->SpawnActorDirectly(rq);
             if (fresh_actor != nullptr)
             {
-                this->FinalizeActorSpawning(fresh_actor, rq);
                 if (App::diag_preset_veh_enter.GetActive() && fresh_actor->ar_num_nodes > 0)
                 {
                     this->SetPendingPlayerActor(fresh_actor);
@@ -1702,10 +1686,6 @@ void SimController::UpdateSimulation(float dt)
         else
         {
             Actor* fresh_actor = this->SpawnActorDirectly(rq);
-            if (fresh_actor != nullptr)
-            {
-                this->FinalizeActorSpawning(fresh_actor, rq);
-            }
         }
     }
     m_actor_spawn_queue.clear();
@@ -2467,6 +2447,11 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
 
     LOG(" ===== LOADING VEHICLE: " + rq.asr_filename);
     Actor* actor = m_actor_manager.CreateActorInstance(rq, def);
+
+    if (actor->ar_driveable != NOT_DRIVEABLE && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
+    {
+        this->SetPendingPlayerActor(actor);
+    }
 
     // lock slide nodes after spawning the actor?
     if (def->slide_nodes_connect_instantly)
