@@ -182,7 +182,7 @@ void CacheSystem::UnloadActorFromMemory(std::string filename)
             if (unused)
             {
                 ResourceGroupManager::getSingleton().destroyResourceGroup(group);
-                m_loaded_resource_bundles[cache_entry->resource_bundle_path] = false;
+                m_loaded_resource_bundles[cache_entry->resource_bundle_path] = "";
             }
         }
     }
@@ -1076,8 +1076,9 @@ bool CacheSystem::CheckResourceLoaded(Ogre::String & filename, Ogre::String& gro
 
 void CacheSystem::LoadResource(CacheEntry& t)
 {
-    if (m_loaded_resource_bundles[t.resource_bundle_path])
+    if (!m_loaded_resource_bundles[t.resource_bundle_path].empty())
     {
+        t.resource_group = m_loaded_resource_bundles[t.resource_bundle_path];
         return;
     }
 
@@ -1094,5 +1095,6 @@ void CacheSystem::LoadResource(CacheEntry& t)
     }
     t.resource_group = group;
 
-    m_loaded_resource_bundles[t.resource_bundle_path] = true;
+    m_loaded_resource_bundles[t.resource_bundle_path] = group;
 }
+
