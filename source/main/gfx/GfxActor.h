@@ -203,6 +203,7 @@ public:
         Ogre::Vector3               simbuf_pos;
         Ogre::Vector3               simbuf_node0_velo;
         bool                        simbuf_live_local;
+        bool                        simbuf_physics_paused;
         float                       simbuf_rotation;
         float                       simbuf_tyre_pressure;
         Ogre::AxisAlignedBox        simbuf_aabb;

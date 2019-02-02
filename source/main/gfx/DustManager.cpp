@@ -95,7 +95,10 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     {
         for (GfxActor* gfx_actor: m_all_gfx_actors)
         {
-            gfx_actor->UpdateParticles(m_simbuf.simbuf_sim_speed * dt_sec);
+            if (!m_simbuf.simbuf_sim_paused && !gfx_actor->GetSimDataBuffer().simbuf_physics_paused)
+            {
+                gfx_actor->UpdateParticles(m_simbuf.simbuf_sim_speed * dt_sec);
+            }
         }
         for (auto itor : m_dustpools)
         {
@@ -281,6 +284,7 @@ void RoR::GfxScene::BufferSimulationData()
     m_simbuf.simbuf_character_pos = gEnv->player->getPosition();
     m_simbuf.simbuf_dir_arrow_target = App::GetSimController()->GetDirArrowTarget();
     m_simbuf.simbuf_tyrepressurize_active = App::GetSimController()->IsPressurizingTyres();
+    m_simbuf.simbuf_sim_paused = App::GetSimController()->GetPhysicsPaused();
     m_simbuf.simbuf_sim_speed = App::GetSimController()->GetBeamFactory()->GetSimulationSpeed();
     m_simbuf.simbuf_race_time = App::GetSimController()->GetRaceTime();
     m_simbuf.simbuf_race_in_progress = App::GetSimController()->IsRaceInProgress();
