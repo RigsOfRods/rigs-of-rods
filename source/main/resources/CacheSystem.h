@@ -32,7 +32,7 @@
 #include <Ogre.h>
 
 #define CACHE_FILE "mods.cache"
-#define CACHE_FILE_FORMAT 9
+#define CACHE_FILE_FORMAT 10
 
 struct AuthorInfo
 {
@@ -133,11 +133,11 @@ public:
 
     enum CacheValidityState
     {
-        CACHE_VALID                    = 0,
-        CACHE_NEEDS_UPDATE_INCREMENTAL = -1,
-        CACHE_NEEDS_UPDATE_FULL        = -2,
+        CACHE_VALID         = 0,
+        CACHE_NEEDS_UPDATE  = -1,
+        CACHE_NEEDS_REBUILD = -2,
 
-        CACHE_STATE_UNKNOWN            = 0xFFFFFFFF
+        CACHE_STATE_UNKNOWN = 0xFFFFFFFF
     };
 
     void                  LoadModCache(CacheValidityState validity);
@@ -145,67 +145,55 @@ public:
     void                  UnloadActorFromMemory(std::string filename);
     CacheValidityState    EvaluateCacheValidity();
 
-    void loadResource(CacheEntry& t); //!< Loads the associated resource bundle if not already done.
-    bool checkResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
-    bool checkResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
+    void LoadResource(CacheEntry& t); //!< Loads the associated resource bundle if not already done.
+    bool CheckResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
+    bool CheckResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
 
-    std::map<int, Ogre::String> *getCategories();
-    std::vector<CacheEntry> *getEntries();
+    std::map<int, Ogre::String> *GetCategories() { return &m_categories; }
+    std::vector<CacheEntry> *GetEntries()        { return &m_entries; }
 
-    CacheEntry *getEntry(int modid);
-    Ogre::String getPrettyName(Ogre::String fname);
+    CacheEntry *GetEntry(int modid);
+    Ogre::String GetPrettyName(Ogre::String fname);
 
     enum CategoryID {CID_Max=9000, CID_Unsorted=9990, CID_All=9991, CID_Fresh=9992, CID_Hidden=9993, CID_SearchResults=9994};
 
 private:
-
-    void ClearCache();
 
     void WriteCacheFileJson();
     void ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Document& j_doc, CacheEntry const & entry);
     void LoadCacheFileJson();
     void ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & out_entry);
 
-    Ogre::String getCacheConfigFilename(); // returns absolute path of the cache file
+    Ogre::String GetCacheConfigFilename(); // returns absolute path of the cache file
 
-    static Ogre::String stripUIDfromString(Ogre::String uidstr); // helper
-    static Ogre::String stripSHA1fromString(Ogre::String sha1str); // helper
+    static Ogre::String StripUIDfromString(Ogre::String uidstr); 
+    static Ogre::String StripSHA1fromString(Ogre::String sha1str);
 
-    void checkForNewKnownFiles();
+    void ParseZipArchives(Ogre::String group);
+    void ParseKnownFiles(Ogre::String group);
+    void ParseSingleZip(Ogre::String path);
 
-    void parseKnownFiles(Ogre::String group, Ogre::String dirname);
+    void ClearCache(); // removes                   all files from the cache
+    void PruneCache(); // removes modified (or deleted) files from the cache
 
-    void addFile(Ogre::String group, Ogre::FileInfo f, Ogre::String ext); // adds a file to entries
+    void AddFile(Ogre::String group, Ogre::FileInfo f, Ogre::String ext);
 
-    // reads all advanced information out of the entry's file
-    void fillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
-    void fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname, Ogre::String group);
+    void DetectDuplicates();
+
+    void FillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
+    void FillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname, Ogre::String group);
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
-    void incrementalCacheUpdate();             // tries to update parts of the Cache only
-    void detectDuplicates();                   // tries to detect duplicates
 
-    void generateFileCache(CacheEntry &entry, Ogre::String group);
-    void removeFileCache(CacheEntry &entry);
-
-    // adds a zip to the cache
-    void loadSingleZip(Ogre::String path);
-
-    Ogre::String getRealPath(Ogre::String path);
-    Ogre::String getVirtualPath(Ogre::String path);
-
-    void checkForNewContent();
-    void checkForNewZipsInResourceGroup(std::set<std::string> const& resource_bundles, Ogre::String group);
-    void checkForNewDirectoriesInResourceGroup(std::set<std::string>const & resource_bundles, Ogre::String group);
-
-    void loadAllDirectoriesInResourceGroup(Ogre::String group);
-    void loadAllZipsInResourceGroup(Ogre::String group);
+    void GenerateFileCache(CacheEntry &entry, Ogre::String group);
+    void RemoveFileCache(CacheEntry &entry);
 
     std::time_t                          m_update_time;      //!< Ensures that all inserted files share the same timestamp
     std::string                          m_filenames_hash;   //!< stores hash over the content, for quick update detection
     std::map<Ogre::String, bool>         m_loaded_resource_bundles;
     std::vector<CacheEntry>              m_entries;
     std::vector<Ogre::String>            m_known_extensions; //!< the extensions we track in the cache system
+    std::set<Ogre::String>               m_resource_paths;   //!< A temporary list of existing resource paths
     std::map<int, Ogre::String>          m_categories = {
             // these are the category numbers from the repository. do not modify them!
 

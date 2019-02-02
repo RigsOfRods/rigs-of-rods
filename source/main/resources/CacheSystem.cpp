@@ -28,20 +28,16 @@
 #include <OgreException.h>
 #include "Application.h"
 #include "BeamData.h"
-#include "BeamEngine.h"
 #include "ContentManager.h"
-#include "DustManager.h"
 #include "ErrorUtils.h"
 #include "GUI_LoadingWindow.h"
 #include "GUIManager.h"
 #include "GfxActor.h"
-#include "ImprovedConfigFile.h"
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RigDef_Parser.h"
 #include "RoRFrameListener.h"
 #include "Settings.h"
-#include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "Terrn2Fileformat.h"
 #include "Utils.h"
@@ -119,38 +115,28 @@ CacheSystem::CacheSystem()
 
 void CacheSystem::LoadModCache(CacheValidityState validity)
 {
+    m_resource_paths.clear();
     m_update_time = getTimeStamp();
 
-    if (validity == CACHE_NEEDS_UPDATE_FULL)
+    if (validity != CACHE_VALID)
     {
-        RoR::Log("[RoR|ModCache] Performing full rebuild");
-
-        this->ClearCache();
-
-        this->loadAllZipsInResourceGroup(RGN_CONTENT);
-        this->loadAllDirectoriesInResourceGroup(RGN_CONTENT);
-        
-        this->checkForNewKnownFiles(); // TODO: does some duplicate work, but needed to pick up flat files
-
-        this->detectDuplicates();
-
+        if (validity == CACHE_NEEDS_REBUILD)
+        {
+            RoR::Log("[RoR|ModCache] Performing rebuild ...");
+            this->ClearCache();
+        }
+        else
+        {
+            RoR::Log("[RoR|ModCache] Performing update ...");
+            this->PruneCache();
+        }
+        this->ParseZipArchives(RGN_CONTENT);
+        this->ParseKnownFiles(RGN_CONTENT);
+        this->DetectDuplicates();
         this->WriteCacheFileJson();
-        this->LoadCacheFileJson(); // Reloading from the disk removes all the 'deleted' cache entries
     }
-    else if (validity == CACHE_NEEDS_UPDATE_INCREMENTAL)
-    {
-        RoR::Log("[RoR|ModCache] Performing incremental update");
 
-        this->incrementalCacheUpdate();
-
-        this->WriteCacheFileJson();
-        this->LoadCacheFileJson(); // Reloading from the disk removes all the 'deleted' cache entries
-    }
-    else
-    {
-        RoR::Log("[RoR|ModCache] Cache valid");
-        this->LoadCacheFileJson();
-    }
+    this->LoadCacheFileJson();
 
     // show error on zero content
     if (m_entries.empty())
@@ -205,17 +191,7 @@ void CacheSystem::UnloadActorFromMemory(std::string filename)
     }
 }
 
-std::map<int, String>* CacheSystem::getCategories()
-{
-    return &m_categories;
-}
-
-std::vector<CacheEntry>* CacheSystem::getEntries()
-{
-    return &m_entries;
-}
-
-String CacheSystem::getCacheConfigFilename()
+String CacheSystem::GetCacheConfigFilename()
 {
     return PathCombine(App::sys_cache_dir.GetActive(), CACHE_FILE);
 }
@@ -225,7 +201,7 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
     this->GenerateHashFromFilenames();
 
     // First, open cache file and get SHA1 hash for quick update check
-    std::ifstream ifs(this->getCacheConfigFilename()); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
+    std::ifstream ifs(this->GetCacheConfigFilename()); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
     rapidjson::IStreamWrapper isw(ifs);
     rapidjson::Document j_doc;
     j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(isw);
@@ -234,35 +210,35 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
         !j_doc.HasMember("format_version") ||!j_doc["format_version"].IsNumber() ||
         !j_doc.HasMember("entries") || !j_doc["entries"].IsArray())
     {
-        RoR::Log("[RoR|ModCache] Invalid or missing cache file ...");
-        return CACHE_NEEDS_UPDATE_FULL; 
+        RoR::Log("[RoR|ModCache] Invalid or missing cache file");
+        return CACHE_NEEDS_REBUILD; 
     }
 
     if (j_doc["format_version"].GetInt() != CACHE_FILE_FORMAT)
     {
-        RoR::Log("[RoR|ModCache] Invalid cache file format ...");
-        return CACHE_NEEDS_UPDATE_FULL;
+        RoR::Log("[RoR|ModCache] Invalid cache file format");
+        return CACHE_NEEDS_REBUILD;
     }
 
     if (App::app_force_cache_purge.GetActive())
     {
-        RoR::Log("[RoR|ModCache] Cache rebuild requested ...");
-        return CACHE_NEEDS_UPDATE_FULL;
+        RoR::Log("[RoR|ModCache] Cache rebuild requested");
+        return CACHE_NEEDS_REBUILD;
     }
 
     if (j_doc["global_hash"].GetString() != m_filenames_hash)
     {
-        RoR::Log("[RoR|ModCache] Cache file out of date ...");
-        return CACHE_NEEDS_UPDATE_INCREMENTAL;
+        RoR::Log("[RoR|ModCache] Cache file out of date");
+        return CACHE_NEEDS_UPDATE;
     }
 
     if (App::app_force_cache_udpate.GetActive())
     {
-        RoR::Log("[RoR|ModCache] Cache update requested ...");
-        return CACHE_NEEDS_UPDATE_INCREMENTAL;
+        RoR::Log("[RoR|ModCache] Cache update requested");
+        return CACHE_NEEDS_UPDATE;
     }
 
-    RoR::Log("[RoR|ModCache] valid, using it.");
+    RoR::Log("[RoR|ModCache] Cache valid");
     return CACHE_VALID;
 }
 
@@ -359,7 +335,7 @@ void CacheSystem::LoadCacheFileJson()
     // Clear existing entries
     m_entries.clear();
 
-    std::ifstream ifs(this->getCacheConfigFilename()); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
+    std::ifstream ifs(this->GetCacheConfigFilename()); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
     rapidjson::IStreamWrapper isw(ifs);
     rapidjson::Document j_doc;
     j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(isw);
@@ -379,99 +355,40 @@ void CacheSystem::LoadCacheFileJson()
     }
 }
 
-String CacheSystem::getRealPath(String path)
-{
-    // this shall convert the path names to fit the operating system's flavor
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    // this is required for windows since we are case insensitive ...
-    path = StringUtil::replaceAll(path, "/", "\\");
-    StringUtil::toLowerCase(path);
-#endif
-    return path;
-}
-
-String CacheSystem::getVirtualPath(String path)
-{
-    path = StringUtil::replaceAll(path, "\\", "/");
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    // this is required for windows since we are case insensitive ...
-    StringUtil::toLowerCase(path);
-#endif
-    return path;
-}
-
-void CacheSystem::incrementalCacheUpdate()
+void CacheSystem::PruneCache()
 {
     this->LoadCacheFileJson();
 
-    LOG("* incremental check starting ...");
-    LOG("* incremental check (1/5): deleted and changed files ...");
-    auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
-    loading_win->setProgress(20, _L("incremental check: deleted and changed files"));
-
-    int counter = 0;
-    std::set<String> changed_entries;
-    for (auto it = m_entries.begin(); it != m_entries.end(); it++ , counter++)
+    std::vector<String> paths;
+    for (auto& entry : m_entries)
     {
-        int progress = ((float)counter / (float)(m_entries.size())) * 100;
-        UTFString tmp = _L("incremental check: deleted and changed files\n") + ANSI_TO_UTF(it->resource_bundle_type) + _L(": ") + ANSI_TO_UTF(it->fname);
-        loading_win->setProgress(progress, tmp, false);
-
-        std::string fn; // file path
-        if (it->resource_bundle_type == "Zip")
+        std::string fn = entry.resource_bundle_path;
+        if (entry.resource_bundle_type == "FileSystem")
         {
-             fn = this->getRealPath(it->resource_bundle_path);
-        }
-        else if (it->resource_bundle_type == "FileSystem")
-        {
-            fn = getRealPath(it->resource_bundle_path + "/" + it->fname);
+            fn = PathCombine(fn, entry.fname);
         }
 
-        if (! RoR::FileExists(fn.c_str()))
+        if (!RoR::FileExists(fn.c_str()) || (entry.filetime != RoR::GetFileLastModifiedTime(fn)))
         {
-            LOG("- "+fn+" is not existing");
-            tmp = _L("incremental check: deleted and changed files\n") + ANSI_TO_UTF(it->fname) + _L(" not existing");
-            loading_win->setProgress(20, tmp);
-            if (!it->deleted)
+            if (!entry.deleted)
             {
-                removeFileCache(*it);
+                if (std::find(paths.begin(), paths.end(), fn) == paths.end())
+                {
+                    RoR::LogFormat("[RoR|ModCache] Removing '%s'", fn.c_str());
+                    paths.push_back(fn);
+                }
+                this->RemoveFileCache(entry);
             }
-            it->deleted = true;
-            // do not try: entries.erase(it)
-            continue;
+            entry.deleted = true;
         }
-        // check whether it changed
-        if (it->filetime != RoR::GetFileLastModifiedTime(fn))
+        else
         {
-            LOG("- "+fn+" changed");
-            it->deleted = true; // see below
-            changed_entries.insert(this->getRealPath(it->resource_bundle_path));
+            m_resource_paths.insert(fn);
         }
     }
-
-    LOG("* incremental check (2/5): processing changed zips ...");
-    loading_win->setProgress(40, _L("incremental check: processing changed zips\n"));
-    for (auto path : changed_entries)
-    {
-        loadSingleZip(path);
-    }
-    LOG("* incremental check (3/5): new content ...");
-    loading_win->setProgress(60, _L("incremental check: new content\n"));
-    checkForNewContent();
-
-    LOG("* incremental check (4/5): new files ...");
-    loading_win->setProgress(80, _L("incremental check: new files\n"));
-    checkForNewKnownFiles();
-
-    LOG("* incremental check (5/5): duplicates ...");
-    loading_win->setProgress(90, _L("incremental check: duplicates\n"));
-    detectDuplicates();
-
-    RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
-    LOG("* incremental check done.");
 }
 
-void CacheSystem::detectDuplicates()
+void CacheSystem::DetectDuplicates()
 {
     std::map<String, String> possible_duplicates;
     for (int i=0; i<m_entries.size(); i++) 
@@ -515,7 +432,7 @@ void CacheSystem::detectDuplicates()
             basenameA = Ogre::StringUtil::replaceAll(basenameA, "-", "_");
             basenameB = Ogre::StringUtil::replaceAll(basenameB, " ", "_");
             basenameB = Ogre::StringUtil::replaceAll(basenameB, "-", "_");
-            if (stripSHA1fromString(basenameA) != stripSHA1fromString(basenameB))
+            if (StripSHA1fromString(basenameA) != StripSHA1fromString(basenameB))
                 continue;
 
             if (m_entries[i].resource_bundle_path == m_entries[j].resource_bundle_path)
@@ -540,7 +457,7 @@ void CacheSystem::detectDuplicates()
     }
 }
 
-CacheEntry* CacheSystem::getEntry(int modid)
+CacheEntry* CacheSystem::GetEntry(int modid)
 {
     for (std::vector<CacheEntry>::iterator it = m_entries.begin(); it != m_entries.end(); it++)
     {
@@ -550,7 +467,7 @@ CacheEntry* CacheSystem::getEntry(int modid)
     return 0;
 }
 
-String CacheSystem::getPrettyName(String fname)
+String CacheSystem::GetPrettyName(String fname)
 {
     for (std::vector<CacheEntry>::iterator it = m_entries.begin(); it != m_entries.end(); it++)
     {
@@ -664,7 +581,7 @@ void CacheSystem::WriteCacheFileJson()
     j_doc.AddMember("entries", j_entries, j_doc.GetAllocator());
 
     // Write to file
-    String path = getCacheConfigFilename();
+    String path = GetCacheConfigFilename();
     LOG("writing cache to file ("+path+")...");
 
     std::ofstream ofs(path);
@@ -684,7 +601,7 @@ void CacheSystem::WriteCacheFileJson()
 
 void CacheSystem::ClearCache()
 {
-    std::remove(this->getCacheConfigFilename().c_str());
+    std::remove(this->GetCacheConfigFilename().c_str());
     for (auto& entry : m_entries)
     {
         String group = entry.resource_group;
@@ -693,12 +610,12 @@ void CacheSystem::ClearCache()
             if (ResourceGroupManager::getSingleton().resourceGroupExists(group))
                 ResourceGroupManager::getSingleton().destroyResourceGroup(group);
         }
-        this->removeFileCache(entry);
+        this->RemoveFileCache(entry);
     }
     m_entries.clear();
 }
 
-Ogre::String CacheSystem::stripUIDfromString(Ogre::String uidstr)
+Ogre::String CacheSystem::StripUIDfromString(Ogre::String uidstr)
 {
     size_t pos = uidstr.find("-");
     if (pos != String::npos && pos >= 3 && uidstr.substr(pos - 3, 3) == "UID")
@@ -706,7 +623,7 @@ Ogre::String CacheSystem::stripUIDfromString(Ogre::String uidstr)
     return uidstr;
 }
 
-Ogre::String CacheSystem::stripSHA1fromString(Ogre::String sha1str)
+Ogre::String CacheSystem::StripSHA1fromString(Ogre::String sha1str)
 {
     size_t pos = sha1str.find_first_of("-_");
     if (pos != String::npos && pos >= 20)
@@ -714,12 +631,16 @@ Ogre::String CacheSystem::stripSHA1fromString(Ogre::String sha1str)
     return sha1str;
 }
 
-void CacheSystem::addFile(String group, Ogre::FileInfo f, String ext)
+void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
 {
-    LOG("Preparing to add " + f.filename);
+    String type = f.archive ? f.archive->getType() : "FileSystem";
+    String path = f.archive ? f.archive->getName() : "";
 
-    String archiveType = f.archive ? f.archive->getType() : "FileSystem";
-    String archiveDirectory = f.archive ? f.archive->getName() : "";
+    if (std::find_if(m_entries.begin(), m_entries.end(), [&](CacheEntry& e)
+                { return !e.deleted && e.fname == f.filename && e.resource_bundle_path == path; }) != m_entries.end())
+        return;
+
+    LOG("Preparing to add " + f.filename);
 
     try
     {
@@ -729,29 +650,29 @@ void CacheSystem::addFile(String group, Ogre::FileInfo f, String ext)
         CacheEntry entry;
         if (ext == "terrn2")
         {
-            fillTerrainDetailInfo(entry, ds, f.filename);
+            FillTerrainDetailInfo(entry, ds, f.filename);
         }
         else
         {
-            fillTruckDetailInfo(entry, ds, f.filename, group);
+            FillTruckDetailInfo(entry, ds, f.filename, group);
         }
         entry.fpath = f.path;
         entry.fname = f.filename;
-        entry.fname_without_uid = stripUIDfromString(f.filename);
+        entry.fname_without_uid = StripUIDfromString(f.filename);
         entry.fext = ext;
-        if (archiveType == "Zip")
+        if (type == "Zip")
         {
-            entry.filetime = RoR::GetFileLastModifiedTime(archiveDirectory);
+            entry.filetime = RoR::GetFileLastModifiedTime(path);
         }
         else
         {
-            entry.filetime = RoR::GetFileLastModifiedTime(PathCombine(archiveDirectory, f.filename));
+            entry.filetime = RoR::GetFileLastModifiedTime(PathCombine(path, f.filename));
         }
-        entry.resource_bundle_type = archiveType;
-        entry.resource_bundle_path = archiveDirectory;
+        entry.resource_bundle_type = type;
+        entry.resource_bundle_path = path;
         entry.number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
         entry.addtimestamp = m_update_time;
-        generateFileCache(entry, group);
+        this->GenerateFileCache(entry, group);
         m_entries.push_back(entry);
     }
     catch (Ogre::Exception& e)
@@ -760,7 +681,7 @@ void CacheSystem::addFile(String group, Ogre::FileInfo f, String ext)
     }
 }
 
-void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr stream, String file_name, String group)
+void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr stream, String file_name, String group)
 {
     /* LOAD AND PARSE THE VEHICLE */
     RigDef::Parser parser;
@@ -992,7 +913,7 @@ Ogre::String detectMiniType(String filename, String group)
     return "";
 }
 
-void CacheSystem::removeFileCache(CacheEntry& entry)
+void CacheSystem::RemoveFileCache(CacheEntry& entry)
 {
     if (!entry.filecachename.empty())
     {
@@ -1001,7 +922,7 @@ void CacheSystem::removeFileCache(CacheEntry& entry)
     }
 }
 
-void CacheSystem::generateFileCache(CacheEntry& entry, String group)
+void CacheSystem::GenerateFileCache(CacheEntry& entry, String group)
 {
     if (entry.fname.empty())
         return;
@@ -1043,35 +964,52 @@ void CacheSystem::generateFileCache(CacheEntry& entry, String group)
     LOG("done generating file cache!");
 }
 
-void CacheSystem::parseKnownFiles(Ogre::String group, Ogre::String dirname)
+void CacheSystem::ParseZipArchives(String group)
 {
-    dirname = getVirtualPath(dirname);
+    auto files = ResourceGroupManager::getSingleton().findResourceFileInfo(group, "*.zip");
+    int i = 0, count = files->size();
+    for (const auto& file : *files)
+    {
+        int progress = ((float)i++ / (float)count) * 100;
+        UTFString tmp = _L("Loading zips in group ") + ANSI_TO_UTF(group) + L"\n" +
+            ANSI_TO_UTF(file.filename) + L"\n" + ANSI_TO_UTF(TOSTRING(i)) + L"/" + ANSI_TO_UTF(TOSTRING(count));
+        RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, tmp, false);
 
+        String path = PathCombine(file.archive->getName(), file.filename);
+        this->ParseSingleZip(path);
+    }
+
+    RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
+}
+
+void CacheSystem::ParseSingleZip(String path)
+{
+    if (std::find(m_resource_paths.begin(), m_resource_paths.end(), path) == m_resource_paths.end())
+    {
+        RoR::LogFormat("[RoR|ModCache] Adding archive '%s'", path.c_str());
+        ResourceGroupManager::getSingleton().createResourceGroup(RGN_TEMP, false);
+        try
+        {
+            ResourceGroupManager::getSingleton().addResourceLocation(path, "Zip", RGN_TEMP);
+            this->ParseKnownFiles(RGN_TEMP);
+        }
+        catch (Ogre::Exception& e)
+        {
+            LOG("Error while opening archive: '" + path + "': " + e.getFullDescription());
+        }
+        ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_TEMP);
+        m_resource_paths.insert(path);
+    }
+}
+
+void CacheSystem::ParseKnownFiles(Ogre::String group)
+{
     for (auto ext : m_known_extensions)
     {
         auto files = ResourceGroupManager::getSingleton().findResourceFileInfo(group, "*." + ext);
         for (const auto& file : *files)
         {
-            if (dirname.empty() || (file.archive && getVirtualPath(file.archive->getName()) == dirname))
-                addFile(group, file, ext);
-        }
-    }
-}
-
-void CacheSystem::checkForNewKnownFiles()
-{
-    for (auto ext : m_known_extensions)
-    {
-        auto files = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_CONTENT, "*." + ext);
-        for (const auto& file : *files)
-        {
-            std::string fn = file.filename;
-            if (std::find_if(m_entries.begin(), m_entries.end(),
-                [fn](CacheEntry& e) { return e.fname == fn; }) == m_entries.end())
-            {
-                LOG("- " + fn + " is new");
-                addFile(RGN_CONTENT, file, ext);
-            }
+            this->AddFile(group, file, ext);
         }
     }
 }
@@ -1082,7 +1020,7 @@ void CacheSystem::GenerateHashFromFilenames()
     m_filenames_hash = HashData(filenames.c_str(), static_cast<int>(filenames.size()));
 }
 
-void CacheSystem::fillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr ds, Ogre::String fname)
+void CacheSystem::FillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr ds, Ogre::String fname)
 {
     Terrn2Def def;
     Terrn2Parser parser;
@@ -1103,13 +1041,13 @@ void CacheSystem::fillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr d
     entry.version    = def.version;
 }
 
-bool CacheSystem::checkResourceLoaded(Ogre::String & filename)
+bool CacheSystem::CheckResourceLoaded(Ogre::String & filename)
 {
     Ogre::String group = "";
-    return checkResourceLoaded(filename, group);
+    return CheckResourceLoaded(filename, group);
 }
 
-bool CacheSystem::checkResourceLoaded(Ogre::String & filename, Ogre::String& group)
+bool CacheSystem::CheckResourceLoaded(Ogre::String & filename, Ogre::String& group)
 {
     // check if we already loaded it via ogre ...
     if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename))
@@ -1129,17 +1067,17 @@ bool CacheSystem::checkResourceLoaded(Ogre::String & filename, Ogre::String& gro
         if (fname == filename || fname_without_uid == filename)
         {
             // we found the file, load it
-            loadResource(entry);
+            LoadResource(entry);
             filename = entry.fname;
             group = entry.resource_group;
-            return ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename);
+            return !group.empty() && ResourceGroupManager::getSingleton().resourceExists(group, filename);
         }
     }
 
     return false;
 }
 
-void CacheSystem::loadResource(CacheEntry& t)
+void CacheSystem::LoadResource(CacheEntry& t)
 {
     if (m_loaded_resource_bundles[t.resource_bundle_path])
     {
@@ -1161,131 +1099,3 @@ void CacheSystem::loadResource(CacheEntry& t)
 
     m_loaded_resource_bundles[t.resource_bundle_path] = true;
 }
-
-void CacheSystem::loadSingleZip(String path)
-{
-    RoR::LogFormat("[RoR|ModCache] Adding archive '%s'", path.c_str());
-
-    ResourceGroupManager::getSingleton().createResourceGroup(RGN_TEMP, false);
-    ResourceGroupManager::getSingleton().addResourceLocation(path, "Zip", RGN_TEMP);
-
-    parseKnownFiles(RGN_TEMP, "");
-
-    ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_TEMP);
-}
-
-void CacheSystem::loadAllZipsInResourceGroup(String group)
-{
-    std::map<String, bool> loadedZips;
-    ResourceGroupManager& rgm = ResourceGroupManager::getSingleton();
-    FileInfoListPtr files = rgm.findResourceFileInfo(group, "*.zip");
-    FileInfoList::iterator iterFiles = files->begin();
-    size_t i = 0, filecount = files->size();
-    for (; iterFiles != files->end(); ++iterFiles , i++)
-    {
-        if (loadedZips[iterFiles->filename])
-        {
-            LOG(" zip already loaded: " + iterFiles->filename);
-            // already loaded for some strange reason
-            continue;
-        }
-        // update loader
-        int progress = ((float)i / (float)filecount) * 100;
-        UTFString tmp = _L("Loading zips in group ") + ANSI_TO_UTF(group) + L"\n" + ANSI_TO_UTF(iterFiles->filename) + L"\n" + ANSI_TO_UTF(TOSTRING(i)) + L"/" + ANSI_TO_UTF(TOSTRING(filecount));
-        auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
-        loading_win->setProgress(progress, tmp, false);
-
-        loadSingleZip(PathCombine(iterFiles->archive->getName(), iterFiles->filename));
-        loadedZips[iterFiles->filename] = true;
-    }
-    // hide loader again
-    RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
-}
-
-void CacheSystem::loadAllDirectoriesInResourceGroup(String group)
-{
-    FileInfoListPtr list = ResourceGroupManager::getSingleton().listResourceFileInfo(group, true);
-    size_t i = 0, filecount = list->size();
-    for (FileInfoList::iterator listitem = list->begin(); listitem != list->end(); ++listitem , i++)
-    {
-        if (!listitem->archive)
-            continue;
-        String dirname = listitem->archive->getName() + PATH_SLASH + listitem->filename;
-        // update loader
-        int progress = ((float)i / (float)filecount) * 100;
-        RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading directory\n") + Utils::SanitizeUtf8String(listitem->filename), false);
-        parseKnownFiles(group, dirname);
-    }
-    // hide loader again
-    RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
-}
-
-void CacheSystem::checkForNewZipsInResourceGroup(std::set<std::string>const & resource_bundles, String group)
-{
-    FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(group, "*.zip");
-    FileInfoList::iterator iterFiles = files->begin();
-    size_t i = 0, filecount = files->size();
-    for (; iterFiles != files->end(); ++iterFiles , i++)
-    {
-        String zippath = iterFiles->archive->getName() + "\\" + iterFiles->filename;
-        String zippath2 = "";
-        if (iterFiles->archive->getName()[iterFiles->archive->getName().size() - 1] != '/')
-            zippath2 = iterFiles->archive->getName() + "/" + iterFiles->filename;
-        else
-            zippath2 = iterFiles->archive->getName() + iterFiles->filename;
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-        //everything fine
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-        zippath=zippath2;
-#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-        zippath=zippath2;
-#endif
-        int progress = ((float)i / (float)filecount) * 100;
-        std::string filename_utf8 = Utils::SanitizeUtf8String(iterFiles->filename);
-        RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new zips in ") + group + "\n" + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount), false);
-        const bool bundle_exists = resource_bundles.find(this->getVirtualPath(zippath2)) != resource_bundles.end();
-        if (!bundle_exists)
-        {
-            RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new zips in ") + group + "\n" + _L("loading new zip: ") + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
-            LOG("- "+zippath+" is new");
-            loadSingleZip(PathCombine(iterFiles->archive->getName(), iterFiles->filename));
-        }
-    }
-    RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
-}
-
-void CacheSystem::checkForNewDirectoriesInResourceGroup(std::set<std::string>const & resource_bundles, String group)
-{
-    FileInfoListPtr list = ResourceGroupManager::getSingleton().listResourceFileInfo(group, true);
-    size_t i = 0, filecount = list->size();
-    for (FileInfoList::iterator listitem = list->begin(); listitem != list->end(); ++listitem , i++)
-    {
-        if (!listitem->archive)
-            continue;
-        String dirname = listitem->archive->getName() + PATH_SLASH + listitem->filename;
-        int progress = ((float)i / (float)filecount) * 100;
-        std::string filename_utf8 = Utils::SanitizeUtf8String(listitem->filename);
-        RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount), false);
-        const bool bundle_exists = resource_bundles.find(this->getVirtualPath(dirname)) != resource_bundles.end();
-        if (!bundle_exists)
-        {
-            RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + _L("loading new directory: ") + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
-            LOG("- "+dirname+" is new");
-            parseKnownFiles(group, dirname);
-        }
-    }
-    RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
-}
-
-void CacheSystem::checkForNewContent() // Only used when performing "incremental update"
-{
-    std::set<std::string> resource_bundles; // List all existing bundles
-    for (auto it = m_entries.begin(); it != m_entries.end(); it++)
-    {
-        resource_bundles.insert(this->getVirtualPath(it->resource_bundle_path));
-    }
-
-    checkForNewZipsInResourceGroup(resource_bundles, RGN_CONTENT);
-    checkForNewDirectoriesInResourceGroup(resource_bundles, RGN_CONTENT);
-}
-

@@ -387,7 +387,7 @@ void CLASS::UpdateGuiData()
     }
 
     std::vector<std::time_t> timestamps;
-    std::vector<CacheEntry>* entries = RoR::App::GetCacheSystem()->getEntries();
+    std::vector<CacheEntry>* entries = RoR::App::GetCacheSystem()->GetEntries();
     std::sort(entries->begin(), entries->end(), sort_entries<CacheEntry>());
     for (std::vector<CacheEntry>::iterator it = entries->begin(); it != entries->end(); it++)
     {
@@ -440,7 +440,7 @@ void CLASS::UpdateGuiData()
         }
     }
     int tally_categories = 0, current_category = 0;
-    std::map<int, Ogre::String>* cats = RoR::App::GetCacheSystem()->getCategories();
+    std::map<int, Ogre::String>* cats = RoR::App::GetCacheSystem()->GetCategories();
 
     std::vector<std::pair<int, Ogre::String>> sorted_cats(cats->begin(), cats->end());
     std::sort(sorted_cats.begin(), sorted_cats.end(), sort_cats<int, Ogre::String>());
@@ -688,7 +688,7 @@ void CLASS::OnEntrySelected(int entryID)
         }
         return;
     }
-    CacheEntry* entry = RoR::App::GetCacheSystem()->getEntry(entryID);
+    CacheEntry* entry = RoR::App::GetCacheSystem()->GetEntry(entryID);
     if (!entry)
         return;
     m_selected_entry = entry;
@@ -713,7 +713,7 @@ void CLASS::OnSelectionDone()
 
         //Only load vehicles via the selector
         if (m_loader_type != LT_Terrain)
-            RoR::App::GetCacheSystem()->loadResource(*m_selected_entry);
+            RoR::App::GetCacheSystem()->LoadResource(*m_selected_entry);
 
         m_current_skins.clear();
         m_skin_manager->GetUsableSkins(m_selected_entry->guid, this->m_current_skins);

@@ -166,7 +166,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
     for (rapidjson::Value& j_entry: j_doc["actors"].GetArray())
     {
         String filename = j_entry["filename"].GetString();
-        if (!App::GetCacheSystem()->checkResourceLoaded(filename))
+        if (!App::GetCacheSystem()->CheckResourceLoaded(filename))
         {
             RoR::LogFormat("[RoR|Savegame] Missing content ... failed to create actor: '%s'", filename.c_str());
             actors.push_back(nullptr);
@@ -506,7 +506,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
     j_doc.AddMember("format_version", SAVEGAME_FILE_FORMAT, j_doc.GetAllocator());
 
     // Pretty name
-    String pretty_name = App::GetCacheSystem()->getPrettyName(App::sim_terrain_name.GetActive());
+    String pretty_name = App::GetCacheSystem()->GetPrettyName(App::sim_terrain_name.GetActive());
     String scene_name = StringUtil::format("%s [%d]", pretty_name.c_str(), x_actors.size());
     j_doc.AddMember("scene_name", rapidjson::StringRef(scene_name.c_str()), j_doc.GetAllocator());
 

@@ -1897,7 +1897,7 @@ bool SimController::LoadTerrain()
 {
     // check if the resource is loaded
     Ogre::String terrain_file = App::sim_terrain_name.GetPending();
-    if (! RoR::App::GetCacheSystem()->checkResourceLoaded(terrain_file)) // Input-output argument.
+    if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(terrain_file)) // Input-output argument.
     {
         LOG("Terrain not found: " + terrain_file);
         Ogre::UTFString title(_L("Terrain loading error"));
@@ -2048,7 +2048,7 @@ bool SimController::SetupGameplayLoop()
     {
         String name = App::diag_preset_terrain.GetActive();
         StringUtil::toLowerCase(name);
-        for (const auto& entry : *App::GetCacheSystem()->getEntries())
+        for (const auto& entry : *App::GetCacheSystem()->GetEntries())
         {
             String fname = entry.fname_without_uid;
             StringUtil::toLowerCase(fname);
@@ -2106,7 +2106,7 @@ bool SimController::SetupGameplayLoop()
         // Vehicle name lookup
         String name = App::diag_preset_vehicle.GetActive();
         StringUtil::toLowerCase(name);
-        for (const auto& entry : *App::GetCacheSystem()->getEntries())
+        for (const auto& entry : *App::GetCacheSystem()->GetEntries())
         {
             String fname = entry.fname_without_uid;
             StringUtil::toLowerCase(fname);

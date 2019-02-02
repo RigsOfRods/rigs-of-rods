@@ -110,7 +110,7 @@ void ActorSpawner::Setup(
     m_messages_num_warnings = 0;
     m_messages_num_other = 0;
 
-    App::GetCacheSystem()->checkResourceLoaded(m_actor->ar_filename, m_custom_resource_group);
+    App::GetCacheSystem()->CheckResourceLoaded(m_actor->ar_filename, m_custom_resource_group);
 }
 
 void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::File::Module* module_def)
