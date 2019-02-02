@@ -409,7 +409,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
                 LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
                 Ogre::String filename(reg->name);
                 int net_result = -1; // failure
-                if (!RoR::App::GetCacheSystem()->checkResourceLoaded(filename))
+                if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(filename))
                 {
                     RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", reg->name);
                 }
@@ -1199,7 +1199,7 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, 
     {
         Ogre::String resource_filename = filename;
         Ogre::String resource_groupname;
-        if (!RoR::App::GetCacheSystem()->checkResourceLoaded(resource_filename, resource_groupname)) // Validates the filename and finds resource group
+        if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(resource_filename, resource_groupname)) // Validates the filename and finds resource group
         {
             HandleErrorLoadingTruckfile(filename, "Truckfile not found");
             return nullptr;

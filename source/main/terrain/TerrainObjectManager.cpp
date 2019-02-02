@@ -504,7 +504,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
             }
 
             String actor_filename(type);
-            if (!RoR::App::GetCacheSystem()->checkResourceLoaded(actor_filename))
+            if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(actor_filename))
             {
                 LOG("Error while loading Terrain: truck " + actor_filename + " not found. ignoring.");
                 continue;
@@ -718,7 +718,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
     String odefgroup = "";
     String odefname = name + ".odef";
-    if (!RoR::App::GetCacheSystem()->checkResourceLoaded(odefname, odefgroup))
+    if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(odefname, odefgroup))
     {
         LOG("Error while loading Terrain: could not find required .odef file: " + odefname + ". Ignoring entry.");
         return;
