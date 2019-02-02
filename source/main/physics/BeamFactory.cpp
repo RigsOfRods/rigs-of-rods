@@ -1189,7 +1189,7 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, 
             return nullptr;
         }
 
-        RoR::LogFormat("[RoR] Parsing truckfile '%s'", filename);
+        RoR::LogFormat("[RoR] Parsing truckfile '%s'", resource_filename.c_str());
         RigDef::Parser parser;
         parser.Prepare();
         parser.ProcessOgreStream(stream.getPointer(), resource_groupname);
@@ -1229,8 +1229,7 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, 
             //     "soundloads" = play sound effect at certain spot
             //     "fixes"      = structures of N/B fixed to the ground
             // These files can have no beams. Possible extensions: .load or .fixed
-            std::string file_name(filename);
-            std::string file_extension = file_name.substr(file_name.find_last_of('.'));
+            std::string file_extension = filename.substr(filename.find_last_of('.'));
             Ogre::StringUtil::toLowerCase(file_extension);
             if ((file_extension == ".load") | (file_extension == ".fixed"))
             {
