@@ -296,7 +296,10 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     if (actor->ar_engine)
     {
-        actor->ar_engine->OffStart();
+        if (!actor->m_preloaded_with_terrain && App::sim_spawn_running.GetActive())
+            actor->ar_engine->StartEngine();
+        else
+            actor->ar_engine->OffStart();
     }
     // pressurize tires
     actor->AddTyrePressure(0.0);
