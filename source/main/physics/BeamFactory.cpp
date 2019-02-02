@@ -558,86 +558,58 @@ Actor* ActorManager::GetActorByNetworkLinks(int source_id, int stream_id)
     return nullptr;
 }
 
-bool ActorManager::CheckAabbIntersection(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox b, float scale)
-{
-    if (scale != 1.0f)
-    {
-        Vector3 a_center = a.getCenter();
-        Vector3 a_half_size = a.getHalfSize();
-        a.setMaximum(a_center + a_half_size * scale);
-        a.setMinimum(a_center - a_half_size * scale);
-
-        Vector3 b_center = b.getCenter();
-        Vector3 b_half_size = b.getHalfSize();
-        b.setMaximum(b_center + b_half_size * scale);
-        b.setMinimum(b_center - b_half_size * scale);
-    }
-
-    return a.intersects(b);
-}
-
-bool ActorManager::CheckActorAabbIntersection(int a, int b, float scale)
-{
-    return CheckAabbIntersection(m_actors[a]->ar_bounding_box, m_actors[b]->ar_bounding_box, scale);
-}
-
-bool ActorManager::PredictActorAabbIntersection(int a, int b, float scale)
-{
-    return CheckAabbIntersection(m_actors[a]->ar_predicted_bounding_box, m_actors[b]->ar_predicted_bounding_box, scale);
-}
-
-bool ActorManager::CheckActorCollAabbIntersect(int a, int b, float scale)
+bool ActorManager::CheckActorCollAabbIntersect(int a, int b)
 {
     if (m_actors[a]->ar_collision_bounding_boxes.empty() && m_actors[b]->ar_collision_bounding_boxes.empty())
     {
-        return CheckActorAabbIntersection(a, b, scale);
+        return m_actors[a]->ar_bounding_box.intersects(m_actors[b]->ar_bounding_box);
     }
     else if (m_actors[a]->ar_collision_bounding_boxes.empty())
     {
-        for (std::vector<AxisAlignedBox>::iterator it = m_actors[b]->ar_collision_bounding_boxes.begin(); it != m_actors[b]->ar_collision_bounding_boxes.end(); ++it)
-            if (CheckAabbIntersection(*it, m_actors[a]->ar_bounding_box, scale))
+        for (const auto& bbox_b : m_actors[b]->ar_collision_bounding_boxes)
+            if (bbox_b.intersects(m_actors[a]->ar_bounding_box))
                 return true;
     }
     else if (m_actors[b]->ar_collision_bounding_boxes.empty())
     {
-        for (std::vector<AxisAlignedBox>::iterator it = m_actors[a]->ar_collision_bounding_boxes.begin(); it != m_actors[a]->ar_collision_bounding_boxes.end(); ++it)
-            if (CheckAabbIntersection(*it, m_actors[b]->ar_bounding_box, scale))
+        for (const auto& bbox_a : m_actors[a]->ar_collision_bounding_boxes)
+            if (bbox_a.intersects(m_actors[b]->ar_bounding_box))
                 return true;
     }
     else
     {
-        for (std::vector<AxisAlignedBox>::iterator it_a = m_actors[a]->ar_collision_bounding_boxes.begin(); it_a != m_actors[a]->ar_collision_bounding_boxes.end(); ++it_a)
-            for (std::vector<AxisAlignedBox>::iterator it_b = m_actors[b]->ar_collision_bounding_boxes.begin(); it_b != m_actors[b]->ar_collision_bounding_boxes.end(); ++it_b)
-                if (CheckAabbIntersection(*it_a, *it_b, scale))
+        for (const auto& bbox_a : m_actors[a]->ar_collision_bounding_boxes)
+            for (const auto& bbox_b : m_actors[b]->ar_collision_bounding_boxes)
+                if (bbox_a.intersects(bbox_b))
                     return true;
     }
 
     return false;
 }
 
-bool ActorManager::PredictActorCollAabbIntersect(int a, int b, float scale)
+bool ActorManager::PredictActorCollAabbIntersect(int a, int b)
 {
     if (m_actors[a]->ar_predicted_coll_bounding_boxes.empty() && m_actors[b]->ar_predicted_coll_bounding_boxes.empty())
     {
-        return PredictActorAabbIntersection(a, b, scale);
+        return m_actors[a]->ar_predicted_bounding_box.intersects(m_actors[b]->ar_predicted_bounding_box);
     }
     else if (m_actors[a]->ar_predicted_coll_bounding_boxes.empty())
     {
-        for (std::vector<AxisAlignedBox>::iterator it = m_actors[b]->ar_predicted_coll_bounding_boxes.begin(); it != m_actors[b]->ar_predicted_coll_bounding_boxes.end(); ++it)
-            if (CheckAabbIntersection(*it, m_actors[a]->ar_predicted_bounding_box, scale))
+        for (const auto& bbox_b : m_actors[b]->ar_predicted_coll_bounding_boxes)
+            if (bbox_b.intersects(m_actors[a]->ar_predicted_bounding_box))
                 return true;
     }
     else if (m_actors[b]->ar_predicted_coll_bounding_boxes.empty())
     {
-        for (std::vector<AxisAlignedBox>::iterator it = m_actors[a]->ar_predicted_coll_bounding_boxes.begin(); it != m_actors[a]->ar_predicted_coll_bounding_boxes.end(); ++it)
-            if (CheckAabbIntersection(*it, m_actors[b]->ar_predicted_bounding_box, scale))
+        for (const auto& bbox_a : m_actors[a]->ar_predicted_coll_bounding_boxes)
+            if (bbox_a.intersects(m_actors[b]->ar_predicted_bounding_box))
                 return true;
     }
     else
     {
-        for (std::vector<AxisAlignedBox>::iterator it_a = m_actors[a]->ar_predicted_coll_bounding_boxes.begin(); it_a != m_actors[a]->ar_predicted_coll_bounding_boxes.end(); ++it_a)
-            for (std::vector<AxisAlignedBox>::iterator it_b = m_actors[b]->ar_predicted_coll_bounding_boxes.begin(); it_b != m_actors[b]->ar_predicted_coll_bounding_boxes.end(); ++it_b)
-                if (CheckAabbIntersection(*it_a, *it_b, scale))
+        for (const auto& bbox_a : m_actors[a]->ar_predicted_coll_bounding_boxes)
+            for (const auto& bbox_b : m_actors[b]->ar_predicted_coll_bounding_boxes)
+                if (bbox_a.intersects(bbox_b))
                     return true;
     }
 
@@ -655,7 +627,7 @@ void ActorManager::RecursiveActivation(int j, std::vector<bool>& visited)
     {
         if (t == j || visited[t])
             continue;
-        if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && CheckActorCollAabbIntersect(t, j, 1.2f))
+        if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && CheckActorCollAabbIntersect(t, j))
         {
             m_actors[t]->ar_sleep_counter = 0.0f;
             this->RecursiveActivation(t, visited);
