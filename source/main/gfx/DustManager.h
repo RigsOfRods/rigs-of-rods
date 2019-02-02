@@ -54,6 +54,7 @@ public:
         Ogre::Vector3  simbuf_character_pos;
         Ogre::Vector3  simbuf_dir_arrow_target;
         bool           simbuf_tyrepressurize_active;
+        bool           simbuf_sim_paused;
         float          simbuf_sim_speed;
         float          simbuf_race_time;
         float          simbuf_race_bestlap_time;
