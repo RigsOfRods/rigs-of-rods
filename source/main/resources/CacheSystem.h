@@ -190,7 +190,7 @@ private:
 
     std::time_t                          m_update_time;      //!< Ensures that all inserted files share the same timestamp
     std::string                          m_filenames_hash;   //!< stores hash over the content, for quick update detection
-    std::map<Ogre::String, bool>         m_loaded_resource_bundles;
+    std::map<Ogre::String, Ogre::String> m_loaded_resource_bundles; //!< Assosiates resource path with resource group
     std::vector<CacheEntry>              m_entries;
     std::vector<Ogre::String>            m_known_extensions; //!< the extensions we track in the cache system
     std::set<Ogre::String>               m_resource_paths;   //!< A temporary list of existing resource paths
