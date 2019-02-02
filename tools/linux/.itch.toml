@@ -1,11 +1,3 @@
 [[actions]]
 name = "play"
 path = "RunRoR"
-
-[[actions]]
-name = "Rigs of Rods Configurator"
-path = "RunRoRConfig"
-
-[[actions]]
-name = "manual"
-path = "http://docs.rigsofrods.org/gameplay/beginners-guide/"
