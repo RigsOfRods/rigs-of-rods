@@ -1409,7 +1409,7 @@ float Actor::GetMinHeight(bool skip_virtual_nodes)
             height = std::min(ar_nodes[i].AbsPosition.y, height);
         }
     }
-    return (height < std::numeric_limits<float>::max()) ? height : GetMinHeight(false);
+    return (!skip_virtual_nodes || height < std::numeric_limits<float>::max()) ? height : GetMinHeight(false);
 }
 
 float Actor::GetMaxHeight(bool skip_virtual_nodes)
@@ -1422,7 +1422,7 @@ float Actor::GetMaxHeight(bool skip_virtual_nodes)
             height = std::max(height, ar_nodes[i].AbsPosition.y);
         }
     }
-    return (height > std::numeric_limits<float>::min()) ? height : GetMaxHeight(false);
+    return (!skip_virtual_nodes || height > std::numeric_limits<float>::min()) ? height : GetMaxHeight(false);
 }
 
 float Actor::GetHeightAboveGround(bool skip_virtual_nodes)
@@ -1436,7 +1436,7 @@ float Actor::GetHeightAboveGround(bool skip_virtual_nodes)
             agl = std::min(pos.y - gEnv->collisions->getSurfaceHeight(pos.x, pos.z), agl);
         }
     }
-    return (agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGround(false);
+    return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGround(false);
 }
 
 float Actor::GetHeightAboveGroundBelow(float height, bool skip_virtual_nodes)
@@ -1450,7 +1450,7 @@ float Actor::GetHeightAboveGroundBelow(float height, bool skip_virtual_nodes)
             agl = std::min(pos.y - gEnv->collisions->getSurfaceHeightBelow(pos.x, pos.z, height), agl);
         }
     }
-    return (agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGroundBelow(height, false);
+    return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGroundBelow(height, false);
 }
 
 void Actor::SoftReset()
