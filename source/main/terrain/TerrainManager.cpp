@@ -208,7 +208,6 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
     PROGRESS_WINDOW(75, _L("Initializing Script Subsystem"));
     initScripting();
 
-    LOG(" ===== LOADING TERRAIN WATER " + filename);
     initWater();
 
     LOG(" ===== LOADING TERRAIN OBJECTS " + filename);
@@ -224,12 +223,16 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
     PROGRESS_WINDOW(90, _L("Initializing terrain light properties"));
     m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
     m_collisions->finishLoadingTerrain();
-    LOG(" ===== TERRAIN LOADING DONE " + filename);
 
-    PROGRESS_WINDOW(95, _L("Initializing Overview Map Subsystem"));
+    PROGRESS_WINDOW(92, _L("Initializing Overview Map Subsystem"));
     LoadTelepoints();
-    LoadPredefinedActors();
     App::GetSimController()->GetGfxScene().InitSurveyMap();
+
+    LOG(" ===== LOADING TERRAIN ACTORS " + filename);
+    PROGRESS_WINDOW(95, _L("Loading Terrain Actors"));
+    LoadPredefinedActors();
+
+    LOG(" ===== TERRAIN LOADING DONE " + filename);
 
     return true;
 }
