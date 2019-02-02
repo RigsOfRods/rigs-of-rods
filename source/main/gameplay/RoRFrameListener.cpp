@@ -1239,6 +1239,79 @@ void SimController::UpdateInputEvents(float dt)
                     }
                 }
             }
+
+            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_ENTER_OR_EXIT_TRUCK) && m_time_until_next_toggle <= 0)
+            {
+                m_time_until_next_toggle = 0.5; // Some delay before trying to re-enter(exit) actor
+                // perso in/out
+                if (this->GetPlayerActor() == nullptr)
+                {
+                    // find the nearest vehicle
+                    float mindist = 1000.0;
+                    Actor* nearest_actor = nullptr;
+                    for (auto actor : GetActors())
+                    {
+                        if (!actor->ar_driveable)
+                            continue;
+                        if (actor->ar_cinecam_node[0] == -1)
+                        {
+                            LOG("cinecam missing, cannot enter the actor!");
+                            continue;
+                        }
+                        float len = 0.0f;
+                        if (gEnv->player)
+                        {
+                            len = actor->ar_nodes[actor->ar_cinecam_node[0]].AbsPosition.distance(gEnv->player->getPosition() + Vector3(0.0, 2.0, 0.0));
+                        }
+                        if (len < mindist)
+                        {
+                            mindist = len;
+                            nearest_actor = actor;
+                        }
+                    }
+                    if (mindist < 20.0)
+                    {
+                        this->SetPendingPlayerActor(nearest_actor);
+                    }
+                }
+                else if (m_player_actor->ar_nodes[0].Velocity.length() < 1.0f)
+                {
+                    this->SetPendingPlayerActor(nullptr);
+                }
+                else
+                {
+                    m_player_actor->ar_brake = 0.66f;
+                    m_time_until_next_toggle = 0.0; // No delay in this case: the vehicle must brake like braking normally
+                }
+            }
+            else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
+            {
+                Actor* actor = m_actor_manager.FetchNextVehicleOnList(m_player_actor, m_prev_player_actor);
+                if (actor != m_player_actor)
+                {
+                    this->SetPendingPlayerActor(actor);
+                }
+            }
+            else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
+            {
+                Actor* actor = m_actor_manager.FetchPreviousVehicleOnList(m_player_actor, m_prev_player_actor);
+                if (actor != m_player_actor)
+                {
+                    this->SetPendingPlayerActor(actor);
+                }
+            }
+            else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK, 0.25f))
+            {
+                if (m_last_cache_selection != nullptr)
+                {
+                    ActorSpawnRequest rq;
+                    rq.asr_cache_entry     = m_last_cache_selection;
+                    rq.asr_config          = m_last_vehicle_configs;
+                    rq.asr_skin            = m_last_skin_selection;
+                    rq.asr_origin          = ActorSpawnRequest::Origin::USER;
+                    m_actor_spawn_queue.push_back(rq);
+                }
+            }
         }
 
 #ifdef USE_CAELUM
@@ -1319,81 +1392,6 @@ void SimController::UpdateInputEvents(float dt)
             case 2:
                 gEnv->mainCamera->setPolygonMode(PM_POINTS);
                 break;
-            }
-        }
-
-        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_ENTER_OR_EXIT_TRUCK) && m_time_until_next_toggle <= 0)
-        {
-            m_time_until_next_toggle = 0.5; // Some delay before trying to re-enter(exit) actor
-            // perso in/out
-            if (this->GetPlayerActor() == nullptr)
-            {
-                // find the nearest vehicle
-                float mindist = 1000.0;
-                Actor* nearest_actor = nullptr;
-                for (auto actor : GetActors())
-                {
-                    if (!actor->ar_driveable)
-                        continue;
-                    if (actor->ar_cinecam_node[0] == -1)
-                    {
-                        LOG("cinecam missing, cannot enter the actor!");
-                        continue;
-                    }
-                    float len = 0.0f;
-                    if (gEnv->player)
-                    {
-                        len = actor->ar_nodes[actor->ar_cinecam_node[0]].AbsPosition.distance(gEnv->player->getPosition() + Vector3(0.0, 2.0, 0.0));
-                    }
-                    if (len < mindist)
-                    {
-                        mindist = len;
-                        nearest_actor = actor;
-                    }
-                }
-                if (mindist < 20.0)
-                {
-                    this->SetPendingPlayerActor(nearest_actor);
-                }
-            }
-            else if (m_player_actor->ar_nodes[0].Velocity.length() < 1.0f)
-            {
-                this->SetPendingPlayerActor(nullptr);
-            }
-            else
-            {
-                m_player_actor->ar_brake = 0.66f;
-                m_time_until_next_toggle = 0.0; // No delay in this case: the vehicle must brake like braking normally
-            }
-        }
-        else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
-        {
-            Actor* actor = m_actor_manager.FetchNextVehicleOnList(m_player_actor, m_prev_player_actor);
-
-            if (actor != m_player_actor)
-            {
-                this->SetPendingPlayerActor(actor);
-            }
-        }
-        else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
-        {
-            Actor* actor = m_actor_manager.FetchPreviousVehicleOnList(m_player_actor, m_prev_player_actor);
-
-            if (actor != m_player_actor)
-            {
-                this->SetPendingPlayerActor(actor);
-            }
-        }
-        else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK, 0.25f))
-        {
-            if (m_last_cache_selection != nullptr)
-            {
-                ActorSpawnRequest rq;
-                rq.asr_cache_entry     = m_last_cache_selection;
-                rq.asr_config          = m_last_vehicle_configs;
-                rq.asr_skin            = m_last_skin_selection;
-                rq.asr_origin          = ActorSpawnRequest::Origin::USER;
-                m_actor_spawn_queue.push_back(rq);
             }
         }
     }
