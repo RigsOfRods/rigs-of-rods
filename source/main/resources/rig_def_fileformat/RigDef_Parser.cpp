@@ -3158,8 +3158,8 @@ void Parser::AddMessage(std::string const & line, Message::Type type, std::strin
 File::Keyword Parser::IdentifyKeywordInCurrentLine()
 {
     // Quick check - keyword always starts with ASCII letter
-    char c = m_current_line[0]; // Note: line comes in trimmed
-    if (! ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')))
+    char c = tolower(m_current_line[0]); // Note: line comes in trimmed
+    if (c > 'z' || c < 'a')
     {
         return File::KEYWORD_INVALID;
     }
