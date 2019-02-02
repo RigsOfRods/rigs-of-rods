@@ -2448,7 +2448,8 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
     LOG(" ===== LOADING VEHICLE: " + rq.asr_filename);
     Actor* actor = m_actor_manager.CreateActorInstance(rq, def);
 
-    if (actor->ar_driveable != NOT_DRIVEABLE && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
+    if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK && rq.asr_origin != ActorSpawnRequest::Origin::TERRN_DEF &&
+            actor->ar_driveable != NOT_DRIVEABLE)
     {
         this->SetPendingPlayerActor(actor);
     }
