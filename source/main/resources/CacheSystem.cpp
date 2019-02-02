@@ -153,15 +153,12 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
 
 CacheEntry* CacheSystem::FindEntryByFilename(std::string filename)
 {
-    CacheEntry* fallback = nullptr;
     for (CacheEntry& entry : m_entries)
     {
-        if (entry.fname == filename)
+        if (entry.fname == filename || entry.fname_without_uid == filename)
             return &entry;
-        else if (entry.fname_without_uid == filename)
-            fallback = &entry;
     }
-    return fallback;
+    return nullptr;
 }
 
 void CacheSystem::UnloadActorFromMemory(std::string filename)
