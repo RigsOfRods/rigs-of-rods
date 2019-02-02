@@ -136,7 +136,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     actor->ar_initial_node_positions.resize(actor->ar_num_nodes);
 
-    actor->UpdateBoundingBoxes();
+    actor->UpdateBoundingBoxes(); // (records the unrotated dimensions for 'veh_aab_size')
 
     // Apply spawn position & spawn rotation
     for (int i = 0; i < actor->ar_num_nodes; i++)
@@ -207,6 +207,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     {
         actor->ResetPosition(rq.asr_position);
     }
+    actor->UpdateBoundingBoxes();
     actor->UpdateInitPosition();
 
     //compute final mass
@@ -221,6 +222,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     actor->calcNodeConnectivityGraph();
 
     // calculate minimum camera radius
+    actor->calculateAveragePosition();
     for (int i = 0; i < actor->ar_num_nodes; i++)
     {
         Real dist = actor->ar_nodes[i].AbsPosition.squaredDistance(actor->m_avg_node_position);
