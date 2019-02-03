@@ -170,7 +170,7 @@ private:
     static Ogre::String StripSHA1fromString(Ogre::String sha1str);
 
     void ParseZipArchives(Ogre::String group);
-    void ParseKnownFiles(Ogre::String group);
+    bool ParseKnownFiles(Ogre::String group); // returns true if no known files are found
     void ParseSingleZip(Ogre::String path);
 
     void ClearCache(); // removes                   all files from the cache

@@ -987,7 +987,10 @@ void CacheSystem::ParseSingleZip(String path)
         try
         {
             ResourceGroupManager::getSingleton().addResourceLocation(path, "Zip", RGN_TEMP);
-            this->ParseKnownFiles(RGN_TEMP);
+            if (ParseKnownFiles(RGN_TEMP))
+            {
+                LOG("No usable content in: '" + path + "'");
+            }
         }
         catch (Ogre::Exception& e)
         {
@@ -998,8 +1001,9 @@ void CacheSystem::ParseSingleZip(String path)
     }
 }
 
-void CacheSystem::ParseKnownFiles(Ogre::String group)
+bool CacheSystem::ParseKnownFiles(Ogre::String group)
 {
+    bool empty = true;
     for (auto ext : m_known_extensions)
     {
         auto files = ResourceGroupManager::getSingleton().findResourceFileInfo(group, "*." + ext);
@@ -1008,9 +1012,11 @@ void CacheSystem::ParseKnownFiles(Ogre::String group)
             if (file.path.empty())
             {
                 this->AddFile(group, file, ext);
+                empty = false;
             }
         }
     }
+    return empty;
 }
 
 void CacheSystem::GenerateHashFromFilenames()
