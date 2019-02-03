@@ -424,8 +424,6 @@ void CacheSystem::DetectDuplicates()
             StringUtil::toLowerCase(dirB);
             String basenameB, basepathB;
             StringUtil::splitFilename(dirB, basenameB, basepathB);
-            if (basepathA != basepathB)
-                continue;
             basenameA = Ogre::StringUtil::replaceAll(basenameA, " ", "_");
             basenameA = Ogre::StringUtil::replaceAll(basenameA, "-", "_");
             basenameB = Ogre::StringUtil::replaceAll(basenameB, " ", "_");
