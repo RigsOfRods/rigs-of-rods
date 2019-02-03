@@ -3166,21 +3166,6 @@ void Actor::updateVisual(float dt)
     ar_hydro_elevator_command = autoelevator;
 }
 
-//v=0: full detail
-//v=1: no beams
-void Actor::setDetailLevel(int v)
-{
-    if (m_gfx_detail_level == 0 && v == 1)
-    {
-        m_gfx_actor->SetRodsVisible(false);
-    }
-    if (m_gfx_detail_level == 1 && v == 0)
-    {
-        m_gfx_actor->SetRodsVisible(true);
-    }
-    m_gfx_detail_level = v;
-}
-
 void Actor::AddInterActorBeam(beam_t* beam, Actor* a, Actor* b)
 {
     beam->bm_locked_actor = b;
@@ -4333,7 +4318,6 @@ Actor::Actor(
     , ar_scale(1)
     , ar_current_cinecam(-1) // -1 = external
     , ar_dashboard(nullptr)
-    , m_gfx_detail_level(0)
     , ar_disable_aerodyn_turbulent_drag(false)
     , ar_elevator(0)
     , ar_aerial_flap(0)
