@@ -94,7 +94,7 @@ static RoRnet::ServerInfo m_server_settings;
 static Ogre::UTFString m_username; // Shadows GVar 'mp_player_name' for multithreaded access.
 static Str<400> m_net_host; // Shadows GVar 'mp_server_host' for multithreaded access.
 static Str<100> m_password; // Shadows GVar 'mp_server_password' for multithreaded access.
-static Str<100> m_token; // Shadows GVar 'mp_player_token_hash' for multithreaded access.
+static Str<100> m_token; // Shadows GVar 'mp_player_token' for multithreaded access.
 static int      m_net_port; // Shadows GVar 'mp_server_port' for multithreaded access.
 static int m_uid;
 static int m_authlevel;
@@ -549,7 +549,7 @@ bool StartConnecting()
 
     // Shadow vars for threaded access
     m_username = App::mp_player_name.GetActive();
-    m_token    = App::mp_player_token_hash.GetActive();
+    m_token    = App::mp_player_token.GetActive();
     m_net_host = App::mp_server_host.GetActive();
     m_net_port = App::mp_server_port.GetActive();
     m_password = App::mp_server_password.GetActive();
@@ -679,7 +679,16 @@ bool ConnectThread()
     // Cut off the UTF string on the highest level, otherwise you will break UTF info
     strncpy((char *)c.username, m_username.substr(0, RORNET_MAX_USERNAME_LEN * 0.5f).asUTF8_c_str(), RORNET_MAX_USERNAME_LEN);
     strncpy(c.serverpassword, sha1pwresult, 40);
-    strncpy(c.usertoken, m_token.ToCStr(), 40);
+    {
+        RoR::CSHA1 sha1;
+        uint8_t* input_text = (uint8_t*)m_token.GetBuffer();
+        uint32_t input_size = (uint32_t)m_token.GetLength();
+        sha1.UpdateHash(input_text, input_size);
+        sha1.Final();
+        Str<100> hash;
+        sha1.ReportHash(hash.GetBuffer(), RoR::CSHA1::REPORT_HEX_SHORT);
+        strncpy(c.usertoken, hash.ToCStr(), 40);
+    }
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
     strncpy(c.clientname, "RoR", 10);
     std::string language = std::string(App::app_language.GetActive()).substr(0, 2);
