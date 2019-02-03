@@ -55,9 +55,12 @@ class ror_import(bpy.types.Operator, ImportHelper):
             for line in f:
                 line = line.strip()
                 if not line or line[0] == ';':
-                    truckfile.append(line)
                     if mode == 'nodes' and line[:5] == ';grp:':
                         groups = [g.strip() for g in line[5:].split(',')]
+                    elif mode == 'beams' and line[:5] == ';grp:':
+                        pass
+                    else:
+                        truckfile.append(line)
                     continue
 
                 args = line.replace(',', ' ').split()
