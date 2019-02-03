@@ -32,8 +32,6 @@ include(Macros)
 if (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
     include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
     conan_basic_setup(TARGETS)
-    conan_set_find_paths()
-    conan_set_vs_runtime()
 endif ()
 
 # global cmake options
