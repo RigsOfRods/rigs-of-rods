@@ -528,7 +528,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckInt  (App::mp_server_port,            k, v)) { return true; }
     if (CheckStrAS(App::mp_server_password,        k, v)) { return true; }
     if (CheckStr  (App::mp_portal_url,             k, v)) { return true; }
-    if (CheckStr  (App::mp_player_token_hash,      k, v)) { return true; }
+    if (CheckStr  (App::mp_player_token,           k, v)) { return true; }
     // App
     if (CheckScreenshotFormat                     (k, v)) { return true; }
     if (CheckStr  (App::app_language,              k, v)) { return true; }
@@ -810,7 +810,7 @@ void Settings::SaveSettings()
     WritePod (f, App::mp_server_port);
     WriteStr (f, App::mp_server_password);
     WriteStr (f, App::mp_portal_url);
-    WriteStr (f, App::mp_player_token_hash);
+    WriteStr (f, App::mp_player_token);
 
     f << std::endl << "; Simulation" << std::endl;
     WriteAny (f, App::sim_gearbox_mode.conf_name, SimGearboxToStr(App::sim_gearbox_mode.GetActive()));

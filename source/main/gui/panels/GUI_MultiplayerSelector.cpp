@@ -28,7 +28,6 @@
 #include "MainMenu.h"
 #include "RoRnet.h"
 #include "RoRVersion.h"
-#include "SHA1.h"
 
 #include <imgui.h>
 #include <rapidjson/document.h>
@@ -225,35 +224,17 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
         ImGui::Separator();
 
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
         ImGui::PushItemWidth(250.f);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
         DrawGTextEdit(App::mp_player_name,        "Player nickname", m_player_name_buf);
         DrawGTextEdit(App::mp_server_password,    "Default server password", m_password_buf, true);
-        ImGui::PopItemWidth();
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
         ImGui::Separator();
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
-        ImGui::PushItemWidth(250.f);
-        ImGui::InputText("Player token", m_user_token_buf.GetBuffer(), m_user_token_buf.GetCapacity());
+        DrawGTextEdit(App::mp_player_token,       "User token", m_user_token_buf);
         ImGui::PopItemWidth();
-
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
-        if (ImGui::Button("Update saved hash") && (m_user_token_buf.GetLength() > 0))
-        {
-            RoR::CSHA1 sha1;
-            uint8_t* input_text = (uint8_t *)m_user_token_buf.GetBuffer();
-            uint32_t input_size = (uint32_t)m_user_token_buf.GetLength();
-            sha1.UpdateHash(input_text, input_size);
-            sha1.Final();
-            Str<250> hash;
-            sha1.ReportHash(hash.GetBuffer(), RoR::CSHA1::REPORT_HEX_SHORT);
-            App::mp_player_token_hash.SetActive(hash.ToCStr());
-            m_user_token_buf.Clear();
-        }
-        ImGui::SameLine();
-        ImGui::TextDisabled(" Hash: [%s]", App::mp_player_token_hash.GetActive());
 
         ImGui::PopID();
     }

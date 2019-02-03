@@ -115,7 +115,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<int>           mp_server_port          ("mp_server_port",          "Server port",               0);
  GVarStr_APS<100>         mp_server_password      ("mp_server_password",      "Server password",           "",                      "",         "");
  GVarStr_AP<100>          mp_player_name          ("mp_player_name",          "Nickname",                  "Player",                "Player");
- GVarStr_AP<250>          mp_player_token_hash    ("mp_player_token_hash",    "User Token Hash",           "",                      "");
+ GVarStr_AP<100>          mp_player_token         ("mp_player_token",         "User Token",                "",                      "");
  GVarStr_AP<400>          mp_portal_url           ("mp_portal_url",           "Multiplayer portal URL",    "http://multiplayer.rigsofrods.org", "http://multiplayer.rigsofrods.org");
 
 // Diagnostic
