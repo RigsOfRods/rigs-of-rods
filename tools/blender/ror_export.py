@@ -47,6 +47,7 @@ class ror_export(bpy.types.Operator, ExportHelper):
             if obj.type != 'MESH':
                 continue
 
+            bpy.ops.object.mode_set(mode="OBJECT")
             bpy.ops.object.mode_set(mode="EDIT")
             bm = bmesh.from_edit_mesh(obj.data)
 
