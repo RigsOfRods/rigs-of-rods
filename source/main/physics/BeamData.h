@@ -538,6 +538,7 @@ struct ActorSpawnRequest
         CONFIG_FILE,  //!< 'Preselected vehicle' in RoR.cfg
         TERRN_DEF,    //!< Preloaded with terrain
         USER,         //!< Direct selection by user via GUI
+        SAVEGAME,     //!< User spawned and part of a savegame
         NETWORK       //!< Remote controlled
     };
 

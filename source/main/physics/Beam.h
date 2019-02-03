@@ -119,7 +119,6 @@ public:
     void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
     void              UpdateFlareStates(float dt_sec);
     void              updateVisual(float dt=0);
-    void              setDetailLevel(int v);               //!< @param v 0 = full detail, 1 = no beams
     void              resetAutopilot();
     void              disconnectAutopilot();
     void              ScaleActor(float value);
@@ -179,7 +178,6 @@ public:
     float             getWheelSpeed() const             { return ar_wheel_speed; }
     int               GetNumNodes() const               { return ar_num_nodes; }
     Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
-    int               GetGfxDetailLevel() const         { return m_gfx_detail_level; }
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
     void              addRef()                          {};
@@ -442,7 +440,6 @@ private:
     blinktype         m_blink_type;                 //!< Sim state; Blinker = turn signal
     float             m_stabilizer_shock_sleep;     //!< Sim state
     Replay*           m_replay_handler;
-    int               m_gfx_detail_level;      //!< Gfx state
     float             m_total_mass;            //!< Physics state; total mass in Kg
     int               m_mouse_grab_node;       //!< Sim state; node currently being dragged by user
     Ogre::Vector3     m_mouse_grab_pos;

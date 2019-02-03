@@ -1993,8 +1993,6 @@ bool SimController::SetupGameplayLoop()
     // Setup
     // ============================================================================
 
-    m_gfx_scene.InitScene(gEnv->sceneManager); // TODO: de-globalize SceneManager
-
     int colourNum = -1;
     Ogre::UTFString playerName = "";
 
@@ -2447,7 +2445,7 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
     Actor* actor = m_actor_manager.CreateActorInstance(rq, def);
 
     if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK && rq.asr_origin != ActorSpawnRequest::Origin::TERRN_DEF &&
-            actor->ar_driveable != NOT_DRIVEABLE)
+            rq.asr_origin != ActorSpawnRequest::Origin::SAVEGAME && actor->ar_driveable != NOT_DRIVEABLE)
     {
         this->SetPendingPlayerActor(actor);
     }

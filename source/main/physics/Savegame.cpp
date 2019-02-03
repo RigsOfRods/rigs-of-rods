@@ -153,14 +153,17 @@ bool ActorManager::LoadScene(Ogre::String filename)
     }
 
     // Character
-    auto player_data = j_doc["player_position"].GetArray();
-    gEnv->player->setPosition(Vector3(player_data[0].GetFloat(), player_data[1].GetFloat(), player_data[2].GetFloat()));
-    gEnv->player->setRotation(Radian(j_doc["player_rotation"].GetFloat()));
+    if (m_savegame_terrain_has_changed)
+    {
+        auto data = j_doc["player_position"].GetArray();
+        Vector3 position = Vector3(data[0].GetFloat(), data[1].GetFloat(), data[2].GetFloat());
+        gEnv->player->setPosition(position);
+        gEnv->player->setRotation(Radian(j_doc["player_rotation"].GetFloat()));
+    }
 
     // Actors
-    App::GetSimController()->SetPendingPlayerActor(nullptr);
-    App::GetSimController()->SetPrevPlayerActorInternal(nullptr);
-
+    auto player_actor = App::GetSimController()->GetPlayerActor();
+    auto prev_player_actor = App::GetSimController()->GetPrevPlayerActor();
     std::vector<Actor*> actors;
     std::vector<Actor*> x_actors = GetLocalActors();
     for (rapidjson::Value& j_entry: j_doc["actors"].GetArray())
@@ -192,9 +195,13 @@ bool ActorManager::LoadScene(Ogre::String filename)
             if (j_entry["filename"].GetString() != x_actors[index]->ar_filename || skin != x_actors[index]->m_used_skin ||
                     actor_config != x_actors[index]->getActorConfig())
             {
-                if (x_actors[index] == App::GetSimController()->GetPlayerActor())
+                if (x_actors[index] == player_actor)
                 {
                     App::GetSimController()->ChangePlayerActor(nullptr);
+                }
+                else if (x_actors[index] == prev_player_actor)
+                {
+                    App::GetSimController()->SetPrevPlayerActorInternal(nullptr);
                 }
                 App::GetSimController()->RemoveActorDirectly(x_actors[index]);
             }
@@ -217,7 +224,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
             rq.asr_rotation      = Quaternion(Degree(270) - Radian(j_entry["rotation"].GetFloat()), Vector3::UNIT_Y);
             rq.asr_skin          = skin;
             rq.asr_config        = actor_config;
-            rq.asr_origin        = preloaded ? ActorSpawnRequest::Origin::TERRN_DEF : ActorSpawnRequest::Origin::USER;
+            rq.asr_origin        = preloaded ? ActorSpawnRequest::Origin::TERRN_DEF : ActorSpawnRequest::Origin::SAVEGAME;
             rq.asr_free_position = preloaded;
             actor                = App::GetSimController()->SpawnActorDirectly(rq);
         }
@@ -226,9 +233,13 @@ bool ActorManager::LoadScene(Ogre::String filename)
     }
     for (int index = actors.size(); index < x_actors.size(); index++)
     {
-        if (x_actors[index] == App::GetSimController()->GetPlayerActor())
+        if (x_actors[index] == player_actor)
         {
             App::GetSimController()->ChangePlayerActor(nullptr);
+        }
+        else if (x_actors[index] == prev_player_actor)
+        {
+            App::GetSimController()->SetPrevPlayerActorInternal(nullptr);
         }
         App::GetSimController()->RemoveActorDirectly(x_actors[index]);
     }
@@ -247,10 +258,16 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
         if (j_entry["player_actor"].GetBool())
         {
-            App::GetSimController()->SetPendingPlayerActor(actor);
+            if (m_savegame_terrain_has_changed || player_actor != App::GetSimController()->GetPlayerActor())
+            {
+                App::GetSimController()->SetPendingPlayerActor(actor);
+            }
         } else if (j_entry["prev_player_actor"].GetBool())
         {
-            App::GetSimController()->SetPrevPlayerActorInternal(actor);
+            if (m_savegame_terrain_has_changed || prev_player_actor != App::GetSimController()->GetPrevPlayerActor())
+            {
+                App::GetSimController()->SetPrevPlayerActorInternal(actor);
+            }
         }
 
         if (actor->ar_engine)

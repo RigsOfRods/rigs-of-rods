@@ -226,7 +226,7 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
 
     PROGRESS_WINDOW(92, _L("Initializing Overview Map Subsystem"));
     LoadTelepoints();
-    App::GetSimController()->GetGfxScene().InitSurveyMap();
+    App::GetSimController()->GetGfxScene().InitScene(gEnv->sceneManager);
 
     LOG(" ===== LOADING TERRAIN ACTORS " + filename);
     PROGRESS_WINDOW(95, _L("Loading Terrain Actors"));

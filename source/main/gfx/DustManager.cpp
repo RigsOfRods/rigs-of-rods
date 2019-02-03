@@ -39,7 +39,9 @@ using namespace Ogre;
 
 RoR::GfxScene::GfxScene()
     : m_ogre_scene(nullptr)
-{}
+{
+    m_survey_map = std::unique_ptr<SurveyMapManager>(new SurveyMapManager());
+}
 
 RoR::GfxScene::~GfxScene()
 {
@@ -62,14 +64,8 @@ void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
 
     m_ogre_scene = sm;
 
-    m_envmap.SetupEnvMap();
-
-    m_survey_map = std::unique_ptr<SurveyMapManager>(new SurveyMapManager());
-}
-
-void RoR::GfxScene::InitSurveyMap()
-{
     m_survey_map->init();
+    m_envmap.SetupEnvMap();
 }
 
 void RoR::GfxScene::UpdateScene(float dt_sec)
@@ -111,9 +107,7 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     if (player_gfx_actor != nullptr)
     {
         // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
-        m_envmap.UpdateEnvMap(
-            player_gfx_actor->GetSimDataBuffer().simbuf_pos,
-            m_simbuf.simbuf_player_actor);
+        m_envmap.UpdateEnvMap(player_gfx_actor->GetSimDataBuffer().simbuf_pos, player_gfx_actor);
     }
 
     // Terrain - animated meshes and paged geometry

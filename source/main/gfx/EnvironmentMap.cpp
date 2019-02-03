@@ -20,11 +20,8 @@
 
 #include "EnvironmentMap.h"
 
-#include <Ogre.h>
-#include <Overlay/OgreOverlayManager.h>
-#include <Overlay/OgreOverlay.h>
-
-#include "Beam.h"
+#include "Application.h"
+#include "GfxActor.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"
 
@@ -185,6 +182,10 @@ void RoR::GfxEnvmap::SetupEnvMap()
             overlay->show();
         }
     }
+
+    Ogre::Vector3 center = App::GetSimTerrain()->getMaxTerrainSize() / 2;
+    center.y = App::GetSimTerrain()->GetHeightAt(center.x, center.z) + 1.0f;
+    UpdateEnvMap(center, nullptr);
 }
 
 RoR::GfxEnvmap::~GfxEnvmap()
@@ -199,10 +200,10 @@ RoR::GfxEnvmap::~GfxEnvmap()
     }
 }
 
-void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* actor)
+void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor)
 {
     const int update_rate = m_is_initialized ? App::gfx_envmap_rate.GetActive() : NUM_FACES;
-    if (!App::gfx_envmap_enabled.GetActive() || !actor || update_rate == 0)
+    if (!App::gfx_envmap_enabled.GetActive() || update_rate == 0)
     {
         return;
     }
@@ -212,9 +213,11 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* actor)
         m_cameras[i]->setPosition(center);
     }
 
-    // hide all flexbodies and cabs prior render, and then show them again after done but only if they are visible ...
-    actor->GetGfxActor()->SetAllMeshesVisible(false);
-    actor->GetGfxActor()->SetRodsVisible(false);
+    if (gfx_actor != nullptr)
+    {
+        gfx_actor->SetAllMeshesVisible(false);
+        gfx_actor->SetRodsVisible(false);
+    }
 
     for (int i = 0; i < update_rate; i++)
     {
@@ -235,10 +238,10 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* actor)
     }
 #endif // USE_CAELUM
 
-    actor->GetGfxActor()->SetAllMeshesVisible(true);
-    if (actor->GetGfxDetailLevel() == 0) // Full detail? Show actors again
+    if (gfx_actor != nullptr)
     {
-        actor->GetGfxActor()->SetRodsVisible(true);
+        gfx_actor->SetRodsVisible(true);
+        gfx_actor->SetAllMeshesVisible(true);
     }
 
     m_is_initialized = true;
