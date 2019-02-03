@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.1)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/3rdparty)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 
 # Download cotire automatically
@@ -8,7 +8,14 @@ if (NOT EXISTS "${CMAKE_BINARY_DIR}/cotire.cmake")
     file(DOWNLOAD "https://raw.githubusercontent.com/sakra/cotire/master/CMake/cotire.cmake"
             "${CMAKE_BINARY_DIR}/cotire.cmake")
 endif ()
+# Download conan.cmake automatically
+if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
+   message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
+   file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/master/conan.cmake"
+                 "${CMAKE_BINARY_DIR}/conan.cmake")
+endif()
 
+include(${CMAKE_BINARY_DIR}/conan.cmake)
 include(${CMAKE_BINARY_DIR}/cotire.cmake)
 
 
@@ -32,6 +39,10 @@ include(Macros)
 if (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
     include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
     conan_basic_setup(TARGETS)
+else ()
+	conan_cmake_run(CONANFILE conanfile.txt 
+                BASIC_SETUP CMAKE_TARGETS
+                BUILD missing)
 endif ()
 
 # global cmake options
@@ -78,8 +89,8 @@ if (WIN32)
     include_directories(${DirectX_INCLUDE_DIR})
 
     set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG}          /DEBUG /LARGEADDRESSAWARE ")
-    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}        /DEBUG /LARGEADDRESSAWARE /OPT:REF /LTCG /RELEASE")
-    set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL}     /DEBUG /LARGEADDRESSAWARE /OPT:REF /LTCG ")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}        /DEBUG /LARGEADDRESSAWARE /OPT:REF /LTCG:STATUS /RELEASE")
+    set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL}     /DEBUG /LARGEADDRESSAWARE /OPT:REF /LTCG:STATUS ")
     set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DEBUG /LARGEADDRESSAWARE /OPT:NOREF /MAP /DYNAMICBASE:NO /FIXED /NXCOMPAT:NO")
 
     # fix executable paths for windows
@@ -114,8 +125,13 @@ include(DependenciesConfig)
 ################################################################################
 # Recurse into subdirectories
 ################################################################################
-add_subdirectory(source)
 add_subdirectory(doc)
+add_subdirectory(source/angelscript_addons)
+add_subdirectory(source/version_info)
+add_subdirectory(source/main)
+
+include(Resources)
+include(Install)
 
 include(FeatureSummary)
 feature_summary(WHAT ALL)
