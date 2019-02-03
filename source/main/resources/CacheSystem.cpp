@@ -387,6 +387,7 @@ void CacheSystem::PruneCache()
 
 void CacheSystem::DetectDuplicates()
 {
+    RoR::Log("[RoR|ModCache] Searching for duplicates ...");
     std::map<String, String> possible_duplicates;
     for (int i=0; i<m_entries.size(); i++) 
     {
