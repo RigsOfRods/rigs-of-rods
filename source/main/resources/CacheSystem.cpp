@@ -1005,7 +1005,10 @@ void CacheSystem::ParseKnownFiles(Ogre::String group)
         auto files = ResourceGroupManager::getSingleton().findResourceFileInfo(group, "*." + ext);
         for (const auto& file : *files)
         {
-            this->AddFile(group, file, ext);
+            if (file.path.empty())
+            {
+                this->AddFile(group, file, ext);
+            }
         }
     }
 }

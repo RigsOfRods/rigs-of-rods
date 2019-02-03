@@ -248,13 +248,13 @@ void ContentManager::InitModCache()
     if (!App::app_extra_mod_path.IsActiveEmpty())
     {
         std::string extra_mod_path = App::app_extra_mod_path.GetActive();
-        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path           , "FileSystem", RGN_CONTENT);
+        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path           , "FileSystem", RGN_CONTENT, true);
     }
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "mods")    , "FileSystem", RGN_CONTENT);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "packs")   , "FileSystem", RGN_CONTENT);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "terrains"), "FileSystem", RGN_CONTENT);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "vehicles"), "FileSystem", RGN_CONTENT);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, "content") , "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "mods")    , "FileSystem", RGN_CONTENT, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "packs")   , "FileSystem", RGN_CONTENT, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "terrains"), "FileSystem", RGN_CONTENT, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "vehicles"), "FileSystem", RGN_CONTENT, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, "content") , "FileSystem", RGN_CONTENT, true);
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, objects)   , "Zip"       , RGN_CONTENT);
 
 
@@ -264,7 +264,7 @@ void ContentManager::InitModCache()
     {
         if (!file.archive)
             continue;
-        String fullpath = PathCombine(file.archive->getName(), file.basename);
+        String fullpath = PathCombine(file.archive->getName(), file.filename);
         ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "FileSystem", RGN_CONTENT);
     }
 
@@ -274,7 +274,7 @@ void ContentManager::InitModCache()
     {
         if (!file.archive)
             continue;
-        String fullpath = PathCombine(file.archive->getName(), file.basename);
+        String fullpath = PathCombine(file.archive->getName(), file.filename);
         ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "Zip", RGN_CONTENT);
     }
 
