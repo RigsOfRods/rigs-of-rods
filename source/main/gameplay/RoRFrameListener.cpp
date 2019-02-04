@@ -1274,7 +1274,8 @@ void SimController::UpdateInputEvents(float dt)
                         this->SetPendingPlayerActor(nearest_actor);
                     }
                 }
-                else if (m_player_actor->ar_nodes[0].Velocity.length() < 1.0f)
+                else if (m_player_actor->ar_nodes[0].Velocity.squaredLength() < 1.0f ||
+                        m_player_actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
                 {
                     this->SetPendingPlayerActor(nullptr);
                 }
