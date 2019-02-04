@@ -79,13 +79,13 @@ bool intersectsTerrain(Vector3 a, Vector3 b) // internal helper
     for (int i = 1; i < steps; i++)
     {
         Vector3 pos = a + (b - a) * (float)i / steps;
-        float h = gEnv->collisions->getSurfaceHeight(pos.x, pos.z);
+        float h = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
         if (h > pos.y)
         {
             return true;
         }
     }
-    return false;
+    return gEnv->collisions->intersectsTris(Ray(a, b - a)).first;
 }
 
 bool intersectsTerrain(Vector3 a, Vector3 start, Vector3 end, float interval) // internal helper
@@ -699,41 +699,42 @@ void CameraManager::UpdateCameraBehaviorStatic()
         Vector3 lookAtPrediction = lookAt + velocity * speed;
         float distance = m_staticcam_position.distance(lookAt);
         float interval = std::max(radius, speed);
+        float cmradius = std::max(radius, App::gfx_camera_height.GetActive() / 7.0f);
 
         if (m_staticcam_force_update ||
-               (distance > radius * 8.0f && angle < Degree(30)) ||
-               (distance < radius * 2.0f && angle > Degree(150)) ||
-                distance > radius * std::max(25.0f, speed * 1.15f) ||
+               (distance > cmradius * 8.0f && angle < Degree(30)) ||
+               (distance < cmradius * 2.0f && angle > Degree(150)) ||
+                distance > cmradius * std::max(25.0f, speed * 1.15f) ||
                 intersectsTerrain(m_staticcam_position, lookAt, lookAtPrediction, interval))
         {
+            float water_height = (water && !water->IsUnderWater(lookAt)) ? water->GetStaticWaterHeight() : 0.0f;
+            float desired_offset = std::max(std::sqrt(radius) * 2.89f, (float)App::gfx_camera_height.GetActive());
+
             std::vector<std::pair<float, Vector3>> viable_positions;
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 10; i++)
             {
                 Vector3 pos = lookAt;
                 if (speed < 2.5f)
                 {
                     float angle = Math::TWO_PI * frand();
-                    pos += Vector3(cos(angle), 0, sin(angle)) * radius * 2.5f;
+                    pos += Vector3(cos(angle), 0, sin(angle)) * cmradius * 2.5f;
                 }
                 else
                 {
-                    float dist = std::max(radius * 2.5f, std::sqrt(radius) * speed);
-                    float mrnd = Math::Clamp(0.6f * radius / dist, 0.0f, 0.3f);
+                    float dist = std::max(cmradius * 2.5f, std::sqrt(cmradius) * speed);
+                    float mrnd = Math::Clamp(0.6f * cmradius / dist, 0.0f, 0.3f);
                     float arnd = mrnd + frand() * (1.0f - mrnd);
                     float  rnd = frand() > 0.5f ? arnd : -arnd;
                     pos += (velocity + velocity.crossProduct(Vector3::UNIT_Y) * rnd) * dist;
                 }
-                float surface_height = gEnv->collisions->getSurfaceHeight(pos.x, pos.z);
-                if (water != nullptr && !water->IsUnderWater(m_staticcam_look_at))
-                {
-                    surface_height = std::max(surface_height, water->GetStaticWaterHeight());
-                }
-                pos.y = std::max(pos.y + std::sqrt(radius) * 2.89f, surface_height + App::gfx_camera_height.GetActive());
+                pos.y = std::max(pos.y, water_height);
+                pos.y = std::max(pos.y, App::GetSimTerrain()->GetHeightAt(pos.x, pos.z));
+                pos.y += desired_offset * (i < 7 ? 1.0f : frand());
                 if (!intersectsTerrain(pos, lookAt, lookAtPrediction, interval))
                 {
-                    float hdiff = std::abs(pos.y - lookAt.y - App::gfx_camera_height.GetActive());
+                    float hdiff = std::abs(pos.y - lookAt.y - desired_offset);
                     viable_positions.push_back({hdiff, pos});
-                    if (hdiff < 1.0f)
+                    if (hdiff < 1.0f || viable_positions.size() > 2)
                         break;
                 }
             }

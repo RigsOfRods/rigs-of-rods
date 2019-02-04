@@ -732,6 +732,49 @@ bool Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
     return handled;
 }
 
+std::pair<bool, Ogre::Real> Collisions::intersectsTris(Ogre::Ray ray)
+{
+    int steps = ray.getDirection().length() / (float)CELL_SIZE;
+
+    int lhash = -1;
+
+    for (int i = 0; i <= steps; i++)
+    {
+        Vector3 pos = ray.getPoint((float)i / (float)steps);
+
+        // find the correct cell
+        int refx = (int)(pos.x / (float)CELL_SIZE);
+        int refz = (int)(pos.z / (float)CELL_SIZE);
+        int hash = hash_find(refx, refz);
+
+        if (hash == lhash)
+            continue;
+
+        lhash = hash;
+
+        size_t num_elements = hashtable[hash].size();
+        for (size_t k = 0; k < num_elements; k++)
+        {
+            if (hashtable[hash][k].IsCollisionTri())
+            {
+                const int ctri_index = hashtable[hash][k].element_index - hash_coll_element_t::ELEMENT_TRI_BASE_INDEX;
+                collision_tri_t *ctri = &m_collision_tris[ctri_index];
+
+                if (!ctri->enabled)
+                    continue;
+
+                auto result = Ogre::Math::intersects(ray, ctri->a, ctri->b, ctri->c);
+                if (result.first && result.second < 1.0f)
+                {
+                    return result;
+                }
+            }
+        }
+    }
+
+    return std::make_pair(false, 0.0f);
+}
+
 float Collisions::getSurfaceHeight(float x, float z)
 {
     return getSurfaceHeightBelow(x, z, std::numeric_limits<float>::max());

@@ -158,6 +158,8 @@ public:
     Ogre::Quaternion getDirection(const Ogre::String& inst, const Ogre::String& box);
     collision_box_t* getBox(const Ogre::String& inst, const Ogre::String& box);
 
+    std::pair<bool, Ogre::Real> intersectsTris(Ogre::Ray ray);
+
     float getSurfaceHeight(float x, float z);
     float getSurfaceHeightBelow(float x, float z, float height);
     bool collisionCorrect(Ogre::Vector3* refpos, bool envokeScriptCallbacks = true);
