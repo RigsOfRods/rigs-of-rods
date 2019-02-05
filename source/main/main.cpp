@@ -178,15 +178,21 @@ int main(int argc, char *argv[])
         Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("DstRG");
 
         Ogre::OverlaySystem* overlay_system = new Ogre::OverlaySystem(); //Overlay init
+
+        Ogre::ConfigOptionMap ropts = App::GetOgreSubsystem()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
+        int resolution = Ogre::StringConverter::parseInt(Ogre::StringUtil::split(ropts["Video Mode"].currentValue, " x ")[0], 1024);
+        int fsaa = 2 * (Ogre::StringConverter::parseInt(ropts["FSAA"].currentValue, 0) / 4);
+        int res = std::pow(2, std::floor(std::log2(resolution)));
+
         Ogre::TextureManager::getSingleton().createManual ("EnvironmentTexture",
-            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_CUBE_MAP, 256, 256, 0,
-            Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
+            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_CUBE_MAP, res / 4, res / 4, 0,
+            Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, fsaa);
         Ogre::TextureManager::getSingleton ().createManual ("Refraction",
-            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 512, 512, 0,
-            Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
+            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, res / 2, res / 2, 0,
+            Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, fsaa);
         Ogre::TextureManager::getSingleton ().createManual ("Reflection",
-            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 512, 512, 0,
-            Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
+            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, res / 2, res / 2, 0,
+            Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, fsaa);
 
         if (!App::diag_warning_texture.GetActive())
         {
