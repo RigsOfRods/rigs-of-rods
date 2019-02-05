@@ -1214,28 +1214,14 @@ void SimController::UpdateInputEvents(float dt)
                         }
                     }
 
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_LEFT))
+                    if (!RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESPAWN_LAST_TRUCK))
                     {
-                        if (m_player_actor->getBlinkType() == BLINK_LEFT)
-                            m_player_actor->setBlinkType(BLINK_NONE);
-                        else
-                            m_player_actor->setBlinkType(BLINK_LEFT);
-                    }
-
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_RIGHT))
-                    {
-                        if (m_player_actor->getBlinkType() == BLINK_RIGHT)
-                            m_player_actor->setBlinkType(BLINK_NONE);
-                        else
-                            m_player_actor->setBlinkType(BLINK_RIGHT);
-                    }
-
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_WARN))
-                    {
-                        if (m_player_actor->getBlinkType() == BLINK_WARN)
-                            m_player_actor->setBlinkType(BLINK_NONE);
-                        else
-                            m_player_actor->setBlinkType(BLINK_WARN);
+                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_LEFT))
+                            m_player_actor->toggleBlinkType(BLINK_LEFT);
+                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_RIGHT))
+                            m_player_actor->toggleBlinkType(BLINK_RIGHT);
+                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_WARN))
+                            m_player_actor->toggleBlinkType(BLINK_WARN);
                     }
                 }
             }

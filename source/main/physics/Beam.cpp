@@ -2976,6 +2976,14 @@ void Actor::UpdateFlareStates(float dt)
         m_custom_light_toggle_countdown = 0.2;
 }
 
+void Actor::toggleBlinkType(blinktype blink)
+{
+    if (m_blink_type == blink)
+        setBlinkType(BLINK_NONE);
+    else
+        setBlinkType(BLINK_LEFT);
+}
+
 void Actor::setBlinkType(blinktype blink)
 {
     m_blink_type = blink;
@@ -2996,16 +3004,14 @@ void Actor::setBlinkType(blinktype blink)
 
 void Actor::autoBlinkReset()
 {
-    blinktype blink = getBlinkType();
-
     // TODO: make this set-able per actor
     float blink_lock_range = 0.1f;
 
-    if (blink == BLINK_LEFT && ar_hydro_dir_state < -blink_lock_range)
+    if (m_blink_type == BLINK_LEFT && ar_hydro_dir_state < -blink_lock_range)
     // passed the threshold: the turn signal gets locked
         m_blinker_autoreset = true;
 
-    if (blink == BLINK_LEFT && m_blinker_autoreset && ar_hydro_dir_state > -blink_lock_range)
+    if (m_blink_type == BLINK_LEFT && m_blinker_autoreset && ar_hydro_dir_state > -blink_lock_range)
     {
         // steering wheel turned back: turn signal gets automatically unlocked
         setBlinkType(BLINK_NONE);
@@ -3013,10 +3019,10 @@ void Actor::autoBlinkReset()
     }
 
     // same for the right turn signal
-    if (blink == BLINK_RIGHT && ar_hydro_dir_state > blink_lock_range)
+    if (m_blink_type == BLINK_RIGHT && ar_hydro_dir_state > blink_lock_range)
         m_blinker_autoreset = true;
 
-    if (blink == BLINK_RIGHT && m_blinker_autoreset && ar_hydro_dir_state < blink_lock_range)
+    if (m_blink_type == BLINK_RIGHT && m_blinker_autoreset && ar_hydro_dir_state < blink_lock_range)
     {
         setBlinkType(BLINK_NONE);
         m_blinker_autoreset = false;

@@ -143,7 +143,8 @@ public:
     bool              getCustomLightVisible(int number);
     void              setCustomLightVisible(int number, bool visible);
     bool              getBeaconMode();
-    void              setBlinkType(blinktype blink);    
+    void              toggleBlinkType(blinktype blink);
+    void              setBlinkType(blinktype blink);
     void              setAirbrakeIntensity(float intensity);
     bool              getCustomParticleMode();
     void              receiveStreamData(unsigned int type, int source, unsigned int streamid, char *buffer, unsigned int len);
