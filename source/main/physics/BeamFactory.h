@@ -107,7 +107,7 @@ private:
     void           RecursiveActivation(int j, std::vector<bool>& visited);
     void           ForwardCommands(Actor* source_actor); //< Fowards things to trailers
 
-    std::map<int, std::vector<int>> m_stream_mismatches; //!< Networking: A list of streams without a corresponding actor in the actor-array for each stream source
+    std::map<int, std::set<int>> m_stream_mismatches; //!< Networking: A set of streams without a corresponding actor in the actor-array for each stream source
     std::unique_ptr<ThreadPool>     m_sim_thread_pool;
     std::shared_ptr<Task>           m_sim_task;
     std::vector<Actor*>             m_actors;

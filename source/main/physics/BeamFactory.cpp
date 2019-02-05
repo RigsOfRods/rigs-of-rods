@@ -413,10 +413,11 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
             {
                 LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
                 Ogre::String filename(reg->name);
-                int net_result = -1; // failure
                 if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(filename))
                 {
                     RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", reg->name);
+                    m_stream_mismatches[reg->origin_sourceid].insert(reg->origin_streamid);
+                    reg->status = -1;
                 }
                 else
                 {
@@ -443,7 +444,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
                     actor->ar_net_source_id = reg->origin_sourceid;
                     actor->ar_net_stream_id = reg->origin_streamid;
 
-                    net_result = 1; // Success
+                    reg->status = 1;
                 }
 
                 RoR::Networking::AddPacket(0, RoRnet::MSG2_STREAM_REGISTER_RESULT, sizeof(RoRnet::StreamRegister), (char *)reg);
@@ -454,8 +455,6 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
             RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
             for (auto actor : m_actors)
             {
-                if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
-                    continue;
                 if (actor->ar_net_stream_id == reg->origin_streamid)
                 {
                     int sourceid = packet.header.source;
@@ -477,14 +476,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
             {
                 App::GetSimController()->QueueActorRemove(b);
             }
-            auto search = m_stream_mismatches.find(packet.header.source);
-            if (search != m_stream_mismatches.end())
-            {
-                auto& mismatches = search->second;
-                auto it = std::find(mismatches.begin(), mismatches.end(), packet.header.streamid);
-                if (it != mismatches.end())
-                    mismatches.erase(it);
-            }
+            m_stream_mismatches[packet.header.source].erase(packet.header.streamid);
         }
         else if (packet.header.command == RoRnet::MSG2_USER_LEAVE)
         {
@@ -506,7 +498,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
 
 int ActorManager::CheckNetworkStreamsOk(int sourceid)
 {
-    if (m_stream_mismatches[sourceid].size() > 0)
+    if (!m_stream_mismatches[sourceid].empty())
         return 0;
 
     for (auto actor : m_actors)
@@ -529,7 +521,7 @@ int ActorManager::CheckNetRemoteStreamsOk(int sourceid)
 
     for (auto actor : m_actors)
     {
-        if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
+        if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK || actor->ar_sim_state == Actor::SimState::INVALID)
             continue;
 
         int stream_result = actor->ar_net_stream_results[sourceid];
