@@ -579,74 +579,57 @@ void CLASS::OnCategorySelected(int categoryID)
     if (m_loader_type == LT_SKIN)
         return;
 
-    Ogre::String search_cmd = m_SearchLine->getCaption();
-    Ogre::StringUtil::toLowerCase(search_cmd);
-
-    int counter = 0;
-
     m_Model->removeAllItems();
+
+    std::vector<std::pair<CacheEntry*, size_t>> entries;
+    entries.reserve(m_entries.size());
 
     if (categoryID == CacheSystem::CID_SearchResults)
     {
-        std::vector<std::pair<CacheEntry*, size_t>> search_results;
-        search_results.reserve(m_entries.size());
-
-        for (auto it = m_entries.begin(); it != m_entries.end(); it++)
+        Ogre::String search_cmd = m_SearchLine->getCaption();
+        Ogre::StringUtil::toLowerCase(search_cmd);
+        for (auto& entry : m_entries)
         {
-            size_t score = SearchCompare(search_cmd, &(*it));
+            size_t score = SearchCompare(search_cmd, &entry);
             if (score != Ogre::String::npos)
-                search_results.push_back(std::make_pair(&(*it), score));
-        }
-
-        std::stable_sort(search_results.begin(), search_results.end(), sort_search_results());
-
-        for (auto it = search_results.begin(); it != search_results.end(); it++)
-        {
-            counter++;
-            Ogre::String txt = TOSTRING(counter) + ". " + it->first->dname;
-            try
             {
-                m_Model->addItem(txt, it->first->number);
-            }
-            catch (...)
-            {
-                m_Model->addItem("ENCODING ERROR", it->first->number);
+                entries.push_back(std::make_pair(&entry, score));
             }
         }
+        std::stable_sort(entries.begin(), entries.end(), sort_search_results());
     }
     else
     {
-        for (auto it = m_entries.begin(); it != m_entries.end(); it++)
+        for (auto& entry : m_entries)
         {
-            if (it->categoryid == categoryID || categoryID == CacheSystem::CID_All
+            if (entry.categoryid == categoryID || categoryID == CacheSystem::CID_All
                 || (categoryID == CacheSystem::CID_Fresh &&
-                    (it->addtimestamp >= m_cache_file_freshness || it->filetime >= m_cache_file_freshness - 86400)))
+                    (entry.addtimestamp >= m_cache_file_freshness || entry.filetime >= m_cache_file_freshness - 86400)))
             {
-                counter++;
-                Ogre::String txt = TOSTRING(counter) + ". " + it->dname;
-                try
-                {
-                    m_Model->addItem(txt, it->number);
-                }
-                catch (...)
-                {
-                    m_Model->addItem("ENCODING ERROR", it->number);
-                }
+                entries.push_back(std::make_pair(&entry, 0));
             }
         }
     }
 
-    if (counter > 0)
+    int count = 1;
+
+    for (const auto& entry : entries)
     {
         try
         {
-            m_Model->setIndexSelected(0);
-            m_Model->beginToItemSelected();
+            m_Model->addItem(Ogre::StringUtil::format("%d. %s", count, entry.first->dname.c_str()), entry.first->number);
+            count++;
         }
         catch (...)
         {
-            return;
+            m_Model->addItem("ENCODING ERROR", entry.first->number);
         }
+    }
+
+    if (m_Model->getItemCount() > 0)
+    {
+        m_Model->setIndexSelected(0);
+        m_Model->beginToItemSelected();
         OnEntrySelected(*m_Model->getItemDataAt<int>(0));
     }
 }
