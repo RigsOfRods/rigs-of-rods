@@ -549,7 +549,8 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
         }
     }
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_PARKING_BRAKE))
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_PARKING_BRAKE) &&
+            !RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TRAILER_PARKING_BRAKE))
     {
         vehicle->ToggleParkingBrake();
     }

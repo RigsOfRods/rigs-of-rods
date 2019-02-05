@@ -1366,7 +1366,7 @@ eventInfo_t eventInfo[] = {
     {
         "TRUCK_TRAILER_PARKING_BRAKE",
         EV_TRUCK_TRAILER_PARKING_BRAKE,
-        "Keyboard V",
+        "Keyboard EXPL+CTRL+P",
         _L("toggle trailer parking brake")
     },
     {
