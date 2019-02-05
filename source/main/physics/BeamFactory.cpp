@@ -546,9 +546,6 @@ Actor* ActorManager::GetActorByNetworkLinks(int source_id, int stream_id)
 {
     for (auto actor : m_actors)
     {
-        if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
-            continue;
-
         if (actor->ar_net_source_id == source_id && actor->ar_net_stream_id == stream_id)
         {
             return actor;
