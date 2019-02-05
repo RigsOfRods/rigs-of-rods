@@ -236,7 +236,7 @@ void MpClientList::updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self)
     }
 
     // truck ok image
-    if (!self)
+    if (!self && App::app_state.GetActive() != AppState::MAIN_MENU)
     {
         row->user_actor_ok_img->setVisible(true);
         row->user_remote_actor_ok_img->setVisible(true);
