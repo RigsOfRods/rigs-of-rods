@@ -92,6 +92,9 @@ private:
     ActorSpawnRequest m_actor_spawn_rq; //!< Pre-configured by on-terrain spawner scripts
     std::time_t m_cache_file_freshness;
     bool m_actor_spawn_rq_valid;
+    std::map<LoaderType, int> m_category_index; //!< Stores the last manually selected category index for each loader type
+    std::map<LoaderType, int> m_entry_index;    //!< Stores the last manually selected entry index for each loader type
+    bool m_searching;
 };
 
 } // namespace GUI

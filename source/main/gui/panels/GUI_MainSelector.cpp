@@ -49,6 +49,7 @@ CLASS::CLASS() :
     , m_selected_entry(nullptr)
     , m_selection_done(true)
     , m_actor_spawn_rq_valid(false)
+    , m_searching(false)
 {
     MAIN_WIDGET->setVisible(false);
     m_skin_manager = RoR::App::GetContentManager()->GetSkinManager();
@@ -265,14 +266,16 @@ void CLASS::EventComboChangePositionTypeComboBox(MyGUI::ComboBoxPtr _sender, siz
 {
     if (!MAIN_WIDGET->getVisible())
         return;
-    try
+
+    if (_index < 0 || _index >= m_Type->getItemCount())
+        return;
+
+    int categoryID = *m_Type->getItemDataAt<int>(_index);
+    m_SearchLine->setCaption(_L("Search ..."));
+    OnCategorySelected(categoryID);
+    if (!m_searching)
     {
-        int categoryID = *m_Type->getItemDataAt<int>(_index);
-        m_SearchLine->setCaption(_L("Search ..."));
-        OnCategorySelected(categoryID);
-    }
-    catch (...)
-    {
+        m_category_index[m_loader_type] = _index;
     }
 }
 
@@ -290,13 +293,11 @@ void CLASS::EventListChangePositionModelList(MyGUI::ListPtr _sender, size_t _ind
     if (_index < 0 || _index >= m_Model->getItemCount())
         return;
 
-    try
+    int entryID = *m_Model->getItemDataAt<int>(_index);
+    OnEntrySelected(entryID);
+    if (!m_searching)
     {
-        int entryID = *m_Model->getItemDataAt<int>(_index);
-        OnEntrySelected(entryID);
-    }
-    catch (...)
-    {
+        m_entry_index[m_loader_type] = _index;
     }
 }
 
@@ -304,15 +305,13 @@ void CLASS::EventComboAcceptConfigComboBox(MyGUI::ComboBoxPtr _sender, size_t _i
 {
     if (!MAIN_WIDGET->getVisible())
         return;
-    try
-    {
-        m_vehicle_configs.clear();
-        Ogre::String config = *m_Config->getItemDataAt<Ogre::String>(_index);
-        m_vehicle_configs.push_back(config);
-    }
-    catch (...)
-    {
-    }
+
+    if (_index < 0 || _index >= m_Config->getItemCount())
+        return;
+
+    m_vehicle_configs.clear();
+    Ogre::String config = *m_Config->getItemDataAt<Ogre::String>(_index);
+    m_vehicle_configs.push_back(config);
 }
 
 template <typename T1, typename T2>
@@ -439,43 +438,36 @@ void CLASS::UpdateGuiData()
                 mCategoryUsage[CacheSystem::CID_Fresh]++;
         }
     }
+
     int tally_categories = 0, current_category = 0;
     std::map<int, Ogre::String>* cats = RoR::App::GetCacheSystem()->GetCategories();
-
     std::vector<std::pair<int, Ogre::String>> sorted_cats(cats->begin(), cats->end());
     std::sort(sorted_cats.begin(), sorted_cats.end(), sort_cats<int, Ogre::String>());
-
-    for (std::vector<std::pair<int, Ogre::String>>::iterator itc = sorted_cats.begin(); itc != sorted_cats.end(); itc++)
+    for (const auto& cat : sorted_cats)
     {
-        if (mCategoryUsage[itc->first] > 0)
+        if (mCategoryUsage[cat.first] > 0)
             tally_categories++;
     }
-    for (std::vector<std::pair<int, Ogre::String>>::iterator itc = sorted_cats.begin(); itc != sorted_cats.end(); itc++)
+    for (const auto& cat : sorted_cats)
     {
-        int num_elements = mCategoryUsage[itc->first];
+        int num_elements = mCategoryUsage[cat.first];
         if (num_elements > 0)
         {
             Ogre::UTFString title = _L("unknown");
-            if (!itc->second.empty())
+            if (!cat.second.empty())
             {
-                title = _L(itc->second.c_str());
+                title = _L(cat.second.c_str());
             }
             Ogre::UTFString txt = U("[") + TOUTFSTRING(++current_category) + U("/") + TOUTFSTRING(tally_categories) + U("] (") + TOUTFSTRING(num_elements) + U(") ") + title;
-            m_Type->addItem(convertToMyGUIString(txt), itc->first);
+            m_Type->addItem(convertToMyGUIString(txt), cat.first);
         }
     }
-    if (tally_categories > 0)
+    if (m_Type->getItemCount() > 0)
     {
-        try
-        {
-            m_Type->setIndexSelected(0);
-            m_Type->beginToItemSelected();
-        }
-        catch (...)
-        {
-            return;
-        }
-        OnCategorySelected(*m_Type->getItemDataAt<int>(0));
+        int idx = m_category_index[m_loader_type] < m_Type->getItemCount() ? m_category_index[m_loader_type] : 0;
+        m_Type->setIndexSelected(idx);
+        m_Type->beginToItemSelected();
+        OnCategorySelected(*m_Type->getItemDataAt<int>(idx));
     }
 }
 
@@ -628,10 +620,13 @@ void CLASS::OnCategorySelected(int categoryID)
 
     if (m_Model->getItemCount() > 0)
     {
-        m_Model->setIndexSelected(0);
+        int idx = m_entry_index[m_loader_type] < m_Model->getItemCount() ? m_entry_index[m_loader_type] : 0;
+        m_Model->setIndexSelected(idx);
         m_Model->beginToItemSelected();
-        OnEntrySelected(*m_Model->getItemDataAt<int>(0));
+        OnEntrySelected(*m_Model->getItemDataAt<int>(idx));
     }
+
+    m_searching = categoryID == CacheSystem::CID_SearchResults;
 }
 
 void CLASS::OnEntrySelected(int entryID)
