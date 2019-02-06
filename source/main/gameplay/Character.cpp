@@ -550,6 +550,7 @@ GfxCharacter* Character::SetupGfx()
     Ogre::SceneNode* scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     scenenode->attachObject(entity);
     scenenode->setScale(0.02f, 0.02f, 0.02f);
+    scenenode->setVisible(false);
 
     // setup colour
     MaterialPtr mat1 = MaterialManager::getSingleton().getByName("tracks/character");
@@ -606,7 +607,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
                 xc_movable_text->setVisible(false);
             }
             xc_scenenode->getAttachedObject(0)->setCastShadows(false);
-        xc_scenenode->setVisible(xc_simbuf.simbuf_actor_coupling->GetGfxActor()->HasDriverSeatProp());
+            xc_scenenode->setVisible(xc_simbuf.simbuf_actor_coupling->GetGfxActor()->HasDriverSeatProp());
         }
         else if (xc_simbuf_prev.simbuf_actor_coupling != nullptr)
         {
@@ -616,7 +617,6 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
                 xc_movable_text->setVisible(true);
             }
             xc_scenenode->getAttachedObject(0)->setCastShadows(true);
-            xc_scenenode->setVisible(true);
             xc_scenenode->resetOrientation();
         }
     }
@@ -639,6 +639,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         xc_scenenode->resetOrientation();
         xc_scenenode->yaw(-xc_simbuf.simbuf_character_rot);
         xc_scenenode->setPosition(xc_simbuf.simbuf_character_pos);
+        xc_scenenode->setVisible(true);
     }
 
     // Animation
