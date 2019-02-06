@@ -482,7 +482,6 @@ FlexBody::FlexBody(
     aab.setMaximum(Vector3(ma,ma,ma));
     mesh->_setBounds(aab, true);
 
-    LOG("FLEXBODY show mesh");
     //okay, show the mesh now
     m_scene_node=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     m_scene_node->attachObject(ent);
@@ -527,8 +526,6 @@ FlexBody::FlexBody(
         stat_manual_buffers_created_time, stat_transformed_time, stat_located_time, 
         stat_showmesh_time, stat_euclidean2_time);
     LOG(stats);
-#else
-    LOG("FLEXBODY ready");
 #endif
 }
 
