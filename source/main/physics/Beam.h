@@ -135,7 +135,6 @@ public:
     void              UnmuteAllSounds();
     float             getTotalMass(bool withLocked=true);
     float             getAvgPropedWheelRadius() { return m_avg_proped_wheel_radius; };
-    void              recalc_masses();
     int               getWheelNodeCount();
     void              setMass(float m);
     bool              getBrakeLightVisible();
@@ -393,7 +392,7 @@ private:
     void              CalcWheels(bool doUpdate, int num_steps); //!< TIGHT LOOP; Physics;
 
     void              DetermineLinkedActors();
-    void              RecalculateNodeMasses(Ogre::Real total, bool reCalc=false); //!< Previously 'calc_masses2()'
+    void              RecalculateNodeMasses(Ogre::Real total); //!< Previously 'calc_masses2()'
     void              calcNodeConnectivityGraph();
     void              AddInterActorBeam(beam_t* beam, Actor* a, Actor* b);
     void              RemoveInterActorBeam(beam_t* beam);

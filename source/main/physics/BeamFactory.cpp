@@ -759,14 +759,6 @@ void ActorManager::SendAllActorsSleeping()
     }
 }
 
-void ActorManager::RecalcGravityMasses()
-{
-    for (auto actor : m_actors)
-    {
-        actor->recalc_masses();
-    }
-}
-
 Actor* ActorManager::FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
 {
     // try to find the desired actor (the one in the box)

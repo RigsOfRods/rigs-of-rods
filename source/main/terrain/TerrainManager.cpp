@@ -491,7 +491,6 @@ void TerrainManager::initScripting()
 void TerrainManager::setGravity(float value)
 {
     m_cur_gravity = value;
-    App::GetSimController()->GetBeamFactory()->RecalcGravityMasses();
 }
 
 void TerrainManager::initObjects()
