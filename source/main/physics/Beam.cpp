@@ -631,7 +631,7 @@ float Actor::GetTyrePressure()
     return 0;
 }
 
-void Actor::RecalculateNodeMasses(Real total, bool reCalc)
+void Actor::RecalculateNodeMasses(Real total)
 {
     //reset
     for (int i = 0; i < ar_num_nodes; i++)
@@ -662,18 +662,15 @@ void Actor::RecalculateNodeMasses(Real total, bool reCalc)
         }
     }
 
-    if (!reCalc)
+    for (int i = 0; i < ar_num_beams; i++)
     {
-        for (int i = 0; i < ar_num_beams; i++)
+        if (ar_beams[i].bm_type != BEAM_VIRTUAL)
         {
-            if (ar_beams[i].bm_type != BEAM_VIRTUAL)
-            {
-                Real half_mass = ar_beams[i].L * total / len / 2.0f;
-                if (!ar_beams[i].p1->nd_tyre_node)
-                    ar_beams[i].p1->mass += half_mass;
-                if (!ar_beams[i].p2->nd_tyre_node)
-                    ar_beams[i].p2->mass += half_mass;
-            }
+            Real half_mass = ar_beams[i].L * total / len / 2.0f;
+            if (!ar_beams[i].p1->nd_tyre_node)
+                ar_beams[i].p1->mass += half_mass;
+            if (!ar_beams[i].p2->nd_tyre_node)
+                ar_beams[i].p2->mass += half_mass;
         }
     }
     //fix rope masses
@@ -724,12 +721,6 @@ void Actor::RecalculateNodeMasses(Real total, bool reCalc)
         m_total_mass += ar_nodes[i].mass;
     }
     LOG("TOTAL VEHICLE MASS: " + TOSTRING((int)m_total_mass) +" kg");
-}
-
-// this recalculates the masses (useful when the gravity was changed...)
-void Actor::recalc_masses()
-{
-    this->RecalculateNodeMasses(m_total_mass, true);
 }
 
 float Actor::getTotalMass(bool withLocked)

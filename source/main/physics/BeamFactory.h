@@ -59,7 +59,6 @@ public:
     int            CheckNetworkStreamsOk(int sourceid);
     int            CheckNetRemoteStreamsOk(int sourceid);
     void           NotifyActorsWindowResized();
-    void           RecalcGravityMasses();
     void           MuteAllActors();
     void           UnmuteAllActors();
     void           SetTrucksForcedAwake(bool forced)       { m_forced_awake = forced; };
