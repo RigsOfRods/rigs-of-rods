@@ -130,8 +130,11 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
             RoR::Log("[RoR|ModCache] Performing update ...");
             this->PruneCache();
         }
+        bool console_echo = App::diag_log_console_echo.GetActive();
+        App::diag_log_console_echo.SetActive(false);
         this->ParseZipArchives(RGN_CONTENT);
         this->ParseKnownFiles(RGN_CONTENT);
+        App::diag_log_console_echo.SetActive(console_echo);
         this->DetectDuplicates();
         this->WriteCacheFileJson();
     }
