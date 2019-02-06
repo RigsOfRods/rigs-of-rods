@@ -45,7 +45,6 @@ Character::Character(int source, unsigned int streamid, UTFString player_name, i
     , m_character_rotation(0.0f)
     , m_character_h_speed(2.0f)
     , m_character_v_speed(0.0f)
-    , m_character_visible(false)
     , m_color_number(color_number)
     , m_anim_time(0.f)
     , m_net_username(player_name)
@@ -64,16 +63,10 @@ Character::Character(int source, unsigned int streamid, UTFString player_name, i
     {
         this->SendStreamSetup();
     }
-    if (m_is_remote)
-    {
-        setVisible(true);
-    }
 }
 
 Character::~Character()
 {
-    setVisible(false);
-
     App::GetSimController()->GetGfxScene().RemoveGfxCharacter(m_gfx_character);
     delete m_gfx_character;
 }
@@ -90,22 +83,10 @@ void Character::setPosition(Vector3 position) // TODO: updates OGRE objects --> 
     m_prev_position = position;
 }
 
-void Character::setVisible(bool visible) // TODO: updates OGRE objects --> belongs to GfxScene ~ only_a_ptr, 05/2018
-{
-    //ASYNCSCENE OLD m_character_scenenode->setVisible(visible);
-    m_character_visible = visible;
-}
-
 Vector3 Character::getPosition()
 {
     //ASYNCSCENE OLDreturn m_character_scenenode->getPosition();
     return m_character_position;
-}
-
-bool Character::getVisible()
-{
-    //ASYNCSCENE OLD    return m_character_scenenode->getAttachedObject(0)->getVisible();
-    return m_character_visible;
 }
 
 void Character::setRotation(Radian rotation)
@@ -552,9 +533,6 @@ void Character::SetActorCoupling(bool enabled, Actor* actor /* = nullptr */)
             RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(Networking::CharacterMsgGeneric), (char*)&msg);
 #endif // USE_SOCKETW
         }
-
-        // show character
-        setVisible(true);
     }
 }
 

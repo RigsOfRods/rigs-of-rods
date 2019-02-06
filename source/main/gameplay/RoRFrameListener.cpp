@@ -1922,7 +1922,6 @@ bool SimController::LoadTerrain()
 
         gEnv->player->setPosition(spawn_pos);
         gEnv->player->setRotation(Degree(spawn_rot));
-        gEnv->player->setVisible(true);
 
         gEnv->mainCamera->setPosition(gEnv->player->getPosition());
 
