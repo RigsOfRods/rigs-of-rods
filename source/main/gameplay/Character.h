@@ -44,10 +44,8 @@ public:
     Actor*         GetActorCoupling()                   { return m_actor_coupling; }
     void           setColour(int color)                 { this->m_color_number = color; }
     Ogre::Vector3  getPosition();
-    bool           getVisible(); 
     void           setPosition(Ogre::Vector3 position);
     void           setRotation(Ogre::Radian rotation);
-    void           setVisible(bool visible);
     void           move(Ogre::Vector3 offset);
     void           update(float dt);
     void           updateCharacterRotation();
@@ -68,7 +66,6 @@ private:
     float            m_character_v_speed;
     Ogre::Vector3    m_character_position;
     Ogre::Vector3    m_prev_position;
-    bool             m_character_visible;
     int              m_color_number;
     int              m_stream_id;
     int              m_source_id;
