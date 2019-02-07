@@ -77,6 +77,8 @@ private:
     std::string      m_instance_name;
     Ogre::UTFString  m_net_username;
     RoR::GfxCharacter*        m_gfx_character;
+    Ogre::Timer      m_net_timer;
+    unsigned long    m_net_time;
 };
 
 namespace RoR {

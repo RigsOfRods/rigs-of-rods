@@ -366,9 +366,6 @@ void SendThread()
             SendMessageRaw(packet.buffer, packet.size);
             queue_lock.lock();
         }
-        queue_lock.unlock();
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-        queue_lock.lock();
     }
     LOG("[RoR|Networking] SendThread stopped");
 }
@@ -835,12 +832,13 @@ void AddPacket(int streamid, int type, int len, char *content)
                 // buffer full, discard unimportant data packets
                 return;
             }
-            auto search = std::find_if(m_send_packet_buffer.begin(), m_send_packet_buffer.end(), [packet](const send_packet_t& p) { return memcmp(packet.buffer, p.buffer, sizeof(RoRnet::Header)) == 0; });
+            auto search = std::find_if(m_send_packet_buffer.begin(), m_send_packet_buffer.end(),
+                    [&](const send_packet_t& p) { return !memcmp(packet.buffer, p.buffer, sizeof(RoRnet::Header)); });
             if (search != m_send_packet_buffer.end())
             {
                 // Found an older packet with the same header -> replace it
                 (*search) = packet;
-		m_send_packet_available_cv.notify_one();
+                m_send_packet_available_cv.notify_one();
                 return;
             }
         }

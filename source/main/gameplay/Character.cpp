@@ -438,9 +438,14 @@ void Character::SendStreamSetup()
 void Character::SendStreamData()
 {
 #ifdef USE_SOCKETW
+    if (m_net_timer.getMilliseconds() - m_net_time < 100)
+        return;
+
     // do not send position data if coupled to an actor already
     if (m_actor_coupling)
         return;
+
+    m_net_time = m_net_timer.getMilliseconds();
 
     Networking::CharacterMsgPos msg;
     msg.command = Networking::CHARACTER_CMD_POSITION;
