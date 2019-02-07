@@ -840,6 +840,7 @@ void AddPacket(int streamid, int type, int len, char *content)
             {
                 // Found an older packet with the same header -> replace it
                 (*search) = packet;
+		m_send_packet_available_cv.notify_one();
                 return;
             }
         }
