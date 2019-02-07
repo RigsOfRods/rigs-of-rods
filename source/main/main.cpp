@@ -344,13 +344,7 @@ int main(int argc, char *argv[])
                         App::sim_state.SetActive(SimState::RUNNING);
                         sim_controller.EnterGameplayLoop();
                         App::SetSimController(nullptr);
-#ifdef USE_SOCKETW
-                        if (App::mp_state.GetActive() == MpState::CONNECTED)
-                        {
-                            RoR::Networking::Disconnect();
-                            App::GetGuiManager()->SetVisible_MpClientList(false);
-                        }
-#endif // USE_SOCKETW
+                        App::GetMainMenu()->LeaveMultiplayerServer();
 #ifdef USE_MUMBLE
                         if (App::GetMumble() != nullptr)
                         {
@@ -379,12 +373,7 @@ int main(int argc, char *argv[])
 
         App::GetGuiManager()->GetMainSelector()->~MainSelector();
 
-#ifdef USE_SOCKETW
-        if (App::mp_state.GetActive() == MpState::CONNECTED)
-        {
-            RoR::Networking::Disconnect();
-        }
-#endif //SOCKETW
+        App::GetMainMenu()->LeaveMultiplayerServer();
 
         //TODO: we should destroy OIS here
         //TODO: we could also try to destroy SoundScriptManager, but we don't care!
