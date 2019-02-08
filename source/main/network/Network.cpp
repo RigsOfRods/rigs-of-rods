@@ -791,7 +791,7 @@ void Disconnect()
     LOG("[RoR|Networking] Disconnect() done");
 }
 
-void AddPacket(int streamid, int type, int len, char *content, bool discardable)
+void AddPacket(int streamid, int type, int len, char *content)
 {
     const auto max_len = RORNET_MAX_MESSAGE_LENGTH - sizeof(RoRnet::Header);
     if (len > max_len)
@@ -811,7 +811,6 @@ void AddPacket(int streamid, int type, int len, char *content, bool discardable)
     head->source      = m_uid;
     head->size        = len;
     head->streamid    = streamid;
-    head->discardable = discardable;
 
     // then copy the contents
     char *bufferContent = (char *)(buffer + sizeof(RoRnet::Header));
@@ -822,7 +821,7 @@ void AddPacket(int streamid, int type, int len, char *content, bool discardable)
 
     { // Lock scope
         std::lock_guard<std::mutex> lock(m_send_packetqueue_mutex);
-        if (discardable)
+        if (type == MSG2_STREAM_DATA_DISCARDABLE)
         {
             if (m_send_packet_buffer.size() > m_packet_buffer_size)
             {

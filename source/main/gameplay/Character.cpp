@@ -451,7 +451,7 @@ void Character::SendStreamData()
     strncpy(msg.anim_name, m_anim_name.c_str(), CHARACTER_ANIM_NAME_LEN);
     msg.anim_time = m_anim_time;
 
-    RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(Networking::CharacterMsgPos), (char*)&msg, true);
+    RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA_DISCARDABLE, sizeof(Networking::CharacterMsgPos), (char*)&msg);
 #endif // USE_SOCKETW
 }
 

@@ -1900,7 +1900,7 @@ void Actor::sendStreamData()
         }
     }
 
-    RoR::Networking::AddPacket(ar_net_stream_id, MSG2_STREAM_DATA, packet_len, send_buffer, true);
+    RoR::Networking::AddPacket(ar_net_stream_id, MSG2_STREAM_DATA_DISCARDABLE, packet_len, send_buffer);
 #endif //SOCKETW
 }
 
