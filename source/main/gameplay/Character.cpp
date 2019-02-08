@@ -471,7 +471,7 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
         else if (msg->command == Networking::CHARACTER_CMD_DETACH)
         {
             if (m_actor_coupling != nullptr)
-                this->SetActorCoupling(false);
+                this->SetActorCoupling(false, nullptr);
             else
                 this->ReportError("Received command `DETACH`, but not currently attached to a vehicle. Ignoring command.");
         }
@@ -504,36 +504,28 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
 
 
 
-void Character::SetActorCoupling(bool enabled, Actor* actor /* = nullptr */)
+void Character::SetActorCoupling(bool enabled, Actor* actor)
 {
-    if (enabled)
-    {
-        if (!actor)
-            return;
-        m_actor_coupling = actor;
-        if ((App::mp_state.GetActive() == MpState::CONNECTED) && !m_is_remote)
-        {
+    m_actor_coupling = actor;
 #ifdef USE_SOCKETW
+    if (App::mp_state.GetActive() == MpState::CONNECTED && !m_is_remote)
+    {
+        if (enabled)
+        {
             Networking::CharacterMsgAttach msg;
             msg.command = Networking::CHARACTER_CMD_ATTACH;
             msg.source_id = m_actor_coupling->ar_net_source_id;
             msg.stream_id = m_actor_coupling->ar_net_stream_id;
             RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(Networking::CharacterMsgAttach), (char*)&msg);
-#endif // USE_SOCKETW
         }
-    }
-    else
-    {
-        m_actor_coupling = nullptr;
-        if ((App::mp_state.GetActive() == MpState::CONNECTED) && !m_is_remote)
+        else
         {
-#ifdef USE_SOCKETW
             Networking::CharacterMsgGeneric msg;
             msg.command = Networking::CHARACTER_CMD_DETACH;
             RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(Networking::CharacterMsgGeneric), (char*)&msg);
-#endif // USE_SOCKETW
         }
     }
+#endif // USE_SOCKETW
 }
 
 GfxCharacter* Character::SetupGfx()
