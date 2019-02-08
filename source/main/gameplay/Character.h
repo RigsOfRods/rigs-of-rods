@@ -50,7 +50,7 @@ public:
     void           update(float dt);
     void           updateCharacterRotation();
     void           receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer);
-    void           SetActorCoupling(bool enabled, Actor* actor = nullptr);
+    void           SetActorCoupling(bool enabled, Actor* actor);
     RoR::GfxCharacter*  SetupGfx();
 
 private:

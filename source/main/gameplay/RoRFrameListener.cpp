@@ -2287,7 +2287,7 @@ void SimController::ChangePlayerActor(Actor* actor)
 
             if (gEnv->player)
             {
-                gEnv->player->SetActorCoupling(false);
+                gEnv->player->SetActorCoupling(false, nullptr);
                 gEnv->player->setRotation(Radian(rotation));
                 gEnv->player->setPosition(position);
             }
