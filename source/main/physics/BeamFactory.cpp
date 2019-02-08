@@ -486,9 +486,6 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
         {
             for (auto actor : m_actors)
             {
-                if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
-                    continue;
-
                 actor->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer, packet.header.size);
             }
         }
