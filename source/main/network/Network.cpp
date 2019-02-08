@@ -791,7 +791,7 @@ void Disconnect()
     LOG("[RoR|Networking] Disconnect() done");
 }
 
-void AddPacket(int streamid, int type, int len, char *content)
+void AddPacket(int streamid, int type, int len, char *content, bool discardable)
 {
     const auto max_len = RORNET_MAX_MESSAGE_LENGTH - sizeof(RoRnet::Header);
     if (len > max_len)
@@ -807,10 +807,11 @@ void AddPacket(int streamid, int type, int len, char *content)
     char *buffer = (char*)(packet.buffer);
 
     RoRnet::Header *head = (RoRnet::Header *)buffer;
-    head->command  = type;
-    head->source   = m_uid;
-    head->size     = len;
-    head->streamid = streamid;
+    head->command     = type;
+    head->source      = m_uid;
+    head->size        = len;
+    head->streamid    = streamid;
+    head->discardable = discardable;
 
     // then copy the contents
     char *bufferContent = (char *)(buffer + sizeof(RoRnet::Header));
@@ -821,7 +822,7 @@ void AddPacket(int streamid, int type, int len, char *content)
 
     { // Lock scope
         std::lock_guard<std::mutex> lock(m_send_packetqueue_mutex);
-        if (type == MSG2_STREAM_DATA)
+        if (discardable)
         {
             if (m_send_packet_buffer.size() > m_packet_buffer_size)
             {
@@ -832,7 +833,7 @@ void AddPacket(int streamid, int type, int len, char *content)
                     [&](const send_packet_t& p) { return !memcmp(packet.buffer, p.buffer, sizeof(RoRnet::Header)); });
             if (search != m_send_packet_buffer.end())
             {
-                // Found an older packet with the same header -> replace it
+                // Found outdated discardable streamdata -> replace it
                 (*search) = packet;
                 m_send_packet_available_cv.notify_one();
                 return;
