@@ -114,7 +114,6 @@ static std::thread m_connect_thread;
 
 static std::atomic<ConnectState> m_connecting_status(ConnectState::IDLE);
 static std::atomic<bool> m_shutdown;
-static std::atomic<bool> m_recv_stopped;
 
 static std::mutex m_users_mutex;
 static std::mutex m_userdata_mutex;
@@ -204,7 +203,7 @@ void NetFatalError(Ogre::UTFString errormsg)
 
     // IMPORTANT: Disconnecting here terminates the application for some reason
     // Workaround: leave the socket in broken state -> impossible to re-connect. Fix later.
-    //socket.set_timeout(1, 1000);
+    //socket.set_timeout(1, 0);
     //socket.disconnect();
     m_socket_broken = true; // Flag to enable "Please restart RoR" error dialog.
 }
@@ -508,8 +507,6 @@ void RecvThread()
         QueueStreamData(header, buffer, RORNET_MAX_MESSAGE_LENGTH);
     }
 
-    m_recv_stopped = true;
-
     LOG_THREAD("[RoR|Networking] RecvThread stopped");
 }
 
@@ -522,7 +519,7 @@ void CouldNotConnect(Ogre::UTFString const & msg, bool close_socket = true)
 
     if (close_socket)
     {
-        socket.set_timeout(1, 1000);
+        socket.set_timeout(1, 0);
         socket.disconnect();
     }
 }
@@ -599,7 +596,7 @@ bool ConnectThread()
     SWBaseSocket::SWBaseError error;
 
     SetStatusMessage("Estabilishing connection...");
-    socket.set_timeout(10, 10000);
+    socket.set_timeout(10, 0);
     socket.connect(App::mp_server_port.GetActive(), App::mp_server_host.GetActive(), &error);
     if (error != SWBaseSocket::ok)
     {
@@ -769,23 +766,19 @@ void Disconnect()
     LOG("[RoR|Networking] Disconnect() disconnecting...");
 
     m_shutdown = true; // Instruct Send/Recv threads to shut down.
-    m_recv_stopped = false;
 
     m_send_packet_available_cv.notify_one();
 
     m_send_thread.join();
     LOG("[RoR|Networking] Disconnect() sender thread stopped...");
 
-    while (!m_recv_stopped)
-    {
-        SendNetMessage(MSG2_USER_LEAVE, 0, 0, 0);
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    }
+    socket.set_timeout(1, 0);
+
+    SendNetMessage(MSG2_USER_LEAVE, 0, 0, 0);
 
     m_recv_thread.join();
     LOG("[RoR|Networking] Disconnect() receiver thread stopped...");
 
-    socket.set_timeout(1, 1000);
     socket.disconnect();
 
     m_users.clear();
