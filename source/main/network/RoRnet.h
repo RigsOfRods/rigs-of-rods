@@ -28,7 +28,7 @@ namespace RoRnet {
 #define RORNET_LAN_BROADCAST_PORT   13000  //!< port used to send the broadcast announcement in LAN mode
 #define RORNET_MAX_USERNAME_LEN     40     //!< port used to send the broadcast announcement in LAN mode
 
-#define RORNET_VERSION              "RoRnet_2.40"
+#define RORNET_VERSION              "RoRnet_2.41"
 
 enum MessageType
 {
@@ -116,6 +116,7 @@ struct Header                      //!< Common header for every packet
     int32_t  source;               //!< source of this command: 0 = server
     uint32_t streamid;             //!< streamid for this command
     uint32_t size;                 //!< size of the attached data block
+    uint8_t discardable;           //!< allowed to be discarded?
 };
 
 struct StreamRegister              //!< Sent from the client to server and vice versa, to broadcast a new stream

@@ -88,7 +88,7 @@ bool                 StartConnecting();             ///< Launches connecting on 
 ConnectState         CheckConnectingState();        ///< Reports state of background connecting and updates GVar 'mp_state'
 void                 Disconnect();
 
-void                 AddPacket(int streamid, int type, int len, char *content);
+void                 AddPacket(int streamid, int type, int len, char *content, bool discardable = false);
 void                 AddLocalStream(RoRnet::StreamRegister *reg, int size);
 
 std::vector<recv_packet_t> GetIncomingStreamData();
