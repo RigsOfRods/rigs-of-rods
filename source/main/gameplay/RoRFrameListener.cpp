@@ -2005,10 +2005,16 @@ bool SimController::SetupGameplayLoop()
     // Loading map
     // ============================================================================
 
-    // Terrain name lookup
     if (!App::diag_preset_terrain.IsActiveEmpty())
     {
-        String name = App::diag_preset_terrain.GetActive();
+        App::sim_terrain_name.SetPending(App::diag_preset_terrain.GetActive());
+        App::diag_preset_terrain.SetActive("");
+    }
+
+    // Terrain name lookup
+    if (!App::sim_terrain_name.IsPendingEmpty())
+    {
+        String name = App::sim_terrain_name.GetPending();
         StringUtil::toLowerCase(name);
         for (const auto& entry : *App::GetCacheSystem()->GetEntries())
         {
@@ -2016,7 +2022,7 @@ bool SimController::SetupGameplayLoop()
             StringUtil::toLowerCase(fname);
             if (entry.fext == "terrn2" && fname.find(name) != std::string::npos) 
             {
-                App::diag_preset_terrain.SetActive(entry.fname.c_str());
+                App::sim_terrain_name.SetPending(entry.fname.c_str());
                 break;
             }
         }
@@ -2024,17 +2030,12 @@ bool SimController::SetupGameplayLoop()
 
     if (App::sim_load_savegame.GetActive())
     {
-        if (!App::diag_preset_terrain.IsActiveEmpty())
+        if (!App::sim_terrain_name.IsPendingEmpty())
         {
-            String filename = m_actor_manager.GetQuicksaveFilename(App::diag_preset_terrain.GetActive());
+            String filename = m_actor_manager.GetQuicksaveFilename(App::sim_terrain_name.GetPending());
             App::sim_savegame.SetActive(filename.c_str());
-            App::diag_preset_terrain.SetActive("");
         }
         m_actor_manager.LoadScene(App::sim_savegame.GetActive());
-    } else if (!App::diag_preset_terrain.IsActiveEmpty())
-    {
-        App::sim_terrain_name.SetPending(App::diag_preset_terrain.GetActive());
-        App::diag_preset_terrain.SetActive("");
     } else if (App::sim_terrain_name.IsPendingEmpty())
     {
         CacheEntry* selected_map = RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
