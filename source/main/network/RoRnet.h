@@ -60,6 +60,7 @@ enum MessageType
     MSG2_STREAM_REGISTER_RESULT,       //!< result of a stream creation
     MSG2_STREAM_UNREGISTER,            //!< remove stream
     MSG2_STREAM_DATA,                  //!< stream data
+    MSG2_STREAM_DATA_DISCARDABLE,      //!< stream data that is allowed to be discarded
 
     // Legacy values (RoRnet_2.38 and earlier)
     MSG2_WRONG_VER_LEGACY = 1003       //!< Wrong version
@@ -116,7 +117,6 @@ struct Header                      //!< Common header for every packet
     int32_t  source;               //!< source of this command: 0 = server
     uint32_t streamid;             //!< streamid for this command
     uint32_t size;                 //!< size of the attached data block
-    uint8_t discardable;           //!< allowed to be discarded?
 };
 
 struct StreamRegister              //!< Sent from the client to server and vice versa, to broadcast a new stream
