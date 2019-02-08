@@ -345,7 +345,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
             ImGui::EndChild(); // End of scroll area
 
             // Simple join button (and password input box)
-            if (m_selected_item != -1)
+            if (m_selected_item != -1 && m_serverlist_data->servers[m_selected_item].net_version == RORNET_VERSION)
             {
                 MpServerlistData::ServerInfo& server = m_serverlist_data->servers[m_selected_item];
                 if (ImGui::Button("Join", ImVec2(200.f, 0.f)))
