@@ -74,6 +74,17 @@ void CharacterFactory::update(float dt)
     }
 }
 
+void CharacterFactory::UndoRemoteActorCoupling(Actor* actor)
+{
+    for (auto& c : m_remote_characters)
+    {
+        if (c->GetActorCoupling() == actor)
+        {
+            c->SetActorCoupling(false, nullptr);
+        }
+    }
+}
+
 void CharacterFactory::DeleteAllRemoteCharacters()
 {
     m_remote_characters.clear(); // std::unique_ptr<> will do the cleanup...
