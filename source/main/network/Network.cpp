@@ -659,32 +659,27 @@ bool ConnectThread()
     // First handshake done, increase the timeout, important!
     socket.set_timeout(0, 0);
 
-    // Send credentials
-    char sha1pwresult[250] = {0};
-    if (!m_password.IsEmpty())
-    {
-        RoR::CSHA1 sha1;
-        sha1.UpdateHash((uint8_t*)m_password.GetBuffer(), static_cast<uint32_t>(m_password.GetLength()));
-        sha1.Final();
-        sha1.ReportHash(sha1pwresult, RoR::CSHA1::REPORT_HEX_SHORT);
-    }
-
     // Construct user credentials
     // Beware of the wchar_t converted to UTF8 for networking
     RoRnet::UserInfo c;
     memset(&c, 0, sizeof(RoRnet::UserInfo));
     // Cut off the UTF string on the highest level, otherwise you will break UTF info
     strncpy((char *)c.username, m_username.substr(0, RORNET_MAX_USERNAME_LEN * 0.5f).asUTF8_c_str(), RORNET_MAX_USERNAME_LEN);
-    strncpy(c.serverpassword, sha1pwresult, 40);
     {
         RoR::CSHA1 sha1;
-        uint8_t* input_text = (uint8_t*)m_token.GetBuffer();
-        uint32_t input_size = (uint32_t)m_token.GetLength();
-        sha1.UpdateHash(input_text, input_size);
+        sha1.UpdateHash((uint8_t*)m_password.GetBuffer(), m_password.GetLength());
         sha1.Final();
-        Str<100> hash;
-        sha1.ReportHash(hash.GetBuffer(), RoR::CSHA1::REPORT_HEX_SHORT);
-        strncpy(c.usertoken, hash.ToCStr(), 40);
+        char hash[40];
+        sha1.ReportHash(hash, RoR::CSHA1::REPORT_HEX_SHORT);
+        strncpy(c.serverpassword, hash, 40);
+    }
+    {
+        RoR::CSHA1 sha1;
+        sha1.UpdateHash((uint8_t*)m_token.GetBuffer(), m_token.GetLength());
+        sha1.Final();
+        char hash[40];
+        sha1.ReportHash(hash, RoR::CSHA1::REPORT_HEX_SHORT);
+        strncpy(c.usertoken, hash, 40);
     }
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
     strncpy(c.clientname, "RoR", 10);
