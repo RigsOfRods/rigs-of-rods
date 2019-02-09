@@ -51,7 +51,8 @@ public:
     void           updateCharacterRotation();
     void           receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer);
     void           SetActorCoupling(bool enabled, Actor* actor);
-    RoR::GfxCharacter*  SetupGfx();
+
+    RoR::GfxCharacter* SetupGfx();
 
 private:
 
@@ -73,10 +74,14 @@ private:
     bool             m_is_remote;
     std::string      m_anim_name;
     float            m_anim_time;
+    float            m_net_last_anim_time;
     float            m_driving_anim_length;
     std::string      m_instance_name;
     Ogre::UTFString  m_net_username;
-    RoR::GfxCharacter*        m_gfx_character;
+    Ogre::Timer      m_net_timer;
+    unsigned long    m_net_last_update_time;
+
+    RoR::GfxCharacter* m_gfx_character;
 };
 
 namespace RoR {

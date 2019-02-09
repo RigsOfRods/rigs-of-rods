@@ -47,6 +47,8 @@ Character::Character(int source, unsigned int streamid, UTFString player_name, i
     , m_character_v_speed(0.0f)
     , m_color_number(color_number)
     , m_anim_time(0.f)
+    , m_net_last_anim_time(0.f)
+    , m_net_last_update_time(0.f)
     , m_net_username(player_name)
     , m_is_remote(is_remote)
     , m_source_id(source)
@@ -100,6 +102,7 @@ void Character::SetAnimState(std::string mode, float time)
     {
         m_anim_name = mode;
         m_anim_time = time;
+        m_net_last_anim_time = 0.0f;
     }
     else
     {
@@ -380,6 +383,7 @@ void Character::update(float dt)
         }
         m_anim_name = "Driving";
         m_anim_time = anim_time_pos;
+        m_net_last_anim_time = 0.0f;
     }
 
 #ifdef USE_SOCKETW
@@ -438,9 +442,14 @@ void Character::SendStreamSetup()
 void Character::SendStreamData()
 {
 #ifdef USE_SOCKETW
+    if (m_net_timer.getMilliseconds() - m_net_last_update_time < 50)
+        return;
+
     // do not send position data if coupled to an actor already
     if (m_actor_coupling)
         return;
+
+    m_net_last_update_time = m_net_timer.getMilliseconds();
 
     Networking::CharacterMsgPos msg;
     msg.command = Networking::CHARACTER_CMD_POSITION;
@@ -449,7 +458,9 @@ void Character::SendStreamData()
     msg.pos_z = m_character_position.z;
     msg.rot_angle = m_character_rotation.valueRadians();
     strncpy(msg.anim_name, m_anim_name.c_str(), CHARACTER_ANIM_NAME_LEN);
-    msg.anim_time = m_anim_time;
+    msg.anim_time = m_anim_time - m_net_last_anim_time;
+
+    m_net_last_anim_time = m_anim_time;
 
     RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA_DISCARDABLE, sizeof(Networking::CharacterMsgPos), (char*)&msg);
 #endif // USE_SOCKETW
