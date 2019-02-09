@@ -2450,6 +2450,13 @@ void SimController::RemoveActorDirectly(Actor* actor)
 {
     m_gfx_scene.RemoveGfxActor(actor->GetGfxActor());
 
+#ifdef USE_SOCKETW
+    if (App::mp_state.GetActive() == MpState::CONNECTED)
+    {
+        m_character_factory.UndoRemoteActorCoupling(actor);
+    }
+#endif //SOCKETW
+
     m_actor_manager.DeleteActorInternal(actor);
 }
 

@@ -34,6 +34,7 @@ public:
     CharacterFactory() {}
     Character* createLocal(Ogre::UTFString playerName, int playerColour);
     void DeleteAllRemoteCharacters();
+    void UndoRemoteActorCoupling(Actor* actor);
     void update(float dt);
 #ifdef USE_SOCKETW
     void handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
