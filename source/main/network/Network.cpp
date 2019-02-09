@@ -227,16 +227,10 @@ bool SendMessageRaw(char *buffer, int msgsize)
 {
     SWBaseSocket::SWBaseError error;
 
-    int rlen = 0;
-    while (rlen < msgsize)
+    if (socket.fsend(buffer, msgsize, &error) < msgsize)
     {
-        int sendnum = socket.send(buffer + rlen, msgsize - rlen, &error);
-        if (sendnum < 0)
-        {
-            LOG("NET send error: " + error.get_error());
-            return false;
-        }
-        rlen += sendnum;
+        LOG("NET send error: " + error.get_error());
+        return false;
     }
 
     return true;
@@ -350,24 +344,21 @@ void SendThread()
     LOG("[RoR|Networking] SendThread started");
     while (!m_shutdown)
     {
-        std::unique_lock<std::mutex> queue_lock(m_send_packetqueue_mutex);
-        while (!m_shutdown && m_send_packet_buffer.empty())
+        send_packet_t packet;
         {
-            m_send_packet_available_cv.wait(queue_lock);
-        }
-
-        while (!m_shutdown && !m_send_packet_buffer.empty())
-        {
-            send_packet_t packet = m_send_packet_buffer.front();
+            std::unique_lock<std::mutex> queue_lock(m_send_packetqueue_mutex);
+            while (m_send_packet_buffer.empty() && !m_shutdown)
+            {
+                m_send_packet_available_cv.wait(queue_lock);
+            }
+            if (m_shutdown)
+            {
+                break;
+            }
+            packet = m_send_packet_buffer.front();
             m_send_packet_buffer.pop_front();
-
-            queue_lock.unlock();
-            SendMessageRaw(packet.buffer, packet.size);
-            queue_lock.lock();
         }
-        queue_lock.unlock();
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-        queue_lock.lock();
+        SendMessageRaw(packet.buffer, packet.size);
     }
     LOG("[RoR|Networking] SendThread stopped");
 }

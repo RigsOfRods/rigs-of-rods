@@ -1766,6 +1766,9 @@ void Actor::sendStreamData()
 {
     using namespace RoRnet;
 #ifdef USE_SOCKETW
+    if (ar_net_timer.getMilliseconds() - ar_net_last_update_time < 100)
+        return;
+
     ar_net_last_update_time = ar_net_timer.getMilliseconds();
 
     //look if the packet is too big first
