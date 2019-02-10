@@ -206,12 +206,12 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
     rapidjson::Document j_doc;
     j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(isw);
     if (!j_doc.IsObject() ||
-        !j_doc.HasMember("global_hash") || !j_doc["global_hash"].IsString() || 
+        !j_doc.HasMember("global_hash") || !j_doc["global_hash"].IsString() ||
         !j_doc.HasMember("format_version") ||!j_doc["format_version"].IsNumber() ||
         !j_doc.HasMember("entries") || !j_doc["entries"].IsArray())
     {
         RoR::Log("[RoR|ModCache] Invalid or missing cache file");
-        return CACHE_NEEDS_REBUILD; 
+        return CACHE_NEEDS_REBUILD;
     }
 
     if (j_doc["format_version"].GetInt() != CACHE_FILE_FORMAT)
@@ -273,7 +273,7 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
         out_entry.categoryid = -1;
         out_entry.categoryname = "Unsorted";
     }
-    
+
      // Common - Authors
     for (rapidjson::Value& j_author: j_entry["authors"].GetArray())
     {
@@ -392,7 +392,7 @@ void CacheSystem::DetectDuplicates()
 {
     RoR::Log("[RoR|ModCache] Searching for duplicates ...");
     std::map<String, String> possible_duplicates;
-    for (int i=0; i<m_entries.size(); i++) 
+    for (int i=0; i<m_entries.size(); i++)
     {
         if (m_entries[i].deleted)
             continue;
@@ -407,7 +407,7 @@ void CacheSystem::DetectDuplicates()
         String filenameWUIDA = m_entries[i].fname_without_uid;
         StringUtil::toLowerCase(filenameWUIDA);
 
-        for (int j=i+1; j<m_entries.size(); j++) 
+        for (int j=i+1; j<m_entries.size(); j++)
         {
             if (m_entries[j].deleted)
                 continue;
@@ -489,7 +489,7 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
     j_entry.AddMember("fname",                rapidjson::StringRef(entry.fname.c_str()),                   j_doc.GetAllocator());
     j_entry.AddMember("fname_without_uid",    rapidjson::StringRef(entry.fname_without_uid.c_str()),       j_doc.GetAllocator());
     j_entry.AddMember("fext",                 rapidjson::StringRef(entry.fext.c_str()),                    j_doc.GetAllocator());
-    j_entry.AddMember("filetime",             entry.filetime,                                              j_doc.GetAllocator()); 
+    j_entry.AddMember("filetime",             entry.filetime,                                              j_doc.GetAllocator());
     j_entry.AddMember("dname",                rapidjson::StringRef(entry.dname.c_str()),                   j_doc.GetAllocator());
     j_entry.AddMember("categoryid",           entry.categoryid,                                            j_doc.GetAllocator());
     j_entry.AddMember("uniqueid",             rapidjson::StringRef(entry.uniqueid.c_str()),                j_doc.GetAllocator());
@@ -585,7 +585,7 @@ void CacheSystem::WriteCacheFileJson()
 
     std::ofstream ofs(path);
     rapidjson::OStreamWrapper j_ofs(ofs);
-    rapidjson::Writer<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>, rapidjson::CrtAllocator, 
+    rapidjson::Writer<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>, rapidjson::CrtAllocator,
         rapidjson::kWriteNanAndInfFlag> j_writer(j_ofs);
     const bool written_ok = j_doc.Accept(j_writer);
     if (written_ok)
@@ -838,7 +838,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
         entry.truckmass = def->root_module->globals->dry_mass;
         entry.loadmass = def->root_module->globals->cargo_mass;
     }
-    
+
     entry.forwardcommands = def->forward_commands;
     entry.importcommands = def->import_commands;
     entry.rescuer = def->rescuer;
@@ -951,7 +951,7 @@ void CacheSystem::GenerateFileCache(CacheEntry& entry, String group)
         size_t read = src_ds->read(buf.data(), src_ds->size());
         if (read > 0)
         {
-            dst_ds->write(buf.data(), read); 
+            dst_ds->write(buf.data(), read);
             entry.filecachename = dst_path;
         }
     }
@@ -969,6 +969,9 @@ void CacheSystem::ParseZipArchives(String group)
     int i = 0, count = files->size();
     for (const auto& file : *files)
     {
+        if (!file.path.empty())
+            continue;
+
         int progress = ((float)i++ / (float)count) * 100;
         UTFString tmp = _L("Loading zips in group ") + ANSI_TO_UTF(group) + L"\n" +
             ANSI_TO_UTF(file.filename) + L"\n" + ANSI_TO_UTF(TOSTRING(i)) + L"/" + ANSI_TO_UTF(TOSTRING(count));
@@ -1108,4 +1111,3 @@ void CacheSystem::LoadResource(CacheEntry& t)
 
     m_loaded_resource_bundles[t.resource_bundle_path] = group;
 }
-
