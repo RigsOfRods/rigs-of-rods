@@ -146,7 +146,6 @@ public:
     void              setBlinkType(blinktype blink);
     void              setAirbrakeIntensity(float intensity);
     bool              getCustomParticleMode();
-    void              receiveStreamData(unsigned int type, int source, unsigned int streamid, char *buffer, unsigned int len);
     void              sendStreamData();
     bool              isTied();
     bool              isLocked(); 
@@ -444,14 +443,6 @@ private:
     Ogre::Vector3     m_mouse_grab_pos;
     float             m_mouse_grab_move_force;
     float             m_spawn_rotation;
-    RoRnet::VehicleState* oob1;                  //!< Network; Triple buffer for incoming data (actor properties)
-    RoRnet::VehicleState* oob2;                  //!< Network; Triple buffer for incoming data (actor properties)
-    RoRnet::VehicleState* oob3;                  //!< Network; Triple buffer for incoming data (actor properties)
-    char*             netb1;                   //!< Network; Triple buffer for incoming data
-    char*             netb2;                   //!< Network; Triple buffer for incoming data
-    char*             netb3;                   //!< Network; Triple buffer for incoming data
-    int               m_net_time_offset;
-    int               m_net_update_counter;
     Ogre::MovableText* m_net_label_mt;
     Ogre::SceneNode*  m_net_label_node;
     Ogre::UTFString   m_net_username;
@@ -538,4 +529,13 @@ private:
         Ogre::Vector3 out_body_forces;
         float         out_hydros_forces;
     } m_force_sensors; //!< Data for ForceFeedback devices
+
+    struct NetUpdate
+    {
+        std::vector<char> veh_state;   //!< Actor properties (engine, brakes, lights, ...)
+        std::vector<char> node_data;   //!< Compressed node positions
+        std::vector<float> wheel_data; //!< Wheel rotations
+    };
+
+    std::deque<NetUpdate> m_net_updates; //!< Incoming stream of NetUpdates
 };

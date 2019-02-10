@@ -56,6 +56,9 @@ public:
     void           UpdatePhysicsSimulation();
     void           WakeUpAllActors();
     void           SendAllActorsSleeping();
+    unsigned long  GetNetTime()                            { return m_net_timer.getMilliseconds(); };
+    int            GetNetTimeOffset(int sourceid);
+    void           UpdateNetTimeOffset(int sourceid, unsigned long time);
     int            CheckNetworkStreamsOk(int sourceid);
     int            CheckNetRemoteStreamsOk(int sourceid);
     void           NotifyActorsWindowResized();
@@ -107,9 +110,11 @@ private:
     void           ForwardCommands(Actor* source_actor); //< Fowards things to trailers
 
     std::map<int, std::set<int>> m_stream_mismatches; //!< Networking: A set of streams without a corresponding actor in the actor-array for each stream source
+    std::map<int, int> m_stream_time_offsets; //!< Networking: A network time offset for each stream source
     std::unique_ptr<ThreadPool>     m_sim_thread_pool;
     std::shared_ptr<Task>           m_sim_task;
     std::vector<Actor*>             m_actors;
+    Ogre::Timer                     m_net_timer;
     bool            m_forced_awake;      //!< disables sleep counters
     int             m_physics_steps;
     float           m_dt_remainder;     ///< Keeps track of the rounding error in the time step calculation
