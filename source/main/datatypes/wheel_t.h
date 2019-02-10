@@ -58,9 +58,6 @@ struct wheel_t
     Ogre::Real  wh_last_torque;       //<! Last internal forces (engine / brakes / diffs)
     Ogre::Real  wh_last_retorque;     //<! Last external forces (friction, ...)
     float       wh_net_rp;
-    float       wh_net_rp1;           //<! Networking; triple buffer
-    float       wh_net_rp2;           //<! Networking; triple buffer
-    float       wh_net_rp3;           //<! Networking; triple buffer
     float       wh_width;
     int         wh_detacher_group;
     bool        wh_is_detached;

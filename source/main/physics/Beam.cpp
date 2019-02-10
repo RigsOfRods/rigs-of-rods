@@ -349,8 +349,11 @@ Vector3 Actor::getPosition()
 
 void Actor::PushNetwork(char* data, int size)
 {
-    if (!oob3)
-        return;
+    NetUpdate update;
+
+    update.veh_state.resize(sizeof(RoRnet::VehicleState));
+    update.node_data.resize(m_net_node_buf_size);
+    update.wheel_data.resize(ar_num_wheels * sizeof(float));
 
     // check if the size of the data matches to what we expected
     if ((unsigned int)size == (m_net_buffer_size + sizeof(RoRnet::VehicleState)))
@@ -359,85 +362,73 @@ void Actor::PushNetwork(char* data, int size)
         char* ptr = data;
 
         // put the RoRnet::VehicleState in front, describes actor basics, engine state, flares, etc
-        memcpy((char*)oob3, ptr, sizeof(RoRnet::VehicleState));
+        memcpy(update.veh_state.data(), ptr, sizeof(RoRnet::VehicleState));
         ptr += sizeof(RoRnet::VehicleState);
 
         // then copy the node data
-        memcpy((char*)netb3, ptr, m_net_node_buf_size);
+        memcpy(update.node_data.data(), ptr, m_net_node_buf_size);
         ptr += m_net_node_buf_size;
 
         // then take care of the wheel speeds
         for (int i = 0; i < ar_num_wheels; i++)
         {
             float wspeed = *(float*)(ptr);
-            ar_wheels[i].wh_net_rp3 = wspeed;
-
+            update.wheel_data[i] = wspeed;
             ptr += sizeof(float);
         }
     }
     else
     {
-        // TODO: show the user the problem in the GUI
-        LogFormat("[RoR|Network] Wrong data size: %d bytes, expected %d bytes, actor ID: %d",
-            size, m_net_buffer_size+sizeof(RoRnet::VehicleState), ar_instance_id);
+        String msg = StringUtil::format("Wrong data size: %d bytes, expected %d bytes, actor ID: %d",
+                size, m_net_buffer_size+sizeof(RoRnet::VehicleState), ar_instance_id);
+        App::GetGuiManager()->PushNotification("Network:", msg);
+        LogFormat("[RoR|Network] %s", msg.c_str());
         ar_sim_state = SimState::INVALID;
         return;
     }
 
-    // and the buffer switching to have linear smoothing
-    RoRnet::VehicleState* ot;
-    ot = oob1;
-    oob1 = oob2;
-    oob2 = oob3;
-    oob3 = ot;
-
-    char* ft;
-    ft = netb1;
-    netb1 = netb2;
-    netb2 = netb3;
-    netb3 = ft;
-
-    for (int i = 0; i < ar_num_wheels; i++)
+    if (m_net_updates.empty())
     {
-        float rp;
-        rp = ar_wheels[i].wh_net_rp1;
-        ar_wheels[i].wh_net_rp1 = ar_wheels[i].wh_net_rp2;
-        ar_wheels[i].wh_net_rp2 = ar_wheels[i].wh_net_rp3;
-        ar_wheels[i].wh_net_rp3 = rp;
+        RoRnet::VehicleState* oob = (RoRnet::VehicleState*)update.veh_state.data();
+        App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, oob->time);
     }
-    m_net_update_counter++;
+
+    m_net_updates.push_back(update);
 }
 
 void Actor::CalcNetwork()
 {
     using namespace RoRnet;
 
-    if (m_net_update_counter < 2)
+    if (m_net_updates.size() < 2)
         return;
 
-    // we must update Nodes positions from available network informations
-    int tnow = ar_net_timer.getMilliseconds();
-    // adjust offset to match remote time
-    int rnow = tnow + m_net_time_offset;
-    // if we receive older data from the future, we must correct the offset
-    if (oob1->time > rnow)
+    int tnow = App::GetSimController()->GetBeamFactory()->GetNetTime();
+    int rnow = std::max(0, tnow + App::GetSimController()->GetBeamFactory()->GetNetTimeOffset(ar_net_source_id));
+
+    // Find index offset into the stream data for the current time
+    int index_offset = 0;
+    for (int i = 0; i < m_net_updates.size() - 1; i++)
     {
-        m_net_time_offset = oob1->time - tnow;
-        rnow = tnow + m_net_time_offset;
+        VehicleState* oob = (VehicleState*)m_net_updates[i].veh_state.data();
+        if (oob->time > rnow)
+            break;
+        index_offset = i;
     }
-    //if we receive last data from the past, we must correct the offset
-    if (oob2->time < rnow)
-    {
-        m_net_time_offset = oob2->time - tnow;
-        rnow = tnow + m_net_time_offset;
-    }
+
+    VehicleState* oob1 = (VehicleState*)m_net_updates[index_offset    ].veh_state.data();
+    VehicleState* oob2 = (VehicleState*)m_net_updates[index_offset + 1].veh_state.data();
+    char*        netb1 = (char*)        m_net_updates[index_offset    ].node_data.data();
+    char*        netb2 = (char*)        m_net_updates[index_offset + 1].node_data.data();
+    float*     net_rp1 = (float*)       m_net_updates[index_offset    ].wheel_data.data();
+    float*     net_rp2 = (float*)       m_net_updates[index_offset + 1].wheel_data.data();
+
     float tratio = (float)(rnow - oob1->time) / (float)(oob2->time - oob1->time);
 
     short* sp1 = (short*)(netb1 + sizeof(float) * 3);
     short* sp2 = (short*)(netb2 + sizeof(float) * 3);
     Vector3 p1ref = Vector3::ZERO;
     Vector3 p2ref = Vector3::ZERO;
-    Vector3 apos = Vector3::ZERO;
     Vector3 p1 = Vector3::ZERO;
     Vector3 p2 = Vector3::ZERO;
 
@@ -475,14 +466,11 @@ void Actor::CalcNetwork()
         ar_nodes[i].AbsPosition = p1 + tratio * (p2 - p1);
         ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
         ar_nodes[i].Velocity    = (p2 - p1) * 1000.0f / (float)(oob2->time - oob1->time);
-
-        apos += ar_nodes[i].AbsPosition;
     }
-    m_avg_node_position = apos / m_net_first_wheel_node;
 
     for (int i = 0; i < ar_num_wheels; i++)
     {
-        float rp = ar_wheels[i].wh_net_rp1 + tratio * (ar_wheels[i].wh_net_rp2 - ar_wheels[i].wh_net_rp1);
+        float rp = net_rp1[i] + tratio * (net_rp2[i] - net_rp1[i]);
         //compute ideal positions
         Vector3 axis = ar_wheels[i].wh_axis_node_1->RelPosition - ar_wheels[i].wh_axis_node_0->RelPosition;
         axis.normalise();
@@ -516,6 +504,7 @@ void Actor::CalcNetwork()
         }
     }
     this->UpdateBoundingBoxes();
+    this->calculateAveragePosition();
 
     float engspeed = oob1->engine_speed + tratio * (oob2->engine_speed - oob1->engine_speed);
     float engforce = oob1->engine_force + tratio * (oob2->engine_force - oob1->engine_force);
@@ -600,6 +589,11 @@ void Actor::CalcNetwork()
         SOUND_STOP(ar_instance_id, SS_TRIG_REVERSE_GEAR);
 
     updateDashBoards(tratio);
+
+    for (int i = 0; i < index_offset; i++)
+    {
+        m_net_updates.pop_front();
+    }
 }
 
 bool Actor::AddTyrePressure(float v)
@@ -1764,14 +1758,13 @@ void Actor::sendStreamData()
 {
     using namespace RoRnet;
 #ifdef USE_SOCKETW
-    if (ar_net_timer.getMilliseconds() - ar_net_last_update_time < 100)
+    if (ar_net_timer.getMilliseconds() - ar_net_last_update_time < 100 && ar_net_last_update_time > 0)
         return;
 
     ar_net_last_update_time = ar_net_timer.getMilliseconds();
 
     //look if the packet is too big first
-    int final_packet_size = sizeof(RoRnet::VehicleState) + sizeof(float) * 3 + m_net_first_wheel_node * sizeof(float) * 3 + ar_num_wheels * sizeof(float);
-    if (final_packet_size > 8192)
+    if (m_net_buffer_size + sizeof(RoRnet::VehicleState) > 8192)
     {
         ErrorUtils::ShowError(_L("Actor is too big to be sent over the net."), _L("Network error!"));
         exit(126);
@@ -1788,7 +1781,7 @@ void Actor::sendStreamData()
 
         send_oob->flagmask = 0;
 
-        send_oob->time = ar_net_timer.getMilliseconds();
+        send_oob->time = App::GetSimController()->GetBeamFactory()->GetNetTime();
         if (ar_engine)
         {
             send_oob->engine_speed = ar_engine->GetEngineRpm();
@@ -1903,17 +1896,6 @@ void Actor::sendStreamData()
 
     RoR::Networking::AddPacket(ar_net_stream_id, MSG2_STREAM_DATA_DISCARDABLE, packet_len, send_buffer);
 #endif //SOCKETW
-}
-
-void Actor::receiveStreamData(unsigned int type, int source, unsigned int streamid, char* buffer, unsigned int len)
-{
-    if (ar_sim_state != SimState::NETWORKED_OK)
-        return;
-
-    if (type == RoRnet::MSG2_STREAM_DATA && source == ar_net_source_id && streamid == ar_net_stream_id)
-    {
-        PushNetwork(buffer, len);
-    }
 }
 
 void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real timer, const float lower_limit, const float upper_limit, const float option3)

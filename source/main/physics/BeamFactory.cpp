@@ -328,14 +328,6 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
         {
             // remote truck
             actor->ar_sim_state = Actor::SimState::NETWORKED_OK;
-            actor->oob1 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
-            actor->oob2 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
-            actor->oob3 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
-            actor->netb1 = (char*)malloc(actor->m_net_buffer_size);
-            actor->netb2 = (char*)malloc(actor->m_net_buffer_size);
-            actor->netb3 = (char*)malloc(actor->m_net_buffer_size);
-            actor->m_net_time_offset = 0;
-            actor->m_net_update_counter = 0;
             if (actor->ar_engine)
             {
                 actor->ar_engine->StartEngine();
@@ -404,7 +396,7 @@ void ActorManager::RemoveStreamSource(int sourceid)
 #ifdef USE_SOCKETW
 void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
 {
-    for (auto packet : packet_buffer)
+    for (auto& packet : packet_buffer)
     {
         if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER)
         {
@@ -482,16 +474,40 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
         {
             this->RemoveStreamSource(packet.header.source);
         }
-        else
+        else if (packet.header.command == RoRnet::MSG2_STREAM_DATA)
         {
             for (auto actor : m_actors)
             {
-                actor->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer, packet.header.size);
+                if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
+                    continue;
+                if (packet.header.source == actor->ar_net_source_id && packet.header.streamid == actor->ar_net_stream_id)
+                {
+                    actor->PushNetwork(packet.buffer, packet.header.size);
+                    break;
+                }
             }
         }
     }
 }
 #endif // USE_SOCKETW
+
+int ActorManager::GetNetTimeOffset(int sourceid)
+{
+    auto search = m_stream_time_offsets.find(sourceid);
+    if (search != m_stream_time_offsets.end())
+    {
+        return search->second;
+    }
+    return 0;
+}
+
+void ActorManager::UpdateNetTimeOffset(int sourceid, unsigned long time)
+{
+    if (m_stream_time_offsets.find(sourceid) == m_stream_time_offsets.end())
+    {
+        m_stream_time_offsets[sourceid] = time - m_net_timer.getMilliseconds();
+    }
+}
 
 int ActorManager::CheckNetworkStreamsOk(int sourceid)
 {
@@ -962,7 +978,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
             if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
             {
                 auto lifetime = actor->ar_net_timer.getMilliseconds();
-                if (lifetime < 10000 || lifetime - actor->ar_net_last_update_time > 5000)
+                if (lifetime < 5000 || lifetime - actor->ar_net_last_update_time > 5000)
                 {
                     actor->sendStreamData();
                 }
