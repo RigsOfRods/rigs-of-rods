@@ -169,7 +169,7 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
         {
             App::mp_state.SetActive(RoR::MpState::CONNECTED);
             gui->SetVisible_MpClientList(true);
-            gui->GetMpClientList()->update()
+            gui->GetMpClientList()->update();
             ChatSystem::SendStreamSetup();
             App::CheckAndCreateMumble();
             Ogre::String terrain_name = Networking::GetTerrainName();
