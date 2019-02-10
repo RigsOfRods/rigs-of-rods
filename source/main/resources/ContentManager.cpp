@@ -248,18 +248,27 @@ void ContentManager::InitModCache()
     if (!App::app_extra_mod_path.IsActiveEmpty())
     {
         std::string extra_mod_path = App::app_extra_mod_path.GetActive();
-        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path           , "FileSystem", RGN_CONTENT, true);
+        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path           , "FileSystem", RGN_CONTENT);
     }
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "mods")    , "FileSystem", RGN_CONTENT, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "packs")   , "FileSystem", RGN_CONTENT, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "terrains"), "FileSystem", RGN_CONTENT, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "vehicles"), "FileSystem", RGN_CONTENT, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, "content") , "FileSystem", RGN_CONTENT, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "mods")    , "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "packs")   , "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "terrains"), "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "vehicles"), "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, "content") , "FileSystem", RGN_CONTENT);
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, objects)   , "Zip"       , RGN_CONTENT);
 
-
-    // Search for unzipped content
-    FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_CONTENT, "*", true);
+    ResourceGroupManager::getSingleton().createResourceGroup(RGN_TEMP, false);
+    if (!App::app_extra_mod_path.IsActiveEmpty())
+    {
+        std::string extra_mod_path = App::app_extra_mod_path.GetActive();
+        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path           , "FileSystem", RGN_TEMP, true);
+    }
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "mods")    , "FileSystem", RGN_TEMP, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "packs")   , "FileSystem", RGN_TEMP, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "terrains"), "FileSystem", RGN_TEMP, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "vehicles"), "FileSystem", RGN_TEMP, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, "content") , "FileSystem", RGN_TEMP, true);
+    FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_TEMP, "*", true);
     for (const auto& file : *files)
     {
         if (!file.archive)
@@ -267,6 +276,7 @@ void ContentManager::InitModCache()
         String fullpath = PathCombine(file.archive->getName(), file.filename);
         ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "FileSystem", RGN_CONTENT);
     }
+    ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_TEMP);
 
     // Search for skinzips
     FileInfoListPtr skinzips = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_CONTENT, "*.skinzip");
