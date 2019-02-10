@@ -386,9 +386,9 @@ void CLASS::UpdateGuiData()
     }
 
     std::vector<std::time_t> timestamps;
-    std::vector<CacheEntry>* entries = RoR::App::GetCacheSystem()->GetEntries();
-    std::sort(entries->begin(), entries->end(), sort_entries<CacheEntry>());
-    for (std::vector<CacheEntry>::iterator it = entries->begin(); it != entries->end(); it++)
+    std::vector<CacheEntry> entries = RoR::App::GetCacheSystem()->GetEntries();
+    std::sort(entries.begin(), entries.end(), sort_entries<CacheEntry>());
+    for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++)
     {
         bool add = false;
         if (it->fext == "terrn2")
@@ -440,8 +440,8 @@ void CLASS::UpdateGuiData()
     }
 
     int tally_categories = 0, current_category = 0;
-    std::map<int, Ogre::String>* cats = RoR::App::GetCacheSystem()->GetCategories();
-    std::vector<std::pair<int, Ogre::String>> sorted_cats(cats->begin(), cats->end());
+    std::map<int, Ogre::String> cats = RoR::App::GetCacheSystem()->GetCategories();
+    std::vector<std::pair<int, Ogre::String>> sorted_cats(cats.begin(), cats.end());
     std::sort(sorted_cats.begin(), sorted_cats.end(), sort_cats<int, Ogre::String>());
     for (const auto& cat : sorted_cats)
     {

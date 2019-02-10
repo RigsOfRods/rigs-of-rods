@@ -149,8 +149,8 @@ public:
     bool CheckResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
     bool CheckResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
 
-    std::map<int, Ogre::String> *GetCategories() { return &m_categories; }
-    std::vector<CacheEntry> *GetEntries()        { return &m_entries; }
+    const std::map<int, Ogre::String> &GetCategories() const { return m_categories; }
+    const std::vector<CacheEntry> &GetEntries()        const { return m_entries; }
 
     CacheEntry *GetEntry(int modid);
     Ogre::String GetPrettyName(Ogre::String fname);

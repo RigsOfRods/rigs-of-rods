@@ -2014,17 +2014,29 @@ bool SimController::SetupGameplayLoop()
     // Terrain name lookup
     if (!App::sim_terrain_name.IsPendingEmpty())
     {
+        const CacheEntry* lookup = nullptr;
         String name = App::sim_terrain_name.GetPending();
         StringUtil::toLowerCase(name);
-        for (const auto& entry : *App::GetCacheSystem()->GetEntries())
+        for (const auto& entry : App::GetCacheSystem()->GetEntries())
         {
-            String fname = entry.fname_without_uid;
+            String fname = entry.fname;
             StringUtil::toLowerCase(fname);
             if (entry.fext == "terrn2" && fname.find(name) != std::string::npos) 
             {
-                App::sim_terrain_name.SetPending(entry.fname.c_str());
-                break;
+                if (fname == name)
+                {
+                    lookup = &entry;
+                    break;
+                }
+                else if (lookup == nullptr)
+                {
+                    lookup = &entry;
+                }
             }
+        }
+        if (lookup != nullptr)
+        {
+            App::sim_terrain_name.SetPending(lookup->fname.c_str());
         }
     }
 
@@ -2067,25 +2079,37 @@ bool SimController::SetupGameplayLoop()
     if (!App::diag_preset_vehicle.IsActiveEmpty())
     {
         // Vehicle name lookup
-        String name = App::diag_preset_vehicle.GetActive();
+        const CacheEntry* lookup = nullptr;
+        String name = App::diag_preset_vehicle.GetPending();
         StringUtil::toLowerCase(name);
-        for (const auto& entry : *App::GetCacheSystem()->GetEntries())
+        for (const auto& entry : App::GetCacheSystem()->GetEntries())
         {
-            String fname = entry.fname_without_uid;
+            String fname = entry.fname;
             StringUtil::toLowerCase(fname);
             if (entry.fext != "terrn2" && fname.find(name) != std::string::npos) 
             {
-                App::diag_preset_vehicle.SetActive(entry.fname.c_str());
-                // Section config lookup
-                if (!entry.sectionconfigs.empty())
+                if (fname == name)
                 {
-                    auto cfgs = entry.sectionconfigs;
-                    if (std::find(cfgs.begin(), cfgs.end(), App::diag_preset_veh_config.GetActive()) == cfgs.end())
-                    {
-                        App::diag_preset_veh_config.SetActive(cfgs[0].c_str());
-                    }
+                    lookup = &entry;
+                    break;
                 }
-                break;
+                else if (lookup == nullptr)
+                {
+                    lookup = &entry;
+                }
+            }
+        }
+        if (lookup != nullptr)
+        {
+            App::diag_preset_vehicle.SetActive(lookup->fname.c_str());
+            // Section config lookup
+            if (!lookup->sectionconfigs.empty())
+            {
+                auto cfgs = lookup->sectionconfigs;
+                if (std::find(cfgs.begin(), cfgs.end(), App::diag_preset_veh_config.GetActive()) == cfgs.end())
+                {
+                    App::diag_preset_veh_config.SetActive(cfgs[0].c_str());
+                }
             }
         }
 

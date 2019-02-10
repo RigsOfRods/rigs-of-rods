@@ -27,7 +27,6 @@
 
 #include "MainMenu.h"
 
-#include "CacheSystem.h"
 #include "ChatSystem.h"
 #include "ContentManager.h"
 #include "GUIManager.h"
@@ -85,12 +84,10 @@ void MainMenu::EnterMainMenuLoop()
 
         if (RoR::App::GetGuiManager()->GetMainSelector()->IsFinishedSelecting())
         {
-            CacheEntry* selected_map = RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
-            if (selected_map != nullptr)
+            if (RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry() != nullptr)
             {
-                App::GetGuiManager()->GetMainSelector()->Reset(); // TODO: Eliminate this mechanism ~ only_a_ptr 09/2016
                 App::app_state.SetPending(AppState::SIMULATION);
-                App::sim_terrain_name.SetPending(selected_map->fname.c_str());
+                App::sim_terrain_name.SetPending("");
             }
         }
 
