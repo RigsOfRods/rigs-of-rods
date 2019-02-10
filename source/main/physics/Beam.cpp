@@ -588,8 +588,6 @@ void Actor::CalcNetwork()
     else
         SOUND_STOP(ar_instance_id, SS_TRIG_REVERSE_GEAR);
 
-    updateDashBoards(tratio);
-
     for (int i = 0; i < index_offset; i++)
     {
         m_net_updates.pop_front();
