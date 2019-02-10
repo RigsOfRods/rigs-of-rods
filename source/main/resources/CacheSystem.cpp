@@ -1017,11 +1017,8 @@ bool CacheSystem::ParseKnownFiles(Ogre::String group)
         auto files = ResourceGroupManager::getSingleton().findResourceFileInfo(group, "*." + ext);
         for (const auto& file : *files)
         {
-            if (file.path.empty())
-            {
-                this->AddFile(group, file, ext);
-                empty = false;
-            }
+            this->AddFile(group, file, ext);
+            empty = false;
         }
     }
     return empty;
