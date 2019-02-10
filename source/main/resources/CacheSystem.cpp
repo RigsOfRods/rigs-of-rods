@@ -156,9 +156,14 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
 
 CacheEntry* CacheSystem::FindEntryByFilename(std::string filename)
 {
+    StringUtil::toLowerCase(filename);
     for (CacheEntry& entry : m_entries)
     {
-        if (entry.fname == filename || entry.fname_without_uid == filename)
+        String fname = entry.fname;
+        String fname_without_uid = entry.fname_without_uid;
+        StringUtil::toLowerCase(fname);
+        StringUtil::toLowerCase(fname_without_uid);
+        if (fname == filename || fname_without_uid == filename)
             return &entry;
     }
     return nullptr;
