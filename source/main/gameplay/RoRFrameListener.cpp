@@ -1510,9 +1510,8 @@ void SimController::UpdateSimulation(float dt)
 {
     m_actor_manager.SyncWithSimThread();
 
-    const bool mp_connected = (App::mp_state.GetActive() == MpState::CONNECTED);
 #ifdef USE_SOCKETW
-    if (mp_connected)
+    if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
         std::vector<Networking::recv_packet_t> packets = RoR::Networking::GetIncomingStreamData();
 
@@ -1694,21 +1693,16 @@ void SimController::UpdateSimulation(float dt)
         OutProtocol::getSingleton().Update(dt, m_player_actor);
     }
 
-    // update network gui if required, at most every 2 seconds
-    if (mp_connected)
-    {
-        // now update mumble 3d audio things
 #ifdef USE_MUMBLE
-        if (gEnv->player)
-        {
-            // calculate orientation of avatar first
-            Ogre::Vector3 avatarDir = Ogre::Vector3(Math::Cos(gEnv->player->getRotation()), 0.0f, Math::Sin(gEnv->player->getRotation()));
-
-            App::GetMumble()->update(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(),
-                gEnv->player->getPosition() + Vector3(0, 1.8f, 0), avatarDir, Ogre::Vector3(0.0f, 1.0f, 0.0f));
-        }
-#endif // USE_MUMBLE
+    // now update mumble 3d audio things
+    if (App::mp_state.GetActive() == MpState::CONNECTED)
+    {
+        // calculate orientation of avatar first
+        Ogre::Vector3 avatarDir = Ogre::Vector3(Math::Cos(gEnv->player->getRotation()), 0.0f, Math::Sin(gEnv->player->getRotation()));
+        App::GetMumble()->update(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(),
+        gEnv->player->getPosition() + Vector3(0, 1.8f, 0), avatarDir, Ogre::Vector3(0.0f, 1.0f, 0.0f));
     }
+#endif // USE_MUMBLE
 
     if (simRUNNING(s) || simEDITOR(s))
     {
