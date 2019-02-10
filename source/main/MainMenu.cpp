@@ -127,32 +127,25 @@ void MainMenu::EnterMainMenuLoop()
 
 void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
 {
-    if (seconds_since_last_frame == 0)
-    {
-        return;
-    }
-
     if (RoR::App::GetOgreSubsystem()->GetRenderWindow()->isClosed())
     {
         App::app_state.SetPending(AppState::SHUTDOWN);
         return;
     }
 
-    auto gui = App::GetGuiManager();
-
 #ifdef USE_SOCKETW
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
-        gui->GetMpClientList()->update();
+        App::GetGuiManager()->GetMpClientList()->update();
     }
     else if (App::mp_state.GetPending() == MpState::CONNECTED)
     {
         Networking::ConnectState con_state = Networking::CheckConnectingState();
         if (con_state == Networking::ConnectState::IDLE) // Not connecting yet
         {
-            gui->SetVisible_MultiplayerSelector(false);
+            App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
             bool connect_started = Networking::StartConnecting();
-            gui->SetVisible_GameMainMenu(!connect_started);
+            App::GetGuiManager()->SetVisible_GameMainMenu(!connect_started);
             if (!connect_started)
             {
                 App::GetGuiManager()->ShowMessageBox("Multiplayer: connection failed", Networking::GetErrorMessage().asUTF8_c_str());
@@ -168,8 +161,8 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
         else if (con_state == Networking::ConnectState::SUCCESS) // Just succeeded (only returned once)
         {
             App::mp_state.SetActive(RoR::MpState::CONNECTED);
-            gui->SetVisible_MpClientList(true);
-            gui->GetMpClientList()->update();
+            App::GetGuiManager()->SetVisible_MpClientList(true);
+            App::GetGuiManager()->GetMpClientList()->update();
             ChatSystem::SendStreamSetup();
             App::CheckAndCreateMumble();
             Ogre::String terrain_name = Networking::GetTerrainName();
@@ -183,8 +176,8 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
                 // Connected -> go directly to map selector
                 if (App::diag_preset_terrain.IsActiveEmpty())
                 {
-                    gui->GetMainSelector()->Reset();
-                    gui->GetMainSelector()->Show(LT_Terrain);
+                    App::GetGuiManager()->GetMainSelector()->Reset();
+                    App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
                 }
                 else
                 {
@@ -225,11 +218,6 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
 
 void MainMenu::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
 {
-    if (seconds_since_last_frame == 0.0f)
-    {
-        return;
-    }
-
     RoR::App::GetInputEngine()->updateKeyBounces(seconds_since_last_frame);
 
     if (! RoR::App::GetInputEngine()->getInputsChanged())
@@ -273,10 +261,9 @@ void MainMenu::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
 
     this->HandleSavegameShortcuts();
 
-    auto gui_man = App::GetGuiManager();
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE, 5.f))
     {
-        gui_man->SetVisible_Console(!gui_man->IsVisible_Console());
+        App::GetGuiManager()->SetVisible_Console(!App::GetGuiManager()->IsVisible_Console());
     }
 
     // TODO: screenshot
