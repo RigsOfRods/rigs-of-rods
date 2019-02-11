@@ -309,9 +309,7 @@ void CLASS::EventComboAcceptConfigComboBox(MyGUI::ComboBoxPtr _sender, size_t _i
     if (_index < 0 || _index >= m_Config->getItemCount())
         return;
 
-    m_vehicle_configs.clear();
-    Ogre::String config = *m_Config->getItemDataAt<Ogre::String>(_index);
-    m_vehicle_configs.push_back(config);
+    m_vehicle_config = *m_Config->getItemDataAt<Ogre::String>(_index);
 }
 
 template <typename T1, typename T2>
@@ -727,7 +725,7 @@ void CLASS::OnSelectionDone()
         }
         rq.asr_skin           = m_selected_skin;
         rq.asr_cache_entry    = m_selected_entry;
-        rq.asr_config         = m_vehicle_configs;
+        rq.asr_config         = m_vehicle_config;
         rq.asr_origin         = ActorSpawnRequest::Origin::USER;
         App::GetSimController()->QueueActorSpawn(rq);
 
@@ -761,9 +759,7 @@ void CLASS::UpdateControls(CacheEntry* entry)
         }
         m_Config->setIndexSelected(0);
 
-        m_vehicle_configs.clear();
-        Ogre::String configstr = *m_Config->getItemDataAt<Ogre::String>(0);
-        m_vehicle_configs.push_back(configstr);
+        m_vehicle_config = *m_Config->getItemDataAt<Ogre::String>(0);
     }
     else
     {
@@ -995,10 +991,10 @@ void CLASS::Show(LoaderType type)
     m_selection_done = false;
 
     m_selected_skin = 0;
+    m_vehicle_config = "";
     m_SearchLine->setCaption("");
     RoR::App::GetInputEngine()->resetKeys();
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
-    m_vehicle_configs.clear();
     //MyGUI::InputManager::getInstance().setKeyFocusWidget(mMainWidget);
     MyGUI::InputManager::getInstance().setKeyFocusWidget(m_SearchLine);
     mMainWidget->setEnabledSilent(true);

@@ -546,7 +546,7 @@ struct ActorSpawnRequest
 
     CacheEntry*       asr_cache_entry; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
     std::string       asr_filename;
-    std::vector<Ogre::String> asr_config;
+    Ogre::String      asr_config;
     Ogre::Vector3     asr_position;
     Ogre::Quaternion  asr_rotation;
     collision_box_t*  asr_spawnbox;

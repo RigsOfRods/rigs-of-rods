@@ -47,8 +47,6 @@ public:
     void Cancel();
 
     CacheEntry* GetSelectedEntry() { return m_selected_entry; }
-    RoR::SkinDef* GetSelectedSkin() { return m_selected_skin; }
-    std::vector<Ogre::String> GetVehicleConfigs() { return m_vehicle_configs; }
 
 private:
 
@@ -85,7 +83,7 @@ private:
     RoR::SkinDef* m_selected_skin;
     bool m_selection_done;
     std::vector<CacheEntry> m_entries;
-    std::vector<Ogre::String> m_vehicle_configs;
+    Ogre::String m_vehicle_config;
     std::vector<RoR::SkinDef *> m_current_skins;
     bool m_keys_bound;
     RoR::SkinManager* m_skin_manager;
