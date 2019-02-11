@@ -2953,7 +2953,7 @@ void Actor::toggleBlinkType(blinktype blink)
     if (m_blink_type == blink)
         setBlinkType(BLINK_NONE);
     else
-        setBlinkType(BLINK_LEFT);
+        setBlinkType(blink);
 }
 
 void Actor::setBlinkType(blinktype blink)
