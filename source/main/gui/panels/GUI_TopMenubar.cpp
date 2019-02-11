@@ -72,7 +72,7 @@ void RoR::GUI::TopMenubar::Update()
 
     // The panel
     int flags = ImGuiWindowFlags_NoCollapse  | ImGuiWindowFlags_NoResize    | ImGuiWindowFlags_NoMove
-              | ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize;
+              | ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_AlwaysAutoResize;
     ImGui::SetNextWindowContentSize(ImVec2(panel_target_width, 0.f));
     ImGui::SetNextWindowPos(window_target_pos);
     if (!ImGui::Begin("Top menubar", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
