@@ -69,8 +69,11 @@ Character::Character(int source, unsigned int streamid, UTFString player_name, i
 
 Character::~Character()
 {
-    App::GetSimController()->GetGfxScene().RemoveGfxCharacter(m_gfx_character);
-    delete m_gfx_character;
+    if (m_gfx_character != nullptr)
+    {
+        App::GetSimController()->GetGfxScene().RemoveGfxCharacter(m_gfx_character);
+        delete m_gfx_character;
+    }
 }
 
 void Character::updateCharacterRotation()
