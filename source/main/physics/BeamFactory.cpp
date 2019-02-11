@@ -415,6 +415,11 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
                     RoR::App::GetGuiManager()->pushMessageChatBox(message);
 
                     auto actor_reg = reinterpret_cast<RoRnet::ActorStreamRegister*>(reg);
+                    if (m_stream_time_offsets.find(reg->origin_sourceid) == m_stream_time_offsets.end())
+                    {
+                        int offset = actor_reg->time - m_net_timer.getMilliseconds();
+                        m_stream_time_offsets[reg->origin_sourceid] = offset - 100;
+                    }
                     ActorSpawnRequest rq;
                     rq.asr_origin = ActorSpawnRequest::Origin::NETWORK;
                     rq.asr_filename = filename;
@@ -492,11 +497,11 @@ int ActorManager::GetNetTimeOffset(int sourceid)
     return 0;
 }
 
-void ActorManager::UpdateNetTimeOffset(int sourceid, unsigned long time)
+void ActorManager::UpdateNetTimeOffset(int sourceid, int offset)
 {
-    if (m_stream_time_offsets.find(sourceid) == m_stream_time_offsets.end())
+    if (m_stream_time_offsets.find(sourceid) != m_stream_time_offsets.end())
     {
-        m_stream_time_offsets[sourceid] = time - m_net_timer.getMilliseconds();
+        m_stream_time_offsets[sourceid] += offset;
     }
 }
 
@@ -834,6 +839,12 @@ void ActorManager::DeleteActorInternal(Actor* actor)
         if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK && actor->ar_sim_state != Actor::SimState::INVALID)
         {
             RoR::Networking::AddPacket(actor->ar_net_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
+        }
+        else if (std::count_if(m_actors.begin(), m_actors.end(), [actor](Actor* b)
+                    { return b->ar_net_source_id == actor->ar_net_source_id; }) == 1)
+        {
+            // We're deleting the last actor from this stream source, reset the stream time offset
+            m_stream_time_offsets.erase(actor->ar_net_source_id);
         }
     }
 #endif // USE_SOCKETW
