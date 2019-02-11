@@ -58,7 +58,7 @@ public:
     void           SendAllActorsSleeping();
     unsigned long  GetNetTime()                            { return m_net_timer.getMilliseconds(); };
     int            GetNetTimeOffset(int sourceid);
-    void           UpdateNetTimeOffset(int sourceid, unsigned long time);
+    void           UpdateNetTimeOffset(int sourceid, int offset);
     int            CheckNetworkStreamsOk(int sourceid);
     int            CheckNetRemoteStreamsOk(int sourceid);
     void           NotifyActorsWindowResized();
