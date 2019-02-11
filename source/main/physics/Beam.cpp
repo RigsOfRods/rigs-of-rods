@@ -455,14 +455,14 @@ void Actor::CalcNetwork()
         {
             // all other nodes are compressed:
             // short int compared to previous node
-            p1.x = (float)(sp1[(i - 1) * 3 + 0]) / 300.0f;
-            p1.y = (float)(sp1[(i - 1) * 3 + 1]) / 300.0f;
-            p1.z = (float)(sp1[(i - 1) * 3 + 2]) / 300.0f;
+            p1.x = (float)(sp1[(i - 1) * 3 + 0]) / m_net_node_compression;
+            p1.y = (float)(sp1[(i - 1) * 3 + 1]) / m_net_node_compression;
+            p1.z = (float)(sp1[(i - 1) * 3 + 2]) / m_net_node_compression;
             p1 = p1 + p1ref;
 
-            p2.x = (float)(sp2[(i - 1) * 3 + 0]) / 300.0f;
-            p2.y = (float)(sp2[(i - 1) * 3 + 1]) / 300.0f;
-            p2.z = (float)(sp2[(i - 1) * 3 + 2]) / 300.0f;
+            p2.x = (float)(sp2[(i - 1) * 3 + 0]) / m_net_node_compression;
+            p2.y = (float)(sp2[(i - 1) * 3 + 1]) / m_net_node_compression;
+            p2.z = (float)(sp2[(i - 1) * 3 + 2]) / m_net_node_compression;
             p2 = p2 + p2ref;
         }
 
@@ -1881,9 +1881,9 @@ void Actor::sendStreamData()
         for (i = 1; i < m_net_first_wheel_node; i++)
         {
             Vector3 relpos = ar_nodes[i].AbsPosition - refpos;
-            sbuf[(i - 1) * 3 + 0] = (short int)(relpos.x * 300.0f);
-            sbuf[(i - 1) * 3 + 1] = (short int)(relpos.y * 300.0f);
-            sbuf[(i - 1) * 3 + 2] = (short int)(relpos.z * 300.0f);
+            sbuf[(i - 1) * 3 + 0] = (short int)(relpos.x * m_net_node_compression);
+            sbuf[(i - 1) * 3 + 1] = (short int)(relpos.y * m_net_node_compression);
+            sbuf[(i - 1) * 3 + 2] = (short int)(relpos.z * m_net_node_compression);
 
             ptr += sizeof(short int) * 3; // increase pointer
         }
