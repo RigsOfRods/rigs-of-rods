@@ -29,6 +29,7 @@
 #include "Beam.h"
 #include "BeamEngine.h"
 #include "CacheSystem.h"
+#include "ContentManager.h"
 #include "ChatSystem.h"
 #include "Collisions.h"
 #include "DashBoardManager.h"
@@ -46,6 +47,7 @@
 #include "RigSpawner.h"
 #include "RoRFrameListener.h"
 #include "Scripting.h"
+#include "SkinManager.h"
 #include "SoundScriptManager.h"
 #include "ThreadPool.h"
 #include "Utils.h"
@@ -416,6 +418,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
                     ActorSpawnRequest rq;
                     rq.asr_origin = ActorSpawnRequest::Origin::NETWORK;
                     rq.asr_filename = filename;
+                    rq.asr_skin = App::GetContentManager()->GetSkinManager()->GetSkin(actor_reg->skin);
                     rq.asr_config = actor_reg->sectionconfig;
                     rq.asr_net_username = tryConvertUTF(info.username);
                     rq.asr_net_color    = info.colournum;
