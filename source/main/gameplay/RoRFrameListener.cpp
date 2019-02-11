@@ -2013,11 +2013,16 @@ bool SimController::SetupGameplayLoop()
         StringUtil::toLowerCase(name);
         for (const auto& entry : App::GetCacheSystem()->GetEntries())
         {
+            if (entry.fext != "terrn2")
+                continue; 
+            String fext = "";
+            String fbase = "";
             String fname = entry.fname;
             StringUtil::toLowerCase(fname);
-            if (entry.fext == "terrn2" && fname.find(name) != std::string::npos) 
+            StringUtil::splitBaseFilename(fname, fbase, fext);
+            if (fbase.find(name) != std::string::npos)
             {
-                if (fname == name)
+                if (fbase == name)
                 {
                     lookup = &entry;
                     break;
@@ -2033,6 +2038,7 @@ bool SimController::SetupGameplayLoop()
             App::sim_terrain_name.SetPending(lookup->fname.c_str());
         }
     }
+
 
     if (App::sim_load_savegame.GetActive())
     {
@@ -2078,9 +2084,11 @@ bool SimController::SetupGameplayLoop()
         StringUtil::toLowerCase(name);
         for (const auto& entry : App::GetCacheSystem()->GetEntries())
         {
+	    if (entry.fext == "terrn2")
+	        continue;
             String fname = entry.fname;
             StringUtil::toLowerCase(fname);
-            if (entry.fext != "terrn2" && fname.find(name) != std::string::npos) 
+            if (fname.find(name) != std::string::npos) 
             {
                 if (fname == name)
                 {
