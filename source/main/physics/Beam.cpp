@@ -1741,12 +1741,12 @@ void Actor::sendStreamSetup()
     reg.type = 0;
     reg.bufferSize = m_net_buffer_size;
     reg.time = App::GetSimController()->GetBeamFactory()->GetNetTime();
-    strncpy(reg.name, ar_filename.c_str(), 127);
+    strncpy(reg.name, ar_filename.c_str(), 128);
     if (m_used_skin != nullptr)
     {
-        strncpy(reg.skin, m_used_skin->name.c_str(), 59);
+        strncpy(reg.skin, m_used_skin->name.c_str(), 60);
     }
-    strncpy(reg.sectionconfig, m_section_config.c_str(), 59);
+    strncpy(reg.sectionconfig, m_section_config.c_str(), 60);
 
 #ifdef USE_SOCKETW
     RoR::Networking::AddLocalStream((RoRnet::StreamRegister *)&reg, sizeof(RoRnet::ActorStreamRegister));

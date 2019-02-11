@@ -409,6 +409,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
             if (reg->type == 0)
             {
                 LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
+                reg->name[127] = 0;
                 Ogre::String filename(reg->name);
                 if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(filename))
                 {
@@ -433,8 +434,14 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
                     ActorSpawnRequest rq;
                     rq.asr_origin = ActorSpawnRequest::Origin::NETWORK;
                     rq.asr_filename = filename;
-                    rq.asr_skin = App::GetContentManager()->GetSkinManager()->GetSkin(actor_reg->skin);
-                    rq.asr_config = actor_reg->sectionconfig;
+                    if (strnlen(actor_reg->skin, 60) < 60)
+                    {
+                        rq.asr_skin = App::GetContentManager()->GetSkinManager()->GetSkin(actor_reg->skin);
+                    }
+                    if (strnlen(actor_reg->sectionconfig, 60) < 60)
+                    {
+                        rq.asr_config = actor_reg->sectionconfig;
+                    }
                     rq.asr_net_username = tryConvertUTF(info.username);
                     rq.asr_net_color    = info.colournum;
 

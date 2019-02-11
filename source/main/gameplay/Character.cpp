@@ -480,7 +480,10 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
             auto* pos_msg = reinterpret_cast<Networking::CharacterMsgPos*>(buffer);
             this->setPosition(Ogre::Vector3(pos_msg->pos_x, pos_msg->pos_y, pos_msg->pos_z));
             this->setRotation(Ogre::Radian(pos_msg->rot_angle));
-            this->SetAnimState(Utils::SanitizeUtf8String(pos_msg->anim_name), pos_msg->anim_time);
+            if (strnlen(pos_msg->anim_name, CHARACTER_ANIM_NAME_LEN) < CHARACTER_ANIM_NAME_LEN)
+            {
+                this->SetAnimState(pos_msg->anim_name, pos_msg->anim_time);
+            }
         }
         else if (msg->command == Networking::CHARACTER_CMD_DETACH)
         {
