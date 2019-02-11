@@ -442,7 +442,7 @@ void Character::SendStreamSetup()
 void Character::SendStreamData()
 {
 #ifdef USE_SOCKETW
-    if (m_net_timer.getMilliseconds() - m_net_last_update_time < 50 && m_net_last_update_time > 0)
+    if (m_net_timer.getMilliseconds() - m_net_last_update_time < 100 && m_net_last_update_time > 0)
         return;
 
     // do not send position data if coupled to an actor already
