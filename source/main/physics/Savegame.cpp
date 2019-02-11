@@ -545,6 +545,18 @@ bool ActorManager::SaveScene(Ogre::String filename)
     j_doc.AddMember("player_position", j_player_position, j_doc.GetAllocator());
     j_doc.AddMember("player_rotation", gEnv->player->getRotation().valueRadians(), j_doc.GetAllocator());
 
+    std::map<int, int> vector_index_lookup;
+    for (auto actor : m_actors)
+    {
+        vector_index_lookup[actor->ar_vector_index] = -1;
+        auto search = std::find_if(x_actors.begin(), x_actors.end(), [actor](Actor* b)
+                { return actor->ar_instance_id == b->ar_instance_id; });
+        if (search != x_actors.end())
+        {
+            vector_index_lookup[actor->ar_vector_index] = std::distance(x_actors.begin(), search);
+        }
+    }
+
     // Actors
     rapidjson::Value j_actors(rapidjson::kArrayType);
     for (auto actor : x_actors)
@@ -711,7 +723,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         {
             rapidjson::Value j_hook(rapidjson::kObjectType);
             int lock_node = h.hk_lock_node ? h.hk_lock_node->pos : -1;
-            int locked_actor = h.hk_locked_actor ? h.hk_locked_actor->ar_vector_index : -1;
+            int locked_actor = h.hk_locked_actor ? vector_index_lookup[h.hk_locked_actor->ar_vector_index] : -1;
             j_hook.AddMember("locked", h.hk_locked, j_doc.GetAllocator());
             j_hook.AddMember("lock_node", lock_node, j_doc.GetAllocator());
             j_hook.AddMember("locked_actor", locked_actor, j_doc.GetAllocator());
@@ -725,7 +737,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         {
             rapidjson::Value j_rope(rapidjson::kObjectType);
             int locked_ropable = r.rp_locked_ropable ? r.rp_locked_ropable->pos : -1;
-            int locked_actor = r.rp_locked_actor ? r.rp_locked_actor->ar_vector_index : -1;
+            int locked_actor = r.rp_locked_actor ? vector_index_lookup[r.rp_locked_actor->ar_vector_index] : -1;
             j_rope.AddMember("locked", r.rp_locked, j_doc.GetAllocator());
             j_rope.AddMember("locked_ropable", locked_ropable, j_doc.GetAllocator());
             j_rope.AddMember("locked_actor", locked_actor, j_doc.GetAllocator());
@@ -739,7 +751,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         {
             rapidjson::Value j_tie(rapidjson::kObjectType);
             int locked_ropable = t.ti_locked_ropable ? t.ti_locked_ropable->pos : -1;
-            int locked_actor = t.ti_locked_actor ? t.ti_locked_actor->ar_vector_index : -1;
+            int locked_actor = t.ti_locked_actor ? vector_index_lookup[t.ti_locked_actor->ar_vector_index] : -1;
             j_tie.AddMember("tied", t.ti_tied, j_doc.GetAllocator());
             j_tie.AddMember("tying", t.ti_tying, j_doc.GetAllocator());
             j_tie.AddMember("locked_ropable", locked_ropable, j_doc.GetAllocator());
@@ -801,7 +813,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
             j_beam.PushBack(actor->ar_beams[i].bm_disabled, j_doc.GetAllocator());
             j_beam.PushBack(actor->ar_beams[i].bm_inter_actor, j_doc.GetAllocator());
             Actor* locked_actor = actor->ar_beams[i].bm_locked_actor;
-            j_beam.PushBack(locked_actor ? locked_actor->ar_vector_index : -1, j_doc.GetAllocator());
+            j_beam.PushBack(locked_actor ? vector_index_lookup[locked_actor->ar_vector_index] : -1, j_doc.GetAllocator());
 
             j_beams.PushBack(j_beam, j_doc.GetAllocator());
         }
