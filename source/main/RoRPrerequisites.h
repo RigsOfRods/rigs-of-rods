@@ -64,12 +64,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 # define MYASSERT(x)         assert(x)
 #endif //FEAT_DEBUG_ASSERT
 
-// some platform fixes
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-#define strnlen(str,len) strlen(str)
-#endif
-
-#define CHARACTER_ANIM_NAME_LEN 25 // Restricted for networking
+#define CHARACTER_ANIM_NAME_LEN 10 // Restricted for networking
 
 enum VisibilityMasks {
 	DEPTHMAP_ENABLED  = BITMASK(1),
