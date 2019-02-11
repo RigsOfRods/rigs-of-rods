@@ -458,6 +458,7 @@ private:
     Differential*     m_wheel_diffs[MAX_WHEELS/2];//!< Physics
     int               m_num_wheel_diffs;          //!< Physics attr
     TransferCase*     m_transfer_case;            //!< Physics
+    float             m_net_node_compression;  //!< Sim attr;
     int               m_net_first_wheel_node;  //!< Network attr; Determines data buffer layout
     int               m_net_node_buf_size;     //!< Network attr; buffer size
     int               m_net_buffer_size;       //!< Network attr; buffer size
