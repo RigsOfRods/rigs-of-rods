@@ -1293,7 +1293,7 @@ void SimController::UpdateInputEvents(float dt)
                 {
                     ActorSpawnRequest rq;
                     rq.asr_cache_entry     = m_last_cache_selection;
-                    rq.asr_config          = m_last_vehicle_configs;
+                    rq.asr_config          = m_last_section_config;
                     rq.asr_skin            = m_last_skin_selection;
                     rq.asr_origin          = ActorSpawnRequest::Origin::USER;
                     m_actor_spawn_queue.push_back(rq);
@@ -1582,7 +1582,7 @@ void SimController::UpdateSimulation(float dt)
                 auto reload_pos = m_player_actor->getPosition();
                 auto reload_dir = Quaternion(Degree(270) - Radian(m_player_actor->getRotation()), Vector3::UNIT_Y);
                 auto debug_view = m_player_actor->GetGfxActor()->GetDebugView();
-                auto asr_config = m_player_actor->getActorConfig();
+                auto asr_config = m_player_actor->GetSectionConfig();
 
                 reload_pos.y = m_player_actor->GetMinHeight();
 
@@ -1612,7 +1612,7 @@ void SimController::UpdateSimulation(float dt)
         {
             m_last_cache_selection = rq.asr_cache_entry;
             m_last_skin_selection  = rq.asr_skin;
-            m_last_vehicle_configs = rq.asr_config;
+            m_last_section_config  = rq.asr_config;
 
             if (rq.asr_spawnbox == nullptr)
             {
@@ -2115,7 +2115,7 @@ bool SimController::SetupGameplayLoop()
 
         ActorSpawnRequest rq;
         rq.asr_filename   = App::diag_preset_vehicle.GetActive();
-        rq.asr_config     = std::vector<Ogre::String>(1, App::diag_preset_veh_config.GetActive());
+        rq.asr_config     = App::diag_preset_veh_config.GetActive();
         rq.asr_position   = gEnv->player->getPosition();
         rq.asr_rotation   = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
         rq.asr_origin     = ActorSpawnRequest::Origin::CONFIG_FILE;

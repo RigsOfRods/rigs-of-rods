@@ -1736,13 +1736,8 @@ void Actor::sendStreamSetup()
     reg.status = 0;
     reg.type = 0;
     reg.bufferSize = m_net_buffer_size;
-    strncpy(reg.name, ar_filename.c_str(), 128);
-    if (!m_actor_config.empty())
-    {
-        // insert section config
-        for (int i = 0; i < std::min<int>((int)m_actor_config.size(), 10); i++)
-            strncpy(reg.actorconfig[i], m_actor_config[i].c_str(), 60);
-    }
+    strncpy(reg.name, ar_filename.c_str(), 127);
+    strncpy(reg.sectionconfig, m_section_config.c_str(), 59);
 
 #ifdef USE_SOCKETW
     RoR::Networking::AddLocalStream((RoRnet::StreamRegister *)&reg, sizeof(RoRnet::ActorStreamRegister));
@@ -4399,7 +4394,7 @@ Actor::Actor(
     , m_avg_proped_wheel_radius(0.2f)
     , m_used_skin(rq.asr_skin)
     , ar_filename(rq.asr_filename)
-    , m_actor_config(rq.asr_config)
+    , m_section_config(rq.asr_config)
     , m_ongoing_reset(false)
     , ar_top_speed(0.0f)
     , ar_last_fuzzy_ground_model(nullptr)

@@ -109,14 +109,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     spawner.Setup(actor, def, parent_scene_node);
     /* Setup modules */
     spawner.AddModule(def->root_module);
-    if (def->user_modules.size() > 0) /* The vehicle-selector may return selected modules even for vehicle with no modules defined! Hence this check. */
-    {
-        std::vector<Ogre::String>::iterator itor = actor->m_actor_config.begin();
-        for (; itor != actor->m_actor_config.end(); itor++)
-        {
-            spawner.AddModule(*itor);
-        }
-    }
+    spawner.AddModule(actor->m_section_config);
     spawner.SpawnActor();
     def->report_num_errors += spawner.GetMessagesNumErrors();
     def->report_num_warnings += spawner.GetMessagesNumWarnings();
@@ -423,12 +416,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
                     ActorSpawnRequest rq;
                     rq.asr_origin = ActorSpawnRequest::Origin::NETWORK;
                     rq.asr_filename = filename;
-                    for (int t = 0; t < 10; t++)
-                    {
-                        if (!strnlen(actor_reg->actorconfig[t], 60))
-                            break;
-                        rq.asr_config.push_back(String(actor_reg->actorconfig[t]));
-                    }
+                    rq.asr_config = actor_reg->sectionconfig;
                     rq.asr_net_username = tryConvertUTF(info.username);
                     rq.asr_net_color    = info.colournum;
 

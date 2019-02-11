@@ -71,9 +71,9 @@ CSimpleOpt::SOption cmdline_options[] = {
     { OPT_POS,            ("-pos"),         SO_REQ_SEP },
     { OPT_ROT,            ("-rot"),         SO_REQ_SEP },
     { OPT_TRUCK,          ("-truck"),       SO_REQ_SEP },
+    { OPT_TRUCKCONFIG,    ("-truckconfig"), SO_REQ_SEP },
     { OPT_ENTERTRUCK,     ("-enter"),       SO_NONE    },
     { OPT_WDIR,           ("-wd"),          SO_REQ_SEP },
-    { OPT_TRUCKCONFIG,    ("-actorconfig"), SO_REQ_SEP },
     { OPT_HELP,           ("--help"),       SO_NONE    },
     { OPT_HELP,           ("-help"),        SO_NONE    },
     { OPT_RESUME,         ("-resume"),      SO_NONE    },
@@ -94,10 +94,11 @@ void ShowCommandLineUsage()
             "-pos <Vect> (overrides spawn position)"    "\n"
             "-rot <float> (overrides spawn rotation)"   "\n"
             "-truck <truck> (loads truck on startup)"   "\n"
+            "-truckconfig <section>"                    "\n"
+            "-enter (player enters the selected truck)" "\n"
             "-resume loads previous autosave"           "\n"
             "-checkcache forces cache update"           "\n"
             "-version shows the version information"    "\n"
-            "-enter enters the selected truck"          "\n"
             "For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck -enter"));
 }
 

@@ -157,7 +157,7 @@ private:
 
     CacheEntry*              m_last_cache_selection;
     RoR::SkinDef*            m_last_skin_selection;
-    std::vector<std::string> m_last_vehicle_configs;
+    Ogre::String             m_last_section_config;
 
     Ogre::Vector3            m_dir_arrow_pointed;
 

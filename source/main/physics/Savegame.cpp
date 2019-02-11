@@ -47,7 +47,7 @@
 #include <rapidjson/writer.h>
 #include <fstream>
 
-#define SAVEGAME_FILE_FORMAT 1
+#define SAVEGAME_FILE_FORMAT 2
 
 using namespace Ogre;
 using namespace RoR;
@@ -182,18 +182,14 @@ bool ActorManager::LoadScene(Ogre::String filename)
             skin = App::GetContentManager()->GetSkinManager()->GetSkin(j_entry["skin"].GetString());
         }
 
-        std::vector<String> actor_config;
-        for (rapidjson::Value& j_config : j_entry["actor_config"].GetArray())
-        {
-            actor_config.push_back(j_config.GetString());
-        }
+        String section_config = j_entry["section_config"].GetString();
 
         Actor* actor = nullptr;
         int index = actors.size();
         if (index < x_actors.size())
         {
             if (j_entry["filename"].GetString() != x_actors[index]->ar_filename || skin != x_actors[index]->m_used_skin ||
-                    actor_config != x_actors[index]->getActorConfig())
+                    section_config != x_actors[index]->GetSectionConfig())
             {
                 if (x_actors[index] == player_actor)
                 {
@@ -223,7 +219,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
             rq.asr_position.z    = j_entry["position"][2].GetFloat();
             rq.asr_rotation      = Quaternion(Degree(270) - Radian(j_entry["rotation"].GetFloat()), Vector3::UNIT_Y);
             rq.asr_skin          = skin;
-            rq.asr_config        = actor_config;
+            rq.asr_config        = section_config;
             rq.asr_origin        = preloaded ? ActorSpawnRequest::Origin::TERRN_DEF : ActorSpawnRequest::Origin::SAVEGAME;
             rq.asr_free_position = preloaded;
             actor                = App::GetSimController()->SpawnActorDirectly(rq);
@@ -575,13 +571,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
             j_entry.AddMember("skin", rapidjson::StringRef(actor->m_used_skin->name.c_str()), j_doc.GetAllocator());
         }
 
-        // Section info
-        rapidjson::Value j_actor_config(rapidjson::kArrayType);
-        for (const auto& config : actor->m_actor_config)
-        {
-            j_actor_config.PushBack(rapidjson::StringRef(config.c_str()), j_doc.GetAllocator());
-        }
-        j_entry.AddMember("actor_config", j_actor_config, j_doc.GetAllocator());
+        j_entry.AddMember("section_config", rapidjson::StringRef(actor->m_section_config.c_str()), j_doc.GetAllocator());
 
         // Engine, anti-lock brake, traction control
         if (actor->ar_engine)

@@ -49,12 +49,6 @@ public:
         INVALID           //!< not simulated and not updated via the network (e.g. size differs from expected)
     };
 
-    /// @param actor_id Unique ID (previously 'truck number' or 'trucknum')
-    /// @param pos
-    /// @param rot
-    /// @param fname Rig file name.
-    /// @param actor_config Networking related.
-    /// @param preloaded_with_terrain Is this rig being pre-loaded along with terrain?
     Actor(
           int actor_id
         , unsigned int vector_index
@@ -159,7 +153,7 @@ public:
     blinktype         getBlinkType();
     std::vector<authorinfo_t>     getAuthors();
     std::vector<std::string>      getDescription();
-    std::vector<Ogre::String>     getActorConfig()      { return m_actor_config; }
+    Ogre::String     GetSectionConfig()                 { return m_section_config; }
     RoR::PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
     std::vector<Actor*> GetAllLinkedActors()            { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     Ogre::Vector3     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
@@ -418,7 +412,7 @@ private:
     std::shared_ptr<RigDef::File>      m_definition;
     std::unique_ptr<RoR::GfxActor>     m_gfx_actor;
     RoR::PerVehicleCameraContext       m_camera_context;
-    std::vector<Ogre::String>          m_actor_config;
+    Ogre::String                       m_section_config;
     std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this actor
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
     std::vector<Ogre::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.
