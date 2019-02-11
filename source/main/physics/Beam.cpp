@@ -56,6 +56,7 @@
 #include "ScrewProp.h"
 #include "Scripting.h"
 #include "Skidmark.h"
+#include "SkinManager.h"
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
@@ -1737,6 +1738,10 @@ void Actor::sendStreamSetup()
     reg.type = 0;
     reg.bufferSize = m_net_buffer_size;
     strncpy(reg.name, ar_filename.c_str(), 127);
+    if (m_used_skin != nullptr)
+    {
+        strncpy(reg.skin, m_used_skin->name.c_str(), 59);
+    }
     strncpy(reg.sectionconfig, m_section_config.c_str(), 59);
 
 #ifdef USE_SOCKETW
