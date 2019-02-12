@@ -388,6 +388,18 @@ void Actor::PushNetwork(char* data, int size)
         return;
     }
 
+    // Required to catch up when joining late (since the StreamRegister time stamp is received delayed)
+    if (!m_net_initialized)
+    {
+        RoRnet::VehicleState* oob = (RoRnet::VehicleState*)update.veh_state.data();
+        int tnow = App::GetSimController()->GetBeamFactory()->GetNetTime();
+        int rnow = std::max(0, tnow + App::GetSimController()->GetBeamFactory()->GetNetTimeOffset(ar_net_source_id));
+        if (oob->time > rnow + 100)
+        {
+            App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, oob->time - rnow);
+        }
+    }
+
     m_net_updates.push_back(update);
 }
 
@@ -422,9 +434,9 @@ void Actor::CalcNetwork()
 
     if (tratio > 1.0f)
     {
-        App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, -1);
+        App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, -std::pow(2, tratio));
     }
-    else if (index_offset == 0 && tratio < 0.25f && m_net_updates.size() > 2)
+    else if (index_offset == 0 && tratio < 0.125f && m_net_updates.size() > 2)
     {
         App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, +1);
     }
@@ -596,6 +608,8 @@ void Actor::CalcNetwork()
     {
         m_net_updates.pop_front();
     }
+
+    m_net_initialized = true;
 }
 
 bool Actor::AddTyrePressure(float v)
@@ -1760,7 +1774,7 @@ void Actor::sendStreamData()
 {
     using namespace RoRnet;
 #ifdef USE_SOCKETW
-    if (ar_net_timer.getMilliseconds() - ar_net_last_update_time < 100 && ar_net_last_update_time > 0)
+    if (ar_net_timer.getMilliseconds() - ar_net_last_update_time < 100)
         return;
 
     ar_net_last_update_time = ar_net_timer.getMilliseconds();
@@ -4334,6 +4348,7 @@ Actor::Actor(
     , m_mouse_grab_move_force(0.0f)
     , m_mouse_grab_node(-1)
     , m_mouse_grab_pos(Ogre::Vector3::ZERO)
+    , m_net_initialized(false)
     , m_net_brake_light(false)
     , m_net_label_node(0)
     , m_net_label_mt(0)
