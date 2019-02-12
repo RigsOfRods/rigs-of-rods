@@ -163,59 +163,59 @@ void RoR::GUI::TopMenubar::Update()
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
-            if (ImGui::Button("Show vehicle description")) // TODO: make button disabled (fake it!) when no active vehicle
+            if (current_actor != nullptr)
             {
-                if (current_actor != nullptr)
+                if (ImGui::Button("Show vehicle description"))
                 {
                     App::GetGuiManager()->SetVisible_VehicleDescription(true);
                 }
-            }
 
-            if (ImGui::Button("Reload current vehicle")) // TODO: make button disabled (fake it!) when no active vehicle
-            {
-                if ((current_actor != nullptr) && (current_actor->ar_sim_state != Actor::SimState::NETWORKED_OK))
+                if (current_actor->ar_sim_state != Actor::SimState::NETWORKED_OK &&
+                        current_actor->ar_sim_state != Actor::SimState::INVALID)
                 {
-                    ActorModifyRequest rq;
-                    rq.amr_type = ActorModifyRequest::Type::RELOAD;
-                    rq.amr_actor = current_actor;
-                    App::GetSimController()->QueueActorModify(rq);
-
-                    App::GetGuiManager()->UnfocusGui();
-                }
-            }
-
-            if (ImGui::Button("Remove current vehicle")) // TODO: make button disabled (fake it!) when no active vehicle
-            {
-                if ((current_actor != nullptr) && (current_actor->ar_sim_state != Actor::SimState::NETWORKED_OK))
-                {
-                    App::GetSimController()->QueueActorRemove(current_actor);
-                }
-            }
-
-            if (ImGui::Button("Remove all vehicles")) // TODO: make button disabled (fake it!) when no active vehicle
-            {
-                m_confirm_remove_all = true;
-            }
-            if (m_confirm_remove_all)
-            {
-                ImGui::PushStyleColor(ImGuiCol_Text, ORANGE_TEXT);
-                if (ImGui::Button(" [!] Confirm removal"))
-                {
-                    for (auto actor : App::GetSimController()->GetActors())
+                    if (ImGui::Button("Reload current vehicle"))
                     {
-                        if (!actor->ar_hide_in_actor_list && !actor->isPreloadedWithTerrain() && 
-                                actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
                         {
-                            App::GetSimController()->QueueActorRemove(actor);
+                            ActorModifyRequest rq;
+                            rq.amr_type = ActorModifyRequest::Type::RELOAD;
+                            rq.amr_actor = current_actor;
+                            App::GetSimController()->QueueActorModify(rq);
+
+                            App::GetGuiManager()->UnfocusGui();
                         }
                     }
-                    m_confirm_remove_all = false;
+
+                    if (ImGui::Button("Remove current vehicle"))
+                    {
+                        App::GetSimController()->QueueActorRemove(current_actor);
+                    }
                 }
-                ImGui::PopStyleColor();
             }
 
-            if (App::mp_state.GetActive() != MpState::CONNECTED) // Singleplayer only!
+            if (!App::GetSimController()->GetLocalActors().empty())
             {
+                if (ImGui::Button("Remove all vehicles"))
+                {
+                    m_confirm_remove_all = true;
+                }
+                if (m_confirm_remove_all)
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ORANGE_TEXT);
+                    if (ImGui::Button(" [!] Confirm removal"))
+                    {
+                        for (auto actor : App::GetSimController()->GetLocalActors())
+                        {
+                            if (!actor->ar_hide_in_actor_list && !actor->isPreloadedWithTerrain() && 
+                                    actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
+                            {
+                                App::GetSimController()->QueueActorRemove(actor);
+                            }
+                        }
+                        m_confirm_remove_all = false;
+                    }
+                    ImGui::PopStyleColor();
+                }
+
                 if (ImGui::Button("Activate all vehicles"))
                 {
                     App::GetSimController()->GetBeamFactory()->WakeUpAllActors();
@@ -229,10 +229,6 @@ void RoR::GUI::TopMenubar::Update()
 
                 if (ImGui::Button("Send all vehicles to sleep"))
                 {
-                    if (current_actor != nullptr) // Get out first
-                    {
-                        App::GetSimController()->SetPendingPlayerActor(nullptr);
-                    }
                     App::GetSimController()->GetBeamFactory()->SendAllActorsSleeping();
                 }
             }

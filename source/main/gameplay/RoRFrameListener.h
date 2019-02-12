@@ -65,6 +65,7 @@ public:
 
     // Actor management interface
     std::vector<Actor*> GetActors() const                             { return m_actor_manager.GetActors(); }
+    std::vector<Actor*> GetLocalActors()                              { return m_actor_manager.GetLocalActors(); }
     Actor* GetActorById          (int actor_id)                       { return m_actor_manager.GetActorByIdInternal(actor_id); }
     void   ChangePlayerActor     (Actor* actor);
     void   QueueActorSpawn       (RoR::ActorSpawnRequest const & rq)  { m_actor_spawn_queue.push_back(rq); }
