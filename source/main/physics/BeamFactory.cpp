@@ -992,32 +992,23 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
             actor->ar_engine->UpdateEngineAudio();
         }
 
-        if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
+        if (actor->ar_sim_state != Actor::SimState::INVALID)
         {
-            if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+            if (actor->ar_sim_state != Actor::SimState::LOCAL_SLEEPING)
             {
-                auto lifetime = actor->ar_net_timer.getMilliseconds();
-                if (lifetime < 5000 || lifetime - actor->ar_net_last_update_time > 5000)
+                actor->updateVisual(dt);
+                actor->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
+                if (actor->ar_update_physics && App::gfx_skidmarks_mode.GetActive() > 0)
                 {
-                    actor->sendStreamData();
+                    actor->updateSkidmarks();
                 }
             }
-        }
-        else if (actor->ar_sim_state != Actor::SimState::INVALID)
-        {
-            actor->updateVisual(dt);
-            actor->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
-            if (actor->ar_update_physics && App::gfx_skidmarks_mode.GetActive() > 0)
+            if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
             {
-                actor->updateSkidmarks();
-            }
-            if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
-            {
-                actor->CalcNetwork();
-            }
-            else if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
-            {
-                actor->sendStreamData();
+                if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
+                    actor->CalcNetwork();
+                else
+                    actor->sendStreamData();
             }
         }
     }
