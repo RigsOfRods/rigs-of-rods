@@ -273,40 +273,21 @@ int ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen)
 {
     SWBaseSocket::SWBaseError error;
 
-    char buffer[RORNET_MAX_MESSAGE_LENGTH] = {0};
-
 #ifdef DEBUG
 	LOG_THREAD("[RoR|Networking] ReceiveMessage() waiting...");
 #endif //DEBUG
 
-    int hlen = 0;
-    while (hlen < (int)sizeof(RoRnet::Header))
+    if (socket.frecv((char*)head, sizeof(RoRnet::Header), &error) < sizeof(RoRnet::Header))
     {
-        int recvnum = socket.recv(buffer + hlen, sizeof(RoRnet::Header) - hlen, &error);
-        if (recvnum < 0 && !m_shutdown)
-        {
-            LOG("NET receive error 1: " + error.get_error());
-            return -1;
-        }
-        else if (m_shutdown)
-        {
-            break;
-        }
-        hlen += recvnum;
+        LOG("NET receive error 1: " + error.get_error());
+        return -1;
     }
-
-    if (m_shutdown)
-    {
-        return RECVMESSAGE_RETVAL_SHUTDOWN;
-    }
-
-    memcpy(head, buffer, sizeof(RoRnet::Header));
 
 #ifdef DEBUG
     LOG_THREAD("[RoR|Networking] ReceiveMessage() header received");
 #endif //DEBUG
 
-    if (head->size >= RORNET_MAX_MESSAGE_LENGTH)
+    if (head->size > bufferlen)
     {
         return -3;
     }
@@ -314,23 +295,12 @@ int ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen)
     if (head->size > 0)
     {
         // Read the packet content
-        while (hlen < (int)sizeof(RoRnet::Header) + (int)head->size)
+        if (socket.frecv(content, head->size, &error) < head->size)
         {
-            int recvnum = socket.recv(buffer + hlen, (head->size + sizeof(RoRnet::Header)) - hlen, &error);
-            if (recvnum < 0 && !m_shutdown)
-            {
-                LOG_THREAD("NET receive error 2: "+ error.get_error());
-                return -1;
-            }
-            else if (m_shutdown)
-            {
-                break;
-            }
-            hlen += recvnum;
+            LOG_THREAD("NET receive error 2: "+ error.get_error());
+            return -1;
         }
     }
-
-    memcpy(content, buffer + sizeof(RoRnet::Header), bufferlen);
 
 #ifdef DEBUG
     LOG_THREAD("[RoR|Networking] ReceiveMessage() body received");
@@ -606,7 +576,7 @@ bool ConnectThread()
     char buffer[RORNET_MAX_MESSAGE_LENGTH] = {0};
 
     // Receive server (rornet protocol) version
-    if (ReceiveMessage(&header, buffer, 255))
+    if (ReceiveMessage(&header, buffer, RORNET_MAX_MESSAGE_LENGTH))
     {
         CouldNotConnect(_L("Establishing network session: error getting server version"));
         return false;
@@ -685,7 +655,7 @@ bool ConnectThread()
     }
 
     // Getting authorization
-    if (ReceiveMessage(&header, buffer, 255))
+    if (ReceiveMessage(&header, buffer, RORNET_MAX_MESSAGE_LENGTH))
     {
         CouldNotConnect(_L("Establishing network session: error getting server authorization"));
         return false;
