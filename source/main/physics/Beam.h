@@ -494,6 +494,7 @@ private:
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
     bool m_blinker_autoreset:1;    //!< Gfx state; We're steering - when we finish, the blinker should turn off
+    bool m_net_initialized:1;
     bool m_net_brake_light:1;
     bool m_net_reverse_light:1;
     bool m_reverse_light_active:1; //!< Gfx state
