@@ -295,6 +295,7 @@ int ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen)
     if (head->size > 0)
     {
         // Read the packet content
+        std::memset(content, 0, bufferlen);
         if (socket.frecv(content, head->size, &error) < head->size)
         {
             LOG_THREAD("NET receive error 2: "+ error.get_error());
