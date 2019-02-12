@@ -2008,6 +2008,7 @@ bool SimController::SetupGameplayLoop()
     // Terrain name lookup
     if (!App::sim_terrain_name.IsPendingEmpty())
     {
+        int length = std::numeric_limits<int>::max();
         const CacheEntry* lookup = nullptr;
         String name = App::sim_terrain_name.GetPending();
         StringUtil::toLowerCase(name);
@@ -2015,21 +2016,19 @@ bool SimController::SetupGameplayLoop()
         {
             if (entry.fext != "terrn2")
                 continue; 
-            String fext = "";
-            String fbase = "";
             String fname = entry.fname;
             StringUtil::toLowerCase(fname);
-            StringUtil::splitBaseFilename(fname, fbase, fext);
-            if (fbase.find(name) != std::string::npos)
+            if (fname.find(name) != std::string::npos)
             {
-                if (fbase == name)
+                if (fname == name)
                 {
                     lookup = &entry;
                     break;
                 }
-                else if (lookup == nullptr)
+                else if (fname.length() < length)
                 {
                     lookup = &entry;
+                    length = fname.length();
                 }
             }
         }
@@ -2079,13 +2078,14 @@ bool SimController::SetupGameplayLoop()
     if (!App::diag_preset_vehicle.IsActiveEmpty())
     {
         // Vehicle name lookup
+        int length = std::numeric_limits<int>::max();
         const CacheEntry* lookup = nullptr;
         String name = App::diag_preset_vehicle.GetPending();
         StringUtil::toLowerCase(name);
         for (const auto& entry : App::GetCacheSystem()->GetEntries())
         {
-	    if (entry.fext == "terrn2")
-	        continue;
+            if (entry.fext == "terrn2")
+                continue;
             String fname = entry.fname;
             StringUtil::toLowerCase(fname);
             if (fname.find(name) != std::string::npos) 
@@ -2095,9 +2095,10 @@ bool SimController::SetupGameplayLoop()
                     lookup = &entry;
                     break;
                 }
-                else if (lookup == nullptr)
+                else if (fname.length() < length)
                 {
                     lookup = &entry;
+                    length = fname.length();
                 }
             }
         }
