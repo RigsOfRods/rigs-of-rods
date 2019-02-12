@@ -24,7 +24,7 @@
 namespace RoRnet {
 
 #define RORNET_MAX_PEERS            64     //!< maximum clients connected at the same time
-#define RORNET_MAX_MESSAGE_LENGTH   16384  //!< maximum size of a RoR message. 32768 bytes = 8 kilobytes
+#define RORNET_MAX_MESSAGE_LENGTH   8192   //!< maximum size of a RoR message. 8192 bytes = 8 kibibytes
 #define RORNET_LAN_BROADCAST_PORT   13000  //!< port used to send the broadcast announcement in LAN mode
 #define RORNET_MAX_USERNAME_LEN     40     //!< port used to send the broadcast announcement in LAN mode
 
