@@ -38,9 +38,6 @@
 #include "SkyManager.h"
 #include "TerrainManager.h"
 
-#ifdef Bool // Conflicts with RapidJSON, see https://github.com/Tencent/rapidjson/issues/628
-#   undef Bool
-#endif
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/ostreamwrapper.h>

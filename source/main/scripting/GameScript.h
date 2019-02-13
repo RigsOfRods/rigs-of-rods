@@ -353,20 +353,8 @@ public:
     int setMaterialTextureScroll(const Ogre::String& materialName, int techniqueNum, int passNum, int textureUnitNum, float sx, float sy);
     int setMaterialTextureScale(const Ogre::String& materialName, int techniqueNum, int passNum, int textureUnitNum, float u, float v);
 
-    typedef struct OnlineAPIParams_t
-    {
-        GameScript* cls;
-        char apiquery[2048];
-        AngelScript::CScriptDictionary* dict;
-
-        OnlineAPIParams_t()
-        {
-        };
-    } OnlineAPIParams_t;
-
     float rangeRandom(float from, float to);
     int useOnlineAPI(const Ogre::String& apiquery, const AngelScript::CScriptDictionary& dict, Ogre::String& result);
-    int useOnlineAPIDirectly(OnlineAPIParams_t params);
 
     int getLoadedTerrain(Ogre::String& result);
     Ogre::Vector3 getPersonPosition();
@@ -383,6 +371,8 @@ public:
     void backToMenu();
     void quitGame();
     float getFPS();
+    float getAvgFPS();
+
 protected:
 
     ScriptEngine* mse; //!< local script engine pointer, used as proxy mostly

@@ -120,9 +120,10 @@ public:
     Ogre::Vector3     GetGForcesMax() { return m_camera_local_gforces_max; };
     float             getSteeringAngle();
     float             getMinCameraRadius() { return m_min_camera_radius; }; 
-    std::string       GetActorDesignName();
-    std::string       GetActorFileName();
-    int               GetActorType();
+    std::string       GetActorDesignName() { return ar_design_name; };
+    std::string       GetActorFileName() { return ar_filename; };
+    std::string       GetActorFileHash() { return ar_filehash; };
+    int               GetActorType() { return ar_driveable; };
     int               GetNumActiveConnectedBeams(int nodeid);     //!< Returns the number of active (non bounded) beams connected to a node
     void              NotifyActorCameraChanged();                 //!< Logic: sound, display; Notify this vehicle that camera changed;
     void              StopAllSounds();
@@ -320,6 +321,7 @@ public:
     int               ar_current_cinecam;             //!< Sim state; index of current CineCam (-1 if using 3rd-person camera)
     int               ar_custom_camera_node;          //!< Sim state; custom tracking node for 3rd-person camera
     std::string       ar_filename;                    //!< Attribute; filled at spawn
+    std::string       ar_filehash;                    //!< Attribute; filled at spawn
     int               ar_airbrake_intensity;          //!< Physics state; values 0-5
     int               ar_net_source_id;
     int               ar_net_stream_id;

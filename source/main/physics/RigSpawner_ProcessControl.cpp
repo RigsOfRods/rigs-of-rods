@@ -143,6 +143,9 @@ Actor *ActorSpawner::SpawnActor()
     // Vehicle name
     m_actor->ar_design_name = m_file->name;
 
+    // File hash
+    m_actor->ar_filehash = m_file->hash;
+
     // Flags in root module
     m_actor->ar_forward_commands         = m_file->forward_commands;
     m_actor->ar_import_commands          = m_file->import_commands;

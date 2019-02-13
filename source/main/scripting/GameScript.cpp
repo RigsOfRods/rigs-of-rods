@@ -22,10 +22,8 @@
 #include "GameScript.h"
 
 #ifdef USE_CURL
-#include <stdio.h>
-#include <curl/curl.h>
-//#include <curl/types.h>
-#include <curl/easy.h>
+#   include <curl/curl.h>
+#   include <curl/easy.h>
 #endif //USE_CURL
 
 #include "OgreSubsystem.h"
@@ -56,7 +54,8 @@
 #include "TerrainObjectManager.h"
 #include "Water.h"
 
-#include <thread>
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -645,269 +644,87 @@ void GameScript::cameraLookAt(const Vector3& pos)
         gEnv->mainCamera->lookAt(Vector3(pos.x, pos.y, pos.z));
 }
 
-#ifdef USE_CURL
-//hacky hack to fill memory with data for curl
-// from: http://curl.haxx.se/libcurl/c/getinmemory.html
-static size_t curlWriteMemoryCallback(void* ptr, size_t size, size_t nmemb, void* data)
+int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptDictionary& dict, String& result)
 {
-    size_t realsize = size * nmemb;
-    struct curlMemoryStruct* mem = (struct curlMemoryStruct *)data;
-    char* new_mem;
+    Actor* player_actor = App::GetSimController()->GetPlayerActor();
 
-    new_mem = (char *)realloc(mem->memory, mem->size + realsize + 1);
-    if (new_mem == NULL)
-    {
-        free(mem->memory);
-        printf("Error (re)allocating memory\n");
-        exit(EXIT_FAILURE);
-    }
-    mem->memory = new_mem;
-
-    memcpy(&(mem->memory[mem->size]), ptr, realsize);
-    mem->size += realsize;
-    mem->memory[mem->size] = 0;
-
-    return realsize;
-}
-#endif //USE_CURL
-
-int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
-{
-    // ### Disabled until new multiplayer portal supports it ##
-
-#if 0 
-//#ifdef USE_CURL
-    struct curlMemoryStruct chunk;
-
-    chunk.memory = (char *)malloc(1); /* will be grown as needed by the realloc above */
-    chunk.size = 0; /* no data at this point */
-
-    // construct post fields
-    struct curl_httppost* formpost = NULL;
-    struct curl_httppost* lastptr = NULL;
-
-    std::map<String, AngelScript::CScriptDictionary::valueStruct>::const_iterator it;
-    for (it = params.dict->dict.begin(); it != params.dict->dict.end(); it++)
-    {
-        int typeId = it->second.typeId;
-        if (typeId == mse->getEngine()->GetTypeIdByDecl("string"))
-        {
-            // its a String
-            String* str = (String *)it->second.valueObj;
-            curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, str->c_str(), CURLFORM_END);
-        }
-        else if (typeId == AngelScript::asTYPEID_INT8
-            || typeId == AngelScript::asTYPEID_INT16
-            || typeId == AngelScript::asTYPEID_INT32
-            || typeId == AngelScript::asTYPEID_INT64)
-        {
-            // its an integer
-            curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((int)it->second.valueInt).c_str(), CURLFORM_END);
-        }
-        else if (typeId == AngelScript::asTYPEID_UINT8
-            || typeId == AngelScript::asTYPEID_UINT16
-            || typeId == AngelScript::asTYPEID_UINT32
-            || typeId == AngelScript::asTYPEID_UINT64)
-        {
-            // its an unsigned integer
-            curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((unsigned int)it->second.valueInt).c_str(), CURLFORM_END);
-        }
-        else if (typeId == AngelScript::asTYPEID_FLOAT || typeId == AngelScript::asTYPEID_DOUBLE)
-        {
-            // its a float or double
-            curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((float)it->second.valueFlt).c_str(), CURLFORM_END);
-        }
-    }
-
-    // add some hard coded values
-    //curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_Name", CURLFORM_COPYCONTENTS, gEnv->frameListener->terrainName.c_str(), CURLFORM_END);
-    //curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_FileName", CURLFORM_COPYCONTENTS, gEnv->frameListener->terrainFileName.c_str(), CURLFORM_END);
-    //curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_FileHash", CURLFORM_COPYCONTENTS, gEnv->frameListener->terrainFileHash.c_str(), CURLFORM_END);
-    //curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ModHash", CURLFORM_COPYCONTENTS, gEnv->frameListener->terrainModHash.c_str(), CURLFORM_END);
-    int port = App::GetMpServerPort();
-    std::string server_port_str = "-";
-    if (port != 0)
-    {
-        server_port_str = TOSTRING(port);
-    }
-    const bool mp_connected = (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_NickName", CURLFORM_COPYCONTENTS, App::mp_player_name.GetActive().c_str(), CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Language", CURLFORM_COPYCONTENTS, App::app_language.GetActive().c_str(), CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Token", CURLFORM_COPYCONTENTS, SSETTING("User Token Hash", "-").c_str(), CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_VersionString", CURLFORM_COPYCONTENTS, ROR_VERSION_STRING, CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_ProtocolVersion", CURLFORM_COPYCONTENTS, RORNET_VERSION, CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_BinaryHash", CURLFORM_COPYCONTENTS, "-", CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_GUID", CURLFORM_COPYCONTENTS, "-", CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "MP_ServerName", CURLFORM_COPYCONTENTS, App::GetMpServerHost().c_str(), CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "MP_ServerPort", CURLFORM_COPYCONTENTS, server_port_str.c_str(), CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "MP_NetworkEnabled", CURLFORM_COPYCONTENTS, (mp_connected) ? "Yes" : "No", CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "APIProtocolVersion", CURLFORM_COPYCONTENTS, "2", CURLFORM_END);
-
-    if (App::GetSimController()->GetBeamFactory()->GetPlayerActorInternal())
-    {
-        Beam* truck = App::GetSimController()->GetBeamFactory()->GetPlayerActorInternal();
-        curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_Name", CURLFORM_COPYCONTENTS, truck->GetActorDesignName().c_str(), CURLFORM_END);
-        curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_FileName", CURLFORM_COPYCONTENTS, truck->GetActorFileName().c_str(), CURLFORM_END);
-
-        // look for any locked trucks
-        int i = 0;
-        for (std::vector<hook_t>::iterator it = truck->hooks.begin(); it != truck->hooks.end(); it++ , i++)
-        {
-            Beam* trailer = it->hk_locked_actor;
-            if (trailer && trailer->getTruckName() != trailer->GetActorDesignName())
-            {
-                String name = "Trailer_" + TOSTRING(i) + "_Name";
-                curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, name.c_str(), CURLFORM_COPYCONTENTS, trailer->GetActorDesignName().c_str(), CURLFORM_END);
-                String filename = "Trailer_" + TOSTRING(i) + "_FileName";
-                curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, filename.c_str(), CURLFORM_COPYCONTENTS, trailer->GetActorFileName().c_str(), CURLFORM_END);
-            }
-        }
-        curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Trailer_Count", CURLFORM_COPYCONTENTS, TOSTRING(i).c_str(), CURLFORM_END);
-    }
-
-    const RenderTarget::FrameStats& stats = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "AVG_FPS", CURLFORM_COPYCONTENTS, TOSTRING(stats.avgFPS).c_str(), CURLFORM_END);
-
-    CURLcode res;
-    CURL* curl = curl_easy_init();
-    if (!curl)
-    {
-        LOG("ERROR: failed to init curl");
+    if (player_actor == nullptr)
         return 1;
+
+    std::string url = App::mp_portal_url.GetActive() + apiquery;
+    std::string authorization = std::string("Authorization: ") + App::mp_player_token.GetActive();
+
+    std::string terrain_name = App::GetSimTerrain()->getTerrainName();
+
+    std::string script_name = mse->getScriptName();
+    std::string script_hash = mse->getScriptHash();
+
+    rapidjson::Document j_doc;
+    j_doc.SetObject();
+
+    j_doc.AddMember("user-name", rapidjson::StringRef(App::mp_player_name.GetActive()), j_doc.GetAllocator());
+    j_doc.AddMember("user-country", rapidjson::StringRef(App::app_country.GetActive()), j_doc.GetAllocator());
+    j_doc.AddMember("user-token", rapidjson::StringRef(App::mp_player_token.GetActive()), j_doc.GetAllocator());
+
+    j_doc.AddMember("terrain-name", rapidjson::StringRef(terrain_name.c_str()), j_doc.GetAllocator());
+    j_doc.AddMember("terrain-filename", rapidjson::StringRef(App::sim_terrain_name.GetActive()), j_doc.GetAllocator());
+
+    j_doc.AddMember("script-name", rapidjson::StringRef(script_name.c_str()), j_doc.GetAllocator());
+    j_doc.AddMember("script-hash", rapidjson::StringRef(script_hash.c_str()), j_doc.GetAllocator());
+
+    j_doc.AddMember("actor-name", rapidjson::StringRef(player_actor->ar_design_name.c_str()), j_doc.GetAllocator());
+    j_doc.AddMember("actor-filename", rapidjson::StringRef(player_actor->ar_filename.c_str()), j_doc.GetAllocator());
+    j_doc.AddMember("actor-hash", rapidjson::StringRef(player_actor->ar_filehash.c_str()), j_doc.GetAllocator());
+
+    rapidjson::Value j_linked_actors(rapidjson::kArrayType);
+    for (auto actor : player_actor->GetAllLinkedActors())
+    {
+        rapidjson::Value j_actor(rapidjson::kObjectType);
+        j_actor.AddMember("actor-name", rapidjson::StringRef(actor->ar_design_name.c_str()), j_doc.GetAllocator());
+        j_actor.AddMember("actor-filename", rapidjson::StringRef(actor->ar_filename.c_str()), j_doc.GetAllocator());
+        j_actor.AddMember("actor-hash", rapidjson::StringRef(actor->ar_filehash.c_str()), j_doc.GetAllocator());
+        j_linked_actors.PushBack(j_actor, j_doc.GetAllocator());
+    }
+    j_doc.AddMember("linked-actors", j_linked_actors, j_doc.GetAllocator());
+
+    j_doc.AddMember("avg-fps", getAvgFPS(), j_doc.GetAllocator());
+    j_doc.AddMember("ror-version", rapidjson::StringRef(ROR_VERSION_STRING), j_doc.GetAllocator());
+
+    for (auto item : dict)
+    {
+        const std::string& key = item.GetKey();
+        const std::string* value = (std::string *)item.GetAddressOfValue();
+        j_doc.AddMember(rapidjson::StringRef(key.c_str()), rapidjson::StringRef(value->c_str()), j_doc.GetAllocator());
     }
 
-    char* curl_err_str[CURL_ERROR_SIZE];
-    memset(curl_err_str, 0, CURL_ERROR_SIZE);
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    j_doc.Accept(writer);
+    std::string json = buffer.GetString();
 
-    String url = "http://" + String(REPO_SERVER) + params.apiquery;
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+            _L("using Online API..."), "information.png", 2000);
 
-    /* send all data to this function  */
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlWriteMemoryCallback);
+    LOG("[RoR|GameScript] Creating thread for online API usage...");
 
-    /* we pass our 'chunk' struct to the callback function */
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
-
-    // set post options
-    curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
-
-    // logging stuff
-    //curl_easy_setopt(curl, CURLOPT_STDERR,           LogManager::getsin InstallerLog::getSingleton()->getLogFilePtr());
-    curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curl_err_str[0]);
-
-    // http related settings
-    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1); // follow redirects
-    curl_easy_setopt(curl, CURLOPT_AUTOREFERER, 1); // set the Referrer: field in requests where it follows a Location: redirect.
-    curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 20);
-    curl_easy_setopt(curl, CURLOPT_USERAGENT, "RoR");
-    curl_easy_setopt(curl, CURLOPT_FILETIME, 1);
-
-    // TO BE DONE: ADD SSL
-    // see: http://curl.haxx.se/libcurl/c/simplessl.html
-    // curl_easy_setopt(curl,CURLOPT_SSL_VERIFYPEER,1L);
-
-    res = curl_easy_perform(curl);
-    curl_easy_cleanup(curl);
-
-    //printf("%lu bytes retrieved\n", (long)chunk.size);
-
-    curl_formfree(formpost);
-
-    String result;
-
-    if (chunk.memory)
-    {
-        // convert memory into String now
-        result = String(chunk.memory);
-
-        // then free
-        free(chunk.memory);
-    }
-
-    /* we're done with libcurl, so clean it up */
-    curl_global_cleanup();
-
-    if (res != CURLE_OK)
-    {
-        const char* errstr = curl_easy_strerror(res);
-        result = "ERROR: " + String(errstr);
-    }
-
-    LOG("online API result: " + result);
-
-
-    Console* con = RoR::App::GetConsole();
-    if (con)
-    {
-        con->putMessage(Console::CONSOLE_MSGTYPE_HIGHSCORE, Console::CONSOLE_SYSTEM_NOTICE, ANSI_TO_UTF(result));
-        RoR::App::GetGuiManager()->PushNotification("Script:", ANSI_TO_UTF(result));
-    }
-
-#endif //USE_CURL
-    return 0;
-}
-
-int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptDictionary& d, String& result)
-{
-#if 0 // ========================== disabled until new multiplayer portal supports it =============================
-      // At the moment, the call to "useOnlineAPIDirectly()" is dummy, making this whole function dummy.
-
-    // malloc this, so we are safe from this function scope
-    OnlineAPIParams_t* params = (OnlineAPIParams_t *)malloc(sizeof(OnlineAPIParams_t));
-    if (!params)
-    {
-        free(params);
-        return 1;
-    }
-    params->cls = this;
-    strncpy(params->apiquery, apiquery.c_str(), 2048);
-
-    //wrap a new dict around this, as we dont know if or when the script will release it
-    AngelScript::CScriptDictionary* newDict = new AngelScript::CScriptDictionary(mse->getEngine());
-    // copy over the dict, the main data
-    newDict->dict = d.dict;
-    // assign it to the data container
-    params->dict = newDict;
-    // tell the script that there will be no direct feedback
-    result = "asynchronous";
-
-
-    Console* con = RoR::App::GetConsole();
-    if (con)
-        con->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("using Online API..."), "information.png", 2000);
-    RoR::App::GetGuiManager()->PushNotification("Notice:", _L("using Online API..."));
-
-
-    // fix the String objects in the dict
-    // why we need to do this: when we copy the std::map (dict) over, we calso jsut copy the pointers to String in it.
-    // when this continues and forks, AS releases the strings.
-    // so we will allocate new strings that are persistent.
-    std::map<String, AngelScript::CScriptDictionary::valueStruct>::iterator it;
-    for (it = params->dict->dict.begin(); it != params->dict->dict.end(); it++)
-    {
-        int typeId = it->second.typeId;
-        if (typeId == mse->getEngine()->GetTypeIdByDecl("string"))
+    std::thread([url, authorization, json]()
         {
-            // its a String, copy it over
-            String* str = (String *)it->second.valueObj;
-            it->second.valueObj = (void *)new String(*str);
-        }
-    }
+            struct curl_slist *slist = NULL;
+            slist = curl_slist_append(slist, "Accept: application/json");
+            slist = curl_slist_append(slist, "Content-Type: application/json");
+            slist = curl_slist_append(slist, authorization.c_str());
 
-    // create the thread
-    LOG("creating thread for online API usage...");
+            CURL *curl = curl_easy_init();
+            curl_easy_setopt(curl, CURLOPT_URL,           url.c_str());
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER,    slist);
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS,    json.c_str());
+            curl_easy_perform(curl);
 
-    std::thread([params]()
-        {
-            // call the function
-            params->cls->useOnlineAPIDirectly(*params);
-
-            // free the params
-            params->dict->Release();
-            free(params);
+            curl_easy_cleanup(curl);
+            curl = nullptr;
+            curl_slist_free_all(slist);
+            slist = NULL;
         }).detach();
-
-#endif // #if 0 =============== END disabled block of code ========================
 
     return 0;
 }
@@ -1017,4 +834,9 @@ void GameScript::quitGame()
 float GameScript::getFPS()
 {
     return App::GetOgreSubsystem()->GetRenderWindow()->getStatistics().lastFPS;
+}
+
+float GameScript::getAvgFPS()
+{
+    return App::GetOgreSubsystem()->GetRenderWindow()->getStatistics().avgFPS;
 }

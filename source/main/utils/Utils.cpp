@@ -23,6 +23,7 @@
 
 #include "RoRnet.h"
 #include "RoRVersion.h"
+#include "SHA1.h"
 
 #include <Ogre.h>
 
@@ -35,6 +36,16 @@
 #endif
 
 using namespace Ogre;
+
+String sha1sum(const char *key, int len)
+{
+    RoR::CSHA1 sha1;
+    sha1.UpdateHash((uint8_t *)key, len);
+    sha1.Final();
+    char buf[40] = "";
+    sha1.ReportHash(buf, RoR::CSHA1::REPORT_HEX_SHORT);
+    return String(buf, 40);
+}
 
 String HashData(const char *key, int len)
 {
