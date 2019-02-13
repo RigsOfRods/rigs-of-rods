@@ -2002,7 +2002,6 @@ bool SimController::SetupGameplayLoop()
     if (!App::diag_preset_terrain.IsActiveEmpty())
     {
         App::sim_terrain_name.SetPending(App::diag_preset_terrain.GetActive());
-        App::diag_preset_terrain.SetActive("");
     }
 
     // Terrain name lookup
@@ -2038,10 +2037,9 @@ bool SimController::SetupGameplayLoop()
         }
     }
 
-
     if (App::sim_load_savegame.GetActive())
     {
-        if (!App::sim_terrain_name.IsPendingEmpty())
+        if (!App::diag_preset_terrain.IsActiveEmpty())
         {
             String filename = m_actor_manager.GetQuicksaveFilename(App::sim_terrain_name.GetPending());
             App::sim_savegame.SetActive(filename.c_str());
@@ -2062,6 +2060,8 @@ bool SimController::SetupGameplayLoop()
         App::GetGuiManager()->SetVisible_LoadingWindow(false);
         return false;
     }
+
+    App::diag_preset_terrain.SetActive("");
 
     if (! this->LoadTerrain())
     {
