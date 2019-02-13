@@ -468,14 +468,10 @@ void TerrainManager::initScripting()
 #ifdef USE_ANGELSCRIPT
     bool loaded = false;
 
-    // only load terrain scripts while not in multiplayer
-    if (RoR::App::mp_state.GetActive() != RoR::MpState::CONNECTED)
+    for (std::string as_filename : m_def.as_files)
     {
-        for (std::string as_filename : m_def.as_files)
-        {
-            if (ScriptEngine::getSingleton().loadScript(as_filename) == 0)
-                loaded = true;
-        }
+        if (ScriptEngine::getSingleton().loadScript(as_filename) == 0)
+            loaded = true;
     }
 
     if (!loaded)
