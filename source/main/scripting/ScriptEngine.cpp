@@ -715,8 +715,10 @@ void ScriptEngine::triggerEvent(int eventnum, int value)
     }
 }
 
-int ScriptEngine::loadScript(String scriptName)
+int ScriptEngine::loadScript(String _scriptName)
 {
+    scriptName = _scriptName;
+
     // Load the entire script file into the buffer
     int result=0;
 
@@ -749,6 +751,8 @@ int ScriptEngine::loadScript(String scriptName)
         SLOG("Failed to build the module");
         return result;
     }
+
+    scriptHash = builder.GetHash();
 
     // get some other optional functions
     frameStepFunctionPtr = mod->GetFunctionByDecl("void frameStep(float)");

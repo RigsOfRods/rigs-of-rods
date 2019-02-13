@@ -712,26 +712,25 @@ class racesManager {
 		{				
 			string api_return;
 			dictionary dict;
-			dict.set("raceManagerVersion", ""+this.raceManagerVersion);
-			dict.set("raceName", ""+this.raceList[raceID].raceName);
-			dict.set("raceVersion", ""+this.raceList[raceID].raceVersion);
-			dict.set("laptime", time);
+			dict.set("race-name", ""+this.raceList[raceID].raceName);
+			dict.set("race-version", ""+this.raceList[raceID].raceVersion);
+			dict.set("lap-time", ""+time);
 			string times = "0.0";
 			for( uint i = 1; i < this.raceList[raceID].lastTimeTillPoint.length() ; i++ )
 			{
 				times += ";"+this.raceList[raceID].lastTimeTillPoint[i];
 				// dict.set("chptime"+i, this.raceList[raceID].lastTimeTillPoint[i]);
 			}
-			dict.set("chptimes", ""+times);
+			dict.set("split-times", ""+times);
 			
 			times = ""+this.penaltyTime[0];
 			for( uint i = 1; i < this.penaltyTime.length() ; i++ )
 			{
 				times += ";"+this.penaltyTime[i];
 			}
-			dict.set("penaltytimes", ""+times);
+			dict.set("penalty-times", ""+times);
 			
-			int res = game.useOnlineAPI("/submit_race_time/", dict, api_return);
+			int res = game.useOnlineAPI("/races", dict, api_return);
 			// debug: game.log("useOnlineAPI returned: " + res);
 			// debug: game.log("useOnlineAPI return string: " + api_return);
 		}

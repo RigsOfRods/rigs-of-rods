@@ -26,6 +26,7 @@
 #include "OgreScriptBuilder.h"
 
 #include "Application.h"
+#include "Utils.h"
 
 #include <string>
 
@@ -68,10 +69,8 @@ int OgreScriptBuilder::LoadScriptSection(const char* full_path_cstr)
         return -1;
     }
 
-    // Read the entire file
-    std::string code;
-    code.resize(ds->size());
-    ds->read(&code[0], ds->size());
+    const std::string& code = ds->getAsString();
+    hash = sha1sum(code.c_str(), code.length());
 
     return ProcessScriptSection(code.c_str(), static_cast<unsigned int>(code.length()), filename.c_str(), 0);
 }

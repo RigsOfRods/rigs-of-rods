@@ -35,7 +35,10 @@
 // to use the ogre resource system
 class OgreScriptBuilder : public AngelScript::CScriptBuilder, public ZeroedMemoryAllocator
 {
+public:
+    Ogre::String GetHash() { return hash; };
 protected:
+    Ogre::String hash;
     int LoadScriptSection(const char* filename);
 };
 

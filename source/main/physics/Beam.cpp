@@ -4431,21 +4431,6 @@ float Actor::getSteeringAngle()
     return ar_hydro_dir_command;
 }
 
-std::string Actor::GetActorDesignName()
-{
-    return ar_design_name;
-}
-
-std::string Actor::GetActorFileName()
-{
-    return ar_filename;
-}
-
-int Actor::GetActorType()
-{
-    return ar_driveable;
-}
-
 std::vector<authorinfo_t> Actor::getAuthors()
 {
     return authors;

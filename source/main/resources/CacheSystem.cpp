@@ -43,9 +43,6 @@
 #include "Utils.h"
 
 #include <OgreFileSystem.h>
-#ifdef Bool // Conflicts with RapidJSON, see https://github.com/Tencent/rapidjson/issues/628
-#   undef Bool
-#endif
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/ostreamwrapper.h>
@@ -205,7 +202,7 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
 {
     this->GenerateHashFromFilenames();
 
-    // First, open cache file and get SHA1 hash for quick update check
+    // First, open cache file and get hash for quick update check
     std::ifstream ifs(this->GetCacheConfigFilename()); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
     rapidjson::IStreamWrapper isw(ifs);
     rapidjson::Document j_doc;
