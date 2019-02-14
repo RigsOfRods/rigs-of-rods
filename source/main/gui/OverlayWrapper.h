@@ -77,7 +77,6 @@ public:
 
     void ShowRacingOverlay();
     void HideRacingOverlay();
-    void RaceEnded(float best_time);
     void UpdateRacingGui(RoR::GfxScene* gs);
 
     /// Hides all overlays, but doesn't change visibility flags (for further restoring).
@@ -166,10 +165,8 @@ protected:
     Ogre::TextAreaOverlayElement* guiAuto3D[5];
 
     // Truck (m_racing_overlay)
-    Ogre::TextAreaOverlayElement* laptimemin;
-    Ogre::TextAreaOverlayElement* laptimes;
-    Ogre::TextAreaOverlayElement* laptimems;
-    Ogre::TextAreaOverlayElement* lasttime;
+    Ogre::TextAreaOverlayElement* laptime;
+    Ogre::TextAreaOverlayElement* bestlaptime;
     Ogre::TextAreaOverlayElement* directionArrowText;
     Ogre::TextAreaOverlayElement* directionArrowDistance;
 

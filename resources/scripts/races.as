@@ -466,6 +466,7 @@ class racesManager {
 		this.raceStartTime = game.getTime();
 		this.lapStartTime = this.raceStartTime;
 		game.startTimer(raceID);
+		game.setBestLapTime(this.raceList[raceID].bestLapTime);
 		this.recalcArrow();
 		this.truckNum = game.getCurrentTruckNumber();
 		this.raceList[raceID].lastTimeTillPoint[0] = 0.0;
@@ -642,13 +643,15 @@ class racesManager {
 		string timeDiff = "";
 		if(this.showTimeDiff and this.raceList[raceID].bestTimeTillPoint[this.lastCheckpoint] > 0.0)
 		{
-			if( (time-this.raceList[raceID].bestTimeTillPoint[this.lastCheckpoint]) > 0 )
-				timeDiff = " (+"+ (time-this.raceList[raceID].bestTimeTillPoint[this.lastCheckpoint]) +")";
-			else if( (time-this.raceList[raceID].bestTimeTillPoint[this.lastCheckpoint]) < 0 )
+			double diff = time-this.raceList[raceID].bestTimeTillPoint[this.lastCheckpoint];
+			if( diff > 0 )
+				timeDiff = " (+"+ diff +")";
+			else if( diff < 0 )
 			{
-				timeDiff = " ("+ (time-this.raceList[raceID].bestTimeTillPoint[this.lastCheckpoint]) +")";
+				timeDiff = " ("+ diff +")";
 				this.raceList[raceID].bestTimeTillPoint[this.lastCheckpoint] = time;
 			}
+			game.setTimeDiff(diff);
 		}
 		else
 			this.raceList[raceID].bestTimeTillPoint[this.lastCheckpoint] = time;
@@ -703,6 +706,7 @@ class racesManager {
 			}
 			
 			this.raceList[raceID].bestLapTime = time;
+			game.setBestLapTime(time);
 			newBestLap = true;
 		}
 		else

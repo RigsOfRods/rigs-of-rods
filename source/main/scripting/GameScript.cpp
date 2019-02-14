@@ -176,14 +176,24 @@ bool GameScript::getCaelumAvailable()
     return result;
 }
 
-float GameScript::stopTimer()
+void GameScript::stopTimer()
 {
-    return App::GetSimController()->StopRaceTimer();
+    App::GetSimController()->StopRaceTimer();
 }
 
 void GameScript::startTimer(int id)
 {
-    return App::GetSimController()->StartRaceTimer(id);
+    App::GetSimController()->StartRaceTimer(id);
+}
+
+void GameScript::setTimeDiff(float diff)
+{
+    App::GetSimController()->SetRaceTimeDiff(diff);
+}
+
+void GameScript::setBestLapTime(float time)
+{
+    App::GetSimController()->SetRaceBestTime(time);
 }
 
 void GameScript::setWaterHeight(float value)

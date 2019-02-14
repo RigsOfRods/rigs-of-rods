@@ -252,8 +252,10 @@ void ScriptEngine::init()
     result = engine->RegisterObjectMethod("GameScriptClass", "void activateAllVehicles()", AngelScript::asMETHOD(GameScript,activateAllVehicles), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setTrucksForcedActive(bool forceActive)", AngelScript::asMETHOD(GameScript,SetTrucksForcedAwake), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setBestLapTime(float time)", AngelScript::asMETHOD(GameScript,setBestLapTime), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setTimeDiff(float diff)", AngelScript::asMETHOD(GameScript,setTimeDiff), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void startTimer(int id)", AngelScript::asMETHOD(GameScript,startTimer), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("GameScriptClass", "float stopTimer()", AngelScript::asMETHOD(GameScript,stopTimer), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void stopTimer()", AngelScript::asMETHOD(GameScript,stopTimer), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void flashMessage(const string &in, float, float)", AngelScript::asMETHOD(GameScript,flashMessage), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void message(const string &in, const string &in, float, bool)", AngelScript::asMETHOD(GameScript,message), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void UpdateDirectionArrow(const string &in, vector3 &in)", AngelScript::asMETHOD(GameScript,UpdateDirectionArrow), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
