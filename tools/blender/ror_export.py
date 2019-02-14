@@ -47,6 +47,7 @@ class ror_export(bpy.types.Operator, ExportHelper):
             if obj.type != 'MESH':
                 continue
 
+            current_mode = bpy.context.object.mode
             bpy.ops.object.mode_set(mode="OBJECT")
             bpy.ops.object.mode_set(mode="EDIT")
             bm = bmesh.from_edit_mesh(obj.data)
@@ -100,7 +101,7 @@ class ror_export(bpy.types.Operator, ExportHelper):
                         options = 'c'
                     cabs.append([format_string.format(p.vertices[0], p.vertices[1], p.vertices[2]), options])
 
-            bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.object.mode_set(mode=current_mode)
             bm.free()
 
         truckfile = []
@@ -119,7 +120,7 @@ class ror_export(bpy.types.Operator, ExportHelper):
             defaults = ''
             vertex_groups = []
             for n in sorted(nodes):
-                if n[-1] != defaults:
+                if n[-1] and n[-1] != defaults:
                     defaults = n[-1]
                     print (defaults, file=f)
                 if n[-2] != vertex_groups:
@@ -136,7 +137,7 @@ class ror_export(bpy.types.Operator, ExportHelper):
             print("beams", file=f)
             edge_groups = []
             for b in sorted(beams):
-                if b[-1] != defaults:
+                if b[-1] and b[-1] != defaults:
                     defaults = b[-1]
                     print (defaults, file=f)
                 if b[1] != edge_groups:
