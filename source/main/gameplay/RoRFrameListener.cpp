@@ -566,20 +566,22 @@ void SimController::UpdateInputEvents(float dt)
 
     static auto& object_list = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
     static bool terrain_editing_track_object = true;
-    static bool terrain_editing_mode = false;
     static int terrain_editing_rotation_axis = 1;
     static int object_count = object_list.size();
     static int object_index = -1;
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR))
+    bool toggle_editor = (m_player_actor && simEDITOR(s)) ||
+        (!m_player_actor && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
+
+    if (toggle_editor)
     {
-        terrain_editing_mode = !terrain_editing_mode;
-        App::sim_state.SetActive(terrain_editing_mode ? SimState::EDITOR_MODE : SimState::RUNNING);
-        UTFString ssmsg = terrain_editing_mode ? _L("Entered terrain editing mode") : _L("Left terrain editing mode");
-        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+        App::sim_state.SetActive(simEDITOR(s) ? SimState::RUNNING : SimState::EDITOR_MODE);
+        UTFString ssmsg = simEDITOR(s) ? _L("Left terrain editing mode") : _L("Entered terrain editing mode");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg,
+                "infromation.png", 2000, false);
         RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
 
-        if (terrain_editing_mode)
+        if (simEDITOR(s))
         {
             object_list = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
             object_index = -1;
@@ -1381,11 +1383,6 @@ void SimController::UpdateInputEvents(float dt)
                 break;
             }
         }
-    }
-    else
-    {
-        //no terrain or actor loaded
-        terrain_editing_mode = false;
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_GET_NEW_VEHICLE))
