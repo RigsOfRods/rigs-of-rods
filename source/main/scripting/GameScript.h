@@ -339,8 +339,10 @@ public:
 
     int getNumTrucksByFlag(int flag);
     bool getCaelumAvailable();
-    float stopTimer();
+    void stopTimer();
     void startTimer(int id);
+    void setTimeDiff(float diff);
+    void setBestLapTime(float time);
     Ogre::String getSetting(const Ogre::String& str);
     void hideDirectionArrow();
     int setMaterialAmbient(const Ogre::String& materialName, float red, float green, float blue);

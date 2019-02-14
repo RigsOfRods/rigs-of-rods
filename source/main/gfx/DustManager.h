@@ -57,7 +57,8 @@ public:
         bool           simbuf_sim_paused;
         float          simbuf_sim_speed;
         float          simbuf_race_time;
-        float          simbuf_race_bestlap_time;
+        float          simbuf_race_best_time;
+        float          simbuf_race_time_diff;
         bool           simbuf_race_in_progress;
         bool           simbuf_race_in_progress_prev;
     };

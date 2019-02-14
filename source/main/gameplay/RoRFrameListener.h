@@ -80,10 +80,13 @@ public:
     void   UpdateDirectionArrow  (char* text, Ogre::Vector3 position);
     void   ShowLoaderGUI         (int type, const Ogre::String& instance, const Ogre::String& box);
     void   StartRaceTimer        (int id); // Do not call manually!
-    float  StopRaceTimer         (); // Do not call manually!
+    void   StopRaceTimer         (); // Do not call manually!
+    void   SetRaceTimeDiff       (float diff) { m_race_time_diff = diff; }; // Do not call manually!
+    float  GetRaceTimeDiff       () const { return m_race_time_diff; };
+    void   SetRaceBestTime       (float time) { m_race_best_time = time; }; // Do not call manually!
+    float  GetRaceBestTime       () const { return m_race_best_time; };
     int    GetRaceId             () const { return m_race_id; }
     float  GetRaceTime           () const { return static_cast<float>(m_time - m_race_start_time); }
-    float  GetRaceBestTime       () const { return m_race_bestlap_time; }
     bool   IsRaceInProgress      () const { return m_race_id != -1; }
     bool   LoadTerrain           (); ///< Reads GVar 'sim_terrain_pending'
 
@@ -166,8 +169,9 @@ private:
     Ogre::String             m_last_screenshot_date;
 
     int                      m_race_id;
+    float                    m_race_time_diff;
+    float                    m_race_best_time;
     float                    m_race_start_time;
-    float                    m_race_bestlap_time;
 
     bool                     m_soft_reset_mode;
     bool                     m_advanced_vehicle_repair;

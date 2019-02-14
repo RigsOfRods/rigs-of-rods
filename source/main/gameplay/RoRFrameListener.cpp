@@ -114,9 +114,10 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_physics_simulation_time(0.0f),
     m_pressure_pressed(false),
     m_pressure_pressed_timer(0.0f),
-    m_race_bestlap_time(0),
     m_race_id(-1),
     m_race_start_time(0),
+    m_race_best_time(0),
+    m_race_time_diff(0),
     m_reload_dir(Quaternion::IDENTITY),
     m_reload_pos(Vector3::ZERO),
     m_screenshot_request(false),
@@ -149,19 +150,14 @@ void SimController::UpdateForceFeedback()
 void SimController::StartRaceTimer(int id)
 {
     m_race_start_time = m_time;
+    m_race_time_diff = 0.0f;
     m_race_id = id;
 }
 
-float SimController::StopRaceTimer()
+void SimController::StopRaceTimer()
 {
-    if (m_race_id != -1)
-    {
-        m_race_bestlap_time = m_time - m_race_start_time;
-        m_race_start_time = 0.0f;
-        m_race_id = -1;
-    }
-
-    return m_race_bestlap_time;
+    m_race_start_time = 0.0f;
+    m_race_id = -1;
 }
 
 void SimController::HandleSavegameShortcuts()

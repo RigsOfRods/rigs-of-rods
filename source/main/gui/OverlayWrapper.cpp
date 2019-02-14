@@ -341,15 +341,8 @@ int OverlayWrapper::init()
     m_truck_pressure_needle_overlay = loadOverlay("tracks/PressureNeedleOverlay");
 
     m_racing_overlay = loadOverlay("tracks/Racing", false);
-    laptimemin = (TextAreaOverlayElement*)loadOverlayElement("tracks/LapTimemin");
-    laptimes = (TextAreaOverlayElement*)loadOverlayElement("tracks/LapTimes");
-    laptimems = (TextAreaOverlayElement*)loadOverlayElement("tracks/LapTimems");
-    lasttime = (TextAreaOverlayElement*)loadOverlayElement("tracks/LastTime");
-    lasttime->setCaption("");
-
-    // openGL fix
-    m_racing_overlay->show();
-    m_racing_overlay->hide();
+    laptime = (TextAreaOverlayElement*)loadOverlayElement("tracks/Racing/LapTime");
+    bestlaptime = (TextAreaOverlayElement*)loadOverlayElement("tracks/Racing/BestLapTime");
 
     g_is_scaled = true;
 
@@ -733,7 +726,8 @@ void OverlayWrapper::SetupDirectionArrow()
     if (RoR::App::GetOverlayWrapper() != nullptr)
     {
         // setup direction arrow
-        Ogre::Entity* arrow_entity = gEnv->sceneManager->createEntity("dirArrowEntity", "arrow2.mesh");
+        Ogre::Entity* arrow_entity = gEnv->sceneManager->createEntity("arrow2.mesh");
+        arrow_entity->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
 
         // Add entity to the scene node
         m_direction_arrow_node = new SceneNode(gEnv->sceneManager);
@@ -742,7 +736,7 @@ void OverlayWrapper::SetupDirectionArrow()
         m_direction_arrow_node->setScale(0.1, 0.1, 0.1);
         m_direction_arrow_node->setPosition(Vector3(-0.6, +0.4, -1));
         m_direction_arrow_node->setFixedYawAxis(true, Vector3::UNIT_Y);
-        RoR::App::GetOverlayWrapper()->m_direction_arrow_overlay->add3D(m_direction_arrow_node);
+        m_direction_arrow_overlay->add3D(m_direction_arrow_node);
     }
 }
 
@@ -1177,27 +1171,12 @@ void OverlayWrapper::ShowRacingOverlay()
 {
     m_racing_overlay->show();
     BITMASK_SET_1(m_visible_overlays, VisibleOverlays::RACING);
-    laptimes->show();
-    laptimems->show();
-    laptimemin->show();
 }
 
 void OverlayWrapper::HideRacingOverlay()
 {
     m_racing_overlay->hide();
     BITMASK_SET_0(m_visible_overlays, VisibleOverlays::RACING);
-}
-
-void OverlayWrapper::RaceEnded(float best_time)
-{
-    // Keep display active
-    wchar_t txt[256] = L"";
-    UTFString fmt = _L("Last lap: %.2i'%.2i.%.2i");
-    swprintf(txt, 256, fmt.asWStr_c_str(), ((int)(best_time)) / 60, ((int)(best_time)) % 60, ((int)(best_time * 100.0)) % 100);
-    lasttime->setCaption(UTFString(txt));
-    laptimes->hide();
-    laptimems->hide();
-    laptimemin->hide();
 }
 
 void OverlayWrapper::TemporarilyHideAllOverlays(Actor* current_vehicle)
@@ -1229,12 +1208,31 @@ void OverlayWrapper::RestoreOverlaysVisibility(Actor* current_vehicle)
 
 void OverlayWrapper::UpdateRacingGui(RoR::GfxScene* gs)
 {
-    const float time = gs->GetSimDataBuffer().simbuf_race_time;
-    wchar_t txt[10];
-    swprintf(txt, 10, L"%.2i", ((int)(time * 100.0)) % 100);
-    this->laptimems->setCaption(txt);
-    swprintf(txt, 10, L"%.2i", ((int)(time)) % 60);
-    this->laptimes->setCaption(txt);
-    swprintf(txt, 10, L"%.2i'", ((int)(time)) / 60);
-    this->laptimemin->setCaption(UTFString(txt));
+    float time = gs->GetSimDataBuffer().simbuf_race_time;
+    UTFString txt = StringUtil::format("%.2i'%.2i.%.2i", (int)(time) / 60, (int)(time) % 60, (int)(time * 100.0) % 100);
+    this->laptime->setCaption(txt);
+    if (gs->GetSimDataBuffer().simbuf_race_best_time > 0.0f)
+    {
+        time = gs->GetSimDataBuffer().simbuf_race_best_time;
+        txt = StringUtil::format("%.2i'%.2i.%.2i", (int)(time) / 60, (int)(time) % 60, (int)(time * 100.0) % 100);
+        this->bestlaptime->setCaption(txt);
+        this->bestlaptime->show();
+    }
+    else
+    {
+        this->bestlaptime->hide();
+    }
+
+    float time_diff = gs->GetSimDataBuffer().simbuf_race_time_diff;
+    Ogre::ColourValue colour = Ogre::ColourValue::White;
+    if (time_diff > 0.0f)
+    {
+        colour = ColourValue(0.8, 0.0, 0.0);
+    }
+    else if (time_diff < 0.0f)
+    {
+        colour = ColourValue(0.0, 0.8, 0.0);
+    }
+    this->laptime->setColourTop(colour);
+    this->laptime->setColourBottom(colour);
 }

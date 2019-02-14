@@ -176,7 +176,7 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         }
         else // Ended
         {
-            RoR::App::GetOverlayWrapper()->RaceEnded(m_simbuf.simbuf_race_bestlap_time);
+            RoR::App::GetOverlayWrapper()->HideRacingOverlay();
         }
     }
     if (m_simbuf.simbuf_race_in_progress)
@@ -281,8 +281,10 @@ void RoR::GfxScene::BufferSimulationData()
     m_simbuf.simbuf_sim_paused = App::GetSimController()->GetPhysicsPaused();
     m_simbuf.simbuf_sim_speed = App::GetSimController()->GetBeamFactory()->GetSimulationSpeed();
     m_simbuf.simbuf_race_time = App::GetSimController()->GetRaceTime();
+    m_simbuf.simbuf_race_best_time = App::GetSimController()->GetRaceBestTime();
+    m_simbuf.simbuf_race_time_diff = App::GetSimController()->GetRaceTimeDiff();
+    m_simbuf.simbuf_race_in_progress_prev = m_simbuf.simbuf_race_in_progress;
     m_simbuf.simbuf_race_in_progress = App::GetSimController()->IsRaceInProgress();
-    m_simbuf.simbuf_race_bestlap_time = App::GetSimController()->GetRaceBestTime();
 
     m_live_gfx_actors.clear();
     for (GfxActor* a: m_all_gfx_actors)
@@ -329,8 +331,9 @@ RoR::GfxScene::SimBuffer::SimBuffer():
     simbuf_tyrepressurize_active(false),
     simbuf_race_in_progress(false),
     simbuf_race_in_progress_prev(false),
-    simbuf_race_bestlap_time(0.f),
     simbuf_sim_speed(1.0f),
     simbuf_race_time(0.0f),
+    simbuf_race_best_time(0.0f),
+    simbuf_race_time_diff(0.0f),
     simbuf_dir_arrow_target(Ogre::Vector3::ZERO)
 {}
