@@ -184,6 +184,7 @@ void RoR::GUI::GameSettings::Draw()
 
         DrawGCheckbox(App::app_skip_main_menu, _LC("GameSettings", "Skip main menu"));
         DrawGCheckbox(App::app_async_physics, _LC("GameSettings", "Async physics"));
+        DrawGCheckbox(App::app_disable_online_api, _LC("GameSettings", "Disable online api"));
 
         ImGui::Separator();
         ImGui::TextDisabled(_LC("GameSettings", "Simulation settings"));

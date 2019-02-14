@@ -87,6 +87,7 @@ static TerrainManager*  g_sim_terrain;
  GVarStr_A<300>           app_extra_mod_path      ("app_extra_mod_path",      "Extra mod path",            "");
  GVarPod_A<bool>          app_force_cache_purge   ("app_force_cache_purge",   nullptr,                     false);
  GVarPod_A<bool>          app_force_cache_udpate  ("app_force_cache_udpate",  nullptr,                     false);
+ GVarPod_A<bool>          app_disable_online_api  ("app_disable_online_api",  "Disable Online API",        false);
 
 
 // Simulation

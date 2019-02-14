@@ -646,6 +646,9 @@ void GameScript::cameraLookAt(const Vector3& pos)
 
 int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptDictionary& dict, String& result)
 {
+    if (App::app_disable_online_api.GetActive())
+        return 0;
+
     Actor* player_actor = App::GetSimController()->GetPlayerActor();
 
     if (player_actor == nullptr)
@@ -705,7 +708,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
             _L("using Online API..."), "information.png", 2000);
 
-    LOG("[RoR|GameScript] Creating thread for online API usage...");
+    LOG("[RoR|GameScript] Submitting race results to '" + url + "'");
 
     std::thread([url, authorization, json]()
         {
