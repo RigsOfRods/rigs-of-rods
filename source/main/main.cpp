@@ -97,7 +97,11 @@ int main(int argc, char *argv[])
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
             ror_homedir << user_home << PATH_SLASH << "Rigs of Rods " << ROR_VERSION_STRING_SHORT;
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-            ror_homedir << user_home << PATH_SLASH << ".rigsofrods";
+            char* env_SNAP = getenv("SNAP_USER_COMMON");
+            if(env_SNAP)
+                ror_homedir = env_SNAP;
+            else
+                ror_homedir << user_home << PATH_SLASH << ".rigsofrods";
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
             ror_homedir << user_home << PATH_SLASH << "RigsOfRods";
 #endif

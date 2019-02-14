@@ -1,0 +1,149 @@
+name: rigs-of-rods
+version: 0.4.8.0
+confinement: strict
+summary: Rigs of Rods
+description: |
+    Rigs of Rods is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics. 
+    The soft-body physics system is based on mass-spring-damper theory.
+
+apps:
+    rigs-of-rods:
+        command: desktop-launch $SNAP/build/rigs-of-rods/parts/ror/build/redist/bin/RoR
+        plugs: [opengl, x11, pulseaudio, network]
+parts:
+    ogre:
+        plugin: cmake
+        configflags:
+            - -DCMAKE_BUILD_TYPE=Release
+            - -DOGRE_CONFIG_THREAD_PROVIDER=std
+            - -DOGRE_CONFIG_THREADS=3
+            - -DOGRE_STATIC=FALSE
+            - -DOGRE_BUILD_DEPENDENCIES=FALSE
+            - -DOGRE_BUILD_RENDERSYSTEM_GL=TRUE
+            - -DOGRE_RESOURCEMANAGER_STRICT=0
+            # stuff we dont need
+            - -DOGRE_BUILD_RENDERSYSTEM_GL3PLUS=FALSE
+            - -DOGRE_BUILD_RENDERSYSTEM_GLES2=FALSE
+            - -DOGRE_BUILD_TOOLS=FALSE
+            - -DOGRE_BUILD_SAMPLES=FALSE
+            - -DOGRE_BUILD_PLUGIN_STBI=FALSE # we want to use freeimage instead
+            - -DOGRE_BUILD_PLUGIN_EXRCODEC=FALSE
+            - -DOGRE_BUILD_PLUGIN_BSP=FALSE
+            - -DOGRE_BUILD_PLUGIN_PCZ=FALSE
+            - -DOGRE_BUILD_COMPONENT_JAVA=FALSE
+            - -DOGRE_BUILD_COMPONENT_VOLUME=FALSE
+            - -DOGRE_BUILD_COMPONENT_PROPERTY=FALSE
+            - -DOGRE_BUILD_COMPONENT_HLMS=FALSE
+            - -DCMAKE_INSTALL_PREFIX=/usr/
+        source: https://github.com/OGRECave/ogre.git
+        source-tag: stable
+        source-depth: 1
+        build-packages:
+            - libxaw7-dev
+            - libzzip-dev
+            - libxrandr-dev
+            - libfreetype6-dev
+            - libfreeimage-dev
+            - libxt-dev
+            - libgl1-mesa-dev
+            - libglu1-mesa-dev
+        stage-packages:
+            - libfreetype6
+            - libfreeimage3
+            - libzzip-0-13
+            - libxaw7
+            - libxt6
+            - try: [nvidia-cg-dev] # should be in build-packages, but we have no try: there
+            - try: [libcggl]
+        stage:
+            - -usr/share/OGRE/Media/volumeTerrain
+            - -usr/share/OGRE/Media/materials
+            - -usr/share/OGRE/Media/models
+            - -usr/share/OGRE/Media/thumbnails
+            - -usr/share/OGRE/Media/packs/chiropteraDM.pk3
+            - -usr/share/OGRE/Media/packs/fresneldemo.zip
+            - -usr/share/OGRE/Media/packs/DamagedHelmet.zip
+            - -usr/share/OGRE/resources.cfg
+    mygui:
+        plugin: cmake
+        configflags:
+            - -DCMAKE_BUILD_TYPE=Release
+            - -DCMAKE_INSTALL_PREFIX=/usr/
+            - -DCMAKE_CXX_FLAGS=-std=c++11
+            - -DMYGUI_BUILD_DEMOS=FALSE
+            - -DMYGUI_BUILD_TOOLS=FALSE
+        source: https://github.com/MyGUI/mygui.git
+        source-tag: master
+        source-depth: 1
+        after: [ogre]
+    caelum:
+        plugin: cmake
+        configflags:
+            - -DCMAKE_BUILD_TYPE=Release
+            - -DCMAKE_INSTALL_PREFIX=/usr/
+            - -DCMAKE_CXX_FLAGS=-std=c++11
+            - -DCaelum_BUILD_SAMPLES=FALSE
+            - -DINSTALL_OGRE_PLUGIN=OFF
+        source: https://github.com/RigsOfRods/ogre-caelum.git
+        source-depth: 1
+        after: [ogre]
+    socketw:
+        plugin: cmake
+        source: https://github.com/RigsOfRods/socketw.git
+        configflags:
+            - -DCMAKE_BUILD_TYPE=Release
+            - -DCMAKE_INSTALL_PREFIX=/usr/
+        build-packages:
+            - libssl-dev
+        stage-packages:
+            - libssl1.0.0
+    angelscript:
+        plugin: cmake
+        source: https://github.com/AnotherFoxGuy/angelscript.git
+        source-depth: 1
+        configflags:
+            - -DCMAKE_BUILD_TYPE=Release
+            - -DCMAKE_INSTALL_PREFIX=/usr/
+    rapidjson:
+        plugin: cmake
+        source: https://github.com/miloyip/rapidjson.git
+        source-depth: 1
+        configflags:
+            - -DCMAKE_BUILD_TYPE=Release
+            - -DCMAKE_INSTALL_PREFIX=/usr/
+            - -DINCLUDE_INSTALL_DIR=/usr/include # rapidjson will add "rapidjson" subdirectory
+            - -DRAPIDJSON_BUILD_EXAMPLES=NO
+            - -DRAPIDJSON_BUILD_TESTS=NO
+            - -DRAPIDJSON_BUILD_THIRDPARTY_GTEST=NO
+    mofilereader:
+        plugin: cmake
+        source: https://github.com/AnotherFoxGuy/MofileReader.git
+        source-depth: 1
+        configflags:
+            - -DCMAKE_BUILD_TYPE=Release
+            - -DCMAKE_INSTALL_PREFIX=/usr/
+    ror:
+        plugin: cmake
+        source: https://github.com/paroj/rigs-of-rods.git
+        source-tag: master
+        source-depth: 1
+        configflags:
+            - -DCMAKE_BUILD_TYPE=Release
+            - -DCMAKE_INSTALL_PREFIX=/usr/
+            - -DBUILD_REDIST_FOLDER=TRUE
+        override-build: |
+            snapcraftctl build
+            make zip_and_copy_resources
+            cp -R bin/content $SNAPCRAFT_PART_INSTALL/$SNAPCRAFT_PART_BUILD/redist/bin/
+            cp -R bin/resources $SNAPCRAFT_PART_INSTALL/$SNAPCRAFT_PART_BUILD/redist/bin/
+            sed -i -e 's/=lib/=\/snap\/rigs-of-rods\/current\/usr\/lib\/OGRE/g' $SNAPCRAFT_PART_INSTALL/$SNAPCRAFT_PART_BUILD/redist/bin/plugins.cfg
+        build-packages:
+            - libopenal-dev
+            - libois-dev
+            - libcurl4-openssl-dev
+        stage-packages:
+            - libopenal1
+            - libpulse0
+            - libois-1.3.0v5
+            - libcurl3
+        after: [ogre, mygui, caelum, socketw, angelscript, rapidjson, mofilereader, desktop-glib-only]
