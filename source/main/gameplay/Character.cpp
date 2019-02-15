@@ -101,6 +101,9 @@ void Character::setRotation(Radian rotation)
 
 void Character::SetAnimState(std::string mode, float time)
 {
+    if (mode.empty())
+        return; // Multiplayer safe-guard
+
     if (m_anim_name != mode)
     {
         m_anim_name = mode;
