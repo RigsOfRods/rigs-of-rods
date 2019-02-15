@@ -239,37 +239,19 @@ void CSHA1::Final()
 
 #ifdef SHA1_UTILITY_FUNCTIONS
 // Get the final hash as a pre-formatted string
-void CSHA1::ReportHash(char *szReport, unsigned char uReportType)
+std::string CSHA1::ReportHash()
 {
     unsigned char i;
-    char szTemp[16];
+    char szTemp[16] = {};
+    char szReport[41] = {}; // 40 characters of hash + terminator NULL-character
 
-    if (szReport == NULL) return;
-
-    if (uReportType == REPORT_HEX || uReportType == REPORT_HEX_SHORT)
+    for (i = 0; i < 20; i++)
     {
-        bool shortreport = (uReportType == REPORT_HEX_SHORT);
-        sprintf(szTemp, "%02X", m_digest[0]);
-        strcat(szReport, szTemp);
-
-        for (i = 1; i < 20; i++)
-        {
-            sprintf(szTemp, shortreport?"%02X":" %02X", m_digest[i]);
-            strcat(szReport, szTemp);
-        }
+        sprintf(szTemp, "%02X", m_digest[i]);
+        strcat(szReport, szTemp); // Beware: strcat() adds NULL-character
     }
-    else if (uReportType == REPORT_DIGIT)
-    {
-        sprintf(szTemp, "%u", m_digest[0]);
-        strcat(szReport, szTemp);
 
-        for (i = 1; i < 20; i++)
-        {
-            sprintf(szTemp, " %u", m_digest[i]);
-            strcat(szReport, szTemp);
-        }
-    }
-    else strcpy(szReport, "Error: Unknown report type!");
+    return szReport;
 }
 #endif
 
