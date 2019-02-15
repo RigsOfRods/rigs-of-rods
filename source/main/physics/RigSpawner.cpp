@@ -3391,7 +3391,6 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def, uint16_t command_id)
 
     /* Options */
     if (def.option_r_rope)          { beam.bounded = ROPE; }
-    beam.commandID             = command_id;
 
     /* set the middle of the command, so its not required to recalculate this everytime ... */
     float center_length = 0.f;
@@ -3409,6 +3408,7 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def, uint16_t command_id)
     /* Add keys */
     command_t* contract_command = &m_actor->ar_command_key[def.contract_key];
     commandbeam_t cmd_beam;
+    cmd_beam.cmb_command_id = command_id;
     cmd_beam.cmb_beam_index = static_cast<uint16_t>(beam_index);
     cmd_beam.cmb_is_contraction = true;
     cmd_beam.cmb_speed = def.shorten_rate;

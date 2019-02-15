@@ -900,21 +900,21 @@ void Actor::CalcCommands(bool doUpdate)
                         if (ar_command_key[i].soundAction == command_t::SoundAction::START)
                         {
                             // Start the linked sound
-                            SoundScriptManager::getSingleton().trigStop(this, SS_TRIG_USER_DEFINED, bbeam_snd_link, ar_beams[bbeam].commandID);
+                            SoundScriptManager::getSingleton().trigStop(this, SS_TRIG_USER_DEFINED, bbeam_snd_link, cmd_beam.cmb_command_id);
                             // Stop linked sound in opposite direction (just in case)
-                            SoundScriptManager::getSingleton().trigStop(this, SS_TRIG_USER_DEFINED, bbeam_snd_opposite_link, ar_beams[bbeam].commandID);
+                            SoundScriptManager::getSingleton().trigStop(this, SS_TRIG_USER_DEFINED, bbeam_snd_opposite_link, cmd_beam.cmb_command_id);
                         }
                         else if (ar_command_key[i].soundAction == command_t::SoundAction::STOP)
                         {
                             // Stop the linked sound
-                            SoundScriptManager::getSingleton().trigStop(this, SS_TRIG_USER_DEFINED, bbeam_snd_link, ar_beams[bbeam].commandID);
+                            SoundScriptManager::getSingleton().trigStop(this, SS_TRIG_USER_DEFINED, bbeam_snd_link, cmd_beam.cmb_command_id);
                         }
                         else // Already running
                         {
                             // Modulate linked sound
-                            SoundScriptManager::getSingleton().modulate(this, SS_TRIG_USER_DEFINED, v, bbeam_snd_link, ar_beams[bbeam].commandID);
+                            SoundScriptManager::getSingleton().modulate(this, SS_TRIG_USER_DEFINED, v, bbeam_snd_link, cmd_beam.cmb_command_id);
                             // Stop linked sound in opposite direction (just in case)
-                            SoundScriptManager::getSingleton().trigStop(this, SS_TRIG_USER_DEFINED, bbeam_snd_opposite_link, ar_beams[bbeam].commandID);
+                            SoundScriptManager::getSingleton().trigStop(this, SS_TRIG_USER_DEFINED, bbeam_snd_opposite_link, cmd_beam.cmb_command_id);
                         }
 #endif //USE_OPENAL
                         float cf = 1.0f;

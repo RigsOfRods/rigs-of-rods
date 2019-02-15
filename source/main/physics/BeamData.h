@@ -293,6 +293,7 @@ struct commandbeam_state_t
 
 struct commandbeam_t
 {
+    uint16_t cmb_command_id;            //!< Attr; Position in truckfile, start: 0, assigned at spawn. Used for linking from soundsources2
     uint16_t cmb_beam_index;            //!< Index to Actor::ar_beams array
     float    cmb_engine_coupling;       //!< Attr from truckfile
     float    cmb_center_length;         //!< Attr computed at spawn

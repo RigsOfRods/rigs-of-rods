@@ -83,7 +83,6 @@ struct beam_t
     Ogre::Real shortbound;
     Ogre::Real longbound;
     Ogre::Real refL;       //!< reference length
-    uint16_t   commandID; // TODO: Put all command-hydro related attributes to a dedicated struct! ~only_a_ptr, 11/2017
 
     shock_t *shock;
 
