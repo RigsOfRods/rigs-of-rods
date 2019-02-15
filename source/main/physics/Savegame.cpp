@@ -159,6 +159,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
     }
 
     // Actors
+    auto actors_changed = false;
     auto player_actor = App::GetSimController()->GetPlayerActor();
     auto prev_player_actor = App::GetSimController()->GetPrevPlayerActor();
     std::vector<Actor*> actors;
@@ -197,6 +198,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
                     App::GetSimController()->SetPrevPlayerActorInternal(nullptr);
                 }
                 App::GetSimController()->RemoveActorDirectly(x_actors[index]);
+                actors_changed = true;
             }
             else
             {
@@ -220,6 +222,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
             rq.asr_origin        = preloaded ? ActorSpawnRequest::Origin::TERRN_DEF : ActorSpawnRequest::Origin::SAVEGAME;
             rq.asr_free_position = preloaded;
             actor                = App::GetSimController()->SpawnActorDirectly(rq);
+            actors_changed = true;
         }
 
         actors.push_back(actor);
@@ -235,6 +238,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
             App::GetSimController()->SetPrevPlayerActorInternal(nullptr);
         }
         App::GetSimController()->RemoveActorDirectly(x_actors[index]);
+        actors_changed = true;
     }
 
     for (int index = 0; index < j_doc["actors"].Size(); index++)
@@ -251,13 +255,13 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
         if (j_entry["player_actor"].GetBool())
         {
-            if (m_savegame_terrain_has_changed || player_actor != App::GetSimController()->GetPlayerActor())
+            if (actors_changed || player_actor != App::GetSimController()->GetPlayerActor())
             {
                 App::GetSimController()->SetPendingPlayerActor(actor);
             }
         } else if (j_entry["prev_player_actor"].GetBool())
         {
-            if (m_savegame_terrain_has_changed || prev_player_actor != App::GetSimController()->GetPrevPlayerActor())
+            if (actors_changed || prev_player_actor != App::GetSimController()->GetPrevPlayerActor())
             {
                 App::GetSimController()->SetPrevPlayerActorInternal(actor);
             }
