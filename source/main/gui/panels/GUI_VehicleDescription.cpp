@@ -67,28 +67,25 @@ void CLASS::LoadText()
     m_vehicle_title->setMaxTextLength(33);
     m_vehicle_title->setCaptionWithReplacing(currTruck->GetActorDesignName());
 
-    Ogre::UTFString txt;
+    Ogre::UTFString txt = _L("(no author information available) ");
 
-    std::vector<authorinfo_t> file_authors = currTruck->getAuthors();
-    if (!file_authors.empty())
+    std::vector<authorinfo_t> authors = currTruck->getAuthors();
+    if (!authors.empty())
     {
-        Ogre::String authors = "";
-        for (std::vector<authorinfo_t>::iterator it = file_authors.begin(); it != file_authors.end(); ++it)
+        txt = _L("Authors: \n");
+        for (auto author : authors)
         {
-            authors += "* " + (*it).name + " \n";
+            txt = txt + "* " + author.name + " \n";
         }
-        txt = txt + _L("Authors: \n") + authors;
     }
-    else
-        txt = txt + _L("(no author information available) ");
 
     std::vector<std::string> description = currTruck->getDescription();
-    for (unsigned int i = 1; i < 3; i++)
+    if (!description.empty())
     {
-        if (i < description.size())
+        txt = txt + _L("\nDescription: \n");
+        for (auto line : description)
         {
-            txt = txt + _L("\nDescription: \n");
-            txt = txt + (ANSI_TO_UTF(description[i])) + "\n";
+            txt = txt + ANSI_TO_UTF(line) + "\n";
         }
     }
 
@@ -97,7 +94,9 @@ void CLASS::LoadText()
     int filledCommands = 0;
     for (int i = 1; i < MAX_COMMANDS && filledCommands < COMMANDS_VISIBLE; i += 2)
     {
-        if (currTruck->ar_command_key[i].beams.empty() || currTruck->ar_command_key[i].description == "hide")
+        if (currTruck->ar_command_key[i].description == "hide")
+            continue;
+        if (currTruck->ar_command_key[i].beams.empty() && currTruck->ar_command_key[i].rotators.empty())
             continue;
 
         filledCommands++;
