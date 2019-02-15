@@ -84,15 +84,6 @@ namespace RoR {
 class CSHA1 : public ZeroedMemoryAllocator
 {
 public:
-#ifdef SHA1_UTILITY_FUNCTIONS
-    // Two different formats for ReportHash(...)
-    enum
-    {
-        REPORT_HEX = 0,
-        REPORT_DIGIT = 1,
-        REPORT_HEX_SHORT = 2,
-    };
-#endif
 
     // Constructor and Destructor
     CSHA1();
@@ -118,7 +109,7 @@ public:
 
     // Report functions: as pre-formatted and raw data
 #ifdef SHA1_UTILITY_FUNCTIONS
-    void ReportHash(char* szReport, unsigned char uReportType = REPORT_HEX);
+    std::string ReportHash();
 #endif
     void GetHash(uint8_t* puDest);
 
