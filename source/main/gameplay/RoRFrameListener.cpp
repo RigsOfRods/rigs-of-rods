@@ -426,6 +426,15 @@ void SimController::UpdateInputEvents(float dt)
         return;
     }
 
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_GET_NEW_VEHICLE))
+    {
+        if ((simRUNNING(s) || simPAUSED(s) || simEDITOR(s)) && gEnv->player != nullptr)
+        {
+            App::sim_state.SetActive(SimState::SELECTING); // TODO: use pending mechanism
+            App::GetGuiManager()->GetMainSelector()->Show(LT_AllBeam);
+        }
+    }
+
     // Simulation pace adjustment (slowmotion)
     if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_ACCELERATE_SIMULATION))
     {
@@ -1382,16 +1391,6 @@ void SimController::UpdateInputEvents(float dt)
                 gEnv->mainCamera->setPolygonMode(PM_POINTS);
                 break;
             }
-        }
-    }
-
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_GET_NEW_VEHICLE))
-    {
-        if ((simRUNNING(s) || simPAUSED(s) || simEDITOR(s)) && gEnv->player != nullptr)
-        {
-            App::sim_state.SetActive(SimState::SELECTING); // TODO: use pending mechanism
-
-            App::GetGuiManager()->GetMainSelector()->Show(LT_AllBeam);
         }
     }
 
