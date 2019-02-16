@@ -966,7 +966,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
                     {
                         type = "racestart";
                     }
-                    int race_id = StringConverter::parseInt(res[1], -1);
+                    int race_id = res.size() > 1 ? StringConverter::parseInt(res[1], -1) : -1;
                     auto ent = App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(type);
                     m_map_entities.push_back({ent, type, "", pos, rot.y, race_id});
                 }
