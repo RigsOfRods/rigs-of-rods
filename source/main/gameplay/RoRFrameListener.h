@@ -152,7 +152,6 @@ private:
     float                    m_physics_simulation_time; //!< Amount of time the physics simulation is going to be advanced
     bool                     m_physics_simulation_paused;
     int                      m_stats_on;
-    float                    m_netcheck_gui_timer;
     float                    m_time;
     RoR::ForceFeedback*      m_force_feedback;
     bool                     m_hide_gui;

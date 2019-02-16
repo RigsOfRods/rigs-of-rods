@@ -109,7 +109,6 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_last_screenshot_id(1),
     m_last_simulation_speed(0.1f),
     m_last_skin_selection(nullptr),
-    m_netcheck_gui_timer(0.0f),
     m_physics_simulation_paused(false),
     m_physics_simulation_time(0.0f),
     m_pressure_pressed(false),
@@ -1655,17 +1654,9 @@ void SimController::UpdateSimulation(float dt)
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
         std::vector<Networking::recv_packet_t> packets = RoR::Networking::GetIncomingStreamData();
-
         RoR::ChatSystem::HandleStreamData(packets);
         m_actor_manager.HandleActorStreamData(packets);
         m_character_factory.handleStreamData(packets); // Update characters last (or else beam coupling might fail)
-
-        m_netcheck_gui_timer += dt;
-        if (m_netcheck_gui_timer > 2.0f)
-        {
-            App::GetGuiManager()->GetMpClientList()->update();
-            m_netcheck_gui_timer = 0.0f;
-        }
     }
 #endif //SOCKETW
 
@@ -1688,18 +1679,20 @@ void SimController::UpdateSimulation(float dt)
         OutProtocol::getSingleton().Update(dt, m_player_actor);
     }
 
-#ifdef USE_MUMBLE
-    // now update mumble 3d audio things
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
+        // Update the player list
+        App::GetGuiManager()->GetMpClientList()->update();
+        // Update mumble (3d audio)
+#ifdef USE_MUMBLE
         // calculate orientation of avatar first
         Ogre::Vector3 avatarDir = Ogre::Vector3(Math::Cos(gEnv->player->getRotation()), 0.0f, Math::Sin(gEnv->player->getRotation()));
         App::GetMumble()->update(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(),
         gEnv->player->getPosition() + Vector3(0, 1.8f, 0), avatarDir, Ogre::Vector3(0.0f, 1.0f, 0.0f));
-    }
 #endif // USE_MUMBLE
+    }
 
-    if (simRUNNING(s) || simEDITOR(s))
+    if (simRUNNING(s) || simEDITOR(s) || (simSELECT(s) && App::mp_state.GetActive() == MpState::CONNECTED))
     {
         m_camera_manager.Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
 #ifdef USE_OPENAL
@@ -1727,7 +1720,7 @@ void SimController::UpdateSimulation(float dt)
         actor->GetGfxActor()->UpdateDebugView();
     }
 
-    if (simRUNNING(s) || simEDITOR(s))
+    if (simRUNNING(s) || simEDITOR(s) || (App::mp_state.GetActive() == MpState::CONNECTED))
     {
         float simulation_speed = m_actor_manager.GetSimulationSpeed();
         if (m_race_id != -1 && simulation_speed != 1.0f)
@@ -1744,7 +1737,7 @@ void SimController::UpdateSimulation(float dt)
 
         m_gfx_scene.BufferSimulationData();
 
-        if (App::sim_state.GetPending() != SimState::PAUSED)
+        if (!simPAUSED(s) || (App::mp_state.GetActive() == MpState::CONNECTED))
         {
             m_actor_manager.UpdateActors(m_player_actor, m_physics_simulation_time); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
         }
