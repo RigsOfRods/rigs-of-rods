@@ -324,14 +324,8 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
         actor->m_net_node_buf_size = sizeof(float) * 3 + (actor->m_net_first_wheel_node - 1) * sizeof(short int) * 3;
         actor->m_net_buffer_size = actor->m_net_node_buf_size + actor->ar_num_wheels * sizeof(float);
 
-        if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
+        if (rq.asr_origin == ActorSpawnRequest::Origin::NETWORK)
         {
-            // local truck
-            actor->sendStreamSetup();
-        }
-        else
-        {
-            // remote truck
             actor->ar_sim_state = Actor::SimState::NETWORKED_OK;
             if (actor->ar_engine)
             {
@@ -375,6 +369,11 @@ Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<R
 {
     Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
 
+    if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
+    {
+        actor->sendStreamSetup();
+    }
+
     this->SetupActor(actor, rq, def);
 
     m_actors.push_back(actor);
@@ -401,6 +400,16 @@ void ActorManager::RemoveStreamSource(int sourceid)
 #ifdef USE_SOCKETW
 void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
 {
+    // Sort by packet source
+    std::stable_sort(packet_buffer.begin(), packet_buffer.end(),
+            [](const RoR::Networking::recv_packet_t& a, const RoR::Networking::recv_packet_t& b)
+            { return a.header.source > b.header.source; });
+    // Compress (discardable) stream data
+    auto it = std::unique(packet_buffer.rbegin(), packet_buffer.rend(),
+            [](const RoR::Networking::recv_packet_t& a, const RoR::Networking::recv_packet_t& b)
+            { return !memcmp(&a.header, &b.header, sizeof(RoRnet::Header)) &&
+            a.header.command == RoRnet::MSG2_STREAM_DATA; });
+    packet_buffer.erase(packet_buffer.begin(), it.base());
     for (auto& packet : packet_buffer)
     {
         if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER)
@@ -452,7 +461,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
                     reg->status = 1;
                 }
 
-                RoR::Networking::AddPacket(0, RoRnet::MSG2_STREAM_REGISTER_RESULT, sizeof(RoRnet::StreamRegister), (char *)reg);
+                RoR::Networking::AddPacket(reg->origin_streamid, RoRnet::MSG2_STREAM_REGISTER_RESULT, sizeof(RoRnet::StreamRegister), (char *)reg);
             }
         }
         else if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER_RESULT)
@@ -518,6 +527,23 @@ void ActorManager::UpdateNetTimeOffset(int sourceid, int offset)
     {
         m_stream_time_offsets[sourceid] += offset;
     }
+}
+
+bool ActorManager::NetworkStreamsInSync(int sourceid)
+{
+    for (auto actor : m_actors)
+    {
+        if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK || actor->ar_sim_state == Actor::SimState::INVALID)
+            continue;
+
+        if (!actor->ar_net_stream_results[sourceid])
+        {
+            // We have not received a stream register result message yet
+            return false;
+        }
+    }
+
+    return true;
 }
 
 int ActorManager::CheckNetworkStreamsOk(int sourceid)
