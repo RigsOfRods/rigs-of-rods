@@ -580,7 +580,8 @@ void SimController::UpdateInputEvents(float dt)
     if (toggle_editor)
     {
         App::sim_state.SetActive(simEDITOR(s) ? SimState::RUNNING : SimState::EDITOR_MODE);
-        UTFString ssmsg = simEDITOR(s) ? _L("Left terrain editing mode") : _L("Entered terrain editing mode");
+        s = App::sim_state.GetActive();
+        UTFString ssmsg = simEDITOR(s) ? _L("Entered terrain editing mode") : _L("Left terrain editing mode");
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg,
                 "infromation.png", 2000, false);
         RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
