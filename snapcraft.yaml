@@ -124,7 +124,7 @@ parts:
             - -DCMAKE_INSTALL_PREFIX=/usr/
     ror:
         plugin: cmake
-        source: https://github.com/paroj/rigs-of-rods.git
+        source: https://github.com/RigsOfRods/rigs-of-rods.git
         source-tag: master
         source-depth: 1
         configflags:
