@@ -33,5 +33,5 @@ then
 	# Setup redist folder and push it to itch
 	ninja zip_and_copy_resources
 	ninja install
-	./butler push redist anotherfoxguy/rigs-of-rods:linux-ci --userversion 0.4.8.0-CIBuild-${TRAVIS_JOB_NUMBER}
+	./butler push redist rigs-of-rods/rigs-of-rods-dev:linux-ci --userversion 0.4.8.0-CIBuild-${TRAVIS_JOB_NUMBER}
 fi
