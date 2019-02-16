@@ -460,16 +460,14 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
             RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
             for (auto actor : m_actors)
             {
-                if (actor->ar_net_stream_id == reg->origin_streamid)
+                if (actor->ar_net_source_id == reg->origin_sourceid && actor->ar_net_stream_id == reg->origin_streamid)
                 {
                     int sourceid = packet.header.source;
                     actor->ar_net_stream_results[sourceid] = reg->status;
 
-                    if (reg->status == 1)
-                    LOG("Client " + TOSTRING(sourceid) + " successfully loaded stream " + TOSTRING(reg->origin_streamid) + " with name '" + reg->name + "', result code: " + TOSTRING(reg->status));
-                    else
-                    LOG("Client " + TOSTRING(sourceid) + " could not load stream " + TOSTRING(reg->origin_streamid) + " with name '" + reg->name + "', result code: " + TOSTRING(reg->status));
-
+                    String message = (reg->status == 1) ? "successfully loaded stream" : "could not load stream";
+                    LOG("Client " + TOSTRING(sourceid) + " " + message + " " + TOSTRING(reg->origin_streamid) +
+                            " with name '" + reg->name + "', result code: " + TOSTRING(reg->status));
                     break;
                 }
             }
