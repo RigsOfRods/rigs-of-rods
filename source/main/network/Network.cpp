@@ -129,7 +129,6 @@ static std::deque <send_packet_t> m_send_packet_buffer;
 static const unsigned int m_packet_buffer_size = 20;
 
 static std::atomic<bool> m_net_fatal_error;
-static std::atomic<bool> m_socket_broken;
 static Ogre::UTFString   m_error_message;
 static StatusStr         m_status_message;
 
@@ -199,12 +198,6 @@ void NetFatalError(Ogre::UTFString errormsg)
     m_net_fatal_error = true;
 
     m_shutdown = true;
-
-    // IMPORTANT: Disconnecting here terminates the application for some reason
-    // Workaround: leave the socket in broken state -> impossible to re-connect. Fix later.
-    //socket.set_timeout(1, 0);
-    //socket.disconnect();
-    m_socket_broken = true; // Flag to enable "Please restart RoR" error dialog.
 }
 
 void SetNetQuality(int quality)
@@ -488,18 +481,6 @@ void CouldNotConnect(Ogre::UTFString const & msg, bool close_socket = true)
 bool StartConnecting()
 {
     SetStatusMessage("Starting...");
-
-    // Temporary workaround for unrecoverable error
-    if (m_socket_broken)
-    {
-        App::mp_state.SetActive(MpState::DISABLED);
-        Ogre::UTFString msg = "Connection failed."
-            "\n\nNetworking is unable to recover from previous error (abrupt disconnect)."
-            "\n\nPlease restart Rigs of Rods.";
-        SetErrorMessage(msg);
-        m_connecting_status = ConnectState::FAILURE;
-        return false;
-    }
 
     // Reset errors
     SetErrorMessage("");
