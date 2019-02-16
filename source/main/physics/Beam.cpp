@@ -432,13 +432,16 @@ void Actor::CalcNetwork()
 
     float tratio = (float)(rnow - oob1->time) / (float)(oob2->time - oob1->time);
 
-    if (tratio > 1.0f)
+    if (App::GetSimController()->GetBeamFactory()->NetworkStreamsInSync(ar_net_source_id))
     {
-        App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, -std::pow(2, tratio));
-    }
-    else if (index_offset == 0 && tratio < 0.125f && m_net_updates.size() > 2)
-    {
-        App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, +1);
+        if (tratio > 1.0f)
+        {
+            App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, -std::pow(2, tratio));
+        }
+        else if (index_offset == 0 && (m_net_updates.size() > 5 || (tratio < 0.125f && m_net_updates.size() > 2)))
+        {
+            App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, +1);
+        }
     }
 
     short* sp1 = (short*)(netb1 + sizeof(float) * 3);
@@ -1753,7 +1756,6 @@ void Actor::sendStreamSetup()
     memset(&reg, 0, sizeof(RoRnet::ActorStreamRegister));
     reg.status = 0;
     reg.type = 0;
-    reg.bufferSize = m_net_buffer_size;
     reg.time = App::GetSimController()->GetBeamFactory()->GetNetTime();
     strncpy(reg.name, ar_filename.c_str(), 128);
     if (m_used_skin != nullptr)
