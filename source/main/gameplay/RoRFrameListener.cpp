@@ -1502,6 +1502,19 @@ void SimController::UpdateSimulation(float dt)
 {
     m_actor_manager.SyncWithSimThread();
 
+#ifdef USE_SOCKETW
+    if (App::mp_state.GetActive() == MpState::CONNECTED)
+    {
+        std::vector<Networking::recv_packet_t> packets = RoR::Networking::GetIncomingStreamData();
+        if (!packets.empty())
+        {
+            RoR::ChatSystem::HandleStreamData(packets);
+            m_actor_manager.HandleActorStreamData(packets);
+            m_character_factory.handleStreamData(packets); // Update characters last (or else beam coupling might fail)
+        }
+    }
+#endif //SOCKETW
+
     // ACTOR CHANGE REQUESTS - Handle early (so that other logic can reflect it)
     //   1. Removal requests - Done first; respective entries in 'modify' queue are erased.
     //   2. Modify requests - currently just reload, will be extended
@@ -1649,17 +1662,6 @@ void SimController::UpdateSimulation(float dt)
         }
     }
     m_actor_spawn_queue.clear();
-
-    // Retrieve stream data after creating new vehicles (which interrupts the simulation loop for up to a few seconds)
-#ifdef USE_SOCKETW
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
-    {
-        std::vector<Networking::recv_packet_t> packets = RoR::Networking::GetIncomingStreamData();
-        RoR::ChatSystem::HandleStreamData(packets);
-        m_actor_manager.HandleActorStreamData(packets);
-        m_character_factory.handleStreamData(packets); // Update characters last (or else beam coupling might fail)
-    }
-#endif //SOCKETW
 
     if (App::sim_load_savegame.GetActive())
     {

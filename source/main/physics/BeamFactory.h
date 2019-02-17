@@ -59,7 +59,6 @@ public:
     unsigned long  GetNetTime()                            { return m_net_timer.getMilliseconds(); };
     int            GetNetTimeOffset(int sourceid);
     void           UpdateNetTimeOffset(int sourceid, int offset);
-    bool           NetworkStreamsInSync(int sourceid);
     int            CheckNetworkStreamsOk(int sourceid);
     int            CheckNetRemoteStreamsOk(int sourceid);
     void           NotifyActorsWindowResized();
