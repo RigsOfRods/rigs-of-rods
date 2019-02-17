@@ -67,6 +67,7 @@ struct Inertia;
 struct Lockgroup;
 struct ManagedMaterialsOptions;
 struct MeshWheel;
+struct MinimassPreset;
 struct Node;
 struct NodeDefaults;
 struct Particle;

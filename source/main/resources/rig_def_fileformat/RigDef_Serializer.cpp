@@ -79,12 +79,6 @@ void Serializer::Serialize()
     WriteFlags();
     ProcessManagedMaterialsAndOptions(source_module);
 
-    // Section 'minimass'
-    if (m_rig_def->_minimum_mass_set)
-    {
-        m_stream << "minimass" << endl << "\t" << m_rig_def->minimum_mass << endl << endl;
-    }
-
     // Structure
     ProcessNodes(source_module);
     ProcessBeams(source_module);
@@ -2350,6 +2344,7 @@ void Serializer::ProcessNodes(File::Module* module)
     }
 
     // Group nodes by presets + find node-zero
+    // TODO: Handle minimass presets!
     std::map< NodeDefaults*, std::vector<Node*> > nodes_by_presets;
     Node* node_zero = nullptr;
     auto itor_end = module->nodes.end(); 

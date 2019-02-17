@@ -726,15 +726,15 @@ void Actor::RecalculateNodeMasses(Real total)
     {
         //LOG("Nodemass "+TOSTRING(i)+"-"+TOSTRING(ar_nodes[i].mass));
         //for stability
-        if (!ar_nodes[i].nd_tyre_node && ar_nodes[i].mass < m_minimass)
+        if (!ar_nodes[i].nd_tyre_node && ar_nodes[i].mass < ar_minimass[i])
         {
             if (App::diag_truck_mass.GetActive())
             {
                 char buf[300];
-                snprintf(buf, 300, "Node '%d' mass (%f Kg) is too light. Resetting to 'minimass' (%f Kg)", i, ar_nodes[i].mass, m_minimass);
+                snprintf(buf, 300, "Node '%d' mass (%f Kg) is too light. Resetting to 'minimass' (%f Kg)", i, ar_nodes[i].mass, ar_minimass[i]);
                 LOG(buf);
             }
-            ar_nodes[i].mass = m_minimass;
+            ar_nodes[i].mass = ar_minimass[i];
         }
     }
 
@@ -4408,7 +4408,6 @@ Actor::Actor(
     , m_wheel_diffs{} // Init array to nullptr
     , m_has_command_beams(false)
     , m_num_command_beams(0)
-    , m_minimass(50.f)
     , m_load_mass(0.f)
     , m_dry_mass(0.f)
     , ar_gui_use_engine_max_rpm(false)

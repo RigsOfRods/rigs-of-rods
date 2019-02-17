@@ -203,6 +203,7 @@ public:
     Ogre::AxisAlignedBox      ar_bounding_box;     //!< standard bounding box (surrounds all nodes of an actor)
     Ogre::AxisAlignedBox      ar_predicted_bounding_box;
     std::vector<Ogre::Vector3>     ar_initial_node_positions;
+    std::vector<float>             ar_minimass; //!< minimum node mass in Kg
     std::vector<std::vector<int>>  ar_node_to_node_connections;
     std::vector<std::vector<int>>  ar_node_to_beam_connections;
     std::vector<Ogre::AxisAlignedBox>  ar_collision_bounding_boxes; //!< smart bounding boxes, used for determining the state of an actor (every box surrounds only a subset of nodes)
@@ -478,7 +479,6 @@ private:
     float             m_odometer_total;        //!< GUI state
     float             m_odometer_user;         //!< GUI state
     int               m_num_command_beams;     //!< TODO: Remove! Spawner context only; likely unused feature
-    float             m_minimass;              //!< Physics attr; minimum node mass in Kg
     float             m_load_mass;             //!< Physics attr; predefined load mass in Kg
     int               m_masscount;             //!< Physics attr; Number of nodes loaded with l option
     float             m_dry_mass;              //!< Physics attr;

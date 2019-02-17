@@ -163,12 +163,6 @@ Actor *ActorSpawner::SpawnActor()
         this->AddMessage(Message::TYPE_WARNING, "vehicle uses no GUID, skinning will be impossible");
     }
 
-    // Section 'minimass' in root module
-    if (m_file->_minimum_mass_set)
-    {
-        m_actor->m_minimass = m_file->minimum_mass;
-    }
-
     // Section 'description'
     m_actor->description.assign(m_file->description.begin(), m_file->description.end());
 
