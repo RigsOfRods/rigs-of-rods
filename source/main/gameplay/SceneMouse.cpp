@@ -234,6 +234,12 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
         lastMouseX = ms.X.abs;
         Ray mouseRay = getMouseRay();
 
+        if (App::sim_state.GetActive() == SimState::EDITOR_MODE)
+        {
+            App::GetSimController()->SetTerrainEditorMouseRay(mouseRay);
+            return true;
+        }
+
         Actor* player_actor = App::GetSimController()->GetPlayerActor();
 
         // Reselect the player actor
@@ -298,6 +304,8 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 bool SceneMouse::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
     if (App::sim_state.GetActive() == SimState::PAUSED) { return true; } // Do nothing when paused
+
+    App::GetSimController()->SetTerrainEditorMouseRay(Ray(Vector3::ZERO, Vector3::ZERO));
 
     if (mouseGrabState == 1)
     {

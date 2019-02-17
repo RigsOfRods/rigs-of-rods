@@ -118,8 +118,10 @@ public:
     void SetPendingPlayerActor(Actor* actor)                { m_pending_player_actor = actor; };
     void SetPrevPlayerActorInternal(Actor* actor)           { m_prev_player_actor = actor; };
 
-    bool   GetPhysicsPaused()                               { return m_physics_simulation_paused; };
-    void   SetPhysicsPausedInternal(bool paused)            { m_physics_simulation_paused = paused; };
+    bool GetPhysicsPaused()                                 { return m_physics_simulation_paused; };
+    void SetPhysicsPausedInternal(bool paused)              { m_physics_simulation_paused = paused; };
+
+    void SetTerrainEditorMouseRay(Ogre::Ray ray);
 
 private:
 
@@ -182,6 +184,8 @@ private:
 
     Ogre::Vector3            m_reload_pos;
     Ogre::Quaternion         m_reload_dir;
+
+    Ogre::Ray                m_terrain_editor_mouse_ray;
 
     std::unique_ptr<OutProtocol> m_out_protocol;
 };
