@@ -340,6 +340,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
         else if (b)
         {
             b->ResetPosition(pos);
+            TRIGGER_EVENT(SE_TRUCK_TELEPORT, b->ar_instance_id);
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Vehicle position set to: ") + String("x: ") + TOSTRING(pos.x) + String(" y: ") + TOSTRING(pos.y) + String(" z: ") + TOSTRING(pos.z), "world.png");
         }
 
