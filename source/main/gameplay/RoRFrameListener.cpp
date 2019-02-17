@@ -571,6 +571,7 @@ void SimController::UpdateInputEvents(float dt)
     static auto& object_list = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
     static bool terrain_editing_track_object = true;
     static int terrain_editing_rotation_axis = 1;
+    static std::string last_object_name = "";
     static int object_count = object_list.size();
     static int object_index = -1;
 
@@ -626,6 +627,10 @@ void SimController::UpdateInputEvents(float dt)
             object_count = object_list.size();
             object_index = -1;
         }
+        if (object_index != -1)
+        {
+            last_object_name = object_list[object_index].name;
+        }
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_OR_EXIT_TRUCK))
         {
             if (object_index == -1)
@@ -647,6 +652,23 @@ void SimController::UpdateInputEvents(float dt)
             else
             {
                 object_index = -1;
+            }
+        }
+        else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK) &&
+                !last_object_name.empty())
+        {
+            Vector3 pos = gEnv->player->getPosition();
+
+            try
+            {
+                SceneNode* bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+                App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(last_object_name, pos, Vector3::ZERO, bakeNode, "Console", "");
+
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, _L("Spawned object at position: ") + String("x: ") + TOSTRING(pos.x) + String("z: ") + TOSTRING(pos.z), "world.png");
+            }
+            catch (std::exception& e)
+            {
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, e.what(), "error.png");
             }
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
