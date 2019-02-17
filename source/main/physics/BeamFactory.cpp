@@ -400,11 +400,11 @@ void ActorManager::RemoveStreamSource(int sourceid)
 #ifdef USE_SOCKETW
 void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
 {
-    // Sort by packet source
+    // Sort by stream source
     std::stable_sort(packet_buffer.begin(), packet_buffer.end(),
             [](const RoR::Networking::recv_packet_t& a, const RoR::Networking::recv_packet_t& b)
             { return a.header.source > b.header.source; });
-    // Compress (discardable) stream data
+    // Compress data stream by eliminating all but the last update from every consecutive group of stream data updates
     auto it = std::unique(packet_buffer.rbegin(), packet_buffer.rend(),
             [](const RoR::Networking::recv_packet_t& a, const RoR::Networking::recv_packet_t& b)
             { return !memcmp(&a.header, &b.header, sizeof(RoRnet::Header)) &&
@@ -527,23 +527,6 @@ void ActorManager::UpdateNetTimeOffset(int sourceid, int offset)
     {
         m_stream_time_offsets[sourceid] += offset;
     }
-}
-
-bool ActorManager::NetworkStreamsInSync(int sourceid)
-{
-    for (auto actor : m_actors)
-    {
-        if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK || actor->ar_sim_state == Actor::SimState::INVALID)
-            continue;
-
-        if (!actor->ar_net_stream_results[sourceid])
-        {
-            // We have not received a stream register result message yet
-            return false;
-        }
-    }
-
-    return true;
 }
 
 int ActorManager::CheckNetworkStreamsOk(int sourceid)

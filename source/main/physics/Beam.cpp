@@ -432,16 +432,18 @@ void Actor::CalcNetwork()
 
     float tratio = (float)(rnow - oob1->time) / (float)(oob2->time - oob1->time);
 
-    if (App::GetSimController()->GetBeamFactory()->NetworkStreamsInSync(ar_net_source_id))
+    if (tratio > 4.0f)
     {
-        if (tratio > 1.0f)
-        {
-            App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, -std::pow(2, tratio));
-        }
-        else if (index_offset == 0 && (m_net_updates.size() > 5 || (tratio < 0.125f && m_net_updates.size() > 2)))
-        {
-            App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, +1);
-        }
+        m_net_updates.clear();
+        return; // Wait for new data
+    }
+    else if (tratio > 1.0f)
+    {
+        App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, -std::pow(2, tratio));
+    }
+    else if (index_offset == 0 && (m_net_updates.size() > 5 || (tratio < 0.125f && m_net_updates.size() > 2)))
+    {
+        App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, +1);
     }
 
     short* sp1 = (short*)(netb1 + sizeof(float) * 3);
