@@ -154,14 +154,10 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
                             mindist = pair.second;
                             minnode = j;
                             grab_truck = actor;
-                            break;
                         }
                     }
                 }
             }
-
-            if (grab_truck)
-                break;
         }
 
         // check if we hit a node
