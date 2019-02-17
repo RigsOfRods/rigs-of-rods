@@ -548,7 +548,7 @@ class racesManager {
 		this.raceList[rid].completed = true;
 
 		// build the message
-		this.message("Finished! You needed "+this.formatTime(raceTime)+"!"+raceTimeDiff, "flag_green.png");
+		this.message("Finished in "+this.formatTime(raceTime)+"!"+raceTimeDiff, "flag_green.png");
 		if( this.showBestRace and newBestRace )
 			this.message("     New best race time!", "flag_green.png");
 		if( this.showBestLap and newBestLap  and this.raceList[rid].laps != this.LAPS_NoLaps and this.raceList[rid].laps != this.LAPS_One)
