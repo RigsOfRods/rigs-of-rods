@@ -1432,25 +1432,23 @@ void SimController::UpdateInputEvents(float dt)
             RoR::App::GetOverlayWrapper()->showDebugOverlay(m_stats_on);
     }
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_OUTPUT_POSITION) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_OUTPUT_POSITION))
     {
         Vector3 position(Vector3::ZERO);
         Radian rotation(0);
         if (m_player_actor == nullptr)
         {
-            if (gEnv->player)
-            {
-                position = gEnv->player->getPosition();
-                rotation = gEnv->player->getRotation() + Radian(Math::PI);
-            }
+            position = gEnv->player->getPosition();
+            rotation = gEnv->player->getRotation() + Radian(Math::PI);
         }
         else
         {
             position = m_player_actor->getPosition();
-            Vector3 idir = m_player_actor->getDirection();
-            rotation = atan2(idir.dotProduct(Vector3::UNIT_X), idir.dotProduct(-Vector3::UNIT_Z));
+            rotation = m_player_actor->getRotation();
         }
-        LOG("Position: " + TOSTRING(position.x) + ", "+ TOSTRING(position.y) + ", " + TOSTRING(position.z) + ", 0, " + TOSTRING(rotation.valueDegrees()) + ", 0");
+        String pos = StringUtil::format("%8.3f, %8.3f, %8.3f"   , position.x, position.y, position.z);
+        String rot = StringUtil::format("% 6.1f, % 6.1f, % 6.1f",       0.0f, rotation  ,       0.0f);
+        LOG("Position: " + pos + ", " + rot);
     }
 
     if (m_time_until_next_toggle >= 0)
