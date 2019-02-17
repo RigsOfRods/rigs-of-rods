@@ -24,7 +24,6 @@
 #include "AircraftSimulation.h"
 #include "Application.h"
 #include "Beam.h"
-#include "BeamEngine.h"
 #include "BeamFactory.h"
 #include "CacheSystem.h"
 #include "CameraManager.h"
@@ -35,7 +34,6 @@
 #include "ContentManager.h"
 #include "DashBoardManager.h"
 #include "DustManager.h"
-#include "EnvironmentMap.h"
 #include "ForceFeedback.h"
 #include "InputEngine.h"
 #include "LandVehicleSimulation.h"
@@ -49,7 +47,6 @@
 #include "Replay.h"
 #include "RigDef_File.h"
 #include "RoRVersion.h"
-#include "SceneMouse.h"
 #include "ScrewProp.h"
 #include "Scripting.h"
 #include "SkyManager.h"
@@ -58,7 +55,6 @@
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
 #include "Utils.h"
-#include "Water.h"
 
 #include "GUIManager.h"
 #include "GUI_FrictionSettings.h"
@@ -67,7 +63,6 @@
 #include "GUI_MainSelector.h"
 #include "GUI_MultiplayerClientList.h"
 #include "GUI_SimUtils.h"
-#include "GUI_TopMenubar.h"
 
 #include "SurveyMapManager.h"
 
@@ -126,7 +121,8 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_soft_reset_mode(false),
     m_advanced_vehicle_repair(false),
     m_advanced_vehicle_repair_timer(0.f),
-    m_actor_info_gui_visible(false)
+    m_actor_info_gui_visible(false),
+    m_terrain_editor_mouse_ray(Ray(Vector3::ZERO, Vector3::ZERO))
 {
 }
 
@@ -626,6 +622,23 @@ void SimController::UpdateInputEvents(float dt)
         {
             object_count = object_list.size();
             object_index = -1;
+        }
+        if (m_terrain_editor_mouse_ray.getDirection() != Vector3::ZERO)
+        {
+            float min_dist = std::numeric_limits<float>::max();
+            Vector3 origin = m_terrain_editor_mouse_ray.getOrigin();
+            Vector3 direction = m_terrain_editor_mouse_ray.getDirection();
+            for (int i = 0; i < (int)object_list.size(); i++)
+            {
+                Real ray_object_distance = direction.crossProduct(object_list[i].node->getPosition() - origin).length();
+                if (ray_object_distance < min_dist)
+                {
+                    min_dist = ray_object_distance;
+                    update = (object_index != i);
+                    object_index = i;
+                }
+            }
+            m_terrain_editor_mouse_ray.setDirection(Vector3::ZERO);
         }
         if (object_index != -1)
         {
@@ -2438,6 +2451,11 @@ void SimController::CameraManagerMousePressed(const OIS::MouseEvent& _arg, OIS::
     {
         m_camera_manager.mousePressed(_arg, _id);
     }
+}
+
+void SimController::SetTerrainEditorMouseRay(Ray ray)
+{
+    m_terrain_editor_mouse_ray = ray;
 }
 
 Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
