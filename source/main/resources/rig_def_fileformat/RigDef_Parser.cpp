@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2017 Petr Ohlidal & contributors
+    Copyright 2013-2019 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -73,6 +73,7 @@ Parser::Parser()
     // Push defaults 
     m_ror_default_inertia = std::shared_ptr<Inertia>(new Inertia);
     m_ror_node_defaults = std::shared_ptr<NodeDefaults>(new NodeDefaults);
+    m_ror_minimass = std::shared_ptr<MinimassPreset>(new MinimassPreset);
 }
 
 void Parser::ProcessCurrentLine()
@@ -2754,6 +2755,7 @@ void Parser::ParseNodesUnified()
     Node node;
     node.node_defaults = m_user_node_defaults;
     node.beam_defaults = m_user_beam_defaults;
+    node.node_minimass = m_user_minimass;
     node.detacher_group = m_current_detacher_group;
 
     if (m_current_section == File::SECTION_NODES_2)
@@ -2813,16 +2815,40 @@ void Parser::ParseNodeCollision()
 
 void Parser::ParseMinimass()
 {
-    this->ChangeSection(File::SECTION_NONE);
-
-    if (m_definition->_minimum_mass_set)
+    const float minimass = this->GetArgFloat(0);
+    bool set_global = true;
+    if (m_num_args > 1)
     {
-        this->AddMessage(Message::TYPE_WARNING, "Minimass defined more than once.");
-        return;
+        const std::string options_str = this->GetArgStr(1);
+        for (char c: options_str)
+        {
+            switch (c)
+            {
+            case '\0': // Terminator NULL character
+            case (MinimassPreset::OPTION_n_FILLER):
+                break;
+
+            case (MinimassPreset::OPTION_d_DEFAULT):
+                set_global = false;
+                break;
+
+            default:
+                this->AddMessage(Message::TYPE_WARNING, std::string("Unknown option: ") + c);
+                break;
+            }
+        }
     }
 
-    m_definition->minimum_mass = this->GetArgFloat(0);
-    m_definition->_minimum_mass_set = true;
+    if (set_global)
+    {
+        m_ror_minimass->min_mass = minimass;
+    }
+    else
+    {
+        m_user_minimass = std::shared_ptr<MinimassPreset>(new MinimassPreset(minimass, false));
+    }
+
+    this->ChangeSection(File::SECTION_NONE);
 }
 
 void Parser::ParseFlexBodyWheel()
@@ -3223,7 +3249,8 @@ void Parser::Prepare()
     m_current_detacher_group = 0; // Global detacher group 
 
     m_user_default_inertia = m_ror_default_inertia;
-    m_user_node_defaults = m_ror_node_defaults;
+    m_user_node_defaults   = m_ror_node_defaults;
+    m_user_minimass        = m_ror_minimass;
     m_current_managed_material_options = ManagedMaterialsOptions();
 
     m_user_beam_defaults = std::shared_ptr<BeamDefaults>(new BeamDefaults);
@@ -3348,6 +3375,7 @@ void Parser::ProcessChangeModuleLine(File::Keyword keyword)
 void Parser::Finalize()
 {
     this->ChangeSection(File::SECTION_NONE);
+    m_definition->global_minimass = m_ror_minimass;
 
     if (m_sequential_importer.IsEnabled())
     {

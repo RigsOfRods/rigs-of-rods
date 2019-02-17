@@ -168,10 +168,26 @@ struct BeamDefaults
 };
 
 /* -------------------------------------------------------------------------- */
-/* Sections NODES, NODES_2                                                    */
+/* Hybrid section MINIMASS                                                    */
 /* -------------------------------------------------------------------------- */
 
+struct MinimassPreset
+{
+    enum Option
+    {
+        OPTION_n_FILLER  = 'n',   //!< Updates the global minimass (classic behavior)
+        OPTION_d_DEFAULT = 'd'    //!< Sets new default (like `set_beam_defaults`)
+    };
 
+    MinimassPreset(): min_mass(DEFAULT_MINIMASS), is_global(true)
+    {}
+
+    explicit MinimassPreset(float m, bool g): min_mass(m), is_global(g)
+    {}
+
+    float min_mass; //!< minimum node mass in Kg
+    bool is_global;
+};
 
 /* -------------------------------------------------------------------------- */
 /* Directive SET_DEFAULT_INERTIA                                              */
@@ -2333,8 +2349,6 @@ struct File
     bool disable_default_sounds;
     Ogre::String name;
     float collision_range;
-    float minimum_mass;
-    bool _minimum_mass_set;
 
     // Report
     std::string loading_report;
@@ -2352,6 +2366,7 @@ struct File
     // File sections
     std::vector<Author> authors;
     std::shared_ptr<Fileinfo> file_info;
+    std::shared_ptr<MinimassPreset> global_minimass;
 };
 
 } // namespace RigDef

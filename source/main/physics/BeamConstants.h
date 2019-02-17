@@ -47,6 +47,7 @@ static const float DEFAULT_GRAVITY              = -9.8f;         //!< earth grav
 static const float DEFAULT_DRAG                 = 0.05f;
 static const float DEFAULT_BEAM_DIAMETER        = 0.05f;         //!< 5 centimeters default beam width
 static const float DEFAULT_COLLISION_RANGE      = 0.02f;
+static const float DEFAULT_MINIMASS             = 50.0f;         //!< minimum node mass in Kg
 static const float MIN_BEAM_LENGTH              = 0.1f;          //!< minimum beam lenght is 10 centimeters
 static const float INVERTED_MIN_BEAM_LENGTH     = 1.0f / MIN_BEAM_LENGTH;
 static const float BEAM_SKELETON_DIAMETER       = 0.01f;

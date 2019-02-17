@@ -162,6 +162,7 @@ struct Node
     float load_weight_override;
     bool _has_load_weight_override;
     std::shared_ptr<NodeDefaults> node_defaults;
+    std::shared_ptr<MinimassPreset> node_minimass;
     std::shared_ptr<BeamDefaults> beam_defaults; /* Needed for hook */
     int detacher_group;
 };
