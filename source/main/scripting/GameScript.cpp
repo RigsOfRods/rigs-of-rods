@@ -41,6 +41,7 @@
 #include "BeamEngine.h"
 #include "BeamFactory.h"
 #include "Character.h"
+#include "ChatSystem.h"
 #include "Collisions.h"
 #include "GUI_GameConsole.h"
 #include "GUIManager.h"
@@ -282,11 +283,16 @@ void GameScript::flashMessage(String& txt, float time, float charHeight)
 
 void GameScript::message(String& txt, String& icon, float timeMilliseconds, bool forceVisible)
 {
-    //TODO: Notification system
-
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon, timeMilliseconds, forceVisible);
-    RoR::App::GetGuiManager()->PushNotification("Script:", txt);
-
+    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+    {
+        RoR::App::GetGuiManager()->pushMessageChatBox(txt);
+    }
+    else
+    {
+        // TODO: Find a better solution for this
+        RoR::App::GetGuiManager()->PushNotification("Script:", txt);
+    }
 }
 
 void GameScript::UpdateDirectionArrow(String& text, Vector3& vec)
