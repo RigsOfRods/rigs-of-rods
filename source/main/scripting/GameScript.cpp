@@ -585,7 +585,7 @@ int GameScript::getLoadedTerrain(String& result)
 
 void GameScript::clearEventCache()
 {
-    // deprecated
+    gEnv->collisions->clearEventCache();
 }
 
 void GameScript::setCameraPosition(const Vector3& pos)
