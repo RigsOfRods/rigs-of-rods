@@ -124,7 +124,6 @@ private:
 
     bool permitEvent(int filter);
     bool envokeScriptCallback(collision_box_t* cbox, node_t* node = 0);
-    inline void clearEventCache() { m_last_called_cboxes.clear(); }
 
     Landusemap* landuse;
     Ogre::ManualObject* debugmo;
@@ -176,6 +175,7 @@ public:
     int createCollisionDebugVisualization();
     void removeCollisionBox(int number);
     void removeCollisionTri(int number);
+    void clearEventCache() { m_last_called_cboxes.clear(); }
 
     Ogre::AxisAlignedBox getCollisionAAB() { return m_collision_aab; };
 
