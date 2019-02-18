@@ -417,23 +417,25 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
             RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
             if (reg->type == 0)
             {
+                RoRnet::UserInfo info;
+                RoR::Networking::GetUserInfo(reg->origin_sourceid, info);
+
+                UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::CommandColour + _L(" spawned a new vehicle: ") + RoR::Color::NormalColour + reg->name;
+                RoR::App::GetGuiManager()->pushMessageChatBox(message);
+
                 LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
                 reg->name[127] = 0;
                 Ogre::String filename(reg->name);
                 if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(filename))
                 {
+                    UTFString txt = RoR::Color::WarningColour + _L("Mod not installed: ") + RoR::Color::NormalColour + reg->name;
+                    RoR::App::GetGuiManager()->pushMessageChatBox(txt);
                     RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", reg->name);
-                    m_stream_mismatches[reg->origin_sourceid].insert(reg->origin_streamid);
+                    AddStreamMismatch(reg->origin_sourceid, reg->origin_streamid);
                     reg->status = -1;
                 }
                 else
                 {
-                    RoRnet::UserInfo info;
-                    RoR::Networking::GetUserInfo(reg->origin_sourceid, info);
-
-                    UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::CommandColour + _L(" spawned a new vehicle: ") + RoR::Color::NormalColour + reg->name;
-                    RoR::App::GetGuiManager()->pushMessageChatBox(message);
-
                     auto actor_reg = reinterpret_cast<RoRnet::ActorStreamRegister*>(reg);
                     if (m_stream_time_offsets.find(reg->origin_sourceid) == m_stream_time_offsets.end())
                     {
@@ -474,7 +476,13 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
                     int sourceid = packet.header.source;
                     actor->ar_net_stream_results[sourceid] = reg->status;
 
-                    String message = (reg->status == 1) ? "successfully loaded stream" : "could not load stream";
+                    String message = "";
+                    switch (reg->status)
+                    {
+                        case  1: message = "successfully loaded stream"; break;
+                        case -2: message = "detected mismatch stream"; break;
+                        default: message = "could not load stream"; break;
+                    }
                     LOG("Client " + TOSTRING(sourceid) + " " + message + " " + TOSTRING(reg->origin_streamid) +
                             " with name '" + reg->name + "', result code: " + TOSTRING(reg->status));
                     break;
@@ -558,7 +566,7 @@ int ActorManager::CheckNetRemoteStreamsOk(int sourceid)
             continue;
 
         int stream_result = actor->ar_net_stream_results[sourceid];
-        if (stream_result == -1)
+        if (stream_result == -1 || stream_result == -2)
             return 0;
         if (stream_result == 1)
             result = 1;

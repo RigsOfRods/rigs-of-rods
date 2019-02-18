@@ -102,6 +102,7 @@ std::string SanitizeUtf8CString(const char* start, const char* end = nullptr);
 
 namespace Color {
 const Ogre::UTFString CommandColour = Ogre::UTFString("#00FF00");
+const Ogre::UTFString WarningColour = Ogre::UTFString("#FF0000");
 const Ogre::UTFString NormalColour = Ogre::UTFString("#FFFFFF");
 const Ogre::UTFString WhisperColour = Ogre::UTFString("#FFCC00");
 const Ogre::UTFString ScriptCommandColour = Ogre::UTFString("#0099FF");
