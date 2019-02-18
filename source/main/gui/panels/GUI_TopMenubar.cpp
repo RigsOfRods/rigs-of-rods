@@ -170,8 +170,7 @@ void RoR::GUI::TopMenubar::Update()
                     App::GetGuiManager()->SetVisible_VehicleDescription(true);
                 }
 
-                if (current_actor->ar_sim_state != Actor::SimState::NETWORKED_OK &&
-                        current_actor->ar_sim_state != Actor::SimState::INVALID)
+                if (current_actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
                 {
                     if (ImGui::Button("Reload current vehicle"))
                     {

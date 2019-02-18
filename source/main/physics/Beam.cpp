@@ -380,11 +380,17 @@ void Actor::PushNetwork(char* data, int size)
     }
     else
     {
-        String msg = StringUtil::format("Wrong data size: %d bytes, expected %d bytes, actor ID: %d",
-                size, m_net_buffer_size+sizeof(RoRnet::VehicleState), ar_instance_id);
-        App::GetGuiManager()->PushNotification("Network:", msg);
-        LogFormat("[RoR|Network] %s", msg.c_str());
-        ar_sim_state = SimState::INVALID;
+        if (!m_net_initialized)
+        {
+            String msg = StringUtil::format("Wrong data size: %d bytes, expected %d bytes, name: %s",
+                    size, m_net_buffer_size + sizeof(RoRnet::VehicleState), ar_design_name.c_str());
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                    msg, "warning.png", 3000);
+            App::GetGuiManager()->PushNotification("Network:", msg);
+            LogFormat("[RoR|Network] %s", msg.c_str());
+            App::GetSimController()->QueueActorRemove(this);
+            m_net_initialized = true;
+        }
         return;
     }
 
@@ -3554,7 +3560,7 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
             // iterate over all actor_slots
             for (auto actor : App::GetSimController()->GetActors())
             {
-                if (actor->ar_sim_state == SimState::LOCAL_SLEEPING || actor->ar_sim_state == SimState::INVALID)
+                if (actor->ar_sim_state == SimState::LOCAL_SLEEPING)
                     continue;
                 if (this == actor && !it->hk_selflock)
                     continue; // don't lock to self

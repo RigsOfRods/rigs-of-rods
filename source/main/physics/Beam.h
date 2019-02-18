@@ -46,7 +46,6 @@ public:
         LOCAL_SIMULATED,  //!< simulated (local) actor
         NETWORKED_OK,     //!< not simulated (remote) actor
         LOCAL_SLEEPING,   //!< sleeping (local) actor
-        INVALID           //!< not simulated and not updated via the network (e.g. size differs from expected)
     };
 
     Actor(

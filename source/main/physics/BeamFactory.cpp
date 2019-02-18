@@ -554,7 +554,7 @@ int ActorManager::CheckNetRemoteStreamsOk(int sourceid)
 
     for (auto actor : m_actors)
     {
-        if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK || actor->ar_sim_state == Actor::SimState::INVALID)
+        if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
             continue;
 
         int stream_result = actor->ar_net_stream_results[sourceid];
@@ -860,7 +860,7 @@ void ActorManager::DeleteActorInternal(Actor* actor)
 #ifdef USE_SOCKETW
     if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
-        if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK && actor->ar_sim_state != Actor::SimState::INVALID)
+        if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
         {
             RoR::Networking::AddPacket(actor->ar_net_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
         }
@@ -999,24 +999,21 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
             actor->ar_engine->UpdateEngineAudio();
         }
 
-        if (actor->ar_sim_state != Actor::SimState::INVALID)
+        if (actor->ar_sim_state != Actor::SimState::LOCAL_SLEEPING)
         {
-            if (actor->ar_sim_state != Actor::SimState::LOCAL_SLEEPING)
+            actor->updateVisual(dt);
+            actor->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
+            if (actor->ar_update_physics && App::gfx_skidmarks_mode.GetActive() > 0)
             {
-                actor->updateVisual(dt);
-                actor->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
-                if (actor->ar_update_physics && App::gfx_skidmarks_mode.GetActive() > 0)
-                {
-                    actor->updateSkidmarks();
-                }
+                actor->updateSkidmarks();
             }
-            if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
-            {
-                if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
-                    actor->CalcNetwork();
-                else
-                    actor->sendStreamData();
-            }
+        }
+        if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+        {
+            if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
+                actor->CalcNetwork();
+            else
+                actor->sendStreamData();
         }
     }
 
@@ -1299,7 +1296,7 @@ std::vector<Actor*> ActorManager::GetLocalActors()
     std::vector<Actor*> actors;
     for (auto actor : m_actors)
     {
-        if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK && actor->ar_sim_state != Actor::SimState::INVALID)
+        if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
             actors.push_back(actor);
     }
     return actors;
