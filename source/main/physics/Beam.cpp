@@ -29,6 +29,7 @@
 #include "BeamEngine.h"
 #include "BeamFactory.h"
 #include "Buoyance.h"
+#include "ChatSystem.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
 #include "DashBoardManager.h"
@@ -62,6 +63,7 @@
 #include "TerrainManager.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
+#include "Utils.h"
 #include "VehicleAI.h"
 #include "Water.h"
 
@@ -382,15 +384,29 @@ void Actor::PushNetwork(char* data, int size)
     {
         if (!m_net_initialized)
         {
-            String msg = StringUtil::format("Wrong data size: %d bytes, expected %d bytes, name: %s",
-                    size, m_net_buffer_size + sizeof(RoRnet::VehicleState), ar_design_name.c_str());
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                    msg, "warning.png", 3000);
-            App::GetGuiManager()->PushNotification("Network:", msg);
-            LogFormat("[RoR|Network] %s", msg.c_str());
+            // Update stream status (remote and local)
+            RoRnet::StreamRegister reg;
+            memset(&reg, 0, sizeof(RoRnet::StreamRegister));
+            reg.status = -2;
+            reg.origin_sourceid = ar_net_source_id;
+            reg.origin_streamid = ar_net_stream_id;
+            strncpy(reg.name, ar_filename.c_str(), 128);
+            Networking::AddPacket(reg.origin_streamid, RoRnet::MSG2_STREAM_REGISTER_RESULT,
+                    sizeof(RoRnet::StreamRegister), (char *)&reg);
+            App::GetSimController()->GetBeamFactory()->AddStreamMismatch(ar_net_source_id, ar_net_stream_id);
+
+            // Inform the local player
+            RoRnet::UserInfo info;
+            RoR::Networking::GetUserInfo(reg.origin_sourceid, info);
+            UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::WarningColour + _L(" content mismatch: ") + RoR::Color::NormalColour + reg.name;
+            RoR::App::GetGuiManager()->pushMessageChatBox(message);
+
+            // Remove self
             App::GetSimController()->QueueActorRemove(this);
+
             m_net_initialized = true;
         }
+        RoR::LogFormat("[RoR|Network] Stream mismatch, filename: '%s'", ar_filename.c_str());
         return;
     }
 

@@ -59,6 +59,7 @@ public:
     unsigned long  GetNetTime()                            { return m_net_timer.getMilliseconds(); };
     int            GetNetTimeOffset(int sourceid);
     void           UpdateNetTimeOffset(int sourceid, int offset);
+    void           AddStreamMismatch(int sourceid, int streamid) { m_stream_mismatches[sourceid].insert(streamid); };
     int            CheckNetworkStreamsOk(int sourceid);
     int            CheckNetRemoteStreamsOk(int sourceid);
     void           NotifyActorsWindowResized();
