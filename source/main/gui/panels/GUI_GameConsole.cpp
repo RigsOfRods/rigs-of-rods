@@ -277,7 +277,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
             else if (args[1] == "jupiter")
                 gValue = -50;
             else
-                gValue = std::stof(args[1]);
+                gValue = PARSEREAL(args[1]);
         }
         else
         {
@@ -289,15 +289,22 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
         putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Gravity set to: ") + StringConverter::toString(gValue), "information.png");
         return;
     }
-    else if (args[0] == "setwaterlevel")
+    else if (args[0] == "setwaterlevel" && is_appstate_sim)
     {
-        if (App::GetSimTerrain() && App::GetSimTerrain()->getWater() && args.size() > 1)
+        if (args.size() > 1)
         {
             IWater* water = App::GetSimTerrain()->getWater();
-            water->WaterSetCamera(gEnv->mainCamera);
-            water->SetStaticWaterHeight(std::stof(args[1]));
-            water->UpdateWater();
-            putMessage (CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L ("Water level set to: ") + StringConverter::toString (water->GetStaticWaterHeight ()), "information.png");
+            if (water != nullptr)
+            {
+                water->WaterSetCamera(gEnv->mainCamera);
+                water->SetStaticWaterHeight(PARSEREAL(args[1]));
+                water->UpdateWater();
+                putMessage (CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L ("Water level set to: ") + StringConverter::toString (water->GetStaticWaterHeight ()), "information.png");
+            }
+            else
+            {
+                putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_ERROR, _L("This terrain does not have water."), "information.png");
+            }
         }
         else
         {
