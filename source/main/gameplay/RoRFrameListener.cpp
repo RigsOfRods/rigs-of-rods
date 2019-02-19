@@ -2237,11 +2237,14 @@ void SimController::EnterGameplayLoop()
 
         if (dt_sec != 0.f)
         {
-            m_time += dt_sec;
             this->UpdateSimulation(dt_sec);
             if (RoR::App::sim_state.GetActive() != RoR::SimState::PAUSED)
             {
                 m_gfx_scene.UpdateScene(dt_sec);
+                if (!m_physics_simulation_paused)
+                {
+                    m_time += dt_sec;
+                }
             }
         }
 
