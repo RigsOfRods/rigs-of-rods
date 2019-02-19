@@ -53,6 +53,7 @@ FlexBody::FlexBody(
     , m_scene_entity(ent)
     , m_shared_buf_num_verts(0)
     , m_has_texture(true)
+    , m_blend_changed(false)
     , m_locators(nullptr)
     , m_src_normals(nullptr)
     , m_dst_normals(nullptr)
@@ -605,7 +606,7 @@ void FlexBody::printMeshInfo(Mesh* mesh)
 
 void FlexBody::ComputeFlexbody()
 {
-    // // if (m_has_texture_blend) updateBlend(); Disabled for {AsyncScene} refactor ~ only_a_ptr, 08/2018
+    if (m_has_texture_blend) updateBlend();
 
     RoR::GfxActor::NodeData* nodes = m_gfx_actor->GetSimNodeBuffer();
 
@@ -666,6 +667,12 @@ void FlexBody::UpdateFlexbodyVertexBuffers()
         npt += m_submesh_vbufs_vertex_counts[i];
     }
 
+    if (m_blend_changed)
+    {
+        writeBlend();
+        m_blend_changed = false;
+    }
+
     m_scene_node->setPosition(m_flexit_center);
 }
 
@@ -694,31 +701,23 @@ void FlexBody::writeBlend()
     }
 }
 
-/* Disabled for {AsyncScene} refactor ~ only_a_ptr, 08/2018
-
-
 void FlexBody::updateBlend() //so easy!
 {
-    bool changed = false;
+    RoR::GfxActor::NodeData* nodes = m_gfx_actor->GetSimNodeBuffer();
     for (int i=0; i<(int)m_vertex_count; i++)
     {
-        // TODO: temporarily disabled during project "AsyncScene" - the GfxActor::NodeData doesn't carry the 'has_contact' flag ~ only_a_ptr, 06/2018
-        node_t *nd = &nodes[m_locators[i].ref];
+        RoR::GfxActor::NodeData *nd = &nodes[m_locators[i].ref];
         ARGB col = m_src_colors[i];
         if (nd->nd_has_contact && !(col&0xFF000000))
         {
             m_src_colors[i]=col|0xFF000000;
-            changed = true;
+            m_blend_changed = true;
         }
-        
-
-        // Disabled while refactoring particles ~ only_a_ptr, 04/2018
-        //if ((nd->wetstate!=DRY) ^ ((col&0x000000FF)>0))
-        //{
-        //    m_src_colors[i]=(col&0xFFFFFF00)+0x000000FF*(nd->wetstate!=DRY);
-        //    changed = true;
-        //}
+        if (nd->nd_is_wet ^ ((col&0x000000FF)>0))
+        {
+            m_src_colors[i]=(col&0xFFFFFF00)+0x000000FF*nd->nd_is_wet;
+            m_blend_changed = true;
+        }
     }
-    if (changed) writeBlend();
 }
-*/
+
