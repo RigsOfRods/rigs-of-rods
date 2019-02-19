@@ -248,7 +248,6 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
             TreeLoader2D* tree_loader = new TreeLoader2D(geom, TBounds(0, 0, m_terrain_size_x, m_map_size_z));
             geom->setPageLoader(tree_loader);
             tree_loader->setHeightFunction(&getTerrainHeight);
-            tree_loader->setMaximumScale(scaleto); // Only checked in debug builds
             if (String(ColorMap) != "none")
             {
                 tree_loader->setColorMap(ColorMap);
