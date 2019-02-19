@@ -55,7 +55,7 @@ public:
 
     void printMeshInfo(Ogre::Mesh* mesh);
     void reset();
-    // // void updateBlend(); Disabled for {AsyncScene} refactor ~ only_a_ptr, 08/2018
+    void updateBlend();
     void writeBlend();
     Ogre::SceneNode *getSceneNode() { return m_scene_node; };
 
@@ -107,4 +107,5 @@ private:
     bool m_uses_shared_vertex_data;
     bool m_has_texture;
     bool m_has_texture_blend;
+    bool m_blend_changed;
 };

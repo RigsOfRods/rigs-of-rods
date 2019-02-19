@@ -182,6 +182,9 @@ void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
 
                     hitnode->nd_last_collision_gm = &submesh_ground_model;
                     hitnode->nd_has_mesh_contact = true;
+                    na->nd_has_mesh_contact = true;
+                    nb->nd_has_mesh_contact = true;
+                    no->nd_has_mesh_contact = true;
                 }
             }
         }

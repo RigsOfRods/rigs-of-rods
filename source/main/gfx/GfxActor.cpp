@@ -1798,7 +1798,10 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     const int num_nodes = m_actor->ar_num_nodes;
     for (int i = 0; i < num_nodes; ++i)
     {
-        m_simbuf.simbuf_nodes.get()[i].AbsPosition = m_actor->ar_nodes[i].AbsPosition;
+        auto node = m_actor->ar_nodes[i];
+        m_simbuf.simbuf_nodes.get()[i].AbsPosition = node.AbsPosition;
+        m_simbuf.simbuf_nodes.get()[i].nd_has_contact = node.nd_has_ground_contact || node.nd_has_mesh_contact;
+        m_simbuf.simbuf_nodes.get()[i].nd_is_wet = (m_gfx_nodes[i].nx_wet_time_sec != -1.f);
     }
 
     // beams

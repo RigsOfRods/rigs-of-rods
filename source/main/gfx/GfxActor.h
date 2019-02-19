@@ -130,8 +130,9 @@ public:
     /// Copy of node simulation state
     struct NodeData
     {
-        // Members intentionally have same names as in `node_t`
         Ogre::Vector3 AbsPosition;
+        bool nd_has_contact:1;
+        bool nd_is_wet:1;
     };
 
     /// Visuals of softbody beam (`beam_t` struct); Partially updated along with SimBuffer
