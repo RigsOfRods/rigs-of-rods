@@ -691,7 +691,7 @@ extern GVarPod_A<int>          mp_server_port;
 extern GVarStr_APS<100>        mp_server_password;
 extern GVarStr_AP<100>         mp_player_name;
 extern GVarStr_AP<100>         mp_player_token;
-extern GVarStr_AP<400>         mp_portal_url;
+extern GVarStr_A<100>          mp_api_url;
 
 // Diagnostic
 extern GVarPod_A<bool>         diag_auto_spawner_report;

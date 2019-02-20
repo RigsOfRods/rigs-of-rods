@@ -85,7 +85,6 @@ RoR::GUI::MpServerlistData* FetchServerlist(std::string portal_url)
 
     CURL *curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL,           serverlist_url.c_str());
-    curl_easy_setopt(curl, CURLOPT_NOPROGRESS,    1L);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteFunc);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA,     &response_payload);
     curl_easy_setopt(curl, CURLOPT_HEADERDATA,    &response_header);
@@ -387,7 +386,7 @@ void RoR::GUI::MultiplayerSelector::RefreshServerlist()
     m_is_refreshing = true;
     std::packaged_task<MpServerlistData*(std::string)> task(FetchServerlist);
     m_serverlist_future = task.get_future();
-    std::thread(std::move(task), App::mp_portal_url.GetActive()).detach(); // launch on a thread
+    std::thread(std::move(task), App::mp_api_url.GetActive()).detach(); // launch on a thread
 #endif // defined(USE_CURL)
 }
 

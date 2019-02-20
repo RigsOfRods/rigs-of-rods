@@ -727,13 +727,6 @@ class racesManager {
 			}
 			dict.set("split-times", ""+times);
 			
-			times = ""+this.penaltyTime[0];
-			for( uint i = 1; i < this.penaltyTime.length() ; i++ )
-			{
-				times += ";"+this.penaltyTime[i];
-			}
-			dict.set("penalty-times", ""+times);
-			
 			int res = game.useOnlineAPI("/races", dict, api_return);
 			// debug: game.log("useOnlineAPI returned: " + res);
 			// debug: game.log("useOnlineAPI return string: " + api_return);

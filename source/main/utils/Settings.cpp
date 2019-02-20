@@ -528,7 +528,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckStr  (App::mp_server_host,            k, v)) { return true; }
     if (CheckInt  (App::mp_server_port,            k, v)) { return true; }
     if (CheckStrAS(App::mp_server_password,        k, v)) { return true; }
-    if (CheckStr  (App::mp_portal_url,             k, v)) { return true; }
+    if (CheckStr  (App::mp_api_url,                k, v)) { return true; }
     if (CheckStr  (App::mp_player_token,           k, v)) { return true; }
     // App
     if (CheckScreenshotFormat                     (k, v)) { return true; }
@@ -811,7 +811,7 @@ void Settings::SaveSettings()
     WriteStr (f, App::mp_server_host);
     WritePod (f, App::mp_server_port);
     WriteStr (f, App::mp_server_password);
-    WriteStr (f, App::mp_portal_url);
+    WriteStr (f, App::mp_api_url);
     WriteStr (f, App::mp_player_token);
 
     f << std::endl << "; Simulation" << std::endl;
@@ -914,7 +914,7 @@ void Settings::SaveSettings()
     WriteYN  (f, App::app_async_physics     );
     WritePod (f, App::app_num_workers       );
     WriteStr (f, App::app_extra_mod_path    );
-    WritePod (f, App::app_disable_online_api);
+    WriteYN  (f, App::app_disable_online_api);
 
     f.close();
 }

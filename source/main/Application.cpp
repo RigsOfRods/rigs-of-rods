@@ -117,7 +117,7 @@ static TerrainManager*  g_sim_terrain;
  GVarStr_APS<100>         mp_server_password      ("mp_server_password",      "Server password",           "",                      "",         "");
  GVarStr_AP<100>          mp_player_name          ("mp_player_name",          "Nickname",                  "Player",                "Player");
  GVarStr_AP<100>          mp_player_token         ("mp_player_token",         "User Token",                "",                      "");
- GVarStr_AP<400>          mp_portal_url           ("mp_portal_url",           "Multiplayer portal URL",    "http://multiplayer.rigsofrods.org", "http://multiplayer.rigsofrods.org");
+ GVarStr_A<100>           mp_api_url              ("mp_api_url",              "Online API URL",            "http://api.rigsofrods.org");
 
 // Diagnostic
  GVarPod_A<bool>          diag_auto_spawner_report("diag_auto_spawner_report","AutoActorSpawnerReport",    false);

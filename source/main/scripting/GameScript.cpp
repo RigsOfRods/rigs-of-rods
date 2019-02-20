@@ -670,8 +670,9 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     if (player_actor == nullptr)
         return 1;
 
-    std::string url = App::mp_portal_url.GetActive() + apiquery;
-    std::string authorization = std::string("Authorization: ") + App::mp_player_token.GetActive();
+    std::string url = App::mp_api_url.GetActive() + apiquery;
+    std::string user = std::string("RoR-Api-User: ") + App::mp_player_name.GetActive();
+    std::string token = std::string("RoR-Api-User-Token: ") + App::mp_player_token.GetActive();
 
     std::string terrain_name = App::GetSimTerrain()->getTerrainName();
 
@@ -726,12 +727,13 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 
     LOG("[RoR|GameScript] Submitting race results to '" + url + "'");
 
-    std::thread([url, authorization, json]()
+    std::thread([url, user, token, json]()
         {
             struct curl_slist *slist = NULL;
             slist = curl_slist_append(slist, "Accept: application/json");
             slist = curl_slist_append(slist, "Content-Type: application/json");
-            slist = curl_slist_append(slist, authorization.c_str());
+            slist = curl_slist_append(slist, user.c_str());
+            slist = curl_slist_append(slist, token.c_str());
 
             CURL *curl = curl_easy_init();
             curl_easy_setopt(curl, CURLOPT_URL,           url.c_str());
