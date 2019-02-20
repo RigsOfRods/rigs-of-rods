@@ -1551,6 +1551,8 @@ void Actor::SyncReset(bool reset_on_init)
         ar_beams[i].bm_disabled     = false;
     }
 
+    this->ApplyNodeBeamScales();
+
     this->DisjoinInterActorBeams();
 
     for (auto& h : ar_hooks)
@@ -1663,6 +1665,36 @@ void Actor::SyncReset(bool reset_on_init)
     m_ongoing_reset = true;
 }
 
+void Actor::ApplyNodeBeamScales()
+{
+    for (int i = 0; i < ar_num_nodes; i++)
+    {
+        ar_nodes[i].mass = ar_initial_node_masses[i] * ar_nb_mass_scale;
+    }
+
+    m_total_mass = ar_initial_total_mass * ar_nb_mass_scale;
+
+    for (int i = 0; i < ar_num_beams; i++)
+    {
+        if ((ar_beams[i].p1->nd_tyre_node || ar_beams[i].p1->nd_rim_node) ||
+            (ar_beams[i].p2->nd_tyre_node || ar_beams[i].p2->nd_rim_node))
+        {
+            ar_beams[i].k = ar_initial_beam_defaults[i].first * ar_nb_wheels_scale.first;
+            ar_beams[i].d = ar_initial_beam_defaults[i].second * ar_nb_wheels_scale.second;
+        }
+        else if (ar_beams[i].bounded == SHOCK1 || ar_beams[i].bounded == SHOCK2 || ar_beams[i].bounded == SHOCK3)
+        {
+            ar_beams[i].k = ar_initial_beam_defaults[i].first * ar_nb_shocks_scale.first;;
+            ar_beams[i].d = ar_initial_beam_defaults[i].second * ar_nb_shocks_scale.second;
+        }
+        else
+        {
+            ar_beams[i].k = ar_initial_beam_defaults[i].first * ar_nb_beams_scale.first;
+            ar_beams[i].d = ar_initial_beam_defaults[i].second * ar_nb_beams_scale.second;
+        }
+    }
+}
+
 bool Actor::ReplayStep()
 {
     if (!ar_replay_mode || !m_replay_handler || !m_replay_handler->isValid())
@@ -1725,6 +1757,97 @@ void Actor::HandleAngelScriptEvents(float dt)
         ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_TOUCHED_WATER, ar_instance_id);
     }
 #endif // USE_ANGELSCRIPT
+}
+
+void Actor::SearchBeamDefaults()
+{
+    SyncReset(true);
+
+    auto old_beams_scale = ar_nb_beams_scale;
+    auto old_shocks_scale = ar_nb_shocks_scale;
+    auto old_wheels_scale = ar_nb_wheels_scale;
+
+    if (ar_nb_initialized)
+    {
+        ar_nb_beams_scale.first   = Math::RangeRandom(ar_nb_beams_k_interval.first,  ar_nb_beams_k_interval.second);
+        ar_nb_beams_scale.second  = Math::RangeRandom(ar_nb_beams_d_interval.first,  ar_nb_beams_d_interval.second);
+        ar_nb_shocks_scale.first  = Math::RangeRandom(ar_nb_shocks_k_interval.first, ar_nb_shocks_k_interval.second);
+        ar_nb_shocks_scale.second = Math::RangeRandom(ar_nb_shocks_d_interval.first, ar_nb_shocks_d_interval.second);
+        ar_nb_wheels_scale.first  = Math::RangeRandom(ar_nb_wheels_k_interval.first, ar_nb_wheels_k_interval.second);
+        ar_nb_wheels_scale.second = Math::RangeRandom(ar_nb_wheels_d_interval.first, ar_nb_wheels_d_interval.second);
+    }
+    else
+    {
+        ar_nb_beams_scale.first   = Math::Clamp(1.0f, ar_nb_beams_k_interval.first,  ar_nb_beams_k_interval.second);
+        ar_nb_beams_scale.second  = Math::Clamp(1.0f, ar_nb_beams_d_interval.first,  ar_nb_beams_d_interval.second);
+        ar_nb_shocks_scale.first  = Math::Clamp(1.0f, ar_nb_shocks_k_interval.first, ar_nb_shocks_k_interval.second);
+        ar_nb_shocks_scale.second = Math::Clamp(1.0f, ar_nb_shocks_d_interval.first, ar_nb_shocks_d_interval.second);
+        ar_nb_wheels_scale.first  = Math::Clamp(1.0f, ar_nb_wheels_k_interval.first, ar_nb_wheels_k_interval.second);
+        ar_nb_wheels_scale.second = Math::Clamp(1.0f, ar_nb_wheels_d_interval.first, ar_nb_wheels_d_interval.second);
+        ar_nb_reference = std::vector<float>(ar_nb_reference.size(), std::numeric_limits<float>::max());
+        ar_nb_optimum   = std::vector<float>(ar_nb_reference.size(), std::numeric_limits<float>::max());
+    }
+
+    this->ApplyNodeBeamScales();
+
+    m_ongoing_reset = false;
+    this->CalcForcesEulerPrepare(true);
+    for (int i = 0; i < ar_nb_skip_steps; i++)
+    {
+        this->CalcForcesEulerCompute(i == 0, ar_nb_skip_steps);
+        if (m_ongoing_reset)
+            break;
+    }
+    m_ongoing_reset = true;
+
+    float sum_movement = 0.0f;
+    float movement = 0.0f;
+    float sum_velocity = 0.0f;
+    float velocity = 0.0f;
+    float sum_stress = 0.0f;
+    float stress = 0.0f;
+    int sum_broken = 0;
+    for (int k = 0; k < ar_nb_measure_steps; k++)
+    {
+        this->CalcForcesEulerCompute(false, ar_nb_measure_steps);
+        for (int i = 0; i < ar_num_nodes; i++)
+        {
+            float v = ar_nodes[i].Velocity.length();
+            sum_movement += v / (float)ar_nb_measure_steps;
+            movement = std::max(movement, v);
+        }
+        for (int i = 0; i < ar_num_beams; i++)
+        {
+            Vector3 dis = (ar_beams[i].p1->RelPosition - ar_beams[i].p2->RelPosition).normalisedCopy();
+            float v = (ar_beams[i].p1->Velocity - ar_beams[i].p2->Velocity).dotProduct(dis);
+            sum_velocity += std::abs(v) / (float)ar_nb_measure_steps;
+            velocity = std::max(velocity, std::abs(v));
+            sum_stress += std::abs(ar_beams[i].stress) / (float)ar_nb_measure_steps;
+            stress = std::max(stress, std::abs(ar_beams[i].stress));
+            if (k == 0 && ar_beams[i].bm_broken)
+            {
+                sum_broken++;
+            }
+        }
+        if (sum_broken > ar_nb_reference[6] ||
+                stress > ar_nb_reference[0] ||     velocity > ar_nb_reference[2] ||     movement > ar_nb_optimum[4] ||
+            sum_stress > ar_nb_reference[1] || sum_velocity > ar_nb_reference[3] || sum_movement > ar_nb_optimum[5] * 2.f)
+        {
+            ar_nb_beams_scale  = old_beams_scale;
+            ar_nb_shocks_scale = old_shocks_scale;
+            ar_nb_wheels_scale = old_wheels_scale;
+            SyncReset(true);
+            return;
+        }
+    }
+    SyncReset(true);
+
+    ar_nb_optimum = {stress, sum_stress, velocity, sum_velocity, movement, sum_movement, (float)sum_broken};
+    if (!ar_nb_initialized)
+    {
+        ar_nb_reference = ar_nb_optimum;
+    }
+    ar_nb_initialized = true;
 }
 
 void Actor::HandleInputEvents(float dt)
@@ -4353,6 +4476,21 @@ Actor::Actor(
     , ar_hydro_elevator_state(0)
     , ar_hydro_rudder_command(0)
     , ar_hydro_rudder_state(0)
+    , ar_nb_initialized(false)
+    , ar_nb_skip_steps(0)
+    , ar_nb_measure_steps(500)
+    , ar_nb_optimum(7, std::numeric_limits<float>::max())
+    , ar_nb_reference(7, std::numeric_limits<float>::max())
+    , ar_nb_mass_scale(1.0f)
+    , ar_nb_beams_scale(std::make_pair(1.0f, 1.0f))
+    , ar_nb_shocks_scale(std::make_pair(1.0f, 1.0f))
+    , ar_nb_wheels_scale(std::make_pair(1.0f, 1.0f))
+    , ar_nb_beams_k_interval(std::make_pair(0.1f, 2.0f))
+    , ar_nb_beams_d_interval(std::make_pair(0.1f, 2.0f))
+    , ar_nb_shocks_k_interval(std::make_pair(0.1f, 8.0f))
+    , ar_nb_shocks_d_interval(std::make_pair(0.1f, 8.0f))
+    , ar_nb_wheels_k_interval(std::make_pair(1.0f, 1.0f))
+    , ar_nb_wheels_d_interval(std::make_pair(1.0f, 1.0f))
     , m_inter_point_col_detector(nullptr)
     , m_intra_point_col_detector(nullptr)
     , ar_net_last_update_time(0)
@@ -4379,6 +4517,7 @@ Actor::Actor(
     , m_net_label_node(0)
     , m_net_label_mt(0)
     , m_net_reverse_light(false)
+    , ar_initial_total_mass(0)
     , m_replay_pos_prev(-1)
     , ar_parking_brake(false)
     , ar_trailer_parking_brake(false)

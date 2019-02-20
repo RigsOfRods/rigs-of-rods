@@ -50,6 +50,7 @@
 #include "GUI_MultiplayerSelector.h"
 #include "GUI_MultiplayerClientList.h"
 #include "GUI_MainSelector.h"
+#include "GUI_NodeBeamUtils.h"
 #include "GUI_RigSpawnerReportWindow.h"
 #include "GUI_SimUtils.h"
 #include "GUI_TextureToolWindow.h"
@@ -85,6 +86,7 @@ struct GuiManagerImpl
     GUI::MpClientList           panel_MpClientList;
     GUI::FrictionSettings       panel_FrictionSettings;
     GUI::TextureToolWindow      panel_TextureToolWindow;
+    GUI::NodeBeamUtils          panel_NodeBeamUtils;
     GUI::LoadingWindow          panel_LoadingWindow;
     GUI::TopMenubar             panel_TopMenubar;
     RoR::Console                panel_GameConsole;
@@ -131,6 +133,7 @@ void GUIManager::SetVisible_TextureToolWindow   (bool v) { m_impl->panel_Texture
 void GUIManager::SetVisible_LoadingWindow       (bool v) { m_impl->panel_LoadingWindow      .SetVisible(v); }
 void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_GameConsole        .SetVisible(v); }
 void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSettings       .SetVisible(v); }
+void GUIManager::SetVisible_NodeBeamUtils       (bool v) { m_impl->panel_NodeBeamUtils      .SetVisible(v); }
 
 bool GUIManager::IsVisible_GameMainMenu         () { return m_impl->panel_GameMainMenu       .IsVisible(); }
 bool GUIManager::IsVisible_GameAbout            () { return m_impl->panel_GameAbout          .IsVisible(); }
@@ -147,6 +150,7 @@ bool GUIManager::IsVisible_LoadingWindow        () { return m_impl->panel_Loadin
 bool GUIManager::IsVisible_Console              () { return m_impl->panel_GameConsole        .IsVisible(); }
 bool GUIManager::IsVisible_GameSettings         () { return m_impl->panel_GameSettings       .IsVisible(); }
 bool GUIManager::IsVisible_TopMenubar           () { return m_impl->panel_TopMenubar         .IsVisible(); }
+bool GUIManager::IsVisible_NodeBeamUtils        () { return m_impl->panel_NodeBeamUtils      .IsVisible(); }
 
 // GUI GetInstance*()
 Console*                    GUIManager::GetConsole()           { return &m_impl->panel_GameConsole         ; }
@@ -261,6 +265,11 @@ void GUIManager::DrawSimulationGui(float dt)
         {
             m_impl->panel_GamePauseMenu.Draw();
         }
+    }
+
+    if (m_impl->panel_NodeBeamUtils.IsVisible())
+    {
+        m_impl->panel_NodeBeamUtils.Draw();
     }
 
     if (m_impl->panel_MessageBox.IsVisible())

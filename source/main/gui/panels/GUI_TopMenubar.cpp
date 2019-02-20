@@ -472,6 +472,15 @@ void RoR::GUI::TopMenubar::Update()
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
+            if (current_actor != nullptr)
+            {
+                if (ImGui::Button("Node / Beam utility"))
+                {
+                    App::GetGuiManager()->SetVisible_NodeBeamUtils(true);
+                    m_open_menu = TopMenu::TOPMENU_NONE;
+                }
+            }
+
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "Pre-spawn diag. options:");
 

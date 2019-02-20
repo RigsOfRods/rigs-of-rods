@@ -154,6 +154,7 @@ set(SOURCE_FILES
         gui/panels/GUI_MessageBoxLayout.{h,cpp}
         gui/panels/GUI_MultiplayerSelector.{h,cpp}
         gui/panels/GUI_MultiplayerClientList.{h,cpp}
+        gui/panels/GUI_NodeBeamUtils.{h,cpp}
         gui/panels/GUI_OpenSaveFileDialog.{h,cpp}
         gui/panels/GUI_RigSpawnerReportWindow.{h,cpp}
         gui/panels/GUI_RigSpawnerReportWindowLayout.{h,cpp}
