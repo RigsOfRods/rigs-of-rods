@@ -98,6 +98,8 @@ public:
     std::vector<Actor*> GetActors() const                  { return m_actors; };
     std::vector<Actor*> GetLocalActors();
 
+    std::pair<Actor*, float> GetNearestActor(Ogre::Vector3 position);
+
     // A list of all beams interconnecting two actors
     std::map<beam_t*, std::pair<Actor*, Actor*>> inter_actor_links;
 

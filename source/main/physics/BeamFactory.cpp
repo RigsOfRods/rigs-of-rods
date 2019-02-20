@@ -849,6 +849,22 @@ void ActorManager::UnmuteAllActors()
     }
 }
 
+std::pair<Actor*, float> ActorManager::GetNearestActor(Vector3 position)
+{
+    Actor* nearest_actor = nullptr;
+    float min_squared_distance = std::numeric_limits<float>::max();
+    for (auto actor : m_actors)
+    {
+        float squared_distance = position.squaredDistance(actor->ar_nodes[0].AbsPosition);
+        if (squared_distance < min_squared_distance)
+        {
+            min_squared_distance = squared_distance;
+            nearest_actor = actor;
+        }
+    }
+    return std::make_pair(nearest_actor, std::sqrt(min_squared_distance));
+}
+
 void ActorManager::CleanUpAllActors() // Called after simulation finishes
 {
     for (auto actor : m_actors)
