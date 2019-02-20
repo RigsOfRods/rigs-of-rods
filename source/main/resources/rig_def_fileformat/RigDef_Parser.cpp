@@ -2444,7 +2444,7 @@ void Parser::ParseDirectiveSetDefaultMinimass()
 {
     if (! this->CheckNumArguments(2)) { return; } // Directive name + parameter
 
-    m_user_minimass = std::shared_ptr<MinimassPreset>(new MinimassPreset(this->GetArgFloat(1), false));
+    m_user_minimass = std::shared_ptr<MinimassPreset>(new MinimassPreset(this->GetArgFloat(1)));
 }
 
 void Parser::ParseDirectiveSetInertiaDefaults()

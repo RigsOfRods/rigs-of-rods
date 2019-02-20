@@ -179,14 +179,13 @@ struct MinimassPreset
         OPTION_l_SKIP_LOADED = 'l'  //!< Only apply minimum mass to nodes without "L" option.
     };
 
-    MinimassPreset(): min_mass(DEFAULT_MINIMASS), is_global(true)
+    MinimassPreset(): min_mass(DEFAULT_MINIMASS)
     {}
 
-    explicit MinimassPreset(float m, bool g): min_mass(m), is_global(g)
+    explicit MinimassPreset(float m): min_mass(m)
     {}
 
     float min_mass; //!< minimum node mass in Kg
-    bool is_global;
 };
 
 /* -------------------------------------------------------------------------- */
