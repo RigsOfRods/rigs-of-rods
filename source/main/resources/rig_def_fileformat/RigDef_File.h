@@ -175,8 +175,9 @@ struct MinimassPreset
 {
     enum Option
     {
-        OPTION_n_FILLER  = 'n',   //!< Updates the global minimass (classic behavior)
-        OPTION_d_DEFAULT = 'd'    //!< Sets new default (like `set_beam_defaults`)
+        OPTION_n_FILLER  = 'n',     //!< Updates the global minimass (classic behavior)
+        OPTION_d_DEFAULT = 'd',     //!< Sets new default (like `set_beam_defaults`)
+        OPTION_l_SKIP_LOADED = 'l'  //!< Only apply minimum mass to nodes without "L" option. Global effect.
     };
 
     MinimassPreset(): min_mass(DEFAULT_MINIMASS), is_global(true)
@@ -2367,6 +2368,7 @@ struct File
     std::vector<Author> authors;
     std::shared_ptr<Fileinfo> file_info;
     std::shared_ptr<MinimassPreset> global_minimass;
+    bool minimass_skip_loaded_nodes; //!< Only apply minimum mass to nodes without "L" option. Global effect.
 };
 
 } // namespace RigDef
