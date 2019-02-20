@@ -2832,6 +2832,10 @@ void Parser::ParseMinimass()
                 set_global = false;
                 break;
 
+            case (MinimassPreset::OPTION_l_SKIP_LOADED):
+                m_definition->minimass_skip_loaded_nodes = true;
+                break;
+
             default:
                 this->AddMessage(Message::TYPE_WARNING, std::string("Unknown option: ") + c);
                 break;
