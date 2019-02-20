@@ -268,6 +268,7 @@ namespace Regexes
     E_KEYWORD_INLINE("set_beam_defaults")                         \
     E_KEYWORD_INLINE("set_beam_defaults_scale")                   \
     E_KEYWORD_INLINE("set_collision_range")                       \
+    E_KEYWORD_INLINE("set_default_minimass")                      \
     E_KEYWORD_INLINE("set_inertia_defaults")                      \
     E_KEYWORD_INLINE("set_managedmaterials_options")              \
     E_KEYWORD_INLINE("set_node_defaults")                         \
