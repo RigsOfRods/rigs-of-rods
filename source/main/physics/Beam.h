@@ -57,6 +57,7 @@ public:
 
     ~Actor();
 
+    void              ApplyNodeBeamScales();
     void              PushNetwork(char* data, int size);   //!< Parses network data; fills actor's data buffers and flips them. Called by the network thread.
     void              CalcNetwork();
     bool              AddTyrePressure(float v);
@@ -203,7 +204,10 @@ public:
     std::vector<flare_t>      ar_flares;
     Ogre::AxisAlignedBox      ar_bounding_box;     //!< standard bounding box (surrounds all nodes of an actor)
     Ogre::AxisAlignedBox      ar_predicted_bounding_box;
+    float                     ar_initial_total_mass;
+    std::vector<float>        ar_initial_node_masses;
     std::vector<Ogre::Vector3>     ar_initial_node_positions;
+    std::vector<std::pair<float, float>> ar_initial_beam_defaults;
     std::vector<float>             ar_minimass; //!< minimum node mass in Kg
     std::vector<std::vector<int>>  ar_node_to_node_connections;
     std::vector<std::vector<int>>  ar_node_to_beam_connections;
@@ -335,6 +339,24 @@ public:
     float             ar_collision_range;             //!< Physics attr
     float             ar_top_speed;                   //!< Sim state
     ground_model_t*   ar_last_fuzzy_ground_model;     //!< GUI state
+
+    // Realtime node/beam structure editing helpers
+    void                    SearchBeamDefaults();     //!< Searches for more stable beam defaults
+    bool                    ar_nb_initialized;
+    std::vector<float>      ar_nb_optimum;            //!< Temporary storage of the optimum search result
+    std::vector<float>      ar_nb_reference;          //!< Temporary storage of the reference search result
+    int                     ar_nb_skip_steps;         //!< Amount of physics steps to be skipped before measuring
+    int                     ar_nb_measure_steps;      //!< Amount of physics steps to be measured
+    float                   ar_nb_mass_scale;         //!< Global mass scale (affects all nodes the same way)
+    std::pair<float, float> ar_nb_beams_scale;        //!< Scales for springiness & damping of regular beams
+    std::pair<float, float> ar_nb_shocks_scale;       //!< Scales for springiness & damping of shock beams
+    std::pair<float, float> ar_nb_wheels_scale;       //!< Scales for springiness & damping of wheel / rim beams
+    std::pair<float, float> ar_nb_beams_d_interval;   //!< Search interval for springiness & damping of regular beams
+    std::pair<float, float> ar_nb_beams_k_interval;   //!< Search interval for springiness & damping of regular beams
+    std::pair<float, float> ar_nb_shocks_d_interval;  //!< Search interval for springiness & damping of shock beams
+    std::pair<float, float> ar_nb_shocks_k_interval;  //!< Search interval for springiness & damping of shock beams
+    std::pair<float, float> ar_nb_wheels_d_interval;  //!< Search interval for springiness & damping of wheel / rim beams
+    std::pair<float, float> ar_nb_wheels_k_interval;  //!< Search interval for springiness & damping of wheel / rim beams
 
     // Bit flags
     bool ar_left_blink_on:1;  //!< Gfx state; turn signals

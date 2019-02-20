@@ -130,6 +130,8 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     /* POST-PROCESSING (Old-spawn code from Actor::loadTruck2) */
 
     actor->ar_initial_node_positions.resize(actor->ar_num_nodes);
+    actor->ar_initial_beam_defaults.resize(actor->ar_num_beams);
+    actor->ar_initial_node_masses.resize(actor->ar_num_nodes);
 
     actor->UpdateBoundingBoxes(); // (records the unrotated dimensions for 'veh_aab_size')
 
@@ -217,6 +219,12 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     //compute final mass
     actor->RecalculateNodeMasses(actor->m_dry_mass);
+    actor->ar_initial_total_mass = actor->m_total_mass;
+    for (int i = 0; i < actor->ar_num_nodes; i++)
+    {
+        actor->ar_initial_node_masses[i] = actor->ar_nodes[i].mass;
+    }
+
     //setup default sounds
     if (!actor->m_disable_default_sounds)
     {
@@ -254,6 +262,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     {
         actor->ar_beams[i].initial_beam_strength       = actor->ar_beams[i].strength;
         actor->ar_beams[i].default_beam_deform         = actor->ar_beams[i].minmaxposnegstress;
+        actor->ar_initial_beam_defaults[i]             = std::make_pair(actor->ar_beams[i].k, actor->ar_beams[i].d);
     }
 
     actor->m_spawn_rotation = actor->getRotation();
