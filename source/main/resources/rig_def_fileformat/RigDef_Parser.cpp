@@ -194,6 +194,7 @@ void Parser::ProcessCurrentLine()
         case File::KEYWORD_SET_BEAM_DEFAULTS:        this->ParseDirectiveSetBeamDefaults();               return;
         case File::KEYWORD_SET_BEAM_DEFAULTS_SCALE:  this->ParseDirectiveSetBeamDefaultsScale();          return;
         case File::KEYWORD_SET_COLLISION_RANGE:      this->ParseSetCollisionRange();                      return;
+        case File::KEYWORD_SET_DEFAULT_MINIMASS:     this->ParseDirectiveSetDefaultMinimass();            return;
         case File::KEYWORD_SET_INERTIA_DEFAULTS:     this->ParseDirectiveSetInertiaDefaults();            return;
         case File::KEYWORD_SET_MANAGEDMATS_OPTIONS:  this->ParseDirectiveSetManagedMaterialsOptions();    return;
         case File::KEYWORD_SET_NODE_DEFAULTS:        this->ParseDirectiveSetNodeDefaults();               return;
@@ -2439,6 +2440,13 @@ Node::Ref Parser::_ParseNodeRef(std::string const & node_id_str)
     }
 }
 
+void Parser::ParseDirectiveSetDefaultMinimass()
+{
+    if (! this->CheckNumArguments(2)) { return; } // Directive name + parameter
+
+    m_user_minimass = std::shared_ptr<MinimassPreset>(new MinimassPreset(this->GetArgFloat(1), false));
+}
+
 void Parser::ParseDirectiveSetInertiaDefaults()
 {
     if (! this->CheckNumArguments(2)) { return; }
@@ -2816,7 +2824,6 @@ void Parser::ParseNodeCollision()
 void Parser::ParseMinimass()
 {
     const float minimass = this->GetArgFloat(0);
-    bool set_global = true;
     if (m_num_args > 1)
     {
         const std::string options_str = this->GetArgStr(1);
@@ -2826,10 +2833,6 @@ void Parser::ParseMinimass()
             {
             case '\0': // Terminator NULL character
             case (MinimassPreset::OPTION_n_FILLER):
-                break;
-
-            case (MinimassPreset::OPTION_d_DEFAULT):
-                set_global = false;
                 break;
 
             case (MinimassPreset::OPTION_l_SKIP_LOADED):
@@ -2843,14 +2846,7 @@ void Parser::ParseMinimass()
         }
     }
 
-    if (set_global)
-    {
-        m_ror_minimass->min_mass = minimass;
-    }
-    else
-    {
-        m_user_minimass = std::shared_ptr<MinimassPreset>(new MinimassPreset(minimass, false));
-    }
+    m_ror_minimass->min_mass = minimass;
 
     this->ChangeSection(File::SECTION_NONE);
 }

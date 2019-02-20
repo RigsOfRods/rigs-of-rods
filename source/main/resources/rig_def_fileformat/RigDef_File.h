@@ -175,9 +175,8 @@ struct MinimassPreset
 {
     enum Option
     {
-        OPTION_n_FILLER  = 'n',     //!< Updates the global minimass (classic behavior)
-        OPTION_d_DEFAULT = 'd',     //!< Sets new default (like `set_beam_defaults`)
-        OPTION_l_SKIP_LOADED = 'l'  //!< Only apply minimum mass to nodes without "L" option. Global effect.
+        OPTION_n_FILLER  = 'n',     //!< Updates the global minimass
+        OPTION_l_SKIP_LOADED = 'l'  //!< Only apply minimum mass to nodes without "L" option.
     };
 
     MinimassPreset(): min_mass(DEFAULT_MINIMASS), is_global(true)
@@ -2201,6 +2200,7 @@ struct File
         KEYWORD_SET_BEAM_DEFAULTS,
         KEYWORD_SET_BEAM_DEFAULTS_SCALE,
         KEYWORD_SET_COLLISION_RANGE,
+        KEYWORD_SET_DEFAULT_MINIMASS,
         KEYWORD_SET_INERTIA_DEFAULTS,
         KEYWORD_SET_MANAGEDMATS_OPTIONS,
         KEYWORD_SET_NODE_DEFAULTS,

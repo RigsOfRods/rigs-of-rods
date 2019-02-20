@@ -124,6 +124,7 @@ private:
     void ParseDirectivePropCameraMode();
     void ParseDirectiveSetBeamDefaults();
     void ParseDirectiveSetBeamDefaultsScale();
+    void ParseDirectiveSetDefaultMinimass();
     void ParseDirectiveSetInertiaDefaults();
     void ParseDirectiveSetManagedMaterialsOptions();
     void ParseDirectiveSetNodeDefaults();
