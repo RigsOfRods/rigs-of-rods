@@ -1267,6 +1267,22 @@ void SimController::UpdateInputEvents(float dt)
                     }
                 }
             }
+            else if (!m_player_actor)
+            {
+                auto res = GetNearestActor(gEnv->player->getPosition());
+                if (res.first != nullptr && res.first->ar_import_commands && res.second < res.first->getMinCameraRadius())
+                {
+                    // get commands
+                    // -- here we should define a maximum numbers per actor. Some actors does not have that much commands
+                    // -- available, so why should we iterate till MAX_COMMANDS?
+                    for (int i = 1; i <= MAX_COMMANDS + 1; i++)
+                    {
+                        int eventID = EV_COMMANDS_01 + (i - 1);
+
+                        res.first->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
+                    }
+                }
+            }
 
             if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_ENTER_OR_EXIT_TRUCK) && m_time_until_next_toggle <= 0)
             {

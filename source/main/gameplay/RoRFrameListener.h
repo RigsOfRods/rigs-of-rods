@@ -67,6 +67,7 @@ public:
     std::vector<Actor*> GetActors() const                             { return m_actor_manager.GetActors(); }
     std::vector<Actor*> GetLocalActors()                              { return m_actor_manager.GetLocalActors(); }
     Actor* GetActorById          (int actor_id)                       { return m_actor_manager.GetActorByIdInternal(actor_id); }
+    std::pair<Actor*, float> GetNearestActor(Ogre::Vector3 position)  { return  m_actor_manager.GetNearestActor(position); };
     void   ChangePlayerActor     (Actor* actor);
     void   QueueActorSpawn       (RoR::ActorSpawnRequest const & rq)  { m_actor_spawn_queue.push_back(rq); }
     void   QueueActorModify      (RoR::ActorModifyRequest const & rq) { m_actor_modify_queue.push_back(rq); }
