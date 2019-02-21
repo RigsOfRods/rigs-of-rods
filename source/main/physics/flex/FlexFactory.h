@@ -173,7 +173,8 @@ public:
         const int x_node, 
         const int y_node, 
         Ogre::Quaternion const & rot, 
-        std::vector<unsigned int> & node_indices);
+        std::vector<unsigned int> & node_indices,
+        std::string resource_group_name);
 
     FlexMeshWheel* CreateFlexMeshWheel(
         unsigned int wheel_index,
