@@ -101,6 +101,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<int>           sim_replay_stepping     ("sim_replay_stepping",     "Replay Steps per second",   1000);
  GVarPod_A<bool>          sim_realistic_commands  ("sim_realistic_commands",  "Realistic forward commands",false);
  GVarPod_A<bool>          sim_races_enabled       ("sim_races_enabled",       "Races",                     false);
+ GVarPod_A<bool>          sim_direction_arrow     ("sim_direction_arrow",     "Direction Arrow",           true);
  GVarPod_A<bool>          sim_no_collisions       ("sim_no_collisions",       "DisableCollisions",         false);
  GVarPod_A<bool>          sim_no_self_collisions  ("sim_no_self_collisions",  "DisableSelfCollisions",     false);
  GVarEnum_AP<SimGearboxMode> sim_gearbox_mode     ("sim_gearbox_mode",        "GearboxMode",               SimGearboxMode::AUTO,    SimGearboxMode::AUTO);

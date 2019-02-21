@@ -624,6 +624,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckInt  (App::sim_replay_stepping,       k, v)) { return true; }
     if (CheckBool (App::sim_realistic_commands,    k, v)) { return true; }
     if (CheckBool (App::sim_races_enabled,         k, v)) { return true; }
+    if (CheckBool (App::sim_direction_arrow,       k, v)) { return true; }
     if (CheckBool (App::sim_no_collisions,         k, v)) { return true; }
     if (CheckBool (App::sim_no_self_collisions,    k, v)) { return true; }
 
@@ -822,6 +823,7 @@ void Settings::SaveSettings()
     WritePod (f, App::sim_replay_stepping   );
     WriteYN  (f, App::sim_realistic_commands);
     WriteYN  (f, App::sim_races_enabled     );
+    WriteYN  (f, App::sim_direction_arrow   );
     WriteYN  (f, App::sim_no_collisions     );
     WriteYN  (f, App::sim_no_self_collisions);
 
