@@ -192,6 +192,7 @@ void CLASS::UpdateStats(float dt, Actor* actor)
         beam_t* beam = actor->ar_beams;
         float average_deformation = 0.0f;
         float beamstress = 0.0f;
+        float beamyitter = 0.0f;
         float current_deformation = 0.0f;
         float mass = actor->getTotalMass();
         int beambroken = 0;
@@ -199,6 +200,8 @@ void CLASS::UpdateStats(float dt, Actor* actor)
 
         for (int i = 0; i < actor->ar_num_beams; i++ , beam++)
         {
+            Ogre::Vector3 dis = (actor->ar_beams[i].p1->RelPosition - actor->ar_beams[i].p2->RelPosition).normalisedCopy();
+            beamyitter += std::abs((actor->ar_beams[i].p1->Velocity - actor->ar_beams[i].p2->Velocity).dotProduct(dis));
             if (beam->bm_broken != 0)
             {
                 beambroken++;
@@ -230,8 +233,11 @@ void CLASS::UpdateStats(float dt, Actor* actor)
 
         //Taken from TruckHUD.cpp ..
         wchar_t beamstressstr[256];
-        swprintf(beamstressstr, 256, L"% 08.0f", 1 - (float)beamstress / (float)actor->ar_num_beams);
+        swprintf(beamstressstr, 256, L"% 08.0f", (float)beamstress / (float)actor->ar_num_beams);
         m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Average stress: ") + WhiteColor + Ogre::UTFString(beamstressstr) + "\n";
+        wchar_t beamyitterstr[256];
+        swprintf(beamyitterstr, 256, L"%.5f", (float)beamyitter / (float)actor->ar_num_beams);
+        m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Average yitter: ") + WhiteColor + Ogre::UTFString(beamyitterstr) + "\n";
 
         m_actor_stats_str = m_actor_stats_str + "\n"; //Some space
 
@@ -320,8 +326,6 @@ void CLASS::UpdateStats(float dt, Actor* actor)
                 }
             }
         }
-
-        m_actor_stats_str = m_actor_stats_str + "\n"; //Some space
 
         float speedKPH = actor->ar_top_speed * 3.6f;
         float speedMPH = actor->ar_top_speed * 2.23693629f;
