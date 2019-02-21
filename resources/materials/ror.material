@@ -2419,10 +2419,7 @@ material tracks/directionArrowNormal
         pass
         {
 			lighting off
-			depth_check on
-            cull_hardware none 
             scene_blend alpha_blend
-            //depth_write off
             texture_unit
             {
 				texture targetarrowtex.dds

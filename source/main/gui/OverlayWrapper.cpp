@@ -727,34 +727,36 @@ void OverlayWrapper::SetupDirectionArrow()
     {
         // setup direction arrow
         Ogre::Entity* arrow_entity = gEnv->sceneManager->createEntity("arrow2.mesh");
-        arrow_entity->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
 
         // Add entity to the scene node
-        m_direction_arrow_node = new SceneNode(gEnv->sceneManager);
+        m_direction_arrow_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         m_direction_arrow_node->attachObject(arrow_entity);
         m_direction_arrow_node->setVisible(false);
-        m_direction_arrow_node->setScale(0.1, 0.1, 0.1);
-        m_direction_arrow_node->setPosition(Vector3(-0.6, +0.4, -1));
+        m_direction_arrow_node->setScale(0.2, 0.2, 0.2);
         m_direction_arrow_node->setFixedYawAxis(true, Vector3::UNIT_Y);
-        m_direction_arrow_overlay->add3D(m_direction_arrow_node);
     }
 }
 
 void OverlayWrapper::UpdateDirectionArrowHud(RoR::GfxActor* player_vehicle, Ogre::Vector3 point_to, Ogre::Vector3 character_pos)
 {
-    m_direction_arrow_node->lookAt(point_to, Node::TS_WORLD, Vector3::UNIT_Y);
+    Vector3 position = Vector3::ZERO;
     Real distance = 0.0f;
     if (player_vehicle != nullptr && player_vehicle->GetSimDataBuffer().simbuf_live_local)
     {
+        position = player_vehicle->GetSimDataBuffer().simbuf_pos;
+        position.y = player_vehicle->GetSimDataBuffer().simbuf_aabb.getMaximum().y + 0.1f;
         distance = player_vehicle->GetSimDataBuffer().simbuf_pos.distance(point_to);
     }
     else if (gEnv->player)
     {
+        position = character_pos;;
+        position.y += 1.9f;
         distance = character_pos.distance(point_to);
     }
-    char tmp[256];
-    sprintf(tmp, "%0.1f meter", distance);
-    this->directionArrowDistance->setCaption(tmp);
+    point_to.y = Math::Clamp(point_to.y, position.y - distance / 8.0f, position.y + distance / 8.0f);
+    m_direction_arrow_node->setPosition(position);
+    m_direction_arrow_node->lookAt(point_to, Node::TS_WORLD, Vector3::UNIT_Y);
+    this->directionArrowDistance->setCaption(StringUtil::format("%0.1f meter", distance));
 }
 
 void OverlayWrapper::HideDirectionOverlay()
@@ -769,7 +771,7 @@ void OverlayWrapper::ShowDirectionOverlay(Ogre::String const& caption)
     m_direction_arrow_overlay->show();
     directionArrowText->setCaption(caption);
     directionArrowDistance->setCaption("");
-    m_direction_arrow_node->setVisible(true);
+    m_direction_arrow_node->setVisible(RoR::App::sim_direction_arrow.GetActive());
     BITMASK_SET_1(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW);
 }
 
