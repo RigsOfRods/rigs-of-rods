@@ -732,7 +732,7 @@ void OverlayWrapper::SetupDirectionArrow()
         m_direction_arrow_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         m_direction_arrow_node->attachObject(arrow_entity);
         m_direction_arrow_node->setVisible(false);
-        m_direction_arrow_node->setScale(0.2, 0.2, 0.2);
+        m_direction_arrow_node->setScale(0.3, 0.3, 0.3);
         m_direction_arrow_node->setFixedYawAxis(true, Vector3::UNIT_Y);
     }
 }
