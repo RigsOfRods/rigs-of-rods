@@ -1558,7 +1558,7 @@ void ActorSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
     try
     {
         auto* flexbody = m_flex_factory.CreateFlexBody(
-            def.get(), reference_node, x_axis_node, y_axis_node, rot, node_indices);
+            def.get(), reference_node, x_axis_node, y_axis_node, rot, node_indices, m_custom_resource_group);
 
         if (flexbody == nullptr)
             return; // Error already logged
@@ -6840,7 +6840,8 @@ void ActorSpawner::FinalizeGfxSetup()
                     ticket.axis_node_2,
                     static_cast<int>(ticket.base_node_index),
                     Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
-                    node_indices
+                    node_indices,
+                    m_custom_resource_group
                     );
 
                 if (flexbody == nullptr)

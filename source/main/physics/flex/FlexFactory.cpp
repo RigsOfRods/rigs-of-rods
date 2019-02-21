@@ -65,15 +65,9 @@ FlexBody* FlexFactory::CreateFlexBody(
     const int x_node, 
     const int y_node, 
     Ogre::Quaternion const & rot, 
-    std::vector<unsigned int> & node_indices)
+    std::vector<unsigned int> & node_indices,
+    std::string resource_group_name)
 {
-    const std::string resource_group_name
-            = Ogre::ResourceGroupManager::getSingleton().findGroupContainingResource(def->mesh_name);
-    if (resource_group_name.empty())
-    {
-        m_rig_spawner->AddMessage(ActorSpawner::Message::TYPE_ERROR, "Failed to create flexbody, mesh not found: " + def->mesh_name);
-        return nullptr;
-    }
     Ogre::MeshPtr common_mesh = Ogre::MeshManager::getSingleton().load(def->mesh_name, resource_group_name);
     int flexbody_id = m_rig_spawner->GetActor()->GetGfxActor()->GetNumFlexbodies();
     const std::string mesh_unique_name = m_rig_spawner->ComposeName("FlexbodyMesh", flexbody_id);
@@ -83,7 +77,7 @@ FlexBody* FlexFactory::CreateFlexBody(
         this->ResolveFlexbodyLOD(def->mesh_name, mesh);
     }
     const std::string flexbody_name = m_rig_spawner->ComposeName("Flexbody", flexbody_id);
-    Ogre::Entity* entity = gEnv->sceneManager->createEntity(flexbody_name, mesh_unique_name);
+    Ogre::Entity* entity = gEnv->sceneManager->createEntity(flexbody_name, mesh_unique_name, resource_group_name);
     m_rig_spawner->SetupNewEntity(entity, Ogre::ColourValue(0.5, 0.5, 1));
 
     FLEX_DEBUG_LOG(__FUNCTION__);
