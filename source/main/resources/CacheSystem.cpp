@@ -484,14 +484,14 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
 
     // Common details
     j_entry.AddMember("usagecounter",         entry.usagecounter,                                          j_doc.GetAllocator());
-    j_entry.AddMember("addtimestamp",         entry.addtimestamp,                                          j_doc.GetAllocator());
+    j_entry.AddMember("addtimestamp",         static_cast<int64_t>(entry.addtimestamp),                    j_doc.GetAllocator());
     j_entry.AddMember("resource_bundle_type", rapidjson::StringRef(entry.resource_bundle_type.c_str()),    j_doc.GetAllocator());
     j_entry.AddMember("resource_bundle_path", rapidjson::StringRef(entry.resource_bundle_path.c_str()),    j_doc.GetAllocator());
     j_entry.AddMember("fpath",                rapidjson::StringRef(entry.fpath.c_str()),                   j_doc.GetAllocator());
     j_entry.AddMember("fname",                rapidjson::StringRef(entry.fname.c_str()),                   j_doc.GetAllocator());
     j_entry.AddMember("fname_without_uid",    rapidjson::StringRef(entry.fname_without_uid.c_str()),       j_doc.GetAllocator());
     j_entry.AddMember("fext",                 rapidjson::StringRef(entry.fext.c_str()),                    j_doc.GetAllocator());
-    j_entry.AddMember("filetime",             entry.filetime,                                              j_doc.GetAllocator()); 
+    j_entry.AddMember("filetime",             static_cast<int64_t>(entry.filetime),                        j_doc.GetAllocator()); 
     j_entry.AddMember("dname",                rapidjson::StringRef(entry.dname.c_str()),                   j_doc.GetAllocator());
     j_entry.AddMember("categoryid",           entry.categoryid,                                            j_doc.GetAllocator());
     j_entry.AddMember("uniqueid",             rapidjson::StringRef(entry.uniqueid.c_str()),                j_doc.GetAllocator());
