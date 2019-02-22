@@ -224,6 +224,7 @@ void ScriptEngine::init()
     result = engine->RegisterObjectMethod("BeamClass", "float getHeadingDirectionAngle()", AngelScript::asMETHOD(Actor,getRotation), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "bool isLocked()", AngelScript::asMETHOD(Actor,isLocked), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "float getWheelSpeed()", AngelScript::asMETHOD(Actor,getWheelSpeed), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getSpeed()", AngelScript::asMETHOD(Actor,getSpeed), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "vector3 getGForces()", AngelScript::asMETHOD(Actor,GetGForcesCur), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 
     result = engine->RegisterObjectMethod("BeamClass", "float getRotation()", AngelScript::asMETHOD(Actor,getRotation), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
