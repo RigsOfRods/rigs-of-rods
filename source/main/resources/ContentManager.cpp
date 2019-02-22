@@ -314,21 +314,12 @@ void ContentManager::resourceStreamOpened(const Ogre::String& name, const Ogre::
 
 bool ContentManager::resourceCollision(Ogre::Resource* resource, Ogre::ResourceManager* resourceManager)
 {
-    /*
-    // TODO: do something useful here
-    if (resourceManager->getResourceType() == "Material")
-    {
-        if (instanceCountMap.find(resource->getName()) == instanceCountMap.end())
-        {
-            instanceCountMap[resource->getName()] = 1;
-        }
-        int count = instanceCountMap[resource->getName()]++;
-        MaterialPtr mat = (MaterialPtr)resourceManager->create(resource->getName() + TOSTRING(count), resource->getGroup());
-        resource = (Ogre::Resource *)mat.getPointer();
-        return true;
-    }
-    */
-    return false;
+    // RoR loads each resource bundle (see CacheSystem.h for info)
+    // into dedicated resource group outside the global pool [see CacheSystem::LoadResource()]
+    // This means resource collision is entirely content creator's fault.
+    RoR::LogFormat("[RoR|ContentManager] Skipping resource with duplicate name: '%s' (origin: '%s')",
+        resource->getName().c_str(), resource->getOrigin().c_str());
+    return false; // Instruct OGRE to drop the new resource and keep the original.
 }
 
 void ContentManager::InitManagedMaterials()
