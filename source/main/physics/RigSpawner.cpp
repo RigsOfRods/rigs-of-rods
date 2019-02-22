@@ -6432,7 +6432,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
         else
         {
             // Generate new substitute
-            Ogre::MaterialPtr orig_mat = Ogre::MaterialManager::getSingleton().getByName(mat_lookup_name);
+            Ogre::MaterialPtr orig_mat = Ogre::MaterialManager::getSingleton().getByName(mat_lookup_name, m_custom_resource_group);
             if (orig_mat.isNull())
             {
                 std::stringstream buf;

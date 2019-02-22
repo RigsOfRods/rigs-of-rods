@@ -1094,6 +1094,9 @@ void CacheSystem::LoadResource(CacheEntry& t)
 
     static int rg_counter = 0;
     String group = "Mod-" + std::to_string(rg_counter++);
+    // Option `inGlobalPool=false` prevents resource name conflicts between mods.
+    // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
+    ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
     ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
     try
     {
