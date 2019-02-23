@@ -36,7 +36,7 @@ FlexObj::FlexObj(RoR::GfxActor* gfx_actor, node_t* all_nodes, std::vector<CabTex
     m_triangle_count = numtriangles;
 
     // Create the mesh via the MeshManager
-    m_mesh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    m_mesh = MeshManager::getSingleton().createManual(name, gfx_actor->GetResourceGroup());
 
     // Create submeshes
     m_submeshes.reserve(submesh_defs.size());
