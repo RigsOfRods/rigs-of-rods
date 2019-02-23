@@ -1646,6 +1646,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         const std::string instance_name = this->ComposeName("SteeringWheelPropEntity", prop_index);
         prop.wheelmo = new MeshObject(
             def.special_prop_dashboard.mesh_name,
+            m_custom_resource_group,
             instance_name,
             prop.wheel
             );
@@ -1656,7 +1657,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
 
     prop.scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     const std::string instance_name = this->ComposeName("PropEntity", prop_index);
-    prop.mo = new MeshObject(def.mesh_name, instance_name, prop.scene_node);
+    prop.mo = new MeshObject(def.mesh_name, m_custom_resource_group, instance_name, prop.scene_node);
     prop.mo->setCastShadows(true); // Orig code {{ prop.mo->setCastShadows(shadowmode != 0); }}, shadowmode has default value 1 and changes with undocumented directive 'set_shadows'
     prop.beacontype = 'n'; // Orig: hardcoded in BTS_PROPS
 
