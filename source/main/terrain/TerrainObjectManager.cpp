@@ -745,7 +745,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     MeshObject* mo = nullptr;
     if (String(mesh) != "none")
     {
-        mo = new MeshObject(mesh, entity_name, tenode);
+        mo = new MeshObject(mesh, Ogre::RGN_AUTODETECT, entity_name, tenode);
         m_mesh_objects.push_back(mo);
     }
 

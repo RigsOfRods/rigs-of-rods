@@ -29,14 +29,12 @@
 
 using namespace Ogre;
 
-MeshObject::MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode* sceneNode)
-    : meshName(meshName)
-    , entityName(entityName)
-    , sceneNode(sceneNode)
-    , ent(0)
+MeshObject::MeshObject(Ogre::String meshName, Ogre::String meshRG, Ogre::String entityName, Ogre::SceneNode* sceneNode)
+    : sceneNode(sceneNode)
+    , ent(nullptr)
     , castshadows(true)
 {
-    loadMesh();
+    this->createEntity(meshName, meshRG, entityName);
 }
 
 void MeshObject::setMaterialName(Ogre::String m)
@@ -62,15 +60,17 @@ void MeshObject::setVisible(bool b)
         sceneNode->setVisible(b);
 }
 
-void MeshObject::postProcess()
+void MeshObject::createEntity(Ogre::String meshName, Ogre::String meshRG, Ogre::String entityName)
 {
     if (!sceneNode)
         return;
 
-    // important: you need to add the LODs before creating the entity
-    // now find possible LODs, needs to be done before calling createEntity()
-    if (!mesh.isNull())
+    try
     {
+        Ogre::MeshPtr mesh = Ogre::MeshManager::getSingleton().load(meshName, meshRG);
+
+        // important: you need to add the LODs before creating the entity
+        // now find possible LODs, needs to be done before calling createEntity()
         String basename, ext;
         StringUtil::splitBaseFilename(meshName, basename, ext);
 
@@ -103,41 +103,27 @@ void MeshObject::postProcess()
 
             Ogre::MeshManager::getSingleton().load(iterFiles->filename, mesh->getGroup());
         }
-    }
 
-    // now create an entity around the mesh and attach it to the scene graph
-    try
-    {
+        // now create an entity around the mesh and attach it to the scene graph
+
         if (entityName.empty())
             ent = gEnv->sceneManager->createEntity(meshName);
         else
             ent = gEnv->sceneManager->createEntity(entityName, meshName);
         if (ent)
             sceneNode->attachObject(ent);
+
+        // only set it if different from default (true)
+        if (!castshadows && sceneNode && sceneNode->numAttachedObjects() > 0)
+            sceneNode->getAttachedObject(0)->setCastShadows(castshadows);
+
+        sceneNode->setVisible(true);
+
     }
     catch (Ogre::Exception& e)
     {
-        LOG("error loading mesh: " + meshName + ": " + e.getFullDescription());
+        RoR::LogFormat("[RoR] Error creating entity of mesh '%s' (group: '%s'), message: %s",
+            meshName.c_str(), meshRG.c_str(), e.getFullDescription().c_str());
         return;
-    }
-
-    // only set it if different from default (true)
-    if (!castshadows && sceneNode && sceneNode->numAttachedObjects() > 0)
-        sceneNode->getAttachedObject(0)->setCastShadows(castshadows);
-
-    sceneNode->setVisible(true);
-}
-
-void MeshObject::loadMesh()
-{
-    try
-    {
-        Ogre::String group = Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
-        mesh = static_cast<Ogre::MeshPtr>(Ogre::MeshManager::getSingleton().create(meshName, group));
-        postProcess();
-    }
-    catch (Ogre::Exception* e)
-    {
-        LOG("exception while loading mesh: " + e->getFullDescription());
     }
 }
