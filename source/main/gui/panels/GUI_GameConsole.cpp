@@ -256,7 +256,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
         putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("gravity <real> or <text string> - changes gravity constant. Outputs current value if no argument is given"), "script_go.png");
         putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("Possible values: \n earth \n moon \n jupiter \n A random number (use negative)"), "script_go.png");
 
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("setwaterlevel <real> - changes water's level"), "script_go.png");
+        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("setwaterlevel <real> or default - changes water's level"), "script_go.png");
 
         putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("spawnobject <odef name> - spawn a object at the player position"), "script_go.png");
 
@@ -296,8 +296,9 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
             IWater* water = App::GetSimTerrain()->getWater();
             if (water != nullptr)
             {
+                float height = (args[1] == "default") ? App::GetSimTerrain()->getWaterHeight() : PARSEREAL(args[1]);
                 water->WaterSetCamera(gEnv->mainCamera);
-                water->SetStaticWaterHeight(PARSEREAL(args[1]));
+                water->SetStaticWaterHeight(height);
                 water->UpdateWater();
                 putMessage (CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L ("Water level set to: ") + StringConverter::toString (water->GetStaticWaterHeight ()), "information.png");
             }

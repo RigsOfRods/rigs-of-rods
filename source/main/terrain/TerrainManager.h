@@ -46,6 +46,7 @@ public:
     int                getVersion() const            { return m_def.version; };
     int                getFarClip() const            { return m_sight_range; }
     float              getPagedDetailFactor() const  { return m_paged_detail_factor; };
+    float              getWaterHeight() const        { return m_def.water_height; };
     Ogre::Vector3      getMaxTerrainSize();
     Collisions*        getCollisions()               { return m_collisions; };
     IWater*            getWater()                    { return m_water.get(); };
