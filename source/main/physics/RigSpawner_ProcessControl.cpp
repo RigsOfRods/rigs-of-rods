@@ -360,16 +360,16 @@ Actor *ActorSpawner::SpawnActor()
     // Section 'screwprops'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SCREWPROPS, screwprops, ProcessScrewprop);
 
-    this->CreateGfxActor(); // Required in the 'flexbodies' section
+    // Section 'fixes'
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FIXES, fixes, ProcessFixedNode);
+
+    this->CreateGfxActor(); // Required in sections below
 
     // Section 'flexbodies' (Uses generated nodes; needs GfxActor to exist)
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODIES, flexbodies, ProcessFlexbody);
 
     // Section 'wings' (needs GfxActor to exist)
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WINGS, wings, ProcessWing);
-
-    // Section 'fixes'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FIXES, fixes, ProcessFixedNode);
 
 #ifdef USE_OPENAL
 
