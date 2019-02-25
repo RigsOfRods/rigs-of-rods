@@ -46,7 +46,7 @@ FlexMesh::FlexMesh(
     , m_gfx_actor(gfx_actor)
 {
     // Create the mesh via the MeshManager
-    m_mesh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    m_mesh = MeshManager::getSingleton().createManual(name, gfx_actor->GetResourceGroup());
 
     // Create submeshes
     m_submesh_wheelface = m_mesh->createSubMesh();
