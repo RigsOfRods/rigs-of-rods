@@ -53,7 +53,7 @@ FlexMeshWheel::FlexMeshWheel(
     m_rim_scene_node->attachObject(m_rim_entity);
 
     // Create the tire mesh via the MeshManager
-    m_mesh = MeshManager::getSingleton().createManual(tire_mesh_name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    m_mesh = MeshManager::getSingleton().createManual(tire_mesh_name, gfx_actor->GetResourceGroup());
 
     // Create submeshes
     m_submesh = m_mesh->createSubMesh();
