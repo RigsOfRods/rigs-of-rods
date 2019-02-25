@@ -84,6 +84,7 @@ public:
     bool IsVisible_GameMainMenu         ();
     bool IsVisible_GameAbout            ();
     bool IsVisible_GameSettings         ();
+    bool IsVisible_TopMenubar           ();
     bool IsVisible_DebugOptions         ();
     bool IsVisible_MessageBox           ();
     bool IsVisible_MultiplayerSelector  ();

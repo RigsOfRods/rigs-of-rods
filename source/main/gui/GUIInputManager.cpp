@@ -125,6 +125,10 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 
     RoR::App::GetGuiManager()->GetImGui().InjectMouseMoved(_arg);
 
+    if (RoR::App::GetGuiManager()->IsVisible_TopMenubar()) // dirty hack to block imgui handled input events
+    {
+        return true;
+    }
 
     if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED)
     {
@@ -247,6 +251,15 @@ bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButto
 bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
 {
     RoR::App::GetGuiManager()->GetImGui().InjectKeyPressed(_arg);
+
+    if (RoR::App::GetGuiManager()->IsVisible_TopMenubar()) // dirty hack to block imgui handled input events
+    {
+        if (_arg.key == OIS::KC_RETURN)
+        {
+            return true;
+        }
+    }
+
     if (RoR::App::GetGuiManager()->IsVisible_GameMainMenu()) // Special hacky handling of main-menu key control. TODO: Remove this!~ only_a_ptr, 06/2017
     {
         if (_arg.key == OIS::KC_UP)
@@ -320,6 +333,14 @@ bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
 bool GUIInputManager::keyReleased(const OIS::KeyEvent& _arg)
 {
     RoR::App::GetGuiManager()->GetImGui().InjectKeyReleased(_arg);
+
+    if (RoR::App::GetGuiManager()->IsVisible_TopMenubar()) // dirty hack to block imgui handled input events
+    {
+        if (_arg.key == OIS::KC_RETURN)
+        {
+            return true;
+        }
+    }
 
     // fallback, handle by GUI, then by RoR::SceneMouse
     bool handled = MyGUI::InputManager::getInstance().injectKeyRelease(MyGUI::KeyCode::Enum(_arg.key));
