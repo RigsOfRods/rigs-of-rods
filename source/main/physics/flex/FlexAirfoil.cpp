@@ -116,7 +116,7 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, Actor* actor, int pnfld, int
         for (i=0; i<12; i++) airfoilpos[54+12+i]=airfoilpos[54+i];
     }
     /// Create the mesh via the MeshManager
-    msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    msh = MeshManager::getSingleton().createManual(name, actor->GetGfxActor()->GetResourceGroup());
 
     /// Create submeshes
     subface = msh->createSubMesh();
