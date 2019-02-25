@@ -51,6 +51,8 @@ public:
     void Update();
     bool ShouldDisplay(ImVec2 window_pos);
 
+    bool IsVisible() { return m_open_menu != TopMenu::TOPMENU_NONE; };
+
 private:
     void DrawActorListSinglePlayer();
     void DrawMpUserToActorList(RoRnet::UserInfo &user); // Multiplayer
