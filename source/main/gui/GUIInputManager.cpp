@@ -125,7 +125,7 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 
     RoR::App::GetGuiManager()->GetImGui().InjectMouseMoved(_arg);
 
-    if (RoR::App::GetGuiManager()->IsVisible_TopMenubar()) // dirty hack to block imgui handled input events
+    if (RoR::App::sim_state.GetActive() == RoR::SimState::RUNNING && RoR::App::GetGuiManager()->IsVisible_TopMenubar()) // dirty hack to block imgui handled input events
     {
         return true;
     }
@@ -252,7 +252,8 @@ bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
 {
     RoR::App::GetGuiManager()->GetImGui().InjectKeyPressed(_arg);
 
-    if (RoR::App::GetGuiManager()->IsVisible_TopMenubar() || RoR::App::GetGuiManager()->IsVisible_NodeBeamUtils()) // dirty hack to block imgui handled input events
+    if (RoR::App::sim_state.GetActive() == RoR::SimState::RUNNING &&
+            RoR::App::GetGuiManager()->IsVisible_TopMenubar() || RoR::App::GetGuiManager()->IsVisible_NodeBeamUtils()) // dirty hack to block imgui handled input events
     {
         if (_arg.key == OIS::KC_RETURN)
         {
@@ -334,7 +335,8 @@ bool GUIInputManager::keyReleased(const OIS::KeyEvent& _arg)
 {
     RoR::App::GetGuiManager()->GetImGui().InjectKeyReleased(_arg);
 
-    if (RoR::App::GetGuiManager()->IsVisible_TopMenubar() || RoR::App::GetGuiManager()->IsVisible_NodeBeamUtils()) // dirty hack to block imgui handled input events
+    if (RoR::App::sim_state.GetActive() == RoR::SimState::RUNNING &&
+            RoR::App::GetGuiManager()->IsVisible_TopMenubar() || RoR::App::GetGuiManager()->IsVisible_NodeBeamUtils()) // dirty hack to block imgui handled input events
     {
         if (_arg.key == OIS::KC_RETURN)
         {
