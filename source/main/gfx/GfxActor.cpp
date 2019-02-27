@@ -2899,106 +2899,105 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
         float ry = 0.0f;
         float rz = 0.0f;
 
-        while (prop.animFlags[animnum])
+        for (prop_anim_t& anim: prop.pp_animations)
         {
             float cstate = 0.0f;
             int div = 0.0f;
-            int flagstate = prop.animFlags[animnum];
-            const float lower_limit = prop.constraints[animnum].lower_limit;
-            const float upper_limit = prop.constraints[animnum].upper_limit;
-            float animOpt3 = prop.animOpt3[animnum];
+            const float lower_limit = anim.lower_limit;
+            const float upper_limit = anim.upper_limit;
+            float animOpt3 = anim.animOpt3;
 
-            this->CalcPropAnimation(flagstate, cstate, div, dt, lower_limit, upper_limit, animOpt3);
+            this->CalcPropAnimation(anim.animFlags, cstate, div, dt, lower_limit, upper_limit, animOpt3);
 
             // key triggered animations
-            if ((prop.animFlags[animnum] & ANIM_FLAG_EVENT) && prop.animKey[animnum] != -1 && is_player_connected)
+            if ((anim.animFlags & ANIM_FLAG_EVENT) && anim.animKey != -1 && is_player_connected)
             {
                 // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
-                if (RoR::App::GetInputEngine()->getEventValue(prop.animKey[animnum]))
+                if (RoR::App::GetInputEngine()->getEventValue(anim.animKey))
                 {
                     // keystatelock is disabled then set cstate
-                    if (prop.animKeyState[animnum] == -1.0f)
+                    if (anim.animKeyState == -1.0f)
                     {
                         // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
-                        cstate += RoR::App::GetInputEngine()->getEventValue(prop.animKey[animnum]);
+                        cstate += RoR::App::GetInputEngine()->getEventValue(anim.animKey);
                     }
-                    else if (!prop.animKeyState[animnum])
+                    else if (!anim.animKeyState)
                     {
                         // a key was pressed and a toggle was done already, so bypass
                         //toggle now
-                        if (!prop.lastanimKS[animnum])
+                        if (!anim.lastanimKS)
                         {
-                            prop.lastanimKS[animnum] = 1.0f;
+                            anim.lastanimKS = 1.0f;
                             // use animkey as bool to determine keypress / release state of inputengine
-                            prop.animKeyState[animnum] = 1.0f;
+                            anim.animKeyState = 1.0f;
                         }
                         else
                         {
-                            prop.lastanimKS[animnum] = 0.0f;
+                            anim.lastanimKS = 0.0f;
                             // use animkey as bool to determine keypress / release state of inputengine
-                            prop.animKeyState[animnum] = 1.0f;
+                            anim.animKeyState = 1.0f;
                         }
                     }
                     else
                     {
                         // bypas mode, get the last set position and set it
-                        cstate += prop.lastanimKS[animnum];
+                        cstate += anim.lastanimKS;
                     }
                 }
                 else
                 {
                     // keyevent exists and keylock is enabled but the key isnt pressed right now = get lastanimkeystatus for cstate and reset keypressed bool animkey
-                    if (prop.animKeyState[animnum] != -1.0f)
+                    if (anim.animKeyState != -1.0f)
                     {
-                        cstate += prop.lastanimKS[animnum];
-                        prop.animKeyState[animnum] = 0.0f;
+                        cstate += anim.lastanimKS;
+                        anim.animKeyState = 0.0f;
                     }
                 }
             }
 
             //propanimation placed here to avoid interference with existing hydros(cstate) and permanent prop animation
             //land vehicle steering
-            if (prop.animFlags[animnum] & ANIM_FLAG_STEERING)
+            if (anim.animFlags & ANIM_FLAG_STEERING)
                 cstate += m_simbuf.simbuf_hydro_dir_state;
             //aileron
-            if (prop.animFlags[animnum] & ANIM_FLAG_AILERONS)
+            if (anim.animFlags & ANIM_FLAG_AILERONS)
                 cstate += m_simbuf.simbuf_hydro_aileron_state;
             //elevator
-            if (prop.animFlags[animnum] & ANIM_FLAG_ELEVATORS)
+            if (anim.animFlags & ANIM_FLAG_ELEVATORS)
                 cstate += m_simbuf.simbuf_hydro_elevator_state;
             //rudder
-            if (prop.animFlags[animnum] & ANIM_FLAG_ARUDDER)
+            if (anim.animFlags & ANIM_FLAG_ARUDDER)
                 cstate += m_simbuf.simbuf_hydro_aero_rudder_state;
             //permanent
-            if (prop.animFlags[animnum] & ANIM_FLAG_PERMANENT)
+            if (anim.animFlags & ANIM_FLAG_PERMANENT)
                 cstate += 1.0f;
 
-            cstate *= prop.animratio[animnum];
+            cstate *= anim.animratio;
 
             // autoanimate noflip_bouncer
-            if (prop.animOpt5[animnum])
-                cstate *= (prop.animOpt5[animnum]);
+            if (anim.animOpt5)
+                cstate *= (anim.animOpt5);
 
             //rotate prop
-            if ((prop.animMode[animnum] & ANIM_MODE_ROTA_X) || (prop.animMode[animnum] & ANIM_MODE_ROTA_Y) || (prop.animMode[animnum] & ANIM_MODE_ROTA_Z))
+            if ((anim.animMode & ANIM_MODE_ROTA_X) || (anim.animMode & ANIM_MODE_ROTA_Y) || (anim.animMode & ANIM_MODE_ROTA_Z))
             {
                 float limiter = 0.0f;
                 // This code was formerly executed within a fixed timestep of 0.5ms and finetuned accordingly.
                 // This is now taken into account by factoring in the respective fraction of the variable timestep.
                 float const dt_frac = dt * 2000.f;
-                if (prop.animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+                if (anim.animMode & ANIM_MODE_AUTOANIMATE)
                 {
-                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_X)
+                    if (anim.animMode & ANIM_MODE_ROTA_X)
                     {
                         prop.rotaX += cstate * dt_frac;
                         limiter = prop.rotaX;
                     }
-                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_Y)
+                    if (anim.animMode & ANIM_MODE_ROTA_Y)
                     {
                         prop.rotaY += cstate * dt_frac;
                         limiter = prop.rotaY;
                     }
-                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_Z)
+                    if (anim.animMode & ANIM_MODE_ROTA_Z)
                     {
                         prop.rotaZ += cstate * dt_frac;
                         limiter = prop.rotaZ;
@@ -3006,11 +3005,11 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
                 }
                 else
                 {
-                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_X)
+                    if (anim.animMode & ANIM_MODE_ROTA_X)
                         rx += cstate;
-                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_Y)
+                    if (anim.animMode & ANIM_MODE_ROTA_Y)
                         ry += cstate;
-                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_Z)
+                    if (anim.animMode & ANIM_MODE_ROTA_Z)
                         rz += cstate;
                 }
 
@@ -3019,10 +3018,10 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 
                 if (limiter > upper_limit)
                 {
-                    if (prop.animMode[animnum] & ANIM_MODE_NOFLIP)
+                    if (anim.animMode & ANIM_MODE_NOFLIP)
                     {
                         limiter = upper_limit; // stop at limit
-                        prop.animOpt5[animnum] *= -1.0f; // change cstate multiplier if bounce is set
+                        anim.animOpt5 *= -1.0f; // change cstate multiplier if bounce is set
                     }
                     else
                     {
@@ -3033,10 +3032,10 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 
                 if (limiter < lower_limit)
                 {
-                    if (prop.animMode[animnum] & ANIM_MODE_NOFLIP)
+                    if (anim.animMode & ANIM_MODE_NOFLIP)
                     {
                         limiter = lower_limit; // stop at limit
-                        prop.animOpt5[animnum] *= -1.0f; // change cstate multiplier if active
+                        anim.animOpt5 *= -1.0f; // change cstate multiplier if active
                     }
                     else
                     {
@@ -3047,30 +3046,30 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 
                 if (limiterchanged)
                 {
-                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_X)
+                    if (anim.animMode & ANIM_MODE_ROTA_X)
                         prop.rotaX = limiter;
-                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_Y)
+                    if (anim.animMode & ANIM_MODE_ROTA_Y)
                         prop.rotaY = limiter;
-                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_Z)
+                    if (anim.animMode & ANIM_MODE_ROTA_Z)
                         prop.rotaZ = limiter;
                 }
             }
 
             //offset prop
 
-            if ((prop.animMode[animnum] & ANIM_MODE_OFFSET_X) || (prop.animMode[animnum] & ANIM_MODE_OFFSET_Y) || (prop.animMode[animnum] & ANIM_MODE_OFFSET_Z))
+            if ((anim.animMode & ANIM_MODE_OFFSET_X) || (anim.animMode & ANIM_MODE_OFFSET_Y) || (anim.animMode & ANIM_MODE_OFFSET_Z))
             {
                 float offset = 0.0f;
                 float autooffset = 0.0f;
 
-                if (prop.animMode[animnum] & ANIM_MODE_OFFSET_X)
+                if (anim.animMode & ANIM_MODE_OFFSET_X)
                     offset = prop.orgoffsetX;
-                if (prop.animMode[animnum] & ANIM_MODE_OFFSET_Y)
+                if (anim.animMode & ANIM_MODE_OFFSET_Y)
                     offset = prop.orgoffsetY;
-                if (prop.animMode[animnum] & ANIM_MODE_OFFSET_Z)
+                if (anim.animMode & ANIM_MODE_OFFSET_Z)
                     offset = prop.orgoffsetZ;
 
-                if (prop.animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+                if (anim.animMode & ANIM_MODE_AUTOANIMATE)
                 {
                     // This code was formerly executed within a fixed timestep of 0.5ms and finetuned accordingly.
                     // This is now taken into account by factoring in the respective fraction of the variable timestep.
@@ -3079,10 +3078,10 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 
                     if (autooffset > upper_limit)
                     {
-                        if (prop.animMode[animnum] & ANIM_MODE_NOFLIP)
+                        if (anim.animMode & ANIM_MODE_NOFLIP)
                         {
                             autooffset = upper_limit; // stop at limit
-                            prop.animOpt5[animnum] *= -1.0f; // change cstate multiplier if active
+                            anim.animOpt5 *= -1.0f; // change cstate multiplier if active
                         }
                         else
                         {
@@ -3092,10 +3091,10 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 
                     if (autooffset < lower_limit)
                     {
-                        if (prop.animMode[animnum] & ANIM_MODE_NOFLIP)
+                        if (anim.animMode & ANIM_MODE_NOFLIP)
                         {
                             autooffset = lower_limit; // stop at limit
-                            prop.animOpt5[animnum] *= -1.0f; // change cstate multiplier if active
+                            anim.animOpt5 *= -1.0f; // change cstate multiplier if active
                         }
                         else
                         {
@@ -3105,22 +3104,22 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
                 }
                 offset += cstate;
 
-                if (prop.animMode[animnum] & ANIM_MODE_OFFSET_X)
+                if (anim.animMode & ANIM_MODE_OFFSET_X)
                 {
                     prop.offsetx = offset;
-                    if (prop.animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+                    if (anim.animMode & ANIM_MODE_AUTOANIMATE)
                         prop.orgoffsetX = autooffset;
                 }
-                if (prop.animMode[animnum] & ANIM_MODE_OFFSET_Y)
+                if (anim.animMode & ANIM_MODE_OFFSET_Y)
                 {
                     prop.offsety = offset;
-                    if (prop.animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+                    if (anim.animMode & ANIM_MODE_AUTOANIMATE)
                         prop.orgoffsetY = autooffset;
                 }
-                if (prop.animMode[animnum] & ANIM_MODE_OFFSET_Z)
+                if (anim.animMode & ANIM_MODE_OFFSET_Z)
                 {
                     prop.offsetz = offset;
-                    if (prop.animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+                    if (anim.animMode & ANIM_MODE_AUTOANIMATE)
                         prop.orgoffsetZ = autooffset;
                 }
             }
