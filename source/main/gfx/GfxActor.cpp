@@ -753,7 +753,10 @@ void RoR::GfxActor::UpdateDebugView()
                 }
                 else if (beams[i].bm_type == BEAM_HYDRO)
                 {
-                    drawlist->AddLine(pos1xy, pos2xy, BEAM_HYDRO_COLOR, BEAM_HYDRO_THICKNESS);
+                    if (!beams[i].bm_disabled)
+                    {
+                        drawlist->AddLine(pos1xy, pos2xy, BEAM_HYDRO_COLOR, BEAM_HYDRO_THICKNESS);
+                    }
                 }
                 else
                 {
