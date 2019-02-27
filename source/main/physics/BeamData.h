@@ -373,6 +373,20 @@ struct flare_t
     bool isVisible;
 };
 
+struct prop_anim_t
+{
+    float animratio   = 0;       //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
+    int animFlags     = 0; 
+    int animMode      = 0;
+    float animOpt3    = 0;       //!< Various purposes
+    float animOpt5    = 0;  
+    int animKey       = 0;
+    int animKeyState  = 0;    
+    int lastanimKS    = 0;  
+    float lower_limit = 0;       //!< The lower limit for the animation
+    float upper_limit = 0;       //!< The upper limit for the animation
+};
+
 /**
 * SIM-CORE; Prop = an object mounted on vehicle chassis.
 */
@@ -413,24 +427,13 @@ struct prop_t
     
     // formerly named "bpos"
     float beacon_light_rotation_angle[4]; //<! Radians
-    
-    float animratio[10]; //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
-    int animFlags[10];
-    int animMode[10];
-    float animOpt3[10]; //!< Various purposes
-    float animOpt5[10];
-    int animKey[10];
-    int animKeyState[10];
-    int lastanimKS[10];
+
     Ogre::Real wheelrotdegree;
     int cameramode; //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
     MeshObject *mo;
     MeshObject *wheelmo;
 
-    struct {
-        float lower_limit;  //!< The lower limit for the animation
-        float upper_limit;  //!< The upper limit for the animation
-    } constraints[10];
+    std::vector<prop_anim_t> pp_animations;
 
     int  pp_aero_engine_idx;          //!< Special - a turboprop/pistonprop reference
     bool pp_aero_propeller_blade:1;   //!< Special - single blade mesh
