@@ -52,31 +52,31 @@ void RoR::GUI::NodeBeamUtils::Draw()
     }
     ImGui::Separator();
     ImGui::TextColored(GRAY_HINT_TEXT, "Beams:");
-    if (ImGui::SliderFloat("Spring##Beams", &actor->ar_nb_beams_scale.first, 0.1f, 10.0f))
+    if (ImGui::SliderFloat("Spring##Beams", &actor->ar_nb_beams_scale.first, 0.1f, 10.0f, "%.5f"))
     {
         actor->ApplyNodeBeamScales();
     }
-    if (ImGui::SliderFloat("Damping##Beams", &actor->ar_nb_beams_scale.second, 0.1f, 10.0f))
+    if (ImGui::SliderFloat("Damping##Beams", &actor->ar_nb_beams_scale.second, 0.1f, 10.0f, "%.5f"))
     {
         actor->ApplyNodeBeamScales();
     }
     ImGui::Separator();
     ImGui::TextColored(GRAY_HINT_TEXT, "Shocks:");
-    if (ImGui::SliderFloat("Spring##Shocks", &actor->ar_nb_shocks_scale.first, 0.1f, 10.0f))
+    if (ImGui::SliderFloat("Spring##Shocks", &actor->ar_nb_shocks_scale.first, 0.1f, 10.0f, "%.5f"))
     {
         actor->ApplyNodeBeamScales();
     }
-    if (ImGui::SliderFloat("Damping##Shocks", &actor->ar_nb_shocks_scale.second, 0.1f, 10.0f))
+    if (ImGui::SliderFloat("Damping##Shocks", &actor->ar_nb_shocks_scale.second, 0.1f, 10.0f, "%.5f"))
     {
         actor->ApplyNodeBeamScales();
     }
     ImGui::Separator();
     ImGui::TextColored(GRAY_HINT_TEXT, "Wheels:");
-    if (ImGui::SliderFloat("Spring##Wheels", &actor->ar_nb_wheels_scale.first, 0.1f, 10.0f))
+    if (ImGui::SliderFloat("Spring##Wheels", &actor->ar_nb_wheels_scale.first, 0.1f, 10.0f, "%.5f"))
     {
         actor->ApplyNodeBeamScales();
     }
-    if (ImGui::SliderFloat("Damping##Wheels", &actor->ar_nb_wheels_scale.second, 0.1f, 10.0f))
+    if (ImGui::SliderFloat("Damping##Wheels", &actor->ar_nb_wheels_scale.second, 0.1f, 10.0f, "%.5f"))
     {
         actor->ApplyNodeBeamScales();
     }
