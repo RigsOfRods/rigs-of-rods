@@ -111,7 +111,10 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     spawner.Setup(actor, def, parent_scene_node);
     /* Setup modules */
     spawner.AddModule(def->root_module);
-    spawner.AddModule(actor->m_section_config);
+    if (!actor->m_section_config.empty())
+    {
+        spawner.AddModule(actor->m_section_config);
+    }
     spawner.SpawnActor();
     def->report_num_errors += spawner.GetMessagesNumErrors();
     def->report_num_warnings += spawner.GetMessagesNumWarnings();
