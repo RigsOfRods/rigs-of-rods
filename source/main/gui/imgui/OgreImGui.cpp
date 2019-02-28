@@ -82,6 +82,7 @@ void OgreImGui::InjectMouseMoved( const OIS::MouseEvent &arg )
 
     io.MousePos.x = arg.state.X.abs;
     io.MousePos.y = arg.state.Y.abs;
+    io.MouseWheel = Ogre::Math::Clamp((float)arg.state.Z.rel, -1/3.f, 1/3.f);
 }
 
 void OgreImGui::InjectMousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
