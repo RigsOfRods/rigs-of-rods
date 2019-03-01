@@ -27,6 +27,7 @@
 
 #include <mutex>
 #include <Ogre.h>
+#include <string>
 
 namespace RoR {
 
@@ -36,14 +37,14 @@ namespace RoR {
 /// @addtogroup Collisions
 /// @{
 
-struct eventsource_t
+struct eventsource_t //!< Scripting
 {
-    char instancename[256];
-    char boxname[256];
-    Ogre::Quaternion direction;
-    int scripthandler;
-    int cbox;
-    bool enabled;
+    std::string       es_instance_name;  //!< Specified by user when calling "GameScript::spawnObject()"
+    std::string       es_box_name;       //!< Specified in ODEF file as "event"
+    Ogre::Quaternion  es_direction;
+    int               es_script_handler; //!< AngelScript function ID
+    int               es_cbox;           //!< Collision box ID
+    bool              es_enabled;
 };
 
 struct collision_tri_t

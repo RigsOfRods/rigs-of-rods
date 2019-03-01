@@ -219,7 +219,7 @@ void CollisionsDebug::AddCollisionBoxDebugMesh(collision_box_t const& coll_box)
 {
     int scripthandler = -1;
     if (coll_box.eventsourcenum != -1)
-        scripthandler = App::GetGameContext()->GetTerrain()->GetCollisions()->getEventSource(coll_box.eventsourcenum).scripthandler;
+        scripthandler = App::GetGameContext()->GetTerrain()->GetCollisions()->getEventSource(coll_box.eventsourcenum).es_script_handler;
 
     SceneNode* debugsn = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
 
@@ -328,7 +328,7 @@ void CollisionsDebug::DrawCollisionBoxDebugText(collision_box_t const& coll_box)
 
     this->DrawLabelAtWorldPos(
         fmt::format("{}event:{}\ninstance:{}\nhandler:{}", type_str,
-            eventsource.boxname, eventsource.instancename, eventsource.scripthandler),
+            eventsource.es_box_name, eventsource.es_instance_name, eventsource.es_script_handler),
         this->GetCollBoxWorldPos(coll_box), COLOR_EVENTBOX);
 }
 
