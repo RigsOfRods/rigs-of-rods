@@ -448,7 +448,6 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
         eventsources[free_eventsource].es_instance_name = instancename;
         eventsources[free_eventsource].scripthandler = scripthandler;
         eventsources[free_eventsource].cbox = coll_box_index;
-        eventsources[free_eventsource].snode = tenode;
         eventsources[free_eventsource].direction = direction;
         eventsources[free_eventsource].enabled = true;
         coll_box.eventsourcenum = free_eventsource;

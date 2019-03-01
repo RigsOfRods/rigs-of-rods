@@ -33,7 +33,6 @@ struct eventsource_t //!< Scripting
 {
     std::string es_instance_name;
     std::string es_box_name;
-    Ogre::SceneNode* snode;
     Ogre::Quaternion direction;
     int scripthandler;
     int cbox;
