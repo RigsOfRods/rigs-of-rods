@@ -46,7 +46,7 @@ enum scriptEvents
     SE_GENERIC_NEW_TRUCK               = 0x00020000, //!< triggered when the user spawns a new actor, the argument refers to the actor ID
     SE_GENERIC_DELETED_TRUCK           = 0x00040000, //!< triggered when the user deletes an actor, the argument refers to the actor ID
 
-    SE_GENERIC_INPUT_EVENT             = 0x00080000, //!< triggered when an input event bound to the scripting engine is toggled, the argument refers to event id
+    // UNUSED                          = 0x00080000
     SE_GENERIC_MOUSE_BEAM_INTERACTION  = 0x00100000, //!< triggered when the user uses the mouse to interact with the actor, the argument refers to the actor ID
 
     SE_TRUCK_RESET                     = 0x00200000, //!< triggered when the user resets the truck, the argument refers to the actor ID of the vehicle
