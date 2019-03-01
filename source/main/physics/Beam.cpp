@@ -1742,15 +1742,13 @@ void Actor::ForceFeedbackStep(int steps)
     m_force_sensors.out_body_forces = m_force_sensors.accu_body_forces / steps;
     if (!ar_hydros.empty()) // Vehicle has hydros?
     {
-        m_force_sensors.out_hydros_forces = (m_force_sensors.accu_hydros_forces / steps) / ar_hydros.size();    
+        m_force_sensors.out_hydros_forces = (m_force_sensors.accu_hydros_forces / steps) / ar_hydros.size();
     }
 }
 
 void Actor::HandleAngelScriptEvents(float dt)
 {
 #ifdef USE_ANGELSCRIPT
-
-    // TODO: restore events SE_TRUCK_LOCKED and SE_TRUCK_UNLOCKED
     if (m_water_contact && !m_water_contact_old)
     {
         m_water_contact_old = m_water_contact;
