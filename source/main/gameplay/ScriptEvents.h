@@ -23,8 +23,8 @@
 /// This enum describes what events are existing. The script can register to receive events.
 enum scriptEvents
 {
-    SE_COLLISION_BOX_ENTER             = 0x00000001, //!< triggered when actor or person enters a previous registered collision box, the argument refers to the collision box ID
-    SE_COLLISION_BOX_LEAVE             = 0x00000002, //!< triggered when actor or person leaves a previous registered and entered collision box, the argument refers to the collision box ID
+    // UNUSED                          = 0x00000001
+    // UNUSED                          = 0x00000002
 
     SE_TRUCK_ENTER                     = 0x00000004, //!< triggered when switching from person mode to vehicle mode, the argument refers to the actor ID of the vehicle
     SE_TRUCK_EXIT                      = 0x00000008, //!< triggered when switching from vehicle mode to person mode, the argument refers to the actor ID of the vehicle

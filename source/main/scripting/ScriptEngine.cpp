@@ -339,8 +339,6 @@ void ScriptEngine::init()
     
     // enum scriptEvents
     result = engine->RegisterEnum("scriptEvents"); MYASSERT(result>=0);
-    result = engine->RegisterEnumValue("scriptEvents", "SE_COLLISION_BOX_ENTER", SE_COLLISION_BOX_ENTER); MYASSERT(result>=0);
-    result = engine->RegisterEnumValue("scriptEvents", "SE_COLLISION_BOX_LEAVE", SE_COLLISION_BOX_LEAVE); MYASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_TRUCK_ENTER", SE_TRUCK_ENTER); MYASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_TRUCK_EXIT", SE_TRUCK_EXIT); MYASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_TRUCK_ENGINE_DIED", SE_TRUCK_ENGINE_DIED); MYASSERT(result>=0);
@@ -461,7 +459,7 @@ int ScriptEngine::fireEvent(std::string instanceName, float intensity)
     return 0;
 }
 
-int ScriptEngine::envokeCallback(int functionId, eventsource_t *source, node_t *node, int type)
+int ScriptEngine::envokeCallback(int functionId, eventsource_t *source, node_t *node)
 {
     if (!engine)
         return 0; // TODO: this function returns 0 no matter what - WTF? ~ only_a_ptr, 08/2017
@@ -484,7 +482,7 @@ int ScriptEngine::envokeCallback(int functionId, eventsource_t *source, node_t *
     // Set the function arguments
     std::string *instance_name = new std::string(source->instancename);
     std::string *boxname = new std::string(source->boxname);
-    context->SetArgDWord (0, type);
+    context->SetArgDWord (0, 0); // trigger_type
     context->SetArgObject(1, instance_name);
     context->SetArgObject(2, boxname);
     if (node)
