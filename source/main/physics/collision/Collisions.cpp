@@ -444,8 +444,8 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
     {
         //LOG("COLL: adding "+TOSTRING(free_eventsource)+" "+String(instancename)+" "+String(eventname));
         // this is event-generating
-        strcpy(eventsources[free_eventsource].boxname, eventname.c_str());
-        strcpy(eventsources[free_eventsource].instancename, instancename.c_str());
+        eventsources[free_eventsource].es_box_name = eventname;
+        eventsources[free_eventsource].es_instance_name = instancename;
         eventsources[free_eventsource].scripthandler = scripthandler;
         eventsources[free_eventsource].cbox = coll_box_index;
         eventsources[free_eventsource].snode = tenode;
@@ -1208,7 +1208,7 @@ Vector3 Collisions::getPosition(const Ogre::String &inst, const Ogre::String &bo
 {
     for (int i=0; i<free_eventsource; i++)
     {
-        if (!strcmp(inst.c_str(), eventsources[i].instancename) && !strcmp(box.c_str(), eventsources[i].boxname))
+        if (inst == eventsources[i].es_instance_name && box == eventsources[i].es_box_name)
         {
             return m_collision_boxes[eventsources[i].cbox].center+m_collision_boxes[eventsources[i].cbox].rot*m_collision_boxes[eventsources[i].cbox].selfcenter;
         }
@@ -1220,7 +1220,7 @@ Quaternion Collisions::getDirection(const Ogre::String &inst, const Ogre::String
 {
     for (int i=0; i<free_eventsource; i++)
     {
-        if (!strcmp(inst.c_str(), eventsources[i].instancename) && !strcmp(box.c_str(), eventsources[i].boxname))
+        if (inst == eventsources[i].es_instance_name && box == eventsources[i].es_box_name)
         {
             return m_collision_boxes[eventsources[i].cbox].rot*eventsources[i].direction;
         }
@@ -1232,7 +1232,7 @@ collision_box_t *Collisions::getBox(const Ogre::String &inst, const Ogre::String
 {
     for (int i=0; i<free_eventsource; i++)
     {
-        if (!strcmp(inst.c_str(), eventsources[i].instancename) && !strcmp(box.c_str(), eventsources[i].boxname))
+        if (inst == eventsources[i].es_instance_name && box == eventsources[i].es_box_name)
         {
             return &m_collision_boxes[eventsources[i].cbox];
         }

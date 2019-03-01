@@ -474,19 +474,15 @@ void ScriptEngine::envokeCallback(int functionId, eventsource_t *source, node_t 
     context->Prepare(engine->GetFunctionById(functionId));
 
     // Set the function arguments
-    std::string *instance_name = new std::string(source->instancename);
-    std::string *boxname = new std::string(source->boxname);
     context->SetArgDWord (0, 0); // trigger_type
-    context->SetArgObject(1, instance_name);
-    context->SetArgObject(2, boxname);
+    context->SetArgObject(1, &source->es_instance_name);
+    context->SetArgObject(2, &source->es_box_name);
     if (node)
         context->SetArgDWord (3, node->pos);
     else
         context->SetArgDWord (3, -1); // conversion from 'int' to 'AngelScript::asDWORD', signed/unsigned mismatch!
 
     context->Execute();
-    delete(instance_name);
-    delete(boxname);
 }
 
 void ScriptEngine::queueStringForExecution(const String command)

@@ -27,11 +27,12 @@
 #include "BeamData.h" // for collision_box_t
 
 #include <mutex>
+#include <string>
 
-struct eventsource_t
+struct eventsource_t //!< Scripting
 {
-    char instancename[256];
-    char boxname[256];
+    std::string es_instance_name;
+    std::string es_box_name;
     Ogre::SceneNode* snode;
     Ogre::Quaternion direction;
     int scripthandler;
