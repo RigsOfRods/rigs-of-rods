@@ -31,12 +31,12 @@
 
 struct eventsource_t //!< Scripting
 {
-    std::string es_instance_name;
-    std::string es_box_name;
-    Ogre::Quaternion direction;
-    int scripthandler;
-    int cbox;
-    bool enabled;
+    std::string       es_instance_name;  //!< Specified by user when calling "GameScript::spawnObject()"
+    std::string       es_box_name;       //!< Specified in ODEF file as "event"
+    Ogre::Quaternion  es_direction;
+    int               es_script_handler; //!< AngelScript function ID
+    int               es_cbox;           //!< Collision box ID
+    bool              es_enabled;
 };
 
 class Landusemap;

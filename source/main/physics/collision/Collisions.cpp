@@ -345,7 +345,7 @@ void Collisions::removeCollisionBox(int number)
         m_collision_boxes[number].enabled = false;
         if (m_collision_boxes[number].eventsourcenum >= 0 && m_collision_boxes[number].eventsourcenum < free_eventsource)
         {
-            eventsources[m_collision_boxes[number].eventsourcenum].enabled = false;
+            eventsources[m_collision_boxes[number].eventsourcenum].es_enabled = false;
         }
         // Is it worth to update the hashmap? ~ ulteq 01/19
     }
@@ -446,10 +446,10 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
         // this is event-generating
         eventsources[free_eventsource].es_box_name = eventname;
         eventsources[free_eventsource].es_instance_name = instancename;
-        eventsources[free_eventsource].scripthandler = scripthandler;
-        eventsources[free_eventsource].cbox = coll_box_index;
-        eventsources[free_eventsource].direction = direction;
-        eventsources[free_eventsource].enabled = true;
+        eventsources[free_eventsource].es_script_handler = scripthandler;
+        eventsources[free_eventsource].es_cbox = coll_box_index;
+        eventsources[free_eventsource].es_direction = direction;
+        eventsources[free_eventsource].es_enabled = true;
         coll_box.eventsourcenum = free_eventsource;
         free_eventsource++;
     }
@@ -713,14 +713,14 @@ void Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
 {
 #ifdef USE_ANGELSCRIPT
     // check if this box is active anymore
-    if (!eventsources[cbox->eventsourcenum].enabled)
+    if (!eventsources[cbox->eventsourcenum].es_enabled)
         return;
 
     std::lock_guard<std::mutex> lock(m_scriptcallback_mutex);
     // this prevents that the same callback gets called at 2k FPS all the time, serious hit on FPS ...
     if (std::find(std::begin(m_last_called_cboxes), std::end(m_last_called_cboxes), cbox) == m_last_called_cboxes.end())
     {
-        ScriptEngine::getSingleton().envokeCallback(eventsources[cbox->eventsourcenum].scripthandler, &eventsources[cbox->eventsourcenum], node);
+        ScriptEngine::getSingleton().envokeCallback(eventsources[cbox->eventsourcenum].es_script_handler, &eventsources[cbox->eventsourcenum], node);
         m_last_called_cboxes.push_back(cbox);
     }
 #endif //USE_ANGELSCRIPT
@@ -1209,7 +1209,7 @@ Vector3 Collisions::getPosition(const Ogre::String &inst, const Ogre::String &bo
     {
         if (inst == eventsources[i].es_instance_name && box == eventsources[i].es_box_name)
         {
-            return m_collision_boxes[eventsources[i].cbox].center+m_collision_boxes[eventsources[i].cbox].rot*m_collision_boxes[eventsources[i].cbox].selfcenter;
+            return m_collision_boxes[eventsources[i].es_cbox].center+m_collision_boxes[eventsources[i].es_cbox].rot*m_collision_boxes[eventsources[i].es_cbox].selfcenter;
         }
     }
     return Vector3::ZERO;
@@ -1221,7 +1221,7 @@ Quaternion Collisions::getDirection(const Ogre::String &inst, const Ogre::String
     {
         if (inst == eventsources[i].es_instance_name && box == eventsources[i].es_box_name)
         {
-            return m_collision_boxes[eventsources[i].cbox].rot*eventsources[i].direction;
+            return m_collision_boxes[eventsources[i].es_cbox].rot*eventsources[i].es_direction;
         }
     }
     return Quaternion::ZERO;
@@ -1233,7 +1233,7 @@ collision_box_t *Collisions::getBox(const Ogre::String &inst, const Ogre::String
     {
         if (inst == eventsources[i].es_instance_name && box == eventsources[i].es_box_name)
         {
-            return &m_collision_boxes[eventsources[i].cbox];
+            return &m_collision_boxes[eventsources[i].es_cbox];
         }
     }
     return NULL;
