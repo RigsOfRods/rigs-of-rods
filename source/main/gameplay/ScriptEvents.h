@@ -47,7 +47,7 @@ enum scriptEvents
     SE_GENERIC_DELETED_TRUCK           = 0x00040000, //!< triggered when the user deletes an actor, the argument refers to the actor ID
 
     // UNUSED                          = 0x00080000
-    SE_GENERIC_MOUSE_BEAM_INTERACTION  = 0x00100000, //!< triggered when the user uses the mouse to interact with the actor, the argument refers to the actor ID
+    // UNUSED                          = 0x00100000
 
     SE_TRUCK_RESET                     = 0x00200000, //!< triggered when the user resets the truck, the argument refers to the actor ID of the vehicle
     SE_TRUCK_TELEPORT                  = 0x00400000, //!< triggered when the user teleports the truck, the argument refers to the actor ID of the vehicle

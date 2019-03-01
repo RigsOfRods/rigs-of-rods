@@ -51,8 +51,6 @@ void print(const string message);
  	SE_GENERIC_NEW_TRUCK               = 0x00020000, //!< triggered when the user spawns a new truck, the argument refers to the truck number
  	SE_GENERIC_DELETED_TRUCK           = 0x00040000, //!< triggered when the user deletes a truck, the argument refers to the truck number
 
- 	SE_GENERIC_MOUSE_BEAM_INTERACTION  = 0x00100000, //!< triggered when the user uses the mouse to interact with the truck, the argument refers to the truck number
-
  	SE_TRUCK_TRACTIONCONTROL_TOGGLE    = 0x00200000, //!< triggered when the user toggles the tractioncontrol system, the argument refers to the truck number
  	SE_TRUCK_ANTILOCKBRAKE_TOGGLE      = 0x00400000, //!< triggered when the user toggles the antilockbrake, the argument refers to the truck number
 
