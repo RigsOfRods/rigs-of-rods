@@ -280,11 +280,9 @@ void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, node_t
         context->Prepare(engine->GetFunctionById(functionId));
 
         // Set the function arguments
-        std::string instance_name(source->instancename);
-        std::string boxname = (source->boxname);
         context->SetArgDWord (0, type);
-        context->SetArgObject(1, &instance_name);
-        context->SetArgObject(2, &boxname);
+        context->SetArgObject(1, &source->es_instance_name);
+        context->SetArgObject(2, &source->es_box_name);
         if (node)
             context->SetArgDWord (3, static_cast<AngelScript::asDWORD>(node->pos));
         else
