@@ -453,10 +453,10 @@ int ScriptEngine::fireEvent(std::string instanceName, float intensity)
     return 0;
 }
 
-int ScriptEngine::envokeCallback(int functionId, eventsource_t *source, node_t *node)
+void ScriptEngine::envokeCallback(int functionId, eventsource_t *source, node_t *node)
 {
     if (!engine)
-        return 0; // TODO: this function returns 0 no matter what - WTF? ~ only_a_ptr, 08/2017
+        return;
 
     if (functionId <= 0 && (defaultEventCallbackFunctionPtr != nullptr))
     {
@@ -466,7 +466,7 @@ int ScriptEngine::envokeCallback(int functionId, eventsource_t *source, node_t *
     else if (functionId <= 0)
     {
         // no default callback available, discard the event
-        return 0;
+        return;
     }
     if (!context)
         context = engine->CreateContext();
@@ -484,16 +484,9 @@ int ScriptEngine::envokeCallback(int functionId, eventsource_t *source, node_t *
     else
         context->SetArgDWord (3, -1); // conversion from 'int' to 'AngelScript::asDWORD', signed/unsigned mismatch!
 
-    int r = context->Execute();
-    if ( r == AngelScript::asEXECUTION_FINISHED )
-    {
-      // The return value is only valid if the execution finished successfully
-        AngelScript::asDWORD ret = context->GetReturnDWord();
-    }
+    context->Execute();
     delete(instance_name);
     delete(boxname);
-
-    return 0;
 }
 
 void ScriptEngine::queueStringForExecution(const String command)

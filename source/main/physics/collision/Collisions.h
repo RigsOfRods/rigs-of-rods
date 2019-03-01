@@ -123,7 +123,7 @@ private:
     int free_eventsource;
 
     bool permitEvent(int filter);
-    bool envokeScriptCallback(collision_box_t* cbox, node_t* node = 0);
+    void envokeScriptCallback(collision_box_t* cbox, node_t* node = 0);
 
     Landusemap* landuse;
     Ogre::ManualObject* debugmo;

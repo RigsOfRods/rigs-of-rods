@@ -710,26 +710,21 @@ int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, ground_model
     return new_tri_index;
 }
 
-bool Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
+void Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
 {
-    bool handled = false;
-
 #ifdef USE_ANGELSCRIPT
     // check if this box is active anymore
     if (!eventsources[cbox->eventsourcenum].enabled)
-        return false;
-    
+        return;
+
     std::lock_guard<std::mutex> lock(m_scriptcallback_mutex);
     // this prevents that the same callback gets called at 2k FPS all the time, serious hit on FPS ...
     if (std::find(std::begin(m_last_called_cboxes), std::end(m_last_called_cboxes), cbox) == m_last_called_cboxes.end())
     {
-        if (!ScriptEngine::getSingleton().envokeCallback(eventsources[cbox->eventsourcenum].scripthandler, &eventsources[cbox->eventsourcenum], node))
-            handled = true;
+        ScriptEngine::getSingleton().envokeCallback(eventsources[cbox->eventsourcenum].scripthandler, &eventsources[cbox->eventsourcenum], node);
         m_last_called_cboxes.push_back(cbox);
     }
 #endif //USE_ANGELSCRIPT
-
-    return handled;
 }
 
 std::pair<bool, Ogre::Real> Collisions::intersectsTris(Ogre::Ray ray)
