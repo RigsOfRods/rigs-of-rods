@@ -368,7 +368,8 @@ void ContentManager::LoadGameplayResources()
         this->AddResourcePack(ContentManager::ResourcePack::SKYX);
 
     if (App::gfx_vegetation_mode.GetActive() != RoR::GfxVegetation::NONE)
-        this->AddResourcePack(ContentManager::ResourcePack::PAGED);}
+        this->AddResourcePack(ContentManager::ResourcePack::PAGED);
+}
 
 std::string ContentManager::ListAllUserContent()
 {
