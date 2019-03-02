@@ -173,7 +173,7 @@ void CacheSystem::UnloadActorFromMemory(std::string filename)
     {
         cache_entry->actor_def.reset();
         String group = cache_entry->resource_group;
-        if (!group.empty())
+        if (!group.empty() && ResourceGroupManager::getSingleton().resourceGroupExists(group))
         {
             bool unused = true;
             for (auto gfx_actor : App::GetSimController()->GetGfxScene().GetGfxActors())
