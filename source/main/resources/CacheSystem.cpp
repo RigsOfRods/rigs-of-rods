@@ -1094,15 +1094,25 @@ void CacheSystem::LoadResource(CacheEntry& t)
 
     static int rg_counter = 0;
     String group = "Mod-" + std::to_string(rg_counter++);
-    // Option `inGlobalPool=false` prevents resource name conflicts between mods.
-    // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
-    ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
-    ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
 
-    App::GetContentManager()->InitManagedMaterials(group);
-    App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES, group);
-    App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS, group);
-    App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES, group);
+    if (t.fext == "terrn2")
+    {
+        // PagedGeometry is hardcoded to use `Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME`
+        ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
+        ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+    }
+    else
+    {
+        // Option `inGlobalPool=false` prevents resource name conflicts between mods.
+        // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
+        ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
+        ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+
+        App::GetContentManager()->InitManagedMaterials(group);
+        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES, group);
+        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS, group);
+        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES, group);
+    }
 
     try
     {
