@@ -543,7 +543,7 @@ int ScriptEngine::addFunction(const String &arg)
     if ( r < 0 )
     {
         char tmp[512] = "";
-        sprintf(tmp, "An error occurred while trying to add a function ('%s') to script module '%s'.", arg.c_str(), moduleName);
+        snprintf(tmp, 512, "An error occurred while trying to add a function ('%s') to script module '%s'.", arg.c_str(), moduleName);
         SLOG(tmp);
     }
     else
