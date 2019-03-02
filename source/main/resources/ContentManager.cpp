@@ -147,9 +147,8 @@ void ContentManager::InitContentManager()
 {
     // Initialize "managed materials" first
     //   These are base materials referenced by user content
-    //   They must be initialized before any content is loaded, including mod-cache update.
-    //   Otherwise material links are unresolved and loading ends with an exception
-    // TODO: Study Ogre::ResourceLoadingListener and implement smarter solution (not parsing materials on cache refresh!)
+    //   They must be initialized before any content is loaded,
+    //   otherwise material links are unresolved and loading ends with an exception
     this->InitManagedMaterials("ManagedMatsRG");
 
     // set listener if none has already been set
