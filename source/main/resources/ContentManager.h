@@ -74,7 +74,10 @@ public:
         const char* resource_group_name;
     };
 
-    void               AddResourcePack(ResourcePack const& resource_pack); //!< Loads resources if not already loaded (currently resources never unload until shutdown)
+                       /// Loads resources if not already loaded
+                       /// @param override_rg If not set, the ResourcePack's RG is used -> resources won't unload until shutdown
+    void               AddResourcePack(ResourcePack const& resource_pack, std::string const& override_rgn = "");
+    void               InitManagedMaterials(std::string const & rg_name);
     void               InitContentManager();
     void               InitModCache();
     void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
@@ -82,8 +85,6 @@ public:
     RoR::SkinManager*  GetSkinManager()  { return m_skin_manager; }
 
 private:
-
-    void InitManagedMaterials();
 
     // implementation for resource loading listener
     Ogre::DataStreamPtr resourceLoading(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource);

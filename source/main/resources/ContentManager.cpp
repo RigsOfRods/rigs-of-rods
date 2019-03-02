@@ -93,13 +93,22 @@ DECLARE_RESOURCE_PACK( SKYX,                  "SkyX",                 "SkyXRG");
 // Functions
 // ================================================================================
 
-void ContentManager::AddResourcePack(ResourcePack const& resource_pack)
+void ContentManager::AddResourcePack(ResourcePack const& resource_pack, std::string const& override_rgn)
 {
     Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
 
-    if (rgm.resourceGroupExists(resource_pack.resource_group_name)) // Already loaded?
+    Ogre::String rg_name;
+    if (!override_rgn.empty()) // Custom RG defined?
     {
-        return; // Nothing to do, nothing to report
+        rg_name = override_rgn;
+    }
+    else // Use default RG
+    {
+        if (rgm.resourceGroupExists(resource_pack.resource_group_name)) // Already loaded?
+        {
+            return; // Nothing to do, nothing to report
+        }
+        rg_name = resource_pack.resource_group_name;
     }
 
     std::stringstream log_msg;
@@ -110,8 +119,7 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack)
     {
         log_msg << " (ZIP archive)";
         LOG(log_msg.str());
-        rgm.addResourceLocation(zip_path, "Zip", resource_pack.resource_group_name);
-        rgm.initialiseResourceGroup(resource_pack.resource_group_name);
+        rgm.addResourceLocation(zip_path, "Zip", rg_name);
     }
     else
     {
@@ -120,14 +128,18 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack)
         {
             log_msg << " (directory)";
             LOG(log_msg.str());
-            ResourceGroupManager::getSingleton().addResourceLocation(dir_path, "FileSystem", resource_pack.resource_group_name);
-            rgm.initialiseResourceGroup(resource_pack.resource_group_name);
+            rgm.addResourceLocation(dir_path, "FileSystem", rg_name);
         }
         else
         {
             log_msg << " failed, data not found.";
             throw std::runtime_error(log_msg.str());
         }
+    }
+
+    if (override_rgn.empty()) // Only init the default RG
+    {
+        rgm.initialiseResourceGroup(rg_name);
     }
 }
 
@@ -138,7 +150,7 @@ void ContentManager::InitContentManager()
     //   They must be initialized before any content is loaded, including mod-cache update.
     //   Otherwise material links are unresolved and loading ends with an exception
     // TODO: Study Ogre::ResourceLoadingListener and implement smarter solution (not parsing materials on cache refresh!)
-    this->InitManagedMaterials();
+    this->InitManagedMaterials("ManagedMatsRG");
 
     // set listener if none has already been set
     if (!Ogre::ResourceGroupManager::getSingleton().getLoadingListener())
@@ -322,24 +334,22 @@ bool ContentManager::resourceCollision(Ogre::Resource* resource, Ogre::ResourceM
     return false; // Instruct OGRE to drop the new resource and keep the original.
 }
 
-void ContentManager::InitManagedMaterials()
+void ContentManager::InitManagedMaterials(std::string const & rg_name)
 {
-    Ogre::String managed_materials_dir = Ogre::String(App::sys_resources_dir.GetActive()) + PATH_SLASH + "managed_materials" + PATH_SLASH;
+    Ogre::String managed_materials_dir = PathCombine(App::sys_resources_dir.GetActive(), "managed_materials");
 
     //Dirty, needs to be improved
     if (App::gfx_shadow_type.GetActive() == GfxShadowType::PSSM)
-        ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir + "shadows/pssm/on/", "FileSystem", "ShadowsMats");
+        ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on"), "FileSystem", rg_name);
     else
-        ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir + "shadows/pssm/off/", "FileSystem", "ShadowsMats");
+        ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir,"shadows/pssm/off"), "FileSystem", rg_name);
 
-    ResourceGroupManager::getSingleton().initialiseResourceGroup("ShadowsMats");
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "texture"), "FileSystem", rg_name);
 
-    ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir + "texture/", "FileSystem", "TextureManager");
-    ResourceGroupManager::getSingleton().initialiseResourceGroup("TextureManager");
+    // Last
+    ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir, "FileSystem", rg_name);
 
-    //Last
-    ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir, "FileSystem", "ManagedMats");
-    ResourceGroupManager::getSingleton().initialiseResourceGroup("ManagedMats");
+    ResourceGroupManager::getSingleton().initialiseResourceGroup(rg_name);
 }
 
 void ContentManager::LoadGameplayResources()
