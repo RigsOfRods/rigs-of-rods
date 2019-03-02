@@ -112,7 +112,7 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack, std::str
     }
 
     std::stringstream log_msg;
-    log_msg << "[RoR|ContentManager] Loading resource pack \"" << resource_pack.name << "\" from group \"" << resource_pack.resource_group_name << "\"";
+    log_msg << "[RoR|ContentManager] Loading resource pack \"" << resource_pack.name << "\" to group \"" << rg_name << "\"";
     Ogre::String resources_dir = Ogre::String(App::sys_resources_dir.GetActive()) + PATH_SLASH;
     Ogre::String zip_path = resources_dir + resource_pack.name + Ogre::String(".zip");
     if (FileExists(zip_path))
