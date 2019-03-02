@@ -1098,6 +1098,12 @@ void CacheSystem::LoadResource(CacheEntry& t)
     // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
     ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
     ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+
+    App::GetContentManager()->InitManagedMaterials(group);
+    App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES, group);
+    App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS, group);
+    App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES, group);
+
     try
     {
         ResourceGroupManager::getSingleton().initialiseResourceGroup(group);
