@@ -381,7 +381,7 @@ Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<R
 {
     Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
 
-    if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
+    if (App::mp_state.GetActive() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {
         actor->sendStreamSetup();
     }
