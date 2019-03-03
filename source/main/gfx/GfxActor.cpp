@@ -225,8 +225,6 @@ RoR::GfxActor::~GfxActor()
         delete m_cab_mesh; // Unloads the ManualMesh resource; do this last
         m_cab_mesh = nullptr;
     }
-
-    Ogre::ResourceGroupManager::getSingleton().unloadUnreferencedResourcesInGroup(m_custom_resource_group);
 }
 
 void RoR::GfxActor::AddMaterialFlare(int flareid, Ogre::MaterialPtr m)
