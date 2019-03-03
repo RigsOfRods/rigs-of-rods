@@ -6,6 +6,7 @@ set(ROR_USE_CAELUM "TRUE" CACHE BOOL "use caelum sky")
 set(ROR_USE_ANGELSCRIPT "TRUE" CACHE BOOL "use angelscript")
 set(ROR_USE_CURL "TRUE" CACHE BOOL "use curl, required for communication with online services")
 set(ROR_USE_MOFILEREADER "TRUE" CACHE BOOL "use mofilereader")
+set(ROR_USE_CRASHRPT "FALSE" CACHE BOOL "use crash report tool")
 
 # some obsolete options:
 # disabled some options for now

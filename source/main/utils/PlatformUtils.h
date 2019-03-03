@@ -30,6 +30,10 @@
 
 #pragma once
 
+#ifdef USE_CRASHRPT
+#   include "crashrpt.h" // see http://crashrpt.sourceforge.net/
+#endif
+
 #include <string>
 
 namespace RoR {
@@ -51,5 +55,10 @@ std::string GetExecutablePath(); //!< Returns UTF-8 path or empty string on erro
 std::string GetParentDirectory(const char* path); //!< Returns UTF-8 path without trailing slash.
 
 std::time_t GetFileLastModifiedTime(std::string const & path);
+#ifdef USE_CRASHRPT
+int CALLBACK CrashRptCallback(CR_CRASH_CALLBACK_INFO* pInfo);
+void InstallCrashRpt();
+void UninstallCrashRpt();
+#endif
 
 } // namespace RoR

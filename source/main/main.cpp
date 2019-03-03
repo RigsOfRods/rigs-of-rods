@@ -181,6 +181,10 @@ int main(int argc, char *argv[])
         Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("SrcRG");
         Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("DstRG");
 
+#ifdef USE_CRASHRPT
+        InstallCrashRpt();
+#endif //USE_CRASHRPT
+
         Ogre::OverlaySystem* overlay_system = new Ogre::OverlaySystem(); //Overlay init
 
         Ogre::ConfigOptionMap ropts = App::GetOgreSubsystem()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
@@ -395,6 +399,10 @@ int main(int argc, char *argv[])
     {
         ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
     }
+
+#ifdef USE_CRASHRPT
+    UninstallCrashRpt();
+#endif //USE_CRASHRPT
 
     return 0;
 }
