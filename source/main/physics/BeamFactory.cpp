@@ -306,6 +306,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
         actor->GetGfxActor()->UpdateFlexbodies(); // Push tasks to threadpool
         actor->GetGfxActor()->UpdateWheelVisuals(); // Push tasks to threadpool
         actor->GetGfxActor()->UpdateCabMesh();
+        actor->GetGfxActor()->UpdateWingMeshes();
         actor->GetGfxActor()->UpdateProps(0.f, false);
         actor->GetGfxActor()->FinishWheelUpdates(); // Sync tasks from threadpool
         actor->GetGfxActor()->FinishFlexbodyTasks(); // Sync tasks from threadpool

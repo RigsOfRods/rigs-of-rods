@@ -297,9 +297,6 @@ Actor *ActorSpawner::SpawnActor()
     // Section 'ropables'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROPABLES, ropables, ProcessRopable);
 
-    // Section 'wings'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WINGS, wings, ProcessWing);
-
     // Section 'animators'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ANIMATORS, animators, ProcessAnimator);
 
@@ -367,6 +364,9 @@ Actor *ActorSpawner::SpawnActor()
 
     // Section 'flexbodies' (Uses generated nodes; needs GfxActor to exist)
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODIES, flexbodies, ProcessFlexbody);
+
+    // Section 'wings' (needs GfxActor to exist)
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WINGS, wings, ProcessWing);
 
     // Section 'fixes'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FIXES, fixes, ProcessFixedNode);

@@ -904,7 +904,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
     const std::string wing_name = this->ComposeName("Wing", m_actor->ar_num_wings);
     auto flex_airfoil = new FlexAirfoil(
         wing_name,
-        m_actor->ar_nodes,
+        m_actor,
         node_indices[0],
         node_indices[1],
         node_indices[2],
@@ -924,7 +924,6 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
         def.max_deflection,
         def.airfoil,
         def.efficacy_coef,
-        m_actor->ar_aeroengines,
         m_actor->ar_sim_state != Actor::SimState::NETWORKED_OK
     );
 

@@ -3315,3 +3315,13 @@ void RoR::GfxActor::SetAllMeshesVisible(bool visible)
     this->SetPropsVisible(visible);
     this->SetFlexbodyVisible(visible);
 }
+
+void RoR::GfxActor::UpdateWingMeshes()
+{
+    for (int i = 0; i < m_actor->ar_num_wings; ++i)
+    {
+        wing_t& wing = m_actor->ar_wings[i];
+        wing.cnode->setPosition(wing.fa->updateVerticesGfx(this));
+        wing.fa->uploadVertices();
+    }
+}

@@ -288,6 +288,7 @@ public:
     void                      ToggleDebugView    ();
     void                      CycleDebugViews    ();
     void                      UpdateCabMesh      ();
+    void                      UpdateWingMeshes   ();
     int                       GetActorId         () const;
     int                       GetActorState      () const;
     int                       GetNumFlexbodies   () const { return static_cast<int>(m_flexbodies.size()); }
