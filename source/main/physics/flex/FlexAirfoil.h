@@ -40,7 +40,6 @@ public:
     ~FlexAirfoil();
 
     Ogre::Vector3 updateVertices();
-    Ogre::Vector3 updateShadowVertices();
     void setControlDeflection(float val);
 
     Ogre::Vector3 flexit();
@@ -62,12 +61,9 @@ public:
     int nblu;
     int nbru;
 
-    //	int innan;
     bool broken;
     bool breakable;
     float liftcoef;
-
-    char debug[256];
 
 private:
 
@@ -81,18 +77,6 @@ private:
         Ogre::Vector2 texcoord;
     } CoVertice_t;
 
-    typedef struct
-    {
-        Ogre::Vector3 vertex;
-    } posVertice_t;
-
-    typedef struct
-    {
-        Ogre::Vector3 normal;
-        //	Ogre::Vector3 color;
-        Ogre::Vector2 texcoord;
-    } norVertice_t;
-
     Ogre::MeshPtr msh;
     Ogre::SubMesh* subface;
     Ogre::SubMesh* subband;
@@ -105,19 +89,6 @@ private:
 
     size_t nVertices;
     size_t vbufCount;
-
-    //shadow
-    union
-    {
-        float* shadowposvertices;
-        posVertice_t* coshadowposvertices;
-    };
-
-    union
-    {
-        float* shadownorvertices;
-        norVertice_t* coshadownorvertices;
-    };
 
     union
     {
