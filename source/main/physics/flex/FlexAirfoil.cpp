@@ -72,11 +72,9 @@ using namespace Ogre;
 
 FlexAirfoil::FlexAirfoil(Ogre::String const & name, node_t *nds, int pnfld, int pnfrd, int pnflu, int pnfru, int pnbld, int pnbrd, int pnblu, int pnbru, std::string const & texband, Vector2 texlf, Vector2 texrf, Vector2 texlb, Vector2 texrb, char mtype, float controlratio, float mind, float maxd, Ogre::String const & afname, float lift_coef, AeroEngine** tps, bool break_able)
 {
-//		innan=0;
     liftcoef=lift_coef;
     breakable=break_able;
     broken=false;
-    debug[0]=0;
     free_wash=0;
     aeroengines=tps;
     nodes=nds;
@@ -92,8 +90,6 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, node_t *nds, int pnfld, int 
     mindef=mind;
     maxdef=maxd;
     airfoil=new Airfoil(afname);
-    //airfoil->getcl(-180.0, 0, 0);
-    //airfoil->dumpcl();
     int i;
     for (i=0; i<90; i++) airfoilpos[i]=refairfoilpos[i];
     type=mtype;
@@ -136,9 +132,6 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, node_t *nds, int pnfld, int 
     nVertices = 24*2+4+2;
     vbufCount = (2*3+2)*nVertices;
     vertices=(float*)malloc(vbufCount*sizeof(float));
-    //shadow
-    shadownorvertices=(float*)malloc(nVertices*(3+2)*sizeof(float));
-    shadowposvertices=(float*)malloc(nVertices*3*2*sizeof(float));
 
     //textures coordinates
     covertices[0].texcoord=texlf;
@@ -230,13 +223,6 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, node_t *nds, int pnfld, int 
             bandfaces[i*12+22]=v+3;
             bandfaces[i*12+23]=v+7;
         }
-/*			if (i==4)
-        {
-            bandfaces[i*12+20]=v+4;
-            bandfaces[i*12+21]=v+4;
-            bandfaces[i*12+23]=v+5;
-        }
-*/
 
         //sides
         facefaces[i*12]=30+0;
@@ -256,8 +242,6 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, node_t *nds, int pnfld, int 
         facefaces[i*12+11]=30+v+3;
         if (i==4)
         {
-//				facefaces[i*12+5]=20+v+4;
-//				facefaces[i*12+10]=20+v+5;
             facefaces[i*12]=30+0;
             facefaces[i*12+1]=30+v+2;
             facefaces[i*12+2]=30+v;
@@ -550,147 +534,6 @@ Vector3 FlexAirfoil::updateVertices()
     return center;
 }
 
-Vector3 FlexAirfoil::updateShadowVertices()
-{
-     int i;
-    Vector3 center;
-    center=nodes[nfld].AbsPosition;
-
-    Vector3 vx=nodes[nfrd].AbsPosition-nodes[nfld].AbsPosition;
-    Vector3 vyl=nodes[nflu].AbsPosition-nodes[nfld].AbsPosition;
-    Vector3 vzl=nodes[nbld].AbsPosition-nodes[nfld].AbsPosition;
-    Vector3 vyr=nodes[nfru].AbsPosition-nodes[nfrd].AbsPosition;
-    Vector3 vzr=nodes[nbrd].AbsPosition-nodes[nfrd].AbsPosition;
-
-    if (breakable) {broken=broken || (vx.crossProduct(vzl).squaredLength()>sref)||(vx.crossProduct(vzr).squaredLength()>sref);}
-    else {broken=(vx.crossProduct(vzl).squaredLength()>sref)||(vx.crossProduct(vzr).squaredLength()>sref);}
-
-    Vector3 facenormal=vx;
-    facenormal.normalise();
-
-    //control surface
-    if (hascontrol)
-    {
-        float radius=1.0-chordratio;
-        airfoilpos[82]=0.5+radius*sin(deflection/57.0)/rratio;
-        airfoilpos[79]=0.5+radius*sin(deflection/57.0)/lratio;
-        airfoilpos[83]=chordratio+radius*cos(deflection/57.0);
-        airfoilpos[80]=airfoilpos[83];
-        airfoilpos[89]=airfoilpos[83];
-        airfoilpos[88]=airfoilpos[82];
-        airfoilpos[86]=airfoilpos[80];
-        airfoilpos[85]=airfoilpos[79];
-    }
-
-    if (!broken)
-    {
-        for (i=0; i<30; i++)
-        {
-            if (i%2)
-                coshadowposvertices[i].vertex=airfoilpos[i*3]*vx+airfoilpos[i*3+1]*vyr+airfoilpos[i*3+2]*vzr;
-            else
-                coshadowposvertices[i].vertex=airfoilpos[i*3]*vx+airfoilpos[i*3+1]*vyl+airfoilpos[i*3+2]*vzl;
-            if (i<22) coshadowposvertices[i+30].vertex=coshadowposvertices[i].vertex;
-        }
-        coshadowposvertices[30+22].vertex=coshadowposvertices[28].vertex;
-        coshadowposvertices[30+23].vertex=coshadowposvertices[29].vertex;
-    }
-    else
-    {
-        for (i=0; i<30; i++)
-        {
-            if (i%2)
-                coshadowposvertices[i].vertex=airfoilpos[i*3]*Vector3(0.01,0,0)+airfoilpos[i*3+1]*Vector3(0,0.01,0)+airfoilpos[i*3+2]*Vector3(0,0,0.01);
-            else
-                coshadowposvertices[i].vertex=airfoilpos[i*3]*Vector3(0.01,0,0)+airfoilpos[i*3+1]*Vector3(0,0.01,0)+airfoilpos[i*3+2]*Vector3(0,0,0.01);
-            if (i<22) coshadowposvertices[i+30].vertex=coshadowposvertices[i].vertex;
-        }
-        coshadowposvertices[30+22].vertex=coshadowposvertices[28].vertex;
-        coshadowposvertices[30+23].vertex=coshadowposvertices[29].vertex;
-    }
-
-    if (isstabilator)
-    {
-        //rotate stabilator
-        Vector3 rcent, raxis;
-        if (!stabilleft)
-        {
-            rcent=((nodes[nflu].AbsPosition+nodes[nbld].AbsPosition)/2.0+(nodes[nflu].AbsPosition-nodes[nblu].AbsPosition)/4.0)-center;
-            raxis=(nodes[nflu].AbsPosition-nodes[nfld].AbsPosition).crossProduct(nodes[nflu].AbsPosition-nodes[nblu].AbsPosition);
-        }
-        else
-        {
-            rcent=((nodes[nfru].AbsPosition+nodes[nbrd].AbsPosition)/2.0+(nodes[nfru].AbsPosition-nodes[nbru].AbsPosition)/4.0)-center;
-            raxis=(nodes[nfru].AbsPosition-nodes[nfrd].AbsPosition).crossProduct(nodes[nfru].AbsPosition-nodes[nbru].AbsPosition);
-        }
-        raxis.normalise();
-        Quaternion rot=Quaternion(Degree(deflection), raxis);
-        for (i=0; i<54; i++)
-        {
-            covertices[i].vertex=rcent+rot*(covertices[i].vertex-rcent);
-        }
-    }
-
-    //init normals
-    for (i=0; i<(int)nVertices; i++)
-    {
-        coshadowposvertices[i+nVertices]=coshadowposvertices[i];
-        coshadownorvertices[i].normal=Vector3::ZERO;
-        coshadownorvertices[i].texcoord=covertices[i].texcoord;
-    }
-    //normals
-    //accumulate normals per triangle
-    for (i=0; i<(int)bandibufCount/3; i++)
-    {
-        Vector3 v1, v2;
-        v1=coshadowposvertices[bandfaces[i*3+1]].vertex-coshadowposvertices[bandfaces[i*3]].vertex;
-        v2=coshadowposvertices[bandfaces[i*3+2]].vertex-coshadowposvertices[bandfaces[i*3]].vertex;
-        v1=v1.crossProduct(v2);
-        v1.normalise();
-//		v1/=3.0;
-        coshadownorvertices[bandfaces[i*3]].normal+=v1;
-        coshadownorvertices[bandfaces[i*3+1]].normal+=v1;
-        coshadownorvertices[bandfaces[i*3+2]].normal+=v1;
-    }
-    for (i=0; i<(int)cupibufCount/3; i++)
-    {
-        Vector3 v1, v2;
-        v1=coshadowposvertices[cupfaces[i*3+1]].vertex-coshadowposvertices[cupfaces[i*3]].vertex;
-        v2=coshadowposvertices[cupfaces[i*3+2]].vertex-coshadowposvertices[cupfaces[i*3]].vertex;
-        v1=v1.crossProduct(v2);
-        v1.normalise();
-//		v1/=3.0;
-        coshadownorvertices[cupfaces[i*3]].normal+=v1;
-        coshadownorvertices[cupfaces[i*3+1]].normal+=v1;
-        coshadownorvertices[cupfaces[i*3+2]].normal+=v1;
-    }
-    for (i=0; i<(int)cdnibufCount/3; i++)
-    {
-        Vector3 v1, v2;
-        v1=coshadowposvertices[cdnfaces[i*3+1]].vertex-coshadowposvertices[cdnfaces[i*3]].vertex;
-        v2=coshadowposvertices[cdnfaces[i*3+2]].vertex-coshadowposvertices[cdnfaces[i*3]].vertex;
-        v1=v1.crossProduct(v2);
-        v1.normalise();
-//		v1/=3.0;
-        coshadownorvertices[cdnfaces[i*3]].normal+=v1;
-        coshadownorvertices[cdnfaces[i*3+1]].normal+=v1;
-        coshadownorvertices[cdnfaces[i*3+2]].normal+=v1;
-    }
-    //normalize
-    for (i=0; i<30; i++)
-    {
-        coshadownorvertices[i].normal.normalise();
-    }
-
-    //for the faces
-    for (i=0; i<24; i++)
-        if (i%2)
-            coshadownorvertices[i+30].normal=facenormal;
-        else
-            coshadownorvertices[i+30].normal=-facenormal;
-    return center;
-}
-
 
 void FlexAirfoil::setControlDeflection(float val)
 {
@@ -730,7 +573,7 @@ void FlexAirfoil::updateForces()
 {
     if (!airfoil) return;
     if (broken) return;
-//	if (innan) {LOG("STEP "+TOSTRING(innan)+" "+TOSTRING(nblu));innan++;}
+
     //evaluate wind direction
     Vector3 wind=-(nodes[nfld].Velocity+nodes[nfrd].Velocity)/2.0;
     //add wash
@@ -745,11 +588,7 @@ void FlexAirfoil::updateForces()
     Vector3 spanv=((nodes[nfrd].RelPosition-nodes[nfld].RelPosition)+(nodes[nbrd].RelPosition-nodes[nbld].RelPosition))/2.0;
     float span=spanv.length();
     //lift vector
-//if (_isnan(spanv.x) || _isnan(spanv.y) || _isnan(spanv.z)) LOG("spanv is NaN "+TOSTRING(nblu));
-//if (_isnan(wind.x) || _isnan(wind.y) || _isnan(wind.z)) LOG("wind is NaN "+TOSTRING(nblu));
     Vector3 liftv=spanv.crossProduct(-wind);
-//if (_isnan(liftv.x) || _isnan(liftv.y) || _isnan(liftv.z)) LOG("liftv0 is NaN "+TOSTRING(nblu));
-//if (_isnan(liftv.x) || _isnan(liftv.y) || _isnan(liftv.z)) LOG("liftv1 is NaN "+TOSTRING(nblu));
 
     //wing normal
     float s=span*chord;
@@ -765,23 +604,17 @@ void FlexAirfoil::updateForces()
     float raoa=daoa.valueRadians();
     if (dumb.dotProduct(spanv)>0) {aoa=-aoa; raoa=-raoa;};
 
-//if (_isnan(aoa)) LOG("aoa is NaN "+TOSTRING(nblu));
     //get airfoil data
     float cz, cx, cm;
     if (isstabilator)
         airfoil->getparams(aoa-deflection, chordratio, 0, &cz, &cx, &cm);
     else
         airfoil->getparams(aoa, chordratio, deflection, &cz, &cx, &cm);
-    //compute surface
-//if (_isnan(cz)) LOG("cz is NaN "+TOSTRING(nblu));
-    //float fs=span*(fabs(thickness*cos(raoa))+fabs(chord*sin(raoa)));
-    //float ts=span*(fabs(chord*cos(raoa))+fabs(thickness*sin(raoa)));
+
 
     //tropospheric model valid up to 11.000m (33.000ft)
     float altitude=nodes[nfld].AbsPosition.y;
-    //float sea_level_temperature=273.15+15.0; //in Kelvin (not used)
     float sea_level_pressure=101325; //in Pa
-    //float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin (not used)
     float airpressure=sea_level_pressure*approx_pow(1.0-0.0065*altitude/288.15, 5.24947); //in Pa
     float airdensity=airpressure*0.0000120896;//1.225 at sea level
 
@@ -789,12 +622,10 @@ void FlexAirfoil::updateForces()
     //drag
     wforce=(cx*0.5*airdensity*wspeed*s)*wind;
 
-//if (_isnan(wforce.x) || _isnan(wforce.y) || _isnan(wforce.z)) LOG("wforce1 is NaN "+TOSTRING(nblu));
     //induced drag
     if (useInducedDrag)
     {
         Vector3 idf=(cx*cx*0.25*airdensity*wspeed*idArea*idArea/(3.14159*idSpan*idSpan))*wind;
-//if (_isnan(idf.length())) LOG("idf is NaN "+TOSTRING(nblu));
 
         if (idLeft)
         {
@@ -808,22 +639,9 @@ void FlexAirfoil::updateForces()
         }
     }
 
-//if (_isnan(wforce.x) || _isnan(wforce.y) || _isnan(wforce.z)) LOG("wforce1a is NaN "+TOSTRING(nblu));
-//if (_isnan(cz)) LOG("cz is NaN "+TOSTRING(nblu));
-//if (_isnan(wspeed)) LOG("wspeed is NaN "+TOSTRING(nblu));
-//if (_isnan(airdensity)) LOG("airdensity is NaN "+TOSTRING(nblu));
-//if (_isnan(s)) LOG("s is NaN "+TOSTRING(nblu));
-//if (_isnan(liftv.x) || _isnan(liftv.y) || _isnan(liftv.z)) LOG("liftv is NaN "+TOSTRING(nblu));
     //lift
     wforce+=(cz*0.5*airdensity*wspeed*chord)*liftv;
 
-
-/*if (_isnan(wforce.x) || _isnan(wforce.y) || _isnan(wforce.z))
-{
-    if (innan==0) innan=1;
-    LOG("wforce2 is NaN "+TOSTRING(nblu));
-}
-*/
     //moment
     float moment=-cm*0.5*airdensity*wspeed*wspeed*s;//*chord;
     //apply forces
@@ -841,10 +659,6 @@ void FlexAirfoil::updateForces()
     nodes[nbrd].Forces+=f2;
     nodes[nbru].Forces+=f2;
 
-
-
-//	sprintf(debug, "wind %i kts, aoa %i, cz %f, vf %f ", (int)(wspeed*1.9438), (int)aoa, cz, normv.y);
-
 }
 
 FlexAirfoil::~FlexAirfoil()
@@ -858,8 +672,6 @@ FlexAirfoil::~FlexAirfoil()
     }
 
     if (vertices          != nullptr) { free (vertices); }
-    if (shadownorvertices != nullptr) { free (shadownorvertices); }
-    if (shadowposvertices != nullptr) { free (shadowposvertices); }
     if (facefaces         != nullptr) { free (facefaces); }
     if (bandfaces         != nullptr) { free (bandfaces); }
     if (cupfaces          != nullptr) { free (cupfaces); }
