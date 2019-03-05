@@ -208,6 +208,7 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         bool is_player_connected = (player_connected_gfx_actors.find(gfx_actor) != player_connected_gfx_actors.end());
         gfx_actor->UpdateRods();
         gfx_actor->UpdateCabMesh();
+        gfx_actor->UpdateWingMeshes();
         gfx_actor->UpdateAirbrakes();
         gfx_actor->UpdateCParticles();
         gfx_actor->UpdateAeroEngines();

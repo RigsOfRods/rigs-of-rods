@@ -23,7 +23,9 @@
 #include "AeroEngine.h"
 #include "Airfoil.h"
 #include "ApproxMath.h"
+#include "Beam.h" // class Actor
 #include "BeamData.h"
+#include "GfxActor.h"
 
 float refairfoilpos[90]={
         0.00, 0.50, 0.00,
@@ -70,14 +72,14 @@ float refairfoilpos[90]={
 
 using namespace Ogre;
 
-FlexAirfoil::FlexAirfoil(Ogre::String const & name, node_t *nds, int pnfld, int pnfrd, int pnflu, int pnfru, int pnbld, int pnbrd, int pnblu, int pnbru, std::string const & texband, Vector2 texlf, Vector2 texrf, Vector2 texlb, Vector2 texrb, char mtype, float controlratio, float mind, float maxd, Ogre::String const & afname, float lift_coef, AeroEngine** tps, bool break_able)
+FlexAirfoil::FlexAirfoil(Ogre::String const & name, Actor* actor, int pnfld, int pnfrd, int pnflu, int pnfru, int pnbld, int pnbrd, int pnblu, int pnbru, std::string const & texband, Vector2 texlf, Vector2 texrf, Vector2 texlb, Vector2 texrb, char mtype, float controlratio, float mind, float maxd, Ogre::String const & afname, float lift_coef, bool break_able)
 {
     liftcoef=lift_coef;
     breakable=break_able;
     broken=false;
     free_wash=0;
-    aeroengines=tps;
-    nodes=nds;
+    aeroengines=actor->ar_aeroengines;
+    nodes=actor->ar_nodes;
     useInducedDrag=false;
     nfld=pnfld;
     nfrd=pnfrd;
@@ -285,7 +287,8 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, node_t *nds, int pnfld, int 
     thickness=(nodes[nfld].RelPosition-nodes[nflu].RelPosition).length();
 
     //update coords
-    updateVertices();
+    this->updateVerticesPhysics();
+    this->updateVerticesGfx(actor->GetGfxActor());
 
     /// Create vertex data structure for 8 vertices shared between submeshes
     msh->sharedVertexData = new VertexData();
@@ -395,9 +398,8 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, node_t *nds, int pnfld, int 
     //MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes()
 }
 
-Vector3 FlexAirfoil::updateVertices()
+void FlexAirfoil::updateVerticesPhysics()
 {
-    int i;
     Vector3 center;
     center=nodes[nfld].AbsPosition;
 
@@ -409,9 +411,6 @@ Vector3 FlexAirfoil::updateVertices()
 
     if (breakable) {broken=broken || (vx.crossProduct(vzl).squaredLength()>sref)||(vx.crossProduct(vzr).squaredLength()>sref);}
     else {broken=(vx.crossProduct(vzl).squaredLength()>sref)||(vx.crossProduct(vzr).squaredLength()>sref);}
-
-    Vector3 facenormal=vx;
-    facenormal.normalise();
 
     //control surface
     if (hascontrol)
@@ -426,6 +425,23 @@ Vector3 FlexAirfoil::updateVertices()
         airfoilpos[86]=airfoilpos[80];
         airfoilpos[85]=airfoilpos[79];
     }
+}
+
+Vector3 FlexAirfoil::updateVerticesGfx(RoR::GfxActor* gfx_actor)
+{
+    auto gfx_nodes = gfx_actor->GetSimNodeBuffer();
+    int i;
+    Vector3 center;
+    center=gfx_nodes[nfld].AbsPosition;
+
+    Vector3 vx=gfx_nodes[nfrd].AbsPosition-gfx_nodes[nfld].AbsPosition;
+    Vector3 vyl=gfx_nodes[nflu].AbsPosition-gfx_nodes[nfld].AbsPosition;
+    Vector3 vzl=gfx_nodes[nbld].AbsPosition-gfx_nodes[nfld].AbsPosition;
+    Vector3 vyr=gfx_nodes[nfru].AbsPosition-gfx_nodes[nfrd].AbsPosition;
+    Vector3 vzr=gfx_nodes[nbrd].AbsPosition-gfx_nodes[nfrd].AbsPosition;
+
+    Vector3 facenormal=vx;
+    facenormal.normalise();
 
     if (!broken)
     {
@@ -460,13 +476,13 @@ Vector3 FlexAirfoil::updateVertices()
         Vector3 rcent, raxis;
         if (!stabilleft)
         {
-            rcent=((nodes[nflu].AbsPosition+nodes[nbld].AbsPosition)/2.0+(nodes[nflu].AbsPosition-nodes[nblu].AbsPosition)/4.0)-center;
-            raxis=(nodes[nflu].AbsPosition-nodes[nfld].AbsPosition).crossProduct(nodes[nflu].AbsPosition-nodes[nblu].AbsPosition);
+            rcent=((gfx_nodes[nflu].AbsPosition+gfx_nodes[nbld].AbsPosition)/2.0+(gfx_nodes[nflu].AbsPosition-gfx_nodes[nblu].AbsPosition)/4.0)-center;
+            raxis=(gfx_nodes[nflu].AbsPosition-gfx_nodes[nfld].AbsPosition).crossProduct(gfx_nodes[nflu].AbsPosition-gfx_nodes[nblu].AbsPosition);
         }
         else
         {
-            rcent=((nodes[nfru].AbsPosition+nodes[nbrd].AbsPosition)/2.0+(nodes[nfru].AbsPosition-nodes[nbru].AbsPosition)/4.0)-center;
-            raxis=(nodes[nfru].AbsPosition-nodes[nfrd].AbsPosition).crossProduct(nodes[nfru].AbsPosition-nodes[nbru].AbsPosition);
+            rcent=((gfx_nodes[nfru].AbsPosition+gfx_nodes[nbrd].AbsPosition)/2.0+(gfx_nodes[nfru].AbsPosition-gfx_nodes[nbru].AbsPosition)/4.0)-center;
+            raxis=(gfx_nodes[nfru].AbsPosition-gfx_nodes[nfrd].AbsPosition).crossProduct(gfx_nodes[nfru].AbsPosition-gfx_nodes[nbru].AbsPosition);
         }
         raxis.normalise();
         Quaternion rot=Quaternion(Degree(deflection), raxis);
@@ -490,7 +506,6 @@ Vector3 FlexAirfoil::updateVertices()
         v2=covertices[bandfaces[i*3+2]].vertex-covertices[bandfaces[i*3]].vertex;
         v1=v1.crossProduct(v2);
         v1.normalise();
-//		v1/=3.0;
         covertices[bandfaces[i*3]].normal+=v1;
         covertices[bandfaces[i*3+1]].normal+=v1;
         covertices[bandfaces[i*3+2]].normal+=v1;
@@ -502,7 +517,6 @@ Vector3 FlexAirfoil::updateVertices()
         v2=covertices[cupfaces[i*3+2]].vertex-covertices[cupfaces[i*3]].vertex;
         v1=v1.crossProduct(v2);
         v1.normalise();
-//		v1/=3.0;
         covertices[cupfaces[i*3]].normal+=v1;
         covertices[cupfaces[i*3+1]].normal+=v1;
         covertices[cupfaces[i*3+2]].normal+=v1;
@@ -514,7 +528,6 @@ Vector3 FlexAirfoil::updateVertices()
         v2=covertices[cdnfaces[i*3+2]].vertex-covertices[cdnfaces[i*3]].vertex;
         v1=v1.crossProduct(v2);
         v1.normalise();
-//		v1/=3.0;
         covertices[cdnfaces[i*3]].normal+=v1;
         covertices[cdnfaces[i*3+1]].normal+=v1;
         covertices[cdnfaces[i*3+2]].normal+=v1;
@@ -531,7 +544,13 @@ Vector3 FlexAirfoil::updateVertices()
             covertices[i+30].normal=facenormal;
         else
             covertices[i+30].normal=-facenormal;
+
     return center;
+}
+
+void FlexAirfoil::uploadVertices()
+{
+    vbuf->writeData(0, vbuf->getSizeInBytes(), vertices, true);
 }
 
 
@@ -539,19 +558,6 @@ void FlexAirfoil::setControlDeflection(float val)
 {
     if (val<0) deflection=-val*mindef;
     else deflection=val*maxdef;
-}
-
-Vector3 FlexAirfoil::flexit()
-{
-    Vector3 center;
-
-    center=updateVertices();
-    //vbuf->lock(HardwareBuffer::HBL_NORMAL);
-    vbuf->writeData(0, vbuf->getSizeInBytes(), vertices, true);
-    //vbuf->unlock();
-    //msh->sharedVertexData->vertexBufferBinding->getBuffer(0)->writeData(0, vbuf->getSizeInBytes(), vertices, true);
-
-    return center;
 }
 
 void FlexAirfoil::enableInducedDrag(float span, float area, bool l)

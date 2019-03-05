@@ -3252,7 +3252,7 @@ void Actor::updateVisual(float dt)
         }
     }
 
-    //wings
+    // Wings (only physics, graphics are updated in GfxActor)
     float autoaileron = 0;
     float autorudder = 0;
     float autoelevator = 0;
@@ -3303,7 +3303,7 @@ void Actor::updateVisual(float dt)
             ar_wings[i].fa->setControlDeflection((-autoelevator + autorudder) / 2.0);
         if (ar_wings[i].fa->type == 'j')
             ar_wings[i].fa->setControlDeflection((autoelevator + autorudder) / 2.0);
-        ar_wings[i].cnode->setPosition(ar_wings[i].fa->flexit());
+        ar_wings[i].fa->updateVerticesPhysics(); // Actual graphics update moved to GfxActor
     }
     //setup commands for hydros
     ar_hydro_aileron_command = autoaileron;

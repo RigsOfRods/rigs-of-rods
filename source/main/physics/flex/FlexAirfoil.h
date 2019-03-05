@@ -31,18 +31,20 @@ class FlexAirfoil : public ZeroedMemoryAllocator
 
 public:
 
-    FlexAirfoil(Ogre::String const& wname, node_t* nds,
+    FlexAirfoil(Ogre::String const& wname, Actor* actor,
         int pnfld, int pnfrd, int pnflu, int pnfru, int pnbld, int pnbrd, int pnblu, int pnbru,
         std::string const & texname,
         Ogre::Vector2 texlf, Ogre::Vector2 texrf, Ogre::Vector2 texlb, Ogre::Vector2 texrb,
-        char mtype, float controlratio, float mind, float maxd, Ogre::String const& afname, float lift_coef, AeroEngine** tps, bool break_able);
+        char mtype, float controlratio, float mind, float maxd, Ogre::String const& afname, float lift_coef, bool break_able);
 
     ~FlexAirfoil();
 
-    Ogre::Vector3 updateVertices();
-    void setControlDeflection(float val);
+    // DEV NOTE: original `updateVertices()` updated both physics state + visuals.
+    void updateVerticesPhysics();
+    Ogre::Vector3 updateVerticesGfx(RoR::GfxActor* gfx_actor);
+    void uploadVertices();
 
-    Ogre::Vector3 flexit();
+    void setControlDeflection(float val);
 
     void enableInducedDrag(float span, float area, bool l);
 
