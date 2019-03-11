@@ -382,6 +382,13 @@ void DashBoard::update(float& dt)
             {
                 char tmp[1024] = "";
                 sprintf(tmp, controls[i].format, val);
+
+                // Detect and eliminate negative zero (-0) on output
+                if (strcmp(tmp, controls[i].format_neg_zero) == 0)
+                {
+                    sprintf(tmp, controls[i].format, 0.f);
+                }
+
                 s = MyGUI::UString(tmp);
             }
 
@@ -519,6 +526,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
                 LOG("Dashboard ("+filename+"/"+name+"): unknown Link: " + linkName);
                 return;
             }
+
             ctrl.linkID = linkID;
         }
 
@@ -639,6 +647,13 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
                 return;
             }
             ctrl.animationType = ANIM_TEXTFORMAT;
+
+            // Prepare for eliminating negative zero (-0.0) display
+            // Must be done on string-level because -0.001 with format "%1.0f" would still produce "-0"
+            if (std::strlen(ctrl.format))
+            {
+                std::snprintf(ctrl.format_neg_zero, 255, ctrl.format, -0.f);
+            }
         }
         else if (anim == "textstring")
         {

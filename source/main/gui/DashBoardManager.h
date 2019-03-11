@@ -30,6 +30,8 @@
 
 #include <MyGUI.h>
 
+#include <string>
+
 // TODO: Clean up this header
 
 #define DD_MAXCHAR 255
@@ -293,6 +295,7 @@ protected:
         char format[255]; // string format
         char texture[255]; // texture filename
         char name[255]; // widget name
+        char format_neg_zero[255]; //!< Test for undesired '-0.0' on display. Only for link type "format". Empty if not applicable.
 
         MyGUI::Widget* widget;
         MyGUI::RotatingSkin* rotImg;
