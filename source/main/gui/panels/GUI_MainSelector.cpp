@@ -275,7 +275,7 @@ void CLASS::EventComboChangePositionTypeComboBox(MyGUI::ComboBoxPtr _sender, siz
     OnCategorySelected(categoryID);
     if (!m_searching)
     {
-        m_category_index[m_loader_type] = _index;
+        m_category_index[m_loader_type] = static_cast<int>(_index);
     }
 }
 
@@ -297,7 +297,7 @@ void CLASS::EventListChangePositionModelList(MyGUI::ListPtr _sender, size_t _ind
     OnEntrySelected(entryID);
     if (!m_searching)
     {
-        m_entry_index[m_loader_type] = _index;
+        m_entry_index[m_loader_type] = static_cast<int>(_index);
     }
 }
 
