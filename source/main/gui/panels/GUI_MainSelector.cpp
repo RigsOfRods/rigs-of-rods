@@ -363,7 +363,6 @@ void CLASS::UpdateGuiData()
         m_Type->setEnabled(false);
         m_Type->setCaption(_L("Skins"));
         m_Cancel->setEnabled(false);
-        m_Config->setVisible(false);
 
         m_Model->addItem(_L("Default Skin"), 0);
         {
@@ -631,15 +630,16 @@ void CLASS::OnEntrySelected(int entryID)
 {
     if (m_loader_type == LT_SKIN)
     {
-        // special skin handling
-        if (entryID == 0)
+        if (entryID == 0) // This is the "Default" entry
         {
-            // default, default infos
-            m_selected_skin = 0;
-            this->UpdateControls(m_selected_entry);
+            m_selected_skin = nullptr;
+            m_EntryName->setCaption("Default skin");
+            m_EntryDescription->setCaption("");
+            this->SetPreviewImage(m_selected_entry->filecachename);
             return;
         }
-        entryID -= 1; // remove default skin :)
+
+        entryID -= 1; // Skip default skin :)
         RoR::SkinDef* skin = m_current_skins[entryID];
 
         // we assume its already loaded
@@ -991,7 +991,6 @@ void CLASS::Show(LoaderType type)
     m_selection_done = false;
 
     m_selected_skin = 0;
-    m_vehicle_config = "";
     m_SearchLine->setCaption("");
     RoR::App::GetInputEngine()->resetKeys();
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
@@ -1002,7 +1001,10 @@ void CLASS::Show(LoaderType type)
     MAIN_WIDGET->setVisibleSmooth(true);
 
     if (type != LT_SKIN)
+    {
         m_selected_entry = nullptr; // when in skin, we still need the info
+        m_vehicle_config = "";
+    }
 
     m_loader_type = type;
     UpdateGuiData();
