@@ -654,6 +654,8 @@ void CLASS::OnEntrySelected(int entryID)
         if (!entry)
             return;
         m_selected_entry = entry;
+        m_EntryName->setCaption(Utils::SanitizeUtf8String(entry->dname));
+        this->SetPreviewImage(entry->filecachename);
         this->UpdateControls(m_selected_entry);
     }
 }
@@ -723,12 +725,6 @@ void CLASS::OnSelectionDone()
 
 void CLASS::UpdateControls(CacheEntry* entry)
 {
-    Ogre::String outBasename = "";
-    Ogre::String outPath = "";
-    Ogre::StringUtil::splitFilename(entry->filecachename, outBasename, outPath);
-
-    SetPreviewImage(outBasename);
-
     if (entry->sectionconfigs.size())
     {
         m_Config->setVisible(true);
@@ -771,15 +767,6 @@ void CLASS::UpdateControls(CacheEntry* entry)
     if (authors.length() == 0)
     {
         authors = _L("no author information available");
-    }
-
-    try
-    {
-        m_EntryName->setCaption(convertToMyGUIString(ANSI_TO_UTF(entry->dname)));
-    }
-    catch (...)
-    {
-        m_EntryName->setCaption("ENCODING ERROR");
     }
 
     Ogre::UTFString c = U("#FF7D02"); // colour key shortcut
