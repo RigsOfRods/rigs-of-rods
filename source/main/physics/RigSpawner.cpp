@@ -1813,8 +1813,9 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         {
             m_curr_mirror_prop_scenenode = prop.mo->GetSceneNode();
         }
-        this->SetupNewEntity(prop.mo->getEntity(), Ogre::ColourValue(1.f, 1.f, 0.f));
     }
+
+    this->SetupNewEntity(prop.mo->getEntity(), Ogre::ColourValue(1.f, 1.f, 0.f));
 
     m_curr_mirror_prop_scenenode = nullptr;
     m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_NONE;
