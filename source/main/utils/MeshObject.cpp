@@ -106,19 +106,11 @@ void MeshObject::createEntity(Ogre::String meshName, Ogre::String meshRG, Ogre::
 
         // now create an entity around the mesh and attach it to the scene graph
 
-        if (entityName.empty())
-            ent = gEnv->sceneManager->createEntity(meshName);
-        else
-            ent = gEnv->sceneManager->createEntity(entityName, meshName);
-        if (ent)
-            sceneNode->attachObject(ent);
+        ent = gEnv->sceneManager->createEntity(entityName, meshName, meshRG);
+        ent->setCastShadows(castshadows);
 
-        // only set it if different from default (true)
-        if (!castshadows && sceneNode && sceneNode->numAttachedObjects() > 0)
-            sceneNode->getAttachedObject(0)->setCastShadows(castshadows);
-
+        sceneNode->attachObject(ent);
         sceneNode->setVisible(true);
-
     }
     catch (Ogre::Exception& e)
     {
