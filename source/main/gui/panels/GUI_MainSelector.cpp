@@ -636,39 +636,26 @@ void CLASS::OnEntrySelected(int entryID)
             m_EntryName->setCaption("Default skin");
             m_EntryDescription->setCaption("");
             this->SetPreviewImage(m_selected_entry->filecachename);
-            return;
         }
-
-        entryID -= 1; // Skip default skin :)
-        RoR::SkinDef* skin = m_current_skins[entryID];
-
-        // we assume its already loaded
-        // set selected skin as current
-        m_selected_skin = skin;
-
-        SetPreviewImage(m_current_skins[entryID]->thumbnail);
-
-        m_EntryName->setCaption(skin->name);
-
-        Ogre::UTFString descriptiontxt = skin->description + Ogre::String("\n");
-        descriptiontxt = descriptiontxt + _L("Author(s): ") + skin->author_name + Ogre::String("\n");
-        descriptiontxt = descriptiontxt + _L("Description: ") + skin->description + Ogre::String("\n");
-
-        try
+        else
         {
-            m_EntryDescription->setCaption(Ogre::String(descriptiontxt));
+            m_selected_skin = m_current_skins[entryID - 1]; // Skip default skin :)
+            m_EntryName->setCaption(m_selected_skin->name);
+            std::stringstream descr;
+            descr << _L("Description: ") << m_selected_skin->description << std::endl
+                  << _L("Author(s): ") << m_selected_skin->author_name;
+            m_EntryDescription->setCaption(descr.str());
+            this->SetPreviewImage(m_selected_skin->thumbnail);
         }
-        catch (...)
-        {
-            m_EntryDescription->setCaption("ENCODING ERROR");
-        }
-        return;
     }
-    CacheEntry* entry = RoR::App::GetCacheSystem()->GetEntry(entryID);
-    if (!entry)
-        return;
-    m_selected_entry = entry;
-    this->UpdateControls(m_selected_entry);
+    else
+    {
+        CacheEntry* entry = RoR::App::GetCacheSystem()->GetEntry(entryID);
+        if (!entry)
+            return;
+        m_selected_entry = entry;
+        this->UpdateControls(m_selected_entry);
+    }
 }
 
 void CLASS::OnSelectionDone()
