@@ -149,7 +149,7 @@ void ContentManager::InitContentManager()
     //   These are base materials referenced by user content
     //   They must be initialized before any content is loaded,
     //   otherwise material links are unresolved and loading ends with an exception
-    this->InitManagedMaterials("ManagedMatsRG");
+    this->InitManagedMaterials(RGN_MANAGED_MATS);
 
     // set listener if none has already been set
     if (!Ogre::ResourceGroupManager::getSingleton().getLoadingListener())
@@ -339,9 +339,17 @@ void ContentManager::InitManagedMaterials(std::string const & rg_name)
 
     //Dirty, needs to be improved
     if (App::gfx_shadow_type.GetActive() == GfxShadowType::PSSM)
+    {
+        if (rg_name == RGN_MANAGED_MATS) // Only load shared resources on startup
+        {
+            ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on/shared"), "FileSystem", rg_name);
+        }
         ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on"), "FileSystem", rg_name);
+    }
     else
+    {
         ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir,"shadows/pssm/off"), "FileSystem", rg_name);
+    }
 
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "texture"), "FileSystem", rg_name);
 
