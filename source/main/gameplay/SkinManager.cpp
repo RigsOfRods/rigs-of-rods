@@ -188,24 +188,6 @@ void RoR::SkinManager::ReplaceMaterialTextures(SkinDef* skin_def, std::string ma
     }
 }
 
-void RoR::SkinManager::ApplySkinTextureReplacements(RoR::SkinDef* skin_def, Ogre::Entity* e) // Static
-{
-    assert(e != nullptr);
-    assert(skin_def != nullptr);
-
-    const auto not_found = skin_def->replace_materials.end();
-
-    for (int n = 0; n < (int)e->getNumSubEntities(); n++)
-    {
-        Ogre::SubEntity* sub_entity = e->getSubEntity(n);
-        auto itor = skin_def->replace_materials.find(sub_entity->getMaterialName());
-        if (itor == not_found) // Only apply _texture_ replacements if there are no _material_ replacements
-        {
-            SkinManager::ReplaceMaterialTextures(skin_def, sub_entity->getMaterialName());
-        }
-    }
-}
-
 //we wont unload skins once loaded!
 void RoR::SkinManager::unload(const Ogre::String& name) {}
 void RoR::SkinManager::unload(Ogre::ResourceHandle handle) {}

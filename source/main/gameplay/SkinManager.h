@@ -52,7 +52,6 @@ public:
 
     RoR::SkinDef* GetSkin(std::string name);
     void GetUsableSkins(std::string guid, std::vector<SkinDef *>& skins);
-    static void ApplySkinTextureReplacements(SkinDef* skin_def, Ogre::Entity* e);
 
     // == Ogre::ResourceManager interface functions ==
 
