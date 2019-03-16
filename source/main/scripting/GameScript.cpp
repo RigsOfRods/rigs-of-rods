@@ -61,7 +61,11 @@
 using namespace Ogre;
 using namespace RoR;
 
-/* class that implements the interface for the scripts */
+// GUIDELINE: Make functions safe from invoking in wrong circumstances,
+// i.e. when server script calls function using SimController while in main menu.
+// --> Getter functions should silently return zero/empty value.
+// --> Functions performing simulation changes should log warning and do nothing.
+
 GameScript::GameScript(ScriptEngine* se) :
     mse(se)
 {
@@ -92,27 +96,41 @@ void GameScript::logFormat(const char* format, ...)
 
 void GameScript::activateAllVehicles()
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return;
+
     App::GetSimController()->GetBeamFactory()->WakeUpAllActors();
 }
 
 void GameScript::SetTrucksForcedAwake(bool forceActive)
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return;
+
     App::GetSimController()->GetBeamFactory()->SetTrucksForcedAwake(forceActive);
 }
 
 float GameScript::getTime()
 {
-    return App::GetSimController()->getTime();
+    float result = 0.f;
+    if (App::GetSimController())
+        result = App::GetSimController()->getTime();
+    return result;
 }
 
 void GameScript::setPersonPosition(const Vector3& vec)
 {
-    if (gEnv->player)
-        gEnv->player->setPosition(vec);
+    if (!this->HavePlayerAvatar(__FUNCTION__))
+        return;
+
+    gEnv->player->setPosition(vec);
 }
 
 void GameScript::loadTerrain(const String& terrain)
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return;
+
     App::sim_terrain_name.SetPending(terrain.c_str());
     App::GetSimController()->LoadTerrain();
 }
@@ -127,14 +145,18 @@ Vector3 GameScript::getPersonPosition()
 
 void GameScript::movePerson(const Vector3& vec)
 {
-    if (gEnv->player)
-        gEnv->player->move(vec);
+    if (!this->HavePlayerAvatar(__FUNCTION__))
+        return;
+
+    gEnv->player->move(vec);
 }
 
 void GameScript::setPersonRotation(const Radian& rot)
 {
-    if (gEnv->player)
-        gEnv->player->setRotation(rot);
+    if (!this->HavePlayerAvatar(__FUNCTION__))
+        return;
+
+    gEnv->player->setRotation(rot);
 }
 
 Radian GameScript::getPersonRotation()
@@ -160,10 +182,10 @@ String GameScript::getCaelumTime()
 void GameScript::setCaelumTime(float value)
 {
 #ifdef USE_CAELUM
-    if (App::GetSimTerrain())
-    {
-        App::GetSimTerrain()->getSkyManager()->SetSkyTimeFactor(value);
-    }
+    if (!this->HaveSimTerrain(__FUNCTION__))
+        return;
+
+    App::GetSimTerrain()->getSkyManager()->SetSkyTimeFactor(value);
 #endif // USE_CAELUM
 }
 
@@ -179,27 +201,42 @@ bool GameScript::getCaelumAvailable()
 
 void GameScript::stopTimer()
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return;
+
     App::GetSimController()->StopRaceTimer();
 }
 
 void GameScript::startTimer(int id)
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return;
+
     App::GetSimController()->StartRaceTimer(id);
 }
 
 void GameScript::setTimeDiff(float diff)
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return;
+
     App::GetSimController()->SetRaceTimeDiff(diff);
 }
 
 void GameScript::setBestLapTime(float time)
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return;
+
     App::GetSimController()->SetRaceBestTime(time);
 }
 
 void GameScript::setWaterHeight(float value)
 {
-    if (App::GetSimTerrain() && App::GetSimTerrain()->getWater())
+    if (!this->HaveSimTerrain(__FUNCTION__))
+        return;
+
+    if (App::GetSimTerrain()->getWater())
     {
         IWater* water = App::GetSimTerrain()->getWater();
         water->WaterSetCamera(gEnv->mainCamera);
@@ -226,32 +263,52 @@ float GameScript::getWaterHeight()
 
 Actor* GameScript::getCurrentTruck()
 {
-    return App::GetSimController()->GetPlayerActor();
+    Actor* result = nullptr;
+    if (App::GetSimController())
+        result = App::GetSimController()->GetPlayerActor();
+    return result;
 }
 
 float GameScript::getGravity()
 {
-    return App::GetSimTerrain()->getGravity();
+    float result = 0.f;
+    if (App::GetSimTerrain())
+    {
+        result = App::GetSimTerrain()->getGravity();
+    }
+    return result;
 }
 
 void GameScript::setGravity(float value)
 {
+    if (!this->HaveSimTerrain(__FUNCTION__))
+        return;
+
     App::GetSimTerrain()->setGravity(value);
 }
 
 Actor* GameScript::getTruckByNum(int num)
 {
     // TODO: Do we have to add a 'GetActorByIndex' method to keep this backwards compatible?
-    return App::GetSimController()->GetActorById(num);
+    Actor* result = nullptr;
+    if (App::GetSimController())
+        result = App::GetSimController()->GetActorById(num);
+    return result;
 }
 
 int GameScript::getNumTrucks()
 {
-    return static_cast<int>(App::GetSimController()->GetBeamFactory()->GetActors().size());
+    int result = 0;
+    if (App::GetSimController())
+        result = static_cast<int>(App::GetSimController()->GetBeamFactory()->GetActors().size());
+    return result;
 }
 
 int GameScript::getNumTrucksByFlag(int flag)
 {
+    if (App::GetSimController() == nullptr)
+        return 0;
+
     int result = 0;
     for (auto actor : App::GetSimController()->GetActors())
     {
@@ -263,6 +320,9 @@ int GameScript::getNumTrucksByFlag(int flag)
 
 int GameScript::GetPlayerActorId()
 {
+    if (App::GetSimController() == nullptr)
+        return -1;
+
     Actor* actor = App::GetSimController()->GetPlayerActor();
     return (actor != nullptr) ? actor->ar_instance_id : -1;
 }
@@ -275,10 +335,8 @@ void GameScript::registerForEvent(int eventValue)
 
 void GameScript::flashMessage(String& txt, float time, float charHeight)
 {
-
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "script_code_red.png");
     RoR::App::GetGuiManager()->PushNotification("Script:", txt);
-
 }
 
 void GameScript::message(String& txt, String& icon, float timeMilliseconds, bool forceVisible)
@@ -297,6 +355,9 @@ void GameScript::message(String& txt, String& icon, float timeMilliseconds, bool
 
 void GameScript::UpdateDirectionArrow(String& text, Vector3& vec)
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return;
+
     App::GetSimController()->UpdateDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
 }
 
@@ -312,6 +373,8 @@ void GameScript::setChatFontSize(int size)
 
 void GameScript::showChooser(const String& type, const String& instance, const String& box)
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return;
 
     LoaderType ntype = LT_None;
 
@@ -347,17 +410,26 @@ void GameScript::showChooser(const String& type, const String& instance, const S
 
 void GameScript::repairVehicle(const String& instance, const String& box, bool keepPosition)
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return;
+
     App::GetSimController()->GetBeamFactory()->RepairActor(gEnv->collisions, instance, box, keepPosition);
 }
 
 void GameScript::removeVehicle(const String& event_source_instance_name, const String& event_source_box_name)
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return;
+
     App::GetSimController()->RemoveActorByCollisionBox(event_source_instance_name, event_source_box_name);
 }
 
 void GameScript::destroyObject(const String& instanceName)
 {
-    if (App::GetSimTerrain() && App::GetSimTerrain()->getObjectManager())
+    if (!this->HaveSimTerrain(__FUNCTION__))
+        return;
+
+    if (App::GetSimTerrain()->getObjectManager())
     {
         App::GetSimTerrain()->getObjectManager()->unloadObject(instanceName);
     }
@@ -365,7 +437,10 @@ void GameScript::destroyObject(const String& instanceName)
 
 void GameScript::MoveTerrainObjectVisuals(const String& instanceName, const Vector3& pos)
 {
-    if (App::GetSimTerrain() && App::GetSimTerrain()->getObjectManager())
+    if (!this->HaveSimTerrain(__FUNCTION__))
+        return;
+
+    if (App::GetSimTerrain()->getObjectManager())
     {
         App::GetSimTerrain()->getObjectManager()->MoveObjectVisuals(instanceName, pos);
     }
@@ -373,7 +448,10 @@ void GameScript::MoveTerrainObjectVisuals(const String& instanceName, const Vect
 
 void GameScript::spawnObject(const String& objectName, const String& instanceName, const Vector3& pos, const Vector3& rot, const String& eventhandler, bool uniquifyMaterials)
 {
-    if ((App::GetSimTerrain() == nullptr) || (App::GetSimTerrain()->getObjectManager() == nullptr))
+    if (!this->HaveSimTerrain(__FUNCTION__))
+        return;
+
+    if ((App::GetSimTerrain()->getObjectManager() == nullptr))
     {
         this->logFormat("spawnObject(): Cannot spawn object, no terrain loaded!");
         return;
@@ -416,6 +494,9 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 
 void GameScript::hideDirectionArrow()
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return;
+
     App::GetSimController()->UpdateDirectionArrow(0, Vector3::ZERO);
 }
 
@@ -591,43 +672,61 @@ int GameScript::getLoadedTerrain(String& result)
 
 void GameScript::clearEventCache()
 {
+    if (gEnv->collisions == nullptr)
+    {
+        this->logFormat("Cannot execute '%s', collisions not ready", __FUNCTION__);
+        return;
+    }
+
     gEnv->collisions->clearEventCache();
 }
 
 void GameScript::setCameraPosition(const Vector3& pos)
 {
-    if (gEnv->mainCamera)
-        gEnv->mainCamera->setPosition(Vector3(pos.x, pos.y, pos.z));
+    if (!this->HaveMainCamera(__FUNCTION__))
+        return;
+
+    gEnv->mainCamera->setPosition(Vector3(pos.x, pos.y, pos.z));
 }
 
 void GameScript::setCameraDirection(const Vector3& rot)
 {
-    if (gEnv->mainCamera)
-        gEnv->mainCamera->setDirection(Vector3(rot.x, rot.y, rot.z));
+    if (!this->HaveMainCamera(__FUNCTION__))
+        return;
+
+    gEnv->mainCamera->setDirection(Vector3(rot.x, rot.y, rot.z));
 }
 
 void GameScript::setCameraOrientation(const Quaternion& q)
 {
-    if (gEnv->mainCamera)
-        gEnv->mainCamera->setOrientation(Quaternion(q.w, q.x, q.y, q.z));
+    if (!this->HaveMainCamera(__FUNCTION__))
+        return;
+
+    gEnv->mainCamera->setOrientation(Quaternion(q.w, q.x, q.y, q.z));
 }
 
 void GameScript::setCameraYaw(float rotX)
 {
-    if (gEnv->mainCamera)
-        gEnv->mainCamera->yaw(Degree(rotX));
+    if (!this->HaveMainCamera(__FUNCTION__))
+        return;
+
+    gEnv->mainCamera->yaw(Degree(rotX));
 }
 
 void GameScript::setCameraPitch(float rotY)
 {
-    if (gEnv->mainCamera)
-        gEnv->mainCamera->pitch(Degree(rotY));
+    if (!this->HaveMainCamera(__FUNCTION__))
+        return;
+
+    gEnv->mainCamera->pitch(Degree(rotY));
 }
 
 void GameScript::setCameraRoll(float rotZ)
 {
-    if (gEnv->mainCamera)
-        gEnv->mainCamera->roll(Degree(rotZ));
+    if (!this->HaveMainCamera(__FUNCTION__))
+        return;
+
+    gEnv->mainCamera->roll(Degree(rotZ));
 }
 
 Vector3 GameScript::getCameraPosition()
@@ -656,12 +755,17 @@ Quaternion GameScript::getCameraOrientation()
 
 void GameScript::cameraLookAt(const Vector3& pos)
 {
-    if (gEnv->mainCamera)
-        gEnv->mainCamera->lookAt(Vector3(pos.x, pos.y, pos.z));
+    if (!this->HaveMainCamera(__FUNCTION__))
+        return;
+
+    gEnv->mainCamera->lookAt(Vector3(pos.x, pos.y, pos.z));
 }
 
 int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptDictionary& dict, String& result)
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return 1;
+
     if (App::app_disable_online_api.GetActive())
         return 0;
 
@@ -752,6 +856,9 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 
 void GameScript::boostCurrentTruck(float factor)
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return;
+
     Actor* actor = App::GetSimController()->GetPlayerActor();
     if (actor && actor->ar_engine)
     {
@@ -801,22 +908,33 @@ int GameScript::sendGameCmd(const String& message)
 
 VehicleAI* GameScript::getCurrentTruckAI()
 {
-    Actor* actor = App::GetSimController()->GetPlayerActor();
-    if (actor != nullptr)
-        return actor->ar_vehicle_ai;
-    return nullptr;
+    VehicleAI* result = nullptr;
+    if (App::GetSimController())
+    {
+        Actor* actor = App::GetSimController()->GetPlayerActor();
+        if (actor != nullptr)
+            result = actor->ar_vehicle_ai;
+    }
+    return result;
 }
 
 VehicleAI* GameScript::getTruckAIByNum(int num)
 {
-    Actor* b = App::GetSimController()->GetActorById(num);
-    if (b)
-        return b->ar_vehicle_ai;
-    return nullptr;
+    VehicleAI* result = nullptr;
+    if (App::GetSimController())
+    {
+        Actor* actor = App::GetSimController()->GetActorById(num);
+        if (actor != nullptr)
+            result = actor->ar_vehicle_ai;
+    }
+    return result;
 }
 
 Actor* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
 {
+    if (!this->HaveSimController(__FUNCTION__))
+        return nullptr;
+
     ActorSpawnRequest rq;
     rq.asr_position = pos;
     rq.asr_rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
@@ -860,4 +978,44 @@ float GameScript::getFPS()
 float GameScript::getAvgFPS()
 {
     return App::GetOgreSubsystem()->GetRenderWindow()->getStatistics().avgFPS;
+}
+
+bool GameScript::HaveSimController(const char* func_name)
+{
+    if (App::GetSimController() == nullptr)
+    {
+        this->logFormat("Cannot execute '%s', simulation not ready", func_name);
+        return false;
+    }
+    return true;
+}
+
+bool GameScript::HaveSimTerrain(const char* func_name)
+{
+    if (App::GetSimTerrain() == nullptr)
+    {
+        this->logFormat("Cannot execute '%s', terrain not ready", func_name);
+        return false;
+    }
+    return true;
+}
+
+bool GameScript::HavePlayerAvatar(const char* func_name)
+{
+    if (gEnv->player == nullptr)
+    {
+        this->logFormat("Cannot execute '%s', player avatar not ready", func_name);
+        return false;
+    }
+    return true;
+}
+
+bool GameScript::HaveMainCamera(const char* func_name)
+{
+    if (gEnv->mainCamera == nullptr)
+    {
+        this->logFormat("Cannot execute '%s', main camera not ready", func_name);
+        return false;
+    }
+    return true;
 }
