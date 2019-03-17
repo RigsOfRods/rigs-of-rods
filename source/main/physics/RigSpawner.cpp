@@ -6435,7 +6435,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
         // Finally, query SkinZip textures
         if (m_actor->m_used_skin != nullptr)
         {
-            RoR::SkinManager::ReplaceMaterialTextures(m_actor->m_used_skin, lookup_entry.material->getName());
+            RoR::SkinParser::ReplaceMaterialTextures(m_actor->m_used_skin, lookup_entry.material->getName());
         }
 
         m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry)); // Register the substitute

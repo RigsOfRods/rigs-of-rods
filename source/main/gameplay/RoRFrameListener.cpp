@@ -49,6 +49,7 @@
 #include "RoRVersion.h"
 #include "ScrewProp.h"
 #include "Scripting.h"
+#include "SkinManager.h"
 #include "SkyManager.h"
 #include "SkyXManager.h"
 #include "SoundScriptManager.h"
@@ -1352,7 +1353,7 @@ void SimController::UpdateInputEvents(float dt)
                     ActorSpawnRequest rq;
                     rq.asr_cache_entry     = m_last_cache_selection;
                     rq.asr_config          = m_last_section_config;
-                    rq.asr_skin            = m_last_skin_selection;
+                    rq.asr_skin_entry            = m_last_skin_selection;
                     rq.asr_origin          = ActorSpawnRequest::Origin::USER;
                     m_actor_spawn_queue.push_back(rq);
                 }
@@ -1632,7 +1633,7 @@ void SimController::UpdateSimulation(float dt)
                 srq.asr_position = reload_pos;
                 srq.asr_rotation = reload_dir;
                 srq.asr_config   = asr_config;
-                srq.asr_skin     = used_skin;
+                srq.asr_skin_entry     = App::GetCacheSystem()->FetchSkinByName(used_skin->name);
                 srq.asr_filename = filename;
                 Actor* new_actor = this->SpawnActorDirectly(srq); // try to load the same actor again
                 if (new_actor)
@@ -1649,7 +1650,7 @@ void SimController::UpdateSimulation(float dt)
         if (rq.asr_origin == ActorSpawnRequest::Origin::USER)
         {
             m_last_cache_selection = rq.asr_cache_entry;
-            m_last_skin_selection  = rq.asr_skin;
+            m_last_skin_selection  = rq.asr_skin_entry;
             m_last_section_config  = rq.asr_config;
 
             if (rq.asr_spawnbox == nullptr)
@@ -2483,6 +2484,8 @@ void SimController::SetTerrainEditorMouseRay(Ray ray)
 
 Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
 {
+    LOG(" ===== LOADING VEHICLE: " + rq.asr_filename);
+
     if (rq.asr_cache_entry != nullptr)
     {
         rq.asr_filename = rq.asr_cache_entry->fname;
@@ -2494,6 +2497,10 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
     {
         return nullptr; // Error already reported
     }
+
+    std::shared_ptr<SkinDef> skin;
+    if (rq.asr_skin_entry != nullptr)
+        skin = App::GetCacheSystem()->FetchSkinDef(rq.asr_skin_entry);
 
 #ifdef USE_SOCKETW
     if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
@@ -2507,8 +2514,7 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
     }
 #endif //SOCKETW
 
-    LOG(" ===== LOADING VEHICLE: " + rq.asr_filename);
-    Actor* actor = m_actor_manager.CreateActorInstance(rq, def);
+    Actor* actor = m_actor_manager.CreateActorInstance(rq, def, skin);
 
     if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK && rq.asr_origin != ActorSpawnRequest::Origin::TERRN_DEF &&
             rq.asr_origin != ActorSpawnRequest::Origin::SAVEGAME && actor->ar_driveable != NOT_DRIVEABLE)

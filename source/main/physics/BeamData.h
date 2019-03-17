@@ -550,7 +550,7 @@ struct ActorSpawnRequest
     Ogre::Vector3     asr_position;
     Ogre::Quaternion  asr_rotation;
     collision_box_t*  asr_spawnbox;
-    RoR::SkinDef*     asr_skin;
+    CacheEntry*       asr_skin_entry;
     Origin            asr_origin;
     Ogre::UTFString   asr_net_username;
     int               asr_net_color;

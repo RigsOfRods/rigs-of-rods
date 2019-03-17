@@ -90,6 +90,6 @@ enum LoaderType
 	LT_Network,
 	LT_NetworkWithBoat, 
 	LT_Heli, 
-	LT_SKIN,
+	LT_Skin,
 	LT_AllBeam 
 };

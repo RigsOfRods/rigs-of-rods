@@ -45,14 +45,11 @@ using namespace GUI;
 
 CLASS::CLASS() :
     m_keys_bound(false)
-    , m_selected_skin(nullptr)
     , m_selected_entry(nullptr)
     , m_selection_done(true)
-    , m_actor_spawn_rq_valid(false)
     , m_searching(false)
 {
     MAIN_WIDGET->setVisible(false);
-    m_skin_manager = RoR::App::GetContentManager()->GetSkinManager();
 
     MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
     win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::NotifyWindowButtonPressed); //The "X" button thing
@@ -97,9 +94,9 @@ CLASS::~CLASS()
 
 void CLASS::Reset()
 {
-    m_selected_skin = nullptr;
     m_selected_entry = nullptr;
     m_selection_done = true;
+    m_actor_spawn_rq = RoR::ActorSpawnRequest(); // Clear
 }
 
 void CLASS::BindKeys(bool bind)
@@ -228,7 +225,7 @@ void CLASS::EventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode 
     }
     else if (_key == MyGUI::KeyCode::Return)
     {
-        if (m_loader_type == LT_SKIN || (m_loader_type != LT_SKIN && m_selected_entry))
+        if (m_loader_type == LT_Skin || (m_loader_type != LT_Skin && m_selected_entry))
         {
             OnSelectionDone();
         }
@@ -357,31 +354,6 @@ void CLASS::UpdateGuiData()
     m_Model->removeAllItems();
     m_entries.clear();
 
-    if (m_loader_type == LT_SKIN)
-    {
-        // skin specific stuff
-        m_Type->setEnabled(false);
-        m_Type->setCaption(_L("Skins"));
-        m_Cancel->setEnabled(false);
-
-        m_Model->addItem(_L("Default Skin"), 0);
-        {
-            int i = 1;
-            for (std::vector<RoR::SkinDef *>::iterator it = m_current_skins.begin(); it != m_current_skins.end(); it++ , i++)
-            {
-                m_Model->addItem((*it)->name, i);
-            }
-        }
-        m_Model->setIndexSelected(0);
-        OnEntrySelected(0);
-        return;
-    }
-    else
-    {
-        m_Type->setEnabled(true);
-        m_Cancel->setEnabled(true);
-    }
-
     std::vector<std::time_t> timestamps;
     std::vector<CacheEntry> entries = RoR::App::GetCacheSystem()->GetEntries();
     std::sort(entries.begin(), entries.end(), sort_entries<CacheEntry>());
@@ -390,6 +362,8 @@ void CLASS::UpdateGuiData()
         bool add = false;
         if (it->fext == "terrn2")
             add = (m_loader_type == LT_Terrain);
+        if (it->fext == "skin")
+            add = (m_loader_type == LT_Skin && it->guid == m_actor_spawn_rq.asr_cache_entry->guid);
         else if (it->fext == "truck")
             add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Vehicle || m_loader_type == LT_Truck || m_loader_type == LT_Network || m_loader_type == LT_NetworkWithBoat);
         else if (it->fext == "car")
@@ -565,9 +539,6 @@ size_t CLASS::SearchCompare(Ogre::String searchString, CacheEntry* ce)
 
 void CLASS::OnCategorySelected(int categoryID)
 {
-    if (m_loader_type == LT_SKIN)
-        return;
-
     m_Model->removeAllItems();
 
     std::vector<std::pair<CacheEntry*, size_t>> entries;
@@ -600,6 +571,11 @@ void CLASS::OnCategorySelected(int categoryID)
         }
     }
 
+    if (m_loader_type == LT_Skin)
+    {
+        m_Model->addItem(_L("Default Skin"), 0); // Virtual entry
+    }
+
     int count = 1;
 
     for (const auto& entry : entries)
@@ -628,69 +604,55 @@ void CLASS::OnCategorySelected(int categoryID)
 
 void CLASS::OnEntrySelected(int entryID)
 {
-    if (m_loader_type == LT_SKIN)
+    if (m_loader_type == LT_Skin && entryID == 0) // This is the "Default skin" entry
     {
-        if (entryID == 0) // This is the "Default" entry
-        {
-            m_selected_skin = nullptr;
-            m_EntryName->setCaption("Default skin");
-            m_EntryDescription->setCaption("");
-            this->SetPreviewImage(m_selected_entry->filecachename);
-        }
-        else
-        {
-            m_selected_skin = m_current_skins[entryID - 1]; // Skip default skin :)
-            m_EntryName->setCaption(m_selected_skin->name);
-            std::stringstream descr;
-            descr << _L("Description: ") << m_selected_skin->description << std::endl
-                  << _L("Author(s): ") << m_selected_skin->author_name;
-            m_EntryDescription->setCaption(descr.str());
-            this->SetPreviewImage(m_selected_skin->thumbnail);
-        }
+        m_selected_entry = nullptr;
+        m_EntryName->setCaption("Default skin");
+        m_EntryDescription->setCaption("");
+        this->SetPreviewImage(m_actor_spawn_rq.asr_cache_entry->filecachename); // Always available in `LT_Skin`
     }
     else
     {
-        CacheEntry* entry = RoR::App::GetCacheSystem()->GetEntry(entryID);
-        if (!entry)
-            return;
-        m_selected_entry = entry;
-        m_EntryName->setCaption(Utils::SanitizeUtf8String(entry->dname));
-        this->SetPreviewImage(entry->filecachename);
+        m_selected_entry = RoR::App::GetCacheSystem()->GetEntry(entryID);
+        m_EntryName->setCaption(Utils::SanitizeUtf8String(m_selected_entry->dname));
+        this->SetPreviewImage(m_selected_entry->filecachename);
         this->UpdateControls(m_selected_entry);
     }
 }
 
 void CLASS::OnSelectionDone()
 {
-    if (!m_selected_entry || m_selection_done)
+    if ((m_loader_type != LT_Skin && !m_selected_entry) || m_selection_done)
         return;
 
     m_selection_done = true;
     
     bool new_actor_selected = false;
 
-    m_selected_entry->usagecounter++;
+    if (m_selected_entry != nullptr) // Default skin is nullptr
+        m_selected_entry->usagecounter++;
     // TODO: Save the modified value of the usagecounter
 
-    if (m_loader_type != LT_SKIN)
+    if (m_loader_type != LT_Skin)
     {
-        // we show the normal loader
-
-        //Only load vehicles via the selector
-        if (m_loader_type != LT_Terrain)
+        if (m_loader_type != LT_Terrain && m_loader_type != LT_Skin)
             RoR::App::GetCacheSystem()->LoadResource(*m_selected_entry);
 
-        m_current_skins.clear();
-        m_skin_manager->GetUsableSkins(m_selected_entry->guid, this->m_current_skins);
-        if (!m_current_skins.empty())
+        // Check if skins are available and show skin selector
+        std::vector<CacheEntry> skin_entries = App::GetCacheSystem()->GetUsableSkins(m_selected_entry->guid);
+        if (!skin_entries.empty())
         {
-            Show(LT_SKIN);
+            m_actor_spawn_rq.asr_cache_entry = m_selected_entry;
+            this->Show(LT_Skin);
         }
         else
         {
-            m_selected_skin = nullptr;
             this->Hide(false); // false = Hide without fade-out effect
-            new_actor_selected = (m_loader_type != LT_Terrain);
+            if (m_loader_type != LT_Terrain)
+            {
+                m_actor_spawn_rq.asr_cache_entry = m_selected_entry;
+                new_actor_selected = true;
+            }
         }
     }
     else if ((m_loader_type == LT_Terrain) && (App::mp_state.GetActive() == MpState::CONNECTED))
@@ -698,22 +660,19 @@ void CLASS::OnSelectionDone()
         App::app_state.SetPending(AppState::SIMULATION);
         this->Hide(false); // false = Hide without fade-out effect (otherwise fading selector window overlaps 'loading' box)
     }
-    else
+    else // Skin
     {
         this->Hide();
-        new_actor_selected = (m_loader_type != LT_Terrain);
+        if (m_loader_type != LT_Terrain)
+        {
+            m_actor_spawn_rq.asr_skin_entry = m_selected_entry;
+            new_actor_selected = true;
+        }
     }
 
     if (new_actor_selected)
     {
-        ActorSpawnRequest rq;
-        if (m_actor_spawn_rq_valid)
-        {
-            rq = m_actor_spawn_rq;
-            m_actor_spawn_rq_valid = false;
-        }
-        rq.asr_skin           = m_selected_skin;
-        rq.asr_cache_entry    = m_selected_entry;
+        ActorSpawnRequest rq = m_actor_spawn_rq; // actor+skin entries already filled
         rq.asr_config         = m_vehicle_config;
         rq.asr_origin         = ActorSpawnRequest::Origin::USER;
         App::GetSimController()->QueueActorSpawn(rq);
@@ -953,7 +912,6 @@ void CLASS::Show(LoaderType type, RoR::ActorSpawnRequest req)
     {
         return;
     }
-    m_actor_spawn_rq_valid = true;
     m_actor_spawn_rq = req;
     this->Show(type);
 }
@@ -962,27 +920,18 @@ void CLASS::Show(LoaderType type)
 {
     if (!m_selection_done)
         return;
-    m_selection_done = false;
 
-    m_selected_skin = 0;
+    m_selection_done = false;
+    m_selected_entry = nullptr;
+    m_vehicle_config.clear();
     m_SearchLine->setCaption("");
     RoR::App::GetInputEngine()->resetKeys();
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
-    //MyGUI::InputManager::getInstance().setKeyFocusWidget(mMainWidget);
     MyGUI::InputManager::getInstance().setKeyFocusWidget(m_SearchLine);
     mMainWidget->setEnabledSilent(true);
-
     MAIN_WIDGET->setVisibleSmooth(true);
-
-    if (type != LT_SKIN)
-    {
-        m_selected_entry = nullptr; // when in skin, we still need the info
-        m_vehicle_config = "";
-    }
-
     m_loader_type = type;
     UpdateGuiData();
-
     BindKeys();
 
     if (type == LT_Terrain && (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED))

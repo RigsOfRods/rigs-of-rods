@@ -39,8 +39,6 @@ class ContentManager : public Ogre::ResourceLoadingListener
 {
 public:
 
-    ContentManager(): m_skin_manager(nullptr) {}
-
     struct ResourcePack
     {
         ResourcePack(const char* name, const char* resource_group_name):
@@ -83,7 +81,6 @@ public:
     void               InitModCache();
     void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
-    RoR::SkinManager*  GetSkinManager()  { return m_skin_manager; }
 
 private:
 
@@ -92,7 +89,6 @@ private:
     void resourceStreamOpened(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource, Ogre::DataStreamPtr& dataStream);
     bool resourceCollision(Ogre::Resource* resource, Ogre::ResourceManager* resourceManager);
 
-    RoR::SkinManager* m_skin_manager;
     CacheSystem       m_mod_cache; //!< Database of addon content
     bool              m_base_resource_loaded;
 };

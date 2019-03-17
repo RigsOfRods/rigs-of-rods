@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2018 Petr Ohlidal
+    Copyright 2013-2019 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -38,6 +38,7 @@
 #include "RigDef_Parser.h"
 #include "RoRFrameListener.h"
 #include "Settings.h"
+#include "SkinManager.h"
 #include "TerrainManager.h"
 #include "Terrn2Fileformat.h"
 #include "Utils.h"
@@ -108,6 +109,7 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("trailer");
     m_known_extensions.push_back("load");
     m_known_extensions.push_back("train");
+    m_known_extensions.push_back("skin");
 }
 
 void CacheSystem::LoadModCache(CacheValidityState validity)
@@ -641,44 +643,74 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
                 { return !e.deleted && e.fname == f.filename && e.resource_bundle_path == path; }) != m_entries.end())
         return;
 
-    LOG("Preparing to add " + f.filename);
+    RoR::LogFormat("[RoR|CacheSystem] Preparing to add file '%f'", f.filename.c_str());
 
     try
     {
         DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(f.filename, group);
         // ds closes automatically, so do _not_ close it explicitly below
 
-        CacheEntry entry;
+        std::vector<CacheEntry> new_entries;
         if (ext == "terrn2")
         {
-            FillTerrainDetailInfo(entry, ds, f.filename);
+            new_entries.resize(1);
+            FillTerrainDetailInfo(new_entries.back(), ds, f.filename);
+        }
+        else if (ext == "skin")
+        {
+            auto new_skins = RoR::SkinParser::ParseSkins(ds);
+            for (auto skin_def: new_skins)
+            {
+                CacheEntry entry;
+                if (!skin_def->author_name.empty())
+                {
+                    AuthorInfo a;
+                    a.id = skin_def->author_id;
+                    a.name = skin_def->author_name;
+                    entry.authors.push_back(a);
+                }
+
+                entry.dname       = skin_def->name;
+                entry.guid        = skin_def->guid;
+                entry.description = skin_def->description;
+                entry.categoryid  = -1;
+                entry.skin_def    = skin_def; // Needed to generate preview image
+
+                new_entries.push_back(entry);
+            }
         }
         else
         {
-            FillTruckDetailInfo(entry, ds, f.filename, group);
+            new_entries.resize(1);
+            FillTruckDetailInfo(new_entries.back(), ds, f.filename, group);
         }
-        entry.fpath = f.path;
-        entry.fname = f.filename;
-        entry.fname_without_uid = StripUIDfromString(f.filename);
-        entry.fext = ext;
-        if (type == "Zip")
+
+        for (auto& entry: new_entries)
         {
-            entry.filetime = RoR::GetFileLastModifiedTime(path);
+            entry.fpath = f.path;
+            entry.fname = f.filename;
+            entry.fname_without_uid = StripUIDfromString(f.filename);
+            entry.fext = ext;
+            if (type == "Zip")
+            {
+                entry.filetime = RoR::GetFileLastModifiedTime(path);
+            }
+            else
+            {
+                entry.filetime = RoR::GetFileLastModifiedTime(PathCombine(path, f.filename));
+            }
+            entry.resource_bundle_type = type;
+            entry.resource_bundle_path = path;
+            entry.number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
+            entry.addtimestamp = m_update_time;
+            this->GenerateFileCache(entry, group);
+            m_entries.push_back(entry);
         }
-        else
-        {
-            entry.filetime = RoR::GetFileLastModifiedTime(PathCombine(path, f.filename));
-        }
-        entry.resource_bundle_type = type;
-        entry.resource_bundle_path = path;
-        entry.number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
-        entry.addtimestamp = m_update_time;
-        this->GenerateFileCache(entry, group);
-        m_entries.push_back(entry);
     }
     catch (Ogre::Exception& e)
     {
-        LOG("Error while opening resource: '" + f.filename + "': " + e.getFullDescription());
+        RoR::LogFormat("[RoR|CacheSystem] Error processing file '%s', message :%s",
+            f.filename.c_str(), e.getFullDescription().c_str());
     }
 }
 
@@ -928,22 +960,31 @@ void CacheSystem::GenerateFileCache(CacheEntry& entry, String group)
     if (entry.fname.empty())
         return;
 
-    String fbase = "", fext = "";
-    StringUtil::splitBaseFilename(entry.fname, fbase, fext);
-    String minifn = fbase + "-mini.";
-    String minitype = detectMiniType(minifn, group);
+    String bundle_basename, bundle_path;
+    StringUtil::splitFilename(entry.resource_bundle_path, bundle_basename, bundle_path);
 
-    if (minitype.empty())
-        return;
-
-    String src_path = minifn + minitype;
-
-    String outBasename = "";
-    String outPath = "";
-    StringUtil::splitFilename(entry.resource_bundle_path, outBasename, outPath);
-
-    // no path info in the cache file name ...
-    String dst_path = outBasename + "_" + entry.fname + ".mini." + minitype;
+    String src_path;
+    String dst_path;
+    if (entry.fext == "skin")
+    {
+        if (entry.skin_def->thumbnail.empty())
+            return;
+        src_path = entry.skin_def->thumbnail;
+        String mini_fbase, minitype;
+        StringUtil::splitBaseFilename(entry.skin_def->thumbnail, mini_fbase, minitype);
+        dst_path = bundle_basename + "_" + mini_fbase + ".mini." + minitype;
+    }
+    else
+    {
+        String fbase, fext;
+        StringUtil::splitBaseFilename(entry.fname, fbase, fext);
+        String minifn = fbase + "-mini.";
+        String minitype = detectMiniType(minifn, group);
+        if (minitype.empty())
+            return;
+        src_path = minifn + minitype;
+        dst_path = bundle_basename + "_" + entry.fname + ".mini." + minitype;
+    }
 
     try
     {
@@ -968,6 +1009,10 @@ void CacheSystem::GenerateFileCache(CacheEntry& entry, String group)
 void CacheSystem::ParseZipArchives(String group)
 {
     auto files = ResourceGroupManager::getSingleton().findResourceFileInfo(group, "*.zip");
+    auto skinzips = ResourceGroupManager::getSingleton().findResourceFileInfo(group, "*.skinzip");
+    for (const auto& skinzip : *skinzips)
+        files->push_back(skinzip);
+
     int i = 0, count = static_cast<int>(files->size());
     for (const auto& file : *files)
     {
@@ -1101,9 +1146,17 @@ void CacheSystem::LoadResource(CacheEntry& t)
         ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
         ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
     }
+    else if (t.fext == "skin")
+    {
+        // This is a SkinZip bundle - use `inGlobalPool=false` to prevent resource name conflicts.
+        // TODO: What if skin material replaces a materialflarebinding? Won't it cause flare interference between actors? ~ 03/2019
+        ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
+        ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+        App::GetContentManager()->InitManagedMaterials(group);
+    }
     else
     {
-        // Option `inGlobalPool=false` prevents resource name conflicts between mods.
+        // A vehicle bundle - use `inGlobalPool=false` to prevent resource name conflicts.
         // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
         ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
         ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
@@ -1125,5 +1178,76 @@ void CacheSystem::LoadResource(CacheEntry& t)
     t.resource_group = group;
 
     m_loaded_resource_bundles[t.resource_bundle_path] = group;
+}
+
+const std::vector<CacheEntry> CacheSystem::GetUsableSkins(std::string const & guid) const
+{
+    if (guid.empty())
+        return std::vector<CacheEntry>();
+
+    std::vector<CacheEntry> result;
+    for (CacheEntry const& entry: m_entries)
+    {
+        if (entry.guid == guid && entry.fext == "skin")
+        {
+            result.push_back(entry);
+        }
+    }
+    return result;
+}
+
+CacheEntry* CacheSystem::FetchSkinByName(std::string const & skin_name)
+{
+    for (CacheEntry & entry: m_entries)
+    {
+        if (entry.dname == skin_name && entry.fext == "skin")
+        {
+            return &entry;
+        }
+    }
+    return nullptr;
+}
+
+std::shared_ptr<SkinDef> CacheSystem::FetchSkinDef(CacheEntry* cache_entry)
+{
+    if (cache_entry->skin_def != nullptr) // If already parsed, re-use
+    {
+        return cache_entry->skin_def;
+    }
+
+    try
+    {
+        App::GetCacheSystem()->LoadResource(*cache_entry); // Load if not already
+        Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton()
+            .openResource(cache_entry->fname, cache_entry->resource_group);
+
+        auto new_skins = RoR::SkinParser::ParseSkins(ds); // Load the '.skin' file
+        for (auto def: new_skins)
+        {
+            for (CacheEntry& e: m_entries)
+            {
+                if (e.resource_bundle_path == cache_entry->resource_bundle_path
+                    && e.resource_bundle_type == cache_entry->resource_bundle_type
+                    && e.fname == cache_entry->fname
+                    && e.dname == def->name)
+                {
+                    e.skin_def = def;
+                }
+            }
+        }
+
+        if (cache_entry->skin_def == nullptr)
+        {
+            RoR::LogFormat("Definition of skin '%s' was not found in file '%s'",
+               cache_entry->dname.c_str(), cache_entry->fname.c_str());
+        }
+        return cache_entry->skin_def;
+    }
+    catch (Ogre::Exception& oex)
+    {
+        RoR::LogFormat("[RoR] Error loading skin file '%s', message: %s",
+            cache_entry->fname.c_str(), oex.getFullDescription().c_str());
+        return nullptr;
+    }
 }
 

@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2017 Petr Ohlidal & contributors
+    Copyright 2013-2019 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -28,11 +28,14 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <memory>
 
 namespace RoR {
 
 struct SkinDef
 {
+    SkinDef(): author_id(-1) {}
+
     std::map<std::string, std::string>  replace_textures;
     std::map<std::string, std::string>  replace_materials;
     std::string   name;
@@ -43,44 +46,17 @@ struct SkinDef
     int           author_id;
 };
 
-/// Manages Skin resources, parsing .skin files and generally organizing them.
-class SkinManager : public Ogre::ResourceManager
+class SkinParser
 {
 public:
-    SkinManager();
-    ~SkinManager();
 
-    RoR::SkinDef* GetSkin(std::string name);
-    void GetUsableSkins(std::string guid, std::vector<SkinDef *>& skins);
+    static std::vector<std::shared_ptr<RoR::SkinDef>> ParseSkins(Ogre::DataStreamPtr& stream);
 
-    // == Ogre::ResourceManager interface functions ==
-
-    Ogre::Resource* createImpl(const Ogre::String& name, Ogre::ResourceHandle handle,
-        const Ogre::String& group, bool isManual, Ogre::ManualResourceLoader* loader,
-        const Ogre::NameValuePairList* params) override
-    {
-        return nullptr; // Not used
-    }
-    void parseScript(Ogre::DataStreamPtr& stream, const Ogre::String& groupName) override;
-    void reloadUnreferencedResources(bool reloadableOnly = true);
-    void unloadUnreferencedResources(bool reloadableOnly = true);
-    void unload     (const Ogre::String& name);
-    void unload     (Ogre::ResourceHandle handle);
-    void unloadAll  (bool reloadableOnly = true);
-    
-    void remove     (Ogre::ResourcePtr& r);
-    void remove     (const Ogre::String& name);
-    void remove     (Ogre::ResourceHandle handle);
-    void removeAll  () override;
-    void reloadAll  (bool reloadableOnly = true);
-
-    static void ReplaceMaterialTextures(SkinDef* skin_def, std::string materialName);
+    static void ReplaceMaterialTextures(SkinDef* skin_def, std::string materialName); // TODO: Move to GfxActor
 
 private:
 
-    void ParseSkinAttribute(const std::string& line, SkinDef* skin_def);
-
-    std::map<std::string, SkinDef*> m_skins;
+    static void ParseSkinAttribute(const std::string& line, SkinDef* skin_def);
 };
 
 }; // namespace RoR
