@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2017 Petr Ohlidal & contributors
+    Copyright 2013-2019 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -21,6 +21,7 @@
 
 #include "SkinManager.h"
 
+#include "Application.h"
 #include "OgreSubsystem.h"
 #include "Utils.h"
 
@@ -30,26 +31,10 @@
 #include <OgreSubEntity.h>
 #include <OgreTechnique.h>
 
-RoR::SkinManager::SkinManager() : ResourceManager()
+std::vector<std::shared_ptr<RoR::SkinDef>> RoR::SkinParser::ParseSkins(Ogre::DataStreamPtr& stream)
 {
-    mLoadOrder = 200.0f;
-    mScriptPatterns.push_back("*.skin");
-    mResourceType = "RoRVehicleSkins";
-
-    Ogre::ResourceGroupManager::getSingleton()._registerScriptLoader(this);
-    Ogre::ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
-}
-
-RoR::SkinManager::~SkinManager()
-{
-    Ogre::ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
-    Ogre::ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
-}
-
-void RoR::SkinManager::parseScript(Ogre::DataStreamPtr& stream, const Ogre::String& groupName)
-{
-    SkinDef* skin_def = nullptr;
-    bool     skin_is_new = true;
+    std::vector<std::shared_ptr<RoR::SkinDef>> result;
+    std::unique_ptr<RoR::SkinDef> curr_skin;
     try
     {
         while(!stream->eof())
@@ -62,22 +47,12 @@ void RoR::SkinManager::parseScript(Ogre::DataStreamPtr& stream, const Ogre::Stri
                 continue;
             }
 
-            if (!skin_def)
+            if (!curr_skin)
             {
                 // No current skin -- So first valid data should be skin name
                 Ogre::StringUtil::trim(line);
-                auto search = m_skins.find(line);
-                if (search != m_skins.end())
-                {
-                    skin_def = search->second;
-                    skin_is_new = false;
-                }
-                else
-                {
-                    skin_def = new SkinDef;
-                    skin_def->name = line;
-                    skin_is_new = true;
-                }
+                curr_skin = std::unique_ptr<SkinDef>(new SkinDef);
+                curr_skin->name = line;
                 stream->skipLine("{");
             }
             else
@@ -85,30 +60,24 @@ void RoR::SkinManager::parseScript(Ogre::DataStreamPtr& stream, const Ogre::Stri
                 // Already in skin
                 if (line == "}")
                 {
-                    if (skin_is_new)
-                        m_skins.insert(std::make_pair(skin_def->name, skin_def));
-                    skin_def = nullptr;// Finished
+                    result.push_back(std::shared_ptr<SkinDef>(curr_skin.release())); // Finished
                 }
                 else
                 {
-                    this->ParseSkinAttribute(line, skin_def);
+                    RoR::SkinParser::ParseSkinAttribute(line, curr_skin.get());
                 }
             }
         }
     }
-    catch (Ogre::ItemIdentityException)
+    catch (Ogre::Exception& e)
     {
-        // this catches duplicates -> to be ignored
-        // this happens since we load the full skin data off the cache, so we don't need
-        // to re-add it to the SkinManager
+        RoR::LogFormat("[RoR] Error parsing skin file '%s', message: %s",
+            stream->getName().c_str(), e.getFullDescription().c_str());
     }
-    if (skin_def != nullptr)
-    {
-        delete skin_def;
-    }
+    return result;
 }
 
-void RoR::SkinManager::ParseSkinAttribute(const std::string& line, SkinDef* skin_def)
+void RoR::SkinParser::ParseSkinAttribute(const std::string& line, SkinDef* skin_def) // static
 {
     Ogre::StringVector params = Ogre::StringUtil::split(line, "\t=,;\n");
     for (unsigned int i=0; i < params.size(); i++)
@@ -128,27 +97,7 @@ void RoR::SkinManager::ParseSkinAttribute(const std::string& line, SkinDef* skin
     if (attrib == "name"            && params.size() >= 2) { skin_def->name = params[1]; Ogre::StringUtil::trim(skin_def->name); return; }
 }
 
-RoR::SkinDef* RoR::SkinManager::GetSkin(std::string name)
-{
-    auto search = m_skins.find(name);
-    if (search != m_skins.end())
-    {
-        return search->second;
-    }
-    return nullptr;
-}
-
-void RoR::SkinManager::GetUsableSkins(std::string guid, std::vector<SkinDef *> &out_skins)
-{
-    Ogre::StringUtil::toLowerCase(guid);
-    for (auto entry: m_skins)
-    {
-        if (entry.second->guid == guid) // GUID already trimmed and lowercase
-            out_skins.push_back(entry.second);
-    }
-}
-
-void RoR::SkinManager::ReplaceMaterialTextures(SkinDef* skin_def, std::string materialName) // Static
+void RoR::SkinParser::ReplaceMaterialTextures(SkinDef* skin_def, std::string materialName) // Static
 {
     const auto not_found = skin_def->replace_textures.end();
     Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(materialName);
@@ -187,15 +136,3 @@ void RoR::SkinManager::ReplaceMaterialTextures(SkinDef* skin_def, std::string ma
         }
     }
 }
-
-//we wont unload skins once loaded!
-void RoR::SkinManager::unload(const Ogre::String& name) {}
-void RoR::SkinManager::unload(Ogre::ResourceHandle handle) {}
-void RoR::SkinManager::unloadAll(bool reloadableOnly) {}
-void RoR::SkinManager::unloadUnreferencedResources(bool reloadableOnly) {}
-void RoR::SkinManager::remove(Ogre::ResourcePtr& r) {}
-void RoR::SkinManager::remove(const Ogre::String& name) {}
-void RoR::SkinManager::remove(Ogre::ResourceHandle handle) {}
-void RoR::SkinManager::removeAll(void) {}
-void RoR::SkinManager::reloadAll(bool reloadableOnly) {}
-void RoR::SkinManager::reloadUnreferencedResources(bool reloadableOnly) {}

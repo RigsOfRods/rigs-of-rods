@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2018 Petr Ohlidal
+    Copyright 2013-2019 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -32,7 +32,7 @@
 #include <Ogre.h>
 
 #define CACHE_FILE "mods.cache"
-#define CACHE_FILE_FORMAT 10
+#define CACHE_FILE_FORMAT 11
 
 struct AuthorInfo
 {
@@ -54,12 +54,12 @@ public:
     Ogre::String fname;                 //!< filename
     Ogre::String fname_without_uid;     //!< filename
     Ogre::String dname;                 //!< name parsed from the file
-    
+
     int categoryid;                     //!< category id
     Ogre::String categoryname;          //!< category name
-    
+
     std::time_t addtimestamp;           //!< timestamp when this file was added to the cache
-    
+
     Ogre::String uniqueid;              //!< file's unique id
     Ogre::String guid;                  //!< global unique id
     int version;                        //!< file's version
@@ -76,6 +76,7 @@ public:
     Ogre::String resource_group;        //!< the name of the resource group this entry belongs to
 
     std::shared_ptr<RigDef::File> actor_def; //!< Cached actor definition (aka truckfile) after first spawn
+    std::shared_ptr<RoR::SkinDef> skin_def;  //!< Cached skin info, added on first use or during cache rebuild
 
     // following all TRUCK detail information:
     Ogre::String description;
@@ -142,6 +143,7 @@ public:
 
     void                  LoadModCache(CacheValidityState validity);
     CacheEntry*           FindEntryByFilename(std::string filename); //<! Returns NULL if none found
+    CacheEntry*           FetchSkinByName(std::string const & skin_name);
     void                  UnloadActorFromMemory(std::string filename);
     CacheValidityState    EvaluateCacheValidity();
 
@@ -151,6 +153,9 @@ public:
 
     const std::map<int, Ogre::String> &GetCategories() const { return m_categories; }
     const std::vector<CacheEntry> &GetEntries()        const { return m_entries; }
+
+    const std::vector<CacheEntry> GetUsableSkins(std::string const & guid) const;
+    std::shared_ptr<RoR::SkinDef> FetchSkinDef(CacheEntry* cache_entry); //!< Loads+parses the .skin file once
 
     CacheEntry *GetEntry(int modid);
     Ogre::String GetPrettyName(Ogre::String fname);

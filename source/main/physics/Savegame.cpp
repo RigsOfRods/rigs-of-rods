@@ -174,10 +174,10 @@ bool ActorManager::LoadScene(Ogre::String filename)
             continue;
         }
 
-        SkinDef* skin = nullptr;
+        CacheEntry* skin = nullptr;
         if (j_entry.HasMember("skin"))
         {
-            skin = App::GetContentManager()->GetSkinManager()->GetSkin(j_entry["skin"].GetString());
+            skin = App::GetCacheSystem()->FetchSkinByName(j_entry["skin"].GetString());
         }
 
         String section_config = j_entry["section_config"].GetString();
@@ -186,7 +186,8 @@ bool ActorManager::LoadScene(Ogre::String filename)
         int index = static_cast<int>(actors.size());
         if (index < x_actors.size())
         {
-            if (j_entry["filename"].GetString() != x_actors[index]->ar_filename || skin != x_actors[index]->m_used_skin ||
+            if (j_entry["filename"].GetString() != x_actors[index]->ar_filename ||
+                    (skin != nullptr && skin->dname != x_actors[index]->m_used_skin->name) ||
                     section_config != x_actors[index]->GetSectionConfig())
             {
                 if (x_actors[index] == player_actor)
@@ -217,7 +218,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
             rq.asr_position.y    = preloaded ? j_entry["position"][1].GetFloat() : j_entry["min_height"].GetFloat();
             rq.asr_position.z    = j_entry["position"][2].GetFloat();
             rq.asr_rotation      = Quaternion(Degree(270) - Radian(j_entry["rotation"].GetFloat()), Vector3::UNIT_Y);
-            rq.asr_skin          = skin;
+            rq.asr_skin_entry          = skin;
             rq.asr_config        = section_config;
             rq.asr_origin        = preloaded ? ActorSpawnRequest::Origin::TERRN_DEF : ActorSpawnRequest::Origin::SAVEGAME;
             rq.asr_free_position = preloaded;

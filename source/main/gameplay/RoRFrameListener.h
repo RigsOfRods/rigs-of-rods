@@ -161,8 +161,8 @@ private:
     bool                     m_actor_info_gui_visible;
     bool                     m_pressure_pressed;
 
-    CacheEntry*              m_last_cache_selection;
-    RoR::SkinDef*            m_last_skin_selection;
+    CacheEntry*              m_last_cache_selection; //!< Vehicle/load
+    CacheEntry*              m_last_skin_selection;
     Ogre::String             m_last_section_config;
 
     Ogre::Vector3            m_dir_arrow_pointed;

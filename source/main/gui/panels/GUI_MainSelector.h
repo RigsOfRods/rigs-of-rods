@@ -39,8 +39,8 @@ public:
     ~MainSelector();
 
     bool IsFinishedSelecting();
-    void Show(LoaderType type);
     void Show(LoaderType type, ActorSpawnRequest req);
+    void Show(LoaderType type);
     void Hide(bool smooth = true);
     bool IsVisible();
     void Reset();
@@ -72,7 +72,6 @@ private:
     void OnEntrySelected(int entryID);
     void OnSelectionDone();
     size_t SearchCompare(Ogre::String searchString, CacheEntry* ce);
-
     void UpdateControls(CacheEntry* entry);
     void SetPreviewImage(Ogre::String texture);
     void FrameEntered(float dt);
@@ -80,16 +79,12 @@ private:
     CacheEntry* m_selected_entry;
     LoaderType m_loader_type;
     Ogre::String m_preview_image_texture;
-    RoR::SkinDef* m_selected_skin;
     bool m_selection_done;
     std::vector<CacheEntry> m_entries;
     Ogre::String m_vehicle_config;
-    std::vector<RoR::SkinDef *> m_current_skins;
     bool m_keys_bound;
-    RoR::SkinManager* m_skin_manager;
-    ActorSpawnRequest m_actor_spawn_rq; //!< Pre-configured by on-terrain spawner scripts
+    ActorSpawnRequest m_actor_spawn_rq; //!< Always employed when spawning an actor
     std::time_t m_cache_file_freshness;
-    bool m_actor_spawn_rq_valid;
     std::map<LoaderType, int> m_category_index; //!< Stores the last manually selected category index for each loader type
     std::map<LoaderType, int> m_entry_index;    //!< Stores the last manually selected entry index for each loader type
     bool m_searching;

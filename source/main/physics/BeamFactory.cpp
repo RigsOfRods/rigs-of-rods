@@ -378,9 +378,10 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     LOG(" ===== DONE LOADING VEHICLE");
 }
 
-Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
+Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def, std::shared_ptr<SkinDef> skin)
 {
     Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
+    actor->SetUsedSkin(skin.get());
 
     if (App::mp_state.GetActive() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {
@@ -457,10 +458,11 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
                     }
                     ActorSpawnRequest rq;
                     rq.asr_origin = ActorSpawnRequest::Origin::NETWORK;
+                    // TODO: Look up cache entry early (eliminate asr_filename) and fetch skin by name+guid! ~ 03/2019
                     rq.asr_filename = filename;
-                    if (strnlen(actor_reg->skin, 60) < 60)
+                    if (strnlen(actor_reg->skin, 60) < 60 && actor_reg->skin[0] != '\0')
                     {
-                        rq.asr_skin = App::GetContentManager()->GetSkinManager()->GetSkin(actor_reg->skin);
+                        rq.asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin);
                     }
                     if (strnlen(actor_reg->sectionconfig, 60) < 60)
                     {
@@ -1186,10 +1188,10 @@ void ActorManager::SyncWithSimThread()
         m_sim_task->join();
 }
 
-void HandleErrorLoadingTruckfile(std::string filename, std::string exception_msg)
+void HandleErrorLoadingFile(std::string type, std::string filename, std::string exception_msg)
 {
     RoR::Str<200> msg;
-    msg << "Failed to load actor '" << filename << "', message: " << exception_msg;
+    msg << "Failed to load '" << filename << "' (type: '" << type << "'), message: " << exception_msg;
     RoR::App::GetGuiManager()->PushNotification("Error:", msg.ToCStr());
     RoR::LogFormat("[RoR] %s", msg.ToCStr());
 
@@ -1198,6 +1200,11 @@ void HandleErrorLoadingTruckfile(std::string filename, std::string exception_msg
         RoR::App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr(), "error.png", 30000, true);
     }
+}
+
+void HandleErrorLoadingTruckfile(std::string filename, std::string exception_msg)
+{
+    HandleErrorLoadingFile("actor", filename, exception_msg);
 }
 
 std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, bool predefined_on_terrain)
@@ -1343,7 +1350,7 @@ ActorSpawnRequest::ActorSpawnRequest()
     : asr_position(Ogre::Vector3::ZERO)
     , asr_rotation(Ogre::Quaternion::ZERO)
     , asr_spawnbox(nullptr)
-    , asr_skin(nullptr)
+    , asr_skin_entry(nullptr)
     , asr_origin(Origin::UNKNOWN)
     , asr_cache_entry(nullptr)
     , asr_free_position(false)

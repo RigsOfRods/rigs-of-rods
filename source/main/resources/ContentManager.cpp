@@ -205,10 +205,6 @@ void ContentManager::InitContentManager()
     // add scripts folder
     ResourceGroupManager::getSingleton().addResourceLocation(std::string(App::sys_user_dir.GetActive()) + PATH_SLASH + "scripts", "FileSystem", "Scripts");
 
-    // init skin manager, important to happen before trucks resource loading!
-    LOG("RoR|ContentManager: Registering Skin Manager");
-    m_skin_manager = new RoR::SkinManager(); // SkinManager registers itself
-
     LOG("RoR|ContentManager: Registering colored text overlay factory");
     ColoredTextAreaOverlayElementFactory* pCT = new ColoredTextAreaOverlayElementFactory();
     OverlayManager::getSingleton().addOverlayElementFactory(pCT);
@@ -288,26 +284,6 @@ void ContentManager::InitModCache()
         ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "FileSystem", RGN_CONTENT);
     }
     ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_TEMP);
-
-    // Search for skinzips
-    FileInfoListPtr skinzips = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_CONTENT, "*.skinzip");
-    for (const auto& file : *skinzips)
-    {
-        if (!file.archive)
-            continue;
-        String fullpath = PathCombine(file.archive->getName(), file.filename);
-        ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "Zip", RGN_CONTENT);
-    }
-
-    // Required for skins
-    try 
-    {   
-        ResourceGroupManager::getSingleton().initialiseResourceGroup(RGN_CONTENT);
-    }   
-    catch (Ogre::Exception& e)
-    {   
-        LOG("RoR|ContentManager: Error while initializing mod cache: " + e.getFullDescription());
-    }  
 
     CacheSystem::CacheValidityState validity = m_mod_cache.EvaluateCacheValidity();
     m_mod_cache.LoadModCache(validity);
@@ -399,7 +375,7 @@ std::string ContentManager::ListAllUserContent()
     }
 
     // Any filename + listed extensions, ignore case
-    std::regex file_whitelist("^.\\.(airplane|boat|car|fixed|load|machine|terrn2|train|truck)$", std::regex::icase);
+    std::regex file_whitelist("^.\\.(airplane|boat|car|fixed|load|machine|skin|terrn2|train|truck)$", std::regex::icase);
 
     auto file_list = Ogre::ResourceGroupManager::getSingleton().listResourceFileInfo(RGN_CONTENT, false);
     for (auto file: *file_list)
