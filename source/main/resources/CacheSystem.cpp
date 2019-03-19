@@ -687,6 +687,7 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
 
         for (auto& entry: new_entries)
         {
+            Ogre::StringUtil::toLowerCase(entry.guid); // Important for comparsion
             entry.fpath = f.path;
             entry.fname = f.filename;
             entry.fname_without_uid = StripUIDfromString(f.filename);
