@@ -378,10 +378,10 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     LOG(" ===== DONE LOADING VEHICLE");
 }
 
-Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def, std::shared_ptr<SkinDef> skin)
+Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
 {
     Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
-    actor->SetUsedSkin(skin.get());
+    actor->SetUsedSkin(rq.asr_skin_entry);
 
     if (App::mp_state.GetActive() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {

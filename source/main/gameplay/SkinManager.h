@@ -52,8 +52,6 @@ public:
 
     static std::vector<std::shared_ptr<RoR::SkinDef>> ParseSkins(Ogre::DataStreamPtr& stream);
 
-    static void ReplaceMaterialTextures(SkinDef* skin_def, std::string materialName); // TODO: Move to GfxActor
-
 private:
 
     static void ParseSkinAttribute(const std::string& line, SkinDef* skin_def);

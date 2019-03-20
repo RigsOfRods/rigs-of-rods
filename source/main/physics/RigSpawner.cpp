@@ -1292,23 +1292,21 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
         material_name = def.material_name;
     }
 
-    if (m_actor->m_used_skin != nullptr)
-    {
-        auto search = m_actor->m_used_skin->replace_materials.find(material_name);
-        if (search != m_actor->m_used_skin->replace_materials.end())
-        {
-            material_name = search->second;
-        }
-    }
-
     exhaust.smoker = gEnv->sceneManager->createParticleSystem(
-        this->ComposeName("Exhaust", static_cast<int>(m_actor->exhausts.size())), material_name);
+        this->ComposeName("Exhaust", static_cast<int>(m_actor->exhausts.size())),
+        /*quota=*/500, // Default value
+        m_custom_resource_group);
+
     if (!exhaust.smoker)
     {
         AddMessage(Message::TYPE_ERROR, "Failed to create exhaust particle system");
         return;
     }
     exhaust.smoker->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
+
+    Ogre::MaterialPtr mat = this->FindOrCreateCustomizedMaterial(material_name);
+    exhaust.smoker->setMaterialName(mat->getName(), mat->getGroup());
+
     exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode();
     exhaust.smokeNode->attachObject(exhaust.smoker);
     exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
@@ -5751,9 +5749,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
 
 void ActorSpawner::AddExhaust(
         unsigned int emitter_node_idx,
-        unsigned int direction_node_idx,
-        bool old_format,
-        Ogre::String *user_material_name
+        unsigned int direction_node_idx
     )
 {
     if (m_actor->m_disable_smoke)
@@ -5763,28 +5759,13 @@ void ActorSpawner::AddExhaust(
     exhaust_t exhaust;
     exhaust.emitterNode = emitter_node_idx;
     exhaust.directionNode = direction_node_idx;
-    exhaust.isOldFormat = old_format;
+    exhaust.isOldFormat = true;
 
-    Ogre::String material_name;
-    if (user_material_name != nullptr)
-    {
-        material_name = *user_material_name;
-    }
-    else
-    {
-        material_name = "tracks/Smoke";
-    }
+    exhaust.smoker = gEnv->sceneManager->createParticleSystem(
+        this->ComposeName("Exhaust", static_cast<int>(m_actor->exhausts.size())),
+        /*quota=*/500, // Default value
+        m_custom_resource_group);
 
-    if (m_actor->m_used_skin != nullptr)
-    {
-        auto search = m_actor->m_used_skin->replace_materials.find(material_name);
-        if (search != m_actor->m_used_skin->replace_materials.end())
-        {
-            material_name = search->second;
-        }
-    }
-
-    exhaust.smoker = gEnv->sceneManager->createParticleSystem(this->ComposeName("Exhaust", static_cast<int>(m_actor->exhausts.size())), material_name);
     if (exhaust.smoker == nullptr)
     {
         AddMessage(Message::TYPE_INTERNAL_ERROR, "Failed to create exhaust");
@@ -5792,7 +5773,9 @@ void ActorSpawner::AddExhaust(
     }
     exhaust.smoker->setVisibilityFlags(DEPTHMAP_DISABLED); // Disable particles in depthmap
 
-    
+    Ogre::MaterialPtr mat = this->FindOrCreateCustomizedMaterial("tracks/Smoke");
+    exhaust.smoker->setMaterialName(mat->getName(), mat->getGroup());
+
     exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode();
     exhaust.smokeNode->attachObject(exhaust.smoker);
     exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
@@ -6384,25 +6367,31 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
             lookup_entry.material_flare_def = mat_flare_def;
         }
 
-        // Query SkinZip materials
-        if (m_actor->m_used_skin != nullptr)
+        // Query .skin material replacements
+        if (m_actor->m_used_skin_entry != nullptr)
         {
-            auto skin_res = m_actor->m_used_skin->replace_materials.find(mat_lookup_name);
-            if (skin_res != m_actor->m_used_skin->replace_materials.end())
+            std::shared_ptr<RoR::SkinDef>& skin_def = m_actor->m_used_skin_entry->skin_def;
+
+            auto skin_res = skin_def->replace_materials.find(mat_lookup_name);
+            if (skin_res != skin_def->replace_materials.end())
             {
-                Ogre::MaterialPtr skin_mat = Ogre::MaterialManager::getSingleton().getByName(skin_res->second);
+                Ogre::MaterialPtr skin_mat = Ogre::MaterialManager::getSingleton().getByName(
+                    skin_res->second, m_actor->m_used_skin_entry->resource_group);
                 if (!skin_mat.isNull())
                 {
                     std::stringstream name_buf;
                     name_buf << skin_mat->getName() << ACTOR_ID_TOKEN << m_actor->ar_instance_id;
-                    lookup_entry.material = skin_mat->clone(name_buf.str(), true, m_custom_resource_group);
+                    lookup_entry.material = skin_mat->clone(name_buf.str(), /*changeGroup=*/true, m_custom_resource_group);
                     m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry));
                     return lookup_entry.material;
                 }
                 else
                 {
                     std::stringstream buf;
-                    buf << "Material '" << skin_res->second << "' from skin '" << m_actor->m_used_skin->name << "' not found! Ignoring it...";
+                    buf << "Material '" << skin_res->second << "' from skin '" << m_actor->m_used_skin_entry->dname
+                        << "' not found (filename: '" << m_actor->m_used_skin_entry->fname 
+                        << "', resource group: '"<< m_actor->m_used_skin_entry->resource_group
+                        <<"')! Ignoring it...";
                     this->AddMessage(Message::TYPE_ERROR, buf.str());
                 }
             }
@@ -6432,10 +6421,38 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
             lookup_entry.material = orig_mat->clone(name_buf.str(), true, m_custom_resource_group);
         }
 
-        // Finally, query SkinZip textures
-        if (m_actor->m_used_skin != nullptr)
+        // Finally, query .skin texture replacements
+        if (m_actor->m_used_skin_entry != nullptr)
         {
-            RoR::SkinParser::ReplaceMaterialTextures(m_actor->m_used_skin, lookup_entry.material->getName());
+            for (auto& technique: lookup_entry.material->getTechniques())
+            {
+                for (auto& pass: technique->getPasses())
+                {
+                    for (auto& tex_unit: pass->getTextureUnitStates())
+                    {
+                        const size_t num_frames = tex_unit->getNumFrames();
+                        for (size_t i = 0; i < num_frames; ++i)
+                        {
+                            const auto end = m_actor->m_used_skin_entry->skin_def->replace_textures.end();
+                            const auto query = m_actor->m_used_skin_entry->skin_def->replace_textures.find(tex_unit->getFrameTextureName(i));
+                            if (query != end)
+                            {
+                                // Skin has replacement for this texture
+                                if (m_actor->m_used_skin_entry->resource_group != m_custom_resource_group) // The skin comes from a SkinZip bundle (different resource group)
+                                {
+                                    Ogre::TexturePtr tex = Ogre::TextureManager::getSingleton().getByName(
+                                        query->second, m_actor->m_used_skin_entry->resource_group);
+                                    tex_unit->_setTexturePtr(tex, i);
+                                }
+                                else // The skin lives in the vehicle bundle (same resource group)
+                                {
+                                    tex_unit->setFrameTextureName(query->second, i);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry)); // Register the substitute

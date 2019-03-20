@@ -728,9 +728,7 @@ private:
 
     void AddExhaust(
         unsigned int emitter_node_idx,
-        unsigned int direction_node_idx,
-        bool old_format,
-        Ogre::String *user_material_name
+        unsigned int direction_node_idx
     );
 
     /**

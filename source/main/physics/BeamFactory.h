@@ -50,7 +50,7 @@ public:
     ActorManager();
     ~ActorManager();
 
-    Actor*         CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def, std::shared_ptr<SkinDef> skin = nullptr);
+    Actor*         CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def);
     void           UpdateActors(Actor* player_actor, float dt);
     void           SyncWithSimThread();
     void           UpdatePhysicsSimulation();
