@@ -187,7 +187,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         if (index < x_actors.size())
         {
             if (j_entry["filename"].GetString() != x_actors[index]->ar_filename ||
-                    (skin != nullptr && skin->dname != x_actors[index]->m_used_skin->name) ||
+                    (skin != nullptr && skin->dname != x_actors[index]->m_used_skin_entry->dname) ||
                     section_config != x_actors[index]->GetSectionConfig())
             {
                 if (x_actors[index] == player_actor)
@@ -581,9 +581,9 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_entry.AddMember("player_actor", actor==App::GetSimController()->GetPlayerActor(), j_doc.GetAllocator());
         j_entry.AddMember("prev_player_actor", actor==App::GetSimController()->GetPrevPlayerActor(), j_doc.GetAllocator());
 
-        if (actor->m_used_skin)
+        if (actor->m_used_skin_entry)
         {
-            j_entry.AddMember("skin", rapidjson::StringRef(actor->m_used_skin->name.c_str()), j_doc.GetAllocator());
+            j_entry.AddMember("skin", rapidjson::StringRef(actor->m_used_skin_entry->dname.c_str()), j_doc.GetAllocator());
         }
 
         j_entry.AddMember("section_config", rapidjson::StringRef(actor->m_section_config.c_str()), j_doc.GetAllocator());

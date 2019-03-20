@@ -171,8 +171,8 @@ public:
     VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
     float             getWheelSpeed() const             { return ar_wheel_speed; }
     int               GetNumNodes() const               { return ar_num_nodes; }
-    RoR::SkinDef*     GetUsedSkin() const               { return m_used_skin; }
-    void              SetUsedSkin(RoR::SkinDef* skin)   { m_used_skin = skin; }
+    CacheEntry*       GetUsedSkin() const               { return m_used_skin_entry; }
+    void              SetUsedSkin(CacheEntry* skin)     { m_used_skin_entry = skin; }
     float             getSpeed()                        { return m_avg_node_velocity.length(); };
     Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
 #ifdef USE_ANGELSCRIPT
@@ -509,7 +509,7 @@ private:
     unsigned char     m_net_custom_light_count;//!< Sim attr
     RoR::GfxFlaresMode m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
-    RoR::SkinDef*     m_used_skin;             //!< Graphics
+    CacheEntry*       m_used_skin_entry;       //!< Graphics
     RoR::Skidmark*    m_skid_trails[MAX_WHEELS*2];
     bool              m_antilockbrake;         //!< GUI state
     bool              m_tractioncontrol;       //!< GUI state

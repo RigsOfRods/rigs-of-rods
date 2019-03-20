@@ -29,6 +29,7 @@
 #include "BeamEngine.h"
 #include "BeamFactory.h"
 #include "Buoyance.h"
+#include "CacheSystem.h"
 #include "ChatSystem.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
@@ -1902,9 +1903,9 @@ void Actor::sendStreamSetup()
     reg.type = 0;
     reg.time = App::GetSimController()->GetBeamFactory()->GetNetTime();
     strncpy(reg.name, ar_filename.c_str(), 128);
-    if (m_used_skin != nullptr)
+    if (m_used_skin_entry != nullptr)
     {
-        strncpy(reg.skin, m_used_skin->name.c_str(), 60);
+        strncpy(reg.skin, m_used_skin_entry->dname.c_str(), 60);
     }
     strncpy(reg.sectionconfig, m_section_config.c_str(), 60);
 

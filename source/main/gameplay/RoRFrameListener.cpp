@@ -1633,7 +1633,7 @@ void SimController::UpdateSimulation(float dt)
                 srq.asr_position = reload_pos;
                 srq.asr_rotation = reload_dir;
                 srq.asr_config   = asr_config;
-                srq.asr_skin_entry     = App::GetCacheSystem()->FetchSkinByName(used_skin->name);
+                srq.asr_skin_entry = used_skin;
                 srq.asr_filename = filename;
                 Actor* new_actor = this->SpawnActorDirectly(srq); // try to load the same actor again
                 if (new_actor)
@@ -2498,9 +2498,14 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
         return nullptr; // Error already reported
     }
 
-    std::shared_ptr<SkinDef> skin;
     if (rq.asr_skin_entry != nullptr)
-        skin = App::GetCacheSystem()->FetchSkinDef(rq.asr_skin_entry);
+    {
+        std::shared_ptr<RoR::SkinDef> skin_def = App::GetCacheSystem()->FetchSkinDef(rq.asr_skin_entry); // Make sure it exists
+        if (skin_def == nullptr)
+        {
+            rq.asr_skin_entry = nullptr; // Error already logged
+        }
+    }
 
 #ifdef USE_SOCKETW
     if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
@@ -2514,7 +2519,7 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
     }
 #endif //SOCKETW
 
-    Actor* actor = m_actor_manager.CreateActorInstance(rq, def, skin);
+    Actor* actor = m_actor_manager.CreateActorInstance(rq, def);
 
     if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK && rq.asr_origin != ActorSpawnRequest::Origin::TERRN_DEF &&
             rq.asr_origin != ActorSpawnRequest::Origin::SAVEGAME && actor->ar_driveable != NOT_DRIVEABLE)

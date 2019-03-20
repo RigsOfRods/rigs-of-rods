@@ -1150,7 +1150,6 @@ void CacheSystem::LoadResource(CacheEntry& t)
     else if (t.fext == "skin")
     {
         // This is a SkinZip bundle - use `inGlobalPool=false` to prevent resource name conflicts.
-        // TODO: What if skin material replaces a materialflarebinding? Won't it cause flare interference between actors? ~ 03/2019
         ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
         ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
         App::GetContentManager()->InitManagedMaterials(group);

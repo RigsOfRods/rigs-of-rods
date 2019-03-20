@@ -137,7 +137,7 @@ Actor *ActorSpawner::SpawnActor()
     // Old-format exhaust (defined by flags 'x/y' in section 'nodes', one per vehicle)
     if (m_actor->ar_exhaust_pos_node != 0 && m_actor->ar_exhaust_dir_node != 0)
     {
-        AddExhaust(m_actor->ar_exhaust_pos_node, m_actor->ar_exhaust_dir_node, true, nullptr);
+        AddExhaust(m_actor->ar_exhaust_pos_node, m_actor->ar_exhaust_dir_node);
     }
 
     // ---------------------------- Node generating sections ----------------------------
