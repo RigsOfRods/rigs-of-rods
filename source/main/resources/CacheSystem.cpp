@@ -1232,6 +1232,7 @@ std::shared_ptr<SkinDef> CacheSystem::FetchSkinDef(CacheEntry* cache_entry)
                     && e.dname == def->name)
                 {
                     e.skin_def = def;
+                    e.resource_group = cache_entry->resource_group;
                 }
             }
         }
