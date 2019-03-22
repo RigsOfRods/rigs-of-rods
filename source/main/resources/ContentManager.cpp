@@ -332,7 +332,8 @@ void ContentManager::InitManagedMaterials(std::string const & rg_name)
     // Last
     ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir, "FileSystem", rg_name);
 
-    ResourceGroupManager::getSingleton().initialiseResourceGroup(rg_name);
+    if (rg_name == RGN_MANAGED_MATS) // Only initialize the global resource group
+        ResourceGroupManager::getSingleton().initialiseResourceGroup(rg_name);
 }
 
 void ContentManager::LoadGameplayResources()
