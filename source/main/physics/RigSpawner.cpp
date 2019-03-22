@@ -6442,6 +6442,15 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
                                 {
                                     Ogre::TexturePtr tex = Ogre::TextureManager::getSingleton().getByName(
                                         query->second, m_actor->m_used_skin_entry->resource_group);
+                                    if (tex.isNull())
+                                    {
+                                        // `Ogre::TextureManager` doesn't automatically register all images in resource groups,
+                                        // it waits for `Ogre::Resource`s to be created explicitly.
+                                        // Normally this is done by `Ogre::MaterialManager` when loading a material.
+                                        // In this case we must do it manually
+                                        tex = Ogre::TextureManager::getSingleton().create(
+                                            query->second, m_actor->m_used_skin_entry->resource_group);
+                                    }
                                     tex_unit->_setTexturePtr(tex, i);
                                 }
                                 else // The skin lives in the vehicle bundle (same resource group)
