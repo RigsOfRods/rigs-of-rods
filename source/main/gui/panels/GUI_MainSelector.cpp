@@ -676,7 +676,7 @@ void CLASS::OnSelectionDone()
         rq.asr_config         = m_vehicle_config;
         rq.asr_origin         = ActorSpawnRequest::Origin::USER;
         App::GetSimController()->QueueActorSpawn(rq);
-
+        this->Reset();
         RoR::App::GetGuiManager()->UnfocusGui();
     }
     App::sim_state.SetActive(SimState::RUNNING); // TODO: use 'Pending' mechanism!
