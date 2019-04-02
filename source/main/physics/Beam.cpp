@@ -177,14 +177,11 @@ Actor::~Actor()
     }
 
     // delete airbrakes
-    for (int i = 0; i < ar_num_airbrakes; i++)
+    for (Airbrake* ab: ar_airbrakes)
     {
-        if (ar_airbrakes[i])
-        {
-            delete ar_airbrakes[i];
-            ar_airbrakes[i] = 0;
-        }
+        delete ab;
     }
+    ar_airbrakes.clear();
 
     // delete skidmarks
     for (int i = 0; i < ar_num_wheels; ++i)
@@ -2890,9 +2887,9 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
 void Actor::setAirbrakeIntensity(float intensity)
 {
     ar_airbrake_intensity = intensity;
-    for (int i = 0; i < ar_num_airbrakes; i++)
+    for (Airbrake* ab: ar_airbrakes)
     {
-        ar_airbrakes[i]->updatePosition((float)ar_airbrake_intensity / 5.0);
+        ab->updatePosition((float)ar_airbrake_intensity / 5.0);
     }
 }
 

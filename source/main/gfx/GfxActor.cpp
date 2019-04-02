@@ -1830,8 +1830,8 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     }
 
     // airbrakes
-    const int num_airbrakes = m_actor->ar_num_airbrakes;
-    for (int i=0; i< num_airbrakes; ++i)
+    const size_t num_airbrakes = m_actor->ar_airbrakes.size();
+    for (size_t i=0; i< num_airbrakes; ++i)
     {
         m_simbuf.simbuf_airbrakes[i].simbuf_ab_ratio = m_actor->ar_airbrakes[i]->ratio;
     }
@@ -1992,9 +1992,8 @@ int RoR::GfxActor::GetActorDriveable   () const { return m_actor->ar_driveable; 
 void RoR::GfxActor::RegisterAirbrakes()
 {
     // TODO: Quick hacky setup with `friend` access - we rely on old init code in RigSpawner/Airbrake.
-    for (int i=0; i< m_actor->ar_num_airbrakes; ++i)
+    for (Airbrake* ab: m_actor->ar_airbrakes)
     {
-        Airbrake* ab = m_actor->ar_airbrakes[i];
         AirbrakeGfx abx;
         // entity
         abx.abx_entity = ab->ec;

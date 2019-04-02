@@ -670,13 +670,6 @@ private:
     static bool CheckSoundScriptLimit(Actor *vehicle, unsigned int count);
 
     /**
-    * Checks there is still space left in rig_t::airbrakes array.
-    * @param count Required number of free slots.
-    * @return True if there is enough space left.
-    */
-    bool CheckAirBrakeLimit(unsigned int count);
-
-    /**
     * Checks there is still space left in rig_t::aeroengines array.
     * @param count Required number of free slots.
     * @return True if there is enough space left.

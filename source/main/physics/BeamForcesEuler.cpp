@@ -101,8 +101,8 @@ void Actor::CalcMouse()
 void Actor::CalcAircraftForces(bool doUpdate)
 {
     //airbrake forces
-    for (int i = 0; i < ar_num_airbrakes; i++)
-        ar_airbrakes[i]->applyForce();
+    for (Airbrake* ab: ar_airbrakes)
+        ab->applyForce();
 
     //turboprop forces
     for (int i = 0; i < ar_num_aeroengines; i++)
