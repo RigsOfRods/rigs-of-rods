@@ -300,9 +300,6 @@ Actor *ActorSpawner::SpawnActor()
     // Section 'animators'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ANIMATORS, animators, ProcessAnimator);
 
-    // Section 'airbrakes'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_AIRBRAKES, airbrakes, ProcessAirbrake);
-
     // Section 'fusedrag'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FUSEDRAG, fusedrag, ProcessFusedrag);
 
@@ -370,6 +367,9 @@ Actor *ActorSpawner::SpawnActor()
 
     // Section 'wings' (needs GfxActor to exist)
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WINGS, wings, ProcessWing);
+
+    // Section 'airbrakes' (needs GfxActor to exist)
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_AIRBRAKES, airbrakes, ProcessAirbrake);
 
 #ifdef USE_OPENAL
 

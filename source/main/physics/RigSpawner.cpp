@@ -860,14 +860,15 @@ void ActorSpawner::ProcessAirbrake(RigDef::Airbrake & def)
     }
 
     m_actor->ar_airbrakes[m_actor->ar_num_airbrakes] = new Airbrake(
+        m_actor,
         this->ComposeName("Airbrake", m_actor->ar_num_airbrakes).c_str(),
-        m_actor->ar_num_airbrakes, 
-        GetNodePointerOrThrow(def.reference_node), 
+        m_actor->ar_num_airbrakes,
+        GetNodePointerOrThrow(def.reference_node),
         GetNodePointerOrThrow(def.x_axis_node),
         GetNodePointerOrThrow(def.y_axis_node),
         GetNodePointerOrThrow(def.aditional_node),
         def.offset,
-        def.width, 
+        def.width,
         def.height,
         def.max_inclination_angle,
         m_cab_material_name,
@@ -6525,9 +6526,9 @@ void ActorSpawner::CreateGfxActor()
 {
     // Create the actor
     m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
-        new RoR::GfxActor(m_actor, m_custom_resource_group, m_gfx_nodes, m_props, m_driverseat_prop_index));
+        new RoR::GfxActor(m_actor, m_file, m_custom_resource_group, m_gfx_nodes, m_props, m_driverseat_prop_index));
 
-    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill (to setup flexbodies + flexbodywheels)
+    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill (to setup flexing meshes)
 }
 
 void ActorSpawner::FinalizeGfxSetup()

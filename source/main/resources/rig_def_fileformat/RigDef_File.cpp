@@ -668,20 +668,25 @@ File::File():
     root_module = std::make_shared<File::Module>(ROOT_MODULE_NAME); // Required to exist.
 }
 
+#define COUNT_SECTION_IN_ALL_MODULES(_VAR_, _NAME_) \
+{                                                   \
+    _VAR_ = root_module->_NAME_.size();             \
+    for (auto& pair: user_modules)                  \
+        _VAR_ += pair.second->_NAME_.size();        \
+}
+
 bool File::HasFixes()
 {
-    if (root_module->fixes.size() != 0)
-    {
-        return true;
-    }
-    for (auto& pair: user_modules)
-    {
-        if (pair.second->fixes.size())
-        {
-            return true;
-        }
-    }
-    return false;
+    size_t num;
+    COUNT_SECTION_IN_ALL_MODULES(num, fixes);
+    return num > 0;
+}
+
+int File::GetNumAirbrakes()
+{
+    size_t num;
+    COUNT_SECTION_IN_ALL_MODULES(num, airbrakes);
+    return static_cast<int>(num);
 }
 
 } /* namespace RigDef */

@@ -51,7 +51,7 @@ private:
     Ogre::Entity* ec;
 
 public:
-    Airbrake(const char* basename, int num, node_t* ndref, node_t* ndx, node_t* ndy, node_t* nda, Ogre::Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float tx2, float tx3, float tx4, float lift_coef);
+    Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, node_t* ndx, node_t* ndy, node_t* nda, Ogre::Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float tx2, float tx3, float tx4, float lift_coef);
     ~Airbrake() {} // Cleanup of visuals is done by GfxActor
 
     void updatePosition(float amount);

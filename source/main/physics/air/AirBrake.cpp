@@ -21,12 +21,14 @@
 #include "AirBrake.h"
 
 #include "BeamData.h"
+#include "Beam.h" // class Actor
+#include "GfxActor.h"
 
 #include <Ogre.h>
 
 using namespace Ogre;
 
-Airbrake::Airbrake(const char* basename, int num, node_t* ndref, node_t* ndx, node_t* ndy, node_t* nda, Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float ty1, float tx2, float ty2, float lift_coef)
+Airbrake::Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, node_t* ndx, node_t* ndy, node_t* nda, Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float ty1, float tx2, float ty2, float lift_coef)
 {
     snode = 0;
     noderef = ndref;
@@ -39,7 +41,7 @@ Airbrake::Airbrake(const char* basename, int num, node_t* ndref, node_t* ndx, no
     char meshname[256];
     sprintf(meshname, "airbrakemesh-%s-%i", basename, num);
     /// Create the mesh via the MeshManager
-    msh = MeshManager::getSingleton().createManual(meshname, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    msh = MeshManager::getSingleton().createManual(meshname, actor->GetGfxActor()->GetResourceGroup());
 
     union
     {
@@ -147,7 +149,7 @@ Airbrake::Airbrake(const char* basename, int num, node_t* ndref, node_t* ndx, no
     // create the entity and scene node
     char entname[256];
     sprintf(entname, "airbrakenode-%s-%i", basename, num);
-    ec = gEnv->sceneManager->createEntity(entname, meshname);
+    ec = gEnv->sceneManager->createEntity(entname, meshname, actor->GetGfxActor()->GetResourceGroup());
     snode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     snode->attachObject(ec);
 
