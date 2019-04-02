@@ -198,11 +198,14 @@ void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::
         // Support beams:  num_rays*2
         req.num_beams += flexwheel.num_rays * ((flexwheel.rigidity_node.IsValidAnyState()) ? 21 : 20);
     }
+
+    // 'airbrakes'
+    req.num_airbrakes += module_def->airbrakes.size();
 }
 
 void ActorSpawner::InitializeRig()
 {
-    ActorMemoryRequirements req;
+    ActorMemoryRequirements & req = m_memory_requirements;
     for (auto module: m_selected_modules) // _Root_ module is included
     {
         this->CalcMemoryRequirements(req, module.get());
@@ -6508,7 +6511,7 @@ void ActorSpawner::CreateGfxActor()
 {
     // Create the actor
     m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
-        new RoR::GfxActor(m_actor, m_file, m_custom_resource_group, m_gfx_nodes, m_props, m_driverseat_prop_index));
+        new RoR::GfxActor(m_actor, this, m_custom_resource_group, m_gfx_nodes, m_props, m_driverseat_prop_index));
 
     m_actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill (to setup flexing meshes)
 }

@@ -682,11 +682,4 @@ bool File::HasFixes()
     return num > 0;
 }
 
-int File::GetNumAirbrakes()
-{
-    size_t num;
-    COUNT_SECTION_IN_ALL_MODULES(num, airbrakes);
-    return static_cast<int>(num);
-}
-
 } /* namespace RigDef */
