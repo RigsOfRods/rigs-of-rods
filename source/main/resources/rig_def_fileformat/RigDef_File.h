@@ -2335,6 +2335,8 @@ struct File
     /// Does this file contain "fixes", i.e. nodes attached to terrain?
     bool HasFixes();
 
+    int GetNumAirbrakes();
+
     unsigned int file_format_version;
     Ogre::String guid;
     std::vector<Ogre::String> description;
