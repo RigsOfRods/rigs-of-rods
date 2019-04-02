@@ -254,7 +254,7 @@ public:
         bool             xa_has_autopilot;
     };
 
-    GfxActor(Actor* actor, std::shared_ptr<RigDef::File> def, std::string ogre_resource_group,
+    GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
         std::vector<NodeGfx>& gfx_nodes, std::vector<prop_t>& props, int driverseat_prop_idx);
 
     ~GfxActor();

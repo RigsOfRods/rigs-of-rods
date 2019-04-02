@@ -36,8 +36,8 @@
 #include "InputEngine.h" // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
 #include "MeshObject.h"
 #include "MovableText.h"
+#include "RigSpawner.h"
 #include "RoRFrameListener.h" // SimController
-#include "RigDef_File.h"
 #include "SlideNode.h"
 #include "SkyManager.h"
 #include "SoundScriptManager.h"
@@ -58,7 +58,7 @@
 #include <OgreTextureManager.h>
 #include <OgreTextureUnitState.h>
 
-RoR::GfxActor::GfxActor(Actor* actor, std::shared_ptr<RigDef::File> def, std::string ogre_resource_group,
+RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
                         std::vector<NodeGfx>& gfx_nodes, std::vector<prop_t>& props,
                         int driverseat_prop_idx):
     m_actor(actor),
@@ -91,7 +91,7 @@ RoR::GfxActor::GfxActor(Actor* actor, std::shared_ptr<RigDef::File> def, std::st
     m_simbuf.simbuf_nodes.reset(new NodeData[actor->ar_num_nodes]);
     m_simbuf.simbuf_aeroengines.resize(actor->ar_num_aeroengines);
     m_simbuf.simbuf_commandkey.resize(MAX_COMMANDS + 10);
-    m_simbuf.simbuf_airbrakes.resize(def->GetNumAirbrakes());
+    m_simbuf.simbuf_airbrakes.resize(spawner->GetMemoryRequirements().num_airbrakes);
 
     // Attributes
     m_attr.xa_speedo_highest_kph = actor->ar_speedo_max_kph; // TODO: Remove the attribute from Actor altogether ~ only_a_ptr, 05/2018

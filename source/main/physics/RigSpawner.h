@@ -77,6 +77,19 @@ class ActorSpawner
 
 public:
 
+    struct ActorMemoryRequirements
+    {
+        ActorMemoryRequirements() { memset(this,0, sizeof(ActorMemoryRequirements)); }
+
+        size_t num_nodes;
+        size_t num_beams;
+        size_t num_shocks;
+        size_t num_rotators;
+        size_t num_wings;
+        size_t num_airbrakes;
+        // ... more to come ...
+    };
+
     struct Message
     {
         enum Type
@@ -142,6 +155,11 @@ public:
         return m_actor;
     }
 
+    ActorMemoryRequirements const& GetMemoryRequirements()
+    {
+        return m_memory_requirements;
+    }
+
     /**
     * Finds and clones given material. Reports errors.
     * @return NULL Ogre::MaterialPtr on error.
@@ -198,18 +216,6 @@ private:
         RigDef::VideoCamera*           video_camera_def;
         MirrorPropType                 mirror_prop_type;
         Ogre::SceneNode*               mirror_prop_scenenode;
-    };
-
-    struct ActorMemoryRequirements
-    {
-        ActorMemoryRequirements() { memset(this,0, sizeof(ActorMemoryRequirements)); }
-
-        size_t num_nodes;
-        size_t num_beams;
-        size_t num_shocks;
-        size_t num_rotators;
-        size_t num_wings;
-        // ... more to come ...
     };
 
     struct BeamVisualsTicket //!< Visuals are queued for processing using this struct
@@ -1091,6 +1097,7 @@ private:
     int                       m_driverseat_prop_index;
     std::vector<CabTexcoord>  m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;
+    ActorMemoryRequirements   m_memory_requirements;
     std::vector<RoR::GfxActor::NodeGfx> m_gfx_nodes;
     CustomMaterial::MirrorPropType         m_curr_mirror_prop_type;
     std::shared_ptr<RigDef::File>          m_file; //!< The parsed input file.
