@@ -202,6 +202,7 @@ public:
     std::vector<tie_t>        ar_ties;
     std::vector<hook_t>       ar_hooks;
     std::vector<flare_t>      ar_flares;
+    std::vector<Airbrake*>    ar_airbrakes;
     Ogre::AxisAlignedBox      ar_bounding_box;     //!< standard bounding box (surrounds all nodes of an actor)
     Ogre::AxisAlignedBox      ar_predicted_bounding_box;
     float                     ar_initial_total_mass;
@@ -238,8 +239,6 @@ public:
     int               ar_buoycabs[MAX_CABS];
     int               ar_buoycab_types[MAX_CABS];
     int               ar_num_buoycabs;
-    Airbrake*         ar_airbrakes[MAX_AIRBRAKES];
-    int               ar_num_airbrakes;
     int               ar_camera_rail[MAX_CAMERARAIL]; //!< Nodes defining camera-movement spline
     int               ar_num_camera_rails;
     bool              ar_hide_in_actor_list;      //!< Hide in list of spawned actors (available in top menubar). Useful for fixed-place machinery, i.e. cranes.

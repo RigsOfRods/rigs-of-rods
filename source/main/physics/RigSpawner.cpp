@@ -246,7 +246,6 @@ void ActorSpawner::InitializeRig()
     memset(m_actor->ar_buoycabs, 0, sizeof(int) * MAX_CABS);
     m_actor->ar_num_buoycabs = 0;
     memset(m_actor->ar_buoycab_types, 0, sizeof(int) * MAX_CABS);
-    m_actor->ar_num_airbrakes = 0;
     memset(m_actor->m_skid_trails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
     m_actor->description.clear();
 
@@ -854,15 +853,11 @@ void ActorSpawner::ProcessPistonprop(RigDef::Pistonprop & def)
 
 void ActorSpawner::ProcessAirbrake(RigDef::Airbrake & def)
 {
-    if (! CheckAirBrakeLimit(1))
-    {
-        return;
-    }
-
-    m_actor->ar_airbrakes[m_actor->ar_num_airbrakes] = new Airbrake(
+    const int airbrake_idx = static_cast<int>(m_actor->ar_airbrakes.size());
+    m_actor->ar_airbrakes.push_back(new Airbrake(
         m_actor,
-        this->ComposeName("Airbrake", m_actor->ar_num_airbrakes).c_str(),
-        m_actor->ar_num_airbrakes,
+        this->ComposeName("Airbrake", airbrake_idx).c_str(),
+        airbrake_idx,
         GetNodePointerOrThrow(def.reference_node),
         GetNodePointerOrThrow(def.x_axis_node),
         GetNodePointerOrThrow(def.y_axis_node),
@@ -877,8 +872,7 @@ void ActorSpawner::ProcessAirbrake(RigDef::Airbrake & def)
         def.texcoord_x2,
         def.texcoord_y2,
         def.lift_coefficient
-    );
-    m_actor->ar_num_airbrakes++;
+    ));
 }
 
 void ActorSpawner::ProcessWing(RigDef::Wing & def)
@@ -5983,18 +5977,6 @@ bool ActorSpawner::CheckCameraRailLimit(unsigned int count)
     {
         std::stringstream msg;
         msg << "CameraRail limit (" << MAX_CAMERARAIL << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
-bool ActorSpawner::CheckAirBrakeLimit(unsigned int count)
-{
-    if ((m_actor->ar_num_airbrakes + count) > MAX_AIRBRAKES)
-    {
-        std::stringstream msg;
-        msg << "AirBrake limit (" << MAX_AIRBRAKES << ") exceeded";
         AddMessage(Message::TYPE_ERROR, msg.str());
         return false;
     }
