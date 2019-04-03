@@ -87,6 +87,7 @@ public:
         size_t num_rotators;
         size_t num_wings;
         size_t num_airbrakes;
+        size_t num_fixes;
         // ... more to come ...
     };
 

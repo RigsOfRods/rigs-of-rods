@@ -158,7 +158,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     /* Place correctly */
     if (actor->m_preloaded_with_terrain)
     {
-        if (!def->HasFixes())
+        if (spawner.GetMemoryRequirements().num_fixes == 0)
         {
             actor->UpdateBoundingBoxes();
             Ogre::Vector3 position = rq.asr_position;

@@ -201,6 +201,9 @@ void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::
 
     // 'airbrakes'
     req.num_airbrakes += module_def->airbrakes.size();
+
+    // 'fixes'
+    req.num_fixes += module_def->fixes.size();
 }
 
 void ActorSpawner::InitializeRig()
