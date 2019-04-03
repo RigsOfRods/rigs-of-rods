@@ -183,7 +183,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         String section_config = j_entry["section_config"].GetString();
 
         Actor* actor = nullptr;
-        int index = actors.size();
+        int index = static_cast<int>(actors.size());
         if (index < x_actors.size())
         {
             if (j_entry["filename"].GetString() != x_actors[index]->ar_filename || skin != x_actors[index]->m_used_skin ||
@@ -227,7 +227,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
         actors.push_back(actor);
     }
-    for (int index = actors.size(); index < x_actors.size(); index++)
+    for (size_t index = actors.size(); index < x_actors.size(); index++)
     {
         if (x_actors[index] == player_actor)
         {
@@ -241,7 +241,8 @@ bool ActorManager::LoadScene(Ogre::String filename)
         actors_changed = true;
     }
 
-    for (int index = 0; index < j_doc["actors"].Size(); index++)
+    const int num_actors = static_cast<int>(j_doc["actors"].Size());
+    for (int index = 0; index < num_actors; index++)
     {
         if (actors[index] == nullptr)
             continue;

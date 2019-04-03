@@ -568,7 +568,7 @@ void SimController::UpdateInputEvents(float dt)
     static bool terrain_editing_track_object = true;
     static int terrain_editing_rotation_axis = 1;
     static std::string last_object_name = "";
-    static int object_count = object_list.size();
+    static int object_count = static_cast<int>(object_list.size());
     static int object_index = -1;
 
     bool toggle_editor = (m_player_actor && simEDITOR(s)) ||
@@ -620,7 +620,7 @@ void SimController::UpdateInputEvents(float dt)
         bool update = false;
         if (object_count != object_list.size())
         {
-            object_count = object_list.size();
+            object_count = static_cast<int>(object_list.size());
             object_index = -1;
         }
         if (m_terrain_editor_mouse_ray.getDirection() != Vector3::ZERO)
@@ -2047,7 +2047,7 @@ bool SimController::SetupGameplayLoop()
     // Terrain name lookup
     if (!App::sim_terrain_name.IsPendingEmpty())
     {
-        int length = std::numeric_limits<int>::max();
+        size_t length = std::numeric_limits<size_t>::max();
         const CacheEntry* lookup = nullptr;
         String name = App::sim_terrain_name.GetPending();
         StringUtil::toLowerCase(name);
@@ -2118,7 +2118,7 @@ bool SimController::SetupGameplayLoop()
     if (!App::diag_preset_vehicle.IsActiveEmpty())
     {
         // Vehicle name lookup
-        int length = std::numeric_limits<int>::max();
+        size_t length = std::numeric_limits<size_t>::max();
         const CacheEntry* lookup = nullptr;
         String name = App::diag_preset_vehicle.GetPending();
         StringUtil::toLowerCase(name);

@@ -968,7 +968,7 @@ void CacheSystem::GenerateFileCache(CacheEntry& entry, String group)
 void CacheSystem::ParseZipArchives(String group)
 {
     auto files = ResourceGroupManager::getSingleton().findResourceFileInfo(group, "*.zip");
-    int i = 0, count = files->size();
+    int i = 0, count = static_cast<int>(files->size());
     for (const auto& file : *files)
     {
         int progress = ((float)i++ / (float)count) * 100;

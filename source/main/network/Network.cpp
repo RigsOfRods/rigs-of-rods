@@ -279,7 +279,7 @@ int ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen)
     LOG_THREAD("[RoR|Networking] ReceiveMessage() header received");
 #endif //DEBUG
 
-    if (head->size > bufferlen)
+    if (head->size > uint32_t(bufferlen))
     {
         return -3;
     }
@@ -288,7 +288,7 @@ int ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen)
     {
         // Read the packet content
         std::memset(content, 0, bufferlen);
-        if (socket.frecv(content, head->size, &error) < head->size)
+        if (socket.frecv(content, head->size, &error) < static_cast<int>(head->size))
         {
             LOG_THREAD("NET receive error 2: "+ error.get_error());
             return -1;
@@ -607,8 +607,8 @@ bool ConnectThread()
     memset(&c, 0, sizeof(RoRnet::UserInfo));
     // Cut off the UTF string on the highest level, otherwise you will break UTF info
     strncpy((char *)c.username, m_username.substr(0, RORNET_MAX_USERNAME_LEN * 0.5f).asUTF8_c_str(), RORNET_MAX_USERNAME_LEN);
-    strncpy(c.serverpassword, sha1sum(m_password.GetBuffer(), m_password.GetLength()).c_str(), 40);
-    strncpy(c.usertoken, sha1sum(m_token.GetBuffer(), m_token.GetLength()).c_str(), 40);
+    strncpy(c.serverpassword, sha1sum(m_password.GetBuffer(), m_password.GetLength()).c_str(), size_t(40));
+    strncpy(c.usertoken, sha1sum(m_token.GetBuffer(), m_token.GetLength()).c_str(), size_t(40));
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
     strncpy(c.clientname, "RoR", 10);
     std::string language = std::string(App::app_language.GetActive()).substr(0, 2);

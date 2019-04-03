@@ -1335,7 +1335,7 @@ void RoR::GfxActor::UpdateDebugView()
                 }
                 if (!pos1_xy.empty())
                 {
-                    drawlist->AddConvexPolyFilled(pos1_xy.data(), pos1_xy.size(), 0x33666666, false);
+                    drawlist->AddConvexPolyFilled(pos1_xy.data(), static_cast<int>(pos1_xy.size()), 0x33666666, false);
                 }
 
                 Ogre::Real radius2 = 0.0f;
@@ -1362,7 +1362,7 @@ void RoR::GfxActor::UpdateDebugView()
                 }
                 if (!pos2_xy.empty())
                 {
-                    drawlist->AddConvexPolyFilled(pos2_xy.data(), pos2_xy.size(), 0x1155a3e0, false);
+                    drawlist->AddConvexPolyFilled(pos2_xy.data(), static_cast<int>(pos2_xy.size()), 0x1155a3e0, false);
                 }
 
                 for (int k = 0; k < 2; k++)
