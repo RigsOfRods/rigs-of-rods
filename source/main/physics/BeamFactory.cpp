@@ -1306,7 +1306,7 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, 
         }
 
         const std::string& code = stream->getAsString();
-        def->hash = sha1sum(code.c_str(), code.length());
+        def->hash = sha1sum(code.c_str(), static_cast<int>(code.length()));
 
         cache_entry->actor_def = def;
         return def;
