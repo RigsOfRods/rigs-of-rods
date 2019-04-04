@@ -54,6 +54,7 @@ set(SOURCE_FILES
         gfx/IWater.h
         gfx/MovableText.{h,cpp}
         gfx/OgreSubsystem.{h,cpp}
+        gfx/Renderdash.{h,cpp}
         gfx/ShadowManager.{h,cpp}
         gfx/Skidmark.{h,cpp}
         gfx/SkyManager.{h,cpp}
@@ -110,7 +111,6 @@ set(SOURCE_FILES
         gfx/skyx/VClouds/Lightning.{h,cpp}
         gfx/skyx/VClouds/LightningManager.{h,cpp}
         gfx/skyx/VClouds/VClouds.{h,cpp}
-        gui/Dashboard.{h,cpp}
         gui/DashBoardManager.{h,cpp}
         gui/GUIInputManager.{h,cpp}
         gui/GUIManager.{h,cpp}
