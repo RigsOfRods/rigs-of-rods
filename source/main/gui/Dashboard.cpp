@@ -28,13 +28,14 @@ using namespace Ogre;
 
 class DashboardListener;
 
-Dashboard::Dashboard() :
+Dashboard::Dashboard(std::string const& rg_name, std::string const& tex_name) :
     mDashCam(0)
     , mDashboardListener(0)
     , rttTex(0)
 {
-    TexturePtr rttTexPtr = TextureManager::getSingleton().createManual("dashtexture", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 1024, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
-    rttTex = rttTexPtr->getBuffer()->getRenderTarget();
+    mTexture = TextureManager::getSingleton().createManual(tex_name, rg_name, TEX_TYPE_2D, 1024, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
+
+    rttTex = mTexture->getBuffer()->getRenderTarget();
 
     mDashCam = gEnv->sceneManager->createCamera("DashCam");
     mDashCam->setNearClipDistance(1.0);
@@ -48,8 +49,8 @@ Dashboard::Dashboard() :
     v->setBackgroundColour(ColourValue::Black);
     //v->setOverlaysEnabled(false);
 
-    MaterialPtr mat = MaterialManager::getSingleton().getByName("renderdash");
-    mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName("dashtexture");
+    MaterialPtr mat = MaterialManager::getSingleton().getByName("renderdash", rg_name);
+    mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTexture(mTexture);
 
     mDashboardListener = new DashboardListener();
 
@@ -66,8 +67,8 @@ Dashboard::~Dashboard()
 {
     if (rttTex) rttTex->removeListener(mDashboardListener);
     if (mDashboardListener) delete mDashboardListener;
-    gEnv->sceneManager->destroyCamera("DashCam");
-    Ogre::TextureManager::getSingleton().remove("dashtexture");
+    gEnv->sceneManager->destroyCamera(mDashCam);
+    Ogre::TextureManager::getSingleton().remove(mTexture);
 }
 
 void Dashboard::setEnable(bool en)

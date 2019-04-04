@@ -42,6 +42,7 @@
 #include "CacheSystem.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
+#include "Dashboard.h" // old style 'renderdash' material
 #include "DashBoardManager.h"
 #include "Differentials.h"
 #include "FlexAirfoil.h"
@@ -98,6 +99,7 @@ void ActorSpawner::Setup(
     m_fuse_y_max = -1000.0f;
     m_first_wing_index = -1;
     m_driverseat_prop_index = -1;
+    m_oldstyle_renderdash = nullptr;
 
     m_generate_wing_position_lights = true;
     // TODO: Handle modules
@@ -1652,6 +1654,14 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             prop.wheel
             );
         this->SetupNewEntity(prop.wheelmo->getEntity(), Ogre::ColourValue(0, 0.5, 0.5));
+
+        // Create the "renderdash" material for use in dashboard props (either the builtin 'dashboard.mesh' or an user-provided substitute)
+        // TODO: Until 04/2019 the material was created globally, any mesh could use it.
+        //       We simply assume nobody really did except on custom dashboards.
+        if (m_oldstyle_renderdash == nullptr)
+        {
+            m_oldstyle_renderdash = new Dashboard(m_custom_resource_group, this->ComposeName("RenderdashTex", 0));
+        }
     }
 
     /* CREATE THE PROP */
@@ -6514,7 +6524,7 @@ void ActorSpawner::CreateGfxActor()
 {
     // Create the actor
     m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
-        new RoR::GfxActor(m_actor, this, m_custom_resource_group, m_gfx_nodes, m_props, m_driverseat_prop_index));
+        new RoR::GfxActor(m_actor, this, m_custom_resource_group, m_gfx_nodes, m_props, m_driverseat_prop_index, m_oldstyle_renderdash));
 
     m_actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill (to setup flexing meshes)
 }

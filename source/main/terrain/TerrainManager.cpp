@@ -45,7 +45,6 @@ using namespace Ogre;
 
 TerrainManager::TerrainManager()
     : m_collisions(0)
-    , m_dashboard(0)
     , m_geometry_manager(0)
     , m_hdr_listener(0)
     , m_object_manager(0)
@@ -89,12 +88,6 @@ TerrainManager::~TerrainManager()
     {
         gEnv->sceneManager->destroyAllLights();
         m_main_light = nullptr;
-    }
-
-    if (m_dashboard != nullptr)
-    {
-        delete(m_dashboard);
-        m_dashboard = nullptr;
     }
 
     if (m_hydrax_water != nullptr)
@@ -188,9 +181,6 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
     // water must be done later on
     //PROGRESS_WINDOW(33, _L("Initializing Water Subsystem"));
     //initWater();
-
-    PROGRESS_WINDOW(35, _L("Initializing Dashboards Subsystem"));
-    initDashboards();
 
     fixCompositorClearColor();
 
@@ -432,11 +422,6 @@ void TerrainManager::initWater()
         m_water->SetStaticWaterHeight(m_def.water_height);
         m_water->SetWaterBottomHeight(m_def.water_bottom_height);
     }
-}
-
-void TerrainManager::initDashboards()
-{
-    m_dashboard = new Dashboard();
 }
 
 void TerrainManager::initShadows()
