@@ -27,7 +27,7 @@
 #include "Beam.h"
 #include "BeamEngine.h" // EngineSim
 #include "Collisions.h"
-#include "Dashboard.h" // classic 'renderdash' material
+#include "Renderdash.h" // classic 'renderdash' material
 #include "DustPool.h" // General particle gfx
 #include "HydraxWater.h"
 #include "FlexAirfoil.h"
@@ -61,7 +61,7 @@
 
 RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
                         std::vector<NodeGfx>& gfx_nodes, std::vector<prop_t>& props,
-                        int driverseat_prop_idx, Dashboard* renderdash):
+                        int driverseat_prop_idx, RoR::Renderdash* renderdash):
     m_actor(actor),
     m_custom_resource_group(ogre_resource_group),
     m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE),

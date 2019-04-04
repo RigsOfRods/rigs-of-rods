@@ -23,7 +23,7 @@
 
 #include "BeamFactory.h"
 #include "Collisions.h"
-#include "Dashboard.h"
+#include "Renderdash.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "HydraxWater.h"

@@ -47,6 +47,7 @@ namespace RoR
     class  MainMenu;
     class  OgreSubsystem;
     struct PlatformUtils;
+    class  Renderdash;
     class  RigLoadingProfiler;
     class  SceneMouse;
     class  Skidmark;
@@ -144,7 +145,6 @@ class Collisions;
 class ColoredTextAreaOverlayElement;
 class DashBoard;
 class DashBoardManager;
-class Dashboard;
 class Differential;
 class DotSceneLoader;
 class DustPool;
