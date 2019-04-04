@@ -34,7 +34,7 @@ class Dashboard : public ZeroedMemoryAllocator
 {
 public:
 
-    Dashboard();
+    Dashboard(std::string const& rg_name, std::string const& tex_name);
     ~Dashboard();
 
     void setEnable(bool en);
@@ -44,6 +44,7 @@ private:
     DashboardListener* mDashboardListener;
     Ogre::Camera* mDashCam;
     Ogre::RenderTexture* rttTex;
+    Ogre::TexturePtr mTexture;
 };
 
 class DashboardListener : public Ogre::RenderTargetListener, public ZeroedMemoryAllocator

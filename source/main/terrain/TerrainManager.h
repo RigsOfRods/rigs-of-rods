@@ -74,7 +74,6 @@ private:
     // internal methods
     void initCamera();
     void initTerrainCollisions();
-    void initDashboards();
     void initFog();
     void initLight();
     void initMotionBlur();
@@ -93,7 +92,6 @@ private:
     TerrainGeometryManager* m_geometry_manager;
     std::unique_ptr<IWater> m_water;
     Collisions*    m_collisions;
-    Dashboard*     m_dashboard;
     HDRListener*   m_hdr_listener;
     ShadowManager* m_shadow_manager;
     SkyManager*    m_sky_manager;

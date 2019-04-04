@@ -255,7 +255,7 @@ public:
     };
 
     GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
-        std::vector<NodeGfx>& gfx_nodes, std::vector<prop_t>& props, int driverseat_prop_idx);
+        std::vector<NodeGfx>& gfx_nodes, std::vector<prop_t>& props, int driverseat_prop_idx, Dashboard* renderdash);
 
     ~GfxActor();
 
@@ -319,6 +319,7 @@ public:
     void                 UpdateProps         (float dt, bool is_player_actor);
     void                 UpdatePropAnimations(float dt, bool is_player_connected);
     void                 SetPropsVisible     (bool visible);
+    void                 SetRenderdashActive (bool active);
     void                 SetBeaconsEnabled   (bool beacon_light_is_active);
     void                 CalcPropAnimation   (const int flag_state, float& cstate, int& div, float timer,
                                               const float lower_limit, const float upper_limit, const float option3);
@@ -351,6 +352,7 @@ private:
     std::vector<Rod>            m_rods;
     std::vector<WheelGfx>       m_wheels;
     Ogre::SceneNode*            m_rods_parent_scenenode;
+    Dashboard*                  m_renderdash;
     std::vector<std::shared_ptr<Task>> m_flexwheel_tasks;
     std::vector<std::shared_ptr<Task>> m_flexbody_tasks;
     bool                        m_beaconlight_active;

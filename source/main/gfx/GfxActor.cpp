@@ -27,6 +27,7 @@
 #include "Beam.h"
 #include "BeamEngine.h" // EngineSim
 #include "Collisions.h"
+#include "Dashboard.h" // classic 'renderdash' material
 #include "DustPool.h" // General particle gfx
 #include "HydraxWater.h"
 #include "FlexAirfoil.h"
@@ -60,7 +61,7 @@
 
 RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
                         std::vector<NodeGfx>& gfx_nodes, std::vector<prop_t>& props,
-                        int driverseat_prop_idx):
+                        int driverseat_prop_idx, Dashboard* renderdash):
     m_actor(actor),
     m_custom_resource_group(ogre_resource_group),
     m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE),
@@ -73,6 +74,7 @@ RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_re
     m_cab_mesh(nullptr),
     m_cab_entity(nullptr),
     m_driverseat_prop_index(driverseat_prop_idx),
+    m_renderdash(renderdash),
     m_prop_anim_crankfactor_prev(0.f),
     m_prop_anim_shift_timer(0.f),
     m_survey_map_entity(nullptr),
@@ -225,6 +227,12 @@ RoR::GfxActor::~GfxActor()
 
         delete m_cab_mesh; // Unloads the ManualMesh resource; do this last
         m_cab_mesh = nullptr;
+    }
+
+    // Delete old dashboard RTT
+    if (m_renderdash != nullptr)
+    {
+        delete m_renderdash;
     }
 }
 
@@ -2392,6 +2400,14 @@ void RoR::GfxActor::SetPropsVisible(bool visible)
             prop.beacon_flare_billboard_scene_node[2]->setVisible(visible);
         if (prop.beacon_flare_billboard_scene_node[3])
             prop.beacon_flare_billboard_scene_node[3]->setVisible(visible);
+    }
+}
+
+void RoR::GfxActor::SetRenderdashActive(bool active)
+{
+    if (m_renderdash != nullptr)
+    {
+        m_renderdash->setEnable(active);
     }
 }
 
