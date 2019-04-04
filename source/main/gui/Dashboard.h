@@ -28,9 +28,7 @@
 // TODO: Rename these classes! Danger of confusion with 'class DashBoard'. //
 /////////////////////////////////////////////////////////////////////////////
 
-class DashboardListener;
-
-class Dashboard : public ZeroedMemoryAllocator
+class Dashboard: public Ogre::RenderTargetListener
 {
 public:
 
@@ -39,25 +37,15 @@ public:
 
     void setEnable(bool en);
 
+    // Ogre::RenderTargetListener
+    void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
+    void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
+
 private:
 
-    DashboardListener* mDashboardListener;
     Ogre::Camera* mDashCam;
     Ogre::RenderTexture* rttTex;
     Ogre::TexturePtr mTexture;
-};
-
-class DashboardListener : public Ogre::RenderTargetListener, public ZeroedMemoryAllocator
-{
-    friend class Dashboard;
-public:
-
-    DashboardListener();
-
-    void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
-    void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
-
-private:
 
     Ogre::Overlay* blendOverlay;
     Ogre::Overlay* dashOverlay;

@@ -26,12 +26,14 @@
 
 using namespace Ogre;
 
-class DashboardListener;
-
-Dashboard::Dashboard(std::string const& rg_name, std::string const& tex_name) :
-    mDashCam(0)
-    , mDashboardListener(0)
-    , rttTex(0)
+Dashboard::Dashboard(std::string const& rg_name, std::string const& tex_name)
+    : mDashCam(nullptr)
+    , rttTex(nullptr)
+    , blendOverlay(nullptr)
+    , dashOverlay(nullptr)
+    , fpsOverlay(nullptr)
+    , needlesOverlay(nullptr)
+    , fpsDisplayed(false)
 {
     mTexture = TextureManager::getSingleton().createManual(tex_name, rg_name, TEX_TYPE_2D, 1024, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
 
@@ -47,26 +49,21 @@ Dashboard::Dashboard(std::string const& rg_name, std::string const& tex_name) :
     Viewport* v = rttTex->addViewport(mDashCam);
     v->setClearEveryFrame(true);
     v->setBackgroundColour(ColourValue::Black);
-    //v->setOverlaysEnabled(false);
 
     MaterialPtr mat = MaterialManager::getSingleton().getByName("renderdash", rg_name);
     mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTexture(mTexture);
 
-    mDashboardListener = new DashboardListener();
+    dashOverlay = OverlayManager::getSingleton().getByName("tracks/3D_DashboardOverlay");
+    needlesOverlay = OverlayManager::getSingleton().getByName("tracks/3D_NeedlesOverlay");
+    blendOverlay = OverlayManager::getSingleton().getByName("tracks/3D_BlendOverlay");
 
-    rttTex->addListener(mDashboardListener);
-
-    mDashboardListener->dashOverlay = OverlayManager::getSingleton().getByName("tracks/3D_DashboardOverlay");
-    mDashboardListener->needlesOverlay = OverlayManager::getSingleton().getByName("tracks/3D_NeedlesOverlay");
-    mDashboardListener->blendOverlay = OverlayManager::getSingleton().getByName("tracks/3D_BlendOverlay");
-    //	mDashboardListener->dbdebugOverlay  = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
-    //	mDashboardListener->dbeditorOverlay = OverlayManager::getSingleton().getByName("tracks/EditorOverlay");
+    rttTex->addListener(this);
 }
 
 Dashboard::~Dashboard()
 {
-    if (rttTex) rttTex->removeListener(mDashboardListener);
-    if (mDashboardListener) delete mDashboardListener;
+    if (rttTex)
+        rttTex->removeListener(this);
     gEnv->sceneManager->destroyCamera(mDashCam);
     Ogre::TextureManager::getSingleton().remove(mTexture);
 }
@@ -76,16 +73,7 @@ void Dashboard::setEnable(bool en)
     rttTex->setActive(en);
 }
 
-DashboardListener::DashboardListener() :
-    blendOverlay(nullptr),
-    dashOverlay(nullptr),
-    fpsOverlay(nullptr),
-    needlesOverlay(nullptr),
-    fpsDisplayed(false)
-{
-}
-
-void DashboardListener::preRenderTargetUpdate(const RenderTargetEvent& evt)
+void Dashboard::preRenderTargetUpdate(const RenderTargetEvent& evt)
 {
     // hide everything
     gEnv->sceneManager->setFindVisibleObjects(false);
@@ -111,7 +99,7 @@ void DashboardListener::preRenderTargetUpdate(const RenderTargetEvent& evt)
     blendOverlay->show();
 }
 
-void DashboardListener::postRenderTargetUpdate(const RenderTargetEvent& evt)
+void Dashboard::postRenderTargetUpdate(const RenderTargetEvent& evt)
 {
     // show everything
     gEnv->sceneManager->setFindVisibleObjects(true);
