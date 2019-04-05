@@ -30,110 +30,43 @@
 
 #include "Beam.h"
 
-#define PROCESS_SECTION_IN_ANY_MODULE(_KEYWORD_, _FIELD_, _FUNCTION_)                      \
-{                                                                                          \
-    SetCurrentKeyword(_KEYWORD_);                                                          \
-    auto module_itor = m_selected_modules.begin();                                         \
-    auto module_end  = m_selected_modules.end();                                           \
-    for (; module_itor != module_end; ++module_itor)                                       \
-    {                                                                                      \
-        auto* def = module_itor->get()->_FIELD_.get();                                     \
-        if (def != nullptr)                                                                \
-        {                                                                                  \
-            try {                                                                          \
-                _FUNCTION_(*def);                                                          \
-            }                                                                              \
-            catch (Exception ex)                                                           \
-            {                                                                              \
-                AddMessage(Message::TYPE_ERROR, ex.what());                                \
-            }                                                                              \
-            catch (...)                                                                    \
-            {                                                                              \
-                AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");       \
-            }                                                                              \
-            break;                                                                         \
-        }                                                                                  \
-    }                                                                                      \
-    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
+#define PROCESS_SECTION_IN_ANY_MODULE(_KEYWORD_, _FIELD_, _FUNCTION_)   \
+{                                                                       \
+    this->SetCurrentKeyword(_KEYWORD_);                                 \
+    for (auto& m: m_selected_modules)                                   \
+    {                                                                   \
+        if (m->_FIELD_ != nullptr)                                      \
+        {                                                               \
+            try {                                                       \
+                _FUNCTION_(*(m->_FIELD_));                              \
+            }                                                           \
+            catch (...)                                                 \
+            {                                                           \
+                this->HandleException();                                \
+            }                                                           \
+            break;                                                      \
+        }                                                               \
+    }                                                                   \
+    this->SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);             \
 }
 
-#define PROCESS_MSTRUCT_IN_ANY_MODULE(_KEYWORD_, _FIELD_, _FUNCTION_)                      \
-{                                                                                          \
-    SetCurrentKeyword(_KEYWORD_);                                                          \
-    auto module_itor = m_selected_modules.begin();                                         \
-    auto module_end  = m_selected_modules.end();                                           \
-    for (; module_itor != module_end; ++module_itor)                                       \
-    {                                                                                      \
-        try {                                                                              \
-            _FUNCTION_(module_itor->get()->_FIELD_);                                       \
-        }                                                                                  \
-        catch (Exception ex)                                                               \
-        {                                                                                  \
-            AddMessage(Message::TYPE_ERROR, ex.what());                                    \
-        }                                                                                  \
-        catch (...)                                                                        \
-        {                                                                                  \
-            AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");           \
-        }                                                                                  \
-    }                                                                                      \
-    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
-}
-
-#define PROCESS_SECTION_IN_ALL_MODULES(_KEYWORD_, _FIELD_, _FUNCTION_)                     \
-{                                                                                          \
-    SetCurrentKeyword(_KEYWORD_);                                                          \
-    auto module_itor = m_selected_modules.begin();                                         \
-    auto module_end  = m_selected_modules.end();                                           \
-    for (; module_itor != module_end; ++module_itor)                                       \
-    {                                                                                      \
-        auto& field = module_itor->get()->_FIELD_;                                         \
-        auto section_itor = field.begin();                                                 \
-        auto section_end  = field.end();                                                   \
-        for (; section_itor != section_end; ++section_itor)                                \
-        {                                                                                  \
-            try {                                                                          \
-                _FUNCTION_(*section_itor);                                                 \
-            }                                                                              \
-            catch (ActorSpawner::Exception & ex)                                             \
-            {                                                                              \
-                AddMessage(Message::TYPE_ERROR, ex.what());                                \
-            }                                                                              \
-            catch (...)                                                                    \
-            {                                                                              \
-                AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");       \
-            }                                                                              \
-        }                                                                                  \
-    }                                                                                      \
-    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
-}
-
-#define PROCESS_SECTION_IN_ALL_MODULES_COND(_KEYWORD_, _FIELD_, _COND_, _FUNCTION_)        \
-{                                                                                          \
-    SetCurrentKeyword(_KEYWORD_);                                                          \
-    auto module_itor=m_selected_modules.begin();                                           \
-    for(; module_itor != m_selected_modules.end(); ++module_itor)                          \
-    {                                                                                      \
-        auto itor = module_itor->get()->_FIELD_.begin();                                   \
-        auto endi = module_itor->get()->_FIELD_.end();                                     \
-        for (; itor != endi; ++itor)                                                       \
-        {                                                                                  \
-            if (_COND_)                                                                    \
-            {                                                                              \
-                try{                                                                       \
-                    this->_FUNCTION_(*itor);                                               \
-                }                                                                          \
-                catch (Exception& ex)                                                      \
-                {                                                                          \
-                    AddMessage(Message::TYPE_ERROR,ex.what());                             \
-                }                                                                          \
-                catch (...)                                                                \
-                {                                                                          \
-                    AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");   \
-                }                                                                          \
-            }                                                                              \
-        }                                                                                  \
-    }                                                                                      \
-    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
+#define PROCESS_SECTION_IN_ALL_MODULES(_KEYWORD_, _FIELD_, _FUNCTION_)  \
+{                                                                       \
+    this->SetCurrentKeyword(_KEYWORD_);                                 \
+    for (auto& m: m_selected_modules)                                   \
+    {                                                                   \
+        for (auto& entry: m->_FIELD_)                                   \
+        {                                                               \
+            try {                                                       \
+                _FUNCTION_(entry);                                      \
+            }                                                           \
+            catch (...)                                                 \
+            {                                                           \
+                this->HandleException();                                \
+            }                                                           \
+        }                                                               \
+    }                                                                   \
+    this->SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);             \
 }
 
 Actor *ActorSpawner::SpawnActor()
@@ -219,11 +152,23 @@ Actor *ActorSpawner::SpawnActor()
     // Section 'wheels2'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELS2, wheels_2, ProcessWheel2);
 
-    // Section 'meshwheels'
-    PROCESS_SECTION_IN_ALL_MODULES_COND(RigDef::File::KEYWORD_MESHWHEELS, mesh_wheels, (!itor->_is_meshwheel2), ProcessMeshWheel);
-
-    // Section 'meshwheels2'
-    PROCESS_SECTION_IN_ALL_MODULES_COND(RigDef::File::KEYWORD_MESHWHEELS2, mesh_wheels, (itor->_is_meshwheel2), ProcessMeshWheel2);
+    // Sections 'meshwheels' and 'meshwheels2'
+    for (auto& m : m_selected_modules)
+    {
+        for (auto& def : m->mesh_wheels)
+        {
+            if (def._is_meshwheel2)
+            {
+                this->SetCurrentKeyword(RigDef::File::KEYWORD_MESHWHEELS2);
+                this->ProcessMeshWheel2(def);
+            }
+            else
+            {
+                this->SetCurrentKeyword(RigDef::File::KEYWORD_MESHWHEELS);
+                this->ProcessMeshWheel(def);
+            }
+        }
+    }
 
     // Section 'flexbodywheels'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODYWHEELS, flex_body_wheels, ProcessFlexBodyWheel);
@@ -334,7 +279,12 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_CRUISECONTROL, cruise_control, ProcessCruiseControl);
 
     // Section 'speedlimiter' in any module.
-    PROCESS_MSTRUCT_IN_ANY_MODULE(RigDef::File::KEYWORD_SPEEDLIMITER, speed_limiter, ProcessSpeedLimiter);
+    this->SetCurrentKeyword(RigDef::File::KEYWORD_SPEEDLIMITER);
+    for (auto& m : m_selected_modules)
+    {
+        m_actor->sl_enabled = m->speed_limiter.is_enabled;
+        m_actor->sl_speed_limit = m->speed_limiter.max_speed;
+    }
 
     // Section 'collisionboxes'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COLLISIONBOXES, collision_boxes, ProcessCollisionBox);

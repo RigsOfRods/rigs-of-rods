@@ -2592,12 +2592,6 @@ void ActorSpawner::ProcessTransferCase(RigDef::TransferCase & def)
     }
 }
 
-void ActorSpawner::ProcessSpeedLimiter(RigDef::SpeedLimiter & def)
-{
-    m_actor->sl_enabled     = def.is_enabled;
-    m_actor->sl_speed_limit = def.max_speed;
-}
-
 void ActorSpawner::ProcessCruiseControl(RigDef::CruiseControl & def)
 {
     m_actor->cc_target_speed_lower_limit = def.min_speed;
@@ -7169,4 +7163,23 @@ void ActorSpawner::CreateMirrorPropVideoCam(
         this->AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");
     }
     ++mprop_counter;
+}
+
+void ActorSpawner::HandleException()
+{
+    try { throw; } // Rethrow
+
+    catch (Ogre::Exception& ogre_e)
+    {
+        // Add the message silently, OGRE already printed it to RoR.log
+        m_messages.push_back(Message(Message::TYPE_ERROR, ogre_e.getFullDescription(), m_current_keyword));
+    }
+    catch (std::exception& std_e)
+    {
+        this->AddMessage(Message::TYPE_ERROR, std_e.what());
+    }
+    catch (...)
+    {
+        this->AddMessage(Message::TYPE_ERROR, "An unknown exception has occurred");
+    }
 }
