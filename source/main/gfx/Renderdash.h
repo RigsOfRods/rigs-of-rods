@@ -30,7 +30,7 @@ namespace RoR {
 class Renderdash: public Ogre::RenderTargetListener
 {
 public:
-    Renderdash(std::string const& rg_name, std::string const& tex_name);
+    Renderdash(std::string const& rg_name, std::string const& tex_name, std::string const& cam_name);
     ~Renderdash();
 
     void setEnable(bool en);

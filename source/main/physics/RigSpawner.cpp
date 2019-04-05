@@ -1660,7 +1660,8 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         //       We simply assume nobody really did except on custom dashboards.
         if (m_oldstyle_renderdash == nullptr)
         {
-            m_oldstyle_renderdash = new Renderdash(m_custom_resource_group, this->ComposeName("RenderdashTex", 0));
+            m_oldstyle_renderdash = new Renderdash(
+                m_custom_resource_group, this->ComposeName("RenderdashTex", 0), this->ComposeName("RenderdashCam", 0));
         }
     }
 
