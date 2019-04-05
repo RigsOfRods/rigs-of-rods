@@ -514,11 +514,6 @@ private:
     void ProcessSoundSource2(RigDef::SoundSource2 & def); 
 
     /**
-    * Section 'SlopeBrake' in any module.
-    */
-    void ProcessSpeedLimiter(RigDef::SpeedLimiter & def);
-
-    /**
     * Section 'submeshes'.
     */
     void ProcessSubmesh(RigDef::Submesh & def);
@@ -1066,6 +1061,8 @@ private:
     void InitializeRig();
 
     void CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::File::Module* module_def);
+
+    void HandleException();
 
     // Logging
     std::list<Message>    m_messages;
