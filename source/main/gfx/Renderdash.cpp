@@ -23,7 +23,7 @@
 #include <Overlay/OgreOverlayManager.h>
 #include <Overlay/OgreOverlay.h>
 
-RoR::Renderdash::Renderdash(std::string const& rg_name, std::string const& tex_name)
+RoR::Renderdash::Renderdash(std::string const& rg_name, std::string const& tex_name, std::string const& cam_name)
     : m_dash_cam(nullptr)
     , m_rtt_tex(nullptr)
     , m_blend_overlay(nullptr)
@@ -37,7 +37,8 @@ RoR::Renderdash::Renderdash(std::string const& rg_name, std::string const& tex_n
 
     m_rtt_tex = m_texture->getBuffer()->getRenderTarget();
 
-    m_dash_cam = gEnv->sceneManager->createCamera("DashCam");
+    static int cam_counter = 0;
+    m_dash_cam = gEnv->sceneManager->createCamera(cam_name);
     m_dash_cam->setNearClipDistance(1.0);
     m_dash_cam->setFarClipDistance(10.0);
     m_dash_cam->setPosition(Ogre::Vector3(0.0, -10000.0, 0.0));
@@ -48,6 +49,7 @@ RoR::Renderdash::Renderdash(std::string const& rg_name, std::string const& tex_n
     v->setClearEveryFrame(true);
     v->setBackgroundColour(Ogre::ColourValue::Black);
 
+    // NOTE: The 'renderdash' material is defined as a dummy in file 'ror.material' which is loaded into every actor's resource group.
     Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName("renderdash", rg_name);
     mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTexture(m_texture);
 
