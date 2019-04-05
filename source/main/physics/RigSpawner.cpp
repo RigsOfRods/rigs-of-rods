@@ -42,7 +42,6 @@
 #include "CacheSystem.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
-#include "Renderdash.h" // old style 'renderdash' material
 #include "DashBoardManager.h"
 #include "Differentials.h"
 #include "FlexAirfoil.h"
@@ -1654,15 +1653,6 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             prop.wheel
             );
         this->SetupNewEntity(prop.wheelmo->getEntity(), Ogre::ColourValue(0, 0.5, 0.5));
-
-        // Create the "renderdash" material for use in dashboard props (either the builtin 'dashboard.mesh' or an user-provided substitute)
-        // TODO: Until 04/2019 the material was created globally, any mesh could use it.
-        //       We simply assume nobody really did except on custom dashboards.
-        if (m_oldstyle_renderdash == nullptr)
-        {
-            m_oldstyle_renderdash = new Renderdash(
-                m_custom_resource_group, this->ComposeName("RenderdashTex", 0), this->ComposeName("RenderdashCam", 0));
-        }
     }
 
     /* CREATE THE PROP */

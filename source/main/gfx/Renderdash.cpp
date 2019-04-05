@@ -58,6 +58,7 @@ RoR::Renderdash::Renderdash(std::string const& rg_name, std::string const& tex_n
     m_blend_overlay = Ogre::OverlayManager::getSingleton().getByName("tracks/3D_BlendOverlay");
 
     m_rtt_tex->addListener(this);
+    m_rtt_tex->setActive(false);
 }
 
 RoR::Renderdash::~Renderdash()
