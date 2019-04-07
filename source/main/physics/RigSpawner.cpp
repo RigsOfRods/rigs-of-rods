@@ -1271,16 +1271,13 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
     {
         return;
     }
-    
+
     node_t & ref_node = GetNodeOrThrow(def.reference_node);//id1;
     node_t & dir_node = GetNodeOrThrow(def.direction_node);//id2;
 
     exhaust_t exhaust;
     exhaust.emitterNode = ref_node.pos;
     exhaust.directionNode = dir_node.pos;
-    exhaust.isOldFormat = false;
-    exhaust.factor = 1.f; // Unused, according to wiki documentation.
-    std::memset(exhaust.material, 0, sizeof(exhaust.material));
 
     Ogre::String material_name;
     if (def.material_name.empty() || def.material_name == "default")
@@ -5759,7 +5756,6 @@ void ActorSpawner::AddExhaust(
     exhaust_t exhaust;
     exhaust.emitterNode = emitter_node_idx;
     exhaust.directionNode = direction_node_idx;
-    exhaust.isOldFormat = true;
 
     exhaust.smoker = gEnv->sceneManager->createParticleSystem(
         this->ComposeName("Exhaust", static_cast<int>(m_actor->exhausts.size())),
