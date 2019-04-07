@@ -678,7 +678,7 @@ struct Exhaust
 {
     Node::Ref reference_node;
     Node::Ref direction_node;
-    Ogre::String material_name;
+    Ogre::String particle_name;
 };
 
 /* -------------------------------------------------------------------------- */

@@ -1279,30 +1279,22 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
     exhaust.emitterNode = ref_node.pos;
     exhaust.directionNode = dir_node.pos;
 
-    Ogre::String material_name;
-    if (def.material_name.empty() || def.material_name == "default")
+    Ogre::NameValuePairList params;
+    params["resourceGroup"] = m_custom_resource_group;
+    if (def.particle_name.empty() || def.particle_name == "default")
     {
-        material_name = "tracks/Smoke";
+        params["templateName"] = "tracks/Smoke"; // defined in `particles/smoke.particle`
     }
     else
     {
-        material_name = def.material_name;
+        params["templateName"] = def.particle_name;
     }
 
-    exhaust.smoker = gEnv->sceneManager->createParticleSystem(
-        this->ComposeName("Exhaust", static_cast<int>(m_actor->exhausts.size())),
-        /*quota=*/500, // Default value
-        m_custom_resource_group);
-
-    if (!exhaust.smoker)
-    {
-        AddMessage(Message::TYPE_ERROR, "Failed to create exhaust particle system");
-        return;
-    }
+    std::string name = this->ComposeName("Exhaust", static_cast<int>(m_actor->exhausts.size()));
+    exhaust.smoker = static_cast<Ogre::ParticleSystem*>(
+        gEnv->sceneManager->createMovableObject(
+            name, Ogre::ParticleSystemFactory::FACTORY_TYPE_NAME, &params));
     exhaust.smoker->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
-
-    Ogre::MaterialPtr mat = this->FindOrCreateCustomizedMaterial(material_name);
-    exhaust.smoker->setMaterialName(mat->getName(), mat->getGroup());
 
     exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode();
     exhaust.smokeNode->attachObject(exhaust.smoker);
