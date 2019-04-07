@@ -438,9 +438,6 @@ struct exhaust_t
 {
     int emitterNode;
     int directionNode;
-    char material[256];
-    float factor;
-    bool isOldFormat; //!< False if defined in 'exhausts' section, true if defined in 'nodes' by 'x'/'y' flag.
     Ogre::SceneNode *smokeNode;
     Ogre::ParticleSystem* smoker;
 };
