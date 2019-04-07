@@ -27,7 +27,7 @@
 #include "BeamFactory.h"
 #include "CameraManager.h" // CameraManager::CameraBehaviors
 #include "CharacterFactory.h"
-#include "DustManager.h" // GfxScene
+#include "GfxScene.h"
 #include "ForceFeedback.h"
 #include "OutProtocol.h"
 #include "SceneMouse.h"

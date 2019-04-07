@@ -24,7 +24,7 @@
 #include "BeamData.h"
 #include "BeamFactory.h"
 #include "DustPool.h"
-#include "DustManager.h" // GfxScene
+#include "GfxScene.h"
 #include "RoRFrameListener.h" // SimController
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
