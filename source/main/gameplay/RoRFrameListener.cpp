@@ -33,7 +33,7 @@
 #include "Collisions.h"
 #include "ContentManager.h"
 #include "DashBoardManager.h"
-#include "DustManager.h"
+#include "GfxScene.h"
 #include "ForceFeedback.h"
 #include "InputEngine.h"
 #include "LandVehicleSimulation.h"

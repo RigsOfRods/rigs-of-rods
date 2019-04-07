@@ -46,10 +46,10 @@ set(SOURCE_FILES
         gfx/ColoredTextAreaOverlayElement.{h,cpp}
         gfx/ColoredTextAreaOverlayElementFactory.h
         gfx/DecalManager.{h,cpp}
-        gfx/DustManager.{h,cpp}
         gfx/DustPool.{h,cpp}
         gfx/EnvironmentMap.{h,cpp}
         gfx/GfxActor.{h,cpp}
+        gfx/GfxScene.{h,cpp}
         gfx/HydraxWater.{h,cpp}
         gfx/IWater.h
         gfx/MovableText.{h,cpp}
