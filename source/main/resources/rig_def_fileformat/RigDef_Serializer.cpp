@@ -493,7 +493,7 @@ void Serializer::ProcessExhausts(File::Module* module)
 
         m_stream << "\n\t" << def.reference_node.ToString()
             << ", " << def.direction_node.ToString()
-            << ", " << def.material_name;
+            << ", " << def.particle_name;
     }
     m_stream << endl << endl; // Empty line
 }

@@ -1223,7 +1223,7 @@ void Parser::ParseExhaust()
     exhaust.direction_node = this->GetArgNodeRef(1);
     
     // Param [2] is unused
-    if (m_num_args > 3) { exhaust.material_name = this->GetArgStr(3); }
+    if (m_num_args > 3) { exhaust.particle_name = this->GetArgStr(3); }
 
     m_current_module->exhausts.push_back(exhaust);
 }
