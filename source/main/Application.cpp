@@ -82,7 +82,7 @@ static TerrainManager*  g_sim_terrain;
          true,      true);
  GVarPod_APS<int>         app_num_workers         ("app_num_workers",         "NumWorkerThreads",          0,
          0,         0);
- GVarStr_AP<50>           app_screenshot_format   ("app_screenshot_format",   "Screenshot Format",         "jpg",                   "jpg");
+ GVarStr_AP<50>           app_screenshot_format   ("app_screenshot_format",   "Screenshot Format",         "png",                   "png");
  GVarStr_A<100>           app_rendersys_override  ("app_rendersys_override",  "Render system",             "");
  GVarStr_A<300>           app_extra_mod_path      ("app_extra_mod_path",      "Extra mod path",            "");
  GVarPod_A<bool>          app_force_cache_purge   ("app_force_cache_purge",   nullptr,                     false);
@@ -100,7 +100,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<int>           sim_replay_length       ("sim_replay_length",       "Replay length",             200);
  GVarPod_A<int>           sim_replay_stepping     ("sim_replay_stepping",     "Replay Steps per second",   1000);
  GVarPod_A<bool>          sim_realistic_commands  ("sim_realistic_commands",  "Realistic forward commands",false);
- GVarPod_A<bool>          sim_races_enabled       ("sim_races_enabled",       "Races",                     false);
+ GVarPod_A<bool>          sim_races_enabled       ("sim_races_enabled",       "Races",                     true);
  GVarPod_A<bool>          sim_direction_arrow     ("sim_direction_arrow",     "Direction Arrow",           true);
  GVarPod_A<bool>          sim_no_collisions       ("sim_no_collisions",       "DisableCollisions",         false);
  GVarPod_A<bool>          sim_no_self_collisions  ("sim_no_self_collisions",  "DisableSelfCollisions",     false);
@@ -178,7 +178,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<int>           io_outgauge_id          ("io_outgauge_id",          "OutGauge ID",               0);
 
 // Audio
- GVarPod_A<float>         audio_master_volume     ("audio_master_volume",     "Sound Volume",              0);
+ GVarPod_A<float>         audio_master_volume     ("audio_master_volume",     "Sound Volume",              1);
  GVarPod_A<bool>          audio_enable_creak      ("audio_enable_creak",      "Creak Sound",               false);
  GVarStr_AP<100>          audio_device_name       ("audio_device_name",       "AudioDevice",               "",                      "");
  GVarPod_A<bool>          audio_menu_music        ("audio_menu_music",        "MainMenuMusic",             false);
@@ -187,10 +187,10 @@ static TerrainManager*  g_sim_terrain;
  GVarEnum_AP<GfxFlaresMode>  gfx_flares_mode      ("gfx_flares_mode",         "Lights",                    GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY, GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY);
  GVarEnum_AP<GfxShadowType>  gfx_shadow_type      ("gfx_shadow_type",         "Shadow technique",          GfxShadowType::NONE,     GfxShadowType::NONE);
  GVarEnum_AP<GfxExtCamMode>  gfx_extcam_mode      ("gfx_extcam_mode",         "External Camera Mode",      GfxExtCamMode::PITCHING, GfxExtCamMode::PITCHING);
- GVarEnum_AP<GfxSkyMode>     gfx_sky_mode         ("gfx_sky_mode",            "Sky effects",               GfxSkyMode::SANDSTORM,   GfxSkyMode::SANDSTORM);
- GVarEnum_AP<GfxTexFilter>   gfx_texture_filter   ("gfx_texture_filter",      "Texture Filtering",         GfxTexFilter::TRILINEAR, GfxTexFilter::TRILINEAR);
- GVarEnum_AP<GfxVegetation>  gfx_vegetation_mode  ("gfx_vegetation_mode",     "Vegetation",                GfxVegetation::NONE,     GfxVegetation::NONE);
- GVarEnum_AP<GfxWaterMode>   gfx_water_mode       ("gfx_water_mode",          "Water effects",             GfxWaterMode::BASIC,     GfxWaterMode::BASIC);
+ GVarEnum_AP<GfxSkyMode>     gfx_sky_mode         ("gfx_sky_mode",            "Sky effects",               GfxSkyMode::CAELUM,   GfxSkyMode::CAELUM);
+ GVarEnum_AP<GfxTexFilter>   gfx_texture_filter   ("gfx_texture_filter",      "Texture Filtering",         GfxTexFilter::ANISOTROPIC, GfxTexFilter::ANISOTROPIC);
+ GVarEnum_AP<GfxVegetation>  gfx_vegetation_mode  ("gfx_vegetation_mode",     "Vegetation",                GfxVegetation::FULL,     GfxVegetation::FULL);
+ GVarEnum_AP<GfxWaterMode>   gfx_water_mode       ("gfx_water_mode",          "Water effects",             GfxWaterMode::FULL_FAST,     GfxWaterMode::FULL_FAST);
  GVarPod_A<int>           gfx_anisotropy          ("gfx_anisotropy",          "Anisotropy",                4);
  GVarPod_A<bool>          gfx_water_waves         ("gfx_water_waves",         "Waves",                     false);
  GVarPod_A<int>           gfx_particles_mode      ("gfx_particles_mode",      "Particles",                 0);
@@ -199,10 +199,10 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_APS<bool>        gfx_surveymap_icons     ("gfx_surveymap_icons",     "Overview map icons",        true,                    true,   true);
  GVarPod_A<bool>          gfx_declutter_map       ("gfx_declutter_map",       "Declutter overview map",    true);
  GVarPod_A<bool>          gfx_envmap_enabled      ("gfx_envmap_enabled",      "Reflections",               true);
- GVarPod_A<int>           gfx_envmap_rate         ("gfx_envmap_rate",         "ReflectionUpdateRate",      0);
+ GVarPod_A<int>           gfx_envmap_rate         ("gfx_envmap_rate",         "ReflectionUpdateRate",      1);
  GVarPod_A<int>           gfx_shadow_quality      ("gfx_shadow_quality",      "Shadows Quality",           2);
  GVarPod_A<int>           gfx_skidmarks_mode      ("gfx_skidmarks_mode",      "Skidmarks",                 0);
- GVarPod_A<int>           gfx_sight_range         ("gfx_sight_range",         "SightRange",                3000); // Previously either 2000 or 4500 (inconsistent)
+ GVarPod_A<int>           gfx_sight_range         ("gfx_sight_range",         "SightRange",                5000); // Previously either 2000 or 4500 (inconsistent)
  GVarPod_A<int>           gfx_camera_height       ("gfx_camera_height",       "Static camera height",      5);
  GVarPod_APS<int>         gfx_fov_external        ("gfx_fov_external",        "FOV External",              60,                      60,     60);
  GVarPod_APS<int>         gfx_fov_internal        ("gfx_fov_internal",        "FOV Internal",              75,                      75,     75);
