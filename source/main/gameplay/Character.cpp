@@ -638,6 +638,10 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
     {
         if (xc_simbuf.simbuf_actor_coupling->GetGfxActor()->HasDriverSeatProp())
         {
+            if (xc_movable_text != nullptr)
+            {
+                xc_movable_text->setVisible(false);
+            }
             Ogre::Vector3 pos;
             Ogre::Quaternion rot;
             xc_simbuf.simbuf_actor_coupling->GetGfxActor()->CalculateDriverPos(pos, rot);
