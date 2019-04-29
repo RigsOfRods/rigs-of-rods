@@ -25,14 +25,13 @@ For a simple overview of the features Rigs of Rods provides please refer to [doc
 ## Supported platforms:
 * Windows
 * Linux
-* OS X
 
 ## Further documentation
-* Website: https://rigsofrods.org/
+* Website: https://www.rigsofrods.org/
 * Documentation: http://docs.rigsofrods.org/
 * Developer Wiki: https://github.com/RigsOfRods/rigs-of-rods/wiki
 * Forum: https://forum.rigsofrods.org/
-* Mod Repository: http://repository.rigsofrods.org/
+* Mod Repository: https://forum.rigsofrods.org/resources/
 * Github: https://github.com/RigsOfRods/rigs-of-rods
 * Discord: https://discord.gg/rigsofrods
 * [doc/](doc/)
@@ -52,17 +51,12 @@ $user  = Documents\Rigs of Rods
 Linux:  
 $bin    = source/bin  
 $res    = source/bin/resources  
-$user   = ~/.rigsofrods  
-
-OS X:  
-$bin    = source/bin  
-$res    = source/bin/resources  
-$user   = ~/.rigsofrods  
+$user   = ~/.rigsofrods
 
 
 ## Controls
 Available commands depend on the vehicle you are in. For a graphical overview refer to [doc/keysheet.pdf](doc/keysheet.pdf)  
-For an indepth view refer to ``` $user/config/input.map ```  
+For an indepth view refer to [this Documentation page](https://docs.rigsofrods.org/gameplay/controls-config/) or ``` $user/config/input.map ```  
 Please note that certain vehicles come with their own specific commands not represented in the above sources. In this case see the vehicle's documentation or go to Menu -> Simulation -> Show vehicle description.  
 Rigs is Rods can also be played with Gamepads, Joysticks, Wheels and other controllers, including support for Force Feedback.
 
@@ -75,6 +69,7 @@ Rigs is Rods can also be played with Gamepads, Joysticks, Wheels and other contr
 | mousewheel+rightclick          | camera zoom                                          |
 | C                              | change camera perspective                            |
 | T                              | display vehicle stats                                |
+| CTRL+T                         | show vehicle description								|
 | BACKSPACE                      | reset vehicle at current location                    |
 | I                              | reset vehicle to spawnpoint                          |
 | TAB                            | show minimap                                         |
@@ -87,14 +82,14 @@ Rigs is Rods can also be played with Gamepads, Joysticks, Wheels and other contr
 
 
 ## Content/Mods
-Rigs of Rods only comes with a very small selection of vehicles and terrains. For the best experience download some mods from the [Rigs of Rods Mod Repository](http://repository.rigsofrods.org/). The [Showroom Subforum](https://forum.rigsofrods.org/showrooms/) may contain additional content not found in the Mod Repository.  
-If you want to get going quickly have a look at modpacks which can be found in the Mod Repository as well.
+Rigs of Rods only comes with a very small selection of vehicles and terrains. For the best experience download some mods from the [Rigs of Rods Mod Repository](https://forum.rigsofrods.org/resources/). The [Showroom Subforum](https://forum.rigsofrods.org/#repository.11) may contain additional content not found in the Mod Repository.  
+If you want to get going quickly have a look at the content packs which can be found in the Mod Repository as well.
 
 
 ## Configuration files
 - Default location:  
     ``` $user/config/* ```
-- They are created by RoRConfig on first use
+- They are created by Rigs of Rods on first use
 
 
 ## Command-line options
@@ -123,7 +118,7 @@ For instructions refer to [BUILDING.md](BUILDING.md)
 
 Copyright (c) 2005-2013 Pierre-Michel Ricordel  
 Copyright (c) 2007-2013 Thomas Fischer  
-Copyright (c) 2009-2015 Rigs of Rods Contributors
+Copyright (c) 2009-2019 Rigs of Rods Contributors
 
 Rigs of Rods went open source under GPLv2 or later on the 8th of February, 2009.
 
