@@ -41,6 +41,8 @@
 #include "SoundScriptManager.h"
 
 #include <Overlay/OgreOverlaySystem.h>
+#include <ctime>
+#include <iomanip>
 #include <string>
 
 #ifdef USE_CURL
@@ -117,7 +119,10 @@ int main(int argc, char *argv[])
 
         auto ogre_log_manager = OGRE_NEW Ogre::LogManager();
         std::string rorlog_path = PathCombine(logs_dir, "RoR.log");
-        ogre_log_manager->createLog(rorlog_path, true, true);
+        Ogre::Log* rorlog = ogre_log_manager->createLog(rorlog_path, true, true);
+        rorlog->stream() << "[RoR] Rigs of Rods (www.rigsofrods.org) version " << ROR_VERSION_STRING;
+        std::time_t t = std::time(nullptr);
+        rorlog->stream() << "[RoR] Current date: " << std::put_time(std::localtime(&t), "%Y-%m-%d");
         App::diag_trace_globals.SetActive(true); // We have logger -> we can trace.
 
         if (! Settings::SetupAllPaths()) // Updates globals
