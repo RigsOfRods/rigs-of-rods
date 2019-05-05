@@ -38,7 +38,6 @@ namespace RoR {
 
 class ContentManager:
     public Ogre::ResourceLoadingListener, // Ogre::ResourceGroupManager::getSingleton().setLoadingListener()
-    public Ogre::ResourceGroupListener,   // Ogre::ResourceGroupManager::getSingleton().addResourceGroupListener()
     public Ogre::ScriptCompilerListener   // Ogre::ScriptCompilerManager::getSingleton().setListener()
 {
 public:
@@ -88,11 +87,7 @@ public:
 
 private:
 
-    // Ogre::ResourceGroupListener()
-    void scriptParseStarted(const Ogre::String& scriptName, bool& skipThisScript) override;
-    void scriptParseEnded(const Ogre::String& scriptName, bool skipped) override;
-
-    // implementation for resource loading listener
+    // Ogre::ResourceLoadingListener
     Ogre::DataStreamPtr resourceLoading(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource) override;
     void resourceStreamOpened(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource, Ogre::DataStreamPtr& dataStream) override;
     bool resourceCollision(Ogre::Resource* resource, Ogre::ResourceManager* resourceManager) override;
@@ -102,7 +97,6 @@ private:
 
     CacheSystem       m_mod_cache; //!< Database of addon content
     bool              m_base_resource_loaded;
-    std::string       m_curr_parsed_script;
 };
 
 } // namespace RoR
