@@ -1140,44 +1140,48 @@ void CacheSystem::LoadResource(CacheEntry& t)
 
     static int rg_counter = 0;
     String group = "Mod-" + std::to_string(rg_counter++);
-
-    if (t.fext == "terrn2")
-    {
-        // PagedGeometry is hardcoded to use `Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME`
-        ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
-        ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
-    }
-    else if (t.fext == "skin")
-    {
-        // This is a SkinZip bundle - use `inGlobalPool=false` to prevent resource name conflicts.
-        ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
-        ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
-        App::GetContentManager()->InitManagedMaterials(group);
-    }
-    else
-    {
-        // A vehicle bundle - use `inGlobalPool=false` to prevent resource name conflicts.
-        // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
-        ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
-        ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
-
-        App::GetContentManager()->InitManagedMaterials(group);
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES, group);
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS, group);
-        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES, group);
-    }
-
     try
     {
+        if (t.fext == "terrn2")
+        {
+            // PagedGeometry is hardcoded to use `Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME`
+            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
+            ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+        }
+        else if (t.fext == "skin")
+        {
+            // This is a SkinZip bundle - use `inGlobalPool=false` to prevent resource name conflicts.
+            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
+            ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+            App::GetContentManager()->InitManagedMaterials(group);
+        }
+        else
+        {
+            // A vehicle bundle - use `inGlobalPool=false` to prevent resource name conflicts.
+            // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
+            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
+            ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+
+            App::GetContentManager()->InitManagedMaterials(group);
+            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES, group);
+            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS, group);
+            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES, group);
+        }
+
         ResourceGroupManager::getSingleton().initialiseResourceGroup(group);
+
+        t.resource_group = group;
+        m_loaded_resource_bundles[t.resource_bundle_path] = group;
     }
     catch (Ogre::Exception& e)
     {
-        LOG("Error while loading '" + t.resource_bundle_path + "': " + e.getFullDescription());
+        RoR::LogFormat("[RoR] Error while loading '%s', message: %s",
+            t.resource_bundle_path.c_str(), e.getFullDescription().c_str());
+        if (ResourceGroupManager::getSingleton().resourceGroupExists(group))
+        {
+            ResourceGroupManager::getSingleton().destroyResourceGroup(group);
+        }
     }
-    t.resource_group = group;
-
-    m_loaded_resource_bundles[t.resource_bundle_path] = group;
 }
 
 const std::vector<CacheEntry> CacheSystem::GetUsableSkins(std::string const & guid) const
@@ -1251,4 +1255,6 @@ std::shared_ptr<SkinDef> CacheSystem::FetchSkinDef(CacheEntry* cache_entry)
         return nullptr;
     }
 }
+
+
 

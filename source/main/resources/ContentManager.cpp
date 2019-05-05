@@ -145,6 +145,9 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack, std::str
 
 void ContentManager::InitContentManager()
 {
+    Ogre::ScriptCompilerManager::getSingleton().setListener(this);
+    Ogre::ResourceGroupManager::getSingleton().addResourceGroupListener(this);
+
     // Initialize "managed materials" first
     //   These are base materials referenced by user content
     //   They must be initialized before any content is loaded,
@@ -307,6 +310,39 @@ bool ContentManager::resourceCollision(Ogre::Resource* resource, Ogre::ResourceM
     RoR::LogFormat("[RoR|ContentManager] Skipping resource with duplicate name: '%s' (origin: '%s')",
         resource->getName().c_str(), resource->getOrigin().c_str());
     return false; // Instruct OGRE to drop the new resource and keep the original.
+}
+
+void ContentManager::scriptParseStarted(const String& scriptName, bool& skipThisScript)
+{
+    assert(m_curr_parsed_script.empty());
+
+    m_curr_parsed_script = scriptName;
+}
+
+void ContentManager::scriptParseEnded(const String& scriptName, bool skipped)
+{
+    assert(scriptName == m_curr_parsed_script);
+
+    m_curr_parsed_script.clear();
+}
+
+/// Workaround for OGRE script compiler not properly checking that material name is not empty.
+/// See https://github.com/RigsOfRods/rigs-of-rods/issues/2349
+bool ContentManager::handleEvent(ScriptCompiler *compiler, ScriptCompilerEvent *evt, void *retval)
+{
+    if (evt->mType == CreateMaterialScriptCompilerEvent::eventType)
+    {
+        auto* matEvent = static_cast<CreateMaterialScriptCompilerEvent*>(evt);
+        if (matEvent->mName.empty())
+        {
+            RoR::LogFormat("[RoR] Got malformed material (empty name) from file: '%s' - forcing OGRE to fail loading.",
+                matEvent->mFile.c_str());
+            // Report "handled" but create nothing -> OGRE will interrupt the loading
+            //   with message "failed to find or create material" [in MaterialTranslator::translate()]
+            return true;
+        }
+    }
+    return false; // Report "not handled"
 }
 
 void ContentManager::InitManagedMaterials(std::string const & rg_name)
