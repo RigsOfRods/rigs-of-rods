@@ -54,6 +54,7 @@
 #include "MeshObject.h"
 #include "OgreSubsystem.h"
 #include "PointColDetector.h"
+#include "Renderdash.h"
 #include "RoRFrameListener.h"
 #include "ScrewProp.h"
 #include "Skidmark.h"
@@ -6409,14 +6410,31 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
             lookup_entry.material = orig_mat->clone(name_buf.str(), true, m_custom_resource_group);
         }
 
-        // Finally, query .skin texture replacements
-        if (m_actor->m_used_skin_entry != nullptr)
+        // Finally, query texture replacements - .skin and builtins
+        for (auto& technique: lookup_entry.material->getTechniques())
         {
-            for (auto& technique: lookup_entry.material->getTechniques())
+            for (auto& pass: technique->getPasses())
             {
-                for (auto& pass: technique->getPasses())
+                for (auto& tex_unit: pass->getTextureUnitStates())
                 {
-                    for (auto& tex_unit: pass->getTextureUnitStates())
+                    // Built-ins
+                    if (tex_unit->getTextureName() == "dashtexture")
+                    {
+                        if (!m_oldstyle_renderdash)
+                        {
+                            // This is technically a bug, but does it matter at all? Let's watch ~ only_a_ptr, 05/2019
+                            std::stringstream msg;
+                            msg << "Warning: '" << mat_lookup_name
+                                << "' references 'dashtexture', but Renderdash isn't created yet! Texture will be blank.";
+                            this->AddMessage(Message::TYPE_WARNING, msg.str());
+                        }
+                        else
+                        {
+                            tex_unit->setTexture(m_oldstyle_renderdash->getTexture());
+                        }
+                    }
+                    // .skin
+                    else if (m_actor->m_used_skin_entry != nullptr)
                     {
                         const size_t num_frames = tex_unit->getNumFrames();
                         for (size_t i = 0; i < num_frames; ++i)
@@ -6448,9 +6466,9 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
                             }
                         }
                     }
-                }
-            }
-        }
+                } // texture unit states
+            } // passes
+        } // techniques
 
         m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry)); // Register the substitute
         return lookup_entry.material;
