@@ -34,6 +34,7 @@ public:
     ~Renderdash();
 
     void setEnable(bool en);
+    Ogre::TexturePtr getTexture() { return m_texture; }
 
     // Ogre::RenderTargetListener
     void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
