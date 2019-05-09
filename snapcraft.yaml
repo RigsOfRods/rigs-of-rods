@@ -36,7 +36,7 @@ parts:
             - -DOGRE_BUILD_COMPONENT_HLMS=FALSE
             - -DCMAKE_INSTALL_PREFIX=/usr/
         source: https://github.com/OGRECave/ogre.git
-        source-tag: stable
+        source-tag: v1.11.6
         source-depth: 1
         build-packages:
             - libxaw7-dev
