@@ -1,4 +1,4 @@
-This is the input map for the Rigs of Rods game for the following device:
+This is an input map for the following device:
  
 "Thrustmaster RGT Force Feedback Pro Steering Wheel" by Thrustmaster 
  
