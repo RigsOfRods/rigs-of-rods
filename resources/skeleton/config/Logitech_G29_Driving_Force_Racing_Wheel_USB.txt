@@ -1,0 +1,44 @@
+This is an input map for the Logitech G29 Driving Force Racing Wheel USB
+Created by Charger, May 2019
+
+Control overview:
+
+General:
+X | Select
+D-pad | Navigate Menu
+PS button | Pause
+
+Character:
+D-pad | Walking
+X | Jump
+Triangle | Run
+
+Boats:
+Steering wheel | Steering
+Throttle pedal | Throttle
+Shifter 3rd gear | Throttle up
+Shifter 4th gear | Throttle down
+
+Trucks:
+Steering wheel | Steering
+Accelerator pedal | Throttle
+Brake pedal | Brake
+Clutch pedal | Clutch
+Shifter | Manual gear selection
+X | Starter
+Square | Toggle ignition
+O | Diff Lock
+Triangle | Parking Brake
+D-pad right | Shift mode
+D-pad down | Low range
+D-pad left | Mid range
+D-pad up | High range
+L2 | Left blinker
+R2 | Right blinker
+L3 | Blink warn
+R3 | Lights
+Enter button | Horn
++ | Toggle 4wd
+- | Transfer case high/low
+SHARE | Interaxle diffs
+OPTION | Truck info

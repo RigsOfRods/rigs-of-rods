@@ -1,0 +1,64 @@
+; This input map is for: Logitech G29 Driving Force Racing Wheel USB
+;Created by Charger, May 2019
+
+; BOAT
+BOAT_STEER_LEFT_AXIS           JoystickAxis         0 0 LOWER+DEADZONE=0.00 
+BOAT_STEER_RIGHT_AXIS          JoystickAxis         0 0 UPPER+DEADZONE=0.00 
+BOAT_THROTTLE_AXIS             JoystickAxis         0 2 REVERSE+DEADZONE=0.00 
+BOAT_THROTTLE_DOWN             JoystickButton       0 15 
+BOAT_THROTTLE_UP               JoystickButton       0 14 
+
+; CHARACTER
+CHARACTER_BACKWARDS            JoystickPov          0 0 South
+CHARACTER_FORWARD              JoystickPov          0 0 North
+CHARACTER_JUMP                 JoystickButton       0 0 
+CHARACTER_LEFT                 JoystickPov          0 0 West
+CHARACTER_RIGHT                JoystickPov          0 0 East
+CHARACTER_RUN                  JoystickButton       0 3 
+
+; COMMON
+COMMON_QUIT_GAME               JoystickButton       0 24 
+COMMON_TOGGLE_TRUCK_LIGHTS     JoystickButton       0 10 
+COMMON_TRUCK_INFO              JoystickButton       0 9 
+
+; MAP
+MAP_IN                         JoystickButton       0 19 
+MAP_OUT                        JoystickButton       0 20 
+
+; MENU
+MENU_DOWN                      JoystickPov          0 0 South
+MENU_LEFT                      JoystickPov          0 0 West
+MENU_RIGHT                     JoystickPov          0 0 East
+MENU_SELECT                    JoystickButton       0 0 
+MENU_UP                        JoystickPov          0 0 North
+
+; TRUCK
+TRUCK_ACCELERATE               JoystickAxis         0 2 REVERSE+DEADZONE=0.00 
+TRUCK_AUTOSHIFT_DOWN           JoystickButton       0 4 
+TRUCK_AUTOSHIFT_UP             JoystickButton       0 5 
+TRUCK_BLINK_LEFT               JoystickButton       0 7 
+TRUCK_BLINK_RIGHT              JoystickButton       0 6 
+TRUCK_BLINK_WARN               JoystickButton       0 11 
+TRUCK_BRAKE                    JoystickAxis         0 1 REVERSE+DEADZONE=0.00 
+TRUCK_HORN                     JoystickButton       0 23 
+TRUCK_MANUAL_CLUTCH            JoystickSliderX      0 X 0 REVERSE 
+TRUCK_PARKING_BRAKE            JoystickButton       0 3 
+TRUCK_SHIFT_GEAR_REVERSE       JoystickButton       0 18 
+TRUCK_SHIFT_GEAR1              JoystickButton       0 12 
+TRUCK_SHIFT_GEAR2              JoystickButton       0 13 
+TRUCK_SHIFT_GEAR3              JoystickButton       0 14 
+TRUCK_SHIFT_GEAR4              JoystickButton       0 15 
+TRUCK_SHIFT_GEAR5              JoystickButton       0 16 
+TRUCK_SHIFT_GEAR6              JoystickButton       0 17 
+TRUCK_SHIFT_LOWRANGE           JoystickPov          0 0 South
+TRUCK_SHIFT_MIDRANGE           JoystickPov          0 0 West
+TRUCK_SHIFT_HIGHRANGE          JoystickPov          0 0 North
+TRUCK_STARTER                  JoystickButton       0 0 
+TRUCK_STEER_LEFT               JoystickAxis         0 0 LOWER+DEADZONE=0.00 
+TRUCK_STEER_RIGHT              JoystickAxis         0 0 UPPER+DEADZONE=0.00 
+TRUCK_SWITCH_SHIFT_MODES       JoystickPov          0 0 East
+TRUCK_TOGGLE_CONTACT           JoystickButton       0 1 
+TRUCK_TOGGLE_AXLE_LOCK         JoystickButton       0 2 
+TRUCK_TOGGLE_INTER_AXLE_DIFF   JoystickButton       0 8 
+TRUCK_TOGGLE_TCASE_4WD_MODE    JoystickButton       0 19 
+TRUCK_TOGGLE_TCASE_GEAR_RATIO  JoystickButton       0 20 

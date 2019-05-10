@@ -1,0 +1,52 @@
+This is an input map for Xbox 360/One controllers
+Created by CuriousMike, March 2019
+
+Control overview:
+
+Character:
+Forward/Backward/Left/Right - Left stick
+Jump - X
+Run - A
+
+Camera:
+Left/Right/Up/Down - Right stick
+Change Camera - View button
+
+Land vehicles:
+Enter/Exit - Y
+Ignition - Right stick button
+Starter - A
+Steering - Left stick
+Accelerate - Right trigger
+Brake - Left trigger
+Horn - Left stick button
+Shift up - X
+Shift down - B
+Clutch - Left bumper
+Automatic shift up - D-Pad up
+Automatic shift down - D-Pad down
+Parking brake - Right bumper
+Toggle lights - D-Pad left
+Lock hitch - D-Pad right
+
+Planes:
+Start engines - A
+Increase throttle - D-Pad up
+Decrease throttle - D-Pad down
+Max throttle - X
+Zero throttle - B
+Reverse - Left bumper
+Elevator - Left stick up/down
+Rudder - Left/Right triggers
+Steering - Left stick
+
+Boats:
+Throttle - Left/Right triggers
+Steering - Left stick
+Reverse - B
+Center rudder - X
+
+Other:
+Pause game - Menu button
+
+
