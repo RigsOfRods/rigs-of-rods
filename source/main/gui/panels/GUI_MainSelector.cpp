@@ -306,7 +306,7 @@ void CLASS::EventComboAcceptConfigComboBox(MyGUI::ComboBoxPtr _sender, size_t _i
     if (_index < 0 || _index >= m_Config->getItemCount())
         return;
 
-    m_vehicle_config = *m_Config->getItemDataAt<Ogre::String>(_index);
+    m_actor_spawn_rq.asr_config = *m_Config->getItemDataAt<Ogre::String>(_index);
 }
 
 template <typename T1, typename T2>
@@ -672,8 +672,7 @@ void CLASS::OnSelectionDone()
 
     if (new_actor_selected)
     {
-        ActorSpawnRequest rq = m_actor_spawn_rq; // actor+skin entries already filled
-        rq.asr_config         = m_vehicle_config;
+        ActorSpawnRequest rq = m_actor_spawn_rq; // actor+skin+sectionconfig entries already filled
         rq.asr_origin         = ActorSpawnRequest::Origin::USER;
         App::GetSimController()->QueueActorSpawn(rq);
         this->Reset();
@@ -701,7 +700,7 @@ void CLASS::UpdateControls(CacheEntry* entry)
         }
         m_Config->setIndexSelected(0);
 
-        m_vehicle_config = *m_Config->getItemDataAt<Ogre::String>(0);
+        m_actor_spawn_rq.asr_config = *m_Config->getItemDataAt<Ogre::String>(0);
     }
     else
     {
@@ -923,7 +922,6 @@ void CLASS::Show(LoaderType type)
 
     m_selection_done = false;
     m_selected_entry = nullptr;
-    m_vehicle_config.clear();
     m_SearchLine->setCaption("");
     RoR::App::GetInputEngine()->resetKeys();
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
@@ -933,6 +931,11 @@ void CLASS::Show(LoaderType type)
     m_loader_type = type;
     UpdateGuiData();
     BindKeys();
+
+    if (type != LT_Terrain && type != LT_Skin) // Is this a vehicle type?
+    {
+        m_actor_spawn_rq = ActorSpawnRequest(); // Reset
+    }
 
     if (type == LT_Terrain && (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED))
     {
