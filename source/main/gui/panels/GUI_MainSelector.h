@@ -81,9 +81,8 @@ private:
     Ogre::String m_preview_image_texture;
     bool m_selection_done;
     std::vector<CacheEntry> m_entries;
-    Ogre::String m_vehicle_config;
     bool m_keys_bound;
-    ActorSpawnRequest m_actor_spawn_rq; //!< Always employed when spawning an actor
+    ActorSpawnRequest m_actor_spawn_rq; //!< Serves as context when spawning an actor
     std::time_t m_cache_file_freshness;
     std::map<LoaderType, int> m_category_index; //!< Stores the last manually selected category index for each loader type
     std::map<LoaderType, int> m_entry_index;    //!< Stores the last manually selected entry index for each loader type
