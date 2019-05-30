@@ -934,7 +934,7 @@ void CLASS::Show(LoaderType type)
 
     if (type != LT_Terrain && type != LT_Skin) // Is this a vehicle type?
     {
-        m_actor_spawn_rq = ActorSpawnRequest(); // Reset
+        m_actor_spawn_rq.asr_config.clear(); // Only reset what we need, some fields come pre-configured!
     }
 
     if (type == LT_Terrain && (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED))
