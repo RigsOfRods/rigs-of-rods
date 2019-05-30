@@ -951,6 +951,15 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         }
         if (!strcmp("endbox", ptline))
         {
+            bool box_is_valid = (l.x <= h.x && l.y <= h.y && l.z <= h.z); // Check that size is never negative
+            if (!box_is_valid)
+            {
+                RoR::LogFormat("[ODEF] Invalid collision box (file: '%s', event: '%s', instance: '%s'),"
+                    " at least one axis has negative size. Ignoring the box.",
+                    name.c_str(), eventname, instancename.c_str());
+                continue;
+            }
+
             bool race_event = !instancename.compare(0, 10, "checkpoint") || !instancename.compare(0, 4, "race");
             if (enable_collisions && (App::sim_races_enabled.GetActive() || !race_event))
             {
