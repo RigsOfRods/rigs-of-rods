@@ -1,24 +1,19 @@
 cmake_minimum_required(VERSION 3.5.1)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/3rdparty)
 
-
-# Download cotire automatically
-if (NOT EXISTS "${CMAKE_BINARY_DIR}/cotire.cmake")
-    message(STATUS "Downloading cotire.cmake from https://github.com/sakra/cotire/")
-    file(DOWNLOAD "https://raw.githubusercontent.com/sakra/cotire/master/CMake/cotire.cmake"
-            "${CMAKE_BINARY_DIR}/cotire.cmake")
-endif ()
-
-include(${CMAKE_BINARY_DIR}/cotire.cmake)
-
+include(cotire)
+include(CMakeDependentOption)
+include(Macros)
+include(FeatureSummary)
 
 ################################################################################
 # Project definition
 ################################################################################
 set(PROJECT_NAME_SHORT "RoR")
+set(PROJECT_NAME_UNDERSCORE "Rigs_of_Rods")
 set(PROJECT_NAME_LONG "Rigs of Rods")
 
-project(${PROJECT_NAME_SHORT} VERSION 0.4.8.0)
+project(${PROJECT_NAME_UNDERSCORE} VERSION 0.4.8.0)
 
 ################################################################################
 # Available build options
@@ -26,13 +21,8 @@ project(${PROJECT_NAME_SHORT} VERSION 0.4.8.0)
 option(BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
 option(BUILD_REDIST_FOLDER "Build a folder for redistributing the game" OFF)
-
-include(Macros)
-
-if (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-    conan_basic_setup(TARGETS)
-endif ()
+option(USE_PACKAGE_MANAGER "Use conan for managing packages" ON)
+cmake_dependent_option(USE_PMM "Use PMM for managing conan" OFF MSVC ON)
 
 # global cmake options
 SET(BUILD_SHARED_LIBS ON)
@@ -40,9 +30,9 @@ SET(CMAKE_USE_RELATIVE_PATHS OFF)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # setup paths
-SET(RUNTIME_OUTPUT_DIRECTORY "${RoR_BINARY_DIR}/bin/")
-SET(LIBRARY_OUTPUT_DIRECTORY "${RoR_BINARY_DIR}/lib/")
-SET(ARCHIVE_OUTPUT_DIRECTORY "${RoR_BINARY_DIR}/lib/")
+SET(RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
+SET(LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")
+SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")
 SET(EXECUTABLE_OUTPUT_PATH ${RUNTIME_OUTPUT_DIRECTORY})
 SET(LIBRARY_OUTPUT_PATH ${RUNTIME_OUTPUT_DIRECTORY})
 IF (BUILD_REDIST_FOLDER)
@@ -78,8 +68,8 @@ if (WIN32)
     include_directories(${DirectX_INCLUDE_DIR})
 
     set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG}          /DEBUG /LARGEADDRESSAWARE ")
-    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}        /DEBUG /LARGEADDRESSAWARE /OPT:REF /LTCG /RELEASE")
-    set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL}     /DEBUG /LARGEADDRESSAWARE /OPT:REF /LTCG ")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}        /DEBUG /LARGEADDRESSAWARE /OPT:REF /LTCG:STATUS /RELEASE")
+    set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL}     /DEBUG /LARGEADDRESSAWARE /OPT:REF /LTCG:STATUS ")
     set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DEBUG /LARGEADDRESSAWARE /OPT:NOREF /MAP /DYNAMICBASE:NO /FIXED /NXCOMPAT:NO")
 
     # fix executable paths for windows
@@ -114,8 +104,13 @@ include(DependenciesConfig)
 ################################################################################
 # Recurse into subdirectories
 ################################################################################
-add_subdirectory(source)
+add_subdirectory(source/angelscript_addons)
+add_subdirectory(source/version_info)
+add_subdirectory(source/main)
+
+include(Resources)
+include(Install)
+
 add_subdirectory(doc)
 
-include(FeatureSummary)
 feature_summary(WHAT ALL)

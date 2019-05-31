@@ -3,7 +3,7 @@ version: 0.4.8.0
 confinement: strict
 summary: Rigs of Rods
 description: |
-    Rigs of Rods is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics. 
+    Rigs of Rods is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics.
     The soft-body physics system is based on mass-spring-damper theory.
 
 apps:
@@ -131,6 +131,7 @@ parts:
             - -DCMAKE_BUILD_TYPE=Release
             - -DCMAKE_INSTALL_PREFIX=/usr/
             - -DBUILD_REDIST_FOLDER=TRUE
+            - -DUSE_PACKAGE_MANAGER=FALSE
         override-build: |
             snapcraftctl build
             make zip_and_copy_resources

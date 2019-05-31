@@ -388,7 +388,6 @@ target_include_directories(${BINNAME} PRIVATE
 #  REQUIRED DEPENDENCIES
 # -----------------------
 
-# TODO
 IF (WIN32)
     # disable some annoying VS warnings:
     # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
@@ -409,41 +408,56 @@ target_link_libraries(${BINNAME} PRIVATE
         Threads::Threads
         )
 
-# --- Ogre 3D graphics engine ---
-if (DEFINED CONAN_OGRE_ROOT)
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::OGRE)
-else ()
+
+if (USE_PACKAGE_MANAGER)
+
+    target_include_directories(${BINNAME} PRIVATE ${CMAKE_SOURCE_DIR}/source/angelscript_addons)
+
+    target_link_libraries(${BINNAME} PRIVATE
+            CONAN_PKG::AngelScript
+            CONAN_PKG::libcurl
+            CONAN_PKG::MofileReader
+            CONAN_PKG::MyGUI
+            CONAN_PKG::SocketW
+            CONAN_PKG::openal
+            CONAN_PKG::rapidjson
+            CONAN_PKG::ogre-caelum
+            CONAN_PKG::OpenSSL
+            CONAN_PKG::OGRE
+            CONAN_PKG::OGREdeps
+            CONAN_PKG::zlib
+            Threads::Threads
+            version_info
+            angelscript_addons
+            )
+
+    target_compile_definitions(${BINNAME} PRIVATE
+            AS_USE_NAMESPACE
+            WIN32_LEAN_AND_MEAN
+            USE_OPENAL
+            USE_MOFILEREADER
+            USE_MYGUI
+            $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
+            USE_SOCKETW
+            USE_ANGELSCRIPT
+            AS_USE_NAMESPACE
+            USE_CURL
+            USE_CAELUM
+            )
+
+    if (UNIX)
+        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=libCaelum.so")
+    else ()
+        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=Caelum")
+    endif ()
+
+else (USE_PACKAGE_MANAGER)
+
     target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator)
-endif ()
 
-
-# --- Object Oriented Input System ---
-if (DEFINED CONAN_OGREDEPS_ROOT)
-    include_directories(${CONAN_INCLUDE_DIRS_OGREDEPS}/OIS)
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::OGREdeps)
-else ()
     target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
     target_include_directories(${BINNAME} PRIVATE ${OIS_INCLUDE_DIRS})
-endif ()
 
-# --- MoFileReader ---
-
-if (DEFINED CONAN_MOFILEREADER_ROOT)
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::MofileReader)
-    target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
-elseif (MoFileReader_FOUND)
-    target_link_libraries(${BINNAME} PRIVATE MoFileReader::MoFileReader)
-    target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
-else()
-    target_compile_definitions(${BINNAME} PRIVATE NOLANG)
-endif ()
-
-
-# --- MyGUI - graphical user inferface ---
-if (DEFINED CONAN_MYGUI_ROOT)
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::MyGUI)
-    target_compile_definitions(${BINNAME} PRIVATE USE_MYGUI $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>)
-else ()
     target_link_libraries(${BINNAME} PRIVATE
             MyGUI::MyGUI
             MyGUI::OgrePlatform
@@ -452,93 +466,52 @@ else ()
             USE_MYGUI
             $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
             )
-endif ()
 
-#  OPTIONAL DEPENDENCIES
-# -----------------------
-
-# --- OpenAL - audio library ---
-if (DEFINED CONAN_OPENAL_ROOT)
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::openal)
-    target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
-elseif (OPENAL_FOUND)
-    target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
-    target_include_directories(${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR})
-    target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
-endif ()
-
-
-# --- SocketW - networking library ---
-if (DEFINED CONAN_SOCKETW_ROOT)
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::SocketW)
-    target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
-elseif (TARGET SocketW::SocketW)
-    target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
-    target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
-endif ()
-
-# Add openssl
-if (DEFINED CONAN_OPENSSL_ROOT)
-    target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_OPENSSL})
-endif ()
-
-
-# --- AngelScript - scripting interface ---
-if (DEFINED CONAN_ANGELSCRIPT_ROOT)
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::AngelScript)
-    target_compile_definitions(${BINNAME} PRIVATE USE_ANGELSCRIPT)
-    target_compile_definitions(${BINNAME} PRIVATE AS_USE_NAMESPACE)
-
-    target_include_directories(${BINNAME} PRIVATE ../angelscript_addons)
-    target_link_libraries(${BINNAME} PRIVATE angelscript_addons)
-elseif (TARGET AngelScript::AngelScript)
-    target_link_libraries(${BINNAME} PRIVATE
-            AngelScript::AngelScript
-            AngelScript::use_namespace
-            )
-    target_compile_definitions(${BINNAME} PRIVATE USE_ANGELSCRIPT)
-
-    # TODO angelscript_addons
-    target_include_directories(${BINNAME} PRIVATE ../angelscript_addons)
-    target_link_libraries(${BINNAME} PRIVATE angelscript_addons)
-endif ()
-
-
-# --- cURL ---
-if (DEFINED CONAN_LIBCURL_ROOT)
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::libcurl)
-    target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
-elseif (CURL_FOUND)
-    target_link_libraries(${BINNAME} PRIVATE ${CURL_LIBRARY})
-    target_include_directories(${BINNAME} PRIVATE ${CURL_INCLUDE_DIR})
-    target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
-
-    if (WIN32)
-        add_definitions(-DWIN32_LEAN_AND_MEAN)
+    if (MoFileReader_FOUND)
+        target_link_libraries(${BINNAME} PRIVATE MoFileReader::MoFileReader)
+        target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
+    else ()
+        target_compile_definitions(${BINNAME} PRIVATE NOLANG)
     endif ()
-endif ()
 
-
-# --- rapidjson ---
-if (CONAN_RAPIDJSON_ROOT)
-    target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_RAPIDJSON})
-endif ()
-
-
-# --- Caelum -- Ogre addon for realistic sky rendering ---
-if(DEFINED CONAN_OGRE-CAELUM_ROOT AND ROR_USE_CAELUM)
-    if(UNIX)
-        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=libCaelum.so")
-    else()
-        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=Caelum")
+    if (OPENAL_FOUND)
+        target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
+        target_include_directories(${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR})
+        target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
     endif ()
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::ogre-caelum)
-    target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
-elseif (TARGET Caelum::Caelum)
-    set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
-    target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
-    target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
-endif ()
+
+    if (TARGET SocketW::SocketW)
+        target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
+        target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
+    endif ()
+
+    if (TARGET AngelScript::AngelScript)
+        target_link_libraries(${BINNAME} PRIVATE
+                AngelScript::AngelScript
+                AngelScript::use_namespace
+                )
+        target_compile_definitions(${BINNAME} PRIVATE USE_ANGELSCRIPT)
+        target_include_directories(${BINNAME} PRIVATE ../angelscript_addons)
+        target_link_libraries(${BINNAME} PRIVATE angelscript_addons)
+    endif ()
+
+    if (CURL_FOUND)
+        target_link_libraries(${BINNAME} PRIVATE ${CURL_LIBRARY})
+        target_include_directories(${BINNAME} PRIVATE ${CURL_INCLUDE_DIR})
+        target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
+
+        if (WIN32)
+            add_definitions(-DWIN32_LEAN_AND_MEAN)
+        endif ()
+    endif ()
+
+    if (TARGET Caelum::Caelum)
+        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
+        target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
+        target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
+    endif ()
+
+endif (USE_PACKAGE_MANAGER)
 
 set_target_properties(${BINNAME} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 cotire(${BINNAME})
