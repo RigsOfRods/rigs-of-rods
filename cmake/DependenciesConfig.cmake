@@ -1,11 +1,4 @@
-# components
-set(ROR_USE_OPENAL "TRUE" CACHE BOOL "use OPENAL")
-set(ROR_USE_SOCKETW "TRUE" CACHE BOOL "use SOCKETW")
-set(ROR_USE_PAGED "TRUE" CACHE BOOL "use paged-geometry")
-set(ROR_USE_CAELUM "TRUE" CACHE BOOL "use caelum sky")
-set(ROR_USE_ANGELSCRIPT "TRUE" CACHE BOOL "use angelscript")
-set(ROR_USE_CURL "TRUE" CACHE BOOL "use curl, required for communication with online services")
-set(ROR_USE_MOFILEREADER "TRUE" CACHE BOOL "use mofilereader")
+find_package(Threads REQUIRED)
 
 # some obsolete options:
 # disabled some options for now
@@ -14,28 +7,55 @@ set(ROR_BUILD_UPDATER OFF)
 set(ROR_FEAT_TIMING OFF)
 set(ROR_BUILD_SIM ON)
 
-find_package(Threads REQUIRED)
+if (USE_PACKAGE_MANAGER)
 
-if (NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-    # find packages
+    set(ROR_USE_OPENAL TRUE)
+    set(ROR_USE_SOCKETW TRUE)
+    set(ROR_USE_PAGED TRUE)
+    set(ROR_USE_CAELUM TRUE)
+    set(ROR_USE_ANGELSCRIPT TRUE)
+    set(ROR_USE_CURL TRUE)
+    set(ROR_USE_MOFILEREADER TRUE)
 
-    find_package(OGRE 1.11 REQUIRED COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
-    find_package(OpenAL)
-    find_package(OIS REQUIRED)
-    find_package(MyGUI REQUIRED)
-    find_package(SocketW)
-    find_package(AngelScript)
-    find_package(CURL)
-    find_package(Caelum)
-    find_package(MoFileReader)
+    if (USE_PMM)
+        include(pmm)
 
-endif ()
+        pmm(CONAN REMOTES ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies BINCRAFTERS)
 
-IF (WIN32)
+    else ()
+        include(conan)
 
-    # directX
-    set(DirectX_INCLUDE_DIRS "$ENV{DXSDK_DIR}/Include" CACHE PATH "The DirectX include path to use")
-    set(DirectX_LIBRARY_DIRS "$ENV{DXSDK_DIR}/lib/${ARCH_DIR}/" CACHE PATH "The DirectX lib path to use")
-    include_directories(${DirectX_INCLUDE_DIRS})
-    link_directories(${DirectX_LIBRARY_DIRS})
-ENDIF (WIN32)
+        conan_check()
+        conan_add_remote(NAME ror-dependencies URL https://api.bintray.com/conan/anotherfoxguy/ror-dependencies)
+        conan_add_remote(NAME bincrafters URL https://api.bintray.com/conan/bincrafters/public-conan)
+
+        conan_cmake_run(CONANFILE conanfile.txt
+                        BASIC_SETUP CMAKE_TARGETS
+                        BUILD missing
+            )
+
+    endif ()
+
+else (USE_PACKAGE_MANAGER)
+
+  # components
+  set(ROR_USE_OPENAL "TRUE" CACHE BOOL "use OPENAL")
+  set(ROR_USE_SOCKETW "TRUE" CACHE BOOL "use SOCKETW")
+  set(ROR_USE_PAGED "TRUE" CACHE BOOL "use paged-geometry")
+  set(ROR_USE_CAELUM "TRUE" CACHE BOOL "use caelum sky")
+  set(ROR_USE_ANGELSCRIPT "TRUE" CACHE BOOL "use angelscript")
+  set(ROR_USE_CURL "TRUE" CACHE BOOL "use curl, required for communication with online services")
+  set(ROR_USE_MOFILEREADER "TRUE" CACHE BOOL "use mofilereader")
+
+  # find packages
+  find_package(OGRE 1.11 REQUIRED COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
+  find_package(OpenAL)
+  find_package(OIS REQUIRED)
+  find_package(MyGUI REQUIRED)
+  find_package(SocketW)
+  find_package(AngelScript)
+  find_package(CURL)
+  find_package(Caelum)
+  find_package(MoFileReader)
+
+endif (USE_PACKAGE_MANAGER)

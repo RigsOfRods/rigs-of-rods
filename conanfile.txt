@@ -20,5 +20,6 @@ bin, *.dll -> ./redist @ keep_path=False
 bin, *.exe -> ./bin @ root_package=OGRE, keep_path=False
 bin, *.exe -> ./redist @ root_package=OGRE, keep_path=False
 lib, *.so* -> ./bin @ root_package=OGRE, keep_path=False, excludes=lib*
+lib, *.so* -> ./bin @ root_package=ogre-caelum, keep_path=False
 lib, *.so* -> ./redist/lib @ keep_path=False
 lib, *.dylib* -> ./bin @ keep_path=False

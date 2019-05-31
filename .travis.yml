@@ -23,24 +23,19 @@ addons:
     - libxt-dev
     - libxaw7-dev
     - libxrandr-dev
-    - libgtk2.0-dev
-    - libwxgtk3.0-dev
 
 install:
   - sudo rm -rf /usr/local/cmake-3.9.2/
   - sudo rm -f /usr/local/cmake
   - sudo pip install cmake conan --ignore-installed
   - conan user
-  - conan remote add ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies || true
-  - conan remote add bincrafters-public-conan https://api.bintray.com/conan/bincrafters/public-conan || true
-  - conan install --build=missing -u -s compiler.libcxx=libstdc++11 .
 
 script:
   - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
   - ninja
 
 before_cache:
-  - conan remove * -fsb
+  - cmake -P ./cmake/3rdparty/pmm.cmake /Conan /Clean
 
 after_success:
   - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sh ./tools/CI/upload-CI-build.sh; fi
