@@ -7,10 +7,6 @@ then
 	# Copy some libs
 	cp /usr/lib/x86_64-linux-gnu/libzzip-0.so.13            ./redist/lib/
 	cp /usr/lib/x86_64-linux-gnu/libfreeimage.so.3          ./redist/lib/
-	cp /usr/lib/x86_64-linux-gnu/libwx_baseu-3.0.so.0       ./redist/lib/
-	cp /usr/lib/x86_64-linux-gnu/libwx_gtk2u_core-3.0.so.0  ./redist/lib/
-	cp /usr/lib/x86_64-linux-gnu/libwx_baseu_net-3.0.so.0   ./redist/lib/
-	cp /usr/lib/x86_64-linux-gnu/libwx_gtk2u_adv-3.0.so.0   ./redist/lib/
 	cp /usr/lib/x86_64-linux-gnu/libjpegxr.so.0             ./redist/lib/
 	cp /usr/lib/x86_64-linux-gnu/libjxrglue.so.0            ./redist/lib/
 	cp /usr/lib/x86_64-linux-gnu/libraw.so.15               ./redist/lib/
@@ -24,6 +20,7 @@ then
 	cp /usr/lib/x86_64-linux-gnu/libIlmThread-2_2.so.12     ./redist/lib/
 	cp /usr/lib/x86_64-linux-gnu/libCg.so                   ./redist/lib/
 	cp /usr/lib/x86_64-linux-gnu/libjpeg.so.8               ./redist/lib/
+	cp /usr/lib/x86_64-linux-gnu/libXaw.so.7                ./redist/lib/
 
 	# Get butler
 	wget https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default -O butler.zip
