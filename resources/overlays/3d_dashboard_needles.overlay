@@ -8,7 +8,6 @@ overlay tracks/3D_NeedlesOverlay
 			vert_align top
 			width 0.18
 			height 0.36
-
 			left 0.05
 			top 0.51
 			material tracks/tachoneedle_mat
@@ -21,7 +20,6 @@ overlay tracks/3D_NeedlesOverlay
 			vert_align top
 			width 0.18
 			height 0.36
-
 			left 0.25
 			top 0.51
 			material tracks/speedoneedle_mat
@@ -29,74 +27,116 @@ overlay tracks/3D_NeedlesOverlay
 
 		overlay_element Fix/Wrapper Panel
 		{
-			metrics_mode relative
-			width 0.04
-			height 0.08
-			left 0.21
-			top 0.75
+	        	container TextArea(tracks/3DGear)
+			{
+				metrics_mode relative
+				horz_align left
+				vert_align top
+				width 0.04
+				height 0.08
+				left 0.23
+				top 0.75
+				font_name CyberbitEnglish
+				char_height 0.08
+				caption N
+				colour_top 0.8 0.8 0.8
+				colour_bottom 0.6 0.6 0.6
+			}
+                } 
 
-			overlay_element tracks/3DGear TextArea
-				{
-					horz_align center
-					vert_align top
-					font_name CyberbitEnglish
-					char_height 0.06
-					caption "N"
-					colour_top 0.8 0.8 0.8
-					colour_bottom 0.6 0.6 0.6
-				}
+		overlay_element Fix/WrapperR Panel
+		{
+	                container TextArea(tracks/3DAGearR)
+		        {
+				metrics_mode relative
+				horz_align left
+				vert_align top
+				width 0.04
+				height 0.08
+				left 0.45
+				top 0.55
+				font_name CyberbitEnglish
+				char_height 0.08
+				caption R
+				colour_top 0.8 0.8 0.8
+				colour_bottom 0.6 0.6 0.6
+			}
+                }
 
-			overlay_element tracks/3DAGearR TextArea
-				{
-					horz_align center
-					vert_align top
-					font_name CyberbitEnglish
-					char_height 0.06
-					caption "R"
-					colour_top 0.8 0.8 0.8
-					colour_bottom 0.6 0.6 0.6
-				}
-			overlay_element tracks/3DAGearN TextArea
-				{
-					horz_align center
-					vert_align top
-					font_name CyberbitEnglish
-					char_height 0.06
-					caption "N"
-					colour_top 0.8 0.2 0.2
-					colour_bottom 0.6 0.1 0.1
-				}
-			overlay_element tracks/3DAGearD TextArea
-				{
-					horz_align center
-					vert_align top
-					font_name CyberbitEnglish
-					char_height 0.06
-					caption "D"
-					colour_top 0.8 0.8 0.8
-					colour_bottom 0.6 0.6 0.6
-				}
-			overlay_element tracks/3DAGear2 TextArea
-				{
-					horz_align center
-					vert_align top
-					font_name CyberbitEnglish
-					char_height 0.06
-					caption "2"
-					colour_top 0.8 0.8 0.8
-					colour_bottom 0.6 0.6 0.6
-				}
-			overlay_element tracks/3DAGear1 TextArea
-				{
-					horz_align center
-					vert_align top
-					font_name CyberbitEnglish
-					char_height 0.06
-					caption "1"
-					colour_top 0.8 0.8 0.8
-					colour_bottom 0.6 0.6 0.6
-				}
-		}
+		overlay_element Fix/WrapperN Panel
+		{
+	                container TextArea(tracks/3DAGearN)
+			{
+				metrics_mode relative
+				horz_align left
+				vert_align top
+				width 0.04
+				height 0.08
+				left 0.45
+				top 0.61
+				font_name CyberbitEnglish
+				char_height 0.08
+				caption N
+				colour_top 0.8 0.2 0.2
+				colour_bottom 0.6 0.1 0.1
+			}
+                }
 
+		overlay_element Fix/WrapperD Panel
+		{
+	        	container TextArea(tracks/3DAGearD)
+			{
+				metrics_mode relative
+				horz_align left
+				vert_align top
+				width 0.04
+				height 0.08
+				left 0.45
+				top 0.67
+				font_name CyberbitEnglish
+				char_height 0.08
+				caption D
+				colour_top 0.8 0.8 0.8
+				colour_bottom 0.6 0.6 0.6
+			}
+                }
+
+		overlay_element Fix/Wrappe2 Panel
+		{
+	        	container TextArea(tracks/3DAGear2)
+			{
+				metrics_mode relative
+				horz_align left
+				vert_align top
+				width 0.04
+				height 0.08
+				left 0.45
+				top 0.73
+				font_name CyberbitEnglish
+				char_height 0.08
+				caption 2
+				colour_top 0.8 0.8 0.8
+				colour_bottom 0.6 0.6 0.6
+			}
+                }
+
+		overlay_element Fix/Wrappe1 Panel
+		{
+	        	container TextArea(tracks/3DAGear1)
+			{
+				metrics_mode relative
+				horz_align left
+				vert_align top
+				width 0.04
+				height 0.08
+				left 0.45
+				top 0.79
+				font_name CyberbitEnglish
+				char_height 0.08
+				caption 1
+				colour_top 0.8 0.8 0.8
+				colour_bottom 0.6 0.6 0.6
+			}
+                }
 
 }
