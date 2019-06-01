@@ -101,7 +101,7 @@ overlay tracks/3D_NeedlesOverlay
 			}
                 }
 
-		overlay_element Fix/Wrappe2 Panel
+		overlay_element Fix/Wrapper2 Panel
 		{
 	        	container TextArea(tracks/3DAGear2)
 			{
@@ -120,7 +120,7 @@ overlay tracks/3D_NeedlesOverlay
 			}
                 }
 
-		overlay_element Fix/Wrappe1 Panel
+		overlay_element Fix/Wrapper1 Panel
 		{
 	        	container TextArea(tracks/3DAGear1)
 			{
