@@ -24,18 +24,60 @@ addons:
     - libxaw7-dev
     - libxrandr-dev
 
-install:
-  - sudo rm -rf /usr/local/cmake-3.9.2/
-  - sudo rm -f /usr/local/cmake
-  - sudo pip install cmake conan --ignore-installed
-  - conan user
+matrix:
+  include:
 
-script:
-  - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
-  - ninja
+    # gcc build
+    - os:                linux
+      name:              GCC 5 Build
+      compiler:          gcc
+      python:            3.7
+      env:
+        - C_COMPILER=gcc-5
+      before_install:
+        - sudo rm -rf /usr/local/cmake-3.9.2/
+        - sudo rm -f /usr/local/cmake
+        - sudo pip install cmake conan --ignore-installed
 
-before_cache:
-  - cmake -P ./cmake/3rdparty/pmm.cmake /Conan /Clean
+      install:
+        - mkdir travis_build
+        - cd travis_build
+        - conan user
 
-after_success:
-  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sh ./tools/CI/upload-CI-build.sh; fi
+      script:
+        # make sure CXX is correctly set
+        - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
+        - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++
+        - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; fi
+        - if [[ "${C_COMPILER}" != "" ]]; then export CC=${COMPILER}; fi
+        # Build Cytopia
+        - cmake -GNinja -DCMAKE_BUILD_TYPE=Release ..
+        - ninja
+        - ldd ./bin/Cytopia
+        - sh ./tools/CI/upload-CI-build.sh
+
+      before_cache:
+        - cmake -P ./cmake/3rdparty/pmm.cmake /Conan /Clean
+
+    - os:               osx
+      name:             XCode 10.2 Build
+      osx_image:        xcode10.2
+      env:              TARGET=macOS
+      language:         objective-c
+      python:           3.7
+      before_install:
+        - brew update
+        - brew install conan
+
+      install:
+        - mkdir travis_build
+        - cd travis_build
+        - conan user
+
+      script:
+        - cmake -DCMAKE_BUILD_TYPE=Release ..
+        - make
+        - make package
+
+      before_cache:
+        - cmake -P ./cmake/3rdparty/pmm.cmake /Conan /Clean
