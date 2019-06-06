@@ -140,13 +140,6 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
 
     this->LoadCacheFileJson();
 
-    // show error on zero content
-    if (m_entries.empty())
-    {
-        ErrorUtils::ShowError(_L("No content found"), _L("Failed to generate list of installed content"));
-        exit(1);
-    }
-
     App::app_force_cache_purge.SetActive(false);
     App::app_force_cache_udpate.SetActive(false);
 
