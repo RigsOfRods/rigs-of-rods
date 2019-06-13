@@ -85,12 +85,14 @@ using namespace RoR;
 void ActorSpawner::Setup(
     Actor *rig,
     std::shared_ptr<RigDef::File> file,
-    Ogre::SceneNode *parent
+    Ogre::SceneNode *parent,
+    Ogre::Vector3 const & spawn_position
 )
 {
     m_actor = rig;
     m_file = file;
     m_particles_parent_scenenode = parent;
+    m_spawn_position = spawn_position;
     m_current_keyword = RigDef::File::KEYWORD_INVALID;
     m_wing_area = 0.f;
     m_fuse_z_min = 1000.0f;
@@ -271,7 +273,7 @@ void ActorSpawner::InitializeRig()
     m_actor->m_beam_break_debug_enabled  = App::diag_log_beam_break.GetActive();
     m_actor->m_beam_deform_debug_enabled = App::diag_log_beam_deform.GetActive();
     m_actor->m_trigger_debug_enabled    = App::diag_log_beam_trigger.GetActive();
-    m_actor->ar_origin = Ogre::Vector3::ZERO;
+    m_actor->ar_origin=Ogre::Vector3::ZERO;
     m_actor->m_slidenodes.clear();
 
     m_actor->ar_cinecam_node[0]=-1;
@@ -5608,9 +5610,9 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     node.pos = inserted_node.first; /* Node index */
 
     /* Positioning */
-    Ogre::Vector3 node_position = def.position;
+    Ogre::Vector3 node_position = m_spawn_position + def.position;
     node.AbsPosition = node_position; 
-    node.RelPosition = node_position;
+    node.RelPosition = node_position - m_actor->ar_origin;
 
     node.friction_coef = def.node_defaults->friction;
     node.volume_coef = def.node_defaults->volume;
@@ -5772,7 +5774,7 @@ bool ActorSpawner::AddModule(Ogre::String const & module_name)
 void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
 {
     // Node
-    Ogre::Vector3 node_pos = def.position;
+    Ogre::Vector3 node_pos = m_spawn_position + def.position;
     node_t & camera_node = GetAndInitFreeNode(node_pos);
     camera_node.nd_no_ground_contact = true; // Orig: hardcoded in BTS_CINECAM
     camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT; // Node defaults are ignored here.
@@ -5802,7 +5804,7 @@ void ActorSpawner::InitNode(node_t & node, Ogre::Vector3 const & position)
 {
     /* Position */
     node.AbsPosition = position;
-    node.RelPosition = position;
+    node.RelPosition = position - m_actor->ar_origin;
 }
 
 void ActorSpawner::InitNode(
