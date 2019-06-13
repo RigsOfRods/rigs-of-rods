@@ -67,8 +67,11 @@ public:
     Ogre::Vector3     getDirection();
     Ogre::Vector3     getPosition();
     void              UpdateInitPosition();
-    float             ResolveSurfaceCollision(); //!< Returns the final height above surface
-    void              ResetPosition(Ogre::Vector3 target);
+    /// Moves the actor.
+    /// @param translation Offset to move in world coordinates
+    /// @param setInitPosition Set initial positions of nodes to current position?
+    void              ResetPosition(Ogre::Vector3 translation, bool setInitPosition);
+    void              ResetPosition(float px, float pz, bool setInitPosition, float miny);
     void              RequestRotation(float rotation, Ogre::Vector3 center) { m_rotation_request += rotation; m_rotation_request_center = center; };
     void              RequestAngleSnap(int division) { m_anglesnap_request = division; };
     void              RequestTranslation(Ogre::Vector3 translation) { m_translation_request += translation; };
@@ -149,7 +152,7 @@ public:
     void              calculateAveragePosition();
     void              UpdatePhysicsOrigin();
     void              SoftReset();
-    void              SyncReset(bool reset_on_init);      //!< this one should be called only synchronously (without physics running in background)
+    void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
     blinktype         getBlinkType();
     std::vector<authorinfo_t>     getAuthors();
     std::vector<std::string>      getDescription();

@@ -131,7 +131,8 @@ public:
     void Setup(
         Actor *actor,
         std::shared_ptr<RigDef::File> file,
-        Ogre::SceneNode *parent
+        Ogre::SceneNode *parent,
+        Ogre::Vector3 const & spawn_position
         );
 
     Actor *SpawnActor();
@@ -1072,6 +1073,7 @@ private:
 
     // Spawn
     Actor*             m_actor; //!< The output actor.
+    Ogre::Vector3      m_spawn_position;
     bool               m_apply_simple_materials;
     std::string        m_cab_material_name; ///< Original name defined in truckfile/globals.
     std::string        m_custom_resource_group;
