@@ -13,6 +13,9 @@ add_executable(UtilsTest
     "${CMAKE_SOURCE_DIR}/source/main/utils/SHA1.cpp"
 )
 
+# TODO: Can it be applied recursively to all tests?
+set_target_properties("UtilsTest" PROPERTIES FOLDER "Tests")
+
 if (USE_PACKAGE_MANAGER)
     target_link_libraries(UtilsTest PRIVATE
             CONAN_PKG::gtest
