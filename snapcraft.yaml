@@ -132,6 +132,7 @@ parts:
             - -DCMAKE_INSTALL_PREFIX=/usr/
             - -DBUILD_REDIST_FOLDER=TRUE
             - -DUSE_PACKAGE_MANAGER=FALSE
+            - -DUSE_PMM=FALSE
         override-build: |
             snapcraftctl build
             make zip_and_copy_resources
