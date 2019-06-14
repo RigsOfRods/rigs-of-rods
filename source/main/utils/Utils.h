@@ -33,6 +33,7 @@
 #include "utf8/unchecked.h"
 
 #include <MyGUI.h>
+#include <OgreUTFString.h>
 
 Ogre::String sha1sum(const char *key, int len);
 

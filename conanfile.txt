@@ -13,6 +13,7 @@ SocketW/3.10.36@anotherfoxguy/stable
 openal/1.19.0@bincrafters/stable
 rapidjson/1.1.0@bincrafters/stable
 ogre-caelum/0.6.3-p1@anotherfoxguy/stable
+gtest/1.8.1@bincrafters/stable
 
 [imports]
 bin, *.dll -> ./bin @ keep_path=False
