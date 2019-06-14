@@ -28,6 +28,8 @@
 
 #include <mutex>
 
+#include <OgreAxisAlignedBox.h>
+
 struct eventsource_t
 {
     char instancename[256];
@@ -99,7 +101,7 @@ private:
     static const int CELL_BLOCKSIZE = 126;
 
     // terrain size is limited to 327km x 327km:
-    static const int CELL_SIZE = 2.0; // we divide through this
+    static const int CELL_SIZE = 2; // we divide through this
     static const int MAXIMUM_CELL = 0x7FFF;
 
     // collision boxes pool

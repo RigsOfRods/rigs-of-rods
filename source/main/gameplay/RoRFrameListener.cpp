@@ -67,6 +67,8 @@
 
 #include "SurveyMapManager.h"
 
+#include <OgreOverlayManager.h>
+
 #include <ctime>
 #include <fstream>
 #include <iomanip>
@@ -2574,5 +2576,10 @@ void SimController::RemoveActorDirectly(Actor* actor)
 #endif //SOCKETW
 
     m_actor_manager.DeleteActorInternal(actor);
+}
+
+RoR::InterActorBeamsMap& SimController::GetInterActorBeams()
+{
+    return m_actor_manager.inter_actor_links;
 }
 

@@ -33,6 +33,8 @@
 #include "OverlayWrapper.h"
 #include "MumbleIntegration.h"
 
+#include <OgreLogManager.h>
+
 /* -------------------- Research of debug options (only_a_ptr, 06/2017) ----------------------
 
     ROR.CONF NAME            | GVar name ('+': added) --- Description

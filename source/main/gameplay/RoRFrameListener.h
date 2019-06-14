@@ -23,7 +23,7 @@
 
 #include "RoRPrerequisites.h"
 
-#include "BeamData.h" // RoR::ActorSpawnRequest
+#include "BeamData.h" // RoR::ActorSpawnRequest, InterActorBeamsMap
 #include "BeamFactory.h"
 #include "CameraManager.h" // CameraManager::CameraBehaviors
 #include "CharacterFactory.h"
@@ -31,6 +31,9 @@
 #include "ForceFeedback.h"
 #include "OutProtocol.h"
 #include "SceneMouse.h"
+
+#include <OgreRay.h>
+#include <OgreWindowEventUtilities.h>
 
 /// The simulation controller object
 /// It's lifetime is tied to single gameplay session. When user returns to main menu, it's destroyed.
@@ -112,6 +115,7 @@ public:
     bool                         IsGUIHidden()              { return m_hide_gui; }
     void                         ResetCamera();
     RoR::CameraManager::CameraBehaviors GetCameraBehavior();
+    RoR::InterActorBeamsMap &           GetInterActorBeams();
 
     Actor* GetPlayerActor()                                 { return m_player_actor; };
     Actor* GetPrevPlayerActor()                             { return m_prev_player_actor; };
@@ -124,7 +128,7 @@ public:
 
     void SetTerrainEditorMouseRay(Ogre::Ray ray);
 
-private:
+protected:
 
     // Ogre::WindowEventListener interface
     void   windowFocusChange       (Ogre::RenderWindow* rw);

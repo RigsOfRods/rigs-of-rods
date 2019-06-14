@@ -27,6 +27,7 @@
 
 #include "ForwardDeclarations.h"
 #include "EnvironmentMap.h" // RoR::GfxEnvmap
+#include "SurveyMapManager.h"
 
 #include <map>
 #include <string>

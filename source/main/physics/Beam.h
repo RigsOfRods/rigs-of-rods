@@ -25,12 +25,17 @@
 
 #include "Application.h"
 #include "BeamData.h"
+#include "Buoyance.h"
 #include "CmdKeyInertia.h"
 #include "GfxActor.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
+#include "SlideNode.h"
+#include "ZeroedMemoryAllocator.h"
 
+#include <OgreAxisAlignedBox.h>
 #include <OgreTimer.h>
+#include <OgreUTFString.h>
 
 /// Softbody object; can be anything from soda can to a space shuttle
 /// Monsterclass; contains logic related to physics, network, sound, threading, rendering.
@@ -48,6 +53,8 @@ public:
         NETWORKED_OK,     //!< not simulated (remote) actor
         LOCAL_SLEEPING,   //!< sleeping (local) actor
     };
+
+    Actor(); // For unit tests
 
     Actor(
           int actor_id
@@ -67,8 +74,8 @@ public:
     Ogre::Vector3     getDirection();
     Ogre::Vector3     getPosition();
     void              UpdateInitPosition();
-    /// Moves the actor.
-    /// @param translation Offset to move in world coordinates
+    /// Synchronously moves the actor (CAUTION: uses node #0, not ar_origin!)
+    /// @param translation Target coordinates of node #0
     /// @param setInitPosition Set initial positions of nodes to current position?
     void              ResetPosition(Ogre::Vector3 translation, bool setInitPosition);
     void              ResetPosition(float px, float pz, bool setInitPosition, float miny);

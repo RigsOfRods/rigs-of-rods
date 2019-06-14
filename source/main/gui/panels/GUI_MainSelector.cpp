@@ -43,6 +43,8 @@ using namespace GUI;
 #define CLASS        MainSelector
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
+#define U(str) Ogre::UTFString(L##str) // Must not be defined in header - conflicts with GoogleTest, see https://github.com/Microsoft/cpprestsdk/issues/230#issuecomment-243875736
+
 CLASS::CLASS() :
     m_keys_bound(false)
     , m_selected_entry(nullptr)

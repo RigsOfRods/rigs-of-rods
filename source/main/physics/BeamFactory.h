@@ -34,6 +34,8 @@
 #include <string>
 #include <vector>
 
+#include <OgreTimer.h>
+
 #define PHYSICS_DT App::diag_physics_dt.GetActive()
 
 class ThreadPool;
@@ -103,7 +105,7 @@ public:
     std::pair<Actor*, float> GetNearestActor(Ogre::Vector3 position);
 
     // A list of all beams interconnecting two actors
-    std::map<beam_t*, std::pair<Actor*, Actor*>> inter_actor_links;
+    InterActorBeamsMap inter_actor_links;
 
 private:
 

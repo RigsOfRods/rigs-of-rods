@@ -15,6 +15,7 @@ if (USE_PACKAGE_MANAGER)
     set(ROR_USE_ANGELSCRIPT TRUE)
     set(ROR_USE_CURL TRUE)
     set(ROR_USE_MOFILEREADER TRUE)
+    set(ROR_USE_GOOGLETEST TRUE)
 
     include(pmm)
     pmm(CONAN REMOTES ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies BINCRAFTERS
@@ -35,6 +36,7 @@ else (USE_PACKAGE_MANAGER)
     set(ROR_USE_ANGELSCRIPT "TRUE" CACHE BOOL "use angelscript")
     set(ROR_USE_CURL "TRUE" CACHE BOOL "use curl, required for communication with online services")
     set(ROR_USE_MOFILEREADER "TRUE" CACHE BOOL "use mofilereader")
+  set(ROR_USE_GOOGLETEST "TRUE" CACHE BOOL "use googletest")
 
     # find packages
     find_package(OGRE 1.11 REQUIRED COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
@@ -46,5 +48,6 @@ else (USE_PACKAGE_MANAGER)
     find_package(CURL)
     find_package(Caelum)
     find_package(MoFileReader)
+  find_package(GTest) # Google Test, script comes with CMake
 
 endif (USE_PACKAGE_MANAGER)

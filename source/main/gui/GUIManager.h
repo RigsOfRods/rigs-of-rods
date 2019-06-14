@@ -30,6 +30,7 @@
 
 #include <Bites/OgreWindowEventUtilities.h>
 #include <OgreFrameListener.h>
+#include <OgreUTFString.h>
 #include <MyGUI_UString.h>
 
 namespace RoR {

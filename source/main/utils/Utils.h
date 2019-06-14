@@ -33,6 +33,7 @@
 #include "utf8/unchecked.h"
 
 #include <MyGUI.h>
+#include <OgreUTFString.h>
 
 void InitDiscord();
 

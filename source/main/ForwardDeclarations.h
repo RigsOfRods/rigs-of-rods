@@ -126,6 +126,7 @@ namespace Ogre
     class MovableText;
     class Overlay;
     class RenderTarget;
+    class SceneManager;
     class TerrainGroup;
 }
 

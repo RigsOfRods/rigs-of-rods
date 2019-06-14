@@ -34,6 +34,7 @@
 #include "Collisions.h"
 #include "DashBoardManager.h"
 #include "DynamicCollisions.h"
+#include "GfxScene.h"
 #include "GUIManager.h"
 #include "GUI_GameConsole.h"
 #include "GUI_TopMenubar.h"
@@ -52,6 +53,9 @@
 #include "ThreadPool.h"
 #include "Utils.h"
 #include "VehicleAI.h"
+
+#include <OgreSceneManager.h>
+#include <OgreSceneNode.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -373,10 +377,12 @@ Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<R
     Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
     actor->SetUsedSkin(rq.asr_skin_entry);
 
+#ifdef USE_SOCKETW
     if (App::mp_state.GetActive() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {
         actor->sendStreamSetup();
     }
+#endif // #ifdef USE_SOCKETW
 
     this->SetupActor(actor, rq, def);
 
@@ -995,7 +1001,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
     dt *= m_simulation_speed;
 
     dt += m_dt_remainder;
-    m_physics_steps = dt / PHYSICS_DT;
+    m_physics_steps = static_cast<int>(dt / PHYSICS_DT);
     if (m_physics_steps == 0)
     {
         return;
@@ -1042,6 +1048,8 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
                 actor->updateSkidmarks();
             }
         }
+
+#ifdef USE_SOCKETW
         if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
         {
             if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
@@ -1049,6 +1057,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
             else
                 actor->sendStreamData();
         }
+#endif
     }
 
     if (player_actor != nullptr)
@@ -1164,7 +1173,7 @@ void ActorManager::UpdatePhysicsSimulation()
         actor->m_ongoing_reset = false;
         if (actor->ar_update_physics && m_physics_steps > 0)
         {
-            Vector3  camera_gforces = actor->m_camera_gforces_accu / m_physics_steps;
+            Vector3  camera_gforces = actor->m_camera_gforces_accu / Ogre::Real(m_physics_steps);
             actor->m_camera_gforces_accu = Vector3::ZERO;
             actor->m_camera_gforces = actor->m_camera_gforces * 0.5f + camera_gforces * 0.5f;
             actor->calculateLocalGForces();

@@ -34,8 +34,6 @@
 // #define NOLANG            = no language translations at all, removes any special parsing tags
 // #define USE_MOFILEREADER  = windows gettext replacement
 
-# define U(str) Ogre::UTFString(L##str)
-
 #ifdef NOLANG
 // no language mode
 # define _L

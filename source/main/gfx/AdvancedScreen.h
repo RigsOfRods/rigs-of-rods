@@ -24,6 +24,8 @@
 
 #include "RoRPrerequisites.h"
 
+#include <OgreImage.h>
+#include <OgreRenderWindow.h>
 #include <thread>
 
 #define SET_BIT(var, pos)   ((var) |= (1<<(pos)))
@@ -32,7 +34,7 @@
 #define CLEAR_LSB(var)      ((var) &= ~1)
 #define CHECK_BIT(var,pos)  ((var) & (1<<(pos)))
 
-void save(Ogre::uchar* data, Ogre::uchar* databuf, int mWidth, int mHeight, Ogre::PixelFormat pf, Ogre::String filename)
+inline void save(Ogre::uchar* data, Ogre::uchar* databuf, int mWidth, int mHeight, Ogre::PixelFormat pf, Ogre::String filename)
 {
     Ogre::Image img;
     img.loadDynamicImage(data, mWidth, mHeight, 1, pf, false, 1, 0);

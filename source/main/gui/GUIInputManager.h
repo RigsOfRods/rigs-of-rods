@@ -39,7 +39,7 @@ public:
 
     void setMousePosition(int _x, int _y);
 
-    float getLastMouseMoveTime() { return m_last_mousemove_time->getMilliseconds(); };
+    float getLastMouseMoveTime() { return static_cast<float>( m_last_mousemove_time->getMilliseconds() ); };
 
     void SupressCursor(bool do_supress);
 

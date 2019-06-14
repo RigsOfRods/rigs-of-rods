@@ -22,7 +22,7 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
-#include "mygui/BaseLayout.h"
+#include "BaseLayout.h"
 
 #include <Ogre.h>
 #include <OgreTimer.h>

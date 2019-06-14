@@ -23,6 +23,7 @@
 
 #include "RoRPrerequisites.h"
 #include "Terrn2Fileformat.h"
+#include "IWater.h"
 
 #include <OgreVector3.h>
 #include <string>

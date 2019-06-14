@@ -105,6 +105,7 @@ include(DependenciesConfig)
 add_subdirectory(source/angelscript_addons)
 add_subdirectory(source/version_info)
 add_subdirectory(source/main)
+add_subdirectory(test)
 
 include(Resources)
 include(Install)

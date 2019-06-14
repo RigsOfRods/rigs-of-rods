@@ -22,6 +22,8 @@
 
 #include <vector>
 
+#include <OgreUTFString.h>
+
 struct DifferentialData
 {
     float speed[2];

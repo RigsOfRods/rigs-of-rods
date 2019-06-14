@@ -21,6 +21,7 @@
 
 #include "Beam.h"
 
+#include "AeroEngine.h"
 #include "AirBrake.h"
 #include "Airfoil.h"
 #include "Application.h"
@@ -46,6 +47,7 @@
 #include "GUI_GameConsole.h"
 #include "GfxActor.h"
 #include "InputEngine.h"
+#include "IWater.h"
 #include "Language.h"
 #include "MeshObject.h"
 #include "MovableText.h"
@@ -67,6 +69,9 @@
 #include "Utils.h"
 #include "VehicleAI.h"
 #include "Water.h"
+
+#include <OgreOverlayElement.h> // TODO: Only used for autopilot, move to AutoPilot.cpp! ~ only_a_ptr, 06/2019
+#include <OgreOverlayManager.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -340,6 +345,8 @@ Vector3 Actor::getPosition()
 {
     return m_avg_node_position; //the position is already in absolute position
 }
+
+#ifdef USE_SOCKETW
 
 void Actor::PushNetwork(char* data, int size)
 {
@@ -629,6 +636,8 @@ void Actor::CalcNetwork()
 
     m_net_initialized = true;
 }
+
+#endif // #ifdef USE_SOCKETW
 
 bool Actor::AddTyrePressure(float v)
 {
@@ -1925,6 +1934,8 @@ void Actor::HandleInputEvents(float dt)
     }
 }
 
+#ifdef USE_SOCKETW
+
 void Actor::sendStreamSetup()
 {
     RoRnet::ActorStreamRegister reg;
@@ -1946,6 +1957,8 @@ void Actor::sendStreamSetup()
     ar_net_source_id = reg.origin_sourceid;
     ar_net_stream_id = reg.origin_streamid;
 }
+
+#endif // #ifdef USE_SOCKETW
 
 void Actor::sendStreamData()
 {
@@ -3388,7 +3401,7 @@ void Actor::RemoveInterActorBeam(beam_t* beam)
 void Actor::DisjoinInterActorBeams()
 {
     ar_inter_beams.clear();
-    auto inter_actor_links = &App::GetSimController()->GetBeamFactory()->inter_actor_links;
+    auto inter_actor_links = &App::GetSimController()->GetInterActorBeams();
     for (auto it = inter_actor_links->begin(); it != inter_actor_links->end();)
     {
         auto actor_pair = it->second;
@@ -4428,12 +4441,7 @@ void Actor::EngineTriggerHelper(int engineNumber, int type, float triggerValue)
     }
 }
 
-Actor::Actor(
-    int actor_id,
-    unsigned int vector_index,
-    std::shared_ptr<RigDef::File> def,
-    RoR::ActorSpawnRequest rq
-) 
+Actor::Actor()
     : ar_nodes(nullptr), ar_num_nodes(0)
     , ar_beams(nullptr), ar_num_beams(0)
     , ar_shocks(nullptr), ar_num_shocks(0)
@@ -4487,7 +4495,7 @@ Actor::Actor(
     , m_inter_point_col_detector(nullptr)
     , m_intra_point_col_detector(nullptr)
     , ar_net_last_update_time(0)
-    , m_avg_node_position_prev(rq.asr_position)
+    , m_avg_node_position_prev(Ogre::Vector3::ZERO)
     , ar_left_mirror_angle(0.52)
     , ar_lights(1)
     , m_avg_node_velocity(Ogre::Vector3::ZERO)
@@ -4496,7 +4504,7 @@ Actor::Actor(
     , ar_main_camera_node_pos(0)
     , ar_main_camera_node_dir(0)
     , ar_main_camera_node_roll(0)
-    , m_preloaded_with_terrain(rq.asr_origin == RoR::ActorSpawnRequest::Origin::TERRN_DEF)
+    , m_preloaded_with_terrain(false)
     , ar_net_source_id(0)
     , m_spawn_rotation(0.0)
     , ar_net_stream_id(0)
@@ -4514,7 +4522,7 @@ Actor::Actor(
     , m_replay_pos_prev(-1)
     , ar_parking_brake(false)
     , ar_trailer_parking_brake(false)
-    , m_avg_node_position(rq.asr_position)
+    , m_avg_node_position(Ogre::Vector3::ZERO)
     , m_previous_gear(0)
     , m_ref_tyre_pressure(50.0)
     , m_replay_handler(nullptr)
@@ -4550,8 +4558,8 @@ Actor::Actor(
     , ar_driveable(NOT_DRIVEABLE)
     , m_skid_trails{} // Init array to nullptr
     , ar_collision_range(DEFAULT_COLLISION_RANGE)
-    , ar_instance_id(actor_id)
-    , ar_vector_index(vector_index)
+    , ar_instance_id(-1)
+    , ar_vector_index(std::numeric_limits<unsigned int>::max())
     , ar_rescuer_flag(false)
     , m_antilockbrake(false)
     , m_tractioncontrol(false)
@@ -4573,13 +4581,31 @@ Actor::Actor(
     , ar_wheels() // array
     , ar_num_wheels() // int
     , m_avg_proped_wheel_radius(0.2f)
-    , ar_filename(rq.asr_filename)
-    , m_section_config(rq.asr_config)
     , m_ongoing_reset(false)
     , ar_top_speed(0.0f)
     , ar_last_fuzzy_ground_model(nullptr)
     , m_transfer_case(nullptr)
+    , m_fusealge_airfoil(nullptr)
+    , ar_vehicle_ai(nullptr)
+    , m_command_inertia(nullptr)
+    , m_hydro_inertia(nullptr)
+    , m_rotator_inertia(nullptr)
 {
+}
+
+Actor::Actor(
+    int actor_id,
+    unsigned int vector_index,
+    std::shared_ptr<RigDef::File> def,
+    RoR::ActorSpawnRequest rq
+) : Actor()
+{
+    ar_filename = rq.asr_filename;
+    m_section_config = rq.asr_config;
+    ar_instance_id = actor_id;
+    ar_vector_index = vector_index;
+    m_avg_node_position_prev = rq.asr_position;
+    m_preloaded_with_terrain = (rq.asr_origin == RoR::ActorSpawnRequest::Origin::TERRN_DEF);
 }
 
 float Actor::getSteeringAngle()

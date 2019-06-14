@@ -40,6 +40,12 @@
 #include "BitFlags.h"
 #include "CmdKeyInertia.h"
 
+#include <OgreUTFString.h>
+#include <OgreVector3.h>
+#include <OgreColourValue.h>
+
+#include <map>
+
 enum event_types {
     EVENT_NONE=0,
     EVENT_ALL,
@@ -529,6 +535,9 @@ struct authorinfo_t
 };
 
 namespace RoR {
+
+// A list of all beams interconnecting two actors
+typedef std::map<beam_t*, std::pair<Actor*, Actor*>> InterActorBeamsMap;
 
 struct ActorSpawnRequest
 {

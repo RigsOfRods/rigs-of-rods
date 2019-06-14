@@ -30,8 +30,10 @@
 #include "RoRPrerequisites.h"
 #include "InterThreadStoreVector.h"
 
-#include "mygui/BaseLayout.h"
+#include "BaseLayout.h"
 #include "GUI_GameConsoleLayout.h"
+
+#include <OgreLog.h>
 
 namespace RoR {
 // Special - not in namespace GUI

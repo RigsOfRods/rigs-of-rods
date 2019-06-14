@@ -30,6 +30,7 @@
 #include "RigDef_File.h"
 
 #include <Ogre.h>
+#include <rapidjson/document.h>
 
 #define CACHE_FILE "mods.cache"
 #define CACHE_FILE_FORMAT 11
@@ -162,7 +163,7 @@ public:
 
     enum CategoryID {CID_Max=9000, CID_Unsorted=9990, CID_All=9991, CID_Fresh=9992, CID_Hidden=9993, CID_SearchResults=9994};
 
-private:
+protected:
 
     void WriteCacheFileJson();
     void ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Document& j_doc, CacheEntry const & entry);

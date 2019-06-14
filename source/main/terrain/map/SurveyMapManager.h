@@ -23,7 +23,7 @@
 
 #include "RoRPrerequisites.h"
 
-#include "mygui/BaseLayout.h"
+#include "BaseLayout.h"
 
 class SurveyMapTextureCreator;
 

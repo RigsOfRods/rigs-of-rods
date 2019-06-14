@@ -55,6 +55,8 @@ using namespace Ogre;
 
 bool g_is_scaled = false;
 
+#define U(str) Ogre::UTFString(L##str) // Must not be defined in header - conflicts with GoogleTest, see https://github.com/Microsoft/cpprestsdk/issues/230#issuecomment-243875736
+
 OverlayWrapper::OverlayWrapper():
     m_direction_arrow_node(nullptr),
     mTimeUntilNextToggle(0),
