@@ -1499,7 +1499,7 @@ void SimController::UpdateInputEvents(float dt)
             rotation = m_player_actor->getRotation();
         }
         String pos = StringUtil::format("%8.3f, %8.3f, %8.3f"   , position.x, position.y, position.z);
-        String rot = StringUtil::format("% 6.1f, % 6.1f, % 6.1f",       0.0f, rotation  ,       0.0f);
+        String rot = StringUtil::format("% 6.1f, % 6.1f, % 6.1f",       0.0f, rotation.valueDegrees()  ,       0.0f);
         LOG("Position: " + pos + ", " + rot);
     }
 
