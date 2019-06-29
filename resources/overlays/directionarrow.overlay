@@ -1,6 +1,6 @@
 overlay tracks/DirectionArrow
 {
-	zorder 12
+	zorder 600
 	overlay_element tracks/DirectionArrow/MainPanel Panel
 	{
 		transparent true
