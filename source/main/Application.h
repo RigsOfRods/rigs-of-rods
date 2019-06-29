@@ -675,7 +675,6 @@ extern GVarPod_A<int>          sim_replay_length;
 extern GVarPod_A<int>          sim_replay_stepping;
 extern GVarPod_A<bool>         sim_realistic_commands;
 extern GVarPod_A<bool>         sim_races_enabled;
-extern GVarPod_A<bool>         sim_direction_arrow;
 extern GVarPod_A<bool>         sim_no_collisions;
 extern GVarPod_A<bool>         sim_no_self_collisions;
 extern GVarEnum_AP<SimGearboxMode> sim_gearbox_mode;

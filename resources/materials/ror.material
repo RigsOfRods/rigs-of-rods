@@ -2418,7 +2418,9 @@ material tracks/directionArrowNormal
     {
         pass
         {
-			lighting off
+            lighting off
+            depth_check on
+            cull_hardware none 
             scene_blend alpha_blend
             texture_unit
             {
