@@ -580,7 +580,8 @@ public:
     {
         if (val != m_value_pending)
         {
-            GVarBase::LogSetPending(val, m_value_pending);
+            if(GVarStr_A<L>::name != "mp_player_token")
+                GVarBase::LogSetPending(val, m_value_pending);
             m_value_pending = val;
         }
     }
@@ -589,7 +590,8 @@ public:
     {
         if ((val != GVarStr_A<L>::m_value_active) || (val != m_value_pending))
         {
-            GVarBase::LogSetActive(val, GVarStr_A<L>::m_value_active);
+            if(GVarStr_A<L>::name != "mp_player_token")
+                GVarBase::LogSetActive(val, GVarStr_A<L>::m_value_active);
             GVarStr_A<L>::m_value_active = val;
             m_value_pending = val;
         }
@@ -599,7 +601,8 @@ public:
     {
         if (GVarStr_A<L>::m_value_active != m_value_pending)
         {
-            GVarBase::LogApplyPending(m_value_pending, GVarStr_A<L>::m_value_active);
+            if(GVarStr_A<L>::name != "mp_player_token")
+                GVarBase::LogApplyPending(m_value_pending, GVarStr_A<L>::m_value_active);
             GVarStr_A<L>::m_value_active.Assign(m_value_pending);
         }
     }
@@ -608,7 +611,8 @@ public:
     {
         if (GVarStr_A<L>::m_value_active != m_value_pending)
         {
-            GVarBase::LogResetPending(m_value_pending, GVarStr_A<L>::m_value_active);
+            if(GVarStr_A<L>::name != "mp_player_token")
+                GVarBase::LogResetPending(m_value_pending, GVarStr_A<L>::m_value_active);
             m_value_pending.Assign(GVarStr_A<L>::m_value_active);
         }
     }
