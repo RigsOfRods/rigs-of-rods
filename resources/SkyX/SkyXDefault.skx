@@ -5,7 +5,7 @@ SkyXVersion=0.4.0
 
 #Main options field
 <float>TimeMultiplier=0.01
-<vector3>Time=8.85x7.5x20.5 ; current-time 'x' sunrise time 'x' sunset time
+<vector3>Time=12.00x7.5x20.5 ; current-time 'x' sunrise time 'x' sunset time
 <float>MoonPhase=0
 
 #Atmoshperic options
