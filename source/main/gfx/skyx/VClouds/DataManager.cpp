@@ -578,7 +578,7 @@ namespace SkyX { namespace VClouds
 				Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 				Ogre::TEX_TYPE_3D,
 				nx, ny, nz, 0,
-				Ogre::PF_BYTE_RGB);
+				Ogre::PF_BYTE_RGBA);
 
 		mVolTextures[static_cast<int>(TexId)]->load();
 
@@ -598,13 +598,11 @@ namespace SkyX { namespace VClouds
 		
 		buffer->lock(Ogre::HardwareBuffer::HBL_DISCARD);
 		const Ogre::PixelBox &pb = buffer->getCurrentLock();
-        size_t x, y, z;
 
-        if (Ogre::Root::getSingleton ().getRenderSystem ()->getName () == "OpenGL Rendering Subsystem")
-        {
-            auto *pbptr = pb.data;
+                 Ogre::uint32 *pbptr = reinterpret_cast<Ogre::uint32*>(pb.data);
+                 size_t x, y, z;
 
-            for (z = pb.front; z < pb.back; z++)
+                 for (z = pb.front; z < pb.back; z++)
             {
                 for (y = pb.top; y < pb.bottom; y++)
                 {
@@ -616,25 +614,6 @@ namespace SkyX { namespace VClouds
                 }
                 pbptr += pb.getSliceSkip ();
             }
-        }
-        else
-        {
-            Ogre::uint32 *pbptr = reinterpret_cast<Ogre::uint32*>(pb.data);
-
-            for (z = pb.front; z < pb.back; z++)
-            {
-                for (y = pb.top; y < pb.bottom; y++)
-                {
-                    for (x = pb.left; x < pb.right; x++)
-                    {
-                        Ogre::PixelUtil::packColour (c[x][y][z].dens/* TODO!!!! */, c[x][y][z].light, 0, 0, pb.format, &pbptr[x]);
-                    }
-                    pbptr += pb.rowPitch;
-                }
-                pbptr += pb.getSliceSkip ();
-            }
-        }
-		
 
 		buffer->unlock();
 	}
