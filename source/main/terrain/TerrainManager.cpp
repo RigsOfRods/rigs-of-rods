@@ -232,7 +232,14 @@ void TerrainManager::initCamera()
     gEnv->mainCamera->getViewport()->setBackgroundColour(m_def.ambient_color);
     gEnv->mainCamera->setPosition(m_def.start_position);
 
-    m_sight_range = App::gfx_sight_range.GetActive();
+    if (App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX)
+    {
+        m_sight_range = 5000;  //Force unlimited for SkyX, lower settings are glitchy
+    } 
+    else
+    {
+        m_sight_range = App::gfx_sight_range.GetActive();
+    } 
 
     if (m_sight_range < UNLIMITED_SIGHTRANGE && App::gfx_sky_mode.GetActive() != GfxSkyMode::SKYX)
     {

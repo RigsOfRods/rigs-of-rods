@@ -277,7 +277,10 @@ void RoR::GUI::GameSettings::Draw()
             "Caelum (best looking, slower)\0"
             "SkyX (best looking, slower)\0\0");
 
-        DrawGIntSlider(App::gfx_sight_range, _LC("GameSettings", "Sight range (meters)"), 100, 5000);
+        if (App::gfx_sky_mode.GetActive() != GfxSkyMode::SKYX)
+        {
+          DrawGIntSlider(App::gfx_sight_range, _LC("GameSettings", "Sight range (meters)"), 100, 5000);
+        }
 
         DrawGCombo(App::gfx_texture_filter , _LC("GameSettings", "Texture filtering"),
             "None\0"
