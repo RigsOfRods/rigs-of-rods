@@ -420,7 +420,6 @@ const char* EnumToStr(GfxShadowType v)
     switch(v)
     {
     case GfxShadowType::NONE   : return "NONE";
-    case GfxShadowType::TEXTURE: return "TEXTURE";
     case GfxShadowType::PSSM   : return "PSSM";
     default                    : return "~invalid~";
     }

@@ -46,7 +46,6 @@ void ShowVersion();
 // ---------------------
 // Config value strings
 
-extern const char* CONF_GFX_SHADOW_TEX;
 extern const char* CONF_GFX_SHADOW_PSSM;
 extern const char* CONF_GFX_SHADOW_NONE;
 

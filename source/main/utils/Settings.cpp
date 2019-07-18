@@ -205,7 +205,6 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
     }
 }
 
-const char* CONF_GFX_SHADOW_TEX     = "Texture shadows";
 const char* CONF_GFX_SHADOW_PSSM    = "Parallel-split Shadow Maps";
 const char* CONF_GFX_SHADOW_NONE    = "No shadows (fastest)";
 
@@ -267,7 +266,6 @@ inline bool CheckShadowTech(std::string const & key, std::string const & s)
     if (key != App::gfx_shadow_type.conf_name)
         return false;
 
-    if (s == CONF_GFX_SHADOW_TEX)     { App::gfx_shadow_type.SetActive(GfxShadowType::TEXTURE); return true; }
     if (s == CONF_GFX_SHADOW_PSSM)    { App::gfx_shadow_type.SetActive(GfxShadowType::PSSM   ); return true; }
     else                              { App::gfx_shadow_type.SetActive(GfxShadowType::NONE   ); return true; }
 }
@@ -673,7 +671,6 @@ inline const char* GfxShadowTechToStr(GfxShadowType v)
 {
     switch (v)
     {
-    case GfxShadowType::TEXTURE: return CONF_GFX_SHADOW_TEX;
     case GfxShadowType::PSSM   : return CONF_GFX_SHADOW_PSSM;
     case GfxShadowType::NONE   : return CONF_GFX_SHADOW_NONE;
     default                    : return "";

@@ -80,7 +80,6 @@ const char* EnumToStr(SimGearboxMode v);
 enum class GfxShadowType
 {
     NONE,
-    TEXTURE,
     PSSM
 };
 const char* EnumToStr(GfxShadowType v);
