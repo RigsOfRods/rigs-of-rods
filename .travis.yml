@@ -1,5 +1,4 @@
 dist: bionic
-sudo: required
 language: c
 python: 3.7
 
@@ -24,10 +23,6 @@ addons:
     - libxt-dev
     - libxaw7-dev
     - libxrandr-dev
-
-install:
-  - sudo pip install conan
-  - conan user
 
 script:
   - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
