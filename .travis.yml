@@ -1,6 +1,5 @@
 dist: bionic
 language: c
-python: 3.7
 
 cache:
   directories:
@@ -8,6 +7,11 @@ cache:
 
 addons:
   apt:
+    sources:
+      # Official Kitware APT repository. Currently supports Bionic and Xenial.
+      # More information at: https://apt.kitware.com
+      - sourceline: 'deb https://apt.kitware.com/ubuntu/ bionic main'
+        key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
     packages:
     - p7zip-full
     - pkg-config
