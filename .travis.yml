@@ -1,4 +1,4 @@
-dist: xenial
+dist: bionic
 sudo: required
 language: c
 
@@ -25,9 +25,7 @@ addons:
     - libxrandr-dev
 
 install:
-  - sudo rm -rf /usr/local/cmake-3.9.2/
-  - sudo rm -f /usr/local/cmake
-  - sudo pip install cmake conan --ignore-installed
+  - sudo pip3 install conan
   - conan user
 
 script:
