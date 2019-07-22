@@ -101,7 +101,7 @@
             <UserString key="link" value="parkingbrake"/>
             <UserString key="texture" value="pbrake"/>
         </Widget>
-        <Widget type="ImageBox" skin="RotatingSkin" position="770 544 250 250" align="Right Bottom" layer="Middle" name="SpeedoNeedle">
+        <Widget type="ImageBox" skin="RotatingSkin" style="Overlapped" position="770 544 250 250" align="Right Bottom" layer="Middle" name="SpeedoNeedle">
             <Property key="ImageTexture" value="redneedle_v2.png"/>
             <UserString key="anim" value="rotate"/>
             <UserString key="vmin" value="0"/>
