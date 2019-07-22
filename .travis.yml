@@ -25,9 +25,11 @@ addons:
     - libxrandr-dev
 
 install:
-  - sudo rm -rf /usr/local/cmake-3.9.2/
-  - sudo rm -f /usr/local/cmake
-  - sudo pip install cmake conan --ignore-installed
+  - wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
+  - sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ xenial main' -y
+  - sudo apt-get update
+  - sudo apt-get install cmake -y
+  - sudo pip install conan
   - conan user
 
 script:
