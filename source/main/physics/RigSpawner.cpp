@@ -1252,44 +1252,39 @@ void ActorSpawner::ProcessFixedNode(RigDef::Node::Ref node_ref)
 
 void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
 {
-    // parse exhausts
     if (m_actor->m_disable_smoke)
     {
         return;
     }
 
-    node_t & ref_node = GetNodeOrThrow(def.reference_node);//id1;
-    node_t & dir_node = GetNodeOrThrow(def.direction_node);//id2;
-
     exhaust_t exhaust;
-    exhaust.emitterNode = ref_node.pos;
-    exhaust.directionNode = dir_node.pos;
+    exhaust.emitterNode   = this->GetNodeIndexOrThrow(def.reference_node);
+    exhaust.directionNode = this->GetNodeIndexOrThrow(def.direction_node);
 
-    Ogre::NameValuePairList params;
-    params["resourceGroup"] = m_custom_resource_group;
-    if (def.particle_name.empty() || def.particle_name == "default")
+    std::string template_name = def.particle_name;
+    if (template_name.empty() || template_name == "default")
     {
-        params["templateName"] = "tracks/Smoke"; // defined in `particles/smoke.particle`
-    }
-    else
-    {
-        params["templateName"] = def.particle_name;
+        template_name = "tracks/Smoke"; // defined in `particles/smoke.particle`
     }
 
-    std::string name = this->ComposeName("Exhaust", static_cast<int>(m_actor->exhausts.size()));
-    exhaust.smoker = static_cast<Ogre::ParticleSystem*>(
-        gEnv->sceneManager->createMovableObject(
-            name, Ogre::ParticleSystemFactory::FACTORY_TYPE_NAME, &params));
-    exhaust.smoker->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
+    std::string name = this->ComposeName(template_name.c_str(), static_cast<int>(m_actor->exhausts.size()));
+    exhaust.smoker = this->CreateParticleSystem(name, template_name);
+    if (exhaust.smoker == nullptr)
+    {
+        std::stringstream msg;
+        msg << "Failed to create particle system '" << name << "' (template: '" << template_name <<"')";
+        AddMessage(Message::TYPE_ERROR, msg.str());
+        return;
+    }
 
     exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode();
     exhaust.smokeNode->attachObject(exhaust.smoker);
-    exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
+    exhaust.smokeNode->setPosition(this->GetNode(exhaust.emitterNode).AbsPosition);
 
     // Update GFX for nodes
     for (GfxActor::NodeGfx& nfx : m_gfx_nodes)
     {
-        if (nfx.nx_node_idx == ref_node.pos || nfx.nx_node_idx == dir_node.pos)
+        if (nfx.nx_node_idx == exhaust.emitterNode || nfx.nx_node_idx == exhaust.directionNode)
         {
             nfx.nx_is_hot = true;
         }
@@ -2599,28 +2594,26 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
         return;
     }
 
-    unsigned int particle_index = m_actor->ar_num_custom_particles;
+    int particle_index = m_actor->ar_num_custom_particles;
     cparticle_t & particle = m_actor->ar_custom_particles[particle_index];
 
     particle.emitterNode = GetNodeIndexOrThrow(def.emitter_node);
     particle.directionNode = GetNodeIndexOrThrow(def.reference_node);
 
-    /* Setup visuals */
-    std::stringstream name;
-    name << "cparticle-" << particle_index << "-" << m_actor->ar_design_name;
-    particle.snode = m_particles_parent_scenenode->createChildSceneNode();
-    particle.psys = gEnv->sceneManager->createParticleSystem(name.str(), def.particle_system_name);
+    std::string name = this->ComposeName(def.particle_system_name.c_str(), particle_index);
+    particle.psys = this->CreateParticleSystem(name, def.particle_system_name);
     if (particle.psys == nullptr)
     {
         std::stringstream msg;
-        msg << "Failed to create particle system '" << def.particle_system_name << "'";
+        msg << "Failed to create particle system '" << name << "' (template: '" << def.particle_system_name <<"')";
         AddMessage(Message::TYPE_ERROR, msg.str());
         return;
     }
-    particle.psys->setVisibilityFlags(DEPTHMAP_DISABLED);
+
+    particle.snode = m_particles_parent_scenenode->createChildSceneNode();
     particle.snode->attachObject(particle.psys);
-    particle.snode->setPosition(GetNode(particle.emitterNode).AbsPosition);
-    
+    particle.snode->setPosition(this->GetNode(particle.emitterNode).AbsPosition);
+
     /* Shut down the emitters */
     particle.active = false; 
     for (unsigned int i = 0; i < particle.psys->getNumEmitters(); i++)
@@ -7186,4 +7179,20 @@ void ActorSpawner::HandleException()
     {
         this->AddMessage(Message::TYPE_ERROR, "An unknown exception has occurred");
     }
+}
+
+Ogre::ParticleSystem* ActorSpawner::CreateParticleSystem(std::string const & name, std::string const & template_name)
+{
+    // None of `Ogre::SceneManager::createParticleSystem()` overloads
+    // lets us specify both resource group and template name.
+
+    Ogre::NameValuePairList params;
+    params["resourceGroup"] = m_custom_resource_group;
+    params["templateName"] = template_name;
+
+    Ogre::MovableObject* obj = gEnv->sceneManager->createMovableObject(
+       name, Ogre::ParticleSystemFactory::FACTORY_TYPE_NAME, &params);
+    Ogre::ParticleSystem* psys = static_cast<Ogre::ParticleSystem*>(obj);
+    psys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
+    return psys;
 }
