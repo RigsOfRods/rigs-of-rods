@@ -940,6 +940,8 @@ private:
 
     Ogre::MaterialPtr CreateSimpleMaterial(Ogre::ColourValue color);
 
+    Ogre::ParticleSystem* CreateParticleSystem(std::string const & name, std::string const & template_name);
+
     RigDef::MaterialFlareBinding* FindFlareBindingForMaterial(std::string const & material_name); ///< Returns NULL if none found
 
     RigDef::VideoCamera* FindVideoCameraByMaterial(std::string const & material_name); ///< Returns NULL if none found
