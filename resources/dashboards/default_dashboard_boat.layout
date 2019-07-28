@@ -48,7 +48,7 @@
             <UserString key="link" value="lights"/>
             <UserString key="texture" value="lights"/>
         </Widget>
-        <Widget type="ImageBox" skin="RotatingSkin" position="769 538 258 258" align="Right Bottom" layer="Middle" name="SpeedoNeedle">
+        <Widget type="ImageBox" skin="RotatingSkin" style="Overlapped" position="769 538 258 258" align="Right Bottom" layer="Middle" name="SpeedoNeedle">
             <Property key="ImageTexture" value="redneedle_v2.png"/>
             <UserString key="anim" value="rotate"/>
             <UserString key="link" value="water_speed"/>

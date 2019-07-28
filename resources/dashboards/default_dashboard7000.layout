@@ -99,7 +99,7 @@
                 <UserString key="link" value="low_pressure"/>
             </Widget>
         </Widget>
-        <Widget type="ImageBox" skin="RotatingSkin" position="771 544 248 248" align="Right Bottom" layer="Main" name="SpeedoNeedle">
+        <Widget type="ImageBox" skin="RotatingSkin" style="Overlapped" position="771 544 248 248" align="Right Bottom" layer="Main" name="SpeedoNeedle">
             <Property key="ImageTexture" value="redneedle_v2.png"/>
             <UserString key="anim" value="rotate"/>
             <UserString key="vmin" value="0"/>
