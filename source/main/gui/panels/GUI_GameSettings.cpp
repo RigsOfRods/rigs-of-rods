@@ -29,7 +29,7 @@ void RoR::GUI::GameSettings::Draw()
 {
     bool is_visible = true;
     const int flags = ImGuiWindowFlags_NoCollapse;
-    ImGui::SetNextWindowSize(ImVec2(600.f, 400.f), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(640.f, 400.f), ImGuiSetCond_FirstUseEver);
     ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
     ImGui::Begin(_LC("GameSettings", "Game settings"), &is_visible, flags);
     if (! is_visible)
@@ -258,9 +258,8 @@ void RoR::GUI::GameSettings::Draw()
             "All vehicles, main lights\0"
             "All vehicles, all lights\0\0");
 
-        DrawGCombo(App::gfx_shadow_type, _LC("GameSettings", "Shadow type"),
+        DrawGCombo(App::gfx_shadow_type, _LC("GameSettings", "Shadow type (requires restart)"),
             "Disabled\0"
-            "Texture\0"
             "PSSM\0\0");
 
         if (App::gfx_shadow_type.GetActive() != GfxShadowType::NONE)

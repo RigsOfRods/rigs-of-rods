@@ -58,8 +58,6 @@ public:
 
 protected:
 
-    void processTextureShadows();
-
     void processPSSM();
     void setManagedMaterialSplitPoints(Ogre::PSSMShadowCameraSetup::SplitPointList splitPointList);
 

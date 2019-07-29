@@ -54,12 +54,7 @@ int ShadowManager::updateShadowTechnique()
 
     RoR::GfxShadowType type = RoR::App::gfx_shadow_type.GetActive();
 
-    if (type == RoR::GfxShadowType::TEXTURE)
-    {
-        gEnv->sceneManager->setShadowFarDistance(RoR::App::gfx_sight_range.GetActive());
-        processTextureShadows();
-    }
-    else if (type == RoR::GfxShadowType::PSSM)
+    if (type == RoR::GfxShadowType::PSSM)
     {
         processPSSM();
         if (gEnv->sceneManager->getShowDebugShadows())
@@ -90,12 +85,6 @@ int ShadowManager::updateShadowTechnique()
         }
     }
     return 0;
-}
-
-void ShadowManager::processTextureShadows()
-{
-    gEnv->sceneManager->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_MODULATIVE);
-    gEnv->sceneManager->setShadowTextureSettings(2048, 2);
 }
 
 void ShadowManager::processPSSM()
