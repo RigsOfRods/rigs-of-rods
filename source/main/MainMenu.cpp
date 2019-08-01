@@ -106,18 +106,6 @@ void MainMenu::EnterMainMenuLoop()
 
         App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
-#ifdef USE_SOCKETW
-        if ((App::mp_state.GetActive() == MpState::CONNECTED) && RoR::Networking::CheckError())
-        {
-            const char* text = RoR::Networking::GetErrorMessage().asUTF8_c_str();
-            App::GetGuiManager()->ShowMessageBox(_L("Network fatal error: "), text);
-            App::app_state.SetPending(AppState::MAIN_MENU);
-
-            RoR::App::GetGuiManager()->GetMainSelector()->Hide();
-            RoR::App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
-        }
-#endif
-
         if (!rw->isActive() && rw->isVisible())
             rw->update(); // update even when in background !
     }
@@ -134,13 +122,32 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
     }
 
 #ifdef USE_SOCKETW
+    Networking::ConnectState con_state = Networking::CheckConnectingState();
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
-        App::GetGuiManager()->GetMpClientList()->update();
+        if (con_state == Networking::ConnectState::KICKED) // Just kicked by server (only returned once)
+        {
+            this->LeaveMultiplayerServer();
+            App::GetGuiManager()->ShowMessageBox(
+                _LC("Network", "Multiplayer: disconnected"),
+                Networking::GetStatusMessage().c_str());
+            RoR::Networking::ResetStatusMessage();
+        }
+        else if (con_state == Networking::ConnectState::RECV_ERROR) // Receive error (only returned once)
+        {
+            this->LeaveMultiplayerServer();
+            App::GetGuiManager()->ShowMessageBox(
+                _L("Network fatal error: "),
+                Networking::GetStatusMessage().c_str());
+            RoR::Networking::ResetStatusMessage();
+        }
+        else
+        {
+            App::GetGuiManager()->GetMpClientList()->update();
+        }
     }
     else if (App::mp_state.GetPending() == MpState::CONNECTED)
     {
-        Networking::ConnectState con_state = Networking::CheckConnectingState();
         if (con_state == Networking::ConnectState::IDLE) // Not connecting yet
         {
             App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
@@ -148,14 +155,18 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
             App::GetGuiManager()->SetVisible_GameMainMenu(!connect_started);
             if (!connect_started)
             {
-                App::GetGuiManager()->ShowMessageBox("Multiplayer: connection failed", Networking::GetErrorMessage().asUTF8_c_str());
+                App::GetGuiManager()->ShowMessageBox(
+                    _LC("Network", "Multiplayer: connection failed"),
+                    Networking::GetStatusMessage().c_str());
                 App::mp_state.SetActive(RoR::MpState::DISABLED);
             }
         }
         else if (con_state == Networking::ConnectState::FAILURE) // Just failed (only returned once)
         {
             App::mp_state.SetActive(RoR::MpState::DISABLED);
-            App::GetGuiManager()->ShowMessageBox("Multiplayer: connection failed", Networking::GetErrorMessage().asUTF8_c_str());
+            App::GetGuiManager()->ShowMessageBox(
+                _LC("Network", "Multiplayer: connection failed"),
+                Networking::GetStatusMessage().c_str());
             App::GetGuiManager()->SetVisible_GameMainMenu(true);
         }
         else if (con_state == Networking::ConnectState::SUCCESS) // Just succeeded (only returned once)

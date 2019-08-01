@@ -2278,11 +2278,25 @@ void SimController::EnterGameplayLoop()
         }
 
 #ifdef USE_SOCKETW
-        if ((App::mp_state.GetActive() == MpState::CONNECTED) && RoR::Networking::CheckError())
+        if ((App::mp_state.GetActive() == MpState::CONNECTED))
         {
-            const char* text = RoR::Networking::GetErrorMessage().asUTF8_c_str();
-            App::GetGuiManager()->ShowMessageBox(_L("Network fatal error: "), text);
-            App::app_state.SetPending(AppState::MAIN_MENU);
+            Networking::ConnectState con_state = Networking::CheckConnectingState();
+            if (con_state == Networking::ConnectState::KICKED)
+            {
+                App::app_state.SetPending(AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
+                App::GetGuiManager()->ShowMessageBox(
+                    _LC("Network", "Multiplayer: disconnected"),
+                    Networking::GetStatusMessage().c_str());
+                RoR::Networking::ResetStatusMessage();
+            }
+            else if (con_state == Networking::ConnectState::RECV_ERROR)
+            {
+                App::app_state.SetPending(AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
+                App::GetGuiManager()->ShowMessageBox(
+                    _L("Network fatal error: "),
+                    Networking::GetStatusMessage().c_str());
+                RoR::Networking::ResetStatusMessage();
+            }
         }
 #endif
 
