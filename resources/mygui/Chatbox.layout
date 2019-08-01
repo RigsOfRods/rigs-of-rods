@@ -1,22 +1,32 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowCS" position="120 375 615 225" layer="Overlapped" name="_Main">
-        <Property key="Caption" value="ChatBox"/>
-        <Widget type="EditBox" skin="EditBoxStretch" position="0 0 605 160" align="Stretch" name="Chatbox_MainBox">
-            <Property key="VisibleHScroll" value="true"/>
-            <Property key="VisibleVScroll" value="true"/>
+    <Widget type="Window" skin="PanelEmpty" position="120 375 615 225" layer="Overlapped" name="_Main">
+        <Widget type="ImageBox" skin="WhiteSkin" position="0 0 605 170">
+            <Property key="Enabled" value="true"/>
+            <Property key="Colour" value="#353535"/>
+            <Property key="InheritsAlpha" value="true"/>
+            <Property key="Alpha" value="0.5"/>
+        </Widget>
+        <Widget type="EditBox" skin="WordWrapEmpty" position="0 0 605 170" align="Stretch" name="Chatbox_MainBox">
             <Property key="ReadOnly" value="true"/>
             <Property key="MultiLine" value="true"/>
-            <Property key="MaxTextLength" value="999999"/>
+            <Property key="MaxTextLength" value="-1"/>
+            <Property key="TextShadow" value="true"/>
+            <Property key="TextShadowColour" value="0  0  0"/>
+            <Property key="Text_FontName" value="DefaultBig"/>
+            <Property key="Text_FontHeight" value="17"/>
         </Widget>
-        <Widget type="EditBox" skin="EditBox" position="0 160 605 30" align="HStretch Bottom" name="Chatbox_TextBox">
+        <Widget type="ImageBox" skin="WhiteSkin" position="0 170 605 20">
+            <Property key="Enabled" value="true"/>
+            <Property key="Colour" value="#0C0C0C"/>
+            <Property key="InheritsAlpha" value="true"/>
+            <Property key="Alpha" value="0.5"/>
+        </Widget>
+        <Widget type="EditBox" skin="EditBoxEmpty" position="0 170 605 30" align="HStretch Bottom" name="Chatbox_TextBox">
             <Property key="Enabled" value="false"/>
+            <Property key="Text_FontName" value="DefaultBig"/>
+            <Property key="Text_FontHeight" value="17"/>
         </Widget>
     </Widget>
-    <CodeGeneratorSettings>
-        <Property key="IncludeDirectory" value="C:\Users\Max\Documents\GitHub\ror_nextstable_gui\source\main\gui\panels"/>
-        <Property key="PanelName" value="GameChatBoxLayout"/>
-        <Property key="PanelNamespace" value="m"/>
-        <Property key="SourceDirectory" value="C:\Users\Max\Documents\GitHub\ror_nextstable_gui\source\main\gui\panels"/>
-    </CodeGeneratorSettings>
 </MyGUI>
+
