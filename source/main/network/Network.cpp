@@ -112,11 +112,11 @@ static std::thread m_recv_thread;
 static std::thread m_connect_thread;
 
 static std::atomic<ConnectState> m_connecting_status(ConnectState::IDLE);
+static std::string       m_status_message;
 static std::atomic<bool> m_shutdown;
 
 static std::mutex m_users_mutex;
 static std::mutex m_userdata_mutex;
-static std::mutex m_error_message_mutex;
 static std::mutex m_status_message_mutex;
 static std::mutex m_recv_packetqueue_mutex;
 static std::mutex m_send_packetqueue_mutex;
@@ -128,14 +128,8 @@ static std::deque <send_packet_t> m_send_packet_buffer;
 
 static const unsigned int m_packet_buffer_size = 20;
 
-static std::atomic<bool> m_net_fatal_error;
-static Ogre::UTFString   m_error_message;
-static StatusStr         m_status_message;
-
 #define LOG_THREAD(_MSG_) { std::stringstream s; s << _MSG_ << " (Thread ID: " << std::this_thread::get_id() << ")"; LOG(s.str()); }
 #define LOGSTREAM         Ogre::LogManager().getSingleton().stream()
-
-static const int RECVMESSAGE_RETVAL_SHUTDOWN = -43;
 
 bool ConnectThread(); // Declaration.
 
@@ -148,19 +142,7 @@ Ogre::ColourValue GetPlayerColor(int color_num)
     return MP_COLORS[color_num];
 }
 
-Ogre::UTFString GetErrorMessage()
-{
-    std::lock_guard<std::mutex> lock(m_error_message_mutex);
-    return m_error_message;
-}
-
-void SetErrorMessage(Ogre::UTFString msg)
-{
-    std::lock_guard<std::mutex> lock(m_error_message_mutex);
-    m_error_message = msg;
-}
-
-StatusStr GetStatusMessage()
+std::string GetStatusMessage()
 {
     std::lock_guard<std::mutex> lock(m_status_message_mutex);
     return m_status_message;
@@ -172,14 +154,9 @@ void SetStatusMessage(const char* msg)
     m_status_message = msg;
 }
 
-bool CheckError()
+void ResetStatusMessage()
 {
-    if (m_net_fatal_error)
-    {
-        App::mp_state.SetActive(RoR::MpState::DISABLED);
-        return true;
-    }
-    return false;
+    SetStatusMessage("");
 }
 
 void DebugPacket(const char *name, RoRnet::Header *header, char *buffer)
@@ -188,16 +165,6 @@ void DebugPacket(const char *name, RoRnet::Header *header, char *buffer)
     msg << "++ " << name << ": " << header->source << ", " << header->streamid
         << ", "<< header->command << ", " << header->size << ", hash: " << HashData(buffer, header->size);
     LOG(msg.str());
-}
-
-void NetFatalError(Ogre::UTFString errormsg)
-{
-    LOG("[RoR|Networking] NetFatalError(): " + errormsg.asUTF8());
-
-    SetErrorMessage(errormsg);
-    m_net_fatal_error = true;
-
-    m_shutdown = true;
 }
 
 void SetNetQuality(int quality)
@@ -340,13 +307,11 @@ void RecvThread()
         //LOG("Received data: " + TOSTRING(header.command) + ", source: " + TOSTRING(header.source) + ":" + TOSTRING(header.streamid) + ", size: " + TOSTRING(header.size));
         if (err != 0)
         {
-            if (err != RECVMESSAGE_RETVAL_SHUTDOWN)
-            {
-                std::stringstream s;
-                s << "[RoR|Networking] RecvThread: Error while receiving data: " << err << ", tid: " <<std::this_thread::get_id();
-                NetFatalError(s.str());
-            }
-            break;
+            LOG_THREAD("[RoR|Networking] RecvThread: Error while receiving data: " + TOSTRING(err));
+            m_shutdown = true; // Atomic; instruct sender thread to stop
+            m_connecting_status = ConnectState::RECV_ERROR; // Atomic
+            SetStatusMessage(_LC("Network", "Error receiving data from network"));
+            break; // Stop receiving data
         }
 
         if (header.command == MSG2_STREAM_REGISTER)
@@ -385,11 +350,16 @@ void RecvThread()
         {
             if (header.source == m_uid)
             {
-                NetFatalError(_L("disconnected: remote side closed the connection"));
-                return;
+                m_shutdown = true; // Instruct send&recv threads to exit.
+                m_connecting_status = ConnectState::KICKED; // Socket must be disconnected
+                std::stringstream msg;
+                msg << _L("disconnected: remote side closed the connection");
+                msg << " ** ";
+                msg << buffer;
+                SetStatusMessage(msg.str().c_str());
             }
-
-            { // Lock scope
+            else
+            {
                 std::lock_guard<std::mutex> lock(m_users_mutex);
                 auto user = std::find_if(m_users.begin(), m_users.end(), [header](const RoRnet::UserInfo& u) { return static_cast<int>(u.uniqueid) == header.source; });
                 if (user != m_users.end())
@@ -468,7 +438,7 @@ void RecvThread()
 void CouldNotConnect(Ogre::UTFString const & msg, bool close_socket = true)
 {
     RoR::LogFormat("[RoR|Networking] Failed to connect to server [%s:%d], message: %s", m_net_host.GetBuffer(), m_net_port, msg.asUTF8_c_str());
-    SetErrorMessage(msg);
+    SetStatusMessage(msg.asUTF8_c_str());
     m_connecting_status = ConnectState::FAILURE;
 
     if (close_socket)
@@ -481,10 +451,6 @@ void CouldNotConnect(Ogre::UTFString const & msg, bool close_socket = true)
 bool StartConnecting()
 {
     SetStatusMessage("Starting...");
-
-    // Reset errors
-    SetErrorMessage("");
-    m_net_fatal_error = false;
 
     // Shadow vars for threaded access
     m_username = App::mp_player_name.GetActive();
@@ -504,8 +470,7 @@ bool StartConnecting()
         App::mp_state.SetActive(MpState::DISABLED);
         m_connecting_status = ConnectState::FAILURE;
         RoR::LogFormat("[RoR|Networking] Failed to launch connection thread, message: %s", e.what());
-        SetErrorMessage(_L("Failed to launch connection thread"));
-        SetStatusMessage("Failed");
+        SetStatusMessage(_L("Failed to launch connection thread"));
         return false;
     }
 }
@@ -525,6 +490,14 @@ ConnectState CheckConnectingState()
             m_connect_thread.join(); // Clean up
         m_connecting_status = ConnectState::IDLE;
         return ConnectState::FAILURE;
+
+    case ConnectState::KICKED:
+        m_connecting_status = ConnectState::IDLE;
+        return ConnectState::KICKED;
+
+    case ConnectState::RECV_ERROR:
+        m_connecting_status = ConnectState::IDLE;
+        return ConnectState::RECV_ERROR;
 
     default:
         return m_connecting_status;
@@ -687,6 +660,7 @@ bool ConnectThread()
 void Disconnect()
 {
     LOG("[RoR|Networking] Disconnect() disconnecting...");
+    bool is_clean_disconnect = !m_shutdown; // Hacky detection of invalid network state
 
     m_shutdown = true; // Instruct Send/Recv threads to shut down.
 
@@ -697,7 +671,10 @@ void Disconnect()
 
     socket.set_timeout(1, 0);
 
-    SendNetMessage(MSG2_USER_LEAVE, 0, 0, 0);
+    if (is_clean_disconnect)
+    {
+        SendNetMessage(MSG2_USER_LEAVE, 0, 0, 0);
+    }
 
     m_recv_thread.join();
     LOG("[RoR|Networking] Disconnect() receiver thread stopped...");

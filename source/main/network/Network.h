@@ -79,10 +79,10 @@ enum class ConnectState
     IDLE,
     WORKING,
     SUCCESS,
-    FAILURE
+    FAILURE,
+    KICKED,
+    RECV_ERROR
 };
-
-typedef Str<100> StatusStr;
 
 bool                 StartConnecting();             ///< Launches connecting on background.
 ConnectState         CheckConnectingState();        ///< Reports state of background connecting and updates GVar 'mp_state'
@@ -105,9 +105,8 @@ std::vector<RoRnet::UserInfo> GetUserInfos();
 bool                 GetUserInfo(int uid, RoRnet::UserInfo &result);
 Ogre::ColourValue    GetPlayerColor(int color_num);
 
-Ogre::UTFString      GetErrorMessage();
-StatusStr            GetStatusMessage();
-bool                 CheckError();
+std::string          GetStatusMessage();
+void                 ResetStatusMessage();
 
 } // namespace Networking
 } // namespace RoR
