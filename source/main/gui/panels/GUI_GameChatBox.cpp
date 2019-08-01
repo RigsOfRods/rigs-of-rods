@@ -54,7 +54,7 @@ CLASS::CLASS() :
 
     /* Adjust menu position */
     Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
-    int margin = (viewport->getActualHeight() / 6);
+    int margin = (viewport->getActualHeight() / 4.5);
     MAIN_WIDGET->setPosition(
         2, // left
         viewport->getActualHeight() - MAIN_WIDGET->getHeight() - margin // top
