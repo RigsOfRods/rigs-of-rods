@@ -27,6 +27,11 @@
 #include "RoRnet.h"
 #include "RoRPrerequisites.h"
 
+#include <list>
+#include <queue>
+#include <string>
+#include <vector>
+
 namespace RoR {
 namespace Networking {
 
@@ -74,18 +79,30 @@ struct recv_packet_t
 
 // ------------------------ End of network messages --------------------------
 
-enum class ConnectState
+struct NetEvent
 {
-    IDLE,
-    WORKING,
-    SUCCESS,
-    FAILURE,
-    KICKED,
-    RECV_ERROR
+    enum class Type
+    {
+        INVALID,
+        CONNECT_STARTED,
+        CONNECT_PROGRESS,
+        CONNECT_SUCCESS,
+        CONNECT_FAILURE,
+        SERVER_KICK,
+        USER_DISCONNECT,
+        RECV_ERROR,
+    };
+
+    NetEvent(Type t, std::string const& msg) :type(t), message(msg) {}
+
+    Type type;
+    std::string message;
 };
 
-bool                 StartConnecting();             ///< Launches connecting on background.
-ConnectState         CheckConnectingState();        ///< Reports state of background connecting and updates GVar 'mp_state'
+typedef std::queue < NetEvent, std::list<NetEvent>> NetEventQueue;
+
+bool                 StartConnecting();    ///< Launches connecting on background.
+NetEventQueue        CheckEvents();        ///< Processes and returns the event queue.
 void                 Disconnect();
 
 void                 AddPacket(int streamid, int type, int len, char *content);
@@ -104,9 +121,6 @@ RoRnet::UserInfo     GetLocalUserData();
 std::vector<RoRnet::UserInfo> GetUserInfos();
 bool                 GetUserInfo(int uid, RoRnet::UserInfo &result);
 Ogre::ColourValue    GetPlayerColor(int color_num);
-
-std::string          GetStatusMessage();
-void                 ResetStatusMessage();
 
 } // namespace Networking
 } // namespace RoR

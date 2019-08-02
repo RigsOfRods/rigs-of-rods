@@ -505,7 +505,7 @@ void GUIManager::DrawMainMenuGui()
         m_impl->panel_GameMainMenu.Draw();
     }
 
-    if ((App::mp_state.GetActive() != MpState::CONNECTED) && (App::mp_state.GetPending() == MpState::CONNECTED))
+    if (App::mp_state.GetActive() == MpState::CONNECTING)
     {
         this->DrawMpConnectingStatusBox();
     }
@@ -542,7 +542,7 @@ void GUIManager::DrawMpConnectingStatusBox()
     // HACK: The trailing space is a workaround for a scissoring issue in OGRE/DearIMGUI integration. ~ only_a_ptr, 10/2017
     ImGui::Text("Joining [%s:%d] ", App::mp_server_host.GetActive(), App::mp_server_port.GetActive());
 #ifdef USE_SOCKETW
-    ImGui::TextDisabled("%s", Networking::GetStatusMessage().c_str());
+    ImGui::TextDisabled("%s", m_net_connect_status.c_str());
 #endif
     ImGui::End();
 }

@@ -2280,22 +2280,26 @@ void SimController::EnterGameplayLoop()
 #ifdef USE_SOCKETW
         if ((App::mp_state.GetActive() == MpState::CONNECTED))
         {
-            Networking::ConnectState con_state = Networking::CheckConnectingState();
-            if (con_state == Networking::ConnectState::KICKED)
+            Networking::NetEventQueue events = Networking::CheckEvents();
+            while (!events.empty())
             {
-                App::app_state.SetPending(AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
-                App::GetGuiManager()->ShowMessageBox(
-                    _LC("Network", "Multiplayer: disconnected"),
-                    Networking::GetStatusMessage().c_str());
-                RoR::Networking::ResetStatusMessage();
-            }
-            else if (con_state == Networking::ConnectState::RECV_ERROR)
-            {
-                App::app_state.SetPending(AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
-                App::GetGuiManager()->ShowMessageBox(
-                    _L("Network fatal error: "),
-                    Networking::GetStatusMessage().c_str());
-                RoR::Networking::ResetStatusMessage();
+                switch (events.front().type)
+                {
+                case Networking::NetEvent::Type::SERVER_KICK:
+                    App::app_state.SetPending(AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
+                    App::GetGuiManager()->ShowMessageBox(
+                        _LC("Network", "Multiplayer: disconnected"), events.front().message.c_str());
+                    break;
+
+                case Networking::NetEvent::Type::RECV_ERROR:
+                    App::app_state.SetPending(AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
+                    App::GetGuiManager()->ShowMessageBox(
+                        _L("Network fatal error: "), events.front().message.c_str());
+                    break;
+
+                default:;
+                }
+                events.pop();
             }
         }
 #endif

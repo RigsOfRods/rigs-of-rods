@@ -125,6 +125,7 @@ public:
     void DrawMainMenuGui();
     void DrawSimulationGui(float dt);
 
+    void SetMpConnectingStatusMsg(std::string const & msg) { m_net_connect_status = msg; }
     void DrawMpConnectingStatusBox();
     void hideGUI(bool visible);
 
@@ -158,6 +159,7 @@ private:
     bool               m_renderwindow_closed;
     OgreImGui          m_imgui;
     GuiTheme           m_theme;
+    std::string        m_net_connect_status;
 };
 
 } // namespace RoR
