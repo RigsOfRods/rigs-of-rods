@@ -53,6 +53,7 @@ const char* EnumToStr(AppState v);
 enum class MpState
 {
     DISABLED,  ///< Not connected for whatever reason.
+    CONNECTING,
     CONNECTED,
 };
 const char* EnumToStr(MpState v);
