@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.5.1)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/3rdparty)
 
-include(cotire)
 include(CMakeDependentOption)
 include(Macros)
 include(FeatureSummary)
@@ -22,7 +21,6 @@ option(BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
 option(BUILD_REDIST_FOLDER "Build a folder for redistributing the game" OFF)
 option(USE_PACKAGE_MANAGER "Use conan for managing packages" ON)
-cmake_dependent_option(USE_PMM "Use PMM for managing conan" OFF MSVC ON)
 
 # global cmake options
 SET(BUILD_SHARED_LIBS ON)
