@@ -10,6 +10,8 @@ if(USE_PACKAGE_MANAGER)
   target_link_libraries(angelscript_addons PRIVATE CONAN_PKG::AngelScript)
   target_compile_definitions(angelscript_addons PRIVATE USE_ANGELSCRIPT)
   target_compile_definitions(angelscript_addons PRIVATE AS_USE_NAMESPACE)
+
+
 elseif (TARGET AngelScript::AngelScript)
   target_link_libraries( angelscript_addons
      AngelScript::AngelScript
