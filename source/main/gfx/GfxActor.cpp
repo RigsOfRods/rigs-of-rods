@@ -59,6 +59,13 @@
 #include <OgreTextureManager.h>
 #include <OgreTextureUnitState.h>
 
+RoR::GfxActor::SimBuffer::SimBuffer()
+    : simbuf_autopilot_heading(Autopilot::HEADING_NONE)
+    , simbuf_autopilot_ils_available(false)
+    , simbuf_autopilot_ils_vdev(0.f)
+    , simbuf_autopilot_ils_hdev(0.f)
+{}
+
 RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
                         std::vector<NodeGfx>& gfx_nodes, std::vector<prop_t>& props,
                         int driverseat_prop_idx, RoR::Renderdash* renderdash):
