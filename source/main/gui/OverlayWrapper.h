@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2014 Petr Ohlidal
+    Copyright 2013-2019 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -31,6 +31,46 @@
 
 #include <Overlay/OgreTextAreaOverlayElement.h>
 #include <OIS.h>
+
+struct AeroEngineOverlay
+{
+    Ogre::OverlayElement *thr_element;
+    Ogre::OverlayElement *engfire_element;
+    Ogre::OverlayElement *engstart_element;
+    Ogre::TextureUnitState *rpm_texture;
+    Ogre::TextureUnitState *pitch_texture;
+    Ogre::TextureUnitState *torque_texture;
+};
+
+struct AeroDashOverlay
+{
+    void SetThrottle(int engine, float value);
+    void SetEngineFailed(int engine, bool value);
+    void SetEngineRpm(int engine, float pcent);
+    void SetEnginePitch(int engine, float value);
+    void SetEngineTorque(int engine, float pcent);
+    void SetIgnition(int engine, bool value);
+
+    AeroEngineOverlay engines[4];
+
+    Ogre::Overlay *dash_overlay;
+    Ogre::Overlay *needles_overlay;
+
+    Ogre::TextureUnitState *adibugstexture;
+    Ogre::TextureUnitState *aditapetexture;
+    Ogre::TextureUnitState *hsirosetexture;
+    Ogre::TextureUnitState *hsibugtexture;
+    Ogre::TextureUnitState *hsivtexture;
+    Ogre::TextureUnitState *hsihtexture;
+    Ogre::TextureUnitState *airspeedtexture;
+    Ogre::TextureUnitState *altimetertexture;
+    Ogre::TextureUnitState *vvitexture;
+    Ogre::TextureUnitState *aoatexture;
+    Ogre::TextAreaOverlayElement* alt_value_textarea;
+
+    float thrust_track_top;
+    float thrust_track_height;
+};
 
 class OverlayWrapper : public ZeroedMemoryAllocator
 {
@@ -121,8 +161,7 @@ protected:
     Ogre::Overlay *m_truck_pressure_overlay;
     Ogre::Overlay *m_truck_pressure_needle_overlay;
 
-    Ogre::Overlay *m_aerial_dashboard_overlay;
-    Ogre::Overlay *m_aerial_dashboard_needles_overlay;
+    AeroDashOverlay m_aerial_dashboard;
 
     Ogre::Overlay *m_marine_dashboard_overlay;
     Ogre::Overlay *m_marine_dashboard_needles_overlay;
@@ -142,20 +181,6 @@ protected:
     Ogre::OverlayElement* guiGear;      //!< truck
     Ogre::OverlayElement* guiGear3D;    //!< truck
 
-    // Aerial overlay elements
-    Ogre::OverlayElement *thro1;
-    Ogre::OverlayElement *thro2;
-    Ogre::OverlayElement *thro3;
-    Ogre::OverlayElement *thro4;
-    Ogre::OverlayElement *engfireo1;
-    Ogre::OverlayElement *engfireo2;
-    Ogre::OverlayElement *engfireo3;
-    Ogre::OverlayElement *engfireo4;
-    Ogre::OverlayElement *engstarto1;
-    Ogre::OverlayElement *engstarto2;
-    Ogre::OverlayElement *engstarto3;
-    Ogre::OverlayElement *engstarto4;
-
     // Marine overlay elements
     Ogre::OverlayElement *bthro1;
     Ogre::OverlayElement *bthro2;
@@ -164,33 +189,17 @@ protected:
     Ogre::TextAreaOverlayElement* guiAuto[5];
     Ogre::TextAreaOverlayElement* guiAuto3D[5];
 
-    // Truck (m_racing_overlay)
+    // Truck (racing overlay)
     Ogre::TextAreaOverlayElement* laptime;
     Ogre::TextAreaOverlayElement* bestlaptime;
     Ogre::TextAreaOverlayElement* directionArrowText;
     Ogre::TextAreaOverlayElement* directionArrowDistance;
 
-    Ogre::TextAreaOverlayElement* alt_value_taoe; //!!< Aerial
-
     Ogre::TextAreaOverlayElement* boat_depth_value_taoe; //!< Marine
-
-    // Aerial
-    Ogre::TextureUnitState *adibugstexture;
-    Ogre::TextureUnitState *aditapetexture;
-    Ogre::TextureUnitState *hsirosetexture;
-    Ogre::TextureUnitState *hsibugtexture;
-    Ogre::TextureUnitState *hsivtexture;
-    Ogre::TextureUnitState *hsihtexture;
 
     // truck
     Ogre::TextureUnitState *speedotexture; // Needed for dashboard prop
     Ogre::TextureUnitState *tachotexture;  // Needed for dashboard prop
-
-    // Aerial
-    Ogre::TextureUnitState *airspeedtexture;
-    Ogre::TextureUnitState *altimetertexture;
-    Ogre::TextureUnitState *vvitexture;
-    Ogre::TextureUnitState *aoatexture;
 
     // Marine
     Ogre::TextureUnitState *boatspeedtexture;
@@ -198,27 +207,13 @@ protected:
 
     // Truck
     Ogre::TextureUnitState *pressuretexture;
-    
-    // Aerial
-    Ogre::TextureUnitState *airrpm1texture;
-    Ogre::TextureUnitState *airrpm2texture;
-    Ogre::TextureUnitState *airrpm3texture;
-    Ogre::TextureUnitState *airrpm4texture;
-    Ogre::TextureUnitState *airpitch1texture;
-    Ogre::TextureUnitState *airpitch2texture;
-    Ogre::TextureUnitState *airpitch3texture;
-    Ogre::TextureUnitState *airpitch4texture;
-    Ogre::TextureUnitState *airtorque1texture;
-    Ogre::TextureUnitState *airtorque2texture;
-    Ogre::TextureUnitState *airtorque3texture;
-    Ogre::TextureUnitState *airtorque4texture;
 
-    // Aerial + Marine: Written in init(), read-only in simulation.
+    // Marine: Written in init(), read-only in simulation.
     float thrtop;
     float thrheight;
     float throffset;
 
-    // Truck m_racing_overlay overlay
+    // Truck racing overlay
     Ogre::SceneNode* m_direction_arrow_node;
 
     std::vector<LoadedOverlay> m_loaded_overlays;

@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2017 Petr Ohlidal & contributors
+    Copyright 2013-2019 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -145,6 +145,11 @@ OverlayElement* OverlayWrapper::loadOverlayElement(String name)
     return OverlayManager::getSingleton().getOverlayElement(name);
 }
 
+Ogre::TextureUnitState* GetTexUnit(Ogre::String material_name) // Internal helper
+{
+    return MaterialManager::getSingleton().getByName(material_name)->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+}
+
 int OverlayWrapper::init()
 {
     m_direction_arrow_overlay = loadOverlay("tracks/DirectionArrow", false);
@@ -169,8 +174,8 @@ int OverlayWrapper::init()
         vere->setCaption("Rigs of Rods version " + String(ROR_VERSION_STRING));
 
     m_machine_dashboard_overlay = loadOverlay("tracks/MachineDashboardOverlay");
-    m_aerial_dashboard_overlay = loadOverlay("tracks/AirDashboardOverlay", false);
-    m_aerial_dashboard_needles_overlay = loadOverlay("tracks/AirNeedlesOverlay", false);
+    m_aerial_dashboard.dash_overlay = loadOverlay("tracks/AirDashboardOverlay", false);
+    m_aerial_dashboard.needles_overlay = loadOverlay("tracks/AirNeedlesOverlay", false);
     m_marine_dashboard_overlay = loadOverlay("tracks/BoatDashboardOverlay");
     m_marine_dashboard_needles_overlay = loadOverlay("tracks/BoatNeedlesOverlay");
 
@@ -200,23 +205,26 @@ int OverlayWrapper::init()
     resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/thrusttrack3"));
     resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/thrusttrack4"));
 
-    resizePanel(thro1 = loadOverlayElement("tracks/thrust1"));
-    resizePanel(thro2 = loadOverlayElement("tracks/thrust2"));
-    resizePanel(thro3 = loadOverlayElement("tracks/thrust3"));
-    resizePanel(thro4 = loadOverlayElement("tracks/thrust4"));
+    resizePanel(m_aerial_dashboard.engines[0].thr_element = loadOverlayElement("tracks/thrust1"));
+    resizePanel(m_aerial_dashboard.engines[1].thr_element = loadOverlayElement("tracks/thrust2"));
+    resizePanel(m_aerial_dashboard.engines[2].thr_element = loadOverlayElement("tracks/thrust3"));
+    resizePanel(m_aerial_dashboard.engines[3].thr_element = loadOverlayElement("tracks/thrust4"));
 
-    thrtop = 1.0f + tempoe->getTop() + thro1->getHeight() * 0.5f;
-    thrheight = tempoe->getHeight() - thro1->getHeight() * 2.0f;
-    throffset = thro1->getHeight() * 0.5f;
+    thrtop = 1.0f + tempoe->getTop() + m_aerial_dashboard.engines[0].thr_element->getHeight() * 0.5f;
+    thrheight = tempoe->getHeight() - m_aerial_dashboard.engines[0].thr_element->getHeight() * 2.0f;
+    throffset = m_aerial_dashboard.engines[0].thr_element->getHeight() * 0.5f;
 
-    engfireo1 = loadOverlayElement("tracks/engfire1");
-    engfireo2 = loadOverlayElement("tracks/engfire2");
-    engfireo3 = loadOverlayElement("tracks/engfire3");
-    engfireo4 = loadOverlayElement("tracks/engfire4");
-    engstarto1 = loadOverlayElement("tracks/engstart1");
-    engstarto2 = loadOverlayElement("tracks/engstart2");
-    engstarto3 = loadOverlayElement("tracks/engstart3");
-    engstarto4 = loadOverlayElement("tracks/engstart4");
+    m_aerial_dashboard.thrust_track_top = thrtop;
+    m_aerial_dashboard.thrust_track_height = thrheight;
+
+    m_aerial_dashboard.engines[0].engfire_element = loadOverlayElement("tracks/engfire1");
+    m_aerial_dashboard.engines[1].engfire_element = loadOverlayElement("tracks/engfire2");
+    m_aerial_dashboard.engines[2].engfire_element = loadOverlayElement("tracks/engfire3");
+    m_aerial_dashboard.engines[3].engfire_element = loadOverlayElement("tracks/engfire4");
+    m_aerial_dashboard.engines[0].engstart_element = loadOverlayElement("tracks/engstart1");
+    m_aerial_dashboard.engines[1].engstart_element = loadOverlayElement("tracks/engstart2");
+    m_aerial_dashboard.engines[2].engstart_element = loadOverlayElement("tracks/engstart3");
+    m_aerial_dashboard.engines[3].engstart_element = loadOverlayElement("tracks/engstart4");
     resizePanel(loadOverlayElement("tracks/airrpm1"));
     resizePanel(loadOverlayElement("tracks/airrpm2"));
     resizePanel(loadOverlayElement("tracks/airrpm3"));
@@ -233,23 +241,23 @@ int OverlayWrapper::init()
     resizePanel(loadOverlayElement("tracks/vvi"));
     resizePanel(loadOverlayElement("tracks/altimeter"));
     resizePanel(loadOverlayElement("tracks/altimeter_val"));
-    alt_value_taoe = (TextAreaOverlayElement*)loadOverlayElement("tracks/altimeter_val");
+    m_aerial_dashboard.alt_value_textarea = (TextAreaOverlayElement*)loadOverlayElement("tracks/altimeter_val");
     boat_depth_value_taoe = (TextAreaOverlayElement*)loadOverlayElement("tracks/boatdepthmeter_val");
     resizePanel(loadOverlayElement("tracks/adi-tape"));
     resizePanel(loadOverlayElement("tracks/adi"));
     resizePanel(loadOverlayElement("tracks/adi-bugs"));
-    adibugstexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/adi-bugs")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-    aditapetexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/adi-tape")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.adibugstexture = GetTexUnit("tracks/adi-bugs");
+    m_aerial_dashboard.aditapetexture = GetTexUnit("tracks/adi-tape");
     resizePanel(loadOverlayElement("tracks/aoa"));
     resizePanel(loadOverlayElement("tracks/hsi"));
     resizePanel(loadOverlayElement("tracks/hsi-rose"));
     resizePanel(loadOverlayElement("tracks/hsi-bug"));
     resizePanel(loadOverlayElement("tracks/hsi-v"));
     resizePanel(loadOverlayElement("tracks/hsi-h"));
-    hsirosetexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/hsi-rose")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-    hsibugtexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/hsi-bug")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-    hsivtexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/hsi-v")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-    hsihtexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/hsi-h")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.hsirosetexture = GetTexUnit("tracks/hsi-rose");
+    m_aerial_dashboard.hsibugtexture =  GetTexUnit("tracks/hsi-bug");
+    m_aerial_dashboard.hsivtexture =    GetTexUnit("tracks/hsi-v");
+    m_aerial_dashboard.hsihtexture =    GetTexUnit("tracks/hsi-h");
     //autopilot
     reposPanel(loadOverlayElement("tracks/ap_hdg_pack"));
     reposPanel(loadOverlayElement("tracks/ap_wlv_but"));
@@ -284,43 +292,43 @@ int OverlayWrapper::init()
     tachotexture  = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/tachoneedle_mat"))) ->getTechnique(0)->getPass(0)->getTextureUnitState(0); // Needed for dashboard-prop
 
     resizePanel(loadOverlayElement("tracks/airspeedneedle"));
-    airspeedtexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airspeedneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.airspeedtexture = GetTexUnit("tracks/airspeedneedle_mat");
 
     resizePanel(loadOverlayElement("tracks/altimeterneedle"));
-    altimetertexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/altimeterneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.altimetertexture = GetTexUnit("tracks/altimeterneedle_mat");
 
     resizePanel(loadOverlayElement("tracks/vvineedle"));
-    vvitexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/vvineedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.vvitexture = GetTexUnit("tracks/vvineedle_mat");
 
     resizePanel(loadOverlayElement("tracks/aoaneedle"));
-    aoatexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/aoaneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.aoatexture = GetTexUnit("tracks/aoaneedle_mat");
 
     resizePanel(loadOverlayElement("tracks/airrpm1needle"));
-    airrpm1texture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airrpm1needle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.engines[0].rpm_texture = GetTexUnit("tracks/airrpm1needle_mat");
     resizePanel(loadOverlayElement("tracks/airrpm2needle"));
-    airrpm2texture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airrpm2needle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.engines[1].rpm_texture = GetTexUnit("tracks/airrpm2needle_mat");
     resizePanel(loadOverlayElement("tracks/airrpm3needle"));
-    airrpm3texture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airrpm3needle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.engines[2].rpm_texture = GetTexUnit("tracks/airrpm3needle_mat");
     resizePanel(loadOverlayElement("tracks/airrpm4needle"));
-    airrpm4texture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airrpm4needle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.engines[3].rpm_texture = GetTexUnit("tracks/airrpm4needle_mat");
 
     resizePanel(loadOverlayElement("tracks/airpitch1needle"));
-    airpitch1texture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airpitch1needle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.engines[0].pitch_texture = GetTexUnit("tracks/airpitch1needle_mat");
     resizePanel(loadOverlayElement("tracks/airpitch2needle"));
-    airpitch2texture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airpitch2needle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.engines[1].pitch_texture = GetTexUnit("tracks/airpitch2needle_mat");
     resizePanel(loadOverlayElement("tracks/airpitch3needle"));
-    airpitch3texture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airpitch3needle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.engines[2].pitch_texture = GetTexUnit("tracks/airpitch3needle_mat");
     resizePanel(loadOverlayElement("tracks/airpitch4needle"));
-    airpitch4texture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airpitch4needle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.engines[3].pitch_texture = GetTexUnit("tracks/airpitch4needle_mat");
 
     resizePanel(loadOverlayElement("tracks/airtorque1needle"));
-    airtorque1texture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airtorque1needle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.engines[0].torque_texture = GetTexUnit("tracks/airtorque1needle_mat");
     resizePanel(loadOverlayElement("tracks/airtorque2needle"));
-    airtorque2texture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airtorque2needle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.engines[1].torque_texture = GetTexUnit("tracks/airtorque2needle_mat");
     resizePanel(loadOverlayElement("tracks/airtorque3needle"));
-    airtorque3texture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airtorque3needle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.engines[2].torque_texture = GetTexUnit("tracks/airtorque3needle_mat");
     resizePanel(loadOverlayElement("tracks/airtorque4needle"));
-    airtorque4texture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airtorque4needle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    m_aerial_dashboard.engines[3].torque_texture = GetTexUnit("tracks/airtorque4needle_mat");
 
     guiGear = loadOverlayElement("tracks/Gear");
     guiGear3D = loadOverlayElement("tracks/3DGear");
@@ -413,8 +421,8 @@ void OverlayWrapper::showDashboardOverlays(bool show, Actor* actor)
 
         if (mode == AIRPLANE)
         {
-            m_aerial_dashboard_needles_overlay->show();
-            m_aerial_dashboard_overlay->show();
+            m_aerial_dashboard.needles_overlay->show();
+            m_aerial_dashboard.dash_overlay->show();
         }
         else if (mode == BOAT)
         {
@@ -428,8 +436,8 @@ void OverlayWrapper::showDashboardOverlays(bool show, Actor* actor)
     }
     else
     {
-        m_aerial_dashboard_needles_overlay->hide();
-        m_aerial_dashboard_overlay->hide();
+        m_aerial_dashboard.needles_overlay->hide();
+        m_aerial_dashboard.dash_overlay->hide();
 
         m_marine_dashboard_needles_overlay->hide();
         m_marine_dashboard_overlay->hide();
@@ -507,7 +515,7 @@ void OverlayWrapper::updateStats(bool detailed)
 
 bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
 {
-    if (!m_aerial_dashboard_needles_overlay->isVisible())
+    if (!m_aerial_dashboard.needles_overlay->isVisible())
         return false;
     bool res = false;
     const OIS::MouseState ms = _arg.state;
@@ -524,7 +532,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
 
     if (player_actor->ar_driveable == AIRPLANE && ms.buttonDown(OIS::MB_Left))
     {
-        OverlayElement* element = m_aerial_dashboard_needles_overlay->findElementAt(mouseX, mouseY);
+        OverlayElement* element = m_aerial_dashboard.needles_overlay->findElementAt(mouseX, mouseY);
         if (element)
         {
             res = true;
@@ -539,7 +547,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 player_actor->ar_aeroengines[3]->setThrottle(1.0f - ((mouseY - thrtop - throffset) / thrheight));
         }
         //also for main dashboard
-        OverlayElement* element2 = m_aerial_dashboard_overlay->findElementAt(mouseX, mouseY);
+        OverlayElement* element2 = m_aerial_dashboard.dash_overlay->findElementAt(mouseX, mouseY);
         if (element2)
         {
             res = true;
@@ -866,37 +874,20 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
     RoR::GfxActor::NodeData* nodes = gfx_actor->GetSimNodeBuffer();
     RoR::GfxActor::Attributes& attr = gfx_actor->GetAttributes();
 
-    int ftp = static_cast<int>( simbuf.simbuf_aeroengines.size() );
+    auto const& simbuf_ae = simbuf.simbuf_aeroengines;
+    int num_ae = static_cast<int>( simbuf_ae.size() );
 
     //throttles
-    thro1->setTop(thrtop + thrheight * (1.0 - simbuf.simbuf_aeroengines[0].simbuf_ae_throttle) - 1.0);
-    if (ftp > 1)
-        thro2->setTop(thrtop + thrheight * (1.0 - simbuf.simbuf_aeroengines[1].simbuf_ae_throttle) - 1.0);
-    if (ftp > 2)
-        thro3->setTop(thrtop + thrheight * (1.0 - simbuf.simbuf_aeroengines[2].simbuf_ae_throttle) - 1.0);
-    if (ftp > 3)
-        thro4->setTop(thrtop + thrheight * (1.0 - simbuf.simbuf_aeroengines[3].simbuf_ae_throttle) - 1.0);
+    m_aerial_dashboard.SetThrottle(0, simbuf_ae[0].simbuf_ae_throttle);
+    m_aerial_dashboard.SetThrottle(1, (num_ae > 1) ? simbuf_ae[1].simbuf_ae_throttle : 0.f);
+    m_aerial_dashboard.SetThrottle(2, (num_ae > 2) ? simbuf_ae[2].simbuf_ae_throttle : 0.f);
+    m_aerial_dashboard.SetThrottle(3, (num_ae > 3) ? simbuf_ae[3].simbuf_ae_throttle : 0.f);
 
     //fire
-    if (simbuf.simbuf_aeroengines[0].simbuf_ae_failed)
-        engfireo1->setMaterialName("tracks/engfire-on");
-    else
-        engfireo1->setMaterialName("tracks/engfire-off");
-
-    if (ftp > 1 && simbuf.simbuf_aeroengines[1].simbuf_ae_failed)
-        engfireo2->setMaterialName("tracks/engfire-on");
-    else
-        engfireo2->setMaterialName("tracks/engfire-off");
-
-    if (ftp > 2 && simbuf.simbuf_aeroengines[2].simbuf_ae_failed)
-        engfireo3->setMaterialName("tracks/engfire-on");
-    else
-        engfireo3->setMaterialName("tracks/engfire-off");
-
-    if (ftp > 3 && simbuf.simbuf_aeroengines[3].simbuf_ae_failed)
-        engfireo4->setMaterialName("tracks/engfire-on");
-    else
-        engfireo4->setMaterialName("tracks/engfire-off");
+    m_aerial_dashboard.SetEngineFailed(0, simbuf_ae[0].simbuf_ae_failed);
+    m_aerial_dashboard.SetEngineFailed(1, num_ae > 1 && simbuf_ae[1].simbuf_ae_failed);
+    m_aerial_dashboard.SetEngineFailed(2, num_ae > 2 && simbuf_ae[2].simbuf_ae_failed);
+    m_aerial_dashboard.SetEngineFailed(3, num_ae > 3 && simbuf_ae[3].simbuf_ae_failed);
 
     //airspeed
     float angle = 0.0;
@@ -922,7 +913,7 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
         else
             angle = 329.0;
     }
-    airspeedtexture->setTextureRotate(Degree(-angle));
+    m_aerial_dashboard.airspeedtexture->setTextureRotate(Degree(-angle));
 
     // AOA
     angle = simbuf.simbuf_wing4_aoa;
@@ -943,14 +934,14 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
         angle = 25.0;
     if (angle < -25.0)
         angle = -25.0;
-    aoatexture->setTextureRotate(Degree(-angle * 4.7 + 90.0));
+    m_aerial_dashboard.aoatexture->setTextureRotate(Degree(-angle * 4.7 + 90.0));
 
     // altimeter
     angle = nodes[0].AbsPosition.y * 1.1811;
-    altimetertexture->setTextureRotate(Degree(-angle));
+    m_aerial_dashboard.altimetertexture->setTextureRotate(Degree(-angle));
     char altc[10];
     sprintf(altc, "%03u", (int)(nodes[0].AbsPosition.y / 30.48));
-    alt_value_taoe->setCaption(altc);
+    m_aerial_dashboard.alt_value_textarea->setCaption(altc);
 
     //adi
     //roll
@@ -964,35 +955,34 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
     Vector3 upv = dirv.crossProduct(-rollv);
     if (upv.y < 0)
         rollangle = 3.14159 - rollangle;
-    adibugstexture->setTextureRotate(Radian(-rollangle));
-    aditapetexture->setTextureVScroll(-pitchangle * 0.25);
-    aditapetexture->setTextureRotate(Radian(-rollangle));
+    m_aerial_dashboard.adibugstexture->setTextureRotate(Radian(-rollangle));
+    m_aerial_dashboard.aditapetexture->setTextureVScroll(-pitchangle * 0.25);
+    m_aerial_dashboard.aditapetexture->setTextureRotate(Radian(-rollangle));
 
     //hsi
     float dirangle = atan2(dirv.dotProduct(Vector3::UNIT_X), dirv.dotProduct(-Vector3::UNIT_Z));
-    hsirosetexture->setTextureRotate(Radian(dirangle));
-    if (attr.xa_has_autopilot)
-    {
-        hsibugtexture->setTextureRotate(Radian(dirangle) - Degree(simbuf.simbuf_autopilot_heading));
+    m_aerial_dashboard.hsirosetexture->setTextureRotate(Radian(dirangle));
 
-        float vdev = 0;
-        float hdev = 0;
-        if (simbuf.simbuf_autopilot_ils_available)
-        {
-            vdev = simbuf.simbuf_autopilot_ils_vdev;
-            hdev = simbuf.simbuf_autopilot_ils_hdev;
-        }
-        if (hdev > 15)
-            hdev = 15;
-        if (hdev < -15)
-            hdev = -15;
-        hsivtexture->setTextureUScroll(-hdev * 0.02);
-        if (vdev > 15)
-            vdev = 15;
-        if (vdev < -15)
-            vdev = -15;
-        hsihtexture->setTextureVScroll(-vdev * 0.02);
+    //autopilot
+    m_aerial_dashboard.hsibugtexture->setTextureRotate(Radian(dirangle) - Degree(simbuf.simbuf_autopilot_heading));
+
+    float vdev = 0;
+    float hdev = 0;
+    if (simbuf.simbuf_autopilot_ils_available)
+    {
+        vdev = simbuf.simbuf_autopilot_ils_vdev;
+        hdev = simbuf.simbuf_autopilot_ils_hdev;
     }
+    if (hdev > 15)
+        hdev = 15;
+    if (hdev < -15)
+        hdev = -15;
+    m_aerial_dashboard.hsivtexture->setTextureUScroll(-hdev * 0.02);
+    if (vdev > 15)
+        vdev = 15;
+    if (vdev < -15)
+        vdev = -15;
+    m_aerial_dashboard.hsihtexture->setTextureVScroll(-vdev * 0.02);
 
     //vvi
     float vvi = simbuf.simbuf_node0_velo.y * 196.85;
@@ -1006,134 +996,31 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
         angle = -47.0 + (vvi + 1000.0) * 0.01175;
     if (vvi < -6000.0)
         angle = -105.75;
-    vvitexture->setTextureRotate(Degree(-angle + 90.0));
+    m_aerial_dashboard.vvitexture->setTextureRotate(Degree(-angle + 90.0));
 
     //rpm
-    float pcent = simbuf.simbuf_aeroengines[0].simbuf_ae_rpmpc;
-    if (pcent < 60.0)
-        angle = -5.0 + pcent * 1.9167;
-    else if (pcent < 110.0)
-        angle = 110.0 + (pcent - 60.0) * 4.075;
-    else
-        angle = 314.0;
-    airrpm1texture->setTextureRotate(Degree(-angle));
+    m_aerial_dashboard.SetEngineRpm(0, simbuf_ae[0].simbuf_ae_rpmpc);
+    m_aerial_dashboard.SetEngineRpm(1, (num_ae > 1) ? simbuf_ae[1].simbuf_ae_rpmpc : 0.f);
+    m_aerial_dashboard.SetEngineRpm(2, (num_ae > 2) ? simbuf_ae[2].simbuf_ae_rpmpc : 0.f);
+    m_aerial_dashboard.SetEngineRpm(3, (num_ae > 3) ? simbuf_ae[3].simbuf_ae_rpmpc : 0.f);
 
-    if (ftp > 1)
-        pcent = simbuf.simbuf_aeroengines[1].simbuf_ae_rpmpc;
-    else
-        pcent = 0;
-    if (pcent < 60.0)
-        angle = -5.0 + pcent * 1.9167;
-    else if (pcent < 110.0)
-        angle = 110.0 + (pcent - 60.0) * 4.075;
-    else
-        angle = 314.0;
-    airrpm2texture->setTextureRotate(Degree(-angle));
+    //turboprops - pitch
+    m_aerial_dashboard.SetEnginePitch(0, (simbuf_ae[0].simbuf_ae_turboprop) ? simbuf_ae[0].simbuf_tp_aepitch : 0.f);
+    m_aerial_dashboard.SetEnginePitch(1, (num_ae > 1 && simbuf_ae[1].simbuf_ae_turboprop) ? simbuf_ae[1].simbuf_tp_aepitch : 0.f);
+    m_aerial_dashboard.SetEnginePitch(2, (num_ae > 2 && simbuf_ae[2].simbuf_ae_turboprop) ? simbuf_ae[2].simbuf_tp_aepitch : 0.f);
+    m_aerial_dashboard.SetEnginePitch(2, (num_ae > 3 && simbuf_ae[3].simbuf_ae_turboprop) ? simbuf_ae[3].simbuf_tp_aepitch : 0.f);
 
-    if (ftp > 2)
-        pcent = simbuf.simbuf_aeroengines[2].simbuf_ae_rpmpc;
-    else
-        pcent = 0;
-    if (pcent < 60.0)
-        angle = -5.0 + pcent * 1.9167;
-    else if (pcent < 110.0)
-        angle = 110.0 + (pcent - 60.0) * 4.075;
-    else
-        angle = 314.0;
-    airrpm3texture->setTextureRotate(Degree(-angle));
-
-    if (ftp > 3)
-        pcent = simbuf.simbuf_aeroengines[3].simbuf_ae_rpmpc;
-    else
-        pcent = 0;
-    if (pcent < 60.0)
-        angle = -5.0 + pcent * 1.9167;
-    else if (pcent < 110.0)
-        angle = 110.0 + (pcent - 60.0) * 4.075;
-    else
-        angle = 314.0;
-    airrpm4texture->setTextureRotate(Degree(-angle));
-
-    if (simbuf.simbuf_aeroengines[0].simbuf_ae_turboprop)
-    {
-        //pitch
-        airpitch1texture->setTextureRotate(Degree(-simbuf.simbuf_aeroengines[0].simbuf_tp_aepitch * 2.0));
-        //torque
-        pcent = simbuf.simbuf_aeroengines[0].simbuf_tp_aetorque;
-        if (pcent < 60.0)
-            angle = -5.0 + pcent * 1.9167;
-        else if (pcent < 110.0)
-            angle = 110.0 + (pcent - 60.0) * 4.075;
-        else
-            angle = 314.0;
-        airtorque1texture->setTextureRotate(Degree(-angle));
-    }
-
-    if (ftp > 1 && simbuf.simbuf_aeroengines[1].simbuf_ae_turboprop)
-    {
-        //pitch
-        airpitch2texture->setTextureRotate(Degree(-simbuf.simbuf_aeroengines[1].simbuf_tp_aepitch * 2.0));
-        //torque
-        pcent = simbuf.simbuf_aeroengines[1].simbuf_tp_aetorque;
-        if (pcent < 60.0)
-            angle = -5.0 + pcent * 1.9167;
-        else if (pcent < 110.0)
-            angle = 110.0 + (pcent - 60.0) * 4.075;
-        else
-            angle = 314.0;
-        airtorque2texture->setTextureRotate(Degree(-angle));
-    }
-
-    if (ftp > 2 && simbuf.simbuf_aeroengines[2].simbuf_ae_turboprop)
-    {
-        //pitch
-        airpitch3texture->setTextureRotate(Degree(-simbuf.simbuf_aeroengines[2].simbuf_tp_aepitch * 2.0));
-        //torque
-        pcent = simbuf.simbuf_aeroengines[2].simbuf_tp_aetorque;
-        if (pcent < 60.0)
-            angle = -5.0 + pcent * 1.9167;
-        else if (pcent < 110.0)
-            angle = 110.0 + (pcent - 60.0) * 4.075;
-        else
-            angle = 314.0;
-        airtorque3texture->setTextureRotate(Degree(-angle));
-    }
-
-    if (ftp > 3 && simbuf.simbuf_aeroengines[3].simbuf_ae_turboprop)
-    {
-        //pitch
-        airpitch4texture->setTextureRotate(Degree(-simbuf.simbuf_aeroengines[3].simbuf_tp_aepitch * 2.0));
-        //torque
-        pcent = simbuf.simbuf_aeroengines[3].simbuf_tp_aetorque;
-        if (pcent < 60.0)
-            angle = -5.0 + pcent * 1.9167;
-        else if (pcent < 110.0)
-            angle = 110.0 + (pcent - 60.0) * 4.075;
-        else
-            angle = 314.0;
-        airtorque4texture->setTextureRotate(Degree(-angle));
-    }
+    //turboprops - torque
+    m_aerial_dashboard.SetEnginePitch(0, (simbuf_ae[0].simbuf_ae_turboprop) ? simbuf_ae[0].simbuf_tp_aetorque : 0.f);
+    m_aerial_dashboard.SetEnginePitch(1, (num_ae > 1 && simbuf_ae[1].simbuf_ae_turboprop) ? simbuf_ae[1].simbuf_tp_aetorque : 0.f);
+    m_aerial_dashboard.SetEnginePitch(2, (num_ae > 2 && simbuf_ae[2].simbuf_ae_turboprop) ? simbuf_ae[2].simbuf_tp_aetorque : 0.f);
+    m_aerial_dashboard.SetEnginePitch(2, (num_ae > 3 && simbuf_ae[3].simbuf_ae_turboprop) ? simbuf_ae[3].simbuf_tp_aetorque : 0.f);
 
     //starters
-    if (simbuf.simbuf_aeroengines[0].simbuf_ae_ignition)
-        engstarto1->setMaterialName("tracks/engstart-on");
-    else
-        engstarto1->setMaterialName("tracks/engstart-off");
-
-    if (ftp > 1 && simbuf.simbuf_aeroengines[1].simbuf_ae_ignition)
-        engstarto2->setMaterialName("tracks/engstart-on");
-    else
-        engstarto2->setMaterialName("tracks/engstart-off");
-
-    if (ftp > 2 && simbuf.simbuf_aeroengines[2].simbuf_ae_ignition)
-        engstarto3->setMaterialName("tracks/engstart-on");
-    else
-        engstarto3->setMaterialName("tracks/engstart-off");
-
-    if (ftp > 3 && simbuf.simbuf_aeroengines[3].simbuf_ae_ignition)
-        engstarto4->setMaterialName("tracks/engstart-on");
-    else
-        engstarto4->setMaterialName("tracks/engstart-off");
+    m_aerial_dashboard.SetIgnition(0, simbuf_ae[0].simbuf_ae_ignition);
+    m_aerial_dashboard.SetIgnition(1, num_ae > 1 && simbuf_ae[1].simbuf_ae_ignition);
+    m_aerial_dashboard.SetIgnition(2, num_ae > 2 && simbuf_ae[2].simbuf_ae_ignition);
+    m_aerial_dashboard.SetIgnition(3, num_ae > 3 && simbuf_ae[3].simbuf_ae_ignition);
 }
 
 void OverlayWrapper::UpdateMarineHUD(Actor* vehicle)
@@ -1235,4 +1122,51 @@ void OverlayWrapper::UpdateRacingGui(RoR::GfxScene* gs)
     }
     this->laptime->setColourTop(colour);
     this->laptime->setColourBottom(colour);
+}
+
+void AeroDashOverlay::SetThrottle(int engine, float value)
+{
+    engines[engine].thr_element->setTop(
+        thrust_track_top + thrust_track_height * (1.0 - value) - 1.0);
+}
+
+void AeroDashOverlay::SetEngineFailed(int engine, bool value)
+{
+    engines[engine].engfire_element->setMaterialName(
+        value ? "tracks/engfire-on" : "tracks/engfire-off");
+}
+
+void AeroDashOverlay::SetEngineRpm(int engine, float pcent)
+{
+    float angle;
+    if (pcent < 60.0)
+        angle = -5.0 + pcent * 1.9167;
+    else if (pcent < 110.0)
+        angle = 110.0 + (pcent - 60.0) * 4.075;
+    else
+        angle = 314.0;
+    engines[engine].rpm_texture->setTextureRotate(Ogre::Degree(-angle));
+}
+
+void AeroDashOverlay::SetEnginePitch(int engine, float value)
+{
+    engines[engine].pitch_texture->setTextureRotate(Degree(-value * 2.0));
+}
+
+void AeroDashOverlay::SetEngineTorque(int engine, float pcent)
+{
+    float angle;
+    if (pcent < 60.0)
+        angle = -5.0 + pcent * 1.9167;
+    else if (pcent < 110.0)
+        angle = 110.0 + (pcent - 60.0) * 4.075;
+    else
+        angle = 314.0;
+    engines[engine].torque_texture->setTextureRotate(Degree(-angle));
+}
+
+void AeroDashOverlay::SetIgnition(int engine, bool value)
+{
+    engines[engine].engstart_element->setMaterialName(
+        value ? "tracks/engstart-on" : "tracks/engstart-off");
 }

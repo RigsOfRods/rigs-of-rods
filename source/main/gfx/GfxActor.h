@@ -173,6 +173,8 @@ public:
 
     struct SimBuffer /// Buffered simulation data
     {
+        SimBuffer();
+
         struct ScrewPropSB
         {
             float simbuf_sp_rudder;
