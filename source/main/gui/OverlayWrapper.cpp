@@ -267,6 +267,22 @@ int OverlayWrapper::init()
     reposPanel(loadOverlayElement("tracks/ap_ias_pack"));
     reposPanel(loadOverlayElement("tracks/ap_gpws_but"));
     reposPanel(loadOverlayElement("tracks/ap_brks_but"));
+    m_aerial_dashboard.hdg_button = loadOverlayElement("tracks/ap_hdg_but");
+    m_aerial_dashboard.hdg_up_button = loadOverlayElement("tracks/ap_hdg_up");
+    m_aerial_dashboard.hdg_dn_button = loadOverlayElement("tracks/ap_hdg_dn");
+    m_aerial_dashboard.wlv_button = loadOverlayElement("tracks/ap_wlv_but");
+    m_aerial_dashboard.nav_button = loadOverlayElement("tracks/ap_nav_but");
+    m_aerial_dashboard.alt_button = loadOverlayElement("tracks/ap_alt_but");
+    m_aerial_dashboard.alt_up_button = loadOverlayElement("tracks/ap_alt_up");
+    m_aerial_dashboard.alt_dn_button = loadOverlayElement("tracks/ap_alt_dn");
+    m_aerial_dashboard.vs_button = loadOverlayElement("tracks/ap_vs_but");
+    m_aerial_dashboard.vs_up_button = loadOverlayElement("tracks/ap_vs_up");
+    m_aerial_dashboard.vs_dn_button = loadOverlayElement("tracks/ap_vs_dn");
+    m_aerial_dashboard.ias_button = loadOverlayElement("tracks/ap_ias_but");
+    m_aerial_dashboard.ias_up_button = loadOverlayElement("tracks/ap_ias_up");
+    m_aerial_dashboard.ias_dn_button = loadOverlayElement("tracks/ap_ias_dn");
+    m_aerial_dashboard.gpws_button = loadOverlayElement("tracks/ap_gpws_but");
+    m_aerial_dashboard.brks_button = loadOverlayElement("tracks/ap_brks_but");
 
     //boat
     resizePanel(loadOverlayElement("tracks/boatdashbar"));
@@ -536,33 +552,29 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
         if (element)
         {
             res = true;
-            auto name = element->getName().c_str();
-            if (!strncmp(name, "tracks/thrust1", 14))
-                player_actor->ar_aeroengines[0]->setThrottle(1.0f - ((mouseY - thrtop - throffset) / thrheight));
-            if (!strncmp(name, "tracks/thrust2", 14) && player_actor->ar_num_aeroengines > 1)
-                player_actor->ar_aeroengines[1]->setThrottle(1.0f - ((mouseY - thrtop - throffset) / thrheight));
-            if (!strncmp(name, "tracks/thrust3", 14) && player_actor->ar_num_aeroengines > 2)
-                player_actor->ar_aeroengines[2]->setThrottle(1.0f - ((mouseY - thrtop - throffset) / thrheight));
-            if (!strncmp(name, "tracks/thrust4", 14) && player_actor->ar_num_aeroengines > 3)
-                player_actor->ar_aeroengines[3]->setThrottle(1.0f - ((mouseY - thrtop - throffset) / thrheight));
+            float thr_value = 1.0f - ((mouseY - thrtop - throffset) / thrheight);
+            for (int i = 0; i < 4; ++i)
+            {
+                if (element == m_aerial_dashboard.engines[i].thr_element)
+                {
+                    player_actor->ar_aeroengines[i]->setThrottle(thr_value);
+                }
+            }
         }
         //also for main dashboard
-        OverlayElement* element2 = m_aerial_dashboard.dash_overlay->findElementAt(mouseX, mouseY);
-        if (element2)
+        element = m_aerial_dashboard.dash_overlay->findElementAt(mouseX, mouseY);
+        if (element)
         {
             res = true;
-            auto name = element2->getName().c_str();
-            //LogManager::getSingleton().logMessage("element "+element2->getName());
-            if (!strncmp(name, "tracks/engstart1", 16))
-                player_actor->ar_aeroengines[0]->flipStart();
-            if (!strncmp(name, "tracks/engstart2", 16) && player_actor->ar_num_aeroengines > 1)
-                player_actor->ar_aeroengines[1]->flipStart();
-            if (!strncmp(name, "tracks/engstart3", 16) && player_actor->ar_num_aeroengines > 2)
-                player_actor->ar_aeroengines[2]->flipStart();
-            if (!strncmp(name, "tracks/engstart4", 16) && player_actor->ar_num_aeroengines > 3)
-                player_actor->ar_aeroengines[3]->flipStart();
+            for (int i = 0; i < 4; ++i)
+            {
+                if (element == m_aerial_dashboard.engines[i].engstart_element)
+                {
+                    player_actor->ar_aeroengines[i]->flipStart();
+                }
+            }
             //heading group
-            if (!strcmp(name, "tracks/ap_hdg_but") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.hdg_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.2;
                 if (player_actor->ar_autopilot->toggleHeading(Autopilot::HEADING_FIXED) == Autopilot::HEADING_FIXED)
@@ -572,7 +584,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 OverlayManager::getSingleton().getOverlayElement("tracks/ap_wlv_but")->setMaterialName("tracks/wlv-off");
                 OverlayManager::getSingleton().getOverlayElement("tracks/ap_nav_but")->setMaterialName("tracks/nav-off");
             }
-            if (!strcmp(name, "tracks/ap_wlv_but") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.wlv_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.2;
                 if (player_actor->ar_autopilot->toggleHeading(Autopilot::HEADING_WLV) == Autopilot::HEADING_WLV)
@@ -582,7 +594,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 OverlayManager::getSingleton().getOverlayElement("tracks/ap_hdg_but")->setMaterialName("tracks/hdg-off");
                 OverlayManager::getSingleton().getOverlayElement("tracks/ap_nav_but")->setMaterialName("tracks/nav-off");
             }
-            if (!strcmp(name, "tracks/ap_nav_but") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.nav_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.2;
                 if (player_actor->ar_autopilot->toggleHeading(Autopilot::HEADING_NAV) == Autopilot::HEADING_NAV)
@@ -593,7 +605,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 OverlayManager::getSingleton().getOverlayElement("tracks/ap_hdg_but")->setMaterialName("tracks/hdg-off");
             }
             //altitude group
-            if (!strcmp(name, "tracks/ap_alt_but") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.alt_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.2;
                 if (player_actor->ar_autopilot->toggleAlt(Autopilot::ALT_FIXED) == Autopilot::ALT_FIXED)
@@ -602,7 +614,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                     OverlayManager::getSingleton().getOverlayElement("tracks/ap_alt_but")->setMaterialName("tracks/hold-off");
                 OverlayManager::getSingleton().getOverlayElement("tracks/ap_vs_but")->setMaterialName("tracks/vs-off");
             }
-            if (!strcmp(name, "tracks/ap_vs_but") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.vs_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.2;
                 if (player_actor->ar_autopilot->toggleAlt(Autopilot::ALT_VS) == Autopilot::ALT_VS)
@@ -612,7 +624,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 OverlayManager::getSingleton().getOverlayElement("tracks/ap_alt_but")->setMaterialName("tracks/hold-off");
             }
             //IAS
-            if (!strcmp(name, "tracks/ap_ias_but") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.ias_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.2;
                 if (player_actor->ar_autopilot->toggleIAS())
@@ -621,7 +633,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                     OverlayManager::getSingleton().getOverlayElement("tracks/ap_ias_but")->setMaterialName("tracks/athr-off");
             }
             //GPWS
-            if (!strcmp(name, "tracks/ap_gpws_but") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.gpws_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.2;
                 if (player_actor->ar_autopilot->toggleGPWS())
@@ -630,7 +642,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                     OverlayManager::getSingleton().getOverlayElement("tracks/ap_gpws_but")->setMaterialName("tracks/gpws-off");
             }
             //BRKS
-            if (!strcmp(name, "tracks/ap_brks_but") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.brks_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 player_actor->ToggleParkingBrake();
                 if (player_actor->ar_parking_brake)
@@ -640,7 +652,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 mTimeUntilNextToggle = 0.2;
             }
             //trims
-            if (!strcmp(name, "tracks/ap_hdg_up") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.hdg_up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
                 int val = player_actor->ar_autopilot->adjHDG(1);
@@ -648,7 +660,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 sprintf(str, "%.3u", val);
                 OverlayManager::getSingleton().getOverlayElement("tracks/ap_hdg_val")->setCaption(str);
             }
-            if (!strcmp(name, "tracks/ap_hdg_dn") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.hdg_dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
                 int val = player_actor->ar_autopilot->adjHDG(-1);
@@ -656,7 +668,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 sprintf(str, "%.3u", val);
                 OverlayManager::getSingleton().getOverlayElement("tracks/ap_hdg_val")->setCaption(str);
             }
-            if (!strcmp(name, "tracks/ap_alt_up") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.alt_up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
                 int val = player_actor->ar_autopilot->adjALT(100);
@@ -664,7 +676,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 sprintf(str, "%i00", val / 100);
                 OverlayManager::getSingleton().getOverlayElement("tracks/ap_alt_val")->setCaption(str);
             }
-            if (!strcmp(name, "tracks/ap_alt_dn") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.alt_dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
                 int val = player_actor->ar_autopilot->adjALT(-100);
@@ -672,7 +684,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 sprintf(str, "%i00", val / 100);
                 OverlayManager::getSingleton().getOverlayElement("tracks/ap_alt_val")->setCaption(str);
             }
-            if (!strcmp(name, "tracks/ap_vs_up") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.vs_up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
                 int val = player_actor->ar_autopilot->adjVS(100);
@@ -685,7 +697,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                     sprintf(str, "+%i00", val / 100);
                 OverlayManager::getSingleton().getOverlayElement("tracks/ap_vs_val")->setCaption(str);
             }
-            if (!strcmp(name, "tracks/ap_vs_dn") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.vs_dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
                 int val = player_actor->ar_autopilot->adjVS(-100);
@@ -698,7 +710,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                     sprintf(str, "+%i00", val / 100);
                 OverlayManager::getSingleton().getOverlayElement("tracks/ap_vs_val")->setCaption(str);
             }
-            if (!strcmp(name, "tracks/ap_ias_up") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.ias_up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
                 int val = player_actor->ar_autopilot->adjIAS(1);
@@ -706,7 +718,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 sprintf(str, "%.3u", val);
                 OverlayManager::getSingleton().getOverlayElement("tracks/ap_ias_val")->setCaption(str);
             }
-            if (!strcmp(name, "tracks/ap_ias_dn") && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.ias_dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
                 int val = player_actor->ar_autopilot->adjIAS(-1);
