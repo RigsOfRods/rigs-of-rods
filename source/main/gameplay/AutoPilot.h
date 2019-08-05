@@ -77,6 +77,7 @@ public:
     float GetVerticalApproachDeviation() { return m_ils_angle_vdev; }
     float GetHorizontalApproachDeviation() { return m_ils_angle_hdev; }
     bool IsIlsAvailable() { return m_horizontal_locator_available && m_vertical_locator_available; }
+    int GetHeadingMode() { return mode_heading; }
 private:
 
     int mode_heading;

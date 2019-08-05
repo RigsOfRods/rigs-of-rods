@@ -1907,7 +1907,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     // Autopilot
     if (m_attr.xa_has_autopilot)
     {
-        m_simbuf.simbuf_autopilot_heading = m_actor->ar_autopilot->heading;
+        m_simbuf.simbuf_autopilot_heading = m_actor->ar_autopilot->GetHeadingMode();
         m_simbuf.simbuf_autopilot_ils_available = m_actor->ar_autopilot->IsIlsAvailable();
         m_simbuf.simbuf_autopilot_ils_vdev = m_actor->ar_autopilot->GetVerticalApproachDeviation();
         m_simbuf.simbuf_autopilot_ils_hdev = m_actor->ar_autopilot->GetHorizontalApproachDeviation();
