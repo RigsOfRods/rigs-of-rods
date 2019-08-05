@@ -68,6 +68,23 @@ struct AeroDashOverlay
     Ogre::TextureUnitState *aoatexture;
     Ogre::TextAreaOverlayElement* alt_value_textarea;
 
+    Ogre::OverlayElement *hdg_button;
+    Ogre::OverlayElement *wlv_button;
+    Ogre::OverlayElement *nav_button;
+    Ogre::OverlayElement *alt_button;
+    Ogre::OverlayElement *vs_button;
+    Ogre::OverlayElement *ias_button;
+    Ogre::OverlayElement *gpws_button;
+    Ogre::OverlayElement *brks_button;
+    Ogre::OverlayElement *hdg_up_button;
+    Ogre::OverlayElement *hdg_dn_button;
+    Ogre::OverlayElement *alt_up_button;
+    Ogre::OverlayElement *alt_dn_button;
+    Ogre::OverlayElement *vs_up_button;
+    Ogre::OverlayElement *vs_dn_button;
+    Ogre::OverlayElement *ias_up_button;
+    Ogre::OverlayElement *ias_dn_button;
+
     float thrust_track_top;
     float thrust_track_height;
 };
