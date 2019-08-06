@@ -71,11 +71,6 @@ void AircraftSimulation::UpdateInputEvents(Actor* vehicle, float seconds_since_l
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_PARKING_BRAKE))
     {
         vehicle->ToggleParkingBrake();
-        if (RoR::App::GetOverlayWrapper())
-        {
-            Ogre::OverlayManager::getSingleton().getOverlayElement("tracks/ap_brks_but")->setMaterialName(
-                    vehicle->ar_parking_brake ? "tracks/brks-on" : "tracks/brks-off");
-        }
     }
     //reverse
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_REVERSE))
