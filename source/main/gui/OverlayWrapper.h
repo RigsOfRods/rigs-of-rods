@@ -42,7 +42,7 @@ struct AeroEngineOverlay
     Ogre::TextureUnitState *torque_texture;
 };
 
-struct AeroButtonOverlay
+struct AeroSwitchOverlay
 {
     void Setup(std::string const & elem_name, std::string const & mat_on, std::string const & mat_off);
     void SetActive(bool value);
@@ -78,14 +78,14 @@ struct AeroDashOverlay
     Ogre::TextureUnitState *aoatexture;
     Ogre::TextAreaOverlayElement* alt_value_textarea;
 
-    AeroButtonOverlay hdg;
-    AeroButtonOverlay wlv;
-    AeroButtonOverlay nav;
-    Ogre::OverlayElement *alt_button;
-    Ogre::OverlayElement *vs_button;
-    Ogre::OverlayElement *ias_button;
-    Ogre::OverlayElement *gpws_button;
-    Ogre::OverlayElement *brks_button;
+    AeroSwitchOverlay hdg;
+    AeroSwitchOverlay wlv;
+    AeroSwitchOverlay nav;
+    AeroSwitchOverlay alt;
+    AeroSwitchOverlay vs;
+    AeroSwitchOverlay ias;
+    AeroSwitchOverlay gpws;
+    AeroSwitchOverlay brks;
     Ogre::OverlayElement *hdg_up_button;
     Ogre::OverlayElement *hdg_dn_button;
     Ogre::OverlayElement *alt_up_button;
