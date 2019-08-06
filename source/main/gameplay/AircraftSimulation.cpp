@@ -40,7 +40,7 @@ void AircraftSimulation::UpdateInputEvents(Actor* vehicle, float seconds_since_l
     //autopilot
     if (vehicle->ar_autopilot && vehicle->ar_autopilot->wantsdisconnect)
     {
-        vehicle->disconnectAutopilot();
+        vehicle->ar_autopilot->disconnect();
     }
     //AIRPLANE KEYS
     float commandrate = 4.0;

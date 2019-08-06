@@ -114,7 +114,6 @@ public:
     void              UpdateFlareStates(float dt_sec);
     void              updateVisual(float dt=0);
     void              resetAutopilot();
-    void              disconnectAutopilot();
     void              ScaleActor(float value);
     Ogre::Vector3     GetGForcesCur() { return m_camera_local_gforces_cur; };
     Ogre::Vector3     GetGForcesMax() { return m_camera_local_gforces_max; };
