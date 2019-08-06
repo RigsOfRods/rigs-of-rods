@@ -557,7 +557,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 }
             }
         }
-        //also for main dashboard
+
         element = m_aerial_dashboard.dash_overlay->findElementAt(mouseX, mouseY);
         if (element)
         {
@@ -569,91 +569,94 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                     player_actor->ar_aeroengines[i]->flipStart();
                 }
             }
-            //heading group
-            if (element == m_aerial_dashboard.hdg.element && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
-                mTimeUntilNextToggle = 0.2;
-                player_actor->ar_autopilot->toggleHeading(Autopilot::HEADING_FIXED);
-            }
-            if (element == m_aerial_dashboard.wlv.element && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.2;
-                player_actor->ar_autopilot->toggleHeading(Autopilot::HEADING_WLV);
-            }
-            if (element == m_aerial_dashboard.nav.element && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.2;
-                player_actor->ar_autopilot->toggleHeading(Autopilot::HEADING_NAV);
-            }
-            //altitude group
-            if (element == m_aerial_dashboard.alt.element && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.2;
-                player_actor->ar_autopilot->toggleAlt(Autopilot::ALT_FIXED);
-            }
-            if (element == m_aerial_dashboard.vs.element && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.2;
-                player_actor->ar_autopilot->toggleAlt(Autopilot::ALT_VS);
-            }
-            //IAS
-            if (element == m_aerial_dashboard.ias.element && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.2;
-                player_actor->ar_autopilot->toggleIAS();
-            }
-            //GPWS
-            if (element == m_aerial_dashboard.gpws.element && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.2;
-                player_actor->ar_autopilot->toggleGPWS();
-            }
-            //BRKS
-            if (element == m_aerial_dashboard.brks.element && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.2;
-                player_actor->ToggleParkingBrake();
-            }
-            //trims
-            if (element == m_aerial_dashboard.hdg_trim.up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.1;
-                player_actor->ar_autopilot->adjHDG(1);
-            }
-            if (element == m_aerial_dashboard.hdg_trim.dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.1;
-                player_actor->ar_autopilot->adjHDG(-1);
-            }
-            if (element == m_aerial_dashboard.alt_trim.up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.1;
-                player_actor->ar_autopilot->adjALT(100);
-            }
-            if (element == m_aerial_dashboard.alt_trim.dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.1;
-                player_actor->ar_autopilot->adjALT(-100);
-            }
-            if (element == m_aerial_dashboard.vs_trim.up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.1;
-                player_actor->ar_autopilot->adjVS(100);
-            }
-            if (element == m_aerial_dashboard.vs_trim.dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.1;
-                player_actor->ar_autopilot->adjVS(-100);
-            }
-            if (element == m_aerial_dashboard.ias_trim.up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.1;
-                player_actor->ar_autopilot->adjIAS(1);
-            }
-            if (element == m_aerial_dashboard.ias_trim.dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
-            {
-                mTimeUntilNextToggle = 0.1;
-                player_actor->ar_autopilot->adjIAS(-1);
+                //heading group
+                if (element == m_aerial_dashboard.hdg.element)
+                {
+                    mTimeUntilNextToggle = 0.2;
+                    player_actor->ar_autopilot->toggleHeading(Autopilot::HEADING_FIXED);
+                }
+                if (element == m_aerial_dashboard.wlv.element)
+                {
+                    mTimeUntilNextToggle = 0.2;
+                    player_actor->ar_autopilot->toggleHeading(Autopilot::HEADING_WLV);
+                }
+                if (element == m_aerial_dashboard.nav.element)
+                {
+                    mTimeUntilNextToggle = 0.2;
+                    player_actor->ar_autopilot->toggleHeading(Autopilot::HEADING_NAV);
+                }
+                //altitude group
+                if (element == m_aerial_dashboard.alt.element)
+                {
+                    mTimeUntilNextToggle = 0.2;
+                    player_actor->ar_autopilot->toggleAlt(Autopilot::ALT_FIXED);
+                }
+                if (element == m_aerial_dashboard.vs.element)
+                {
+                    mTimeUntilNextToggle = 0.2;
+                    player_actor->ar_autopilot->toggleAlt(Autopilot::ALT_VS);
+                }
+                //IAS
+                if (element == m_aerial_dashboard.ias.element)
+                {
+                    mTimeUntilNextToggle = 0.2;
+                    player_actor->ar_autopilot->toggleIAS();
+                }
+                //GPWS
+                if (element == m_aerial_dashboard.gpws.element)
+                {
+                    mTimeUntilNextToggle = 0.2;
+                    player_actor->ar_autopilot->toggleGPWS();
+                }
+                //BRKS
+                if (element == m_aerial_dashboard.brks.element)
+                {
+                    mTimeUntilNextToggle = 0.2;
+                    player_actor->ToggleParkingBrake();
+                }
+                //trims
+                if (element == m_aerial_dashboard.hdg_trim.up_button)
+                {
+                    mTimeUntilNextToggle = 0.1;
+                    player_actor->ar_autopilot->adjHDG(1);
+                }
+                if (element == m_aerial_dashboard.hdg_trim.dn_button)
+                {
+                    mTimeUntilNextToggle = 0.1;
+                    player_actor->ar_autopilot->adjHDG(-1);
+                }
+                if (element == m_aerial_dashboard.alt_trim.up_button)
+                {
+                    mTimeUntilNextToggle = 0.1;
+                    player_actor->ar_autopilot->adjALT(100);
+                }
+                if (element == m_aerial_dashboard.alt_trim.dn_button)
+                {
+                    mTimeUntilNextToggle = 0.1;
+                    player_actor->ar_autopilot->adjALT(-100);
+                }
+                if (element == m_aerial_dashboard.vs_trim.up_button)
+                {
+                    mTimeUntilNextToggle = 0.1;
+                    player_actor->ar_autopilot->adjVS(100);
+                }
+                if (element == m_aerial_dashboard.vs_trim.dn_button)
+                {
+                    mTimeUntilNextToggle = 0.1;
+                    player_actor->ar_autopilot->adjVS(-100);
+                }
+                if (element == m_aerial_dashboard.ias_trim.up_button)
+                {
+                    mTimeUntilNextToggle = 0.1;
+                    player_actor->ar_autopilot->adjIAS(1);
+                }
+                if (element == m_aerial_dashboard.ias_trim.dn_button)
+                {
+                    mTimeUntilNextToggle = 0.1;
+                    player_actor->ar_autopilot->adjIAS(-1);
+                }
             }
         }
     }
