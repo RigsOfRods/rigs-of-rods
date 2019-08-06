@@ -1233,29 +1233,12 @@ void Actor::HandleMouseMove(int node, Vector3 pos, float force)
 void Actor::resetAutopilot()
 {
     ar_autopilot->disconnect();
-    OverlayManager::getSingleton().getOverlayElement("tracks/ap_hdg_but")->setMaterialName("tracks/hdg-off");
-    OverlayManager::getSingleton().getOverlayElement("tracks/ap_wlv_but")->setMaterialName("tracks/wlv-off");
-    OverlayManager::getSingleton().getOverlayElement("tracks/ap_nav_but")->setMaterialName("tracks/nav-off");
-    OverlayManager::getSingleton().getOverlayElement("tracks/ap_alt_but")->setMaterialName("tracks/hold-off");
-    OverlayManager::getSingleton().getOverlayElement("tracks/ap_vs_but")->setMaterialName("tracks/vs-off");
-    OverlayManager::getSingleton().getOverlayElement("tracks/ap_ias_but")->setMaterialName("tracks/athr-off");
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_gpws_but")->setMaterialName("tracks/gpws-on");
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_brks_but")->setMaterialName("tracks/brks-off");
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_hdg_val")->setCaption("000");
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_alt_val")->setCaption("1000");
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_vs_val")->setCaption("000");
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_ias_val")->setCaption("150");
-}
-
-void Actor::disconnectAutopilot()
-{
-    ar_autopilot->disconnect();
-    OverlayManager::getSingleton().getOverlayElement("tracks/ap_hdg_but")->setMaterialName("tracks/hdg-off");
-    OverlayManager::getSingleton().getOverlayElement("tracks/ap_wlv_but")->setMaterialName("tracks/wlv-off");
-    OverlayManager::getSingleton().getOverlayElement("tracks/ap_nav_but")->setMaterialName("tracks/nav-off");
-    OverlayManager::getSingleton().getOverlayElement("tracks/ap_alt_but")->setMaterialName("tracks/hold-off");
-    OverlayManager::getSingleton().getOverlayElement("tracks/ap_vs_but")->setMaterialName("tracks/vs-off");
-    OverlayManager::getSingleton().getOverlayElement("tracks/ap_ias_but")->setMaterialName("tracks/athr-off");
 }
 
 void Actor::ToggleWheelDiffMode()
