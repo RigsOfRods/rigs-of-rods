@@ -272,17 +272,17 @@ int OverlayWrapper::init()
     m_aerial_dashboard.hdg_dn_button = loadOverlayElement("tracks/ap_hdg_dn");
     m_aerial_dashboard.wlv.Setup("tracks/ap_wlv_but", "tracks/wlv-on", "tracks/wlv-off");
     m_aerial_dashboard.nav.Setup("tracks/ap_nav_but", "tracks/nav-on", "tracks/nav-off");
-    m_aerial_dashboard.alt_button = loadOverlayElement("tracks/ap_alt_but");
+    m_aerial_dashboard.alt.Setup("tracks/ap_alt_but", "tracks/hold-on", "tracks/hold-off");
     m_aerial_dashboard.alt_up_button = loadOverlayElement("tracks/ap_alt_up");
     m_aerial_dashboard.alt_dn_button = loadOverlayElement("tracks/ap_alt_dn");
-    m_aerial_dashboard.vs_button = loadOverlayElement("tracks/ap_vs_but");
+    m_aerial_dashboard.vs.Setup("tracks/ap_vs_but", "tracks/vs-on", "tracks/vs-off");
     m_aerial_dashboard.vs_up_button = loadOverlayElement("tracks/ap_vs_up");
     m_aerial_dashboard.vs_dn_button = loadOverlayElement("tracks/ap_vs_dn");
-    m_aerial_dashboard.ias_button = loadOverlayElement("tracks/ap_ias_but");
+    m_aerial_dashboard.ias.Setup("tracks/ap_ias_but", "tracks/athr-on", "tracks/athr-off");
     m_aerial_dashboard.ias_up_button = loadOverlayElement("tracks/ap_ias_up");
     m_aerial_dashboard.ias_dn_button = loadOverlayElement("tracks/ap_ias_dn");
-    m_aerial_dashboard.gpws_button = loadOverlayElement("tracks/ap_gpws_but");
-    m_aerial_dashboard.brks_button = loadOverlayElement("tracks/ap_brks_but");
+    m_aerial_dashboard.gpws.Setup("tracks/ap_gpws_but", "tracks/gpws-on", "tracks/gpws-off");
+    m_aerial_dashboard.brks.Setup("tracks/ap_brks_but", "tracks/brks-on", "tracks/brks-off");
 
     //boat
     resizePanel(loadOverlayElement("tracks/boatdashbar"));
@@ -590,51 +590,33 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 player_actor->ar_autopilot->toggleHeading(Autopilot::HEADING_NAV);
             }
             //altitude group
-            if (element == m_aerial_dashboard.alt_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.alt.element && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.2;
-                if (player_actor->ar_autopilot->toggleAlt(Autopilot::ALT_FIXED) == Autopilot::ALT_FIXED)
-                    OverlayManager::getSingleton().getOverlayElement("tracks/ap_alt_but")->setMaterialName("tracks/hold-on");
-                else
-                    OverlayManager::getSingleton().getOverlayElement("tracks/ap_alt_but")->setMaterialName("tracks/hold-off");
-                OverlayManager::getSingleton().getOverlayElement("tracks/ap_vs_but")->setMaterialName("tracks/vs-off");
+                player_actor->ar_autopilot->toggleAlt(Autopilot::ALT_FIXED);
             }
-            if (element == m_aerial_dashboard.vs_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.vs.element && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.2;
-                if (player_actor->ar_autopilot->toggleAlt(Autopilot::ALT_VS) == Autopilot::ALT_VS)
-                    OverlayManager::getSingleton().getOverlayElement("tracks/ap_vs_but")->setMaterialName("tracks/vs-on");
-                else
-                    OverlayManager::getSingleton().getOverlayElement("tracks/ap_vs_but")->setMaterialName("tracks/vs-off");
-                OverlayManager::getSingleton().getOverlayElement("tracks/ap_alt_but")->setMaterialName("tracks/hold-off");
+                player_actor->ar_autopilot->toggleAlt(Autopilot::ALT_VS);
             }
             //IAS
-            if (element == m_aerial_dashboard.ias_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.ias.element && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.2;
-                if (player_actor->ar_autopilot->toggleIAS())
-                    OverlayManager::getSingleton().getOverlayElement("tracks/ap_ias_but")->setMaterialName("tracks/athr-on");
-                else
-                    OverlayManager::getSingleton().getOverlayElement("tracks/ap_ias_but")->setMaterialName("tracks/athr-off");
+                player_actor->ar_autopilot->toggleIAS();
             }
             //GPWS
-            if (element == m_aerial_dashboard.gpws_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.gpws.element && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.2;
-                if (player_actor->ar_autopilot->toggleGPWS())
-                    OverlayManager::getSingleton().getOverlayElement("tracks/ap_gpws_but")->setMaterialName("tracks/gpws-on");
-                else
-                    OverlayManager::getSingleton().getOverlayElement("tracks/ap_gpws_but")->setMaterialName("tracks/gpws-off");
+                player_actor->ar_autopilot->toggleGPWS();
             }
             //BRKS
-            if (element == m_aerial_dashboard.brks_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.brks.element && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
-                player_actor->ToggleParkingBrake();
-                if (player_actor->ar_parking_brake)
-                    OverlayManager::getSingleton().getOverlayElement("tracks/ap_brks_but")->setMaterialName("tracks/brks-on");
-                else
-                    OverlayManager::getSingleton().getOverlayElement("tracks/ap_brks_but")->setMaterialName("tracks/brks-off");
                 mTimeUntilNextToggle = 0.2;
+                player_actor->ToggleParkingBrake();
             }
             //trims
             if (element == m_aerial_dashboard.hdg_up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
@@ -961,14 +943,14 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
     m_aerial_dashboard.hsirosetexture->setTextureRotate(Radian(dirangle));
 
     //autopilot
-    m_aerial_dashboard.hsibugtexture->setTextureRotate(Radian(dirangle) - Degree(simbuf.simbuf_autopilot_heading));
+    m_aerial_dashboard.hsibugtexture->setTextureRotate(Radian(dirangle) - Degree(simbuf.simbuf_ap_heading_value));
 
     float vdev = 0;
     float hdev = 0;
-    if (simbuf.simbuf_autopilot_ils_available)
+    if (simbuf.simbuf_ap_ils_available)
     {
-        vdev = simbuf.simbuf_autopilot_ils_vdev;
-        hdev = simbuf.simbuf_autopilot_ils_hdev;
+        vdev = simbuf.simbuf_ap_ils_vdev;
+        hdev = simbuf.simbuf_ap_ils_hdev;
     }
     if (hdev > 15)
         hdev = 15;
@@ -1020,9 +1002,18 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
     m_aerial_dashboard.SetIgnition(3, num_ae > 3 && simbuf_ae[3].simbuf_ae_ignition);
 
     //autopilot - heading
-    m_aerial_dashboard.hdg.SetActive(simbuf.simbuf_autopilot_heading == Autopilot::HEADING_FIXED);
-    m_aerial_dashboard.wlv.SetActive(simbuf.simbuf_autopilot_heading == Autopilot::HEADING_WLV);
-    m_aerial_dashboard.nav.SetActive(simbuf.simbuf_autopilot_heading == Autopilot::HEADING_NAV);
+    m_aerial_dashboard.hdg.SetActive(simbuf.simbuf_ap_heading_mode == Autopilot::HEADING_FIXED);
+    m_aerial_dashboard.wlv.SetActive(simbuf.simbuf_ap_heading_mode == Autopilot::HEADING_WLV);
+    m_aerial_dashboard.nav.SetActive(simbuf.simbuf_ap_heading_mode == Autopilot::HEADING_NAV);
+
+    //autopilot - altitude
+    m_aerial_dashboard.alt.SetActive(simbuf.simbuf_ap_alt_mode == Autopilot::ALT_FIXED);
+    m_aerial_dashboard.vs.SetActive(simbuf.simbuf_ap_alt_mode == Autopilot::ALT_VS);
+
+    //autopilot - other
+    m_aerial_dashboard.ias.SetActive(simbuf.simbuf_ap_ias_mode);
+    m_aerial_dashboard.gpws.SetActive(simbuf.simbuf_ap_gpws_mode);
+    m_aerial_dashboard.brks.SetActive(simbuf.simbuf_parking_brake);
 }
 
 void OverlayWrapper::UpdateMarineHUD(Actor* vehicle)
@@ -1173,12 +1164,12 @@ void AeroDashOverlay::SetIgnition(int engine, bool value)
         value ? "tracks/engstart-on" : "tracks/engstart-off");
 }
 
-void AeroButtonOverlay::SetActive(bool value)
+void AeroSwitchOverlay::SetActive(bool value)
 {
     element->setMaterial(value ? on_material : off_material);
 }
 
-void AeroButtonOverlay::Setup(std::string const & elem_name, std::string const & mat_on, std::string const & mat_off)
+void AeroSwitchOverlay::Setup(std::string const & elem_name, std::string const & mat_on, std::string const & mat_off)
 {
     element = Ogre::OverlayManager::getSingleton().getOverlayElement(elem_name);
     on_material = Ogre::MaterialManager::getSingleton().getByName(mat_on);

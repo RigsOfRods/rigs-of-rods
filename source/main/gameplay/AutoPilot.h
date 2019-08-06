@@ -77,7 +77,12 @@ public:
     float GetVerticalApproachDeviation() { return m_ils_angle_vdev; }
     float GetHorizontalApproachDeviation() { return m_ils_angle_hdev; }
     bool IsIlsAvailable() { return m_horizontal_locator_available && m_vertical_locator_available; }
-    int GetHeadingMode() { return mode_heading; }
+    int GetHeadingMode() const { return mode_heading; }
+    int GetAltMode() const { return mode_alt; }
+    int GetAltValue() const { return alt; }
+    bool GetIasMode() const { return mode_ias; }
+    int GetIasValue() const { return ias; }
+    bool GetGpwsMode() const { return mode_gpws; }
 private:
 
     int mode_heading;

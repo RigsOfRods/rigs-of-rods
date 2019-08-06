@@ -60,10 +60,16 @@
 #include <OgreTextureUnitState.h>
 
 RoR::GfxActor::SimBuffer::SimBuffer()
-    : simbuf_autopilot_heading(Autopilot::HEADING_NONE)
-    , simbuf_autopilot_ils_available(false)
-    , simbuf_autopilot_ils_vdev(0.f)
-    , simbuf_autopilot_ils_hdev(0.f)
+    : simbuf_ap_heading_mode(Autopilot::HEADING_NONE)
+    , simbuf_ap_heading_value(0)
+    , simbuf_ap_alt_mode(Autopilot::ALT_NONE)
+    , simbuf_ap_alt_value(1000) // from AutoPilot::reset()
+    , simbuf_ap_ias_mode(false)
+    , simbuf_ap_ias_value(150) // from AutoPilot::reset()
+    , simbuf_ap_gpws_mode(false)
+    , simbuf_ap_ils_available(false)
+    , simbuf_ap_ils_vdev(0.f)
+    , simbuf_ap_ils_hdev(0.f)
 {}
 
 RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
@@ -1907,10 +1913,16 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     // Autopilot
     if (m_attr.xa_has_autopilot)
     {
-        m_simbuf.simbuf_autopilot_heading = m_actor->ar_autopilot->GetHeadingMode();
-        m_simbuf.simbuf_autopilot_ils_available = m_actor->ar_autopilot->IsIlsAvailable();
-        m_simbuf.simbuf_autopilot_ils_vdev = m_actor->ar_autopilot->GetVerticalApproachDeviation();
-        m_simbuf.simbuf_autopilot_ils_hdev = m_actor->ar_autopilot->GetHorizontalApproachDeviation();
+        m_simbuf.simbuf_ap_heading_mode  = m_actor->ar_autopilot->GetHeadingMode();
+        m_simbuf.simbuf_ap_heading_value = m_actor->ar_autopilot->heading;
+        m_simbuf.simbuf_ap_alt_mode      = m_actor->ar_autopilot->GetAltMode();
+        m_simbuf.simbuf_ap_alt_value     = m_actor->ar_autopilot->GetAltValue();
+        m_simbuf.simbuf_ap_ias_mode      = m_actor->ar_autopilot->GetIasMode();
+        m_simbuf.simbuf_ap_ias_value     = m_actor->ar_autopilot->GetIasValue();
+        m_simbuf.simbuf_ap_gpws_mode     = m_actor->ar_autopilot->GetGpwsMode();
+        m_simbuf.simbuf_ap_ils_available = m_actor->ar_autopilot->IsIlsAvailable();
+        m_simbuf.simbuf_ap_ils_vdev      = m_actor->ar_autopilot->GetVerticalApproachDeviation();
+        m_simbuf.simbuf_ap_ils_hdev      = m_actor->ar_autopilot->GetHorizontalApproachDeviation();
     }
 
     // Linked Actors

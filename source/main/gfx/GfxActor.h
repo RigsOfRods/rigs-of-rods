@@ -239,10 +239,17 @@ public:
         float                       simbuf_wing4_aoa;
         bool                        simbuf_headlight_on;
         Ogre::Vector3               simbuf_direction; //!< Output of `Actor::getDirection()`
-        int                         simbuf_autopilot_heading;
-        bool                        simbuf_autopilot_ils_available;
-        float                       simbuf_autopilot_ils_vdev;
-        float                       simbuf_autopilot_ils_hdev;
+        // Autopilot
+        int                         simbuf_ap_heading_mode;
+        int                         simbuf_ap_heading_value;
+        int                         simbuf_ap_alt_mode;
+        int                         simbuf_ap_alt_value;
+        bool                        simbuf_ap_ias_mode;
+        int                         simbuf_ap_ias_value;
+        bool                        simbuf_ap_gpws_mode;
+        bool                        simbuf_ap_ils_available;
+        float                       simbuf_ap_ils_vdev;
+        float                       simbuf_ap_ils_hdev;
     };
 
     struct Attributes    //!< Actor visual attributes
