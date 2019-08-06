@@ -83,6 +83,7 @@ public:
     bool GetIasMode() const { return mode_ias; }
     int GetIasValue() const { return ias; }
     bool GetGpwsMode() const { return mode_gpws; }
+    int GetVsValue() const { return vs; }
 private:
 
     int mode_heading;

@@ -70,6 +70,7 @@ RoR::GfxActor::SimBuffer::SimBuffer()
     , simbuf_ap_ils_available(false)
     , simbuf_ap_ils_vdev(0.f)
     , simbuf_ap_ils_hdev(0.f)
+    , simbuf_ap_vs_value(0)
 {}
 
 RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
@@ -1923,6 +1924,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_ap_ils_available = m_actor->ar_autopilot->IsIlsAvailable();
         m_simbuf.simbuf_ap_ils_vdev      = m_actor->ar_autopilot->GetVerticalApproachDeviation();
         m_simbuf.simbuf_ap_ils_hdev      = m_actor->ar_autopilot->GetHorizontalApproachDeviation();
+        m_simbuf.simbuf_ap_vs_value      = m_actor->ar_autopilot->GetVsValue();
     }
 
     // Linked Actors

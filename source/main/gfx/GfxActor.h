@@ -250,6 +250,7 @@ public:
         bool                        simbuf_ap_ils_available;
         float                       simbuf_ap_ils_vdev;
         float                       simbuf_ap_ils_hdev;
+        int                         simbuf_ap_vs_value;
     };
 
     struct Attributes    //!< Actor visual attributes

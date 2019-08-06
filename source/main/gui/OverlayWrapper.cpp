@@ -268,19 +268,15 @@ int OverlayWrapper::init()
     reposPanel(loadOverlayElement("tracks/ap_gpws_but"));
     reposPanel(loadOverlayElement("tracks/ap_brks_but"));
     m_aerial_dashboard.hdg.Setup("tracks/ap_hdg_but", "tracks/hdg-on", "tracks/hdg-off");
-    m_aerial_dashboard.hdg_up_button = loadOverlayElement("tracks/ap_hdg_up");
-    m_aerial_dashboard.hdg_dn_button = loadOverlayElement("tracks/ap_hdg_dn");
+    m_aerial_dashboard.hdg_trim.Setup("tracks/ap_hdg_up", "tracks/ap_hdg_dn", "tracks/ap_hdg_val");
     m_aerial_dashboard.wlv.Setup("tracks/ap_wlv_but", "tracks/wlv-on", "tracks/wlv-off");
     m_aerial_dashboard.nav.Setup("tracks/ap_nav_but", "tracks/nav-on", "tracks/nav-off");
     m_aerial_dashboard.alt.Setup("tracks/ap_alt_but", "tracks/hold-on", "tracks/hold-off");
-    m_aerial_dashboard.alt_up_button = loadOverlayElement("tracks/ap_alt_up");
-    m_aerial_dashboard.alt_dn_button = loadOverlayElement("tracks/ap_alt_dn");
+    m_aerial_dashboard.alt_trim.Setup("tracks/ap_alt_up", "tracks/ap_alt_dn", "tracks/ap_alt_val");
     m_aerial_dashboard.vs.Setup("tracks/ap_vs_but", "tracks/vs-on", "tracks/vs-off");
-    m_aerial_dashboard.vs_up_button = loadOverlayElement("tracks/ap_vs_up");
-    m_aerial_dashboard.vs_dn_button = loadOverlayElement("tracks/ap_vs_dn");
+    m_aerial_dashboard.vs_trim.Setup("tracks/ap_vs_up", "tracks/ap_vs_dn", "tracks/ap_vs_val");
     m_aerial_dashboard.ias.Setup("tracks/ap_ias_but", "tracks/athr-on", "tracks/athr-off");
-    m_aerial_dashboard.ias_up_button = loadOverlayElement("tracks/ap_ias_up");
-    m_aerial_dashboard.ias_dn_button = loadOverlayElement("tracks/ap_ias_dn");
+    m_aerial_dashboard.ias_trim.Setup("tracks/ap_ias_up", "tracks/ap_ias_dn", "tracks/ap_ias_val");
     m_aerial_dashboard.gpws.Setup("tracks/ap_gpws_but", "tracks/gpws-on", "tracks/gpws-off");
     m_aerial_dashboard.brks.Setup("tracks/ap_brks_but", "tracks/brks-on", "tracks/brks-off");
 
@@ -619,79 +615,45 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 player_actor->ToggleParkingBrake();
             }
             //trims
-            if (element == m_aerial_dashboard.hdg_up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.hdg_trim.up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
-                int val = player_actor->ar_autopilot->adjHDG(1);
-                char str[10];
-                sprintf(str, "%.3u", val);
-                OverlayManager::getSingleton().getOverlayElement("tracks/ap_hdg_val")->setCaption(str);
+                player_actor->ar_autopilot->adjHDG(1);
             }
-            if (element == m_aerial_dashboard.hdg_dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.hdg_trim.dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
-                int val = player_actor->ar_autopilot->adjHDG(-1);
-                char str[10];
-                sprintf(str, "%.3u", val);
-                OverlayManager::getSingleton().getOverlayElement("tracks/ap_hdg_val")->setCaption(str);
+                player_actor->ar_autopilot->adjHDG(-1);
             }
-            if (element == m_aerial_dashboard.alt_up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.alt_trim.up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
-                int val = player_actor->ar_autopilot->adjALT(100);
-                char str[10];
-                sprintf(str, "%i00", val / 100);
-                OverlayManager::getSingleton().getOverlayElement("tracks/ap_alt_val")->setCaption(str);
+                player_actor->ar_autopilot->adjALT(100);
             }
-            if (element == m_aerial_dashboard.alt_dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.alt_trim.dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
-                int val = player_actor->ar_autopilot->adjALT(-100);
-                char str[10];
-                sprintf(str, "%i00", val / 100);
-                OverlayManager::getSingleton().getOverlayElement("tracks/ap_alt_val")->setCaption(str);
+                player_actor->ar_autopilot->adjALT(-100);
             }
-            if (element == m_aerial_dashboard.vs_up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.vs_trim.up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
-                int val = player_actor->ar_autopilot->adjVS(100);
-                char str[10];
-                if (val < 0)
-                    sprintf(str, "%i00", val / 100);
-                else if (val == 0)
-                    strcpy(str, "000");
-                else
-                    sprintf(str, "+%i00", val / 100);
-                OverlayManager::getSingleton().getOverlayElement("tracks/ap_vs_val")->setCaption(str);
+                player_actor->ar_autopilot->adjVS(100);
             }
-            if (element == m_aerial_dashboard.vs_dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.vs_trim.dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
-                int val = player_actor->ar_autopilot->adjVS(-100);
-                char str[10];
-                if (val < 0)
-                    sprintf(str, "%i00", val / 100);
-                else if (val == 0)
-                    strcpy(str, "000");
-                else
-                    sprintf(str, "+%i00", val / 100);
-                OverlayManager::getSingleton().getOverlayElement("tracks/ap_vs_val")->setCaption(str);
+                player_actor->ar_autopilot->adjVS(-100);
             }
-            if (element == m_aerial_dashboard.ias_up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.ias_trim.up_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
-                int val = player_actor->ar_autopilot->adjIAS(1);
-                char str[10];
-                sprintf(str, "%.3u", val);
-                OverlayManager::getSingleton().getOverlayElement("tracks/ap_ias_val")->setCaption(str);
+                player_actor->ar_autopilot->adjIAS(1);
             }
-            if (element == m_aerial_dashboard.ias_dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
+            if (element == m_aerial_dashboard.ias_trim.dn_button && player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 mTimeUntilNextToggle = 0.1;
-                int val = player_actor->ar_autopilot->adjIAS(-1);
-                char str[10];
-                sprintf(str, "%.3u", val);
-                OverlayManager::getSingleton().getOverlayElement("tracks/ap_ias_val")->setCaption(str);
+                player_actor->ar_autopilot->adjIAS(-1);
             }
         }
     }
@@ -1010,10 +972,21 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
     m_aerial_dashboard.alt.SetActive(simbuf.simbuf_ap_alt_mode == Autopilot::ALT_FIXED);
     m_aerial_dashboard.vs.SetActive(simbuf.simbuf_ap_alt_mode == Autopilot::ALT_VS);
 
-    //autopilot - other
+    //autopilot - other buttons
     m_aerial_dashboard.ias.SetActive(simbuf.simbuf_ap_ias_mode);
     m_aerial_dashboard.gpws.SetActive(simbuf.simbuf_ap_gpws_mode);
     m_aerial_dashboard.brks.SetActive(simbuf.simbuf_parking_brake);
+
+    //autopilot - trims
+    m_aerial_dashboard.hdg_trim.DisplayFormat("%.3u", simbuf.simbuf_ap_heading_value);
+    m_aerial_dashboard.alt_trim.DisplayFormat("%i00", simbuf.simbuf_ap_alt_value / 100);
+    m_aerial_dashboard.ias_trim.DisplayFormat("%.3u", simbuf.simbuf_ap_ias_value);
+    if (simbuf.simbuf_ap_vs_value == 0)
+        m_aerial_dashboard.vs_trim.display->setCaption("000");
+    else if (simbuf.simbuf_ap_vs_value < 0)
+        m_aerial_dashboard.vs_trim.DisplayFormat("%i00", simbuf.simbuf_ap_vs_value / 100);
+    else
+        m_aerial_dashboard.vs_trim.DisplayFormat("+%i00", simbuf.simbuf_ap_vs_value / 100);
 }
 
 void OverlayWrapper::UpdateMarineHUD(Actor* vehicle)
@@ -1174,4 +1147,23 @@ void AeroSwitchOverlay::Setup(std::string const & elem_name, std::string const &
     element = Ogre::OverlayManager::getSingleton().getOverlayElement(elem_name);
     on_material = Ogre::MaterialManager::getSingleton().getByName(mat_on);
     off_material = Ogre::MaterialManager::getSingleton().getByName(mat_off);
+}
+
+void AeroTrimOverlay::Setup(std::string const & up, std::string const & dn, std::string const & disp)
+{
+    display = Ogre::OverlayManager::getSingleton().getOverlayElement(disp);
+    up_button = Ogre::OverlayManager::getSingleton().getOverlayElement(up);
+    dn_button = Ogre::OverlayManager::getSingleton().getOverlayElement(dn);
+}
+
+void AeroTrimOverlay::DisplayFormat(const char* fmt, ...)
+{
+    char buffer[500] = {};
+
+    va_list args;
+    va_start(args, fmt);
+        vsprintf(buffer, fmt, args);
+    va_end(args);
+
+    display->setCaption(buffer);
 }
