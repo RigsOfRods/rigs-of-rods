@@ -52,6 +52,16 @@ struct AeroSwitchOverlay
     Ogre::MaterialPtr off_material;
 };
 
+struct AeroTrimOverlay
+{
+    void Setup(std::string const & up, std::string const & dn, std::string const & disp);
+    void DisplayFormat(const char* fmt, ...);
+
+    Ogre::OverlayElement *up_button;
+    Ogre::OverlayElement *dn_button;
+    Ogre::OverlayElement *display;
+};
+
 struct AeroDashOverlay
 {
     void SetThrottle(int engine, float value);
@@ -86,14 +96,11 @@ struct AeroDashOverlay
     AeroSwitchOverlay ias;
     AeroSwitchOverlay gpws;
     AeroSwitchOverlay brks;
-    Ogre::OverlayElement *hdg_up_button;
-    Ogre::OverlayElement *hdg_dn_button;
-    Ogre::OverlayElement *alt_up_button;
-    Ogre::OverlayElement *alt_dn_button;
-    Ogre::OverlayElement *vs_up_button;
-    Ogre::OverlayElement *vs_dn_button;
-    Ogre::OverlayElement *ias_up_button;
-    Ogre::OverlayElement *ias_dn_button;
+
+    AeroTrimOverlay hdg_trim;
+    AeroTrimOverlay alt_trim;
+    AeroTrimOverlay vs_trim;
+    AeroTrimOverlay ias_trim;
 
     float thrust_track_top;
     float thrust_track_height;
