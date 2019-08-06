@@ -60,11 +60,6 @@ public:
 	void setReplayMode(bool rm);
 	
 	/**
-	 * Resets the auto-pilot.
-	 */
-	void resetAutopilot();
-	
-	/**
 	 * Toggles the custom particles.
 	 */
 	void toggleCustomParticles();

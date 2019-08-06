@@ -30,8 +30,7 @@ using namespace Ogre;
 using namespace RoR;
 
 Autopilot::Autopilot(int actor_id):
-    m_actor_id(actor_id),
-    m_ils_runway_distance(0.0f)
+    m_actor_id(actor_id)
 {
     ref_l = nullptr;
     ref_r = nullptr;
@@ -59,6 +58,7 @@ void Autopilot::reset()
     m_ils_angle_vdev = -90;
     m_ils_angle_hdev = -90;
     m_ils_runway_heading = 0;
+    m_ils_runway_distance = 0;
     last_closest_hdist = 0;
     wantsdisconnect = false;
 
