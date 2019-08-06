@@ -676,7 +676,7 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
         if ((!actor->ar_hide_in_actor_list) && (actor->ar_net_source_id == user.uniqueid))
         {
             char actortext_buf[400];
-            snprintf(actortext_buf, 400, "  [%d:%d] %s (%s)", i++, user.uniqueid, actor->ar_design_name.c_str(), actor->ar_filename.c_str());
+            snprintf(actortext_buf, 400, "  + %s (%s) ##[%d:%d]", actor->ar_design_name.c_str(), actor->ar_filename.c_str(), i++, user.uniqueid);
             if (ImGui::Button(actortext_buf)) // Button clicked?
             {
                 App::GetSimController()->SetPendingPlayerActor(actor);
