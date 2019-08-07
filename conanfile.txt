@@ -8,7 +8,7 @@ OpenSSL/1.1.1c@conan/stable
 MofileReader/1.0.0@anotherfoxguy/stable
 MyGUI/3.2.3-OGRE-1.11.6@anotherfoxguy/stable
 OGRE/1.11.6@anotherfoxguy/stable
-OGREdeps/2018-07@anotherfoxguy/stable
+OGREdeps/2019-04@anotherfoxguy/stable
 SocketW/3.10.36@anotherfoxguy/stable
 openal/1.19.0@bincrafters/stable
 rapidjson/1.1.0@bincrafters/stable
