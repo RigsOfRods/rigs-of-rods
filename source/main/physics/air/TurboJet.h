@@ -25,7 +25,6 @@
 
 class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
 {
-    friend class RigInspector;
 
 public:
 
