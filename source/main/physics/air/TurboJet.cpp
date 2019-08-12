@@ -58,6 +58,7 @@ Turbojet::Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, Ri
     m_timer = 0;
     m_warmup_time = 15.0;
     m_last_flip = 0;
+    m_radius = def.back_diameter / 2.f;
     m_area = 2 * 3.14159 * m_radius * 0.6 * m_radius * 0.6;
     m_exhaust_velocity = 0;
     m_axis = m_actor->ar_nodes[m_node_front].RelPosition - m_actor->ar_nodes[m_node_back].RelPosition;
