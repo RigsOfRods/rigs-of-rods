@@ -663,13 +663,13 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     
     // Visuals
     std::string nozzle_name = this->ComposeName("TurbojetNozzle", m_actor->ar_num_aeroengines);
-    Ogre::Entity* nozzle_ent = gEnv->sceneManager->createEntity(nozzle_name, "nozzle.mesh");
+    Ogre::Entity* nozzle_ent = gEnv->sceneManager->createEntity(nozzle_name, "nozzle.mesh", m_custom_resource_group);
     this->SetupNewEntity(nozzle_ent, Ogre::ColourValue(1, 0.5, 0.5));
     Ogre::Entity* afterburn_ent = nullptr;
     if (def.wet_thrust > 0.f)
     {
         std::string flame_name = this->ComposeName("AfterburnerFlame", m_actor->ar_num_aeroengines);
-        afterburn_ent = gEnv->sceneManager->createEntity(flame_name, "abflame.mesh");
+        afterburn_ent = gEnv->sceneManager->createEntity(flame_name, "abflame.mesh", m_custom_resource_group);
         this->SetupNewEntity(afterburn_ent, Ogre::ColourValue(1, 1, 0));
     }
     std::string propname = this->ComposeName("Turbojet", m_actor->ar_num_aeroengines);
