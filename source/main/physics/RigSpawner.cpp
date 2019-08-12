@@ -650,9 +650,7 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     ref   = GetNodeIndexOrThrow(def.side_node);
     
     Turbojet *tj=new Turbojet(
-        m_actor->ar_num_aeroengines, 
-        m_actor->ar_instance_id, 
-        m_actor->ar_nodes, 
+        m_actor,
         front, 
         back, 
         ref, 
