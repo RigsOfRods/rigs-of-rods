@@ -22,13 +22,14 @@
 
 #include "RoRPrerequisites.h"
 #include "AeroEngine.h"
+#include "RigDef_File.h"
 
 class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
 {
 
 public:
 
-    Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, float tafterburnthrust, float diskdiam);
+    Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, RigDef::Turbojet & def);
     ~Turbojet();
 
     void SetupVisuals(std::string const& propname, Ogre::Entity* nozzle, float nozdiam, float nozlength, Ogre::Entity* afterburner_flame, bool disable_smoke);
