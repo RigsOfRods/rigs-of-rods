@@ -3,6 +3,7 @@ cmake
 
 [requires]
 AngelScript/2.32@anotherfoxguy/stable
+discord-rpc/3.4.0@AnotherFoxGuy/stable
 libcurl/7.61.1@bincrafters/stable
 OpenSSL/1.1.1c@conan/stable
 MofileReader/1.0.0@anotherfoxguy/stable

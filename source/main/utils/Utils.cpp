@@ -24,8 +24,10 @@
 #include "RoRnet.h"
 #include "RoRVersion.h"
 #include "SHA1.h"
+#include "Application.h"
 
 #include <Ogre.h>
+#include <discord_rpc.h>
 
 #ifndef _WIN32
 #   include <iconv.h>
@@ -36,6 +38,62 @@
 #endif
 
 using namespace Ogre;
+
+void InitDiscord()
+{
+    DiscordEventHandlers handlers;
+    memset(&handlers, 0, sizeof(handlers));
+    handlers.ready = handleDiscordReady;
+    handlers.errored = handleDiscordError;
+
+    // Discord_Initialize(const char* applicationId, DiscordEventHandlers* handlers, int autoRegister, const char* optionalSteamId)
+    Discord_Initialize("492484203435393035", &handlers, 1, "1234");
+}
+
+void handleDiscordError(int, const char *error)
+{
+    RoR::LogFormat("Discord Error: %s", error);
+}
+
+void handleDiscordReady(const DiscordUser *user)
+{
+    RoR::LogFormat("Discord Ready: %s", user->username);
+    if (stricmp(RoR::App::mp_player_name.GetActive(), "Player") == 0)
+    {
+        RoR::App::mp_player_name.SetActive(user->username);
+    }
+}
+
+void UpdatePresence()
+{
+    char buffer[256];
+    DiscordRichPresence discordPresence;
+    memset(&discordPresence, 0, sizeof(discordPresence));
+    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+    {
+        discordPresence.state = "Playing online";
+        sprintf(buffer, "On server: %s:%d  on terrain: %s",
+                RoR::App::mp_server_host.GetActive(),
+                RoR::App::mp_server_port.GetActive(),
+                RoR::App::sim_terrain_name.GetActive());
+    }
+    else
+    {
+        discordPresence.state = "Playing singleplayer";
+        sprintf(buffer, "On terrain: %s", RoR::App::sim_terrain_name.GetActive());
+    }
+    discordPresence.details = buffer;
+    Discord_UpdatePresence(&discordPresence);
+}
+
+
+String sha1sum(const char *key, int len)
+{
+    RoR::CSHA1 sha1;
+    sha1.UpdateHash((uint8_t *)key, len);
+    sha1.Final();
+    return sha1.ReportHash();
+}
 
 String HashData(const char *key, int len)
 {

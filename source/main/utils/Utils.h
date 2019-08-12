@@ -34,6 +34,16 @@
 
 #include <MyGUI.h>
 
+void InitDiscord();
+
+void handleDiscordError(int, const char * error);
+
+void handleDiscordReady(const DiscordUser * user);
+
+void UpdatePresence();
+
+Ogre::String sha1sum(const char *key, int len);
+
 Ogre::String HashData(const char *key, int len);
 
 Ogre::String HashFile(const char* szFileName);

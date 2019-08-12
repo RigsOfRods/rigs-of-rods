@@ -39,6 +39,7 @@
 #include "Settings.h"
 #include "Skidmark.h"
 #include "SoundScriptManager.h"
+#include "Utils.h"
 
 #include <Overlay/OgreOverlaySystem.h>
 #include <ctime>
@@ -259,6 +260,8 @@ int main(int argc, char *argv[])
             }
         }
 
+        InitDiscord();
+
 #ifdef USE_ANGELSCRIPT
         new ScriptEngine(); // Init singleton. TODO: Move under Application
 #endif
@@ -294,7 +297,7 @@ int main(int argc, char *argv[])
         AppState prev_app_state = App::app_state.GetActive();
         App::app_state.SetPending(AppState::MAIN_MENU);
 
-        if (App::mp_join_on_startup.GetActive() == true)
+        if (App::mp_join_on_startup.GetActive())
         {
             App::mp_state.SetPending(RoR::MpState::CONNECTED);
         }
@@ -377,6 +380,8 @@ int main(int argc, char *argv[])
         // ========================================================================
         // Cleanup
         // ========================================================================
+
+        Discord_Shutdown();
 
         Settings::getSingleton().SaveSettings(); // Save RoR.cfg
 
