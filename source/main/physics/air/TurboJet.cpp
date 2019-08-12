@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2017      Petr Ohlidal & contributors
+    Copyright 2017-2019 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -31,74 +31,74 @@ using namespace Ogre;
 
 Turbojet::Turbojet(int tnumber, int trucknum, node_t* nd, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, float tafterburnthrust, float diskdiam)
 {
-    nodes = nd;
-    number = tnumber;
-    this->trucknum = trucknum;
+    m_nodes = nd;
+    m_number = tnumber;
+    m_trucknum = trucknum;
 #ifdef USE_OPENAL
-    switch (number)
+    switch (m_number)
     {
-    case 0:  mod_id = SS_MOD_AEROENGINE1;  src_id = SS_TRIG_AEROENGINE1;  thr_id = SS_MOD_THROTTLE1;  ab_id = SS_TRIG_AFTERBURNER1;  break;
-    case 1:  mod_id = SS_MOD_AEROENGINE2;  src_id = SS_TRIG_AEROENGINE2;  thr_id = SS_MOD_THROTTLE2;  ab_id = SS_TRIG_AFTERBURNER2;  break;
-    case 2:  mod_id = SS_MOD_AEROENGINE3;  src_id = SS_TRIG_AEROENGINE3;  thr_id = SS_MOD_THROTTLE3;  ab_id = SS_TRIG_AFTERBURNER3;  break;
-    case 3:  mod_id = SS_MOD_AEROENGINE4;  src_id = SS_TRIG_AEROENGINE4;  thr_id = SS_MOD_THROTTLE4;  ab_id = SS_TRIG_AFTERBURNER4;  break;
-    case 4:  mod_id = SS_MOD_AEROENGINE5;  src_id = SS_TRIG_AEROENGINE5;  thr_id = SS_MOD_THROTTLE5;  ab_id = SS_TRIG_AFTERBURNER5;  break;
-    case 5:  mod_id = SS_MOD_AEROENGINE6;  src_id = SS_TRIG_AEROENGINE6;  thr_id = SS_MOD_THROTTLE6;  ab_id = SS_TRIG_AFTERBURNER6;  break;
-    case 6:  mod_id = SS_MOD_AEROENGINE7;  src_id = SS_TRIG_AEROENGINE7;  thr_id = SS_MOD_THROTTLE7;  ab_id = SS_TRIG_AFTERBURNER7;  break;
-    case 7:  mod_id = SS_MOD_AEROENGINE8;  src_id = SS_TRIG_AEROENGINE8;  thr_id = SS_MOD_THROTTLE8;  ab_id = SS_TRIG_AFTERBURNER8;  break;
-    default: mod_id = SS_MOD_NONE;         src_id = SS_TRIG_NONE;         thr_id = SS_MOD_NONE;       ab_id = SS_TRIG_NONE;
+    case 0:  m_sound_mod = SS_MOD_AEROENGINE1;  m_sound_src = SS_TRIG_AEROENGINE1;  m_sound_thr = SS_MOD_THROTTLE1;  m_sound_ab = SS_TRIG_AFTERBURNER1;  break;
+    case 1:  m_sound_mod = SS_MOD_AEROENGINE2;  m_sound_src = SS_TRIG_AEROENGINE2;  m_sound_thr = SS_MOD_THROTTLE2;  m_sound_ab = SS_TRIG_AFTERBURNER2;  break;
+    case 2:  m_sound_mod = SS_MOD_AEROENGINE3;  m_sound_src = SS_TRIG_AEROENGINE3;  m_sound_thr = SS_MOD_THROTTLE3;  m_sound_ab = SS_TRIG_AFTERBURNER3;  break;
+    case 3:  m_sound_mod = SS_MOD_AEROENGINE4;  m_sound_src = SS_TRIG_AEROENGINE4;  m_sound_thr = SS_MOD_THROTTLE4;  m_sound_ab = SS_TRIG_AFTERBURNER4;  break;
+    case 4:  m_sound_mod = SS_MOD_AEROENGINE5;  m_sound_src = SS_TRIG_AEROENGINE5;  m_sound_thr = SS_MOD_THROTTLE5;  m_sound_ab = SS_TRIG_AFTERBURNER5;  break;
+    case 5:  m_sound_mod = SS_MOD_AEROENGINE6;  m_sound_src = SS_TRIG_AEROENGINE6;  m_sound_thr = SS_MOD_THROTTLE6;  m_sound_ab = SS_TRIG_AFTERBURNER6;  break;
+    case 6:  m_sound_mod = SS_MOD_AEROENGINE7;  m_sound_src = SS_TRIG_AEROENGINE7;  m_sound_thr = SS_MOD_THROTTLE7;  m_sound_ab = SS_TRIG_AFTERBURNER7;  break;
+    case 7:  m_sound_mod = SS_MOD_AEROENGINE8;  m_sound_src = SS_TRIG_AEROENGINE8;  m_sound_thr = SS_MOD_THROTTLE8;  m_sound_ab = SS_TRIG_AFTERBURNER8;  break;
+    default: m_sound_mod = SS_MOD_NONE;         m_sound_src = SS_TRIG_NONE;         m_sound_thr = SS_MOD_NONE;       m_sound_ab = SS_TRIG_NONE;
     }
 #endif
-    nodeback = tnodeback;
-    nodefront = tnodefront;
-    noderef = tnoderef;
+    m_node_back = tnodeback;
+    m_node_front = tnodefront;
+    m_node_ref = tnoderef;
     afterburnable = (tafterburnthrust > 0.f);
-    reversable = treversable;
-    maxdrythrust = tmaxdrythrust;
-    afterburnthrust = tafterburnthrust;
-    afterburner = false;
-    timer = 0;
-    warmuptime = 15.0;
-    lastflip = 0;
-    area = 2 * 3.14159 * radius * 0.6 * radius * 0.6;
-    exhaust_velocity = 0;
-    axis = nodes[nodefront].RelPosition - nodes[nodeback].RelPosition;
-    reflen = axis.length();
-    axis = axis / reflen;
+    m_reversable = treversable;
+    m_max_dry_thrust = tmaxdrythrust;
+    m_afterburn_thrust = tafterburnthrust;
+    m_afterburner_active = false;
+    m_timer = 0;
+    m_warmup_time = 15.0;
+    m_last_flip = 0;
+    m_area = 2 * 3.14159 * m_radius * 0.6 * m_radius * 0.6;
+    m_exhaust_velocity = 0;
+    m_axis = m_nodes[m_node_front].RelPosition - m_nodes[m_node_back].RelPosition;
+    m_reflen = m_axis.length();
+    m_axis = m_axis / m_reflen;
     reset();
 }
 
 void Turbojet::SetupVisuals(std::string const& propname, Ogre::Entity* nozzle, float nozdiam, float nozlength, Ogre::Entity* afterburner_flame, bool disable_smoke)
 {
-    radius = nozdiam / 2.0;
+    m_radius = nozdiam / 2.0;
 
-    nozzleMesh = nozzle;
-    nzsnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-    nzsnode->attachObject(nozzleMesh);
-    nzsnode->setScale(nozlength, nozdiam, nozdiam);
+    m_nozzle_entity = nozzle;
+    m_nozzle_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    m_nozzle_scenenode->attachObject(m_nozzle_entity);
+    m_nozzle_scenenode->setScale(nozlength, nozdiam, nozdiam);
 
     if (afterburner_flame != nullptr)
     {
-        flameMesh = afterburner_flame;
-        absnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-        absnode->attachObject(flameMesh);
-        absnode->setScale(1.0, nozdiam, nozdiam);
-        absnode->setVisible(false);
+        m_flame_entity = afterburner_flame;
+        m_flame_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        m_flame_scenenode->attachObject(m_flame_entity);
+        m_flame_scenenode->setScale(1.0, nozdiam, nozdiam);
+        m_flame_scenenode->setVisible(false);
     }
     //smoke visual
     if (disable_smoke)
     {
-        smokeNode = 0;
-        smokePS = 0;
+        m_smoke_scenenode = 0;
+        m_smoke_particle = 0;
     }
     else
     {
-        smokeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-        smokePS = gEnv->sceneManager->createParticleSystem("SmokeParticle-"+propname, "tracks/TurbopropSmoke");
-        if (smokePS)
+        m_smoke_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        m_smoke_particle = gEnv->sceneManager->createParticleSystem("SmokeParticle-"+propname, "tracks/TurbopropSmoke");
+        if (m_smoke_particle)
         {
-            smokePS->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
-            smokeNode->attachObject(smokePS);
-            smokePS->setCastShadows(false);
+            m_smoke_particle->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
+            m_smoke_scenenode->attachObject(m_smoke_particle);
+            m_smoke_particle->setCastShadows(false);
         }
     }
 }
@@ -107,24 +107,24 @@ Turbojet::~Turbojet()
 {
     //A fast work around 
     //
-    SOUND_MODULATE(trucknum, thr_id, 0);
-    SOUND_MODULATE(trucknum, mod_id, 0);
-    SOUND_STOP(trucknum, ab_id);
-    SOUND_STOP(trucknum, src_id);
+    SOUND_MODULATE(m_trucknum, m_sound_thr, 0);
+    SOUND_MODULATE(m_trucknum, m_sound_mod, 0);
+    SOUND_STOP(m_trucknum, m_sound_ab);
+    SOUND_STOP(m_trucknum, m_sound_src);
 
-    if (flameMesh != nullptr)
+    if (m_flame_entity != nullptr)
     {
-        flameMesh->setVisible(false);
+        m_flame_entity->setVisible(false);
     }
 
-    if (nozzleMesh != nullptr)
+    if (m_nozzle_entity != nullptr)
     {
-        nozzleMesh->setVisible(false);
+        m_nozzle_entity->setVisible(false);
     }
 
-    if (smokePS != nullptr)
+    if (m_smoke_particle != nullptr)
     {
-        smokePS->removeAllEmitters();
+        m_smoke_particle->removeAllEmitters();
     }
 }
 
@@ -133,41 +133,41 @@ void Turbojet::updateVisuals(RoR::GfxActor* gfx_actor)
     RoR::GfxActor::NodeData* node_buf = gfx_actor->GetSimNodeBuffer();
 
     //nozzle
-    nzsnode->setPosition(node_buf[nodeback].AbsPosition);
+    m_nozzle_scenenode->setPosition(node_buf[m_node_back].AbsPosition);
     //build a local system
-    Vector3 laxis = node_buf[nodefront].AbsPosition - node_buf[nodeback].AbsPosition;
+    Vector3 laxis = node_buf[m_node_front].AbsPosition - node_buf[m_node_back].AbsPosition;
     laxis.normalise();
-    Vector3 paxis = Plane(laxis, 0).projectVector(node_buf[noderef].AbsPosition - node_buf[nodeback].AbsPosition);
+    Vector3 paxis = Plane(laxis, 0).projectVector(node_buf[m_node_ref].AbsPosition - node_buf[m_node_back].AbsPosition);
     paxis.normalise();
     Vector3 taxis = laxis.crossProduct(paxis);
     Quaternion dir = Quaternion(laxis, paxis, taxis);
-    nzsnode->setOrientation(dir);
-    //afterburner
-    if (afterburner)
+    m_nozzle_scenenode->setOrientation(dir);
+    //m_afterburner_active
+    if (m_afterburner_active)
     {
-        absnode->setVisible(true);
-        float flamelength = (afterburnthrust / 15.0) * (rpm / 100.0);
+        m_flame_scenenode->setVisible(true);
+        float flamelength = (m_afterburn_thrust / 15.0) * (m_rpm_percent / 100.0);
         flamelength = flamelength * (1.0 + (((Real)rand() / (Real)RAND_MAX) - 0.5) / 10.0);
-        absnode->setScale(flamelength, radius * 2.0, radius * 2.0);
-        absnode->setPosition(node_buf[nodeback].AbsPosition + dir * Vector3(-0.2, 0.0, 0.0));
-        absnode->setOrientation(dir);
+        m_flame_scenenode->setScale(flamelength, m_radius * 2.0, m_radius * 2.0);
+        m_flame_scenenode->setPosition(node_buf[m_node_back].AbsPosition + dir * Vector3(-0.2, 0.0, 0.0));
+        m_flame_scenenode->setOrientation(dir);
     }
     else
-        absnode->setVisible(false);
+        m_flame_scenenode->setVisible(false);
     //smoke
-    if (smokeNode)
+    if (m_smoke_scenenode)
     {
-        smokeNode->setPosition(node_buf[nodeback].AbsPosition);
-        ParticleEmitter* emit = smokePS->getEmitter(0);
-        emit->setDirection(-axis);
-        emit->setParticleVelocity(exhaust_velocity);
-        if (!failed)
+        m_smoke_scenenode->setPosition(node_buf[m_node_back].AbsPosition);
+        ParticleEmitter* emit = m_smoke_particle->getEmitter(0);
+        emit->setDirection(-m_axis);
+        emit->setParticleVelocity(m_exhaust_velocity);
+        if (!m_is_failed)
         {
-            if (ignition)
+            if (m_ignition)
             {
                 emit->setEnabled(true);
-                emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.02 + throtle * 0.03));
-                emit->setTimeToLive((0.02 + throtle * 0.03) / 0.1);
+                emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.02 + m_throtle * 0.03));
+                emit->setTimeToLive((0.02 + m_throtle * 0.03) / 0.1);
             }
             else
             {
@@ -189,55 +189,55 @@ void Turbojet::updateForces(float dt, int doUpdate)
 {
     if (doUpdate)
     {
-        SOUND_MODULATE(trucknum, mod_id, rpm);
+        SOUND_MODULATE(m_trucknum, m_sound_mod, m_rpm_percent);
     }
-    timer += dt;
-    axis = nodes[nodefront].RelPosition - nodes[nodeback].RelPosition;
-    float axlen = axis.length();
-    axis = axis / axlen; //normalize
-    if (fabs(reflen - axlen) > 0.1)
+    m_timer += dt;
+    m_axis = m_nodes[m_node_front].RelPosition - m_nodes[m_node_back].RelPosition;
+    float axlen = m_axis.length();
+    m_axis = m_axis / axlen; //normalize
+    if (fabs(m_reflen - axlen) > 0.1)
     {
-        rpm = 0;
-        failed = true;
+        m_rpm_percent = 0;
+        m_is_failed = true;
     }; //check for broken
 
     float warmupfactor = 1.0;
-    if (warmup)
+    if (m_warmup)
     {
-        warmupfactor = (timer - warmupstart) / warmuptime;
+        warmupfactor = (m_timer - m_warmup_start) / m_warmup_time;
         if (warmupfactor >= 1.0)
-            warmup = false;
+            m_warmup = false;
     }
 
     //turbine RPM
     //braking (compression)
-    if (rpm < 0)
-        rpm = 0;
-    float torque = -rpm / 100.0;
+    if (m_rpm_percent < 0)
+        m_rpm_percent = 0;
+    float torque = -m_rpm_percent / 100.0;
     //powering with limiter
-    if (rpm < 100.0 && !failed && ignition)
-        torque += ((0.2 + throtle * 0.8) * warmupfactor);
+    if (m_rpm_percent < 100.0 && !m_is_failed && m_ignition)
+        torque += ((0.2 + m_throtle * 0.8) * warmupfactor);
     //integration
-    rpm += (double)dt * torque * 30.0;
+    m_rpm_percent += (double)dt * torque * 30.0;
 
     float enginethrust = 0;
-    if (!failed && ignition)
+    if (!m_is_failed && m_ignition)
     {
-        enginethrust = maxdrythrust * rpm / 100.0;
-        afterburner = (afterburnable && throtle > 0.95 && rpm > 80);
-        if (afterburner)
-            enginethrust += (afterburnthrust - maxdrythrust);
+        enginethrust = m_max_dry_thrust * m_rpm_percent / 100.0;
+        m_afterburner_active = (afterburnable && m_throtle > 0.95 && m_rpm_percent > 80);
+        if (m_afterburner_active)
+            enginethrust += (m_afterburn_thrust - m_max_dry_thrust);
     }
     else
-        afterburner = false;
+        m_afterburner_active = false;
 
-    if (afterburner)
-        SOUND_START(trucknum, ab_id);
+    if (m_afterburner_active)
+        SOUND_START(m_trucknum, m_sound_ab);
     else
-        SOUND_STOP(trucknum, ab_id);
+        SOUND_STOP(m_trucknum, m_sound_ab);
 
-    nodes[nodeback].Forces += (enginethrust * 1000.0) * axis;
-    exhaust_velocity = enginethrust * 5.6 / area;
+    m_nodes[m_node_back].Forces += (enginethrust * 1000.0) * m_axis;
+    m_exhaust_velocity = enginethrust * 5.6 / m_area;
 }
 
 void Turbojet::setThrottle(float val)
@@ -248,58 +248,58 @@ void Turbojet::setThrottle(float val)
     if (val < 0.0)
         val = 0.0;
 
-    throtle = val;
-    SOUND_MODULATE(trucknum, thr_id, val);
+    m_throtle = val;
+    SOUND_MODULATE(m_trucknum, m_sound_thr, val);
 }
 
 float Turbojet::getThrottle()
 {
-    return throtle;
+    return m_throtle;
 }
 
 void Turbojet::setRPM(float _rpm)
 {
-    rpm = _rpm;
+    m_rpm_percent = _rpm;
 }
 
 void Turbojet::reset()
 {
-    rpm = 0;
-    throtle = 0;
-    propwash = 0;
-    failed = false;
-    ignition = false;
-    reverse = false;
+    m_rpm_percent = 0;
+    m_throtle = 0;
+    m_propwash = 0;
+    m_is_failed = false;
+    m_ignition = false;
+    m_reverse = false;
 }
 
 void Turbojet::toggleReverse()
 {
-    if (!reversable)
+    if (!m_reversable)
         return;
-    throtle = 0;
-    reverse = !reverse;
+    m_throtle = 0;
+    m_reverse = !m_reverse;
 }
 
 void Turbojet::setReverse(bool val)
 {
-    reverse = val;
+    m_reverse = val;
 }
 
 void Turbojet::flipStart()
 {
-    if (timer - lastflip < 0.3)
+    if (m_timer - m_last_flip < 0.3)
         return;
-    ignition = !ignition;
-    if (ignition && !failed)
+    m_ignition = !m_ignition;
+    if (m_ignition && !m_is_failed)
     {
-        warmup = true;
-        warmupstart = timer;
-        SOUND_START(trucknum, src_id);
+        m_warmup = true;
+        m_warmup_start = m_timer;
+        SOUND_START(m_trucknum, m_sound_src);
     }
     else
     {
-        SOUND_STOP(trucknum, src_id);
+        SOUND_STOP(m_trucknum, m_sound_src);
     }
 
-    lastflip = timer;
+    m_last_flip = m_timer;
 }

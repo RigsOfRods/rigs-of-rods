@@ -39,63 +39,63 @@ public:
     void setThrottle(float val);
     void toggleReverse();
     void setReverse(bool val);
-    bool getReverse() { return reverse; };
+    bool getReverse() { return m_reverse; };
     void updateForces(float dt, int doUpdate);
     void updateVisuals(RoR::GfxActor* gfx_actor) override;
 
-    Ogre::Vector3 getAxis() { return axis; };
+    Ogre::Vector3 getAxis() { return m_axis; };
 
-    bool getIgnition() { return ignition; };
-    void setIgnition(bool val) { ignition = val; };
-    bool getWarmup() { return warmup; };
-    bool isFailed() { return failed; };
-    float getAfterburner() { return (float)afterburner; };
-    float getRPM() { return rpm; };
-    float getRPMpc() { return rpm; };
-    float getRadius() { return radius; };
+    bool getIgnition() { return m_ignition; };
+    void setIgnition(bool val) { m_ignition = val; };
+    bool getWarmup() { return m_warmup; };
+    bool isFailed() { return m_is_failed; };
+    float getAfterburner() { return (float)m_afterburner_active; };
+    float getRPM() { return m_rpm_percent; }; // FIXME - bad func name
+    float getRPMpc() { return m_rpm_percent; };
+    float getRadius() { return m_radius; };
     float getThrottle();
-    float getpropwash() { return propwash; };
-    int getNoderef() { return nodeback; };
+    float getpropwash() { return m_propwash; };
+    int getNoderef() { return m_node_back; };
     int getType() { return AEROENGINE_TYPE_TURBOJET; };
 
     bool afterburnable;
 
 private:
 
-    Ogre::ParticleSystem* smokePS;
-    Ogre::SceneNode* absnode;
-    Ogre::SceneNode* nzsnode;
-    Ogre::Vector3 axis;
-    Ogre::Entity* nozzleMesh;
-    Ogre::Entity* flameMesh;
-    bool afterburner;
-    bool failed;
-    bool ignition;
-    bool reversable;
-    bool reverse;
-    bool warmup;
-    float afterburnthrust; //!< in kN
-    float area;
-    float exhaust_velocity; //!< in m/s
-    float lastflip;
-    float maxdrythrust; //!< in kN
-    float propwash;
-    float radius;
-    float reflen;
-    float rpm; //!< in percent!
-    float throtle;
-    float timer;
-    float warmupstart;
-    float warmuptime;
-    int ab_id;
-    int mod_id;
-    int nodeback;
-    int nodefront;
-    int noderef;
-    int number;
-    int src_id;
-    int thr_id;
-    int trucknum;
-    node_t* nodes;
-    Ogre::SceneNode* smokeNode;
+    Ogre::ParticleSystem* m_smoke_particle;
+    Ogre::SceneNode* m_flame_scenenode;
+    Ogre::SceneNode* m_nozzle_scenenode;
+    Ogre::Vector3 m_axis;
+    Ogre::Entity* m_nozzle_entity;
+    Ogre::Entity* m_flame_entity;
+    bool m_afterburner_active;
+    bool m_is_failed;
+    bool m_ignition;
+    bool m_reversable;
+    bool m_reverse;
+    bool m_warmup;
+    float m_afterburn_thrust; //!< in kN
+    float m_area;
+    float m_exhaust_velocity; //!< in m/s
+    float m_last_flip;
+    float m_max_dry_thrust; //!< in kN
+    float m_propwash;
+    float m_radius;
+    float m_reflen;
+    float m_rpm_percent; //!< in percent!
+    float m_throtle;
+    float m_timer;
+    float m_warmup_start;
+    float m_warmup_time;
+    int m_sound_ab;
+    int m_sound_mod;
+    int m_node_back;
+    int m_node_front;
+    int m_node_ref;
+    int m_number;
+    int m_sound_src;
+    int m_sound_thr;
+    int m_trucknum;
+    node_t* m_nodes;
+    Ogre::SceneNode* m_smoke_scenenode;
 };
