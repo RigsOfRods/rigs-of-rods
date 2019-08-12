@@ -103,6 +103,7 @@ bool OgreSubsystem::Configure()
     miscParams["FSAA"] = ropts["FSAA"].currentValue;
     miscParams["vsync"] = ropts["VSync"].currentValue;
     miscParams["gamma"] = ropts["sRGB Gamma Conversion"].currentValue;
+    miscParams["border"] = "fixed";
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
     const auto rd = ropts["Rendering Device"];
     const auto it = std::find(rd.possibleValues.begin(), rd.possibleValues.end(), rd.currentValue);
