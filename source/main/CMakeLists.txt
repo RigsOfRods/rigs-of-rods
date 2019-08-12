@@ -444,6 +444,7 @@ if (USE_PACKAGE_MANAGER)
             AS_USE_NAMESPACE
             USE_CURL
             USE_CAELUM
+            USE_DISCORD_RPC
             )
 
     if (UNIX)
