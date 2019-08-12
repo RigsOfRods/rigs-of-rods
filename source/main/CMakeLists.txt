@@ -416,6 +416,7 @@ if (USE_PACKAGE_MANAGER)
     target_link_libraries(${BINNAME} PRIVATE
             CONAN_PKG::AngelScript
             CONAN_PKG::libcurl
+            CONAN_PKG::discord-rpc
             CONAN_PKG::MofileReader
             CONAN_PKG::MyGUI
             CONAN_PKG::SocketW

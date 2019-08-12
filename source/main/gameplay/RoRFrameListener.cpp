@@ -2207,6 +2207,8 @@ bool SimController::SetupGameplayLoop()
 
     gEnv->sceneManager->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
 
+    UpdatePresence();
+
     return true;
 }
 
