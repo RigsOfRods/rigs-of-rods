@@ -30,7 +30,7 @@
 
 using namespace Ogre;
 
-Turbojet::Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, float tafterburnthrust, float diskdiam)
+Turbojet::Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, RigDef::Turbojet & def)
 {
     m_actor = actor;
 #ifdef USE_OPENAL
@@ -50,10 +50,10 @@ Turbojet::Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, fl
     m_node_back = tnodeback;
     m_node_front = tnodefront;
     m_node_ref = tnoderef;
-    afterburnable = (tafterburnthrust > 0.f);
-    m_reversable = treversable;
-    m_max_dry_thrust = tmaxdrythrust;
-    m_afterburn_thrust = tafterburnthrust;
+    afterburnable = (def.wet_thrust > 0.f);
+    m_reversable = def.is_reversable != 0;
+    m_max_dry_thrust = def.dry_thrust;
+    m_afterburn_thrust = def.wet_thrust;
     m_afterburner_active = false;
     m_timer = 0;
     m_warmup_time = 15.0;

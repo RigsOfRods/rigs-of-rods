@@ -648,17 +648,9 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     front = GetNodeIndexOrThrow(def.front_node);
     back  = GetNodeIndexOrThrow(def.back_node);
     ref   = GetNodeIndexOrThrow(def.side_node);
-    
-    Turbojet *tj=new Turbojet(
-        m_actor,
-        front, 
-        back, 
-        ref, 
-        def.dry_thrust,
-        def.is_reversable != 0,
-        def.wet_thrust,
-        def.front_diameter);
-    
+
+    Turbojet *tj = new Turbojet(m_actor, front, back, ref, def);
+
     // Visuals
     std::string nozzle_name = this->ComposeName("TurbojetNozzle", m_actor->ar_num_aeroengines);
     Ogre::Entity* nozzle_ent = gEnv->sceneManager->createEntity(nozzle_name, "nozzle.mesh", m_custom_resource_group);
