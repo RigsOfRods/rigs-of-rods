@@ -26,8 +26,6 @@
 
 class Turboprop: public AeroEngine, public ZeroedMemoryAllocator
 {
-    friend class RigInspector;
-
 public:
 
     bool is_piston;

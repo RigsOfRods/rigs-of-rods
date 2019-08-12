@@ -24,8 +24,6 @@
 
 class AeroEngine
 {
-    friend class RigInspector;
-
 public:
     enum
     {
