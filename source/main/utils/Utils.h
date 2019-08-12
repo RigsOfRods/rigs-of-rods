@@ -36,9 +36,11 @@
 
 void InitDiscord();
 
+#ifdef USE_DISCORD_RPC
 void handleDiscordError(int, const char * error);
 
 void handleDiscordReady(const DiscordUser * user);
+#endif
 
 void UpdatePresence();
 

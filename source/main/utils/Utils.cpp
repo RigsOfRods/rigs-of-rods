@@ -27,7 +27,10 @@
 #include "Application.h"
 
 #include <Ogre.h>
+
+#ifdef USE_DISCORD_RPC
 #include <discord_rpc.h>
+#endif
 
 #ifndef _WIN32
 #   include <iconv.h>
@@ -41,6 +44,7 @@ using namespace Ogre;
 
 void InitDiscord()
 {
+#ifdef USE_DISCORD_RPC
     DiscordEventHandlers handlers;
     memset(&handlers, 0, sizeof(handlers));
     handlers.ready = handleDiscordReady;
@@ -48,8 +52,10 @@ void InitDiscord()
 
     // Discord_Initialize(const char* applicationId, DiscordEventHandlers* handlers, int autoRegister, const char* optionalSteamId)
     Discord_Initialize("492484203435393035", &handlers, 1, "1234");
+#endif
 }
 
+#ifdef USE_DISCORD_RPC
 void handleDiscordError(int, const char *error)
 {
     RoR::LogFormat("Discord Error: %s", error);
@@ -63,9 +69,11 @@ void handleDiscordReady(const DiscordUser *user)
         RoR::App::mp_player_name.SetActive(user->username);
     }
 }
+#endif
 
 void UpdatePresence()
 {
+#ifdef USE_DISCORD_RPC
     char buffer[256];
     DiscordRichPresence discordPresence;
     memset(&discordPresence, 0, sizeof(discordPresence));
@@ -84,6 +92,7 @@ void UpdatePresence()
     }
     discordPresence.details = buffer;
     Discord_UpdatePresence(&discordPresence);
+#endif
 }
 
 
