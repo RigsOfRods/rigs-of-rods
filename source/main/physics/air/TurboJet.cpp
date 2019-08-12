@@ -23,19 +23,18 @@
 
 #include <Ogre.h>
 
+#include "Beam.h" // class Actor
 #include "BeamData.h"
 #include "GfxActor.h"
 #include "SoundScriptManager.h"
 
 using namespace Ogre;
 
-Turbojet::Turbojet(int tnumber, int trucknum, node_t* nd, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, float tafterburnthrust, float diskdiam)
+Turbojet::Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, float tafterburnthrust, float diskdiam)
 {
-    m_nodes = nd;
-    m_number = tnumber;
-    m_trucknum = trucknum;
+    m_actor = actor;
 #ifdef USE_OPENAL
-    switch (m_number)
+    switch (actor->ar_num_aeroengines)
     {
     case 0:  m_sound_mod = SS_MOD_AEROENGINE1;  m_sound_src = SS_TRIG_AEROENGINE1;  m_sound_thr = SS_MOD_THROTTLE1;  m_sound_ab = SS_TRIG_AFTERBURNER1;  break;
     case 1:  m_sound_mod = SS_MOD_AEROENGINE2;  m_sound_src = SS_TRIG_AEROENGINE2;  m_sound_thr = SS_MOD_THROTTLE2;  m_sound_ab = SS_TRIG_AFTERBURNER2;  break;
@@ -61,7 +60,7 @@ Turbojet::Turbojet(int tnumber, int trucknum, node_t* nd, int tnodefront, int tn
     m_last_flip = 0;
     m_area = 2 * 3.14159 * m_radius * 0.6 * m_radius * 0.6;
     m_exhaust_velocity = 0;
-    m_axis = m_nodes[m_node_front].RelPosition - m_nodes[m_node_back].RelPosition;
+    m_axis = m_actor->ar_nodes[m_node_front].RelPosition - m_actor->ar_nodes[m_node_back].RelPosition;
     m_reflen = m_axis.length();
     m_axis = m_axis / m_reflen;
     reset();
@@ -107,10 +106,10 @@ Turbojet::~Turbojet()
 {
     //A fast work around 
     //
-    SOUND_MODULATE(m_trucknum, m_sound_thr, 0);
-    SOUND_MODULATE(m_trucknum, m_sound_mod, 0);
-    SOUND_STOP(m_trucknum, m_sound_ab);
-    SOUND_STOP(m_trucknum, m_sound_src);
+    SOUND_MODULATE(m_actor, m_sound_thr, 0);
+    SOUND_MODULATE(m_actor, m_sound_mod, 0);
+    SOUND_STOP(m_actor, m_sound_ab);
+    SOUND_STOP(m_actor, m_sound_src);
 
     if (m_flame_entity != nullptr)
     {
@@ -189,10 +188,10 @@ void Turbojet::updateForces(float dt, int doUpdate)
 {
     if (doUpdate)
     {
-        SOUND_MODULATE(m_trucknum, m_sound_mod, m_rpm_percent);
+        SOUND_MODULATE(m_actor, m_sound_mod, m_rpm_percent);
     }
     m_timer += dt;
-    m_axis = m_nodes[m_node_front].RelPosition - m_nodes[m_node_back].RelPosition;
+    m_axis = m_actor->ar_nodes[m_node_front].RelPosition - m_actor->ar_nodes[m_node_back].RelPosition;
     float axlen = m_axis.length();
     m_axis = m_axis / axlen; //normalize
     if (fabs(m_reflen - axlen) > 0.1)
@@ -232,11 +231,11 @@ void Turbojet::updateForces(float dt, int doUpdate)
         m_afterburner_active = false;
 
     if (m_afterburner_active)
-        SOUND_START(m_trucknum, m_sound_ab);
+        SOUND_START(m_actor, m_sound_ab);
     else
-        SOUND_STOP(m_trucknum, m_sound_ab);
+        SOUND_STOP(m_actor, m_sound_ab);
 
-    m_nodes[m_node_back].Forces += (enginethrust * 1000.0) * m_axis;
+    m_actor->ar_nodes[m_node_back].Forces += (enginethrust * 1000.0) * m_axis;
     m_exhaust_velocity = enginethrust * 5.6 / m_area;
 }
 
@@ -249,7 +248,7 @@ void Turbojet::setThrottle(float val)
         val = 0.0;
 
     m_throtle = val;
-    SOUND_MODULATE(m_trucknum, m_sound_thr, val);
+    SOUND_MODULATE(m_actor, m_sound_thr, val);
 }
 
 float Turbojet::getThrottle()
@@ -294,11 +293,11 @@ void Turbojet::flipStart()
     {
         m_warmup = true;
         m_warmup_start = m_timer;
-        SOUND_START(m_trucknum, m_sound_src);
+        SOUND_START(m_actor, m_sound_src);
     }
     else
     {
-        SOUND_STOP(m_trucknum, m_sound_src);
+        SOUND_STOP(m_actor, m_sound_src);
     }
 
     m_last_flip = m_timer;

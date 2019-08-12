@@ -28,7 +28,7 @@ class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
 
 public:
 
-    Turbojet(int tnumber, int trucknum, node_t* nd, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, float tafterburnthrust, float diskdiam);
+    Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, float tafterburnthrust, float diskdiam);
     ~Turbojet();
 
     void SetupVisuals(std::string const& propname, Ogre::Entity* nozzle, float nozdiam, float nozlength, Ogre::Entity* afterburner_flame, bool disable_smoke);
@@ -61,6 +61,7 @@ public:
     bool afterburnable;
 
 private:
+    Actor* m_actor;
 
     Ogre::ParticleSystem* m_smoke_particle;
     Ogre::SceneNode* m_flame_scenenode;
@@ -92,10 +93,7 @@ private:
     int m_node_back;
     int m_node_front;
     int m_node_ref;
-    int m_number;
     int m_sound_src;
     int m_sound_thr;
-    int m_trucknum;
-    node_t* m_nodes;
     Ogre::SceneNode* m_smoke_scenenode;
 };
