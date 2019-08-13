@@ -50,7 +50,7 @@ Turbojet::Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, Ri
     m_node_back = tnodeback;
     m_node_front = tnodefront;
     m_node_ref = tnoderef;
-    afterburnable = (def.wet_thrust > 0.f);
+    tjet_afterburnable = (def.wet_thrust > 0.f);
     m_reversable = def.is_reversable != 0;
     m_max_dry_thrust = def.dry_thrust;
     m_afterburn_thrust = def.wet_thrust;
@@ -67,21 +67,22 @@ Turbojet::Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, Ri
     reset();
 }
 
-void Turbojet::SetupVisuals(std::string const& propname, Ogre::Entity* nozzle, float nozdiam, float nozlength, Ogre::Entity* afterburner_flame, bool disable_smoke)
+void TurbojetVisual::SetupVisuals(RigDef::Turbojet & def, int num, std::string const& propname, Ogre::Entity* nozzle, Ogre::Entity* afterburner_flame, bool disable_smoke)
 {
-    m_radius = nozdiam / 2.0;
+    m_radius = def.back_diameter / 2.0;
+    m_number = num;
 
     m_nozzle_entity = nozzle;
     m_nozzle_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     m_nozzle_scenenode->attachObject(m_nozzle_entity);
-    m_nozzle_scenenode->setScale(nozlength, nozdiam, nozdiam);
+    m_nozzle_scenenode->setScale(def.nozzle_length, def.back_diameter, def.back_diameter);
 
     if (afterburner_flame != nullptr)
     {
         m_flame_entity = afterburner_flame;
         m_flame_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         m_flame_scenenode->attachObject(m_flame_entity);
-        m_flame_scenenode->setScale(1.0, nozdiam, nozdiam);
+        m_flame_scenenode->setScale(1.0, def.back_diameter, def.back_diameter);
         m_flame_scenenode->setVisible(false);
     }
     //smoke visual
@@ -103,6 +104,13 @@ void Turbojet::SetupVisuals(std::string const& propname, Ogre::Entity* nozzle, f
     }
 }
 
+void TurbojetVisual::SetNodes(int front, int back, int ref)
+{
+    m_node_front = static_cast<uint16_t>(front);
+    m_node_back  = static_cast<uint16_t>(back);
+    m_node_ref   = static_cast<uint16_t>(ref);
+}
+
 Turbojet::~Turbojet()
 {
     //A fast work around 
@@ -111,7 +119,10 @@ Turbojet::~Turbojet()
     SOUND_MODULATE(m_actor, m_sound_mod, 0);
     SOUND_STOP(m_actor, m_sound_ab);
     SOUND_STOP(m_actor, m_sound_src);
+}
 
+TurbojetVisual::~TurbojetVisual()
+{
     if (m_flame_entity != nullptr)
     {
         m_flame_entity->setVisible(false);
@@ -130,7 +141,14 @@ Turbojet::~Turbojet()
 
 void Turbojet::updateVisuals(RoR::GfxActor* gfx_actor)
 {
+    this->tjet_visual.UpdateVisuals(gfx_actor);
+}
+
+void TurbojetVisual::UpdateVisuals(RoR::GfxActor* gfx_actor)
+{
     RoR::GfxActor::NodeData* node_buf = gfx_actor->GetSimNodeBuffer();
+    RoR::GfxActor::SimBuffer::AeroEngineSB& ae_buf
+        = gfx_actor->GetSimDataBuffer().simbuf_aeroengines.at(m_number);
 
     //nozzle
     m_nozzle_scenenode->setPosition(node_buf[m_node_back].AbsPosition);
@@ -142,11 +160,11 @@ void Turbojet::updateVisuals(RoR::GfxActor* gfx_actor)
     Vector3 taxis = laxis.crossProduct(paxis);
     Quaternion dir = Quaternion(laxis, paxis, taxis);
     m_nozzle_scenenode->setOrientation(dir);
-    //m_afterburner_active
-    if (m_afterburner_active)
+    //afterburner
+    if (ae_buf.simbuf_tj_afterburn)
     {
         m_flame_scenenode->setVisible(true);
-        float flamelength = (m_afterburn_thrust / 15.0) * (m_rpm_percent / 100.0);
+        float flamelength = (ae_buf.simbuf_tj_ab_thrust / 15.0) * (ae_buf.simbuf_ae_rpmpc / 100.0);
         flamelength = flamelength * (1.0 + (((Real)rand() / (Real)RAND_MAX) - 0.5) / 10.0);
         m_flame_scenenode->setScale(flamelength, m_radius * 2.0, m_radius * 2.0);
         m_flame_scenenode->setPosition(node_buf[m_node_back].AbsPosition + dir * Vector3(-0.2, 0.0, 0.0));
@@ -159,15 +177,15 @@ void Turbojet::updateVisuals(RoR::GfxActor* gfx_actor)
     {
         m_smoke_scenenode->setPosition(node_buf[m_node_back].AbsPosition);
         ParticleEmitter* emit = m_smoke_particle->getEmitter(0);
-        emit->setDirection(-m_axis);
-        emit->setParticleVelocity(m_exhaust_velocity);
-        if (!m_is_failed)
+        emit->setDirection(-laxis);
+        emit->setParticleVelocity(ae_buf.simbuf_tj_exhaust_velo);
+        if (!ae_buf.simbuf_ae_failed)
         {
-            if (m_ignition)
+            if (ae_buf.simbuf_ae_ignition)
             {
                 emit->setEnabled(true);
-                emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.02 + m_throtle * 0.03));
-                emit->setTimeToLive((0.02 + m_throtle * 0.03) / 0.1);
+                emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.02 + ae_buf.simbuf_ae_throttle * 0.03));
+                emit->setTimeToLive((0.02 + ae_buf.simbuf_ae_throttle * 0.03) / 0.1);
             }
             else
             {
@@ -180,7 +198,7 @@ void Turbojet::updateVisuals(RoR::GfxActor* gfx_actor)
             emit->setParticleVelocity(7.0);
             emit->setEnabled(true);
             emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.1));
-            emit->setTimeToLive(0.1 / 0.1);           
+            emit->setTimeToLive(0.1 / 0.1);
         }
     }
 }
@@ -224,7 +242,7 @@ void Turbojet::updateForces(float dt, int doUpdate)
     if (!m_is_failed && m_ignition)
     {
         enginethrust = m_max_dry_thrust * m_rpm_percent / 100.0;
-        m_afterburner_active = (afterburnable && m_throtle > 0.95 && m_rpm_percent > 80);
+        m_afterburner_active = (tjet_afterburnable && m_throtle > 0.95 && m_rpm_percent > 80);
         if (m_afterburner_active)
             enginethrust += (m_afterburn_thrust - m_max_dry_thrust);
     }
