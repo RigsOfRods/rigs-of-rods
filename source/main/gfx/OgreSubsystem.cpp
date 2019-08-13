@@ -99,7 +99,10 @@ bool OgreSubsystem::Configure()
     mode >> width;
     mode >> token; // 'x' as seperator between width and height
     mode >> height;
-
+    
+    if(width < 800) width = 800;
+    if(height < 600) height = 600;
+    
     miscParams["FSAA"] = ropts["FSAA"].currentValue;
     miscParams["vsync"] = ropts["VSync"].currentValue;
     miscParams["gamma"] = ropts["sRGB Gamma Conversion"].currentValue;
