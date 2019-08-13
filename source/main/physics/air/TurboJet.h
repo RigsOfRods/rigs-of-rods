@@ -24,6 +24,29 @@
 #include "AeroEngine.h"
 #include "RigDef_File.h"
 
+class TurbojetVisual
+{
+public:
+    ~TurbojetVisual();
+    void SetupVisuals(RigDef::Turbojet & def, int num, std::string const& propname, Ogre::Entity* nozzle, Ogre::Entity* afterburner_flame, bool disable_smoke);
+    void SetNodes(int front, int back, int ref);
+    void UpdateVisuals(RoR::GfxActor* gfx_actor);
+
+private:
+    Ogre::SceneNode*      m_smoke_scenenode;
+    Ogre::ParticleSystem* m_smoke_particle;
+    Ogre::Entity*         m_flame_entity;
+    Ogre::SceneNode*      m_flame_scenenode;
+    Ogre::Entity*         m_nozzle_entity;
+    Ogre::SceneNode*      m_nozzle_scenenode;
+
+    int      m_number;
+    float    m_radius;
+    uint16_t m_node_back;
+    uint16_t m_node_front;
+    uint16_t m_node_ref;
+};
+
 class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
 {
 
@@ -31,8 +54,6 @@ public:
 
     Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, RigDef::Turbojet & def);
     ~Turbojet();
-
-    void SetupVisuals(std::string const& propname, Ogre::Entity* nozzle, float nozdiam, float nozlength, Ogre::Entity* afterburner_flame, bool disable_smoke);
 
     void flipStart();
     void reset();
@@ -51,6 +72,8 @@ public:
     bool getWarmup() { return m_warmup; };
     bool isFailed() { return m_is_failed; };
     float getAfterburner() { return (float)m_afterburner_active; };
+    float getAfterburnThrust() const { return m_afterburn_thrust; }
+    float getExhaustVelocity() const { return m_exhaust_velocity; }
     float getRPM() { return m_rpm_percent; }; // FIXME - bad func name
     float getRPMpc() { return m_rpm_percent; };
     float getRadius() { return m_radius; };
@@ -59,17 +82,12 @@ public:
     int getNoderef() { return m_node_back; };
     int getType() { return AEROENGINE_TYPE_TURBOJET; };
 
-    bool afterburnable;
+    bool tjet_afterburnable;
+    TurbojetVisual tjet_visual;
 
 private:
     Actor* m_actor;
-
-    Ogre::ParticleSystem* m_smoke_particle;
-    Ogre::SceneNode* m_flame_scenenode;
-    Ogre::SceneNode* m_nozzle_scenenode;
     Ogre::Vector3 m_axis;
-    Ogre::Entity* m_nozzle_entity;
-    Ogre::Entity* m_flame_entity;
     bool m_afterburner_active;
     bool m_is_failed;
     bool m_ignition;
@@ -96,5 +114,4 @@ private:
     int m_node_ref;
     int m_sound_src;
     int m_sound_thr;
-    Ogre::SceneNode* m_smoke_scenenode;
 };

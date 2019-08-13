@@ -45,6 +45,7 @@
 #include "Utils.h"
 #include "TerrainManager.h"
 #include "imgui.h"
+#include "TurboJet.h"
 #include "TurboProp.h"
 
 #include <OgreMesh.h>
@@ -1898,6 +1899,13 @@ void RoR::GfxActor::UpdateSimDataBuffer()
             Turboprop* tp = static_cast<Turboprop*>(src);
             dst.simbuf_tp_aetorque = (100.0 * tp->indicated_torque / tp->max_torque); // TODO: Code ported as-is from calcAnimators(); what does it do? ~ only_a_ptr, 06/2018
             dst.simbuf_tp_aepitch = tp->pitch;
+        }
+        else // turbojet
+        {
+            Turbojet* tj = static_cast<Turbojet*>(src);
+            dst.simbuf_tj_afterburn = tj->getAfterburner() != 0.f;
+            dst.simbuf_tj_ab_thrust = tj->getAfterburnThrust();
+            dst.simbuf_tj_exhaust_velo = tj->getExhaustVelocity();
         }
     }
 

@@ -663,8 +663,10 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
         this->SetupNewEntity(afterburn_ent, Ogre::ColourValue(1, 1, 0));
     }
     std::string propname = this->ComposeName("Turbojet", m_actor->ar_num_aeroengines);
-    tj->SetupVisuals(propname, nozzle_ent, def.back_diameter, def.nozzle_length, afterburn_ent, m_actor->m_disable_smoke);
-    
+    tj->tjet_visual.SetNodes(front, back, ref);
+    tj->tjet_visual.SetupVisuals(def, m_actor->ar_num_aeroengines,
+        propname, nozzle_ent, afterburn_ent, m_actor->m_disable_smoke);
+
     m_actor->ar_aeroengines[m_actor->ar_num_aeroengines]=tj;
     m_actor->ar_driveable=AIRPLANE;
     if (m_actor->ar_autopilot == nullptr && m_actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
@@ -6160,7 +6162,7 @@ void ActorSpawner::SetupDefaultSoundSources(Actor *vehicle)
             AddSoundSourceInstance(vehicle, "tracks/default_turbojet_start" + index_str, turbojet_node);
             AddSoundSourceInstance(vehicle, "tracks/default_turbojet_lopower" + index_str, turbojet_node);
             AddSoundSourceInstance(vehicle, "tracks/default_turbojet_hipower" + index_str, turbojet_node);
-            if (((Turbojet*)(vehicle->ar_aeroengines[i]))->afterburnable)
+            if (((Turbojet*)(vehicle->ar_aeroengines[i]))->tjet_afterburnable)
             {
                 AddSoundSourceInstance(vehicle, "tracks/default_turbojet_afterburner" + index_str, turbojet_node);
             }
