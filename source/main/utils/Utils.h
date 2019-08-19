@@ -34,8 +34,6 @@
 
 #include <MyGUI.h>
 
-Ogre::String sha1sum(const char *key, int len);
-
 Ogre::String HashData(const char *key, int len);
 
 Ogre::String HashFile(const char* szFileName);
@@ -98,6 +96,7 @@ std::string SanitizeUtf8String(std::string const& str_in);
 std::string SanitizeUtf8CString(const char* start, const char* end = nullptr);
 
     inline std::string& TrimStr(std::string& s) { Ogre::StringUtil::trim(s); return s; }
+    std::string Sha1Hash(std::string const & data);
 }
 
 namespace Color {
