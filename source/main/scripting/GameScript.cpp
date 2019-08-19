@@ -53,6 +53,7 @@
 #include "SkyManager.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
+#include "Utils.h"
 #include "Water.h"
 
 #include <rapidjson/document.h>
@@ -774,9 +775,10 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     if (player_actor == nullptr)
         return 1;
 
+    std::string hashtok = Utils::Sha1Hash(App::mp_player_name.GetActive());
     std::string url = App::mp_api_url.GetActive() + apiquery;
     std::string user = std::string("RoR-Api-User: ") + App::mp_player_name.GetActive();
-    std::string token = std::string("RoR-Api-User-Token: ") + App::mp_player_token.GetActive();
+    std::string token = std::string("RoR-Api-User-Token: ") + hashtok;
 
     std::string terrain_name = App::GetSimTerrain()->getTerrainName();
 
@@ -788,7 +790,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 
     j_doc.AddMember("user-name", rapidjson::StringRef(App::mp_player_name.GetActive()), j_doc.GetAllocator());
     j_doc.AddMember("user-country", rapidjson::StringRef(App::app_country.GetActive()), j_doc.GetAllocator());
-    j_doc.AddMember("user-token", rapidjson::StringRef(App::mp_player_token.GetActive()), j_doc.GetAllocator());
+    j_doc.AddMember("user-token", rapidjson::StringRef(hashtok.c_str()), j_doc.GetAllocator());
 
     j_doc.AddMember("terrain-name", rapidjson::StringRef(terrain_name.c_str()), j_doc.GetAllocator());
     j_doc.AddMember("terrain-filename", rapidjson::StringRef(App::sim_terrain_name.GetActive()), j_doc.GetAllocator());
