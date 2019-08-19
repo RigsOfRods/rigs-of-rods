@@ -37,14 +37,6 @@
 
 using namespace Ogre;
 
-String sha1sum(const char *key, int len)
-{
-    RoR::CSHA1 sha1;
-    sha1.UpdateHash((uint8_t *)key, len);
-    sha1.Final();
-    return sha1.ReportHash();
-}
-
 String HashData(const char *key, int len)
 {
     std::stringstream result;
@@ -235,6 +227,14 @@ std::string SanitizeUtf8CString(const char* start, const char* end /* = nullptr 
     std::string str_out;
     utf8::replace_invalid(start, end, std::back_inserter(str_out));
     return str_out;
+}
+
+std::string Sha1Hash(std::string const & input)
+{
+    RoR::CSHA1 sha1;
+    sha1.UpdateHash((uint8_t *)input.c_str(), input.length());
+    sha1.Final();
+    return sha1.ReportHash();
 }
 
 } // namespace Utils

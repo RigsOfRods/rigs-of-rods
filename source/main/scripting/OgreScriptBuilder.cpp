@@ -70,7 +70,7 @@ int OgreScriptBuilder::LoadScriptSection(const char* full_path_cstr)
     }
 
     const std::string& code = ds->getAsString();
-    hash = sha1sum(code.c_str(), code.length());
+    hash = RoR::Utils::Sha1Hash(code);
 
     return ProcessScriptSection(code.c_str(), static_cast<unsigned int>(code.length()), filename.c_str(), 0);
 }
