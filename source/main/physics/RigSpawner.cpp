@@ -3029,6 +3029,30 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
     }
 }
 
+void ActorSpawner::ProcessHookGroup(RigDef::HookGroup & def)
+{
+    hook_t hook;
+    hook.hk_locked       = UNLOCKED;
+    hook.hk_group        = def.id;
+    hook.hk_lockgroup    = -1; // = none
+    hook.hk_lock_nodes   = def.lock_nodes;
+    hook.hk_selflock     = false;
+    hook.hk_autolock     = false;
+    hook.hk_nodisable    = false;
+    hook.hk_maxforce     = HOOK_FORCE_DEFAULT;
+    hook.hk_lockrange    = HOOK_RANGE_DEFAULT;
+    hook.hk_lockspeed    = HOOK_SPEED_DEFAULT;
+    hook.hk_timer        = 0.f;
+    hook.hk_timer_preset = HOOK_LOCK_TIMER_DEFAULT;
+    hook.hk_min_length   = 0.f;
+    hook.hk_hook_node    = this->GetNodePointerOrThrow(def.node);
+    hook.hk_lock_node    = nullptr;
+    hook.hk_beam         = nullptr;
+    hook.hk_locked_actor = nullptr;
+
+    m_actor->ar_hooks.push_back(hook);
+}
+
 void ActorSpawner::ProcessLockgroup(RigDef::Lockgroup & lockgroup)
 {
     auto itor = lockgroup.nodes.begin();

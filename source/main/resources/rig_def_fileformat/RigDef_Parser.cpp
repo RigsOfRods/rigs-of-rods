@@ -161,7 +161,7 @@ void Parser::ProcessCurrentLine()
         case File::KEYWORD_GUISETTINGS:              this->ChangeSection(File::SECTION_GUI_SETTINGS);     return;
         case File::KEYWORD_HELP:                     this->ChangeSection(File::SECTION_HELP);             return;
         case File::KEYWORD_HIDE_IN_CHOOSER:          this->ProcessGlobalDirective(keyword);               return;
-        case File::KEYWORD_HOOKGROUP:                /* Not supported yet, ignore */                      return;
+        case File::KEYWORD_HOOKGROUP:                this->ChangeSection(File::SECTION_HOOKGROUP);        return;
         case File::KEYWORD_HOOKS:                    this->ChangeSection(File::SECTION_HOOKS);            return;
         case File::KEYWORD_HYDROS:                   this->ChangeSection(File::SECTION_HYDROS);           return;
         case File::KEYWORD_IMPORTCOMMANDS:           m_definition->import_commands = true;                return;
@@ -256,6 +256,7 @@ void Parser::ProcessCurrentLine()
         case (File::SECTION_GUI_SETTINGS):         this->ParseGuiSettings();             return;
         case (File::SECTION_HELP):                 this->ParseHelp();                    return;
         case (File::SECTION_HOOKS):                this->ParseHook();                    return;
+        case (File::SECTION_HOOKGROUP):            this->ParseHookgroup();               return;
         case (File::SECTION_HYDROS):               this->ParseHydros();                  return;
         case (File::SECTION_INTERAXLES):           this->ParseInterAxles();              return;
         case (File::SECTION_LOCKGROUPS):           this->ParseLockgroups();              return;
@@ -877,6 +878,16 @@ void Parser::ParseHook()
     }
 
     m_current_module->hooks.push_back(hook);
+}
+
+void Parser::ParseHookgroup()
+{
+    if (!this->CheckNumArguments(2)) { return; }
+
+    HookGroup hookgroup;
+    hookgroup.node = this->GetArgNodeRef(0);
+    hookgroup.id   = this->GetArgInt(1);
+    if (m_num_args > 2) { hookgroup.lock_nodes = this->GetArgInt(2) != 0; }
 }
 
 void Parser::ParseHelp()

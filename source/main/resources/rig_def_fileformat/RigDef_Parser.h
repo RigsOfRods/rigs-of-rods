@@ -167,6 +167,7 @@ private:
     void ParseGuiSettings();
     void ParseHelp();
     void ParseHook();
+    void ParseHookgroup();
     void ParseHydros();
     void ParseInterAxles();
     void ParseLockgroups();

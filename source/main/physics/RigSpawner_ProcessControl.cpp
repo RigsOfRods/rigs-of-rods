@@ -271,6 +271,9 @@ Actor *ActorSpawner::SpawnActor()
     // Section 'rotators_2'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROTATORS2, rotators_2, ProcessRotator2);
 
+    // Section 'hookgroups'
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HOOKGROUP, hookgroups, ProcessHookGroup);
+
     // Section 'lockgroups'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_LOCKGROUPS, lockgroups, ProcessLockgroup);
 

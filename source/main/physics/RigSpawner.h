@@ -408,6 +408,8 @@ private:
     */
     void ProcessHook(RigDef::Hook & def);
 
+    void ProcessHookGroup(RigDef::HookGroup & def);
+
     void ProcessHydro(RigDef::Hydro & def);
 
     /**

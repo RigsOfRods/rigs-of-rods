@@ -1062,6 +1062,19 @@ struct Hook
 };
 
 /* -------------------------------------------------------------------------- */
+/* Section HOOKGROUP                                                          */
+/* -------------------------------------------------------------------------- */
+
+struct HookGroup
+{
+    HookGroup() : id(-1), lock_nodes(true) {}
+
+    Node::Ref node;
+    int id;
+    bool lock_nodes;
+};
+
+/* -------------------------------------------------------------------------- */
 /* Section SHOCKS                                                             */
 /* -------------------------------------------------------------------------- */
 
@@ -2073,6 +2086,7 @@ struct File
         std::shared_ptr<Globals>           globals;
         std::shared_ptr<GuiSettings>       gui_settings;
         std::vector<Hook>                  hooks;
+        std::vector<HookGroup>             hookgroups;
         std::vector<Hydro>                 hydros;
         std::vector<InterAxle>             interaxles;
         std::vector<Lockgroup>             lockgroups;
@@ -2265,6 +2279,7 @@ struct File
         SECTION_GUI_SETTINGS,
         SECTION_HELP,
         SECTION_HOOKS,
+        SECTION_HOOKGROUP,
         SECTION_HYDROS,
         SECTION_INTERAXLES,
         SECTION_LOCKGROUPS,
