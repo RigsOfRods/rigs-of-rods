@@ -863,11 +863,11 @@ void Parser::ParseHook()
         else if (has_value && (attr == "lockgroup"  || attr == "lgroup")     ) { hook.option_lockgroup        = this->GetArgInt  (++i); }
         else if (has_value && (attr == "shortlimit" || attr == "short_limit")) { hook.option_min_range_meters = this->GetArgFloat(++i); }
         // Flags
-        else if ((attr == "selflock") ||(attr == "self-lock") ||(attr == "self_lock") ) { BITMASK_SET_1(hook.flags, Hook::FLAG_SELF_LOCK);  }
-        else if ((attr == "autolock") ||(attr == "auto-lock") ||(attr == "auto_lock") ) { BITMASK_SET_1(hook.flags, Hook::FLAG_AUTO_LOCK);  }
-        else if ((attr == "nodisable")||(attr == "no-disable")||(attr == "no_disable")) { BITMASK_SET_1(hook.flags, Hook::FLAG_NO_DISABLE); }
-        else if ((attr == "norope")   ||(attr == "no-rope")   ||(attr == "no_rope")   ) { BITMASK_SET_1(hook.flags, Hook::FLAG_NO_ROPE);    }
-        else if ((attr == "visible")  ||(attr == "vis")                               ) { BITMASK_SET_1(hook.flags, Hook::FLAG_VISIBLE);    }
+        else if ((attr == "selflock") ||(attr == "self-lock") ||(attr == "self_lock") ) { hook.flag_self_lock  = true; }
+        else if ((attr == "autolock") ||(attr == "auto-lock") ||(attr == "auto_lock") ) { hook.flag_auto_lock  = true; }
+        else if ((attr == "nodisable")||(attr == "no-disable")||(attr == "no_disable")) { hook.flag_no_disable = true; }
+        else if ((attr == "norope")   ||(attr == "no-rope")   ||(attr == "no_rope")   ) { hook.flag_no_rope    = true; }
+        else if ((attr == "visible")  ||(attr == "vis")                               ) { hook.flag_visible    = true; }
         else
         {
             std::string msg = "Ignoring invalid option: " + attr;

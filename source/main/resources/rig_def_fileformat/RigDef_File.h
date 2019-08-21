@@ -1044,14 +1044,7 @@ struct Hook
 {
     Hook();
 
-    BITMASK_PROPERTY( flags, 1, FLAG_SELF_LOCK  , HasOptionSelfLock,  SetHasOptionSelfLock  )
-    BITMASK_PROPERTY( flags, 2, FLAG_AUTO_LOCK  , HasOptionAutoLock,  SetHasOptionAutoLock  )
-    BITMASK_PROPERTY( flags, 3, FLAG_NO_DISABLE , HasOptionNoDisable, SetHasOptionNoDisable )
-    BITMASK_PROPERTY( flags, 4, FLAG_NO_ROPE    , HasOptionNoRope,    SetHasOptionNoRope    )
-    BITMASK_PROPERTY( flags, 5, FLAG_VISIBLE    , HasOptionVisible,   SetHasOptionVisible   )
-
     Node::Ref node;
-    unsigned int flags;
     float option_hook_range;
     float option_speed_coef;
     float option_max_force;
@@ -1059,6 +1052,11 @@ struct Hook
     int option_lockgroup;
     float option_timer;
     float option_min_range_meters;
+    bool flag_self_lock :1;
+    bool flag_auto_lock :1;
+    bool flag_no_disable:1;
+    bool flag_no_rope   :1;
+    bool flag_visible   :1;
 };
 
 /* -------------------------------------------------------------------------- */

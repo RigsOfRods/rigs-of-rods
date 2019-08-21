@@ -124,7 +124,11 @@ Fusedrag::Fusedrag():
 {}
 
 Hook::Hook():
-    flags(0),
+    flag_self_lock (false),
+    flag_auto_lock (false),
+    flag_no_disable(false),
+    flag_no_rope   (false),
+    flag_visible   (false),
     option_hook_range(0.4f),
     option_speed_coef(1.0f),
     option_max_force(10000000.f), // HOOK_FORCE_DEFAULT
