@@ -129,12 +129,12 @@ Hook::Hook():
     flag_no_disable(false),
     flag_no_rope   (false),
     flag_visible   (false),
-    option_hook_range(0.4f),
+    option_hook_range(HOOK_RANGE_DEFAULT),
     option_speed_coef(1.0f),
-    option_max_force(10000000.f), // HOOK_FORCE_DEFAULT
+    option_max_force(HOOK_FORCE_DEFAULT),
     option_hookgroup(-1),
-    option_lockgroup(-1),
-    option_timer(5.f),
+    option_lockgroup(NODE_LOCKGROUP_DEFAULT),
+    option_timer(HOOK_LOCK_TIMER_DEFAULT),
     option_min_range_meters(0.f)
 {}
 
