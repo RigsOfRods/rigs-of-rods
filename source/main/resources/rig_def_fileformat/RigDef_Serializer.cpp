@@ -1179,11 +1179,11 @@ void Serializer::ProcessHooks(File::Module* module)
         m_stream << "\n\t" << def.node.ToString();
 
         // Boolean options
-        if (def.HasOptionAutoLock())  { m_stream << ", auto-lock"; }
-        if (def.HasOptionNoDisable()) { m_stream << ", nodisable"; }
-        if (def.HasOptionNoRope())    { m_stream << ", norope";    }
-        if (def.HasOptionSelfLock())  { m_stream << ", self-lock"; }
-        if (def.HasOptionVisible())   { m_stream << ", visible";   }
+        if (def.flag_auto_lock)  { m_stream << ", auto-lock"; }
+        if (def.flag_no_disable) { m_stream << ", nodisable"; }
+        if (def.flag_no_rope)    { m_stream << ", norope";    }
+        if (def.flag_self_lock)  { m_stream << ", self-lock"; }
+        if (def.flag_visible)    { m_stream << ", visible";   }
 
         // Key-value options
         m_stream 

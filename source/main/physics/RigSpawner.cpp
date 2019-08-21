@@ -2973,9 +2973,9 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
     hook->hk_timer     = 0.f; // Hardcoded in BTS_HOOKS
     hook->hk_timer_preset = def.option_timer;
     hook->hk_min_length = def.option_min_range_meters;
-    hook->hk_selflock = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_SELF_LOCK);
-    hook->hk_nodisable = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_DISABLE);
-    if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_AUTO_LOCK))
+    hook->hk_selflock   = def.flag_self_lock;
+    hook->hk_nodisable  = def.flag_no_disable;
+    if (def.flag_auto_lock)
     {
         hook->hk_autolock = true;
         if (hook->hk_group == -1)
@@ -2983,11 +2983,11 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
             hook->hk_group = -2; /* only overwrite hgroup when its still default (-1) */
         }
     }
-    if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_ROPE))
+    if (def.flag_no_rope)
     {
         hook->hk_beam->bounded = NOSHOCK;
     }
-    if (BITMASK_IS_0(def.flags, RigDef::Hook::FLAG_VISIBLE)) // NOTE: This flag can only hide a visible beam - it won't show a beam defined with 'invisible' flag.
+    if (!def.flag_visible) // NOTE: This flag can only hide a visible beam - it won't show a beam defined with 'invisible' flag.
     {
         // Find beam index
         int beam_index = -1;
