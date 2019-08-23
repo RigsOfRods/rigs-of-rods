@@ -5676,7 +5676,6 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         hook.hk_locked            = UNLOCKED;
         hook.hk_lock_node         = nullptr;
         hook.hk_locked_actor      = nullptr;
-        hook.hk_lock_nodes        = true;
         hook.hk_lockgroup         = -1;
         hook.hk_beam              = & beam;
         hook.hk_maxforce          = HOOK_FORCE_DEFAULT;

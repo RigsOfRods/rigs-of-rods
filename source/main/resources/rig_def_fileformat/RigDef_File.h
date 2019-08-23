@@ -2166,7 +2166,7 @@ struct File
         KEYWORD_GUISETTINGS,
         KEYWORD_HELP,
         KEYWORD_HIDE_IN_CHOOSER,
-        KEYWORD_HOOKGROUP,
+        KEYWORD_HOOKGROUP, // obsolete, ignored
         KEYWORD_HOOKS,
         KEYWORD_HYDROS,
         KEYWORD_IMPORTCOMMANDS,

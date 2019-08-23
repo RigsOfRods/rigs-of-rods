@@ -3670,74 +3670,39 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                 if (this == actor && !it->hk_selflock)
                     continue; // don't lock to self
 
-                // do we lock against all nodes or just against ropables?
-                if (it->hk_lock_nodes)
+                node_t* nearest_node = nullptr;
+                for (int i = 0; i < actor->ar_num_nodes; i++)
                 {
-                    node_t* nearest_node = nullptr;
-                    // all nodes, so walk them
-                    for (int i = 0; i < actor->ar_num_nodes; i++)
+                    // skip all nodes with lockgroup 9999 (deny lock)
+                    if (actor->ar_nodes[i].nd_lockgroup == 9999)
+                        continue;
+
+                    // exclude this truck and its current hooknode from the locking search
+                    if (this == actor && i == it->hk_hook_node->pos)
+                        continue;
+
+                    // a lockgroup for this hooknode is set -> skip all nodes that do not have the same lockgroup (-1 = default(all nodes))
+                    if (it->hk_lockgroup != -1 && it->hk_lockgroup != actor->ar_nodes[i].nd_lockgroup)
+                        continue;
+
+                    // measure distance
+                    float n2n_distance = (it->hk_hook_node->AbsPosition - actor->ar_nodes[i].AbsPosition).length();
+                    if (n2n_distance < mindist)
                     {
-                        // skip all nodes with lockgroup 9999 (deny lock)
-                        if (actor->ar_nodes[i].nd_lockgroup == 9999)
-                            continue;
-
-                        // exclude this truck and its current hooknode from the locking search
-                        if (this == actor && i == it->hk_hook_node->pos)
-                            continue;
-
-                        // a lockgroup for this hooknode is set -> skip all nodes that do not have the same lockgroup (-1 = default(all nodes))
-                        if (it->hk_lockgroup != -1 && it->hk_lockgroup != actor->ar_nodes[i].nd_lockgroup)
-                            continue;
-
-                        // measure distance
-                        float n2n_distance = (it->hk_hook_node->AbsPosition - actor->ar_nodes[i].AbsPosition).length();
-                        if (n2n_distance < mindist)
+                        if (distance >= n2n_distance)
                         {
-                            if (distance >= n2n_distance)
-                            {
-                                // located a node that is closer
-                                distance = n2n_distance;
-                                nearest_node = &actor->ar_nodes[i];
-                            }
+                            // located a node that is closer
+                            distance = n2n_distance;
+                            nearest_node = &actor->ar_nodes[i];
                         }
-                    }
-                    if (nearest_node)
-                    {
-                        // we found a node, lock to it
-                        it->hk_lock_node = nearest_node;
-                        it->hk_locked_actor = actor;
-                        it->hk_locked = PRELOCK;
                     }
                 }
-                else
+                if (nearest_node)
                 {
-                    // we lock against ropables
-
-                    node_t* nearest_node = nullptr;
-
-                    // and their ropables
-                    for (std::vector<ropable_t>::iterator itr = actor->ar_ropables.begin(); itr != actor->ar_ropables.end(); itr++)
-                    {
-                        // if the ropable is not multilock and used, then discard this ropable
-                        if (!itr->multilock && (itr->attached_ties > 0 || itr->attached_ropes > 0))
-                            continue;
-
-                        // calculate the distance and record the nearest ropable
-                        float dist = (it->hk_hook_node->AbsPosition - itr->node->AbsPosition).length();
-                        if (dist < mindist)
-                        {
-                            mindist = dist;
-                            nearest_node = itr->node;
-                        }
-                    }
-
-                    if (nearest_node)
-                    {
-                        // we found a ropable, lock to it
-                        it->hk_lock_node = nearest_node;
-                        it->hk_locked_actor = actor;
-                        it->hk_locked = PRELOCK;
-                    }
+                    // we found a node, lock to it
+                    it->hk_lock_node = nearest_node;
+                    it->hk_locked_actor = actor;
+                    it->hk_locked = PRELOCK;
                 }
             }
         }
