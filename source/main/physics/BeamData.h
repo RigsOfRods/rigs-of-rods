@@ -225,7 +225,6 @@ struct hook_t
     int     hk_locked;
     int     hk_group;
     int     hk_lockgroup;
-    bool    hk_lock_nodes;
     bool    hk_selflock;
     bool    hk_autolock;
     bool    hk_nodisable;

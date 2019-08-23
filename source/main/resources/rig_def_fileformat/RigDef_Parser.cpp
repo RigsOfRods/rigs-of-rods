@@ -161,7 +161,7 @@ void Parser::ProcessCurrentLine()
         case File::KEYWORD_GUISETTINGS:              this->ChangeSection(File::SECTION_GUI_SETTINGS);     return;
         case File::KEYWORD_HELP:                     this->ChangeSection(File::SECTION_HELP);             return;
         case File::KEYWORD_HIDE_IN_CHOOSER:          this->ProcessGlobalDirective(keyword);               return;
-        case File::KEYWORD_HOOKGROUP:                /* Not supported yet, ignore */                      return;
+        case File::KEYWORD_HOOKGROUP:                /* Obsolete, ignored */                              return;
         case File::KEYWORD_HOOKS:                    this->ChangeSection(File::SECTION_HOOKS);            return;
         case File::KEYWORD_HYDROS:                   this->ChangeSection(File::SECTION_HYDROS);           return;
         case File::KEYWORD_IMPORTCOMMANDS:           m_definition->import_commands = true;                return;
