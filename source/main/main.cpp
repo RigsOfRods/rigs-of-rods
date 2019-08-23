@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
             }
             RoR::Str<500> ror_homedir;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-            ror_homedir << user_home << PATH_SLASH << "Rigs of Rods " << ROR_VERSION_STRING_SHORT;
+            ror_homedir << user_home << PATH_SLASH << "My Games" << PATH_SLASH << "Rigs of Rods";
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
             char* env_SNAP = getenv("SNAP_USER_COMMON");
             if(env_SNAP)

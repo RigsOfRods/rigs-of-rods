@@ -3,7 +3,7 @@
 /* The version is defined in this single file to prevent recompiling everything when it changes. */
 /* The following definitions are automatically set by the CMake build system */
 
-const char* const ROR_VERSION_STRING_SHORT = "@VERSION_MAJOR@.@VERSION_MINOR@";
-const char* const ROR_VERSION_STRING       = "@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@.@VERSION_TWEAK@@VERSION_SUFFIX@";
+const char* const ROR_VERSION_STRING_SHORT = "@VERSION_YEAR@.@VERSION_MONTH@";
+const char* const ROR_VERSION_STRING       = "@VERSION_YEAR@.@VERSION_MONTH@@VERSION_SUFFIX@";
 const char* const ROR_BUILD_DATE           = "@BUILD_DATE@";
 const char* const ROR_BUILD_TIME           = "@BUILD_TIME@";
