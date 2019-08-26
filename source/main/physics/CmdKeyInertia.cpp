@@ -27,35 +27,44 @@
 
 using namespace Ogre;
 
-Real CmdKeyInertia::calcCmdKeyDelay(Real cmdInput, int cmdKey, Real dt)
+RoR::CmdKeyInertia::CmdKeyInertia()
+    : m_startSpline(nullptr)
+    , m_stopSpline(nullptr)
+    , m_startDelay(0.f)
+    , m_stopDelay(0.f)
+    , m_lastOutput(0.f)
+    , m_time(0.f)
+{}
+
+Real RoR::CmdKeyInertia::CalcCmdKeyDelay(Real cmdInput, Real dt)
 {
-    if (!cmdKeyInertia[cmdKey].startSpline || !cmdKeyInertia[cmdKey].stopSpline)
+    if (!m_startSpline || !m_stopSpline)
     {
         return cmdInput;
     }
 
-    Real calculatedOutput = cmdKeyInertia[cmdKey].lastOutput;
-    Real lastOutput = cmdKeyInertia[cmdKey].lastOutput;
+    Real calculatedOutput = m_lastOutput;
+    Real lastOutput = m_lastOutput;
     // rel difference to calculate if we have to use start values(accelerating) or stop values
     Real relDiff = fabs(cmdInput) - fabs(lastOutput);
     // difference to calculate if were are on the negative side
     Real absDiff = cmdInput - lastOutput;
     // if the value is close to our input, reset the timer
     if (fabs(absDiff) < 0.002)
-        cmdKeyInertia[cmdKey].time = 0;
+        m_time = 0;
     // +dt after the timer had been set to zero prevents the motion to stop at 0.002
-    cmdKeyInertia[cmdKey].time += dt;
+    m_time += dt;
 
-    Real startFactor = cmdKeyInertia[cmdKey].startDelay * cmdKeyInertia[cmdKey].time;
-    Real stopFactor = cmdKeyInertia[cmdKey].stopDelay * cmdKeyInertia[cmdKey].time;
+    Real startFactor = m_startDelay * m_time;
+    Real stopFactor = m_stopDelay * m_time;
     // positive values between 0 and 1
     if (absDiff > 0)
     { // we have to accelerate our last outout to the new commanded input
         if (relDiff > 0)
-            calculatedOutput = lastOutput + calculateCmdOutput(startFactor, cmdKeyInertia[cmdKey].startSpline);
+            calculatedOutput = lastOutput + this->CalculateCmdOutput(startFactor, m_startSpline);
         if (relDiff < 0)
         // we have to deccelerate our last outout to the new commanded input
-            calculatedOutput = lastOutput + calculateCmdOutput(stopFactor, cmdKeyInertia[cmdKey].stopSpline);
+            calculatedOutput = lastOutput + this->CalculateCmdOutput(stopFactor, m_stopSpline);
         if (calculatedOutput > cmdInput)
         // if the calculated value is bigger than input set to input to avoid overshooting
             calculatedOutput = cmdInput;
@@ -64,46 +73,46 @@ Real CmdKeyInertia::calcCmdKeyDelay(Real cmdInput, int cmdKey, Real dt)
     if (absDiff < 0)
     {
         if (relDiff > 0)
-            calculatedOutput = lastOutput - calculateCmdOutput(startFactor, cmdKeyInertia[cmdKey].startSpline);
+            calculatedOutput = lastOutput - this->CalculateCmdOutput(startFactor, m_startSpline);
         if (relDiff < 0)
-            calculatedOutput = lastOutput - calculateCmdOutput(stopFactor, cmdKeyInertia[cmdKey].stopSpline);
+            calculatedOutput = lastOutput - this->CalculateCmdOutput(stopFactor, m_stopSpline);
         if (calculatedOutput < cmdInput)
             calculatedOutput = cmdInput;
     }
-    cmdKeyInertia[cmdKey].lastOutput = calculatedOutput;
+    m_lastOutput = calculatedOutput;
     return calculatedOutput;
 }
 
-int CmdKeyInertia::setCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, int cmdKey, Real startDelay, Real stopDelay, String startFunction, String stopFunction)
+int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, Real startDelay, Real stopDelay, String startFunction, String stopFunction)
 {
     // Delay values should always be greater than 0
     if (startDelay > 0)
-        cmdKeyInertia[cmdKey].startDelay = startDelay;
+        m_startDelay = startDelay;
     else
-    LOG("Inertia| Start Delay should be >0");
+        LOG("[RoR|Inertia] Start Delay should be >0");
 
     if (stopDelay > 0)
-        cmdKeyInertia[cmdKey].stopDelay = stopDelay;
+        m_stopDelay = stopDelay;
     else
-    LOG("Inertia| Stop Delay should be >0");
+        LOG("[RoR|Inertia] Stop Delay should be >0");
 
     // if we don't find the spline, we use the "constant" one
     Ogre::SimpleSpline* startSpline = cfg.GetSplineByName(startFunction);
     if (startSpline != nullptr)
-        cmdKeyInertia[cmdKey].startSpline = startSpline;
+        m_startSpline = startSpline;
     else
-        LOG("Inertia| Start Function "+startFunction +" not found");
+        LOG("[RoR|Inertia] Start Function "+startFunction +" not found");
 
     Ogre::SimpleSpline* stopSpline = cfg.GetSplineByName(stopFunction);
     if (stopSpline != nullptr)
-        cmdKeyInertia[cmdKey].stopSpline = stopSpline;
+        m_stopSpline = stopSpline;
     else
-        LOG("Inertia| Stop Function "+stopFunction +" not found");
+        LOG("[RoR|Inertia] Stop Function "+stopFunction +" not found");
 
     return 0;
 }
 
-Real CmdKeyInertia::calculateCmdOutput(Real time, SimpleSpline* spline)
+Real RoR::CmdKeyInertia::CalculateCmdOutput(Real time, SimpleSpline* spline)
 {
     time = std::min(time, 1.0f);
 
@@ -193,12 +202,9 @@ int RoR::CmdKeyInertiaConfig::ProcessLine(Ogre::StringVector args, String model)
     return 0;
 }
 
-void CmdKeyInertia::resetCmdKeyDelay()
+void RoR::CmdKeyInertia::ResetCmdKeyDelay()
 {
     // reset lastOutput and time, if we reset the truck
-    for (std::map<int, cmdKeyInertia_s>::iterator it = cmdKeyInertia.begin(); it != cmdKeyInertia.end(); ++it)
-    {
-        it->second.lastOutput = 0.0;
-        it->second.time = 0.0;
-    }
+    m_lastOutput = 0.0;
+    m_time = 0.0;
 }

@@ -38,6 +38,7 @@
 #include "ForwardDeclarations.h"
 #include "BeamConstants.h"
 #include "BitFlags.h"
+#include "CmdKeyInertia.h"
 
 enum event_types {
     EVENT_NONE=0,
@@ -321,6 +322,8 @@ struct command_t
     std::vector<commandbeam_t> beams;
     std::vector<int> rotators;
     Ogre::String description;
+    RoR::CmdKeyInertia rotator_inertia;
+    RoR::CmdKeyInertia command_inertia;
 };
 
 struct hydrobeam_t
@@ -331,6 +334,7 @@ struct hydrobeam_t
     int      hb_flags;
     int      hb_anim_flags; //!< Animators (beams updating length based on simulation variables)
     float    hb_anim_param; //!< Animators (beams updating length based on simulation variables)
+    RoR::CmdKeyInertia  hb_inertia;
 };
 
 struct rotator_t

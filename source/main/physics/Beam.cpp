@@ -1590,7 +1590,11 @@ void Actor::SyncReset(bool reset_on_init)
         this->ar_autopilot->reset();
     if (m_buoyance)
         m_buoyance->sink = false;
-    m_hydro_inertia.resetCmdKeyDelay();
+
+    for (hydrobeam_t hydrobeam: ar_hydros)
+    {
+        hydrobeam.hb_inertia.ResetCmdKeyDelay();
+    }
 
     this->GetGfxActor()->ResetFlexbodies();
 

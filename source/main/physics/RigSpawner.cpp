@@ -3228,7 +3228,9 @@ void ActorSpawner::ProcessRotator(RigDef::Rotator & def)
     // Rotate right key
     m_actor->ar_command_key[def.spin_right_key].rotators.push_back(m_actor->ar_num_rotators + 1);
 
-    this->_ProcessKeyInertia(&m_actor->m_rotator_inertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
+    this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults,
+                             m_actor->ar_command_key[def.spin_left_key].rotator_inertia,
+                             m_actor->ar_command_key[def.spin_right_key].rotator_inertia);
 
     m_actor->ar_num_rotators++;
     m_actor->m_has_command_beams = true;
@@ -3269,73 +3271,67 @@ void ActorSpawner::ProcessRotator2(RigDef::Rotator2 & def)
     // Rotate right key
     m_actor->ar_command_key[def.spin_right_key].rotators.push_back(m_actor->ar_num_rotators + 1);
 
-    this->_ProcessKeyInertia(&m_actor->m_rotator_inertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
+    this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults,
+                             m_actor->ar_command_key[def.spin_left_key].rotator_inertia,
+                             m_actor->ar_command_key[def.spin_right_key].rotator_inertia);
 
     m_actor->ar_num_rotators++;
     m_actor->m_has_command_beams = true;
 }
 
 void ActorSpawner::_ProcessKeyInertia(
-    CmdKeyInertia * key_inertia,
     RigDef::Inertia & inertia,
     RigDef::Inertia & inertia_defaults,
-    int contract_key, 
-    int extend_key
+    RoR::CmdKeyInertia& contract_cmd,
+    RoR::CmdKeyInertia& extend_cmd
 )
 {
-    if (key_inertia != nullptr)
+    /* Handle placeholders */
+    Ogre::String start_function;
+    Ogre::String stop_function;
+    if (! inertia.start_function.empty() && inertia.start_function != "/" && inertia.start_function != "-")
     {
-        /* Handle placeholders */
-        Ogre::String start_function;
-        Ogre::String stop_function;
-        if (! inertia.start_function.empty() && inertia.start_function != "/" && inertia.start_function != "-")
-        {
-            start_function = inertia.start_function;
-        }
-        if (! inertia.stop_function.empty() && inertia.stop_function != "/" && inertia.stop_function != "-")
-        {
-            stop_function = inertia.stop_function;
-        }
-        if (inertia.start_delay_factor != 0.f && inertia.stop_delay_factor != 0.f)
-        {
-            key_inertia->setCmdKeyDelay(
-                App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
-                contract_key,
-                inertia.start_delay_factor,
-                inertia.stop_delay_factor,
-                start_function,
-                stop_function
-            );
+        start_function = inertia.start_function;
+    }
+    if (! inertia.stop_function.empty() && inertia.stop_function != "/" && inertia.stop_function != "-")
+    {
+        stop_function = inertia.stop_function;
+    }
+    if (inertia.start_delay_factor != 0.f && inertia.stop_delay_factor != 0.f)
+    {
+        contract_cmd.SetCmdKeyDelay(
+            App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
+            inertia.start_delay_factor,
+            inertia.stop_delay_factor,
+            start_function,
+            stop_function
+        );
 
-            key_inertia->setCmdKeyDelay(
-                App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
-                extend_key,
-                inertia.start_delay_factor,
-                inertia.stop_delay_factor,
-                start_function,
-                stop_function
-            );
-        }
-        else if (inertia_defaults.start_delay_factor > 0 || inertia_defaults.stop_delay_factor > 0)
-        {
-            key_inertia->setCmdKeyDelay(
-                App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
-                contract_key,
-                inertia_defaults.start_delay_factor,
-                inertia_defaults.stop_delay_factor,
-                inertia_defaults.start_function,
-                inertia_defaults.stop_function
-            );
+        extend_cmd.SetCmdKeyDelay(
+            App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
+            inertia.start_delay_factor,
+            inertia.stop_delay_factor,
+            start_function,
+            stop_function
+        );
+    }
+    else if (inertia_defaults.start_delay_factor > 0 || inertia_defaults.stop_delay_factor > 0)
+    {
+        contract_cmd.SetCmdKeyDelay(
+            App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
+            inertia_defaults.start_delay_factor,
+            inertia_defaults.stop_delay_factor,
+            inertia_defaults.start_function,
+            inertia_defaults.stop_function
+        );
 
-            key_inertia->setCmdKeyDelay(
-                App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
-                extend_key,
-                inertia_defaults.start_delay_factor,
-                inertia_defaults.stop_delay_factor,
-                inertia_defaults.start_function,
-                inertia_defaults.stop_function
-            );
-        }
+        extend_cmd.SetCmdKeyDelay(
+            App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
+            inertia_defaults.start_delay_factor,
+            inertia_defaults.stop_delay_factor,
+            inertia_defaults.start_function,
+            inertia_defaults.stop_function
+        );
     }
 }
 
@@ -3370,8 +3366,6 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
         center_length = (def.max_contraction - def.max_extension) / 2 + def.max_extension;
     }
 
-    this->_ProcessKeyInertia(&m_actor->m_command_inertia, def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
-
     /* Add keys */
     command_t* contract_command = &m_actor->ar_command_key[def.contract_key];
     commandbeam_t cmd_beam;
@@ -3404,6 +3398,10 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
         extend_command->description = def.description;
     }
 
+    this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults,
+                             contract_command->command_inertia,
+                             extend_command->command_inertia);
+
     if (! def.option_i_invisible)
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
@@ -3415,18 +3413,6 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
 
 void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
 {
-    if (def.inertia_defaults->start_delay_factor > 0 && def.inertia_defaults->stop_delay_factor > 0)
-    {
-        m_actor->m_hydro_inertia.setCmdKeyDelay(
-            App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
-            static_cast<int>(m_actor->ar_hydros.size()),
-            def.inertia_defaults->start_delay_factor,
-            def.inertia_defaults->stop_delay_factor,
-            def.inertia_defaults->start_function,
-            def.inertia_defaults->stop_function
-        );
-    }
-
     int anim_flags = 0;
     float anim_option = 0;
 
@@ -3567,6 +3553,17 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
     hb.hb_anim_flags = anim_flags;
     hb.hb_anim_param = anim_option;
 
+    if (def.inertia_defaults->start_delay_factor > 0 && def.inertia_defaults->stop_delay_factor > 0)
+    {
+        hb.hb_inertia.SetCmdKeyDelay(
+            App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
+            def.inertia_defaults->start_delay_factor,
+            def.inertia_defaults->stop_delay_factor,
+            def.inertia_defaults->start_function,
+            def.inertia_defaults->stop_function
+        );
+    }
+
     m_actor->ar_hydros.push_back(hb);
 }
 
@@ -3672,9 +3669,6 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
         }
     }
 
-    int key = static_cast<int>(m_actor->ar_hydros.size());
-    this->_ProcessKeyInertia(&m_actor->m_hydro_inertia, def.inertia, *def.inertia_defaults, key, key);
-
     node_t & node_1 = GetNode(def.nodes[0]);
     node_t & node_2 = GetNode(def.nodes[1]);
 
@@ -3698,6 +3692,7 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
     hb.hb_ref_length = beam.L;
     hb.hb_anim_flags = 0;
     hb.hb_anim_param = 0.f;
+    this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults, hb.hb_inertia, hb.hb_inertia);
 
     m_actor->ar_hydros.push_back(hb);
 }
