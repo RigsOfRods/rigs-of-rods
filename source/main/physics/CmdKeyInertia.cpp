@@ -27,11 +27,6 @@
 
 using namespace Ogre;
 
-CmdKeyInertia::CmdKeyInertia()
-{
-    loadDefaultInertiaModels();
-}
-
 Real CmdKeyInertia::calcCmdKeyDelay(Real cmdInput, int cmdKey, Real dt)
 {
     if (!cmdKeyInertia[cmdKey].startSpline || !cmdKeyInertia[cmdKey].stopSpline)
@@ -79,7 +74,7 @@ Real CmdKeyInertia::calcCmdKeyDelay(Real cmdInput, int cmdKey, Real dt)
     return calculatedOutput;
 }
 
-int CmdKeyInertia::setCmdKeyDelay(int cmdKey, Real startDelay, Real stopDelay, String startFunction, String stopFunction)
+int CmdKeyInertia::setCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, int cmdKey, Real startDelay, Real stopDelay, String startFunction, String stopFunction)
 {
     // Delay values should always be greater than 0
     if (startDelay > 0)
@@ -93,15 +88,17 @@ int CmdKeyInertia::setCmdKeyDelay(int cmdKey, Real startDelay, Real stopDelay, S
     LOG("Inertia| Stop Delay should be >0");
 
     // if we don't find the spline, we use the "constant" one
-    if (splines.find(startFunction) != splines.end())
-        cmdKeyInertia[cmdKey].startSpline = &splines.find(startFunction)->second;
+    Ogre::SimpleSpline* startSpline = cfg.GetSplineByName(startFunction);
+    if (startSpline != nullptr)
+        cmdKeyInertia[cmdKey].startSpline = startSpline;
     else
-    LOG("Inertia| Start Function "+startFunction +" not found");
+        LOG("Inertia| Start Function "+startFunction +" not found");
 
-    if (splines.find(stopFunction) != splines.end())
-        cmdKeyInertia[cmdKey].stopSpline = &splines.find(stopFunction)->second;
+    Ogre::SimpleSpline* stopSpline = cfg.GetSplineByName(stopFunction);
+    if (stopSpline != nullptr)
+        cmdKeyInertia[cmdKey].stopSpline = stopSpline;
     else
-    LOG("Inertia| Stop Function "+stopFunction +" not found");
+        LOG("Inertia| Stop Function "+stopFunction +" not found");
 
     return 0;
 }
@@ -119,7 +116,16 @@ Real CmdKeyInertia::calculateCmdOutput(Real time, SimpleSpline* spline)
     return 0;
 }
 
-int CmdKeyInertia::loadDefaultInertiaModels()
+Ogre::SimpleSpline* RoR::CmdKeyInertiaConfig::GetSplineByName(Ogre::String model)
+{
+    auto itor = m_splines.find(model);
+    if (itor != m_splines.end())
+        return &itor->second;
+    else
+        return nullptr;
+}
+
+int RoR::CmdKeyInertiaConfig::LoadDefaultInertiaModels()
 {
     // check if we have a config file
     String group = "";
@@ -160,12 +166,12 @@ int CmdKeyInertia::loadDefaultInertiaModels()
 
         // process the line if we got a model
         if (!currentModel.empty())
-            processLine(args, currentModel);
+            this->ProcessLine(args, currentModel);
     }
     return 0;
 }
 
-int CmdKeyInertia::processLine(Ogre::StringVector args, String model)
+int RoR::CmdKeyInertiaConfig::ProcessLine(Ogre::StringVector args, String model)
 {
     // we only accept 2 arguments
     if (args.size() != 2)
@@ -176,13 +182,13 @@ int CmdKeyInertia::processLine(Ogre::StringVector args, String model)
     Vector3 point = Vector3(pointx, pointy, 0.0f);
 
     // find the spline to attach the points
-    if (splines.find(model) == splines.end())
+    if (m_splines.find(model) == m_splines.end())
     {
-        splines[model] = SimpleSpline();
+        m_splines[model] = SimpleSpline();
     }
 
     // attach the points to the spline
-    splines[model].addPoint(point);
+    m_splines[model].addPoint(point);
 
     return 0;
 }

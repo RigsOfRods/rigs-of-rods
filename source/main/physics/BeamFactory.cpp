@@ -81,6 +81,9 @@ ActorManager::ActorManager()
 
     gEnv->threadPool = new ThreadPool(thread_pool_workers);
     LOG("BEAMFACTORY: Creating " + TOSTRING(thread_pool_workers) + " worker threads");
+
+    // Load inertia config file
+    m_inertia_config.LoadDefaultInertiaModels();
 }
 
 ActorManager::~ActorManager()

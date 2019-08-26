@@ -22,14 +22,29 @@
 
 #include "RoRPrerequisites.h"
 
-class CmdKeyInertia : public ZeroedMemoryAllocator
+namespace RoR {
+
+/// Loads and manages 'inertia_models.cfg'
+class CmdKeyInertiaConfig
+{
+public:
+    int LoadDefaultInertiaModels();
+    Ogre::SimpleSpline* GetSplineByName(Ogre::String model);
+
+private:
+    int ProcessLine(Ogre::StringVector args, Ogre::String model);
+
+    std::map<Ogre::String, Ogre::SimpleSpline> m_splines;
+};
+
+} // namespace RoR
+
+class CmdKeyInertia
 {
 public:
 
-    CmdKeyInertia();
-
     Ogre::Real calcCmdKeyDelay(Ogre::Real cmdInput, int cmdKey, Ogre::Real dt);
-    int setCmdKeyDelay(int number, Ogre::Real startDelay, Ogre::Real stopDelay, Ogre::String startFunction, Ogre::String stopFunction);
+    int setCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, int number, Ogre::Real startDelay, Ogre::Real stopDelay, Ogre::String startFunction, Ogre::String stopFunction);
     void resetCmdKeyDelay();
 
 protected:
@@ -45,9 +60,6 @@ protected:
     };
 
     Ogre::Real calculateCmdOutput(Ogre::Real time, Ogre::SimpleSpline* spline);
-    int processLine(Ogre::StringVector args, Ogre::String model);
 
     std::map<int, cmdKeyInertia_s> cmdKeyInertia;
-    std::map<Ogre::String, Ogre::SimpleSpline> splines;
-    int loadDefaultInertiaModels();
 };
