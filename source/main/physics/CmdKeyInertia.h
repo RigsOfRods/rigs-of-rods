@@ -20,7 +20,8 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include <OgreSimpleSpline.h>
+#include <OgreString.h>
 
 namespace RoR {
 
@@ -37,29 +38,24 @@ private:
     std::map<Ogre::String, Ogre::SimpleSpline> m_splines;
 };
 
-} // namespace RoR
-
 class CmdKeyInertia
 {
 public:
+    CmdKeyInertia();
 
-    Ogre::Real calcCmdKeyDelay(Ogre::Real cmdInput, int cmdKey, Ogre::Real dt);
-    int setCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, int number, Ogre::Real startDelay, Ogre::Real stopDelay, Ogre::String startFunction, Ogre::String stopFunction);
-    void resetCmdKeyDelay();
+    Ogre::Real CalcCmdKeyDelay(Ogre::Real cmdInput, Ogre::Real dt);
+    int SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, Ogre::Real startDelay, Ogre::Real stopDelay, Ogre::String startFunction, Ogre::String stopFunction);
+    void ResetCmdKeyDelay();
 
 protected:
+    Ogre::Real          m_lastOutput;
+    Ogre::Real          m_startDelay;
+    Ogre::Real          m_stopDelay;
+    Ogre::Real          m_time;
+    Ogre::SimpleSpline* m_startSpline;
+    Ogre::SimpleSpline* m_stopSpline;
 
-    struct cmdKeyInertia_s
-    {
-        Ogre::Real lastOutput;
-        Ogre::Real startDelay;
-        Ogre::Real stopDelay;
-        Ogre::Real time;
-        Ogre::SimpleSpline* startSpline;
-        Ogre::SimpleSpline* stopSpline;
-    };
-
-    Ogre::Real calculateCmdOutput(Ogre::Real time, Ogre::SimpleSpline* spline);
-
-    std::map<int, cmdKeyInertia_s> cmdKeyInertia;
+    Ogre::Real CalculateCmdOutput(Ogre::Real time, Ogre::SimpleSpline* spline);
 };
+
+} // namespace RoR

@@ -1031,11 +1031,10 @@ private:
     );
 
     void _ProcessKeyInertia(
-        CmdKeyInertia * key_inertia,
         RigDef::Inertia & inertia, 
         RigDef::Inertia & inertia_defaults, 
-        int contract_key, 
-        int extend_key
+        RoR::CmdKeyInertia& contract_key, 
+        RoR::CmdKeyInertia& extend_key
     );
 
     /** 

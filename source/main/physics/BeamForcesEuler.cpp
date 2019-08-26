@@ -699,7 +699,7 @@ void Actor::CalcHydros()
         {
             cstate /= (float)div;
 
-            cstate = m_hydro_inertia.calcCmdKeyDelay(cstate, i, PHYSICS_DT);
+            cstate = hydrobeam.hb_inertia.CalcCmdKeyDelay(cstate, PHYSICS_DT);
 
             if (!(hydrobeam.hb_flags & HYDRO_FLAG_SPEED) && !flagstate)
                 ar_hydro_dir_wheel_display = cstate;
@@ -877,7 +877,7 @@ void Actor::CalcCommands(bool doUpdate)
                             }
                         }
 
-                        v = m_command_inertia.calcCmdKeyDelay(v, i, PHYSICS_DT);
+                        v = ar_command_key[i].command_inertia.CalcCmdKeyDelay(v, PHYSICS_DT);
 
                         if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0)
                             v = 1;
@@ -945,7 +945,7 @@ void Actor::CalcCommands(bool doUpdate)
                 if (ar_rotators[rota].needs_engine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
                     continue;
 
-                v = m_rotator_inertia.calcCmdKeyDelay(ar_command_key[i].commandValue, i, PHYSICS_DT);
+                v = ar_command_key[i].rotator_inertia.CalcCmdKeyDelay(ar_command_key[i].commandValue, PHYSICS_DT);
 
                 if (v > 0.0f && ar_rotators[rota].engine_coupling > 0.0f)
                     requestpower = true;
