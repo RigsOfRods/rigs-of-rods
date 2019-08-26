@@ -263,13 +263,6 @@ Actor::~Actor()
         m_inter_point_col_detector = nullptr;
     }
 
-    if (m_command_inertia)
-        delete m_command_inertia;
-    if (m_hydro_inertia)
-        delete m_hydro_inertia;
-    if (m_rotator_inertia)
-        delete m_rotator_inertia;
-
     if (m_transfer_case)
         delete m_transfer_case;
 
@@ -1597,8 +1590,7 @@ void Actor::SyncReset(bool reset_on_init)
         this->ar_autopilot->reset();
     if (m_buoyance)
         m_buoyance->sink = false;
-    if (m_hydro_inertia)
-        m_hydro_inertia->resetCmdKeyDelay();
+    m_hydro_inertia.resetCmdKeyDelay();
 
     this->GetGfxActor()->ResetFlexbodies();
 

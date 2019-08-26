@@ -25,6 +25,7 @@
 
 #include "Application.h"
 #include "BeamData.h"
+#include "CmdKeyInertia.h"
 #include "GfxActor.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
@@ -489,9 +490,9 @@ private:
     int               m_wheel_node_count;      //!< Static attr; filled at spawn
     int               m_replay_pos_prev;       //!< Sim state
     int               m_previous_gear;         //!< Sim state; land vehicle shifting
-    CmdKeyInertia*    m_rotator_inertia;       //!< Physics
-    CmdKeyInertia*    m_hydro_inertia;         //!< Physics
-    CmdKeyInertia*    m_command_inertia;       //!< Physics
+    CmdKeyInertia     m_rotator_inertia;       //!< Physics
+    CmdKeyInertia     m_hydro_inertia;         //!< Physics
+    CmdKeyInertia     m_command_inertia;       //!< Physics
     float             m_handbrake_force;       //!< Physics attr; defined in truckfile
     Airfoil*          m_fusealge_airfoil;      //!< Physics attr; defined in truckfile
     node_t*           m_fusealge_front;        //!< Physics attr; defined in truckfile
