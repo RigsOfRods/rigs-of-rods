@@ -27,6 +27,7 @@
 #include "RoRPrerequisites.h"
 
 #include "BeamData.h"
+#include "CmdKeyInertia.h"
 #include "Network.h"
 #include "RigDef_Prerequisites.h"
 
@@ -69,6 +70,7 @@ public:
     bool           AreTrucksForcedAwake() const            { return m_forced_awake; }
     void           SetSimulationSpeed(float speed)         { m_simulation_speed = std::max(0.0f, speed); };
     float          GetSimulationSpeed() const              { return m_simulation_speed; };
+    RoR::CmdKeyInertiaConfig& GetInertiaConfig()           { return m_inertia_config; }
     Actor*         FetchNextVehicleOnList(Actor* player, Actor* prev_player);
     Actor*         FetchPreviousVehicleOnList(Actor* player, Actor* prev_player);
     Actor*         FetchRescueVehicle();
@@ -118,6 +120,7 @@ private:
     std::shared_ptr<Task>           m_sim_task;
     std::vector<Actor*>             m_actors;
     Ogre::Timer                     m_net_timer;
+    RoR::CmdKeyInertiaConfig        m_inertia_config;
     bool            m_forced_awake;      //!< disables sleep counters
     int             m_physics_steps;
     float           m_dt_remainder;     ///< Keeps track of the rounding error in the time step calculation

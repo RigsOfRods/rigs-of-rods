@@ -3306,6 +3306,7 @@ void ActorSpawner::_ProcessKeyInertia(
         if (inertia.start_delay_factor != 0.f && inertia.stop_delay_factor != 0.f)
         {
             key_inertia->setCmdKeyDelay(
+                App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
                 contract_key,
                 inertia.start_delay_factor,
                 inertia.stop_delay_factor,
@@ -3314,6 +3315,7 @@ void ActorSpawner::_ProcessKeyInertia(
             );
 
             key_inertia->setCmdKeyDelay(
+                App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
                 extend_key,
                 inertia.start_delay_factor,
                 inertia.stop_delay_factor,
@@ -3324,6 +3326,7 @@ void ActorSpawner::_ProcessKeyInertia(
         else if (inertia_defaults.start_delay_factor > 0 || inertia_defaults.stop_delay_factor > 0)
         {
             key_inertia->setCmdKeyDelay(
+                App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
                 contract_key,
                 inertia_defaults.start_delay_factor,
                 inertia_defaults.stop_delay_factor,
@@ -3332,6 +3335,7 @@ void ActorSpawner::_ProcessKeyInertia(
             );
 
             key_inertia->setCmdKeyDelay(
+                App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
                 extend_key,
                 inertia_defaults.start_delay_factor,
                 inertia_defaults.stop_delay_factor,
@@ -3423,6 +3427,7 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
         if (def.inertia_defaults->start_delay_factor > 0 && def.inertia_defaults->stop_delay_factor > 0)
         {
             m_actor->m_hydro_inertia->setCmdKeyDelay(
+                App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
                 static_cast<int>(m_actor->ar_hydros.size()),
                 def.inertia_defaults->start_delay_factor,
                 def.inertia_defaults->stop_delay_factor,
