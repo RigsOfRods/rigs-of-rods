@@ -271,9 +271,6 @@ void ActorSpawner::InitializeRig()
     m_actor->m_beam_break_debug_enabled  = App::diag_log_beam_break.GetActive();
     m_actor->m_beam_deform_debug_enabled = App::diag_log_beam_deform.GetActive();
     m_actor->m_trigger_debug_enabled    = App::diag_log_beam_trigger.GetActive();
-    m_actor->m_rotator_inertia = nullptr;
-    m_actor->m_hydro_inertia = nullptr;
-    m_actor->m_command_inertia = nullptr;
     m_actor->ar_origin = Ogre::Vector3::ZERO;
     m_actor->m_slidenodes.clear();
 
@@ -355,10 +352,6 @@ void ActorSpawner::InitializeRig()
     }
 
     m_actor->ar_submesh_ground_model = gEnv->collisions->defaultgm;
-
-    m_actor->m_command_inertia   = new CmdKeyInertia();
-    m_actor->m_hydro_inertia = new CmdKeyInertia();
-    m_actor->m_rotator_inertia  = new CmdKeyInertia();
 
     // Lights mode
     m_actor->m_flares_mode = App::gfx_flares_mode.GetActive();
@@ -3235,7 +3228,7 @@ void ActorSpawner::ProcessRotator(RigDef::Rotator & def)
     // Rotate right key
     m_actor->ar_command_key[def.spin_right_key].rotators.push_back(m_actor->ar_num_rotators + 1);
 
-    _ProcessKeyInertia(m_actor->m_rotator_inertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
+    this->_ProcessKeyInertia(&m_actor->m_rotator_inertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
     m_actor->ar_num_rotators++;
     m_actor->m_has_command_beams = true;
@@ -3276,7 +3269,7 @@ void ActorSpawner::ProcessRotator2(RigDef::Rotator2 & def)
     // Rotate right key
     m_actor->ar_command_key[def.spin_right_key].rotators.push_back(m_actor->ar_num_rotators + 1);
 
-    _ProcessKeyInertia(m_actor->m_rotator_inertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
+    this->_ProcessKeyInertia(&m_actor->m_rotator_inertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
     m_actor->ar_num_rotators++;
     m_actor->m_has_command_beams = true;
@@ -3377,7 +3370,7 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
         center_length = (def.max_contraction - def.max_extension) / 2 + def.max_extension;
     }
 
-    _ProcessKeyInertia(m_actor->m_command_inertia, def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
+    this->_ProcessKeyInertia(&m_actor->m_command_inertia, def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
 
     /* Add keys */
     command_t* contract_command = &m_actor->ar_command_key[def.contract_key];
@@ -3422,19 +3415,16 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
 
 void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
 {
-    if (m_actor->m_hydro_inertia != nullptr)
+    if (def.inertia_defaults->start_delay_factor > 0 && def.inertia_defaults->stop_delay_factor > 0)
     {
-        if (def.inertia_defaults->start_delay_factor > 0 && def.inertia_defaults->stop_delay_factor > 0)
-        {
-            m_actor->m_hydro_inertia->setCmdKeyDelay(
-                App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
-                static_cast<int>(m_actor->ar_hydros.size()),
-                def.inertia_defaults->start_delay_factor,
-                def.inertia_defaults->stop_delay_factor,
-                def.inertia_defaults->start_function,
-                def.inertia_defaults->stop_function
-            );
-        }
+        m_actor->m_hydro_inertia.setCmdKeyDelay(
+            App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
+            static_cast<int>(m_actor->ar_hydros.size()),
+            def.inertia_defaults->start_delay_factor,
+            def.inertia_defaults->stop_delay_factor,
+            def.inertia_defaults->start_function,
+            def.inertia_defaults->stop_function
+        );
     }
 
     int anim_flags = 0;
@@ -3683,7 +3673,7 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
     }
 
     int key = static_cast<int>(m_actor->ar_hydros.size());
-    _ProcessKeyInertia(m_actor->m_hydro_inertia, def.inertia, *def.inertia_defaults, key, key);	
+    this->_ProcessKeyInertia(&m_actor->m_hydro_inertia, def.inertia, *def.inertia_defaults, key, key);
 
     node_t & node_1 = GetNode(def.nodes[0]);
     node_t & node_2 = GetNode(def.nodes[1]);
