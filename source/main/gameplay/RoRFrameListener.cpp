@@ -2323,6 +2323,7 @@ void SimController::ChangePlayerActor(Actor* actor)
 {
     Actor* prev_player_actor = m_player_actor;
     m_player_actor = actor;
+    m_pending_player_actor = actor; // Stays equal to 'player actor' until new change is queued
 
     // hide any old dashes
     if (prev_player_actor && prev_player_actor->ar_dashboard)
