@@ -25,31 +25,37 @@ IF (NOT BUILD_REDIST_FOLDER)
             USE_SOURCE_PERMISSIONS
             PATTERN "*.lib" EXCLUDE
     )
-
-
     # CPack
     set(CPACK_PACKAGE_DESCRIPTION "Rigs of Rods soft-body physics simulator")
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Rigs of Rods is an open source vehicle simulator based on soft-body physics.")
     set(CPACK_PACKAGE_CONTACT "Edgar@AnotherFoxGuy.com")
     set(CPACK_PACKAGE_VENDOR "AnotherFoxGuy")
-    SET(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
-    SET(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
-    SET(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
-    SET(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
-    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING")
-    SET(CPACK_PACKAGE_EXECUTABLES "RoR;Rigs of Rods Simulator")
-    set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
-    set(CPACK_NSIS_MODIFY_PATH "ON")
-    set(CPACK_NSIS_HELP_LINK "https://discord.gg/rigsofrods")
-    set(CPACK_NSIS_URL_INFO_ABOUT "https://rigsofrods.org")
-    SET(CPACK_NSIS_INSTALLED_ICON_NAME "RoR.exe")
-    SET(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/source/main/ror.ico")
-    SET(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}/source/main/ror.ico")
+    set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/tools/windows/license.rtf")
+    set(CPACK_PACKAGE_EXECUTABLES "RoR" "Rigs of Rods Simulator")
+    #For Windows Desktop shortcuts
+    set(CPACK_CREATE_DESKTOP_LINKS "RoR" "Rigs of Rods Simulator")
+
+    # Windows Add or Remove Program properties
+    set(CPACK_WIX_PROGRAM_MENU_FOLDER "Rigs of Rods Simulator")
+    set(CPACK_WIX_PROPERTY_ARPCOMMENTS "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}")
+    set(CPACK_WIX_PROPERTY_ARPHELPLINK "https://discord.gg/rigsofrods")
+    set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT "https://www.rigsofrods.org/")
+    set(CPACK_WIX_PROPERTY_URLUPDATEINFO "https://github.com/RigsOfRods/rigs-of-rods/releases")
+
+    set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/source/main/ror.ico")
+    set(CPACK_WIX_UI_BANNER "${CMAKE_SOURCE_DIR}/tools/windows/bannrbmp.bmp")
+    set(CPACK_WIX_UI_DIALOG "${CMAKE_SOURCE_DIR}/tools/windows/dlgbmp.bmp")
+
+    set(CPACK_WIX_LICENSE_RTF "${CPACK_RESOURCE_FILE_LICENSE}")
+    set(CPACK_WIX_UPGRADE_GUID "dc178e9c-840d-443f-b249-434433ae5fd1")
 
     IF (MSVC)
-        set(CPACK_PACKAGE_NAME "Rigs-of-Rods")
-        SET(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}")
-        SET(CPACK_GENERATOR ZIP;NSIS)
+        set(CPACK_PACKAGE_NAME "Rigs of Rods")
+        set(CPACK_PACKAGE_INSTALL_DIRECTORY "Rigs of Rods")
+        set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}")
+        set(CPACK_GENERATOR ZIP;WIX)
+        set(CPACK_MODULE_PATH "")
     ENDIF (MSVC)
 
     include(CPack)
