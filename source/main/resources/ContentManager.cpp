@@ -311,12 +311,12 @@ bool ContentManager::resourceCollision(Ogre::Resource* resource, Ogre::ResourceM
     return false; // Instruct OGRE to drop the new resource and keep the original.
 }
 
-/// Workaround for OGRE script compiler not properly checking that material name is not empty.
-/// See https://github.com/RigsOfRods/rigs-of-rods/issues/2349
 bool ContentManager::handleEvent(ScriptCompiler *compiler, ScriptCompilerEvent *evt, void *retval)
 {
     if (evt->mType == CreateMaterialScriptCompilerEvent::eventType)
     {
+        // Workaround for OGRE script compiler not properly checking that material name is not empty.
+        // See https://github.com/RigsOfRods/rigs-of-rods/issues/2349
         auto* matEvent = static_cast<CreateMaterialScriptCompilerEvent*>(evt);
         if (matEvent->mName.empty())
         {
@@ -327,6 +327,20 @@ bool ContentManager::handleEvent(ScriptCompiler *compiler, ScriptCompilerEvent *
             return true;
         }
     }
+    else if (evt->mType == CreateParticleSystemScriptCompilerEvent::eventType)
+    {
+        // Workaround for OGRE ignoring resource groups when registering particle templates
+        // See https://github.com/RigsOfRods/rigs-of-rods/pull/2398
+        auto* particleEvent = static_cast<CreateParticleSystemScriptCompilerEvent*>(evt);
+        if (Ogre::ParticleSystemManager::getSingleton().getTemplate(particleEvent->mName) != nullptr)
+        {
+            // Duplicate name -> OGRE would throw exception and fail initializing whole resource group
+            RoR::LogFormat("[RoR] Duplicate particle system name '%s' in file: '%s' - forcing OGRE to fail loading.",
+                particleEvent->mName.c_str(), particleEvent->mFile.c_str());
+            return true; // Instruct OGRE to skip the particle system
+        }
+    }
+
     return false; // Report "not handled"
 }
 
