@@ -1638,6 +1638,7 @@ void SimController::UpdateSimulation(float dt)
                 Actor* new_actor = this->SpawnActorDirectly(srq); // try to load the same actor again
                 if (new_actor)
                 {
+                    this->SetPendingPlayerActor(new_actor);
                     new_actor->GetGfxActor()->SetDebugView(debug_view);
                 }
             }
@@ -1673,6 +1674,10 @@ void SimController::UpdateSimulation(float dt)
             Actor* fresh_actor = this->SpawnActorDirectly(rq);
             if (fresh_actor != nullptr)
             {
+                if (fresh_actor->ar_driveable != NOT_DRIVEABLE)
+                {
+                    this->SetPendingPlayerActor(fresh_actor);
+                }
                 if (rq.asr_spawnbox == nullptr)
                 {
                     // Try to resolve collisions with other actors
@@ -1686,7 +1691,9 @@ void SimController::UpdateSimulation(float dt)
             Actor* fresh_actor = this->SpawnActorDirectly(rq);
             if (fresh_actor != nullptr)
             {
-                if (App::diag_preset_veh_enter.GetActive() && fresh_actor->ar_num_nodes > 0)
+                if (fresh_actor->ar_driveable != NOT_DRIVEABLE &&
+                    fresh_actor->ar_num_nodes > 0 &&
+                    App::diag_preset_veh_enter.GetActive())
                 {
                     this->SetPendingPlayerActor(fresh_actor);
                 }
@@ -1709,6 +1716,13 @@ void SimController::UpdateSimulation(float dt)
         else
         {
             Actor* fresh_actor = this->SpawnActorDirectly(rq);
+
+            if (fresh_actor && fresh_actor->ar_driveable != NOT_DRIVEABLE &&
+                rq.asr_origin != ActorSpawnRequest::Origin::NETWORK &&
+                rq.asr_origin != ActorSpawnRequest::Origin::SAVEGAME)
+            {
+                this->SetPendingPlayerActor(fresh_actor);
+            }
         }
     }
     m_actor_spawn_queue.clear();
@@ -2539,12 +2553,6 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
 #endif //SOCKETW
 
     Actor* actor = m_actor_manager.CreateActorInstance(rq, def);
-
-    if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK && rq.asr_origin != ActorSpawnRequest::Origin::TERRN_DEF &&
-            rq.asr_origin != ActorSpawnRequest::Origin::SAVEGAME && actor->ar_driveable != NOT_DRIVEABLE)
-    {
-        this->SetPendingPlayerActor(actor);
-    }
 
     // lock slide nodes after spawning the actor?
     if (def->slide_nodes_connect_instantly)
