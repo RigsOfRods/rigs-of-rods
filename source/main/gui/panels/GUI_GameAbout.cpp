@@ -106,13 +106,16 @@ void CLASS::initMisc()
     AuthorsText = AuthorsText + newline;
     AuthorsText = AuthorsText + orange + "Current Developers:" + newline;
     AuthorsText = AuthorsText + color1 + "Petr Ohlidal (only_a_ptr):" + white + " Core Developer, active" + newline;
-    AuthorsText = AuthorsText + color1 + "ulteq:" + white + " Various features, multithreading, lots of fixes, active" + newline;
-    AuthorsText = AuthorsText + color1 + "mikadou:" + white + " Modernized thread pool, cmake, various fixes, active" + newline;
+    AuthorsText = AuthorsText + color1 + "Edgar (AnotherFoxGuy):" + white + " Various fixes and features, developer web services, active" + newline;
 
     //Server Contributors
     AuthorsText = AuthorsText + newline;
     AuthorsText = AuthorsText + orange + "Server Contributors:" + newline;
-    AuthorsText = AuthorsText + color1 + "CProgrammer3088:" + white + " Provides us with a server to host updater's files." + newline;
+    AuthorsText = AuthorsText + color1 + "Austin:" + white + " Server funding" + newline;
+    AuthorsText = AuthorsText + color1 + "DarthCain:" + white + " Forum software funding" + newline;
+    AuthorsText = AuthorsText + color1 + "Zentro:" + white + " Systems administrator, web designer" + newline;
+    AuthorsText = AuthorsText + color1 + "Charger:" + white + " Branding designer" + newline;
+    AuthorsText = AuthorsText + color1 + "CuriousMike:" + white + " Repository & multiplayer server management" + newline;
 
     //Code Contributors:
     AuthorsText = AuthorsText + newline;
@@ -135,17 +138,18 @@ void CLASS::initMisc()
     AuthorsText = AuthorsText + color1 + "Klink:" + white + " Terrains conversion, few fixes and tweaks, dashboard designer" + newline;
     AuthorsText = AuthorsText + color1 + "hagdervriese:" + white + " Linux fixes" + newline;
     AuthorsText = AuthorsText + color1 + "skybon:" + white + " Web services, fixes, utilities" + newline;
-    AuthorsText = AuthorsText + color1 + "AnotherFoxGuy:" + white + " Various fixes" + newline;
     AuthorsText = AuthorsText + color1 + "Niklas Kersten (Hiradur):" + white + " Various fixes and tweaks, retired" + newline;
     AuthorsText = AuthorsText + color1 + "Moncef Ben Slimane (max98):" + white + " Few fixes, Few improvements, GUI Overhaul" + newline;
+    AuthorsText = AuthorsText + color1 + "mikadou:" + white + " Modernized thread pool, cmake, various fixes" + newline;
+    AuthorsText = AuthorsText + color1 + "ulteq:" + white + " Various features, multithreading, lots of fixes" + newline;
+    AuthorsText = AuthorsText + color1 + "tritonas00" + white + " Various improvements and Linux fixes" + newline;
 
     //Core Content Contributors
     AuthorsText = AuthorsText + newline;
     AuthorsText = AuthorsText + orange + "Core Content Contributors:" + newline;
     AuthorsText = AuthorsText + color1 + "donoteat:" + white + " Improved spawner models, terrain work" + newline;
-    AuthorsText = AuthorsText + color1 + "kevinmce:" + white + " Old Character" + newline;
-    AuthorsText = AuthorsText + color1 + "09Challenger:" + white + " Old character animations" + newline;
-    AuthorsText = AuthorsText + color1 + "hagdervriese:" + white + " New character animations" + newline;
+    AuthorsText = AuthorsText + color1 + "kevinmce:" + white + " Old character" + newline;
+    AuthorsText = AuthorsText + color1 + "vido89" + white + " Character animations" + newline;
 
     //Mod Contributors
     AuthorsText = AuthorsText + newline;
@@ -156,7 +160,6 @@ void CLASS::initMisc()
     AuthorsText = AuthorsText + newline;
     AuthorsText = AuthorsText + orange + "Testers:" + newline;
     AuthorsText = AuthorsText + color1 + "Invited core team:" + white + " The invited members helped us a lot along the way at various corners" + newline;
-    AuthorsText = AuthorsText + color1 + "Project 'NextStable' testers:" + white + " Testing and reporting bugs" + newline;
 
     //Used Libs
     AuthorsText = AuthorsText + newline;
@@ -172,7 +175,8 @@ void CLASS::initMisc()
 #ifdef USE_OPENAL
     AuthorsText = AuthorsText + color1 + "OpenAL Soft:" + white + " Sound engine" + newline;
 #endif
-    AuthorsText = AuthorsText + color1 + "MyGUI:" + white + " GUI System" + newline;
+    AuthorsText = AuthorsText + color1 + "MyGUI:" + white + " Legacy GUI System" + newline;
+    AuthorsText = AuthorsText + color1 + "Dear ImGui:" + white + " GUI System" + newline;
 #ifdef USE_MOFILEREADER
     AuthorsText = AuthorsText + color1 + "mofilereader:" + white + " Used for Internationalization" + newline;
 #endif
@@ -186,6 +190,8 @@ void CLASS::initMisc()
 #ifdef USE_SOCKETW
     AuthorsText = AuthorsText + color1 + "SocketW:" + white + " Used as cross-platform socket abstraction" + newline;
 #endif
+	AuthorsText = AuthorsText + color1 + "pThreads:" + white + " POSIX threads library" + newline;
+	AuthorsText = AuthorsText + color1 + "RapidJSON:" + white + " JSON parser/generator, used for online services" + newline;
 
     m_authors->setMaxTextLength(4096);
     m_authors->setCaption(Ogre::String(AuthorsText));
