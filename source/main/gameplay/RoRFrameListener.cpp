@@ -476,6 +476,19 @@ void SimController::UpdateInputEvents(float dt)
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_PHYSICS))
     {
         m_physics_simulation_paused = !m_physics_simulation_paused;
+
+        if (m_physics_simulation_paused)
+        {
+            String ssmsg = _L("Physics paused");
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+            RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
+        }
+        else
+        {
+            String ssmsg = _L("Physics unpaused");
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+            RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
+        }
     }
     if (m_physics_simulation_paused && m_actor_manager.GetSimulationSpeed() > 0.0f)
     {
