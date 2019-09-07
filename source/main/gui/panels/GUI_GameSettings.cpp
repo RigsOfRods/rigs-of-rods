@@ -217,6 +217,8 @@ void RoR::GUI::GameSettings::Draw()
 
         DrawGCheckbox(App::sim_no_self_collisions, _LC("GameSettings", "No intra truck collisions"));
         DrawGCheckbox(App::sim_no_collisions, _LC("GameSettings", "No inter truck collisions"));
+
+        DrawGCheckbox(App::io_discord_rpc, _LC("GameSettings", "Discord Rich Presence"));
     }
 #ifdef USE_OPENAL
     else if (m_tab == SettingsTab::AUDIO)

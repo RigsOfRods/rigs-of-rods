@@ -45,13 +45,16 @@ using namespace Ogre;
 void InitDiscord()
 {
 #ifdef USE_DISCORD_RPC
-    DiscordEventHandlers handlers;
-    memset(&handlers, 0, sizeof(handlers));
-    handlers.ready = handleDiscordReady;
-    handlers.errored = handleDiscordError;
+    if(RoR::App::io_discord_rpc.GetActive())
+    {
+        DiscordEventHandlers handlers;
+        memset(&handlers, 0, sizeof(handlers));
+        handlers.ready = handleDiscordReady;
+        handlers.errored = handleDiscordError;
 
-    // Discord_Initialize(const char* applicationId, DiscordEventHandlers* handlers, int autoRegister, const char* optionalSteamId)
-    Discord_Initialize("492484203435393035", &handlers, 1, "1234");
+        // Discord_Initialize(const char* applicationId, DiscordEventHandlers* handlers, int autoRegister, const char* optionalSteamId)
+        Discord_Initialize("492484203435393035", &handlers, 1, "1234");
+    }
 #endif
 }
 
@@ -64,34 +67,33 @@ void handleDiscordError(int, const char *error)
 void handleDiscordReady(const DiscordUser *user)
 {
     RoR::LogFormat("Discord Ready: %s", user->username);
-    if (stricmp(RoR::App::mp_player_name.GetActive(), "Player") == 0)
-    {
-        RoR::App::mp_player_name.SetActive(user->username);
-    }
 }
 #endif
 
 void UpdatePresence()
 {
 #ifdef USE_DISCORD_RPC
-    char buffer[256];
-    DiscordRichPresence discordPresence;
-    memset(&discordPresence, 0, sizeof(discordPresence));
-    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+    if(RoR::App::io_discord_rpc.GetActive())
     {
-        discordPresence.state = "Playing online";
-        sprintf(buffer, "On server: %s:%d  on terrain: %s",
-                RoR::App::mp_server_host.GetActive(),
-                RoR::App::mp_server_port.GetActive(),
-                RoR::App::sim_terrain_name.GetActive());
+        char buffer[256];
+        DiscordRichPresence discordPresence;
+        memset(&discordPresence, 0, sizeof(discordPresence));
+        if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+        {
+            discordPresence.state = "Playing online";
+            sprintf(buffer, "On server: %s:%d  on terrain: %s",
+                    RoR::App::mp_server_host.GetActive(),
+                    RoR::App::mp_server_port.GetActive(),
+                    RoR::App::sim_terrain_gui_name.GetActive());
+        }
+        else
+        {
+            discordPresence.state = "Playing Singleplayer";
+            sprintf(buffer, "On terrain: %s", RoR::App::sim_terrain_gui_name.GetActive());
+        }
+        discordPresence.details = buffer;
+        Discord_UpdatePresence(&discordPresence);
     }
-    else
-    {
-        discordPresence.state = "Playing singleplayer";
-        sprintf(buffer, "On terrain: %s", RoR::App::sim_terrain_name.GetActive());
-    }
-    discordPresence.details = buffer;
-    Discord_UpdatePresence(&discordPresence);
 #endif
 }
 

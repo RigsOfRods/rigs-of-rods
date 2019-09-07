@@ -146,6 +146,8 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
         return false;
     }
 
+    App::sim_terrain_gui_name.SetActive(m_def.name.c_str());
+
     this->setGravity(m_def.gravity);
 
     initShadows();
