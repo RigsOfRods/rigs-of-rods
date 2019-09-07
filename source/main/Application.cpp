@@ -93,6 +93,7 @@ static TerrainManager*  g_sim_terrain;
 // Simulation
  GVarEnum_AP<SimState>    sim_state               ("sim_state",               nullptr,                     SimState::OFF,           SimState::OFF);
  GVarStr_AP<200>          sim_terrain_name        ("sim_terrain_name",        nullptr,                     "",                      "");
+ GVarStr_AP<300>          sim_terrain_gui_name    ("sim_terrain_gui_name",    nullptr,                     "",                      "");
  GVarStr_A<100>           sim_savegame            ("sim_savegame",            nullptr,                     "");
  GVarPod_A<bool>          sim_load_savegame       ("sim_load_savegame",       nullptr,                     false);
  GVarPod_A<bool>          sim_spawn_running       ("sim_spawn_running",       "Engines spawn running",     true);
@@ -175,6 +176,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<int>           io_outgauge_port        ("io_outgauge_port",        "OutGauge Port",             1337);
  GVarPod_A<float>         io_outgauge_delay       ("io_outgauge_delay",       "OutGauge Delay",            10.f);
  GVarPod_A<int>           io_outgauge_id          ("io_outgauge_id",          "OutGauge ID",               0);
+ GVarPod_A<bool>          io_discord_rpc          ("io_discord_rpc",          "Discord Rich Presence",     true);
 
 // Audio
  GVarPod_A<float>         audio_master_volume     ("audio_master_volume",     "Sound Volume",              1);

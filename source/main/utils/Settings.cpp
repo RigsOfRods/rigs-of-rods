@@ -553,6 +553,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckFloat(App::io_outgauge_delay,         k, v)) { return true; }
     if (CheckInt  (App::io_outgauge_id,            k, v)) { return true; }
     if (CheckIoInputGrabMode                      (k, v)) { return true; }
+    if (CheckBool  (App::io_discord_rpc,            k, v)) { return true; }
     // Gfx
     if (CheckEnvmapRate                           (k, v)) { return true; }
     if (CheckShadowQuality                        (k, v)) { return true; }
@@ -837,6 +838,7 @@ void Settings::SaveSettings()
     WritePod (f, App::io_outgauge_port);
     WritePod (f, App::io_outgauge_delay);
     WritePod (f, App::io_outgauge_id);
+    WriteYN  (f, App::io_discord_rpc);
 
     f << std::endl << "; Graphics" << std::endl;
     WriteAny (f, App::gfx_shadow_type.conf_name    , GfxShadowTechToStr(App::gfx_shadow_type.GetActive     ()));

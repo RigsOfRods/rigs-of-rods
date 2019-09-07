@@ -671,6 +671,7 @@ extern GVarPod_A<bool>         app_disable_online_api;
 // Simulation
 extern GVarEnum_AP<SimState>   sim_state;
 extern GVarStr_AP<200>         sim_terrain_name;
+extern GVarStr_AP<300>         sim_terrain_gui_name;
 extern GVarStr_A<100>          sim_savegame;
 extern GVarPod_A<bool>         sim_load_savegame;
 extern GVarPod_A<bool>         sim_spawn_running;
@@ -753,6 +754,7 @@ extern GVarStr_A<50>           io_outgauge_ip;
 extern GVarPod_A<int>          io_outgauge_port;
 extern GVarPod_A<float>        io_outgauge_delay;
 extern GVarPod_A<int>          io_outgauge_id;
+extern GVarPod_A<bool>          io_discord_rpc;
 
 // Audio
 extern GVarPod_A<float>        audio_master_volume;
