@@ -245,11 +245,6 @@ void ContentManager::InitModCache()
 {
     ResourceGroupManager::getSingleton().addResourceLocation(App::sys_cache_dir.GetActive(), "FileSystem", RGN_CACHE, false, false);
 
-    if (ResourceGroupManager::getSingleton().resourceGroupExists(RGN_CONTENT))
-    {
-        ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_CONTENT);
-    }
-
     std::string user = App::sys_user_dir.GetActive();
     std::string base = App::sys_process_dir.GetActive();
     std::string objects = PathCombine("resources", "beamobjects.zip");
@@ -290,6 +285,8 @@ void ContentManager::InitModCache()
     CacheSystem::CacheValidityState validity = m_mod_cache.EvaluateCacheValidity();
     m_mod_cache.LoadModCache(validity);
     App::SetCacheSystem(&m_mod_cache); // Temporary solution until Modcache+ContentManager are fully merged and `App::GetCacheSystem()` is removed ~ only_a_ptr, 10/2018
+
+    ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_CONTENT);
 }
 
 Ogre::DataStreamPtr ContentManager::resourceLoading(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource)

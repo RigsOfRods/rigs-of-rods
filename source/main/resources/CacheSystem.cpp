@@ -1139,7 +1139,8 @@ void CacheSystem::LoadResource(CacheEntry& t)
     }
 
     static int rg_counter = 0;
-    String group = "Mod-" + std::to_string(rg_counter++);
+    String group = std::to_string(rg_counter++) + "-" + t.fname;
+
     try
     {
         if (t.fext == "terrn2")
