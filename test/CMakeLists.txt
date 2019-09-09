@@ -18,11 +18,11 @@ function(rigsofrods_test_suite)
         "${CMAKE_SOURCE_DIR}/test/proxies"                 # Must come second, see README
         "${CMAKE_SOURCE_DIR}/source/main"                  # Must come last: Application.h, RoRPrerequisites.h, datatypes/{node_t.h, beam_t.h etc...}
     )
-  
+
     add_definitions(
         -D_WINSOCKAPI_ # Prevents <windows.h> including <winsock.h> - without this, build fails with "redefinition" errors because RoR uses <winsock2.h>, see https://stackoverflow.com/questions/1372480/c-redefinition-header-files-winsock2-h
     )
-  
+
     add_executable(${RORTEST_NAME}
         "${RORTEST_NAME}.cpp"
         "${CMAKE_SOURCE_DIR}/source/main/Application.cpp"
@@ -35,6 +35,7 @@ function(rigsofrods_test_suite)
         target_link_libraries(${RORTEST_NAME} PRIVATE
                 CONAN_PKG::gtest
                 CONAN_PKG::OGRE
+                CONAN_PKG::OGREdeps # includes OIS
                 CONAN_PKG::MyGUI
                 CONAN_PKG::rapidjson
                 version_info
@@ -43,15 +44,16 @@ function(rigsofrods_test_suite)
         target_link_libraries(${RORTEST_NAME} PRIVATE
                 gtest
                 OGRE
+                ${OIS_LIBRARIES}
                 MyGUI
                 rapidjson
                 version_info
-        )    
-    endif() 
+        )
+    endif()
 endfunction()
 
 if( ROR_USE_GOOGLETEST )
 
    add_subdirectory("suites")
-   
+
 endif()
