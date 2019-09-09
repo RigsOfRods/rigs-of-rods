@@ -34,4 +34,5 @@
     void RoR::GfxActor::ToggleDebugView(void) {}
     void RoR::GfxActor::CycleDebugViews(void) {}
     void RoR::GfxActor::SetRenderdashActive(bool) {}
+    RoR::GfxActor::SimBuffer::SimBuffer(void) {}
 #endif // ROR_FAKES_IMPL

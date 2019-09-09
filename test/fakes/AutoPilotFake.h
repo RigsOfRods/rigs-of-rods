@@ -12,4 +12,5 @@
     float Autopilot::getRudder(void) {return 0.f;}
     void Autopilot::gpws_update(float) {}
     void Autopilot::UpdateIls(class std::vector<struct TerrainObjectManager::localizer_t,class std::allocator<struct TerrainObjectManager::localizer_t> >) {}
+    void Autopilot::reset(void) {}
 #endif // ROR_FAKES_IMPL

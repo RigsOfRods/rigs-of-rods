@@ -4587,9 +4587,6 @@ Actor::Actor()
     , m_transfer_case(nullptr)
     , m_fusealge_airfoil(nullptr)
     , ar_vehicle_ai(nullptr)
-    , m_command_inertia(nullptr)
-    , m_hydro_inertia(nullptr)
-    , m_rotator_inertia(nullptr)
 {
 }
 
