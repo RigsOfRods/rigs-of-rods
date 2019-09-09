@@ -1009,6 +1009,11 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
 
     dt += m_dt_remainder;
     m_physics_steps = dt / PHYSICS_DT;
+    if (m_physics_steps == 0)
+    {
+        return;
+    }
+
     m_dt_remainder = dt - (m_physics_steps * PHYSICS_DT);
     dt = PHYSICS_DT * m_physics_steps;
 
