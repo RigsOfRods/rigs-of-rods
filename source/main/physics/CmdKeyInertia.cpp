@@ -23,9 +23,10 @@
 #include "Application.h"
 #include "Utils.h"
 
-#include <Ogre.h>
-
-using namespace Ogre;
+#include <OgreDataStream.h>
+#include <OgreResourceGroupManager.h>
+#include <OgreSimpleSpline.h>
+#include <OgreVector3.h>
 
 RoR::CmdKeyInertia::CmdKeyInertia()
     : m_start_spline(nullptr)
@@ -55,8 +56,8 @@ float RoR::CmdKeyInertia::CalcCmdKeyDelay(float cmd_input, float dt)
     // +dt after the timer had been set to zero prevents the motion to stop at 0.002
     m_time += dt;
 
-    float start_factor = m_start_delay * m_time;
-    float stop_factor = m_stop_delay * m_time;
+    const float start_factor = m_start_delay * m_time;
+    const float stop_factor = m_stop_delay * m_time;
     // positive values between 0 and 1
     if (abs_diff > 0)
     { // we have to accelerate our last outout to the new commanded input
@@ -83,42 +84,42 @@ float RoR::CmdKeyInertia::CalcCmdKeyDelay(float cmd_input, float dt)
     return calculated_output;
 }
 
-int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, float start_delay, float stop_delay, String start_function, String stop_function)
+int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, float start_delay, float stop_delay, std::string start_function, std::string stop_function)
 {
     // Delay values should always be greater than 0
     if (start_delay > 0)
         m_start_delay = start_delay;
     else
-        LOG("[RoR|Inertia] Start Delay should be >0");
+        RoR::LogFormat("[RoR|Inertia] Warning: Start Delay '%f', should be >0, using 0", start_delay);
 
     if (stop_delay > 0)
         m_stop_delay = stop_delay;
     else
-        LOG("[RoR|Inertia] Stop Delay should be >0");
+        RoR::LogFormat("[RoR|Inertia] Warning: Stop Delay '%f', should be >0, using 0", start_delay);
 
     // if we don't find the spline, we use the "constant" one
     Ogre::SimpleSpline* start_spline = cfg.GetSplineByName(start_function);
     if (start_spline != nullptr)
         m_start_spline = start_spline;
     else
-        LOG("[RoR|Inertia] Start Function "+start_function +" not found");
+        RoR::LogFormat("[RoR|Inertia] Start Function '%s' not found", start_function.c_str());
 
     Ogre::SimpleSpline* stop_spline = cfg.GetSplineByName(stop_function);
     if (stop_spline != nullptr)
         m_stop_spline = stop_spline;
     else
-        LOG("[RoR|Inertia] Stop Function "+stop_function +" not found");
+        RoR::LogFormat("[RoR|Inertia] Stop Function '%s' not found", stop_function.c_str());
 
     return 0;
 }
 
-float RoR::CmdKeyInertia::CalculateCmdOutput(float time, SimpleSpline* spline)
+float RoR::CmdKeyInertia::CalculateCmdOutput(float time, Ogre::SimpleSpline* spline)
 {
     time = std::min(time, 1.0f);
 
     if (spline)
     {
-        Vector3 output = spline->interpolate(time);
+        Ogre::Vector3 output = spline->interpolate(time);
         return output.y * 0.001f;
     }
 
@@ -134,72 +135,46 @@ Ogre::SimpleSpline* RoR::CmdKeyInertiaConfig::GetSplineByName(Ogre::String model
         return nullptr;
 }
 
-int RoR::CmdKeyInertiaConfig::LoadDefaultInertiaModels()
+void RoR::CmdKeyInertiaConfig::LoadDefaultInertiaModels()
 {
-    // check if we have a config file
-    String group = "";
     try
     {
-        group = ResourceGroupManager::getSingleton().findGroupContainingResource("inertia_models.cfg");
-    }
-    catch (...)
-    {
-    }
-    // emit a warning if we did not found the file
-    if (group.empty())
-    {
-        LOG("Inertia| inertia_models.cfg not found");
-        return 1;
-    }
-
-    // open the file for reading
-    DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource("inertia_models.cfg", group);
-    String line = "";
-    String current_model = "";
-
-    while (!ds->eof())
-    {
-        line = RoR::Utils::SanitizeUtf8String(ds->getLine());
-        StringUtil::trim(line);
-
-        if (line.empty() || line[0] == ';')
-            continue;
-
-        Ogre::StringVector args = StringUtil::split(line, ",");
-
-        if (args.size() == 1)
+        Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().openResource("inertia_models.cfg", Ogre::RGN_AUTODETECT);
+        std::string current_model;
+        while (!ds->eof())
         {
-            current_model = line;
-            continue;
+            std::string line = RoR::Utils::SanitizeUtf8String(ds->getLine());
+            Ogre::StringUtil::trim(line);
+
+            if (line.empty() || line[0] == ';')
+                continue;
+
+            Ogre::StringVector args = Ogre::StringUtil::split(line, ",");
+            if (args.size() == 1)
+            {
+                current_model = line;
+            }
+            else if (args.size() == 2 && !current_model.empty())
+            {
+                // find the spline to attach the points
+                if (m_splines.find(current_model) == m_splines.end())
+                {
+                    m_splines[current_model] = Ogre::SimpleSpline();
+                }
+
+                // parse the data
+                const float point_x = Ogre::StringConverter::parseReal(args[0]);
+                const float point_y = Ogre::StringConverter::parseReal(args[1]);
+
+                // attach the points to the spline
+                m_splines[current_model].addPoint(Ogre::Vector3(point_x, point_y, 0.0f));
+            }
         }
-
-        // process the line if we got a model
-        if (!current_model.empty())
-            this->ProcessLine(args, current_model);
     }
-    return 0;
-}
-
-int RoR::CmdKeyInertiaConfig::ProcessLine(Ogre::StringVector args, String model)
-{
-    // we only accept 2 arguments
-    if (args.size() != 2)
-        return 1;
-    // parse the data
-    float point_x = StringConverter::parseReal(args[0]);
-    float point_y = StringConverter::parseReal(args[1]);
-    Vector3 point = Vector3(point_x, point_y, 0.0f);
-
-    // find the spline to attach the points
-    if (m_splines.find(model) == m_splines.end())
+    catch (std::exception& e)
     {
-        m_splines[model] = SimpleSpline();
+        RoR::LogFormat("[RoR|Inertia] Failed to load 'inertia_models.cfg', message: '%s'", e.what());
     }
-
-    // attach the points to the spline
-    m_splines[model].addPoint(point);
-
-    return 0;
 }
 
 void RoR::CmdKeyInertia::ResetCmdKeyDelay()
