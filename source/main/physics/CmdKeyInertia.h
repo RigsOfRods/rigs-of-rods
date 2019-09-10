@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include <OgreSimpleSpline.h>
-#include <OgreString.h>
+#include <OgrePrerequisites.h>
+#include <string>
 
 namespace RoR {
 
@@ -29,12 +29,10 @@ namespace RoR {
 class CmdKeyInertiaConfig
 {
 public:
-    int LoadDefaultInertiaModels();
+    void LoadDefaultInertiaModels();
     Ogre::SimpleSpline* GetSplineByName(Ogre::String model);
 
 private:
-    int ProcessLine(Ogre::StringVector args, Ogre::String model);
-
     std::map<Ogre::String, Ogre::SimpleSpline> m_splines;
 };
 
@@ -44,7 +42,7 @@ public:
     CmdKeyInertia();
 
     float CalcCmdKeyDelay(float cmd_input, float dt);
-    int SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, float start_delay, float stop_delay, Ogre::String start_function, Ogre::String stop_function);
+    int SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, float start_delay, float stop_delay, std::string start_function, std::string stop_function);
     void ResetCmdKeyDelay();
 
 protected:
