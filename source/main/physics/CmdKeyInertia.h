@@ -44,7 +44,7 @@ public:
     CmdKeyInertia();
 
     Ogre::Real CalcCmdKeyDelay(Ogre::Real cmd_input, Ogre::Real dt);
-    int SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, Ogre::Real startDelay, Ogre::Real stopDelay, Ogre::String startFunction, Ogre::String stopFunction);
+    int SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, Ogre::Real start_delay, Ogre::Real stop_delay, Ogre::String start_function, Ogre::String stop_function);
     void ResetCmdKeyDelay();
 
 protected:
