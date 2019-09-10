@@ -97,6 +97,12 @@ void UpdatePresence()
 #endif
 }
 
+void ShutdownDiscord()
+{
+#ifdef USE_DISCORD_RPC
+    Discord_Shutdown();
+#endif
+}
 
 String sha1sum(const char *key, int len)
 {

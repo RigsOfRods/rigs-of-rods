@@ -381,7 +381,7 @@ int main(int argc, char *argv[])
         // Cleanup
         // ========================================================================
 
-        Discord_Shutdown();
+        ShutdownDiscord();
 
         Settings::getSingleton().SaveSettings(); // Save RoR.cfg
 
