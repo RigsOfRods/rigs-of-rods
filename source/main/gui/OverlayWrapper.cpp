@@ -544,12 +544,14 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
 
     if (player_actor->ar_driveable == AIRPLANE && ms.buttonDown(OIS::MB_Left))
     {
+        const int num_engines = std::min(4, player_actor->ar_num_aeroengines);
+
         OverlayElement* element = m_aerial_dashboard.needles_overlay->findElementAt(mouseX, mouseY);
         if (element)
         {
             res = true;
             float thr_value = 1.0f - ((mouseY - thrtop - throffset) / thrheight);
-            for (int i = 0; i < 4; ++i)
+            for (int i = 0; i < num_engines; ++i)
             {
                 if (element == m_aerial_dashboard.engines[i].thr_element)
                 {
@@ -562,7 +564,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
         if (element)
         {
             res = true;
-            for (int i = 0; i < 4; ++i)
+            for (int i = 0; i < num_engines; ++i)
             {
                 if (element == m_aerial_dashboard.engines[i].engstart_element)
                 {
