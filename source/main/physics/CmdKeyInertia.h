@@ -48,12 +48,12 @@ public:
     void ResetCmdKeyDelay();
 
 protected:
-    Ogre::Real          m_lastOutput;
-    Ogre::Real          m_startDelay;
-    Ogre::Real          m_stopDelay;
+    Ogre::Real          m_last_output;
+    Ogre::Real          m_start_delay;
+    Ogre::Real          m_stop_delay;
     Ogre::Real          m_time;
-    Ogre::SimpleSpline* m_startSpline;
-    Ogre::SimpleSpline* m_stopSpline;
+    Ogre::SimpleSpline* m_start_spline;
+    Ogre::SimpleSpline* m_stop_spline;
 
     Ogre::Real CalculateCmdOutput(Ogre::Real time, Ogre::SimpleSpline* spline);
 };
