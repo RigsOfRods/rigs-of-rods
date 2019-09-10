@@ -64,12 +64,12 @@ struct AeroTrimOverlay
 
 struct AeroDashOverlay
 {
-    void SetThrottle(int engine, float value);
+    void SetThrottle(int engine, bool visible, float value);
     void SetEngineFailed(int engine, bool value);
     void SetEngineRpm(int engine, float pcent);
     void SetEnginePitch(int engine, float value);
     void SetEngineTorque(int engine, float pcent);
-    void SetIgnition(int engine, bool value);
+    void SetIgnition(int engine, bool visible, bool ignited);
 
     AeroEngineOverlay engines[4];
 
