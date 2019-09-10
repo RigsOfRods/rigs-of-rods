@@ -83,31 +83,31 @@ Real RoR::CmdKeyInertia::CalcCmdKeyDelay(Real cmd_input, Real dt)
     return calculated_output;
 }
 
-int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, Real startDelay, Real stopDelay, String startFunction, String stopFunction)
+int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, Real start_delay, Real stop_delay, String start_function, String stop_function)
 {
     // Delay values should always be greater than 0
-    if (startDelay > 0)
-        m_start_delay = startDelay;
+    if (start_delay > 0)
+        m_start_delay = start_delay;
     else
         LOG("[RoR|Inertia] Start Delay should be >0");
 
-    if (stopDelay > 0)
-        m_stop_delay = stopDelay;
+    if (stop_delay > 0)
+        m_stop_delay = stop_delay;
     else
         LOG("[RoR|Inertia] Stop Delay should be >0");
 
     // if we don't find the spline, we use the "constant" one
-    Ogre::SimpleSpline* startSpline = cfg.GetSplineByName(startFunction);
-    if (startSpline != nullptr)
-        m_start_spline = startSpline;
+    Ogre::SimpleSpline* start_spline = cfg.GetSplineByName(start_function);
+    if (start_spline != nullptr)
+        m_start_spline = start_spline;
     else
-        LOG("[RoR|Inertia] Start Function "+startFunction +" not found");
+        LOG("[RoR|Inertia] Start Function "+start_function +" not found");
 
-    Ogre::SimpleSpline* stopSpline = cfg.GetSplineByName(stopFunction);
-    if (stopSpline != nullptr)
-        m_stop_spline = stopSpline;
+    Ogre::SimpleSpline* stop_spline = cfg.GetSplineByName(stop_function);
+    if (stop_spline != nullptr)
+        m_stop_spline = stop_spline;
     else
-        LOG("[RoR|Inertia] Stop Function "+stopFunction +" not found");
+        LOG("[RoR|Inertia] Stop Function "+stop_function +" not found");
 
     return 0;
 }
@@ -155,7 +155,7 @@ int RoR::CmdKeyInertiaConfig::LoadDefaultInertiaModels()
     // open the file for reading
     DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource("inertia_models.cfg", group);
     String line = "";
-    String currentModel = "";
+    String current_model = "";
 
     while (!ds->eof())
     {
@@ -169,13 +169,13 @@ int RoR::CmdKeyInertiaConfig::LoadDefaultInertiaModels()
 
         if (args.size() == 1)
         {
-            currentModel = line;
+            current_model = line;
             continue;
         }
 
         // process the line if we got a model
-        if (!currentModel.empty())
-            this->ProcessLine(args, currentModel);
+        if (!current_model.empty())
+            this->ProcessLine(args, current_model);
     }
     return 0;
 }
@@ -186,9 +186,9 @@ int RoR::CmdKeyInertiaConfig::ProcessLine(Ogre::StringVector args, String model)
     if (args.size() != 2)
         return 1;
     // parse the data
-    float pointx = StringConverter::parseReal(args[0]);
-    float pointy = StringConverter::parseReal(args[1]);
-    Vector3 point = Vector3(pointx, pointy, 0.0f);
+    float point_x = StringConverter::parseReal(args[0]);
+    float point_y = StringConverter::parseReal(args[1]);
+    Vector3 point = Vector3(point_x, point_y, 0.0f);
 
     // find the spline to attach the points
     if (m_splines.find(model) == m_splines.end())
