@@ -824,10 +824,10 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
     int num_ae = static_cast<int>( simbuf_ae.size() );
 
     //throttles
-    m_aerial_dashboard.SetThrottle(0, simbuf_ae[0].simbuf_ae_throttle);
-    m_aerial_dashboard.SetThrottle(1, (num_ae > 1) ? simbuf_ae[1].simbuf_ae_throttle : 0.f);
-    m_aerial_dashboard.SetThrottle(2, (num_ae > 2) ? simbuf_ae[2].simbuf_ae_throttle : 0.f);
-    m_aerial_dashboard.SetThrottle(3, (num_ae > 3) ? simbuf_ae[3].simbuf_ae_throttle : 0.f);
+    m_aerial_dashboard.SetThrottle(0, true, simbuf_ae[0].simbuf_ae_throttle);
+    m_aerial_dashboard.SetThrottle(1, (num_ae > 1), (num_ae > 1) ? simbuf_ae[1].simbuf_ae_throttle : 0.f);
+    m_aerial_dashboard.SetThrottle(2, (num_ae > 2), (num_ae > 2) ? simbuf_ae[2].simbuf_ae_throttle : 0.f);
+    m_aerial_dashboard.SetThrottle(3, (num_ae > 3), (num_ae > 3) ? simbuf_ae[3].simbuf_ae_throttle : 0.f);
 
     //fire
     m_aerial_dashboard.SetEngineFailed(0, simbuf_ae[0].simbuf_ae_failed);
@@ -963,10 +963,10 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
     m_aerial_dashboard.SetEngineTorque(3, (num_ae > 3 && simbuf_ae[3].simbuf_ae_turboprop) ? simbuf_ae[3].simbuf_tp_aetorque : 0.f);
 
     //starters
-    m_aerial_dashboard.SetIgnition(0, simbuf_ae[0].simbuf_ae_ignition);
-    m_aerial_dashboard.SetIgnition(1, num_ae > 1 && simbuf_ae[1].simbuf_ae_ignition);
-    m_aerial_dashboard.SetIgnition(2, num_ae > 2 && simbuf_ae[2].simbuf_ae_ignition);
-    m_aerial_dashboard.SetIgnition(3, num_ae > 3 && simbuf_ae[3].simbuf_ae_ignition);
+    m_aerial_dashboard.SetIgnition(0, true, simbuf_ae[0].simbuf_ae_ignition);
+    m_aerial_dashboard.SetIgnition(1, num_ae > 1, num_ae > 1 && simbuf_ae[1].simbuf_ae_ignition);
+    m_aerial_dashboard.SetIgnition(2, num_ae > 2, num_ae > 2 && simbuf_ae[2].simbuf_ae_ignition);
+    m_aerial_dashboard.SetIgnition(3, num_ae > 3, num_ae > 3 && simbuf_ae[3].simbuf_ae_ignition);
 
     //autopilot - heading
     m_aerial_dashboard.hdg.SetActive(simbuf.simbuf_ap_heading_mode == Autopilot::HEADING_FIXED);
@@ -1095,10 +1095,18 @@ void OverlayWrapper::UpdateRacingGui(RoR::GfxScene* gs)
     this->laptime->setColourBottom(colour);
 }
 
-void AeroDashOverlay::SetThrottle(int engine, float value)
+void AeroDashOverlay::SetThrottle(int engine, bool visible, float value)
 {
-    engines[engine].thr_element->setTop(
-        thrust_track_top + thrust_track_height * (1.0 - value) - 1.0);
+    if (visible)
+    {
+        engines[engine].thr_element->show();
+        engines[engine].thr_element->setTop(
+            thrust_track_top + thrust_track_height * (1.0 - value) - 1.0);
+    }
+    else
+    {
+        engines[engine].thr_element->hide();
+    }
 }
 
 void AeroDashOverlay::SetEngineFailed(int engine, bool value)
@@ -1136,10 +1144,18 @@ void AeroDashOverlay::SetEngineTorque(int engine, float pcent)
     engines[engine].torque_texture->setTextureRotate(Degree(-angle));
 }
 
-void AeroDashOverlay::SetIgnition(int engine, bool value)
+void AeroDashOverlay::SetIgnition(int engine, bool visible, bool ignited)
 {
-    engines[engine].engstart_element->setMaterialName(
-        value ? "tracks/engstart-on" : "tracks/engstart-off");
+    if (visible)
+    {
+        engines[engine].engstart_element->show();
+        engines[engine].engstart_element->setMaterialName(
+            ignited ? "tracks/engstart-on" : "tracks/engstart-off");
+    }
+    else
+    {
+        engines[engine].engstart_element->hide();
+    }
 }
 
 void AeroSwitchOverlay::SetActive(bool value)
