@@ -43,19 +43,19 @@ class CmdKeyInertia
 public:
     CmdKeyInertia();
 
-    Ogre::Real CalcCmdKeyDelay(Ogre::Real cmd_input, Ogre::Real dt);
-    int SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, Ogre::Real start_delay, Ogre::Real stop_delay, Ogre::String start_function, Ogre::String stop_function);
+    float CalcCmdKeyDelay(float cmd_input, float dt);
+    int SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, float start_delay, float stop_delay, Ogre::String start_function, Ogre::String stop_function);
     void ResetCmdKeyDelay();
 
 protected:
-    Ogre::Real          m_last_output;
-    Ogre::Real          m_start_delay;
-    Ogre::Real          m_stop_delay;
-    Ogre::Real          m_time;
+    float               m_last_output;
+    float               m_start_delay;
+    float               m_stop_delay;
+    float               m_time;
     Ogre::SimpleSpline* m_start_spline;
     Ogre::SimpleSpline* m_stop_spline;
 
-    Ogre::Real CalculateCmdOutput(Ogre::Real time, Ogre::SimpleSpline* spline);
+    float CalculateCmdOutput(float time, Ogre::SimpleSpline* spline);
 };
 
 } // namespace RoR

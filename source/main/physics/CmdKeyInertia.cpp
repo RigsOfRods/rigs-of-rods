@@ -36,27 +36,27 @@ RoR::CmdKeyInertia::CmdKeyInertia()
     , m_time(0.f)
 {}
 
-Real RoR::CmdKeyInertia::CalcCmdKeyDelay(Real cmd_input, Real dt)
+float RoR::CmdKeyInertia::CalcCmdKeyDelay(float cmd_input, float dt)
 {
     if (!m_start_spline || !m_stop_spline)
     {
         return cmd_input;
     }
 
-    Real calculated_output = m_last_output;
-    Real last_output = m_last_output;
+    float calculated_output = m_last_output;
+    float last_output = m_last_output;
     // rel difference to calculate if we have to use start values(accelerating) or stop values
-    Real rel_diff = fabs(cmd_input) - fabs(last_output);
+    float rel_diff = fabs(cmd_input) - fabs(last_output);
     // difference to calculate if were are on the negative side
-    Real abs_diff = cmd_input - last_output;
+    float abs_diff = cmd_input - last_output;
     // if the value is close to our input, reset the timer
     if (fabs(abs_diff) < 0.002)
         m_time = 0;
     // +dt after the timer had been set to zero prevents the motion to stop at 0.002
     m_time += dt;
 
-    Real start_factor = m_start_delay * m_time;
-    Real stop_factor = m_stop_delay * m_time;
+    float start_factor = m_start_delay * m_time;
+    float stop_factor = m_stop_delay * m_time;
     // positive values between 0 and 1
     if (abs_diff > 0)
     { // we have to accelerate our last outout to the new commanded input
@@ -83,7 +83,7 @@ Real RoR::CmdKeyInertia::CalcCmdKeyDelay(Real cmd_input, Real dt)
     return calculated_output;
 }
 
-int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, Real start_delay, Real stop_delay, String start_function, String stop_function)
+int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, float start_delay, float stop_delay, String start_function, String stop_function)
 {
     // Delay values should always be greater than 0
     if (start_delay > 0)
@@ -112,7 +112,7 @@ int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, Real start
     return 0;
 }
 
-Real RoR::CmdKeyInertia::CalculateCmdOutput(Real time, SimpleSpline* spline)
+float RoR::CmdKeyInertia::CalculateCmdOutput(float time, SimpleSpline* spline)
 {
     time = std::min(time, 1.0f);
 
