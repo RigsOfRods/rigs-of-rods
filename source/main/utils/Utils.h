@@ -44,6 +44,8 @@ void handleDiscordReady(const DiscordUser * user);
 
 void UpdatePresence();
 
+void ShutdownDiscord();
+
 Ogre::String sha1sum(const char *key, int len);
 
 Ogre::String HashData(const char *key, int len);
