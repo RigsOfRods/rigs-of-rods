@@ -36,51 +36,51 @@ RoR::CmdKeyInertia::CmdKeyInertia()
     , m_time(0.f)
 {}
 
-Real RoR::CmdKeyInertia::CalcCmdKeyDelay(Real cmdInput, Real dt)
+Real RoR::CmdKeyInertia::CalcCmdKeyDelay(Real cmd_input, Real dt)
 {
     if (!m_start_spline || !m_stop_spline)
     {
-        return cmdInput;
+        return cmd_input;
     }
 
-    Real calculatedOutput = m_last_output;
-    Real lastOutput = m_last_output;
+    Real calculated_output = m_last_output;
+    Real last_output = m_last_output;
     // rel difference to calculate if we have to use start values(accelerating) or stop values
-    Real relDiff = fabs(cmdInput) - fabs(lastOutput);
+    Real rel_diff = fabs(cmd_input) - fabs(last_output);
     // difference to calculate if were are on the negative side
-    Real absDiff = cmdInput - lastOutput;
+    Real abs_diff = cmd_input - last_output;
     // if the value is close to our input, reset the timer
-    if (fabs(absDiff) < 0.002)
+    if (fabs(abs_diff) < 0.002)
         m_time = 0;
     // +dt after the timer had been set to zero prevents the motion to stop at 0.002
     m_time += dt;
 
-    Real startFactor = m_start_delay * m_time;
-    Real stopFactor = m_stop_delay * m_time;
+    Real start_factor = m_start_delay * m_time;
+    Real stop_factor = m_stop_delay * m_time;
     // positive values between 0 and 1
-    if (absDiff > 0)
+    if (abs_diff > 0)
     { // we have to accelerate our last outout to the new commanded input
-        if (relDiff > 0)
-            calculatedOutput = lastOutput + this->CalculateCmdOutput(startFactor, m_start_spline);
-        if (relDiff < 0)
+        if (rel_diff > 0)
+            calculated_output = last_output + this->CalculateCmdOutput(start_factor, m_start_spline);
+        if (rel_diff < 0)
         // we have to deccelerate our last outout to the new commanded input
-            calculatedOutput = lastOutput + this->CalculateCmdOutput(stopFactor, m_stop_spline);
-        if (calculatedOutput > cmdInput)
+            calculated_output = last_output + this->CalculateCmdOutput(stop_factor, m_stop_spline);
+        if (calculated_output > cmd_input)
         // if the calculated value is bigger than input set to input to avoid overshooting
-            calculatedOutput = cmdInput;
+            calculated_output = cmd_input;
     }
     // negative values, mainly needed for hydros, between 0 and -1
-    if (absDiff < 0)
+    if (abs_diff < 0)
     {
-        if (relDiff > 0)
-            calculatedOutput = lastOutput - this->CalculateCmdOutput(startFactor, m_start_spline);
-        if (relDiff < 0)
-            calculatedOutput = lastOutput - this->CalculateCmdOutput(stopFactor, m_stop_spline);
-        if (calculatedOutput < cmdInput)
-            calculatedOutput = cmdInput;
+        if (rel_diff > 0)
+            calculated_output = last_output - this->CalculateCmdOutput(start_factor, m_start_spline);
+        if (rel_diff < 0)
+            calculated_output = last_output - this->CalculateCmdOutput(stop_factor, m_stop_spline);
+        if (calculated_output < cmd_input)
+            calculated_output = cmd_input;
     }
-    m_last_output = calculatedOutput;
-    return calculatedOutput;
+    m_last_output = calculated_output;
+    return calculated_output;
 }
 
 int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, Real startDelay, Real stopDelay, String startFunction, String stopFunction)
@@ -204,7 +204,7 @@ int RoR::CmdKeyInertiaConfig::ProcessLine(Ogre::StringVector args, String model)
 
 void RoR::CmdKeyInertia::ResetCmdKeyDelay()
 {
-    // reset lastOutput and time, if we reset the truck
+    // reset last_output and time, if we reset the truck
     m_last_output = 0.0;
     m_time = 0.0;
 }

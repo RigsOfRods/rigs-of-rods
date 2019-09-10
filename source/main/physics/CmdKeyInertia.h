@@ -43,7 +43,7 @@ class CmdKeyInertia
 public:
     CmdKeyInertia();
 
-    Ogre::Real CalcCmdKeyDelay(Ogre::Real cmdInput, Ogre::Real dt);
+    Ogre::Real CalcCmdKeyDelay(Ogre::Real cmd_input, Ogre::Real dt);
     int SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, Ogre::Real startDelay, Ogre::Real stopDelay, Ogre::String startFunction, Ogre::String stopFunction);
     void ResetCmdKeyDelay();
 
