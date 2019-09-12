@@ -7,5 +7,5 @@
     int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, Ogre::Real, Ogre::Real, Ogre::String, Ogre::String) { return 0; }
     void RoR::CmdKeyInertia::ResetCmdKeyDelay() {}
     Ogre::Real RoR::CmdKeyInertia::CalcCmdKeyDelay(Ogre::Real cmdInput, Ogre::Real dt) { return 0.f; }
-    int RoR::CmdKeyInertiaConfig::LoadDefaultInertiaModels(void) {return 0.f;}
+    void RoR::CmdKeyInertiaConfig::LoadDefaultInertiaModels(void) {}
 #endif // ROR_FAKES_IMPL
