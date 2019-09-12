@@ -49,6 +49,8 @@ function(rigsofrods_test_suite)
                 MyGUI::OgrePlatform
                 version_info
         )
+
+        target_include_directories(${RORTEST_NAME} PRIVATE ${OIS_INCLUDE_DIRS}) #might also work for rapidjson
     endif()
 endfunction()
 
