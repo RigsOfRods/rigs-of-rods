@@ -47,7 +47,6 @@ function(rigsofrods_test_suite)
                 ${OIS_LIBRARIES}
                 MyGUI::MyGUI
                 MyGUI::OgrePlatform
-                rapidjson
                 version_info
         )
     endif()
