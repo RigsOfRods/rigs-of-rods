@@ -45,7 +45,8 @@ function(rigsofrods_test_suite)
                 gtest
                 OgreMain
                 ${OIS_LIBRARIES}
-                MyGUI
+                MyGUI::MyGUI
+                MyGUI::OgrePlatform
                 rapidjson
                 version_info
         )
