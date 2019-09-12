@@ -43,7 +43,7 @@ function(rigsofrods_test_suite)
     else()
         target_link_libraries(${RORTEST_NAME} PRIVATE
                 gtest
-                OGRE
+                OgreMain
                 ${OIS_LIBRARIES}
                 MyGUI
                 rapidjson
