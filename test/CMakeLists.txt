@@ -44,6 +44,7 @@ function(rigsofrods_test_suite)
         target_link_libraries(${RORTEST_NAME} PRIVATE
                 gtest
                 OgreMain
+                OgreBites # OgreWindowEventUtilities.h
                 ${OIS_LIBRARIES}
                 MyGUI::MyGUI
                 MyGUI::OgrePlatform
