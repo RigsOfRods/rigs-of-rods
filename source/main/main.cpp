@@ -101,7 +101,9 @@ int main(int argc, char *argv[])
             }
             RoR::Str<500> ror_homedir;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-            ror_homedir << user_home << PATH_SLASH << "My Games" << PATH_SLASH << "Rigs of Rods";
+			ror_homedir << user_home << PATH_SLASH << "My Games";
+			CreateFolder(ror_homedir.ToCStr());
+            ror_homedir << PATH_SLASH << "Rigs of Rods";
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
             char* env_SNAP = getenv("SNAP_USER_COMMON");
             if(env_SNAP)
