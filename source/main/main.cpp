@@ -45,6 +45,7 @@
 #include <ctime>
 #include <iomanip>
 #include <string>
+#include <fstream>
 
 #ifdef USE_CURL
 #   include <curl/curl.h>
@@ -101,8 +102,8 @@ int main(int argc, char *argv[])
             }
             RoR::Str<500> ror_homedir;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-			ror_homedir << user_home << PATH_SLASH << "My Games";
-			CreateFolder(ror_homedir.ToCStr());
+            ror_homedir << user_home << PATH_SLASH << "My Games";
+            CreateFolder(ror_homedir.ToCStr());
             ror_homedir << PATH_SLASH << "Rigs of Rods";
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
             char* env_SNAP = getenv("SNAP_USER_COMMON");
@@ -186,7 +187,7 @@ int main(int argc, char *argv[])
             size_t read = src_ds->read(buf.data(), src_ds->size());
             if (read > 0)
             {
-                dst_ds->write(buf.data(), read); 
+                dst_ds->write(buf.data(), read);
             }
         }
         Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("SrcRG");
@@ -277,7 +278,7 @@ int main(int argc, char *argv[])
         App::GetContentManager()->InitModCache();
 
         RoR::ForceFeedback force_feedback;
-#ifdef _WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
         if (App::io_ffb_enabled.GetActive()) // Force feedback
         {
             if (App::GetInputEngine()->getForceFeedbackDevice())
@@ -290,7 +291,34 @@ int main(int argc, char *argv[])
                 App::io_ffb_enabled.SetActive(false);
             }
         }
-#endif // _WIN32
+
+        Ogre::String old_ror_homedir = Ogre::StringUtil::format("%s\\Rigs of Rods 0.4", RoR::GetUserHomeDirectory().c_str());
+        if(FolderExists(old_ror_homedir))
+        {
+            if (!FileExists(Ogre::StringUtil::format("%s\\OBSOLETE_FOLDER.txt", old_ror_homedir.c_str())))
+            {
+                Ogre::String obsoleteMessage = Ogre::StringUtil::format("This folder is obsolete, please move your mods to  %s", App::sys_user_dir.GetActive());
+                try
+                {
+                    Ogre::ResourceGroupManager::getSingleton().addResourceLocation(old_ror_homedir, "FileSystem", "homedir", false, false);
+                    Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().createResource("OBSOLETE_FOLDER.txt", "homedir");
+                    stream->write(obsoleteMessage.c_str(), obsoleteMessage.length());
+                    Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("homedir");
+                }
+                catch (std::exception & e)
+                {
+                    RoR::LogFormat("Error writing to %s, message: '%s'", old_ror_homedir.c_str(), e.what());
+                }
+                Ogre::String message = Ogre::StringUtil::format(
+                    "Welcome to Rigs of Rods %s\nPlease note that the mods folder has moved to:\n\"%s\"\nPlease move your mods to the new folder to continue using them",
+                    ROR_VERSION_STRING_SHORT,
+                    App::sys_user_dir.GetActive()
+                );
+
+                RoR::App::GetGuiManager()->ShowMessageBox("Obsolete folder detected", message.c_str());
+            }
+        }
+#endif // OGRE_PLATFORM_WIN32
 
         RoR::App::GetInputEngine()->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
 
@@ -318,7 +346,7 @@ int main(int argc, char *argv[])
         while (App::app_state.GetPending() != AppState::SHUTDOWN)
         {
             if (App::app_state.GetPending() == AppState::MAIN_MENU)
-           
+
             {
                 App::app_state.ApplyPending();
 
