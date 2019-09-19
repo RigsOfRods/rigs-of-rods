@@ -46,7 +46,7 @@
               <Property key="MaxTextLength" value="99999"/>
             </Widget>
         </Widget>
-        <Widget type="ImageBox" skin="ImageBox" position="724 5 300 60" align="Right Top" name="notification">
+        <Widget type="ImageBox" skin="ImageBox" position="724 5 300 80" align="Right Top" name="notification">
             <Property key="ImageTexture" value="mpbg.png"/>
             <Property key="InheritsAlpha" value="true"/>
             <Property key="Alpha" value="0.9"/>
@@ -54,10 +54,8 @@
             <Widget type="EditBox" skin="WordWrapEmpty" position="15 5 270 20" name="not_title">
                 <Property key="Caption" value="Title"/>
             </Widget>
-            <Widget type="EditBox" skin="WordWrapEmpty" position="15 25 275 60" name="not_text">
+            <Widget type="EditBox" skin="WordWrapEmpty" position="15 25 275 70" name="not_text">
                 <Property key="Caption" value="Text"/>
-                <Property key="MultiLine" value="true"/>
-                <Property key="MaxTextLength" value="-1"/>
                 <Property key="FontHeight" value="14"/>
                 <Property key="FontName" value="DefaultSmall"/>
             </Widget>
