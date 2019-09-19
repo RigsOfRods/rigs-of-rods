@@ -46,7 +46,7 @@
               <Property key="MaxTextLength" value="99999"/>
             </Widget>
         </Widget>
-        <Widget type="ImageBox" skin="ImageBox" position="774 5 250 60" align="Right Top" name="notification">
+        <Widget type="ImageBox" skin="ImageBox" position="724 5 300 60" align="Right Top" name="notification">
             <Property key="ImageTexture" value="mpbg.png"/>
             <Property key="InheritsAlpha" value="true"/>
             <Property key="Alpha" value="0.9"/>
