@@ -303,7 +303,7 @@ void MpClientList::update()
     int slotid = 0;
 
     MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
-    int x = gui_area.width - sidebarWidth, y = 30;
+    int x = gui_area.width - sidebarWidth, y = 65;
     mpPanel->setPosition(x, y);
 
     // add local player to first slot always
