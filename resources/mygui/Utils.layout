@@ -47,13 +47,8 @@
             </Widget>
         </Widget>
         <Widget type="ImageBox" skin="ImageBox" position="535 5 485 100" align="Top Center" name="notification">
+            <Property key="ImageTexture" value="mpbg.png"/>
             <Property key="Visible" value="false"/>
-            <Widget type="ImageBox" skin="WhiteSkin" position="0 0 605 170">
-                <Property key="Enabled" value="true"/>
-                <Property key="Colour" value="#353535"/>
-                <Property key="InheritsAlpha" value="true"/>
-                <Property key="Alpha" value="0.5"/>
-            </Widget>
             <Widget type="EditBox" skin="WordWrapEmpty" position="5 5 470 20" name="not_title">
                 <Property key="Caption" value="Title"/>
                 <Property key="TextShadow" value="true"/>

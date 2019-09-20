@@ -2,10 +2,7 @@
 <MyGUI type="Layout" version="3.2.0">
     <Widget type="Window" skin="PanelEmpty" position="120 375 615 225" layer="Overlapped" name="_Main">
         <Widget type="ImageBox" skin="WhiteSkin" position="0 0 605 170">
-            <Property key="Enabled" value="true"/>
-            <Property key="Colour" value="#353535"/>
-            <Property key="InheritsAlpha" value="true"/>
-            <Property key="Alpha" value="0.5"/>
+            <Property key="ImageTexture" value="mpbg.png"/>
         </Widget>
         <Widget type="EditBox" skin="WordWrapEmpty" position="0 0 605 170" align="Stretch" name="Chatbox_MainBox">
             <Property key="ReadOnly" value="true"/>
@@ -17,10 +14,9 @@
             <Property key="Text_FontHeight" value="17"/>
         </Widget>
         <Widget type="ImageBox" skin="WhiteSkin" position="0 170 605 20">
-            <Property key="Enabled" value="true"/>
-            <Property key="Colour" value="#0C0C0C"/>
+            <Property key="ImageTexture" value="mpbg.png"/>
             <Property key="InheritsAlpha" value="true"/>
-            <Property key="Alpha" value="0.5"/>
+            <Property key="Alpha" value="0.8"/>
         </Widget>
         <Widget type="EditBox" skin="EditBoxEmpty" position="0 170 605 30" align="HStretch Bottom" name="Chatbox_TextBox">
             <Property key="Enabled" value="false"/>
@@ -29,4 +25,3 @@
         </Widget>
     </Widget>
 </MyGUI>
-
