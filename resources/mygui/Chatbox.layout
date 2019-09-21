@@ -3,6 +3,8 @@
     <Widget type="Window" skin="PanelEmpty" position="120 375 615 225" layer="Overlapped" name="_Main">
         <Widget type="ImageBox" skin="WhiteSkin" position="0 0 605 170">
             <Property key="ImageTexture" value="mpbg.png"/>
+            <Property key="InheritsAlpha" value="true"/>
+            <Property key="Alpha" value="0.7"/>
         </Widget>
         <Widget type="EditBox" skin="WordWrapEmpty" position="0 0 605 170" align="Stretch" name="Chatbox_MainBox">
             <Property key="ReadOnly" value="true"/>
@@ -15,8 +17,6 @@
         </Widget>
         <Widget type="ImageBox" skin="WhiteSkin" position="0 170 605 20">
             <Property key="ImageTexture" value="mpbg.png"/>
-            <Property key="InheritsAlpha" value="true"/>
-            <Property key="Alpha" value="0.8"/>
         </Widget>
         <Widget type="EditBox" skin="EditBoxEmpty" position="0 170 605 30" align="HStretch Bottom" name="Chatbox_TextBox">
             <Property key="Enabled" value="false"/>
