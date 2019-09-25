@@ -17,7 +17,10 @@ if (USE_PACKAGE_MANAGER)
     set(ROR_USE_MOFILEREADER TRUE)
 
     include(pmm)
-    pmm(CONAN REMOTES ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies BINCRAFTERS
+    pmm(CONAN 
+        REMOTES ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies 
+        OGRE-dependencies https://api.bintray.com/conan/anotherfoxguy/OGRE-dependencies
+        BINCRAFTERS
         CMakeCM ROLLING)
 
     include(cotire)
