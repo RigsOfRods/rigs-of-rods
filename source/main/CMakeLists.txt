@@ -417,7 +417,7 @@ if (USE_PACKAGE_MANAGER)
             CONAN_PKG::ogre-caelum
             CONAN_PKG::OpenSSL
             CONAN_PKG::OGRE
-            CONAN_PKG::OGREdeps
+            CONAN_PKG::OIS
             CONAN_PKG::zlib
             Threads::Threads
             version_info

@@ -33,3 +33,5 @@ build/
 tools/l10n/tx/
 tools/l10n/languages/
 tools/l10n/ror\.pot
+
+.vscode/
