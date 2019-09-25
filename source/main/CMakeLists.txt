@@ -399,6 +399,10 @@ if (USE_PACKAGE_MANAGER)
             CONAN_PKG::openal
             CONAN_PKG::openssl
             CONAN_PKG::rapidjson
+            CONAN_PKG::ogre-caelum
+            CONAN_PKG::openssl
+            CONAN_PKG::OGRE
+            CONAN_PKG::OIS
             CONAN_PKG::zlib
             Threads::Threads
             version_info

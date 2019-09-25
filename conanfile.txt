@@ -4,8 +4,7 @@ cmake
 [requires]
 AngelScript/2.32@anotherfoxguy/stable
 MyGUI/3.4.0@anotherfoxguy/stable
-OGRE/1.11.6.1@anotherfoxguy/stable
-OGREdeps/20.19.4@anotherfoxguy/stable
+OGRE/1.12.2@anotherfoxguy/testing
 SocketW/3.10.36@anotherfoxguy/stable
 discord-rpc/3.4.0@anotherfoxguy/stable
 fmt/7.1.3
@@ -14,6 +13,7 @@ ogre-caelum/0.6.3-p1@anotherfoxguy/stable
 openal/1.19.1
 openssl/1.1.1g
 rapidjson/cci.20200410
+ogre-caelum/0.6.3@anotherfoxguy/stable
 
 [imports]
 bin, *.dll -> ./bin @ keep_path=False
