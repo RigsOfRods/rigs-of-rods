@@ -65,8 +65,11 @@ int main(int argc, char *argv[])
     curl_global_init(CURL_GLOBAL_ALL); // MUST init before any threads are started
 #endif
 
+#ifndef _DEBUG
     try
     {
+#endif
+
         gEnv = &gEnvInstance;
 
         // ### Detect system paths ###
@@ -396,6 +399,7 @@ int main(int argc, char *argv[])
         App::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
 
         App::DestroyOverlayWrapper();
+#ifndef _DEBUG
     }
     catch (Ogre::Exception& e)
     {
@@ -405,6 +409,7 @@ int main(int argc, char *argv[])
     {
         ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
     }
+#endif
 
     return 0;
 }
