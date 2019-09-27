@@ -239,6 +239,19 @@ int main(int argc, char *argv[])
             scene_manager->addRenderQueueListener(overlay_system);
         }
 
+		if (Ogre::RTShader::ShaderGenerator::initialize())
+		{
+			// Grab the shader generator pointer.
+			auto mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+			// Add the shader libs resource location. a sample shader lib can be found in Samples\Media\RTShaderLib
+			App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RTSHADERLIB);
+			// Set shader cache path.
+			mShaderGenerator->setShaderCachePath(App::sys_cache_dir.GetActive());
+			// Set the scene manager.
+			mShaderGenerator->addSceneManager(scene_manager);
+		}
+
+
         Ogre::Camera* camera = scene_manager->createCamera("PlayerCam");
         camera->setPosition(Ogre::Vector3(128, 25, 128)); // Position it at 500 in Z direction
         camera->lookAt(Ogre::Vector3(0, 0, -300)); // Look back along -Z
