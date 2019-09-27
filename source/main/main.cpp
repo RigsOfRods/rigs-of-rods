@@ -403,10 +403,12 @@ int main(int argc, char *argv[])
     }
     catch (Ogre::Exception& e)
     {
+        LOG(e.getFullDescription());
         ErrorUtils::ShowError(_L("An exception has occured!"), e.getFullDescription());
     }
     catch (std::runtime_error& e)
     {
+        LOG(e.what());
         ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
     }
 #endif
