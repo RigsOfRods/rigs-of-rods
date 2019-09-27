@@ -71,10 +71,12 @@ public:
         static const ResourcePack PARTICLES;
         static const ResourcePack PSSM;
         static const ResourcePack SKYX;
+        static const ResourcePack SHADOWVOLUME;
         static const ResourcePack RTSHADER;
         static const ResourcePack SCRIPTS;
         static const ResourcePack SOUNDS;
         static const ResourcePack TEXTURES;
+        static const ResourcePack RTSHADERLIB;
 
         const char* name;
         const char* resource_group_name;

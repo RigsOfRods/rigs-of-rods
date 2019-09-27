@@ -90,6 +90,8 @@ DECLARE_RESOURCE_PACK( SCRIPTS,               "scripts",              "ScriptsRG
 DECLARE_RESOURCE_PACK( SOUNDS,                "sounds",               "SoundsRG");
 DECLARE_RESOURCE_PACK( TEXTURES,              "textures",             "TexturesRG");
 DECLARE_RESOURCE_PACK( SKYX,                  "SkyX",                 "SkyXRG");
+DECLARE_RESOURCE_PACK( SHADOWVOLUME,          "ShadowVolume",         "ShadowVolumeRG");
+DECLARE_RESOURCE_PACK( RTSHADERLIB,           "RTShaderLib",          "RTShaderLibRG");
 
 // ================================================================================
 // Functions
@@ -386,6 +388,7 @@ void ContentManager::LoadGameplayResources()
         this->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
         this->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
         this->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
+        this->AddResourcePack(ContentManager::ResourcePack::SHADOWVOLUME);
 
         m_base_resource_loaded = true;
     }

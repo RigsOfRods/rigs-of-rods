@@ -180,6 +180,18 @@ int main(int argc, char *argv[])
         App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(overlay_system);
         App::CreateCameraManager(); // Creates OGRE Camera
         App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
+        
+		if (Ogre::RTShader::ShaderGenerator::initialize())
+		{
+			// Grab the shader generator pointer.
+			auto mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+			// Add the shader libs resource location. a sample shader lib can be found in Samples\Media\RTShaderLib
+			App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RTSHADERLIB);
+			// Set shader cache path.
+			mShaderGenerator->setShaderCachePath(App::sys_cache_dir.GetActive());
+			// Set the scene manager.
+			mShaderGenerator->addSceneManager(scene_manager);
+		}
 
         App::CreateGuiManager(); // Needs scene manager
 
