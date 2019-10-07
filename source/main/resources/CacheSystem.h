@@ -146,6 +146,7 @@ public:
     CacheEntry*           FetchSkinByName(std::string const & skin_name);
     void                  UnloadActorFromMemory(std::string filename);
     CacheValidityState    EvaluateCacheValidity();
+    void                  ClearCache(); // removes all files from the cache
 
     void LoadResource(CacheEntry& t); //!< Loads the associated resource bundle if not already done.
     bool CheckResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
@@ -178,7 +179,6 @@ private:
     bool ParseKnownFiles(Ogre::String group); // returns true if no known files are found
     void ParseSingleZip(Ogre::String path);
 
-    void ClearCache(); // removes                   all files from the cache
     void PruneCache(); // removes modified (or deleted) files from the cache
 
     void AddFile(Ogre::String group, Ogre::FileInfo f, Ogre::String ext);

@@ -2520,6 +2520,25 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
 
     if (rq.asr_cache_entry != nullptr)
     {
+        if (rq.asr_cache_entry->fname.empty())
+        {
+            RoR::LogFormat(
+                "[RoR] Error: Cannot spawn actor, corrupted modcache entry - empty filename (field 'fname')"
+                "\nDetails: number=%d, fpath='%s', dname='%s', resource_bundle_type='%s', resource_bundle_path='%s', deleted=%d",
+                rq.asr_cache_entry->number, rq.asr_cache_entry->fpath.c_str(), rq.asr_cache_entry->dname.c_str(),
+                rq.asr_cache_entry->resource_bundle_type.c_str(), rq.asr_cache_entry->resource_bundle_path.c_str(),
+                (int)rq.asr_cache_entry->deleted);
+
+            App::GetGuiManager()->ShowMessageBox(
+                _LC("Sim", "Error"),
+                _LC("Sim", "ModCache is corrupted. Please open Settings and press [Update cache]"));
+
+            App::GetCacheSystem()->ClearCache();
+            App::app_state.SetPending(AppState::MAIN_MENU);
+
+            return nullptr;
+        }
+
         rq.asr_filename = rq.asr_cache_entry->fname;
     }
 
