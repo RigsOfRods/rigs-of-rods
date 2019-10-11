@@ -131,9 +131,10 @@ overlay tracks/Racing
 		overlay_element tracks/Racing/BestLapTime TextArea
 		{
 			metrics_mode relative
-			horz_align center
+			horz_align right
 
-			top 0.025
+			top 0.005
+			left -0.46
 			width 0.3
 			height 0.1
 			font_name highcontrast_black

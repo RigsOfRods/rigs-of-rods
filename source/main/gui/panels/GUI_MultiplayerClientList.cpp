@@ -77,7 +77,7 @@ MpClientList::MpClientList() :
     MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
     int x = gui_area.width - 300, y = 30;
 
-    MyGUI::ImageBox* ib = MyGUI::Gui::getInstance().createWidget<MyGUI::ImageBox>("ImageBox", x, y, sidebarWidth, gui_area.height, MyGUI::Align::Default, "Main");
+    MyGUI::ImageBox* ib = MyGUI::Gui::getInstance().createWidget<MyGUI::ImageBox>("ImageBox", x, y, sidebarWidth, gui_area.height, MyGUI::Align::Default, "Back");
     ib->setImageTexture("mpbg.png");
 
     mpPanel = ib; //->createWidget<MyGUI::Widget>("FlowContainer", x, y, sidebarWidth, gui_area.height,  MyGUI::Align::Default, "Main");
