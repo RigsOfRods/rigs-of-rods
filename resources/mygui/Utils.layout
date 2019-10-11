@@ -46,7 +46,7 @@
               <Property key="MaxTextLength" value="99999"/>
             </Widget>
         </Widget>
-        <Widget type="ImageBox" skin="ImageBox" position="535 5 485 100" align="Right Top" name="notification">
+        <Widget type="ImageBox" skin="ImageBox" position="535 5 485 80" align="Top Center" name="notification">
             <Property key="ImageTexture" value="NotificationBg.png"/>
             <Property key="Visible" value="false"/>
             <Widget type="EditBox" skin="WordWrapEmpty" position="5 5 470 20" name="not_title">
