@@ -53,6 +53,9 @@ public:
         ImVec4 highlight_text_color;
         ImVec4 value_red_text_color;
         ImVec4 value_blue_text_color;
+        ImVec4 success_text_color;
+        ImVec4 warning_text_color;
+        ImVec4 help_text_color;
 
         ImFont* default_font;
     };

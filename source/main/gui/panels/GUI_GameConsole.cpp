@@ -40,175 +40,124 @@
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 
-#if MYGUI_PLATFORM == MYGUI_PLATFORM_LINUX
-#include <iconv.h>
-#endif // LINUX
-
 using namespace Ogre;
 using namespace RoR;
 
-// class
 Console::Console()
 {
-    MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
-    win->eventWindowButtonPressed += MyGUI::newDelegate(this, &Console::notifyWindowButtonPressed); //The "X" button thing
-
-    //((MyGUI::Window*)mMainWidget)
-    MyGUI::IntSize windowSize = ((MyGUI::Window*)mMainWidget)->getSize();
-    MyGUI::IntSize parentSize = ((MyGUI::Window*)mMainWidget)->getParentSize();
-
-    ((MyGUI::Window*)mMainWidget)->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
-    ((MyGUI::Window*)mMainWidget)->setVisible(false);
-
-    ConsoleText = "";
-    iText = 0;
-    HistoryCursor = 0;
-
-    m_Console_TextBox->eventEditSelectAccept += MyGUI::newDelegate(this, &Console::eventCommandAccept);
-    m_Console_TextBox->eventKeyButtonPressed += MyGUI::newDelegate(this, &Console::eventButtonPressed);
-
-    m_Console_Send->eventMouseButtonClick += MyGUI::newDelegate(this, &Console::eventMouseButtonClickSendButton);
-
-    MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &Console::frameEntered);
-
-#ifdef USE_ANGELSCRIPT
-    //ScriptEngine::getSingleton().loadScript("Console.as");
-#endif //USE_ANGELSCRIPT
-
     LogManager::getSingleton().getDefaultLog()->addListener(this);
 }
 
-Console::~Console()
+void Console::putMessage(int area, int type, UTFString txt, String icon, unsigned long ttl, bool forcevisible)
 {
-}
-
-void Console::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
-{
-    if (_name == "close")
+    std::lock_guard<std::mutex> lock(m_messages_mutex);
+    m_messages.emplace_back(MessageArea(area), MessageType(type), txt);
+    if (m_messages.size() > MESSAGES_CAP)
     {
-        this->SetVisible(false);
+        m_messages.erase(m_messages.begin());
     }
 }
 
-void Console::SetVisible(bool _visible)
+void Console::Draw()
 {
-    ((MyGUI::Window*)mMainWidget)->setVisible(_visible);
-}
-
-bool Console::IsVisible()
-{
-    return ((MyGUI::Window*)mMainWidget)->getVisible();
-}
-
-void Console::frameEntered(float dt)
-{
-    messageUpdate(dt);
-}
-
-void Console::putMessage(int type, int sender_uid, UTFString txt, String icon, unsigned long ttl, bool forcevisible)
-{
-    Message entry;
-    entry.cm_type = MessageType(sender_uid);
-    entry.cm_text = txt;
-    m_msg_queue.push(entry);
-}
-
-void Console::messageUpdate(float dt)
-{
-    std::vector<Message> tmpMessages;
-    m_msg_queue.pull(tmpMessages);
-
-    for (auto message : tmpMessages)
+    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar;
+    ImGui::SetNextWindowPosCenter();
+    ImGui::SetNextWindowSize(ImVec2(500.f, 550.f), ImGuiSetCond_FirstUseEver);
+    ImGui::Begin("Console", nullptr, win_flags);
+    if (ImGui::Button(_LC("Console", "Filter options")))
     {
-        TextCol = "#FFFFFF";
-        if (message.cm_type == CONSOLE_TITLE)
-            TextCol = "#FF8100"; //Orange
-        else if (message.cm_type == CONSOLE_SYSTEM_ERROR)
-            TextCol = "#FF0000"; //Red
-        else if (message.cm_type == CONSOLE_SYSTEM_REPLY)
-            TextCol = "#00FF00"; //Green
-        else if (message.cm_type == CONSOLE_HELP)
-            TextCol = "#72C0E0"; //Light blue
-
-        ConsoleText += TextCol + message.cm_text + "\n";
-
-        m_Console_MainBox->setMaxTextLength(ConsoleText.length() + 1);
-
-        //if (getVisible())
-        m_Console_MainBox->setCaptionWithReplacing(ConsoleText);
+        ImGui::OpenPopup("console-filtering");
     }
+
+    if (ImGui::BeginPopup("console-filtering"))
+    {
+        ImGui::TextDisabled(_LC("Console", "By area:"));
+        ImGui::MenuItem(_LC("Console", "Logfile echo"), "", &m_filter_area_echo);
+        ImGui::MenuItem(_LC("Console", "Scripting"),    "", &m_filter_area_script);
+        ImGui::MenuItem(_LC("Console", "Actors"),       "", &m_filter_area_actor);
+        ImGui::MenuItem(_LC("Console", "Terrain"),      "", &m_filter_area_terrn);
+
+        ImGui::Separator();
+        ImGui::TextDisabled(_LC("Console", "By level:"));
+        ImGui::MenuItem(_LC("Console", "Notices"),  "", &m_filter_type_notice);
+        ImGui::MenuItem(_LC("Console", "Warnings"), "", &m_filter_type_warning);
+        ImGui::MenuItem(_LC("Console", "Errors"),   "", &m_filter_type_error);
+
+        ImGui::EndPopup();
+    }
+
+    ImGui::SameLine();
+    ImGui::Text("Type 'help' for assistance");
+    ImGui::Separator();
+
+    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetTextLineHeightWithSpacing(); // 1 separator, 1 input text
+    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar); // Leave room for 1 separator + 1 InputText
+
+    { // Lock scope
+        std::lock_guard<std::mutex> lock(m_messages_mutex);
+        GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+        for (Message& m: m_messages)
+        {
+            if (this->MessageFilter(m))
+            {
+                switch (m.cm_type)
+                {
+                    case CONSOLE_TITLE:
+                        ImGui::TextColored(theme.highlight_text_color, "%s", m.cm_text.c_str());
+                        break;
+
+                    case CONSOLE_SYSTEM_ERROR:
+                        ImGui::TextColored(theme.error_text_color, "%s", m.cm_text.c_str());
+                        break;
+
+                    case CONSOLE_SYSTEM_WARNING:
+                        ImGui::TextColored(theme.warning_text_color, "%s", m.cm_text.c_str());
+                        break;
+
+                    case CONSOLE_SYSTEM_REPLY:
+                        ImGui::TextColored(theme.success_text_color, "%s", m.cm_text.c_str());
+                        break;
+
+                    case CONSOLE_HELP:
+                        ImGui::TextColored(theme.help_text_color, "%s", m.cm_text.c_str());
+                        break;
+
+                    default:
+                        ImGui::Text("%s", m.cm_text.c_str());
+                        break;
+                }
+            }
+        }
+    } // Lock scope
+
+    ImGui::EndChild();
+    ImGui::Separator();
+
+    const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory;
+    if (ImGui::InputText(_LC("Console", "Command"), m_cmd_buffer.GetBuffer(), m_cmd_buffer.GetCapacity(), cmd_flags, &Console::TextEditCallback, this))
+    {
+        this->DoCommand(m_cmd_buffer.ToCStr());
+        m_cmd_buffer.Clear();
+    }
+
+    ImGui::End();
 }
 
 void Console::messageLogged(const String& message, LogMessageLevel lml, bool maskDebug, const String& logName, bool& skipThisMessage)
 {
-    std::string msg = RoR::Utils::SanitizeUtf8String(message);
-    if (message.substr(0, 4) == "SE| ")
+    if (App::diag_log_console_echo.GetActive())
     {
-        msg = message.substr(4);
-        putMessage(CONSOLE_MSGTYPE_SCRIPT, CONSOLE_LOGMESSAGE, UTFString("#FFFFFF") + (msg), "page_white_code.png");
-    }
-    else
-    {
-        if (App::diag_log_console_echo.GetActive())
-        {
-            if (lml == LML_NORMAL)
-                putMessage(CONSOLE_MSGTYPE_LOG, CONSOLE_LOGMESSAGE, UTFString("#FFFFFF") + (msg), "script_error.png");
-            else if (lml == LML_TRIVIAL)
-                putMessage(CONSOLE_MSGTYPE_LOG, CONSOLE_LOGMESSAGE, UTFString("#FF9900") + (msg), "script.png");
-            else if (lml == LML_CRITICAL)
-                putMessage(CONSOLE_MSGTYPE_LOG, CONSOLE_LOGMESSAGE, UTFString("#FF0000") + (msg), "script_lightning.png");
-        }
+        this->ForwardLogMessage(CONSOLE_MSGTYPE_LOG, message, lml);
     }
 }
 
-void Console::eventMouseButtonClickSendButton(MyGUI::WidgetPtr _sender)
+void Console::DoCommand(std::string msg) // All commands are processed here
 {
-    m_Console_TextBox->_riseKeyButtonPressed(MyGUI::KeyCode::Return, ' ');
-}
-
-void Console::eventButtonPressed(MyGUI::Widget* _sender, MyGUI::KeyCode _key, MyGUI::Char _char)
-{
-    switch (MYGUI_GET_SCANCODE(_key))
-    {
-    case MyGUI::KeyCode::ArrowUp:
-        {
-            if (HistoryCursor > iText)
-                HistoryCursor = 0;
-
-            if (sTextHistory[HistoryCursor] != "")
-                m_Console_TextBox->setCaption(sTextHistory[HistoryCursor]);
-
-            HistoryCursor++;
-        }
-        break;
-
-    case MyGUI::KeyCode::ArrowDown:
-        {
-            if (HistoryCursor < 0)
-                HistoryCursor = iText;
-
-            if (sTextHistory[HistoryCursor] != "")
-                m_Console_TextBox->setCaption(sTextHistory[HistoryCursor]);
-
-            HistoryCursor--;
-        }
-        break;
-    }
-}
-
-/*
-All commands are here
-*/
-void Console::eventCommandAccept(MyGUI::Edit* _sender)
-{
-    UTFString msg = convertFromMyGUIString(m_Console_TextBox->getCaption());
-
     const bool is_appstate_sim = (App::app_state.GetActive() == AppState::SIMULATION);
     const bool is_sim_select = (App::sim_state.GetActive() == SimState::SELECTING);
 
-    // we did not autoComplete, so try to handle the message
-    m_Console_TextBox->setCaption("");
-
+    Ogre::StringUtil::trim(msg);
     if (msg.empty())
     {
         // discard the empty message
@@ -218,12 +167,17 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
     if (msg[0] == '/' || msg[0] == '\\')
     {
         putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L ("Using slashes before commands are deprecated, you can now type command without any slashes"), "help.png");
-        msg.erase(0, 1);
+        msg.erase(msg.begin());
     }
 
+    m_cmd_history.push_back(msg);
+    if (m_cmd_history.size() > HISTORY_CAP)
+    {
+        m_cmd_history.erase(m_cmd_history.begin());
+    }
+    m_cmd_history_cursor = -1;
+
     Ogre::StringVector args = StringUtil::split(msg, " ");
-    sTextHistory[iText] = msg;
-    iText++; //Used for text history
     if (args[0] == "help")
     {
         putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, _L("Available commands:"), "help.png");
@@ -391,7 +345,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
             return;
 
         String nmsg = RoR::Color::ScriptCommandColour + ">>> " + RoR::Color::NormalColour + command;
-        putMessage(CONSOLE_MSGTYPE_SCRIPT, CONSOLE_LOCAL_SCRIPT, nmsg, "script_go.png");
+        putMessage(CONSOLE_MSGTYPE_SCRIPT, CONSOLE_SYSTEM_NOTICE, nmsg, "script_go.png");
         ScriptEngine::getSingleton().executeString(command);
         return;
     }
@@ -403,6 +357,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
         const char* msg = (now_logging) ? " logging to console enabled" : " logging to console disabled";
         this->putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_NOTICE, _L(msg), "information.png");
         App::diag_log_console_echo.SetActive(now_logging);
+        m_filter_area_echo = now_logging; // Override user setting
         return;
     }
     else if (args[0] == "spawnobject" && (is_appstate_sim && !is_sim_select))
@@ -437,5 +392,87 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
         putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_ERROR, _L("unknown command: ") + msg, "error.png");
 #endif //ANGELSCRIPT
     }
+}
 
+int Console::TextEditCallback(ImGuiTextEditCallbackData *data)
+{
+    Console* c = static_cast<Console*>(data->UserData);
+    c->TextEditCallbackProc(data);
+    return 0;
+}
+
+void Console::TextEditCallbackProc(ImGuiTextEditCallbackData *data)
+{
+    if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory)
+    {
+        const int prev_cursor = m_cmd_history_cursor;
+        if (data->EventKey == ImGuiKey_UpArrow)
+        {
+            if (m_cmd_history_cursor == -1)
+            {
+                m_cmd_history_cursor = static_cast<int>(m_cmd_history.size()) - 1;
+            }
+            else if (m_cmd_history_cursor > 0)
+            {
+                m_cmd_history_cursor--;
+            }
+        }
+        else if (data->EventKey == ImGuiKey_DownArrow)
+        {
+            if (m_cmd_history_cursor != -1)
+            {
+                ++m_cmd_history_cursor;
+
+                if (m_cmd_history_cursor >= static_cast<int>(m_cmd_history.size()))
+                {
+                    m_cmd_history_cursor = -1;
+                }
+            }
+        }
+
+        if (m_cmd_history_cursor != prev_cursor)
+        {
+            const char* text = (m_cmd_history_cursor >= 0) ? m_cmd_history.at(m_cmd_history_cursor).c_str() : "";
+            data->DeleteChars(0, data->BufTextLen);
+            data->InsertChars(0, text);
+        }
+    }
+}
+
+bool Console::MessageFilter(Message const& m)
+{
+    const bool area_ok = 
+        (m.cm_area == MessageArea::CONSOLE_MSGTYPE_INFO) ||
+        (m.cm_area == MessageArea::CONSOLE_MSGTYPE_LOG    && m_filter_area_echo) ||
+        (m.cm_area == MessageArea::CONSOLE_MSGTYPE_ACTOR  && m_filter_area_actor) ||
+        (m.cm_area == MessageArea::CONSOLE_MSGTYPE_TERRN  && m_filter_area_terrn) ||
+        (m.cm_area == MessageArea::CONSOLE_MSGTYPE_SCRIPT && m_filter_area_script);
+
+    const bool type_ok =
+        (m.cm_type == MessageType::CONSOLE_HELP) ||
+        (m.cm_type == MessageType::CONSOLE_TITLE) ||
+        (m.cm_type == MessageType::CONSOLE_SYSTEM_REPLY) ||
+        (m.cm_type == MessageType::CONSOLE_SYSTEM_ERROR   && m_filter_type_error) ||
+        (m.cm_type == MessageType::CONSOLE_SYSTEM_WARNING && m_filter_type_warning) ||
+        (m.cm_type == MessageType::CONSOLE_SYSTEM_NOTICE  && m_filter_type_notice);
+
+    return type_ok && area_ok;
+}
+
+void Console::ForwardLogMessage(MessageArea area, std::string const& message, Ogre::LogMessageLevel lml)
+{
+    switch (lml)
+    {
+    case LML_WARNING:
+        this->putMessage(area, CONSOLE_SYSTEM_WARNING, RoR::Utils::SanitizeUtf8String(message));
+        break;
+
+    case LML_CRITICAL:
+        this->putMessage(area, CONSOLE_SYSTEM_ERROR, RoR::Utils::SanitizeUtf8String(message));
+        break;
+
+    default: // LML_NORMAL, LML_TRIVIAL
+        this->putMessage(area, CONSOLE_SYSTEM_NOTICE, RoR::Utils::SanitizeUtf8String(message));
+        break;
+    }
 }
