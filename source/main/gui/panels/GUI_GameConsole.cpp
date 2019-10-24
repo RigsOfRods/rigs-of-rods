@@ -107,40 +107,30 @@ void Console::frameEntered(float dt)
 
 void Console::putMessage(int type, int sender_uid, UTFString txt, String icon, unsigned long ttl, bool forcevisible)
 {
-    ConsoleMessage t;
-
-    t.type = type;
-    t.sender_uid = sender_uid;
-    t.time = Root::getSingleton().getTimer()->getMilliseconds();
-    t.ttl = ttl;
-    t.forcevisible = forcevisible;
-    //strncpy(t.txt,  txt.c_str(), 2048);
-    t.txt = txt;
-    strncpy(t.icon, icon.c_str(), 50);
-    //t.channel = "default";
-
-    //showMessage(t);
-    push(t);
+    Message entry;
+    entry.cm_type = MessageType(sender_uid);
+    entry.cm_text = txt;
+    m_msg_queue.push(entry);
 }
 
 void Console::messageUpdate(float dt)
 {
-    std::vector<ConsoleMessage> tmpMessages;
-    pull(tmpMessages);
+    std::vector<Message> tmpMessages;
+    m_msg_queue.pull(tmpMessages);
 
     for (auto message : tmpMessages)
     {
         TextCol = "#FFFFFF";
-        if (message.sender_uid == CONSOLE_TITLE)
+        if (message.cm_type == CONSOLE_TITLE)
             TextCol = "#FF8100"; //Orange
-        else if (message.sender_uid == CONSOLE_SYSTEM_ERROR)
+        else if (message.cm_type == CONSOLE_SYSTEM_ERROR)
             TextCol = "#FF0000"; //Red
-        else if (message.sender_uid == CONSOLE_SYSTEM_REPLY)
+        else if (message.cm_type == CONSOLE_SYSTEM_REPLY)
             TextCol = "#00FF00"; //Green
-        else if (message.sender_uid == CONSOLE_HELP)
+        else if (message.cm_type == CONSOLE_HELP)
             TextCol = "#72C0E0"; //Light blue
 
-        ConsoleText += TextCol + message.txt + "\n";
+        ConsoleText += TextCol + message.cm_text + "\n";
 
         m_Console_MainBox->setMaxTextLength(ConsoleText.length() + 1);
 

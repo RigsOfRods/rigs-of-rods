@@ -23,10 +23,6 @@
 
 #pragma once
 
-
-#define CONSOLE_PUTMESSAGE(a,b,c,d,e,f) while(0) { Console *console = RoR::App::GetConsole(); if (console) console->putMessage(a,b,c,d,e,f); }
-#define CONSOLE_PUTMESSAGE_SHORT(a,b,c) while(0) { Console *console = RoR::App::GetConsole(); if (console) console->putMessage(a,b,c); }
-
 #include "RoRPrerequisites.h"
 #include "InterThreadStoreVector.h"
 
@@ -36,21 +32,8 @@
 namespace RoR {
 // Special - not in namespace GUI
 
-struct ConsoleMessage
-{
-    //Kept this for comptability rather than remplacing hunderd of lines.
-    char type;
-    int sender_uid; //Not used
-    unsigned long time; //Not used !< post time in milliseconds since RoR start
-    unsigned long ttl; //Not used !< in milliseconds
-    Ogre::UTFString txt; //!< not POD, beware...
-    char icon[50]; //Not used
-    bool forcevisible; //Not used
-};
-
 class Console :
     public Ogre::LogListener,
-    public InterThreadStoreVector<ConsoleMessage>,
     public GUI::GameConsoleLayout,
     public ZeroedMemoryAllocator
 {
@@ -62,34 +45,30 @@ public:
     void SetVisible(bool _visible);
     bool IsVisible();
 
-    enum
+    enum MessageType
     {
-        CONSOLE_MSGTYPE_LOG,
-        CONSOLE_MSGTYPE_INFO,
-        CONSOLE_MSGTYPE_SCRIPT,
-        CONSOLE_MSGTYPE_NETWORK,
-        CONSOLE_MSGTYPE_FLASHMESSAGE,
-        CONSOLE_MSGTYPE_HIGHSCORE
-    };
-
-    enum
-    {
-        // detailed message type identifier, mostly used for message filtering
         CONSOLE_HELP,
         CONSOLE_TITLE,
 
-        CONSOLE_LOCAL_SCRIPT, // script self
+        CONSOLE_LOCAL_SCRIPT,      // scripting in console
 
         CONSOLE_SYSTEM_NOTICE,
         CONSOLE_SYSTEM_ERROR,
-        CONSOLE_SYSTEM_REPLY, // reply to a commands
+        CONSOLE_SYSTEM_REPLY,      // reply to a commands
 
-        CONSOLE_SYSTEM_DEBUG,
+        CONSOLE_LOGMESSAGE,        // Echo from 'RoR.log'
+        CONSOLE_LOGMESSAGE_SCRIPT, // Echo from 'AngelScript.log'
 
-        CONSOLE_LOGMESSAGE,
-        CONSOLE_LOGMESSAGE_SCRIPT,
+        // TODO: Dummy - no effect, TO BE REMOVED ~ only_a_ptr, 10/2019
+        CONSOLE_MSGTYPE_LOG,
+        CONSOLE_MSGTYPE_INFO,
+        CONSOLE_MSGTYPE_SCRIPT
+    };
 
-        MSG_CUSTOM,
+    struct Message
+    {
+        MessageType cm_type;
+        std::string cm_text;
     };
 
     void putMessage(int type, int uid, Ogre::UTFString msg, Ogre::String icon = "bullet_black.png", unsigned long ttl = 30000, bool forcevisible = false);
@@ -114,6 +93,7 @@ protected:
     Ogre::String sTextHistory[500];
     int iText;
     int HistoryCursor;
+    InterThreadStoreVector<Console::Message> m_msg_queue;
 };
 
 } // namespace RoR
