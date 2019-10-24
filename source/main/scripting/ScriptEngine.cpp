@@ -101,10 +101,7 @@ ScriptEngine::~ScriptEngine()
 
 void ScriptEngine::messageLogged( const String& message, LogMessageLevel lml, bool maskDebug, const String &logName, bool& skipThisMessage)
 {
-
-    Console *c = RoR::App::GetConsole();
-    if (c) c->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_LOGMESSAGE_SCRIPT, message, "page_white_code.png");
-
+    RoR::App::GetConsole()->ForwardLogMessage(Console::CONSOLE_MSGTYPE_SCRIPT, message, lml);
 }
 
 void AS_RequestActorReset(Actor* a, bool keep_position) // Substitute for removed `Actor` function
