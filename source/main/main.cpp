@@ -247,26 +247,9 @@ int main(int argc, char *argv[])
         App::GetOgreSubsystem()->GetViewport()->setCamera(camera);
         gEnv->mainCamera = camera;
 
-        Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage();
-
         App::GetContentManager()->InitContentManager();
 
         App::CreateGuiManagerIfNotExists();
-
-        // Load and show menu wallpaper
-        MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
-        MyGUI::Widget* menu_wallpaper_widget = nullptr;
-        if (!v.empty())
-        {
-            MyGUI::Widget* mainw = v.at(0);
-            if (mainw)
-            {
-                MyGUI::ImageBox* img = (MyGUI::ImageBox *)(mainw->getChildAt(0));
-                if (img)
-                    img->setImageTexture(menu_wallpaper_texture_name);
-                menu_wallpaper_widget = mainw;
-            }
-        }
 
         InitDiscord();
 
@@ -323,6 +306,7 @@ int main(int argc, char *argv[])
 #endif // OGRE_PLATFORM_WIN32
 
         RoR::App::GetInputEngine()->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
+        App::GetGuiManager()->SetUpMenuWallpaper();
 
         MainMenu main_obj;
         App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&main_obj); // HACK until OGRE 1.12 migration; We need a frame listener to display loading window ~ only_a_ptr, 10/2019
@@ -400,7 +384,6 @@ int main(int argc, char *argv[])
                             App::GetMumble()->SetNonPositionalAudio();
                         }
 #endif // USE_MUMBLE
-                        menu_wallpaper_widget->setVisible(true);
                     }
                     else
                     {

@@ -139,7 +139,7 @@ public:
     void ReflectGameState();
     void SetMouseCursorVisibility(MouseCursorVisibility visi);
 
-    static Ogre::String getRandomWallpaperImage();
+    void SetUpMenuWallpaper();
 
     inline OgreImGui& GetImGui() { return m_imgui; }
     inline GuiTheme&  GetTheme() { return m_theme; }

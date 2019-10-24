@@ -68,11 +68,6 @@ namespace RoR {
 
 struct GuiManagerImpl
 {
-    GuiManagerImpl():
-        mygui(nullptr),
-        mygui_platform(nullptr)
-    {}
-
     GUI::GameMainMenu           panel_GameMainMenu;
     GUI::GameAbout              panel_GameAbout;
     GUI::GamePauseMenu          panel_GamePauseMenu;
@@ -91,8 +86,10 @@ struct GuiManagerImpl
     GUI::LoadingWindow          panel_LoadingWindow;
     GUI::TopMenubar             panel_TopMenubar;
     GUI::ConsoleWindow          panel_ConsoleWindow;
-    MyGUI::Gui*                 mygui;
-    MyGUI::OgrePlatform*        mygui_platform;
+    Ogre::Overlay*              overlay_Wallpaper = nullptr;
+
+    MyGUI::Gui*                 mygui = nullptr;
+    MyGUI::OgrePlatform*        mygui_platform = nullptr;
 };
 
 GUIManager::GuiTheme::GuiTheme()
@@ -325,15 +322,14 @@ void GUIManager::eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _re
     _result = MyGUI::LanguageManager::getInstance().getTag(_tag);
 }
 
-Ogre::String GUIManager::getRandomWallpaperImage()
+void GUIManager::SetUpMenuWallpaper()
 {
+    // Determine image filename
     using namespace Ogre;
     FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.jpg", false);
     if (files.isNull() || files->empty())
     {
         files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.png", false);
-        if (files.isNull() || files->empty())
-            return "";
     }
     srand ( time(NULL) );
 
@@ -341,7 +337,26 @@ Ogre::String GUIManager::getRandomWallpaperImage()
     for (int i = 0; i<Math::RangeRandom(0, 10); i++)
         num = Math::RangeRandom(0, files->size());
 
-    return files->at(num).filename;
+    // Set up wallpaper
+    // ...texture...
+    Ogre::ResourceManager::ResourceCreateOrRetrieveResult wp_tex_result
+        = Ogre::TextureManager::getSingleton().createOrRetrieve(files->at(num).filename, "Wallpapers");
+    Ogre::TexturePtr wp_tex = wp_tex_result.first.staticCast<Ogre::Texture>();
+    // ...material...
+    Ogre::MaterialPtr wp_mat = Ogre::MaterialManager::getSingleton().create("rigsofrods/WallpaperMat", Ogre::RGN_DEFAULT);
+    Ogre::TextureUnitState* wp_tus = wp_mat->getTechnique(0)->getPass(0)->createTextureUnitState();
+    wp_tus->setTexture(wp_tex);
+    wp_mat->compile();
+    // ...panel...
+    Ogre::OverlayElement* wp_panel = Ogre::OverlayManager::getSingleton()
+        .createOverlayElement("Panel", "rigsofrods/WallpaperPanel", /*isTemplate=*/false);
+    wp_panel->setMaterial(wp_mat);
+    wp_panel->setDimensions(1.f, 1.f);
+    // ...overlay...
+    m_impl->overlay_Wallpaper = Ogre::OverlayManager::getSingleton().create("rigsofrods/WallpaperOverlay");
+    m_impl->overlay_Wallpaper->add2D(static_cast<Ogre::OverlayContainer*>(wp_panel)); // 'Panel' inherits from 'Container'
+    m_impl->overlay_Wallpaper->setZOrder(0);
+    m_impl->overlay_Wallpaper->show();
 }
 
 void GUIManager::SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager)
@@ -385,6 +400,7 @@ void GUIManager::ReflectGameState()
     const auto mp_state  = App::mp_state.GetActive();
     if (app_state == AppState::MAIN_MENU)
     {
+        m_impl->overlay_Wallpaper       ->show();
         m_impl->panel_GameMainMenu       .SetVisible(!m_impl->panel_MainSelector.IsVisible());
 
         m_impl->panel_ChatBox            .SetVisible(false);
@@ -393,12 +409,11 @@ void GUIManager::ReflectGameState()
         m_impl->panel_VehicleDescription .SetVisible(false);
         m_impl->panel_SimActorStats      .SetVisible(false);
         m_impl->panel_SimPerfStats       .SetVisible(false);
-        return;
     }
-    if (app_state == AppState::SIMULATION)
+    else if (app_state == AppState::SIMULATION)
     {
         m_impl->panel_GameMainMenu       .SetVisible(false);
-        return;
+        m_impl->overlay_Wallpaper       ->hide();
     }
 }
 

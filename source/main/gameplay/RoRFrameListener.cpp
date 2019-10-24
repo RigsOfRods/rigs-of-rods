@@ -1971,12 +1971,6 @@ bool SimController::LoadTerrain()
 
     // hide loading window
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
-    // hide wallpaper
-    MyGUI::Window* w = MyGUI::Gui::getInstance().findWidget<MyGUI::Window>("wallpaper");
-    if (w != nullptr)
-    {
-        w->setVisibleSmooth(false);
-    }
     return true;
 }
 
