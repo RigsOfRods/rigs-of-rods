@@ -119,20 +119,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
         spawner.AddModule(actor->m_section_config);
     }
     spawner.SpawnActor();
-    def->report_num_errors += spawner.GetMessagesNumErrors();
-    def->report_num_warnings += spawner.GetMessagesNumWarnings();
-    def->report_num_other += spawner.GetMessagesNumOther();
-    // Spawner log already printed to RoR.log
-    def->loading_report += spawner.ProcessMessagesToString() + "\n\n";
 
-    RoR::App::GetGuiManager()->AddRigLoadingReport(def->name, def->loading_report, def->report_num_errors, def->report_num_warnings, def->report_num_other);
-    if (def->report_num_errors != 0)
-    {
-        if (App::diag_auto_spawner_report.GetActive())
-        {
-            RoR::App::GetGuiManager()->SetVisible_SpawnerReport(true);
-        }
-    }
     /* POST-PROCESSING (Old-spawn code from Actor::loadTruck2) */
 
     actor->ar_initial_node_positions.resize(actor->ar_num_nodes);
@@ -1244,26 +1231,6 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, 
 
         auto def = parser.GetFile();
 
-        def->report_num_errors = parser.GetMessagesNumErrors();
-        def->report_num_warnings = parser.GetMessagesNumWarnings();
-        def->report_num_other = parser.GetMessagesNumOther();
-        def->loading_report = parser.ProcessMessagesToString();
-        def->loading_report += "\n\n";
-        LOG(def->loading_report);
-
-        auto* importer = parser.GetSequentialImporter();
-        if (importer->IsEnabled() && App::diag_rig_log_messages.GetActive())
-        {
-            def->report_num_errors += importer->GetMessagesNumErrors();
-            def->report_num_warnings += importer->GetMessagesNumWarnings();
-            def->report_num_other += importer->GetMessagesNumOther();
-
-            std::string importer_report = importer->ProcessMessagesToString();
-            LOG(importer_report);
-
-            def->loading_report += importer_report + "\n\n";
-        }
-
         // VALIDATING
         LOG(" == Validating vehicle: " + def->name);
 
@@ -1283,29 +1250,8 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, 
                 validator.SetCheckBeams(false);
             }
         }
-        bool valid = validator.Validate();
 
-        def->report_num_errors += validator.GetMessagesNumErrors();
-        def->report_num_warnings += validator.GetMessagesNumWarnings();
-        def->report_num_other += validator.GetMessagesNumOther();
-        std::string validator_report = validator.ProcessMessagesToString();
-        LOG(validator_report);
-        def->loading_report += validator_report;
-        def->loading_report += "\n\n";
-        // Continue anyway...
-
-        // Extra information to RoR.log
-        if (importer->IsEnabled())
-        {
-            if (App::diag_rig_log_node_stats.GetActive())
-            {
-                LOG(importer->GetNodeStatistics());
-            }
-            if (App::diag_rig_log_node_import.GetActive())
-            {
-                LOG(importer->IterateAndPrintAllNodes());
-            }
-        }
+        validator.Validate(); // Sends messages to console
 
         def->hash = Utils::Sha1Hash(stream->getAsString());
 

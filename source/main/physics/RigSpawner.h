@@ -91,7 +91,7 @@ public:
         // ... more to come ...
     };
 
-    struct Message
+    struct Message  // TODO: remove, use console API directly
     {
         enum Type
         {
@@ -102,20 +102,6 @@ public:
 
             TYPE_INVALID = 0xFFFFFFFF
         };
-
-        Message(
-            Message::Type type, 
-            Ogre::String const & text,
-            RigDef::File::Keyword keyword = RigDef::File::KEYWORD_INVALID
-        ):
-            type(type),
-            text(text),
-            keyword(keyword)
-        {}
-
-        Ogre::String text;
-        Type type;
-        RigDef::File::Keyword keyword;
     };
 
     class Exception: public std::runtime_error
@@ -180,12 +166,6 @@ public:
     static void ComposeName(RoR::Str<100>& str, const char* type, int number, int actor_id);
 
     std::string GetSubmeshGroundmodelName();
-
-    std::string ProcessMessagesToString();
-    std::list<Message> & GetMessages() { return m_messages; }
-    int GetMessagesNumErrors()   const { return m_messages_num_errors;   }
-    int GetMessagesNumWarnings() const { return m_messages_num_warnings; }
-    int GetMessagesNumOther()    const { return m_messages_num_other;    }
 
 private:
 
@@ -1064,13 +1044,6 @@ private:
 
     void HandleException();
 
-    // Logging
-    std::list<Message>    m_messages;
-    RigDef::File::Keyword m_current_keyword; //!< For error reports
-    int                   m_messages_num_errors;
-    int                   m_messages_num_warnings;
-    int                   m_messages_num_other;
-
     // Spawn
     Actor*             m_actor; //!< The output actor.
     Ogre::Vector3      m_spawn_position;
@@ -1098,6 +1071,7 @@ private:
     std::vector<CabTexcoord>  m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;
     ActorMemoryRequirements   m_memory_requirements;
+    RigDef::File::Keyword     m_current_keyword; //!< For error reports
     std::vector<RoR::GfxActor::NodeGfx> m_gfx_nodes;
     CustomMaterial::MirrorPropType         m_curr_mirror_prop_type;
     std::shared_ptr<RigDef::File>          m_file; //!< The parsed input file.

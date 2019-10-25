@@ -50,6 +50,7 @@
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
 #include "GfxActor.h"
+#include "GUI_GameConsole.h"
 #include "InputEngine.h"
 #include "MeshObject.h"
 #include "OgreSubsystem.h"
@@ -109,10 +110,6 @@ void ActorSpawner::Setup(
     {
         m_generate_wing_position_lights = false; // Disable aerial pos. lights for land vehicles.
     }
-
-    m_messages_num_errors = 0;
-    m_messages_num_warnings = 0;
-    m_messages_num_other = 0;
 
     App::GetCacheSystem()->CheckResourceLoaded(m_actor->ar_filename, m_custom_resource_group);
 }
@@ -5513,36 +5510,26 @@ void ActorSpawner::InitBeam(beam_t & beam, node_t *node_1, node_t *node_2)
 
 void ActorSpawner::AddMessage(ActorSpawner::Message::Type type,	Ogre::String const & text)
 {
-    /* Add message to report */
-    m_messages.push_back(Message(type, text, m_current_keyword));
-
-    /* Log message immediately (to put other log messages in context) */
-    std::stringstream report;
-    report << " == ActorSpawner: ";
+    Str<4000> txt;
+    txt << " (Keyword " << RigDef::File::KeywordToString(m_current_keyword) << ") " << text;
+    RoR::Console::MessageType cm_type;
     switch (type)
     {
-        case (ActorSpawner::Message::TYPE_INTERNAL_ERROR): 
-            report << "INTERNAL ERROR"; 
-            ++m_messages_num_errors;
-            break;
+    case Message::TYPE_ERROR:
+    case Message::TYPE_INTERNAL_ERROR:
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_ERROR;
+        break;
 
-        case (ActorSpawner::Message::TYPE_ERROR):
-            report << "ERROR";
-            ++m_messages_num_errors; 
-            break;
+    case Message::TYPE_WARNING:
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_WARNING;
+        break;
 
-        case (ActorSpawner::Message::TYPE_WARNING):
-            report << "WARNING";
-            ++m_messages_num_warnings; 
-            break;
-
-        default:
-            report << "INFO";
-            ++m_messages_num_other;
-            break;
+    default:
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_NOTICE;
+        break;
     }
-    report << " (Keyword " << RigDef::File::KeywordToString(m_current_keyword) << ") " << text;
-    Ogre::LogManager::getSingleton().logMessage(report.str());
+
+    RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_ACTOR, cm_type, txt.ToCStr());
 }
 
 std::pair<unsigned int, bool> ActorSpawner::GetNodeIndex(RigDef::Node::Ref const & node_ref, bool quiet /* Default: false */)
@@ -6257,38 +6244,6 @@ void ActorSpawner::UpdateCollcabContacterNodes()
             m_actor->ar_num_contactable_nodes++;
         }
     }
-}
-
-std::string ActorSpawner::ProcessMessagesToString()
-{
-    std::stringstream report;
-
-    auto itor = m_messages.begin();
-    auto end  = m_messages.end();
-    for (; itor != end; ++itor)
-    {
-        switch (itor->type)
-        {
-            case (Message::TYPE_INTERNAL_ERROR): 
-                report << "#FF3300 INTERNAL ERROR #FFFFFF"; 
-                break;
-
-            case (Message::TYPE_ERROR): 
-                report << "#FF3300 ERROR #FFFFFF"; 
-                break;
-
-            case (Message::TYPE_WARNING): 
-                report << "#FFFF00 WARNING #FFFFFF"; 
-                break;
-
-            default:
-                report << "INFO"; 
-                break;
-        }
-        report << "(Keyword " << RigDef::File::KeywordToString(itor->keyword) << ")" << std::endl;
-        report << "\t" << itor->text << std::endl;
-    }
-    return report.str();
 }
 
 RigDef::MaterialFlareBinding* ActorSpawner::FindFlareBindingForMaterial(std::string const & material_name)
@@ -7226,7 +7181,11 @@ void ActorSpawner::HandleException()
     catch (Ogre::Exception& ogre_e)
     {
         // Add the message silently, OGRE already printed it to RoR.log
-        m_messages.push_back(Message(Message::TYPE_ERROR, ogre_e.getFullDescription(), m_current_keyword));
+        RoR::Str<2000> txt;
+        txt << "(Keyword: " << RigDef::File::KeywordToString(m_current_keyword)
+            << ") " << ogre_e.getFullDescription();
+        RoR::App::GetConsole()->putMessage(
+            RoR::Console::CONSOLE_MSGTYPE_ACTOR, RoR::Console::CONSOLE_SYSTEM_ERROR, txt.ToCStr());
     }
     catch (std::exception& std_e)
     {

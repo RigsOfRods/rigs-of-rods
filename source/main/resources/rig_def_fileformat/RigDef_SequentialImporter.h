@@ -102,7 +102,7 @@ public:
         unsigned              node_sub_index;
     };
 
-    struct Message
+    struct Message // TODO: remove, use console API directly
     {
         enum Type
         {
@@ -113,11 +113,6 @@ public:
 
             TYPE_INVALID = 0xFFFFFFFF
         };
-
-        std::string      message;
-        File::Keyword    keyword;
-        Type             type;
-        std::string      module_name;
     };
 
     void Init(bool enabled);
@@ -141,11 +136,6 @@ public:
     /// Traverse whole rig definition and resolve all node references
     void Process(std::shared_ptr<RigDef::File> def);
 
-    int GetMessagesNumErrors()   const { return m_messages_num_errors;   }
-    int GetMessagesNumWarnings() const { return m_messages_num_warnings; }
-    int GetMessagesNumOther()    const { return m_messages_num_other;    }
-
-    std::string ProcessMessagesToString();
     std::string GetNodeStatistics();
     std::string IterateAndPrintAllNodes();
 
@@ -178,10 +168,6 @@ private:
     int                                 m_num_resolved_to_self;
     File::Keyword                       m_current_keyword;
     std::shared_ptr<File::Module>       m_current_module;
-    std::list<Message>                  m_messages;
-    int                                 m_messages_num_errors;
-    int                                 m_messages_num_warnings;
-    int                                 m_messages_num_other;
 };
 
 } // namespace RigDef

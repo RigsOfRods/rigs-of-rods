@@ -59,7 +59,7 @@ public:
     static const int LINE_BUFFER_LENGTH = 2000;
     static const int LINE_MAX_ARGS = 100;
 
-    struct Message
+    struct Message // TODO: remove, use console API directly
     {
         enum Type
         {
@@ -69,14 +69,6 @@ public:
 
             TYPE_INVALID = 0xFFFFFFFF
         };
-
-        std::string      line;
-        unsigned int     line_number;
-        std::string      message;
-        File::Section    section;
-        File::Subsection subsection;
-        Type             type;
-        Ogre::String     module;
     };
 
     struct Token
@@ -92,23 +84,12 @@ public:
     void ProcessOgreStream(Ogre::DataStream* stream, Ogre::String resource_group);
     void ProcessRawLine(const char* line);
 
-    std::list<Message> const & GetMessages()
-    {
-        return m_messages;
-    }
-
     std::shared_ptr<RigDef::File> GetFile()
     {
         return m_definition;
     }
 
     SequentialImporter* GetSequentialImporter() { return &m_sequential_importer; }
-
-    std::string ProcessMessagesToString();
-
-    int GetMessagesNumErrors()   const { return m_messages_num_errors;   }
-    int GetMessagesNumWarnings() const { return m_messages_num_warnings; }
-    int GetMessagesNumOther()    const { return m_messages_num_other;    }
 
 private:
 
@@ -252,7 +233,7 @@ private:
     /// Keyword scan utility function. 
     File::Keyword FindKeywordMatch(std::smatch& search_results);
 
-    /// Adds a message to parser report.
+    /// Adds a message to console
     void AddMessage(std::string const & line, Message::Type type, std::string const & message);
     void AddMessage(Message::Type type, const char* msg)
     {
@@ -316,10 +297,6 @@ private:
     Ogre::String                         m_resource_group;
 
     std::shared_ptr<RigDef::File>        m_definition;
-    std::list<Message>                   m_messages;
-    int                                  m_messages_num_errors;
-    int                                  m_messages_num_warnings;
-    int                                  m_messages_num_other;
 };
 
 } // namespace RigDef
