@@ -77,7 +77,6 @@ public:
     void SetVisible_GameSettings        (bool visible);
     void SetVisible_MultiplayerSelector (bool visible);
     void SetVisible_ChatBox             (bool visible);
-    void SetVisible_SpawnerReport       (bool visible);
     void SetVisible_VehicleDescription  (bool visible);
     void SetVisible_MpClientList        (bool visible);
     void SetVisible_FrictionSettings    (bool visible);
@@ -97,7 +96,6 @@ public:
     bool IsVisible_MpClientList         ();
     bool IsVisible_MainSelector         ();
     bool IsVisible_ChatBox              ();
-    bool IsVisible_SpawnerReport        ();
     bool IsVisible_VehicleDescription   ();
     bool IsVisible_FrictionSettings     ();
     bool IsVisible_TextureToolWindow    ();
@@ -124,7 +122,6 @@ public:
     void UnfocusGui();
     void PushNotification(Ogre::String Title, Ogre::UTFString text);
     void HideNotification();
-    void CenterSpawnerReportWindow();
 
     void UpdateSimUtils(float dt, Actor* truck);
     void NewImGuiFrame(float dt);
