@@ -2345,12 +2345,6 @@ struct File
     Ogre::String name;
     float collision_range;
 
-    // Report
-    std::string loading_report;
-    int report_num_errors;
-    int report_num_warnings;
-    int report_num_other;
-
     // File hash
     std::string hash;
 

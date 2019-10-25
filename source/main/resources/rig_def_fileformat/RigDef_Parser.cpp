@@ -28,6 +28,7 @@
 #include "Application.h"
 #include "BeamConstants.h"
 #include "CacheSystem.h"
+#include "GUI_GameConsole.h"
 #include "RigDef_File.h"
 #include "RigDef_Regexes.h"
 #include "BitFlags.h"
@@ -3163,30 +3164,34 @@ void Parser::ParseAuthor()
 
 void Parser::AddMessage(std::string const & line, Message::Type type, std::string const & message)
 {
-    // Push and then access to avoid copy-constructing strings 
-    m_messages.push_back(Message());
+    RoR::Str<4000> txt;
+    txt << message
+        << " (line: " << (size_t)m_current_line_number << " '" << line
+        << "'; section: '" << RigDef::File::SectionToString(m_current_section);
+    if (m_current_subsection != File::Subsection::SUBSECTION_NONE)
+    {
+        txt << "/" << RigDef::File::SubsectionToString(m_current_subsection);
+    }
+    txt << "'; module: '" << m_current_module->name << "'";
 
-    m_messages.back().line = line;
-    m_messages.back().line_number = m_current_line_number;
-    m_messages.back().message = message;
-    m_messages.back().type = type;
-    m_messages.back().section = m_current_section;
-    m_messages.back().subsection = m_current_subsection;
-    m_messages.back().module = m_current_module->name;
-
+    RoR::Console::MessageType cm_type;
     switch (type)
     {
-    case Message::TYPE_ERROR:
     case Message::TYPE_FATAL_ERROR:
-        ++m_messages_num_errors;
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_ERROR;
         break;
+
+    case Message::TYPE_ERROR:
     case Message::TYPE_WARNING:
-        ++m_messages_num_warnings;
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_WARNING;
         break;
+
     default:
-        ++m_messages_num_other;
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_NOTICE;
         break;
     }
+
+    RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_ACTOR, cm_type, txt.ToCStr());
 }
 
 File::Keyword Parser::IdentifyKeywordInCurrentLine()
@@ -3264,10 +3269,6 @@ void Parser::Prepare()
     m_current_module = m_definition->root_module;
 
     m_sequential_importer.Init(true); // Enabled=true
-
-    m_messages_num_errors = 0;
-    m_messages_num_warnings = 0;
-    m_messages_num_other = 0;
 }
 
 void Parser::ChangeSection(RigDef::File::Section new_section)
@@ -3381,47 +3382,6 @@ void Parser::Finalize()
     {
         m_sequential_importer.Process( m_definition );
     }
-}
-
-std::string Parser::ProcessMessagesToString()
-{
-    if (this->GetMessages().size() == 0)
-    {
-        std::string msg(" == Parsing done OK, nothing to report");
-        return msg;
-    }
-
-    std::stringstream report;
-    report << " == Parsing done, report:" << std::endl <<std::endl;
-
-    auto itor = m_messages.begin();
-    auto end  = m_messages.end();
-    for (; itor != end; ++itor)
-    {
-        switch (itor->type)
-        {
-            case (RigDef::Parser::Message::TYPE_FATAL_ERROR):
-                report << "#FF3300 FATAL_ERROR #FFFFFF";
-                break;
-
-            case (RigDef::Parser::Message::TYPE_ERROR):
-                report << "#FF3300 ERROR #FFFFFF";
-                break;
-
-            case (RigDef::Parser::Message::TYPE_WARNING):
-                report << "#FFFF00 WARNING #FFFFFF";
-                break;
-
-            default:
-                report << "INFO";
-                break;
-        }
-        report << " (Section " << RigDef::File::SectionToString(itor->section) << ")" << std::endl;
-        report << "\tLine (" << itor->line_number << "): " << itor->line << std::endl;
-        report << "\tMessage: " << itor->message << std::endl;
-    }
-
-    return report.str();
 }
 
 std::string Parser::GetArgStr(int index)

@@ -102,7 +102,7 @@ GUIManager::GuiTheme::GuiTheme():
     selected_entry_text_color(.9f, 0.7f, 0.05f, 1.f),
     highlight_text_color(0.78f, 0.39f, 0.f, 1.f),
     success_text_color(0.f, 0.8f, 0.f, 1.f),
-    warning_text_color(0.9f, 0.5f, 0.2f, 1.f),
+    warning_text_color(0.9f, 0.8f, 0.1f, 1.f),
     help_text_color(0.5f, 0.7f, 1.f, 1.f)
 {
     try
@@ -353,11 +353,6 @@ void GUIManager::UpdateSimUtils(float dt, Actor *truck)
     {
         m_impl->panel_SimUtils.UpdateStats(dt, truck);
     }
-}
-
-void GUIManager::AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other)
-{
-    m_impl->panel_SpawnerReport.SetRigLoadingReport(vehicle_name, text, num_errors, num_warnings, num_other);
 }
 
 void GUIManager::CenterSpawnerReportWindow()

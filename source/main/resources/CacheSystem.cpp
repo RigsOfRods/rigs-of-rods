@@ -691,41 +691,6 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     parser.GetSequentialImporter()->Disable();
     parser.Finalize();
 
-    /* Report messages */
-    if (parser.GetMessages().size() > 0)
-    {
-        std::stringstream report;
-        report << "Cache: Parsing vehicle '" << file_name << "' yielded following messages:" << std::endl << std::endl;
-
-        std::list<RigDef::Parser::Message>::const_iterator iter = parser.GetMessages().begin();
-        for (; iter != parser.GetMessages().end(); iter++)
-        {
-            switch (iter->type)
-            {
-            case (RigDef::Parser::Message::TYPE_FATAL_ERROR):
-                report << "FATAL_ERROR";
-                break;
-
-            case (RigDef::Parser::Message::TYPE_ERROR):
-                report << "ERROR";
-                break;
-
-            case (RigDef::Parser::Message::TYPE_WARNING):
-                report << "WARNING";
-                break;
-
-            default:
-                report << "INFO";
-                break;
-            }
-            report << " (Section " << RigDef::File::SectionToString(iter->section) << ")" << std::endl;
-            report << "\tLine (# " << iter->line_number << "): " << iter->line << std::endl;
-            report << "\tMessage: " << iter->message << std::endl;
-        }
-
-        Ogre::LogManager::getSingleton().logMessage(report.str());
-    }
-
     /* RETRIEVE DATA */
 
     std::shared_ptr<RigDef::File> def = parser.GetFile();
@@ -799,7 +764,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* Vehicle type */
-    /* NOTE: TruckParser2013 allows modularization of vehicle type. Cache only supports single type.
+    /* NOTE: RigDef::File allows modularization of vehicle type. Cache only supports single type.
         This is a temporary solution which has undefined results for mixed-type vehicles.
     */
     int vehicle_type = NOT_DRIVEABLE;

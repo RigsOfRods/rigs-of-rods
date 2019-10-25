@@ -26,6 +26,7 @@
 #include "RigDef_Validator.h"
 
 #include "BeamConstants.h"
+#include "GUI_GameConsole.h"
 
 #define CHECK_SECTION_IN_ALL_MODULES(_CLASS_, _FIELD_, _FUNCTION_) \
 { \
@@ -110,29 +111,29 @@ void Validator::Setup(std::shared_ptr<RigDef::File> file)
 {
     m_file = file;
     m_selected_modules.push_back(file->root_module);
-    m_messages.clear();
     m_check_beams = true;
-    m_messages_num_errors = 0;
-    m_messages_num_warnings = 0;
-    m_messages_num_other = 0;
 }
 
 void Validator::AddMessage(Validator::Message::Type type, Ogre::String const & text)
 {
-    m_messages.push_back(Message(type, text));
+    RoR::Console::MessageType cm_type;
     switch (type)
     {
-    case Message::TYPE_ERROR: 
-    case Message::TYPE_FATAL_ERROR: 
-        ++m_messages_num_errors; 
+    case Message::TYPE_FATAL_ERROR:
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_ERROR;
         break;
-    case Message::TYPE_WARNING: 
-        ++m_messages_num_warnings; 
+
+    case Message::TYPE_ERROR:
+    case Message::TYPE_WARNING:
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_WARNING;
         break;
+
     default:
-        ++m_messages_num_other;
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_NOTICE;
         break;
     }
+
+    RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_ACTOR, cm_type, text);
 }
 
 bool Validator::CheckSectionSubmeshGroundmodel()
@@ -588,43 +589,6 @@ bool Validator::CheckVideoCamera(RigDef::VideoCamera & def)
     }
 
     return ok;
-}
-
-std::string Validator::ProcessMessagesToString()
-{
-    if (m_messages.empty())
-    {
-        std::string msg(" == Validating done OK");
-        return msg;
-    }
-
-    std::stringstream report;
-    report << " == Validating done, report:" <<std::endl << std::endl;
-
-    auto itor = m_messages.begin();
-    auto end  = m_messages.end();
-    for( ; itor != end; ++itor)
-    {
-        switch (itor->type)
-        {
-            case (RigDef::Validator::Message::TYPE_FATAL_ERROR):
-                report << "#FF3300 FATAL ERROR #FFFFFF";
-                break;
-            case (RigDef::Validator::Message::TYPE_ERROR):
-                report << "#FF3300 ERROR #FFFFFF";
-                break;
-            case (RigDef::Validator::Message::TYPE_WARNING):
-                report << "#FFFF00 WARNING #FFFFFF";
-                break;
-            default:
-                report << "INFO";
-                break;
-        }
-
-        report << ": " << itor->text << std::endl;
-    }
-
-    return report.str();
 }
 
 } // namespace RigDef
