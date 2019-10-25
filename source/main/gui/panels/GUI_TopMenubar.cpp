@@ -460,12 +460,6 @@ void RoR::GUI::TopMenubar::Update()
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
-            if (ImGui::Button("Show spawner log")) // TODO: display num. warnings/errors
-            {
-                App::GetGuiManager()->SetVisible_SpawnerReport(true);
-                m_open_menu = TopMenu::TOPMENU_NONE;
-            }
-
             if (ImGui::Button("Show console"))
             {
                 App::GetGuiManager()->SetVisible_Console(! App::GetGuiManager()->IsVisible_Console());

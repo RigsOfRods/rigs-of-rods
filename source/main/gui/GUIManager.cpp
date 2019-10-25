@@ -50,7 +50,6 @@
 #include "GUI_MultiplayerClientList.h"
 #include "GUI_MainSelector.h"
 #include "GUI_NodeBeamUtils.h"
-#include "GUI_RigSpawnerReportWindow.h"
 #include "GUI_SimActorStats.h"
 #include "GUI_SimUtils.h"
 #include "GUI_TextureToolWindow.h"
@@ -81,7 +80,6 @@ struct GuiManagerImpl
     GUI::MultiplayerSelector    panel_MultiplayerSelector;
     GUI::MainSelector           panel_MainSelector;
     GUI::GameChatBox            panel_ChatBox;
-    GUI::ActorSpawnerReportWindow panel_SpawnerReport;
     GUI::VehicleDescription     panel_VehicleDescription;
     GUI::MpClientList           panel_MpClientList;
     GUI::FrictionSettings       panel_FrictionSettings;
@@ -128,7 +126,6 @@ void GUIManager::SetVisible_GameMainMenu        (bool v) { m_impl->panel_GameMai
 void GUIManager::SetVisible_GameAbout           (bool v) { m_impl->panel_GameAbout          .SetVisible(v); }
 void GUIManager::SetVisible_MultiplayerSelector (bool v) { m_impl->panel_MultiplayerSelector.SetVisible(v); }
 void GUIManager::SetVisible_ChatBox             (bool v) { m_impl->panel_ChatBox            .SetVisible(v); }
-void GUIManager::SetVisible_SpawnerReport       (bool v) { m_impl->panel_SpawnerReport      .SetVisible(v); }
 void GUIManager::SetVisible_VehicleDescription  (bool v) { m_impl->panel_VehicleDescription .SetVisible(v); }
 void GUIManager::SetVisible_MpClientList        (bool v) { m_impl->panel_MpClientList       .SetVisible(v); }
 void GUIManager::SetVisible_FrictionSettings    (bool v) { m_impl->panel_FrictionSettings   .SetVisible(v); }
@@ -144,7 +141,6 @@ bool GUIManager::IsVisible_GameAbout            () { return m_impl->panel_GameAb
 bool GUIManager::IsVisible_MultiplayerSelector  () { return m_impl->panel_MultiplayerSelector.IsVisible(); }
 bool GUIManager::IsVisible_MainSelector         () { return m_impl->panel_MainSelector       .IsVisible(); }
 bool GUIManager::IsVisible_ChatBox              () { return m_impl->panel_ChatBox            .IsVisible(); }
-bool GUIManager::IsVisible_SpawnerReport        () { return m_impl->panel_SpawnerReport      .IsVisible(); }
 bool GUIManager::IsVisible_VehicleDescription   () { return m_impl->panel_VehicleDescription .IsVisible(); }
 bool GUIManager::IsVisible_MpClientList         () { return m_impl->panel_MpClientList       .IsVisible(); }
 bool GUIManager::IsVisible_FrictionSettings     () { return m_impl->panel_FrictionSettings   .IsVisible(); }
@@ -355,11 +351,6 @@ void GUIManager::UpdateSimUtils(float dt, Actor *truck)
     }
 }
 
-void GUIManager::CenterSpawnerReportWindow()
-{
-    m_impl->panel_SpawnerReport.CenterToScreen();
-}
-
 void GUIManager::pushMessageChatBox(Ogre::String txt)
 {
     m_impl->panel_ChatBox.pushMsg(txt);
@@ -414,7 +405,6 @@ void GUIManager::ReflectGameState()
         m_impl->panel_FrictionSettings   .SetVisible(false);
         m_impl->panel_TextureToolWindow  .SetVisible(false);
         m_impl->panel_VehicleDescription .SetVisible(false);
-        m_impl->panel_SpawnerReport      .SetVisible(false);
         m_impl->panel_SimActorStats      .SetVisible(false);
         m_impl->panel_SimUtils           .SetBaseVisible(false);
         m_impl->panel_MpClientList       .SetVisible(mp_state == MpState::CONNECTED);
