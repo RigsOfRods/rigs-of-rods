@@ -289,6 +289,11 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     {
         m_impl->panel_GameConsole.Draw();
     }
+
+    if (this->IsVisible_LoadingWindow())
+    {
+        m_impl->panel_LoadingWindow.Draw();
+    }
 }
 
 void GUIManager::PushNotification(Ogre::String Title, Ogre::UTFString text)
@@ -520,6 +525,11 @@ void GUIManager::DrawMainMenuGui()
     if (m_impl->panel_MessageBox.IsVisible())
     {
         m_impl->panel_MessageBox.Draw();
+    }
+
+    if (m_impl->panel_LoadingWindow.IsVisible())
+    {
+        m_impl->panel_LoadingWindow.Draw();
     }
 }
 
