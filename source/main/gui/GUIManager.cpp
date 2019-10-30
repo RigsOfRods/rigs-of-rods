@@ -294,6 +294,11 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     {
         m_impl->panel_LoadingWindow.Draw();
     }
+
+    if (this->IsVisible_FrictionSettings())
+    {
+        m_impl->panel_FrictionSettings.Draw();
+    }
 }
 
 void GUIManager::PushNotification(Ogre::String Title, Ogre::UTFString text)
@@ -371,11 +376,6 @@ void GUIManager::hideGUI(bool hidden)
         m_impl->panel_ChatBox.Hide();
     }
     m_impl->panel_SimUtils.DisableNotifications(hidden);
-}
-
-void GUIManager::FrictionSettingsUpdateCollisions()
-{
-    App::GetGuiManager()->GetFrictionSettings()->setCollisions(gEnv->collisions);
 }
 
 void GUIManager::SetMouseCursorVisibility(MouseCursorVisibility visi)
