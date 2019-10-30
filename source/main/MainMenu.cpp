@@ -56,8 +56,6 @@ MainMenu::MainMenu()
 void MainMenu::EnterMainMenuLoop()
 {
     OgreBites::WindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
-
-    App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
     
     auto start_time = std::chrono::high_resolution_clock::now();
 
@@ -101,16 +99,15 @@ void MainMenu::EnterMainMenuLoop()
             continue;
         }
 
-        App::GetGuiManager()->NewImGuiFrame(dt_sec);
-        App::GetGuiManager()->DrawMainMenuGui();
-
         App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
         if (!rw->isActive() && rw->isVisible())
             rw->update(); // update even when in background !
     }
     OgreBites::WindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
-    App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this);
+
+    // HACK until OGRE 1.12 migration; We need a frame listener to display loading window ~ only_a_ptr, 10/2019
+    //App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this); 
 }
 
 void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
@@ -365,6 +362,13 @@ void MainMenu::windowFocusChange(Ogre::RenderWindow* rw)
 bool MainMenu::frameRenderingQueued(const Ogre::FrameEvent & evt)
 {
     App::GetGuiManager()->GetImGui().Render();
+    return true;
+}
+
+bool MainMenu::frameStarted(const Ogre::FrameEvent & evt)
+{
+    App::GetGuiManager()->NewImGuiFrame(evt.timeSinceLastFrame); // HACK until OGRE 1.12 migration ~ only_a_ptr, 10/2019
+    App::GetGuiManager()->DrawMainMenuGui();
     return true;
 }
 

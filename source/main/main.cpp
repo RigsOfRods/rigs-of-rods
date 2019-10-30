@@ -323,6 +323,7 @@ int main(int argc, char *argv[])
         RoR::App::GetInputEngine()->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
 
         MainMenu main_obj;
+        App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&main_obj); // HACK until OGRE 1.12 migration; We need a frame listener to display loading window ~ only_a_ptr, 10/2019
         SkidmarkConfig skidmark_conf; // Loads 'skidmark.cfg' in constructor
 
         // ### Main loop (switches application states) ###
@@ -385,6 +386,7 @@ int main(int argc, char *argv[])
                     if (sim_controller.SetupGameplayLoop())
                     {
                         App::app_state.ApplyPending();
+                        App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(&main_obj);     // HACK until OGRE 1.12 migration; We need a frame listener to display loading window ~ only_a_ptr, 10/2019
                         App::GetGuiManager()->ReflectGameState();
                         App::sim_state.SetActive(SimState::RUNNING);
                         sim_controller.EnterGameplayLoop();

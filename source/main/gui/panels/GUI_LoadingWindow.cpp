@@ -21,39 +21,35 @@
 
 #include "GUI_LoadingWindow.h"
 
-#include "GUIManager.h"
 #include "Language.h"
-#include "Utils.h"
+#include <imgui.h>
 
-namespace RoR {
-namespace GUI {
-
-LoadingWindow::LoadingWindow()
+void RoR::GUI::LoadingWindow::setProgress(int percent, std::string const& text, bool render_frame/*=true*/)
 {
-    initialiseByAttributes(this);
-
-    MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
-    mMainWidget->setPosition(gui_area.width / 2 - mMainWidget->getWidth() / 2, gui_area.height / 2 - mMainWidget->getHeight() / 2);
-    ((MyGUI::Window*)mMainWidget)->setCaption(_L("Loading ..."));
-    mMainWidget->setVisible(false);
-}
-
-void LoadingWindow::setProgress(int _percent, const Ogre::UTFString& _text, bool force_update)
-{
-    mMainWidget->setVisible(true);
-    mInfoStaticText->setCaption(convertToMyGUIString(_text));
-
-    mBarProgress->setProgressAutoTrack(false);
-    mBarProgress->setProgressPosition(_percent);
-
-    if (force_update || m_timer.getMilliseconds() > 10)
+    this->SetVisible(true); // Traditional behavior
+    m_percent = percent;
+    m_text = text;
+    if (render_frame)
     {
-        m_timer.reset();
-        // we must pump the window messages, otherwise the window will get white on Vista ...
-        OgreBites::WindowEventUtilities::messagePump();
         Ogre::Root::getSingleton().renderOneFrame();
     }
 }
 
-} // namespace GUI
-} // namespace RoR
+void RoR::GUI::LoadingWindow::Draw()
+{
+    ImGui::SetNextWindowPosCenter();
+    ImGui::SetNextWindowContentWidth(300.f);
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse |
+                             ImGuiWindowFlags_NoMove   | ImGuiWindowFlags_NoResize;
+    ImGui::Begin(_L("Please wait"), nullptr, flags);
+    if (!m_text.empty())
+    {
+        ImGui::Text("%s", m_text.c_str());
+    }
+    ImGui::NewLine();
+    if (m_percent >= 0)
+    {
+        ImGui::ProgressBar(static_cast<float>(m_percent)/100.f);
+    }
+    ImGui::End();
+}
