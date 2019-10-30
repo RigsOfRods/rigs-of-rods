@@ -137,7 +137,6 @@ public:
 
     void SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager);
 
-    void FrictionSettingsUpdateCollisions();
     void ShutdownMyGUI();
     void ReflectGameState();
     void SetMouseCursorVisibility(MouseCursorVisibility visi);

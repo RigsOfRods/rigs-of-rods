@@ -1748,6 +1748,13 @@ void SimController::UpdateSimulation(float dt)
         this->ChangePlayerActor(m_pending_player_actor); // 'Pending' remains the same until next change is queued
     }
 
+    if (App::GetGuiManager()->GetFrictionSettings()->HasPendingChanges())
+    {
+        ground_model_t const& updated_gm = App::GetGuiManager()->GetFrictionSettings()->AcquireUpdatedGroundmodel();
+        ground_model_t* live_gm = gEnv->collisions->getGroundModelByString(updated_gm.name);
+        *live_gm = updated_gm; // Copy over
+    }
+
     RoR::App::GetInputEngine()->Capture();
     auto s = App::sim_state.GetActive();
 
@@ -1952,8 +1959,6 @@ bool SimController::LoadTerrain()
     }
     App::sim_terrain_name.ApplyPending();
 
-    App::GetGuiManager()->FrictionSettingsUpdateCollisions();
-
     if (gEnv->player != nullptr)
     {
         Vector3 spawn_pos = App::GetSimTerrain()->getSpawnPos();
@@ -1990,6 +1995,8 @@ bool SimController::LoadTerrain()
             m_camera_manager.Update(0.02f, nullptr, 1.0f);
         }
     }
+
+    App::GetGuiManager()->GetFrictionSettings()->AnalyzeTerrain();
 
     // hide loading window
     App::GetGuiManager()->SetVisible_LoadingWindow(false);

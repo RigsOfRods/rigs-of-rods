@@ -22,52 +22,50 @@
 /// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
 /// @date   7th of September 2009
 
-#pragma once
+// Remade using DearIMGUI by Petr Ohlidal, 10/2019
 
+#pragma once
 
 #include "RoRPrerequisites.h"
 
-#include <MyGUI.h>
+#include "BeamData.h"
 
 namespace RoR {
 namespace GUI {
 
-class FrictionSettings : public ZeroedMemoryAllocator
+class FrictionSettings
 {
 public:
 
-    FrictionSettings();
-    ~FrictionSettings();
+    struct Entry
+    {
+        Entry(const ground_model_t* const gm):
+            backup_copy(*gm), working_copy(*gm), live_data(gm), is_dirty(false)
+        {}
 
-    bool IsVisible();
-    void SetVisible(bool value);
+        ground_model_t backup_copy;
+        ground_model_t working_copy;
+        const ground_model_t* const live_data;
+        bool is_dirty;
+    };
 
-    void setShaded(bool value);
+    bool IsVisible() const { return m_is_visible; }
+    void SetVisible(bool value) { m_is_visible = value; }
 
-    void setCollisions(Collisions* _col) { col = _col; };
-    void setActiveCol(ground_model_t* gm);
+    void AnalyzeTerrain();
+    void setActiveCol(const ground_model_t* gm) { m_nearest_gm = gm; }
+    void Draw();
+    bool HasPendingChanges() const { return m_gm_entries[m_selected_gm].is_dirty; }
+    ground_model_t const& AcquireUpdatedGroundmodel();
 
 private:
+    static bool GmComboItemGetter(void* data, int idx, const char** out_text);
+    void DrawTooltip(const char* title, const char* text);
 
-    Collisions* col;
-    MyGUI::WindowPtr msgwin;
-    MyGUI::WindowPtr win;
-    ground_model_t* active_gm;
-    ground_model_t* selected_gm;
-
-    std::map<Ogre::UTFString, std::pair<Ogre::UTFString, Ogre::UTFString>> helpTexts;
-    std::map<Ogre::UTFString, std::pair<Ogre::Real, Ogre::Real>> minMaxs;
-
-    void updateControls(ground_model_t* gm, bool setCombo = true);
-
-    void event_combo_grounds_eventComboAccept(MyGUI::ComboBoxPtr _sender, size_t _index);
-    void event_btn_MouseButtonClick(MyGUI::WidgetPtr _sender);
-    void event_edit_TextChange(MyGUI::EditPtr _sender);
-    void event_scroll_value(MyGUI::ScrollBar* _sender, size_t _value);
-    void notifyWindowButtonPressed(MyGUI::WindowPtr _sender, const std::string& _name);
-    void notifyHelpWindowButtonPressed(MyGUI::WindowPtr _sender, const std::string& _name);
-    void applyChanges();
-    void showHelp(Ogre::UTFString title, Ogre::UTFString msg, int x, int y);
+    bool m_is_visible = false;
+    std::vector<Entry> m_gm_entries;
+    int m_selected_gm = 0;
+    const ground_model_t* m_nearest_gm = nullptr;
 };
 
 } // namespace GUI
