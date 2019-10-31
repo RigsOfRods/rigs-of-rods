@@ -28,8 +28,11 @@
 #include "Application.h"
 #include "GUIManager.h"
 #include "GUI_MainSelector.h"
+#include "Language.h"
 #include "MainMenu.h"
 #include "PlatformUtils.h"
+#include "RoRVersion.h"
+#include "RoRnet.h" // for version string
 
 RoR::GUI::GameMainMenu::GameMainMenu(): 
     m_is_visible(false), m_num_buttons(5), m_kb_focus_index(-1), m_kb_enter_index(-1)
@@ -41,6 +44,12 @@ RoR::GUI::GameMainMenu::GameMainMenu():
 }
 
 void RoR::GUI::GameMainMenu::Draw()
+{
+    this->DrawMenuPanel();
+    this->DrawVersionBox();
+}
+
+void RoR::GUI::GameMainMenu::DrawMenuPanel()
 {
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, BUTTON_PADDING);
     ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive]);
@@ -127,5 +136,32 @@ void RoR::GUI::GameMainMenu::Draw()
     ImGui::PopStyleVar();
     ImGui::PopStyleColor(3);
     m_kb_enter_index = -1;
+}
+
+void RoR::GUI::GameMainMenu::DrawVersionBox()
+{
+    const float margin = ImGui::GetIO().DisplaySize.y / 30.f;
+    RoR::Str<200> game_ver, rornet_ver;
+    game_ver << _L("Game version") << ": " << ROR_VERSION_STRING;
+    rornet_ver << _L("Net. protocol") << ": " << RORNET_VERSION;
+    float text_w = std::max(
+        ImGui::CalcTextSize(game_ver.ToCStr()).x, ImGui::CalcTextSize(rornet_ver.ToCStr()).x);
+    ImVec2 box_size(
+        (2 * ImGui::GetStyle().WindowPadding.y) + text_w,
+        (2 * ImGui::GetStyle().WindowPadding.y) + (2 * ImGui::GetTextLineHeight()));
+    ImGui::SetNextWindowPos(ImGui::GetIO().DisplaySize - (box_size + ImVec2(margin, margin)));
+
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, WINDOW_BG_COLOR);
+    ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoResize   | ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoInputs;
+    if (ImGui::Begin("Version box", nullptr, flags))
+    {
+        ImGui::Text("%s", game_ver.ToCStr());
+        ImGui::Text("%s", rornet_ver.ToCStr());
+        ImGui::End();
+    }
+    ImGui::PopStyleColor(1);
 }
 

@@ -52,6 +52,9 @@ public:
 
 private:
 
+    void          DrawMenuPanel();
+    void          DrawVersionBox();
+
     bool   m_is_visible;
     int    m_num_buttons;
     int    m_kb_focus_index; // -1 = no focus; 0+ = button index
