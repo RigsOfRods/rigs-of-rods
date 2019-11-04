@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2014 Petr Ohlidal
+    Copyright 2013-2019 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -34,185 +34,119 @@
 #include "Utils.h"
 #include "RoRnet.h"
 
-#include <MyGUI.h>
-
-using namespace RoR;
-using namespace GUI;
-
-#define CLASS        GameAbout
-#define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
-
-CLASS::CLASS()
+void RoR::GUI::GameAbout::Draw()
 {
-    MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
-    win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
+    RoR::GUIManager::GuiTheme const& theme = RoR::App::GetGuiManager()->GetTheme();
 
-    m_backbtn->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickBackButton);
-    m_ror_version->setCaption(Ogre::String(ROR_VERSION_STRING));
-    m_net_version->setCaption(Ogre::String(RORNET_VERSION));
-    m_build_time->setCaption(Ogre::String(ROR_BUILD_DATE) + ", " + Ogre::String(ROR_BUILD_TIME));
-
-    initMisc();
-    CenterToScreen();
-
-    MAIN_WIDGET->setVisible(false);
-}
-
-CLASS::~CLASS()
-{
-}
-
-void CLASS::Show()
-{
-    MAIN_WIDGET->setVisibleSmooth(true);
-}
-
-void CLASS::Hide()
-{
-    MAIN_WIDGET->setVisibleSmooth(false);
-    if (App::app_state.GetActive() == AppState::MAIN_MENU)
+    ImGui::SetNextWindowSize(ImVec2(475.f, ImGui::GetIO().DisplaySize.y - 40.f), ImGuiSetCond_Appearing);
+    ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
+    if (!ImGui::Begin(_LC("About", "About Rigs of Rods"), &m_is_visible))
     {
-        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        return;
     }
-}
 
-void CLASS::CenterToScreen()
-{
-    MyGUI::IntSize windowSize = MAIN_WIDGET->getSize();
-    MyGUI::IntSize parentSize = MAIN_WIDGET->getParentSize();
+    ImGui::TextDisabled("%s: ", _LC("About", "Version"));
+    ImGui::SameLine();
+    ImGui::Text("%s", ROR_VERSION_STRING);
 
-    MAIN_WIDGET->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
-}
+    ImGui::TextDisabled("%s: ", _LC("About", "Network protocol"));
+    ImGui::SameLine();
+    ImGui::Text("%s", RORNET_VERSION);
 
-bool CLASS::IsVisible()
-{
-    return MAIN_WIDGET->isVisible();
-}
+    ImGui::TextDisabled("%s: ", _LC("About", "Version"));
+    ImGui::SameLine();
+    ImGui::Text("%s, %s", ROR_BUILD_DATE, ROR_BUILD_TIME);
 
-void CLASS::initMisc()
-{
-    Ogre::UTFString AuthorsText = "";
-    Ogre::UTFString orange = U("#FF7D02"); // colour key shortcut
-    Ogre::UTFString white = U("#FFFFFF"); // colour key shortcut
-    Ogre::UTFString color1 = U("#66FF33"); // colour key shortcut
-    Ogre::UTFString newline = U("\n");
+    ImGui::Separator();
 
-    //Authors:
-    AuthorsText = orange + "Authors:" + newline;
-    AuthorsText = AuthorsText + color1 + "Pierre-Michel Ricordel (pricorde):" + white + " Physics Genius, Original Author, Core Developer, retired" + newline;
-    AuthorsText = AuthorsText + color1 + "Thomas Fischer (tdev):" + white + " Core Developer, inactive" + newline;
+    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Authors"));
+    ImGui::Text("%s%s", "Pierre-Michel Ricordel (pricorde):",  " Physics Genius, Original Author, Core Developer, retired");
+    ImGui::Text("%s%s", "Thomas Fischer (tdev):",              " Core Developer, inactive");
 
-    //Current Project devs:
-    AuthorsText = AuthorsText + newline;
-    AuthorsText = AuthorsText + orange + "Current Developers:" + newline;
-    AuthorsText = AuthorsText + color1 + "Petr Ohlidal (only_a_ptr):" + white + " Core Developer, active" + newline;
-    AuthorsText = AuthorsText + color1 + "Edgar (AnotherFoxGuy):" + white + " Various fixes and features, developer web services, active" + newline;
+    ImGui::NewLine();
+    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Current Developers"));
+    ImGui::Text("%s%s", "Petr Ohlidal (only_a_ptr):",  " Core Developer, active");
+    ImGui::Text("%s%s", "Edgar (AnotherFoxGuy):",      " Various fixes and features, developer web services, active");
 
-    //Server Contributors
-    AuthorsText = AuthorsText + newline;
-    AuthorsText = AuthorsText + orange + "Server Contributors:" + newline;
-    AuthorsText = AuthorsText + color1 + "Austin:" + white + " Server funding" + newline;
-    AuthorsText = AuthorsText + color1 + "DarthCain:" + white + " Forum software funding" + newline;
-    AuthorsText = AuthorsText + color1 + "Zentro:" + white + " Systems administrator, web designer" + newline;
-    AuthorsText = AuthorsText + color1 + "Charger:" + white + " Branding designer" + newline;
-    AuthorsText = AuthorsText + color1 + "CuriousMike:" + white + " Repository & multiplayer server management" + newline;
+    ImGui::NewLine();
+    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Server Contributors"));
+    ImGui::Text("%s%s", "Austin:",       " Server funding");
+    ImGui::Text("%s%s", "DarthCain:",    " Forum software funding");
+    ImGui::Text("%s%s", "Zentro:",       " Systems administrator, web designer");
+    ImGui::Text("%s%s", "Charger:",      " Branding designer");
+    ImGui::Text("%s%s", "CuriousMike:",  " Repository & multiplayer server management");
 
-    //Code Contributors:
-    AuthorsText = AuthorsText + newline;
-    AuthorsText = AuthorsText + orange + "Code Contributors:" + newline;
-    AuthorsText = AuthorsText + color1 + "Estama:" + white + " Physics Core Optimizations, Collision/Friction code, Support Beams" + newline;
-    AuthorsText = AuthorsText + color1 + "Lifter:" + white + " Triggers, Animators, Animated Props, Shocks2" + newline;
-    AuthorsText = AuthorsText + color1 + "Aperion:" + white + " Slidenodes, Axles, Improved Engine code, Rigidifiers, Networking code" + newline;
-    AuthorsText = AuthorsText + color1 + "FlyPiper:" + white + " Inertia Code, minor patches" + newline;
-    AuthorsText = AuthorsText + color1 + "knied:" + white + " MacOSX Patches" + newline;
-    AuthorsText = AuthorsText + color1 + "altren:" + white + " Coded some MyGUI windows" + newline;
-    AuthorsText = AuthorsText + color1 + "petern:" + white + " Repair on spot, Linux patches" + newline;
-    AuthorsText = AuthorsText + color1 + "imrenagy:" + white + " Moving chair hardware support, several fixes" + newline;
-    AuthorsText = AuthorsText + color1 + "priotr:" + white + " Several Linux fixes" + newline;
-    AuthorsText = AuthorsText + color1 + "neorej16:" + white + " AngelScript improvements" + newline;
-    AuthorsText = AuthorsText + color1 + "cptf:" + white + " Several Linux gcc fixes" + newline;
-    AuthorsText = AuthorsText + color1 + "88Toyota:" + white + " Clutch force patches" + newline;
-    AuthorsText = AuthorsText + color1 + "synthead:" + white + " Minor Linux fixes" + newline;
-    AuthorsText = AuthorsText + color1 + "theshark:" + white + " Various fixes" + newline;
-    AuthorsText = AuthorsText + color1 + "Clockwork (a.k.a VeyronEB):" + white + " GUI Designer and tweaker" + newline;
-    AuthorsText = AuthorsText + color1 + "Klink:" + white + " Terrains conversion, few fixes and tweaks, dashboard designer" + newline;
-    AuthorsText = AuthorsText + color1 + "hagdervriese:" + white + " Linux fixes" + newline;
-    AuthorsText = AuthorsText + color1 + "skybon:" + white + " Web services, fixes, utilities" + newline;
-    AuthorsText = AuthorsText + color1 + "Niklas Kersten (Hiradur):" + white + " Various fixes and tweaks, retired" + newline;
-    AuthorsText = AuthorsText + color1 + "Moncef Ben Slimane (max98):" + white + " Few fixes, Few improvements, GUI Overhaul" + newline;
-    AuthorsText = AuthorsText + color1 + "mikadou:" + white + " Modernized thread pool, cmake, various fixes" + newline;
-    AuthorsText = AuthorsText + color1 + "ulteq:" + white + " Various features, multithreading, lots of fixes" + newline;
-    AuthorsText = AuthorsText + color1 + "tritonas00" + white + " Various improvements and Linux fixes" + newline;
+    ImGui::NewLine();
+    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Code Contributors"));
+    ImGui::Text("%s%s", "Estama:",       " Physics Core Optimizations, Collision/Friction code, Support Beams");
+    ImGui::Text("%s%s", "Lifter:",       " Triggers, Animators, Animated Props, Shocks2");
+    ImGui::Text("%s%s", "Aperion:",      " Slidenodes, Axles, Improved Engine code, Rigidifiers, Networking code");
+    ImGui::Text("%s%s", "FlyPiper:",     " Inertia Code, minor patches");
+    ImGui::Text("%s%s", "knied:",        " MacOSX Patches");
+    ImGui::Text("%s%s", "altren:",       " Coded some MyGUI windows");
+    ImGui::Text("%s%s", "petern:",       " Repair on spot, Linux patches");
+    ImGui::Text("%s%s", "imrenagy:",     " Moving chair hardware support, several fixes");
+    ImGui::Text("%s%s", "priotr:",       " Several Linux fixes");
+    ImGui::Text("%s%s", "neorej16:",     " AngelScript improvements");
+    ImGui::Text("%s%s", "cptf:",         " Several Linux gcc fixes");
+    ImGui::Text("%s%s", "88Toyota:",     " Clutch force patches");
+    ImGui::Text("%s%s", "synthead:",     " Minor Linux fixes");
+    ImGui::Text("%s%s", "theshark:",                    " Various fixes");
+    ImGui::Text("%s%s", "Clockwork (a.k.a VeyronEB):",  " GUI Designer and tweaker");
+    ImGui::Text("%s%s", "Klink:",                       " Terrains conversion, few fixes and tweaks, dashboard designer");
+    ImGui::Text("%s%s", "hagdervriese:",                " Linux fixes");
+    ImGui::Text("%s%s", "skybon:",                      " Web services, fixes, utilities");
+    ImGui::Text("%s%s", "Niklas Kersten (Hiradur):",    " Various fixes and tweaks, retired");
+    ImGui::Text("%s%s", "Moncef Ben Slimane (max98):",  " Few fixes, Few improvements, GUI Overhaul");
+    ImGui::Text("%s%s", "mikadou:",                     " Modernized thread pool, cmake, various fixes");
+    ImGui::Text("%s%s", "ulteq:",                       " Various features, multithreading, lots of fixes");
+    ImGui::Text("%s%s", "tritonas00:",                  " Various improvements and Linux fixes");
 
-    //Core Content Contributors
-    AuthorsText = AuthorsText + newline;
-    AuthorsText = AuthorsText + orange + "Core Content Contributors:" + newline;
-    AuthorsText = AuthorsText + color1 + "donoteat:" + white + " Improved spawner models, terrain work" + newline;
-    AuthorsText = AuthorsText + color1 + "kevinmce:" + white + " Old character" + newline;
-    AuthorsText = AuthorsText + color1 + "vido89" + white + " Character animations" + newline;
+    ImGui::NewLine();
+    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Core Content Contributors"));
+    ImGui::Text("%s%s", "donoteat:",       " Improved spawner models, terrain work");
+    ImGui::Text("%s%s", "kevinmce:",       " Old character");
+    ImGui::Text("%s%s", "vido89",          " Character animations");
 
-    //Mod Contributors
-    AuthorsText = AuthorsText + newline;
-    AuthorsText = AuthorsText + orange + "Mod Contributors:" + newline;
-    AuthorsText = AuthorsText + color1 + "The Rigs of Rods community:" + white + " Provides us with lots of mods to play with" + newline;
+    ImGui::NewLine();
+    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Mod Contributors"));
+    ImGui::Text("%s%s", "The Rigs of Rods community:",  " Provides us with lots of mods to play with");
 
-    //Testers
-    AuthorsText = AuthorsText + newline;
-    AuthorsText = AuthorsText + orange + "Testers:" + newline;
-    AuthorsText = AuthorsText + color1 + "Invited core team:" + white + " The invited members helped us a lot along the way at various corners" + newline;
+    ImGui::NewLine();
+    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Testers"));
+    ImGui::Text("%s%s", "Invited core team:",  " The invited members helped us a lot along the way at various corners");
 
-    //Used Libs
-    AuthorsText = AuthorsText + newline;
-    AuthorsText = AuthorsText + orange + "Used Libs:" + newline;
-    AuthorsText = AuthorsText + color1 + "Ogre3D:" + white + " 3D rendering engine" + newline;
+    ImGui::NewLine();
+    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Used Libs"));
+    ImGui::Text("%s%s", "Ogre3D:",         " 3D rendering engine");
 #ifdef USE_CAELUM
-    AuthorsText = AuthorsText + color1 + "Caelum:" + white + " Atmospheric effects" + newline;
+    ImGui::Text("%s%s", "Caelum:",         " Atmospheric effects");
 #endif
-    AuthorsText = AuthorsText + color1 + "Hydrax:" + white + " Water rendering" + newline;
+    ImGui::Text("%s%s", "Hydrax:",         " Water rendering");
 #ifdef USE_ANGELSCRIPT
-    AuthorsText = AuthorsText + color1 + "AngelScript:" + white + " Scripting Backend" + newline;
+    ImGui::Text("%s%s", "AngelScript:",    " Scripting Backend");
 #endif
 #ifdef USE_OPENAL
-    AuthorsText = AuthorsText + color1 + "OpenAL Soft:" + white + " Sound engine" + newline;
+    ImGui::Text("%s%s", "OpenAL Soft:",    " Sound engine");
 #endif
-    AuthorsText = AuthorsText + color1 + "MyGUI:" + white + " Legacy GUI System" + newline;
-    AuthorsText = AuthorsText + color1 + "Dear ImGui:" + white + " GUI System" + newline;
+    ImGui::Text("%s%s", "MyGUI:",          " Legacy GUI System");
+    ImGui::Text("%s%s", "Dear ImGui:",     " GUI System");
 #ifdef USE_MOFILEREADER
-    AuthorsText = AuthorsText + color1 + "mofilereader:" + white + " Used for Internationalization" + newline;
+    ImGui::Text("%s%s", "mofilereader:",   " Used for Internationalization");
 #endif
-    AuthorsText = AuthorsText + color1 + "OIS:" + white + " Used as Input System" + newline;
+    ImGui::Text("%s%s", "OIS:",            " Used as Input System");
 
-    AuthorsText = AuthorsText + color1 + "pagedgeometry:" + white + " Used for foliage (grass, trees, etc)" + newline;
+    ImGui::Text("%s%s", "pagedgeometry:",  " Used for foliage (grass, trees, etc)");
 
 #ifdef USE_CURL
-    AuthorsText = AuthorsText + color1 + "curl:" + white + " Used for www-server communication" + newline;
+    ImGui::Text("%s%s", "curl:",           " Used for www-server communication");
 #endif
 #ifdef USE_SOCKETW
-    AuthorsText = AuthorsText + color1 + "SocketW:" + white + " Used as cross-platform socket abstraction" + newline;
+    ImGui::Text("%s%s", "SocketW:",        " Used as cross-platform socket abstraction");
 #endif
-	AuthorsText = AuthorsText + color1 + "pThreads:" + white + " POSIX threads library" + newline;
-	AuthorsText = AuthorsText + color1 + "RapidJSON:" + white + " JSON parser/generator, used for online services" + newline;
+    ImGui::Text("%s%s", "pThreads:",       " POSIX threads library");
+    ImGui::Text("%s%s", "RapidJSON:",      " JSON parser/generator, used for online services");
 
-    m_authors->setMaxTextLength(4096);
-    m_authors->setCaption(Ogre::String(AuthorsText));
-    m_authors->setVScrollPosition(0);
+    ImGui::End();
 }
 
-void CLASS::eventMouseButtonClickBackButton(MyGUI::WidgetPtr _sender)
-{
-    Hide();
-}
-
-void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
-{
-    if (_name == "close")
-        Hide();
-}
-
-void CLASS::SetVisible(bool v)
-{
-    if (v)
-        Show();
-    else
-        Hide();
-}

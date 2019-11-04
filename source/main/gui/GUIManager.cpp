@@ -531,6 +531,11 @@ void GUIManager::DrawMainMenuGui()
     {
         m_impl->panel_LoadingWindow.Draw();
     }
+
+    if (m_impl->panel_GameAbout.IsVisible())
+    {
+        m_impl->panel_GameAbout.Draw();
+    }
 }
 
 void GUIManager::DrawMpConnectingStatusBox()

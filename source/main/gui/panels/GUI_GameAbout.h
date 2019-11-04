@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2017 Petr Ohlidal & contributors
+    Copyright 2013-2019 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -25,28 +25,19 @@
 
 #pragma once
 
-#include "ForwardDeclarations.h"
-#include "GUI_GameAboutLayout.h"
-
 namespace RoR {
 namespace GUI {
 
-class GameAbout: public GameAboutLayout
+class GameAbout
 {
 public:
-    GameAbout();
-    ~GameAbout();
+    void SetVisible(bool v) { m_is_visible = v; }
+    bool IsVisible() const { return m_is_visible; }
 
-    void Show();
-    void Hide();
-    void SetVisible(bool v);
-    bool IsVisible();
+    void Draw();
 
 private:
-    void eventMouseButtonClickBackButton(MyGUI::WidgetPtr _sender);
-    void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
-    void initMisc();
-    void CenterToScreen();
+    bool m_is_visible = false;
 };
 
 } // namespace GUI
