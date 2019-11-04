@@ -69,7 +69,6 @@ namespace RoR
         class  MainSelector;
         class  MpClientList;
         class  MultiplayerSelector;
-        class  OpenSaveFileDialog;
         class  SimUtils;
         class  TopMenubar;
     }
