@@ -271,6 +271,8 @@ public:
         int              xa_driveable;
         bool             xa_has_autopilot;
         bool             xa_has_engine;
+        Ogre::MaterialPtr xa_help_mat;
+        Ogre::TexturePtr  xa_help_tex;
     };
 
     GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,

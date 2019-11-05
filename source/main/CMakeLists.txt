@@ -152,7 +152,6 @@ set(SOURCE_FILES
         gui/panels/GUI_SimUtils.{h,cpp}
         gui/panels/GUI_SimUtilsLayout.{h,cpp}
         gui/panels/GUI_VehicleDescription.{h,cpp}
-        gui/panels/GUI_VehicleDescriptionLayout.{h,cpp}
         network/Network.{h,cpp}
         physics/ApproxMath.h
         physics/Beam.{h,cpp}

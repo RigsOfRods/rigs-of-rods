@@ -299,6 +299,11 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     {
         m_impl->panel_FrictionSettings.Draw();
     }
+
+    if (this->IsVisible_VehicleDescription())
+    {
+        m_impl->panel_VehicleDescription.Draw();
+    }
 }
 
 void GUIManager::PushNotification(Ogre::String Title, Ogre::UTFString text)

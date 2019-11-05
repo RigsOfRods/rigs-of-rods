@@ -168,6 +168,17 @@ void OgreImGui::Render()
             const ImDrawCmd *drawCmd = &draw_list->CmdBuffer[j];
             renderable.updateVertexData(draw_list->VtxBuffer.Data, &draw_list->IdxBuffer.Data[startIdx], draw_list->VtxBuffer.Size, drawCmd->ElemCount);
 
+            // Texture support adopted from OGRE's ImGuiOverlay and modified for use with Renderable
+            if (drawCmd->TextureId)
+            {
+                auto handle = (Ogre::ResourceHandle)drawCmd->TextureId;
+                auto tex = Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().getByHandle(handle));
+                if (tex)
+                {
+                    renderable.getMaterial()->getTechnique(0)->getPass(0)->getTextureUnitState(0)->_setTexturePtr(tex);
+                }
+            }
+
             // Set scissoring
             int scLeft   = static_cast<int>(drawCmd->ClipRect.x); // Obtain bounds
             int scTop    = static_cast<int>(drawCmd->ClipRect.y);
@@ -183,6 +194,12 @@ void OgreImGui::Render()
 
             // Render!
             mSceneMgr->_injectRenderWithPass(mPass, &renderable, false, false, nullptr);
+
+            // Reset the texture
+            if (drawCmd->TextureId)
+            {
+                renderable.getMaterial()->getTechnique(0)->getPass(0)->getTextureUnitState(0)->_setTexturePtr(mFontTex);
+            }
 
             // Update counts
             startIdx += drawCmd->ElemCount;

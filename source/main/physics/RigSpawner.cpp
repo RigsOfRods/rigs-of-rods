@@ -1225,7 +1225,7 @@ void ActorSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 
     if (! def.help_material.empty())
     {
-        m_actor->ar_help_panel_material = def.help_material;
+        m_help_material_name = def.help_material;
     }
     if (def.speedo_highest_kph > 10 && def.speedo_highest_kph < 32000)
     {
@@ -5186,7 +5186,7 @@ void ActorSpawner::ProcessHelp()
         auto module = module_itor->get();
         if (! module->help_panel_material_name.empty())
         {
-            m_actor->ar_help_panel_material = module->help_panel_material_name;
+            m_help_material_name = module->help_panel_material_name;
             material_count++;
         }
     }
@@ -6865,6 +6865,30 @@ void ActorSpawner::FinalizeGfxSetup()
     }
 
     m_actor->GetGfxActor()->RegisterAirbrakes();
+
+    if (!m_help_material_name.empty())
+    {
+        try
+        {
+            Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(m_help_material_name, m_custom_resource_group);
+            m_actor->GetGfxActor()->GetAttributes().xa_help_mat = mat;
+            if (mat &&
+                mat->getNumTechniques() > 0 &&
+                mat->getTechnique(0)->getNumPasses() > 0 &&
+                mat->getTechnique(0)->getPass(0)->getNumTextureUnitStates() > 0 &&
+                mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getNumFrames() > 0)
+            {
+                m_actor->GetGfxActor()->GetAttributes().xa_help_tex =
+                    Ogre::TextureManager::getSingleton().getByName(
+                        mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getFrameTextureName(0), m_custom_resource_group);
+            }
+        }
+        catch (Ogre::Exception& e)
+        {
+            this->AddMessage(Message::TYPE_ERROR,
+                "Failed to load `help` material '" + m_help_material_name + "', message:" + e.getFullDescription());
+        }
+    }
 }
 
 void ActorSpawner::ValidateRotator(int id, int axis1, int axis2, int *nodes1, int *nodes2)

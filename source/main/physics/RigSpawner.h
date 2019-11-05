@@ -1050,6 +1050,7 @@ private:
     bool               m_apply_simple_materials;
     std::string        m_cab_material_name; ///< Original name defined in truckfile/globals.
     std::string        m_custom_resource_group;
+    std::string        m_help_material_name;
     float              m_wing_area;
     int                m_airplane_left_light;
     int                m_airplane_right_light;
