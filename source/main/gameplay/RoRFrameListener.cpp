@@ -2446,32 +2446,6 @@ void SimController::ChangePlayerActor(Actor* actor)
             gEnv->player->SetActorCoupling(true, m_player_actor);
         }
 
-        if (RoR::App::GetOverlayWrapper())
-        {
-            try
-            {
-                if (!m_player_actor->ar_help_panel_material.empty())
-                {
-                    OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName(m_player_actor->ar_help_panel_material);
-                }
-                else
-                {
-                    OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName("tracks/black");
-                }
-            }
-            catch (Ogre::Exception& ex)
-            {
-                // Report the error
-                std::stringstream msg;
-                msg << "Error, help panel material (defined in 'help' or 'guisettings/helpMaterial') could not be loaded.\n"
-                    "Exception occured, file:" << __FILE__ << ", line:" << __LINE__ << ", message:" << ex.what();
-                LOG(msg.str());
-
-                // Do not retry
-                m_player_actor->ar_help_panel_material.clear();
-            }
-        }
-
         TRIGGER_EVENT(SE_TRUCK_ENTER, m_player_actor?m_player_actor->ar_instance_id:-1);
     }
 

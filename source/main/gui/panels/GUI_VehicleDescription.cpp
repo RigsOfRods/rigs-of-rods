@@ -27,135 +27,101 @@
 
 #include "Application.h"
 #include "Beam.h"
-#include "BeamFactory.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
-#include "Utils.h"
-#include "RoRnet.h"
 #include "Language.h"
 #include "RoRFrameListener.h"
+#include "RoRPrerequisites.h"
 
-#include <MyGUI.h>
+#include <imgui.h>
 
-using namespace RoR;
-using namespace GUI;
-
-#define CLASS        VehicleDescription
-#define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
-
-CLASS::CLASS()
+void RoR::GUI::VehicleDescription::Draw()
 {
-    MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
-    win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
-
-    CenterToScreen();
-    MAIN_WIDGET->setVisible(false);
-}
-
-CLASS::~CLASS()
-{
-    m_vehicle_desc->setCaptionWithReplacing("");
-}
-
-void CLASS::LoadText()
-{
-    Actor* currTruck = App::GetSimController()->GetPlayerActor();
-
-    if (currTruck == nullptr)
+    Actor* actor = App::GetSimController()->GetPlayerActor();
+    if (!actor)
+    {
+        m_is_visible = false;
         return;
+    }
 
-    m_vehicle_title->setMaxTextLength(33);
-    m_vehicle_title->setCaptionWithReplacing(currTruck->GetActorDesignName());
-
-    Ogre::UTFString txt = _L("(no author information available) ");
-
-    std::vector<authorinfo_t> authors = currTruck->getAuthors();
-    if (!authors.empty())
+    ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
+    ImVec2 size(HELP_TEXTURE_WIDTH + 2*ImGui::GetStyle().WindowPadding.x, 0.f);
+    ImGui::SetNextWindowSize(size, ImGuiSetCond_Appearing);
+    if (!ImGui::Begin(actor->GetActorDesignName().c_str(), &m_is_visible))
     {
-        txt = _L("Authors: \n");
-        for (auto author : authors)
+        ImGui::End(); // The window is collapsed
+        return;
+    }
+
+    RoR::GfxActor* gfx_actor = actor->GetGfxActor();
+    if (gfx_actor->GetAttributes().xa_help_tex)
+    {
+        ImTextureID im_tex = reinterpret_cast<ImTextureID>(gfx_actor->GetAttributes().xa_help_tex->getHandle());
+        ImGui::Image(im_tex, ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT));
+    }
+
+    if (ImGui::CollapsingHeader(_L("Description"), ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        for (auto line : actor->getDescription())
         {
-            txt = txt + "* " + author.name + " \n";
+            ImGui::TextWrapped("%s", line.c_str());
         }
     }
 
-    std::vector<std::string> description = currTruck->getDescription();
-    if (!description.empty())
+    if (ImGui::CollapsingHeader(_L("Commands"), ImGuiTreeNodeFlags_DefaultOpen))
     {
-        txt = txt + _L("\nDescription: \n");
-        for (auto line : description)
+        ImGui::Columns(2, /*id=*/nullptr, /*border=*/true);
+        for (int i = 1; i < MAX_COMMANDS; i += 2)
         {
-            txt = txt + ANSI_TO_UTF(line) + "\n";
+            if (actor->ar_command_key[i].description == "hide")
+                continue;
+            if (actor->ar_command_key[i].beams.empty() && actor->ar_command_key[i].rotators.empty())
+                continue;
+
+            char commandID[256] = {};
+            Ogre::String keyStr = "";
+
+            sprintf(commandID, "COMMANDS_%02d", i);
+            int eventID = RoR::App::GetInputEngine()->resolveEventName(Ogre::String(commandID));
+            Ogre::String keya = RoR::App::GetInputEngine()->getEventCommand(eventID);
+            sprintf(commandID, "COMMANDS_%02d", i + 1);
+            eventID = RoR::App::GetInputEngine()->resolveEventName(Ogre::String(commandID));
+            Ogre::String keyb = RoR::App::GetInputEngine()->getEventCommand(eventID);
+
+            // cut off expl
+            if (keya.size() > 6 && keya.substr(0, 5) == "EXPL+")
+                keya = keya.substr(5);
+            if (keyb.size() > 6 && keyb.substr(0, 5) == "EXPL+")
+                keyb = keyb.substr(5);
+
+            ImGui::Text("%s/%s", keya.c_str(), keyb.c_str());
+            ImGui::NextColumn();
+
+            if (!actor->ar_command_key[i].description.empty())
+            {
+                ImGui::Text("%s", actor->ar_command_key[i].description.c_str());
+            }
+            else
+            {
+                ImGui::TextDisabled("%s", _L("unknown function"));
+            }
+            ImGui::NextColumn();
+        }
+        ImGui::Columns(1);
+    }
+
+    if (ImGui::CollapsingHeader(_L("Authors")))
+    {
+        for (authorinfo_t const& author: actor->getAuthors())
+        {
+            ImGui::Text("%s: %s", author.type.c_str(), author.name.c_str());
+        }
+
+        if (actor->getAuthors().empty())
+        {
+            ImGui::TextDisabled("%s", _L("(no author information available) "));
         }
     }
 
-    txt = txt + _L("\nCommands: \n");
-
-    int filledCommands = 0;
-    for (int i = 1; i < MAX_COMMANDS && filledCommands < COMMANDS_VISIBLE; i += 2)
-    {
-        if (currTruck->ar_command_key[i].description == "hide")
-            continue;
-        if (currTruck->ar_command_key[i].beams.empty() && currTruck->ar_command_key[i].rotators.empty())
-            continue;
-
-        filledCommands++;
-        char commandID[256] = {};
-        Ogre::String keyStr = "";
-
-        sprintf(commandID, "COMMANDS_%02d", i);
-        int eventID = RoR::App::GetInputEngine()->resolveEventName(Ogre::String(commandID));
-        Ogre::String keya = RoR::App::GetInputEngine()->getEventCommand(eventID);
-        sprintf(commandID, "COMMANDS_%02d", i + 1);
-        eventID = RoR::App::GetInputEngine()->resolveEventName(Ogre::String(commandID));
-        Ogre::String keyb = RoR::App::GetInputEngine()->getEventCommand(eventID);
-
-        // cut off expl
-        if (keya.size() > 6 && keya.substr(0, 5) == "EXPL+")
-            keya = keya.substr(5);
-        if (keyb.size() > 6 && keyb.substr(0, 5) == "EXPL+")
-            keyb = keyb.substr(5);
-
-        keyStr = keya + "/" + keyb;
-
-        if (currTruck->ar_command_key[i].description.empty())
-        {
-            txt = txt + "* " + keyStr + ": " + _L("unknown function");
-        }
-        else
-        {
-            txt = txt + "* " + keyStr + ": " + currTruck->ar_command_key[i].description;
-        }
-
-        txt = txt + "\n";
-    }
-
-    m_vehicle_desc->setCaption(Ogre::String(txt));
-}
-
-bool CLASS::IsVisible()
-{
-    return MAIN_WIDGET->getVisible();
-}
-
-void CLASS::SetVisible(bool vis)
-{
-    if (vis && !IsVisible())
-        LoadText();
-
-    MAIN_WIDGET->setVisible(vis);
-}
-
-void CLASS::CenterToScreen()
-{
-    MyGUI::IntSize windowSize = MAIN_WIDGET->getSize();
-    MyGUI::IntSize parentSize = MAIN_WIDGET->getParentSize();
-
-    MAIN_WIDGET->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
-}
-
-void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
-{
-    if (_name == "close")
-        SetVisible(false);
+    ImGui::End();
 }
