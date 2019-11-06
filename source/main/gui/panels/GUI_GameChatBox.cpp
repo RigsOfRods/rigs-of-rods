@@ -19,177 +19,144 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file
-/// @author Moncef Ben Slimane
-/// @date   2/2015
-
 #include "GUI_GameChatBox.h"
 
-#include <OgreRenderTarget.h>
-#include <OgreRenderWindow.h>
-#include <OgreViewport.h>
-#include <OgreRoot.h>
-
-#include "RoRPrerequisites.h"
-
 #include "ChatSystem.h"
-#include "Utils.h"
 #include "Language.h"
-#include "GUIManager.h"
-#include "Application.h"
-#include "OgreSubsystem.h"
 
-using namespace RoR;
-using namespace GUI;
+#include <cstring> // strtok, strncmp
+#include <imgui.h>
 
-#define CLASS        GameChatBox
-#define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
-
-CLASS::CLASS() :
-      alpha(1.0f)
-    , newMsg(false)
-    , pushTime(0)
+void RoR::GUI::GameChatBox::pushMsg(std::string const& txt)
 {
-    MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::Update);
-
-    /* Adjust menu position */
-    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
-    int margin = (viewport->getActualHeight() / 4.5);
-    MAIN_WIDGET->setPosition(
-        2, // left
-        viewport->getActualHeight() - MAIN_WIDGET->getHeight() - margin // top
-    );
-
-    m_Chatbox_TextBox->eventEditSelectAccept += MyGUI::newDelegate(this, &CLASS::eventCommandAccept);
-    MAIN_WIDGET->setVisible(!App::mp_chat_auto_hide.GetActive());
-}
-
-CLASS::~CLASS()
-{
-}
-
-void CLASS::Show()
-{
-    MAIN_WIDGET->setVisible(true);
-    m_Chatbox_TextBox->setEnabled(true);
-    MyGUI::InputManager::getInstance().setKeyFocusWidget(m_Chatbox_TextBox);
-}
-
-void CLASS::Hide()
-{
-    MAIN_WIDGET->setVisible(false);
-}
-
-bool CLASS::IsVisible()
-{
-    return MAIN_WIDGET->isVisible();
-}
-
-void CLASS::pushMsg(Ogre::String txt)
-{
-    mHistory += RoR::Color::NormalColour + txt + " \n";
-    newMsg = true;
-    m_Chatbox_MainBox->setCaptionWithReplacing(mHistory);
-}
-
-void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
-{
-    Ogre::UTFString msg = convertFromMyGUIString(_sender->getCaption());
-    _sender->setCaption("");
-
-    if (App::mp_chat_auto_hide.GetActive())
-        _sender->setEnabled(false);
-
-    if (msg.empty())
+    std::lock_guard<std::mutex> lock(m_messages_mutex);
+    m_messages.push_back(txt);
+    m_message_added = true;
+    m_disp_state = DispState::VISIBLE_STALE;
+    if (m_messages.size() > MESSAGES_CAP)
     {
-        // discard the empty message
-        return;
+        m_messages.erase(m_messages.begin());
+    }
+}
+
+void RoR::GUI::GameChatBox::Draw()
+{
+    // Calculate opacity (fade-out)
+    const size_t time = static_cast<size_t>(Ogre::Root::getSingleton().getTimer()->getMilliseconds());
+    if (m_message_added)
+    {
+        m_message_added = false;
+        m_message_time = time;
     }
 
-    if (msg[0] == '/' || msg[0] == '\\')
+    float alpha = 1.f;
+    if (m_disp_state == DispState::VISIBLE_STALE)
     {
-        Ogre::StringVector args = Ogre::StringUtil::split(msg, " ");
-        if (args[0] == "/whisper")
+        if (time > m_message_time + FADEOUT_DELAY_MS + FADEOUT_DURATION_MS)
         {
-            if (args.size() != 3)
-            {
-                Ogre::UTFString trmsg = _L("usage: /whisper username message");
-                pushMsg(trmsg);
-                return;
-            }
-            RoR::ChatSystem::SendPrivateChat(args[1], args[2]);
+            m_disp_state = DispState::HIDDEN;
             return;
         }
+        else if (time > m_message_time + FADEOUT_DELAY_MS)
+        {
+            const size_t fadeout_elapsed_ms = time - (m_message_time + FADEOUT_DELAY_MS);
+            alpha -= (static_cast<float>(fadeout_elapsed_ms)/static_cast<float>(FADEOUT_DURATION_MS));
+        }
     }
 
-#ifdef USE_SOCKETW
-    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+    // Begin drawing the window
+    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar;
+    const ImVec2 size(500.f, 300.f);
+    const ImVec2 pos(0, ImGui::GetIO().DisplaySize.y - size.y);
+    ImGui::SetNextWindowSize(size);
+    ImGui::SetNextWindowPos(pos);
+    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
+    ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImVec4(0.4f, 0.4f, 0.4f, 0.4f)); // Semi-transparent reading pane
+    if (!ImGui::Begin("Chat", nullptr, win_flags))
     {
-        RoR::ChatSystem::SendChat(msg.c_str());
         return;
+    }
+
+    // Draw messages
+    const float footer_height_to_reserve = ImGui::GetTextLineHeightWithSpacing(); // 1 input text
+    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar); // Leave room for 1 separator + 1 InputText
+
+    { // Lock scope
+        std::lock_guard<std::mutex> lock(m_messages_mutex);
+        for (std::string const& line: m_messages)
+        {
+            ImGui::Text("%s", line.c_str());
+        }
+    } // Lock scope
+
+    ImGui::EndChild();
+
+    // Draw input box
+    if (m_disp_state == DispState::VISIBLE_FRESH)
+    {
+        ImGui::SetKeyboardFocusHere();
+    }
+
+    const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
+    if (ImGui::InputText(_L("Message"), m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
+    {
+        if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+        {
+            this->SubmitMessage();
+        }
+        m_msg_buffer.Clear();
+        m_message_time = time;
+        m_disp_state = DispState::VISIBLE_STALE;
+    }
+
+    if (m_disp_state == DispState::VISIBLE_FRESH)
+    {
+        // We just called `ImGui::SetKeyboardFocusHere()`, `ImGui::IsItemActive()` won't return `true` until next frame! 
+        m_disp_state = DispState::VISIBLE_FOCUSED;
+    }
+    else
+    {
+        m_disp_state = (ImGui::IsItemActive()) ? // Does the input box have keyboard focus?
+            DispState::VISIBLE_FOCUSED : DispState::VISIBLE_STALE;
+    }
+
+    ImGui::End();
+    ImGui::PopStyleVar(1); // Alpha
+    ImGui::PopStyleColor(2); // WindowBg, ChildWindowBg
+}
+
+void RoR::GUI::GameChatBox::SubmitMessage()
+{
+#ifdef USE_SOCKETW
+    if (m_msg_buffer.IsEmpty())
+    {
+        return;
+    }
+    if (std::strncmp(m_msg_buffer.GetBuffer(), "/whisper", 8) == 0)
+    {
+        std::strtok(m_msg_buffer.GetBuffer(), " ");
+        const char* username = std::strtok(nullptr, " ");
+        const char* message = std::strtok(nullptr, " ");
+        if (username != nullptr && message != nullptr)
+        {
+            RoR::ChatSystem::SendPrivateChat(username, message);
+        }
+        else
+        {
+            this->pushMsg(_L("usage: /whisper username message"));
+        }
+    }
+    else
+    {
+        RoR::ChatSystem::SendChat(m_msg_buffer.GetBuffer());
     }
 #endif // USE_SOCKETW
-
-    //MyGUI::InputManager::getInstance().resetKeyFocusWidget();
-    RoR::App::GetGuiManager()->UnfocusGui();
 }
 
-void CLASS::Update(float dt)
+void RoR::GUI::GameChatBox::SetVisible(bool v)
 {
-    if (App::mp_state.GetActive() != MpState::CONNECTED)
-    {
-        MAIN_WIDGET->setVisible(false);
-        return;
-    }
-    else if (!App::mp_chat_auto_hide.GetActive())
-    {
-        MAIN_WIDGET->setVisible(true);
-        return;
-    }
-
-    if (newMsg)
-    {
-        newMsg = false;
-        pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
-        MAIN_WIDGET->setAlpha(1);
-        MAIN_WIDGET->setVisible(true);
-        return;
-    }
-
-    if (!MyGUI::InputManager::getInstance().isFocusKey())
-    {
-        unsigned long ot = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
-        unsigned long endTime = pushTime + 5000;
-        unsigned long startTime = endTime - (long)1000.0f;
-        if (ot < startTime)
-        {
-            alpha = 1.0f;
-        }
-        else
-        {
-            alpha = 1 - ((ot - startTime) / 1000.0f);
-        }
-        if (alpha <= 0.0f)
-        {
-            MAIN_WIDGET->setVisible(false);
-        }
-        else
-        {
-            MAIN_WIDGET->setAlpha(alpha);
-        }
-    }
-    else if (MAIN_WIDGET->getVisible())
-    {
-        pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
-        m_Chatbox_TextBox->setEnabled(true);
-        MAIN_WIDGET->setAlpha(1);
-    }
+    m_disp_state = (v) ? DispState::VISIBLE_FRESH : DispState::HIDDEN;
 }
 
-void CLASS::SetVisible(bool value)
-{
-    if (value)
-        this->Show();
-    else
-        this->Hide();
-}

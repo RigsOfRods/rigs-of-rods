@@ -138,7 +138,6 @@ set(SOURCE_FILES
         gui/panels/GUI_TextureToolWindow.{h,cpp}
         gui/panels/GUI_GameAbout.{h,cpp}
         gui/panels/GUI_GameChatBox.{h,cpp}
-        gui/panels/GUI_GameChatBoxLayout.{h,cpp}
         gui/panels/GUI_GameMainMenu.{h,cpp}
         gui/panels/GUI_GamePauseMenu.{h,cpp}
         gui/panels/GUI_GameSettings.{h,cpp}
