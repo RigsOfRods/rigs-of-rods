@@ -20,41 +20,50 @@
 */
 
 /// @file
-/// @author Moncef Ben Slimane
-/// @date   2/2015
+/// @author Original MyGUI version: Moncef Ben Slimane, 2/2015
+/// @author Remake with DearIMGUI: Petr Ohlidal, 11/2019
 
 #pragma once
 
-#include "ForwardDeclarations.h"
-#include "GUI_GameChatBoxLayout.h"
+#include "Application.h"
+
+#include <mutex>
+#include <string>
+#include <vector>
 
 namespace RoR {
 namespace GUI {
 
-class GameChatBox: public GameChatBoxLayout
+class GameChatBox
 {
 public:
+    static const size_t MESSAGES_CAP = 100u;
+    static const size_t FADEOUT_DELAY_MS = 4000u;
+    static const size_t FADEOUT_DURATION_MS = 1000u;
 
-    GameChatBox();
-    ~GameChatBox();
+    enum class DispState
+    {
+        HIDDEN,
+        VISIBLE_FRESH,   //<! Invoked by user; will set keyboard focus and switch to FOCUSED
+        VISIBLE_FOCUSED, //!< User is typing
+        VISIBLE_STALE    //!< User sent message or external message was displayed, fadeout countdown is running
+    };
 
-    void Show();
-    void Hide();
-    bool IsVisible();
-    void SetVisible(bool value);
-    void pushMsg(Ogre::String txt);
-    void Update(float dt);
+    void SetVisible(bool v);
+    bool IsVisible() const { return m_disp_state != DispState::HIDDEN; }
+
+    void Draw();
+    void pushMsg(std::string const& txt);
 
 private:
+    void SubmitMessage(); //!< Flush the user input box
 
-    void eventCommandAccept(MyGUI::Edit* _sender);
-
-    Ogre::String mHistory;
-    bool newMsg;
-
-    // logic
-    float alpha;
-    long pushTime;
+    DispState                 m_disp_state = DispState::HIDDEN;
+    Str<400>                  m_msg_buffer;
+    std::vector<std::string>  m_messages;
+    std::mutex                m_messages_mutex;
+    bool                      m_message_added = false;
+    size_t                    m_message_time = 0;
 };
 
 } // namespace GUI

@@ -304,6 +304,11 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     {
         m_impl->panel_VehicleDescription.Draw();
     }
+
+    if (this->IsVisible_ChatBox())
+    {
+        m_impl->panel_ChatBox.Draw();
+    }
 }
 
 void GUIManager::PushNotification(Ogre::String Title, Ogre::UTFString text)
@@ -378,7 +383,7 @@ void GUIManager::hideGUI(bool hidden)
         m_impl->panel_SimUtils.HideNotificationBox();
         m_impl->panel_SimUtils.SetFPSBoxVisible(false);
         m_impl->panel_SimActorStats.SetVisible(false);
-        m_impl->panel_ChatBox.Hide();
+        m_impl->panel_ChatBox.SetVisible(false);
     }
     m_impl->panel_SimUtils.DisableNotifications(hidden);
 }
