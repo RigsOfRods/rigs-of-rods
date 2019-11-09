@@ -21,50 +21,59 @@
 
 #ifdef USE_OPENAL
 
-#pragma once
+    #pragma once
 
-#include "RoRPrerequisites.h"
+    #include "RoRPrerequisites.h"
 
-#include <OgreVector3.h>
-#include <OgreString.h>
+    #include <OgreString.h>
+    #include <OgreVector3.h>
 
-#ifdef __APPLE__
-  #include <OpenAL/al.h>
-  #include <OpenAL/alc.h>
-#else
-  #include <AL/al.h>
-  #include <AL/alc.h>
-#endif // __APPLE__
+    #ifdef __APPLE__
+        #include <OpenAL/al.h>
+        #include <OpenAL/alc.h>
+    #else
+        #include <AL/al.h>
+        #include <AL/alc.h>
+    #endif // __APPLE__
 
 class SoundManager : public ZeroedMemoryAllocator
 {
     friend class Sound;
 
-public:
+  public:
     SoundManager();
     ~SoundManager();
 
-    Sound* createSound(Ogre::String filename);
+    Sound *createSound(Ogre::String filename);
 
     void setCamera(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
     void pauseAllSounds();
     void resumeAllSounds();
     void setMasterVolume(float v);
 
-    bool isDisabled() { return audio_device == 0; }
+    bool isDisabled()
+    {
+        return audio_device == 0;
+    }
 
-    int getNumHardwareSources() { return hardware_sources_num; }
+    int getNumHardwareSources()
+    {
+        return hardware_sources_num;
+    }
 
-    static const float MAX_DISTANCE;
-    static const float ROLLOFF_FACTOR;
-    static const float REFERENCE_DISTANCE;
+    static const float        MAX_DISTANCE;
+    static const float        ROLLOFF_FACTOR;
+    static const float        REFERENCE_DISTANCE;
     static const unsigned int MAX_HARDWARE_SOURCES = 32;
-    static const unsigned int MAX_AUDIO_BUFFERS = 8192;
+    static const unsigned int MAX_AUDIO_BUFFERS    = 8192;
 
-private:
-    void recomputeAllSources();
-    void recomputeSource(int source_index, int reason, float vfl, Ogre::Vector3 *vvec);
-    ALuint getHardwareSource(int hardware_index) { return hardware_sources[hardware_index]; };
+  private:
+    void   recomputeAllSources();
+    void   recomputeSource(int source_index, int reason, float vfl, Ogre::Vector3 *vvec);
+    ALuint getHardwareSource(int hardware_index)
+    {
+        return hardware_sources[hardware_index];
+    };
 
     void assign(int source_index, int hardware_index);
     void retire(int source_index);
@@ -72,24 +81,24 @@ private:
     bool loadWAVFile(Ogre::String filename, ALuint buffer);
 
     // active audio sources (hardware sources)
-    int    hardware_sources_num;                       // total number of available hardware sources < MAX_HARDWARE_SOURCES
+    int    hardware_sources_num; // total number of available hardware sources < MAX_HARDWARE_SOURCES
     int    hardware_sources_in_use_count;
     int    hardware_sources_map[MAX_HARDWARE_SOURCES]; // stores the hardware index for each source. -1 = unmapped
     ALuint hardware_sources[MAX_HARDWARE_SOURCES];     // this buffer contains valid AL handles up to m_hardware_sources_num
 
     // audio sources
-    Sound* audio_sources[MAX_AUDIO_BUFFERS];
+    Sound *audio_sources[MAX_AUDIO_BUFFERS];
     // helper for calculating the most audible sources
     std::pair<int, float> audio_sources_most_audible[MAX_AUDIO_BUFFERS];
-    
+
     // audio buffers: Array of AL buffers and filenames
     int          audio_buffers_in_use_count;
     ALuint       audio_buffers[MAX_AUDIO_BUFFERS];
     Ogre::String audio_buffer_file_name[MAX_AUDIO_BUFFERS];
 
     Ogre::Vector3 camera_position;
-    ALCdevice*    audio_device;
-    ALCcontext*   sound_context;
+    ALCdevice *   audio_device;
+    ALCcontext *  sound_context;
 };
 
 #endif // USE_OPENAL

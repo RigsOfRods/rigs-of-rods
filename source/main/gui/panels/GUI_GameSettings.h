@@ -22,38 +22,50 @@
 #include "Application.h"
 #include "OgreImGui.h"
 
-namespace RoR {
-namespace GUI {
-
-class GameSettings
+namespace RoR
 {
-public:
-    enum SettingsTab { RENDER_SYSTEM, GENERAL, GRAPHICS, AUDIO, CONTROL, DIAG };
-
-    GameSettings(): m_is_visible(false), m_tab(SettingsTab::RENDER_SYSTEM) {}
-
-    void Draw();
-
-    inline bool IsVisible() const { return m_is_visible; }
-    inline void SetVisible(bool v)
+    namespace GUI
     {
-        if (!v)
+
+        class GameSettings
         {
-            m_tab = SettingsTab::RENDER_SYSTEM;
-        }
-        m_is_visible = v;
-    }
+          public:
+            enum SettingsTab
+            {
+                RENDER_SYSTEM,
+                GENERAL,
+                GRAPHICS,
+                AUDIO,
+                CONTROL,
+                DIAG
+            };
 
-private:
-    bool m_is_visible;
-    SettingsTab m_tab;
+            GameSettings() : m_is_visible(false), m_tab(SettingsTab::RENDER_SYSTEM)
+            {
+            }
 
-    Str<100> m_buf_diag_preset_terrain;
-    Str<100> m_buf_diag_preset_vehicle;
-    Str<100> m_buf_diag_preset_veh_config;
-    Str<300> m_buf_app_extra_mod_dir;
-    Str<50>  m_buf_io_outgauge_ip;
-};
+            void Draw();
 
-} // namespace GUI
+            inline bool IsVisible() const
+            {
+                return m_is_visible;
+            }
+            inline void SetVisible(bool v)
+            {
+                if (!v) { m_tab = SettingsTab::RENDER_SYSTEM; }
+                m_is_visible = v;
+            }
+
+          private:
+            bool        m_is_visible;
+            SettingsTab m_tab;
+
+            Str<100> m_buf_diag_preset_terrain;
+            Str<100> m_buf_diag_preset_vehicle;
+            Str<100> m_buf_diag_preset_veh_config;
+            Str<300> m_buf_app_extra_mod_dir;
+            Str<50>  m_buf_io_outgauge_ip;
+        };
+
+    } // namespace GUI
 } // namespace RoR

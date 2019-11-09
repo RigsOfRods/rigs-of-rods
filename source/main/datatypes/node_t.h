@@ -27,11 +27,20 @@ struct node_t
     // REFACTOR IN PROGRESS: Currently nodes are adressed mostly by pointers or int32_t indices,
     //     although there was always a hidden soft limit of 2^16 nodes (because of `short node_t::pos`).
     //     Let's use `uint16_t` indices everywhere to be clear.      ~ only_a_ptr, 04/2018
-    static const uint16_t INVALID_IDX = std::numeric_limits<uint16_t>::max();
+    static const uint16_t INVALID_IDX  = std::numeric_limits<uint16_t>::max();
     static const int8_t   INVALID_BBOX = -1;
 
-    node_t()               { memset(this, 0, sizeof(node_t)); nd_coll_bbox_id = INVALID_BBOX; }
-    node_t(size_t _pos)    { memset(this, 0, sizeof(node_t)); nd_coll_bbox_id = INVALID_BBOX; pos = static_cast<short>(_pos); }
+    node_t()
+    {
+        memset(this, 0, sizeof(node_t));
+        nd_coll_bbox_id = INVALID_BBOX;
+    }
+    node_t(size_t _pos)
+    {
+        memset(this, 0, sizeof(node_t));
+        nd_coll_bbox_id = INVALID_BBOX;
+        pos             = static_cast<short>(_pos);
+    }
 
     Ogre::Vector3 RelPosition; //!< relative to the local physics origin (one origin per actor) (shaky)
     Ogre::Vector3 AbsPosition; //!< absolute position in the world (shaky)
@@ -46,27 +55,27 @@ struct node_t
     Ogre::Real surface_coef;
     Ogre::Real volume_coef;
 
-    int16_t pos;              //!< This node's index in Actor::ar_nodes array.
-    int16_t nd_coll_bbox_id;  //!< Optional attribute (-1 = none) - multiple collision bounding boxes defined in truckfile
-    int16_t nd_lockgroup;     //!< Optional attribute (-1 = default, 9999 = deny lock) - used in the hook lock logic
+    int16_t pos;             //!< This node's index in Actor::ar_nodes array.
+    int16_t nd_coll_bbox_id; //!< Optional attribute (-1 = none) - multiple collision bounding boxes defined in truckfile
+    int16_t nd_lockgroup;    //!< Optional attribute (-1 = default, 9999 = deny lock) - used in the hook lock logic
 
     // Bit flags
-    bool            nd_cab_node:1;           //!< Attr; This node is part of collision triangle
-    bool            nd_rim_node:1;           //!< Attr; This node is part of a rim
-    bool            nd_tyre_node:1;          //!< Attr; This node is part of a tyre
-    bool            nd_contacter:1;          //!< Attr; User-defined
-    bool            nd_contactable:1;        //!< Attr; This node will be treated as contacter on inter truck collisions
-    bool            nd_has_ground_contact:1; //!< Physics state
-    bool            nd_has_mesh_contact:1;   //!< Physics state
-    bool            nd_immovable:1;          //!< Attr; User-defined
-    bool            nd_loaded_mass:1;        //!< User defined attr; mass is calculated from 'globals/loaded-mass' rather than 'globals/dry-mass'
-    bool            nd_no_ground_contact:1;  //!< User-defined attr; node ignores contact with ground
-    bool            nd_override_mass:1;      //!< User defined attr; mass is user-specified rather than calculated (override the calculation)
-    bool            nd_under_water:1;        //!< State; GFX hint
-    bool            nd_no_mouse_grab:1;      //!< Attr; User-defined
+    bool nd_cab_node : 1;           //!< Attr; This node is part of collision triangle
+    bool nd_rim_node : 1;           //!< Attr; This node is part of a rim
+    bool nd_tyre_node : 1;          //!< Attr; This node is part of a tyre
+    bool nd_contacter : 1;          //!< Attr; User-defined
+    bool nd_contactable : 1;        //!< Attr; This node will be treated as contacter on inter truck collisions
+    bool nd_has_ground_contact : 1; //!< Physics state
+    bool nd_has_mesh_contact : 1;   //!< Physics state
+    bool nd_immovable : 1;          //!< Attr; User-defined
+    bool nd_loaded_mass : 1; //!< User defined attr; mass is calculated from 'globals/loaded-mass' rather than 'globals/dry-mass'
+    bool nd_no_ground_contact : 1; //!< User-defined attr; node ignores contact with ground
+    bool nd_override_mass : 1; //!< User defined attr; mass is user-specified rather than calculated (override the calculation)
+    bool nd_under_water : 1;   //!< State; GFX hint
+    bool nd_no_mouse_grab : 1; //!< Attr; User-defined
 
     Ogre::Real      nd_avg_collision_slip;   //!< Physics state; average slip velocity across the last few physics frames
     Ogre::Vector3   nd_last_collision_slip;  //!< Physics state; last collision slip vector
     Ogre::Vector3   nd_last_collision_force; //!< Physics state; last collision force
-    ground_model_t* nd_last_collision_gm;    //!< Physics state; last collision 'ground model' (surface definition)
+    ground_model_t *nd_last_collision_gm;    //!< Physics state; last collision 'ground model' (surface definition)
 };

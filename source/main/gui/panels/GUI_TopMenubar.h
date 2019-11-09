@@ -29,44 +29,59 @@
 
 #include <imgui.h>
 
-namespace RoR {
-namespace GUI {
-
-class TopMenubar
+namespace RoR
 {
-public:
-    const float   MENU_Y_OFFSET         = 40.f;
-    const float   PANEL_HOVERBOX_HEIGHT = 50.f;
-    const ImVec4  PANEL_BG_COLOR        = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
-    const ImVec4  TRANSPARENT_COLOR     = ImVec4(0,0,0,0);
-    const ImVec4  GRAY_HINT_TEXT        = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
-    const ImVec4  WHITE_TEXT            = ImVec4(0.9f, 0.9f, 0.9f, 1.f);
-    const ImVec4  GREEN_TEXT            = ImVec4(0.0f, 0.9f, 0.0f, 1.f);
-    const ImVec4  ORANGE_TEXT           = ImVec4(0.9f, 0.6f, 0.0f, 1.f);
+    namespace GUI
+    {
 
-    enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS };
+        class TopMenubar
+        {
+          public:
+            const float  MENU_Y_OFFSET         = 40.f;
+            const float  PANEL_HOVERBOX_HEIGHT = 50.f;
+            const ImVec4 PANEL_BG_COLOR        = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
+            const ImVec4 TRANSPARENT_COLOR     = ImVec4(0, 0, 0, 0);
+            const ImVec4 GRAY_HINT_TEXT        = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
+            const ImVec4 WHITE_TEXT            = ImVec4(0.9f, 0.9f, 0.9f, 1.f);
+            const ImVec4 GREEN_TEXT            = ImVec4(0.0f, 0.9f, 0.0f, 1.f);
+            const ImVec4 ORANGE_TEXT           = ImVec4(0.9f, 0.6f, 0.0f, 1.f);
 
-    TopMenubar(): m_open_menu(TopMenu::TOPMENU_NONE), m_daytime(0), m_quickload(false), m_confirm_remove_all(false) {}
+            enum class TopMenu
+            {
+                TOPMENU_NONE,
+                TOPMENU_SIM,
+                TOPMENU_ACTORS,
+                TOPMENU_SAVEGAMES,
+                TOPMENU_SETTINGS,
+                TOPMENU_TOOLS
+            };
 
-    void Update();
-    bool ShouldDisplay(ImVec2 window_pos);
+            TopMenubar() : m_open_menu(TopMenu::TOPMENU_NONE), m_daytime(0), m_quickload(false), m_confirm_remove_all(false)
+            {
+            }
 
-    bool IsVisible() { return m_open_menu != TopMenu::TOPMENU_NONE; };
+            void Update();
+            bool ShouldDisplay(ImVec2 window_pos);
 
-private:
-    void DrawActorListSinglePlayer();
-    void DrawMpUserToActorList(RoRnet::UserInfo &user); // Multiplayer
+            bool IsVisible()
+            {
+                return m_open_menu != TopMenu::TOPMENU_NONE;
+            };
 
-    ImVec2  m_open_menu_hoverbox_min;
-    ImVec2  m_open_menu_hoverbox_max;
-    TopMenu m_open_menu;
-    bool    m_confirm_remove_all;
+          private:
+            void DrawActorListSinglePlayer();
+            void DrawMpUserToActorList(RoRnet::UserInfo &user); // Multiplayer
 
-    float   m_daytime;
-    bool    m_quickload;
-    std::string m_quicksave_name;
-    std::vector<std::string> m_savegame_names;
-};
+            ImVec2  m_open_menu_hoverbox_min;
+            ImVec2  m_open_menu_hoverbox_max;
+            TopMenu m_open_menu;
+            bool    m_confirm_remove_all;
 
-} // namespace GUI
+            float                    m_daytime;
+            bool                     m_quickload;
+            std::string              m_quicksave_name;
+            std::vector<std::string> m_savegame_names;
+        };
+
+    } // namespace GUI
 } // namespace RoR

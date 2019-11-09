@@ -21,16 +21,16 @@
 
 #ifdef USE_OPENAL
 
-#include "SoundManager.h"
+    #include "SoundManager.h"
 
-#include "Application.h"
-#include "Sound.h"
+    #include "Application.h"
+    #include "Sound.h"
 
-#include <OgreResourceGroupManager.h>
+    #include <OgreResourceGroupManager.h>
 
-#define LOGSTREAM Ogre::LogManager::getSingleton().stream() << "[RoR|Audio] "
+    #define LOGSTREAM Ogre::LogManager::getSingleton().stream() << "[RoR|Audio] "
 
-bool _checkALErrors(const char* filename, int linenum)
+bool _checkALErrors(const char *filename, int linenum)
 {
     int err = alGetError();
     if (err != AL_NO_ERROR)
@@ -43,21 +43,18 @@ bool _checkALErrors(const char* filename, int linenum)
     return false;
 }
 
-#define hasALErrors() _checkALErrors(__FILE__, __LINE__)
+    #define hasALErrors() _checkALErrors(__FILE__, __LINE__)
 
 using namespace RoR;
 using namespace Ogre;
 
-const float SoundManager::MAX_DISTANCE = 500.0f;
-const float SoundManager::ROLLOFF_FACTOR = 1.0f;
+const float SoundManager::MAX_DISTANCE       = 500.0f;
+const float SoundManager::ROLLOFF_FACTOR     = 1.0f;
 const float SoundManager::REFERENCE_DISTANCE = 7.5f;
 
-SoundManager::SoundManager() :
-    audio_buffers_in_use_count(0)
-    , hardware_sources_in_use_count(0)
-    , hardware_sources_num(0)
-    , sound_context(NULL)
-    , audio_device(NULL)
+SoundManager::SoundManager()
+    : audio_buffers_in_use_count(0), hardware_sources_in_use_count(0), hardware_sources_num(0), sound_context(NULL),
+      audio_device(NULL)
 {
     if (App::audio_device_name.IsActiveEmpty())
     {
@@ -69,7 +66,8 @@ SoundManager::SoundManager() :
         audio_device = alcOpenDevice(App::audio_device_name.GetActive());
         if (!audio_device)
         {
-            LOGSTREAM << "Failed to open configured audio device \"" << App::audio_device_name.GetActive() << "\", opening default.";
+            LOGSTREAM << "Failed to open configured audio device \"" << App::audio_device_name.GetActive()
+                      << "\", opening default.";
             App::audio_device_name.SetActive("");
             audio_device = alcOpenDevice(nullptr);
         }
@@ -98,16 +96,17 @@ SoundManager::SoundManager() :
     if (alGetString(AL_VERSION)) LOG("SoundManager: OpenAL version is: " + String(alGetString(AL_VERSION)));
     if (alGetString(AL_RENDERER)) LOG("SoundManager: OpenAL renderer is: " + String(alGetString(AL_RENDERER)));
     if (alGetString(AL_EXTENSIONS)) LOG("SoundManager: OpenAL extensions are: " + String(alGetString(AL_EXTENSIONS)));
-    if (alcGetString(audio_device, ALC_DEVICE_SPECIFIER)) LOG("SoundManager: OpenAL device is: " + String(alcGetString(audio_device, ALC_DEVICE_SPECIFIER)));
-    if (alcGetString(audio_device, ALC_EXTENSIONS)) LOG("SoundManager: OpenAL ALC extensions are: " + String(alcGetString(audio_device, ALC_EXTENSIONS)));
+    if (alcGetString(audio_device, ALC_DEVICE_SPECIFIER))
+        LOG("SoundManager: OpenAL device is: " + String(alcGetString(audio_device, ALC_DEVICE_SPECIFIER)));
+    if (alcGetString(audio_device, ALC_EXTENSIONS))
+        LOG("SoundManager: OpenAL ALC extensions are: " + String(alcGetString(audio_device, ALC_EXTENSIONS)));
 
     // generate the AL sources
     for (hardware_sources_num = 0; hardware_sources_num < MAX_HARDWARE_SOURCES; hardware_sources_num++)
     {
         alGetError();
         alGenSources(1, &hardware_sources[hardware_sources_num]);
-        if (alGetError() != AL_NO_ERROR)
-            break;
+        if (alGetError() != AL_NO_ERROR) break;
         alSourcef(hardware_sources[hardware_sources_num], AL_REFERENCE_DISTANCE, REFERENCE_DISTANCE);
         alSourcef(hardware_sources[hardware_sources_num], AL_ROLLOFF_FACTOR, ROLLOFF_FACTOR);
         alSourcef(hardware_sources[hardware_sources_num], AL_MAX_DISTANCE, MAX_DISTANCE);
@@ -130,20 +129,16 @@ SoundManager::~SoundManager()
 
     // destroy the sound context and device
     sound_context = alcGetCurrentContext();
-    audio_device = alcGetContextsDevice(sound_context);
+    audio_device  = alcGetContextsDevice(sound_context);
     alcMakeContextCurrent(NULL);
     alcDestroyContext(sound_context);
-    if (audio_device)
-    {
-        alcCloseDevice(audio_device);
-    }
+    if (audio_device) { alcCloseDevice(audio_device); }
     LOG("SoundManager destroyed.");
 }
 
 void SoundManager::setCamera(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity)
 {
-    if (!audio_device)
-        return;
+    if (!audio_device) return;
     camera_position = position;
     recomputeAllSources();
 
@@ -171,7 +166,7 @@ bool compareByAudibility(std::pair<int, float> a, std::pair<int, float> b)
 void SoundManager::recomputeAllSources()
 {
     // Creates this issue: https://github.com/RigsOfRods/rigs-of-rods/issues/1054
-#if 0
+    #if 0
 	if (!audio_device) return;
 
 	for (int i=0; i < audio_buffers_in_use_count; i++)
@@ -207,13 +202,12 @@ void SoundManager::recomputeAllSources()
 			}
 		}
 	}
-#endif
+    #endif
 }
 
-void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vector3* vvec)
+void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vector3 *vvec)
 {
-    if (!audio_device)
-        return;
+    if (!audio_device) return;
     audio_sources[source_index]->computeAudibility(camera_position);
 
     if (audio_sources[source_index]->audibility == 0.0f)
@@ -234,20 +228,13 @@ void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vect
             // update the AL settings
             switch (reason)
             {
-            case Sound::REASON_PLAY: alSourcePlay(hw_source);
-                break;
-            case Sound::REASON_STOP: alSourceStop(hw_source);
-                break;
-            case Sound::REASON_GAIN: alSourcef(hw_source, AL_GAIN, vfl * App::audio_master_volume.GetActive());
-                break;
-            case Sound::REASON_LOOP: alSourcei(hw_source, AL_LOOPING, (vfl > 0.5) ? AL_TRUE : AL_FALSE);
-                break;
-            case Sound::REASON_PTCH: alSourcef(hw_source, AL_PITCH, vfl);
-                break;
-            case Sound::REASON_POSN: alSource3f(hw_source, AL_POSITION, vvec->x, vvec->y, vvec->z);
-                break;
-            case Sound::REASON_VLCT: alSource3f(hw_source, AL_VELOCITY, vvec->x, vvec->y, vvec->z);
-                break;
+            case Sound::REASON_PLAY: alSourcePlay(hw_source); break;
+            case Sound::REASON_STOP: alSourceStop(hw_source); break;
+            case Sound::REASON_GAIN: alSourcef(hw_source, AL_GAIN, vfl * App::audio_master_volume.GetActive()); break;
+            case Sound::REASON_LOOP: alSourcei(hw_source, AL_LOOPING, (vfl > 0.5) ? AL_TRUE : AL_FALSE); break;
+            case Sound::REASON_PTCH: alSourcef(hw_source, AL_PITCH, vfl); break;
+            case Sound::REASON_POSN: alSource3f(hw_source, AL_POSITION, vvec->x, vvec->y, vvec->z); break;
+            case Sound::REASON_VLCT: alSource3f(hw_source, AL_VELOCITY, vvec->x, vvec->y, vvec->z); break;
             default: break;
             }
         }
@@ -270,13 +257,13 @@ void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vect
             {
                 // now, compute who is the faintest
                 // note: we know the table m_hardware_sources_map is full!
-                float fv = 1.0f;
-                int al_faintest = 0;
+                float fv          = 1.0f;
+                int   al_faintest = 0;
                 for (int i = 0; i < hardware_sources_num; i++)
                 {
                     if (hardware_sources_map[i] >= 0 && audio_sources[hardware_sources_map[i]]->audibility < fv)
                     {
-                        fv = audio_sources[hardware_sources_map[i]]->audibility;
+                        fv          = audio_sources[hardware_sources_map[i]]->audibility;
                         al_faintest = i;
                     }
                 }
@@ -295,13 +282,12 @@ void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vect
 
 void SoundManager::assign(int source_index, int hardware_index)
 {
-    if (!audio_device)
-        return;
+    if (!audio_device) return;
     audio_sources[source_index]->hardware_index = hardware_index;
-    hardware_sources_map[hardware_index] = source_index;
+    hardware_sources_map[hardware_index]        = source_index;
 
-    ALuint hw_source = hardware_sources[hardware_index];
-    Sound* audio_source = audio_sources[source_index];
+    ALuint hw_source    = hardware_sources[hardware_index];
+    Sound *audio_source = audio_sources[source_index];
 
     // the hardware source is supposed to be stopped!
     alSourcei(hw_source, AL_BUFFER, audio_source->buffer);
@@ -311,55 +297,46 @@ void SoundManager::assign(int source_index, int hardware_index)
     alSource3f(hw_source, AL_POSITION, audio_source->position.x, audio_source->position.y, audio_source->position.z);
     alSource3f(hw_source, AL_VELOCITY, audio_source->velocity.x, audio_source->velocity.y, audio_source->velocity.z);
 
-    if (audio_source->should_play)
-    {
-        alSourcePlay(hw_source);
-    }
+    if (audio_source->should_play) { alSourcePlay(hw_source); }
 
     hardware_sources_in_use_count++;
 }
 
 void SoundManager::retire(int source_index)
 {
-    if (!audio_device)
-        return;
-    if (audio_sources[source_index]->hardware_index == -1)
-        return;
+    if (!audio_device) return;
+    if (audio_sources[source_index]->hardware_index == -1) return;
     alSourceStop(hardware_sources[audio_sources[source_index]->hardware_index]);
     hardware_sources_map[audio_sources[source_index]->hardware_index] = -1;
-    audio_sources[source_index]->hardware_index = -1;
+    audio_sources[source_index]->hardware_index                       = -1;
     hardware_sources_in_use_count--;
 }
 
 void SoundManager::pauseAllSounds()
 {
-    if (!audio_device)
-        return;
+    if (!audio_device) return;
     // no mutex needed
     alListenerf(AL_GAIN, 0.0f);
 }
 
 void SoundManager::resumeAllSounds()
 {
-    if (!audio_device)
-        return;
+    if (!audio_device) return;
     // no mutex needed
     alListenerf(AL_GAIN, App::audio_master_volume.GetActive());
 }
 
 void SoundManager::setMasterVolume(float v)
 {
-    if (!audio_device)
-        return;
+    if (!audio_device) return;
     // no mutex needed
     App::audio_master_volume.SetActive(v); // TODO: Use 'pending' mechanism and set externally, only 'apply' here.
     alListenerf(AL_GAIN, v);
 }
 
-Sound* SoundManager::createSound(String filename)
+Sound *SoundManager::createSound(String filename)
 {
-    if (!audio_device)
-        return NULL;
+    if (!audio_device) return NULL;
 
     if (audio_buffers_in_use_count >= MAX_AUDIO_BUFFERS)
     {
@@ -390,7 +367,7 @@ Sound* SoundManager::createSound(String filename)
             audio_buffer_file_name[audio_buffers_in_use_count] = "";
             return NULL;
         }
-        buffer = audio_buffers[audio_buffers_in_use_count];
+        buffer                                             = audio_buffers[audio_buffers_in_use_count];
         audio_buffer_file_name[audio_buffers_in_use_count] = filename;
     }
 
@@ -401,30 +378,29 @@ Sound* SoundManager::createSound(String filename)
 
 bool SoundManager::loadWAVFile(String filename, ALuint buffer)
 {
-    if (!audio_device)
-        return true;
-    LOG("Loading WAV file "+filename);
+    if (!audio_device) return true;
+    LOG("Loading WAV file " + filename);
 
     // create the Stream
-    ResourceGroupManager* rgm = ResourceGroupManager::getSingletonPtr();
-    String group = rgm->findGroupContainingResource(filename);
-    DataStreamPtr stream = rgm->openResource(filename, group);
+    ResourceGroupManager *rgm    = ResourceGroupManager::getSingletonPtr();
+    String                group  = rgm->findGroupContainingResource(filename);
+    DataStreamPtr         stream = rgm->openResource(filename, group);
 
     // load RIFF/WAVE
     char magic[5];
     magic[4] = 0;
-    unsigned int lbuf; // uint32_t
+    unsigned int   lbuf; // uint32_t
     unsigned short sbuf; // uint16_t
 
     // check magic
     if (stream->read(magic, 4) != 4)
     {
-        LOG("Could not read file "+filename);
+        LOG("Could not read file " + filename);
         return true;
     }
     if (String(magic) != String("RIFF"))
     {
-        LOG("Invalid WAV file (no RIFF): "+filename);
+        LOG("Invalid WAV file (no RIFF): " + filename);
         return true;
     }
     // skip 4 bytes (magic)
@@ -432,60 +408,60 @@ bool SoundManager::loadWAVFile(String filename, ALuint buffer)
     // check file format
     if (stream->read(magic, 4) != 4)
     {
-        LOG("Could not read file "+filename);
+        LOG("Could not read file " + filename);
         return true;
     }
     if (String(magic) != String("WAVE"))
     {
-        LOG("Invalid WAV file (no WAVE): "+filename);
+        LOG("Invalid WAV file (no WAVE): " + filename);
         return true;
     }
     // check 'fmt ' sub chunk (1)
     if (stream->read(magic, 4) != 4)
     {
-        LOG("Could not read file "+filename);
+        LOG("Could not read file " + filename);
         return true;
     }
     if (String(magic) != String("fmt "))
     {
-        LOG("Invalid WAV file (no fmt): "+filename);
+        LOG("Invalid WAV file (no fmt): " + filename);
         return true;
     }
     // read (1)'s size
     if (stream->read(&lbuf, 4) != 4)
     {
-        LOG("Could not read file "+filename);
+        LOG("Could not read file " + filename);
         return true;
     }
     unsigned long subChunk1Size = lbuf;
     if (subChunk1Size < 16)
     {
-        LOG("Invalid WAV file (invalid subChunk1Size): "+filename);
+        LOG("Invalid WAV file (invalid subChunk1Size): " + filename);
         return true;
     }
     // check PCM audio format
     if (stream->read(&sbuf, 2) != 2)
     {
-        LOG("Could not read file "+filename);
+        LOG("Could not read file " + filename);
         return true;
     }
     unsigned short audioFormat = sbuf;
     if (audioFormat != 1)
     {
-        LOG("Invalid WAV file (invalid audioformat "+TOSTRING(audioFormat)+"): "+filename);
+        LOG("Invalid WAV file (invalid audioformat " + TOSTRING(audioFormat) + "): " + filename);
         return true;
     }
     // read number of channels
     if (stream->read(&sbuf, 2) != 2)
     {
-        LOG("Could not read file "+filename);
+        LOG("Could not read file " + filename);
         return true;
     }
     unsigned short channels = sbuf;
     // read frequency (sample rate)
     if (stream->read(&lbuf, 4) != 4)
     {
-        LOG("Could not read file "+filename);
+        LOG("Could not read file " + filename);
         return true;
     }
     unsigned long freq = lbuf;
@@ -494,19 +470,19 @@ bool SoundManager::loadWAVFile(String filename, ALuint buffer)
     // read bits per sample
     if (stream->read(&sbuf, 2) != 2)
     {
-        LOG("Could not read file "+filename);
+        LOG("Could not read file " + filename);
         return true;
     }
     unsigned short bps = sbuf;
     // check 'data' sub chunk (2)
     if (stream->read(magic, 4) != 4)
     {
-        LOG("Could not read file "+filename);
+        LOG("Could not read file " + filename);
         return true;
     }
     if (String(magic) != String("data") && String(magic) != String("fact"))
     {
-        LOG("Invalid WAV file (no data/fact): "+filename);
+        LOG("Invalid WAV file (no data/fact): " + filename);
         return true;
     }
     // fact is an option section we don't need to worry about
@@ -516,24 +492,24 @@ bool SoundManager::loadWAVFile(String filename, ALuint buffer)
         // now we should hit the data chunk
         if (stream->read(magic, 4) != 4)
         {
-            LOG("Could not read file "+filename);
+            LOG("Could not read file " + filename);
             return true;
         }
         if (String(magic) != String("data"))
         {
-            LOG("Invalid WAV file (no data): "+filename);
+            LOG("Invalid WAV file (no data): " + filename);
             return true;
         }
     }
     // the next four bytes are the remaining size of the file
     if (stream->read(&lbuf, 4) != 4)
     {
-        LOG("Could not read file "+filename);
+        LOG("Could not read file " + filename);
         return true;
     }
 
     unsigned long dataSize = lbuf;
-    int format = 0;
+    int           format   = 0;
 
     if (channels == 1 && bps == 8)
         format = AL_FORMAT_MONO8;
@@ -545,27 +521,27 @@ bool SoundManager::loadWAVFile(String filename, ALuint buffer)
         format = AL_FORMAT_STEREO16;
     else
     {
-        LOG("Invalid WAV file (wrong channels/bps): "+filename);
+        LOG("Invalid WAV file (wrong channels/bps): " + filename);
         return true;
     }
 
     if (channels != 1) LOG("Invalid WAV file: the file needs to be mono, and nothing else. Will try to continue anyways ...");
 
     // ok, creating buffer
-    void* bdata = malloc(dataSize);
+    void *bdata = malloc(dataSize);
     if (!bdata)
     {
-        LOG("Memory error reading file "+filename);
+        LOG("Memory error reading file " + filename);
         return true;
     }
     if (stream->read(bdata, dataSize) != dataSize)
     {
-        LOG("Could not read file "+filename);
+        LOG("Could not read file " + filename);
         free(bdata);
         return true;
     }
 
-    //LOG("alBufferData: format "+TOSTRING(format)+" size "+TOSTRING(dataSize)+" freq "+TOSTRING(freq));
+    // LOG("alBufferData: format "+TOSTRING(format)+" size "+TOSTRING(dataSize)+" freq "+TOSTRING(freq));
     alGetError(); // Reset errors
     ALint error;
     alBufferData(buffer, format, bdata, dataSize, freq);
@@ -576,7 +552,7 @@ bool SoundManager::loadWAVFile(String filename, ALuint buffer)
 
     if (error != AL_NO_ERROR)
     {
-        LOG("OpenAL error while loading buffer for "+filename+" : "+TOSTRING(error));
+        LOG("OpenAL error while loading buffer for " + filename + " : " + TOSTRING(error));
         return true;
     }
 

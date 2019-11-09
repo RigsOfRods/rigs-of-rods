@@ -21,25 +21,22 @@
 
 #ifdef USE_CAELUM
 
-#include "SkyManager.h"
+    #include "SkyManager.h"
 
-#include "Application.h"
-#include "OgreSubsystem.h"
-#include "TerrainManager.h"
-#include "TerrainGeometryManager.h"
+    #include "Application.h"
+    #include "OgreSubsystem.h"
+    #include "TerrainGeometryManager.h"
+    #include "TerrainManager.h"
 
-#include <Caelum.h>
+    #include <Caelum.h>
 
 using namespace RoR;
 
 SkyManager::SkyManager() : m_caelum_system(nullptr), m_last_clock(0.0)
 {
     // Initialise CaelumSystem.
-    m_caelum_system = new Caelum::CaelumSystem(
-        RoR::App::GetOgreSubsystem()->GetOgreRoot(),
-        gEnv->sceneManager,
-        Caelum::CaelumSystem::CAELUM_COMPONENTS_DEFAULT
-    );
+    m_caelum_system = new Caelum::CaelumSystem(RoR::App::GetOgreSubsystem()->GetOgreRoot(), gEnv->sceneManager,
+                                               Caelum::CaelumSystem::CAELUM_COMPONENTS_DEFAULT);
 
     m_caelum_system->attachViewport(RoR::App::GetOgreSubsystem()->GetViewport());
 
@@ -55,26 +52,21 @@ SkyManager::~SkyManager()
     m_caelum_system = nullptr;
 }
 
-void SkyManager::NotifySkyCameraChanged(Ogre::Camera* cam)
+void SkyManager::NotifySkyCameraChanged(Ogre::Camera *cam)
 {
-    if (m_caelum_system)
-        m_caelum_system->notifyCameraChanged(cam);
+    if (m_caelum_system) m_caelum_system->notifyCameraChanged(cam);
 }
 
 void SkyManager::DetectSkyUpdate()
 {
-    if (!m_caelum_system || !App::GetSimTerrain())
-    {
-        return;
-    }
+    if (!m_caelum_system || !App::GetSimTerrain()) { return; }
 
     Caelum::LongReal c = m_caelum_system->getUniversalClock()->getJulianDay();
 
     if (c - m_last_clock > 0.001f)
     {
-        TerrainGeometryManager* gm = App::GetSimTerrain()->getGeometryManager();
-        if (gm)
-            gm->updateLightMap();
+        TerrainGeometryManager *gm = App::GetSimTerrain()->getGeometryManager();
+        if (gm) gm->updateLightMap();
     }
 
     m_last_clock = c;
@@ -88,7 +80,7 @@ void SkyManager::LoadCaelumScript(std::string script, int fogStart, int fogEnd)
         Caelum::CaelumPlugin::getSingleton().loadCaelumSystemFromScript(m_caelum_system, script);
 
         // overwrite some settings
-#ifdef CAELUM_VERSION_SEC
+    #ifdef CAELUM_VERSION_SEC
         // important: overwrite fog settings if not using infinite farclip
         if (fogStart != -1 && fogEnd != -1 && fogStart < fogEnd)
         {
@@ -101,10 +93,7 @@ void SkyManager::LoadCaelumScript(std::string script, int fogStart, int fogEnd)
         }
         else if (gEnv->mainCamera->getFarClipDistance() > 0)
         {
-            if (fogStart != -1 && fogEnd != -1)
-            {
-                LOG("CaelumFogStart must be smaller then CaelumFogEnd. Ignoring boundaries.");
-            }
+            if (fogStart != -1 && fogEnd != -1) { LOG("CaelumFogStart must be smaller then CaelumFogEnd. Ignoring boundaries."); }
             else if (fogStart != -1 || fogEnd != -1)
             {
                 LOG("You always need to define both boundaries (CaelumFogStart AND CaelumFogEnd). Ignoring boundaries.");
@@ -120,14 +109,14 @@ void SkyManager::LoadCaelumScript(std::string script, int fogStart, int fogEnd)
             // no fog in infinite farclip
             m_caelum_system->setManageSceneFog(Ogre::FOG_NONE);
         }
-#else
-#error please use a recent Caelum version, see http://www.rigsofrods.org/wiki/pages/Compiling_3rd_party_libraries#Caelum
-#endif // CAELUM_VERSION
-        // now optimize the moon a bit
+    #else
+        #error please use a recent Caelum version, see http://www.rigsofrods.org/wiki/pages/Compiling_3rd_party_libraries#Caelum
+    #endif // CAELUM_VERSION
+           // now optimize the moon a bit
         if (m_caelum_system->getMoon())
         {
             m_caelum_system->getMoon()->setAutoDisable(true);
-            //m_caelum_system->getMoon()->setAutoDisableThreshold(1);
+            // m_caelum_system->getMoon()->setAutoDisableThreshold(1);
             m_caelum_system->getMoon()->setForceDisable(true);
             m_caelum_system->getMoon()->getMainLight()->setCastShadows(false);
         }
@@ -138,7 +127,7 @@ void SkyManager::LoadCaelumScript(std::string script, int fogStart, int fogEnd)
         // enforcing update, so shadows are set correctly before creating the terrain
         m_caelum_system->updateSubcomponents(0.1);
     }
-    catch (Ogre::Exception& e)
+    catch (Ogre::Exception &e)
     {
         RoR::LogFormat("[RoR] Exception while loading sky script: %s", e.getFullDescription().c_str());
     }
@@ -151,12 +140,9 @@ void SkyManager::SetSkyTimeFactor(float factor)
     m_caelum_system->getUniversalClock()->setTimeScale(factor);
 }
 
-Ogre::Light* SkyManager::GetSkyMainLight()
+Ogre::Light *SkyManager::GetSkyMainLight()
 {
-    if (m_caelum_system && m_caelum_system->getSun())
-    {
-        return m_caelum_system->getSun()->getMainLight();
-    }
+    if (m_caelum_system && m_caelum_system->getSun()) { return m_caelum_system->getSun()->getMainLight(); }
     return nullptr;
 }
 
@@ -167,16 +153,16 @@ float SkyManager::GetSkyTimeFactor()
 
 std::string SkyManager::GetPrettyTime()
 {
-    int ignore;
-    int hour;
-    int minute;
+    int              ignore;
+    int              hour;
+    int              minute;
     Caelum::LongReal second;
-    Caelum::Astronomy::getGregorianDateTimeFromJulianDay(m_caelum_system->getJulianDay()
-        , ignore, ignore, ignore, hour, minute, second);
+    Caelum::Astronomy::getGregorianDateTimeFromJulianDay(m_caelum_system->getJulianDay(), ignore, ignore, ignore, hour, minute,
+                                                         second);
 
     char buf[100];
     snprintf(buf, 100, "%02d:%02d:%02d", hour, minute, static_cast<int>(second));
     return buf;
 }
 
-#endif //USE_CAELUM
+#endif // USE_CAELUM

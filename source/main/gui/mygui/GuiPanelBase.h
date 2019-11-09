@@ -32,59 +32,79 @@
 namespace RoR
 {
 
-class GuiPanelBase
-{
-    friend class RoR::GUIManager;
-
-public:
-    GuiPanelBase(MyGUI::Window* main_widget):
-        m_panel_widget(main_widget),
-        m_is_temporarily_hidden(false)
-    {}
-
-    inline void Show()
+    class GuiPanelBase
     {
-        m_panel_widget->setVisible(true); 
-        m_is_temporarily_hidden = false;
-    }
-    
-    inline void HideTemporarily()
-    { 
-        if (m_panel_widget->getVisible())
+        friend class RoR::GUIManager;
+
+      public:
+        GuiPanelBase(MyGUI::Window *main_widget) : m_panel_widget(main_widget), m_is_temporarily_hidden(false)
         {
-            m_panel_widget->setVisible(false); 
-            m_is_temporarily_hidden = true; 
         }
-    }
 
-    inline void ShowIfHiddenTemporarily()
-    { 
-        if (m_is_temporarily_hidden) 
-        { 
-            Show();
-        } 
-    }
+        inline void Show()
+        {
+            m_panel_widget->setVisible(true);
+            m_is_temporarily_hidden = false;
+        }
 
-    inline void Hide()                    { m_panel_widget->setVisible(false); }
-    inline bool IsVisible() const         { return m_panel_widget->getVisible(); }
-    inline int  GetWidthPixels() const    { return GetSizePixels().width; }
-    inline int  GetHeightPixels() const   { return GetSizePixels().height; }
+        inline void HideTemporarily()
+        {
+            if (m_panel_widget->getVisible())
+            {
+                m_panel_widget->setVisible(false);
+                m_is_temporarily_hidden = true;
+            }
+        }
 
-    inline void SetPosition(int x_pixels, int y_pixels)  { m_panel_widget->setPosition(x_pixels, y_pixels); }
-    inline void SetWidth(int width_pixels)               { m_panel_widget->setSize(width_pixels, GetHeightPixels()); }
-    inline void SetHeight(int height_pixels)             { m_panel_widget->setSize(GetWidthPixels(), height_pixels); }
+        inline void ShowIfHiddenTemporarily()
+        {
+            if (m_is_temporarily_hidden) { Show(); }
+        }
 
-    inline MyGUI::IntSize GetSizePixels() const          { return m_panel_widget->getSize(); }
-    
-    inline void CenterToScreen()
-    {
-        MyGUI::IntSize parentSize = m_panel_widget->getParentSize();
-        SetPosition((parentSize.width - GetWidthPixels()) / 2, (parentSize.height - GetHeightPixels()) / 2);
-    }
+        inline void Hide()
+        {
+            m_panel_widget->setVisible(false);
+        }
+        inline bool IsVisible() const
+        {
+            return m_panel_widget->getVisible();
+        }
+        inline int GetWidthPixels() const
+        {
+            return GetSizePixels().width;
+        }
+        inline int GetHeightPixels() const
+        {
+            return GetSizePixels().height;
+        }
 
-protected:
-    MyGUI::Window* m_panel_widget;
-    bool           m_is_temporarily_hidden;
-};
+        inline void SetPosition(int x_pixels, int y_pixels)
+        {
+            m_panel_widget->setPosition(x_pixels, y_pixels);
+        }
+        inline void SetWidth(int width_pixels)
+        {
+            m_panel_widget->setSize(width_pixels, GetHeightPixels());
+        }
+        inline void SetHeight(int height_pixels)
+        {
+            m_panel_widget->setSize(GetWidthPixels(), height_pixels);
+        }
+
+        inline MyGUI::IntSize GetSizePixels() const
+        {
+            return m_panel_widget->getSize();
+        }
+
+        inline void CenterToScreen()
+        {
+            MyGUI::IntSize parentSize = m_panel_widget->getParentSize();
+            SetPosition((parentSize.width - GetWidthPixels()) / 2, (parentSize.height - GetHeightPixels()) / 2);
+        }
+
+      protected:
+        MyGUI::Window *m_panel_widget;
+        bool           m_is_temporarily_hidden;
+    };
 
 } // namespace RoR

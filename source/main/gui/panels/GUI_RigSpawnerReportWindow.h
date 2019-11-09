@@ -29,26 +29,27 @@
 #include "GUI_RigSpawnerReportWindowLayout.h"
 #include "GuiPanelBase.h"
 
-namespace RoR {
-namespace GUI {
-
-class ActorSpawnerReportWindow: public ActorSpawnerReportWindowLayout, public GuiPanelBase
+namespace RoR
 {
-public:
+    namespace GUI
+    {
 
-    ActorSpawnerReportWindow();
+        class ActorSpawnerReportWindow : public ActorSpawnerReportWindowLayout, public GuiPanelBase
+        {
+          public:
+            ActorSpawnerReportWindow();
 
-    void SetRigLoadingReport(std::string const& vehicle_name, std::string const& text, int num_errors, int num_warnings, int num_other);
+            void SetRigLoadingReport(std::string const &vehicle_name, std::string const &text, int num_errors, int num_warnings,
+                                     int num_other);
 
-    void SetVisible(bool v);
-    bool IsVisible();
+            void SetVisible(bool v);
+            bool IsVisible();
 
-private:
+          private:
+            void WindowButtonClicked(MyGUI::Widget *sender, const std::string &name);
 
-    void WindowButtonClicked(MyGUI::Widget* sender, const std::string& name);
+            GuiManagerInterface *m_gui_manager_interface;
+        };
 
-    GuiManagerInterface* m_gui_manager_interface;
-};
-
-} // namespace GUI
+    } // namespace GUI
 } // namespace RoR

@@ -3,7 +3,7 @@
 This source file is part of SkyX.
 Visit http://www.paradise-studios.net/products/skyx/
 
-Copyright (C) 2009-2012 Xavier Verguín González <xavyiy@gmail.com>
+Copyright (C) 2009-2012 Xavier Verguï¿½n Gonzï¿½lez <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -23,30 +23,32 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "FastFakeRandom.h"
 
-namespace SkyX { namespace VClouds
+namespace SkyX
 {
-	FastFakeRandom::FastFakeRandom(const int &n, const Ogre::Real &min, const Ogre::Real &max)
-		: mCapacity(n)
-		, mIndex(-1)
-	{
-		mData = new float[n];
+    namespace VClouds
+    {
+        FastFakeRandom::FastFakeRandom(const int &n, const Ogre::Real &min, const Ogre::Real &max) : mCapacity(n), mIndex(-1)
+        {
+            mData = new float[n];
 
-		for (int k = 0; k < n; k++)
-		{
-			mData[k] = Ogre::Math::RangeRandom(min, max);
-		}
-	}
+            for (int k = 0; k < n; k++)
+            {
+                mData[k] = Ogre::Math::RangeRandom(min, max);
+            }
+        }
 
-	FastFakeRandom::~FastFakeRandom()
-	{
-		delete [] mData;
-	}
+        FastFakeRandom::~FastFakeRandom()
+        {
+            delete[] mData;
+        }
 
-	float& FastFakeRandom::get() 
-	{
-		mIndex ++; if (mIndex >= mCapacity) {mIndex = 0;}
+        float &FastFakeRandom::get()
+        {
+            mIndex++;
+            if (mIndex >= mCapacity) { mIndex = 0; }
 
-		return mData[mIndex];
-	}
+            return mData[mIndex];
+        }
 
-}}
+    } // namespace VClouds
+}

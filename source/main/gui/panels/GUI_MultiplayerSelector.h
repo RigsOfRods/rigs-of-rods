@@ -29,40 +29,49 @@
 #include <thread>
 #include <vector>
 
-namespace RoR{
-namespace GUI {
-
-struct MpServerlistData; // Forward declaration, private implementation.
-
-class MultiplayerSelector
+namespace RoR
 {
-public:
+    namespace GUI
+    {
 
-    MultiplayerSelector();
-    ~MultiplayerSelector();
+        struct MpServerlistData; // Forward declaration, private implementation.
 
-    void         SetVisible(bool v);
-    inline bool  IsVisible()                           { return m_is_visible; }
-    void         RefreshServerlist();                  /// Launch refresh from main thread
-    bool         IsRefreshThreadRunning() const;       /// Check status from main thread
-    void         CheckAndProcessRefreshResult();       /// To be invoked periodically from main thread if refresh is in progress.
-    void         Draw();
+        class MultiplayerSelector
+        {
+          public:
+            MultiplayerSelector();
+            ~MultiplayerSelector();
 
-private:
-    enum class Mode { ONLINE, DIRECT, SETUP };
+            void        SetVisible(bool v);
+            inline bool IsVisible()
+            {
+                return m_is_visible;
+            }
+            void RefreshServerlist();            /// Launch refresh from main thread
+            bool IsRefreshThreadRunning() const; /// Check status from main thread
+            void CheckAndProcessRefreshResult(); /// To be invoked periodically from main thread if refresh is in progress.
+            void Draw();
 
-    std::future<MpServerlistData*> m_serverlist_future;
-    std::unique_ptr<MpServerlistData> m_serverlist_data;
-    int                            m_selected_item;
-    Mode                           m_mode;
-    bool                           m_is_refreshing;
-    char                           m_window_title[100];
-    bool                           m_is_visible;
-    Str<100>                       m_user_token_buf;
-    Str<100>                       m_player_name_buf;
-    Str<100>                       m_password_buf;
-    Str<200>                       m_server_host_buf;
-};
+          private:
+            enum class Mode
+            {
+                ONLINE,
+                DIRECT,
+                SETUP
+            };
 
-} // namespace GUI
+            std::future<MpServerlistData *>   m_serverlist_future;
+            std::unique_ptr<MpServerlistData> m_serverlist_data;
+            int                               m_selected_item;
+            Mode                              m_mode;
+            bool                              m_is_refreshing;
+            char                              m_window_title[100];
+            bool                              m_is_visible;
+            Str<100>                          m_user_token_buf;
+            Str<100>                          m_player_name_buf;
+            Str<100>                          m_password_buf;
+            Str<200>                          m_server_host_buf;
+        };
+
+    } // namespace GUI
 } // namespace RoR

@@ -25,39 +25,34 @@
 
 #include "GUI_GameChatBox.h"
 
+#include "Application.h"
+#include "ChatSystem.h"
+#include "GUIManager.h"
+#include "Language.h"
+#include "OgreSubsystem.h"
+#include "RoRPrerequisites.h"
+#include "Utils.h"
+
 #include <OgreRenderTarget.h>
 #include <OgreRenderWindow.h>
-#include <OgreViewport.h>
 #include <OgreRoot.h>
-
-#include "RoRPrerequisites.h"
-
-#include "ChatSystem.h"
-#include "Utils.h"
-#include "Language.h"
-#include "GUIManager.h"
-#include "Application.h"
-#include "OgreSubsystem.h"
+#include <OgreViewport.h>
 
 using namespace RoR;
 using namespace GUI;
 
-#define CLASS        GameChatBox
-#define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
+#define CLASS GameChatBox
+#define MAIN_WIDGET ((MyGUI::Window *)mMainWidget)
 
-CLASS::CLASS() :
-      alpha(1.0f)
-    , newMsg(false)
-    , pushTime(0)
+CLASS::CLASS() : alpha(1.0f), newMsg(false), pushTime(0)
 {
     MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::Update);
 
     /* Adjust menu position */
-    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
-    int margin = (viewport->getActualHeight() / 4.5);
-    MAIN_WIDGET->setPosition(
-        2, // left
-        viewport->getActualHeight() - MAIN_WIDGET->getHeight() - margin // top
+    Ogre::Viewport *viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+    int             margin   = (viewport->getActualHeight() / 4.5);
+    MAIN_WIDGET->setPosition(2,                                                              // left
+                             viewport->getActualHeight() - MAIN_WIDGET->getHeight() - margin // top
     );
 
     m_Chatbox_TextBox->eventEditSelectAccept += MyGUI::newDelegate(this, &CLASS::eventCommandAccept);
@@ -92,13 +87,12 @@ void CLASS::pushMsg(Ogre::String txt)
     m_Chatbox_MainBox->setCaptionWithReplacing(mHistory);
 }
 
-void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
+void CLASS::eventCommandAccept(MyGUI::Edit *_sender)
 {
     Ogre::UTFString msg = convertFromMyGUIString(_sender->getCaption());
     _sender->setCaption("");
 
-    if (App::mp_chat_auto_hide.GetActive())
-        _sender->setEnabled(false);
+    if (App::mp_chat_auto_hide.GetActive()) _sender->setEnabled(false);
 
     if (msg.empty())
     {
@@ -130,7 +124,7 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
     }
 #endif // USE_SOCKETW
 
-    //MyGUI::InputManager::getInstance().resetKeyFocusWidget();
+    // MyGUI::InputManager::getInstance().resetKeyFocusWidget();
     RoR::App::GetGuiManager()->UnfocusGui();
 }
 
@@ -149,7 +143,7 @@ void CLASS::Update(float dt)
 
     if (newMsg)
     {
-        newMsg = false;
+        newMsg   = false;
         pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
         MAIN_WIDGET->setAlpha(1);
         MAIN_WIDGET->setVisible(true);
@@ -158,21 +152,15 @@ void CLASS::Update(float dt)
 
     if (!MyGUI::InputManager::getInstance().isFocusKey())
     {
-        unsigned long ot = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
-        unsigned long endTime = pushTime + 5000;
+        unsigned long ot        = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
+        unsigned long endTime   = pushTime + 5000;
         unsigned long startTime = endTime - (long)1000.0f;
-        if (ot < startTime)
-        {
-            alpha = 1.0f;
-        }
+        if (ot < startTime) { alpha = 1.0f; }
         else
         {
             alpha = 1 - ((ot - startTime) / 1000.0f);
         }
-        if (alpha <= 0.0f)
-        {
-            MAIN_WIDGET->setVisible(false);
-        }
+        if (alpha <= 0.0f) { MAIN_WIDGET->setVisible(false); }
         else
         {
             MAIN_WIDGET->setAlpha(alpha);

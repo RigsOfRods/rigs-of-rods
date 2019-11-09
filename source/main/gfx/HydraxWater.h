@@ -28,32 +28,33 @@
 
 class HydraxWater : public IWater
 {
-public:
-
+  public:
     HydraxWater(float waterHeight, Ogre::String configFile = "HydraxDefault.hdx");
     ~HydraxWater();
 
     // Interface IWater
-    float          GetStaticWaterHeight() override;
-    void           SetStaticWaterHeight(float value) override;
-    float          CalcWavesHeight(Ogre::Vector3 pos) override;
-    Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos) override;
-    void           SetWaterVisible(bool value) override;
-    void           WaterSetSunPosition(Ogre::Vector3) override;
-    bool           IsUnderWater(Ogre::Vector3 pos) override;
-    void           FrameStepWater(float dt) override;
-    void           UpdateWater() override;
+    float         GetStaticWaterHeight() override;
+    void          SetStaticWaterHeight(float value) override;
+    float         CalcWavesHeight(Ogre::Vector3 pos) override;
+    Ogre::Vector3 CalcWavesVelocity(Ogre::Vector3 pos) override;
+    void          SetWaterVisible(bool value) override;
+    void          WaterSetSunPosition(Ogre::Vector3) override;
+    bool          IsUnderWater(Ogre::Vector3 pos) override;
+    void          FrameStepWater(float dt) override;
+    void          UpdateWater() override;
 
-    Hydrax::Hydrax* GetHydrax() { return mHydrax; }
+    Hydrax::Hydrax *GetHydrax()
+    {
+        return mHydrax;
+    }
 
-protected:
-
-    void InitHydrax();
-    Hydrax::Hydrax* mHydrax;
-    float waveHeight;
-    float waterHeight;
-    Ogre::Camera* mRenderCamera;
-    Hydrax::Noise::Perlin* waternoise;
-    Hydrax::Module::ProjectedGrid* mModule;
-    Ogre::String CurrentConfigFile;
+  protected:
+    void                           InitHydrax();
+    Hydrax::Hydrax *               mHydrax;
+    float                          waveHeight;
+    float                          waterHeight;
+    Ogre::Camera *                 mRenderCamera;
+    Hydrax::Noise::Perlin *        waternoise;
+    Hydrax::Module::ProjectedGrid *mModule;
+    Ogre::String                   CurrentConfigFile;
 };

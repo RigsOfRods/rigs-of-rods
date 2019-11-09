@@ -30,21 +30,18 @@
 
 #include <string>
 
-int OgreScriptBuilder::LoadScriptSection(const char* full_path_cstr)
+int OgreScriptBuilder::LoadScriptSection(const char *full_path_cstr)
 {
     // Get filename - required to retrieve file from OGRe's resource system.
     //  This function received filename in older AngelScript versions, but now receives full path
     //      (reconstructed wrong by CScriptBuilder because it doesn't know about OGRE's ZIP files).
-    //  TODO: Refactor the entire script building logic 
+    //  TODO: Refactor the entire script building logic
     //      - create fully RoR-custom builder instead of hacked stock CScriptBuilder + our overload. ~ only_a_ptr, 08/2017
 
     std::string full_path(full_path_cstr);
     std::string filename;
-    size_t slash_pos = full_path.rfind('/'); // AngelScript always uses forward slashes in paths.
-    if (slash_pos != std::string::npos)
-    {
-        filename = full_path.substr(slash_pos+1);
-    }
+    size_t      slash_pos = full_path.rfind('/'); // AngelScript always uses forward slashes in paths.
+    if (slash_pos != std::string::npos) { filename = full_path.substr(slash_pos + 1); }
     else
     {
         filename = full_path;
@@ -53,24 +50,27 @@ int OgreScriptBuilder::LoadScriptSection(const char* full_path_cstr)
     Ogre::DataStreamPtr ds;
     try
     {
-        ds = Ogre::ResourceGroupManager::getSingleton().openResource(filename, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
-                 //TODO: do not use `AUTODETECT_RESOURCE_GROUP_NAME`, use specific group, lookups are slow!
-                 //see also https://github.com/OGRECave/ogre/blob/master/Docs/1.10-Notes.md#resourcemanager-strict-mode ~ only_a_ptr, 08/2017
+        ds = Ogre::ResourceGroupManager::getSingleton().openResource(filename,
+                                                                     Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
+        // TODO: do not use `AUTODETECT_RESOURCE_GROUP_NAME`, use specific group, lookups are slow!
+        // see also https://github.com/OGRECave/ogre/blob/master/Docs/1.10-Notes.md#resourcemanager-strict-mode ~ only_a_ptr,
+        // 08/2017
     }
-    catch (Ogre::Exception& e)
+    catch (Ogre::Exception &e)
     {
-        LOG("[RoR|Scripting] exception upon loading script file '"+filename+"', message: " + e.getFullDescription());
+        LOG("[RoR|Scripting] exception upon loading script file '" + filename + "', message: " + e.getFullDescription());
         return -1;
     }
-    // In some cases (i.e. when fed a full path with '/'-s on Windows), `openResource()` will silently return NULL for datastream. ~ only_a_ptr, 08/2017
+    // In some cases (i.e. when fed a full path with '/'-s on Windows), `openResource()` will silently return NULL for datastream.
+    // ~ only_a_ptr, 08/2017
     if (ds.isNull())
     {
-        LOG("[RoR|Scripting] Failed to load file '"+filename+"', reason unknown.");
+        LOG("[RoR|Scripting] Failed to load file '" + filename + "', reason unknown.");
         return -1;
     }
 
-    const std::string& code = ds->getAsString();
-    hash = RoR::Utils::Sha1Hash(code);
+    const std::string &code = ds->getAsString();
+    hash                    = RoR::Utils::Sha1Hash(code);
 
     return ProcessScriptSection(code.c_str(), static_cast<unsigned int>(code.length()), filename.c_str(), 0);
 }

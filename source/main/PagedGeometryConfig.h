@@ -5,7 +5,7 @@
 #define PAGEDGEOMETRY_VERSION_MAJOR 1
 #define PAGEDGEOMETRY_VERSION_MINOR 2
 #define PAGEDGEOMETRY_VERSION_PATCH 1
-#define PAGEDGEOMETRY_VERSION       "1.2.1"
+#define PAGEDGEOMETRY_VERSION "1.2.1"
 
 /* Define if we use the alternate coordsystem */
 /* #undef PAGEDGEOMETRY_ALTERNATE_COORDSYSTEM */
@@ -16,8 +16,7 @@
 /* Define if we support user data */
 /* #undef PAGEDGEOMETRY_USER_DATA */
 
-
 /* some helpful OIS macro */
 /* #undef OIS_USING_DIR */
 
-#endif //PagedGeometryConfig_h__
+#endif // PagedGeometryConfig_h__

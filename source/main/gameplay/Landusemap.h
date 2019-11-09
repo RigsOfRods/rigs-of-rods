@@ -18,7 +18,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-//created by thomas fischer 23 February 2009
+// created by thomas fischer 23 February 2009
 
 #pragma once
 
@@ -26,18 +26,16 @@
 
 class Landusemap : public ZeroedMemoryAllocator
 {
-public:
-
+  public:
     Landusemap(Ogre::String cfgfilename);
     ~Landusemap();
 
-    ground_model_t* getGroundModelAt(int x, int z);
-    int loadConfig(const Ogre::String& filename);
+    ground_model_t *getGroundModelAt(int x, int z);
+    int             loadConfig(const Ogre::String &filename);
 
-protected:
-
-    ground_model_t** data;
-    ground_model_t* default_ground_model;
+  protected:
+    ground_model_t **data;
+    ground_model_t * default_ground_model;
 
     Ogre::Vector3 mapsize;
 };

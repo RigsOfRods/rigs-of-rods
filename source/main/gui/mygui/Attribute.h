@@ -26,114 +26,112 @@
 
 #include "RoRPrerequisites.h"
 
-namespace attribute {
-
-// класс обертка для удаления данных из статического вектора
-template <typename Type>
-struct DataHolder
+namespace attribute
 {
-    ~DataHolder()
+
+    // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    template <typename Type> struct DataHolder
     {
-        for (typename Type::iterator item = data.begin(); item != data.end(); ++item)
-            delete (*item).first;
-    }
+        ~DataHolder()
+        {
+            for (typename Type::iterator item = data.begin(); item != data.end(); ++item)
+                delete (*item).first;
+        }
 
-    Type data;
-};
+        Type data;
+    };
 
-// интерфейс для обертки поля
-template <typename OwnerType, typename SetterType>
-struct Field
-{
-    virtual void set(OwnerType* _target, typename SetterType::BaseValueType* _value) = 0;
-};
-
-// шаблон для обертки поля
-template <typename OwnerType, typename FieldType, typename SetterType>
-struct FieldHolder : public Field<OwnerType, SetterType>
-{
-    FieldHolder(FieldType* OwnerType::* offset) : m_offset(offset)
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+    template <typename OwnerType, typename SetterType> struct Field
     {
-    }
+        virtual void set(OwnerType *_target, typename SetterType::BaseValueType *_value) = 0;
+    };
 
-    FieldType* OwnerType::* const m_offset;
-
-    virtual void set(OwnerType* _target, typename SetterType::BaseValueType* _value)
+    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+    template <typename OwnerType, typename FieldType, typename SetterType>
+    struct FieldHolder : public Field<OwnerType, SetterType>
     {
-        _target ->* m_offset = SetterType::template convert<FieldType>(_value);
-        //                  _target->*m_offset = (_value == 0 ? 0 : _value->castType<int>::template(false));//SetterType::convert<FieldType>(_value);
-    }
-};
+        FieldHolder(FieldType *OwnerType::*offset) : m_offset(offset)
+        {
+        }
 
-// шаблон для атрибута поля
-template <typename OwnerType, typename ValueType, typename SetterType>
-struct AttributeField
-{
-    typedef std::pair<Field<OwnerType, SetterType>*, ValueType> BindPair;
-    typedef std::vector<BindPair> VectorBindPair;
+        FieldType *OwnerType::*const m_offset;
 
-    template <typename FieldType>
-    AttributeField(FieldType* OwnerType::* _offset, const ValueType& _value)
+        virtual void set(OwnerType *_target, typename SetterType::BaseValueType *_value)
+        {
+            _target->*m_offset = SetterType::template convert<FieldType>(_value);
+            //                  _target->*m_offset = (_value == 0 ? 0 :
+            //                  _value->castType<int>::template(false));//SetterType::convert<FieldType>(_value);
+        }
+    };
+
+    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+    template <typename OwnerType, typename ValueType, typename SetterType> struct AttributeField
     {
-        getData().push_back(BindPair(new FieldHolder<OwnerType, FieldType, SetterType>(_offset), _value));
+        typedef std::pair<Field<OwnerType, SetterType> *, ValueType> BindPair;
+        typedef std::vector<BindPair>                                VectorBindPair;
+
+        template <typename FieldType> AttributeField(FieldType *OwnerType::*_offset, const ValueType &_value)
+        {
+            getData().push_back(BindPair(new FieldHolder<OwnerType, FieldType, SetterType>(_offset), _value));
+        }
+
+        static VectorBindPair &getData()
+        {
+            static DataHolder<VectorBindPair> data;
+            return data.data;
+        }
+    };
+
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+#define DECLARE_ATTRIBUTE_FIELD(_name, _type, _setter)                                                                           \
+    template <typename OwnerType, typename ValueType = _type, typename SetterType = _setter>                                     \
+    struct _name : public attribute::AttributeField<OwnerType, ValueType, SetterType>                                            \
+    {                                                                                                                            \
+        template <typename FieldType>                                                                                            \
+        _name(FieldType *OwnerType::*_offset, const ValueType &_value)                                                           \
+            : AttributeField<OwnerType, ValueType, SetterType>(_offset, _value)                                                  \
+        {                                                                                                                        \
+        }                                                                                                                        \
     }
 
-    static VectorBindPair& getData()
-    {
-        static DataHolder<VectorBindPair> data;
-        return data.data;
-    }
-};
-
-// макрос для инстансирования атрибута поля
-#define DECLARE_ATTRIBUTE_FIELD(_name, _type, _setter) \
-    template <typename OwnerType, typename ValueType = _type, typename SetterType = _setter> \
-    struct _name : public attribute::AttributeField<OwnerType, ValueType, SetterType> \
-    { \
-        template <typename FieldType> \
-        _name(FieldType* OwnerType::* _offset, const ValueType& _value) : \
-            AttributeField<OwnerType, ValueType, SetterType>(_offset, _value) { } \
-    }
-
-// макрос для инстансирования экземпляра атрибута
-#define ATTRIBUTE_FIELD(_attribute, _class, _field, _value) \
-    struct _attribute##_##_field \
-    { \
-        _attribute##_##_field() \
-        { \
-            static attribute::_attribute<_class> bind(&_class::_field, _value); \
-        } \
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+#define ATTRIBUTE_FIELD(_attribute, _class, _field, _value)                                                                      \
+    struct _attribute##_##_field                                                                                                 \
+    {                                                                                                                            \
+        _attribute##_##_field()                                                                                                  \
+        {                                                                                                                        \
+            static attribute::_attribute<_class> bind(&_class::_field, _value);                                                  \
+        }                                                                                                                        \
     } _attribute##_##_field
 
-    // шаблон для атрибута класса
-    template <typename Type, typename ValueType>
-    struct ClassAttribute
+    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+    template <typename Type, typename ValueType> struct ClassAttribute
     {
-        ClassAttribute(const ValueType& _value)
+        ClassAttribute(const ValueType &_value)
         {
             getData() = _value;
         }
 
-        static ValueType& getData()
+        static ValueType &getData()
         {
             static ValueType data;
             return data;
         }
     };
 
-    // макрос для инстансирования атрибута класса
-#define DECLARE_ATTRIBUTE_CLASS(_name, _type) \
-    template <typename Type, typename ValueType = _type> \
-    struct _name : public attribute::ClassAttribute<_name<Type>, ValueType> \
-    { \
-        _name(const ValueType& _value) : \
-            ClassAttribute<_name<Type>, ValueType>(_value) { } \
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+#define DECLARE_ATTRIBUTE_CLASS(_name, _type)                                                                                    \
+    template <typename Type, typename ValueType = _type> struct _name : public attribute::ClassAttribute<_name<Type>, ValueType> \
+    {                                                                                                                            \
+        _name(const ValueType &_value) : ClassAttribute<_name<Type>, ValueType>(_value)                                          \
+        {                                                                                                                        \
+        }                                                                                                                        \
     }
 
-    // макрос для инстансирования экземпляра класса
-#define ATTRIBUTE_CLASS(_attribute, _class, _value) \
-    class _class; \
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+#define ATTRIBUTE_CLASS(_attribute, _class, _value)                                                                              \
+    class _class;                                                                                                                \
     static attribute::_attribute<_class> _attribute##_##_class(_value)
-
 
 } // namespace attribute

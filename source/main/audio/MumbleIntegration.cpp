@@ -25,12 +25,12 @@
 
 #ifdef USE_MUMBLE
 
-#include "MumbleIntegration.h"
+    #include "MumbleIntegration.h"
 
-#include "Application.h"
+    #include "Application.h"
 
-#include <Ogre.h>
-#include <MyGUI_UString.h>
+    #include <MyGUI_UString.h>
+    #include <Ogre.h>
 
 using namespace Ogre;
 
@@ -41,63 +41,52 @@ MumbleIntegration::MumbleIntegration() : lm(NULL)
 
 MumbleIntegration::~MumbleIntegration()
 {
-    if (lm != nullptr)
-        delete lm;
+    if (lm != nullptr) delete lm;
 }
 
 void MumbleIntegration::initMumble()
 {
-#ifdef _WIN32
+    #ifdef _WIN32
     HANDLE hMapObject = OpenFileMappingW(FILE_MAP_ALL_ACCESS, FALSE, L"MumbleLink");
-    if (hMapObject == NULL)
-        return;
+    if (hMapObject == NULL) return;
 
-    lm = (LinkedMem *) MapViewOfFile(hMapObject, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(LinkedMem));
+    lm = (LinkedMem *)MapViewOfFile(hMapObject, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(LinkedMem));
     if (lm == NULL)
     {
         CloseHandle(hMapObject);
         hMapObject = NULL;
         return;
     }
-#else
+    #else
     char memname[256];
     snprintf(memname, 256, "/MumbleLink.%d", getuid());
 
     int shmfd = shm_open(memname, O_RDWR, S_IRUSR | S_IWUSR);
 
-    if (shmfd < 0)
-    {
-        return;
-    }
+    if (shmfd < 0) { return; }
 
-    lm = (LinkedMem *)(mmap(NULL, sizeof(struct LinkedMem), PROT_READ | PROT_WRITE, MAP_SHARED, shmfd,0));
+    lm = (LinkedMem *)(mmap(NULL, sizeof(struct LinkedMem), PROT_READ | PROT_WRITE, MAP_SHARED, shmfd, 0));
 
     if (lm == (void *)(-1))
     {
         lm = NULL;
         return;
     }
-#endif // _WIN32
+    #endif // _WIN32
 }
 
 void MumbleIntegration::SetNonPositionalAudio()
 {
-    if (! lm)
-        return;
+    if (!lm) return;
 
-    this->update(
-        Ogre::Vector3::ZERO,
-        Ogre::Vector3(0.0f, 0.0f, 1.0f),
-        Ogre::Vector3(0.0f, 1.0f, 0.0f),
-        Ogre::Vector3::ZERO,
-        Ogre::Vector3(0.0f, 0.0f, 1.0f),
-        Ogre::Vector3(0.0f, 1.0f, 0.0f));
+    this->update(Ogre::Vector3::ZERO, Ogre::Vector3(0.0f, 0.0f, 1.0f), Ogre::Vector3(0.0f, 1.0f, 0.0f), Ogre::Vector3::ZERO,
+                 Ogre::Vector3(0.0f, 0.0f, 1.0f), Ogre::Vector3(0.0f, 1.0f, 0.0f));
 }
 
-void MumbleIntegration::update(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir, Ogre::Vector3 cameraUp, Ogre::Vector3 avatarPos, Ogre::Vector3 avatarDir, Ogre::Vector3 avatarUp)
+void MumbleIntegration::update(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir, Ogre::Vector3 cameraUp, Ogre::Vector3 avatarPos,
+                               Ogre::Vector3 avatarDir, Ogre::Vector3 avatarUp)
 {
-    if (! lm)
-        return;
+    if (!lm) return;
 
     if (lm->uiVersion != 2)
     {
@@ -114,10 +103,9 @@ void MumbleIntegration::update(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir,
     //
     // 1 unit = 1 meter
 
-    // OGRE uses right-handed coordinate system ( http://www.ogre3d.org/tikiwiki/tiki-index.php?page=Basic+Tutorial+1&structure=Tutorials )
-    // X positive towards "right".
-    // Y positive towards "up".
-    // Z positive towards "back". => conversion necessary!
+    // OGRE uses right-handed coordinate system (
+    // http://www.ogre3d.org/tikiwiki/tiki-index.php?page=Basic+Tutorial+1&structure=Tutorials ) X positive towards "right". Y
+    // positive towards "up". Z positive towards "back". => conversion necessary!
     //
     // 1 unit = 1 meter (in RoR)
 
@@ -169,8 +157,8 @@ void MumbleIntegration::update(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir,
     // so we should take that into account as well
 
     int teamID = 0; // RoR currently doesn't have any kind of team-based gameplay
-    int port = RoR::App::mp_server_port.GetActive();
-    port = (port != 0) ? port : 1337;
+    int port   = RoR::App::mp_server_port.GetActive();
+    port       = (port != 0) ? port : 1337;
     sprintf((char *)lm->context, "%s:%s|%d", RoR::App::mp_server_host.GetActive(), TOSTRING(port).c_str(), teamID);
     lm->context_len = (int)strnlen((char *)lm->context, 256);
 }

@@ -20,7 +20,6 @@
 
 #pragma once
 
-
 #include "RoRPrerequisites.h"
 
 #include <OIS.h>
@@ -30,8 +29,7 @@ class GUIInputManager
 {
     friend class InputEngine;
 
-public:
-
+  public:
     GUIInputManager();
     virtual ~GUIInputManager();
 
@@ -39,25 +37,26 @@ public:
 
     void setMousePosition(int _x, int _y);
 
-    float getLastMouseMoveTime() { return m_last_mousemove_time->getMilliseconds(); };
+    float getLastMouseMoveTime()
+    {
+        return m_last_mousemove_time->getMilliseconds();
+    };
 
     void SupressCursor(bool do_supress);
 
-protected:
-
-    virtual bool mouseMoved(const OIS::MouseEvent& _arg);
-    virtual bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
-    virtual bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
-    virtual bool keyPressed(const OIS::KeyEvent& _arg);
-    virtual bool keyReleased(const OIS::KeyEvent& _arg);
+  protected:
+    virtual bool mouseMoved(const OIS::MouseEvent &_arg);
+    virtual bool mousePressed(const OIS::MouseEvent &_arg, OIS::MouseButtonID _id);
+    virtual bool mouseReleased(const OIS::MouseEvent &_arg, OIS::MouseButtonID _id);
+    virtual bool keyPressed(const OIS::KeyEvent &_arg);
+    virtual bool keyReleased(const OIS::KeyEvent &_arg);
 
     void checkPosition();
 
-private:
-
-    int mCursorX, mCursorY, width, height;
-    bool m_is_cursor_supressed; ///< True if cursor was manually hidden.
-    Ogre::Timer* m_last_mousemove_time;
+  private:
+    int          mCursorX, mCursorY, width, height;
+    bool         m_is_cursor_supressed; ///< True if cursor was manually hidden.
+    Ogre::Timer *m_last_mousemove_time;
 
     void WakeUpGUI();
 };

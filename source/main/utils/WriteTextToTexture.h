@@ -27,7 +27,7 @@
 
 /**
  *  @brief Saves a texture to the disk.
- *  
+ *
  *  @param TextureToSave The texture to save.
  *  @param filename The file-name.
  */
@@ -35,7 +35,7 @@ void SaveImage(Ogre::TexturePtr TextureToSave, Ogre::String filename);
 
 /**
  *  @brief Writes a string onto a texture.
- *  
+ *
  *  @param str The string to write onto the texture.
  *  @param destTexture The texture to write the string on.
  *  @param destRectangle The Area to write in.
@@ -46,4 +46,6 @@ void SaveImage(Ogre::TexturePtr TextureToSave, Ogre::String filename);
  *  @param justify 'l' = left aligned, 'c' = centered, 'r' = right aligned.
  *  @param wordwrap if true the line will only be wrapped after a word.
  */
-void WriteToTexture(const Ogre::String& str, Ogre::TexturePtr destTexture, Ogre::Box destRectangle, Ogre::Font* font, const Ogre::ColourValue& color, int fontSize = 15, int fontDPI = 400, char justify = 'l', bool wordwrap = true);
+void WriteToTexture(const Ogre::String &str, Ogre::TexturePtr destTexture, Ogre::Box destRectangle, Ogre::Font *font,
+                    const Ogre::ColourValue &color, int fontSize = 15, int fontDPI = 400, char justify = 'l',
+                    bool wordwrap = true);

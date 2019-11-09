@@ -28,26 +28,28 @@
 #include "ForwardDeclarations.h"
 #include "GUI_GameAboutLayout.h"
 
-namespace RoR {
-namespace GUI {
-
-class GameAbout: public GameAboutLayout
+namespace RoR
 {
-public:
-    GameAbout();
-    ~GameAbout();
+    namespace GUI
+    {
 
-    void Show();
-    void Hide();
-    void SetVisible(bool v);
-    bool IsVisible();
+        class GameAbout : public GameAboutLayout
+        {
+          public:
+            GameAbout();
+            ~GameAbout();
 
-private:
-    void eventMouseButtonClickBackButton(MyGUI::WidgetPtr _sender);
-    void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
-    void initMisc();
-    void CenterToScreen();
-};
+            void Show();
+            void Hide();
+            void SetVisible(bool v);
+            bool IsVisible();
 
-} // namespace GUI
+          private:
+            void eventMouseButtonClickBackButton(MyGUI::WidgetPtr _sender);
+            void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string &_name);
+            void initMisc();
+            void CenterToScreen();
+        };
+
+    } // namespace GUI
 } // namespace RoR

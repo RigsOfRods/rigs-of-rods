@@ -34,69 +34,70 @@
 #define RGN_CONTENT "Content"
 #define RGN_MANAGED_MATS "ManagedMaterials"
 
-namespace RoR {
-
-class ContentManager:
-    public Ogre::ResourceLoadingListener, // Ogre::ResourceGroupManager::getSingleton().setLoadingListener()
-    public Ogre::ScriptCompilerListener   // Ogre::ScriptCompilerManager::getSingleton().setListener()
+namespace RoR
 {
-public:
 
-    struct ResourcePack
+    class ContentManager
+        : public Ogre::ResourceLoadingListener, // Ogre::ResourceGroupManager::getSingleton().setLoadingListener()
+          public Ogre::ScriptCompilerListener   // Ogre::ScriptCompilerManager::getSingleton().setListener()
     {
-        ResourcePack(const char* name, const char* resource_group_name):
-            name(name), resource_group_name(resource_group_name)
-        {}
+      public:
+        struct ResourcePack
+        {
+            ResourcePack(const char *name, const char *resource_group_name) : name(name), resource_group_name(resource_group_name)
+            {
+            }
 
-        static const ResourcePack OGRE_CORE;
-        static const ResourcePack WALLPAPERS;
-        static const ResourcePack AIRFOILS;
-        static const ResourcePack BEAM_OBJECTS;
-        static const ResourcePack CAELUM;
-        static const ResourcePack CUBEMAPS;
-        static const ResourcePack DASHBOARDS;
-        static const ResourcePack FAMICONS;
-        static const ResourcePack FLAGS;
-        static const ResourcePack HYDRAX;
-        static const ResourcePack ICONS;
-        static const ResourcePack MATERIALS;
-        static const ResourcePack MESHES;
-        static const ResourcePack MYGUI;
-        static const ResourcePack OVERLAYS;
-        static const ResourcePack PAGED;
-        static const ResourcePack PARTICLES;
-        static const ResourcePack PSSM;
-        static const ResourcePack SKYX;
-        static const ResourcePack RTSHADER;
-        static const ResourcePack SCRIPTS;
-        static const ResourcePack SOUNDS;
-        static const ResourcePack TEXTURES;
+            static const ResourcePack OGRE_CORE;
+            static const ResourcePack WALLPAPERS;
+            static const ResourcePack AIRFOILS;
+            static const ResourcePack BEAM_OBJECTS;
+            static const ResourcePack CAELUM;
+            static const ResourcePack CUBEMAPS;
+            static const ResourcePack DASHBOARDS;
+            static const ResourcePack FAMICONS;
+            static const ResourcePack FLAGS;
+            static const ResourcePack HYDRAX;
+            static const ResourcePack ICONS;
+            static const ResourcePack MATERIALS;
+            static const ResourcePack MESHES;
+            static const ResourcePack MYGUI;
+            static const ResourcePack OVERLAYS;
+            static const ResourcePack PAGED;
+            static const ResourcePack PARTICLES;
+            static const ResourcePack PSSM;
+            static const ResourcePack SKYX;
+            static const ResourcePack RTSHADER;
+            static const ResourcePack SCRIPTS;
+            static const ResourcePack SOUNDS;
+            static const ResourcePack TEXTURES;
 
-        const char* name;
-        const char* resource_group_name;
+            const char *name;
+            const char *resource_group_name;
+        };
+
+        /// Loads resources if not already loaded
+        /// @param override_rg If not set, the ResourcePack's RG is used -> resources won't unload until shutdown
+        void        AddResourcePack(ResourcePack const &resource_pack, std::string const &override_rgn = "");
+        void        InitManagedMaterials(std::string const &rg_name);
+        void        InitContentManager();
+        void        InitModCache();
+        void        LoadGameplayResources(); //!< Checks GVar settings and loads required resources.
+        std::string ListAllUserContent();    //!< Used by ModCache for quick detection of added/removed content
+
+      private:
+        // Ogre::ResourceLoadingListener
+        Ogre::DataStreamPtr resourceLoading(const Ogre::String &name, const Ogre::String &group,
+                                            Ogre::Resource *resource) override;
+        void                resourceStreamOpened(const Ogre::String &name, const Ogre::String &group, Ogre::Resource *resource,
+                                                 Ogre::DataStreamPtr &dataStream) override;
+        bool                resourceCollision(Ogre::Resource *resource, Ogre::ResourceManager *resourceManager) override;
+
+        // Ogre::ScriptCompilerListener
+        bool handleEvent(Ogre::ScriptCompiler *compiler, Ogre::ScriptCompilerEvent *evt, void *retval) override;
+
+        CacheSystem m_mod_cache; //!< Database of addon content
+        bool        m_base_resource_loaded;
     };
-
-                       /// Loads resources if not already loaded
-                       /// @param override_rg If not set, the ResourcePack's RG is used -> resources won't unload until shutdown
-    void               AddResourcePack(ResourcePack const& resource_pack, std::string const& override_rgn = "");
-    void               InitManagedMaterials(std::string const & rg_name);
-    void               InitContentManager();
-    void               InitModCache();
-    void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
-    std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
-
-private:
-
-    // Ogre::ResourceLoadingListener
-    Ogre::DataStreamPtr resourceLoading(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource) override;
-    void resourceStreamOpened(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource, Ogre::DataStreamPtr& dataStream) override;
-    bool resourceCollision(Ogre::Resource* resource, Ogre::ResourceManager* resourceManager) override;
-
-    // Ogre::ScriptCompilerListener
-    bool handleEvent(Ogre::ScriptCompiler *compiler, Ogre::ScriptCompilerEvent *evt, void *retval) override;
-
-    CacheSystem       m_mod_cache; //!< Database of addon content
-    bool              m_base_resource_loaded;
-};
 
 } // namespace RoR

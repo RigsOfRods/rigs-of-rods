@@ -24,37 +24,37 @@
 #include "RoRPrerequisites.h"
 
 #include <OgreResourceManager.h>
-
 #include <map>
-#include <vector>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
-namespace RoR {
-
-struct SkinDef
+namespace RoR
 {
-    SkinDef(): author_id(-1) {}
 
-    std::map<std::string, std::string>  replace_textures;
-    std::map<std::string, std::string>  replace_materials;
-    std::string   name;
-    std::string   guid;
-    std::string   thumbnail;
-    std::string   description;
-    std::string   author_name;
-    int           author_id;
-};
+    struct SkinDef
+    {
+        SkinDef() : author_id(-1)
+        {
+        }
 
-class SkinParser
-{
-public:
+        std::map<std::string, std::string> replace_textures;
+        std::map<std::string, std::string> replace_materials;
+        std::string                        name;
+        std::string                        guid;
+        std::string                        thumbnail;
+        std::string                        description;
+        std::string                        author_name;
+        int                                author_id;
+    };
 
-    static std::vector<std::shared_ptr<RoR::SkinDef>> ParseSkins(Ogre::DataStreamPtr& stream);
+    class SkinParser
+    {
+      public:
+        static std::vector<std::shared_ptr<RoR::SkinDef>> ParseSkins(Ogre::DataStreamPtr &stream);
 
-private:
-
-    static void ParseSkinAttribute(const std::string& line, SkinDef* skin_def);
-};
+      private:
+        static void ParseSkinAttribute(const std::string &line, SkinDef *skin_def);
+    };
 
 }; // namespace RoR

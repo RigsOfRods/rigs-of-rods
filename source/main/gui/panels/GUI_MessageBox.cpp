@@ -24,25 +24,26 @@
 /// @date   12/2014
 
 #include "GUI_MessageBox.h"
+
 #include "ScriptEvents.h"
 #include "Scripting.h"
 
 #include <imgui.h>
 
-RoR::GUI::MessageBoxDialog::MessageBoxDialog():
-    m_close_handle(nullptr),
-    m_is_visible(false)
-{}
+RoR::GUI::MessageBoxDialog::MessageBoxDialog() : m_close_handle(nullptr), m_is_visible(false)
+{
+}
 
 RoR::GUI::MessageBoxDialog::~MessageBoxDialog()
-{}
+{
+}
 
 void RoR::GUI::MessageBoxDialog::Draw()
 {
     const bool was_visible = m_is_visible;
 
     // Draw window
-    ImGui::SetNextWindowContentWidth(300.f); // Initial size only
+    ImGui::SetNextWindowContentWidth(300.f);               // Initial size only
     ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing); // Initial pos. only
     ImGui::Begin(m_title.c_str(), m_close_handle);
     ImGui::TextWrapped("%s", m_text.c_str());
@@ -73,21 +74,18 @@ void RoR::GUI::MessageBoxDialog::Draw()
     }
 }
 
-void RoR::GUI::MessageBoxDialog::Show(const char* title, const char* text, bool allow_close, const char* button1_text, const char* button2_text)
+void RoR::GUI::MessageBoxDialog::Show(const char *title, const char *text, bool allow_close, const char *button1_text,
+                                      const char *button2_text)
 {
-    m_is_visible = true;
-    m_title = title;
-    m_text = text;
+    m_is_visible   = true;
+    m_title        = title;
+    m_text         = text;
     m_button1_text = ((button1_text != nullptr) ? button1_text : "");
     m_button2_text = ((button2_text != nullptr) ? button2_text : "");
 
-    if (allow_close)
-    {
-        m_close_handle = &m_is_visible;
-    }
+    if (allow_close) { m_close_handle = &m_is_visible; }
     else
     {
         m_close_handle = nullptr;
     }
 }
-

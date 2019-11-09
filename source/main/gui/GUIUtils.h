@@ -22,75 +22,58 @@
 #include "Application.h"
 #include "GUIManager.h"
 
-namespace RoR {
-
-/// Draws animated loading spinner
-void DrawImGuiSpinner(
-    float& counter, const ImVec2 size = ImVec2(16.f, 16.f),
-    const float spacing = 2.f, const float step_sec = 0.15f);
-
-void DrawGCheckbox(GVarPod_A<bool>& gvar, const char* label);
-
-void DrawGCheckbox(GVarPod_APS<bool>& gvar, const char* label);
-
-void DrawGIntCheck(GVarPod_A<int>& gvar, const char* label);
-
-void DrawGIntBox(GVarPod_A<int>& gvar, const char* label);
-
-void DrawGIntSlider(GVarPod_A<int>& gvar, const char* label, int v_min, int v_max);
-
-void DrawGFloatSlider(GVarPod_A<float>& gvar, const char* label, float v_min, float v_max);
-
-void DrawGFloatBox(GVarPod_A<float>& gvar, const char* label);
-
-void DrawGFloatBox(GVarPod_APS<float>& gvar, const char* label);
-
-template <size_t Len>
-void DrawGTextEdit(GVarStr_A<Len>& gvar, const char* label, Str<Len>& buf)
+namespace RoR
 {
-    if (ImGui::InputText(label, buf.GetBuffer(), buf.GetCapacity(), ImGuiInputTextFlags_EnterReturnsTrue))
-    {
-        gvar.SetActive(buf.GetBuffer());
-    }
-    if (ImGui::IsItemActive())
-    {
-        ImGui::TextDisabled("(hit Enter key to submit)");
-    }
-    else
-    {
-        buf.Assign(gvar.GetActive());
-    }
-}
 
-template <size_t Len>
-void DrawGTextEdit(GVarStr_APS<Len>& gvar, const char* label, Str<Len>& buf, bool update_active)
-{
-    if (ImGui::InputText(label, buf.GetBuffer(), buf.GetCapacity(), ImGuiInputTextFlags_EnterReturnsTrue))
+    /// Draws animated loading spinner
+    void DrawImGuiSpinner(float &counter, const ImVec2 size = ImVec2(16.f, 16.f), const float spacing = 2.f,
+                          const float step_sec = 0.15f);
+
+    void DrawGCheckbox(GVarPod_A<bool> &gvar, const char *label);
+
+    void DrawGCheckbox(GVarPod_APS<bool> &gvar, const char *label);
+
+    void DrawGIntCheck(GVarPod_A<int> &gvar, const char *label);
+
+    void DrawGIntBox(GVarPod_A<int> &gvar, const char *label);
+
+    void DrawGIntSlider(GVarPod_A<int> &gvar, const char *label, int v_min, int v_max);
+
+    void DrawGFloatSlider(GVarPod_A<float> &gvar, const char *label, float v_min, float v_max);
+
+    void DrawGFloatBox(GVarPod_A<float> &gvar, const char *label);
+
+    void DrawGFloatBox(GVarPod_APS<float> &gvar, const char *label);
+
+    template <size_t Len> void DrawGTextEdit(GVarStr_A<Len> &gvar, const char *label, Str<Len> &buf)
     {
-        if (update_active)
+        if (ImGui::InputText(label, buf.GetBuffer(), buf.GetCapacity(), ImGuiInputTextFlags_EnterReturnsTrue))
+        { gvar.SetActive(buf.GetBuffer()); }
+        if (ImGui::IsItemActive()) { ImGui::TextDisabled("(hit Enter key to submit)"); }
+        else
         {
-            gvar.SetActive(buf.GetBuffer());
+            buf.Assign(gvar.GetActive());
         }
-        gvar.SetStored(buf.GetBuffer());
     }
-    if (ImGui::IsItemActive())
-    {
-        ImGui::TextDisabled("(hit Enter key to submit)");
-    }
-    else
-    {
-        buf.Assign(gvar.GetStored());
-    }
-}
 
-template <typename Enum>
-void DrawGCombo(GVarEnum_A<Enum>& gvar, const char* label, const char* values)
-{
-    int selection = static_cast<int>(gvar.GetActive());
-    if (ImGui::Combo(label, &selection, values))
+    template <size_t Len> void DrawGTextEdit(GVarStr_APS<Len> &gvar, const char *label, Str<Len> &buf, bool update_active)
     {
-        gvar.SetActive(static_cast<Enum>(selection));
+        if (ImGui::InputText(label, buf.GetBuffer(), buf.GetCapacity(), ImGuiInputTextFlags_EnterReturnsTrue))
+        {
+            if (update_active) { gvar.SetActive(buf.GetBuffer()); }
+            gvar.SetStored(buf.GetBuffer());
+        }
+        if (ImGui::IsItemActive()) { ImGui::TextDisabled("(hit Enter key to submit)"); }
+        else
+        {
+            buf.Assign(gvar.GetStored());
+        }
     }
-}
+
+    template <typename Enum> void DrawGCombo(GVarEnum_A<Enum> &gvar, const char *label, const char *values)
+    {
+        int selection = static_cast<int>(gvar.GetActive());
+        if (ImGui::Combo(label, &selection, values)) { gvar.SetActive(static_cast<Enum>(selection)); }
+    }
 
 } // namespace RoR

@@ -11,7 +11,7 @@
 using namespace RoR;
 using namespace GUI;
 
-GameChatBoxLayout::GameChatBoxLayout(MyGUI::Widget* _parent)
+GameChatBoxLayout::GameChatBoxLayout(MyGUI::Widget *_parent)
 {
     initialiseByAttributes(this, _parent);
 }

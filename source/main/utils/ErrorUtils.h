@@ -19,7 +19,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
+/**
     @file   ErrorUtils.h
     @author Thomas Fischer
     @date   3rd October 2009

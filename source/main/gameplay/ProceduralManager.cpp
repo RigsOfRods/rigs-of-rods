@@ -25,8 +25,7 @@
 
 using namespace Ogre;
 
-ProceduralManager::ProceduralManager() :
-    objectcounter(0)
+ProceduralManager::ProceduralManager() : objectcounter(0)
 {
 }
 
@@ -34,12 +33,11 @@ ProceduralManager::~ProceduralManager()
 {
     for (ProceduralObject po : pObjects)
     {
-        if (po.road)
-            delete po.road;
+        if (po.road) delete po.road;
     }
 }
 
-int ProceduralManager::deleteObject(ProceduralObject& po)
+int ProceduralManager::deleteObject(ProceduralObject &po)
 {
     if (po.loadingState == 1 && po.road)
     {
@@ -51,17 +49,17 @@ int ProceduralManager::deleteObject(ProceduralObject& po)
     return 0;
 }
 
-std::vector<ProceduralObject>& ProceduralManager::getObjects()
+std::vector<ProceduralObject> &ProceduralManager::getObjects()
 {
     return pObjects;
 }
 
-int ProceduralManager::updateObject(ProceduralObject& po)
+int ProceduralManager::updateObject(ProceduralObject &po)
 {
-    if (po.loadingState == 1 && po.road)
-        deleteObject(po);
+    if (po.loadingState == 1 && po.road) deleteObject(po);
     // create new road2 object
-    po.road = new Road2(objectcounter++);;
+    po.road = new Road2(objectcounter++);
+    ;
 
     std::vector<ProceduralPoint>::iterator it;
     for (it = po.points.begin(); it != po.points.end(); it++)
@@ -97,7 +95,7 @@ int ProceduralManager::deleteAllObjects()
     return 0;
 }
 
-int ProceduralManager::addObject(ProceduralObject& po)
+int ProceduralManager::addObject(ProceduralObject &po)
 {
     updateObject(po);
     pObjects.push_back(po);

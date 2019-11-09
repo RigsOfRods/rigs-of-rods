@@ -18,8 +18,6 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "RoRPrerequisites.h"
-
 #include "AeroEngine.h"
 #include "AirBrake.h"
 #include "Airfoil.h"
@@ -35,6 +33,7 @@
 #include "FlexAirfoil.h"
 #include "Replay.h"
 #include "RoRFrameListener.h"
+#include "RoRPrerequisites.h"
 #include "ScrewProp.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
@@ -68,23 +67,16 @@ void Actor::CalcForceFeedback(bool doUpdate)
 {
     if (this == RoR::App::GetSimController()->GetPlayerActor())
     {
-        if (doUpdate)
-        {
-            m_force_sensors.Reset();
-        }
+        if (doUpdate) { m_force_sensors.Reset(); }
 
         if (ar_current_cinecam != -1)
-        {
-            m_force_sensors.accu_body_forces += ar_nodes[ar_camera_node_pos[ar_current_cinecam]].Forces;
-        }
+        { m_force_sensors.accu_body_forces += ar_nodes[ar_camera_node_pos[ar_current_cinecam]].Forces; }
 
-        for (hydrobeam_t& hydrobeam: ar_hydros)
+        for (hydrobeam_t &hydrobeam : ar_hydros)
         {
-            beam_t* beam = &ar_beams[hydrobeam.hb_beam_index];
+            beam_t *beam = &ar_beams[hydrobeam.hb_beam_index];
             if ((hydrobeam.hb_flags & (HYDRO_FLAG_DIR | HYDRO_FLAG_SPEED)) && !beam->bm_broken)
-            {
-                m_force_sensors.accu_hydros_forces += hydrobeam.hb_speed * beam->refL * beam->stress;
-            }
+            { m_force_sensors.accu_hydros_forces += hydrobeam.hb_speed * beam->refL * beam->stress; }
         }
     }
 }
@@ -100,49 +92,45 @@ void Actor::CalcMouse()
 
 void Actor::CalcAircraftForces(bool doUpdate)
 {
-    //airbrake forces
-    for (Airbrake* ab: ar_airbrakes)
+    // airbrake forces
+    for (Airbrake *ab : ar_airbrakes)
         ab->applyForce();
 
-    //turboprop forces
+    // turboprop forces
     for (int i = 0; i < ar_num_aeroengines; i++)
-        if (ar_aeroengines[i])
-            ar_aeroengines[i]->updateForces(PHYSICS_DT, doUpdate);
+        if (ar_aeroengines[i]) ar_aeroengines[i]->updateForces(PHYSICS_DT, doUpdate);
 
-    //screwprop forces
+    // screwprop forces
     for (int i = 0; i < ar_num_screwprops; i++)
-        if (ar_screwprops[i])
-            ar_screwprops[i]->updateForces(doUpdate);
+        if (ar_screwprops[i]) ar_screwprops[i]->updateForces(doUpdate);
 
-    //wing forces
+    // wing forces
     for (int i = 0; i < ar_num_wings; i++)
-        if (ar_wings[i].fa)
-            ar_wings[i].fa->updateForces();
+        if (ar_wings[i].fa) ar_wings[i].fa->updateForces();
 }
 
 void Actor::CalcFuseDrag()
 {
     if (m_fusealge_airfoil && m_fusealge_width > 0.0f)
     {
-        Vector3 wind = -m_fusealge_front->Velocity;
-        float wspeed = wind.length();
-        Vector3 axis = m_fusealge_front->RelPosition - m_fusealge_back->RelPosition;
-        float s = axis.length() * m_fusealge_width;
-        float cz, cx, cm;
-        float v = axis.getRotationTo(wind).w;
-        float aoa = 0;
-        if (v < 1.0 && v > -1.0)
-            aoa = 2.0 * acos(v); //quaternion fun
+        Vector3 wind   = -m_fusealge_front->Velocity;
+        float   wspeed = wind.length();
+        Vector3 axis   = m_fusealge_front->RelPosition - m_fusealge_back->RelPosition;
+        float   s      = axis.length() * m_fusealge_width;
+        float   cz, cx, cm;
+        float   v   = axis.getRotationTo(wind).w;
+        float   aoa = 0;
+        if (v < 1.0 && v > -1.0) aoa = 2.0 * acos(v); // quaternion fun
         m_fusealge_airfoil->getparams(aoa, 1.0, 0.0, &cz, &cx, &cm);
 
-        //tropospheric model valid up to 11.000m (33.000ft)
-        float altitude = m_fusealge_front->AbsPosition.y;
-        float sea_level_pressure = 101325; //in Pa
-        float airpressure = sea_level_pressure * approx_pow(1.0 - 0.0065 * altitude / 288.1, 5.24947); //in Pa
-        float airdensity = airpressure * 0.0000120896f;//1.225 at sea level
+        // tropospheric model valid up to 11.000m (33.000ft)
+        float altitude           = m_fusealge_front->AbsPosition.y;
+        float sea_level_pressure = 101325;                                                                    // in Pa
+        float airpressure        = sea_level_pressure * approx_pow(1.0 - 0.0065 * altitude / 288.1, 5.24947); // in Pa
+        float airdensity         = airpressure * 0.0000120896f; // 1.225 at sea level
 
-        //fuselage as an airfoil + parasitic drag (half fuselage front surface almost as a flat plane!)
-        ar_fusedrag = ((cx * s + m_fusealge_width * m_fusealge_width * 0.5) * 0.5 * airdensity * wspeed / ar_num_nodes) * wind; 
+        // fuselage as an airfoil + parasitic drag (half fuselage front surface almost as a flat plane!)
+        ar_fusedrag = ((cx * s + m_fusealge_width * m_fusealge_width * 0.5) * 0.5 * airdensity * wspeed / ar_num_nodes) * wind;
     }
 }
 
@@ -153,7 +141,8 @@ void Actor::CalcBuoyance(bool doUpdate)
         for (int i = 0; i < ar_num_buoycabs; i++)
         {
             int tmpv = ar_buoycabs[i] * 3;
-            m_buoyance->computeNodeForce(&ar_nodes[ar_cabs[tmpv]], &ar_nodes[ar_cabs[tmpv + 1]], &ar_nodes[ar_cabs[tmpv + 2]], doUpdate == 1, ar_buoycab_types[i]);
+            m_buoyance->computeNodeForce(&ar_nodes[ar_cabs[tmpv]], &ar_nodes[ar_cabs[tmpv + 1]], &ar_nodes[ar_cabs[tmpv + 2]],
+                                         doUpdate == 1, ar_buoycab_types[i]);
         }
     }
 }
@@ -169,8 +158,7 @@ void Actor::CalcDifferentials()
         }
         for (int i = 0; i < ar_num_wheels; i++)
         {
-            if (ar_wheels[i].wh_propulsed && !ar_wheels[i].wh_is_detached)
-                ar_wheels[i].wh_torque += torque;
+            if (ar_wheels[i].wh_propulsed && !ar_wheels[i].wh_is_detached) ar_wheels[i].wh_torque += torque;
         }
     }
 
@@ -179,10 +167,10 @@ void Actor::CalcDifferentials()
     // Handle detached wheels
     for (int i = 0; i < num_axle_diffs; i++)
     {
-        int a_1 = m_axle_diffs[i]->di_idx_1;
-        int a_2 = m_axle_diffs[i]->di_idx_2;
-        wheel_t* axle_1_wheels[2] = {&ar_wheels[m_wheel_diffs[a_1]->di_idx_1], &ar_wheels[m_wheel_diffs[a_1]->di_idx_2]};
-        wheel_t* axle_2_wheels[2] = {&ar_wheels[m_wheel_diffs[a_2]->di_idx_1], &ar_wheels[m_wheel_diffs[a_2]->di_idx_2]};
+        int      a_1              = m_axle_diffs[i]->di_idx_1;
+        int      a_2              = m_axle_diffs[i]->di_idx_2;
+        wheel_t *axle_1_wheels[2] = {&ar_wheels[m_wheel_diffs[a_1]->di_idx_1], &ar_wheels[m_wheel_diffs[a_1]->di_idx_2]};
+        wheel_t *axle_2_wheels[2] = {&ar_wheels[m_wheel_diffs[a_2]->di_idx_1], &ar_wheels[m_wheel_diffs[a_2]->di_idx_2]};
         if (axle_1_wheels[0]->wh_is_detached && axle_1_wheels[1]->wh_is_detached)
         {
             axle_1_wheels[0]->wh_speed = axle_2_wheels[0]->wh_speed;
@@ -196,7 +184,7 @@ void Actor::CalcDifferentials()
     }
     for (int i = 0; i < m_num_wheel_diffs; i++)
     {
-        wheel_t* axle_wheels[2] = {&ar_wheels[m_wheel_diffs[i]->di_idx_1], &ar_wheels[m_wheel_diffs[i]->di_idx_2]};
+        wheel_t *axle_wheels[2] = {&ar_wheels[m_wheel_diffs[i]->di_idx_1], &ar_wheels[m_wheel_diffs[i]->di_idx_2]};
         if (axle_wheels[0]->wh_is_detached) axle_wheels[0]->wh_speed = axle_wheels[1]->wh_speed;
         if (axle_wheels[1]->wh_is_detached) axle_wheels[1]->wh_speed = axle_wheels[0]->wh_speed;
     }
@@ -208,19 +196,15 @@ void Actor::CalcDifferentials()
         int a_1 = m_axle_diffs[i]->di_idx_1;
         int a_2 = m_axle_diffs[i]->di_idx_2;
 
-        Ogre::Real axle_torques[2] = {0.0f, 0.0f};
-        DifferentialData diff_data =
-        {
-            {
-                (ar_wheels[m_wheel_diffs[a_1]->di_idx_1].wh_speed + ar_wheels[m_wheel_diffs[a_1]->di_idx_2].wh_speed) * 0.5f,
-                (ar_wheels[m_wheel_diffs[a_2]->di_idx_1].wh_speed + ar_wheels[m_wheel_diffs[a_2]->di_idx_2].wh_speed) * 0.5f
-            },
+        Ogre::Real       axle_torques[2] = {0.0f, 0.0f};
+        DifferentialData diff_data       = {
+            {(ar_wheels[m_wheel_diffs[a_1]->di_idx_1].wh_speed + ar_wheels[m_wheel_diffs[a_1]->di_idx_2].wh_speed) * 0.5f,
+             (ar_wheels[m_wheel_diffs[a_2]->di_idx_1].wh_speed + ar_wheels[m_wheel_diffs[a_2]->di_idx_2].wh_speed) * 0.5f},
             m_axle_diffs[i]->di_delta_rotation,
             {axle_torques[0], axle_torques[1]},
             ar_wheels[m_wheel_diffs[a_1]->di_idx_1].wh_torque + ar_wheels[m_wheel_diffs[a_1]->di_idx_2].wh_torque +
-            ar_wheels[m_wheel_diffs[a_2]->di_idx_1].wh_torque + ar_wheels[m_wheel_diffs[a_2]->di_idx_2].wh_torque,
-            PHYSICS_DT
-        };
+                ar_wheels[m_wheel_diffs[a_2]->di_idx_1].wh_torque + ar_wheels[m_wheel_diffs[a_2]->di_idx_2].wh_torque,
+            PHYSICS_DT};
 
         m_axle_diffs[i]->CalcAxleTorque(diff_data);
 
@@ -237,16 +221,13 @@ void Actor::CalcDifferentials()
     for (int i = 0; i < m_num_wheel_diffs; i++)
     {
         Ogre::Real axle_torques[2] = {0.0f, 0.0f};
-        wheel_t* axle_wheels[2] = {&ar_wheels[m_wheel_diffs[i]->di_idx_1], &ar_wheels[m_wheel_diffs[i]->di_idx_2]};
+        wheel_t *  axle_wheels[2]  = {&ar_wheels[m_wheel_diffs[i]->di_idx_1], &ar_wheels[m_wheel_diffs[i]->di_idx_2]};
 
-        DifferentialData diff_data =
-        {
-            {axle_wheels[0]->wh_speed, axle_wheels[1]->wh_speed},
-            m_wheel_diffs[i]->di_delta_rotation,
-            {axle_torques[0], axle_torques[1]},
-            axle_wheels[0]->wh_torque + axle_wheels[1]->wh_torque,
-            PHYSICS_DT
-        };
+        DifferentialData diff_data = {{axle_wheels[0]->wh_speed, axle_wheels[1]->wh_speed},
+                                      m_wheel_diffs[i]->di_delta_rotation,
+                                      {axle_torques[0], axle_torques[1]},
+                                      axle_wheels[0]->wh_torque + axle_wheels[1]->wh_torque,
+                                      PHYSICS_DT};
 
         m_wheel_diffs[i]->CalcAxleTorque(diff_data);
 
@@ -265,38 +246,37 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
 
     if (alb_timer >= alb_pulse_time)
     {
-        alb_timer = 0.0f;
+        alb_timer       = 0.0f;
         alb_pulse_state = !alb_pulse_state;
     }
     if (tc_timer >= tc_pulse_time)
     {
-        tc_timer = 0.0f;
+        tc_timer       = 0.0f;
         tc_pulse_state = !tc_pulse_state;
     }
 
-    m_antilockbrake = false;
+    m_antilockbrake   = false;
     m_tractioncontrol = false;
 
-    ar_wheel_spin = 0.0f;
+    ar_wheel_spin  = 0.0f;
     ar_wheel_speed = 0.0f;
 
     for (int i = 0; i < ar_num_wheels; i++)
     {
         if (doUpdate)
         {
-            ar_wheels[i].debug_rpm = 0.0f;
-            ar_wheels[i].debug_torque = 0.0f;
-            ar_wheels[i].debug_vel = Vector3::ZERO;
-            ar_wheels[i].debug_slip = Vector3::ZERO;
-            ar_wheels[i].debug_force = Vector3::ZERO;
+            ar_wheels[i].debug_rpm           = 0.0f;
+            ar_wheels[i].debug_torque        = 0.0f;
+            ar_wheels[i].debug_vel           = Vector3::ZERO;
+            ar_wheels[i].debug_slip          = Vector3::ZERO;
+            ar_wheels[i].debug_force         = Vector3::ZERO;
             ar_wheels[i].debug_scaled_cforce = Vector3::ZERO;
         }
 
-        if (ar_wheels[i].wh_is_detached)
-            continue;
+        if (ar_wheels[i].wh_is_detached) continue;
 
-        float relspeed = ar_nodes[0].Velocity.dotProduct(getDirection());
-        float curspeed = fabs(relspeed);
+        float relspeed   = ar_nodes[0].Velocity.dotProduct(getDirection());
+        float curspeed   = fabs(relspeed);
         float wheel_slip = fabs(ar_wheels[i].wh_speed - relspeed) / std::max(1.0f, curspeed);
 
         // traction control
@@ -323,26 +303,22 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
 
             // handbrake
             float hbrake = 0.0f;
-            if (ar_parking_brake && (ar_wheels[i].wh_braking != wheel_t::BrakeCombo::FOOT_ONLY))
-            {
-                hbrake = m_handbrake_force;
-            }
+            if (ar_parking_brake && (ar_wheels[i].wh_braking != wheel_t::BrakeCombo::FOOT_ONLY)) { hbrake = m_handbrake_force; }
 
             // directional braking
             float dbrake = 0.0f;
-            if ((ar_wheels[i].wh_speed < 20.0f)
-                && (((ar_wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT)  && (ar_hydro_dir_state > 0.0f))
-                 || ((ar_wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT) && (ar_hydro_dir_state < 0.0f))))
-            {
-                dbrake = ar_brake_force * abs(ar_hydro_dir_state);
-            }
+            if ((ar_wheels[i].wh_speed < 20.0f) &&
+                (((ar_wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT) && (ar_hydro_dir_state > 0.0f)) ||
+                 ((ar_wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT) && (ar_hydro_dir_state < 0.0f))))
+            { dbrake = ar_brake_force * abs(ar_hydro_dir_state); }
 
             if (abrake != 0.0 || dbrake != 0.0 || hbrake != 0.0)
             {
-                float adbrake = abrake + dbrake; 
+                float adbrake = abrake + dbrake;
 
                 // anti-lock braking
-                if (alb_mode && curspeed > alb_minspeed && curspeed > fabs(ar_wheels[i].wh_speed) && (adbrake > 0.0f) && wheel_slip > 0.25f) 
+                if (alb_mode && curspeed > alb_minspeed && curspeed > fabs(ar_wheels[i].wh_speed) && (adbrake > 0.0f) &&
+                    wheel_slip > 0.25f)
                 {
                     if (alb_pulse_state)
                     {
@@ -371,26 +347,23 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
 
         // application to wheel
         Vector3 axis = (ar_wheels[i].wh_axis_node_1->RelPosition - ar_wheels[i].wh_axis_node_0->RelPosition).normalisedCopy();
-        float axis_precalc = ar_wheels[i].wh_torque / (Real)(ar_wheels[i].wh_num_nodes);
+        float   axis_precalc = ar_wheels[i].wh_torque / (Real)(ar_wheels[i].wh_num_nodes);
 
         float expected_wheel_speed = ar_wheels[i].wh_speed;
-        ar_wheels[i].wh_speed = 0.0f;
+        ar_wheels[i].wh_speed      = 0.0f;
 
-        Real contact_counter = 0.0f;
-        Vector3 slip = Vector3::ZERO;
-        Vector3 force = Vector3::ZERO;
+        Real    contact_counter = 0.0f;
+        Vector3 slip            = Vector3::ZERO;
+        Vector3 force           = Vector3::ZERO;
         for (int j = 0; j < ar_wheels[i].wh_num_nodes; j++)
         {
-            node_t* outer_node = ar_wheels[i].wh_nodes[j];
-            node_t* inner_node = (j % 2) ? ar_wheels[i].wh_axis_node_1 : ar_wheels[i].wh_axis_node_0;
+            node_t *outer_node = ar_wheels[i].wh_nodes[j];
+            node_t *inner_node = (j % 2) ? ar_wheels[i].wh_axis_node_1 : ar_wheels[i].wh_axis_node_0;
 
-            Vector3 radius = outer_node->RelPosition - inner_node->RelPosition;
-            float inverted_rlen = 1.0f / radius.length();
+            Vector3 radius        = outer_node->RelPosition - inner_node->RelPosition;
+            float   inverted_rlen = 1.0f / radius.length();
 
-            if (ar_wheels[i].wh_propulsed == 2)
-            {
-                radius = -radius;
-            }
+            if (ar_wheels[i].wh_propulsed == 2) { radius = -radius; }
 
             Vector3 dir = axis.crossProduct(radius) * inverted_rlen;
             ar_wheels[i].wh_nodes[j]->Forces += dir * axis_precalc * inverted_rlen;
@@ -400,20 +373,20 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
             {
                 contact_counter += 1.0f;
                 float force_ratio = ar_wheels[i].wh_nodes[j]->nd_last_collision_force.length();
-                slip  += ar_wheels[i].wh_nodes[j]->nd_last_collision_slip * force_ratio;
+                slip += ar_wheels[i].wh_nodes[j]->nd_last_collision_slip * force_ratio;
                 force += ar_wheels[i].wh_nodes[j]->nd_last_collision_force;
             }
         }
         if (contact_counter > 0.0f && !force.isZeroLength())
         {
-            slip /= force.length(); // slip vector weighted by down force
-            slip /= contact_counter; // average slip vector
-            force /= contact_counter; // average force vector
+            slip /= force.length();                  // slip vector weighted by down force
+            slip /= contact_counter;                 // average slip vector
+            force /= contact_counter;                // average force vector
             Vector3 normal = force.normalisedCopy(); // contact plane normal
-            Vector3 v = ar_wheels[i].wh_axis_node_0->Velocity.midPoint(ar_wheels[i].wh_axis_node_1->Velocity);
-            Vector3 vel = v - v.dotProduct(normal) * normal;
-            ar_wheels[i].debug_vel   += vel / (float)num_steps;
-            ar_wheels[i].debug_slip  += slip / (float)num_steps;
+            Vector3 v      = ar_wheels[i].wh_axis_node_0->Velocity.midPoint(ar_wheels[i].wh_axis_node_1->Velocity);
+            Vector3 vel    = v - v.dotProduct(normal) * normal;
+            ar_wheels[i].debug_vel += vel / (float)num_steps;
+            ar_wheels[i].debug_slip += slip / (float)num_steps;
             ar_wheels[i].debug_force += force / (float)num_steps;
         }
 
@@ -425,8 +398,8 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
         if (ar_wheels[i].wh_propulsed == 1)
         {
             float speedacc = ar_wheels[i].wh_speed / (float)m_num_proped_wheels;
-            ar_wheel_speed += speedacc;                          // Accumulate the average wheel speed (m/s)
-            ar_wheel_spin  += speedacc / ar_wheels[i].wh_radius; // Accumulate the average wheel spin  (radians)
+            ar_wheel_speed += speedacc;                         // Accumulate the average wheel speed (m/s)
+            ar_wheel_spin += speedacc / ar_wheels[i].wh_radius; // Accumulate the average wheel spin  (radians)
         }
 
         expected_wheel_speed += ((ar_wheels[i].wh_last_torque / ar_wheels[i].wh_radius) / ar_wheels[i].wh_mass) * PHYSICS_DT;
@@ -434,9 +407,9 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
 
         // reaction torque
         Vector3 rradius = ar_wheels[i].wh_arm_node->RelPosition - ar_wheels[i].wh_near_attach_node->RelPosition;
-        Vector3 radius = Plane(axis, ar_wheels[i].wh_near_attach_node->RelPosition).projectVector(rradius);
-        float offset = (rradius - radius).length(); // length of the error arm
-        Real rlen = radius.normalise(); // length of the projected arm
+        Vector3 radius  = Plane(axis, ar_wheels[i].wh_near_attach_node->RelPosition).projectVector(rradius);
+        float   offset  = (rradius - radius).length(); // length of the error arm
+        Real    rlen    = radius.normalise();          // length of the projected arm
         // TODO: Investigate the offset length abort condition ~ ulteq 10/2018
         if (rlen > 0.01 && offset * 2.0f < rlen && fabs(ar_wheels[i].wh_torque) > 0.01f)
         {
@@ -449,7 +422,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
         }
 
         ar_wheels[i].wh_last_torque = ar_wheels[i].wh_torque;
-        ar_wheels[i].wh_torque = 0.0f;
+        ar_wheels[i].wh_torque      = 0.0f;
     }
 
     ar_avg_wheel_speed = ar_avg_wheel_speed * 0.995 + ar_wheel_speed * 0.005;
@@ -461,19 +434,13 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
 
     if (doUpdate)
     {
-        if (!m_antilockbrake)
-        {
-            SOUND_STOP(ar_instance_id, SS_TRIG_ALB_ACTIVE);
-        }
+        if (!m_antilockbrake) { SOUND_STOP(ar_instance_id, SS_TRIG_ALB_ACTIVE); }
         else
         {
             SOUND_START(ar_instance_id, SS_TRIG_ALB_ACTIVE);
         }
 
-        if (!m_tractioncontrol)
-        {
-            SOUND_STOP(ar_instance_id, SS_TRIG_TC_ACTIVE);
-        }
+        if (!m_tractioncontrol) { SOUND_STOP(ar_instance_id, SS_TRIG_TC_ACTIVE); }
         else
         {
             SOUND_START(ar_instance_id, SS_TRIG_TC_ACTIVE);
@@ -488,10 +455,11 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
 
 void Actor::CalcShocks(bool doUpdate, int num_steps)
 {
-    //variable shocks for stabilization
+    // variable shocks for stabilization
     if (this->ar_has_active_shocks && m_stabilizer_shock_request)
     {
-        if ((m_stabilizer_shock_request == 1 && m_stabilizer_shock_ratio < 0.1) || (m_stabilizer_shock_request == -1 && m_stabilizer_shock_ratio > -0.1))
+        if ((m_stabilizer_shock_request == 1 && m_stabilizer_shock_ratio < 0.1) ||
+            (m_stabilizer_shock_request == -1 && m_stabilizer_shock_ratio > -0.1))
             m_stabilizer_shock_ratio = m_stabilizer_shock_ratio + (float)m_stabilizer_shock_request * PHYSICS_DT * STAB_RATE;
         for (int i = 0; i < ar_num_shocks; i++)
         {
@@ -502,23 +470,20 @@ void Actor::CalcShocks(bool doUpdate, int num_steps)
                 ar_beams[ar_shocks[i].beamid].L = ar_beams[ar_shocks[i].beamid].refL * (1.0 - m_stabilizer_shock_ratio);
         }
     }
-    //auto shock adjust
+    // auto shock adjust
     if (this->ar_has_active_shocks && doUpdate)
     {
         m_stabilizer_shock_sleep -= PHYSICS_DT * num_steps;
 
         float roll = asin(GetCameraRoll().dotProduct(Vector3::UNIT_Y));
-        //mWindow->setDebugText("Roll:"+ TOSTRING(roll));
+        // mWindow->setDebugText("Roll:"+ TOSTRING(roll));
         if (fabs(roll) > 0.2)
         {
-            m_stabilizer_shock_sleep = -1.0; //emergency timeout stop
+            m_stabilizer_shock_sleep = -1.0; // emergency timeout stop
         }
         if (fabs(roll) > 0.01 && m_stabilizer_shock_sleep < 0.0)
         {
-            if (roll > 0.0 && m_stabilizer_shock_request != -1)
-            {
-                m_stabilizer_shock_request = 1;
-            }
+            if (roll > 0.0 && m_stabilizer_shock_request != -1) { m_stabilizer_shock_request = 1; }
             else if (roll < 0.0 && m_stabilizer_shock_request != 1)
             {
                 m_stabilizer_shock_request = -1;
@@ -526,7 +491,7 @@ void Actor::CalcShocks(bool doUpdate, int num_steps)
             else
             {
                 m_stabilizer_shock_request = 0;
-                m_stabilizer_shock_sleep = 3.0;
+                m_stabilizer_shock_sleep   = 3.0;
             }
         }
         else
@@ -543,16 +508,16 @@ void Actor::CalcShocks(bool doUpdate, int num_steps)
 
 void Actor::CalcHydros()
 {
-    //direction
+    // direction
     if (ar_hydro_dir_state != 0 || ar_hydro_dir_command != 0)
     {
         if (!ar_hydro_speed_coupling)
         {
             // need a maximum rate for analog devices, otherwise hydro beams break
-            float smoothing   = Math::Clamp(App::io_analog_smoothing.GetActive(),   0.5f, 2.0f);
+            float smoothing   = Math::Clamp(App::io_analog_smoothing.GetActive(), 0.5f, 2.0f);
             float sensitivity = Math::Clamp(App::io_analog_sensitivity.GetActive(), 0.5f, 2.0f);
-            float diff = ar_hydro_dir_command - ar_hydro_dir_state;
-            float rate = std::exp(-std::min(std::abs(diff), 1.0f) / sensitivity) * diff;
+            float diff        = ar_hydro_dir_command - ar_hydro_dir_state;
+            float rate        = std::exp(-std::min(std::abs(diff), 1.0f) / sensitivity) * diff;
             ar_hydro_dir_state += (10.0f / smoothing) * PHYSICS_DT * rate;
         }
         else
@@ -575,7 +540,7 @@ void Actor::CalcHydros()
                 ar_hydro_dir_state = 0;
         }
     }
-    //aileron
+    // aileron
     if (ar_hydro_aileron_state != 0 || ar_hydro_aileron_command != 0)
     {
         if (ar_hydro_aileron_command != 0)
@@ -593,7 +558,7 @@ void Actor::CalcHydros()
         else
             ar_hydro_aileron_state = 0;
     }
-    //rudder
+    // rudder
     if (ar_hydro_rudder_state != 0 || ar_hydro_rudder_command != 0)
     {
         if (ar_hydro_rudder_command != 0)
@@ -612,7 +577,7 @@ void Actor::CalcHydros()
         else
             ar_hydro_rudder_state = 0;
     }
-    //elevator
+    // elevator
     if (ar_hydro_elevator_state != 0 || ar_hydro_elevator_command != 0)
     {
         if (ar_hydro_elevator_command != 0)
@@ -630,20 +595,19 @@ void Actor::CalcHydros()
         else
             ar_hydro_elevator_state = 0;
     }
-    //update length, dirstate between -1.0 and 1.0
+    // update length, dirstate between -1.0 and 1.0
     const int num_hydros = static_cast<int>(ar_hydros.size());
     for (int i = 0; i < num_hydros; ++i)
     {
-        hydrobeam_t& hydrobeam = ar_hydros[i];
+        hydrobeam_t &hydrobeam = ar_hydros[i];
 
-        //compound hydro
+        // compound hydro
         float cstate = 0.0f;
-        int div = 0;
+        int   div    = 0;
         if (hydrobeam.hb_flags & HYDRO_FLAG_SPEED)
         {
-            //special treatment for SPEED
-            if (ar_wheel_speed < 12.0f)
-                cstate += ar_hydro_dir_state * (12.0f - ar_wheel_speed) / 12.0f;
+            // special treatment for SPEED
+            if (ar_wheel_speed < 12.0f) cstate += ar_hydro_dir_state * (12.0f - ar_wheel_speed) / 12.0f;
             div++;
         }
         if (hydrobeam.hb_flags & HYDRO_FLAG_DIR)
@@ -684,16 +648,11 @@ void Actor::CalcHydros()
 
         const uint16_t beam_idx = hydrobeam.hb_beam_index;
 
-        if (cstate > 1.0)
-            cstate = 1.0;
-        if (cstate < -1.0)
-            cstate = -1.0;
+        if (cstate > 1.0) cstate = 1.0;
+        if (cstate < -1.0) cstate = -1.0;
         // Animators following, if no animator, skip all the tests...
         int flagstate = hydrobeam.hb_anim_flags;
-        if (flagstate)
-        {
-            this->CalcAnimators(flagstate, cstate, div, PHYSICS_DT, 0.0f, 0.0f, hydrobeam.hb_anim_param);
-        }
+        if (flagstate) { this->CalcAnimators(flagstate, cstate, div, PHYSICS_DT, 0.0f, 0.0f, hydrobeam.hb_anim_param); }
 
         if (div)
         {
@@ -701,18 +660,15 @@ void Actor::CalcHydros()
 
             cstate = hydrobeam.hb_inertia.CalcCmdKeyDelay(cstate, PHYSICS_DT);
 
-            if (!(hydrobeam.hb_flags & HYDRO_FLAG_SPEED) && !flagstate)
-                ar_hydro_dir_wheel_display = cstate;
+            if (!(hydrobeam.hb_flags & HYDRO_FLAG_SPEED) && !flagstate) ar_hydro_dir_wheel_display = cstate;
 
             float factor = 1.0 - cstate * hydrobeam.hb_speed;
 
             // check and apply animators limits if set
             if (flagstate)
             {
-                if (factor < 1.0f - ar_beams[beam_idx].shortbound)
-                    factor = 1.0f - ar_beams[beam_idx].shortbound;
-                if (factor > 1.0f + ar_beams[beam_idx].longbound)
-                    factor = 1.0f + ar_beams[beam_idx].longbound;
+                if (factor < 1.0f - ar_beams[beam_idx].shortbound) factor = 1.0f - ar_beams[beam_idx].shortbound;
+                if (factor > 1.0f + ar_beams[beam_idx].longbound) factor = 1.0f + ar_beams[beam_idx].longbound;
             }
 
             ar_beams[beam_idx].L = hydrobeam.hb_ref_length * factor;
@@ -724,9 +680,9 @@ void Actor::CalcCommands(bool doUpdate)
 {
     if (m_has_command_beams)
     {
-        int active = 0;
-        bool requested = false;
-        float work = 0.0;
+        int   active    = 0;
+        bool  requested = false;
+        float work      = 0.0;
 
         // hydraulics ready?
         if (ar_engine)
@@ -736,12 +692,10 @@ void Actor::CalcCommands(bool doUpdate)
 
         // crankfactor
         float crankfactor = 1.0f;
-        if (ar_engine)
-            crankfactor = ar_engine->GetCrankFactor();
+        if (ar_engine) crankfactor = ar_engine->GetCrankFactor();
 
         // speed up machines
-        if (ar_driveable == MACHINE)
-            crankfactor = 2;
+        if (ar_driveable == MACHINE) crankfactor = 2;
 
         for (int i = 0; i <= MAX_COMMANDS; i++)
         {
@@ -776,9 +730,7 @@ void Actor::CalcCommands(bool doUpdate)
                 {
                     ar_command_key[i].beams[j].cmb_state->auto_move_lock = true;
                     if (ar_command_key[i].beams[j].cmb_is_autocentering)
-                    {
-                        ar_command_key[i].beams[j].cmb_state->auto_moving_mode = 0;
-                    }
+                    { ar_command_key[i].beams[j].cmb_state->auto_moving_mode = 0; }
                 }
             }
         }
@@ -789,26 +741,23 @@ void Actor::CalcCommands(bool doUpdate)
             bool requestpower = false;
             for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)
             {
-                commandbeam_t& cmd_beam = ar_command_key[i].beams[j];
-                int bbeam_dir = (cmd_beam.cmb_is_contraction) ? -1 : 1;
-                int bbeam = cmd_beam.cmb_beam_index;
+                commandbeam_t &cmd_beam  = ar_command_key[i].beams[j];
+                int            bbeam_dir = (cmd_beam.cmb_is_contraction) ? -1 : 1;
+                int            bbeam     = cmd_beam.cmb_beam_index;
 
-                if (bbeam > ar_num_beams)
-                    continue;
+                if (bbeam > ar_num_beams) continue;
 
                 // restrict forces
-                if (cmd_beam.cmb_is_force_restricted)
-                    crankfactor = std::min(crankfactor, 1.0f);
+                if (cmd_beam.cmb_is_force_restricted) crankfactor = std::min(crankfactor, 1.0f);
 
-                float v = ar_command_key[i].commandValue;
-                int& vst = ar_command_key[i].commandValueState;
+                float v   = ar_command_key[i].commandValue;
+                int & vst = ar_command_key[i].commandValueState;
 
                 // self centering
                 if (cmd_beam.cmb_is_autocentering && !cmd_beam.cmb_state->auto_move_lock)
                 {
                     // check for some error
-                    if (ar_beams[bbeam].refL == 0 || ar_beams[bbeam].L == 0)
-                        continue;
+                    if (ar_beams[bbeam].refL == 0 || ar_beams[bbeam].L == 0) continue;
 
                     float current = (ar_beams[bbeam].L / ar_beams[bbeam].refL);
 
@@ -830,7 +779,7 @@ void Actor::CalcCommands(bool doUpdate)
                         // avoid overshooting
                         if (mode != 0 && mode != cmd_beam.cmb_state->auto_moving_mode)
                         {
-                            ar_beams[bbeam].L = cmd_beam.cmb_center_length * ar_beams[bbeam].refL;
+                            ar_beams[bbeam].L                    = cmd_beam.cmb_center_length * ar_beams[bbeam].refL;
                             cmd_beam.cmb_state->auto_moving_mode = 0;
                         }
                     }
@@ -839,19 +788,24 @@ void Actor::CalcCommands(bool doUpdate)
                 if (ar_beams[bbeam].refL != 0 && ar_beams[bbeam].L != 0)
                 {
                     float clen = ar_beams[bbeam].L / ar_beams[bbeam].refL;
-                    if ((bbeam_dir > 0 && clen < cmd_beam.cmb_boundary_length) || (bbeam_dir < 0 && clen > cmd_beam.cmb_boundary_length))
+                    if ((bbeam_dir > 0 && clen < cmd_beam.cmb_boundary_length) ||
+                        (bbeam_dir < 0 && clen > cmd_beam.cmb_boundary_length))
                     {
                         float dl = ar_beams[bbeam].L;
 
                         if (cmd_beam.cmb_is_1press_center)
                         {
                             // one press + centering
-                            if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0 && bbeam_dir * clen > bbeam_dir * cmd_beam.cmb_center_length && !cmd_beam.cmb_state->pressed_center_mode)
+                            if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0 &&
+                                bbeam_dir * clen > bbeam_dir * cmd_beam.cmb_center_length &&
+                                !cmd_beam.cmb_state->pressed_center_mode)
                             {
                                 cmd_beam.cmb_state->pressed_center_mode = true;
-                                cmd_beam.cmb_state->auto_moving_mode = 0;
+                                cmd_beam.cmb_state->auto_moving_mode    = 0;
                             }
-                            else if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode < 0 && bbeam_dir * clen > bbeam_dir * cmd_beam.cmb_center_length && cmd_beam.cmb_state->pressed_center_mode)
+                            else if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode < 0 &&
+                                     bbeam_dir * clen > bbeam_dir * cmd_beam.cmb_center_length &&
+                                     cmd_beam.cmb_state->pressed_center_mode)
                             {
                                 cmd_beam.cmb_state->pressed_center_mode = false;
                             }
@@ -860,9 +814,7 @@ void Actor::CalcCommands(bool doUpdate)
                         {
                             bool key = (v > 0.5);
                             if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode <= 0 && key)
-                            {
-                                cmd_beam.cmb_state->auto_moving_mode = bbeam_dir * 1;
-                            }
+                            { cmd_beam.cmb_state->auto_moving_mode = bbeam_dir * 1; }
                             else if (cmd_beam.cmb_state->auto_moving_mode == bbeam_dir * 1 && !key)
                             {
                                 cmd_beam.cmb_state->auto_moving_mode = bbeam_dir * 2;
@@ -879,14 +831,12 @@ void Actor::CalcCommands(bool doUpdate)
 
                         v = ar_command_key[i].command_inertia.CalcCmdKeyDelay(v, PHYSICS_DT);
 
-                        if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0)
-                            v = 1;
+                        if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0) v = 1;
 
                         if (cmd_beam.cmb_needs_engine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
                             continue;
 
-                        if (v > 0.0f && cmd_beam.cmb_engine_coupling > 0.0f)
-                            requestpower = true;
+                        if (v > 0.0f && cmd_beam.cmb_engine_coupling > 0.0f) requestpower = true;
 
 #ifdef USE_OPENAL
                         if (cmd_beam.cmb_plays_sound)
@@ -895,27 +845,30 @@ void Actor::CalcCommands(bool doUpdate)
                             if (vst == 1)
                             {
                                 // just started
-                                SoundScriptManager::getSingleton().trigStop(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND, -i);
-                                SoundScriptManager::getSingleton().trigStart(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
+                                SoundScriptManager::getSingleton().trigStop(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND,
+                                                                            -i);
+                                SoundScriptManager::getSingleton().trigStart(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND,
+                                                                             i);
                                 vst = 0;
                             }
                             else if (vst == -1)
                             {
                                 // just stopped
-                                SoundScriptManager::getSingleton().trigStop(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
+                                SoundScriptManager::getSingleton().trigStop(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND,
+                                                                            i);
                                 vst = 0;
                             }
                             else if (vst == 0)
                             {
                                 // already running, modulate
-                                SoundScriptManager::getSingleton().modulate(ar_instance_id, SS_MOD_LINKED_COMMANDRATE, v, SL_COMMAND, i);
+                                SoundScriptManager::getSingleton().modulate(ar_instance_id, SS_MOD_LINKED_COMMANDRATE, v,
+                                                                            SL_COMMAND, i);
                             }
                         }
-#endif //USE_OPENAL
+#endif // USE_OPENAL
                         float cf = 1.0f;
 
-                        if (cmd_beam.cmb_engine_coupling > 0)
-                            cf = crankfactor;
+                        if (cmd_beam.cmb_engine_coupling > 0) cf = crankfactor;
 
                         if (bbeam_dir > 0)
                             ar_beams[bbeam].L *= (1.0 + cmd_beam.cmb_speed * v * cf * PHYSICS_DT / ar_beams[bbeam].L);
@@ -929,7 +882,8 @@ void Actor::CalcCommands(bool doUpdate)
                             work += fabs(ar_beams[bbeam].stress) * dl * cmd_beam.cmb_engine_coupling;
                         }
                     }
-                    else if ((cmd_beam.cmb_is_1press || cmd_beam.cmb_is_1press_center) && bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0)
+                    else if ((cmd_beam.cmb_is_1press || cmd_beam.cmb_is_1press_center) &&
+                             bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0)
                     {
                         // beyond length
                         cmd_beam.cmb_state->auto_moving_mode = 0;
@@ -939,34 +893,28 @@ void Actor::CalcCommands(bool doUpdate)
             // also for rotators
             for (int j = 0; j < (int)ar_command_key[i].rotators.size(); j++)
             {
-                float v = 0.0f;
-                int rota = std::abs(ar_command_key[i].rotators[j]) - 1;
+                float v    = 0.0f;
+                int   rota = std::abs(ar_command_key[i].rotators[j]) - 1;
 
                 if (ar_rotators[rota].needs_engine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
                     continue;
 
                 v = ar_command_key[i].rotator_inertia.CalcCmdKeyDelay(ar_command_key[i].commandValue, PHYSICS_DT);
 
-                if (v > 0.0f && ar_rotators[rota].engine_coupling > 0.0f)
-                    requestpower = true;
+                if (v > 0.0f && ar_rotators[rota].engine_coupling > 0.0f) requestpower = true;
 
                 float cf = 1.0f;
 
-                if (ar_rotators[rota].engine_coupling > 0.0f)
-                    cf = crankfactor;
+                if (ar_rotators[rota].engine_coupling > 0.0f) cf = crankfactor;
 
                 if (ar_command_key[i].rotators[j] > 0)
                     ar_rotators[rota].angle += ar_rotators[rota].rate * v * cf * PHYSICS_DT;
                 else
                     ar_rotators[rota].angle -= ar_rotators[rota].rate * v * cf * PHYSICS_DT;
 
-                if (doUpdate || v != 0.0f)
-                {
-                    ar_rotators[rota].debug_rate = ar_rotators[rota].rate * v * cf;
-                }
+                if (doUpdate || v != 0.0f) { ar_rotators[rota].debug_rate = ar_rotators[rota].rate * v * cf; }
             }
-            if (requestpower)
-                requested=true;
+            if (requestpower) requested = true;
         }
 
         if (ar_engine)
@@ -988,14 +936,14 @@ void Actor::CalcCommands(bool doUpdate)
             {
                 SOUND_STOP(ar_instance_id, SS_TRIG_PUMP);
             }
-#endif //USE_OPENAL
+#endif // USE_OPENAL
         }
         // rotators
         for (int i = 0; i < ar_num_rotators; i++)
         {
             // compute rotation axis
-            Vector3 ax1 = ar_nodes[ar_rotators[i].axis1].RelPosition;
-            Vector3 ax2 = ar_nodes[ar_rotators[i].axis2].RelPosition;
+            Vector3 ax1  = ar_nodes[ar_rotators[i].axis1].RelPosition;
+            Vector3 ax2  = ar_nodes[ar_rotators[i].axis2].RelPosition;
             Vector3 axis = ax1 - ax2;
             axis.normalise();
             // find the reference plane
@@ -1005,28 +953,26 @@ void Actor::CalcCommands(bool doUpdate)
             for (int k = 0; k < 2; k++)
             {
                 // find the reference vectors
-                Vector3 ref1 = pl.projectVector(ax1 - ar_nodes[ar_rotators[i].nodes1[k]].RelPosition);
-                Vector3 ref2 = pl.projectVector(ax2 - ar_nodes[ar_rotators[i].nodes2[k]].RelPosition);
-                float ref1len = ref1.normalise();
-                float ref2len = ref2.normalise();
+                Vector3 ref1    = pl.projectVector(ax1 - ar_nodes[ar_rotators[i].nodes1[k]].RelPosition);
+                Vector3 ref2    = pl.projectVector(ax2 - ar_nodes[ar_rotators[i].nodes2[k]].RelPosition);
+                float   ref1len = ref1.normalise();
+                float   ref2len = ref2.normalise();
                 // theory vector
                 Vector3 th1 = Quaternion(Radian(ar_rotators[i].angle + Math::HALF_PI), axis) * ref1;
                 // find the angle error
                 float aerror = asin(th1.dotProduct(ref2));
                 ar_rotators[i].debug_aerror += 0.5f * aerror;
                 // exert forces
-                float rigidity = ar_rotators[i].force;
-                Vector3 dir1 = ref1.crossProduct(axis);
-                Vector3 dir2 = ref2.crossProduct(axis);
+                float   rigidity = ar_rotators[i].force;
+                Vector3 dir1     = ref1.crossProduct(axis);
+                Vector3 dir2     = ref2.crossProduct(axis);
 
                 // simple jitter fix
-                if (ref1len <= ar_rotators[i].tolerance)
-                    ref1len = 0.0f;
-                if (ref2len <= ar_rotators[i].tolerance)
-                    ref2len = 0.0f;
+                if (ref1len <= ar_rotators[i].tolerance) ref1len = 0.0f;
+                if (ref2len <= ar_rotators[i].tolerance) ref2len = 0.0f;
 
-                ar_nodes[ar_rotators[i].nodes1[k    ]].Forces += (aerror * ref1len * rigidity) * dir1;
-                ar_nodes[ar_rotators[i].nodes2[k    ]].Forces -= (aerror * ref2len * rigidity) * dir2;
+                ar_nodes[ar_rotators[i].nodes1[k]].Forces += (aerror * ref1len * rigidity) * dir1;
+                ar_nodes[ar_rotators[i].nodes2[k]].Forces -= (aerror * ref2len * rigidity) * dir2;
                 // symmetric
                 ar_nodes[ar_rotators[i].nodes1[k + 2]].Forces -= (aerror * ref1len * rigidity) * dir1;
                 ar_nodes[ar_rotators[i].nodes2[k + 2]].Forces += (aerror * ref2len * rigidity) * dir2;
@@ -1041,18 +987,13 @@ void Actor::CalcTies()
     for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
     {
         // only process tying ties
-        if (!it->ti_tying)
-            continue;
+        if (!it->ti_tying) continue;
 
         // division through zero guard
-        if (it->ti_beam->refL == 0 || it->ti_beam->L == 0)
-            continue;
+        if (it->ti_beam->refL == 0 || it->ti_beam->L == 0) continue;
 
         float clen = it->ti_beam->L / it->ti_beam->refL;
-        if (clen > it->ti_min_length)
-        {
-            it->ti_beam->L *= (1.0 - it->ti_contract_speed * PHYSICS_DT / it->ti_beam->L);
-        }
+        if (clen > it->ti_min_length) { it->ti_beam->L *= (1.0 - it->ti_contract_speed * PHYSICS_DT / it->ti_beam->L); }
         else
         {
             // tying finished, end reached
@@ -1060,18 +1001,12 @@ void Actor::CalcTies()
         }
 
         // check if we hit a certain force limit, then abort the tying process
-        if (fabs(it->ti_beam->stress) > it->ti_max_stress)
-        {
-            it->ti_tying = false;
-        }
+        if (fabs(it->ti_beam->stress) > it->ti_max_stress) { it->ti_tying = false; }
     }
 }
 void Actor::CalcTruckEngine(bool doUpdate)
 {
-    if (ar_engine)
-    {
-        ar_engine->UpdateEngineSim(PHYSICS_DT, doUpdate);
-    }
+    if (ar_engine) { ar_engine->UpdateEngineSim(PHYSICS_DT, doUpdate); }
 }
 
 void Actor::CalcReplay()
@@ -1082,7 +1017,7 @@ void Actor::CalcReplay()
         if (m_replay_timer >= ar_replay_precision)
         {
             // store nodes
-            node_simple_t* nbuff = (node_simple_t *)m_replay_handler->getWriteBuffer(0);
+            node_simple_t *nbuff = (node_simple_t *)m_replay_handler->getWriteBuffer(0);
             if (nbuff)
             {
                 for (int i = 0; i < ar_num_nodes; i++)
@@ -1093,12 +1028,12 @@ void Actor::CalcReplay()
             }
 
             // store beams
-            beam_simple_t* bbuff = (beam_simple_t *)m_replay_handler->getWriteBuffer(1);
+            beam_simple_t *bbuff = (beam_simple_t *)m_replay_handler->getWriteBuffer(1);
             if (bbuff)
             {
                 for (int i = 0; i < ar_num_beams; i++)
                 {
-                    bbuff[i].broken = ar_beams[i].bm_broken;
+                    bbuff[i].broken   = ar_beams[i].bm_broken;
                     bbuff[i].disabled = ar_beams[i].bm_disabled;
                 }
             }
@@ -1111,15 +1046,11 @@ void Actor::CalcReplay()
 
 bool Actor::CalcForcesEulerPrepare(bool doUpdate)
 {
-    if (m_ongoing_reset)
-        return false;
-    if (ar_physics_paused)
-        return false;
-    if (ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
-        return false;
+    if (m_ongoing_reset) return false;
+    if (ar_physics_paused) return false;
+    if (ar_sim_state != Actor::SimState::LOCAL_SIMULATED) return false;
 
-    if (doUpdate)
-        this->ToggleHooks(-2, HOOK_LOCK, -1);
+    if (doUpdate) this->ToggleHooks(-2, HOOK_LOCK, -1);
 
     this->CalcHooks();
     this->CalcRopes();
@@ -1127,14 +1058,12 @@ bool Actor::CalcForcesEulerPrepare(bool doUpdate)
     return true;
 }
 
-template <size_t L>
-void LogNodeId(RoR::Str<L>& msg, node_t* node) // Internal helper
+template <size_t L> void LogNodeId(RoR::Str<L> &msg, node_t *node) // Internal helper
 {
     msg << " (index: " << node->pos << ")";
 }
 
-template <size_t L>
-void LogBeamNodes(RoR::Str<L>& msg, beam_t& beam) // Internal helper
+template <size_t L> void LogBeamNodes(RoR::Str<L> &msg, beam_t &beam) // Internal helper
 {
     msg << "It was between nodes ";
     LogNodeId(msg, beam.p1);
@@ -1152,7 +1081,7 @@ void Actor::CalcBeams(bool trigger_hooks)
             // Calculate beam length
             Vector3 dis = ar_beams[i].p1->RelPosition - ar_beams[i].p2->RelPosition;
 
-            Real dislen = dis.squaredLength();
+            Real dislen          = dis.squaredLength();
             Real inverted_dislen = fast_invSqrt(dislen);
 
             dislen *= inverted_dislen;
@@ -1180,13 +1109,13 @@ void Actor::CalcBeams(bool trigger_hooks)
                 {
                     // Hard (normal) shock bump
                     float tspring = DEFAULT_SPRING;
-                    float tdamp = DEFAULT_DAMP;
+                    float tdamp   = DEFAULT_DAMP;
 
                     // Skip camera, wheels or any other shocks which are not generated in a shocks or shocks2 section
                     if (ar_beams[i].bm_type == BEAM_HYDRO)
                     {
                         tspring = ar_beams[i].shock->sbd_spring;
-                        tdamp = ar_beams[i].shock->sbd_damp;
+                        tdamp   = ar_beams[i].shock->sbd_damp;
                     }
 
                     k += (tspring - k) * interp_ratio;
@@ -1221,13 +1150,13 @@ void Actor::CalcBeams(bool trigger_hooks)
                     // If support beam is extended the originallength * break_limit, break and disable it
                     if (difftoBeamL > ar_beams[i].L * break_limit)
                     {
-                        ar_beams[i].bm_broken = true;
+                        ar_beams[i].bm_broken   = true;
                         ar_beams[i].bm_disabled = true;
                         if (m_beam_break_debug_enabled)
                         {
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] XXX Support-Beam " << i << " limit extended and broke. "
-                                << "Length: " << difftoBeamL << " / max. Length: " << (ar_beams[i].L*break_limit) << ". ";
+                                << "Length: " << difftoBeamL << " / max. Length: " << (ar_beams[i].L * break_limit) << ". ";
                             LogBeamNodes(msg, ar_beams[i]);
                             RoR::Log(msg.ToCStr());
                         }
@@ -1250,7 +1179,7 @@ void Actor::CalcBeams(bool trigger_hooks)
                 ar_beams[i].debug_v = std::abs(v);
             }
 
-            float slen = -k * difftoBeamL - d * v;
+            float slen         = -k * difftoBeamL - d * v;
             ar_beams[i].stress = slen;
 
             // Fast test for deformation
@@ -1263,12 +1192,12 @@ void Actor::CalcBeams(bool trigger_hooks)
                     if (slen > ar_beams[i].maxposstress && difftoBeamL < 0.0f) // compression
                     {
                         Real yield_length = ar_beams[i].maxposstress / k;
-                        Real deform = difftoBeamL + yield_length * (1.0f - ar_beams[i].plastic_coef);
-                        Real Lold = ar_beams[i].L;
+                        Real deform       = difftoBeamL + yield_length * (1.0f - ar_beams[i].plastic_coef);
+                        Real Lold         = ar_beams[i].L;
                         ar_beams[i].L += deform;
                         ar_beams[i].L = std::max(MIN_BEAM_LENGTH, ar_beams[i].L);
-                        slen = slen - (slen - ar_beams[i].maxposstress) * 0.5f;
-                        len = slen;
+                        slen          = slen - (slen - ar_beams[i].maxposstress) * 0.5f;
+                        len           = slen;
                         if (ar_beams[i].L > 0.0f && Lold > ar_beams[i].L)
                         {
                             ar_beams[i].maxposstress *= Lold / ar_beams[i].L;
@@ -1277,12 +1206,12 @@ void Actor::CalcBeams(bool trigger_hooks)
                         }
                         // For the compression case we do not remove any of the beam's
                         // strength for structure stability reasons
-                        //ar_beams[i].strength += deform * k * 0.5f;
+                        // ar_beams[i].strength += deform * k * 0.5f;
                         if (m_beam_deform_debug_enabled)
                         {
                             RoR::Str<300> msg;
-                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
-                                << len << " / " << ar_beams[i].strength << ". ";
+                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force " << len << " / "
+                                << ar_beams[i].strength << ". ";
                             LogBeamNodes(msg, ar_beams[i]);
                             RoR::Log(msg.ToCStr());
                         }
@@ -1290,11 +1219,11 @@ void Actor::CalcBeams(bool trigger_hooks)
                     else if (slen < ar_beams[i].maxnegstress && difftoBeamL > 0.0f) // expansion
                     {
                         Real yield_length = ar_beams[i].maxnegstress / k;
-                        Real deform = difftoBeamL + yield_length * (1.0f - ar_beams[i].plastic_coef);
-                        Real Lold = ar_beams[i].L;
+                        Real deform       = difftoBeamL + yield_length * (1.0f - ar_beams[i].plastic_coef);
+                        Real Lold         = ar_beams[i].L;
                         ar_beams[i].L += deform;
                         slen = slen - (slen - ar_beams[i].maxnegstress) * 0.5f;
-                        len = -slen;
+                        len  = -slen;
                         if (Lold > 0.0f && ar_beams[i].L > Lold)
                         {
                             ar_beams[i].maxnegstress *= ar_beams[i].L / Lold;
@@ -1305,8 +1234,8 @@ void Actor::CalcBeams(bool trigger_hooks)
                         if (m_beam_deform_debug_enabled)
                         {
                             RoR::Str<300> msg;
-                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
-                                << len << " / " << ar_beams[i].strength << ". ";
+                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force " << len << " / "
+                                << ar_beams[i].strength << ". ";
                             LogBeamNodes(msg, ar_beams[i]);
                             RoR::Log(msg.ToCStr());
                         }
@@ -1321,25 +1250,28 @@ void Actor::CalcBeams(bool trigger_hooks)
                     SOUND_MODULATE(ar_instance_id, SS_MOD_BREAK, 0.5 * k * difftoBeamL * difftoBeamL);
                     SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_BREAK);
 
-                    //Break the beam only when it is not connected to a node
-                    //which is a part of a collision triangle and has 2 "live" beams or less
-                    //connected to it.
-                    if (!((ar_beams[i].p1->nd_cab_node && GetNumActiveConnectedBeams(ar_beams[i].p1->pos) < 3) || (ar_beams[i].p2->nd_cab_node && GetNumActiveConnectedBeams(ar_beams[i].p2->pos) < 3)))
+                    // Break the beam only when it is not connected to a node
+                    // which is a part of a collision triangle and has 2 "live" beams or less
+                    // connected to it.
+                    if (!((ar_beams[i].p1->nd_cab_node && GetNumActiveConnectedBeams(ar_beams[i].p1->pos) < 3) ||
+                          (ar_beams[i].p2->nd_cab_node && GetNumActiveConnectedBeams(ar_beams[i].p2->pos) < 3)))
                     {
-                        slen = 0.0f;
-                        ar_beams[i].bm_broken = true;
+                        slen                    = 0.0f;
+                        ar_beams[i].bm_broken   = true;
                         ar_beams[i].bm_disabled = true;
 
                         if (m_beam_break_debug_enabled)
                         {
                             RoR::Str<200> msg;
-                            msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / " << ar_beams[i].strength << ". ";
+                            msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / "
+                                << ar_beams[i].strength << ". ";
                             LogBeamNodes(msg, ar_beams[i]);
                             RoR::Log(msg.ToCStr());
                         }
 
-                        // detachergroup check: beam[i] is already broken, check detacher group# == 0/default skip the check ( performance bypass for beams with default setting )
-                        // only perform this check if this is a master detacher beams (positive detacher group id > 0)
+                        // detachergroup check: beam[i] is already broken, check detacher group# == 0/default skip the check (
+                        // performance bypass for beams with default setting ) only perform this check if this is a master
+                        // detacher beams (positive detacher group id > 0)
                         if (ar_beams[i].detacher_group > 0)
                         {
                             // cycle once through the other beams
@@ -1349,11 +1281,12 @@ void Actor::CalcBeams(bool trigger_hooks)
                                 // do this with all master(positive id) and minor(negative id) beams of this detacher group
                                 if (abs(ar_beams[j].detacher_group) == ar_beams[i].detacher_group)
                                 {
-                                    ar_beams[j].bm_broken = true;
+                                    ar_beams[j].bm_broken   = true;
                                     ar_beams[j].bm_disabled = true;
                                     if (m_beam_break_debug_enabled)
                                     {
-                                        LOG("Deleting Detacher BeamID: " + TOSTRING(j) + ", Detacher Group: " + TOSTRING(ar_beams[i].detacher_group)+ ", actor ID: " + TOSTRING(ar_instance_id));
+                                        LOG("Deleting Detacher BeamID: " + TOSTRING(j) + ", Detacher Group: " +
+                                            TOSTRING(ar_beams[i].detacher_group) + ", actor ID: " + TOSTRING(ar_instance_id));
                                     }
                                 }
                             }
@@ -1361,9 +1294,7 @@ void Actor::CalcBeams(bool trigger_hooks)
                             for (int j = 0; j < ar_num_wheels; j++)
                             {
                                 if (ar_wheels[j].wh_detacher_group == ar_beams[i].detacher_group)
-                                {
-                                    ar_wheels[j].wh_is_detached = true;
-                                }
+                                { ar_wheels[j].wh_is_detached = true; }
                             }
                         }
                     }
@@ -1376,13 +1307,12 @@ void Actor::CalcBeams(bool trigger_hooks)
                     for (int mk = 0; mk < ar_num_buoycabs; mk++)
                     {
                         int tmpv = ar_buoycabs[mk] * 3;
-                        if (ar_buoycab_types[mk] == Buoyance::BUOY_DRAGONLY)
-                            continue;
-                        if ((ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv]] || ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv + 1]] || ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv + 2]]) &&
-                            (ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv]] || ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv + 1]] || ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv + 2]]))
-                        {
-                            m_buoyance->sink = true;
-                        }
+                        if (ar_buoycab_types[mk] == Buoyance::BUOY_DRAGONLY) continue;
+                        if ((ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv]] || ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv + 1]] ||
+                             ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv + 2]]) &&
+                            (ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv]] || ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv + 1]] ||
+                             ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv + 2]]))
+                        { m_buoyance->sink = true; }
                     }
                 }
             }
@@ -1405,7 +1335,7 @@ void Actor::CalcBeamsInterActor()
             // Calculate beam length
             Vector3 dis = ar_inter_beams[i]->p1->AbsPosition - ar_inter_beams[i]->p2->AbsPosition;
 
-            Real dislen = dis.squaredLength();
+            Real dislen          = dis.squaredLength();
             Real inverted_dislen = fast_invSqrt(dislen);
 
             dislen *= inverted_dislen;
@@ -1425,7 +1355,7 @@ void Actor::CalcBeamsInterActor()
             // Calculate beam's rate of change
             Vector3 v = ar_inter_beams[i]->p1->Velocity - ar_inter_beams[i]->p2->Velocity;
 
-            float slen = -k * (difftoBeamL) - d * v.dotProduct(dis) * inverted_dislen;
+            float slen                = -k * (difftoBeamL)-d * v.dotProduct(dis) * inverted_dislen;
             ar_inter_beams[i]->stress = slen;
 
             // Fast test for deformation
@@ -1438,26 +1368,28 @@ void Actor::CalcBeamsInterActor()
                     if (slen > ar_inter_beams[i]->maxposstress && difftoBeamL < 0.0f) // compression
                     {
                         Real yield_length = ar_inter_beams[i]->maxposstress / k;
-                        Real deform = difftoBeamL + yield_length * (1.0f - ar_inter_beams[i]->plastic_coef);
-                        Real Lold = ar_inter_beams[i]->L;
+                        Real deform       = difftoBeamL + yield_length * (1.0f - ar_inter_beams[i]->plastic_coef);
+                        Real Lold         = ar_inter_beams[i]->L;
                         ar_inter_beams[i]->L += deform;
                         ar_inter_beams[i]->L = std::max(MIN_BEAM_LENGTH, ar_inter_beams[i]->L);
-                        slen = slen - (slen - ar_inter_beams[i]->maxposstress) * 0.5f;
-                        len = slen;
+                        slen                 = slen - (slen - ar_inter_beams[i]->maxposstress) * 0.5f;
+                        len                  = slen;
                         if (ar_inter_beams[i]->L > 0.0f && Lold > ar_inter_beams[i]->L)
                         {
                             ar_inter_beams[i]->maxposstress *= Lold / ar_inter_beams[i]->L;
-                            ar_inter_beams[i]->minmaxposnegstress = std::min(ar_inter_beams[i]->maxposstress, -ar_inter_beams[i]->maxnegstress);
-                            ar_inter_beams[i]->minmaxposnegstress = std::min(ar_inter_beams[i]->minmaxposnegstress, ar_inter_beams[i]->strength);
+                            ar_inter_beams[i]->minmaxposnegstress =
+                                std::min(ar_inter_beams[i]->maxposstress, -ar_inter_beams[i]->maxnegstress);
+                            ar_inter_beams[i]->minmaxposnegstress =
+                                std::min(ar_inter_beams[i]->minmaxposnegstress, ar_inter_beams[i]->strength);
                         }
                         // For the compression case we do not remove any of the beam's
                         // strength for structure stability reasons
-                        //ar_inter_beams[i]->strength += deform * k * 0.5f;
+                        // ar_inter_beams[i]->strength += deform * k * 0.5f;
                         if (m_beam_deform_debug_enabled)
                         {
                             RoR::Str<300> msg;
-                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
-                                << len << " / " << ar_inter_beams[i]->strength << ". ";
+                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force " << len << " / "
+                                << ar_inter_beams[i]->strength << ". ";
                             LogBeamNodes(msg, (*ar_inter_beams[i]));
                             RoR::Log(msg.ToCStr());
                         }
@@ -1465,23 +1397,25 @@ void Actor::CalcBeamsInterActor()
                     else if (slen < ar_inter_beams[i]->maxnegstress && difftoBeamL > 0.0f) // expansion
                     {
                         Real yield_length = ar_inter_beams[i]->maxnegstress / k;
-                        Real deform = difftoBeamL + yield_length * (1.0f - ar_inter_beams[i]->plastic_coef);
-                        Real Lold = ar_inter_beams[i]->L;
+                        Real deform       = difftoBeamL + yield_length * (1.0f - ar_inter_beams[i]->plastic_coef);
+                        Real Lold         = ar_inter_beams[i]->L;
                         ar_inter_beams[i]->L += deform;
                         slen = slen - (slen - ar_inter_beams[i]->maxnegstress) * 0.5f;
-                        len = -slen;
+                        len  = -slen;
                         if (Lold > 0.0f && ar_inter_beams[i]->L > Lold)
                         {
                             ar_inter_beams[i]->maxnegstress *= ar_inter_beams[i]->L / Lold;
-                            ar_inter_beams[i]->minmaxposnegstress = std::min(ar_inter_beams[i]->maxposstress, -ar_inter_beams[i]->maxnegstress);
-                            ar_inter_beams[i]->minmaxposnegstress = std::min(ar_inter_beams[i]->minmaxposnegstress, ar_inter_beams[i]->strength);
+                            ar_inter_beams[i]->minmaxposnegstress =
+                                std::min(ar_inter_beams[i]->maxposstress, -ar_inter_beams[i]->maxnegstress);
+                            ar_inter_beams[i]->minmaxposnegstress =
+                                std::min(ar_inter_beams[i]->minmaxposnegstress, ar_inter_beams[i]->strength);
                         }
                         ar_inter_beams[i]->strength -= deform * k;
                         if (m_beam_deform_debug_enabled)
                         {
                             RoR::Str<300> msg;
-                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
-                                << len << " / " << ar_inter_beams[i]->strength << ". ";
+                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force " << len << " / "
+                                << ar_inter_beams[i]->strength << ". ";
                             LogBeamNodes(msg, (*ar_inter_beams[i]));
                             RoR::Log(msg.ToCStr());
                         }
@@ -1496,19 +1430,21 @@ void Actor::CalcBeamsInterActor()
                     SOUND_MODULATE(ar_instance_id, SS_MOD_BREAK, 0.5 * k * difftoBeamL * difftoBeamL);
                     SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_BREAK);
 
-                    //Break the beam only when it is not connected to a node
-                    //which is a part of a collision triangle and has 2 "live" beams or less
-                    //connected to it.
-                    if (!((ar_inter_beams[i]->p1->nd_cab_node && GetNumActiveConnectedBeams(ar_inter_beams[i]->p1->pos) < 3) || (ar_inter_beams[i]->p2->nd_cab_node && GetNumActiveConnectedBeams(ar_inter_beams[i]->p2->pos) < 3)))
+                    // Break the beam only when it is not connected to a node
+                    // which is a part of a collision triangle and has 2 "live" beams or less
+                    // connected to it.
+                    if (!((ar_inter_beams[i]->p1->nd_cab_node && GetNumActiveConnectedBeams(ar_inter_beams[i]->p1->pos) < 3) ||
+                          (ar_inter_beams[i]->p2->nd_cab_node && GetNumActiveConnectedBeams(ar_inter_beams[i]->p2->pos) < 3)))
                     {
-                        slen = 0.0f;
-                        ar_inter_beams[i]->bm_broken = true;
+                        slen                           = 0.0f;
+                        ar_inter_beams[i]->bm_broken   = true;
                         ar_inter_beams[i]->bm_disabled = true;
 
                         if (m_beam_break_debug_enabled)
                         {
                             RoR::Str<200> msg;
-                            msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / " << ar_inter_beams[i]->strength << ". ";
+                            msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / "
+                                << ar_inter_beams[i]->strength << ". ";
                             LogBeamNodes(msg, (*ar_inter_beams[i]));
                             RoR::Log(msg.ToCStr());
                         }
@@ -1531,18 +1467,18 @@ void Actor::CalcBeamsInterActor()
 
 void Actor::CalcNodes()
 {
-    const auto water = App::GetSimTerrain()->getWater();
+    const auto  water   = App::GetSimTerrain()->getWater();
     const float gravity = App::GetSimTerrain()->getGravity();
-    m_water_contact = false;
+    m_water_contact     = false;
 
     for (int i = 0; i < ar_num_nodes; i++)
     {
         // COLLISION
         if (!ar_nodes[i].nd_no_ground_contact)
         {
-            Vector3 oripos = ar_nodes[i].AbsPosition;
-            bool contacted = gEnv->collisions->groundCollision(&ar_nodes[i], PHYSICS_DT);
-            contacted = contacted | gEnv->collisions->nodeCollision(&ar_nodes[i], PHYSICS_DT, false);
+            Vector3 oripos                    = ar_nodes[i].AbsPosition;
+            bool    contacted                 = gEnv->collisions->groundCollision(&ar_nodes[i], PHYSICS_DT);
+            contacted                         = contacted | gEnv->collisions->nodeCollision(&ar_nodes[i], PHYSICS_DT, false);
             ar_nodes[i].nd_has_ground_contact = contacted;
             if (ar_nodes[i].nd_has_ground_contact || ar_nodes[i].nd_has_mesh_contact)
             {
@@ -1583,7 +1519,7 @@ void Actor::CalcNodes()
         {
             ActorModifyRequest rq; // actor exploded, schedule reset
             rq.amr_actor = this;
-            rq.amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
+            rq.amr_type  = ActorModifyRequest::Type::RESET_ON_SPOT;
             App::GetSimController()->QueueActorModify(rq);
             m_ongoing_reset = true;
         }
@@ -1596,8 +1532,8 @@ void Actor::CalcNodes()
         else if (!ar_disable_aerodyn_turbulent_drag)
         {
             // add viscous drag (turbulent model)
-            Real defdragxspeed = DEFAULT_DRAG * approx_speed;
-            Vector3 drag = -defdragxspeed * ar_nodes[i].Velocity;
+            Real    defdragxspeed = DEFAULT_DRAG * approx_speed;
+            Vector3 drag          = -defdragxspeed * ar_nodes[i].Velocity;
             // plus: turbulences
             Real maxtur = defdragxspeed * approx_speed * 0.005f;
             drag += maxtur * Vector3(frand_11(), frand_11(), frand_11());
@@ -1618,10 +1554,7 @@ void Actor::CalcNodes()
                     ar_nodes[i].Forces += ar_nodes[i].buoyancy * Vector3::UNIT_Y;
                 }
                 // engine stall
-                if (i == ar_cinecam_node[0] && ar_engine)
-                {
-                    ar_engine->StopEngine();
-                }
+                if (i == ar_cinecam_node[0] && ar_engine) { ar_engine->StopEngine(); }
             }
             ar_nodes[i].nd_under_water = is_under_water;
         }
@@ -1632,62 +1565,60 @@ void Actor::CalcNodes()
 
 void Actor::CalcHooks()
 {
-    //locks - this is not active in network mode
+    // locks - this is not active in network mode
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
-        //we need to do this here to avoid countdown speedup by triggers
+        // we need to do this here to avoid countdown speedup by triggers
         it->hk_timer = std::max(0.0f, it->hk_timer - PHYSICS_DT);
 
         if (it->hk_lock_node && it->hk_locked == PRELOCK)
         {
             if (it->hk_beam->bm_disabled)
             {
-                //enable beam if not enabled yet between those 2 nodes
-                it->hk_beam->p2 = it->hk_lock_node;
+                // enable beam if not enabled yet between those 2 nodes
+                it->hk_beam->p2             = it->hk_lock_node;
                 it->hk_beam->bm_inter_actor = it->hk_locked_actor != 0;
-                it->hk_beam->L = (it->hk_hook_node->AbsPosition - it->hk_lock_node->AbsPosition).length();
-                it->hk_beam->bm_disabled = false;
+                it->hk_beam->L              = (it->hk_hook_node->AbsPosition - it->hk_lock_node->AbsPosition).length();
+                it->hk_beam->bm_disabled    = false;
                 AddInterActorBeam(it->hk_beam, this, it->hk_locked_actor);
             }
             else
             {
                 if (it->hk_beam->L < it->hk_min_length)
                 {
-                    //shortlimit reached -> status LOCKED
+                    // shortlimit reached -> status LOCKED
                     it->hk_locked = LOCKED;
                 }
                 else
                 {
-                    //shorten the connecting beam slowly to locking minrange
+                    // shorten the connecting beam slowly to locking minrange
                     if (it->hk_beam->L > it->hk_lockspeed && fabs(it->hk_beam->stress) < it->hk_maxforce)
-                    {
-                        it->hk_beam->L = (it->hk_beam->L - it->hk_lockspeed);
-                    }
+                    { it->hk_beam->L = (it->hk_beam->L - it->hk_lockspeed); }
                     else
                     {
                         if (fabs(it->hk_beam->stress) < it->hk_maxforce)
                         {
                             it->hk_beam->L = 0.001f;
-                            //locking minrange or stress exeeded -> status LOCKED
+                            // locking minrange or stress exeeded -> status LOCKED
                             it->hk_locked = LOCKED;
                         }
                         else
                         {
                             if (it->hk_nodisable)
                             {
-                                //force exceed, but beam is set to nodisable, just lock it in this position
+                                // force exceed, but beam is set to nodisable, just lock it in this position
                                 it->hk_locked = LOCKED;
                             }
                             else
                             {
-                                //force exceeded reset the hook node
-                                it->hk_locked = UNLOCKED;
-                                it->hk_lock_node = 0;
-                                it->hk_locked_actor = 0;
-                                it->hk_beam->p2 = &ar_nodes[0];
+                                // force exceeded reset the hook node
+                                it->hk_locked               = UNLOCKED;
+                                it->hk_lock_node            = 0;
+                                it->hk_locked_actor         = 0;
+                                it->hk_beam->p2             = &ar_nodes[0];
                                 it->hk_beam->bm_inter_actor = false;
-                                it->hk_beam->L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
-                                it->hk_beam->bm_disabled = true;
+                                it->hk_beam->L              = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
+                                it->hk_beam->bm_disabled    = true;
                                 RemoveInterActorBeam(it->hk_beam);
                             }
                         }
@@ -1709,12 +1640,12 @@ void Actor::CalcRopes()
     {
         if (r.rp_locked == LOCKED && r.rp_locked_ropable)
         {
-            auto locked_node = r.rp_locked_ropable->node;
+            auto locked_node           = r.rp_locked_ropable->node;
             r.rp_beam->p2->AbsPosition = locked_node->AbsPosition;
             r.rp_beam->p2->RelPosition = locked_node->AbsPosition - ar_origin;
             r.rp_beam->p2->Velocity    = locked_node->Velocity;
-            locked_node->Forces       += r.rp_beam->p2->Forces;
-            r.rp_beam->p2->Forces      = Vector3::ZERO;
+            locked_node->Forces += r.rp_beam->p2->Forces;
+            r.rp_beam->p2->Forces = Vector3::ZERO;
         }
     }
 }

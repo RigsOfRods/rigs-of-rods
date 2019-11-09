@@ -4,9 +4,9 @@
 
 struct Locator_t
 {
-    int ref;
-    int nx;
-    int ny;
-    int nz;
+    int           ref;
+    int           nx;
+    int           ny;
+    int           nz;
     Ogre::Vector3 coords;
 };

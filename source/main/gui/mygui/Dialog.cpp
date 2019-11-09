@@ -32,15 +32,11 @@
 using namespace RoR;
 using namespace GUI;
 
-Dialog::Dialog() :
-    wraps::BaseLayout(),
-    mModal(false)
+Dialog::Dialog() : wraps::BaseLayout(), mModal(false)
 {
 }
 
-Dialog::Dialog(const std::string& _layout) :
-    wraps::BaseLayout(_layout),
-    mModal(false)
+Dialog::Dialog(const std::string &_layout) : wraps::BaseLayout(_layout), mModal(false)
 {
 }
 
@@ -72,4 +68,3 @@ void Dialog::endModal()
 
     onEndModal();
 }
-

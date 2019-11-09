@@ -20,22 +20,22 @@
 
 #ifdef USE_OPENAL
 
-#pragma once
+    #pragma once
 
-#include "RoRPrerequisites.h"
+    #include "RoRPrerequisites.h"
 
-#ifdef __APPLE__
-  #include <OpenAL/al.h>
-#else
-#include <AL/al.h>
-#endif // __APPLE__
+    #ifdef __APPLE__
+        #include <OpenAL/al.h>
+    #else
+        #include <AL/al.h>
+    #endif // __APPLE__
 
 class Sound : public ZeroedMemoryAllocator
 {
     friend class SoundManager;
 
-public:
-    Sound(ALuint buffer, SoundManager* soundManager, int sourceIndex);
+  public:
+    Sound(ALuint buffer, SoundManager *soundManager, int sourceIndex);
 
     void setPitch(float pitch);
     void setGain(float gain);
@@ -60,24 +60,24 @@ public:
         REASON_VLCT
     };
 
-private:
+  private:
     void computeAudibility(Ogre::Vector3 pos);
 
     float audibility;
     float gain;
     float pitch;
-    bool loop;
-    bool enabled;
-    bool should_play;
+    bool  loop;
+    bool  enabled;
+    bool  should_play;
 
     // this value is changed dynamically, depending on whether the input is played or not.
-    int hardware_index;
+    int    hardware_index;
     ALuint buffer;
 
     Ogre::Vector3 position;
     Ogre::Vector3 velocity;
 
-    SoundManager* sound_manager;
+    SoundManager *sound_manager;
     // must not be changed during the lifetime of this object
     int source_index;
 };

@@ -25,9 +25,7 @@
 #include "SkyManager.h"
 #include "TerrainManager.h"
 
-RoR::GfxEnvmap::GfxEnvmap():
-    m_is_initialized(false),
-    m_update_round(0)
+RoR::GfxEnvmap::GfxEnvmap() : m_is_initialized(false), m_update_round(0)
 {
     memset(m_cameras, 0, sizeof(m_cameras));
     memset(m_render_targets, 0, sizeof(m_render_targets));
@@ -40,7 +38,7 @@ void RoR::GfxEnvmap::SetupEnvMap()
     for (int face = 0; face < NUM_FACES; face++)
     {
         m_render_targets[face] = m_rtt_texture->getBuffer(face)->getRenderTarget();
-        m_cameras[face] = gEnv->sceneManager->createCamera("EnvironmentCamera-" + TOSTRING(face));
+        m_cameras[face]        = gEnv->sceneManager->createCamera("EnvironmentCamera-" + TOSTRING(face));
         m_cameras[face]->setAspectRatio(1.0);
         m_cameras[face]->setProjectionType(Ogre::PT_PERSPECTIVE);
         m_cameras[face]->setFixedYawAxis(false);
@@ -48,7 +46,7 @@ void RoR::GfxEnvmap::SetupEnvMap()
         m_cameras[face]->setNearClipDistance(0.1f);
         m_cameras[face]->setFarClipDistance(gEnv->mainCamera->getFarClipDistance());
 
-        Ogre::Viewport* v = m_render_targets[face]->addViewport(m_cameras[face]);
+        Ogre::Viewport *v = m_render_targets[face]->addViewport(m_cameras[face]);
         v->setOverlaysEnabled(false);
         v->setClearEveryFrame(true);
         v->setBackgroundColour(gEnv->mainCamera->getViewport()->getBackgroundColour());
@@ -65,22 +63,23 @@ void RoR::GfxEnvmap::SetupEnvMap()
     if (App::diag_envmap.GetActive())
     {
         // create fancy mesh for debugging the envmap
-        Ogre::Overlay* overlay = Ogre::OverlayManager::getSingleton().create("EnvMapDebugOverlay");
+        Ogre::Overlay *overlay = Ogre::OverlayManager::getSingleton().create("EnvMapDebugOverlay");
         if (overlay)
         {
             Ogre::Vector3 position = Ogre::Vector3::ZERO;
-            float scale = 1.0f;
+            float         scale    = 1.0f;
 
-            Ogre::MeshPtr mesh = Ogre::MeshManager::getSingletonPtr()->createManual("cubeMapDebug", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+            Ogre::MeshPtr mesh = Ogre::MeshManager::getSingletonPtr()->createManual(
+                "cubeMapDebug", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             // create sub mesh
-            Ogre::SubMesh* sub = mesh->createSubMesh();
+            Ogre::SubMesh *sub = mesh->createSubMesh();
 
             // Initialize render operation
             sub->operationType = Ogre::RenderOperation::OT_TRIANGLE_LIST;
             //
             sub->useSharedVertices = true;
             mesh->sharedVertexData = new Ogre::VertexData;
-            sub->indexData = new Ogre::IndexData;
+            sub->indexData         = new Ogre::IndexData;
 
             // Create vertex declaration
             size_t offset = 0;
@@ -89,35 +88,33 @@ void RoR::GfxEnvmap::SetupEnvMap()
             mesh->sharedVertexData->vertexDeclaration->addElement(0, offset, Ogre::VET_FLOAT3, Ogre::VES_TEXTURE_COORDINATES);
 
             // Create and bind vertex buffer
-            mesh->sharedVertexData->vertexCount = 14;
-            Ogre::HardwareVertexBufferSharedPtr vertexBuffer =
-                Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
-                    mesh->sharedVertexData->vertexDeclaration->getVertexSize(0),
-                    mesh->sharedVertexData->vertexCount,
-                    Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+            mesh->sharedVertexData->vertexCount              = 14;
+            Ogre::HardwareVertexBufferSharedPtr vertexBuffer = Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
+                mesh->sharedVertexData->vertexDeclaration->getVertexSize(0), mesh->sharedVertexData->vertexCount,
+                Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
             mesh->sharedVertexData->vertexBufferBinding->setBinding(0, vertexBuffer);
 
             // Vertex data
             static const float vertexData[] = {
                 // Position      Texture coordinates    // Index
-                0.0, 2.0, -1.0, 1.0, 1.0, //  0
-                0.0, 1.0, -1.0, -1.0, 1.0, //  1
-                1.0, 2.0, -1.0, 1.0, -1.0, //  2
+                0.0, 2.0, -1.0, 1.0,  1.0,  //  0
+                0.0, 1.0, -1.0, -1.0, 1.0,  //  1
+                1.0, 2.0, -1.0, 1.0,  -1.0, //  2
                 1.0, 1.0, -1.0, -1.0, -1.0, //  3
-                2.0, 2.0, 1.0, 1.0, -1.0, //  4
-                2.0, 1.0, 1.0, -1.0, -1.0, //  5
-                3.0, 2.0, 1.0, 1.0, 1.0, //  6
-                3.0, 1.0, 1.0, -1.0, 1.0, //  7
-                4.0, 2.0, -1.0, 1.0, 1.0, //  8
-                4.0, 1.0, -1.0, -1.0, 1.0, //  9
-                1.0, 3.0, -1.0, 1.0, 1.0, // 10
-                2.0, 3.0, 1.0, 1.0, 1.0, // 11
-                1.0, 0.0, -1.0, -1.0, 1.0, // 12
-                2.0, 0.0, 1.0, -1.0, 1.0, // 13
+                2.0, 2.0, 1.0,  1.0,  -1.0, //  4
+                2.0, 1.0, 1.0,  -1.0, -1.0, //  5
+                3.0, 2.0, 1.0,  1.0,  1.0,  //  6
+                3.0, 1.0, 1.0,  -1.0, 1.0,  //  7
+                4.0, 2.0, -1.0, 1.0,  1.0,  //  8
+                4.0, 1.0, -1.0, -1.0, 1.0,  //  9
+                1.0, 3.0, -1.0, 1.0,  1.0,  // 10
+                2.0, 3.0, 1.0,  1.0,  1.0,  // 11
+                1.0, 0.0, -1.0, -1.0, 1.0,  // 12
+                2.0, 0.0, 1.0,  -1.0, 1.0,  // 13
             };
 
             // Fill vertex buffer
-            float* pData = static_cast<float*>(vertexBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD));
+            float *pData = static_cast<float *>(vertexBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD));
             for (size_t vertex = 0, i = 0; vertex < mesh->sharedVertexData->vertexCount; vertex++)
             {
                 // Position
@@ -133,29 +130,26 @@ void RoR::GfxEnvmap::SetupEnvMap()
             vertexBuffer->unlock();
 
             // Create index buffer
-            sub->indexData->indexCount = 36;
-            Ogre::HardwareIndexBufferSharedPtr indexBuffer =
-                Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(
-                    Ogre::HardwareIndexBuffer::IT_16BIT,
-                    sub->indexData->indexCount,
-                    Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+            sub->indexData->indexCount                     = 36;
+            Ogre::HardwareIndexBufferSharedPtr indexBuffer = Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(
+                Ogre::HardwareIndexBuffer::IT_16BIT, sub->indexData->indexCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
             sub->indexData->indexBuffer = indexBuffer;
 
             // Index data
             static const Ogre::uint16 indexData[] = {
                 // Indices         // Face
-                 0,  1,  2,        //  0
-                 2,  1,  3,        //  1
-                 2,  3,  4,        //  2
-                 4,  3,  5,        //  3
-                 4,  5,  6,        //  4
-                 6,  5,  7,        //  5
-                 6,  7,  8,        //  6
-                 8,  7,  9,        //  7
-                10,  2, 11,        //  8
-                11,  2,  4,        //  9
-                 3, 12,  5,        // 10
-                 5, 12, 13,        // 11
+                0,  1,  2,  //  0
+                2,  1,  3,  //  1
+                2,  3,  4,  //  2
+                4,  3,  5,  //  3
+                4,  5,  6,  //  4
+                6,  5,  7,  //  5
+                6,  7,  8,  //  6
+                8,  7,  9,  //  7
+                10, 2,  11, //  8
+                11, 2,  4,  //  9
+                3,  12, 5,  // 10
+                5,  12, 13, // 11
             };
 
             // Fill index buffer
@@ -165,13 +159,13 @@ void RoR::GfxEnvmap::SetupEnvMap()
             mesh->_setBoundingSphereRadius(10);
             mesh->load();
 
-            Ogre::Entity* e = gEnv->sceneManager->createEntity(mesh->getName());
+            Ogre::Entity *e = gEnv->sceneManager->createEntity(mesh->getName());
             e->setCastShadows(false);
             e->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY - 1);
             e->setVisible(true);
 
             e->setMaterialName("tracks/EnvMapDebug");
-            Ogre::SceneNode* mDebugSceneNode = new Ogre::SceneNode(gEnv->sceneManager);
+            Ogre::SceneNode *mDebugSceneNode = new Ogre::SceneNode(gEnv->sceneManager);
             mDebugSceneNode->attachObject(e);
             mDebugSceneNode->setPosition(Ogre::Vector3(0, 0, -5));
             mDebugSceneNode->setFixedYawAxis(true, Ogre::Vector3::UNIT_Y);
@@ -184,7 +178,7 @@ void RoR::GfxEnvmap::SetupEnvMap()
     }
 
     Ogre::Vector3 center = App::GetSimTerrain()->getMaxTerrainSize() / 2;
-    center.y = App::GetSimTerrain()->GetHeightAt(center.x, center.z) + 1.0f;
+    center.y             = App::GetSimTerrain()->GetHeightAt(center.x, center.z) + 1.0f;
     UpdateEnvMap(center, nullptr);
 }
 
@@ -200,13 +194,10 @@ RoR::GfxEnvmap::~GfxEnvmap()
     }
 }
 
-void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor)
+void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor *gfx_actor)
 {
     const int update_rate = m_is_initialized ? App::gfx_envmap_rate.GetActive() : NUM_FACES;
-    if (!App::gfx_envmap_enabled.GetActive() || update_rate == 0)
-    {
-        return;
-    }
+    if (!App::gfx_envmap_enabled.GetActive() || update_rate == 0) { return; }
 
     for (int i = 0; i < NUM_FACES; i++)
     {
@@ -224,18 +215,14 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor)
 #ifdef USE_CAELUM
         // caelum needs to know that we changed the cameras
         if (App::GetSimTerrain()->getSkyManager())
-        {
-            App::GetSimTerrain()->getSkyManager()->NotifySkyCameraChanged(m_cameras[m_update_round]);
-        }
+        { App::GetSimTerrain()->getSkyManager()->NotifySkyCameraChanged(m_cameras[m_update_round]); }
 #endif // USE_CAELUM
         m_render_targets[m_update_round]->update();
         m_update_round = (m_update_round + 1) % NUM_FACES;
     }
 #ifdef USE_CAELUM
     if (App::GetSimTerrain()->getSkyManager())
-    {
-        App::GetSimTerrain()->getSkyManager()->NotifySkyCameraChanged(gEnv->mainCamera);
-    }
+    { App::GetSimTerrain()->getSkyManager()->NotifySkyCameraChanged(gEnv->mainCamera); }
 #endif // USE_CAELUM
 
     if (gfx_actor != nullptr)

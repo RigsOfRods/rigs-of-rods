@@ -20,25 +20,26 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
 #include "AeroEngine.h"
 #include "RigDef_File.h"
+#include "RoRPrerequisites.h"
 
 class TurbojetVisual
 {
-public:
+  public:
     ~TurbojetVisual();
-    void SetupVisuals(RigDef::Turbojet & def, int num, std::string const& propname, Ogre::Entity* nozzle, Ogre::Entity* afterburner_flame, bool disable_smoke);
+    void SetupVisuals(RigDef::Turbojet &def, int num, std::string const &propname, Ogre::Entity *nozzle,
+                      Ogre::Entity *afterburner_flame, bool disable_smoke);
     void SetNodes(int front, int back, int ref);
-    void UpdateVisuals(RoR::GfxActor* gfx_actor);
+    void UpdateVisuals(RoR::GfxActor *gfx_actor);
 
-private:
-    Ogre::SceneNode*      m_smoke_scenenode;
-    Ogre::ParticleSystem* m_smoke_particle;
-    Ogre::Entity*         m_flame_entity;
-    Ogre::SceneNode*      m_flame_scenenode;
-    Ogre::Entity*         m_nozzle_entity;
-    Ogre::SceneNode*      m_nozzle_scenenode;
+  private:
+    Ogre::SceneNode *     m_smoke_scenenode;
+    Ogre::ParticleSystem *m_smoke_particle;
+    Ogre::Entity *        m_flame_entity;
+    Ogre::SceneNode *     m_flame_scenenode;
+    Ogre::Entity *        m_nozzle_entity;
+    Ogre::SceneNode *     m_nozzle_scenenode;
 
     int      m_number;
     float    m_radius;
@@ -47,12 +48,11 @@ private:
     uint16_t m_node_ref;
 };
 
-class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
+class Turbojet : public AeroEngine, public ZeroedMemoryAllocator
 {
 
-public:
-
-    Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, RigDef::Turbojet & def);
+  public:
+    Turbojet(Actor *actor, int tnodefront, int tnodeback, int tnoderef, RigDef::Turbojet &def);
     ~Turbojet();
 
     void flipStart();
@@ -61,57 +61,102 @@ public:
     void setThrottle(float val);
     void toggleReverse();
     void setReverse(bool val);
-    bool getReverse() { return m_reverse; };
+    bool getReverse()
+    {
+        return m_reverse;
+    };
     void updateForces(float dt, int doUpdate);
-    void updateVisuals(RoR::GfxActor* gfx_actor) override;
+    void updateVisuals(RoR::GfxActor *gfx_actor) override;
 
-    Ogre::Vector3 getAxis() { return m_axis; };
+    Ogre::Vector3 getAxis()
+    {
+        return m_axis;
+    };
 
-    bool getIgnition() { return m_ignition; };
-    void setIgnition(bool val) { m_ignition = val; };
-    bool getWarmup() { return m_warmup; };
-    bool isFailed() { return m_is_failed; };
-    float getAfterburner() { return (float)m_afterburner_active; };
-    float getAfterburnThrust() const { return m_afterburn_thrust; }
-    float getExhaustVelocity() const { return m_exhaust_velocity; }
-    float getRPM() { return m_rpm_percent; }; // FIXME - bad func name
-    float getRPMpc() { return m_rpm_percent; };
-    float getRadius() { return m_radius; };
+    bool getIgnition()
+    {
+        return m_ignition;
+    };
+    void setIgnition(bool val)
+    {
+        m_ignition = val;
+    };
+    bool getWarmup()
+    {
+        return m_warmup;
+    };
+    bool isFailed()
+    {
+        return m_is_failed;
+    };
+    float getAfterburner()
+    {
+        return (float)m_afterburner_active;
+    };
+    float getAfterburnThrust() const
+    {
+        return m_afterburn_thrust;
+    }
+    float getExhaustVelocity() const
+    {
+        return m_exhaust_velocity;
+    }
+    float getRPM()
+    {
+        return m_rpm_percent;
+    }; // FIXME - bad func name
+    float getRPMpc()
+    {
+        return m_rpm_percent;
+    };
+    float getRadius()
+    {
+        return m_radius;
+    };
     float getThrottle();
-    float getpropwash() { return m_propwash; };
-    int getNoderef() { return m_node_back; };
-    int getType() { return AEROENGINE_TYPE_TURBOJET; };
+    float getpropwash()
+    {
+        return m_propwash;
+    };
+    int getNoderef()
+    {
+        return m_node_back;
+    };
+    int getType()
+    {
+        return AEROENGINE_TYPE_TURBOJET;
+    };
 
-    bool tjet_afterburnable;
+    bool           tjet_afterburnable;
     TurbojetVisual tjet_visual;
 
-private:
-    Actor* m_actor;
+  private:
+    Actor *       m_actor;
     Ogre::Vector3 m_axis;
-    bool m_afterburner_active;
-    bool m_is_failed;
-    bool m_ignition;
-    bool m_reversable;
-    bool m_reverse;
-    bool m_warmup;
-    float m_afterburn_thrust; //!< in kN
-    float m_area;
-    float m_exhaust_velocity; //!< in m/s
-    float m_last_flip;
-    float m_max_dry_thrust; //!< in kN
-    float m_propwash;
-    float m_radius;
-    float m_reflen;
-    float m_rpm_percent; //!< in percent!
-    float m_throtle;
-    float m_timer;
-    float m_warmup_start;
-    float m_warmup_time;
-    int m_sound_ab;
-    int m_sound_mod;
-    int m_node_back;
-    int m_node_front;
-    int m_node_ref;
-    int m_sound_src;
-    int m_sound_thr;
+    bool          m_afterburner_active;
+    bool          m_is_failed;
+    bool          m_ignition;
+    bool          m_reversable;
+    bool          m_reverse;
+    bool          m_warmup;
+    float         m_afterburn_thrust; //!< in kN
+    float         m_area;
+    float         m_exhaust_velocity; //!< in m/s
+    float         m_last_flip;
+    float         m_max_dry_thrust; //!< in kN
+    float         m_propwash;
+    float         m_radius;
+    float         m_reflen;
+    float         m_rpm_percent; //!< in percent!
+    float         m_throtle;
+    float         m_timer;
+    float         m_warmup_start;
+    float         m_warmup_time;
+    int           m_sound_ab;
+    int           m_sound_mod;
+    int           m_node_back;
+    int           m_node_front;
+    int           m_node_ref;
+    int           m_sound_src;
+    int           m_sound_thr;
 };

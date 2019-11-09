@@ -24,29 +24,31 @@
 
 class Buoyance
 {
-public:
-
-    Buoyance(DustPool* splash, DustPool* ripple);
+  public:
+    Buoyance(DustPool *splash, DustPool *ripple);
     ~Buoyance();
 
     void computeNodeForce(node_t *a, node_t *b, node_t *c, bool doUpdate, int type);
 
-    enum { BUOY_NORMAL, BUOY_DRAGONLY, BUOY_DRAGLESS };
+    enum
+    {
+        BUOY_NORMAL,
+        BUOY_DRAGONLY,
+        BUOY_DRAGLESS
+    };
 
     bool sink;
 
-private:
-
-    //compute tetrahedron volume
+  private:
+    // compute tetrahedron volume
     inline float computeVolume(Ogre::Vector3 o, Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c);
 
-    //compute pressure and drag force on a submerged triangle
+    // compute pressure and drag force on a submerged triangle
     Ogre::Vector3 computePressureForceSub(Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c, Ogre::Vector3 vel, int type);
-    
-    //compute pressure and drag forces on a random triangle
-    Ogre::Vector3 computePressureForce(Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c, Ogre::Vector3 vel, int type);
-    
-    DustPool *splashp, *ripplep;
-    bool update;
-};
 
+    // compute pressure and drag forces on a random triangle
+    Ogre::Vector3 computePressureForce(Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c, Ogre::Vector3 vel, int type);
+
+    DustPool *splashp, *ripplep;
+    bool      update;
+};

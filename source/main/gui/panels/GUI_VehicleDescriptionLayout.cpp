@@ -11,7 +11,7 @@
 using namespace RoR;
 using namespace GUI;
 
-VehicleDescriptionLayout::VehicleDescriptionLayout(MyGUI::Widget* _parent)
+VehicleDescriptionLayout::VehicleDescriptionLayout(MyGUI::Widget *_parent)
 {
     initialiseByAttributes(this, _parent);
 }

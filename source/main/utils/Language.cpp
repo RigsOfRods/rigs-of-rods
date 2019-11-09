@@ -24,10 +24,10 @@
 
 #ifndef NOLANG
 
-#include "Language.h"
+    #include "Language.h"
 
-#include "Application.h"
-#include "PlatformUtils.h"
+    #include "Application.h"
+    #include "PlatformUtils.h"
 
 using namespace Ogre;
 using namespace RoR;
@@ -51,8 +51,8 @@ void LanguageEngine::setup()
 {
     // load language, must happen after initializing Settings class and Ogre Root!
 
-    languages = { {"English", "en"} };
-    auto& moFileReader = moFileLib::moFileReaderSingleton::GetInstance();
+    languages          = {{"English", "en"}};
+    auto &moFileReader = moFileLib::moFileReaderSingleton::GetInstance();
 
     String base_path = PathCombine(App::sys_process_dir.GetActive(), "languages");
     ResourceGroupManager::getSingleton().addResourceLocation(base_path, "FileSystem", "LngRG");
@@ -62,8 +62,8 @@ void LanguageEngine::setup()
         for (auto file : *fl)
         {
             String locale_path = PathCombine(base_path, file.filename);
-            String lang_path = PathCombine(locale_path, "LC_MESSAGES");
-            String mo_path = PathCombine(lang_path, "ror.mo");
+            String lang_path   = PathCombine(locale_path, "LC_MESSAGES");
+            String mo_path     = PathCombine(lang_path, "ror.mo");
             if (moFileReader.ReadFile(mo_path.c_str()) == moFileLib::moFileReader::EC_SUCCESS)
             {
                 String info = moFileLib::moFileReaderSingleton::GetInstance().Lookup("");
@@ -76,9 +76,9 @@ void LanguageEngine::setup()
     ResourceGroupManager::getSingleton().destroyResourceGroup("LngRG");
 
     String language_short = App::app_language.GetActive();
-    String locale_path = PathCombine(base_path, language_short.substr(0, 2));
-    String lang_path = PathCombine(locale_path, "LC_MESSAGES");
-    String mo_path = PathCombine(lang_path, "ror.mo");
+    String locale_path    = PathCombine(base_path, language_short.substr(0, 2));
+    String lang_path      = PathCombine(locale_path, "LC_MESSAGES");
+    String mo_path        = PathCombine(lang_path, "ror.mo");
 
     if (moFileReader.ReadFile(mo_path.c_str()) == moFileLib::moFileReader::EC_SUCCESS)
     {
@@ -94,4 +94,4 @@ void LanguageEngine::setup()
 
     RoR::Log("[RoR|App] Language successfully loaded");
 }
-#endif //NOLANG
+#endif // NOLANG

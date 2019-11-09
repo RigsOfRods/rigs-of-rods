@@ -22,25 +22,35 @@
 #include "Application.h"
 #include "OgreImGui.h"
 
-namespace RoR {
-namespace GUI {
-
-class NodeBeamUtils
+namespace RoR
 {
-public:
-    NodeBeamUtils(): m_is_visible(false), m_is_searching(false) {}
+    namespace GUI
+    {
 
-    void Draw();
+        class NodeBeamUtils
+        {
+          public:
+            NodeBeamUtils() : m_is_visible(false), m_is_searching(false)
+            {
+            }
 
-    inline bool IsVisible() const { return m_is_visible; }
-    inline void SetVisible(bool v) { m_is_visible = v; }
+            void Draw();
 
-private:
-    bool m_is_visible;
-    bool m_is_searching;
+            inline bool IsVisible() const
+            {
+                return m_is_visible;
+            }
+            inline void SetVisible(bool v)
+            {
+                m_is_visible = v;
+            }
 
-    const ImVec4 GRAY_HINT_TEXT = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
-};
+          private:
+            bool m_is_visible;
+            bool m_is_searching;
 
-} // namespace GUI
+            const ImVec4 GRAY_HINT_TEXT = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
+        };
+
+    } // namespace GUI
 } // namespace RoR

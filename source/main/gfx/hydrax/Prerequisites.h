@@ -3,7 +3,7 @@
 This source file is part of Hydrax.
 Visit ---
 
-Copyright (C) 2008 Xavier Verguín González <xavierverguin@hotmail.com>
+Copyright (C) 2008 Xavier Verguï¿½n Gonzï¿½lez <xavierverguin@hotmail.com>
                                            <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
@@ -33,8 +33,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define HYDRAX_VERSION_MINOR 5
 #define HYDRAX_VERSION_PATCH 4
 
-#define HYDRAX_IMAGE_CHECK_PIXELS 0 // See Image.cpp, 1 = Check pixels / 0 = No check pixels
-                                    // Use it for debug mode only
+#define HYDRAX_IMAGE_CHECK_PIXELS                                                                                                \
+    0 // See Image.cpp, 1 = Check pixels / 0 = No check pixels
+      // Use it for debug mode only
 
 // Windows math library backport
 #ifndef M_PI

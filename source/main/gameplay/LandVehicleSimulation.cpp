@@ -24,33 +24,30 @@
 #include "Application.h"
 #include "Beam.h"
 #include "BeamEngine.h"
+#include "GUIManager.h"
 #include "GUI_GameConsole.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
-#include "GUIManager.h"
 #include "VehicleAI.h"
 
 using namespace RoR;
 
-void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
+void LandVehicleSimulation::UpdateCruiseControl(Actor *vehicle, float dt)
 {
-    EngineSim* engine = vehicle->ar_engine;
+    EngineSim *engine = vehicle->ar_engine;
 
     if ((engine->GetGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE) > 0.05f) ||
         (engine->GetGear() > 0 && vehicle->cc_target_speed < vehicle->cc_target_speed_lower_limit) ||
-        (engine->GetGear() > 0 && vehicle->ar_parking_brake) ||
-        (engine->GetGear() < 0) ||
-        !engine->IsRunning() ||
+        (engine->GetGear() > 0 && vehicle->ar_parking_brake) || (engine->GetGear() < 0) || !engine->IsRunning() ||
         !engine->HasStarterContact())
     {
         vehicle->ToggleCruiseControl();
         return;
     }
 
-    if (engine->GetGear() != 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f)
-        return;
+    if (engine->GetGear() != 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f) return;
 
     float acc = engine->GetAccToHoldRPM();
 
@@ -68,10 +65,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
     }
 
     vehicle->cc_accs.push_front(Ogre::Math::Clamp(acc, -1.0f, +1.0f));
-    if (vehicle->cc_accs.size() > 30)
-    {
-        vehicle->cc_accs.pop_back();
-    }
+    if (vehicle->cc_accs.size() > 30) { vehicle->cc_accs.pop_back(); }
 
     float avg_acc = 0.0f;
     for (unsigned int i = 0; i < vehicle->cc_accs.size(); i++)
@@ -88,10 +82,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
         {
             vehicle->cc_target_speed *= pow(2.0f, dt / 5.0f);
             vehicle->cc_target_speed = std::max(vehicle->cc_target_speed_lower_limit, vehicle->cc_target_speed);
-            if (vehicle->sl_enabled)
-            {
-                vehicle->cc_target_speed = std::min(vehicle->cc_target_speed, vehicle->sl_speed_limit);
-            }
+            if (vehicle->sl_enabled) { vehicle->cc_target_speed = std::min(vehicle->cc_target_speed, vehicle->sl_speed_limit); }
         }
         else if (engine->GetGear() == 0) // out of gear
         {
@@ -115,26 +106,24 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_READJUST))
     {
         vehicle->cc_target_speed = std::max(vehicle->ar_avg_wheel_speed, vehicle->cc_target_speed);
-        if (vehicle->sl_enabled)
-        {
-            vehicle->cc_target_speed = std::min(vehicle->cc_target_speed, vehicle->sl_speed_limit);
-        }
+        if (vehicle->sl_enabled) { vehicle->cc_target_speed = std::min(vehicle->cc_target_speed, vehicle->sl_speed_limit); }
         vehicle->cc_target_rpm = engine->GetEngineRpm();
     }
 
     if (vehicle->cc_can_brake)
     {
-        if (vehicle->ar_avg_wheel_speed > vehicle->cc_target_speed + 0.5f && !RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE))
+        if (vehicle->ar_avg_wheel_speed > vehicle->cc_target_speed + 0.5f &&
+            !RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE))
         {
-            float brake = (vehicle->ar_avg_wheel_speed - vehicle->cc_target_speed) * 0.5f;
+            float brake       = (vehicle->ar_avg_wheel_speed - vehicle->cc_target_speed) * 0.5f;
             vehicle->ar_brake = std::min(brake, 1.0f);
         }
     }
 }
 
-void LandVehicleSimulation::CheckSpeedLimit(Actor* vehicle, float dt)
+void LandVehicleSimulation::CheckSpeedLimit(Actor *vehicle, float dt)
 {
-    EngineSim* engine = vehicle->ar_engine;
+    EngineSim *engine = vehicle->ar_engine;
 
     if (engine && engine->GetGear() != 0)
     {
@@ -143,84 +132,69 @@ void LandVehicleSimulation::CheckSpeedLimit(Actor* vehicle, float dt)
     }
 }
 
-void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_last_frame)
+void LandVehicleSimulation::UpdateVehicle(Actor *vehicle, float seconds_since_last_frame)
 {
-    if (vehicle->isBeingReset() || vehicle->ar_physics_paused || vehicle->ar_replay_mode)
-        return;
+    if (vehicle->isBeingReset() || vehicle->ar_physics_paused || vehicle->ar_replay_mode) return;
 #ifdef USE_ANGELSCRIPT
-    if (vehicle->ar_vehicle_ai && vehicle->ar_vehicle_ai->IsActive())
-        return;
+    if (vehicle->ar_vehicle_ai && vehicle->ar_vehicle_ai->IsActive()) return;
 #endif // USE_ANGELSCRIPT
 
-    EngineSim* engine = vehicle->ar_engine;
+    EngineSim *engine = vehicle->ar_engine;
 
-    if (engine && engine->HasStarterContact() &&
-        engine->GetAutoShiftMode() == SimGearboxMode::AUTO &&
+    if (engine && engine->HasStarterContact() && engine->GetAutoShiftMode() == SimGearboxMode::AUTO &&
         engine->getAutoShift() != EngineSim::NEUTRAL)
     {
-        Ogre::Vector3 dirDiff = vehicle->getDirection();
-        Ogre::Degree pitchAngle = Ogre::Radian(asin(dirDiff.dotProduct(Ogre::Vector3::UNIT_Y)));
+        Ogre::Vector3 dirDiff    = vehicle->getDirection();
+        Ogre::Degree  pitchAngle = Ogre::Radian(asin(dirDiff.dotProduct(Ogre::Vector3::UNIT_Y)));
 
         if (std::abs(pitchAngle.valueDegrees()) > 2.0f)
         {
-            if (engine->getAutoShift() > EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed < +0.02f && pitchAngle.valueDegrees() > 0.0f ||
-                engine->getAutoShift() < EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed > -0.02f && pitchAngle.valueDegrees() < 0.0f)
+            if (engine->getAutoShift() > EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed < +0.02f &&
+                    pitchAngle.valueDegrees() > 0.0f ||
+                engine->getAutoShift() < EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed > -0.02f &&
+                    pitchAngle.valueDegrees() < 0.0f)
             {
                 // anti roll back in SimGearboxMode::AUTO (DRIVE, TWO, ONE) mode
                 // anti roll forth in SimGearboxMode::AUTO (REAR) mode
-                float g = std::abs(App::GetSimTerrain()->getGravity());
+                float g              = std::abs(App::GetSimTerrain()->getGravity());
                 float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * vehicle->getTotalMass()) * g;
-                float engine_force = std::abs(engine->GetTorque()) / vehicle->getAvgPropedWheelRadius();
-                float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force));
+                float engine_force   = std::abs(engine->GetTorque()) / vehicle->getAvgPropedWheelRadius();
+                float ratio          = std::max(0.0f, 1.0f - (engine_force / downhill_force));
                 if (vehicle->ar_avg_wheel_speed * pitchAngle.valueDegrees() > 0.0f)
-                {
-                    ratio *= sqrt((0.02f - vehicle->ar_avg_wheel_speed) / 0.02f);
-                }
+                { ratio *= sqrt((0.02f - vehicle->ar_avg_wheel_speed) / 0.02f); }
                 vehicle->ar_brake = sqrt(ratio);
             }
         }
         else if (vehicle->ar_brake == 0.0f && !vehicle->ar_parking_brake && engine->GetTorque() == 0.0f)
         {
-            float ratio = std::max(0.0f, 0.2f - std::abs(vehicle->ar_avg_wheel_speed)) / 0.2f;
+            float ratio       = std::max(0.0f, 0.2f - std::abs(vehicle->ar_avg_wheel_speed)) / 0.2f;
             vehicle->ar_brake = ratio;
         }
     }
 
-    if (vehicle->cc_mode)
-    {
-        LandVehicleSimulation::UpdateCruiseControl(vehicle, seconds_since_last_frame);
-    }
-    if (vehicle->sl_enabled)
-    {
-        LandVehicleSimulation::CheckSpeedLimit(vehicle, seconds_since_last_frame);
-    }
+    if (vehicle->cc_mode) { LandVehicleSimulation::UpdateCruiseControl(vehicle, seconds_since_last_frame); }
+    if (vehicle->sl_enabled) { LandVehicleSimulation::CheckSpeedLimit(vehicle, seconds_since_last_frame); }
 }
 
-void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_since_last_frame)
+void LandVehicleSimulation::UpdateInputEvents(Actor *vehicle, float seconds_since_last_frame)
 {
-    if (vehicle->isBeingReset() || vehicle->ar_physics_paused || vehicle->ar_replay_mode)
-        return;
+    if (vehicle->isBeingReset() || vehicle->ar_physics_paused || vehicle->ar_replay_mode) return;
 #ifdef USE_ANGELSCRIPT
-    if (vehicle->ar_vehicle_ai && vehicle->ar_vehicle_ai->IsActive())
-        return;
+    if (vehicle->ar_vehicle_ai && vehicle->ar_vehicle_ai->IsActive()) return;
 #endif // USE_ANGELSCRIPT
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LEFT_MIRROR_LEFT))
-        vehicle->ar_left_mirror_angle -= 0.001;
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LEFT_MIRROR_LEFT)) vehicle->ar_left_mirror_angle -= 0.001;
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LEFT_MIRROR_RIGHT))
-        vehicle->ar_left_mirror_angle += 0.001;
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LEFT_MIRROR_RIGHT)) vehicle->ar_left_mirror_angle += 0.001;
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_RIGHT_MIRROR_LEFT))
-        vehicle->ar_right_mirror_angle -= 0.001;
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_RIGHT_MIRROR_LEFT)) vehicle->ar_right_mirror_angle -= 0.001;
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_RIGHT_MIRROR_RIGHT))
-        vehicle->ar_right_mirror_angle += 0.001;
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_RIGHT_MIRROR_RIGHT)) vehicle->ar_right_mirror_angle += 0.001;
 
     // steering
-    float tmp_left_digital  = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT , false, InputEngine::ET_DIGITAL);
+    float tmp_left_digital  = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT, false, InputEngine::ET_DIGITAL);
     float tmp_right_digital = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_RIGHT, false, InputEngine::ET_DIGITAL);
-    float tmp_left_analog   = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT , false, InputEngine::ET_ANALOG);
+    float tmp_left_analog   = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT, false, InputEngine::ET_ANALOG);
     float tmp_right_analog  = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_RIGHT, false, InputEngine::ET_ANALOG);
 
     float sum = -std::max(tmp_left_digital, tmp_left_analog) + std::max(tmp_right_digital, tmp_right_analog);
@@ -229,25 +203,19 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
 
     vehicle->ar_hydro_speed_coupling = (tmp_left_digital >= tmp_left_analog) && (tmp_right_digital >= tmp_right_analog);
 
-    EngineSim* engine = vehicle->ar_engine;
+    EngineSim *engine = vehicle->ar_engine;
 
     if (engine)
     {
-        float accl = RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE);
+        float accl  = RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE);
         float brake = RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE);
 
         if (RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25) ||
             RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50))
         {
             float acclModifier = 0.0f;
-            if (RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25))
-            {
-                acclModifier += 0.25f;
-            }
-            if (RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50))
-            {
-                acclModifier += 0.50f;
-            }
+            if (RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25)) { acclModifier += 0.25f; }
+            if (RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50)) { acclModifier += 0.50f; }
             accl *= acclModifier;
         }
 
@@ -255,14 +223,8 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
             RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50))
         {
             float brakeModifier = 0.0f;
-            if (RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_25))
-            {
-                brakeModifier += 0.25f;
-            }
-            if (RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50))
-            {
-                brakeModifier += 0.50f;
-            }
+            if (RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_25)) { brakeModifier += 0.25f; }
+            if (RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50)) { brakeModifier += 0.50f; }
             brake *= brakeModifier;
         }
 
@@ -276,10 +238,7 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
         else
         {
             // start engine
-            if (engine->HasStarterContact() && !engine->IsRunning() && (accl > 0 || brake > 0))
-            {
-                engine->StartEngine();
-            }
+            if (engine->HasStarterContact() && !engine->IsRunning() && (accl > 0 || brake > 0)) { engine->StartEngine(); }
 
             // arcade controls: hey - people wanted it x| ... <- and it's convenient
             if (engine->GetGear() >= 0)
@@ -298,17 +257,14 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
             // only when the truck really is not moving anymore
             if (fabs(vehicle->ar_avg_wheel_speed) <= 1.0f)
             {
-                Ogre::Vector3 hdir = vehicle->getDirection();
-                float velocity = hdir.dotProduct(vehicle->ar_nodes[0].Velocity);
+                Ogre::Vector3 hdir     = vehicle->getDirection();
+                float         velocity = hdir.dotProduct(vehicle->ar_nodes[0].Velocity);
 
                 // switching point, does the user want to drive forward from backward or the other way round? change gears?
                 if (velocity < 1.0f && brake > 0.5f && accl < 0.5f && engine->GetGear() > 0)
                 {
                     // we are on the brake, jump to reverse gear
-                    if (engine->GetAutoShiftMode() == SimGearboxMode::AUTO)
-                    {
-                        engine->autoShiftSet(EngineSim::REAR);
-                    }
+                    if (engine->GetAutoShiftMode() == SimGearboxMode::AUTO) { engine->autoShiftSet(EngineSim::REAR); }
                     else
                     {
                         engine->SetGear(-1);
@@ -317,10 +273,7 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
                 else if (velocity > -1.0f && brake < 0.5f && accl > 0.5f && engine->GetGear() < 0)
                 {
                     // we are on the gas pedal, jump to first gear when we were in rear gear
-                    if (engine->GetAutoShiftMode() == SimGearboxMode::AUTO)
-                    {
-                        engine->autoShiftSet(EngineSim::DRIVE);
-                    }
+                    if (engine->GetAutoShiftMode() == SimGearboxMode::AUTO) { engine->autoShiftSet(EngineSim::DRIVE); }
                     else
                     {
                         engine->SetGear(1);
@@ -333,22 +286,14 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
         // gear management -- it might, should be transferred to a standalone function of Beam or SimController
         if (engine->GetAutoShiftMode() == SimGearboxMode::AUTO)
         {
-            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_UP))
-            {
-                engine->autoShiftUp();
-            }
-            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_DOWN))
-            {
-                engine->autoShiftDown();
-            }
+            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_UP)) { engine->autoShiftUp(); }
+            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_DOWN)) { engine->autoShiftDown(); }
         }
 
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_CONTACT))
-        {
-            engine->ToggleStarterContact();
-        }
+        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_CONTACT)) { engine->ToggleStarterContact(); }
 
-        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STARTER) && engine->HasStarterContact() && !engine->IsRunning())
+        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STARTER) && engine->HasStarterContact() &&
+            !engine->IsRunning())
         {
             // starter
             engine->SetStarter(1);
@@ -367,21 +312,17 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
 
             // force gui update
             vehicle->RequestUpdateHudFeatures();
-            const char* msg = nullptr;
+            const char *msg = nullptr;
             switch (engine->GetAutoShiftMode())
             {
-            case SimGearboxMode::AUTO: msg = "Automatic shift";
-                break;
-            case SimGearboxMode::SEMI_AUTO: msg = "Manual shift - Auto clutch";
-                break;
-            case SimGearboxMode::MANUAL: msg = "Fully Manual: sequential shift";
-                break;
-            case SimGearboxMode::MANUAL_STICK: msg = "Fully manual: stick shift";
-                break;
-            case SimGearboxMode::MANUAL_RANGES: msg = "Fully Manual: stick shift with ranges";
-                break;
+            case SimGearboxMode::AUTO: msg = "Automatic shift"; break;
+            case SimGearboxMode::SEMI_AUTO: msg = "Manual shift - Auto clutch"; break;
+            case SimGearboxMode::MANUAL: msg = "Fully Manual: sequential shift"; break;
+            case SimGearboxMode::MANUAL_STICK: msg = "Fully manual: stick shift"; break;
+            case SimGearboxMode::MANUAL_RANGES: msg = "Fully Manual: stick shift with ranges"; break;
             }
-            RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L(msg), "cog.png", 3000);
+            RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L(msg),
+                                               "cog.png", 3000);
             RoR::App::GetGuiManager()->PushNotification("Gearbox Mode:", msg);
         }
 
@@ -393,32 +334,27 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
 
         if (shiftmode <= SimGearboxMode::MANUAL) // auto, semi auto and sequential shifting
         {
-            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_UP))
-            {
-                engine->shift(1);
-            }
+            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_UP)) { engine->shift(1); }
             else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_DOWN))
             {
                 if (shiftmode > SimGearboxMode::SEMI_AUTO ||
                     shiftmode == SimGearboxMode::SEMI_AUTO && (!App::io_arcade_controls.GetActive()) ||
-                    shiftmode == SimGearboxMode::SEMI_AUTO && engine->GetGear() > 0 ||
-                    shiftmode == SimGearboxMode::AUTO)
-                {
-                    engine->shift(-1);
-                }
+                    shiftmode == SimGearboxMode::SEMI_AUTO && engine->GetGear() > 0 || shiftmode == SimGearboxMode::AUTO)
+                { engine->shift(-1); }
             }
-            else if (shiftmode != SimGearboxMode::AUTO && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_NEUTRAL))
+            else if (shiftmode != SimGearboxMode::AUTO &&
+                     RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_NEUTRAL))
             {
                 engine->shiftTo(0);
             }
         }
-        else //if (shiftmode > SimGearboxMode::MANUAL) // h-shift or h-shift with ranges shifting
+        else // if (shiftmode > SimGearboxMode::MANUAL) // h-shift or h-shift with ranges shifting
         {
             bool gear_changed = false;
-            bool found = false;
-            int curgear = engine->GetGear();
-            int curgearrange = engine->GetGearRange();
-            int gearoffset = std::max(0, curgear - curgearrange * 6);
+            bool found        = false;
+            int  curgear      = engine->GetGear();
+            int  curgearrange = engine->GetGearRange();
+            int  gearoffset   = std::max(0, curgear - curgearrange * 6);
 
             // one can select range only if in neutral
             if (shiftmode == SimGearboxMode::MANUAL_RANGES && curgear == 0)
@@ -428,29 +364,32 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
                 {
                     engine->SetGearRange(0);
                     gear_changed = true;
-                    RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("Low range selected"), "cog.png", 3000);
+                    RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE,
+                                                       _L("Low range selected"), "cog.png", 3000);
                 }
-                else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_MIDRANGE) && curgearrange != 1 && engine->getNumGearsRanges() > 1)
+                else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_MIDRANGE) && curgearrange != 1 &&
+                         engine->getNumGearsRanges() > 1)
                 {
                     engine->SetGearRange(1);
                     gear_changed = true;
-                    RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("Mid range selected"), "cog.png", 3000);
+                    RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE,
+                                                       _L("Mid range selected"), "cog.png", 3000);
                 }
-                else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_HIGHRANGE) && curgearrange != 2 && engine->getNumGearsRanges() > 2)
+                else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_HIGHRANGE) && curgearrange != 2 &&
+                         engine->getNumGearsRanges() > 2)
                 {
                     engine->SetGearRange(2);
                     gear_changed = true;
-                    RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("High range selected"), "cog.png", 3000);
+                    RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE,
+                                                       _L("High range selected"), "cog.png", 3000);
                 }
             }
-            //zaxxon
-            if (curgear == -1)
-            {
-                gear_changed = !RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR_REVERSE);
-            }
+            // zaxxon
+            if (curgear == -1) { gear_changed = !RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR_REVERSE); }
             else if (curgear > 0 && curgear < 19)
             {
-                gear_changed = !RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + gearoffset - 1); // range mode
+                gear_changed =
+                    !RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + gearoffset - 1); // range mode
             }
 
             if (gear_changed || curgear == 0)
@@ -490,17 +429,11 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
                         }
                     }
                 }
-                if (!found)
-                {
-                    engine->shiftTo(0);
-                }
+                if (!found) { engine->shiftTo(0); }
             } // end of if (gear_changed)
-        } // end of shitmode > SimGearboxMode::MANUAL
-    } // end of ->engine
-    if (vehicle->ar_brake > 1.0f / 6.0f)
-    {
-        SOUND_START(vehicle, SS_TRIG_BRAKE);
-    }
+        }     // end of shitmode > SimGearboxMode::MANUAL
+    }         // end of ->engine
+    if (vehicle->ar_brake > 1.0f / 6.0f) { SOUND_START(vehicle, SS_TRIG_BRAKE); }
     else
     {
         SOUND_STOP(vehicle, SS_TRIG_BRAKE);
@@ -532,17 +465,11 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
 
     if (vehicle->ar_is_police)
     {
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_HORN))
-        {
-            SOUND_TOGGLE(vehicle, SS_TRIG_HORN);
-        }
+        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_HORN)) { SOUND_TOGGLE(vehicle, SS_TRIG_HORN); }
     }
     else
     {
-        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN))
-        {
-            SOUND_START(vehicle, SS_TRIG_HORN);
-        }
+        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN)) { SOUND_START(vehicle, SS_TRIG_HORN); }
         else
         {
             SOUND_STOP(vehicle, SS_TRIG_HORN);
@@ -550,23 +477,12 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_PARKING_BRAKE) &&
-            !RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TRAILER_PARKING_BRAKE))
-    {
-        vehicle->ToggleParkingBrake();
-    }
+        !RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TRAILER_PARKING_BRAKE))
+    { vehicle->ToggleParkingBrake(); }
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_ANTILOCK_BRAKE))
-    {
-        vehicle->ToggleAntiLockBrake();
-    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_ANTILOCK_BRAKE)) { vehicle->ToggleAntiLockBrake(); }
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TRACTION_CONTROL))
-    {
-        vehicle->ToggleTractionControl();
-    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TRACTION_CONTROL)) { vehicle->ToggleTractionControl(); }
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_CRUISE_CONTROL))
-    {
-        vehicle->ToggleCruiseControl();
-    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_CRUISE_CONTROL)) { vehicle->ToggleCruiseControl(); }
 }

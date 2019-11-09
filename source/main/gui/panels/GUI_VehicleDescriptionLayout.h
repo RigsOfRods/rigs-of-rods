@@ -8,33 +8,32 @@
 // Do not modify this code directly. Create a derived class instead.
 // ----------------------------------------------------------------------------
 
-#include "ForwardDeclarations.h"
 #include "BaseLayout.h"
+#include "ForwardDeclarations.h"
 
-namespace RoR {
-namespace GUI {
-
-ATTRIBUTE_CLASS_LAYOUT(VehicleDescriptionLayout, "VehicleDesc.layout");
-class VehicleDescriptionLayout : public wraps::BaseLayout
+namespace RoR
 {
+    namespace GUI
+    {
 
-public:
+        ATTRIBUTE_CLASS_LAYOUT(VehicleDescriptionLayout, "VehicleDesc.layout");
+        class VehicleDescriptionLayout : public wraps::BaseLayout
+        {
 
-    VehicleDescriptionLayout(MyGUI::Widget* _parent = nullptr);
-    virtual ~VehicleDescriptionLayout();
+          public:
+            VehicleDescriptionLayout(MyGUI::Widget *_parent = nullptr);
+            virtual ~VehicleDescriptionLayout();
 
-protected:
+          protected:
+            //%LE Widget_Declaration list start
+            ATTRIBUTE_FIELD_WIDGET_NAME(VehicleDescriptionLayout, m_vehicle_title, "vehicle_title");
+            MyGUI::EditBox *m_vehicle_title;
 
-    //%LE Widget_Declaration list start
-    ATTRIBUTE_FIELD_WIDGET_NAME(VehicleDescriptionLayout, m_vehicle_title, "vehicle_title");
-    MyGUI::EditBox* m_vehicle_title;
+            ATTRIBUTE_FIELD_WIDGET_NAME(VehicleDescriptionLayout, m_vehicle_desc, "vehicle_desc");
+            MyGUI::EditBox *m_vehicle_desc;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(VehicleDescriptionLayout, m_vehicle_desc, "vehicle_desc");
-    MyGUI::EditBox* m_vehicle_desc;
+            //%LE Widget_Declaration list end
+        };
 
-    //%LE Widget_Declaration list end
-};
-
-} // namespace GUI
+    } // namespace GUI
 } // namespace RoR
-

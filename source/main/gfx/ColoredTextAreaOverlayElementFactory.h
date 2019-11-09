@@ -20,25 +20,25 @@
 
 #pragma once
 
+#include "ColoredTextAreaOverlayElement.h"
 #include "RoRPrerequisites.h"
 
 #include <OgreString.h>
 #include <Overlay/OgreOverlayElement.h>
 #include <Overlay/OgreOverlayElementFactory.h>
-#include "ColoredTextAreaOverlayElement.h"
 
 /** Factory for creating TextAreaOverlayElement instances. */
 class ColoredTextAreaOverlayElementFactory : public Ogre::OverlayElementFactory
 {
-public:
+  public:
     /** See OverlayElementFactory */
-    Ogre::OverlayElement* createOverlayElement(const Ogre::String& instanceName)
+    Ogre::OverlayElement *createOverlayElement(const Ogre::String &instanceName)
     {
         return new ColoredTextAreaOverlayElement(instanceName);
     }
 
     /** See OverlayElementFactory */
-    const Ogre::String& getTypeName() const
+    const Ogre::String &getTypeName() const
     {
         static Ogre::String name = "ColoredTextArea";
         return name;

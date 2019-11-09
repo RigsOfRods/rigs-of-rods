@@ -22,70 +22,67 @@
 /// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
 /// @date   18th of July 2010
 
-
 #pragma once
 
 #include "RoRPrerequisites.h"
-
 #include "RoRnet.h"
 
 #include <MyGUI.h>
 
-namespace RoR {
-namespace GUI {
-
-struct client_t
+namespace RoR
 {
-    RoRnet::UserInfo   user;                 //!< user struct
-    bool               used;                 //!< if this slot is used already
-};
-
-class MpClientList
-{
-public:
-
-    MpClientList();
-    ~MpClientList();
-
-    void update();
-
-    bool IsVisible();
-    void SetVisible(bool value);
-
-protected:
-
-    struct player_row_t
+    namespace GUI
     {
-        MyGUI::StaticImagePtr flagimg;
-        MyGUI::StaticImagePtr statimg;
-        MyGUI::StaticImagePtr usergoimg;
-        MyGUI::StaticImagePtr user_actor_ok_img;
-        MyGUI::StaticImagePtr user_remote_actor_ok_img;
-        MyGUI::StaticTextPtr playername;
-    };
 
-    MyGUI::EditPtr msgtext;
-    MyGUI::StaticTextPtr tooltipText;
-    MyGUI::WidgetPtr tooltipPanel, mpPanel;
-    MyGUI::WindowPtr msgwin;
+        struct client_t
+        {
+            RoRnet::UserInfo user; //!< user struct
+            bool             used; //!< if this slot is used already
+        };
 
-    player_row_t player_rows[RORNET_MAX_PEERS + 1];
+        class MpClientList
+        {
+          public:
+            MpClientList();
+            ~MpClientList();
 
-    void clickInfoIcon(MyGUI::WidgetPtr sender);
-    void clickUserGoIcon(MyGUI::WidgetPtr sender);
-    void openToolTip(MyGUI::WidgetPtr sender, const MyGUI::ToolTipInfo& t);
+            void update();
 
-    MyGUI::WindowPtr netmsgwin;
-    MyGUI::StaticTextPtr netmsgtext;
+            bool IsVisible();
+            void SetVisible(bool value);
 
-    void updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self);
+          protected:
+            struct player_row_t
+            {
+                MyGUI::StaticImagePtr flagimg;
+                MyGUI::StaticImagePtr statimg;
+                MyGUI::StaticImagePtr usergoimg;
+                MyGUI::StaticImagePtr user_actor_ok_img;
+                MyGUI::StaticImagePtr user_remote_actor_ok_img;
+                MyGUI::StaticTextPtr  playername;
+            };
 
-    client_t* clients;
-    int lineheight;
+            MyGUI::EditPtr       msgtext;
+            MyGUI::StaticTextPtr tooltipText;
+            MyGUI::WidgetPtr     tooltipPanel, mpPanel;
+            MyGUI::WindowPtr     msgwin;
 
-    static const int sidebarWidth = 250;
-};
+            player_row_t player_rows[RORNET_MAX_PEERS + 1];
 
+            void clickInfoIcon(MyGUI::WidgetPtr sender);
+            void clickUserGoIcon(MyGUI::WidgetPtr sender);
+            void openToolTip(MyGUI::WidgetPtr sender, const MyGUI::ToolTipInfo &t);
 
-} // namespace GUI
+            MyGUI::WindowPtr     netmsgwin;
+            MyGUI::StaticTextPtr netmsgtext;
+
+            void updateSlot(player_row_t *row, RoRnet::UserInfo c, bool self);
+
+            client_t *clients;
+            int       lineheight;
+
+            static const int sidebarWidth = 250;
+        };
+
+    } // namespace GUI
 } // namespace RoR

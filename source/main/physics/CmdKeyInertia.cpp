@@ -29,62 +29,51 @@
 #include <OgreVector3.h>
 
 RoR::CmdKeyInertia::CmdKeyInertia()
-    : m_start_spline(nullptr)
-    , m_stop_spline(nullptr)
-    , m_start_delay(0.f)
-    , m_stop_delay(0.f)
-    , m_last_output(0.f)
-    , m_time(0.f)
-{}
+    : m_start_spline(nullptr), m_stop_spline(nullptr), m_start_delay(0.f), m_stop_delay(0.f), m_last_output(0.f), m_time(0.f)
+{
+}
 
 float RoR::CmdKeyInertia::CalcCmdKeyDelay(float cmd_input, float dt)
 {
-    if (!m_start_spline || !m_stop_spline)
-    {
-        return cmd_input;
-    }
+    if (!m_start_spline || !m_stop_spline) { return cmd_input; }
 
     float calculated_output = m_last_output;
-    float last_output = m_last_output;
+    float last_output       = m_last_output;
     // rel difference to calculate if we have to use start values(accelerating) or stop values
     float rel_diff = fabs(cmd_input) - fabs(last_output);
     // difference to calculate if were are on the negative side
     float abs_diff = cmd_input - last_output;
     // if the value is close to our input, reset the timer
-    if (fabs(abs_diff) < 0.002)
-        m_time = 0;
+    if (fabs(abs_diff) < 0.002) m_time = 0;
     // +dt after the timer had been set to zero prevents the motion to stop at 0.002
     m_time += dt;
 
     const float start_factor = m_start_delay * m_time;
-    const float stop_factor = m_stop_delay * m_time;
+    const float stop_factor  = m_stop_delay * m_time;
     // positive values between 0 and 1
     if (abs_diff > 0)
     { // we have to accelerate our last outout to the new commanded input
-        if (rel_diff > 0)
-            calculated_output = last_output + this->CalculateCmdOutput(start_factor, m_start_spline);
+        if (rel_diff > 0) calculated_output = last_output + this->CalculateCmdOutput(start_factor, m_start_spline);
         if (rel_diff < 0)
-        // we have to deccelerate our last outout to the new commanded input
+            // we have to deccelerate our last outout to the new commanded input
             calculated_output = last_output + this->CalculateCmdOutput(stop_factor, m_stop_spline);
         if (calculated_output > cmd_input)
-        // if the calculated value is bigger than input set to input to avoid overshooting
+            // if the calculated value is bigger than input set to input to avoid overshooting
             calculated_output = cmd_input;
     }
     // negative values, mainly needed for hydros, between 0 and -1
     if (abs_diff < 0)
     {
-        if (rel_diff > 0)
-            calculated_output = last_output - this->CalculateCmdOutput(start_factor, m_start_spline);
-        if (rel_diff < 0)
-            calculated_output = last_output - this->CalculateCmdOutput(stop_factor, m_stop_spline);
-        if (calculated_output < cmd_input)
-            calculated_output = cmd_input;
+        if (rel_diff > 0) calculated_output = last_output - this->CalculateCmdOutput(start_factor, m_start_spline);
+        if (rel_diff < 0) calculated_output = last_output - this->CalculateCmdOutput(stop_factor, m_stop_spline);
+        if (calculated_output < cmd_input) calculated_output = cmd_input;
     }
     m_last_output = calculated_output;
     return calculated_output;
 }
 
-int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, float start_delay, float stop_delay, std::string start_function, std::string stop_function)
+int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig &cfg, float start_delay, float stop_delay,
+                                       std::string start_function, std::string stop_function)
 {
     // Delay values should always be greater than 0
     if (start_delay > 0)
@@ -98,13 +87,13 @@ int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, float star
         RoR::LogFormat("[RoR|Inertia] Warning: Stop Delay '%f', should be >0, using 0", start_delay);
 
     // if we don't find the spline, we use the "constant" one
-    Ogre::SimpleSpline* start_spline = cfg.GetSplineByName(start_function);
+    Ogre::SimpleSpline *start_spline = cfg.GetSplineByName(start_function);
     if (start_spline != nullptr)
         m_start_spline = start_spline;
     else
         RoR::LogFormat("[RoR|Inertia] Start Function '%s' not found", start_function.c_str());
 
-    Ogre::SimpleSpline* stop_spline = cfg.GetSplineByName(stop_function);
+    Ogre::SimpleSpline *stop_spline = cfg.GetSplineByName(stop_function);
     if (stop_spline != nullptr)
         m_stop_spline = stop_spline;
     else
@@ -113,7 +102,7 @@ int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, float star
     return 0;
 }
 
-float RoR::CmdKeyInertia::CalculateCmdOutput(float time, Ogre::SimpleSpline* spline)
+float RoR::CmdKeyInertia::CalculateCmdOutput(float time, Ogre::SimpleSpline *spline)
 {
     time = std::min(time, 1.0f);
 
@@ -126,7 +115,7 @@ float RoR::CmdKeyInertia::CalculateCmdOutput(float time, Ogre::SimpleSpline* spl
     return 0;
 }
 
-Ogre::SimpleSpline* RoR::CmdKeyInertiaConfig::GetSplineByName(Ogre::String model)
+Ogre::SimpleSpline *RoR::CmdKeyInertiaConfig::GetSplineByName(Ogre::String model)
 {
     auto itor = m_splines.find(model);
     if (itor != m_splines.end())
@@ -139,28 +128,22 @@ void RoR::CmdKeyInertiaConfig::LoadDefaultInertiaModels()
 {
     try
     {
-        Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().openResource("inertia_models.cfg", Ogre::RGN_AUTODETECT);
+        Ogre::DataStreamPtr ds =
+            Ogre::ResourceGroupManager::getSingleton().openResource("inertia_models.cfg", Ogre::RGN_AUTODETECT);
         std::string current_model;
         while (!ds->eof())
         {
             std::string line = RoR::Utils::SanitizeUtf8String(ds->getLine());
             Ogre::StringUtil::trim(line);
 
-            if (line.empty() || line[0] == ';')
-                continue;
+            if (line.empty() || line[0] == ';') continue;
 
             Ogre::StringVector args = Ogre::StringUtil::split(line, ",");
-            if (args.size() == 1)
-            {
-                current_model = line;
-            }
+            if (args.size() == 1) { current_model = line; }
             else if (args.size() == 2 && !current_model.empty())
             {
                 // find the spline to attach the points
-                if (m_splines.find(current_model) == m_splines.end())
-                {
-                    m_splines[current_model] = Ogre::SimpleSpline();
-                }
+                if (m_splines.find(current_model) == m_splines.end()) { m_splines[current_model] = Ogre::SimpleSpline(); }
 
                 // parse the data
                 const float point_x = Ogre::StringConverter::parseReal(args[0]);
@@ -171,7 +154,7 @@ void RoR::CmdKeyInertiaConfig::LoadDefaultInertiaModels()
             }
         }
     }
-    catch (std::exception& e)
+    catch (std::exception &e)
     {
         RoR::LogFormat("[RoR|Inertia] Failed to load 'inertia_models.cfg', message: '%s'", e.what());
     }
@@ -181,5 +164,5 @@ void RoR::CmdKeyInertia::ResetCmdKeyDelay()
 {
     // reset last_output and time, if we reset the truck
     m_last_output = 0.0;
-    m_time = 0.0;
+    m_time        = 0.0;
 }

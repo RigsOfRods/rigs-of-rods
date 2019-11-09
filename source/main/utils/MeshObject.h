@@ -25,25 +25,31 @@
 
 #pragma once
 
-#include <Ogre.h>
-
 #include "RoRPrerequisites.h"
+
+#include <Ogre.h>
 
 class MeshObject : public Ogre::Resource::Listener, public ZeroedMemoryAllocator
 {
-public:
-    MeshObject(Ogre::String meshName, Ogre::String meshRG, Ogre::String entityName, Ogre::SceneNode* sceneNode);
+  public:
+    MeshObject(Ogre::String meshName, Ogre::String meshRG, Ogre::String entityName, Ogre::SceneNode *sceneNode);
 
-    void setMaterialName(Ogre::String m);
-    void setCastShadows(bool b);
-    void setVisible(bool b);
-    inline Ogre::Entity*    getEntity() { return ent; };
-    inline Ogre::SceneNode* GetSceneNode() { return sceneNode; }
+    void                 setMaterialName(Ogre::String m);
+    void                 setCastShadows(bool b);
+    void                 setVisible(bool b);
+    inline Ogre::Entity *getEntity()
+    {
+        return ent;
+    };
+    inline Ogre::SceneNode *GetSceneNode()
+    {
+        return sceneNode;
+    }
 
-protected:
-    Ogre::SceneNode* sceneNode;
-    Ogre::Entity* ent;
-    Ogre::MeshPtr mesh;
+  protected:
+    Ogre::SceneNode *sceneNode;
+    Ogre::Entity *   ent;
+    Ogre::MeshPtr    mesh;
 
     bool castshadows;
 

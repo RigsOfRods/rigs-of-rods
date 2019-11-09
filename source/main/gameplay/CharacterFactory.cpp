@@ -28,9 +28,9 @@
 
 using namespace RoR;
 
-Character* CharacterFactory::createLocal(Ogre::UTFString playerName, int playerColour)
+Character *CharacterFactory::createLocal(Ogre::UTFString playerName, int playerColour)
 {
-    Character* ch = new Character(-1, 0, playerName, playerColour, false);
+    Character *ch = new Character(-1, 0, playerName, playerColour, false);
     App::GetSimController()->GetGfxScene().RegisterGfxCharacter(ch->SetupGfx());
     return ch;
 }
@@ -40,12 +40,12 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
 #ifdef USE_SOCKETW
     RoRnet::UserInfo info;
     RoR::Networking::GetUserInfo(sourceid, info);
-    int colour = info.colournum;
-    Ogre::UTFString name = tryConvertUTF(info.username);
+    int             colour = info.colournum;
+    Ogre::UTFString name   = tryConvertUTF(info.username);
 
     LOG(" new character for " + TOSTRING(sourceid) + ":" + TOSTRING(streamid) + ", colour: " + TOSTRING(colour));
 
-    Character* ch = new Character(sourceid, streamid, name, colour, true);
+    Character *ch = new Character(sourceid, streamid, name, colour, true);
     App::GetSimController()->GetGfxScene().RegisterGfxCharacter(ch->SetupGfx());
     m_remote_characters.push_back(std::unique_ptr<Character>(ch));
 #endif // USE_SOCKETW
@@ -68,20 +68,17 @@ void CharacterFactory::update(float dt)
 {
     gEnv->player->update(dt);
 
-    for (auto& c : m_remote_characters)
+    for (auto &c : m_remote_characters)
     {
         c->update(dt);
     }
 }
 
-void CharacterFactory::UndoRemoteActorCoupling(Actor* actor)
+void CharacterFactory::UndoRemoteActorCoupling(Actor *actor)
 {
-    for (auto& c : m_remote_characters)
+    for (auto &c : m_remote_characters)
     {
-        if (c->GetActorCoupling() == actor)
-        {
-            c->SetActorCoupling(false, nullptr);
-        }
+        if (c->GetActorCoupling() == actor) { c->SetActorCoupling(false, nullptr); }
     }
 }
 
@@ -97,11 +94,8 @@ void CharacterFactory::handleStreamData(std::vector<RoR::Networking::recv_packet
     {
         if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER)
         {
-            RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
-            if (reg->type == 1)
-            {
-                createRemoteInstance(packet.header.source, packet.header.streamid);
-            }
+            RoRnet::StreamRegister *reg = (RoRnet::StreamRegister *)packet.buffer;
+            if (reg->type == 1) { createRemoteInstance(packet.header.source, packet.header.streamid); }
         }
         else if (packet.header.command == RoRnet::MSG2_USER_LEAVE)
         {
@@ -109,7 +103,7 @@ void CharacterFactory::handleStreamData(std::vector<RoR::Networking::recv_packet
         }
         else
         {
-            for (auto& c : m_remote_characters)
+            for (auto &c : m_remote_characters)
             {
                 c->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer);
             }

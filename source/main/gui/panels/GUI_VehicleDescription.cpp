@@ -30,23 +30,23 @@
 #include "BeamFactory.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
-#include "Utils.h"
-#include "RoRnet.h"
 #include "Language.h"
 #include "RoRFrameListener.h"
+#include "RoRnet.h"
+#include "Utils.h"
 
 #include <MyGUI.h>
 
 using namespace RoR;
 using namespace GUI;
 
-#define CLASS        VehicleDescription
-#define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
+#define CLASS VehicleDescription
+#define MAIN_WIDGET ((MyGUI::Window *)mMainWidget)
 
 CLASS::CLASS()
 {
     MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
-    win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
+    win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); // The "X" button thing
 
     CenterToScreen();
     MAIN_WIDGET->setVisible(false);
@@ -59,10 +59,9 @@ CLASS::~CLASS()
 
 void CLASS::LoadText()
 {
-    Actor* currTruck = App::GetSimController()->GetPlayerActor();
+    Actor *currTruck = App::GetSimController()->GetPlayerActor();
 
-    if (currTruck == nullptr)
-        return;
+    if (currTruck == nullptr) return;
 
     m_vehicle_title->setMaxTextLength(33);
     m_vehicle_title->setCaptionWithReplacing(currTruck->GetActorDesignName());
@@ -94,34 +93,27 @@ void CLASS::LoadText()
     int filledCommands = 0;
     for (int i = 1; i < MAX_COMMANDS && filledCommands < COMMANDS_VISIBLE; i += 2)
     {
-        if (currTruck->ar_command_key[i].description == "hide")
-            continue;
-        if (currTruck->ar_command_key[i].beams.empty() && currTruck->ar_command_key[i].rotators.empty())
-            continue;
+        if (currTruck->ar_command_key[i].description == "hide") continue;
+        if (currTruck->ar_command_key[i].beams.empty() && currTruck->ar_command_key[i].rotators.empty()) continue;
 
         filledCommands++;
-        char commandID[256] = {};
-        Ogre::String keyStr = "";
+        char         commandID[256] = {};
+        Ogre::String keyStr         = "";
 
         sprintf(commandID, "COMMANDS_%02d", i);
-        int eventID = RoR::App::GetInputEngine()->resolveEventName(Ogre::String(commandID));
-        Ogre::String keya = RoR::App::GetInputEngine()->getEventCommand(eventID);
+        int          eventID = RoR::App::GetInputEngine()->resolveEventName(Ogre::String(commandID));
+        Ogre::String keya    = RoR::App::GetInputEngine()->getEventCommand(eventID);
         sprintf(commandID, "COMMANDS_%02d", i + 1);
-        eventID = RoR::App::GetInputEngine()->resolveEventName(Ogre::String(commandID));
+        eventID           = RoR::App::GetInputEngine()->resolveEventName(Ogre::String(commandID));
         Ogre::String keyb = RoR::App::GetInputEngine()->getEventCommand(eventID);
 
         // cut off expl
-        if (keya.size() > 6 && keya.substr(0, 5) == "EXPL+")
-            keya = keya.substr(5);
-        if (keyb.size() > 6 && keyb.substr(0, 5) == "EXPL+")
-            keyb = keyb.substr(5);
+        if (keya.size() > 6 && keya.substr(0, 5) == "EXPL+") keya = keya.substr(5);
+        if (keyb.size() > 6 && keyb.substr(0, 5) == "EXPL+") keyb = keyb.substr(5);
 
         keyStr = keya + "/" + keyb;
 
-        if (currTruck->ar_command_key[i].description.empty())
-        {
-            txt = txt + "* " + keyStr + ": " + _L("unknown function");
-        }
+        if (currTruck->ar_command_key[i].description.empty()) { txt = txt + "* " + keyStr + ": " + _L("unknown function"); }
         else
         {
             txt = txt + "* " + keyStr + ": " + currTruck->ar_command_key[i].description;
@@ -140,8 +132,7 @@ bool CLASS::IsVisible()
 
 void CLASS::SetVisible(bool vis)
 {
-    if (vis && !IsVisible())
-        LoadText();
+    if (vis && !IsVisible()) LoadText();
 
     MAIN_WIDGET->setVisible(vis);
 }
@@ -154,8 +145,7 @@ void CLASS::CenterToScreen()
     MAIN_WIDGET->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
 }
 
-void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
+void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string &_name)
 {
-    if (_name == "close")
-        SetVisible(false);
+    if (_name == "close") SetVisible(false);
 }

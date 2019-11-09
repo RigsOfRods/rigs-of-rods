@@ -29,69 +29,71 @@
 
 #pragma once
 
-#include <MyGUI.h>
 #include "Dialog.h"
 
-namespace RoR {
-namespace GUI {
+#include <MyGUI.h>
 
-class OpenSaveFileDialog :
-    public Dialog
+namespace RoR
 {
-public:
-    OpenSaveFileDialog();
+    namespace GUI
+    {
 
-    void setDialogInfo(const MyGUI::UString& _caption, const MyGUI::UString& _button, bool _folderMode = false);
+        class OpenSaveFileDialog : public Dialog
+        {
+          public:
+            OpenSaveFileDialog();
 
-    void setCurrentFolder(const MyGUI::UString& _value);
-    const MyGUI::UString& getCurrentFolder() const;
+            void setDialogInfo(const MyGUI::UString &_caption, const MyGUI::UString &_button, bool _folderMode = false);
 
-    void setFileName(const MyGUI::UString& _value);
-    const MyGUI::UString& getFileName() const;
+            void                  setCurrentFolder(const MyGUI::UString &_value);
+            const MyGUI::UString &getCurrentFolder() const;
 
-    const MyGUI::UString& getMode() const;
-    void setMode(const MyGUI::UString& _value);
+            void                  setFileName(const MyGUI::UString &_value);
+            const MyGUI::UString &getFileName() const;
 
-    typedef std::vector<MyGUI::UString> VectorUString;
-    void setRecentFolders(const VectorUString& _listFolders);
+            const MyGUI::UString &getMode() const;
+            void                  setMode(const MyGUI::UString &_value);
 
-    void setFileMask(const MyGUI::UString& _value);
-    const MyGUI::UString& getFileMask() const;
+            typedef std::vector<MyGUI::UString> VectorUString;
+            void                                setRecentFolders(const VectorUString &_listFolders);
 
-protected:
-    virtual void onDoModal();
-    virtual void onEndModal();
+            void                  setFileMask(const MyGUI::UString &_value);
+            const MyGUI::UString &getFileMask() const;
 
-private:
-    void notifyWindowButtonPressed(MyGUI::Window* _sender, const std::string& _name);
-    void notifyDirectoryComboAccept(MyGUI::ComboBox* _sender, size_t _index);
-    void notifyDirectoryComboChangePosition(MyGUI::ComboBox* _sender, size_t _index);
-    void notifyListChangePosition(MyGUI::ListBox* _sender, size_t _index);
-    void notifyListSelectAccept(MyGUI::ListBox* _sender, size_t _index);
-    void notifyEditSelectAccept(MyGUI::EditBox* _sender);
-    void notifyMouseButtonClick(MyGUI::Widget* _sender);
-    void notifyUpButtonClick(MyGUI::Widget* _sender);
+          protected:
+            virtual void onDoModal();
+            virtual void onEndModal();
 
-    void update();
-    void accept();
+          private:
+            void notifyWindowButtonPressed(MyGUI::Window *_sender, const std::string &_name);
+            void notifyDirectoryComboAccept(MyGUI::ComboBox *_sender, size_t _index);
+            void notifyDirectoryComboChangePosition(MyGUI::ComboBox *_sender, size_t _index);
+            void notifyListChangePosition(MyGUI::ListBox *_sender, size_t _index);
+            void notifyListSelectAccept(MyGUI::ListBox *_sender, size_t _index);
+            void notifyEditSelectAccept(MyGUI::EditBox *_sender);
+            void notifyMouseButtonClick(MyGUI::Widget *_sender);
+            void notifyUpButtonClick(MyGUI::Widget *_sender);
 
-    void upFolder();
+            void update();
+            void accept();
 
-private:
-    MyGUI::Window* mWindow;
-    MyGUI::ListBox* mListFiles;
-    MyGUI::EditBox* mEditFileName;
-    MyGUI::Button* mButtonUp;
-    MyGUI::ComboBox* mCurrentFolderField;
-    MyGUI::Button* mButtonOpenSave;
+            void upFolder();
 
-    MyGUI::UString mCurrentFolder;
-    MyGUI::UString mFileName;
-    MyGUI::UString mFileMask;
+          private:
+            MyGUI::Window *  mWindow;
+            MyGUI::ListBox * mListFiles;
+            MyGUI::EditBox * mEditFileName;
+            MyGUI::Button *  mButtonUp;
+            MyGUI::ComboBox *mCurrentFolderField;
+            MyGUI::Button *  mButtonOpenSave;
 
-    MyGUI::UString mMode;
-    bool mFolderMode;
-};
+            MyGUI::UString mCurrentFolder;
+            MyGUI::UString mFileName;
+            MyGUI::UString mFileMask;
 
-} // namespace GUI
+            MyGUI::UString mMode;
+            bool           mFolderMode;
+        };
+
+    } // namespace GUI
 } // namespace RoR

@@ -33,8 +33,15 @@
 #include "Collisions.h"
 #include "ContentManager.h"
 #include "DashBoardManager.h"
-#include "GfxScene.h"
 #include "ForceFeedback.h"
+#include "GUIManager.h"
+#include "GUI_FrictionSettings.h"
+#include "GUI_GameConsole.h"
+#include "GUI_LoadingWindow.h"
+#include "GUI_MainSelector.h"
+#include "GUI_MultiplayerClientList.h"
+#include "GUI_SimUtils.h"
+#include "GfxScene.h"
 #include "InputEngine.h"
 #include "LandVehicleSimulation.h"
 #include "Language.h"
@@ -53,19 +60,10 @@
 #include "SkyManager.h"
 #include "SkyXManager.h"
 #include "SoundScriptManager.h"
+#include "SurveyMapManager.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
 #include "Utils.h"
-
-#include "GUIManager.h"
-#include "GUI_FrictionSettings.h"
-#include "GUI_GameConsole.h"
-#include "GUI_LoadingWindow.h"
-#include "GUI_MainSelector.h"
-#include "GUI_MultiplayerClientList.h"
-#include "GUI_SimUtils.h"
-
-#include "SurveyMapManager.h"
 
 #include <ctime>
 #include <fstream>
@@ -75,55 +73,30 @@
 #include <sstream>
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#include <Windows.h>
+    #include <Windows.h>
 #else
-#include <stdio.h>
-#include <wchar.h>
+    #include <stdio.h>
+    #include <wchar.h>
 #endif
 
 using namespace Ogre;
 using namespace RoR;
 
-#define simRUNNING(_S_) (_S_ == SimState::RUNNING    )
-#define  simPAUSED(_S_) (_S_ == SimState::PAUSED     )
-#define  simSELECT(_S_) (_S_ == SimState::SELECTING  )
-#define  simEDITOR(_S_) (_S_ == SimState::EDITOR_MODE)
+#define simRUNNING(_S_) (_S_ == SimState::RUNNING)
+#define simPAUSED(_S_) (_S_ == SimState::PAUSED)
+#define simSELECT(_S_) (_S_ == SimState::SELECTING)
+#define simEDITOR(_S_) (_S_ == SimState::EDITOR_MODE)
 
-SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf) :
-    m_player_actor(nullptr),
-    m_prev_player_actor(nullptr),
-    m_pending_player_actor(nullptr),
-    m_actor_manager(),
-    m_character_factory(),
-    m_dir_arrow_pointed(Vector3::ZERO),
-    m_force_feedback(ff),
-    m_skidmark_conf(skid_conf),
-    m_hide_gui(false),
-    m_is_pace_reset_pressed(false),
-    m_last_cache_selection(nullptr),
-    m_last_screenshot_date(""),
-    m_last_screenshot_id(1),
-    m_last_simulation_speed(0.1f),
-    m_last_skin_selection(nullptr),
-    m_physics_simulation_paused(false),
-    m_physics_simulation_time(0.0f),
-    m_pressure_pressed(false),
-    m_pressure_pressed_timer(0.0f),
-    m_race_id(-1),
-    m_race_start_time(0),
-    m_race_best_time(0),
-    m_race_time_diff(0),
-    m_reload_dir(Quaternion::IDENTITY),
-    m_reload_pos(Vector3::ZERO),
-    m_screenshot_request(false),
-    m_stats_on(0),
-    m_time(0),
-    m_time_until_next_toggle(0),
-    m_soft_reset_mode(false),
-    m_advanced_vehicle_repair(false),
-    m_advanced_vehicle_repair_timer(0.f),
-    m_actor_info_gui_visible(false),
-    m_terrain_editor_mouse_ray(Ray(Vector3::ZERO, Vector3::ZERO))
+SimController::SimController(RoR::ForceFeedback *ff, RoR::SkidmarkConfig *skid_conf)
+    : m_player_actor(nullptr), m_prev_player_actor(nullptr), m_pending_player_actor(nullptr), m_actor_manager(),
+      m_character_factory(), m_dir_arrow_pointed(Vector3::ZERO), m_force_feedback(ff), m_skidmark_conf(skid_conf),
+      m_hide_gui(false), m_is_pace_reset_pressed(false), m_last_cache_selection(nullptr), m_last_screenshot_date(""),
+      m_last_screenshot_id(1), m_last_simulation_speed(0.1f), m_last_skin_selection(nullptr), m_physics_simulation_paused(false),
+      m_physics_simulation_time(0.0f), m_pressure_pressed(false), m_pressure_pressed_timer(0.0f), m_race_id(-1),
+      m_race_start_time(0), m_race_best_time(0), m_race_time_diff(0), m_reload_dir(Quaternion::IDENTITY),
+      m_reload_pos(Vector3::ZERO), m_screenshot_request(false), m_stats_on(0), m_time(0), m_time_until_next_toggle(0),
+      m_soft_reset_mode(false), m_advanced_vehicle_repair(false), m_advanced_vehicle_repair_timer(0.f),
+      m_actor_info_gui_visible(false), m_terrain_editor_mouse_ray(Ray(Vector3::ZERO, Vector3::ZERO))
 {
 }
 
@@ -134,26 +107,24 @@ void SimController::UpdateForceFeedback()
     if (m_player_actor && m_player_actor->ar_driveable == TRUCK)
     {
         Ogre::Vector3 ff_vehicle = m_player_actor->GetFFbBodyForces();
-        m_force_feedback->SetForces(
-            -ff_vehicle.dotProduct(m_player_actor->GetCameraRoll()) / 10000.0,
-             ff_vehicle.dotProduct(m_player_actor->GetCameraDir())  / 10000.0,
-            m_player_actor->ar_wheel_speed,
-            m_player_actor->ar_hydro_dir_command,
-            m_player_actor->GetFFbHydroForces());
+        m_force_feedback->SetForces(-ff_vehicle.dotProduct(m_player_actor->GetCameraRoll()) / 10000.0,
+                                    ff_vehicle.dotProduct(m_player_actor->GetCameraDir()) / 10000.0,
+                                    m_player_actor->ar_wheel_speed, m_player_actor->ar_hydro_dir_command,
+                                    m_player_actor->GetFFbHydroForces());
     }
 }
 
 void SimController::StartRaceTimer(int id)
 {
     m_race_start_time = m_time;
-    m_race_time_diff = 0.0f;
-    m_race_id = id;
+    m_race_time_diff  = 0.0f;
+    m_race_id         = id;
 }
 
 void SimController::StopRaceTimer()
 {
     m_race_start_time = 0.0f;
-    m_race_id = -1;
+    m_race_id         = -1;
 }
 
 void SimController::HandleSavegameShortcuts()
@@ -161,96 +132,35 @@ void SimController::HandleSavegameShortcuts()
     // Global savegames
 
     int slot = -1;
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_01, 1.0f))
-    {
-        slot = 1;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_02, 1.0f))
-    {
-        slot = 2;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_03, 1.0f))
-    {
-        slot = 3;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_04, 1.0f))
-    {
-        slot = 4;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_05, 1.0f))
-    {
-        slot = 5;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_06, 1.0f))
-    {
-        slot = 6;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_07, 1.0f))
-    {
-        slot = 7;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_08, 1.0f))
-    {
-        slot = 8;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_09, 1.0f))
-    {
-        slot = 9;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_10, 1.0f))
-    {
-        slot = 0;
-    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_01, 1.0f)) { slot = 1; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_02, 1.0f)) { slot = 2; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_03, 1.0f)) { slot = 3; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_04, 1.0f)) { slot = 4; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_05, 1.0f)) { slot = 5; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_06, 1.0f)) { slot = 6; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_07, 1.0f)) { slot = 7; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_08, 1.0f)) { slot = 8; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_09, 1.0f)) { slot = 9; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_10, 1.0f)) { slot = 0; }
     if (slot != -1)
     {
         Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
         m_actor_manager.LoadScene(filename);
     }
 
-    if (App::sim_terrain_name.IsActiveEmpty() || App::sim_state.GetActive() != SimState::RUNNING)
-        return;
+    if (App::sim_terrain_name.IsActiveEmpty() || App::sim_state.GetActive() != SimState::RUNNING) return;
 
     slot = -1;
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_01, 1.0f))
-    {
-        slot = 1;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_02, 1.0f))
-    {
-        slot = 2;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_03, 1.0f))
-    {
-        slot = 3;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_04, 1.0f))
-    {
-        slot = 4;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_05, 1.0f))
-    {
-        slot = 5;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_06, 1.0f))
-    {
-        slot = 6;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_07, 1.0f))
-    {
-        slot = 7;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_08, 1.0f))
-    {
-        slot = 8;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_09, 1.0f))
-    {
-        slot = 9;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_10, 1.0f))
-    {
-        slot = 0;
-    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_01, 1.0f)) { slot = 1; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_02, 1.0f)) { slot = 2; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_03, 1.0f)) { slot = 3; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_04, 1.0f)) { slot = 4; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_05, 1.0f)) { slot = 5; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_06, 1.0f)) { slot = 6; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_07, 1.0f)) { slot = 7; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_08, 1.0f)) { slot = 8; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_09, 1.0f)) { slot = 9; }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_10, 1.0f)) { slot = 0; }
     if (slot != -1)
     {
         Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
@@ -266,33 +176,25 @@ void SimController::HandleSavegameShortcuts()
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE))
-    {
-        m_actor_manager.SaveScene(m_actor_manager.GetQuicksaveFilename());
-    }
+    { m_actor_manager.SaveScene(m_actor_manager.GetQuicksaveFilename()); }
 }
 
 void SimController::UpdateInputEvents(float dt)
 {
-    if (dt == 0.0f)
-        return;
+    if (dt == 0.0f) return;
 
-    auto s = App::sim_state.GetActive();
+    auto s       = App::sim_state.GetActive();
     auto gui_man = App::GetGuiManager();
 
     RoR::App::GetInputEngine()->updateKeyBounces(dt);
-    if (!RoR::App::GetInputEngine()->getInputsChanged())
-        return;
+    if (!RoR::App::GetInputEngine()->getInputsChanged()) return;
 
     // update overlays if enabled
-    if (RoR::App::GetOverlayWrapper())
-        RoR::App::GetOverlayWrapper()->update(dt);
+    if (RoR::App::GetOverlayWrapper()) RoR::App::GetOverlayWrapper()->update(dt);
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
     {
-        if (gui_man->IsVisible_MainSelector())
-        {
-            gui_man->GetMainSelector()->Cancel();
-        }
+        if (gui_man->IsVisible_MainSelector()) { gui_man->GetMainSelector()->Cancel(); }
         else if (simRUNNING(s))
         {
             App::sim_state.SetPending(SimState::PAUSED);
@@ -303,18 +205,13 @@ void SimController::UpdateInputEvents(float dt)
         }
     }
 
-    if (App::sim_state.GetActive() == SimState::PAUSED)
-        return; //Stop everything when pause menu is visible
+    if (App::sim_state.GetActive() == SimState::PAUSED) return; // Stop everything when pause menu is visible
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE))
-    {
-        gui_man->SetVisible_Console(! gui_man->IsVisible_Console());
-    }
+    { gui_man->SetVisible_Console(!gui_man->IsVisible_Console()); }
 
     if (gui_man->IsVisible_FrictionSettings() && m_player_actor)
-    {
-        gui_man->GetFrictionSettings()->setActiveCol(m_player_actor->ar_last_fuzzy_ground_model);
-    }
+    { gui_man->GetFrictionSettings()->setActiveCol(m_player_actor->ar_last_fuzzy_ground_model); }
 
     const bool mp_connected = (App::mp_state.GetActive() == MpState::CONNECTED);
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_hide_gui && mp_connected)
@@ -325,22 +222,19 @@ void SimController::UpdateInputEvents(float dt)
 
     if (m_screenshot_request)
     {
-        std::time_t t = std::time(nullptr);
+        std::time_t       t = std::time(nullptr);
         std::stringstream date;
 #if defined(__GNUC__) && (__GNUC__ < 5)
-		date << std::asctime(std::localtime(&t));
+        date << std::asctime(std::localtime(&t));
 #else
         date << std::put_time(std::localtime(&t), "%Y-%m-%d_%H-%M-%S");
 #endif
 
         String fn_prefix = PathCombine(App::sys_screenshot_dir.GetActive(), "screenshot_");
-        String fn_name = date.str() + String("_");
+        String fn_name   = date.str() + String("_");
         String fn_suffix = String(".") + App::app_screenshot_format.GetActive();
 
-        if (m_last_screenshot_date == date.str())
-        {
-            m_last_screenshot_id++;
-        }
+        if (m_last_screenshot_date == date.str()) { m_last_screenshot_id++; }
         else
         {
             m_last_screenshot_id = 1;
@@ -354,10 +248,10 @@ void SimController::UpdateInputEvents(float dt)
         if (std::strcmp(App::app_screenshot_format.GetActive(), "png") == 0)
         {
             // add some more data into the image
-            AdvancedScreen* as = new AdvancedScreen(RoR::App::GetOgreSubsystem()->GetRenderWindow(), tmpfn);
-            //as->addData("terrain_Name", loadedTerrain);
-            //as->addData("terrain_ModHash", terrainModHash);
-            //as->addData("terrain_FileHash", terrainFileHash);
+            AdvancedScreen *as = new AdvancedScreen(RoR::App::GetOgreSubsystem()->GetRenderWindow(), tmpfn);
+            // as->addData("terrain_Name", loadedTerrain);
+            // as->addData("terrain_ModHash", terrainModHash);
+            // as->addData("terrain_FileHash", terrainFileHash);
             if (m_player_actor)
             {
                 as->addData("Truck_Num", TOSTRING(m_player_actor->ar_instance_id));
@@ -376,11 +270,11 @@ void SimController::UpdateInputEvents(float dt)
             as->addData("MP_NetworkEnabled", (App::mp_state.GetActive() == MpState::CONNECTED) ? "Yes" : "No");
             as->addData("Camera_Position", TOSTRING(gEnv->mainCamera->getPosition()));
 
-            const RenderTarget::FrameStats& stats = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
+            const RenderTarget::FrameStats &stats = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
             as->addData("AVGFPS", TOSTRING(stats.avgFPS));
 
             as->write();
-            delete(as);
+            delete (as);
         }
         else
         {
@@ -392,7 +286,8 @@ void SimController::UpdateInputEvents(float dt)
         // show new flash message
         String ssmsg = _L("Screenshot:") + String(" ") + fn_name + fn_suffix;
         LOG(ssmsg);
-        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "camera.png", 10000, false);
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "camera.png",
+                                           10000, false);
         RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
 
         m_screenshot_request = false;
@@ -406,12 +301,11 @@ void SimController::UpdateInputEvents(float dt)
         RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
     }
 
-    if ((m_player_actor != nullptr) &&
-        (m_player_actor->ar_sim_state != Actor::SimState::NETWORKED_OK) &&
+    if ((m_player_actor != nullptr) && (m_player_actor->ar_sim_state != Actor::SimState::NETWORKED_OK) &&
         RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f))
     {
         ActorModifyRequest rq;
-        rq.amr_type = ActorModifyRequest::Type::RELOAD;
+        rq.amr_type  = ActorModifyRequest::Type::RELOAD;
         rq.amr_actor = m_player_actor;
         this->QueueActorModify(rq);
 
@@ -433,7 +327,8 @@ void SimController::UpdateInputEvents(float dt)
         float simulation_speed = m_actor_manager.GetSimulationSpeed() * pow(2.0f, dt / 2.0f);
         m_actor_manager.SetSimulationSpeed(simulation_speed);
         String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
-        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg,
+                                           "infromation.png", 2000, false);
         RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
     }
     if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_DECELERATE_SIMULATION))
@@ -441,7 +336,8 @@ void SimController::UpdateInputEvents(float dt)
         float simulation_speed = m_actor_manager.GetSimulationSpeed() * pow(0.5f, dt / 2.0f);
         m_actor_manager.SetSimulationSpeed(simulation_speed);
         String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
-        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg,
+                                           "infromation.png", 2000, false);
         RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
     }
     if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_SIMULATION_PACE))
@@ -454,14 +350,16 @@ void SimController::UpdateInputEvents(float dt)
                 m_last_simulation_speed = simulation_speed;
                 m_actor_manager.SetSimulationSpeed(1.0f);
                 UTFString ssmsg = _L("Simulation speed reset.");
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg,
+                                                   "infromation.png", 2000, false);
                 RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
             }
             else if (m_last_simulation_speed != 1.0f)
             {
                 m_actor_manager.SetSimulationSpeed(m_last_simulation_speed);
                 String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(m_last_simulation_speed * 100.0f, 1)) + "%";
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg,
+                                                   "infromation.png", 2000, false);
                 RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
             }
         }
@@ -474,16 +372,12 @@ void SimController::UpdateInputEvents(float dt)
 
     // Frozen physics logic
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_PHYSICS))
-    {
-        m_physics_simulation_paused = !m_physics_simulation_paused;
-    }
+    { m_physics_simulation_paused = !m_physics_simulation_paused; }
     if (m_physics_simulation_paused && m_actor_manager.GetSimulationSpeed() > 0.0f)
     {
         if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPLAY_FAST_FORWARD) ||
             RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.25f))
-        {
-            m_physics_simulation_time = PHYSICS_DT / m_actor_manager.GetSimulationSpeed();
-        }
+        { m_physics_simulation_time = PHYSICS_DT / m_actor_manager.GetSimulationSpeed(); }
     }
 
     this->HandleSavegameShortcuts();
@@ -496,21 +390,20 @@ void SimController::UpdateInputEvents(float dt)
         if (fov_less || fov_more)
         {
             float fov = gEnv->mainCamera->getFOVy().valueDegrees();
-            fov = (fov_less) ? (fov - 1.f) : (fov + 1.f);
-            fov = Round(fov);
+            fov       = (fov_less) ? (fov - 1.f) : (fov + 1.f);
+            fov       = Round(fov);
 
             if (fov >= 10 && fov <= 160)
             {
                 gEnv->mainCamera->setFOVy(Degree(fov));
 
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                   _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
                 RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: ") + TOSTRING(fov));
 
                 // save the settings
                 if (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
-                {
-                    App::gfx_fov_internal.SetActive(fov);
-                }
+                { App::gfx_fov_internal.SetActive(fov); }
                 else
                 {
                     App::gfx_fov_external.SetActive(fov);
@@ -518,7 +411,8 @@ void SimController::UpdateInputEvents(float dt)
             }
             else
             {
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: Limit reached"), "camera_edit.png", 2000);
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                   _L("FOV: Limit reached"), "camera_edit.png", 2000);
                 RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: Limit reached"));
             }
         }
@@ -536,7 +430,8 @@ void SimController::UpdateInputEvents(float dt)
                 App::gfx_fov_external.SetActive(fov);
             }
             gEnv->mainCamera->setFOVy(Degree(fov));
-            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                               _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
             RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: ") + TOSTRING(fov));
         }
     }
@@ -545,17 +440,15 @@ void SimController::UpdateInputEvents(float dt)
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FULLSCREEN_TOGGLE, 2.0f))
     {
         static int org_width = -1, org_height = -1;
-        int width = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getWidth();
-        int height = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getHeight();
-        if (org_width == -1)
-            org_width = width;
-        if (org_height == -1)
-            org_height = height;
+        int        width  = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getWidth();
+        int        height = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getHeight();
+        if (org_width == -1) org_width = width;
+        if (org_height == -1) org_height = height;
         bool mode = RoR::App::GetOgreSubsystem()->GetRenderWindow()->isFullScreen();
         if (!mode)
         {
             RoR::App::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(true, org_width, org_height);
-            LOG(" ** switched to fullscreen: "+TOSTRING(width)+"x"+TOSTRING(height));
+            LOG(" ** switched to fullscreen: " + TOSTRING(width) + "x" + TOSTRING(height));
         }
         else
         {
@@ -565,43 +458,46 @@ void SimController::UpdateInputEvents(float dt)
         }
     }
 
-    static auto& object_list = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
-    static bool terrain_editing_track_object = true;
-    static int terrain_editing_rotation_axis = 1;
-    static std::string last_object_name = "";
-    static int object_count = static_cast<int>(object_list.size());
-    static int object_index = -1;
+    static auto &      object_list                   = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
+    static bool        terrain_editing_track_object  = true;
+    static int         terrain_editing_rotation_axis = 1;
+    static std::string last_object_name              = "";
+    static int         object_count                  = static_cast<int>(object_list.size());
+    static int         object_index                  = -1;
 
-    bool toggle_editor = (m_player_actor && simEDITOR(s)) ||
+    bool toggle_editor =
+        (m_player_actor && simEDITOR(s)) ||
         (!m_player_actor && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
 
     if (toggle_editor)
     {
         App::sim_state.SetActive(simEDITOR(s) ? SimState::RUNNING : SimState::EDITOR_MODE);
-        s = App::sim_state.GetActive();
+        s               = App::sim_state.GetActive();
         UTFString ssmsg = simEDITOR(s) ? _L("Entered terrain editing mode") : _L("Left terrain editing mode");
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg,
-                "infromation.png", 2000, false);
+                                           "infromation.png", 2000, false);
         RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
 
         if (simEDITOR(s))
         {
-            object_list = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
+            object_list  = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
             object_index = -1;
         }
         else
         {
-            std::string path = PathCombine(RoR::App::sys_config_dir.GetActive(), "editor_out.cfg");
+            std::string   path = PathCombine(RoR::App::sys_config_dir.GetActive(), "editor_out.cfg");
             std::ofstream file(path);
             if (file.is_open())
             {
                 for (auto object : object_list)
                 {
-                    SceneNode* sn = object.node;
+                    SceneNode *sn = object.node;
                     if (sn != nullptr)
                     {
-                        String pos = StringUtil::format("%8.3f, %8.3f, %8.3f"   , object.position.x, object.position.y, object.position.z);
-                        String rot = StringUtil::format("% 6.1f, % 6.1f, % 6.1f", object.rotation.x, object.rotation.y, object.rotation.z);
+                        String pos =
+                            StringUtil::format("%8.3f, %8.3f, %8.3f", object.position.x, object.position.y, object.position.z);
+                        String rot =
+                            StringUtil::format("% 6.1f, % 6.1f, % 6.1f", object.rotation.x, object.rotation.y, object.rotation.z);
 
                         file << pos + ", " + rot + ", " + object.name + "\n";
                     }
@@ -615,7 +511,7 @@ void SimController::UpdateInputEvents(float dt)
         }
     }
 
-    //OLD m_loading_state == ALL_LOADED
+    // OLD m_loading_state == ALL_LOADED
     if (simEDITOR(s) && object_list.size() > 0)
     {
         bool update = false;
@@ -626,40 +522,37 @@ void SimController::UpdateInputEvents(float dt)
         }
         if (m_terrain_editor_mouse_ray.getDirection() != Vector3::ZERO)
         {
-            float min_dist = std::numeric_limits<float>::max();
-            Vector3 origin = m_terrain_editor_mouse_ray.getOrigin();
+            float   min_dist  = std::numeric_limits<float>::max();
+            Vector3 origin    = m_terrain_editor_mouse_ray.getOrigin();
             Vector3 direction = m_terrain_editor_mouse_ray.getDirection();
             for (int i = 0; i < (int)object_list.size(); i++)
             {
                 Real ray_object_distance = direction.crossProduct(object_list[i].node->getPosition() - origin).length();
                 if (ray_object_distance < min_dist)
                 {
-                    min_dist = ray_object_distance;
-                    update = (object_index != i);
+                    min_dist     = ray_object_distance;
+                    update       = (object_index != i);
                     object_index = i;
                 }
             }
             m_terrain_editor_mouse_ray.setDirection(Vector3::ZERO);
         }
-        if (object_index != -1)
-        {
-            last_object_name = object_list[object_index].name;
-        }
+        if (object_index != -1) { last_object_name = object_list[object_index].name; }
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_OR_EXIT_TRUCK))
         {
             if (object_index == -1)
             {
                 // Select nearest object
-                Vector3 ref_pos = this->AreControlsLocked() ? gEnv->mainCamera->getPosition() : gEnv->player->getPosition();
-                float min_dist = std::numeric_limits<float>::max();
+                Vector3 ref_pos  = this->AreControlsLocked() ? gEnv->mainCamera->getPosition() : gEnv->player->getPosition();
+                float   min_dist = std::numeric_limits<float>::max();
                 for (int i = 0; i < (int)object_list.size(); i++)
                 {
                     float dist = ref_pos.squaredDistance(object_list[i].node->getPosition());
                     if (dist < min_dist)
                     {
                         object_index = i;
-                        min_dist = dist;
-                        update = true;
+                        min_dist     = dist;
+                        update       = true;
                     }
                 }
             }
@@ -668,119 +561,113 @@ void SimController::UpdateInputEvents(float dt)
                 object_index = -1;
             }
         }
-        else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK) &&
-                !last_object_name.empty())
+        else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK) && !last_object_name.empty())
         {
             Vector3 pos = gEnv->player->getPosition();
 
             try
             {
-                SceneNode* bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(last_object_name, pos, Vector3::ZERO, bakeNode, "Console", "");
+                SceneNode *bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+                App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(last_object_name, pos, Vector3::ZERO, bakeNode,
+                                                                            "Console", "");
 
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, _L("Spawned object at position: ") + String("x: ") + TOSTRING(pos.x) + String("z: ") + TOSTRING(pos.z), "world.png");
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY,
+                                                   _L("Spawned object at position: ") + String("x: ") + TOSTRING(pos.x) +
+                                                       String("z: ") + TOSTRING(pos.z),
+                                                   "world.png");
             }
-            catch (std::exception& e)
+            catch (std::exception &e)
             {
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, e.what(), "error.png");
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, e.what(),
+                                                   "error.png");
             }
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
         {
             object_index = (object_index + 1 + (int)object_list.size()) % object_list.size();
-            update = true;
+            update       = true;
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
         {
             object_index = (object_index - 1 + (int)object_list.size()) % object_list.size();
-            update = true;
+            update       = true;
         }
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK))
         {
             UTFString axis = _L("ry");
             if (terrain_editing_rotation_axis == 0)
             {
-                axis = _L("ry");
+                axis                          = _L("ry");
                 terrain_editing_rotation_axis = 1;
             }
             else if (terrain_editing_rotation_axis == 1)
             {
-                axis = _L("rz");
+                axis                          = _L("rz");
                 terrain_editing_rotation_axis = 2;
             }
             else if (terrain_editing_rotation_axis == 2)
             {
-                axis = _L("rx");
+                axis                          = _L("rx");
                 terrain_editing_rotation_axis = 0;
             }
             UTFString ssmsg = _L("Rotating: ") + axis;
-            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg,
+                                               "infromation.png", 2000, false);
             RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
         }
         if (RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
         {
             terrain_editing_track_object = !terrain_editing_track_object;
             UTFString ssmsg = terrain_editing_track_object ? _L("Enabled object tracking") : _L("Disabled object tracking");
-            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg,
+                                               "infromation.png", 2000, false);
             RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
         }
         if (object_index != -1 && update)
         {
-            String ssmsg = _L("Selected object: [") + TOSTRING(object_index) + "/" + TOSTRING(object_list.size()) + "] (" + object_list[object_index].name + ")";
-            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+            String ssmsg = _L("Selected object: [") + TOSTRING(object_index) + "/" + TOSTRING(object_list.size()) + "] (" +
+                           object_list[object_index].name + ")";
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg,
+                                               "infromation.png", 2000, false);
             RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
-            if (terrain_editing_track_object)
-            {
-                gEnv->player->setPosition(object_list[object_index].node->getPosition());
-            }
+            if (terrain_editing_track_object) { gEnv->player->setPosition(object_list[object_index].node->getPosition()); }
         }
         if (object_index != -1 && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_TRUCK))
         {
-            SceneNode* sn = object_list[object_index].node;
+            SceneNode *sn = object_list[object_index].node;
 
             object_list[object_index].position = object_list[object_index].initial_position;
             sn->setPosition(object_list[object_index].position);
 
             object_list[object_index].rotation = object_list[object_index].initial_rotation;
-            Vector3 rot = object_list[object_index].rotation;
-            sn->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
+            Vector3 rot                        = object_list[object_index].rotation;
+            sn->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) *
+                               Quaternion(Degree(rot.z), Vector3::UNIT_Z));
             sn->pitch(Degree(-90));
         }
         if (object_index != -1 && !this->AreControlsLocked())
         {
-            SceneNode* sn = object_list[object_index].node;
+            SceneNode *sn = object_list[object_index].node;
 
             Vector3 translation = Vector3::ZERO;
-            float rotation = 0.0f;
+            float   rotation    = 0.0f;
 
-            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STEER_LEFT))
-            {
-                rotation += 2.0f;
-            }
+            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STEER_LEFT)) { rotation += 2.0f; }
             else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STEER_RIGHT))
             {
                 rotation -= 2.0f;
             }
-            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_ACCELERATE))
-            {
-                translation.y += 0.5f;
-            }
+            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_ACCELERATE)) { translation.y += 0.5f; }
             else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_BRAKE))
             {
                 translation.y -= 0.5f;
             }
-            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_FORWARD))
-            {
-                translation.x += 0.5f;
-            }
+            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_FORWARD)) { translation.x += 0.5f; }
             else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_BACKWARDS))
             {
                 translation.x -= 0.5f;
             }
-            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_RIGHT))
-            {
-                translation.z += 0.5f;
-            }
+            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_RIGHT)) { translation.z += 0.5f; }
             else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_LEFT))
             {
                 translation.z -= 0.5f;
@@ -797,13 +684,11 @@ void SimController::UpdateInputEvents(float dt)
 
                 object_list[object_index].rotation[terrain_editing_rotation_axis] += rotation * scale * dt;
                 Vector3 rot = object_list[object_index].rotation;
-                sn->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
+                sn->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) *
+                                   Quaternion(Degree(rot.z), Vector3::UNIT_Z));
                 sn->pitch(Degree(-90));
 
-                if (terrain_editing_track_object)
-                {
-                    gEnv->player->setPosition(sn->getPosition());
-                }
+                if (terrain_editing_track_object) { gEnv->player->setPosition(sn->getPosition()); }
             }
             else if (terrain_editing_track_object && gEnv->player->getPosition() != sn->getPosition())
             {
@@ -811,9 +696,7 @@ void SimController::UpdateInputEvents(float dt)
                 sn->setPosition(gEnv->player->getPosition());
             }
             if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK))
-            {
-                App::GetSimTerrain()->getObjectManager()->unloadObject(object_list[object_index].instance_name);
-            }
+            { App::GetSimTerrain()->getObjectManager()->unloadObject(object_list[object_index].instance_name); }
         }
         else
         {
@@ -844,9 +727,7 @@ void SimController::UpdateInputEvents(float dt)
                         RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Enabled hard reset mode"));
                 }
                 if (!RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
-                {
-                    m_advanced_vehicle_repair_timer = 0.0f;
-                }
+                { m_advanced_vehicle_repair_timer = 0.0f; }
                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) && !m_player_actor->ar_replay_mode)
                 {
                     ActorModifyRequest rq;
@@ -854,32 +735,27 @@ void SimController::UpdateInputEvents(float dt)
                     rq.amr_type  = ActorModifyRequest::Type::RESET_ON_INIT_POS;
                     this->QueueActorModify(rq);
                 }
-                else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK) && !m_player_actor->ar_replay_mode)
+                else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK) &&
+                         !m_player_actor->ar_replay_mode)
                 {
                     this->QueueActorRemove(m_player_actor);
                 }
-                else if ((RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_vehicle_repair) && !m_player_actor->ar_replay_mode)
+                else if ((RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_vehicle_repair) &&
+                         !m_player_actor->ar_replay_mode)
                 {
                     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
-                    {
-                        m_advanced_vehicle_repair = m_advanced_vehicle_repair_timer > 1.0f;
-                    }
+                    { m_advanced_vehicle_repair = m_advanced_vehicle_repair_timer > 1.0f; }
 
                     Vector3 translation = Vector3::ZERO;
-                    float rotation = 0.0f;
+                    float   rotation    = 0.0f;
 
                     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_ACCELERATE))
-                    {
-                        translation += 2.0f * Vector3::UNIT_Y * dt;
-                    }
+                    { translation += 2.0f * Vector3::UNIT_Y * dt; }
                     else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_BRAKE))
                     {
                         translation -= 2.0f * Vector3::UNIT_Y * dt;
                     }
-                    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STEER_LEFT))
-                    {
-                        rotation += 0.5f * dt;
-                    }
+                    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STEER_LEFT)) { rotation += 0.5f * dt; }
                     else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STEER_RIGHT))
                     {
                         rotation -= 0.5f * dt;
@@ -958,14 +834,14 @@ void SimController::UpdateInputEvents(float dt)
                         {
                             ActorModifyRequest rq;
                             rq.amr_actor = actor;
-                            rq.amr_type = reset_type;
+                            rq.amr_type  = reset_type;
                             this->QueueActorModify(rq);
                         }
                     }
 
                     ActorModifyRequest rq;
                     rq.amr_actor = m_player_actor;
-                    rq.amr_type = reset_type;
+                    rq.amr_type  = reset_type;
                     this->QueueActorModify(rq);
                 }
                 else
@@ -985,11 +861,13 @@ void SimController::UpdateInputEvents(float dt)
                         m_player_actor->ar_forward_commands = !m_player_actor->ar_forward_commands;
                         if (m_player_actor->ar_forward_commands)
                         {
-                            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("forwardcommands enabled"), "information.png", 3000);
+                            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                               _L("forwardcommands enabled"), "information.png", 3000);
                         }
                         else
                         {
-                            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("forwardcommands disabled"), "information.png", 3000);
+                            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                               _L("forwardcommands disabled"), "information.png", 3000);
                         }
                     }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_IMPORTCOMMANDS))
@@ -997,70 +875,57 @@ void SimController::UpdateInputEvents(float dt)
                         m_player_actor->ar_import_commands = !m_player_actor->ar_import_commands;
                         if (m_player_actor->ar_import_commands)
                         {
-                            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("importcommands enabled"), "information.png", 3000);
+                            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                               _L("importcommands enabled"), "information.png", 3000);
                         }
                         else
                         {
-                            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("importcommands disabled"), "information.png", 3000);
+                            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                               _L("importcommands disabled"), "information.png", 3000);
                         }
                     }
                     // replay mode
                     if (m_player_actor->ar_replay_mode)
                     {
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.1f) && m_player_actor->ar_replay_pos <= 0)
-                        {
-                            m_player_actor->ar_replay_pos++;
-                        }
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_BACKWARD, 0.1f) && m_player_actor->ar_replay_pos > -m_player_actor->ar_replay_length)
-                        {
-                            m_player_actor->ar_replay_pos--;
-                        }
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_FORWARD, 0.1f) && m_player_actor->ar_replay_pos + 10 <= 0)
-                        {
-                            m_player_actor->ar_replay_pos += 10;
-                        }
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_BACKWARD, 0.1f) && m_player_actor->ar_replay_pos - 10 > -m_player_actor->ar_replay_length)
-                        {
-                            m_player_actor->ar_replay_pos -= 10;
-                        }
+                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.1f) &&
+                            m_player_actor->ar_replay_pos <= 0)
+                        { m_player_actor->ar_replay_pos++; }
+                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_BACKWARD, 0.1f) &&
+                            m_player_actor->ar_replay_pos > -m_player_actor->ar_replay_length)
+                        { m_player_actor->ar_replay_pos--; }
+                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_FORWARD, 0.1f) &&
+                            m_player_actor->ar_replay_pos + 10 <= 0)
+                        { m_player_actor->ar_replay_pos += 10; }
+                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_BACKWARD, 0.1f) &&
+                            m_player_actor->ar_replay_pos - 10 > -m_player_actor->ar_replay_length)
+                        { m_player_actor->ar_replay_pos -= 10; }
 
                         if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
                         {
-                            if (m_player_actor->ar_replay_pos <= 0 && m_player_actor->ar_replay_pos >= -m_player_actor->ar_replay_length)
+                            if (m_player_actor->ar_replay_pos <= 0 &&
+                                m_player_actor->ar_replay_pos >= -m_player_actor->ar_replay_length)
                             {
-                                if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
-                                {
-                                    m_player_actor->ar_replay_pos += RoR::App::GetInputEngine()->getMouseState().X.rel * 1.5f;
-                                }
+                                if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) ||
+                                    RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
+                                { m_player_actor->ar_replay_pos += RoR::App::GetInputEngine()->getMouseState().X.rel * 1.5f; }
                                 else
                                 {
                                     m_player_actor->ar_replay_pos += RoR::App::GetInputEngine()->getMouseState().X.rel * 0.05f;
                                 }
-                                if (m_player_actor->ar_replay_pos > 0)
-                                {
-                                    m_player_actor->ar_replay_pos = 0;
-                                }
+                                if (m_player_actor->ar_replay_pos > 0) { m_player_actor->ar_replay_pos = 0; }
                                 if (m_player_actor->ar_replay_pos < -m_player_actor->ar_replay_length)
-                                {
-                                    m_player_actor->ar_replay_pos = -m_player_actor->ar_replay_length;
-                                }
+                                { m_player_actor->ar_replay_pos = -m_player_actor->ar_replay_length; }
                             }
                         }
                     }
 
-                    if (m_player_actor->ar_driveable == TRUCK)
-                    {
-                        LandVehicleSimulation::UpdateInputEvents(m_player_actor, dt);
-                    }
-                    if (m_player_actor->ar_driveable == AIRPLANE)
-                    {
-                        AircraftSimulation::UpdateInputEvents(m_player_actor, dt);
-                    }
+                    if (m_player_actor->ar_driveable == TRUCK) { LandVehicleSimulation::UpdateInputEvents(m_player_actor, dt); }
+                    if (m_player_actor->ar_driveable == AIRPLANE) { AircraftSimulation::UpdateInputEvents(m_player_actor, dt); }
                     if (m_player_actor->ar_driveable == BOAT)
                     {
-                        //BOAT SPECIFICS
+                        // BOAT SPECIFICS
 
-                        //throttle
+                        // throttle
                         if (RoR::App::GetInputEngine()->isEventDefined(EV_BOAT_THROTTLE_AXIS))
                         {
                             float f = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_THROTTLE_AXIS);
@@ -1071,33 +936,38 @@ void SimController::UpdateInputEvents(float dt)
                         }
                         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_THROTTLE_DOWN, 0.1f))
                         {
-                            //throttle down
+                            // throttle down
                             for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
-                                m_player_actor->ar_screwprops[i]->setThrottle(m_player_actor->ar_screwprops[i]->getThrottle() - 0.05);
+                                m_player_actor->ar_screwprops[i]->setThrottle(m_player_actor->ar_screwprops[i]->getThrottle() -
+                                                                              0.05);
                         }
                         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_THROTTLE_UP, 0.1f))
                         {
-                            //throttle up
+                            // throttle up
                             for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
-                                m_player_actor->ar_screwprops[i]->setThrottle(m_player_actor->ar_screwprops[i]->getThrottle() + 0.05);
+                                m_player_actor->ar_screwprops[i]->setThrottle(m_player_actor->ar_screwprops[i]->getThrottle() +
+                                                                              0.05);
                         }
 
                         // steer
-                        float tmp_steer_left = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_LEFT);
+                        float tmp_steer_left  = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_LEFT);
                         float tmp_steer_right = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_RIGHT);
-                        float stime = RoR::App::GetInputEngine()->getEventBounceTime(EV_BOAT_STEER_LEFT) + RoR::App::GetInputEngine()->getEventBounceTime(EV_BOAT_STEER_RIGHT);
+                        float stime           = RoR::App::GetInputEngine()->getEventBounceTime(EV_BOAT_STEER_LEFT) +
+                                      RoR::App::GetInputEngine()->getEventBounceTime(EV_BOAT_STEER_RIGHT);
                         float sum_steer = (tmp_steer_left - tmp_steer_right) * dt;
                         // do not center the rudder!
                         if (fabs(sum_steer) > 0 && stime <= 0)
                         {
                             for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
-                                m_player_actor->ar_screwprops[i]->setRudder(m_player_actor->ar_screwprops[i]->getRudder() + sum_steer);
+                                m_player_actor->ar_screwprops[i]->setRudder(m_player_actor->ar_screwprops[i]->getRudder() +
+                                                                            sum_steer);
                         }
-                        if (RoR::App::GetInputEngine()->isEventDefined(EV_BOAT_STEER_LEFT_AXIS) && RoR::App::GetInputEngine()->isEventDefined(EV_BOAT_STEER_RIGHT_AXIS))
+                        if (RoR::App::GetInputEngine()->isEventDefined(EV_BOAT_STEER_LEFT_AXIS) &&
+                            RoR::App::GetInputEngine()->isEventDefined(EV_BOAT_STEER_RIGHT_AXIS))
                         {
-                            tmp_steer_left = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_LEFT_AXIS);
+                            tmp_steer_left  = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_LEFT_AXIS);
                             tmp_steer_right = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_RIGHT_AXIS);
-                            sum_steer = (tmp_steer_left - tmp_steer_right);
+                            sum_steer       = (tmp_steer_left - tmp_steer_right);
                             for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
                                 m_player_actor->ar_screwprops[i]->setRudder(sum_steer);
                         }
@@ -1113,46 +983,36 @@ void SimController::UpdateInputEvents(float dt)
                                 m_player_actor->ar_screwprops[i]->toggleReverse();
                         }
                     }
-                    //COMMON KEYS
+                    // COMMON KEYS
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_REMOVE))
-                    {
-                        this->QueueActorRemove(m_player_actor);
-                    }
+                    { this->QueueActorRemove(m_player_actor); }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ROPELOCK))
-                    {
-                        m_player_actor->ar_toggle_ropes = true;
-                    }
+                    { m_player_actor->ar_toggle_ropes = true; }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_LOCK))
                     {
                         m_player_actor->ToggleHooks(-1, HOOK_TOGGLE, -1);
-                        //SlideNodeLock
+                        // SlideNodeLock
                         m_player_actor->ToggleSlideNodeLock();
                     }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_AUTOLOCK))
                     {
-                        //unlock all autolocks
+                        // unlock all autolocks
                         m_player_actor->ToggleHooks(-2, HOOK_UNLOCK, -1);
                     }
-                    //strap
+                    // strap
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SECURE_LOAD))
-                    {
-                        m_player_actor->ar_toggle_ties = true;
-                    }
+                    { m_player_actor->ar_toggle_ties = true; }
 
-                    //replay mode
+                    // replay mode
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_REPLAY_MODE))
                     {
                         if (m_player_actor->getReplay() != nullptr)
-                        {
-                            m_player_actor->setReplayMode(!m_player_actor->ar_replay_mode);
-                        }
+                        { m_player_actor->setReplayMode(!m_player_actor->ar_replay_mode); }
                     }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_CUSTOM_PARTICLES))
-                    {
-                        m_player_actor->ToggleCustomParticles();
-                    }
+                    { m_player_actor->ToggleCustomParticles(); }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DEBUG_VIEW))
                     {
@@ -1173,24 +1033,19 @@ void SimController::UpdateInputEvents(float dt)
                     }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LIGHTS))
-                    {
-                        m_player_actor->ToggleLights();
-                    }
+                    { m_player_actor->ToggleLights(); }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_BEACONS))
-                    {
-                        m_player_actor->ToggleBeacons();
-                    }
+                    { m_player_actor->ToggleBeacons(); }
 
-                    //camera mode
+                    // camera mode
                     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_LESS))
                     {
                         float change = m_player_actor->GetTyrePressure() * (1.0f - pow(2.0f, dt / 2.0f));
-                        change = Math::Clamp(change, -dt * 10.0f, -dt * 1.0f);
+                        change       = Math::Clamp(change, -dt * 10.0f, -dt * 1.0f);
                         if (m_pressure_pressed = m_player_actor->AddTyrePressure(change))
                         {
-                            if (RoR::App::GetOverlayWrapper())
-                                RoR::App::GetOverlayWrapper()->showPressureOverlay(true);
+                            if (RoR::App::GetOverlayWrapper()) RoR::App::GetOverlayWrapper()->showPressureOverlay(true);
 
                             SOUND_START(m_player_actor, SS_TRIG_AIR);
                         }
@@ -1198,11 +1053,10 @@ void SimController::UpdateInputEvents(float dt)
                     else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_MORE))
                     {
                         float change = m_player_actor->GetTyrePressure() * (pow(2.0f, dt / 2.0f) - 1.0f);
-                        change = Math::Clamp(change, +dt * 1.0f, +dt * 10.0f);
+                        change       = Math::Clamp(change, +dt * 1.0f, +dt * 10.0f);
                         if (m_pressure_pressed = m_player_actor->AddTyrePressure(change))
                         {
-                            if (RoR::App::GetOverlayWrapper())
-                                RoR::App::GetOverlayWrapper()->showPressureOverlay(true);
+                            if (RoR::App::GetOverlayWrapper()) RoR::App::GetOverlayWrapper()->showPressureOverlay(true);
 
                             SOUND_START(m_player_actor, SS_TRIG_AIR);
                         }
@@ -1210,7 +1064,7 @@ void SimController::UpdateInputEvents(float dt)
                     else if (m_pressure_pressed)
                     {
                         SOUND_STOP(m_player_actor, SS_TRIG_AIR);
-                        m_pressure_pressed = false;
+                        m_pressure_pressed       = false;
                         m_pressure_pressed_timer = 1.5f;
                     }
                     else if (m_pressure_pressed_timer > 0.0f)
@@ -1219,16 +1073,17 @@ void SimController::UpdateInputEvents(float dt)
                     }
                     else
                     {
-                        if (RoR::App::GetOverlayWrapper())
-                            RoR::App::GetOverlayWrapper()->showPressureOverlay(false);
+                        if (RoR::App::GetOverlayWrapper()) RoR::App::GetOverlayWrapper()->showPressureOverlay(false);
                     }
 
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) && !mp_connected && m_player_actor->ar_driveable != AIRPLANE)
+                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) && !mp_connected &&
+                        m_player_actor->ar_driveable != AIRPLANE)
                     {
-                        Actor* rescuer = m_actor_manager.FetchRescueVehicle();
+                        Actor *rescuer = m_actor_manager.FetchRescueVehicle();
                         if (rescuer == nullptr)
                         {
-                            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("No rescue truck found!"), "warning.png");
+                            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                               _L("No rescue truck found!"), "warning.png");
                             RoR::App::GetGuiManager()->PushNotification("Notice:", _L("No rescue truck found!"));
                         }
                         else
@@ -1248,9 +1103,7 @@ void SimController::UpdateInputEvents(float dt)
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_VIDEOCAMERA, 0.5f))
                     {
                         if (m_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_DISABLED)
-                        {
-                            m_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE);
-                        }
+                        { m_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE); }
                         else
                         {
                             m_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_DISABLED);
@@ -1292,12 +1145,11 @@ void SimController::UpdateInputEvents(float dt)
                 if (this->GetPlayerActor() == nullptr)
                 {
                     // find the nearest vehicle
-                    float mindist = 1000.0;
-                    Actor* nearest_actor = nullptr;
+                    float  mindist       = 1000.0;
+                    Actor *nearest_actor = nullptr;
                     for (auto actor : GetActors())
                     {
-                        if (!actor->ar_driveable)
-                            continue;
+                        if (!actor->ar_driveable) continue;
                         if (actor->ar_cinecam_node[0] == -1)
                         {
                             LOG("cinecam missing, cannot enter the actor!");
@@ -1306,21 +1158,19 @@ void SimController::UpdateInputEvents(float dt)
                         float len = 0.0f;
                         if (gEnv->player)
                         {
-                            len = actor->ar_nodes[actor->ar_cinecam_node[0]].AbsPosition.distance(gEnv->player->getPosition() + Vector3(0.0, 2.0, 0.0));
+                            len = actor->ar_nodes[actor->ar_cinecam_node[0]].AbsPosition.distance(gEnv->player->getPosition() +
+                                                                                                  Vector3(0.0, 2.0, 0.0));
                         }
                         if (len < mindist)
                         {
-                            mindist = len;
+                            mindist       = len;
                             nearest_actor = actor;
                         }
                     }
-                    if (mindist < 20.0)
-                    {
-                        this->SetPendingPlayerActor(nearest_actor);
-                    }
+                    if (mindist < 20.0) { this->SetPendingPlayerActor(nearest_actor); }
                 }
                 else if (m_player_actor->ar_nodes[0].Velocity.squaredLength() < 1.0f ||
-                        m_player_actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
+                         m_player_actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
                 {
                     this->SetPendingPlayerActor(nullptr);
                 }
@@ -1332,29 +1182,23 @@ void SimController::UpdateInputEvents(float dt)
             }
             else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
             {
-                Actor* actor = m_actor_manager.FetchNextVehicleOnList(m_player_actor, m_prev_player_actor);
-                if (actor != m_player_actor)
-                {
-                    this->SetPendingPlayerActor(actor);
-                }
+                Actor *actor = m_actor_manager.FetchNextVehicleOnList(m_player_actor, m_prev_player_actor);
+                if (actor != m_player_actor) { this->SetPendingPlayerActor(actor); }
             }
             else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
             {
-                Actor* actor = m_actor_manager.FetchPreviousVehicleOnList(m_player_actor, m_prev_player_actor);
-                if (actor != m_player_actor)
-                {
-                    this->SetPendingPlayerActor(actor);
-                }
+                Actor *actor = m_actor_manager.FetchPreviousVehicleOnList(m_player_actor, m_prev_player_actor);
+                if (actor != m_player_actor) { this->SetPendingPlayerActor(actor); }
             }
             else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK, 0.25f))
             {
                 if (m_last_cache_selection != nullptr)
                 {
                     ActorSpawnRequest rq;
-                    rq.asr_cache_entry     = m_last_cache_selection;
-                    rq.asr_config          = m_last_section_config;
-                    rq.asr_skin_entry            = m_last_skin_selection;
-                    rq.asr_origin          = ActorSpawnRequest::Origin::USER;
+                    rq.asr_cache_entry = m_last_cache_selection;
+                    rq.asr_config      = m_last_section_config;
+                    rq.asr_skin_entry  = m_last_skin_selection;
+                    rq.asr_origin      = ActorSpawnRequest::Origin::USER;
                     m_actor_spawn_queue.push_back(rq);
                 }
             }
@@ -1362,16 +1206,13 @@ void SimController::UpdateInputEvents(float dt)
 
 #ifdef USE_CAELUM
 
-        const bool caelum_enabled = App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM;
-        SkyManager* sky_mgr = App::GetSimTerrain()->getSkyManager();
+        const bool  caelum_enabled = App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM;
+        SkyManager *sky_mgr        = App::GetSimTerrain()->getSkyManager();
         if (caelum_enabled && (sky_mgr != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
         {
             Real time_factor = 1.0f;
 
-            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
-            {
-                time_factor = 1000.0f;
-            }
+            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME)) { time_factor = 1000.0f; }
             else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST))
             {
                 time_factor = 10000.0f;
@@ -1389,22 +1230,20 @@ void SimController::UpdateInputEvents(float dt)
             {
                 sky_mgr->SetSkyTimeFactor(time_factor);
                 RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Time set to ") + sky_mgr->GetPrettyTime());
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + sky_mgr->GetPrettyTime(), "weather_sun.png", 1000);
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                   _L("Time set to ") + sky_mgr->GetPrettyTime(), "weather_sun.png", 1000);
             }
         }
 
 #endif // USE_CAELUM
 
-
-        const bool skyx_enabled = App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX;
-        SkyXManager* skyx_mgr = App::GetSimTerrain()->getSkyXManager();
+        const bool   skyx_enabled = App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX;
+        SkyXManager *skyx_mgr     = App::GetSimTerrain()->getSkyXManager();
         if (skyx_enabled && (skyx_mgr != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
         {
 
             if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
-            {
-                skyx_mgr->GetSkyX()->setTimeMultiplier(1.0f);
-            }
+            { skyx_mgr->GetSkyX()->setTimeMultiplier(1.0f); }
             else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST))
             {
                 skyx_mgr->GetSkyX()->setTimeMultiplier(2.0f);
@@ -1429,29 +1268,21 @@ void SimController::UpdateInputEvents(float dt)
             mSceneDetailIndex = (mSceneDetailIndex + 1) % 3;
             switch (mSceneDetailIndex)
             {
-            case 0:
-                gEnv->mainCamera->setPolygonMode(PM_SOLID);
-                break;
-            case 1:
-                gEnv->mainCamera->setPolygonMode(PM_WIREFRAME);
-                break;
-            case 2:
-                gEnv->mainCamera->setPolygonMode(PM_POINTS);
-                break;
+            case 0: gEnv->mainCamera->setPolygonMode(PM_SOLID); break;
+            case 1: gEnv->mainCamera->setPolygonMode(PM_WIREFRAME); break;
+            case 2: gEnv->mainCamera->setPolygonMode(PM_POINTS); break;
             }
         }
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_INFO) && m_player_actor)
     {
-        m_actor_info_gui_visible = ! m_actor_info_gui_visible;
+        m_actor_info_gui_visible = !m_actor_info_gui_visible;
         gui_man->GetSimUtils()->SetActorInfoBoxVisible(m_actor_info_gui_visible);
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_DESCRIPTION) && m_player_actor)
-    {
-        gui_man->SetVisible_VehicleDescription(! gui_man->IsVisible_VehicleDescription());
-    }
+    { gui_man->SetVisible_VehicleDescription(!gui_man->IsVisible_VehicleDescription()); }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_HIDE_GUI))
     {
@@ -1461,16 +1292,12 @@ void SimController::UpdateInputEvents(float dt)
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DASHBOARD))
     {
-        if (RoR::App::GetOverlayWrapper())
-        {
-            RoR::App::GetOverlayWrapper()->ToggleDashboardOverlays(m_player_actor);
-        }
+        if (RoR::App::GetOverlayWrapper()) { RoR::App::GetOverlayWrapper()->ToggleDashboardOverlays(m_player_actor); }
     }
 
-    if ((simRUNNING(s) || simPAUSED(s) || simEDITOR(s)) && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
-    {
-        gui_man->GetSimUtils()->SetFPSBoxVisible(! gui_man->GetSimUtils()->IsFPSBoxVisible());
-    }
+    if ((simRUNNING(s) || simPAUSED(s) || simEDITOR(s)) &&
+        RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
+    { gui_man->GetSimUtils()->SetFPSBoxVisible(!gui_man->GetSimUtils()->IsFPSBoxVisible()); }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_MAT_DEBUG))
     {
@@ -1480,14 +1307,13 @@ void SimController::UpdateInputEvents(float dt)
             m_stats_on = 2;
         else if (m_stats_on == 2)
             m_stats_on = 0;
-        if (RoR::App::GetOverlayWrapper())
-            RoR::App::GetOverlayWrapper()->showDebugOverlay(m_stats_on);
+        if (RoR::App::GetOverlayWrapper()) RoR::App::GetOverlayWrapper()->showDebugOverlay(m_stats_on);
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_OUTPUT_POSITION))
     {
         Vector3 position(Vector3::ZERO);
-        Radian rotation(0);
+        Radian  rotation(0);
         if (m_player_actor == nullptr)
         {
             position = gEnv->player->getPosition();
@@ -1498,15 +1324,12 @@ void SimController::UpdateInputEvents(float dt)
             position = m_player_actor->getPosition();
             rotation = m_player_actor->getRotation();
         }
-        String pos = StringUtil::format("%8.3f, %8.3f, %8.3f"   , position.x, position.y, position.z);
-        String rot = StringUtil::format("% 6.1f, % 6.1f, % 6.1f",       0.0f, rotation.valueDegrees()  ,       0.0f);
+        String pos = StringUtil::format("%8.3f, %8.3f, %8.3f", position.x, position.y, position.z);
+        String rot = StringUtil::format("% 6.1f, % 6.1f, % 6.1f", 0.0f, rotation.valueDegrees(), 0.0f);
         LOG("Position: " + pos + ", " + rot);
     }
 
-    if (m_time_until_next_toggle >= 0)
-    {
-        m_time_until_next_toggle -= dt;
-    }
+    if (m_time_until_next_toggle >= 0) { m_time_until_next_toggle -= dt; }
 }
 
 void SimController::TeleportPlayerXZ(float x, float z)
@@ -1525,14 +1348,14 @@ void SimController::TeleportPlayerXZ(float x, float z)
     auto actors = m_player_actor->GetAllLinkedActors();
     actors.push_back(m_player_actor);
 
-    float src_agl = std::numeric_limits<float>::max(); 
-    float dst_agl = std::numeric_limits<float>::max(); 
+    float src_agl = std::numeric_limits<float>::max();
+    float dst_agl = std::numeric_limits<float>::max();
     for (auto actor : actors)
     {
         for (int i = 0; i < actor->ar_num_nodes; i++)
         {
             Vector3 pos = actor->ar_nodes[i].AbsPosition;
-            src_agl = std::min(pos.y - gEnv->collisions->getSurfaceHeight(pos.x, pos.z), src_agl);
+            src_agl     = std::min(pos.y - gEnv->collisions->getSurfaceHeight(pos.x, pos.z), src_agl);
             pos += translation;
             dst_agl = std::min(pos.y - gEnv->collisions->getSurfaceHeight(pos.x, pos.z), dst_agl);
         }
@@ -1561,14 +1384,14 @@ void SimController::UpdateSimulation(float dt)
             m_character_factory.handleStreamData(packets); // Update characters last (or else beam coupling might fail)
         }
     }
-#endif //SOCKETW
+#endif // SOCKETW
 
     // ACTOR CHANGE REQUESTS - Handle early (so that other logic can reflect it)
     //   1. Removal requests - Done first; respective entries in 'modify' queue are erased.
     //   2. Modify requests - currently just reload, will be extended
     //   3. Spawn requests - may outdate others by changing player seating
     //   4. Player seating change requests - TODO; currently done ad-hoc
-    for (Actor* actor: m_actor_remove_queue)
+    for (Actor *actor : m_actor_remove_queue)
     {
         if (actor == m_player_actor)
         {
@@ -1577,10 +1400,7 @@ void SimController::UpdateSimulation(float dt)
             gEnv->player->setPosition(center);
         }
 
-        if (actor == m_prev_player_actor)
-        {
-            m_prev_player_actor = nullptr;
-        }
+        if (actor == m_prev_player_actor) { m_prev_player_actor = nullptr; }
 
         if (actor == m_pending_player_actor)
         {
@@ -1588,37 +1408,30 @@ void SimController::UpdateSimulation(float dt)
         }
 
         // Remove modify-requests for this actor
-        m_actor_modify_queue.erase(
-            std::remove_if(
-                m_actor_modify_queue.begin(), m_actor_modify_queue.end(),
-                [actor](ActorModifyRequest& rq) -> bool { return rq.amr_actor == actor; }),
-            m_actor_modify_queue.end());
+        m_actor_modify_queue.erase(std::remove_if(m_actor_modify_queue.begin(), m_actor_modify_queue.end(),
+                                                  [actor](ActorModifyRequest &rq) -> bool { return rq.amr_actor == actor; }),
+                                   m_actor_modify_queue.end());
 
         this->RemoveActorDirectly(actor);
     }
     m_actor_remove_queue.clear();
 
-    for (ActorModifyRequest& rq: m_actor_modify_queue)
+    for (ActorModifyRequest &rq : m_actor_modify_queue)
     {
-        if (rq.amr_type == ActorModifyRequest::Type::SOFT_RESET)
-        {
-            rq.amr_actor->SoftReset();
-        }
+        if (rq.amr_type == ActorModifyRequest::Type::SOFT_RESET) { rq.amr_actor->SoftReset(); }
         if ((rq.amr_type == ActorModifyRequest::Type::RESET_ON_SPOT) ||
             (rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS))
-        {
-            rq.amr_actor->SyncReset(rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS);
-        }
+        { rq.amr_actor->SyncReset(rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS); }
         if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
         {
             if (m_player_actor == rq.amr_actor) // Check if the request is up-to-date
             {
-                String filename = m_player_actor->ar_filename;
-                auto reload_pos = m_player_actor->getPosition();
-                auto reload_dir = Quaternion(Degree(270) - Radian(m_player_actor->getRotation()), Vector3::UNIT_Y);
-                auto debug_view = m_player_actor->GetGfxActor()->GetDebugView();
-                auto asr_config = m_player_actor->GetSectionConfig();
-                auto used_skin  = m_player_actor->GetUsedSkin();
+                String filename   = m_player_actor->ar_filename;
+                auto   reload_pos = m_player_actor->getPosition();
+                auto   reload_dir = Quaternion(Degree(270) - Radian(m_player_actor->getRotation()), Vector3::UNIT_Y);
+                auto   debug_view = m_player_actor->GetGfxActor()->GetDebugView();
+                auto   asr_config = m_player_actor->GetSectionConfig();
+                auto   used_skin  = m_player_actor->GetUsedSkin();
 
                 reload_pos.y = m_player_actor->GetMinHeight();
 
@@ -1628,12 +1441,12 @@ void SimController::UpdateSimulation(float dt)
                 App::GetCacheSystem()->UnloadActorFromMemory(filename); // Force reload from filesystem
 
                 ActorSpawnRequest srq;
-                srq.asr_position = reload_pos;
-                srq.asr_rotation = reload_dir;
-                srq.asr_config   = asr_config;
+                srq.asr_position   = reload_pos;
+                srq.asr_rotation   = reload_dir;
+                srq.asr_config     = asr_config;
                 srq.asr_skin_entry = used_skin;
-                srq.asr_filename = filename;
-                Actor* new_actor = this->SpawnActorDirectly(srq); // try to load the same actor again
+                srq.asr_filename   = filename;
+                Actor *new_actor   = this->SpawnActorDirectly(srq); // try to load the same actor again
                 if (new_actor)
                 {
                     this->SetPendingPlayerActor(new_actor);
@@ -1644,7 +1457,7 @@ void SimController::UpdateSimulation(float dt)
     }
     m_actor_modify_queue.clear();
 
-    for (ActorSpawnRequest& rq: m_actor_spawn_queue)
+    for (ActorSpawnRequest &rq : m_actor_spawn_queue)
     {
         if (rq.asr_origin == ActorSpawnRequest::Origin::USER)
         {
@@ -1656,9 +1469,9 @@ void SimController::UpdateSimulation(float dt)
             {
                 if (m_player_actor != nullptr)
                 {
-                    float h = m_player_actor->GetMaxHeight(true);
-                    rq.asr_rotation = Quaternion(Degree(270) - Radian(m_player_actor->getRotation()), Vector3::UNIT_Y);
-                    rq.asr_position = m_player_actor->GetRotationCenter();
+                    float h           = m_player_actor->GetMaxHeight(true);
+                    rq.asr_rotation   = Quaternion(Degree(270) - Radian(m_player_actor->getRotation()), Vector3::UNIT_Y);
+                    rq.asr_position   = m_player_actor->GetRotationCenter();
                     rq.asr_position.y = gEnv->collisions->getSurfaceHeightBelow(rq.asr_position.x, rq.asr_position.z, h);
                     rq.asr_position.y += m_player_actor->GetHeightAboveGroundBelow(h, true); // retain height above ground
                 }
@@ -1669,13 +1482,10 @@ void SimController::UpdateSimulation(float dt)
                 }
             }
 
-            Actor* fresh_actor = this->SpawnActorDirectly(rq);
+            Actor *fresh_actor = this->SpawnActorDirectly(rq);
             if (fresh_actor != nullptr)
             {
-                if (fresh_actor->ar_driveable != NOT_DRIVEABLE)
-                {
-                    this->SetPendingPlayerActor(fresh_actor);
-                }
+                if (fresh_actor->ar_driveable != NOT_DRIVEABLE) { this->SetPendingPlayerActor(fresh_actor); }
                 if (rq.asr_spawnbox == nullptr)
                 {
                     // Try to resolve collisions with other actors
@@ -1685,26 +1495,20 @@ void SimController::UpdateSimulation(float dt)
         }
         else if (rq.asr_origin == ActorSpawnRequest::Origin::CONFIG_FILE)
         {
-            Actor* fresh_actor = this->SpawnActorDirectly(rq);
+            Actor *fresh_actor = this->SpawnActorDirectly(rq);
             if (fresh_actor != nullptr)
             {
-                if (fresh_actor->ar_driveable != NOT_DRIVEABLE &&
-                    fresh_actor->ar_num_nodes > 0 &&
+                if (fresh_actor->ar_driveable != NOT_DRIVEABLE && fresh_actor->ar_num_nodes > 0 &&
                     App::diag_preset_veh_enter.GetActive())
-                {
-                    this->SetPendingPlayerActor(fresh_actor);
-                }
+                { this->SetPendingPlayerActor(fresh_actor); }
             }
         }
         else if (rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF)
         {
-            Actor* fresh_actor = this->SpawnActorDirectly(rq);
+            Actor *fresh_actor = this->SpawnActorDirectly(rq);
             if (fresh_actor != nullptr)
             {
-                if (rq.asr_terrn_machine)
-                {
-                    fresh_actor->ar_driveable = MACHINE;
-                }
+                if (rq.asr_terrn_machine) { fresh_actor->ar_driveable = MACHINE; }
 
                 String type = SurveyMapManager::getTypeByDriveable(fresh_actor->ar_driveable);
                 App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(type);
@@ -1712,22 +1516,16 @@ void SimController::UpdateSimulation(float dt)
         }
         else
         {
-            Actor* fresh_actor = this->SpawnActorDirectly(rq);
+            Actor *fresh_actor = this->SpawnActorDirectly(rq);
 
             if (fresh_actor && fresh_actor->ar_driveable != NOT_DRIVEABLE &&
-                rq.asr_origin != ActorSpawnRequest::Origin::NETWORK &&
-                rq.asr_origin != ActorSpawnRequest::Origin::SAVEGAME)
-            {
-                this->SetPendingPlayerActor(fresh_actor);
-            }
+                rq.asr_origin != ActorSpawnRequest::Origin::NETWORK && rq.asr_origin != ActorSpawnRequest::Origin::SAVEGAME)
+            { this->SetPendingPlayerActor(fresh_actor); }
         }
     }
     m_actor_spawn_queue.clear();
 
-    if (App::sim_load_savegame.GetActive())
-    {
-        m_actor_manager.LoadScene(App::sim_savegame.GetActive());
-    }
+    if (App::sim_load_savegame.GetActive()) { m_actor_manager.LoadScene(App::sim_savegame.GetActive()); }
 
     if (m_pending_player_actor != m_player_actor)
     {
@@ -1738,10 +1536,7 @@ void SimController::UpdateSimulation(float dt)
     RoR::App::GetInputEngine()->Capture();
     auto s = App::sim_state.GetActive();
 
-    if (OutProtocol::getSingletonPtr())
-    {
-        OutProtocol::getSingleton().Update(dt, m_player_actor);
-    }
+    if (OutProtocol::getSingletonPtr()) { OutProtocol::getSingleton().Update(dt, m_player_actor); }
 
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
@@ -1750,9 +1545,10 @@ void SimController::UpdateSimulation(float dt)
         // Update mumble (3d audio)
 #ifdef USE_MUMBLE
         // calculate orientation of avatar first
-        Ogre::Vector3 avatarDir = Ogre::Vector3(Math::Cos(gEnv->player->getRotation()), 0.0f, Math::Sin(gEnv->player->getRotation()));
+        Ogre::Vector3 avatarDir =
+            Ogre::Vector3(Math::Cos(gEnv->player->getRotation()), 0.0f, Math::Sin(gEnv->player->getRotation()));
         App::GetMumble()->update(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(),
-        gEnv->player->getPosition() + Vector3(0, 1.8f, 0), avatarDir, Ogre::Vector3(0.0f, 1.0f, 0.0f));
+                                 gEnv->player->getPosition() + Vector3(0, 1.8f, 0), avatarDir, Ogre::Vector3(0.0f, 1.0f, 0.0f));
 #endif // USE_MUMBLE
     }
 
@@ -1762,10 +1558,11 @@ void SimController::UpdateSimulation(float dt)
 #ifdef USE_OPENAL
         // update audio listener position
         static Vector3 lastCameraPosition;
-        Vector3 cameraSpeed = (gEnv->mainCamera->getPosition() - lastCameraPosition) / dt;
-        lastCameraPosition = gEnv->mainCamera->getPosition();
+        Vector3        cameraSpeed = (gEnv->mainCamera->getPosition() - lastCameraPosition) / dt;
+        lastCameraPosition         = gEnv->mainCamera->getPosition();
 
-        SoundScriptManager::getSingleton().setCamera(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(), cameraSpeed);
+        SoundScriptManager::getSingleton().setCamera(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(),
+                                                     gEnv->mainCamera->getUp(), cameraSpeed);
 #endif // USE_OPENAL
     }
 
@@ -1803,31 +1600,34 @@ void SimController::UpdateSimulation(float dt)
 
         if (!simPAUSED(s) || (App::mp_state.GetActive() == MpState::CONNECTED))
         {
-            m_actor_manager.UpdateActors(m_player_actor, m_physics_simulation_time); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
+            m_actor_manager.UpdateActors(
+                m_player_actor,
+                m_physics_simulation_time); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
         }
     }
 }
 
-void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
+void SimController::ShowLoaderGUI(int type, const Ogre::String &instance, const Ogre::String &box)
 {
     // first, test if the place if clear, BUT NOT IN MULTIPLAYER
     if (!(App::mp_state.GetActive() == MpState::CONNECTED))
     {
-        collision_box_t* spawnbox = gEnv->collisions->getBox(instance, box);
+        collision_box_t *spawnbox = gEnv->collisions->getBox(instance, box);
         for (auto actor : GetActors())
         {
             for (int i = 0; i < actor->ar_num_nodes; i++)
             {
                 if (gEnv->collisions->isInside(actor->ar_nodes[i].AbsPosition, spawnbox))
                 {
-                    RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
+                    RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                       _L("Please clear the place first"), "error.png");
                     RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Please clear the place first"));
                     return;
                 }
             }
         }
     }
-    
+
     App::sim_state.SetActive(SimState::SELECTING); // TODO: use 'pending' mechanism
 
     ActorSpawnRequest rq;
@@ -1837,10 +1637,9 @@ void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const 
     App::GetGuiManager()->GetMainSelector()->Show(LoaderType(type), rq);
 }
 
-void SimController::UpdateDirectionArrow(char* text, Vector3 position)
+void SimController::UpdateDirectionArrow(char *text, Vector3 position)
 {
-    if (RoR::App::GetOverlayWrapper() == nullptr)
-        return;
+    if (RoR::App::GetOverlayWrapper() == nullptr) return;
 
     if (text == nullptr)
     {
@@ -1855,53 +1654,48 @@ void SimController::UpdateDirectionArrow(char* text, Vector3 position)
 }
 
 /* --- Window Events ------------------------------------------ */
-void SimController::windowResized(Ogre::RenderWindow* rw)
+void SimController::windowResized(Ogre::RenderWindow *rw)
 {
-    if (!rw)
-        return;
+    if (!rw) return;
     LOG("[RoR] Received 'window resized' notification");
 
-    if (RoR::App::GetOverlayWrapper())
-        RoR::App::GetOverlayWrapper()->windowResized();
+    if (RoR::App::GetOverlayWrapper()) RoR::App::GetOverlayWrapper()->windowResized();
 
-    m_gfx_scene.GetSurveyMap()->windowResized(); // TODO: we shouldn't update GfxScene-owned objects from simulation, we should queue the update ~ only_a_ptr, 05/2018
+    m_gfx_scene.GetSurveyMap()->windowResized(); // TODO: we shouldn't update GfxScene-owned objects from simulation, we should
+                                                 // queue the update ~ only_a_ptr, 05/2018
 
-    //update mouse area
+    // update mouse area
     RoR::App::GetInputEngine()->windowResized(rw);
 
     m_actor_manager.NotifyActorsWindowResized();
 }
 
-void SimController::windowFocusChange(Ogre::RenderWindow* rw)
+void SimController::windowFocusChange(Ogre::RenderWindow *rw)
 {
     RoR::App::GetInputEngine()->resetKeys();
 }
 
 void SimController::HideGUI(bool hidden)
 {
-    if (m_player_actor && m_player_actor->getReplay())
-        m_player_actor->getReplay()->setHidden(hidden);
+    if (m_player_actor && m_player_actor->getReplay()) m_player_actor->getReplay()->setHidden(hidden);
 
 #ifdef USE_SOCKETW
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
-        App::GetGuiManager()->SetVisible_MpClientList(!hidden);
+    if (App::mp_state.GetActive() == MpState::CONNECTED) App::GetGuiManager()->SetVisible_MpClientList(!hidden);
 #endif // USE_SOCKETW
 
-    if (RoR::App::GetOverlayWrapper())
-        RoR::App::GetOverlayWrapper()->showDashboardOverlays(!hidden, m_player_actor);
+    if (RoR::App::GetOverlayWrapper()) RoR::App::GetOverlayWrapper()->showDashboardOverlays(!hidden, m_player_actor);
 
-    m_gfx_scene.GetSurveyMap()->hideGUI(hidden); // TODO: we shouldn't update GfxScene-owned objects from simulation, but this whole HideGUI() function will likely end up being invoked by GfxActor in the future, so it's OK for now ~ only_a_ptr, 05/2018
+    m_gfx_scene.GetSurveyMap()->hideGUI(
+        hidden); // TODO: we shouldn't update GfxScene-owned objects from simulation, but this whole HideGUI() function will
+                 // likely end up being invoked by GfxActor in the future, so it's OK for now ~ only_a_ptr, 05/2018
 
     App::GetGuiManager()->hideGUI(hidden);
 }
 
-void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
+void SimController::RemoveActorByCollisionBox(std::string const &ev_src_instance_name, std::string const &box_name)
 {
-    Actor* actor = m_actor_manager.FindActorInsideBox(gEnv->collisions, ev_src_instance_name, box_name);
-    if (actor != nullptr)
-    {
-        this->QueueActorRemove(actor);
-    }
+    Actor *actor = m_actor_manager.FindActorInsideBox(gEnv->collisions, ev_src_instance_name, box_name);
+    if (actor != nullptr) { this->QueueActorRemove(actor); }
 }
 
 bool SimController::LoadTerrain()
@@ -1924,10 +1718,10 @@ bool SimController::LoadTerrain()
     if (App::GetSimTerrain() != nullptr)
     {
         // remove old terrain
-        delete(App::GetSimTerrain()); // TODO: do it when leaving simulation.
+        delete (App::GetSimTerrain()); // TODO: do it when leaving simulation.
     }
 
-    TerrainManager* terrain = new TerrainManager();
+    TerrainManager *terrain = new TerrainManager();
     App::SetSimTerrain(terrain); // The terrain preparation logic relies on it.
     if (!terrain->LoadAndPrepareTerrain(terrain_file))
     {
@@ -1944,14 +1738,11 @@ bool SimController::LoadTerrain()
     if (gEnv->player != nullptr)
     {
         Vector3 spawn_pos = App::GetSimTerrain()->getSpawnPos();
-        Real spawn_rot = 0.0f;
+        Real    spawn_rot = 0.0f;
 
         // Classic behavior, retained for compatibility.
         // Required for maps like N-Labs or F1 Track.
-        if (!App::GetSimTerrain()->HasPredefinedActors())
-        {
-            spawn_rot = 180.0f;
-        }
+        if (!App::GetSimTerrain()->HasPredefinedActors()) { spawn_rot = 180.0f; }
 
         if (!App::diag_preset_spawn_pos.IsActiveEmpty())
         {
@@ -1981,11 +1772,8 @@ bool SimController::LoadTerrain()
     // hide loading window
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
     // hide wallpaper
-    MyGUI::Window* w = MyGUI::Gui::getInstance().findWidget<MyGUI::Window>("wallpaper");
-    if (w != nullptr)
-    {
-        w->setVisibleSmooth(false);
-    }
+    MyGUI::Window *w = MyGUI::Gui::getInstance().findWidget<MyGUI::Window>("wallpaper");
+    if (w != nullptr) { w->setVisibleSmooth(false); }
     return true;
 }
 
@@ -1995,7 +1783,7 @@ void SimController::CleanupAfterSimulation()
 
     App::DestroyOverlayWrapper();
 
-    //Unload all vehicules
+    // Unload all vehicules
     m_actor_manager.CleanUpAllActors();
 
     delete gEnv->player;
@@ -2005,7 +1793,7 @@ void SimController::CleanupAfterSimulation()
     if (App::GetSimTerrain() != nullptr)
     {
         // remove old terrain
-        delete(App::GetSimTerrain());
+        delete (App::GetSimTerrain());
         App::SetSimTerrain(nullptr);
     }
 
@@ -2025,20 +1813,21 @@ bool SimController::SetupGameplayLoop()
     // Setup
     // ============================================================================
 
-    int colourNum = -1;
+    int             colourNum  = -1;
     Ogre::UTFString playerName = "";
 
 #ifdef USE_SOCKETW
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
-        wchar_t tmp[255] = L"";
-        UTFString format = _L("Press %ls to start chatting");
-        swprintf(tmp, 255, format.asWStr_c_str(), ANSI_TO_WCHAR(RoR::App::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE)).c_str());
+        wchar_t   tmp[255] = L"";
+        UTFString format   = _L("Press %ls to start chatting");
+        swprintf(tmp, 255, format.asWStr_c_str(),
+                 ANSI_TO_WCHAR(RoR::App::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE)).c_str());
         App::GetGuiManager()->pushMessageChatBox(UTFString(tmp));
 
         RoRnet::UserInfo info = RoR::Networking::GetLocalUserData();
-        colourNum = info.colournum;
-        playerName = tryConvertUTF(info.username);
+        colourNum             = info.colournum;
+        playerName            = tryConvertUTF(info.username);
     }
 #endif // USE_SOCKETW
 
@@ -2051,22 +1840,18 @@ bool SimController::SetupGameplayLoop()
     // Loading map
     // ============================================================================
 
-    if (!App::diag_preset_terrain.IsActiveEmpty())
-    {
-        App::sim_terrain_name.SetPending(App::diag_preset_terrain.GetActive());
-    }
+    if (!App::diag_preset_terrain.IsActiveEmpty()) { App::sim_terrain_name.SetPending(App::diag_preset_terrain.GetActive()); }
 
     // Terrain name lookup
     if (!App::sim_terrain_name.IsPendingEmpty())
     {
-        size_t length = std::numeric_limits<size_t>::max();
-        const CacheEntry* lookup = nullptr;
-        String name = App::sim_terrain_name.GetPending();
+        size_t            length = std::numeric_limits<size_t>::max();
+        const CacheEntry *lookup = nullptr;
+        String            name   = App::sim_terrain_name.GetPending();
         StringUtil::toLowerCase(name);
-        for (const auto& entry : App::GetCacheSystem()->GetEntries())
+        for (const auto &entry : App::GetCacheSystem()->GetEntries())
         {
-            if (entry.fext != "terrn2")
-                continue; 
+            if (entry.fext != "terrn2") continue;
             String fname = entry.fname;
             StringUtil::toLowerCase(fname);
             if (fname.find(name) != std::string::npos)
@@ -2083,10 +1868,7 @@ bool SimController::SetupGameplayLoop()
                 }
             }
         }
-        if (lookup != nullptr)
-        {
-            App::sim_terrain_name.SetPending(lookup->fname.c_str());
-        }
+        if (lookup != nullptr) { App::sim_terrain_name.SetPending(lookup->fname.c_str()); }
     }
 
     if (App::sim_load_savegame.GetActive())
@@ -2097,14 +1879,11 @@ bool SimController::SetupGameplayLoop()
             App::sim_savegame.SetActive(filename.c_str());
         }
         m_actor_manager.LoadScene(App::sim_savegame.GetActive());
-    } else if (App::sim_terrain_name.IsPendingEmpty())
+    }
+    else if (App::sim_terrain_name.IsPendingEmpty())
     {
-        CacheEntry* selected_map = RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
-        if (selected_map != nullptr)
-        {
-            App::sim_terrain_name.SetPending(selected_map->fname.c_str());
-        }
-
+        CacheEntry *selected_map = RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
+        if (selected_map != nullptr) { App::sim_terrain_name.SetPending(selected_map->fname.c_str()); }
     }
     if (App::sim_terrain_name.IsPendingEmpty())
     {
@@ -2115,7 +1894,7 @@ bool SimController::SetupGameplayLoop()
 
     App::diag_preset_terrain.SetActive("");
 
-    if (! this->LoadTerrain())
+    if (!this->LoadTerrain())
     {
         LOG("Could not load map. Returning to menu.");
         App::GetMainMenu()->LeaveMultiplayerServer();
@@ -2130,17 +1909,16 @@ bool SimController::SetupGameplayLoop()
     if (!App::diag_preset_vehicle.IsActiveEmpty())
     {
         // Vehicle name lookup
-        size_t length = std::numeric_limits<size_t>::max();
-        const CacheEntry* lookup = nullptr;
-        String name = App::diag_preset_vehicle.GetPending();
+        size_t            length = std::numeric_limits<size_t>::max();
+        const CacheEntry *lookup = nullptr;
+        String            name   = App::diag_preset_vehicle.GetPending();
         StringUtil::toLowerCase(name);
-        for (const auto& entry : App::GetCacheSystem()->GetEntries())
+        for (const auto &entry : App::GetCacheSystem()->GetEntries())
         {
-            if (entry.fext == "terrn2")
-                continue;
+            if (entry.fext == "terrn2") continue;
             String fname = entry.fname;
             StringUtil::toLowerCase(fname);
-            if (fname.find(name) != std::string::npos) 
+            if (fname.find(name) != std::string::npos)
             {
                 if (fname == name)
                 {
@@ -2162,24 +1940,20 @@ bool SimController::SetupGameplayLoop()
             {
                 auto cfgs = lookup->sectionconfigs;
                 if (std::find(cfgs.begin(), cfgs.end(), App::diag_preset_veh_config.GetActive()) == cfgs.end())
-                {
-                    App::diag_preset_veh_config.SetActive(cfgs[0].c_str());
-                }
+                { App::diag_preset_veh_config.SetActive(cfgs[0].c_str()); }
             }
         }
 
         RoR::LogFormat("[RoR|Diag] Preselected Truck: %s", App::diag_preset_vehicle.GetActive());
         if (!App::diag_preset_veh_config.IsActiveEmpty())
-        {
-            RoR::LogFormat("[RoR|Diag] Preselected Truck Config: %s", App::diag_preset_veh_config.GetActive());
-        }
+        { RoR::LogFormat("[RoR|Diag] Preselected Truck Config: %s", App::diag_preset_veh_config.GetActive()); }
 
         ActorSpawnRequest rq;
-        rq.asr_filename   = App::diag_preset_vehicle.GetActive();
-        rq.asr_config     = App::diag_preset_veh_config.GetActive();
-        rq.asr_position   = gEnv->player->getPosition();
-        rq.asr_rotation   = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
-        rq.asr_origin     = ActorSpawnRequest::Origin::CONFIG_FILE;
+        rq.asr_filename = App::diag_preset_vehicle.GetActive();
+        rq.asr_config   = App::diag_preset_veh_config.GetActive();
+        rq.asr_position = gEnv->player->getPosition();
+        rq.asr_rotation = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
+        rq.asr_origin   = ActorSpawnRequest::Origin::CONFIG_FILE;
         this->QueueActorSpawn(rq);
     }
 
@@ -2187,18 +1961,12 @@ bool SimController::SetupGameplayLoop()
     // Extra setup
     // ========================================================================
 
-    if (App::io_outgauge_mode.GetActive() > 0)
-    {
-        m_out_protocol = std::unique_ptr<OutProtocol>(new OutProtocol());
-    }
+    if (App::io_outgauge_mode.GetActive() > 0) { m_out_protocol = std::unique_ptr<OutProtocol>(new OutProtocol()); }
 
     App::CreateOverlayWrapper();
     App::GetOverlayWrapper()->SetupDirectionArrow();
 
-    if (App::audio_menu_music.GetActive())
-    {
-        SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
-    }
+    if (App::audio_menu_music.GetActive()) { SOUND_KILL(-1, SS_TRIG_MAIN_MENU); }
 
     m_scene_mouse.InitializeVisuals(); // TODO: Move to GfxScene ~ only_a_ptr, 06/2018
 
@@ -2213,7 +1981,7 @@ void SimController::EnterGameplayLoop()
 {
     OgreBites::WindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
 
-    Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
+    Ogre::RenderWindow *rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
 
     auto start_time = std::chrono::high_resolution_clock::now();
 
@@ -2230,16 +1998,16 @@ void SimController::EnterGameplayLoop()
         if (App::gfx_fps_limit.GetActive() > 0)
         {
             const float min_frame_time = 1.0f / Ogre::Math::Clamp(App::gfx_fps_limit.GetActive(), 5, 240);
-            float dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
+            float       dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
             while (dt < min_frame_time)
             {
                 dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
             }
         }
 
-        const auto now = std::chrono::high_resolution_clock::now();
+        const auto  now    = std::chrono::high_resolution_clock::now();
         const float dt_sec = std::chrono::duration<float>(now - start_time).count();
-        start_time = now;
+        start_time         = now;
 
         // Check simulation state change
         if (App::sim_state.GetPending() != App::sim_state.GetActive())
@@ -2271,24 +2039,19 @@ void SimController::EnterGameplayLoop()
             if (RoR::App::sim_state.GetActive() != RoR::SimState::PAUSED)
             {
                 m_gfx_scene.UpdateScene(dt_sec);
-                if (!m_physics_simulation_paused)
-                {
-                    m_time += dt_sec;
-                }
+                if (!m_physics_simulation_paused) { m_time += dt_sec; }
             }
         }
 
-        // TODO: Ugly! Currently it seems drawing DearIMGUI only works when invoked from `Ogre::FrameListener::frameRenderingQueued`.
+        // TODO: Ugly! Currently it seems drawing DearIMGUI only works when invoked from
+        // `Ogre::FrameListener::frameRenderingQueued`.
         //       We only want GUI on screen, not other targets (reflections etc...), so we can't have it attached permanently.
         //       Research and find a more elegant solution.  ~ only_a_ptr, 07/2018
         RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&App::GetGuiManager()->GetImGui());
         RoR::App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
         RoR::App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(&App::GetGuiManager()->GetImGui());
 
-        if (m_stats_on && RoR::App::GetOverlayWrapper())
-        {
-            RoR::App::GetOverlayWrapper()->updateStats();
-        }
+        if (m_stats_on && RoR::App::GetOverlayWrapper()) { RoR::App::GetOverlayWrapper()->updateStats(); }
 
 #ifdef USE_SOCKETW
         if ((App::mp_state.GetActive() == MpState::CONNECTED))
@@ -2300,14 +2063,13 @@ void SimController::EnterGameplayLoop()
                 {
                 case Networking::NetEvent::Type::SERVER_KICK:
                     App::app_state.SetPending(AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
-                    App::GetGuiManager()->ShowMessageBox(
-                        _LC("Network", "Multiplayer: disconnected"), events.front().message.c_str());
+                    App::GetGuiManager()->ShowMessageBox(_LC("Network", "Multiplayer: disconnected"),
+                                                         events.front().message.c_str());
                     break;
 
                 case Networking::NetEvent::Type::RECV_ERROR:
                     App::app_state.SetPending(AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
-                    App::GetGuiManager()->ShowMessageBox(
-                        _L("Network fatal error: "), events.front().message.c_str());
+                    App::GetGuiManager()->ShowMessageBox(_L("Network fatal error: "), events.front().message.c_str());
                     break;
 
                 default:;
@@ -2332,29 +2094,20 @@ void SimController::EnterGameplayLoop()
     OgreBites::WindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
 }
 
-void SimController::ChangePlayerActor(Actor* actor)
+void SimController::ChangePlayerActor(Actor *actor)
 {
-    Actor* prev_player_actor = m_player_actor;
-    m_player_actor = actor;
-    m_pending_player_actor = actor; // Stays equal to 'player actor' until new change is queued
+    Actor *prev_player_actor = m_player_actor;
+    m_player_actor           = actor;
+    m_pending_player_actor   = actor; // Stays equal to 'player actor' until new change is queued
 
     // hide any old dashes
-    if (prev_player_actor && prev_player_actor->ar_dashboard)
-    {
-        prev_player_actor->ar_dashboard->setVisible3d(false);
-    }
+    if (prev_player_actor && prev_player_actor->ar_dashboard) { prev_player_actor->ar_dashboard->setVisible3d(false); }
     // show new
-    if (m_player_actor && m_player_actor->ar_dashboard)
-    {
-        m_player_actor->ar_dashboard->setVisible3d(true);
-    }
+    if (m_player_actor && m_player_actor->ar_dashboard) { m_player_actor->ar_dashboard->setVisible3d(true); }
 
     if (prev_player_actor)
     {
-        if (RoR::App::GetOverlayWrapper())
-        {
-            RoR::App::GetOverlayWrapper()->showDashboardOverlays(false, prev_player_actor);
-        }
+        if (RoR::App::GetOverlayWrapper()) { RoR::App::GetOverlayWrapper()->showDashboardOverlays(false, prev_player_actor); }
 
         prev_player_actor->GetGfxActor()->SetRenderdashActive(false);
 
@@ -2369,24 +2122,22 @@ void SimController::ChangePlayerActor(Actor* actor)
         if (prev_player_actor)
         {
             if (prev_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE)
-            {
-                prev_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE);
-            }
+            { prev_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE); }
 
             prev_player_actor->prepareInside(false);
 
             // get player out of the vehicle
-            float h = prev_player_actor->getMinCameraRadius();
-            float rotation = prev_player_actor->getRotation() - Math::HALF_PI;
+            float   h        = prev_player_actor->getMinCameraRadius();
+            float   rotation = prev_player_actor->getRotation() - Math::HALF_PI;
             Vector3 position = prev_player_actor->getPosition();
             if (prev_player_actor->ar_cinecam_node[0] != -1)
             {
                 // actor has a cinecam (find optimal exit position)
-                Vector3 l = position - 2.0f * prev_player_actor->GetCameraRoll();
-                Vector3 r = position + 2.0f * prev_player_actor->GetCameraRoll();
-                float l_h = gEnv->collisions->getSurfaceHeightBelow(l.x, l.z, l.y + h);
-                float r_h = gEnv->collisions->getSurfaceHeightBelow(r.x, r.z, r.y + h);
-                position  = std::abs(r.y - r_h) * 1.2f < std::abs(l.y - l_h) ? r : l;
+                Vector3 l   = position - 2.0f * prev_player_actor->GetCameraRoll();
+                Vector3 r   = position + 2.0f * prev_player_actor->GetCameraRoll();
+                float   l_h = gEnv->collisions->getSurfaceHeightBelow(l.x, l.z, l.y + h);
+                float   r_h = gEnv->collisions->getSurfaceHeightBelow(r.x, r.z, r.y + h);
+                position    = std::abs(r.y - r_h) * 1.2f < std::abs(l.y - l_h) ? r : l;
             }
             position.y = gEnv->collisions->getSurfaceHeightBelow(position.x, position.z, position.y + h);
 
@@ -2400,31 +2151,24 @@ void SimController::ChangePlayerActor(Actor* actor)
 
         m_force_feedback->SetEnabled(false);
 
-        TRIGGER_EVENT(SE_TRUCK_EXIT, prev_player_actor?prev_player_actor->ar_instance_id:-1);
+        TRIGGER_EVENT(SE_TRUCK_EXIT, prev_player_actor ? prev_player_actor->ar_instance_id : -1);
     }
     else
     {
         // getting inside
         if (RoR::App::GetOverlayWrapper() != nullptr)
-        {
-            RoR::App::GetOverlayWrapper()->showDashboardOverlays(!m_hide_gui, m_player_actor);
-        }
+        { RoR::App::GetOverlayWrapper()->showDashboardOverlays(!m_hide_gui, m_player_actor); }
 
         if (m_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE)
-        {
-            m_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE);
-        }
+        { m_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE); }
 
         m_player_actor->GetGfxActor()->SetRenderdashActive(true);
 
         // force feedback
-        m_force_feedback->SetEnabled(m_player_actor->ar_driveable == TRUCK); //only for trucks so far
+        m_force_feedback->SetEnabled(m_player_actor->ar_driveable == TRUCK); // only for trucks so far
 
         // attach player to vehicle
-        if (gEnv->player)
-        {
-            gEnv->player->SetActorCoupling(true, m_player_actor);
-        }
+        if (gEnv->player) { gEnv->player->SetActorCoupling(true, m_player_actor); }
 
         if (RoR::App::GetOverlayWrapper())
         {
@@ -2432,19 +2176,22 @@ void SimController::ChangePlayerActor(Actor* actor)
             {
                 if (!m_player_actor->ar_help_panel_material.empty())
                 {
-                    OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName(m_player_actor->ar_help_panel_material);
+                    OverlayManager::getSingleton()
+                        .getOverlayElement("tracks/machinehelppanel")
+                        ->setMaterialName(m_player_actor->ar_help_panel_material);
                 }
                 else
                 {
                     OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName("tracks/black");
                 }
             }
-            catch (Ogre::Exception& ex)
+            catch (Ogre::Exception &ex)
             {
                 // Report the error
                 std::stringstream msg;
                 msg << "Error, help panel material (defined in 'help' or 'guisettings/helpMaterial') could not be loaded.\n"
-                    "Exception occured, file:" << __FILE__ << ", line:" << __LINE__ << ", message:" << ex.what();
+                       "Exception occured, file:"
+                    << __FILE__ << ", line:" << __LINE__ << ", message:" << ex.what();
                 LOG(msg.str());
 
                 // Do not retry
@@ -2452,13 +2199,11 @@ void SimController::ChangePlayerActor(Actor* actor)
             }
         }
 
-        TRIGGER_EVENT(SE_TRUCK_ENTER, m_player_actor?m_player_actor->ar_instance_id:-1);
+        TRIGGER_EVENT(SE_TRUCK_ENTER, m_player_actor ? m_player_actor->ar_instance_id : -1);
     }
 
     if (prev_player_actor != nullptr || m_player_actor != nullptr)
-    {
-        m_camera_manager.NotifyVehicleChanged(prev_player_actor, m_player_actor);
-    }
+    { m_camera_manager.NotifyVehicleChanged(prev_player_actor, m_player_actor); }
 
     m_actor_manager.UpdateSleepingState(m_player_actor, 0.f);
 }
@@ -2466,8 +2211,7 @@ void SimController::ChangePlayerActor(Actor* actor)
 bool SimController::AreControlsLocked() const
 {
     // TODO: remove camera manager from gEnv, see == SimCam == comment in CameraManager.cpp ~ only_a_ptr
-    return (m_camera_manager.IsCameraReady()
-          && m_camera_manager.gameControlsLocked());
+    return (m_camera_manager.IsCameraReady() && m_camera_manager.gameControlsLocked());
 }
 
 void SimController::ResetCamera()
@@ -2483,15 +2227,12 @@ void SimController::ResetCamera()
 
 CameraManager::CameraBehaviors SimController::GetCameraBehavior()
 {
-    if (m_camera_manager.IsCameraReady())
-    {
-        return m_camera_manager.GetCurrentBehavior();
-    }
+    if (m_camera_manager.IsCameraReady()) { return m_camera_manager.GetCurrentBehavior(); }
     return CameraManager::CAMERA_BEHAVIOR_INVALID;
 }
 
 // Temporary interface until camera controls are refactored; see == SimCam == ~ only_a_ptr, 06/2018
-bool SimController::CameraManagerMouseMoved(const OIS::MouseEvent& _arg)
+bool SimController::CameraManagerMouseMoved(const OIS::MouseEvent &_arg)
 {
     if (!m_camera_manager.IsCameraReady())
     {
@@ -2501,12 +2242,9 @@ bool SimController::CameraManagerMouseMoved(const OIS::MouseEvent& _arg)
 }
 
 // Temporary interface until camera controls are refactored; see == SimCam == ~ only_a_ptr, 06/2018
-void SimController::CameraManagerMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+void SimController::CameraManagerMousePressed(const OIS::MouseEvent &_arg, OIS::MouseButtonID _id)
 {
-    if (m_camera_manager.IsCameraReady())
-    {
-        m_camera_manager.mousePressed(_arg, _id);
-    }
+    if (m_camera_manager.IsCameraReady()) { m_camera_manager.mousePressed(_arg, _id); }
 }
 
 void SimController::SetTerrainEditorMouseRay(Ray ray)
@@ -2514,17 +2252,14 @@ void SimController::SetTerrainEditorMouseRay(Ray ray)
     m_terrain_editor_mouse_ray = ray;
 }
 
-Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
+Actor *SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
 {
     LOG(" ===== LOADING VEHICLE: " + rq.asr_filename);
 
-    if (rq.asr_cache_entry != nullptr)
-    {
-        rq.asr_filename = rq.asr_cache_entry->fname;
-    }
+    if (rq.asr_cache_entry != nullptr) { rq.asr_filename = rq.asr_cache_entry->fname; }
 
-    std::shared_ptr<RigDef::File> def = m_actor_manager.FetchActorDef(
-        rq.asr_filename, rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF);
+    std::shared_ptr<RigDef::File> def =
+        m_actor_manager.FetchActorDef(rq.asr_filename, rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF);
     if (def == nullptr)
     {
         return nullptr; // Error already reported
@@ -2545,34 +2280,27 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
         if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
         {
             RoRnet::UserInfo info = RoR::Networking::GetLocalUserData();
-            rq.asr_net_username = tryConvertUTF(info.username);
-            rq.asr_net_color    = info.colournum;
+            rq.asr_net_username   = tryConvertUTF(info.username);
+            rq.asr_net_color      = info.colournum;
         }
     }
-#endif //SOCKETW
+#endif // SOCKETW
 
-    Actor* actor = m_actor_manager.CreateActorInstance(rq, def);
+    Actor *actor = m_actor_manager.CreateActorInstance(rq, def);
 
     // lock slide nodes after spawning the actor?
-    if (def->slide_nodes_connect_instantly)
-    {
-        actor->ToggleSlideNodeLock();
-    }
+    if (def->slide_nodes_connect_instantly) { actor->ToggleSlideNodeLock(); }
 
     return actor;
 }
 
-void SimController::RemoveActorDirectly(Actor* actor)
+void SimController::RemoveActorDirectly(Actor *actor)
 {
     m_gfx_scene.RemoveGfxActor(actor->GetGfxActor());
 
 #ifdef USE_SOCKETW
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
-    {
-        m_character_factory.UndoRemoteActorCoupling(actor);
-    }
-#endif //SOCKETW
+    if (App::mp_state.GetActive() == MpState::CONNECTED) { m_character_factory.UndoRemoteActorCoupling(actor); }
+#endif // SOCKETW
 
     m_actor_manager.DeleteActorInternal(actor);
 }
-

@@ -30,55 +30,54 @@
 
 #include <OgreMaterial.h>
 
-namespace RoR {
-
-class OgreSubsystem : public ZeroedMemoryAllocator
+namespace RoR
 {
-public:
 
-    OgreSubsystem();
-    ~OgreSubsystem();
-
-    bool StartOgre(Ogre::String const & hwnd, Ogre::String const & mainhwnd);
-
-    void WindowResized(Ogre::Vector2 const & size);
-
-    Ogre::String GetMainHWND() 
-    { 
-        return m_main_hwnd; 
-    }
-
-    Ogre::Root* GetOgreRoot()
+    class OgreSubsystem : public ZeroedMemoryAllocator
     {
-        return m_ogre_root;
-    }
+      public:
+        OgreSubsystem();
+        ~OgreSubsystem();
 
-    Ogre::RenderWindow* GetRenderWindow()
-    {
-        return m_render_window;
-    }
+        bool StartOgre(Ogre::String const &hwnd, Ogre::String const &mainhwnd);
 
-    Ogre::Viewport* GetViewport()
-    {
-        return m_viewport;
-    }
+        void WindowResized(Ogre::Vector2 const &size);
 
-    void SetViewport(Ogre::Viewport* viewport)
-    {
-        m_viewport = viewport;
-    }
+        Ogre::String GetMainHWND()
+        {
+            return m_main_hwnd;
+        }
 
-private:
+        Ogre::Root *GetOgreRoot()
+        {
+            return m_ogre_root;
+        }
 
-    Ogre::String        m_hwnd;
-    Ogre::String        m_main_hwnd;
+        Ogre::RenderWindow *GetRenderWindow()
+        {
+            return m_render_window;
+        }
 
-    Ogre::Root*         m_ogre_root;
-    Ogre::RenderWindow* m_render_window;
-    Ogre::Viewport*     m_viewport;
+        Ogre::Viewport *GetViewport()
+        {
+            return m_viewport;
+        }
 
-    bool Configure();
-    bool LoadOgrePlugins(Ogre::String const & pluginsfile);
-};
+        void SetViewport(Ogre::Viewport *viewport)
+        {
+            m_viewport = viewport;
+        }
+
+      private:
+        Ogre::String m_hwnd;
+        Ogre::String m_main_hwnd;
+
+        Ogre::Root *        m_ogre_root;
+        Ogre::RenderWindow *m_render_window;
+        Ogre::Viewport *    m_viewport;
+
+        bool Configure();
+        bool LoadOgrePlugins(Ogre::String const &pluginsfile);
+    };
 
 } // namespace RoR

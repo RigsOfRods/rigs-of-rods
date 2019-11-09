@@ -21,20 +21,20 @@
 #include "ShadowManager.h"
 
 #include <Ogre.h>
-#include <Terrain/OgreTerrain.h>
-#include <Overlay/OgreOverlayManager.h>
-#include <Overlay/OgreOverlayContainer.h>
-#include <Overlay/OgreOverlay.h>
 #include <OgreMaterialManager.h>
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayContainer.h>
+#include <Overlay/OgreOverlayManager.h>
+#include <Terrain/OgreTerrain.h>
 
 using namespace Ogre;
 
 ShadowManager::ShadowManager()
 {
     PSSM_Shadows.mPSSMSetup.setNull();
-    PSSM_Shadows.mDepthShadows = false;
+    PSSM_Shadows.mDepthShadows     = false;
     PSSM_Shadows.ShadowsTextureNum = 3;
-    PSSM_Shadows.Quality = RoR::App::gfx_shadow_quality.GetActive(); //0 = Low quality, 1 = mid, 2 = hq, 3 = ultra
+    PSSM_Shadows.Quality           = RoR::App::gfx_shadow_quality.GetActive(); // 0 = Low quality, 1 = mid, 2 = hq, 3 = ultra
 }
 
 ShadowManager::~ShadowManager()
@@ -61,20 +61,22 @@ int ShadowManager::updateShadowTechnique()
         {
             // add the overlay elements to show the shadow maps:
             // init overlay elements
-            OverlayManager& mgr = Ogre::OverlayManager::getSingleton();
-            Overlay* overlay = mgr.create("DebugOverlay");
+            OverlayManager &mgr     = Ogre::OverlayManager::getSingleton();
+            Overlay *       overlay = mgr.create("DebugOverlay");
 
             for (int i = 0; i < PSSM_Shadows.ShadowsTextureNum; ++i)
             {
                 TexturePtr tex = gEnv->sceneManager->getShadowTexture(i);
 
                 // Set up a debug panel to display the shadow
-                MaterialPtr debugMat = MaterialManager::getSingleton().create("Ogre/DebugTexture" + StringConverter::toString(i), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+                MaterialPtr debugMat = MaterialManager::getSingleton().create("Ogre/DebugTexture" + StringConverter::toString(i),
+                                                                              ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
                 debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
-                TextureUnitState* t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState(tex->getName());
+                TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState(tex->getName());
                 t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
 
-                OverlayContainer* debugPanel = (OverlayContainer*)(OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugTexPanel" + StringConverter::toString(i)));
+                OverlayContainer *debugPanel = (OverlayContainer *)(OverlayManager::getSingleton().createOverlayElement(
+                    "Panel", "Ogre/DebugTexPanel" + StringConverter::toString(i)));
                 debugPanel->_setPosition(0.8, i * 0.25);
                 debugPanel->_setDimensions(0.2, 0.24);
                 debugPanel->setMaterialName(debugMat->getName());
@@ -99,7 +101,7 @@ void ShadowManager::processPSSM()
     gEnv->sceneManager->setShadowTextureSelfShadow(true);
     gEnv->sceneManager->setShadowCasterRenderBackFaces(true);
 
-    //Caster is set via materials
+    // Caster is set via materials
     MaterialPtr shadowMat = MaterialManager::getSingleton().getByName("Ogre/shadow/depth/caster");
     gEnv->sceneManager->setShadowTextureCasterMaterial(shadowMat);
 
@@ -135,9 +137,10 @@ void ShadowManager::processPSSM()
     if (PSSM_Shadows.mPSSMSetup.isNull())
     {
         // shadow camera setup
-        Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
+        Ogre::PSSMShadowCameraSetup *pssmSetup = new Ogre::PSSMShadowCameraSetup();
 
-        pssmSetup->calculateSplitPoints(3, gEnv->mainCamera->getNearClipDistance(), gEnv->sceneManager->getShadowFarDistance(), PSSM_Shadows.lambda);
+        pssmSetup->calculateSplitPoints(3, gEnv->mainCamera->getNearClipDistance(), gEnv->sceneManager->getShadowFarDistance(),
+                                        PSSM_Shadows.lambda);
         pssmSetup->setSplitPadding(gEnv->mainCamera->getNearClipDistance());
 
         pssmSetup->setOptimalAdjustFactor(0, -1);
@@ -146,7 +149,7 @@ void ShadowManager::processPSSM()
 
         PSSM_Shadows.mPSSMSetup.bind(pssmSetup);
 
-        //Send split info to managed materials
+        // Send split info to managed materials
         setManagedMaterialSplitPoints(pssmSetup->getSplitPoints());
     }
     gEnv->sceneManager->setShadowCameraSetup(PSSM_Shadows.mPSSMSetup);
@@ -154,16 +157,15 @@ void ShadowManager::processPSSM()
 
 void ShadowManager::updatePSSM()
 {
-    if (!PSSM_Shadows.mPSSMSetup.get())
-        return;
-    //Ugh what here?
+    if (!PSSM_Shadows.mPSSMSetup.get()) return;
+    // Ugh what here?
 }
 
-void ShadowManager::updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM2Profile* matProfile)
+void ShadowManager::updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM2Profile *matProfile)
 {
     if (RoR::App::gfx_shadow_type.GetActive() == RoR::GfxShadowType::PSSM)
     {
-        Ogre::PSSMShadowCameraSetup* pssmSetup = static_cast<Ogre::PSSMShadowCameraSetup*>(PSSM_Shadows.mPSSMSetup.get());
+        Ogre::PSSMShadowCameraSetup *pssmSetup = static_cast<Ogre::PSSMShadowCameraSetup *>(PSSM_Shadows.mPSSMSetup.get());
         matProfile->setReceiveDynamicShadowsDepth(true);
         matProfile->setReceiveDynamicShadowsLowLod(false);
         matProfile->setReceiveDynamicShadowsEnabled(true);

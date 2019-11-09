@@ -22,33 +22,32 @@
 
 #include "ForwardDeclarations.h"
 
-#include <OgreVector3.h>
 #include <OgreTexture.h>
+#include <OgreVector3.h>
 
-namespace RoR {
-
-/// A dynamic environment probe; Creates a cubemap with realtime reflections around specified point.
-class GfxEnvmap
+namespace RoR
 {
-public:
 
-    GfxEnvmap();
-    ~GfxEnvmap();
+    /// A dynamic environment probe; Creates a cubemap with realtime reflections around specified point.
+    class GfxEnvmap
+    {
+      public:
+        GfxEnvmap();
+        ~GfxEnvmap();
 
-    void SetupEnvMap();
-    void UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor);
+        void SetupEnvMap();
+        void UpdateEnvMap(Ogre::Vector3 center, GfxActor *gfx_actor);
 
-private:
+      private:
+        static const unsigned int NUM_FACES = 6;
 
-    static const unsigned int NUM_FACES = 6;
+        void InitEnvMap(Ogre::Vector3 center);
 
-    void InitEnvMap(Ogre::Vector3 center);
-
-    Ogre::Camera*        m_cameras[NUM_FACES];
-    Ogre::RenderTarget*  m_render_targets[NUM_FACES];
-    Ogre::TexturePtr     m_rtt_texture;
-    bool                 m_is_initialized;
-    int                  m_update_round; /// Render targets are updated one-by-one; this is the index of next target to update.
-};
+        Ogre::Camera *      m_cameras[NUM_FACES];
+        Ogre::RenderTarget *m_render_targets[NUM_FACES];
+        Ogre::TexturePtr    m_rtt_texture;
+        bool                m_is_initialized;
+        int                 m_update_round; /// Render targets are updated one-by-one; this is the index of next target to update.
+    };
 
 } // namespace RoR

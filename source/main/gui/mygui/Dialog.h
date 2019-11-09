@@ -29,45 +29,47 @@
 
 #pragma once
 
-#include <MyGUI.h>
 #include "BaseLayout.h"
 
-namespace RoR {
-namespace GUI {
+#include <MyGUI.h>
 
-class Dialog :
-    public wraps::BaseLayout
+namespace RoR
 {
-public:
-    typedef MyGUI::delegates::CDelegate2<Dialog*, bool> EventHandle_Result;
-
-public:
-    Dialog();
-    Dialog(const std::string& _layout);
-    virtual ~Dialog();
-
-    void doModal();
-    void endModal();
-
-    bool isModal()
+    namespace GUI
     {
-        return mModal;
-    }
 
-    EventHandle_Result eventEndDialog;
+        class Dialog : public wraps::BaseLayout
+        {
+          public:
+            typedef MyGUI::delegates::CDelegate2<Dialog *, bool> EventHandle_Result;
 
-protected:
-    virtual void onDoModal()
-    {
-    }
+          public:
+            Dialog();
+            Dialog(const std::string &_layout);
+            virtual ~Dialog();
 
-    virtual void onEndModal()
-    {
-    }
+            void doModal();
+            void endModal();
 
-private:
-    bool mModal;
-};
+            bool isModal()
+            {
+                return mModal;
+            }
 
-} // namespace GUI
+            EventHandle_Result eventEndDialog;
+
+          protected:
+            virtual void onDoModal()
+            {
+            }
+
+            virtual void onEndModal()
+            {
+            }
+
+          private:
+            bool mModal;
+        };
+
+    } // namespace GUI
 } // namespace RoR

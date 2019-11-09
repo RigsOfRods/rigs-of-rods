@@ -20,47 +20,48 @@
 
 #include "AirBrake.h"
 
-#include "BeamData.h"
 #include "Beam.h" // class Actor
+#include "BeamData.h"
 #include "GfxActor.h"
 
 #include <Ogre.h>
 
 using namespace Ogre;
 
-Airbrake::Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, node_t* ndx, node_t* ndy, node_t* nda, Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float ty1, float tx2, float ty2, float lift_coef)
+Airbrake::Airbrake(Actor *actor, const char *basename, int num, node_t *ndref, node_t *ndx, node_t *ndy, node_t *nda, Vector3 pos,
+                   float width, float length, float maxang, std::string const &texname, float tx1, float ty1, float tx2,
+                   float ty2, float lift_coef)
 {
-    snode = 0;
-    noderef = ndref;
-    nodex = ndx;
-    nodey = ndy;
-    nodea = nda;
-    offset = pos;
+    snode    = 0;
+    noderef  = ndref;
+    nodex    = ndx;
+    nodey    = ndy;
+    nodea    = nda;
+    offset   = pos;
     maxangle = maxang;
-    area = width * length * lift_coef;
+    area     = width * length * lift_coef;
     char meshname[256];
     sprintf(meshname, "airbrakemesh-%s-%i", basename, num);
     /// Create the mesh via the MeshManager
     msh = MeshManager::getSingleton().createManual(meshname, actor->GetGfxActor()->GetResourceGroup());
 
-    union
-    {
-        float* vertices;
-        CoVertice_t* covertices;
+    union {
+        float *      vertices;
+        CoVertice_t *covertices;
     };
 
     /// Create submesh
-    SubMesh* sub = msh->createSubMesh();
+    SubMesh *sub = msh->createSubMesh();
 
-    //materials
+    // materials
     sub->setMaterialName(texname);
 
     /// Define the vertices
     size_t nVertices = 4;
     size_t vbufCount = (2 * 3 + 2) * nVertices;
-    vertices = (float*)malloc(vbufCount * sizeof(float));
+    vertices         = (float *)malloc(vbufCount * sizeof(float));
 
-    //textures coordinates
+    // textures coordinates
     covertices[0].texcoord = Vector2(tx1, ty1);
     covertices[1].texcoord = Vector2(tx2, ty1);
     covertices[2].texcoord = Vector2(tx2, ty2);
@@ -68,22 +69,22 @@ Airbrake::Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, n
 
     /// Define triangles
     /// The values in this table refer to vertices in the above table
-    size_t ibufCount = 3 * 4;
-    unsigned short* faces = (unsigned short*)malloc(ibufCount * sizeof(unsigned short));
-    faces[0] = 0;
-    faces[1] = 1;
-    faces[2] = 2;
-    faces[3] = 0;
-    faces[4] = 2;
-    faces[5] = 3;
-    faces[6] = 0;
-    faces[7] = 2;
-    faces[8] = 1;
-    faces[9] = 0;
-    faces[10] = 3;
-    faces[11] = 2;
+    size_t          ibufCount = 3 * 4;
+    unsigned short *faces     = (unsigned short *)malloc(ibufCount * sizeof(unsigned short));
+    faces[0]                  = 0;
+    faces[1]                  = 1;
+    faces[2]                  = 2;
+    faces[3]                  = 0;
+    faces[4]                  = 2;
+    faces[5]                  = 3;
+    faces[6]                  = 0;
+    faces[7]                  = 2;
+    faces[8]                  = 1;
+    faces[9]                  = 0;
+    faces[10]                 = 3;
+    faces[11]                 = 2;
 
-    //set coords
+    // set coords
     covertices[0].vertex = Vector3(0, 0, 0);
     covertices[1].vertex = Vector3(width, 0, 0);
     covertices[2].vertex = Vector3(width, 0, length);
@@ -95,12 +96,12 @@ Airbrake::Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, n
     covertices[3].normal = Vector3(0, 1, 0);
 
     /// Create vertex data structure for vertices shared between submeshes
-    msh->sharedVertexData = new VertexData();
+    msh->sharedVertexData              = new VertexData();
     msh->sharedVertexData->vertexCount = nVertices;
 
     /// Create declaration (memory format) of vertex data
-    VertexDeclaration* decl = msh->sharedVertexData->vertexDeclaration;
-    size_t offset = 0;
+    VertexDeclaration *decl   = msh->sharedVertexData->vertexDeclaration;
+    size_t             offset = 0;
     decl->addElement(0, offset, VET_FLOAT3, VES_POSITION);
     offset += VertexElement::getTypeSize(VET_FLOAT3);
     decl->addElement(0, offset, VET_FLOAT3, VES_NORMAL);
@@ -112,36 +113,32 @@ Airbrake::Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, n
 
     /// Allocate vertex buffer of the requested number of vertices (vertexCount)
     /// and bytes per vertex (offset)
-    HardwareVertexBufferSharedPtr vbuf =
-        HardwareBufferManager::getSingleton().createVertexBuffer(
-            offset, msh->sharedVertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+    HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+        offset, msh->sharedVertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
     /// Upload the vertex data to the card
     vbuf->writeData(0, vbuf->getSizeInBytes(), vertices, true);
 
     /// Set vertex buffer binding so buffer 0 is bound to our vertex buffer
-    VertexBufferBinding* bind = msh->sharedVertexData->vertexBufferBinding;
+    VertexBufferBinding *bind = msh->sharedVertexData->vertexBufferBinding;
     bind->setBinding(0, vbuf);
 
     /// Allocate index buffer of the requested number of vertices (ibufCount)
-    HardwareIndexBufferSharedPtr faceibuf = HardwareBufferManager::getSingleton().
-        createIndexBuffer(
-            HardwareIndexBuffer::IT_16BIT,
-            ibufCount,
-            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+    HardwareIndexBufferSharedPtr faceibuf = HardwareBufferManager::getSingleton().createIndexBuffer(
+        HardwareIndexBuffer::IT_16BIT, ibufCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 
     /// Upload the index data to the card
     faceibuf->writeData(0, faceibuf->getSizeInBytes(), faces, true);
 
     /// Set parameters of the submesh
-    sub->useSharedVertices = true;
+    sub->useSharedVertices      = true;
     sub->indexData->indexBuffer = faceibuf;
-    sub->indexData->indexCount = ibufCount;
-    sub->indexData->indexStart = 0;
+    sub->indexData->indexCount  = ibufCount;
+    sub->indexData->indexStart  = 0;
 
     /// Set bounding information (for culling)
     msh->_setBounds(AxisAlignedBox(-1, -1, 0, 1, 1, 0), true);
-    //msh->_setBoundingSphereRadius(Math::Sqrt(1*1+1*1));
+    // msh->_setBoundingSphereRadius(Math::Sqrt(1*1+1*1));
 
     /// Notify Mesh object that it has been loaded
     msh->load();
@@ -149,7 +146,7 @@ Airbrake::Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, n
     // create the entity and scene node
     char entname[256];
     sprintf(entname, "airbrakenode-%s-%i", basename, num);
-    ec = gEnv->sceneManager->createEntity(entname, meshname, actor->GetGfxActor()->GetResourceGroup());
+    ec    = gEnv->sceneManager->createEntity(entname, meshname, actor->GetGfxActor()->GetResourceGroup());
     snode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     snode->attachObject(ec);
 
@@ -167,16 +164,16 @@ void Airbrake::updatePosition(float amount)
 
 void Airbrake::applyForce()
 {
-    //tropospheric model valid up to 11.000m (33.000ft)
+    // tropospheric model valid up to 11.000m (33.000ft)
     float altitude = noderef->AbsPosition.y;
-    //float sea_level_temperature=273.15+15.0; //in Kelvin
-    float sea_level_pressure = 101325; //in Pa
-    //float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
-    float airpressure = sea_level_pressure * pow(1.0 - 0.0065 * altitude / 288.15, 5.24947); //in Pa
-    float airdensity = airpressure * 0.0000120896;//1.225 at sea level
+    // float sea_level_temperature=273.15+15.0; //in Kelvin
+    float sea_level_pressure = 101325; // in Pa
+    // float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
+    float airpressure = sea_level_pressure * pow(1.0 - 0.0065 * altitude / 288.15, 5.24947); // in Pa
+    float airdensity  = airpressure * 0.0000120896;                                          // 1.225 at sea level
 
-    Vector3 wind = -noderef->Velocity;
-    float wspeed = wind.length();
+    Vector3 wind   = -noderef->Velocity;
+    float   wspeed = wind.length();
 
     Vector3 drag = (1.2 * area * sin(fabs(ratio * maxangle / 57.3)) * 0.5 * airdensity * wspeed / 4.0) * wind;
     noderef->Forces += drag;

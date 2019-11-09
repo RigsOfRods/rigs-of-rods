@@ -20,40 +20,22 @@
 
 #pragma once
 
+#include "AeroEngine.h"
 #include "RoRPrerequisites.h"
 
-#include "AeroEngine.h"
-
-class Turboprop: public AeroEngine, public ZeroedMemoryAllocator
+class Turboprop : public AeroEngine, public ZeroedMemoryAllocator
 {
-public:
-
-    bool is_piston;
+  public:
+    bool  is_piston;
     float pitch;
     float indicated_torque;
     float max_torque;
 
-    Turboprop(
-        const char* propname,
-        node_t* nd,
-        int nr,
-        int nb,
-        int np1,
-        int np2,
-        int np3,
-        int np4,
-        int tqn,
-        float power,
-        Ogre::String const& propfoilname,
-        int mnumber,
-        int trucknum,
-        bool disable_smoke,
-        bool ispiston,
-        float fpitch
-    );
+    Turboprop(const char *propname, node_t *nd, int nr, int nb, int np1, int np2, int np3, int np4, int tqn, float power,
+              Ogre::String const &propfoilname, int mnumber, int trucknum, bool disable_smoke, bool ispiston, float fpitch);
     ~Turboprop();
 
-    void updateVisuals(RoR::GfxActor* gfx_actor) override;
+    void updateVisuals(RoR::GfxActor *gfx_actor) override;
     void updateForces(float dt, int doUpdate);
 
     void setThrottle(float val);
@@ -64,64 +46,99 @@ public:
 
     void toggleReverse();
     void setReverse(bool val);
-    bool getReverse() { return reverse; };
+    bool getReverse()
+    {
+        return reverse;
+    };
 
     void flipStart();
 
-    float getRPM() { return rpm; };
-    float getRPMpc() { return rpm / 10.0f; };
-    void setRPM(float _rpm);
-    float getpropwash() { return propwash; };
-    Ogre::Vector3 getAxis() { return axis; };
-    bool isFailed() { return failed; };
-    int getType() { return AEROENGINE_TYPE_TURBOPROP; };
-    bool getIgnition() { return ignition; };
-    void setIgnition(bool val) { ignition = val; };
-    int getNoderef() { return noderef; };
-    bool getWarmup() { return warmup; };
-    float getRadius() { return radius; };
+    float getRPM()
+    {
+        return rpm;
+    };
+    float getRPMpc()
+    {
+        return rpm / 10.0f;
+    };
+    void  setRPM(float _rpm);
+    float getpropwash()
+    {
+        return propwash;
+    };
+    Ogre::Vector3 getAxis()
+    {
+        return axis;
+    };
+    bool isFailed()
+    {
+        return failed;
+    };
+    int getType()
+    {
+        return AEROENGINE_TYPE_TURBOPROP;
+    };
+    bool getIgnition()
+    {
+        return ignition;
+    };
+    void setIgnition(bool val)
+    {
+        ignition = val;
+    };
+    int getNoderef()
+    {
+        return noderef;
+    };
+    bool getWarmup()
+    {
+        return warmup;
+    };
+    float getRadius()
+    {
+        return radius;
+    };
 
-private:
+  private:
+    node_t *              nodes;
+    int                   nodeback;
+    int                   nodep[4];
+    int                   torquenode;
+    float                 torquedist;
+    Airfoil *             airfoil;
+    float                 fullpower; //!< in kW
+    float                 proparea;
+    float                 airdensity;
+    float                 timer;
+    float                 lastflip;
+    float                 warmupstart;
+    float                 warmuptime;
+    int                   number;
+    int                   numblades;
+    float                 bladewidth;
+    float                 pitchspeed;
+    float                 maxrevpitch;
+    float                 regspeed;
+    Ogre::ParticleSystem *smokePS;
+    Ogre::SceneNode *     smokeNode;
+    float                 twistmap[5];
+    double                rotenergy;
+    float                 fixed_pitch;
 
-    node_t* nodes;
-    int nodeback;
-    int nodep[4];
-    int torquenode;
-    float torquedist;
-    Airfoil* airfoil;
-    float fullpower; //!< in kW
-    float proparea;
-    float airdensity;
-    float timer;
-    float lastflip;
-    float warmupstart;
-    float warmuptime;
-    int number;
-    int numblades;
-    float bladewidth;
-    float pitchspeed;
-    float maxrevpitch;
-    float regspeed;
-    Ogre::ParticleSystem* smokePS;
-    Ogre::SceneNode* smokeNode;
-    float twistmap[5];
-    double rotenergy;
-    float fixed_pitch;
-
-    bool reverse;
-    bool warmup;
-    bool ignition;
-    float radius;
-    bool failed;
-    bool failedold;
-    float rpm;
-    float throtle;
-    int noderef;
-    char debug[256];
-    float propwash;
+    bool          reverse;
+    bool          warmup;
+    bool          ignition;
+    float         radius;
+    bool          failed;
+    bool          failedold;
+    float         rpm;
+    float         throtle;
+    int           noderef;
+    char          debug[256];
+    float         propwash;
     Ogre::Vector3 axis;
-    int trucknum;
-    int mod_id;
-    int src_id;
-    int thr_id;
+    int           trucknum;
+    int           mod_id;
+    int           src_id;
+    int           thr_id;
 };

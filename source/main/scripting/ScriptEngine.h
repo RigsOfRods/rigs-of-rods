@@ -27,15 +27,13 @@
 
 #ifdef USE_ANGELSCRIPT
 
-#include <Ogre.h>
+    #include "InterThreadStoreVector.h"
+    #include "RoRPrerequisites.h"
+    #include "Singleton.h"
+    #include "scriptbuilder/scriptbuilder.h"
+    #include "scriptdictionary/scriptdictionary.h"
 
-#include "RoRPrerequisites.h"
-
-#include "InterThreadStoreVector.h"
-#include "Singleton.h"
-
-#include "scriptdictionary/scriptdictionary.h"
-#include "scriptbuilder/scriptbuilder.h"
+    #include <Ogre.h>
 
 /**
  * @file ScriptEngine.h
@@ -53,9 +51,8 @@ class ScriptEngine : public RoRSingletonNoCreation<ScriptEngine>, public Ogre::L
 {
     friend class GameScript;
 
-public:
-
-    ScriptEngine(Collisions* _coll = nullptr);
+  public:
+    ScriptEngine(Collisions *_coll = nullptr);
     ~ScriptEngine();
 
     /**
@@ -99,65 +96,80 @@ public:
     /**
      * Adds a global function to the script
      * @param arg A declaration for the function.
-    */
-    int addFunction(const Ogre::String& arg);
+     */
+    int addFunction(const Ogre::String &arg);
 
     /**
      * Checks if a global function exists
      * @param arg A declaration for the function.
-    */
-    int functionExists(const Ogre::String& arg);
+     */
+    int functionExists(const Ogre::String &arg);
 
     /**
      * Deletes a global function from the script
      * @param arg A declaration for the function.
-    */
-    int deleteFunction(const Ogre::String& arg);
+     */
+    int deleteFunction(const Ogre::String &arg);
 
     /**
      * Adds a global variable to the script
      * @param arg A declaration for the variable.
-    */
-    int addVariable(const Ogre::String& arg);
+     */
+    int addVariable(const Ogre::String &arg);
 
     /**
      * Deletes a global variable from the script
      * @param arg A declaration for the variable.
-    */
-    int deleteVariable(const Ogre::String& arg);
+     */
+    int deleteVariable(const Ogre::String &arg);
 
     Ogre::StringVector getAutoComplete(Ogre::String command);
 
     int fireEvent(std::string instanceName, float intensity);
 
-    int envokeCallback(int functionId, eventsource_t* source, node_t* node = 0, int type = 0);
+    int envokeCallback(int functionId, eventsource_t *source, node_t *node = 0, int type = 0);
 
-    AngelScript::asIScriptEngine* getEngine() { return engine; };
+    AngelScript::asIScriptEngine *getEngine()
+    {
+        return engine;
+    };
 
-    Ogre::String getScriptName() { return scriptName; };
-    Ogre::String getScriptHash() { return scriptHash; };
+    Ogre::String getScriptName()
+    {
+        return scriptName;
+    };
+    Ogre::String getScriptHash()
+    {
+        return scriptHash;
+    };
 
     // method from Ogre::LogListener
-    void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);
+    void messageLogged(const Ogre::String &message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName,
+                       bool &skipThisMessage);
 
-    inline void SLOG(const char* msg) { this->scriptLog->logMessage(msg); } ///< Replacement of macro
-    inline void SLOG(std::string msg) { this->scriptLog->logMessage(msg); } ///< Replacement of macro
+    inline void SLOG(const char *msg)
+    {
+        this->scriptLog->logMessage(msg);
+    } ///< Replacement of macro
+    inline void SLOG(std::string msg)
+    {
+        this->scriptLog->logMessage(msg);
+    } ///< Replacement of macro
 
-protected:
-
-    Collisions* coll;
-    AngelScript::asIScriptEngine* engine; //!< instance of the scripting engine
-    AngelScript::asIScriptContext* context; //!< context in which all scripting happens
-    AngelScript::asIScriptFunction* frameStepFunctionPtr; //!< script function pointer to the frameStep function
-    AngelScript::asIScriptFunction* eventCallbackFunctionPtr; //!< script function pointer to the event callback function
-    AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr; //!< script function pointer for spawner events
-    Ogre::String scriptName;
-    Ogre::String scriptHash;
-    Ogre::Log* scriptLog;
+  protected:
+    Collisions *                    coll;
+    AngelScript::asIScriptEngine *  engine;                          //!< instance of the scripting engine
+    AngelScript::asIScriptContext * context;                         //!< context in which all scripting happens
+    AngelScript::asIScriptFunction *frameStepFunctionPtr;            //!< script function pointer to the frameStep function
+    AngelScript::asIScriptFunction *eventCallbackFunctionPtr;        //!< script function pointer to the event callback function
+    AngelScript::asIScriptFunction *defaultEventCallbackFunctionPtr; //!< script function pointer for spawner events
+    Ogre::String                    scriptName;
+    Ogre::String                    scriptHash;
+    Ogre::Log *                     scriptLog;
 
     InterThreadStoreVector<Ogre::String> stringExecutionQueue; //!< The string execution queue \see queueStringForExecution
 
-    static const char* moduleName;
+    static const char *moduleName;
 
     /**
      * This function initialzies the engine and registeres all types
@@ -169,7 +181,7 @@ protected:
      * When the script crashes, this function will provide you with more detail
      * @param msg arguments that contain details about the crash
      */
-    void msgCallback(const AngelScript::asSMessageInfo* msg);
+    void msgCallback(const AngelScript::asSMessageInfo *msg);
 };
 
 #endif // USE_ANGELSCRIPT

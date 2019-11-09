@@ -11,7 +11,7 @@
 using namespace RoR;
 using namespace GUI;
 
-ActorSpawnerReportWindowLayout::ActorSpawnerReportWindowLayout(MyGUI::Widget* _parent)
+ActorSpawnerReportWindowLayout::ActorSpawnerReportWindowLayout(MyGUI::Widget *_parent)
 {
     initialiseByAttributes(this, _parent);
 }

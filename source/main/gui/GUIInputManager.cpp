@@ -20,22 +20,21 @@
 
 #include <MyGUI_Platform.h>
 #if MYGUI_PLATFORM == MYGUI_PLATFORM_WIN32
-#include <Windows.h>
+    #include <Windows.h>
 #endif
 
-#include "GUIInputManager.h"
-
 #include "Application.h"
+#include "GUIInputManager.h"
 #include "GUIManager.h"
-#include "GUI_TopMenubar.h"
-#include "GUI_GameMainMenu.h" // TODO: remove this hack ~ only_a_ptr, 02/2017
+#include "GUI_GameMainMenu.h"  // TODO: remove this hack ~ only_a_ptr, 02/2017
 #include "GUI_GamePauseMenu.h" // TODO: remove this hack ~ only_a_ptr, 02/2017
+#include "GUI_TopMenubar.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
 #include "SceneMouse.h"
 
-#include <MyGUI_KeyCode.h>
 #include <MyGUI_InputManager.h>
+#include <MyGUI_KeyCode.h>
 #include <MyGUI_PointerManager.h>
 
 #if MYGUI_PLATFORM == MYGUI_PLATFORM_WIN32
@@ -44,17 +43,15 @@ MyGUI::Char translateWin32Text(MyGUI::KeyCode kc)
     static WCHAR deadKey = 0;
 
     BYTE keyState[256];
-    HKL layout = GetKeyboardLayout(0);
-    if (GetKeyboardState(keyState) == 0)
-        return 0;
+    HKL  layout = GetKeyboardLayout(0);
+    if (GetKeyboardState(keyState) == 0) return 0;
 
-    int code = *((int*)&kc);
-    unsigned int vk = MapVirtualKeyEx((UINT)code, 3, layout);
-    if (vk == 0)
-        return 0;
+    int          code = *((int *)&kc);
+    unsigned int vk   = MapVirtualKeyEx((UINT)code, 3, layout);
+    if (vk == 0) return 0;
 
     WCHAR buff[3] = {0, 0, 0};
-    int ascii = ToUnicodeEx(vk, (UINT)code, keyState, buff, 3, 0, layout);
+    int   ascii   = ToUnicodeEx(vk, (UINT)code, keyState, buff, 3, 0, layout);
     if (ascii == 1 && deadKey != '\0')
     {
         // A dead key is stored and we have just converted a character key
@@ -63,8 +60,7 @@ MyGUI::Char translateWin32Text(MyGUI::KeyCode kc)
         WCHAR out[3];
 
         deadKey = '\0';
-        if (FoldStringW(MAP_PRECOMPOSED, (LPWSTR)wcBuff, 3, (LPWSTR)out, 3))
-            return out[0];
+        if (FoldStringW(MAP_PRECOMPOSED, (LPWSTR)wcBuff, 3, (LPWSTR)out, 3)) return out[0];
     }
     else if (ascii == 1)
     {
@@ -94,9 +90,7 @@ MyGUI::Char translateWin32Text(MyGUI::KeyCode kc)
         case 0xB8: // Cedilla: �
             deadKey = 0x327;
             break;
-        default:
-            deadKey = buff[0];
-            break;
+        default: deadKey = buff[0]; break;
         }
     }
 
@@ -104,13 +98,8 @@ MyGUI::Char translateWin32Text(MyGUI::KeyCode kc)
 }
 #endif
 
-GUIInputManager::GUIInputManager() :
-    height(0)
-    , m_last_mousemove_time(0)
-    , mCursorX(0)
-    , mCursorY(0)
-    , width(0)
-    , m_is_cursor_supressed(false)
+GUIInputManager::GUIInputManager()
+    : height(0), m_last_mousemove_time(0), mCursorX(0), mCursorY(0), width(0), m_is_cursor_supressed(false)
 {
     m_last_mousemove_time = new Ogre::Timer();
 }
@@ -119,16 +108,15 @@ GUIInputManager::~GUIInputManager()
 {
 }
 
-bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
+bool GUIInputManager::mouseMoved(const OIS::MouseEvent &_arg)
 {
     this->WakeUpGUI();
 
     RoR::App::GetGuiManager()->GetImGui().InjectMouseMoved(_arg);
 
-    if (RoR::App::sim_state.GetActive() == RoR::SimState::RUNNING && RoR::App::GetGuiManager()->IsVisible_TopMenubar()) // dirty hack to block imgui handled input events
-    {
-        return true;
-    }
+    if (RoR::App::sim_state.GetActive() == RoR::SimState::RUNNING &&
+        RoR::App::GetGuiManager()->IsVisible_TopMenubar()) // dirty hack to block imgui handled input events
+    { return true; }
 
     if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED)
     {
@@ -144,12 +132,10 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 
     if (handled)
     {
-        MyGUI::Widget* w = MyGUI::InputManager::getInstance().getMouseFocusWidget();
+        MyGUI::Widget *w = MyGUI::InputManager::getInstance().getMouseFocusWidget();
         // hack for console, we want to use the mouse through that control
-        if (w && w->getName().substr(0, 7) == "Console")
-            handled = false;
-        if (w && w->getUserString("interactive") == "0")
-            handled = false;
+        if (w && w->getName().substr(0, 7) == "Console") handled = false;
+        if (w && w->getUserString("interactive") == "0") handled = false;
     }
 
     if (!handled && RoR::App::GetOverlayWrapper() != nullptr)
@@ -160,7 +146,8 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 
     if (!handled)
     {
-        if (RoR::App::GetSimController() != nullptr) // TODO: Fix this hack. Main menu should not use the same input handler as simulation ~ only_a_ptr, 08/2018
+        if (RoR::App::GetSimController() !=
+            nullptr) // TODO: Fix this hack. Main menu should not use the same input handler as simulation ~ only_a_ptr, 08/2018
         {
             // not handled by gui
             bool fixed = RoR::App::GetSimController()->GetSceneMouse().mouseMoved(_arg);
@@ -180,7 +167,7 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
     return true;
 }
 
-bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool GUIInputManager::mousePressed(const OIS::MouseEvent &_arg, OIS::MouseButtonID _id)
 {
     this->WakeUpGUI();
 
@@ -194,12 +181,10 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
 
     if (handled)
     {
-        MyGUI::Widget* w = MyGUI::InputManager::getInstance().getMouseFocusWidget();
+        MyGUI::Widget *w = MyGUI::InputManager::getInstance().getMouseFocusWidget();
         // hack for console, we want to use the mouse through that control
-        if (w && w->getName().substr(0, 7) == "Console")
-            handled = false;
-        if (w && w->getUserString("interactive") == "0")
-            handled = false;
+        if (w && w->getName().substr(0, 7) == "Console") handled = false;
+        if (w && w->getUserString("interactive") == "0") handled = false;
     }
 
     if (!handled && RoR::App::GetOverlayWrapper())
@@ -209,14 +194,12 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
     }
 
     // TODO: Fix this hack. Main menu should not use the same input handler as simulation ~ only_a_ptr, 08/2018
-    if (!handled && (RoR::App::GetSimController() != nullptr)) 
-    {
-        RoR::App::GetSimController()->GetSceneMouse().mousePressed(_arg, _id);
-    }
+    if (!handled && (RoR::App::GetSimController() != nullptr))
+    { RoR::App::GetSimController()->GetSceneMouse().mousePressed(_arg, _id); }
     return handled;
 }
 
-bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool GUIInputManager::mouseReleased(const OIS::MouseEvent &_arg, OIS::MouseButtonID _id)
 {
     this->WakeUpGUI();
 
@@ -227,12 +210,10 @@ bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButto
 
     if (handled)
     {
-        MyGUI::Widget* w = MyGUI::InputManager::getInstance().getMouseFocusWidget();
+        MyGUI::Widget *w = MyGUI::InputManager::getInstance().getMouseFocusWidget();
         // hack for console, we want to use the mouse through that control
-        if (w && w->getName().substr(0, 7) == "Console")
-            handled = false;
-        if (w && w->getUserString("interactive") == "0")
-            handled = false;
+        if (w && w->getName().substr(0, 7) == "Console") handled = false;
+        if (w && w->getUserString("interactive") == "0") handled = false;
     }
 
     if (!handled && RoR::App::GetOverlayWrapper())
@@ -242,32 +223,25 @@ bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButto
     }
 
     if (!handled && (RoR::App::GetSimController() != nullptr))
-    {
-        RoR::App::GetSimController()->GetSceneMouse().mouseReleased(_arg, _id);
-    }
+    { RoR::App::GetSimController()->GetSceneMouse().mouseReleased(_arg, _id); }
     return handled;
 }
 
-bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
+bool GUIInputManager::keyPressed(const OIS::KeyEvent &_arg)
 {
     RoR::App::GetGuiManager()->GetImGui().InjectKeyPressed(_arg);
 
-    if (RoR::App::sim_state.GetActive() == RoR::SimState::RUNNING &&
-            RoR::App::GetGuiManager()->IsVisible_TopMenubar() || RoR::App::GetGuiManager()->IsVisible_NodeBeamUtils()) // dirty hack to block imgui handled input events
+    if (RoR::App::sim_state.GetActive() == RoR::SimState::RUNNING && RoR::App::GetGuiManager()->IsVisible_TopMenubar() ||
+        RoR::App::GetGuiManager()->IsVisible_NodeBeamUtils()) // dirty hack to block imgui handled input events
     {
-        if (_arg.key == OIS::KC_RETURN)
-        {
-            return true;
-        }
+        if (_arg.key == OIS::KC_RETURN) { return true; }
     }
 
-    if (RoR::App::GetGuiManager()->IsVisible_GameMainMenu()) // Special hacky handling of main-menu key control. TODO: Remove this!~ only_a_ptr, 06/2017
+    if (RoR::App::GetGuiManager()->IsVisible_GameMainMenu()) // Special hacky handling of main-menu key control. TODO: Remove
+                                                             // this!~ only_a_ptr, 06/2017
     {
-        if (_arg.key == OIS::KC_UP)
-        {
-            RoR::App::GetGuiManager()->GetMainMenu()->KeyUpPressed();
-        }
-        else if  (_arg.key == OIS::KC_DOWN)
+        if (_arg.key == OIS::KC_UP) { RoR::App::GetGuiManager()->GetMainMenu()->KeyUpPressed(); }
+        else if (_arg.key == OIS::KC_DOWN)
         {
             RoR::App::GetGuiManager()->GetMainMenu()->KeyDownPressed();
         }
@@ -276,13 +250,11 @@ bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
             RoR::App::GetGuiManager()->GetMainMenu()->EnterKeyPressed();
         }
     }
-    if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED) // Special hacky handling of pause-menu key control. TODO: Remove this!~ only_a_ptr, 06/2017
+    if (RoR::App::sim_state.GetActive() ==
+        RoR::SimState::PAUSED) // Special hacky handling of pause-menu key control. TODO: Remove this!~ only_a_ptr, 06/2017
     {
-        if (_arg.key == OIS::KC_UP)
-        {
-            RoR::App::GetGuiManager()->GetPauseMenu()->KeyUpPressed();
-        }
-        else if  (_arg.key == OIS::KC_DOWN)
+        if (_arg.key == OIS::KC_UP) { RoR::App::GetGuiManager()->GetPauseMenu()->KeyUpPressed(); }
+        else if (_arg.key == OIS::KC_DOWN)
         {
             RoR::App::GetGuiManager()->GetPauseMenu()->KeyDownPressed();
         }
@@ -292,14 +264,14 @@ bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
         }
     }
 
-    MyGUI::Char text = (MyGUI::Char)_arg.text;
-    MyGUI::KeyCode key = MyGUI::KeyCode::Enum(_arg.key);
-    int scan_code = MYGUI_GET_SCANCODE(key);
+    MyGUI::Char    text      = (MyGUI::Char)_arg.text;
+    MyGUI::KeyCode key       = MyGUI::KeyCode::Enum(_arg.key);
+    int            scan_code = MYGUI_GET_SCANCODE(key);
 
     if (scan_code > 70 && scan_code < 84)
     {
         static MyGUI::Char nums[13] = {55, 56, 57, 45, 52, 53, 54, 43, 49, 50, 51, 48, 46};
-        text = nums[scan_code - 71];
+        text                        = nums[scan_code - 71];
     }
     else if (key == MyGUI::KeyCode::Divide)
     {
@@ -317,31 +289,24 @@ bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
 
     if (handled)
     {
-        MyGUI::Widget* w = MyGUI::InputManager::getInstance().getKeyFocusWidget();
+        MyGUI::Widget *w = MyGUI::InputManager::getInstance().getKeyFocusWidget();
         // hack for console, we want to use the mouse through that control
-        if (w && w->getName().substr(0, 7) == "Console" && w->getName() != "ConsoleInput")
-            handled = false;
+        if (w && w->getName().substr(0, 7) == "Console" && w->getName() != "ConsoleInput") handled = false;
     }
 
-    if (!handled)
-    {
-        RoR::App::GetSimController()->GetSceneMouse().keyPressed(_arg);
-    }
+    if (!handled) { RoR::App::GetSimController()->GetSceneMouse().keyPressed(_arg); }
 
     return handled;
 }
 
-bool GUIInputManager::keyReleased(const OIS::KeyEvent& _arg)
+bool GUIInputManager::keyReleased(const OIS::KeyEvent &_arg)
 {
     RoR::App::GetGuiManager()->GetImGui().InjectKeyReleased(_arg);
 
-    if (RoR::App::sim_state.GetActive() == RoR::SimState::RUNNING &&
-            RoR::App::GetGuiManager()->IsVisible_TopMenubar() || RoR::App::GetGuiManager()->IsVisible_NodeBeamUtils()) // dirty hack to block imgui handled input events
+    if (RoR::App::sim_state.GetActive() == RoR::SimState::RUNNING && RoR::App::GetGuiManager()->IsVisible_TopMenubar() ||
+        RoR::App::GetGuiManager()->IsVisible_NodeBeamUtils()) // dirty hack to block imgui handled input events
     {
-        if (_arg.key == OIS::KC_RETURN)
-        {
-            return true;
-        }
+        if (_arg.key == OIS::KC_RETURN) { return true; }
     }
 
     // fallback, handle by GUI, then by RoR::SceneMouse
@@ -349,23 +314,19 @@ bool GUIInputManager::keyReleased(const OIS::KeyEvent& _arg)
 
     if (handled)
     {
-        MyGUI::Widget* w = MyGUI::InputManager::getInstance().getKeyFocusWidget();
+        MyGUI::Widget *w = MyGUI::InputManager::getInstance().getKeyFocusWidget();
         // hack for console, we want to use the mouse through that control
-        if (w && w->getName().substr(0, 7) == "Console" && w->getName() != "ConsoleInput")
-            handled = false;
+        if (w && w->getName().substr(0, 7) == "Console" && w->getName() != "ConsoleInput") handled = false;
     }
 
-    if (!handled)
-    {
-        RoR::App::GetSimController()->GetSceneMouse().keyReleased(_arg);
-    }
+    if (!handled) { RoR::App::GetSimController()->GetSceneMouse().keyReleased(_arg); }
 
     return handled;
 }
 
 void GUIInputManager::setInputViewSize(int _width, int _height)
 {
-    this->width = _width;
+    this->width  = _width;
     this->height = _height;
 
     checkPosition();
@@ -396,9 +357,7 @@ void GUIInputManager::WakeUpGUI()
 {
     m_last_mousemove_time->reset();
     if (!m_is_cursor_supressed)
-    {
-        RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::VISIBLE);
-    }
+    { RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::VISIBLE); }
 }
 
 void GUIInputManager::SupressCursor(bool do_supress)

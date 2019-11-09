@@ -23,11 +23,11 @@
 
 #include "BeamFactory.h"
 #include "Collisions.h"
-#include "Renderdash.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "HydraxWater.h"
 #include "Language.h"
+#include "Renderdash.h"
 #include "RoRFrameListener.h"
 #include "Scripting.h"
 #include "ShadowManager.h"
@@ -37,25 +37,16 @@
 #include "TerrainObjectManager.h"
 #include "Water.h"
 
-#include <Terrain/OgreTerrainPaging.h>
 #include <Terrain/OgreTerrainGroup.h>
+#include <Terrain/OgreTerrainPaging.h>
 
 using namespace RoR;
 using namespace Ogre;
 
 TerrainManager::TerrainManager()
-    : m_collisions(0)
-    , m_geometry_manager(0)
-    , m_hdr_listener(0)
-    , m_object_manager(0)
-    , m_shadow_manager(0)
-    , m_sky_manager(0)
-    , SkyX_manager(0)
-    , m_sight_range(1000)
-    , m_main_light(0)
-    , m_paged_detail_factor(0.0f)
-    , m_cur_gravity(DEFAULT_GRAVITY)
-    , m_hydrax_water(nullptr)
+    : m_collisions(0), m_geometry_manager(0), m_hdr_listener(0), m_object_manager(0), m_shadow_manager(0), m_sky_manager(0),
+      SkyX_manager(0), m_sight_range(1000), m_main_light(0), m_paged_detail_factor(0.0f), m_cur_gravity(DEFAULT_GRAVITY),
+      m_hydrax_water(nullptr)
 {
 }
 
@@ -67,20 +58,20 @@ TerrainManager::~TerrainManager()
         return;
     }
 
-    //I think that the order is important
+    // I think that the order is important
 
 #ifdef USE_CAELUM
     if (m_sky_manager != nullptr)
     {
-        delete(m_sky_manager);
+        delete (m_sky_manager);
         m_sky_manager = nullptr;
     }
 #endif // USE_CAELUM
 
     if (SkyX_manager != nullptr)
     {
-        delete(SkyX_manager);
-        gEnv->SkyX = nullptr;
+        delete (SkyX_manager);
+        gEnv->SkyX   = nullptr;
         SkyX_manager = nullptr;
     }
 
@@ -97,31 +88,35 @@ TerrainManager::~TerrainManager()
 
     if (m_object_manager != nullptr)
     {
-        delete(m_object_manager);
+        delete (m_object_manager);
         m_object_manager = nullptr;
     }
 
     if (m_geometry_manager != nullptr)
     {
-        delete(m_geometry_manager);
+        delete (m_geometry_manager);
         m_geometry_manager = nullptr;
     }
 
     if (m_shadow_manager != nullptr)
     {
-        delete(m_shadow_manager);
+        delete (m_shadow_manager);
         m_shadow_manager = nullptr;
     }
 
     if (gEnv->collisions != nullptr)
     {
-        delete(gEnv->collisions);
+        delete (gEnv->collisions);
         gEnv->collisions = nullptr;
     }
 }
 
 // some shortcut to remove ugly code
-#   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(x, y); }
+#define PROGRESS_WINDOW(x, y)                                                                                                    \
+    {                                                                                                                            \
+        LOG(Ogre::String("  ## ") + y);                                                                                          \
+        RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(x, y);                                                        \
+    }
 
 bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
 {
@@ -130,7 +125,7 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
         Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename);
         LOG(" ===== LOADING TERRAIN " + filename);
         Terrn2Parser parser;
-        if (! parser.LoadTerrn2(m_def, stream))
+        if (!parser.LoadTerrn2(m_def, stream))
         {
             LOG("[RoR|Terrain] Failed to parse: " + filename);
             for (std::string msg : parser.GetMessages())
@@ -171,7 +166,7 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
     PROGRESS_WINDOW(27, _L("Initializing Light Subsystem"));
     initLight();
 
-    if (App::gfx_sky_mode.GetActive() != GfxSkyMode::CAELUM) //Caelum has its own fog management
+    if (App::gfx_sky_mode.GetActive() != GfxSkyMode::CAELUM) // Caelum has its own fog management
     {
         PROGRESS_WINDOW(29, _L("Initializing Fog Subsystem"));
         initFog();
@@ -181,8 +176,8 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
     initVegetation();
 
     // water must be done later on
-    //PROGRESS_WINDOW(33, _L("Initializing Water Subsystem"));
-    //initWater();
+    // PROGRESS_WINDOW(33, _L("Initializing Water Subsystem"));
+    // initWater();
 
     fixCompositorClearColor();
 
@@ -194,7 +189,7 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
     }
 
     PROGRESS_WINDOW(60, _L("Initializing Collision Subsystem"));
-    m_collisions = new Collisions();
+    m_collisions     = new Collisions();
     gEnv->collisions = m_collisions;
 
     PROGRESS_WINDOW(75, _L("Initializing Script Subsystem"));
@@ -207,7 +202,7 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
     loadTerrainObjects();
 
     // bake the decals
-    //finishTerrainDecal();
+    // finishTerrainDecal();
 
     // init things after loading the terrain
     initTerrainCollisions();
@@ -236,24 +231,22 @@ void TerrainManager::initCamera()
 
     if (App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX)
     {
-        m_sight_range = 5000;  //Force unlimited for SkyX, lower settings are glitchy
-    } 
+        m_sight_range = 5000; // Force unlimited for SkyX, lower settings are glitchy
+    }
     else
     {
         m_sight_range = App::gfx_sight_range.GetActive();
-    } 
+    }
 
     if (m_sight_range < UNLIMITED_SIGHTRANGE && App::gfx_sky_mode.GetActive() != GfxSkyMode::SKYX)
-    {
-        gEnv->mainCamera->setFarClipDistance(m_sight_range);
-    }
+    { gEnv->mainCamera->setFarClipDistance(m_sight_range); }
     else
     {
         // disabled in global config
         if (App::gfx_water_mode.GetActive() != GfxWaterMode::HYDRAX)
-            gEnv->mainCamera->setFarClipDistance(0); //Unlimited
+            gEnv->mainCamera->setFarClipDistance(0); // Unlimited
         else
-            gEnv->mainCamera->setFarClipDistance(9999 * 6); //Unlimited for hydrax and stuff
+            gEnv->mainCamera->setFarClipDistance(9999 * 6); // Unlimited for hydrax and stuff
     }
 }
 
@@ -278,17 +271,17 @@ void TerrainManager::initSkySubSystem()
         }
     }
     else
-#endif //USE_CAELUM
-    // SkyX skies
-    if (App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX)
+#endif // USE_CAELUM
+       // SkyX skies
+        if (App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX)
     {
-         // try to load SkyX config
-         if (!m_def.skyx_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.skyx_config))
+        // try to load SkyX config
+        if (!m_def.skyx_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.skyx_config))
             SkyX_manager = new SkyXManager(m_def.skyx_config);
-         else
+        else
             SkyX_manager = new SkyXManager("SkyXDefault.skx");
 
-         gEnv->SkyX = SkyX_manager;
+        gEnv->SkyX = SkyX_manager;
     }
     else
     {
@@ -324,7 +317,7 @@ void TerrainManager::initLight()
 
         // Create a light
         m_main_light = gEnv->sceneManager->createLight("MainLight");
-        //directional light for shadow
+        // directional light for shadow
         m_main_light->setType(Light::LT_DIRECTIONAL);
         m_main_light->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
 
@@ -341,25 +334,17 @@ void TerrainManager::initFog()
     if (m_sight_range >= UNLIMITED_SIGHTRANGE)
         gEnv->sceneManager->setFog(FOG_NONE);
     else
-        gEnv->sceneManager->setFog(FOG_LINEAR, m_def.ambient_color, 0.000f, m_sight_range * 0.65f, m_sight_range*0.9);
+        gEnv->sceneManager->setFog(FOG_LINEAR, m_def.ambient_color, 0.000f, m_sight_range * 0.65f, m_sight_range * 0.9);
 }
 
 void TerrainManager::initVegetation()
 {
     switch (App::gfx_vegetation_mode.GetActive())
     {
-    case GfxVegetation::x20PERC:
-        m_paged_detail_factor = 0.2f;
-        break;
-    case GfxVegetation::x50PERC:
-        m_paged_detail_factor = 0.5f;
-        break;
-    case GfxVegetation::FULL:
-        m_paged_detail_factor = 1.0f;
-        break;
-    default:
-        m_paged_detail_factor = 0.0f;
-        break;
+    case GfxVegetation::x20PERC: m_paged_detail_factor = 0.2f; break;
+    case GfxVegetation::x50PERC: m_paged_detail_factor = 0.5f; break;
+    case GfxVegetation::FULL: m_paged_detail_factor = 1.0f; break;
+    default: m_paged_detail_factor = 0.0f; break;
     }
 }
 
@@ -369,20 +354,18 @@ void TerrainManager::fixCompositorClearColor()
     // now with extensive error checking
     if (CompositorManager::getSingleton().hasCompositorChain(gEnv->mainCamera->getViewport()))
     {
-        CompositorInstance* co = CompositorManager::getSingleton().getCompositorChain(gEnv->mainCamera->getViewport())->_getOriginalSceneCompositor();
+        CompositorInstance *co =
+            CompositorManager::getSingleton().getCompositorChain(gEnv->mainCamera->getViewport())->_getOriginalSceneCompositor();
         if (co)
         {
-            CompositionTechnique* ct = co->getTechnique();
+            CompositionTechnique *ct = co->getTechnique();
             if (ct)
             {
-                CompositionTargetPass* ctp = ct->getOutputTargetPass();
+                CompositionTargetPass *ctp = ct->getOutputTargetPass();
                 if (ctp)
                 {
-                    CompositionPass* p = ctp->getPass(0);
-                    if (p)
-                    {
-                        p->setClearColour(Ogre::ColourValue::Black);
-                    }
+                    CompositionPass *p = ctp->getPass(0);
+                    if (p) { p->setClearColour(Ogre::ColourValue::Black); }
                 }
             }
         }
@@ -392,22 +375,17 @@ void TerrainManager::fixCompositorClearColor()
 void TerrainManager::initWater()
 {
     // disabled in global config
-    if (App::gfx_water_mode.GetActive() == GfxWaterMode::NONE)
-        return;
+    if (App::gfx_water_mode.GetActive() == GfxWaterMode::NONE) return;
 
     // disabled in map config
-    if (!m_def.has_water)
-    {
-        return;
-    }
+    if (!m_def.has_water) { return; }
 
     if (App::gfx_water_mode.GetActive() == GfxWaterMode::HYDRAX)
     {
         // try to load hydrax config
-        if (!m_def.hydrax_conf_file.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.hydrax_conf_file))
-        {
-            m_hydrax_water = new HydraxWater(m_def.water_height, m_def.hydrax_conf_file);
-        }
+        if (!m_def.hydrax_conf_file.empty() &&
+            ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.hydrax_conf_file))
+        { m_hydrax_water = new HydraxWater(m_def.water_height, m_def.hydrax_conf_file); }
         else
         {
             // no config provided, fall back to the default one
@@ -416,11 +394,11 @@ void TerrainManager::initWater()
 
         m_water = std::unique_ptr<IWater>(m_hydrax_water);
 
-        //Apply depth technique to the terrain
+        // Apply depth technique to the terrain
         TerrainGroup::TerrainIterator ti = m_geometry_manager->getTerrainGroup()->getTerrainIterator();
         while (ti.hasMoreElements())
         {
-            Terrain* t = ti.getNext()->instance;
+            Terrain *   t   = ti.getNext()->instance;
             MaterialPtr ptr = t->getMaterial();
             m_hydrax_water->GetHydrax()->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
         }
@@ -451,10 +429,7 @@ void TerrainManager::loadTerrainObjects()
 
 void TerrainManager::initTerrainCollisions()
 {
-    if (!m_def.traction_map_file.empty())
-    {
-        m_collisions->setupLandUse(m_def.traction_map_file.c_str());
-    }
+    if (!m_def.traction_map_file.empty()) { m_collisions->setupLandUse(m_def.traction_map_file.c_str()); }
 }
 
 void TerrainManager::initScripting()
@@ -464,8 +439,7 @@ void TerrainManager::initScripting()
 
     for (std::string as_filename : m_def.as_files)
     {
-        if (ScriptEngine::getSingleton().loadScript(as_filename) == 0)
-            loaded = true;
+        if (ScriptEngine::getSingleton().loadScript(as_filename) == 0) loaded = true;
     }
 
     if (!loaded)
@@ -475,7 +449,7 @@ void TerrainManager::initScripting()
     }
     // finally activate AS logging, so we dont spam the users screen with initialization messages
     ScriptEngine::getSingleton().activateLogging();
-#endif //USE_ANGELSCRIPT
+#endif // USE_ANGELSCRIPT
 }
 
 void TerrainManager::setGravity(float value)
@@ -495,8 +469,7 @@ Ogre::AxisAlignedBox TerrainManager::getTerrainCollisionAAB()
 
 Ogre::Vector3 TerrainManager::getMaxTerrainSize()
 {
-    if (!m_geometry_manager)
-        return Vector3::ZERO;
+    if (!m_geometry_manager) return Vector3::ZERO;
     return m_geometry_manager->getMaxTerrainSize();
 }
 
@@ -510,7 +483,7 @@ Ogre::Vector3 TerrainManager::GetNormalAt(float x, float y, float z)
     return m_geometry_manager->getNormalAt(x, y, z);
 }
 
-SkyManager* TerrainManager::getSkyManager()
+SkyManager *TerrainManager::getSkyManager()
 {
     return m_sky_manager;
 }
@@ -522,34 +495,31 @@ bool TerrainManager::isFlat()
 
 void TerrainManager::LoadTelepoints()
 {
-    if (m_object_manager)
-        m_object_manager->LoadTelepoints();
+    if (m_object_manager) m_object_manager->LoadTelepoints();
 }
 
 void TerrainManager::LoadPredefinedActors()
 {
-    if (m_object_manager)
-        m_object_manager->LoadPredefinedActors();
+    if (m_object_manager) m_object_manager->LoadPredefinedActors();
 }
 
 bool TerrainManager::HasPredefinedActors()
 {
-    if (m_object_manager)
-        return m_object_manager->HasPredefinedActors();
+    if (m_object_manager) return m_object_manager->HasPredefinedActors();
     return false;
 }
 
-void TerrainManager::HandleException(const char* summary)
+void TerrainManager::HandleException(const char *summary)
 {
     try
     {
         throw; // rethrow
     }
-    catch (Ogre::Exception& oex)
+    catch (Ogre::Exception &oex)
     {
         RoR::LogFormat("[RoR|Terrain] %s, message: '%s', type: <Ogre::Exception>.", summary, oex.getFullDescription().c_str());
     }
-    catch (std::exception& stex)
+    catch (std::exception &stex)
     {
         RoR::LogFormat("[RoR|Terrain] %s, message: '%s', type: <std::exception>.", summary, stex.what());
     }
@@ -558,4 +528,3 @@ void TerrainManager::HandleException(const char* summary)
         RoR::LogFormat("[RoR|Terrain] %s, unknown error occurred.", summary);
     }
 }
-

@@ -35,18 +35,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 using namespace Hydrax::Noise;
 
-Wave::Wave(Ogre::Vector2 dir, float A, float T, float p)
-    : mTime(0)
-    , mDir(dir)
-    , mA(A)
-    , mT(T)
-    , mP(p)
+Wave::Wave(Ogre::Vector2 dir, float A, float T, float p) : mTime(0), mDir(dir), mA(A), mT(T), mP(p)
 {
     mDir.normalise();
-    mL = 1.5625f*mT*mT;
-    mC = 1.25f*sqrt(mL);
-    mF = 2.f*M_PI/mT;
-    mK = 2.f*M_PI/mL;
+    mL = 1.5625f * mT * mT;
+    mC = 1.25f * sqrt(mL);
+    mF = 2.f * M_PI / mT;
+    mK = 2.f * M_PI / mL;
 }
 
 Wave::~Wave()
@@ -60,6 +55,6 @@ void Wave::update(const Ogre::Real &timeSinceLastFrame)
 
 float Wave::getValue(const float &x, const float &y)
 {
-    float X = mDir.x*x + mDir.y*y;
-    return mA * sin(mF*mTime - mK*X + mP);
+    float X = mDir.x * x + mDir.y * y;
+    return mA * sin(mF * mTime - mK * X + mP);
 }

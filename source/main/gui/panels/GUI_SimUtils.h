@@ -28,54 +28,58 @@
 #include "ForwardDeclarations.h"
 #include "GUI_SimUtilsLayout.h"
 
-namespace RoR {
-
-struct NotificationMessage
+namespace RoR
 {
-    unsigned long time; //!< post time in milliseconds since RoR start
-    unsigned long ttl; //!< in milliseconds
-    Ogre::UTFString txt; //!< not POD, beware...
-    Ogre::UTFString title; //!< not POD, beware...
-};
 
-namespace GUI {
+    struct NotificationMessage
+    {
+        unsigned long   time;  //!< post time in milliseconds since RoR start
+        unsigned long   ttl;   //!< in milliseconds
+        Ogre::UTFString txt;   //!< not POD, beware...
+        Ogre::UTFString title; //!< not POD, beware...
+    };
 
-class SimUtils: public SimUtilsLayout
-{
-public:
-    SimUtils();
-    ~SimUtils();
+    namespace GUI
+    {
 
-    void SetBaseVisible(bool v);
-    bool IsBaseVisible();
+        class SimUtils : public SimUtilsLayout
+        {
+          public:
+            SimUtils();
+            ~SimUtils();
 
-    void SetFPSBoxVisible(bool v);
-    bool IsFPSBoxVisible() { return m_fps_box_visible; }
+            void SetBaseVisible(bool v);
+            bool IsBaseVisible();
 
-    void SetActorInfoBoxVisible(bool v);
+            void SetFPSBoxVisible(bool v);
+            bool IsFPSBoxVisible()
+            {
+                return m_fps_box_visible;
+            }
 
-    void UpdateStats(float dt, Actor* actor); //different from Framestep!
-    void FrameStepSimGui(float dt);
+            void SetActorInfoBoxVisible(bool v);
 
-    void PushNotification(Ogre::String Title, Ogre::String text);
-    void HideNotificationBox();
-    void DisableNotifications(bool disabled);
+            void UpdateStats(float dt, Actor *actor); // different from Framestep!
+            void FrameStepSimGui(float dt);
 
-private:
+            void PushNotification(Ogre::String Title, Ogre::String text);
+            void HideNotificationBox();
+            void DisableNotifications(bool disabled);
 
-    //Colors
-    Ogre::UTFString MainThemeColor; // colour key shortcut
-    Ogre::UTFString WhiteColor; // colour key shortcut
-    Ogre::UTFString RedColor; // colour key shortcut
-    Ogre::UTFString BlueColor; // colour key shortcut
+          private:
+            // Colors
+            Ogre::UTFString MainThemeColor; // colour key shortcut
+            Ogre::UTFString WhiteColor;     // colour key shortcut
+            Ogre::UTFString RedColor;       // colour key shortcut
+            Ogre::UTFString BlueColor;      // colour key shortcut
 
-    std::string  m_actor_stats_str;
-    float        m_notifi_box_alpha; //!< Animated
-    long         m_last_notifi_push_time;
-    bool         m_notifications_disabled;
-    bool         m_fps_box_visible;
-    bool         m_actor_info_visible;
-};
+            std::string m_actor_stats_str;
+            float       m_notifi_box_alpha; //!< Animated
+            long        m_last_notifi_push_time;
+            bool        m_notifications_disabled;
+            bool        m_fps_box_visible;
+            bool        m_actor_info_visible;
+        };
 
-} // namespace GUI
+    } // namespace GUI
 } // namespace RoR

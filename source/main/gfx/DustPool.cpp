@@ -20,24 +20,22 @@
 
 #include "DustPool.h"
 
-#include <Ogre.h>
-
 #include "Application.h"
 #include "RoRPrerequisites.h"
 #include "TerrainManager.h"
 #include "Water.h"
 
+#include <Ogre.h>
+
 using namespace Ogre;
 
 #ifndef _WIN32
 // This definitions is needed because the variable is declared but not defined in DustPool
-  const int DustPool::MAX_DUSTS;
+const int DustPool::MAX_DUSTS;
 #endif // !_WIN32
 
-DustPool::DustPool(Ogre::SceneManager* sm, const char* dname, int dsize):
-	allocated(0),
-	size(std::min(dsize, static_cast<int>(MAX_DUSTS))),
-	m_is_discarded(false)
+DustPool::DustPool(Ogre::SceneManager *sm, const char *dname, int dsize)
+    : allocated(0), size(std::min(dsize, static_cast<int>(MAX_DUSTS))), m_is_discarded(false)
 {
     for (int i = 0; i < size; i++)
     {
@@ -50,34 +48,31 @@ DustPool::DustPool(Ogre::SceneManager* sm, const char* dname, int dsize):
             sns[i]->attachObject(pss[i]);
             pss[i]->setCastShadows(false);
             pss[i]->setVisibilityFlags(DEPTHMAP_DISABLED);
-            if (pss[i]->getNumEmitters() > 0)
-            {
-                pss[i]->getEmitter(0)->setEnabled(false);
-            }
+            if (pss[i]->getNumEmitters() > 0) { pss[i]->getEmitter(0)->setEnabled(false); }
         }
     }
 }
 
 DustPool::~DustPool()
 {
-	assert(m_is_discarded);
+    assert(m_is_discarded);
 }
 
-void DustPool::Discard(Ogre::SceneManager* sm)
+void DustPool::Discard(Ogre::SceneManager *sm)
 {
-	for (int i = 0; i < size; i++)
-	{
-		sns[i]->removeAndDestroyAllChildren();
-		sm->destroySceneNode(sns[i]);
-		sns[i] = nullptr;
+    for (int i = 0; i < size; i++)
+    {
+        sns[i]->removeAndDestroyAllChildren();
+        sm->destroySceneNode(sns[i]);
+        sns[i] = nullptr;
 
-		if (pss[i])
-		{
-			sm->destroyParticleSystem(pss[i]);
-			pss[i] = nullptr;
-		}
-	}
-	m_is_discarded = true;
+        if (pss[i])
+        {
+            sm->destroyParticleSystem(pss[i]);
+            pss[i] = nullptr;
+        }
+    }
+    m_is_discarded = true;
 }
 
 void DustPool::setVisible(bool s)
@@ -88,40 +83,40 @@ void DustPool::setVisible(bool s)
     }
 }
 
-//Dust
+// Dust
 void DustPool::malloc(Vector3 pos, Vector3 vel, ColourValue col)
 {
     if (allocated < size)
     {
-        positions[allocated] = pos;
+        positions[allocated]  = pos;
         velocities[allocated] = vel;
-        colours[allocated] = col;
-        types[allocated] = DUST_NORMAL;
+        colours[allocated]    = col;
+        types[allocated]      = DUST_NORMAL;
         allocated++;
     }
 }
 
-//Clumps
+// Clumps
 void DustPool::allocClump(Vector3 pos, Vector3 vel, ColourValue col)
 {
     if (allocated < size)
     {
-        positions[allocated] = pos;
+        positions[allocated]  = pos;
         velocities[allocated] = vel;
-        colours[allocated] = col;
-        types[allocated] = DUST_CLUMP;
+        colours[allocated]    = col;
+        types[allocated]      = DUST_CLUMP;
         allocated++;
     }
 }
 
-//Rubber smoke
+// Rubber smoke
 void DustPool::allocSmoke(Vector3 pos, Vector3 vel)
 {
     if (allocated < size)
     {
-        positions[allocated] = pos;
+        positions[allocated]  = pos;
         velocities[allocated] = vel;
-        types[allocated] = DUST_RUBBER;
+        types[allocated]      = DUST_RUBBER;
         allocated++;
     }
 }
@@ -129,26 +124,25 @@ void DustPool::allocSmoke(Vector3 pos, Vector3 vel)
 //
 void DustPool::allocSparks(Vector3 pos, Vector3 vel)
 {
-    if (vel.length() < 0.1)
-        return; // try to prevent emitting sparks while standing
+    if (vel.length() < 0.1) return; // try to prevent emitting sparks while standing
     if (allocated < size)
     {
-        positions[allocated] = pos;
+        positions[allocated]  = pos;
         velocities[allocated] = vel;
-        types[allocated] = DUST_SPARKS;
+        types[allocated]      = DUST_SPARKS;
         allocated++;
     }
 }
 
-//Water vapour
+// Water vapour
 void DustPool::allocVapour(Vector3 pos, Vector3 vel, float time)
 {
     if (allocated < size)
     {
-        positions[allocated] = pos;
+        positions[allocated]  = pos;
         velocities[allocated] = vel;
-        types[allocated] = DUST_VAPOUR;
-        rates[allocated] = 5.0 - time;
+        types[allocated]      = DUST_VAPOUR;
+        rates[allocated]      = 5.0 - time;
         allocated++;
     }
 }
@@ -157,10 +151,10 @@ void DustPool::allocDrip(Vector3 pos, Vector3 vel, float time)
 {
     if (allocated < size)
     {
-        positions[allocated] = pos;
+        positions[allocated]  = pos;
         velocities[allocated] = vel;
-        types[allocated] = DUST_DRIP;
-        rates[allocated] = 5.0 - time;
+        types[allocated]      = DUST_DRIP;
+        rates[allocated]      = 5.0 - time;
         allocated++;
     }
 }
@@ -169,9 +163,9 @@ void DustPool::allocSplash(Vector3 pos, Vector3 vel)
 {
     if (allocated < size)
     {
-        positions[allocated] = pos;
+        positions[allocated]  = pos;
         velocities[allocated] = vel;
-        types[allocated] = DUST_SPLASH;
+        types[allocated]      = DUST_SPLASH;
         allocated++;
     }
 }
@@ -180,9 +174,9 @@ void DustPool::allocRipple(Vector3 pos, Vector3 vel)
 {
     if (allocated < size)
     {
-        positions[allocated] = pos;
+        positions[allocated]  = pos;
         velocities[allocated] = vel;
-        types[allocated] = DUST_RIPPLE;
+        types[allocated]      = DUST_RIPPLE;
         allocated++;
     }
 }
@@ -191,13 +185,12 @@ void DustPool::update()
 {
     for (int i = 0; i < allocated; i++)
     {
-        ParticleEmitter* emit = pss[i]->getEmitter(0);
-        Vector3 ndir = velocities[i];
-        Real vel = ndir.length();
-        ColourValue col = colours[i];
+        ParticleEmitter *emit = pss[i]->getEmitter(0);
+        Vector3          ndir = velocities[i];
+        Real             vel  = ndir.length();
+        ColourValue      col  = colours[i];
 
-        if (vel == 0)
-            vel += 0.0001;
+        if (vel == 0) vel += 0.0001;
         ndir = ndir / vel;
 
         emit->setEnabled(true);
@@ -212,7 +205,7 @@ void DustPool::update()
         if (types[i] == DUST_NORMAL)
         {
             ndir.y = 0;
-            ndir = ndir / 2.0;
+            ndir   = ndir / 2.0;
 
             col.a = vel * 0.05;
             emit->setTimeToLive(vel * 0.05 / 0.1);
@@ -220,15 +213,14 @@ void DustPool::update()
         else if (types[i] == DUST_CLUMP)
         {
             ndir = ndir / 2.0;
-            if (ndir.y < 0)
-                ndir.y = -ndir.y;
+            if (ndir.y < 0) ndir.y = -ndir.y;
 
             col.a = 1.0;
         }
         else if (types[i] == DUST_RUBBER)
         {
             ndir.y = 0;
-            ndir = ndir / 4.0;
+            ndir   = ndir / 4.0;
 
             col.a = sqrt(vel) * 0.1;
             col.b = 0.9;
@@ -239,7 +231,7 @@ void DustPool::update()
         }
         else if (types[i] == DUST_SPARKS)
         {
-            //ugh
+            // ugh
         }
         else if (types[i] == DUST_VAPOUR)
         {
@@ -258,8 +250,7 @@ void DustPool::update()
         }
         else if (types[i] == DUST_SPLASH)
         {
-            if (ndir.y < 0)
-                ndir.y = -ndir.y / 2.0;
+            if (ndir.y < 0) ndir.y = -ndir.y / 2.0;
 
             emit->setDirection(ndir);
 

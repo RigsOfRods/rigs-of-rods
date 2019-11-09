@@ -34,31 +34,34 @@
 // #define NOLANG            = no language translations at all, removes any special parsing tags
 // #define USE_MOFILEREADER  = windows gettext replacement
 
-# define U(str) Ogre::UTFString(L##str)
+#define U(str) Ogre::UTFString(L##str)
 
 #ifdef NOLANG
-// no language mode
-# define _L
-# define _LC
+    // no language mode
+    #define _L
+    #define _LC
 
 #else // NOLANG
 
-// using mofilereader as gettext replacement
-#include <moFileReader.h>
+    // using mofilereader as gettext replacement
+    #include <moFileReader.h>
 
-#define _L(str) moFileLib::moFileReaderSingleton::GetInstance().Lookup(str).c_str()
-#define _LC(ctx,str) moFileLib::moFileReaderSingleton::GetInstance().LookupWithContext(ctx,str).c_str()
+    #define _L(str) moFileLib::moFileReaderSingleton::GetInstance().Lookup(str).c_str()
+    #define _LC(ctx, str) moFileLib::moFileReaderSingleton::GetInstance().LookupWithContext(ctx, str).c_str()
 
 class LanguageEngine : public RoRSingleton<LanguageEngine>, public ZeroedMemoryAllocator
 {
     friend class RoRSingleton<LanguageEngine>;
 
-public:
+  public:
     void setup();
 
-    std::vector<std::pair<std::string, std::string>> getLanguages() { return languages; };
+    std::vector<std::pair<std::string, std::string>> getLanguages()
+    {
+        return languages;
+    };
 
-private:
+  private:
     std::vector<std::pair<std::string, std::string>> languages;
 };
 

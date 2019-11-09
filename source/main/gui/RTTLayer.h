@@ -2,32 +2,32 @@
 
 #pragma once
 
+#include "MyGUI_OverlappedLayer.h"
 #include "MyGUI_Prerequest.h"
 #include "MyGUI_Types.h"
-#include "MyGUI_OverlappedLayer.h"
 
-namespace MyGUI {
-
-class RTTLayer :
-    public OverlappedLayer
+namespace MyGUI
 {
-    MYGUI_RTTI_DERIVED( RTTLayer )
 
-public:
-    RTTLayer();
-    virtual ~RTTLayer();
+    class RTTLayer : public OverlappedLayer
+    {
+        MYGUI_RTTI_DERIVED(RTTLayer)
 
-    virtual void deserialization(xml::ElementPtr _node, Version _version);
-    virtual void renderToTarget(IRenderTarget* _target, bool _update);
+      public:
+        RTTLayer();
+        virtual ~RTTLayer();
 
-    void setTextureSize(const IntSize& _size);
-    void setTextureName(const std::string& _name);
+        virtual void deserialization(xml::ElementPtr _node, Version _version);
+        virtual void renderToTarget(IRenderTarget *_target, bool _update);
 
-private:
-    MyGUI::ITexture* mTexture;
-    IntSize mTextureSize;
-    std::string mTextureName;
-    bool mOutOfDate;
-};
+        void setTextureSize(const IntSize &_size);
+        void setTextureName(const std::string &_name);
+
+      private:
+        MyGUI::ITexture *mTexture;
+        IntSize          mTextureSize;
+        std::string      mTextureName;
+        bool             mOutOfDate;
+    };
 
 } // namespace MyGUI

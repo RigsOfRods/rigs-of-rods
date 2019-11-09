@@ -24,13 +24,7 @@
 
 using namespace Ogre;
 
-Road::Road(Vector3 start) :
-    cur_rtype(0)
-    , free_rtype(0)
-    , lastpturn(0)
-    , ppitch(0)
-    , ppos(start)
-    , pturn(0)
+Road::Road(Vector3 start) : cur_rtype(0), free_rtype(0), lastpturn(0), ppitch(0), ppos(start), pturn(0)
 {
     addRoadType("Road");
     addRoadType("RoadBorderLeft");
@@ -45,10 +39,10 @@ Road::Road(Vector3 start) :
 
 void Road::preparePending()
 {
-    //setup rotation points
+    // setup rotation points
     lastpturn = pturn;
-    protl = ppos + Quaternion(Degree(pturn), Vector3::UNIT_Y) * Vector3(0, 0, 4.5);
-    protr = ppos + Quaternion(Degree(pturn), Vector3::UNIT_Y) * Vector3(0, 0, -4.5);
+    protl     = ppos + Quaternion(Degree(pturn), Vector3::UNIT_Y) * Vector3(0, 0, 4.5);
+    protr     = ppos + Quaternion(Degree(pturn), Vector3::UNIT_Y) * Vector3(0, 0, -4.5);
     tenode->setPosition(ppos);
     tenode->setOrientation(Quaternion(Degree(pturn), Vector3::UNIT_Y) * Quaternion(Degree(ppitch), Vector3::UNIT_Z));
     tenode->pitch(Degree(-90));
@@ -57,9 +51,7 @@ void Road::preparePending()
 void Road::updatePending()
 {
     if (pturn - lastpturn > 0)
-    {
-        tenode->setPosition(Quaternion(Degree(pturn - lastpturn), Vector3::UNIT_Y) * (ppos - protl) + protl);
-    }
+    { tenode->setPosition(Quaternion(Degree(pturn - lastpturn), Vector3::UNIT_Y) * (ppos - protl) + protl); }
     else
     {
         if (pturn - lastpturn < 0)
@@ -75,21 +67,21 @@ void Road::reset(Vector3 start)
 {
     cur_rtype = 0;
     lastpturn = 0;
-    ppitch = 0;
-    ppos = start;
-    pturn = 0;
+    ppitch    = 0;
+    ppos      = start;
+    pturn     = 0;
     strcpy(curtype, rtypes[cur_rtype].name);
     tenode = rtypes[cur_rtype].node;
     tenode->setVisible(true);
     preparePending();
 }
 
-void Road::addRoadType(const char* name)
+void Road::addRoadType(const char *name)
 {
     // create visuals
-    String entity_name = String("RoadPreview-").append(name);
-    String mesh_name = String(name).append(".mesh");
-    Entity* te = gEnv->sceneManager->createEntity(entity_name, mesh_name);
+    String  entity_name = String("RoadPreview-").append(name);
+    String  mesh_name   = String(name).append(".mesh");
+    Entity *te          = gEnv->sceneManager->createEntity(entity_name, mesh_name);
 
     te->setCastShadows(false);
 
@@ -106,12 +98,9 @@ void Road::addRoadType(const char* name)
 void Road::toggleType()
 {
     Quaternion rot = tenode->getOrientation();
-    Vector3 pos = tenode->getPosition();
+    Vector3    pos = tenode->getPosition();
     cur_rtype++;
-    if (cur_rtype >= free_rtype || cur_rtype >= MAX_RTYPES)
-    {
-        cur_rtype = 0;
-    }
+    if (cur_rtype >= free_rtype || cur_rtype >= MAX_RTYPES) { cur_rtype = 0; }
     strcpy(curtype, rtypes[cur_rtype].name);
     tenode->setVisible(false);
     tenode = rtypes[cur_rtype].node;
@@ -136,10 +125,7 @@ void Road::append()
 {
     // register pending and set collision boxes
     // first, calculate the real position
-    if (pturn - lastpturn > 0)
-    {
-        rpos = Quaternion(Degree(pturn - lastpturn), Vector3::UNIT_Y) * (ppos - protl) + protl;
-    }
+    if (pturn - lastpturn > 0) { rpos = Quaternion(Degree(pturn - lastpturn), Vector3::UNIT_Y) * (ppos - protl) + protl; }
     else
     {
         if (pturn - lastpturn < 0)

@@ -33,30 +33,31 @@
 #include "GUI_DebugOptions.h"
 
 #include "Application.h"
-#include "RoRPrerequisites.h"
-#include "Utils.h"
-#include "RoRVersion.h"
-#include "RoRnet.h"
 #include "Language.h"
 #include "MainMenu.h" //Get MainMenu pointer
+#include "RoRPrerequisites.h"
+#include "RoRVersion.h"
+#include "RoRnet.h"
+#include "Utils.h"
 
 #include <MyGUI.h>
 
 using namespace RoR;
 using namespace GUI;
 
-#define CLASS        DebugOptions
-#define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
+#define CLASS DebugOptions
+#define MAIN_WIDGET ((MyGUI::Window *)mMainWidget)
 
 CLASS::CLASS()
 {
     MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
-    win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
+    win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); // The "X" button thing
 
     MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
-    mMainWidget->setPosition(gui_area.width / 2 - mMainWidget->getWidth() / 2, gui_area.height / 2 - mMainWidget->getHeight() / 2);
+    mMainWidget->setPosition(gui_area.width / 2 - mMainWidget->getWidth() / 2,
+                             gui_area.height / 2 - mMainWidget->getHeight() / 2);
 
-    //checkboxes
+    // checkboxes
     m_debug_truck_mass->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnDebugActorMassCheck);
     m_debug_collision_meshes->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnDebugColiMeshesCheck);
     m_ingame_console->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnIngameConsoleCheck);
@@ -69,7 +70,7 @@ CLASS::CLASS()
     m_adv_logging->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnAdvLoggingCheck);
     m_disable_crash_reporting->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnCrashReportCheck);
 
-    //buttons
+    // buttons
     m_Save_btn->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickSaveButton);
 
     Hide();
@@ -82,7 +83,6 @@ CLASS::~CLASS()
 void CLASS::Show()
 {
     MAIN_WIDGET->setVisibleSmooth(true);
-
 }
 
 void CLASS::Hide()
@@ -92,73 +92,59 @@ void CLASS::Hide()
 
 void CLASS::UpdateControls()
 {
-    
 }
 
-void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
+void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string &_name)
 {
-    if (_name == "close")
-        Hide();
+    if (_name == "close") Hide();
 }
 
 void CLASS::OnDebugActorMassCheck(MyGUI::WidgetPtr _sender)
 {
-
 }
 
 void CLASS::OnDebugColiMeshesCheck(MyGUI::WidgetPtr _sender)
 {
-
 }
 
 void CLASS::OnIngameConsoleCheck(MyGUI::WidgetPtr _sender)
 {
-
 }
 
 void CLASS::OnDebugEnvMapCheck(MyGUI::WidgetPtr _sender)
 {
-
 }
 
 void CLASS::OnDebugVideoCameraCheck(MyGUI::WidgetPtr _sender)
 {
-
 }
 
 void CLASS::OnDebugTriggerCheck(MyGUI::WidgetPtr _sender)
 {
-
 }
 
 void CLASS::OnDebugDOFCheck(MyGUI::WidgetPtr _sender)
 {
-
 }
 
 void CLASS::OnBeamBreakCheck(MyGUI::WidgetPtr _sender)
 {
-
 }
 
 void CLASS::OnBeamDeformCheck(MyGUI::WidgetPtr _sender)
 {
-
 }
 
 void CLASS::OnAdvLoggingCheck(MyGUI::WidgetPtr _sender)
 {
-
 }
 
 void CLASS::OnCrashReportCheck(MyGUI::WidgetPtr _sender)
 {
-
 }
 
 void CLASS::SaveConfig()
 {
-
 }
 
 void CLASS::SetVisible(bool v)

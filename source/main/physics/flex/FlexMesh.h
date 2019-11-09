@@ -21,47 +21,40 @@
 
 #pragma once
 
+#include "Flexable.h"
 #include "RoRPrerequisites.h"
 
-#include "Flexable.h"
-
-#include <OgreString.h>
 #include <OgreEntity.h>
-#include <OgreVector3.h>
-#include <OgreMesh.h>
-#include <OgreSubMesh.h>
 #include <OgreHardwareBuffer.h>
+#include <OgreMesh.h>
+#include <OgreString.h>
+#include <OgreSubMesh.h>
+#include <OgreVector3.h>
 
-class FlexMesh: public Flexable
+class FlexMesh : public Flexable
 {
-public:
-
-    FlexMesh(
-        Ogre::String const& name,
-        RoR::GfxActor* gfx_actor,
-        int n1,
-        int n2,
-        int nstart,
-        int nrays,
-        Ogre::String const& face_material_name,
-        Ogre::String const& band_material_name,
-        bool rimmed = false,
-        float rimratio = 1.f
-    );
+  public:
+    FlexMesh(Ogre::String const &name, RoR::GfxActor *gfx_actor, int n1, int n2, int nstart, int nrays,
+             Ogre::String const &face_material_name, Ogre::String const &band_material_name, bool rimmed = false,
+             float rimratio = 1.f);
 
     ~FlexMesh();
 
     Ogre::Vector3 updateVertices();
 
     // Flexable
-    bool flexitPrepare() { return true; };
-    void flexitCompute();
+    bool flexitPrepare()
+    {
+        return true;
+    };
+    void          flexitCompute();
     Ogre::Vector3 flexitFinal();
 
-    void setVisible(bool visible) {} // Nothing to do here
+    void setVisible(bool visible)
+    {
+    } // Nothing to do here
 
-private:
-
+  private:
     struct FlexMeshVertex
     {
         Ogre::Vector3 position;
@@ -70,23 +63,23 @@ private:
     };
 
     // Wheel
-    Ogre::Vector3     m_flexit_center;
-    RoR::GfxActor*    m_gfx_actor;
-    int               m_num_rays;
-    bool              m_is_rimmed;
+    Ogre::Vector3  m_flexit_center;
+    RoR::GfxActor *m_gfx_actor;
+    int            m_num_rays;
+    bool           m_is_rimmed;
 
     // Meshes
-    Ogre::MeshPtr     m_mesh;
-    Ogre::SubMesh*    m_submesh_wheelface;
-    Ogre::SubMesh*    m_submesh_tiretread;
-    Ogre::VertexDeclaration* m_vertex_format;
+    Ogre::MeshPtr                       m_mesh;
+    Ogre::SubMesh *                     m_submesh_wheelface;
+    Ogre::SubMesh *                     m_submesh_tiretread;
+    Ogre::VertexDeclaration *           m_vertex_format;
     Ogre::HardwareVertexBufferSharedPtr m_hw_vbuf;
 
     // Vertices
-    FlexMeshVertex*   m_vertices;
-    int*              m_vertex_nodes;
+    FlexMeshVertex *m_vertices;
+    int *           m_vertex_nodes;
 
     // Indices
-    unsigned short*   m_wheelface_indices;
-    unsigned short*   m_tiretread_indices;
+    unsigned short *m_wheelface_indices;
+    unsigned short *m_tiretread_indices;
 };

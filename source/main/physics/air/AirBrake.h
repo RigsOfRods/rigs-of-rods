@@ -28,8 +28,7 @@ class Airbrake : public ZeroedMemoryAllocator
 {
     friend class RoR::GfxActor; // Takes over the initialized OGRE objects
 
-private:
-
+  private:
     struct CoVertice_t
     {
         Ogre::Vector3 vertex;
@@ -37,22 +36,26 @@ private:
         Ogre::Vector2 texcoord;
     };
 
-    Ogre::MeshPtr msh;
-    Ogre::SceneNode* snode;
-    node_t* noderef;
-    node_t* nodex;
-    node_t* nodey;
-    node_t* nodea;
-    Ogre::Vector3 offset; //!< gfx attribute
-    float ratio; //!< Current state
-    float maxangle; //!< attribute from truckfile
-    float area; //!< Attribute set at spawn
+    Ogre::MeshPtr    msh;
+    Ogre::SceneNode *snode;
+    node_t *         noderef;
+    node_t *         nodex;
+    node_t *         nodey;
+    node_t *         nodea;
+    Ogre::Vector3    offset;   //!< gfx attribute
+    float            ratio;    //!< Current state
+    float            maxangle; //!< attribute from truckfile
+    float            area;     //!< Attribute set at spawn
 
-    Ogre::Entity* ec;
+    Ogre::Entity *ec;
 
-public:
-    Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, node_t* ndx, node_t* ndy, node_t* nda, Ogre::Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float tx2, float tx3, float tx4, float lift_coef);
-    ~Airbrake() {} // Cleanup of visuals is done by GfxActor
+  public:
+    Airbrake(Actor *actor, const char *basename, int num, node_t *ndref, node_t *ndx, node_t *ndy, node_t *nda, Ogre::Vector3 pos,
+             float width, float length, float maxang, std::string const &texname, float tx1, float tx2, float tx3, float tx4,
+             float lift_coef);
+    ~Airbrake()
+    {
+    } // Cleanup of visuals is done by GfxActor
 
     void updatePosition(float amount);
     void applyForce();

@@ -20,29 +20,27 @@
 
 #pragma once
 
-#include <Ogre.h>
-
-#include "RoRPrerequisites.h"
 #include "BeamData.h" // For MAX_AEROENGINES
+#include "RoRPrerequisites.h"
+
+#include <Ogre.h>
 
 class FlexAirfoil : public ZeroedMemoryAllocator
 {
     friend class RigInspector; // Debug utility class
 
-public:
-
-    FlexAirfoil(Ogre::String const& wname, Actor* actor,
-        int pnfld, int pnfrd, int pnflu, int pnfru, int pnbld, int pnbrd, int pnblu, int pnbru,
-        std::string const & texname,
-        Ogre::Vector2 texlf, Ogre::Vector2 texrf, Ogre::Vector2 texlb, Ogre::Vector2 texrb,
-        char mtype, float controlratio, float mind, float maxd, Ogre::String const& afname, float lift_coef, bool break_able);
+  public:
+    FlexAirfoil(Ogre::String const &wname, Actor *actor, int pnfld, int pnfrd, int pnflu, int pnfru, int pnbld, int pnbrd,
+                int pnblu, int pnbru, std::string const &texname, Ogre::Vector2 texlf, Ogre::Vector2 texrf, Ogre::Vector2 texlb,
+                Ogre::Vector2 texrb, char mtype, float controlratio, float mind, float maxd, Ogre::String const &afname,
+                float lift_coef, bool break_able);
 
     ~FlexAirfoil();
 
     // DEV NOTE: original `updateVertices()` updated both physics state + visuals.
-    void updateVerticesPhysics();
-    Ogre::Vector3 updateVerticesGfx(RoR::GfxActor* gfx_actor);
-    void uploadVertices();
+    void          updateVerticesPhysics();
+    Ogre::Vector3 updateVerticesGfx(RoR::GfxActor *gfx_actor);
+    void          uploadVertices();
 
     void setControlDeflection(float val);
 
@@ -53,22 +51,21 @@ public:
     void updateForces();
 
     float aoa;
-    char type;
-    int nfld;
-    int nfrd;
-    int nflu;
-    int nfru;
-    int nbld;
-    int nbrd;
-    int nblu;
-    int nbru;
+    char  type;
+    int   nfld;
+    int   nfrd;
+    int   nflu;
+    int   nfru;
+    int   nbld;
+    int   nbrd;
+    int   nblu;
+    int   nbru;
 
-    bool broken;
-    bool breakable;
+    bool  broken;
+    bool  breakable;
     float liftcoef;
 
-private:
-
+  private:
     float airfoilpos[90];
 
     typedef struct
@@ -79,55 +76,54 @@ private:
         Ogre::Vector2 texcoord;
     } CoVertice_t;
 
-    Ogre::MeshPtr msh;
-    Ogre::SubMesh* subface;
-    Ogre::SubMesh* subband;
+    Ogre::MeshPtr  msh;
+    Ogre::SubMesh *subface;
+    Ogre::SubMesh *subband;
 
-    Ogre::SubMesh* subcup;
-    Ogre::SubMesh* subcdn;
+    Ogre::SubMesh *subcup;
+    Ogre::SubMesh *subcdn;
 
-    Ogre::VertexDeclaration* decl;
+    Ogre::VertexDeclaration *           decl;
     Ogre::HardwareVertexBufferSharedPtr vbuf;
 
     size_t nVertices;
     size_t vbufCount;
 
-    union
-    {
-        float* vertices;
-        CoVertice_t* covertices;
+    union {
+        float *      vertices;
+        CoVertice_t *covertices;
     };
 
-    size_t faceibufCount;
-    size_t bandibufCount;
-    size_t cupibufCount;
-    size_t cdnibufCount;
-    unsigned short* facefaces;
-    unsigned short* bandfaces;
-    unsigned short* cupfaces;
-    unsigned short* cdnfaces;
-    node_t* nodes;
+    size_t          faceibufCount;
+    size_t          bandibufCount;
+    size_t          cupibufCount;
+    size_t          cdnibufCount;
+    unsigned short *facefaces;
+    unsigned short *bandfaces;
+    unsigned short *cupfaces;
+    unsigned short *cdnfaces;
+    node_t *        nodes;
 
     float sref;
 
     float deflection;
     float chordratio;
-    bool hascontrol;
-    bool isstabilator;
-    bool stabilleft;
+    bool  hascontrol;
+    bool  isstabilator;
+    bool  stabilleft;
     float lratio;
     float rratio;
     float mindef;
     float maxdef;
     float thickness;
-    bool useInducedDrag;
+    bool  useInducedDrag;
     float idSpan;
     float idArea;
-    bool idLeft;
+    bool  idLeft;
 
-    Airfoil* airfoil;
-    AeroEngine** aeroengines;
-    int free_wash;
-    int washpropnum[MAX_AEROENGINES];
-    float washpropratio[MAX_AEROENGINES];
+    Airfoil *    airfoil;
+    AeroEngine **aeroengines;
+    int          free_wash;
+    int          washpropnum[MAX_AEROENGINES];
+    float        washpropratio[MAX_AEROENGINES];
 };

@@ -28,9 +28,9 @@
 /// triangle lies.
 class Triangle
 {
-public:
+  public:
     /// Construct triangle from three given vertices.
-    explicit Triangle(const Ogre::Vector3& a, const Ogre::Vector3& b, const Ogre::Vector3& c)
+    explicit Triangle(const Ogre::Vector3 &a, const Ogre::Vector3 &b, const Ogre::Vector3 &c)
         : a{a}, b{b}, c{c}, u{a - c}, v{b - c}, m_initialized{false}
     {
     }
@@ -51,13 +51,13 @@ public:
     }
 
     const Ogre::Vector3 a, ///< Vertex a
-                        b, ///< Vertex b
-                        c; ///< Vertex c
+        b,                 ///< Vertex b
+        c;                 ///< Vertex c
 
     const Ogre::Vector3 u, ///< Span vector u
-                        v; ///< Span vector v
+        v;                 ///< Span vector v
 
-private:
-    mutable bool m_initialized;
+  private:
+    mutable bool          m_initialized;
     mutable Ogre::Vector3 m_normal; ///< Cached normal vector
 };

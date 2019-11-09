@@ -31,13 +31,9 @@
 #include "MainMenu.h"
 #include "PlatformUtils.h"
 
-RoR::GUI::GameMainMenu::GameMainMenu(): 
-    m_is_visible(false), m_num_buttons(5), m_kb_focus_index(-1), m_kb_enter_index(-1)
+RoR::GUI::GameMainMenu::GameMainMenu() : m_is_visible(false), m_num_buttons(5), m_kb_focus_index(-1), m_kb_enter_index(-1)
 {
-    if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), "autosave.sav")))
-    {
-        m_num_buttons++;
-    }
+    if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), "autosave.sav"))) { m_num_buttons++; }
 }
 
 void RoR::GUI::GameMainMenu::Draw()
@@ -50,32 +46,29 @@ void RoR::GUI::GameMainMenu::Draw()
     // Display in bottom left corner for single-screen setups and centered for multi-screen (typically 3-screen) setups.
     ImVec2 display_size = ImGui::GetIO().DisplaySize;
     if ((display_size.x > 2200.f) && (display_size.y < 1100.f)) // Silly approximate values
-    {
-        ImGui::SetNextWindowPosCenter();
-    }
+    { ImGui::SetNextWindowPosCenter(); }
     else
     {
-        const float btn_height = ImGui::GetTextLineHeight() + (BUTTON_PADDING.y * 2);
-        const float window_height = (6*btn_height) + (5*ImGui::GetStyle().ItemSpacing.y) + (2*ImGui::GetStyle().WindowPadding.y); // 5 buttons + titlebar; 2x spacing around separator
+        const float btn_height    = ImGui::GetTextLineHeight() + (BUTTON_PADDING.y * 2);
+        const float window_height = (6 * btn_height) + (5 * ImGui::GetStyle().ItemSpacing.y) +
+                                    (2 * ImGui::GetStyle().WindowPadding.y); // 5 buttons + titlebar; 2x spacing around separator
         const float margin = display_size.y / 15.f;
-        const float top = display_size.y - window_height - margin;
+        const float top    = display_size.y - window_height - margin;
         ImGui::SetNextWindowPos(ImVec2(margin, top));
     }
     ImGui::SetNextWindowContentWidth(WINDOW_WIDTH);
     int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
     if (ImGui::Begin("Main menu", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
     {
-        int button_index = 0;
+        int    button_index = 0;
         ImVec2 btn_size(WINDOW_WIDTH - ImGui::GetStyle().WindowPadding.x, 0.f);
 
-        const char* sp_title = (m_kb_focus_index == button_index) ? "--> Single player <--" : "Single player"; // TODO: Localize all!
+        const char *sp_title =
+            (m_kb_focus_index == button_index) ? "--> Single player <--" : "Single player"; // TODO: Localize all!
         if (ImGui::Button(sp_title, btn_size) || (m_kb_enter_index == button_index++))
         {
             this->SetVisible(false);
-            if (App::diag_preset_terrain.IsActiveEmpty())
-            {
-                App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
-            }
+            if (App::diag_preset_terrain.IsActiveEmpty()) { App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain); }
             else
             {
                 App::app_state.SetPending(RoR::AppState::SIMULATION);
@@ -84,7 +77,7 @@ void RoR::GUI::GameMainMenu::Draw()
 
         if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), "autosave.sav")))
         {
-            const char* resume_title = (m_kb_focus_index == button_index) ? "--> Resume game <--" : "Resume game";
+            const char *resume_title = (m_kb_focus_index == button_index) ? "--> Resume game <--" : "Resume game";
             if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == button_index++))
             {
                 App::sim_savegame.SetActive("autosave.sav");
@@ -94,28 +87,28 @@ void RoR::GUI::GameMainMenu::Draw()
             }
         }
 
-        const char* mp_title = (m_kb_focus_index == button_index) ? "--> Multi player <--" : "Multi player";
-        if (ImGui::Button(mp_title , btn_size) || (m_kb_enter_index == button_index++))
+        const char *mp_title = (m_kb_focus_index == button_index) ? "--> Multi player <--" : "Multi player";
+        if (ImGui::Button(mp_title, btn_size) || (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
             this->SetVisible(false);
         }
 
-        const char* settings_title = (m_kb_focus_index == button_index) ? "--> Settings <--" : "Settings";
+        const char *settings_title = (m_kb_focus_index == button_index) ? "--> Settings <--" : "Settings";
         if (ImGui::Button(settings_title, btn_size) || (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_GameSettings(true);
             this->SetVisible(false);
         }
 
-        const char* about_title = (m_kb_focus_index == button_index) ? "--> About <--" : "About";
-        if (ImGui::Button(about_title, btn_size)|| (m_kb_enter_index == button_index++))
+        const char *about_title = (m_kb_focus_index == button_index) ? "--> About <--" : "About";
+        if (ImGui::Button(about_title, btn_size) || (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_GameAbout(true);
             this->SetVisible(false);
         }
 
-        const char* exit_title = (m_kb_focus_index == button_index) ? "--> Exit game <--" : "Exit game";
+        const char *exit_title = (m_kb_focus_index == button_index) ? "--> Exit game <--" : "Exit game";
         if (ImGui::Button(exit_title, btn_size) || (m_kb_enter_index == button_index++))
         {
             App::app_state.SetPending(RoR::AppState::SHUTDOWN);
@@ -128,4 +121,3 @@ void RoR::GUI::GameMainMenu::Draw()
     ImGui::PopStyleColor(3);
     m_kb_enter_index = -1;
 }
-

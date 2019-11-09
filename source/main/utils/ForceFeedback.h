@@ -22,31 +22,35 @@
 #pragma once
 
 // Forward decl.
-namespace OIS { class ForceFeedback; class Effect; }
-
-namespace RoR {
-
-class ForceFeedback
+namespace OIS
 {
-public:
+    class ForceFeedback;
+    class Effect;
+} // namespace OIS
 
-    ForceFeedback(): m_device(nullptr), m_hydro_effect(nullptr), m_enabled(false)
+namespace RoR
+{
+
+    class ForceFeedback
     {
-    }
+      public:
+        ForceFeedback() : m_device(nullptr), m_hydro_effect(nullptr), m_enabled(false)
+        {
+        }
 
-    void Setup();
-    void SetEnabled(bool v);
+        void Setup();
+        void SetEnabled(bool v);
 
-    ///we take here :
-    /// -roll and pitch inertial forces at the camera: this is not used currently, but it can be used for 2 axes force feedback devices, like FF joysticks, to render shocks
-    /// -wheel speed and direction command, for the artificial auto-centering (which is wheel speed dependant)
-    /// -hydro beam stress, the ideal data source for FF wheels
-    void SetForces(float roll, float pitch, float wspeed, float dircommand, float stress);
+        /// we take here :
+        /// -roll and pitch inertial forces at the camera: this is not used currently, but it can be used for 2 axes force
+        /// feedback devices, like FF joysticks, to render shocks -wheel speed and direction command, for the artificial
+        /// auto-centering (which is wheel speed dependant) -hydro beam stress, the ideal data source for FF wheels
+        void SetForces(float roll, float pitch, float wspeed, float dircommand, float stress);
 
-private:
-    OIS::ForceFeedback* m_device;
-    OIS::Effect*        m_hydro_effect;
-    bool                m_enabled; /// Disables FF when not in vehicle
-};
+      private:
+        OIS::ForceFeedback *m_device;
+        OIS::Effect *       m_hydro_effect;
+        bool                m_enabled; /// Disables FF when not in vehicle
+    };
 
 } // namespace RoR

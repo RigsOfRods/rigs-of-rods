@@ -21,31 +21,32 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
-
 #include "Character.h"
 #include "Network.h"
+#include "RoRPrerequisites.h"
 
-namespace RoR {
-
-class CharacterFactory
+namespace RoR
 {
-public:
-    CharacterFactory() {}
-    Character* createLocal(Ogre::UTFString playerName, int playerColour);
-    void DeleteAllRemoteCharacters();
-    void UndoRemoteActorCoupling(Actor* actor);
-    void update(float dt);
+
+    class CharacterFactory
+    {
+      public:
+        CharacterFactory()
+        {
+        }
+        Character *createLocal(Ogre::UTFString playerName, int playerColour);
+        void       DeleteAllRemoteCharacters();
+        void       UndoRemoteActorCoupling(Actor *actor);
+        void       update(float dt);
 #ifdef USE_SOCKETW
-    void handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
+        void handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
 #endif // USE_SOCKETW
 
-private:
+      private:
+        std::vector<std::unique_ptr<Character>> m_remote_characters;
 
-    std::vector<std::unique_ptr<Character>> m_remote_characters;
-
-    void createRemoteInstance(int sourceid, int streamid);
-    void removeStreamSource(int sourceid);
-};
+        void createRemoteInstance(int sourceid, int streamid);
+        void removeStreamSource(int sourceid);
+    };
 
 } // namespace RoR

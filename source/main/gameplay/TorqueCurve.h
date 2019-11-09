@@ -33,10 +33,10 @@
  */
 class TorqueCurve : public ZeroedMemoryAllocator
 {
-public:
+  public:
     const static Ogre::String customModel;
 
-    TorqueCurve(); //!< Constructor
+    TorqueCurve();  //!< Constructor
     ~TorqueCurve(); //!< Destructor
 
     /**
@@ -54,40 +54,46 @@ public:
     int setTorqueModel(Ogre::String name);
 
     /**
-    * Creates new torque curve.
-    * @return True if created, false if already existed.
-    */
-    bool CreateNewCurve(Ogre::String const& name = customModel);
+     * Creates new torque curve.
+     * @return True if created, false if already existed.
+     */
+    bool CreateNewCurve(Ogre::String const &name = customModel);
 
     /**
      * Adds a point to the torque curve graph.
      * @param progress 0 - 1
      * @param model Torque model name (i.e. 'turbodiesel').
      */
-    void AddCurveSample(float rpm, float progress, Ogre::String const& model = customModel);
+    void AddCurveSample(float rpm, float progress, Ogre::String const &model = customModel);
 
     /**
      * Returns the used spline.
      * @return The torque spline used by the vehicle.
      */
-    Ogre::SimpleSpline* getUsedSpline() { return usedSpline; };
+    Ogre::SimpleSpline *getUsedSpline()
+    {
+        return usedSpline;
+    };
 
     /**
      * Returns the name of the torque model used by the vehicle.
      * @return The name of the torque model used by the vehicle.
      */
-    Ogre::String getTorqueModel() { return usedModel; };
+    Ogre::String getTorqueModel()
+    {
+        return usedModel;
+    };
 
     /**
      * Spaces the points of a spline evenly; this is needed for the correct calculation of the Ogre simple spline.
      * @param spline Pointer to the spline which should be processed.
      * @return 0 on success, 1 on error
      */
-    int spaceCurveEvenly(Ogre::SimpleSpline* spline);
+    int spaceCurveEvenly(Ogre::SimpleSpline *spline);
 
-protected:
-    Ogre::SimpleSpline* usedSpline; //!< spline which is used for calculating the torque, set by setTorqueModel().
-    Ogre::String usedModel; //!< name of the torque model used by the truck.
+  protected:
+    Ogre::SimpleSpline *usedSpline; //!< spline which is used for calculating the torque, set by setTorqueModel().
+    Ogre::String        usedModel;  //!< name of the torque model used by the truck.
     std::map<Ogre::String, Ogre::SimpleSpline> splines; //!< container were all torque curve splines are stored in.
 
     /**

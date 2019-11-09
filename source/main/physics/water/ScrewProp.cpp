@@ -33,13 +33,8 @@
 using namespace Ogre;
 using namespace RoR;
 
-Screwprop::Screwprop(node_t* nodes, int noderef, int nodeback, int nodeup, float fullpower, int trucknum) :
-    nodes(nodes)
-    , noderef(noderef)
-    , nodeback(nodeback)
-    , nodeup(nodeup)
-    , fullpower(fullpower)
-    , trucknum(trucknum)
+Screwprop::Screwprop(node_t *nodes, int noderef, int nodeback, int nodeup, float fullpower, int trucknum)
+    : nodes(nodes), noderef(noderef), nodeback(nodeback), nodeup(nodeup), fullpower(fullpower), trucknum(trucknum)
 {
     splashp = RoR::App::GetSimController()->GetGfxScene().GetDustPool("splash");
     ripplep = RoR::App::GetSimController()->GetGfxScene().GetDustPool("ripple");
@@ -48,17 +43,14 @@ Screwprop::Screwprop(node_t* nodes, int noderef, int nodeback, int nodeup, float
 
 void Screwprop::updateForces(int update)
 {
-    if (!App::GetSimTerrain()->getWater())
-        return;
+    if (!App::GetSimTerrain()->getWater()) return;
 
     float depth = App::GetSimTerrain()->getWater()->CalcWavesHeight(nodes[noderef].AbsPosition) - nodes[noderef].AbsPosition.y;
-    if (depth < 0)
-        return; //out of water!
-    Vector3 dir = nodes[nodeback].RelPosition - nodes[noderef].RelPosition;
+    if (depth < 0) return; // out of water!
+    Vector3 dir     = nodes[nodeback].RelPosition - nodes[noderef].RelPosition;
     Vector3 rudaxis = nodes[noderef].RelPosition - nodes[nodeup].RelPosition;
     dir.normalise();
-    if (reverse)
-        dir = -dir;
+    if (reverse) dir = -dir;
     rudaxis.normalise();
     dir = (throtle * fullpower) * (Quaternion(Degree(rudder), rudaxis) * dir);
     nodes[noderef].Forces += dir;
@@ -75,23 +67,19 @@ void Screwprop::updateForces(int update)
 
 void Screwprop::setThrottle(float val)
 {
-    if (val > 1.0)
-        val = 1.0;
-    if (val < -1.0)
-        val = -1.0;
+    if (val > 1.0) val = 1.0;
+    if (val < -1.0) val = -1.0;
     throtle = fabs(val);
     reverse = (val < 0);
-    //pseudo-rpm
+    // pseudo-rpm
     float prpm = (0.5 + fabs(val) / 2.0) * 100.0;
     SOUND_MODULATE(trucknum, SS_MOD_ENGINE, prpm);
 }
 
 void Screwprop::setRudder(float val)
 {
-    if (val > 1.0)
-        val = 1.0;
-    if (val < -1.0)
-        val = -1.0;
+    if (val > 1.0) val = 1.0;
+    if (val < -1.0) val = -1.0;
     rudder = val * 45.0;
 }
 
@@ -111,7 +99,7 @@ float Screwprop::getRudder()
 void Screwprop::reset()
 {
     setThrottle(0);
-    rudder = 0;
+    rudder  = 0;
     reverse = false;
 }
 

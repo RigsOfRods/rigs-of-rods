@@ -26,12 +26,14 @@
 
 class Flexable
 {
-public:
-    virtual ~Flexable() {}
+  public:
+    virtual ~Flexable()
+    {
+    }
 
-    virtual bool flexitPrepare() = 0;
-    virtual void flexitCompute() = 0;
-    virtual Ogre::Vector3 flexitFinal() = 0;
+    virtual bool          flexitPrepare() = 0;
+    virtual void          flexitCompute() = 0;
+    virtual Ogre::Vector3 flexitFinal()   = 0;
 
     virtual void setVisible(bool visible) = 0;
 };

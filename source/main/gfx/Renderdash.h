@@ -24,31 +24,35 @@
 
 #include <Ogre.h>
 
-namespace RoR {
-
-/// 'renderdash' is a name of a classic Render-To-Texture animated material with gauges and other dashboard info.
-class Renderdash: public Ogre::RenderTargetListener
+namespace RoR
 {
-public:
-    Renderdash(std::string const& rg_name, std::string const& tex_name, std::string const& cam_name);
-    ~Renderdash();
 
-    void setEnable(bool en);
-    Ogre::TexturePtr getTexture() { return m_texture; }
+    /// 'renderdash' is a name of a classic Render-To-Texture animated material with gauges and other dashboard info.
+    class Renderdash : public Ogre::RenderTargetListener
+    {
+      public:
+        Renderdash(std::string const &rg_name, std::string const &tex_name, std::string const &cam_name);
+        ~Renderdash();
 
-    // Ogre::RenderTargetListener
-    void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
-    void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
+        void             setEnable(bool en);
+        Ogre::TexturePtr getTexture()
+        {
+            return m_texture;
+        }
 
-private:
-    Ogre::Camera*          m_dash_cam;
-    Ogre::RenderTexture*   m_rtt_tex;
-    Ogre::TexturePtr       m_texture;
-    Ogre::Overlay*         m_blend_overlay;
-    Ogre::Overlay*         m_dash_overlay;
-    Ogre::Overlay*         m_fps_overlay;
-    Ogre::Overlay*         m_needles_overlay;
-    bool                   m_fps_displayed;
-};
+        // Ogre::RenderTargetListener
+        void preRenderTargetUpdate(const Ogre::RenderTargetEvent &evt) override;
+        void postRenderTargetUpdate(const Ogre::RenderTargetEvent &evt) override;
+
+      private:
+        Ogre::Camera *       m_dash_cam;
+        Ogre::RenderTexture *m_rtt_tex;
+        Ogre::TexturePtr     m_texture;
+        Ogre::Overlay *      m_blend_overlay;
+        Ogre::Overlay *      m_dash_overlay;
+        Ogre::Overlay *      m_fps_overlay;
+        Ogre::Overlay *      m_needles_overlay;
+        bool                 m_fps_displayed;
+    };
 
 } // namespace RoR

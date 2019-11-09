@@ -28,9 +28,9 @@
 #include "Application.h"
 #include "RoRPrerequisites.h"
 
-RoR::GUI::GamePauseMenu::GamePauseMenu(): 
-    m_kb_focus_index(-1), m_kb_enter_index(-1)
-{}
+RoR::GUI::GamePauseMenu::GamePauseMenu() : m_kb_focus_index(-1), m_kb_enter_index(-1)
+{
+}
 
 void RoR::GUI::GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cleanup and unify the logic! ~ only_a_ptr, 06/2017
 {
@@ -42,16 +42,14 @@ void RoR::GUI::GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cle
     // Display in bottom left corner for single-screen setups and centered for multi-screen (typically 3-screen) setups.
     ImVec2 display_size = ImGui::GetIO().DisplaySize;
     if ((display_size.x > 2200.f) && (display_size.y < 1100.f)) // Silly approximate values
-    {
-        ImGui::SetNextWindowPosCenter();
-    }
+    { ImGui::SetNextWindowPosCenter(); }
     else
     {
-        const float btn_height = ImGui::GetTextLineHeight() + (BUTTON_PADDING.y * 2);
-        const float window_height = ((NUM_BUTTONS+1)*btn_height) + ((NUM_BUTTONS+1)*ImGui::GetStyle().ItemSpacing.y) 
-                                    + (2*ImGui::GetStyle().WindowPadding.y); // 5 buttons + titlebar; 2x spacing around separator
+        const float btn_height    = ImGui::GetTextLineHeight() + (BUTTON_PADDING.y * 2);
+        const float window_height = ((NUM_BUTTONS + 1) * btn_height) + ((NUM_BUTTONS + 1) * ImGui::GetStyle().ItemSpacing.y) +
+                                    (2 * ImGui::GetStyle().WindowPadding.y); // 5 buttons + titlebar; 2x spacing around separator
         const float margin = display_size.y / 15.f;
-        const float top = display_size.y - window_height - margin;
+        const float top    = display_size.y - window_height - margin;
         ImGui::SetNextWindowPos(ImVec2(margin, top));
     }
     ImGui::SetNextWindowContentWidth(WINDOW_WIDTH);
@@ -60,23 +58,16 @@ void RoR::GUI::GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cle
     {
         ImVec2 btn_size(WINDOW_WIDTH - ImGui::GetStyle().WindowPadding.x, 0.f);
 
-        const char* resume_title = (m_kb_focus_index == 0) ? "--> Resume game <--" : "Resume game"; // TODO: Localize all!
-        if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == 0))
-        {
-            App::sim_state.SetPending(SimState::RUNNING);
-        }
+        const char *resume_title = (m_kb_focus_index == 0) ? "--> Resume game <--" : "Resume game"; // TODO: Localize all!
+        if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == 0)) { App::sim_state.SetPending(SimState::RUNNING); }
 
-        const char* settings_title = (m_kb_focus_index == 1) ? "--> Return to menu <--" : "Return to menu";
+        const char *settings_title = (m_kb_focus_index == 1) ? "--> Return to menu <--" : "Return to menu";
         if (ImGui::Button(settings_title, btn_size) || (m_kb_enter_index == 1))
-        {
-            App::app_state.SetPending(RoR::AppState::MAIN_MENU);
-        }
+        { App::app_state.SetPending(RoR::AppState::MAIN_MENU); }
 
-        const char* exit_title = (m_kb_focus_index == 2) ? "--> Exit game <--" : "Exit game";
+        const char *exit_title = (m_kb_focus_index == 2) ? "--> Exit game <--" : "Exit game";
         if (ImGui::Button(exit_title, btn_size) || (m_kb_enter_index == 2))
-        {
-            App::app_state.SetPending(RoR::AppState::SHUTDOWN);
-        }
+        { App::app_state.SetPending(RoR::AppState::SHUTDOWN); }
     }
 
     ImGui::End();
@@ -85,4 +76,3 @@ void RoR::GUI::GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cle
 
     m_kb_enter_index = -1;
 }
-

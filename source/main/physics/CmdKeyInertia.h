@@ -23,37 +23,39 @@
 #include <OgrePrerequisites.h>
 #include <string>
 
-namespace RoR {
-
-/// Loads and manages 'inertia_models.cfg'
-class CmdKeyInertiaConfig
+namespace RoR
 {
-public:
-    void LoadDefaultInertiaModels();
-    Ogre::SimpleSpline* GetSplineByName(Ogre::String model);
 
-private:
-    std::map<Ogre::String, Ogre::SimpleSpline> m_splines;
-};
+    /// Loads and manages 'inertia_models.cfg'
+    class CmdKeyInertiaConfig
+    {
+      public:
+        void                LoadDefaultInertiaModels();
+        Ogre::SimpleSpline *GetSplineByName(Ogre::String model);
 
-class CmdKeyInertia
-{
-public:
-    CmdKeyInertia();
+      private:
+        std::map<Ogre::String, Ogre::SimpleSpline> m_splines;
+    };
 
-    float CalcCmdKeyDelay(float cmd_input, float dt);
-    int SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, float start_delay, float stop_delay, std::string start_function, std::string stop_function);
-    void ResetCmdKeyDelay();
+    class CmdKeyInertia
+    {
+      public:
+        CmdKeyInertia();
 
-protected:
-    float               m_last_output;
-    float               m_start_delay;
-    float               m_stop_delay;
-    float               m_time;
-    Ogre::SimpleSpline* m_start_spline;
-    Ogre::SimpleSpline* m_stop_spline;
+        float CalcCmdKeyDelay(float cmd_input, float dt);
+        int   SetCmdKeyDelay(RoR::CmdKeyInertiaConfig &cfg, float start_delay, float stop_delay, std::string start_function,
+                             std::string stop_function);
+        void  ResetCmdKeyDelay();
 
-    float CalculateCmdOutput(float time, Ogre::SimpleSpline* spline);
-};
+      protected:
+        float               m_last_output;
+        float               m_start_delay;
+        float               m_stop_delay;
+        float               m_time;
+        Ogre::SimpleSpline *m_start_spline;
+        Ogre::SimpleSpline *m_stop_spline;
+
+        float CalculateCmdOutput(float time, Ogre::SimpleSpline *spline);
+    };
 
 } // namespace RoR

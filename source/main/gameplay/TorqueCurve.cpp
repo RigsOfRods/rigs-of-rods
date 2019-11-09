@@ -42,21 +42,18 @@ TorqueCurve::~TorqueCurve()
 
 Real TorqueCurve::getEngineTorque(Real rpm)
 {
-    if (!usedSpline)
-        return 0.0f;
-    if (usedSpline->getNumPoints() == 1)
-        return usedSpline->getPoint(0).y;
+    if (!usedSpline) return 0.0f;
+    if (usedSpline->getNumPoints() == 1) return usedSpline->getPoint(0).y;
     float minRPM = usedSpline->getPoint(0).x;
     float maxRPM = usedSpline->getPoint(usedSpline->getNumPoints() - 1).x;
-    if (minRPM == maxRPM)
-        return usedSpline->getPoint(0).y;
+    if (minRPM == maxRPM) return usedSpline->getPoint(0).y;
     float t = Math::Clamp((rpm - minRPM) / (maxRPM - minRPM), 0.0f, 1.0f);
     return usedSpline->interpolate(t).y;
 }
 
 int TorqueCurve::loadDefaultTorqueModels()
 {
-    //LOG("loading default torque Curves");
+    // LOG("loading default torque Curves");
     // check if we have a config file
     String group = "";
     try
@@ -74,17 +71,16 @@ int TorqueCurve::loadDefaultTorqueModels()
     }
 
     // open the file for reading
-    DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource("torque_models.cfg", group);
-    String line = "";
-    String currentModel = "";
+    DataStreamPtr ds           = ResourceGroupManager::getSingleton().openResource("torque_models.cfg", group);
+    String        line         = "";
+    String        currentModel = "";
 
     while (!ds->eof())
     {
         line = RoR::Utils::SanitizeUtf8String(ds->getLine());
         StringUtil::trim(line);
 
-        if (line.empty() || line[0] == ';')
-            continue;
+        if (line.empty() || line[0] == ';') continue;
 
         Ogre::StringVector args = StringUtil::split(line, ",");
 
@@ -95,8 +91,7 @@ int TorqueCurve::loadDefaultTorqueModels()
         }
 
         // process the line if we got a model
-        if (!currentModel.empty())
-            processLine(args, currentModel);
+        if (!currentModel.empty()) processLine(args, currentModel);
     }
     return 0;
 }
@@ -104,20 +99,17 @@ int TorqueCurve::loadDefaultTorqueModels()
 int TorqueCurve::processLine(Ogre::StringVector args, String model)
 {
     // if its just one arguments, it must be a known model
-    if (args.size() == 1)
-        return setTorqueModel(args[0]);
+    if (args.size() == 1) return setTorqueModel(args[0]);
 
     // we only accept 2 arguments
-    if (args.size() != 2)
-        return 1;
+    if (args.size() != 2) return 1;
     // parse the data
-    float pointx = StringConverter::parseReal(args[0]);
-    float pointy = StringConverter::parseReal(args[1]);
-    Vector3 point = Vector3(pointx, pointy, 0);
+    float   pointx = StringConverter::parseReal(args[0]);
+    float   pointy = StringConverter::parseReal(args[1]);
+    Vector3 point  = Vector3(pointx, pointy, 0);
 
     // find the spline to attach the points
-    if (splines.find(model) == splines.end())
-        splines[model] = SimpleSpline();
+    if (splines.find(model) == splines.end()) splines[model] = SimpleSpline();
 
     // attach the points to the spline
     // LOG("curve "+model+" : " + TOSTRING(point));
@@ -125,29 +117,22 @@ int TorqueCurve::processLine(Ogre::StringVector args, String model)
 
     // special case for custom model:
     // we set it as active curve as well!
-    if (model == TorqueCurve::customModel)
-        setTorqueModel(TorqueCurve::customModel);
+    if (model == TorqueCurve::customModel) setTorqueModel(TorqueCurve::customModel);
 
     return 0;
 }
 
-bool TorqueCurve::CreateNewCurve(Ogre::String const& name)
+bool TorqueCurve::CreateNewCurve(Ogre::String const &name)
 {
-    if (splines.find(name) != splines.end())
-    {
-        return false;
-    }
+    if (splines.find(name) != splines.end()) { return false; }
     splines[name] = Ogre::SimpleSpline();
 
     /* special case for custom model: we set it as active curve as well! */
-    if (name == TorqueCurve::customModel)
-    {
-        setTorqueModel(TorqueCurve::customModel);
-    }
+    if (name == TorqueCurve::customModel) { setTorqueModel(TorqueCurve::customModel); }
     return true;
 }
 
-void TorqueCurve::AddCurveSample(float rpm, float progress, Ogre::String const& model)
+void TorqueCurve::AddCurveSample(float rpm, float progress, Ogre::String const &model)
 {
     /* attach the points to the spline */
     splines[model].addPoint(Ogre::Vector3(rpm, progress, 0));
@@ -155,26 +140,25 @@ void TorqueCurve::AddCurveSample(float rpm, float progress, Ogre::String const& 
 
 int TorqueCurve::setTorqueModel(String name)
 {
-    //LOG("using torque curve: " + name);
+    // LOG("using torque curve: " + name);
     // check if we have such a model loaded
     if (splines.find(name) == splines.end())
     {
-        LOG("Torquemodel "+String(name)+" not found! ignoring that and using default model...");
+        LOG("Torquemodel " + String(name) + " not found! ignoring that and using default model...");
         return 1;
     }
     // use the model
     usedSpline = &splines.find(name)->second;
-    usedModel = name;
+    usedModel  = name;
     return 0;
 }
 
-int TorqueCurve::spaceCurveEvenly(Ogre::SimpleSpline* spline)
+int TorqueCurve::spaceCurveEvenly(Ogre::SimpleSpline *spline)
 {
-    if (!spline)
-        return 2;
+    if (!spline) return 2;
 
     SimpleSpline tmpSpline = *spline;
-    Real points = tmpSpline.getNumPoints();
+    Real         points    = tmpSpline.getNumPoints();
 
     if (points > 1)
     {
@@ -185,34 +169,32 @@ int TorqueCurve::spaceCurveEvenly(Ogre::SimpleSpline* spline)
         for (int i = 2; i < points; i++)
         {
             Real distance = tmpSpline.getPoint(i).x - tmpSpline.getPoint(i - 1).x;
-            minDistance = std::min(distance, minDistance);
+            minDistance   = std::min(distance, minDistance);
         }
         // the rpm points must be in an ascending order, as the points should be added at the end of the spline
-        if (minDistance < 0)
-            return 1;
+        if (minDistance < 0) return 1;
         // first(smallest)- and last(greatest) rpm
         Vector3 minPoint = tmpSpline.getPoint(0);
         Vector3 maxPoint = tmpSpline.getPoint(points - 1);
 
-        Real rpmPoint = minPoint.x;
-        int pointIndex = 1; // this is the index used to interpolate between the rpm points
+        Real rpmPoint   = minPoint.x;
+        int  pointIndex = 1; // this is the index used to interpolate between the rpm points
         while (rpmPoint <= maxPoint.x && pointIndex < points)
         {
             // if actual rpm is higher than point of the spline, proceed to the next point
-            if (rpmPoint > tmpSpline.getPoint(pointIndex).x)
-                pointIndex++;
+            if (rpmPoint > tmpSpline.getPoint(pointIndex).x) pointIndex++;
             // interpolate(linear)
-            Real newPoint = tmpSpline.getPoint(pointIndex - 1).y + (tmpSpline.getPoint(pointIndex).y - tmpSpline.getPoint(pointIndex - 1).y) /
-                (tmpSpline.getPoint(pointIndex).x - tmpSpline.getPoint(pointIndex - 1).x) * (rpmPoint - tmpSpline.getPoint(pointIndex - 1).x);
+            Real newPoint = tmpSpline.getPoint(pointIndex - 1).y +
+                            (tmpSpline.getPoint(pointIndex).y - tmpSpline.getPoint(pointIndex - 1).y) /
+                                (tmpSpline.getPoint(pointIndex).x - tmpSpline.getPoint(pointIndex - 1).x) *
+                                (rpmPoint - tmpSpline.getPoint(pointIndex - 1).x);
             spline->addPoint(Vector3(rpmPoint, newPoint, 0));
             rpmPoint += minDistance;
         }
         // if the last point is missing due the even spacing, we add the last point manually
         // criterion is that it must be smaller than 1% of the maximum rpm.
         if (spline->getPoint(spline->getNumPoints() - 1).x < maxPoint.x && (rpmPoint - maxPoint.x) < 0.01 * maxPoint.x)
-        {
-            spline->addPoint(Vector3(rpmPoint, maxPoint.y, 0));
-        }
+        { spline->addPoint(Vector3(rpmPoint, maxPoint.y, 0)); }
     }
 
     return 0;

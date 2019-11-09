@@ -25,27 +25,26 @@
 
 #include "GUI_GameAbout.h"
 
-#include "RoRPrerequisites.h"
-
 #include "Application.h"
 #include "GUIManager.h"
 #include "Language.h"
+#include "RoRPrerequisites.h"
 #include "RoRVersion.h"
-#include "Utils.h"
 #include "RoRnet.h"
+#include "Utils.h"
 
 #include <MyGUI.h>
 
 using namespace RoR;
 using namespace GUI;
 
-#define CLASS        GameAbout
-#define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
+#define CLASS GameAbout
+#define MAIN_WIDGET ((MyGUI::Window *)mMainWidget)
 
 CLASS::CLASS()
 {
     MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
-    win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
+    win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); // The "X" button thing
 
     m_backbtn->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickBackButton);
     m_ror_version->setCaption(Ogre::String(ROR_VERSION_STRING));
@@ -70,10 +69,7 @@ void CLASS::Show()
 void CLASS::Hide()
 {
     MAIN_WIDGET->setVisibleSmooth(false);
-    if (App::app_state.GetActive() == AppState::MAIN_MENU)
-    {
-        App::GetGuiManager()->SetVisible_GameMainMenu(true);
-    }
+    if (App::app_state.GetActive() == AppState::MAIN_MENU) { App::GetGuiManager()->SetVisible_GameMainMenu(true); }
 }
 
 void CLASS::CenterToScreen()
@@ -92,23 +88,25 @@ bool CLASS::IsVisible()
 void CLASS::initMisc()
 {
     Ogre::UTFString AuthorsText = "";
-    Ogre::UTFString orange = U("#FF7D02"); // colour key shortcut
-    Ogre::UTFString white = U("#FFFFFF"); // colour key shortcut
-    Ogre::UTFString color1 = U("#66FF33"); // colour key shortcut
-    Ogre::UTFString newline = U("\n");
+    Ogre::UTFString orange      = U("#FF7D02"); // colour key shortcut
+    Ogre::UTFString white       = U("#FFFFFF"); // colour key shortcut
+    Ogre::UTFString color1      = U("#66FF33"); // colour key shortcut
+    Ogre::UTFString newline     = U("\n");
 
-    //Authors:
+    // Authors:
     AuthorsText = orange + "Authors:" + newline;
-    AuthorsText = AuthorsText + color1 + "Pierre-Michel Ricordel (pricorde):" + white + " Physics Genius, Original Author, Core Developer, retired" + newline;
+    AuthorsText = AuthorsText + color1 + "Pierre-Michel Ricordel (pricorde):" + white +
+                  " Physics Genius, Original Author, Core Developer, retired" + newline;
     AuthorsText = AuthorsText + color1 + "Thomas Fischer (tdev):" + white + " Core Developer, inactive" + newline;
 
-    //Current Project devs:
+    // Current Project devs:
     AuthorsText = AuthorsText + newline;
     AuthorsText = AuthorsText + orange + "Current Developers:" + newline;
     AuthorsText = AuthorsText + color1 + "Petr Ohlidal (only_a_ptr):" + white + " Core Developer, active" + newline;
-    AuthorsText = AuthorsText + color1 + "Edgar (AnotherFoxGuy):" + white + " Various fixes and features, developer web services, active" + newline;
+    AuthorsText = AuthorsText + color1 + "Edgar (AnotherFoxGuy):" + white +
+                  " Various fixes and features, developer web services, active" + newline;
 
-    //Server Contributors
+    // Server Contributors
     AuthorsText = AuthorsText + newline;
     AuthorsText = AuthorsText + orange + "Server Contributors:" + newline;
     AuthorsText = AuthorsText + color1 + "Austin:" + white + " Server funding" + newline;
@@ -117,12 +115,14 @@ void CLASS::initMisc()
     AuthorsText = AuthorsText + color1 + "Charger:" + white + " Branding designer" + newline;
     AuthorsText = AuthorsText + color1 + "CuriousMike:" + white + " Repository & multiplayer server management" + newline;
 
-    //Code Contributors:
+    // Code Contributors:
     AuthorsText = AuthorsText + newline;
     AuthorsText = AuthorsText + orange + "Code Contributors:" + newline;
-    AuthorsText = AuthorsText + color1 + "Estama:" + white + " Physics Core Optimizations, Collision/Friction code, Support Beams" + newline;
+    AuthorsText = AuthorsText + color1 + "Estama:" + white +
+                  " Physics Core Optimizations, Collision/Friction code, Support Beams" + newline;
     AuthorsText = AuthorsText + color1 + "Lifter:" + white + " Triggers, Animators, Animated Props, Shocks2" + newline;
-    AuthorsText = AuthorsText + color1 + "Aperion:" + white + " Slidenodes, Axles, Improved Engine code, Rigidifiers, Networking code" + newline;
+    AuthorsText = AuthorsText + color1 + "Aperion:" + white +
+                  " Slidenodes, Axles, Improved Engine code, Rigidifiers, Networking code" + newline;
     AuthorsText = AuthorsText + color1 + "FlyPiper:" + white + " Inertia Code, minor patches" + newline;
     AuthorsText = AuthorsText + color1 + "knied:" + white + " MacOSX Patches" + newline;
     AuthorsText = AuthorsText + color1 + "altren:" + white + " Coded some MyGUI windows" + newline;
@@ -135,33 +135,37 @@ void CLASS::initMisc()
     AuthorsText = AuthorsText + color1 + "synthead:" + white + " Minor Linux fixes" + newline;
     AuthorsText = AuthorsText + color1 + "theshark:" + white + " Various fixes" + newline;
     AuthorsText = AuthorsText + color1 + "Clockwork (a.k.a VeyronEB):" + white + " GUI Designer and tweaker" + newline;
-    AuthorsText = AuthorsText + color1 + "Klink:" + white + " Terrains conversion, few fixes and tweaks, dashboard designer" + newline;
+    AuthorsText =
+        AuthorsText + color1 + "Klink:" + white + " Terrains conversion, few fixes and tweaks, dashboard designer" + newline;
     AuthorsText = AuthorsText + color1 + "hagdervriese:" + white + " Linux fixes" + newline;
     AuthorsText = AuthorsText + color1 + "skybon:" + white + " Web services, fixes, utilities" + newline;
     AuthorsText = AuthorsText + color1 + "Niklas Kersten (Hiradur):" + white + " Various fixes and tweaks, retired" + newline;
-    AuthorsText = AuthorsText + color1 + "Moncef Ben Slimane (max98):" + white + " Few fixes, Few improvements, GUI Overhaul" + newline;
+    AuthorsText =
+        AuthorsText + color1 + "Moncef Ben Slimane (max98):" + white + " Few fixes, Few improvements, GUI Overhaul" + newline;
     AuthorsText = AuthorsText + color1 + "mikadou:" + white + " Modernized thread pool, cmake, various fixes" + newline;
     AuthorsText = AuthorsText + color1 + "ulteq:" + white + " Various features, multithreading, lots of fixes" + newline;
     AuthorsText = AuthorsText + color1 + "tritonas00" + white + " Various improvements and Linux fixes" + newline;
 
-    //Core Content Contributors
+    // Core Content Contributors
     AuthorsText = AuthorsText + newline;
     AuthorsText = AuthorsText + orange + "Core Content Contributors:" + newline;
     AuthorsText = AuthorsText + color1 + "donoteat:" + white + " Improved spawner models, terrain work" + newline;
     AuthorsText = AuthorsText + color1 + "kevinmce:" + white + " Old character" + newline;
     AuthorsText = AuthorsText + color1 + "vido89" + white + " Character animations" + newline;
 
-    //Mod Contributors
+    // Mod Contributors
     AuthorsText = AuthorsText + newline;
     AuthorsText = AuthorsText + orange + "Mod Contributors:" + newline;
-    AuthorsText = AuthorsText + color1 + "The Rigs of Rods community:" + white + " Provides us with lots of mods to play with" + newline;
+    AuthorsText =
+        AuthorsText + color1 + "The Rigs of Rods community:" + white + " Provides us with lots of mods to play with" + newline;
 
-    //Testers
+    // Testers
     AuthorsText = AuthorsText + newline;
     AuthorsText = AuthorsText + orange + "Testers:" + newline;
-    AuthorsText = AuthorsText + color1 + "Invited core team:" + white + " The invited members helped us a lot along the way at various corners" + newline;
+    AuthorsText = AuthorsText + color1 + "Invited core team:" + white +
+                  " The invited members helped us a lot along the way at various corners" + newline;
 
-    //Used Libs
+    // Used Libs
     AuthorsText = AuthorsText + newline;
     AuthorsText = AuthorsText + orange + "Used Libs:" + newline;
     AuthorsText = AuthorsText + color1 + "Ogre3D:" + white + " 3D rendering engine" + newline;
@@ -190,8 +194,8 @@ void CLASS::initMisc()
 #ifdef USE_SOCKETW
     AuthorsText = AuthorsText + color1 + "SocketW:" + white + " Used as cross-platform socket abstraction" + newline;
 #endif
-	AuthorsText = AuthorsText + color1 + "pThreads:" + white + " POSIX threads library" + newline;
-	AuthorsText = AuthorsText + color1 + "RapidJSON:" + white + " JSON parser/generator, used for online services" + newline;
+    AuthorsText = AuthorsText + color1 + "pThreads:" + white + " POSIX threads library" + newline;
+    AuthorsText = AuthorsText + color1 + "RapidJSON:" + white + " JSON parser/generator, used for online services" + newline;
 
     m_authors->setMaxTextLength(4096);
     m_authors->setCaption(Ogre::String(AuthorsText));
@@ -203,10 +207,9 @@ void CLASS::eventMouseButtonClickBackButton(MyGUI::WidgetPtr _sender)
     Hide();
 }
 
-void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
+void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string &_name)
 {
-    if (_name == "close")
-        Hide();
+    if (_name == "close") Hide();
 }
 
 void CLASS::SetVisible(bool v)

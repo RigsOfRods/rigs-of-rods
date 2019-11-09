@@ -24,47 +24,42 @@
 #include "Collisions.h"
 #include "ErrorUtils.h"
 #include "Language.h"
-#include "TerrainManager.h"
-#include "PropertyMaps.h"
 #include "PagedGeometry.h"
+#include "PropertyMaps.h"
+#include "TerrainManager.h"
 
 #include <OgreConfigFile.h>
 
 using namespace Ogre;
 using namespace RoR;
 
-Landusemap::Landusemap(String configFilename) :
-    data(0)
-    , default_ground_model(nullptr)
-    , mapsize(App::GetSimTerrain()->getMaxTerrainSize())
+Landusemap::Landusemap(String configFilename)
+    : data(0), default_ground_model(nullptr), mapsize(App::GetSimTerrain()->getMaxTerrainSize())
 {
     loadConfig(configFilename);
 }
 
 Landusemap::~Landusemap()
 {
-    if (data != nullptr)
-        delete[] data;
+    if (data != nullptr) delete[] data;
 }
 
-ground_model_t* Landusemap::getGroundModelAt(int x, int z)
+ground_model_t *Landusemap::getGroundModelAt(int x, int z)
 {
-    if (!data)
-        return nullptr;
+    if (!data) return nullptr;
 
     // we return the default ground model if we are not anymore in this map
-    if (x < 0 || x >= mapsize.x || z < 0 || z >= mapsize.z)
-        return default_ground_model;
+    if (x < 0 || x >= mapsize.x || z < 0 || z >= mapsize.z) return default_ground_model;
 
     return data[x + z * (int)mapsize.x];
 }
 
-int Landusemap::loadConfig(const Ogre::String& filename)
+int Landusemap::loadConfig(const Ogre::String &filename)
 {
     std::map<unsigned int, String> usemap;
-    String textureFilename = "";
+    String                         textureFilename = "";
 
-    LOG("Parsing landuse config: '"+filename+"'");
+    LOG("Parsing landuse config: '" + filename + "'");
 
     String group = "";
     try
@@ -85,22 +80,22 @@ int Landusemap::loadConfig(const Ogre::String& filename)
         else
             cfg.loadFromResourceSystem(filename, group, "\x09:=", true);
     }
-    catch (Ogre::Exception& e)
+    catch (Ogre::Exception &e)
     {
         ErrorUtils::ShowError(_L("Error while loading landuse config"), e.getFullDescription());
         return 1;
     }
 
     Ogre::ConfigFile::SectionIterator seci = cfg.getSectionIterator();
-    Ogre::String secName, kname, kvalue;
+    Ogre::String                      secName, kname, kvalue;
     while (seci.hasMoreElements())
     {
-        secName = seci.peekNextKey();
-        Ogre::ConfigFile::SettingsMultiMap* settings = seci.getNext();
+        secName                                               = seci.peekNextKey();
+        Ogre::ConfigFile::SettingsMultiMap *         settings = seci.getNext();
         Ogre::ConfigFile::SettingsMultiMap::iterator i;
         for (i = settings->begin(); i != settings->end(); ++i)
         {
-            kname = i->first;
+            kname  = i->first;
             kvalue = i->second;
             // we got all the data available now, processing now
             if (secName == "general" || secName == "config")
@@ -120,16 +115,16 @@ int Landusemap::loadConfig(const Ogre::String& filename)
                     LOG("invalid color in landuse line in " + filename);
                     continue;
                 }
-                char* ptr; //not used
+                char *       ptr; // not used
                 unsigned int color = strtoul(kname.c_str(), &ptr, 16);
-                usemap[color] = kvalue;
+                usemap[color]      = kvalue;
             }
         }
     }
     // process the config data and load the buffers finally
     try
     {
-        Forests::ColorMap* colourMap = Forests::ColorMap::load(textureFilename, Forests::CHANNEL_COLOR);
+        Forests::ColorMap *colourMap = Forests::ColorMap::load(textureFilename, Forests::CHANNEL_COLOR);
         colourMap->setFilter(Forests::MAPFILTER_NONE);
 
         /*
@@ -146,9 +141,9 @@ int Landusemap::loadConfig(const Ogre::String& filename)
         Ogre::TRect<Ogre::Real> bounds = Forests::TBounds(0, 0, mapsize.x, mapsize.z);
 
         // now allocate the data buffer to hold pointers to ground models
-        data = new ground_model_t*[(int)(mapsize.x * mapsize.z)];
-        ground_model_t** ptr = data;
-        //std::map < String, int > counters;
+        data                 = new ground_model_t *[(int)(mapsize.x * mapsize.z)];
+        ground_model_t **ptr = data;
+        // std::map < String, int > counters;
         for (int z = 0; z < mapsize.z; z++)
         {
             for (int x = 0; x < mapsize.x; x++)
@@ -163,7 +158,7 @@ int Landusemap::loadConfig(const Ogre::String& filename)
                     col = cols;
                 }
                 String use = usemap[col];
-                //if (use!="")
+                // if (use!="")
                 //	counters[use]++;
 
                 // store the pointer to the ground model in the data slot
@@ -172,15 +167,15 @@ int Landusemap::loadConfig(const Ogre::String& filename)
             }
         }
     }
-    catch (Ogre::Exception& oex)
+    catch (Ogre::Exception &oex)
     {
-        LogFormat("[RoR|Physics] Landuse: failed to load texture '%s', <Ogre::Exception> message: '%s'",
-            textureFilename.c_str(), oex.getFullDescription().c_str());
+        LogFormat("[RoR|Physics] Landuse: failed to load texture '%s', <Ogre::Exception> message: '%s'", textureFilename.c_str(),
+                  oex.getFullDescription().c_str());
     }
-    catch (std::exception& stex)
+    catch (std::exception &stex)
     {
-        LogFormat("[RoR|Physics] Landuse: failed to load texture '%s', <std::exception> message: '%s'",
-            textureFilename.c_str(), stex.what());
+        LogFormat("[RoR|Physics] Landuse: failed to load texture '%s', <std::exception> message: '%s'", textureFilename.c_str(),
+                  stex.what());
     }
     catch (...)
     {

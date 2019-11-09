@@ -44,35 +44,36 @@ void RoR::GUI::TopMenubar::Update()
     // ## ImGui's 'menubar' and 'menuitem' features won't quite cut it...
     // ## Let's do our own menus and menuitems using buttons and coloring tricks.
 
-    const char* sim_title = "Simulation"; // TODO: Localize all!
-    Str<50> actors_title;
-    auto actors = App::GetSimController()->GetActors();
-    int num_playable_actors = std::count_if(actors.begin(), actors.end(), [](Actor* a) {return !a->ar_hide_in_actor_list;});
+    const char *sim_title = "Simulation"; // TODO: Localize all!
+    Str<50>     actors_title;
+    auto        actors      = App::GetSimController()->GetActors();
+    int num_playable_actors = std::count_if(actors.begin(), actors.end(), [](Actor *a) { return !a->ar_hide_in_actor_list; });
     actors_title << "Vehicles (" << num_playable_actors << ")";
-    const char* savegames_title = "Saves";
-    const char* settings_title = "Settings";
-    const char* tools_title = "Tools";
+    const char *savegames_title = "Saves";
+    const char *settings_title  = "Settings";
+    const char *tools_title     = "Tools";
 
-    float panel_target_width = (ImGui::GetStyle().ItemSpacing.x * 10) + // Item spacing
-        (ImGui::GetStyle().WindowPadding.x) + (ImGui::GetStyle().FramePadding.x) + // Left + Right padding
-        ImGui::CalcTextSize(sim_title).x + ImGui::CalcTextSize(actors_title.GetBuffer()).x + // Items
-        ImGui::CalcTextSize(savegames_title).x + ImGui::CalcTextSize(settings_title).x + // Items
-        ImGui::CalcTextSize(tools_title).x; // Items
+    float panel_target_width = (ImGui::GetStyle().ItemSpacing.x * 10) +                                   // Item spacing
+                               (ImGui::GetStyle().WindowPadding.x) + (ImGui::GetStyle().FramePadding.x) + // Left + Right padding
+                               ImGui::CalcTextSize(sim_title).x + ImGui::CalcTextSize(actors_title.GetBuffer()).x + // Items
+                               ImGui::CalcTextSize(savegames_title).x + ImGui::CalcTextSize(settings_title).x +     // Items
+                               ImGui::CalcTextSize(tools_title).x;                                                  // Items
 
-    ImVec2 window_target_pos = ImVec2((ImGui::GetIO().DisplaySize.x/2.f) - (panel_target_width / 2.f), ImGui::GetStyle().WindowPadding.y);
+    ImVec2 window_target_pos =
+        ImVec2((ImGui::GetIO().DisplaySize.x / 2.f) - (panel_target_width / 2.f), ImGui::GetStyle().WindowPadding.y);
     if (!this->ShouldDisplay(window_target_pos))
     {
-        m_open_menu = TopMenu::TOPMENU_NONE;
+        m_open_menu          = TopMenu::TOPMENU_NONE;
         m_confirm_remove_all = false;
         return;
     }
 
     ImGui::PushStyleColor(ImGuiCol_WindowBg, PANEL_BG_COLOR);
-    ImGui::PushStyleColor(ImGuiCol_Button,   TRANSPARENT_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_Button, TRANSPARENT_COLOR);
 
     // The panel
-    int flags = ImGuiWindowFlags_NoCollapse  | ImGuiWindowFlags_NoResize    | ImGuiWindowFlags_NoMove
-              | ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_AlwaysAutoResize;
+    int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar |
+                ImGuiWindowFlags_AlwaysAutoResize;
     ImGui::SetNextWindowContentSize(ImVec2(panel_target_width, 0.f));
     ImGui::SetNextWindowPos(window_target_pos);
     if (!ImGui::Begin("Top menubar", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
@@ -85,20 +86,14 @@ void RoR::GUI::TopMenubar::Update()
     ImVec2 window_pos = ImGui::GetWindowPos();
     ImVec2 sim_cursor = ImGui::GetCursorPos();
     ImGui::Button(sim_title);
-    if ((m_open_menu != TopMenu::TOPMENU_SIM) && ImGui::IsItemHovered())
-    {
-        m_open_menu = TopMenu::TOPMENU_SIM;
-    }
+    if ((m_open_menu != TopMenu::TOPMENU_SIM) && ImGui::IsItemHovered()) { m_open_menu = TopMenu::TOPMENU_SIM; }
 
     ImGui::SameLine();
 
     // The 'vehicles' button
     ImVec2 actors_cursor = ImGui::GetCursorPos();
     ImGui::Button(actors_title);
-    if ((m_open_menu != TopMenu::TOPMENU_ACTORS) && ImGui::IsItemHovered())
-    {
-        m_open_menu = TopMenu::TOPMENU_ACTORS;
-    }
+    if ((m_open_menu != TopMenu::TOPMENU_ACTORS) && ImGui::IsItemHovered()) { m_open_menu = TopMenu::TOPMENU_ACTORS; }
 
     ImGui::SameLine();
 
@@ -107,9 +102,9 @@ void RoR::GUI::TopMenubar::Update()
     ImGui::Button(savegames_title);
     if ((m_open_menu != TopMenu::TOPMENU_SAVEGAMES) && ImGui::IsItemHovered())
     {
-        m_open_menu = TopMenu::TOPMENU_SAVEGAMES;
+        m_open_menu      = TopMenu::TOPMENU_SAVEGAMES;
         m_quicksave_name = App::GetSimController()->GetBeamFactory()->GetQuicksaveFilename();
-        m_quickload = FileExists(PathCombine(App::sys_savegames_dir.GetActive(), m_quicksave_name));
+        m_quickload      = FileExists(PathCombine(App::sys_savegames_dir.GetActive(), m_quicksave_name));
         m_savegame_names.clear();
         for (int i = 0; i <= 9; i++)
         {
@@ -127,8 +122,7 @@ void RoR::GUI::TopMenubar::Update()
     {
         m_open_menu = TopMenu::TOPMENU_SETTINGS;
 #ifdef USE_CAELUM
-        if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
-            m_daytime = App::GetSimTerrain()->getSkyManager()->GetTime();
+        if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM) m_daytime = App::GetSimTerrain()->getSkyManager()->GetTime();
 #endif // USE_CAELUM
     }
 
@@ -137,15 +131,12 @@ void RoR::GUI::TopMenubar::Update()
     // The 'tools' button
     ImVec2 tools_cursor = ImGui::GetCursorPos();
     ImGui::Button(tools_title);
-    if ((m_open_menu != TopMenu::TOPMENU_TOOLS) && ImGui::IsItemHovered())
-    {
-        m_open_menu = TopMenu::TOPMENU_TOOLS;
-    }
+    if ((m_open_menu != TopMenu::TOPMENU_TOOLS) && ImGui::IsItemHovered()) { m_open_menu = TopMenu::TOPMENU_TOOLS; }
 
     ImGui::End();
 
     ImVec2 menu_pos;
-    Actor* current_actor = App::GetSimController()->GetPlayerActor();
+    Actor *current_actor = App::GetSimController()->GetPlayerActor();
     switch (m_open_menu)
     {
     case TopMenu::TOPMENU_SIM:
@@ -165,10 +156,7 @@ void RoR::GUI::TopMenubar::Update()
 
             if (current_actor != nullptr)
             {
-                if (ImGui::Button("Show vehicle description"))
-                {
-                    App::GetGuiManager()->SetVisible_VehicleDescription(true);
-                }
+                if (ImGui::Button("Show vehicle description")) { App::GetGuiManager()->SetVisible_VehicleDescription(true); }
 
                 if (current_actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
                 {
@@ -176,7 +164,7 @@ void RoR::GUI::TopMenubar::Update()
                     {
                         {
                             ActorModifyRequest rq;
-                            rq.amr_type = ActorModifyRequest::Type::RELOAD;
+                            rq.amr_type  = ActorModifyRequest::Type::RELOAD;
                             rq.amr_actor = current_actor;
                             App::GetSimController()->QueueActorModify(rq);
 
@@ -184,19 +172,13 @@ void RoR::GUI::TopMenubar::Update()
                         }
                     }
 
-                    if (ImGui::Button("Remove current vehicle"))
-                    {
-                        App::GetSimController()->QueueActorRemove(current_actor);
-                    }
+                    if (ImGui::Button("Remove current vehicle")) { App::GetSimController()->QueueActorRemove(current_actor); }
                 }
             }
 
             if (!App::GetSimController()->GetLocalActors().empty())
             {
-                if (ImGui::Button("Remove all vehicles"))
-                {
-                    m_confirm_remove_all = true;
-                }
+                if (ImGui::Button("Remove all vehicles")) { m_confirm_remove_all = true; }
                 if (m_confirm_remove_all)
                 {
                     ImGui::PushStyleColor(ImGuiCol_Text, ORANGE_TEXT);
@@ -204,47 +186,32 @@ void RoR::GUI::TopMenubar::Update()
                     {
                         for (auto actor : App::GetSimController()->GetLocalActors())
                         {
-                            if (!actor->ar_hide_in_actor_list && !actor->isPreloadedWithTerrain() && 
-                                    actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
-                            {
-                                App::GetSimController()->QueueActorRemove(actor);
-                            }
+                            if (!actor->ar_hide_in_actor_list && !actor->isPreloadedWithTerrain() &&
+                                actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
+                            { App::GetSimController()->QueueActorRemove(actor); }
                         }
                         m_confirm_remove_all = false;
                     }
                     ImGui::PopStyleColor();
                 }
 
-                if (ImGui::Button("Activate all vehicles"))
-                {
-                    App::GetSimController()->GetBeamFactory()->WakeUpAllActors();
-                }
+                if (ImGui::Button("Activate all vehicles")) { App::GetSimController()->GetBeamFactory()->WakeUpAllActors(); }
 
                 bool force_trucks_active = App::GetSimController()->GetBeamFactory()->AreTrucksForcedAwake();
                 if (ImGui::Checkbox("Activated vehicles never sleep", &force_trucks_active))
-                {
-                    App::GetSimController()->GetBeamFactory()->SetTrucksForcedAwake(force_trucks_active);
-                }
+                { App::GetSimController()->GetBeamFactory()->SetTrucksForcedAwake(force_trucks_active); }
 
                 if (ImGui::Button("Send all vehicles to sleep"))
-                {
-                    App::GetSimController()->GetBeamFactory()->SendAllActorsSleeping();
-                }
+                { App::GetSimController()->GetBeamFactory()->SendAllActorsSleeping(); }
             }
 
             ImGui::Separator();
 
-            if (ImGui::Button("Back to menu"))
-            {
-                App::app_state.SetPending(RoR::AppState::MAIN_MENU);
-            }
+            if (ImGui::Button("Back to menu")) { App::app_state.SetPending(RoR::AppState::MAIN_MENU); }
 
-            if (ImGui::Button("Exit"))
-            {
-                App::app_state.SetPending(RoR::AppState::SHUTDOWN);
-            }
+            if (ImGui::Button("Exit")) { App::app_state.SetPending(RoR::AppState::SHUTDOWN); }
 
-            m_open_menu_hoverbox_min = menu_pos;
+            m_open_menu_hoverbox_min   = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
             ImGui::End();
@@ -257,10 +224,7 @@ void RoR::GUI::TopMenubar::Update()
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin("Actors menu", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
-            if (App::mp_state.GetActive() != MpState::CONNECTED)
-            {
-                this->DrawActorListSinglePlayer();
-            }
+            if (App::mp_state.GetActive() != MpState::CONNECTED) { this->DrawActorListSinglePlayer(); }
             else
             {
 #ifdef USE_SOCKETW
@@ -268,13 +232,13 @@ void RoR::GUI::TopMenubar::Update()
                 this->DrawMpUserToActorList(net_user_info);
 
                 std::vector<RoRnet::UserInfo> remote_users = RoR::Networking::GetUserInfos();
-                for (auto& user: remote_users)
+                for (auto &user : remote_users)
                 {
                     this->DrawMpUserToActorList(user);
                 }
 #endif // USE_SOCKETW
             }
-            m_open_menu_hoverbox_min = menu_pos;
+            m_open_menu_hoverbox_min   = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
             ImGui::End();
@@ -312,10 +276,7 @@ void RoR::GUI::TopMenubar::Update()
             for (int i = 1; i <= 5; i++)
             {
                 Ogre::String name = "Empty Slot";
-                if (!m_savegame_names[i].empty())
-                {
-                    name = m_savegame_names[i];
-                }
+                if (!m_savegame_names[i].empty()) { name = m_savegame_names[i]; }
                 Ogre::String caption = Ogre::StringUtil::format("%d. %s##Save", i, name.c_str());
                 if (ImGui::Button(caption.c_str()))
                 {
@@ -330,7 +291,7 @@ void RoR::GUI::TopMenubar::Update()
             {
                 if (!m_savegame_names[i].empty())
                 {
-                    Ogre::String name = m_savegame_names[i];
+                    Ogre::String name    = m_savegame_names[i];
                     Ogre::String caption = Ogre::StringUtil::format("%d. %s##Load", i, name.c_str());
                     if (ImGui::Button(caption.c_str()))
                     {
@@ -341,7 +302,7 @@ void RoR::GUI::TopMenubar::Update()
                 }
             }
 
-            m_open_menu_hoverbox_min = menu_pos;
+            m_open_menu_hoverbox_min   = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() * 2;
             ImGui::End();
@@ -359,28 +320,19 @@ void RoR::GUI::TopMenubar::Update()
             DrawGFloatSlider(App::audio_master_volume, "Volume", 0, 1);
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "Frames per second:");
-            if (App::gfx_envmap_enabled.GetActive())
-            {
-                DrawGIntSlider(App::gfx_envmap_rate, "Reflections", 0, 6);
-            }
+            if (App::gfx_envmap_enabled.GetActive()) { DrawGIntSlider(App::gfx_envmap_rate, "Reflections", 0, 6); }
             DrawGIntSlider(App::gfx_fps_limit, "Graphics", 0, 240);
             int physics_fps = std::round(1.0f / App::diag_physics_dt.GetActive());
             if (ImGui::SliderInt("Physics", &physics_fps, 2000, 10000))
-            {
-                App::diag_physics_dt.SetActive(Ogre::Math::Clamp(1.0f / physics_fps, 0.0001f, 0.0005f));
-            }
+            { App::diag_physics_dt.SetActive(Ogre::Math::Clamp(1.0f / physics_fps, 0.0001f, 0.0005f)); }
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "Simulation:");
             float slowmotion = std::min(App::GetSimController()->GetBeamFactory()->GetSimulationSpeed(), 1.0f);
             if (ImGui::SliderFloat("Slow motion", &slowmotion, 0.01f, 1.0f))
-            {
-                App::GetSimController()->GetBeamFactory()->SetSimulationSpeed(slowmotion);
-            }
+            { App::GetSimController()->GetBeamFactory()->SetSimulationSpeed(slowmotion); }
             float timelapse = std::max(App::GetSimController()->GetBeamFactory()->GetSimulationSpeed(), 1.0f);
             if (ImGui::SliderFloat("Time lapse", &timelapse, 1.0f, 10.0f))
-            {
-                App::GetSimController()->GetBeamFactory()->SetSimulationSpeed(timelapse);
-            }
+            { App::GetSimController()->GetBeamFactory()->SetSimulationSpeed(timelapse); }
             if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
             {
                 ImGui::Separator();
@@ -411,9 +363,7 @@ void RoR::GUI::TopMenubar::Update()
                     }
                 }
                 if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
-                {
-                    DrawGCheckbox(App::gfx_fixed_cam_tracking, "Tracking");
-                }
+                { DrawGCheckbox(App::gfx_fixed_cam_tracking, "Tracking"); }
             }
 #ifdef USE_CAELUM
             if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
@@ -422,20 +372,18 @@ void RoR::GUI::TopMenubar::Update()
                 ImGui::TextColored(GRAY_HINT_TEXT, "Time of day:");
                 float time = App::GetSimTerrain()->getSkyManager()->GetTime();
                 if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
-                {
-                    App::GetSimTerrain()->getSkyManager()->SetTime(time);
-                }
-            }       
+                { App::GetSimTerrain()->getSkyManager()->SetTime(time); }
+            }
 #endif // USE_CAELUM
             if (App::mp_state.GetActive() == MpState::CONNECTED)
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "Multiplayer:");
                 DrawGCheckbox(App::mp_pseudo_collisions, "Collisions");
-                DrawGCheckbox(App::mp_hide_net_labels,   "Hide labels");
+                DrawGCheckbox(App::mp_hide_net_labels, "Hide labels");
             }
             ImGui::PopItemWidth();
-            m_open_menu_hoverbox_min = menu_pos;
+            m_open_menu_hoverbox_min   = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
             ImGui::End();
@@ -462,7 +410,7 @@ void RoR::GUI::TopMenubar::Update()
 
             if (ImGui::Button("Show console"))
             {
-                App::GetGuiManager()->SetVisible_Console(! App::GetGuiManager()->IsVisible_Console());
+                App::GetGuiManager()->SetVisible_Console(!App::GetGuiManager()->IsVisible_Console());
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
@@ -485,22 +433,17 @@ void RoR::GUI::TopMenubar::Update()
             ImGui::TextColored(GRAY_HINT_TEXT, "Pre-spawn diag. options:");
 
             bool diag_mass = App::diag_truck_mass.GetActive();
-            if (ImGui::Checkbox("Node mass recalc. logging", &diag_mass))
-            {
-                App::diag_truck_mass.SetActive(diag_mass);
-            }
+            if (ImGui::Checkbox("Node mass recalc. logging", &diag_mass)) { App::diag_truck_mass.SetActive(diag_mass); }
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text("Extra logging on runtime - mass recalculation (config: \"Debug Truck Mass\"; GVar: \"diag_truck_mass\")");
+                ImGui::Text(
+                    "Extra logging on runtime - mass recalculation (config: \"Debug Truck Mass\"; GVar: \"diag_truck_mass\")");
                 ImGui::EndTooltip();
             }
 
             bool diag_break = App::diag_log_beam_break.GetActive();
-            if (ImGui::Checkbox("Beam break logging", &diag_break))
-            {
-                App::diag_log_beam_break.SetActive(diag_break);
-            }
+            if (ImGui::Checkbox("Beam break logging", &diag_break)) { App::diag_log_beam_break.SetActive(diag_break); }
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
@@ -509,10 +452,7 @@ void RoR::GUI::TopMenubar::Update()
             }
 
             bool diag_deform = App::diag_log_beam_deform.GetActive();
-            if (ImGui::Checkbox("Beam deform. logging", &diag_deform))
-            {
-                App::diag_log_beam_deform.SetActive(diag_deform);
-            }
+            if (ImGui::Checkbox("Beam deform. logging", &diag_deform)) { App::diag_log_beam_deform.SetActive(diag_deform); }
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
@@ -521,26 +461,22 @@ void RoR::GUI::TopMenubar::Update()
             }
 
             bool diag_trig = App::diag_log_beam_trigger.GetActive();
-            if (ImGui::Checkbox("Trigger logging", &diag_trig))
-            {
-                App::diag_log_beam_trigger.SetActive(diag_trig);
-            }
+            if (ImGui::Checkbox("Trigger logging", &diag_trig)) { App::diag_log_beam_trigger.SetActive(diag_trig); }
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text("Extra logging on runtime - trigger beams activity (config: \"Trigger Debug\"; GVar: \"diag_log_beam_trigger\")");
+                ImGui::Text("Extra logging on runtime - trigger beams activity (config: \"Trigger Debug\"; GVar: "
+                            "\"diag_log_beam_trigger\")");
                 ImGui::EndTooltip();
             }
 
             bool diag_vcam = App::diag_videocameras.GetActive();
-            if (ImGui::Checkbox("VideoCamera direction marker", &diag_vcam))
-            {
-                App::diag_videocameras.SetActive(diag_vcam);
-            }
+            if (ImGui::Checkbox("VideoCamera direction marker", &diag_vcam)) { App::diag_videocameras.SetActive(diag_vcam); }
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text("Visual marker of VideoCameras direction (config: \"VideoCameraDebug\"; GVar: \"diag_videocameras\")");
+                ImGui::Text(
+                    "Visual marker of VideoCameras direction (config: \"VideoCameraDebug\"; GVar: \"diag_videocameras\")");
                 ImGui::EndTooltip();
             }
 
@@ -549,69 +485,71 @@ void RoR::GUI::TopMenubar::Update()
                 ImGui::Separator();
 
                 ImGui::TextColored(GRAY_HINT_TEXT, "Live diagnostic views:");
-                ImGui::TextColored(GRAY_HINT_TEXT, "(Toggle with 'K')"); // !!TODO!! - display actual configured hotkey (EV_COMMON_TOGGLE_DEBUG_VIEW)
-                ImGui::TextColored(GRAY_HINT_TEXT, "(Cycle with 'CTRL+K')"); // !!TODO!! - display actual configured hotkey (EV_COMMON_CYCLE_DEBUG_VIEWS)
+                ImGui::TextColored(
+                    GRAY_HINT_TEXT,
+                    "(Toggle with 'K')"); // !!TODO!! - display actual configured hotkey (EV_COMMON_TOGGLE_DEBUG_VIEW)
+                ImGui::TextColored(
+                    GRAY_HINT_TEXT,
+                    "(Cycle with 'CTRL+K')"); // !!TODO!! - display actual configured hotkey (EV_COMMON_CYCLE_DEBUG_VIEWS)
 
                 int debug_view_type = static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NONE);
                 if (current_actor != nullptr)
-                {
-                    debug_view_type = static_cast<int>(current_actor->GetGfxActor()->GetDebugView());
-                }
-                ImGui::RadioButton("Normal view",     &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NONE));
-                ImGui::RadioButton("Skeleton view",   &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SKELETON));
-                ImGui::RadioButton("Node details",    &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NODES));
-                ImGui::RadioButton("Beam details",    &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_BEAMS));
+                { debug_view_type = static_cast<int>(current_actor->GetGfxActor()->GetDebugView()); }
+                ImGui::RadioButton("Normal view", &debug_view_type, static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NONE));
+                ImGui::RadioButton("Skeleton view", &debug_view_type,
+                                   static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SKELETON));
+                ImGui::RadioButton("Node details", &debug_view_type, static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NODES));
+                ImGui::RadioButton("Beam details", &debug_view_type, static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_BEAMS));
                 if (current_actor->ar_num_wheels > 0)
                 {
-                    ImGui::RadioButton("Wheel details",   &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_WHEELS));
+                    ImGui::RadioButton("Wheel details", &debug_view_type,
+                                       static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_WHEELS));
                 }
                 if (current_actor->ar_num_shocks > 0)
                 {
-                    ImGui::RadioButton("Shock details",   &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SHOCKS));
+                    ImGui::RadioButton("Shock details", &debug_view_type,
+                                       static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SHOCKS));
                 }
                 if (current_actor->ar_num_rotators > 0)
                 {
-                    ImGui::RadioButton("Rotator details", &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_ROTATORS));
+                    ImGui::RadioButton("Rotator details", &debug_view_type,
+                                       static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_ROTATORS));
                 }
                 if (current_actor->hasSlidenodes())
                 {
-                    ImGui::RadioButton("Slidenode details", &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SLIDENODES));
+                    ImGui::RadioButton("Slidenode details", &debug_view_type,
+                                       static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SLIDENODES));
                 }
                 if (current_actor->ar_num_cabs > 0)
                 {
-                    ImGui::RadioButton("Submesh details", &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SUBMESH));
+                    ImGui::RadioButton("Submesh details", &debug_view_type,
+                                       static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SUBMESH));
                 }
 
-                if ((current_actor != nullptr) && (debug_view_type != static_cast<int>(current_actor->GetGfxActor()->GetDebugView())))
-                {
-                    current_actor->GetGfxActor()->SetDebugView(static_cast<GfxActor::DebugViewType>(debug_view_type));
-                }
+                if ((current_actor != nullptr) &&
+                    (debug_view_type != static_cast<int>(current_actor->GetGfxActor()->GetDebugView())))
+                { current_actor->GetGfxActor()->SetDebugView(static_cast<GfxActor::DebugViewType>(debug_view_type)); }
 
-                if (debug_view_type >= 1 && debug_view_type <= static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_BEAMS)) 
+                if (debug_view_type >= 1 && debug_view_type <= static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_BEAMS))
                 {
                     ImGui::Separator();
-                    ImGui::TextColored(GRAY_HINT_TEXT,           "Settings:");
-                    DrawGCheckbox(App::diag_hide_broken_beams,   "Hide broken beams");
-                    DrawGCheckbox(App::diag_hide_beam_stress,    "Hide beam stress");
-                    DrawGCheckbox(App::diag_hide_wheels,         "Hide wheels");
-                    DrawGCheckbox(App::diag_hide_nodes,          "Hide nodes");
-                    if (debug_view_type >= 2)
-                    {
-                        DrawGCheckbox(App::diag_hide_wheel_info, "Hide wheel info");
-                    }
+                    ImGui::TextColored(GRAY_HINT_TEXT, "Settings:");
+                    DrawGCheckbox(App::diag_hide_broken_beams, "Hide broken beams");
+                    DrawGCheckbox(App::diag_hide_beam_stress, "Hide beam stress");
+                    DrawGCheckbox(App::diag_hide_wheels, "Hide wheels");
+                    DrawGCheckbox(App::diag_hide_nodes, "Hide nodes");
+                    if (debug_view_type >= 2) { DrawGCheckbox(App::diag_hide_wheel_info, "Hide wheel info"); }
                 }
             }
 
-            m_open_menu_hoverbox_min = menu_pos;
+            m_open_menu_hoverbox_min   = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
             ImGui::End();
         }
         break;
 
-    default:
-        m_open_menu_hoverbox_min = ImVec2(0,0);
-        m_open_menu_hoverbox_max = ImVec2(0,0);
+    default: m_open_menu_hoverbox_min = ImVec2(0, 0); m_open_menu_hoverbox_max = ImVec2(0, 0);
     }
 
     ImGui::PopStyleColor(2);
@@ -619,19 +557,16 @@ void RoR::GUI::TopMenubar::Update()
 
 bool RoR::GUI::TopMenubar::ShouldDisplay(ImVec2 window_pos)
 {
-    ImVec2 box_min(0,0);
+    ImVec2 box_min(0, 0);
     ImVec2 box_max(ImGui::GetIO().DisplaySize.x, ImGui::GetStyle().WindowPadding.y + PANEL_HOVERBOX_HEIGHT);
     ImVec2 mouse_pos = ImGui::GetIO().MousePos;
-    bool window_hovered ((mouse_pos.x >= box_min.x) && (mouse_pos.x <= box_max.x) &&
-                            (mouse_pos.y >= box_min.y) && (mouse_pos.y <= box_max.y));
+    bool   window_hovered((mouse_pos.x >= box_min.x) && (mouse_pos.x <= box_max.x) && (mouse_pos.y >= box_min.y) &&
+                        (mouse_pos.y <= box_max.y));
 
-    if (m_open_menu == TopMenu::TOPMENU_NONE)
-    {
-        return window_hovered;
-    }
+    if (m_open_menu == TopMenu::TOPMENU_NONE) { return window_hovered; }
 
-    bool menu_hovered ((mouse_pos.x >= m_open_menu_hoverbox_min.x) && (mouse_pos.x <= m_open_menu_hoverbox_max.x) &&
-                        (mouse_pos.y >= m_open_menu_hoverbox_min.y) && (mouse_pos.y <= m_open_menu_hoverbox_max.y));
+    bool menu_hovered((mouse_pos.x >= m_open_menu_hoverbox_min.x) && (mouse_pos.x <= m_open_menu_hoverbox_max.x) &&
+                      (mouse_pos.y >= m_open_menu_hoverbox_min.y) && (mouse_pos.y <= m_open_menu_hoverbox_max.y));
     return (menu_hovered || window_hovered);
 }
 
@@ -639,25 +574,34 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 {
     // Count actors owned by the player
     unsigned int num_actors_player = 0;
-    for (Actor* actor : App::GetSimController()->GetActors())
+    for (Actor *actor : App::GetSimController()->GetActors())
     {
-        if (actor->ar_net_source_id == user.uniqueid)
-        {
-            ++num_actors_player;
-        }
+        if (actor->ar_net_source_id == user.uniqueid) { ++num_actors_player; }
     }
 
     // Prepare user info text
-    const char* user_type_str = "";
-         if (user.authstatus & RoRnet::AUTH_BOT)     { user_type_str = "Bot, ";       } // Old coloring: #0000c9
-    else if (user.authstatus & RoRnet::AUTH_BANNED)  { user_type_str = "Banned, ";    } // Old coloring: none
-    else if (user.authstatus & RoRnet::AUTH_RANKED)  { user_type_str = "Ranked, ";    } // Old coloring: #00c900
-    else if (user.authstatus & RoRnet::AUTH_MOD)     { user_type_str = "Moderator, "; } // Old coloring: #c90000
-    else if (user.authstatus & RoRnet::AUTH_ADMIN)   { user_type_str = "Admin, ";     } // Old coloring: #c97100
+    const char *user_type_str = "";
+    if (user.authstatus & RoRnet::AUTH_BOT) { user_type_str = "Bot, "; } // Old coloring: #0000c9
+    else if (user.authstatus & RoRnet::AUTH_BANNED)
+    {
+        user_type_str = "Banned, ";
+    } // Old coloring: none
+    else if (user.authstatus & RoRnet::AUTH_RANKED)
+    {
+        user_type_str = "Ranked, ";
+    } // Old coloring: #00c900
+    else if (user.authstatus & RoRnet::AUTH_MOD)
+    {
+        user_type_str = "Moderator, ";
+    } // Old coloring: #c90000
+    else if (user.authstatus & RoRnet::AUTH_ADMIN)
+    {
+        user_type_str = "Admin, ";
+    } // Old coloring: #c97100
 
     char usertext_buf[400];
-    snprintf(usertext_buf, 400, "%s: %u (%sVer: %s, Lang: %s)",
-        user.username, num_actors_player, user_type_str, user.clientversion, user.language);
+    snprintf(usertext_buf, 400, "%s: %u (%sVer: %s, Lang: %s)", user.username, num_actors_player, user_type_str,
+             user.clientversion, user.language);
 
     // Display user in list
     Ogre::ColourValue player_color;
@@ -676,24 +620,20 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
         if ((!actor->ar_hide_in_actor_list) && (actor->ar_net_source_id == user.uniqueid))
         {
             char actortext_buf[400];
-            snprintf(actortext_buf, 400, "  + %s (%s) ##[%d:%d]", actor->ar_design_name.c_str(), actor->ar_filename.c_str(), i++, user.uniqueid);
+            snprintf(actortext_buf, 400, "  + %s (%s) ##[%d:%d]", actor->ar_design_name.c_str(), actor->ar_filename.c_str(), i++,
+                     user.uniqueid);
             if (ImGui::Button(actortext_buf)) // Button clicked?
-            {
-                App::GetSimController()->SetPendingPlayerActor(actor);
-            }
+            { App::GetSimController()->SetPendingPlayerActor(actor); }
         }
     }
 }
 
 void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
 {
-    std::vector<Actor*> actor_list;
+    std::vector<Actor *> actor_list;
     for (auto actor : App::GetSimController()->GetActors())
     {
-        if (!actor->ar_hide_in_actor_list)
-        {
-            actor_list.emplace_back(actor);
-        }
+        if (!actor->ar_hide_in_actor_list) { actor_list.emplace_back(actor); }
     }
     if (actor_list.empty())
     {
@@ -704,17 +644,14 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
     }
     else
     {
-        Actor* player_actor = App::GetSimController()->GetPlayerActor();
-        int i = 0;
+        Actor *player_actor = App::GetSimController()->GetPlayerActor();
+        int    i            = 0;
         for (auto actor : actor_list)
         {
             char text_buf[200];
             snprintf(text_buf, 200, "[%d] %s", i++, actor->ar_design_name.c_str());
             auto linked_actors = actor->GetAllLinkedActors();
-            if (actor == player_actor)
-            {
-                ImGui::PushStyleColor(ImGuiCol_Text, GREEN_TEXT);
-            }
+            if (actor == player_actor) { ImGui::PushStyleColor(ImGuiCol_Text, GREEN_TEXT); }
             else if (std::find(linked_actors.begin(), linked_actors.end(), player_actor) != linked_actors.end())
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, ORANGE_TEXT);
@@ -728,9 +665,7 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
                 ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
             }
             if (ImGui::Button(text_buf)) // Button clicked?
-            {
-                App::GetSimController()->SetPendingPlayerActor(actor);
-            }
+            { App::GetSimController()->SetPendingPlayerActor(actor); }
             ImGui::PopStyleColor();
         }
     }
