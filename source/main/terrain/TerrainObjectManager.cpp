@@ -994,7 +994,10 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         }
         if (!strcmp("endmesh", ptline))
         {
-            gEnv->collisions->addCollisionMesh(collmesh, Vector3(pos.x, pos.y, pos.z), tenode->getOrientation(), sc, gm, &(obj->collTris));
+            if(strcmp("", collmesh) == 0)
+                RoR::LogFormat("[ODEF] Collision mesh not found in file %s", odefname.c_str());
+            else
+                gEnv->collisions->addCollisionMesh(collmesh, Vector3(pos.x, pos.y, pos.z), tenode->getOrientation(), sc, gm, &(obj->collTris));
             continue;
         }
 
