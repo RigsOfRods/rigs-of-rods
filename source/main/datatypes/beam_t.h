@@ -24,10 +24,13 @@
 /// Simulation: An edge in the softbody structure
 struct beam_t
 {
-    beam_t()                              { memset(this, 0, sizeof(beam_t)); }
+    beam_t()
+    {
+        memset(this, 0, sizeof(beam_t));
+    }
 
-    node_t *p1;
-    node_t *p2;
+    node_t *   p1;
+    node_t *   p2;
     Ogre::Real k; //!< tensile spring
     Ogre::Real d; //!< damping factor
     Ogre::Real L; //!< length
@@ -37,11 +40,11 @@ struct beam_t
     Ogre::Real strength;
     Ogre::Real stress;
     Ogre::Real plastic_coef;
-    int detacher_group;	//!< Attribute: detacher group number (integer)
-    short bounded;      //!< { SHOCK1=1, SHOCK2=2, SHOCK3=3, TRIGGER=4, SUPPORTBEAM=5, ROPE=6 }
-    short bm_type;      //!< { BEAM_NORMAL, BEAM_HYDRO, BEAM_VIRTUAL }
-    bool bm_inter_actor;       //!< in case p2 is on another actor
-    Actor* bm_locked_actor;    //!< in case p2 is on another actor
+    int        detacher_group;  //!< Attribute: detacher group number (integer)
+    short      bounded;         //!< { SHOCK1=1, SHOCK2=2, SHOCK3=3, TRIGGER=4, SUPPORTBEAM=5, ROPE=6 }
+    short      bm_type;         //!< { BEAM_NORMAL, BEAM_HYDRO, BEAM_VIRTUAL }
+    bool       bm_inter_actor;  //!< in case p2 is on another actor
+    Actor *    bm_locked_actor; //!< in case p2 is on another actor
 
     /// Multipurpose; excludes beam from physics, controls visibility (gfx) and indicates multiple other states (hooks/ties).
     /// Users:
@@ -55,7 +58,8 @@ struct beam_t
     ///   Actor::ReplayStep()             -- WRITE: fills from replay buffer
     ///   Actor::CalcBeams()            -- READ excludes beam from physics
     ///                                -- WRITE: when SUPPORTBEAM breaks, it's set to 'disabled' + 'broken'
-    ///                                -- WRITE: when regular beam breaks, 'true' is set to it and all beams in it's detacher group.
+    ///                                -- WRITE: when regular beam breaks, 'true' is set to it and all beams in it's detacher
+    ///                                group.
     ///   Actor::CalcBeamsInterActor()    -- READ: excludes beam from physics
     ///                                  -- WRITE: when beam breaks (special conditions), it's set to 'disabled' + 'broken'
     ///   Actor::calcHooks() -- READ/WRITE: If disabled during locking, it's enabled
@@ -82,12 +86,12 @@ struct beam_t
 
     Ogre::Real shortbound;
     Ogre::Real longbound;
-    Ogre::Real refL;       //!< reference length
+    Ogre::Real refL; //!< reference length
 
     shock_t *shock;
 
     Ogre::Real initial_beam_strength; ///< for reset
-    Ogre::Real default_beam_deform; ///< for reset
+    Ogre::Real default_beam_deform;   ///< for reset
 
     Ogre::Real debug_k; //< debug shock spring_rate
     Ogre::Real debug_d; //< debug shock damping

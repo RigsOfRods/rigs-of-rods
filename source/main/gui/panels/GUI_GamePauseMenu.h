@@ -27,32 +27,44 @@
 
 #include <imgui.h>
 
-namespace RoR {
-namespace GUI {
-
-class GamePauseMenu // TODO: Copypaste of 'GameMainMenu' -- cleanup and unify the logic! ~ only_a_ptr, 06/2017
+namespace RoR
 {
-public:
-    // This class implements hand-made keyboard focus - button count must be known for wrapping
-    const int     NUM_BUTTONS           = 3; // Buttons: Resumegame, BackToMenu, Quitgame
-    const float   WINDOW_WIDTH          = 200.f;
-    const ImVec4  WINDOW_BG_COLOR       = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
-    const ImVec4  BUTTON_BG_COLOR       = ImVec4(0.3f, 0.3f, 0.3f, 0.5f); // Drawn on top of a transparent panel; make it just a shade
-    const ImVec2  BUTTON_PADDING        = ImVec2(4.f, 6.f);
+    namespace GUI
+    {
 
-    GamePauseMenu();
+        class GamePauseMenu // TODO: Copypaste of 'GameMainMenu' -- cleanup and unify the logic! ~ only_a_ptr, 06/2017
+        {
+          public:
+            // This class implements hand-made keyboard focus - button count must be known for wrapping
+            const int    NUM_BUTTONS     = 3; // Buttons: Resumegame, BackToMenu, Quitgame
+            const float  WINDOW_WIDTH    = 200.f;
+            const ImVec4 WINDOW_BG_COLOR = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
+            const ImVec4 BUTTON_BG_COLOR =
+                ImVec4(0.3f, 0.3f, 0.3f, 0.5f); // Drawn on top of a transparent panel; make it just a shade
+            const ImVec2 BUTTON_PADDING = ImVec2(4.f, 6.f);
 
-    // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
-    inline void   KeyUpPressed()                   { m_kb_focus_index = (m_kb_focus_index <= 0) ? (NUM_BUTTONS-1) : (m_kb_focus_index - 1); }
-    inline void   KeyDownPressed()                 { m_kb_focus_index = (m_kb_focus_index < (NUM_BUTTONS - 1)) ? (m_kb_focus_index + 1) : 0; }
-    inline void   EnterKeyPressed()                { m_kb_enter_index = m_kb_focus_index; }
+            GamePauseMenu();
 
-    void          Draw();
+            // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
+            inline void KeyUpPressed()
+            {
+                m_kb_focus_index = (m_kb_focus_index <= 0) ? (NUM_BUTTONS - 1) : (m_kb_focus_index - 1);
+            }
+            inline void KeyDownPressed()
+            {
+                m_kb_focus_index = (m_kb_focus_index < (NUM_BUTTONS - 1)) ? (m_kb_focus_index + 1) : 0;
+            }
+            inline void EnterKeyPressed()
+            {
+                m_kb_enter_index = m_kb_focus_index;
+            }
 
-private:
-    int    m_kb_focus_index; // -1 = no focus; 0+ = button index
-    int    m_kb_enter_index; // Index of focus confirmed by ENTER key
-};
+            void Draw();
 
-} // namespace GUI
+          private:
+            int m_kb_focus_index; // -1 = no focus; 0+ = button index
+            int m_kb_enter_index; // Index of focus confirmed by ENTER key
+        };
+
+    } // namespace GUI
 } // namespace RoR

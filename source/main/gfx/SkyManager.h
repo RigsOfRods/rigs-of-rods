@@ -21,34 +21,41 @@
 
 #ifdef USE_CAELUM
 
-#pragma once
+    #pragma once
 
-#include "RoRPrerequisites.h"
-
-#include "CaelumPrerequisites.h"
+    #include "CaelumPrerequisites.h"
+    #include "RoRPrerequisites.h"
 
 class SkyManager : public ZeroedMemoryAllocator
 {
-public:
-
+  public:
     SkyManager();
     ~SkyManager();
 
-    void           LoadCaelumScript(Ogre::String script, int fogStart = -1, int fogEnd = -1);
-    void           SetSkyTimeFactor(Ogre::Real f);  //!< change the time scale
-    Ogre::Light*   GetSkyMainLight();
-    float          GetSkyTimeFactor();              //!< gets the current time scale
-    std::string    GetPrettyTime();                 //!< prints the current time of the simulation in the format of HH:MM:SS
-    double         GetTime()                    { return m_caelum_system->getJulianDay(); };
-    void           SetTime(double time)         {  m_caelum_system->setJulianDay(time); };
-    bool           UpdateSky(float dt);
-    void           NotifySkyCameraChanged(Ogre::Camera* cam);
-    void           DetectSkyUpdate();
-    Caelum::CaelumSystem* GetCaelumSys()        { return m_caelum_system; }
+    void         LoadCaelumScript(Ogre::String script, int fogStart = -1, int fogEnd = -1);
+    void         SetSkyTimeFactor(Ogre::Real f); //!< change the time scale
+    Ogre::Light *GetSkyMainLight();
+    float        GetSkyTimeFactor(); //!< gets the current time scale
+    std::string  GetPrettyTime();    //!< prints the current time of the simulation in the format of HH:MM:SS
+    double       GetTime()
+    {
+        return m_caelum_system->getJulianDay();
+    };
+    void SetTime(double time)
+    {
+        m_caelum_system->setJulianDay(time);
+    };
+    bool                  UpdateSky(float dt);
+    void                  NotifySkyCameraChanged(Ogre::Camera *cam);
+    void                  DetectSkyUpdate();
+    Caelum::CaelumSystem *GetCaelumSys()
+    {
+        return m_caelum_system;
+    }
 
-private:
+  private:
     Caelum::LongReal      m_last_clock;
-    Caelum::CaelumSystem* m_caelum_system;
+    Caelum::CaelumSystem *m_caelum_system;
 };
 
 #endif // USE_CAELUM

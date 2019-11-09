@@ -23,20 +23,16 @@
 /// @author Thomas Fischer
 /// @date   6th of May 2010
 
-#include <Ogre.h>
-#include <Overlay/OgreOverlayManager.h>
-#include <Overlay/OgreOverlay.h>
-#include <Overlay/OgreFontManager.h>
 #include "OverlayWrapper.h"
 
 #include "AeroEngine.h"
 #include "Application.h"
 #include "AutoPilot.h"
 #include "Beam.h"
+#include "BeamEngine.h"
 #include "BeamFactory.h"
 #include "Character.h"
 #include "DashBoardManager.h"
-#include "BeamEngine.h"
 #include "ErrorUtils.h"
 #include "FlexAirfoil.h"
 #include "GfxActor.h"
@@ -51,15 +47,17 @@
 #include "TurboProp.h"
 #include "Utils.h"
 
+#include <Ogre.h>
+#include <Overlay/OgreFontManager.h>
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayManager.h>
+
 using namespace Ogre;
 
 bool g_is_scaled = false;
 
-OverlayWrapper::OverlayWrapper():
-    m_direction_arrow_node(nullptr),
-    mTimeUntilNextToggle(0),
-    m_dashboard_visible(false),
-    m_visible_overlays(0)
+OverlayWrapper::OverlayWrapper()
+    : m_direction_arrow_node(nullptr), mTimeUntilNextToggle(0), m_dashboard_visible(false), m_visible_overlays(0)
 {
     win = RoR::App::GetOgreSubsystem()->GetRenderWindow();
     init();
@@ -72,37 +70,34 @@ OverlayWrapper::~OverlayWrapper()
     HideDirectionOverlay();
 }
 
-void OverlayWrapper::resizePanel(OverlayElement* oe)
+void OverlayWrapper::resizePanel(OverlayElement *oe)
 {
-    if (g_is_scaled)
-        return;
+    if (g_is_scaled) return;
     oe->setHeight(oe->getHeight() * (Real)win->getWidth() / (Real)win->getHeight());
     oe->setTop(oe->getTop() * (Real)win->getWidth() / (Real)win->getHeight());
 }
 
-void OverlayWrapper::reposPanel(OverlayElement* oe)
+void OverlayWrapper::reposPanel(OverlayElement *oe)
 {
-    if (g_is_scaled)
-        return;
+    if (g_is_scaled) return;
     oe->setTop(oe->getTop() * (Real)win->getWidth() / (Real)win->getHeight());
 }
 
-void OverlayWrapper::placeNeedle(SceneNode* node, float x, float y, float len)
-{/**(Real)win->getHeight()/(Real)win->getWidth()*/
+void OverlayWrapper::placeNeedle(SceneNode *node, float x, float y, float len)
+{ /**(Real)win->getHeight()/(Real)win->getWidth()*/
     node->setPosition((x - 640.0) / 444.0, (512 - y) / 444.0, -2.0);
     node->setScale(0.0025, 0.007 * len, 0.007);
 }
 
-Overlay* OverlayWrapper::loadOverlay(String name, bool autoResizeRation)
+Overlay *OverlayWrapper::loadOverlay(String name, bool autoResizeRation)
 {
-    Overlay* o = OverlayManager::getSingleton().getByName(name);
-    if (!o)
-        return NULL;
+    Overlay *o = OverlayManager::getSingleton().getByName(name);
+    if (!o) return NULL;
 
     if (autoResizeRation)
     {
         struct LoadedOverlay lo;
-        lo.o = o;
+        lo.o         = o;
         lo.orgScaleX = o->getScaleX();
         lo.orgScaleY = o->getScaleY();
 
@@ -112,7 +107,7 @@ Overlay* OverlayWrapper::loadOverlay(String name, bool autoResizeRation)
     return o;
 }
 
-void OverlayWrapper::resizeOverlay(LoadedOverlay& lo)
+void OverlayWrapper::resizeOverlay(LoadedOverlay &lo)
 {
     // enforce 4:3 for overlays
     float w = win->getWidth();
@@ -120,8 +115,7 @@ void OverlayWrapper::resizeOverlay(LoadedOverlay& lo)
     float s = (4.0f / 3.0f) / (w / h);
 
     // window is higher than wide
-    if (s > 1)
-        s = (3.0f / 4.0f) / (h / w);
+    if (s > 1) s = (3.0f / 4.0f) / (h / w);
 
     // originals
     lo.o->setScale(lo.orgScaleX, lo.orgScaleY);
@@ -140,12 +134,12 @@ void OverlayWrapper::windowResized()
     }
 }
 
-OverlayElement* OverlayWrapper::loadOverlayElement(String name)
+OverlayElement *OverlayWrapper::loadOverlayElement(String name)
 {
     return OverlayManager::getSingleton().getOverlayElement(name);
 }
 
-Ogre::TextureUnitState* GetTexUnit(Ogre::String material_name) // Internal helper
+Ogre::TextureUnitState *GetTexUnit(Ogre::String material_name) // Internal helper
 {
     return MaterialManager::getSingleton().getByName(material_name)->getTechnique(0)->getPass(0)->getTextureUnitState(0);
 }
@@ -155,13 +149,14 @@ int OverlayWrapper::init()
     m_direction_arrow_overlay = loadOverlay("tracks/DirectionArrow", false);
     try
     {
-        directionArrowText = (TextAreaOverlayElement*)loadOverlayElement("tracks/DirectionArrow/Text");
+        directionArrowText = (TextAreaOverlayElement *)loadOverlayElement("tracks/DirectionArrow/Text");
     }
     catch (...)
     {
-        ErrorUtils::ShowError("Resources not found!", "please ensure that your installation is complete and the resources are installed properly. If this error persists please re-install RoR.");
+        ErrorUtils::ShowError("Resources not found!", "please ensure that your installation is complete and the resources are "
+                                                      "installed properly. If this error persists please re-install RoR.");
     }
-    directionArrowDistance = (TextAreaOverlayElement*)loadOverlayElement("tracks/DirectionArrow/Distance");
+    directionArrowDistance = (TextAreaOverlayElement *)loadOverlayElement("tracks/DirectionArrow/Distance");
 
     // openGL fix
     m_direction_arrow_overlay->show();
@@ -169,18 +164,16 @@ int OverlayWrapper::init()
 
     m_debug_fps_memory_overlay = loadOverlay("Core/DebugOverlay", false);
 
-    OverlayElement* vere = loadOverlayElement("Core/RoRVersionString");
-    if (vere)
-        vere->setCaption("Rigs of Rods version " + String(ROR_VERSION_STRING));
+    OverlayElement *vere = loadOverlayElement("Core/RoRVersionString");
+    if (vere) vere->setCaption("Rigs of Rods version " + String(ROR_VERSION_STRING));
 
-    m_machine_dashboard_overlay = loadOverlay("tracks/MachineDashboardOverlay");
-    m_aerial_dashboard.dash_overlay = loadOverlay("tracks/AirDashboardOverlay", false);
+    m_machine_dashboard_overlay        = loadOverlay("tracks/MachineDashboardOverlay");
+    m_aerial_dashboard.dash_overlay    = loadOverlay("tracks/AirDashboardOverlay", false);
     m_aerial_dashboard.needles_overlay = loadOverlay("tracks/AirNeedlesOverlay", false);
-    m_marine_dashboard_overlay = loadOverlay("tracks/BoatDashboardOverlay");
+    m_marine_dashboard_overlay         = loadOverlay("tracks/BoatDashboardOverlay");
     m_marine_dashboard_needles_overlay = loadOverlay("tracks/BoatNeedlesOverlay");
 
-
-    //adjust dashboard size for screen ratio
+    // adjust dashboard size for screen ratio
     resizePanel(loadOverlayElement("tracks/pressureo"));
     resizePanel(loadOverlayElement("tracks/pressureneedle"));
     MaterialPtr m = MaterialManager::getSingleton().getByName("tracks/pressureneedle_mat");
@@ -198,7 +191,7 @@ int OverlayWrapper::init()
     resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/airdashbar"));
     resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/airdashfiller"));
 
-    OverlayElement* tempoe;
+    OverlayElement *tempoe;
     resizePanel(tempoe = OverlayManager::getSingleton().getOverlayElement("tracks/thrusttrack1"));
 
     resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/thrusttrack2"));
@@ -210,17 +203,17 @@ int OverlayWrapper::init()
     resizePanel(m_aerial_dashboard.engines[2].thr_element = loadOverlayElement("tracks/thrust3"));
     resizePanel(m_aerial_dashboard.engines[3].thr_element = loadOverlayElement("tracks/thrust4"));
 
-    thrtop = 1.0f + tempoe->getTop() + m_aerial_dashboard.engines[0].thr_element->getHeight() * 0.5f;
+    thrtop    = 1.0f + tempoe->getTop() + m_aerial_dashboard.engines[0].thr_element->getHeight() * 0.5f;
     thrheight = tempoe->getHeight() - m_aerial_dashboard.engines[0].thr_element->getHeight() * 2.0f;
     throffset = m_aerial_dashboard.engines[0].thr_element->getHeight() * 0.5f;
 
-    m_aerial_dashboard.thrust_track_top = thrtop;
+    m_aerial_dashboard.thrust_track_top    = thrtop;
     m_aerial_dashboard.thrust_track_height = thrheight;
 
-    m_aerial_dashboard.engines[0].engfire_element = loadOverlayElement("tracks/engfire1");
-    m_aerial_dashboard.engines[1].engfire_element = loadOverlayElement("tracks/engfire2");
-    m_aerial_dashboard.engines[2].engfire_element = loadOverlayElement("tracks/engfire3");
-    m_aerial_dashboard.engines[3].engfire_element = loadOverlayElement("tracks/engfire4");
+    m_aerial_dashboard.engines[0].engfire_element  = loadOverlayElement("tracks/engfire1");
+    m_aerial_dashboard.engines[1].engfire_element  = loadOverlayElement("tracks/engfire2");
+    m_aerial_dashboard.engines[2].engfire_element  = loadOverlayElement("tracks/engfire3");
+    m_aerial_dashboard.engines[3].engfire_element  = loadOverlayElement("tracks/engfire4");
     m_aerial_dashboard.engines[0].engstart_element = loadOverlayElement("tracks/engstart1");
     m_aerial_dashboard.engines[1].engstart_element = loadOverlayElement("tracks/engstart2");
     m_aerial_dashboard.engines[2].engstart_element = loadOverlayElement("tracks/engstart3");
@@ -241,8 +234,8 @@ int OverlayWrapper::init()
     resizePanel(loadOverlayElement("tracks/vvi"));
     resizePanel(loadOverlayElement("tracks/altimeter"));
     resizePanel(loadOverlayElement("tracks/altimeter_val"));
-    m_aerial_dashboard.alt_value_textarea = (TextAreaOverlayElement*)loadOverlayElement("tracks/altimeter_val");
-    boat_depth_value_taoe = (TextAreaOverlayElement*)loadOverlayElement("tracks/boatdepthmeter_val");
+    m_aerial_dashboard.alt_value_textarea = (TextAreaOverlayElement *)loadOverlayElement("tracks/altimeter_val");
+    boat_depth_value_taoe                 = (TextAreaOverlayElement *)loadOverlayElement("tracks/boatdepthmeter_val");
     resizePanel(loadOverlayElement("tracks/adi-tape"));
     resizePanel(loadOverlayElement("tracks/adi"));
     resizePanel(loadOverlayElement("tracks/adi-bugs"));
@@ -255,10 +248,10 @@ int OverlayWrapper::init()
     resizePanel(loadOverlayElement("tracks/hsi-v"));
     resizePanel(loadOverlayElement("tracks/hsi-h"));
     m_aerial_dashboard.hsirosetexture = GetTexUnit("tracks/hsi-rose");
-    m_aerial_dashboard.hsibugtexture =  GetTexUnit("tracks/hsi-bug");
-    m_aerial_dashboard.hsivtexture =    GetTexUnit("tracks/hsi-v");
-    m_aerial_dashboard.hsihtexture =    GetTexUnit("tracks/hsi-h");
-    //autopilot
+    m_aerial_dashboard.hsibugtexture  = GetTexUnit("tracks/hsi-bug");
+    m_aerial_dashboard.hsivtexture    = GetTexUnit("tracks/hsi-v");
+    m_aerial_dashboard.hsihtexture    = GetTexUnit("tracks/hsi-h");
+    // autopilot
     reposPanel(loadOverlayElement("tracks/ap_hdg_pack"));
     reposPanel(loadOverlayElement("tracks/ap_wlv_but"));
     reposPanel(loadOverlayElement("tracks/ap_nav_but"));
@@ -280,14 +273,14 @@ int OverlayWrapper::init()
     m_aerial_dashboard.gpws.Setup("tracks/ap_gpws_but", "tracks/gpws-on", "tracks/gpws-off");
     m_aerial_dashboard.brks.Setup("tracks/ap_brks_but", "tracks/brks-on", "tracks/brks-off");
 
-    //boat
+    // boat
     resizePanel(loadOverlayElement("tracks/boatdashbar"));
     resizePanel(loadOverlayElement("tracks/boatdashfiller"));
     resizePanel(loadOverlayElement("tracks/boatthrusttrack1"));
     resizePanel(loadOverlayElement("tracks/boatthrusttrack2"));
 
-    //resizePanel(boatmapo=loadOverlayElement("tracks/boatmap"));
-    //resizePanel(boatmapdot=loadOverlayElement("tracks/boatreddot"));
+    // resizePanel(boatmapo=loadOverlayElement("tracks/boatmap"));
+    // resizePanel(boatmapdot=loadOverlayElement("tracks/boatreddot"));
 
     resizePanel(bthro1 = loadOverlayElement("tracks/boatthrust1"));
     resizePanel(bthro2 = loadOverlayElement("tracks/boatthrust2"));
@@ -296,12 +289,24 @@ int OverlayWrapper::init()
     resizePanel(loadOverlayElement("tracks/boatsteer"));
     resizePanel(loadOverlayElement("tracks/boatspeedneedle"));
     resizePanel(loadOverlayElement("tracks/boatsteer/fg"));
-    boatspeedtexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/boatspeedneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-    boatsteertexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/boatsteer/fg_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    boatspeedtexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/boatspeedneedle_mat")))
+                           ->getTechnique(0)
+                           ->getPass(0)
+                           ->getTextureUnitState(0);
+    boatsteertexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/boatsteer/fg_mat")))
+                           ->getTechnique(0)
+                           ->getPass(0)
+                           ->getTextureUnitState(0);
 
-    //prepare needles
-    speedotexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/speedoneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0); // Needed for dashboard-prop
-    tachotexture  = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/tachoneedle_mat"))) ->getTechnique(0)->getPass(0)->getTextureUnitState(0); // Needed for dashboard-prop
+    // prepare needles
+    speedotexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/speedoneedle_mat")))
+                        ->getTechnique(0)
+                        ->getPass(0)
+                        ->getTextureUnitState(0); // Needed for dashboard-prop
+    tachotexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/tachoneedle_mat")))
+                       ->getTechnique(0)
+                       ->getPass(0)
+                       ->getTextureUnitState(0); // Needed for dashboard-prop
 
     resizePanel(loadOverlayElement("tracks/airspeedneedle"));
     m_aerial_dashboard.airspeedtexture = GetTexUnit("tracks/airspeedneedle_mat");
@@ -342,27 +347,27 @@ int OverlayWrapper::init()
     resizePanel(loadOverlayElement("tracks/airtorque4needle"));
     m_aerial_dashboard.engines[3].torque_texture = GetTexUnit("tracks/airtorque4needle_mat");
 
-    guiGear = loadOverlayElement("tracks/Gear");
+    guiGear   = loadOverlayElement("tracks/Gear");
     guiGear3D = loadOverlayElement("tracks/3DGear");
 
-    guiAuto[0] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGearR");
-    guiAuto[1] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGearN");
-    guiAuto[2] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGearD");
-    guiAuto[3] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGear2");
-    guiAuto[4] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGear1");
+    guiAuto[0] = (TextAreaOverlayElement *)loadOverlayElement("tracks/AGearR");
+    guiAuto[1] = (TextAreaOverlayElement *)loadOverlayElement("tracks/AGearN");
+    guiAuto[2] = (TextAreaOverlayElement *)loadOverlayElement("tracks/AGearD");
+    guiAuto[3] = (TextAreaOverlayElement *)loadOverlayElement("tracks/AGear2");
+    guiAuto[4] = (TextAreaOverlayElement *)loadOverlayElement("tracks/AGear1");
 
-    guiAuto3D[0] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGearR");
-    guiAuto3D[1] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGearN");
-    guiAuto3D[2] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGearD");
-    guiAuto3D[3] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGear2");
-    guiAuto3D[4] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGear1");
+    guiAuto3D[0] = (TextAreaOverlayElement *)loadOverlayElement("tracks/3DAGearR");
+    guiAuto3D[1] = (TextAreaOverlayElement *)loadOverlayElement("tracks/3DAGearN");
+    guiAuto3D[2] = (TextAreaOverlayElement *)loadOverlayElement("tracks/3DAGearD");
+    guiAuto3D[3] = (TextAreaOverlayElement *)loadOverlayElement("tracks/3DAGear2");
+    guiAuto3D[4] = (TextAreaOverlayElement *)loadOverlayElement("tracks/3DAGear1");
 
-    m_truck_pressure_overlay = loadOverlay("tracks/PressureOverlay");
+    m_truck_pressure_overlay        = loadOverlay("tracks/PressureOverlay");
     m_truck_pressure_needle_overlay = loadOverlay("tracks/PressureNeedleOverlay");
 
     m_racing_overlay = loadOverlay("tracks/Racing", false);
-    laptime = (TextAreaOverlayElement*)loadOverlayElement("tracks/Racing/LapTime");
-    bestlaptime = (TextAreaOverlayElement*)loadOverlayElement("tracks/Racing/BestLapTime");
+    laptime          = (TextAreaOverlayElement *)loadOverlayElement("tracks/Racing/LapTime");
+    bestlaptime      = (TextAreaOverlayElement *)loadOverlayElement("tracks/Racing/BestLapTime");
 
     g_is_scaled = true;
 
@@ -371,14 +376,12 @@ int OverlayWrapper::init()
 
 void OverlayWrapper::update(float dt)
 {
-    if (mTimeUntilNextToggle > 0)
-        mTimeUntilNextToggle -= dt;
+    if (mTimeUntilNextToggle > 0) mTimeUntilNextToggle -= dt;
 }
 
 void OverlayWrapper::showDebugOverlay(int mode)
 {
-    if (!m_debug_fps_memory_overlay)
-        return;
+    if (!m_debug_fps_memory_overlay) return;
 
     if (mode > 0)
     {
@@ -411,12 +414,12 @@ void OverlayWrapper::showPressureOverlay(bool show)
     }
 }
 
-void OverlayWrapper::ToggleDashboardOverlays(Actor* actor)
+void OverlayWrapper::ToggleDashboardOverlays(Actor *actor)
 {
     showDashboardOverlays(!m_dashboard_visible, actor);
 }
 
-void OverlayWrapper::showDashboardOverlays(bool show, Actor* actor)
+void OverlayWrapper::showDashboardOverlays(bool show, Actor *actor)
 {
     m_dashboard_visible = show;
 
@@ -460,63 +463,77 @@ void OverlayWrapper::showDashboardOverlays(bool show, Actor* actor)
 
 void OverlayWrapper::updateStats(bool detailed)
 {
-    static UTFString currFps = _L("Current FPS: ");
-    static UTFString avgFps = _L("Average FPS: ");
-    static UTFString bestFps = _L("Best FPS: ");
-    static UTFString worstFps = _L("Worst FPS: ");
-    static UTFString tris = _L("Triangle Count: ");
-    const RenderTarget::FrameStats& stats = win->getStatistics();
+    static UTFString                currFps  = _L("Current FPS: ");
+    static UTFString                avgFps   = _L("Average FPS: ");
+    static UTFString                bestFps  = _L("Best FPS: ");
+    static UTFString                worstFps = _L("Worst FPS: ");
+    static UTFString                tris     = _L("Triangle Count: ");
+    const RenderTarget::FrameStats &stats    = win->getStatistics();
 
     // update stats when necessary
     try
     {
-        OverlayElement* guiAvg = OverlayManager::getSingleton().getOverlayElement("Core/AverageFps");
-        OverlayElement* guiCurr = OverlayManager::getSingleton().getOverlayElement("Core/CurrFps");
-        OverlayElement* guiBest = OverlayManager::getSingleton().getOverlayElement("Core/BestFps");
-        OverlayElement* guiWorst = OverlayManager::getSingleton().getOverlayElement("Core/WorstFps");
+        OverlayElement *guiAvg   = OverlayManager::getSingleton().getOverlayElement("Core/AverageFps");
+        OverlayElement *guiCurr  = OverlayManager::getSingleton().getOverlayElement("Core/CurrFps");
+        OverlayElement *guiBest  = OverlayManager::getSingleton().getOverlayElement("Core/BestFps");
+        OverlayElement *guiWorst = OverlayManager::getSingleton().getOverlayElement("Core/WorstFps");
 
         guiAvg->setCaption(avgFps + TOUTFSTRING(stats.avgFPS));
         guiCurr->setCaption(currFps + TOUTFSTRING(stats.lastFPS));
         guiBest->setCaption(bestFps + TOUTFSTRING(stats.bestFPS) + U(" ") + TOUTFSTRING(stats.bestFrameTime) + U(" ms"));
         guiWorst->setCaption(worstFps + TOUTFSTRING(stats.worstFPS) + U(" ") + TOUTFSTRING(stats.worstFrameTime) + U(" ms"));
 
-        OverlayElement* guiTris = OverlayManager::getSingleton().getOverlayElement("Core/NumTris");
-        UTFString triss = tris + TOUTFSTRING(stats.triangleCount);
+        OverlayElement *guiTris = OverlayManager::getSingleton().getOverlayElement("Core/NumTris");
+        UTFString       triss   = tris + TOUTFSTRING(stats.triangleCount);
         if (stats.triangleCount > 1000000)
-            triss = tris + TOUTFSTRING(stats.triangleCount/1000000.0f) + U(" M");
+            triss = tris + TOUTFSTRING(stats.triangleCount / 1000000.0f) + U(" M");
         else if (stats.triangleCount > 1000)
-            triss = tris + TOUTFSTRING(stats.triangleCount/1000.0f) + U(" k");
+            triss = tris + TOUTFSTRING(stats.triangleCount / 1000.0f) + U(" k");
         guiTris->setCaption(triss);
 
         // create some memory texts
         UTFString memoryText;
         if (TextureManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("Textures: ") + formatBytes(TextureManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(TextureManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("Textures: ") + formatBytes(TextureManager::getSingleton().getMemoryUsage()) + U(" / ") +
+                         formatBytes(TextureManager::getSingleton().getMemoryBudget()) + U("\n");
         if (CompositorManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("Compositors: ") + formatBytes(CompositorManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(CompositorManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("Compositors: ") + formatBytes(CompositorManager::getSingleton().getMemoryUsage()) +
+                         U(" / ") + formatBytes(CompositorManager::getSingleton().getMemoryBudget()) + U("\n");
         if (FontManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("Fonts: ") + formatBytes(FontManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(FontManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("Fonts: ") + formatBytes(FontManager::getSingleton().getMemoryUsage()) + U(" / ") +
+                         formatBytes(FontManager::getSingleton().getMemoryBudget()) + U("\n");
         if (GpuProgramManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("GPU Program: ") + formatBytes(GpuProgramManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(GpuProgramManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("GPU Program: ") + formatBytes(GpuProgramManager::getSingleton().getMemoryUsage()) +
+                         U(" / ") + formatBytes(GpuProgramManager::getSingleton().getMemoryBudget()) + U("\n");
         if (HighLevelGpuProgramManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("HL GPU Program: ") + formatBytes(HighLevelGpuProgramManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(HighLevelGpuProgramManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("HL GPU Program: ") +
+                         formatBytes(HighLevelGpuProgramManager::getSingleton().getMemoryUsage()) + U(" / ") +
+                         formatBytes(HighLevelGpuProgramManager::getSingleton().getMemoryBudget()) + U("\n");
         if (MaterialManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("Materials: ") + formatBytes(MaterialManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(MaterialManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("Materials: ") + formatBytes(MaterialManager::getSingleton().getMemoryUsage()) +
+                         U(" / ") + formatBytes(MaterialManager::getSingleton().getMemoryBudget()) + U("\n");
         if (MeshManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("Meshes: ") + formatBytes(MeshManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(MeshManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("Meshes: ") + formatBytes(MeshManager::getSingleton().getMemoryUsage()) + U(" / ") +
+                         formatBytes(MeshManager::getSingleton().getMemoryBudget()) + U("\n");
         if (SkeletonManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("Skeletons: ") + formatBytes(SkeletonManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(SkeletonManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("Skeletons: ") + formatBytes(SkeletonManager::getSingleton().getMemoryUsage()) +
+                         U(" / ") + formatBytes(SkeletonManager::getSingleton().getMemoryBudget()) + U("\n");
         if (MaterialManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("Materials: ") + formatBytes(MaterialManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(MaterialManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("Materials: ") + formatBytes(MaterialManager::getSingleton().getMemoryUsage()) +
+                         U(" / ") + formatBytes(MaterialManager::getSingleton().getMemoryBudget()) + U("\n");
         memoryText = memoryText + U("\n");
 
-        OverlayElement* memoryDbg = OverlayManager::getSingleton().getOverlayElement("Core/MemoryText");
+        OverlayElement *memoryDbg = OverlayManager::getSingleton().getOverlayElement("Core/MemoryText");
         memoryDbg->setCaption(memoryText);
 
-        float sumMem = TextureManager::getSingleton().getMemoryUsage() + CompositorManager::getSingleton().getMemoryUsage() + FontManager::getSingleton().getMemoryUsage() + GpuProgramManager::getSingleton().getMemoryUsage() + HighLevelGpuProgramManager::getSingleton().getMemoryUsage() + MaterialManager::getSingleton().getMemoryUsage() + MeshManager::getSingleton().getMemoryUsage() + SkeletonManager::getSingleton().getMemoryUsage() + MaterialManager::getSingleton().getMemoryUsage();
+        float sumMem = TextureManager::getSingleton().getMemoryUsage() + CompositorManager::getSingleton().getMemoryUsage() +
+                       FontManager::getSingleton().getMemoryUsage() + GpuProgramManager::getSingleton().getMemoryUsage() +
+                       HighLevelGpuProgramManager::getSingleton().getMemoryUsage() +
+                       MaterialManager::getSingleton().getMemoryUsage() + MeshManager::getSingleton().getMemoryUsage() +
+                       SkeletonManager::getSingleton().getMemoryUsage() + MaterialManager::getSingleton().getMemoryUsage();
         String sumMemoryText = _L("Memory (Ogre): ") + formatBytes(sumMem) + U("\n");
 
-        OverlayElement* memorySumDbg = OverlayManager::getSingleton().getOverlayElement("Core/CurrMemory");
+        OverlayElement *memorySumDbg = OverlayManager::getSingleton().getOverlayElement("Core/CurrMemory");
         memorySumDbg->setCaption(sumMemoryText);
     }
     catch (...)
@@ -525,17 +542,15 @@ void OverlayWrapper::updateStats(bool detailed)
     }
 }
 
-bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
+bool OverlayWrapper::mouseMoved(const OIS::MouseEvent &_arg)
 {
-    if (!m_aerial_dashboard.needles_overlay->isVisible())
-        return false;
-    bool res = false;
-    const OIS::MouseState ms = _arg.state;
-    
-    Actor* player_actor = RoR::App::GetSimController()->GetPlayerActor();
+    if (!m_aerial_dashboard.needles_overlay->isVisible()) return false;
+    bool                  res = false;
+    const OIS::MouseState ms  = _arg.state;
 
-    if (!player_actor)
-        return res;
+    Actor *player_actor = RoR::App::GetSimController()->GetPlayerActor();
+
+    if (!player_actor) return res;
 
     float mouseX = ms.X.abs / (float)ms.width;
     float mouseY = ms.Y.abs / (float)ms.height;
@@ -546,17 +561,15 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
     {
         const int num_engines = std::min(4, player_actor->ar_num_aeroengines);
 
-        OverlayElement* element = m_aerial_dashboard.needles_overlay->findElementAt(mouseX, mouseY);
+        OverlayElement *element = m_aerial_dashboard.needles_overlay->findElementAt(mouseX, mouseY);
         if (element)
         {
-            res = true;
+            res             = true;
             float thr_value = 1.0f - ((mouseY - thrtop - throffset) / thrheight);
             for (int i = 0; i < num_engines; ++i)
             {
                 if (element == m_aerial_dashboard.engines[i].thr_element)
-                {
-                    player_actor->ar_aeroengines[i]->setThrottle(thr_value);
-                }
+                { player_actor->ar_aeroengines[i]->setThrottle(thr_value); }
             }
         }
 
@@ -566,14 +579,11 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
             res = true;
             for (int i = 0; i < num_engines; ++i)
             {
-                if (element == m_aerial_dashboard.engines[i].engstart_element)
-                {
-                    player_actor->ar_aeroengines[i]->flipStart();
-                }
+                if (element == m_aerial_dashboard.engines[i].engstart_element) { player_actor->ar_aeroengines[i]->flipStart(); }
             }
             if (player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
-                //heading group
+                // heading group
                 if (element == m_aerial_dashboard.hdg.element)
                 {
                     mTimeUntilNextToggle = 0.2;
@@ -589,7 +599,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                     mTimeUntilNextToggle = 0.2;
                     player_actor->ar_autopilot->toggleHeading(Autopilot::HEADING_NAV);
                 }
-                //altitude group
+                // altitude group
                 if (element == m_aerial_dashboard.alt.element)
                 {
                     mTimeUntilNextToggle = 0.2;
@@ -600,25 +610,25 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                     mTimeUntilNextToggle = 0.2;
                     player_actor->ar_autopilot->toggleAlt(Autopilot::ALT_VS);
                 }
-                //IAS
+                // IAS
                 if (element == m_aerial_dashboard.ias.element)
                 {
                     mTimeUntilNextToggle = 0.2;
                     player_actor->ar_autopilot->toggleIAS();
                 }
-                //GPWS
+                // GPWS
                 if (element == m_aerial_dashboard.gpws.element)
                 {
                     mTimeUntilNextToggle = 0.2;
                     player_actor->ar_autopilot->toggleGPWS();
                 }
-                //BRKS
+                // BRKS
                 if (element == m_aerial_dashboard.brks.element)
                 {
                     mTimeUntilNextToggle = 0.2;
                     player_actor->ToggleParkingBrake();
                 }
-                //trims
+                // trims
                 if (element == m_aerial_dashboard.hdg_trim.up_button)
                 {
                     mTimeUntilNextToggle = 0.1;
@@ -665,12 +675,12 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
     return res;
 }
 
-bool OverlayWrapper::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool OverlayWrapper::mousePressed(const OIS::MouseEvent &_arg, OIS::MouseButtonID _id)
 {
     return mouseMoved(_arg);
 }
 
-bool OverlayWrapper::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool OverlayWrapper::mouseReleased(const OIS::MouseEvent &_arg, OIS::MouseButtonID _id)
 {
     return mouseMoved(_arg);
 }
@@ -680,7 +690,7 @@ void OverlayWrapper::SetupDirectionArrow()
     if (RoR::App::GetOverlayWrapper() != nullptr)
     {
         // setup direction arrow
-        Ogre::Entity* arrow_entity = gEnv->sceneManager->createEntity("arrow2.mesh");
+        Ogre::Entity *arrow_entity = gEnv->sceneManager->createEntity("arrow2.mesh");
         arrow_entity->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
 
         // Add entity to the scene node
@@ -694,14 +704,12 @@ void OverlayWrapper::SetupDirectionArrow()
     }
 }
 
-void OverlayWrapper::UpdateDirectionArrowHud(RoR::GfxActor* player_vehicle, Ogre::Vector3 point_to, Ogre::Vector3 character_pos)
+void OverlayWrapper::UpdateDirectionArrowHud(RoR::GfxActor *player_vehicle, Ogre::Vector3 point_to, Ogre::Vector3 character_pos)
 {
     m_direction_arrow_node->lookAt(point_to, Node::TS_WORLD, Vector3::UNIT_Y);
     Real distance = 0.0f;
     if (player_vehicle != nullptr && player_vehicle->GetSimDataBuffer().simbuf_live_local)
-    {
-        distance = player_vehicle->GetSimDataBuffer().simbuf_pos.distance(point_to);
-    }
+    { distance = player_vehicle->GetSimDataBuffer().simbuf_pos.distance(point_to); }
     else if (gEnv->player)
     {
         distance = character_pos.distance(point_to);
@@ -718,7 +726,7 @@ void OverlayWrapper::HideDirectionOverlay()
     BITMASK_SET_0(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW);
 }
 
-void OverlayWrapper::ShowDirectionOverlay(Ogre::String const& caption)
+void OverlayWrapper::ShowDirectionOverlay(Ogre::String const &caption)
 {
     m_direction_arrow_overlay->show();
     directionArrowText->setCaption(caption);
@@ -727,21 +735,21 @@ void OverlayWrapper::ShowDirectionOverlay(Ogre::String const& caption)
     BITMASK_SET_1(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW);
 }
 
-void OverlayWrapper::UpdatePressureTexture(RoR::GfxActor* ga)
+void OverlayWrapper::UpdatePressureTexture(RoR::GfxActor *ga)
 {
     const float pressure = ga->GetSimDataBuffer().simbuf_tyre_pressure;
-    Real angle = 135.0 - pressure * 2.7;
+    Real        angle    = 135.0 - pressure * 2.7;
     pressuretexture->setTextureRotate(Degree(angle));
 }
 
-void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
+void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor *ga)
 {
     // gears
     int vehicle_getgear = ga->GetSimDataBuffer().simbuf_gear;
     if (vehicle_getgear > 0)
     {
         size_t numgears = ga->GetAttributes().xa_num_gears;
-        String gearstr = TOSTRING(vehicle_getgear) + "/" + TOSTRING(numgears);
+        String gearstr  = TOSTRING(vehicle_getgear) + "/" + TOSTRING(numgears);
         guiGear->setCaption(gearstr);
         guiGear3D->setCaption(gearstr);
     }
@@ -756,7 +764,7 @@ void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
         guiGear3D->setCaption("R");
     }
 
-    //autogears
+    // autogears
     int cg = ga->GetSimDataBuffer().simbuf_autoshift;
     for (int i = 0; i < 5; i++)
     {
@@ -798,56 +806,54 @@ void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
 
     // speedo / calculate speed
     Real guiSpeedFactor = 7.0 * (140.0 / ga->GetAttributes().xa_speedo_highest_kph);
-    Real angle = 140 - fabs(ga->GetSimDataBuffer().simbuf_wheel_speed * guiSpeedFactor);
-    angle = std::max(-140.0f, angle);
+    Real angle          = 140 - fabs(ga->GetSimDataBuffer().simbuf_wheel_speed * guiSpeedFactor);
+    angle               = std::max(-140.0f, angle);
     speedotexture->setTextureRotate(Degree(angle));
 
     // calculate tach stuff
     Real tachoFactor = 0.072;
     if (ga->GetAttributes().xa_speedo_use_engine_max_rpm)
-    {
-        tachoFactor = 0.072 * (3500 / ga->GetAttributes().xa_engine_max_rpm);
-    }
+    { tachoFactor = 0.072 * (3500 / ga->GetAttributes().xa_engine_max_rpm); }
     angle = 126.0 - fabs(ga->GetSimDataBuffer().simbuf_engine_rpm * tachoFactor);
     angle = std::max(-120.0f, angle);
     angle = std::min(angle, 121.0f);
     tachotexture->setTextureRotate(Degree(angle));
 }
 
-void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
+void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor *gfx_actor)
 {
-    RoR::GfxActor::SimBuffer& simbuf = gfx_actor->GetSimDataBuffer();
-    RoR::GfxActor::NodeData* nodes = gfx_actor->GetSimNodeBuffer();
-    RoR::GfxActor::Attributes& attr = gfx_actor->GetAttributes();
+    RoR::GfxActor::SimBuffer & simbuf = gfx_actor->GetSimDataBuffer();
+    RoR::GfxActor::NodeData *  nodes  = gfx_actor->GetSimNodeBuffer();
+    RoR::GfxActor::Attributes &attr   = gfx_actor->GetAttributes();
 
-    auto const& simbuf_ae = simbuf.simbuf_aeroengines;
-    int num_ae = static_cast<int>( simbuf_ae.size() );
+    auto const &simbuf_ae = simbuf.simbuf_aeroengines;
+    int         num_ae    = static_cast<int>(simbuf_ae.size());
 
-    //throttles
+    // throttles
     m_aerial_dashboard.SetThrottle(0, true, simbuf_ae[0].simbuf_ae_throttle);
     m_aerial_dashboard.SetThrottle(1, (num_ae > 1), (num_ae > 1) ? simbuf_ae[1].simbuf_ae_throttle : 0.f);
     m_aerial_dashboard.SetThrottle(2, (num_ae > 2), (num_ae > 2) ? simbuf_ae[2].simbuf_ae_throttle : 0.f);
     m_aerial_dashboard.SetThrottle(3, (num_ae > 3), (num_ae > 3) ? simbuf_ae[3].simbuf_ae_throttle : 0.f);
 
-    //fire
+    // fire
     m_aerial_dashboard.SetEngineFailed(0, simbuf_ae[0].simbuf_ae_failed);
     m_aerial_dashboard.SetEngineFailed(1, num_ae > 1 && simbuf_ae[1].simbuf_ae_failed);
     m_aerial_dashboard.SetEngineFailed(2, num_ae > 2 && simbuf_ae[2].simbuf_ae_failed);
     m_aerial_dashboard.SetEngineFailed(3, num_ae > 3 && simbuf_ae[3].simbuf_ae_failed);
 
-    //airspeed
-    float angle = 0.0;
+    // airspeed
+    float angle           = 0.0;
     float ground_speed_kt = simbuf.simbuf_node0_velo.length() * 1.9438; // 1.943 = m/s in knots/s
 
-    //tropospheric model valid up to 11.000m (33.000ft)
+    // tropospheric model valid up to 11.000m (33.000ft)
     float altitude = nodes[0].AbsPosition.y;
-    //float sea_level_temperature=273.15+15.0; //in Kelvin
-    float sea_level_pressure = 101325; //in Pa
-    //float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
-    float airpressure = sea_level_pressure * pow(1.0 - 0.0065 * altitude / 288.15, 5.24947); //in Pa
-    float airdensity = airpressure * 0.0000120896;//1.225 at sea level
+    // float sea_level_temperature=273.15+15.0; //in Kelvin
+    float sea_level_pressure = 101325; // in Pa
+    // float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
+    float airpressure = sea_level_pressure * pow(1.0 - 0.0065 * altitude / 288.15, 5.24947); // in Pa
+    float airdensity  = airpressure * 0.0000120896;                                          // 1.225 at sea level
 
-    float kt = ground_speed_kt * sqrt(airdensity / 1.225); //KIAS
+    float kt = ground_speed_kt * sqrt(airdensity / 1.225); // KIAS
     if (kt > 23.0)
     {
         if (kt < 50.0)
@@ -863,11 +869,9 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
 
     // AOA
     angle = simbuf.simbuf_wing4_aoa;
-    if (kt < 10.0)
-        angle = 0;
+    if (kt < 10.0) angle = 0;
     float absangle = angle;
-    if (absangle < 0)
-        absangle = -absangle;
+    if (absangle < 0) absangle = -absangle;
 
     const int actor_id = gfx_actor->GetActorId();
     SOUND_MODULATE(actor_id, SS_MOD_AOA, absangle);
@@ -876,10 +880,8 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
     else
         SOUND_STOP(actor_id, SS_TRIG_AOA);
 
-    if (angle > 25.0)
-        angle = 25.0;
-    if (angle < -25.0)
-        angle = -25.0;
+    if (angle > 25.0) angle = 25.0;
+    if (angle < -25.0) angle = -25.0;
     m_aerial_dashboard.aoatexture->setTextureRotate(Degree(-angle * 4.7 + 90.0));
 
     // altimeter
@@ -889,27 +891,26 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
     sprintf(altc, "%03u", (int)(nodes[0].AbsPosition.y / 30.48));
     m_aerial_dashboard.alt_value_textarea->setCaption(altc);
 
-    //adi
-    //roll
+    // adi
+    // roll
     Vector3 rollv = nodes[attr.xa_camera0_pos_node].AbsPosition - nodes[attr.xa_camera0_roll_node].AbsPosition;
     rollv.normalise();
     float rollangle = asin(rollv.dotProduct(Vector3::UNIT_Y));
 
-    //pitch
-    Vector3 dirv = simbuf.simbuf_direction;
-    float pitchangle = asin(dirv.dotProduct(Vector3::UNIT_Y));
-    Vector3 upv = dirv.crossProduct(-rollv);
-    if (upv.y < 0)
-        rollangle = 3.14159 - rollangle;
+    // pitch
+    Vector3 dirv       = simbuf.simbuf_direction;
+    float   pitchangle = asin(dirv.dotProduct(Vector3::UNIT_Y));
+    Vector3 upv        = dirv.crossProduct(-rollv);
+    if (upv.y < 0) rollangle = 3.14159 - rollangle;
     m_aerial_dashboard.adibugstexture->setTextureRotate(Radian(-rollangle));
     m_aerial_dashboard.aditapetexture->setTextureVScroll(-pitchangle * 0.25);
     m_aerial_dashboard.aditapetexture->setTextureRotate(Radian(-rollangle));
 
-    //hsi
+    // hsi
     float dirangle = atan2(dirv.dotProduct(Vector3::UNIT_X), dirv.dotProduct(-Vector3::UNIT_Z));
     m_aerial_dashboard.hsirosetexture->setTextureRotate(Radian(dirangle));
 
-    //autopilot
+    // autopilot
     m_aerial_dashboard.hsibugtexture->setTextureRotate(Radian(dirangle) - Degree(simbuf.simbuf_ap_heading_value));
 
     float vdev = 0;
@@ -919,70 +920,64 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
         vdev = simbuf.simbuf_ap_ils_vdev;
         hdev = simbuf.simbuf_ap_ils_hdev;
     }
-    if (hdev > 15)
-        hdev = 15;
-    if (hdev < -15)
-        hdev = -15;
+    if (hdev > 15) hdev = 15;
+    if (hdev < -15) hdev = -15;
     m_aerial_dashboard.hsivtexture->setTextureUScroll(-hdev * 0.02);
-    if (vdev > 15)
-        vdev = 15;
-    if (vdev < -15)
-        vdev = -15;
+    if (vdev > 15) vdev = 15;
+    if (vdev < -15) vdev = -15;
     m_aerial_dashboard.hsihtexture->setTextureVScroll(-vdev * 0.02);
 
-    //vvi
+    // vvi
     float vvi = simbuf.simbuf_node0_velo.y * 196.85;
-    if (vvi < 1000.0 && vvi > -1000.0)
-        angle = vvi * 0.047;
-    if (vvi > 1000.0 && vvi < 6000.0)
-        angle = 47.0 + (vvi - 1000.0) * 0.01175;
-    if (vvi > 6000.0)
-        angle = 105.75;
-    if (vvi < -1000.0 && vvi > -6000.0)
-        angle = -47.0 + (vvi + 1000.0) * 0.01175;
-    if (vvi < -6000.0)
-        angle = -105.75;
+    if (vvi < 1000.0 && vvi > -1000.0) angle = vvi * 0.047;
+    if (vvi > 1000.0 && vvi < 6000.0) angle = 47.0 + (vvi - 1000.0) * 0.01175;
+    if (vvi > 6000.0) angle = 105.75;
+    if (vvi < -1000.0 && vvi > -6000.0) angle = -47.0 + (vvi + 1000.0) * 0.01175;
+    if (vvi < -6000.0) angle = -105.75;
     m_aerial_dashboard.vvitexture->setTextureRotate(Degree(-angle + 90.0));
 
-    //rpm
+    // rpm
     m_aerial_dashboard.SetEngineRpm(0, simbuf_ae[0].simbuf_ae_rpmpc);
     m_aerial_dashboard.SetEngineRpm(1, (num_ae > 1) ? simbuf_ae[1].simbuf_ae_rpmpc : 0.f);
     m_aerial_dashboard.SetEngineRpm(2, (num_ae > 2) ? simbuf_ae[2].simbuf_ae_rpmpc : 0.f);
     m_aerial_dashboard.SetEngineRpm(3, (num_ae > 3) ? simbuf_ae[3].simbuf_ae_rpmpc : 0.f);
 
-    //turboprops - pitch
+    // turboprops - pitch
     m_aerial_dashboard.SetEnginePitch(0, (simbuf_ae[0].simbuf_ae_turboprop) ? simbuf_ae[0].simbuf_tp_aepitch : 0.f);
     m_aerial_dashboard.SetEnginePitch(1, (num_ae > 1 && simbuf_ae[1].simbuf_ae_turboprop) ? simbuf_ae[1].simbuf_tp_aepitch : 0.f);
     m_aerial_dashboard.SetEnginePitch(2, (num_ae > 2 && simbuf_ae[2].simbuf_ae_turboprop) ? simbuf_ae[2].simbuf_tp_aepitch : 0.f);
     m_aerial_dashboard.SetEnginePitch(3, (num_ae > 3 && simbuf_ae[3].simbuf_ae_turboprop) ? simbuf_ae[3].simbuf_tp_aepitch : 0.f);
 
-    //turboprops - torque
+    // turboprops - torque
     m_aerial_dashboard.SetEngineTorque(0, (simbuf_ae[0].simbuf_ae_turboprop) ? simbuf_ae[0].simbuf_tp_aetorque : 0.f);
-    m_aerial_dashboard.SetEngineTorque(1, (num_ae > 1 && simbuf_ae[1].simbuf_ae_turboprop) ? simbuf_ae[1].simbuf_tp_aetorque : 0.f);
-    m_aerial_dashboard.SetEngineTorque(2, (num_ae > 2 && simbuf_ae[2].simbuf_ae_turboprop) ? simbuf_ae[2].simbuf_tp_aetorque : 0.f);
-    m_aerial_dashboard.SetEngineTorque(3, (num_ae > 3 && simbuf_ae[3].simbuf_ae_turboprop) ? simbuf_ae[3].simbuf_tp_aetorque : 0.f);
+    m_aerial_dashboard.SetEngineTorque(1,
+                                       (num_ae > 1 && simbuf_ae[1].simbuf_ae_turboprop) ? simbuf_ae[1].simbuf_tp_aetorque : 0.f);
+    m_aerial_dashboard.SetEngineTorque(2,
+                                       (num_ae > 2 && simbuf_ae[2].simbuf_ae_turboprop) ? simbuf_ae[2].simbuf_tp_aetorque : 0.f);
+    m_aerial_dashboard.SetEngineTorque(3,
+                                       (num_ae > 3 && simbuf_ae[3].simbuf_ae_turboprop) ? simbuf_ae[3].simbuf_tp_aetorque : 0.f);
 
-    //starters
+    // starters
     m_aerial_dashboard.SetIgnition(0, true, simbuf_ae[0].simbuf_ae_ignition);
     m_aerial_dashboard.SetIgnition(1, num_ae > 1, num_ae > 1 && simbuf_ae[1].simbuf_ae_ignition);
     m_aerial_dashboard.SetIgnition(2, num_ae > 2, num_ae > 2 && simbuf_ae[2].simbuf_ae_ignition);
     m_aerial_dashboard.SetIgnition(3, num_ae > 3, num_ae > 3 && simbuf_ae[3].simbuf_ae_ignition);
 
-    //autopilot - heading
+    // autopilot - heading
     m_aerial_dashboard.hdg.SetActive(simbuf.simbuf_ap_heading_mode == Autopilot::HEADING_FIXED);
     m_aerial_dashboard.wlv.SetActive(simbuf.simbuf_ap_heading_mode == Autopilot::HEADING_WLV);
     m_aerial_dashboard.nav.SetActive(simbuf.simbuf_ap_heading_mode == Autopilot::HEADING_NAV);
 
-    //autopilot - altitude
+    // autopilot - altitude
     m_aerial_dashboard.alt.SetActive(simbuf.simbuf_ap_alt_mode == Autopilot::ALT_FIXED);
     m_aerial_dashboard.vs.SetActive(simbuf.simbuf_ap_alt_mode == Autopilot::ALT_VS);
 
-    //autopilot - other buttons
+    // autopilot - other buttons
     m_aerial_dashboard.ias.SetActive(simbuf.simbuf_ap_ias_mode);
     m_aerial_dashboard.gpws.SetActive(simbuf.simbuf_ap_gpws_mode);
     m_aerial_dashboard.brks.SetActive(simbuf.simbuf_parking_brake);
 
-    //autopilot - trims
+    // autopilot - trims
     m_aerial_dashboard.hdg_trim.DisplayFormat("%.3u", simbuf.simbuf_ap_heading_value);
     m_aerial_dashboard.alt_trim.DisplayFormat("%i00", simbuf.simbuf_ap_alt_value / 100);
     m_aerial_dashboard.ias_trim.DisplayFormat("%.3u", simbuf.simbuf_ap_ias_value);
@@ -994,18 +989,16 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
         m_aerial_dashboard.vs_trim.DisplayFormat("+%i00", simbuf.simbuf_ap_vs_value / 100);
 }
 
-void OverlayWrapper::UpdateMarineHUD(Actor* vehicle)
+void OverlayWrapper::UpdateMarineHUD(Actor *vehicle)
 {
     // throttles
     bthro1->setTop(thrtop + thrheight * (0.5 - vehicle->ar_screwprops[0]->getThrottle() / 2.0) - 1.0);
     if (vehicle->ar_num_screwprops > 1)
-    {
-        bthro2->setTop(thrtop + thrheight * (0.5 - vehicle->ar_screwprops[1]->getThrottle() / 2.0) - 1.0);
-    }
+    { bthro2->setTop(thrtop + thrheight * (0.5 - vehicle->ar_screwprops[1]->getThrottle() / 2.0) - 1.0); }
 
     // depth
-    char tmp[50] = "";
-    float height = vehicle->GetHeightAboveGround();
+    char  tmp[50] = "";
+    float height  = vehicle->GetHeightAboveGround();
     if (height > 0.1 && height < 99.9)
     {
         sprintf(tmp, "%2.1f", height);
@@ -1017,10 +1010,10 @@ void OverlayWrapper::UpdateMarineHUD(Actor* vehicle)
     }
 
     // water speed
-    Vector3 cam_dir = vehicle->getDirection();
+    Vector3 cam_dir  = vehicle->getDirection();
     Vector3 velocity = vehicle->ar_nodes[vehicle->ar_main_camera_node_pos].Velocity;
-    float kt = cam_dir.dotProduct(velocity) * 1.9438;
-    float angle = kt * 4.2;
+    float   kt       = cam_dir.dotProduct(velocity) * 1.9438;
+    float   angle    = kt * 4.2;
     boatspeedtexture->setTextureRotate(Degree(-angle));
     boatsteertexture->setTextureRotate(Degree(vehicle->ar_screwprops[0]->getRudder() * 170));
 }
@@ -1037,7 +1030,7 @@ void OverlayWrapper::HideRacingOverlay()
     BITMASK_SET_0(m_visible_overlays, VisibleOverlays::RACING);
 }
 
-void OverlayWrapper::TemporarilyHideAllOverlays(Actor* current_vehicle)
+void OverlayWrapper::TemporarilyHideAllOverlays(Actor *current_vehicle)
 {
     m_racing_overlay->hide();
     m_direction_arrow_overlay->hide();
@@ -1046,12 +1039,9 @@ void OverlayWrapper::TemporarilyHideAllOverlays(Actor* current_vehicle)
     showDashboardOverlays(false, current_vehicle);
 }
 
-void OverlayWrapper::RestoreOverlaysVisibility(Actor* current_vehicle)
+void OverlayWrapper::RestoreOverlaysVisibility(Actor *current_vehicle)
 {
-    if (BITMASK_IS_1(m_visible_overlays, VisibleOverlays::RACING))
-    {
-        m_racing_overlay->show();
-    }
+    if (BITMASK_IS_1(m_visible_overlays, VisibleOverlays::RACING)) { m_racing_overlay->show(); }
     else if (BITMASK_IS_1(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW))
     {
         m_direction_arrow_overlay->show();
@@ -1064,15 +1054,15 @@ void OverlayWrapper::RestoreOverlaysVisibility(Actor* current_vehicle)
     showDashboardOverlays(!RoR::App::GetSimController()->IsGUIHidden(), current_vehicle);
 }
 
-void OverlayWrapper::UpdateRacingGui(RoR::GfxScene* gs)
+void OverlayWrapper::UpdateRacingGui(RoR::GfxScene *gs)
 {
-    float time = gs->GetSimDataBuffer().simbuf_race_time;
-    UTFString txt = StringUtil::format("%.2i'%.2i.%.2i", (int)(time) / 60, (int)(time) % 60, (int)(time * 100.0) % 100);
+    float     time = gs->GetSimDataBuffer().simbuf_race_time;
+    UTFString txt  = StringUtil::format("%.2i'%.2i.%.2i", (int)(time) / 60, (int)(time) % 60, (int)(time * 100.0) % 100);
     this->laptime->setCaption(txt);
     if (gs->GetSimDataBuffer().simbuf_race_best_time > 0.0f)
     {
         time = gs->GetSimDataBuffer().simbuf_race_best_time;
-        txt = StringUtil::format("%.2i'%.2i.%.2i", (int)(time) / 60, (int)(time) % 60, (int)(time * 100.0) % 100);
+        txt  = StringUtil::format("%.2i'%.2i.%.2i", (int)(time) / 60, (int)(time) % 60, (int)(time * 100.0) % 100);
         this->bestlaptime->setCaption(txt);
         this->bestlaptime->show();
     }
@@ -1081,12 +1071,9 @@ void OverlayWrapper::UpdateRacingGui(RoR::GfxScene* gs)
         this->bestlaptime->hide();
     }
 
-    float time_diff = gs->GetSimDataBuffer().simbuf_race_time_diff;
-    Ogre::ColourValue colour = Ogre::ColourValue::White;
-    if (time_diff > 0.0f)
-    {
-        colour = ColourValue(0.8, 0.0, 0.0);
-    }
+    float             time_diff = gs->GetSimDataBuffer().simbuf_race_time_diff;
+    Ogre::ColourValue colour    = Ogre::ColourValue::White;
+    if (time_diff > 0.0f) { colour = ColourValue(0.8, 0.0, 0.0); }
     else if (time_diff < 0.0f)
     {
         colour = ColourValue(0.0, 0.8, 0.0);
@@ -1100,8 +1087,7 @@ void AeroDashOverlay::SetThrottle(int engine, bool visible, float value)
     if (visible)
     {
         engines[engine].thr_element->show();
-        engines[engine].thr_element->setTop(
-            thrust_track_top + thrust_track_height * (1.0 - value) - 1.0);
+        engines[engine].thr_element->setTop(thrust_track_top + thrust_track_height * (1.0 - value) - 1.0);
     }
     else
     {
@@ -1111,8 +1097,7 @@ void AeroDashOverlay::SetThrottle(int engine, bool visible, float value)
 
 void AeroDashOverlay::SetEngineFailed(int engine, bool value)
 {
-    engines[engine].engfire_element->setMaterialName(
-        value ? "tracks/engfire-on" : "tracks/engfire-off");
+    engines[engine].engfire_element->setMaterialName(value ? "tracks/engfire-on" : "tracks/engfire-off");
 }
 
 void AeroDashOverlay::SetEngineRpm(int engine, float pcent)
@@ -1149,8 +1134,7 @@ void AeroDashOverlay::SetIgnition(int engine, bool visible, bool ignited)
     if (visible)
     {
         engines[engine].engstart_element->show();
-        engines[engine].engstart_element->setMaterialName(
-            ignited ? "tracks/engstart-on" : "tracks/engstart-off");
+        engines[engine].engstart_element->setMaterialName(ignited ? "tracks/engstart-on" : "tracks/engstart-off");
     }
     else
     {
@@ -1163,27 +1147,27 @@ void AeroSwitchOverlay::SetActive(bool value)
     element->setMaterial(value ? on_material : off_material);
 }
 
-void AeroSwitchOverlay::Setup(std::string const & elem_name, std::string const & mat_on, std::string const & mat_off)
+void AeroSwitchOverlay::Setup(std::string const &elem_name, std::string const &mat_on, std::string const &mat_off)
 {
-    element = Ogre::OverlayManager::getSingleton().getOverlayElement(elem_name);
-    on_material = Ogre::MaterialManager::getSingleton().getByName(mat_on);
+    element      = Ogre::OverlayManager::getSingleton().getOverlayElement(elem_name);
+    on_material  = Ogre::MaterialManager::getSingleton().getByName(mat_on);
     off_material = Ogre::MaterialManager::getSingleton().getByName(mat_off);
 }
 
-void AeroTrimOverlay::Setup(std::string const & up, std::string const & dn, std::string const & disp)
+void AeroTrimOverlay::Setup(std::string const &up, std::string const &dn, std::string const &disp)
 {
-    display = Ogre::OverlayManager::getSingleton().getOverlayElement(disp);
+    display   = Ogre::OverlayManager::getSingleton().getOverlayElement(disp);
     up_button = Ogre::OverlayManager::getSingleton().getOverlayElement(up);
     dn_button = Ogre::OverlayManager::getSingleton().getOverlayElement(dn);
 }
 
-void AeroTrimOverlay::DisplayFormat(const char* fmt, ...)
+void AeroTrimOverlay::DisplayFormat(const char *fmt, ...)
 {
     char buffer[500] = {};
 
     va_list args;
     va_start(args, fmt);
-        vsprintf(buffer, fmt, args);
+    vsprintf(buffer, fmt, args);
     va_end(args);
 
     display->setCaption(buffer);

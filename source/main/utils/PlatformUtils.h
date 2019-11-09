@@ -32,24 +32,37 @@
 
 #include <string>
 
-namespace RoR {
+namespace RoR
+{
 
-extern char PATH_SLASH;
+    extern char PATH_SLASH;
 
-bool FileExists(const char* path);   //!< Path must be UTF-8 encoded.
-bool FolderExists(const char* path); //!< Path must be UTF-8 encoded.
-void CreateFolder(const char* path); //!< Path must be UTF-8 encoded.
+    bool FileExists(const char *path);   //!< Path must be UTF-8 encoded.
+    bool FolderExists(const char *path); //!< Path must be UTF-8 encoded.
+    void CreateFolder(const char *path); //!< Path must be UTF-8 encoded.
 
-inline bool FileExists(std::string const& path)   { return FileExists(path.c_str()); }
-inline bool FolderExists(std::string const& path) { return FolderExists(path.c_str()); }
-inline void CreateFolder(std::string const& path) { CreateFolder(path.c_str()); }
+    inline bool FileExists(std::string const &path)
+    {
+        return FileExists(path.c_str());
+    }
+    inline bool FolderExists(std::string const &path)
+    {
+        return FolderExists(path.c_str());
+    }
+    inline void CreateFolder(std::string const &path)
+    {
+        CreateFolder(path.c_str());
+    }
 
-inline std::string PathCombine(std::string a, std::string b) { return a + PATH_SLASH + b; };
+    inline std::string PathCombine(std::string a, std::string b)
+    {
+        return a + PATH_SLASH + b;
+    };
 
-std::string GetUserHomeDirectory(); //!< Returns UTF-8 path or empty string on error
-std::string GetExecutablePath(); //!< Returns UTF-8 path or empty string on error
-std::string GetParentDirectory(const char* path); //!< Returns UTF-8 path without trailing slash.
+    std::string GetUserHomeDirectory();               //!< Returns UTF-8 path or empty string on error
+    std::string GetExecutablePath();                  //!< Returns UTF-8 path or empty string on error
+    std::string GetParentDirectory(const char *path); //!< Returns UTF-8 path without trailing slash.
 
-std::time_t GetFileLastModifiedTime(std::string const & path);
+    std::time_t GetFileLastModifiedTime(std::string const &path);
 
 } // namespace RoR

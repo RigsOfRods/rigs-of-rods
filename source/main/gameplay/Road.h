@@ -24,21 +24,19 @@
 
 struct RoadType_t
 {
-    char name[256];
-    Ogre::SceneNode* node;
+    char             name[256];
+    Ogre::SceneNode *node;
 };
 
 class Road : public ZeroedMemoryAllocator
 {
     friend class SimController;
 
-public:
-
+  public:
     Road(Ogre::Vector3 start);
 
-private:
-
-    void addRoadType(const char* name);
+  private:
+    void addRoadType(const char *name);
     void append();
     void dpitch(float v);
     void dturn(float v);
@@ -48,9 +46,9 @@ private:
     void updatePending();
 
     static const unsigned int MAX_RTYPES = 10;
-    RoadType_t rtypes[MAX_RTYPES];
+    RoadType_t                rtypes[MAX_RTYPES];
 
-    Ogre::SceneNode* tenode;
+    Ogre::SceneNode *tenode;
 
     Ogre::Vector3 ppos;
     Ogre::Vector3 protl;

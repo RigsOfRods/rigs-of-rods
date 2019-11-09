@@ -24,7 +24,6 @@
 #include <OgreMatrix3.h>
 #include <OgreVector3.h>
 
-
 /// Defines a linear transformation from cartesian coordinates to local (barycentric) coordinates of a specified triangle.
 /**
  * The barycentric coordinate system of the triangle is defined in terms of its three vertices
@@ -35,30 +34,34 @@
  * In addition, the shortest (signed) distance \f$d\f$ between the point \f$\mathbf{p}\f$ and the triangle
  * plane is returned by this transformation.
  *
- * The transformation is evaluated lazily, i.e. creating new instances of CartesianToTriangleTransform is 
+ * The transformation is evaluated lazily, i.e. creating new instances of CartesianToTriangleTransform is
  * relatively cheap. Actual calculations are deferred until the transformation is applied to a point for
  * the first time.
  */
 class CartesianToTriangleTransform
 {
-public:
+  public:
     /// Return type of CartesianToTriangleTransform transformation.
     /**
      * Describes the position of a three-dimensional point relative to a triangle.
      * The position on the triangle plane is defined by the barycentric coordinates #alpha, #beta and #gamma.
      * The perpendicular offset of the point from this plane is given by the value of #distance.
      */
-    struct TriangleCoord {
-        const struct {
-            Ogre::Real alpha,  ///< Barycentric coordinate
-                       beta,   ///< Barycentric coordinate
-                       gamma;  ///< Barycentric coordinate
+    struct TriangleCoord
+    {
+        const struct
+        {
+            Ogre::Real alpha, ///< Barycentric coordinate
+                beta,         ///< Barycentric coordinate
+                gamma;        ///< Barycentric coordinate
         } barycentric;
-        const Ogre::Real distance;  ///< Shortest (signed) distance to triangle plane
+        const Ogre::Real distance; ///< Shortest (signed) distance to triangle plane
     };
 
     /// Construct transformation for specified triangle.
-    explicit CartesianToTriangleTransform(const Triangle &triangle) : m_triangle{triangle}, m_initialized{false} {}
+    explicit CartesianToTriangleTransform(const Triangle &triangle) : m_triangle{triangle}, m_initialized{false}
+    {
+    }
 
     /// Transform point into local triangle coordinates.
     /**
@@ -105,10 +108,11 @@ public:
      * \f$\gamma\f$ can be immediately calculated from known values \f$\alpha\f$ and \f$\beta\f$ because
      * \f$\alpha + \beta + \gamma = 1\f$ always holds.
      */
-    TriangleCoord operator() (const Ogre::Vector3 &p) const
+    TriangleCoord operator()(const Ogre::Vector3 &p) const
     {
         // lazy initialization of transformation matrix
-        if (!m_initialized) {
+        if (!m_initialized)
+        {
             InitMatrix();
             m_initialized = true;
         }
@@ -118,21 +122,20 @@ public:
         return {result[0], result[1], (1.f - result[0] - result[1]), result[2]};
     }
 
-private:
+  private:
     /// Initialize the transformation matrix
-    void InitMatrix() const {
+    void InitMatrix() const
+    {
         // determine span and normal vectors
         const Ogre::Vector3 u = m_triangle.u;
         const Ogre::Vector3 v = m_triangle.v;
         const Ogre::Vector3 n = m_triangle.normal();
-        
+
         // construct and invert matrix
-        m_matrix = Ogre::Matrix3{ u[0], v[0], n[0],
-                                  u[1], v[1], n[1],
-                                  u[2], v[2], n[2] }.Inverse();
+        m_matrix = Ogre::Matrix3{u[0], v[0], n[0], u[1], v[1], n[1], u[2], v[2], n[2]}.Inverse();
     }
 
-    const Triangle m_triangle;       //< The triangle on which the transformation is based.
-    mutable bool m_initialized;
-    mutable Ogre::Matrix3 m_matrix;  ///< Cached transformation matrix.
+    const Triangle        m_triangle; //< The triangle on which the transformation is based.
+    mutable bool          m_initialized;
+    mutable Ogre::Matrix3 m_matrix; ///< Cached transformation matrix.
 };

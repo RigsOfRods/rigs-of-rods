@@ -25,29 +25,67 @@
 
 #pragma once
 
-#include <imgui.h>
-#include <OgreString.h>
-#include <OgreCommon.h>
-#include <OISMouse.h>
-#include <OISKeyboard.h>
-
-#include <OgreFrameListener.h>
-#include <OgreRenderQueueListener.h>
-#include <OgreTexture.h>
 #include "OgreRenderable.h"
+
+#include <OISKeyboard.h>
+#include <OISMouse.h>
+#include <OgreCommon.h>
+#include <OgreFrameListener.h>
 #include <OgreRenderOperation.h>
+#include <OgreRenderQueueListener.h>
+#include <OgreString.h>
+#include <OgreTexture.h>
+#include <imgui.h>
 
 // DearIMGUI math functions, copypasted from <imgui_internal.h>
-static inline ImVec2 operator*(const ImVec2& lhs, const float rhs)              { return ImVec2(lhs.x*rhs, lhs.y*rhs); }
-static inline ImVec2 operator/(const ImVec2& lhs, const float rhs)              { return ImVec2(lhs.x/rhs, lhs.y/rhs); }
-static inline ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs)            { return ImVec2(lhs.x+rhs.x, lhs.y+rhs.y); }
-static inline ImVec2 operator-(const ImVec2& lhs, const ImVec2& rhs)            { return ImVec2(lhs.x-rhs.x, lhs.y-rhs.y); }
-static inline ImVec2 operator*(const ImVec2& lhs, const ImVec2& rhs)            { return ImVec2(lhs.x*rhs.x, lhs.y*rhs.y); }
-static inline ImVec2 operator/(const ImVec2& lhs, const ImVec2& rhs)            { return ImVec2(lhs.x/rhs.x, lhs.y/rhs.y); }
-static inline ImVec2& operator+=(ImVec2& lhs, const ImVec2& rhs)                { lhs.x += rhs.x; lhs.y += rhs.y; return lhs; }
-static inline ImVec2& operator-=(ImVec2& lhs, const ImVec2& rhs)                { lhs.x -= rhs.x; lhs.y -= rhs.y; return lhs; }
-static inline ImVec2& operator*=(ImVec2& lhs, const float rhs)                  { lhs.x *= rhs; lhs.y *= rhs; return lhs; }
-static inline ImVec2& operator/=(ImVec2& lhs, const float rhs)                  { lhs.x /= rhs; lhs.y /= rhs; return lhs; }
+static inline ImVec2 operator*(const ImVec2 &lhs, const float rhs)
+{
+    return ImVec2(lhs.x * rhs, lhs.y * rhs);
+}
+static inline ImVec2 operator/(const ImVec2 &lhs, const float rhs)
+{
+    return ImVec2(lhs.x / rhs, lhs.y / rhs);
+}
+static inline ImVec2 operator+(const ImVec2 &lhs, const ImVec2 &rhs)
+{
+    return ImVec2(lhs.x + rhs.x, lhs.y + rhs.y);
+}
+static inline ImVec2 operator-(const ImVec2 &lhs, const ImVec2 &rhs)
+{
+    return ImVec2(lhs.x - rhs.x, lhs.y - rhs.y);
+}
+static inline ImVec2 operator*(const ImVec2 &lhs, const ImVec2 &rhs)
+{
+    return ImVec2(lhs.x * rhs.x, lhs.y * rhs.y);
+}
+static inline ImVec2 operator/(const ImVec2 &lhs, const ImVec2 &rhs)
+{
+    return ImVec2(lhs.x / rhs.x, lhs.y / rhs.y);
+}
+static inline ImVec2 &operator+=(ImVec2 &lhs, const ImVec2 &rhs)
+{
+    lhs.x += rhs.x;
+    lhs.y += rhs.y;
+    return lhs;
+}
+static inline ImVec2 &operator-=(ImVec2 &lhs, const ImVec2 &rhs)
+{
+    lhs.x -= rhs.x;
+    lhs.y -= rhs.y;
+    return lhs;
+}
+static inline ImVec2 &operator*=(ImVec2 &lhs, const float rhs)
+{
+    lhs.x *= rhs;
+    lhs.y *= rhs;
+    return lhs;
+}
+static inline ImVec2 &operator/=(ImVec2 &lhs, const float rhs)
+{
+    lhs.x /= rhs;
+    lhs.y /= rhs;
+    return lhs;
+}
 
 /// DearIMGUI rendering for OGRE engine; Usage:
 ///  1. Call `Init()` after OGRE was started
@@ -55,58 +93,62 @@ static inline ImVec2& operator/=(ImVec2& lhs, const float rhs)                  
 ///  3. Use `Inject*()` functions to handle inputs.
 ///  4. Use any ImGui*() functions to create your GUI.
 ///  5. Call `Render()` to render the GUI; alternatively register the class as frame listener for automated rendering.
-class OgreImGui: public Ogre::FrameListener
+class OgreImGui : public Ogre::FrameListener
 {
-public:
-    OgreImGui(): mSceneMgr(nullptr) {}
+  public:
+    OgreImGui() : mSceneMgr(nullptr)
+    {
+    }
 
-    void Init(Ogre::SceneManager* scenemgr);
+    void Init(Ogre::SceneManager *scenemgr);
     void NewFrame(float deltaTime, float vpWidth, float vpHeight, bool ctrl, bool alt, bool shift);
     void Render();
 
     // Input-injecting functions
-    void InjectMouseMoved( const OIS::MouseEvent &arg );
-    void InjectMousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
-    void InjectMouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
-    void InjectKeyPressed( const OIS::KeyEvent &arg );
-    void InjectKeyReleased( const OIS::KeyEvent &arg );
+    void InjectMouseMoved(const OIS::MouseEvent &arg);
+    void InjectMousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+    void InjectMouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+    void InjectKeyPressed(const OIS::KeyEvent &arg);
+    void InjectKeyReleased(const OIS::KeyEvent &arg);
 
     // Ogre::FrameListener interface
-    virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt) override;
+    virtual bool frameRenderingQueued(const Ogre::FrameEvent &evt) override;
 
-private:
-
+  private:
     class ImGUIRenderable : public Ogre::Renderable
     {
-    public:
+      public:
         ImGUIRenderable();
         virtual ~ImGUIRenderable();
 
-        void updateVertexData(const ImDrawVert* vtxBuf, const ImDrawIdx* idxBuf, unsigned int vtxCount, unsigned int idxCount);
-        Ogre::Real getSquaredViewDepth(const Ogre::Camera* cam) const   { (void)cam; return 0; }
+        void updateVertexData(const ImDrawVert *vtxBuf, const ImDrawIdx *idxBuf, unsigned int vtxCount, unsigned int idxCount);
+        Ogre::Real getSquaredViewDepth(const Ogre::Camera *cam) const
+        {
+            (void)cam;
+            return 0;
+        }
 
-        void setMaterial( const Ogre::String& matName );
-        void setMaterial(const Ogre::MaterialPtr & material);
-        virtual const Ogre::MaterialPtr& getMaterial(void) const override;
-        virtual void getWorldTransforms( Ogre::Matrix4* xform ) const override;
-        virtual void getRenderOperation( Ogre::RenderOperation& op ) override;
-        virtual const Ogre::LightList& getLights(void) const override;
+        void                             setMaterial(const Ogre::String &matName);
+        void                             setMaterial(const Ogre::MaterialPtr &material);
+        virtual const Ogre::MaterialPtr &getMaterial(void) const override;
+        virtual void                     getWorldTransforms(Ogre::Matrix4 *xform) const override;
+        virtual void                     getRenderOperation(Ogre::RenderOperation &op) override;
+        virtual const Ogre::LightList &  getLights(void) const override;
 
         int mVertexBufferSize;
         int mIndexBufferSize;
 
-    private:
+      private:
         void initImGUIRenderable(void);
 
-        Ogre::MaterialPtr mMaterial;
+        Ogre::MaterialPtr     mMaterial;
         Ogre::RenderOperation mRenderOp;
     };
 
     void createFontTexture();
     void createMaterial();
 
-    Ogre::Pass*                 mPass;
-    Ogre::TexturePtr            mFontTex;
-    Ogre::SceneManager*         mSceneMgr;
-
+    Ogre::Pass *        mPass;
+    Ogre::TexturePtr    mFontTex;
+    Ogre::SceneManager *mSceneMgr;
 };

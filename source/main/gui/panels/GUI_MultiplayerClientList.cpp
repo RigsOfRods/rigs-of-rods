@@ -22,7 +22,6 @@
 /// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
 /// @date   7th of September 2009
 
-
 #include "GUI_MultiplayerClientList.h"
 
 #include "Application.h"
@@ -36,24 +35,23 @@ using namespace RoR;
 using namespace GUI;
 using namespace Ogre;
 
-MpClientList::MpClientList() :
-    clients(0)
-    , lineheight(16)
-    , msgwin(0)
+MpClientList::MpClientList() : clients(0), lineheight(16), msgwin(0)
 {
     // allocate some buffers
     clients = (client_t *)calloc(RORNET_MAX_PEERS, sizeof(client_t));
 
     // tooltip window
-    tooltipPanel = MyGUI::Gui::getInstance().createWidget<MyGUI::Widget>("PanelSkin", 0, 0, 200, 20, MyGUI::Align::Default, "ToolTip");
+    tooltipPanel =
+        MyGUI::Gui::getInstance().createWidget<MyGUI::Widget>("PanelSkin", 0, 0, 200, 20, MyGUI::Align::Default, "ToolTip");
     tooltipText = tooltipPanel->createWidget<MyGUI::TextBox>("TextBox", 4, 2, 200, 16, MyGUI::Align::Default);
     tooltipText->setFontName("VeraMono");
-    //tooltipPanel->setAlpha(0.9f);
+    // tooltipPanel->setAlpha(0.9f);
     tooltipText->setFontHeight(16);
     tooltipPanel->setVisible(false);
 
     // message window
-    msgwin = MyGUI::Gui::getInstance().createWidget<MyGUI::Window>("WindowCSX", 0, 0, 400, 300, MyGUI::Align::Center, "Overlapped");
+    msgwin =
+        MyGUI::Gui::getInstance().createWidget<MyGUI::Window>("WindowCSX", 0, 0, 400, 300, MyGUI::Align::Center, "Overlapped");
     msgwin->setCaption(_L("Player Information"));
     msgtext = msgwin->createWidget<MyGUI::Edit>("EditStretch", 0, 0, 400, 300, MyGUI::Align::Default, "helptext");
     msgtext->setCaption("");
@@ -62,9 +60,10 @@ MpClientList::MpClientList() :
     msgwin->setVisible(false);
 
     // network quality warning
-    netmsgwin = MyGUI::Gui::getInstance().createWidget<MyGUI::Window>("FlowContainer", 5, 30, 300, 40, MyGUI::Align::Default, "Main");
+    netmsgwin =
+        MyGUI::Gui::getInstance().createWidget<MyGUI::Window>("FlowContainer", 5, 30, 300, 40, MyGUI::Align::Default, "Main");
     netmsgwin->setAlpha(0.8f);
-    MyGUI::ImageBox* nimg = netmsgwin->createWidget<MyGUI::ImageBox>("ImageBox", 0, 0, 16, 16, MyGUI::Align::Default, "Main");
+    MyGUI::ImageBox *nimg = netmsgwin->createWidget<MyGUI::ImageBox>("ImageBox", 0, 0, 16, 16, MyGUI::Align::Default, "Main");
     nimg->setImageTexture("error.png");
     netmsgtext = netmsgwin->createWidget<MyGUI::TextBox>("TextBox", 18, 2, 300, 40, MyGUI::Align::Default, "helptext");
     netmsgtext->setCaption(_L("Slow  Network  Download"));
@@ -75,21 +74,24 @@ MpClientList::MpClientList() :
 
     // now the main GUI
     MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
-    int x = gui_area.width - 300, y = 30;
+    int            x = gui_area.width - 300, y = 30;
 
-    MyGUI::ImageBox* ib = MyGUI::Gui::getInstance().createWidget<MyGUI::ImageBox>("ImageBox", x, y, sidebarWidth, gui_area.height, MyGUI::Align::Default, "Back");
+    MyGUI::ImageBox *ib = MyGUI::Gui::getInstance().createWidget<MyGUI::ImageBox>("ImageBox", x, y, sidebarWidth, gui_area.height,
+                                                                                  MyGUI::Align::Default, "Back");
     ib->setImageTexture("mpbg.png");
 
-    mpPanel = ib; //->createWidget<MyGUI::Widget>("FlowContainer", x, y, sidebarWidth, gui_area.height,  MyGUI::Align::Default, "Main");
+    mpPanel =
+        ib; //->createWidget<MyGUI::Widget>("FlowContainer", x, y, sidebarWidth, gui_area.height,  MyGUI::Align::Default, "Main");
     mpPanel->setVisible(false);
 
     y = 5;
     UTFString tmp;
     for (int i = 0; i < RORNET_MAX_PEERS + 1; i++) // plus 1 for local entry
     {
-        x = 100; // space for icons
-        player_row_t* row = &player_rows[i];
-        row->playername = mpPanel->createWidget<MyGUI::TextBox>("TextBox", x, y + 1, sidebarWidth, lineheight, MyGUI::Align::Default, "Main");
+        x                 = 100; // space for icons
+        player_row_t *row = &player_rows[i];
+        row->playername =
+            mpPanel->createWidget<MyGUI::TextBox>("TextBox", x, y + 1, sidebarWidth, lineheight, MyGUI::Align::Default, "Main");
         row->playername->setCaption("Player " + TOSTRING(i));
         row->playername->setFontName("DefaultBig");
         tmp = _L("user name");
@@ -102,7 +104,7 @@ MpClientList::MpClientList() :
 
         x -= 18;
         row->flagimg = mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y + 3, 16, 11, MyGUI::Align::Default, "Main");
-        tmp = _L("user country");
+        tmp          = _L("user country");
         row->flagimg->setUserString("tooltip", tmp.asUTF8());
         row->flagimg->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
         row->flagimg->setNeedToolTip(true);
@@ -110,7 +112,7 @@ MpClientList::MpClientList() :
 
         x -= 18;
         row->statimg = mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y, 16, 16, MyGUI::Align::Default, "Main");
-        tmp = _L("user authentication level");
+        tmp          = _L("user authentication level");
         row->statimg->setUserString("tooltip", tmp.asUTF8());
         row->statimg->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
         row->statimg->setNeedToolTip(true);
@@ -118,7 +120,7 @@ MpClientList::MpClientList() :
 
         x -= 18;
         row->user_actor_ok_img = mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y, 16, 16, MyGUI::Align::Default, "Main");
-        tmp = _L("truck loading state");
+        tmp                    = _L("truck loading state");
         row->user_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
         row->user_actor_ok_img->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
         row->user_actor_ok_img->setNeedToolTip(true);
@@ -126,7 +128,8 @@ MpClientList::MpClientList() :
         row->user_actor_ok_img->eventMouseButtonClick += MyGUI::newDelegate(this, &MpClientList::clickInfoIcon);
 
         x -= 18;
-        row->user_remote_actor_ok_img = mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y, 16, 16, MyGUI::Align::Default, "Main");
+        row->user_remote_actor_ok_img =
+            mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y, 16, 16, MyGUI::Align::Default, "Main");
         tmp = _L("remote truck loading state");
         row->user_remote_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
         row->user_remote_actor_ok_img->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
@@ -146,10 +149,9 @@ MpClientList::MpClientList() :
         row->usergoimg->eventMouseButtonClick += MyGUI::newDelegate(this, &MpClientList::clickUserGoIcon);
 
         /*
-        img = MyGUI::Gui::getInstance().createWidget<MyGUI::ImageBox>("ImageBox", x-36, y, 16, 16,  MyGUI::Align::Default, "Overlapped");
-        img->setImageTexture("information.png");
-        img->eventMouseButtonClick += MyGUI::newDelegate(this, &MpClientList::clickInfoIcon);
-        img->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
+        img = MyGUI::Gui::getInstance().createWidget<MyGUI::ImageBox>("ImageBox", x-36, y, 16, 16,  MyGUI::Align::Default,
+        "Overlapped"); img->setImageTexture("information.png"); img->eventMouseButtonClick += MyGUI::newDelegate(this,
+        &MpClientList::clickInfoIcon); img->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
         img->setNeedToolTip(true);
         img->setUserString("info", TOSTRING(i));
         img->setUserString("tooltip", _L("information about the user"));
@@ -168,10 +170,9 @@ MpClientList::~MpClientList()
     }
 }
 
-void MpClientList::updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self)
+void MpClientList::updateSlot(player_row_t *row, RoRnet::UserInfo c, bool self)
 {
-    if (!row)
-        return;
+    if (!row) return;
 
     int x = 100;
     int y = row->playername->getPosition().top;
@@ -203,10 +204,7 @@ void MpClientList::updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self)
 
     UTFString tmp;
     // auth
-    if (c.authstatus == RoRnet::AUTH_NONE)
-    {
-        row->statimg->setVisible(false);
-    }
+    if (c.authstatus == RoRnet::AUTH_NONE) { row->statimg->setVisible(false); }
     else if (c.authstatus & RoRnet::AUTH_ADMIN)
     {
         row->statimg->setVisible(true);
@@ -303,7 +301,7 @@ void MpClientList::update()
     int slotid = 0;
 
     MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
-    int x = gui_area.width - sidebarWidth, y = 30;
+    int            x = gui_area.width - sidebarWidth, y = 30;
     mpPanel->setPosition(x, y);
 
     // add local player to first slot always
@@ -315,7 +313,7 @@ void MpClientList::update()
     std::vector<RoRnet::UserInfo> users = RoR::Networking::GetUserInfos();
     for (RoRnet::UserInfo user : users)
     {
-        player_row_t* row = &player_rows[slotid];
+        player_row_t *row = &player_rows[slotid];
         slotid++;
         try
         {
@@ -327,7 +325,7 @@ void MpClientList::update()
     }
     for (int i = slotid; i < RORNET_MAX_PEERS; i++)
     {
-        player_row_t* row = &player_rows[i];
+        player_row_t *row = &player_rows[i];
         // not used, hide everything
         row->flagimg->setVisible(false);
         row->playername->setVisible(false);
@@ -346,16 +344,16 @@ void MpClientList::update()
 
 void MpClientList::clickUserGoIcon(MyGUI::WidgetPtr sender)
 {
-    //int uid = StringConverter::parseInt(sender->getUserString("uid"));
+    // int uid = StringConverter::parseInt(sender->getUserString("uid"));
 }
 
 void MpClientList::clickInfoIcon(MyGUI::WidgetPtr sender)
 {
-    //msgtext->setCaption("FOOBAR: "+sender->getUserString("info"));
-    //msgwin->setVisible(true);
+    // msgtext->setCaption("FOOBAR: "+sender->getUserString("info"));
+    // msgwin->setVisible(true);
 }
 
-void MpClientList::openToolTip(MyGUI::WidgetPtr sender, const MyGUI::ToolTipInfo& t)
+void MpClientList::openToolTip(MyGUI::WidgetPtr sender, const MyGUI::ToolTipInfo &t)
 {
     if (t.type == MyGUI::ToolTipInfo::Show)
     {
@@ -363,8 +361,8 @@ void MpClientList::openToolTip(MyGUI::WidgetPtr sender, const MyGUI::ToolTipInfo
         if (!txt.empty())
         {
             tooltipText->setCaption(txt);
-            MyGUI::IntSize s = tooltipText->getTextSize();
-            int newWidth = s.width + 10;
+            MyGUI::IntSize s        = tooltipText->getTextSize();
+            int            newWidth = s.width + 10;
             tooltipPanel->setPosition(t.point - MyGUI::IntPoint(newWidth + 10, 10));
             tooltipPanel->setSize(newWidth, 20);
             tooltipText->setSize(newWidth, 16);

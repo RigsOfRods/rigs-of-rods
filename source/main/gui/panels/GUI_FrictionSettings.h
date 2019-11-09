@@ -24,51 +24,53 @@
 
 #pragma once
 
-
 #include "RoRPrerequisites.h"
 
 #include <MyGUI.h>
 
-namespace RoR {
-namespace GUI {
-
-class FrictionSettings : public ZeroedMemoryAllocator
+namespace RoR
 {
-public:
+    namespace GUI
+    {
 
-    FrictionSettings();
-    ~FrictionSettings();
+        class FrictionSettings : public ZeroedMemoryAllocator
+        {
+          public:
+            FrictionSettings();
+            ~FrictionSettings();
 
-    bool IsVisible();
-    void SetVisible(bool value);
+            bool IsVisible();
+            void SetVisible(bool value);
 
-    void setShaded(bool value);
+            void setShaded(bool value);
 
-    void setCollisions(Collisions* _col) { col = _col; };
-    void setActiveCol(ground_model_t* gm);
+            void setCollisions(Collisions *_col)
+            {
+                col = _col;
+            };
+            void setActiveCol(ground_model_t *gm);
 
-private:
+          private:
+            Collisions *     col;
+            MyGUI::WindowPtr msgwin;
+            MyGUI::WindowPtr win;
+            ground_model_t * active_gm;
+            ground_model_t * selected_gm;
 
-    Collisions* col;
-    MyGUI::WindowPtr msgwin;
-    MyGUI::WindowPtr win;
-    ground_model_t* active_gm;
-    ground_model_t* selected_gm;
+            std::map<Ogre::UTFString, std::pair<Ogre::UTFString, Ogre::UTFString>> helpTexts;
+            std::map<Ogre::UTFString, std::pair<Ogre::Real, Ogre::Real>>           minMaxs;
 
-    std::map<Ogre::UTFString, std::pair<Ogre::UTFString, Ogre::UTFString>> helpTexts;
-    std::map<Ogre::UTFString, std::pair<Ogre::Real, Ogre::Real>> minMaxs;
+            void updateControls(ground_model_t *gm, bool setCombo = true);
 
-    void updateControls(ground_model_t* gm, bool setCombo = true);
+            void event_combo_grounds_eventComboAccept(MyGUI::ComboBoxPtr _sender, size_t _index);
+            void event_btn_MouseButtonClick(MyGUI::WidgetPtr _sender);
+            void event_edit_TextChange(MyGUI::EditPtr _sender);
+            void event_scroll_value(MyGUI::ScrollBar *_sender, size_t _value);
+            void notifyWindowButtonPressed(MyGUI::WindowPtr _sender, const std::string &_name);
+            void notifyHelpWindowButtonPressed(MyGUI::WindowPtr _sender, const std::string &_name);
+            void applyChanges();
+            void showHelp(Ogre::UTFString title, Ogre::UTFString msg, int x, int y);
+        };
 
-    void event_combo_grounds_eventComboAccept(MyGUI::ComboBoxPtr _sender, size_t _index);
-    void event_btn_MouseButtonClick(MyGUI::WidgetPtr _sender);
-    void event_edit_TextChange(MyGUI::EditPtr _sender);
-    void event_scroll_value(MyGUI::ScrollBar* _sender, size_t _value);
-    void notifyWindowButtonPressed(MyGUI::WindowPtr _sender, const std::string& _name);
-    void notifyHelpWindowButtonPressed(MyGUI::WindowPtr _sender, const std::string& _name);
-    void applyChanges();
-    void showHelp(Ogre::UTFString title, Ogre::UTFString msg, int x, int y);
-};
-
-} // namespace GUI
+    } // namespace GUI
 } // namespace RoR

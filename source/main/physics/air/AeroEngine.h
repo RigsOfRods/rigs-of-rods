@@ -24,41 +24,43 @@
 
 class AeroEngine
 {
-public:
+  public:
     enum
     {
         AEROENGINE_TYPE_TURBOPROP,
         AEROENGINE_TYPE_TURBOJET
     };
 
-    virtual ~AeroEngine() {}
+    virtual ~AeroEngine()
+    {
+    }
 
-    virtual void updateVisuals(RoR::GfxActor* gfx_actor) =0;
-    virtual void updateForces(float dt, int doUpdate) =0;
+    virtual void updateVisuals(RoR::GfxActor *gfx_actor) = 0;
+    virtual void updateForces(float dt, int doUpdate)    = 0;
 
-    virtual void setThrottle(float val) =0;
+    virtual void setThrottle(float val) = 0;
 
-    virtual float getThrottle() =0;
+    virtual float getThrottle() = 0;
 
-    virtual void reset() =0;
+    virtual void reset() = 0;
 
-    virtual void toggleReverse() =0;
+    virtual void toggleReverse() = 0;
 
-    virtual void setReverse(bool val) =0;
-    virtual bool getReverse() =0;
+    virtual void setReverse(bool val) = 0;
+    virtual bool getReverse()         = 0;
 
-    virtual void flipStart() =0;
+    virtual void flipStart() = 0;
 
-    virtual float getRPMpc() =0;
-    virtual float getRPM() =0;
-    virtual void setRPM(float _rpm) =0;
-    virtual float getpropwash() =0;
-    virtual Ogre::Vector3 getAxis() =0;
-    virtual bool isFailed() =0;
-    virtual int getType() =0;
-    virtual bool getIgnition() =0;
-    virtual void setIgnition(bool val) =0;
-    virtual int getNoderef() =0;
-    virtual bool getWarmup() =0;
-    virtual float getRadius() =0;
+    virtual float         getRPMpc()            = 0;
+    virtual float         getRPM()              = 0;
+    virtual void          setRPM(float _rpm)    = 0;
+    virtual float         getpropwash()         = 0;
+    virtual Ogre::Vector3 getAxis()             = 0;
+    virtual bool          isFailed()            = 0;
+    virtual int           getType()             = 0;
+    virtual bool          getIgnition()         = 0;
+    virtual void          setIgnition(bool val) = 0;
+    virtual int           getNoderef()          = 0;
+    virtual bool          getWarmup()           = 0;
+    virtual float         getRadius()           = 0;
 };

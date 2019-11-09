@@ -1,24 +1,25 @@
 #pragma once
 #ifndef __OGRE_PARTICLE_CUSTOM_PARAM_H__
-#define __OGRE_PARTICLE_CUSTOM_PARAM_H__
+    #define __OGRE_PARTICLE_CUSTOM_PARAM_H__
 
-#include <OgreParticle.h>
+    #include <OgreParticle.h>
 
-namespace Ogre {
-/// custom visual data for shader renderer
-class ParticleCustomParam : public ParticleVisualData
+namespace Ogre
 {
-public:
-    ParticleCustomParam() : paramValue(0, 0, 0, 0)
+    /// custom visual data for shader renderer
+    class ParticleCustomParam : public ParticleVisualData
     {
-    }
+      public:
+        ParticleCustomParam() : paramValue(0, 0, 0, 0)
+        {
+        }
 
-    virtual ~ParticleCustomParam()
-    {
-    }
+        virtual ~ParticleCustomParam()
+        {
+        }
 
-    Vector4 paramValue;
-};
-}
+        Vector4 paramValue;
+    };
+} // namespace Ogre
 
 #endif // __OGRE_PARTICLE_CUSTOM_PARAM_H__

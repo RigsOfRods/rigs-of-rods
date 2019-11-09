@@ -22,15 +22,13 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
-
 #include "mygui/BaseLayout.h"
 
 ATTRIBUTE_CLASS_LAYOUT(SurveyMapEntity, "MapEntity.layout");
 
 class SurveyMapEntity : public wraps::BaseLayout, public ZeroedMemoryAllocator
 {
-public:
-
+  public:
     SurveyMapEntity(Ogre::String type, MyGUI::StaticImagePtr parent);
 
     void setCaption(Ogre::String s);
@@ -39,27 +37,27 @@ public:
     void setState(int state);
     void setVisibility(bool value);
 
-    bool isPlayable() { return mType == "person" || mType == "truck" || mType == "airplane" || mType == "boat"; };
+    bool isPlayable()
+    {
+        return mType == "person" || mType == "truck" || mType == "airplane" || mType == "boat";
+    };
 
-private:
-
+  private:
     MyGUI::StaticImagePtr mParent;
 
     ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapEntity, mCaption, "mCaption");
 
-    MyGUI::StaticText* mCaption;
+    MyGUI::StaticText *mCaption;
 
     ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapEntity, mIcon, "mIcon");
 
-    MyGUI::StaticImage* mIcon;
-    MyGUI::RotatingSkin* mIconRotating;
+    MyGUI::StaticImage * mIcon;
+    MyGUI::RotatingSkin *mIconRotating;
 
     MyGUI::IntSize mIconSize;
-    Ogre::Real mRotation;
-    Ogre::String mFileName;
-    Ogre::String mType;
+    Ogre::Real     mRotation;
+    Ogre::String   mFileName;
+    Ogre::String   mType;
 
     void updateIcon();
 };
-
-

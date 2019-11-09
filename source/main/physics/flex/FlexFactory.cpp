@@ -33,55 +33,45 @@
 #include "RigDef_File.h"
 #include "RigSpawner.h"
 
+#include <MeshLodGenerator/OgreMeshLodGenerator.h>
 #include <OgreMeshManager.h>
 #include <OgreSceneManager.h>
-#include <MeshLodGenerator/OgreMeshLodGenerator.h>
 
 //#define FLEXFACTORY_DEBUG_LOGGING
 
 #ifdef FLEXFACTORY_DEBUG_LOGGING
-#   include "RoRPrerequisites.h"
-#   define FLEX_DEBUG_LOG(TEXT) LOG("FlexFactory | " TEXT)
+    #include "RoRPrerequisites.h"
+    #define FLEX_DEBUG_LOG(TEXT) LOG("FlexFactory | " TEXT)
 #else
-#   define FLEX_DEBUG_LOG(TEXT)    
+    #define FLEX_DEBUG_LOG(TEXT)
 #endif // FLEXFACTORY_DEBUG_LOGGING
 
 using namespace RoR;
 
 // Static
-const char * FlexBodyFileIO::SIGNATURE = "RoR FlexBody";
+const char *FlexBodyFileIO::SIGNATURE = "RoR FlexBody";
 
-FlexFactory::FlexFactory(ActorSpawner* rig_spawner):
-    m_rig_spawner(rig_spawner),
-    m_is_flexbody_cache_loaded(false),
-    m_is_flexbody_cache_enabled(App::gfx_flexbody_cache.GetActive()),
-    m_flexbody_cache_next_index(0)
+FlexFactory::FlexFactory(ActorSpawner *rig_spawner)
+    : m_rig_spawner(rig_spawner), m_is_flexbody_cache_loaded(false),
+      m_is_flexbody_cache_enabled(App::gfx_flexbody_cache.GetActive()), m_flexbody_cache_next_index(0)
 {
 }
 
-FlexBody* FlexFactory::CreateFlexBody(
-    RigDef::Flexbody* def,
-    const int ref_node, 
-    const int x_node, 
-    const int y_node, 
-    Ogre::Quaternion const & rot, 
-    std::vector<unsigned int> & node_indices,
-    std::string resource_group_name)
+FlexBody *FlexFactory::CreateFlexBody(RigDef::Flexbody *def, const int ref_node, const int x_node, const int y_node,
+                                      Ogre::Quaternion const &rot, std::vector<unsigned int> &node_indices,
+                                      std::string resource_group_name)
 {
-    Ogre::MeshPtr common_mesh = Ogre::MeshManager::getSingleton().load(def->mesh_name, resource_group_name);
-    int flexbody_id = m_rig_spawner->GetActor()->GetGfxActor()->GetNumFlexbodies();
+    Ogre::MeshPtr     common_mesh      = Ogre::MeshManager::getSingleton().load(def->mesh_name, resource_group_name);
+    int               flexbody_id      = m_rig_spawner->GetActor()->GetGfxActor()->GetNumFlexbodies();
     const std::string mesh_unique_name = m_rig_spawner->ComposeName("FlexbodyMesh", flexbody_id);
-    Ogre::MeshPtr mesh = common_mesh->clone(mesh_unique_name);
-    if (App::gfx_flexbody_lods.GetActive())
-    {
-        this->ResolveFlexbodyLOD(def->mesh_name, mesh);
-    }
+    Ogre::MeshPtr     mesh             = common_mesh->clone(mesh_unique_name);
+    if (App::gfx_flexbody_lods.GetActive()) { this->ResolveFlexbodyLOD(def->mesh_name, mesh); }
     const std::string flexbody_name = m_rig_spawner->ComposeName("Flexbody", flexbody_id);
-    Ogre::Entity* entity = gEnv->sceneManager->createEntity(flexbody_name, mesh_unique_name, resource_group_name);
+    Ogre::Entity *    entity        = gEnv->sceneManager->createEntity(flexbody_name, mesh_unique_name, resource_group_name);
     m_rig_spawner->SetupNewEntity(entity, Ogre::ColourValue(0.5, 0.5, 1));
 
     FLEX_DEBUG_LOG(__FUNCTION__);
-    FlexBodyCacheData* from_cache = nullptr;
+    FlexBodyCacheData *from_cache = nullptr;
     if (m_is_flexbody_cache_loaded)
     {
         FLEX_DEBUG_LOG(__FUNCTION__ " >> Get entry from cache ");
@@ -89,58 +79,40 @@ FlexBody* FlexFactory::CreateFlexBody(
         m_flexbody_cache_next_index++;
     }
 
-    FlexBody* new_flexbody = new FlexBody(
-        def,
-        from_cache,
-        m_rig_spawner->GetActor()->GetGfxActor(),
-        entity,
-        ref_node,
-        x_node,
-        y_node,
-        rot,
-        node_indices);
+    FlexBody *new_flexbody = new FlexBody(def, from_cache, m_rig_spawner->GetActor()->GetGfxActor(), entity, ref_node, x_node,
+                                          y_node, rot, node_indices);
 
-    if (m_is_flexbody_cache_enabled)
-    {
-        m_flexbody_cache.AddItemToSave(new_flexbody);
-    }
+    if (m_is_flexbody_cache_enabled) { m_flexbody_cache.AddItemToSave(new_flexbody); }
     return new_flexbody;
 }
 
-FlexMeshWheel* FlexFactory::CreateFlexMeshWheel(
-    unsigned int wheel_index,
-    int axis_node_1_index,
-    int axis_node_2_index,
-    int nstart,
-    int nrays,
-    float rim_radius,
-    bool rim_reverse,
-    std::string const & rim_mesh_name,
-    std::string const & tire_material_name)
+FlexMeshWheel *FlexFactory::CreateFlexMeshWheel(unsigned int wheel_index, int axis_node_1_index, int axis_node_2_index,
+                                                int nstart, int nrays, float rim_radius, bool rim_reverse,
+                                                std::string const &rim_mesh_name, std::string const &tire_material_name)
 {
     const std::string rg_name = m_rig_spawner->GetActor()->GetGfxActor()->GetResourceGroup();
 
     // Load+instantiate static mesh for rim
     const std::string rim_entity_name = m_rig_spawner->ComposeName("MeshWheelRim", wheel_index);
-    Ogre::Entity* rim_prop_entity = gEnv->sceneManager->createEntity(rim_entity_name, rim_mesh_name, rg_name);
+    Ogre::Entity *    rim_prop_entity = gEnv->sceneManager->createEntity(rim_entity_name, rim_mesh_name, rg_name);
     m_rig_spawner->SetupNewEntity(rim_prop_entity, Ogre::ColourValue(0, 0.5, 0.8));
 
     // Create dynamic mesh for tire
     const std::string tire_mesh_name = m_rig_spawner->ComposeName("MWheelTireMesh", wheel_index);
-    FlexMeshWheel* flex_mesh_wheel = new FlexMeshWheel(
-        rim_prop_entity, m_rig_spawner->GetActor()->GetGfxActor(), axis_node_1_index, axis_node_2_index, nstart, nrays,
-        tire_mesh_name, tire_material_name, rim_radius, rim_reverse);
+    FlexMeshWheel *   flex_mesh_wheel =
+        new FlexMeshWheel(rim_prop_entity, m_rig_spawner->GetActor()->GetGfxActor(), axis_node_1_index, axis_node_2_index, nstart,
+                          nrays, tire_mesh_name, tire_material_name, rim_radius, rim_reverse);
 
     // Instantiate the dynamic tire mesh
     const std::string tire_instance_name = m_rig_spawner->ComposeName("MWheelTireEntity", wheel_index);
-    Ogre::Entity *tire_entity = gEnv->sceneManager->createEntity(tire_instance_name, tire_mesh_name, rg_name);
+    Ogre::Entity *    tire_entity        = gEnv->sceneManager->createEntity(tire_instance_name, tire_mesh_name, rg_name);
     m_rig_spawner->SetupNewEntity(tire_entity, Ogre::ColourValue(0, 0.5, 0.8));
     flex_mesh_wheel->m_tire_entity = tire_entity; // Friend access.
 
     return flex_mesh_wheel;
 }
 
-void FlexBodyFileIO::WriteToFile(void* source, size_t length)
+void FlexBodyFileIO::WriteToFile(void *source, size_t length)
 {
     size_t num_written = fwrite(source, length, 1, m_file);
     if (num_written != 1)
@@ -150,7 +122,7 @@ void FlexBodyFileIO::WriteToFile(void* source, size_t length)
     }
 }
 
-void FlexBodyFileIO::ReadFromFile(void* dest, size_t length)
+void FlexBodyFileIO::ReadFromFile(void *dest, size_t length)
 {
     size_t num_written = fread(dest, length, 1, m_file);
     if (num_written != 1)
@@ -163,147 +135,132 @@ void FlexBodyFileIO::ReadFromFile(void* dest, size_t length)
 void FlexBodyFileIO::WriteSignature()
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
-    WriteToFile((void*)SIGNATURE, (strlen(SIGNATURE) + 1) * sizeof(char));
+    WriteToFile((void *)SIGNATURE, (strlen(SIGNATURE) + 1) * sizeof(char));
 }
 
 void FlexBodyFileIO::ReadAndCheckSignature()
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
     char signature[25];
-    this->ReadFromFile((void*)&signature, (strlen(SIGNATURE) + 1) * sizeof(char));
-    if (strcmp(SIGNATURE, signature) != 0)
-    {
-        throw RESULT_CODE_ERR_SIGNATURE_MISMATCH;
-    }
+    this->ReadFromFile((void *)&signature, (strlen(SIGNATURE) + 1) * sizeof(char));
+    if (strcmp(SIGNATURE, signature) != 0) { throw RESULT_CODE_ERR_SIGNATURE_MISMATCH; }
 }
 
 void FlexBodyFileIO::WriteMetadata()
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
     FlexBodyFileMetadata meta;
-    meta.file_format_version = FILE_FORMAT_VERSION;    
+    meta.file_format_version = FILE_FORMAT_VERSION;
     meta.num_flexbodies      = static_cast<int>(m_items_to_save.size());
 
-    this->WriteToFile((void*)&meta, sizeof(FlexBodyFileMetadata));
+    this->WriteToFile((void *)&meta, sizeof(FlexBodyFileMetadata));
 }
 
-void FlexBodyFileIO::ReadMetadata(FlexBodyFileMetadata* meta)
+void FlexBodyFileIO::ReadMetadata(FlexBodyFileMetadata *meta)
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
     assert(meta != nullptr);
-    this->ReadFromFile((void*)meta, sizeof(FlexBodyFileMetadata));
+    this->ReadFromFile((void *)meta, sizeof(FlexBodyFileMetadata));
 }
 
-void FlexBodyFileIO::WriteFlexbodyHeader(FlexBody* flexbody)
+void FlexBodyFileIO::WriteFlexbodyHeader(FlexBody *flexbody)
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
     FlexBodyRecordHeader header;
-    header.vertex_count            = static_cast<int>(flexbody->m_vertex_count);
-    header.node_center             = flexbody->m_node_center            ;
-    header.node_x                  = flexbody->m_node_x                 ;
-    header.node_y                  = flexbody->m_node_y                 ;
-    header.center_offset           = flexbody->m_center_offset          ;
-    header.camera_mode             = flexbody->m_camera_mode            ;
-    header.shared_buf_num_verts    = flexbody->m_shared_buf_num_verts   ;
-    header.num_submesh_vbufs       = flexbody->m_num_submesh_vbufs      ;
-    header.SetUsesSharedVertexData  (flexbody->m_uses_shared_vertex_data); 
-    header.SetHasTexture            (flexbody->m_has_texture            );
-    header.SetHasTextureBlend       (flexbody->m_has_texture_blend      );
-    
-    this->WriteToFile((void*)&header, sizeof(FlexBodyRecordHeader));
+    header.vertex_count         = static_cast<int>(flexbody->m_vertex_count);
+    header.node_center          = flexbody->m_node_center;
+    header.node_x               = flexbody->m_node_x;
+    header.node_y               = flexbody->m_node_y;
+    header.center_offset        = flexbody->m_center_offset;
+    header.camera_mode          = flexbody->m_camera_mode;
+    header.shared_buf_num_verts = flexbody->m_shared_buf_num_verts;
+    header.num_submesh_vbufs    = flexbody->m_num_submesh_vbufs;
+    header.SetUsesSharedVertexData(flexbody->m_uses_shared_vertex_data);
+    header.SetHasTexture(flexbody->m_has_texture);
+    header.SetHasTextureBlend(flexbody->m_has_texture_blend);
+
+    this->WriteToFile((void *)&header, sizeof(FlexBodyRecordHeader));
 }
 
-void FlexBodyFileIO::ReadFlexbodyHeader(FlexBodyCacheData* data)
+void FlexBodyFileIO::ReadFlexbodyHeader(FlexBodyCacheData *data)
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
-    this->ReadFromFile((void*)&data->header, sizeof(FlexBodyRecordHeader));
+    this->ReadFromFile((void *)&data->header, sizeof(FlexBodyRecordHeader));
 }
 
-
-void FlexBodyFileIO::WriteFlexbodyLocatorList(FlexBody* flexbody)
+void FlexBodyFileIO::WriteFlexbodyLocatorList(FlexBody *flexbody)
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
-    this->WriteToFile((void*)flexbody->m_locators, sizeof(Locator_t) * flexbody->m_vertex_count);
+    this->WriteToFile((void *)flexbody->m_locators, sizeof(Locator_t) * flexbody->m_vertex_count);
 }
 
-void FlexBodyFileIO::ReadFlexbodyLocatorList(FlexBodyCacheData* data)
+void FlexBodyFileIO::ReadFlexbodyLocatorList(FlexBodyCacheData *data)
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
     // Alloc. Use <new> - experiment
     data->locators = new Locator_t[data->header.vertex_count];
     // Read
-    this->ReadFromFile((void*)data->locators, sizeof(Locator_t) * data->header.vertex_count);
+    this->ReadFromFile((void *)data->locators, sizeof(Locator_t) * data->header.vertex_count);
 }
 
-void FlexBodyFileIO::WriteFlexbodyNormalsBuffer(FlexBody* flexbody)
+void FlexBodyFileIO::WriteFlexbodyNormalsBuffer(FlexBody *flexbody)
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
-    this->WriteToFile((void*)flexbody->m_src_normals, sizeof(Ogre::Vector3) * flexbody->m_vertex_count);
+    this->WriteToFile((void *)flexbody->m_src_normals, sizeof(Ogre::Vector3) * flexbody->m_vertex_count);
 }
 
-void FlexBodyFileIO::ReadFlexbodyNormalsBuffer(FlexBodyCacheData* data)
-{
-    FLEX_DEBUG_LOG(__FUNCTION__);
-    const int vertex_count = data->header.vertex_count;
-    // Alloc. Use malloc() because that's how flexbodies were implemented.
-    data->src_normals=(Ogre::Vector3*)malloc(sizeof(Ogre::Vector3) * vertex_count);
-    // Read
-    this->ReadFromFile((void*)data->src_normals, sizeof(Ogre::Vector3) * vertex_count);
-}
-
-void FlexBodyFileIO::WriteFlexbodyPositionsBuffer(FlexBody* flexbody)
-{
-    FLEX_DEBUG_LOG(__FUNCTION__);
-    this->WriteToFile((void*)flexbody->m_dst_pos, sizeof(Ogre::Vector3) * flexbody->m_vertex_count);
-}
-
-void FlexBodyFileIO::ReadFlexbodyPositionsBuffer(FlexBodyCacheData* data)
+void FlexBodyFileIO::ReadFlexbodyNormalsBuffer(FlexBodyCacheData *data)
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
     const int vertex_count = data->header.vertex_count;
     // Alloc. Use malloc() because that's how flexbodies were implemented.
-    data->dst_pos=(Ogre::Vector3*)malloc(sizeof(Ogre::Vector3) * vertex_count);
+    data->src_normals = (Ogre::Vector3 *)malloc(sizeof(Ogre::Vector3) * vertex_count);
     // Read
-    this->ReadFromFile((void*)data->dst_pos, sizeof(Ogre::Vector3) * vertex_count);
+    this->ReadFromFile((void *)data->src_normals, sizeof(Ogre::Vector3) * vertex_count);
 }
 
-void FlexBodyFileIO::WriteFlexbodyColorsBuffer(FlexBody* flexbody)
+void FlexBodyFileIO::WriteFlexbodyPositionsBuffer(FlexBody *flexbody)
+{
+    FLEX_DEBUG_LOG(__FUNCTION__);
+    this->WriteToFile((void *)flexbody->m_dst_pos, sizeof(Ogre::Vector3) * flexbody->m_vertex_count);
+}
+
+void FlexBodyFileIO::ReadFlexbodyPositionsBuffer(FlexBodyCacheData *data)
+{
+    FLEX_DEBUG_LOG(__FUNCTION__);
+    const int vertex_count = data->header.vertex_count;
+    // Alloc. Use malloc() because that's how flexbodies were implemented.
+    data->dst_pos = (Ogre::Vector3 *)malloc(sizeof(Ogre::Vector3) * vertex_count);
+    // Read
+    this->ReadFromFile((void *)data->dst_pos, sizeof(Ogre::Vector3) * vertex_count);
+}
+
+void FlexBodyFileIO::WriteFlexbodyColorsBuffer(FlexBody *flexbody)
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
     if (flexbody->m_has_texture_blend)
-    {
-        this->WriteToFile((void*)flexbody->m_src_colors, sizeof(Ogre::ARGB) * flexbody->m_vertex_count);
-    }
+    { this->WriteToFile((void *)flexbody->m_src_colors, sizeof(Ogre::ARGB) * flexbody->m_vertex_count); }
 }
 
-void FlexBodyFileIO::ReadFlexbodyColorsBuffer(FlexBodyCacheData* data)
+void FlexBodyFileIO::ReadFlexbodyColorsBuffer(FlexBodyCacheData *data)
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
-    if (! data->header.HasTextureBlend())
-    {
-        return;
-    }
+    if (!data->header.HasTextureBlend()) { return; }
     const int vertex_count = data->header.vertex_count;
     // Alloc. Use malloc() because that's how flexbodies were implemented.
-    data->src_colors=(Ogre::ARGB*)malloc(sizeof(Ogre::ARGB) * vertex_count);
+    data->src_colors = (Ogre::ARGB *)malloc(sizeof(Ogre::ARGB) * vertex_count);
     // Read
-    this->ReadFromFile((void*)data->src_colors, sizeof(Ogre::ARGB) * vertex_count);
+    this->ReadFromFile((void *)data->src_colors, sizeof(Ogre::ARGB) * vertex_count);
 }
 
-void FlexBodyFileIO::OpenFile(const char* fopen_mode)
+void FlexBodyFileIO::OpenFile(const char *fopen_mode)
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
-    if (m_cache_entry_number == -1)
-    {
-        throw RESULT_CODE_ERR_CACHE_NUMBER_UNDEFINED;
-    }
+    if (m_cache_entry_number == -1) { throw RESULT_CODE_ERR_CACHE_NUMBER_UNDEFINED; }
     char path[500];
     sprintf(path, "%s%cflexbodies_mod_%00d.dat", App::sys_cache_dir.GetActive(), RoR::PATH_SLASH, m_cache_entry_number);
     m_file = fopen(path, fopen_mode);
-    if (m_file == nullptr)
-    {
-        throw RESULT_CODE_ERR_FOPEN_FAILED;
-    }
+    if (m_file == nullptr) { throw RESULT_CODE_ERR_FOPEN_FAILED; }
 }
 
 FlexBodyFileIO::ResultCode FlexBodyFileIO::SaveFile()
@@ -325,13 +282,13 @@ FlexBodyFileIO::ResultCode FlexBodyFileIO::SaveFile()
         auto end  = m_items_to_save.end();
         for (; itor != end; ++itor)
         {
-            FlexBody* flexbody = *itor;
+            FlexBody *flexbody = *itor;
             this->WriteFlexbodyHeader(flexbody);
 
-            this->WriteFlexbodyLocatorList    (flexbody);
+            this->WriteFlexbodyLocatorList(flexbody);
             this->WriteFlexbodyPositionsBuffer(flexbody);
-            this->WriteFlexbodyNormalsBuffer  (flexbody);
-            this->WriteFlexbodyColorsBuffer   (flexbody);
+            this->WriteFlexbodyNormalsBuffer(flexbody);
+            this->WriteFlexbodyColorsBuffer(flexbody);
         }
         this->CloseFile();
         FLEX_DEBUG_LOG(__FUNCTION__ " >> OK ");
@@ -348,7 +305,7 @@ FlexBodyFileIO::ResultCode FlexBodyFileIO::SaveFile()
 FlexBodyFileIO::ResultCode FlexBodyFileIO::LoadFile()
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
-    try 
+    try
     {
         this->OpenFile("rb");
         this->ReadAndCheckSignature();
@@ -356,22 +313,19 @@ FlexBodyFileIO::ResultCode FlexBodyFileIO::LoadFile()
         FlexBodyFileMetadata meta;
         this->ReadMetadata(&meta);
         m_fileformat_version = meta.file_format_version;
-        if (m_fileformat_version != FILE_FORMAT_VERSION)
-        {
-            throw RESULT_CODE_ERR_VERSION_MISMATCH;
-        }
+        if (m_fileformat_version != FILE_FORMAT_VERSION) { throw RESULT_CODE_ERR_VERSION_MISMATCH; }
         m_loaded_items.resize(meta.num_flexbodies);
 
         for (unsigned int i = 0; i < meta.num_flexbodies; ++i)
         {
-            FlexBodyCacheData* data = & m_loaded_items[i];
+            FlexBodyCacheData *data = &m_loaded_items[i];
             this->ReadFlexbodyHeader(data);
             if (!data->header.IsFaulty())
             {
-                this->ReadFlexbodyLocatorList    (data);
+                this->ReadFlexbodyLocatorList(data);
                 this->ReadFlexbodyPositionsBuffer(data);
-                this->ReadFlexbodyNormalsBuffer  (data);
-                this->ReadFlexbodyColorsBuffer   (data);
+                this->ReadFlexbodyNormalsBuffer(data);
+                this->ReadFlexbodyColorsBuffer(data);
             }
         }
 
@@ -387,20 +341,17 @@ FlexBodyFileIO::ResultCode FlexBodyFileIO::LoadFile()
     }
 }
 
-FlexBodyFileIO::FlexBodyFileIO():
-    m_file(nullptr),
-    m_fileformat_version(0),
-    m_cache_entry_number(-1) // flexbody cache disabled (shouldn't be based on the cache entry number ...) ~ ulteq 01/19
-    {}
+FlexBodyFileIO::FlexBodyFileIO()
+    : m_file(nullptr), m_fileformat_version(0),
+      m_cache_entry_number(-1) // flexbody cache disabled (shouldn't be based on the cache entry number ...) ~ ulteq 01/19
+{
+}
 
 void FlexFactory::CheckAndLoadFlexbodyCache()
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
     if (m_is_flexbody_cache_enabled)
-    {
-        m_is_flexbody_cache_loaded = 
-            (m_flexbody_cache.LoadFile() == FlexBodyFileIO::RESULT_CODE_OK);
-    }
+    { m_is_flexbody_cache_loaded = (m_flexbody_cache.LoadFile() == FlexBodyFileIO::RESULT_CODE_OK); }
 }
 
 void FlexFactory::SaveFlexbodiesToCache()
@@ -417,18 +368,17 @@ void FlexFactory::ResolveFlexbodyLOD(std::string meshname, Ogre::MeshPtr newmesh
 {
     std::string basename, ext;
     Ogre::StringUtil::splitBaseFilename(meshname, basename, ext);
-    for (int i=0; i<4;i++)
+    for (int i = 0; i < 4; i++)
     {
         const std::string fn = basename + "_" + TOSTRING(i) + ".mesh";
 
-        if (!Ogre::ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(fn))
-            continue;
+        if (!Ogre::ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(fn)) continue;
 
         float distance = 3;
         if (i == 1) distance = 20;
         if (i == 2) distance = 50;
         if (i == 3) distance = 200;
-        //newmesh->createManualLodLevel(distance, fn);
+        // newmesh->createManualLodLevel(distance, fn);
         Ogre::MeshLodGenerator::getSingleton().generateAutoconfiguredLodLevels(newmesh);
     }
 }

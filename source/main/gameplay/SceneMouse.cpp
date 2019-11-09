@@ -29,22 +29,18 @@
 #include "Beam.h"
 #include "RoRFrameListener.h"
 
-#include <OgreSceneManager.h>
+#include <OgreManualObject.h>
 #include <OgreMaterialManager.h>
 #include <OgreResourceGroupManager.h>
+#include <OgreSceneManager.h>
 #include <OgreTechnique.h>
-#include <OgreManualObject.h>
 
 using namespace Ogre;
 using namespace RoR;
 
 #define MOUSE_GRAB_FORCE 30000.0f
 
-SceneMouse::SceneMouse() :
-    mouseGrabState(0),
-    grab_truck(nullptr),
-    pickLine(nullptr),
-    pickLineNode(nullptr)
+SceneMouse::SceneMouse() : mouseGrabState(0), grab_truck(nullptr), pickLine(nullptr), pickLineNode(nullptr)
 {
     releaseMousePick(); // TODO: Yuck! Rewrite in proper code!! ~ only_a_ptr, 06/2018
 }
@@ -52,13 +48,15 @@ SceneMouse::SceneMouse() :
 void SceneMouse::InitializeVisuals()
 {
     // load 3d line for mouse picking
-    pickLine = gEnv->sceneManager->createManualObject("PickLineObject");
+    pickLine     = gEnv->sceneManager->createManualObject("PickLineObject");
     pickLineNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("PickLineNode");
 
-    MaterialPtr pickLineMaterial = MaterialManager::getSingleton().getByName("PickLineMaterial", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    MaterialPtr pickLineMaterial =
+        MaterialManager::getSingleton().getByName("PickLineMaterial", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
     if (pickLineMaterial.isNull())
     {
-        pickLineMaterial = MaterialManager::getSingleton().create("PickLineMaterial", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        pickLineMaterial =
+            MaterialManager::getSingleton().create("PickLineMaterial", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
     }
     pickLineMaterial->setReceiveShadows(false);
     pickLineMaterial->getTechnique(0)->setLightingEnabled(true);
@@ -94,30 +92,26 @@ void SceneMouse::releaseMousePick()
     if (App::sim_state.GetActive() == SimState::PAUSED) { return; } // Do nothing when paused
 
     // remove forces
-    if (grab_truck)
-        grab_truck->HandleMouseMove(minnode, Vector3::ZERO, 0);
+    if (grab_truck) grab_truck->HandleMouseMove(minnode, Vector3::ZERO, 0);
 
     // reset the variables
-    minnode = -1;
-    grab_truck = 0;
-    mindist = 99999;
+    minnode        = -1;
+    grab_truck     = 0;
+    mindist        = 99999;
     mouseGrabState = 0;
-    lastgrabpos = Vector3::ZERO;
-    lastMouseX = 0;
-    lastMouseY = 0;
+    lastgrabpos    = Vector3::ZERO;
+    lastMouseX     = 0;
+    lastMouseY     = 0;
 
     mouseGrabState = 0;
 }
 
-bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
+bool SceneMouse::mouseMoved(const OIS::MouseEvent &_arg)
 {
     const OIS::MouseState ms = _arg.state;
 
     // check if handled by the camera
-    if (App::GetSimController()->CameraManagerMouseMoved(_arg))
-    {
-        return true;
-    }
+    if (App::GetSimController()->CameraManagerMouseMoved(_arg)) { return true; }
 
     // experimental mouse hack
     if (ms.buttonDown(OIS::MB_Left) && mouseGrabState == 0)
@@ -128,7 +122,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         Ray mouseRay = getMouseRay();
 
         // walk all trucks
-        minnode = -1;
+        minnode    = -1;
         grab_truck = NULL;
         for (auto actor : App::GetSimController()->GetActors())
         {
@@ -136,13 +130,11 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
             {
                 // check if our ray intersects with the bounding box of the truck
                 std::pair<bool, Real> pair = mouseRay.intersects(actor->ar_bounding_box);
-                if (!pair.first)
-                    continue;
+                if (!pair.first) continue;
 
                 for (int j = 0; j < actor->ar_num_nodes; j++)
                 {
-                    if (actor->ar_nodes[j].nd_no_mouse_grab)
-                        continue;
+                    if (actor->ar_nodes[j].nd_no_mouse_grab) continue;
 
                     // check if our ray intersects with the node
                     std::pair<bool, Real> pair = mouseRay.intersects(Sphere(actor->ar_nodes[j].AbsPosition, 0.1f));
@@ -151,8 +143,8 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
                         // we hit it, check if its the nearest node
                         if (pair.second < mindist)
                         {
-                            mindist = pair.second;
-                            minnode = j;
+                            mindist    = pair.second;
+                            minnode    = j;
                             grab_truck = actor;
                         }
                     }
@@ -167,10 +159,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 
             for (std::vector<hook_t>::iterator it = grab_truck->ar_hooks.begin(); it != grab_truck->ar_hooks.end(); it++)
             {
-                if (it->hk_hook_node->pos == minnode)
-                {
-                    grab_truck->ToggleHooks(it->hk_group, MOUSE_HOOK_TOGGLE, minnode);
-                }
+                if (it->hk_hook_node->pos == minnode) { grab_truck->ToggleHooks(it->hk_group, MOUSE_HOOK_TOGGLE, minnode); }
             }
         }
     }
@@ -198,7 +187,7 @@ void SceneMouse::UpdateSimulation()
     {
         // get values
         Ray mouseRay = getMouseRay(); // TODO: Touches OGRE Camera+Viewport which shouldn't happen here ~ only_a_ptr, 06/2018
-        lastgrabpos = mouseRay.getPoint(mindist);
+        lastgrabpos  = mouseRay.getPoint(mindist);
 
         // add forces
         grab_truck->HandleMouseMove(minnode, lastgrabpos, MOUSE_GRAB_FORCE);
@@ -209,11 +198,11 @@ void SceneMouse::UpdateVisuals()
 {
     if (grab_truck == nullptr)
     {
-        pickLineNode->setVisible(false);   // Hide the line     
+        pickLineNode->setVisible(false); // Hide the line
     }
     else
     {
-        pickLineNode->setVisible(true);   // Show the line
+        pickLineNode->setVisible(true); // Show the line
         // update visual line
         pickLine->beginUpdate(0);
         pickLine->position(grab_truck->GetGfxActor()->GetSimNodeBuffer()[minnode].AbsPosition);
@@ -222,7 +211,7 @@ void SceneMouse::UpdateVisuals()
     }
 }
 
-bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool SceneMouse::mousePressed(const OIS::MouseEvent &_arg, OIS::MouseButtonID _id)
 {
     if (App::sim_state.GetActive() == SimState::PAUSED) { return true; } // Do nothing when paused
 
@@ -230,8 +219,8 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 
     if (ms.buttonDown(OIS::MB_Middle))
     {
-        lastMouseY = ms.Y.abs;
-        lastMouseX = ms.X.abs;
+        lastMouseY   = ms.Y.abs;
+        lastMouseX   = ms.X.abs;
         Ray mouseRay = getMouseRay();
 
         if (App::sim_state.GetActive() == SimState::EDITOR_MODE)
@@ -240,7 +229,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
             return true;
         }
 
-        Actor* player_actor = App::GetSimController()->GetPlayerActor();
+        Actor *player_actor = App::GetSimController()->GetPlayerActor();
 
         // Reselect the player actor
         {
@@ -250,7 +239,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
             {
                 if (actor != player_actor)
                 {
-                    Vector3 pos = actor->getPosition();
+                    Vector3               pos  = actor->getPosition();
                     std::pair<bool, Real> pair = mouseRay.intersects(Sphere(pos, actor->getMinCameraRadius()));
                     if (pair.first)
                     {
@@ -269,21 +258,22 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
         if (player_actor && App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE)
         {
             Real nearest_camera_distance = std::numeric_limits<float>::max();
-            Real nearest_ray_distance = std::numeric_limits<float>::max();
-            int nearest_node_index = -1;
+            Real nearest_ray_distance    = std::numeric_limits<float>::max();
+            int  nearest_node_index      = -1;
 
             for (int i = 0; i < player_actor->ar_num_nodes; i++)
             {
-                Vector3 pos = player_actor->ar_nodes[i].AbsPosition;
+                Vector3               pos  = player_actor->ar_nodes[i].AbsPosition;
                 std::pair<bool, Real> pair = mouseRay.intersects(Sphere(pos, 0.25f));
                 if (pair.first)
                 {
                     Real ray_distance = mouseRay.getDirection().crossProduct(pos - mouseRay.getOrigin()).length();
-                    if (ray_distance < nearest_ray_distance || (ray_distance == nearest_ray_distance && pair.second < nearest_camera_distance))
+                    if (ray_distance < nearest_ray_distance ||
+                        (ray_distance == nearest_ray_distance && pair.second < nearest_camera_distance))
                     {
                         nearest_camera_distance = pair.second;
-                        nearest_ray_distance = ray_distance;
-                        nearest_node_index = i;
+                        nearest_ray_distance    = ray_distance;
+                        nearest_node_index      = i;
                     }
                 }
             }
@@ -301,33 +291,31 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
     return true;
 }
 
-bool SceneMouse::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool SceneMouse::mouseReleased(const OIS::MouseEvent &_arg, OIS::MouseButtonID _id)
 {
     if (App::sim_state.GetActive() == SimState::PAUSED) { return true; } // Do nothing when paused
 
     App::GetSimController()->SetTerrainEditorMouseRay(Ray(Vector3::ZERO, Vector3::ZERO));
 
-    if (mouseGrabState == 1)
-    {
-        releaseMousePick();
-    }
+    if (mouseGrabState == 1) { releaseMousePick(); }
 
     return true;
 }
 
-bool SceneMouse::keyPressed(const OIS::KeyEvent& _arg)
+bool SceneMouse::keyPressed(const OIS::KeyEvent &_arg)
 {
     return false;
 }
 
-bool SceneMouse::keyReleased(const OIS::KeyEvent& _arg)
+bool SceneMouse::keyReleased(const OIS::KeyEvent &_arg)
 {
     return false;
 }
 
 Ray SceneMouse::getMouseRay()
 {
-    Viewport* vp = gEnv->mainCamera->getViewport();
+    Viewport *vp = gEnv->mainCamera->getViewport();
 
-    return gEnv->mainCamera->getCameraToViewportRay((float)lastMouseX / (float)vp->getActualWidth(), (float)lastMouseY / (float)vp->getActualHeight());
+    return gEnv->mainCamera->getCameraToViewportRay((float)lastMouseX / (float)vp->getActualWidth(),
+                                                    (float)lastMouseY / (float)vp->getActualHeight());
 }

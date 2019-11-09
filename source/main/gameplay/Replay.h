@@ -30,52 +30,55 @@ struct node_simple_t
 
 struct beam_simple_t
 {
-    bool broken:1;
-    bool disabled:1;
+    bool broken : 1;
+    bool disabled : 1;
 };
 
 class Replay : public ZeroedMemoryAllocator
 {
-public:
-    Replay(Actor* b, int nframes);
+  public:
+    Replay(Actor *b, int nframes);
     ~Replay();
 
-    void* getWriteBuffer(int type);
-    void* getReadBuffer(int offset, int type, unsigned long& time);
+    void *        getWriteBuffer(int type);
+    void *        getReadBuffer(int offset, int type, unsigned long &time);
     unsigned long getLastReadTime();
-    void writeDone();
+    void          writeDone();
 
     void setHidden(bool value);
 
     void setVisible(bool value);
     bool getVisible();
 
-    bool isValid() { return numFrames && !outOfMemory; };
+    bool isValid()
+    {
+        return numFrames && !outOfMemory;
+    };
 
-protected:
-    Ogre::Timer* replayTimer;
-    int numNodes;
-    int numBeams;
-    int numFrames;
-    bool outOfMemory;
+  protected:
+    Ogre::Timer *replayTimer;
+    int          numNodes;
+    int          numBeams;
+    int          numFrames;
+    bool         outOfMemory;
 
     bool hidden;
     bool visible;
 
-    int writeIndex;
-    int firstRun;
+    int           writeIndex;
+    int           firstRun;
     unsigned long curFrameTime;
-    int curOffset;
+    int           curOffset;
 
     // malloc'ed
-    node_simple_t* nodes;
-    beam_simple_t* beams;
-    unsigned long* times;
+    node_simple_t *nodes;
+    beam_simple_t *beams;
+    unsigned long *times;
 
     // windowing
-    MyGUI::WidgetPtr panel;
+    MyGUI::WidgetPtr     panel;
     MyGUI::StaticTextPtr txt;
-    MyGUI::ProgressPtr pr;
+    MyGUI::ProgressPtr   pr;
 
     void updateGUI();
 };

@@ -20,30 +20,32 @@
 
 #pragma once
 
-#include <Ogre.h>
-
 #include "RoRPrerequisites.h"
+
+#include <Ogre.h>
 
 // dynamic roads
 class Road2 : public ZeroedMemoryAllocator
 {
-public:
-
+  public:
     Road2(int id);
     ~Road2();
 
-    void addBlock(Ogre::Vector3 pos, Ogre::Quaternion rot, int type, float width, float bwidth, float bheight, int pillartype = 1);
+    void addBlock(Ogre::Vector3 pos, Ogre::Quaternion rot, int type, float width, float bwidth, float bheight,
+                  int pillartype = 1);
     /**
      * @param p1 Top left point.
      * @param p2 Top right point.
      */
-    void addQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, int texfit, bool collision, Ogre::Vector3 pos, Ogre::Vector3 lastpos, float width, bool flip = false);
-    void addCollisionQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, ground_model_t* gm, bool flip = false);
+    void addQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, int texfit, bool collision,
+                 Ogre::Vector3 pos, Ogre::Vector3 lastpos, float width, bool flip = false);
+    void addCollisionQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, ground_model_t *gm,
+                          bool flip = false);
     void createMesh();
     void finish();
 
     static const unsigned int MAX_VERTEX = 50000;
-    static const unsigned int MAX_TRIS = 50000;
+    static const unsigned int MAX_TRIS   = 50000;
 
     enum
     {
@@ -71,11 +73,12 @@ public:
         TEXFIT_CONCRETEUNDER
     };
 
-private:
-
+  private:
     inline Ogre::Vector3 baseOf(Ogre::Vector3 p);
-    void computePoints(Ogre::Vector3* pts, Ogre::Vector3 pos, Ogre::Quaternion rot, int type, float width, float bwidth, float bheight);
-    void textureFit(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, int texfit, Ogre::Vector2* texc, Ogre::Vector3 pos, Ogre::Vector3 lastpos, float width);
+    void computePoints(Ogre::Vector3 *pts, Ogre::Vector3 pos, Ogre::Quaternion rot, int type, float width, float bwidth,
+                       float bheight);
+    void textureFit(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, int texfit, Ogre::Vector2 *texc,
+                    Ogre::Vector3 pos, Ogre::Vector3 lastpos, float width);
 
     typedef struct
     {
@@ -84,24 +87,23 @@ private:
         Ogre::Vector2 texcoord;
     } CoVertice_t;
 
-    Ogre::MeshPtr msh;
-    Ogre::SubMesh* mainsub;
+    Ogre::MeshPtr  msh;
+    Ogre::SubMesh *mainsub;
 
     Ogre::Vector2 tex[MAX_VERTEX];
     Ogre::Vector3 vertex[MAX_VERTEX];
-    int tricount;
-    int vertexcount;
-    short tris[MAX_TRIS * 3];
+    int           tricount;
+    int           vertexcount;
+    short         tris[MAX_TRIS * 3];
 
     Ogre::Quaternion lastrot;
-    Ogre::SceneNode* snode;
-    Ogre::Vector3 lastpos;
-    bool first;
-    float lastbheight;
-    float lastbwidth;
-    float lastwidth;
-    int lasttype;
-    int mid;
+    Ogre::SceneNode *snode;
+    Ogre::Vector3    lastpos;
+    bool             first;
+    float            lastbheight;
+    float            lastbwidth;
+    float            lastwidth;
+    int              lasttype;
+    int              mid;
     std::vector<int> registeredCollTris;
 };
-

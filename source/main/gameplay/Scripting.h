@@ -25,8 +25,8 @@
 #include "ScriptEvents.h"
 
 #ifdef USE_ANGELSCRIPT
-# include "ScriptEngine.h"
-# define TRIGGER_EVENT(x, y) ScriptEngine::getSingleton().triggerEvent(x, y)
+    #include "ScriptEngine.h"
+    #define TRIGGER_EVENT(x, y) ScriptEngine::getSingleton().triggerEvent(x, y)
 #else
-# define TRIGGER_EVENT(x, y)
+    #define TRIGGER_EVENT(x, y)
 #endif // USE_ANGELSCRIPT

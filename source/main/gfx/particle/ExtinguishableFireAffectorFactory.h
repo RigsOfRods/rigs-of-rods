@@ -20,32 +20,38 @@
 
 #pragma once
 
-#include <OgreParticleAffectorFactory.h>
-#include <OgreIteratorWrappers.h>
-
 #include "ExtinguishableFireAffector.h"
 
-namespace Ogre {
+#include <OgreIteratorWrappers.h>
+#include <OgreParticleAffectorFactory.h>
 
-/** Factory class for DeflectorPlaneAffector. */
-class ExtinguishableFireAffectorFactory : public ParticleAffectorFactory
+namespace Ogre
 {
-    /** See ParticleAffectorFactory */
-    String getName() const { return "ExtinguishableFire"; }
 
-    /** See ParticleAffectorFactory */
-    Ogre::ParticleAffector* createAffector(Ogre::ParticleSystem* psys)
+    /** Factory class for DeflectorPlaneAffector. */
+    class ExtinguishableFireAffectorFactory : public ParticleAffectorFactory
     {
-        Ogre::ParticleAffector* p = OGRE_NEW ExtinguishableFireAffector(psys);
-        mAffectors.push_back(p);
-        return p;
-    }
+        /** See ParticleAffectorFactory */
+        String getName() const
+        {
+            return "ExtinguishableFire";
+        }
 
-public:
+        /** See ParticleAffectorFactory */
+        Ogre::ParticleAffector *createAffector(Ogre::ParticleSystem *psys)
+        {
+            Ogre::ParticleAffector *p = OGRE_NEW ExtinguishableFireAffector(psys);
+            mAffectors.push_back(p);
+            return p;
+        }
 
-    typedef VectorIterator<vector<ParticleAffector*>::type> affectorIterator;
+      public:
+        typedef VectorIterator<vector<ParticleAffector *>::type> affectorIterator;
 
-    /** Allow external access to the mFactories iterator */
-    affectorIterator getAffectorIterator() { return affectorIterator(mAffectors.begin(), mAffectors.end()); }
-};
+        /** Allow external access to the mFactories iterator */
+        affectorIterator getAffectorIterator()
+        {
+            return affectorIterator(mAffectors.begin(), mAffectors.end());
+        }
+    };
 } // namespace Ogre

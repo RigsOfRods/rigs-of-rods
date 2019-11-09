@@ -23,97 +23,105 @@
 
 #pragma once
 
+#define CONSOLE_PUTMESSAGE(a, b, c, d, e, f)                                                                                     \
+    while (0)                                                                                                                    \
+    {                                                                                                                            \
+        Console *console = RoR::App::GetConsole();                                                                               \
+        if (console) console->putMessage(a, b, c, d, e, f);                                                                      \
+    }
+#define CONSOLE_PUTMESSAGE_SHORT(a, b, c)                                                                                        \
+    while (0)                                                                                                                    \
+    {                                                                                                                            \
+        Console *console = RoR::App::GetConsole();                                                                               \
+        if (console) console->putMessage(a, b, c);                                                                               \
+    }
 
-#define CONSOLE_PUTMESSAGE(a,b,c,d,e,f) while(0) { Console *console = RoR::App::GetConsole(); if (console) console->putMessage(a,b,c,d,e,f); }
-#define CONSOLE_PUTMESSAGE_SHORT(a,b,c) while(0) { Console *console = RoR::App::GetConsole(); if (console) console->putMessage(a,b,c); }
-
-#include "RoRPrerequisites.h"
-#include "InterThreadStoreVector.h"
-
-#include "mygui/BaseLayout.h"
 #include "GUI_GameConsoleLayout.h"
+#include "InterThreadStoreVector.h"
+#include "RoRPrerequisites.h"
+#include "mygui/BaseLayout.h"
 
-namespace RoR {
-// Special - not in namespace GUI
-
-struct ConsoleMessage
+namespace RoR
 {
-    //Kept this for comptability rather than remplacing hunderd of lines.
-    char type;
-    int sender_uid; //Not used
-    unsigned long time; //Not used !< post time in milliseconds since RoR start
-    unsigned long ttl; //Not used !< in milliseconds
-    Ogre::UTFString txt; //!< not POD, beware...
-    char icon[50]; //Not used
-    bool forcevisible; //Not used
-};
+    // Special - not in namespace GUI
 
-class Console :
-    public Ogre::LogListener,
-    public InterThreadStoreVector<ConsoleMessage>,
-    public GUI::GameConsoleLayout,
-    public ZeroedMemoryAllocator
-{
-public:
-
-    Console();
-    ~Console();
-
-    void SetVisible(bool _visible);
-    bool IsVisible();
-
-    enum
+    struct ConsoleMessage
     {
-        CONSOLE_MSGTYPE_LOG,
-        CONSOLE_MSGTYPE_INFO,
-        CONSOLE_MSGTYPE_SCRIPT,
-        CONSOLE_MSGTYPE_NETWORK,
-        CONSOLE_MSGTYPE_FLASHMESSAGE,
-        CONSOLE_MSGTYPE_HIGHSCORE
+        // Kept this for comptability rather than remplacing hunderd of lines.
+        char            type;
+        int             sender_uid;   // Not used
+        unsigned long   time;         // Not used !< post time in milliseconds since RoR start
+        unsigned long   ttl;          // Not used !< in milliseconds
+        Ogre::UTFString txt;          //!< not POD, beware...
+        char            icon[50];     // Not used
+        bool            forcevisible; // Not used
     };
 
-    enum
+    class Console : public Ogre::LogListener,
+                    public InterThreadStoreVector<ConsoleMessage>,
+                    public GUI::GameConsoleLayout,
+                    public ZeroedMemoryAllocator
     {
-        // detailed message type identifier, mostly used for message filtering
-        CONSOLE_HELP,
-        CONSOLE_TITLE,
+      public:
+        Console();
+        ~Console();
 
-        CONSOLE_LOCAL_SCRIPT, // script self
+        void SetVisible(bool _visible);
+        bool IsVisible();
 
-        CONSOLE_SYSTEM_NOTICE,
-        CONSOLE_SYSTEM_ERROR,
-        CONSOLE_SYSTEM_REPLY, // reply to a commands
+        enum
+        {
+            CONSOLE_MSGTYPE_LOG,
+            CONSOLE_MSGTYPE_INFO,
+            CONSOLE_MSGTYPE_SCRIPT,
+            CONSOLE_MSGTYPE_NETWORK,
+            CONSOLE_MSGTYPE_FLASHMESSAGE,
+            CONSOLE_MSGTYPE_HIGHSCORE
+        };
 
-        CONSOLE_SYSTEM_DEBUG,
+        enum
+        {
+            // detailed message type identifier, mostly used for message filtering
+            CONSOLE_HELP,
+            CONSOLE_TITLE,
 
-        CONSOLE_LOGMESSAGE,
-        CONSOLE_LOGMESSAGE_SCRIPT,
+            CONSOLE_LOCAL_SCRIPT, // script self
 
-        MSG_CUSTOM,
+            CONSOLE_SYSTEM_NOTICE,
+            CONSOLE_SYSTEM_ERROR,
+            CONSOLE_SYSTEM_REPLY, // reply to a commands
+
+            CONSOLE_SYSTEM_DEBUG,
+
+            CONSOLE_LOGMESSAGE,
+            CONSOLE_LOGMESSAGE_SCRIPT,
+
+            MSG_CUSTOM,
+        };
+
+        void putMessage(int type, int uid, Ogre::UTFString msg, Ogre::String icon = "bullet_black.png", unsigned long ttl = 30000,
+                        bool forcevisible = false);
+
+      protected:
+        void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string &_name);
+        void messageUpdate(float dt);
+
+        Ogre::String    ConsoleText;
+        Ogre::UTFString TextCol;
+        bool            angelscriptMode;
+
+        void frameEntered(float dt);
+
+        void messageLogged(const Ogre::String &message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName,
+                           bool &skipThisMessage);
+
+        void eventCommandAccept(MyGUI::Edit *_sender);
+        void eventMouseButtonClickSendButton(MyGUI::WidgetPtr _sender);
+        void eventButtonPressed(MyGUI::Widget *_sender, MyGUI::KeyCode _key, MyGUI::Char _char);
+
+        Ogre::String sTextHistory[500];
+        int          iText;
+        int          HistoryCursor;
     };
-
-    void putMessage(int type, int uid, Ogre::UTFString msg, Ogre::String icon = "bullet_black.png", unsigned long ttl = 30000, bool forcevisible = false);
-
-protected:
-
-    void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
-    void messageUpdate(float dt);
-
-    Ogre::String ConsoleText;
-    Ogre::UTFString TextCol;
-    bool angelscriptMode;
-
-    void frameEntered(float dt);
-
-    void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);
-
-    void eventCommandAccept(MyGUI::Edit* _sender);
-    void eventMouseButtonClickSendButton(MyGUI::WidgetPtr _sender);
-    void eventButtonPressed(MyGUI::Widget* _sender, MyGUI::KeyCode _key, MyGUI::Char _char);
-
-    Ogre::String sTextHistory[500];
-    int iText;
-    int HistoryCursor;
-};
 
 } // namespace RoR

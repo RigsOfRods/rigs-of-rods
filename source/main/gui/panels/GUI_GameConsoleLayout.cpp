@@ -11,7 +11,7 @@
 using namespace RoR;
 using namespace GUI;
 
-GameConsoleLayout::GameConsoleLayout(MyGUI::Widget* _parent)
+GameConsoleLayout::GameConsoleLayout(MyGUI::Widget *_parent)
 {
     initialiseByAttributes(this, _parent);
 }

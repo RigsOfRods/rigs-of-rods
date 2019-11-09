@@ -8,34 +8,33 @@
 // Do not modify this code directly. Create a derived class instead.
 // ----------------------------------------------------------------------------
 
-#include "ForwardDeclarations.h"
 #include "BaseLayout.h"
+#include "ForwardDeclarations.h"
 
-namespace RoR {
-namespace GUI {
-
-ATTRIBUTE_CLASS_LAYOUT(GameChatBoxLayout, "Chatbox.layout");
-class GameChatBoxLayout : public wraps::BaseLayout
+namespace RoR
 {
+    namespace GUI
+    {
 
-public:
+        ATTRIBUTE_CLASS_LAYOUT(GameChatBoxLayout, "Chatbox.layout");
+        class GameChatBoxLayout : public wraps::BaseLayout
+        {
 
-    GameChatBoxLayout(MyGUI::Widget* _parent = nullptr);
-    virtual ~GameChatBoxLayout();
+          public:
+            GameChatBoxLayout(MyGUI::Widget *_parent = nullptr);
+            virtual ~GameChatBoxLayout();
 
-protected:
+          protected:
+            //%LE Widget_Declaration list start
+            ATTRIBUTE_FIELD_WIDGET_NAME(GameChatBoxLayout, m_Chatbox_MainBox, "Chatbox_MainBox");
+            MyGUI::EditBox *m_Chatbox_MainBox;
 
-    //%LE Widget_Declaration list start
-    ATTRIBUTE_FIELD_WIDGET_NAME(GameChatBoxLayout, m_Chatbox_MainBox, "Chatbox_MainBox");
-    MyGUI::EditBox* m_Chatbox_MainBox;
+            ATTRIBUTE_FIELD_WIDGET_NAME(GameChatBoxLayout, m_Chatbox_TextBox, "Chatbox_TextBox");
+            MyGUI::EditBox *m_Chatbox_TextBox;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(GameChatBoxLayout, m_Chatbox_TextBox, "Chatbox_TextBox");
-    MyGUI::EditBox* m_Chatbox_TextBox;
+            //%LE Widget_Declaration list end
+        };
 
-    //%LE Widget_Declaration list end
-};
-
-} // namespace GUI
+    } // namespace GUI
 
 } // namespace RoR
-

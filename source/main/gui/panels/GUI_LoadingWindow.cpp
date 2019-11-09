@@ -18,42 +18,44 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "GUI_LoadingWindow.h"
 
 #include "GUIManager.h"
 #include "Language.h"
 #include "Utils.h"
 
-namespace RoR {
-namespace GUI {
-
-LoadingWindow::LoadingWindow()
+namespace RoR
 {
-    initialiseByAttributes(this);
-
-    MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
-    mMainWidget->setPosition(gui_area.width / 2 - mMainWidget->getWidth() / 2, gui_area.height / 2 - mMainWidget->getHeight() / 2);
-    ((MyGUI::Window*)mMainWidget)->setCaption(_L("Loading ..."));
-    mMainWidget->setVisible(false);
-}
-
-void LoadingWindow::setProgress(int _percent, const Ogre::UTFString& _text, bool force_update)
-{
-    mMainWidget->setVisible(true);
-    mInfoStaticText->setCaption(convertToMyGUIString(_text));
-
-    mBarProgress->setProgressAutoTrack(false);
-    mBarProgress->setProgressPosition(_percent);
-
-    if (force_update || m_timer.getMilliseconds() > 10)
+    namespace GUI
     {
-        m_timer.reset();
-        // we must pump the window messages, otherwise the window will get white on Vista ...
-        OgreBites::WindowEventUtilities::messagePump();
-        Ogre::Root::getSingleton().renderOneFrame();
-    }
-}
 
-} // namespace GUI
+        LoadingWindow::LoadingWindow()
+        {
+            initialiseByAttributes(this);
+
+            MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
+            mMainWidget->setPosition(gui_area.width / 2 - mMainWidget->getWidth() / 2,
+                                     gui_area.height / 2 - mMainWidget->getHeight() / 2);
+            ((MyGUI::Window *)mMainWidget)->setCaption(_L("Loading ..."));
+            mMainWidget->setVisible(false);
+        }
+
+        void LoadingWindow::setProgress(int _percent, const Ogre::UTFString &_text, bool force_update)
+        {
+            mMainWidget->setVisible(true);
+            mInfoStaticText->setCaption(convertToMyGUIString(_text));
+
+            mBarProgress->setProgressAutoTrack(false);
+            mBarProgress->setProgressPosition(_percent);
+
+            if (force_update || m_timer.getMilliseconds() > 10)
+            {
+                m_timer.reset();
+                // we must pump the window messages, otherwise the window will get white on Vista ...
+                OgreBites::WindowEventUtilities::messagePump();
+                Ogre::Root::getSingleton().renderOneFrame();
+            }
+        }
+
+    } // namespace GUI
 } // namespace RoR

@@ -8,57 +8,56 @@
 // Do not modify this code directly. Create a derived class instead.
 // ----------------------------------------------------------------------------
 
-#include "ForwardDeclarations.h"
 #include "BaseLayout.h"
+#include "ForwardDeclarations.h"
 
-namespace RoR {
-namespace GUI {
-
-ATTRIBUTE_CLASS_LAYOUT(MainSelectorLayout, "SelectorWindow.layout");
-class MainSelectorLayout : public wraps::BaseLayout
+namespace RoR
 {
+    namespace GUI
+    {
 
-public:
+        ATTRIBUTE_CLASS_LAYOUT(MainSelectorLayout, "SelectorWindow.layout");
+        class MainSelectorLayout : public wraps::BaseLayout
+        {
 
-    MainSelectorLayout(MyGUI::Widget* _parent = nullptr);
-    virtual ~MainSelectorLayout();
+          public:
+            MainSelectorLayout(MyGUI::Widget *_parent = nullptr);
+            virtual ~MainSelectorLayout();
 
-protected:
+          protected:
+            //%LE Widget_Declaration list start
+            ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Type, "Type");
+            MyGUI::ComboBox *m_Type;
 
-    //%LE Widget_Declaration list start
-    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Type, "Type");
-    MyGUI::ComboBox* m_Type;
+            ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Model, "Model");
+            MyGUI::ListBox *m_Model;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Model, "Model");
-    MyGUI::ListBox* m_Model;
+            ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_SearchLine, "SearchLine");
+            MyGUI::EditBox *m_SearchLine;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_SearchLine, "SearchLine");
-    MyGUI::EditBox* m_SearchLine;
+            ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_EntryName, "EntryName");
+            MyGUI::TextBox *m_EntryName;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_EntryName, "EntryName");
-    MyGUI::TextBox* m_EntryName;
+            ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_EntryDescription, "EntryDescription");
+            MyGUI::TextBox *m_EntryDescription;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_EntryDescription, "EntryDescription");
-    MyGUI::TextBox* m_EntryDescription;
+            ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Config, "Config");
+            MyGUI::ComboBox *m_Config;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Config, "Config");
-    MyGUI::ComboBox* m_Config;
+            ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_PreviewBox, "PreviewBox");
+            MyGUI::Widget *m_PreviewBox;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_PreviewBox, "PreviewBox");
-    MyGUI::Widget* m_PreviewBox;
+            ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Preview, "Preview");
+            MyGUI::ImageBox *m_Preview;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Preview, "Preview");
-    MyGUI::ImageBox* m_Preview;
+            ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Ok, "Ok");
+            MyGUI::Button *m_Ok;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Ok, "Ok");
-    MyGUI::Button* m_Ok;
+            ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Cancel, "Cancel");
+            MyGUI::Button *m_Cancel;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Cancel, "Cancel");
-    MyGUI::Button* m_Cancel;
+            //%LE Widget_Declaration list end
+        };
 
-    //%LE Widget_Declaration list end
-};
-
-} // namespace GUI
+    } // namespace GUI
 } // namespace RoR
-

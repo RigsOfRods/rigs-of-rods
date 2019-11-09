@@ -19,65 +19,63 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /// @file   ForwardDeclarations.h
 /// @brief  Global forward declarations.
 /// @author Petr Ohlidal
 /// @date   12/2013
 
-
 #pragma once
 
 namespace RoR
 {
-    class  ActorManager;
-    class  CameraManager;
-    class  ConfigFile;
-    class  Console;
-    class  ContentManager;
-    class  FlexBodyFileIO;
+    class ActorManager;
+    class CameraManager;
+    class ConfigFile;
+    class Console;
+    class ContentManager;
+    class FlexBodyFileIO;
     struct FlexBodyCacheData;
-    class  FlexFactory;
-    class  GfxActor;
+    class FlexFactory;
+    class GfxActor;
     struct GfxCharacter;
-    class  GfxScene;
-    class  GUIManager;
+    class GfxScene;
+    class GUIManager;
     struct GuiManagerImpl;
-    class  GuiManagerInterface;
-    class  MainMenu;
-    class  OgreSubsystem;
+    class GuiManagerInterface;
+    class MainMenu;
+    class OgreSubsystem;
     struct PlatformUtils;
-    class  Renderdash;
-    class  RigLoadingProfiler;
-    class  SceneMouse;
-    class  Skidmark;
-    class  SkidmarkConfig;
+    class Renderdash;
+    class RigLoadingProfiler;
+    class SceneMouse;
+    class Skidmark;
+    class SkidmarkConfig;
     struct SkinDef;
-    class  SkinManager;
+    class SkinManager;
     struct Terrn2Author;
     struct Terrn2Def;
-    class  Terrn2Parser;
+    class Terrn2Parser;
     struct Terrn2Telepoint;
 
     namespace GUI
     {
-        class  Dialog;
-        class  FrictionSettings;
-        class  GameMainMenu;
-        class  GamePauseMenu;
-        class  LoadingWindow;
-        class  MainSelector;
-        class  MpClientList;
-        class  MultiplayerSelector;
-        class  OpenSaveFileDialog;
-        class  SimUtils;
-        class  TopMenubar;
-    }
+        class Dialog;
+        class FrictionSettings;
+        class GameMainMenu;
+        class GamePauseMenu;
+        class LoadingWindow;
+        class MainSelector;
+        class MpClientList;
+        class MultiplayerSelector;
+        class OpenSaveFileDialog;
+        class SimUtils;
+        class TopMenubar;
+    } // namespace GUI
 } // namespace RoR
 
 namespace MyGUI
 {
-    class  OgrePlatform;
+    class OgrePlatform;
 }
 
 namespace RoRnet
@@ -88,7 +86,7 @@ namespace RoRnet
     struct ActorStreamRegister;
     struct ServerInfo;
     struct VehicleState;
-}
+} // namespace RoRnet
 
 struct node_t;
 struct beam_t;
@@ -127,7 +125,7 @@ namespace Ogre
     class Overlay;
     class RenderTarget;
     class TerrainGroup;
-}
+} // namespace Ogre
 
 class Actor;
 class ActorSpawner;

@@ -25,10 +25,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 #include <mutex>
 #include <queue>
-#include <thread>
 #include <stdexcept>
+#include <thread>
 #include <vector>
-
 
 /** /brief Handle for a task executed by ThreadPool
  *
@@ -41,7 +40,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class Task
 {
     friend class ThreadPool;
-    public:
+
+  public:
     /// Block the current thread and wait for the associated task to finish.
     void join() const
     {
@@ -60,26 +60,29 @@ class Task
         //    - locks task_mutex
         //    - is_finished will be true
         std::unique_lock<std::mutex> lock(m_task_mutex);
-        m_finish_cv.wait(lock, [this]{ return m_is_finished; });
+        m_finish_cv.wait(lock, [this] { return m_is_finished; });
     }
 
-    private:
+  private:
     // Only constructable by friend class ThreadPool
-    Task(std::function<void()> task_func) : m_task_func(task_func) {}
-    Task(Task &) = delete;
-    Task & operator=(Task &) = delete;
+    Task(std::function<void()> task_func) : m_task_func(task_func)
+    {
+    }
+    Task(Task &)  = delete;
+    Task &operator=(Task &) = delete;
 
-    bool m_is_finished = false;                   ///< Indicates whether the task execution has finished.
-    mutable std::condition_variable m_finish_cv;  ///< Used to signal the current thread when the task has finished.
-    mutable std::mutex m_task_mutex;              ///< Mutex which is locked while the task is running.
-    const std::function<void()> m_task_func;      ///< Callable object which implements the task to execute.
+    bool                            m_is_finished = false; ///< Indicates whether the task execution has finished.
+    mutable std::condition_variable m_finish_cv;           ///< Used to signal the current thread when the task has finished.
+    mutable std::mutex              m_task_mutex;          ///< Mutex which is locked while the task is running.
+    const std::function<void()>     m_task_func;           ///< Callable object which implements the task to execute.
 };
 
 /** \brief Facilitates execution of (small) tasks on separate threads.
  *
- * Implements a "rent-a-thread" model where each submitted task is assigned to one of several worker threads managed by the thread pool instance.
- * This is especially useful for short running tasks as it avoids the runtime cost of creating and launching a new thread. Notice, there
- * still is a certain overhead present due to the synchronization of threads required in the internal implementation.
+ * Implements a "rent-a-thread" model where each submitted task is assigned to one of several worker threads managed by the thread
+ * pool instance. This is especially useful for short running tasks as it avoids the runtime cost of creating and launching a new
+ * thread. Notice, there still is a certain overhead present due to the synchronization of threads required in the internal
+ * implementation.
  *
  * Usage example 1:
  * \code
@@ -99,8 +102,9 @@ class Task
  *
  * \see Task
  */
-class ThreadPool {
-public:
+class ThreadPool
+{
+  public:
     /** \brief Construct thread pool and launch worker threads.
      *
      * @param num_threads Number of worker threads to use
@@ -113,15 +117,17 @@ public:
         // are executed. It implements an endless loop (only returning when the ThreadPool
         // instance itself is destructed) which constantly checks the task queue, grabbing
         // and executing the frontmost task while the queue is not empty.
-        auto thread_body = [this]{ 
-            while (true) {
+        auto thread_body = [this] {
+            while (true)
+            {
                 // Get next task from queue (synchronized access via taskqueue_mutex).
                 // If the queue is empty wait until either
                 //   - being signaled about an available task.
                 //   - the terminate flag is true (i.e. the ThreadPool instance is being destructed).
                 //     In this case return from the running thread.
                 std::unique_lock<std::mutex> queue_lock(m_taskqueue_mutex);
-                while (m_taskqueue.empty()) {
+                while (m_taskqueue.empty())
+                {
                     if (m_terminate.load()) { return; }
                     m_task_available_cv.wait(queue_lock);
                 }
@@ -140,21 +146,27 @@ public:
         };
 
         // Launch the specified number of threads
-        for (int i = 0; i < num_threads; ++i) {
+        for (int i = 0; i < num_threads; ++i)
+        {
             m_threads.emplace_back(thread_body);
         }
     }
 
-    ~ThreadPool() {
+    ~ThreadPool()
+    {
         // Indicate termination and signal potential waiting threads to wake up.
         // Then wait for all threads to finish their work and return properly.
         m_terminate = true;
         m_task_available_cv.notify_all();
-        for (auto &t : m_threads) { t.join(); }
+        for (auto &t : m_threads)
+        {
+            t.join();
+        }
     }
 
     /// Submit new asynchronous task to thread pool and return Task handle to allow for synchronization.
-    std::shared_ptr<Task> RunTask(const std::function<void()> &task_func) {
+    std::shared_ptr<Task> RunTask(const std::function<void()> &task_func)
+    {
         // Wrap provided task callable object in task handle. Then append it to the task queue and
         // notify a waiting worker thread (if any) about the newly available task
         auto task = std::shared_ptr<Task>(new Task(task_func));
@@ -174,11 +186,11 @@ public:
         if (task_funcs.empty()) return;
 
         // Launch all provided tasks (except for the first) in parallel and store the associated handles
-        auto it = begin(task_funcs);
-        const auto first_task = it++;
+        auto                               it         = begin(task_funcs);
+        const auto                         first_task = it++;
         std::vector<std::shared_ptr<Task>> handles;
-        for(; it != end(task_funcs); ++it)
-        { 
+        for (; it != end(task_funcs); ++it)
+        {
             handles.push_back(RunTask(*it));
         }
 
@@ -186,12 +198,15 @@ public:
         (*first_task)();
 
         // Synchronize, i.e. wait for all parallelized tasks to complete
-        for(const auto &h : handles) { h->join(); }
+        for (const auto &h : handles)
+        {
+            h->join();
+        }
     }
 
-    std::atomic_bool m_terminate{false};            ///< Indicates destruction of ThreadPool instance to worker threads
-    std::vector<std::thread> m_threads;             ///< Collection of worker threads to run tasks
-    std::queue<std::shared_ptr<Task>> m_taskqueue;  ///< Queue of submitted tasks pending for execution
-    std::mutex m_taskqueue_mutex;                   ///< Protects task queue from concurrent access.
-    std::condition_variable m_task_available_cv;    ///< Used to signal threads that a new task was submitted and is ready to run.
+    std::atomic_bool                  m_terminate{false}; ///< Indicates destruction of ThreadPool instance to worker threads
+    std::vector<std::thread>          m_threads;          ///< Collection of worker threads to run tasks
+    std::queue<std::shared_ptr<Task>> m_taskqueue;        ///< Queue of submitted tasks pending for execution
+    std::mutex                        m_taskqueue_mutex;  ///< Protects task queue from concurrent access.
+    std::condition_variable m_task_available_cv; ///< Used to signal threads that a new task was submitted and is ready to run.
 };

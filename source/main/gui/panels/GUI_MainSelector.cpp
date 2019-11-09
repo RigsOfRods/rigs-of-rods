@@ -40,19 +40,15 @@
 using namespace RoR;
 using namespace GUI;
 
-#define CLASS        MainSelector
-#define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
+#define CLASS MainSelector
+#define MAIN_WIDGET ((MyGUI::Window *)mMainWidget)
 
-CLASS::CLASS() :
-    m_keys_bound(false)
-    , m_selected_entry(nullptr)
-    , m_selection_done(true)
-    , m_searching(false)
+CLASS::CLASS() : m_keys_bound(false), m_selected_entry(nullptr), m_selection_done(true), m_searching(false)
 {
     MAIN_WIDGET->setVisible(false);
 
     MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
-    win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::NotifyWindowButtonPressed); //The "X" button thing
+    win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::NotifyWindowButtonPressed); // The "X" button thing
     win->eventWindowChangeCoord += MyGUI::newDelegate(this, &CLASS::NotifyWindowChangeCoord);
 
     MyGUI::IntSize windowSize = MAIN_WIDGET->getSize();
@@ -73,7 +69,7 @@ CLASS::CLASS() :
 
     MAIN_WIDGET->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
 
-    //From old file
+    // From old file
     MAIN_WIDGET->setCaption(_L("Loader"));
 
     m_SearchLine->setCaption("");
@@ -117,16 +113,14 @@ void CLASS::BindKeys(bool bind)
     }
 }
 
-void CLASS::NotifyWindowChangeCoord(MyGUI::Window* _sender)
+void CLASS::NotifyWindowChangeCoord(MyGUI::Window *_sender)
 {
-    if (m_Preview->isVisible())
-        ResizePreviewImage();
+    if (m_Preview->isVisible()) ResizePreviewImage();
 }
 
 void CLASS::EventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode _key, MyGUI::Char _char)
 {
-    if (!mMainWidget->getVisible())
-        return;
+    if (!mMainWidget->getVisible()) return;
     int cid = (int)m_Type->getIndexSelected();
     int iid = (int)m_Model->getIndexSelected();
 
@@ -161,18 +155,12 @@ void CLASS::EventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode 
         if (_key == MyGUI::KeyCode::ArrowLeft)
         {
             newitem--;
-            if (cid == 0)
-            {
-                newitem = (int)m_Type->getItemCount() - 1;
-            }
+            if (cid == 0) { newitem = (int)m_Type->getItemCount() - 1; }
         }
         else
         {
             newitem++;
-            if (cid == (int)m_Type->getItemCount() - 1)
-            {
-                newitem = 0;
-            }
+            if (cid == (int)m_Type->getItemCount() - 1) { newitem = 0; }
         }
 
         try
@@ -195,11 +183,8 @@ void CLASS::EventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode 
         else
             newitem++;
 
-        //Annd fixed :3
-        if (iid == 0 && _key == MyGUI::KeyCode::ArrowUp)
-        {
-            newitem = (int)m_Model->getItemCount() - 1;
-        }
+        // Annd fixed :3
+        if (iid == 0 && _key == MyGUI::KeyCode::ArrowUp) { newitem = (int)m_Model->getItemCount() - 1; }
         else if (iid == (int)m_Model->getItemCount() - 1 && _key == MyGUI::KeyCode::ArrowDown)
         {
             newitem = 0;
@@ -218,17 +203,11 @@ void CLASS::EventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode 
         EventListChangePositionModelList(m_Model, newitem);
 
         // fix cursor position
-        if (searching)
-        {
-            m_SearchLine->setTextCursor(m_SearchLine->getTextLength());
-        }
+        if (searching) { m_SearchLine->setTextCursor(m_SearchLine->getTextLength()); }
     }
     else if (_key == MyGUI::KeyCode::Return)
     {
-        if (m_loader_type == LT_Skin || (m_loader_type != LT_Skin && m_selected_entry))
-        {
-            OnSelectionDone();
-        }
+        if (m_loader_type == LT_Skin || (m_loader_type != LT_Skin && m_selected_entry)) { OnSelectionDone(); }
     }
 }
 
@@ -243,10 +222,7 @@ void CLASS::Cancel()
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
 
-    if (App::sim_state.GetActive() == SimState::SELECTING)
-    {    
-        App::sim_state.SetActive(SimState::RUNNING);
-    }
+    if (App::sim_state.GetActive() == SimState::SELECTING) { App::sim_state.SetActive(SimState::RUNNING); }
 }
 
 void CLASS::EventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender)
@@ -261,19 +237,14 @@ void CLASS::EventMouseButtonClickCancelButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::EventComboChangePositionTypeComboBox(MyGUI::ComboBoxPtr _sender, size_t _index)
 {
-    if (!MAIN_WIDGET->getVisible())
-        return;
+    if (!MAIN_WIDGET->getVisible()) return;
 
-    if (_index < 0 || _index >= m_Type->getItemCount())
-        return;
+    if (_index < 0 || _index >= m_Type->getItemCount()) return;
 
     int categoryID = *m_Type->getItemDataAt<int>(_index);
     m_SearchLine->setCaption(_L("Search ..."));
     OnCategorySelected(categoryID);
-    if (!m_searching)
-    {
-        m_category_index[m_loader_type] = static_cast<int>(_index);
-    }
+    if (!m_searching) { m_category_index[m_loader_type] = static_cast<int>(_index); }
 }
 
 void CLASS::EventListChangePositionModelListAccept(MyGUI::ListPtr _sender, size_t _index)
@@ -284,54 +255,41 @@ void CLASS::EventListChangePositionModelListAccept(MyGUI::ListPtr _sender, size_
 
 void CLASS::EventListChangePositionModelList(MyGUI::ListPtr _sender, size_t _index)
 {
-    if (!MAIN_WIDGET->getVisible())
-        return;
+    if (!MAIN_WIDGET->getVisible()) return;
 
-    if (_index < 0 || _index >= m_Model->getItemCount())
-        return;
+    if (_index < 0 || _index >= m_Model->getItemCount()) return;
 
     int entryID = *m_Model->getItemDataAt<int>(_index);
     OnEntrySelected(entryID);
-    if (!m_searching)
-    {
-        m_entry_index[m_loader_type] = static_cast<int>(_index);
-    }
+    if (!m_searching) { m_entry_index[m_loader_type] = static_cast<int>(_index); }
 }
 
 void CLASS::EventComboAcceptConfigComboBox(MyGUI::ComboBoxPtr _sender, size_t _index)
 {
-    if (!MAIN_WIDGET->getVisible())
-        return;
+    if (!MAIN_WIDGET->getVisible()) return;
 
-    if (_index < 0 || _index >= m_Config->getItemCount())
-        return;
+    if (_index < 0 || _index >= m_Config->getItemCount()) return;
 
     m_actor_spawn_rq.asr_config = *m_Config->getItemDataAt<Ogre::String>(_index);
 }
 
-template <typename T1, typename T2>
-struct sort_cats
+template <typename T1, typename T2> struct sort_cats
 {
-    bool operator ()(std::pair<int, Ogre::String> const& a, std::pair<int, Ogre::String> const& b) const
+    bool operator()(std::pair<int, Ogre::String> const &a, std::pair<int, Ogre::String> const &b) const
     {
-        if (a.first == CacheSystem::CID_All)
-            return true;
-        if (b.first == CacheSystem::CID_All)
-            return false;
-        if (a.first == CacheSystem::CID_Fresh)
-            return true;
-        if (b.first == CacheSystem::CID_Fresh)
-            return false;
+        if (a.first == CacheSystem::CID_All) return true;
+        if (b.first == CacheSystem::CID_All) return false;
+        if (a.first == CacheSystem::CID_Fresh) return true;
+        if (b.first == CacheSystem::CID_Fresh) return false;
         return a.second < b.second;
     }
 };
 
-template <typename T1>
-struct sort_entries
+template <typename T1> struct sort_entries
 {
-    bool operator ()(CacheEntry const& a, CacheEntry const& b) const
+    bool operator()(CacheEntry const &a, CacheEntry const &b) const
     {
-        Ogre::String first = a.dname;
+        Ogre::String first  = a.dname;
         Ogre::String second = b.dname;
         Ogre::StringUtil::toLowerCase(first);
         Ogre::StringUtil::toLowerCase(second);
@@ -341,7 +299,7 @@ struct sort_entries
 
 struct sort_search_results
 {
-    bool operator ()(std::pair<CacheEntry*, size_t> const& a, std::pair<CacheEntry*, size_t> const& b) const
+    bool operator()(std::pair<CacheEntry *, size_t> const &a, std::pair<CacheEntry *, size_t> const &b) const
     {
         return a.second < b.second;
     }
@@ -355,23 +313,25 @@ void CLASS::UpdateGuiData()
     m_entries.clear();
 
     std::vector<std::time_t> timestamps;
-    std::vector<CacheEntry> entries = RoR::App::GetCacheSystem()->GetEntries();
+    std::vector<CacheEntry>  entries = RoR::App::GetCacheSystem()->GetEntries();
     std::sort(entries.begin(), entries.end(), sort_entries<CacheEntry>());
     for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++)
     {
         bool add = false;
-        if (it->fext == "terrn2")
-            add = (m_loader_type == LT_Terrain);
+        if (it->fext == "terrn2") add = (m_loader_type == LT_Terrain);
         if (it->fext == "skin")
             add = (m_loader_type == LT_Skin && it->guid == m_actor_spawn_rq.asr_cache_entry->guid);
         else if (it->fext == "truck")
-            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Vehicle || m_loader_type == LT_Truck || m_loader_type == LT_Network || m_loader_type == LT_NetworkWithBoat);
+            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Vehicle || m_loader_type == LT_Truck ||
+                   m_loader_type == LT_Network || m_loader_type == LT_NetworkWithBoat);
         else if (it->fext == "car")
-            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Vehicle || m_loader_type == LT_Truck || m_loader_type == LT_Car || m_loader_type == LT_Network || m_loader_type == LT_NetworkWithBoat);
+            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Vehicle || m_loader_type == LT_Truck ||
+                   m_loader_type == LT_Car || m_loader_type == LT_Network || m_loader_type == LT_NetworkWithBoat);
         else if (it->fext == "boat")
             add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Boat || m_loader_type == LT_NetworkWithBoat);
         else if (it->fext == "airplane")
-            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Airplane || m_loader_type == LT_Network || m_loader_type == LT_NetworkWithBoat);
+            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Airplane || m_loader_type == LT_Network ||
+                   m_loader_type == LT_NetworkWithBoat);
         else if (it->fext == "trailer")
             add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Trailer || m_loader_type == LT_Extension);
         else if (it->fext == "train")
@@ -379,16 +339,13 @@ void CLASS::UpdateGuiData()
         else if (it->fext == "load")
             add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Load || m_loader_type == LT_Extension);
 
-        if (!add)
-            continue;
+        if (!add) continue;
 
         // remove invalid category ID's
-        if (it->categoryid >= CacheSystem::CID_Max)
-            it->categoryid = -1;
+        if (it->categoryid >= CacheSystem::CID_Max) it->categoryid = -1;
 
         // category unsorted
-        if (it->categoryid == -1)
-            it->categoryid = CacheSystem::CID_Unsorted;
+        if (it->categoryid == -1) it->categoryid = CacheSystem::CID_Unsorted;
 
         mCategoryUsage[it->categoryid]++;
 
@@ -410,26 +367,23 @@ void CLASS::UpdateGuiData()
         }
     }
 
-    int tally_categories = 0, current_category = 0;
-    std::map<int, Ogre::String> cats = RoR::App::GetCacheSystem()->GetCategories();
+    int                                       tally_categories = 0, current_category = 0;
+    std::map<int, Ogre::String>               cats = RoR::App::GetCacheSystem()->GetCategories();
     std::vector<std::pair<int, Ogre::String>> sorted_cats(cats.begin(), cats.end());
     std::sort(sorted_cats.begin(), sorted_cats.end(), sort_cats<int, Ogre::String>());
-    for (const auto& cat : sorted_cats)
+    for (const auto &cat : sorted_cats)
     {
-        if (mCategoryUsage[cat.first] > 0)
-            tally_categories++;
+        if (mCategoryUsage[cat.first] > 0) tally_categories++;
     }
-    for (const auto& cat : sorted_cats)
+    for (const auto &cat : sorted_cats)
     {
         int num_elements = mCategoryUsage[cat.first];
         if (num_elements > 0)
         {
             Ogre::UTFString title = _L("unknown");
-            if (!cat.second.empty())
-            {
-                title = _L(cat.second.c_str());
-            }
-            Ogre::UTFString txt = U("[") + TOUTFSTRING(++current_category) + U("/") + TOUTFSTRING(tally_categories) + U("] (") + TOUTFSTRING(num_elements) + U(") ") + title;
+            if (!cat.second.empty()) { title = _L(cat.second.c_str()); }
+            Ogre::UTFString txt = U("[") + TOUTFSTRING(++current_category) + U("/") + TOUTFSTRING(tally_categories) + U("] (") +
+                                  TOUTFSTRING(num_elements) + U(") ") + title;
             m_Type->addItem(convertToMyGUIString(txt), cat.first);
         }
     }
@@ -442,7 +396,7 @@ void CLASS::UpdateGuiData()
     }
 }
 
-size_t CLASS::SearchCompare(Ogre::String searchString, CacheEntry* ce)
+size_t CLASS::SearchCompare(Ogre::String searchString, CacheEntry *ce)
 {
     if (searchString.find(":") == Ogre::String::npos)
     {
@@ -451,20 +405,17 @@ size_t CLASS::SearchCompare(Ogre::String searchString, CacheEntry* ce)
         // the name
         Ogre::String dname_lower = ce->dname;
         Ogre::StringUtil::toLowerCase(dname_lower);
-        if (dname_lower.find(searchString) != Ogre::String::npos)
-            return dname_lower.find(searchString);
+        if (dname_lower.find(searchString) != Ogre::String::npos) return dname_lower.find(searchString);
 
         // the filename
         Ogre::String fname_lower = ce->fname;
         Ogre::StringUtil::toLowerCase(fname_lower);
-        if (fname_lower.find(searchString) != Ogre::String::npos)
-            return 100 + fname_lower.find(searchString);
+        if (fname_lower.find(searchString) != Ogre::String::npos) return 100 + fname_lower.find(searchString);
 
         // the description
         Ogre::String desc = ce->description;
         Ogre::StringUtil::toLowerCase(desc);
-        if (desc.find(searchString) != Ogre::String::npos)
-            return 200 + desc.find(searchString);
+        if (desc.find(searchString) != Ogre::String::npos) return 200 + desc.find(searchString);
 
         // the authors
         if (!ce->authors.empty())
@@ -475,14 +426,12 @@ size_t CLASS::SearchCompare(Ogre::String searchString, CacheEntry* ce)
                 // author name
                 Ogre::String aname = it->name;
                 Ogre::StringUtil::toLowerCase(aname);
-                if (aname.find(searchString) != Ogre::String::npos)
-                    return 300 + aname.find(searchString);
+                if (aname.find(searchString) != Ogre::String::npos) return 300 + aname.find(searchString);
 
                 // author email
                 Ogre::String aemail = it->email;
                 Ogre::StringUtil::toLowerCase(aemail);
-                if (aemail.find(searchString) != Ogre::String::npos)
-                    return 400 + aemail.find(searchString);
+                if (aemail.find(searchString) != Ogre::String::npos) return 400 + aemail.find(searchString);
             }
         }
         return Ogre::String::npos;
@@ -490,8 +439,7 @@ size_t CLASS::SearchCompare(Ogre::String searchString, CacheEntry* ce)
     else
     {
         Ogre::StringVector v = Ogre::StringUtil::split(searchString, ":");
-        if (v.size() < 2)
-            return Ogre::String::npos; //invalid syntax
+        if (v.size() < 2) return Ogre::String::npos; // invalid syntax
 
         if (v[0] == "guid")
         {
@@ -510,14 +458,12 @@ size_t CLASS::SearchCompare(Ogre::String searchString, CacheEntry* ce)
                     // author name
                     Ogre::String aname = it->name;
                     Ogre::StringUtil::toLowerCase(aname);
-                    if (aname.find(v[1]) != Ogre::String::npos)
-                        return aname.find(v[1]);
+                    if (aname.find(v[1]) != Ogre::String::npos) return aname.find(v[1]);
 
                     // author email
                     Ogre::String aemail = it->email;
                     Ogre::StringUtil::toLowerCase(aemail);
-                    if (aemail.find(v[1]) != Ogre::String::npos)
-                        return aemail.find(v[1]);
+                    if (aemail.find(v[1]) != Ogre::String::npos) return aemail.find(v[1]);
                 }
             }
             return Ogre::String::npos;
@@ -541,33 +487,28 @@ void CLASS::OnCategorySelected(int categoryID)
 {
     m_Model->removeAllItems();
 
-    std::vector<std::pair<CacheEntry*, size_t>> entries;
+    std::vector<std::pair<CacheEntry *, size_t>> entries;
     entries.reserve(m_entries.size());
 
     if (categoryID == CacheSystem::CID_SearchResults)
     {
         Ogre::String search_cmd = m_SearchLine->getCaption();
         Ogre::StringUtil::toLowerCase(search_cmd);
-        for (auto& entry : m_entries)
+        for (auto &entry : m_entries)
         {
             size_t score = SearchCompare(search_cmd, &entry);
-            if (score != Ogre::String::npos)
-            {
-                entries.push_back(std::make_pair(&entry, score));
-            }
+            if (score != Ogre::String::npos) { entries.push_back(std::make_pair(&entry, score)); }
         }
         std::stable_sort(entries.begin(), entries.end(), sort_search_results());
     }
     else
     {
-        for (auto& entry : m_entries)
+        for (auto &entry : m_entries)
         {
-            if (entry.categoryid == categoryID || categoryID == CacheSystem::CID_All
-                || (categoryID == CacheSystem::CID_Fresh &&
-                    (entry.addtimestamp >= m_cache_file_freshness || entry.filetime >= m_cache_file_freshness - 86400)))
-            {
-                entries.push_back(std::make_pair(&entry, 0));
-            }
+            if (entry.categoryid == categoryID || categoryID == CacheSystem::CID_All ||
+                (categoryID == CacheSystem::CID_Fresh &&
+                 (entry.addtimestamp >= m_cache_file_freshness || entry.filetime >= m_cache_file_freshness - 86400)))
+            { entries.push_back(std::make_pair(&entry, 0)); }
         }
     }
 
@@ -578,7 +519,7 @@ void CLASS::OnCategorySelected(int categoryID)
 
     int count = 1;
 
-    for (const auto& entry : entries)
+    for (const auto &entry : entries)
     {
         try
         {
@@ -622,11 +563,10 @@ void CLASS::OnEntrySelected(int entryID)
 
 void CLASS::OnSelectionDone()
 {
-    if ((m_loader_type != LT_Skin && !m_selected_entry) || m_selection_done)
-        return;
+    if ((m_loader_type != LT_Skin && !m_selected_entry) || m_selection_done) return;
 
     m_selection_done = true;
-    
+
     bool new_actor_selected = false;
 
     if (m_selected_entry != nullptr) // Default skin is nullptr
@@ -635,8 +575,7 @@ void CLASS::OnSelectionDone()
 
     if (m_loader_type != LT_Skin)
     {
-        if (m_loader_type != LT_Terrain && m_loader_type != LT_Skin)
-            RoR::App::GetCacheSystem()->LoadResource(*m_selected_entry);
+        if (m_loader_type != LT_Terrain && m_loader_type != LT_Skin) RoR::App::GetCacheSystem()->LoadResource(*m_selected_entry);
 
         // Check if skins are available and show skin selector
         std::vector<CacheEntry> skin_entries = App::GetCacheSystem()->GetUsableSkins(m_selected_entry->guid);
@@ -651,7 +590,7 @@ void CLASS::OnSelectionDone()
             if (m_loader_type != LT_Terrain)
             {
                 m_actor_spawn_rq.asr_cache_entry = m_selected_entry;
-                new_actor_selected = true;
+                new_actor_selected               = true;
             }
         }
     }
@@ -666,14 +605,14 @@ void CLASS::OnSelectionDone()
         if (m_loader_type != LT_Terrain)
         {
             m_actor_spawn_rq.asr_skin_entry = m_selected_entry;
-            new_actor_selected = true;
+            new_actor_selected              = true;
         }
     }
 
     if (new_actor_selected)
     {
         ActorSpawnRequest rq = m_actor_spawn_rq; // actor+skin+sectionconfig entries already filled
-        rq.asr_origin         = ActorSpawnRequest::Origin::USER;
+        rq.asr_origin        = ActorSpawnRequest::Origin::USER;
         App::GetSimController()->QueueActorSpawn(rq);
         this->Reset();
         RoR::App::GetGuiManager()->UnfocusGui();
@@ -681,7 +620,7 @@ void CLASS::OnSelectionDone()
     App::sim_state.SetActive(SimState::RUNNING); // TODO: use 'Pending' mechanism!
 }
 
-void CLASS::UpdateControls(CacheEntry* entry)
+void CLASS::UpdateControls(CacheEntry *entry)
 {
     if (entry->sectionconfigs.size())
     {
@@ -706,7 +645,7 @@ void CLASS::UpdateControls(CacheEntry* entry)
     {
         m_Config->setVisible(false);
     }
-    Ogre::UTFString authors = "";
+    Ogre::UTFString        authors = "";
     std::set<Ogre::String> author_names;
     for (auto it = entry->authors.begin(); it != entry->authors.end(); it++)
     {
@@ -722,12 +661,9 @@ void CLASS::UpdateControls(CacheEntry* entry)
         Ogre::UTFString name = ANSI_TO_UTF(*it);
         authors.append(U(" ") + name);
     }
-    if (authors.length() == 0)
-    {
-        authors = _L("no author information available");
-    }
+    if (authors.length() == 0) { authors = _L("no author information available"); }
 
-    Ogre::UTFString c = U("#FF7D02"); // colour key shortcut
+    Ogre::UTFString c  = U("#FF7D02"); // colour key shortcut
     Ogre::UTFString nc = U("#FFFFFF"); // colour key shortcut
 
     Ogre::UTFString newline = U("\n");
@@ -736,18 +672,18 @@ void CLASS::UpdateControls(CacheEntry* entry)
 
     descriptiontxt = descriptiontxt + _L("Author(s): ") + c + authors + nc + newline;
 
-    if (entry->version > 0)
-        descriptiontxt = descriptiontxt + _L("Version: ") + c + TOUTFSTRING(entry->version) + nc + newline;
+    if (entry->version > 0) descriptiontxt = descriptiontxt + _L("Version: ") + c + TOUTFSTRING(entry->version) + nc + newline;
     if (entry->wheelcount > 0)
-        descriptiontxt = descriptiontxt + _L("Wheels: ") + c + TOUTFSTRING(entry->wheelcount) + U("x") + TOUTFSTRING(entry->propwheelcount) + nc + newline;
+        descriptiontxt = descriptiontxt + _L("Wheels: ") + c + TOUTFSTRING(entry->wheelcount) + U("x") +
+                         TOUTFSTRING(entry->propwheelcount) + nc + newline;
     if (entry->truckmass > 0)
-        descriptiontxt = descriptiontxt + _L("Mass: ") + c + TOUTFSTRING(Round(entry->truckmass / 1000.0f, 3)) + U(" ") + _L("tons") + nc + newline;
+        descriptiontxt = descriptiontxt + _L("Mass: ") + c + TOUTFSTRING(Round(entry->truckmass / 1000.0f, 3)) + U(" ") +
+                         _L("tons") + nc + newline;
     if (entry->loadmass > 0)
-        descriptiontxt = descriptiontxt + _L("Load Mass: ") + c + TOUTFSTRING(Round(entry->loadmass / 1000.0f, 3)) + U(" ") + _L("tons") + nc + newline;
-    if (entry->nodecount > 0)
-        descriptiontxt = descriptiontxt + _L("Nodes: ") + c + TOUTFSTRING(entry->nodecount) + nc + newline;
-    if (entry->beamcount > 0)
-        descriptiontxt = descriptiontxt + _L("Beams: ") + c + TOUTFSTRING(entry->beamcount) + nc + newline;
+        descriptiontxt = descriptiontxt + _L("Load Mass: ") + c + TOUTFSTRING(Round(entry->loadmass / 1000.0f, 3)) + U(" ") +
+                         _L("tons") + nc + newline;
+    if (entry->nodecount > 0) descriptiontxt = descriptiontxt + _L("Nodes: ") + c + TOUTFSTRING(entry->nodecount) + nc + newline;
+    if (entry->beamcount > 0) descriptiontxt = descriptiontxt + _L("Beams: ") + c + TOUTFSTRING(entry->beamcount) + nc + newline;
     if (entry->shockcount > 0)
         descriptiontxt = descriptiontxt + _L("Shocks: ") + c + TOUTFSTRING(entry->shockcount) + nc + newline;
     if (entry->hydroscount > 0)
@@ -762,8 +698,7 @@ void CLASS::UpdateControls(CacheEntry* entry)
         descriptiontxt = descriptiontxt + _L("Exhausts: ") + c + TOUTFSTRING(entry->exhaustscount) + nc + newline;
     if (entry->flarescount > 0)
         descriptiontxt = descriptiontxt + _L("Flares: ") + c + TOUTFSTRING(entry->flarescount) + nc + newline;
-    if (entry->torque > 0)
-        descriptiontxt = descriptiontxt + _L("Torque: ") + c + TOUTFSTRING(entry->torque) + nc + newline;
+    if (entry->torque > 0) descriptiontxt = descriptiontxt + _L("Torque: ") + c + TOUTFSTRING(entry->torque) + nc + newline;
     if (entry->flexbodiescount > 0)
         descriptiontxt = descriptiontxt + _L("Flexbodies: ") + c + TOUTFSTRING(entry->flexbodiescount) + nc + newline;
     if (entry->propscount > 0)
@@ -775,7 +710,8 @@ void CLASS::UpdateControls(CacheEntry* entry)
     if (entry->numgears > 0)
         descriptiontxt = descriptiontxt + _L("Transmission Gear Count: ") + c + TOUTFSTRING(entry->numgears) + nc + newline;
     if (entry->minrpm > 0)
-        descriptiontxt = descriptiontxt + _L("Engine RPM: ") + c + TOUTFSTRING(entry->minrpm) + U(" - ") + TOUTFSTRING(entry->maxrpm) + nc + newline;
+        descriptiontxt = descriptiontxt + _L("Engine RPM: ") + c + TOUTFSTRING(entry->minrpm) + U(" - ") +
+                         TOUTFSTRING(entry->maxrpm) + nc + newline;
     if (!entry->uniqueid.empty() && entry->uniqueid != "no-uid")
         descriptiontxt = descriptiontxt + _L("Unique ID: ") + c + entry->uniqueid + nc + newline;
     if (!entry->guid.empty() && entry->guid != "no-guid")
@@ -786,12 +722,12 @@ void CLASS::UpdateControls(CacheEntry* entry)
     if (entry->filetime > 0)
     {
         Ogre::String filetime = Ogre::StringUtil::format("%s", asctime(gmtime(&entry->filetime)));
-        descriptiontxt = descriptiontxt + _L("Date and Time modified: ") + c + filetime + nc;
+        descriptiontxt        = descriptiontxt + _L("Date and Time modified: ") + c + filetime + nc;
     }
     if (entry->addtimestamp > 0)
     {
         Ogre::String addtimestamp = Ogre::StringUtil::format("%s", asctime(gmtime(&entry->addtimestamp)));
-        descriptiontxt = descriptiontxt + _L("Date and Time installed: ") + c + addtimestamp + nc;
+        descriptiontxt            = descriptiontxt + _L("Date and Time installed: ") + c + addtimestamp + nc;
     }
 
     Ogre::UTFString driveableStr[5] = {_L("Non-Driveable"), _L("Truck"), _L("Airplane"), _L("Boat"), _L("Machine")};
@@ -800,36 +736,25 @@ void CLASS::UpdateControls(CacheEntry* entry)
 
     descriptiontxt = descriptiontxt + "#FF0000\n"; // red colour for the props
 
-    if (entry->forwardcommands)
-        descriptiontxt = descriptiontxt + _L("[forwards commands]") + newline;
-    if (entry->importcommands)
-        descriptiontxt = descriptiontxt + _L("[imports commands]") + newline;
-    if (entry->rescuer)
-        descriptiontxt = descriptiontxt + _L("[is rescuer]") + newline;
-    if (entry->custom_particles)
-        descriptiontxt = descriptiontxt + _L("[uses custom particles]") + newline;
-    if (entry->fixescount > 0)
-        descriptiontxt = descriptiontxt + _L("[has fixes]") + newline;
+    if (entry->forwardcommands) descriptiontxt = descriptiontxt + _L("[forwards commands]") + newline;
+    if (entry->importcommands) descriptiontxt = descriptiontxt + _L("[imports commands]") + newline;
+    if (entry->rescuer) descriptiontxt = descriptiontxt + _L("[is rescuer]") + newline;
+    if (entry->custom_particles) descriptiontxt = descriptiontxt + _L("[uses custom particles]") + newline;
+    if (entry->fixescount > 0) descriptiontxt = descriptiontxt + _L("[has fixes]") + newline;
     // t is the default, do not display it
-    //if (entry->enginetype == 't') descriptiontxt = descriptiontxt +_L("[TRUCK ENGINE]") + newline;
-    if (entry->enginetype == 'c')
-        descriptiontxt = descriptiontxt + _L("[car engine]") + newline;
-    if (entry->resource_bundle_type == "Zip")
-        descriptiontxt = descriptiontxt + _L("[zip archive]") + newline;
-    if (entry->resource_bundle_type == "FileSystem")
-        descriptiontxt = descriptiontxt + _L("[unpacked in directory]") + newline;
+    // if (entry->enginetype == 't') descriptiontxt = descriptiontxt +_L("[TRUCK ENGINE]") + newline;
+    if (entry->enginetype == 'c') descriptiontxt = descriptiontxt + _L("[car engine]") + newline;
+    if (entry->resource_bundle_type == "Zip") descriptiontxt = descriptiontxt + _L("[zip archive]") + newline;
+    if (entry->resource_bundle_type == "FileSystem") descriptiontxt = descriptiontxt + _L("[unpacked in directory]") + newline;
 
     descriptiontxt = descriptiontxt + "#66CCFF\n"; // now blue-ish color*
 
     if (!entry->resource_bundle_path.empty())
         descriptiontxt = descriptiontxt + _L("Source: ") + entry->resource_bundle_path + newline;
-    if (!entry->fname.empty())
-        descriptiontxt = descriptiontxt + _L("Filename: ") + entry->fname + newline;
+    if (!entry->fname.empty()) descriptiontxt = descriptiontxt + _L("Filename: ") + entry->fname + newline;
 
     if (!entry->sectionconfigs.empty())
-    {
-        descriptiontxt = descriptiontxt + U("\n\n#e10000") + _L("Please select a configuration below!") + nc + U("\n\n");
-    }
+    { descriptiontxt = descriptiontxt + U("\n\n#e10000") + _L("Please select a configuration below!") + nc + U("\n\n"); }
 
     trimUTFString(descriptiontxt);
 
@@ -854,18 +779,20 @@ void CLASS::SetPreviewImage(Ogre::String texture)
     }
     catch (...)
     {
-        Ogre::LogManager::getSingleton().stream() << "[RoR|SelectorGUI] Failed to load preview image: " << m_preview_image_texture;
+        Ogre::LogManager::getSingleton().stream()
+            << "[RoR|SelectorGUI] Failed to load preview image: " << m_preview_image_texture;
         m_Preview->setVisible(false);
     }
 }
 
 void CLASS::ResizePreviewImage()
 {
-    MyGUI::IntSize imgSize(0, 0);
-    Ogre::TexturePtr t = Ogre::TextureManager::getSingleton().load(m_preview_image_texture, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
+    MyGUI::IntSize   imgSize(0, 0);
+    Ogre::TexturePtr t = Ogre::TextureManager::getSingleton().load(m_preview_image_texture,
+                                                                   Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
     if (!t.isNull())
     {
-        imgSize.width = (int)t->getWidth() * 10;
+        imgSize.width  = (int)t->getWidth() * 10;
         imgSize.height = (int)t->getHeight() * 10;
     }
 
@@ -876,23 +803,23 @@ void CLASS::ResizePreviewImage()
         float imgRatio = imgSize.width / (float)imgSize.height;
         float maxRatio = maxSize.width / (float)maxSize.height;
 
-        MyGUI::IntSize newSize(0, 0);
+        MyGUI::IntSize  newSize(0, 0);
         MyGUI::IntPoint newPosition(0, 0);
 
         // scale with aspect ratio
         if (imgRatio > maxRatio)
         {
-            newSize.width = maxSize.width;
-            newSize.height = maxSize.width / imgRatio;
+            newSize.width    = maxSize.width;
+            newSize.height   = maxSize.width / imgRatio;
             newPosition.left = 0;
-            newPosition.top = maxSize.height - newSize.height;
+            newPosition.top  = maxSize.height - newSize.height;
         }
         else
         {
-            newSize.width = maxSize.height * imgRatio;
-            newSize.height = maxSize.height;
+            newSize.width    = maxSize.height * imgRatio;
+            newSize.height   = maxSize.height;
             newPosition.left = maxSize.width - newSize.width;
-            newPosition.top = 0;
+            newPosition.top  = 0;
         }
 
         m_Preview->setSize(newSize);
@@ -907,18 +834,14 @@ bool CLASS::IsFinishedSelecting()
 
 void CLASS::Show(LoaderType type, RoR::ActorSpawnRequest req)
 {
-    if (!m_selection_done)
-    {
-        return;
-    }
+    if (!m_selection_done) { return; }
     m_actor_spawn_rq = req;
     this->Show(type);
 }
 
 void CLASS::Show(LoaderType type)
 {
-    if (!m_selection_done)
-        return;
+    if (!m_selection_done) return;
 
     m_selection_done = false;
     m_selected_entry = nullptr;
@@ -938,9 +861,7 @@ void CLASS::Show(LoaderType type)
     }
 
     if (type == LT_Terrain && (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED))
-    {
-        m_Cancel->setCaption(_L("Cancel (disconnect)"));
-    }
+    { m_Cancel->setCaption(_L("Cancel (disconnect)")); }
     else
     {
         m_Cancel->setCaption(_L("Cancel"));
@@ -951,10 +872,7 @@ void CLASS::Hide(bool smooth)
 {
     m_selection_done = true;
     RoR::App::GetGuiManager()->UnfocusGui();
-    if (smooth)
-    {
-        MAIN_WIDGET->setVisibleSmooth(false);
-    }
+    if (smooth) { MAIN_WIDGET->setVisibleSmooth(false); }
     else
     {
         MAIN_WIDGET->setVisible(false);
@@ -963,26 +881,18 @@ void CLASS::Hide(bool smooth)
     BindKeys(false);
 }
 
-void CLASS::EventSearchTextChange(MyGUI::EditBox* _sender)
+void CLASS::EventSearchTextChange(MyGUI::EditBox *_sender)
 {
-    if (!MAIN_WIDGET->getVisible())
-        return;
+    if (!MAIN_WIDGET->getVisible()) return;
     OnCategorySelected(CacheSystem::CID_SearchResults);
-    if (m_SearchLine->getTextLength() > 0)
-    {
-        m_Type->setCaption(_L("Search Results"));
-    }
+    if (m_SearchLine->getTextLength() > 0) { m_Type->setCaption(_L("Search Results")); }
 }
 
 void CLASS::EventSearchTextGotFocus(MyGUI::WidgetPtr _sender, MyGUI::WidgetPtr oldWidget)
 {
-    if (!MAIN_WIDGET->getVisible())
-        return;
+    if (!MAIN_WIDGET->getVisible()) return;
 
-    if (m_SearchLine->getCaption() == _L("Search ..."))
-    {
-        m_SearchLine->setCaption("");
-    }
+    if (m_SearchLine->getCaption() == _L("Search ...")) { m_SearchLine->setCaption(""); }
 }
 
 bool CLASS::IsVisible()
@@ -990,10 +900,7 @@ bool CLASS::IsVisible()
     return MAIN_WIDGET->isVisible();
 }
 
-void CLASS::NotifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
+void CLASS::NotifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string &_name)
 {
-    if (_name == "close")
-    {
-        Cancel();
-    }
+    if (_name == "close") { Cancel(); }
 }

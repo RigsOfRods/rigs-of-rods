@@ -21,43 +21,43 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include "RoRPrerequisites.h"
-
 #include "gfx/skyx/SkyX.h"
 
 class SkyXManager : public ZeroedMemoryAllocator
 {
-public:
-	SkyXManager(Ogre::String configFile);
-	~SkyXManager();
+  public:
+    SkyXManager(Ogre::String configFile);
+    ~SkyXManager();
 
-	Ogre::Vector3 getMainLightDirection();
+    Ogre::Vector3 getMainLightDirection();
 
-	Ogre::Light* getMainLight();
+    Ogre::Light *getMainLight();
 
-	bool update( float dt );
+    bool update(float dt);
 
-	bool InitLight();
+    bool InitLight();
 
-	size_t getMemoryUsage();
+    size_t getMemoryUsage();
 
-	void freeResources();
+    void freeResources();
 
-	bool UpdateSkyLight();
+    bool UpdateSkyLight();
 
-	SkyX::SkyX* GetSkyX() { return mSkyX; }
+    SkyX::SkyX *GetSkyX()
+    {
+        return mSkyX;
+    }
 
-protected:
-	Ogre::Light *mLight0;
-	Ogre::Light *mLight1;
-	
-	SkyX::SkyX* mSkyX;
-	SkyX::BasicController* mBasicController;
+  protected:
+    Ogre::Light *mLight0;
+    Ogre::Light *mLight1;
 
-	SkyX::ColorGradient mWaterGradient, 
-		                mSunGradient, 
-						mAmbientGradient;
+    SkyX::SkyX *           mSkyX;
+    SkyX::BasicController *mBasicController;
 
-	SkyX::CfgFileManager* mCfgFileManager;
+    SkyX::ColorGradient mWaterGradient, mSunGradient, mAmbientGradient;
+
+    SkyX::CfgFileManager *mCfgFileManager;
 
     int mLastHour = 0;
 };

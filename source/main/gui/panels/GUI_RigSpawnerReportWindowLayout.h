@@ -8,36 +8,37 @@
 // Do not modify this code directly. Create a derived class instead.
 // ----------------------------------------------------------------------------
 
-#include "ForwardDeclarations.h"
 #include "BaseLayout.h"
+#include "ForwardDeclarations.h"
 
-namespace RoR {
-namespace GUI {
-
-ATTRIBUTE_CLASS_LAYOUT(ActorSpawnerReportWindowLayout, "RigSpawnerReportWindow.layout"); // Keeping old name, the panel will be replaced by DearIMGUI soon anyway ~ only_a_ptr, 02/2018
-class ActorSpawnerReportWindowLayout : public wraps::BaseLayout
+namespace RoR
 {
+    namespace GUI
+    {
 
-public:
+        ATTRIBUTE_CLASS_LAYOUT(ActorSpawnerReportWindowLayout,
+                               "RigSpawnerReportWindow.layout"); // Keeping old name, the panel will be replaced by DearIMGUI soon
+                                                                 // anyway ~ only_a_ptr, 02/2018
+        class ActorSpawnerReportWindowLayout : public wraps::BaseLayout
+        {
 
-    ActorSpawnerReportWindowLayout(MyGUI::Widget* _parent = nullptr);
-    virtual ~ActorSpawnerReportWindowLayout();
+          public:
+            ActorSpawnerReportWindowLayout(MyGUI::Widget *_parent = nullptr);
+            virtual ~ActorSpawnerReportWindowLayout();
 
-protected:
+          protected:
+            //%LE Widget_Declaration list start
+            ATTRIBUTE_FIELD_WIDGET_NAME(ActorSpawnerReportWindowLayout, m_rig_spawner_report_window, "rig_spawner_report_window");
+            MyGUI::Window *m_rig_spawner_report_window;
 
-    //%LE Widget_Declaration list start
-    ATTRIBUTE_FIELD_WIDGET_NAME(ActorSpawnerReportWindowLayout, m_rig_spawner_report_window, "rig_spawner_report_window");
-    MyGUI::Window* m_rig_spawner_report_window;
+            ATTRIBUTE_FIELD_WIDGET_NAME(ActorSpawnerReportWindowLayout, m_report_summary_textbox, "report_summary_textbox");
+            MyGUI::TextBox *m_report_summary_textbox;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(ActorSpawnerReportWindowLayout, m_report_summary_textbox, "report_summary_textbox");
-    MyGUI::TextBox* m_report_summary_textbox;
+            ATTRIBUTE_FIELD_WIDGET_NAME(ActorSpawnerReportWindowLayout, m_report_text_area, "report_text_area");
+            MyGUI::EditBox *m_report_text_area;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(ActorSpawnerReportWindowLayout, m_report_text_area, "report_text_area");
-    MyGUI::EditBox* m_report_text_area;
+            //%LE Widget_Declaration list end
+        };
 
-    //%LE Widget_Declaration list end
-};
-
-} // namespace GUI
+    } // namespace GUI
 } // namespace RoR
-

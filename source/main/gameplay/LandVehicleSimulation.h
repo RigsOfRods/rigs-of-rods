@@ -23,31 +23,31 @@
 
 #include "ForwardDeclarations.h"
 
-namespace RoR {
-
-/// Stateless class which provides simulation logic.
-struct LandVehicleSimulation
+namespace RoR
 {
-    /**
-    * @param dt Delta time in seconds.
-    */
-    static void UpdateCruiseControl(Actor* vehicle, float dt);
 
-    /**
-    * @param dt Delta time in seconds.
-    */
-    static void CheckSpeedLimit(Actor* vehicle, float dt);
+    /// Stateless class which provides simulation logic.
+    struct LandVehicleSimulation
+    {
+        /**
+         * @param dt Delta time in seconds.
+         */
+        static void UpdateCruiseControl(Actor *vehicle, float dt);
 
-    /**
-    * Logic: driving aids and such
-    */
-    static void UpdateVehicle(Actor* vehicle, float seconds_since_last_frame);
+        /**
+         * @param dt Delta time in seconds.
+         */
+        static void CheckSpeedLimit(Actor *vehicle, float dt);
 
-    /**
-    * Logic: input, sound, vehicle state
-    */
-    static void UpdateInputEvents(Actor* vehicle, float seconds_since_last_frame);
+        /**
+         * Logic: driving aids and such
+         */
+        static void UpdateVehicle(Actor *vehicle, float seconds_since_last_frame);
 
-};
+        /**
+         * Logic: input, sound, vehicle state
+         */
+        static void UpdateInputEvents(Actor *vehicle, float seconds_since_last_frame);
+    };
 
 } // namespace RoR

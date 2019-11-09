@@ -24,8 +24,7 @@
 
 class SurveyMapTextureCreator : public Ogre::RenderTargetListener, public ZeroedMemoryAllocator
 {
-public:
-
+  public:
     SurveyMapTextureCreator(Ogre::Real terrain_height);
     ~SurveyMapTextureCreator();
 
@@ -34,15 +33,14 @@ public:
 
     Ogre::String getTextureName();
 
-protected:
-
+  protected:
     void preRenderTargetUpdate(const Ogre::RenderTargetEvent &evt);
     void postRenderTargetUpdate(const Ogre::RenderTargetEvent &evt);
 
-    Ogre::Real mTerrainHeight;
+    Ogre::Real   mTerrainHeight;
     Ogre::String mTextureName;
 
-    Ogre::Camera* mCamera;
-    Ogre::TexturePtr mTexture;
-    Ogre::RenderTarget* mRttTex;
+    Ogre::Camera *      mCamera;
+    Ogre::TexturePtr    mTexture;
+    Ogre::RenderTarget *mRttTex;
 };

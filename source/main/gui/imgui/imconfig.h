@@ -20,8 +20,8 @@
 //#define IMGUI_DISABLE_WIN32_DEFAULT_CLIPBOARD_FUNCS
 //#define IMGUI_DISABLE_WIN32_DEFAULT_IME_FUNCS
 
-//---- Don't implement help and test window functionality (ShowUserGuide()/ShowStyleEditor()/ShowTestWindow() methods will be empty)
-//#define IMGUI_DISABLE_TEST_WINDOWS
+//---- Don't implement help and test window functionality (ShowUserGuide()/ShowStyleEditor()/ShowTestWindow() methods will be
+// empty) #define IMGUI_DISABLE_TEST_WINDOWS
 
 //---- Don't define obsolete functions names
 //#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
@@ -54,4 +54,3 @@ namespace ImGui
     void    Value(const char* prefix, const MyMatrix44& v, const char* float_format = NULL);
 }
 */
-

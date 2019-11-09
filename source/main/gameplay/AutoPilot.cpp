@@ -29,61 +29,57 @@
 using namespace Ogre;
 using namespace RoR;
 
-Autopilot::Autopilot(int actor_id):
-    m_actor_id(actor_id)
+Autopilot::Autopilot(int actor_id) : m_actor_id(actor_id)
 {
-    ref_l = nullptr;
-    ref_r = nullptr;
-    ref_b = nullptr;
-    ref_c = nullptr;
+    ref_l    = nullptr;
+    ref_r    = nullptr;
+    ref_b    = nullptr;
+    ref_c    = nullptr;
     ref_span = 1.0f;
     reset();
 }
 
 void Autopilot::reset()
 {
-    mode_heading = HEADING_NONE;
-    mode_alt = ALT_NONE;
-    mode_ias = false;
-    mode_gpws = true;
-    heading = 0;
-    alt = 1000;
-    vs = 0;
-    ias = 150;
-    last_elevator = 0;
-    last_rudder = 0;
-    last_aileron = 0;
-    last_gpws_height = 0;
-    last_pullup_height = 0;
-    m_ils_angle_vdev = -90;
-    m_ils_angle_hdev = -90;
-    m_ils_runway_heading = 0;
+    mode_heading          = HEADING_NONE;
+    mode_alt              = ALT_NONE;
+    mode_ias              = false;
+    mode_gpws             = true;
+    heading               = 0;
+    alt                   = 1000;
+    vs                    = 0;
+    ias                   = 150;
+    last_elevator         = 0;
+    last_rudder           = 0;
+    last_aileron          = 0;
+    last_gpws_height      = 0;
+    last_pullup_height    = 0;
+    m_ils_angle_vdev      = -90;
+    m_ils_angle_hdev      = -90;
+    m_ils_runway_heading  = 0;
     m_ils_runway_distance = 0;
-    last_closest_hdist = 0;
-    wantsdisconnect = false;
+    last_closest_hdist    = 0;
+    wantsdisconnect       = false;
 
-    m_vertical_locator_available = false;
+    m_vertical_locator_available   = false;
     m_horizontal_locator_available = false;
 }
 
 void Autopilot::disconnect()
 {
-    mode_heading = HEADING_NONE;
-    mode_alt = ALT_NONE;
-    mode_ias = false;
+    mode_heading    = HEADING_NONE;
+    mode_alt        = ALT_NONE;
+    mode_ias        = false;
     wantsdisconnect = false;
-    if (mode_gpws)
-    {
-        SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_APDISCONNECT);
-    }
+    if (mode_gpws) { SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_APDISCONNECT); }
 }
 
-void Autopilot::setInertialReferences(node_t* refl, node_t* refr, node_t* refb, node_t* refc)
+void Autopilot::setInertialReferences(node_t *refl, node_t *refr, node_t *refb, node_t *refc)
 {
-    ref_l = refl;
-    ref_r = refr;
-    ref_b = refb;
-    ref_c = refc; // ar_camera_node_pos(0)
+    ref_l    = refl;
+    ref_r    = refr;
+    ref_b    = refb;
+    ref_c    = refc; // ar_camera_node_pos(0)
     ref_span = (refl->RelPosition - refr->RelPosition).length();
 }
 
@@ -92,7 +88,7 @@ float Autopilot::getAilerons()
     float val = 0;
     if (ref_l && ref_r)
     {
-        float rat = (ref_r->RelPosition.y - ref_l->RelPosition.y) / ref_span;
+        float rat  = (ref_r->RelPosition.y - ref_l->RelPosition.y) / ref_span;
         float bank = 90.0;
         if (rat >= 1.0)
             bank = 90.0;
@@ -103,56 +99,41 @@ float Autopilot::getAilerons()
         if (mode_heading == HEADING_WLV)
         {
             val = bank / 100.0;
-            if (val > 0.5)
-                val = 0.5;
-            if (val < -0.5)
-                val = -0.5;
+            if (val > 0.5) val = 0.5;
+            if (val < -0.5) val = -0.5;
         }
         if (mode_heading == HEADING_FIXED)
         {
-            Vector3 vel = (ref_l->Velocity + ref_r->Velocity) / 2.0;
-            float curdir = atan2(vel.x, -vel.z) * 57.295779513082;
-            float want_bank = curdir - (float)heading;
-            if (want_bank < -180.0)
-                want_bank += 360.0;
+            Vector3 vel       = (ref_l->Velocity + ref_r->Velocity) / 2.0;
+            float   curdir    = atan2(vel.x, -vel.z) * 57.295779513082;
+            float   want_bank = curdir - (float)heading;
+            if (want_bank < -180.0) want_bank += 360.0;
             want_bank = want_bank * 2.0;
-            if (want_bank > 45.0)
-                want_bank = 45.0;
-            if (want_bank < -45.0)
-                want_bank = -45.0;
+            if (want_bank > 45.0) want_bank = 45.0;
+            if (want_bank < -45.0) want_bank = -45.0;
             val = (bank - want_bank) / 100.0;
-            if (val > 0.5)
-                val = 0.5;
-            if (val < -0.5)
-                val = -0.5;
+            if (val > 0.5) val = 0.5;
+            if (val < -0.5) val = -0.5;
         }
         if (mode_heading == HEADING_NAV)
         {
-            //compute intercept heading
+            // compute intercept heading
             float error_heading = m_ils_angle_hdev / 10.0;
-            if (error_heading > 1.0)
-                error_heading = 1.0;
-            if (error_heading < -1.0)
-                error_heading = -1.0;
+            if (error_heading > 1.0) error_heading = 1.0;
+            if (error_heading < -1.0) error_heading = -1.0;
             float offcourse_tolerance = m_ils_runway_distance / 30.0;
-            if (offcourse_tolerance > 60.0)
-                offcourse_tolerance = 60.0;
-            float intercept_heading = m_ils_runway_heading + error_heading * offcourse_tolerance;
-            Vector3 vel = (ref_l->Velocity + ref_r->Velocity) / 2.0;
-            float curdir = atan2(vel.x, -vel.z) * 57.295779513082;
-            float want_bank = curdir - intercept_heading;
-            if (want_bank < -180.0)
-                want_bank += 360.0;
+            if (offcourse_tolerance > 60.0) offcourse_tolerance = 60.0;
+            float   intercept_heading = m_ils_runway_heading + error_heading * offcourse_tolerance;
+            Vector3 vel               = (ref_l->Velocity + ref_r->Velocity) / 2.0;
+            float   curdir            = atan2(vel.x, -vel.z) * 57.295779513082;
+            float   want_bank         = curdir - intercept_heading;
+            if (want_bank < -180.0) want_bank += 360.0;
             want_bank = want_bank * 2.0;
-            if (want_bank > 45.0)
-                want_bank = 45.0;
-            if (want_bank < -45.0)
-                want_bank = -45.0;
+            if (want_bank > 45.0) want_bank = 45.0;
+            if (want_bank < -45.0) want_bank = -45.0;
             val = (bank - want_bank) / 100.0;
-            if (val > 0.5)
-                val = 0.5;
-            if (val < -0.5)
-                val = -0.5;
+            if (val > 0.5) val = 0.5;
+            if (val < -0.5) val = -0.5;
         }
     }
     last_aileron = (last_aileron + val) / 2.0;
@@ -164,53 +145,42 @@ float Autopilot::getElevator()
     float val = 0;
     if (ref_l && ref_r && ref_b)
     {
-        float wanted_vs = (float)vs / 196.87;
+        float wanted_vs  = (float)vs / 196.87;
         float current_vs = (ref_l->Velocity.y + ref_r->Velocity.y) / 2.0;
-        float pitch_var = current_vs - ref_b->Velocity.y;
+        float pitch_var  = current_vs - ref_b->Velocity.y;
         if (mode_alt == ALT_VS)
         {
             if (mode_heading == HEADING_NAV)
             {
-                //this is cheating a bit
-                float ch = m_ils_runway_distance * sin((m_ils_angle_vdev + 4.0) / 57.295779513082);
-                float oh = m_ils_runway_distance * sin((4.0) / 57.295779513082);
-                wanted_vs = 5000.0 / 196.87;
+                // this is cheating a bit
+                float ch         = m_ils_runway_distance * sin((m_ils_angle_vdev + 4.0) / 57.295779513082);
+                float oh         = m_ils_runway_distance * sin((4.0) / 57.295779513082);
+                wanted_vs        = 5000.0 / 196.87;
                 float wanted_vs2 = (-ch + oh) / 5.0;
-                if (wanted_vs2 < -wanted_vs)
-                    wanted_vs2 = -wanted_vs;
-                if (wanted_vs2 > wanted_vs)
-                    wanted_vs2 = wanted_vs;
+                if (wanted_vs2 < -wanted_vs) wanted_vs2 = -wanted_vs;
+                if (wanted_vs2 > wanted_vs) wanted_vs2 = wanted_vs;
                 val = (wanted_vs2 - current_vs) / 40.0 + pitch_var / 40.0;
-                if (val > 0.75)
-                    val = 0.75;
-                if (val < -0.75)
-                    val = -0.75;
+                if (val > 0.75) val = 0.75;
+                if (val < -0.75) val = -0.75;
             }
             else
             {
                 val = (wanted_vs - current_vs) / 40.0 + pitch_var / 40.0;
-                if (val > 0.5)
-                    val = 0.5;
-                if (val < -0.5)
-                    val = -0.5;
+                if (val > 0.5) val = 0.5;
+                if (val < -0.5) val = -0.5;
             }
         }
         if (mode_alt == ALT_FIXED)
         {
-            float wanted_alt = (float)alt * 0.3048;
+            float wanted_alt  = (float)alt * 0.3048;
             float current_alt = (ref_l->AbsPosition.y + ref_r->AbsPosition.y) / 2.0;
-            if (wanted_vs < 0)
-                wanted_vs = -wanted_vs; //absolute value
+            if (wanted_vs < 0) wanted_vs = -wanted_vs; // absolute value
             float wanted_vs2 = (wanted_alt - current_alt) / 8.0;
-            if (wanted_vs2 < -wanted_vs)
-                wanted_vs2 = -wanted_vs;
-            if (wanted_vs2 > wanted_vs)
-                wanted_vs2 = wanted_vs;
+            if (wanted_vs2 < -wanted_vs) wanted_vs2 = -wanted_vs;
+            if (wanted_vs2 > wanted_vs) wanted_vs2 = wanted_vs;
             val = (wanted_vs2 - current_vs) / 40.0 + pitch_var / 40.0;
-            if (val > 0.5)
-                val = 0.5;
-            if (val < -0.5)
-                val = -0.5;
+            if (val > 0.5) val = 0.5;
+            if (val < -0.5) val = -0.5;
         }
     }
     return val;
@@ -228,26 +198,22 @@ float Autopilot::getThrottle(float thrtl, float dt)
     float val = thrtl;
     if (ref_l && ref_r)
     {
-        //tropospheric model valid up to 11.000m (33.000ft)
+        // tropospheric model valid up to 11.000m (33.000ft)
         float altitude = ref_l->AbsPosition.y;
-        //float sea_level_temperature=273.15+15.0; //in Kelvin
-        float sea_level_pressure = 101325; //in Pa
-        //float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
-        float airpressure = sea_level_pressure * pow(1.0 - 0.0065 * altitude / 288.15, 5.24947); //in Pa
-        float airdensity = airpressure * 0.0000120896;//1.225 at sea level
+        // float sea_level_temperature=273.15+15.0; //in Kelvin
+        float sea_level_pressure = 101325; // in Pa
+        // float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
+        float airpressure = sea_level_pressure * pow(1.0 - 0.0065 * altitude / 288.15, 5.24947); // in Pa
+        float airdensity  = airpressure * 0.0000120896;                                          // 1.225 at sea level
 
         float gspd = 1.94384449 * ((ref_l->Velocity + ref_r->Velocity) / 2.0).length();
 
-        float spd = gspd * sqrt(airdensity / 1.225); //KIAS
+        float spd = gspd * sqrt(airdensity / 1.225); // KIAS
 
-        if (spd > (float)ias)
-            val = val - dt / 15.0;
-        if (spd < (float)ias)
-            val = val + dt / 15.0;
-        if (val > 1.0)
-            val = 1.0;
-        if (val < 0.02)
-            val = 0.02;
+        if (spd > (float)ias) val = val - dt / 15.0;
+        if (spd < (float)ias) val = val + dt / 15.0;
+        if (val > 1.0) val = 1.0;
+        if (val < 0.02) val = 0.02;
     }
     return val;
 }
@@ -285,10 +251,8 @@ bool Autopilot::toggleGPWS()
 int Autopilot::adjHDG(int d)
 {
     heading += d;
-    if (heading < 0)
-        heading += 360;
-    if (heading > 359)
-        heading -= 360;
+    if (heading < 0) heading += 360;
+    if (heading > 359) heading -= 360;
     return heading;
 }
 
@@ -301,49 +265,38 @@ int Autopilot::adjALT(int d)
 int Autopilot::adjVS(int d)
 {
     vs += d;
-    if (vs > 9900)
-        vs = 9900;
-    if (vs < -9900)
-        vs = -9900;
+    if (vs > 9900) vs = 9900;
+    if (vs < -9900) vs = -9900;
     return vs;
 }
 
 int Autopilot::adjIAS(int d)
 {
     ias += d;
-    if (ias < 0)
-        ias = 0;
-    if (ias > 350)
-        ias = 350;
+    if (ias < 0) ias = 0;
+    if (ias > 350) ias = 350;
     return ias;
 }
 
 void Autopilot::gpws_update(float spawnheight)
 {
 #ifdef USE_OPENAL
-    if (SoundScriptManager::getSingleton().isDisabled())
-        return;
+    if (SoundScriptManager::getSingleton().isDisabled()) return;
     if (mode_gpws && ref_b)
     {
         float groundalt = App::GetSimTerrain()->GetHeightAt(ref_c->AbsPosition.x, ref_c->AbsPosition.z);
         if (App::GetSimTerrain()->getWater() && groundalt < App::GetSimTerrain()->getWater()->GetStaticWaterHeight())
             groundalt = App::GetSimTerrain()->getWater()->GetStaticWaterHeight();
-        float height = (ref_c->AbsPosition.y - groundalt - spawnheight) * 3.28083f; //in feet!
-        //skip height warning sounds when the plane is slower then ~10 knots
+        float height = (ref_c->AbsPosition.y - groundalt - spawnheight) * 3.28083f; // in feet!
+        // skip height warning sounds when the plane is slower then ~10 knots
         if ((ref_c->Velocity.length() * 1.9685f) > 10.0f)
         {
-            if (height < 10 && last_gpws_height > 10)
-                SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_10);
-            if (height < 20 && last_gpws_height > 20)
-                SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_20);
-            if (height < 30 && last_gpws_height > 30)
-                SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_30);
-            if (height < 40 && last_gpws_height > 40)
-                SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_40);
-            if (height < 50 && last_gpws_height > 50)
-                SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_50);
-            if (height < 100 && last_gpws_height > 100)
-                SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_100);
+            if (height < 10 && last_gpws_height > 10) SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_10);
+            if (height < 20 && last_gpws_height > 20) SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_20);
+            if (height < 30 && last_gpws_height > 30) SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_30);
+            if (height < 40 && last_gpws_height > 40) SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_40);
+            if (height < 50 && last_gpws_height > 50) SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_50);
+            if (height < 100 && last_gpws_height > 100) SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_100);
         }
         last_gpws_height = height;
 
@@ -352,74 +305,69 @@ void Autopilot::gpws_update(float spawnheight)
         height *= 0.3048;
         // get the y-velocity in meters/s
         float yVel = ref_c->Velocity.y * 1.9685f;
-        // will trigger the pullup sound when vvi is high (avoid pullup warning when landing normal) and groundcontact will be in less then 10 seconds
-        if (yVel * 10.0f < -height && yVel < -10.0f)
-            SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_PULLUP);
+        // will trigger the pullup sound when vvi is high (avoid pullup warning when landing normal) and groundcontact will be in
+        // less then 10 seconds
+        if (yVel * 10.0f < -height && yVel < -10.0f) SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_PULLUP);
     }
-#endif //OPENAL
+#endif // OPENAL
 }
 
 void Autopilot::UpdateIls(std::vector<TerrainObjectManager::localizer_t> localizers)
 {
-    if (!ref_l || !ref_r)
-        return;
-    Vector3 position = (ref_l->AbsPosition + ref_r->AbsPosition) / 2.0;
-    float closest_hdist = -1;
-    float closest_hangle = -90;
-    float closest_vdist = -1;
-    float closest_vangle = -90;
-    m_ils_runway_heading = 0;
+    if (!ref_l || !ref_r) return;
+    Vector3 position       = (ref_l->AbsPosition + ref_r->AbsPosition) / 2.0;
+    float   closest_hdist  = -1;
+    float   closest_hangle = -90;
+    float   closest_vdist  = -1;
+    float   closest_vangle = -90;
+    m_ils_runway_heading   = 0;
     for (std::vector<TerrainObjectManager::localizer_t>::size_type i = 0; i < localizers.size(); i++)
     {
-        Plane hplane = Plane(Vector3::UNIT_Y, 0);
-        Vector3 plocd = hplane.projectVector(localizers[i].rotation * Vector3::UNIT_Z);
-        float loc = atan2(plocd.z, plocd.x);
-        Vector3 posd = hplane.projectVector(position - localizers[i].position);
-        float dir = atan2(posd.z, posd.x);
-        float diff = (dir - loc) * 57.295779513082;
-        if (diff > 180.0)
-            diff -= 360.0;
-        if (diff < -180.0)
-            diff += 360.0;
+        Plane   hplane = Plane(Vector3::UNIT_Y, 0);
+        Vector3 plocd  = hplane.projectVector(localizers[i].rotation * Vector3::UNIT_Z);
+        float   loc    = atan2(plocd.z, plocd.x);
+        Vector3 posd   = hplane.projectVector(position - localizers[i].position);
+        float   dir    = atan2(posd.z, posd.x);
+        float   diff   = (dir - loc) * 57.295779513082;
+        if (diff > 180.0) diff -= 360.0;
+        if (diff < -180.0) diff += 360.0;
         if (diff < 80 && diff > -80)
         {
-            //we are in the visibility cone, we search the closest
+            // we are in the visibility cone, we search the closest
             float dist = (localizers[i].position - position).length();
-            //horizontal
+            // horizontal
             if (localizers[i].type == Autopilot::LOCALIZER_HORIZONTAL)
             {
                 if (closest_hdist < 0 || closest_hdist > dist)
                 {
-                    closest_hdist = dist;
-                    closest_hangle = diff;
-                    m_ils_runway_heading = loc * 57.295779513082 - 90.0; //dont ask me why
-                    if (m_ils_runway_heading < 0.0)
-                        m_ils_runway_heading += 360.0;
+                    closest_hdist        = dist;
+                    closest_hangle       = diff;
+                    m_ils_runway_heading = loc * 57.295779513082 - 90.0; // dont ask me why
+                    if (m_ils_runway_heading < 0.0) m_ils_runway_heading += 360.0;
                     m_ils_runway_distance = dist;
                 }
             }
-            //vertical
+            // vertical
             if (localizers[i].type == Autopilot::LOCALIZER_VERTICAL)
             {
                 if (closest_vdist < 0 || closest_vdist > dist)
                 {
-                    Vector3 normv = (localizers[i].rotation * Vector3::UNIT_Z).crossProduct(Vector3::UNIT_Y);
-                    Plane vplane = Plane(normv, 0);
-                    float glideslope = 4; //4 degree is the norm
-                    Vector3 posd2 = vplane.projectVector(position - localizers[i].position);
-                    float d = posd2.length();
-                    if (d < 0.01)
-                        d = 0.01;
+                    Vector3 normv      = (localizers[i].rotation * Vector3::UNIT_Z).crossProduct(Vector3::UNIT_Y);
+                    Plane   vplane     = Plane(normv, 0);
+                    float   glideslope = 4; // 4 degree is the norm
+                    Vector3 posd2      = vplane.projectVector(position - localizers[i].position);
+                    float   d          = posd2.length();
+                    if (d < 0.01) d = 0.01;
                     float dir2 = 90.0;
-                    d = posd2.y / d;
+                    d          = posd2.y / d;
                     if (d >= 1.0)
                         dir2 = 90.0;
                     else if (d <= -1.0)
                         dir2 = -90.0;
                     else
                         dir2 = asin(d) * 57.295779513082;
-                    float diff2 = dir2 - glideslope;
-                    closest_vdist = dist;
+                    float diff2    = dir2 - glideslope;
+                    closest_vdist  = dist;
                     closest_vangle = diff2;
                 }
             }
@@ -429,21 +377,17 @@ void Autopilot::UpdateIls(std::vector<TerrainObjectManager::localizer_t> localiz
     m_ils_angle_vdev = closest_vangle;
 
     m_horizontal_locator_available = (closest_hdist != -1);
-    m_vertical_locator_available = (closest_vdist != -1);
+    m_vertical_locator_available   = (closest_vdist != -1);
 
-    if (mode_heading == HEADING_NAV && mode_gpws && closest_hdist > 10.0 && closest_hdist < 350.0 && last_closest_hdist > 10.0 && last_closest_hdist > 350.0)
-    {
-        SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_MINIMUMS);
-    }
+    if (mode_heading == HEADING_NAV && mode_gpws && closest_hdist > 10.0 && closest_hdist < 350.0 && last_closest_hdist > 10.0 &&
+        last_closest_hdist > 350.0)
+    { SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_MINIMUMS); }
 
     last_closest_hdist = closest_hdist;
     if (mode_heading == HEADING_NAV)
     {
         // disconnect if close to runway or no locators are available
-        if (closest_hdist < 20.0 || closest_vdist < 20.0)
-            wantsdisconnect = true;
-        if (!this->IsIlsAvailable())
-            wantsdisconnect = true;
+        if (closest_hdist < 20.0 || closest_vdist < 20.0) wantsdisconnect = true;
+        if (!this->IsIlsAvailable()) wantsdisconnect = true;
     }
-        
 }

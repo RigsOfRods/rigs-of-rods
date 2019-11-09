@@ -19,8 +19,8 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
-    
+/**
+
     @author Petr Ohlidal
     @date   05/2014
     @brief  Main menu logic. Also helps with multiplayer setup.
@@ -32,32 +32,31 @@
 
 #include <OgreFrameListener.h>
 
-namespace RoR {
-
-class MainMenu: public Ogre::WindowEventListener, public Ogre::FrameListener
+namespace RoR
 {
-public:
 
-    MainMenu();
+    class MainMenu : public Ogre::WindowEventListener, public Ogre::FrameListener
+    {
+      public:
+        MainMenu();
 
-    void LeaveMultiplayerServer();
+        void LeaveMultiplayerServer();
 
-    void EnterMainMenuLoop();
+        void EnterMainMenuLoop();
 
-private:
+      private:
+        void MainMenuLoopUpdate(float seconds_since_last_frame);
 
-    void MainMenuLoopUpdate(float seconds_since_last_frame);
+        void MainMenuLoopUpdateEvents(float seconds_since_last_frame);
 
-    void MainMenuLoopUpdateEvents(float seconds_since_last_frame);
+        void HandleSavegameShortcuts();
 
-    void HandleSavegameShortcuts();
+        // From Ogre::FrameListener
+        bool frameRenderingQueued(const Ogre::FrameEvent &evt) override;
 
-    // From Ogre::FrameListener
-    bool frameRenderingQueued(const Ogre::FrameEvent & evt) override;
-
-    // Ogre::WindowEventListener
-    void windowResized    (Ogre::RenderWindow* rw) override;
-    void windowFocusChange(Ogre::RenderWindow* rw) override;
-};
+        // Ogre::WindowEventListener
+        void windowResized(Ogre::RenderWindow *rw) override;
+        void windowFocusChange(Ogre::RenderWindow *rw) override;
+    };
 
 } // namespace RoR

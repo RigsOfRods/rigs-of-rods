@@ -22,39 +22,42 @@
 #pragma once
 
 /**
-* SIM-CORE; Shock.
-*/
+ * SIM-CORE; Shock.
+ */
 struct shock_t
 {
-    shock_t() { memset(this, 0, sizeof(shock_t)); }
+    shock_t()
+    {
+        memset(this, 0, sizeof(shock_t));
+    }
 
     int beamid;
     int flags;
 
-    bool trigger_enabled;       //!< general trigger,switch and blocker state
+    bool  trigger_enabled;      //!< general trigger,switch and blocker state
     float trigger_switch_state; //!< needed to avoid doubleswitch, bool and timer in one
     float trigger_boundary_t;   //!< optional value to tune trigger_switch_state autorelease
-    int trigger_cmdlong;        //!< F-key for trigger injection longbound-check
-    int trigger_cmdshort;       //!< F-key for trigger injection shortbound-check
-    int last_debug_state;       //!< smart debug output
+    int   trigger_cmdlong;      //!< F-key for trigger injection longbound-check
+    int   trigger_cmdshort;     //!< F-key for trigger injection shortbound-check
+    int   last_debug_state;     //!< smart debug output
 
     float springin;  //!< shocks2 & shocks3
     float dampin;    //!< shocks2 & shocks3
     float springout; //!< shocks2 & shocks3
     float dampout;   //!< shocks2 & shocks3
 
-    float sprogin;   //!< shocks2
-    float dprogin;   //!< shocks2
-    float sprogout;  //!< shocks2
-    float dprogout;  //!< shocks2
+    float sprogin;  //!< shocks2
+    float dprogin;  //!< shocks2
+    float sprogout; //!< shocks2
+    float dprogout; //!< shocks2
 
-    float splitin;   //!< shocks3
-    float dslowin;   //!< shocks3
-    float dfastin;   //!< shocks3
-    float splitout;  //!< shocks3
-    float dslowout;  //!< shocks3
-    float dfastout;  //!< shocks3
+    float splitin;  //!< shocks3
+    float dslowin;  //!< shocks3
+    float dfastin;  //!< shocks3
+    float splitout; //!< shocks3
+    float dslowout; //!< shocks3
+    float dfastout; //!< shocks3
 
-    float sbd_spring;           //!< set beam default for spring
-    float sbd_damp;             //!< set beam default for damping
+    float sbd_spring; //!< set beam default for spring
+    float sbd_damp;   //!< set beam default for damping
 };

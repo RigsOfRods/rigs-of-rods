@@ -22,55 +22,57 @@
 
 #ifdef USE_ANGELSCRIPT
 
-#include <OgreParticleAffector.h>
-#include <OgreVector3.h>
+    #include "ExtinguishableFireAffectorFactory.h"
 
-#include "ExtinguishableFireAffectorFactory.h"
+    #include <OgreParticleAffector.h>
+    #include <OgreVector3.h>
 
-namespace Ogre {
-
-/** This class defines a ParticleAffector which deflects particles.
-@remarks
-    This affector (see ParticleAffector) offers a simple (and inaccurate) physical deflection.
-    All particles which hit the plane are reflected.
-@par
-    The plane is defined by a point (plane_point) and the normal (plane_normal).
-    In addition it is possible to change the strenght of the recoil by using the bounce parameter.
-*/
-class FireExtinguisherAffector : public ParticleAffector
+namespace Ogre
 {
-public:
-    /** Command object for bounce (see ParamCommand).*/
-    class CmdEffectiveness : public ParamCommand
+
+    /** This class defines a ParticleAffector which deflects particles.
+    @remarks
+        This affector (see ParticleAffector) offers a simple (and inaccurate) physical deflection.
+        All particles which hit the plane are reflected.
+    @par
+        The plane is defined by a point (plane_point) and the normal (plane_normal).
+        In addition it is possible to change the strenght of the recoil by using the bounce parameter.
+    */
+    class FireExtinguisherAffector : public ParticleAffector
     {
-    public:
-        String doGet(const void* target) const;
-        void doSet(void* target, const String& val);
+      public:
+        /** Command object for bounce (see ParamCommand).*/
+        class CmdEffectiveness : public ParamCommand
+        {
+          public:
+            String doGet(const void *target) const;
+            void   doSet(void *target, const String &val);
+        };
+
+        /// Default constructor
+        FireExtinguisherAffector(ParticleSystem *psys);
+
+        /** See ParticleAffector. */
+        void _affectParticles(ParticleSystem *pSystem, Real timeElapsed);
+
+        /** Sets the bounce value of the deflection. */
+        void setEffectiveness(Real effectiveness);
+
+        /** Gets the bounce value of the deflection. */
+        Real getEffectiveness(void) const;
+
+        /// Command objects
+        static CmdEffectiveness msEffectivenessCmd;
+
+      protected:
+        // a reference to the extinguishable fire
+        ExtinguishableFireAffectorFactory *mEfaf;
+
+        /// effectiveness factor (1 means as effective as water, everything higher is more effective while anything lower is less
+        /// effective)
+        Real mEffectiveness;
     };
-
-    /// Default constructor
-    FireExtinguisherAffector(ParticleSystem* psys);
-
-    /** See ParticleAffector. */
-    void _affectParticles(ParticleSystem* pSystem, Real timeElapsed);
-
-    /** Sets the bounce value of the deflection. */
-    void setEffectiveness(Real effectiveness);
-
-    /** Gets the bounce value of the deflection. */
-    Real getEffectiveness(void) const;
-
-    /// Command objects
-    static CmdEffectiveness msEffectivenessCmd;
-
-protected:
-    // a reference to the extinguishable fire
-    ExtinguishableFireAffectorFactory* mEfaf;
-
-    /// effectiveness factor (1 means as effective as water, everything higher is more effective while anything lower is less effective)
-    Real mEffectiveness;
-};
 
 } // namespace Ogre
 
-#endif //USE_ANGELSCRIPT
+#endif // USE_ANGELSCRIPT

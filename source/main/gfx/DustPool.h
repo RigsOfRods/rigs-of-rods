@@ -26,23 +26,22 @@
 
 class DustPool : public ZeroedMemoryAllocator
 {
-public:
-
-    DustPool(Ogre::SceneManager* sm, const char* dname, int dsize);
+  public:
+    DustPool(Ogre::SceneManager *sm, const char *dname, int dsize);
     ~DustPool();
 
-    void Discard(Ogre::SceneManager* sm);
+    void Discard(Ogre::SceneManager *sm);
 
     void setVisible(bool s);
-    //Dust
+    // Dust
     void malloc(Ogre::Vector3 pos, Ogre::Vector3 vel, Ogre::ColourValue col = Ogre::ColourValue(0.83, 0.71, 0.64, 1.0));
-    //clumps
+    // clumps
     void allocClump(Ogre::Vector3 pos, Ogre::Vector3 vel, Ogre::ColourValue col = Ogre::ColourValue(0.83, 0.71, 0.64, 1.0));
-    //Rubber smoke
+    // Rubber smoke
     void allocSmoke(Ogre::Vector3 pos, Ogre::Vector3 vel);
     //
     void allocSparks(Ogre::Vector3 pos, Ogre::Vector3 vel);
-    //Water vapour
+    // Water vapour
     void allocVapour(Ogre::Vector3 pos, Ogre::Vector3 vel, float time);
 
     void allocDrip(Ogre::Vector3 pos, Ogre::Vector3 vel, float time);
@@ -53,8 +52,7 @@ public:
 
     void update();
 
-protected:
-
+  protected:
     static const int MAX_DUSTS = 100;
 
     enum DustTypes
@@ -69,14 +67,14 @@ protected:
         DUST_CLUMP
     };
 
-    Ogre::ColourValue colours[MAX_DUSTS];
-    Ogre::ParticleSystem* pss[MAX_DUSTS];
-    Ogre::SceneNode* sns[MAX_DUSTS];
-    Ogre::Vector3 positions[MAX_DUSTS];
-    Ogre::Vector3 velocities[MAX_DUSTS];
-    float rates[MAX_DUSTS];
-    int allocated;
-    int size;
-    int types[MAX_DUSTS];
-    bool m_is_discarded;
+    Ogre::ColourValue     colours[MAX_DUSTS];
+    Ogre::ParticleSystem *pss[MAX_DUSTS];
+    Ogre::SceneNode *     sns[MAX_DUSTS];
+    Ogre::Vector3         positions[MAX_DUSTS];
+    Ogre::Vector3         velocities[MAX_DUSTS];
+    float                 rates[MAX_DUSTS];
+    int                   allocated;
+    int                   size;
+    int                   types[MAX_DUSTS];
+    bool                  m_is_discarded;
 };

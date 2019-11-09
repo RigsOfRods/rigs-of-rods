@@ -25,26 +25,23 @@
 #include <mutex>
 
 /// this class is a helper to exchange data in a class between different threads, it can be pushed and pulled in various threads
-template <class T>
-class InterThreadStoreVector
+template <class T> class InterThreadStoreVector
 {
-public:
-
+  public:
     void push(T v)
     {
         std::lock_guard<std::mutex> lock(m_vector_mutex);
         store.push_back(v);
     }
 
-    void pull(std::vector<T>& res)
+    void pull(std::vector<T> &res)
     {
         std::lock_guard<std::mutex> lock(m_vector_mutex);
         res = store;
         store.clear();
     }
 
-protected:
-
-    std::mutex m_vector_mutex;
+  protected:
+    std::mutex     m_vector_mutex;
     std::vector<T> store;
 };

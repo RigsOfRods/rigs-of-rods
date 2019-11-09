@@ -28,14 +28,14 @@
 
 using namespace Ogre;
 
-Replay::Replay(Actor* actor, int _numFrames)
+Replay::Replay(Actor *actor, int _numFrames)
 {
-    numNodes = actor->ar_num_nodes;
-    numBeams = actor->ar_num_beams;
+    numNodes  = actor->ar_num_nodes;
+    numBeams  = actor->ar_num_beams;
     numFrames = _numFrames;
 
     curFrameTime = 0;
-    curOffset = 0;
+    curOffset    = 0;
 
     replayTimer = new Timer();
 
@@ -46,23 +46,26 @@ Replay::Replay(Actor* actor, int _numFrames)
 
     outOfMemory = false;
 
-    unsigned long bsize = (numNodes * numFrames * sizeof(node_simple_t) + numBeams * numFrames * sizeof(beam_simple_t) + numFrames * sizeof(unsigned long)) / 1024.0f;
+    unsigned long bsize = (numNodes * numFrames * sizeof(node_simple_t) + numBeams * numFrames * sizeof(beam_simple_t) +
+                           numFrames * sizeof(unsigned long)) /
+                          1024.0f;
     LOG("replay buffer size: " + TOSTRING(bsize) + " kB");
 
     writeIndex = 0;
-    firstRun = 1;
+    firstRun   = 1;
 
-    hidden = false;
+    hidden  = false;
     visible = false;
 
     // windowing
-    int width = 300;
+    int width  = 300;
     int height = 60;
-    int x = (MyGUI::RenderManager::getInstance().getViewSize().width - width) / 2;
-    int y = 0;
+    int x      = (MyGUI::RenderManager::getInstance().getViewSize().width - width) / 2;
+    int y      = 0;
 
-    panel = MyGUI::Gui::getInstance().createWidget<MyGUI::Widget>("Panel", x, y, width, height, MyGUI::Align::HCenter | MyGUI::Align::Top, "Back");
-    //panel->setCaption(_L("Replay"));
+    panel = MyGUI::Gui::getInstance().createWidget<MyGUI::Widget>("Panel", x, y, width, height,
+                                                                  MyGUI::Align::HCenter | MyGUI::Align::Top, "Back");
+    // panel->setCaption(_L("Replay"));
     panel->setAlpha(0.6);
 
     pr = panel->createWidget<MyGUI::Progress>("Progress", 10, 10, 280, 20, MyGUI::Align::Default);
@@ -89,39 +92,38 @@ Replay::~Replay()
     delete replayTimer;
 }
 
-void* Replay::getWriteBuffer(int type)
+void *Replay::getWriteBuffer(int type)
 {
-    if (outOfMemory)
-        return 0;
+    if (outOfMemory) return 0;
     if (!nodes)
     {
         // get memory
-        nodes = (node_simple_t*)calloc(numNodes * numFrames, sizeof(node_simple_t));
+        nodes = (node_simple_t *)calloc(numNodes * numFrames, sizeof(node_simple_t));
         if (!nodes)
         {
             outOfMemory = true;
             return 0;
         }
-        beams = (beam_simple_t*)calloc(numBeams * numFrames, sizeof(beam_simple_t));
+        beams = (beam_simple_t *)calloc(numBeams * numFrames, sizeof(beam_simple_t));
         if (!beams)
         {
             free(nodes);
-            nodes = 0;
+            nodes       = 0;
             outOfMemory = true;
             return 0;
         }
-        times = (unsigned long*)calloc(numFrames, sizeof(unsigned long));
+        times = (unsigned long *)calloc(numFrames, sizeof(unsigned long));
         if (!times)
         {
             free(nodes);
             nodes = 0;
             free(beams);
-            beams = 0;
+            beams       = 0;
             outOfMemory = true;
             return 0;
         }
     }
-    void* ptr = 0;
+    void *ptr         = 0;
     times[writeIndex] = replayTimer->getMicroseconds();
     if (type == 0)
     {
@@ -138,23 +140,20 @@ void* Replay::getWriteBuffer(int type)
 
 void Replay::writeDone()
 {
-    if (outOfMemory)
-        return;
+    if (outOfMemory) return;
     writeIndex++;
     if (writeIndex == numFrames)
     {
-        firstRun = 0;
+        firstRun   = 0;
         writeIndex = 0;
     }
 }
 
-//we take negative offsets only
-void* Replay::getReadBuffer(int offset, int type, unsigned long& time)
+// we take negative offsets only
+void *Replay::getReadBuffer(int offset, int type, unsigned long &time)
 {
-    if (offset >= 0)
-        offset = -1;
-    if (offset <= -numFrames)
-        offset = -numFrames + 1;
+    if (offset >= 0) offset = -1;
+    if (offset <= -numFrames) offset = -numFrames + 1;
 
     int delta = writeIndex + offset;
     if (delta < 0)
@@ -166,13 +165,12 @@ void* Replay::getReadBuffer(int offset, int type, unsigned long& time)
             delta += numFrames;
 
     // set the time
-    time = times[delta];
+    time         = times[delta];
     curFrameTime = time;
-    curOffset = offset;
+    curOffset    = offset;
     updateGUI();
 
-    if (outOfMemory)
-        return 0;
+    if (outOfMemory) return 0;
 
     // return buffer pointer
     if (type == 0)
@@ -191,9 +189,9 @@ void Replay::updateGUI()
     }
     else
     {
-        wchar_t tmp[128] = L"";
-        unsigned long t = curFrameTime;
-        UTFString format = _L("Position: %0.6f s, frame %i / %i");
+        wchar_t       tmp[128] = L"";
+        unsigned long t        = curFrameTime;
+        UTFString     format   = _L("Position: %0.6f s, frame %i / %i");
         swprintf(tmp, 128, format.asWStr_c_str(), ((float)t) / 1000000.0f, curOffset, numFrames);
         txt->setCaption(convertToMyGUIString(tmp, 128));
         pr->setProgressPosition(abs(curOffset));

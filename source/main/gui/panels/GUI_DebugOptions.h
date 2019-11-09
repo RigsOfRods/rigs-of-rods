@@ -28,45 +28,47 @@
 #include "ForwardDeclarations.h"
 #include "GUI_DebugOptionsLayout.h"
 
-namespace RoR {
-
-namespace GUI {
-
-class DebugOptions: public DebugOptionsLayout
+namespace RoR
 {
-public:
-    DebugOptions();
-    ~DebugOptions();
 
-    void Show();
-    void Hide();
-    bool IsVisible();
-    void SetVisible(bool v);
+    namespace GUI
+    {
 
-private:
-    void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
-    void UpdateControls();
-    void SaveConfig();
+        class DebugOptions : public DebugOptionsLayout
+        {
+          public:
+            DebugOptions();
+            ~DebugOptions();
 
-    //checkboxes
-    void OnDebugActorMassCheck(MyGUI::WidgetPtr _sender);
-    void OnDebugColiMeshesCheck(MyGUI::WidgetPtr _sender);
-    void OnIngameConsoleCheck(MyGUI::WidgetPtr _sender);
-    void OnDebugEnvMapCheck(MyGUI::WidgetPtr _sender);
-    void OnDebugVideoCameraCheck(MyGUI::WidgetPtr _sender);
-    void OnDebugTriggerCheck(MyGUI::WidgetPtr _sender);
-    void OnDebugDOFCheck(MyGUI::WidgetPtr _sender);
-    void OnBeamBreakCheck(MyGUI::WidgetPtr _sender);
-    void OnBeamDeformCheck(MyGUI::WidgetPtr _sender);
-    void OnAdvLoggingCheck(MyGUI::WidgetPtr _sender);
-    void OnCrashReportCheck(MyGUI::WidgetPtr _sender);
+            void Show();
+            void Hide();
+            bool IsVisible();
+            void SetVisible(bool v);
 
-    //buttons
-    void eventMouseButtonClickSaveButton(MyGUI::WidgetPtr _sender);
+          private:
+            void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string &_name);
+            void UpdateControls();
+            void SaveConfig();
 
-    std::map<std::string, std::string> DebugOptionsMap;
-};
+            // checkboxes
+            void OnDebugActorMassCheck(MyGUI::WidgetPtr _sender);
+            void OnDebugColiMeshesCheck(MyGUI::WidgetPtr _sender);
+            void OnIngameConsoleCheck(MyGUI::WidgetPtr _sender);
+            void OnDebugEnvMapCheck(MyGUI::WidgetPtr _sender);
+            void OnDebugVideoCameraCheck(MyGUI::WidgetPtr _sender);
+            void OnDebugTriggerCheck(MyGUI::WidgetPtr _sender);
+            void OnDebugDOFCheck(MyGUI::WidgetPtr _sender);
+            void OnBeamBreakCheck(MyGUI::WidgetPtr _sender);
+            void OnBeamDeformCheck(MyGUI::WidgetPtr _sender);
+            void OnAdvLoggingCheck(MyGUI::WidgetPtr _sender);
+            void OnCrashReportCheck(MyGUI::WidgetPtr _sender);
 
-} // namespace GUI
+            // buttons
+            void eventMouseButtonClickSaveButton(MyGUI::WidgetPtr _sender);
+
+            std::map<std::string, std::string> DebugOptionsMap;
+        };
+
+    } // namespace GUI
 
 } // namespace RoR

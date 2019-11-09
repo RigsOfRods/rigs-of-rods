@@ -28,43 +28,41 @@
 #include "Singleton.h"
 
 #ifdef USE_SOCKETW
-#include "SocketW.h"
-#endif //USE_SOCKETW
+    #include "SocketW.h"
+#endif // USE_SOCKETW
 
 #ifdef _WIN32
-#include <Ws2tcpip.h>
-#define PACK( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop) )
+    #include <Ws2tcpip.h>
+    #define PACK(__Declaration__) __pragma(pack(push, 1)) __Declaration__ __pragma(pack(pop))
 #else
-#define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
+    #define PACK(__Declaration__) __Declaration__ __attribute__((__packed__))
 #endif // _WIN32
 
-class OutProtocol : public RoRSingleton< OutProtocol >, public ZeroedMemoryAllocator
+class OutProtocol : public RoRSingleton<OutProtocol>, public ZeroedMemoryAllocator
 {
-public:
-
+  public:
     OutProtocol(void);
     ~OutProtocol(void);
 
-    bool Update(float dt, Actor* truck);
+    bool Update(float dt, Actor *truck);
 
-private:
-
-    bool working;
+  private:
+    bool  working;
     float delay, timer;
-    int id;
-    int mode;
-    int sockfd;
+    int   id;
+    int   mode;
+    int   sockfd;
 
     void startup();
 
     // from LFS/doc/insim.txt
     enum
     {
-        OG_SHIFT      = 1,           // key
-        OG_CTRL       = 2,           // key
-        OG_TURBO      = 8192,        // show turbo gauge
-        OG_KM         = 16384,       // if not set - user prefers MILES
-        OG_BAR        = 32768,       // if not set - user prefers PSI
+        OG_SHIFT = 1,     // key
+        OG_CTRL  = 2,     // key
+        OG_TURBO = 8192,  // show turbo gauge
+        OG_KM    = 16384, // if not set - user prefers MILES
+        OG_BAR   = 32768, // if not set - user prefers PSI
     };
 
     enum
@@ -84,8 +82,7 @@ private:
         DL_NUM        = BITMASK(13)  // bit 14  - end
     };
 
-    PACK (struct OutGaugePack
-    {
+    PACK(struct OutGaugePack {
         unsigned int   Time;         // time in milliseconds (to check order)
         char           Car[4];       // Car name
         unsigned short Flags;        // Info (see OG_x below)
@@ -108,4 +105,3 @@ private:
         int            ID;           // optional - only if OutGauge ID is specified
     });
 };
-

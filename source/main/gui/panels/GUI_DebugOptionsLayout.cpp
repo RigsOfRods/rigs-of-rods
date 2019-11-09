@@ -11,7 +11,7 @@
 using namespace RoR;
 using namespace GUI;
 
-DebugOptionsLayout::DebugOptionsLayout(MyGUI::Widget* _parent)
+DebugOptionsLayout::DebugOptionsLayout(MyGUI::Widget *_parent)
 {
     initialiseByAttributes(this, _parent);
 }

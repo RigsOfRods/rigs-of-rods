@@ -3,7 +3,7 @@
 This source file is part of SkyX.
 Visit http://www.paradise-studios.net/products/skyx/
 
-Copyright (C) 2009-2012 Xavier Verguín González <xavyiy@gmail.com>
+Copyright (C) 2009-2012 Xavier Verguï¿½n Gonzï¿½lez <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -28,137 +28,137 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace SkyX
 {
-	class SkyX;
+    class SkyX;
 
-    class MoonManager 
-	{
-	public:
-	    /** Constructor
-		    @param s Parent SkyX pointer
-		 */
-		MoonManager(SkyX *s);
+    class MoonManager
+    {
+      public:
+        /** Constructor
+            @param s Parent SkyX pointer
+         */
+        MoonManager(SkyX *s);
 
-		/** Destructor 
-		 */
-		~MoonManager();
+        /** Destructor
+         */
+        ~MoonManager();
 
-		/** Create all resources
-		 */
-		void create();
+        /** Create all resources
+         */
+        void create();
 
-		/** Remove all resources
-		 */
-		void remove();
+        /** Remove all resources
+         */
+        void remove();
 
-		/** Update moon phase
-		    @param phase Moon phase in [-1,1] range, where -1 means fully covered Moon, 0 clear Moon and 1 fully covered Moon
-		 */
-		void updateMoonPhase(const Ogre::Real& phase);
+        /** Update moon phase
+            @param phase Moon phase in [-1,1] range, where -1 means fully covered Moon, 0 clear Moon and 1 fully covered Moon
+         */
+        void updateMoonPhase(const Ogre::Real &phase);
 
-		/** Update geometry
-		    @param c Camera
-		 */
-		void updateGeometry(Ogre::Camera* c);
-	
-		/** Get moon billboard
-		    @return Moon billboard
-		 */
-		inline Ogre::BillboardSet* getMoonBillboard()
-		{
-			return mMoonBillboard;
-		}
+        /** Update geometry
+            @param c Camera
+         */
+        void updateGeometry(Ogre::Camera *c);
 
-		/** Get moon scene node
-		    @return Moon scene node
-		 */
-		inline Ogre::SceneNode* getMoonSceneNode()
-		{
-			return mMoonSceneNode;
-		}
+        /** Get moon billboard
+            @return Moon billboard
+         */
+        inline Ogre::BillboardSet *getMoonBillboard()
+        {
+            return mMoonBillboard;
+        }
 
-		/** Set moon size
-		    @param MoonSize Moon size
-		 */
-		inline void setMoonSize(const Ogre::Real& MoonSize)
-		{
-			mMoonSize = MoonSize;
-		}
+        /** Get moon scene node
+            @return Moon scene node
+         */
+        inline Ogre::SceneNode *getMoonSceneNode()
+        {
+            return mMoonSceneNode;
+        }
 
-		/** Get moon size
-		    @return Moon size
-		 */
-		inline const Ogre::Real& getMoonSize() const
-		{
-			return mMoonSize;
-		}
+        /** Set moon size
+            @param MoonSize Moon size
+         */
+        inline void setMoonSize(const Ogre::Real &MoonSize)
+        {
+            mMoonSize = MoonSize;
+        }
 
-		/** Set moon halo intensity
-		    @param MoonHaloIntensity Moon halo intensity
-		 */
-		inline void setMoonHaloIntensity(const Ogre::Real& MoonHaloIntensity)
-		{
-			mMoonHaloIntensity = MoonHaloIntensity;
-		}
+        /** Get moon size
+            @return Moon size
+         */
+        inline const Ogre::Real &getMoonSize() const
+        {
+            return mMoonSize;
+        }
 
-		/** Get moon halo intensity
-		    @return Moon halo intensity
-		 */
-		inline const Ogre::Real& getMoonHaloIntensity() const
-		{
-			return mMoonHaloIntensity;
-		}
+        /** Set moon halo intensity
+            @param MoonHaloIntensity Moon halo intensity
+         */
+        inline void setMoonHaloIntensity(const Ogre::Real &MoonHaloIntensity)
+        {
+            mMoonHaloIntensity = MoonHaloIntensity;
+        }
 
-		/** Set moon halo strength
-		    @param MoonHaloStrength Moon halo strength (linear/exponential fading)
-		 */
-		inline void setMoonHaloStrength(const Ogre::Real& MoonHaloStrength)
-		{
-			mMoonHaloStrength = MoonHaloStrength;
-		}
+        /** Get moon halo intensity
+            @return Moon halo intensity
+         */
+        inline const Ogre::Real &getMoonHaloIntensity() const
+        {
+            return mMoonHaloIntensity;
+        }
 
-		/** Get moon halo strength
-		    @return Moon halo strength (linear/exponential fading)
-		 */
-		inline const Ogre::Real& getMoonHaloStrength() const
-		{
-			return mMoonHaloStrength;
-		}
+        /** Set moon halo strength
+            @param MoonHaloStrength Moon halo strength (linear/exponential fading)
+         */
+        inline void setMoonHaloStrength(const Ogre::Real &MoonHaloStrength)
+        {
+            mMoonHaloStrength = MoonHaloStrength;
+        }
 
-		/** Is moon manager created?
-		    @return true if yes, false if not
-		 */
-		inline const bool& isCreated() const
-		{
-			return mCreated;
-		}
+        /** Get moon halo strength
+            @return Moon halo strength (linear/exponential fading)
+         */
+        inline const Ogre::Real &getMoonHaloStrength() const
+        {
+            return mMoonHaloStrength;
+        }
 
-	private:
-		/** Update moon bounds
-		    @param c Camera
-	     */
-		void _updateMoonBounds(Ogre::Camera* c);
+        /** Is moon manager created?
+            @return true if yes, false if not
+         */
+        inline const bool &isCreated() const
+        {
+            return mCreated;
+        }
 
-		/// Moon billboard
-		Ogre::BillboardSet* mMoonBillboard;
-		/// Moon scene node
-		Ogre::SceneNode* mMoonSceneNode;
+      private:
+        /** Update moon bounds
+            @param c Camera
+         */
+        void _updateMoonBounds(Ogre::Camera *c);
 
-		/// Is moon manager created?
-		bool mCreated;
+        /// Moon billboard
+        Ogre::BillboardSet *mMoonBillboard;
+        /// Moon scene node
+        Ogre::SceneNode *mMoonSceneNode;
 
-		/// Moon size
-		Ogre::Real mMoonSize;
-		/// Moon halo intensity
-		Ogre::Real mMoonHaloIntensity;
-		/// Moon halo strength
-		Ogre::Real mMoonHaloStrength;
+        /// Is moon manager created?
+        bool mCreated;
 
-		/// Moon material
-		Ogre::MaterialPtr mMoonMaterial;
+        /// Moon size
+        Ogre::Real mMoonSize;
+        /// Moon halo intensity
+        Ogre::Real mMoonHaloIntensity;
+        /// Moon halo strength
+        Ogre::Real mMoonHaloStrength;
 
-		/// SkyX parent pointer
-		SkyX *mSkyX;
-	};
-}
+        /// Moon material
+        Ogre::MaterialPtr mMoonMaterial;
+
+        /// SkyX parent pointer
+        SkyX *mSkyX;
+    };
+} // namespace SkyX
 
 #endif

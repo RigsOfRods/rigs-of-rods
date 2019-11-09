@@ -22,7 +22,6 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
-
 #include "mygui/BaseLayout.h"
 
 class SurveyMapTextureCreator;
@@ -31,27 +30,28 @@ ATTRIBUTE_CLASS_LAYOUT(SurveyMapManager, "MapControl.layout");
 
 class SurveyMapManager : public wraps::BaseLayout
 {
-public:
-
+  public:
     SurveyMapManager();
     ~SurveyMapManager();
 
     void init();
 
-    SurveyMapEntity* createMapEntity(Ogre::String type);
-    void deleteMapEntity(SurveyMapEntity* entity);
+    SurveyMapEntity *createMapEntity(Ogre::String type);
+    void             deleteMapEntity(SurveyMapEntity *entity);
 
-    void hideGUI(bool hidden) { mHidden = hidden; };
+    void hideGUI(bool hidden)
+    {
+        mHidden = hidden;
+    };
 
     void windowResized();
 
-    void Update(Ogre::Real dt, Actor* curr_truck);
-    void UpdateMapEntity(SurveyMapEntity* e, Ogre::String caption, Ogre::Vector3 pos, float rot, int state, bool visible);
+    void Update(Ogre::Real dt, Actor *curr_truck);
+    void UpdateMapEntity(SurveyMapEntity *e, Ogre::String caption, Ogre::Vector3 pos, float rot, int state, bool visible);
 
     static Ogre::String getTypeByDriveable(int driveable);
 
-protected:
-
+  protected:
     enum class SurveyMapMode
     {
         NONE,
@@ -64,28 +64,28 @@ protected:
     Ogre::Vector2 mTerrainSize;
     Ogre::Vector2 mPlayerPosition;
 
-    Ogre::Real mMapZoom;
-    Ogre::Real mMapLastZoom;
+    Ogre::Real    mMapZoom;
+    Ogre::Real    mMapLastZoom;
     Ogre::Vector2 mMapSize;
     Ogre::Vector2 mMapCenter;
     Ogre::Vector2 mMapCenterOffset;
 
     ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapManager, mMapTexture, "mMapTexture");
 
-    MyGUI::StaticImage* mMapTexture;
+    MyGUI::StaticImage *mMapTexture;
 
     std::unique_ptr<SurveyMapTextureCreator> mMapTextureCreatorStatic;
     std::unique_ptr<SurveyMapTextureCreator> mMapTextureCreatorDynamic;
 
-    std::set<SurveyMapEntity*> mMapEntities;
-    SurveyMapMode mMapLastMode;
-    SurveyMapMode mMapMode;
+    std::set<SurveyMapEntity *> mMapEntities;
+    SurveyMapMode               mMapLastMode;
+    SurveyMapMode               mMapMode;
 
-    SurveyMapEntity* mCursorEntity;
-    void setFocus(MyGUI::Widget* _sender, MyGUI::Widget* _new);
-    void lostFocus(MyGUI::Widget* _sender, MyGUI::Widget* _old);
-    void mouseMove(MyGUI::Widget* _sender, int _left, int _top);
-    void mousePressed(MyGUI::Widget* _sender, int _left, int _top, MyGUI::MouseButton _id);
+    SurveyMapEntity *mCursorEntity;
+    void             setFocus(MyGUI::Widget *_sender, MyGUI::Widget *_new);
+    void             lostFocus(MyGUI::Widget *_sender, MyGUI::Widget *_old);
+    void             mouseMove(MyGUI::Widget *_sender, int _left, int _top);
+    void             mousePressed(MyGUI::Widget *_sender, int _left, int _top, MyGUI::MouseButton _id);
 
     void cycleMode();
     void toggleMode();
@@ -98,4 +98,3 @@ protected:
     void setPlayerPosition(Ogre::Vector2 position);
     void setWindowPosition(int x, int y, float size);
 };
-

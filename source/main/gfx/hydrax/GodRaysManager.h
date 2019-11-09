@@ -3,7 +3,7 @@
 This source file is part of Hydrax.
 Visit ---
 
-Copyright (C) 2008 Xavier Verguín González <xavierverguin@hotmail.com>
+Copyright (C) 2008 Xavier Verguï¿½n Gonzï¿½lez <xavierverguin@hotmail.com>
                                            <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
@@ -25,311 +25,302 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef _Hydrax_GodRaysManager_H_
 #define _Hydrax_GodRaysManager_H_
 
-#include "Prerequisites.h"
-#include "Perlin.h"
-
 #include "Enums.h"
+#include "Perlin.h"
+#include "Prerequisites.h"
 
 namespace Hydrax
 {
-	class Hydrax;
+    class Hydrax;
 
-	/** Underwater god rays manager class
-	    God rays
-	 */
-	class GodRaysManager
-	{
-	public:
-		/** God rays material enumeration
-		 */
-		enum MaterialType
-		{
-			// Material used for god rays
-			MAT_GODRAYS = 0,
-			// Used for depth mat(for objects intersections)
-			MAT_DEPTH   = 1
-		};
-
-		/** Constructor
-		    @param h Hydrax parent pointer
-		 */
-		GodRaysManager(Hydrax *h);
-
-		/** Destructor
-		 */
-		~GodRaysManager();
-
-		/** Create
-		    @param HC Current Hydrax components
-		 */
-		void create(const HydraxComponent& HC);
-
-		/** Remove
-		 */
-		void remove();
-
-		/** Call each frame
-		    @param timeSinceLastFrame Time since last frame
+    /** Underwater god rays manager class
+        God rays
+     */
+    class GodRaysManager
+    {
+      public:
+        /** God rays material enumeration
          */
-        void update(const Ogre::Real& timeSinceLastFrame);
+        enum MaterialType
+        {
+            // Material used for god rays
+            MAT_GODRAYS = 0,
+            // Used for depth mat(for objects intersections)
+            MAT_DEPTH = 1
+        };
 
-		/** Has been create() already called?
-		    @return true If yes
-		 */
-		inline const bool& isCreated() const
-		{
-			return mCreated;
-		}
+        /** Constructor
+            @param h Hydrax parent pointer
+         */
+        GodRaysManager(Hydrax *h);
 
-		/** Add god rays depth technique to an especified material
-		    @param Technique Technique where depth technique will be added
-			@param AutoUpdate The technique will be automatically updated when god rays parameters change
-			@remarks Call it after Hydrax::create()/Hydrax::setComponents(...)
+        /** Destructor
+         */
+        ~GodRaysManager();
 
-			         The technique will be automatically updated when god rays parameters change if parameter AutoUpdate == true
-			         Add depth technique when a material is not an Ogre::Entity, such terrains, PLSM2 materials, etc.
-					 This depth technique will be added with "HydraxGodRaysDepth" scheme in ordeto can use it in the G.R. depth RTT.
-		 */
-		void addDepthTechnique(Ogre::Technique *Technique, const bool& AutoUpdate = true);
+        /** Create
+            @param HC Current Hydrax components
+         */
+        void create(const HydraxComponent &HC);
 
-		/** Set god rays simulation speed
-		    @param Speed Simulation speed
-		 */
-		inline void SetSimulationSpeed(const Ogre::Real& Speed)
-		{
-			mSimulationSpeed = Speed;
-		}
+        /** Remove
+         */
+        void remove();
 
-		/** Get god rays simulation speed
-		    @return Simlation speed
-		 */
-		inline const Ogre::Real& getSimulationSpeed() const
-		{
-			return mSimulationSpeed;
-		}
+        /** Call each frame
+            @param timeSinceLastFrame Time since last frame
+         */
+        void update(const Ogre::Real &timeSinceLastFrame);
 
-		/** Set the number of god rays
-		    @param NumberOfRays Number of god rays
-		 */
-		void setNumberOfRays(const int& NumberOfRays);
+        /** Has been create() already called?
+            @return true If yes
+         */
+        inline const bool &isCreated() const
+        {
+            return mCreated;
+        }
 
-		/** Get number of god rays
-		    @return Number of god rays
-		 */
-		inline const int& getNumberOfRays() const
-		{
-			return mNumberOfRays;
-		}
+        /** Add god rays depth technique to an especified material
+            @param Technique Technique where depth technique will be added
+            @param AutoUpdate The technique will be automatically updated when god rays parameters change
+            @remarks Call it after Hydrax::create()/Hydrax::setComponents(...)
 
-		/** Set god rays size
-		    @param Size God rays size
-		 */
-		inline void setRaysSize(const Ogre::Real& Size)
-		{
-			mRaysSize = Size;
-		}
+                     The technique will be automatically updated when god rays parameters change if parameter AutoUpdate == true
+                     Add depth technique when a material is not an Ogre::Entity, such terrains, PLSM2 materials, etc.
+                     This depth technique will be added with "HydraxGodRaysDepth" scheme in ordeto can use it in the G.R. depth
+           RTT.
+         */
+        void addDepthTechnique(Ogre::Technique *Technique, const bool &AutoUpdate = true);
 
-		/** Get god rays size
-		    @return Rays size
-		 */
-		inline const Ogre::Real& getRaysSize() const
-		{
-			return mRaysSize;
-		}
+        /** Set god rays simulation speed
+            @param Speed Simulation speed
+         */
+        inline void SetSimulationSpeed(const Ogre::Real &Speed)
+        {
+            mSimulationSpeed = Speed;
+        }
 
-		/** Get perlin noise module
-		    @return Perlin noise module
-		 */
-		inline Noise::Perlin* getPerlin()
-		{
-			return mPerlin;
-		}
+        /** Get god rays simulation speed
+            @return Simlation speed
+         */
+        inline const Ogre::Real &getSimulationSpeed() const
+        {
+            return mSimulationSpeed;
+        }
 
-		/** Get good rays scene node
-		    @return God rays scene node
-		 */
-		inline Ogre::SceneNode* getSceneNode()
-		{
-			return mProjectorSN;
-		}
+        /** Set the number of god rays
+            @param NumberOfRays Number of god rays
+         */
+        void setNumberOfRays(const int &NumberOfRays);
 
-		/** Set visible
-		    @param Visible true = yes; false = no
-		 */
-		inline void setVisible(const bool& Visible)
-		{
-			if (mCreated)
-			{
-				mManualGodRays->setVisible(Visible);
-			}
-		}
+        /** Get number of god rays
+            @return Number of god rays
+         */
+        inline const int &getNumberOfRays() const
+        {
+            return mNumberOfRays;
+        }
 
-		/** Is visible?
-		    @return true if it's visible, false if not
-		 */
-		inline const bool isVisible() const
-		{
-			if (!mCreated)
-			{
-				return false;
-			}
+        /** Set god rays size
+            @param Size God rays size
+         */
+        inline void setRaysSize(const Ogre::Real &Size)
+        {
+            mRaysSize = Size;
+        }
 
-			return mManualGodRays->isVisible();
-		}
+        /** Get god rays size
+            @return Rays size
+         */
+        inline const Ogre::Real &getRaysSize() const
+        {
+            return mRaysSize;
+        }
 
-		/** Set objects intersections enabled
-		    @param Enable true for yes, false for not
-		 */
-		void setObjectIntersectionsEnabled(const bool& Enable);
+        /** Get perlin noise module
+            @return Perlin noise module
+         */
+        inline Noise::Perlin *getPerlin()
+        {
+            return mPerlin;
+        }
 
-		/** Are rays objects intersections enabled?
-		    @return true if yes, false if not
-		 */
-		inline const bool& areObjectsIntersectionsEnabled() const
-		{
-			return mObjectsIntersections;
-		}
+        /** Get good rays scene node
+            @return God rays scene node
+         */
+        inline Ogre::SceneNode *getSceneNode()
+        {
+            return mProjectorSN;
+        }
 
-		/** Get noise params
-		    @return Ogre::Vector4 that stores 4 parameters:
-			                x-> Noise derivation
-			                y-> Position multiplier
-							z-> Y normal component multiplier
-							w-> Normal multiplier
-		 */
-		inline const Ogre::Vector4 getNoiseParameters() const
-		{
-			return Ogre::Vector4(mNoiseDerivation,
-				                 mNoisePositionMultiplier,
-                                 mNoiseYNormalMultiplier,
-								 mNoiseNormalMultiplier);
-		}
+        /** Set visible
+            @param Visible true = yes; false = no
+         */
+        inline void setVisible(const bool &Visible)
+        {
+            if (mCreated) { mManualGodRays->setVisible(Visible); }
+        }
 
-		/** Set noise params
-		    @param Params:  x-> Noise derivation
-			                y-> Position multiplier
-							z-> Y normal component multiplier
-							w-> Normal multiplier
-		 */
-		inline void setNoiseParameters(Ogre::Vector4 Params)
-		{
-			mNoiseDerivation         = Params.x;
-			mNoisePositionMultiplier = Params.y;
-			mNoiseYNormalMultiplier  = Params.z;
-			mNoiseNormalMultiplier   = Params.w;
-		}
+        /** Is visible?
+            @return true if it's visible, false if not
+         */
+        inline const bool isVisible() const
+        {
+            if (!mCreated) { return false; }
 
-	private:
-		/** GodRaysManager::DepthMapListener class
-		 */
-		class DepthMapListener : public Ogre::RenderTargetListener
-		{
-		public:
-			/// God rays manager pointer
-			GodRaysManager* mGodRaysManager;
+            return mManualGodRays->isVisible();
+        }
 
-			/// std::string to store entity's original materials name
-			std::queue<std::string> mMaterials;
+        /** Set objects intersections enabled
+            @param Enable true for yes, false for not
+         */
+        void setObjectIntersectionsEnabled(const bool &Enable);
 
-			/** Funtion that is called before the Rtt will render
-			    @param evt Ogre RenderTargetEvent
-			    @remarks We've to override it
-			 */
-			void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
+        /** Are rays objects intersections enabled?
+            @return true if yes, false if not
+         */
+        inline const bool &areObjectsIntersectionsEnabled() const
+        {
+            return mObjectsIntersections;
+        }
 
-			/** Funtion that is called after the Rtt will render
-			    @param evt Ogre RenderTargetEvent
-			    @remarks We've to override it
-			 */
-			void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
-		};
+        /** Get noise params
+            @return Ogre::Vector4 that stores 4 parameters:
+                            x-> Noise derivation
+                            y-> Position multiplier
+                            z-> Y normal component multiplier
+                            w-> Normal multiplier
+         */
+        inline const Ogre::Vector4 getNoiseParameters() const
+        {
+            return Ogre::Vector4(mNoiseDerivation, mNoisePositionMultiplier, mNoiseYNormalMultiplier, mNoiseNormalMultiplier);
+        }
 
-		/** Calculate the current position of a ray
-		    @param RayNumber Number of the ray range[0,NumerOfRays]
-			@return Ray position range[-1,1]x[-1,1]
-		 */
-		Ogre::Vector2 _calculateRayPosition(const int& RayNumber);
+        /** Set noise params
+            @param Params:  x-> Noise derivation
+                            y-> Position multiplier
+                            z-> Y normal component multiplier
+                            w-> Normal multiplier
+         */
+        inline void setNoiseParameters(Ogre::Vector4 Params)
+        {
+            mNoiseDerivation         = Params.x;
+            mNoisePositionMultiplier = Params.y;
+            mNoiseYNormalMultiplier  = Params.z;
+            mNoiseNormalMultiplier   = Params.w;
+        }
 
-		/** Create god rays manual object
-		 */
-		void _createGodRays();
+      private:
+        /** GodRaysManager::DepthMapListener class
+         */
+        class DepthMapListener : public Ogre::RenderTargetListener
+        {
+          public:
+            /// God rays manager pointer
+            GodRaysManager *mGodRaysManager;
 
-		/** Create materials that we need(God rays depth too if it's needed)
-		    @param HC Current Hydrax components
-		 */
-		void _createMaterials(const HydraxComponent& HC);
+            /// std::string to store entity's original materials name
+            std::queue<std::string> mMaterials;
 
-		/** Update god rays
-		 */
-		void _updateRays();
+            /** Funtion that is called before the Rtt will render
+                @param evt Ogre RenderTargetEvent
+                @remarks We've to override it
+             */
+            void preRenderTargetUpdate(const Ogre::RenderTargetEvent &evt);
 
-		/** Update materials parameters
-		 */
-		void _updateMaterialsParameters();
+            /** Funtion that is called after the Rtt will render
+                @param evt Ogre RenderTargetEvent
+                @remarks We've to override it
+             */
+            void postRenderTargetUpdate(const Ogre::RenderTargetEvent &evt);
+        };
 
-		/** Update projector
-		 */
-		void _updateProjector();
+        /** Calculate the current position of a ray
+            @param RayNumber Number of the ray range[0,NumerOfRays]
+            @return Ray position range[-1,1]x[-1,1]
+         */
+        Ogre::Vector2 _calculateRayPosition(const int &RayNumber);
 
-		/** Create depth RTT
-		  */
-		void _createDepthRTT();
+        /** Create god rays manual object
+         */
+        void _createGodRays();
 
-		/** Is component in the given list?
-		    @param List Components list
-			@param ToCheck Component to check
-		    @return true if the component is in the given list.
-		 */
-		bool _isComponent(const HydraxComponent &List, const HydraxComponent &ToCheck) const;
+        /** Create materials that we need(God rays depth too if it's needed)
+            @param HC Current Hydrax components
+         */
+        void _createMaterials(const HydraxComponent &HC);
 
-		/// Has been create() already called?
-		bool mCreated;
+        /** Update god rays
+         */
+        void _updateRays();
 
-		/// Manual object to create god rays
-        Ogre::ManualObject* mManualGodRays;
-		/// Camera used to project rays
-		Ogre::Camera *mProjectorCamera;
-		/// Projector scene node
-		Ogre::SceneNode *mProjectorSN;
+        /** Update materials parameters
+         */
+        void _updateMaterialsParameters();
 
-		/// Our Perlin noise module
-		Noise::Perlin *mPerlin;
+        /** Update projector
+         */
+        void _updateProjector();
 
-		/** Noise parameters (Used in _calculateRayPosition(...))
-		 */
-		/// Normal derivation value
-		Ogre::Real mNoiseDerivation;
-		/// PositionMultiplier value
-		Ogre::Real mNoisePositionMultiplier;
-		/// Y normal component multiplier
-		Ogre::Real mNoiseYNormalMultiplier;
-		/// Normal multiplier
-		Ogre::Real mNoiseNormalMultiplier;
+        /** Create depth RTT
+         */
+        void _createDepthRTT();
 
-		/// God rays materials
-		/// 0-God rays, 1-Depth
-		Ogre::MaterialPtr mMaterials[2];
-		/// Technique vector for addDepthTechnique(...)
-		std::vector<Ogre::Technique*> mDepthTechniques;
+        /** Is component in the given list?
+            @param List Components list
+            @param ToCheck Component to check
+            @return true if the component is in the given list.
+         */
+        bool _isComponent(const HydraxComponent &List, const HydraxComponent &ToCheck) const;
 
-		/// God rays simulation speed
-		Ogre::Real mSimulationSpeed;
-		/// Number of rays
-		int mNumberOfRays;
-		/// God rays size
-		Ogre::Real mRaysSize;
-		/// Are god rays objects intersections active?
-		bool mObjectsIntersections;
+        /// Has been create() already called?
+        bool mCreated;
 
-		/// For rays intersection with objects we use a depth map based technique
-		/// Depth RTT texture
-		Ogre::TexturePtr mProjectorRTT;
-		/// Depth RTT listener
-		DepthMapListener mDepthMapListener;
+        /// Manual object to create god rays
+        Ogre::ManualObject *mManualGodRays;
+        /// Camera used to project rays
+        Ogre::Camera *mProjectorCamera;
+        /// Projector scene node
+        Ogre::SceneNode *mProjectorSN;
 
-		/// Hydrax parent pointer
-		Hydrax *mHydrax;
-	};
-};
+        /// Our Perlin noise module
+        Noise::Perlin *mPerlin;
+
+        /** Noise parameters (Used in _calculateRayPosition(...))
+         */
+        /// Normal derivation value
+        Ogre::Real mNoiseDerivation;
+        /// PositionMultiplier value
+        Ogre::Real mNoisePositionMultiplier;
+        /// Y normal component multiplier
+        Ogre::Real mNoiseYNormalMultiplier;
+        /// Normal multiplier
+        Ogre::Real mNoiseNormalMultiplier;
+
+        /// God rays materials
+        /// 0-God rays, 1-Depth
+        Ogre::MaterialPtr mMaterials[2];
+        /// Technique vector for addDepthTechnique(...)
+        std::vector<Ogre::Technique *> mDepthTechniques;
+
+        /// God rays simulation speed
+        Ogre::Real mSimulationSpeed;
+        /// Number of rays
+        int mNumberOfRays;
+        /// God rays size
+        Ogre::Real mRaysSize;
+        /// Are god rays objects intersections active?
+        bool mObjectsIntersections;
+
+        /// For rays intersection with objects we use a depth map based technique
+        /// Depth RTT texture
+        Ogre::TexturePtr mProjectorRTT;
+        /// Depth RTT listener
+        DepthMapListener mDepthMapListener;
+
+        /// Hydrax parent pointer
+        Hydrax *mHydrax;
+    };
+}; // namespace Hydrax
 
 #endif

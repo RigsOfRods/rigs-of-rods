@@ -25,11 +25,8 @@
 
 using namespace Ogre;
 
-SurveyMapEntity::SurveyMapEntity(String type, MyGUI::StaticImagePtr parent) :
-      mFileName("icon_" + type + ".dds")
-    , mParent(parent)
-    , mRotation(0)
-    , mType(type)
+SurveyMapEntity::SurveyMapEntity(String type, MyGUI::StaticImagePtr parent)
+    : mFileName("icon_" + type + ".dds"), mParent(parent), mRotation(0), mType(type)
 {
     initialiseByAttributes(this, parent);
 
@@ -42,16 +39,10 @@ SurveyMapEntity::SurveyMapEntity(String type, MyGUI::StaticImagePtr parent) :
 
 void SurveyMapEntity::setPosition(float x, float z)
 {
-    mMainWidget->setPosition(
-        x * mParent->getWidth()  - mMainWidget->getWidth()  / 2,
-        z * mParent->getHeight() - mMainWidget->getHeight() / 2
-    );
-    mIcon->setCoord(
-        mMainWidget->getWidth() / 2 - mIconSize.width / 2,
-        mMainWidget->getHeight() / 2 - mIconSize.height / 2,
-        mIconSize.width,
-        mIconSize.height
-    );
+    mMainWidget->setPosition(x * mParent->getWidth() - mMainWidget->getWidth() / 2,
+                             z * mParent->getHeight() - mMainWidget->getHeight() / 2);
+    mIcon->setCoord(mMainWidget->getWidth() / 2 - mIconSize.width / 2, mMainWidget->getHeight() / 2 - mIconSize.height / 2,
+                    mIconSize.width, mIconSize.height);
 }
 
 void SurveyMapEntity::setRotation(float r)
@@ -73,8 +64,7 @@ void SurveyMapEntity::setVisibility(bool v)
 
 void SurveyMapEntity::setState(int truckstate)
 {
-    if (mFileName == "icon_missing.dds")
-       return;
+    if (mFileName == "icon_missing.dds") return;
 
     String fileName = mFileName;
 
@@ -106,12 +96,12 @@ void SurveyMapEntity::updateIcon()
     if (texture.isNull())
     {
         mFileName = "icon_missing.dds";
-        texture = TextureManager::getSingleton().getByName(mFileName);
+        texture   = TextureManager::getSingleton().getByName(mFileName);
     }
 
     if (!texture.isNull())
     {
-        mIconSize.width = (int)texture->getWidth();
+        mIconSize.width  = (int)texture->getWidth();
         mIconSize.height = (int)texture->getHeight();
         mIcon->setSize(mIconSize);
     }

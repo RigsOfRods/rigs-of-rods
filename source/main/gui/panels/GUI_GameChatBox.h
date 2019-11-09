@@ -28,34 +28,34 @@
 #include "ForwardDeclarations.h"
 #include "GUI_GameChatBoxLayout.h"
 
-namespace RoR {
-namespace GUI {
-
-class GameChatBox: public GameChatBoxLayout
+namespace RoR
 {
-public:
+    namespace GUI
+    {
 
-    GameChatBox();
-    ~GameChatBox();
+        class GameChatBox : public GameChatBoxLayout
+        {
+          public:
+            GameChatBox();
+            ~GameChatBox();
 
-    void Show();
-    void Hide();
-    bool IsVisible();
-    void SetVisible(bool value);
-    void pushMsg(Ogre::String txt);
-    void Update(float dt);
+            void Show();
+            void Hide();
+            bool IsVisible();
+            void SetVisible(bool value);
+            void pushMsg(Ogre::String txt);
+            void Update(float dt);
 
-private:
+          private:
+            void eventCommandAccept(MyGUI::Edit *_sender);
 
-    void eventCommandAccept(MyGUI::Edit* _sender);
+            Ogre::String mHistory;
+            bool         newMsg;
 
-    Ogre::String mHistory;
-    bool newMsg;
+            // logic
+            float alpha;
+            long  pushTime;
+        };
 
-    // logic
-    float alpha;
-    long pushTime;
-};
-
-} // namespace GUI
+    } // namespace GUI
 } // namespace RoR

@@ -26,20 +26,20 @@
 
 using namespace Ogre;
 
-Airfoil::Airfoil(Ogre::String const& fname)
+Airfoil::Airfoil(Ogre::String const &fname)
 {
-    for (int i = 0; i < 3601; i++) //init in case of bad things
+    for (int i = 0; i < 3601; i++) // init in case of bad things
     {
         cl[i] = 0;
         cd[i] = 0;
         cm[i] = 0;
     }
     char line[1024];
-    //we load directly X-Plane AFL file format!!!
-    bool process = false;
-    bool neg = true;
-    int lastia = -1;
-    ResourceGroupManager& rgm = ResourceGroupManager::getSingleton();
+    // we load directly X-Plane AFL file format!!!
+    bool                  process = false;
+    bool                  neg     = true;
+    int                   lastia  = -1;
+    ResourceGroupManager &rgm     = ResourceGroupManager::getSingleton();
 
     String group = "";
     try
@@ -51,7 +51,7 @@ Airfoil::Airfoil(Ogre::String const& fname)
     }
     if (group == "")
     {
-        LOG(String("Airfoil error: could not load airfoil ")+fname);
+        LOG(String("Airfoil error: could not load airfoil ") + fname);
         return;
     }
 
@@ -59,8 +59,7 @@ Airfoil::Airfoil(Ogre::String const& fname)
     while (!ds->eof())
     {
         size_t ll = ds->readLine(line, 1023);
-        if (ll == 0)
-            continue;
+        if (ll == 0) continue;
         //		fscanf(fd," %[^\n\r]",line);
         if (!strncmp("alpha", line, 5))
         {
@@ -70,12 +69,10 @@ Airfoil::Airfoil(Ogre::String const& fname)
         if (process)
         {
             float l, d, m;
-            int a, b;
+            int   a, b;
             sscanf(line, "%i.%i %f %f %f", &a, &b, &l, &d, &m);
-            if (neg)
-                b = -b;
-            if (a == 0 && b == 0)
-                neg = false;
+            if (neg) b = -b;
+            if (a == 0 && b == 0) neg = false;
             int ia = (a * 10 + b) + 1800;
             if (ia == 3600) { process = false; };
             cl[ia] = l;
@@ -83,7 +80,7 @@ Airfoil::Airfoil(Ogre::String const& fname)
             cm[ia] = m;
             if (lastia != -1 && ia - lastia > 1)
             {
-                //we have to interpolate previous elements (linear interpolation)
+                // we have to interpolate previous elements (linear interpolation)
                 int i;
                 for (i = 0; i < ia - lastia - 1; i++)
                 {
@@ -101,26 +98,21 @@ Airfoil::~Airfoil()
 {
 }
 
-void Airfoil::getparams(float a, float cratio, float cdef, float* ocl, float* ocd, float* ocm)
+void Airfoil::getparams(float a, float cratio, float cdef, float *ocl, float *ocd, float *ocm)
 {
     int ta = (int)(a / 360.0);
     //		float va=360.0f*fmod(a, 360.0f); FMOD IS TOTALLY UNRELIABLE HERE : fmod(-180.0f, 360.0f)=-180.0f!!!!!
     float va = a - (float)(ta * 360);
-    if (va > 180.0f)
-        va -= 360.0f;
-    if (va < -180.0f)
-        va += 360.0f;
+    if (va > 180.0f) va -= 360.0f;
+    if (va < -180.0f) va += 360.0f;
     int ia = (int)((va + 180.0f) * 10.0f);
-    //drag shift
+    // drag shift
     float dva = va + 1.15 * (1.0 - cratio) * cdef;
-    if (dva > 180.0f)
-        dva -= 360.0f;
-    if (dva < -180.0f)
-        dva += 360.0f;
-    int dia = (int)((dva + 180.0f) * 10.0f);
+    if (dva > 180.0f) dva -= 360.0f;
+    if (dva < -180.0f) dva += 360.0f;
+    int   dia  = (int)((dva + 180.0f) * 10.0f);
     float sign = 1.0;
-    if (cdef < 0)
-        sign = -1.0;
+    if (cdef < 0) sign = -1.0;
     *ocl = cl[ia] - 0.66 * sign * (1.0 - cratio) * sqrt(fabs(cdef));
     *ocd = cd[dia] + 0.00015 * (1.0 - cratio) * cdef * cdef;
     *ocm = cm[ia] + 0.20 * sign * (1.0 - cratio) * sqrt(fabs(cdef));

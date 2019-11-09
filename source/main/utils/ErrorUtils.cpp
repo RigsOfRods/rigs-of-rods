@@ -19,7 +19,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
+/**
     @file   ErrorUtils.cpp
     @author Thomas Fischer
     @date   3rd October 2009
@@ -28,12 +28,12 @@
 #include "ErrorUtils.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#include <windows.h>
-#include <shlobj.h>
-#include <shellapi.h> // for ShellExecuteW
-#define _L
+    #include <shellapi.h> // for ShellExecuteW
+    #include <shlobj.h>
+    #include <windows.h>
+    #define _L
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-#include "Language.h"
+    #include "Language.h"
 #endif
 
 using namespace Ogre;
@@ -52,18 +52,18 @@ int ErrorUtils::ShowInfo(Ogre::UTFString title, Ogre::UTFString err)
 int ErrorUtils::ShowMsgBox(Ogre::UTFString title, Ogre::UTFString err, int type)
 {
     // we might call the ErrorUtils::ShowMsgBox without having ogre created yet!
-    //LOG("message box: " + title + ": " + err);
+    // LOG("message box: " + title + ": " + err);
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
     int mtype = MB_ICONERROR;
-    if (type == 1)
-        mtype = MB_ICONINFORMATION;
+    if (type == 1) mtype = MB_ICONINFORMATION;
     MessageBoxW(NULL, err.asWStr_c_str(), title.asWStr_c_str(), MB_OK | mtype | MB_TOPMOST);
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-	printf("\n\n%s: %s\n\n", title.asUTF8_c_str(), err.asUTF8_c_str());
+    printf("\n\n%s: %s\n\n", title.asUTF8_c_str(), err.asUTF8_c_str());
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-	printf("\n\n%s: %s\n\n", title.asUTF8_c_str(), err.asUTF8_c_str());
-    //CFOptionFlags flgs;
-    //CFUserNotificationDisplayAlert(0, kCFUserNotificationStopAlertLevel, NULL, NULL, NULL, T("A network error occured"), T("Bad server port."), NULL, NULL, NULL, &flgs);
+    printf("\n\n%s: %s\n\n", title.asUTF8_c_str(), err.asUTF8_c_str());
+    // CFOptionFlags flgs;
+    // CFUserNotificationDisplayAlert(0, kCFUserNotificationStopAlertLevel, NULL, NULL, NULL, T("A network error occured"), T("Bad
+    // server port."), NULL, NULL, NULL, &flgs);
 #endif
     return 0;
 }

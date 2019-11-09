@@ -11,7 +11,7 @@
 using namespace RoR;
 using namespace GUI;
 
-MainSelectorLayout::MainSelectorLayout(MyGUI::Widget* _parent)
+MainSelectorLayout::MainSelectorLayout(MyGUI::Widget *_parent)
 {
     initialiseByAttributes(this, _parent);
 }

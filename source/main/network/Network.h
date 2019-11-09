@@ -23,106 +23,110 @@
 
 #ifdef USE_SOCKETW
 
-#include "Application.h"
-#include "RoRnet.h"
-#include "RoRPrerequisites.h"
+    #include "Application.h"
+    #include "RoRPrerequisites.h"
+    #include "RoRnet.h"
 
-#include <list>
-#include <queue>
-#include <string>
-#include <vector>
+    #include <list>
+    #include <queue>
+    #include <string>
+    #include <vector>
 
-namespace RoR {
-namespace Networking {
-
-// ----------------------- Network messages (packed) -------------------------
-
-#pragma pack(push, 1)
-
-enum CharacterCmd
+namespace RoR
 {
-    CHARACTER_CMD_INVALID,
-    CHARACTER_CMD_POSITION,
-    CHARACTER_CMD_ATTACH,
-    CHARACTER_CMD_DETACH
-};
-
-struct CharacterMsgGeneric
-{
-    int32_t command;
-};
-
-struct CharacterMsgPos
-{
-    int32_t command;
-    float   pos_x, pos_y, pos_z;
-    float   rot_angle;
-    float   anim_time;
-    char    anim_name[CHARACTER_ANIM_NAME_LEN];
-};
-
-struct CharacterMsgAttach
-{
-    int32_t command;
-    int32_t source_id;
-    int32_t stream_id;
-    int32_t position;
-};
-
-struct recv_packet_t
-{
-    RoRnet::Header header;
-    char buffer[RORNET_MAX_MESSAGE_LENGTH];
-};
-
-#pragma pack(pop)
-
-// ------------------------ End of network messages --------------------------
-
-struct NetEvent
-{
-    enum class Type
+    namespace Networking
     {
-        INVALID,
-        CONNECT_STARTED,
-        CONNECT_PROGRESS,
-        CONNECT_SUCCESS,
-        CONNECT_FAILURE,
-        SERVER_KICK,
-        USER_DISCONNECT,
-        RECV_ERROR,
-    };
 
-    NetEvent(Type t, std::string const& msg) :type(t), message(msg) {}
+        // ----------------------- Network messages (packed) -------------------------
 
-    Type type;
-    std::string message;
-};
+    #pragma pack(push, 1)
 
-typedef std::queue < NetEvent, std::list<NetEvent>> NetEventQueue;
+        enum CharacterCmd
+        {
+            CHARACTER_CMD_INVALID,
+            CHARACTER_CMD_POSITION,
+            CHARACTER_CMD_ATTACH,
+            CHARACTER_CMD_DETACH
+        };
 
-bool                 StartConnecting();    ///< Launches connecting on background.
-NetEventQueue        CheckEvents();        ///< Processes and returns the event queue.
-void                 Disconnect();
+        struct CharacterMsgGeneric
+        {
+            int32_t command;
+        };
 
-void                 AddPacket(int streamid, int type, int len, char *content);
-void                 AddLocalStream(RoRnet::StreamRegister *reg, int size);
+        struct CharacterMsgPos
+        {
+            int32_t command;
+            float   pos_x, pos_y, pos_z;
+            float   rot_angle;
+            float   anim_time;
+            char    anim_name[CHARACTER_ANIM_NAME_LEN];
+        };
 
-std::vector<recv_packet_t> GetIncomingStreamData();
+        struct CharacterMsgAttach
+        {
+            int32_t command;
+            int32_t source_id;
+            int32_t stream_id;
+            int32_t position;
+        };
 
-int                  GetUID();
-int                  GetNetQuality();
+        struct recv_packet_t
+        {
+            RoRnet::Header header;
+            char           buffer[RORNET_MAX_MESSAGE_LENGTH];
+        };
 
-Ogre::String         GetTerrainName();
+    #pragma pack(pop)
 
-int                  GetUserColor();
-Ogre::UTFString      GetUsername();
-RoRnet::UserInfo     GetLocalUserData();
-std::vector<RoRnet::UserInfo> GetUserInfos();
-bool                 GetUserInfo(int uid, RoRnet::UserInfo &result);
-Ogre::ColourValue    GetPlayerColor(int color_num);
+        // ------------------------ End of network messages --------------------------
 
-} // namespace Networking
+        struct NetEvent
+        {
+            enum class Type
+            {
+                INVALID,
+                CONNECT_STARTED,
+                CONNECT_PROGRESS,
+                CONNECT_SUCCESS,
+                CONNECT_FAILURE,
+                SERVER_KICK,
+                USER_DISCONNECT,
+                RECV_ERROR,
+            };
+
+            NetEvent(Type t, std::string const &msg) : type(t), message(msg)
+            {
+            }
+
+            Type        type;
+            std::string message;
+        };
+
+        typedef std::queue<NetEvent, std::list<NetEvent>> NetEventQueue;
+
+        bool          StartConnecting(); ///< Launches connecting on background.
+        NetEventQueue CheckEvents();     ///< Processes and returns the event queue.
+        void          Disconnect();
+
+        void AddPacket(int streamid, int type, int len, char *content);
+        void AddLocalStream(RoRnet::StreamRegister *reg, int size);
+
+        std::vector<recv_packet_t> GetIncomingStreamData();
+
+        int GetUID();
+        int GetNetQuality();
+
+        Ogre::String GetTerrainName();
+
+        int                           GetUserColor();
+        Ogre::UTFString               GetUsername();
+        RoRnet::UserInfo              GetLocalUserData();
+        std::vector<RoRnet::UserInfo> GetUserInfos();
+        bool                          GetUserInfo(int uid, RoRnet::UserInfo &result);
+        Ogre::ColourValue             GetPlayerColor(int color_num);
+
+    } // namespace Networking
 } // namespace RoR
 
 #endif // USE_SOCKETW

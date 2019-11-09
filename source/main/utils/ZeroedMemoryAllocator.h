@@ -29,7 +29,7 @@
  */
 class ZeroedMemoryAllocator
 {
-public:
+  public:
     ZeroedMemoryAllocator()
     {
     }
@@ -43,7 +43,7 @@ public:
      * @param size the amount of bytes to allocate.
      * @return the given amounts of bytes zeroed.
      */
-    inline void* operator new(size_t size)
+    inline void *operator new(size_t size)
     {
         return calloc(size, sizeof(unsigned char));
     }
@@ -53,7 +53,7 @@ public:
      * @param size the amount of bytes to allocate.
      * @return the given amounts of bytes zeroed.
      */
-    inline void* operator new[](size_t size)
+    inline void *operator new[](size_t size)
     {
         return calloc(size, sizeof(unsigned char));
     }
@@ -62,7 +62,7 @@ public:
      * Memory release for a single class instance.
      * @param ptr  the memory to free.
      */
-    inline void operator delete(void* ptr)
+    inline void operator delete(void *ptr)
     {
         free(ptr);
     }
@@ -71,9 +71,8 @@ public:
      * Memory release for an array of class instances.
      * @param ptr  the memory to free.
      */
-    inline void operator delete[](void* ptr)
+    inline void operator delete[](void *ptr)
     {
         free(ptr);
     }
 };
-

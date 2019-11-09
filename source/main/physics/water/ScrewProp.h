@@ -26,30 +26,26 @@ class Screwprop : public ZeroedMemoryAllocator
 {
     friend class RigInspector;
 
-public:
+  public:
+    Screwprop(node_t *nd, int nr, int nb, int nu, float power, int trucknum);
 
-    Screwprop( node_t *nd, int nr, int nb, int nu, float power, int trucknum);
-
-    void updateForces(int update);
-    void setThrottle(float val);
-    void setRudder(float val);
+    void  updateForces(int update);
+    void  setThrottle(float val);
+    void  setRudder(float val);
     float getThrottle();
     float getRudder();
-    void reset();
-    void toggleReverse();
+    void  reset();
+    void  toggleReverse();
 
-private:
-
+  private:
     DustPool *splashp, *ripplep;
-    bool reverse;
-    float fullpower; //!< in HP
-    float rudder;
-    float throtle;
-    int nodeback;
-    int noderef;
-    int nodeup;
-    int trucknum;
-    node_t *nodes;
-
+    bool      reverse;
+    float     fullpower; //!< in HP
+    float     rudder;
+    float     throtle;
+    int       nodeback;
+    int       noderef;
+    int       nodeup;
+    int       trucknum;
+    node_t *  nodes;
 };
-

@@ -19,24 +19,22 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /// @file
 /// @author Thomas Fischer
 /// @date   6th of May 2010
-
 
 #pragma once
 
 #include "RoRPrerequisites.h"
 
-#include <Overlay/OgreTextAreaOverlayElement.h>
 #include <OIS.h>
+#include <Overlay/OgreTextAreaOverlayElement.h>
 
 struct AeroEngineOverlay
 {
-    Ogre::OverlayElement *thr_element;
-    Ogre::OverlayElement *engfire_element;
-    Ogre::OverlayElement *engstart_element;
+    Ogre::OverlayElement *  thr_element;
+    Ogre::OverlayElement *  engfire_element;
+    Ogre::OverlayElement *  engstart_element;
     Ogre::TextureUnitState *rpm_texture;
     Ogre::TextureUnitState *pitch_texture;
     Ogre::TextureUnitState *torque_texture;
@@ -44,18 +42,18 @@ struct AeroEngineOverlay
 
 struct AeroSwitchOverlay
 {
-    void Setup(std::string const & elem_name, std::string const & mat_on, std::string const & mat_off);
+    void Setup(std::string const &elem_name, std::string const &mat_on, std::string const &mat_off);
     void SetActive(bool value);
 
     Ogre::OverlayElement *element;
-    Ogre::MaterialPtr on_material;
-    Ogre::MaterialPtr off_material;
+    Ogre::MaterialPtr     on_material;
+    Ogre::MaterialPtr     off_material;
 };
 
 struct AeroTrimOverlay
 {
-    void Setup(std::string const & up, std::string const & dn, std::string const & disp);
-    void DisplayFormat(const char* fmt, ...);
+    void Setup(std::string const &up, std::string const &dn, std::string const &disp);
+    void DisplayFormat(const char *fmt, ...);
 
     Ogre::OverlayElement *up_button;
     Ogre::OverlayElement *dn_button;
@@ -76,17 +74,17 @@ struct AeroDashOverlay
     Ogre::Overlay *dash_overlay;
     Ogre::Overlay *needles_overlay;
 
-    Ogre::TextureUnitState *adibugstexture;
-    Ogre::TextureUnitState *aditapetexture;
-    Ogre::TextureUnitState *hsirosetexture;
-    Ogre::TextureUnitState *hsibugtexture;
-    Ogre::TextureUnitState *hsivtexture;
-    Ogre::TextureUnitState *hsihtexture;
-    Ogre::TextureUnitState *airspeedtexture;
-    Ogre::TextureUnitState *altimetertexture;
-    Ogre::TextureUnitState *vvitexture;
-    Ogre::TextureUnitState *aoatexture;
-    Ogre::TextAreaOverlayElement* alt_value_textarea;
+    Ogre::TextureUnitState *      adibugstexture;
+    Ogre::TextureUnitState *      aditapetexture;
+    Ogre::TextureUnitState *      hsirosetexture;
+    Ogre::TextureUnitState *      hsibugtexture;
+    Ogre::TextureUnitState *      hsivtexture;
+    Ogre::TextureUnitState *      hsihtexture;
+    Ogre::TextureUnitState *      airspeedtexture;
+    Ogre::TextureUnitState *      altimetertexture;
+    Ogre::TextureUnitState *      vvitexture;
+    Ogre::TextureUnitState *      aoatexture;
+    Ogre::TextAreaOverlayElement *alt_value_textarea;
 
     AeroSwitchOverlay hdg;
     AeroSwitchOverlay wlv;
@@ -111,15 +109,14 @@ class OverlayWrapper : public ZeroedMemoryAllocator
     friend class SimController;
     friend class RoR::MainMenu;
 
-public:
-
+  public:
     OverlayWrapper();
     ~OverlayWrapper();
 
     struct LoadedOverlay
     {
-        float orgScaleX;
-        float orgScaleY;
+        float          orgScaleX;
+        float          orgScaleY;
         Ogre::Overlay *o;
     };
 
@@ -130,28 +127,31 @@ public:
     void showPressureOverlay(bool show);
 
     void windowResized();
-    void resizeOverlay(LoadedOverlay & overlay);
+    void resizeOverlay(LoadedOverlay &overlay);
 
-    bool mouseMoved(const OIS::MouseEvent& _arg);
-    bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
-    bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    bool  mouseMoved(const OIS::MouseEvent &_arg);
+    bool  mousePressed(const OIS::MouseEvent &_arg, OIS::MouseButtonID _id);
+    bool  mouseReleased(const OIS::MouseEvent &_arg, OIS::MouseButtonID _id);
     float mTimeUntilNextToggle;
 
     void SetupDirectionArrow();
-    void UpdateDirectionArrowHud(RoR::GfxActor* player_vehicle, Ogre::Vector3 point_to, Ogre::Vector3 character_pos);
+    void UpdateDirectionArrowHud(RoR::GfxActor *player_vehicle, Ogre::Vector3 point_to, Ogre::Vector3 character_pos);
     void HideDirectionOverlay();
-    void ShowDirectionOverlay(Ogre::String const & caption);
-    bool IsDirectionArrowVisible() const { return BITMASK_IS_1(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW); }
+    void ShowDirectionOverlay(Ogre::String const &caption);
+    bool IsDirectionArrowVisible() const
+    {
+        return BITMASK_IS_1(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW);
+    }
 
-    void UpdatePressureTexture(RoR::GfxActor* ga);
+    void UpdatePressureTexture(RoR::GfxActor *ga);
 
-    void UpdateLandVehicleHUD(RoR::GfxActor* ga);
-    void UpdateAerialHUD(RoR::GfxActor* ga);
-    void UpdateMarineHUD(Actor * vehicle);
+    void UpdateLandVehicleHUD(RoR::GfxActor *ga);
+    void UpdateAerialHUD(RoR::GfxActor *ga);
+    void UpdateMarineHUD(Actor *vehicle);
 
     void ShowRacingOverlay();
     void HideRacingOverlay();
-    void UpdateRacingGui(RoR::GfxScene* gs);
+    void UpdateRacingGui(RoR::GfxScene *gs);
 
     /// Hides all overlays, but doesn't change visibility flags (for further restoring).
     void TemporarilyHideAllOverlays(Actor *current_vehicle);
@@ -159,30 +159,29 @@ public:
     /// Shows all overlays flagged as "visible".
     void RestoreOverlaysVisibility(Actor *current_vehicle);
 
-protected:
-
-    /// RoR needs to temporarily hide all overlays when player enters editor. 
+  protected:
+    /// RoR needs to temporarily hide all overlays when player enters editor.
     /// However, OGRE only provides per-overlay show() and hide() functionality.
     /// Thus, an external state must be kept to restore overlays after exiting the editor.
     struct VisibleOverlays
     {
-        static const int DIRECTION_ARROW              = BITMASK(1);
-        static const int DEBUG_FPS_MEMORY             = BITMASK(2);
-        static const int RACING                       = BITMASK(4);
-        static const int TRUCK_TIRE_PRESSURE_OVERLAY  = BITMASK(5);
+        static const int DIRECTION_ARROW             = BITMASK(1);
+        static const int DEBUG_FPS_MEMORY            = BITMASK(2);
+        static const int RACING                      = BITMASK(4);
+        static const int TRUCK_TIRE_PRESSURE_OVERLAY = BITMASK(5);
     };
 
-    int init();
+    int  init();
     void update(float dt);
     void resizePanel(Ogre::OverlayElement *oe);
     void reposPanel(Ogre::OverlayElement *oe);
     void placeNeedle(Ogre::SceneNode *node, float x, float y, float len);
-    void updateStats(bool detailed=false);
+    void updateStats(bool detailed = false);
 
-    Ogre::Overlay *loadOverlay(Ogre::String name, bool autoResizeRation=true);
+    Ogre::Overlay *       loadOverlay(Ogre::String name, bool autoResizeRation = true);
     Ogre::OverlayElement *loadOverlayElement(Ogre::String name);
 
-    Ogre::RenderWindow* win;
+    Ogre::RenderWindow *win;
 
     bool m_dashboard_visible;
 
@@ -190,7 +189,7 @@ protected:
     // Overlays
     // -------------------------------------------------------------
 
-    unsigned int  m_visible_overlays;
+    unsigned int m_visible_overlays;
 
     Ogre::Overlay *m_truck_pressure_overlay;
     Ogre::Overlay *m_truck_pressure_needle_overlay;
@@ -212,24 +211,24 @@ protected:
     // -------------------------------------------------------------
 
     // Truck
-    Ogre::OverlayElement* guiGear;      //!< truck
-    Ogre::OverlayElement* guiGear3D;    //!< truck
+    Ogre::OverlayElement *guiGear;   //!< truck
+    Ogre::OverlayElement *guiGear3D; //!< truck
 
     // Marine overlay elements
     Ogre::OverlayElement *bthro1;
     Ogre::OverlayElement *bthro2;
 
     // Truck
-    Ogre::TextAreaOverlayElement* guiAuto[5];
-    Ogre::TextAreaOverlayElement* guiAuto3D[5];
+    Ogre::TextAreaOverlayElement *guiAuto[5];
+    Ogre::TextAreaOverlayElement *guiAuto3D[5];
 
     // Truck (racing overlay)
-    Ogre::TextAreaOverlayElement* laptime;
-    Ogre::TextAreaOverlayElement* bestlaptime;
-    Ogre::TextAreaOverlayElement* directionArrowText;
-    Ogre::TextAreaOverlayElement* directionArrowDistance;
+    Ogre::TextAreaOverlayElement *laptime;
+    Ogre::TextAreaOverlayElement *bestlaptime;
+    Ogre::TextAreaOverlayElement *directionArrowText;
+    Ogre::TextAreaOverlayElement *directionArrowDistance;
 
-    Ogre::TextAreaOverlayElement* boat_depth_value_taoe; //!< Marine
+    Ogre::TextAreaOverlayElement *boat_depth_value_taoe; //!< Marine
 
     // truck
     Ogre::TextureUnitState *speedotexture; // Needed for dashboard prop
@@ -248,7 +247,7 @@ protected:
     float throffset;
 
     // Truck racing overlay
-    Ogre::SceneNode* m_direction_arrow_node;
+    Ogre::SceneNode *m_direction_arrow_node;
 
     std::vector<LoadedOverlay> m_loaded_overlays;
 };

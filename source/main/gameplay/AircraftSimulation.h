@@ -26,17 +26,18 @@
 
 #include "ForwardDeclarations.h"
 
-namespace RoR {
-
-/**
-* Stateless class which provides simulation logic.
-*/
-struct AircraftSimulation
+namespace RoR
 {
+
     /**
-    * SIM-CORE: 1x per frame. Logic: input, GUI, vehicle state.
-    */
-    static void UpdateInputEvents(Actor* vehicle, float seconds_since_last_frame);
-};
+     * Stateless class which provides simulation logic.
+     */
+    struct AircraftSimulation
+    {
+        /**
+         * SIM-CORE: 1x per frame. Logic: input, GUI, vehicle state.
+         */
+        static void UpdateInputEvents(Actor *vehicle, float seconds_since_last_frame);
+    };
 
 } // namespace RoR

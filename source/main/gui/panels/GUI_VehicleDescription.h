@@ -26,25 +26,27 @@
 #include "ForwardDeclarations.h"
 #include "GUI_VehicleDescriptionLayout.h"
 
-namespace RoR {
-namespace GUI {
-
-class VehicleDescription: public VehicleDescriptionLayout
+namespace RoR
 {
-public:
-    VehicleDescription();
-    ~VehicleDescription();
+    namespace GUI
+    {
 
-    bool IsVisible();
-    void SetVisible(bool v);
+        class VehicleDescription : public VehicleDescriptionLayout
+        {
+          public:
+            VehicleDescription();
+            ~VehicleDescription();
 
-private:
-    void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
-    void CenterToScreen();
-    void LoadText();
+            bool IsVisible();
+            void SetVisible(bool v);
 
-    static const unsigned int COMMANDS_VISIBLE = 50;
-};
+          private:
+            void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string &_name);
+            void CenterToScreen();
+            void LoadText();
 
-} // namespace GUI
+            static const unsigned int COMMANDS_VISIBLE = 50;
+        };
+
+    } // namespace GUI
 } // namespace RoR

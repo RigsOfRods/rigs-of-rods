@@ -28,39 +28,38 @@
 
 #include "RoRPrerequisites.h"
 
-namespace RoR {
-
-class SceneMouse
+namespace RoR
 {
-public:
 
-    SceneMouse();
+    class SceneMouse
+    {
+      public:
+        SceneMouse();
 
-    bool mouseMoved(const OIS::MouseEvent& _arg);
-    bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
-    bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
-    bool keyPressed(const OIS::KeyEvent& _arg);
-    bool keyReleased(const OIS::KeyEvent& _arg);
+        bool mouseMoved(const OIS::MouseEvent &_arg);
+        bool mousePressed(const OIS::MouseEvent &_arg, OIS::MouseButtonID _id);
+        bool mouseReleased(const OIS::MouseEvent &_arg, OIS::MouseButtonID _id);
+        bool keyPressed(const OIS::KeyEvent &_arg);
+        bool keyReleased(const OIS::KeyEvent &_arg);
 
-    void InitializeVisuals();
-    void UpdateSimulation();
-    void UpdateVisuals();
-    void DiscardVisuals();
+        void InitializeVisuals();
+        void UpdateSimulation();
+        void UpdateVisuals();
+        void DiscardVisuals();
 
-protected:
+      protected:
+        Ogre::ManualObject *pickLine;
+        Ogre::SceneNode *   pickLineNode;
+        int                 mouseGrabState;
 
-    Ogre::ManualObject* pickLine;
-    Ogre::SceneNode* pickLineNode;
-    int mouseGrabState;
+        int           minnode;
+        float         mindist;
+        Actor *       grab_truck;
+        Ogre::Vector3 lastgrabpos;
+        int           lastMouseX, lastMouseY;
 
-    int minnode;
-    float mindist;
-    Actor* grab_truck;
-    Ogre::Vector3 lastgrabpos;
-    int lastMouseX, lastMouseY;
-
-    void releaseMousePick();
-    Ogre::Ray getMouseRay();
-};
+        void      releaseMousePick();
+        Ogre::Ray getMouseRay();
+    };
 
 } // namespace RoR

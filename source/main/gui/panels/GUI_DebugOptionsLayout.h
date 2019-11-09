@@ -8,72 +8,71 @@
 // Do not modify this code directly. Create a derived class instead.
 // ----------------------------------------------------------------------------
 
-#include "ForwardDeclarations.h"
 #include "BaseLayout.h"
+#include "ForwardDeclarations.h"
 
-namespace RoR {
-namespace GUI {
-
-ATTRIBUTE_CLASS_LAYOUT(DebugOptionsLayout, "DebugOptions.layout");
-class DebugOptionsLayout : public wraps::BaseLayout
+namespace RoR
 {
+    namespace GUI
+    {
 
-public:
+        ATTRIBUTE_CLASS_LAYOUT(DebugOptionsLayout, "DebugOptions.layout");
+        class DebugOptionsLayout : public wraps::BaseLayout
+        {
 
-    DebugOptionsLayout(MyGUI::Widget* _parent = nullptr);
-    virtual ~DebugOptionsLayout();
+          public:
+            DebugOptionsLayout(MyGUI::Widget *_parent = nullptr);
+            virtual ~DebugOptionsLayout();
 
-protected:
+          protected:
+            //%LE Widget_Declaration list start
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_ingame_console, "ingame_console");
+            MyGUI::Button *m_ingame_console;
 
-    //%LE Widget_Declaration list start
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_ingame_console, "ingame_console");
-    MyGUI::Button* m_ingame_console;
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_debug_truck_mass, "debug_truck_mass");
+            MyGUI::Button *m_debug_truck_mass;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_debug_truck_mass, "debug_truck_mass");
-    MyGUI::Button* m_debug_truck_mass;
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_adv_logging, "adv_logging");
+            MyGUI::Button *m_adv_logging;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_adv_logging, "adv_logging");
-    MyGUI::Button* m_adv_logging;
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_beam_break_debug, "beam_break_debug");
+            MyGUI::Button *m_beam_break_debug;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_beam_break_debug, "beam_break_debug");
-    MyGUI::Button* m_beam_break_debug;
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_debug_collision_meshes, "debug_collision_meshes");
+            MyGUI::Button *m_debug_collision_meshes;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_debug_collision_meshes, "debug_collision_meshes");
-    MyGUI::Button* m_debug_collision_meshes;
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_debug_videocameras, "debug_videocameras");
+            MyGUI::Button *m_debug_videocameras;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_debug_videocameras, "debug_videocameras");
-    MyGUI::Button* m_debug_videocameras;
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_beam_deform_debug, "beam_deform_debug");
+            MyGUI::Button *m_beam_deform_debug;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_beam_deform_debug, "beam_deform_debug");
-    MyGUI::Button* m_beam_deform_debug;
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_debug_envmap, "debug_envmap");
+            MyGUI::Button *m_debug_envmap;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_debug_envmap, "debug_envmap");
-    MyGUI::Button* m_debug_envmap;
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_trigger_debug, "trigger_debug");
+            MyGUI::Button *m_trigger_debug;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_trigger_debug, "trigger_debug");
-    MyGUI::Button* m_trigger_debug;
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_debug_dof, "debug_dof");
+            MyGUI::Button *m_debug_dof;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_debug_dof, "debug_dof");
-    MyGUI::Button* m_debug_dof;
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_disable_crash_reporting, "disable_crash_reporting");
+            MyGUI::Button *m_disable_crash_reporting;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_disable_crash_reporting, "disable_crash_reporting");
-    MyGUI::Button* m_disable_crash_reporting;
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_input_grabing, "input_grabing");
+            MyGUI::ComboBox *m_input_grabing;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_input_grabing, "input_grabing");
-    MyGUI::ComboBox* m_input_grabing;
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_preselected_map, "preselected_map");
+            MyGUI::EditBox *m_preselected_map;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_preselected_map, "preselected_map");
-    MyGUI::EditBox* m_preselected_map;
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_preselected_truck, "preselected_truck");
+            MyGUI::EditBox *m_preselected_truck;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_preselected_truck, "preselected_truck");
-    MyGUI::EditBox* m_preselected_truck;
+            ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_Save_btn, "Save_btn");
+            MyGUI::Button *m_Save_btn;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(DebugOptionsLayout, m_Save_btn, "Save_btn");
-    MyGUI::Button* m_Save_btn;
+            //%LE Widget_Declaration list end
+        };
 
-    //%LE Widget_Declaration list end
-};
-
-} // namespace GUI
+    } // namespace GUI
 } // namespace RoR
-

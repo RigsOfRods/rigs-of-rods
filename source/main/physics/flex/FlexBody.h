@@ -21,15 +21,15 @@
 
 #pragma once
 
-#include "RigDef_Prerequisites.h"
-#include "RoRPrerequisites.h"
 #include "Flexable.h"
 #include "Locator_t.h"
+#include "RigDef_Prerequisites.h"
+#include "RoRPrerequisites.h"
 
-#include <OgreVector3.h>
-#include <OgreQuaternion.h>
 #include <OgreHardwareVertexBuffer.h>
 #include <OgreMesh.h>
+#include <OgreQuaternion.h>
+#include <OgreVector3.h>
 
 /// Flexbody = A deformable mesh; updated on CPU every frame, then uploaded to video memory
 class FlexBody
@@ -38,31 +38,31 @@ class FlexBody
     friend class RoR::FlexBodyFileIO;
 
     FlexBody( // Private, for FlexFactory
-        RigDef::Flexbody* def,
-        RoR::FlexBodyCacheData* preloaded_from_cache,
-        RoR::GfxActor* gfx_actor,
-        Ogre::Entity* entity,
-        int ref, 
-        int nx, 
-        int ny,
-        Ogre::Quaternion const & rot, 
-        std::vector<unsigned int> & node_indices
-    );
+        RigDef::Flexbody *def, RoR::FlexBodyCacheData *preloaded_from_cache, RoR::GfxActor *gfx_actor, Ogre::Entity *entity,
+        int ref, int nx, int ny, Ogre::Quaternion const &rot, std::vector<unsigned int> &node_indices);
 
-public:
-
+  public:
     ~FlexBody();
 
-    void printMeshInfo(Ogre::Mesh* mesh);
-    void reset();
-    void updateBlend();
-    void writeBlend();
-    Ogre::SceneNode *getSceneNode() { return m_scene_node; };
+    void             printMeshInfo(Ogre::Mesh *mesh);
+    void             reset();
+    void             updateBlend();
+    void             writeBlend();
+    Ogre::SceneNode *getSceneNode()
+    {
+        return m_scene_node;
+    };
 
-    /// Visibility control 
+    /// Visibility control
     /// @param mode {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
-    void setCameraMode(int mode) { m_camera_mode = mode; };
-    int getCameraMode() { return m_camera_mode; };
+    void setCameraMode(int mode)
+    {
+        m_camera_mode = mode;
+    };
+    int getCameraMode()
+    {
+        return m_camera_mode;
+    };
 
     void ComputeFlexbody(); //!< Updates mesh deformation; works on CPU using local copy of vertex data.
     void UpdateFlexbodyVertexBuffers();
@@ -71,27 +71,29 @@ public:
 
     void SetFlexbodyCastShadow(bool val);
 
-    int size() { return static_cast<int>(m_vertex_count); };
+    int size()
+    {
+        return static_cast<int>(m_vertex_count);
+    };
 
-private:
+  private:
+    RoR::GfxActor *m_gfx_actor;
+    size_t         m_vertex_count;
+    Ogre::Vector3  m_flexit_center; ///< Updated per frame
 
-    RoR::GfxActor*    m_gfx_actor;
-    size_t            m_vertex_count;
-    Ogre::Vector3     m_flexit_center; ///< Updated per frame
+    Ogre::Vector3 *m_dst_pos;
+    Ogre::Vector3 *m_src_normals;
+    Ogre::Vector3 *m_dst_normals;
+    Ogre::ARGB *   m_src_colors;
+    Locator_t *    m_locators; ///< 1 loc per vertex
 
-    Ogre::Vector3*    m_dst_pos;
-    Ogre::Vector3*    m_src_normals;
-    Ogre::Vector3*    m_dst_normals;
-    Ogre::ARGB*       m_src_colors;
-    Locator_t*        m_locators; ///< 1 loc per vertex
-
-    int               m_node_center;
-    int               m_node_x;
-    int               m_node_y;
-    Ogre::Vector3     m_center_offset;
-    Ogre::SceneNode*  m_scene_node;
-    Ogre::Entity*     m_scene_entity;
-    int               m_camera_mode; ///< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
+    int              m_node_center;
+    int              m_node_x;
+    int              m_node_y;
+    Ogre::Vector3    m_center_offset;
+    Ogre::SceneNode *m_scene_node;
+    Ogre::Entity *   m_scene_entity;
+    int              m_camera_mode; ///< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
 
     int                                 m_shared_buf_num_verts;
     Ogre::HardwareVertexBufferSharedPtr m_shared_vbuf_pos;

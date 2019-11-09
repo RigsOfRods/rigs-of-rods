@@ -24,29 +24,27 @@
 
 #pragma once
 
-#include <Terrain/OgreTerrain.h>
-#include <OgreShadowCameraSetupPSSM.h>
-#include <Terrain/OgreTerrainMaterialGeneratorA.h>
-
 #include "Application.h"
+#include "OgreTerrainPSSMMaterialGenerator.h"
 #include "RoRPrerequisites.h"
 
-#include "OgreTerrainPSSMMaterialGenerator.h"
+#include <OgreShadowCameraSetupPSSM.h>
+#include <Terrain/OgreTerrain.h>
+#include <Terrain/OgreTerrainMaterialGeneratorA.h>
 
-//Store datas using structs
+// Store datas using structs
 struct PSSM_Shadows_Data
 {
     Ogre::ShadowCameraSetupPtr mPSSMSetup;
-    bool mDepthShadows;
-    int ShadowsTextureNum;
-    int Quality;
-    float lambda;
+    bool                       mDepthShadows;
+    int                        ShadowsTextureNum;
+    int                        Quality;
+    float                      lambda;
 };
 
 class ShadowManager : public ZeroedMemoryAllocator
 {
-public:
-
+  public:
     ShadowManager();
     ~ShadowManager();
 
@@ -54,10 +52,9 @@ public:
 
     void updatePSSM();
 
-    void updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM2Profile* matProfile);
+    void updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM2Profile *matProfile);
 
-protected:
-
+  protected:
     void processPSSM();
     void setManagedMaterialSplitPoints(Ogre::PSSMShadowCameraSetup::SplitPointList splitPointList);
 

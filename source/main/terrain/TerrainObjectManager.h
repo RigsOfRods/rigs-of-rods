@@ -18,111 +18,118 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
-
-#include "RoRPrerequisites.h"
 
 #include "BatchPage.h"
 #include "GrassLoader.h"
 #include "ImpostorPage.h"
 #include "PagedGeometry.h"
+#include "RoRPrerequisites.h"
 #include "TreeLoader2D.h"
 #include "TreeLoader3D.h"
 
-
 class TerrainObjectManager : public ZeroedMemoryAllocator
 {
-public:
-
+  public:
     struct EditorObject
     {
-        Ogre::String name;
-        Ogre::String instance_name;
-        Ogre::Vector3 position;
-        Ogre::Vector3 rotation;
-        Ogre::Vector3 initial_position;
-        Ogre::Vector3 initial_rotation;
-        Ogre::SceneNode* node;
+        Ogre::String     name;
+        Ogre::String     instance_name;
+        Ogre::Vector3    position;
+        Ogre::Vector3    rotation;
+        Ogre::Vector3    initial_position;
+        Ogre::Vector3    initial_rotation;
+        Ogre::SceneNode *node;
     };
 
-    TerrainObjectManager(TerrainManager* terrainManager);
+    TerrainObjectManager(TerrainManager *terrainManager);
     ~TerrainObjectManager();
 
-    std::vector<EditorObject>& GetEditorObjects() { return m_editor_objects; }
-    void           LoadTObjFile(Ogre::String filename);
-    void           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* m_staticgeometry_bake_node, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
-    void           MoveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
-    void           unloadObject(const Ogre::String& instancename);
-    void           LoadTelepoints();
-    void           LoadPredefinedActors();
-    bool           HasPredefinedActors() { return !m_predefined_actors.empty(); };
-    void           PostLoadTerrain();
-    bool           UpdateTerrainObjects(float dt);
+    std::vector<EditorObject> &GetEditorObjects()
+    {
+        return m_editor_objects;
+    }
+    void LoadTObjFile(Ogre::String filename);
+    void LoadTerrainObject(const Ogre::String &name, const Ogre::Vector3 &pos, const Ogre::Vector3 &rot,
+                           Ogre::SceneNode *m_staticgeometry_bake_node, const Ogre::String &instancename,
+                           const Ogre::String &type, bool enable_collisions = true, int scripthandler = -1,
+                           bool uniquifyMaterial = false);
+    void MoveObjectVisuals(const Ogre::String &instancename, const Ogre::Vector3 &pos);
+    void unloadObject(const Ogre::String &instancename);
+    void LoadTelepoints();
+    void LoadPredefinedActors();
+    bool HasPredefinedActors()
+    {
+        return !m_predefined_actors.empty();
+    };
+    void PostLoadTerrain();
+    bool UpdateTerrainObjects(float dt);
 
     typedef struct localizer_t
     {
-        int type;
-        Ogre::Vector3 position;
+        int              type;
+        Ogre::Vector3    position;
         Ogre::Quaternion rotation;
     } localizer_t;
 
-    std::vector<localizer_t> GetLocalizers() { return localizers; }
-private:
+    std::vector<localizer_t> GetLocalizers()
+    {
+        return localizers;
+    }
 
+  private:
     struct MapEntity
     {
-        SurveyMapEntity* ent;
-        Ogre::String type;
-        Ogre::String name;
-        Ogre::Vector3 pos;
-        float rot;
-        int id;
+        SurveyMapEntity *ent;
+        Ogre::String     type;
+        Ogre::String     name;
+        Ogre::Vector3    pos;
+        float            rot;
+        int              id;
     };
 
     struct AnimatedObject
     {
-        Ogre::Entity* ent;
-        Ogre::SceneNode* node;
-        Ogre::AnimationState* anim;
-        float speedfactor;
+        Ogre::Entity *        ent;
+        Ogre::SceneNode *     node;
+        Ogre::AnimationState *anim;
+        float                 speedfactor;
     };
 
     struct PredefinedActor
     {
-        float px;
-        float py;
-        float pz;
+        float            px;
+        float            py;
+        float            pz;
         Ogre::Quaternion rotation;
-        std::string name;
-        bool ismachine;
-        bool freePosition;
+        std::string      name;
+        bool             ismachine;
+        bool             freePosition;
     };
 
     struct StaticObject
     {
-        Ogre::SceneNode* sceneNode;
-        Ogre::String instanceName;
-        bool enabled;
+        Ogre::SceneNode *sceneNode;
+        Ogre::String     instanceName;
+        bool             enabled;
         std::vector<int> collBoxes;
         std::vector<int> collTris;
     };
 
-    bool           UpdateAnimatedObjects(float dt);
+    bool                     UpdateAnimatedObjects(float dt);
     std::vector<localizer_t> localizers;
 
-    std::map<std::string, StaticObject>   m_static_objects;
-    std::vector<EditorObject>             m_editor_objects;
-    std::vector<PredefinedActor>          m_predefined_actors;
-    std::vector<AnimatedObject>           m_animated_objects;
-    std::vector<MeshObject*>              m_mesh_objects;
-    std::vector<MapEntity>                m_map_entities;
-    TerrainManager*           terrainManager;
-    Ogre::StaticGeometry*     m_staticgeometry;
-    ProceduralManager*        m_procedural_mgr;
-    Road*                     m_road;
-    Ogre::SceneNode*          m_staticgeometry_bake_node;
+    std::map<std::string, StaticObject> m_static_objects;
+    std::vector<EditorObject>           m_editor_objects;
+    std::vector<PredefinedActor>        m_predefined_actors;
+    std::vector<AnimatedObject>         m_animated_objects;
+    std::vector<MeshObject *>           m_mesh_objects;
+    std::vector<MapEntity>              m_map_entities;
+    TerrainManager *                    terrainManager;
+    Ogre::StaticGeometry *              m_staticgeometry;
+    ProceduralManager *                 m_procedural_mgr;
+    Road *                              m_road;
+    Ogre::SceneNode *                   m_staticgeometry_bake_node;
 
-    std::vector<Forests::PagedGeometry*> m_paged_geometry;
+    std::vector<Forests::PagedGeometry *> m_paged_geometry;
 };
-

@@ -21,50 +21,45 @@
 
 #pragma once
 
-#include "ForwardDeclarations.h"
 #include "FlexMesh.h"
+#include "ForwardDeclarations.h"
 
-#include <OgreVector3.h>
+#include <OgreHardwareBuffer.h>
 #include <OgreMesh.h>
 #include <OgreSubMesh.h>
-#include <OgreHardwareBuffer.h>
+#include <OgreVector3.h>
 #include <string>
 
 /// Consists of static mesh, representing the rim, and dynamic mesh, representing the tire.
-class FlexMeshWheel: public Flexable
+class FlexMeshWheel : public Flexable
 {
     friend class RoR::FlexFactory;
 
-public:
-
+  public:
     ~FlexMeshWheel();
 
-    Ogre::Entity* getRimEntity() { return m_rim_entity; };
-    Ogre::Entity* GetTireEntity() { return m_tire_entity; }
+    Ogre::Entity *getRimEntity()
+    {
+        return m_rim_entity;
+    };
+    Ogre::Entity *GetTireEntity()
+    {
+        return m_tire_entity;
+    }
 
     Ogre::Vector3 updateVertices();
 
     // Flexable
-    bool flexitPrepare();
-    void flexitCompute();
+    bool          flexitPrepare();
+    void          flexitCompute();
     Ogre::Vector3 flexitFinal();
 
     void setVisible(bool visible);
 
-private:
-
+  private:
     FlexMeshWheel( // Use FlexFactory
-        Ogre::Entity* rim_prop_entity,
-        RoR::GfxActor* gfx_actor,
-        int axis_node_1_index,
-        int axis_node_2_index,
-        int nstart,
-        int nrays,
-        std::string const& tire_mesh_name,
-        std::string const& tire_material_name,
-        float rimradius,
-        bool rimreverse
-    );
+        Ogre::Entity *rim_prop_entity, RoR::GfxActor *gfx_actor, int axis_node_1_index, int axis_node_2_index, int nstart,
+        int nrays, std::string const &tire_mesh_name, std::string const &tire_material_name, float rimradius, bool rimreverse);
 
     struct FlexMeshWheelVertex
     {
@@ -74,30 +69,30 @@ private:
     };
 
     // Wheel
-    size_t           m_num_rays;
-    float            m_rim_radius;
-    RoR::GfxActor*   m_gfx_actor;
-    int              m_axis_node0_idx;
-    int              m_axis_node1_idx;
-    int              m_start_node_idx; ///< First node (lowest index) belonging to this wheel.
+    size_t         m_num_rays;
+    float          m_rim_radius;
+    RoR::GfxActor *m_gfx_actor;
+    int            m_axis_node0_idx;
+    int            m_axis_node1_idx;
+    int            m_start_node_idx; ///< First node (lowest index) belonging to this wheel.
 
     // Meshes
     Ogre::Vector3    m_flexit_center;
     Ogre::MeshPtr    m_mesh;
-    Ogre::SubMesh*   m_submesh;
+    Ogre::SubMesh *  m_submesh;
     bool             m_is_rim_reverse;
-    Ogre::Entity*    m_rim_entity;
-    Ogre::Entity*    m_tire_entity; // Assigned by friend FlexFactory
-    Ogre::SceneNode* m_rim_scene_node;
+    Ogre::Entity *   m_rim_entity;
+    Ogre::Entity *   m_tire_entity; // Assigned by friend FlexFactory
+    Ogre::SceneNode *m_rim_scene_node;
 
     // Vertices
-    float            m_norm_y;
-    size_t           m_vertex_count;
-    FlexMeshWheelVertex* m_vertices;
-    Ogre::VertexDeclaration* m_vertex_format;
+    float                               m_norm_y;
+    size_t                              m_vertex_count;
+    FlexMeshWheelVertex *               m_vertices;
+    Ogre::VertexDeclaration *           m_vertex_format;
     Ogre::HardwareVertexBufferSharedPtr m_hw_vbuf;
 
     // Indices
-    size_t           m_index_count;
-    unsigned short*  m_indices;
+    size_t          m_index_count;
+    unsigned short *m_indices;
 };

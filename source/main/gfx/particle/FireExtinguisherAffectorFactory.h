@@ -20,25 +20,28 @@
 
 #pragma once
 
-#include <OgreParticleAffectorFactory.h>
-
 #include "FireExtinguisherAffector.h"
 
-namespace Ogre {
+#include <OgreParticleAffectorFactory.h>
 
-/** Factory class for DeflectorPlaneAffector. */
-class FireExtinguisherAffectorFactory : public ParticleAffectorFactory
+namespace Ogre
 {
-    /** See ParticleAffectorFactory */
-    String getName() const { return "FireExtinguisher"; }
 
-    /** See ParticleAffectorFactory */
-    Ogre::ParticleAffector* createAffector(Ogre::ParticleSystem* psys)
+    /** Factory class for DeflectorPlaneAffector. */
+    class FireExtinguisherAffectorFactory : public ParticleAffectorFactory
     {
-        Ogre::ParticleAffector* p = OGRE_NEW FireExtinguisherAffector(psys);
-        mAffectors.push_back(p);
-        return p;
-    }
-};
-} // namespace Ogre
+        /** See ParticleAffectorFactory */
+        String getName() const
+        {
+            return "FireExtinguisher";
+        }
 
+        /** See ParticleAffectorFactory */
+        Ogre::ParticleAffector *createAffector(Ogre::ParticleSystem *psys)
+        {
+            Ogre::ParticleAffector *p = OGRE_NEW FireExtinguisherAffector(psys);
+            mAffectors.push_back(p);
+            return p;
+        }
+    };
+} // namespace Ogre

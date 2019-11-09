@@ -26,13 +26,13 @@
 
 #include <thread>
 
-#define SET_BIT(var, pos)   ((var) |= (1<<(pos)))
-#define CLEAR_BIT(var, pos) ((var) &= ~(1<<(pos)))
-#define SET_LSB(var)        ((var) |= 1)
-#define CLEAR_LSB(var)      ((var) &= ~1)
-#define CHECK_BIT(var,pos)  ((var) & (1<<(pos)))
+#define SET_BIT(var, pos) ((var) |= (1 << (pos)))
+#define CLEAR_BIT(var, pos) ((var) &= ~(1 << (pos)))
+#define SET_LSB(var) ((var) |= 1)
+#define CLEAR_LSB(var) ((var) &= ~1)
+#define CHECK_BIT(var, pos) ((var) & (1 << (pos)))
 
-void save(Ogre::uchar* data, Ogre::uchar* databuf, int mWidth, int mHeight, Ogre::PixelFormat pf, Ogre::String filename)
+void save(Ogre::uchar *data, Ogre::uchar *databuf, int mWidth, int mHeight, Ogre::PixelFormat pf, Ogre::String filename)
 {
     Ogre::Image img;
     img.loadDynamicImage(data, mWidth, mHeight, 1, pf, false, 1, 0);
@@ -46,11 +46,8 @@ void save(Ogre::uchar* data, Ogre::uchar* databuf, int mWidth, int mHeight, Ogre
 
 class AdvancedScreen : public ZeroedMemoryAllocator
 {
-public:
-
-    AdvancedScreen(Ogre::RenderWindow* win, Ogre::String filename) :
-        win(win)
-        , filename(filename)
+  public:
+    AdvancedScreen(Ogre::RenderWindow *win, Ogre::String filename) : win(win), filename(filename)
     {
     }
 
@@ -60,8 +57,7 @@ public:
 
     void addData(Ogre::String name, Ogre::String value)
     {
-        if (value.empty())
-            return;
+        if (value.empty()) return;
         map[name] = value;
     }
 
@@ -69,24 +65,24 @@ public:
     {
         // please do not misinterpret this feature
         // its used in the forums like an EXTIF data to display things beside the screenshots
-        int mWidth = win->getWidth();
+        int mWidth  = win->getWidth();
         int mHeight = win->getHeight();
 
         // grab the image data
-        Ogre::PixelFormat pf = Ogre::PF_B8G8R8; //win->suggestPixelFormat();
-        long isize = mWidth * mHeight * (long)Ogre::PixelUtil::getNumElemBytes(pf);
-        Ogre::uchar* data = OGRE_ALLOC_T(Ogre::uchar, isize, Ogre::MEMCATEGORY_RENDERSYS);
-        Ogre::PixelBox pb(mWidth, mHeight, 1, pf, data);
+        Ogre::PixelFormat pf    = Ogre::PF_B8G8R8; // win->suggestPixelFormat();
+        long              isize = mWidth * mHeight * (long)Ogre::PixelUtil::getNumElemBytes(pf);
+        Ogre::uchar *     data  = OGRE_ALLOC_T(Ogre::uchar, isize, Ogre::MEMCATEGORY_RENDERSYS);
+        Ogre::PixelBox    pb(mWidth, mHeight, 1, pf, data);
         win->copyContentsToMemory(pb);
 
         // now do the fancy stuff ;)
 
         // 0. allocate enough buffer
-        Ogre::uchar* databuf = OGRE_ALLOC_T(Ogre::uchar, 32768, Ogre::MEMCATEGORY_RENDERSYS);
-        char* ptr = (char *)databuf;
+        Ogre::uchar *databuf = OGRE_ALLOC_T(Ogre::uchar, 32768, Ogre::MEMCATEGORY_RENDERSYS);
+        char *       ptr     = (char *)databuf;
         // header
         long dsize = 0;
-        int w = sprintf(ptr, "RORED\n");
+        int  w     = sprintf(ptr, "RORED\n");
         ptr += w;
         dsize += w;
 
@@ -99,16 +95,16 @@ public:
         }
 
         // now buffer ready, put it into the image
-        Ogre::uchar* ptri = data;
+        Ogre::uchar *ptri = data;
         // set data pointer to the start again
-        ptr = (char *)databuf;
+        ptr    = (char *)databuf;
         int bc = 7;
-        for (long b = 0; b < isize && b < dsize * 8 + 40; b++ , ptri++) // 40 = 5 zero bytes
+        for (long b = 0; b < isize && b < dsize * 8 + 40; b++, ptri++) // 40 = 5 zero bytes
         {
             if (CHECK_BIT(*ptr, bc))
-            SET_LSB(*ptri);
+                SET_LSB(*ptri);
             else
-            CLEAR_LSB(*ptri);
+                CLEAR_LSB(*ptri);
             bc--;
             if (bc < 0)
             {
@@ -120,9 +116,8 @@ public:
         std::thread(save, data, databuf, mWidth, mHeight, pf, filename).detach();
     }
 
-protected:
-
-    Ogre::RenderWindow* win;
-    Ogre::String filename;
+  protected:
+    Ogre::RenderWindow *                 win;
+    Ogre::String                         filename;
     std::map<Ogre::String, Ogre::String> map;
 };

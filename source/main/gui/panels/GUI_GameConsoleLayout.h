@@ -8,36 +8,35 @@
 // Do not modify this code directly. Create a derived class instead.
 // ----------------------------------------------------------------------------
 
-#include "ForwardDeclarations.h"
 #include "BaseLayout.h"
+#include "ForwardDeclarations.h"
 
-namespace RoR {
-namespace GUI {
-
-ATTRIBUTE_CLASS_LAYOUT(GameConsoleLayout, "Console.layout");
-class GameConsoleLayout : public wraps::BaseLayout
+namespace RoR
 {
+    namespace GUI
+    {
 
-public:
+        ATTRIBUTE_CLASS_LAYOUT(GameConsoleLayout, "Console.layout");
+        class GameConsoleLayout : public wraps::BaseLayout
+        {
 
-    GameConsoleLayout(MyGUI::Widget* _parent = nullptr);
-    virtual ~GameConsoleLayout();
+          public:
+            GameConsoleLayout(MyGUI::Widget *_parent = nullptr);
+            virtual ~GameConsoleLayout();
 
-protected:
+          protected:
+            //%LE Widget_Declaration list start
+            ATTRIBUTE_FIELD_WIDGET_NAME(GameConsoleLayout, m_Console_MainBox, "Console_MainBox");
+            MyGUI::EditBox *m_Console_MainBox;
 
-    //%LE Widget_Declaration list start
-    ATTRIBUTE_FIELD_WIDGET_NAME(GameConsoleLayout, m_Console_MainBox, "Console_MainBox");
-    MyGUI::EditBox* m_Console_MainBox;
+            ATTRIBUTE_FIELD_WIDGET_NAME(GameConsoleLayout, m_Console_TextBox, "Console_TextBox");
+            MyGUI::EditBox *m_Console_TextBox;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(GameConsoleLayout, m_Console_TextBox, "Console_TextBox");
-    MyGUI::EditBox* m_Console_TextBox;
+            ATTRIBUTE_FIELD_WIDGET_NAME(GameConsoleLayout, m_Console_Send, "Console_Send");
+            MyGUI::Button *m_Console_Send;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(GameConsoleLayout, m_Console_Send, "Console_Send");
-    MyGUI::Button* m_Console_Send;
+            //%LE Widget_Declaration list end
+        };
 
-    //%LE Widget_Declaration list end
-};
-
-} // namespace GUI
+    } // namespace GUI
 } // namespace RoR
-

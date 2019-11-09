@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
 #include "ConfigFile.h"
 #include "OTCFileformat.h"
+#include "RoRPrerequisites.h"
 
 #include <OgreVector3.h>
 #include <Terrain/OgreTerrain.h>
@@ -31,13 +31,16 @@
 /// this class handles all interactions with the Ogre Terrain system
 class TerrainGeometryManager : public ZeroedMemoryAllocator
 {
-public:
-    TerrainGeometryManager(TerrainManager* terrainManager);
+  public:
+    TerrainGeometryManager(TerrainManager *terrainManager);
     ~TerrainGeometryManager();
 
     bool InitTerrain(std::string otc_filename);
 
-    Ogre::TerrainGroup* getTerrainGroup() { return m_ogre_terrain_group; };
+    Ogre::TerrainGroup *getTerrainGroup()
+    {
+        return m_ogre_terrain_group;
+    };
 
     float getHeightAt(float x, float z);
 
@@ -45,38 +48,39 @@ public:
 
     Ogre::Vector3 getMaxTerrainSize();
 
-    bool isFlat() { return mIsFlat; };
+    bool isFlat()
+    {
+        return mIsFlat;
+    };
 
     void UpdateMainLightPosition();
     void updateLightMap();
 
-private:
-
+  private:
     float getHeightAtTerrainPosition(float x, float z);
 
-    bool getTerrainImage(int x, int y, Ogre::Image& img);
-    bool loadTerrainConfig(Ogre::String filename);
-    void configureTerrainDefaults();
-    void SetupGeometry(RoR::OTCPage& page, bool flat=false);
-    void SetupBlendMaps(RoR::OTCPage& page, Ogre::Terrain* t);
-    void initTerrain();
-    void SetupLayers(RoR::OTCPage& page, Ogre::Terrain *terrain);
+    bool                getTerrainImage(int x, int y, Ogre::Image &img);
+    bool                loadTerrainConfig(Ogre::String filename);
+    void                configureTerrainDefaults();
+    void                SetupGeometry(RoR::OTCPage &page, bool flat = false);
+    void                SetupBlendMaps(RoR::OTCPage &page, Ogre::Terrain *t);
+    void                initTerrain();
+    void                SetupLayers(RoR::OTCPage &page, Ogre::Terrain *terrain);
     Ogre::DataStreamPtr getPageConfig(int x, int z);
 
     std::shared_ptr<RoR::OTCFile> m_spec;
-    TerrainManager*      terrainManager;
-    Ogre::TerrainGroup*  m_ogre_terrain_group;
-    bool                 m_was_new_geometry_generated;
+    TerrainManager *              terrainManager;
+    Ogre::TerrainGroup *          m_ogre_terrain_group;
+    bool                          m_was_new_geometry_generated;
 
     // Terrn position lookup - ported from OGRE engine.
     Ogre::Vector3 mPos;
-    Ogre::Real mBase;
-    Ogre::Real mScale;
-    Ogre::uint16 mSize;
-    float* mHeightData;
+    Ogre::Real    mBase;
+    Ogre::Real    mScale;
+    Ogre::uint16  mSize;
+    float *       mHeightData;
 
     bool  mIsFlat;
     float mMinHeight;
     float mMaxHeight;
 };
-

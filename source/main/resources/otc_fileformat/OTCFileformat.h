@@ -25,84 +25,87 @@
 #include <OgreColourValue.h>
 #include <OgreDataStream.h>
 #include <OgreVector3.h>
-
-#include <string>
 #include <list>
 #include <memory>
+#include <string>
 
-namespace RoR {
-
-struct OTCLayer
+namespace RoR
 {
-    OTCLayer();
 
-    std::string  blendmap_filename;
-    std::string  diffusespecular_filename;
-    std::string  normalheight_filename;
-    char         blend_mode;
-    float        alpha;
-    float        world_size;
-};
+    struct OTCLayer
+    {
+        OTCLayer();
 
-struct OTCPage
-{
-    OTCPage(int pos_x, int pos_z, std::string const & conf_filename, bool flipX, bool flipY, int rawsize, int rawbpp);
+        std::string blendmap_filename;
+        std::string diffusespecular_filename;
+        std::string normalheight_filename;
+        char        blend_mode;
+        float       alpha;
+        float       world_size;
+    };
 
-    std::string  pageconf_filename;
-    std::string  heightmap_filename;
-    int          num_layers;
-    int          pos_x, pos_z;
-    bool         is_heightmap_raw, raw_flip_x, raw_flip_y;
-    int          raw_size, raw_bpp;
+    struct OTCPage
+    {
+        OTCPage(int pos_x, int pos_z, std::string const &conf_filename, bool flipX, bool flipY, int rawsize, int rawbpp);
 
-    std::list<OTCLayer> layers;
-};
+        std::string pageconf_filename;
+        std::string heightmap_filename;
+        int         num_layers;
+        int         pos_x, pos_z;
+        bool        is_heightmap_raw, raw_flip_x, raw_flip_y;
+        int         raw_size, raw_bpp;
 
-/// Rembember OGRE coordinates are {X = right/left, Y = up/down, Z = front/back}
-struct OTCFile
-{
-    OTCFile();
+        std::list<OTCLayer> layers;
+    };
 
-    std::string        page_filename_format;
-    std::string        cache_filename_base;
-    std::list<OTCPage> pages;
-    Ogre::Vector3      origin_pos;
+    /// Rembember OGRE coordinates are {X = right/left, Y = up/down, Z = front/back}
+    struct OTCFile
+    {
+        OTCFile();
 
-    int          world_size_x, world_size_y, world_size_z;
-    int          page_size;
-    int          world_size;
-    int          pages_max_x, pages_max_z; ///< Highest page index
-    int          max_pixel_error;
-    int          batch_size_min, batch_size_max;
-    int          layer_blendmap_size;
-    int          composite_map_size;
-    int          composite_map_distance;
-    int          skirt_size;
-    int          lightmap_size;
-    bool         lightmap_enabled;
-    bool         norm_map_enabled;
-    bool         spec_map_enabled;
-    bool         parallax_enabled;
-    bool         global_colormap_enabled;
-    bool         recv_dyn_shadows_depth;
-    bool         blendmap_dbg_enabled;
-    bool         disable_cache;
-    bool         is_flat;
-};
+        std::string        page_filename_format;
+        std::string        cache_filename_base;
+        std::list<OTCPage> pages;
+        Ogre::Vector3      origin_pos;
 
-class OTCParser
-{
-public:
-    OTCParser();
+        int  world_size_x, world_size_y, world_size_z;
+        int  page_size;
+        int  world_size;
+        int  pages_max_x, pages_max_z; ///< Highest page index
+        int  max_pixel_error;
+        int  batch_size_min, batch_size_max;
+        int  layer_blendmap_size;
+        int  composite_map_size;
+        int  composite_map_distance;
+        int  skirt_size;
+        int  lightmap_size;
+        bool lightmap_enabled;
+        bool norm_map_enabled;
+        bool spec_map_enabled;
+        bool parallax_enabled;
+        bool global_colormap_enabled;
+        bool recv_dyn_shadows_depth;
+        bool blendmap_dbg_enabled;
+        bool disable_cache;
+        bool is_flat;
+    };
 
-    bool                      LoadMasterConfig(Ogre::DataStreamPtr &ds, const char* filename);
-    bool                      LoadPageConfig(Ogre::DataStreamPtr &ds, OTCPage& page, const char* filename);
-    std::shared_ptr<OTCFile>  GetDefinition() { return m_def; };
+    class OTCParser
+    {
+      public:
+        OTCParser();
 
-private:
-    void                      HandleException(const char* filename);
+        bool                     LoadMasterConfig(Ogre::DataStreamPtr &ds, const char *filename);
+        bool                     LoadPageConfig(Ogre::DataStreamPtr &ds, OTCPage &page, const char *filename);
+        std::shared_ptr<OTCFile> GetDefinition()
+        {
+            return m_def;
+        };
 
-    std::shared_ptr<OTCFile>  m_def;
-};
+      private:
+        void HandleException(const char *filename);
+
+        std::shared_ptr<OTCFile> m_def;
+    };
 
 } // namespace RoR

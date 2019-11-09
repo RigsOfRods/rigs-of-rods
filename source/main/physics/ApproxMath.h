@@ -34,9 +34,9 @@ inline float frand()
 
     mirand *= 16807;
 
-    a = (mirand&0x007fffff) | 0x40000000;
+    a = (mirand & 0x007fffff) | 0x40000000;
 
-    return( *((float*)&a) - 2.0f )*0.5f;
+    return (*((float *)&a) - 2.0f) * 0.5f;
 }
 
 // Returns a random number in the range [0, 2]
@@ -46,9 +46,9 @@ inline float frand_02()
 
     mirand *= 16807;
 
-    a = (mirand&0x007fffff) | 0x40000000;
+    a = (mirand & 0x007fffff) | 0x40000000;
 
-    return( *((float*)&a) - 2.0f );
+    return (*((float *)&a) - 2.0f);
 }
 
 // Returns a random number in the range [-1, 1]
@@ -58,9 +58,9 @@ inline float frand_11()
 
     mirand *= 16807;
 
-    a = (mirand&0x007fffff) | 0x40000000;
+    a = (mirand & 0x007fffff) | 0x40000000;
 
-    return( *((float*)&a) - 3.0f );
+    return (*((float *)&a) - 3.0f);
 }
 
 // Calculates approximate e^x.
@@ -68,11 +68,12 @@ inline float frand_11()
 inline float approx_exp(const float x)
 {
     if (x < -15)
-        return 0.f ;
+        return 0.f;
     else if (x > 88)
-        return 1e38f ;
-    else {
-        int i=12102203*x+1064652319;
+        return 1e38f;
+    else
+    {
+        int i = 12102203 * x + 1064652319;
         return *(float *)&i;
     }
 }
@@ -81,7 +82,7 @@ inline float approx_exp(const float x)
 // Use it in code not requiring precision
 inline float approx_pow2(const float x)
 {
-    int i = 8388608*x+1065353216;
+    int i = 8388608 * x + 1065353216;
 
     return *(float *)&i;
 }
@@ -91,7 +92,7 @@ inline float approx_pow2(const float x)
 inline float approx_pow(const float x, const float y)
 {
     float v = x;
-    int i = y * ( (*(int *)&v) - 1065353216) + 1065353216;
+    int   i = y * ((*(int *)&v) - 1065353216) + 1065353216;
 
     return *(float *)&i;
 }
@@ -101,7 +102,7 @@ inline float approx_pow(const float x, const float y)
 inline float approx_sqrt(const float y)
 {
     float f = y;
-    int i = (( (*(int *)&f) - 1065353216)>>1) + 1065353216;
+    int   i = (((*(int *)&f) - 1065353216) >> 1) + 1065353216;
 
     return *(float *)&i;
 }
@@ -112,7 +113,7 @@ inline float approx_sqrt(const float y)
 inline float approx_invSqrt(const float y)
 {
     float f = y;
-    int i = 0x5f3759df - ( (*(int *)&f) >> 1);
+    int   i = 0x5f3759df - ((*(int *)&f) >> 1);
 
     return *(float *)&i;
 }
@@ -124,8 +125,8 @@ inline float approx_invSqrt(const float y)
 inline float fast_invSqrt(const float v)
 {
     float y = v;
-    int i = 0x5f3759df - ( (*(int *)&y) >>1);
-    y = *(float *)&i;
+    int   i = 0x5f3759df - ((*(int *)&y) >> 1);
+    y       = *(float *)&i;
 
     y *= (1.5f - (0.5f * v * y * y));
     return y;
@@ -145,12 +146,12 @@ inline float sign(const float x)
 // Ogre3 specific helpers
 inline Ogre::Vector3 approx_normalise(Ogre::Vector3 v)
 {
-    return v*approx_invSqrt(v.squaredLength());
+    return v * approx_invSqrt(v.squaredLength());
 }
 
 inline Ogre::Vector3 fast_normalise(Ogre::Vector3 v)
 {
-    return v*fast_invSqrt(v.squaredLength());
+    return v * fast_invSqrt(v.squaredLength());
 }
 
 inline float approx_length(Ogre::Vector3 v)
@@ -162,4 +163,3 @@ inline float fast_length(Ogre::Vector3 v)
 {
     return fast_sqrt(v.squaredLength());
 }
-

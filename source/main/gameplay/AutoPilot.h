@@ -25,8 +25,7 @@
 
 class Autopilot : public ZeroedMemoryAllocator
 {
-public:
-
+  public:
     enum
     {
         HEADING_NONE,
@@ -50,21 +49,21 @@ public:
         LOCALIZER_VOR
     };
 
-    int heading;
+    int  heading;
     bool wantsdisconnect;
 
     Autopilot(int actor_id);
     void reset();
     void disconnect();
-    void setInertialReferences(node_t* refl, node_t* refr, node_t* refb, node_t* refc);
-    int toggleHeading(int mode);
-    int toggleAlt(int mode);
+    void setInertialReferences(node_t *refl, node_t *refr, node_t *refb, node_t *refc);
+    int  toggleHeading(int mode);
+    int  toggleAlt(int mode);
     bool toggleIAS();
     bool toggleGPWS();
-    int adjHDG(int d);
-    int adjALT(int d);
-    int adjVS(int d);
-    int adjIAS(int d);
+    int  adjHDG(int d);
+    int  adjALT(int d);
+    int  adjVS(int d);
+    int  adjIAS(int d);
 
     float getAilerons();
     float getElevator();
@@ -73,39 +72,69 @@ public:
 
     void gpws_update(float spawnheight);
 
-    void UpdateIls(std::vector<TerrainObjectManager::localizer_t> localizers);
-    float GetVerticalApproachDeviation() { return m_ils_angle_vdev; }
-    float GetHorizontalApproachDeviation() { return m_ils_angle_hdev; }
-    bool IsIlsAvailable() { return m_horizontal_locator_available && m_vertical_locator_available; }
-    int GetHeadingMode() const { return mode_heading; }
-    int GetAltMode() const { return mode_alt; }
-    int GetAltValue() const { return alt; }
-    bool GetIasMode() const { return mode_ias; }
-    int GetIasValue() const { return ias; }
-    bool GetGpwsMode() const { return mode_gpws; }
-    int GetVsValue() const { return vs; }
-private:
+    void  UpdateIls(std::vector<TerrainObjectManager::localizer_t> localizers);
+    float GetVerticalApproachDeviation()
+    {
+        return m_ils_angle_vdev;
+    }
+    float GetHorizontalApproachDeviation()
+    {
+        return m_ils_angle_hdev;
+    }
+    bool IsIlsAvailable()
+    {
+        return m_horizontal_locator_available && m_vertical_locator_available;
+    }
+    int GetHeadingMode() const
+    {
+        return mode_heading;
+    }
+    int GetAltMode() const
+    {
+        return mode_alt;
+    }
+    int GetAltValue() const
+    {
+        return alt;
+    }
+    bool GetIasMode() const
+    {
+        return mode_ias;
+    }
+    int GetIasValue() const
+    {
+        return ias;
+    }
+    bool GetGpwsMode() const
+    {
+        return mode_gpws;
+    }
+    int GetVsValue() const
+    {
+        return vs;
+    }
 
-    int mode_heading;
-    int mode_alt;
-    bool mode_ias;
-    bool mode_gpws;
-    int alt;
-    int vs;
-    int ias;
-    node_t* ref_l;
-    node_t* ref_r;
-    node_t* ref_b;
-    node_t* ref_c;
-    float ref_span;
-    float last_elevator;
-    float last_aileron;
-    float last_rudder;
-    float last_gpws_height;
-    float last_pullup_height;
+  private:
+    int     mode_heading;
+    int     mode_alt;
+    bool    mode_ias;
+    bool    mode_gpws;
+    int     alt;
+    int     vs;
+    int     ias;
+    node_t *ref_l;
+    node_t *ref_r;
+    node_t *ref_b;
+    node_t *ref_c;
+    float   ref_span;
+    float   last_elevator;
+    float   last_aileron;
+    float   last_rudder;
+    float   last_gpws_height;
+    float   last_pullup_height;
 
-    bool m_vertical_locator_available;
-    bool m_horizontal_locator_available;
+    bool  m_vertical_locator_available;
+    bool  m_horizontal_locator_available;
     float m_ils_angle_vdev;
     float m_ils_angle_hdev;
     float m_ils_runway_heading;

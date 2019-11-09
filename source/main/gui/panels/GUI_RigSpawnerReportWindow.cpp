@@ -28,11 +28,10 @@
 using namespace RoR;
 using namespace GUI;
 
-ActorSpawnerReportWindow::ActorSpawnerReportWindow():
-    GuiPanelBase(m_rig_spawner_report_window)
+ActorSpawnerReportWindow::ActorSpawnerReportWindow() : GuiPanelBase(m_rig_spawner_report_window)
 {
     // Close window [X] button
-    MyGUI::Window* main_window = m_rig_spawner_report_window->castType<MyGUI::Window>();
+    MyGUI::Window *main_window = m_rig_spawner_report_window->castType<MyGUI::Window>();
     main_window->eventWindowButtonPressed += MyGUI::newDelegate(this, &ActorSpawnerReportWindow::WindowButtonClicked);
 
     // Center on screen
@@ -44,12 +43,13 @@ ActorSpawnerReportWindow::ActorSpawnerReportWindow():
     main_window->setVisible(false);
 }
 
-void ActorSpawnerReportWindow::SetRigLoadingReport(std::string const& vehicle_name, std::string const& text, int num_errors, int num_warnings, int num_other)
+void ActorSpawnerReportWindow::SetRigLoadingReport(std::string const &vehicle_name, std::string const &text, int num_errors,
+                                                   int num_warnings, int num_other)
 {
     m_rig_spawner_report_window->setCaption("Loading report: " + vehicle_name);
 
     std::stringstream summary;
-    bool first = true;
+    bool              first = true;
     if (num_errors > 0)
     {
         summary << num_errors << "#FF3300 Errors #FFFFFF";
@@ -57,19 +57,13 @@ void ActorSpawnerReportWindow::SetRigLoadingReport(std::string const& vehicle_na
     }
     if (num_warnings > 0)
     {
-        if (!first)
-        {
-            summary << ", ";
-        }
+        if (!first) { summary << ", "; }
         summary << num_warnings << "#FFFF00 Warnings #FFFFFF";
         first = false;
     }
     if (num_other > 0)
     {
-        if (!first)
-        {
-            summary << ", ";
-        }
+        if (!first) { summary << ", "; }
         summary << num_other << " notes";
     }
     m_report_summary_textbox->setCaption(summary.str());
@@ -77,10 +71,16 @@ void ActorSpawnerReportWindow::SetRigLoadingReport(std::string const& vehicle_na
     m_report_text_area->setCaption(text);
 }
 
-void ActorSpawnerReportWindow::WindowButtonClicked(MyGUI::Widget* sender, const std::string& name)
+void ActorSpawnerReportWindow::WindowButtonClicked(MyGUI::Widget *sender, const std::string &name)
 {
     this->Hide();
 }
 
-void ActorSpawnerReportWindow::SetVisible(bool v) { m_rig_spawner_report_window->setVisible(v); }
-bool ActorSpawnerReportWindow::IsVisible() { return m_rig_spawner_report_window->getVisible(); }
+void ActorSpawnerReportWindow::SetVisible(bool v)
+{
+    m_rig_spawner_report_window->setVisible(v);
+}
+bool ActorSpawnerReportWindow::IsVisible()
+{
+    return m_rig_spawner_report_window->getVisible();
+}

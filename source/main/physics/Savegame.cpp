@@ -19,8 +19,6 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "RoRPrerequisites.h"
-
 #include "AeroEngine.h"
 #include "Application.h"
 #include "Beam.h"
@@ -32,17 +30,18 @@
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RoRFrameListener.h"
+#include "RoRPrerequisites.h"
 #include "ScrewProp.h"
 #include "Skidmark.h"
 #include "SkinManager.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"
 
+#include <fstream>
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/writer.h>
-#include <fstream>
 
 #define SAVEGAME_FILE_FORMAT 2
 
@@ -51,10 +50,7 @@ using namespace RoR;
 
 Ogre::String ActorManager::GetQuicksaveFilename(Ogre::String terrain_name)
 {
-    if (terrain_name.empty())
-    {
-        terrain_name = App::sim_terrain_name.GetActive();
-    }
+    if (terrain_name.empty()) { terrain_name = App::sim_terrain_name.GetActive(); }
 
     String mp = (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED) ? "_mp" : "";
 
@@ -63,13 +59,13 @@ Ogre::String ActorManager::GetQuicksaveFilename(Ogre::String terrain_name)
 
 Ogre::String ActorManager::ExtractSceneName(Ogre::String filename)
 {
-    std::ifstream ifs(PathCombine(App::sys_savegames_dir.GetActive(), filename));
+    std::ifstream             ifs(PathCombine(App::sys_savegames_dir.GetActive(), filename));
     rapidjson::IStreamWrapper isw(ifs);
-    rapidjson::Document j_doc;
+    rapidjson::Document       j_doc;
     j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(isw);
 
     if (!j_doc.IsObject() || !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber() ||
-            !j_doc.HasMember("scene_name") || !j_doc["scene_name"].IsString())
+        !j_doc.HasMember("scene_name") || !j_doc["scene_name"].IsString())
         return "";
 
     return j_doc["scene_name"].GetString();
@@ -81,9 +77,9 @@ bool ActorManager::LoadScene(Ogre::String filename)
     String path = PathCombine(App::sys_savegames_dir.GetActive(), filename);
     RoR::LogFormat("[RoR|Savegame] Reading savegame from file '%s' ...", path.c_str());
 
-    std::ifstream ifs(path);
+    std::ifstream             ifs(path);
     rapidjson::IStreamWrapper isw(ifs);
-    rapidjson::Document j_doc;
+    rapidjson::Document       j_doc;
     j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(isw);
     if (!j_doc.IsObject() || !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber())
     {
@@ -105,8 +101,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
     if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
-        if (filename == "autosave.sav")
-            return false;
+        if (filename == "autosave.sav") return false;
         if (terrain_name != App::sim_terrain_name.GetActive())
         {
             RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Error while loading scene: Terrain mismatch"));
@@ -141,10 +136,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
 #ifdef USE_CAELUM
         if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
         {
-            if (j_doc.HasMember("daytime"))
-            {
-                App::GetSimTerrain()->getSkyManager()->SetTime(j_doc["daytime"].GetDouble());
-            }
+            if (j_doc.HasMember("daytime")) { App::GetSimTerrain()->getSkyManager()->SetTime(j_doc["daytime"].GetDouble()); }
         }
 #endif // USE_CAELUM
     }
@@ -152,19 +144,19 @@ bool ActorManager::LoadScene(Ogre::String filename)
     // Character
     if (m_savegame_terrain_has_changed)
     {
-        auto data = j_doc["player_position"].GetArray();
+        auto    data     = j_doc["player_position"].GetArray();
         Vector3 position = Vector3(data[0].GetFloat(), data[1].GetFloat(), data[2].GetFloat());
         gEnv->player->setPosition(position);
         gEnv->player->setRotation(Radian(j_doc["player_rotation"].GetFloat()));
     }
 
     // Actors
-    auto actors_changed = false;
-    auto player_actor = App::GetSimController()->GetPlayerActor();
-    auto prev_player_actor = App::GetSimController()->GetPrevPlayerActor();
-    std::vector<Actor*> actors;
-    std::vector<Actor*> x_actors = GetLocalActors();
-    for (rapidjson::Value& j_entry: j_doc["actors"].GetArray())
+    auto                 actors_changed    = false;
+    auto                 player_actor      = App::GetSimController()->GetPlayerActor();
+    auto                 prev_player_actor = App::GetSimController()->GetPrevPlayerActor();
+    std::vector<Actor *> actors;
+    std::vector<Actor *> x_actors = GetLocalActors();
+    for (rapidjson::Value &j_entry : j_doc["actors"].GetArray())
     {
         String filename = j_entry["filename"].GetString();
         if (!App::GetCacheSystem()->CheckResourceLoaded(filename))
@@ -174,26 +166,20 @@ bool ActorManager::LoadScene(Ogre::String filename)
             continue;
         }
 
-        CacheEntry* skin = nullptr;
-        if (j_entry.HasMember("skin"))
-        {
-            skin = App::GetCacheSystem()->FetchSkinByName(j_entry["skin"].GetString());
-        }
+        CacheEntry *skin = nullptr;
+        if (j_entry.HasMember("skin")) { skin = App::GetCacheSystem()->FetchSkinByName(j_entry["skin"].GetString()); }
 
         String section_config = j_entry["section_config"].GetString();
 
-        Actor* actor = nullptr;
-        int index = static_cast<int>(actors.size());
+        Actor *actor = nullptr;
+        int    index = static_cast<int>(actors.size());
         if (index < x_actors.size())
         {
             if (j_entry["filename"].GetString() != x_actors[index]->ar_filename ||
-                    (skin != nullptr && skin->dname != x_actors[index]->m_used_skin_entry->dname) ||
-                    section_config != x_actors[index]->GetSectionConfig())
+                (skin != nullptr && skin->dname != x_actors[index]->m_used_skin_entry->dname) ||
+                section_config != x_actors[index]->GetSectionConfig())
             {
-                if (x_actors[index] == player_actor)
-                {
-                    App::GetSimController()->ChangePlayerActor(nullptr);
-                }
+                if (x_actors[index] == player_actor) { App::GetSimController()->ChangePlayerActor(nullptr); }
                 else if (x_actors[index] == prev_player_actor)
                 {
                     App::GetSimController()->SetPrevPlayerActorInternal(nullptr);
@@ -218,22 +204,19 @@ bool ActorManager::LoadScene(Ogre::String filename)
             rq.asr_position.y    = preloaded ? j_entry["position"][1].GetFloat() : j_entry["min_height"].GetFloat();
             rq.asr_position.z    = j_entry["position"][2].GetFloat();
             rq.asr_rotation      = Quaternion(Degree(270) - Radian(j_entry["rotation"].GetFloat()), Vector3::UNIT_Y);
-            rq.asr_skin_entry          = skin;
+            rq.asr_skin_entry    = skin;
             rq.asr_config        = section_config;
             rq.asr_origin        = preloaded ? ActorSpawnRequest::Origin::TERRN_DEF : ActorSpawnRequest::Origin::SAVEGAME;
             rq.asr_free_position = preloaded;
             actor                = App::GetSimController()->SpawnActorDirectly(rq);
-            actors_changed = true;
+            actors_changed       = true;
         }
 
         actors.push_back(actor);
     }
     for (size_t index = actors.size(); index < x_actors.size(); index++)
     {
-        if (x_actors[index] == player_actor)
-        {
-            App::GetSimController()->ChangePlayerActor(nullptr);
-        }
+        if (x_actors[index] == player_actor) { App::GetSimController()->ChangePlayerActor(nullptr); }
         else if (x_actors[index] == prev_player_actor)
         {
             App::GetSimController()->SetPrevPlayerActorInternal(nullptr);
@@ -245,38 +228,34 @@ bool ActorManager::LoadScene(Ogre::String filename)
     const int num_actors = static_cast<int>(j_doc["actors"].Size());
     for (int index = 0; index < num_actors; index++)
     {
-        if (actors[index] == nullptr)
-            continue;
+        if (actors[index] == nullptr) continue;
 
-        Actor* actor = actors[index];
-        rapidjson::Value& j_entry = j_doc["actors"][index];
+        Actor *           actor   = actors[index];
+        rapidjson::Value &j_entry = j_doc["actors"][index];
 
-        actor->m_spawn_rotation = j_entry["spawn_rotation"].GetFloat();
-        actor->ar_sim_state = static_cast<Actor::SimState>(j_entry["sim_state"].GetInt());
+        actor->m_spawn_rotation  = j_entry["spawn_rotation"].GetFloat();
+        actor->ar_sim_state      = static_cast<Actor::SimState>(j_entry["sim_state"].GetInt());
         actor->ar_physics_paused = j_entry["physics_paused"].GetBool();
 
         if (j_entry["player_actor"].GetBool())
         {
             if (actors_changed || player_actor != App::GetSimController()->GetPlayerActor())
-            {
-                App::GetSimController()->SetPendingPlayerActor(actor);
-            }
-        } else if (j_entry["prev_player_actor"].GetBool())
+            { App::GetSimController()->SetPendingPlayerActor(actor); }
+        }
+        else if (j_entry["prev_player_actor"].GetBool())
         {
             if (actors_changed || prev_player_actor != App::GetSimController()->GetPrevPlayerActor())
-            {
-                App::GetSimController()->SetPrevPlayerActorInternal(actor);
-            }
+            { App::GetSimController()->SetPrevPlayerActorInternal(actor); }
         }
 
         if (actor->ar_engine)
         {
-            int gear = j_entry["engine_gear"].GetInt();
-            float rpm = j_entry["engine_rpm"].GetFloat();
-            int automode = j_entry["engine_auto_mode"].GetInt();
-            int autoselect = j_entry["engine_auto_select"].GetInt();
-            bool running = j_entry["engine_is_running"].GetBool();
-            bool contact = j_entry["engine_has_contact"].GetBool();
+            int   gear       = j_entry["engine_gear"].GetInt();
+            float rpm        = j_entry["engine_rpm"].GetFloat();
+            int   automode   = j_entry["engine_auto_mode"].GetInt();
+            int   autoselect = j_entry["engine_auto_select"].GetInt();
+            bool  running    = j_entry["engine_is_running"].GetBool();
+            bool  contact    = j_entry["engine_has_contact"].GetBool();
             if (running != actor->ar_engine->IsRunning())
             {
                 if (running)
@@ -286,32 +265,26 @@ bool ActorManager::LoadScene(Ogre::String filename)
             }
             actor->ar_engine->PushNetworkState(rpm, 0.0f, 0.0f, gear, running, contact, automode, autoselect);
             actor->ar_engine->SetWheelSpin(j_entry["wheel_spin"].GetFloat() * RAD_PER_SEC_TO_RPM);
-            actor->alb_mode = j_entry["alb_mode"].GetBool();
-            actor->tc_mode = j_entry["tc_mode"].GetBool();
-            actor->cc_mode = j_entry["cc_mode"].GetBool();
-            actor->cc_target_rpm = j_entry["cc_target_rpm"].GetFloat();
+            actor->alb_mode        = j_entry["alb_mode"].GetBool();
+            actor->tc_mode         = j_entry["tc_mode"].GetBool();
+            actor->cc_mode         = j_entry["cc_mode"].GetBool();
+            actor->cc_target_rpm   = j_entry["cc_target_rpm"].GetFloat();
             actor->cc_target_speed = j_entry["cc_target_speed"].GetFloat();
         }
 
-        actor->ar_hydro_dir_state = j_entry["hydro_dir_state"].GetFloat();
-        actor->ar_hydro_aileron_state = j_entry["hydro_aileron_state"].GetFloat();
-        actor->ar_hydro_rudder_state = j_entry["hydro_rudder_state"].GetFloat();
-        actor->ar_hydro_elevator_state = j_entry["hydro_elevator_state"].GetFloat();
-        actor->ar_parking_brake = j_entry["parking_brake"].GetBool();
+        actor->ar_hydro_dir_state       = j_entry["hydro_dir_state"].GetFloat();
+        actor->ar_hydro_aileron_state   = j_entry["hydro_aileron_state"].GetFloat();
+        actor->ar_hydro_rudder_state    = j_entry["hydro_rudder_state"].GetFloat();
+        actor->ar_hydro_elevator_state  = j_entry["hydro_elevator_state"].GetFloat();
+        actor->ar_parking_brake         = j_entry["parking_brake"].GetBool();
         actor->ar_trailer_parking_brake = j_entry["trailer_parking_brake"].GetBool();
-        actor->ar_avg_wheel_speed = j_entry["avg_wheel_speed"].GetFloat();
-        actor->ar_wheel_speed = j_entry["wheel_speed"].GetFloat();
-        actor->ar_wheel_spin = j_entry["wheel_spin"].GetFloat();
+        actor->ar_avg_wheel_speed       = j_entry["avg_wheel_speed"].GetFloat();
+        actor->ar_wheel_speed           = j_entry["wheel_speed"].GetFloat();
+        actor->ar_wheel_spin            = j_entry["wheel_spin"].GetFloat();
 
-        if (actor->ar_lights != j_entry["lights"].GetInt())
-        {
-            actor->ToggleLights();
-        }
+        if (actor->ar_lights != j_entry["lights"].GetInt()) { actor->ToggleLights(); }
         actor->m_beacon_light_is_active = j_entry["beacon_light"].GetBool();
-        if (actor->m_custom_particles_enabled != j_entry["custom_particles"].GetBool())
-        {
-            actor->ToggleCustomParticles();
-        }
+        if (actor->m_custom_particles_enabled != j_entry["custom_particles"].GetBool()) { actor->ToggleCustomParticles(); }
 
         auto flares = j_entry["flares"].GetArray();
         for (int i = 0; i < static_cast<int>(actor->ar_flares.size()); i++)
@@ -319,10 +292,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
             actor->ar_flares[i].controltoggle_status = flares[i].GetBool();
         }
 
-        if (actor->m_buoyance)
-        {
-            actor->m_buoyance->sink = j_entry["buoyance_sink"].GetBool();
-        }
+        if (actor->m_buoyance) { actor->m_buoyance->sink = j_entry["buoyance_sink"].GetBool(); }
 
         auto aeroengines = j_entry["aeroengines"].GetArray();
         for (int i = 0; i < actor->ar_num_aeroengines; i++)
@@ -347,10 +317,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
         for (int i = 0; i < actor->ar_num_wheels; i++)
         {
-            if (actor->m_skid_trails[i])
-            {
-                actor->m_skid_trails[i]->reset();
-            }
+            if (actor->m_skid_trails[i]) { actor->m_skid_trails[i]->reset(); }
             actor->ar_wheels[i].wh_is_detached = j_entry["wheels"][i].GetBool();
         }
 
@@ -385,13 +352,13 @@ bool ActorManager::LoadScene(Ogre::String filename)
         auto commands = j_entry["commands"].GetArray();
         for (int i = 0; i < MAX_COMMANDS; i++)
         {
-            auto& command_key = actor->ar_command_key[i];
-            command_key.commandValue = commands[i][0].GetFloat();
+            auto &command_key             = actor->ar_command_key[i];
+            command_key.commandValue      = commands[i][0].GetFloat();
             command_key.triggerInputValue = commands[i][1].GetFloat();
-            auto command_beams = commands[i][2].GetArray();
+            auto command_beams            = commands[i][2].GetArray();
             for (int j = 0; j < (int)command_key.beams.size(); j++)
             {
-                command_key.beams[j].cmb_state->auto_moving_mode = command_beams[j][0].GetInt();
+                command_key.beams[j].cmb_state->auto_moving_mode    = command_beams[j][0].GetInt();
                 command_key.beams[j].cmb_state->pressed_center_mode = command_beams[j][1].GetBool();
             }
         }
@@ -399,7 +366,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         auto nodes = j_entry["nodes"].GetArray();
         for (rapidjson::SizeType i = 0; i < nodes.Size(); i++)
         {
-            auto data = nodes[i].GetArray();
+            auto data                           = nodes[i].GetArray();
             actor->ar_nodes[i].AbsPosition      = Vector3(data[0].GetFloat(), data[1].GetFloat(), data[2].GetFloat());
             actor->ar_nodes[i].RelPosition      = actor->ar_nodes[i].AbsPosition - actor->ar_origin;
             actor->ar_nodes[i].Velocity         = Vector3(data[3].GetFloat(), data[4].GetFloat(), data[5].GetFloat());
@@ -409,7 +376,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         auto beams = j_entry["beams"].GetArray();
         for (rapidjson::SizeType i = 0; i < beams.Size(); i++)
         {
-            auto data = beams[i].GetArray();
+            auto data                             = beams[i].GetArray();
             actor->ar_beams[i].maxposstress       = data[0].GetFloat();
             actor->ar_beams[i].maxnegstress       = data[1].GetFloat();
             actor->ar_beams[i].minmaxposnegstress = data[2].GetFloat();
@@ -420,37 +387,33 @@ bool ActorManager::LoadScene(Ogre::String filename)
             actor->ar_beams[i].bm_inter_actor     = data[7].GetBool();
             int locked_actor                      = data[8].GetInt();
             if (locked_actor != -1 && actors[locked_actor] != nullptr)
-            {
-                actor->AddInterActorBeam(&actor->ar_beams[i], actor, actors[locked_actor]);
-            }
+            { actor->AddInterActorBeam(&actor->ar_beams[i], actor, actors[locked_actor]); }
         }
 
         auto hooks = j_entry["hooks"].GetArray();
         for (int i = 0; i < actor->ar_hooks.size(); i++)
         {
-            int lock_node = hooks[i]["lock_node"].GetInt();
+            int lock_node    = hooks[i]["lock_node"].GetInt();
             int locked_actor = hooks[i]["locked_actor"].GetInt();
             if (lock_node != -1 && locked_actor != -1 && actors[locked_actor] != nullptr)
             {
-                actor->ar_hooks[i].hk_locked = hooks[i]["locked"].GetInt();
+                actor->ar_hooks[i].hk_locked       = hooks[i]["locked"].GetInt();
                 actor->ar_hooks[i].hk_locked_actor = actors[locked_actor];
-                actor->ar_hooks[i].hk_lock_node = &actors[locked_actor]->ar_nodes[lock_node];
+                actor->ar_hooks[i].hk_lock_node    = &actors[locked_actor]->ar_nodes[lock_node];
                 if (actor->ar_hooks[i].hk_beam->bm_inter_actor)
-                {
-                    actor->ar_hooks[i].hk_beam->p2 = actor->ar_hooks[i].hk_lock_node;
-                }
+                { actor->ar_hooks[i].hk_beam->p2 = actor->ar_hooks[i].hk_lock_node; }
             }
         }
 
         auto ropes = j_entry["ropes"].GetArray();
         for (int i = 0; i < actor->ar_ropes.size(); i++)
         {
-            int ropable = ropes[i]["locked_ropable"].GetInt();
+            int ropable      = ropes[i]["locked_ropable"].GetInt();
             int locked_actor = ropes[i]["locked_actor"].GetInt();
             if (ropable != -1 && locked_actor != -1 && actors[locked_actor] != nullptr)
             {
-                actor->ar_ropes[i].rp_locked = ropes[i]["locked"].GetInt();
-                actor->ar_ropes[i].rp_locked_actor = actors[locked_actor];
+                actor->ar_ropes[i].rp_locked         = ropes[i]["locked"].GetInt();
+                actor->ar_ropes[i].rp_locked_actor   = actors[locked_actor];
                 actor->ar_ropes[i].rp_locked_ropable = &actors[locked_actor]->ar_ropables[ropable];
             }
         }
@@ -458,18 +421,16 @@ bool ActorManager::LoadScene(Ogre::String filename)
         auto ties = j_entry["ties"].GetArray();
         for (int i = 0; i < actor->ar_ties.size(); i++)
         {
-            int ropable = ties[i]["locked_ropable"].GetInt();
+            int ropable      = ties[i]["locked_ropable"].GetInt();
             int locked_actor = ties[i]["locked_actor"].GetInt();
             if (ropable != -1 && locked_actor != -1 && actors[locked_actor] != nullptr)
             {
-                actor->ar_ties[i].ti_tied  = ties[i]["tied"].GetBool();
-                actor->ar_ties[i].ti_tying = ties[i]["tying"].GetBool();
-                actor->ar_ties[i].ti_locked_actor = actors[locked_actor];
+                actor->ar_ties[i].ti_tied           = ties[i]["tied"].GetBool();
+                actor->ar_ties[i].ti_tying          = ties[i]["tying"].GetBool();
+                actor->ar_ties[i].ti_locked_actor   = actors[locked_actor];
                 actor->ar_ties[i].ti_locked_ropable = &actors[locked_actor]->ar_ropables[ropable];
                 if (actor->ar_ties[i].ti_beam->bm_inter_actor)
-                {
-                    actor->ar_ties[i].ti_beam->p2 = actor->ar_ties[i].ti_locked_ropable->node;
-                }
+                { actor->ar_ties[i].ti_beam->p2 = actor->ar_ties[i].ti_locked_ropable->node; }
             }
         }
 
@@ -481,10 +442,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         }
 
         actor->resetSlideNodes();
-        if (actor->m_slidenodes_locked != j_entry["slidenodes_locked"].GetBool())
-        {
-            actor->ToggleSlideNodeLock();
-        }
+        if (actor->m_slidenodes_locked != j_entry["slidenodes_locked"].GetBool()) { actor->ToggleSlideNodeLock(); }
 
         actor->UpdateBoundingBoxes();
         actor->calculateAveragePosition();
@@ -494,22 +452,18 @@ bool ActorManager::LoadScene(Ogre::String filename)
     App::sim_load_savegame.SetActive(false);
     m_savegame_terrain_has_changed = false;
 
-    if (filename != "autosave.sav")
-    {
-        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Scene loaded"));
-    }
+    if (filename != "autosave.sav") { RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Scene loaded")); }
 
     return true;
 }
 
 bool ActorManager::SaveScene(Ogre::String filename)
 {
-    std::vector<Actor*> x_actors = GetLocalActors();
+    std::vector<Actor *> x_actors = GetLocalActors();
 
     if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
-        if (filename == "autosave.sav")
-            return false;
+        if (filename == "autosave.sav") return false;
         if (x_actors.size() > 3)
         {
             RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Error while saving scene: Too many vehicles"));
@@ -523,7 +477,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
     // Pretty name
     String pretty_name = App::GetCacheSystem()->GetPrettyName(App::sim_terrain_name.GetActive());
-    String scene_name = StringUtil::format("%s [%d]", pretty_name.c_str(), x_actors.size());
+    String scene_name  = StringUtil::format("%s [%d]", pretty_name.c_str(), x_actors.size());
     j_doc.AddMember("scene_name", rapidjson::StringRef(scene_name.c_str()), j_doc.GetAllocator());
 
     // Terrain
@@ -531,9 +485,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
 #ifdef USE_CAELUM
     if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
-    {
-        j_doc.AddMember("daytime", App::GetSimTerrain()->getSkyManager()->GetTime(), j_doc.GetAllocator());
-    }
+    { j_doc.AddMember("daytime", App::GetSimTerrain()->getSkyManager()->GetTime(), j_doc.GetAllocator()); }
 #endif // USE_CAELUM
 
     j_doc.AddMember("forced_awake", m_forced_awake, j_doc.GetAllocator());
@@ -552,12 +504,9 @@ bool ActorManager::SaveScene(Ogre::String filename)
     for (auto actor : m_actors)
     {
         vector_index_lookup[actor->ar_vector_index] = -1;
-        auto search = std::find_if(x_actors.begin(), x_actors.end(), [actor](Actor* b)
-                { return actor->ar_instance_id == b->ar_instance_id; });
-        if (search != x_actors.end())
-        {
-            vector_index_lookup[actor->ar_vector_index] = std::distance(x_actors.begin(), search);
-        }
+        auto search                                 = std::find_if(x_actors.begin(), x_actors.end(),
+                                   [actor](Actor *b) { return actor->ar_instance_id == b->ar_instance_id; });
+        if (search != x_actors.end()) { vector_index_lookup[actor->ar_vector_index] = std::distance(x_actors.begin(), search); }
     }
 
     // Actors
@@ -578,13 +527,11 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_entry.AddMember("preloaded_with_terrain", actor->isPreloadedWithTerrain(), j_doc.GetAllocator());
         j_entry.AddMember("sim_state", static_cast<int>(actor->ar_sim_state), j_doc.GetAllocator());
         j_entry.AddMember("physics_paused", actor->ar_physics_paused, j_doc.GetAllocator());
-        j_entry.AddMember("player_actor", actor==App::GetSimController()->GetPlayerActor(), j_doc.GetAllocator());
-        j_entry.AddMember("prev_player_actor", actor==App::GetSimController()->GetPrevPlayerActor(), j_doc.GetAllocator());
+        j_entry.AddMember("player_actor", actor == App::GetSimController()->GetPlayerActor(), j_doc.GetAllocator());
+        j_entry.AddMember("prev_player_actor", actor == App::GetSimController()->GetPrevPlayerActor(), j_doc.GetAllocator());
 
         if (actor->m_used_skin_entry)
-        {
-            j_entry.AddMember("skin", rapidjson::StringRef(actor->m_used_skin_entry->dname.c_str()), j_doc.GetAllocator());
-        }
+        { j_entry.AddMember("skin", rapidjson::StringRef(actor->m_used_skin_entry->dname.c_str()), j_doc.GetAllocator()); }
 
         j_entry.AddMember("section_config", rapidjson::StringRef(actor->m_section_config.c_str()), j_doc.GetAllocator());
 
@@ -621,16 +568,13 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
         // Flares
         rapidjson::Value j_flares(rapidjson::kArrayType);
-        for (const auto& flare : actor->ar_flares)
+        for (const auto &flare : actor->ar_flares)
         {
             j_flares.PushBack(flare.controltoggle_status, j_doc.GetAllocator());
         }
         j_entry.AddMember("flares", j_flares, j_doc.GetAllocator());
 
-        if (actor->m_buoyance)
-        {
-            j_entry.AddMember("buoyance_sink", actor->m_buoyance->sink, j_doc.GetAllocator());
-        }
+        if (actor->m_buoyance) { j_entry.AddMember("buoyance_sink", actor->m_buoyance->sink, j_doc.GetAllocator()); }
 
         // Turboprops / Turbojets
         rapidjson::Value j_aeroengines(rapidjson::kArrayType);
@@ -709,7 +653,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
             for (int j = 0; j < (int)actor->ar_command_key[i].beams.size(); j++)
             {
                 rapidjson::Value j_cmb(rapidjson::kArrayType);
-                auto& beam = actor->ar_command_key[i].beams[j];
+                auto &           beam = actor->ar_command_key[i].beams[j];
                 j_cmb.PushBack(beam.cmb_state->auto_moving_mode, j_doc.GetAllocator());
                 j_cmb.PushBack(beam.cmb_state->pressed_center_mode, j_doc.GetAllocator());
                 j_command_beams.PushBack(j_cmb, j_doc.GetAllocator());
@@ -722,11 +666,11 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
         // Hooks
         rapidjson::Value j_hooks(rapidjson::kArrayType);
-        for (const auto& h : actor->ar_hooks)
+        for (const auto &h : actor->ar_hooks)
         {
             rapidjson::Value j_hook(rapidjson::kObjectType);
-            int lock_node = h.hk_lock_node ? h.hk_lock_node->pos : -1;
-            int locked_actor = h.hk_locked_actor ? vector_index_lookup[h.hk_locked_actor->ar_vector_index] : -1;
+            int              lock_node    = h.hk_lock_node ? h.hk_lock_node->pos : -1;
+            int              locked_actor = h.hk_locked_actor ? vector_index_lookup[h.hk_locked_actor->ar_vector_index] : -1;
             j_hook.AddMember("locked", h.hk_locked, j_doc.GetAllocator());
             j_hook.AddMember("lock_node", lock_node, j_doc.GetAllocator());
             j_hook.AddMember("locked_actor", locked_actor, j_doc.GetAllocator());
@@ -736,11 +680,11 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
         // Ropes
         rapidjson::Value j_ropes(rapidjson::kArrayType);
-        for (const auto& r : actor->ar_ropes)
+        for (const auto &r : actor->ar_ropes)
         {
             rapidjson::Value j_rope(rapidjson::kObjectType);
-            int locked_ropable = r.rp_locked_ropable ? r.rp_locked_ropable->pos : -1;
-            int locked_actor = r.rp_locked_actor ? vector_index_lookup[r.rp_locked_actor->ar_vector_index] : -1;
+            int              locked_ropable = r.rp_locked_ropable ? r.rp_locked_ropable->pos : -1;
+            int              locked_actor   = r.rp_locked_actor ? vector_index_lookup[r.rp_locked_actor->ar_vector_index] : -1;
             j_rope.AddMember("locked", r.rp_locked, j_doc.GetAllocator());
             j_rope.AddMember("locked_ropable", locked_ropable, j_doc.GetAllocator());
             j_rope.AddMember("locked_actor", locked_actor, j_doc.GetAllocator());
@@ -750,11 +694,11 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
         // Ties
         rapidjson::Value j_ties(rapidjson::kArrayType);
-        for (const auto& t : actor->ar_ties)
+        for (const auto &t : actor->ar_ties)
         {
             rapidjson::Value j_tie(rapidjson::kObjectType);
-            int locked_ropable = t.ti_locked_ropable ? t.ti_locked_ropable->pos : -1;
-            int locked_actor = t.ti_locked_actor ? vector_index_lookup[t.ti_locked_actor->ar_vector_index] : -1;
+            int              locked_ropable = t.ti_locked_ropable ? t.ti_locked_ropable->pos : -1;
+            int              locked_actor   = t.ti_locked_actor ? vector_index_lookup[t.ti_locked_actor->ar_vector_index] : -1;
             j_tie.AddMember("tied", t.ti_tied, j_doc.GetAllocator());
             j_tie.AddMember("tying", t.ti_tying, j_doc.GetAllocator());
             j_tie.AddMember("locked_ropable", locked_ropable, j_doc.GetAllocator());
@@ -765,7 +709,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
         // Ropables
         rapidjson::Value j_ropables(rapidjson::kArrayType);
-        for (const auto& r : actor->ar_ropables)
+        for (const auto &r : actor->ar_ropables)
         {
             rapidjson::Value j_ropable(rapidjson::kObjectType);
             j_ropable.AddMember("attached_ties", r.attached_ties, j_doc.GetAllocator());
@@ -815,7 +759,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
             j_beam.PushBack(actor->ar_beams[i].bm_broken, j_doc.GetAllocator());
             j_beam.PushBack(actor->ar_beams[i].bm_disabled, j_doc.GetAllocator());
             j_beam.PushBack(actor->ar_beams[i].bm_inter_actor, j_doc.GetAllocator());
-            Actor* locked_actor = actor->ar_beams[i].bm_locked_actor;
+            Actor *locked_actor = actor->ar_beams[i].bm_locked_actor;
             j_beam.PushBack(locked_actor ? vector_index_lookup[locked_actor->ar_vector_index] : -1, j_doc.GetAllocator());
 
             j_beams.PushBack(j_beam, j_doc.GetAllocator());
@@ -830,10 +774,11 @@ bool ActorManager::SaveScene(Ogre::String filename)
     String path = PathCombine(App::sys_savegames_dir.GetActive(), filename);
     RoR::LogFormat("[RoR|Savegame] Writing savegame to file '%s' ...", path.c_str());
 
-    std::ofstream ofs(path);
+    std::ofstream             ofs(path);
     rapidjson::OStreamWrapper j_ofs(ofs);
     rapidjson::Writer<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>, rapidjson::CrtAllocator,
-        rapidjson::kWriteNanAndInfFlag> j_writer(j_ofs);
+                      rapidjson::kWriteNanAndInfFlag>
+        j_writer(j_ofs);
     if (!j_doc.Accept(j_writer))
     {
         RoR::LogFormat("[RoR|Savegame] Error writing '%s'", path.c_str());
@@ -841,10 +786,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         return false;
     }
 
-    if (filename != "autosave.sav")
-    {
-        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Scene saved"));
-    }
+    if (filename != "autosave.sav") { RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Scene saved")); }
 
     return true;
 }

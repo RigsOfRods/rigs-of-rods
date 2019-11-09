@@ -3,7 +3,7 @@
 This source file is part of SkyX.
 Visit http://www.paradise-studios.net/products/skyx/
 
-Copyright (C) 2009-2012 Xavier Verguín González <xavyiy@gmail.com>
+Copyright (C) 2009-2012 Xavier Verguï¿½n Gonzï¿½lez <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -28,58 +28,58 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace SkyX
 {
-    class ColorGradient 
-	{
-	public:
-		/** Color frame type definition
-		    ColorFrame.first: Colour value
-			ColorFrame.second: Position in the gradient [0,1] range
-		 */
-		typedef std::pair<Ogre::Vector3, Ogre::Real> ColorFrame;
+    class ColorGradient
+    {
+      public:
+        /** Color frame type definition
+            ColorFrame.first: Colour value
+            ColorFrame.second: Position in the gradient [0,1] range
+         */
+        typedef std::pair<Ogre::Vector3, Ogre::Real> ColorFrame;
 
-	    /** Constructor
-		 */
-		ColorGradient();
+        /** Constructor
+         */
+        ColorGradient();
 
-		/** Destructor 
-		 */
-		~ColorGradient();
+        /** Destructor
+         */
+        ~ColorGradient();
 
-		/** Add color frame
-		    @param CFrame Color frame
-		 */
-		inline void addCFrame(const ColorFrame& CFrame)
-		{
-			CFrameVector.push_back(CFrame);
+        /** Add color frame
+            @param CFrame Color frame
+         */
+        inline void addCFrame(const ColorFrame &CFrame)
+        {
+            CFrameVector.push_back(CFrame);
 
-			mMalFormed = !_checkBounds();
-		}
+            mMalFormed = !_checkBounds();
+        }
 
-		/** Clear color gradient
-		 */
-		inline void clear()
-		{
-			CFrameVector.clear();
-		}
+        /** Clear color gradient
+         */
+        inline void clear()
+        {
+            CFrameVector.clear();
+        }
 
-		/** Get color value
-		    @param p The gradient point in [0,1] range
-			@return Color at the given gradient position
-		 */
-		const Ogre::Vector3 getColor(const Ogre::Real& p) const;
+        /** Get color value
+            @param p The gradient point in [0,1] range
+            @return Color at the given gradient position
+         */
+        const Ogre::Vector3 getColor(const Ogre::Real &p) const;
 
-	private:
-		/** Check bounds
-		    @return false if the Color gradient is mal-formed
-		 */
-		const bool _checkBounds() const;
+      private:
+        /** Check bounds
+            @return false if the Color gradient is mal-formed
+         */
+        const bool _checkBounds() const;
 
-		/// Mal formed color gradient?
-		bool mMalFormed;
+        /// Mal formed color gradient?
+        bool mMalFormed;
 
-		/// Color frame vector
-		std::vector<ColorFrame> CFrameVector;
-	};
-}
+        /// Color frame vector
+        std::vector<ColorFrame> CFrameVector;
+    };
+} // namespace SkyX
 
 #endif

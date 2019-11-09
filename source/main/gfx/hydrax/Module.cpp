@@ -3,7 +3,7 @@
 This source file is part of Hydrax.
 Visit ---
 
-Copyright (C) 2008 Xavier Verguín González <xavierverguin@hotmail.com>
+Copyright (C) 2008 Xavier Verguï¿½n Gonzï¿½lez <xavierverguin@hotmail.com>
                                            <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
@@ -22,100 +22,89 @@ http://www.gnu.org/copyleft/lesser.txt.
 --------------------------------------------------------------------------------
 */
 
-#include"Module.h"
+#include "Module.h"
 
-namespace Hydrax{namespace Module
+namespace Hydrax
 {
-	Module::Module(const Ogre::String &Name,
-		           Noise::Noise *n,
-				   const Mesh::Options &MeshOptions,
-				   const MaterialManager::NormalMode &NormalMode)
-		: mName(Name)
-		, mNoise(n)
-		, mMeshOptions(MeshOptions)
-		, mNormalMode(NormalMode)
-	    , mCreated(false)
-	{
-	}
+    namespace Module
+    {
+        Module::Module(const Ogre::String &Name, Noise::Noise *n, const Mesh::Options &MeshOptions,
+                       const MaterialManager::NormalMode &NormalMode)
+            : mName(Name), mNoise(n), mMeshOptions(MeshOptions), mNormalMode(NormalMode), mCreated(false)
+        {
+        }
 
-	Module::~Module()
-	{
-		delete mNoise;
-	}
+        Module::~Module()
+        {
+            delete mNoise;
+        }
 
-	void Module::create()
-	{
-		mNoise->create();
+        void Module::create()
+        {
+            mNoise->create();
 
-		mCreated = true;
-	}
+            mCreated = true;
+        }
 
-	void Module::remove()
-	{
-		mNoise->remove();
+        void Module::remove()
+        {
+            mNoise->remove();
 
-		mCreated = false;
-	}
+            mCreated = false;
+        }
 
-	void Module::setNoise(Noise::Noise* Noise, GPUNormalMapManager* g, const bool& DeleteOldNoise)
-	{
-		if (DeleteOldNoise)
-		{
-			delete mNoise;
-		}
+        void Module::setNoise(Noise::Noise *Noise, GPUNormalMapManager *g, const bool &DeleteOldNoise)
+        {
+            if (DeleteOldNoise) { delete mNoise; }
 
-		mNoise = Noise;
+            mNoise = Noise;
 
-		if (mCreated)
-		{
-			if (!mNoise->isCreated())
-			{
-				mNoise->create();
-			}
+            if (mCreated)
+            {
+                if (!mNoise->isCreated()) { mNoise->create(); }
 
-			if (getNormalMode() == MaterialManager::NM_RTT)
-			{
-				if (!mNoise->createGPUNormalMapResources(g))
-				{
-					HydraxLOG(mNoise->getName() + " doesn't support GPU Normal map generation");
-				}
-			}
-			else
-			{
-				mNoise->removeGPUNormalMapResources(g);
-			}
-		}
-		else
-		{
-			mNoise->removeGPUNormalMapResources(g);
-		}
-	}
+                if (getNormalMode() == MaterialManager::NM_RTT)
+                {
+                    if (!mNoise->createGPUNormalMapResources(g))
+                    { HydraxLOG(mNoise->getName() + " doesn't support GPU Normal map generation"); }
+                }
+                else
+                {
+                    mNoise->removeGPUNormalMapResources(g);
+                }
+            }
+            else
+            {
+                mNoise->removeGPUNormalMapResources(g);
+            }
+        }
 
-	void Module::update(const Ogre::Real &timeSinceLastFrame)
-	{
-		mNoise->update(timeSinceLastFrame);
-	}
+        void Module::update(const Ogre::Real &timeSinceLastFrame)
+        {
+            mNoise->update(timeSinceLastFrame);
+        }
 
-	void Module::saveCfg(Ogre::String &Data)
-	{
-		Data += "#Module options\n";
-		Data += "Module="+mName+"\n\n";
-	}
+        void Module::saveCfg(Ogre::String &Data)
+        {
+            Data += "#Module options\n";
+            Data += "Module=" + mName + "\n\n";
+        }
 
-	bool Module::loadCfg(Ogre::ConfigFile &CfgFile)
-	{
-		if (CfgFile.getSetting("Module") == mName)
-		{
-		    HydraxLOG(mName + " options entry found.");
-			return true;
-		}
+        bool Module::loadCfg(Ogre::ConfigFile &CfgFile)
+        {
+            if (CfgFile.getSetting("Module") == mName)
+            {
+                HydraxLOG(mName + " options entry found.");
+                return true;
+            }
 
-        HydraxLOG("Error (Module::loadCfg):\t" + mName + " options entry can not be found.");
-		return false;
-	}
+            HydraxLOG("Error (Module::loadCfg):\t" + mName + " options entry can not be found.");
+            return false;
+        }
 
-	float Module::getHeigth(const Ogre::Vector2 &Position)
-	{
-		return -1;
-	}
-}}
+        float Module::getHeigth(const Ogre::Vector2 &Position)
+        {
+            return -1;
+        }
+    } // namespace Module
+} // namespace Hydrax

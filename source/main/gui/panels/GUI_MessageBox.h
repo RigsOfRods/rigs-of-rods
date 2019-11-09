@@ -29,27 +29,32 @@
 
 #include <string>
 
-namespace RoR {
-namespace GUI {
-
-class MessageBoxDialog
+namespace RoR
 {
-public:
-    MessageBoxDialog();
-    ~MessageBoxDialog();
+    namespace GUI
+    {
 
-    void          Show(const char* title, const char* text, bool allow_close, const char* button1_text, const char* button2_text);
-    void          Draw();
-    inline bool   IsVisible() const { return m_is_visible; }
+        class MessageBoxDialog
+        {
+          public:
+            MessageBoxDialog();
+            ~MessageBoxDialog();
 
-private:
-    std::string m_title;
-    std::string m_text;
-    std::string m_button1_text;
-    std::string m_button2_text;
-    bool*       m_close_handle; // If nullptr, close button is hidden. Otherwise visible.
-    bool        m_is_visible;
-};
+            void Show(const char *title, const char *text, bool allow_close, const char *button1_text, const char *button2_text);
+            void Draw();
+            inline bool IsVisible() const
+            {
+                return m_is_visible;
+            }
 
-} // namespace GUI
+          private:
+            std::string m_title;
+            std::string m_text;
+            std::string m_button1_text;
+            std::string m_button2_text;
+            bool *      m_close_handle; // If nullptr, close button is hidden. Otherwise visible.
+            bool        m_is_visible;
+        };
+
+    } // namespace GUI
 } // namespace RoR

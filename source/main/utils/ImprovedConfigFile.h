@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
 #include "ConfigFile.h"
+#include "RoRPrerequisites.h"
 
 #include <OgreConfigFile.h>
 #include <OgreDataStream.h>
@@ -31,7 +31,7 @@
 
 class ImprovedConfigFile : public RoR::ConfigFile
 {
-public:
+  public:
     ImprovedConfigFile() : separators("="), filename()
     {
         ConfigFile();
@@ -42,31 +42,33 @@ public:
     }
 
     // note: saving is only supported for direct loaded files atm!
-    void load(const Ogre::String& filename, const Ogre::String& separators = "=", bool trimWhitespace = true)
+    void load(const Ogre::String &filename, const Ogre::String &separators = "=", bool trimWhitespace = true)
     {
         this->separators = separators;
-        this->filename = filename;
+        this->filename   = filename;
         ConfigFile::load(filename, separators, trimWhitespace);
     }
 
-    void load(const Ogre::DataStreamPtr& ptr, const Ogre::String& separators, bool trimWhitespace)
+    void load(const Ogre::DataStreamPtr &ptr, const Ogre::String &separators, bool trimWhitespace)
     {
         this->separators = separators;
-        this->filename = "";
+        this->filename   = "";
         ConfigFile::load(ptr, separators, trimWhitespace);
     }
 
-    void loadFromString(const Ogre::String str, const Ogre::String& separators, bool trimWhitespace)
+    void loadFromString(const Ogre::String str, const Ogre::String &separators, bool trimWhitespace)
     {
-        Ogre::DataStreamPtr ds(Ogre::DataStreamPtr(OGRE_NEW Ogre::MemoryDataStream((void*)str.c_str(), str.size(), false, true)));
+        Ogre::DataStreamPtr ds(
+            Ogre::DataStreamPtr(OGRE_NEW Ogre::MemoryDataStream((void *)str.c_str(), str.size(), false, true)));
         this->separators = separators;
-        this->filename = "";
+        this->filename   = "";
         ConfigFile::load(ds, separators, trimWhitespace);
     }
 
     bool hasSetting(Ogre::String key, Ogre::String section = "")
     {
-        return (mSettingsPtr.find(section) != mSettingsPtr.end() && mSettingsPtr[section]->find(key) != mSettingsPtr[section]->end());
+        return (mSettingsPtr.find(section) != mSettingsPtr.end() &&
+                mSettingsPtr[section]->find(key) != mSettingsPtr[section]->end());
     }
 
     bool save()
@@ -79,23 +81,23 @@ public:
         if (!fn.length())
         {
             OGRE_EXCEPT(Ogre::Exception::ERR_INTERNAL_ERROR,
-                "Saving of the configuration File is only allowed"
-                "when the configuration was not loaded using the resource system!",
-                "ImprovedConfigFile::save");
+                        "Saving of the configuration File is only allowed"
+                        "when the configuration was not loaded using the resource system!",
+                        "ImprovedConfigFile::save");
             return false;
         }
-        FILE* f = fopen(fn.c_str(), "w");
+        FILE *f = fopen(fn.c_str(), "w");
         if (!f)
         {
-            OGRE_EXCEPT(Ogre::Exception::ERR_FILE_NOT_FOUND, "Cannot open File '"+fn+"' for writing.", "ImprovedConfigFile::save");
+            OGRE_EXCEPT(Ogre::Exception::ERR_FILE_NOT_FOUND, "Cannot open File '" + fn + "' for writing.",
+                        "ImprovedConfigFile::save");
             return false;
         }
 
         SettingsBySection::iterator secIt;
         for (secIt = mSettingsPtr.begin(); secIt != mSettingsPtr.end(); secIt++)
         {
-            if (secIt->first.size() > 0)
-                fprintf(f, "[%s]\n", secIt->first.c_str());
+            if (secIt->first.size() > 0) fprintf(f, "[%s]\n", secIt->first.c_str());
             SettingsMultiMap::iterator setIt;
             for (setIt = secIt->second->begin(); setIt != secIt->second->end(); setIt++)
             {
@@ -108,15 +110,15 @@ public:
 
     void setSetting(Ogre::String key, Ogre::String value, Ogre::String section = Ogre::StringUtil::BLANK)
     {
-        SettingsMultiMap* set = mSettingsPtr[section];
+        SettingsMultiMap *set = mSettingsPtr[section];
         if (!set)
         {
             // new section
-            set = new SettingsMultiMap();
+            set                   = new SettingsMultiMap();
             mSettingsPtr[section] = set;
         }
         if (set->count(key))
-        // known key, delete old first
+            // known key, delete old first
             set->erase(key);
         // add key
         set->insert(std::multimap<Ogre::String, Ogre::String>::value_type(key, value));
@@ -253,7 +255,7 @@ public:
         setSetting(key, TOSTRING(value), section);
     }
 
-protected:
+  protected:
     Ogre::String separators;
     Ogre::String filename;
 };

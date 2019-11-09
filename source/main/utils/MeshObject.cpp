@@ -29,41 +29,31 @@
 
 using namespace Ogre;
 
-MeshObject::MeshObject(Ogre::String meshName, Ogre::String meshRG, Ogre::String entityName, Ogre::SceneNode* sceneNode)
-    : sceneNode(sceneNode)
-    , ent(nullptr)
-    , castshadows(true)
+MeshObject::MeshObject(Ogre::String meshName, Ogre::String meshRG, Ogre::String entityName, Ogre::SceneNode *sceneNode)
+    : sceneNode(sceneNode), ent(nullptr), castshadows(true)
 {
     this->createEntity(meshName, meshRG, entityName);
 }
 
 void MeshObject::setMaterialName(Ogre::String m)
 {
-    if (ent)
-    {
-        ent->setMaterialName(m);
-    }
+    if (ent) { ent->setMaterialName(m); }
 }
 
 void MeshObject::setCastShadows(bool b)
 {
     castshadows = b;
-    if (sceneNode && sceneNode->numAttachedObjects())
-    {
-        sceneNode->getAttachedObject(0)->setCastShadows(b);
-    }
+    if (sceneNode && sceneNode->numAttachedObjects()) { sceneNode->getAttachedObject(0)->setCastShadows(b); }
 }
 
 void MeshObject::setVisible(bool b)
 {
-    if (sceneNode)
-        sceneNode->setVisible(b);
+    if (sceneNode) sceneNode->setVisible(b);
 }
 
 void MeshObject::createEntity(Ogre::String meshName, Ogre::String meshRG, Ogre::String entityName)
 {
-    if (!sceneNode)
-        return;
+    if (!sceneNode) return;
 
     try
     {
@@ -81,11 +71,10 @@ void MeshObject::createEntity(Ogre::String meshName, Ogre::String meshRG, Ogre::
         for (FileInfoList::iterator iterFiles = files->begin(); iterFiles != files->end(); ++iterFiles)
         {
             String format = basename + "_lod%d.mesh";
-            int i = -1;
-            int r = sscanf(iterFiles->filename.c_str(), format.c_str(), &i);
+            int    i      = -1;
+            int    r      = sscanf(iterFiles->filename.c_str(), format.c_str(), &i);
 
-            if (r <= 0 || i < 0)
-                continue;
+            if (r <= 0 || i < 0) continue;
 
             Ogre::MeshManager::getSingleton().load(iterFiles->filename, mesh->getGroup());
         }
@@ -96,10 +85,9 @@ void MeshObject::createEntity(Ogre::String meshName, Ogre::String meshRG, Ogre::
         {
             // and custom LODs
             String format = basename + "_clod_%d.mesh";
-            int i = -1;
-            int r = sscanf(iterFiles->filename.c_str(), format.c_str(), &i);
-            if (r <= 0 || i < 0)
-                continue;
+            int    i      = -1;
+            int    r      = sscanf(iterFiles->filename.c_str(), format.c_str(), &i);
+            if (r <= 0 || i < 0) continue;
 
             Ogre::MeshManager::getSingleton().load(iterFiles->filename, mesh->getGroup());
         }
@@ -112,10 +100,10 @@ void MeshObject::createEntity(Ogre::String meshName, Ogre::String meshRG, Ogre::
         sceneNode->attachObject(ent);
         sceneNode->setVisible(true);
     }
-    catch (Ogre::Exception& e)
+    catch (Ogre::Exception &e)
     {
-        RoR::LogFormat("[RoR] Error creating entity of mesh '%s' (group: '%s'), message: %s",
-            meshName.c_str(), meshRG.c_str(), e.getFullDescription().c_str());
+        RoR::LogFormat("[RoR] Error creating entity of mesh '%s' (group: '%s'), message: %s", meshName.c_str(), meshRG.c_str(),
+                       e.getFullDescription().c_str());
         return;
     }
 }
