@@ -59,7 +59,7 @@
 
 #include "GUIManager.h"
 #include "GUI_FrictionSettings.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
 #include "GUI_MultiplayerClientList.h"

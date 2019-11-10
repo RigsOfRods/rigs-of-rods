@@ -61,6 +61,7 @@ namespace RoR
 
     namespace GUI
     {
+        class  ConsoleView;
         class  Dialog;
         class  FrictionSettings;
         class  GameMainMenu;

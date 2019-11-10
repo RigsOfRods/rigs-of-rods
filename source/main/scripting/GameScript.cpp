@@ -43,7 +43,7 @@
 #include "Character.h"
 #include "ChatSystem.h"
 #include "Collisions.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "GUIManager.h"
 #include "Language.h"
 #include "MainMenu.h"

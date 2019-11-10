@@ -105,7 +105,6 @@ public:
     bool IsVisible_SimActorStats        ();
 
     // GUI GetInstance*()
-    Console* GetConsole();
     GUI::MainSelector* GetMainSelector();
     GUI::GameMainMenu* GetMainMenu();
     GUI::GamePauseMenu* GetPauseMenu();

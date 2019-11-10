@@ -27,7 +27,7 @@
 #include "RigDef_SequentialImporter.h"
 
 #include "Application.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "RigDef_Parser.h"
 #include "RoRPrerequisites.h"
 

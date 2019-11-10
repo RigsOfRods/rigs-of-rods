@@ -43,7 +43,7 @@
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
 #include "GUIManager.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "GfxActor.h"
 #include "InputEngine.h"
 #include "Language.h"

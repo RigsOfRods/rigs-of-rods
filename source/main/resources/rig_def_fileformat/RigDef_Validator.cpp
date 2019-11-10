@@ -26,7 +26,8 @@
 #include "RigDef_Validator.h"
 
 #include "BeamConstants.h"
-#include "GUI_GameConsole.h"
+#include "Application.h"
+#include "Console.h"
 
 #define CHECK_SECTION_IN_ALL_MODULES(_CLASS_, _FIELD_, _FUNCTION_) \
 { \

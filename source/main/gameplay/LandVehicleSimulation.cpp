@@ -24,7 +24,7 @@
 #include "Application.h"
 #include "Beam.h"
 #include "BeamEngine.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "SoundScriptManager.h"

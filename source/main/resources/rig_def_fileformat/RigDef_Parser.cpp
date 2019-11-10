@@ -28,7 +28,7 @@
 #include "Application.h"
 #include "BeamConstants.h"
 #include "CacheSystem.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "RigDef_File.h"
 #include "RigDef_Regexes.h"
 #include "BitFlags.h"

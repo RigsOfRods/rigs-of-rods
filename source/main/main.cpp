@@ -23,6 +23,7 @@
 
 #include "Application.h"
 #include "CacheSystem.h"
+#include "Console.h"
 #include "ContentManager.h"
 #include "ErrorUtils.h"
 #include "GUIManager.h"
@@ -130,6 +131,7 @@ int main(int argc, char *argv[])
         rorlog->stream() << "[RoR] Rigs of Rods (www.rigsofrods.org) version " << ROR_VERSION_STRING;
         std::time_t t = std::time(nullptr);
         rorlog->stream() << "[RoR] Current date: " << std::put_time(std::localtime(&t), "%Y-%m-%d");
+        rorlog->addListener(App::GetConsole());  // Allow console to intercept log messages
         App::diag_trace_globals.SetActive(true); // We have logger -> we can trace.
 
         if (! Settings::SetupAllPaths()) // Updates globals

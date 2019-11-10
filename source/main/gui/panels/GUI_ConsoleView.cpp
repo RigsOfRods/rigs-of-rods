@@ -20,12 +20,13 @@
 */
 
 
-#include "GUI_GameConsole.h"
+#include "GUI_ConsoleView.h"
 
 #include "Application.h"
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "Character.h"
+#include "Console.h"
 #include "GUIManager.h"
 #include "IWater.h"
 #include "Language.h"
@@ -40,25 +41,10 @@
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 
-using namespace Ogre;
 using namespace RoR;
+using namespace Ogre;
 
-Console::Console()
-{
-    LogManager::getSingleton().getDefaultLog()->addListener(this);
-}
-
-void Console::putMessage(int area, int type, UTFString txt, String icon, unsigned long ttl, bool forcevisible)
-{
-    std::lock_guard<std::mutex> lock(m_messages_mutex);
-    m_messages.emplace_back(MessageArea(area), MessageType(type), txt);
-    if (m_messages.size() > MESSAGES_CAP)
-    {
-        m_messages.erase(m_messages.begin());
-    }
-}
-
-void Console::Draw()
+void GUI::ConsoleView::Draw()
 {
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar;
@@ -95,37 +81,41 @@ void Console::Draw()
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar); // Leave room for 1 separator + 1 InputText
 
     { // Lock scope
-        std::lock_guard<std::mutex> lock(m_messages_mutex);
+        Console::MsgLockGuard lock(App::GetConsole());
+        const size_t disp_count = std::min(MSG_DISP_LIMIT, lock.messages.size());
         GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
-        for (Message& m: m_messages)
+        auto disp_endi = lock.messages.end();
+        auto disp_itor = disp_endi - disp_count;
+        for (; disp_itor != disp_endi; ++disp_itor)
         {
+            Console::Message const& m = *disp_itor;
             if (this->MessageFilter(m))
             {
                 switch (m.cm_type)
                 {
-                    case CONSOLE_TITLE:
-                        ImGui::TextColored(theme.highlight_text_color, "%s", m.cm_text.c_str());
-                        break;
+                case Console::Console::CONSOLE_TITLE:
+                    ImGui::TextColored(theme.highlight_text_color, "%s", m.cm_text.c_str());
+                    break;
 
-                    case CONSOLE_SYSTEM_ERROR:
-                        ImGui::TextColored(theme.error_text_color, "%s", m.cm_text.c_str());
-                        break;
+                case Console::Console::CONSOLE_SYSTEM_ERROR:
+                    ImGui::TextColored(theme.error_text_color, "%s", m.cm_text.c_str());
+                    break;
 
-                    case CONSOLE_SYSTEM_WARNING:
-                        ImGui::TextColored(theme.warning_text_color, "%s", m.cm_text.c_str());
-                        break;
+                case Console::CONSOLE_SYSTEM_WARNING:
+                    ImGui::TextColored(theme.warning_text_color, "%s", m.cm_text.c_str());
+                    break;
 
-                    case CONSOLE_SYSTEM_REPLY:
-                        ImGui::TextColored(theme.success_text_color, "%s", m.cm_text.c_str());
-                        break;
+                case Console::Console::CONSOLE_SYSTEM_REPLY:
+                    ImGui::TextColored(theme.success_text_color, "%s", m.cm_text.c_str());
+                    break;
 
-                    case CONSOLE_HELP:
-                        ImGui::TextColored(theme.help_text_color, "%s", m.cm_text.c_str());
-                        break;
+                case Console::Console::CONSOLE_HELP:
+                    ImGui::TextColored(theme.help_text_color, "%s", m.cm_text.c_str());
+                    break;
 
-                    default:
-                        ImGui::Text("%s", m.cm_text.c_str());
-                        break;
+                default:
+                    ImGui::Text("%s", m.cm_text.c_str());
+                    break;
                 }
             }
         }
@@ -135,7 +125,7 @@ void Console::Draw()
     ImGui::Separator();
 
     const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory;
-    if (ImGui::InputText(_LC("Console", "Command"), m_cmd_buffer.GetBuffer(), m_cmd_buffer.GetCapacity(), cmd_flags, &Console::TextEditCallback, this))
+    if (ImGui::InputText(_LC("Console", "Command"), m_cmd_buffer.GetBuffer(), m_cmd_buffer.GetCapacity(), cmd_flags, &GUI::ConsoleView::TextEditCallback, this))
     {
         this->DoCommand(m_cmd_buffer.ToCStr());
         m_cmd_buffer.Clear();
@@ -144,15 +134,7 @@ void Console::Draw()
     ImGui::End();
 }
 
-void Console::messageLogged(const String& message, LogMessageLevel lml, bool maskDebug, const String& logName, bool& skipThisMessage)
-{
-    if (App::diag_log_console_echo.GetActive())
-    {
-        this->ForwardLogMessage(CONSOLE_MSGTYPE_LOG, message, lml);
-    }
-}
-
-void Console::DoCommand(std::string msg) // All commands are processed here
+void GUI::ConsoleView::DoCommand(std::string msg) // All commands are processed here
 {
     const bool is_appstate_sim = (App::app_state.GetActive() == AppState::SIMULATION);
     const bool is_sim_select = (App::sim_state.GetActive() == SimState::SELECTING);
@@ -166,7 +148,7 @@ void Console::DoCommand(std::string msg) // All commands are processed here
 
     if (msg[0] == '/' || msg[0] == '\\')
     {
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L ("Using slashes before commands are deprecated, you can now type command without any slashes"), "help.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, _L ("Using slashes before commands are deprecated, you can now type command without any slashes"), "help.png");
         msg.erase(msg.begin());
     }
 
@@ -180,32 +162,32 @@ void Console::DoCommand(std::string msg) // All commands are processed here
     Ogre::StringVector args = StringUtil::split(msg, " ");
     if (args[0] == "help")
     {
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, _L("Available commands:"), "help.png");
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("help - information on commands (this)"), "help.png");
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("ver - shows the Rigs of Rods version"), "information.png");
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("pos - outputs the current position"), "world.png");
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("goto <x> <y> <z> - jumps to the mentioned position"), "world.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_TITLE, _L("Available commands:"), "help.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, _L("help - information on commands (this)"), "help.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, _L("ver - shows the Rigs of Rods version"), "information.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, _L("pos - outputs the current position"), "world.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, _L("goto <x> <y> <z> - jumps to the mentioned position"), "world.png");
 
 
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("terrainheight - get height of terrain at current position"), "world.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, _L("terrainheight - get height of terrain at current position"), "world.png");
 
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("log - toggles log output on the console"), "table_save.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, _L("log - toggles log output on the console"), "table_save.png");
 
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("quit - exit Rigs of Rods"), "table_save.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, _L("quit - exit Rigs of Rods"), "table_save.png");
 
 #ifdef USE_ANGELSCRIPT
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("as <code here> - interpret angel code using console"), "script_go.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, _L("as <code here> - interpret angel code using console"), "script_go.png");
 #endif // USE_ANGELSCRIPT
 
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("gravity <real> or <text string> - changes gravity constant. Outputs current value if no argument is given"), "script_go.png");
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("Possible values: \n earth \n moon \n jupiter \n A random number (use negative)"), "script_go.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, _L("gravity <real> or <text string> - changes gravity constant. Outputs current value if no argument is given"), "script_go.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, _L("Possible values: \n earth \n moon \n jupiter \n A random number (use negative)"), "script_go.png");
 
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("setwaterlevel <real> or default - changes water's level"), "script_go.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, _L("setwaterlevel <real> or default - changes water's level"), "script_go.png");
 
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("spawnobject <odef name> - spawn a object at the player position"), "script_go.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, _L("spawnobject <odef name> - spawn a object at the player position"), "script_go.png");
 
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, _L("Tips:"), "help.png");
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use Arrow Up/Down Keys in the InputBox to reuse old messages"), "information.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_TITLE, _L("Tips:"), "help.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, _L("- use Arrow Up/Down Keys in the InputBox to reuse old messages"), "information.png");
         return;
     }
     else if (args[0] == "gravity")
@@ -225,12 +207,12 @@ void Console::DoCommand(std::string msg) // All commands are processed here
         }
         else
         {
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Current gravity is: ") + StringConverter::toString(App::GetSimTerrain()->getGravity()), "information.png");
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, _L("Current gravity is: ") + StringConverter::toString(App::GetSimTerrain()->getGravity()), "information.png");
             return;
         }
 
         App::GetSimTerrain()->setGravity(gValue);
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Gravity set to: ") + StringConverter::toString(gValue), "information.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, _L("Gravity set to: ") + StringConverter::toString(gValue), "information.png");
         return;
     }
     else if (args[0] == "setwaterlevel" && is_appstate_sim)
@@ -244,16 +226,16 @@ void Console::DoCommand(std::string msg) // All commands are processed here
                 water->WaterSetCamera(gEnv->mainCamera);
                 water->SetStaticWaterHeight(height);
                 water->UpdateWater();
-                putMessage (CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L ("Water level set to: ") + StringConverter::toString (water->GetStaticWaterHeight ()), "information.png");
+                RoR::App::GetConsole()->putMessage (Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, _L ("Water level set to: ") + StringConverter::toString (water->GetStaticWaterHeight ()), "information.png");
             }
             else
             {
-                putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_ERROR, _L("This terrain does not have water."), "information.png");
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("This terrain does not have water."), "information.png");
             }
         }
         else
         {
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_ERROR, _L("Please enter a correct value. "), "information.png");
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Please enter a correct value. "), "information.png");
         }
         return;
     }
@@ -263,12 +245,12 @@ void Console::DoCommand(std::string msg) // All commands are processed here
         if (!b && gEnv->player)
         {
             Vector3 pos = gEnv->player->getPosition();
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Character position: ") + String("x: ") + TOSTRING(pos.x) + String(" y: ") + TOSTRING(pos.y) + String(" z: ") + TOSTRING(pos.z), "world.png");
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, _L("Character position: ") + String("x: ") + TOSTRING(pos.x) + String(" y: ") + TOSTRING(pos.y) + String(" z: ") + TOSTRING(pos.z), "world.png");
         }
         else if (b)
         {
             Vector3 pos = b->getPosition();
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Vehicle position: ") + String("x: ") + TOSTRING(pos.x) + String(" y: ") + TOSTRING(pos.y) + String(" z: ") + TOSTRING(pos.z), "world.png");
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, _L("Vehicle position: ") + String("x: ") + TOSTRING(pos.x) + String(" y: ") + TOSTRING(pos.y) + String(" z: ") + TOSTRING(pos.z), "world.png");
         }
 
         return;
@@ -277,7 +259,7 @@ void Console::DoCommand(std::string msg) // All commands are processed here
     {
         if (args.size() != 4)
         {
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, RoR::Color::CommandColour + _L("usage: goto x y z"), "information.png");
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, RoR::Color::CommandColour + _L("usage: goto x y z"), "information.png");
             return;
         }
 
@@ -287,13 +269,13 @@ void Console::DoCommand(std::string msg) // All commands are processed here
         if (!b && gEnv->player)
         {
             gEnv->player->setPosition(pos);
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Character position set to: ") + String("x: ") + TOSTRING(pos.x) + String(" y: ") + TOSTRING(pos.y) + String(" z: ") + TOSTRING(pos.z), "world.png");
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, _L("Character position set to: ") + String("x: ") + TOSTRING(pos.x) + String(" y: ") + TOSTRING(pos.y) + String(" z: ") + TOSTRING(pos.z), "world.png");
         }
         else if (b)
         {
             b->ResetPosition(pos, false);
             TRIGGER_EVENT(SE_TRUCK_TELEPORT, b->ar_instance_id);
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Vehicle position set to: ") + String("x: ") + TOSTRING(pos.x) + String(" y: ") + TOSTRING(pos.y) + String(" z: ") + TOSTRING(pos.z), "world.png");
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, _L("Vehicle position set to: ") + String("x: ") + TOSTRING(pos.x) + String(" y: ") + TOSTRING(pos.y) + String(" z: ") + TOSTRING(pos.z), "world.png");
         }
 
         return;
@@ -315,16 +297,16 @@ void Console::DoCommand(std::string msg) // All commands are processed here
         }
 
         Real h = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Terrain height at position: ") + String("x: ") + TOSTRING(pos.x) + String("z: ") + TOSTRING(pos.z) + _L(" = ") + TOSTRING(h), "world.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, _L("Terrain height at position: ") + String("x: ") + TOSTRING(pos.x) + String("z: ") + TOSTRING(pos.z) + _L(" = ") + TOSTRING(h), "world.png");
 
         return;
     }
     else if (args[0] == "ver")
     {
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, "Rigs of Rods:", "information.png");
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, " Version: " + String(ROR_VERSION_STRING), "information.png");
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, " Protocol version: " + String(RORNET_VERSION), "information.png");
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, " build time: " + String(ROR_BUILD_DATE) + ", " + String(ROR_BUILD_TIME), "information.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_TITLE, "Rigs of Rods:", "information.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, " Version: " + String(ROR_VERSION_STRING), "information.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, " Protocol version: " + String(RORNET_VERSION), "information.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, " build time: " + String(ROR_BUILD_DATE) + ", " + String(ROR_BUILD_TIME), "information.png");
         return;
     }
     else if (args[0] == "quit")
@@ -345,7 +327,7 @@ void Console::DoCommand(std::string msg) // All commands are processed here
             return;
 
         String nmsg = RoR::Color::ScriptCommandColour + ">>> " + RoR::Color::NormalColour + command;
-        putMessage(CONSOLE_MSGTYPE_SCRIPT, CONSOLE_SYSTEM_NOTICE, nmsg, "script_go.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, nmsg, "script_go.png");
         ScriptEngine::getSingleton().executeString(command);
         return;
     }
@@ -355,7 +337,8 @@ void Console::DoCommand(std::string msg) // All commands are processed here
         // switch to console logging
         bool now_logging = !App::diag_log_console_echo.GetActive();
         const char* msg = (now_logging) ? " logging to console enabled" : " logging to console disabled";
-        this->putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_NOTICE, _L(msg), "information.png");
+        RoR::App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L(msg), "information.png");
         App::diag_log_console_echo.SetActive(now_logging);
         m_filter_area_echo = now_logging; // Override user setting
         return;
@@ -374,11 +357,11 @@ void Console::DoCommand(std::string msg) // All commands are processed here
             SceneNode* bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
             App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(args[1], pos, Vector3::ZERO, bakeNode, "Console", "");
 
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Spawned object at position: ") + String("x: ") + TOSTRING(pos.x) + String("z: ") + TOSTRING(pos.z), "world.png");
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, _L("Spawned object at position: ") + String("x: ") + TOSTRING(pos.x) + String("z: ") + TOSTRING(pos.z), "world.png");
         }
         catch (std::exception e)
         {
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_ERROR, e.what(), "error.png");
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, e.what(), "error.png");
         }
 
         return;
@@ -389,19 +372,19 @@ void Console::DoCommand(std::string msg) // All commands are processed here
         // Just send the complete message to the ScriptEngine
         ScriptEngine::getSingleton().executeString(msg);
 #else
-        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_ERROR, _L("unknown command: ") + msg, "error.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("unknown command: ") + msg, "error.png");
 #endif //ANGELSCRIPT
     }
 }
 
-int Console::TextEditCallback(ImGuiTextEditCallbackData *data)
+int GUI::ConsoleView::TextEditCallback(ImGuiTextEditCallbackData *data)
 {
-    Console* c = static_cast<Console*>(data->UserData);
+    ConsoleView* c = static_cast<ConsoleView*>(data->UserData);
     c->TextEditCallbackProc(data);
     return 0;
 }
 
-void Console::TextEditCallbackProc(ImGuiTextEditCallbackData *data)
+void GUI::ConsoleView::TextEditCallbackProc(ImGuiTextEditCallbackData *data)
 {
     if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory)
     {
@@ -439,40 +422,23 @@ void Console::TextEditCallbackProc(ImGuiTextEditCallbackData *data)
     }
 }
 
-bool Console::MessageFilter(Message const& m)
+bool GUI::ConsoleView::MessageFilter(Console::Message const& m)
 {
     const bool area_ok = 
-        (m.cm_area == MessageArea::CONSOLE_MSGTYPE_INFO) ||
-        (m.cm_area == MessageArea::CONSOLE_MSGTYPE_LOG    && m_filter_area_echo) ||
-        (m.cm_area == MessageArea::CONSOLE_MSGTYPE_ACTOR  && m_filter_area_actor) ||
-        (m.cm_area == MessageArea::CONSOLE_MSGTYPE_TERRN  && m_filter_area_terrn) ||
-        (m.cm_area == MessageArea::CONSOLE_MSGTYPE_SCRIPT && m_filter_area_script);
+        (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_INFO) ||
+        (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_LOG    && m_filter_area_echo) ||
+        (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_ACTOR  && m_filter_area_actor) ||
+        (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_TERRN  && m_filter_area_terrn) ||
+        (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT && m_filter_area_script);
 
     const bool type_ok =
-        (m.cm_type == MessageType::CONSOLE_HELP) ||
-        (m.cm_type == MessageType::CONSOLE_TITLE) ||
-        (m.cm_type == MessageType::CONSOLE_SYSTEM_REPLY) ||
-        (m.cm_type == MessageType::CONSOLE_SYSTEM_ERROR   && m_filter_type_error) ||
-        (m.cm_type == MessageType::CONSOLE_SYSTEM_WARNING && m_filter_type_warning) ||
-        (m.cm_type == MessageType::CONSOLE_SYSTEM_NOTICE  && m_filter_type_notice);
+        (m.cm_type == Console::CONSOLE_HELP) ||
+        (m.cm_type == Console::CONSOLE_TITLE) ||
+        (m.cm_type == Console::CONSOLE_SYSTEM_REPLY) ||
+        (m.cm_type == Console::CONSOLE_SYSTEM_ERROR   && m_filter_type_error) ||
+        (m.cm_type == Console::CONSOLE_SYSTEM_WARNING && m_filter_type_warning) ||
+        (m.cm_type == Console::CONSOLE_SYSTEM_NOTICE  && m_filter_type_notice);
 
     return type_ok && area_ok;
 }
 
-void Console::ForwardLogMessage(MessageArea area, std::string const& message, Ogre::LogMessageLevel lml)
-{
-    switch (lml)
-    {
-    case LML_WARNING:
-        this->putMessage(area, CONSOLE_SYSTEM_WARNING, RoR::Utils::SanitizeUtf8String(message));
-        break;
-
-    case LML_CRITICAL:
-        this->putMessage(area, CONSOLE_SYSTEM_ERROR, RoR::Utils::SanitizeUtf8String(message));
-        break;
-
-    default: // LML_NORMAL, LML_TRIVIAL
-        this->putMessage(area, CONSOLE_SYSTEM_NOTICE, RoR::Utils::SanitizeUtf8String(message));
-        break;
-    }
-}

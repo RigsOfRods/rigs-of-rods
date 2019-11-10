@@ -50,7 +50,7 @@
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
 #include "GfxActor.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "InputEngine.h"
 #include "MeshObject.h"
 #include "OgreSubsystem.h"

@@ -44,7 +44,7 @@
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "Collisions.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "GameScript.h"
 #include "LocalStorage.h"
 #include "OgreAngelscript.h"
