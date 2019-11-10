@@ -37,10 +37,10 @@
 #include "TerrainManager.h"
 
 //Managed GUI panels
+#include "GUI_ConsoleView.h"
 #include "GUI_FrictionSettings.h"
 #include "GUI_GameMainMenu.h"
 #include "GUI_GameAbout.h"
-#include "GUI_GameConsole.h"
 #include "GUI_GamePauseMenu.h"
 #include "GUI_GameChatBox.h"
 #include "GUI_GameSettings.h"
@@ -58,6 +58,9 @@
 
 #include <MyGUI.h>
 #include <MyGUI_OgrePlatform.h>
+#include <OgreOverlay.h>
+#include <OgreOverlayElement.h>
+#include <OgreOverlayContainer.h>
 
 #define RESOURCE_FILENAME "MyGUI_Core.xml"
 
@@ -87,8 +90,7 @@ struct GuiManagerImpl
     GUI::NodeBeamUtils          panel_NodeBeamUtils;
     GUI::LoadingWindow          panel_LoadingWindow;
     GUI::TopMenubar             panel_TopMenubar;
-    RoR::Console                panel_GameConsole;
-
+    GUI::ConsoleView            panel_ConsoleView;
     MyGUI::Gui*                 mygui;
     MyGUI::OgrePlatform*        mygui_platform;
 };
@@ -131,7 +133,7 @@ void GUIManager::SetVisible_MpClientList        (bool v) { m_impl->panel_MpClien
 void GUIManager::SetVisible_FrictionSettings    (bool v) { m_impl->panel_FrictionSettings   .SetVisible(v); }
 void GUIManager::SetVisible_TextureToolWindow   (bool v) { m_impl->panel_TextureToolWindow  .SetVisible(v); }
 void GUIManager::SetVisible_LoadingWindow       (bool v) { m_impl->panel_LoadingWindow      .SetVisible(v); }
-void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_GameConsole        .SetVisible(v); }
+void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_ConsoleView        .SetVisible(v); }
 void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSettings       .SetVisible(v); }
 void GUIManager::SetVisible_NodeBeamUtils       (bool v) { m_impl->panel_NodeBeamUtils      .SetVisible(v); }
 void GUIManager::SetVisible_SimActorStats       (bool v) { m_impl->panel_SimActorStats      .SetVisible(v); }
@@ -146,14 +148,13 @@ bool GUIManager::IsVisible_MpClientList         () { return m_impl->panel_MpClie
 bool GUIManager::IsVisible_FrictionSettings     () { return m_impl->panel_FrictionSettings   .IsVisible(); }
 bool GUIManager::IsVisible_TextureToolWindow    () { return m_impl->panel_TextureToolWindow  .IsVisible(); }
 bool GUIManager::IsVisible_LoadingWindow        () { return m_impl->panel_LoadingWindow      .IsVisible(); }
-bool GUIManager::IsVisible_Console              () { return m_impl->panel_GameConsole        .IsVisible(); }
+bool GUIManager::IsVisible_Console              () { return m_impl->panel_ConsoleView        .IsVisible(); }
 bool GUIManager::IsVisible_GameSettings         () { return m_impl->panel_GameSettings       .IsVisible(); }
 bool GUIManager::IsVisible_TopMenubar           () { return m_impl->panel_TopMenubar         .IsVisible(); }
 bool GUIManager::IsVisible_NodeBeamUtils        () { return m_impl->panel_NodeBeamUtils      .IsVisible(); }
 bool GUIManager::IsVisible_SimActorStats        () { return m_impl->panel_SimActorStats      .IsVisible(); }
 
 // GUI GetInstance*()
-Console*                    GUIManager::GetConsole()           { return &m_impl->panel_GameConsole         ; }
 GUI::MainSelector*          GUIManager::GetMainSelector()      { return &m_impl->panel_MainSelector        ; }
 GUI::GameMainMenu*          GUIManager::GetMainMenu()          { return &m_impl->panel_GameMainMenu        ; }
 GUI::GamePauseMenu*         GUIManager::GetPauseMenu()         { return &m_impl->panel_GamePauseMenu       ; }
@@ -287,7 +288,7 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
 
     if (this->IsVisible_Console())
     {
-        m_impl->panel_GameConsole.Draw();
+        m_impl->panel_ConsoleView.Draw();
     }
 
     if (this->IsVisible_LoadingWindow())

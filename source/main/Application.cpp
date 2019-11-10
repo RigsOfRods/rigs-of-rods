@@ -26,31 +26,13 @@
 #include "Application.h"
 
 #include "CacheSystem.h"
+#include "Console.h"
 #include "ContentManager.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "MumbleIntegration.h"
-
-/* -------------------- Research of debug options (only_a_ptr, 06/2017) ----------------------
-
-    ROR.CONF NAME            | GVar name ('+': added) --- Description
-
-["Debug Truck Mass"]         | GVar: diag_truck_mass  --- extra logging on runtime - mass recalculation.
-["Debug Collisions"]         | GVar: diag_collisions  --- visual debug of static map collisions. Only effective on map load.
-["EnvMapDebug"]              | GVar: diag_envmap      --- effective on terrain load (envmap init).
-["VideoCameraDebug"]         | GVar: diag_videocameras--- creates debug mesh showing videocamera direction. Effective on vehicle spawn.
-
-["Enable Ingame Console"]    |       +                --- Equivalent to "\log" console command, echoes all RoR.log output to console. Reported to cause massive slowdown on startup.
-["Beam Break Debug"]         |       +                --- Use before spawn, lasts entire vehicle lifetime.
-["Beam Deform Debug"]        |       +                --- Use before spawn, lasts entire vehicle lifetime.
-["Trigger Debug"]            |       +                --- Use before spawn, lasts entire vehicle lifetime.
-
-["Advanced Logging"]         | ~ no gvar ~            --- DEAD, used in removed 'ScopeLog' feature of old spawner.
-["DebugBeams"]                                        --- Pre configured debug overlay mode --- DEAD since debug overlay has been remade with different modes 
-
-*/
 
 namespace RoR {
 namespace App {
@@ -62,10 +44,10 @@ namespace App {
 
 // Object instances
 static OgreSubsystem*   g_ogre_subsystem;
+static Console          g_console;
 static ContentManager   g_content_manager;
 static OverlayWrapper*  g_overlay_wrapper;
 static GUIManager*      g_gui_manager;
-static Console*         g_console;
 static InputEngine*     g_input_engine;
 static CacheSystem*     g_cache_system;
 static MainMenu*        g_main_menu;
@@ -229,7 +211,7 @@ OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
 ContentManager*        GetContentManager     () { return &g_content_manager;}
 OverlayWrapper*        GetOverlayWrapper     () { return g_overlay_wrapper;}
 GUIManager*            GetGuiManager         () { return g_gui_manager;}
-Console*               GetConsole            () { return g_gui_manager->GetConsole();}
+Console*               GetConsole            () { return &g_console;}
 InputEngine*           GetInputEngine        () { return g_input_engine;}
 CacheSystem*           GetCacheSystem        () { return g_cache_system;}
 MainMenu*              GetMainMenu           () { return g_main_menu;}

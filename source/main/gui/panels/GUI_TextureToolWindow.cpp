@@ -24,7 +24,7 @@
 #include <Ogre.h>
 
 #include "Application.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "Utils.h"
@@ -133,12 +133,12 @@ void TextureToolWindow::saveTexture(String texName, bool usePNG)
         img.save(outname);
 
         UTFString msg = _L("saved texture as ") + outname;
-        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, msg, "information.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg, "information.png");
     }
     catch (Exception& e)
     {
         UTFString str = "Exception while saving image: " + e.getFullDescription();
-        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, str, "error.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, str, "error.png");
     }
 }
 
@@ -218,7 +218,7 @@ void TextureToolWindow::updateControls(String texName)
     catch (Exception& e)
     {
         UTFString str = "Exception while opening texture:" + e.getFullDescription();
-        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, str, "error.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, str, "error.png");
     }
 }
 

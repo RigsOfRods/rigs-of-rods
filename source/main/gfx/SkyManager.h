@@ -27,6 +27,8 @@
 
 #include "CaelumPrerequisites.h"
 
+#include <Caelum.h>
+
 class SkyManager : public ZeroedMemoryAllocator
 {
 public:

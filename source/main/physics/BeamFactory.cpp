@@ -35,7 +35,7 @@
 #include "DashBoardManager.h"
 #include "DynamicCollisions.h"
 #include "GUIManager.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "GUI_TopMenubar.h"
 #include "LandVehicleSimulation.h"
 #include "Language.h"

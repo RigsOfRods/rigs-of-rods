@@ -27,7 +27,7 @@
 #include "BeamFactory.h"
 #include "Character.h"
 #include "Collisions.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "OverlayWrapper.h"

@@ -131,7 +131,7 @@ set(SOURCE_FILES
         gui/mygui/Dialog.{h,cpp}
         gui/mygui/GuiPanelBase.h
         gui/mygui/WrapsAttribute.h
-        gui/panels/GUI_GameConsole.{h,cpp}
+        gui/panels/GUI_ConsoleView.{h,cpp}
         gui/panels/GUI_LoadingWindow.{h,cpp}
         gui/panels/GUI_FrictionSettings.{h,cpp}
         gui/panels/GUI_TopMenubar.{h,cpp}
@@ -220,6 +220,7 @@ set(SOURCE_FILES
         resources/rig_def_fileformat/RigDef_Serializer.{h,cpp}
         resources/rig_def_fileformat/RigDef_Validator.{h,cpp}
         resources/terrn2_fileformat/Terrn2Fileformat.{h,cpp}
+        system/Console.{h,cpp}
         terrain/IHeightFinder.h
         terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
         terrain/TerrainGeometryManager.{h,cpp}
@@ -343,6 +344,7 @@ target_include_directories(${BINNAME} PRIVATE
         resources/otc_fileformat/
         resources/rig_def_fileformat
         resources/terrn2_fileformat
+        system
         rig_editor
         rig_editor/rig_data
         scripting

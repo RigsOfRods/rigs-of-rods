@@ -25,6 +25,8 @@
 #include "SkyManager.h"
 #include "TerrainManager.h"
 
+#include <OgreOverlay.h>
+
 RoR::GfxEnvmap::GfxEnvmap():
     m_is_initialized(false),
     m_update_round(0)
