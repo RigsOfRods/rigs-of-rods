@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2017 Petr Ohlidal & contributors
+    Copyright 2013-2019 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -22,48 +22,15 @@
 #include "GUI_GameChatBox.h"
 
 #include "ChatSystem.h"
+
+#include "Console.h"
 #include "Language.h"
 
 #include <cstring> // strtok, strncmp
 #include <imgui.h>
 
-void RoR::GUI::GameChatBox::pushMsg(std::string const& txt)
-{
-    std::lock_guard<std::mutex> lock(m_messages_mutex);
-    m_messages.push_back(txt);
-    m_message_added = true;
-    m_disp_state = DispState::VISIBLE_STALE;
-    if (m_messages.size() > MESSAGES_CAP)
-    {
-        m_messages.erase(m_messages.begin());
-    }
-}
-
 void RoR::GUI::GameChatBox::Draw()
 {
-    // Calculate opacity (fade-out)
-    const size_t time = static_cast<size_t>(Ogre::Root::getSingleton().getTimer()->getMilliseconds());
-    if (m_message_added)
-    {
-        m_message_added = false;
-        m_message_time = time;
-    }
-
-    float alpha = 1.f;
-    if (m_disp_state == DispState::VISIBLE_STALE)
-    {
-        if (time > m_message_time + FADEOUT_DELAY_MS + FADEOUT_DURATION_MS)
-        {
-            m_disp_state = DispState::HIDDEN;
-            return;
-        }
-        else if (time > m_message_time + FADEOUT_DELAY_MS)
-        {
-            const size_t fadeout_elapsed_ms = time - (m_message_time + FADEOUT_DELAY_MS);
-            alpha -= (static_cast<float>(fadeout_elapsed_ms)/static_cast<float>(FADEOUT_DURATION_MS));
-        }
-    }
-
     // Begin drawing the window
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar;
@@ -71,9 +38,8 @@ void RoR::GUI::GameChatBox::Draw()
     const ImVec2 pos(0, ImGui::GetIO().DisplaySize.y - size.y);
     ImGui::SetNextWindowSize(size);
     ImGui::SetNextWindowPos(pos);
-    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
-    ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImVec4(0.4f, 0.4f, 0.4f, 0.4f)); // Semi-transparent reading pane
+    ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
     if (!ImGui::Begin("Chat", nullptr, win_flags))
     {
         return;
@@ -83,22 +49,17 @@ void RoR::GUI::GameChatBox::Draw()
     const float footer_height_to_reserve = ImGui::GetTextLineHeightWithSpacing(); // 1 input text
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar); // Leave room for 1 separator + 1 InputText
 
-    { // Lock scope
-        std::lock_guard<std::mutex> lock(m_messages_mutex);
-        for (std::string const& line: m_messages)
-        {
-            ImGui::Text("%s", line.c_str());
-        }
-    } // Lock scope
+    this->DrawConsoleMessages();
 
     ImGui::EndChild();
 
-    // Draw input box
-    if (m_disp_state == DispState::VISIBLE_FRESH)
+    // Draw filter button and input box in one line
+    if (ImGui::Button(_LC("Console", "Filter options")))
     {
-        ImGui::SetKeyboardFocusHere();
+        ImGui::OpenPopup("chatbox-filtering");
     }
-
+    this->DrawFilteringPopup("chatbox-filtering");
+    ImGui::SameLine();
     const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
     if (ImGui::InputText(_L("Message"), m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
     {
@@ -107,23 +68,9 @@ void RoR::GUI::GameChatBox::Draw()
             this->SubmitMessage();
         }
         m_msg_buffer.Clear();
-        m_message_time = time;
-        m_disp_state = DispState::VISIBLE_STALE;
-    }
-
-    if (m_disp_state == DispState::VISIBLE_FRESH)
-    {
-        // We just called `ImGui::SetKeyboardFocusHere()`, `ImGui::IsItemActive()` won't return `true` until next frame! 
-        m_disp_state = DispState::VISIBLE_FOCUSED;
-    }
-    else
-    {
-        m_disp_state = (ImGui::IsItemActive()) ? // Does the input box have keyboard focus?
-            DispState::VISIBLE_FOCUSED : DispState::VISIBLE_STALE;
     }
 
     ImGui::End();
-    ImGui::PopStyleVar(1); // Alpha
     ImGui::PopStyleColor(2); // WindowBg, ChildWindowBg
 }
 
@@ -141,22 +88,30 @@ void RoR::GUI::GameChatBox::SubmitMessage()
         const char* message = std::strtok(nullptr, " ");
         if (username != nullptr && message != nullptr)
         {
-            RoR::ChatSystem::SendPrivateChat(username, message);
+            RoRnet::UserInfo user;
+            if (RoR::Networking::FindUserInfo(username, user))
+            {
+                RoR::Networking::WhisperChatMsg(user, message);
+            }
+            else
+            {
+                Str<200> text;
+                text << _L("Whisper message not sent, unknown username") << ": " << username;
+                App::GetConsole()->putMessage(
+                    Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, text.ToCStr());
+            }
         }
         else
         {
-            this->pushMsg(_L("usage: /whisper username message"));
+            App::GetConsole()->putMessage(
+                Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                _L("usage: /whisper username message"));
         }
     }
     else
     {
-        RoR::ChatSystem::SendChat(m_msg_buffer.GetBuffer());
+        RoR::Networking::BroadcastChatMsg(m_msg_buffer.GetBuffer());
     }
 #endif // USE_SOCKETW
-}
-
-void RoR::GUI::GameChatBox::SetVisible(bool v)
-{
-    m_disp_state = (v) ? DispState::VISIBLE_FRESH : DispState::HIDDEN;
 }
 

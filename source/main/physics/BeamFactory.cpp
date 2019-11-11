@@ -410,17 +410,19 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
             {
                 RoRnet::UserInfo info;
                 RoR::Networking::GetUserInfo(reg->origin_sourceid, info);
-
-                UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::CommandColour + _L(" spawned a new vehicle: ") + RoR::Color::NormalColour + reg->name;
-                RoR::App::GetGuiManager()->pushMessageChatBox(message);
+                Str<200> text;
+                text << _L(" spawned a new vehicle: ") << Utils::SanitizeUtf8CString(reg->name);
+                App::GetConsole()->putNetMessage(
+                    reg->origin_sourceid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
 
                 LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
                 reg->name[127] = 0;
                 Ogre::String filename(reg->name);
                 if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(filename))
                 {
-                    UTFString txt = RoR::Color::WarningColour + _L("Mod not installed: ") + RoR::Color::NormalColour + reg->name;
-                    RoR::App::GetGuiManager()->pushMessageChatBox(txt);
+                    App::GetConsole()->putMessage(
+                        Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                        _L("Mod not installed: ") + Utils::SanitizeUtf8CString(reg->name));
                     RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", reg->name);
                     AddStreamMismatch(reg->origin_sourceid, reg->origin_streamid);
                     reg->status = -1;

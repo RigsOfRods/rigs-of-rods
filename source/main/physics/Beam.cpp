@@ -389,8 +389,9 @@ void Actor::PushNetwork(char* data, int size)
             // Inform the local player
             RoRnet::UserInfo info;
             RoR::Networking::GetUserInfo(reg.origin_sourceid, info);
-            UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::WarningColour + _L(" content mismatch: ") + RoR::Color::NormalColour + reg.name;
-            RoR::App::GetGuiManager()->pushMessageChatBox(message);
+            Str<400> text;
+            text << info.username << _L(" content mismatch: ") << reg.name;
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, text.ToCStr());
 
             // Remove self
             App::GetSimController()->QueueActorRemove(this);

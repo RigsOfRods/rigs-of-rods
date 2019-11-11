@@ -27,6 +27,8 @@
 
 #include "Application.h"
 
+#include "GUI_ConsoleView.h"
+
 #include <mutex>
 #include <string>
 #include <vector>
@@ -34,36 +36,20 @@
 namespace RoR {
 namespace GUI {
 
-class GameChatBox
+class GameChatBox: ConsoleView
 {
 public:
-    static const size_t MESSAGES_CAP = 100u;
-    static const size_t FADEOUT_DELAY_MS = 4000u;
-    static const size_t FADEOUT_DURATION_MS = 1000u;
 
-    enum class DispState
-    {
-        HIDDEN,
-        VISIBLE_FRESH,   //<! Invoked by user; will set keyboard focus and switch to FOCUSED
-        VISIBLE_FOCUSED, //!< User is typing
-        VISIBLE_STALE    //!< User sent message or external message was displayed, fadeout countdown is running
-    };
-
-    void SetVisible(bool v);
-    bool IsVisible() const { return m_disp_state != DispState::HIDDEN; }
+    void SetVisible(bool v) { m_is_visible = v; };
+    bool IsVisible() const { return m_is_visible; }
 
     void Draw();
-    void pushMsg(std::string const& txt);
 
 private:
     void SubmitMessage(); //!< Flush the user input box
 
-    DispState                 m_disp_state = DispState::HIDDEN;
+    bool                      m_is_visible = false;
     Str<400>                  m_msg_buffer;
-    std::vector<std::string>  m_messages;
-    std::mutex                m_messages_mutex;
-    bool                      m_message_added = false;
-    size_t                    m_message_time = 0;
 };
 
 } // namespace GUI

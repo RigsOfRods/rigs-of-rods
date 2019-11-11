@@ -105,7 +105,7 @@ bool                 StartConnecting();    ///< Launches connecting on backgroun
 NetEventQueue        CheckEvents();        ///< Processes and returns the event queue.
 void                 Disconnect();
 
-void                 AddPacket(int streamid, int type, int len, char *content);
+void                 AddPacket(int streamid, int type, int len, const char *content);
 void                 AddLocalStream(RoRnet::StreamRegister *reg, int size);
 
 std::vector<recv_packet_t> GetIncomingStreamData();
@@ -120,7 +120,11 @@ Ogre::UTFString      GetUsername();
 RoRnet::UserInfo     GetLocalUserData();
 std::vector<RoRnet::UserInfo> GetUserInfos();
 bool                 GetUserInfo(int uid, RoRnet::UserInfo &result);
+bool                 FindUserInfo(std::string const& username, RoRnet::UserInfo &result);
 Ogre::ColourValue    GetPlayerColor(int color_num);
+
+void                 BroadcastChatMsg(const char* msg);
+void                 WhisperChatMsg(RoRnet::UserInfo const& user, const char* msg);
 
 } // namespace Networking
 } // namespace RoR

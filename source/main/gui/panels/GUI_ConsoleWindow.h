@@ -21,44 +21,40 @@
 
 /// @file
 
-
 #pragma once
 
 #include "RoRPrerequisites.h"
 
 #include "Application.h"
-#include "Console.h"
+#include "GUI_ConsoleView.h"
 #include "OgreImGui.h"
 
+#include <vector>
+#include <string>
 
 namespace RoR {
 namespace GUI {
 
-class ConsoleView
+class ConsoleWindow: public ConsoleView
 {
 public:
-    static const size_t MSG_DISP_LIMIT = 100u; // Quick and dirty performance trick
+    static const size_t HISTORY_CAP = 100u;
 
-    ConsoleView() {}
-    virtual ~ConsoleView() {}
+    void SetVisible(bool visible) { m_is_visible = visible; }
+    bool IsVisible() const { return m_is_visible; }
 
-    void DrawConsoleMessages();
-    void DrawFilteringPopup(const char* name);
+    void Draw();
+    void DoCommand(std::string msg);
 
-protected:
+private:
 
-    bool MessageFilter(Console::Message const& m); //!< Returns true if message should be displayed
+    static int TextEditCallback(ImGuiTextEditCallbackData *data);
+    void TextEditCallbackProc(ImGuiTextEditCallbackData *data);
 
-    // Filtering (true means allowed)
-    bool  m_filter_expired = true;
-    bool  m_filter_type_notice = true;
-    bool  m_filter_type_warning = true;
-    bool  m_filter_type_error = true;
-    bool  m_filter_type_chat = true;
-    bool  m_filter_area_echo = false; //!< Not the same thing as 'log' command!
-    bool  m_filter_area_script = true;
-    bool  m_filter_area_actor = true;
-    bool  m_filter_area_terrn = true;
+    Str<500>                 m_cmd_buffer;
+    std::vector<std::string> m_cmd_history;
+    int                      m_cmd_history_cursor = -1;
+    bool                     m_is_visible = false;
 };
 
 } // namespace GUI
