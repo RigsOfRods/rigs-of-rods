@@ -37,7 +37,7 @@
 #include "TerrainManager.h"
 
 //Managed GUI panels
-#include "GUI_ConsoleView.h"
+#include "GUI_ConsoleWindow.h"
 #include "GUI_FrictionSettings.h"
 #include "GUI_GameMainMenu.h"
 #include "GUI_GameAbout.h"
@@ -90,7 +90,7 @@ struct GuiManagerImpl
     GUI::NodeBeamUtils          panel_NodeBeamUtils;
     GUI::LoadingWindow          panel_LoadingWindow;
     GUI::TopMenubar             panel_TopMenubar;
-    GUI::ConsoleView            panel_ConsoleView;
+    GUI::ConsoleWindow          panel_ConsoleWindow;
     MyGUI::Gui*                 mygui;
     MyGUI::OgrePlatform*        mygui_platform;
 };
@@ -133,7 +133,7 @@ void GUIManager::SetVisible_MpClientList        (bool v) { m_impl->panel_MpClien
 void GUIManager::SetVisible_FrictionSettings    (bool v) { m_impl->panel_FrictionSettings   .SetVisible(v); }
 void GUIManager::SetVisible_TextureToolWindow   (bool v) { m_impl->panel_TextureToolWindow  .SetVisible(v); }
 void GUIManager::SetVisible_LoadingWindow       (bool v) { m_impl->panel_LoadingWindow      .SetVisible(v); }
-void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_ConsoleView        .SetVisible(v); }
+void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_ConsoleWindow      .SetVisible(v); }
 void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSettings       .SetVisible(v); }
 void GUIManager::SetVisible_NodeBeamUtils       (bool v) { m_impl->panel_NodeBeamUtils      .SetVisible(v); }
 void GUIManager::SetVisible_SimActorStats       (bool v) { m_impl->panel_SimActorStats      .SetVisible(v); }
@@ -148,7 +148,7 @@ bool GUIManager::IsVisible_MpClientList         () { return m_impl->panel_MpClie
 bool GUIManager::IsVisible_FrictionSettings     () { return m_impl->panel_FrictionSettings   .IsVisible(); }
 bool GUIManager::IsVisible_TextureToolWindow    () { return m_impl->panel_TextureToolWindow  .IsVisible(); }
 bool GUIManager::IsVisible_LoadingWindow        () { return m_impl->panel_LoadingWindow      .IsVisible(); }
-bool GUIManager::IsVisible_Console              () { return m_impl->panel_ConsoleView        .IsVisible(); }
+bool GUIManager::IsVisible_Console              () { return m_impl->panel_ConsoleWindow      .IsVisible(); }
 bool GUIManager::IsVisible_GameSettings         () { return m_impl->panel_GameSettings       .IsVisible(); }
 bool GUIManager::IsVisible_TopMenubar           () { return m_impl->panel_TopMenubar         .IsVisible(); }
 bool GUIManager::IsVisible_NodeBeamUtils        () { return m_impl->panel_NodeBeamUtils      .IsVisible(); }
@@ -288,7 +288,7 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
 
     if (this->IsVisible_Console())
     {
-        m_impl->panel_ConsoleView.Draw();
+        m_impl->panel_ConsoleWindow.Draw();
     }
 
     if (this->IsVisible_LoadingWindow())
@@ -370,11 +370,6 @@ void GUIManager::UpdateSimUtils(float dt, Actor *truck)
     {
         m_impl->panel_SimUtils.UpdateStats(dt, truck);
     }
-}
-
-void GUIManager::pushMessageChatBox(Ogre::String txt)
-{
-    m_impl->panel_ChatBox.pushMsg(txt);
 }
 
 void GUIManager::hideGUI(bool hidden)

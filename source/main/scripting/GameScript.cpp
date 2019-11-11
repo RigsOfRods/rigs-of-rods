@@ -343,11 +343,7 @@ void GameScript::flashMessage(String& txt, float time, float charHeight)
 void GameScript::message(String& txt, String& icon, float timeMilliseconds, bool forceVisible)
 {
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon, timeMilliseconds, forceVisible);
-    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
-    {
-        RoR::App::GetGuiManager()->pushMessageChatBox(txt);
-    }
-    else
+    if (RoR::App::mp_state.GetActive() != RoR::MpState::CONNECTED)
     {
         // TODO: Find a better solution for this
         RoR::App::GetGuiManager()->PushNotification("Script:", txt);

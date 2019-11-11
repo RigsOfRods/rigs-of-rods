@@ -52,8 +52,8 @@ enum MessageType
     MSG2_GAME_CMD,                     //!< Script message. Can be sent in both directions.
     MSG2_USER_JOIN,                    //!< new user joined
     MSG2_USER_LEAVE,                   //!< user leaves
-    MSG2_UTF8_CHAT,                    //!< chat line in UTF8 encoding
-    MSG2_UTF8_PRIVCHAT,                //!< private chat line in UTF8 encoding
+    MSG2_UTF8_CHAT,                    //!< broadcast chat line in UTF8 encoding; Payload: const char*(text)
+    MSG2_UTF8_PRIVCHAT,                //!< private chat line in UTF8 encoding; Payload: uint32_t(uniqueid), const char*(text)
 
     // Stream functions
     MSG2_STREAM_REGISTER,              //!< create new stream
@@ -154,7 +154,7 @@ struct UserInfo
     int32_t  slotnum;              //!< slot number set by server
     int32_t  colournum;            //!< colour set by server
 
-    char     username[RORNET_MAX_USERNAME_LEN]; //!< the nickname of the user WIDE CHAR!
+    char     username[RORNET_MAX_USERNAME_LEN]; //!< the nickname of the user (UTF-8)
     char     usertoken[40];        //!< user token
     char     serverpassword[40];   //!< server password
     char     language[10];         //!< user's language. For example "de-DE" or "en-US"

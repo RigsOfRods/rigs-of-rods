@@ -42,6 +42,7 @@ public:
         CONSOLE_SYSTEM_ERROR,
         CONSOLE_SYSTEM_WARNING,
         CONSOLE_SYSTEM_REPLY,   //!< Success
+        CONSOLE_SYSTEM_NETCHAT
     };
 
     enum MessageArea
@@ -55,12 +56,15 @@ public:
 
     struct Message
     {
-        Message(MessageArea area, MessageType type, std::string const& text):
-            cm_area(area), cm_type(type), cm_text(text)
+        Message(MessageArea area, MessageType type, std::string const& text,
+                size_t time, uint32_t net_user = 0):
+            cm_area(area), cm_type(type), cm_text(text), cm_timestamp(time), cm_net_userid(net_user)
         {}
 
         MessageArea cm_area;
         MessageType cm_type;
+        size_t      cm_timestamp;
+        uint32_t    cm_net_userid;
         std::string cm_text;
     };
 
@@ -80,7 +84,9 @@ public:
     // Legacy function, params `icon, ttl, forcevisible` unused
     void putMessage(MessageArea area, MessageType type, std::string const& msg,
         std::string icon = "", size_t ttl = 0, bool forcevisible = false);
+    void putNetMessage(uint32_t user_id, MessageType type, const char* text);
     void ForwardLogMessage(MessageArea area, std::string const& msg, Ogre::LogMessageLevel lml);
+    void DoCommand(std::string msg);
 
 private:
     // Ogre::LogListener

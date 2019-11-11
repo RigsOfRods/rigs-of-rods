@@ -2051,11 +2051,6 @@ bool SimController::SetupGameplayLoop()
 #ifdef USE_SOCKETW
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
-        wchar_t tmp[255] = L"";
-        UTFString format = _L("Press %ls to start chatting");
-        swprintf(tmp, 255, format.asWStr_c_str(), ANSI_TO_WCHAR(RoR::App::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE)).c_str());
-        App::GetGuiManager()->pushMessageChatBox(UTFString(tmp));
-
         RoRnet::UserInfo info = RoR::Networking::GetLocalUserData();
         colourNum = info.colournum;
         playerName = tryConvertUTF(info.username);
@@ -2236,6 +2231,17 @@ void SimController::EnterGameplayLoop()
     Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
 
     auto start_time = std::chrono::high_resolution_clock::now();
+
+#ifdef USE_SOCKETW
+    if (App::mp_state.GetActive() == MpState::CONNECTED)
+    {
+        char text[300];
+        std::snprintf(text, 300, _L("Press %s to start chatting"),
+            RoR::App::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE).c_str());
+        App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, text, "", 5000);
+    }
+#endif //USE_SOCKETW
 
     while (App::app_state.GetPending() == AppState::SIMULATION)
     {

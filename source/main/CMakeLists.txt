@@ -132,6 +132,7 @@ set(SOURCE_FILES
         gui/mygui/GuiPanelBase.h
         gui/mygui/WrapsAttribute.h
         gui/panels/GUI_ConsoleView.{h,cpp}
+        gui/panels/GUI_ConsoleWindow.{h,cpp}
         gui/panels/GUI_LoadingWindow.{h,cpp}
         gui/panels/GUI_FrictionSettings.{h,cpp}
         gui/panels/GUI_TopMenubar.{h,cpp}
