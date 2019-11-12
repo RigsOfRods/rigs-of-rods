@@ -30,35 +30,35 @@
 #include "Console.h"
 #include "OgreImGui.h"
 
+#include <vector>
+
 
 namespace RoR {
 namespace GUI {
 
-class ConsoleView
+struct ConsoleView
 {
-public:
-    static const size_t MSG_DISP_LIMIT = 100u; // Quick and dirty performance trick
-
-    ConsoleView() {}
-    virtual ~ConsoleView() {}
-
     void DrawConsoleMessages();
     void DrawFilteringPopup(const char* name);
 
-protected:
+    // Filtering (true means allowed)
+    bool  cvw_filter_type_notice = true;
+    bool  cvw_filter_type_warning = true;
+    bool  cvw_filter_type_error = true;
+    bool  cvw_filter_type_chat = true;
+    bool  cvw_filter_area_echo = false; //!< Not the same thing as 'log' command!
+    bool  cvw_filter_area_script = true;
+    bool  cvw_filter_area_actor = true;
+    bool  cvw_filter_area_terrn = true;
+    // Misc options
+    size_t cvw_filter_duration_ms = 0u; //!< Message expiration; 0 means unlimited
+    size_t cvw_max_lines = 100u;
+    bool   cvw_align_bottom = false;
 
+private:
     bool MessageFilter(Console::Message const& m); //!< Returns true if message should be displayed
 
-    // Filtering (true means allowed)
-    bool  m_filter_expired = true;
-    bool  m_filter_type_notice = true;
-    bool  m_filter_type_warning = true;
-    bool  m_filter_type_error = true;
-    bool  m_filter_type_chat = true;
-    bool  m_filter_area_echo = false; //!< Not the same thing as 'log' command!
-    bool  m_filter_area_script = true;
-    bool  m_filter_area_actor = true;
-    bool  m_filter_area_terrn = true;
+    std::vector<const Console::Message*> m_display_list;
 };
 
 } // namespace GUI

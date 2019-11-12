@@ -36,9 +36,10 @@
 namespace RoR {
 namespace GUI {
 
-class GameChatBox: ConsoleView
+class GameChatBox
 {
 public:
+    GameChatBox();
 
     void SetVisible(bool v) { m_is_visible = v; };
     bool IsVisible() const { return m_is_visible; }
@@ -50,6 +51,7 @@ private:
 
     bool                      m_is_visible = false;
     Str<400>                  m_msg_buffer;
+    ConsoleView               m_console_view;
 };
 
 } // namespace GUI

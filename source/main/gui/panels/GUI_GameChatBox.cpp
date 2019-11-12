@@ -29,15 +29,23 @@
 #include <cstring> // strtok, strncmp
 #include <imgui.h>
 
+RoR::GUI::GameChatBox::GameChatBox()
+{
+    m_console_view.cvw_align_bottom = true;
+    m_console_view.cvw_max_lines = 20u;
+    m_console_view.cvw_filter_duration_ms = 4000; // 4sec
+}
+
 void RoR::GUI::GameChatBox::Draw()
 {
     // Begin drawing the window
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar;
-    const ImVec2 size(500.f, 300.f);
-    const ImVec2 pos(0, ImGui::GetIO().DisplaySize.y - size.y);
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
+    const ImVec2 size(
+        ImGui::GetIO().DisplaySize.x - (2 * ImGui::GetStyle().WindowPadding.x),
+        ((m_console_view.cvw_max_lines + 1) * ImGui::GetTextLineHeightWithSpacing()) + (2*ImGui::GetStyle().WindowPadding.y));
     ImGui::SetNextWindowSize(size);
-    ImGui::SetNextWindowPos(pos);
+    ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - size.y));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
     ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
     if (!ImGui::Begin("Chat", nullptr, win_flags))
@@ -45,20 +53,14 @@ void RoR::GUI::GameChatBox::Draw()
         return;
     }
 
-    // Draw messages
-    const float footer_height_to_reserve = ImGui::GetTextLineHeightWithSpacing(); // 1 input text
-    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar); // Leave room for 1 separator + 1 InputText
-
-    this->DrawConsoleMessages();
-
-    ImGui::EndChild();
+    m_console_view.DrawConsoleMessages();
 
     // Draw filter button and input box in one line
     if (ImGui::Button(_LC("Console", "Filter options")))
     {
         ImGui::OpenPopup("chatbox-filtering");
     }
-    this->DrawFilteringPopup("chatbox-filtering");
+    m_console_view.DrawFilteringPopup("chatbox-filtering");
     ImGui::SameLine();
     const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
     if (ImGui::InputText(_L("Message"), m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
