@@ -94,6 +94,8 @@ private:
         const Ogre::String& message, Ogre::LogMessageLevel lml,
         bool maskDebug, const Ogre::String& logName, bool& skipThisMessage) override;
 
+    void HandleMessage(MessageArea area, MessageType type, std::string const& msg, uint32_t net_id = 0u);
+
     std::vector<Message>     m_messages;
     std::mutex               m_messages_mutex;
 };

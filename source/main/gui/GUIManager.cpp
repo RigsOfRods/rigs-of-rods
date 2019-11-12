@@ -312,11 +312,6 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     }
 }
 
-void GUIManager::PushNotification(Ogre::String Title, Ogre::UTFString text)
-{
-    m_impl->panel_SimUtils.PushNotification(Title, text);
-}
-
 void GUIManager::HideNotification()
 {
     m_impl->panel_SimUtils.HideNotificationBox();

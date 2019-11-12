@@ -337,17 +337,11 @@ void GameScript::registerForEvent(int eventValue)
 void GameScript::flashMessage(String& txt, float time, float charHeight)
 {
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "script_code_red.png");
-    RoR::App::GetGuiManager()->PushNotification("Script:", txt);
 }
 
 void GameScript::message(String& txt, String& icon, float timeMilliseconds, bool forceVisible)
 {
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon, timeMilliseconds, forceVisible);
-    if (RoR::App::mp_state.GetActive() != RoR::MpState::CONNECTED)
-    {
-        // TODO: Find a better solution for this
-        RoR::App::GetGuiManager()->PushNotification("Script:", txt);
-    }
 }
 
 void GameScript::UpdateDirectionArrow(String& text, Vector3& vec)

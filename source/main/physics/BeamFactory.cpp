@@ -1176,14 +1176,8 @@ void HandleErrorLoadingFile(std::string type, std::string filename, std::string 
 {
     RoR::Str<200> msg;
     msg << "Failed to load '" << filename << "' (type: '" << type << "'), message: " << exception_msg;
-    RoR::App::GetGuiManager()->PushNotification("Error:", msg.ToCStr());
-    RoR::LogFormat("[RoR] %s", msg.ToCStr());
-
-    if (RoR::App::GetConsole())
-    {
-        RoR::App::GetConsole()->putMessage(
-            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr(), "error.png", 30000, true);
-    }
+    RoR::App::GetConsole()->putMessage(
+        Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr(), "error.png", 30000, true);
 }
 
 void HandleErrorLoadingTruckfile(std::string filename, std::string exception_msg)
