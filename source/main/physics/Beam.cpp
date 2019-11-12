@@ -1299,8 +1299,6 @@ void Actor::DisplayAxleDiffMode()
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                 _L("No inter-axle differential installed on current vehicle!"), "warning.png", 3000);
-        App::GetGuiManager()->PushNotification("Inter-axle differentials:",
-                _L("No inter-axle differential installed on current vehicle!"));
     }
     else
     {
@@ -1318,7 +1316,6 @@ void Actor::DisplayAxleDiffMode()
         }
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                 "Inter-axle differentials:\n" + message, "cog.png", 3000);
-        App::GetGuiManager()->PushNotification("Inter-axle differentials:", message);
     }
 }
 
@@ -1328,8 +1325,6 @@ void Actor::DisplayWheelDiffMode()
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                 _L("No inter-wheel differential installed on current vehicle!"), "warning.png", 3000);
-        App::GetGuiManager()->PushNotification("Inter-wheel differentials:",
-                _L("No inter-wheel differential installed on current vehicle!"));
     }
     else
     {
@@ -1345,7 +1340,6 @@ void Actor::DisplayWheelDiffMode()
         }
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                 "Inter-wheel differentials:\n" + message, "cog.png", 3000);
-        App::GetGuiManager()->PushNotification("Inter-wheel differentials:", message);
     }
 }
 
@@ -1355,13 +1349,11 @@ void Actor::DisplayTransferCaseMode()
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                 _L("Transfercase switched to: ") + this->GetTransferCaseName(), "cog.png", 3000);
-        App::GetGuiManager()->PushNotification("Transfercase:", "Switched to: " + this->GetTransferCaseName());
     }
     else
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                 _L("No transfercase installed on current vehicle!"), "warning.png", 3000);
-        App::GetGuiManager()->PushNotification("Transfercase:", "No transfercase installed on current vehicle!");
     }
 }
 

@@ -105,19 +105,6 @@ void CLASS::SetFPSBoxVisible(bool v)
     m_fpscounter_box->setVisible(v);
 }
 
-void CLASS::PushNotification(Ogre::String Title, Ogre::String text)
-{
-    if (!MAIN_WIDGET->getVisible())
-        return;
-    if (m_notifications_disabled)
-        return;
-
-    m_not_title->setCaption(Title);
-    m_not_text->setCaption(text);
-    m_notification->setVisible(true);
-    m_last_notifi_push_time = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
-}
-
 void CLASS::HideNotificationBox()
 {
     m_notification->setVisible(false);

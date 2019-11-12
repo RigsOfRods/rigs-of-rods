@@ -28,6 +28,7 @@
 #include "Buoyance.h"
 #include "CacheSystem.h"
 #include "ContentManager.h"
+#include "Console.h"
 #include "GUIManager.h"
 #include "Language.h"
 #include "PlatformUtils.h"
@@ -81,14 +82,16 @@ bool ActorManager::LoadScene(Ogre::String filename)
         !j_doc.IsObject() || !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber())
     {
         RoR::Log("[RoR|Savegame] Invalid or missing savegame file.");
-        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Error while loading scene: File invalid or missing"));
+        RoR::App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: File invalid or missing"));
         App::sim_load_savegame.SetActive(false);
         return false;
     }
     if (j_doc["format_version"].GetInt() != SAVEGAME_FILE_FORMAT)
     {
         RoR::Log("[RoR|Savegame] Savegame file format mismatch.");
-        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Error while loading scene: File format mismatch"));
+        RoR::App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: File format mismatch"));
         App::sim_load_savegame.SetActive(false);
         return false;
     }
@@ -102,12 +105,14 @@ bool ActorManager::LoadScene(Ogre::String filename)
             return false;
         if (terrain_name != App::sim_terrain_name.GetActive())
         {
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Error while loading scene: Terrain mismatch"));
+            RoR::App::GetConsole()->putMessage(
+                Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: Terrain mismatch"));
             return false;
         }
         if (j_doc["actors"].GetArray().Size() > 3)
         {
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Error while loading scene: Too many vehicles"));
+            RoR::App::GetConsole()->putMessage(
+                Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: Too many vehicles"));
             return false;
         }
     }
@@ -489,7 +494,8 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
     if (filename != "autosave.sav")
     {
-        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Scene loaded"));
+        RoR::App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Scene loaded"));
     }
 
     return true;
@@ -505,7 +511,8 @@ bool ActorManager::SaveScene(Ogre::String filename)
             return false;
         if (x_actors.size() > 3)
         {
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Error while saving scene: Too many vehicles"));
+            RoR::App::GetConsole()->putMessage(
+                Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while saving scene: Too many vehicles"));
             return false;
         }
     }
@@ -823,13 +830,15 @@ bool ActorManager::SaveScene(Ogre::String filename)
     if (!App::GetContentManager()->SerializeAndWriteJson(filename, RGN_SAVEGAMES, j_doc))
     {
         // Error already logged
-        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Error while saving scene"));
+        RoR::App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while saving scene"));
         return false;
     }
 
     if (filename != "autosave.sav")
     {
-        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Scene saved"));
+        RoR::App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Scene saved"));
     }
 
     return true;

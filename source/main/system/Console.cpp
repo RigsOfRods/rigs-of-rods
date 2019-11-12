@@ -71,27 +71,54 @@ void Console::ForwardLogMessage(MessageArea area, std::string const& message, Og
     }
 }
 
-void Console::putMessage(MessageArea area, MessageType type, std::string const& msg,
-    std::string icon, size_t ttl, bool forcevisible)
+void Console::HandleMessage(MessageArea area, MessageType type, std::string const& msg, uint32_t net_userid/* = 0u*/)
 {
-    std::lock_guard<std::mutex> lock(m_messages_mutex);
+    // Log message to file
+    if (area != MessageArea::CONSOLE_MSGTYPE_LOG && // Don't duplicate echoed log messages
+        type != MessageType::CONSOLE_SYSTEM_NETCHAT) // Privacy
+    {
+        Str<2000> txt;
+        txt << "[RoR|";
+        switch (area)
+        {
+            case MessageArea::CONSOLE_MSGTYPE_INFO:   txt << "General"; break;
+            case MessageArea::CONSOLE_MSGTYPE_SCRIPT: txt << "Script";  break;
+            case MessageArea::CONSOLE_MSGTYPE_ACTOR:  txt << "Actor";   break;
+            case MessageArea::CONSOLE_MSGTYPE_TERRN:  txt << "Terrn";   break;
+            default:;
+        }
+        txt << "|";
+        switch (type)
+        {
+            case MessageType::CONSOLE_SYSTEM_NOTICE:  txt << "Notice";  break;
+            case MessageType::CONSOLE_SYSTEM_ERROR:   txt << "Error";   break;
+            case MessageType::CONSOLE_SYSTEM_WARNING: txt << "Warning"; break;
+            case MessageType::CONSOLE_SYSTEM_REPLY:   txt << "Success"; break;
+            default:;
+        }
+        txt << "] " << msg;
+        Log(txt.ToCStr());
+    }
+
+    // Lock and update message list
+    std::lock_guard<std::mutex> lock(m_messages_mutex); // Scoped lock
     if (m_messages.size() + 1 > MESSAGES_CAP)
     {
         m_messages.erase(m_messages.begin());
     }
-    m_messages.emplace_back(MessageArea(area), MessageType(type), msg,
-        Ogre::Root::getSingleton().getTimer()->getMilliseconds());
+    m_messages.emplace_back(area, type, msg,
+        Ogre::Root::getSingleton().getTimer()->getMilliseconds(), net_userid);
+}
+
+void Console::putMessage(MessageArea area, MessageType type, std::string const& msg,
+    std::string icon, size_t ttl, bool forcevisible)
+{
+    this->HandleMessage(area, type, msg);
 }
 
 void Console::putNetMessage(uint32_t user_id, MessageType type, const char* text)
 {
-    std::lock_guard<std::mutex> lock(m_messages_mutex);
-    if (m_messages.size() + 1 > MESSAGES_CAP)
-    {
-        m_messages.erase(m_messages.begin());
-    }
-    m_messages.emplace_back(CONSOLE_MSGTYPE_INFO, type, text,
-        Ogre::Root::getSingleton().getTimer()->getMilliseconds(), user_id);
+    this->HandleMessage(CONSOLE_MSGTYPE_INFO, type, text, user_id);
 }
 
 void Console::DoCommand(std::string msg) // All commands are processed here

@@ -56,7 +56,6 @@ public:
     void UpdateStats(float dt, Actor* actor); //different from Framestep!
     void FrameStepSimGui(float dt);
 
-    void PushNotification(Ogre::String Title, Ogre::String text);
     void HideNotificationBox();
     void DisableNotifications(bool disabled);
 

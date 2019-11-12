@@ -352,13 +352,11 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
     {
     case CAMERA_BEHAVIOR_FREE:
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Free camera"), "camera_go.png", 3000);
-        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Free camera"));
         break;
 
     case CAMERA_BEHAVIOR_ISOMETRIC:
     case CAMERA_BEHAVIOR_FIXED:
         RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("Fixed camera"), "camera_link.png", 3000);
-        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Fixed camera"));
         break;
 
     case CAMERA_BEHAVIOR_STATIC:
@@ -823,12 +821,10 @@ void CameraManager::CameraBehaviorOrbitUpdate()
         if (m_cam_limit_movement)
         {
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera movement enabled"), "camera_go.png", 3000);
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Limited camera movement enabled"));
         }
         else
         {
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera movement disabled"), "camera_go.png", 3000);
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Limited camera movement disabled"));
         }
     }
 
@@ -1104,12 +1100,10 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
         if (m_splinecam_auto_tracking)
         {
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Auto tracking enabled"), "camera_go.png", 3000);
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Auto tracking enabled"));
         }
         else
         {
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Auto tracking disabled"), "camera_go.png", 3000);
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Auto tracking disabled"));
         }
     }
 

@@ -391,7 +391,6 @@ void SimController::UpdateInputEvents(float dt)
         String ssmsg = _L("Screenshot:") + String(" ") + fn_name + fn_suffix;
         LOG(ssmsg);
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "camera.png", 10000, false);
-        RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
 
         m_screenshot_request = false;
     }
@@ -432,7 +431,6 @@ void SimController::UpdateInputEvents(float dt)
         m_actor_manager.SetSimulationSpeed(simulation_speed);
         String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-        RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
     }
     if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_DECELERATE_SIMULATION))
     {
@@ -440,7 +438,6 @@ void SimController::UpdateInputEvents(float dt)
         m_actor_manager.SetSimulationSpeed(simulation_speed);
         String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-        RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
     }
     if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_SIMULATION_PACE))
     {
@@ -453,14 +450,12 @@ void SimController::UpdateInputEvents(float dt)
                 m_actor_manager.SetSimulationSpeed(1.0f);
                 UTFString ssmsg = _L("Simulation speed reset.");
                 RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-                RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
             }
             else if (m_last_simulation_speed != 1.0f)
             {
                 m_actor_manager.SetSimulationSpeed(m_last_simulation_speed);
                 String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(m_last_simulation_speed * 100.0f, 1)) + "%";
                 RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-                RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
             }
         }
         m_is_pace_reset_pressed = true;
@@ -513,7 +508,6 @@ void SimController::UpdateInputEvents(float dt)
                 gEnv->mainCamera->setFOVy(Degree(fov));
 
                 RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
-                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: ") + TOSTRING(fov));
 
                 // save the settings
                 if (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
@@ -528,7 +522,6 @@ void SimController::UpdateInputEvents(float dt)
             else
             {
                 RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: Limit reached"), "camera_edit.png", 2000);
-                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: Limit reached"));
             }
         }
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_RESET))
@@ -546,7 +539,6 @@ void SimController::UpdateInputEvents(float dt)
             }
             gEnv->mainCamera->setFOVy(Degree(fov));
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: ") + TOSTRING(fov));
         }
     }
 
@@ -591,7 +583,6 @@ void SimController::UpdateInputEvents(float dt)
         UTFString ssmsg = simEDITOR(s) ? _L("Entered terrain editing mode") : _L("Left terrain editing mode");
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg,
                 "infromation.png", 2000, false);
-        RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
 
         if (simEDITOR(s))
         {
@@ -729,20 +720,17 @@ void SimController::UpdateInputEvents(float dt)
             }
             UTFString ssmsg = _L("Rotating: ") + axis;
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-            RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
         }
         if (RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
         {
             terrain_editing_track_object = !terrain_editing_track_object;
             UTFString ssmsg = terrain_editing_track_object ? _L("Enabled object tracking") : _L("Disabled object tracking");
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-            RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
         }
         if (object_index != -1 && update)
         {
             String ssmsg = _L("Selected object: [") + TOSTRING(object_index) + "/" + TOSTRING(object_list.size()) + "] (" + object_list[object_index].name + ")";
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-            RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
             if (terrain_editing_track_object)
             {
                 gEnv->player->setPosition(object_list[object_index].node->getPosition());
@@ -852,10 +840,9 @@ void SimController::UpdateInputEvents(float dt)
                 if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_RESET_MODE))
                 {
                     m_soft_reset_mode = !m_soft_reset_mode;
-                    if (m_soft_reset_mode)
-                        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Enabled soft reset mode"));
-                    else
-                        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Enabled hard reset mode"));
+                    RoR::App::GetConsole()->putMessage(
+                        Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                        (m_soft_reset_mode) ? _L("Enabled soft reset mode") : _L("Enabled hard reset mode"));
                 }
                 if (!RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
                 {
@@ -1243,7 +1230,6 @@ void SimController::UpdateInputEvents(float dt)
                         if (rescuer == nullptr)
                         {
                             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("No rescue truck found!"), "warning.png");
-                            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("No rescue truck found!"));
                         }
                         else
                         {
@@ -1402,7 +1388,6 @@ void SimController::UpdateInputEvents(float dt)
             if (sky_mgr->GetSkyTimeFactor() != time_factor)
             {
                 sky_mgr->SetSkyTimeFactor(time_factor);
-                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Time set to ") + sky_mgr->GetPrettyTime());
                 RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + sky_mgr->GetPrettyTime(), "weather_sun.png", 1000);
             }
         }
@@ -1841,7 +1826,6 @@ void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const 
                 if (gEnv->collisions->isInside(actor->ar_nodes[i].AbsPosition, spawnbox))
                 {
                     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
-                    RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Please clear the place first"));
                     return;
                 }
             }
