@@ -41,9 +41,13 @@ void RoR::GUI::GameChatBox::Draw()
     // Begin drawing the window
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
-    const ImVec2 size(
+    ImVec2 size(
         ImGui::GetIO().DisplaySize.x - (2 * ImGui::GetStyle().WindowPadding.x),
-        ((m_console_view.cvw_max_lines + 1) * ImGui::GetTextLineHeightWithSpacing()) + (2*ImGui::GetStyle().WindowPadding.y));
+        (m_console_view.cvw_max_lines * ImGui::GetTextLineHeightWithSpacing()) + (2*ImGui::GetStyle().WindowPadding.y));
+    if (m_is_visible) // Full display?
+    {
+        size.y += ImGui::GetTextLineHeightWithSpacing(); // reserve space for input box
+    }
     ImGui::SetNextWindowSize(size);
     ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - size.y));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
@@ -55,21 +59,24 @@ void RoR::GUI::GameChatBox::Draw()
 
     m_console_view.DrawConsoleMessages();
 
-    // Draw filter button and input box in one line
-    if (ImGui::Button(_LC("Console", "Filter options")))
+    if (m_is_visible) // Full display?
     {
-        ImGui::OpenPopup("chatbox-filtering");
-    }
-    m_console_view.DrawFilteringPopup("chatbox-filtering");
-    ImGui::SameLine();
-    const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
-    if (ImGui::InputText(_L("Message"), m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
-    {
-        if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+        // Draw filter button and input box in one line
+        if (ImGui::Button(_LC("Console", "Filter options")))
         {
-            this->SubmitMessage();
+            ImGui::OpenPopup("chatbox-filtering");
         }
-        m_msg_buffer.Clear();
+        m_console_view.DrawFilteringPopup("chatbox-filtering");
+        ImGui::SameLine();
+        const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
+        if (ImGui::InputText(_L("Message"), m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
+        {
+            if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+            {
+                this->SubmitMessage();
+            }
+            m_msg_buffer.Clear();
+        }
     }
 
     ImGui::End();

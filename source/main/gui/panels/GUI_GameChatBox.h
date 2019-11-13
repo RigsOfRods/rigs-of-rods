@@ -49,7 +49,7 @@ public:
 private:
     void SubmitMessage(); //!< Flush the user input box
 
-    bool                      m_is_visible = false;
+    bool                      m_is_visible = false; //!< Special: false means 'display only messages'
     Str<400>                  m_msg_buffer;
     ConsoleView               m_console_view;
 };
