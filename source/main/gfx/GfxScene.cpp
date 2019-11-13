@@ -27,7 +27,6 @@
 #include "DustPool.h"
 #include "HydraxWater.h"
 #include "GUIManager.h"
-#include "GUI_SimUtils.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"

@@ -85,6 +85,7 @@ public:
     void SetVisible_LoadingWindow       (bool visible);
     void SetVisible_Console             (bool visible);
     void SetVisible_SimActorStats       (bool visible);
+    void SetVisible_SimPerfStats        (bool visible);
 
     // GUI IsVisible*()
     bool IsVisible_GameMainMenu         ();
@@ -103,6 +104,7 @@ public:
     bool IsVisible_LoadingWindow        ();
     bool IsVisible_Console              ();
     bool IsVisible_SimActorStats        ();
+    bool IsVisible_SimPerfStats         ();
 
     // GUI GetInstance*()
     GUI::MainSelector* GetMainSelector();
@@ -112,15 +114,12 @@ public:
     GUI::MpClientList* GetMpClientList();
     GUI::MultiplayerSelector* GetMpSelector();
     GUI::FrictionSettings* GetFrictionSettings();
-    GUI::SimUtils* GetSimUtils();
     GUI::TopMenubar* GetTopMenubar();
 
     // GUI manipulation
     void ShowMessageBox(const char* title, const char* text, bool allow_close = true, const char* btn1_text = "OK", const char* btn2_text = nullptr);
     void UnfocusGui();
-    void HideNotification();
 
-    void UpdateSimUtils(float dt, Actor* truck);
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
     void DrawSimulationGui(float dt); //!< Touches live data; must be called in sync with sim. thread

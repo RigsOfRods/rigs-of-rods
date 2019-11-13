@@ -51,7 +51,7 @@
 #include "GUI_MainSelector.h"
 #include "GUI_NodeBeamUtils.h"
 #include "GUI_SimActorStats.h"
-#include "GUI_SimUtils.h"
+#include "GUI_SimPerfStats.h"
 #include "GUI_TextureToolWindow.h"
 #include "GUI_TopMenubar.h"
 #include "GUI_VehicleDescription.h"
@@ -78,7 +78,7 @@ struct GuiManagerImpl
     GUI::GamePauseMenu          panel_GamePauseMenu;
     GUI::GameSettings           panel_GameSettings;
     GUI::SimActorStats          panel_SimActorStats;
-    GUI::SimUtils               panel_SimUtils;
+    GUI::SimPerfStats           panel_SimPerfStats;
     GUI::MessageBoxDialog       panel_MessageBox;
     GUI::MultiplayerSelector    panel_MultiplayerSelector;
     GUI::MainSelector           panel_MainSelector;
@@ -137,6 +137,7 @@ void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_Console
 void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSettings       .SetVisible(v); }
 void GUIManager::SetVisible_NodeBeamUtils       (bool v) { m_impl->panel_NodeBeamUtils      .SetVisible(v); }
 void GUIManager::SetVisible_SimActorStats       (bool v) { m_impl->panel_SimActorStats      .SetVisible(v); }
+void GUIManager::SetVisible_SimPerfStats        (bool v) { m_impl->panel_SimPerfStats       .SetVisible(v); }
 
 bool GUIManager::IsVisible_GameMainMenu         () { return m_impl->panel_GameMainMenu       .IsVisible(); }
 bool GUIManager::IsVisible_GameAbout            () { return m_impl->panel_GameAbout          .IsVisible(); }
@@ -153,6 +154,7 @@ bool GUIManager::IsVisible_GameSettings         () { return m_impl->panel_GameSe
 bool GUIManager::IsVisible_TopMenubar           () { return m_impl->panel_TopMenubar         .IsVisible(); }
 bool GUIManager::IsVisible_NodeBeamUtils        () { return m_impl->panel_NodeBeamUtils      .IsVisible(); }
 bool GUIManager::IsVisible_SimActorStats        () { return m_impl->panel_SimActorStats      .IsVisible(); }
+bool GUIManager::IsVisible_SimPerfStats         () { return m_impl->panel_SimPerfStats       .IsVisible(); }
 
 // GUI GetInstance*()
 GUI::MainSelector*          GUIManager::GetMainSelector()      { return &m_impl->panel_MainSelector        ; }
@@ -162,7 +164,6 @@ GUI::LoadingWindow*         GUIManager::GetLoadingWindow()     { return &m_impl-
 GUI::MpClientList*          GUIManager::GetMpClientList()      { return &m_impl->panel_MpClientList        ; }
 GUI::MultiplayerSelector*   GUIManager::GetMpSelector()        { return &m_impl->panel_MultiplayerSelector ; }
 GUI::FrictionSettings*      GUIManager::GetFrictionSettings()  { return &m_impl->panel_FrictionSettings    ; }
-GUI::SimUtils*              GUIManager::GetSimUtils()          { return &m_impl->panel_SimUtils            ; }
 GUI::TopMenubar*            GUIManager::GetTopMenubar()        { return &m_impl->panel_TopMenubar          ; }
 
 GUIManager::GUIManager() :
@@ -257,7 +258,6 @@ bool GUIManager::frameEnded(const Ogre::FrameEvent& evt)
 
 void GUIManager::DrawSimulationGui(float dt)
 {
-    m_impl->panel_SimUtils.FrameStepSimGui(dt);
     if (App::app_state.GetActive() == AppState::SIMULATION)
     {
         m_impl->panel_TopMenubar.Update();
@@ -310,11 +310,11 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     {
         m_impl->panel_ChatBox.Draw();
     }
-}
 
-void GUIManager::HideNotification()
-{
-    m_impl->panel_SimUtils.HideNotificationBox();
+    if (this->IsVisible_SimPerfStats())
+    {
+        m_impl->panel_SimPerfStats.Draw();
+    }
 }
 
 void GUIManager::windowResized(Ogre::RenderWindow* rw)
@@ -359,24 +359,13 @@ void GUIManager::SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manage
     m_impl->mygui_platform->getRenderManagerPtr()->setSceneManager(scene_manager);
 }
 
-void GUIManager::UpdateSimUtils(float dt, Actor *truck)
-{
-    if (m_impl->panel_SimUtils.IsBaseVisible()) //Better to update only when it's visible.
-    {
-        m_impl->panel_SimUtils.UpdateStats(dt, truck);
-    }
-}
-
 void GUIManager::hideGUI(bool hidden)
 {
     if (hidden)
     {
-        m_impl->panel_SimUtils.HideNotificationBox();
-        m_impl->panel_SimUtils.SetFPSBoxVisible(false);
-        m_impl->panel_SimActorStats.SetVisible(false);
+        m_impl->panel_SimPerfStats.SetVisible(false);
         m_impl->panel_ChatBox.SetVisible(false);
     }
-    m_impl->panel_SimUtils.DisableNotifications(hidden);
 }
 
 void GUIManager::SetMouseCursorVisibility(MouseCursorVisibility visi)
@@ -412,13 +401,12 @@ void GUIManager::ReflectGameState()
         m_impl->panel_TextureToolWindow  .SetVisible(false);
         m_impl->panel_VehicleDescription .SetVisible(false);
         m_impl->panel_SimActorStats      .SetVisible(false);
-        m_impl->panel_SimUtils           .SetBaseVisible(false);
+        m_impl->panel_SimPerfStats       .SetVisible(false);
         m_impl->panel_MpClientList       .SetVisible(mp_state == MpState::CONNECTED);
         return;
     }
     if (app_state == AppState::SIMULATION)
     {
-        m_impl->panel_SimUtils           .SetBaseVisible(true);
         m_impl->panel_GameMainMenu       .SetVisible(false);
         return;
     }

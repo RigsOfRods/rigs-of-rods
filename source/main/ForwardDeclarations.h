@@ -70,7 +70,6 @@ namespace RoR
         class  MainSelector;
         class  MpClientList;
         class  MultiplayerSelector;
-        class  SimUtils;
         class  TopMenubar;
     }
 } // namespace RoR

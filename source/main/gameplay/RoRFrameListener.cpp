@@ -63,7 +63,6 @@
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
 #include "GUI_MultiplayerClientList.h"
-#include "GUI_SimUtils.h"
 
 #include "SurveyMapManager.h"
 
@@ -391,7 +390,6 @@ void SimController::UpdateInputEvents(float dt)
         String ssmsg = _L("Screenshot:") + String(" ") + fn_name + fn_suffix;
         LOG(ssmsg);
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "camera.png", 10000, false);
-
         m_screenshot_request = false;
     }
 
@@ -399,7 +397,6 @@ void SimController::UpdateInputEvents(float dt)
     {
         // Nasty workaround to avoid calling 'GetRenderWindow()->update()' which overwrites the (ImGUI) skeleton view
         m_screenshot_request = true;
-        RoR::App::GetGuiManager()->HideNotification();
         RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
     }
 
@@ -1467,7 +1464,7 @@ void SimController::UpdateInputEvents(float dt)
 
     if ((simRUNNING(s) || simPAUSED(s) || simEDITOR(s)) && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
     {
-        gui_man->GetSimUtils()->SetFPSBoxVisible(! gui_man->GetSimUtils()->IsFPSBoxVisible());
+        gui_man->SetVisible_SimPerfStats(!gui_man->IsVisible_SimPerfStats());
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_MAT_DEBUG))
@@ -1799,8 +1796,6 @@ void SimController::UpdateSimulation(float dt)
         }
 
         this->UpdateForceFeedback();
-
-        RoR::App::GetGuiManager()->UpdateSimUtils(dt, m_player_actor);
 
         m_scene_mouse.UpdateSimulation();
 
