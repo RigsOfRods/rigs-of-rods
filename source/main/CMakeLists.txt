@@ -149,8 +149,7 @@ set(SOURCE_FILES
         gui/panels/GUI_MultiplayerClientList.{h,cpp}
         gui/panels/GUI_NodeBeamUtils.{h,cpp}
         gui/panels/GUI_SimActorStats.{h,cpp}
-        gui/panels/GUI_SimUtils.{h,cpp}
-        gui/panels/GUI_SimUtilsLayout.{h,cpp}
+        gui/panels/GUI_SimPerfStats.{h,cpp}
         gui/panels/GUI_VehicleDescription.{h,cpp}
         network/Network.{h,cpp}
         physics/ApproxMath.h
