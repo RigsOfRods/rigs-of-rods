@@ -290,6 +290,10 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     {
         m_impl->panel_ConsoleWindow.Draw();
     }
+    else
+    {
+        m_impl->panel_ChatBox.Draw(); // Messages must be always visible
+    }
 
     if (this->IsVisible_LoadingWindow())
     {
@@ -304,11 +308,6 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     if (this->IsVisible_VehicleDescription())
     {
         m_impl->panel_VehicleDescription.Draw();
-    }
-
-    if (this->IsVisible_ChatBox())
-    {
-        m_impl->panel_ChatBox.Draw();
     }
 
     if (this->IsVisible_SimPerfStats())

@@ -316,8 +316,7 @@ void SimController::UpdateInputEvents(float dt)
     const bool mp_connected = (App::mp_state.GetActive() == MpState::CONNECTED);
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_hide_gui && mp_connected)
     {
-        RoR::App::GetInputEngine()->resetKeys();
-        gui_man->SetVisible_ChatBox(true);
+        gui_man->SetVisible_ChatBox(!gui_man->IsVisible_ChatBox());
     }
 
     if (m_screenshot_request)
