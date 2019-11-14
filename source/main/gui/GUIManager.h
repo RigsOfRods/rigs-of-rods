@@ -78,7 +78,6 @@ public:
     void SetVisible_MultiplayerSelector (bool visible);
     void SetVisible_ChatBox             (bool visible);
     void SetVisible_VehicleDescription  (bool visible);
-    void SetVisible_MpClientList        (bool visible);
     void SetVisible_FrictionSettings    (bool visible);
     void SetVisible_TextureToolWindow   (bool visible);
     void SetVisible_NodeBeamUtils       (bool visible);
@@ -94,7 +93,6 @@ public:
     bool IsVisible_TopMenubar           ();
     bool IsVisible_MessageBox           ();
     bool IsVisible_MultiplayerSelector  ();
-    bool IsVisible_MpClientList         ();
     bool IsVisible_MainSelector         ();
     bool IsVisible_ChatBox              ();
     bool IsVisible_VehicleDescription   ();
@@ -111,7 +109,6 @@ public:
     GUI::GameMainMenu* GetMainMenu();
     GUI::GamePauseMenu* GetPauseMenu();
     GUI::LoadingWindow* GetLoadingWindow();
-    GUI::MpClientList* GetMpClientList();
     GUI::MultiplayerSelector* GetMpSelector();
     GUI::FrictionSettings* GetFrictionSettings();
     GUI::TopMenubar* GetTopMenubar();
@@ -124,6 +121,7 @@ public:
     void DrawMainMenuGui();
     void DrawSimulationGui(float dt); //!< Touches live data; must be called in sync with sim. thread
     void DrawSimGuiBuffered(GfxActor* player_gfx_actor); //!< Reads data from simbuffer
+    void DrawCommonGui();
 
     void SetMpConnectingStatusMsg(std::string const & msg) { m_net_connect_status = msg; }
     void DrawMpConnectingStatusBox();
@@ -154,6 +152,7 @@ private:
 
     GuiManagerImpl*    m_impl;
     bool               m_renderwindow_closed;
+    bool               m_hide_gui = false;
     OgreImGui          m_imgui;
     GuiTheme           m_theme;
     std::string        m_net_connect_status;
