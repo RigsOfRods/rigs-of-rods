@@ -1746,8 +1746,6 @@ void SimController::UpdateSimulation(float dt)
 
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
-        // Update the player list
-        App::GetGuiManager()->GetMpClientList()->update();
         // Update mumble (3d audio)
 #ifdef USE_MUMBLE
         // calculate orientation of avatar first
@@ -1879,11 +1877,6 @@ void SimController::HideGUI(bool hidden)
 {
     if (m_player_actor && m_player_actor->getReplay())
         m_player_actor->getReplay()->setHidden(hidden);
-
-#ifdef USE_SOCKETW
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
-        App::GetGuiManager()->SetVisible_MpClientList(!hidden);
-#endif // USE_SOCKETW
 
     if (RoR::App::GetOverlayWrapper())
         RoR::App::GetOverlayWrapper()->showDashboardOverlays(!hidden, m_player_actor);

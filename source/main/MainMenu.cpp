@@ -154,8 +154,6 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
 
         case Networking::NetEvent::Type::CONNECT_SUCCESS:
             App::mp_state.SetActive(RoR::MpState::CONNECTED);
-            App::GetGuiManager()->SetVisible_MpClientList(true);
-            App::GetGuiManager()->GetMpClientList()->update();
             ChatSystem::SendStreamSetup();
             App::CheckAndCreateMumble();
             if (Networking::GetTerrainName() != "any")
@@ -189,11 +187,6 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
         default:;
         }
         events.pop();
-    }
-
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
-    {
-        App::GetGuiManager()->GetMpClientList()->update();
     }
 
     if (App::GetGuiManager()->GetMpSelector()->IsRefreshThreadRunning())
@@ -341,7 +334,6 @@ void MainMenu::LeaveMultiplayerServer()
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
         RoR::Networking::Disconnect();
-        App::GetGuiManager()->SetVisible_MpClientList(false);
         App::GetGuiManager()->GetMainSelector()->Reset(); // We may get disconnected while still in map selection
         App::GetGuiManager()->GetMainSelector()->Hide(/*smooth=*/false);
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
