@@ -22,6 +22,7 @@
 #include "GUI_SimPerfStats.h"
 
 #include "Application.h"
+#include "GUIManager.h"
 #include "Language.h"
 #include "OgreSubsystem.h"
 
@@ -33,9 +34,12 @@ using namespace GUI;
 
 void SimPerfStats::Draw()
 {
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar;
-    ImGui::SetNextWindowPos(ImVec2(15.f, 15.f));
+    ImGui::SetNextWindowPos(theme.screen_edge_padding);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
     ImGui::Begin("FPS", &m_is_visible, flags);
 
     const Ogre::RenderTarget::FrameStats& stats = App::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
@@ -48,4 +52,5 @@ void SimPerfStats::Draw()
     ImGui::Text("%s%zu", _L("Batch count: "),    stats.batchCount);
 
     ImGui::End();
+    ImGui::PopStyleColor(1); // WindowBg
 }

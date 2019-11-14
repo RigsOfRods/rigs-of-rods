@@ -46,18 +46,22 @@ public:
     {
         GuiTheme();
 
-        ImVec4 in_progress_text_color;
-        ImVec4 no_entries_text_color;
-        ImVec4 error_text_color;
-        ImVec4 selected_entry_text_color;
-        ImVec4 highlight_text_color;
-        ImVec4 value_red_text_color;
-        ImVec4 value_blue_text_color;
-        ImVec4 success_text_color;
-        ImVec4 warning_text_color;
-        ImVec4 help_text_color;
+        ImVec4 in_progress_text_color    = ImVec4(1.f, 0.832031f, 0.f, 1.f);
+        ImVec4 no_entries_text_color     = ImVec4(0.7f, 0.7f, 0.7f, 1.f);
+        ImVec4 error_text_color          = ImVec4(1.f, 0.175439f, 0.175439f, 1.f);
+        ImVec4 selected_entry_text_color = ImVec4(.9f, 0.7f, 0.05f, 1.f);
+        ImVec4 value_red_text_color      = ImVec4(.8f, .1f, .1f, 1.f);
+        ImVec4 value_blue_text_color     = ImVec4(.1f, .12f, .7f, 1.f);
+        ImVec4 highlight_text_color      = ImVec4(0.78f, 0.39f, 0.f, 1.f);
+        ImVec4 success_text_color        = ImVec4(0.f, 0.8f, 0.f, 1.f);
+        ImVec4 warning_text_color        = ImVec4(0.9f, 0.8f, 0.1f, 1.f);
+        ImVec4 help_text_color           = ImVec4(0.5f, 0.7f, 1.f, 1.f);
 
-        ImFont* default_font;
+        ImVec4 semitransparent_window_bg = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
+
+        ImVec2 screen_edge_padding = ImVec2(10.f, 10.f);
+
+        ImFont* default_font = nullptr;
     };
 
     // NOTE: RoR's mouse cursor management is a mess - cursor is hidden/revealed ad-hoc in the code (originally by calling `MyGUI::PointerManager::setVisible()`); this enum+API cleans it up a bit ~ only_a_ptr, 09/2017

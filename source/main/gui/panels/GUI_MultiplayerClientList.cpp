@@ -42,47 +42,30 @@ using namespace Ogre;
 
 void MpClientList::Draw()
 {
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
     const float content_width = 200.f;
     ImGui::SetNextWindowContentWidth(content_width);
-    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - (content_width + (2*ImGui::GetStyle().WindowPadding.x) + 15.f), 15.f));
-    const ImVec4  PANEL_BG_COLOR = ImVec4(0.1f, 0.1f, 0.1f, 0.8f); // FIXME: copypaste from TopMenubar
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, PANEL_BG_COLOR);
+    ImGui::SetNextWindowPos(ImVec2(
+        ImGui::GetIO().DisplaySize.x - (content_width + (2*ImGui::GetStyle().WindowPadding.x) + theme.screen_edge_padding.x),
+        theme.screen_edge_padding.y));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
     ImGui::Begin("Peers", nullptr, flags);
 
     std::vector<RoRnet::UserInfo> users = RoR::Networking::GetUserInfos();
     users.insert(users.begin(), RoR::Networking::GetLocalUserData());
     for (RoRnet::UserInfo const& user: users)
     {
+        // Icon sizes: flag(16x11), auth(16x16), up(16x16), down(16x16)
         bool hovered = false;
         Ogre::TexturePtr flag_tex;
         Ogre::TexturePtr auth_tex;
         Ogre::TexturePtr down_tex;
         Ogre::TexturePtr up_tex;
 
-        // Icon sizes: flag(16x11), auth(16x16), up(16x16), down(16x16)
-
-        // Auth icon
-        switch (user.authstatus)
-        {
-        case RoRnet::AUTH_ADMIN:  auth_tex = this->FetchIcon("flag_red.png"); break;
-        case RoRnet::AUTH_MOD:    auth_tex = this->FetchIcon("flag_blue.png"); break;
-        case RoRnet::AUTH_RANKED: auth_tex = this->FetchIcon("flag_green.png"); break;
-        default:;
-        }
-        hovered |= this->DrawIcon(auth_tex, ImVec2(14.f, ImGui::GetTextLineHeight()));
-
-        // Flag
-        StringVector parts = StringUtil::split(user.language, "_");
-        if (parts.size() == 2)
-        {
-            StringUtil::toLowerCase(parts[1]);
-            flag_tex = this->FetchIcon((parts[1] + ".png").c_str());
-            hovered |= this->DrawIcon(flag_tex, ImVec2(16.f, ImGui::GetTextLineHeight()));
-        }
-
-        // Stream state
+        // Stream state indicators
         if (user.uniqueid != RoR::Networking::GetLocalUserData().uniqueid &&
             App::app_state.GetActive() != AppState::MAIN_MENU)
         {
@@ -107,7 +90,27 @@ void MpClientList::Draw()
         hovered |= this->DrawIcon(down_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
         hovered |= this->DrawIcon(up_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
 
+        // Auth icon
+        switch (user.authstatus)
+        {
+        case RoRnet::AUTH_ADMIN:  auth_tex = this->FetchIcon("flag_red.png"); break;
+        case RoRnet::AUTH_MOD:    auth_tex = this->FetchIcon("flag_blue.png"); break;
+        case RoRnet::AUTH_RANKED: auth_tex = this->FetchIcon("flag_green.png"); break;
+        default:;
+        }
+        hovered |= this->DrawIcon(auth_tex, ImVec2(14.f, ImGui::GetTextLineHeight()));
+
+        // Country flag
+        StringVector parts = StringUtil::split(user.language, "_");
+        if (parts.size() == 2)
+        {
+            StringUtil::toLowerCase(parts[1]);
+            flag_tex = this->FetchIcon((parts[1] + ".png").c_str());
+            hovered |= this->DrawIcon(flag_tex, ImVec2(16.f, ImGui::GetTextLineHeight()));
+        }
+
         // Player name
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetStyle().ItemSpacing.x); // Some extra padding
         ColourValue col = Networking::GetPlayerColor(user.colournum);
         ImGui::TextColored(ImVec4(col.r, col.g, col.b, col.a), "%s", user.username);
         hovered |= ImGui::IsItemHovered();

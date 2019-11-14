@@ -46,6 +46,8 @@ void RoR::GUI::TopMenubar::Update()
     // ## ImGui's 'menubar' and 'menuitem' features won't quite cut it...
     // ## Let's do our own menus and menuitems using buttons and coloring tricks.
 
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+
     const char* sim_title = "Simulation"; // TODO: Localize all!
     Str<50> actors_title;
     auto actors = App::GetSimController()->GetActors();
@@ -61,7 +63,7 @@ void RoR::GUI::TopMenubar::Update()
         ImGui::CalcTextSize(savegames_title).x + ImGui::CalcTextSize(settings_title).x + // Items
         ImGui::CalcTextSize(tools_title).x; // Items
 
-    ImVec2 window_target_pos = ImVec2((ImGui::GetIO().DisplaySize.x/2.f) - (panel_target_width / 2.f), ImGui::GetStyle().WindowPadding.y);
+    ImVec2 window_target_pos = ImVec2((ImGui::GetIO().DisplaySize.x/2.f) - (panel_target_width / 2.f), theme.screen_edge_padding.y);
     if (!this->ShouldDisplay(window_target_pos))
     {
         m_open_menu = TopMenu::TOPMENU_NONE;
@@ -70,8 +72,8 @@ void RoR::GUI::TopMenubar::Update()
         return;
     }
 
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, PANEL_BG_COLOR);
-    ImGui::PushStyleColor(ImGuiCol_Button,   TRANSPARENT_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
+    ImGui::PushStyleColor(ImGuiCol_Button,   ImVec4(0,0,0,0)); // Fully transparent
 
     // The panel
     int flags = ImGuiWindowFlags_NoCollapse  | ImGuiWindowFlags_NoResize    | ImGuiWindowFlags_NoMove
@@ -614,7 +616,7 @@ void RoR::GUI::TopMenubar::Update()
         m_open_menu_hoverbox_max = ImVec2(0,0);
     }
 
-    ImGui::PopStyleColor(2);
+    ImGui::PopStyleColor(2); // WindowBg, Button
 }
 
 bool RoR::GUI::TopMenubar::ShouldDisplay(ImVec2 window_pos)
@@ -766,7 +768,7 @@ void RoR::GUI::TopMenubar::DrawSpecialStateBox(float top_offset)
         ImGui::SetNextWindowPos(box_pos);
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize    | ImGuiWindowFlags_NoMove |
                                  ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize;
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, PANEL_BG_COLOR);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, App::GetGuiManager()->GetTheme().semitransparent_window_bg);
         if (ImGui::Begin("Special state box", nullptr, flags))
         {
             ImGui::TextColored(special_color, "%s", special_text.c_str());
