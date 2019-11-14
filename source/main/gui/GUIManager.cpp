@@ -95,15 +95,7 @@ struct GuiManagerImpl
     MyGUI::OgrePlatform*        mygui_platform;
 };
 
-GUIManager::GuiTheme::GuiTheme():
-    in_progress_text_color(1.f, 0.832031f, 0.f, 1.f),
-    no_entries_text_color(0.7f, 0.7f, 0.7f, 1.f),
-    error_text_color(1.f, 0.175439f, 0.175439f, 1.f),
-    selected_entry_text_color(.9f, 0.7f, 0.05f, 1.f),
-    highlight_text_color(0.78f, 0.39f, 0.f, 1.f),
-    success_text_color(0.f, 0.8f, 0.f, 1.f),
-    warning_text_color(0.9f, 0.8f, 0.1f, 1.f),
-    help_text_color(0.5f, 0.7f, 1.f, 1.f)
+GUIManager::GuiTheme::GuiTheme()
 {
     try
     {

@@ -37,8 +37,6 @@ class TopMenubar
 public:
     const float   MENU_Y_OFFSET         = 40.f;
     const float   PANEL_HOVERBOX_HEIGHT = 50.f;
-    const ImVec4  PANEL_BG_COLOR        = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
-    const ImVec4  TRANSPARENT_COLOR     = ImVec4(0,0,0,0);
     const ImVec4  GRAY_HINT_TEXT        = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
     const ImVec4  WHITE_TEXT            = ImVec4(0.9f, 0.9f, 0.9f, 1.f);
     const ImVec4  GREEN_TEXT            = ImVec4(0.0f, 0.9f, 0.0f, 1.f);
