@@ -380,7 +380,7 @@ void GameScript::showChooser(const String& type, const String& instance, const S
     if (type == "extension")
         ntype = LT_Extension;
     if (type == "heli")
-        ntype = LT_Heli;
+        ntype = LT_Airplane;
     if (type == "load")
         ntype = LT_Load;
     if (type == "trailer")

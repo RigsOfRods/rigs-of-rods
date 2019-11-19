@@ -40,6 +40,19 @@
 using namespace RoR;
 using namespace GUI;
 
+// MAIN SELECTOR WINDOW
+// --------------------
+// KEY CONTROLS
+//   '/' forward slash: set keyboard focus to search box if not already
+//   tabulator: toggle search box focus
+//   arrow left/right: if search box is not in focus, select previous(left) or next(right) category in "categories" combobox (does not wrap, i.e. when already on first/last item, do not skip to the other end).
+//   arrow up/down: select prev/next entry. When already on top/bottom item, wrap to other end of the list.
+//   enter: activate highlighted entry
+// SEARCHING
+//   The result list is sorted descending by 'score'.
+//   Syntax 'abcdef': searches fulltext (ingoring case) in: name, filename, description, author name/mail (in this order, with descending rank) and returns rank+string pos as score
+//   Syntax 'AREA:abcdef': searches (ignoring case) in AREA: 'guid'(guid string), 'author' (name/email), 'wheels' (string "WHEELCOUNTxPROPWHEELCOUNT"), 'file' (filename); returns string pos as score
+
 #define CLASS        MainSelector
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
@@ -365,13 +378,13 @@ void CLASS::UpdateGuiData()
         if (it->fext == "skin")
             add = (m_loader_type == LT_Skin && it->guid == m_actor_spawn_rq.asr_cache_entry->guid);
         else if (it->fext == "truck")
-            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Vehicle || m_loader_type == LT_Truck || m_loader_type == LT_Network || m_loader_type == LT_NetworkWithBoat);
+            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Vehicle || m_loader_type == LT_Truck  );
         else if (it->fext == "car")
-            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Vehicle || m_loader_type == LT_Truck || m_loader_type == LT_Car || m_loader_type == LT_Network || m_loader_type == LT_NetworkWithBoat);
+            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Vehicle || m_loader_type == LT_Truck || m_loader_type == LT_Car  );
         else if (it->fext == "boat")
-            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Boat || m_loader_type == LT_NetworkWithBoat);
+            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Boat);
         else if (it->fext == "airplane")
-            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Airplane || m_loader_type == LT_Network || m_loader_type == LT_NetworkWithBoat);
+            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Airplane );
         else if (it->fext == "trailer")
             add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Trailer || m_loader_type == LT_Extension);
         else if (it->fext == "train")

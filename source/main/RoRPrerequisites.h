@@ -74,22 +74,19 @@ enum VisibilityMasks {
 
 extern GlobalEnvironment *gEnv;
 
-enum LoaderType 
-{ 
-	LT_None, 
-	LT_Terrain, 
-	LT_Vehicle,
-	LT_Truck, 
-	LT_Car, 
-	LT_Boat,
-	LT_Airplane, 
-	LT_Trailer,
-	LT_Train, 
-	LT_Load, 
-	LT_Extension, 
-	LT_Network,
-	LT_NetworkWithBoat, 
-	LT_Heli, 
-	LT_Skin,
-	LT_AllBeam 
+enum LoaderType
+{
+    LT_None,
+    LT_Terrain,   // Invocable from GUI; No script alias, used in main menu
+    LT_Vehicle,   // Script "vehicle",   ext: truck car
+    LT_Truck,     // Script "truck",     ext: truck car
+    LT_Car,       // Script "car",       ext: car
+    LT_Boat,      // Script "boat",      ext: boat
+    LT_Airplane,  // Script "airplane",  ext: airplane
+    LT_Trailer,   // Script "trainer",   ext: trailer
+    LT_Train,     // Script "train",     ext: train
+    LT_Load,      // Script "load",      ext: load
+    LT_Extension, // Script "extension", ext: trailer load
+    LT_Skin,      // No script alias, invoked automatically
+    LT_AllBeam    // Invocable from GUI; Script "all",  ext: truck car boat airplane train load
 };
