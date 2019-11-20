@@ -119,6 +119,12 @@ public:
     std::vector<Ogre::String> sectionconfigs;
 };
 
+struct CacheCategory
+{
+    const int    ccg_id;
+    const char*  ccg_name;
+};
+
 /// A content database
 /// MOTIVATION:
 ///    RoR users usually have A LOT of content installed. Traversing it all on every game startup would be a pain.
@@ -130,6 +136,9 @@ public:
 class CacheSystem : public ZeroedMemoryAllocator
 {
 public:
+
+    static const size_t        NUM_CATEGORIES = 31;
+    static const CacheCategory CATEGORIES[NUM_CATEGORIES];
 
     CacheSystem();
 
@@ -152,7 +161,6 @@ public:
     bool CheckResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
     bool CheckResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
 
-    const std::map<int, Ogre::String> &GetCategories() const { return m_categories; }
     const std::vector<CacheEntry> &GetEntries()        const { return m_entries; }
 
     const std::vector<CacheEntry> GetUsableSkins(std::string const & guid) const;
@@ -198,54 +206,5 @@ private:
     std::vector<CacheEntry>              m_entries;
     std::vector<Ogre::String>            m_known_extensions; //!< the extensions we track in the cache system
     std::set<Ogre::String>               m_resource_paths;   //!< A temporary list of existing resource paths
-    std::map<int, Ogre::String>          m_categories = {
-            // these are the category numbers from the repository. do not modify them!
-
-            // vehicles
-            {108, "Other Land Vehicles"},
-
-            {146, "Street Cars"},
-            {147, "Light Racing Cars"},
-            {148, "Offroad Cars"},
-            {149, "Fantasy Cars"},
-            {150, "Bikes"},
-            {155, "Crawlers"},
-
-            {152, "Towercranes"},
-            {153, "Mobile Cranes"},
-            {154, "Other cranes"},
-
-            {107, "Buses"},
-            {151, "Tractors"},
-            {156, "Forklifts"},
-            {159, "Fantasy Trucks"},
-            {160, "Transport Trucks"},
-            {161, "Racing Trucks"},
-            {162, "Offroad Trucks"},
-
-            {110, "Boats"},
-
-            {113, "Helicopters"},
-            {114, "Aircraft"},
-
-            {117, "Trailers"},
-            {118, "Other Loads"},
-
-            // terrains
-            {129, "Addon Terrains"},
-
-            {859, "Container"},
-
-            {875, "Submarine"},
-
-            // note: these categories are NOT in the repository:
-            {5000, "Official Terrains"},
-            {5001, "Night Terrains"},
-
-            // do not use category numbers above 9000!
-            {9990, "Unsorted"},
-            {9991, "All"},
-            {9992, "Fresh"},
-            {9993, "Hidden"}
-        };
+    std::map<int, const CacheCategory*>  m_category_lookup;
 };

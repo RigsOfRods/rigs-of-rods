@@ -322,23 +322,6 @@ void CLASS::EventComboAcceptConfigComboBox(MyGUI::ComboBoxPtr _sender, size_t _i
     m_actor_spawn_rq.asr_config = *m_Config->getItemDataAt<Ogre::String>(_index);
 }
 
-template <typename T1, typename T2>
-struct sort_cats
-{
-    bool operator ()(std::pair<int, Ogre::String> const& a, std::pair<int, Ogre::String> const& b) const
-    {
-        if (a.first == CacheSystem::CID_All)
-            return true;
-        if (b.first == CacheSystem::CID_All)
-            return false;
-        if (a.first == CacheSystem::CID_Fresh)
-            return true;
-        if (b.first == CacheSystem::CID_Fresh)
-            return false;
-        return a.second < b.second;
-    }
-};
-
 template <typename T1>
 struct sort_entries
 {
@@ -424,9 +407,12 @@ void CLASS::UpdateGuiData()
     }
 
     int tally_categories = 0, current_category = 0;
-    std::map<int, Ogre::String> cats = RoR::App::GetCacheSystem()->GetCategories();
-    std::vector<std::pair<int, Ogre::String>> sorted_cats(cats.begin(), cats.end());
-    std::sort(sorted_cats.begin(), sorted_cats.end(), sort_cats<int, Ogre::String>());
+    std::vector<std::pair<int, Ogre::String>> sorted_cats; // Temporary, just for shorter diff
+    for (size_t i = 0; i < CacheSystem::NUM_CATEGORIES; ++i)
+    {
+        sorted_cats.push_back(std::make_pair(
+            CacheSystem::CATEGORIES[i].ccg_id, CacheSystem::CATEGORIES[i].ccg_name));
+    }
     for (const auto& cat : sorted_cats)
     {
         if (mCategoryUsage[cat.first] > 0)
