@@ -378,14 +378,6 @@ void CLASS::UpdateGuiData()
         if (!add)
             continue;
 
-        // remove invalid category ID's
-        if (it->categoryid >= CacheSystem::CID_Max)
-            it->categoryid = -1;
-
-        // category unsorted
-        if (it->categoryid == -1)
-            it->categoryid = CacheSystem::CID_Unsorted;
-
         mCategoryUsage[it->categoryid]++;
 
         // category all
