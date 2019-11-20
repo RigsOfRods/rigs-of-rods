@@ -292,7 +292,7 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
     // Category
     int category_id = j_entry["categoryid"].GetInt();
     auto category_itor = m_category_lookup.find(category_id);
-    if (category_itor == m_category_lookup.end())
+    if (category_itor == m_category_lookup.end() || category_id >= CID_Max)
     {
         category_itor = m_category_lookup.find(CID_Unsorted);
     }
