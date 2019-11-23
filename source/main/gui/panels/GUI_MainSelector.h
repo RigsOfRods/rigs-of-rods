@@ -26,8 +26,10 @@
 #pragma once
 
 #include "BeamData.h" // ActorSpawnRequest
+#include "CacheSystem.h" // CacheSearchMethod
 #include "ForwardDeclarations.h"
 #include "GUI_MainSelectorLayout.h"
+
 
 namespace RoR {
 namespace GUI {
@@ -71,20 +73,23 @@ private:
     void OnCategorySelected(int categoryID);
     void OnEntrySelected(int entryID);
     void OnSelectionDone();
-    size_t SearchCompare(Ogre::String searchString, CacheEntry* ce);
+    void UpdateSearchParams();
     void UpdateControls(CacheEntry* entry);
     void SetPreviewImage(Ogre::String texture);
     void FrameEntered(float dt);
+    bool IsFresh(CacheEntry* entry);
 
     CacheEntry* m_selected_entry;
     LoaderType m_loader_type;
+    CacheSearchMethod m_search_method;
+    std::string m_search_query;
     Ogre::String m_preview_image_texture;
     bool m_selection_done;
     std::vector<CacheEntry> m_entries;
     bool m_keys_bound;
     ActorSpawnRequest m_actor_spawn_rq; //!< Serves as context when spawning an actor
     std::time_t m_cache_file_freshness;
-    std::map<LoaderType, int> m_category_index; //!< Stores the last manually selected category index for each loader type
+    std::map<LoaderType, int> m_category_last_index; //!< Stores the last manually selected category index for each loader type
     std::map<LoaderType, int> m_entry_index;    //!< Stores the last manually selected entry index for each loader type
     bool m_searching;
 };

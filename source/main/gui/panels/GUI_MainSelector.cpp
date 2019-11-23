@@ -285,7 +285,7 @@ void CLASS::EventComboChangePositionTypeComboBox(MyGUI::ComboBoxPtr _sender, siz
     OnCategorySelected(categoryID);
     if (!m_searching)
     {
-        m_category_index[m_loader_type] = static_cast<int>(_index);
+        m_category_last_index[m_loader_type] = static_cast<int>(_index);
     }
 }
 
@@ -335,230 +335,134 @@ struct sort_entries
     }
 };
 
-struct sort_search_results
+bool CLASS::IsFresh(CacheEntry* entry)
 {
-    bool operator ()(std::pair<CacheEntry*, size_t> const& a, std::pair<CacheEntry*, size_t> const& b) const
-    {
-        return a.second < b.second;
-    }
-};
+    return entry->filetime >= m_cache_file_freshness - 86400;
+}
 
 void CLASS::UpdateGuiData()
 {
-    std::map<int, int> mCategoryUsage;
     m_Type->removeAllItems();
     m_Model->removeAllItems();
     m_entries.clear();
 
-    std::vector<std::time_t> timestamps;
-    std::vector<CacheEntry> entries = RoR::App::GetCacheSystem()->GetEntries();
-    std::sort(entries.begin(), entries.end(), sort_entries<CacheEntry>());
-    for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++)
+    // Find all relevant entries
+    CacheQuery query;
+    query.cqy_filter_type = m_loader_type;
+    App::GetCacheSystem()->Query(query);
+    m_cache_file_freshness = query.cqy_res_last_update;
+    for (CacheQueryResult const& res: query.cqy_results)
     {
-        bool add = false;
-        if (it->fext == "terrn2")
-            add = (m_loader_type == LT_Terrain);
-        if (it->fext == "skin")
-            add = (m_loader_type == LT_Skin && it->guid == m_actor_spawn_rq.asr_cache_entry->guid);
-        else if (it->fext == "truck")
-            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Vehicle || m_loader_type == LT_Truck  );
-        else if (it->fext == "car")
-            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Vehicle || m_loader_type == LT_Truck || m_loader_type == LT_Car  );
-        else if (it->fext == "boat")
-            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Boat);
-        else if (it->fext == "airplane")
-            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Airplane );
-        else if (it->fext == "trailer")
-            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Trailer || m_loader_type == LT_Extension);
-        else if (it->fext == "train")
-            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Train);
-        else if (it->fext == "load")
-            add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Load || m_loader_type == LT_Extension);
+        m_entries.push_back(*res.cqr_entry);
 
-        if (!add)
-            continue;
-
-        mCategoryUsage[it->categoryid]++;
-
-        // category all
-        mCategoryUsage[CacheSystem::CID_All]++;
-
-        timestamps.push_back(it->addtimestamp);
-
-        m_entries.push_back(*it);
-    }
-    // Find fresh cache entries
-    if (timestamps.size() > 0)
-    {
-        m_cache_file_freshness = *std::max_element(timestamps.begin(), timestamps.end());
-        for (std::vector<CacheEntry>::iterator it = m_entries.begin(); it != m_entries.end(); it++)
+        if (this->IsFresh(res.cqr_entry))
         {
-            if (it->addtimestamp >= m_cache_file_freshness || it->filetime >= m_cache_file_freshness - 86400)
-                mCategoryUsage[CacheSystem::CID_Fresh]++;
+            query.cqy_res_category_usage[CacheCategoryId::CID_Fresh]++;
         }
     }
 
-    int tally_categories = 0, current_category = 0;
-    std::vector<std::pair<int, Ogre::String>> sorted_cats; // Temporary, just for shorter diff
+    // Count used categories
+    size_t tally_categories = 0;
     for (size_t i = 0; i < CacheSystem::NUM_CATEGORIES; ++i)
     {
-        sorted_cats.push_back(std::make_pair(
-            CacheSystem::CATEGORIES[i].ccg_id, CacheSystem::CATEGORIES[i].ccg_name));
-    }
-    for (const auto& cat : sorted_cats)
-    {
-        if (mCategoryUsage[cat.first] > 0)
-            tally_categories++;
-    }
-    for (const auto& cat : sorted_cats)
-    {
-        int num_elements = mCategoryUsage[cat.first];
-        if (num_elements > 0)
+        if (query.cqy_res_category_usage[CacheSystem::CATEGORIES[i].ccg_id] > 0)
         {
-            Ogre::UTFString title = _L("unknown");
-            if (!cat.second.empty())
-            {
-                title = _L(cat.second.c_str());
-            }
-            Ogre::UTFString txt = U("[") + TOUTFSTRING(++current_category) + U("/") + TOUTFSTRING(tally_categories) + U("] (") + TOUTFSTRING(num_elements) + U(") ") + title;
-            m_Type->addItem(convertToMyGUIString(txt), cat.first);
+            tally_categories++;
         }
     }
+
+    // Display used categories
+    size_t display_number = 1;
+    for (size_t i = 0; i < CacheSystem::NUM_CATEGORIES; ++i)
+    {
+        size_t num_entries = query.cqy_res_category_usage[CacheSystem::CATEGORIES[i].ccg_id];
+        if (query.cqy_res_category_usage[CacheSystem::CATEGORIES[i].ccg_id] > 0)
+        {
+            Str<300> title;
+            title << "[" << display_number << "/" << tally_categories
+                  << "] (" << num_entries << ") " << CacheSystem::CATEGORIES[i].ccg_name;
+            m_Type->addItem(title.ToCStr(), CacheSystem::CATEGORIES[i].ccg_id);
+            display_number++;
+        }
+    }
+
     if (m_Type->getItemCount() > 0)
     {
-        int idx = m_category_index[m_loader_type] < m_Type->getItemCount() ? m_category_index[m_loader_type] : 0;
+        int idx = m_category_last_index[m_loader_type] < m_Type->getItemCount() ? m_category_last_index[m_loader_type] : 0;
         m_Type->setIndexSelected(idx);
         m_Type->beginToItemSelected();
+
+        // FIXME: currently this performs duplicate search. Will be remade soon (using DearIMGUI) 
         OnCategorySelected(*m_Type->getItemDataAt<int>(idx));
     }
 }
 
-size_t CLASS::SearchCompare(Ogre::String searchString, CacheEntry* ce)
+void CLASS::UpdateSearchParams()
 {
-    if (searchString.find(":") == Ogre::String::npos)
+    std::string searchString = m_SearchLine->getCaption();
+
+    if (searchString.find(":") == std::string::npos)
     {
-        // normal search
-
-        // the name
-        Ogre::String dname_lower = ce->dname;
-        Ogre::StringUtil::toLowerCase(dname_lower);
-        if (dname_lower.find(searchString) != Ogre::String::npos)
-            return dname_lower.find(searchString);
-
-        // the filename
-        Ogre::String fname_lower = ce->fname;
-        Ogre::StringUtil::toLowerCase(fname_lower);
-        if (fname_lower.find(searchString) != Ogre::String::npos)
-            return 100 + fname_lower.find(searchString);
-
-        // the description
-        Ogre::String desc = ce->description;
-        Ogre::StringUtil::toLowerCase(desc);
-        if (desc.find(searchString) != Ogre::String::npos)
-            return 200 + desc.find(searchString);
-
-        // the authors
-        if (!ce->authors.empty())
-        {
-            std::vector<AuthorInfo>::const_iterator it;
-            for (it = ce->authors.begin(); it != ce->authors.end(); it++)
-            {
-                // author name
-                Ogre::String aname = it->name;
-                Ogre::StringUtil::toLowerCase(aname);
-                if (aname.find(searchString) != Ogre::String::npos)
-                    return 300 + aname.find(searchString);
-
-                // author email
-                Ogre::String aemail = it->email;
-                Ogre::StringUtil::toLowerCase(aemail);
-                if (aemail.find(searchString) != Ogre::String::npos)
-                    return 400 + aemail.find(searchString);
-            }
-        }
-        return Ogre::String::npos;
+        m_search_method = CacheSearchMethod::FULLTEXT;
+        m_search_query = searchString;
     }
     else
     {
         Ogre::StringVector v = Ogre::StringUtil::split(searchString, ":");
         if (v.size() < 2)
-            return Ogre::String::npos; //invalid syntax
-
-        if (v[0] == "guid")
         {
-            Ogre::String guid = ce->guid;
-            Ogre::StringUtil::toLowerCase(guid);
-            return guid.find(v[1]);
+            m_search_method = CacheSearchMethod::NONE;
+            m_search_query = "";
+        }
+        else if (v[0] == "guid")
+        {
+            m_search_method = CacheSearchMethod::GUID;
+            m_search_query = v[1];
         }
         else if (v[0] == "author")
         {
-            // the authors
-            if (!ce->authors.empty())
-            {
-                std::vector<AuthorInfo>::const_iterator it;
-                for (it = ce->authors.begin(); it != ce->authors.end(); it++)
-                {
-                    // author name
-                    Ogre::String aname = it->name;
-                    Ogre::StringUtil::toLowerCase(aname);
-                    if (aname.find(v[1]) != Ogre::String::npos)
-                        return aname.find(v[1]);
-
-                    // author email
-                    Ogre::String aemail = it->email;
-                    Ogre::StringUtil::toLowerCase(aemail);
-                    if (aemail.find(v[1]) != Ogre::String::npos)
-                        return aemail.find(v[1]);
-                }
-            }
-            return Ogre::String::npos;
+            m_search_method = CacheSearchMethod::AUTHORS;
+            m_search_query = v[1];
         }
         else if (v[0] == "wheels")
         {
-            Ogre::String wheelsStr = TOUTFSTRING(ce->wheelcount) + "x" + TOUTFSTRING(ce->propwheelcount);
-            return wheelsStr.find(v[1]);
+            m_search_method = CacheSearchMethod::WHEELS;
+            m_search_query = v[1];
         }
         else if (v[0] == "file")
         {
-            Ogre::String fn = ce->fname;
-            Ogre::StringUtil::toLowerCase(fn);
-            return fn.find(v[1]);
+            m_search_method = CacheSearchMethod::FILENAME;
+            m_search_query = v[1];
+        }
+        else
+        {
+            m_search_method = CacheSearchMethod::NONE;
+            m_search_query = "";
         }
     }
-    return Ogre::String::npos;
 }
 
 void CLASS::OnCategorySelected(int categoryID)
 {
     m_Model->removeAllItems();
+    m_entries.clear();
 
-    std::vector<std::pair<CacheEntry*, size_t>> entries;
-    entries.reserve(m_entries.size());
-
-    if (categoryID == CacheSystem::CID_SearchResults)
+    CacheQuery query;
+    query.cqy_filter_type = m_loader_type;
+    query.cqy_filter_category_id = categoryID;
+    query.cqy_search_method = m_search_method;
+    query.cqy_search_string = m_search_query;
+    if (m_loader_type == LT_Skin && m_selected_entry)
     {
-        Ogre::String search_cmd = m_SearchLine->getCaption();
-        Ogre::StringUtil::toLowerCase(search_cmd);
-        for (auto& entry : m_entries)
-        {
-            size_t score = SearchCompare(search_cmd, &entry);
-            if (score != Ogre::String::npos)
-            {
-                entries.push_back(std::make_pair(&entry, score));
-            }
-        }
-        std::stable_sort(entries.begin(), entries.end(), sort_search_results());
+        query.cqy_filter_guid = m_selected_entry->guid;
     }
-    else
+    App::GetCacheSystem()->Query(query);
+
+    for (CacheQueryResult const& res: query.cqy_results)
     {
-        for (auto& entry : m_entries)
+        if (categoryID != CacheCategoryId::CID_Fresh || this->IsFresh(res.cqr_entry))
         {
-            if (entry.categoryid == categoryID || categoryID == CacheSystem::CID_All
-                || (categoryID == CacheSystem::CID_Fresh &&
-                    (entry.addtimestamp >= m_cache_file_freshness || entry.filetime >= m_cache_file_freshness - 86400)))
-            {
-                entries.push_back(std::make_pair(&entry, 0));
-            }
+            m_entries.push_back(*res.cqr_entry);
         }
     }
 
@@ -567,19 +471,11 @@ void CLASS::OnCategorySelected(int categoryID)
         m_Model->addItem(_L("Default Skin"), 0); // Virtual entry
     }
 
-    int count = 1;
-
-    for (const auto& entry : entries)
+    size_t display_num = 1;
+    for (const auto& entry : m_entries)
     {
-        try
-        {
-            m_Model->addItem(Ogre::StringUtil::format("%d. %s", count, entry.first->dname.c_str()), entry.first->number);
-            count++;
-        }
-        catch (...)
-        {
-            m_Model->addItem("ENCODING ERROR", entry.first->number);
-        }
+        m_Model->addItem(Ogre::StringUtil::format("%u. %s", display_num, entry.dname.c_str()), entry.number);
+        display_num++;
     }
 
     if (m_Model->getItemCount() > 0)
@@ -590,7 +486,7 @@ void CLASS::OnCategorySelected(int categoryID)
         OnEntrySelected(*m_Model->getItemDataAt<int>(idx));
     }
 
-    m_searching = categoryID == CacheSystem::CID_SearchResults;
+    m_searching = categoryID == CacheCategoryId::CID_SearchResults;
 }
 
 void CLASS::OnEntrySelected(int entryID)
@@ -958,7 +854,9 @@ void CLASS::EventSearchTextChange(MyGUI::EditBox* _sender)
 {
     if (!MAIN_WIDGET->getVisible())
         return;
-    OnCategorySelected(CacheSystem::CID_SearchResults);
+
+    this->UpdateSearchParams();
+    OnCategorySelected(CacheCategoryId::CID_SearchResults);
     if (m_SearchLine->getTextLength() > 0)
     {
         m_Type->setCaption(_L("Search Results"));

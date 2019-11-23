@@ -1227,5 +1227,118 @@ std::shared_ptr<SkinDef> CacheSystem::FetchSkinDef(CacheEntry* cache_entry)
     }
 }
 
+size_t CacheSystem::Query(CacheQuery& query)
+{
+    Ogre::StringUtil::toLowerCase(query.cqy_search_string);
+    for (CacheEntry& entry: m_entries)
+    {
+        // Filter by GUID
+        if (!query.cqy_filter_guid.empty() && entry.guid != query.cqy_filter_guid)
+        {
+            continue;
+        }
 
+        // Filter by category
+        if (query.cqy_filter_category_id < CacheCategoryId::CID_Max &&
+            query.cqy_filter_category_id != entry.categoryid)
+        {
+            continue;
+        }
+
+        // Filter by entry type
+        bool add = false;
+        if (entry.fext == "terrn2")
+            add = (query.cqy_filter_type == LT_Terrain);
+        if (entry.fext == "skin")
+            add = (query.cqy_filter_type == LT_Skin);
+        else if (entry.fext == "truck")
+            add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck);
+        else if (entry.fext == "car")
+            add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck || query.cqy_filter_type == LT_Car);
+        else if (entry.fext == "boat")
+            add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Boat);
+        else if (entry.fext == "airplane")
+            add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Airplane);
+        else if (entry.fext == "trailer")
+            add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Trailer || query.cqy_filter_type == LT_Extension);
+        else if (entry.fext == "train")
+            add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Train);
+        else if (entry.fext == "load")
+            add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Load || query.cqy_filter_type == LT_Extension);
+
+        if (!add)
+        {
+            continue;
+        }
+
+        // Search
+        size_t score = 0;
+        bool match = false;
+        Str<100> wheels_str;
+        switch (query.cqy_search_method)
+        {
+        case CacheSearchMethod::FULLTEXT:
+            if (match = this->Match(score, entry.dname,       query.cqy_search_string, 0))   { break; }
+            if (match = this->Match(score, entry.fname,       query.cqy_search_string, 100)) { break; }
+            if (match = this->Match(score, entry.description, query.cqy_search_string, 200)) { break; }
+            for (AuthorInfo const& author: entry.authors)
+            {
+                if (match = this->Match(score, author.name,  query.cqy_search_string, 300)) { break; }
+                if (match = this->Match(score, author.email, query.cqy_search_string, 400)) { break; }
+            }
+            break;
+
+        case CacheSearchMethod::GUID:
+            match = this->Match(score, entry.guid, query.cqy_search_string, 0);
+            break;
+
+        case CacheSearchMethod::AUTHORS:
+            for (AuthorInfo const& author: entry.authors)
+            {
+                if (match = this->Match(score, author.name,  query.cqy_search_string, 0)) { break; }
+                if (match = this->Match(score, author.email, query.cqy_search_string, 0)) { break; }
+            }
+            break;
+
+        case CacheSearchMethod::WHEELS:
+            wheels_str << entry.wheelcount << "x" << entry.propwheelcount;
+            match = this->Match(score, wheels_str.ToCStr(), query.cqy_search_string, 0);
+            break;
+
+        case CacheSearchMethod::FILENAME:
+            match = this->Match(score, entry.fname, query.cqy_search_string, 100);
+            break;
+
+        default: // CacheSearchMethod::NONE
+            match = true;
+            break;
+        };
+
+        if (match)
+        {
+            query.cqy_res_category_usage[entry.categoryid]++;
+            query.cqy_res_category_usage[CacheCategoryId::CID_All]++;
+            query.cqy_results.emplace_back(&entry, score);
+            query.cqy_res_last_update = std::max(query.cqy_res_last_update, entry.addtimestamp);
+        }
+    }
+
+    std::sort(query.cqy_results.begin(), query.cqy_results.end());
+    return query.cqy_results.size();
+}
+
+bool CacheSystem::Match(size_t& out_score, std::string data, std::string const& query, size_t score)
+{
+    Ogre::StringUtil::toLowerCase(data);
+    size_t pos = data.find(query);
+    if (pos != std::string::npos)
+    {
+        out_score = score + pos;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 
