@@ -512,6 +512,11 @@ void GUIManager::DrawCommonGui()
         default:
             break;
     }
+
+    if (m_impl->panel_MainSelector.IsVisible())
+    {
+        m_impl->panel_MainSelector.Draw();
+    }
 }
 
 void GUIManager::DrawMainMenuGui()

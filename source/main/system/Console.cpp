@@ -124,7 +124,6 @@ void Console::putNetMessage(uint32_t user_id, MessageType type, const char* text
 void Console::DoCommand(std::string msg) // All commands are processed here
 {
     const bool is_appstate_sim = (App::app_state.GetActive() == AppState::SIMULATION);
-    const bool is_sim_select = (App::sim_state.GetActive() == SimState::SELECTING);
 
     if (msg[0] == '/' || msg[0] == '\\')
     {
@@ -212,7 +211,7 @@ void Console::DoCommand(std::string msg) // All commands are processed here
         }
         return;
     }
-    else if (args[0] == "pos" && (is_appstate_sim && !is_sim_select))
+    else if (args[0] == "pos" && is_appstate_sim)
     {
         Actor* b = App::GetSimController()->GetPlayerActor();
         if (!b && gEnv->player)
@@ -228,7 +227,7 @@ void Console::DoCommand(std::string msg) // All commands are processed here
 
         return;
     }
-    else if (args[0] == "goto" && (is_appstate_sim && !is_sim_select))
+    else if (args[0] == "goto" && is_appstate_sim)
     {
         if (args.size() != 4)
         {
@@ -253,7 +252,7 @@ void Console::DoCommand(std::string msg) // All commands are processed here
 
         return;
     }
-    else if (args[0] == "terrainheight" && (is_appstate_sim && !is_sim_select))
+    else if (args[0] == "terrainheight" && is_appstate_sim)
     {
         if (!App::GetSimTerrain())
             return;
@@ -288,7 +287,7 @@ void Console::DoCommand(std::string msg) // All commands are processed here
         return;
     }
 #ifdef USE_ANGELSCRIPT
-    else if (args[0] == "as" && (is_appstate_sim && !is_sim_select))
+    else if (args[0] == "as" && is_appstate_sim)
     {
         // we want to notify any running scripts that we might change something (prevent cheating)
         ScriptEngine::getSingleton().triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS);
@@ -315,7 +314,7 @@ void Console::DoCommand(std::string msg) // All commands are processed here
         App::diag_log_console_echo.SetActive(now_logging);
         return;
     }
-    else if (args[0] == "spawnobject" && (is_appstate_sim && !is_sim_select))
+    else if (args[0] == "spawnobject" && is_appstate_sim)
     {
         Vector3 pos = Vector3::ZERO;
 

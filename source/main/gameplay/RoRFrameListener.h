@@ -80,6 +80,8 @@ public:
     float  getTime               () { return m_time; }
     void   UpdateDirectionArrow  (char* text, Ogre::Vector3 position);
     void   ShowLoaderGUI         (int type, const Ogre::String& instance, const Ogre::String& box);
+    void   OnLoaderGuiCancel     ();
+    void   OnLoaderGuiApply      (LoaderType type, CacheEntry* entry, std::string sectionconfig);
     void   StartRaceTimer        (int id); // Do not call manually!
     void   StopRaceTimer         (); // Do not call manually!
     void   SetRaceTimeDiff       (float diff) { m_race_time_diff = diff; }; // Do not call manually!
@@ -160,6 +162,7 @@ private:
     bool                     m_hide_gui;
     bool                     m_pressure_pressed;
 
+    RoR::ActorSpawnRequest   m_pending_spawn_rq;
     CacheEntry*              m_last_cache_selection; //!< Vehicle/load
     CacheEntry*              m_last_skin_selection;
     Ogre::String             m_last_section_config;
