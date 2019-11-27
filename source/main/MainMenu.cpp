@@ -80,15 +80,6 @@ void MainMenu::EnterMainMenuLoop()
 
         this->MainMenuLoopUpdate(dt_sec);
 
-        if (RoR::App::GetGuiManager()->GetMainSelector()->IsFinishedSelecting())
-        {
-            if (RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry() != nullptr)
-            {
-                App::app_state.SetPending(AppState::SIMULATION);
-                App::sim_terrain_name.SetPending("");
-            }
-        }
-
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
         OgreBites::WindowEventUtilities::messagePump();
 #endif
@@ -166,7 +157,6 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
                 // Connected -> go directly to map selector
                 if (App::diag_preset_terrain.IsActiveEmpty())
                 {
-                    App::GetGuiManager()->GetMainSelector()->Reset();
                     App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
                 }
                 else
@@ -241,7 +231,7 @@ void MainMenu::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
         }
         else if (App::GetGuiManager()->IsVisible_MainSelector())
         {
-            App::GetGuiManager()->GetMainSelector()->Cancel();
+            App::GetGuiManager()->GetMainSelector()->Close();
             App::GetGuiManager()->SetVisible_GameMainMenu(true);
         }
         else if (App::GetGuiManager()->IsVisible_GameSettings())
@@ -334,8 +324,7 @@ void MainMenu::LeaveMultiplayerServer()
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
         RoR::Networking::Disconnect();
-        App::GetGuiManager()->GetMainSelector()->Reset(); // We may get disconnected while still in map selection
-        App::GetGuiManager()->GetMainSelector()->Hide(/*smooth=*/false);
+        App::GetGuiManager()->GetMainSelector()->Close(); // We may get disconnected while still in map selection
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
 #endif //SOCKETW

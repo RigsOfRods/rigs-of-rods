@@ -320,7 +320,6 @@ const char* EnumToStr(SimState v)
     case SimState::OFF        : return "OFF";
     case SimState::RUNNING    : return "RUNNING";
     case SimState::PAUSED     : return "PAUSED";
-    case SimState::SELECTING  : return "SELECTING";
     case SimState::EDITOR_MODE: return "EDITOR_MODE";
     default                   : return "~invalid~";
     }

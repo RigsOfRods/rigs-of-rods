@@ -63,7 +63,6 @@ enum class SimState
     OFF,
     RUNNING,
     PAUSED,
-    SELECTING,  ///< The selector GUI window is displayed.
     EDITOR_MODE ///< Hacky, but whatever... added by Ulteq, 2016
 };
 const char* EnumToStr(SimState v);

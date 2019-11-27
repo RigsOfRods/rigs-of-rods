@@ -166,7 +166,6 @@ void RoR::GUI::TopMenubar::Update()
 
             if (ImGui::Button("Get new vehicle"))
             {
-                App::sim_state.SetActive(SimState::SELECTING); // TODO: use 'pending' mechanism
                 App::GetGuiManager()->GetMainSelector()->Show(LT_AllBeam);
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }

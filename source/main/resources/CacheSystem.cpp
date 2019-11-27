@@ -1155,22 +1155,6 @@ void CacheSystem::LoadResource(CacheEntry& t)
     }
 }
 
-const std::vector<CacheEntry> CacheSystem::GetUsableSkins(std::string const & guid) const
-{
-    if (guid.empty())
-        return std::vector<CacheEntry>();
-
-    std::vector<CacheEntry> result;
-    for (CacheEntry const& entry: m_entries)
-    {
-        if (entry.guid == guid && entry.fext == "skin")
-        {
-            result.push_back(entry);
-        }
-    }
-    return result;
-}
-
 CacheEntry* CacheSystem::FetchSkinByName(std::string const & skin_name)
 {
     for (CacheEntry & entry: m_entries)
@@ -1238,13 +1222,6 @@ size_t CacheSystem::Query(CacheQuery& query)
             continue;
         }
 
-        // Filter by category
-        if (query.cqy_filter_category_id < CacheCategoryId::CID_Max &&
-            query.cqy_filter_category_id != entry.categoryid)
-        {
-            continue;
-        }
-
         // Filter by entry type
         bool add = false;
         if (entry.fext == "terrn2")
@@ -1267,6 +1244,16 @@ size_t CacheSystem::Query(CacheQuery& query)
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Load || query.cqy_filter_type == LT_Extension);
 
         if (!add)
+        {
+            continue;
+        }
+
+        query.cqy_res_category_usage[entry.categoryid]++;
+        query.cqy_res_category_usage[CacheCategoryId::CID_All]++;
+
+        // Filter by category
+        if (query.cqy_filter_category_id < CacheCategoryId::CID_Max &&
+            query.cqy_filter_category_id != entry.categoryid)
         {
             continue;
         }
@@ -1316,8 +1303,6 @@ size_t CacheSystem::Query(CacheQuery& query)
 
         if (match)
         {
-            query.cqy_res_category_usage[entry.categoryid]++;
-            query.cqy_res_category_usage[CacheCategoryId::CID_All]++;
             query.cqy_results.emplace_back(&entry, score);
             query.cqy_res_last_update = std::max(query.cqy_res_last_update, entry.addtimestamp);
         }
@@ -1340,5 +1325,19 @@ bool CacheSystem::Match(size_t& out_score, std::string data, std::string const& 
     {
         return false;
     }
+}
+
+bool CacheQueryResult::operator<(CacheQueryResult const& other)
+{
+    if (cqr_score == other.cqr_score)
+    {
+        Ogre::String first = this->cqr_entry->dname;
+        Ogre::String second = other.cqr_entry->dname;
+        Ogre::StringUtil::toLowerCase(first);
+        Ogre::StringUtil::toLowerCase(second);
+        return first < second;
+    }
+
+    return cqr_score < other.cqr_score;
 }
 

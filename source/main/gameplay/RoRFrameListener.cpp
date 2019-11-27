@@ -84,7 +84,6 @@ using namespace RoR;
 
 #define simRUNNING(_S_) (_S_ == SimState::RUNNING    )
 #define  simPAUSED(_S_) (_S_ == SimState::PAUSED     )
-#define  simSELECT(_S_) (_S_ == SimState::SELECTING  )
 #define  simEDITOR(_S_) (_S_ == SimState::EDITOR_MODE)
 
 SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf) :
@@ -288,7 +287,7 @@ void SimController::UpdateInputEvents(float dt)
     {
         if (gui_man->IsVisible_MainSelector())
         {
-            gui_man->GetMainSelector()->Cancel();
+            gui_man->GetMainSelector()->Close();
         }
         else if (simRUNNING(s))
         {
@@ -413,11 +412,7 @@ void SimController::UpdateInputEvents(float dt)
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_GET_NEW_VEHICLE))
     {
-        if ((simRUNNING(s) || simPAUSED(s) || simEDITOR(s)) && gEnv->player != nullptr)
-        {
-            App::sim_state.SetActive(SimState::SELECTING); // TODO: use pending mechanism
-            App::GetGuiManager()->GetMainSelector()->Show(LT_AllBeam);
-        }
+        App::GetGuiManager()->GetMainSelector()->Show(LT_AllBeam);
     }
 
     // Simulation pace adjustment (slowmotion)
@@ -1755,7 +1750,7 @@ void SimController::UpdateSimulation(float dt)
 #endif // USE_MUMBLE
     }
 
-    if (simRUNNING(s) || simEDITOR(s) || (simSELECT(s) && App::mp_state.GetActive() == MpState::CONNECTED))
+    if (simRUNNING(s) || simEDITOR(s))
     {
         m_camera_manager.Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
 #ifdef USE_OPENAL
@@ -1823,14 +1818,70 @@ void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const 
             }
         }
     }
-    
-    App::sim_state.SetActive(SimState::SELECTING); // TODO: use 'pending' mechanism
 
-    ActorSpawnRequest rq;
-    rq.asr_position = gEnv->collisions->getPosition(instance, box);
-    rq.asr_rotation = gEnv->collisions->getDirection(instance, box);
-    rq.asr_spawnbox = gEnv->collisions->getBox(instance, box);
-    App::GetGuiManager()->GetMainSelector()->Show(LoaderType(type), rq);
+    m_pending_spawn_rq.asr_position = gEnv->collisions->getPosition(instance, box);
+    m_pending_spawn_rq.asr_rotation = gEnv->collisions->getDirection(instance, box);
+    m_pending_spawn_rq.asr_spawnbox = gEnv->collisions->getBox(instance, box);
+    App::GetGuiManager()->GetMainSelector()->Show(LoaderType(type));
+}
+
+void SimController::OnLoaderGuiCancel()
+{
+    m_pending_spawn_rq = ActorSpawnRequest(); // Reset
+}
+
+void SimController::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::string sectionconfig)
+{
+    bool spawn_now = false;
+    switch (type)
+    {
+    case LT_Skin:
+        m_pending_spawn_rq.asr_skin_entry = entry;
+        spawn_now = true;
+        break;
+
+    case LT_Vehicle:
+    case LT_Truck:
+    case LT_Car:
+    case LT_Boat:
+    case LT_Airplane:
+    case LT_Trailer:
+    case LT_Train:
+    case LT_Load:
+    case LT_Extension:
+    case LT_AllBeam:
+        m_pending_spawn_rq.asr_cache_entry = entry;
+        m_pending_spawn_rq.asr_config = sectionconfig;
+        m_pending_spawn_rq.asr_origin = ActorSpawnRequest::Origin::USER;
+        // Look for extra skins
+        if (!entry->guid.empty())
+        {
+            CacheQuery skin_query;
+            skin_query.cqy_filter_guid = entry->guid;
+            skin_query.cqy_filter_type = LT_Skin;
+            if (App::GetCacheSystem()->Query(skin_query) > 0)
+            {
+                App::GetGuiManager()->GetMainSelector()->Show(LT_Skin, entry->guid);
+            }
+            else
+            {
+                spawn_now = true;
+            }
+        }
+        else
+        {
+            spawn_now = true;
+        }
+        break;
+
+    default:;
+    }
+
+    if (spawn_now)
+    {
+        this->QueueActorSpawn(m_pending_spawn_rq);
+        m_pending_spawn_rq = ActorSpawnRequest(); // Reset
+    }
 }
 
 void SimController::UpdateDirectionArrow(char* text, Vector3 position)
@@ -1976,8 +2027,6 @@ bool SimController::LoadTerrain()
 
 void SimController::CleanupAfterSimulation()
 {
-    App::GetGuiManager()->GetMainSelector()->Reset();
-
     App::DestroyOverlayWrapper();
 
     //Unload all vehicules
@@ -2077,15 +2126,8 @@ bool SimController::SetupGameplayLoop()
             App::sim_savegame.SetActive(filename.c_str());
         }
         m_actor_manager.LoadScene(App::sim_savegame.GetActive());
-    } else if (App::sim_terrain_name.IsPendingEmpty())
-    {
-        CacheEntry* selected_map = RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
-        if (selected_map != nullptr)
-        {
-            App::sim_terrain_name.SetPending(selected_map->fname.c_str());
-        }
-
     }
+
     if (App::sim_terrain_name.IsPendingEmpty())
     {
         LOG("No map selected. Returning to menu.");

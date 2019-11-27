@@ -391,6 +391,7 @@ int main(int argc, char *argv[])
                     }
                 } // Enclosing scope for SimController
                 gEnv->sceneManager->clearScene(); // Wipe the scene after SimController was destroyed
+                App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&main_obj); // HACK until OGRE 1.12 migration; Needed for GUI display, must be done ASAP ~ only_a_ptr, 10/2019
             }
             prev_app_state = App::app_state.GetActive();
 

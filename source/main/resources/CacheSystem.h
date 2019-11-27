@@ -141,8 +141,7 @@ struct CacheQueryResult
         cqr_entry(entry), cqr_score(score)
     {}
 
-    bool operator<(CacheQueryResult const& other) { return cqr_score < other.cqr_score; }
-    bool operator>(CacheQueryResult const& other) { return cqr_score > other.cqr_score; }
+    bool operator<(CacheQueryResult const& other);
 
     CacheEntry* cqr_entry;
     size_t      cqr_score;
@@ -167,7 +166,7 @@ struct CacheQuery
     std::string                    cqy_search_string;
     
     std::vector<CacheQueryResult>  cqy_results;
-    std::map<int, size_t>          cqy_res_category_usage;
+    std::map<int, size_t>          cqy_res_category_usage; //!< Total usage (ignores search params + category filter)
     std::time_t                    cqy_res_last_update = std::time_t();
 };
 
@@ -210,7 +209,6 @@ public:
 
     const std::vector<CacheEntry> &GetEntries()        const { return m_entries; }
 
-    const std::vector<CacheEntry> GetUsableSkins(std::string const & guid) const;
     std::shared_ptr<RoR::SkinDef> FetchSkinDef(CacheEntry* cache_entry); //!< Loads+parses the .skin file once
 
     CacheEntry *GetEntry(int modid);
