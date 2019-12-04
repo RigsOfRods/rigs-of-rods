@@ -1271,6 +1271,12 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             continue;
         }
 
+        if (!strncmp("nocast", ptline, 6))
+        {
+        	mo->getEntity()->setCastShadows(false);
+        	continue;
+        }
+
         LOG("ODEF: unknown command in "+odefname+" : "+String(ptline));
     }
 }
