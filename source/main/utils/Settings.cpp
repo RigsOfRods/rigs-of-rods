@@ -584,6 +584,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::gfx_flexbody_cache,        k, v)) { return true; }
     if (CheckBool (App::gfx_reduce_shadows,        k, v)) { return true; }
     if (CheckBool (App::gfx_enable_rtshaders,      k, v)) { return true; }
+    if (CheckBool (App::gfx_classic_shaders,      k, v)) { return true; }
     // Audio
     if (CheckFloat(App::audio_master_volume,       k, v)) { return true; }
     if (CheckBool (App::audio_enable_creak,        k, v)) { return true; }
@@ -870,6 +871,7 @@ void Settings::SaveSettings()
     WriteYN  (f, App::gfx_flexbody_cache  );
     WriteYN  (f, App::gfx_reduce_shadows  );
     WriteYN  (f, App::gfx_enable_rtshaders);
+    WriteYN  (f, App::gfx_classic_shaders);
 
     f << std::endl << "; Audio" << std::endl;
     WritePod (f, App::audio_master_volume);

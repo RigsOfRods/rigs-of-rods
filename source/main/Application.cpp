@@ -216,6 +216,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<bool>          gfx_flexbody_cache      ("gfx_flexbody_cache",      "Flexbody_UseCache",         false);
  GVarPod_A<bool>          gfx_reduce_shadows      ("gfx_reduce_shadows",      "Shadow optimizations",      true);
  GVarPod_A<bool>          gfx_enable_rtshaders    ("gfx_enable_rtshaders",    "Use RTShader System",       false);
+ GVarPod_A<bool>          gfx_classic_shaders     ("gfx_classic_shaders",      "Classic material shaders",       false);
 
 // Instance management
 void SetMainMenu       (MainMenu* obj)                { g_main_menu = obj; }

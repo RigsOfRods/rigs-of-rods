@@ -2254,14 +2254,31 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             if (def.HasSpecularMap())
             {
                 /* FLEXMESH, damage, specular */
+                if (App::gfx_classic_shaders.GetActive())
+                {
+                material = this->InstantiateManagedMaterial(mat_name_base + "/speculardamage_nicemetal", custom_name);
+                }
+                else
+                {
                 material = this->InstantiateManagedMaterial(mat_name_base + "/speculardamage", custom_name);
+                }
                 if (material.isNull())
                 {
                     return;
                 }
+                if(App::gfx_classic_shaders.GetActive())
+                {
+                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map")->setTextureName(def.damaged_diffuse_map);
+                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+                material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+                }
+                else
+                {
                 material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
                 material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map")->setTextureName(def.damaged_diffuse_map);
                 material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+                }
             }
             else
             {
@@ -2280,13 +2297,29 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             if (def.HasSpecularMap())
             {
                 /* FLEXMESH, no_damage, specular */
+                if (App::gfx_classic_shaders.GetActive())
+                {
+                 material = this->InstantiateManagedMaterial(mat_name_base + "/specularonly_nicemetal", custom_name);
+                }
+                else
+                {
                 material = this->InstantiateManagedMaterial(mat_name_base + "/specularonly", custom_name);
+                 }
                 if (material.isNull())
                 {
                     return;
                 }
-                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
-                material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+                if (App::gfx_classic_shaders.GetActive())
+                {
+                    material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+                    material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+                    material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+                }
+                else
+                {
+                    material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+                    material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+                }
             }
             else
             {
@@ -2310,13 +2343,29 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         if (def.HasSpecularMap())
         {
             /* MESH, specular */
-            material = this->InstantiateManagedMaterial(mat_name_base + "/specular", custom_name);
+            if (App::gfx_classic_shaders.GetActive())
+            {
+                material = this->InstantiateManagedMaterial(mat_name_base + "/specular_nicemetal", custom_name);
+            }
+            else
+            {
+                material = this->InstantiateManagedMaterial(mat_name_base + "/specular", custom_name);
+            }
             if (material.isNull())
             {
                 return;
             }
-            material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
-            material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+            if (App::gfx_classic_shaders.GetActive())
+            {
+                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+                material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+            }
+            else
+            {
+                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+                material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+            }
         }
         else
         {
@@ -2338,7 +2387,14 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
             if (def.HasSpecularMap())
             {
-                material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
+                if (App::gfx_classic_shaders.GetActive())
+                {
+                    material->getTechnique("BaseTechnique")->getPass("Specular")->setCullingMode(Ogre::CULL_NONE);
+                }
+                else
+                {
+                    material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
+                }
             }
         }
     }
