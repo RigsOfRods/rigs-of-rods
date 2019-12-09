@@ -106,10 +106,12 @@ void SequentialImporter::Process(std::shared_ptr<RigDef::File> def)
 void SequentialImporter::AddMessage(Message::Type msg_type, std::string text)
 {
     RoR::Str<2000> txt;
-    txt << text
-        << " (module: " << m_current_module->name
-        << ", keyword: " << File::KeywordToString(m_current_keyword)
-        << ")";
+    txt << text << "(";
+    if (m_current_module) // Not present while adding nodes, only while resolving
+    {
+        txt << "sectionconfig: " << m_current_module->name << ", ";
+    }
+    txt << "keyword: " << File::KeywordToString(m_current_keyword) << ")";
 
     RoR::Console::MessageType cm_type;
     switch (msg_type)
