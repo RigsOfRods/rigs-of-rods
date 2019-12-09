@@ -187,16 +187,10 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
 
     if (App::app_force_cache_udpate.GetActive() || App::app_force_cache_purge.GetActive())
     {
-        if (App::GetGuiManager()->IsVisible_GameSettings())
-        {
-            App::GetGuiManager()->SetVisible_GameSettings(false);
-            App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-        }
-        else
-        {
-            App::GetContentManager()->InitModCache();
-            App::GetGuiManager()->SetVisible_GameMainMenu(true);
-        }
+        App::GetGuiManager()->SetVisible_GameSettings(false);
+        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+        App::GetContentManager()->InitModCache();
+        App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
 
     RoR::App::GetInputEngine()->Capture();

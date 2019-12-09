@@ -260,6 +260,11 @@ int main(int argc, char *argv[])
         App::CreateInputEngine();
         App::GetInputEngine()->setupDefault(App::GetOgreSubsystem()->GetMainHWND());
 
+        RoR::App::GetInputEngine()->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
+        App::GetGuiManager()->SetUpMenuWallpaper();
+        MainMenu main_obj;
+        App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&main_obj); // HACK until OGRE 1.12 migration; We need a frame listener to display 'progress' window ~ only_a_ptr, 10/2019
+
         App::GetContentManager()->InitModCache();
 
         RoR::ForceFeedback force_feedback;
@@ -305,11 +310,6 @@ int main(int argc, char *argv[])
         }
 #endif // OGRE_PLATFORM_WIN32
 
-        RoR::App::GetInputEngine()->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
-        App::GetGuiManager()->SetUpMenuWallpaper();
-
-        MainMenu main_obj;
-        App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&main_obj); // HACK until OGRE 1.12 migration; We need a frame listener to display loading window ~ only_a_ptr, 10/2019
         SkidmarkConfig skidmark_conf; // Loads 'skidmark.cfg' in constructor
 
         // ### Main loop (switches application states) ###
