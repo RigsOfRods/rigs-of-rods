@@ -38,7 +38,7 @@ void RoR::GUI::LoadingWindow::setProgress(int percent, std::string const& text, 
 void RoR::GUI::LoadingWindow::Draw()
 {
     ImGui::SetNextWindowPosCenter();
-    ImGui::SetNextWindowContentWidth(300.f);
+    ImGui::SetNextWindowContentWidth(500.f);
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse |
                              ImGuiWindowFlags_NoMove   | ImGuiWindowFlags_NoResize;
     ImGui::Begin(_L("Please wait"), nullptr, flags);
