@@ -302,6 +302,11 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     {
         m_impl->panel_SimPerfStats.Draw();
     }
+
+    if (this->IsVisible_TextureToolWindow())
+    {
+        m_impl->panel_TextureToolWindow.Draw();
+    }
 }
 
 void GUIManager::windowResized(Ogre::RenderWindow* rw)
