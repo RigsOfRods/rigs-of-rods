@@ -1959,7 +1959,7 @@ bool SimController::LoadTerrain()
         return false;
     }
 
-    App::GetGuiManager()->GetLoadingWindow()->setProgress(0, _L("Loading Terrain"));
+    App::GetGuiManager()->GetLoadingWindow()->setProgress(10, _L("Loading Terrain"));
 
     LOG("Loading terrain: " + terrain_file);
 
@@ -2051,8 +2051,8 @@ void SimController::CleanupAfterSimulation()
 bool SimController::SetupGameplayLoop()
 {
     RoR::Log("[RoR] Loading resources...");
-
-    App::GetGuiManager()->GetLoadingWindow()->setProgress(0, _L("Loading resources"));
+    App::GetGuiManager()->GetLoadingWindow()->setProgress(1, _L("Starting up...")); // Dummy, just to initialize the DearIMGUI window size - it needs 2 passes.
+    App::GetGuiManager()->GetLoadingWindow()->setProgress(5, _L("Loading resources"));
     App::GetContentManager()->LoadGameplayResources();
 
     // ============================================================================
