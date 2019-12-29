@@ -8,7 +8,7 @@ libcurl/7.61.1@bincrafters/stable
 OpenSSL/1.1.1c@conan/stable
 MofileReader/1.0.0@anotherfoxguy/stable
 MyGUI/3.2.3@anotherfoxguy/testing 
-OGRE/1.12.3@anotherfoxguy/testing
+OGRE/1.12.4@anotherfoxguy/testing
 OIS/1.5@anotherfoxguy/stable 
 SocketW/3.10.36@anotherfoxguy/stable
 openal/1.19.0@bincrafters/stable
