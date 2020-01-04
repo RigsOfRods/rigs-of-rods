@@ -52,21 +52,23 @@ void RoR::GUI::GameChatBox::Draw()
     ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - size.y));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
     ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
-    if (!ImGui::Begin("Chat", nullptr, win_flags))
-    {
-        return;
-    }
+    ImGui::Begin("Chat", nullptr, win_flags);
 
     m_console_view.DrawConsoleMessages();
 
     if (m_is_visible) // Full display?
     {
+        const char* name = "chatbox-filtering";
         // Draw filter button and input box in one line
         if (ImGui::Button(_LC("Console", "Filter options")))
         {
-            ImGui::OpenPopup("chatbox-filtering");
+            ImGui::OpenPopup(name);
         }
-        m_console_view.DrawFilteringPopup("chatbox-filtering");
+        if (ImGui::BeginPopup(name))
+        {
+            m_console_view.DrawFilteringOptions();
+            ImGui::EndPopup();
+        }
         ImGui::SameLine();
         const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
         if (ImGui::InputText(_L("Message"), m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))

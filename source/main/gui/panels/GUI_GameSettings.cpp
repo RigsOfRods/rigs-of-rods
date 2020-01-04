@@ -27,21 +27,11 @@
 
 void RoR::GUI::GameSettings::Draw()
 {
-    bool is_visible = true;
     const int flags = ImGuiWindowFlags_NoCollapse;
     ImGui::SetNextWindowSize(ImVec2(640.f, 400.f), ImGuiSetCond_FirstUseEver);
     ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
-    ImGui::Begin(_LC("GameSettings", "Game settings"), &is_visible, flags);
-    if (! is_visible)
-    {
-        this->SetVisible(false);
-        if (App::app_state.GetActive() == RoR::AppState::MAIN_MENU)
-        {
-            App::GetGuiManager()->SetVisible_GameMainMenu(true);
-        }
-        ImGui::End();
-        return;
-    }
+    bool keep_open = true;
+    ImGui::Begin(_LC("GameSettings", "Game settings"), &keep_open, flags);
 
     // 'Tabs' buttons
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 8.f));
@@ -418,4 +408,21 @@ void RoR::GUI::GameSettings::Draw()
     }
 
     ImGui::End();
+    if (!keep_open)
+    {
+        this->SetVisible(false);
+    }
+}
+
+void RoR::GUI::GameSettings::SetVisible(bool v)
+{
+    m_is_visible = v;
+    if (v)
+    {
+        m_tab = SettingsTab::RENDER_SYSTEM;
+    }
+    else if (App::app_state.GetActive() == RoR::AppState::MAIN_MENU)
+    {
+        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+    }
 }

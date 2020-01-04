@@ -57,13 +57,16 @@ void RoR::GUI::TopMenubar::Update()
     const char* settings_title = "Settings";
     const char* tools_title = "Tools";
 
-    float panel_target_width = (ImGui::GetStyle().ItemSpacing.x * 10) + // Item spacing
-        (ImGui::GetStyle().WindowPadding.x) + (ImGui::GetStyle().FramePadding.x) + // Left + Right padding
-        ImGui::CalcTextSize(sim_title).x + ImGui::CalcTextSize(actors_title.GetBuffer()).x + // Items
-        ImGui::CalcTextSize(savegames_title).x + ImGui::CalcTextSize(settings_title).x + // Items
-        ImGui::CalcTextSize(tools_title).x; // Items
+    float menubar_content_width =
+        (ImGui::GetStyle().ItemSpacing.x * 4) +
+        (ImGui::GetStyle().FramePadding.x * 12) +
+        ImGui::CalcTextSize(sim_title).x +
+        ImGui::CalcTextSize(actors_title.ToCStr()).x +
+        ImGui::CalcTextSize(savegames_title).x +
+        ImGui::CalcTextSize(settings_title).x +
+        ImGui::CalcTextSize(tools_title).x;
 
-    ImVec2 window_target_pos = ImVec2((ImGui::GetIO().DisplaySize.x/2.f) - (panel_target_width / 2.f), theme.screen_edge_padding.y);
+    ImVec2 window_target_pos = ImVec2((ImGui::GetIO().DisplaySize.x/2.f) - (menubar_content_width / 2.f), theme.screen_edge_padding.y);
     if (!this->ShouldDisplay(window_target_pos))
     {
         m_open_menu = TopMenu::TOPMENU_NONE;
@@ -78,13 +81,9 @@ void RoR::GUI::TopMenubar::Update()
     // The panel
     int flags = ImGuiWindowFlags_NoCollapse  | ImGuiWindowFlags_NoResize    | ImGuiWindowFlags_NoMove
               | ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_AlwaysAutoResize;
-    ImGui::SetNextWindowContentSize(ImVec2(panel_target_width, 0.f));
+    ImGui::SetNextWindowContentSize(ImVec2(menubar_content_width, 0.f));
     ImGui::SetNextWindowPos(window_target_pos);
-    if (!ImGui::Begin("Top menubar", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
-    {
-        ImGui::PopStyleColor(2);
-        return;
-    }
+    ImGui::Begin("Top menubar", nullptr, flags);
 
     // The 'simulation' button
     ImVec2 window_pos = ImGui::GetWindowPos();

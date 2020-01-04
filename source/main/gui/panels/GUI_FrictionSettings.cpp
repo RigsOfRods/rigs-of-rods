@@ -36,10 +36,9 @@
 
 void RoR::GUI::FrictionSettings::Draw()
 {
-    if (!ImGui::Begin(_L("Friction Settings"), &m_is_visible))
-    {
-        return;
-    }
+    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
+    bool keep_open = true;
+    ImGui::Begin(_L("Friction Settings"), &keep_open, win_flags);
 
     ImGui::Text("%s", _L("Current active Ground: "));
     ImGui::SameLine();
@@ -106,6 +105,11 @@ void RoR::GUI::FrictionSettings::Draw()
 
     ImGui::PopItemWidth();
     ImGui::End();
+
+    if (!keep_open)
+    {
+        this->SetVisible(false);
+    }
 }
 
 // Static helper

@@ -39,7 +39,7 @@ namespace GUI {
 struct ConsoleView
 {
     void DrawConsoleMessages();
-    void DrawFilteringPopup(const char* name);
+    void DrawFilteringOptions();
 
     // Filtering (true means allowed)
     bool  cvw_filter_type_notice = true;

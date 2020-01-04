@@ -221,22 +221,18 @@ void MainMenu::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
         if (App::GetGuiManager()->IsVisible_GameAbout())
         {
             App::GetGuiManager()->SetVisible_GameAbout(false);
-            App::GetGuiManager()->SetVisible_GameMainMenu(true);
         }
         else if (App::GetGuiManager()->IsVisible_MainSelector())
         {
             App::GetGuiManager()->GetMainSelector()->Close();
-            App::GetGuiManager()->SetVisible_GameMainMenu(true);
         }
         else if (App::GetGuiManager()->IsVisible_GameSettings())
         {
             App::GetGuiManager()->SetVisible_GameSettings(false);
-            App::GetGuiManager()->SetVisible_GameMainMenu(true);
         }
         else if (App::GetGuiManager()->IsVisible_MultiplayerSelector())
         {
             App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
-            App::GetGuiManager()->SetVisible_GameMainMenu(true);
         }
         else
         {
