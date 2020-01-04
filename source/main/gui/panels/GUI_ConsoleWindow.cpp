@@ -30,20 +30,30 @@ using namespace Ogre;
 void GUI::ConsoleWindow::Draw()
 {
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar;
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_MenuBar;
     ImGui::SetNextWindowPosCenter();
     ImGui::SetNextWindowSize(ImVec2(500.f, 550.f), ImGuiSetCond_FirstUseEver);
-    ImGui::Begin("Console", nullptr, win_flags);
-    if (ImGui::Button(_LC("Console", "Filter options")))
+    bool keep_open = true;
+    ImGui::Begin("Console", &keep_open, win_flags);
+
+    if (ImGui::BeginMenuBar())
     {
-        ImGui::OpenPopup("console-filtering");
+        if (ImGui::BeginMenu(_LC("Console", "Filter options")))
+        {
+            this->DrawFilteringOptions();
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu(_LC("Console", "Commands")))
+        {
+            if (ImGui::MenuItem("help"))    { this->DoCommand("help"); }
+            if (ImGui::MenuItem("ver"))     { this->DoCommand("ver"); }
+            if (ImGui::MenuItem("pos"))     { this->DoCommand("pos"); }
+            if (ImGui::MenuItem("gravity")) { this->DoCommand("gravity"); }
+            if (ImGui::MenuItem("quit"))    { this->DoCommand("quit"); }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
     }
-
-    this->DrawFilteringPopup("console-filtering");
-
-    ImGui::SameLine();
-    ImGui::Text("Type 'help' for assistance");
-    ImGui::Separator();
 
     const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetTextLineHeightWithSpacing(); // 1 separator, 1 input text
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar); // Leave room for 1 separator + 1 InputText
@@ -61,6 +71,11 @@ void GUI::ConsoleWindow::Draw()
     }
 
     ImGui::End();
+
+    if (!keep_open)
+    {
+        this->SetVisible(false);
+    }
 }
 
 void GUI::ConsoleWindow::DoCommand(std::string msg) // All commands are processed here

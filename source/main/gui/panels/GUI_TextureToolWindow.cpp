@@ -39,6 +39,7 @@ void TextureToolWindow::Draw()
     ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH, 550.f), ImGuiSetCond_FirstUseEver);
     if (!ImGui::Begin(_L("Texture Tool"), &m_is_visible))
     {
+        ImGui::End(); // The window is collapsed
         return;
     }
 

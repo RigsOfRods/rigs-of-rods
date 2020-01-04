@@ -31,7 +31,7 @@ namespace GUI {
 class GameAbout
 {
 public:
-    void SetVisible(bool v) { m_is_visible = v; }
+    void SetVisible(bool v);
     bool IsVisible() const { return m_is_visible; }
 
     void Draw();

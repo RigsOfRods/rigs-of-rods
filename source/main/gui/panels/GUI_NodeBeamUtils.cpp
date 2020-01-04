@@ -26,20 +26,17 @@
 
 void RoR::GUI::NodeBeamUtils::Draw()
 {
-    bool is_visible = true;
-    const int flags = ImGuiWindowFlags_NoCollapse;
-    ImGui::SetNextWindowSize(ImVec2(600.f, 675.f), ImGuiSetCond_FirstUseEver);
-    ImGui::Begin("Node/Beam Utils", &is_visible, flags);
-
     Actor* actor = App::GetSimController()->GetPlayerActor();
-
-    if (!is_visible || actor == nullptr)
+    if (!actor)
     {
         this->SetVisible(false);
-        m_is_searching = false;
-        ImGui::End();
         return;
     }
+
+    const int flags = ImGuiWindowFlags_NoCollapse;
+    ImGui::SetNextWindowSize(ImVec2(600.f, 675.f), ImGuiSetCond_FirstUseEver);
+    bool keep_open = true;
+    ImGui::Begin("Node/Beam Utils", &keep_open, flags);
 
     ImGui::PushItemWidth(500.f); // Width includes [+/-] buttons
     float ref_mass = actor->ar_initial_total_mass;
@@ -174,4 +171,17 @@ void RoR::GUI::NodeBeamUtils::Draw()
     }
 
     ImGui::End();
+    if (!keep_open)
+    {
+        this->SetVisible(false);
+    }
+}
+
+void RoR::GUI::NodeBeamUtils::SetVisible(bool v)
+{
+    m_is_visible = v;
+    if (!v)
+    {
+        m_is_searching = false;
+    }
 }

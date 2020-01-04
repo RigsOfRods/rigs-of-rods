@@ -98,24 +98,19 @@ void GUI::ConsoleView::DrawConsoleMessages()
     }
 }
 
-void GUI::ConsoleView::DrawFilteringPopup(const char* name)
+void GUI::ConsoleView::DrawFilteringOptions()
 {
-    if (ImGui::BeginPopup(name))
-    {
-        ImGui::TextDisabled(_LC("Console", "By area:"));
-        ImGui::MenuItem(_LC("Console", "Logfile echo"), "", &cvw_filter_area_echo);
-        ImGui::MenuItem(_LC("Console", "Scripting"),    "", &cvw_filter_area_script);
-        ImGui::MenuItem(_LC("Console", "Actors"),       "", &cvw_filter_area_actor);
-        ImGui::MenuItem(_LC("Console", "Terrain"),      "", &cvw_filter_area_terrn);
+    ImGui::TextDisabled(_LC("Console", "By area:"));
+    ImGui::MenuItem(_LC("Console", "Logfile echo"), "", &cvw_filter_area_echo);
+    ImGui::MenuItem(_LC("Console", "Scripting"),    "", &cvw_filter_area_script);
+    ImGui::MenuItem(_LC("Console", "Actors"),       "", &cvw_filter_area_actor);
+    ImGui::MenuItem(_LC("Console", "Terrain"),      "", &cvw_filter_area_terrn);
 
-        ImGui::Separator();
-        ImGui::TextDisabled(_LC("Console", "By level:"));
-        ImGui::MenuItem(_LC("Console", "Notices"),  "", &cvw_filter_type_notice);
-        ImGui::MenuItem(_LC("Console", "Warnings"), "", &cvw_filter_type_warning);
-        ImGui::MenuItem(_LC("Console", "Errors"),   "", &cvw_filter_type_error);
-
-        ImGui::EndPopup();
-    }
+    ImGui::Separator();
+    ImGui::TextDisabled(_LC("Console", "By level:"));
+    ImGui::MenuItem(_LC("Console", "Notices"),  "", &cvw_filter_type_notice);
+    ImGui::MenuItem(_LC("Console", "Warnings"), "", &cvw_filter_type_warning);
+    ImGui::MenuItem(_LC("Console", "Errors"),   "", &cvw_filter_type_error);
 }
 
 bool GUI::ConsoleView::MessageFilter(Console::Message const& m)
