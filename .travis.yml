@@ -4,7 +4,7 @@ language: c
 
 env:
   global:
-    - CONAN_PKG: conan-ubuntu-64_1_20_0.deb
+    - CONAN_PKG: conan-ubuntu-64_1_21_0.deb
 
 cache:
   directories:
