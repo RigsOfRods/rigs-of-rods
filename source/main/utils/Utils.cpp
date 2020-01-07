@@ -88,10 +88,13 @@ void UpdatePresence()
         }
         else
         {
-            discordPresence.state = "Playing Singleplayer";
+            discordPresence.state = "Playing singleplayer";
             sprintf(buffer, "On terrain: %s", RoR::App::sim_terrain_gui_name.GetActive());
         }
         discordPresence.details = buffer;
+        discordPresence.startTimestamp = time(0);
+        discordPresence.largeImageKey = "ror_logo_t";
+        discordPresence.largeImageText = "Rigs of Rods";
         Discord_UpdatePresence(&discordPresence);
     }
 #endif
