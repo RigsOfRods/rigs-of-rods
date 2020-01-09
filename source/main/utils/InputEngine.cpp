@@ -1925,6 +1925,13 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, bool captu
 #endif // LINUX
         }
 
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+        if (RoR::App::io_input_grab_mode.GetActive() != RoR::IoInputGrabMode::ALL)
+        {
+            ShowCursor(FALSE);
+        }
+#endif
+
 #ifndef NOOGRE
         LOG("*** OIS WINDOW: "+hwnd);
 #endif //NOOGRE
