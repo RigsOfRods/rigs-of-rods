@@ -25,8 +25,8 @@ std::string Keys::ReplaceKll(const string& name)
 	{
 		char x=0, y=0, b=0;
 		sscanf(s.c_str(), "M%d,%d,%d", &b,&x,&y);
-		if (x < 0)  ws = L"M←";  else  if (x > 0)  ws = L"M→";  else
-		if (y < 0)  ws = L"M↑";  else  if (y > 0)  ws = L"M↓";  else
+		if (x < 0)  ws = u8"M←";  else  if (x > 0)  ws = u8"M→";  else
+		if (y < 0)  ws = u8"M↑";  else  if (y > 0)  ws = u8"M↓";  else
 		if (b > 0)  ws = "M" + i2s(b);
 	}
 	ReplacePlayer(s,ws);  //**
@@ -78,18 +78,23 @@ std::string Keys::ReplaceJson(string& s, string& sVK, string& sk, bool& ext, boo
 //  apply player symbols
 void Keys::ReplacePlayer(const string& s, std::string& ws)
 {
-	if (s=="|>")  ws = L"▶";  if (s=="||")  ws = L"▮▮";  if (s=="[]")  ws = L"◼";
-	if (s==">|" || s=="M Next")  ws = L"▶▮";  if (s==">>")  ws = L"▶▶";
-	if (s=="|<" || s=="M Prev")  ws = L"▮◀";  if (s=="<<")  ws = L"◀◀";
+	if (s=="|>")                 ws = u8"▶";
+    if (s=="||")                 ws = u8"▮▮";
+    if (s=="[]")                 ws = u8"◼";
+	if (s==">|" || s=="M Next")  ws = u8"▶▮";
+    if (s==">>")                 ws = u8"▶▶";
+	if (s=="|<" || s=="M Prev")  ws = u8"▮◀";
+    if (s=="<<")                 ws = u8"◀◀";
 }
 
 //  arrow symbols
 void Keys::ReplaceArrows(const string& s, std::string& ws)
 {
-	if (found(s, "Left"))   ws = L"←";  if (found(s, "Right"))  ws = L"→";
-	if (found(s, "Down"))   ws = L"↓";
-	if (!found(s, "PgUp") && found(s, "Up"))  ws = L"↑";
-	if (s=="Display")   ws = L"❏";  //▤❏◾
+	if (found(s, "Left"))   ws = u8"←";
+    if (found(s, "Right"))  ws = u8"→";
+	if (found(s, "Down"))   ws = u8"↓";
+	if (!found(s, "PgUp") && found(s, "Up"))  ws = u8"↑";
+	if (s=="Display")   ws = u8"❏";  //▤❏◾
 }
 
 void Keys::ReplacePressed(string& sk)

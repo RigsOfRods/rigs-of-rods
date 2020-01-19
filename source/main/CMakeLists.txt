@@ -133,7 +133,6 @@ set(SOURCE_FILES
         gui/ckeys/Keys_json.cpp
         gui/ckeys/Keys_kll.cpp
         gui/ckeys/Keys_Replace.cpp
-        gui/ckeys/KeysHook.cpp
         gui/ckeys/Settings.cpp
         gui/ckeys/Settings.h
         gui/ckeys/Util.cpp
