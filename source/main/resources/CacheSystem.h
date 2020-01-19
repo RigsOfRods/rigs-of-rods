@@ -30,6 +30,7 @@
 #include "RigDef_File.h"
 
 #include <Ogre.h>
+#include <rapidjson/document.h>
 
 #define CACHE_FILE "mods.cache"
 #define CACHE_FILE_FORMAT 11
