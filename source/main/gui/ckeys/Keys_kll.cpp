@@ -156,7 +156,7 @@ bool Keys::LoadKll(string path, int layer, bool logOut)
 						Key& k = keys[id];
 						k.inKll = true;
 
-						sf::String ws = ReplaceKll(p.name);  //**
+						std::string ws = ReplaceKll(p.name);  //**
 
 						if (layer > 0)
 							k.strL[layer] = ws;

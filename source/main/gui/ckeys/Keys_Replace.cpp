@@ -5,7 +5,7 @@ using namespace std;  using namespace ckeys;
 
 
 //  shorten kll names
-sf::String Keys::ReplaceKll(const string& name)
+std::string Keys::ReplaceKll(const string& name)
 {
 	string s = name;
 	replK(s, "Protocol", "");  replK(s, "Lock", "");  replK(s, "()", "");
@@ -20,7 +20,7 @@ sf::String Keys::ReplaceKll(const string& name)
 
 	//  mouse
 	bool m = replK(s, "mouseOut(", "M");
-	sf::String ws(s);
+	std::string ws(s);
 	if (m)
 	{
 		char x=0, y=0, b=0;
@@ -34,7 +34,7 @@ sf::String Keys::ReplaceKll(const string& name)
 }
 
 //  replace json name
-sf::String Keys::ReplaceJson(string& s, string& sVK, string& sk, bool& ext, bool& has2)
+std::string Keys::ReplaceJson(string& s, string& sVK, string& sk, bool& ext, bool& has2)
 {
 	ext = false;
 	has2 = replK(s, "\\n", "\n");  // key has 2 descr: upper, lower
@@ -50,7 +50,7 @@ sf::String Keys::ReplaceJson(string& s, string& sVK, string& sk, bool& ext, bool
 	replK(s, "Space", " ");  replK(s, "Delete", "Del");
 	replK(s, "CLEAR", "5");
 
-	sf::String ws(s);
+	std::string ws(s);
 	ReplaceArrows(s,ws);  //**
 
 	//  vk to key  ------
@@ -76,7 +76,7 @@ sf::String Keys::ReplaceJson(string& s, string& sVK, string& sk, bool& ext, bool
 
 
 //  apply player symbols
-void Keys::ReplacePlayer(const string& s, sf::String& ws)
+void Keys::ReplacePlayer(const string& s, std::string& ws)
 {
 	if (s=="|>")  ws = L"▶";  if (s=="||")  ws = L"▮▮";  if (s=="[]")  ws = L"◼";
 	if (s==">|" || s=="M Next")  ws = L"▶▮";  if (s==">>")  ws = L"▶▶";
@@ -84,7 +84,7 @@ void Keys::ReplacePlayer(const string& s, sf::String& ws)
 }
 
 //  arrow symbols
-void Keys::ReplaceArrows(const string& s, sf::String& ws)
+void Keys::ReplaceArrows(const string& s, std::string& ws)
 {
 	if (found(s, "Left"))   ws = L"←";  if (found(s, "Right"))  ws = L"→";
 	if (found(s, "Down"))   ws = L"↓";

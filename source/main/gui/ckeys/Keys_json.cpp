@@ -75,7 +75,7 @@ bool Keys::LoadJson(string path, bool logOut)
 				Key& k = keys.back();  // prev key
 				s = s.substr(2);
 
-				sf::String ws = s;
+				std::string ws = s;
 				ReplacePlayer(s,ws);
 
 				k.name = ws;
@@ -100,7 +100,7 @@ bool Keys::LoadJson(string path, bool logOut)
 			{
 				string js = s, sVK, sk;
 				bool ext, has2;
-				sf::String ws = ReplaceJson(s, sVK, sk, ext, has2);  //**
+				std::string ws = ReplaceJson(s, sVK, sk, ext, has2);  //**
 
 				//  setup
 				Key k;

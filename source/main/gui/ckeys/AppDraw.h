@@ -1,6 +1,5 @@
 #pragma once
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
+
 
 namespace ckeys {
 
@@ -8,16 +7,16 @@ class AppDraw
 {
 public:
 
-	//  sfml draw
-	//--------------------------
-	sf::RenderWindow* pWindow = nullptr;
-	sf::Sprite* pBackgr = nullptr;
-
-	sf::Font* pFont = nullptr;
-	sf::Text text;
-
-	sf::String str;
-	sf::Color clr;
+//	//  sfml draw
+//	//--------------------------
+//	sf::RenderWindow* pWindow = nullptr;
+//	sf::Sprite* pBackgr = nullptr;
+//
+//	sf::Font* pFont = nullptr;
+//	sf::Text text;
+//
+//	std::string str;
+//	sf::Color clr;
 	bool bold = false;
 
 	float dt = 1.f;  // frame delta time
@@ -36,9 +35,9 @@ public:
 	int Txt(int x, int y, bool draw=true);
 
 	//  fill rect
-	void Rect(int x, int y,  int sx, int sy,  sf::Uint8 r, sf::Uint8 g, sf::Uint8 b);
+	void Rect(int x, int y,  int sx, int sy,  uint8_t r, uint8_t g, uint8_t b);
 	//  frame rect
-	void Frame(int x, int y,  int sx, int sy,  int d,  sf::Uint8 r, sf::Uint8 g, sf::Uint8 b);
+	void Frame(int x, int y,  int sx, int sy,  int d,  uint8_t r, uint8_t g, uint8_t b);
 };
 
 } // namespace ckeys

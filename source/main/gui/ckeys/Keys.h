@@ -3,8 +3,7 @@
 #include <vector>
 #include <map>
 #include <list>
-#include <SFML/System/String.hpp>
-#include <SFML/System/Mutex.hpp>
+
 #include "Settings.h"  // Lmax
 
 namespace ckeys {
@@ -30,13 +29,13 @@ struct Key
 	int x,y, w,h;     // position, dimensions
 	float sc = 1.f;   // scale
 
-	sf::String str;     // key name and caption, shown on Gui
+	std::string str;     // key name and caption, shown on Gui
 
 	//  optional json
-	sf::String name;    // custom caption on Gui, overrides str
+	std::string name;    // custom caption on Gui, overrides str
 
-	sf::String Caption()
-	{	return name.isEmpty() ? str : name;  }
+	std::string Caption()
+	{	return name.empty() ? str : name;  }
 
 	int16_t scan = -1;  // custom scan code, -1 none
 
@@ -48,11 +47,11 @@ struct Key
 	void SetClr();
 
 	//  from kll  ----
-	sf::String sKll;     // test name for kll
+	std::string sKll;     // test name for kll
 	bool inKll = false;  // test kll
 
 	//  caption on other layers 2,3,..
-	sf::String strL[Settings::Lmax];
+	std::string strL[Settings::Lmax];
 
 	//  vk test  ----
 	bool inVK = false;
@@ -77,10 +76,10 @@ public:
 	void Destroy();
 
 	//  replace key names, format
-	sf::String ReplaceJson(std::string& s, std::string& sVK, std::string& sk, bool& ext, bool& has2);
-	sf::String ReplaceKll(const std::string& name);
-	void ReplaceArrows(const std::string& s, sf::String& ws);
-	void ReplacePlayer(const std::string& s, sf::String& ws);  // util
+	std::string ReplaceJson(std::string& s, std::string& sVK, std::string& sk, bool& ext, bool& has2);
+	std::string ReplaceKll(const std::string& name);
+	void ReplaceArrows(const std::string& s, std::string& ws);
+	void ReplacePlayer(const std::string& s, std::string& ws);  // util
 	void ReplacePressed(std::string& sk);
 
 
@@ -108,16 +107,8 @@ public:
 	std::map<std::string, std::string> kll2scan;
 
 
-	//  keyboard hook
-	#ifdef _WIN32
-	#define	vk_EXTRA 1000
-	void Hook();
-	void UnHook();
-	#endif
-
 	//  keys pressed list
 	std::list<KeyCode> keyCodes;
-	sf::Mutex mutex;
 };
 
 } // namespace ckeys

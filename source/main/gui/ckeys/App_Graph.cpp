@@ -92,7 +92,7 @@ void App::Graph()
 
 		//  caption  ----
 		str = set.bKLL ? k.sKll : k.Caption();
-		bool ln2 = str.find("\n") != sf::String::InvalidPos;
+		bool ln2 = str.find("\n") != std::string::InvalidPos;
 
 		bool Loff = set.bL[0] || !Lany;  // force or empty
 		text.setCharacterSize(k.sc * sc);
