@@ -3,7 +3,6 @@
 #include <iomanip>
 #include <regex>
 #include <fstream>
-#include <dirent.h>
 using namespace std;
 
 
@@ -81,18 +80,6 @@ bool exists(const string& name)
 //  dir
 int getDir(string dir, vector<string> &files)
 {
-	DIR *dp = dp = opendir(dir.c_str());
-	struct dirent *dirp;
-	if(dp == NULL)
-	{
-		//cout << "Error(" << errno << ") opening " << dir << endl;
-		return errno;
-	}
-
-	while ((dirp = readdir(dp)) != NULL)
-	{
-		files.push_back(string(dirp->d_name));
-	}
-	closedir(dp);
-	return 0;
+	// STUB! TODO: implement using OGRE resource system
+    return 0;
 }
