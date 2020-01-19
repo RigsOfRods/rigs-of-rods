@@ -117,6 +117,27 @@ set(SOURCE_FILES
         gui/GUIUtils.{h,cpp}
         gui/OverlayWrapper.{h,cpp}
         gui/RTTLayer.{h,cpp}
+        gui/ckeys/App.h
+        gui/ckeys/App_Graph.cpp
+        gui/ckeys/App_Gui.cpp
+        gui/ckeys/App_Init.cpp
+        gui/ckeys/App_Keys.cpp
+        gui/ckeys/App_SetupGui.cpp
+        gui/ckeys/AppDraw.cpp
+        gui/ckeys/AppDraw.h
+        gui/ckeys/AppMain.cpp
+        gui/ckeys/AppMain.h
+        gui/ckeys/KeyNames.h
+        gui/ckeys/Keys.cpp
+        gui/ckeys/Keys.h
+        gui/ckeys/Keys_json.cpp
+        gui/ckeys/Keys_kll.cpp
+        gui/ckeys/Keys_Replace.cpp
+        gui/ckeys/KeysHook.cpp
+        gui/ckeys/Settings.cpp
+        gui/ckeys/Settings.h
+        gui/ckeys/Util.cpp
+        gui/ckeys/Util.h
         gui/imgui/imgui.{h,cpp}
         gui/imgui/imgui_demo.cpp
         gui/imgui/imgui_draw.cpp
@@ -162,6 +183,7 @@ set(SOURCE_FILES
         gui/panels/GUI_SimUtilsLayout.{h,cpp}
         gui/panels/GUI_VehicleDescription.{h,cpp}
         gui/panels/GUI_VehicleDescriptionLayout.{h,cpp}
+		gui/panels/GUI_VirtualKeyboard.{h,cpp}
         network/Network.{h,cpp}
         physics/ApproxMath.h
         physics/Beam.{h,cpp}
