@@ -69,13 +69,9 @@ void Keys::LoadIndex()
 	//  clear last
 	Destroy();
 
-	//  load json
+	//  load klls
 	string fname = files[id];
 	string p = set->data;
-
-	LoadJson(p + fname + ".json", log);
-
-	//  load klls
 	//	default map:  scan code to kll name
 	LoadKll(p + "defaultMap" + fname + ".kll", 0, log);
 
