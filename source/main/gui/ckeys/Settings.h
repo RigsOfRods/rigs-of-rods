@@ -34,11 +34,6 @@ public:
 	Settings();
 	void Default();
 
-	bool Load(), Save();
-
-	void GetWndDim(sf::Window* wnd);
-
-	bool FindData();
 	std::string data;  // data dir path
 
 
@@ -73,8 +68,6 @@ public:
 	bool  bScan = false;
 
 	bool  bL[Lmax] = {false,};
-
-	char  pathSet[260];
 
 
 	//  GUI dimensions  const  -----

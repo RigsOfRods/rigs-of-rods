@@ -6,7 +6,7 @@
 #include <string.h>
 #include "../libs/jsmn.h"
 #include "Util.h"
-using namespace std;
+using namespace std;  using namespace ckeys;
 
 
 //  read layout from json file

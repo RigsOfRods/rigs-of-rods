@@ -12,7 +12,6 @@ void AppMain::Run()
 	//  laod Settings first
 	//------------------
 	App* app = new App();
-	app->set.FindData();
 	app->set.Load();
 	Settings& set = app->set;
 
