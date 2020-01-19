@@ -73,7 +73,7 @@ void AppMain::Run()
 
 	//  pass to app
 	app->pWindow = window;
-	app->pBackgr = &back;
+
 	app->pFont = &font;
 	app->text.setFont(font);
 	app->text.setCharacterSize(app->set.iFontH);

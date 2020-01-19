@@ -9,14 +9,13 @@ using namespace ckeys;
 void App::Graph()
 {
 
-	//  background
-	pWindow->clear(sf::Color(6,5,20));
+
 	int yF = set.iFontH;
 
 	//  Fps
 	if (set.bFps)
 	{
-		text.setCharacterSize(yF);
+		text_character_size = (yF);
 		Clr(155,215,255);
 		str = f2s(fps,1,3);  // 1/dt
 		Txt(set.xwSize - 70, 2);
@@ -25,7 +24,7 @@ void App::Graph()
 	//  Keys info
 	if (set.bInfo)
 	{
-		text.setCharacterSize(yF-3);
+		text_character_size = (yF-3);
 		Clr(115,125,155);
 		int x = set.xwSize - 90;
 
@@ -95,7 +94,7 @@ void App::Graph()
 		bool ln2 = str.find("\n") != std::string::InvalidPos;
 
 		bool Loff = set.bL[0] || !Lany;  // force or empty
-		text.setCharacterSize(k.sc * sc);
+		text_character_size = (k.sc * sc);
 		if (Loff)  Txt(x + 4, y + 4);
 
 		//  layer label(s)  ----
@@ -125,7 +124,7 @@ void App::Graph()
 	if (!help && !options && !graphics)
 	{
 		//bold = true;
-		text.setCharacterSize(yF-1);  int yL = yF + 4;
+		text_character_size = (yF-1);  int yL = yF + 4;
 		x = set.xGuiSize + 30;  x1 = x + 170;
 		y = set.ywSize - set.yGuiSize + 20;  y1 = y;
 
@@ -165,7 +164,7 @@ void App::Graph()
 	if (!set.bList)  return;
 
 	#ifdef _WIN32
-	text.setCharacterSize(yF - 3);
+	text_character_size = (yF - 3);
 	x = 10;  x1 = x + 110;  y = 25;
 	char s[200];
 
@@ -177,12 +176,11 @@ void App::Graph()
 		str = "VK  SC  ext  Name";
 	Txt(x,y);
 
-	text.setCharacterSize(yF);
+	text_character_size = (yF);
 	y += yF + 8;
 	Clr(140,210,255);
 
 	//  list
-	sf::Lock(keys.mutex);
 	for (auto& kc : keys.keyCodes)
 	{
 		if (!set.bListSimple)

@@ -7,27 +7,28 @@ using namespace ckeys;
 //  write out text
 int AppDraw::Txt(int x, int y, bool draw)
 {
-	text.setString(str);
-	text.setStyle(bold ? sf::Text::Bold : sf::Text::Regular);
-	text.setColor(clr);
-	text.setPosition(x, y);
-	if (draw)  pWindow->draw(text);
-	return text.getLocalBounds().width;  // advance x pos
+    // TODO: bold text
+    if (draw)
+    {
+        ImVec2 orig_pos = ImGui::GetCursorPos();
+        ImGui::SetCursorPos(ImVec2(x, y));
+        ImGui::TextColored(clr, "%s", str.c_str());
+        ImGui::SetCursorPos(orig_pos);
+    }
+    return (int) ImGui::CalcTextSize(str.c_str()).x;
 }
 
 //  clear rect
 void AppDraw::Rect(int x, int y,  int sx, int sy,
-		  sf::Uint8 r, sf::Uint8 g, sf::Uint8 b)
+		  uint8_t r, uint8_t g, uint8_t b)
 {
-	pBackgr->setScale(sx-x, sy-y);
-	pBackgr->setPosition(x, y);
-	pBackgr->setColor(sf::Color(r, g, b));
-	pWindow->draw(*pBackgr);
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
+    drawlist->AddRectFilled(ImVec2(x,y), ImVec2(x+sx, y+sy), ImColor(r,g,b,1));
 }
 
 //  frame rect, inefficient
 void AppDraw::Frame(int x, int y,  int sx, int sy,  int d,
-		sf::Uint8 r, sf::Uint8 g, sf::Uint8 b)
+		uint8_t r, uint8_t g, uint8_t b)
 {
 	Rect(x,   y,    sx-d, y+d,  r, g, b);  // top
 	Rect(x,   sy-d, sx-d, sy,   r, g, b);  // bottom

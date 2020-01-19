@@ -1,5 +1,7 @@
 #pragma once
+#include "OgreImGui.h"
 
+#include <string>
 
 namespace ckeys {
 
@@ -7,16 +9,10 @@ class AppDraw
 {
 public:
 
-//	//  sfml draw
-//	//--------------------------
-//	sf::RenderWindow* pWindow = nullptr;
-//	sf::Sprite* pBackgr = nullptr;
-//
-//	sf::Font* pFont = nullptr;
-//	sf::Text text;
-//
-//	std::string str;
-//	sf::Color clr;
+	int text_character_size = 10;
+
+	std::string str;
+	ImColor clr;
 	bool bold = false;
 
 	float dt = 1.f;  // frame delta time
@@ -25,9 +21,9 @@ public:
 
 	//  set text color
 	//--------------------------
-	void Clr(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b)
+	void Clr(uint8_t r, uint8_t g, uint8_t b)
 	{
-		clr = sf::Color(r,g,b);
+		clr = ImColor(r,g,b, 1);
 	}
 
 	//  write out text, from s
