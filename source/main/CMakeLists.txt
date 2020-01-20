@@ -128,6 +128,7 @@ set(SOURCE_FILES
         gui/ckeys/KeyNames.h
         gui/ckeys/Keys.cpp
         gui/ckeys/Keys.h
+        gui/ckeys/Keys_json.cpp
         gui/ckeys/Keys_kll.cpp
         gui/ckeys/Keys_Replace.cpp
         gui/ckeys/Settings.cpp

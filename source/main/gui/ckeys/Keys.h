@@ -70,7 +70,7 @@ public:
 	Settings* set = nullptr;
 
 	void LoadIndex();
-
+	bool LoadJson(std::string path, bool logOut = true);
 	bool LoadKll(std::string path, int layer, bool logOut = true);
 	void Destroy();
 
