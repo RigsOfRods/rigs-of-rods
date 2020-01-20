@@ -1,38 +1,27 @@
 #include "App.h"
 #include "Settings.h"
 
-using namespace ckeys;
 
-#define ret		 return true;
+using namespace ckeys;
 
 
 //  Key pressed
 //-----------------------------------------------
-bool App::KeyDown(const sf::Event::KeyEvent& key)
+void App::KeyDown(const ImGuiKey key)
 {
 	using namespace sf;
 
 	//  close options window
 	if (options || graphics)
 	{
-		switch (key.code)
+		switch (key)
 		{
-		case Keyboard::Escape:
-		case Keyboard::Return:
-		case Keyboard::Space:
+		case ImGuiKey_Escape:
+		case ImGuiKey_Enter:
 			options = graphics = false;
+		default:;
 		}
-		ret
 	}
-
-	switch (key.code)
-	{
-		//  Esc - Close
-		case Keyboard::Escape:
-			if (set.escQuit)  pWindow->close();
-			ret
-	}
-	ret
 }
 
 //  Mouse move

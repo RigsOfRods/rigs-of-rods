@@ -2,6 +2,7 @@
 #include "AppDraw.h"
 #include "Settings.h"
 #include "Keys.h"
+#include "OgreImGui.h"
 
 namespace ckeys {
 
@@ -15,7 +16,7 @@ public:
 	bool Init();
 	void Resize(int x, int y);
 
-	bool KeyDown(const sf::Event::KeyEvent& key);
+	void KeyDown(const ImGuiKey key);
 	void Mouse(int x, int y);
 
 	void Graph();  // draw graphics, keys

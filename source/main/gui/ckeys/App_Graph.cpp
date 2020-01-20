@@ -30,7 +30,7 @@ void App::Graph()
 
 		str = "Layers: " + i2s(keys.Lnum);
 		Txt(x, set.ywSize - yF);
-		str = "Keys: " + i2s(keys.keys.size());
+		str = "Keys: " + i2s((int)keys.keys.size());
 		Txt(x, set.ywSize - yF*2);
 	}
 
@@ -64,7 +64,7 @@ void App::Graph()
 			set.bScan && k.scan == -1)
 			kc = KC_Missing;
 
-		#define isLay(l)  (set.bL[l] && !k.strL[l].isEmpty())
+		#define isLay(l)  (set.bL[l] && !k.strL[l].empty())
 		int l = k.layer;
 
 		//  draw  []
@@ -91,7 +91,7 @@ void App::Graph()
 
 		//  caption  ----
 		str = set.bKLL ? k.sKll : k.Caption();
-		bool ln2 = str.find("\n") != std::string::InvalidPos;
+		bool ln2 = str.find("\n") != std::string::npos;
 
 		bool Loff = set.bL[0] || !Lany;  // force or empty
 		text_character_size = (k.sc * sc);
@@ -133,11 +133,12 @@ void App::Graph()
 			Clr(150,180,220);  Txt(x, y);  y += 3*yL;
 		}else
 		{	//  1st col  ----
-			str = "Key:  " + kum->Caption();  str.replace("\n","  ");
+			str = "Key:  " + kum->Caption();
+			strFindAndReplace(str, "\n", "  ");
 			Clr(190,220,250);  Txt(x, y);  y += yL;
 
 			for (int i=0; i <= keys.Lnum; ++i)
-			if (!kum->strL[i].isEmpty())
+			if (!kum->strL[i].empty())
 			{
 				str = "L" + i2s(i) + ":  " + kum->strL[i];
 				c = set.getC(KC_Lnum, i, 2);
