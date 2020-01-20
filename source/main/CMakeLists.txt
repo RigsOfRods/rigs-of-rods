@@ -125,8 +125,6 @@ set(SOURCE_FILES
         gui/ckeys/App_SetupGui.cpp
         gui/ckeys/AppDraw.cpp
         gui/ckeys/AppDraw.h
-        gui/ckeys/AppMain.cpp
-        gui/ckeys/AppMain.h
         gui/ckeys/KeyNames.h
         gui/ckeys/Keys.cpp
         gui/ckeys/Keys.h

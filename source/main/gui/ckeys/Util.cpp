@@ -81,5 +81,14 @@ bool exists(const string& name)
 int getDir(string dir, vector<string> &files)
 {
 	// STUB! TODO: implement using OGRE resource system
-    return 0;
+	return 0;
+}
+
+void strFindAndReplaceAll(std::string& str, std::string const& needle, std::string const& patch)
+{
+	size_t off;
+	while ((off = str.find(needle)) != std::string::npos)
+	{
+		str.replace(str.begin() + off, str.begin() + off + needle.length(), patch);
+	}
 }

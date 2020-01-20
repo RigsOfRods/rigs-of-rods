@@ -22,6 +22,9 @@
 #include "Application.h"
 #include "OgreImGui.h"
 
+#include "ckeys/App.h"
+#include <memory>
+
 namespace RoR {
 namespace GUI {
 
@@ -30,6 +33,7 @@ class VirtualKeyboard
 public:
     //VirtualKeyboard() {}
 
+    void Init();
     void Draw();
 
     inline bool IsVisible() const { return m_is_visible; }
@@ -38,6 +42,7 @@ public:
 private:
     bool m_is_visible = false;
     bool m_is_searching = false;
+    std::unique_ptr<ckeys::App> m_ckeys;
 };
 
 } // namespace GUI

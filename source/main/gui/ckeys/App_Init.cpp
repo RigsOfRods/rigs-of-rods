@@ -1,6 +1,7 @@
 #include "App.h"
 #include "Keys.h"
 
+using namespace ckeys;
 
 //  ctor
 App::App()
@@ -11,17 +12,19 @@ App::App()
 //  Init
 bool App::Init()
 {
-	SetupGuiClr();
+//	SetupGuiClr(); // Rigs of Rods: Done per frame
 
 	keys.Init(&set);
 
 	keys.LoadIndex();
 
-	keys.Hook();
-
 	return true;
 }
 
+//  dtor
+App::~App()
+{
 
+}
 
 

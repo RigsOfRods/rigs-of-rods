@@ -134,7 +134,7 @@ void App::Graph()
 		}else
 		{	//  1st col  ----
 			str = "Key:  " + kum->Caption();
-			strFindAndReplace(str, "\n", "  ");
+			strFindAndReplaceAll(str, "\n", "  ");
 			Clr(190,220,250);  Txt(x, y);  y += yL;
 
 			for (int i=0; i <= keys.Lnum; ++i)

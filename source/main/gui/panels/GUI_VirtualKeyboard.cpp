@@ -21,32 +21,42 @@
 
 #include "GUI_VirtualKeyboard.h"
 
-/* ------- CKEYS --------
-Deps: 
+/* ------- CrystalKeys (https://github.com/cryham/ckeys) --------
+Deps (and their modifications): 
     Bundled: NFD (Native File Dialog)
+     > All files are fed externally using OGRE resource system
     Bundled: imgui-SFML (https://github.com/eliasdaler/imgui-sfml/blob/master/imgui-SFML.h)
+     > Using Ogre-IMGUI to draw, all direct calls to SFML were replaced by ImGUI's DrawList API
     Bundled: TinyXML2
+     > XML config support removed
     Bundled: Jsmn (https://github.com/zserge/jsmn)
-
-  ~~ AppMain.cpp: `AppMain::Run()`
-  		//  Draw
-		//------------------
-		app->Gui(); ~~ Main menu, settings, help
-
-		window->resetGLStates();
-
-		app->Graph(); ~~ draw keyboard
-
-		ImGui::Render();
-
-		window->display();
-
-
+     > JSON support removed - the format is poorly designed
 */
+
+void RoR::GUI::VirtualKeyboard::Init()
+{
+    m_ckeys = std::make_unique<ckeys::App>();
+    m_ckeys->Init();
+}
 
 void RoR::GUI::VirtualKeyboard::Draw()
 {
-   
+    // Handle input
+    m_ckeys->Mouse((int)ImGui::GetIO().MousePos.x, (int)ImGui::GetIO().MousePos.y); // Update internal mouse pos info
+
+    if (ImGui::IsKeyDown(ImGuiKey_Enter))  { m_ckeys->KeyDown(ImGuiKey_Enter); }
+    if (ImGui::IsKeyDown(ImGuiKey_Escape)) { m_ckeys->KeyDown(ImGuiKey_Escape); }
+
+    // Set GUI theme
+    ImGuiStyle orig_style = ImGui::GetStyle(); // Back up current settings (copy out ImGui's internal state)
+    m_ckeys->SetupGuiClr(); // Set up ckeys theme
+
+    // Draw GUI
+    m_ckeys->Gui(); // Draw supporting GUI panels (options, graphics)
+    m_ckeys->Graph(); // Draw the virtual keyboard
+
+    // Restore GUI theme
+    ImGui::GetStyle() = orig_style; // Rude overwrite of ImGui's internal state
 }
 
 

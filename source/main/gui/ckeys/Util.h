@@ -35,13 +35,6 @@ bool exists(const std::string& name);
 //  list directory contents
 int getDir(std::string dir, std::vector<std::string> &files);
 
-void strFindAndReplace(std::string& str, std::string const& needle, std::string const& patch)
-{
-	size_t off;
-	while ((off = str.find(needle)) != std::string::npos)
-	{
-		str.replace(str.begin() + off, str.begin() + off + needle.length(), patch);
-	}
-}
+void strFindAndReplaceAll(std::string& str, std::string const& needle, std::string const& patch);
 
 } // namespace ckeys

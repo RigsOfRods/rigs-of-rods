@@ -82,7 +82,7 @@ bool Keys::LoadKll(string path, int layer, bool logOut)
 
 	//  parse kll
 	//------------------------------------------------
-	int pos=0, len = s.length();
+	int pos=0, len = (int)s.length();
 	SParser p;
 
 	//  foreach char in string s
