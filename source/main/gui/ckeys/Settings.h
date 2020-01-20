@@ -2,8 +2,6 @@
 #include <string>
 #include <stdint.h>
 
-namespace sf {  class Window;  }
-
 namespace ckeys {
 
 enum KClr

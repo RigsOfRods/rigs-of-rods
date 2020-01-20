@@ -9,8 +9,6 @@ using namespace ckeys;
 //-----------------------------------------------
 void App::KeyDown(const ImGuiKey key)
 {
-	using namespace sf;
-
 	//  close options window
 	if (options || graphics)
 	{

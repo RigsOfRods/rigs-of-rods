@@ -3,8 +3,10 @@
 #include <iomanip>
 #include <regex>
 #include <fstream>
+
 using namespace std;
 
+namespace ckeys {
 
 //  format
 string i2s(const int v, const char width)
@@ -92,3 +94,5 @@ void strFindAndReplaceAll(std::string& str, std::string const& needle, std::stri
 		str.replace(str.begin() + off, str.begin() + off + needle.length(), patch);
 	}
 }
+
+} // namespace ckeys
