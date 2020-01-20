@@ -51,7 +51,7 @@ public:
 
 	//  window  -----
 	int   xwPos = 0,     ywPos = 0;
-	int   xwSize = 1310, ywSize = 450;
+	int   xwSize = 1310, ywSize = 450; // Optimal window size, continuously updated at runtime
 
 	bool  bFps = false;    // show Fps
 	bool  bInfo = true;    // keys, layers

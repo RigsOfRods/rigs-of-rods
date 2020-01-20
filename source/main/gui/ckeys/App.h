@@ -14,7 +14,6 @@ public:
 	~App();
 
 	bool Init();
-	void Resize(int x, int y);
 
 	void KeyDown(const ImGuiKey key);
 	void Mouse(int x, int y);

@@ -68,12 +68,8 @@ void App::Gui()
 		if (e && set.bLayout && xMax > 0)
 		{
 			//  fit window to layout  ----
-			set.xwSize = min(2560, max(640, xMax + 30));  //par
+			set.xwSize = min(2560, max(640, xMax + 30));
 			set.ywSize = yMax + set.yGuiSize + 4;
-			sf::Vector2u si(set.xwSize, set.ywSize);
-
-			pWindow->setSize(si);
-			Resize(set.xwSize, set.ywSize);
 		}
 		w = 100;  e = Button("Reset");  if (e)  set.fScale = 1.f;  x += w;
 
