@@ -1,4 +1,4 @@
-#include "../libs/imgui.h"
+#include "OgreImGui.h"
 #include "App.h"
 using namespace ImGui;
 using namespace ckeys;
