@@ -422,3 +422,83 @@ std::string ContentManager::ListAllUserContent()
     return buf.str();
 }
 
+bool ContentManager::LoadAndParseJson(std::string const& filename, std::string const& rg_name, rapidjson::Document& j_doc)
+{
+    try
+    {
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename, rg_name);
+        Ogre::String json_str = stream->getAsString();
+        rapidjson::MemoryStream j_stream(json_str.data(), json_str.length());
+        j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(j_stream);
+    }
+    catch (Ogre::FileNotFoundException)
+    {
+        RoR::LogFormat("[RoR] File '%s' (resource group '%s') not found",
+                       filename.c_str(), rg_name.c_str());
+        return false;
+    }
+    catch (std::exception& e)
+    {
+        RoR::LogFormat("[RoR] Failed to open or read json file '%s' (resource group '%s'), message: '%s'",
+                       filename.c_str(), rg_name.c_str(), e.what());
+        return false;
+    }
+
+    if (j_doc.HasParseError())
+    {
+        RoR::LogFormat("[RoR] Error parsing JSON file '%s' (resource group '%s')",
+                       filename.c_str(), rg_name.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+bool ContentManager::SerializeAndWriteJson(std::string const& filename, std::string const& rg_name, rapidjson::Document& j_doc)
+{
+    // Serialize JSON to string
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>,
+                      rapidjson::CrtAllocator, rapidjson::kWriteNanAndInfFlag>
+                      writer(buffer);
+    j_doc.Accept(writer);
+
+    // Write JSON to file
+    try
+    {
+        Ogre::DataStreamPtr stream
+            = Ogre::ResourceGroupManager::getSingleton().createResource(
+                filename, rg_name, /*overwrite=*/true);
+        size_t written = stream->write(buffer.GetString(), buffer.GetSize());
+        if (written < buffer.GetSize())
+        {
+            RoR::LogFormat("[RoR] Error writing JSON file '%s' (resource group '%s'), ",
+                           "only written %u out of %u bytes!",
+                           filename.c_str(), rg_name.c_str(), written, buffer.GetSize());
+            return false;
+        }
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        RoR::LogFormat("[RoR] Error writing JSON file '%s' (resource group '%s'), message: '%s'",
+                       filename.c_str(), rg_name.c_str(), e.what());
+        return false;
+    }
+}
+
+bool ContentManager::DeleteDiskFile(std::string const& filename, std::string const& rg_name)
+{
+    try
+    {
+        Ogre::ResourceGroupManager::getSingleton().deleteResource(filename, rg_name);
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        RoR::LogFormat("[RoR|ModCache] Error deleting file '%s' (resource group '%s'), message: '%s'",
+                        filename.c_str(), rg_name.c_str(), e.what());
+        return false;
+    }
+}
+
