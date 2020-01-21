@@ -128,9 +128,9 @@ bool Keys::LoadJson(std::string path, bool logOut)
             else if (j_item.IsObject()) // Update params
             {
                 if (j_item["x"].IsString()) { x += j_item["x"].GetFloat() * sx; }
-                if (j_item["y"].IsString()) { x += j_item["y"].GetFloat() * sx; }
-                if (j_item["w"].IsString()) { x += j_item["w"].GetFloat() * sx; }
-                if (j_item["h"].IsString()) { x += j_item["h"].GetFloat() * sx; }
+                if (j_item["y"].IsString()) { y += j_item["y"].GetFloat() * sy; }
+                if (j_item["w"].IsString()) { w = j_item["w"].GetFloat(); }
+                if (j_item["h"].IsString()) { h = j_item["h"].GetFloat(); }
             }
         }
     }
