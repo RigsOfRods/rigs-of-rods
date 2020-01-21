@@ -243,7 +243,10 @@ void ContentManager::InitContentManager()
 
 void ContentManager::InitModCache()
 {
-    ResourceGroupManager::getSingleton().addResourceLocation(App::sys_cache_dir.GetActive(), "FileSystem", RGN_CACHE, false, false);
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_cache_dir.GetActive(), "FileSystem", RGN_CACHE, /*recursive=*/false, /*readOnly=*/false);
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_savegames_dir.GetActive(), "FileSystem", RGN_SAVEGAMES, /*recursive=*/false, /*readOnly=*/false);
 
     std::string user = App::sys_user_dir.GetActive();
     std::string base = App::sys_process_dir.GetActive();
