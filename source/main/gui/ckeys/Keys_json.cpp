@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "ContentManager.h"
 #include "Keys.h"
 #include "KeyNames.h"
 #include <string>
@@ -24,15 +25,12 @@ using namespace ckeys;
 //-----------------------------------------------------------------------------------------------------------
 bool Keys::LoadJson(std::string path, bool logOut)
 {
-    // Read file using OGRE resource system
-    Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(path, Ogre::RGN_AUTODETECT);
-    std::string json_str = stream->getAsString();
-    stream.reset(); // Reset smart pointer -> close stream
-
-    // Parse the JSON
+    // Load keyboard layout file
     rapidjson::Document j_doc;
-    rapidjson::MemoryStream j_stream(json_str.data(), json_str.length());
-    j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(j_stream);
+    if (!RoR::App::GetContentManager()->LoadAndParseJson(path, Ogre::RGN_AUTODETECT, j_doc))
+    {
+        return false; // Error already logged
+    }
 
     // Validate the JSON
     if (!j_doc.IsArray())

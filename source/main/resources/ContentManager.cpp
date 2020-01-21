@@ -422,3 +422,37 @@ std::string ContentManager::ListAllUserContent()
     return buf.str();
 }
 
+bool ContentManager::LoadAndParseJson(std::string const& filename, std::string const& rg_name, rapidjson::Document& j_doc)
+{
+    try
+    {
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(CACHE_FILE, RGN_CACHE);
+        Ogre::String json_str = stream->getAsString();
+        rapidjson::MemoryStream j_stream(json_str.data(), json_str.length());
+        j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(j_stream);
+    }
+    catch (Ogre::FileNotFoundException)
+    {
+        RoR::LogFormat("[RoR] File '%s' (resource group '%s') not found",
+                       filename.c_str(), rg_name.c_str());
+        return false;
+    }
+    catch (std::exception& e)
+    {
+        RoR::LogFormat("[RoR] Failed to open or read json file '%s' (resource group '%s'), message: '%s'",
+                       filename.c_str(), rg_name.c_str(), e.what());
+        j_doc.Clear();
+        return false;
+    }
+
+    if (j_doc.HasParseError())
+    {
+        RoR::LogFormat("[RoR] Error parsing JSON file '%s' (resource group '%s')",
+                       filename.c_str(), rg_name.c_str());
+        j_doc.Clear();
+        return false;
+    }
+
+    return true;
+}
+

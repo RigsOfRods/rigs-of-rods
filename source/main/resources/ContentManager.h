@@ -28,6 +28,7 @@
 
 #include <OgreResourceGroupManager.h>
 #include <OgreScriptCompiler.h>
+#include <rapidjson/document.h>
 
 #define RGN_TEMP "Temp"
 #define RGN_CACHE "Cache"
@@ -84,6 +85,7 @@ public:
     void               InitModCache();
     void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
+    bool               LoadAndParseJson(std::string const& filename, std::string const& rg_name, rapidjson::Document& j_doc);
 
 private:
 
