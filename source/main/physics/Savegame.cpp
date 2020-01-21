@@ -63,13 +63,11 @@ Ogre::String ActorManager::GetQuicksaveFilename(Ogre::String terrain_name)
 
 Ogre::String ActorManager::ExtractSceneName(Ogre::String filename)
 {
-    std::ifstream ifs(PathCombine(App::sys_savegames_dir.GetActive(), filename));
-    rapidjson::IStreamWrapper isw(ifs);
+    // Read from disk
     rapidjson::Document j_doc;
-    j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(isw);
-
-    if (!j_doc.IsObject() || !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber() ||
-            !j_doc.HasMember("scene_name") || !j_doc["scene_name"].IsString())
+    if (!App::GetContentManager()->LoadAndParseJson(filename, RGN_SAVEGAMES, j_doc) ||
+        !j_doc.IsObject() || !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber() ||
+        !j_doc.HasMember("scene_name") || !j_doc["scene_name"].IsString())
         return "";
 
     return j_doc["scene_name"].GetString();
@@ -78,14 +76,9 @@ Ogre::String ActorManager::ExtractSceneName(Ogre::String filename)
 bool ActorManager::LoadScene(Ogre::String filename)
 {
     // Read from disk
-    String path = PathCombine(App::sys_savegames_dir.GetActive(), filename);
-    RoR::LogFormat("[RoR|Savegame] Reading savegame from file '%s' ...", path.c_str());
-
-    std::ifstream ifs(path);
-    rapidjson::IStreamWrapper isw(ifs);
     rapidjson::Document j_doc;
-    j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(isw);
-    if (!j_doc.IsObject() || !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber())
+    if (!App::GetContentManager()->LoadAndParseJson(filename, RGN_SAVEGAMES, j_doc) ||
+        !j_doc.IsObject() || !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber())
     {
         RoR::Log("[RoR|Savegame] Invalid or missing savegame file.");
         RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Error while loading scene: File invalid or missing"));
@@ -827,16 +820,9 @@ bool ActorManager::SaveScene(Ogre::String filename)
     j_doc.AddMember("actors", j_actors, j_doc.GetAllocator());
 
     // Write to disk
-    String path = PathCombine(App::sys_savegames_dir.GetActive(), filename);
-    RoR::LogFormat("[RoR|Savegame] Writing savegame to file '%s' ...", path.c_str());
-
-    std::ofstream ofs(path);
-    rapidjson::OStreamWrapper j_ofs(ofs);
-    rapidjson::Writer<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>, rapidjson::CrtAllocator,
-        rapidjson::kWriteNanAndInfFlag> j_writer(j_ofs);
-    if (!j_doc.Accept(j_writer))
+    if (!App::GetContentManager()->SerializeAndWriteJson(filename, RGN_SAVEGAMES, j_doc))
     {
-        RoR::LogFormat("[RoR|Savegame] Error writing '%s'", path.c_str());
+        // Error already logged
         RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Error while saving scene"));
         return false;
     }

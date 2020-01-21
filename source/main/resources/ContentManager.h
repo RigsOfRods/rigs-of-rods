@@ -33,6 +33,7 @@
 #define RGN_TEMP "Temp"
 #define RGN_CACHE "Cache"
 #define RGN_CONTENT "Content"
+#define RGN_SAVEGAMES "Savegames"
 #define RGN_MANAGED_MATS "ManagedMaterials"
 
 namespace RoR {
