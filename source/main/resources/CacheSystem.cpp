@@ -188,27 +188,16 @@ void CacheSystem::UnloadActorFromMemory(std::string filename)
     }
 }
 
-String CacheSystem::GetCacheConfigFilename()
-{
-    return PathCombine(App::sys_cache_dir.GetActive(), CACHE_FILE);
-}
-
 CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
 {
     this->GenerateHashFromFilenames();
 
     // First, open cache file and get hash for quick update check
-    std::ifstream ifs(this->GetCacheConfigFilename()); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
-    rapidjson::IStreamWrapper isw(ifs);
     rapidjson::Document j_doc;
-    j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(isw);
-    if (!j_doc.IsObject() ||
-        !j_doc.HasMember("global_hash") || !j_doc["global_hash"].IsString() || 
-        !j_doc.HasMember("format_version") ||!j_doc["format_version"].IsNumber() ||
-        !j_doc.HasMember("entries") || !j_doc["entries"].IsArray())
+    if (!App::GetContentManager()->LoadAndParseJson(CACHE_FILE, RGN_CACHE, j_doc))
     {
         RoR::Log("[RoR|ModCache] Invalid or missing cache file");
-        return CACHE_NEEDS_REBUILD; 
+        return CACHE_NEEDS_REBUILD;
     }
 
     if (j_doc["format_version"].GetInt() != CACHE_FILE_FORMAT)
@@ -332,12 +321,9 @@ void CacheSystem::LoadCacheFileJson()
     // Clear existing entries
     m_entries.clear();
 
-    std::ifstream ifs(this->GetCacheConfigFilename()); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
-    rapidjson::IStreamWrapper isw(ifs);
     rapidjson::Document j_doc;
-    j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(isw);
-
-    if (!j_doc.IsObject() || !j_doc.HasMember("entries") || !j_doc["entries"].IsArray())
+    if (!App::GetContentManager()->LoadAndParseJson(CACHE_FILE, RGN_CACHE, j_doc) ||
+        !j_doc.IsObject() || !j_doc.HasMember("entries") || !j_doc["entries"].IsArray())
     {
         RoR::Log("[RoR|ModCache] Error, cache file still invalid after check/update, content selector will be empty.");
         return;
@@ -577,27 +563,15 @@ void CacheSystem::WriteCacheFileJson()
     j_doc.AddMember("entries", j_entries, j_doc.GetAllocator());
 
     // Write to file
-    String path = GetCacheConfigFilename();
-    LOG("writing cache to file ("+path+")...");
-
-    std::ofstream ofs(path);
-    rapidjson::OStreamWrapper j_ofs(ofs);
-    rapidjson::Writer<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>, rapidjson::CrtAllocator, 
-        rapidjson::kWriteNanAndInfFlag> j_writer(j_ofs);
-    const bool written_ok = j_doc.Accept(j_writer);
-    if (written_ok)
+    if (App::GetContentManager()->SerializeAndWriteJson(CACHE_FILE, RGN_CACHE, j_doc)) // Logs errors
     {
-        RoR::LogFormat("[RoR|ModCache] File '%s' written OK", path.c_str());
-    }
-    else
-    {
-        RoR::LogFormat("[RoR|ModCache] Error writing '%s'", path.c_str());
+        RoR::LogFormat("[RoR|ModCache] File '%s' written OK", CACHE_FILE);
     }
 }
 
 void CacheSystem::ClearCache()
 {
-    std::remove(this->GetCacheConfigFilename().c_str());
+    App::GetContentManager()->DeleteDiskFile(CACHE_FILE, RGN_CACHE);
     for (auto& entry : m_entries)
     {
         String group = entry.resource_group;
@@ -944,8 +918,7 @@ void CacheSystem::RemoveFileCache(CacheEntry& entry)
 {
     if (!entry.filecachename.empty())
     {
-        String path = PathCombine(App::sys_cache_dir.GetActive(), entry.filecachename);
-        std::remove(path.c_str());
+        App::GetContentManager()->DeleteDiskFile(entry.filecachename, RGN_CACHE);
     }
 }
 

@@ -169,8 +169,6 @@ private:
     void LoadCacheFileJson();
     void ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & out_entry);
 
-    Ogre::String GetCacheConfigFilename(); // returns absolute path of the cache file
-
     static Ogre::String StripUIDfromString(Ogre::String uidstr); 
     static Ogre::String StripSHA1fromString(Ogre::String sha1str);
 
