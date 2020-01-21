@@ -1,6 +1,6 @@
 /*
     This source file is part of Rigs of Rods
-    Copyright 2016-2017 Petr Ohlidal & contributors
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -112,6 +112,16 @@ void RoR::DrawGIntSlider(GVarPod_A<int>& gvar, const char* label, int v_min, int
     if (ImGui::SliderInt(label, &val, v_min, v_max))
     {
         gvar.SetActive(val);
+    }
+}
+
+void RoR::DrawGIntSlider(GVarPod_APS<int>& gvar, const char* label, int v_min, int v_max)
+{
+    int val = gvar.GetActive();
+    if (ImGui::SliderInt(label, &val, v_min, v_max))
+    {
+        gvar.SetActive(val);
+        gvar.SetStored(val);
     }
 }
 
