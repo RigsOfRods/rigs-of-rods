@@ -25,21 +25,21 @@
 /// @author Thomas Fischer
 
 #include "Settings.h"
-#include "Utils.h"
 
-#include <Ogre.h>
+#include "Application.h"
+#include "ContentManager.h" // RGN_CONFIG
+#include "ErrorUtils.h"
+#include "Language.h"
+#include "PlatformUtils.h"
+#include "Utils.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #include <direct.h> // for _chdir
 #include <Windows.h>
 #endif
 
-#include "Application.h"
-#include "ErrorUtils.h"
-#include "Language.h"
-#include "PlatformUtils.h"
-
-#include "Utils.h"
+#include <Ogre.h>
+#include <sstream>
 
 // simpleopt by http://code.jellycan.com/simpleopt/
 // license: MIT
@@ -47,6 +47,8 @@
 #    undef _UNICODE // We want narrow-string args.
 #endif
 #include "SimpleOpt.h"
+
+#define CONFIG_FILE_NAME "RoR.cfg"
 
 // option identifiers
 enum {
@@ -635,7 +637,7 @@ void Settings::LoadRoRCfg()
     Ogre::ConfigFile cfg;
     try
     {
-        std::string path = PathCombine(App::sys_config_dir.GetActive(), "RoR.cfg");
+        std::string path = PathCombine(App::sys_config_dir.GetActive(), CONFIG_FILE_NAME);
         cfg.load(Ogre::String(path), "=:\t", false);
 
         // load all settings into a map!
@@ -765,37 +767,31 @@ inline const char* GfxSkyToStr(GfxSkyMode v)
 }
 
 template <typename GVarStr_T>
-inline void WriteStr(std::ofstream& f, GVarStr_T& gvar)
+inline void WriteStr(std::stringstream& f, GVarStr_T& gvar)
 {
     f << gvar.conf_name << "=" << gvar.GetStored() << std::endl;
 }
 
 template <typename GVarPod_T>
-inline void WritePod(std::ofstream& f, GVarPod_T& gvar)
+inline void WritePod(std::stringstream& f, GVarPod_T& gvar)
 {
     f << gvar.conf_name << "=" << gvar.GetStored() << std::endl;
 }
 
 template <typename GVarPod_T>
-inline void WriteYN(std::ofstream& f, GVarPod_T& gvar) ///< Writes "Yes/No" - handles `bool` and `int(1/0)`
+inline void WriteYN(std::stringstream& f, GVarPod_T& gvar) ///< Writes "Yes/No" - handles `bool` and `int(1/0)`
 {
     f << gvar.conf_name << "=" << (static_cast<int>(gvar.GetStored()) == 0 ? "No" : "Yes") << std::endl;
 }
 
-inline void WriteAny(std::ofstream& f, const char* name, const char* value)
+inline void WriteAny(std::stringstream& f, const char* name, const char* value)
 {
     f << name << "=" << value << std::endl;
 }
 
 void Settings::SaveSettings()
 {
-    std::string rorcfg_path = PathCombine(App::sys_config_dir.GetActive(), "RoR.cfg");
-    std::ofstream f(rorcfg_path);
-    if (!f.is_open())
-    {
-        LOG("[RoR] Failed to save RoR.cfg: Could not open file");
-        return;
-    }
+    std::stringstream f;
 
     f << "; Rigs of Rods configuration file" << std::endl;
     f << "; -------------------------------" << std::endl;
@@ -917,7 +913,24 @@ void Settings::SaveSettings()
     WriteStr (f, App::app_extra_mod_path    );
     WriteYN  (f, App::app_disable_online_api);
 
-    f.close();
+    try
+    {
+        Ogre::DataStreamPtr stream
+            = Ogre::ResourceGroupManager::getSingleton().createResource(
+                CONFIG_FILE_NAME, RGN_CONFIG, /*overwrite=*/true);
+        size_t written = stream->write(f.str().c_str(), f.str().length());
+        if (written < f.str().length())
+        {
+            RoR::LogFormat("[RoR] Error writing file '%s' (resource group '%s'), ",
+                           "only written %u out of %u bytes!",
+                           CONFIG_FILE_NAME, RGN_CONFIG, written, f.str().length());
+        }
+    }
+    catch (std::exception& e)
+    {
+        RoR::LogFormat("[RoR|Settings] Error writing file '%s' (resource group '%s'), message: '%s'",
+                        CONFIG_FILE_NAME, RGN_CONFIG, e.what());
+    }
 }
 
 bool Settings::SetupAllPaths()

@@ -145,6 +145,11 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack, std::str
 
 void ContentManager::InitContentManager()
 {
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_config_dir.GetActive(), "FileSystem", RGN_CONFIG, /*recursive=*/false, /*readOnly=*/false);
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_savegames_dir.GetActive(), "FileSystem", RGN_SAVEGAMES, /*recursive=*/false, /*readOnly=*/false);
+
     Ogre::ScriptCompilerManager::getSingleton().setListener(this);
 
     // Initialize "managed materials" first
@@ -200,10 +205,6 @@ void ContentManager::InitContentManager()
     // streams path, to be processed later by the cache system
     LOG("RoR|ContentManager: Loading filesystems");
 
-    // config, flat
-    ResourceGroupManager::getSingleton().addResourceLocation(std::string(RoR::App::sys_config_dir.GetActive()), "FileSystem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-    // packs, to be processed later by the cache system
-
     // add scripts folder
     ResourceGroupManager::getSingleton().addResourceLocation(std::string(App::sys_user_dir.GetActive()) + PATH_SLASH + "scripts", "FileSystem", "Scripts");
 
@@ -245,9 +246,6 @@ void ContentManager::InitModCache()
 {
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_cache_dir.GetActive(), "FileSystem", RGN_CACHE, /*recursive=*/false, /*readOnly=*/false);
-    ResourceGroupManager::getSingleton().addResourceLocation(
-        App::sys_savegames_dir.GetActive(), "FileSystem", RGN_SAVEGAMES, /*recursive=*/false, /*readOnly=*/false);
-
     std::string user = App::sys_user_dir.GetActive();
     std::string base = App::sys_process_dir.GetActive();
     std::string objects = PathCombine("resources", "beamobjects.zip");
