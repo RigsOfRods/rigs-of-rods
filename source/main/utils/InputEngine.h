@@ -481,8 +481,6 @@ public:
     int getJoyComponentCount(OIS::ComponentType type, int joystickNumber);
     std::string getJoyVendor(int joystickNumber);
     void smoothValue(float& ref, float value, float rate);
-    bool saveMapping(std::string outfile = CONFIGFILENAME, Ogre::String hwnd = 0, int joyNum = -10);
-    bool appendLineToConfig(std::string line, std::string outfile = CONFIGFILENAME);
     bool loadMapping(std::string outfile = CONFIGFILENAME, bool append = false, int deviceID = -1);
 
     void destroy();
