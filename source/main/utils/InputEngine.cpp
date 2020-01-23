@@ -22,6 +22,7 @@
 #include "InputEngine.h"
 
 #include "Application.h"
+#include "ContentManager.h"
 #include "GUIManager.h"
 #include "Language.h"
 #include "OgreSubsystem.h"
@@ -3284,16 +3285,6 @@ String InputEngine::getEventGroup(String eventName)
     return "";
 }
 
-bool InputEngine::appendLineToConfig(std::string line, std::string outfile)
-{
-    FILE* f = fopen(const_cast<char *>(outfile.c_str()), "a");
-    if (!f)
-        return false;
-    fprintf(f, "%s\n", line.c_str());
-    fclose(f);
-    return true;
-}
-
 bool InputEngine::reloadConfig(std::string outfile)
 {
     events.clear();
@@ -3369,115 +3360,6 @@ bool InputEngine::updateConfigline(event_trigger_t* t)
     return true;
 }
 
-bool InputEngine::saveMapping(String outfile, String hwnd, int joyNum)
-{
-    // -10 = all
-    // -2  = keyboard
-    // -3  = mouse
-    // >0 joystick
-    FILE* f = fopen(const_cast<char *>(outfile.c_str()), "w");
-    if (!f)
-        return false;
-
-    bool created = false;
-
-    if (!mInputManager && !hwnd.empty())
-    {
-        destroy();
-        setup(hwnd, false, false);
-        created = true;
-    }
-
-    int counter = 0;
-    char curGroup[128] = "";
-    std::map<int, std::vector<event_trigger_t>> controls = getEvents();
-    std::map<int, std::vector<event_trigger_t>>::iterator mapIt;
-    std::vector<event_trigger_t>::iterator vecIt;
-    for (mapIt = controls.begin(); mapIt != controls.end(); mapIt++)
-    {
-        std::vector<event_trigger_t> vec = mapIt->second;
-
-        for (vecIt = vec.begin(); vecIt != vec.end(); vecIt++ , counter++)
-        {
-            // filters
-            if (vecIt->eventtype == ET_Keyboard && joyNum != -10 && joyNum != -2)
-                continue;
-            if ((vecIt->eventtype == ET_MouseAxisX || vecIt->eventtype == ET_MouseAxisY || vecIt->eventtype == ET_MouseAxisZ) && joyNum != -10 && joyNum != -3)
-                continue;
-            if ((vecIt->eventtype == ET_JoystickAxisAbs || vecIt->eventtype == ET_JoystickAxisRel || vecIt->eventtype == ET_JoystickButton || vecIt->eventtype == ET_JoystickPov || vecIt->eventtype == ET_JoystickSliderX || vecIt->eventtype == ET_JoystickSliderY) && joyNum >= 0 && vecIt->joystickNumber != joyNum)
-                continue;
-
-            if (strcmp(vecIt->group, curGroup))
-            {
-                strncpy(curGroup, vecIt->group, 128);
-                // group title:
-                fprintf(f, "\n; %s\n", curGroup);
-            }
-
-            // no user comments for now!
-            //if (vecIt->comments!="")
-            //	fprintf(f, "%s", vecIt->comments.c_str());
-
-            // print event name
-            fprintf(f, "%-30s ", eventIDToName(mapIt->first).c_str());
-            // print event type
-            fprintf(f, "%-20s ", getEventTypeName(vecIt->eventtype).c_str());
-
-            if (vecIt->eventtype == ET_Keyboard)
-            {
-                fprintf(f, "%s ", vecIt->configline);
-            }
-            else if (vecIt->eventtype == ET_JoystickAxisAbs || vecIt->eventtype == ET_JoystickAxisRel)
-            {
-                fprintf(f, "%d ", vecIt->joystickNumber);
-                fprintf(f, "%d ", vecIt->joystickAxisNumber);
-                fprintf(f, "%s ", vecIt->configline);
-            }
-            else if (vecIt->eventtype == ET_JoystickSliderX || vecIt->eventtype == ET_JoystickSliderY)
-            {
-                fprintf(f, "%d ", vecIt->joystickNumber);
-                char type = 'X';
-                if (vecIt->eventtype == ET_JoystickSliderY)
-                    type = 'Y';
-                fprintf(f, "%c ", type);
-                fprintf(f, "%d ", vecIt->joystickSliderNumber);
-                fprintf(f, "%s ", vecIt->configline);
-            }
-            else if (vecIt->eventtype == ET_JoystickButton)
-            {
-                fprintf(f, "%d ", vecIt->joystickNumber);
-                fprintf(f, "%d ", vecIt->joystickButtonNumber);
-            }
-            else if (vecIt->eventtype == ET_JoystickPov)
-            {
-                const char* dirStr = "North";
-                if (vecIt->joystickPovDirection == OIS::Pov::North)
-                    dirStr = "North";
-                if (vecIt->joystickPovDirection == OIS::Pov::South)
-                    dirStr = "South";
-                if (vecIt->joystickPovDirection == OIS::Pov::East)
-                    dirStr = "East";
-                if (vecIt->joystickPovDirection == OIS::Pov::West)
-                    dirStr = "West";
-                if (vecIt->joystickPovDirection == OIS::Pov::NorthEast)
-                    dirStr = "NorthEast";
-                if (vecIt->joystickPovDirection == OIS::Pov::SouthEast)
-                    dirStr = "SouthEast";
-                if (vecIt->joystickPovDirection == OIS::Pov::NorthWest)
-                    dirStr = "NorthWest";
-                if (vecIt->joystickPovDirection == OIS::Pov::SouthWest)
-                    dirStr = "SouthWest";
-
-                fprintf(f, "%d %d %s", vecIt->joystickNumber, vecIt->joystickPovNumber, dirStr);
-            }
-            // end this line
-            fprintf(f, "\n");
-        }
-    }
-    fclose(f);
-    return true;
-}
-
 void InputEngine::completeMissingEvents()
 {
     if (!mappingLoaded)
@@ -3515,13 +3397,12 @@ bool InputEngine::loadMapping(String outfile, bool append, int deviceID)
         events.clear();
     }
 
-#ifndef NOOGRE
     LOG(" * Loading input mapping " + outfile);
     {
         DataStreamPtr ds;
         try
         {
-            ds = ResourceGroupManager::getSingleton().openResource(outfile, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+            ds = ResourceGroupManager::getSingleton().openResource(outfile, RGN_CONFIG);
         }
         catch (...)
         {
@@ -3539,18 +3420,6 @@ bool InputEngine::loadMapping(String outfile, bool append, int deviceID)
                 processLine(line, deviceID);
         }
     }
-#else
-    FILE *f = fopen(outfile.c_str(), "r");
-    if (!f)
-        return false;
-    while(fgets(line, 1024, f)!=NULL)
-    {
-        if (strnlen(line, 1024) > 5)
-            processLine(line);
-    }
-    fclose(f);
-
-#endif
 
     int newEvents = uniqueCounter - oldState;
 #ifndef NOOGRE
