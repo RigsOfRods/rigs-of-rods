@@ -44,8 +44,6 @@ Ogre::String sha1sum(const char *key, int len);
 
 Ogre::String HashData(const char *key, int len);
 
-Ogre::String HashFile(const char* szFileName);
-
 Ogre::UTFString tryConvertUTF(const char* buffer);
 
 Ogre::UTFString formatBytes(double bytes);
