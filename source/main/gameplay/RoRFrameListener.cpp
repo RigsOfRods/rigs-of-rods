@@ -68,7 +68,6 @@
 #include "SurveyMapManager.h"
 
 #include <ctime>
-#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -591,10 +590,13 @@ void SimController::UpdateInputEvents(float dt)
         }
         else
         {
-            std::string path = PathCombine(RoR::App::sys_config_dir.GetActive(), "editor_out.cfg");
-            std::ofstream file(path);
-            if (file.is_open())
+            const char* filename = "editor_out.cfg";
+            try
             {
+                Ogre::DataStreamPtr stream
+                    = Ogre::ResourceGroupManager::getSingleton().createResource(
+                        filename, RGN_CONFIG, /*overwrite=*/true);
+
                 for (auto object : object_list)
                 {
                     SceneNode* sn = object.node;
@@ -603,14 +605,16 @@ void SimController::UpdateInputEvents(float dt)
                         String pos = StringUtil::format("%8.3f, %8.3f, %8.3f"   , object.position.x, object.position.y, object.position.z);
                         String rot = StringUtil::format("% 6.1f, % 6.1f, % 6.1f", object.rotation.x, object.rotation.y, object.rotation.z);
 
-                        file << pos + ", " + rot + ", " + object.name + "\n";
+                        String line = pos + ", " + rot + ", " + object.name + "\n";
+                        stream->write(line.c_str(), line.length());
                     }
                 }
-                file.close();
             }
-            else
+            catch (std::exception& e)
             {
-                LOG("Cannot write '" + path + "'");
+                RoR::LogFormat("[RoR|MapEditor]"
+                               "Error saving file '%s' (resource group '%s'), message: '%s'",
+                                filename, RGN_CONFIG, e.what());
             }
         }
     }
