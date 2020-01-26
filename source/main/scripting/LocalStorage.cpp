@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2017 Petr Ohlidal & contributors
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -22,6 +22,7 @@
 #include "LocalStorage.h"
 
 #include "Application.h"
+#include "ContentManager.h"
 #include "PlatformUtils.h"
 
 int LocalStorage::refCount = 0;
@@ -43,8 +44,9 @@ LocalStorage::LocalStorage(AngelScript::asIScriptEngine *engine_in, std::string 
 
     sectionName = sectionName_in.substr(0, sectionName_in.find(".", 0));
     
-    filename = RoR::PathCombine(RoR::App::sys_cache_dir.GetActive(), fileName_in + ".asdata");
-    separators = "=";
+    this->filename = fileName_in + ".asdata";
+    this->separators = "=";
+    this->resource_group_name = RGN_CACHE;
     loadDict();
     
     saved = true;
@@ -242,17 +244,37 @@ void LocalStorage::set(std::string &key, const Ogre::Degree &value)
 
 void LocalStorage::saveDict()
 {
-    if (!saved && save())
-        saved = true;
+    if (this->saved)
+    {
+        return;
+    }
+
+    try
+    {
+        this->saveImprovedCfg();
+        this->saved = true;
+    }
+    catch (std::exception& e)
+    {
+        RoR::LogFormat("[RoR|Scripting|LocalStorage]"
+                       "Error saving file '%s' (resource group '%s'), message: '%s'",
+                        this->filename, RGN_CACHE, e.what());
+    }
 }
 
 bool LocalStorage::loadDict()
 {
-    std::ifstream ifile(filename.c_str());
-    if ( !ifile )
+    try
+    {
+        this->loadImprovedCfg();
+    }
+    catch (std::exception& e)
+    {
+        RoR::LogFormat("[RoR|Scripting|LocalStorage]"
+                       "Error reading file '%s' (resource group '%s'), message: '%s'",
+                        this->filename, RGN_CACHE, e.what());
         return false;
-
-    load(filename);
+    }
     saved = true;
     return true;
 }
