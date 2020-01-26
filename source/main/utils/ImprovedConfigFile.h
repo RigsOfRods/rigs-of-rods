@@ -29,6 +29,9 @@
 #include <OgreException.h>
 #include <OgreString.h>
 
+#include <cstdio>
+
+/// TODO: Nonsense middle layer, only used by scripting/LocalStorage, to be removed in favor of JSON ~ 01/2020 only_a_ptr
 class ImprovedConfigFile : public RoR::ConfigFile
 {
 public:
@@ -41,27 +44,9 @@ public:
     {
     }
 
-    // note: saving is only supported for direct loaded files atm!
-    void load(const Ogre::String& filename, const Ogre::String& separators = "=", bool trimWhitespace = true)
+    void loadImprovedCfg()
     {
-        this->separators = separators;
-        this->filename = filename;
-        ConfigFile::load(filename, separators, trimWhitespace);
-    }
-
-    void load(const Ogre::DataStreamPtr& ptr, const Ogre::String& separators, bool trimWhitespace)
-    {
-        this->separators = separators;
-        this->filename = "";
-        ConfigFile::load(ptr, separators, trimWhitespace);
-    }
-
-    void loadFromString(const Ogre::String str, const Ogre::String& separators, bool trimWhitespace)
-    {
-        Ogre::DataStreamPtr ds(Ogre::DataStreamPtr(OGRE_NEW Ogre::MemoryDataStream((void*)str.c_str(), str.size(), false, true)));
-        this->separators = separators;
-        this->filename = "";
-        ConfigFile::load(ds, separators, trimWhitespace);
+        ConfigFile::load(this->filename, this->resource_group_name, this->separators, /*trimWhitespace*/true);
     }
 
     bool hasSetting(Ogre::String key, Ogre::String section = "")
@@ -69,40 +54,30 @@ public:
         return (mSettingsPtr.find(section) != mSettingsPtr.end() && mSettingsPtr[section]->find(key) != mSettingsPtr[section]->end());
     }
 
-    bool save()
+    bool saveImprovedCfg()
     {
-        return saveAs(filename);
-    }
+        Ogre::DataStreamPtr stream
+            = Ogre::ResourceGroupManager::getSingleton().createResource(
+                this->filename, this->resource_group_name, /*overwrite=*/true);
 
-    bool saveAs(Ogre::String fn)
-    {
-        if (!fn.length())
-        {
-            OGRE_EXCEPT(Ogre::Exception::ERR_INTERNAL_ERROR,
-                "Saving of the configuration File is only allowed"
-                "when the configuration was not loaded using the resource system!",
-                "ImprovedConfigFile::save");
-            return false;
-        }
-        FILE* f = fopen(fn.c_str(), "w");
-        if (!f)
-        {
-            OGRE_EXCEPT(Ogre::Exception::ERR_FILE_NOT_FOUND, "Cannot open File '"+fn+"' for writing.", "ImprovedConfigFile::save");
-            return false;
-        }
-
+        const size_t BUF_LEN = 2000;
+        char buf[BUF_LEN];
         SettingsBySection::iterator secIt;
         for (secIt = mSettingsPtr.begin(); secIt != mSettingsPtr.end(); secIt++)
         {
             if (secIt->first.size() > 0)
-                fprintf(f, "[%s]\n", secIt->first.c_str());
+            {
+                int num_chars = std::snprintf(buf, BUF_LEN, "[%s]\n", secIt->first.c_str());
+                stream->write(buf, num_chars);
+            }
+
             SettingsMultiMap::iterator setIt;
             for (setIt = secIt->second->begin(); setIt != secIt->second->end(); setIt++)
             {
-                fprintf(f, "%s%c%s\n", setIt->first.c_str(), separators[0], setIt->second.c_str());
+                int num_chars = std::snprintf(buf, BUF_LEN, "%s%c%s\n", setIt->first.c_str(), separators[0], setIt->second.c_str());
+                stream->write(buf, num_chars);
             }
         }
-        fclose(f);
         return true;
     }
 
@@ -256,4 +231,5 @@ public:
 protected:
     Ogre::String separators;
     Ogre::String filename;
+    Ogre::String resource_group_name;
 };
