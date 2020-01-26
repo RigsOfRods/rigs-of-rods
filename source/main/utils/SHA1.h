@@ -100,9 +100,6 @@ public:
 
     // Update the hash value
     void UpdateHash(uint8_t* data, uint32_t len);
-#ifdef SHA1_UTILITY_FUNCTIONS
-    bool HashFile(char* szFileName);
-#endif
 
     // Finalize hash and report
     void Final();
