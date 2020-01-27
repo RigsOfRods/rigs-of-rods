@@ -434,9 +434,7 @@ bool ContentManager::LoadAndParseJson(std::string const& filename, std::string c
     }
     catch (Ogre::FileNotFoundException)
     {
-        RoR::LogFormat("[RoR] File '%s' (resource group '%s') not found",
-                       filename.c_str(), rg_name.c_str());
-        return false;
+        return false; // Error already logged by OGRE
     }
     catch (std::exception& e)
     {
