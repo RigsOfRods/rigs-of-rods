@@ -745,15 +745,24 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
 void RoR::GUI::TopMenubar::DrawSpecialStateBox(float top_offset)
 {
     std::string special_text;
+    ImVec4 special_color;
 
     // Gather state info
     if (App::GetSimController()->GetPhysicsPaused())
     {
-        special_text = Ogre::StringUtil::replaceAll(_L("Physics paused, press '{}' to unpause"),
+        special_color = ORANGE_TEXT;
+        special_text = Ogre::StringUtil::replaceAll(_L("All physics paused, press '{}' to resume"),
             "{}", App::GetInputEngine()->getEventCommand(EV_COMMON_TOGGLE_PHYSICS));
     }
+    else if (App::GetSimController()->GetPlayerActor() &&
+             App::GetSimController()->GetPlayerActor()->ar_physics_paused)
+    {
+        special_color = GREEN_TEXT;
+        special_text = Ogre::StringUtil::replaceAll(_L("Vehicle physics paused, press '{}' to resume"),
+            "{}", App::GetInputEngine()->getEventCommand(EV_TRUCK_TOGGLE_PHYSICS));
+    }
 
-    // Draw if needed
+    // Draw box if needed
     if (!special_text.empty())
     {
         ImVec2 box_pos;
@@ -765,7 +774,7 @@ void RoR::GUI::TopMenubar::DrawSpecialStateBox(float top_offset)
         ImGui::PushStyleColor(ImGuiCol_WindowBg, PANEL_BG_COLOR);
         if (ImGui::Begin("Special state box", nullptr, flags))
         {
-            ImGui::TextColored(ORANGE_TEXT, "%s", special_text.c_str());
+            ImGui::TextColored(special_color, "%s", special_text.c_str());
             ImGui::End();
         }
         ImGui::PopStyleColor(1); // WindowBg
