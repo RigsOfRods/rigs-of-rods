@@ -69,6 +69,37 @@ void RoR::DrawImGuiSpinner(float& counter, const ImVec2 size, const float spacin
     draw_list->AddTriangleFilled(ImVec2(mid_x-spacing, mid_y),   ImVec2(left, bottom - spacing),  ImVec2(left, top + spacing),      COLORS[(color_start+1)%4]);
 }
 
+// Internal helper
+static inline ImVec2 ImRotate(const ImVec2& v, float cos_a, float sin_a) 
+{ 
+    return ImVec2(v.x * cos_a - v.y * sin_a, v.x * sin_a + v.y * cos_a);
+}
+
+//source: https://github.com/ocornut/imgui/issues/1982#issuecomment-408834301
+void RoR::DrawImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float angle)
+{
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+    float cos_a = cosf(angle);
+    float sin_a = sinf(angle);
+    ImVec2 pos[4] =
+    {
+        center + ImRotate(ImVec2(-size.x * 0.5f, -size.y * 0.5f), cos_a, sin_a),
+        center + ImRotate(ImVec2(+size.x * 0.5f, -size.y * 0.5f), cos_a, sin_a),
+        center + ImRotate(ImVec2(+size.x * 0.5f, +size.y * 0.5f), cos_a, sin_a),
+        center + ImRotate(ImVec2(-size.x * 0.5f, +size.y * 0.5f), cos_a, sin_a)
+    };
+    ImVec2 uvs[4] = 
+    { 
+        ImVec2(0.0f, 0.0f), 
+        ImVec2(1.0f, 0.0f), 
+        ImVec2(1.0f, 1.0f), 
+        ImVec2(0.0f, 1.0f) 
+    };
+
+    draw_list->AddImageQuad(tex_id, pos[0], pos[1], pos[2], pos[3], uvs[0], uvs[1], uvs[2], uvs[3], IM_COL32_WHITE);
+}
+
 void RoR::DrawGCheckbox(GVarPod_A<bool>& gvar, const char* label)
 {
     bool val = gvar.GetActive();

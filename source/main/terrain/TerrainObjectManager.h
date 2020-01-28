@@ -46,10 +46,20 @@ public:
         Ogre::SceneNode* node;
     };
 
+    struct MapEntity
+    {
+        Ogre::String type;
+        Ogre::String name;
+        Ogre::Vector3 pos;
+        float rot;
+        int id;
+    };
+
     TerrainObjectManager(TerrainManager* terrainManager);
     ~TerrainObjectManager();
 
     std::vector<EditorObject>& GetEditorObjects() { return m_editor_objects; }
+    std::vector<MapEntity>& GetMapEntities() { return m_map_entities; }
     void           LoadTObjFile(Ogre::String filename);
     void           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* m_staticgeometry_bake_node, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
     void           MoveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
@@ -69,16 +79,6 @@ public:
 
     std::vector<localizer_t> GetLocalizers() { return localizers; }
 private:
-
-    struct MapEntity
-    {
-        SurveyMapEntity* ent;
-        Ogre::String type;
-        Ogre::String name;
-        Ogre::Vector3 pos;
-        float rot;
-        int id;
-    };
 
     struct AnimatedObject
     {

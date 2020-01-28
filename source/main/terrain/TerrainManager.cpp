@@ -26,6 +26,7 @@
 #include "Renderdash.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
+#include "GUI_SurveyMap.h"
 #include "HydraxWater.h"
 #include "Language.h"
 #include "RoRFrameListener.h"
@@ -219,6 +220,7 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
     PROGRESS_WINDOW(92, _L("Initializing Overview Map Subsystem"));
     LoadTelepoints();
     App::GetSimController()->GetGfxScene().InitScene(gEnv->sceneManager);
+    App::GetGuiManager()->GetSurveyMap()->CreateTerrainTextures(); // Should be done before actors are loaded, otherwise they'd show up in the static texture
 
     LOG(" ===== LOADING TERRAIN ACTORS " + filename);
     PROGRESS_WINDOW(95, _L("Loading Terrain Actors"));

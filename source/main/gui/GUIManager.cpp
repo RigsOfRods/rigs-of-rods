@@ -52,6 +52,7 @@
 #include "GUI_NodeBeamUtils.h"
 #include "GUI_SimActorStats.h"
 #include "GUI_SimPerfStats.h"
+#include "GUI_SurveyMap.h"
 #include "GUI_TextureToolWindow.h"
 #include "GUI_TopMenubar.h"
 #include "GUI_VehicleDescription.h"
@@ -86,6 +87,7 @@ struct GuiManagerImpl
     GUI::LoadingWindow          panel_LoadingWindow;
     GUI::TopMenubar             panel_TopMenubar;
     GUI::ConsoleWindow          panel_ConsoleWindow;
+    GUI::SurveyMap              panel_SurveyMap;
     Ogre::Overlay*              overlay_Wallpaper = nullptr;
 
     MyGUI::Gui*                 mygui = nullptr;
@@ -142,6 +144,7 @@ bool GUIManager::IsVisible_TopMenubar           () { return m_impl->panel_TopMen
 bool GUIManager::IsVisible_NodeBeamUtils        () { return m_impl->panel_NodeBeamUtils      .IsVisible(); }
 bool GUIManager::IsVisible_SimActorStats        () { return m_impl->panel_SimActorStats      .IsVisible(); }
 bool GUIManager::IsVisible_SimPerfStats         () { return m_impl->panel_SimPerfStats       .IsVisible(); }
+bool GUIManager::IsVisible_SurveyMap            () { return m_impl->panel_SurveyMap          .IsVisible(); }
 
 // GUI GetInstance*()
 GUI::MainSelector*          GUIManager::GetMainSelector()      { return &m_impl->panel_MainSelector        ; }
@@ -151,6 +154,7 @@ GUI::LoadingWindow*         GUIManager::GetLoadingWindow()     { return &m_impl-
 GUI::MultiplayerSelector*   GUIManager::GetMpSelector()        { return &m_impl->panel_MultiplayerSelector ; }
 GUI::FrictionSettings*      GUIManager::GetFrictionSettings()  { return &m_impl->panel_FrictionSettings    ; }
 GUI::TopMenubar*            GUIManager::GetTopMenubar()        { return &m_impl->panel_TopMenubar          ; }
+GUI::SurveyMap*             GUIManager::GetSurveyMap()         { return &m_impl->panel_SurveyMap           ; }
 
 GUIManager::GUIManager() :
     m_renderwindow_closed(false),
@@ -306,6 +310,11 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     if (this->IsVisible_TextureToolWindow())
     {
         m_impl->panel_TextureToolWindow.Draw();
+    }
+
+    if (this->IsVisible_SurveyMap())
+    {
+        m_impl->panel_SurveyMap.Draw();
     }
 }
 

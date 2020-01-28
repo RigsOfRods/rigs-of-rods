@@ -107,6 +107,7 @@ public:
     bool IsVisible_Console              ();
     bool IsVisible_SimActorStats        ();
     bool IsVisible_SimPerfStats         ();
+    bool IsVisible_SurveyMap            ();
 
     // GUI GetInstance*()
     GUI::MainSelector* GetMainSelector();
@@ -116,6 +117,7 @@ public:
     GUI::MultiplayerSelector* GetMpSelector();
     GUI::FrictionSettings* GetFrictionSettings();
     GUI::TopMenubar* GetTopMenubar();
+    GUI::SurveyMap* GetSurveyMap();
 
     // GUI manipulation
     void ShowMessageBox(const char* title, const char* text, bool allow_close = true, const char* btn1_text = "OK", const char* btn2_text = nullptr);
