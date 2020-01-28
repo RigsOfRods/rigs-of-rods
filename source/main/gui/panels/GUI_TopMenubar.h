@@ -56,6 +56,7 @@ public:
 private:
     void DrawActorListSinglePlayer();
     void DrawMpUserToActorList(RoRnet::UserInfo &user); // Multiplayer
+    void DrawSpecialStateBox(float top_offset);
 
     ImVec2  m_open_menu_hoverbox_min;
     ImVec2  m_open_menu_hoverbox_max;

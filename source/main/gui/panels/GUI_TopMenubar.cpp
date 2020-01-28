@@ -31,6 +31,8 @@
 #include "GUIManager.h"
 #include "GUIUtils.h"
 #include "GUI_MainSelector.h"
+#include "InputEngine.h"
+#include "Language.h"
 #include "Network.h"
 #include "PlatformUtils.h"
 #include "RoRFrameListener.h"
@@ -64,6 +66,7 @@ void RoR::GUI::TopMenubar::Update()
     {
         m_open_menu = TopMenu::TOPMENU_NONE;
         m_confirm_remove_all = false;
+        this->DrawSpecialStateBox(10.f);
         return;
     }
 
@@ -142,7 +145,10 @@ void RoR::GUI::TopMenubar::Update()
         m_open_menu = TopMenu::TOPMENU_TOOLS;
     }
 
+    ImVec2 topmenu_final_size = ImGui::GetWindowSize();
     ImGui::End();
+
+    this->DrawSpecialStateBox(window_target_pos.y + topmenu_final_size.y + 10.f);
 
     ImVec2 menu_pos;
     Actor* current_actor = App::GetSimController()->GetPlayerActor();
@@ -733,5 +739,35 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
             }
             ImGui::PopStyleColor();
         }
+    }
+}
+
+void RoR::GUI::TopMenubar::DrawSpecialStateBox(float top_offset)
+{
+    std::string special_text;
+
+    // Gather state info
+    if (App::GetSimController()->GetPhysicsPaused())
+    {
+        special_text = Ogre::StringUtil::replaceAll(_L("Physics paused, press '{}' to unpause"),
+            "{}", App::GetInputEngine()->getEventCommand(EV_COMMON_TOGGLE_PHYSICS));
+    }
+
+    // Draw if needed
+    if (!special_text.empty())
+    {
+        ImVec2 box_pos;
+        box_pos.y = top_offset;
+        box_pos.x = (ImGui::GetIO().DisplaySize.x / 2) - ((ImGui::CalcTextSize(special_text.c_str()).x / 2) + ImGui::GetStyle().FramePadding.x);
+        ImGui::SetNextWindowPos(box_pos);
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize    | ImGuiWindowFlags_NoMove |
+                                 ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize;
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, PANEL_BG_COLOR);
+        if (ImGui::Begin("Special state box", nullptr, flags))
+        {
+            ImGui::TextColored(ORANGE_TEXT, "%s", special_text.c_str());
+            ImGui::End();
+        }
+        ImGui::PopStyleColor(1); // WindowBg
     }
 }
