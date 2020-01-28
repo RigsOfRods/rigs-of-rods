@@ -34,6 +34,8 @@
 #include "ContentManager.h"
 #include "DashBoardManager.h"
 #include "GfxScene.h"
+#include "GUIManager.h"
+#include "GUI_SurveyMap.h"
 #include "ForceFeedback.h"
 #include "InputEngine.h"
 #include "LandVehicleSimulation.h"
@@ -63,8 +65,6 @@
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
 #include "GUI_MultiplayerClientList.h"
-
-#include "SurveyMapManager.h"
 
 #include <ctime>
 #include <iomanip>
@@ -1349,6 +1349,14 @@ void SimController::UpdateInputEvents(float dt)
                     m_actor_spawn_queue.push_back(rq);
                 }
             }
+            else if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_CYCLE))
+            {
+                App::GetGuiManager()->GetSurveyMap()->CycleMode();
+            }
+            else if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE))
+            {
+                App::GetGuiManager()->GetSurveyMap()->ToggleMode();
+            }
         }
 
 #ifdef USE_CAELUM
@@ -1694,9 +1702,6 @@ void SimController::UpdateSimulation(float dt)
                 {
                     fresh_actor->ar_driveable = MACHINE;
                 }
-
-                String type = SurveyMapManager::getTypeByDriveable(fresh_actor->ar_driveable);
-                App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(type);
             }
         }
         else
@@ -1911,8 +1916,6 @@ void SimController::windowResized(Ogre::RenderWindow* rw)
     if (RoR::App::GetOverlayWrapper())
         RoR::App::GetOverlayWrapper()->windowResized();
 
-    m_gfx_scene.GetSurveyMap()->windowResized(); // TODO: we shouldn't update GfxScene-owned objects from simulation, we should queue the update ~ only_a_ptr, 05/2018
-
     //update mouse area
     RoR::App::GetInputEngine()->windowResized(rw);
 
@@ -1931,8 +1934,6 @@ void SimController::HideGUI(bool hidden)
 
     if (RoR::App::GetOverlayWrapper())
         RoR::App::GetOverlayWrapper()->showDashboardOverlays(!hidden, m_player_actor);
-
-    m_gfx_scene.GetSurveyMap()->hideGUI(hidden); // TODO: we shouldn't update GfxScene-owned objects from simulation, but this whole HideGUI() function will likely end up being invoked by GfxActor in the future, so it's OK for now ~ only_a_ptr, 05/2018
 
     App::GetGuiManager()->hideGUI(hidden);
 }

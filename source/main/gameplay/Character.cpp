@@ -29,7 +29,6 @@
 #include "MovableText.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
-#include "SurveyMapManager.h"
 #include "TerrainManager.h"
 #include "Utils.h"
 #include "Water.h"
@@ -580,7 +579,6 @@ GfxCharacter* Character::SetupGfx()
 
 RoR::GfxCharacter::~GfxCharacter()
 {
-    App::GetSimController()->GetGfxScene().GetSurveyMap()->deleteMapEntity(xc_survey_map_entity);
     Entity* ent = static_cast<Ogre::Entity*>(xc_scenenode->getAttachedObject(0));
     xc_scenenode->detachAllObjects();
     gEnv->sceneManager->destroySceneNode(xc_scenenode);
@@ -687,14 +685,6 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         auto* as_cur = entity->getAnimationState(xc_simbuf.simbuf_anim_name);
         as_cur->setTimePosition(xc_simbuf.simbuf_anim_time);
     }
-
-    // SurveyMapEntity
-    if (xc_survey_map_entity == nullptr)
-        xc_survey_map_entity = App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity("person");
-    String caption = (App::mp_state.GetActive() == MpState::CONNECTED) ? xc_simbuf.simbuf_net_username : "";
-    App::GetSimController()->GetGfxScene().GetSurveyMap()->UpdateMapEntity(xc_survey_map_entity, caption,
-            xc_simbuf.simbuf_character_pos, xc_simbuf.simbuf_character_rot.valueRadians(),
-            -static_cast<int>(xc_simbuf.simbuf_is_remote), !xc_simbuf.simbuf_actor_coupling);
 
     // Multiplayer label
 #ifdef USE_SOCKETW

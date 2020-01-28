@@ -59,6 +59,7 @@ set(SOURCE_FILES
         gfx/Skidmark.{h,cpp}
         gfx/SkyManager.{h,cpp}
         gfx/SkyXManager.{h,cpp}
+        gfx/SurveyMapTextureCreator.{h,cpp}        
         gfx/Water.{h,cpp}
         gfx/camera/CameraManager.{h,cpp}
         gfx/camera/PerVehicleCameraContext.h
@@ -149,6 +150,7 @@ set(SOURCE_FILES
         gui/panels/GUI_NodeBeamUtils.{h,cpp}
         gui/panels/GUI_SimActorStats.{h,cpp}
         gui/panels/GUI_SimPerfStats.{h,cpp}
+        gui/panels/GUI_SurveyMap.{h,cpp}
         gui/panels/GUI_VehicleDescription.{h,cpp}
         network/Network.{h,cpp}
         physics/ApproxMath.h
@@ -225,9 +227,6 @@ set(SOURCE_FILES
         terrain/TerrainGeometryManager.{h,cpp}
         terrain/TerrainManager.{h,cpp}
         terrain/TerrainObjectManager.{h,cpp}
-        terrain/map/SurveyMapEntity.{h,cpp}
-        terrain/map/SurveyMapManager.{h,cpp}
-        terrain/map/SurveyMapTextureCreator.{h,cpp}
         threadpool/ThreadPool.h
         utils/CollisionTools.{h,cpp}
         utils/ConfigFile.{h,cpp}

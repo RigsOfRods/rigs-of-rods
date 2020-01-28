@@ -22,6 +22,8 @@
 
 #include "RoRPrerequisites.h"
 
+namespace RoR {
+
 class SurveyMapTextureCreator : public Ogre::RenderTargetListener, public ZeroedMemoryAllocator
 {
 public:
@@ -32,7 +34,7 @@ public:
     bool init(int res, int fsaa);
     void update(Ogre::Vector2 center, Ogre::Vector2 size);
 
-    Ogre::String getTextureName();
+    Ogre::TexturePtr GetTexture() const { return mTexture; }
 
 protected:
 
@@ -46,3 +48,5 @@ protected:
     Ogre::TexturePtr mTexture;
     Ogre::RenderTarget* mRttTex;
 };
+
+} // namespace RoR

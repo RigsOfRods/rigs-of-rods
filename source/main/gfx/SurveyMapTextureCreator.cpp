@@ -90,11 +90,6 @@ void SurveyMapTextureCreator::update(Vector2 center, Vector2 size)
     mRttTex->update();
 }
 
-String SurveyMapTextureCreator::getTextureName()
-{
-    return mTextureName;
-}
-
 void SurveyMapTextureCreator::preRenderTargetUpdate(const RenderTargetEvent &evt)
 {
     auto water = App::GetSimTerrain()->getWater();

@@ -70,6 +70,7 @@ namespace RoR
         class  MainSelector;
         class  MpClientList;
         class  MultiplayerSelector;
+        class  SurveyMap;
         class  TopMenubar;
     }
 } // namespace RoR
