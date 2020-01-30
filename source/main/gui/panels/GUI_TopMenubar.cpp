@@ -748,14 +748,15 @@ void RoR::GUI::TopMenubar::DrawSpecialStateBox(float top_offset)
     ImVec4 special_color;
 
     // Gather state info
-    if (App::GetSimController()->GetPhysicsPaused())
+    if (App::GetSimController()->GetPhysicsPaused() && !RoR::App::GetSimController()->IsGUIHidden())
     {
         special_color = ORANGE_TEXT;
         special_text = Ogre::StringUtil::replaceAll(_L("All physics paused, press '{}' to resume"),
             "{}", App::GetInputEngine()->getEventCommand(EV_COMMON_TOGGLE_PHYSICS));
     }
     else if (App::GetSimController()->GetPlayerActor() &&
-             App::GetSimController()->GetPlayerActor()->ar_physics_paused)
+             App::GetSimController()->GetPlayerActor()->ar_physics_paused
+             && !RoR::App::GetSimController()->IsGUIHidden())
     {
         special_color = GREEN_TEXT;
         special_text = Ogre::StringUtil::replaceAll(_L("Vehicle physics paused, press '{}' to resume"),
