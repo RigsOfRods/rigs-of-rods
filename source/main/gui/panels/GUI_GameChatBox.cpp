@@ -21,9 +21,10 @@
 
 #include "GUI_GameChatBox.h"
 
+#include "Application.h"
 #include "ChatSystem.h"
-
 #include "Console.h"
+#include "GUIManager.h"
 #include "Language.h"
 
 #include <cstring> // strtok, strncmp
@@ -69,6 +70,7 @@ void RoR::GUI::GameChatBox::Draw()
             m_console_view.DrawFilteringOptions();
             ImGui::EndPopup();
         }
+        App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsItemHovered());
         ImGui::SameLine();
         const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
         if (ImGui::InputText(_L("Message"), m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
@@ -79,6 +81,7 @@ void RoR::GUI::GameChatBox::Draw()
             }
             m_msg_buffer.Clear();
         }
+        App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsItemHovered());
     }
 
     ImGui::End();

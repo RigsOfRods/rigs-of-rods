@@ -24,6 +24,9 @@
 /// @date   12/2014
 
 #include "GUI_MessageBox.h"
+
+#include "Application.h"
+#include "GUIManager.h"
 #include "ScriptEvents.h"
 #include "Scripting.h"
 
@@ -66,6 +69,7 @@ void RoR::GUI::MessageBoxDialog::Draw()
     }
 
     // Finalize
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
     if (m_is_visible != was_visible)
     {

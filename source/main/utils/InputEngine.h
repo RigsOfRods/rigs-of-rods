@@ -464,7 +464,8 @@ public:
     // we need to use hwnd here, as we are also using this in the configurator
     bool setup(Ogre::String hwnd, bool capture = false, bool capturemouse = false, bool captureKbd = true);
     Ogre::String getKeyForCommand(int eventID);
-    bool isKeyDown(OIS::KeyCode mod);
+    bool isKeyDown(OIS::KeyCode mod); //!< Asks OIS directly
+    bool isKeyDownEffective(OIS::KeyCode mod); //!< Reads RoR internal buffer
     bool isKeyDownValueBounce(OIS::KeyCode mod, float time = 0.2f);
 
     std::map<int, std::vector<event_trigger_t>>& getEvents() { return events; };

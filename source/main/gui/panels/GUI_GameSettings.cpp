@@ -407,6 +407,7 @@ void RoR::GUI::GameSettings::Draw()
         }
     }
 
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
     if (!keep_open)
     {

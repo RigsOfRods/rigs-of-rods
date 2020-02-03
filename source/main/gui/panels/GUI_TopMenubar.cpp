@@ -147,6 +147,7 @@ void RoR::GUI::TopMenubar::Update()
     }
 
     ImVec2 topmenu_final_size = ImGui::GetWindowSize();
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
 
     this->DrawSpecialStateBox(window_target_pos.y + topmenu_final_size.y + 10.f);
@@ -185,8 +186,6 @@ void RoR::GUI::TopMenubar::Update()
                             rq.amr_type = ActorModifyRequest::Type::RELOAD;
                             rq.amr_actor = current_actor;
                             App::GetSimController()->QueueActorModify(rq);
-
-                            App::GetGuiManager()->UnfocusGui();
                         }
                     }
 
@@ -253,6 +252,7 @@ void RoR::GUI::TopMenubar::Update()
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
+            App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
@@ -283,6 +283,7 @@ void RoR::GUI::TopMenubar::Update()
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
+            App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
@@ -350,6 +351,7 @@ void RoR::GUI::TopMenubar::Update()
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() * 2;
+            App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
@@ -444,6 +446,7 @@ void RoR::GUI::TopMenubar::Update()
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
+            App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
@@ -605,6 +608,7 @@ void RoR::GUI::TopMenubar::Update()
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
+            App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;

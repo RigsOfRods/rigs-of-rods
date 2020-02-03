@@ -368,6 +368,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         }
     }
 
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
     if (!keep_open)
     {

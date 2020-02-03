@@ -82,6 +82,8 @@ void MainSelector::Draw()
         return;
     }
 
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(true);
+
     // category keyboard control
     const int num_categories = static_cast<int>(m_display_categories.size());
     if (!m_searchbox_was_active)
