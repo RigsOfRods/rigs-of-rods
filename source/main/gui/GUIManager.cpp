@@ -313,14 +313,6 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     }
 }
 
-void GUIManager::windowResized(Ogre::RenderWindow* rw)
-{
-    int width = (int)rw->getWidth();
-    int height = (int)rw->getHeight();
-    setInputViewSize(width, height);
-
-}
-
 void GUIManager::windowClosed(Ogre::RenderWindow* rw)
 {
     m_renderwindow_closed = true;

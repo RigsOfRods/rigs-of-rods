@@ -28,12 +28,8 @@
 #include "RoRFrameListener.h" // SimController
 #include "SceneMouse.h"
 
-GUIInputManager::GUIInputManager() :
-    height(0)
-    , m_last_mousemove_time(0)
-    , mCursorX(0)
-    , mCursorY(0)
-    , width(0)
+GUIInputManager::GUIInputManager()
+    : m_last_mousemove_time(nullptr)
     , m_is_cursor_supressed(false)
 {
     m_last_mousemove_time = new Ogre::Timer();
@@ -49,32 +45,7 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 
     RoR::App::GetGuiManager()->GetImGui().InjectMouseMoved(_arg);
 
-    if (RoR::App::sim_state.GetActive() == RoR::SimState::RUNNING && RoR::App::GetGuiManager()->IsVisible_TopMenubar()) // dirty hack to block imgui handled input events
-    {
-        return true;
-    }
-
-    if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED)
-    {
-        MyGUI::InputManager::getInstance().injectMouseMove(mCursorX, mCursorY, _arg.state.Z.abs);
-        mCursorX = _arg.state.X.abs;
-        mCursorY = _arg.state.Y.abs;
-        checkPosition();
-        return true;
-    }
-
-    // fallback, handle by GUI, then by RoR::SceneMouse
-    bool handled = MyGUI::InputManager::getInstance().injectMouseMove(mCursorX, mCursorY, _arg.state.Z.abs);
-
-    if (handled)
-    {
-        MyGUI::Widget* w = MyGUI::InputManager::getInstance().getMouseFocusWidget();
-        // hack for console, we want to use the mouse through that control
-        if (w && w->getName().substr(0, 7) == "Console")
-            handled = false;
-        if (w && w->getUserString("interactive") == "0")
-            handled = false;
-    }
+    bool handled = ImGui::GetIO().WantCaptureMouse; // true if mouse is over any window
 
     if (!handled && RoR::App::GetOverlayWrapper() != nullptr)
     {
@@ -82,25 +53,18 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
         handled = RoR::App::GetOverlayWrapper()->mouseMoved(_arg);
     }
 
-    if (!handled)
+    if (!handled && RoR::App::GetSimController() != nullptr) // TODO: Fix this hack. Main menu should not use the same input handler as simulation ~ only_a_ptr, 08/2018
     {
-        if (RoR::App::GetSimController() != nullptr) // TODO: Fix this hack. Main menu should not use the same input handler as simulation ~ only_a_ptr, 08/2018
+        // not handled by gui
+        bool fixed = RoR::App::GetSimController()->GetSceneMouse().mouseMoved(_arg);
+        if (fixed)
         {
-            // not handled by gui
-            bool fixed = RoR::App::GetSimController()->GetSceneMouse().mouseMoved(_arg);
-            if (fixed)
-            {
-                // you would really need to "fix" the actual mouse position, see
-                // http://www.wreckedgames.com/forum/index.php?topic=1104.0
-                return true;
-            }
+            // you would really need to "fix" the actual mouse position, see
+            // http://www.wreckedgames.com/forum/index.php?topic=1104.0
+            return true;
         }
     }
 
-    mCursorX = _arg.state.X.abs;
-    mCursorY = _arg.state.Y.abs;
-
-    checkPosition();
     return true;
 }
 
@@ -110,21 +74,7 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
 
     RoR::App::GetGuiManager()->GetImGui().InjectMousePressed(_arg, _id);
 
-    mCursorX = _arg.state.X.abs;
-    mCursorY = _arg.state.Y.abs;
-
-    // fallback, handle by GUI, then by RoR::SceneMouse
-    bool handled = MyGUI::InputManager::getInstance().injectMousePress(mCursorX, mCursorY, MyGUI::MouseButton::Enum(_id));
-
-    if (handled)
-    {
-        MyGUI::Widget* w = MyGUI::InputManager::getInstance().getMouseFocusWidget();
-        // hack for console, we want to use the mouse through that control
-        if (w && w->getName().substr(0, 7) == "Console")
-            handled = false;
-        if (w && w->getUserString("interactive") == "0")
-            handled = false;
-    }
+    bool handled = ImGui::GetIO().WantCaptureMouse; // true if mouse is over any window
 
     if (!handled && RoR::App::GetOverlayWrapper())
     {
@@ -146,18 +96,7 @@ bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButto
 
     RoR::App::GetGuiManager()->GetImGui().InjectMouseReleased(_arg, _id);
 
-    // fallback, handle by GUI, then by RoR::SceneMouse
-    bool handled = MyGUI::InputManager::getInstance().injectMouseRelease(mCursorX, mCursorY, MyGUI::MouseButton::Enum(_id));
-
-    if (handled)
-    {
-        MyGUI::Widget* w = MyGUI::InputManager::getInstance().getMouseFocusWidget();
-        // hack for console, we want to use the mouse through that control
-        if (w && w->getName().substr(0, 7) == "Console")
-            handled = false;
-        if (w && w->getUserString("interactive") == "0")
-            handled = false;
-    }
+    bool handled = ImGui::GetIO().WantCaptureMouse; // true if mouse is over any window
 
     if (!handled && RoR::App::GetOverlayWrapper())
     {
@@ -197,35 +136,6 @@ bool GUIInputManager::keyReleased(const OIS::KeyEvent& _arg)
 
     // If capturing is requested, still pass release events for already-pressed keys.
     return do_capture && !RoR::App::GetInputEngine()->isKeyDownEffective(_arg.key);
-}
-
-void GUIInputManager::setInputViewSize(int _width, int _height)
-{
-    this->width = _width;
-    this->height = _height;
-
-    checkPosition();
-}
-
-void GUIInputManager::setMousePosition(int _x, int _y)
-{
-    mCursorX = _x;
-    mCursorY = _y;
-
-    checkPosition();
-}
-
-void GUIInputManager::checkPosition()
-{
-    if (mCursorX < 0)
-        mCursorX = 0;
-    else if (mCursorX >= this->width)
-        mCursorX = this->width - 1;
-
-    if (mCursorY < 0)
-        mCursorY = 0;
-    else if (mCursorY >= this->height)
-        mCursorY = this->height - 1;
 }
 
 void GUIInputManager::WakeUpGUI()

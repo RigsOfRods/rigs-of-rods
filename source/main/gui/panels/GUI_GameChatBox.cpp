@@ -39,23 +39,35 @@ RoR::GUI::GameChatBox::GameChatBox()
 
 void RoR::GUI::GameChatBox::Draw()
 {
-    // Begin drawing the window
-    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+    // Begin drawing the messages pane (no input)
+    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoInputs |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
     ImVec2 size(
         ImGui::GetIO().DisplaySize.x - (2 * ImGui::GetStyle().WindowPadding.x),
         (m_console_view.cvw_max_lines * ImGui::GetTextLineHeightWithSpacing()) + (2*ImGui::GetStyle().WindowPadding.y));
     if (m_is_visible) // Full display?
     {
-        size.y += ImGui::GetTextLineHeightWithSpacing(); // reserve space for input box
+        size.y += ImGui::GetTextLineHeightWithSpacing() + (2 * ImGui::GetStyle().WindowPadding.x); // reserve space for input window
     }
     ImGui::SetNextWindowSize(size);
     ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - size.y));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
     ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
-    ImGui::Begin("Chat", nullptr, win_flags);
+    ImGui::Begin("ChatMessages", nullptr, win_flags);
 
     m_console_view.DrawConsoleMessages();
+
+    ImGui::End();
+
+    // Draw bottom bar (text input, filter settings)
+    ImGuiWindowFlags bbar_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
+    ImVec2 bbar_size(
+        ImGui::GetIO().DisplaySize.x - (2 * ImGui::GetStyle().WindowPadding.x),
+        ImGui::GetTextLineHeightWithSpacing() + (2 * ImGui::GetStyle().WindowPadding.x));
+    ImGui::SetNextWindowSize(bbar_size);
+    ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - bbar_size.y));
+    ImGui::Begin("ChatBottomBar", nullptr, bbar_flags);
 
     if (m_is_visible) // Full display?
     {
@@ -70,7 +82,6 @@ void RoR::GUI::GameChatBox::Draw()
             m_console_view.DrawFilteringOptions();
             ImGui::EndPopup();
         }
-        App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsItemHovered());
         ImGui::SameLine();
         const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
         if (ImGui::InputText(_L("Message"), m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
@@ -81,9 +92,9 @@ void RoR::GUI::GameChatBox::Draw()
             }
             m_msg_buffer.Clear();
         }
-        App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsItemHovered());
     }
 
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
     ImGui::PopStyleColor(2); // WindowBg, ChildWindowBg
 }
