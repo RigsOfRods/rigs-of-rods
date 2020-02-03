@@ -41,11 +41,6 @@ public:
 
     GameMainMenu();
 
-    // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
-    inline void   KeyUpPressed()                   { m_kb_focus_index = (m_kb_focus_index <= 0) ? (m_num_buttons - 1) : (m_kb_focus_index - 1); }
-    inline void   KeyDownPressed()                 { m_kb_focus_index = (m_kb_focus_index < (m_num_buttons - 1)) ? (m_kb_focus_index + 1) : 0; }
-    void          EnterKeyPressed()                { m_kb_enter_index = m_kb_focus_index; }
-
     inline bool   IsVisible() const                { return m_is_visible; }
     inline void   SetVisible(bool v)               { m_is_visible = v; m_kb_focus_index = -1; }
     void          Draw();

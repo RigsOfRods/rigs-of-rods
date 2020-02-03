@@ -34,6 +34,20 @@ RoR::GUI::GamePauseMenu::GamePauseMenu():
 
 void RoR::GUI::GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cleanup and unify the logic! ~ only_a_ptr, 06/2017
 {
+    // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
+    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
+    {
+        m_kb_focus_index = (m_kb_focus_index <= 0) ? (NUM_BUTTONS - 1) : (m_kb_focus_index - 1);
+    }
+    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
+    {
+        m_kb_focus_index = (m_kb_focus_index < (NUM_BUTTONS - 1)) ? (m_kb_focus_index + 1) : 0;
+    }
+    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
+    {
+        m_kb_enter_index = m_kb_focus_index;
+    }
+
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, BUTTON_PADDING);
     ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive]);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, WINDOW_BG_COLOR);

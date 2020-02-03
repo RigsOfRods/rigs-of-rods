@@ -28,8 +28,6 @@
 #include "Application.h"
 #include "GUIManager.h"
 #include "GUI_TopMenubar.h"
-#include "GUI_GameMainMenu.h" // TODO: remove this hack ~ only_a_ptr, 02/2017
-#include "GUI_GamePauseMenu.h" // TODO: remove this hack ~ only_a_ptr, 02/2017
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
 #include "SceneMouse.h"
@@ -258,37 +256,6 @@ bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
         if (_arg.key == OIS::KC_RETURN)
         {
             return true;
-        }
-    }
-
-    if (RoR::App::GetGuiManager()->IsVisible_GameMainMenu()) // Special hacky handling of main-menu key control. TODO: Remove this!~ only_a_ptr, 06/2017
-    {
-        if (_arg.key == OIS::KC_UP)
-        {
-            RoR::App::GetGuiManager()->GetMainMenu()->KeyUpPressed();
-        }
-        else if  (_arg.key == OIS::KC_DOWN)
-        {
-            RoR::App::GetGuiManager()->GetMainMenu()->KeyDownPressed();
-        }
-        else if (_arg.key == OIS::KC_RETURN)
-        {
-            RoR::App::GetGuiManager()->GetMainMenu()->EnterKeyPressed();
-        }
-    }
-    if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED) // Special hacky handling of pause-menu key control. TODO: Remove this!~ only_a_ptr, 06/2017
-    {
-        if (_arg.key == OIS::KC_UP)
-        {
-            RoR::App::GetGuiManager()->GetPauseMenu()->KeyUpPressed();
-        }
-        else if  (_arg.key == OIS::KC_DOWN)
-        {
-            RoR::App::GetGuiManager()->GetPauseMenu()->KeyDownPressed();
-        }
-        else if (_arg.key == OIS::KC_RETURN)
-        {
-            RoR::App::GetGuiManager()->GetPauseMenu()->EnterKeyPressed();
         }
     }
 
