@@ -135,8 +135,6 @@ public:
     void DrawMpConnectingStatusBox();
     void hideGUI(bool visible);
 
-    void windowResized(Ogre::RenderWindow* rw);
-
     void SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager);
 
     void ShutdownMyGUI();
