@@ -54,6 +54,8 @@
 
 #include <OgreFileSystem.h>
 #include <regex>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 #include <sstream>
 
 using namespace Ogre;
