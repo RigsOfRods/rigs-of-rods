@@ -104,6 +104,7 @@ void RoR::GUI::FrictionSettings::Draw()
     //Unused: _L("Friction Help")
 
     ImGui::PopItemWidth();
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
 
     if (!keep_open)

@@ -146,6 +146,7 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
         }
     }
 
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
     ImGui::PopStyleVar();
     ImGui::PopStyleColor(3);

@@ -26,6 +26,7 @@
 #include "GUI_GamePauseMenu.h"
 
 #include "Application.h"
+#include "GUIManager.h"
 #include "RoRPrerequisites.h"
 
 RoR::GUI::GamePauseMenu::GamePauseMenu(): 
@@ -93,6 +94,7 @@ void RoR::GUI::GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cle
         }
     }
 
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
     ImGui::PopStyleVar();
     ImGui::PopStyleColor(3);

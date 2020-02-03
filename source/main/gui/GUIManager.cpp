@@ -201,12 +201,6 @@ GUIManager::~GUIManager()
     delete m_impl;
 }
 
-void GUIManager::UnfocusGui()
-{
-    MyGUI::InputManager::getInstance().resetKeyFocusWidget();
-    MyGUI::InputManager::getInstance().resetMouseCaptureWidget();
-}
-
 void GUIManager::ShutdownMyGUI()
 {
     if (m_impl->mygui)
@@ -243,6 +237,7 @@ bool GUIManager::frameStarted(const Ogre::FrameEvent& evt)
 
 bool GUIManager::frameEnded(const Ogre::FrameEvent& evt)
 {
+    m_gui_kb_capture_requested = m_gui_kb_capture_queued;
     return true;
 };
 
@@ -445,6 +440,9 @@ void GUIManager::NewImGuiFrame(float dt)
 
     // Call IMGUI
     m_imgui.NewFrame(dt, static_cast<float>(width), static_cast<float>(height), ctrl, alt, shift);
+
+    // Reset state
+    m_gui_kb_capture_queued = false;
 }
 
 void GUIManager::SetupImGui()
@@ -597,6 +595,11 @@ void GUIManager::DrawMpConnectingStatusBox()
 void GUIManager::ShowMessageBox(const char* title, const char* text, bool allow_close, const char* btn1_text, const char* btn2_text)
 {
     m_impl->panel_MessageBox.Show(title, text, allow_close, btn1_text, btn2_text);
+}
+
+void GUIManager::RequestGuiCaptureKeyboard(bool val) 
+{ 
+    m_gui_kb_capture_queued = m_gui_kb_capture_queued || val;
 }
 
 } // namespace RoR

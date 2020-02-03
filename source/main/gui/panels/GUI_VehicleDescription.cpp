@@ -123,5 +123,6 @@ void RoR::GUI::VehicleDescription::Draw()
         }
     }
 
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
 }

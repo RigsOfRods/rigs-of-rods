@@ -21,6 +21,7 @@
 
 
 #include "GUI_ConsoleWindow.h"
+#include "GUIManager.h"
 
 #include "Language.h"
 
@@ -70,6 +71,7 @@ void GUI::ConsoleWindow::Draw()
         m_cmd_buffer.Clear();
     }
 
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
 
     if (!keep_open)

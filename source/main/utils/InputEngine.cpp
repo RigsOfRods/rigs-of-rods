@@ -2728,6 +2728,11 @@ bool InputEngine::isKeyDown(OIS::KeyCode key)
     return this->mKeyboard->isKeyDown(key);
 }
 
+bool InputEngine::isKeyDownEffective(OIS::KeyCode mod)
+{
+    return this->keyState[mod];
+}
+
 bool InputEngine::isKeyDownValueBounce(OIS::KeyCode mod, float time)
 {
     if (event_times[-mod] > 0)

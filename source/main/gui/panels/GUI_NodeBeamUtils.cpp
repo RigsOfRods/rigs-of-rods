@@ -170,6 +170,7 @@ void RoR::GUI::NodeBeamUtils::Draw()
         actor->SearchBeamDefaults();
     }
 
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
     if (!keep_open)
     {

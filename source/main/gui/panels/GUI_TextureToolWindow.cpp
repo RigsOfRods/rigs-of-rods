@@ -25,6 +25,7 @@
 
 #include "Application.h"
 #include "Console.h"
+#include "GUIManager.h"
 #include "Language.h"
 #include "OgreImGui.h"
 #include "PlatformUtils.h"
@@ -144,6 +145,7 @@ void TextureToolWindow::Draw()
 
     ImGui::EndGroup(); // right
 
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
 }
 

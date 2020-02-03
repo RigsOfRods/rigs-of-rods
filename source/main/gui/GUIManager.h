@@ -121,7 +121,9 @@ public:
 
     // GUI manipulation
     void ShowMessageBox(const char* title, const char* text, bool allow_close = true, const char* btn1_text = "OK", const char* btn2_text = nullptr);
-    void UnfocusGui();
+    /// Pass true during frame to prevent input passing to application
+    void RequestGuiCaptureKeyboard(bool val);
+    bool IsGuiCaptureKeyboardRequested() const { return m_gui_kb_capture_requested; }
 
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
@@ -162,6 +164,8 @@ private:
     OgreImGui          m_imgui;
     GuiTheme           m_theme;
     std::string        m_net_connect_status;
+    bool               m_gui_kb_capture_queued; //!< Resets and accumulates every frame
+    bool               m_gui_kb_capture_requested; //!< Effective value, persistent
 };
 
 } // namespace RoR
