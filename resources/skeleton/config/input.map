@@ -1,3 +1,7 @@
+; Rigs of Rods keyboard input configuration file
+; DO NOT ADD OTHER DEVICE INPUTS IN THIS FILE! Create a separate `.map` file instead.
+; See https://docs.rigsofrods.org/gameplay/controls-config/#exporting-the-keymap for more info.
+; -------------------------------
 
 ; AIRPLANE
 AIRPLANE_AIRBRAKES_FULL        Keyboard             CTRL+4 
