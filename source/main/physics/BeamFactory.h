@@ -34,7 +34,7 @@
 #include <string>
 #include <vector>
 
-#define PHYSICS_DT App::diag_physics_dt.GetActive()
+#define PHYSICS_DT App::diag_physics_dt->GetActiveVal<float>()
 
 class ThreadPool;
 

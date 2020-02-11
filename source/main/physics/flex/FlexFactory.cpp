@@ -54,7 +54,7 @@ const char * FlexBodyFileIO::SIGNATURE = "RoR FlexBody";
 FlexFactory::FlexFactory(ActorSpawner* rig_spawner):
     m_rig_spawner(rig_spawner),
     m_is_flexbody_cache_loaded(false),
-    m_is_flexbody_cache_enabled(App::gfx_flexbody_cache.GetActive()),
+    m_is_flexbody_cache_enabled(App::gfx_flexbody_cache->GetActiveVal<bool>()),
     m_flexbody_cache_next_index(0)
 {
 }
@@ -72,7 +72,7 @@ FlexBody* FlexFactory::CreateFlexBody(
     int flexbody_id = m_rig_spawner->GetActor()->GetGfxActor()->GetNumFlexbodies();
     const std::string mesh_unique_name = m_rig_spawner->ComposeName("FlexbodyMesh", flexbody_id);
     Ogre::MeshPtr mesh = common_mesh->clone(mesh_unique_name);
-    if (App::gfx_flexbody_lods.GetActive())
+    if (App::gfx_flexbody_lods->GetActiveVal<bool>())
     {
         this->ResolveFlexbodyLOD(def->mesh_name, mesh);
     }
@@ -298,7 +298,7 @@ void FlexBodyFileIO::OpenFile(const char* fopen_mode)
         throw RESULT_CODE_ERR_CACHE_NUMBER_UNDEFINED;
     }
     char path[500];
-    sprintf(path, "%s%cflexbodies_mod_%00d.dat", App::sys_cache_dir.GetActive(), RoR::PATH_SLASH, m_cache_entry_number);
+    sprintf(path, "%s%cflexbodies_mod_%00d.dat", App::sys_cache_dir->GetActiveStr().c_str(), RoR::PATH_SLASH, m_cache_entry_number);
     m_file = fopen(path, fopen_mode);
     if (m_file == nullptr)
     {

@@ -27,6 +27,8 @@
 #include "Language.h"
 #include "OgreSubsystem.h"
 
+using namespace RoR;
+
 const char* mOISDeviceType[6] = {"Unknown Device", "Keyboard", "Mouse", "JoyStick", "Tablet", "Other Device"};
 
 // LOOOONG list of possible events. see the struct type for the structure ;)
@@ -1911,7 +1913,7 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, bool captu
 #endif // LINUX
 
         pl.insert(OIS::ParamList::value_type("WINDOW", hwnd));
-        if (RoR::App::io_input_grab_mode.GetActive() != RoR::IoInputGrabMode::ALL)
+        if (App::io_input_grab_mode->GetActiveEnum<IoInputGrabMode>() != RoR::IoInputGrabMode::ALL)
         {
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
             pl.insert(OIS::ParamList::value_type("x11_mouse_hide", "true"));
@@ -1927,7 +1929,7 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, bool captu
         }
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-        if (RoR::App::io_input_grab_mode.GetActive() != RoR::IoInputGrabMode::ALL)
+        if (App::io_input_grab_mode->GetActiveEnum<IoInputGrabMode>() != IoInputGrabMode::ALL)
         {
             ShowCursor(FALSE);
         }

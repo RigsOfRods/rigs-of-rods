@@ -79,14 +79,14 @@ bool OgreSubsystem::Configure()
     }
 
 
-    const auto rs = m_ogre_root->getRenderSystemByName(App::app_rendersys_override.GetActive());
+    const auto rs = m_ogre_root->getRenderSystemByName(App::app_rendersys_override->GetActiveStr());
     if (rs != nullptr && rs != m_ogre_root->getRenderSystem())
     {
         // The user has selected a different render system during the previous session.
         m_ogre_root->setRenderSystem(rs);
         m_ogre_root->saveConfig();
     }
-    App::app_rendersys_override.SetActive("");
+    App::app_rendersys_override->SetActiveStr("");
 
     m_render_window = m_ogre_root->initialise(false);
 
@@ -145,7 +145,7 @@ bool OgreSubsystem::LoadOgrePlugins(Ogre::String const & pluginsfile)
 
     if (pluginDir.empty())
     {
-        pluginDir = RoR::App::sys_process_dir.GetActive();
+        pluginDir = RoR::App::sys_process_dir->GetActiveStr();
     }
 
     for ( Ogre::StringVector::iterator it = pluginList.begin(); it != pluginList.end(); ++it )
@@ -168,18 +168,18 @@ bool OgreSubsystem::StartOgre(Ogre::String const & hwnd, Ogre::String const & ma
     m_hwnd = hwnd;
     m_main_hwnd = mainhwnd;
 
-    CreateFolder(RoR::App::sys_logs_dir.GetActive());
-    CreateFolder(RoR::App::sys_config_dir.GetActive());
+    CreateFolder(RoR::App::sys_logs_dir->GetActiveStr());
+    CreateFolder(RoR::App::sys_config_dir->GetActiveStr());
 
-    std::string log_filepath = PathCombine(RoR::App::sys_logs_dir.GetActive(),   "RoR.log");
-    std::string cfg_filepath = PathCombine(RoR::App::sys_config_dir.GetActive(), "ogre.cfg");
+    std::string log_filepath = PathCombine(RoR::App::sys_logs_dir->GetActiveStr(),   "RoR.log");
+    std::string cfg_filepath = PathCombine(RoR::App::sys_config_dir->GetActiveStr(), "ogre.cfg");
     m_ogre_root = new Ogre::Root("", cfg_filepath, log_filepath);
 
     // load plugins manually
 #ifdef _DEBUG
-    std::string plugins_path = PathCombine(RoR::App::sys_process_dir.GetActive(), "plugins_d.cfg");
+    std::string plugins_path = PathCombine(RoR::App::sys_process_dir->GetActiveStr(), "plugins_d.cfg");
 #else
-	std::string plugins_path = PathCombine(RoR::App::sys_process_dir.GetActive(), "plugins.cfg");
+	std::string plugins_path = PathCombine(RoR::App::sys_process_dir->GetActiveStr(), "plugins.cfg");
 #endif
     this->LoadOgrePlugins(plugins_path);
 

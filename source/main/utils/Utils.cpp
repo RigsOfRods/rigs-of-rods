@@ -41,6 +41,7 @@
 #endif
 
 using namespace Ogre;
+using namespace RoR;
 
 #ifdef USE_DISCORD_RPC
 void DiscordErrorCallback(int, const char *error)
@@ -57,7 +58,7 @@ void DiscordReadyCallback(const DiscordUser *user)
 void InitDiscord()
 {
 #ifdef USE_DISCORD_RPC
-    if(RoR::App::io_discord_rpc.GetActive())
+    if(App::io_discord_rpc->GetActiveVal<bool>())
     {
         DiscordEventHandlers handlers;
         memset(&handlers, 0, sizeof(handlers));
@@ -73,23 +74,23 @@ void InitDiscord()
 void UpdatePresence()
 {
 #ifdef USE_DISCORD_RPC
-    if(RoR::App::io_discord_rpc.GetActive())
+    if(App::io_discord_rpc->GetActiveVal<bool>())
     {
         char buffer[256];
         DiscordRichPresence discordPresence;
         memset(&discordPresence, 0, sizeof(discordPresence));
-        if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+        if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
         {
             discordPresence.state = "Playing online";
             sprintf(buffer, "On server: %s:%d  on terrain: %s",
-                    RoR::App::mp_server_host.GetActive(),
-                    RoR::App::mp_server_port.GetActive(),
-                    RoR::App::sim_terrain_gui_name.GetActive());
+                    RoR::App::mp_server_host->GetActiveStr().c_str(),
+                    RoR::App::mp_server_port->GetActiveVal<int>(),
+                    RoR::App::sim_terrain_gui_name->GetActiveStr().c_str());
         }
         else
         {
             discordPresence.state = "Playing singleplayer";
-            sprintf(buffer, "On terrain: %s", RoR::App::sim_terrain_gui_name.GetActive());
+            sprintf(buffer, "On terrain: %s", RoR::App::sim_terrain_gui_name->GetActiveStr().c_str());
         }
         discordPresence.details = buffer;
         discordPresence.startTimestamp = time(0);
@@ -265,7 +266,7 @@ std::string SanitizeUtf8CString(const char* start, const char* end /* = nullptr 
 std::string Sha1Hash(std::string const & input)
 {
     RoR::CSHA1 sha1;
-    sha1.UpdateHash((uint8_t *)input.c_str(), input.length());
+    sha1.UpdateHash((uint8_t *)input.c_str(), (int)input.length());
     sha1.Final();
     return sha1.ReportHash();
 }

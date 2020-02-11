@@ -72,11 +72,11 @@ ActorManager::ActorManager()
     int logical_cores = std::thread::hardware_concurrency();
     LOG("BEAMFACTORY: " + TOSTRING(logical_cores) + " logical CPU cores" + " found");
 
-    int thread_pool_workers = RoR::App::app_num_workers.GetActive();
+    int thread_pool_workers = RoR::App::app_num_workers->GetActiveVal<int>();
     if (thread_pool_workers < 1 || thread_pool_workers > logical_cores)
     {
         thread_pool_workers = Math::Clamp(logical_cores - 1, 1, 8);
-        RoR::App::app_num_workers.SetActive(thread_pool_workers);
+        RoR::App::app_num_workers->SetActiveVal(thread_pool_workers);
     }
 
     gEnv->threadPool = new ThreadPool(thread_pool_workers);
@@ -128,7 +128,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     actor->UpdateBoundingBoxes(); // (records the unrotated dimensions for 'veh_aab_size')
 
-    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+    if (RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         // Calculate optimal node position compression (for network transfer)
         Vector3 aabb_size = actor->ar_bounding_box.getSize();
@@ -293,7 +293,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     if (actor->ar_engine)
     {
-        if (!actor->m_preloaded_with_terrain && App::sim_spawn_running.GetActive())
+        if (!actor->m_preloaded_with_terrain && App::sim_spawn_running->GetActiveVal<bool>())
             actor->ar_engine->StartEngine();
         else
             actor->ar_engine->OffStart();
@@ -303,7 +303,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
 
-    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+    if (RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         // network buffer layout (without RoRnet::VehicleState):
         //
@@ -339,12 +339,12 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
         actor->m_net_label_node->setVisible(true);
         actor->m_deletion_scene_nodes.emplace_back(actor->m_net_label_node);
     }
-    else if (App::sim_replay_enabled.GetActive())
+    else if (App::sim_replay_enabled->GetActiveVal<bool>())
     {
-        actor->ar_replay_length = App::sim_replay_length.GetActive();
+        actor->ar_replay_length = App::sim_replay_length->GetActiveVal<int>();
         actor->m_replay_handler = new Replay(actor, actor->ar_replay_length);
 
-        int steps = App::sim_replay_stepping.GetActive();
+        int steps = App::sim_replay_stepping->GetActiveVal<int>();
 
         if (steps <= 0)
             actor->ar_replay_precision = 0.0f;
@@ -360,7 +360,7 @@ Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<R
     Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
     actor->SetUsedSkin(rq.asr_skin_entry);
 
-    if (App::mp_state.GetActive() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
+    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {
         actor->sendStreamSetup();
     }
@@ -684,7 +684,7 @@ void ActorManager::ForwardCommands(Actor* source_actor)
                     actor->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
                 }
 
-                if (App::sim_realistic_commands.GetActive())
+                if (App::sim_realistic_commands->GetActiveVal<bool>())
                 {
                     if (std::find(linked_actors.begin(), linked_actors.end(), actor) == linked_actors.end())
                         continue;
@@ -876,7 +876,7 @@ void ActorManager::DeleteActorInternal(Actor* actor)
     this->SyncWithSimThread();
 
 #ifdef USE_SOCKETW
-    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+    if (RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
         {
@@ -1026,12 +1026,12 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
         {
             actor->updateVisual(dt);
             actor->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
-            if (actor->ar_update_physics && App::gfx_skidmarks_mode.GetActive() > 0)
+            if (actor->ar_update_physics && App::gfx_skidmarks_mode->GetActiveVal<int>() > 0)
             {
                 actor->updateSkidmarks();
             }
         }
-        if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+        if (RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
         {
             if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
                 actor->CalcNetwork();
@@ -1065,7 +1065,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
         });
     m_sim_task = m_sim_thread_pool->RunTask(func);
 
-    if (!RoR::App::app_async_physics.GetActive())
+    if (!RoR::App::app_async_physics->GetActiveVal<bool>())
         m_sim_task->join();
 }
 
@@ -1124,7 +1124,7 @@ void ActorManager::UpdatePhysicsSimulation()
             for (auto actor : m_actors)
             {
                 if (actor->m_inter_point_col_detector != nullptr && (actor->ar_update_physics ||
-                        (App::mp_pseudo_collisions.GetActive() && actor->ar_sim_state == Actor::SimState::NETWORKED_OK)))
+                        (App::mp_pseudo_collisions->GetActiveVal<bool>() && actor->ar_sim_state == Actor::SimState::NETWORKED_OK)))
                 {
                     auto func = std::function<void()>([this, actor]()
                         {

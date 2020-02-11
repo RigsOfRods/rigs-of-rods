@@ -23,7 +23,11 @@
 
 #pragma once
 
+#include "CVar.h"
+
 #include <Ogre.h>
+#include <string>
+#include <unordered_map>
 
 namespace RoR {
 
@@ -32,6 +36,8 @@ class Console : public Ogre::LogListener
 {
 public:
     static const size_t MESSAGES_CAP = 1000u;
+
+    typedef std::unordered_map<std::string, CVar*> CVarPtrMap;
 
     enum MessageType
     {
@@ -89,6 +95,30 @@ public:
     unsigned long GetCurrentMsgTime() { return m_msg_timer.getMilliseconds(); }
     void DoCommand(std::string msg);
 
+    // ----------------------------
+    // CVars (defined in CVar.cpp):
+
+    /// Add CVar and parse default value if specified
+    CVar* CVarCreate(std::string const& name, std::string const& long_name,
+        int flags, std::string const& val = std::string());
+
+    /// Parse value by cvar type
+    void CVarAssign(CVar* cvar, std::string const& value, bool force_active = false);
+
+    /// Find cvar by short/long name
+    CVar* CVarFind(std::string const& input_name);
+
+    /// Set existing cvar by short/long name. Return the modified cvar (or NULL if not found)
+    CVar* CVarSet(std::string const& input_name, std::string const& input_val, bool force_active = false);
+
+    /// Get cvar by short/long name, or create new one using input as short name.
+    CVar* CVarGet(std::string const& input_name, int flags);
+
+    /// Create builtin vars and set defaults
+    void CVarSetupBuiltins();
+
+    CVarPtrMap& GetCVars() { return m_cvars; }
+
 private:
     // Ogre::LogListener
     virtual void messageLogged(
@@ -100,6 +130,8 @@ private:
     std::vector<Message>     m_messages;
     std::mutex               m_messages_mutex;
     Ogre::Timer              m_msg_timer;
+    CVarPtrMap               m_cvars;
+    CVarPtrMap               m_cvars_longname;
 };
 
 } //namespace RoR

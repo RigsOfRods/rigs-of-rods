@@ -121,7 +121,7 @@ Collisions::Collisions():
     , landuse(0)
     , m_terrain_size(App::GetSimTerrain()->getMaxTerrainSize())
 {
-    debugMode = RoR::App::diag_collisions.GetActive(); // TODO: make interactive - do not copy the value, use GVar directly
+    debugMode = App::diag_collisions->GetActiveVal<bool>(); // TODO: make interactive - do not copy the value, use GVar directly
     for (int i=0; i < HASH_POWER; i++)
     {
         hashmask = hashmask << 1;
@@ -146,7 +146,7 @@ Collisions::~Collisions()
 
 int Collisions::loadDefaultModels()
 {
-    return loadGroundModelsConfigFile(PathCombine(RoR::App::sys_config_dir.GetActive(), "ground_models.cfg"));
+    return loadGroundModelsConfigFile(PathCombine(App::sys_config_dir->GetActiveStr(), "ground_models.cfg"));
 }
 
 int Collisions::loadGroundModelsConfigFile(Ogre::String filename)

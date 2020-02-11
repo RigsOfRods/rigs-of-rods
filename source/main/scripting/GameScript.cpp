@@ -132,7 +132,7 @@ void GameScript::loadTerrain(const String& terrain)
     if (!this->HaveSimController(__FUNCTION__))
         return;
 
-    App::sim_terrain_name.SetPending(terrain.c_str());
+    App::sim_terrain_name->SetPendingStr(terrain);
     App::GetSimController()->LoadTerrain();
 }
 
@@ -760,7 +760,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     if (!this->HaveSimController(__FUNCTION__))
         return 1;
 
-    if (App::app_disable_online_api.GetActive())
+    if (App::app_disable_online_api->GetActiveVal<bool>())
         return 0;
 
     Actor* player_actor = App::GetSimController()->GetPlayerActor();
@@ -768,9 +768,9 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     if (player_actor == nullptr)
         return 1;
 
-    std::string hashtok = Utils::Sha1Hash(App::mp_player_name.GetActive());
-    std::string url = App::mp_api_url.GetActive() + apiquery;
-    std::string user = std::string("RoR-Api-User: ") + App::mp_player_name.GetActive();
+    std::string hashtok = Utils::Sha1Hash(App::mp_player_name->GetActiveStr());
+    std::string url = App::mp_api_url->GetActiveStr() + apiquery;
+    std::string user = std::string("RoR-Api-User: ") + App::mp_player_name->GetActiveStr();
     std::string token = std::string("RoR-Api-User-Token: ") + hashtok;
 
     std::string terrain_name = App::GetSimTerrain()->getTerrainName();
@@ -781,12 +781,12 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     rapidjson::Document j_doc;
     j_doc.SetObject();
 
-    j_doc.AddMember("user-name", rapidjson::StringRef(App::mp_player_name.GetActive()), j_doc.GetAllocator());
-    j_doc.AddMember("user-country", rapidjson::StringRef(App::app_country.GetActive()), j_doc.GetAllocator());
+    j_doc.AddMember("user-name", rapidjson::StringRef(App::mp_player_name->GetActiveStr().c_str()), j_doc.GetAllocator());
+    j_doc.AddMember("user-country", rapidjson::StringRef(App::app_country->GetActiveStr().c_str()), j_doc.GetAllocator());
     j_doc.AddMember("user-token", rapidjson::StringRef(hashtok.c_str()), j_doc.GetAllocator());
 
     j_doc.AddMember("terrain-name", rapidjson::StringRef(terrain_name.c_str()), j_doc.GetAllocator());
-    j_doc.AddMember("terrain-filename", rapidjson::StringRef(App::sim_terrain_name.GetActive()), j_doc.GetAllocator());
+    j_doc.AddMember("terrain-filename", rapidjson::StringRef(App::sim_terrain_name->GetActiveStr().c_str()), j_doc.GetAllocator());
 
     j_doc.AddMember("script-name", rapidjson::StringRef(script_name.c_str()), j_doc.GetAllocator());
     j_doc.AddMember("script-hash", rapidjson::StringRef(script_hash.c_str()), j_doc.GetAllocator());
@@ -891,7 +891,7 @@ int GameScript::deleteScriptVariable(const String& arg)
 int GameScript::sendGameCmd(const String& message)
 {
 #ifdef USE_SOCKETW
-    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+    if (RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         RoR::Networking::AddPacket(0, RoRnet::MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));
         return 0;
@@ -957,12 +957,12 @@ void GameScript::showMessageBox(Ogre::String& title, Ogre::String& text, bool us
 
 void GameScript::backToMenu()
 {
-    App::app_state.SetPending(AppState::MAIN_MENU);
+    App::app_state->SetPendingVal((int)AppState::MAIN_MENU);
 }
 
 void GameScript::quitGame()
 {
-    RoR::App::app_state.SetPending(RoR::AppState::SHUTDOWN);
+    RoR::App::app_state->SetPendingVal((int)RoR::AppState::SHUTDOWN);
 }
 
 float GameScript::getFPS()

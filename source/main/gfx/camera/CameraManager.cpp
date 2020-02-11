@@ -201,7 +201,7 @@ void CameraManager::UpdateCurrentBehavior()
     }
 
     case CAMERA_BEHAVIOR_STATIC:
-        m_staticcam_fov_exponent = App::gfx_static_cam_fov_exp.GetActive();
+        m_staticcam_fov_exponent = App::gfx_static_cam_fov_exp->GetActiveVal<float>();
         this->UpdateCameraBehaviorStatic();
         return;
 
@@ -252,7 +252,7 @@ bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // 
     m_cct_rot_scale    = Degree(rot_scale);
     m_cct_trans_scale  = trans_scale;
 
-    if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED || dt == 0.0f)
+    if (App::sim_state->GetActiveEnum<SimState>() == RoR::SimState::PAUSED || dt == 0.0f)
     {
         return true; // Do nothing when paused
     }
@@ -320,7 +320,7 @@ void CameraManager::ResetCurrentBehavior()
 
     case CAMERA_BEHAVIOR_STATIC:
         m_staticcam_fov_exponent = 1.0f;
-        App::gfx_static_cam_fov_exp.SetActive(1.0f);
+        App::gfx_static_cam_fov_exp->SetActiveVal(1.0f);
         return;
 
     case CAMERA_BEHAVIOR_VEHICLE:
@@ -331,7 +331,7 @@ void CameraManager::ResetCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
         CameraManager::CameraBehaviorOrbitReset();
         m_cam_rot_y = Degree(DEFAULT_INTERNAL_CAM_PITCH);
-        gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_internal.GetActive()));
+        gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_internal->GetActiveVal<int>()));
         return;
 
     case CAMERA_BEHAVIOR_FREE:            return;
@@ -388,7 +388,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
             this->ResetCurrentBehavior();
         }
 
-        gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_internal.GetActive()));
+        gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_internal->GetActiveVal<int>()));
 
         m_cct_player_actor->prepareInside(true);
 
@@ -443,7 +443,7 @@ void CameraManager::DeactivateCurrentBehavior()
     {
         if ( m_cct_player_actor != nullptr )
         {
-            gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_external.GetActive()));
+            gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_external->GetActiveVal<int>()));
             m_cct_player_actor->prepareInside(false);
             m_cct_player_actor->NotifyActorCameraChanged();
         }
@@ -497,7 +497,7 @@ bool CameraManager::hasActiveBehavior()
 bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
 {
 
-    if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED)
+    if (App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
     {
         return true; // Do nothing when paused
     }
@@ -703,7 +703,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
         Vector3 lookAtPrediction = lookAt + velocity * speed;
         float distance = m_staticcam_position.distance(lookAt);
         float interval = std::max(radius, speed);
-        float cmradius = std::max(radius, App::gfx_camera_height.GetActive() / 7.0f);
+        float cmradius = std::max(radius, App::gfx_camera_height->GetActiveVal<float>() / 7.0f);
 
         if (m_staticcam_force_update ||
                (distance > cmradius * 8.0f && angle < Degree(30)) ||
@@ -712,7 +712,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
                 intersectsTerrain(m_staticcam_position, lookAt, lookAtPrediction, interval))
         {
             float water_height = (water && !water->IsUnderWater(lookAt)) ? water->GetStaticWaterHeight() : 0.0f;
-            float desired_offset = std::max(std::sqrt(radius) * 2.89f, (float)App::gfx_camera_height.GetActive());
+            float desired_offset = std::max(std::sqrt(radius) * 2.89f, App::gfx_camera_height->GetActiveVal<float>());
 
             std::vector<std::pair<float, Vector3>> viable_positions;
             for (int i = 0; i < 10; i++)
@@ -772,7 +772,7 @@ bool CameraManager::CameraBehaviorStaticMouseMoved(const OIS::MouseEvent& _arg)
         float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.00002f : 0.0002f;
         m_staticcam_fov_exponent += ms.Z.rel * scale;
         m_staticcam_fov_exponent = Math::Clamp(m_staticcam_fov_exponent, 0.8f, 1.50f);
-        App::gfx_static_cam_fov_exp.SetActive(m_staticcam_fov_exponent);
+        App::gfx_static_cam_fov_exp->SetActiveVal(m_staticcam_fov_exponent);
         return true;
     }
 
@@ -920,7 +920,7 @@ void CameraManager::CameraBehaviorOrbitReset()
     m_cam_look_at_last = Vector3::ZERO;
     m_cam_look_at_smooth = Vector3::ZERO;
     m_cam_look_at_smooth_last = Vector3::ZERO;
-    gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_external.GetActive()));
+    gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_external->GetActiveVal<int>()));
 }
 
 void CameraManager::UpdateCameraBehaviorFree()
@@ -999,7 +999,7 @@ void CameraManager::UpdateCameraBehaviorFree()
 
 void CameraManager::UpdateCameraBehaviorFixed()
 {
-	if (App::gfx_fixed_cam_tracking.GetActive())
+	if (App::gfx_fixed_cam_tracking->GetActiveVal<bool>())
     {
         Vector3 look_at = m_cct_player_actor ? m_cct_player_actor->getPosition() : gEnv->player->getPosition();
         gEnv->mainCamera->lookAt(look_at);
@@ -1013,7 +1013,7 @@ void CameraManager::UpdateCameraBehaviorVehicle()
 	m_cam_target_direction = -atan2(dir.dotProduct(Vector3::UNIT_X), dir.dotProduct(-Vector3::UNIT_Z));
 	m_cam_target_pitch     = 0.0f;
 
-	if ( RoR::App::gfx_extcam_mode.GetActive() == RoR::GfxExtCamMode::PITCHING)
+	if ( RoR::App::gfx_extcam_mode->GetActiveEnum<GfxExtCamMode>() == RoR::GfxExtCamMode::PITCHING)
 	{
 		m_cam_target_pitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
 	}
@@ -1086,7 +1086,7 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
 
     m_cam_target_pitch = 0.0f;
 
-    if (App::gfx_extcam_mode.GetActive() == GfxExtCamMode::PITCHING)
+    if (App::gfx_extcam_mode->GetActiveEnum<GfxExtCamMode>() == GfxExtCamMode::PITCHING)
     {
         m_cam_target_pitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
     }
@@ -1277,7 +1277,7 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
 
     m_splinecam_spline_len /= 2.0f;
 
-    if (!m_splinecam_mo && RoR::App::diag_camera.GetActive())
+    if (!m_splinecam_mo && RoR::App::diag_camera->GetActiveVal<bool>())
     {
         m_splinecam_mo = gEnv->sceneManager->createManualObject();
         SceneNode* splineNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();

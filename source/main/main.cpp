@@ -72,6 +72,8 @@ int main(int argc, char *argv[])
     {
 #endif
 
+        App::GetConsole()->CVarSetupBuiltins();
+
         gEnv = &gEnvInstance;
 
         // ### Detect system paths ###
@@ -83,14 +85,14 @@ int main(int argc, char *argv[])
             ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving program directory path"));
             return -1;
         }
-        App::sys_process_dir.SetActive(RoR::GetParentDirectory(exe_path.c_str()).c_str());
+        App::sys_process_dir->SetActiveStr(RoR::GetParentDirectory(exe_path.c_str()).c_str());
 
         // RoR's home directory
-        std::string local_userdir = PathCombine(App::sys_process_dir.GetActive(), "config"); // TODO: Think of a better name, this is ambiguious with ~/.rigsofrods/config which stores configfiles! ~ only_a_ptr, 02/2018
+        std::string local_userdir = PathCombine(App::sys_process_dir->GetActiveStr(), "config"); // TODO: Think of a better name, this is ambiguious with ~/.rigsofrods/config which stores configfiles! ~ only_a_ptr, 02/2018
         if (FolderExists(local_userdir))
         {
             // It's a portable installation
-            App::sys_user_dir.SetActive(local_userdir.c_str());
+            App::sys_user_dir->SetActiveStr(local_userdir.c_str());
         }
         else
         {
@@ -116,14 +118,14 @@ int main(int argc, char *argv[])
             ror_homedir << user_home << PATH_SLASH << "RigsOfRods";
 #endif
             CreateFolder(ror_homedir.ToCStr ());
-            App::sys_user_dir.SetActive(ror_homedir.ToCStr ());
+            App::sys_user_dir->SetActiveStr(ror_homedir.ToCStr ());
         }
 
         // ### Create OGRE default logger early. ###
 
-        std::string logs_dir = PathCombine(App::sys_user_dir.GetActive(), "logs");
+        std::string logs_dir = PathCombine(App::sys_user_dir->GetActiveStr(), "logs");
         CreateFolder(logs_dir);
-        App::sys_logs_dir.SetActive(logs_dir.c_str());
+        App::sys_logs_dir->SetActiveStr(logs_dir.c_str());
 
         auto ogre_log_manager = OGRE_NEW Ogre::LogManager();
         std::string rorlog_path = PathCombine(logs_dir, "RoR.log");
@@ -132,7 +134,6 @@ int main(int argc, char *argv[])
         std::time_t t = std::time(nullptr);
         rorlog->stream() << "[RoR] Current date: " << std::put_time(std::localtime(&t), "%Y-%m-%d");
         rorlog->addListener(App::GetConsole());  // Allow console to intercept log messages
-        App::diag_trace_globals.SetActive(true); // We have logger -> we can trace.
 
         if (! Settings::SetupAllPaths()) // Updates globals
         {
@@ -143,12 +144,12 @@ int main(int argc, char *argv[])
         Settings::getSingleton().LoadRoRCfg(); // Main config file - path obtained from GVars
         Settings::getSingleton().ProcessCommandLine(argc, argv);
 
-        if (App::app_state.GetPending() == AppState::PRINT_HELP_EXIT)
+        if (App::app_state->GetPendingEnum<AppState>() == AppState::PRINT_HELP_EXIT)
         {
             ShowCommandLineUsage();
             return 0;
         }
-        if (App::app_state.GetPending() == AppState::PRINT_VERSION_EXIT)
+        if (App::app_state->GetPendingEnum<AppState>() == AppState::PRINT_VERSION_EXIT)
         {
             ShowVersion();
             return 0;
@@ -156,7 +157,7 @@ int main(int argc, char *argv[])
 
         App::StartOgreSubsystem();
 
-        Ogre::String src_path = PathCombine(App::sys_resources_dir.GetActive(), "skeleton.zip");
+        Ogre::String src_path = PathCombine(App::sys_resources_dir->GetActiveStr(), "skeleton.zip");
         Ogre::ResourceGroupManager::getSingleton().addResourceLocation(src_path, "Zip", "SrcRG");
         Ogre::FileInfoListPtr fl = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo("SrcRG", "*", true);
         if (fl->empty())
@@ -164,7 +165,7 @@ int main(int argc, char *argv[])
             ErrorUtils::ShowError(_L("Startup error"), _L("Faulty resource folder. Check if correctly installed."));
             return -1;
         }
-        Ogre::String dst_path = PathCombine(App::sys_user_dir.GetActive(), "");
+        Ogre::String dst_path = PathCombine(App::sys_user_dir->GetActiveStr(), "");
         for (auto file : *fl)
         {
             CreateFolder(dst_path + file.basename);
@@ -212,7 +213,7 @@ int main(int argc, char *argv[])
             Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, res / 2, res / 2, 0,
             Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, fsaa);
 
-        if (!App::diag_warning_texture.GetActive())
+        if (!App::diag_warning_texture->GetActiveVal<bool>())
         {
             // We overwrite the default warning texture (yellow stripes) with something unobtrusive
             Ogre::uchar data[3] = {0};
@@ -269,7 +270,7 @@ int main(int argc, char *argv[])
 
         RoR::ForceFeedback force_feedback;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-        if (App::io_ffb_enabled.GetActive()) // Force feedback
+        if (App::io_ffb_enabled->GetActiveVal<bool>()) // Force feedback
         {
             if (App::GetInputEngine()->getForceFeedbackDevice())
             {
@@ -278,7 +279,7 @@ int main(int argc, char *argv[])
             else
             {
                 LOG("No force feedback device detected, disabling force feedback");
-                App::io_ffb_enabled.SetActive(false);
+                App::io_ffb_enabled->SetActiveVal(false);
             }
         }
 
@@ -287,7 +288,7 @@ int main(int argc, char *argv[])
         {
             if (!FileExists(Ogre::StringUtil::format("%s\\OBSOLETE_FOLDER.txt", old_ror_homedir.c_str())))
             {
-                Ogre::String obsoleteMessage = Ogre::StringUtil::format("This folder is obsolete, please move your mods to  %s", App::sys_user_dir.GetActive());
+                Ogre::String obsoleteMessage = Ogre::StringUtil::format("This folder is obsolete, please move your mods to  %s", App::sys_user_dir->GetActiveStr());
                 try
                 {
                     Ogre::ResourceGroupManager::getSingleton().addResourceLocation(old_ror_homedir, "FileSystem", "homedir", false, false);
@@ -302,7 +303,7 @@ int main(int argc, char *argv[])
                 Ogre::String message = Ogre::StringUtil::format(
                     "Welcome to Rigs of Rods %s\nPlease note that the mods folder has moved to:\n\"%s\"\nPlease move your mods to the new folder to continue using them",
                     ROR_VERSION_STRING_SHORT,
-                    App::sys_user_dir.GetActive()
+                    App::sys_user_dir->GetActiveStr()
                 );
 
                 RoR::App::GetGuiManager()->ShowMessageBox("Obsolete folder detected", message.c_str());
@@ -314,37 +315,36 @@ int main(int argc, char *argv[])
 
         // ### Main loop (switches application states) ###
 
-        AppState prev_app_state = App::app_state.GetActive();
-        App::app_state.SetPending(AppState::MAIN_MENU);
+        App::app_state->SetPendingVal((int)AppState::MAIN_MENU);
 
-        if (App::mp_join_on_startup.GetActive())
+        if (App::mp_join_on_startup->GetActiveVal<bool>())
         {
-            App::mp_state.SetPending(RoR::MpState::CONNECTED);
+            App::mp_state->SetPendingVal((int)RoR::MpState::CONNECTED);
         }
-        else if (!App::diag_preset_terrain.IsActiveEmpty())
+        else if (App::diag_preset_terrain->GetActiveStr() != "")
         {
-            App::app_state.SetPending(AppState::SIMULATION);
+            App::app_state->SetPendingVal((int)AppState::SIMULATION);
         }
-        else if (App::sim_load_savegame.GetActive())
+        else if (App::sim_load_savegame->GetActiveVal<bool>())
         {
-            App::app_state.SetPending(AppState::SIMULATION);
+            App::app_state->SetPendingVal((int)AppState::SIMULATION);
         }
 
-        while (App::app_state.GetPending() != AppState::SHUTDOWN)
+        while (App::app_state->GetPendingEnum<AppState>() != AppState::SHUTDOWN)
         {
-            if (App::app_state.GetPending() == AppState::MAIN_MENU)
+            if (App::app_state->GetPendingEnum<AppState>() == AppState::MAIN_MENU)
 
             {
-                App::app_state.ApplyPending();
+                App::app_state->ApplyPending();
 
-                if (App::sim_load_savegame.GetActive())
+                if (App::sim_load_savegame->GetActiveVal<bool>())
                 {
-                    App::app_state.SetPending(AppState::SIMULATION);
+                    App::app_state->SetPendingVal((int)AppState::SIMULATION);
                     continue;
                 }
 
 #ifdef USE_OPENAL
-                if (App::audio_menu_music.GetActive())
+                if (App::audio_menu_music->GetActiveVal<bool>())
                 {
                     SoundScriptManager::getSingleton().createInstance("tracks/main_menu_tune", -1, nullptr);
                     SOUND_START(-1, SS_TRIG_MAIN_MENU);
@@ -352,10 +352,10 @@ int main(int argc, char *argv[])
 #endif // USE_OPENAL
 
                 App::GetGuiManager()->ReflectGameState();
-                if (!App::mp_join_on_startup.GetActive() && App::app_skip_main_menu.GetActive())
+                if (!App::mp_join_on_startup->GetActiveVal<bool>() && App::app_skip_main_menu->GetActiveVal<bool>())
                 {
                     // MainMenu disabled (singleplayer mode) -> go directly to map selector (traditional behavior)
-                    if (App::diag_preset_terrain.IsActiveEmpty())
+                    if (App::diag_preset_terrain->GetActiveStr() == "")
                     {
                         App::GetGuiManager()->SetVisible_GameMainMenu(false);
                         App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
@@ -364,17 +364,17 @@ int main(int argc, char *argv[])
 
                 main_obj.EnterMainMenuLoop();
             }
-            else if (App::app_state.GetPending() == AppState::SIMULATION)
+            else if (App::app_state->GetPendingEnum<AppState>() == AppState::SIMULATION)
             {
                 { // Enclosing scope for SimController
                     SimController sim_controller(&force_feedback, &skidmark_conf);
                     App::SetSimController(&sim_controller);
                     if (sim_controller.SetupGameplayLoop())
                     {
-                        App::app_state.ApplyPending();
+                        App::app_state->ApplyPending();
                         App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(&main_obj);     // HACK until OGRE 1.12 migration; We need a frame listener to display loading window ~ only_a_ptr, 10/2019
                         App::GetGuiManager()->ReflectGameState();
-                        App::sim_state.SetActive(SimState::RUNNING);
+                        App::sim_state->SetActiveVal((int)SimState::RUNNING);
                         sim_controller.EnterGameplayLoop();
                         App::SetSimController(nullptr);
                         App::GetMainMenu()->LeaveMultiplayerServer();
@@ -387,13 +387,12 @@ int main(int argc, char *argv[])
                     }
                     else
                     {
-                        App::app_state.SetPending(AppState::MAIN_MENU);
+                        App::app_state->SetPendingVal((int)AppState::MAIN_MENU);
                     }
                 } // Enclosing scope for SimController
                 gEnv->sceneManager->clearScene(); // Wipe the scene after SimController was destroyed
                 App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&main_obj); // HACK until OGRE 1.12 migration; Needed for GUI display, must be done ASAP ~ only_a_ptr, 10/2019
             }
-            prev_app_state = App::app_state.GetActive();
 
 
         } // End of app state loop

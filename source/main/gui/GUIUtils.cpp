@@ -100,86 +100,113 @@ void RoR::DrawImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float
     draw_list->AddImageQuad(tex_id, pos[0], pos[1], pos[2], pos[3], uvs[0], uvs[1], uvs[2], uvs[3], IM_COL32_WHITE);
 }
 
-void RoR::DrawGCheckbox(GVarPod_A<bool>& gvar, const char* label)
+void RoR::DrawGCheckbox(CVar* cvar, const char* label)
 {
-    bool val = gvar.GetActive();
+    bool val = cvar->GetActiveVal<bool>();
     if (ImGui::Checkbox(label, &val))
     {
-        gvar.SetActive(val);
+        cvar->SetActiveVal(val);
+        if (!cvar->HasFlags(CVAR_AUTO_STORE))
+        {
+            cvar->SetStoredVal(val);
+        }
     }
 }
 
-void RoR::DrawGCheckbox(GVarPod_APS<bool>& gvar, const char* label)
+void RoR::DrawGIntCheck(CVar* cvar, const char* label)
 {
-    bool val = gvar.GetStored();
+    bool val = (cvar->GetActiveVal<int>() != 0);
     if (ImGui::Checkbox(label, &val))
     {
-        gvar.SetActive(val);
-        gvar.SetStored(val);
+        cvar->SetActiveVal(val ? 1 : 0);
+        if (!cvar->HasFlags(CVAR_AUTO_STORE))
+        {
+            cvar->SetStoredVal(val);
+        }
     }
 }
 
-void RoR::DrawGIntCheck(GVarPod_A<int>& gvar, const char* label)
+void RoR::DrawGIntBox(CVar* cvar, const char* label)
 {
-    bool val = (gvar.GetActive() != 0);
-    if (ImGui::Checkbox(label, &val))
-    {
-        gvar.SetActive(val ? 1 : 0);
-    }
-}
-
-void RoR::DrawGIntBox(GVarPod_A<int>& gvar, const char* label)
-{
-    int val = gvar.GetActive();
+    int val = cvar->GetActiveVal<int>();
     if (ImGui::InputInt(label, &val, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue))
     {
-        gvar.SetActive(val);
+        cvar->SetActiveVal(val);
+        if (!cvar->HasFlags(CVAR_AUTO_STORE))
+        {
+            cvar->SetStoredVal(val);
+        }
     }
 }
 
-void RoR::DrawGIntSlider(GVarPod_A<int>& gvar, const char* label, int v_min, int v_max)
+void RoR::DrawGIntSlider(CVar* cvar, const char* label, int v_min, int v_max)
 {
-    int val = gvar.GetActive();
+    int val = cvar->GetActiveVal<int>();
     if (ImGui::SliderInt(label, &val, v_min, v_max))
     {
-        gvar.SetActive(val);
+        cvar->SetActiveVal(val);
+        if (!cvar->HasFlags(CVAR_AUTO_STORE))
+        {
+            cvar->SetStoredVal(val);
+        }
     }
 }
 
-void RoR::DrawGIntSlider(GVarPod_APS<int>& gvar, const char* label, int v_min, int v_max)
+void RoR::DrawGFloatSlider(CVar* cvar, const char* label, float v_min, float v_max)
 {
-    int val = gvar.GetActive();
-    if (ImGui::SliderInt(label, &val, v_min, v_max))
-    {
-        gvar.SetActive(val);
-        gvar.SetStored(val);
-    }
-}
-
-void RoR::DrawGFloatSlider(GVarPod_A<float>& gvar, const char* label, float v_min, float v_max)
-{
-    float val = gvar.GetActive();
+    float val = cvar->GetActiveVal<float>();
     if (ImGui::SliderFloat(label, &val, v_min, v_max, "%.2f"))
     {
-        gvar.SetActive(val);
+        cvar->SetActiveVal(val);
+        if (!cvar->HasFlags(CVAR_AUTO_STORE))
+        {
+            cvar->SetStoredVal(val);
+        }
     }
 }
 
-void RoR::DrawGFloatBox(GVarPod_A<float>& gvar, const char* label)
+void RoR::DrawGFloatBox(CVar* cvar, const char* label)
 {
-    float fval = gvar.GetActive();
+    float fval = cvar->GetActiveVal<float>();
     if (ImGui::InputFloat(label, &fval, 0.f, 0.f, -1, ImGuiInputTextFlags_EnterReturnsTrue))
     {
-        gvar.SetActive(fval);
+        cvar->SetActiveVal(fval);
+        if (!cvar->HasFlags(CVAR_AUTO_STORE))
+        {
+            cvar->SetStoredVal(fval);
+        }
     }
 }
 
-void RoR::DrawGFloatBox(GVarPod_APS<float>& gvar, const char* label)
+void RoR::DrawGTextEdit(CVar* cvar, const char* label, Str<1000>& buf)
 {
-    float fval = gvar.GetActive();
-    if (ImGui::InputFloat(label, &fval, 0.f, 0.f, -1, ImGuiInputTextFlags_EnterReturnsTrue))
+    if (ImGui::InputText(label, buf.GetBuffer(), buf.GetCapacity(), ImGuiInputTextFlags_EnterReturnsTrue))
     {
-        gvar.SetActive(fval);
-        gvar.SetStored(fval);
+        cvar->SetActiveStr(buf.GetBuffer());
+        if (!cvar->HasFlags(CVAR_AUTO_STORE))
+        {
+            cvar->SetStoredStr(buf.GetBuffer());
+        }
+    }
+    if (ImGui::IsItemActive())
+    {
+        ImGui::TextDisabled("(hit Enter key to submit)");
+    }
+    else
+    {
+        buf.Assign(cvar->GetActiveStr().c_str());
+    }
+}
+
+void RoR::DrawGCombo(CVar* cvar, const char* label, const char* values)
+{
+    int selection = cvar->GetActiveVal<int>();
+    if (ImGui::Combo(label, &selection, values))
+    {
+        cvar->SetActiveVal(selection);
+        if (!cvar->HasFlags(CVAR_AUTO_STORE))
+        {
+            cvar->SetStoredVal(selection);
+        }
     }
 }

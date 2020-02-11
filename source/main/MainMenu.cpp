@@ -59,12 +59,12 @@ void MainMenu::EnterMainMenuLoop()
     
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    while (App::app_state.GetPending() == AppState::MAIN_MENU)
+    while (App::app_state->GetPendingEnum<AppState>() == AppState::MAIN_MENU)
     {
         // Check FPS limit
-        if (App::gfx_fps_limit.GetActive() > 0)
+        if (App::gfx_fps_limit->GetActiveVal<int>() > 0)
         {
-            const float min_frame_time = 1.0f / Ogre::Math::Clamp(App::gfx_fps_limit.GetActive(), 60, 240);
+            const float min_frame_time = 1.0f / Ogre::Math::Clamp(App::gfx_fps_limit->GetActiveVal<int>(), 60, 240);
             float dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
             while (dt < min_frame_time)
             {
@@ -86,7 +86,7 @@ void MainMenu::EnterMainMenuLoop()
         Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
         if (rw->isClosed())
         {
-            App::app_state.SetPending(AppState::SHUTDOWN);
+            App::app_state->SetPendingVal((int)AppState::SHUTDOWN);
             continue;
         }
 
@@ -105,13 +105,13 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
 {
     if (RoR::App::GetOgreSubsystem()->GetRenderWindow()->isClosed())
     {
-        App::app_state.SetPending(AppState::SHUTDOWN);
+        App::app_state->SetPendingVal((int)AppState::SHUTDOWN);
         return;
     }
 
 #ifdef USE_SOCKETW
-    if (App::mp_state.GetPending() == MpState::CONNECTED &&
-        App::mp_state.GetActive() == MpState::DISABLED)
+    if (App::mp_state->GetPendingEnum<MpState>() == MpState::CONNECTED &&
+        App::mp_state->GetActiveEnum<MpState>() == MpState::DISABLED)
     {
         Networking::StartConnecting();
     }
@@ -144,30 +144,30 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
             break;
 
         case Networking::NetEvent::Type::CONNECT_SUCCESS:
-            App::mp_state.SetActive(RoR::MpState::CONNECTED);
+            App::mp_state->SetActiveVal((int)RoR::MpState::CONNECTED);
             ChatSystem::SendStreamSetup();
             App::CheckAndCreateMumble();
             if (Networking::GetTerrainName() != "any")
             {
-                App::sim_terrain_name.SetPending(Networking::GetTerrainName().c_str());
-                App::app_state.SetPending(AppState::SIMULATION);
+                App::sim_terrain_name->SetPendingStr(Networking::GetTerrainName());
+                App::app_state->SetPendingVal((int)AppState::SIMULATION);
             }
             else
             {
                 // Connected -> go directly to map selector
-                if (App::diag_preset_terrain.IsActiveEmpty())
+                if (App::diag_preset_terrain->GetActiveStr().empty())
                 {
                     App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
                 }
                 else
                 {
-                    App::app_state.SetPending(AppState::SIMULATION);
+                    App::app_state->SetPendingVal((int)AppState::SIMULATION);
                 }
             }
             break;
 
         case Networking::NetEvent::Type::CONNECT_FAILURE:
-            App::mp_state.SetActive(RoR::MpState::DISABLED);
+            App::mp_state->SetActiveVal((int)MpState::DISABLED);
             App::GetGuiManager()->ShowMessageBox(
                 _LC("Network", "Multiplayer: connection failed"), events.front().message.c_str());
             App::GetGuiManager()->ReflectGameState();
@@ -185,7 +185,7 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
     }
 #endif // USE_SOCKETW
 
-    if (App::app_force_cache_udpate.GetActive() || App::app_force_cache_purge.GetActive())
+    if (App::app_force_cache_udpate->GetActiveVal<bool>() || App::app_force_cache_purge->GetActiveVal<bool>())
     {
         App::GetGuiManager()->SetVisible_GameSettings(false);
         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
@@ -236,7 +236,7 @@ void MainMenu::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
         }
         else
         {
-            App::app_state.SetPending(AppState::SHUTDOWN);
+            App::app_state->SetPendingVal((int)AppState::SHUTDOWN);
         }
         return;
     }
@@ -302,16 +302,16 @@ void MainMenu::HandleSavegameShortcuts()
     if (slot != -1)
     {
         Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
-        App::sim_savegame.SetActive(filename.c_str());
-        App::sim_load_savegame.SetActive(true);
-        App::app_state.SetPending(AppState::SIMULATION);
+        App::sim_savegame->SetActiveStr(filename.c_str());
+        App::sim_load_savegame->SetActiveVal(true);
+        App::app_state->SetPendingVal((int)AppState::SIMULATION);
     }
 }
 
 void MainMenu::LeaveMultiplayerServer()
 {
 #ifdef USE_SOCKETW
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
+    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
     {
         RoR::Networking::Disconnect();
         App::GetGuiManager()->GetMainSelector()->Close(); // We may get disconnected while still in map selection

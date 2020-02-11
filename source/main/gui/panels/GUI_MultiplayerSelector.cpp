@@ -219,7 +219,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         ImGui::PushItemWidth(250.f);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
         DrawGTextEdit(App::mp_player_name,        "Player nickname", m_player_name_buf);
-        DrawGTextEdit(App::mp_server_password,    "Default server password", m_password_buf, true);
+        DrawGTextEdit(App::mp_server_password,    "Default server password", m_password_buf);
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
         ImGui::Separator();
@@ -243,8 +243,8 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
         if (ImGui::Button("Join"))
         {
-            App::mp_server_password.SetActive(m_password_buf.GetBuffer());
-            App::mp_state.SetPending(MpState::CONNECTED);
+            App::mp_server_password->SetActiveStr(m_password_buf.GetBuffer());
+            App::mp_state->SetPendingVal((int)MpState::CONNECTED);
         }
 
         ImGui::PopID();
@@ -342,10 +342,10 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
                 MpServerlistData::ServerInfo& server = m_serverlist_data->servers[m_selected_item];
                 if (ImGui::Button("Join", ImVec2(200.f, 0.f)))
                 {
-                    App::mp_server_password.SetActive(m_password_buf.GetBuffer());
-                    App::mp_server_host.SetActive(server.net_host);
-                    App::mp_server_port.SetActive(server.net_port);
-                    App::mp_state.SetPending(MpState::CONNECTED);
+                    App::mp_server_password->SetActiveStr(m_password_buf.GetBuffer());
+                    App::mp_server_host->SetActiveStr(server.net_host.ToCStr());
+                    App::mp_server_port->SetActiveVal(server.net_port);
+                    App::mp_state->SetPendingVal((int)MpState::CONNECTED);
                 }
                 if (server.has_password)
                 {
@@ -384,7 +384,7 @@ void RoR::GUI::MultiplayerSelector::RefreshServerlist()
     m_is_refreshing = true;
     std::packaged_task<MpServerlistData*(std::string)> task(FetchServerlist);
     m_serverlist_future = task.get_future();
-    std::thread(std::move(task), App::mp_api_url.GetActive()).detach(); // launch on a thread
+    std::thread(std::move(task), App::mp_api_url->GetActiveStr()).detach(); // launch on a thread
 #endif // defined(USE_CURL)
 }
 
@@ -412,9 +412,9 @@ void RoR::GUI::MultiplayerSelector::SetVisible(bool visible)
     if (visible && (m_serverlist_data == nullptr)) // Do an initial refresh
     {
         this->RefreshServerlist();
-        m_password_buf = App::mp_server_password.GetActive();
+        m_password_buf = App::mp_server_password->GetActiveStr();
     }
-    else if (!visible && App::app_state.GetActive() == AppState::MAIN_MENU)
+    else if (!visible && App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
     {
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }

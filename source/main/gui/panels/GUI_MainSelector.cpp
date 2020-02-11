@@ -532,12 +532,12 @@ void MainSelector::Cancel()
 {
     this->Close();
 
-    if (App::app_state.GetActive() == AppState::MAIN_MENU)
+    if (App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
     {
         RoR::App::GetMainMenu()->LeaveMultiplayerServer(); // TODO: replace by message queue ~ 11/2019
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
-    else if (App::app_state.GetActive() == AppState::SIMULATION)
+    else if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
     {
         App::GetSimController()->OnLoaderGuiCancel();
     }
@@ -549,13 +549,13 @@ void MainSelector::Apply()
     DisplayEntry& sd_entry = m_display_entries[m_selected_entry];
 
     if (m_loader_type == LT_Terrain &&
-        App::app_state.GetActive() == AppState::MAIN_MENU)
+        App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
     {
-        App::sim_terrain_name.SetPending(sd_entry.sde_entry->fname.c_str());
-        App::app_state.SetPending(AppState::SIMULATION);
+        App::sim_terrain_name->SetPendingStr(sd_entry.sde_entry->fname.c_str());
+        App::app_state->SetPendingVal((int)AppState::SIMULATION);
         this->Close();
     }
-    else if (App::app_state.GetActive() == AppState::SIMULATION)
+    else if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
     {
         LoaderType type = m_loader_type;
         std::string sectionconfig;
