@@ -47,7 +47,7 @@ using namespace Ogre;
 
 void Console::messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String& logName, bool& skipThisMessage)
 {
-    if (App::diag_log_console_echo.GetActive())
+    if (App::diag_log_console_echo->GetActiveVal<bool>())
     {
         this->ForwardLogMessage(CONSOLE_MSGTYPE_LOG, message, lml);
     }
@@ -127,7 +127,7 @@ void Console::putNetMessage(int user_id, MessageType type, const char* text)
 
 void Console::DoCommand(std::string msg) // All commands are processed here
 {
-    const bool is_appstate_sim = (App::app_state.GetActive() == AppState::SIMULATION);
+    const bool is_appstate_sim = (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION);
 
     if (msg[0] == '/' || msg[0] == '\\')
     {
@@ -287,7 +287,7 @@ void Console::DoCommand(std::string msg) // All commands are processed here
     }
     else if (args[0] == "quit")
     {
-        RoR::App::app_state.SetPending (RoR::AppState::SHUTDOWN);
+        App::app_state->SetPendingVal((int)AppState::SHUTDOWN);
         return;
     }
 #ifdef USE_ANGELSCRIPT
@@ -311,11 +311,11 @@ void Console::DoCommand(std::string msg) // All commands are processed here
     else if (args[0] == "log")
     {
         // switch to console logging
-        bool now_logging = !App::diag_log_console_echo.GetActive();
+        bool now_logging = !App::diag_log_console_echo->GetActiveVal<bool>();
         const char* msg = (now_logging) ? " logging to console enabled" : " logging to console disabled";
         RoR::App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L(msg), "information.png");
-        App::diag_log_console_echo.SetActive(now_logging);
+        App::diag_log_console_echo->SetActiveVal(now_logging);
         return;
     }
     else if (args[0] == "spawnobject" && is_appstate_sim)

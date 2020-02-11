@@ -40,9 +40,9 @@ OutProtocol::OutProtocol(void) :
     , timer(0)
     , working(false)
 {
-    delay *= App::io_outgauge_delay.GetActive(); // TODO: Use the GVar directly, don't copy it.
-    mode = App::io_outgauge_mode.GetActive();    // TODO: Use the GVar directly, don't copy it.
-    id = App::io_outgauge_id.GetActive();        // TODO: Use the GVar directly, don't copy it.
+    delay *= App::io_outgauge_delay->GetActiveVal<float>(); // TODO: Use the GVar directly, don't copy it.
+    mode = App::io_outgauge_mode->GetActiveVal<int>();    // TODO: Use the GVar directly, don't copy it.
+    id = App::io_outgauge_id->GetActiveVal<int>();        // TODO: Use the GVar directly, don't copy it.
 
     if (mode > 0)
     {
@@ -86,7 +86,7 @@ void OutProtocol::startup()
     }
 
     // get the IP of the remote side, this function is compatible with windows 2000
-    hostent* remoteHost = gethostbyname(App::io_outgauge_ip.GetActive());
+    hostent* remoteHost = gethostbyname(App::io_outgauge_ip->GetActiveStr().c_str());
     char* ip = inet_ntoa(*(struct in_addr *)*remoteHost->h_addr_list);
 
     // init socket data
@@ -94,7 +94,7 @@ void OutProtocol::startup()
     memset(&sendaddr, 0, sizeof(sendaddr));
     sendaddr.sin_family = AF_INET;
     sendaddr.sin_addr.s_addr = inet_addr(ip);
-    sendaddr.sin_port = htons(App::io_outgauge_port.GetActive());
+    sendaddr.sin_port = htons(App::io_outgauge_port->GetActiveVal<int>());
 
     // connect
     if (connect(sockfd, (struct sockaddr *) &sendaddr, sizeof(sendaddr)) == SOCKET_ERROR)

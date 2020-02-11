@@ -100,7 +100,7 @@ void RoR::GUI::GameChatBox::Draw()
         const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
         if (ImGui::InputText("", m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
         {
-            if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+            if (RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
             {
                 this->SubmitMessage();
             }

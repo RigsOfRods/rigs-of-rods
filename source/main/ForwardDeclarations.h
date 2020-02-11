@@ -35,6 +35,7 @@ namespace RoR
     class  ConfigFile;
     class  Console;
     class  ContentManager;
+    class  CVar;
     class  FlexBodyFileIO;
     struct FlexBodyCacheData;
     class  FlexFactory;

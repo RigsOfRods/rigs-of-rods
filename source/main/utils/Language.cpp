@@ -54,7 +54,7 @@ void LanguageEngine::setup()
     languages = { {"English", "en"} };
     auto& moFileReader = moFileLib::moFileReaderSingleton::GetInstance();
 
-    String base_path = PathCombine(App::sys_process_dir.GetActive(), "languages");
+    String base_path = PathCombine(App::sys_process_dir->GetActiveStr(), "languages");
     ResourceGroupManager::getSingleton().addResourceLocation(base_path, "FileSystem", "LngRG");
     FileInfoListPtr fl = ResourceGroupManager::getSingleton().findResourceFileInfo("LngRG", "*", true);
     if (!fl->empty())
@@ -75,15 +75,14 @@ void LanguageEngine::setup()
     }
     ResourceGroupManager::getSingleton().destroyResourceGroup("LngRG");
 
-    String language_short = App::app_language.GetActive();
-    String locale_path = PathCombine(base_path, language_short.substr(0, 2));
+    String locale_path = PathCombine(base_path, App::app_language->GetActiveStr().substr(0, 2));
     String lang_path = PathCombine(locale_path, "LC_MESSAGES");
     String mo_path = PathCombine(lang_path, "ror.mo");
 
     if (moFileReader.ReadFile(mo_path.c_str()) == moFileLib::moFileReader::EC_SUCCESS)
     {
         String info = moFileLib::moFileReaderSingleton::GetInstance().Lookup("");
-        App::app_language.SetActive(extractLang(info).second.c_str());
+        App::app_language->SetActiveStr(extractLang(info).second);
         RoR::LogFormat("[RoR|App] Loading language file '%s'", mo_path.c_str());
     }
     else

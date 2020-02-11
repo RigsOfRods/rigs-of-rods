@@ -113,7 +113,7 @@ void RoR::GUI::TopMenubar::Update()
     {
         m_open_menu = TopMenu::TOPMENU_SAVEGAMES;
         m_quicksave_name = App::GetSimController()->GetBeamFactory()->GetQuicksaveFilename();
-        m_quickload = FileExists(PathCombine(App::sys_savegames_dir.GetActive(), m_quicksave_name));
+        m_quickload = FileExists(PathCombine(App::sys_savegames_dir->GetActiveStr(), m_quicksave_name));
         m_savegame_names.clear();
         for (int i = 0; i <= 9; i++)
         {
@@ -131,7 +131,7 @@ void RoR::GUI::TopMenubar::Update()
     {
         m_open_menu = TopMenu::TOPMENU_SETTINGS;
 #ifdef USE_CAELUM
-        if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
+        if (App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
             m_daytime = App::GetSimTerrain()->getSkyManager()->GetTime();
 #endif // USE_CAELUM
     }
@@ -241,12 +241,12 @@ void RoR::GUI::TopMenubar::Update()
 
             if (ImGui::Button("Back to menu"))
             {
-                App::app_state.SetPending(RoR::AppState::MAIN_MENU);
+                App::app_state->SetPendingVal((int)RoR::AppState::MAIN_MENU);
             }
 
             if (ImGui::Button("Exit"))
             {
-                App::app_state.SetPending(RoR::AppState::SHUTDOWN);
+                App::app_state->SetPendingVal((int)RoR::AppState::SHUTDOWN);
             }
 
             m_open_menu_hoverbox_min = menu_pos;
@@ -263,7 +263,7 @@ void RoR::GUI::TopMenubar::Update()
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin("Actors menu", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
-            if (App::mp_state.GetActive() != MpState::CONNECTED)
+            if (App::mp_state->GetActiveEnum<MpState>() != MpState::CONNECTED)
             {
                 this->DrawActorListSinglePlayer();
             }
@@ -367,15 +367,15 @@ void RoR::GUI::TopMenubar::Update()
             DrawGFloatSlider(App::audio_master_volume, "Volume", 0, 1);
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "Frames per second:");
-            if (App::gfx_envmap_enabled.GetActive())
+            if (App::gfx_envmap_enabled->GetActiveVal<bool>())
             {
                 DrawGIntSlider(App::gfx_envmap_rate, "Reflections", 0, 6);
             }
             DrawGIntSlider(App::gfx_fps_limit, "Graphics", 0, 240);
-            int physics_fps = std::round(1.0f / App::diag_physics_dt.GetActive());
+            int physics_fps = std::round(1.0f / App::diag_physics_dt->GetActiveVal<float>());
             if (ImGui::SliderInt("Physics", &physics_fps, 2000, 10000))
             {
-                App::diag_physics_dt.SetActive(Ogre::Math::Clamp(1.0f / physics_fps, 0.0001f, 0.0005f));
+                App::diag_physics_dt->SetActiveVal(Ogre::Math::Clamp(1.0f / physics_fps, 0.0001f, 0.0005f));
             }
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "Simulation:");
@@ -402,19 +402,19 @@ void RoR::GUI::TopMenubar::Update()
                 ImGui::TextColored(GRAY_HINT_TEXT, "Camera:");
                 if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
                 {
-                    int fov = App::gfx_fov_internal.GetActive();
+                    int fov = App::gfx_fov_internal->GetActiveVal<int>();
                     if (ImGui::SliderInt("FOV", &fov, 10, 120))
                     {
-                        App::gfx_fov_internal.SetActive(fov);
+                        App::gfx_fov_internal->SetActiveVal(fov);
                         gEnv->mainCamera->setFOVy(Ogre::Degree(fov));
                     }
                 }
                 else
                 {
-                    int fov = App::gfx_fov_external.GetActive();
+                    int fov = App::gfx_fov_external->GetActiveVal<int>();
                     if (ImGui::SliderInt("FOV", &fov, 10, 120))
                     {
-                        App::gfx_fov_external.SetActive(fov);
+                        App::gfx_fov_external->SetActiveVal(fov);
                         gEnv->mainCamera->setFOVy(Ogre::Degree(fov));
                     }
                 }
@@ -424,7 +424,7 @@ void RoR::GUI::TopMenubar::Update()
                 }
             }
 #ifdef USE_CAELUM
-            if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
+            if (App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "Time of day:");
@@ -435,13 +435,14 @@ void RoR::GUI::TopMenubar::Update()
                 }
             }       
 #endif // USE_CAELUM
+            
             if (current_actor != nullptr)
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "Vehicle control options:");
                 DrawGCheckbox(App::io_hydro_coupling, "Keyboard steering speed coupling");
             }
-            if (App::mp_state.GetActive() == MpState::CONNECTED)
+            if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "Multiplayer:");
@@ -493,63 +494,63 @@ void RoR::GUI::TopMenubar::Update()
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "Pre-spawn diag. options:");
 
-            bool diag_mass = App::diag_truck_mass.GetActive();
+            bool diag_mass = App::diag_truck_mass->GetActiveVal<bool>();
             if (ImGui::Checkbox("Node mass recalc. logging", &diag_mass))
             {
-                App::diag_truck_mass.SetActive(diag_mass);
+                App::diag_truck_mass->SetActiveVal(diag_mass);
             }
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text("Extra logging on runtime - mass recalculation (config: \"Debug Truck Mass\"; GVar: \"diag_truck_mass\")");
+                ImGui::Text("Extra logging on runtime - mass recalculation");
                 ImGui::EndTooltip();
             }
 
-            bool diag_break = App::diag_log_beam_break.GetActive();
+            bool diag_break = App::diag_log_beam_break->GetActiveVal<bool>();
             if (ImGui::Checkbox("Beam break logging", &diag_break))
             {
-                App::diag_log_beam_break.SetActive(diag_break);
+                App::diag_log_beam_break->SetActiveVal(diag_break);
             }
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text("Extra logging on runtime (config: \"Beam Break Debug\"; GVar: \"diag_log_beam_break\")");
+                ImGui::Text("Extra logging on runtime");
                 ImGui::EndTooltip();
             }
 
-            bool diag_deform = App::diag_log_beam_deform.GetActive();
+            bool diag_deform = App::diag_log_beam_deform->GetActiveVal<bool>();
             if (ImGui::Checkbox("Beam deform. logging", &diag_deform))
             {
-                App::diag_log_beam_deform.SetActive(diag_deform);
+                App::diag_log_beam_deform->SetActiveVal(diag_deform);
             }
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text("Extra logging on runtime (config: \"Beam Deform Debug\"; GVar: \"diag_log_beam_deform\")");
+                ImGui::Text("Extra logging on runtime");
                 ImGui::EndTooltip();
             }
 
-            bool diag_trig = App::diag_log_beam_trigger.GetActive();
+            bool diag_trig = App::diag_log_beam_trigger->GetActiveVal<bool>();
             if (ImGui::Checkbox("Trigger logging", &diag_trig))
             {
-                App::diag_log_beam_trigger.SetActive(diag_trig);
+                App::diag_log_beam_trigger->SetActiveVal(diag_trig);
             }
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text("Extra logging on runtime - trigger beams activity (config: \"Trigger Debug\"; GVar: \"diag_log_beam_trigger\")");
+                ImGui::Text("Extra logging on runtime - trigger beams activity");
                 ImGui::EndTooltip();
             }
 
-            bool diag_vcam = App::diag_videocameras.GetActive();
+            bool diag_vcam = App::diag_videocameras->GetActiveVal<bool>();
             if (ImGui::Checkbox("VideoCamera direction marker", &diag_vcam))
             {
-                App::diag_videocameras.SetActive(diag_vcam);
+                App::diag_videocameras->SetActiveVal(diag_vcam);
             }
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text("Visual marker of VideoCameras direction (config: \"VideoCameraDebug\"; GVar: \"diag_videocameras\")");
+                ImGui::Text("Visual marker of VideoCameras direction");
                 ImGui::EndTooltip();
             }
 
@@ -558,8 +559,8 @@ void RoR::GUI::TopMenubar::Update()
                 ImGui::Separator();
 
                 ImGui::TextColored(GRAY_HINT_TEXT, "Live diagnostic views:");
-                ImGui::TextColored(GRAY_HINT_TEXT, "(Toggle with 'K')"); // !!TODO!! - display actual configured hotkey (EV_COMMON_TOGGLE_DEBUG_VIEW)
-                ImGui::TextColored(GRAY_HINT_TEXT, "(Cycle with 'CTRL+K')"); // !!TODO!! - display actual configured hotkey (EV_COMMON_CYCLE_DEBUG_VIEWS)
+                ImGui::TextColored(GRAY_HINT_TEXT, "(Toggle with '%s')", App::GetInputEngine()->getEventCommand(EV_COMMON_TOGGLE_DEBUG_VIEW));
+                ImGui::TextColored(GRAY_HINT_TEXT, "(Cycle with '%s')", App::GetInputEngine()->getEventCommand(EV_COMMON_CYCLE_DEBUG_VIEWS));
 
                 int debug_view_type = static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NONE);
                 if (current_actor != nullptr)

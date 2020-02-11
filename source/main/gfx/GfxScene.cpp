@@ -36,6 +36,7 @@
 #include "TerrainObjectManager.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 RoR::GfxScene::GfxScene()
     : m_ogre_scene(nullptr)
@@ -85,7 +86,7 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     }
 
     // Particles
-    if (RoR::App::gfx_particles_mode.GetActive() == 1)
+    if (App::gfx_particles_mode->GetActiveVal<int>() == 1)
     {
         for (GfxActor* gfx_actor: m_all_gfx_actors)
         {

@@ -157,7 +157,7 @@ void RoR::GUI::GameAbout::Draw()
 void RoR::GUI::GameAbout::SetVisible(bool v)
 {
     m_is_visible = v;
-    if(!v && (App::app_state.GetActive() == RoR::AppState::MAIN_MENU))
+    if(!v && (App::app_state->GetActiveEnum<AppState>() == RoR::AppState::MAIN_MENU))
     {
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }

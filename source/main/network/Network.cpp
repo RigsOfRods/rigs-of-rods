@@ -439,22 +439,22 @@ void CouldNotConnect(std::string const & msg, bool close_socket = true)
 bool StartConnecting()
 {
     // Shadow vars for threaded access
-    m_username = App::mp_player_name.GetActive();
-    m_token    = App::mp_player_token.GetActive();
-    m_net_host = App::mp_server_host.GetActive();
-    m_net_port = App::mp_server_port.GetActive();
-    m_password = App::mp_server_password.GetActive();
+    m_username = App::mp_player_name->GetActiveStr();
+    m_token    = App::mp_player_token->GetActiveStr();
+    m_net_host = App::mp_server_host->GetActiveStr();
+    m_net_port = App::mp_server_port->GetActiveVal<int>();
+    m_password = App::mp_server_password->GetActiveStr();
 
     try
     {
         m_connect_thread = std::thread(ConnectThread);
-        App::mp_state.SetActive(MpState::CONNECTING); // Mark connect thread as started
+        App::mp_state->SetActiveVal((int)MpState::CONNECTING); // Mark connect thread as started
         FireNetEvent(NetEvent::Type::CONNECT_STARTED, _LC("Network", "Starting..."));
         return true;
     }
     catch (std::exception& e)
     {
-        App::mp_state.SetActive(MpState::DISABLED);
+        App::mp_state->SetActiveVal((int)MpState::DISABLED);
         FireNetEvent(NetEvent::Type::CONNECT_FAILURE, _L("Failed to launch connection thread"));
         RoR::LogFormat("[RoR|Networking] Failed to launch connection thread, message: %s", e.what());
         return false;
@@ -492,7 +492,7 @@ bool ConnectThread()
     FireNetEvent(NetEvent::Type::CONNECT_PROGRESS, _LC("Network", "Estabilishing connection..."));
     socket = SWInetSocket();
     socket.set_timeout(10, 0);
-    socket.connect(App::mp_server_port.GetActive(), App::mp_server_host.GetActive(), &error);
+    socket.connect(App::mp_server_port->GetActiveVal<int>(), App::mp_server_host->GetActiveStr(), &error);
     if (error != SWBaseSocket::ok)
     {
         CouldNotConnect(_L("Could not create connection"), false);
@@ -564,8 +564,8 @@ bool ConnectThread()
     strncpy(c.usertoken, Utils::Sha1Hash(m_token.GetBuffer()).c_str(), size_t(40));
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
     strncpy(c.clientname, "RoR", 10);
-    std::string language = std::string(App::app_language.GetActive()).substr(0, 2);
-    std::string country = std::string(App::app_country.GetActive()).substr(0, 2);
+    std::string language = App::app_language->GetActiveStr().substr(0, 2);
+    std::string country = App::app_country->GetActiveStr().substr(0, 2);
     strncpy(c.language, (language + std::string("_") + country).c_str(), 5);
     strcpy(c.sessiontype, "normal");
     if (!SendNetMessage(MSG2_USER_INFO, 0, sizeof(RoRnet::UserInfo), (char*)&c))
@@ -662,7 +662,7 @@ void Disconnect()
     m_send_packet_buffer.clear();
 
     m_shutdown = false;
-    App::mp_state.SetActive(RoR::MpState::DISABLED);
+    App::mp_state->SetActiveVal((int)MpState::DISABLED);
 
     LOG("[RoR|Networking] Disconnect() done");
 }
@@ -822,7 +822,7 @@ bool FindUserInfo(std::string const& username, RoRnet::UserInfo &result)
 
 void BroadcastChatMsg(const char* msg)
 {
-    Networking::AddPacket(m_stream_id, RoRnet::MSG2_UTF8_CHAT, std::strlen(msg), msg);
+    Networking::AddPacket(m_stream_id, RoRnet::MSG2_UTF8_CHAT, (int)std::strlen(msg), msg);
 }
 
 void WhisperChatMsg(RoRnet::UserInfo const& user, const char* msg)
@@ -840,7 +840,7 @@ void WhisperChatMsg(RoRnet::UserInfo const& user, const char* msg)
     payload_len += std::strlen(msg);
 
     // Queue packet
-    Networking::AddPacket(m_stream_id, RoRnet::MSG2_UTF8_PRIVCHAT, payload_len, msg);
+    Networking::AddPacket(m_stream_id, RoRnet::MSG2_UTF8_PRIVCHAT, (int)payload_len, msg);
 }
 
 std::string UserAuthToStringShort(RoRnet::UserInfo const &user)

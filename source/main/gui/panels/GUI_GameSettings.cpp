@@ -52,7 +52,7 @@ void RoR::GUI::GameSettings::Draw()
     ImGui::SameLine();
     if (ImGui::Button(_LC("GameSettings", "Update cache")))
     {
-        App::app_force_cache_udpate.SetActive(true);
+        App::app_force_cache_udpate->SetActiveVal(true);
     }
 
     ImGui::PopStyleVar(1);
@@ -71,14 +71,14 @@ void RoR::GUI::GameSettings::Draw()
         {
             render_system_names += rs->getName() + '\0';
         }
-        const auto ro = ogre_root->getRenderSystemByName(App::app_rendersys_override.GetActive());
+        const auto ro = ogre_root->getRenderSystemByName(App::app_rendersys_override->GetActiveStr());
         const auto rs = ro ? ro : ogre_root->getRenderSystem();
         const auto it = std::find(render_systems.begin(), render_systems.end(), rs);
         int render_id = it != render_systems.end() ? std::distance(render_systems.begin(), it) : 0;
         /* Combobox for selecting the Render System*/
         if (ImGui::Combo(_LC ("GameSettings", "Render System"), &render_id, render_system_names.c_str()))
         {
-            App::app_rendersys_override.SetActive(render_systems[render_id]->getName().c_str());
+            App::app_rendersys_override->SetActiveStr(render_systems[render_id]->getName());
         }
 
         const auto config_options = ogre_root->getRenderSystem()->getConfigOptions();
@@ -123,11 +123,11 @@ void RoR::GUI::GameSettings::Draw()
             lang_values += value.first + '\0';
         }
         const auto it = std::find_if(languages.begin(), languages.end(),
-                [](const std::pair<std::string, std::string>& l) { return l.second == App::app_language.GetActive(); });
+                [](const std::pair<std::string, std::string>& l) { return l.second == App::app_language->GetActiveStr(); });
         int lang_selection = it != languages.end() ? std::distance(languages.begin(), it) : 0;
         if (ImGui::Combo(_LC("GameSettings", "Language"), &lang_selection, lang_values.c_str()))
         {
-            App::app_language.SetActive(languages[lang_selection].second.c_str());
+            App::app_language->SetActiveStr(languages[lang_selection].second);
             LanguageEngine::getSingleton().setup();
         }
 #endif
@@ -154,20 +154,20 @@ void RoR::GUI::GameSettings::Draw()
             {
                 country_values += value + '\0';
             }
-            const auto it = std::find(countries.begin(), countries.end(), std::string(App::app_country.GetActive()));
+            const auto it = std::find(countries.begin(), countries.end(), App::app_country->GetActiveStr());
             int country_selection = it != countries.end() ? std::distance(countries.begin(), it) : 0;
             if (ImGui::Combo(_LC("GameSettings", "Country"), &country_selection, country_values.c_str()))
             {
-                App::app_country.SetActive(countries[country_selection].c_str());
+                App::app_country->SetActiveStr(countries[country_selection].c_str());
             }
         }
 
-        int sshot_select = (std::strcmp(App::app_screenshot_format.GetActive(),"jpg") == 0) ? 1 : 0; // Hardcoded; TODO: list available formats.
+        int sshot_select = (App::app_screenshot_format->GetActiveStr() == "jpg") ? 1 : 0; // Hardcoded; TODO: list available formats.
 
         /* Screenshot format: Can be png or jpg*/
         if (ImGui::Combo(_LC("GameSettings", "Screenshot format"), &sshot_select, "png\0jpg\0\0"))
         {
-            App::app_screenshot_format.SetActive((sshot_select == 1) ? "jpg" : "png");
+            App::app_screenshot_format->SetActiveStr((sshot_select == 1) ? "jpg" : "png");
         }
 
         DrawGTextEdit(App::app_extra_mod_path, _LC("GameSettings", "Extra mod path"),  m_buf_app_extra_mod_dir);
@@ -195,7 +195,7 @@ void RoR::GUI::GameSettings::Draw()
         DrawGCheckbox(App::sim_spawn_running, _LC("GameSettings", "Engines spawn running"));
 
         DrawGCheckbox(App::sim_replay_enabled, _LC("GameSettings", "Replay mode"));
-        if (App::sim_replay_enabled.GetActive())
+        if (App::sim_replay_enabled->GetActiveVal<bool>())
         {
             DrawGIntBox(App::sim_replay_length, _LC("GameSettings", "Replay length"));
             DrawGIntBox(App::sim_replay_stepping, _LC("GameSettings", "Replay stepping"));
@@ -227,11 +227,11 @@ void RoR::GUI::GameSettings::Draw()
                 next += (len + 2);
         }
 
-        const auto it = std::find(audio_devices.begin(), audio_devices.end(), App::audio_device_name.GetActive());
+        const auto it = std::find(audio_devices.begin(), audio_devices.end(), App::audio_device_name->GetActiveStr());
         int device_id = it != audio_devices.end() ? std::distance(audio_devices.begin(), it) : 0;
         if (ImGui::Combo(_LC("GameSettings", "Audio device"), &device_id, devices))
         {
-            App::audio_device_name.SetActive(audio_devices[device_id].c_str());
+            App::audio_device_name->SetActiveStr(audio_devices[device_id]);
         }
 
         DrawGCheckbox(App::audio_enable_creak,     _LC("GameSettings", "Creak sound"));
@@ -254,10 +254,10 @@ void RoR::GUI::GameSettings::Draw()
             "Disabled\0"
             "PSSM\0\0");
 
-        if (App::gfx_shadow_type.GetActive() != GfxShadowType::NONE)
+        if (App::gfx_shadow_type->GetActiveEnum<GfxShadowType>() != GfxShadowType::NONE)
         {
             DrawGCheckbox(App::gfx_reduce_shadows, _LC("GameSettings", "Shadow optimizations"));
-            if (App::gfx_shadow_type.GetActive() == GfxShadowType::PSSM)
+            if (App::gfx_shadow_type->GetActiveEnum<GfxShadowType>() == GfxShadowType::PSSM)
             {
                 DrawGIntSlider(App::gfx_shadow_quality, _LC("GameSettings", "Shadow quality"), 0, 3);
             }
@@ -268,7 +268,7 @@ void RoR::GUI::GameSettings::Draw()
             "Caelum (best looking, slower)\0"
             "SkyX (best looking, slower)\0\0");
 
-        if (App::gfx_sky_mode.GetActive() != GfxSkyMode::SKYX)
+        if (App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() != GfxSkyMode::SKYX)
         {
           DrawGIntSlider(App::gfx_sight_range, _LC("GameSettings", "Sight range (meters)"), 100, 5000);
         }
@@ -279,13 +279,13 @@ void RoR::GUI::GameSettings::Draw()
             "Trilinear\0"
             "Anisotropic\0\0");
 
-        if (App::gfx_texture_filter.GetActive() == GfxTexFilter::ANISOTROPIC)
+        if (App::gfx_texture_filter->GetActiveEnum<GfxTexFilter>() == GfxTexFilter::ANISOTROPIC)
         {
-            int anisotropy = Ogre::Math::Clamp(App::gfx_anisotropy.GetActive(), 1, 16);
+            int anisotropy = Ogre::Math::Clamp(App::gfx_anisotropy->GetActiveVal<int>(), 1, 16);
             int  selection = std::log2(anisotropy);
             if (ImGui::Combo(_LC("GameSettings", "Anisotropy"), &selection, "1\0""2\0""4\0""8\0""16\0\0"))
             {
-                App::gfx_anisotropy.SetActive(std::pow(2, selection));
+                App::gfx_anisotropy->SetActiveVal(std::pow(2, selection));
             }
         }
 
@@ -309,7 +309,7 @@ void RoR::GUI::GameSettings::Draw()
         DrawGIntCheck(App::gfx_skidmarks_mode,   _LC("GameSettings", "Enable skidmarks"));
 
         DrawGCheckbox(App::gfx_envmap_enabled,   _LC("GameSettings", "Realtime reflections"));
-        if (App::gfx_envmap_enabled.GetActive())
+        if (App::gfx_envmap_enabled->GetActiveVal<bool>())
         {
             ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
             DrawGIntSlider(App::gfx_envmap_rate, _LC("GameSettings", "Realtime refl. update rate"), 0, 6);
@@ -318,7 +318,7 @@ void RoR::GUI::GameSettings::Draw()
 
         DrawGCheckbox(App::gfx_enable_videocams, _LC("GameSettings", "Render video cameras"));
         DrawGCheckbox(App::gfx_surveymap_icons,  _LC("GameSettings", "Overview map icons"));
-        if (App::gfx_surveymap_icons.GetActive())
+        if (App::gfx_surveymap_icons->GetActiveVal<bool>())
         {
             DrawGCheckbox(App::gfx_declutter_map,  _LC("GameSettings", "Declutter overview map"));
         }
@@ -339,19 +339,18 @@ void RoR::GUI::GameSettings::Draw()
         ImGui::TextDisabled(_LC("GameSettings", "Diagnostic options"));
         ImGui::TextColored(ImVec4(0.89f,0.15f,0.21f,1.0f), _LC("GameSettings", "These settings are for advanced users only, you should only change these if you know what you're doing"));
 
-        int physics_fps = std::round(1.0f / App::diag_physics_dt.GetActive());
+        int physics_fps = std::round(1.0f / App::diag_physics_dt->GetActiveVal<float>());
         if (ImGui::SliderInt(_LC("GameSettings", "Physics frames per second"), &physics_fps, 2000, 10000))
         {
-            App::diag_physics_dt.SetActive(Ogre::Math::Clamp(1.0f / physics_fps, 0.0001f, 0.0005f));
+            App::diag_physics_dt->SetActiveVal(Ogre::Math::Clamp(1.0f / physics_fps, 0.0001f, 0.0005f));
         }
-        DrawGTextEdit(App::diag_preset_terrain,      _LC("GameSettings", "Preselected terrain"),         m_buf_diag_preset_terrain, false);
-        DrawGTextEdit(App::diag_preset_vehicle,      _LC("GameSettings", "Preselected vehicle"),         m_buf_diag_preset_vehicle, true);
+        DrawGTextEdit(App::diag_preset_terrain,      _LC("GameSettings", "Preselected terrain"),         m_buf_diag_preset_terrain);
+        DrawGTextEdit(App::diag_preset_vehicle,      _LC("GameSettings", "Preselected vehicle"),         m_buf_diag_preset_vehicle);
         DrawGTextEdit(App::diag_preset_veh_config,   _LC("GameSettings", "Presel. veh. config"),         m_buf_diag_preset_veh_config);
         DrawGCheckbox(App::diag_preset_veh_enter,    _LC("GameSettings", "Enter preselected vehicle"));
         DrawGCheckbox(App::diag_auto_spawner_report, _LC("GameSettings", "Auto actor spawner report"));
         DrawGCheckbox(App::diag_rig_log_node_import, _LC("GameSettings", "Log node import (spawn)"));
         DrawGCheckbox(App::diag_rig_log_node_stats,  _LC("GameSettings", "Log node stats (spawn)"));
-        DrawGCheckbox(App::diag_rig_log_messages,    _LC("GameSettings", "Log messages (spawn)"));
         DrawGCheckbox(App::diag_camera,              _LC("GameSettings", "Debug camera (rails)"));
         DrawGCheckbox(App::diag_collisions,          _LC("GameSettings", "Debug collisions"));
         DrawGCheckbox(App::diag_truck_mass,          _LC("GameSettings", "Debug actor mass"));
@@ -368,7 +367,7 @@ void RoR::GUI::GameSettings::Draw()
         DrawGCheckbox(App::diag_log_beam_trigger,    _LC("GameSettings", "Log beam triggers"));
         if (ImGui::Button(_LC("GameSettings", "Rebuild cache")))
         {
-            App::app_force_cache_purge.SetActive(true);
+            App::app_force_cache_purge->SetActiveVal(true);
         }
     }
     else if (m_tab == SettingsTab::CONTROL)
@@ -387,7 +386,7 @@ void RoR::GUI::GameSettings::Draw()
         DrawGCheckbox(App::io_arcade_controls, _LC("GameSettings", "Use arcade controls"));
 
         DrawGCheckbox(App::io_ffb_enabled, _LC("GameSettings", "Enable ForceFeedback"));
-        if (App::io_ffb_enabled.GetActive())
+        if (App::io_ffb_enabled->GetActiveVal<bool>())
         {
             ImGui::PushItemWidth(125.f);
             DrawGFloatBox(App::io_ffb_camera_gain, _LC("GameSettings", "FFB camera gain"));
@@ -398,7 +397,7 @@ void RoR::GUI::GameSettings::Draw()
         }
 
         DrawGIntCheck(App::io_outgauge_mode, _LC("GameSettings", "Enable OutGauge protocol"));
-        if (App::io_outgauge_mode.GetActive())
+        if (App::io_outgauge_mode->GetActiveVal<bool>())
         {
             DrawGTextEdit(App::io_outgauge_ip, _LC("GameSettings", "OutGauge IP"), m_buf_io_outgauge_ip);
             ImGui::PushItemWidth(125.f);
@@ -424,7 +423,7 @@ void RoR::GUI::GameSettings::SetVisible(bool v)
     {
         m_tab = SettingsTab::RENDER_SYSTEM;
     }
-    else if (App::app_state.GetActive() == RoR::AppState::MAIN_MENU)
+    else if (App::app_state->GetActiveEnum<AppState>() == RoR::AppState::MAIN_MENU)
     {
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }

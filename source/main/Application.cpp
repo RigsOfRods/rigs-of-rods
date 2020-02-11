@@ -1,6 +1,8 @@
 /*
     This source file is part of Rigs of Rods
-    Copyright 2013-2017 Petr Ohlidal
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -56,151 +58,148 @@ static MumbleIntegration* g_mumble;
 static TerrainManager*  g_sim_terrain;
 
 // App
- GVarEnum_AP<AppState>    app_state               ("app_state",               nullptr,                     AppState::BOOTSTRAP,     AppState::MAIN_MENU);
- GVarStr_A<50>            app_language            ("app_language",            "Language",                  "en");
- GVarStr_A<50>            app_country             ("app_country",             "Country",                   "us");
- GVarPod_A<bool>          app_skip_main_menu      ("app_skip_main_menu",      "SkipMainMenu",              false);
- GVarPod_APS<bool>        app_async_physics       ("app_async_physics",       "AsyncPhysics",              true,
-         true,      true);
- GVarPod_APS<int>         app_num_workers         ("app_num_workers",         "NumWorkerThreads",          0,
-         0,         0);
- GVarStr_AP<50>           app_screenshot_format   ("app_screenshot_format",   "Screenshot Format",         "png",                   "png");
- GVarStr_A<100>           app_rendersys_override  ("app_rendersys_override",  "Render system",             "");
- GVarStr_A<300>           app_extra_mod_path      ("app_extra_mod_path",      "Extra mod path",            "");
- GVarPod_A<bool>          app_force_cache_purge   ("app_force_cache_purge",   nullptr,                     false);
- GVarPod_A<bool>          app_force_cache_udpate  ("app_force_cache_udpate",  nullptr,                     false);
- GVarPod_A<bool>          app_disable_online_api  ("app_disable_online_api",  "Disable Online API",        false);
+CVar* app_state;
+CVar* app_language;
+CVar* app_country;
+CVar* app_skip_main_menu;
+CVar* app_async_physics;
+CVar* app_num_workers;
+CVar* app_screenshot_format;
+CVar* app_rendersys_override;
+CVar* app_extra_mod_path;
+CVar* app_force_cache_purge;
+CVar* app_force_cache_udpate;
+CVar* app_disable_online_api;
+CVar* app_config_long_names;
 
 
 // Simulation
- GVarEnum_AP<SimState>    sim_state               ("sim_state",               nullptr,                     SimState::OFF,           SimState::OFF);
- GVarStr_AP<200>          sim_terrain_name        ("sim_terrain_name",        nullptr,                     "",                      "");
- GVarStr_AP<300>          sim_terrain_gui_name    ("sim_terrain_gui_name",    nullptr,                     "",                      "");
- GVarStr_A<100>           sim_savegame            ("sim_savegame",            nullptr,                     "");
- GVarPod_A<bool>          sim_load_savegame       ("sim_load_savegame",       nullptr,                     false);
- GVarPod_A<bool>          sim_spawn_running       ("sim_spawn_running",       "Engines spawn running",     true);
- GVarPod_A<bool>          sim_replay_enabled      ("sim_replay_enabled",      "Replay mode",               false);
- GVarPod_A<int>           sim_replay_length       ("sim_replay_length",       "Replay length",             200);
- GVarPod_A<int>           sim_replay_stepping     ("sim_replay_stepping",     "Replay Steps per second",   1000);
- GVarPod_A<bool>          sim_realistic_commands  ("sim_realistic_commands",  "Realistic forward commands",false);
- GVarPod_A<bool>          sim_races_enabled       ("sim_races_enabled",       "Races",                     true);
- GVarPod_A<bool>          sim_no_collisions       ("sim_no_collisions",       "DisableCollisions",         false);
- GVarPod_A<bool>          sim_no_self_collisions  ("sim_no_self_collisions",  "DisableSelfCollisions",     false);
- GVarEnum_AP<SimGearboxMode> sim_gearbox_mode     ("sim_gearbox_mode",        "GearboxMode",               SimGearboxMode::AUTO,    SimGearboxMode::AUTO);
+ CVar* sim_state;
+ CVar* sim_terrain_name;
+ CVar* sim_terrain_gui_name;
+ CVar* sim_savegame;
+ CVar* sim_load_savegame;
+ CVar* sim_spawn_running;
+ CVar* sim_replay_enabled;
+ CVar* sim_replay_length;
+ CVar* sim_replay_stepping;
+ CVar* sim_realistic_commands;
+ CVar* sim_races_enabled;
+ CVar* sim_no_collisions;
+ CVar* sim_no_self_collisions;
+ CVar* sim_gearbox_mode;
 
 // Multiplayer
- GVarEnum_AP<MpState>     mp_state                ("mp_state",                nullptr,                     MpState::DISABLED,       MpState::DISABLED);
- GVarPod_APS<bool>        mp_join_on_startup      ("mp_join_on_startup",      "Auto connect",              false,                   false,      false); 
- GVarPod_A<bool>          mp_chat_auto_hide       ("mp_chat_auto_hide",       "Auto hide chat",            true);
- GVarPod_A<bool>          mp_hide_net_labels      ("mp_hide_net_labels",      "Hide net labels",           false);
- GVarPod_A<bool>          mp_hide_own_net_label   ("mp_hide_own_net_label",   "Hide own net label",        true);
- GVarPod_A<bool>          mp_pseudo_collisions    ("mp_pseudo_collisions",    "Multiplayer collisions",    false);
- GVarStr_AP<200>          mp_server_host          ("mp_server_host",          "Server name",               "",                      "");
- GVarPod_A<int>           mp_server_port          ("mp_server_port",          "Server port",               0);
- GVarStr_APS<100>         mp_server_password      ("mp_server_password",      "Server password",           "",                      "",         "");
- GVarStr_AP<100>          mp_player_name          ("mp_player_name",          "Nickname",                  "Player",                "Player");
- GVarStr_AP<100>          mp_player_token         ("mp_player_token",         "User Token",                "",                      "");
- GVarStr_A<100>           mp_api_url              ("mp_api_url",              "Online API URL",            "http://api.rigsofrods.org");
+CVar* mp_state;
+CVar* mp_join_on_startup;
+CVar* mp_chat_auto_hide;
+CVar* mp_hide_net_labels;
+CVar* mp_hide_own_net_label;
+CVar* mp_pseudo_collisions;
+CVar* mp_server_host;
+CVar* mp_server_port;
+CVar* mp_server_password;
+CVar* mp_player_name;
+CVar* mp_player_token;
+CVar* mp_api_url;
 
 // Diagnostic
- GVarPod_A<bool>          diag_auto_spawner_report("diag_auto_spawner_report","AutoActorSpawnerReport",    false);
- GVarPod_A<bool>          diag_camera             ("diag_camera",            "Camera Debug",               false);
- GVarPod_A<bool>          diag_trace_globals      ("diag_trace_globals",      nullptr,                     false); // Don't init to 'true', logger is not ready at startup
- GVarPod_A<bool>          diag_rig_log_node_import("diag_rig_log_node_import","RigImporter_Debug_TraverseAndLogAllNodes",  false);
- GVarPod_A<bool>          diag_rig_log_node_stats ("diag_rig_log_node_stats", "RigImporter_PrintNodeStatsToLog",           false);
- GVarPod_A<bool>          diag_rig_log_messages   ("diag_rig_log_messages",   "RigImporter_PrintMessagesToLog",            false);
- GVarPod_A<bool>          diag_collisions         ("diag_collisions",         "Debug Collisions",          false);
- GVarPod_A<bool>          diag_truck_mass         ("diag_truck_mass",         "Debug Truck Mass",          false);
- GVarPod_A<bool>          diag_envmap             ("diag_envmap",             "EnvMapDebug",               false);
- GVarPod_A<bool>          diag_videocameras       ("diag_videocameras",       "VideoCameraDebug",          false);
- GVarStr_APS<100>         diag_preset_terrain     ("diag_preset_terrain",     "Preselected Terrain",       "",                      "",        "");
- GVarStr_A<100>           diag_preset_spawn_pos   ("diag_spawn_position",     nullptr,                     "");
- GVarStr_A<100>           diag_preset_spawn_rot   ("diag_spawn_rotation",     nullptr,                     "");
- GVarStr_APS<100>         diag_preset_vehicle     ("diag_preset_vehicle",     "Preselected Truck",         "",                      "",        "");
- GVarStr_A<100>           diag_preset_veh_config  ("diag_preset_veh_config",  "Preselected TruckConfig",   "");
- GVarPod_APS<bool>        diag_preset_veh_enter   ("diag_preset_veh_enter",   "Enter Preselected Truck",   false,                   false,     false);
- GVarPod_A<bool>          diag_log_console_echo   ("diag_log_console_echo",   "Enable Ingame Console",     false);
- GVarPod_A<bool>          diag_log_beam_break     ("diag_log_beam_break",     "Beam Break Debug",          false);
- GVarPod_A<bool>          diag_log_beam_deform    ("diag_log_beam_deform",    "Beam Deform Debug",         false);
- GVarPod_A<bool>          diag_log_beam_trigger   ("diag_log_beam_trigger",   "Trigger Debug",             false);
- GVarPod_A<bool>          diag_simple_materials   ("diag_simple_materials",    "SimpleMaterials",          false);
- GVarPod_A<bool>          diag_warning_texture    ("diag_warning_texture",    "Warning texture",           false);
- GVarPod_A<bool>          diag_hide_broken_beams  ("diag_hide_broken_beams",  "Hide broken beams",         false);
- GVarPod_A<bool>          diag_hide_beam_stress   ("diag_hide_beam_stress",   "Hide beam stress",          true);
- GVarPod_A<bool>          diag_hide_wheel_info    ("diag_hide_wheel_info",    "Hide wheel info",           true);
- GVarPod_A<bool>          diag_hide_wheels        ("diag_hide_wheels",        "Hide wheels",               false);
- GVarPod_A<bool>          diag_hide_nodes         ("diag_hide_nodes",         "Hide nodes",                false);
- GVarPod_A<float>         diag_physics_dt         ("diag_physics_dt",          "PhysicsTimeStep",          0.0005f);
+CVar* diag_auto_spawner_report;
+CVar* diag_camera;
+CVar* diag_rig_log_node_import;
+CVar* diag_rig_log_node_stats;
+CVar* diag_collisions;
+CVar* diag_truck_mass;
+CVar* diag_envmap;
+CVar* diag_videocameras;
+CVar* diag_preset_terrain;
+CVar* diag_preset_spawn_pos;
+CVar* diag_preset_spawn_rot;
+CVar* diag_preset_vehicle;
+CVar* diag_preset_veh_config;
+CVar* diag_preset_veh_enter;
+CVar* diag_log_console_echo;
+CVar* diag_log_beam_break;
+CVar* diag_log_beam_deform;
+CVar* diag_log_beam_trigger;
+CVar* diag_simple_materials;
+CVar* diag_warning_texture;
+CVar* diag_hide_broken_beams;
+CVar* diag_hide_beam_stress;
+CVar* diag_hide_wheel_info;
+CVar* diag_hide_wheels;
+CVar* diag_hide_nodes;
+CVar* diag_physics_dt;
 
-// System                                         (all paths are without ending slash!)
- GVarStr_A<300>           sys_process_dir         ("sys_process_dir",         nullptr,                     "");
- GVarStr_A<300>           sys_user_dir            ("sys_user_dir",            nullptr,                     "");
- GVarStr_A<300>           sys_config_dir          ("sys_config_dir",          "Config Root",               "");
- GVarStr_A<300>           sys_cache_dir           ("sys_cache_dir",           "Cache Path",                "");
- GVarStr_A<300>           sys_logs_dir            ("sys_logs_dir",            "Log Path",                  "");
- GVarStr_A<300>           sys_resources_dir       ("sys_resources_dir",       "Resources Path",            "");
- GVarStr_A<300>           sys_profiler_dir        ("sys_profiler_dir",        "Profiler output dir",       "");
- GVarStr_A<300>           sys_savegames_dir       ("sys_savegames_dir",       nullptr,                     "");
- GVarStr_A<300>           sys_screenshot_dir      ("sys_screenshot_dir",      nullptr,                     "");
+// System
+CVar* sys_process_dir;
+CVar* sys_user_dir;
+CVar* sys_config_dir;
+CVar* sys_cache_dir;
+CVar* sys_logs_dir;
+CVar* sys_resources_dir;
+CVar* sys_profiler_dir;
+CVar* sys_savegames_dir;
+CVar* sys_screenshot_dir;
 
 // Input - Output
- GVarPod_A<float>         io_analog_smoothing     ("io_analog_smoothing",     "Analog Input Smoothing",    1.f);
- GVarPod_A<float>         io_analog_sensitivity   ("io_analog_sensitivity",   "Analog Input Sensitivity",  1.f);
- GVarPod_A<float>         io_blink_lock_range     ("io_blink_lock_range",     "Blinker Lock Range",        0.1f);
- GVarPod_A<bool>          io_ffb_enabled          ("io_ffb_enabled",          "Force Feedback",            false);
- GVarPod_A<float>         io_ffb_camera_gain      ("io_ffb_camera_gain",      "Force Feedback Camera",     0.f);
- GVarPod_A<float>         io_ffb_center_gain      ("io_ffb_center_gain",      "Force Feedback Centering",  0.f);
- GVarPod_A<float>         io_ffb_master_gain      ("io_ffb_master_gain",      "Force Feedback Gain",       0.f);
- GVarPod_A<float>             io_ffb_stress_gain  ("io_ffb_stress_gain",      "Force Feedback Stress",     0.f);
- GVarEnum_AP<IoInputGrabMode> io_input_grab_mode  ("io_input_grab_mode",      "Input Grab",                IoInputGrabMode::ALL,   IoInputGrabMode::ALL);
- GVarPod_A<bool>              io_arcade_controls  ("io_arcade_controls",      "ArcadeControls",            false);
- GVarPod_A<bool>              io_hydro_coupling  ("io_hydro_coupling",        "Keyboard Steering Speed Coupling",            true);
- GVarPod_A<int>           io_outgauge_mode        ("io_outgauge_mode",        "OutGauge Mode",             0); // 0 = disabled, 1 = enabled
- GVarStr_A<50>            io_outgauge_ip          ("io_outgauge_ip",          "OutGauge IP",               "192.168.1.100");
- GVarPod_A<int>           io_outgauge_port        ("io_outgauge_port",        "OutGauge Port",             1337);
- GVarPod_A<float>         io_outgauge_delay       ("io_outgauge_delay",       "OutGauge Delay",            10.f);
- GVarPod_A<int>           io_outgauge_id          ("io_outgauge_id",          "OutGauge ID",               0);
- GVarPod_A<bool>          io_discord_rpc          ("io_discord_rpc",          "Discord Rich Presence",     true);
-
+CVar* io_analog_smoothing;
+CVar* io_analog_sensitivity;
+CVar* io_blink_lock_range;
+CVar* io_ffb_enabled;
+CVar* io_ffb_camera_gain;
+CVar* io_ffb_center_gain;
+CVar* io_ffb_master_gain;
+CVar* io_ffb_stress_gain;
+CVar* io_input_grab_mode;
+CVar* io_arcade_controls;
+CVar* io_hydro_coupling;
+CVar* io_outgauge_mode;
+CVar* io_outgauge_ip;
+CVar* io_outgauge_port;
+CVar* io_outgauge_delay;
+CVar* io_outgauge_id;
+CVar* io_discord_rpc;
+              
 // Audio
- GVarPod_A<float>         audio_master_volume     ("audio_master_volume",     "Sound Volume",              1);
- GVarPod_A<bool>          audio_enable_creak      ("audio_enable_creak",      "Creak Sound",               false);
- GVarStr_AP<100>          audio_device_name       ("audio_device_name",       "AudioDevice",               "",                      "");
- GVarPod_A<bool>          audio_menu_music        ("audio_menu_music",        "MainMenuMusic",             false);
+CVar* audio_master_volume;
+CVar* audio_enable_creak;
+CVar* audio_device_name;
+CVar* audio_menu_music;
 
 // Graphics
- GVarEnum_AP<GfxFlaresMode>  gfx_flares_mode      ("gfx_flares_mode",         "Lights",                    GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS, GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS);
- GVarEnum_AP<GfxShadowType>  gfx_shadow_type      ("gfx_shadow_type",         "Shadow technique",          GfxShadowType::PSSM,     GfxShadowType::PSSM);
- GVarEnum_AP<GfxExtCamMode>  gfx_extcam_mode      ("gfx_extcam_mode",         "External Camera Mode",      GfxExtCamMode::PITCHING, GfxExtCamMode::PITCHING);
- GVarEnum_AP<GfxSkyMode>     gfx_sky_mode         ("gfx_sky_mode",            "Sky effects",               GfxSkyMode::CAELUM,   GfxSkyMode::CAELUM);
- GVarEnum_AP<GfxTexFilter>   gfx_texture_filter   ("gfx_texture_filter",      "Texture Filtering",         GfxTexFilter::ANISOTROPIC, GfxTexFilter::ANISOTROPIC);
- GVarEnum_AP<GfxVegetation>  gfx_vegetation_mode  ("gfx_vegetation_mode",     "Vegetation",                GfxVegetation::FULL,     GfxVegetation::FULL);
- GVarEnum_AP<GfxWaterMode>   gfx_water_mode       ("gfx_water_mode",          "Water effects",             GfxWaterMode::FULL_FAST,     GfxWaterMode::FULL_FAST);
- GVarPod_A<int>           gfx_anisotropy          ("gfx_anisotropy",          "Anisotropy",                4);
- GVarPod_A<bool>          gfx_water_waves         ("gfx_water_waves",         "Waves",                     false);
- GVarPod_A<int>           gfx_particles_mode      ("gfx_particles_mode",      "Particles",                 0);
- GVarPod_A<bool>          gfx_enable_videocams    ("gfx_enable_videocams",    "gfx_enable_videocams",      false);
- GVarPod_A<bool>          gfx_window_videocams    ("gfx_window_videocams",    "UseVideocameraWindows",     false);
- GVarPod_APS<bool>        gfx_surveymap_icons     ("gfx_surveymap_icons",     "Overview map icons",        true,                    true,   true);
- GVarPod_A<bool>          gfx_declutter_map       ("gfx_declutter_map",       "Declutter overview map",    true);
- GVarPod_A<bool>          gfx_envmap_enabled      ("gfx_envmap_enabled",      "Reflections",               true);
- GVarPod_A<int>           gfx_envmap_rate         ("gfx_envmap_rate",         "ReflectionUpdateRate",      1);
- GVarPod_A<int>           gfx_shadow_quality      ("gfx_shadow_quality",      "Shadows Quality",           2);
- GVarPod_A<int>           gfx_skidmarks_mode      ("gfx_skidmarks_mode",      "Skidmarks",                 0);
- GVarPod_A<int>           gfx_sight_range         ("gfx_sight_range",         "SightRange",                5000); // Previously either 2000 or 4500 (inconsistent)
- GVarPod_A<int>           gfx_camera_height       ("gfx_camera_height",       "Static camera height",      5);
- GVarPod_APS<int>         gfx_fov_external        ("gfx_fov_external",        "FOV External",              60,                      60,     60);
- GVarPod_APS<int>         gfx_fov_internal        ("gfx_fov_internal",        "FOV Internal",              75,                      75,     75);
- GVarPod_A<float>         gfx_static_cam_fov_exp  ("gfx_static_cam_fov_exp",  nullptr,                     1.f);
- GVarPod_A<bool>          gfx_fixed_cam_tracking  ("gfx_fixed_cam_tracking",  nullptr,                     false);
- GVarPod_A<int>           gfx_fps_limit           ("gfx_fps_limit",           "FPS-Limiter",               0); // 0 = unlimited
- GVarPod_A<bool>          gfx_speedo_digital      ("gfx_speedo_digital",      "DigitalSpeedo",             true);
- GVarPod_A<bool>          gfx_speedo_imperial     ("gfx_speedo_imperial",     "gfx_speedo_imperial",       false);
- GVarPod_A<bool>          gfx_flexbody_lods       ("gfx_flexbody_lods",       "Flexbody_EnableLODs",       false);
- GVarPod_A<bool>          gfx_flexbody_cache      ("gfx_flexbody_cache",      "Flexbody_UseCache",         false);
- GVarPod_A<bool>          gfx_reduce_shadows      ("gfx_reduce_shadows",      "Shadow optimizations",      true);
- GVarPod_A<bool>          gfx_enable_rtshaders    ("gfx_enable_rtshaders",    "Use RTShader System",       false);
- GVarPod_A<bool>          gfx_classic_shaders     ("gfx_classic_shaders",      "Classic material shaders",       false);
+CVar* gfx_flares_mode;
+CVar* gfx_shadow_type;
+CVar* gfx_extcam_mode;
+CVar* gfx_sky_mode;
+CVar* gfx_texture_filter;
+CVar* gfx_vegetation_mode;
+CVar* gfx_water_mode;
+CVar* gfx_anisotropy;
+CVar* gfx_water_waves;
+CVar* gfx_particles_mode;
+CVar* gfx_enable_videocams;
+CVar* gfx_window_videocams;
+CVar* gfx_surveymap_icons;
+CVar* gfx_declutter_map;
+CVar* gfx_envmap_enabled;
+CVar* gfx_envmap_rate;
+CVar* gfx_shadow_quality;
+CVar* gfx_skidmarks_mode;
+CVar* gfx_sight_range;
+CVar* gfx_camera_height;
+CVar* gfx_fov_external;
+CVar* gfx_fov_internal;
+CVar* gfx_static_cam_fov_exp;
+CVar* gfx_fixed_cam_tracking;
+CVar* gfx_fps_limit;
+CVar* gfx_speedo_digital;
+CVar* gfx_speedo_imperial;
+CVar* gfx_flexbody_lods;
+CVar* gfx_flexbody_cache;
+CVar* gfx_reduce_shadows;
+CVar* gfx_enable_rtshaders;
+CVar* gfx_classic_shaders;
 
 // Instance management
 void SetMainMenu       (MainMenu* obj)                { g_main_menu = obj; }
@@ -291,149 +290,6 @@ void CheckAndCreateMumble()
 
 } // namespace App
 
-const char* EnumToStr(AppState v)
-{
-    switch (v)
-    {
-    case AppState::BOOTSTRAP:           return "BOOTSTRAP";
-    case AppState::MAIN_MENU:           return "MAIN_MENU";
-    case AppState::PRINT_HELP_EXIT:     return "PRINT_HELP_EXIT";
-    case AppState::PRINT_VERSION_EXIT:  return "PRINT_VERSION_EXIT";
-    case AppState::SHUTDOWN:            return "SHUTDOWN";
-    case AppState::SIMULATION:          return "SIMULATION";
-    default:                            return "~invalid~";
-    }
-}
-
-const char* EnumToStr(MpState v)
-{
-    switch (v)
-    {
-    case MpState::DISABLED:  return "DISABLED";
-    case MpState::CONNECTED: return "CONNECTED";
-    default:                 return "~invalid~";
-    }
-}
-
-const char* EnumToStr(SimState v)
-{
-    switch (v)
-    {
-    case SimState::OFF        : return "OFF";
-    case SimState::RUNNING    : return "RUNNING";
-    case SimState::PAUSED     : return "PAUSED";
-    case SimState::EDITOR_MODE: return "EDITOR_MODE";
-    default                   : return "~invalid~";
-    }
-}
-
-const char* EnumToStr(SimGearboxMode v)
-{
-    switch (v)
-    {
-    case SimGearboxMode::AUTO         : return "AUTO";
-    case SimGearboxMode::SEMI_AUTO    : return "SEMI_AUTO";
-    case SimGearboxMode::MANUAL       : return "MANUAL";
-    case SimGearboxMode::MANUAL_STICK : return "MANUAL_STICK";
-    case SimGearboxMode::MANUAL_RANGES: return "MANUAL_RANGES";
-    default                           : return "~invalid~";
-    }
-}
-
-const char* EnumToStr(GfxFlaresMode v)
-{
-    switch (v)
-    {
-    case GfxFlaresMode::NONE                   : return "NONE";
-    case GfxFlaresMode::NO_LIGHTSOURCES        : return "NO_LIGHTSOURCES";
-    case GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY : return "CURR_VEHICLE_HEAD_ONLY";
-    case GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY : return "ALL_VEHICLES_HEAD_ONLY";
-    case GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS: return "ALL_VEHICLES_ALL_LIGHTS";
-    default                                    : return "~invalid~";
-    }
-}
-
-const char* EnumToStr(GfxVegetation v)
-{
-    switch(v)
-    {
-    case GfxVegetation::NONE    : return "NONE";
-    case GfxVegetation::x20PERC : return "20%";
-    case GfxVegetation::x50PERC : return "50%";
-    case GfxVegetation::FULL    : return "FULL";
-    default                     : return "~invalid~";
-    }
-}
-
-const char* EnumToStr(GfxWaterMode v)
-{
-    switch(v)
-    {
-    case GfxWaterMode::NONE      : return "NONE";
-    case GfxWaterMode::BASIC     : return "BASIC";
-    case GfxWaterMode::REFLECT   : return "REFLECT";
-    case GfxWaterMode::FULL_FAST : return "FULL_FAST";
-    case GfxWaterMode::FULL_HQ   : return "FULL_HQ";
-    case GfxWaterMode::HYDRAX    : return "HYDRAX";
-    default                      : return "~invalid~";
-    }
-}
-
-const char* EnumToStr(GfxSkyMode v)
-{
-    switch(v)
-    {
-    case GfxSkyMode::SANDSTORM: return "SANDSTORM";
-    case GfxSkyMode::CAELUM   : return "CAELUM";
-    case GfxSkyMode::SKYX     : return "SKYX";
-    default                   : return "~invalid~";
-    }
-}
-
-const char* EnumToStr(IoInputGrabMode v)
-{
-    switch (v)
-    {
-    case IoInputGrabMode::NONE   : return "NONE";
-    case IoInputGrabMode::ALL    : return "ALL";
-    case IoInputGrabMode::DYNAMIC: return "DYNAMIC";
-    default                      : return "~invalid~";
-    }
-}
-
-const char* EnumToStr(GfxShadowType v)
-{
-    switch(v)
-    {
-    case GfxShadowType::NONE   : return "NONE";
-    case GfxShadowType::PSSM   : return "PSSM";
-    default                    : return "~invalid~";
-    }
-}
-
-const char* EnumToStr(GfxTexFilter v)
-{
-    switch (v)
-    {
-    case GfxTexFilter::NONE       : return "NONE";
-    case GfxTexFilter::BILINEAR   : return "BILINEAR";
-    case GfxTexFilter::TRILINEAR  : return "TRILINEAR";
-    case GfxTexFilter::ANISOTROPIC: return "ANISOTROPIC";
-    default                       : return "~invalid~";
-    }
-}
-
-const char* EnumToStr(GfxExtCamMode v)
-{
-    switch (v)
-    {
-    case GfxExtCamMode::NONE:     return "NONE";
-    case GfxExtCamMode::STATIC:   return "STATIC";
-    case GfxExtCamMode::PITCHING: return "PITCHING";
-    default:                      return "~invalid~";
-    }
-}
-
 void Log(const char* msg)
 {
     Ogre::LogManager::getSingleton().logMessage(msg);
@@ -451,25 +307,233 @@ void LogFormat(const char* format, ...)
     RoR::Log(buffer);
 }
 
-const char* GVarBase::LOG_FMT_S = "[RoR|GVar]  %20s:  %s(), new: \"%s\", old: \"%s\"";
-const char* GVarBase::LOG_FMT_D = "[RoR|GVar]  %20s:  %s(), new: \"%d\", old: \"%d\"";
-const char* GVarBase::LOG_FMT_F = "[RoR|GVar]  %20s:  %s(), new: \"%f\", old: \"%f\"";
+// --------------------- Config enums ---------------------
 
-void GVarBase::LogFormat(const char* format, ...) const
+const char* CONF_GFX_SHADOW_PSSM    = "Parallel-split Shadow Maps";
+const char* CONF_GFX_SHADOW_NONE    = "No shadows (fastest)";
+
+const char* CONF_EXTCAM_PITCHING    = "Pitching";
+const char* CONF_EXTCAM_STATIC      = "Static";
+const char* CONF_EXTCAM_NONE        = "None";
+
+const char* CONF_TEXFILTER_NONE     = "None (fastest)";
+const char* CONF_TEXFILTER_BILI     = "Bilinear";
+const char* CONF_TEXFILTER_TRILI    = "Trilinear";
+const char* CONF_TEXFILTER_ANISO    = "Anisotropic (best looking)";
+
+const char* CONF_VEGET_NONE         = "None (fastest)";
+const char* CONF_VEGET_20PERC       = "20%";
+const char* CONF_VEGET_50PERC       = "50%";
+const char* CONF_VEGET_FULL         = "Full (best looking, slower)";
+
+const char* CONF_GEARBOX_AUTO       = "Automatic shift";
+const char* CONF_GEARBOX_SEMIAUTO   = "Manual shift - Auto clutch";
+const char* CONF_GEARBOX_MANUAL     = "Fully Manual: sequential shift";
+const char* CONF_GEARBOX_MAN_STICK  = "Fully manual: stick shift";
+const char* CONF_GEARBOX_MAN_RANGES = "Fully Manual: stick shift with ranges";
+
+const char* CONF_FLARES_NONE        = "None (fastest)";
+const char* CONF_FLARES_NO_LIGHT    = "No light sources";
+const char* CONF_FLARES_CURR_HEAD   = "Only current vehicle, main lights";
+const char* CONF_FLARES_ALL_HEADS   = "All vehicles, main lights";
+const char* CONF_FLARES_ALL_LIGHTS  = "All vehicles, all lights";
+
+const char* CONF_WATER_NONE         = "None";
+const char* CONF_WATER_BASIC        = "Basic (fastest)";
+const char* CONF_WATER_REFLECT      = "Reflection";
+const char* CONF_WATER_FULL_FAST    = "Reflection + refraction (speed optimized)";
+const char* CONF_WATER_FULL_HQ      = "Reflection + refraction (quality optimized)";
+const char* CONF_WATER_HYDRAX       = "Hydrax";
+
+const char* CONF_SKY_CAELUM         = "Caelum (best looking, slower)";
+const char* CONF_SKY_SKYX           = "SkyX (best looking, slower)";
+const char* CONF_SKY_SANDSTORM      = "Sandstorm (fastest)";
+
+const char* CONF_INPUT_GRAB_DYNAMIC = "Dynamically";
+const char* CONF_INPUT_GRAB_NONE    = "None";
+const char* CONF_INPUT_GRAB_ALL     = "All";
+
+IoInputGrabMode ParseIoInputGrabMode(std::string const & s)
 {
-    if (! App::diag_trace_globals.GetActive())
+    if (s == CONF_INPUT_GRAB_DYNAMIC) { return RoR::IoInputGrabMode::DYNAMIC ; }
+    if (s == CONF_INPUT_GRAB_NONE   ) { return RoR::IoInputGrabMode::NONE    ; }
+    else                              { return RoR::IoInputGrabMode::ALL     ; }
+}
+
+GfxShadowType ParseGfxShadowType(std::string const & s)
+{
+    if (s == CONF_GFX_SHADOW_PSSM)    { return GfxShadowType::PSSM    ; }
+    else                              { return GfxShadowType::NONE    ; }
+}
+
+GfxExtCamMode ParseGfxExtCamMode(std::string const & s)
+{
+    if (s == CONF_EXTCAM_PITCHING)    { return GfxExtCamMode::PITCHING ; }
+    if (s == CONF_EXTCAM_STATIC)      { return GfxExtCamMode::STATIC   ; }
+    else                              { return GfxExtCamMode::NONE     ; }
+}
+
+GfxTexFilter ParseGfxTexFilter(std::string const & s)
+{
+    if (s == CONF_TEXFILTER_NONE)     { return GfxTexFilter::NONE        ; }
+    if (s == CONF_TEXFILTER_BILI)     { return GfxTexFilter::BILINEAR    ; }
+    if (s == CONF_TEXFILTER_TRILI)    { return GfxTexFilter::TRILINEAR   ; }
+    if (s == CONF_TEXFILTER_ANISO)    { return GfxTexFilter::ANISOTROPIC ; }
+    else                              { return GfxTexFilter::NONE        ; }
+}
+
+GfxVegetation ParseGfxVegetation(std::string const & s)
+{
+    if (s == CONF_VEGET_NONE  )       { return GfxVegetation::NONE    ; }
+    if (s == CONF_VEGET_20PERC)       { return GfxVegetation::x20PERC ; }
+    if (s == CONF_VEGET_50PERC)       { return GfxVegetation::x50PERC ; }
+    if (s == CONF_VEGET_FULL  )       { return GfxVegetation::FULL    ; }
+    else                              { return GfxVegetation::NONE    ; }
+}
+
+SimGearboxMode ParseSimGearboxMode(std::string const & s)
+{
+    if (s == CONF_GEARBOX_AUTO      ) { return SimGearboxMode::AUTO          ; }
+    if (s == CONF_GEARBOX_SEMIAUTO  ) { return SimGearboxMode::SEMI_AUTO     ; }
+    if (s == CONF_GEARBOX_MANUAL    ) { return SimGearboxMode::MANUAL        ; }
+    if (s == CONF_GEARBOX_MAN_STICK ) { return SimGearboxMode::MANUAL_STICK  ; }
+    if (s == CONF_GEARBOX_MAN_RANGES) { return SimGearboxMode::MANUAL_RANGES ; }
+    else                              { return SimGearboxMode::AUTO          ; }
+}
+
+GfxFlaresMode ParseGfxFlaresMode(std::string const & s)
+{
+    if (s == CONF_FLARES_NONE      )  { return GfxFlaresMode::NONE                    ; }
+    if (s == CONF_FLARES_NO_LIGHT  )  { return GfxFlaresMode::NO_LIGHTSOURCES         ; }
+    if (s == CONF_FLARES_CURR_HEAD )  { return GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY  ; }
+    if (s == CONF_FLARES_ALL_HEADS )  { return GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY  ; }
+    if (s == CONF_FLARES_ALL_LIGHTS)  { return GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS ; }
+    else                              { return GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY  ; }
+}
+
+GfxWaterMode ParseGfxWaterMode(std::string const & s)
+{
+    if (s == CONF_WATER_NONE     )    { return GfxWaterMode::NONE      ; }
+    if (s == CONF_WATER_BASIC    )    { return GfxWaterMode::BASIC     ; }
+    if (s == CONF_WATER_REFLECT  )    { return GfxWaterMode::REFLECT   ; }
+    if (s == CONF_WATER_FULL_FAST)    { return GfxWaterMode::FULL_FAST ; }
+    if (s == CONF_WATER_FULL_HQ  )    { return GfxWaterMode::FULL_HQ   ; }
+    if (s == CONF_WATER_HYDRAX   )    { return GfxWaterMode::HYDRAX    ; }
+    else                              { return GfxWaterMode::BASIC     ; }
+}
+
+GfxSkyMode ParseGfxSkyMode(std::string const & s)
+{
+    if (s == CONF_SKY_SANDSTORM)      { return GfxSkyMode::SANDSTORM ; }
+    if (s == CONF_SKY_CAELUM   )      { return GfxSkyMode::CAELUM    ; }
+    if (s == CONF_SKY_SKYX     )      { return GfxSkyMode::SKYX      ; }
+    else                              { return GfxSkyMode::SANDSTORM ; } 
+}
+
+const char* IoInputGrabModeToStr(IoInputGrabMode v)
+{
+    switch (v)
     {
-        return;
+    case IoInputGrabMode::DYNAMIC: return CONF_INPUT_GRAB_DYNAMIC;
+    case IoInputGrabMode::NONE   : return CONF_INPUT_GRAB_NONE;
+    case IoInputGrabMode::ALL    : return CONF_INPUT_GRAB_ALL;
+    default                      : return "";
     }
+}
 
-    char buffer[2000] = {};
+const char* GfxShadowTypeToStr(GfxShadowType v)
+{
+    switch (v)
+    {
+    case GfxShadowType::PSSM   : return CONF_GFX_SHADOW_PSSM;
+    case GfxShadowType::NONE   : return CONF_GFX_SHADOW_NONE;
+    default                    : return "";
+    }
+}
 
-    va_list args;
-    va_start(args, format);
-        vsprintf(buffer, format, args);
-    va_end(args);
+const char* GfxExtCamModeToStr(GfxExtCamMode v)
+{
+    switch (v)
+    {
+    case GfxExtCamMode::PITCHING: return CONF_EXTCAM_PITCHING;
+    case GfxExtCamMode::STATIC  : return CONF_EXTCAM_STATIC;
+    case GfxExtCamMode::NONE    : return CONF_EXTCAM_NONE;
+    default                     : return "";
+    }
+}
 
-    RoR::Log(buffer);
+const char* GfxTexFilterToStr(GfxTexFilter v)
+{
+    switch (v)
+    {
+    case GfxTexFilter::NONE       : return CONF_TEXFILTER_NONE;
+    case GfxTexFilter::BILINEAR   : return CONF_TEXFILTER_BILI;
+    case GfxTexFilter::TRILINEAR  : return CONF_TEXFILTER_TRILI;
+    case GfxTexFilter::ANISOTROPIC: return CONF_TEXFILTER_ANISO;
+    default                       : return "";
+    }
+}
+
+const char* GfxVegetationToStr(GfxVegetation v)
+{
+    switch (v)
+    {
+    case GfxVegetation::NONE   : return CONF_VEGET_NONE;
+    case GfxVegetation::x20PERC: return CONF_VEGET_20PERC;
+    case GfxVegetation::x50PERC: return CONF_VEGET_50PERC;
+    case GfxVegetation::FULL   : return CONF_VEGET_FULL;
+    default                    : return "";
+    }
+}
+
+const char* SimGearboxModeToStr(SimGearboxMode v)
+{
+    switch (v)
+    {
+    case SimGearboxMode::AUTO         : return CONF_GEARBOX_AUTO;
+    case SimGearboxMode::SEMI_AUTO    : return CONF_GEARBOX_SEMIAUTO;
+    case SimGearboxMode::MANUAL       : return CONF_GEARBOX_MANUAL;
+    case SimGearboxMode::MANUAL_STICK : return CONF_GEARBOX_MAN_STICK;
+    case SimGearboxMode::MANUAL_RANGES: return CONF_GEARBOX_MAN_RANGES;
+    default                           : return "";
+    }
+}
+
+const char* GfxFlaresModeToStr(GfxFlaresMode v)
+{
+    switch(v)
+    {
+    case GfxFlaresMode::NONE                   : return CONF_FLARES_NONE;
+    case GfxFlaresMode::NO_LIGHTSOURCES        : return CONF_FLARES_NO_LIGHT;
+    case GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY : return CONF_FLARES_CURR_HEAD;
+    case GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY : return CONF_FLARES_ALL_HEADS;
+    case GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS: return CONF_FLARES_ALL_LIGHTS;
+    default                                    : return "";
+    }
+}
+
+const char* GfxWaterModeToStr(GfxWaterMode v)
+{
+    switch(v)
+    {
+    case GfxWaterMode::BASIC    : return CONF_WATER_BASIC;
+    case GfxWaterMode::REFLECT  : return CONF_WATER_REFLECT;
+    case GfxWaterMode::FULL_FAST: return CONF_WATER_FULL_FAST;
+    case GfxWaterMode::FULL_HQ  : return CONF_WATER_FULL_HQ;
+    case GfxWaterMode::HYDRAX   : return CONF_WATER_HYDRAX;
+    default                     : return "";
+    }
+}
+
+const char* GfxSkyModeToStr(GfxSkyMode v)
+{
+    switch(v)
+    {
+    case GfxSkyMode::CAELUM   : return CONF_SKY_CAELUM;
+    case GfxSkyMode::SKYX     : return CONF_SKY_SKYX;
+    case GfxSkyMode::SANDSTORM: return CONF_SKY_SANDSTORM;
+    default                   : return "";
+    }
 }
 
 } // namespace RoR

@@ -100,7 +100,7 @@ GUIManager::GuiTheme::GuiTheme()
     {
         //Setup custom font
         Str<500> font_path;
-        font_path << App::sys_process_dir.GetActive() << PATH_SLASH << "languages" << PATH_SLASH << "Roboto-Medium.ttf";
+        font_path << App::sys_process_dir->GetActiveStr() << PATH_SLASH << "languages" << PATH_SLASH << "Roboto-Medium.ttf";
         ImFontConfig font_config;
         font_config.OversampleH = 1;
         font_config.OversampleV = 1;
@@ -164,7 +164,7 @@ GUIManager::GUIManager() :
     RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
     OgreBites::WindowEventUtilities::addWindowEventListener(RoR::App::GetOgreSubsystem()->GetRenderWindow(), this);
 
-    std::string gui_logpath = PathCombine(App::sys_logs_dir.GetActive(), "MyGUI.log");
+    std::string gui_logpath = PathCombine(App::sys_logs_dir->GetActiveStr(), "MyGUI.log");
     auto mygui_platform = new MyGUI::OgrePlatform();
     mygui_platform->initialise(
         RoR::App::GetOgreSubsystem()->GetRenderWindow(), 
@@ -248,11 +248,11 @@ bool GUIManager::frameEnded(const Ogre::FrameEvent& evt)
 
 void GUIManager::DrawSimulationGui(float dt)
 {
-    if (App::app_state.GetActive() == AppState::SIMULATION)
+    if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
     {
         m_impl->panel_TopMenubar.Update();
 
-        if (App::sim_state.GetActive() == SimState::PAUSED)
+        if (App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
         {
             m_impl->panel_GamePauseMenu.Draw();
         }
@@ -405,9 +405,7 @@ void GUIManager::SetMouseCursorVisibility(MouseCursorVisibility visi)
 
 void GUIManager::ReflectGameState()
 {
-    const auto app_state = App::app_state.GetActive();
-    const auto mp_state  = App::mp_state.GetActive();
-    if (app_state == AppState::MAIN_MENU)
+    if (App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
     {
         m_impl->overlay_Wallpaper       ->show();
         m_impl->panel_GameMainMenu       .SetVisible(!m_impl->panel_MainSelector.IsVisible());
@@ -419,7 +417,7 @@ void GUIManager::ReflectGameState()
         m_impl->panel_SimActorStats      .SetVisible(false);
         m_impl->panel_SimPerfStats       .SetVisible(false);
     }
-    else if (app_state == AppState::SIMULATION)
+    else if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
     {
         m_impl->panel_GameMainMenu       .SetVisible(false);
         m_impl->overlay_Wallpaper       ->hide();
@@ -508,7 +506,7 @@ void GUIManager::SetupImGui()
 
 void GUIManager::DrawCommonGui()
 {
-    switch (App::mp_state.GetActive())
+    switch (App::mp_state->GetActiveEnum<MpState>())
     {
         case MpState::CONNECTING:
             this->DrawMpConnectingStatusBox();
@@ -585,7 +583,7 @@ void GUIManager::DrawMpConnectingStatusBox()
 
     ImGui::NextColumn();
     // HACK: The trailing space is a workaround for a scissoring issue in OGRE/DearIMGUI integration. ~ only_a_ptr, 10/2017
-    ImGui::Text("Joining [%s:%d] ", App::mp_server_host.GetActive(), App::mp_server_port.GetActive());
+    ImGui::Text("Joining [%s:%d] ", App::mp_server_host->GetActiveStr().c_str(), App::mp_server_port->GetActiveVal<int>());
 #ifdef USE_SOCKETW
     ImGui::TextDisabled("%s", m_net_connect_status.c_str());
 #endif

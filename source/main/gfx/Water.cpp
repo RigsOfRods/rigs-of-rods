@@ -60,7 +60,7 @@ Water::Water() :
         m_waterplane_mesh_scale = 1.5f;
 
     char line[1024] = {};
-    std::string filepath = PathCombine(RoR::App::sys_config_dir.GetActive(), "wavefield.cfg");
+    std::string filepath = PathCombine(RoR::App::sys_config_dir->GetActiveStr(), "wavefield.cfg");
     FILE* fd = fopen(filepath.c_str(), "r");
     if (fd)
     {
@@ -179,7 +179,7 @@ void Water::PrepareWater()
     m_water_plane.normal = Vector3::UNIT_Y;
     m_water_plane.d = 0;
 
-    const auto type = App::gfx_water_mode.GetActive();
+    const auto type = App::gfx_water_mode->GetActiveEnum<GfxWaterMode>();
     const bool full_gfx = type == GfxWaterMode::FULL_HQ || type == GfxWaterMode::FULL_FAST;
 
     if (full_gfx || type == GfxWaterMode::REFLECT)
@@ -359,7 +359,7 @@ void Water::SetWaterVisible(bool value)
 
 void Water::SetReflectionPlaneHeight(float centerheight)
 {
-    const auto type = App::gfx_water_mode.GetActive();
+    const auto type = App::gfx_water_mode->GetActiveEnum<GfxWaterMode>();
     if (type == GfxWaterMode::FULL_HQ || type == GfxWaterMode::FULL_FAST || type == GfxWaterMode::REFLECT)
     {
         this->UpdateReflectionPlane(centerheight);
@@ -441,12 +441,12 @@ void Water::UpdateWater()
             m_waterplane_node->setPosition(Vector3(waterPos.x, m_water_height, waterPos.z));
             m_bottomplane_node->setPosition(bottomPos);
         }
-        if (RoR::App::gfx_water_waves.GetActive() && RoR::App::mp_state.GetActive() == RoR::MpState::DISABLED)
+        if (RoR::App::gfx_water_waves->GetActiveVal<bool>() && RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::DISABLED)
             this->ShowWave(m_waterplane_node->getPosition());
     }
 
     m_frame_counter++;
-    if (App::gfx_water_mode.GetActive() == GfxWaterMode::FULL_FAST)
+    if (App::gfx_water_mode->GetActiveEnum<GfxWaterMode>() == GfxWaterMode::FULL_FAST)
     {
         if (m_frame_counter % 2 == 1 || m_waterplane_force_update_pos)
         {
@@ -463,7 +463,7 @@ void Water::UpdateWater()
             m_refract_rtt_target->update();
         }
     }
-    else if (App::gfx_water_mode.GetActive() == GfxWaterMode::FULL_HQ)
+    else if (App::gfx_water_mode->GetActiveEnum<GfxWaterMode>() == GfxWaterMode::FULL_HQ)
     {
         m_reflect_cam->setOrientation(m_render_cam->getOrientation());
         m_reflect_cam->setPosition(m_render_cam->getPosition());
@@ -474,7 +474,7 @@ void Water::UpdateWater()
         m_refract_cam->setFOVy(m_render_cam->getFOVy());
         m_refract_rtt_target->update();
     }
-    else if (App::gfx_water_mode.GetActive() == GfxWaterMode::REFLECT)
+    else if (App::gfx_water_mode->GetActiveEnum<GfxWaterMode>() == GfxWaterMode::REFLECT)
     {
         m_reflect_cam->setOrientation(m_render_cam->getOrientation());
         m_reflect_cam->setPosition(m_render_cam->getPosition());
@@ -512,7 +512,7 @@ void Water::SetWaterBottomHeight(float value)
 float Water::CalcWavesHeight(Vector3 pos)
 {
     // no waves?
-    if (!RoR::App::gfx_water_waves.GetActive() || RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+    if (!RoR::App::gfx_water_waves->GetActiveVal<bool>() || RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         // constant height, sea is flat as pancake
         return m_water_height;
@@ -543,7 +543,7 @@ bool Water::IsUnderWater(Vector3 pos)
 {
     float waterheight = m_water_height;
 
-    if (RoR::App::gfx_water_waves.GetActive() && RoR::App::mp_state.GetActive() == RoR::MpState::DISABLED)
+    if (RoR::App::gfx_water_waves->GetActiveVal<bool>() && RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::DISABLED)
     {
         float waveheight = GetWaveHeight(pos);
 
@@ -558,7 +558,7 @@ bool Water::IsUnderWater(Vector3 pos)
 
 Vector3 Water::CalcWavesVelocity(Vector3 pos)
 {
-    if (!RoR::App::gfx_water_waves.GetActive() || RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+    if (!RoR::App::gfx_water_waves->GetActiveVal<bool>() || RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
         return Vector3::ZERO;
 
     float waveheight = GetWaveHeight(pos);

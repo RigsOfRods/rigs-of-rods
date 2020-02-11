@@ -78,19 +78,19 @@ void RoR::GUI::GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cle
         const char* resume_title = (m_kb_focus_index == 0) ? "--> Resume game <--" : "Resume game"; // TODO: Localize all!
         if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == 0))
         {
-            App::sim_state.SetPending(SimState::RUNNING);
+            App::sim_state->SetPendingVal((int)SimState::RUNNING);
         }
 
         const char* settings_title = (m_kb_focus_index == 1) ? "--> Return to menu <--" : "Return to menu";
         if (ImGui::Button(settings_title, btn_size) || (m_kb_enter_index == 1))
         {
-            App::app_state.SetPending(RoR::AppState::MAIN_MENU);
+            App::app_state->SetPendingVal((int)RoR::AppState::MAIN_MENU);
         }
 
         const char* exit_title = (m_kb_focus_index == 2) ? "--> Exit game <--" : "Exit game";
         if (ImGui::Button(exit_title, btn_size) || (m_kb_enter_index == 2))
         {
-            App::app_state.SetPending(RoR::AppState::SHUTDOWN);
+            App::app_state->SetPendingVal((int)RoR::AppState::SHUTDOWN);
         }
     }
 

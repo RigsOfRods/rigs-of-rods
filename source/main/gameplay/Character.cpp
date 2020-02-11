@@ -60,7 +60,7 @@ Character::Character(int source, unsigned int streamid, UTFString player_name, i
     m_instance_name = "Character" + TOSTRING(id_counter);
     ++id_counter;
 
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
+    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
     {
         this->SendStreamSetup();
     }
@@ -129,7 +129,7 @@ float calculate_collision_depth(Vector3 pos)
 
 void Character::update(float dt)
 {
-    if (!m_is_remote && (m_actor_coupling == nullptr) && (App::sim_state.GetActive() != SimState::PAUSED))
+    if (!m_is_remote && (m_actor_coupling == nullptr) && (App::sim_state->GetActiveEnum<SimState>() != SimState::PAUSED))
     {
         // disable character movement when using the free camera mode or when the menu is opened
         // TODO: check for menu being opened
@@ -392,7 +392,7 @@ void Character::update(float dt)
     }
 
 #ifdef USE_SOCKETW
-    if ((App::mp_state.GetActive() == MpState::CONNECTED) && !m_is_remote)
+    if ((App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED) && !m_is_remote)
     {
         this->SendStreamData();
     }
@@ -527,7 +527,7 @@ void Character::SetActorCoupling(bool enabled, Actor* actor)
 {
     m_actor_coupling = actor;
 #ifdef USE_SOCKETW
-    if (App::mp_state.GetActive() == MpState::CONNECTED && !m_is_remote)
+    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED && !m_is_remote)
     {
         if (enabled)
         {
@@ -688,7 +688,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
 
     // Multiplayer label
 #ifdef USE_SOCKETW
-    if (App::mp_state.GetActive() == MpState::CONNECTED && !xc_simbuf.simbuf_actor_coupling)
+    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED && !xc_simbuf.simbuf_actor_coupling)
     {
         if (xc_movable_text == nullptr)
         {
@@ -714,7 +714,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
 
         if (xc_movable_text != nullptr)
         {
-            if (App::mp_hide_net_labels.GetActive() || (!xc_simbuf.simbuf_is_remote && App::mp_hide_own_net_label.GetActive()))
+            if (App::mp_hide_net_labels->GetActiveVal<bool>() || (!xc_simbuf.simbuf_is_remote && App::mp_hide_own_net_label->GetActiveVal<bool>()))
             {
                 xc_movable_text->setVisible(false);
                 return;

@@ -54,10 +54,10 @@ Ogre::String ActorManager::GetQuicksaveFilename(Ogre::String terrain_name)
 {
     if (terrain_name.empty())
     {
-        terrain_name = App::sim_terrain_name.GetActive();
+        terrain_name = App::sim_terrain_name->GetActiveStr();
     }
 
-    String mp = (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED) ? "_mp" : "";
+    String mp = (RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED) ? "_mp" : "";
 
     return "quicksave_" + StringUtil::replaceAll(terrain_name, ".terrn2", "") + mp + ".sav";
 }
@@ -84,7 +84,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         RoR::Log("[RoR|Savegame] Invalid or missing savegame file.");
         RoR::App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: File invalid or missing"));
-        App::sim_load_savegame.SetActive(false);
+        App::sim_load_savegame->SetActiveVal(false);
         return false;
     }
     if (j_doc["format_version"].GetInt() != SAVEGAME_FILE_FORMAT)
@@ -92,18 +92,18 @@ bool ActorManager::LoadScene(Ogre::String filename)
         RoR::Log("[RoR|Savegame] Savegame file format mismatch.");
         RoR::App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: File format mismatch"));
-        App::sim_load_savegame.SetActive(false);
+        App::sim_load_savegame->SetActiveVal(false);
         return false;
     }
 
     // Terrain
     String terrain_name = j_doc["terrain_name"].GetString();
 
-    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+    if (RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         if (filename == "autosave.sav")
             return false;
-        if (terrain_name != App::sim_terrain_name.GetActive())
+        if (terrain_name != App::sim_terrain_name->GetActiveStr())
         {
             RoR::App::GetConsole()->putMessage(
                 Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: Terrain mismatch"));
@@ -117,15 +117,15 @@ bool ActorManager::LoadScene(Ogre::String filename)
         }
     }
 
-    if (terrain_name != App::sim_terrain_name.GetActive() || App::sim_state.GetActive() != SimState::RUNNING)
+    if (terrain_name != App::sim_terrain_name->GetActiveStr() || App::sim_state->GetActiveEnum<SimState>() != SimState::RUNNING)
     {
         RoR::LogFormat("[RoR|Savegame] Loading terrain '%s' ...", terrain_name.c_str());
-        App::sim_terrain_name.SetPending(terrain_name.c_str());
-        if (App::app_state.GetActive() == AppState::SIMULATION)
+        App::sim_terrain_name->SetPendingStr(terrain_name.c_str());
+        if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
         {
-            App::app_state.SetPending(AppState::MAIN_MENU);
-            App::sim_savegame.SetActive(filename.c_str());
-            App::sim_load_savegame.SetActive(true);
+            App::app_state->SetPendingVal((int)AppState::MAIN_MENU);
+            App::sim_savegame->SetActiveStr(filename.c_str());
+            App::sim_load_savegame->SetActiveVal(true);
         }
         m_savegame_terrain_has_changed = true;
         return true;
@@ -137,7 +137,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
     {
         App::GetSimController()->SetPhysicsPausedInternal(j_doc["physics_paused"].GetBool());
 #ifdef USE_CAELUM
-        if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
+        if (App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
         {
             if (j_doc.HasMember("daytime"))
             {
@@ -489,7 +489,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         actor->m_avg_node_position_prev = actor->m_avg_node_position;
     }
 
-    App::sim_load_savegame.SetActive(false);
+    App::sim_load_savegame->SetActiveVal(false);
     m_savegame_terrain_has_changed = false;
 
     if (filename != "autosave.sav")
@@ -505,7 +505,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 {
     std::vector<Actor*> x_actors = GetLocalActors();
 
-    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+    if (RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         if (filename == "autosave.sav")
             return false;
@@ -522,15 +522,15 @@ bool ActorManager::SaveScene(Ogre::String filename)
     j_doc.AddMember("format_version", SAVEGAME_FILE_FORMAT, j_doc.GetAllocator());
 
     // Pretty name
-    String pretty_name = App::GetCacheSystem()->GetPrettyName(App::sim_terrain_name.GetActive());
+    String pretty_name = App::GetCacheSystem()->GetPrettyName(App::sim_terrain_name->GetActiveStr());
     String scene_name = StringUtil::format("%s [%d]", pretty_name.c_str(), x_actors.size());
     j_doc.AddMember("scene_name", rapidjson::StringRef(scene_name.c_str()), j_doc.GetAllocator());
 
     // Terrain
-    j_doc.AddMember("terrain_name", rapidjson::StringRef(App::sim_terrain_name.GetActive()), j_doc.GetAllocator());
+    j_doc.AddMember("terrain_name", rapidjson::StringRef(App::sim_terrain_name->GetActiveStr().c_str()), j_doc.GetAllocator());
 
 #ifdef USE_CAELUM
-    if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
+    if (App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
     {
         j_doc.AddMember("daytime", App::GetSimTerrain()->getSkyManager()->GetTime(), j_doc.GetAllocator());
     }

@@ -37,7 +37,7 @@
 RoR::GUI::GameMainMenu::GameMainMenu(): 
     m_is_visible(false), m_num_buttons(5), m_kb_focus_index(-1), m_kb_enter_index(-1)
 {
-    if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), "autosave.sav")))
+    if (FileExists(PathCombine(App::sys_savegames_dir->GetActiveStr(), "autosave.sav")))
     {
         m_num_buttons++;
     }
@@ -95,24 +95,24 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
         if (ImGui::Button(sp_title, btn_size) || (m_kb_enter_index == button_index++))
         {
             this->SetVisible(false);
-            if (App::diag_preset_terrain.IsActiveEmpty())
+            if (App::diag_preset_terrain->GetActiveStr().empty())
             {
                 App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
             }
             else
             {
-                App::app_state.SetPending(RoR::AppState::SIMULATION);
+                App::app_state->SetPendingVal((int)RoR::AppState::SIMULATION);
             }
         }
 
-        if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), "autosave.sav")))
+        if (FileExists(PathCombine(App::sys_savegames_dir->GetActiveStr(), "autosave.sav")))
         {
             const char* resume_title = (m_kb_focus_index == button_index) ? "--> Resume game <--" : "Resume game";
             if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == button_index++))
             {
-                App::sim_savegame.SetActive("autosave.sav");
-                App::sim_load_savegame.SetActive(true);
-                App::app_state.SetPending(RoR::AppState::SIMULATION);
+                App::sim_savegame->SetActiveStr("autosave.sav");
+                App::sim_load_savegame->SetActiveVal(true);
+                App::app_state->SetPendingVal((int)RoR::AppState::SIMULATION);
                 this->SetVisible(false);
             }
         }
@@ -141,12 +141,12 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
         const char* exit_title = (m_kb_focus_index == button_index) ? "--> Exit game <--" : "Exit game";
         if (ImGui::Button(exit_title, btn_size) || (m_kb_enter_index == button_index++))
         {
-            App::app_state.SetPending(RoR::AppState::SHUTDOWN);
+            App::app_state->SetPendingVal((int)RoR::AppState::SHUTDOWN);
             this->SetVisible(false);
         }
     }
 
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
+    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
     {
         this->SetVisible(false);
     }

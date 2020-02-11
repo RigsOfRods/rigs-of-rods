@@ -83,10 +83,6 @@
 using namespace Ogre;
 using namespace RoR;
 
-#define simRUNNING(_S_) (_S_ == SimState::RUNNING    )
-#define  simPAUSED(_S_) (_S_ == SimState::PAUSED     )
-#define  simEDITOR(_S_) (_S_ == SimState::EDITOR_MODE)
-
 SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf) :
     m_player_actor(nullptr),
     m_prev_player_actor(nullptr),
@@ -126,7 +122,7 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
 
 void SimController::UpdateForceFeedback()
 {
-    if (!App::io_ffb_enabled.GetActive()) { return; }
+    if (!App::io_ffb_enabled->GetActiveVal<bool>()) { return; }
 
     if (m_player_actor && m_player_actor->ar_driveable == TRUCK)
     {
@@ -204,7 +200,7 @@ void SimController::HandleSavegameShortcuts()
         m_actor_manager.LoadScene(filename);
     }
 
-    if (App::sim_terrain_name.IsActiveEmpty() || App::sim_state.GetActive() != SimState::RUNNING)
+    if (App::sim_terrain_name->GetActiveStr() == "" || App::sim_state->GetActiveEnum<SimState>() != SimState::RUNNING)
         return;
 
     slot = -1;
@@ -258,8 +254,8 @@ void SimController::HandleSavegameShortcuts()
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD, 1.0f))
     {
-        App::sim_savegame.SetActive(m_actor_manager.GetQuicksaveFilename().c_str());
-        App::sim_load_savegame.SetActive(true);
+        App::sim_savegame->SetActiveStr(m_actor_manager.GetQuicksaveFilename().c_str());
+        App::sim_load_savegame->SetActiveVal(true);
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE))
@@ -273,7 +269,6 @@ void SimController::UpdateInputEvents(float dt)
     if (dt == 0.0f)
         return;
 
-    auto s = App::sim_state.GetActive();
     auto gui_man = App::GetGuiManager();
 
     RoR::App::GetInputEngine()->updateKeyBounces(dt);
@@ -290,17 +285,17 @@ void SimController::UpdateInputEvents(float dt)
         {
             gui_man->GetMainSelector()->Close();
         }
-        else if (simRUNNING(s))
+        else if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING)
         {
-            App::sim_state.SetPending(SimState::PAUSED);
+            App::sim_state->SetPendingVal((int)SimState::PAUSED);
         }
-        else if (simPAUSED(s))
+        else if (App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
         {
-            App::sim_state.SetPending(SimState::RUNNING);
+            App::sim_state->SetPendingVal((int)SimState::RUNNING);
         }
     }
 
-    if (App::sim_state.GetActive() == SimState::PAUSED)
+    if (App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
         return; //Stop everything when pause menu is visible
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE))
@@ -313,7 +308,7 @@ void SimController::UpdateInputEvents(float dt)
         gui_man->GetFrictionSettings()->setActiveCol(m_player_actor->ar_last_fuzzy_ground_model);
     }
 
-    const bool mp_connected = (App::mp_state.GetActive() == MpState::CONNECTED);
+    const bool mp_connected = (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED);
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_hide_gui && mp_connected)
     {
         gui_man->SetVisible_ChatBox(!gui_man->IsVisible_ChatBox());
@@ -329,9 +324,9 @@ void SimController::UpdateInputEvents(float dt)
         date << std::put_time(std::localtime(&t), "%Y-%m-%d_%H-%M-%S");
 #endif
 
-        String fn_prefix = PathCombine(App::sys_screenshot_dir.GetActive(), "screenshot_");
+        String fn_prefix = PathCombine(App::sys_screenshot_dir->GetActiveStr(), "screenshot_");
         String fn_name = date.str() + String("_");
-        String fn_suffix = String(".") + App::app_screenshot_format.GetActive();
+        String fn_suffix = String(".") + App::app_screenshot_format->GetActiveStr();
 
         if (m_last_screenshot_date == date.str())
         {
@@ -347,7 +342,7 @@ void SimController::UpdateInputEvents(float dt)
 
         String tmpfn = fn_prefix + fn_name + fn_suffix;
 
-        if (std::strcmp(App::app_screenshot_format.GetActive(), "png") == 0)
+        if (App::app_screenshot_format->GetActiveStr() == "png")
         {
             // add some more data into the image
             AdvancedScreen* as = new AdvancedScreen(RoR::App::GetOgreSubsystem()->GetRenderWindow(), tmpfn);
@@ -362,14 +357,14 @@ void SimController::UpdateInputEvents(float dt)
                 as->addData("Truck_beams", TOSTRING(m_player_actor->ar_num_beams));
                 as->addData("Truck_nodes", TOSTRING(m_player_actor->ar_num_nodes));
             }
-            as->addData("User_NickName", App::mp_player_name.GetActive());
-            as->addData("User_Language", App::app_language.GetActive());
+            as->addData("User_NickName", App::mp_player_name->GetActiveStr());
+            as->addData("User_Language", App::app_language->GetActiveStr());
             as->addData("RoR_VersionString", String(ROR_VERSION_STRING));
             as->addData("RoR_ProtocolVersion", String(RORNET_VERSION));
             as->addData("RoR_BinaryHash", "");
-            as->addData("MP_ServerName", App::mp_server_host.GetActive());
-            as->addData("MP_ServerPort", TOSTRING(App::mp_server_port.GetActive()));
-            as->addData("MP_NetworkEnabled", (App::mp_state.GetActive() == MpState::CONNECTED) ? "Yes" : "No");
+            as->addData("MP_ServerName", App::mp_server_host->GetActiveStr());
+            as->addData("MP_ServerPort", TOSTRING(App::mp_server_port->GetActiveVal<int>()));
+            as->addData("MP_NetworkEnabled", (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED) ? "Yes" : "No");
             as->addData("Camera_Position", TOSTRING(gEnv->mainCamera->getPosition()));
 
             const RenderTarget::FrameStats& stats = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
@@ -504,11 +499,11 @@ void SimController::UpdateInputEvents(float dt)
                 // save the settings
                 if (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
                 {
-                    App::gfx_fov_internal.SetActive(fov);
+                    App::gfx_fov_internal->SetActiveVal(fov);
                 }
                 else
                 {
-                    App::gfx_fov_external.SetActive(fov);
+                    App::gfx_fov_external->SetActiveVal(fov);
                 }
             }
             else
@@ -521,13 +516,13 @@ void SimController::UpdateInputEvents(float dt)
             float fov = gEnv->mainCamera->getFOVy().valueDegrees();
             if (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
             {
-                fov = App::gfx_fov_internal.GetStored();
-                App::gfx_fov_internal.SetActive(fov);
+                fov = App::gfx_fov_internal->GetStoredVal<int>();
+                App::gfx_fov_internal->SetActiveVal(fov);
             }
             else
             {
-                fov = App::gfx_fov_external.GetStored();
-                App::gfx_fov_external.SetActive(fov);
+                fov = App::gfx_fov_external->GetStoredVal<int>();
+                App::gfx_fov_external->SetActiveVal(fov);
             }
             gEnv->mainCamera->setFOVy(Degree(fov));
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
@@ -565,18 +560,17 @@ void SimController::UpdateInputEvents(float dt)
     static int object_count = static_cast<int>(object_list.size());
     static int object_index = -1;
 
-    bool toggle_editor = (m_player_actor && simEDITOR(s)) ||
+    bool toggle_editor = (m_player_actor && App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE) ||
         (!m_player_actor && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
 
     if (toggle_editor)
     {
-        App::sim_state.SetActive(simEDITOR(s) ? SimState::RUNNING : SimState::EDITOR_MODE);
-        s = App::sim_state.GetActive();
-        UTFString ssmsg = simEDITOR(s) ? _L("Entered terrain editing mode") : _L("Left terrain editing mode");
+        App::sim_state->SetActiveVal(App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE ? (int)SimState::RUNNING : (int)SimState::EDITOR_MODE);
+        UTFString ssmsg = App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE ? _L("Entered terrain editing mode") : _L("Left terrain editing mode");
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg,
                 "infromation.png", 2000, false);
 
-        if (simEDITOR(s))
+        if (App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE)
         {
             object_list = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
             object_index = -1;
@@ -613,7 +607,7 @@ void SimController::UpdateInputEvents(float dt)
     }
 
     //OLD m_loading_state == ALL_LOADED
-    if (simEDITOR(s) && object_list.size() > 0)
+    if (App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE && object_list.size() > 0)
     {
         bool update = false;
         if (object_count != object_list.size())
@@ -814,7 +808,7 @@ void SimController::UpdateInputEvents(float dt)
             m_character_factory.update(dt);
         }
     }
-    else if (simRUNNING(s) || simPAUSED(s))
+    else if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING || App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
     {
         m_character_factory.update(dt);
         if (!this->AreControlsLocked())
@@ -1362,9 +1356,9 @@ void SimController::UpdateInputEvents(float dt)
 
 #ifdef USE_CAELUM
 
-        const bool caelum_enabled = App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM;
+        const bool caelum_enabled = App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() == GfxSkyMode::CAELUM;
         SkyManager* sky_mgr = App::GetSimTerrain()->getSkyManager();
-        if (caelum_enabled && (sky_mgr != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
+        if (caelum_enabled && (sky_mgr != nullptr) && (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING || App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED || App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE))
         {
             Real time_factor = 1.0f;
 
@@ -1395,9 +1389,9 @@ void SimController::UpdateInputEvents(float dt)
 #endif // USE_CAELUM
 
 
-        const bool skyx_enabled = App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX;
+        const bool skyx_enabled = App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() == GfxSkyMode::SKYX;
         SkyXManager* skyx_mgr = App::GetSimTerrain()->getSkyXManager();
-        if (skyx_enabled && (skyx_mgr != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
+        if (skyx_enabled && (skyx_mgr != nullptr) && (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING || App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED || App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE))
         {
 
             if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
@@ -1465,7 +1459,7 @@ void SimController::UpdateInputEvents(float dt)
         }
     }
 
-    if ((simRUNNING(s) || simPAUSED(s) || simEDITOR(s)) && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
+    if ((App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING || App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED || App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE) && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
     {
         gui_man->SetVisible_SimPerfStats(!gui_man->IsVisible_SimPerfStats());
     }
@@ -1549,7 +1543,7 @@ void SimController::UpdateSimulation(float dt)
     m_actor_manager.SyncWithSimThread();
 
 #ifdef USE_SOCKETW
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
+    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
     {
         std::vector<Networking::recv_packet_t> packets = RoR::Networking::GetIncomingStreamData();
         if (!packets.empty())
@@ -1688,7 +1682,7 @@ void SimController::UpdateSimulation(float dt)
             {
                 if (fresh_actor->ar_driveable != NOT_DRIVEABLE &&
                     fresh_actor->ar_num_nodes > 0 &&
-                    App::diag_preset_veh_enter.GetActive())
+                    App::diag_preset_veh_enter->GetActiveVal<bool>())
                 {
                     this->SetPendingPlayerActor(fresh_actor);
                 }
@@ -1719,9 +1713,9 @@ void SimController::UpdateSimulation(float dt)
     }
     m_actor_spawn_queue.clear();
 
-    if (App::sim_load_savegame.GetActive())
+    if (App::sim_load_savegame->GetActiveVal<bool>())
     {
-        m_actor_manager.LoadScene(App::sim_savegame.GetActive());
+        m_actor_manager.LoadScene(App::sim_savegame->GetActiveStr());
     }
 
     if (m_pending_player_actor != m_player_actor)
@@ -1738,14 +1732,14 @@ void SimController::UpdateSimulation(float dt)
     }
 
     RoR::App::GetInputEngine()->Capture();
-    auto s = App::sim_state.GetActive();
+    auto s = App::sim_state->GetActiveEnum<SimState>();
 
     if (OutProtocol::getSingletonPtr())
     {
         OutProtocol::getSingleton().Update(dt, m_player_actor);
     }
 
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
+    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
     {
         // Update mumble (3d audio)
 #ifdef USE_MUMBLE
@@ -1756,7 +1750,7 @@ void SimController::UpdateSimulation(float dt)
 #endif // USE_MUMBLE
     }
 
-    if (simRUNNING(s) || simEDITOR(s))
+    if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING || App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE)
     {
         m_camera_manager.Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
 #ifdef USE_OPENAL
@@ -1784,7 +1778,7 @@ void SimController::UpdateSimulation(float dt)
         actor->GetGfxActor()->UpdateDebugView();
     }
 
-    if (simRUNNING(s) || simEDITOR(s) || (App::mp_state.GetActive() == MpState::CONNECTED))
+    if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING || App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE || (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED))
     {
         float simulation_speed = m_actor_manager.GetSimulationSpeed();
         if (m_race_id != -1 && simulation_speed != 1.0f)
@@ -1804,7 +1798,7 @@ void SimController::UpdateSimulation(float dt)
 
         m_gfx_scene.BufferSimulationData();
 
-        if (!simPAUSED(s))
+        if (App::sim_state->GetActiveEnum<SimState>() != SimState::PAUSED)
         {
             m_actor_manager.UpdateActors(m_player_actor, m_physics_simulation_time); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
         }
@@ -1814,7 +1808,7 @@ void SimController::UpdateSimulation(float dt)
 void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
 {
     // first, test if the place if clear, BUT NOT IN MULTIPLAYER
-    if (!(App::mp_state.GetActive() == MpState::CONNECTED))
+    if (!(App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED))
     {
         collision_box_t* spawnbox = gEnv->collisions->getBox(instance, box);
         for (auto actor : GetActors())
@@ -1956,13 +1950,14 @@ void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instanc
 bool SimController::LoadTerrain()
 {
     // check if the resource is loaded
-    Ogre::String terrain_file = App::sim_terrain_name.GetPending();
+    Ogre::String terrain_file = App::sim_terrain_name->GetPendingStr();
     if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(terrain_file)) // Input-output argument.
     {
         LOG("Terrain not found: " + terrain_file);
         Ogre::UTFString title(_L("Terrain loading error"));
         Ogre::UTFString msg(_L("Terrain not found: ") + terrain_file);
         App::GetGuiManager()->ShowMessageBox(title.asUTF8_c_str(), msg.asUTF8_c_str());
+        App::sim_terrain_name->ResetPending();
         return false;
     }
 
@@ -1983,10 +1978,10 @@ bool SimController::LoadTerrain()
         App::GetGuiManager()->ShowMessageBox("Failed to load terrain", "See 'RoR.log' for more info.", true, "OK", nullptr);
         App::SetSimTerrain(nullptr);
         delete terrain;
-        App::sim_terrain_name.ResetPending();
+        App::sim_terrain_name->ResetPending();
         return false;
     }
-    App::sim_terrain_name.ApplyPending();
+    App::sim_terrain_name->ApplyPending();
 
     if (gEnv->player != nullptr)
     {
@@ -2000,15 +1995,15 @@ bool SimController::LoadTerrain()
             spawn_rot = 180.0f;
         }
 
-        if (!App::diag_preset_spawn_pos.IsActiveEmpty())
+        if (App::diag_preset_spawn_pos->GetActiveStr() != "")
         {
-            spawn_pos = StringConverter::parseVector3(String(App::diag_preset_spawn_pos.GetActive()), spawn_pos);
-            App::diag_preset_spawn_pos.SetActive("");
+            spawn_pos = StringConverter::parseVector3(String(App::diag_preset_spawn_pos->GetActiveStr()), spawn_pos);
+            App::diag_preset_spawn_pos->SetActiveStr("");
         }
-        if (!App::diag_preset_spawn_rot.IsActiveEmpty())
+        if (App::diag_preset_spawn_rot->GetActiveStr() != "")
         {
-            spawn_rot = StringConverter::parseReal(App::diag_preset_spawn_rot.GetActive(), spawn_rot);
-            App::diag_preset_spawn_rot.SetActive("");
+            spawn_rot = StringConverter::parseReal(App::diag_preset_spawn_rot->GetActiveStr(), spawn_rot);
+            App::diag_preset_spawn_rot->SetActiveStr("");
         }
 
         spawn_pos.y = gEnv->collisions->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
@@ -2069,7 +2064,7 @@ bool SimController::SetupGameplayLoop()
     Ogre::UTFString playerName = "";
 
 #ifdef USE_SOCKETW
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
+    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
     {
         RoRnet::UserInfo info = RoR::Networking::GetLocalUserData();
         colourNum = info.colournum;
@@ -2086,17 +2081,23 @@ bool SimController::SetupGameplayLoop()
     // Loading map
     // ============================================================================
 
-    if (!App::diag_preset_terrain.IsActiveEmpty())
+    if (App::diag_preset_terrain->GetActiveStr() != "")
     {
-        App::sim_terrain_name.SetPending(App::diag_preset_terrain.GetActive());
+        App::sim_terrain_name->ResetPending();
     }
 
     // Terrain name lookup
-    if (!App::sim_terrain_name.IsPendingEmpty())
+    if (App::sim_terrain_name->GetPendingStr().empty())
+    {
+        LOG("No map selected. Returning to menu.");
+        App::GetGuiManager()->SetVisible_LoadingWindow(false);
+        return false;
+    }
+    else
     {
         size_t length = std::numeric_limits<size_t>::max();
         const CacheEntry* lookup = nullptr;
-        String name = App::sim_terrain_name.GetPending();
+        String name = App::sim_terrain_name->GetPendingStr();
         StringUtil::toLowerCase(name);
         for (const auto& entry : App::GetCacheSystem()->GetEntries())
         {
@@ -2120,28 +2121,21 @@ bool SimController::SetupGameplayLoop()
         }
         if (lookup != nullptr)
         {
-            App::sim_terrain_name.SetPending(lookup->fname.c_str());
+            App::sim_terrain_name->SetPendingStr(lookup->fname);
         }
     }
 
-    if (App::sim_load_savegame.GetActive())
+    if (App::sim_load_savegame->GetActiveVal<bool>())
     {
-        if (!App::diag_preset_terrain.IsActiveEmpty())
+        if (!App::diag_preset_terrain->GetActiveStr().empty())
         {
-            String filename = m_actor_manager.GetQuicksaveFilename(App::sim_terrain_name.GetPending());
-            App::sim_savegame.SetActive(filename.c_str());
+            String filename = m_actor_manager.GetQuicksaveFilename(App::sim_terrain_name->GetActiveStr());
+            App::sim_savegame->SetActiveStr(filename.c_str());
         }
-        m_actor_manager.LoadScene(App::sim_savegame.GetActive());
+        m_actor_manager.LoadScene(App::sim_savegame->GetActiveStr());
     }
 
-    if (App::sim_terrain_name.IsPendingEmpty())
-    {
-        LOG("No map selected. Returning to menu.");
-        App::GetGuiManager()->SetVisible_LoadingWindow(false);
-        return false;
-    }
-
-    App::diag_preset_terrain.SetActive("");
+    App::diag_preset_terrain->SetActiveStr("");
 
     if (! this->LoadTerrain())
     {
@@ -2155,12 +2149,12 @@ bool SimController::SetupGameplayLoop()
     // Loading vehicle
     // ========================================================================
 
-    if (!App::diag_preset_vehicle.IsActiveEmpty())
+    if (!App::diag_preset_vehicle->GetActiveStr().empty())
     {
         // Vehicle name lookup
         size_t length = std::numeric_limits<size_t>::max();
         const CacheEntry* lookup = nullptr;
-        String name = App::diag_preset_vehicle.GetPending();
+        String name = App::diag_preset_vehicle->GetActiveStr();
         StringUtil::toLowerCase(name);
         for (const auto& entry : App::GetCacheSystem()->GetEntries())
         {
@@ -2184,27 +2178,27 @@ bool SimController::SetupGameplayLoop()
         }
         if (lookup != nullptr)
         {
-            App::diag_preset_vehicle.SetActive(lookup->fname.c_str());
+            App::diag_preset_vehicle->SetActiveStr(lookup->fname);
             // Section config lookup
             if (!lookup->sectionconfigs.empty())
             {
                 auto cfgs = lookup->sectionconfigs;
-                if (std::find(cfgs.begin(), cfgs.end(), App::diag_preset_veh_config.GetActive()) == cfgs.end())
+                if (std::find(cfgs.begin(), cfgs.end(), App::diag_preset_veh_config->GetActiveStr()) == cfgs.end())
                 {
-                    App::diag_preset_veh_config.SetActive(cfgs[0].c_str());
+                    App::diag_preset_veh_config->SetActiveStr(cfgs[0]);
                 }
             }
         }
 
-        RoR::LogFormat("[RoR|Diag] Preselected Truck: %s", App::diag_preset_vehicle.GetActive());
-        if (!App::diag_preset_veh_config.IsActiveEmpty())
+        RoR::LogFormat("[RoR|Diag] Preselected Truck: %s", App::diag_preset_vehicle->GetActiveStr());
+        if (!App::diag_preset_veh_config->GetActiveStr().empty())
         {
-            RoR::LogFormat("[RoR|Diag] Preselected Truck Config: %s", App::diag_preset_veh_config.GetActive());
+            RoR::LogFormat("[RoR|Diag] Preselected Truck Config: %s", App::diag_preset_veh_config->GetActiveStr());
         }
 
         ActorSpawnRequest rq;
-        rq.asr_filename   = App::diag_preset_vehicle.GetActive();
-        rq.asr_config     = App::diag_preset_veh_config.GetActive();
+        rq.asr_filename   = App::diag_preset_vehicle->GetActiveStr();
+        rq.asr_config     = App::diag_preset_veh_config->GetActiveStr();
         rq.asr_position   = gEnv->player->getPosition();
         rq.asr_rotation   = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
         rq.asr_origin     = ActorSpawnRequest::Origin::CONFIG_FILE;
@@ -2215,7 +2209,7 @@ bool SimController::SetupGameplayLoop()
     // Extra setup
     // ========================================================================
 
-    if (App::io_outgauge_mode.GetActive() > 0)
+    if (App::io_outgauge_mode->GetActiveVal<int>() > 0)
     {
         m_out_protocol = std::unique_ptr<OutProtocol>(new OutProtocol());
     }
@@ -2223,7 +2217,7 @@ bool SimController::SetupGameplayLoop()
     App::CreateOverlayWrapper();
     App::GetOverlayWrapper()->SetupDirectionArrow();
 
-    if (App::audio_menu_music.GetActive())
+    if (App::audio_menu_music->GetActiveVal<bool>())
     {
         SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
     }
@@ -2246,7 +2240,7 @@ void SimController::EnterGameplayLoop()
     auto start_time = std::chrono::high_resolution_clock::now();
 
 #ifdef USE_SOCKETW
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
+    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
     {
         char text[300];
         std::snprintf(text, 300, _L("Press %s to start chatting"),
@@ -2256,19 +2250,19 @@ void SimController::EnterGameplayLoop()
     }
 #endif //USE_SOCKETW
 
-    while (App::app_state.GetPending() == AppState::SIMULATION)
+    while (App::app_state->GetPendingEnum<AppState>() == AppState::SIMULATION)
     {
         OgreBites::WindowEventUtilities::messagePump();
         if (rw->isClosed())
         {
-            App::app_state.SetPending(AppState::SHUTDOWN);
+            App::app_state->SetPendingVal((int)AppState::SHUTDOWN);
             continue;
         }
 
         // Check FPS limit
-        if (App::gfx_fps_limit.GetActive() > 0)
+        if (App::gfx_fps_limit->GetActiveVal<int>() > 0)
         {
-            const float min_frame_time = 1.0f / Ogre::Math::Clamp(App::gfx_fps_limit.GetActive(), 5, 240);
+            const float min_frame_time = 1.0f / Ogre::Math::Clamp(App::gfx_fps_limit->GetActiveVal<int>(), 5, 240);
             float dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
             while (dt < min_frame_time)
             {
@@ -2281,22 +2275,22 @@ void SimController::EnterGameplayLoop()
         start_time = now;
 
         // Check simulation state change
-        if (App::sim_state.GetPending() != App::sim_state.GetActive())
+        if (App::sim_state->GetPendingEnum<SimState>() != App::sim_state->GetActiveEnum<SimState>())
         {
-            if (App::sim_state.GetActive() == SimState::RUNNING)
+            if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING)
             {
-                if (App::sim_state.GetPending() == SimState::PAUSED)
+                if (App::sim_state->GetPendingEnum<SimState>() == SimState::PAUSED)
                 {
                     m_actor_manager.MuteAllActors();
-                    App::sim_state.ApplyPending();
+                    App::sim_state->ApplyPending();
                 }
             }
-            else if (App::sim_state.GetActive() == SimState::PAUSED)
+            else if (App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
             {
-                if (App::sim_state.GetPending() == SimState::RUNNING)
+                if (App::sim_state->GetPendingEnum<SimState>() == SimState::RUNNING)
                 {
                     m_actor_manager.UnmuteAllActors();
-                    App::sim_state.ApplyPending();
+                    App::sim_state->ApplyPending();
                 }
             }
         }
@@ -2307,7 +2301,7 @@ void SimController::EnterGameplayLoop()
         if (dt_sec != 0.f)
         {
             this->UpdateSimulation(dt_sec);
-            if (RoR::App::sim_state.GetActive() != RoR::SimState::PAUSED)
+            if (RoR::App::sim_state->GetActiveEnum<SimState>() != RoR::SimState::PAUSED)
             {
                 m_gfx_scene.UpdateScene(dt_sec);
                 if (!m_physics_simulation_paused)
@@ -2330,7 +2324,7 @@ void SimController::EnterGameplayLoop()
         }
 
 #ifdef USE_SOCKETW
-        if ((App::mp_state.GetActive() == MpState::CONNECTED))
+        if ((App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED))
         {
             Networking::NetEventQueue events = Networking::CheckEvents();
             while (!events.empty())
@@ -2338,13 +2332,13 @@ void SimController::EnterGameplayLoop()
                 switch (events.front().type)
                 {
                 case Networking::NetEvent::Type::SERVER_KICK:
-                    App::app_state.SetPending(AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
+                    App::app_state->SetPendingVal((int)AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
                     App::GetGuiManager()->ShowMessageBox(
                         _LC("Network", "Multiplayer: disconnected"), events.front().message.c_str());
                     break;
 
                 case Networking::NetEvent::Type::RECV_ERROR:
-                    App::app_state.SetPending(AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
+                    App::app_state->SetPendingVal((int)AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
                     App::GetGuiManager()->ShowMessageBox(
                         _L("Network fatal error: "), events.front().message.c_str());
                     break;
@@ -2365,7 +2359,7 @@ void SimController::EnterGameplayLoop()
     m_actor_manager.SaveScene("autosave.sav");
 
     m_actor_manager.SyncWithSimThread(); // Wait for background tasks to finish
-    App::sim_state.SetActive(SimState::OFF);
+    App::sim_state->SetActiveVal((int)SimState::OFF);
     App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Unloading Terrain")); // Renders a frame
     this->CleanupAfterSimulation();
     OgreBites::WindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
@@ -2555,7 +2549,7 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
 #ifdef USE_SOCKETW
     if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {
-        if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+        if (RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
         {
             RoRnet::UserInfo info = RoR::Networking::GetLocalUserData();
             rq.asr_net_username = tryConvertUTF(info.username);
@@ -2580,7 +2574,7 @@ void SimController::RemoveActorDirectly(Actor* actor)
     m_gfx_scene.RemoveGfxActor(actor->GetGfxActor());
 
 #ifdef USE_SOCKETW
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
+    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
     {
         m_character_factory.UndoRemoteActorCoupling(actor);
     }
