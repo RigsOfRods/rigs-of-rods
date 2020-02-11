@@ -45,11 +45,24 @@ void GUI::ConsoleWindow::Draw()
         }
         if (ImGui::BeginMenu(_LC("Console", "Commands")))
         {
-            if (ImGui::MenuItem("help"))    { this->DoCommand("help"); }
-            if (ImGui::MenuItem("ver"))     { this->DoCommand("ver"); }
-            if (ImGui::MenuItem("pos"))     { this->DoCommand("pos"); }
-            if (ImGui::MenuItem("gravity")) { this->DoCommand("gravity"); }
-            if (ImGui::MenuItem("quit"))    { this->DoCommand("quit"); }
+            ImGui::Columns(3);
+            ImGui::SetColumnOffset(1, 100); // TODO: Calculate dynamically
+            ImGui::SetColumnOffset(2, 270); // TODO: Calculate dynamically
+
+            for (auto& cmd_pair: App::GetConsole()->GetCommands())
+            {
+                if (ImGui::Selectable(cmd_pair.second->GetName().c_str()))
+                {
+                    cmd_pair.second->Run(Ogre::StringVector{cmd_pair.second->GetName()});
+                }
+                ImGui::NextColumn();
+                ImGui::Text("%s", cmd_pair.second->GetUsage().c_str());
+                ImGui::NextColumn();
+                ImGui::Text("%s", cmd_pair.second->GetDoc().c_str());
+                ImGui::NextColumn();
+            }
+
+            ImGui::Columns(1); // reset
             ImGui::EndMenu();
         }
         ImGui::EndMenuBar();

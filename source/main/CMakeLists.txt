@@ -222,6 +222,7 @@ set(SOURCE_FILES
         resources/rig_def_fileformat/RigDef_Validator.{h,cpp}
         resources/terrn2_fileformat/Terrn2Fileformat.{h,cpp}
         system/Console.{h,cpp}
+        system/ConsoleCmd.{h,cpp}
         system/CVar.{h,cpp}
         terrain/IHeightFinder.h
         terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}

@@ -24,6 +24,7 @@
 #pragma once
 
 #include "CVar.h"
+#include "ConsoleCmd.h"
 
 #include <Ogre.h>
 #include <string>
@@ -38,6 +39,7 @@ public:
     static const size_t MESSAGES_CAP = 1000u;
 
     typedef std::unordered_map<std::string, CVar*> CVarPtrMap;
+    typedef std::unordered_map<std::string, ConsoleCmd*> CommandPtrMap;
 
     enum MessageType
     {
@@ -93,6 +95,14 @@ public:
     void putNetMessage(int user_id, MessageType type, const char* text);
     void ForwardLogMessage(MessageArea area, std::string const& msg, Ogre::LogMessageLevel lml);
     unsigned long GetCurrentMsgTime() { return m_msg_timer.getMilliseconds(); }
+
+    // ----------------------------
+    // Commands (defined in ConsoleCmd.cpp):
+
+    /// Register builtin commands
+    void RegBuiltinCommands();
+
+    /// Identify and execute any console line
     void DoCommand(std::string msg);
 
     // ----------------------------
@@ -119,6 +129,8 @@ public:
 
     CVarPtrMap& GetCVars() { return m_cvars; }
 
+    CommandPtrMap& GetCommands() { return m_commands; }
+
 private:
     // Ogre::LogListener
     virtual void messageLogged(
@@ -132,6 +144,7 @@ private:
     Ogre::Timer              m_msg_timer;
     CVarPtrMap               m_cvars;
     CVarPtrMap               m_cvars_longname;
+    CommandPtrMap            m_commands;
 };
 
 } //namespace RoR
