@@ -86,6 +86,7 @@ public:
         std::string icon = "", size_t ttl = 0, bool forcevisible = false);
     void putNetMessage(uint32_t user_id, MessageType type, const char* text);
     void ForwardLogMessage(MessageArea area, std::string const& msg, Ogre::LogMessageLevel lml);
+    unsigned long GetCurrentMsgTime() { return m_msg_timer.getMilliseconds(); }
     void DoCommand(std::string msg);
 
 private:
@@ -98,6 +99,7 @@ private:
 
     std::vector<Message>     m_messages;
     std::mutex               m_messages_mutex;
+    Ogre::Timer              m_msg_timer;
 };
 
 } //namespace RoR

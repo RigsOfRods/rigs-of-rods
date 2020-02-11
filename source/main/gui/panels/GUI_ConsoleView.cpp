@@ -132,7 +132,7 @@ bool GUI::ConsoleView::MessageFilter(Console::Message const& m)
 
     const bool time_ok =
         (cvw_filter_duration_ms == 0) ||
-        m.cm_timestamp + cvw_filter_duration_ms >= Ogre::Root::getSingleton().getTimer()->getMilliseconds();
+        m.cm_timestamp + cvw_filter_duration_ms >= App::GetConsole()->GetCurrentMsgTime();
 
     return type_ok && area_ok && time_ok;
 }
