@@ -106,8 +106,7 @@ void Console::HandleMessage(MessageArea area, MessageType type, std::string cons
     {
         m_messages.erase(m_messages.begin());
     }
-    m_messages.emplace_back(area, type, msg,
-        Ogre::Root::getSingleton().getTimer()->getMilliseconds(), net_userid);
+    m_messages.emplace_back(area, type, msg, this->GetCurrentMsgTime(), net_userid);
 }
 
 void Console::putMessage(MessageArea area, MessageType type, std::string const& msg,
