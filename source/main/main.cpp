@@ -229,6 +229,7 @@ int main(int argc, char *argv[])
 #ifndef NOLANG
         LanguageEngine::getSingleton().setup();
 #endif // NOLANG
+        App::GetConsole()->RegBuiltinCommands(); // Call after localization had been set up
 
         // Setup rendering (menu + simulation)
         Ogre::SceneManager* scene_manager = App::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
