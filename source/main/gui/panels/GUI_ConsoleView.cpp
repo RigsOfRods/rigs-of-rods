@@ -111,6 +111,7 @@ void GUI::ConsoleView::DrawFilteringOptions()
     ImGui::MenuItem(_LC("Console", "Notices"),  "", &cvw_filter_type_notice);
     ImGui::MenuItem(_LC("Console", "Warnings"), "", &cvw_filter_type_warning);
     ImGui::MenuItem(_LC("Console", "Errors"),   "", &cvw_filter_type_error);
+    ImGui::MenuItem(_LC("Console", "Net chat"), "", &cvw_filter_type_chat);
 }
 
 bool GUI::ConsoleView::MessageFilter(Console::Message const& m)
@@ -128,7 +129,8 @@ bool GUI::ConsoleView::MessageFilter(Console::Message const& m)
         (m.cm_type == Console::CONSOLE_SYSTEM_REPLY) ||
         (m.cm_type == Console::CONSOLE_SYSTEM_ERROR   && cvw_filter_type_error) ||
         (m.cm_type == Console::CONSOLE_SYSTEM_WARNING && cvw_filter_type_warning) ||
-        (m.cm_type == Console::CONSOLE_SYSTEM_NOTICE  && cvw_filter_type_notice);
+        (m.cm_type == Console::CONSOLE_SYSTEM_NOTICE  && cvw_filter_type_notice) ||
+        (m.cm_type == Console::CONSOLE_SYSTEM_NETCHAT && cvw_filter_type_chat);
 
     const bool time_ok =
         (cvw_filter_duration_ms == 0) ||
