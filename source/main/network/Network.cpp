@@ -493,6 +493,7 @@ bool ConnectThread()
     SWBaseSocket::SWBaseError error;
 
     FireNetEvent(NetEvent::Type::CONNECT_PROGRESS, _LC("Network", "Estabilishing connection..."));
+    socket = SWInetSocket();
     socket.set_timeout(10, 0);
     socket.connect(App::mp_server_port.GetActive(), App::mp_server_host.GetActive(), &error);
     if (error != SWBaseSocket::ok)
@@ -590,19 +591,8 @@ bool ConnectThread()
     }
     else if (header.command==MSG2_BANNED)
     {
-        wchar_t tmp[512];
-        memset(tmp, 0, 512);
-        if (strnlen(buffer, 20) > 0)
-        {
-            buffer[header.size] = {0};
-            Ogre::UTFString tmp2 = _L("Establishing network session: sorry, you are banned:\n%s");
-            swprintf(tmp, 512, tmp2.asWStr_c_str(), buffer);
-            CouldNotConnect(Ogre::UTFString(tmp));
-        }
-        else
-        {
-            CouldNotConnect(_L("Establishing network session: sorry, you are banned!"));
-        }
+        // Do NOT `disconnect()` the socket in this case - causes SocketW to terminate RoR.
+        CouldNotConnect(_L("Establishing network session: sorry, you are banned!"), /*close_socket=*/false);
         return false;
     }
     else if (header.command==MSG2_WRONG_PW)
