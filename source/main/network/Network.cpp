@@ -393,7 +393,12 @@ void RecvThread()
                 {
                     memcpy(&user_info, buffer, sizeof(RoRnet::UserInfo));
                     Str<300> text;
-                    text << user_info.username << _L(" joined the game");
+                    text << user_info.username;
+                    if (user_info.authstatus != 0) // Show nothing for guests (no special authorization)
+                    {
+                        text << " (" << UserAuthToStringShort(user_info) << ")";
+                    }
+                    text << _L(" joined the game");
                     App::GetConsole()->putNetMessage(
                         user_info.uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
                     // Lock and update userlist
@@ -824,6 +829,28 @@ void WhisperChatMsg(RoRnet::UserInfo const& user, const char* msg)
 
     // Queue packet
     Networking::AddPacket(m_stream_id, RoRnet::MSG2_UTF8_PRIVCHAT, payload_len, msg);
+}
+
+std::string UserAuthToStringShort(RoRnet::UserInfo const &user)
+{
+    // TODO: currently we must allocate & return std::string, see _LC
+         if (user.authstatus & AUTH_ADMIN)    { return _LC("NetUserAuth", "Admin");  }
+    else if (user.authstatus & AUTH_MOD)      { return _LC("NetUserAuth", "Mod");    }
+    else if (user.authstatus & AUTH_BOT)      { return _LC("NetUserAuth", "Bot");    }
+    else if (user.authstatus & AUTH_RANKED)   { return _LC("NetUserAuth", "Ranked"); }
+    else if (user.authstatus & AUTH_BANNED)   { return _LC("NetUserAuth", "Banned"); }
+    else                                      { return _LC("NetUserAuth", "Guest");  }
+}
+
+std::string UserAuthToStringLong(RoRnet::UserInfo const &user)
+{
+    // TODO: currently we must allocate & return std::string, see _L
+         if (user.authstatus & AUTH_ADMIN)    { return _L("Server Administrator");   }
+    else if (user.authstatus & AUTH_MOD)      { return _L("Server Moderator");       }
+    else if (user.authstatus & AUTH_BOT)      { return _L("Bot");                    }
+    else if (user.authstatus & AUTH_RANKED)   { return _L("ranked user");            }
+    else if (user.authstatus & AUTH_BANNED)   { return _L("Banned user");            }
+    else                                      { return _L("Guest");                  }
 }
 
 } // namespace Networking

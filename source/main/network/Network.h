@@ -126,6 +126,9 @@ Ogre::ColourValue    GetPlayerColor(int color_num);
 void                 BroadcastChatMsg(const char* msg);
 void                 WhisperChatMsg(RoRnet::UserInfo const& user, const char* msg);
 
+std::string          UserAuthToStringShort(RoRnet::UserInfo const &user);
+std::string          UserAuthToStringLong(RoRnet::UserInfo const &user);
+
 } // namespace Networking
 } // namespace RoR
 
