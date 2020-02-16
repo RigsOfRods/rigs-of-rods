@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -91,13 +92,10 @@ void MpClientList::Draw()
         hovered |= this->DrawIcon(up_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
 
         // Auth icon
-        switch (user.authstatus)
-        {
-        case RoRnet::AUTH_ADMIN:  auth_tex = this->FetchIcon("flag_red.png"); break;
-        case RoRnet::AUTH_MOD:    auth_tex = this->FetchIcon("flag_blue.png"); break;
-        case RoRnet::AUTH_RANKED: auth_tex = this->FetchIcon("flag_green.png"); break;
-        default:;
-        }
+             if (user.authstatus & RoRnet::AUTH_ADMIN ) { auth_tex = this->FetchIcon("flag_red.png");   }
+        else if (user.authstatus & RoRnet::AUTH_MOD   ) { auth_tex = this->FetchIcon("flag_blue.png");  }
+        else if (user.authstatus & RoRnet::AUTH_RANKED) { auth_tex = this->FetchIcon("flag_green.png"); }
+
         hovered |= this->DrawIcon(auth_tex, ImVec2(14.f, ImGui::GetTextLineHeight()));
 
         // Country flag
@@ -149,14 +147,8 @@ void MpClientList::Draw()
                     ImVec2(auth_tex->getWidth(), auth_tex->getHeight()));
                 ImGui::SameLine();
             }
-            switch (user.authstatus)
-            {
-            case RoRnet::AUTH_ADMIN:  ImGui::Text("%s", _L("Server Administrator")); break;
-            case RoRnet::AUTH_MOD:    ImGui::Text("%s", _L("Server Moderator"));     break;
-            case RoRnet::AUTH_RANKED: ImGui::Text("%s", _L("ranked user"));          break;
-            case RoRnet::AUTH_NONE:   ImGui::Text("%s", _L("Guest"));                break;
-            default:;
-            }
+
+            ImGui::Text("%s", Networking::UserAuthToStringLong(user).c_str());
 
             // Stream state
             if (user.uniqueid != RoR::Networking::GetLocalUserData().uniqueid &&
