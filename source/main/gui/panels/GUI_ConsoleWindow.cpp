@@ -30,9 +30,8 @@ using namespace Ogre;
 
 void GUI::ConsoleWindow::Draw()
 {
-    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_MenuBar;
-    ImGui::SetNextWindowPosCenter();
+    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar;
+    ImGui::SetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(500.f, 550.f), ImGuiSetCond_FirstUseEver);
     bool keep_open = true;
     ImGui::Begin("Console", &keep_open, win_flags);
