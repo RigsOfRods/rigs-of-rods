@@ -47,7 +47,6 @@
 #include "Console.h"
 #include "GameScript.h"
 #include "LocalStorage.h"
-#include "OgreAngelscript.h"
 #include "OgreScriptBuilder.h"
 #include "OgreSubsystem.h"
 #include "PlatformUtils.h"
@@ -155,7 +154,7 @@ void ScriptEngine::init()
     AngelScript::RegisterScriptDictionary(engine);
 
     // register some Ogre objects like the vector3 and the quaternion
-    registerOgreObjects(engine);
+    RegisterOgreObjects(engine);
 
     // Register the local storage object.
     // This needs to be done after the registration of the ogre objects!
@@ -385,12 +384,15 @@ void ScriptEngine::init()
 
     // Script virtual machine for framestep logic (asynchronous with simulation)
     m_engine_frame = AngelScript::asCreateScriptEngine(ANGELSCRIPT_VERSION);
+    m_engine_frame->SetEngineProperty(asEP_COPY_SCRIPT_SECTIONS, true); // Needed??
+    m_engine_frame->SetEngineProperty(asEP_ALLOW_UNSAFE_REFERENCES, true); // Needed for ImGui
     m_engine_frame->SetMessageCallback(AngelScript::asMETHOD(ScriptEngine,msgCallback), this, AngelScript::asCALL_THISCALL);
     AngelScript::RegisterStdString(m_engine_frame);
     //AngelScript::RegisterStdStringUtils(m_engine_frame);
     AngelScript::RegisterScriptMath(m_engine_frame);
     m_engine_frame->RegisterGlobalFunction("void log(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL);
-    registerOgreObjects(m_engine_frame);
+    RegisterOgreObjects(m_engine_frame);
+    RegisterImGuiBindings(m_engine_frame);
     SLOG("Type registrations done. If you see no error above everything should be working");
 }
 
@@ -731,7 +733,6 @@ bool ScriptEngine::loadActorScript(Actor* actor, RigDef::Script& def)
     asIScriptEngine* engine = m_engine_frame;
     Str<100> module_name;
     module_name << def.filename << "@" << actor->ar_filename << "~" << actor->ar_instance_id;
-    engine->SetEngineProperty(asEP_COPY_SCRIPT_SECTIONS, true); // TODO: needed?
     asIScriptModule* module = engine->GetModule(module_name, asGM_ALWAYS_CREATE);
     if (!module)
         return false;
@@ -742,7 +743,7 @@ bool ScriptEngine::loadActorScript(Actor* actor, RigDef::Script& def)
             .openResource(def.filename, actor->GetGfxActor()->GetResourceGroup(),
             /*searchGroupsIfNotFound=*/false);
         Ogre::String code = stream->getAsString();
-        if (module->AddScriptSection("section1", code.c_str(), code.length()) != asSUCCESS)
+        if (module->AddScriptSection(def.filename.c_str(), code.c_str(), code.length()) != asSUCCESS)
             return false;
     }
     catch (Ogre::Exception& e)
@@ -767,7 +768,7 @@ bool ScriptEngine::loadActorScript(Actor* actor, RigDef::Script& def)
     if (context->SetArgObject(0, &def.arguments) != asSUCCESS)
         return false;
 
-    if (context->Execute() != asSUCCESS)
+    if (context->Execute() != asEXECUTION_FINISHED)
         return false;
 
     ScriptUnit unit;

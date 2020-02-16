@@ -160,6 +160,7 @@ public:
     inline void SLOG(const char* msg) { this->scriptLog->logMessage(msg); } ///< Replacement of macro
     inline void SLOG(std::string msg) { this->scriptLog->logMessage(msg); } ///< Replacement of macro
 
+
 protected:
 
     Collisions* coll;
@@ -189,5 +190,16 @@ protected:
      */
     void msgCallback(const AngelScript::asSMessageInfo* msg);
 };
+
+// This function will register the following objects with the scriptengine:
+//    - Ogre::Vector3
+//    - Ogre::Vector2
+//    - Ogre::Radian
+//    - Ogre::Degree
+//    - Ogre::Quaternion
+//    - Ogre::ColourValue
+void RegisterOgreObjects(AngelScript::asIScriptEngine* engine);
+
+void RegisterImGuiBindings(AngelScript::asIScriptEngine* engine);
 
 #endif // USE_ANGELSCRIPT
