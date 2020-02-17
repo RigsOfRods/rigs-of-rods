@@ -370,12 +370,142 @@ public:
 };
 
 // -------------------------------------------------------------------------------------
+// CVar (builtin) console commmands
+
+template <size_t L>
+inline void PrintCVarHelper(Str<L>& reply, CVar* cvar)
+{
+    reply << cvar->GetName() << " = " << cvar->GetActiveStr();
+    if (cvar->GetActiveStr() != cvar->GetPendingStr())
+    {
+        reply << " (" << _L("pending: ") << cvar->GetPendingStr() << ")";
+    }
+}
+
+class SetCmd: public ConsoleCmd
+{
+public:
+    SetCmd(): ConsoleCmd("set", "<cvar> [<flags>] [<value>]", _L("Get or set value of existing CVar")) {}
+
+    void Run(Ogre::StringVector const& args) override
+    {
+        Str<200> reply;
+        reply << m_name << ": ";
+        Console::MessageType reply_type = Console::CONSOLE_SYSTEM_ERROR;
+
+        if (args.size() == 1)
+        {
+            reply_type = Console::CONSOLE_HELP;
+            reply << this->GetUsage() << " - " << this->GetDoc();
+        }
+        else
+        {
+            CVar* cvar = App::GetConsole()->CVarFind(args[1]);
+            if (cvar)
+            {
+                if (args.size() > 2)
+                {
+                    App::GetConsole()->CVarAssign(cvar, args[2]);
+                }
+                reply_type = Console::CONSOLE_SYSTEM_REPLY;
+                PrintCVarHelper(reply, cvar);
+            }
+            else
+            {
+                reply_type = Console::CONSOLE_SYSTEM_ERROR;
+                reply << _L("No such CVar: ") << args[1];
+            }
+        }
+
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
+    }
+};
+
+class SetCVarCmd: public ConsoleCmd // Generic
+{
+public:
+    SetCVarCmd(std::string const& name, std::string const& usage, std::string const& doc, int flag):
+        ConsoleCmd(name, usage, doc), m_cvar_flag(flag)
+    {}
+
+    void Run(Ogre::StringVector const& args) override
+    {
+        Str<200> reply;
+        reply << m_name << ": ";
+        Console::MessageType reply_type;
+
+        if (args.size() == 1)
+        {
+            reply_type = Console::CONSOLE_HELP;
+            reply << this->GetUsage() << " - " << this->GetDoc() << "Switches: --autoapply/--allowstore/--autostore";
+        }
+        else
+        {
+            int flags = m_cvar_flag;
+            size_t i;
+            for (i = 1; i < args.size(); ++i)
+            {
+                     if (args[i] == "--autoapply")  { flags |= CVAR_AUTO_APPLY; }
+                else if (args[i] == "--autostore")  { flags |= CVAR_AUTO_STORE; }
+                else if (args[i] == "--allowstore") { flags |= CVAR_ALLOW_STORE; }
+                else break; // Exit loop on first non-switch arg!
+            }
+
+            if (i == args.size()) // Only switches but no cvar?
+            {
+                reply_type = Console::CONSOLE_HELP;
+                reply << this->GetUsage() << " - " << this->GetDoc() << "Switches: --autoapply/--allowstore/--autostore";
+            }
+            else
+            {
+                CVar* cvar = App::GetConsole()->CVarGet(args[i], flags);
+                if (args.size() > (i+1))
+                {
+                    App::GetConsole()->CVarAssign(cvar, args[i+1]);
+                }
+                reply_type = Console::CONSOLE_SYSTEM_REPLY;
+                PrintCVarHelper(reply, cvar);
+            }
+        }
+
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
+    }
+private:
+    int m_cvar_flag;
+};
+
+class SetstringCmd: public SetCVarCmd
+{
+public:
+    SetstringCmd(): SetCVarCmd("setstring", "<cvar> [<value>]", _L("Set or create string CVar"), /*flag=*/0) {}
+};
+
+class SetboolCmd: public SetCVarCmd
+{
+public:
+    SetboolCmd(): SetCVarCmd("setbool", "<cvar> [<value>]", _L("Set or create boolean CVar"), CVAR_TYPE_BOOL) {}
+};
+
+class SetintCmd: public SetCVarCmd
+{
+public:
+    SetintCmd(): SetCVarCmd("setint", "<cvar> [<value>]", _L("Set or create integer CVar"), CVAR_TYPE_INT) {}
+};
+
+class SetfloatCmd: public SetCVarCmd
+{
+public:
+    SetfloatCmd(): SetCVarCmd("setfloat", "<cvar> [<value>]", _L("Set or create real-number CVar"), CVAR_TYPE_FLOAT) {}
+};
+
+// -------------------------------------------------------------------------------------
 // Console integration
 
 void Console::RegBuiltinCommands()
 {
     ConsoleCmd* cmd = nullptr;
 
+    // Classics
     cmd = new GravityCmd();               m_commands.insert(std::make_pair(cmd->GetName(), cmd));
     cmd = new WaterlevelCmd();            m_commands.insert(std::make_pair(cmd->GetName(), cmd));
     cmd = new TerrainheightCmd();         m_commands.insert(std::make_pair(cmd->GetName(), cmd));
@@ -387,6 +517,12 @@ void Console::RegBuiltinCommands()
     cmd = new AsCmd();                    m_commands.insert(std::make_pair(cmd->GetName(), cmd));
     cmd = new QuitCmd();                  m_commands.insert(std::make_pair(cmd->GetName(), cmd));
     cmd = new HelpCmd();                  m_commands.insert(std::make_pair(cmd->GetName(), cmd));
+    // CVars
+    cmd = new SetCmd();                   m_commands.insert(std::make_pair(cmd->GetName(), cmd));
+    cmd = new SetstringCmd();             m_commands.insert(std::make_pair(cmd->GetName(), cmd));
+    cmd = new SetboolCmd();               m_commands.insert(std::make_pair(cmd->GetName(), cmd));
+    cmd = new SetintCmd();                m_commands.insert(std::make_pair(cmd->GetName(), cmd));
+    cmd = new SetfloatCmd();              m_commands.insert(std::make_pair(cmd->GetName(), cmd));
 }
 
 void Console::DoCommand(std::string msg)
@@ -411,7 +547,7 @@ void Console::DoCommand(std::string msg)
     if (cvar)
     {
         Str<200> reply;
-        reply << cvar->GetName() << ": " << cvar->GetActiveStr();
+        PrintCVarHelper(reply, cvar);
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, reply.ToCStr());
         return;
     }
