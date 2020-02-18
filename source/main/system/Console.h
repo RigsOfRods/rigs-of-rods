@@ -84,7 +84,7 @@ public:
     // Legacy function, params `icon, ttl, forcevisible` unused
     void putMessage(MessageArea area, MessageType type, std::string const& msg,
         std::string icon = "", size_t ttl = 0, bool forcevisible = false);
-    void putNetMessage(uint32_t user_id, MessageType type, const char* text);
+    void putNetMessage(int user_id, MessageType type, const char* text);
     void ForwardLogMessage(MessageArea area, std::string const& msg, Ogre::LogMessageLevel lml);
     unsigned long GetCurrentMsgTime() { return m_msg_timer.getMilliseconds(); }
     void DoCommand(std::string msg);
@@ -95,7 +95,7 @@ private:
         const Ogre::String& message, Ogre::LogMessageLevel lml,
         bool maskDebug, const Ogre::String& logName, bool& skipThisMessage) override;
 
-    void HandleMessage(MessageArea area, MessageType type, std::string const& msg, uint32_t net_id = 0u);
+    void HandleMessage(MessageArea area, MessageType type, std::string const& msg, int net_id = 0);
 
     std::vector<Message>     m_messages;
     std::mutex               m_messages_mutex;
