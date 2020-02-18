@@ -84,6 +84,11 @@ void RoR::GUI::GameChatBox::Draw()
             ImGui::EndPopup();
         }
         ImGui::SameLine();
+        if (!m_kb_focused)
+        {
+            ImGui::SetKeyboardFocusHere();
+            m_kb_focused = true;
+        }
         const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
         if (ImGui::InputText(_L("Message"), m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
         {
@@ -92,6 +97,7 @@ void RoR::GUI::GameChatBox::Draw()
                 this->SubmitMessage();
             }
             m_msg_buffer.Clear();
+            this->SetVisible(false);
         }
     }
 
