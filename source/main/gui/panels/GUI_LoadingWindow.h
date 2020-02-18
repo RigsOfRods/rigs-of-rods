@@ -38,6 +38,7 @@ private:
     int  m_percent = -1; // -1 disables progressbar display
     bool m_is_visible = false;
     std::string m_text;
+    int m_text_num_lines = -1;
 };
 
 } // namespace GUI
