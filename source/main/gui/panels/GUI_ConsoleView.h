@@ -40,6 +40,7 @@ struct ConsoleView
 {
     void DrawConsoleMessages();
     void DrawFilteringOptions();
+    unsigned long GetNewestMsgTime() { return m_newest_msg_time; }
 
     // Filtering (true means allowed)
     bool  cvw_filter_type_notice = true;
@@ -59,6 +60,7 @@ private:
     bool MessageFilter(Console::Message const& m); //!< Returns true if message should be displayed
 
     std::vector<const Console::Message*> m_display_list;
+    unsigned long                        m_newest_msg_time = 0; // Updated by `DrawConsoleMessages()`
 };
 
 } // namespace GUI

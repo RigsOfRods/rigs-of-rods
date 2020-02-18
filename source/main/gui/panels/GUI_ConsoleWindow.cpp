@@ -60,6 +60,16 @@ void GUI::ConsoleWindow::Draw()
 
     this->DrawConsoleMessages();
 
+    if (this->GetNewestMsgTime() > m_autoscroll_time) // New message arrived?
+    {
+        m_autoscroll_time = this->GetNewestMsgTime();
+        if  (m_autoscroll_pos >= 1.f) // Only autoscroll if previous position is rougly at bottom (imgui yields ~1.15 at full bottom)
+        {
+            ImGui::SetScrollHere(1.f); // Bottom of last text item
+        }
+    }
+    m_autoscroll_pos = ImGui::GetScrollY() / ImGui::GetScrollMaxY();
+
     ImGui::EndChild();
     ImGui::Separator();
 
