@@ -385,7 +385,8 @@ void MainSelector::UpdateDisplayLists()
     for (size_t i = 0; i < CacheSystem::NUM_CATEGORIES; ++i)
     {
         size_t usage = query.cqy_res_category_usage[CacheSystem::CATEGORIES[i].ccg_id];
-        if (usage > 0)
+        if (usage > 0 ||
+            CacheSystem::CATEGORIES[i].ccg_id == CacheCategoryId::CID_Fresh) // HACK: Always include the "fresh" category
         {
             m_display_categories.emplace_back(&CacheSystem::CATEGORIES[i], usage);
         }
