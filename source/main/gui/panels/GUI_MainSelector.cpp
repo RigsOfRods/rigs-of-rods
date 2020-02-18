@@ -138,6 +138,7 @@ void MainSelector::Draw()
     // left
     ImGui::BeginChild("left pane", ImVec2(LEFT_PANE_WIDTH, 0), true);
     const int num_entries = static_cast<int>(m_display_entries.size());
+    bool scroll_to_selected = false;
     // Entry list: handle keyboard
     if (m_selected_entry != -1) // -1 indicates empty entry-list
     {
@@ -145,11 +146,13 @@ void MainSelector::Draw()
         {
             m_selected_entry = (m_selected_entry + 1) % num_entries; // select next item and wrap around at bottom.
             m_last_selected_entry[m_loader_type] = m_selected_entry;
+            scroll_to_selected = true;
         }
         else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
         {
             m_selected_entry = (m_selected_entry > 0) ? (m_selected_entry - 1) : (num_entries - 1); // select prev. item and wrap around on top
             m_last_selected_entry[m_loader_type] = m_selected_entry;
+            scroll_to_selected = true;
         }
     }
     // Entry list: display
@@ -169,6 +172,10 @@ void MainSelector::Draw()
             m_last_selected_entry[m_loader_type] = m_selected_entry;
             m_selected_sectionconfig = 0;
             this->Apply();
+        }
+        if (is_selected && scroll_to_selected)
+        {
+            ImGui::SetScrollHere();
         }
     }
     ImGui::EndChild();
