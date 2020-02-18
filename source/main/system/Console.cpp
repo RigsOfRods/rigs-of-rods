@@ -71,8 +71,13 @@ void Console::ForwardLogMessage(MessageArea area, std::string const& message, Og
     }
 }
 
-void Console::HandleMessage(MessageArea area, MessageType type, std::string const& msg, uint32_t net_userid/* = 0u*/)
+void Console::HandleMessage(MessageArea area, MessageType type, std::string const& msg, int net_userid/* = 0*/)
 {
+    if (net_userid < 0) // 0=server, positive=clients, negative=invalid
+    {
+        net_userid = 0;
+    }
+
     // Log message to file
     if (area != MessageArea::CONSOLE_MSGTYPE_LOG && // Don't duplicate echoed log messages
         type != MessageType::CONSOLE_SYSTEM_NETCHAT) // Privacy
@@ -115,7 +120,7 @@ void Console::putMessage(MessageArea area, MessageType type, std::string const& 
     this->HandleMessage(area, type, msg);
 }
 
-void Console::putNetMessage(uint32_t user_id, MessageType type, const char* text)
+void Console::putNetMessage(int user_id, MessageType type, const char* text)
 {
     this->HandleMessage(CONSOLE_MSGTYPE_INFO, type, text, user_id);
 }
