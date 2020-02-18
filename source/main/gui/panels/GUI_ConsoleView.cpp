@@ -36,19 +36,24 @@ using namespace Ogre;
 void GUI::ConsoleView::DrawConsoleMessages()
 {
     m_display_list.clear();
-    Console::MsgLockGuard lock(App::GetConsole()); // RAII: Scoped lock
-    const size_t disp_max = std::min(cvw_max_lines, lock.messages.size());
-    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
-    auto disp_endi = lock.messages.end();
-    auto disp_itor = disp_endi - disp_max;
-    for (; disp_itor != disp_endi; ++disp_itor)
-    {
-        Console::Message const& m = *disp_itor;
-        if (this->MessageFilter(m))
+    m_newest_msg_time = 0;
+
+    { // Lock scope
+        Console::MsgLockGuard lock(App::GetConsole()); // RAII: Scoped lock
+        const size_t disp_max = std::min(cvw_max_lines, lock.messages.size());
+
+        for (Console::Message const& m: lock.messages)
         {
-            m_display_list.push_back(&m);
+            if (this->MessageFilter(m))
+            {
+                m_display_list.push_back(&m);
+                if (m.cm_timestamp > m_newest_msg_time)
+                {
+                    m_newest_msg_time = m.cm_timestamp;
+                }
+            }
         }
-    }
+    } // End lock scope
 
     if (cvw_align_bottom)
     {
@@ -58,6 +63,7 @@ void GUI::ConsoleView::DrawConsoleMessages()
         }
     }
 
+    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
     for (const Console::Message* dm: m_display_list)
     {
         if (dm->cm_net_userid != 0)
