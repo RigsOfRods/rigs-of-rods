@@ -31,6 +31,7 @@
 #include "OgreImGui.h"
 
 #include <vector>
+#include <regex>
 
 
 namespace RoR {
@@ -57,10 +58,14 @@ struct ConsoleView
     bool   cvw_align_bottom = false;
 
 private:
-    bool MessageFilter(Console::Message const& m); //!< Returns true if message should be displayed
+    typedef std::vector<const Console::Message*> DisplayMsgVec;
 
-    std::vector<const Console::Message*> m_display_list;
-    unsigned long                        m_newest_msg_time = 0; // Updated by `DrawConsoleMessages()`
+    bool MessageFilter(Console::Message const& m); //!< Returns true if message should be displayed
+    void DrawColorMarkedText(ImVec4 default_color, std::string const& line);
+
+    DisplayMsgVec    m_display_list;
+    unsigned long    m_newest_msg_time = 0;      // Updated by `DrawConsoleMessages()`
+    std::regex       m_text_color_regex = std::regex(R"(#[a-fA-F\d]{6})");
 };
 
 } // namespace GUI

@@ -29,6 +29,7 @@
 #include "Network.h"
 
 #include <algorithm> // min
+#include <stdio.h> // sscanf
 
 using namespace RoR;
 using namespace Ogre;
@@ -49,7 +50,7 @@ void GUI::ConsoleView::DrawConsoleMessages()
                 m_display_list.push_back(&m);
                 if (m.cm_timestamp > m_newest_msg_time)
                 {
-                    m_newest_msg_time = m.cm_timestamp;
+                    m_newest_msg_time = (unsigned long)m.cm_timestamp;
                 }
             }
         }
@@ -78,27 +79,27 @@ void GUI::ConsoleView::DrawConsoleMessages()
         switch (dm->cm_type)
         {
         case Console::Console::CONSOLE_TITLE:
-            ImGui::TextColored(theme.highlight_text_color, "%s", dm->cm_text.c_str());
+            this->DrawColorMarkedText(theme.highlight_text_color, dm->cm_text);
             break;
 
         case Console::Console::CONSOLE_SYSTEM_ERROR:
-            ImGui::TextColored(theme.error_text_color, "%s", dm->cm_text.c_str());
+            this->DrawColorMarkedText(theme.error_text_color, dm->cm_text);
             break;
 
         case Console::CONSOLE_SYSTEM_WARNING:
-            ImGui::TextColored(theme.warning_text_color, "%s", dm->cm_text.c_str());
+            this->DrawColorMarkedText(theme.warning_text_color, dm->cm_text);
             break;
 
         case Console::Console::CONSOLE_SYSTEM_REPLY:
-            ImGui::TextColored(theme.success_text_color, "%s", dm->cm_text.c_str());
+            this->DrawColorMarkedText(theme.success_text_color, dm->cm_text);
             break;
 
         case Console::Console::CONSOLE_HELP:
-            ImGui::TextColored(theme.help_text_color, "%s", dm->cm_text.c_str());
+            this->DrawColorMarkedText(theme.help_text_color, dm->cm_text);
             break;
 
         default:
-            ImGui::Text("%s", dm->cm_text.c_str());
+            this->DrawColorMarkedText(ImGui::GetStyle().Colors[ImGuiCol_Text], dm->cm_text);
             break;
         }
     }
@@ -143,5 +144,48 @@ bool GUI::ConsoleView::MessageFilter(Console::Message const& m)
         m.cm_timestamp + cvw_filter_duration_ms >= App::GetConsole()->GetCurrentMsgTime();
 
     return type_ok && area_ok && time_ok;
+}
+
+inline void color2i(ImVec4 v, int&r, int&g, int&b) { r=(int)(v.x*255); g=(int)(v.y*255); b=(int)(v.z*255); }
+
+void GUI::ConsoleView::DrawColorMarkedText(ImVec4 default_color, std::string const& line)
+{
+    // Print colored line segments
+    int r,g,b;
+    color2i(default_color, r,g,b);
+    std::smatch color_match;
+    std::string::const_iterator seg_start = line.begin();
+    bool first = true;
+    while (std::regex_search(seg_start, line.end(), color_match, m_text_color_regex)) // Find next marker
+    {
+        // Print segment before the color marker (if any)
+        std::string::const_iterator seg_end = color_match[0].first;
+        if (seg_start != seg_end)
+        {
+            if (!first)
+            {
+                ImGui::SameLine();
+            }
+            ImGui::TextColored(ImColor(r,g,b), "%s", std::string(seg_start, seg_end).c_str()); // TODO: optimize!
+            first = false;
+        }
+        // Prepare for printing segment after color marker
+        sscanf(color_match.str(0).c_str(), "#%2x%2x%2x", &r, &g, &b);
+        if (r==0 && g==0 && b==0)
+        {
+            color2i(default_color, r,g,b);
+        }
+        seg_start = color_match[0].second;
+    } // while ()
+
+    // Print final segment (if any)
+    if (seg_start != line.begin() + line.length())
+    {
+        if (!first)
+        {
+            ImGui::SameLine();
+        }
+        ImGui::TextColored(ImColor(r,g,b), "%s", std::string(seg_start, line.end()).c_str()); // TODO: optimize!
+    }
 }
 
