@@ -36,7 +36,7 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
     // TODO: Localize all! See https://github.com/RigsOfRods/rigs-of-rods/issues/1269
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar;
-    ImGui::SetNextWindowPos(ImVec2(25.f, 150.f));
+    ImGui::SetNextWindowPos(ImVec2(10.f, 160.f));
     ImGui::Begin("SimActorStats", nullptr, flags);
     ImGui::Text(actorx->FetchActorDesignName().c_str());
     ImGui::Separator();
