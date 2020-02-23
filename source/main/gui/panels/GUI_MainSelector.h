@@ -39,7 +39,7 @@ namespace GUI {
 class MainSelector 
 {
 public:
-   Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
 
     const float LEFT_PANE_WIDTH = 250.f;
     const float WINDOW_WIDTH = viewport->getActualWidth() / 1.4;
