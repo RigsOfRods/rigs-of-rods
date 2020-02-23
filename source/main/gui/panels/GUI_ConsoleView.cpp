@@ -71,10 +71,9 @@ void GUI::ConsoleView::DrawConsoleMessages()
     for (const Console::Message* dm: m_display_list)
     {
         std::string line = dm->cm_text;
-        if (dm->cm_net_userid != 0)
+        RoRnet::UserInfo user;
+        if (dm->cm_net_userid != 0 && RoR::Networking::GetAnyUserInfo((int)dm->cm_net_userid, user))
         {
-            RoRnet::UserInfo user;
-            RoR::Networking::GetUserInfo((int)dm->cm_net_userid, user);
             Ogre::ColourValue col = RoR::Networking::GetPlayerColor(user.colournum);
             char prefix[400] = {};
             int r,g,b;

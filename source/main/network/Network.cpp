@@ -784,6 +784,28 @@ bool GetUserInfo(int uid, RoRnet::UserInfo &result)
     return false;
 }
 
+bool GetAnyUserInfo(int uid, RoRnet::UserInfo &result)
+{
+    RoRnet::UserInfo tmp;
+
+    // Try remote users
+    if (GetUserInfo(uid, tmp))
+    {
+        result = tmp;
+        return true;
+    }
+
+    // Try local user
+    tmp = GetLocalUserData();
+    if (tmp.uniqueid == uid)
+    {
+        result = tmp;
+        return true;
+    }
+
+    return false;
+}
+
 bool FindUserInfo(std::string const& username, RoRnet::UserInfo &result)
 {
     std::lock_guard<std::mutex> lock(m_users_mutex);
