@@ -45,6 +45,7 @@ public:
     bool IsVisible() const { return m_is_visible; }
 
     void Draw();
+    ConsoleView& GetConsoleView() { return m_console_view; }
 
 private:
     void SubmitMessage(); //!< Flush the user input box

@@ -194,6 +194,10 @@ GUIManager::GUIManager() :
     windowResized(RoR::App::GetOgreSubsystem()->GetRenderWindow());
 
     this->SetupImGui();
+
+    // Configure the chatbox console view
+    m_impl->panel_ChatBox.GetConsoleView().cvw_background_color   = m_theme.semitrans_text_bg_color;
+    m_impl->panel_ChatBox.GetConsoleView().cvw_background_padding = m_theme.semitrans_text_bg_padding;
 }
 
 GUIManager::~GUIManager()
