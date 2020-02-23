@@ -75,7 +75,7 @@ void MainSelector::Draw()
 
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
     ImGui::SetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH, 550.f), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH, WINDOW_HEIGHT), ImGuiSetCond_FirstUseEver);
     bool keep_open = true;
     if (!ImGui::Begin(_L("Loader"), &keep_open, win_flags))
     {
