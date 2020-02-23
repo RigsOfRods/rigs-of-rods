@@ -28,7 +28,7 @@
 void RoR::GUI::GameSettings::Draw()
 {
     const int flags = ImGuiWindowFlags_NoCollapse;
-    ImGui::SetNextWindowSize(ImVec2(640.f, 400.f), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(670.f, 400.f), ImGuiSetCond_FirstUseEver);
     ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
     bool keep_open = true;
     ImGui::Begin(_LC("GameSettings", "Game settings"), &keep_open, flags);
@@ -337,6 +337,7 @@ void RoR::GUI::GameSettings::Draw()
     else if (m_tab == SettingsTab::DIAG)
     {
         ImGui::TextDisabled(_LC("GameSettings", "Diagnostic options"));
+        ImGui::TextColored(ImVec4(0.89f,0.15f,0.21f,1.0f), _LC("GameSettings", "These settings are for advanced users only, you should only change these if you know what you're doing"));
 
         int physics_fps = std::round(1.0f / App::diag_physics_dt.GetActive());
         if (ImGui::SliderInt(_LC("GameSettings", "Physics frames per second"), &physics_fps, 2000, 10000))
