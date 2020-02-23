@@ -58,8 +58,10 @@ public:
         ImVec4 help_text_color           = ImVec4(0.5f, 0.7f, 1.f, 1.f);
 
         ImVec4 semitransparent_window_bg = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
+        ImVec4 semitrans_text_bg_color   = ImVec4(0.1f, 0.1f, 0.1f, 0.6f);
 
-        ImVec2 screen_edge_padding = ImVec2(10.f, 10.f);
+        ImVec2 screen_edge_padding       = ImVec2(10.f, 10.f);
+        ImVec2 semitrans_text_bg_padding = ImVec2(4.f, 2.f);
 
         ImFont* default_font = nullptr;
     };

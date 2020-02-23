@@ -34,6 +34,8 @@
 using namespace RoR;
 using namespace Ogre;
 
+inline void color2i(ImVec4 v, int&r, int&g, int&b) { r=(int)(v.x*255); g=(int)(v.y*255); b=(int)(v.z*255); }
+
 void GUI::ConsoleView::DrawConsoleMessages()
 {
     m_display_list.clear();
@@ -58,48 +60,53 @@ void GUI::ConsoleView::DrawConsoleMessages()
 
     if (cvw_align_bottom)
     {
+        ImVec2 text_size = ImGui::CalcTextSize("A");
         for (size_t i = m_display_list.size(); i < cvw_max_lines; ++i)
         {
-            ImGui::NewLine();
+            this->NewLine(text_size);
         }
     }
 
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
     for (const Console::Message* dm: m_display_list)
     {
+        std::string line = dm->cm_text;
         if (dm->cm_net_userid != 0)
         {
             RoRnet::UserInfo user;
-            RoR::Networking::GetUserInfo(dm->cm_net_userid, user);
+            RoR::Networking::GetUserInfo((int)dm->cm_net_userid, user);
             Ogre::ColourValue col = RoR::Networking::GetPlayerColor(user.colournum);
-            ImGui::TextColored(ImVec4(col.r, col.g, col.b, col.a), "%s: ", user.username);
-            ImGui::SameLine();
-        }
+            char prefix[400] = {};
+            int r,g,b;
+            color2i(ImVec4(col.r, col.g, col.b, col.a), r,g,b);
+            snprintf(prefix, 400, "#%02x%02x%02x%s: #000000", r, g, b, user.username);
+            line = std::string(prefix) + line;
+        }        
 
         switch (dm->cm_type)
         {
         case Console::Console::CONSOLE_TITLE:
-            this->DrawColorMarkedText(theme.highlight_text_color, dm->cm_text);
+            this->DrawColorMarkedText(theme.highlight_text_color, line);
             break;
 
         case Console::Console::CONSOLE_SYSTEM_ERROR:
-            this->DrawColorMarkedText(theme.error_text_color, dm->cm_text);
+            this->DrawColorMarkedText(theme.error_text_color, line);
             break;
 
         case Console::CONSOLE_SYSTEM_WARNING:
-            this->DrawColorMarkedText(theme.warning_text_color, dm->cm_text);
+            this->DrawColorMarkedText(theme.warning_text_color, line);
             break;
 
         case Console::Console::CONSOLE_SYSTEM_REPLY:
-            this->DrawColorMarkedText(theme.success_text_color, dm->cm_text);
+            this->DrawColorMarkedText(theme.success_text_color, line);
             break;
 
         case Console::Console::CONSOLE_HELP:
-            this->DrawColorMarkedText(theme.help_text_color, dm->cm_text);
+            this->DrawColorMarkedText(theme.help_text_color, line);
             break;
 
         default:
-            this->DrawColorMarkedText(ImGui::GetStyle().Colors[ImGuiCol_Text], dm->cm_text);
+            this->DrawColorMarkedText(ImGui::GetStyle().Colors[ImGuiCol_Text], line);
             break;
         }
     }
@@ -146,28 +153,32 @@ bool GUI::ConsoleView::MessageFilter(Console::Message const& m)
     return type_ok && area_ok && time_ok;
 }
 
-inline void color2i(ImVec4 v, int&r, int&g, int&b) { r=(int)(v.x*255); g=(int)(v.y*255); b=(int)(v.z*255); }
-
 void GUI::ConsoleView::DrawColorMarkedText(ImVec4 default_color, std::string const& line)
 {
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
+    drawlist->ChannelsSplit(2); // 2 layers
+    ImVec2 bg_cursor = ImGui::GetCursorScreenPos();
+    ImVec2 text_cursor = bg_cursor + cvw_background_padding;
+    ImVec2 total_text_size;
+
     // Print colored line segments
+    drawlist->ChannelsSetCurrent(1); // Text layer
     int r,g,b;
     color2i(default_color, r,g,b);
     std::smatch color_match;
     std::string::const_iterator seg_start = line.begin();
-    bool first = true;
     while (std::regex_search(seg_start, line.end(), color_match, m_text_color_regex)) // Find next marker
     {
         // Print segment before the color marker (if any)
         std::string::const_iterator seg_end = color_match[0].first;
         if (seg_start != seg_end)
         {
-            if (!first)
-            {
-                ImGui::SameLine();
-            }
-            ImGui::TextColored(ImColor(r,g,b), "%s", std::string(seg_start, seg_end).c_str()); // TODO: optimize!
-            first = false;
+            std::string text(seg_start, seg_end); // TODO: optimize!
+            ImVec2 text_size = ImGui::CalcTextSize(text.c_str());            
+            drawlist->AddText(text_cursor, ImColor(r,g,b), text.c_str());
+            total_text_size.x += text_size.x;
+            total_text_size.y = std::max(total_text_size.y, text_size.y);
+            text_cursor.x += text_size.x;
         }
         // Prepare for printing segment after color marker
         sscanf(color_match.str(0).c_str(), "#%2x%2x%2x", &r, &g, &b);
@@ -176,16 +187,31 @@ void GUI::ConsoleView::DrawColorMarkedText(ImVec4 default_color, std::string con
             color2i(default_color, r,g,b);
         }
         seg_start = color_match[0].second;
-    } // while ()
+    }
 
     // Print final segment (if any)
     if (seg_start != line.begin() + line.length())
     {
-        if (!first)
-        {
-            ImGui::SameLine();
-        }
-        ImGui::TextColored(ImColor(r,g,b), "%s", std::string(seg_start, line.end()).c_str()); // TODO: optimize!
+        std::string text(seg_start, line.end()); // TODO: optimize!
+        ImVec2 text_size = ImGui::CalcTextSize(text.c_str());            
+        drawlist->AddText(text_cursor, ImColor(r,g,b), text.c_str());
+        total_text_size.x += text_size.x;
+        total_text_size.y = std::max(total_text_size.y, text_size.y);
     }
+
+    // Draw background
+    drawlist->ChannelsSetCurrent(0); // Background layer
+    ImVec2 bg_rect_size = total_text_size + (cvw_background_padding * 2);
+    drawlist->AddRectFilled(bg_cursor, bg_cursor + bg_rect_size,
+        ImColor(cvw_background_color), ImGui::GetStyle().FrameRounding);
+
+    // Finalize
+    drawlist->ChannelsMerge();
+    this->NewLine(total_text_size);
+}
+
+void GUI::ConsoleView::NewLine(ImVec2 text_size)
+{
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (text_size + (cvw_background_padding * 2)).y + cvw_line_spacing);
 }
 
