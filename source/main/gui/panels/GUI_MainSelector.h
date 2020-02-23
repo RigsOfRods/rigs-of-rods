@@ -29,6 +29,7 @@
 #include "BeamData.h" // ActorSpawnRequest
 #include "CacheSystem.h" // CacheSearchMethod
 #include "ForwardDeclarations.h"
+#include "OgreSubsystem.h"
 
 #include <map>
 
@@ -38,8 +39,11 @@ namespace GUI {
 class MainSelector 
 {
 public:
-    const float LEFT_PANE_WIDTH = 200.f;
-    const float WINDOW_WIDTH = 600.f;
+   Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+
+    const float LEFT_PANE_WIDTH = 250.f;
+    const float WINDOW_WIDTH = viewport->getActualWidth() / 1.4;
+    const float WINDOW_HEIGHT = viewport->getActualHeight() / 1.2;
     const float PREVIEW_SIZE_RATIO = 0.7f;
 
     void Show(LoaderType type, std::string const& filter_guid = "");
