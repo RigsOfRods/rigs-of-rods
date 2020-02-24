@@ -52,7 +52,7 @@ void RoR::GUI::GameAbout::Draw()
     ImGui::SameLine();
     ImGui::Text("%s", RORNET_VERSION);
 
-    ImGui::TextDisabled("%s: ", _LC("About", "Version"));
+    ImGui::TextDisabled("%s: ", _LC("About", "Build time"));
     ImGui::SameLine();
     ImGui::Text("%s, %s", ROR_BUILD_DATE, ROR_BUILD_TIME);
 
