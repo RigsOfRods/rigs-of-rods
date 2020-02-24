@@ -146,6 +146,11 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
         }
     }
 
+    if (App::mp_state.GetActive() == MpState::CONNECTED)
+    {
+        App::GetGuiManager()->SetVisible_GameMainMenu(false);
+    }
+
     App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
     ImGui::PopStyleVar();
