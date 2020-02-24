@@ -321,6 +321,7 @@ void MainSelector::Draw()
                     static_cast<int>(sd_entry.sde_entry->sectionconfigs.size()));
             ImGui::SameLine();
         }
+        ImGui::SameLine(ImGui::GetWindowWidth()-100);
         if (ImGui::Button(_L("OK")) ||
             ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
         {
