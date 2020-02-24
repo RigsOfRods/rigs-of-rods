@@ -24,6 +24,7 @@
 #include "GUIManager.h"
 
 #include "Language.h"
+#include "OgreSubsystem.h"
 
 using namespace RoR;
 using namespace Ogre;
@@ -32,7 +33,12 @@ void GUI::ConsoleWindow::Draw()
 {
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar;
     ImGui::SetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(500.f, 550.f), ImGuiSetCond_FirstUseEver);
+
+    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+    const float CONSOLE_WIDTH = viewport->getActualWidth() / 1.6;
+    const float CONSOLE_HEIGHT = viewport->getActualHeight() / 1.3;
+
+    ImGui::SetNextWindowSize(ImVec2(CONSOLE_WIDTH, CONSOLE_HEIGHT), ImGuiSetCond_FirstUseEver);
     bool keep_open = true;
     ImGui::Begin("Console", &keep_open, win_flags);
 
