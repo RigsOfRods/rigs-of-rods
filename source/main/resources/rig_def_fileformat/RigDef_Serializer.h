@@ -83,6 +83,8 @@ private:
     void ProcessFixes(File::Module* module);
     void ProcessTies(File::Module* module);
 
+    void ProcessCameras(File::Module* module);
+
     // Land vehicle
     void ProcessEngine(File::Module* module);
     void ProcessEngoption(File::Module* module);

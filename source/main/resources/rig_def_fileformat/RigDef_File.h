@@ -1531,6 +1531,8 @@ struct ManagedMaterial
     {
         return (specular_map.length() != 0 && specular_map[0] != '-');
     }
+
+    static const char* TypeToStr(Type type);
 };
 
 /* -------------------------------------------------------------------------- */

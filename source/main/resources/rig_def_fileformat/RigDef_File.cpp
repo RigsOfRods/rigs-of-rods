@@ -275,6 +275,18 @@ void Animation::AddMotorSource(unsigned int source, unsigned int motor)
     this->motor_sources.push_back(motor_source);
 }
 
+/*static*/ const char* ManagedMaterial::TypeToStr(Type type)
+{
+    switch (type)
+    {
+    case ManagedMaterial::TYPE_FLEXMESH_STANDARD:     return "flexmesh_standard";
+    case ManagedMaterial::TYPE_FLEXMESH_TRANSPARENT:  return "flexmesh_transparent";
+    case ManagedMaterial::TYPE_MESH_STANDARD:         return "mesh_standard";
+    case ManagedMaterial::TYPE_MESH_TRANSPARENT:      return "mesh_transparent";
+    default:                                          return "~invalid~";
+    }
+}
+
 /* -------------------------------------------------------------------------- */
 /* File                                                                       */
 /* -------------------------------------------------------------------------- */
