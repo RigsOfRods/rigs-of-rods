@@ -148,7 +148,7 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
 
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
-        App::GetGuiManager()->SetVisible_GameMainMenu(false);
+        this->SetVisible(false);
     }
 
     App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
