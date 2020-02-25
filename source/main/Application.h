@@ -179,7 +179,6 @@ extern CVar* sim_state;
 extern CVar* sim_terrain_name;
 extern CVar* sim_terrain_gui_name;
 extern CVar* sim_savegame;
-extern CVar* sim_load_savegame;
 extern CVar* sim_spawn_running;
 extern CVar* sim_replay_enabled;
 extern CVar* sim_replay_length;
