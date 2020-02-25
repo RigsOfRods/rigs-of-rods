@@ -335,7 +335,7 @@ void MainSelector::Draw()
             this->Apply();
         }
     }
-    ImGui::SameLine();
+    ImGui::SameLine(ImGui::GetWindowWidth()-70);
     if (ImGui::Button(_L("Cancel")))
     {
         this->Cancel();
