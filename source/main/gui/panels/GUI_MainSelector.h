@@ -39,7 +39,7 @@ namespace GUI {
 class MainSelector 
 {
 public:
-    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+   Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
 
     const float LEFT_PANE_WIDTH = 250.f;
     const float WINDOW_WIDTH = viewport->getActualWidth() / 1.4;
@@ -48,6 +48,7 @@ public:
 
     void Show(LoaderType type, std::string const& filter_guid = "");
     bool IsVisible() { return m_loader_type != LT_None; };
+    bool m_kb_focused = true;
     void Draw();
     void Close();
 
