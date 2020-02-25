@@ -28,9 +28,21 @@
 
 using namespace RoR;
 
-Character* CharacterFactory::createLocal(Ogre::UTFString playerName, int playerColour)
+Character* CharacterFactory::CreateLocalCharacter()
 {
-    Character* ch = new Character(-1, 0, playerName, playerColour, false);
+    int colourNum = -1;
+    Ogre::UTFString playerName = "";
+
+#ifdef USE_SOCKETW
+    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
+    {
+        RoRnet::UserInfo info = RoR::Networking::GetLocalUserData();
+        colourNum = info.colournum;
+        playerName = tryConvertUTF(info.username);
+    }
+#endif // USE_SOCKETW
+
+    Character* ch = new Character(-1, 0, playerName, colourNum, false);
     App::GetSimController()->GetGfxScene().RegisterGfxCharacter(ch->SetupGfx());
     return ch;
 }

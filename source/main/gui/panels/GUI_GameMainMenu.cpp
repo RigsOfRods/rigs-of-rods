@@ -110,8 +110,7 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
             const char* resume_title = (m_kb_focus_index == button_index) ? "--> Resume game <--" : "Resume game";
             if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == button_index++))
             {
-                App::sim_savegame->SetActiveStr("autosave.sav");
-                App::sim_load_savegame->SetActiveVal(true);
+                App::sim_savegame->SetPendingStr("autosave.sav");
                 App::app_state->SetPendingVal((int)RoR::AppState::SIMULATION);
                 this->SetVisible(false);
             }

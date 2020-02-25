@@ -170,8 +170,7 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
         {
             if (FileExists(PathCombine(App::sys_savegames_dir->GetActiveStr(), "autosave.sav")))
             {
-                App::sim_savegame->SetActiveStr("autosave.sav");
-                App::sim_load_savegame->SetActiveVal(true);
+                App::sim_savegame->SetPendingStr("autosave.sav");
             }
         }
         else if (args.OptionId() == OPT_CHECKCACHE)

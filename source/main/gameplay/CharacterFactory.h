@@ -32,7 +32,7 @@ class CharacterFactory
 {
 public:
     CharacterFactory() {}
-    Character* createLocal(Ogre::UTFString playerName, int playerColour);
+    Character* CreateLocalCharacter();
     void DeleteAllRemoteCharacters();
     void UndoRemoteActorCoupling(Actor* actor);
     void update(float dt);

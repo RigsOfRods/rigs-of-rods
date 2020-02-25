@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
         {
             App::app_state->SetPendingVal((int)AppState::SIMULATION);
         }
-        else if (App::sim_load_savegame->GetActiveVal<bool>())
+        else if (App::sim_savegame->GetActiveStr() != App::sim_savegame->GetPendingStr())
         {
             App::app_state->SetPendingVal((int)AppState::SIMULATION);
         }
@@ -337,12 +337,6 @@ int main(int argc, char *argv[])
 
             {
                 App::app_state->ApplyPending();
-
-                if (App::sim_load_savegame->GetActiveVal<bool>())
-                {
-                    App::app_state->SetPendingVal((int)AppState::SIMULATION);
-                    continue;
-                }
 
 #ifdef USE_OPENAL
                 if (App::audio_menu_music->GetActiveVal<bool>())
@@ -392,6 +386,8 @@ int main(int argc, char *argv[])
                     }
                 } // Enclosing scope for SimController
                 gEnv->sceneManager->clearScene(); // Wipe the scene after SimController was destroyed
+                App::sim_terrain_name->SetActiveStr("");
+                App::sim_terrain_gui_name->SetActiveStr("");
                 App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&main_obj); // HACK until OGRE 1.12 migration; Needed for GUI display, must be done ASAP ~ only_a_ptr, 10/2019
             }
 

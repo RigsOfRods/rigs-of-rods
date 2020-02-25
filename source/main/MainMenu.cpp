@@ -302,8 +302,7 @@ void MainMenu::HandleSavegameShortcuts()
     if (slot != -1)
     {
         Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
-        App::sim_savegame->SetActiveStr(filename.c_str());
-        App::sim_load_savegame->SetActiveVal(true);
+        App::sim_savegame->SetPendingStr(filename);
         App::app_state->SetPendingVal((int)AppState::SIMULATION);
     }
 }

@@ -254,8 +254,7 @@ void SimController::HandleSavegameShortcuts()
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD, 1.0f))
     {
-        App::sim_savegame->SetActiveStr(m_actor_manager.GetQuicksaveFilename().c_str());
-        App::sim_load_savegame->SetActiveVal(true);
+        App::sim_savegame->SetPendingStr(m_actor_manager.GetQuicksaveFilename().c_str());
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE))
@@ -1713,9 +1712,9 @@ void SimController::UpdateSimulation(float dt)
     }
     m_actor_spawn_queue.clear();
 
-    if (App::sim_load_savegame->GetActiveVal<bool>())
+    if (App::sim_savegame->GetActiveStr() != App::sim_savegame->GetPendingStr())
     {
-        m_actor_manager.LoadScene(App::sim_savegame->GetActiveStr());
+        m_actor_manager.LoadScene(App::sim_savegame->GetPendingStr());
     }
 
     if (m_pending_player_actor != m_player_actor)
@@ -2056,86 +2055,72 @@ bool SimController::SetupGameplayLoop()
     App::GetGuiManager()->GetLoadingWindow()->setProgress(5, _L("Loading resources"));
     App::GetContentManager()->LoadGameplayResources();
 
-    // ============================================================================
-    // Setup
-    // ============================================================================
-
-    int colourNum = -1;
-    Ogre::UTFString playerName = "";
-
-#ifdef USE_SOCKETW
-    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
-    {
-        RoRnet::UserInfo info = RoR::Networking::GetLocalUserData();
-        colourNum = info.colournum;
-        playerName = tryConvertUTF(info.username);
-    }
-#endif // USE_SOCKETW
-
-    gEnv->player = m_character_factory.createLocal(playerName, colourNum);
+    // Load character - must be done first!
+    gEnv->player = m_character_factory.CreateLocalCharacter();
 
     // init camera manager after mygui and after we have a character
     m_camera_manager.SetCameraReady(); // TODO: get rid of this hack; see == SimCam == ~ only_a_ptr, 06/2018
 
-    // ============================================================================
-    // Loading map
-    // ============================================================================
-
-    if (App::diag_preset_terrain->GetActiveStr() != "")
+    // Determine terrain to load
+    if (App::sim_savegame->GetPendingStr() != App::sim_savegame->GetActiveStr())
     {
-        App::sim_terrain_name->ResetPending();
+        if (App::diag_preset_terrain->GetActiveStr() != "")
+        {
+            App::sim_savegame->SetActiveStr(
+                m_actor_manager.GetQuicksaveFilename(App::diag_preset_terrain->GetActiveStr()));
+        }
+
+        if (!m_actor_manager.LoadScene(App::sim_savegame->GetPendingStr())) // Sets pending 'sim_terrain_name'
+        {
+            App::GetGuiManager()->ShowMessageBox(_L("Error"), _L("Could not load saved game"));
+            return false;
+        }
+    }
+    else if (App::diag_preset_terrain->GetActiveStr() != "")
+    {
+        App::sim_terrain_name->SetPendingStr(App::diag_preset_terrain->GetActiveStr());
+        App::diag_preset_terrain->SetActiveStr("");
     }
 
-    // Terrain name lookup
-    if (App::sim_terrain_name->GetPendingStr().empty())
+    if (App::sim_terrain_name->GetPendingStr() == "")
     {
         LOG("No map selected. Returning to menu.");
         App::GetGuiManager()->SetVisible_LoadingWindow(false);
         return false;
     }
-    else
+
+    // ============================================================================
+    // Loading map
+    // ============================================================================
+
+    size_t length = std::numeric_limits<size_t>::max();
+    const CacheEntry* lookup = nullptr;
+    String name = App::sim_terrain_name->GetPendingStr();
+    StringUtil::toLowerCase(name);
+    for (const auto& entry : App::GetCacheSystem()->GetEntries())
     {
-        size_t length = std::numeric_limits<size_t>::max();
-        const CacheEntry* lookup = nullptr;
-        String name = App::sim_terrain_name->GetPendingStr();
-        StringUtil::toLowerCase(name);
-        for (const auto& entry : App::GetCacheSystem()->GetEntries())
+        if (entry.fext != "terrn2")
+            continue; 
+        String fname = entry.fname;
+        StringUtil::toLowerCase(fname);
+        if (fname.find(name) != std::string::npos)
         {
-            if (entry.fext != "terrn2")
-                continue; 
-            String fname = entry.fname;
-            StringUtil::toLowerCase(fname);
-            if (fname.find(name) != std::string::npos)
+            if (fname == name)
             {
-                if (fname == name)
-                {
-                    lookup = &entry;
-                    break;
-                }
-                else if (fname.length() < length)
-                {
-                    lookup = &entry;
-                    length = fname.length();
-                }
+                lookup = &entry;
+                break;
+            }
+            else if (fname.length() < length)
+            {
+                lookup = &entry;
+                length = fname.length();
             }
         }
-        if (lookup != nullptr)
-        {
-            App::sim_terrain_name->SetPendingStr(lookup->fname);
-        }
     }
-
-    if (App::sim_load_savegame->GetActiveVal<bool>())
+    if (lookup != nullptr)
     {
-        if (!App::diag_preset_terrain->GetActiveStr().empty())
-        {
-            String filename = m_actor_manager.GetQuicksaveFilename(App::sim_terrain_name->GetActiveStr());
-            App::sim_savegame->SetActiveStr(filename.c_str());
-        }
-        m_actor_manager.LoadScene(App::sim_savegame->GetActiveStr());
+        App::sim_terrain_name->SetPendingStr(lookup->fname);
     }
-
-    App::diag_preset_terrain->SetActiveStr("");
 
     if (! this->LoadTerrain())
     {

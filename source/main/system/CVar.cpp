@@ -43,8 +43,7 @@ void Console::CVarSetupBuiltins()
     App::sim_state               = this->CVarCreate("sim_state",               "",                                                                CVAR_TYPE_INT);
     App::sim_terrain_name        = this->CVarCreate("sim_terrain_name",        "",                           0);
     App::sim_terrain_gui_name    = this->CVarCreate("sim_terrain_gui_name",    "",                                              CVAR_AUTO_APPLY);
-    App::sim_savegame            = this->CVarCreate("sim_savegame",            "",                                              CVAR_AUTO_APPLY);
-    App::sim_load_savegame       = this->CVarCreate("sim_load_savegame",       "",                                              CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");                                                      
+    App::sim_savegame            = this->CVarCreate("sim_savegame",            "",                           0);
     App::sim_spawn_running       = this->CVarCreate("sim_spawn_running",       "Engines spawn running",      CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "true");        
     App::sim_replay_enabled      = this->CVarCreate("sim_replay_enabled",      "Replay mode",                CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");
     App::sim_replay_length       = this->CVarCreate("sim_replay_length",       "Replay length",              CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "200");                                                        

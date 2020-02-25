@@ -63,7 +63,6 @@ ActorManager::ActorManager()
     , m_forced_awake(false)
     , m_physics_steps(2000)
     , m_simulation_speed(1.0f)
-    , m_savegame_terrain_has_changed(false)
 {
     // Create worker thread (used for physics calculations)
     m_sim_thread_pool = std::unique_ptr<ThreadPool>(new ThreadPool(1));
