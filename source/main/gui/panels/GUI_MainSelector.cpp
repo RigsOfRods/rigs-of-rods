@@ -117,6 +117,13 @@ void MainSelector::Draw()
     // search box
     ImGui::PushItemWidth(ImGui::GetWindowWidth() - 
         (LEFT_PANE_WIDTH + 2*(ImGui::GetStyle().WindowPadding.x) + ImGui::GetStyle().ItemSpacing.x));
+
+    if (m_kb_focused == true)
+    {
+        ImGui::SetKeyboardFocusHere();
+        m_kb_focused = false;
+    }
+
     if (!m_searchbox_was_active && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Tab)))
     {
         ImGui::SetKeyboardFocusHere();
@@ -504,6 +511,7 @@ void MainSelector::Close()
     m_selected_sectionconfig = 0;
     m_searchbox_was_active = false;
     m_loader_type = LT_None; // Hide window
+    m_kb_focused = true;
 }
 
 void MainSelector::Cancel()
