@@ -121,6 +121,11 @@ void Parser::ProcessCurrentLine()
 
     this->TokenizeCurrentLine();
 
+    if (m_num_args == 0)
+    {
+        return; // Skip empty line
+    }
+
     // Detect keywords on current line 
     File::Keyword keyword = IdentifyKeywordInCurrentLine();
     switch (keyword)
