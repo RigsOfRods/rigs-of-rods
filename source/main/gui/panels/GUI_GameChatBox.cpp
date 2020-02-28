@@ -59,6 +59,7 @@ void RoR::GUI::GameChatBox::Draw()
     ImGui::Begin("ChatMessages", nullptr, win_flags);
 
     m_console_view.DrawConsoleMessages();
+    ImGui::SetScrollFromPosY(9999); // Force to bottom
 
     ImGui::End();
 
