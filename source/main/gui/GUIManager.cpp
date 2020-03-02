@@ -285,7 +285,7 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     {
         if (!m_hide_gui)
         {
-              m_impl->panel_ChatBox.Draw(); // Messages must be always visible
+            m_impl->panel_ChatBox.Draw(); // Messages must be always visible
         }
     }
 
