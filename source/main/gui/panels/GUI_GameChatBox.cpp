@@ -36,7 +36,6 @@ RoR::GUI::GameChatBox::GameChatBox()
     m_console_view.cvw_max_lines = 20u;
     m_console_view.cvw_filter_duration_ms = 10000; // 10sec
     m_console_view.cvw_filter_area_actor = false; // Disable vehicle spawn warnings/errors
-    m_console_view.cvw_filter_type_warning = false; // Disable warnings
     m_console_view.cvw_filter_type_error = false; // Disable errors
 }
 
