@@ -121,6 +121,7 @@ private:
     void ProcessPropsAndAnimations(File::Module* module);
     void ProcessFlexbodies(File::Module* module);
     void ProcessDirectiveAddAnimation(RigDef::Animation & anim);
+    void ProcessScripts(File::Module* module);
     /* TODO: 
     5.5.17 Camerarail
     5.5.8 Flexbodies

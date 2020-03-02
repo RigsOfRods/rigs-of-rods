@@ -229,6 +229,7 @@ the lettercase in this list corresponds to original documentation.
     rotators                     BLOCK      
     rotators2                    BLOCK      
     screwprops                   BLOCK      
+    scripts                      BLOCK      Default
     sectionconfig                MODULE     
     section                      MODULE     
     set_beam_defaults            DIRECTIVE  Default

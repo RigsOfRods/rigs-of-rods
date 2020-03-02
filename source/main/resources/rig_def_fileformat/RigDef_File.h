@@ -1728,6 +1728,24 @@ struct Screwprop
 };
 
 /* -------------------------------------------------------------------------- */
+/* Section SCRIPTS                                                            */
+/* -------------------------------------------------------------------------- */
+
+struct Script
+{
+    enum Type
+    {
+        TYPE_INVALID,
+        TYPE_FRAMESTEP,
+        TYPE_SIMSTEP
+    };
+
+    Type        type = TYPE_INVALID;
+    std::string filename;
+    std::string arguments;
+};
+
+/* -------------------------------------------------------------------------- */
 /* Section SLIDENODES                                                         */
 /* -------------------------------------------------------------------------- */
 
@@ -2095,6 +2113,7 @@ struct File
         std::vector<Rotator>               rotators;
         std::vector<Rotator2>              rotators_2;
         std::vector<Screwprop>             screwprops;
+        std::vector<Script>                scripts;
         std::vector<Shock>                 shocks;
         std::vector<Shock2>                shocks_2;
         std::vector<Shock3>                shocks_3;
@@ -2199,6 +2218,7 @@ struct File
         KEYWORD_ROTATORS,
         KEYWORD_ROTATORS2,
         KEYWORD_SCREWPROPS,
+        KEYWORD_SCRIPTS,
         KEYWORD_SECTION,
         KEYWORD_SECTIONCONFIG,
         KEYWORD_SET_BEAM_DEFAULTS,
@@ -2290,6 +2310,7 @@ struct File
         SECTION_ROTATORS,
         SECTION_ROTATORS_2,
         SECTION_SCREWPROPS,
+        SECTION_SCRIPTS,
         SECTION_SHOCKS,
         SECTION_SHOCKS_2,
         SECTION_SHOCKS_3,

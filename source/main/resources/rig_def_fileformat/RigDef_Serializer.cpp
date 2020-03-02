@@ -161,6 +161,7 @@ void Serializer::SerializeModule(std::shared_ptr<RigDef::File::Module> m)
     ProcessExtCamera(source_module);
     ProcessSoundsources(source_module);
     ProcessSoundsources2(source_module);
+    ProcessScripts(source_module);
 
     // Aerial
     ProcessWings(source_module);
@@ -2697,6 +2698,28 @@ void Serializer::ProcessGlobals(File::Module* module)
     if (!module->globals->material_name.empty())
     {
         m_stream << ", " << module->globals->material_name;
+    }
+    m_stream << endl << endl;
+}
+
+void Serializer::ProcessScripts(File::Module* module)
+{
+    if (module->scripts.empty())
+    {
+        return;
+    }
+
+    m_stream << "scripts\n";
+    for (Script& script: module->scripts)
+    {
+        m_stream << "\n\t";
+        switch (script.type)
+        {
+            case Script::TYPE_FRAMESTEP: m_stream << "frame-step"; break;
+            case Script::TYPE_SIMSTEP: m_stream << "sim-step"; break;
+            default: break;
+        }
+        m_stream << " " << script.filename << " " << script.arguments;
     }
     m_stream << endl << endl;
 }

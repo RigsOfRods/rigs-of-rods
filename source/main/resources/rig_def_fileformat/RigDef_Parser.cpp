@@ -205,6 +205,7 @@ void Parser::ProcessCurrentLine()
         case File::KEYWORD_ROTATORS:                 this->ChangeSection(File::SECTION_ROTATORS);         return;
         case File::KEYWORD_ROTATORS2:                this->ChangeSection(File::SECTION_ROTATORS_2);       return;
         case File::KEYWORD_SCREWPROPS:               this->ChangeSection(File::SECTION_SCREWPROPS);       return;
+        case File::KEYWORD_SCRIPTS:                  this->ChangeSection(File::SECTION_SCRIPTS);          return;
         case File::KEYWORD_SECTION:                  this->ProcessChangeModuleLine(keyword);              return;
         case File::KEYWORD_SECTIONCONFIG:            /* Ignored */                                        return;
         case File::KEYWORD_SET_BEAM_DEFAULTS:        this->ParseDirectiveSetBeamDefaults();               return;
@@ -292,6 +293,7 @@ void Parser::ProcessCurrentLine()
         case (File::SECTION_ROTATORS):
         case (File::SECTION_ROTATORS_2):           this->ParseRotatorsUnified();         return;
         case (File::SECTION_SCREWPROPS):           this->ParseScrewprops();              return;
+        case (File::SECTION_SCRIPTS):              this->ParseScripts();                 return;
         case (File::SECTION_SHOCKS):               this->ParseShock();                   return;
         case (File::SECTION_SHOCKS_2):             this->ParseShock2();                  return;
         case (File::SECTION_SHOCKS_3):             this->ParseShock3();                  return;
@@ -2499,6 +2501,41 @@ void Parser::ParseScrewprops()
     screwprop.power     = this->GetArgFloat  (3);
 
     m_current_module->screwprops.push_back(screwprop);
+}
+
+void Parser::ParseScripts()
+{
+    if (! this->CheckNumArguments(2)) { return; }
+    
+    Script script;
+
+    std::string type_str(this->GetArgStr(0));
+    if (type_str == "frame-step")
+    {
+        script.type = Script::TYPE_FRAMESTEP;
+    }
+    else if (type_str == "sim-step")
+    {
+        script.type = Script::TYPE_SIMSTEP;
+    }
+    else
+    {
+        this->AddMessage(type_str, Message::TYPE_ERROR, _L("Invalid param #0 (type), ignoring line"));
+        return;
+    }
+
+    script.filename = this->GetArgStr(1);
+
+    for (int i = 2; i < m_num_args; ++i)
+    {
+        if (i > 2)
+        {
+            script.arguments += " ";
+        }
+        script.arguments += this->GetArgStr(i);
+    }
+
+    m_current_module->scripts.push_back(script);
 }
 
 void Parser::ParseRotatorsUnified()

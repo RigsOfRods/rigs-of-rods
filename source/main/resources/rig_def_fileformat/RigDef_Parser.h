@@ -165,6 +165,7 @@ private:
     void ParseRopes();
     void ParseRotatorsUnified();
     void ParseScrewprops();
+    void ParseScripts();
     void ParseSetCollisionRange();
     void ParseSetSkeletonSettings();
     void ParseShock();

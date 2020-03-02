@@ -263,6 +263,7 @@ namespace Regexes
     E_KEYWORD_BLOCK("rotators")                                   \
     E_KEYWORD_BLOCK("rotators2")                                  \
     E_KEYWORD_BLOCK("screwprops")                                 \
+    E_KEYWORD_BLOCK("scripts")                                    \
     E_KEYWORD_INLINE("section")                                   \
     E_KEYWORD_INLINE("sectionconfig")                             \
     E_KEYWORD_INLINE("set_beam_defaults")                         \
