@@ -53,6 +53,40 @@
 using namespace Ogre;
 using namespace RoR;
 
+const CacheCategory CacheSystem::CATEGORIES[] = {
+    {9991,   "All"},
+    {9992,   "Fresh"},
+    {129,    "AddonTerrains"},
+    {114,    "Aircraft"},
+    {150,    "Bikes"},
+    {110,    "Boats"},
+    {107,    "Buses"},
+    {859,    "Container"},
+    {155,    "Crawlers"},
+    {149,    "FantasyCars"},
+    {159,    "FantasyTrucks"},
+    {156,    "Forklifts"},
+    {113,    "Helicopters"},
+    {9993,   "Hidden"},
+    {147,    "LightRacingCars"},
+    {153,    "MobileCranes"},
+    {5001,   "NightTerrains"},
+    {5000,   "OfficialTerrains"},
+    {148,    "OffroadCars"},
+    {162,    "OffroadTrucks"},
+    {108,    "OtherLandVehicles"},
+    {118,    "OtherLoads"},
+    {154,    "Othercranes"},
+    {161,    "RacingTrucks"},
+    {146,    "StreetCars"},
+    {875,    "Submarine"},
+    {152,    "Towercranes"},
+    {151,    "Tractors"},
+    {117,    "Trailers"},
+    {160,    "TransportTrucks"},
+    {9990,   "Unsorted"},
+};
+
 CacheEntry::CacheEntry() :
     addtimestamp(0),
     beamcount(0),
@@ -110,6 +144,13 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("load");
     m_known_extensions.push_back("train");
     m_known_extensions.push_back("skin");
+
+    // Prepare lookup table
+    for (size_t i = 0; i < NUM_CATEGORIES; ++i)
+    {
+        m_category_lookup.insert(std::make_pair(
+            CacheSystem::CATEGORIES[i].ccg_id, &CacheSystem::CATEGORIES[i]));
+    }
 }
 
 void CacheSystem::LoadModCache(CacheValidityState validity)
@@ -139,13 +180,6 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
     }
 
     this->LoadCacheFileJson();
-
-    // show error on zero content
-    if (m_entries.empty())
-    {
-        ErrorUtils::ShowError(_L("No content found"), _L("Failed to generate list of installed content"));
-        exit(1);
-    }
 
     App::app_force_cache_purge.SetActive(false);
     App::app_force_cache_udpate.SetActive(false);
@@ -195,27 +229,16 @@ void CacheSystem::UnloadActorFromMemory(std::string filename)
     }
 }
 
-String CacheSystem::GetCacheConfigFilename()
-{
-    return PathCombine(App::sys_cache_dir.GetActive(), CACHE_FILE);
-}
-
 CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
 {
     this->GenerateHashFromFilenames();
 
     // First, open cache file and get hash for quick update check
-    std::ifstream ifs(this->GetCacheConfigFilename()); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
-    rapidjson::IStreamWrapper isw(ifs);
     rapidjson::Document j_doc;
-    j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(isw);
-    if (!j_doc.IsObject() ||
-        !j_doc.HasMember("global_hash") || !j_doc["global_hash"].IsString() || 
-        !j_doc.HasMember("format_version") ||!j_doc["format_version"].IsNumber() ||
-        !j_doc.HasMember("entries") || !j_doc["entries"].IsArray())
+    if (!App::GetContentManager()->LoadAndParseJson(CACHE_FILE, RGN_CACHE, j_doc))
     {
         RoR::Log("[RoR|ModCache] Invalid or missing cache file");
-        return CACHE_NEEDS_REBUILD; 
+        return CACHE_NEEDS_REBUILD;
     }
 
     if (j_doc["format_version"].GetInt() != CACHE_FILE_FORMAT)
@@ -266,18 +289,16 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
     out_entry.guid = j_entry["guid"].GetString();
     Ogre::StringUtil::trim(out_entry.guid);
 
+    // Category
     int category_id = j_entry["categoryid"].GetInt();
-    if (m_categories.find(category_id) != m_categories.end())
+    auto category_itor = m_category_lookup.find(category_id);
+    if (category_itor == m_category_lookup.end() || category_id >= CID_Max)
     {
-        out_entry.categoryname = m_categories[category_id];
-        out_entry.categoryid = category_id;
+        category_itor = m_category_lookup.find(CID_Unsorted);
     }
-    else
-    {
-        out_entry.categoryid = -1;
-        out_entry.categoryname = "Unsorted";
-    }
-    
+    out_entry.categoryname = category_itor->second->ccg_name;
+    out_entry.categoryid = category_itor->second->ccg_id;
+
      // Common - Authors
     for (rapidjson::Value& j_author: j_entry["authors"].GetArray())
     {
@@ -339,12 +360,9 @@ void CacheSystem::LoadCacheFileJson()
     // Clear existing entries
     m_entries.clear();
 
-    std::ifstream ifs(this->GetCacheConfigFilename()); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
-    rapidjson::IStreamWrapper isw(ifs);
     rapidjson::Document j_doc;
-    j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(isw);
-
-    if (!j_doc.IsObject() || !j_doc.HasMember("entries") || !j_doc["entries"].IsArray())
+    if (!App::GetContentManager()->LoadAndParseJson(CACHE_FILE, RGN_CACHE, j_doc) ||
+        !j_doc.IsObject() || !j_doc.HasMember("entries") || !j_doc["entries"].IsArray())
     {
         RoR::Log("[RoR|ModCache] Error, cache file still invalid after check/update, content selector will be empty.");
         return;
@@ -584,27 +602,15 @@ void CacheSystem::WriteCacheFileJson()
     j_doc.AddMember("entries", j_entries, j_doc.GetAllocator());
 
     // Write to file
-    String path = GetCacheConfigFilename();
-    LOG("writing cache to file ("+path+")...");
-
-    std::ofstream ofs(path);
-    rapidjson::OStreamWrapper j_ofs(ofs);
-    rapidjson::Writer<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>, rapidjson::CrtAllocator, 
-        rapidjson::kWriteNanAndInfFlag> j_writer(j_ofs);
-    const bool written_ok = j_doc.Accept(j_writer);
-    if (written_ok)
+    if (App::GetContentManager()->SerializeAndWriteJson(CACHE_FILE, RGN_CACHE, j_doc)) // Logs errors
     {
-        RoR::LogFormat("[RoR|ModCache] File '%s' written OK", path.c_str());
-    }
-    else
-    {
-        RoR::LogFormat("[RoR|ModCache] Error writing '%s'", path.c_str());
+        RoR::LogFormat("[RoR|ModCache] File '%s' written OK", CACHE_FILE);
     }
 }
 
 void CacheSystem::ClearCache()
 {
-    std::remove(this->GetCacheConfigFilename().c_str());
+    App::GetContentManager()->DeleteDiskFile(CACHE_FILE, RGN_CACHE);
     for (auto& entry : m_entries)
     {
         String group = entry.resource_group;
@@ -724,41 +730,6 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     parser.GetSequentialImporter()->Disable();
     parser.Finalize();
 
-    /* Report messages */
-    if (parser.GetMessages().size() > 0)
-    {
-        std::stringstream report;
-        report << "Cache: Parsing vehicle '" << file_name << "' yielded following messages:" << std::endl << std::endl;
-
-        std::list<RigDef::Parser::Message>::const_iterator iter = parser.GetMessages().begin();
-        for (; iter != parser.GetMessages().end(); iter++)
-        {
-            switch (iter->type)
-            {
-            case (RigDef::Parser::Message::TYPE_FATAL_ERROR):
-                report << "FATAL_ERROR";
-                break;
-
-            case (RigDef::Parser::Message::TYPE_ERROR):
-                report << "ERROR";
-                break;
-
-            case (RigDef::Parser::Message::TYPE_WARNING):
-                report << "WARNING";
-                break;
-
-            default:
-                report << "INFO";
-                break;
-            }
-            report << " (Section " << RigDef::File::SectionToString(iter->section) << ")" << std::endl;
-            report << "\tLine (# " << iter->line_number << "): " << iter->line << std::endl;
-            report << "\tMessage: " << iter->message << std::endl;
-        }
-
-        Ogre::LogManager::getSingleton().logMessage(report.str());
-    }
-
     /* RETRIEVE DATA */
 
     std::shared_ptr<RigDef::File> def = parser.GetFile();
@@ -832,7 +803,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* Vehicle type */
-    /* NOTE: TruckParser2013 allows modularization of vehicle type. Cache only supports single type.
+    /* NOTE: RigDef::File allows modularization of vehicle type. Cache only supports single type.
         This is a temporary solution which has undefined results for mixed-type vehicles.
     */
     int vehicle_type = NOT_DRIVEABLE;
@@ -951,8 +922,7 @@ void CacheSystem::RemoveFileCache(CacheEntry& entry)
 {
     if (!entry.filecachename.empty())
     {
-        String path = PathCombine(App::sys_cache_dir.GetActive(), entry.filecachename);
-        std::remove(path.c_str());
+        App::GetContentManager()->DeleteDiskFile(entry.filecachename, RGN_CACHE);
     }
 }
 
@@ -1020,7 +990,7 @@ void CacheSystem::ParseZipArchives(String group)
         int progress = ((float)i++ / (float)count) * 100;
         UTFString tmp = _L("Loading zips in group ") + ANSI_TO_UTF(group) + L"\n" +
             ANSI_TO_UTF(file.filename) + L"\n" + ANSI_TO_UTF(TOSTRING(i)) + L"/" + ANSI_TO_UTF(TOSTRING(count));
-        RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, tmp, false);
+        RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, tmp);
 
         String path = PathCombine(file.archive->getName(), file.filename);
         this->ParseSingleZip(path);
@@ -1185,22 +1155,6 @@ void CacheSystem::LoadResource(CacheEntry& t)
     }
 }
 
-const std::vector<CacheEntry> CacheSystem::GetUsableSkins(std::string const & guid) const
-{
-    if (guid.empty())
-        return std::vector<CacheEntry>();
-
-    std::vector<CacheEntry> result;
-    for (CacheEntry const& entry: m_entries)
-    {
-        if (entry.guid == guid && entry.fext == "skin")
-        {
-            result.push_back(entry);
-        }
-    }
-    return result;
-}
-
 CacheEntry* CacheSystem::FetchSkinByName(std::string const & skin_name)
 {
     for (CacheEntry & entry: m_entries)
@@ -1257,5 +1211,133 @@ std::shared_ptr<SkinDef> CacheSystem::FetchSkinDef(CacheEntry* cache_entry)
     }
 }
 
+size_t CacheSystem::Query(CacheQuery& query)
+{
+    Ogre::StringUtil::toLowerCase(query.cqy_search_string);
+    for (CacheEntry& entry: m_entries)
+    {
+        // Filter by GUID
+        if (!query.cqy_filter_guid.empty() && entry.guid != query.cqy_filter_guid)
+        {
+            continue;
+        }
 
+        // Filter by entry type
+        bool add = false;
+        if (entry.fext == "terrn2")
+            add = (query.cqy_filter_type == LT_Terrain);
+        if (entry.fext == "skin")
+            add = (query.cqy_filter_type == LT_Skin);
+        else if (entry.fext == "truck")
+            add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck);
+        else if (entry.fext == "car")
+            add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck || query.cqy_filter_type == LT_Car);
+        else if (entry.fext == "boat")
+            add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Boat);
+        else if (entry.fext == "airplane")
+            add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Airplane);
+        else if (entry.fext == "trailer")
+            add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Trailer || query.cqy_filter_type == LT_Extension);
+        else if (entry.fext == "train")
+            add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Train);
+        else if (entry.fext == "load")
+            add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Load || query.cqy_filter_type == LT_Extension);
+
+        if (!add)
+        {
+            continue;
+        }
+
+        query.cqy_res_category_usage[entry.categoryid]++;
+        query.cqy_res_category_usage[CacheCategoryId::CID_All]++;
+
+        // Filter by category
+        if (query.cqy_filter_category_id < CacheCategoryId::CID_Max &&
+            query.cqy_filter_category_id != entry.categoryid)
+        {
+            continue;
+        }
+
+        // Search
+        size_t score = 0;
+        bool match = false;
+        Str<100> wheels_str;
+        switch (query.cqy_search_method)
+        {
+        case CacheSearchMethod::FULLTEXT:
+            if (match = this->Match(score, entry.dname,       query.cqy_search_string, 0))   { break; }
+            if (match = this->Match(score, entry.fname,       query.cqy_search_string, 100)) { break; }
+            if (match = this->Match(score, entry.description, query.cqy_search_string, 200)) { break; }
+            for (AuthorInfo const& author: entry.authors)
+            {
+                if (match = this->Match(score, author.name,  query.cqy_search_string, 300)) { break; }
+                if (match = this->Match(score, author.email, query.cqy_search_string, 400)) { break; }
+            }
+            break;
+
+        case CacheSearchMethod::GUID:
+            match = this->Match(score, entry.guid, query.cqy_search_string, 0);
+            break;
+
+        case CacheSearchMethod::AUTHORS:
+            for (AuthorInfo const& author: entry.authors)
+            {
+                if (match = this->Match(score, author.name,  query.cqy_search_string, 0)) { break; }
+                if (match = this->Match(score, author.email, query.cqy_search_string, 0)) { break; }
+            }
+            break;
+
+        case CacheSearchMethod::WHEELS:
+            wheels_str << entry.wheelcount << "x" << entry.propwheelcount;
+            match = this->Match(score, wheels_str.ToCStr(), query.cqy_search_string, 0);
+            break;
+
+        case CacheSearchMethod::FILENAME:
+            match = this->Match(score, entry.fname, query.cqy_search_string, 100);
+            break;
+
+        default: // CacheSearchMethod::NONE
+            match = true;
+            break;
+        };
+
+        if (match)
+        {
+            query.cqy_results.emplace_back(&entry, score);
+            query.cqy_res_last_update = std::max(query.cqy_res_last_update, entry.addtimestamp);
+        }
+    }
+
+    std::sort(query.cqy_results.begin(), query.cqy_results.end());
+    return query.cqy_results.size();
+}
+
+bool CacheSystem::Match(size_t& out_score, std::string data, std::string const& query, size_t score)
+{
+    Ogre::StringUtil::toLowerCase(data);
+    size_t pos = data.find(query);
+    if (pos != std::string::npos)
+    {
+        out_score = score + pos;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool CacheQueryResult::operator<(CacheQueryResult const& other)
+{
+    if (cqr_score == other.cqr_score)
+    {
+        Ogre::String first = this->cqr_entry->dname;
+        Ogre::String second = other.cqr_entry->dname;
+        Ogre::StringUtil::toLowerCase(first);
+        Ogre::StringUtil::toLowerCase(second);
+        return first < second;
+    }
+
+    return cqr_score < other.cqr_score;
+}
 

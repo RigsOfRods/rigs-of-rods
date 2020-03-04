@@ -46,12 +46,24 @@ public:
     {
         GuiTheme();
 
-        ImVec4 in_progress_text_color;
-        ImVec4 no_entries_text_color;
-        ImVec4 error_text_color;
-        ImVec4 selected_entry_text_color;
+        ImVec4 in_progress_text_color    = ImVec4(1.f, 0.832031f, 0.f, 1.f);
+        ImVec4 no_entries_text_color     = ImVec4(0.7f, 0.7f, 0.7f, 1.f);
+        ImVec4 error_text_color          = ImVec4(1.f, 0.175439f, 0.175439f, 1.f);
+        ImVec4 selected_entry_text_color = ImVec4(.9f, 0.7f, 0.05f, 1.f);
+        ImVec4 value_red_text_color      = ImVec4(.8f, .1f, .1f, 1.f);
+        ImVec4 value_blue_text_color     = ImVec4(.1f, .12f, .7f, 1.f);
+        ImVec4 highlight_text_color      = ImVec4(0.78f, 0.39f, 0.f, 1.f);
+        ImVec4 success_text_color        = ImVec4(0.f, 0.8f, 0.f, 1.f);
+        ImVec4 warning_text_color        = ImVec4(0.9f, 0.8f, 0.1f, 1.f);
+        ImVec4 help_text_color           = ImVec4(0.5f, 0.7f, 1.f, 1.f);
 
-        ImFont* default_font;
+        ImVec4 semitransparent_window_bg = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
+        ImVec4 semitrans_text_bg_color   = ImVec4(0.1f, 0.1f, 0.1f, 0.6f);
+
+        ImVec2 screen_edge_padding       = ImVec2(10.f, 10.f);
+        ImVec2 semitrans_text_bg_padding = ImVec2(4.f, 2.f);
+
+        ImFont* default_font = nullptr;
     };
 
     // NOTE: RoR's mouse cursor management is a mess - cursor is hidden/revealed ad-hoc in the code (originally by calling `MyGUI::PointerManager::setVisible()`); this enum+API cleans it up a bit ~ only_a_ptr, 09/2017
@@ -69,78 +81,69 @@ public:
     void SetVisible_GameMainMenu        (bool visible);
     void SetVisible_GameAbout           (bool visible);
     void SetVisible_GameSettings        (bool visible);
-    void SetVisible_DebugOptions        (bool visible);
     void SetVisible_MultiplayerSelector (bool visible);
     void SetVisible_ChatBox             (bool visible);
-    void SetVisible_SpawnerReport       (bool visible);
     void SetVisible_VehicleDescription  (bool visible);
-    void SetVisible_MpClientList        (bool visible);
     void SetVisible_FrictionSettings    (bool visible);
     void SetVisible_TextureToolWindow   (bool visible);
     void SetVisible_NodeBeamUtils       (bool visible);
     void SetVisible_LoadingWindow       (bool visible);
     void SetVisible_Console             (bool visible);
+    void SetVisible_SimActorStats       (bool visible);
+    void SetVisible_SimPerfStats        (bool visible);
 
     // GUI IsVisible*()
     bool IsVisible_GameMainMenu         ();
     bool IsVisible_GameAbout            ();
     bool IsVisible_GameSettings         ();
     bool IsVisible_TopMenubar           ();
-    bool IsVisible_DebugOptions         ();
     bool IsVisible_MessageBox           ();
     bool IsVisible_MultiplayerSelector  ();
-    bool IsVisible_MpClientList         ();
     bool IsVisible_MainSelector         ();
     bool IsVisible_ChatBox              ();
-    bool IsVisible_SpawnerReport        ();
     bool IsVisible_VehicleDescription   ();
     bool IsVisible_FrictionSettings     ();
     bool IsVisible_TextureToolWindow    ();
     bool IsVisible_NodeBeamUtils        ();
     bool IsVisible_LoadingWindow        ();
     bool IsVisible_Console              ();
+    bool IsVisible_SimActorStats        ();
+    bool IsVisible_SimPerfStats         ();
+    bool IsVisible_SurveyMap            ();
 
     // GUI GetInstance*()
-    Console* GetConsole();
     GUI::MainSelector* GetMainSelector();
     GUI::GameMainMenu* GetMainMenu();
     GUI::GamePauseMenu* GetPauseMenu();
     GUI::LoadingWindow* GetLoadingWindow();
-    GUI::MpClientList* GetMpClientList();
     GUI::MultiplayerSelector* GetMpSelector();
     GUI::FrictionSettings* GetFrictionSettings();
-    GUI::SimUtils* GetSimUtils();
     GUI::TopMenubar* GetTopMenubar();
+    GUI::SurveyMap* GetSurveyMap();
 
     // GUI manipulation
-    void pushMessageChatBox(Ogre::String txt);
     void ShowMessageBox(const char* title, const char* text, bool allow_close = true, const char* btn1_text = "OK", const char* btn2_text = nullptr);
-    void UnfocusGui();
-    void PushNotification(Ogre::String Title, Ogre::UTFString text);
-    void HideNotification();
-    void CenterSpawnerReportWindow();
+    /// Pass true during frame to prevent input passing to application
+    void RequestGuiCaptureKeyboard(bool val);
+    bool IsGuiCaptureKeyboardRequested() const { return m_gui_kb_capture_requested; }
 
-    void UpdateSimUtils(float dt, Actor* truck);
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
-    void DrawSimulationGui(float dt);
+    void DrawSimulationGui(float dt); //!< Touches live data; must be called in sync with sim. thread
+    void DrawSimGuiBuffered(GfxActor* player_gfx_actor); //!< Reads data from simbuffer
+    void DrawCommonGui();
 
     void SetMpConnectingStatusMsg(std::string const & msg) { m_net_connect_status = msg; }
     void DrawMpConnectingStatusBox();
     void hideGUI(bool visible);
 
-    void windowResized(Ogre::RenderWindow* rw);
-
     void SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager);
 
-    void FrictionSettingsUpdateCollisions();
     void ShutdownMyGUI();
     void ReflectGameState();
     void SetMouseCursorVisibility(MouseCursorVisibility visi);
 
-    virtual void AddRigLoadingReport(std::string const& vehicle_name, std::string const& text, int num_errors, int num_warnings, int num_other);
-
-    static Ogre::String getRandomWallpaperImage();
+    void SetUpMenuWallpaper();
 
     inline OgreImGui& GetImGui() { return m_imgui; }
     inline GuiTheme&  GetTheme() { return m_theme; }
@@ -157,9 +160,12 @@ private:
 
     GuiManagerImpl*    m_impl;
     bool               m_renderwindow_closed;
+    bool               m_hide_gui = false;
     OgreImGui          m_imgui;
     GuiTheme           m_theme;
     std::string        m_net_connect_status;
+    bool               m_gui_kb_capture_queued; //!< Resets and accumulates every frame
+    bool               m_gui_kb_capture_requested; //!< Effective value, persistent
 };
 
 } // namespace RoR

@@ -32,8 +32,8 @@ public:
 
     void Draw();
 
-    inline bool IsVisible() const { return m_is_visible; }
-    inline void SetVisible(bool v) { m_is_visible = v; }
+    bool IsVisible() const { return m_is_visible; }
+    void SetVisible(bool v);
 
 private:
     bool m_is_visible;

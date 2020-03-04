@@ -43,7 +43,7 @@
 #include "Character.h"
 #include "ChatSystem.h"
 #include "Collisions.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "GUIManager.h"
 #include "Language.h"
 #include "MainMenu.h"
@@ -337,21 +337,11 @@ void GameScript::registerForEvent(int eventValue)
 void GameScript::flashMessage(String& txt, float time, float charHeight)
 {
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "script_code_red.png");
-    RoR::App::GetGuiManager()->PushNotification("Script:", txt);
 }
 
 void GameScript::message(String& txt, String& icon, float timeMilliseconds, bool forceVisible)
 {
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon, timeMilliseconds, forceVisible);
-    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
-    {
-        RoR::App::GetGuiManager()->pushMessageChatBox(txt);
-    }
-    else
-    {
-        // TODO: Find a better solution for this
-        RoR::App::GetGuiManager()->PushNotification("Script:", txt);
-    }
 }
 
 void GameScript::UpdateDirectionArrow(String& text, Vector3& vec)
@@ -390,7 +380,7 @@ void GameScript::showChooser(const String& type, const String& instance, const S
     if (type == "extension")
         ntype = LT_Extension;
     if (type == "heli")
-        ntype = LT_Heli;
+        ntype = LT_Airplane;
     if (type == "load")
         ntype = LT_Load;
     if (type == "trailer")

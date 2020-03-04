@@ -35,7 +35,6 @@
 #include "Road2.h"
 #include "RoRFrameListener.h"
 #include "SoundScriptManager.h"
-#include "SurveyMapManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainManager.h"
 #include "Utils.h"
@@ -975,8 +974,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
                         type = "racestart";
                     }
                     int race_id = res.size() > 1 ? StringConverter::parseInt(res[1], -1) : -1;
-                    auto ent = App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(type);
-                    m_map_entities.push_back({ent, type, "", pos, rot.y, race_id});
+                    m_map_entities.push_back({type, "", pos, rot.y, race_id});
                 }
                 else if (!type.empty())
                 {
@@ -986,15 +984,17 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
                     {
                         caption = instancename + " " + type;
                     }
-                    auto ent = App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(type);
-                    m_map_entities.push_back({ent, type, caption, pos, rot.y, -1});
+                    m_map_entities.push_back({type, caption, pos, rot.y, -1});
                 }
             }
             continue;
         }
         if (!strcmp("endmesh", ptline))
         {
-            gEnv->collisions->addCollisionMesh(collmesh, Vector3(pos.x, pos.y, pos.z), tenode->getOrientation(), sc, gm, &(obj->collTris));
+            if(strcmp("", collmesh) == 0)
+                RoR::LogFormat("[ODEF] Collision mesh not found in file %s", odefname.c_str());
+            else
+                gEnv->collisions->addCollisionMesh(collmesh, Vector3(pos.x, pos.y, pos.z), tenode->getOrientation(), sc, gm, &(obj->collTris));
             continue;
         }
 
@@ -1268,6 +1268,12 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             continue;
         }
 
+        if (!strncmp("nocast", ptline, 6))
+        {
+        	mo->getEntity()->setCastShadows(false);
+        	continue;
+        }
+
         LOG("ODEF: unknown command in "+odefname+" : "+String(ptline));
     }
 }
@@ -1294,8 +1300,7 @@ void TerrainObjectManager::LoadTelepoints()
 {
     for (Terrn2Telepoint& telepoint: terrainManager->GetDef().telepoints)
     {
-        auto ent = App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity("telepoint");
-        m_map_entities.push_back({ent, "telepoint", telepoint.name, telepoint.position, 0});
+        m_map_entities.push_back({"telepoint", telepoint.name, telepoint.position, 0});
     }
 }
 
@@ -1328,13 +1333,6 @@ bool TerrainObjectManager::UpdateTerrainObjects(float dt)
     }
 
     this->UpdateAnimatedObjects(dt);
-
-    for (auto e : m_map_entities)
-    {
-        int id = App::GetSimController()->GetRaceId();
-        bool visible = !((e.type == "checkpoint" && e.id != id) || (e.type == "racestart" && id != -1 && e.id != id));
-        App::GetSimController()->GetGfxScene().GetSurveyMap()->UpdateMapEntity(e.ent, e.name, e.pos, e.rot, -1, visible);
-    }
 
     return true;
 }

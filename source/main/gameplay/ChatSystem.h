@@ -28,16 +28,11 @@
 namespace RoR {
 namespace ChatSystem {
 
-void SendChat(Ogre::UTFString chatline);
-void SendPrivateChat(Ogre::UTFString target_username, Ogre::UTFString chatline);
-
 void SendStreamSetup();
 
 #ifdef USE_SOCKETW
 void HandleStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
 #endif // USE_SOCKETW
-
-Ogre::UTFString GetColouredName(Ogre::UTFString nick, int colour_number);
 
 } // namespace Chatsystem
 } // namespace RoR

@@ -23,27 +23,24 @@
 /// @author Moncef Ben Slimane
 /// @date   12/2014
 
-#include "ForwardDeclarations.h"
-#include "GUI_VehicleDescriptionLayout.h"
+#include <imgui.h>
 
 namespace RoR {
 namespace GUI {
 
-class VehicleDescription: public VehicleDescriptionLayout
+class VehicleDescription
 {
 public:
-    VehicleDescription();
-    ~VehicleDescription();
+    const float HELP_TEXTURE_WIDTH = 512.f;
+    const float HELP_TEXTURE_HEIGHT = 128.f;
 
-    bool IsVisible();
-    void SetVisible(bool v);
+    void SetVisible(bool vis) { m_is_visible = vis; }
+    bool IsVisible() const { return m_is_visible; }
+
+    void Draw();
 
 private:
-    void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
-    void CenterToScreen();
-    void LoadText();
-
-    static const unsigned int COMMANDS_VISIBLE = 50;
+    bool m_is_visible = false;
 };
 
 } // namespace GUI

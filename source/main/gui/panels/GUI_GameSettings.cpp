@@ -27,21 +27,11 @@
 
 void RoR::GUI::GameSettings::Draw()
 {
-    bool is_visible = true;
     const int flags = ImGuiWindowFlags_NoCollapse;
-    ImGui::SetNextWindowSize(ImVec2(640.f, 400.f), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(670.f, 400.f), ImGuiSetCond_FirstUseEver);
     ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
-    ImGui::Begin(_LC("GameSettings", "Game settings"), &is_visible, flags);
-    if (! is_visible)
-    {
-        this->SetVisible(false);
-        if (App::app_state.GetActive() == RoR::AppState::MAIN_MENU)
-        {
-            App::GetGuiManager()->SetVisible_GameMainMenu(true);
-        }
-        ImGui::End();
-        return;
-    }
+    bool keep_open = true;
+    ImGui::Begin(_LC("GameSettings", "Game settings"), &keep_open, flags);
 
     // 'Tabs' buttons
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 8.f));
@@ -333,6 +323,7 @@ void RoR::GUI::GameSettings::Draw()
             DrawGCheckbox(App::gfx_declutter_map,  _LC("GameSettings", "Declutter overview map"));
         }
         DrawGCheckbox(App::gfx_water_waves,      _LC("GameSettings", "Waves on water"));
+        DrawGCheckbox(App::gfx_classic_shaders,      _LC("GameSettings", "Classic material shaders (experimental)"));
 
         DrawGCombo(App::gfx_extcam_mode, "Exterior camera mode",
             "None\0"
@@ -346,6 +337,7 @@ void RoR::GUI::GameSettings::Draw()
     else if (m_tab == SettingsTab::DIAG)
     {
         ImGui::TextDisabled(_LC("GameSettings", "Diagnostic options"));
+        ImGui::TextColored(ImVec4(0.89f,0.15f,0.21f,1.0f), _LC("GameSettings", "These settings are for advanced users only, you should only change these if you know what you're doing"));
 
         int physics_fps = std::round(1.0f / App::diag_physics_dt.GetActive());
         if (ImGui::SliderInt(_LC("GameSettings", "Physics frames per second"), &physics_fps, 2000, 10000))
@@ -416,5 +408,23 @@ void RoR::GUI::GameSettings::Draw()
         }
     }
 
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
+    if (!keep_open)
+    {
+        this->SetVisible(false);
+    }
+}
+
+void RoR::GUI::GameSettings::SetVisible(bool v)
+{
+    m_is_visible = v;
+    if (v)
+    {
+        m_tab = SettingsTab::RENDER_SYSTEM;
+    }
+    else if (App::app_state.GetActive() == RoR::AppState::MAIN_MENU)
+    {
+        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+    }
 }

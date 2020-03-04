@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.8.0)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/3rdparty)
 
 include(CMakeDependentOption)
@@ -12,7 +12,7 @@ set(PROJECT_NAME_SHORT "RoR")
 set(PROJECT_NAME_UNDERSCORE "Rigs_of_Rods")
 set(PROJECT_NAME_LONG "Rigs of Rods")
 
-project(${PROJECT_NAME_UNDERSCORE} VERSION 0.4.8.0)
+project(${PROJECT_NAME_UNDERSCORE})
 
 ################################################################################
 # Available build options

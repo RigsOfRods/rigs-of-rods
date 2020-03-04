@@ -25,6 +25,7 @@
 
 #include "Application.h"
 #include "ChatSystem.h"
+#include "Console.h"
 #include "ErrorUtils.h"
 #include "GUIManager.h"
 #include "GUI_TopMenubar.h"
@@ -356,14 +357,13 @@ void RecvThread()
                 auto user = std::find_if(m_users.begin(), m_users.end(), [header](const RoRnet::UserInfo& u) { return static_cast<int>(u.uniqueid) == header.source; });
                 if (user != m_users.end())
                 {
-                    Ogre::UTFString msg = RoR::ChatSystem::GetColouredName(user->username, user->colournum) + RoR::Color::CommandColour + _L(" left the game");
-                    const char *utf8_line = msg.asUTF8_c_str();
-                    RoRnet::Header head;
-                    head.command = MSG2_UTF8_CHAT;
-                    head.source  = -1;
-                    head.size    = (int)strlen(utf8_line);
-                    QueueStreamData(head, (char *)utf8_line, strlen(utf8_line) + 1);
-                    LOG_THREAD(Ogre::UTFString(user->username) + _L(" left the game"));
+                    // Console is now threadsafe, no need to send fake chatmessages to ourselves
+                    Str<300> text;
+                    text << user->username << _L(" left the game");
+                    App::GetConsole()->putMessage( // NOTE: we can't use `putNetMessage()` since the user info gets deleted.
+                        Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
+                    LOG_THREAD(text);
+
                     m_users.erase(user);
                 }
             }
@@ -380,34 +380,31 @@ void RecvThread()
             }
             else
             {
+                // NB: Console is threadsafe
                 RoRnet::UserInfo user_info;
-                memcpy(&user_info, buffer, sizeof(RoRnet::UserInfo));
-
-                bool user_exists = false;
+                if (GetUserInfo(header.source, user_info)) // Check duplicate user ID
                 {
-                    std::lock_guard<std::mutex> lock(m_users_mutex);
-                    for (RoRnet::UserInfo &user : m_users)
-                    {
-                        if ((int)user.uniqueid == header.source)
-                        {
-                            user = user_info;
-                            user_exists = true;
-                            break;
-                        }
-                    }
-                    if (!user_exists)
-                    {
-                        m_users.push_back(user_info);
-                        Ogre::UTFString msg = RoR::ChatSystem::GetColouredName(user_info.username, user_info.colournum) + RoR::Color::CommandColour + _L(" joined the game");
-                        const char *utf8_line = msg.asUTF8_c_str();
-                        RoRnet::Header head;
-                        head.command = MSG2_UTF8_CHAT;
-                        head.source  = -1;
-                        head.size    = (int)strlen(utf8_line);
-                        QueueStreamData(head, (char *)utf8_line, strlen(utf8_line) + 1);
-                        LOG(Ogre::UTFString(user_info.username) + _L(" joined the game"));
-                    }
+                    Str<300> txt;
+                    txt << "Duplicate net userID: " << header.source << ", orig. user: '" << user_info.username << "'";
+                    App::GetConsole()->putMessage(
+                        Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, txt.ToCStr());
                 }
+                else
+                {
+                    memcpy(&user_info, buffer, sizeof(RoRnet::UserInfo));
+                    Str<300> text;
+                    text << user_info.username;
+                    if (user_info.authstatus != 0) // Show nothing for guests (no special authorization)
+                    {
+                        text << " (" << UserAuthToStringShort(user_info) << ")";
+                    }
+                    text << _L(" joined the game");
+                    App::GetConsole()->putNetMessage(
+                        user_info.uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
+                    // Lock and update userlist
+                    std::lock_guard<std::mutex> lock(m_users_mutex);
+                    m_users.push_back(user_info);
+                } // End of lock scope
             }
             continue;
         }
@@ -493,6 +490,7 @@ bool ConnectThread()
     SWBaseSocket::SWBaseError error;
 
     FireNetEvent(NetEvent::Type::CONNECT_PROGRESS, _LC("Network", "Estabilishing connection..."));
+    socket = SWInetSocket();
     socket.set_timeout(10, 0);
     socket.connect(App::mp_server_port.GetActive(), App::mp_server_host.GetActive(), &error);
     if (error != SWBaseSocket::ok)
@@ -590,19 +588,8 @@ bool ConnectThread()
     }
     else if (header.command==MSG2_BANNED)
     {
-        wchar_t tmp[512];
-        memset(tmp, 0, 512);
-        if (strnlen(buffer, 20) > 0)
-        {
-            buffer[header.size] = {0};
-            Ogre::UTFString tmp2 = _L("Establishing network session: sorry, you are banned:\n%s");
-            swprintf(tmp, 512, tmp2.asWStr_c_str(), buffer);
-            CouldNotConnect(Ogre::UTFString(tmp));
-        }
-        else
-        {
-            CouldNotConnect(_L("Establishing network session: sorry, you are banned!"));
-        }
+        // Do NOT `disconnect()` the socket in this case - causes SocketW to terminate RoR.
+        CouldNotConnect(_L("Establishing network session: sorry, you are banned!"), /*close_socket=*/false);
         return false;
     }
     else if (header.command==MSG2_WRONG_PW)
@@ -680,7 +667,7 @@ void Disconnect()
     LOG("[RoR|Networking] Disconnect() done");
 }
 
-void AddPacket(int streamid, int type, int len, char *content)
+void AddPacket(int streamid, int type, int len, const char *content)
 {
     const auto max_len = RORNET_MAX_MESSAGE_LENGTH - sizeof(RoRnet::Header);
     if (len > max_len)
@@ -795,6 +782,87 @@ bool GetUserInfo(int uid, RoRnet::UserInfo &result)
         }
     }
     return false;
+}
+
+bool GetAnyUserInfo(int uid, RoRnet::UserInfo &result)
+{
+    RoRnet::UserInfo tmp;
+
+    // Try remote users
+    if (GetUserInfo(uid, tmp))
+    {
+        result = tmp;
+        return true;
+    }
+
+    // Try local user
+    tmp = GetLocalUserData();
+    if (tmp.uniqueid == uid)
+    {
+        result = tmp;
+        return true;
+    }
+
+    return false;
+}
+
+bool FindUserInfo(std::string const& username, RoRnet::UserInfo &result)
+{
+    std::lock_guard<std::mutex> lock(m_users_mutex);
+    for (RoRnet::UserInfo user : m_users)
+    {
+        if (user.username == username)
+        {
+            result = user;
+            return true;
+        }
+    }
+    return false;
+}
+
+void BroadcastChatMsg(const char* msg)
+{
+    Networking::AddPacket(m_stream_id, RoRnet::MSG2_UTF8_CHAT, std::strlen(msg), msg);
+}
+
+void WhisperChatMsg(RoRnet::UserInfo const& user, const char* msg)
+{
+    // Prepare buffer
+    char payload[RORNET_MAX_MESSAGE_LENGTH - sizeof(RoRnet::Header)];
+    size_t payload_len = 0;
+
+    // Write client ID
+    std::memcpy(payload, &user.uniqueid, sizeof(user.uniqueid));
+    payload_len += sizeof(user.uniqueid);
+
+    // Write text
+    std::strncpy(payload + payload_len, msg, sizeof(payload) - payload_len);
+    payload_len += std::strlen(msg);
+
+    // Queue packet
+    Networking::AddPacket(m_stream_id, RoRnet::MSG2_UTF8_PRIVCHAT, payload_len, msg);
+}
+
+std::string UserAuthToStringShort(RoRnet::UserInfo const &user)
+{
+    // TODO: currently we must allocate & return std::string, see _LC
+         if (user.authstatus & AUTH_ADMIN)    { return _LC("NetUserAuth", "Admin");  }
+    else if (user.authstatus & AUTH_MOD)      { return _LC("NetUserAuth", "Mod");    }
+    else if (user.authstatus & AUTH_BOT)      { return _LC("NetUserAuth", "Bot");    }
+    else if (user.authstatus & AUTH_RANKED)   { return _LC("NetUserAuth", "Ranked"); }
+    else if (user.authstatus & AUTH_BANNED)   { return _LC("NetUserAuth", "Banned"); }
+    else                                      { return _LC("NetUserAuth", "Guest");  }
+}
+
+std::string UserAuthToStringLong(RoRnet::UserInfo const &user)
+{
+    // TODO: currently we must allocate & return std::string, see _L
+         if (user.authstatus & AUTH_ADMIN)    { return _L("Server Administrator");   }
+    else if (user.authstatus & AUTH_MOD)      { return _L("Server Moderator");       }
+    else if (user.authstatus & AUTH_BOT)      { return _L("Bot");                    }
+    else if (user.authstatus & AUTH_RANKED)   { return _L("ranked user");            }
+    else if (user.authstatus & AUTH_BANNED)   { return _L("Banned user");            }
+    else                                      { return _L("Guest");                  }
 }
 
 } // namespace Networking

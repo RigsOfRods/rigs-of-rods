@@ -42,11 +42,6 @@ public:
 
     GamePauseMenu();
 
-    // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
-    inline void   KeyUpPressed()                   { m_kb_focus_index = (m_kb_focus_index <= 0) ? (NUM_BUTTONS-1) : (m_kb_focus_index - 1); }
-    inline void   KeyDownPressed()                 { m_kb_focus_index = (m_kb_focus_index < (NUM_BUTTONS - 1)) ? (m_kb_focus_index + 1) : 0; }
-    inline void   EnterKeyPressed()                { m_kb_enter_index = m_kb_focus_index; }
-
     void          Draw();
 
 private:

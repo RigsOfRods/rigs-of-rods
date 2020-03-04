@@ -1,6 +1,6 @@
 /*
     This source file is part of Rigs of Rods
-    Copyright 2016-2017 Petr Ohlidal & contributors
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -29,8 +29,10 @@ void DrawImGuiSpinner(
     float& counter, const ImVec2 size = ImVec2(16.f, 16.f),
     const float spacing = 2.f, const float step_sec = 0.15f);
 
-void DrawGCheckbox(GVarPod_A<bool>& gvar, const char* label);
+/// Add rotated textured quad to ImDrawList, source: https://github.com/ocornut/imgui/issues/1982#issuecomment-408834301
+void DrawImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float angle);
 
+void DrawGCheckbox(GVarPod_A<bool>& gvar, const char* label);
 void DrawGCheckbox(GVarPod_APS<bool>& gvar, const char* label);
 
 void DrawGIntCheck(GVarPod_A<int>& gvar, const char* label);
@@ -38,11 +40,11 @@ void DrawGIntCheck(GVarPod_A<int>& gvar, const char* label);
 void DrawGIntBox(GVarPod_A<int>& gvar, const char* label);
 
 void DrawGIntSlider(GVarPod_A<int>& gvar, const char* label, int v_min, int v_max);
+void DrawGIntSlider(GVarPod_APS<int>& gvar, const char* label, int v_min, int v_max);
 
 void DrawGFloatSlider(GVarPod_A<float>& gvar, const char* label, float v_min, float v_max);
 
 void DrawGFloatBox(GVarPod_A<float>& gvar, const char* label);
-
 void DrawGFloatBox(GVarPod_APS<float>& gvar, const char* label);
 
 template <size_t Len>

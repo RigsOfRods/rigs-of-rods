@@ -22,8 +22,7 @@
 
 #include "ForwardDeclarations.h"
 
-#include <OgreVector3.h>
-#include <OgreTexture.h>
+#include <Ogre.h>
 
 namespace RoR {
 

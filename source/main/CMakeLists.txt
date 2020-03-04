@@ -59,6 +59,7 @@ set(SOURCE_FILES
         gfx/Skidmark.{h,cpp}
         gfx/SkyManager.{h,cpp}
         gfx/SkyXManager.{h,cpp}
+        gfx/SurveyMapTextureCreator.{h,cpp}        
         gfx/Water.{h,cpp}
         gfx/camera/CameraManager.{h,cpp}
         gfx/camera/PerVehicleCameraContext.h
@@ -131,37 +132,26 @@ set(SOURCE_FILES
         gui/mygui/Dialog.{h,cpp}
         gui/mygui/GuiPanelBase.h
         gui/mygui/WrapsAttribute.h
-        gui/panels/GUI_GameConsole.{h,cpp}
+        gui/panels/GUI_ConsoleView.{h,cpp}
+        gui/panels/GUI_ConsoleWindow.{h,cpp}
         gui/panels/GUI_LoadingWindow.{h,cpp}
         gui/panels/GUI_FrictionSettings.{h,cpp}
         gui/panels/GUI_TopMenubar.{h,cpp}
         gui/panels/GUI_TextureToolWindow.{h,cpp}
-        gui/panels/GUI_DebugOptions.{h,cpp}
-        gui/panels/GUI_DebugOptionsLayout.{h,cpp}
         gui/panels/GUI_GameAbout.{h,cpp}
-        gui/panels/GUI_GameAboutLayout.{h,cpp}
         gui/panels/GUI_GameChatBox.{h,cpp}
-        gui/panels/GUI_GameChatBoxLayout.{h,cpp}
-        gui/panels/GUI_GameConsoleLayout.{h,cpp}
         gui/panels/GUI_GameMainMenu.{h,cpp}
-        gui/panels/GUI_GameMainMenuLayout.{h,cpp}
         gui/panels/GUI_GamePauseMenu.{h,cpp}
-        gui/panels/GUI_GamePauseMenuLayout.{h,cpp}
         gui/panels/GUI_GameSettings.{h,cpp}
         gui/panels/GUI_MainSelector.{h,cpp}
-        gui/panels/GUI_MainSelectorLayout.{h,cpp}
         gui/panels/GUI_MessageBox.{h,cpp}
-        gui/panels/GUI_MessageBoxLayout.{h,cpp}
         gui/panels/GUI_MultiplayerSelector.{h,cpp}
         gui/panels/GUI_MultiplayerClientList.{h,cpp}
         gui/panels/GUI_NodeBeamUtils.{h,cpp}
-        gui/panels/GUI_OpenSaveFileDialog.{h,cpp}
-        gui/panels/GUI_RigSpawnerReportWindow.{h,cpp}
-        gui/panels/GUI_RigSpawnerReportWindowLayout.{h,cpp}
-        gui/panels/GUI_SimUtils.{h,cpp}
-        gui/panels/GUI_SimUtilsLayout.{h,cpp}
+        gui/panels/GUI_SimActorStats.{h,cpp}
+        gui/panels/GUI_SimPerfStats.{h,cpp}
+        gui/panels/GUI_SurveyMap.{h,cpp}
         gui/panels/GUI_VehicleDescription.{h,cpp}
-        gui/panels/GUI_VehicleDescriptionLayout.{h,cpp}
         network/Network.{h,cpp}
         physics/ApproxMath.h
         physics/Beam.{h,cpp}
@@ -231,14 +221,12 @@ set(SOURCE_FILES
         resources/rig_def_fileformat/RigDef_Serializer.{h,cpp}
         resources/rig_def_fileformat/RigDef_Validator.{h,cpp}
         resources/terrn2_fileformat/Terrn2Fileformat.{h,cpp}
+        system/Console.{h,cpp}
         terrain/IHeightFinder.h
         terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
         terrain/TerrainGeometryManager.{h,cpp}
         terrain/TerrainManager.{h,cpp}
         terrain/TerrainObjectManager.{h,cpp}
-        terrain/map/SurveyMapEntity.{h,cpp}
-        terrain/map/SurveyMapManager.{h,cpp}
-        terrain/map/SurveyMapTextureCreator.{h,cpp}
         threadpool/ThreadPool.h
         utils/CollisionTools.{h,cpp}
         utils/ConfigFile.{h,cpp}
@@ -354,6 +342,7 @@ target_include_directories(${BINNAME} PRIVATE
         resources/otc_fileformat/
         resources/rig_def_fileformat
         resources/terrn2_fileformat
+        system
         rig_editor
         rig_editor/rig_data
         scripting

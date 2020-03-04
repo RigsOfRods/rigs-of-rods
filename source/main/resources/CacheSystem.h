@@ -30,6 +30,7 @@
 #include "RigDef_File.h"
 
 #include <Ogre.h>
+#include <rapidjson/document.h>
 
 #define CACHE_FILE "mods.cache"
 #define CACHE_FILE_FORMAT 11
@@ -118,6 +119,57 @@ public:
     std::vector<Ogre::String> sectionconfigs;
 };
 
+enum CacheCategoryId
+{
+    CID_Max           = 9000,
+    CID_Unsorted      = 9990,
+    CID_All           = 9991,
+    CID_Fresh         = 9992,
+    CID_Hidden        = 9993,
+    CID_SearchResults = 9994
+};
+
+struct CacheCategory
+{
+    const int    ccg_id;
+    const char*  ccg_name;
+};
+
+struct CacheQueryResult
+{
+    CacheQueryResult(CacheEntry* entry, size_t score):
+        cqr_entry(entry), cqr_score(score)
+    {}
+
+    bool operator<(CacheQueryResult const& other);
+
+    CacheEntry* cqr_entry;
+    size_t      cqr_score;
+};
+
+enum class CacheSearchMethod // Always case-insensitive
+{
+    NONE,     // No searching
+    FULLTEXT, // Fields: name, filename, description, author name/mail (in this order, with descending rank) and returns rank+string pos as score
+    GUID,     // Fields: guid
+    AUTHORS,  // Fields: name, email), 'wheels' (), 'file' (filename)
+    WHEELS,   // Fields: num wheels (string), num propelled wheels (string)
+    FILENAME  // Fields: truckfile name
+};
+
+struct CacheQuery
+{
+    LoaderType                     cqy_filter_type = LoaderType::LT_None;
+    int                            cqy_filter_category_id = CacheCategoryId::CID_All;
+    std::string                    cqy_filter_guid; //!< Exact match; leave empty to disable
+    CacheSearchMethod              cqy_search_method = CacheSearchMethod::NONE;
+    std::string                    cqy_search_string;
+    
+    std::vector<CacheQueryResult>  cqy_results;
+    std::map<int, size_t>          cqy_res_category_usage; //!< Total usage (ignores search params + category filter)
+    std::time_t                    cqy_res_last_update = std::time_t();
+};
+
 /// A content database
 /// MOTIVATION:
 ///    RoR users usually have A LOT of content installed. Traversing it all on every game startup would be a pain.
@@ -129,6 +181,9 @@ public:
 class CacheSystem : public ZeroedMemoryAllocator
 {
 public:
+
+    static const size_t        NUM_CATEGORIES = 31;
+    static const CacheCategory CATEGORIES[NUM_CATEGORIES];
 
     CacheSystem();
 
@@ -146,21 +201,18 @@ public:
     CacheEntry*           FetchSkinByName(std::string const & skin_name);
     void                  UnloadActorFromMemory(std::string filename);
     CacheValidityState    EvaluateCacheValidity();
+    size_t                Query(CacheQuery& query);
 
     void LoadResource(CacheEntry& t); //!< Loads the associated resource bundle if not already done.
     bool CheckResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
     bool CheckResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
 
-    const std::map<int, Ogre::String> &GetCategories() const { return m_categories; }
     const std::vector<CacheEntry> &GetEntries()        const { return m_entries; }
 
-    const std::vector<CacheEntry> GetUsableSkins(std::string const & guid) const;
     std::shared_ptr<RoR::SkinDef> FetchSkinDef(CacheEntry* cache_entry); //!< Loads+parses the .skin file once
 
     CacheEntry *GetEntry(int modid);
     Ogre::String GetPrettyName(Ogre::String fname);
-
-    enum CategoryID {CID_Max=9000, CID_Unsorted=9990, CID_All=9991, CID_Fresh=9992, CID_Hidden=9993, CID_SearchResults=9994};
 
 private:
 
@@ -168,8 +220,6 @@ private:
     void ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Document& j_doc, CacheEntry const & entry);
     void LoadCacheFileJson();
     void ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & out_entry);
-
-    Ogre::String GetCacheConfigFilename(); // returns absolute path of the cache file
 
     static Ogre::String StripUIDfromString(Ogre::String uidstr); 
     static Ogre::String StripSHA1fromString(Ogre::String sha1str);
@@ -193,60 +243,13 @@ private:
     void GenerateFileCache(CacheEntry &entry, Ogre::String group);
     void RemoveFileCache(CacheEntry &entry);
 
+    bool Match(size_t& out_score, std::string data, std::string const& query, size_t );
+
     std::time_t                          m_update_time;      //!< Ensures that all inserted files share the same timestamp
     std::string                          m_filenames_hash;   //!< stores hash over the content, for quick update detection
     std::map<Ogre::String, Ogre::String> m_loaded_resource_bundles; //!< Assosiates resource path with resource group
     std::vector<CacheEntry>              m_entries;
     std::vector<Ogre::String>            m_known_extensions; //!< the extensions we track in the cache system
     std::set<Ogre::String>               m_resource_paths;   //!< A temporary list of existing resource paths
-    std::map<int, Ogre::String>          m_categories = {
-            // these are the category numbers from the repository. do not modify them!
-
-            // vehicles
-            {108, "Other Land Vehicles"},
-
-            {146, "Street Cars"},
-            {147, "Light Racing Cars"},
-            {148, "Offroad Cars"},
-            {149, "Fantasy Cars"},
-            {150, "Bikes"},
-            {155, "Crawlers"},
-
-            {152, "Towercranes"},
-            {153, "Mobile Cranes"},
-            {154, "Other cranes"},
-
-            {107, "Buses"},
-            {151, "Tractors"},
-            {156, "Forklifts"},
-            {159, "Fantasy Trucks"},
-            {160, "Transport Trucks"},
-            {161, "Racing Trucks"},
-            {162, "Offroad Trucks"},
-
-            {110, "Boats"},
-
-            {113, "Helicopters"},
-            {114, "Aircraft"},
-
-            {117, "Trailers"},
-            {118, "Other Loads"},
-
-            // terrains
-            {129, "Addon Terrains"},
-
-            {859, "Container"},
-
-            {875, "Submarine"},
-
-            // note: these categories are NOT in the repository:
-            {5000, "Official Terrains"},
-            {5001, "Night Terrains"},
-
-            // do not use category numbers above 9000!
-            {9990, "Unsorted"},
-            {9991, "All"},
-            {9992, "Fresh"},
-            {9993, "Hidden"}
-        };
+    std::map<int, const CacheCategory*>  m_category_lookup;
 };

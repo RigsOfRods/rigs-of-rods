@@ -18,56 +18,30 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
-#include "RoRPrerequisites.h"
-#include "mygui/BaseLayout.h"
+#include <Ogre.h>
 
 namespace RoR {
 namespace GUI {
 
-ATTRIBUTE_CLASS_LAYOUT(TextureToolWindow, "TextureTool.layout");
-
-class TextureToolWindow : public wraps::BaseLayout, public ZeroedMemoryAllocator
+class TextureToolWindow
 {
 public:
+    const float LEFT_PANE_WIDTH = 200.f;
+    const float WINDOW_WIDTH = 600.f;
 
-    TextureToolWindow();
+    void SetVisible(bool vis) { m_is_visible = vis; }
+    bool IsVisible() const { return m_is_visible; }
 
-    bool IsVisible();
-    void SetVisible(bool value);
+    void Draw();
 
 private:
+    void SaveTexture(std::string texName, bool usePNG);
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(TextureToolWindow, mTxt, "txtInfo");
-    MyGUI::TextBox* mTxt;
-
-    ATTRIBUTE_FIELD_WIDGET_NAME(TextureToolWindow, mCBo, "cboTextures");
-    MyGUI::ComboBox* mCBo;
-
-    ATTRIBUTE_FIELD_WIDGET_NAME(TextureToolWindow, mBtnSavePNG, "btnSavePNG");
-    MyGUI::Button* mBtnSavePNG;
-
-    ATTRIBUTE_FIELD_WIDGET_NAME(TextureToolWindow, mBtnSaveRAW, "btnSaveRAW");
-    MyGUI::Button* mBtnSaveRAW;
-
-    ATTRIBUTE_FIELD_WIDGET_NAME(TextureToolWindow, mImage, "imgTexture");
-    MyGUI::ImageBox* mImage;
-
-    ATTRIBUTE_FIELD_WIDGET_NAME(TextureToolWindow, mChkDynamic, "chkDynamic");
-    MyGUI::Button* mChkDynamic;
-
-    void notifyWindowPressed(MyGUI::Window* _widget, const std::string& _name);
-    void eventClickSavePNGButton(MyGUI::WidgetPtr _sender);
-    void eventClickSaveRAWButton(MyGUI::WidgetPtr _sender);
-    void eventClickDynamicButton(MyGUI::WidgetPtr _sender);
-    void eventSelectTexture(MyGUI::WidgetPtr _sender);
-    void eventSelectTexture2(MyGUI::ComboBoxPtr _sender, size_t _index);
-
-    void updateControls(Ogre::String texName);
-    void saveTexture( Ogre::String texName, bool png );
-    void fillCombo();
+    bool m_is_visible = false;
+    bool m_show_dynamic_only = true;
+    Ogre::TexturePtr m_display_tex;
 };
 
 } // namespace GUI

@@ -26,11 +26,11 @@
 #include "BeamFactory.h"
 #include "DustPool.h"
 #include "HydraxWater.h"
+#include "GUIManager.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"
 #include "SkyXManager.h"
-#include "SurveyMapManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
@@ -40,7 +40,6 @@ using namespace Ogre;
 RoR::GfxScene::GfxScene()
     : m_ogre_scene(nullptr)
 {
-    m_survey_map = std::unique_ptr<SurveyMapManager>(new SurveyMapManager());
 }
 
 RoR::GfxScene::~GfxScene()
@@ -64,7 +63,6 @@ void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
 
     m_ogre_scene = sm;
 
-    m_survey_map->init();
     m_envmap.SetupEnvMap();
 }
 
@@ -154,19 +152,6 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
             player_gfx_actor, m_simbuf.simbuf_dir_arrow_target, m_simbuf.simbuf_character_pos);
     }
 
-    // GUI - Survey map
-    if (m_survey_map != nullptr)
-    {
-        m_survey_map->Update(dt_sec, m_simbuf.simbuf_player_actor);
-        for (GfxActor* gfx_actor: m_all_gfx_actors)
-        {
-            auto& simbuf = gfx_actor->GetSimDataBuffer();
-            String caption = (App::mp_state.GetActive() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
-            m_survey_map->UpdateMapEntity(gfx_actor->GetSurveyMapEntity(), caption,
-                simbuf.simbuf_pos, simbuf.simbuf_rotation, gfx_actor->GetActorState(), true);
-        }
-    }
-
     // GUI - race
     if (m_simbuf.simbuf_race_in_progress != m_simbuf.simbuf_race_in_progress_prev)
     {
@@ -231,6 +216,8 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         }
     }
 
+    App::GetGuiManager()->DrawSimGuiBuffered(player_gfx_actor);
+
     App::GetSimController()->GetSceneMouse().UpdateVisuals();
 
     // Actors - finalize threaded tasks
@@ -265,12 +252,6 @@ DustPool* RoR::GfxScene::GetDustPool(const char* name)
 void RoR::GfxScene::RegisterGfxActor(RoR::GfxActor* gfx_actor)
 {
     m_all_gfx_actors.push_back(gfx_actor);
-
-    if (m_survey_map != nullptr)
-    {
-        auto entity = m_survey_map->createMapEntity(SurveyMapManager::getTypeByDriveable(gfx_actor->GetActorDriveable()));
-        gfx_actor->SetSurveyMapEntity(entity);
-    }
 }
 
 void RoR::GfxScene::BufferSimulationData()
@@ -308,11 +289,6 @@ void RoR::GfxScene::RemoveGfxActor(RoR::GfxActor* remove_me)
 {
     auto itor = std::remove(m_all_gfx_actors.begin(), m_all_gfx_actors.end(), remove_me);
     m_all_gfx_actors.erase(itor, m_all_gfx_actors.end());
-
-    if (m_survey_map != nullptr)
-    {
-        m_survey_map->deleteMapEntity(remove_me->GetSurveyMapEntity());
-    }
 }
 
 void RoR::GfxScene::RegisterGfxCharacter(RoR::GfxCharacter* gfx_character)

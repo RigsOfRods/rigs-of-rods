@@ -20,41 +20,40 @@
 */
 
 /// @file
-/// @author Moncef Ben Slimane
-/// @date   2/2015
+/// @author Original MyGUI version: Moncef Ben Slimane, 2/2015
+/// @author Remake with DearIMGUI: Petr Ohlidal, 11/2019
 
 #pragma once
 
-#include "ForwardDeclarations.h"
-#include "GUI_GameChatBoxLayout.h"
+#include "Application.h"
+
+#include "GUI_ConsoleView.h"
+
+#include <mutex>
+#include <string>
+#include <vector>
 
 namespace RoR {
 namespace GUI {
 
-class GameChatBox: public GameChatBoxLayout
+class GameChatBox
 {
 public:
-
     GameChatBox();
-    ~GameChatBox();
 
-    void Show();
-    void Hide();
-    bool IsVisible();
-    void SetVisible(bool value);
-    void pushMsg(Ogre::String txt);
-    void Update(float dt);
+    void SetVisible(bool v) { m_is_visible = v; m_kb_focused = false; };
+    bool IsVisible() const { return m_is_visible; }
+
+    void Draw();
+    ConsoleView& GetConsoleView() { return m_console_view; }
 
 private:
+    void SubmitMessage(); //!< Flush the user input box
 
-    void eventCommandAccept(MyGUI::Edit* _sender);
-
-    Ogre::String mHistory;
-    bool newMsg;
-
-    // logic
-    float alpha;
-    long pushTime;
+    bool                      m_is_visible = false; //!< Special: false means 'display only messages'
+    bool                      m_kb_focused = false;
+    Str<400>                  m_msg_buffer;
+    ConsoleView               m_console_view;
 };
 
 } // namespace GUI

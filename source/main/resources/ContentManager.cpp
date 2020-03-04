@@ -54,6 +54,8 @@
 
 #include <OgreFileSystem.h>
 #include <regex>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 #include <sstream>
 
 using namespace Ogre;
@@ -145,6 +147,11 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack, std::str
 
 void ContentManager::InitContentManager()
 {
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_config_dir.GetActive(), "FileSystem", RGN_CONFIG, /*recursive=*/false, /*readOnly=*/false);
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_savegames_dir.GetActive(), "FileSystem", RGN_SAVEGAMES, /*recursive=*/false, /*readOnly=*/false);
+
     Ogre::ScriptCompilerManager::getSingleton().setListener(this);
 
     // Initialize "managed materials" first
@@ -200,10 +207,6 @@ void ContentManager::InitContentManager()
     // streams path, to be processed later by the cache system
     LOG("RoR|ContentManager: Loading filesystems");
 
-    // config, flat
-    ResourceGroupManager::getSingleton().addResourceLocation(std::string(RoR::App::sys_config_dir.GetActive()), "FileSystem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-    // packs, to be processed later by the cache system
-
     // add scripts folder
     ResourceGroupManager::getSingleton().addResourceLocation(std::string(App::sys_user_dir.GetActive()) + PATH_SLASH + "scripts", "FileSystem", "Scripts");
 
@@ -243,8 +246,8 @@ void ContentManager::InitContentManager()
 
 void ContentManager::InitModCache()
 {
-    ResourceGroupManager::getSingleton().addResourceLocation(App::sys_cache_dir.GetActive(), "FileSystem", RGN_CACHE, false, false);
-
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_cache_dir.GetActive(), "FileSystem", RGN_CACHE, /*recursive=*/false, /*readOnly=*/false);
     std::string user = App::sys_user_dir.GetActive();
     std::string base = App::sys_process_dir.GetActive();
     std::string objects = PathCombine("resources", "beamobjects.zip");
@@ -420,5 +423,83 @@ std::string ContentManager::ListAllUserContent()
     }
 
     return buf.str();
+}
+
+bool ContentManager::LoadAndParseJson(std::string const& filename, std::string const& rg_name, rapidjson::Document& j_doc)
+{
+    try
+    {
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename, rg_name);
+        Ogre::String json_str = stream->getAsString();
+        rapidjson::MemoryStream j_stream(json_str.data(), json_str.length());
+        j_doc.ParseStream<rapidjson::kParseNanAndInfFlag>(j_stream);
+    }
+    catch (Ogre::FileNotFoundException)
+    {
+        return false; // Error already logged by OGRE
+    }
+    catch (std::exception& e)
+    {
+        RoR::LogFormat("[RoR] Failed to open or read json file '%s' (resource group '%s'), message: '%s'",
+                       filename.c_str(), rg_name.c_str(), e.what());
+        return false;
+    }
+
+    if (j_doc.HasParseError())
+    {
+        RoR::LogFormat("[RoR] Error parsing JSON file '%s' (resource group '%s')",
+                       filename.c_str(), rg_name.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+bool ContentManager::SerializeAndWriteJson(std::string const& filename, std::string const& rg_name, rapidjson::Document& j_doc)
+{
+    // Serialize JSON to string
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>,
+                      rapidjson::CrtAllocator, rapidjson::kWriteNanAndInfFlag>
+                      writer(buffer);
+    j_doc.Accept(writer);
+
+    // Write JSON to file
+    try
+    {
+        Ogre::DataStreamPtr stream
+            = Ogre::ResourceGroupManager::getSingleton().createResource(
+                filename, rg_name, /*overwrite=*/true);
+        size_t written = stream->write(buffer.GetString(), buffer.GetSize());
+        if (written < buffer.GetSize())
+        {
+            RoR::LogFormat("[RoR] Error writing JSON file '%s' (resource group '%s'), ",
+                           "only written %u out of %u bytes!",
+                           filename.c_str(), rg_name.c_str(), written, buffer.GetSize());
+            return false;
+        }
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        RoR::LogFormat("[RoR] Error writing JSON file '%s' (resource group '%s'), message: '%s'",
+                       filename.c_str(), rg_name.c_str(), e.what());
+        return false;
+    }
+}
+
+bool ContentManager::DeleteDiskFile(std::string const& filename, std::string const& rg_name)
+{
+    try
+    {
+        Ogre::ResourceGroupManager::getSingleton().deleteResource(filename, rg_name);
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        RoR::LogFormat("[RoR|ModCache] Error deleting file '%s' (resource group '%s'), message: '%s'",
+                        filename.c_str(), rg_name.c_str(), e.what());
+        return false;
+    }
 }
 

@@ -173,15 +173,8 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
     int window_flags = ImGuiWindowFlags_NoCollapse;
     ImGui::SetNextWindowSize(ImVec2(750.f, 400.f), ImGuiSetCond_FirstUseEver);
     ImGui::SetNextWindowPosCenter();
-    if (!ImGui::Begin(m_window_title, &m_is_visible, window_flags))
-    {
-        return;
-    }
-
-    if (!m_is_visible) // If the window was closed...
-    {
-        App::GetGuiManager()->SetVisible_GameMainMenu(true);
-    }
+    bool keep_open = true;
+    ImGui::Begin(m_window_title, &keep_open, window_flags);
 
     // Window mode buttons
     MultiplayerSelector::Mode next_mode = m_mode;
@@ -375,7 +368,12 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         }
     }
 
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
+    if (!keep_open)
+    {
+        this->SetVisible(false);
+    }
 }
 
 void RoR::GUI::MultiplayerSelector::RefreshServerlist()
@@ -415,5 +413,9 @@ void RoR::GUI::MultiplayerSelector::SetVisible(bool visible)
     {
         this->RefreshServerlist();
         m_password_buf = App::mp_server_password.GetActive();
+    }
+    else if (!visible && App::app_state.GetActive() == AppState::MAIN_MENU)
+    {
+        App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
 }

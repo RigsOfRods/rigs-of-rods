@@ -24,7 +24,7 @@
 #include "Application.h"
 #include "Beam.h"
 #include "BeamEngine.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "SoundScriptManager.h"
@@ -382,7 +382,6 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
                 break;
             }
             RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L(msg), "cog.png", 3000);
-            RoR::App::GetGuiManager()->PushNotification("Gearbox Mode:", msg);
         }
 
         // joy clutch

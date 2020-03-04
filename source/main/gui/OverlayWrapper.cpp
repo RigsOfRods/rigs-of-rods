@@ -443,6 +443,15 @@ void OverlayWrapper::showDashboardOverlays(bool show, Actor* actor)
         }
         else if (mode == MACHINE)
         {
+            Ogre::OverlayElement* help_elem = OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel");
+            if (actor->GetGfxActor()->GetAttributes().xa_help_mat)
+            {
+                help_elem->setMaterial(actor->GetGfxActor()->GetAttributes().xa_help_mat);
+            }
+            else
+            {
+                help_elem->setMaterialName("tracks/black");
+            }
             m_machine_dashboard_overlay->show();
         }
     }

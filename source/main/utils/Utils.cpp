@@ -88,10 +88,13 @@ void UpdatePresence()
         }
         else
         {
-            discordPresence.state = "Playing Singleplayer";
+            discordPresence.state = "Playing singleplayer";
             sprintf(buffer, "On terrain: %s", RoR::App::sim_terrain_gui_name.GetActive());
         }
         discordPresence.details = buffer;
+        discordPresence.startTimestamp = time(0);
+        discordPresence.largeImageKey = "ror_logo_t";
+        discordPresence.largeImageText = "Rigs of Rods";
         Discord_UpdatePresence(&discordPresence);
     }
 #endif
@@ -116,51 +119,6 @@ String HashData(const char *key, int len)
 {
     std::stringstream result;
     result << std::hex << FastHash(key, len);
-    return result.str();
-}
-
-String HashFile(const char *szFileName)
-{
-    unsigned long ulFileSize, ulRest, ulBlocks;
-    std::vector<char> uData(2097152);
-
-    if (szFileName == NULL) return "";
-
-    FILE *fIn = fopen(szFileName, "rb");
-    if (fIn == NULL) return "";
-
-    fseek(fIn, 0, SEEK_END);
-    ulFileSize = (unsigned long)ftell(fIn);
-    fseek(fIn, 0, SEEK_SET);
-
-    if (ulFileSize != 0)
-    {
-        ulBlocks = ulFileSize / static_cast<unsigned long>(uData.size());
-        ulRest = ulFileSize % uData.size();
-    }
-    else
-    {
-        ulBlocks = 0;
-        ulRest = 0;
-    }
-
-    uint32_t hash = 0;
-    for (unsigned long i = 0; i < ulBlocks; i++)
-    {
-        size_t result = fread(uData.data(), 1, uData.size(), fIn);
-        hash = FastHash(uData.data(), uData.size(), hash);
-    }
-
-    if (ulRest != 0)
-    {
-        size_t result = fread(uData.data(), 1, ulRest, fIn);
-        hash = FastHash(uData.data(), ulRest, hash);
-    }
-
-    fclose(fIn); fIn = NULL;
-
-    std::stringstream result;
-    result << std::hex << hash;
     return result.str();
 }
 

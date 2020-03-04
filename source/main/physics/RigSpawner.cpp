@@ -50,6 +50,7 @@
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
 #include "GfxActor.h"
+#include "Console.h"
 #include "InputEngine.h"
 #include "MeshObject.h"
 #include "OgreSubsystem.h"
@@ -109,10 +110,6 @@ void ActorSpawner::Setup(
     {
         m_generate_wing_position_lights = false; // Disable aerial pos. lights for land vehicles.
     }
-
-    m_messages_num_errors = 0;
-    m_messages_num_warnings = 0;
-    m_messages_num_other = 0;
 
     App::GetCacheSystem()->CheckResourceLoaded(m_actor->ar_filename, m_custom_resource_group);
 }
@@ -1228,7 +1225,7 @@ void ActorSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 
     if (! def.help_material.empty())
     {
-        m_actor->ar_help_panel_material = def.help_material;
+        m_help_material_name = def.help_material;
     }
     if (def.speedo_highest_kph > 10 && def.speedo_highest_kph < 32000)
     {
@@ -2254,14 +2251,31 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             if (def.HasSpecularMap())
             {
                 /* FLEXMESH, damage, specular */
+                if (App::gfx_classic_shaders.GetActive())
+                {
+                material = this->InstantiateManagedMaterial(mat_name_base + "/speculardamage_nicemetal", custom_name);
+                }
+                else
+                {
                 material = this->InstantiateManagedMaterial(mat_name_base + "/speculardamage", custom_name);
+                }
                 if (material.isNull())
                 {
                     return;
                 }
+                if(App::gfx_classic_shaders.GetActive())
+                {
+                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map")->setTextureName(def.damaged_diffuse_map);
+                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+                material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+                }
+                else
+                {
                 material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
                 material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map")->setTextureName(def.damaged_diffuse_map);
                 material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+                }
             }
             else
             {
@@ -2280,13 +2294,29 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             if (def.HasSpecularMap())
             {
                 /* FLEXMESH, no_damage, specular */
+                if (App::gfx_classic_shaders.GetActive())
+                {
+                 material = this->InstantiateManagedMaterial(mat_name_base + "/specularonly_nicemetal", custom_name);
+                }
+                else
+                {
                 material = this->InstantiateManagedMaterial(mat_name_base + "/specularonly", custom_name);
+                 }
                 if (material.isNull())
                 {
                     return;
                 }
-                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
-                material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+                if (App::gfx_classic_shaders.GetActive())
+                {
+                    material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+                    material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+                    material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+                }
+                else
+                {
+                    material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+                    material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+                }
             }
             else
             {
@@ -2310,13 +2340,29 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         if (def.HasSpecularMap())
         {
             /* MESH, specular */
-            material = this->InstantiateManagedMaterial(mat_name_base + "/specular", custom_name);
+            if (App::gfx_classic_shaders.GetActive())
+            {
+                material = this->InstantiateManagedMaterial(mat_name_base + "/specular_nicemetal", custom_name);
+            }
+            else
+            {
+                material = this->InstantiateManagedMaterial(mat_name_base + "/specular", custom_name);
+            }
             if (material.isNull())
             {
                 return;
             }
-            material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
-            material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+            if (App::gfx_classic_shaders.GetActive())
+            {
+                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+                material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+            }
+            else
+            {
+                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+                material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+            }
         }
         else
         {
@@ -2338,7 +2384,14 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
             if (def.HasSpecularMap())
             {
-                material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
+                if (App::gfx_classic_shaders.GetActive())
+                {
+                    material->getTechnique("BaseTechnique")->getPass("Specular")->setCullingMode(Ogre::CULL_NONE);
+                }
+                else
+                {
+                    material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
+                }
             }
         }
     }
@@ -5133,7 +5186,7 @@ void ActorSpawner::ProcessHelp()
         auto module = module_itor->get();
         if (! module->help_panel_material_name.empty())
         {
-            m_actor->ar_help_panel_material = module->help_panel_material_name;
+            m_help_material_name = module->help_panel_material_name;
             material_count++;
         }
     }
@@ -5457,36 +5510,26 @@ void ActorSpawner::InitBeam(beam_t & beam, node_t *node_1, node_t *node_2)
 
 void ActorSpawner::AddMessage(ActorSpawner::Message::Type type,	Ogre::String const & text)
 {
-    /* Add message to report */
-    m_messages.push_back(Message(type, text, m_current_keyword));
-
-    /* Log message immediately (to put other log messages in context) */
-    std::stringstream report;
-    report << " == ActorSpawner: ";
+    Str<4000> txt;
+    txt << " (Keyword " << RigDef::File::KeywordToString(m_current_keyword) << ") " << text;
+    RoR::Console::MessageType cm_type;
     switch (type)
     {
-        case (ActorSpawner::Message::TYPE_INTERNAL_ERROR): 
-            report << "INTERNAL ERROR"; 
-            ++m_messages_num_errors;
-            break;
+    case Message::TYPE_ERROR:
+    case Message::TYPE_INTERNAL_ERROR:
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_ERROR;
+        break;
 
-        case (ActorSpawner::Message::TYPE_ERROR):
-            report << "ERROR";
-            ++m_messages_num_errors; 
-            break;
+    case Message::TYPE_WARNING:
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_WARNING;
+        break;
 
-        case (ActorSpawner::Message::TYPE_WARNING):
-            report << "WARNING";
-            ++m_messages_num_warnings; 
-            break;
-
-        default:
-            report << "INFO";
-            ++m_messages_num_other;
-            break;
+    default:
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_NOTICE;
+        break;
     }
-    report << " (Keyword " << RigDef::File::KeywordToString(m_current_keyword) << ") " << text;
-    Ogre::LogManager::getSingleton().logMessage(report.str());
+
+    RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_ACTOR, cm_type, txt.ToCStr());
 }
 
 std::pair<unsigned int, bool> ActorSpawner::GetNodeIndex(RigDef::Node::Ref const & node_ref, bool quiet /* Default: false */)
@@ -6203,38 +6246,6 @@ void ActorSpawner::UpdateCollcabContacterNodes()
     }
 }
 
-std::string ActorSpawner::ProcessMessagesToString()
-{
-    std::stringstream report;
-
-    auto itor = m_messages.begin();
-    auto end  = m_messages.end();
-    for (; itor != end; ++itor)
-    {
-        switch (itor->type)
-        {
-            case (Message::TYPE_INTERNAL_ERROR): 
-                report << "#FF3300 INTERNAL ERROR #FFFFFF"; 
-                break;
-
-            case (Message::TYPE_ERROR): 
-                report << "#FF3300 ERROR #FFFFFF"; 
-                break;
-
-            case (Message::TYPE_WARNING): 
-                report << "#FFFF00 WARNING #FFFFFF"; 
-                break;
-
-            default:
-                report << "INFO"; 
-                break;
-        }
-        report << "(Keyword " << RigDef::File::KeywordToString(itor->keyword) << ")" << std::endl;
-        report << "\t" << itor->text << std::endl;
-    }
-    return report.str();
-}
-
 RigDef::MaterialFlareBinding* ActorSpawner::FindFlareBindingForMaterial(std::string const & material_name)
 {
     for (auto& module: m_selected_modules)
@@ -6854,6 +6865,30 @@ void ActorSpawner::FinalizeGfxSetup()
     }
 
     m_actor->GetGfxActor()->RegisterAirbrakes();
+
+    if (!m_help_material_name.empty())
+    {
+        try
+        {
+            Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(m_help_material_name, m_custom_resource_group);
+            m_actor->GetGfxActor()->GetAttributes().xa_help_mat = mat;
+            if (mat &&
+                mat->getNumTechniques() > 0 &&
+                mat->getTechnique(0)->getNumPasses() > 0 &&
+                mat->getTechnique(0)->getPass(0)->getNumTextureUnitStates() > 0 &&
+                mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getNumFrames() > 0)
+            {
+                m_actor->GetGfxActor()->GetAttributes().xa_help_tex =
+                    Ogre::TextureManager::getSingleton().getByName(
+                        mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getFrameTextureName(0), m_custom_resource_group);
+            }
+        }
+        catch (Ogre::Exception& e)
+        {
+            this->AddMessage(Message::TYPE_ERROR,
+                "Failed to load `help` material '" + m_help_material_name + "', message:" + e.getFullDescription());
+        }
+    }
 }
 
 void ActorSpawner::ValidateRotator(int id, int axis1, int axis2, int *nodes1, int *nodes2)
@@ -7170,7 +7205,11 @@ void ActorSpawner::HandleException()
     catch (Ogre::Exception& ogre_e)
     {
         // Add the message silently, OGRE already printed it to RoR.log
-        m_messages.push_back(Message(Message::TYPE_ERROR, ogre_e.getFullDescription(), m_current_keyword));
+        RoR::Str<2000> txt;
+        txt << "(Keyword: " << RigDef::File::KeywordToString(m_current_keyword)
+            << ") " << ogre_e.getFullDescription();
+        RoR::App::GetConsole()->putMessage(
+            RoR::Console::CONSOLE_MSGTYPE_ACTOR, RoR::Console::CONSOLE_SYSTEM_ERROR, txt.ToCStr());
     }
     catch (std::exception& std_e)
     {

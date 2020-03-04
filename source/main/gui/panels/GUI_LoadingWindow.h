@@ -18,43 +18,27 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
 #include "RoRPrerequisites.h"
-#include "mygui/BaseLayout.h"
-
-#include <Ogre.h>
-#include <OgreTimer.h>
 
 namespace RoR {
 namespace GUI {
 
-ATTRIBUTE_CLASS_LAYOUT(LoadingWindow, "LoadingWindow.layout");
-
-class LoadingWindow :
-    public wraps::BaseLayout,
-    public ZeroedMemoryAllocator
+class LoadingWindow 
 {
 public:
+    void setProgress(int _percent, const std::string& _text = "", bool render_frame = true);
+    void Draw();
 
-    LoadingWindow();
-
-    void setProgress(int _percent, const Ogre::UTFString& _text = "", bool force_update = true);
-
-    void SetVisible(bool v) { mMainWidget->setVisible(v); }
-    bool IsVisible() { return mMainWidget->getVisible(); }
+    void SetVisible(bool v)           { m_is_visible = v; }
+    bool IsVisible() const            { return m_is_visible; }
 
 private:
-
-    ATTRIBUTE_FIELD_WIDGET_NAME(LoadingWindow, mBarProgress, "Bar");
-
-    MyGUI::ProgressBar* mBarProgress;
-    ATTRIBUTE_FIELD_WIDGET_NAME(LoadingWindow, mInfoStaticText, "Info");
-
-    MyGUI::TextBox* mInfoStaticText;
-
-    Ogre::Timer m_timer;
+    int  m_percent = -1; // -1 disables progressbar display
+    bool m_is_visible = false;
+    std::string m_text;
+    int m_text_num_lines = -1;
 };
 
 } // namespace GUI

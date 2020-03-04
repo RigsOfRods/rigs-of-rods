@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2017 Petr Ohlidal & contributors
+    Copyright 2013-2019 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -19,177 +19,133 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file
-/// @author Moncef Ben Slimane
-/// @date   2/2015
-
 #include "GUI_GameChatBox.h"
 
-#include <OgreRenderTarget.h>
-#include <OgreRenderWindow.h>
-#include <OgreViewport.h>
-#include <OgreRoot.h>
-
-#include "RoRPrerequisites.h"
-
-#include "ChatSystem.h"
-#include "Utils.h"
-#include "Language.h"
-#include "GUIManager.h"
 #include "Application.h"
-#include "OgreSubsystem.h"
+#include "ChatSystem.h"
+#include "Console.h"
+#include "GUIManager.h"
+#include "Language.h"
 
-using namespace RoR;
-using namespace GUI;
+#include <cstring> // strtok, strncmp
+#include <imgui.h>
 
-#define CLASS        GameChatBox
-#define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
-
-CLASS::CLASS() :
-      alpha(1.0f)
-    , newMsg(false)
-    , pushTime(0)
+RoR::GUI::GameChatBox::GameChatBox()
 {
-    MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::Update);
-
-    /* Adjust menu position */
-    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
-    int margin = (viewport->getActualHeight() / 4.5);
-    MAIN_WIDGET->setPosition(
-        2, // left
-        viewport->getActualHeight() - MAIN_WIDGET->getHeight() - margin // top
-    );
-
-    m_Chatbox_TextBox->eventEditSelectAccept += MyGUI::newDelegate(this, &CLASS::eventCommandAccept);
-    MAIN_WIDGET->setVisible(!App::mp_chat_auto_hide.GetActive());
+    m_console_view.cvw_align_bottom = true;
+    m_console_view.cvw_max_lines = 20u;
+    m_console_view.cvw_filter_duration_ms = 10000; // 10sec
+    m_console_view.cvw_filter_area_actor = false; // Disable vehicle spawn warnings/errors
+    m_console_view.cvw_filter_type_error = false; // Disable errors
 }
 
-CLASS::~CLASS()
+void RoR::GUI::GameChatBox::Draw()
 {
-}
-
-void CLASS::Show()
-{
-    MAIN_WIDGET->setVisible(true);
-    m_Chatbox_TextBox->setEnabled(true);
-    MyGUI::InputManager::getInstance().setKeyFocusWidget(m_Chatbox_TextBox);
-}
-
-void CLASS::Hide()
-{
-    MAIN_WIDGET->setVisible(false);
-}
-
-bool CLASS::IsVisible()
-{
-    return MAIN_WIDGET->isVisible();
-}
-
-void CLASS::pushMsg(Ogre::String txt)
-{
-    mHistory += RoR::Color::NormalColour + txt + " \n";
-    newMsg = true;
-    m_Chatbox_MainBox->setCaptionWithReplacing(mHistory);
-}
-
-void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
-{
-    Ogre::UTFString msg = convertFromMyGUIString(_sender->getCaption());
-    _sender->setCaption("");
-
-    if (App::mp_chat_auto_hide.GetActive())
-        _sender->setEnabled(false);
-
-    if (msg.empty())
+    // Begin drawing the messages pane (no input)
+    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoInputs |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
+    ImVec2 size(
+        ImGui::GetIO().DisplaySize.x - (2 * ImGui::GetStyle().WindowPadding.x),
+        (m_console_view.cvw_max_lines * ImGui::GetTextLineHeightWithSpacing()) + (2*ImGui::GetStyle().WindowPadding.y));
+    if (m_is_visible) // Full display?
     {
-        // discard the empty message
-        return;
+        size.y += ImGui::GetTextLineHeightWithSpacing() + (2 * ImGui::GetStyle().WindowPadding.x); // reserve space for input window
     }
+    ImGui::SetNextWindowSize(size);
+    ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - size.y));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
+    ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
+    ImGui::Begin("ChatMessages", nullptr, win_flags);
 
-    if (msg[0] == '/' || msg[0] == '\\')
+    m_console_view.DrawConsoleMessages();
+    ImGui::SetScrollFromPosY(9999); // Force to bottom
+
+    ImGui::End();
+
+    // Draw bottom bar (text input, filter settings)
+    ImGuiWindowFlags bbar_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
+    ImVec2 bbar_size(
+        ImGui::GetIO().DisplaySize.x - (2 * ImGui::GetStyle().WindowPadding.x),
+        ImGui::GetTextLineHeightWithSpacing() + (2 * ImGui::GetStyle().WindowPadding.x));
+    ImGui::SetNextWindowSize(bbar_size);
+    ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - bbar_size.y));
+    ImGui::Begin("ChatBottomBar", nullptr, bbar_flags);
+
+    if (m_is_visible) // Full display?
     {
-        Ogre::StringVector args = Ogre::StringUtil::split(msg, " ");
-        if (args[0] == "/whisper")
+        const char* name = "chatbox-filtering";
+        // Draw filter button and input box in one line
+        if (ImGui::Button(_LC("Console", "Filter options")))
         {
-            if (args.size() != 3)
+            ImGui::OpenPopup(name);
+        }
+        if (ImGui::BeginPopup(name))
+        {
+            m_console_view.DrawFilteringOptions();
+            ImGui::EndPopup();
+        }
+        ImGui::SameLine();
+        if (!m_kb_focused)
+        {
+            ImGui::SetKeyboardFocusHere();
+            m_kb_focused = true;
+        }
+        const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
+        if (ImGui::InputText(_L("Message"), m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
+        {
+            if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
             {
-                Ogre::UTFString trmsg = _L("usage: /whisper username message");
-                pushMsg(trmsg);
-                return;
+                this->SubmitMessage();
             }
-            RoR::ChatSystem::SendPrivateChat(args[1], args[2]);
-            return;
+            m_msg_buffer.Clear();
+            this->SetVisible(false);
         }
     }
 
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
+    ImGui::End();
+    ImGui::PopStyleColor(2); // WindowBg, ChildWindowBg
+}
+
+void RoR::GUI::GameChatBox::SubmitMessage()
+{
 #ifdef USE_SOCKETW
-    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+    if (m_msg_buffer.IsEmpty())
     {
-        RoR::ChatSystem::SendChat(msg.c_str());
         return;
+    }
+    if (std::strncmp(m_msg_buffer.GetBuffer(), "/whisper", 8) == 0)
+    {
+        std::strtok(m_msg_buffer.GetBuffer(), " ");
+        const char* username = std::strtok(nullptr, " ");
+        const char* message = std::strtok(nullptr, " ");
+        if (username != nullptr && message != nullptr)
+        {
+            RoRnet::UserInfo user;
+            if (RoR::Networking::FindUserInfo(username, user))
+            {
+                RoR::Networking::WhisperChatMsg(user, message);
+            }
+            else
+            {
+                Str<200> text;
+                text << _L("Whisper message not sent, unknown username") << ": " << username;
+                App::GetConsole()->putMessage(
+                    Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, text.ToCStr());
+            }
+        }
+        else
+        {
+            App::GetConsole()->putMessage(
+                Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                _L("usage: /whisper username message"));
+        }
+    }
+    else
+    {
+        RoR::Networking::BroadcastChatMsg(m_msg_buffer.GetBuffer());
     }
 #endif // USE_SOCKETW
-
-    //MyGUI::InputManager::getInstance().resetKeyFocusWidget();
-    RoR::App::GetGuiManager()->UnfocusGui();
 }
 
-void CLASS::Update(float dt)
-{
-    if (App::mp_state.GetActive() != MpState::CONNECTED)
-    {
-        MAIN_WIDGET->setVisible(false);
-        return;
-    }
-    else if (!App::mp_chat_auto_hide.GetActive())
-    {
-        MAIN_WIDGET->setVisible(true);
-        return;
-    }
-
-    if (newMsg)
-    {
-        newMsg = false;
-        pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
-        MAIN_WIDGET->setAlpha(1);
-        MAIN_WIDGET->setVisible(true);
-        return;
-    }
-
-    if (!MyGUI::InputManager::getInstance().isFocusKey())
-    {
-        unsigned long ot = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
-        unsigned long endTime = pushTime + 5000;
-        unsigned long startTime = endTime - (long)1000.0f;
-        if (ot < startTime)
-        {
-            alpha = 1.0f;
-        }
-        else
-        {
-            alpha = 1 - ((ot - startTime) / 1000.0f);
-        }
-        if (alpha <= 0.0f)
-        {
-            MAIN_WIDGET->setVisible(false);
-        }
-        else
-        {
-            MAIN_WIDGET->setAlpha(alpha);
-        }
-    }
-    else if (MAIN_WIDGET->getVisible())
-    {
-        pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
-        m_Chatbox_TextBox->setEnabled(true);
-        MAIN_WIDGET->setAlpha(1);
-    }
-}
-
-void CLASS::SetVisible(bool value)
-{
-    if (value)
-        this->Show();
-    else
-        this->Hide();
-}

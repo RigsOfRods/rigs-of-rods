@@ -43,7 +43,7 @@
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
 #include "GUIManager.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "GfxActor.h"
 #include "InputEngine.h"
 #include "Language.h"
@@ -389,8 +389,9 @@ void Actor::PushNetwork(char* data, int size)
             // Inform the local player
             RoRnet::UserInfo info;
             RoR::Networking::GetUserInfo(reg.origin_sourceid, info);
-            UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::WarningColour + _L(" content mismatch: ") + RoR::Color::NormalColour + reg.name;
-            RoR::App::GetGuiManager()->pushMessageChatBox(message);
+            Str<400> text;
+            text << info.username << _L(" content mismatch: ") << reg.name;
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, text.ToCStr());
 
             // Remove self
             App::GetSimController()->QueueActorRemove(this);
@@ -805,7 +806,7 @@ void Actor::DetermineLinkedActors() //TODO: Refactor this - logic iterating over
     }
 }
 
-int Actor::getWheelNodeCount()
+int Actor::getWheelNodeCount() const
 {
     return m_wheel_node_count;
 }
@@ -1298,8 +1299,6 @@ void Actor::DisplayAxleDiffMode()
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                 _L("No inter-axle differential installed on current vehicle!"), "warning.png", 3000);
-        App::GetGuiManager()->PushNotification("Inter-axle differentials:",
-                _L("No inter-axle differential installed on current vehicle!"));
     }
     else
     {
@@ -1317,7 +1316,6 @@ void Actor::DisplayAxleDiffMode()
         }
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                 "Inter-axle differentials:\n" + message, "cog.png", 3000);
-        App::GetGuiManager()->PushNotification("Inter-axle differentials:", message);
     }
 }
 
@@ -1327,8 +1325,6 @@ void Actor::DisplayWheelDiffMode()
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                 _L("No inter-wheel differential installed on current vehicle!"), "warning.png", 3000);
-        App::GetGuiManager()->PushNotification("Inter-wheel differentials:",
-                _L("No inter-wheel differential installed on current vehicle!"));
     }
     else
     {
@@ -1344,7 +1340,6 @@ void Actor::DisplayWheelDiffMode()
         }
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                 "Inter-wheel differentials:\n" + message, "cog.png", 3000);
-        App::GetGuiManager()->PushNotification("Inter-wheel differentials:", message);
     }
 }
 
@@ -1354,13 +1349,11 @@ void Actor::DisplayTransferCaseMode()
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                 _L("Transfercase switched to: ") + this->GetTransferCaseName(), "cog.png", 3000);
-        App::GetGuiManager()->PushNotification("Transfercase:", "Switched to: " + this->GetTransferCaseName());
     }
     else
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                 _L("No transfercase installed on current vehicle!"), "warning.png", 3000);
-        App::GetGuiManager()->PushNotification("Transfercase:", "No transfercase installed on current vehicle!");
     }
 }
 

@@ -35,7 +35,7 @@
 #include "DashBoardManager.h"
 #include "DynamicCollisions.h"
 #include "GUIManager.h"
-#include "GUI_GameConsole.h"
+#include "Console.h"
 #include "GUI_TopMenubar.h"
 #include "LandVehicleSimulation.h"
 #include "Language.h"
@@ -119,20 +119,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
         spawner.AddModule(actor->m_section_config);
     }
     spawner.SpawnActor();
-    def->report_num_errors += spawner.GetMessagesNumErrors();
-    def->report_num_warnings += spawner.GetMessagesNumWarnings();
-    def->report_num_other += spawner.GetMessagesNumOther();
-    // Spawner log already printed to RoR.log
-    def->loading_report += spawner.ProcessMessagesToString() + "\n\n";
 
-    RoR::App::GetGuiManager()->AddRigLoadingReport(def->name, def->loading_report, def->report_num_errors, def->report_num_warnings, def->report_num_other);
-    if (def->report_num_errors != 0)
-    {
-        if (App::diag_auto_spawner_report.GetActive())
-        {
-            RoR::App::GetGuiManager()->SetVisible_SpawnerReport(true);
-        }
-    }
     /* POST-PROCESSING (Old-spawn code from Actor::loadTruck2) */
 
     actor->ar_initial_node_positions.resize(actor->ar_num_nodes);
@@ -423,17 +410,19 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
             {
                 RoRnet::UserInfo info;
                 RoR::Networking::GetUserInfo(reg->origin_sourceid, info);
-
-                UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::CommandColour + _L(" spawned a new vehicle: ") + RoR::Color::NormalColour + reg->name;
-                RoR::App::GetGuiManager()->pushMessageChatBox(message);
+                Str<200> text;
+                text << _L(" spawned a new vehicle: ") << Utils::SanitizeUtf8CString(reg->name);
+                App::GetConsole()->putNetMessage(
+                    reg->origin_sourceid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
 
                 LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
                 reg->name[127] = 0;
                 Ogre::String filename(reg->name);
                 if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(filename))
                 {
-                    UTFString txt = RoR::Color::WarningColour + _L("Mod not installed: ") + RoR::Color::NormalColour + reg->name;
-                    RoR::App::GetGuiManager()->pushMessageChatBox(txt);
+                    App::GetConsole()->putMessage(
+                        Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                        _L("Mod not installed: ") + Utils::SanitizeUtf8CString(reg->name));
                     RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", reg->name);
                     AddStreamMismatch(reg->origin_sourceid, reg->origin_streamid);
                     reg->status = -1;
@@ -1187,14 +1176,8 @@ void HandleErrorLoadingFile(std::string type, std::string filename, std::string 
 {
     RoR::Str<200> msg;
     msg << "Failed to load '" << filename << "' (type: '" << type << "'), message: " << exception_msg;
-    RoR::App::GetGuiManager()->PushNotification("Error:", msg.ToCStr());
-    RoR::LogFormat("[RoR] %s", msg.ToCStr());
-
-    if (RoR::App::GetConsole())
-    {
-        RoR::App::GetConsole()->putMessage(
-            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr(), "error.png", 30000, true);
-    }
+    RoR::App::GetConsole()->putMessage(
+        Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr(), "error.png", 30000, true);
 }
 
 void HandleErrorLoadingTruckfile(std::string filename, std::string exception_msg)
@@ -1244,26 +1227,6 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, 
 
         auto def = parser.GetFile();
 
-        def->report_num_errors = parser.GetMessagesNumErrors();
-        def->report_num_warnings = parser.GetMessagesNumWarnings();
-        def->report_num_other = parser.GetMessagesNumOther();
-        def->loading_report = parser.ProcessMessagesToString();
-        def->loading_report += "\n\n";
-        LOG(def->loading_report);
-
-        auto* importer = parser.GetSequentialImporter();
-        if (importer->IsEnabled() && App::diag_rig_log_messages.GetActive())
-        {
-            def->report_num_errors += importer->GetMessagesNumErrors();
-            def->report_num_warnings += importer->GetMessagesNumWarnings();
-            def->report_num_other += importer->GetMessagesNumOther();
-
-            std::string importer_report = importer->ProcessMessagesToString();
-            LOG(importer_report);
-
-            def->loading_report += importer_report + "\n\n";
-        }
-
         // VALIDATING
         LOG(" == Validating vehicle: " + def->name);
 
@@ -1283,29 +1246,8 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, 
                 validator.SetCheckBeams(false);
             }
         }
-        bool valid = validator.Validate();
 
-        def->report_num_errors += validator.GetMessagesNumErrors();
-        def->report_num_warnings += validator.GetMessagesNumWarnings();
-        def->report_num_other += validator.GetMessagesNumOther();
-        std::string validator_report = validator.ProcessMessagesToString();
-        LOG(validator_report);
-        def->loading_report += validator_report;
-        def->loading_report += "\n\n";
-        // Continue anyway...
-
-        // Extra information to RoR.log
-        if (importer->IsEnabled())
-        {
-            if (App::diag_rig_log_node_stats.GetActive())
-            {
-                LOG(importer->GetNodeStatistics());
-            }
-            if (App::diag_rig_log_node_import.GetActive())
-            {
-                LOG(importer->IterateAndPrintAllNodes());
-            }
-        }
+        validator.Validate(); // Sends messages to console
 
         def->hash = Utils::Sha1Hash(stream->getAsString());
 

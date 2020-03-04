@@ -26,6 +26,8 @@
 #include <iomanip>
 #include "RigDef_SequentialImporter.h"
 
+#include "Application.h"
+#include "Console.h"
 #include "RigDef_Parser.h"
 #include "RoRPrerequisites.h"
 
@@ -38,10 +40,6 @@ void SequentialImporter::Init(bool enabled)
     m_all_nodes.reserve(1000);
     m_current_keyword = File::KEYWORD_INVALID;
     m_current_module.reset();
-    m_messages.clear();
-    m_messages_num_errors = 0;
-    m_messages_num_warnings = 0;
-    m_messages_num_other = 0;
 
     m_num_numbered_nodes       = 0;
     m_num_named_nodes          = 0;
@@ -94,33 +92,45 @@ void SequentialImporter::Process(std::shared_ptr<RigDef::File> def)
     {
         this->ProcessModule((*itor).second);
     }
+
+    if (RoR::App::diag_rig_log_node_stats.GetActive())
+    {
+        this->AddMessage(Message::TYPE_INFO, this->GetNodeStatistics());
+    }
+    if (RoR::App::diag_rig_log_node_import.GetActive())
+    {
+        this->AddMessage(Message::TYPE_INFO, this->IterateAndPrintAllNodes());
+    }
 }
 
 void SequentialImporter::AddMessage(Message::Type msg_type, std::string text)
 {
-    Message m;
-    m.keyword = m_current_keyword;
-    m.type = msg_type;
-    m.message = text;
-    if (m_current_module.get() != nullptr)
+    RoR::Str<2000> txt;
+    txt << text << "(";
+    if (m_current_module) // Not present while adding nodes, only while resolving
     {
-        m.module_name = m_current_module->name;
+        txt << "sectionconfig: " << m_current_module->name << ", ";
     }
-    m_messages.push_back(m);
+    txt << "keyword: " << File::KeywordToString(m_current_keyword) << ")";
 
+    RoR::Console::MessageType cm_type;
     switch (msg_type)
     {
-    case Message::TYPE_ERROR: 
-    case Message::TYPE_FATAL_ERROR: 
-        ++m_messages_num_errors; 
+    case Message::TYPE_FATAL_ERROR:
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_ERROR;
         break;
-    case Message::TYPE_WARNING: 
-        ++m_messages_num_warnings; 
+
+    case Message::TYPE_ERROR:
+    case Message::TYPE_WARNING:
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_WARNING;
         break;
+
     default:
-        ++m_messages_num_other;
+        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_NOTICE;
         break;
     }
+
+    RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_ACTOR, cm_type, txt.ToCStr());
 }
 
 unsigned SequentialImporter::GetNodeArrayOffset(File::Keyword keyword)
@@ -207,19 +217,23 @@ Node::Ref SequentialImporter::ResolveNode(Node::Ref const & noderef_in)
     if (entry.node_id.IsTypeNamed())
     {
         Node::Ref out_ref(entry.node_id.Str(), 0, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NAMED, noderef_in.GetLineNumber());
+        /* TODO: make optional (debug) or remove
         std::stringstream msg;
         msg << "Node resolved\n\tSource: " << noderef_in.ToString() << "\n\tResult: " << out_ref.ToString();
         this->AddMessage(Message::TYPE_INFO, msg.str());
+        */
         return out_ref;
     }
     else if (entry.node_id.IsTypeNumbered())
     {
         unsigned out_index = this->GetNodeArrayOffset(entry.origin_keyword) + entry.node_sub_index;
         Node::Ref out_ref(TOSTRING(out_index), out_index, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED, noderef_in.GetLineNumber());
+        /* TODO: make optional (debug) or remove
         std::stringstream msg;
         msg << "Node resolved\n\tSource: " << noderef_in.ToString() << "\n\tResult: " << out_ref.ToString()
             << "\n\tOrigin: " << RigDef::File::KeywordToString(entry.origin_keyword) << " SubIndex: " << entry.node_sub_index;
         this->AddMessage(Message::TYPE_INFO, msg.str());
+        */
         return out_ref;
     }
     else
@@ -697,44 +711,6 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
     m_current_module.reset();
 }
 
-std::string SequentialImporter::ProcessMessagesToString()
-{
-    if (m_messages.empty())
-    {
-        std::string msg(" == Sequential import (fileformatversion < 450) OK, nothing to report");
-        return msg;
-    }
-
-    std::stringstream report;
-    report << " == Sequential import (fileformatversion < 450) done, report:" <<std::endl << std::endl;
-
-    auto itor = m_messages.begin();
-    auto end  = m_messages.end();
-    for( ; itor != end; ++itor)
-    {
-        switch (itor->type)
-        {
-            case (Message::TYPE_FATAL_ERROR):
-                report << "#FF3300 FATAL ERROR #FFFFFF";
-                break;
-            case (Message::TYPE_ERROR):
-                report << "#FF3300 ERROR #FFFFFF";
-                break;
-            case (Message::TYPE_WARNING):
-                report << "#FFFF00 WARNING #FFFFFF";
-                break;
-            default:
-                report << "INFO";
-                break;
-        }
-
-        report << " (module: " << itor->module_name << ", keyword: \"" 
-            << File::KeywordToString(itor->keyword) << "\"): " << itor->message << std::endl;
-    }
-
-    return report.str();
-}
-
 bool SequentialImporter::AddNumberedNode(unsigned int number)
 {
     if (number != m_all_nodes.size()) // Check node sync, like legacy parser did.
@@ -802,6 +778,9 @@ std::string SequentialImporter::GetNodeStatistics()
         STAT_LINE(msg, "    meshwheels: ", m_num_meshwheels_nodes    , File::KEYWORD_MESHWHEELS    );
         STAT_LINE(msg, "   meshwheels2: ", m_num_meshwheels2_nodes   , File::KEYWORD_MESHWHEELS2   );
         STAT_LINE(msg, "flexbodywheels: ", m_num_flexbodywheels_nodes, File::KEYWORD_FLEXBODYWHEELS);
+
+    msg << "\nResolved " << m_total_resolved << " nodes ("
+        << m_num_resolved_to_self << " resolved without change)";
     return msg.str();
 }
 

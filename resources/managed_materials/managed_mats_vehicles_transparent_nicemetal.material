@@ -1,0 +1,197 @@
+import * from "shadows.material"
+
+material managed/flexmesh_transparent/specularonly_nicemetal
+{
+    technique BaseTechnique
+    {
+        pass BaseRender
+        {
+			alpha_rejection greater 0
+			depth_write off
+            // Makes the pixel shader alpha output be used for alpha blending
+            scene_blend alpha_blend
+            diffuse vertexcolour
+            //specular 0.5 0.5 0.5 1 12.5
+
+            // Make this pass use the vertex shader
+            vertex_program_ref NiceMetal_VS_mm
+            {
+            }
+            // Make this pass use the pixel shader
+            fragment_program_ref NiceMetal_transp_PS_nodmg_mm
+            {
+            }
+           texture_unit Diffuse_Map
+            {
+                // This pass will use this 2D texture as its input
+                texture unknown.dds
+                tex_coord_set 0
+            }
+            texture_unit Specular_Map
+            {
+                // This pass will use this 2D texture as its input
+                texture_alias specular_tex
+                tex_coord_set 1
+            }
+        }
+        pass Specular
+        {
+			depth_write off
+            scene_blend add
+            diffuse vertexcolour
+  
+            // Make this pass use the vertex shader
+            vertex_program_ref NiceMetal_Reflect_VS_mm
+            {
+            }
+            // Make this pass use the pixel shader
+             fragment_program_ref NiceMetal_Reflect_PS_mm
+              {
+              }
+              texture_unit Specular_Map
+              {
+                  // This pass will use this 2D texture as its input
+                  texture_alias specular_tex
+                  tex_coord_set 0
+              }
+              texture_unit envmaptex
+              {
+                  cubic_texture EnvironmentTexture combinedUVW
+                  tex_address_mode clamp
+                  tex_coord_set 1
+              }
+          }
+    }
+}
+
+material managed/flexmesh_transparent/speculardamage_nicemetal
+{
+    technique BaseTechnique
+    {
+        pass BaseRender
+        {
+			alpha_rejection greater 0
+			depth_write off
+
+			// Makes the pixel shader alpha output be used for alpha blending
+            scene_blend alpha_blend
+            diffuse vertexcolour
+            //specular 0.5 0.5 0.5 1 12.5
+
+            // Make this pass use the vertex shader
+            vertex_program_ref NiceMetal_VS_mm
+            {
+            }
+            // Make this pass use the pixel shader
+            fragment_program_ref NiceMetal_transp_PS_mm
+            {
+            }
+           texture_unit Diffuse_Map
+            {
+                // This pass will use this 2D texture as its input
+                texture unknown.dds
+                tex_coord_set 0
+            }
+            texture_unit Specular_Map
+            {
+                // This pass will use this 2D texture as its input
+                texture_alias specular_tex
+                tex_coord_set 1
+            }
+            texture_unit Dmg_Diffuse_Map
+            {
+                // This pass will use this 2D texture as its input
+                texture unknown.dds
+                tex_coord_set 2
+            }
+        }
+        pass Specular
+        {
+			depth_write off
+            scene_blend add
+            diffuse vertexcolour
+  
+            // Make this pass use the vertex shader
+            vertex_program_ref NiceMetal_Reflect_VS_mm
+            {
+            }
+            // Make this pass use the pixel shader
+             fragment_program_ref NiceMetal_Reflect_PS_mm
+              {
+              }
+              texture_unit Specular_Map
+              {
+                  // This pass will use this 2D texture as its input
+                  texture_alias specular_tex 2d
+                  tex_coord_set 0
+              }
+              texture_unit envmaptex
+              {
+                  cubic_texture EnvironmentTexture combinedUVW
+                  tex_address_mode clamp
+                  tex_coord_set 1
+              }
+          }
+    }
+}
+
+material managed/mesh_transparent/specular_nicemetal
+{
+    technique BaseTechnique
+    {
+        pass BaseRender
+        {
+			alpha_rejection greater 0
+			depth_write off
+            // Makes the pixel shader alpha output be used for alpha blending
+            scene_blend alpha_blend
+
+            // Make this pass use the vertex shader
+            vertex_program_ref NiceMetal_VS_mm
+            {
+            }
+            // Make this pass use the pixel shader
+            fragment_program_ref SimpleMetal_transp_PS_mm
+            {
+            }
+           texture_unit Diffuse_Map
+            {
+                // This pass will use this 2D texture as its input
+                texture unknown.dds 2d
+                tex_coord_set 0
+            }
+            texture_unit Specular_Map
+            {
+                // This pass will use this 2D texture as its input
+                texture_alias specular_tex
+                tex_coord_set 1
+            }
+        }
+        pass Specular
+        {
+			depth_write off
+            scene_blend add
+            
+            // Make this pass use the vertex shader
+            vertex_program_ref NiceMetal_Reflect_VS_mm
+            {
+            }
+            // Make this pass use the pixel shader
+             fragment_program_ref NiceMetal_Reflect_nocolor_PS_mm
+              {
+              }
+              texture_unit Specular_Map
+              {
+                  // This pass will use this 2D texture as its input
+                  texture_alias specular_tex
+                  tex_coord_set 0
+              }
+              texture_unit envmaptex
+              {
+                  cubic_texture EnvironmentTexture combinedUVW
+                  tex_address_mode clamp
+                  tex_coord_set 1
+              }
+          }
+    }
+}

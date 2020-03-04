@@ -28,10 +28,13 @@
 
 #include <OgreResourceGroupManager.h>
 #include <OgreScriptCompiler.h>
+#include <rapidjson/document.h>
 
 #define RGN_TEMP "Temp"
 #define RGN_CACHE "Cache"
+#define RGN_CONFIG "Config"
 #define RGN_CONTENT "Content"
+#define RGN_SAVEGAMES "Savegames"
 #define RGN_MANAGED_MATS "ManagedMaterials"
 
 namespace RoR {
@@ -84,6 +87,11 @@ public:
     void               InitModCache();
     void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
+    bool               DeleteDiskFile(std::string const& filename, std::string const& rg_name);
+
+    // JSON:
+    bool               LoadAndParseJson(std::string const& filename, std::string const& rg_name, rapidjson::Document& j_doc);
+    bool               SerializeAndWriteJson(std::string const& filename, std::string const& rg_name, rapidjson::Document& j_doc);
 
 private:
 

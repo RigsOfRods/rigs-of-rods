@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -22,6 +23,8 @@
 /// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
 /// @date   7th of September 2009
 
+/// @author Remake to DearIMGUI: Petr Ohlidal, 11/2019
+
 
 #include "GUI_MultiplayerClientList.h"
 
@@ -32,357 +35,196 @@
 #include "Network.h"
 #include "RoRFrameListener.h"
 
+#include <vector>
+
 using namespace RoR;
 using namespace GUI;
 using namespace Ogre;
 
-MpClientList::MpClientList() :
-    clients(0)
-    , lineheight(16)
-    , msgwin(0)
+void MpClientList::Draw()
 {
-    // allocate some buffers
-    clients = (client_t *)calloc(RORNET_MAX_PEERS, sizeof(client_t));
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
-    // tooltip window
-    tooltipPanel = MyGUI::Gui::getInstance().createWidget<MyGUI::Widget>("PanelSkin", 0, 0, 200, 20, MyGUI::Align::Default, "ToolTip");
-    tooltipText = tooltipPanel->createWidget<MyGUI::TextBox>("TextBox", 4, 2, 200, 16, MyGUI::Align::Default);
-    tooltipText->setFontName("VeraMono");
-    //tooltipPanel->setAlpha(0.9f);
-    tooltipText->setFontHeight(16);
-    tooltipPanel->setVisible(false);
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
+    const float content_width = 200.f;
+    ImGui::SetNextWindowContentWidth(content_width);
+    ImGui::SetNextWindowPos(ImVec2(
+        ImGui::GetIO().DisplaySize.x - (content_width + (2*ImGui::GetStyle().WindowPadding.x) + theme.screen_edge_padding.x),
+        theme.screen_edge_padding.y));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
+    ImGui::Begin("Peers", nullptr, flags);
 
-    // message window
-    msgwin = MyGUI::Gui::getInstance().createWidget<MyGUI::Window>("WindowCSX", 0, 0, 400, 300, MyGUI::Align::Center, "Overlapped");
-    msgwin->setCaption(_L("Player Information"));
-    msgtext = msgwin->createWidget<MyGUI::Edit>("EditStretch", 0, 0, 400, 300, MyGUI::Align::Default, "helptext");
-    msgtext->setCaption("");
-    msgtext->setEditWordWrap(true);
-    msgtext->setEditStatic(true);
-    msgwin->setVisible(false);
-
-    // network quality warning
-    netmsgwin = MyGUI::Gui::getInstance().createWidget<MyGUI::Window>("FlowContainer", 5, 30, 300, 40, MyGUI::Align::Default, "Main");
-    netmsgwin->setAlpha(0.8f);
-    MyGUI::ImageBox* nimg = netmsgwin->createWidget<MyGUI::ImageBox>("ImageBox", 0, 0, 16, 16, MyGUI::Align::Default, "Main");
-    nimg->setImageTexture("error.png");
-    netmsgtext = netmsgwin->createWidget<MyGUI::TextBox>("TextBox", 18, 2, 300, 40, MyGUI::Align::Default, "helptext");
-    netmsgtext->setCaption(_L("Slow  Network  Download"));
-    netmsgtext->setFontName("DefaultBig");
-    netmsgtext->setTextColour(MyGUI::Colour::Red);
-    netmsgtext->setFontHeight(lineheight);
-    netmsgwin->setVisible(false);
-
-    // now the main GUI
-    MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
-    int x = gui_area.width - 300, y = 30;
-
-    MyGUI::ImageBox* ib = MyGUI::Gui::getInstance().createWidget<MyGUI::ImageBox>("ImageBox", x, y, sidebarWidth, gui_area.height, MyGUI::Align::Default, "Back");
-    ib->setImageTexture("mpbg.png");
-
-    mpPanel = ib; //->createWidget<MyGUI::Widget>("FlowContainer", x, y, sidebarWidth, gui_area.height,  MyGUI::Align::Default, "Main");
-    mpPanel->setVisible(false);
-
-    y = 5;
-    UTFString tmp;
-    for (int i = 0; i < RORNET_MAX_PEERS + 1; i++) // plus 1 for local entry
-    {
-        x = 100; // space for icons
-        player_row_t* row = &player_rows[i];
-        row->playername = mpPanel->createWidget<MyGUI::TextBox>("TextBox", x, y + 1, sidebarWidth, lineheight, MyGUI::Align::Default, "Main");
-        row->playername->setCaption("Player " + TOSTRING(i));
-        row->playername->setFontName("DefaultBig");
-        tmp = _L("user name");
-        row->playername->setUserString("tooltip", tmp.asUTF8());
-        row->playername->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
-        row->playername->setNeedToolTip(true);
-        row->playername->setVisible(false);
-        row->playername->setFontHeight(lineheight);
-        row->playername->setAlpha(1);
-
-        x -= 18;
-        row->flagimg = mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y + 3, 16, 11, MyGUI::Align::Default, "Main");
-        tmp = _L("user country");
-        row->flagimg->setUserString("tooltip", tmp.asUTF8());
-        row->flagimg->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
-        row->flagimg->setNeedToolTip(true);
-        row->flagimg->setVisible(false);
-
-        x -= 18;
-        row->statimg = mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y, 16, 16, MyGUI::Align::Default, "Main");
-        tmp = _L("user authentication level");
-        row->statimg->setUserString("tooltip", tmp.asUTF8());
-        row->statimg->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
-        row->statimg->setNeedToolTip(true);
-        row->statimg->setVisible(false);
-
-        x -= 18;
-        row->user_actor_ok_img = mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y, 16, 16, MyGUI::Align::Default, "Main");
-        tmp = _L("truck loading state");
-        row->user_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
-        row->user_actor_ok_img->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
-        row->user_actor_ok_img->setNeedToolTip(true);
-        row->user_actor_ok_img->setVisible(false);
-        row->user_actor_ok_img->eventMouseButtonClick += MyGUI::newDelegate(this, &MpClientList::clickInfoIcon);
-
-        x -= 18;
-        row->user_remote_actor_ok_img = mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y, 16, 16, MyGUI::Align::Default, "Main");
-        tmp = _L("remote truck loading state");
-        row->user_remote_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
-        row->user_remote_actor_ok_img->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
-        row->user_remote_actor_ok_img->setNeedToolTip(true);
-        row->user_remote_actor_ok_img->setVisible(false);
-        row->user_remote_actor_ok_img->eventMouseButtonClick += MyGUI::newDelegate(this, &MpClientList::clickInfoIcon);
-
-        x -= 18;
-        row->usergoimg = mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y, 16, 16, MyGUI::Align::Default, "Main");
-        row->usergoimg->setUserString("num", TOSTRING(i));
-        tmp = _L("go to user");
-        row->usergoimg->setUserString("tooltip", tmp.asUTF8());
-        row->usergoimg->setImageTexture("user_go.png");
-        row->usergoimg->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
-        row->usergoimg->setNeedToolTip(true);
-        row->usergoimg->setVisible(false);
-        row->usergoimg->eventMouseButtonClick += MyGUI::newDelegate(this, &MpClientList::clickUserGoIcon);
-
-        /*
-        img = MyGUI::Gui::getInstance().createWidget<MyGUI::ImageBox>("ImageBox", x-36, y, 16, 16,  MyGUI::Align::Default, "Overlapped");
-        img->setImageTexture("information.png");
-        img->eventMouseButtonClick += MyGUI::newDelegate(this, &MpClientList::clickInfoIcon);
-        img->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
-        img->setNeedToolTip(true);
-        img->setUserString("info", TOSTRING(i));
-        img->setUserString("tooltip", _L("information about the user"));
-        */
-
-        y += lineheight;
-    }
-}
-
-MpClientList::~MpClientList()
-{
-    if (clients)
-    {
-        free(clients);
-        clients = 0;
-    }
-}
-
-void MpClientList::updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self)
-{
-    if (!row)
-        return;
-
-    int x = 100;
-    int y = row->playername->getPosition().top;
-    // name
-    row->playername->setCaption(c.username);
-#if USE_SOCKETW
-    ColourValue col = Networking::GetPlayerColor(c.colournum);
-    row->playername->setTextColour(MyGUI::Colour(col.r, col.g, col.b, col.a));
-#endif
-    row->playername->setVisible(true);
-    x -= 18;
-
-    // flag
-    StringVector parts = StringUtil::split(String(c.language), "_");
-    if (parts.size() == 2)
-    {
-        String lang = parts[1];
-        StringUtil::toLowerCase(lang);
-        row->flagimg->setImageTexture(lang + ".png");
-        row->flagimg->setUserString("tooltip", _L("user language: ") + parts[0] + _L(" user country: ") + parts[1]);
-        row->flagimg->setVisible(true);
-        row->flagimg->setPosition(x, y);
-        x -= 18;
-    }
-    else
-    {
-        row->flagimg->setVisible(false);
-    }
-
-    UTFString tmp;
-    // auth
-    if (c.authstatus == RoRnet::AUTH_NONE)
-    {
-        row->statimg->setVisible(false);
-    }
-    else if (c.authstatus & RoRnet::AUTH_ADMIN)
-    {
-        row->statimg->setVisible(true);
-        row->statimg->setImageTexture("flag_red.png");
-        tmp = _L("Server Administrator");
-        row->statimg->setUserString("tooltip", tmp.asUTF8());
-        row->statimg->setPosition(x, y);
-        x -= 18;
-    }
-    else if (c.authstatus & RoRnet::AUTH_MOD)
-    {
-        row->statimg->setVisible(true);
-        row->statimg->setImageTexture("flag_blue.png");
-        tmp = _L("Server Moderator");
-        row->statimg->setUserString("tooltip", tmp.asUTF8());
-        row->statimg->setPosition(x, y);
-        x -= 18;
-    }
-    else if (c.authstatus & RoRnet::AUTH_RANKED)
-    {
-        row->statimg->setVisible(true);
-        row->statimg->setImageTexture("flag_green.png");
-        tmp = _L("ranked user");
-        row->statimg->setUserString("tooltip", tmp.asUTF8());
-        row->statimg->setPosition(x, y);
-        x -= 18;
-    }
-
-    // truck ok image
-    if (!self && App::app_state.GetActive() != AppState::MAIN_MENU)
-    {
-        row->user_actor_ok_img->setVisible(true);
-        row->user_remote_actor_ok_img->setVisible(true);
-        row->user_actor_ok_img->setUserString("uid", TOSTRING(c.uniqueid));
-        row->user_remote_actor_ok_img->setUserString("uid", TOSTRING(c.uniqueid));
-        row->user_actor_ok_img->setPosition(x, y);
-        x -= 10;
-        row->user_remote_actor_ok_img->setPosition(x, y);
-        x -= 10;
-
-        int ok = App::GetSimController()->GetBeamFactory()->CheckNetworkStreamsOk(c.uniqueid);
-        if (ok == 0)
-        {
-            row->user_actor_ok_img->setImageTexture("arrow_down_red.png");
-            tmp = _L("Truck loading errors");
-            row->user_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
-        }
-        else if (ok == 1)
-        {
-            row->user_actor_ok_img->setImageTexture("arrow_down.png");
-            tmp = _L("Truck loaded correctly, no errors");
-            row->user_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
-        }
-        else if (ok == 2)
-        {
-            row->user_actor_ok_img->setImageTexture("arrow_down_grey.png");
-            tmp = _L("no truck loaded");
-            row->user_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
-        }
-
-        int rok = App::GetSimController()->GetBeamFactory()->CheckNetRemoteStreamsOk(c.uniqueid);
-        if (rok == 0)
-        {
-            row->user_remote_actor_ok_img->setImageTexture("arrow_up_red.png");
-            tmp = _L("Remote Truck loading errors");
-            row->user_remote_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
-        }
-        else if (rok == 1)
-        {
-            row->user_remote_actor_ok_img->setImageTexture("arrow_up.png");
-            tmp = _L("Remote Truck loaded correctly, no errors");
-            row->user_remote_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
-        }
-        else if (rok == 2)
-        {
-            row->user_remote_actor_ok_img->setImageTexture("arrow_up_grey.png");
-            tmp = _L("No Trucks loaded");
-            row->user_remote_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
-        }
-    }
-    else
-    {
-        row->user_actor_ok_img->setVisible(false);
-        row->user_remote_actor_ok_img->setVisible(false);
-    }
-
-    // user go img
-    row->usergoimg->setVisible(false);
-}
-
-void MpClientList::update()
-{
-#ifdef USE_SOCKETW
-    int slotid = 0;
-
-    MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
-    int x = gui_area.width - sidebarWidth, y = 30;
-    mpPanel->setPosition(x, y);
-
-    // add local player to first slot always
-    RoRnet::UserInfo lu = RoR::Networking::GetLocalUserData();
-    updateSlot(&player_rows[slotid], lu, true);
-    slotid++;
-
-    // add remote players
     std::vector<RoRnet::UserInfo> users = RoR::Networking::GetUserInfos();
-    for (RoRnet::UserInfo user : users)
+    users.insert(users.begin(), RoR::Networking::GetLocalUserData());
+    for (RoRnet::UserInfo const& user: users)
     {
-        player_row_t* row = &player_rows[slotid];
-        slotid++;
-        try
+        // Icon sizes: flag(16x11), auth(16x16), up(16x16), down(16x16)
+        bool hovered = false;
+        Ogre::TexturePtr flag_tex;
+        Ogre::TexturePtr auth_tex;
+        Ogre::TexturePtr down_tex;
+        Ogre::TexturePtr up_tex;
+
+        // Stream state indicators
+        if (user.uniqueid != RoR::Networking::GetLocalUserData().uniqueid &&
+            App::app_state.GetActive() != AppState::MAIN_MENU)
         {
-            updateSlot(row, user, false);
+            switch (App::GetSimController()->GetBeamFactory()->CheckNetworkStreamsOk(user.uniqueid))
+            {
+            case 0: down_tex = this->FetchIcon("arrow_down_red.png");  break;
+            case 1: down_tex = this->FetchIcon("arrow_down.png");      break;
+            case 2: down_tex = this->FetchIcon("arrow_down_grey.png"); break;
+            default:;
+            }
+            
+
+            switch (App::GetSimController()->GetBeamFactory()->CheckNetRemoteStreamsOk(user.uniqueid))
+            {
+            case 0: up_tex = this->FetchIcon("arrow_up_red.png");  break;
+            case 1: up_tex = this->FetchIcon("arrow_up.png");      break;
+            case 2: up_tex = this->FetchIcon("arrow_up_grey.png"); break;
+            default:;
+            }
         }
-        catch (...)
+        // Always invoke to keep usernames aligned
+        hovered |= this->DrawIcon(down_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
+        hovered |= this->DrawIcon(up_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
+
+        // Auth icon
+             if (user.authstatus & RoRnet::AUTH_ADMIN ) { auth_tex = this->FetchIcon("flag_red.png");   }
+        else if (user.authstatus & RoRnet::AUTH_MOD   ) { auth_tex = this->FetchIcon("flag_blue.png");  }
+        else if (user.authstatus & RoRnet::AUTH_RANKED) { auth_tex = this->FetchIcon("flag_green.png"); }
+
+        hovered |= this->DrawIcon(auth_tex, ImVec2(14.f, ImGui::GetTextLineHeight()));
+
+        // Country flag
+        StringVector parts = StringUtil::split(user.language, "_");
+        if (parts.size() == 2)
         {
+            StringUtil::toLowerCase(parts[1]);
+            flag_tex = this->FetchIcon((parts[1] + ".png").c_str());
+            hovered |= this->DrawIcon(flag_tex, ImVec2(16.f, ImGui::GetTextLineHeight()));
         }
-    }
-    for (int i = slotid; i < RORNET_MAX_PEERS; i++)
-    {
-        player_row_t* row = &player_rows[i];
-        // not used, hide everything
-        row->flagimg->setVisible(false);
-        row->playername->setVisible(false);
-        row->statimg->setVisible(false);
-        row->usergoimg->setVisible(false);
-        row->user_actor_ok_img->setVisible(false);
-        row->user_remote_actor_ok_img->setVisible(false);
-    }
 
-    netmsgwin->setVisible(RoR::Networking::GetNetQuality() != 0);
+        // Player name
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetStyle().ItemSpacing.x); // Some extra padding
+        ColourValue col = Networking::GetPlayerColor(user.colournum);
+        ImGui::TextColored(ImVec4(col.r, col.g, col.b, col.a), "%s", user.username);
+        hovered |= ImGui::IsItemHovered();
 
-    int height = lineheight * (slotid + 1);
-    mpPanel->setSize(sidebarWidth, height);
-#endif
-}
-
-void MpClientList::clickUserGoIcon(MyGUI::WidgetPtr sender)
-{
-    //int uid = StringConverter::parseInt(sender->getUserString("uid"));
-}
-
-void MpClientList::clickInfoIcon(MyGUI::WidgetPtr sender)
-{
-    //msgtext->setCaption("FOOBAR: "+sender->getUserString("info"));
-    //msgwin->setVisible(true);
-}
-
-void MpClientList::openToolTip(MyGUI::WidgetPtr sender, const MyGUI::ToolTipInfo& t)
-{
-    if (t.type == MyGUI::ToolTipInfo::Show)
-    {
-        String txt = sender->getUserString("tooltip");
-        if (!txt.empty())
+        // Tooltip
+        if (hovered)
         {
-            tooltipText->setCaption(txt);
-            MyGUI::IntSize s = tooltipText->getTextSize();
-            int newWidth = s.width + 10;
-            tooltipPanel->setPosition(t.point - MyGUI::IntPoint(newWidth + 10, 10));
-            tooltipPanel->setSize(newWidth, 20);
-            tooltipText->setSize(newWidth, 16);
-            tooltipPanel->setVisible(true);
+            ImGui::BeginTooltip();
+
+            // TextDisabled() are captions, Text() are values
+
+            ImGui::TextDisabled("%s: ",_L("user name"));
+            ImGui::SameLine();
+            ImGui::TextColored(ImVec4(col.r, col.g, col.b, col.a), "%s", user.username);
+            ImGui::Separator();
+
+            ImGui::TextDisabled("%s", _L("user language: "));
+            ImGui::SameLine();
+            ImGui::Text("%s", parts[0].c_str());
+
+            ImGui::TextDisabled("%s", _L("user country: "));
+            ImGui::SameLine();
+            ImGui::Text("%s", parts[1].c_str());
+            if (flag_tex)
+            {
+                ImGui::SameLine();
+                ImGui::Image(reinterpret_cast<ImTextureID>(flag_tex->getHandle()),
+                    ImVec2(flag_tex->getWidth(), flag_tex->getHeight()));
+            }
+
+            ImGui::Separator();
+            ImGui::TextDisabled("%s", _L("user authentication level"));
+            if (auth_tex)
+            {
+                ImGui::Image(reinterpret_cast<ImTextureID>(auth_tex->getHandle()),
+                    ImVec2(auth_tex->getWidth(), auth_tex->getHeight()));
+                ImGui::SameLine();
+            }
+
+            ImGui::Text("%s", Networking::UserAuthToStringLong(user).c_str());
+
+            // Stream state
+            if (user.uniqueid != RoR::Networking::GetLocalUserData().uniqueid &&
+                App::app_state.GetActive() != AppState::MAIN_MENU)
+            {
+                ImGui::Separator();
+                ImGui::TextDisabled("%s", _L("truck loading state"));
+                if (down_tex)
+                {
+                    ImGui::Image(reinterpret_cast<ImTextureID>(down_tex->getHandle()),
+                        ImVec2(down_tex->getWidth(), down_tex->getHeight()));
+                    ImGui::SameLine();
+                }
+                switch (App::GetSimController()->GetBeamFactory()->CheckNetworkStreamsOk(user.uniqueid))
+                {
+                case 0: ImGui::Text("%s", _L("Truck loading errors")); break;
+                case 1: ImGui::Text("%s", _L("Truck loaded correctly, no errors")); break;
+                case 2: ImGui::Text("%s", _L("no truck loaded")); break;
+                default:; // never happens
+                }
+
+                ImGui::TextDisabled("%s", _L("remote truck loading state"));
+                if (up_tex)
+                {
+                    ImGui::Image(reinterpret_cast<ImTextureID>(up_tex->getHandle()),
+                        ImVec2(up_tex->getWidth(), up_tex->getHeight()));
+                    ImGui::SameLine();
+                }
+                switch (App::GetSimController()->GetBeamFactory()->CheckNetRemoteStreamsOk(user.uniqueid))
+                {
+                case 0: ImGui::Text("%s", _L("Remote Truck loading errors")); break;
+                case 1: ImGui::Text("%s", _L("Remote Truck loaded correctly, no errors")); break;
+                case 2: ImGui::Text("%s", _L("No Trucks loaded")); break;
+                default:; // never happens
+                }
+            }
+
+            ImGui::EndTooltip();
         }
     }
-    else if (t.type == MyGUI::ToolTipInfo::Hide)
+
+    if (RoR::Networking::GetNetQuality() != 0)
     {
-        tooltipPanel->setVisible(false);
+        ImGui::Separator();
+        ImGui::TextColored(App::GetGuiManager()->GetTheme().error_text_color, "<!> %s", _L("Slow  Network  Download"));
     }
+
+    ImGui::End();
+    ImGui::PopStyleColor(1); // WindowBg
 }
 
-void MpClientList::SetVisible(bool value)
+Ogre::TexturePtr MpClientList::FetchIcon(const char* name)
 {
-    mpPanel->setVisible(value);
+    try
+    {
+        return Ogre::static_pointer_cast<Ogre::Texture>(
+            Ogre::TextureManager::getSingleton().createOrRetrieve(name, "FlagsRG").first);
+    }
+    catch (...) {}
+
+    return Ogre::TexturePtr(); // null
 }
 
-bool MpClientList::IsVisible()
+bool MpClientList::DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box)
 {
-    return mpPanel->getVisible();
+    ImVec2 orig_pos = ImGui::GetCursorPos();
+    bool hovered = false;
+    if (tex)
+    {
+   // TODO: moving the cursor somehow deforms the image
+   //     ImGui::SetCursorPosX(orig_pos.x + (reference_box.x - tex->getWidth()) / 2.f);
+   //     ImGui::SetCursorPosY(orig_pos.y + (reference_box.y - tex->getHeight()) / 2.f);
+        ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(tex->getWidth(), tex->getHeight()));
+        hovered = ImGui::IsItemHovered();
+    }
+    ImGui::SetCursorPosX(orig_pos.x + reference_box.x + ImGui::GetStyle().ItemSpacing.x);
+    ImGui::SetCursorPosY(orig_pos.y);
+    return hovered;
 }

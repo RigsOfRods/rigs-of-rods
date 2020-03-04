@@ -23,6 +23,7 @@
 
 #include "Application.h"
 #include "CacheSystem.h"
+#include "Console.h"
 #include "ContentManager.h"
 #include "ErrorUtils.h"
 #include "GUIManager.h"
@@ -45,6 +46,7 @@
 #include <ctime>
 #include <iomanip>
 #include <string>
+#include <fstream>
 
 #ifdef USE_CURL
 #   include <curl/curl.h>
@@ -101,7 +103,9 @@ int main(int argc, char *argv[])
             }
             RoR::Str<500> ror_homedir;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-            ror_homedir << user_home << PATH_SLASH << "Rigs of Rods " << ROR_VERSION_STRING_SHORT;
+            ror_homedir << user_home << PATH_SLASH << "My Games";
+            CreateFolder(ror_homedir.ToCStr());
+            ror_homedir << PATH_SLASH << "Rigs of Rods";
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
             char* env_SNAP = getenv("SNAP_USER_COMMON");
             if(env_SNAP)
@@ -127,6 +131,7 @@ int main(int argc, char *argv[])
         rorlog->stream() << "[RoR] Rigs of Rods (www.rigsofrods.org) version " << ROR_VERSION_STRING;
         std::time_t t = std::time(nullptr);
         rorlog->stream() << "[RoR] Current date: " << std::put_time(std::localtime(&t), "%Y-%m-%d");
+        rorlog->addListener(App::GetConsole());  // Allow console to intercept log messages
         App::diag_trace_globals.SetActive(true); // We have logger -> we can trace.
 
         if (! Settings::SetupAllPaths()) // Updates globals
@@ -184,7 +189,7 @@ int main(int argc, char *argv[])
             size_t read = src_ds->read(buf.data(), src_ds->size());
             if (read > 0)
             {
-                dst_ds->write(buf.data(), read); 
+                dst_ds->write(buf.data(), read);
             }
         }
         Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("SrcRG");
@@ -242,26 +247,9 @@ int main(int argc, char *argv[])
         App::GetOgreSubsystem()->GetViewport()->setCamera(camera);
         gEnv->mainCamera = camera;
 
-        Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage();
-
         App::GetContentManager()->InitContentManager();
 
         App::CreateGuiManagerIfNotExists();
-
-        // Load and show menu wallpaper
-        MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
-        MyGUI::Widget* menu_wallpaper_widget = nullptr;
-        if (!v.empty())
-        {
-            MyGUI::Widget* mainw = v.at(0);
-            if (mainw)
-            {
-                MyGUI::ImageBox* img = (MyGUI::ImageBox *)(mainw->getChildAt(0));
-                if (img)
-                    img->setImageTexture(menu_wallpaper_texture_name);
-                menu_wallpaper_widget = mainw;
-            }
-        }
 
         InitDiscord();
 
@@ -272,10 +260,15 @@ int main(int argc, char *argv[])
         App::CreateInputEngine();
         App::GetInputEngine()->setupDefault(App::GetOgreSubsystem()->GetMainHWND());
 
+        RoR::App::GetInputEngine()->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
+        App::GetGuiManager()->SetUpMenuWallpaper();
+        MainMenu main_obj;
+        App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&main_obj); // HACK until OGRE 1.12 migration; We need a frame listener to display 'progress' window ~ only_a_ptr, 10/2019
+
         App::GetContentManager()->InitModCache();
 
         RoR::ForceFeedback force_feedback;
-#ifdef _WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
         if (App::io_ffb_enabled.GetActive()) // Force feedback
         {
             if (App::GetInputEngine()->getForceFeedbackDevice())
@@ -288,11 +281,35 @@ int main(int argc, char *argv[])
                 App::io_ffb_enabled.SetActive(false);
             }
         }
-#endif // _WIN32
 
-        RoR::App::GetInputEngine()->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
+        Ogre::String old_ror_homedir = Ogre::StringUtil::format("%s\\Rigs of Rods 0.4", RoR::GetUserHomeDirectory().c_str());
+        if(FolderExists(old_ror_homedir))
+        {
+            if (!FileExists(Ogre::StringUtil::format("%s\\OBSOLETE_FOLDER.txt", old_ror_homedir.c_str())))
+            {
+                Ogre::String obsoleteMessage = Ogre::StringUtil::format("This folder is obsolete, please move your mods to  %s", App::sys_user_dir.GetActive());
+                try
+                {
+                    Ogre::ResourceGroupManager::getSingleton().addResourceLocation(old_ror_homedir, "FileSystem", "homedir", false, false);
+                    Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().createResource("OBSOLETE_FOLDER.txt", "homedir");
+                    stream->write(obsoleteMessage.c_str(), obsoleteMessage.length());
+                    Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("homedir");
+                }
+                catch (std::exception & e)
+                {
+                    RoR::LogFormat("Error writing to %s, message: '%s'", old_ror_homedir.c_str(), e.what());
+                }
+                Ogre::String message = Ogre::StringUtil::format(
+                    "Welcome to Rigs of Rods %s\nPlease note that the mods folder has moved to:\n\"%s\"\nPlease move your mods to the new folder to continue using them",
+                    ROR_VERSION_STRING_SHORT,
+                    App::sys_user_dir.GetActive()
+                );
 
-        MainMenu main_obj;
+                RoR::App::GetGuiManager()->ShowMessageBox("Obsolete folder detected", message.c_str());
+            }
+        }
+#endif // OGRE_PLATFORM_WIN32
+
         SkidmarkConfig skidmark_conf; // Loads 'skidmark.cfg' in constructor
 
         // ### Main loop (switches application states) ###
@@ -316,7 +333,7 @@ int main(int argc, char *argv[])
         while (App::app_state.GetPending() != AppState::SHUTDOWN)
         {
             if (App::app_state.GetPending() == AppState::MAIN_MENU)
-           
+
             {
                 App::app_state.ApplyPending();
 
@@ -355,6 +372,7 @@ int main(int argc, char *argv[])
                     if (sim_controller.SetupGameplayLoop())
                     {
                         App::app_state.ApplyPending();
+                        App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(&main_obj);     // HACK until OGRE 1.12 migration; We need a frame listener to display loading window ~ only_a_ptr, 10/2019
                         App::GetGuiManager()->ReflectGameState();
                         App::sim_state.SetActive(SimState::RUNNING);
                         sim_controller.EnterGameplayLoop();
@@ -366,7 +384,6 @@ int main(int argc, char *argv[])
                             App::GetMumble()->SetNonPositionalAudio();
                         }
 #endif // USE_MUMBLE
-                        menu_wallpaper_widget->setVisible(true);
                     }
                     else
                     {
@@ -374,6 +391,7 @@ int main(int argc, char *argv[])
                     }
                 } // Enclosing scope for SimController
                 gEnv->sceneManager->clearScene(); // Wipe the scene after SimController was destroyed
+                App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&main_obj); // HACK until OGRE 1.12 migration; Needed for GUI display, must be done ASAP ~ only_a_ptr, 10/2019
             }
             prev_app_state = App::app_state.GetActive();
 

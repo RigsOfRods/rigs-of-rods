@@ -56,8 +56,6 @@ MainMenu::MainMenu()
 void MainMenu::EnterMainMenuLoop()
 {
     OgreBites::WindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
-
-    App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
     
     auto start_time = std::chrono::high_resolution_clock::now();
 
@@ -82,15 +80,6 @@ void MainMenu::EnterMainMenuLoop()
 
         this->MainMenuLoopUpdate(dt_sec);
 
-        if (RoR::App::GetGuiManager()->GetMainSelector()->IsFinishedSelecting())
-        {
-            if (RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry() != nullptr)
-            {
-                App::app_state.SetPending(AppState::SIMULATION);
-                App::sim_terrain_name.SetPending("");
-            }
-        }
-
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
         OgreBites::WindowEventUtilities::messagePump();
 #endif
@@ -101,16 +90,15 @@ void MainMenu::EnterMainMenuLoop()
             continue;
         }
 
-        App::GetGuiManager()->NewImGuiFrame(dt_sec);
-        App::GetGuiManager()->DrawMainMenuGui();
-
         App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
         if (!rw->isActive() && rw->isVisible())
             rw->update(); // update even when in background !
     }
     OgreBites::WindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
-    App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this);
+
+    // HACK until OGRE 1.12 migration; We need a frame listener to display loading window ~ only_a_ptr, 10/2019
+    //App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this); 
 }
 
 void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
@@ -157,8 +145,6 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
 
         case Networking::NetEvent::Type::CONNECT_SUCCESS:
             App::mp_state.SetActive(RoR::MpState::CONNECTED);
-            App::GetGuiManager()->SetVisible_MpClientList(true);
-            App::GetGuiManager()->GetMpClientList()->update();
             ChatSystem::SendStreamSetup();
             App::CheckAndCreateMumble();
             if (Networking::GetTerrainName() != "any")
@@ -171,7 +157,6 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
                 // Connected -> go directly to map selector
                 if (App::diag_preset_terrain.IsActiveEmpty())
                 {
-                    App::GetGuiManager()->GetMainSelector()->Reset();
                     App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
                 }
                 else
@@ -194,11 +179,6 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
         events.pop();
     }
 
-    if (App::mp_state.GetActive() == MpState::CONNECTED)
-    {
-        App::GetGuiManager()->GetMpClientList()->update();
-    }
-
     if (App::GetGuiManager()->GetMpSelector()->IsRefreshThreadRunning())
     {
         App::GetGuiManager()->GetMpSelector()->CheckAndProcessRefreshResult();
@@ -207,16 +187,10 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
 
     if (App::app_force_cache_udpate.GetActive() || App::app_force_cache_purge.GetActive())
     {
-        if (App::GetGuiManager()->IsVisible_GameSettings())
-        {
-            App::GetGuiManager()->SetVisible_GameSettings(false);
-            App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-        }
-        else
-        {
-            App::GetContentManager()->InitModCache();
-            App::GetGuiManager()->SetVisible_GameMainMenu(true);
-        }
+        App::GetGuiManager()->SetVisible_GameSettings(false);
+        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+        App::GetContentManager()->InitModCache();
+        App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
 
     RoR::App::GetInputEngine()->Capture();
@@ -247,22 +221,18 @@ void MainMenu::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
         if (App::GetGuiManager()->IsVisible_GameAbout())
         {
             App::GetGuiManager()->SetVisible_GameAbout(false);
-            App::GetGuiManager()->SetVisible_GameMainMenu(true);
         }
         else if (App::GetGuiManager()->IsVisible_MainSelector())
         {
-            App::GetGuiManager()->GetMainSelector()->Cancel();
-            App::GetGuiManager()->SetVisible_GameMainMenu(true);
+            App::GetGuiManager()->GetMainSelector()->Close();
         }
         else if (App::GetGuiManager()->IsVisible_GameSettings())
         {
             App::GetGuiManager()->SetVisible_GameSettings(false);
-            App::GetGuiManager()->SetVisible_GameMainMenu(true);
         }
         else if (App::GetGuiManager()->IsVisible_MultiplayerSelector())
         {
             App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
-            App::GetGuiManager()->SetVisible_GameMainMenu(true);
         }
         else
         {
@@ -344,9 +314,7 @@ void MainMenu::LeaveMultiplayerServer()
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
         RoR::Networking::Disconnect();
-        App::GetGuiManager()->SetVisible_MpClientList(false);
-        App::GetGuiManager()->GetMainSelector()->Reset(); // We may get disconnected while still in map selection
-        App::GetGuiManager()->GetMainSelector()->Hide(/*smooth=*/false);
+        App::GetGuiManager()->GetMainSelector()->Close(); // We may get disconnected while still in map selection
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
 #endif //SOCKETW
@@ -365,6 +333,13 @@ void MainMenu::windowFocusChange(Ogre::RenderWindow* rw)
 bool MainMenu::frameRenderingQueued(const Ogre::FrameEvent & evt)
 {
     App::GetGuiManager()->GetImGui().Render();
+    return true;
+}
+
+bool MainMenu::frameStarted(const Ogre::FrameEvent & evt)
+{
+    App::GetGuiManager()->NewImGuiFrame(evt.timeSinceLastFrame); // HACK until OGRE 1.12 migration ~ only_a_ptr, 10/2019
+    App::GetGuiManager()->DrawMainMenuGui();
     return true;
 }
 

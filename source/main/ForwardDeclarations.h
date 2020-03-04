@@ -61,6 +61,7 @@ namespace RoR
 
     namespace GUI
     {
+        class  ConsoleView;
         class  Dialog;
         class  FrictionSettings;
         class  GameMainMenu;
@@ -69,8 +70,7 @@ namespace RoR
         class  MainSelector;
         class  MpClientList;
         class  MultiplayerSelector;
-        class  OpenSaveFileDialog;
-        class  SimUtils;
+        class  SurveyMap;
         class  TopMenubar;
     }
 } // namespace RoR

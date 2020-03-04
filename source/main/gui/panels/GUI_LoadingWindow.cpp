@@ -21,39 +21,53 @@
 
 #include "GUI_LoadingWindow.h"
 
-#include "GUIManager.h"
 #include "Language.h"
-#include "Utils.h"
+#include <imgui.h>
 
-namespace RoR {
-namespace GUI {
-
-LoadingWindow::LoadingWindow()
+void RoR::GUI::LoadingWindow::setProgress(int percent, std::string const& text, bool render_frame/*=true*/)
 {
-    initialiseByAttributes(this);
+    this->SetVisible(true); // Traditional behavior
+    m_percent = percent;
+    m_text = text;
 
-    MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
-    mMainWidget->setPosition(gui_area.width / 2 - mMainWidget->getWidth() / 2, gui_area.height / 2 - mMainWidget->getHeight() / 2);
-    ((MyGUI::Window*)mMainWidget)->setCaption(_L("Loading ..."));
-    mMainWidget->setVisible(false);
-}
-
-void LoadingWindow::setProgress(int _percent, const Ogre::UTFString& _text, bool force_update)
-{
-    mMainWidget->setVisible(true);
-    mInfoStaticText->setCaption(convertToMyGUIString(_text));
-
-    mBarProgress->setProgressAutoTrack(false);
-    mBarProgress->setProgressPosition(_percent);
-
-    if (force_update || m_timer.getMilliseconds() > 10)
+    // Count lines
+    Ogre::StringUtil::trim(m_text); // Remove leading/trailing whitespace, incl. newlines
+    m_text_num_lines = 1; // First or single line
+    size_t pos = 0;
+    while ((pos = m_text.find("\n", pos+1)) != std::string::npos) // Count newlines
     {
-        m_timer.reset();
-        // we must pump the window messages, otherwise the window will get white on Vista ...
-        OgreBites::WindowEventUtilities::messagePump();
+        ++m_text_num_lines; // New line
+    }
+
+    if (render_frame)
+    {
         Ogre::Root::getSingleton().renderOneFrame();
     }
 }
 
-} // namespace GUI
-} // namespace RoR
+void RoR::GUI::LoadingWindow::Draw()
+{
+    // Height calc
+    float text_h = ImGui::CalcTextSize("A").y;
+    float statusbar_h = text_h + (ImGui::GetStyle().FramePadding.y * 2);
+    float titlebar_h = text_h + (ImGui::GetStyle().FramePadding.y * 2);
+
+    float height = titlebar_h +
+                   ImGui::GetStyle().WindowPadding.y +
+                   (text_h * (m_text_num_lines + 1)) + // + One blank line
+                   (ImGui::GetStyle().ItemSpacing.y * 2) + // Blank line, statusbar
+                   statusbar_h +
+                   ImGui::GetStyle().WindowPadding.y;
+
+    ImGui::SetNextWindowSize(ImVec2(500.f, height));
+    ImGui::SetNextWindowPosCenter();
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove;
+    ImGui::Begin(_L("Please wait"), nullptr, flags);
+    ImGui::Text("%s", m_text.c_str());
+    ImGui::NewLine();
+    if (m_percent >= 0)
+    {
+        ImGui::ProgressBar(static_cast<float>(m_percent)/100.f);
+    }
+    ImGui::End();
+}

@@ -37,11 +37,10 @@
 #include "TerrainManager.h"
 
 //Managed GUI panels
-#include "GUI_DebugOptions.h"
+#include "GUI_ConsoleWindow.h"
 #include "GUI_FrictionSettings.h"
 #include "GUI_GameMainMenu.h"
 #include "GUI_GameAbout.h"
-#include "GUI_GameConsole.h"
 #include "GUI_GamePauseMenu.h"
 #include "GUI_GameChatBox.h"
 #include "GUI_GameSettings.h"
@@ -51,14 +50,18 @@
 #include "GUI_MultiplayerClientList.h"
 #include "GUI_MainSelector.h"
 #include "GUI_NodeBeamUtils.h"
-#include "GUI_RigSpawnerReportWindow.h"
-#include "GUI_SimUtils.h"
+#include "GUI_SimActorStats.h"
+#include "GUI_SimPerfStats.h"
+#include "GUI_SurveyMap.h"
 #include "GUI_TextureToolWindow.h"
 #include "GUI_TopMenubar.h"
 #include "GUI_VehicleDescription.h"
 
 #include <MyGUI.h>
 #include <MyGUI_OgrePlatform.h>
+#include <OgreOverlay.h>
+#include <OgreOverlayElement.h>
+#include <OgreOverlayContainer.h>
 
 #define RESOURCE_FILENAME "MyGUI_Core.xml"
 
@@ -66,22 +69,16 @@ namespace RoR {
 
 struct GuiManagerImpl
 {
-    GuiManagerImpl():
-        mygui(nullptr),
-        mygui_platform(nullptr)
-    {}
-
     GUI::GameMainMenu           panel_GameMainMenu;
     GUI::GameAbout              panel_GameAbout;
     GUI::GamePauseMenu          panel_GamePauseMenu;
     GUI::GameSettings           panel_GameSettings;
-    GUI::DebugOptions           panel_DebugOptions;
-    GUI::SimUtils               panel_SimUtils;
+    GUI::SimActorStats          panel_SimActorStats;
+    GUI::SimPerfStats           panel_SimPerfStats;
     GUI::MessageBoxDialog       panel_MessageBox;
     GUI::MultiplayerSelector    panel_MultiplayerSelector;
     GUI::MainSelector           panel_MainSelector;
     GUI::GameChatBox            panel_ChatBox;
-    GUI::ActorSpawnerReportWindow panel_SpawnerReport;
     GUI::VehicleDescription     panel_VehicleDescription;
     GUI::MpClientList           panel_MpClientList;
     GUI::FrictionSettings       panel_FrictionSettings;
@@ -89,17 +86,15 @@ struct GuiManagerImpl
     GUI::NodeBeamUtils          panel_NodeBeamUtils;
     GUI::LoadingWindow          panel_LoadingWindow;
     GUI::TopMenubar             panel_TopMenubar;
-    RoR::Console                panel_GameConsole;
+    GUI::ConsoleWindow          panel_ConsoleWindow;
+    GUI::SurveyMap              panel_SurveyMap;
+    Ogre::Overlay*              overlay_Wallpaper = nullptr;
 
-    MyGUI::Gui*                 mygui;
-    MyGUI::OgrePlatform*        mygui_platform;
+    MyGUI::Gui*                 mygui = nullptr;
+    MyGUI::OgrePlatform*        mygui_platform = nullptr;
 };
 
-GUIManager::GuiTheme::GuiTheme():
-    in_progress_text_color(1.f, 0.832031f, 0.f, 1.f),
-    no_entries_text_color(0.7f, 0.7f, 0.7f, 1.f),
-    error_text_color(1.f, 0.175439f, 0.175439f, 1.f),
-    selected_entry_text_color(.9f, 0.7f, 0.05f, 1.f)
+GUIManager::GuiTheme::GuiTheme()
 {
     try
     {
@@ -122,47 +117,44 @@ GUIManager::GuiTheme::GuiTheme():
 
 void GUIManager::SetVisible_GameMainMenu        (bool v) { m_impl->panel_GameMainMenu       .SetVisible(v); }
 void GUIManager::SetVisible_GameAbout           (bool v) { m_impl->panel_GameAbout          .SetVisible(v); }
-void GUIManager::SetVisible_DebugOptions        (bool v) { m_impl->panel_DebugOptions       .SetVisible(v); }
 void GUIManager::SetVisible_MultiplayerSelector (bool v) { m_impl->panel_MultiplayerSelector.SetVisible(v); }
 void GUIManager::SetVisible_ChatBox             (bool v) { m_impl->panel_ChatBox            .SetVisible(v); }
-void GUIManager::SetVisible_SpawnerReport       (bool v) { m_impl->panel_SpawnerReport      .SetVisible(v); }
 void GUIManager::SetVisible_VehicleDescription  (bool v) { m_impl->panel_VehicleDescription .SetVisible(v); }
-void GUIManager::SetVisible_MpClientList        (bool v) { m_impl->panel_MpClientList       .SetVisible(v); }
 void GUIManager::SetVisible_FrictionSettings    (bool v) { m_impl->panel_FrictionSettings   .SetVisible(v); }
 void GUIManager::SetVisible_TextureToolWindow   (bool v) { m_impl->panel_TextureToolWindow  .SetVisible(v); }
 void GUIManager::SetVisible_LoadingWindow       (bool v) { m_impl->panel_LoadingWindow      .SetVisible(v); }
-void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_GameConsole        .SetVisible(v); }
+void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_ConsoleWindow      .SetVisible(v); }
 void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSettings       .SetVisible(v); }
 void GUIManager::SetVisible_NodeBeamUtils       (bool v) { m_impl->panel_NodeBeamUtils      .SetVisible(v); }
+void GUIManager::SetVisible_SimActorStats       (bool v) { m_impl->panel_SimActorStats      .SetVisible(v); }
+void GUIManager::SetVisible_SimPerfStats        (bool v) { m_impl->panel_SimPerfStats       .SetVisible(v); }
 
 bool GUIManager::IsVisible_GameMainMenu         () { return m_impl->panel_GameMainMenu       .IsVisible(); }
 bool GUIManager::IsVisible_GameAbout            () { return m_impl->panel_GameAbout          .IsVisible(); }
-bool GUIManager::IsVisible_DebugOptions         () { return m_impl->panel_DebugOptions       .IsVisible(); }
 bool GUIManager::IsVisible_MultiplayerSelector  () { return m_impl->panel_MultiplayerSelector.IsVisible(); }
 bool GUIManager::IsVisible_MainSelector         () { return m_impl->panel_MainSelector       .IsVisible(); }
 bool GUIManager::IsVisible_ChatBox              () { return m_impl->panel_ChatBox            .IsVisible(); }
-bool GUIManager::IsVisible_SpawnerReport        () { return m_impl->panel_SpawnerReport      .IsVisible(); }
 bool GUIManager::IsVisible_VehicleDescription   () { return m_impl->panel_VehicleDescription .IsVisible(); }
-bool GUIManager::IsVisible_MpClientList         () { return m_impl->panel_MpClientList       .IsVisible(); }
 bool GUIManager::IsVisible_FrictionSettings     () { return m_impl->panel_FrictionSettings   .IsVisible(); }
 bool GUIManager::IsVisible_TextureToolWindow    () { return m_impl->panel_TextureToolWindow  .IsVisible(); }
 bool GUIManager::IsVisible_LoadingWindow        () { return m_impl->panel_LoadingWindow      .IsVisible(); }
-bool GUIManager::IsVisible_Console              () { return m_impl->panel_GameConsole        .IsVisible(); }
+bool GUIManager::IsVisible_Console              () { return m_impl->panel_ConsoleWindow      .IsVisible(); }
 bool GUIManager::IsVisible_GameSettings         () { return m_impl->panel_GameSettings       .IsVisible(); }
 bool GUIManager::IsVisible_TopMenubar           () { return m_impl->panel_TopMenubar         .IsVisible(); }
 bool GUIManager::IsVisible_NodeBeamUtils        () { return m_impl->panel_NodeBeamUtils      .IsVisible(); }
+bool GUIManager::IsVisible_SimActorStats        () { return m_impl->panel_SimActorStats      .IsVisible(); }
+bool GUIManager::IsVisible_SimPerfStats         () { return m_impl->panel_SimPerfStats       .IsVisible(); }
+bool GUIManager::IsVisible_SurveyMap            () { return m_impl->panel_SurveyMap          .IsVisible(); }
 
 // GUI GetInstance*()
-Console*                    GUIManager::GetConsole()           { return &m_impl->panel_GameConsole         ; }
 GUI::MainSelector*          GUIManager::GetMainSelector()      { return &m_impl->panel_MainSelector        ; }
 GUI::GameMainMenu*          GUIManager::GetMainMenu()          { return &m_impl->panel_GameMainMenu        ; }
 GUI::GamePauseMenu*         GUIManager::GetPauseMenu()         { return &m_impl->panel_GamePauseMenu       ; }
 GUI::LoadingWindow*         GUIManager::GetLoadingWindow()     { return &m_impl->panel_LoadingWindow       ; }
-GUI::MpClientList*          GUIManager::GetMpClientList()      { return &m_impl->panel_MpClientList        ; }
 GUI::MultiplayerSelector*   GUIManager::GetMpSelector()        { return &m_impl->panel_MultiplayerSelector ; }
 GUI::FrictionSettings*      GUIManager::GetFrictionSettings()  { return &m_impl->panel_FrictionSettings    ; }
-GUI::SimUtils*              GUIManager::GetSimUtils()          { return &m_impl->panel_SimUtils            ; }
 GUI::TopMenubar*            GUIManager::GetTopMenubar()        { return &m_impl->panel_TopMenubar          ; }
+GUI::SurveyMap*             GUIManager::GetSurveyMap()         { return &m_impl->panel_SurveyMap           ; }
 
 GUIManager::GUIManager() :
     m_renderwindow_closed(false),
@@ -202,17 +194,15 @@ GUIManager::GUIManager() :
     windowResized(RoR::App::GetOgreSubsystem()->GetRenderWindow());
 
     this->SetupImGui();
+
+    // Configure the chatbox console view
+    m_impl->panel_ChatBox.GetConsoleView().cvw_background_color   = m_theme.semitrans_text_bg_color;
+    m_impl->panel_ChatBox.GetConsoleView().cvw_background_padding = m_theme.semitrans_text_bg_padding;
 }
 
 GUIManager::~GUIManager()
 {
     delete m_impl;
-}
-
-void GUIManager::UnfocusGui()
-{
-    MyGUI::InputManager::getInstance().resetKeyFocusWidget();
-    MyGUI::InputManager::getInstance().resetMouseCaptureWidget();
 }
 
 void GUIManager::ShutdownMyGUI()
@@ -251,12 +241,12 @@ bool GUIManager::frameStarted(const Ogre::FrameEvent& evt)
 
 bool GUIManager::frameEnded(const Ogre::FrameEvent& evt)
 {
+    m_gui_kb_capture_requested = m_gui_kb_capture_queued;
     return true;
 };
 
 void GUIManager::DrawSimulationGui(float dt)
 {
-    m_impl->panel_SimUtils.FrameStepSimGui(dt);
     if (App::app_state.GetActive() == AppState::SIMULATION)
     {
         m_impl->panel_TopMenubar.Update();
@@ -278,22 +268,56 @@ void GUIManager::DrawSimulationGui(float dt)
     }
 };
 
-void GUIManager::PushNotification(Ogre::String Title, Ogre::UTFString text)
+void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
 {
-    m_impl->panel_SimUtils.PushNotification(Title, text);
-}
+    this->DrawCommonGui();
 
-void GUIManager::HideNotification()
-{
-    m_impl->panel_SimUtils.HideNotificationBox();
-}
+    if (player_gfx_actor && this->IsVisible_SimActorStats())
+    {
+        m_impl->panel_SimActorStats.Draw(player_gfx_actor);
+    }
 
-void GUIManager::windowResized(Ogre::RenderWindow* rw)
-{
-    int width = (int)rw->getWidth();
-    int height = (int)rw->getHeight();
-    setInputViewSize(width, height);
+    if (this->IsVisible_Console())
+    {
+        m_impl->panel_ConsoleWindow.Draw();
+    }
+    else
+    {
+        if (!m_hide_gui)
+        {
+            m_impl->panel_ChatBox.Draw(); // Messages must be always visible
+        }
+    }
 
+    if (this->IsVisible_LoadingWindow())
+    {
+        m_impl->panel_LoadingWindow.Draw();
+    }
+
+    if (this->IsVisible_FrictionSettings())
+    {
+        m_impl->panel_FrictionSettings.Draw();
+    }
+
+    if (this->IsVisible_VehicleDescription())
+    {
+        m_impl->panel_VehicleDescription.Draw();
+    }
+
+    if (this->IsVisible_SimPerfStats())
+    {
+        m_impl->panel_SimPerfStats.Draw();
+    }
+
+    if (this->IsVisible_TextureToolWindow())
+    {
+        m_impl->panel_TextureToolWindow.Draw();
+    }
+
+    if (this->IsVisible_SurveyMap())
+    {
+        m_impl->panel_SurveyMap.Draw();
+    }
 }
 
 void GUIManager::windowClosed(Ogre::RenderWindow* rw)
@@ -306,15 +330,14 @@ void GUIManager::eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _re
     _result = MyGUI::LanguageManager::getInstance().getTag(_tag);
 }
 
-Ogre::String GUIManager::getRandomWallpaperImage()
+void GUIManager::SetUpMenuWallpaper()
 {
+    // Determine image filename
     using namespace Ogre;
     FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.jpg", false);
     if (files.isNull() || files->empty())
     {
         files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.png", false);
-        if (files.isNull() || files->empty())
-            return "";
     }
     srand ( time(NULL) );
 
@@ -322,7 +345,26 @@ Ogre::String GUIManager::getRandomWallpaperImage()
     for (int i = 0; i<Math::RangeRandom(0, 10); i++)
         num = Math::RangeRandom(0, files->size());
 
-    return files->at(num).filename;
+    // Set up wallpaper
+    // ...texture...
+    Ogre::ResourceManager::ResourceCreateOrRetrieveResult wp_tex_result
+        = Ogre::TextureManager::getSingleton().createOrRetrieve(files->at(num).filename, "Wallpapers");
+    Ogre::TexturePtr wp_tex = wp_tex_result.first.staticCast<Ogre::Texture>();
+    // ...material...
+    Ogre::MaterialPtr wp_mat = Ogre::MaterialManager::getSingleton().create("rigsofrods/WallpaperMat", Ogre::RGN_DEFAULT);
+    Ogre::TextureUnitState* wp_tus = wp_mat->getTechnique(0)->getPass(0)->createTextureUnitState();
+    wp_tus->setTexture(wp_tex);
+    wp_mat->compile();
+    // ...panel...
+    Ogre::OverlayElement* wp_panel = Ogre::OverlayManager::getSingleton()
+        .createOverlayElement("Panel", "rigsofrods/WallpaperPanel", /*isTemplate=*/false);
+    wp_panel->setMaterial(wp_mat);
+    wp_panel->setDimensions(1.f, 1.f);
+    // ...overlay...
+    m_impl->overlay_Wallpaper = Ogre::OverlayManager::getSingleton().create("rigsofrods/WallpaperOverlay");
+    m_impl->overlay_Wallpaper->add2D(static_cast<Ogre::OverlayContainer*>(wp_panel)); // 'Panel' inherits from 'Container'
+    m_impl->overlay_Wallpaper->setZOrder(0);
+    m_impl->overlay_Wallpaper->show();
 }
 
 void GUIManager::SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager)
@@ -330,44 +372,14 @@ void GUIManager::SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manage
     m_impl->mygui_platform->getRenderManagerPtr()->setSceneManager(scene_manager);
 }
 
-void GUIManager::UpdateSimUtils(float dt, Actor *truck)
-{
-    if (m_impl->panel_SimUtils.IsBaseVisible()) //Better to update only when it's visible.
-    {
-        m_impl->panel_SimUtils.UpdateStats(dt, truck);
-    }
-}
-
-void GUIManager::AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other)
-{
-    m_impl->panel_SpawnerReport.SetRigLoadingReport(vehicle_name, text, num_errors, num_warnings, num_other);
-}
-
-void GUIManager::CenterSpawnerReportWindow()
-{
-    m_impl->panel_SpawnerReport.CenterToScreen();
-}
-
-void GUIManager::pushMessageChatBox(Ogre::String txt)
-{
-    m_impl->panel_ChatBox.pushMsg(txt);
-}
-
 void GUIManager::hideGUI(bool hidden)
 {
+    m_hide_gui = hidden;
     if (hidden)
     {
-        m_impl->panel_SimUtils.HideNotificationBox();
-        m_impl->panel_SimUtils.SetFPSBoxVisible(false);
-        m_impl->panel_SimUtils.SetActorInfoBoxVisible(false);
-        m_impl->panel_ChatBox.Hide();
+        m_impl->panel_SimPerfStats.SetVisible(false);
+        m_impl->panel_ChatBox.SetVisible(false);
     }
-    m_impl->panel_SimUtils.DisableNotifications(hidden);
-}
-
-void GUIManager::FrictionSettingsUpdateCollisions()
-{
-    App::GetGuiManager()->GetFrictionSettings()->setCollisions(gEnv->collisions);
 }
 
 void GUIManager::SetMouseCursorVisibility(MouseCursorVisibility visi)
@@ -396,23 +408,20 @@ void GUIManager::ReflectGameState()
     const auto mp_state  = App::mp_state.GetActive();
     if (app_state == AppState::MAIN_MENU)
     {
+        m_impl->overlay_Wallpaper       ->show();
         m_impl->panel_GameMainMenu       .SetVisible(!m_impl->panel_MainSelector.IsVisible());
 
         m_impl->panel_ChatBox            .SetVisible(false);
-        m_impl->panel_DebugOptions       .SetVisible(false);
         m_impl->panel_FrictionSettings   .SetVisible(false);
         m_impl->panel_TextureToolWindow  .SetVisible(false);
         m_impl->panel_VehicleDescription .SetVisible(false);
-        m_impl->panel_SpawnerReport      .SetVisible(false);
-        m_impl->panel_SimUtils           .SetBaseVisible(false);
-        m_impl->panel_MpClientList       .SetVisible(mp_state == MpState::CONNECTED);
-        return;
+        m_impl->panel_SimActorStats      .SetVisible(false);
+        m_impl->panel_SimPerfStats       .SetVisible(false);
     }
-    if (app_state == AppState::SIMULATION)
+    else if (app_state == AppState::SIMULATION)
     {
-        m_impl->panel_SimUtils           .SetBaseVisible(true);
         m_impl->panel_GameMainMenu       .SetVisible(false);
-        return;
+        m_impl->overlay_Wallpaper       ->hide();
     }
 }
 
@@ -430,6 +439,9 @@ void GUIManager::NewImGuiFrame(float dt)
 
     // Call IMGUI
     m_imgui.NewFrame(dt, static_cast<float>(width), static_cast<float>(height), ctrl, alt, shift);
+
+    // Reset state
+    m_gui_kb_capture_queued = false;
 }
 
 void GUIManager::SetupImGui()
@@ -442,47 +454,47 @@ void GUIManager::SetupImGui()
     ImGuiStyle& style = ImGui::GetStyle();
     style.Colors[ImGuiCol_Text]                  = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
     style.Colors[ImGuiCol_TextDisabled]          = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-    style.Colors[ImGuiCol_WindowBg]              = ImVec4(0.06f, 0.06f, 0.06f, 0.90f);
-    style.Colors[ImGuiCol_ChildWindowBg]         = ImVec4(0.00f, 0.00f, 0.00f, 0.90f);
-    style.Colors[ImGuiCol_PopupBg]               = ImVec4(0.05f, 0.05f, 0.10f, 1.00f);
-    style.Colors[ImGuiCol_Border]                = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-    style.Colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-    style.Colors[ImGuiCol_FrameBg]               = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-    style.Colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.13f, 0.40f, 0.60f, 1.00f);
-    style.Colors[ImGuiCol_FrameBgActive]         = ImVec4(0.18f, 0.53f, 0.79f, 1.00f);
+    style.Colors[ImGuiCol_WindowBg]              = ImVec4(0.06f, 0.06f, 0.06f, 0.85f);
+    style.Colors[ImGuiCol_ChildWindowBg]         = ImVec4(0.00f, 0.00f, 0.00f, 0.1f);
+    style.Colors[ImGuiCol_PopupBg]               = ImVec4(0.05f, 0.05f, 0.10f, 0.85f);
+    style.Colors[ImGuiCol_Border]                = ImVec4(0.20f, 0.20f, 0.20f, 0.85f);
+    style.Colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 0.85f);
+    style.Colors[ImGuiCol_FrameBg]               = ImVec4(0.20f, 0.20f, 0.20f, 0.85f);
+    style.Colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.13f, 0.40f, 0.60f, 0.85f);
+    style.Colors[ImGuiCol_FrameBgActive]         = ImVec4(0.18f, 0.53f, 0.79f, 0.85f);
     style.Colors[ImGuiCol_TitleBg]               = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
     style.Colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.13f, 0.40f, 0.60f, 1.00f);
     style.Colors[ImGuiCol_TitleBgActive]         = ImVec4(0.11f, 0.33f, 0.49f, 1.00f);
-    style.Colors[ImGuiCol_MenuBarBg]             = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-    style.Colors[ImGuiCol_ScrollbarBg]           = ImVec4(0.16f, 0.16f, 0.16f, 0.99f);
-    style.Colors[ImGuiCol_ScrollbarGrab]         = ImVec4(0.11f, 0.33f, 0.49f, 1.00f);
-    style.Colors[ImGuiCol_ScrollbarGrabHovered]  = ImVec4(0.13f, 0.40f, 0.60f, 1.00f);
-    style.Colors[ImGuiCol_ScrollbarGrabActive]   = ImVec4(0.18f, 0.53f, 0.79f, 1.00f);
-    style.Colors[ImGuiCol_ComboBg]               = ImVec4(0.20f, 0.20f, 0.20f, 0.99f);
-    style.Colors[ImGuiCol_CheckMark]             = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
+    style.Colors[ImGuiCol_MenuBarBg]             = ImVec4(0.20f, 0.20f, 0.20f, 0.85f);
+    style.Colors[ImGuiCol_ScrollbarBg]           = ImVec4(0.16f, 0.16f, 0.16f, 0.85f);
+    style.Colors[ImGuiCol_ScrollbarGrab]         = ImVec4(0.11f, 0.33f, 0.49f, 0.85f);
+    style.Colors[ImGuiCol_ScrollbarGrabHovered]  = ImVec4(0.13f, 0.40f, 0.60f, 0.85f);
+    style.Colors[ImGuiCol_ScrollbarGrabActive]   = ImVec4(0.18f, 0.53f, 0.79f, 0.85f);
+    style.Colors[ImGuiCol_ComboBg]               = ImVec4(0.20f, 0.20f, 0.20f, 0.85f);
+    style.Colors[ImGuiCol_CheckMark]             = ImVec4(0.90f, 0.90f, 0.90f, 0.85f);
     style.Colors[ImGuiCol_SliderGrab]            = ImVec4(0.90f, 0.90f, 0.90f, 0.90f);
-    style.Colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
-    style.Colors[ImGuiCol_Button]                = ImVec4(0.11f, 0.33f, 0.49f, 1.00f);
-    style.Colors[ImGuiCol_ButtonHovered]         = ImVec4(0.13f, 0.40f, 0.60f, 1.00f);
-    style.Colors[ImGuiCol_ButtonActive]          = ImVec4(0.18f, 0.53f, 0.79f, 1.00f);
-    style.Colors[ImGuiCol_Header]                = ImVec4(0.11f, 0.33f, 0.49f, 1.00f);
-    style.Colors[ImGuiCol_HeaderHovered]         = ImVec4(0.13f, 0.40f, 0.60f, 1.00f);
-    style.Colors[ImGuiCol_HeaderActive]          = ImVec4(0.18f, 0.53f, 0.79f, 1.00f);
-    style.Colors[ImGuiCol_Column]                = ImVec4(0.11f, 0.33f, 0.49f, 1.00f);
-    style.Colors[ImGuiCol_ColumnHovered]         = ImVec4(0.13f, 0.40f, 0.60f, 1.00f);
-    style.Colors[ImGuiCol_ColumnActive]          = ImVec4(0.18f, 0.53f, 0.79f, 1.00f);
-    style.Colors[ImGuiCol_ResizeGrip]            = ImVec4(0.11f, 0.33f, 0.49f, 1.00f);
-    style.Colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.13f, 0.40f, 0.60f, 1.00f);
-    style.Colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.18f, 0.53f, 0.79f, 1.00f);
-    style.Colors[ImGuiCol_CloseButton]           = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
-    style.Colors[ImGuiCol_CloseButtonHovered]    = ImVec4(0.13f, 0.40f, 0.60f, 1.00f);
-    style.Colors[ImGuiCol_CloseButtonActive]     = ImVec4(0.18f, 0.53f, 0.79f, 1.00f);
-    style.Colors[ImGuiCol_PlotLines]             = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    style.Colors[ImGuiCol_PlotLinesHovered]      = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-    style.Colors[ImGuiCol_PlotHistogram]         = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-    style.Colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-    style.Colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.00f, 0.00f, 1.00f, 1.00f);
-    style.Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    style.Colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.90f, 0.90f, 0.90f, 0.85f);
+    style.Colors[ImGuiCol_Button]                = ImVec4(0.11f, 0.33f, 0.49f, 0.85f);
+    style.Colors[ImGuiCol_ButtonHovered]         = ImVec4(0.13f, 0.40f, 0.60f, 0.85f);
+    style.Colors[ImGuiCol_ButtonActive]          = ImVec4(0.18f, 0.53f, 0.79f, 0.85f);
+    style.Colors[ImGuiCol_Header]                = ImVec4(0.11f, 0.33f, 0.49f, 0.85f);
+    style.Colors[ImGuiCol_HeaderHovered]         = ImVec4(0.13f, 0.40f, 0.60f, 0.85f);
+    style.Colors[ImGuiCol_HeaderActive]          = ImVec4(0.18f, 0.53f, 0.79f, 0.85f);
+    style.Colors[ImGuiCol_Column]                = ImVec4(0.11f, 0.33f, 0.49f, 0.85f);
+    style.Colors[ImGuiCol_ColumnHovered]         = ImVec4(0.13f, 0.40f, 0.60f, 0.85f);
+    style.Colors[ImGuiCol_ColumnActive]          = ImVec4(0.18f, 0.53f, 0.79f, 0.85f);
+    style.Colors[ImGuiCol_ResizeGrip]            = ImVec4(0.11f, 0.33f, 0.49f, 0.85f);
+    style.Colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.13f, 0.40f, 0.60f, 0.85f);
+    style.Colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.18f, 0.53f, 0.79f, 0.85f);
+    style.Colors[ImGuiCol_CloseButton]           = ImVec4(0.90f, 0.90f, 0.90f, 0.85f);
+    style.Colors[ImGuiCol_CloseButtonHovered]    = ImVec4(0.13f, 0.40f, 0.60f, 0.85f);
+    style.Colors[ImGuiCol_CloseButtonActive]     = ImVec4(0.18f, 0.53f, 0.79f, 0.85f);
+    style.Colors[ImGuiCol_PlotLines]             = ImVec4(1.00f, 1.00f, 1.00f, 0.85f);
+    style.Colors[ImGuiCol_PlotLinesHovered]      = ImVec4(0.90f, 0.70f, 0.00f, 0.85f);
+    style.Colors[ImGuiCol_PlotHistogram]         = ImVec4(0.90f, 0.70f, 0.00f, 0.85f);
+    style.Colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(1.00f, 0.60f, 0.00f, 0.85f);
+    style.Colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.00f, 0.00f, 1.00f, 0.85f);
+    style.Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.20f, 0.20f, 0.85f);
     // Styles
     style.WindowPadding         = ImVec2(10.f, 10.f);
     style.FrameRounding         = 2.f;
@@ -493,8 +505,35 @@ void GUIManager::SetupImGui()
     style.ChildWindowRounding   = 4.f;
 }
 
+void GUIManager::DrawCommonGui()
+{
+    switch (App::mp_state.GetActive())
+    {
+        case MpState::CONNECTING:
+            this->DrawMpConnectingStatusBox();
+            break;
+
+        case MpState::CONNECTED:
+            if (!m_hide_gui)
+            {
+                m_impl->panel_MpClientList.Draw();
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    if (m_impl->panel_MainSelector.IsVisible())
+    {
+        m_impl->panel_MainSelector.Draw();
+    }
+}
+
 void GUIManager::DrawMainMenuGui()
 {
+    this->DrawCommonGui();
+
     if (m_impl->panel_MultiplayerSelector.IsVisible())
     {
         m_impl->panel_MultiplayerSelector.Draw();
@@ -505,11 +544,6 @@ void GUIManager::DrawMainMenuGui()
         m_impl->panel_GameMainMenu.Draw();
     }
 
-    if (App::mp_state.GetActive() == MpState::CONNECTING)
-    {
-        this->DrawMpConnectingStatusBox();
-    }
-
     if (m_impl->panel_GameSettings.IsVisible())
     {
         m_impl->panel_GameSettings.Draw();
@@ -518,6 +552,16 @@ void GUIManager::DrawMainMenuGui()
     if (m_impl->panel_MessageBox.IsVisible())
     {
         m_impl->panel_MessageBox.Draw();
+    }
+
+    if (m_impl->panel_LoadingWindow.IsVisible())
+    {
+        m_impl->panel_LoadingWindow.Draw();
+    }
+
+    if (m_impl->panel_GameAbout.IsVisible())
+    {
+        m_impl->panel_GameAbout.Draw();
     }
 }
 
@@ -550,6 +594,11 @@ void GUIManager::DrawMpConnectingStatusBox()
 void GUIManager::ShowMessageBox(const char* title, const char* text, bool allow_close, const char* btn1_text, const char* btn2_text)
 {
     m_impl->panel_MessageBox.Show(title, text, allow_close, btn1_text, btn2_text);
+}
+
+void GUIManager::RequestGuiCaptureKeyboard(bool val) 
+{ 
+    m_gui_kb_capture_queued = m_gui_kb_capture_queued || val;
 }
 
 } // namespace RoR

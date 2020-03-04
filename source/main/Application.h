@@ -63,7 +63,6 @@ enum class SimState
     OFF,
     RUNNING,
     PAUSED,
-    SELECTING,  ///< The selector GUI window is displayed.
     EDITOR_MODE ///< Hacky, but whatever... added by Ulteq, 2016
 };
 const char* EnumToStr(SimState v);
@@ -794,6 +793,7 @@ extern GVarPod_A<bool>         gfx_flexbody_lods;
 extern GVarPod_A<bool>         gfx_flexbody_cache;
 extern GVarPod_A<bool>         gfx_reduce_shadows;
 extern GVarPod_A<bool>         gfx_enable_rtshaders;
+extern GVarPod_A<bool>         gfx_classic_shaders;
 
 // Getters
 OgreSubsystem*       GetOgreSubsystem();

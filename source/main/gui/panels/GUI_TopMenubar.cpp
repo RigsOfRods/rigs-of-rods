@@ -31,6 +31,8 @@
 #include "GUIManager.h"
 #include "GUIUtils.h"
 #include "GUI_MainSelector.h"
+#include "InputEngine.h"
+#include "Language.h"
 #include "Network.h"
 #include "PlatformUtils.h"
 #include "RoRFrameListener.h"
@@ -44,6 +46,8 @@ void RoR::GUI::TopMenubar::Update()
     // ## ImGui's 'menubar' and 'menuitem' features won't quite cut it...
     // ## Let's do our own menus and menuitems using buttons and coloring tricks.
 
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+
     const char* sim_title = "Simulation"; // TODO: Localize all!
     Str<50> actors_title;
     auto actors = App::GetSimController()->GetActors();
@@ -53,33 +57,33 @@ void RoR::GUI::TopMenubar::Update()
     const char* settings_title = "Settings";
     const char* tools_title = "Tools";
 
-    float panel_target_width = (ImGui::GetStyle().ItemSpacing.x * 10) + // Item spacing
-        (ImGui::GetStyle().WindowPadding.x) + (ImGui::GetStyle().FramePadding.x) + // Left + Right padding
-        ImGui::CalcTextSize(sim_title).x + ImGui::CalcTextSize(actors_title.GetBuffer()).x + // Items
-        ImGui::CalcTextSize(savegames_title).x + ImGui::CalcTextSize(settings_title).x + // Items
-        ImGui::CalcTextSize(tools_title).x; // Items
+    float menubar_content_width =
+        (ImGui::GetStyle().ItemSpacing.x * 4) +
+        (ImGui::GetStyle().FramePadding.x * 12) +
+        ImGui::CalcTextSize(sim_title).x +
+        ImGui::CalcTextSize(actors_title.ToCStr()).x +
+        ImGui::CalcTextSize(savegames_title).x +
+        ImGui::CalcTextSize(settings_title).x +
+        ImGui::CalcTextSize(tools_title).x;
 
-    ImVec2 window_target_pos = ImVec2((ImGui::GetIO().DisplaySize.x/2.f) - (panel_target_width / 2.f), ImGui::GetStyle().WindowPadding.y);
+    ImVec2 window_target_pos = ImVec2((ImGui::GetIO().DisplaySize.x/2.f) - (menubar_content_width / 2.f), theme.screen_edge_padding.y);
     if (!this->ShouldDisplay(window_target_pos))
     {
         m_open_menu = TopMenu::TOPMENU_NONE;
         m_confirm_remove_all = false;
+        this->DrawSpecialStateBox(10.f);
         return;
     }
 
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, PANEL_BG_COLOR);
-    ImGui::PushStyleColor(ImGuiCol_Button,   TRANSPARENT_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
+    ImGui::PushStyleColor(ImGuiCol_Button,   ImVec4(0,0,0,0)); // Fully transparent
 
     // The panel
     int flags = ImGuiWindowFlags_NoCollapse  | ImGuiWindowFlags_NoResize    | ImGuiWindowFlags_NoMove
               | ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_AlwaysAutoResize;
-    ImGui::SetNextWindowContentSize(ImVec2(panel_target_width, 0.f));
+    ImGui::SetNextWindowContentSize(ImVec2(menubar_content_width, 0.f));
     ImGui::SetNextWindowPos(window_target_pos);
-    if (!ImGui::Begin("Top menubar", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
-    {
-        ImGui::PopStyleColor(2);
-        return;
-    }
+    ImGui::Begin("Top menubar", nullptr, flags);
 
     // The 'simulation' button
     ImVec2 window_pos = ImGui::GetWindowPos();
@@ -142,7 +146,11 @@ void RoR::GUI::TopMenubar::Update()
         m_open_menu = TopMenu::TOPMENU_TOOLS;
     }
 
+    ImVec2 topmenu_final_size = ImGui::GetWindowSize();
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
+
+    this->DrawSpecialStateBox(window_target_pos.y + topmenu_final_size.y + 10.f);
 
     ImVec2 menu_pos;
     Actor* current_actor = App::GetSimController()->GetPlayerActor();
@@ -158,7 +166,6 @@ void RoR::GUI::TopMenubar::Update()
 
             if (ImGui::Button("Get new vehicle"))
             {
-                App::sim_state.SetActive(SimState::SELECTING); // TODO: use 'pending' mechanism
                 App::GetGuiManager()->GetMainSelector()->Show(LT_AllBeam);
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
@@ -179,8 +186,6 @@ void RoR::GUI::TopMenubar::Update()
                             rq.amr_type = ActorModifyRequest::Type::RELOAD;
                             rq.amr_actor = current_actor;
                             App::GetSimController()->QueueActorModify(rq);
-
-                            App::GetGuiManager()->UnfocusGui();
                         }
                     }
 
@@ -247,6 +252,7 @@ void RoR::GUI::TopMenubar::Update()
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
+            App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
@@ -277,6 +283,7 @@ void RoR::GUI::TopMenubar::Update()
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
+            App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
@@ -344,6 +351,7 @@ void RoR::GUI::TopMenubar::Update()
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() * 2;
+            App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
@@ -438,6 +446,7 @@ void RoR::GUI::TopMenubar::Update()
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
+            App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
@@ -451,12 +460,6 @@ void RoR::GUI::TopMenubar::Update()
             if (ImGui::Button("Friction settings"))
             {
                 App::GetGuiManager()->SetVisible_FrictionSettings(true);
-                m_open_menu = TopMenu::TOPMENU_NONE;
-            }
-
-            if (ImGui::Button("Show spawner log")) // TODO: display num. warnings/errors
-            {
-                App::GetGuiManager()->SetVisible_SpawnerReport(true);
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
@@ -605,6 +608,7 @@ void RoR::GUI::TopMenubar::Update()
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
+            App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
         break;
@@ -614,7 +618,7 @@ void RoR::GUI::TopMenubar::Update()
         m_open_menu_hoverbox_max = ImVec2(0,0);
     }
 
-    ImGui::PopStyleColor(2);
+    ImGui::PopStyleColor(2); // WindowBg, Button
 }
 
 bool RoR::GUI::TopMenubar::ShouldDisplay(ImVec2 window_pos)
@@ -733,5 +737,45 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
             }
             ImGui::PopStyleColor();
         }
+    }
+}
+
+void RoR::GUI::TopMenubar::DrawSpecialStateBox(float top_offset)
+{
+    std::string special_text;
+    ImVec4 special_color;
+
+    // Gather state info
+    if (App::GetSimController()->GetPhysicsPaused() && !RoR::App::GetSimController()->IsGUIHidden())
+    {
+        special_color = ORANGE_TEXT;
+        special_text = Ogre::StringUtil::replaceAll(_L("All physics paused, press '{}' to resume"),
+            "{}", App::GetInputEngine()->getEventCommand(EV_COMMON_TOGGLE_PHYSICS));
+    }
+    else if (App::GetSimController()->GetPlayerActor() &&
+             App::GetSimController()->GetPlayerActor()->ar_physics_paused
+             && !RoR::App::GetSimController()->IsGUIHidden())
+    {
+        special_color = GREEN_TEXT;
+        special_text = Ogre::StringUtil::replaceAll(_L("Vehicle physics paused, press '{}' to resume"),
+            "{}", App::GetInputEngine()->getEventCommand(EV_TRUCK_TOGGLE_PHYSICS));
+    }
+
+    // Draw box if needed
+    if (!special_text.empty())
+    {
+        ImVec2 box_pos;
+        box_pos.y = top_offset;
+        box_pos.x = (ImGui::GetIO().DisplaySize.x / 2) - ((ImGui::CalcTextSize(special_text.c_str()).x / 2) + ImGui::GetStyle().FramePadding.x);
+        ImGui::SetNextWindowPos(box_pos);
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize    | ImGuiWindowFlags_NoMove |
+                                 ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize;
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, App::GetGuiManager()->GetTheme().semitransparent_window_bg);
+        if (ImGui::Begin("Special state box", nullptr, flags))
+        {
+            ImGui::TextColored(special_color, "%s", special_text.c_str());
+            ImGui::End();
+        }
+        ImGui::PopStyleColor(1); // WindowBg
     }
 }

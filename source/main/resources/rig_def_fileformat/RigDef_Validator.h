@@ -48,7 +48,7 @@ class Validator
 {
 public:
     
-    struct Message
+    struct Message // TODO: remove, use console API directly
     {
         enum Type
         {
@@ -59,14 +59,6 @@ public:
 
             TYPE_INVALID = 0xFFFFFFFF
         };
-
-        Message(Type type, Ogre::String const & message):
-            type(type),
-            text(message)
-        {}
-
-        Type type;
-        Ogre::String text;
     };
 
     /**
@@ -82,21 +74,10 @@ public:
 
     bool Validate();
 
-    std::list<Message> & GetMessages()
-    {
-        return m_messages;
-    }
-
     void SetCheckBeams(bool check_beams)
     {
         m_check_beams = check_beams;
     }
-
-    int GetMessagesNumErrors()   const { return m_messages_num_errors;   }
-    int GetMessagesNumWarnings() const { return m_messages_num_warnings; }
-    int GetMessagesNumOther()    const { return m_messages_num_other;    }
-
-    std::string ProcessMessagesToString();
 
 private:
 
@@ -150,10 +131,6 @@ private:
 /* Properties                                                                 */
 /* -------------------------------------------------------------------------- */
 
-    std::list<Message> m_messages;
-    int m_messages_num_errors;
-    int m_messages_num_warnings;
-    int m_messages_num_other;
     std::shared_ptr<RigDef::File> m_file; //!< The parsed input file.
     std::list<std::shared_ptr<RigDef::File::Module>> m_selected_modules;
     bool m_check_beams;
