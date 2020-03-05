@@ -3388,6 +3388,7 @@ void RoR::GfxActor::RunScripts()
     for (ScriptUnit& unit: m_framestep_scripts)
     {
         unit.su_context->Prepare(unit.su_loop_fn);
+        unit.su_context->SetArgObject(0, this);
         unit.su_context->Execute();
     }
 }

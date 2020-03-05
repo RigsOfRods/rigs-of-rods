@@ -198,8 +198,13 @@ protected:
 //    - Ogre::Degree
 //    - Ogre::Quaternion
 //    - Ogre::ColourValue
+// Defined in file 'OgreAngelscript.cpp'
 void RegisterOgreObjects(AngelScript::asIScriptEngine* engine);
 
+// Defined in file 'ImGuiAngelscript.cpp'
 void RegisterImGuiBindings(AngelScript::asIScriptEngine* engine);
+
+// Defined in file 'FrameStepAngelscript.cpp'
+void RegisterFrameStepInterface(AngelScript::asIScriptEngine* engine);
 
 #endif // USE_ANGELSCRIPT

@@ -257,6 +257,7 @@ if (ROR_USE_ANGELSCRIPT)
     list(APPEND SOURCE_FILES
             scripting/GameScript.{h,cpp}
             scripting/LocalStorage.{h,cpp}
+            scripting/FrameStepAngelscript.cpp
             scripting/OgreAngelscript.cpp
             scripting/ImGuiAngelscript.cpp
             scripting/OgreScriptBuilder.{h,cpp}
