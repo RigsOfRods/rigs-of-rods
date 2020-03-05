@@ -33,10 +33,12 @@
 
 #include "InterThreadStoreVector.h"
 #include "Singleton.h"
+#include "RigDef_File.h"
 
 #include "scriptdictionary/scriptdictionary.h"
 #include "scriptbuilder/scriptbuilder.h"
 
+#include <angelscript.h>
 /**
  * @file ScriptEngine.h
  * @version 0.1.0
@@ -45,6 +47,16 @@
  */
 
 class GameScript;
+
+/**
+ *  @brief Utility wrapper for game scripts
+ */
+struct ScriptUnit
+{
+    AngelScript::asIScriptModule*   su_module   = nullptr; //!< Bytecode
+    AngelScript::asIScriptFunction* su_loop_fn  = nullptr;
+    AngelScript::asIScriptContext*  su_context  = nullptr; //!< Stack
+};
 
 /**
  *  @brief This class represents the angelscript scripting interface. It can load and execute scripts.
@@ -59,11 +71,16 @@ public:
     ~ScriptEngine();
 
     /**
-     * Loads a script
+     * Loads a script associated with terrn2
      * @param scriptname filename to load
      * @return 0 on success, everything else on error
      */
-    int loadScript(Ogre::String scriptname);
+    int loadTerrainScript(Ogre::String scriptname);
+
+    /**
+     * Loads a script associated with actor (truck/load...)
+     */
+    bool loadActorScript(Actor* actor, RigDef::Script& def);
 
     /**
      * Calls the script's framestep function to be able to use timed things inside the script
@@ -146,7 +163,8 @@ public:
 protected:
 
     Collisions* coll;
-    AngelScript::asIScriptEngine* engine; //!< instance of the scripting engine
+    AngelScript::asIScriptEngine* engine; //!< instance of the scripting engine - legacy framestep logic
+    AngelScript::asIScriptEngine* m_engine_frame; //!< instance of the scripting engine - framestep logic (asynchronous with simulation)
     AngelScript::asIScriptContext* context; //!< context in which all scripting happens
     AngelScript::asIScriptFunction* frameStepFunctionPtr; //!< script function pointer to the frameStep function
     AngelScript::asIScriptFunction* eventCallbackFunctionPtr; //!< script function pointer to the event callback function

@@ -29,6 +29,7 @@
 #include "Differentials.h"
 #include "ForwardDeclarations.h"
 #include "RigDef_Prerequisites.h"
+#include "ScriptEngine.h"
 #include "ThreadPool.h" // class Task
 
 #include <OgreAxisAlignedBox.h>
@@ -349,6 +350,8 @@ public:
     void                 CalcPropAnimation   (const int flag_state, float& cstate, int& div, float timer,
                                               const float lower_limit, const float upper_limit, const float option3);
     void                 UpdateFlares        (float dt_sec, bool is_player);
+    void                 AddScript           (ScriptUnit s) { m_framestep_scripts.push_back(s); }
+    void                 RunScripts          ();
 
 private:
 
@@ -385,6 +388,7 @@ private:
     float                       m_prop_anim_shift_timer;
     int                         m_prop_anim_prev_gear;
     std::set<GfxActor*>         m_linked_gfx_actors;
+    std::vector<ScriptUnit>     m_framestep_scripts;
 
     bool                        m_initialized;
 

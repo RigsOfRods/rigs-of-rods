@@ -58,6 +58,7 @@
 #include "Renderdash.h"
 #include "RoRFrameListener.h"
 #include "ScrewProp.h"
+#include "ScriptEngine.h"
 #include "Skidmark.h"
 #include "SkinManager.h"
 #include "SlideNode.h"
@@ -3744,6 +3745,16 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
     this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults, hb.hb_inertia, hb.hb_inertia);
 
     m_actor->ar_hydros.push_back(hb);
+}
+
+void ActorSpawner::ProcessScript(RigDef::Script & def)
+{
+    if (!ScriptEngine::getSingleton().loadActorScript(m_actor, def))
+    {
+        Str<400> msg;
+        msg << "Failed to load/compile/install script: " << def.filename;
+        this->AddMessage(Message::TYPE_ERROR, msg.ToCStr());
+    }
 }
 
 void ActorSpawner::ProcessShock3(RigDef::Shock3 & def)

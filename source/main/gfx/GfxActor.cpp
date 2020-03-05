@@ -3382,3 +3382,12 @@ std::string   RoR::GfxActor::FetchActorDesignName() const                { retur
 int           RoR::GfxActor::FetchNumBeams      () const                 { return m_actor->ar_num_beams; }
 int           RoR::GfxActor::FetchNumNodes      () const                 { return m_actor->ar_num_nodes; }
 int           RoR::GfxActor::FetchNumWheelNodes () const                 { return m_actor->getWheelNodeCount(); }
+
+void RoR::GfxActor::RunScripts()
+{
+    for (ScriptUnit& unit: m_framestep_scripts)
+    {
+        unit.su_context->Prepare(unit.su_loop_fn);
+        unit.su_context->Execute();
+    }
+}

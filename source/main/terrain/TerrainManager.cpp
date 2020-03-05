@@ -466,14 +466,14 @@ void TerrainManager::initScripting()
 
     for (std::string as_filename : m_def.as_files)
     {
-        if (ScriptEngine::getSingleton().loadScript(as_filename) == 0)
+        if (ScriptEngine::getSingleton().loadTerrainScript(as_filename) == 0)
             loaded = true;
     }
 
     if (!loaded)
     {
         // load a default script that does the most basic things
-        ScriptEngine::getSingleton().loadScript("default.as");
+        ScriptEngine::getSingleton().loadTerrainScript("default.as");
     }
     // finally activate AS logging, so we dont spam the users screen with initialization messages
     ScriptEngine::getSingleton().activateLogging();

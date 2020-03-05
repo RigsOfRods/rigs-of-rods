@@ -77,6 +77,12 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         gfx_actor->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
     }
 
+    // Actors - run scripts
+    for (GfxActor* gfx_actor: m_live_gfx_actors)
+    {
+        gfx_actor->RunScripts();
+    }
+
     // Var
     GfxActor* player_gfx_actor = nullptr;
     std::set<GfxActor*> player_connected_gfx_actors;

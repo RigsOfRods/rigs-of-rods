@@ -459,6 +459,8 @@ private:
 
     void ProcessScrewprop(RigDef::Screwprop & def);
 
+    void ProcessScript(RigDef::Script & def);
+
     /**
     * Section 'shocks'.
     */

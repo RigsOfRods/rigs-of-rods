@@ -329,6 +329,9 @@ Actor *ActorSpawner::SpawnActor()
     // Section 'airbrakes' (needs GfxActor to exist)
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_AIRBRAKES, airbrakes, ProcessAirbrake);
 
+    // Section 'scripts' (needs GfxActor to exist)
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SCRIPTS, scripts, ProcessScript);
+
 #ifdef USE_OPENAL
 
     // Section 'soundsources'
