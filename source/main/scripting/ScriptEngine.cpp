@@ -729,14 +729,20 @@ void ScriptEngine::triggerEvent(int eventnum, int value)
 bool ScriptEngine::loadActorScript(Actor* actor, RigDef::Script& def)
 {
     if (def.type != RigDef::Script::TYPE_FRAMESTEP)
-        return false; // Not supported yet
+    {
+        RoR::LogFormat("[RoR|Scripting] Ignoring script '%s' - unsupported type %d", def.filename.c_str(), (int)def.type);
+        return false;
+    }
 
     asIScriptEngine* engine = m_engine_frame;
     Str<100> module_name;
     module_name << def.filename << "@" << actor->ar_filename << "~" << actor->ar_instance_id;
     asIScriptModule* module = engine->GetModule(module_name, asGM_ALWAYS_CREATE);
     if (!module)
+    {
+        RoR::LogFormat("[RoR|Scripting] Ignoring script '%s' - Failed to create AngelScript module '%s'", def.filename.c_str(), module_name.ToCStr());
         return false;
+    }
 
     try
     {
@@ -744,8 +750,12 @@ bool ScriptEngine::loadActorScript(Actor* actor, RigDef::Script& def)
             .openResource(def.filename, actor->GetGfxActor()->GetResourceGroup(),
             /*searchGroupsIfNotFound=*/false);
         Ogre::String code = stream->getAsString();
-        if (module->AddScriptSection(def.filename.c_str(), code.c_str(), code.length()) != asSUCCESS)
+        int res = module->AddScriptSection(def.filename.c_str(), code.c_str(), code.length());
+        if (res != asSUCCESS)
+        {
+            RoR::LogFormat("[RoR|Scripting] Ignoring script '%s' - Failed to `AddScriptSection()`, return code: %d", def.filename.c_str(), res);
             return false;
+        }
     }
     catch (Ogre::Exception& e)
     {
@@ -753,14 +763,27 @@ bool ScriptEngine::loadActorScript(Actor* actor, RigDef::Script& def)
             def.filename.c_str(), e.getFullDescription().c_str());
         return false;
     }
-    if (module->Build() != asSUCCESS)
+    int res = module->Build();
+    if (res != asSUCCESS)
+    {
+        RoR::LogFormat("[RoR|Scripting] Ignoring script '%s' - Failed to `Build()` AngelScript module, return code: %d", def.filename.c_str(), res);
         return false;
+    }
 
-    asIScriptFunction* setup_fn = module->GetFunctionByDecl("int setup(string)");
-    asIScriptFunction* loop_fn = module->GetFunctionByDecl("int loop(GfxActor@)");
+    const char* const SETUP_DECL = "int setup(string)";
+    const char* const LOOP_DECL = "int loop(GfxActor@)";
+    asIScriptFunction* setup_fn = module->GetFunctionByDecl(SETUP_DECL);
+    asIScriptFunction* loop_fn = module->GetFunctionByDecl(LOOP_DECL);
 
     if (!setup_fn || !loop_fn)
+    {
+        Str<1000> msg;
+        msg << "Script '" << def.filename << "' (frame-step) is missing mandatory function(s): ";
+        if (!setup_fn) { msg << "`" << SETUP_DECL << "` "; }
+        if (!loop_fn) { msg << "`" << LOOP_DECL << "` "; }
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
         return false;
+    }        
 
     asIScriptContext* context = engine->CreateContext();
     if (context->Prepare(setup_fn) != asSUCCESS)
