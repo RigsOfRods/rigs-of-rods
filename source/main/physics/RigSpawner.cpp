@@ -793,7 +793,7 @@ void ActorSpawner::BuildAerialEngine(
 
     /* Visuals */
     float scale = GetNode(ref_node_index).RelPosition.distance(GetNode(blade_1_node_index).RelPosition) / 2.25f;
-    for (prop_t& prop: m_props)
+    for (RoR::Prop& prop: m_props)
     {
         if ((prop.noderef == ref_node_index) && (prop.pp_aero_propeller_blade || prop.pp_aero_propeller_spin))
         {
@@ -960,7 +960,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
             {
                 //Left green
                 m_airplane_left_light=previous_wing.fa->nfld;
-                prop_t left_green_prop;
+                RoR::Prop left_green_prop;
 
                 left_green_prop.noderef=previous_wing.fa->nfld;
                 left_green_prop.nodex=previous_wing.fa->nflu;
@@ -992,7 +992,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 m_props.push_back(left_green_prop);
                 
                 //Left flash
-                prop_t left_flash_prop;
+                RoR::Prop left_flash_prop;
 
                 left_flash_prop.noderef=previous_wing.fa->nbld;
                 left_flash_prop.nodex=previous_wing.fa->nblu;
@@ -1033,7 +1033,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 
                 //Right red
                 m_airplane_right_light=previous_wing.fa->nfrd;
-                prop_t right_red_prop;
+                RoR::Prop right_red_prop;
 
                 
                 right_red_prop.noderef=start_wing.fa->nfrd;
@@ -1066,7 +1066,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 m_props.push_back(right_red_prop);
                 
                 //Right flash
-                prop_t right_flash_prop;
+                RoR::Prop right_flash_prop;
 
                 right_flash_prop.noderef=start_wing.fa->nbrd;
                 right_flash_prop.nodex=start_wing.fa->nbru;
@@ -1543,9 +1543,8 @@ void ActorSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
 
 void ActorSpawner::ProcessProp(RigDef::Prop & def)
 {
-    prop_t prop;
+    RoR::Prop prop;
     int prop_index = static_cast<int>(m_props.size());
-    memset(&prop, 0, sizeof(prop_t));
 
     prop.noderef         = GetNodeIndexOrThrow(def.reference_node);
     prop.nodex           = FindNodeIndex(def.x_axis_node);
@@ -1785,7 +1784,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
 
     for (RigDef::Animation& anim_def: def.animations)
     {
-        prop_anim_t anim;
+        PropAnim anim;
         anim.animKeyState = -1.0f; // Orig: hardcoded in {add_animation}
 
         /* Arg #1: ratio */
@@ -1805,130 +1804,130 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
 
         /* Arg #4: source */
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_AIRSPEED)) { /* (NOTE: code formatting relaxed) */
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_AIRSPEED);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AIRSPEED);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_VERTICAL_VELOCITY)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_VVI);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_VVI);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ALTIMETER_100K)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_ALTIMETER);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ALTIMETER);
             anim.animOpt3 = 1.f;
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ALTIMETER_10K)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_ALTIMETER);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ALTIMETER);
             anim.animOpt3 = 2.f;
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ALTIMETER_1K)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_ALTIMETER);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ALTIMETER);
             anim.animOpt3 = 3.f;
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ANGLE_OF_ATTACK)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_AOA);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AOA);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_FLAP)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_FLAP);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_FLAP);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_AIR_BRAKE)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_AIRBRAKE);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AIRBRAKE);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ROLL)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_ROLL);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ROLL);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_PITCH)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_PITCH);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_PITCH);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_BRAKES)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_BRAKE);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_BRAKE);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ACCEL)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_ACCEL);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ACCEL);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_CLUTCH)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_CLUTCH);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_CLUTCH);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SPEEDO)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_SPEEDO);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SPEEDO);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_TACHO)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_TACHO);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_TACHO);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_TURBO)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_TURBO);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_TURBO);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_PARKING)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_PBRAKE);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_PBRAKE);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SHIFT_LEFT_RIGHT)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_SHIFTER);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
             anim.animOpt3 = 1.0f;
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SHIFT_BACK_FORTH)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_SHIFTER);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
             anim.animOpt3 = 2.0f;
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SEQUENTIAL_SHIFT)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_SHIFTER);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
             anim.animOpt3 = 3.0f;
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SHIFTERLIN)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_SHIFTER);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
             anim.animOpt3 = 4.0f;
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_TORQUE)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_TORQUE);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_TORQUE);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_HEADING)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_HEADING);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_HEADING);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_DIFFLOCK)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_DIFFLOCK);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_DIFFLOCK);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_STEERING_WHEEL)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_STEERING);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_STEERING);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_AILERON)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_AILERONS);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AILERONS);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ELEVATOR)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_ELEVATORS);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ELEVATORS);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_AIR_RUDDER)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_ARUDDER);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ARUDDER);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_BOAT_RUDDER)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_BRUDDER);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_BRUDDER);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_BOAT_THROTTLE)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_BTHROTTLE);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_BTHROTTLE);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_PERMANENT)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_PERMANENT);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_PERMANENT);
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_EVENT)) {
-            BITMASK_SET_1(anim.animFlags, ANIM_FLAG_EVENT);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_EVENT);
         }
         /* Motor-indexed sources */
         std::list<RigDef::Animation::MotorSource>::iterator source_itor = anim_def.motor_sources.begin();
         for ( ; source_itor != anim_def.motor_sources.end(); source_itor++)
         {
             if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_THROTTLE)) {
-                BITMASK_SET_1(anim.animFlags, ANIM_FLAG_THROTTLE);
+                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_THROTTLE);
                 anim.animOpt3 = static_cast<float>(source_itor->motor);
             }
             if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_RPM)) {
-                BITMASK_SET_1(anim.animFlags, ANIM_FLAG_RPM);
+                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_RPM);
                 anim.animOpt3 = static_cast<float>(source_itor->motor);
             }
             if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_TORQUE)) {
-                BITMASK_SET_1(anim.animFlags, ANIM_FLAG_AETORQUE);
+                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AETORQUE);
                 anim.animOpt3 = static_cast<float>(source_itor->motor);
             }
             if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_PITCH)) {
-                BITMASK_SET_1(anim.animFlags, ANIM_FLAG_AEPITCH);
+                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AEPITCH);
                 anim.animOpt3 = static_cast<float>(source_itor->motor);
             }
             if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_STATUS)) {
-                BITMASK_SET_1(anim.animFlags, ANIM_FLAG_AESTATUS);
+                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AESTATUS);
                 anim.animOpt3 = static_cast<float>(source_itor->motor);
             }
         }
@@ -1939,22 +1938,22 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
 
         /* Anim modes */
         if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_X)) {
-            BITMASK_SET_1(anim.animMode, ANIM_MODE_ROTA_X);
+            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_ROTA_X);
         }
         if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_Y)) {
-            BITMASK_SET_1(anim.animMode, ANIM_MODE_ROTA_Y);
+            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_ROTA_Y);
         }
         if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_Z)) {
-            BITMASK_SET_1(anim.animMode, ANIM_MODE_ROTA_Z);
+            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_ROTA_Z);
         }
         if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_X)) {
-            BITMASK_SET_1(anim.animMode, ANIM_MODE_OFFSET_X);
+            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_OFFSET_X);
         }
         if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_Y)) {
-            BITMASK_SET_1(anim.animMode, ANIM_MODE_OFFSET_Y);
+            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_OFFSET_Y);
         }
         if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_Z)) {
-            BITMASK_SET_1(anim.animMode, ANIM_MODE_OFFSET_Z);
+            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_OFFSET_Z);
         }
         if (anim.animMode == 0)
         {
@@ -1963,7 +1962,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
 
         if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_AUTO_ANIMATE)) 
         {
-            BITMASK_SET_1(anim.animMode, ANIM_MODE_AUTOANIMATE);
+            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_AUTOANIMATE);
 
             // Flag whether default lower and/or upper animation limit constraints are effective
             const bool use_default_lower_limit = (anim_def.lower_limit == 0.f);
@@ -1996,11 +1995,11 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         }
         if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_NO_FLIP)) 
         {
-            BITMASK_SET_1(anim.animMode, ANIM_MODE_NOFLIP);
+            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_NOFLIP);
         }
         if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_BOUNCE)) 
         {
-            BITMASK_SET_1(anim.animMode, ANIM_MODE_BOUNCE);
+            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_BOUNCE);
             anim.animOpt5 = 1.f;
         }
         if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_EVENT_LOCK)) 
@@ -2014,7 +2013,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         if (! anim_def.event.empty())
         {
             // we are using keys as source
-            anim.animFlags |= ANIM_FLAG_EVENT;
+            anim.animFlags |= PROP_ANIM_FLAG_EVENT;
 
             int event_id = RoR::App::GetInputEngine()->resolveEventName(anim_def.event);
             if (event_id == -1)

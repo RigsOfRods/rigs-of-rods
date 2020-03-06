@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2017 Petr Ohlidal & contributors
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -54,6 +54,8 @@ namespace RoR
     class  Network;
     class  OgreSubsystem;
     struct PlatformUtils;
+    struct Prop;
+    struct PropAnim;
     class  Renderdash;
     class  RigLoadingProfiler;
     class  SceneMouse;
@@ -115,7 +117,6 @@ struct wing_t;
 struct command_t;
 struct rotator_t;
 struct flare_t;
-struct prop_t;
 struct rope_t;
 struct exhaust_t;
 struct cparticle_t;
