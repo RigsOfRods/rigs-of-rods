@@ -72,7 +72,6 @@
 /// @author Petr Ohlidal
 class ActorSpawner
 {
-    friend class VideoCamera; // Needs to add log messages
     friend class RoR::FlexFactory; // Needs to use `ComposeName()` and `SetupNewEntity()`
 
 public:
@@ -1069,7 +1068,7 @@ private:
     bool               m_generate_wing_position_lights;
     int                m_first_wing_index;
     Ogre::SceneNode*   m_curr_mirror_prop_scenenode;
-    std::vector<prop_t>       m_props;
+    std::vector<RoR::Prop>    m_props;
     int                       m_driverseat_prop_index;
     std::vector<CabTexcoord>  m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;

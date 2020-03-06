@@ -49,6 +49,8 @@ namespace RoR
     class  OgreSubsystem;
     struct PlatformUtils;
     struct ProjectEntry;
+    struct Prop;
+    struct PropAnim;
     class  Renderdash;
     class  RigLoadingProfiler;
     class  SceneMouse;
@@ -106,7 +108,6 @@ struct wing_t;
 struct command_t;
 struct rotator_t;
 struct flare_t;
-struct prop_t;
 struct rope_t;
 struct exhaust_t;
 struct cparticle_t;

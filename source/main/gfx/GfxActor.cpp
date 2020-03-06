@@ -75,7 +75,7 @@ RoR::GfxActor::SimBuffer::SimBuffer()
 {}
 
 RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
-                        std::vector<NodeGfx>& gfx_nodes, std::vector<prop_t>& props,
+                        std::vector<NodeGfx>& gfx_nodes, std::vector<Prop>& props,
                         int driverseat_prop_idx, RoR::Renderdash* renderdash):
     m_actor(actor),
     m_custom_resource_group(ogre_resource_group),
@@ -189,7 +189,7 @@ RoR::GfxActor::~GfxActor()
     m_gfx_airbrakes.clear();
 
     // Delete props
-    for (prop_t & prop: m_props)
+    for (Prop & prop: m_props)
     {
         for (int k = 0; k < 4; ++k)
         {
@@ -1735,7 +1735,7 @@ void RoR::GfxActor::ScaleActor(Ogre::Vector3 relpos, float ratio)
 
     // props and stuff
     // TOFIX: care about prop positions as well!
-    for (prop_t& prop: m_props)
+    for (Prop& prop: m_props)
     {
         if (prop.scene_node)
             prop.scene_node->scale(ratio, ratio, ratio);
@@ -2140,7 +2140,7 @@ void RoR::GfxActor::UpdateNetLabels(float dt)
 void RoR::GfxActor::CalculateDriverPos(Ogre::Vector3& out_pos, Ogre::Quaternion& out_rot)
 {
     assert(m_driverseat_prop_index != -1);
-    prop_t* driverseat_prop = &m_props[m_driverseat_prop_index];
+    Prop* driverseat_prop = &m_props[m_driverseat_prop_index];
 
     NodeData* nodes = this->GetSimNodeBuffer();
 
@@ -2168,7 +2168,7 @@ void RoR::GfxActor::CalculateDriverPos(Ogre::Vector3& out_pos, Ogre::Quaternion&
     out_rot = rot;
 }
 
-void RoR::GfxActor::UpdateBeaconFlare(prop_t & prop, float dt, bool is_player_actor)
+void RoR::GfxActor::UpdateBeaconFlare(Prop & prop, float dt, bool is_player_actor)
 {
     // TODO: Quick and dirty port from Beam::updateFlares(), clean it up ~ only_a_ptr, 06/2018
     using namespace Ogre;
@@ -2336,7 +2336,7 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
     NodeData* nodes = this->GetSimNodeBuffer();
 
     // Update prop meshes
-    for (prop_t& prop: m_props)
+    for (Prop& prop: m_props)
     {
         if (prop.scene_node == nullptr) // Wing beacons don't have scenenodes
             continue;
@@ -2395,7 +2395,7 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
     if ((App::gfx_flares_mode->GetActiveEnum<GfxFlaresMode>() != GfxFlaresMode::NONE)
         && m_beaconlight_active)
     {
-        for (prop_t& prop: m_props)
+        for (Prop& prop: m_props)
         {
             if (prop.beacontype != 0)
             {
@@ -2407,7 +2407,7 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
 
 void RoR::GfxActor::SetPropsVisible(bool visible)
 {
-    for (prop_t& prop: m_props)
+    for (Prop& prop: m_props)
     {
         if (prop.mo)
             prop.mo->setVisible(visible);
@@ -2436,7 +2436,7 @@ void RoR::GfxActor::SetBeaconsEnabled(bool beacon_light_is_active)
 {
     const bool enableLight = (App::gfx_flares_mode->GetActiveEnum<GfxFlaresMode>() != GfxFlaresMode::NO_LIGHTSOURCES);
 
-    for (prop_t& prop: m_props)
+    for (Prop& prop: m_props)
     {
         char beacon_type = prop.beacontype;
         if (beacon_type == 'b')
@@ -2509,7 +2509,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     // ## ~ only_a_ptr, 06/2018
 
     //boat rudder
-    if (flag_state & ANIM_FLAG_BRUDDER)
+    if (flag_state & PROP_ANIM_FLAG_BRUDDER)
     {
         size_t spi;
         float ctmp = 0.0f;
@@ -2525,7 +2525,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //boat throttle
-    if (flag_state & ANIM_FLAG_BTHROTTLE)
+    if (flag_state & PROP_ANIM_FLAG_BTHROTTLE)
     {
         size_t spi;
         float ctmp = 0.0f;
@@ -2541,7 +2541,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //differential lock status
-    if (flag_state & ANIM_FLAG_DIFFLOCK)
+    if (flag_state & PROP_ANIM_FLAG_DIFFLOCK)
     {
         if (m_actor->m_num_wheel_diffs > 0) // read-only attribute - safe to read from here
         {
@@ -2566,7 +2566,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //heading
-    if (flag_state & ANIM_FLAG_HEADING)
+    if (flag_state & PROP_ANIM_FLAG_HEADING)
     {
         // rad2deg limitedrange  -1 to +1
         cstate = (m_simbuf.simbuf_rotation * 57.29578f) / 360.0f;
@@ -2575,7 +2575,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
 
     //torque - WRITES 
     const bool has_engine = (m_actor->ar_engine!= nullptr);
-    if (has_engine && flag_state & ANIM_FLAG_TORQUE)
+    if (has_engine && flag_state & PROP_ANIM_FLAG_TORQUE)
     {
         float torque = m_simbuf.simbuf_engine_crankfactor;
         if (torque <= 0.0f)
@@ -2592,7 +2592,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //shifterseq, to amimate sequentiell shifting
-    if (has_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 3.0f)
+    if (has_engine && (flag_state & PROP_ANIM_FLAG_SHIFTER) && option3 == 3.0f)
     {
         // opt1 &opt2 = 0   this is a shifter
         if (!lower_limit && !upper_limit)
@@ -2641,7 +2641,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //shifterman1, left/right
-    if (has_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 1.0f)
+    if (has_engine && (flag_state & PROP_ANIM_FLAG_SHIFTER) && option3 == 1.0f)
     {
         int shifter = m_simbuf.simbuf_gear;
         if (!shifter)
@@ -2660,7 +2660,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //shifterman2, up/down
-    if (has_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 2.0f)
+    if (has_engine && (flag_state & PROP_ANIM_FLAG_SHIFTER) && option3 == 2.0f)
     {
         int shifter = m_simbuf.simbuf_gear;
         cstate = 0.5f;
@@ -2676,7 +2676,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //shifterlinear, to amimate cockpit gearselect gauge and autotransmission stick
-    if (has_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 4.0f)
+    if (has_engine && (flag_state & PROP_ANIM_FLAG_SHIFTER) && option3 == 4.0f)
     {
         int shifter = m_simbuf.simbuf_gear;
         int numgears = m_attr.xa_num_gears;
@@ -2685,7 +2685,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //parking brake
-    if (flag_state & ANIM_FLAG_PBRAKE)
+    if (flag_state & PROP_ANIM_FLAG_PBRAKE)
     {
         float pbrake = static_cast<float>(m_simbuf.simbuf_parking_brake); // Bool --> float
         cstate -= pbrake;
@@ -2693,7 +2693,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //speedo ( scales with speedomax )
-    if (flag_state & ANIM_FLAG_SPEEDO)
+    if (flag_state & PROP_ANIM_FLAG_SPEEDO)
     {
         float speedo = m_simbuf.simbuf_wheel_speed / m_attr.xa_speedo_highest_kph;
         cstate -= speedo * 3.0f;
@@ -2701,7 +2701,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //engine tacho ( scales with maxrpm, default is 3500 )
-    if (has_engine && flag_state & ANIM_FLAG_TACHO)
+    if (has_engine && flag_state & PROP_ANIM_FLAG_TACHO)
     {
         float tacho = m_simbuf.simbuf_engine_rpm / m_attr.xa_engine_max_rpm;
         cstate -= tacho;
@@ -2709,7 +2709,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //turbo
-    if (has_engine && flag_state & ANIM_FLAG_TURBO)
+    if (has_engine && flag_state & PROP_ANIM_FLAG_TURBO)
     {
         float turbo = m_simbuf.simbuf_engine_turbo_psi * 3.34;
         cstate -= turbo / 67.0f;
@@ -2717,7 +2717,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //brake
-    if (flag_state & ANIM_FLAG_BRAKE)
+    if (flag_state & PROP_ANIM_FLAG_BRAKE)
     {
         float brakes = m_simbuf.simbuf_brake;
         cstate -= brakes;
@@ -2725,7 +2725,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //accelerator
-    if (has_engine && flag_state & ANIM_FLAG_ACCEL)
+    if (has_engine && flag_state & PROP_ANIM_FLAG_ACCEL)
     {
         float accel = m_simbuf.simbuf_engine_accel;
         cstate -= accel + 0.06f;
@@ -2734,7 +2734,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //clutch
-    if (has_engine && flag_state & ANIM_FLAG_CLUTCH)
+    if (has_engine && flag_state & PROP_ANIM_FLAG_CLUTCH)
     {
         float clutch = m_simbuf.simbuf_clutch;
         cstate -= fabs(1.0f - clutch);
@@ -2746,7 +2746,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     if (option3 > 0.f && option3 <= float(m_simbuf.simbuf_aeroengines.size()))
     {
         const int aenum = int(option3 - 1.f);
-        if (flag_state & ANIM_FLAG_RPM)
+        if (flag_state & PROP_ANIM_FLAG_RPM)
         {
             float angle;
             float pcent = m_simbuf.simbuf_aeroengines[aenum].simbuf_ae_rpmpc;
@@ -2759,7 +2759,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
             cstate -= angle / 314.0f;
             div++;
         }
-        if (flag_state & ANIM_FLAG_THROTTLE)
+        if (flag_state & PROP_ANIM_FLAG_THROTTLE)
         {
             float throttle = m_simbuf.simbuf_aeroengines[aenum].simbuf_ae_throttle;
             cstate -= throttle;
@@ -2768,20 +2768,20 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
 
         if (m_simbuf.simbuf_aeroengines[aenum].simbuf_ae_turboprop) // If it's a turboprop or pistonprop...
         {
-            if (flag_state & ANIM_FLAG_AETORQUE)
+            if (flag_state & PROP_ANIM_FLAG_AETORQUE)
             {
                 cstate = m_simbuf.simbuf_aeroengines[aenum].simbuf_tp_aetorque / 120.0f;
                 div++;
             }
 
-            if (flag_state & ANIM_FLAG_AEPITCH)
+            if (flag_state & PROP_ANIM_FLAG_AEPITCH)
             {
                 cstate = m_simbuf.simbuf_aeroengines[aenum].simbuf_tp_aepitch / 120.0f;
                 div++;
             }
         }
 
-        if (flag_state & ANIM_FLAG_AESTATUS)
+        if (flag_state & PROP_ANIM_FLAG_AESTATUS)
         {
             if (!m_simbuf.simbuf_aeroengines[aenum].simbuf_ae_ignition)
                 cstate = 0.0f;
@@ -2797,7 +2797,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     const Ogre::Vector3 node0_velo = m_simbuf.simbuf_node0_velo;
 
     //airspeed indicator
-    if (flag_state & ANIM_FLAG_AIRSPEED)
+    if (flag_state & PROP_ANIM_FLAG_AIRSPEED)
     {
         float ground_speed_kt = node0_velo.length() * 1.9438;
         float altitude = node0_pos.y;
@@ -2812,7 +2812,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //vvi indicator
-    if (flag_state & ANIM_FLAG_VVI)
+    if (flag_state & PROP_ANIM_FLAG_VVI)
     {
         float vvi = node0_velo.y * 196.85;
         // limit vvi scale to +/- 6m/s
@@ -2825,7 +2825,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //altimeter
-    if (flag_state & ANIM_FLAG_ALTIMETER)
+    if (flag_state & PROP_ANIM_FLAG_ALTIMETER)
     {
         //altimeter indicator 1k oscillating
         if (option3 == 3.0f)
@@ -2859,7 +2859,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //AOA
-    if (flag_state & ANIM_FLAG_AOA)
+    if (flag_state & PROP_ANIM_FLAG_AOA)
     {
         float aoa = m_simbuf.simbuf_wing4_aoa / 25.f;
         if ((node0_velo.length() * 1.9438) < 10.0f)
@@ -2877,7 +2877,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     Ogre::Vector3 cam_dir  = this->GetSimNodeBuffer()[m_actor->ar_main_camera_node_dir ].AbsPosition;
 
     // roll
-    if (flag_state & ANIM_FLAG_ROLL)
+    if (flag_state & PROP_ANIM_FLAG_ROLL)
     {
         Ogre::Vector3 rollv = (cam_pos - cam_roll).normalisedCopy();
         Ogre::Vector3 dirv = (cam_pos - cam_dir).normalisedCopy();
@@ -2897,7 +2897,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     // pitch
-    if (flag_state & ANIM_FLAG_PITCH)
+    if (flag_state & PROP_ANIM_FLAG_PITCH)
     {
         Ogre::Vector3 dirv = (cam_pos - cam_dir).normalisedCopy();
         float pitchangle = asin(dirv.dotProduct(Ogre::Vector3::UNIT_Y));
@@ -2907,7 +2907,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     // airbrake
-    if (flag_state & ANIM_FLAG_AIRBRAKE)
+    if (flag_state & PROP_ANIM_FLAG_AIRBRAKE)
     {
         float airbrake = static_cast<float>(m_simbuf.simbuf_airbrake_state);
         // cstate limited to -1.0f
@@ -2916,7 +2916,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //flaps
-    if (flag_state & ANIM_FLAG_FLAP)
+    if (flag_state & PROP_ANIM_FLAG_FLAP)
     {
         float flaps = flapangles[m_simbuf.simbuf_aero_flap_state];
         // cstate limited to -1.0f
@@ -2927,14 +2927,14 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
 
 void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 {
-    for (prop_t& prop: m_props)
+    for (Prop& prop: m_props)
     {
         int animnum = 0;
         float rx = 0.0f;
         float ry = 0.0f;
         float rz = 0.0f;
 
-        for (prop_anim_t& anim: prop.pp_animations)
+        for (PropAnim& anim: prop.pp_animations)
         {
             float cstate = 0.0f;
             int div = 0.0f;
@@ -2992,19 +2992,19 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 
             //propanimation placed here to avoid interference with existing hydros(cstate) and permanent prop animation
             //land vehicle steering
-            if (anim.animFlags & ANIM_FLAG_STEERING)
+            if (anim.animFlags & PROP_ANIM_FLAG_STEERING)
                 cstate += m_simbuf.simbuf_hydro_dir_state;
             //aileron
-            if (anim.animFlags & ANIM_FLAG_AILERONS)
+            if (anim.animFlags & PROP_ANIM_FLAG_AILERONS)
                 cstate += m_simbuf.simbuf_hydro_aileron_state;
             //elevator
-            if (anim.animFlags & ANIM_FLAG_ELEVATORS)
+            if (anim.animFlags & PROP_ANIM_FLAG_ELEVATORS)
                 cstate += m_simbuf.simbuf_hydro_elevator_state;
             //rudder
-            if (anim.animFlags & ANIM_FLAG_ARUDDER)
+            if (anim.animFlags & PROP_ANIM_FLAG_ARUDDER)
                 cstate += m_simbuf.simbuf_hydro_aero_rudder_state;
             //permanent
-            if (anim.animFlags & ANIM_FLAG_PERMANENT)
+            if (anim.animFlags & PROP_ANIM_FLAG_PERMANENT)
                 cstate += 1.0f;
 
             cstate *= anim.animratio;
@@ -3014,25 +3014,25 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
                 cstate *= (anim.animOpt5);
 
             //rotate prop
-            if ((anim.animMode & ANIM_MODE_ROTA_X) || (anim.animMode & ANIM_MODE_ROTA_Y) || (anim.animMode & ANIM_MODE_ROTA_Z))
+            if ((anim.animMode & PROP_ANIM_MODE_ROTA_X) || (anim.animMode & PROP_ANIM_MODE_ROTA_Y) || (anim.animMode & PROP_ANIM_MODE_ROTA_Z))
             {
                 float limiter = 0.0f;
                 // This code was formerly executed within a fixed timestep of 0.5ms and finetuned accordingly.
                 // This is now taken into account by factoring in the respective fraction of the variable timestep.
                 float const dt_frac = dt * 2000.f;
-                if (anim.animMode & ANIM_MODE_AUTOANIMATE)
+                if (anim.animMode & PROP_ANIM_MODE_AUTOANIMATE)
                 {
-                    if (anim.animMode & ANIM_MODE_ROTA_X)
+                    if (anim.animMode & PROP_ANIM_MODE_ROTA_X)
                     {
                         prop.rotaX += cstate * dt_frac;
                         limiter = prop.rotaX;
                     }
-                    if (anim.animMode & ANIM_MODE_ROTA_Y)
+                    if (anim.animMode & PROP_ANIM_MODE_ROTA_Y)
                     {
                         prop.rotaY += cstate * dt_frac;
                         limiter = prop.rotaY;
                     }
-                    if (anim.animMode & ANIM_MODE_ROTA_Z)
+                    if (anim.animMode & PROP_ANIM_MODE_ROTA_Z)
                     {
                         prop.rotaZ += cstate * dt_frac;
                         limiter = prop.rotaZ;
@@ -3040,11 +3040,11 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
                 }
                 else
                 {
-                    if (anim.animMode & ANIM_MODE_ROTA_X)
+                    if (anim.animMode & PROP_ANIM_MODE_ROTA_X)
                         rx += cstate;
-                    if (anim.animMode & ANIM_MODE_ROTA_Y)
+                    if (anim.animMode & PROP_ANIM_MODE_ROTA_Y)
                         ry += cstate;
-                    if (anim.animMode & ANIM_MODE_ROTA_Z)
+                    if (anim.animMode & PROP_ANIM_MODE_ROTA_Z)
                         rz += cstate;
                 }
 
@@ -3053,7 +3053,7 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 
                 if (limiter > upper_limit)
                 {
-                    if (anim.animMode & ANIM_MODE_NOFLIP)
+                    if (anim.animMode & PROP_ANIM_MODE_NOFLIP)
                     {
                         limiter = upper_limit; // stop at limit
                         anim.animOpt5 *= -1.0f; // change cstate multiplier if bounce is set
@@ -3067,7 +3067,7 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 
                 if (limiter < lower_limit)
                 {
-                    if (anim.animMode & ANIM_MODE_NOFLIP)
+                    if (anim.animMode & PROP_ANIM_MODE_NOFLIP)
                     {
                         limiter = lower_limit; // stop at limit
                         anim.animOpt5 *= -1.0f; // change cstate multiplier if active
@@ -3081,30 +3081,30 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 
                 if (limiterchanged)
                 {
-                    if (anim.animMode & ANIM_MODE_ROTA_X)
+                    if (anim.animMode & PROP_ANIM_MODE_ROTA_X)
                         prop.rotaX = limiter;
-                    if (anim.animMode & ANIM_MODE_ROTA_Y)
+                    if (anim.animMode & PROP_ANIM_MODE_ROTA_Y)
                         prop.rotaY = limiter;
-                    if (anim.animMode & ANIM_MODE_ROTA_Z)
+                    if (anim.animMode & PROP_ANIM_MODE_ROTA_Z)
                         prop.rotaZ = limiter;
                 }
             }
 
             //offset prop
 
-            if ((anim.animMode & ANIM_MODE_OFFSET_X) || (anim.animMode & ANIM_MODE_OFFSET_Y) || (anim.animMode & ANIM_MODE_OFFSET_Z))
+            if ((anim.animMode & PROP_ANIM_MODE_OFFSET_X) || (anim.animMode & PROP_ANIM_MODE_OFFSET_Y) || (anim.animMode & PROP_ANIM_MODE_OFFSET_Z))
             {
                 float offset = 0.0f;
                 float autooffset = 0.0f;
 
-                if (anim.animMode & ANIM_MODE_OFFSET_X)
+                if (anim.animMode & PROP_ANIM_MODE_OFFSET_X)
                     offset = prop.orgoffsetX;
-                if (anim.animMode & ANIM_MODE_OFFSET_Y)
+                if (anim.animMode & PROP_ANIM_MODE_OFFSET_Y)
                     offset = prop.orgoffsetY;
-                if (anim.animMode & ANIM_MODE_OFFSET_Z)
+                if (anim.animMode & PROP_ANIM_MODE_OFFSET_Z)
                     offset = prop.orgoffsetZ;
 
-                if (anim.animMode & ANIM_MODE_AUTOANIMATE)
+                if (anim.animMode & PROP_ANIM_MODE_AUTOANIMATE)
                 {
                     // This code was formerly executed within a fixed timestep of 0.5ms and finetuned accordingly.
                     // This is now taken into account by factoring in the respective fraction of the variable timestep.
@@ -3113,7 +3113,7 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 
                     if (autooffset > upper_limit)
                     {
-                        if (anim.animMode & ANIM_MODE_NOFLIP)
+                        if (anim.animMode & PROP_ANIM_MODE_NOFLIP)
                         {
                             autooffset = upper_limit; // stop at limit
                             anim.animOpt5 *= -1.0f; // change cstate multiplier if active
@@ -3126,7 +3126,7 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 
                     if (autooffset < lower_limit)
                     {
-                        if (anim.animMode & ANIM_MODE_NOFLIP)
+                        if (anim.animMode & PROP_ANIM_MODE_NOFLIP)
                         {
                             autooffset = lower_limit; // stop at limit
                             anim.animOpt5 *= -1.0f; // change cstate multiplier if active
@@ -3139,22 +3139,22 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
                 }
                 offset += cstate;
 
-                if (anim.animMode & ANIM_MODE_OFFSET_X)
+                if (anim.animMode & PROP_ANIM_MODE_OFFSET_X)
                 {
                     prop.offsetx = offset;
-                    if (anim.animMode & ANIM_MODE_AUTOANIMATE)
+                    if (anim.animMode & PROP_ANIM_MODE_AUTOANIMATE)
                         prop.orgoffsetX = autooffset;
                 }
-                if (anim.animMode & ANIM_MODE_OFFSET_Y)
+                if (anim.animMode & PROP_ANIM_MODE_OFFSET_Y)
                 {
                     prop.offsety = offset;
-                    if (anim.animMode & ANIM_MODE_AUTOANIMATE)
+                    if (anim.animMode & PROP_ANIM_MODE_AUTOANIMATE)
                         prop.orgoffsetY = autooffset;
                 }
-                if (anim.animMode & ANIM_MODE_OFFSET_Z)
+                if (anim.animMode & PROP_ANIM_MODE_OFFSET_Z)
                 {
                     prop.offsetz = offset;
-                    if (anim.animMode & ANIM_MODE_AUTOANIMATE)
+                    if (anim.animMode & PROP_ANIM_MODE_AUTOANIMATE)
                         prop.orgoffsetZ = autooffset;
                 }
             }
@@ -3307,7 +3307,7 @@ void RoR::GfxActor::SetCastShadows(bool value)
     }
 
     // Props
-    for (prop_t& prop: m_props)
+    for (Prop& prop: m_props)
     {
         if (prop.mo != nullptr && prop.mo->getEntity())
             prop.mo->getEntity()->setCastShadows(value);

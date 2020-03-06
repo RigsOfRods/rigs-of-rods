@@ -244,7 +244,7 @@ public:
     };
 
     GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
-        std::vector<NodeGfx>& gfx_nodes, std::vector<prop_t>& props, int driverseat_prop_idx, RoR::Renderdash* renderdash);
+        std::vector<NodeGfx>& gfx_nodes, std::vector<Prop>& props, int driverseat_prop_idx, RoR::Renderdash* renderdash);
 
     ~GfxActor();
 
@@ -308,7 +308,7 @@ public:
     int                       FetchNumNodes      () const ;
     int                       FetchNumWheelNodes () const ;
     bool                 HasDriverSeatProp   () const { return m_driverseat_prop_index != -1; }
-    void                 UpdateBeaconFlare   (prop_t & prop, float dt, bool is_player_actor);
+    void                 UpdateBeaconFlare   (Prop & prop, float dt, bool is_player_actor);
     void                 UpdateProps         (float dt, bool is_player_actor);
     void                 UpdatePropAnimations(float dt, bool is_player_connected);
     void                 SetPropsVisible     (bool visible);
@@ -334,7 +334,7 @@ private:
     DebugViewType               m_last_debug_view;
     std::vector<NodeGfx>        m_gfx_nodes;
     std::vector<AirbrakeGfx>    m_gfx_airbrakes;
-    std::vector<prop_t>         m_props;
+    std::vector<Prop>           m_props;
     std::vector<FlexBody*>      m_flexbodies;
     int                         m_driverseat_prop_index;
     Attributes                  m_attr;
