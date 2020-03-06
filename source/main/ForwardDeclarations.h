@@ -66,6 +66,7 @@ namespace RoR
     struct Terrn2Def;
     class  Terrn2Parser;
     struct Terrn2Telepoint;
+    class  VideoCamera;
 
     namespace GUI
     {
@@ -212,7 +213,6 @@ class TruckEditor;
 class Turbojet;
 class Turboprop;
 class VehicleAI;
-class VideoCamera;
 class Water;
 
 #ifdef USE_SOCKETW
