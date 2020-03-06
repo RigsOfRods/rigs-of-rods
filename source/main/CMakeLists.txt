@@ -49,6 +49,7 @@ set(SOURCE_FILES
         gfx/DustPool.{h,cpp}
         gfx/EnvironmentMap.{h,cpp}
         gfx/GfxActor.{h,cpp}
+        gfx/GfxData.h
         gfx/GfxScene.{h,cpp}
         gfx/HydraxWater.{h,cpp}
         gfx/IWater.h

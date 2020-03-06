@@ -28,6 +28,7 @@
 
 #include "Differentials.h"
 #include "ForwardDeclarations.h"
+#include "GfxData.h"
 #include "RigDef_Prerequisites.h"
 #include "ScriptEngine.h"
 #include "ThreadPool.h" // class Task
@@ -65,16 +66,6 @@ public:
         VCSTATE_ENABLED_ONLINE,
     };
 
-    enum class VideoCamType
-    {
-        VCTYPE_INVALID,
-        VCTYPE_VIDEOCAM,
-        VCTYPE_TRACKING_VIDEOCAM,
-        VCTYPE_MIRROR,
-        VCTYPE_MIRROR_PROP_LEFT, ///< The classic 'special prop/rear view mirror'
-        VCTYPE_MIRROR_PROP_RIGHT, ///< The classic 'special prop/rear view mirror'
-    };
-
     enum class DebugViewType
     {
         DEBUGVIEW_NONE,
@@ -86,30 +77,6 @@ public:
         DEBUGVIEW_ROTATORS,
         DEBUGVIEW_SLIDENODES,
         DEBUGVIEW_SUBMESH,
-    };
-
-    /// An Ogre::Camera mounted on the actor and rendering into
-    /// either in-scene texture or external window.
-    struct VideoCamera
-    {
-        VideoCamera();
-
-        VideoCamType         vcam_type;          // old 'camRole'
-        uint16_t             vcam_node_center;   // old 'nref'
-        uint16_t             vcam_node_dir_y;    // old 'ny'
-        uint16_t             vcam_node_dir_z;    // old 'nz'
-        uint16_t             vcam_node_alt_pos;  // old 'camNode'
-        uint16_t             vcam_node_lookat;   // old 'lookat' - only present for type=VCTYPE_TRACK_CAM
-        Ogre::Quaternion     vcam_rotation;      // old 'rotation'
-        Ogre::Vector3        vcam_pos_offset;    // old 'offset'
-        Ogre::MaterialPtr    vcam_material;      // old 'mat' + 'materialName'
-        std::string          vcam_off_tex_name;  // old 'disabledTexture' - used when videocamera is offline.
-        Ogre::Camera*        vcam_ogre_camera;   // old 'mVidCam'
-        Ogre::RenderTexture* vcam_render_target; // old 'rttTex'
-        Ogre::TexturePtr     vcam_render_tex;
-        Ogre::SceneNode*     vcam_debug_node;    // old 'debugNode'
-        Ogre::RenderWindow*  vcam_render_window; // old 'rwMirror'
-        Ogre::SceneNode*     vcam_prop_scenenode; // Only for type=MIRROR_PROP_*
     };
 
     /// Gfx attributes/state of a softbody node

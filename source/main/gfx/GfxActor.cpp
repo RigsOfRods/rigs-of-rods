@@ -403,21 +403,6 @@ void RoR::GfxActor::SetVideoCamState(VideoCamState state)
     m_vidcam_state = state;
 }
 
-RoR::GfxActor::VideoCamera::VideoCamera():
-    vcam_type(VideoCamType::VCTYPE_INVALID), // VideoCamType
-    vcam_node_center(node_t::INVALID_IDX),
-    vcam_node_dir_y(node_t::INVALID_IDX),
-    vcam_node_dir_z(node_t::INVALID_IDX),
-    vcam_node_alt_pos(node_t::INVALID_IDX),
-    vcam_node_lookat(node_t::INVALID_IDX),
-    vcam_pos_offset(Ogre::Vector3::ZERO), // Ogre::Vector3
-    vcam_ogre_camera(nullptr),            // Ogre::Camera*
-    vcam_render_target(nullptr),          // Ogre::RenderTexture*
-    vcam_debug_node(nullptr),             // Ogre::SceneNode*
-    vcam_render_window(nullptr),          // Ogre::RenderWindow*
-    vcam_prop_scenenode(nullptr)          // Ogre::SceneNode*
-{}
-
 RoR::GfxActor::NodeGfx::NodeGfx(uint16_t node_idx):
     nx_node_idx(node_idx),
     nx_wet_time_sec(-1.f), // node is dry
@@ -433,7 +418,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
     if (m_vidcam_state != VideoCamState::VCSTATE_ENABLED_ONLINE)
         return;
 
-    for (GfxActor::VideoCamera vidcam: m_videocameras)
+    for (VideoCamera& vidcam: m_videocameras)
     {
 #ifdef USE_CAELUM
         // caelum needs to know that we changed the cameras
@@ -444,13 +429,13 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
         }
 #endif // USE_CAELUM
 
-        if ((vidcam.vcam_type == VideoCamType::VCTYPE_MIRROR_PROP_LEFT)
-            || (vidcam.vcam_type == VideoCamType::VCTYPE_MIRROR_PROP_RIGHT))
+        if ((vidcam.vcam_type == VCTYPE_MIRROR_PROP_LEFT)
+            || (vidcam.vcam_type == VCTYPE_MIRROR_PROP_RIGHT))
         {
             // Mirror prop - special processing.
             float mirror_angle = 0.f;
             Ogre::Vector3 offset(Ogre::Vector3::ZERO);
-            if (vidcam.vcam_type == VideoCamType::VCTYPE_MIRROR_PROP_LEFT)
+            if (vidcam.vcam_type == VCTYPE_MIRROR_PROP_LEFT)
             {
                 mirror_angle = m_actor->ar_left_mirror_angle;
                 offset = Ogre::Vector3(0.07f, -0.22f, 0);
@@ -506,14 +491,14 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
         frustumUP.normalise();
         vidcam.vcam_ogre_camera->setFixedYawAxis(true, frustumUP);
 
-        if (vidcam.vcam_type == GfxActor::VideoCamType::VCTYPE_MIRROR)
+        if (vidcam.vcam_type == VCTYPE_MIRROR)
         {
             //rotate the normal of the mirror by user rotation setting so it reflects correct
             normal = vidcam.vcam_rotation * normal;
             // merge camera direction and reflect it on our plane
             vidcam.vcam_ogre_camera->setDirection((pos - gEnv->mainCamera->getPosition()).reflect(normal));
         }
-        else if (vidcam.vcam_type == GfxActor::VideoCamType::VCTYPE_VIDEOCAM)
+        else if (vidcam.vcam_type == VCTYPE_VIDEOCAM)
         {
             // rotate the camera according to the nodes orientation and user rotation
             Ogre::Vector3 refx = abs_pos_z - abs_pos_center;
@@ -523,7 +508,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
             Ogre::Quaternion rot = Ogre::Quaternion(-refx, -refy, -normal);
             vidcam.vcam_ogre_camera->setOrientation(rot * vidcam.vcam_rotation); // rotate the camera orientation towards the calculated cam direction plus user rotation
         }
-        else if (vidcam.vcam_type == GfxActor::VideoCamType::VCTYPE_TRACKING_VIDEOCAM)
+        else if (vidcam.vcam_type == VCTYPE_TRACKING_VIDEOCAM)
         {
             normal = node_buf[vidcam.vcam_node_lookat].AbsPosition - pos;
             normal.normalise();
