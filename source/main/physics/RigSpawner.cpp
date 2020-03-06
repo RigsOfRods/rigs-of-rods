@@ -6996,7 +6996,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
 {
     try
     {
-        GfxActor::VideoCamera vcam;
+        RoR::VideoCamera vcam;
 
         vcam.vcam_material = this->FindOrCreateCustomizedMaterial(def->material_name);
         if (vcam.vcam_material.isNull())
@@ -7007,9 +7007,9 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
 
         switch (def->camera_role)
         {
-        case -1: vcam.vcam_type = GfxActor::VideoCamType::VCTYPE_VIDEOCAM;       break;
-        case  0: vcam.vcam_type = GfxActor::VideoCamType::VCTYPE_TRACKING_VIDEOCAM; break;
-        case  1: vcam.vcam_type = GfxActor::VideoCamType::VCTYPE_MIRROR;         break;
+        case -1: vcam.vcam_type = VCTYPE_VIDEOCAM;          break;
+        case  0: vcam.vcam_type = VCTYPE_TRACKING_VIDEOCAM; break;
+        case  1: vcam.vcam_type = VCTYPE_MIRROR;            break;
         default:
             this->AddMessage(Message::TYPE_ERROR, "VideoCamera (mat: " + def->material_name + ") has invalid 'role': " + TOSTRING(def->camera_role));
             return;
@@ -7041,7 +7041,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         if (def->alt_orientation_node.IsValidAnyState())
         {
             // This is a tracker camera
-            vcam.vcam_type = GfxActor::VideoCamType::VCTYPE_TRACKING_VIDEOCAM;
+            vcam.vcam_type = VCTYPE_TRACKING_VIDEOCAM;
             vcam.vcam_node_lookat = static_cast<uint16_t>(this->GetNodeOrThrow(def->alt_orientation_node).pos);
         }
 
@@ -7133,17 +7133,17 @@ void ActorSpawner::CreateMirrorPropVideoCam(
     try
     {
         // Prepare videocamera entry
-        GfxActor::VideoCamera vcam;
+        RoR::VideoCamera vcam;
         vcam.vcam_off_tex_name = "mirror.dds";
         vcam.vcam_prop_scenenode = prop_scenenode;
         switch (type)
         {
         case CustomMaterial::MirrorPropType::MPROP_LEFT:
-            vcam.vcam_type = GfxActor::VideoCamType::VCTYPE_MIRROR_PROP_LEFT;
+            vcam.vcam_type = VCTYPE_MIRROR_PROP_LEFT;
             break;
 
         case CustomMaterial::MirrorPropType::MPROP_RIGHT:
-            vcam.vcam_type = GfxActor::VideoCamType::VCTYPE_MIRROR_PROP_RIGHT;
+            vcam.vcam_type = VCTYPE_MIRROR_PROP_RIGHT;
             break;
 
         default:
