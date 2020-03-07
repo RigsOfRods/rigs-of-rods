@@ -244,7 +244,7 @@ FlexMesh::~FlexMesh()
 
 Vector3 FlexMesh::updateVertices()
 {
-    RoR::GfxActor::NodeData* all_nodes = m_gfx_actor->GetSimNodeBuffer();
+    RoR::GfxActor::SimBuffer::NodeSB* all_nodes = m_gfx_actor->GetSimNodeBuffer();
     Vector3 center = (all_nodes[m_vertex_nodes[0]].AbsPosition + all_nodes[m_vertex_nodes[1]].AbsPosition) / 2.0;
 
     //optimization possible here : just copy bands on face

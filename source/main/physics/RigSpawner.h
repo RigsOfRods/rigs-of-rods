@@ -1071,7 +1071,7 @@ private:
     std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;
     ActorMemoryRequirements   m_memory_requirements;
     RigDef::File::Keyword     m_current_keyword; //!< For error reports
-    std::vector<RoR::GfxActor::NodeGfx> m_gfx_nodes;
+    std::vector<RoR::NodeGfx> m_gfx_nodes;
     CustomMaterial::MirrorPropType         m_curr_mirror_prop_type;
     std::shared_ptr<RigDef::File>          m_file; //!< The parsed input file.
     std::map<Ogre::String, unsigned int>   m_named_nodes;
