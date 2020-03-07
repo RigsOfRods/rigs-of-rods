@@ -21,6 +21,7 @@
 
 #include "ScriptEngine.h"
 
+#include "Console.h"
 #include "GfxActor.h"
 
 using namespace RoR;
@@ -86,4 +87,20 @@ void RegisterFrameStepInterface(asIScriptEngine* engine)
     obj = "GfxActor";
     engine->RegisterObjectType(obj, 0, asOBJ_REF | asOBJ_NOCOUNT);
     engine->RegisterObjectMethod(obj, "ActorSimBuffer& GetSimDataBuffer()", asMETHODPR(GfxActor, GetSimDataBuffer, (void), GfxActor::SimBuffer&), asCALL_THISCALL);
+
+    obj = "CVar"; // Read-only interface
+    engine->RegisterObjectType(obj, 0, asOBJ_REF | asOBJ_NOCOUNT);
+    engine->RegisterObjectMethod(obj, "const string& GetActiveStr()   ", asMETHODPR(CVar, GetActiveStr, (void), std::string const&), asCALL_THISCALL);
+    engine->RegisterObjectMethod(obj, "int           GetActiveInt()   ", asMETHODPR(CVar, GetActiveVal<int>, (void), int), asCALL_THISCALL);
+    engine->RegisterObjectMethod(obj, "float         GetActiveFloat() ", asMETHODPR(CVar, GetActiveVal<float>, (void), float), asCALL_THISCALL);
+    engine->RegisterObjectMethod(obj, "bool          GetActiveBool()  ", asMETHODPR(CVar, GetActiveVal<bool>, (void), bool), asCALL_THISCALL);
+
+    obj = "Console";
+    engine->RegisterObjectType(obj, 0, asOBJ_REF | asOBJ_NOCOUNT);
+    engine->RegisterObjectMethod(obj, "CVar@ CVarFind(string name)", asMETHODPR(Console, CVarFind, (std::string const&), CVar*), asCALL_THISCALL);
+
+    // Globals
+    engine->SetDefaultNamespace("RoR");
+    engine->RegisterGlobalFunction("Console@ GetConsole()", asFUNCTIONPR(App::GetConsole, (void), Console*), asCALL_CDECL);
+    engine->SetDefaultNamespace("");
 }
