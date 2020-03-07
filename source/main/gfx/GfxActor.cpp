@@ -105,7 +105,7 @@ RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_re
     m_particles_sparks = App::GetGfxScene()->GetDustPool("sparks");
     m_particles_clump  = App::GetGfxScene()->GetDustPool("clump");
 
-    m_simbuf.simbuf_nodes.reset(new NodeData[actor->ar_num_nodes]);
+    m_simbuf.simbuf_nodes.reset(new SimBuffer::NodeSB[actor->ar_num_nodes]);
     m_simbuf.simbuf_aeroengines.resize(actor->ar_num_aeroengines);
     m_simbuf.simbuf_commandkey.resize(MAX_COMMANDS + 10);
     m_simbuf.simbuf_airbrakes.resize(spawner->GetMemoryRequirements().num_airbrakes);
@@ -255,7 +255,7 @@ RoR::GfxActor::~GfxActor()
 
 void RoR::GfxActor::AddMaterialFlare(int flareid, Ogre::MaterialPtr m)
 {
-    RoR::GfxActor::FlareMaterial binding;
+    RoR::FlareMaterial binding;
     binding.flare_index = flareid;
     binding.mat_instance = m;
 
@@ -403,16 +403,6 @@ void RoR::GfxActor::SetVideoCamState(VideoCamState state)
     m_vidcam_state = state;
 }
 
-RoR::GfxActor::NodeGfx::NodeGfx(uint16_t node_idx):
-    nx_node_idx(node_idx),
-    nx_wet_time_sec(-1.f), // node is dry
-    nx_no_particles(false),
-    nx_may_get_wet(false),
-    nx_is_hot(false),
-    nx_no_sparks(true),
-    nx_under_water_prev(false)
-{}
-
 void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
 {
     if (m_vidcam_state != VideoCamState::VCSTATE_ENABLED_ONLINE)
@@ -471,7 +461,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
             vidcam.vcam_render_window->update();
 
         // get the normal of the camera plane now
-        GfxActor::NodeData* node_buf = m_simbuf.simbuf_nodes.get();
+        GfxActor::SimBuffer::NodeSB* node_buf = m_simbuf.simbuf_nodes.get();
         const Ogre::Vector3 abs_pos_center = node_buf[vidcam.vcam_node_center].AbsPosition;
         const Ogre::Vector3 abs_pos_z = node_buf[vidcam.vcam_node_dir_z].AbsPosition;
         const Ogre::Vector3 abs_pos_y = node_buf[vidcam.vcam_node_dir_y].AbsPosition;
@@ -1631,9 +1621,9 @@ void RoR::GfxActor::UpdateRods()
         if (!rod.rod_is_visible)
             continue;
 
-        NodeData* nodes1 = this->GetSimNodeBuffer();
+        SimBuffer::NodeSB* nodes1 = this->GetSimNodeBuffer();
         Ogre::Vector3 pos1 = nodes1[rod.rod_node1].AbsPosition;
-        NodeData* nodes2 = rod.rod_target_actor->GetGfxActor()->GetSimNodeBuffer();
+        SimBuffer::NodeSB* nodes2 = rod.rod_target_actor->GetGfxActor()->GetSimNodeBuffer();
         Ogre::Vector3 pos2 = nodes2[rod.rod_node2].AbsPosition;
 
         // Classic method
@@ -2013,7 +2003,7 @@ void RoR::GfxActor::RegisterAirbrakes()
 void RoR::GfxActor::UpdateAirbrakes()
 {
     const size_t num_airbrakes = m_gfx_airbrakes.size();
-    NodeData* nodes = m_simbuf.simbuf_nodes.get();
+    SimBuffer::NodeSB* nodes = m_simbuf.simbuf_nodes.get();
     for (size_t i=0; i<num_airbrakes; ++i)
     {
         AirbrakeGfx abx = m_gfx_airbrakes[i];
@@ -2043,7 +2033,7 @@ void RoR::GfxActor::UpdateAirbrakes()
 void RoR::GfxActor::UpdateCParticles()
 {
     //update custom particle systems
-    NodeData* nodes = m_simbuf.simbuf_nodes.get();
+    SimBuffer::NodeSB* nodes = m_simbuf.simbuf_nodes.get();
     for (int i = 0; i < m_actor->ar_num_custom_particles; i++)
     {
         Ogre::Vector3 pos = nodes[m_actor->ar_custom_particles[i].emitterNode].AbsPosition;
@@ -2107,7 +2097,7 @@ void RoR::GfxActor::CalculateDriverPos(Ogre::Vector3& out_pos, Ogre::Quaternion&
     ROR_ASSERT(m_driverseat_prop_index != -1);
     Prop* driverseat_prop = &m_props[m_driverseat_prop_index];
 
-    NodeData* nodes = this->GetSimNodeBuffer();
+    SimBuffer::NodeSB* nodes = this->GetSimNodeBuffer();
 
     const Ogre::Vector3 x_pos = nodes[driverseat_prop->pp_node_x].AbsPosition;
     const Ogre::Vector3 y_pos = nodes[driverseat_prop->pp_node_y].AbsPosition;
@@ -2139,7 +2129,7 @@ void RoR::GfxActor::UpdateBeaconFlare(Prop & prop, float dt, bool is_player_acto
     using namespace Ogre;
 
     bool enableAll = !((App::gfx_flares_mode->GetEnum<GfxFlaresMode>() == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !is_player_actor);
-    NodeData* nodes = this->GetSimNodeBuffer();
+    SimBuffer::NodeSB* nodes = this->GetSimNodeBuffer();
 
     if (prop.pp_beacon_type == 'b')
     {
@@ -2298,7 +2288,7 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
 {
     using namespace Ogre;
 
-    NodeData* nodes = this->GetSimNodeBuffer();
+    SimBuffer::NodeSB* nodes = this->GetSimNodeBuffer();
 
     // Update prop meshes
     for (Prop& prop: m_props)
@@ -3197,7 +3187,7 @@ void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
     // == Flare states are determined in simulation, this function only applies them to OGRE objects ==
 
     bool enableAll = ((App::gfx_flares_mode->GetEnum<GfxFlaresMode>() == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !is_player);
-    NodeData* nodes = this->GetSimNodeBuffer();
+    SimBuffer::NodeSB* nodes = this->GetSimNodeBuffer();
 
     int num_flares = static_cast<int>(m_actor->ar_flares.size());
     for (int i=0; i<num_flares; ++i)

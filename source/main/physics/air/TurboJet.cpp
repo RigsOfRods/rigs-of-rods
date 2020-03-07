@@ -149,7 +149,7 @@ void Turbojet::updateVisuals(RoR::GfxActor* gfx_actor)
 
 void TurbojetVisual::UpdateVisuals(RoR::GfxActor* gfx_actor)
 {
-    RoR::GfxActor::NodeData* node_buf = gfx_actor->GetSimNodeBuffer();
+    RoR::GfxActor::SimBuffer::NodeSB* node_buf = gfx_actor->GetSimNodeBuffer();
     RoR::GfxActor::SimBuffer::AeroEngineSB& ae_buf
         = gfx_actor->GetSimDataBuffer().simbuf_aeroengines.at(m_number);
 

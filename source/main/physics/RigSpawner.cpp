@@ -1257,7 +1257,7 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
     exhaust.smokeNode->setPosition(this->GetNode(exhaust.emitterNode).AbsPosition);
 
     // Update GFX for nodes
-    for (GfxActor::NodeGfx& nfx : m_gfx_nodes)
+    for (NodeGfx& nfx : m_gfx_nodes)
     {
         if (nfx.nx_node_idx == exhaust.emitterNode || nfx.nx_node_idx == exhaust.directionNode)
         {
@@ -3978,7 +3978,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         AdjustNodeBuoyancy(outer_node, def.node_defaults);
         m_actor->ar_minimass[outer_node.pos] = m_file->global_minimass->min_mass;
 
-        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+        m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(outer_node.pos)));
 
         // Inner ring
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
@@ -3993,7 +3993,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
         m_actor->ar_minimass[inner_node.pos] = m_file->global_minimass->min_mass;
 
-        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
+        m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         // Wheel object
         wheel.wh_rim_nodes[i * 2]       = & outer_node;
@@ -4022,7 +4022,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         outer_node.nd_tyre_node  = true;
         AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
-        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+        m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(outer_node.pos)));
 
         // Inner ring
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
@@ -4038,7 +4038,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         inner_node.nd_tyre_node  = true;
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
-        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
+        m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         // Wheel object
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -4342,7 +4342,7 @@ void ActorSpawner::BuildMeshWheelVisuals(
         Ogre::SceneNode* scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         scene_node->attachObject(flexmesh_wheel->GetTireEntity());
 
-        GfxActor::WheelGfx visual_wheel;
+        WheelGfx visual_wheel;
         visual_wheel.wx_is_meshwheel = false;
         visual_wheel.wx_flex_mesh = flexmesh_wheel;
         visual_wheel.wx_scenenode = scene_node;
@@ -4424,7 +4424,7 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         outer_node.nd_tyre_node  = true;
         AdjustNodeBuoyancy(outer_node, node_defaults);
 
-        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+        m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(outer_node.pos)));
 
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + ray_vector;
@@ -4437,7 +4437,7 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         inner_node.nd_tyre_node  = true;
         AdjustNodeBuoyancy(inner_node, node_defaults);
 
-        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
+        m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -4666,7 +4666,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
         m_actor->ar_minimass[outer_node.pos] = m_file->global_minimass->min_mass;
 
-        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+        m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(outer_node.pos)));
 
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
@@ -4678,7 +4678,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
         m_actor->ar_minimass[inner_node.pos] = m_file->global_minimass->min_mass;
 
-        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
+        m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         /* Wheel object */
         wheel.wh_rim_nodes[i * 2] = & outer_node;
@@ -4706,7 +4706,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         outer_node.nd_contacter  = true;
         outer_node.nd_tyre_node  = true;
 
-        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+        m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(outer_node.pos)));
 
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
@@ -4720,7 +4720,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         inner_node.nd_contacter  = true;
         inner_node.nd_tyre_node  = true;
 
-        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
+        m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -4843,7 +4843,7 @@ void ActorSpawner::CreateWheelVisuals(
 
     try
     {
-        GfxActor::WheelGfx visual_wheel;
+        WheelGfx visual_wheel;
 
         const std::string wheel_mesh_name = this->ComposeName("WheelMesh", wheel_index);
         visual_wheel.wx_is_meshwheel = false;
@@ -5704,7 +5704,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     if (def.position.y > m_fuse_y_max) { m_fuse_y_max = def.position.y; }
 
     // GFX
-    GfxActor::NodeGfx nfx(static_cast<uint16_t>(node.pos));
+    NodeGfx nfx(static_cast<uint16_t>(node.pos));
     nfx.nx_no_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
     nfx.nx_may_get_wet  = BITMASK_IS_0(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
     nfx.nx_no_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
@@ -5745,7 +5745,7 @@ void ActorSpawner::AddExhaust(
     exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
 
     // Update GFX for nodes
-    for (GfxActor::NodeGfx& nfx : m_gfx_nodes)
+    for (NodeGfx& nfx : m_gfx_nodes)
     {
         if (nfx.nx_node_idx == emitter_node_idx || nfx.nx_node_idx == direction_node_idx)
         {
