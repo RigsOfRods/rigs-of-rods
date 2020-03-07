@@ -171,4 +171,67 @@ struct VideoCamera
     Ogre::SceneNode*     vcam_prop_scenenode = nullptr;             //!< Only for VCTYPE_MIRROR_PROP_*
 };
 
+/// Gfx attributes/state of a softbody node
+struct NodeGfx
+{
+    NodeGfx(uint16_t node_idx):
+        nx_node_idx(node_idx),
+        nx_no_particles(false), // Bitfields can't be initialized in-class :(
+        nx_may_get_wet(false),
+        nx_is_hot(false),
+        nx_no_sparks(true),
+        nx_under_water_prev(false)
+    {}
+
+    float      nx_wet_time_sec = -1; //!< 'Wet' means "already out of water, producing dripping particles". Set to -1 when not 'wet'.
+    uint16_t   nx_node_idx = node_t::INVALID_IDX;
+
+    // Bit flags
+    bool       nx_no_particles:1;     //!< User-defined attr; disable all particles
+    bool       nx_may_get_wet:1;      //!< Attr; enables water drip and vapour
+    bool       nx_is_hot:1;           //!< User-defined attr; emits vapour particles when in contact with water.
+    bool       nx_under_water_prev:1; //!< State
+    bool       nx_no_sparks:1;        //!< User-defined attr; 
+
+};
+
+/// Visuals of softbody beam (`beam_t` struct); Partially updated along with SimBuffer
+struct Rod
+{
+    // We don't keep pointer to the Ogre::Entity - we rely on the SceneNode keeping it attached all the time.
+    Ogre::SceneNode* rod_scenenode       = nullptr;
+    uint16_t         rod_beam_index      = 0;
+    uint16_t         rod_diameter_mm     = 0;                    //!< Diameter in millimeters
+
+    uint16_t         rod_node1           = node_t::INVALID_IDX;  //!< Node index - may change during simulation!
+    uint16_t         rod_node2           = node_t::INVALID_IDX;  //!< Node index - may change during simulation!
+    Actor*           rod_target_actor    = nullptr;
+    bool             rod_is_visible      = false;
+};
+
+struct WheelGfx
+{
+    Flexable*        wx_flex_mesh        = nullptr;
+    Ogre::SceneNode* wx_scenenode        = nullptr;
+    bool             wx_is_meshwheel     = false;
+};
+
+struct AirbrakeGfx
+{
+    Ogre::MeshPtr    abx_mesh;
+    Ogre::SceneNode* abx_scenenode;
+    Ogre::Entity*    abx_entity;
+    Ogre::Vector3    abx_offset;
+    uint16_t         abx_ref_node;
+    uint16_t         abx_x_node;
+    uint16_t         abx_y_node;
+};
+
+struct FlareMaterial // materialflares
+{
+    int               flare_index;
+    Ogre::MaterialPtr mat_instance;
+    Ogre::ColourValue emissive_color;
+};
+
 } // namespace RoR

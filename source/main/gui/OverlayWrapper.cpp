@@ -826,7 +826,7 @@ void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
 void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
 {
     RoR::GfxActor::SimBuffer& simbuf = gfx_actor->GetSimDataBuffer();
-    RoR::GfxActor::NodeData* nodes = gfx_actor->GetSimNodeBuffer();
+    RoR::GfxActor::SimBuffer::NodeSB* nodes = gfx_actor->GetSimNodeBuffer();
     RoR::GfxActor::Attributes& attr = gfx_actor->GetAttributes();
 
     auto const& simbuf_ae = simbuf.simbuf_aeroengines;

@@ -51,13 +51,6 @@ class GfxActor
 
 public:
 
-    struct FlareMaterial
-    {
-        int               flare_index;
-        Ogre::MaterialPtr mat_instance;
-        Ogre::ColourValue emissive_color;
-    };
-
     enum class VideoCamState
     {
         VCSTATE_INVALID,
@@ -79,69 +72,16 @@ public:
         DEBUGVIEW_SUBMESH,
     };
 
-    /// Gfx attributes/state of a softbody node
-    struct NodeGfx
-    {
-        NodeGfx(uint16_t node_idx);
-
-        float      nx_wet_time_sec; //!< 'Wet' means "already out of water, producing dripping particles". Set to -1 when not 'wet'.
-        uint16_t   nx_node_idx;
-
-        // Bit flags
-        bool       nx_no_particles:1;     //!< User-defined attr; disable all particles
-        bool       nx_may_get_wet:1;      //!< Attr; enables water drip and vapour
-        bool       nx_is_hot:1;           //!< User-defined attr; emits vapour particles when in contact with water.
-        bool       nx_under_water_prev:1; //!< State
-        bool       nx_no_sparks:1;        //!< User-defined attr; 
-
-    }; // more to come... ~only_a_ptr, 04/2018
-
-    /// Copy of node simulation state
-    struct NodeData
-    {
-        Ogre::Vector3 AbsPosition;
-        bool nd_has_contact:1;
-        bool nd_is_wet:1;
-    };
-
-    /// Visuals of softbody beam (`beam_t` struct); Partially updated along with SimBuffer
-    struct Rod
-    {
-        // We don't keep pointer to the Ogre::Entity - we rely on the SceneNode keeping it attached all the time.
-        Ogre::SceneNode* rod_scenenode;
-        uint16_t         rod_beam_index;  //!< Index of the associated `beam_t` instance; assumes Actor has at most 65536 beams (RoR doesn't have a soft limit now, but until v0.4.8 it was 5000 beams).
-        uint16_t         rod_diameter_mm; //!< Diameter in millimeters
-
-        // Assumption: Actor has at most 65536 nodes (RoR doesn't have a soft limit right now, but until v0.4.8 it was 1000 nodes).
-        uint16_t         rod_node1;         //!< Node index - may change during simulation!
-        uint16_t         rod_node2;         //!< Node index - may change during simulation!
-        Actor*           rod_target_actor;
-        bool             rod_is_visible;
-    };
-
-    struct WheelGfx
-    {
-        WheelGfx(): wx_flex_mesh(nullptr), wx_scenenode(nullptr), wx_is_meshwheel(false) {}
-
-        Flexable*        wx_flex_mesh;
-        Ogre::SceneNode* wx_scenenode;
-        bool             wx_is_meshwheel;
-    };
-
-    struct AirbrakeGfx
-    {
-        Ogre::MeshPtr    abx_mesh;
-        Ogre::SceneNode* abx_scenenode;
-        Ogre::Entity*    abx_entity;
-        Ogre::Vector3    abx_offset;
-        uint16_t         abx_ref_node;
-        uint16_t         abx_x_node;
-        uint16_t         abx_y_node;
-    };
-
     struct SimBuffer /// Buffered simulation data
     {
         SimBuffer();
+
+        struct NodeSB
+        {
+            Ogre::Vector3 AbsPosition; // classic name
+            bool nd_has_contact:1;
+            bool nd_is_wet:1;
+        };
 
         struct ScrewPropSB
         {
@@ -174,7 +114,7 @@ public:
             float simbuf_ab_ratio;
         };
 
-        std::unique_ptr<NodeData>   simbuf_nodes;
+        std::unique_ptr<NodeSB>     simbuf_nodes;
         Ogre::Vector3               simbuf_pos;
         Ogre::Vector3               simbuf_node0_velo;
         bool                        simbuf_live_local;
@@ -298,7 +238,7 @@ public:
     inline VideoCamState      GetVideoCamState   () const                 { return m_vidcam_state; }
     inline DebugViewType      GetDebugView       () const                 { return m_debug_view; }
     SimBuffer &               GetSimDataBuffer   ()                       { return m_simbuf; }
-    NodeData*                 GetSimNodeBuffer   ()                       { return m_simbuf.simbuf_nodes.get(); }
+    SimBuffer::NodeSB*        GetSimNodeBuffer   ()                       { return m_simbuf.simbuf_nodes.get(); }
     void                      SetSurveyMapEntity (SurveyMapEntity* e)     { m_survey_map_entity = e; }
     SurveyMapEntity*          GetSurveyMapEntity ()                       { return m_survey_map_entity; }
     std::set<GfxActor*>       GetLinkedGfxActors ()                       { return m_linked_gfx_actors; }

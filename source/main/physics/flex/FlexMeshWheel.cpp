@@ -182,7 +182,7 @@ FlexMeshWheel::~FlexMeshWheel()
 
 Vector3 FlexMeshWheel::updateVertices()
 {
-    RoR::GfxActor::NodeData* all_nodes = m_gfx_actor->GetSimNodeBuffer();
+    RoR::GfxActor::SimBuffer::NodeSB* all_nodes = m_gfx_actor->GetSimNodeBuffer();
     Vector3 center = (all_nodes[m_axis_node0_idx].AbsPosition + all_nodes[m_axis_node1_idx].AbsPosition) / 2.0;
     Vector3 ray = all_nodes[m_start_node_idx].AbsPosition - all_nodes[m_axis_node0_idx].AbsPosition;
     Vector3 axis = all_nodes[m_axis_node0_idx].AbsPosition - all_nodes[m_axis_node1_idx].AbsPosition;
@@ -232,7 +232,7 @@ void FlexMeshWheel::setVisible(bool visible)
 
 bool FlexMeshWheel::flexitPrepare()
 {
-    RoR::GfxActor::NodeData* all_nodes = m_gfx_actor->GetSimNodeBuffer();
+    RoR::GfxActor::SimBuffer::NodeSB* all_nodes = m_gfx_actor->GetSimNodeBuffer();
     Vector3 center = (all_nodes[m_axis_node0_idx].AbsPosition + all_nodes[m_axis_node1_idx].AbsPosition) / 2.0;
     m_rim_scene_node->setPosition(center);
 

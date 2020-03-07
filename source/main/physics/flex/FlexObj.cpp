@@ -184,7 +184,7 @@ int FlexObj::ComputeVertexPos(int tidx, int v, std::vector<CabSubmesh>& submeshe
 
 Vector3 FlexObj::UpdateMesh()
 {
-    RoR::GfxActor::NodeData* all_nodes = m_gfx_actor->GetSimNodeBuffer();
+    RoR::GfxActor::SimBuffer::NodeSB* all_nodes = m_gfx_actor->GetSimNodeBuffer();
     Ogre::Vector3 center=(all_nodes[m_vertex_nodes[0]].AbsPosition+all_nodes[m_vertex_nodes[1]].AbsPosition)/2.0;
     for (size_t i=0; i<m_vertex_count; i++)
     {
