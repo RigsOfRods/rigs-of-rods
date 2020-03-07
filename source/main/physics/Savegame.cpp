@@ -298,7 +298,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         {
             actor->ToggleLights();
         }
-        actor->m_beacon_light_is_active = j_entry["beacon_light"].GetBool();
+        actor->m_beacon_light_is_active = j_entry["pp_beacon_light"].GetBool();
         if (actor->m_custom_particles_enabled != j_entry["custom_particles"].GetBool())
         {
             actor->ToggleCustomParticles();
@@ -607,7 +607,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_entry.AddMember("wheel_spin", actor->ar_wheel_spin, j_doc.GetAllocator());
 
         j_entry.AddMember("lights", actor->ar_lights, j_doc.GetAllocator());
-        j_entry.AddMember("beacon_light", actor->m_beacon_light_is_active, j_doc.GetAllocator());
+        j_entry.AddMember("pp_beacon_light", actor->m_beacon_light_is_active, j_doc.GetAllocator());
         j_entry.AddMember("custom_particles", actor->m_custom_particles_enabled, j_doc.GetAllocator());
 
         // Flares

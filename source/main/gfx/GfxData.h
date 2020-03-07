@@ -102,52 +102,41 @@ struct PropAnim
 /// A mesh attached to vehicle frame via 3 nodes
 struct Prop
 {
-    Prop() { memset(this, 0, sizeof(*this)); }
+    Prop()
+        : pp_aero_propeller_blade(false)
+        , pp_aero_propeller_spin(false)
+    {}
 
-    int noderef;
-    int nodex;
-    int nodey;
-    float offsetx;
-    float offsety;
-    float offsetz;
-    float rotaX;
-    float rotaY;
-    float rotaZ;
-    float orgoffsetX;
-    float orgoffsetY;
-    float orgoffsetZ;
-    Ogre::Quaternion rot;
-    Ogre::SceneNode *scene_node; //!< The pivot scene node (parented to root-node).
-    Ogre::SceneNode *wheel; //!< Special prop: custom steering wheel for dashboard
-    Ogre::Vector3 wheelpos; //!< Special prop: custom steering wheel for dashboard
-    int mirror;             //<! Special prop: rear view mirror {0 = disabled, -1 = right, 1 = left}
-    char beacontype;        //<! Special prop: beacon {0 = none, 'b' = user-specified, 'r' = red, 'p' = police lightbar, 'L'/'R'/'w' - aircraft wings}
-
-    // formerly named "bbs"
-    Ogre::BillboardSet *beacon_flares_billboard_system[4];
-
-    // formerly named bbsnode
-    Ogre::SceneNode *beacon_flare_billboard_scene_node[4];
-
-    // formerly named "light"
-    Ogre::Light *beacon_light[4];
-
-    // formerly named "brate"
-    float beacon_light_rotation_rate[4]; //<! Radians per second
-    
-    // formerly named "bpos"
-    float beacon_light_rotation_angle[4]; //<! Radians
-
-    Ogre::Real wheelrotdegree;
-    int cameramode; //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
-    MeshObject *mo;
-    MeshObject *wheelmo;
-
+    uint16_t              pp_node_ref             = node_t::INVALID_IDX;
+    uint16_t              pp_node_x               = node_t::INVALID_IDX;
+    uint16_t              pp_node_y               = node_t::INVALID_IDX;
+    Ogre::Vector3         pp_offset               = Ogre::Vector3::ZERO;
+    Ogre::Vector3         pp_offset_orig          = Ogre::Vector3::ZERO; //!< Used with ANIM_FLAG_OFFSET*
+    Ogre::Vector3         pp_rota                 = Ogre::Vector3::ZERO;
+    Ogre::Quaternion      pp_rot                  = Ogre::Quaternion::IDENTITY;
+    Ogre::SceneNode*      pp_scene_node           = nullptr;             //!< The pivot scene node (parented to root-node).
+    MeshObject*           pp_mesh_obj             = nullptr;
+    int                   pp_camera_mode          = -2;                  //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
     std::vector<PropAnim> pp_animations;
 
-    int  pp_aero_engine_idx;          //!< Special - a turboprop/pistonprop reference
-    bool pp_aero_propeller_blade:1;   //!< Special - single blade mesh
-    bool pp_aero_propeller_spin:1;    //!< Special - blurred spinning propeller effect
+    // Special prop - steering wheel
+    MeshObject*           pp_wheel_mesh_obj       = nullptr;
+    Ogre::Vector3         pp_wheel_pos            = Ogre::Vector3::ZERO;
+    Ogre::SceneNode*      pp_wheel_scene_node     = nullptr;
+    float                 pp_wheel_rot_degree     = 0;
+    
+    // Special prop - beacon
+    char                  pp_beacon_type          = 0;                   //<! Special prop: beacon {0 = none, 'b' = user-specified, 'r' = red, 'p' = police lightbar, 'L'/'R'/'w' - aircraft wings}
+    Ogre::BillboardSet*   pp_beacon_bbs[4]        = {};
+    Ogre::SceneNode*      pp_beacon_scene_node[4] = {};
+    Ogre::Light*          pp_beacon_light[4]      = {};
+    float                 pp_beacon_rot_rate[4]   = {};                  //<! Radians per second
+    float                 pp_beacon_rot_angle[4]  = {};                  //<! Radians
+    
+    // Special prop - aero engine
+    int                   pp_aero_engine_idx      = -1;                  //!< Special - a turboprop/pistonprop reference
+    bool                  pp_aero_propeller_blade:1;                     //!< Special - single blade mesh
+    bool                  pp_aero_propeller_spin:1;                      //!< Special - blurred spinning propeller effect
 };
 
 enum VideoCamType
