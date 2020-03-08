@@ -81,9 +81,11 @@ void RoR::GUI::SurveyMap::Draw()
     }
 
     // Open window
-    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize;
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(WINDOW_PADDING, WINDOW_PADDING));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, WINDOW_ROUNDING);
+    ImGui::SetNextWindowSize(ImVec2((view_size.x + 8), (view_size.y + 8)));
+
     if (mMapMode == SurveyMapMode::BIG)
     {
         ImGui::SetNextWindowPosCenter();
