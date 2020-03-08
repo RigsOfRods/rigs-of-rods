@@ -46,17 +46,25 @@ void MpClientList::Draw()
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
-        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
     const float content_width = 200.f;
     ImGui::SetNextWindowContentWidth(content_width);
     ImGui::SetNextWindowPos(ImVec2(
         ImGui::GetIO().DisplaySize.x - (content_width + (2*ImGui::GetStyle().WindowPadding.x) + theme.screen_edge_padding.x),
         theme.screen_edge_padding.y));
+
+    int y = 20;
+    std::vector<RoRnet::UserInfo> users = RoR::Networking::GetUserInfos();
+    users.insert(users.begin(), RoR::Networking::GetLocalUserData());
+    for (RoRnet::UserInfo const& user: users)
+    {
+       y += 20;
+    }
+
+    ImGui::SetNextWindowSize(ImVec2((content_width + (2*ImGui::GetStyle().WindowPadding.x)), y));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
     ImGui::Begin("Peers", nullptr, flags);
 
-    std::vector<RoRnet::UserInfo> users = RoR::Networking::GetUserInfos();
-    users.insert(users.begin(), RoR::Networking::GetLocalUserData());
     for (RoRnet::UserInfo const& user: users)
     {
         // Icon sizes: flag(16x11), auth(16x16), up(16x16), down(16x16)
