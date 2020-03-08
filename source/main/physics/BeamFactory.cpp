@@ -1202,7 +1202,9 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(RoR::ActorSpawnRequest
 {
     if (rq.asr_project) // Always load from disk
     {
-        return this->LoadActorDef(rq.asr_filename, rq.asr_project->prj_rg_name);
+        auto def = this->LoadActorDef(rq.asr_filename, rq.asr_project->prj_rg_name);
+        App::GetSimController()->GetRigEditor().SetDefinition(def);
+        return def;
     }
     
     // Make sure we have ModCache entry

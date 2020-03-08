@@ -316,16 +316,11 @@ void RoR::GUI::TopMenubar::Update()
                 ImGui::PushID(id_counter++);
                 if (ImGui::TreeNode(project->prj_name.c_str())) // TODO: EDIT button
                 {
-                    for (ProjectSnapshot& snap: project->prj_snapshots)
+                    for (int i = 0; i < (int)project->prj_snapshots.size(); ++i)
                     {
-                        if (ImGui::Button(snap.prs_name.c_str()))
+                        if (ImGui::Button(project->prj_snapshots[i].prs_name.c_str()))
                         {
-                            // Spawn the actor from project snapshot
-                            ActorSpawnRequest rq;
-                            rq.asr_origin = ActorSpawnRequest::Origin::USER;
-                            rq.asr_project = project.get(); // Load from project
-                            rq.asr_filename = snap.prs_filename;
-                            App::GetSimController()->QueueActorSpawn(rq);
+                            App::GetSimController()->GetRigEditor().LoadSnapshot(project.get(), i);
                         }
                     }
                     ImGui::TreePop();
@@ -336,6 +331,23 @@ void RoR::GUI::TopMenubar::Update()
             if (projects.size() == 0)
             {
                 ImGui::TextColored(GRAY_HINT_TEXT, _L("There are no projects"));
+            }
+
+            Actor* src_actor = App::GetSimController()->GetPlayerActor();
+            if (src_actor && src_actor->GetProjectEntry())
+            {
+                ImGui::Separator(); // Current project actions
+
+                if (ImGui::Button(_L("+ Add Example script")))
+                {
+                    App::GetSimController()->GetRigEditor().AddExampleScriptToSnapshot();
+                    App::GetSimController()->GetRigEditor().SaveSnapshot();
+
+                    ActorModifyRequest rq;
+                    rq.amr_type = ActorModifyRequest::Type::RELOAD;
+                    rq.amr_actor = current_actor;
+                    App::GetSimController()->QueueActorModify(rq);
+                }
             }
 
             ImGui::Separator();
@@ -351,21 +363,18 @@ void RoR::GUI::TopMenubar::Update()
             }
             else
             {
-                Actor* src_actor = App::GetSimController()->GetPlayerActor();
+                
                 Str<200> btn_title;
                 btn_title << "Import '" << src_actor->GetActorDesignName() << "'";
                 if (ImGui::Button(btn_title.ToCStr()))
                 {
                     // TODO: Make it happen asynchronously!
                     std::string filename = src_actor->GetActorFileName();
-                    Str<200> prj_name;
-                    prj_name << "(Imported) " << src_actor->GetActorDesignName();
-                    ProjectEntry* proj = App::GetContentManager()->CreateNewProject(filename, prj_name.ToCStr());
-                    if (proj != nullptr) // Error already logged + displayed
+                    Str<200> display_name;
+                    display_name << "(Imported) " << src_actor->GetActorDesignName();
+                    if (App::GetSimController()->GetRigEditor().CreateProjet(filename, display_name.ToCStr()))
                     {
-                        RigEditor e;
-                        e.SetProject(proj);
-                        e.ImportSnapshotToProject(filename, src_actor->GetDefinition()); // Logs+displays errors
+                        App::GetSimController()->GetRigEditor().ImportSnapshotToProject(filename, src_actor->GetDefinition()); // Logs+displays errors
                     }
                 }
             }

@@ -569,7 +569,7 @@ void ContentManager::ReScanProjects()
     App::GetCacheSystem()->PruneInvalidProjects();
 }
 
-ProjectEntry* ContentManager::CreateNewProject(std::string const& dir_name, const char* prj_name)
+ProjectEntry* ContentManager::CreateNewProject(std::string const& dir_name, std::string const& display_name)
 {
     try
     {
@@ -593,7 +593,7 @@ ProjectEntry* ContentManager::CreateNewProject(std::string const& dir_name, cons
 
         // Create project entry
         std::unique_ptr<ProjectEntry> proj = std::unique_ptr<ProjectEntry>(new ProjectEntry());
-        proj->prj_name = prj_name;
+        proj->prj_name = display_name;
         proj->prj_dirname = dir_name_buf;
         proj->prj_format_version = 1;
         proj->prj_rg_name = rg_name;

@@ -22,19 +22,22 @@
 #include "RigEditor.h"
 
 #include "Application.h"
+#include "BeamData.h"
+#include "Console.h"
 #include "ContentManager.h"
 #include "GUIManager.h"
 #include "Language.h"
 #include "RigDef_Serializer.h"
+#include "RoRFrameListener.h"
+#include "PlatformUtils.h"
 
 #include <OgreDataStream.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/prettywriter.h>
+#include <sstream>
+#include <string>
 
-RoR::RigEditor::RigEditor():
-    m_entry(nullptr),
-    m_snapshot(nullptr)
-{}
+using namespace RoR;
 
 // static
 bool RoR::RigEditor::ReLoadProjectFromDirectory(ProjectEntry* proj)
@@ -94,6 +97,9 @@ bool RoR::RigEditor::SaveProject(RoR::ProjectEntry* proj)
 
 bool RoR::RigEditor::ImportSnapshotToProject(std::string const& filename, std::shared_ptr<RigDef::File> src_def)
 {
+    assert(m_snapshot == -1);
+    assert(m_entry);
+
     // Generate filename (avoid duplicates)
     Str<200> filename_buf;
     static int import_counter = 0;
@@ -147,19 +153,21 @@ bool RoR::RigEditor::ImportSnapshotToProject(std::string const& filename, std::s
         this->ImportModuleToSnapshot(module_itor.second);
     }
 
-    // Save the snapshot
+    // Add snapshot to project
     ProjectSnapshot snap;
     snap.prs_filename = filename_buf;
     snap.prs_name = filename_buf;
-    m_snapshot = &snap; // Temporary, just for the initial save.
+    m_entry->prj_snapshots.push_back(snap);
+    m_snapshot = (int)m_entry->prj_snapshots.size() - 1;
+
+    // Save the snapshot
     if (!this->SaveSnapshot())
     {
+        m_entry->prj_snapshots.pop_back();
+        m_snapshot = -1;
         return false; // Error already reported
     }
 
-    // Persist the snapshot in project
-    m_entry->prj_snapshots.push_back(snap);
-    m_snapshot = &m_entry->prj_snapshots.back();
     return true;
 }
 
@@ -256,11 +264,11 @@ bool RoR::RigEditor::SaveSnapshot()
 
         // Open OGRE stream for writing
         const bool overwrite = true;
-        Ogre::DataStreamPtr stream = rgm.createResource(m_snapshot->prs_filename, m_entry->prj_rg_name, overwrite);
+        Ogre::DataStreamPtr stream = rgm.createResource(m_entry->prj_snapshots[m_snapshot].prs_filename, m_entry->prj_rg_name, overwrite);
         if (stream.isNull() || !stream->isWriteable())
         {
             OGRE_EXCEPT(Ogre::Exception::ERR_CANNOT_WRITE_TO_FILE,
-                "Stream NULL or not writeable, filename: '" + m_snapshot->prs_filename
+                "Stream NULL or not writeable, filename: '" + m_entry->prj_snapshots[m_snapshot].prs_filename
                 + "', resource group: '" + m_entry->prj_rg_name + "'");
         }
 
@@ -282,3 +290,158 @@ bool RoR::RigEditor::SaveSnapshot()
     }
 }
 
+void RoR::RigEditor::AddExampleScriptToSnapshot()
+{
+    assert(m_def);
+    assert(m_entry);
+
+    Str<50> dst_filename = "framestep_1.as";
+    int num = 1;
+    while (Ogre::ResourceGroupManager::getSingleton().resourceExists(m_entry->prj_rg_name, dst_filename.ToCStr()))
+    {
+        dst_filename = "";
+        dst_filename << "framestep_" << num++ << ".as";
+    }
+
+    try
+    {
+        // Create empty file for the example script
+        Ogre::DataStreamPtr out_stream
+            = Ogre::ResourceGroupManager::getSingleton().createResource(
+                dst_filename.ToCStr(), m_entry->prj_rg_name);
+
+        // Open bundled demo script
+        Ogre::DataStreamPtr demo_stream
+            = Ogre::ResourceGroupManager::getSingleton().openResource(
+                "framestep_demo.as", ContentManager::ResourcePack::SCRIPTS.resource_group_name);
+
+        // Buffer welcome text
+        std::stringstream buf;
+        buf << "\n// " << _L("This script demonstrates what data are provided for you and how you can visualize them using ImGui.");
+        buf << "\n";
+        buf << "\n// " << _L("For reference manual of the AngelScript language, visit http://angelcode.com/angelscript/sdk/docs/manual/doc_script.html");
+        buf << "\n";
+        buf << "\n// " << _L("State of current actor (truck/load...) is in object ActorSimBuffer available via GfxActor. Note Y coordinate means 'UP'.");
+        buf << "\n// \t" << _L("vector3  pos                     ~ XYZ position (approximate rotation center)");
+        buf << "\n// \t" << _L("vector3  node0_velo              ~ XYZ velocity, measured on node 0");
+        buf << "\n// \t" << _L("bool     live_local              ~ Is the actor local (not networked) and actively simulated?");
+        buf << "\n// \t" << _L("bool     physics_paused          ~ Is this actor individually paused?");
+        buf << "\n// \t" << _L("float    rotation                ~ Rotation along Y axis");
+        buf << "\n// \t" << _L("float    tyre_pressure           ~ 0-100");
+        buf << "\n// \t" << _L("string   net_username            ~ Multiplayer username");
+        buf << "\n// \t" << _L("bool     is_remote               ~ Is this actor remote (networked)?");
+        buf << "\n// \t" << _L("int      gear                    ~ Current gearbox gear. 0 is neutral, -1 and lower are reverse, 1 and higher are forward");
+        buf << "\n// \t" << _L("int      autoshift               ~ Automatic shift mode, see enum `autoswitch`");
+        buf << "\n// \t" << _L("float    wheel_speed             ~ Average wheel speed (m/s)");
+        buf << "\n// \t" << _L("float    engine_rpm              ~ Engine - RPM (Revs Per Minute)");
+        buf << "\n// \t" << _L("float    engine_crankfactor      ~ Engine - hydraulics power ratio (0 - 5)");
+        buf << "\n// \t" << _L("float    engine_turbo_psi        ~ Engine - turbocharger pressure in Psi");
+        buf << "\n// \t" << _L("float    engine_accel            ~ ");
+        buf << "\n// \t" << _L("float    engine_torque           ~ ");
+        buf << "\n// \t" << _L("float    inputshaft_rpm          ~ ");
+        buf << "\n// \t" << _L("float    drive_ratio             ~ ");
+        buf << "\n// \t" << _L("bool     beaconlight_active      ~ ");
+        buf << "\n// \t" << _L("float    hydro_dir_state         ~ ");
+        buf << "\n// \t" << _L("float    hydro_aileron_state     ~ ");
+        buf << "\n// \t" << _L("float    hydro_elevator_state    ~ ");
+        buf << "\n// \t" << _L("float    hydro_aero_rudder_state ~ ");
+        buf << "\n// \t" << _L("int      cur_cinecam             ~ ");
+        buf << "\n// \t" << _L("bool     parking_brake           ~ ");
+        buf << "\n// \t" << _L("float    brake                   ~ ");
+        buf << "\n// \t" << _L("float    clutch                  ~ ");
+        buf << "\n// \t" << _L("int      aero_flap_state         ~ ");
+        buf << "\n// \t" << _L("int      airbrake_state          ~ ");
+        buf << "\n// \t" << _L("float    wing4_aoa               ~ ");
+        buf << "\n// \t" << _L("bool     headlight_on            ~ ");
+        buf << "\n// \t" << _L("vector3  direction               ~ ");
+        buf << "\n// \t" << _L("float    top_speed               ~ ");
+        buf << "\n// \t" << _L("int      ap_heading_mode         ~ Flight autopilot");
+        buf << "\n// \t" << _L("int      ap_heading_value        ~ Flight autopilot");
+        buf << "\n// \t" << _L("int      ap_alt_mode             ~ Flight autopilot");
+        buf << "\n// \t" << _L("int      ap_alt_value            ~ Flight autopilot");
+        buf << "\n// \t" << _L("bool     ap_ias_mode             ~ Flight autopilot");
+        buf << "\n// \t" << _L("int      ap_ias_value            ~ Flight autopilot");
+        buf << "\n// \t" << _L("bool     ap_gpws_mode            ~ Flight autopilot");
+        buf << "\n// \t" << _L("bool     ap_ils_available        ~ Flight autopilot");
+        buf << "\n// \t" << _L("float    ap_ils_vdev             ~ Flight autopilot");
+        buf << "\n// \t" << _L("float    ap_ils_hdev             ~ Flight autopilot");
+        buf << "\n// \t" << _L("int      ap_vs_value             ~ Flight autopilot");
+        buf << "\n\n";
+
+        // Buffer localized literals
+        buf << "string lit_main_welcome = \""
+            << _L("This window is drawn by script, you can view and edit it: ")
+            << App::sys_projects_dir->GetActiveStr()
+            << PATH_SLASH << m_entry->prj_dirname
+            << PATH_SLASH << dst_filename.ToCStr() << "\";";
+
+        // Write out the buffer
+        std::string out_str = buf.str();
+        out_stream->write(out_str.c_str(), out_str.length());
+
+        // Copy the example code
+        const int BUF_LEN = 1000;
+        char* demo_buf[BUF_LEN] = {};
+        size_t num_read = 0;
+        while ((num_read = demo_stream->read(&demo_buf, BUF_LEN)) != 0)
+        {
+            out_stream->write(demo_buf, num_read);
+        }
+
+        // Add script to snapshot
+        m_def->root_module->scripts.push_back(RigDef::Script(RigDef::Script::TYPE_FRAMESTEP, dst_filename.ToCStr(), ""));
+    }
+    catch (Ogre::Exception& oex)
+    {
+        std::string msg = "Failed to add example script to project, message:" + oex.getFullDescription();
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING, msg);
+    }
+}
+
+void RoR::RigEditor::LoadSnapshot(ProjectEntry* project, int snapshot)
+{
+    if (m_entry)
+    {
+        this->CloseProject();
+    }
+
+    assert(!m_entry);
+    assert(m_snapshot == -1);
+    
+    assert(project);
+    assert(snapshot >= 0 && snapshot < (int)project->prj_snapshots.size());
+
+    m_entry = project;
+    m_snapshot = snapshot;
+
+    ActorSpawnRequest rq;
+    rq.asr_origin = ActorSpawnRequest::Origin::USER;
+    rq.asr_project = project;
+    rq.asr_filename = project->prj_snapshots[snapshot].prs_filename;
+    App::GetSimController()->QueueActorSpawn(rq);
+}
+
+void RigEditor::CloseProject()
+{
+    assert(m_entry);
+    m_entry = nullptr;
+    m_snapshot = -1;
+    m_def = nullptr;
+}
+
+bool RigEditor::CreateProjet(std::string const& dir_name, std::string const& proj_name)
+{
+    assert(!m_entry);
+    assert(m_snapshot == -1);
+
+    ProjectEntry* proj = App::GetContentManager()->CreateNewProject(dir_name, proj_name);
+    if (proj)
+    {
+        m_entry = proj;
+        return true;
+    }
+    else
+    {
+        return false; // Error already logged
+    }
+}

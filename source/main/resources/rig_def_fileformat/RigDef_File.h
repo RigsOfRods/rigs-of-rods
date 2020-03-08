@@ -1740,6 +1740,13 @@ struct Script
         TYPE_SIMSTEP
     };
 
+    Script()
+    {}
+
+    Script(Type t, std::string const& fname, std::string const& arg)
+        :type(t), filename(fname), arguments(arg)
+    {}
+
     Type        type = TYPE_INVALID;
     std::string filename;
     std::string arguments;

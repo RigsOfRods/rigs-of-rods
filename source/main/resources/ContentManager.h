@@ -90,8 +90,7 @@ public:
     void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
     void               ReScanProjects();
-    bool               ImportProjectSnapshot(ProjectEntry* dest_proj, const char* filename, std::shared_ptr<RigDef::File> def); //!< "Project snapshot" is an equivalent of Truckfile
-    ProjectEntry*      CreateNewProject(std::string const& dir_name, const char* prj_name);
+    ProjectEntry*      CreateNewProject(std::string const& dir_name, std::string const& display_name);
 
     bool               DeleteDiskFile(std::string const& filename, std::string const& rg_name);
 

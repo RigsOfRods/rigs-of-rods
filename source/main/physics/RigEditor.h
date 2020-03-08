@@ -19,6 +19,8 @@
 
 /// @file
 
+#pragma once
+
 #include "CacheSystem.h" // RoR::ProjectEntry, PROJECT_FILE
 #include "RigDef_File.h" // RigDef::File
 #include <memory>
@@ -35,20 +37,21 @@ namespace RoR {
 class RigEditor
 {
 public:
-    RigEditor();
-
+    bool                CreateProjet(std::string const& dir_name, std::string const& proj_name);
     bool                ImportSnapshotToProject(std::string const& filename, std::shared_ptr<RigDef::File> def); //!< Imports truckfile to current project + opens it
     void                ImportModuleToSnapshot(std::shared_ptr<RigDef::File::Module> m); //!< Imports module (see 'sectionconfig') to current actor
     bool                SaveSnapshot();
-    void                SetProject(ProjectEntry* e) { m_entry = e; }
+    void                LoadSnapshot(ProjectEntry* project, int snapshot);
+    void                SetDefinition(std::shared_ptr<RigDef::File> def) { m_def = def; }
+    void                AddExampleScriptToSnapshot();
 
     static bool         ReLoadProjectFromDirectory(ProjectEntry* proj);
     static bool         SaveProject(RoR::ProjectEntry* proj);
 
 private:
-    ProjectEntry*                   m_entry;    //!< Currently open project
-    ProjectSnapshot*                m_snapshot; //!< Currently open actor
-    std::shared_ptr<RigDef::File>   m_def;      //!< Currently open actor
+    ProjectEntry*                   m_entry = nullptr;    //!< Currently open project
+    int                             m_snapshot = -1;      //!< Currently open actor
+    std::shared_ptr<RigDef::File>   m_def;                //!< Currently open actor
 };
 
 } // namespace RoR

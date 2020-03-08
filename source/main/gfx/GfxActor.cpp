@@ -1848,6 +1848,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_inputshaft_rpm  = m_actor->ar_engine->GetInputShaftRpm();
         m_simbuf.simbuf_drive_ratio     = m_actor->ar_engine->GetDriveRatio();
         m_simbuf.simbuf_clutch          = m_actor->ar_engine->GetClutch();
+        m_simbuf.simbuf_engine_crankfactor = m_actor->ar_engine->GetCrankFactor();
     }
     if (m_actor->m_num_wheel_diffs > 0)
     {

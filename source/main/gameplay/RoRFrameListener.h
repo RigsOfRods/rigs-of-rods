@@ -30,6 +30,7 @@
 #include "GfxScene.h"
 #include "ForceFeedback.h"
 #include "OutProtocol.h"
+#include "RigEditor.h"
 #include "SceneMouse.h"
 
 /// The simulation controller object
@@ -104,8 +105,9 @@ public:
     void   CameraManagerMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
     bool   CameraManagerMouseMoved(const OIS::MouseEvent& _arg);
 
-    RoR::ActorManager*          GetBeamFactory  ()         { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
-    RoR::SkidmarkConfig*         GetSkidmarkConf ()         { return m_skidmark_conf; }
+    RoR::ActorManager*           GetBeamFactory()           { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
+    RoR::RigEditor&              GetRigEditor()             { return m_rig_editor; }
+    RoR::SkidmarkConfig*         GetSkidmarkConf()          { return m_skidmark_conf; }
     RoR::GfxScene&               GetGfxScene()              { return m_gfx_scene; }
     RoR::SceneMouse&             GetSceneMouse()            { return m_scene_mouse; }
     Ogre::Vector3                GetDirArrowTarget()        { return m_dir_arrow_pointed; }
@@ -143,6 +145,7 @@ private:
     Actor*                   m_prev_player_actor;      //!< Previous actor (vehicle or machine) mounted and controlled by player
     Actor*                   m_pending_player_actor;   //!< Actor scheduled to be seated by player (when none scheduled, equals `player_actor`)
     RoR::ActorManager        m_actor_manager;
+    RoR::RigEditor           m_rig_editor;
     std::vector<RoR::ActorSpawnRequest>  m_actor_spawn_queue;
     std::vector<RoR::ActorModifyRequest> m_actor_modify_queue;
     std::vector<Actor*>                  m_actor_remove_queue;             
