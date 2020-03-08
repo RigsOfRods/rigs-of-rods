@@ -492,7 +492,7 @@ void GUIManager::SetupImGui()
     style.Colors[ImGuiCol_CloseButtonActive]     = ImVec4(0.18f, 0.53f, 0.79f, 0.90f);
     style.Colors[ImGuiCol_PlotLines]             = ImVec4(1.00f, 1.00f, 1.00f, 0.90f);
     style.Colors[ImGuiCol_PlotLinesHovered]      = ImVec4(0.13f, 0.40f, 0.60f, 0.90f);
-    style.Colors[ImGuiCol_PlotHistogram]         = ImVec4(0.13f, 0.40f, 0.60f, 0.90f);
+    style.Colors[ImGuiCol_PlotHistogram]         = ImVec4(0.18f, 0.53f, 0.79f, 0.90f);
     style.Colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(0.13f, 0.40f, 0.60f, 0.90f);
     style.Colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.00f, 0.00f, 1.00f, 0.90f);
     style.Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.20f, 0.20f, 0.90f);
