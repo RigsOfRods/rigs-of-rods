@@ -302,14 +302,14 @@ void MainSelector::Draw()
             {
                 ImGui::Text("%s", _L("Source: "));
                 ImGui::SameLine();
-                ImGui::TextColored(App::GetGuiManager()->GetTheme().value_blue_text_color,
+                ImGui::TextColored(App::GetGuiManager()->GetTheme().highlight_text_color,
                     "%s", sd_entry.sde_entry->resource_bundle_path.c_str());
             }
             if (!sd_entry.sde_entry->fname.empty())
             {
                 ImGui::Text("%s", _L("Filename: "));
                 ImGui::SameLine();
-                ImGui::TextColored(App::GetGuiManager()->GetTheme().value_blue_text_color,
+                ImGui::TextColored(App::GetGuiManager()->GetTheme().highlight_text_color,
                     "%s", sd_entry.sde_entry->fname.c_str());
             }
         }
