@@ -192,7 +192,6 @@ class Sound;
 class SoundManager;
 class SoundScriptInstance;
 class SoundScriptManager;
-class SurveyMapEntity;
 class SurveyMapManager;
 class Task;
 class TerrainGeometryManager;

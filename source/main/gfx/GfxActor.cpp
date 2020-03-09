@@ -92,7 +92,6 @@ RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_re
     m_renderdash(renderdash),
     m_prop_anim_crankfactor_prev(0.f),
     m_prop_anim_shift_timer(0.f),
-    m_survey_map_entity(nullptr),
     m_beaconlight_active(true), // 'true' will trigger SetBeaconsEnabled(false) on the first buffer update
     m_initialized(false)
 {
