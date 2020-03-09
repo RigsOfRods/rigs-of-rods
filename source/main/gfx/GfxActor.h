@@ -238,8 +238,6 @@ public:
     inline DebugViewType      GetDebugView       () const                 { return m_debug_view; }
     SimBuffer &               GetSimDataBuffer   ()                       { return m_simbuf; }
     SimBuffer::NodeSB*        GetSimNodeBuffer   ()                       { return m_simbuf.simbuf_nodes.get(); }
-    void                      SetSurveyMapEntity (SurveyMapEntity* e)     { m_survey_map_entity = e; }
-    SurveyMapEntity*          GetSurveyMapEntity ()                       { return m_survey_map_entity; }
     std::set<GfxActor*>       GetLinkedGfxActors ()                       { return m_linked_gfx_actors; }
     Ogre::String              GetResourceGroup   ()                       { return m_custom_resource_group; }
     std::string               FetchActorDesignName() const;
@@ -296,8 +294,6 @@ private:
     bool                        m_initialized;
 
     SimBuffer                   m_simbuf;
-
-    SurveyMapEntity*            m_survey_map_entity;
 
     // Old cab mesh
     FlexObj*                    m_cab_mesh;
