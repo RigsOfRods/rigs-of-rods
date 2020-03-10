@@ -70,7 +70,7 @@ void MainSelector::Show(LoaderType type, std::string const& filter_guid)
 
     if (type == LT_Skin)
     {
-         m_selected_entry = m_selected_entry["Default"];
+        m_selected_entry = m_selected_entry["Default"];
     }
 }
 
