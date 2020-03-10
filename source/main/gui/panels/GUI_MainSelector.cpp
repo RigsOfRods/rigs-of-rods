@@ -67,6 +67,11 @@ void MainSelector::Show(LoaderType type, std::string const& filter_guid)
     {
         m_selected_entry = m_last_selected_entry[m_loader_type];
     }
+
+    if (type == LT_Skin)
+    {
+         m_selected_entry = m_selected_entry["Default"];
+    }
 }
 
 void MainSelector::Draw()
