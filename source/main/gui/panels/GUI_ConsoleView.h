@@ -48,6 +48,7 @@ struct ConsoleView
     bool  cvw_filter_type_warning = true;
     bool  cvw_filter_type_error = true;
     bool  cvw_filter_type_chat = true;
+    bool  cvw_filter_type_cmd = true;
     bool  cvw_filter_area_echo = false; //!< Not the same thing as 'log' command!
     bool  cvw_filter_area_script = true;
     bool  cvw_filter_area_actor = true;
