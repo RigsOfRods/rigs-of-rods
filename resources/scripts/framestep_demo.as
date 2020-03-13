@@ -6,20 +6,28 @@ CVar@ G_gfx_enable_videocams = null;
 
 bool  G_show_simbuffer_window = false;
 
+Ogre::TexturePtr G_icon_info;
+Ogre::TexturePtr G_icon_warn;
+Ogre::TexturePtr G_icon_err;
+
 int setup(string arg)
 {
     @G_sim_gearbox_mode     = RoR::GetConsole().CVarFind("sim_gearbox_mode");
     @G_sim_terrain_name     = RoR::GetConsole().CVarFind("sim_terrain_name");
     @G_gfx_enable_videocams = RoR::GetConsole().CVarFind("gfx_enable_videocams");
+    
+    G_icon_info = Ogre::TextureManager::getSingleton().load("information.png", "IconsRG");
+    G_icon_warn = Ogre::TextureManager::getSingleton().load("error.png", "IconsRG");
+    G_icon_err = Ogre::TextureManager::getSingleton().load("cancel.png", "IconsRG");
     return 0;
 }
 
-string vector3str(vector3 v)
+string Vector3Str(vector3 v)
 {
     return "{X: " + v.x + ", Y: " + v.y + ", Z: " + v.z + "}";
 }
 
-void draw_simbuffer_window(ActorSimBuffer@ data)
+void DrawSimBufferWindow(ActorSimBuffer@ data)
 {
     ImGui::SetNextWindowSize(vector2(550, 550));
     ImGui::Begin("ActorSimBuffer", true);
@@ -27,8 +35,8 @@ void draw_simbuffer_window(ActorSimBuffer@ data)
     ImGui::SetColumnOffset(1, 70);
     ImGui::SetColumnOffset(2, 250);
     
-    ImGui::Text("vector3"); ImGui::NextColumn(); ImGui::Text("pos                    "); ImGui::NextColumn(); ImGui::Text("" + vector3str(data.pos)        ); ImGui::NextColumn();
-    ImGui::Text("vector3"); ImGui::NextColumn(); ImGui::Text("node0_velo             "); ImGui::NextColumn(); ImGui::Text("" + vector3str(data.node0_velo) ); ImGui::NextColumn();
+    ImGui::Text("vector3"); ImGui::NextColumn(); ImGui::Text("pos                    "); ImGui::NextColumn(); ImGui::Text("" + Vector3Str(data.pos)        ); ImGui::NextColumn();
+    ImGui::Text("vector3"); ImGui::NextColumn(); ImGui::Text("node0_velo             "); ImGui::NextColumn(); ImGui::Text("" + Vector3Str(data.node0_velo) ); ImGui::NextColumn();
     ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("live_local             "); ImGui::NextColumn(); ImGui::Text("" + data.live_local             ); ImGui::NextColumn();
     ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("physics_paused         "); ImGui::NextColumn(); ImGui::Text("" + data.physics_paused         ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("rotation               "); ImGui::NextColumn(); ImGui::Text("" + data.rotation               ); ImGui::NextColumn();
@@ -58,7 +66,7 @@ void draw_simbuffer_window(ActorSimBuffer@ data)
     ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("airbrake_state         "); ImGui::NextColumn(); ImGui::Text("" + data.airbrake_state         ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("wing4_aoa              "); ImGui::NextColumn(); ImGui::Text("" + data.wing4_aoa              ); ImGui::NextColumn();
     ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("headlight_on           "); ImGui::NextColumn(); ImGui::Text("" + data.headlight_on           ); ImGui::NextColumn();
-    ImGui::Text("vector3"); ImGui::NextColumn(); ImGui::Text("direction              "); ImGui::NextColumn(); ImGui::Text("" + vector3str(data.direction)  ); ImGui::NextColumn();
+    ImGui::Text("vector3"); ImGui::NextColumn(); ImGui::Text("direction              "); ImGui::NextColumn(); ImGui::Text("" + Vector3Str(data.direction)  ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("top_speed              "); ImGui::NextColumn(); ImGui::Text("" + data.top_speed              ); ImGui::NextColumn();
     ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("ap_heading_mode        "); ImGui::NextColumn(); ImGui::Text("" + data.ap_heading_mode        ); ImGui::NextColumn();
     ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("ap_heading_value       "); ImGui::NextColumn(); ImGui::Text("" + data.ap_heading_value       ); ImGui::NextColumn();
@@ -105,13 +113,23 @@ int loop(GfxActor@ actor)
         
         str = "> videocams on:" + G_gfx_enable_videocams.GetActiveBool();
         ImGui::Text(str);
+        
+    ImGui::Separator();
+    
+    ImGui::Text("Images:");
+
+        ImGui::Image(G_icon_info, vector2(16, 16));
+        ImGui::SameLine();
+        ImGui::Image(G_icon_warn, vector2(16, 16));
+        ImGui::SameLine();
+        ImGui::Image(G_icon_err, vector2(16, 16));
 
     ImGui::End();
     
     if (G_show_simbuffer_window)
     {
         ActorSimBuffer@ data = actor.GetSimDataBuffer();
-        draw_simbuffer_window(data);
+        DrawSimBufferWindow(data);
     }
     return 0;
 }

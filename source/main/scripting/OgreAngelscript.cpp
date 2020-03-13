@@ -194,12 +194,34 @@ static void ColourValueCopyConstructor(const ColourValue& other, ColourValue* se
     new(self) ColourValue(other.r, other.g, other.b, other.a);
 }
 
+/***TEXTURE***/
+static void TexturePtrDefaultConstructor(TexturePtr* self)
+{
+    new (self) TexturePtr();
+}
+
+static void TexturePtrCopyConstructor(const TexturePtr& other, TexturePtr* self)
+{
+    new (self) TexturePtr(other);
+}
+
+static void TexturePtrDestructor(TexturePtr* self)
+{
+    (self)->~TexturePtr();
+}
+
+static void TexturePtrAssignOperator(const TexturePtr& other, TexturePtr* self)
+{
+    (self)->operator=(other);
+}
+
 // forward declarations, defined below
 void registerOgreVector3(AngelScript::asIScriptEngine* engine);
 void registerOgreVector2(AngelScript::asIScriptEngine* engine);
 void registerOgreRadian(AngelScript::asIScriptEngine* engine);
 void registerOgreDegree(AngelScript::asIScriptEngine* engine);
 void registerOgreQuaternion(AngelScript::asIScriptEngine* engine);
+void registerOgreTexture(AngelScript::asIScriptEngine* engine);
 
 // main registration method
 void RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
@@ -237,6 +259,7 @@ void RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     registerOgreVector3(engine);
     registerOgreVector2(engine);
     registerOgreQuaternion(engine);
+    registerOgreTexture(engine);
 }
 
 // register Ogre::Vector3
@@ -756,4 +779,34 @@ void registerOgreColourValue(AngelScript::asIScriptEngine* engine)
     MYASSERT( r >= 0 );
     r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f(const color &other)", asFUNCTION(QuaternionCopyConstructor), asCALL_CDECL_OBJLAST);
     MYASSERT( r >= 0 );
+}
+
+void registerOgreTexture(AngelScript::asIScriptEngine* engine)
+{
+    engine->SetDefaultNamespace("Ogre");
+    engine->RegisterObjectType("TexturePtr", sizeof(TexturePtr), asOBJ_VALUE | asGetTypeTraits<TexturePtr>());
+    engine->RegisterObjectBehaviour("TexturePtr", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(TexturePtrDefaultConstructor), asCALL_CDECL_OBJLAST);
+    engine->RegisterObjectBehaviour("TexturePtr", asBEHAVE_CONSTRUCT, "void f(const TexturePtr&in)", asFUNCTION(TexturePtrCopyConstructor), asCALL_CDECL_OBJLAST);
+    engine->RegisterObjectBehaviour("TexturePtr", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(TexturePtrDestructor), asCALL_CDECL_OBJLAST);
+    engine->RegisterObjectMethod("TexturePtr", "TexturePtr& opAssign(const TexturePtr&in)", asFUNCTION(TexturePtrAssignOperator), asCALL_CDECL_OBJLAST);
+
+    // Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
+    engine->RegisterObjectMethod("TexturePtr", "uint getWidth()", asFUNCTIONPR([](TexturePtr const& self){
+        return (Ogre::uint32)self->getWidth();
+    }, (TexturePtr const&), Ogre::uint32), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("TexturePtr", "uint getHeight()", asFUNCTIONPR([](TexturePtr const& self){
+        return (Ogre::uint32)self->getHeight();
+    }, (TexturePtr const&), Ogre::uint32), asCALL_CDECL_OBJFIRST);
+
+    engine->RegisterObjectType("TextureManager", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
+    // Convenience wrapper to omit optional parameters
+    engine->RegisterObjectMethod("TextureManager", "TexturePtr load(string file, string rg)", asFUNCTIONPR([](TextureManager& mgr, std::string const& file, std::string const& rg){
+        return mgr.load(file, rg);
+    }, (TextureManager& mgr, std::string const& file, std::string const& rg), TexturePtr), asCALL_CDECL_OBJFIRST);
+
+
+    engine->SetDefaultNamespace("Ogre::TextureManager");
+    engine->RegisterGlobalFunction("TextureManager& getSingleton()", asFUNCTION(TextureManager::getSingleton), asCALL_CDECL);
+
+    engine->SetDefaultNamespace("");
 }
