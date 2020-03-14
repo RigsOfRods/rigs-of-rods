@@ -68,6 +68,7 @@ void GUI::ConsoleView::DrawConsoleMessages()
     }
 
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+
     for (const Console::Message* dm: m_display_list)
     {
         std::string line = dm->cm_text;
@@ -102,6 +103,16 @@ void GUI::ConsoleView::DrawConsoleMessages()
 
         case Console::Console::CONSOLE_HELP:
             this->DrawColorMarkedText(theme.help_text_color, line);
+            break;
+
+        case Console::Console::CONSOLE_SYSTEM_NOTICE:
+            this->DrawIcon(FetchIcon("information.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
+            this->DrawColorMarkedText(ImGui::GetStyle().Colors[ImGuiCol_Text], line);
+            break;
+
+        case Console::Console::CONSOLE_SYSTEM_NETCHAT:
+            this->DrawIcon(FetchIcon("comments.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
+            this->DrawColorMarkedText(ImGui::GetStyle().Colors[ImGuiCol_Text], line);
             break;
 
         default:
@@ -174,7 +185,7 @@ void GUI::ConsoleView::DrawColorMarkedText(ImVec4 default_color, std::string con
         if (seg_start != seg_end)
         {
             std::string text(seg_start, seg_end); // TODO: optimize!
-            ImVec2 text_size = ImGui::CalcTextSize(text.c_str());            
+            ImVec2 text_size = ImGui::CalcTextSize(text.c_str());           
             drawlist->AddText(text_cursor, ImColor(r,g,b), text.c_str());
             total_text_size.x += text_size.x;
             total_text_size.y = std::max(total_text_size.y, text_size.y);
@@ -215,3 +226,28 @@ void GUI::ConsoleView::NewLine(ImVec2 text_size)
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (text_size + (cvw_background_padding * 2)).y + cvw_line_spacing);
 }
 
+Ogre::TexturePtr GUI::ConsoleView::FetchIcon(const char* name)
+{
+    try
+    {
+        return Ogre::static_pointer_cast<Ogre::Texture>(
+            Ogre::TextureManager::getSingleton().createOrRetrieve(name, "IconsRG").first);
+    }
+    catch (...) {}
+
+    return Ogre::TexturePtr(); // null
+}
+
+bool GUI::ConsoleView::DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box)
+{
+    if (!App::GetGuiManager()->IsVisible_Console())
+    {
+        ImGui::SetCursorPosX(10.f); // Give some room for icon
+        if (tex)
+        {
+            ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(tex->getWidth(), tex->getHeight()));
+        }
+        ImGui::SameLine(); // Keep icon and text in the same line
+    }
+    return NULL;
+}
