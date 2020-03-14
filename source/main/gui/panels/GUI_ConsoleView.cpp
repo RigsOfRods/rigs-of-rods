@@ -251,3 +251,4 @@ bool GUI::ConsoleView::DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box)
     }
     return NULL;
 }
+
