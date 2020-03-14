@@ -46,6 +46,8 @@ inline void CreateFolder(std::string const& path) { CreateFolder(path.c_str()); 
 
 inline std::string PathCombine(std::string a, std::string b) { return a + PATH_SLASH + b; };
 
+std::string PathStrEscape(std::string const& p);
+
 std::string GetUserHomeDirectory(); //!< Returns UTF-8 path or empty string on error
 std::string GetExecutablePath(); //!< Returns UTF-8 path or empty string on error
 std::string GetParentDirectory(const char* path); //!< Returns UTF-8 path without trailing slash.

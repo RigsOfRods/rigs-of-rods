@@ -231,4 +231,22 @@ std::time_t GetFileLastModifiedTime(std::string const & path)
     factory.destroyInstance(fs_archive);
     return time;
 }
+
+std::string PathStrEscape(std::string const& p)
+{
+    Str<1000> res;
+    for (char c: p)
+    {
+        if (c == '\\')
+        {
+            res << "\\\\";
+        }
+        else
+        {
+            res << c;
+        }
+    }
+    return res.ToCStr();
+}
+
 } // namespace RoR

@@ -2562,6 +2562,11 @@ void SimController::RemoveActorDirectly(Actor* actor)
     }
 #endif //SOCKETW
 
+    if (actor->GetProjectEntry() == m_rig_editor.GetProjectEntry())
+    {
+        m_rig_editor.CloseProject();
+    }
+
     m_actor_manager.DeleteActorInternal(actor);
 }
 

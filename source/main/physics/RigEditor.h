@@ -44,6 +44,8 @@ public:
     void                LoadSnapshot(ProjectEntry* project, int snapshot);
     void                SetDefinition(std::shared_ptr<RigDef::File> def) { m_def = def; }
     void                AddExampleScriptToSnapshot();
+    ProjectEntry*       GetProjectEntry() { return m_entry; }
+    void                CloseProject();
 
     static bool         ReLoadProjectFromDirectory(ProjectEntry* proj);
     static bool         SaveProject(RoR::ProjectEntry* proj);

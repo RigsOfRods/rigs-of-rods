@@ -40,7 +40,7 @@
 using namespace RoR;
 
 // static
-bool RoR::RigEditor::ReLoadProjectFromDirectory(ProjectEntry* proj)
+bool RigEditor::ReLoadProjectFromDirectory(ProjectEntry* proj)
 {
     Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
 
@@ -55,7 +55,7 @@ bool RoR::RigEditor::ReLoadProjectFromDirectory(ProjectEntry* proj)
         !j_doc.HasMember("name") || !j_doc["name"].IsString() || 
         !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber())
     {
-        RoR::LogFormat("[RoR|Editor] Loading project directory '%s' failed, JSON invalid", proj->prj_dirname);
+        LogFormat("[RoR|Editor] Loading project directory '%s' failed, JSON invalid", proj->prj_dirname);
         proj->prj_valid = false;
         return false;
     }
@@ -78,7 +78,7 @@ bool RoR::RigEditor::ReLoadProjectFromDirectory(ProjectEntry* proj)
     return true;
 }
 
-bool RoR::RigEditor::SaveProject(RoR::ProjectEntry* proj)
+bool RigEditor::SaveProject(ProjectEntry* proj)
 {
     // Create JSON
     rapidjson::Document j_doc;
@@ -95,7 +95,7 @@ bool RoR::RigEditor::SaveProject(RoR::ProjectEntry* proj)
     return true;
 }
 
-bool RoR::RigEditor::ImportSnapshotToProject(std::string const& filename, std::shared_ptr<RigDef::File> src_def)
+bool RigEditor::ImportSnapshotToProject(std::string const& filename, std::shared_ptr<RigDef::File> src_def)
 {
     assert(m_snapshot == -1);
     assert(m_entry);
@@ -171,7 +171,7 @@ bool RoR::RigEditor::ImportSnapshotToProject(std::string const& filename, std::s
     return true;
 }
 
-void RoR::RigEditor::ImportModuleToSnapshot(std::shared_ptr<RigDef::File::Module> src)
+void RigEditor::ImportModuleToSnapshot(std::shared_ptr<RigDef::File::Module> src)
 {
     std::shared_ptr<RigDef::File::Module> dst = std::make_shared<RigDef::File::Module>(src->name);
 
@@ -256,7 +256,7 @@ void RoR::RigEditor::ImportModuleToSnapshot(std::shared_ptr<RigDef::File::Module
     }
 }
 
-bool RoR::RigEditor::SaveSnapshot()
+bool RigEditor::SaveSnapshot()
 {
     try
     {
@@ -284,13 +284,13 @@ bool RoR::RigEditor::SaveSnapshot()
     catch (Ogre::Exception& oex)
     {
         std::string msg = "Failed to save project snapshot, message:\n" + oex.getFullDescription();
-        RoR::LogFormat("[RoR] %s", msg.c_str());
+        LogFormat("[RoR] %s", msg.c_str());
         App::GetGuiManager()->ShowMessageBox("Error!", msg.c_str());
         return false;
     }
 }
 
-void RoR::RigEditor::AddExampleScriptToSnapshot()
+void RigEditor::AddExampleScriptToSnapshot()
 {
     assert(m_def);
     assert(m_entry);
@@ -369,11 +369,14 @@ void RoR::RigEditor::AddExampleScriptToSnapshot()
         buf << "\n\n";
 
         // Buffer localized literals
-        buf << "string lit_main_welcome = \""
-            << _L("This window is drawn by script, you can view and edit it: ")
-            << App::sys_projects_dir->GetActiveStr()
-            << PATH_SLASH << m_entry->prj_dirname
-            << PATH_SLASH << dst_filename.ToCStr() << "\";";
+        Str<1000> path_buf;
+        path_buf << App::sys_projects_dir->GetActiveStr()
+                 << PATH_SLASH << m_entry->prj_dirname
+                 << PATH_SLASH << dst_filename.ToCStr();
+            
+        buf << "string L_main_welcome = \"" << _L("This window is drawn by script, you can view and edit it: ")
+            << PathStrEscape(path_buf.ToCStr()) << "\";";
+
 
         // Write out the buffer
         std::string out_str = buf.str();
@@ -398,7 +401,7 @@ void RoR::RigEditor::AddExampleScriptToSnapshot()
     }
 }
 
-void RoR::RigEditor::LoadSnapshot(ProjectEntry* project, int snapshot)
+void RigEditor::LoadSnapshot(ProjectEntry* project, int snapshot)
 {
     if (m_entry)
     {
