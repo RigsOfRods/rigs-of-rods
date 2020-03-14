@@ -68,7 +68,6 @@ void GUI::ConsoleView::DrawConsoleMessages()
     }
 
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
-
     for (const Console::Message* dm: m_display_list)
     {
         std::string line = dm->cm_text;
