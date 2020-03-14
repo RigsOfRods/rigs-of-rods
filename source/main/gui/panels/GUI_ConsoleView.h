@@ -71,6 +71,9 @@ private:
     DisplayMsgVec    m_display_list;
     unsigned long    m_newest_msg_time = 0;      // Updated by `DrawConsoleMessages()`
     std::regex       m_text_color_regex = std::regex(R"(#[a-fA-F\d]{6})");
+
+    Ogre::TexturePtr FetchIcon(const char* name);
+    bool DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box);
 };
 
 } // namespace GUI
