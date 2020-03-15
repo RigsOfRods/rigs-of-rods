@@ -57,7 +57,6 @@ public:
     void reset();
     void updateBlend();
     void writeBlend();
-    Ogre::SceneNode *getSceneNode() { return m_scene_node; };
 
     /// Visibility control 
     /// @param mode {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
