@@ -60,7 +60,7 @@ void GUI::ConsoleWindow::Draw()
 
     this->DrawConsoleMessages();
 
-    if (initialized == false) // Keep auto scrolling until we change scrollbar position
+    if (initialized == false) // Initialize auto scrolling
     {
         ImGui::SetScrollFromPosY(9999); // Force to bottom
         if (m_autoscroll_pos > 0.1f)
