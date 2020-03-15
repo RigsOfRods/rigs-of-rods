@@ -2327,6 +2327,7 @@ void ImGui::NewFrame()
             // Scroll
             const int scroll_lines = (window->Flags & ImGuiWindowFlags_ComboBox) ? 3 : 5;
             SetWindowScrollY(window, window->Scroll.y - g.IO.MouseWheel * window->CalcFontSize() * scroll_lines);
+            g.IO.MouseWheel = 0.0f; // Clear Input data for next frame
         }
     }
 
@@ -2705,7 +2706,6 @@ void ImGui::EndFrame()
     g.Windows.swap(g.WindowsSortBuffer);
 
     // Clear Input data for next frame
-    g.IO.MouseWheel = 0.0f;
     memset(g.IO.InputCharacters, 0, sizeof(g.IO.InputCharacters));
 
     g.FrameCountEnded = g.FrameCount;
