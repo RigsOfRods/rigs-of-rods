@@ -33,7 +33,7 @@
 RoR::GUI::GameChatBox::GameChatBox()
 {
     m_console_view.cvw_align_bottom = true;
-    m_console_view.cvw_max_lines = 20u;
+    m_console_view.cvw_max_lines = 15u;
     m_console_view.cvw_filter_duration_ms = 10000; // 10sec
     m_console_view.cvw_filter_area_actor = false; // Disable vehicle spawn warnings/errors
     m_console_view.cvw_filter_type_error = false; // Disable errors
@@ -53,10 +53,20 @@ void RoR::GUI::GameChatBox::Draw()
         size.y += ImGui::GetTextLineHeightWithSpacing() + (2 * ImGui::GetStyle().WindowPadding.x); // reserve space for input window
     }
     ImGui::SetNextWindowSize(size);
+    if (m_is_visible) // Full display?
+    {
+        size.y +=  35;
+    }
     ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - size.y));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
     ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
     ImGui::Begin("ChatMessages", nullptr, win_flags);
+
+    if (initialized == true)
+    {
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, "Welcome to Rigs of Rods!", "", 10000, false);
+        initialized = false;
+    }
 
     m_console_view.DrawConsoleMessages();
     ImGui::SetScrollFromPosY(9999); // Force to bottom
@@ -75,17 +85,7 @@ void RoR::GUI::GameChatBox::Draw()
 
     if (m_is_visible) // Full display?
     {
-        const char* name = "chatbox-filtering";
-        // Draw filter button and input box in one line
-        if (ImGui::Button(_LC("Console", "Filter options")))
-        {
-            ImGui::OpenPopup(name);
-        }
-        if (ImGui::BeginPopup(name))
-        {
-            m_console_view.DrawFilteringOptions();
-            ImGui::EndPopup();
-        }
+        ImGui::Text(_L("Message"));
         ImGui::SameLine();
         if (!m_kb_focused)
         {
@@ -93,7 +93,7 @@ void RoR::GUI::GameChatBox::Draw()
             m_kb_focused = true;
         }
         const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
-        if (ImGui::InputText(_L("Message"), m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
+        if (ImGui::InputText("", m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
         {
             if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
             {
