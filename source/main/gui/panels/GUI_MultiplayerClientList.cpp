@@ -58,7 +58,7 @@ void MpClientList::Draw()
     users.insert(users.begin(), RoR::Networking::GetLocalUserData());
     for (RoRnet::UserInfo const& user: users)
     {
-       y += 20;
+       y += ImGui::GetTextLineHeightWithSpacing();
     }
 
     ImGui::SetNextWindowSize(ImVec2((content_width + (2*ImGui::GetStyle().WindowPadding.x)), y));
