@@ -93,6 +93,7 @@ void GUI::ConsoleView::DrawConsoleMessages()
             break;
 
         case Console::CONSOLE_SYSTEM_WARNING:
+            this->DrawIcon(FetchIcon("error.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
             this->DrawColorMarkedText(theme.warning_text_color, line);
             break;
 
@@ -250,4 +251,3 @@ bool GUI::ConsoleView::DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box)
     }
     return NULL;
 }
-
