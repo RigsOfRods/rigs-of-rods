@@ -130,7 +130,10 @@ void RoR::GUI::SurveyMap::Draw()
         view_origin = ((smallmap_center + mMapCenterOffset) - smallmap_size / 2);
 
         // Update texture
-        mMapTextureCreatorDynamic->update(smallmap_center + mMapCenterOffset, smallmap_size);
+        if ((App::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_IN)) || (App::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_OUT)))
+        {
+            mMapTextureCreatorDynamic->update(smallmap_center + mMapCenterOffset, smallmap_size);
+        }
         tex = mMapTextureCreatorDynamic->GetTexture();
     }
 
