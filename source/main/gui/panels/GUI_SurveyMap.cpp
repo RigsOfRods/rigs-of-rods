@@ -223,7 +223,7 @@ void RoR::GUI::SurveyMap::CreateTerrainTextures()
     Vector3 terrain_size = App::GetSimTerrain()->getMaxTerrainSize();
     bool use_aab         = App::GetSimTerrain()->isFlat() && std::min(aab.getSize().x, aab.getSize().z) > 50.0f;
 
-    if (terrain_size.isZeroLength() || use_aab && (aab.getSize().length() < terrain_size.length()))
+    if (terrain_size.isZeroLength() && (aab.getSize().length() < terrain_size.length()))
     {
         terrain_size = aab.getSize();
         terrain_size.y = aab.getMaximum().y;
