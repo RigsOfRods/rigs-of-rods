@@ -155,6 +155,7 @@ GUI::MultiplayerSelector*   GUIManager::GetMpSelector()        { return &m_impl-
 GUI::FrictionSettings*      GUIManager::GetFrictionSettings()  { return &m_impl->panel_FrictionSettings    ; }
 GUI::TopMenubar*            GUIManager::GetTopMenubar()        { return &m_impl->panel_TopMenubar          ; }
 GUI::SurveyMap*             GUIManager::GetSurveyMap()         { return &m_impl->panel_SurveyMap           ; }
+GUI::SimActorStats*         GUIManager::GetSimActorStats()     { return &m_impl->panel_SimActorStats       ; }
 
 GUIManager::GUIManager() :
     m_renderwindow_closed(false),
