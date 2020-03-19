@@ -35,6 +35,7 @@
 #include "DashBoardManager.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
+#include "GUI_SimActorStats.h"
 #include "GUI_SurveyMap.h"
 #include "ForceFeedback.h"
 #include "InputEngine.h"
@@ -1793,6 +1794,11 @@ void SimController::UpdateSimulation(float dt)
         }
 
         this->UpdateForceFeedback();
+
+        if (m_player_actor)
+        {
+            App::GetGuiManager()->GetSimActorStats()->UpdateStats(dt, m_player_actor);
+        }
 
         m_scene_mouse.UpdateSimulation();
 

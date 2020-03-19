@@ -120,6 +120,7 @@ public:
     GUI::FrictionSettings* GetFrictionSettings();
     GUI::TopMenubar* GetTopMenubar();
     GUI::SurveyMap* GetSurveyMap();
+    GUI::SimActorStats* GetSimActorStats();
 
     // GUI manipulation
     void ShowMessageBox(const char* title, const char* text, bool allow_close = true, const char* btn1_text = "OK", const char* btn2_text = nullptr);
