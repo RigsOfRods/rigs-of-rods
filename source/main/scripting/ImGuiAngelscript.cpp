@@ -23,6 +23,7 @@
 /// @author https://gist.github.com/JSandusky/54b85068aa30390c91a0b377703f042e
 /// @author https://discourse.urho3d.io/t/dear-imgui-w-o-steamrolling/3960
 
+#include "GUIUtils.h"
 #include "OgreImGui.h"
 #include "scriptarray/scriptarray.h"
 
@@ -124,6 +125,8 @@ void RegisterImGuiBindings(asIScriptEngine* engine)
     engine->RegisterGlobalFunction("float GetTextLineHeightWithSpacing()", asFUNCTIONPR(ImGui::GetTextLineHeightWithSpacing, (), float), asCALL_CDECL);
   //  engine->RegisterGlobalFunction("float GetFrameHeight()", asFUNCTIONPR(ImGui::GetFrameHeight, (), float), asCALL_CDECL);
   //  engine->RegisterGlobalFunction("float GetFrameHeightWithSpacing()", asFUNCTIONPR(ImGui::GetFrameHeightWithSpacing, (), float), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void PushItemWidth(float)", asFUNCTIONPR(ImGui::PushItemWidth, (float), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void PopItemWidth()", asFUNCTIONPR(ImGui::PopItemWidth, (void), void), asCALL_CDECL);
 
     // Columns
     engine->RegisterGlobalFunction("void Columns(int = 1, const string&in = string(), bool = true)", asFUNCTIONPR([](int a, const string& b, bool c) {  
@@ -438,6 +441,15 @@ void RegisterImGuiBindings(asIScriptEngine* engine)
 
     engine->RegisterGlobalFunction("string GetClipboardText()", asFUNCTIONPR([]() { return string(ImGui::GetClipboardText());  }, (), string), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetClipboardText(const string&in)", asFUNCTIONPR([](const string& a) {  ImGui::SetClipboardText(a.empty() ? a.c_str() : 0x0);  }, (const string&), void), asCALL_CDECL);
+
+    engine->SetDefaultNamespace("ImGuiEx");
+
+    engine->RegisterGlobalFunction("void DrawListAddImageRotated(const Ogre::TexturePtr&in, vector2 center_pos, vector2 size, float angle)",
+        asFUNCTIONPR([](Ogre::TexturePtr const& tex, Vector2 pos, Vector2 size, float angle)
+        {
+            RoR::DrawImageRotated(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(pos.x, pos.y), ImVec2(size.x, size.y), angle);
+        },
+        (Ogre::TexturePtr const& tex, Vector2 pos, Vector2 size, float angle), void), asCALL_CDECL);
 
     engine->SetDefaultNamespace("");
 }

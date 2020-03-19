@@ -10,15 +10,19 @@ Ogre::TexturePtr G_icon_info;
 Ogre::TexturePtr G_icon_warn;
 Ogre::TexturePtr G_icon_err;
 
+Ogre::TexturePtr G_icon_arrow;
+float            G_icon_arrow_rot = 0; // Radian
+
 int setup(string arg)
 {
     @G_sim_gearbox_mode     = RoR::GetConsole().CVarFind("sim_gearbox_mode");
     @G_sim_terrain_name     = RoR::GetConsole().CVarFind("sim_terrain_name");
     @G_gfx_enable_videocams = RoR::GetConsole().CVarFind("gfx_enable_videocams");
     
-    G_icon_info = Ogre::TextureManager::getSingleton().load("information.png", "IconsRG");
-    G_icon_warn = Ogre::TextureManager::getSingleton().load("error.png", "IconsRG");
-    G_icon_err = Ogre::TextureManager::getSingleton().load("cancel.png", "IconsRG");
+    G_icon_info  = Ogre::TextureManager::getSingleton().load("information.png", "IconsRG");
+    G_icon_warn  = Ogre::TextureManager::getSingleton().load("error.png",       "IconsRG");
+    G_icon_err   = Ogre::TextureManager::getSingleton().load("cancel.png",      "IconsRG");
+    G_icon_arrow = Ogre::TextureManager::getSingleton().load("arrow_up.png",    "IconsRG");
     return 0;
 }
 
@@ -88,22 +92,18 @@ int loop(GfxActor@ actor)
 {
     string str;
 
-    ImGui::SetNextWindowSize(vector2(440, 330));
+    ImGui::SetNextWindowSize(vector2(440, 345));
     ImGui::Begin("Scripting test", true);
     ImGui::TextWrapped(L_main_welcome);
     
-    ImGui::Separator();
-    
-    ImGui::Text("SimBuffer:");
+    ImGui::Separator(); ImGui::Text("SimBuffer:");
     
         if (ImGui::Button("open/close window"))
         {
             G_show_simbuffer_window = !G_show_simbuffer_window;
         }
     
-    ImGui::Separator();
-    
-    ImGui::Text("CVars:");
+    ImGui::Separator(); ImGui::Text("CVars:");
     
         str = "> gearbox mode:" + G_sim_gearbox_mode.GetActiveInt();
         ImGui::Text(str);
@@ -114,15 +114,22 @@ int loop(GfxActor@ actor)
         str = "> videocams on:" + G_gfx_enable_videocams.GetActiveBool();
         ImGui::Text(str);
         
-    ImGui::Separator();
-    
-    ImGui::Text("Images:");
+    ImGui::Separator(); ImGui::Text("Images:");
 
         ImGui::Image(G_icon_info, vector2(16, 16));
         ImGui::SameLine();
         ImGui::Image(G_icon_warn, vector2(16, 16));
         ImGui::SameLine();
         ImGui::Image(G_icon_err, vector2(16, 16));
+        
+    ImGui::Separator(); ImGui::Text("Rotated image:");
+        
+        // *DrawList* functions use screen coordinates and don't update window cursor
+        ImGuiEx::DrawListAddImageRotated(G_icon_arrow, ImGui::GetCursorScreenPos() + vector2(16, 16), vector2(32, 32), G_icon_arrow_rot);
+        ImGui::SetCursorPosX(50); // Make space for the icon
+        ImGui::PushItemWidth(100);
+        ImGui::SliderFloat("Rotation", G_icon_arrow_rot, 0, 3.14 * 2);
+        ImGui::PopItemWidth();
 
     ImGui::End();
     
