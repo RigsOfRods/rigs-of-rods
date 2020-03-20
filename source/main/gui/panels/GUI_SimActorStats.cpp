@@ -206,6 +206,11 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
     ImGui::SameLine();
     ImGui::Text("%f km/h (%f mph)", Round(speedKPH), Round(speedMPH));
 
+    ImGui::TextColored(theme.highlight_text_color, _L("G-Forces:"));
+    ImGui::Text("Vertical: % 6.2fg  (%1.2fg)", m_stat_gcur_x, m_stat_gmax_x);
+    ImGui::Text("Sagittal: % 6.2fg  (%1.2fg)", m_stat_gcur_y, m_stat_gmax_y);
+    ImGui::Text("Lateral:  % 6.2fg  (%1.2fg)", m_stat_gcur_z, m_stat_gmax_z);
+
     ImGui::NewLine();
     ImGui::End();
 }
@@ -219,6 +224,8 @@ void RoR::GUI::SimActorStats::UpdateStats(float dt, Actor* actor)
     float mass = actor->getTotalMass();
     int beambroken = 0;
     int beamdeformed = 0;
+    Ogre::Vector3 gcur = actor->GetGForcesCur();
+    Ogre::Vector3 gmax = actor->GetGForcesMax();
 
     for (int i = 0; i < actor->ar_num_beams; i++ , beam++)
     {
@@ -241,4 +248,10 @@ void RoR::GUI::SimActorStats::UpdateStats(float dt, Actor* actor)
     m_stat_beam_stress = beamstress;
     m_stat_mass_Kg = mass;
     m_stat_avg_deform = average_deformation;
+    m_stat_gcur_x = gcur.x;
+    m_stat_gcur_y = gcur.y;
+    m_stat_gcur_z = gcur.z;
+    m_stat_gmax_x = gmax.x;
+    m_stat_gmax_y = gmax.y;
+    m_stat_gmax_z = gmax.z;
 }
