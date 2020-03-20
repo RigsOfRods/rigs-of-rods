@@ -35,7 +35,7 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
 
     // TODO: Localize all! See https://github.com/RigsOfRods/rigs-of-rods/issues/1269
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse |
-        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar;
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
     ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, (theme.screen_edge_padding.y + 150)));
     ImGui::Begin("SimActorStats", nullptr, flags);
     ImGui::Text(actorx->FetchActorDesignName().c_str());
@@ -45,7 +45,7 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
         const float value = static_cast<float>( Round((1.0f - m_stat_health) * 100.0f, 2) );
         ImGui::TextColored(theme.highlight_text_color, _L("Vehicle health: "));
         ImGui::SameLine();
-        ImGui::Text("%f%%", value);
+        ImGui::Text("%.2f%%", value);
     }
     else if (m_stat_health >= 1.0f) //When this condition is true, it means that health is at 0% which means 100% of destruction.
     {
@@ -63,17 +63,17 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
     const float broken_pct = static_cast<float>( Round((float)m_stat_broken_beams / num_beams_f, 2) * 100.0f );
     ImGui::TextColored(theme.highlight_text_color, _L("Broken beams count: "));
     ImGui::SameLine();
-    ImGui::Text("%d (%f%%)", m_stat_broken_beams, broken_pct);
+    ImGui::Text("%d (%.2f%%)", m_stat_broken_beams, broken_pct);
 
     const float deform_pct = static_cast<float>( Round((float)m_stat_deformed_beams / num_beams_f * 100.0f) );
     ImGui::TextColored(theme.highlight_text_color, _L("Deformed beams count: "));
     ImGui::SameLine();
-    ImGui::Text("%d (%f%%)", m_stat_deformed_beams, deform_pct);
+    ImGui::Text("%d (%.2f%%)", m_stat_deformed_beams, deform_pct);
 
     const float avg_deform = static_cast<float>( Round((float)m_stat_avg_deform / num_beams_f, 4) * 100.0f );
     ImGui::TextColored(theme.highlight_text_color, _L("Average deformation: "));
     ImGui::SameLine();
-    ImGui::Text("%f", avg_deform);
+    ImGui::Text("%.2f", avg_deform);
 
     const float avg_stress = 1.f - (float)m_stat_beam_stress / num_beams_f;
     ImGui::TextColored(theme.highlight_text_color, _L("Average stress: "));
@@ -108,21 +108,21 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
         ImGui::TextColored(theme.highlight_text_color, _L("Engine RPM: "));
         ImGui::SameLine();
         ImVec4 rpm_color = (cur_rpm > max_rpm) ? theme.value_red_text_color : ImGui::GetStyle().Colors[ImGuiCol_Text];
-        ImGui::TextColored(rpm_color, "%f / %f", cur_rpm, max_rpm);
+        ImGui::TextColored(rpm_color, "%.2f / %.2f", cur_rpm, max_rpm);
 
         ImGui::TextColored(theme.highlight_text_color, _L("Input shaft RPM: "));
         ImGui::SameLine();
         const float inputshaft_rpm = Round(std::max(0.0f, actorx->GetSimDataBuffer().simbuf_inputshaft_rpm));
-        ImGui::TextColored(rpm_color, "%f", inputshaft_rpm);
+        ImGui::TextColored(rpm_color, "%.2f", inputshaft_rpm);
 
         ImGui::TextColored(theme.highlight_text_color, _L("Current torque: "));
         ImGui::SameLine();
-        ImGui::Text("%f Nm", Round(torque));
+        ImGui::Text("%.2f Nm", Round(torque));
 
         const float currentKw = (((cur_rpm * (torque + ((turbo_psi * 6.8) * torque) / 100) * ( PI / 30)) / 1000));
         ImGui::TextColored(theme.highlight_text_color, _L("Current power: "));
         ImGui::SameLine();
-        ImGui::Text("%fhp (%fKw)", static_cast<float>(Round(currentKw *1.34102209)), static_cast<float>(Round(currentKw)));
+        ImGui::Text("%.2fhp (%.2fKw)", static_cast<float>(Round(currentKw *1.34102209)), static_cast<float>(Round(currentKw)));
 
         ImGui::TextColored(theme.highlight_text_color, _L("Current gear: "));
         ImGui::SameLine();
@@ -130,7 +130,7 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
 
         ImGui::TextColored(theme.highlight_text_color, _L("Drive ratio: "));
         ImGui::SameLine();
-        ImGui::Text("%f:1", actorx->GetSimDataBuffer().simbuf_drive_ratio);
+        ImGui::Text("%.2f:1", actorx->GetSimDataBuffer().simbuf_drive_ratio);
 
         float velocityKPH = wheel_speed * 3.6f;
         float velocityMPH = wheel_speed * 2.23693629f;
@@ -149,11 +149,11 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
 
         ImGui::TextColored(theme.highlight_text_color, _L("Wheel speed: "));
         ImGui::SameLine();
-        ImGui::Text("%fKm/h (%f mph)", Round(velocityKPH), Round(velocityMPH));
+        ImGui::Text("%.2fKm/h (%.2f mph)", Round(velocityKPH), Round(velocityMPH));
 
         ImGui::TextColored(theme.highlight_text_color, _L("Vehicle speed: "));
         ImGui::SameLine();
-        ImGui::Text("%fKm/h (%f mph)", Round(carSpeedKPH), Round(carSpeedMPH));
+        ImGui::Text("%.2fKm/h (%.2f mph)", Round(carSpeedKPH), Round(carSpeedMPH));
     }
     else // Aircraft or boat
     {
@@ -204,7 +204,7 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
     const float speedMPH = actorx->GetSimDataBuffer().simbuf_top_speed * 2.23693629f;
     ImGui::TextColored(theme.highlight_text_color, _L("Top speed: "));
     ImGui::SameLine();
-    ImGui::Text("%f km/h (%f mph)", Round(speedKPH), Round(speedMPH));
+    ImGui::Text("%.2f km/h (%.2f mph)", Round(speedKPH), Round(speedMPH));
 
     ImGui::NewLine();
 
