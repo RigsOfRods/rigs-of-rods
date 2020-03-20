@@ -122,7 +122,7 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
         const float currentKw = (((cur_rpm * (torque + ((turbo_psi * 6.8) * torque) / 100) * ( PI / 30)) / 1000));
         ImGui::TextColored(theme.highlight_text_color, _L("Current power: "));
         ImGui::SameLine();
-        ImGui::Text("%fKw (%fhp)", static_cast<float>(Round(currentKw)), static_cast<float>(Round(currentKw *1.34102209)));
+        ImGui::Text("%fhp (%fKw)", static_cast<float>(Round(currentKw *1.34102209)), static_cast<float>(Round(currentKw)));
 
         ImGui::TextColored(theme.highlight_text_color, _L("Current gear: "));
         ImGui::SameLine();
@@ -205,6 +205,8 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
     ImGui::TextColored(theme.highlight_text_color, _L("Top speed: "));
     ImGui::SameLine();
     ImGui::Text("%f km/h (%f mph)", Round(speedKPH), Round(speedMPH));
+
+    ImGui::NewLine();
 
     ImGui::TextColored(theme.highlight_text_color, _L("G-Forces:"));
     ImGui::Text("Vertical: % 6.2fg  (%1.2fg)", m_stat_gcur_x, m_stat_gmax_x);
