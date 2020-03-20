@@ -366,6 +366,13 @@ void MainSelector::UpdateDisplayLists()
     m_display_categories.clear();
     m_display_entries.clear();
 
+    if (m_loader_type == LT_Skin)
+    {
+        m_dummy_skin.dname = "Default skin";
+        m_dummy_skin.description = "Original, unmodified skin";
+        m_display_entries.push_back(&m_dummy_skin);
+    }
+
     // Find all relevant entries
     CacheQuery query;
     query.cqy_filter_type = m_loader_type;
@@ -550,6 +557,11 @@ void MainSelector::Apply()
             sectionconfig = sd_entry.sde_entry->sectionconfigs[m_selected_sectionconfig];
         }
         this->Close();
+
+        if (m_loader_type == LT_Skin && sd_entry.sde_entry == &m_dummy_skin)
+        {
+            sd_entry.sde_entry = nullptr;
+        }
 
         App::GetSimController()->OnLoaderGuiApply(type, sd_entry.sde_entry, sectionconfig);
     }

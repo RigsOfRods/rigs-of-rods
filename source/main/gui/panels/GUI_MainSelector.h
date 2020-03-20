@@ -96,6 +96,7 @@ private:
     Str<500>           m_search_input;
     bool               m_show_details = false;
     bool               m_searchbox_was_active = false;
+    CacheEntry         m_dummy_skin;
 
     int                m_selected_category = 0;
     int                m_selected_entry = -1;
