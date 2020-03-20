@@ -47,12 +47,12 @@ private:
     float m_stat_beam_stress    = 0.f;
     float m_stat_mass_Kg        = 0.f;
     float m_stat_avg_deform     = 0.f;
-    float m_stat_gcur_x = 0.f;
-    float m_stat_gcur_y = 0.f;
-    float m_stat_gcur_z = 0.f;
-    float m_stat_gmax_x = 0.f;
-    float m_stat_gmax_y = 0.f;
-    float m_stat_gmax_z = 0.f;
+    float m_stat_gcur_x         = 0.f;
+    float m_stat_gcur_y         = 0.f;
+    float m_stat_gcur_z         = 0.f;
+    float m_stat_gmax_x         = 0.f;
+    float m_stat_gmax_y         = 0.f;
+    float m_stat_gmax_z         = 0.f;
 };
 
 } // namespace GUI
