@@ -57,6 +57,7 @@ private:
     bool                     m_is_visible = false;
     unsigned long            m_autoscroll_time = 0;
     float                    m_autoscroll_pos = 0.f;
+    bool                     initialized = false;
 };
 
 } // namespace GUI

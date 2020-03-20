@@ -60,11 +60,25 @@ void GUI::ConsoleWindow::Draw()
 
     this->DrawConsoleMessages();
 
+    if (initialized == false) // Initialize auto scrolling
+    {
+        ImGui::SetScrollFromPosY(9999); // Force to bottom
+        if (m_autoscroll_pos > 0.1f)
+        {
+            initialized = true;
+        }
+    }
+
     if (this->GetNewestMsgTime() > m_autoscroll_time) // New message arrived?
     {
         m_autoscroll_time = this->GetNewestMsgTime();
-        ImGui::SetScrollFromPosY(9999); // Force to bottom
+        if (m_autoscroll_pos >= 1.f) // Only autoscroll if previous position is rougly at bottom (imgui yields ~1.15 at full bottom)
+        {
+            ImGui::SetScrollFromPosY(9999); // Force to bottom
+        }
     }
+
+    m_autoscroll_pos = ImGui::GetScrollY() / ImGui::GetScrollMaxY();
 
     ImGui::EndChild();
     ImGui::Separator();
