@@ -1,4 +1,4 @@
-dist: xenial
+dist: bionic
 sudo: required
 language: c
 
@@ -15,7 +15,7 @@ addons:
     sources:
     # Official Kitware APT repository. Currently supports Bionic and Xenial.
     # More information at: https://apt.kitware.com
-    - sourceline: 'deb https://apt.kitware.com/ubuntu/ xenial main'
+    - sourceline: 'deb https://apt.kitware.com/ubuntu/ bionic main'
       key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
     packages:
     - cmake
