@@ -37,7 +37,80 @@ using namespace std;
 
 void RegisterImGuiBindings(asIScriptEngine* engine)
 {
+    // Colors enum
+    engine->RegisterEnum("ImGuiCol_");    
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_Text",                (int)ImGuiCol_Text);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_TextDisabled",        (int)ImGuiCol_TextDisabled);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_WindowBg",            (int)ImGuiCol_WindowBg);              // Background of normal windows
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ChildWindowBg",       (int)ImGuiCol_ChildWindowBg);         // Background of child windows
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_PopupBg",             (int)ImGuiCol_PopupBg);               // Background of popups, menus, tooltips windows
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_Border",              (int)ImGuiCol_Border);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_BorderShadow",        (int)ImGuiCol_BorderShadow);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_FrameBg",             (int)ImGuiCol_FrameBg);               // Background of checkbox, radio button, plot, slider, text input
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_FrameBgHovered",      (int)ImGuiCol_FrameBgHovered);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_FrameBgActive",       (int)ImGuiCol_FrameBgActive);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_TitleBg",             (int)ImGuiCol_TitleBg);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_TitleBgCollapsed",    (int)ImGuiCol_TitleBgCollapsed);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_TitleBgActive",       (int)ImGuiCol_TitleBgActive);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_MenuBarBg",           (int)ImGuiCol_MenuBarBg);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ScrollbarBg",         (int)ImGuiCol_ScrollbarBg);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ScrollbarGrab",       (int)ImGuiCol_ScrollbarGrab);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ScrollbarGrabHovered",(int)ImGuiCol_ScrollbarGrabHovered);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ScrollbarGrabActive", (int)ImGuiCol_ScrollbarGrabActive);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ComboBg",             (int)ImGuiCol_ComboBg);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_CheckMark",           (int)ImGuiCol_CheckMark);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_SliderGrab",          (int)ImGuiCol_SliderGrab);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_SliderGrabActive",    (int)ImGuiCol_SliderGrabActive);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_Button",              (int)ImGuiCol_Button);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ButtonHovered",       (int)ImGuiCol_ButtonHovered);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ButtonActive",        (int)ImGuiCol_ButtonActive);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_Header",              (int)ImGuiCol_Header);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_HeaderHovered",       (int)ImGuiCol_HeaderHovered);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_HeaderActive",        (int)ImGuiCol_HeaderActive);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_Column",              (int)ImGuiCol_Column);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ColumnHovered",       (int)ImGuiCol_ColumnHovered);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ColumnActive",        (int)ImGuiCol_ColumnActive);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ResizeGrip",          (int)ImGuiCol_ResizeGrip);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ResizeGripHovered",   (int)ImGuiCol_ResizeGripHovered);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ResizeGripActive",    (int)ImGuiCol_ResizeGripActive);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_CloseButton",         (int)ImGuiCol_CloseButton);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_CloseButtonHovered",  (int)ImGuiCol_CloseButtonHovered);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_CloseButtonActive",   (int)ImGuiCol_CloseButtonActive);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_PlotLines",           (int)ImGuiCol_PlotLines);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_PlotLinesHovered",    (int)ImGuiCol_PlotLinesHovered);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_PlotHistogram",       (int)ImGuiCol_PlotHistogram);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_PlotHistogramHovered",(int)ImGuiCol_PlotHistogramHovered);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_TextSelectedBg",      (int)ImGuiCol_TextSelectedBg);
+    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ModalWindowDarkening",(int)ImGuiCol_ModalWindowDarkening);  // darken entire screen when a modal window is active
+
+    engine->RegisterEnum("ImGuiWindowFlags_");  
+    // Default: 0
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_NoTitleBar",                (int)ImGuiWindowFlags_NoTitleBar             );  // Disable title-bar
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_NoResize",                  (int)ImGuiWindowFlags_NoResize               );  // Disable user resizing with the lower-right grip
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_NoMove",                    (int)ImGuiWindowFlags_NoMove                 );  // Disable user moving the window
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_NoScrollbar",               (int)ImGuiWindowFlags_NoScrollbar            );  // Disable scrollbars (window can still scroll with mouse or programatically)
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_NoScrollWithMouse",         (int)ImGuiWindowFlags_NoScrollWithMouse      );  // Disable user vertically scrolling with mouse wheel
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_NoCollapse",                (int)ImGuiWindowFlags_NoCollapse             );  // Disable user collapsing window by double-clicking on it
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_AlwaysAutoResize",          (int)ImGuiWindowFlags_AlwaysAutoResize       );  // Resize every window to its content every frame
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_ShowBorders",               (int)ImGuiWindowFlags_ShowBorders            );  // Show borders around windows and items
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_NoSavedSettings",           (int)ImGuiWindowFlags_NoSavedSettings        );  // Never load/save settings in .ini file
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_NoInputs",                  (int)ImGuiWindowFlags_NoInputs               );  // Disable catching mouse or keyboard inputs
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_MenuBar",                   (int)ImGuiWindowFlags_MenuBar                );  // Has a menu-bar
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_HorizontalScrollbar",       (int)ImGuiWindowFlags_HorizontalScrollbar    );  // Allow horizontal scrollbar to appear (off by default). You may use SetNextWindowContentSize(ImVec2(width,0.0f)); prior to calling Begin() to specify width. Read code in imgui_demo in the "Horizontal Scrolling" section.
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_NoFocusOnAppearing",        (int)ImGuiWindowFlags_NoFocusOnAppearing     );  // Disable taking focus when transitioning from hidden to visible state
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_NoBringToFrontOnFocus",     (int)ImGuiWindowFlags_NoBringToFrontOnFocus  );  // Disable bringing window to front when taking focus (e.g. clicking on it or programatically giving it focus)
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_AlwaysVerticalScrollbar",   (int)ImGuiWindowFlags_AlwaysVerticalScrollbar);  // Always show vertical scrollbar (even if ContentSize.y < Size.y)
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_AlwaysHorizontalScrollbar", (int)ImGuiWindowFlags_AlwaysHorizontalScrollbar);// Always show horizontal scrollbar (even if ContentSize.x < Size.x)
+    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_AlwaysUseWindowPadding",    (int)ImGuiWindowFlags_AlwaysUseWindowPadding);    
+
+    // IO struct
+    engine->RegisterObjectType("ImGuiIO", 0, asOBJ_REF | asOBJ_NOCOUNT);
+    engine->RegisterObjectMethod("ImGuiIO", "vector2 get_DisplaySize()", asFUNCTIONPR([](ImGuiIO* self){
+        return Ogre::Vector2(self->DisplaySize.x, self->DisplaySize.y); }, (ImGuiIO* io), Vector2 ), asCALL_CDECL_OBJFIRST);
+
     engine->SetDefaultNamespace("ImGui");
+
+    engine->RegisterGlobalFunction("ImGuiIO@ GetIO()", asFUNCTION(ImGui::GetIO), asCALL_CDECL);
         
     engine->RegisterGlobalFunction("bool Begin(const string&in, bool, int=0)", asFUNCTIONPR([](const string& name, bool opened, int flags) { return ImGui::Begin(name.c_str(), &opened, flags); }, (const string&, bool, int), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("void End()", asFUNCTIONPR(ImGui::End, (), void), asCALL_CDECL);
@@ -125,8 +198,14 @@ void RegisterImGuiBindings(asIScriptEngine* engine)
     engine->RegisterGlobalFunction("float GetTextLineHeightWithSpacing()", asFUNCTIONPR(ImGui::GetTextLineHeightWithSpacing, (), float), asCALL_CDECL);
   //  engine->RegisterGlobalFunction("float GetFrameHeight()", asFUNCTIONPR(ImGui::GetFrameHeight, (), float), asCALL_CDECL);
   //  engine->RegisterGlobalFunction("float GetFrameHeightWithSpacing()", asFUNCTIONPR(ImGui::GetFrameHeightWithSpacing, (), float), asCALL_CDECL);
+
+    // Style
     engine->RegisterGlobalFunction("void PushItemWidth(float)", asFUNCTIONPR(ImGui::PushItemWidth, (float), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void PopItemWidth()", asFUNCTIONPR(ImGui::PopItemWidth, (void), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void PushStyleColor(ImGuiCol_ idx, color col)", asFUNCTIONPR([](ImGuiCol idx, ColourValue c) {
+        ImGui::PushStyleColor(idx, ImVec4(c.r, c.g, c.b, c.a));
+    }, (ImGuiCol, ColourValue), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void PopStyleColor(int count = 1)", asFUNCTION(ImGui::PopStyleColor), asCALL_CDECL);
 
     // Columns
     engine->RegisterGlobalFunction("void Columns(int = 1, const string&in = string(), bool = true)", asFUNCTIONPR([](int a, const string& b, bool c) {  

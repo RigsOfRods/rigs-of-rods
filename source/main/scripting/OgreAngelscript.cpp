@@ -221,6 +221,7 @@ void registerOgreVector2(AngelScript::asIScriptEngine* engine);
 void registerOgreRadian(AngelScript::asIScriptEngine* engine);
 void registerOgreDegree(AngelScript::asIScriptEngine* engine);
 void registerOgreQuaternion(AngelScript::asIScriptEngine* engine);
+void registerOgreColourValue(AngelScript::asIScriptEngine* engine);
 void registerOgreTexture(AngelScript::asIScriptEngine* engine);
 
 // main registration method
@@ -259,6 +260,7 @@ void RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     registerOgreVector3(engine);
     registerOgreVector2(engine);
     registerOgreQuaternion(engine);
+    registerOgreColourValue(engine);
     registerOgreTexture(engine);
 }
 
@@ -777,7 +779,7 @@ void registerOgreColourValue(AngelScript::asIScriptEngine* engine)
     MYASSERT( r >= 0 );
     r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f(float r, float g, float b, float a)", asFUNCTION(ColourValueInitConstructor), asCALL_CDECL_OBJLAST);
     MYASSERT( r >= 0 );
-    r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f(const color &other)", asFUNCTION(QuaternionCopyConstructor), asCALL_CDECL_OBJLAST);
+    r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f(const color&in other)", asFUNCTION(QuaternionCopyConstructor), asCALL_CDECL_OBJLAST);
     MYASSERT( r >= 0 );
 }
 
