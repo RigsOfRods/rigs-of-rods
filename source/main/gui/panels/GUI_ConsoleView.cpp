@@ -245,7 +245,7 @@ bool GUI::ConsoleView::DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box)
         ImGui::SetCursorPosX(10.f); // Give some room for icon
         if (tex)
         {
-            ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(tex->getWidth(), tex->getHeight()));
+            ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(16, 16));
         }
         ImGui::SameLine(); // Keep icon and text in the same line
     }
