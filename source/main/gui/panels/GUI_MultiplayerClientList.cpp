@@ -53,13 +53,9 @@ void MpClientList::Draw()
         ImGui::GetIO().DisplaySize.x - (content_width + (2*ImGui::GetStyle().WindowPadding.x) + theme.screen_edge_padding.x),
         theme.screen_edge_padding.y));
 
-    int y = 20;
     std::vector<RoRnet::UserInfo> users = RoR::Networking::GetUserInfos();
     users.insert(users.begin(), RoR::Networking::GetLocalUserData());
-    for (RoRnet::UserInfo const& user: users)
-    {
-       y += ImGui::GetTextLineHeightWithSpacing();
-    }
+    int y = 20 + (ImGui::GetTextLineHeightWithSpacing() * users.size());
 
     ImGui::SetNextWindowSize(ImVec2((content_width + (2*ImGui::GetStyle().WindowPadding.x)), y));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
