@@ -336,7 +336,7 @@ void MainSelector::Draw()
         }
     }
     ImGui::SameLine(ImGui::GetWindowWidth()-70);
-    if (ImGui::Button(_L("Cancel")))
+    if (ImGui::Button(_L("Cancel")) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
     {
         this->Cancel();
     }
