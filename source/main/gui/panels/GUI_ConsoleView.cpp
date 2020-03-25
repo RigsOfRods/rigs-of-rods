@@ -82,6 +82,24 @@ void GUI::ConsoleView::DrawConsoleMessages()
             line = std::string(prefix) + line;
         }        
 
+        // Draw icons
+        if (dm->cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
+        {
+            this->DrawIcon(FetchIcon("script.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
+        }
+        else if (dm->cm_type == Console::CONSOLE_SYSTEM_NOTICE)
+        {
+            this->DrawIcon(FetchIcon("information.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
+        }
+        else if (dm->cm_type == Console::CONSOLE_SYSTEM_WARNING)
+        {
+            this->DrawIcon(FetchIcon("error.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
+        }
+        else if (dm->cm_type == Console::CONSOLE_SYSTEM_NETCHAT)
+        {
+            this->DrawIcon(FetchIcon("comments.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
+        }
+
         switch (dm->cm_type)
         {
         case Console::Console::CONSOLE_TITLE:
@@ -93,7 +111,6 @@ void GUI::ConsoleView::DrawConsoleMessages()
             break;
 
         case Console::CONSOLE_SYSTEM_WARNING:
-            this->DrawIcon(FetchIcon("error.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
             this->DrawColorMarkedText(theme.warning_text_color, line);
             break;
 
@@ -103,23 +120,6 @@ void GUI::ConsoleView::DrawConsoleMessages()
 
         case Console::Console::CONSOLE_HELP:
             this->DrawColorMarkedText(theme.help_text_color, line);
-            break;
-
-        case Console::Console::CONSOLE_SYSTEM_NOTICE:
-            if (dm->cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
-            {
-                this->DrawIcon(FetchIcon("script.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
-            }
-            else
-            {
-                this->DrawIcon(FetchIcon("information.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
-            }
-            this->DrawColorMarkedText(ImGui::GetStyle().Colors[ImGuiCol_Text], line);
-            break;
-
-        case Console::Console::CONSOLE_SYSTEM_NETCHAT:
-            this->DrawIcon(FetchIcon("comments.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
-            this->DrawColorMarkedText(ImGui::GetStyle().Colors[ImGuiCol_Text], line);
             break;
 
         default:
