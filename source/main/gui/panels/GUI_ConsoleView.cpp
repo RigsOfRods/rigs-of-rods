@@ -106,7 +106,14 @@ void GUI::ConsoleView::DrawConsoleMessages()
             break;
 
         case Console::Console::CONSOLE_SYSTEM_NOTICE:
-            this->DrawIcon(FetchIcon("information.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
+            if (dm->cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
+            {
+                this->DrawIcon(FetchIcon("script.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
+            }
+            else
+            {
+                this->DrawIcon(FetchIcon("information.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
+            }
             this->DrawColorMarkedText(ImGui::GetStyle().Colors[ImGuiCol_Text], line);
             break;
 
