@@ -46,7 +46,7 @@ $user - user-created mods, configuration files, logs, screenshots
 Windows:  
 $bin   = source\bin  
 $res   = source\bin\resources  
-$user  = Documents\Rigs of Rods   
+$user  = Documents\My Games\Rigs of Rods   
 
 Linux:  
 $bin    = source/bin  
@@ -118,7 +118,7 @@ For instructions refer to [BUILDING.md](BUILDING.md)
 
 Copyright (c) 2005-2013 Pierre-Michel Ricordel  
 Copyright (c) 2007-2013 Thomas Fischer  
-Copyright (c) 2009-2019 Rigs of Rods Contributors
+Copyright (c) 2009-2020 Rigs of Rods Contributors
 
 Rigs of Rods went open source under GPLv2 or later on the 8th of February, 2009.
 
