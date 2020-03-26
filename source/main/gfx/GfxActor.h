@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "AutoPilot.h"
 #include "Differentials.h"
 #include "ForwardDeclarations.h"
 #include "GfxData.h"
@@ -73,8 +74,6 @@ public:
 
     struct SimBuffer /// Buffered simulation data
     {
-        SimBuffer();
-
         struct NodeSB
         {
             Ogre::Vector3 AbsPosition; // classic name
@@ -114,57 +113,57 @@ public:
         };
 
         std::unique_ptr<NodeSB>     simbuf_nodes;
-        Ogre::Vector3               simbuf_pos;
-        Ogre::Vector3               simbuf_node0_velo;
-        bool                        simbuf_live_local;
-        bool                        simbuf_physics_paused;
-        float                       simbuf_rotation;
-        float                       simbuf_tyre_pressure;
-        Ogre::AxisAlignedBox        simbuf_aabb;
+        Ogre::Vector3               simbuf_pos                = Ogre::Vector3::ZERO;
+        Ogre::Vector3               simbuf_node0_velo         = Ogre::Vector3::ZERO;
+        bool                        simbuf_live_local         = false;
+        bool                        simbuf_physics_paused     = false;
+        float                       simbuf_rotation           = 0;
+        float                       simbuf_tyre_pressure      = 0;
+        Ogre::AxisAlignedBox        simbuf_aabb               = Ogre::AxisAlignedBox::BOX_NULL;
         std::string                 simbuf_net_username;
-        bool                        simbuf_is_remote;
-        int                         simbuf_gear;
-        int                         simbuf_autoshift;
-        float                       simbuf_wheel_speed;
-        float                       simbuf_engine_rpm;
-        float                       simbuf_engine_crankfactor;
-        float                       simbuf_engine_turbo_psi;
-        float                       simbuf_engine_accel;
-        float                       simbuf_engine_torque;
-        float                       simbuf_inputshaft_rpm; // Land vehicle only
-        float                       simbuf_drive_ratio; // Land vehicle only
-        bool                        simbuf_beaconlight_active;
-        float                       simbuf_hydro_dir_state; // State of steering actuator ('hydro'), for steeringwheel display
-        float                       simbuf_hydro_aileron_state;
-        float                       simbuf_hydro_elevator_state;
-        float                       simbuf_hydro_aero_rudder_state;
-        int                         simbuf_cur_cinecam;
+        bool                        simbuf_is_remote          = false;
+        int                         simbuf_gear               = 0;
+        int                         simbuf_autoshift          = 0;
+        float                       simbuf_wheel_speed        = 0;
+        float                       simbuf_engine_rpm         = 0;
+        float                       simbuf_engine_crankfactor = 0;
+        float                       simbuf_engine_turbo_psi   = 0;
+        float                       simbuf_engine_accel       = 0;
+        float                       simbuf_engine_torque      = 0;
+        float                       simbuf_inputshaft_rpm     = 0;     // Land vehicle only
+        float                       simbuf_drive_ratio        = 0;     // Land vehicle only
+        bool                        simbuf_beaconlight_active = false;
+        float                       simbuf_hydro_dir_state    = 0;     // State of steering actuator ('hydro'), for steeringwheel display
+        float                       simbuf_hydro_aileron_state = 0;
+        float                       simbuf_hydro_elevator_state = 0;
+        float                       simbuf_hydro_aero_rudder_state = 0;
+        int                         simbuf_cur_cinecam        = 0;
         std::vector<ScrewPropSB>    simbuf_screwprops;
         std::vector<CommandKeySB>   simbuf_commandkey;
         std::vector<AeroEngineSB>   simbuf_aeroengines;
         std::vector<AirbrakeSB>     simbuf_airbrakes;
-        DiffType                    simbuf_diff_type;
-        bool                        simbuf_parking_brake;
-        float                       simbuf_brake;
-        float                       simbuf_clutch;
-        int                         simbuf_aero_flap_state;
-        int                         simbuf_airbrake_state;
-        float                       simbuf_wing4_aoa;
-        bool                        simbuf_headlight_on;
-        Ogre::Vector3               simbuf_direction; //!< Output of `Actor::getDirection()`
-        float                       simbuf_top_speed;
+        DiffType                    simbuf_diff_type          = DiffType::SPLIT_DIFF;
+        bool                        simbuf_parking_brake      = false;
+        float                       simbuf_brake              = 0;
+        float                       simbuf_clutch             = 0;
+        int                         simbuf_aero_flap_state    = 0;
+        int                         simbuf_airbrake_state     = 0;
+        float                       simbuf_wing4_aoa          = 0;
+        bool                        simbuf_headlight_on       = 0;
+        Ogre::Vector3               simbuf_direction          = Ogre::Vector3::ZERO;         //!< Output of `Actor::getDirection()`
+        float                       simbuf_top_speed          = 0;
         // Autopilot
-        int                         simbuf_ap_heading_mode;
-        int                         simbuf_ap_heading_value;
-        int                         simbuf_ap_alt_mode;
-        int                         simbuf_ap_alt_value;
-        bool                        simbuf_ap_ias_mode;
-        int                         simbuf_ap_ias_value;
-        bool                        simbuf_ap_gpws_mode;
-        bool                        simbuf_ap_ils_available;
-        float                       simbuf_ap_ils_vdev;
-        float                       simbuf_ap_ils_hdev;
-        int                         simbuf_ap_vs_value;
+        int                         simbuf_ap_heading_mode    = Autopilot::HEADING_NONE;
+        int                         simbuf_ap_heading_value   = 0;
+        int                         simbuf_ap_alt_mode        = Autopilot::ALT_NONE;
+        int                         simbuf_ap_alt_value       = 1000; // from AutoPilot::reset()
+        bool                        simbuf_ap_ias_mode        = false;
+        int                         simbuf_ap_ias_value       = 150; // from AutoPilot::reset()
+        bool                        simbuf_ap_gpws_mode       = false;
+        bool                        simbuf_ap_ils_available   = false;
+        float                       simbuf_ap_ils_vdev        = 0;
+        float                       simbuf_ap_ils_hdev        = 0;
+        int                         simbuf_ap_vs_value        = 0;
     };
 
     struct Attributes    //!< Actor visual attributes
