@@ -160,14 +160,14 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
         float speedKN = n0_velo_len * 1.94384449f;
         ImGui::TextColored(theme.highlight_text_color, _L("Current speed: "));
         ImGui::SameLine();
-        ImGui::Text("%f kn (%f Km/h; %f mph)", Round(speedKN), Round(speedKN * 1.852), Round(speedKN * 1.151));
+        ImGui::Text("%.2f kn (%.2f Km/h; %.2f mph)", Round(speedKN), Round(speedKN * 1.852), Round(speedKN * 1.151));
 
         if (actorx->GetAttributes().xa_driveable == AIRPLANE)
         {
             const float altitude = actorx->GetSimNodeBuffer()[0].AbsPosition.y / 30.48 * 100;
             ImGui::TextColored(theme.highlight_text_color, _L("Altitude: "));
             ImGui::SameLine();
-            ImGui::Text("%f feet (%f meters)", Round(altitude), Round(altitude * 0.30480));
+            ImGui::Text("%.2ff feet (%.2ff meters)", Round(altitude), Round(altitude * 0.30480));
 
             int engine_num = 1; // UI; count from 1
             for (GfxActor::SimBuffer::AeroEngineSB& ae: actorx->GetSimDataBuffer().simbuf_aeroengines)
