@@ -23,7 +23,6 @@
 
 #include "ApproxMath.h"
 #include "AirBrake.h"
-#include "AutoPilot.h"
 #include "Beam.h"
 #include "BeamEngine.h" // EngineSim
 #include "Collisions.h"
@@ -60,20 +59,6 @@
 #include <OgreTextureManager.h>
 #include <OgreTextureManager.h>
 #include <OgreTextureUnitState.h>
-
-RoR::GfxActor::SimBuffer::SimBuffer()
-    : simbuf_ap_heading_mode(Autopilot::HEADING_NONE)
-    , simbuf_ap_heading_value(0)
-    , simbuf_ap_alt_mode(Autopilot::ALT_NONE)
-    , simbuf_ap_alt_value(1000) // from AutoPilot::reset()
-    , simbuf_ap_ias_mode(false)
-    , simbuf_ap_ias_value(150) // from AutoPilot::reset()
-    , simbuf_ap_gpws_mode(false)
-    , simbuf_ap_ils_available(false)
-    , simbuf_ap_ils_vdev(0.f)
-    , simbuf_ap_ils_hdev(0.f)
-    , simbuf_ap_vs_value(0)
-{}
 
 RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
                         std::vector<NodeGfx>& gfx_nodes, std::vector<Prop>& props,
