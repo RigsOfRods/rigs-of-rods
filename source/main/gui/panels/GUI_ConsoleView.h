@@ -73,7 +73,7 @@ private:
     std::regex       m_text_color_regex = std::regex(R"(#[a-fA-F\d]{6})");
 
     Ogre::TexturePtr FetchIcon(const char* name);
-    bool DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box);
+    bool DrawIcon(Ogre::TexturePtr tex);
 };
 
 } // namespace GUI
