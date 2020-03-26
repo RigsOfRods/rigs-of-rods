@@ -330,10 +330,11 @@ int GameScript::GetPlayerActorId()
 
 void GameScript::registerForEvent(int eventValue)
 {
-    mse->eventMask = -1;
-
     if (mse)
+    {
+        mse->eventMask = -1;
         mse->eventMask += eventValue;
+    }
 }
 
 void GameScript::flashMessage(String& txt, float time, float charHeight)
