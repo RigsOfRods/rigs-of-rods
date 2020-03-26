@@ -330,7 +330,7 @@ int GameScript::GetPlayerActorId()
 
 void GameScript::registerForEvent(int eventValue)
 {
-    eventValue = -1;
+    mse->eventMask = -1;
 
     if (mse)
         mse->eventMask += eventValue;
