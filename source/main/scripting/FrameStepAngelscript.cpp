@@ -50,8 +50,7 @@ void RegisterFrameStepInterface(asIScriptEngine* engine)
     engine->RegisterObjectProperty(obj, "float          engine_accel           ", asOFFSET(GfxActor::SimBuffer, simbuf_engine_accel           )); //float                       
     engine->RegisterObjectProperty(obj, "float          engine_torque          ", asOFFSET(GfxActor::SimBuffer, simbuf_engine_torque          )); //float                       
     engine->RegisterObjectProperty(obj, "float          inputshaft_rpm         ", asOFFSET(GfxActor::SimBuffer, simbuf_inputshaft_rpm         )); //float                       
-    engine->RegisterObjectProperty(obj, "float          drive_ratio            ", asOFFSET(GfxActor::SimBuffer, simbuf_drive_ratio            )); //float                       
-    engine->RegisterObjectProperty(obj, "bool           beaconlight_active     ", asOFFSET(GfxActor::SimBuffer, simbuf_beaconlight_active     )); //bool                        
+    engine->RegisterObjectProperty(obj, "float          drive_ratio            ", asOFFSET(GfxActor::SimBuffer, simbuf_drive_ratio            )); //float
     engine->RegisterObjectProperty(obj, "float          hydro_dir_state        ", asOFFSET(GfxActor::SimBuffer, simbuf_hydro_dir_state        )); //float                       
     engine->RegisterObjectProperty(obj, "float          hydro_aileron_state    ", asOFFSET(GfxActor::SimBuffer, simbuf_hydro_aileron_state    )); //float                       
     engine->RegisterObjectProperty(obj, "float          hydro_elevator_state   ", asOFFSET(GfxActor::SimBuffer, simbuf_hydro_elevator_state   )); //float                       
@@ -67,10 +66,14 @@ void RegisterFrameStepInterface(asIScriptEngine* engine)
     engine->RegisterObjectProperty(obj, "float          clutch                 ", asOFFSET(GfxActor::SimBuffer, simbuf_clutch                 )); //float                       
     engine->RegisterObjectProperty(obj, "int            aero_flap_state        ", asOFFSET(GfxActor::SimBuffer, simbuf_aero_flap_state        )); //int                         
     engine->RegisterObjectProperty(obj, "int            airbrake_state         ", asOFFSET(GfxActor::SimBuffer, simbuf_airbrake_state         )); //int                         
-    engine->RegisterObjectProperty(obj, "float          wing4_aoa              ", asOFFSET(GfxActor::SimBuffer, simbuf_wing4_aoa              )); //float                       
-    engine->RegisterObjectProperty(obj, "bool           headlight_on           ", asOFFSET(GfxActor::SimBuffer, simbuf_headlight_on           )); //bool                        
+    engine->RegisterObjectProperty(obj, "float          wing4_aoa              ", asOFFSET(GfxActor::SimBuffer, simbuf_wing4_aoa              )); //float
     engine->RegisterObjectProperty(obj, "vector3        direction              ", asOFFSET(GfxActor::SimBuffer, simbuf_direction              )); //Ogre::Vector3               
-    engine->RegisterObjectProperty(obj, "float          top_speed              ", asOFFSET(GfxActor::SimBuffer, simbuf_top_speed              )); //float                       
+    engine->RegisterObjectProperty(obj, "float          top_speed              ", asOFFSET(GfxActor::SimBuffer, simbuf_top_speed              )); //float  
+      // Lights
+    engine->RegisterObjectProperty(obj, "bool           headlight_on           ", asOFFSET(GfxActor::SimBuffer, simbuf_headlight_on           )); //bool
+    engine->RegisterObjectProperty(obj, "bool           beaconlight_active     ", asOFFSET(GfxActor::SimBuffer, simbuf_beaconlight_active     )); //bool
+    engine->RegisterObjectProperty(obj, "bool           turn_signal_left       ", asOFFSET(GfxActor::SimBuffer, simbuf_turn_signal_left       )); //bool
+    engine->RegisterObjectProperty(obj, "bool           turn_signal_right      ", asOFFSET(GfxActor::SimBuffer, simbuf_turn_signal_right      )); //bool
       // Autopilot
     engine->RegisterObjectProperty(obj, "int            ap_heading_mode        ", asOFFSET(GfxActor::SimBuffer, simbuf_ap_heading_mode        )); //int                         
     engine->RegisterObjectProperty(obj, "int            ap_heading_value       ", asOFFSET(GfxActor::SimBuffer, simbuf_ap_heading_value       )); //int                         

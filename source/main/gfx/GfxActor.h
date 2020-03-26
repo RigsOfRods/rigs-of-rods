@@ -133,7 +133,6 @@ public:
         float                       simbuf_engine_torque      = 0;
         float                       simbuf_inputshaft_rpm     = 0;     // Land vehicle only
         float                       simbuf_drive_ratio        = 0;     // Land vehicle only
-        bool                        simbuf_beaconlight_active = false;
         float                       simbuf_hydro_dir_state    = 0;     // State of steering actuator ('hydro'), for steeringwheel display
         float                       simbuf_hydro_aileron_state = 0;
         float                       simbuf_hydro_elevator_state = 0;
@@ -150,9 +149,13 @@ public:
         int                         simbuf_aero_flap_state    = 0;
         int                         simbuf_airbrake_state     = 0;
         float                       simbuf_wing4_aoa          = 0;
-        bool                        simbuf_headlight_on       = 0;
         Ogre::Vector3               simbuf_direction          = Ogre::Vector3::ZERO;         //!< Output of `Actor::getDirection()`
         float                       simbuf_top_speed          = 0;
+        // Lights
+        bool                        simbuf_beaconlight_active = false;
+        bool                        simbuf_headlight_on       = false;
+        bool                        simbuf_turn_signal_left   = false;
+        bool                        simbuf_turn_signal_right  = false;
         // Autopilot
         int                         simbuf_ap_heading_mode    = Autopilot::HEADING_NONE;
         int                         simbuf_ap_heading_value   = 0;
