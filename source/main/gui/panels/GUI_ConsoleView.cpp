@@ -85,19 +85,19 @@ void GUI::ConsoleView::DrawConsoleMessages()
         // Draw icons
         if (dm->cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
         {
-            this->DrawIcon(FetchIcon("script.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
+            this->DrawIcon(Ogre::TextureManager::getSingleton().load("script.png", "IconsRG"));
         }
         else if (dm->cm_type == Console::CONSOLE_SYSTEM_NOTICE)
         {
-            this->DrawIcon(FetchIcon("information.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
+            this->DrawIcon(Ogre::TextureManager::getSingleton().load("information.png", "IconsRG"));
         }
         else if (dm->cm_type == Console::CONSOLE_SYSTEM_WARNING)
         {
-            this->DrawIcon(FetchIcon("error.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
+            this->DrawIcon(Ogre::TextureManager::getSingleton().load("error.png", "IconsRG"));
         }
         else if (dm->cm_type == Console::CONSOLE_SYSTEM_NETCHAT)
         {
-            this->DrawIcon(FetchIcon("comments.png"), ImVec2(0.f, ImGui::GetTextLineHeight()));
+            this->DrawIcon(Ogre::TextureManager::getSingleton().load("comments.png", "IconsRG"));
         }
 
         switch (dm->cm_type)
@@ -233,19 +233,7 @@ void GUI::ConsoleView::NewLine(ImVec2 text_size)
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (text_size + (cvw_background_padding * 2)).y + cvw_line_spacing);
 }
 
-Ogre::TexturePtr GUI::ConsoleView::FetchIcon(const char* name)
-{
-    try
-    {
-        return Ogre::static_pointer_cast<Ogre::Texture>(
-            Ogre::TextureManager::getSingleton().createOrRetrieve(name, "IconsRG").first);
-    }
-    catch (...) {}
-
-    return Ogre::TexturePtr(); // null
-}
-
-bool GUI::ConsoleView::DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box)
+bool GUI::ConsoleView::DrawIcon(Ogre::TexturePtr tex)
 {
     if (!App::GetGuiManager()->IsVisible_Console())
     {
