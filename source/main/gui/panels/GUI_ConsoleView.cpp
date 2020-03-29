@@ -70,6 +70,24 @@ void GUI::ConsoleView::DrawConsoleMessages()
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
     for (const Console::Message* dm: m_display_list)
     {
+        // Draw icons based on filters
+        if (dm->cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
+        {
+            DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("script.png", "IconsRG").first));
+        }
+        else if (dm->cm_type == Console::CONSOLE_SYSTEM_NOTICE)
+        {
+            DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("information.png", "IconsRG").first));
+        }
+        else if (dm->cm_type == Console::CONSOLE_SYSTEM_WARNING)
+        {
+           DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("error.png", "IconsRG").first));
+        }
+        else if (dm->cm_type == Console::CONSOLE_SYSTEM_NETCHAT)
+        {
+            DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("comments.png", "IconsRG").first));
+        }
+
         std::string line = dm->cm_text;
         RoRnet::UserInfo user;
         if (dm->cm_net_userid != 0 && RoR::Networking::GetAnyUserInfo((int)dm->cm_net_userid, user))
@@ -81,24 +99,6 @@ void GUI::ConsoleView::DrawConsoleMessages()
             snprintf(prefix, 400, "#%02x%02x%02x%s: #000000", r, g, b, user.username);
             line = std::string(prefix) + line;
         }        
-
-        // Draw icons
-        if (dm->cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
-        {
-            this->DrawIcon(Ogre::TextureManager::getSingleton().load("script.png", "IconsRG"));
-        }
-        else if (dm->cm_type == Console::CONSOLE_SYSTEM_NOTICE)
-        {
-            this->DrawIcon(Ogre::TextureManager::getSingleton().load("information.png", "IconsRG"));
-        }
-        else if (dm->cm_type == Console::CONSOLE_SYSTEM_WARNING)
-        {
-            this->DrawIcon(Ogre::TextureManager::getSingleton().load("error.png", "IconsRG"));
-        }
-        else if (dm->cm_type == Console::CONSOLE_SYSTEM_NETCHAT)
-        {
-            this->DrawIcon(Ogre::TextureManager::getSingleton().load("comments.png", "IconsRG"));
-        }
 
         switch (dm->cm_type)
         {

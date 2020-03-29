@@ -87,11 +87,8 @@ void RoR::GUI::GameChatBox::Draw()
     {
         ImGui::Text(_L("Message"));
         ImGui::SameLine();
-        if (!m_kb_focused)
-        {
-            ImGui::SetKeyboardFocusHere();
-            m_kb_focused = true;
-        }
+        ImGui::SetKeyboardFocusHere();
+
         const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
         if (ImGui::InputText("", m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
         {
