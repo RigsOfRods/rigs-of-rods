@@ -81,7 +81,7 @@ void GUI::ConsoleView::DrawConsoleMessages()
         }
         else if (dm->cm_type == Console::CONSOLE_SYSTEM_WARNING)
         {
-           DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("error.png", "IconsRG").first));
+            DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("error.png", "IconsRG").first));
         }
         else if (dm->cm_type == Console::CONSOLE_SYSTEM_NETCHAT)
         {
