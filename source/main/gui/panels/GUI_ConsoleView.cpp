@@ -83,9 +83,13 @@ void GUI::ConsoleView::DrawConsoleMessages()
         {
             DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("error.png", "IconsRG").first));
         }
-        else if (dm->cm_type == Console::CONSOLE_SYSTEM_NETCHAT)
+        else if ((dm->cm_type == Console::CONSOLE_SYSTEM_NETCHAT) && (!App::GetGuiManager()->IsVisible_ChatBox()))
         {
             DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("comment.png", "IconsRG").first));
+        }
+        else if ((dm->cm_type == Console::CONSOLE_SYSTEM_NETCHAT) && (App::GetGuiManager()->IsVisible_ChatBox()))
+        {
+            DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("comment_add.png", "IconsRG").first));
         }
 
         std::string line = dm->cm_text;
