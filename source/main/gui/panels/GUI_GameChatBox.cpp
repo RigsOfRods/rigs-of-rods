@@ -34,7 +34,6 @@ RoR::GUI::GameChatBox::GameChatBox()
 {
     m_console_view.cvw_align_bottom = true;
     m_console_view.cvw_max_lines = 15u;
-    m_console_view.cvw_filter_duration_ms = 10000; // 10sec
     m_console_view.cvw_filter_area_actor = false; // Disable vehicle spawn warnings/errors
     m_console_view.cvw_filter_type_error = false; // Disable errors
     m_console_view.cvw_filter_type_cmd = false; // Disable commands
@@ -43,7 +42,7 @@ RoR::GUI::GameChatBox::GameChatBox()
 void RoR::GUI::GameChatBox::Draw()
 {
     // Begin drawing the messages pane (no input)
-    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoInputs |
+    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
     ImVec2 size(
         ImGui::GetIO().DisplaySize.x - (2 * ImGui::GetStyle().WindowPadding.x),
@@ -55,7 +54,7 @@ void RoR::GUI::GameChatBox::Draw()
     ImGui::SetNextWindowSize(size);
     if (m_is_visible) // Full display?
     {
-        size.y +=  35;
+        size.y +=  55;
     }
     ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - size.y));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
@@ -68,8 +67,29 @@ void RoR::GUI::GameChatBox::Draw()
         initialized = false;
     }
 
+    if (m_is_visible)
+    {
+        m_console_view.cvw_filter_duration_ms = 3600000; // 1hour
+        m_console_view.cvw_filter_type_notice = false;
+        m_console_view.cvw_filter_type_warning = false; 
+        m_console_view.cvw_filter_area_script = false; 
+        if (init_scroll == false) // Initialize auto scrolling
+        {
+            ImGui::SetScrollFromPosY(9999); // Force to bottom
+            init_scroll = true;
+        }
+    }
+    else
+    {
+        m_console_view.cvw_filter_type_notice = true;
+        m_console_view.cvw_filter_type_warning = true; 
+        m_console_view.cvw_filter_area_script = true; 
+        init_scroll = false;
+        m_console_view.cvw_filter_duration_ms = 10000; // 10sec
+        ImGui::SetScrollFromPosY(9999); // Force to bottom
+    }
+
     m_console_view.DrawConsoleMessages();
-    ImGui::SetScrollFromPosY(9999); // Force to bottom
 
     ImGui::End();
 
@@ -78,7 +98,7 @@ void RoR::GUI::GameChatBox::Draw()
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
     ImVec2 bbar_size(
         ImGui::GetIO().DisplaySize.x - (2 * ImGui::GetStyle().WindowPadding.x),
-        ImGui::GetTextLineHeightWithSpacing() + (2 * ImGui::GetStyle().WindowPadding.x));
+        ImGui::GetTextLineHeightWithSpacing() + (4 * ImGui::GetStyle().WindowPadding.x));
     ImGui::SetNextWindowSize(bbar_size);
     ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - bbar_size.y));
     ImGui::Begin("ChatBottomBar", nullptr, bbar_flags);
@@ -90,6 +110,7 @@ void RoR::GUI::GameChatBox::Draw()
 
     if (m_is_visible) // Full display?
     {
+        ImGui::Text(_L("Chat history (use mouse wheel to scroll)"));
         ImGui::Text(_L("Message"));
         ImGui::SameLine();
         if (!m_kb_focused)

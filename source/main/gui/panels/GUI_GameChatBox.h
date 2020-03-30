@@ -55,6 +55,7 @@ private:
     Str<400>                  m_msg_buffer;
     ConsoleView               m_console_view;
     bool                      initialized = true;
+    bool                      init_scroll = false;
 };
 
 } // namespace GUI
