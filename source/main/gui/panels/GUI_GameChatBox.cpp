@@ -108,11 +108,6 @@ void RoR::GUI::GameChatBox::Draw()
             m_msg_buffer.Clear();
             this->SetVisible(false);
         }
-
-        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
-        {
-            this->SetVisible(false);
-        }
     }
 
     App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
