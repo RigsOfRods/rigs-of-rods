@@ -41,7 +41,7 @@ class GameChatBox
 public:
     GameChatBox();
 
-    void SetVisible(bool v) { m_is_visible = v; };
+    void SetVisible(bool v) { m_is_visible = v; m_kb_focused = false; };
     bool IsVisible() const { return m_is_visible; }
 
     void Draw();
@@ -52,6 +52,7 @@ private:
 
     bool                      m_is_visible = false; //!< Special: false means 'display only messages'
     Str<400>                  m_msg_buffer;
+    bool                      m_kb_focused = false;
     ConsoleView               m_console_view;
     bool                      initialized = true;
 };
