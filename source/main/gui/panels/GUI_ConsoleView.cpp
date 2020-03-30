@@ -85,7 +85,7 @@ void GUI::ConsoleView::DrawConsoleMessages()
         }
         else if (dm->cm_type == Console::CONSOLE_SYSTEM_NETCHAT)
         {
-            DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("comments.png", "IconsRG").first));
+            DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("comment.png", "IconsRG").first));
         }
 
         std::string line = dm->cm_text;
