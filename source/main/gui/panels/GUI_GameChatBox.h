@@ -51,8 +51,8 @@ private:
     void SubmitMessage(); //!< Flush the user input box
 
     bool                      m_is_visible = false; //!< Special: false means 'display only messages'
-    Str<400>                  m_msg_buffer;
     bool                      m_kb_focused = false;
+    Str<400>                  m_msg_buffer;
     ConsoleView               m_console_view;
     bool                      initialized = true;
 };
