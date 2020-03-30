@@ -83,11 +83,20 @@ void RoR::GUI::GameChatBox::Draw()
     ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - bbar_size.y));
     ImGui::Begin("ChatBottomBar", nullptr, bbar_flags);
 
+    if (ImGui::IsItemActive() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
+    {
+        this->SetVisible(false);
+    }
+
     if (m_is_visible) // Full display?
     {
         ImGui::Text(_L("Message"));
         ImGui::SameLine();
-        ImGui::SetKeyboardFocusHere();
+        if (!m_kb_focused)
+        {
+            ImGui::SetKeyboardFocusHere();
+            m_kb_focused = true;
+        }
 
         const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
         if (ImGui::InputText("", m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
