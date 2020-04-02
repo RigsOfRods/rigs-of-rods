@@ -369,7 +369,8 @@ void ActorSpawner::InitializeRig()
         m_simple_material_base = Ogre::MaterialManager::getSingleton().getByName("tracks/simple"); // Built-in material
         if (m_simple_material_base.isNull())
         {
-            this->AddMessage(Message::TYPE_INTERNAL_ERROR, "Failed to load built-in material 'tracks/simple'; disabling 'SimpleMaterials'");
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                "Failed to load built-in material 'tracks/simple'; disabling 'SimpleMaterials'");
             m_apply_simple_materials = false;
         }
     }
@@ -5511,7 +5512,12 @@ void ActorSpawner::InitBeam(beam_t & beam, node_t *node_1, node_t *node_2)
 void ActorSpawner::AddMessage(ActorSpawner::Message::Type type,	Ogre::String const & text)
 {
     Str<4000> txt;
-    txt << " (Keyword " << RigDef::File::KeywordToString(m_current_keyword) << ") " << text;
+    txt << m_file->name;
+    if (m_current_keyword != RigDef::File::KEYWORD_INVALID)
+    {
+        txt << " (" << RigDef::File::KeywordToString(m_current_keyword) << ")";
+    }
+    txt << ": " << text;
     RoR::Console::MessageType cm_type;
     switch (type)
     {
