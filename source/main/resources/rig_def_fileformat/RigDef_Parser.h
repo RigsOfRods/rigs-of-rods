@@ -294,6 +294,7 @@ private:
 
     SequentialImporter                   m_sequential_importer;
 
+    Ogre::String                         m_filename; // Logging
     Ogre::String                         m_resource_group;
 
     std::shared_ptr<RigDef::File>        m_definition;

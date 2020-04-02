@@ -40,6 +40,8 @@
 #include <OgreStringVector.h>
 #include <OgreStringConverter.h>
 
+using namespace RoR;
+
 namespace RigDef
 {
 
@@ -2418,10 +2420,9 @@ Node::Ref Parser::_ParseNodeRef(std::string const & node_id_str)
         int node_id_num = STR_PARSE_INT(node_id_str);
         if (node_id_num < 0)
         {
-            std::stringstream msg;
-            msg << "Encountered node with illegal negative number: '" << node_id_num 
-                << "', parsing as positive '" << node_id_num * -1 << "' for backwards compatibility. Please fix as soon as possible.";
-            AddMessage(node_id_str, Message::TYPE_WARNING, msg.str());
+            Str<2000> msg;
+            msg << "Invalid negative node number " << node_id_num << ", parsing as " << (node_id_num*-1) << " for backwards compatibility";
+            AddMessage(node_id_str, Message::TYPE_WARNING, msg.ToCStr());
             node_id_num *= -1;
         }
         // Since fileformatversion is not known from the beginning of parsing, 2 states must be kept 
@@ -3165,14 +3166,33 @@ void Parser::ParseAuthor()
 void Parser::AddMessage(std::string const & line, Message::Type type, std::string const & message)
 {
     RoR::Str<4000> txt;
-    txt << message
-        << " (line: " << (size_t)m_current_line_number << " '" << line
-        << "'; section: '" << RigDef::File::SectionToString(m_current_section);
-    if (m_current_subsection != File::Subsection::SUBSECTION_NONE)
+
+    if (!m_definition->name.empty())
     {
-        txt << "/" << RigDef::File::SubsectionToString(m_current_subsection);
+        txt << m_definition->name;
     }
-    txt << "'; module: '" << m_current_module->name << "'";
+    else
+    {
+        txt << m_filename;
+    }
+
+    txt << " (line " << (size_t)m_current_line_number;
+    if (m_current_section != File::Section::SECTION_INVALID)
+    {
+        txt << " '" << RigDef::File::SectionToString(m_current_section);
+        if (m_current_subsection != File::Subsection::SUBSECTION_NONE)
+        {
+            txt << "/" << RigDef::File::SubsectionToString(m_current_subsection);
+        }
+        txt << "'";
+    }
+
+    if (m_current_module != m_root_module)
+    {
+        txt << ", module: " << m_current_module->name;
+    }
+
+    txt << "): " << message;
 
     RoR::Console::MessageType cm_type;
     switch (type)
@@ -3655,6 +3675,7 @@ int Parser::TokenizeCurrentLine()
 void Parser::ProcessOgreStream(Ogre::DataStream* stream, Ogre::String resource_group)
 {
     m_resource_group = resource_group;
+    m_filename = stream->getName();
 
     char raw_line_buf[LINE_BUFFER_LENGTH];
     while (!stream->eof())
