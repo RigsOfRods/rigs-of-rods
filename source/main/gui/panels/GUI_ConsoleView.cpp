@@ -156,9 +156,9 @@ bool GUI::ConsoleView::MessageFilter(Console::Message const& m)
         (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT && cvw_filter_area_script);
 
     const bool type_ok =
-        (m.cm_type == Console::CONSOLE_HELP) && cvw_filter_type_cmd ||
-        (m.cm_type == Console::CONSOLE_TITLE) && cvw_filter_type_cmd ||
-        (m.cm_type == Console::CONSOLE_SYSTEM_REPLY) && cvw_filter_type_cmd ||
+        (m.cm_type == Console::CONSOLE_HELP           && cvw_filter_type_cmd) ||
+        (m.cm_type == Console::CONSOLE_TITLE          && cvw_filter_type_cmd) ||
+        (m.cm_type == Console::CONSOLE_SYSTEM_REPLY   && cvw_filter_type_cmd) ||
         (m.cm_type == Console::CONSOLE_SYSTEM_ERROR   && cvw_filter_type_error) ||
         (m.cm_type == Console::CONSOLE_SYSTEM_WARNING && cvw_filter_type_warning) ||
         (m.cm_type == Console::CONSOLE_SYSTEM_NOTICE  && cvw_filter_type_notice) ||
