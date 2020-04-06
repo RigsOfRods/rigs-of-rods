@@ -88,13 +88,13 @@ void MainSelector::Draw()
     const int num_categories = static_cast<int>(m_display_categories.size());
     if (!m_searchbox_was_active)
     {
-        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow)))
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow)))
         {
             m_selected_category = (m_selected_category + 1) % num_categories; // select next item and wrap around at bottom.
             m_last_selected_category[m_loader_type] = m_selected_category;
             this->UpdateDisplayLists();
         }
-        else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow)))
+        else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow)))
         {
             m_selected_category = (m_selected_category > 0) ? (m_selected_category - 1) : (num_categories - 1); // select prev. item and wrap around on top
             m_last_selected_category[m_loader_type] = m_selected_category;
