@@ -496,6 +496,12 @@ bool CameraManager::hasActiveBehavior()
 
 bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
 {
+
+    if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED)
+    {
+        return true; // Do nothing when paused
+    }
+
     switch(m_current_behavior)
     {
     case CAMERA_BEHAVIOR_CHARACTER: {
