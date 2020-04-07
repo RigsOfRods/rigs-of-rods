@@ -107,7 +107,7 @@ void RoR::GUI::SurveyMap::Draw()
     if (mMapMode == SurveyMapMode::BIG)
     {
         tex = mMapTextureCreatorStatic->GetTexture();
-        view_origin = Ogre::Vector2::ZERO;
+        view_origin = mMapCenterOffset;
     }
     else if (mMapMode == SurveyMapMode::SMALL)
     {
@@ -146,7 +146,7 @@ void RoR::GUI::SurveyMap::Draw()
         Vector2 mouse_map_pos;
         if (mMapMode == SurveyMapMode::BIG)
         {
-            mouse_map_pos = Vector2(mouse_view_offset.x, mouse_view_offset.y) * mTerrainSize;
+            mouse_map_pos = view_origin + Vector2(mouse_view_offset.x, mouse_view_offset.y) * mTerrainSize;
         }
         else if (mMapMode == SurveyMapMode::SMALL)
         {
@@ -226,7 +226,7 @@ void RoR::GUI::SurveyMap::CreateTerrainTextures()
     Vector3 terrain_size = App::GetSimTerrain()->getMaxTerrainSize();
     bool use_aab         = App::GetSimTerrain()->isFlat() && std::min(aab.getSize().x, aab.getSize().z) > 50.0f;
 
-    if (terrain_size.isZeroLength() && (aab.getSize().length() < terrain_size.length()))
+    if (terrain_size.isZeroLength() || use_aab && (aab.getSize().length() < terrain_size.length()))
     {
         terrain_size = aab.getSize();
         terrain_size.y = aab.getMaximum().y;
