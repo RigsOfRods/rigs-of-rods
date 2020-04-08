@@ -1804,7 +1804,7 @@ void SimController::UpdateSimulation(float dt)
 
         m_gfx_scene.BufferSimulationData();
 
-        if (!simPAUSED(s) || (App::mp_state.GetActive() == MpState::CONNECTED))
+        if (!simPAUSED(s))
         {
             m_actor_manager.UpdateActors(m_player_actor, m_physics_simulation_time); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
         }
