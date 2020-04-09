@@ -72,7 +72,14 @@ void RoR::GUI::SurveyMap::Draw()
         view_size.y = ImGui::GetIO().DisplaySize.y -
             ((2 * App::GetGuiManager()->GetTheme().screen_edge_padding.y) + (2 * WINDOW_PADDING));
         Vector3 terrn_size = App::GetSimTerrain()->getMaxTerrainSize(); // Y is 'up'!
-        view_size.x = (view_size.y / terrn_size.z) * terrn_size.x;
+        if (!terrn_size.isZeroLength())
+        {
+            view_size.x = (view_size.y / terrn_size.z) * terrn_size.x;
+        }
+        else // Terrain has no heightmap
+        {
+            view_size.x = view_size.y;
+        }
     }
     else if (mMapMode == SurveyMapMode::SMALL)
     {
