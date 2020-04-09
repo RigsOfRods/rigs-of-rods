@@ -36,8 +36,6 @@ namespace RoR {
 class Console : public Ogre::LogListener
 {
 public:
-    static const size_t MESSAGES_CAP = 1000u;
-
     typedef std::unordered_map<std::string, CVar*> CVarPtrMap;
     typedef std::unordered_map<std::string, ConsoleCmd*> CommandPtrMap;
 
@@ -85,7 +83,7 @@ public:
             : MsgLockGuard(*console)
         {}
 
-        std::vector<Message> const& messages;
+        std::vector<Message> & messages;
         std::lock_guard<std::mutex> lock;
     };
 
@@ -94,7 +92,7 @@ public:
         std::string icon = "", size_t ttl = 0, bool forcevisible = false);
     void putNetMessage(int user_id, MessageType type, const char* text);
     void ForwardLogMessage(MessageArea area, std::string const& msg, Ogre::LogMessageLevel lml);
-    unsigned long GetCurrentMsgTime() { return m_msg_timer.getMilliseconds(); }
+    unsigned long QueryMessageTimer() { return m_msg_timer.getMilliseconds(); }
 
     // ----------------------------
     // Commands (defined in ConsoleCmd.cpp):

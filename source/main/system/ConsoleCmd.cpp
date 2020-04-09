@@ -498,6 +498,18 @@ public:
     SetfloatCmd(): SetCVarCmd("setfloat", "<cvar> [<value>]", _L("Set or create real-number CVar"), CVAR_TYPE_FLOAT) {}
 };
 
+class ClearCmd: public ConsoleCmd
+{
+public:
+    ClearCmd(): ConsoleCmd("clear", "[]", _L("Clear console history")) {}
+
+    void Run(Ogre::StringVector const& args) override
+    {
+        Console::MsgLockGuard lock(App::GetConsole());
+        lock.messages.clear();
+    }
+};
+
 // -------------------------------------------------------------------------------------
 // Console integration
 
@@ -517,6 +529,8 @@ void Console::RegBuiltinCommands()
     cmd = new AsCmd();                    m_commands.insert(std::make_pair(cmd->GetName(), cmd));
     cmd = new QuitCmd();                  m_commands.insert(std::make_pair(cmd->GetName(), cmd));
     cmd = new HelpCmd();                  m_commands.insert(std::make_pair(cmd->GetName(), cmd));
+    // Additions
+    cmd = new ClearCmd();                 m_commands.insert(std::make_pair(cmd->GetName(), cmd));
     // CVars
     cmd = new SetCmd();                   m_commands.insert(std::make_pair(cmd->GetName(), cmd));
     cmd = new SetstringCmd();             m_commands.insert(std::make_pair(cmd->GetName(), cmd));
