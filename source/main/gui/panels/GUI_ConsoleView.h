@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2019 Petr Ohlidal & contributors
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -19,8 +19,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file
-
+/// @file Generic console rendering
 
 #pragma once
 
@@ -37,6 +36,7 @@
 namespace RoR {
 namespace GUI {
 
+/// Configurable console renderer, implements filtering, colorized text, incons.
 struct ConsoleView
 {
     void DrawConsoleMessages();
@@ -53,8 +53,9 @@ struct ConsoleView
     bool  cvw_filter_area_script = true;
     bool  cvw_filter_area_actor = true;
     bool  cvw_filter_area_terrn = true;
+
     // Misc options
-    size_t cvw_filter_duration_ms = 0u; //!< Message expiration; 0 means unlimited
+    size_t cvw_msg_duration_ms = 0u; //!< Message expiration; 0 means unlimited
     size_t cvw_max_lines = 100u;
     bool   cvw_align_bottom = false;
     ImVec4 cvw_background_color = ImVec4(0,0,0,0); //!< Text-background color
@@ -62,18 +63,18 @@ struct ConsoleView
     float  cvw_line_spacing = 1.f;
 
 private:
-    typedef std::vector<const Console::Message*> DisplayMsgVec;
-
     bool MessageFilter(Console::Message const& m); //!< Returns true if message should be displayed
     void DrawColorMarkedText(ImVec4 default_color, std::string const& line);
     void NewLine(ImVec2 text_size);
-
-    DisplayMsgVec    m_display_list;
-    unsigned long    m_newest_msg_time = 0;      // Updated by `DrawConsoleMessages()`
-    std::regex       m_text_color_regex = std::regex(R"(#[a-fA-F\d]{6})");
-
-    Ogre::TexturePtr FetchIcon(const char* name);
     bool DrawIcon(Ogre::TexturePtr tex);
+    void UpdateMessages();
+
+    std::vector<Console::Message> m_filtered_messages;
+    unsigned long                 m_newest_msg_time = 0;      // Updated by `DrawConsoleMessages()`
+    std::regex                    m_text_color_regex = std::regex(R"(#[a-fA-F\d]{6})");
+    bool                          m_reload_messages = false;
+    size_t                        m_total_messages = 0;
+
 };
 
 } // namespace GUI

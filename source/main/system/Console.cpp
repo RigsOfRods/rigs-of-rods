@@ -91,11 +91,7 @@ void Console::HandleMessage(MessageArea area, MessageType type, std::string cons
 
     // Lock and update message list
     std::lock_guard<std::mutex> lock(m_messages_mutex); // Scoped lock
-    if (m_messages.size() + 1 > MESSAGES_CAP)
-    {
-        m_messages.erase(m_messages.begin());
-    }
-    m_messages.emplace_back(area, type, msg, this->GetCurrentMsgTime(), net_userid);
+    m_messages.emplace_back(area, type, msg, this->QueryMessageTimer(), net_userid);
 }
 
 void Console::putMessage(MessageArea area, MessageType type, std::string const& msg,

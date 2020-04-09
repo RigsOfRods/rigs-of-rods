@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2014 Petr Ohlidal
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -38,59 +38,48 @@ inline void color2i(ImVec4 v, int&r, int&g, int&b) { r=(int)(v.x*255); g=(int)(v
 
 void GUI::ConsoleView::DrawConsoleMessages()
 {
-    m_display_list.clear();
-    m_newest_msg_time = 0;
-
-    { // Lock scope
-        Console::MsgLockGuard lock(App::GetConsole()); // RAII: Scoped lock
-        const size_t disp_max = std::min(cvw_max_lines, lock.messages.size());
-
-        for (Console::Message const& m: lock.messages)
-        {
-            if (this->MessageFilter(m))
-            {
-                m_display_list.push_back(&m);
-                if (m.cm_timestamp > m_newest_msg_time)
-                {
-                    m_newest_msg_time = (unsigned long)m.cm_timestamp;
-                }
-            }
-        }
-    } // End lock scope
+    this->UpdateMessages();
 
     if (cvw_align_bottom)
     {
         ImVec2 text_size = ImGui::CalcTextSize("A");
-        for (size_t i = m_display_list.size(); i < cvw_max_lines; ++i)
+        for (size_t i = m_filtered_messages.size(); i < cvw_max_lines; ++i)
         {
             this->NewLine(text_size);
         }
     }
 
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
-    for (const Console::Message* dm: m_display_list)
+    const unsigned long curr_timestamp = App::GetConsole()->QueryMessageTimer();
+    for (const Console::Message& m: m_filtered_messages)
     {
-        // Draw icons based on filters
-        if (dm->cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
+        // Skip expired messages
+        if (cvw_msg_duration_ms != 0 && curr_timestamp > m.cm_timestamp + cvw_msg_duration_ms)
         {
-            DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("script.png", "IconsRG").first));
-        }
-        else if (dm->cm_type == Console::CONSOLE_SYSTEM_NOTICE)
-        {
-            DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("information.png", "IconsRG").first));
-        }
-        else if (dm->cm_type == Console::CONSOLE_SYSTEM_WARNING)
-        {
-            DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("error.png", "IconsRG").first));
-        }
-        else if (dm->cm_type == Console::CONSOLE_SYSTEM_NETCHAT)
-        {
-            DrawIcon(Ogre::static_pointer_cast<Ogre::Texture>(Ogre::TextureManager::getSingleton().createOrRetrieve("comment.png", "IconsRG").first));
+            continue;
         }
 
-        std::string line = dm->cm_text;
+        // Draw icons based on filters
+        if (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
+        {
+            this->DrawIcon(Ogre::TextureManager::getSingleton().load("script.png", "IconsRG"));
+        }
+        else if (m.cm_type == Console::CONSOLE_SYSTEM_NOTICE)
+        {
+            this->DrawIcon(Ogre::TextureManager::getSingleton().load("information.png", "IconsRG"));
+        }
+        else if (m.cm_type == Console::CONSOLE_SYSTEM_WARNING)
+        {
+            this->DrawIcon(Ogre::TextureManager::getSingleton().load("error.png", "IconsRG"));
+        }
+        else if (m.cm_type == Console::CONSOLE_SYSTEM_NETCHAT)
+        {
+            this->DrawIcon(Ogre::TextureManager::getSingleton().load("comment.png", "IconsRG"));
+        }
+
+        std::string line = m.cm_text;
         RoRnet::UserInfo user;
-        if (dm->cm_net_userid != 0 && RoR::Networking::GetAnyUserInfo((int)dm->cm_net_userid, user))
+        if (m.cm_net_userid != 0 && RoR::Networking::GetAnyUserInfo((int)m.cm_net_userid, user))
         {
             Ogre::ColourValue col = RoR::Networking::GetPlayerColor(user.colournum);
             char prefix[400] = {};
@@ -100,7 +89,7 @@ void GUI::ConsoleView::DrawConsoleMessages()
             line = std::string(prefix) + line;
         }        
 
-        switch (dm->cm_type)
+        switch (m.cm_type)
         {
         case Console::Console::CONSOLE_TITLE:
             this->DrawColorMarkedText(theme.highlight_text_color, line);
@@ -132,18 +121,18 @@ void GUI::ConsoleView::DrawConsoleMessages()
 void GUI::ConsoleView::DrawFilteringOptions()
 {
     ImGui::TextDisabled(_LC("Console", "By area:"));
-    ImGui::MenuItem(_LC("Console", "Logfile echo"), "", &cvw_filter_area_echo);
-    ImGui::MenuItem(_LC("Console", "Scripting"),    "", &cvw_filter_area_script);
-    ImGui::MenuItem(_LC("Console", "Actors"),       "", &cvw_filter_area_actor);
-    ImGui::MenuItem(_LC("Console", "Terrain"),      "", &cvw_filter_area_terrn);
+    m_reload_messages |= ImGui::MenuItem(_LC("Console", "Logfile echo"), "", &cvw_filter_area_echo);
+    m_reload_messages |= ImGui::MenuItem(_LC("Console", "Scripting"),    "", &cvw_filter_area_script);
+    m_reload_messages |= ImGui::MenuItem(_LC("Console", "Actors"),       "", &cvw_filter_area_actor);
+    m_reload_messages |= ImGui::MenuItem(_LC("Console", "Terrain"),      "", &cvw_filter_area_terrn);
 
     ImGui::Separator();
     ImGui::TextDisabled(_LC("Console", "By level:"));
-    ImGui::MenuItem(_LC("Console", "Notices"),  "", &cvw_filter_type_notice);
-    ImGui::MenuItem(_LC("Console", "Warnings"), "", &cvw_filter_type_warning);
-    ImGui::MenuItem(_LC("Console", "Errors"),   "", &cvw_filter_type_error);
-    ImGui::MenuItem(_LC("Console", "Net chat"), "", &cvw_filter_type_chat);
-    ImGui::MenuItem(_LC("Console", "Commands"), "", &cvw_filter_type_cmd);
+    m_reload_messages |= ImGui::MenuItem(_LC("Console", "Notices"),  "", &cvw_filter_type_notice);
+    m_reload_messages |= ImGui::MenuItem(_LC("Console", "Warnings"), "", &cvw_filter_type_warning);
+    m_reload_messages |= ImGui::MenuItem(_LC("Console", "Errors"),   "", &cvw_filter_type_error);
+    m_reload_messages |= ImGui::MenuItem(_LC("Console", "Net chat"), "", &cvw_filter_type_chat);
+    m_reload_messages |= ImGui::MenuItem(_LC("Console", "Commands"), "", &cvw_filter_type_cmd);
 }
 
 bool GUI::ConsoleView::MessageFilter(Console::Message const& m)
@@ -164,11 +153,7 @@ bool GUI::ConsoleView::MessageFilter(Console::Message const& m)
         (m.cm_type == Console::CONSOLE_SYSTEM_NOTICE  && cvw_filter_type_notice) ||
         (m.cm_type == Console::CONSOLE_SYSTEM_NETCHAT && cvw_filter_type_chat);
 
-    const bool time_ok =
-        (cvw_filter_duration_ms == 0) ||
-        m.cm_timestamp + cvw_filter_duration_ms >= App::GetConsole()->GetCurrentMsgTime();
-
-    return type_ok && area_ok && time_ok;
+    return type_ok && area_ok;
 }
 
 void GUI::ConsoleView::DrawColorMarkedText(ImVec4 default_color, std::string const& line)
@@ -245,4 +230,40 @@ bool GUI::ConsoleView::DrawIcon(Ogre::TexturePtr tex)
         ImGui::SameLine(); // Keep icon and text in the same line
     }
     return NULL;
+}
+
+void GUI::ConsoleView::UpdateMessages()
+{
+    // Lock the console
+    Console::MsgLockGuard lock(App::GetConsole());
+
+    // Was console cleared?
+    if (lock.messages.size() < m_total_messages)
+    {
+        m_reload_messages = true;
+    }
+
+    // Handle full reload
+    if (m_reload_messages)
+    {
+        m_filtered_messages.clear();
+        m_total_messages = 0;
+        m_reload_messages = false;
+        m_newest_msg_time = 0;
+    }
+
+    // Apply filtering
+    for (size_t i = m_total_messages; i < lock.messages.size() ; ++i)
+    {
+        Console::Message const& m = lock.messages[i];
+        if (this->MessageFilter(m))
+        {
+            m_filtered_messages.push_back(m); // Copy
+            if (m.cm_timestamp > m_newest_msg_time)
+            {
+                m_newest_msg_time = (unsigned long)m.cm_timestamp;
+            }
+        }
+    }
+    m_total_messages = lock.messages.size();
 }
