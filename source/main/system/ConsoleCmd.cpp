@@ -46,7 +46,7 @@ using namespace RoR;
 class GravityCmd: public ConsoleCmd
 {
 public:
-    GravityCmd(): ConsoleCmd("gravity", "[<number> or <constant>]", _L("Get or set terrain gravity. Constants: earth/mars/jupiter.")) {}
+    GravityCmd(): ConsoleCmd("gravity", "[<number> or <constant>]", _L("Get or set terrain gravity. Constants: earth/moon/mars/jupiter.")) {}
 
     void Run(Ogre::StringVector const& args) override
     {
@@ -60,9 +60,10 @@ public:
         }
         else
         {
-                 if (args[1] == "earth")    { App::GetSimTerrain()->setGravity(-9.81);              }
-            else if (args[1] == "moon")     { App::GetSimTerrain()->setGravity(-1.6);               }
-            else if (args[1] == "jupiter")  { App::GetSimTerrain()->setGravity(-50);                }
+                 if (args[1] == "earth")    { App::GetSimTerrain()->setGravity(DEFAULT_GRAVITY);    }
+            else if (args[1] == "moon")     { App::GetSimTerrain()->setGravity(-1.62f);             }
+            else if (args[1] == "mars")     { App::GetSimTerrain()->setGravity(-3.711f);            }
+            else if (args[1] == "jupiter")  { App::GetSimTerrain()->setGravity(-24.8f);             }
             else                            { App::GetSimTerrain()->setGravity(PARSEREAL(args[1])); }
 
             reply << _L("Gravity set to: ") << App::GetSimTerrain()->getGravity();
