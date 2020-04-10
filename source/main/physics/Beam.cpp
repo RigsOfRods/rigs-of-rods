@@ -3165,7 +3165,7 @@ void Actor::setBlinkType(blinktype blink)
 void Actor::autoBlinkReset()
 {
     // TODO: make this set-able per actor
-    float blink_lock_range = 0.5f;
+    float blink_lock_range = App::io_blink_lock_range.GetActive();
 
     if (m_blink_type == BLINK_LEFT && ar_hydro_dir_state < -blink_lock_range)
     // passed the threshold: the turn signal gets locked
