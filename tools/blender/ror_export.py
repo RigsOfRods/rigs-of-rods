@@ -3,8 +3,8 @@
 bl_info = {
     "name": "RoR Exporter",
     "author": "ulteq",
-    "version": (0, 0, 1),
-    "blender": (2, 79, 0),
+    "version": (0, 0, 2),
+    "blender": (2, 82, 0),
     "category": "RoR",
 }
 
@@ -15,28 +15,28 @@ from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
 def register():
-    bpy.app.debug = True
-    bpy.utils.register_class(ror_export)
-    bpy.types.INFO_MT_file_export.append(menu_func)
+    bpy.context.preferences.view.show_developer_ui = True
+    bpy.utils.register_class(ROR_OT_exporter)
+    bpy.types.TOPBAR_MT_file_export.append(menu_func)
     return
 
 def unregister():
-    bpy.types.INFO_MT_file_export.remove(menu_func)
-    bpy.utils.unregister_class(ror_export)
+    bpy.types.TOPBAR_MT_file_export.remove(menu_func)
+    bpy.utils.unregister_class(ROR_OT_exporter)
     return
 
 def menu_func(self, context):
-    self.layout.operator(ror_export.bl_idname, text="Truck (.truck)")
+    self.layout.operator(ROR_OT_exporter.bl_idname, text="Truck (.truck)")
 
-class ror_export(bpy.types.Operator, ExportHelper):
+class ROR_OT_exporter(bpy.types.Operator, ExportHelper):
     bl_idname = "export_truck.truck"
     bl_label = "Export RoR Truck"
     filename_ext = ""
-    filter_glob = StringProperty(
+    filter_glob : StringProperty(
             default="*.truck;*.trailer;*.load;*.car;*.boat;*.airplane;*.train;*.machine;*.fixed",
             options={'HIDDEN'},
             )
-    filepath = bpy.props.StringProperty(subtype="FILE_PATH")
+    filepath : bpy.props.StringProperty(subtype="FILE_PATH")
 
     def execute(self, context):
         nodes = []

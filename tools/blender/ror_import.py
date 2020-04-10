@@ -3,8 +3,8 @@
 bl_info = {
     "name": "RoR Importer",
     "author": "ulteq",
-    "version": (0, 0, 1),
-    "blender": (2, 79, 0),
+    "version": (0, 0, 2),
+    "blender": (2, 82, 0),
     "category": "RoR",
 }
 
@@ -15,28 +15,28 @@ from bpy.props import StringProperty
 from bpy_extras.io_utils import ImportHelper
 
 def register():
-    bpy.app.debug = True
-    bpy.utils.register_class(ror_import)
-    bpy.types.INFO_MT_file_import.append(menu_func)
+    bpy.context.preferences.view.show_developer_ui = True
+    bpy.utils.register_class(ROR_OT_importer)
+    bpy.types.TOPBAR_MT_file_import.append(menu_func)
     return
 
 def unregister():
-    bpy.types.INFO_MT_file_import.remove(menu_func)
-    bpy.utils.unregister_class(ror_import)
+    bpy.types.TOPBAR_MT_file_import.remove(menu_func)
+    bpy.utils.unregister_class(ROR_OT_importer)
     return
 
 def menu_func(self, context):
-    self.layout.operator(ror_import.bl_idname, text="Truck (.truck)")
+    self.layout.operator(ROR_OT_importer.bl_idname, text="Truck (.truck)")
 
-class ror_import(bpy.types.Operator, ImportHelper):
+class ROR_OT_importer(bpy.types.Operator, ImportHelper):
     bl_idname = "import_truck.truck"
     bl_label = "Import RoR Truck"
     filename_ext = ""
-    filter_glob = StringProperty(
+    filter_glob : StringProperty(
             default="*.truck;*.trailer;*.load;*.car;*.boat;*.airplane;*.train;*.machine;*.fixed",
             options={'HIDDEN'},
             )
-    filepath = bpy.props.StringProperty(subtype="FILE_PATH")
+    filepath : bpy.props.StringProperty(subtype="FILE_PATH")
 
     def execute(self, context):
         truckfile = []
@@ -101,9 +101,9 @@ class ror_import(bpy.types.Operator, ImportHelper):
         mesh = bpy.data.meshes.new(self.filepath + "-mesh")
         obj  = bpy.data.objects.new(self.filepath + "-obj", mesh)
 
-        bpy.context.scene.objects.link(obj)
-        bpy.context.scene.objects.active = obj
-        obj.select = True
+        bpy.context.collection.objects.link(obj)
+        bpy.context.view_layer.objects.active = obj
+        obj.select_set(True)
 
         bpy.types.Object.RoRTruckFile = bpy.props.StringProperty()
         bpy.context.active_object.RoRTruckFile = json.dumps(truckfile)
@@ -132,7 +132,7 @@ class ror_import(bpy.types.Operator, ImportHelper):
                 for g in n[1]:
                     vg = obj.vertex_groups.get(g)
                     if not vg:
-                        vg = obj.vertex_groups.new(g)
+                        vg = obj.vertex_groups.new(name=g)
                     v[dl][vg.index] = 1.0
             except:
                 print ("Failed to add vertex:", n)
