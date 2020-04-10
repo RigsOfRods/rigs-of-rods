@@ -550,6 +550,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckFloat(App::io_ffb_master_gain,        k, v)) { return true; }
     if (CheckFloat(App::io_ffb_stress_gain,        k, v)) { return true; }
     if (CheckBool (App::io_arcade_controls,        k, v)) { return true; }
+    if (CheckBool (App::io_hydro_coupling,        k, v)) { return true; }
     if (CheckInt  (App::io_outgauge_mode,          k, v)) { return true; }
     if (CheckStr  (App::io_outgauge_ip,            k, v)) { return true; }
     if (CheckInt  (App::io_outgauge_port,          k, v)) { return true; }
@@ -831,6 +832,7 @@ void Settings::SaveSettings()
     WritePod (f, App::io_ffb_master_gain);
     WritePod (f, App::io_ffb_stress_gain);
     WriteYN  (f, App::io_arcade_controls);
+    WriteYN  (f, App::io_hydro_coupling);
     WritePod (f, App::io_outgauge_mode);
     WriteStr (f, App::io_outgauge_ip);
     WritePod (f, App::io_outgauge_port);
