@@ -544,7 +544,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     // Input&Output
     if (CheckFloat(App::io_analog_smoothing,       k, v)) { return true; }
     if (CheckFloat(App::io_analog_sensitivity,     k, v)) { return true; }
-    if (CheckFloat(App::io_blink_lock_range,     k, v)) { return true; }
+    if (CheckFloat(App::io_blink_lock_range,       k, v)) { return true; }
     if (CheckBool (App::io_ffb_enabled,            k, v)) { return true; }
     if (CheckFloat(App::io_ffb_camera_gain,        k, v)) { return true; }
     if (CheckFloat(App::io_ffb_center_gain,        k, v)) { return true; }
