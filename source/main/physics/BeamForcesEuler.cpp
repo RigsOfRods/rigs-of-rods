@@ -559,12 +559,23 @@ void Actor::CalcHydros()
         {
             if (ar_hydro_dir_command != 0)
             {
-                // minimum rate: 20% --> enables to steer high velocity vehicles
-                float rate = std::max(1.2f, 30.0f / (10.0f + std::abs(ar_wheel_speed / 2.0f)));
-                if (ar_hydro_dir_state > ar_hydro_dir_command)
-                    ar_hydro_dir_state -= PHYSICS_DT * rate;
+                if (!App::io_hydro_coupling.GetActive())
+                {
+                    float rate = std::max(1.2f, 30.0f / (10.0f));
+                    if (ar_hydro_dir_state > ar_hydro_dir_command)
+                        ar_hydro_dir_state -= PHYSICS_DT * rate;
+                    else
+                        ar_hydro_dir_state += PHYSICS_DT * rate;
+                }
                 else
-                    ar_hydro_dir_state += PHYSICS_DT * rate;
+                {
+                    // minimum rate: 20% --> enables to steer high velocity vehicles
+                    float rate = std::max(1.2f, 30.0f / (10.0f + std::abs(ar_wheel_speed / 2.0f)));
+                    if (ar_hydro_dir_state > ar_hydro_dir_command)
+                        ar_hydro_dir_state -= PHYSICS_DT * rate;
+                    else
+                        ar_hydro_dir_state += PHYSICS_DT * rate;
+                }
             }
             float dirdelta = PHYSICS_DT;
             if (ar_hydro_dir_state > dirdelta)

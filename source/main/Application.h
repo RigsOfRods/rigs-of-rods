@@ -748,6 +748,7 @@ extern GVarPod_A<float>        io_ffb_master_gain;
 extern GVarPod_A<float>             io_ffb_stress_gain;
 extern GVarEnum_AP<IoInputGrabMode> io_input_grab_mode;
 extern GVarPod_A<bool>              io_arcade_controls;
+extern GVarPod_A<bool>              io_hydro_coupling;
 extern GVarPod_A<int>          io_outgauge_mode;
 extern GVarStr_A<50>           io_outgauge_ip;
 extern GVarPod_A<int>          io_outgauge_port;

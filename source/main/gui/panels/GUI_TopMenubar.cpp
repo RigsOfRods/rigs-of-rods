@@ -435,6 +435,12 @@ void RoR::GUI::TopMenubar::Update()
                 }
             }       
 #endif // USE_CAELUM
+            if (current_actor != nullptr)
+            {
+                ImGui::Separator();
+                ImGui::TextColored(GRAY_HINT_TEXT, "Vehicle control options:");
+                DrawGCheckbox(App::io_hydro_coupling, "Keyboard steering speed coupling");
+            }
             if (App::mp_state.GetActive() == MpState::CONNECTED)
             {
                 ImGui::Separator();
