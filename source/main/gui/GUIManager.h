@@ -52,7 +52,7 @@ public:
         ImVec4 selected_entry_text_color = ImVec4(.9f, 0.7f, 0.05f, 1.f);
         ImVec4 value_red_text_color      = ImVec4(.8f, .1f, .1f, 1.f);
         ImVec4 value_blue_text_color     = ImVec4(.1f, .12f, .7f, 1.f);
-        ImVec4 highlight_text_color      = ImVec4(0.78f, 0.39f, 0.f, 1.f);
+        ImVec4 highlight_text_color      = ImVec4(0.18f, 0.53f, 0.79f, 1.f);
         ImVec4 success_text_color        = ImVec4(0.f, 0.8f, 0.f, 1.f);
         ImVec4 warning_text_color        = ImVec4(0.9f, 0.8f, 0.1f, 1.f);
         ImVec4 help_text_color           = ImVec4(0.5f, 0.7f, 1.f, 1.f);

@@ -103,7 +103,7 @@ void GUI::ConsoleView::DrawConsoleMessages()
         switch (dm->cm_type)
         {
         case Console::Console::CONSOLE_TITLE:
-            this->DrawColorMarkedText(theme.highlight_text_color, line);
+            this->DrawColorMarkedText(theme.success_text_color, line);
             break;
 
         case Console::Console::CONSOLE_SYSTEM_ERROR:
