@@ -222,7 +222,7 @@ void MainSelector::Draw()
         }
 
         // Title and description
-        ImGui::TextColored(theme.highlight_text_color, "%s", sd_entry.sde_entry->dname.c_str());
+        ImGui::TextWrapped("%s", sd_entry.sde_entry->dname.c_str());
         ImGui::TextWrapped("%s", sd_entry.sde_entry->description.c_str());
         ImGui::Separator();
 
