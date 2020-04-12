@@ -487,7 +487,7 @@ void GUIManager::SetupImGui()
     style.Colors[ImGuiCol_ResizeGrip]            = ImVec4(0.22f, 0.22f, 0.21f, 0.90f);
     style.Colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.13f, 0.40f, 0.60f, 0.90f);
     style.Colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.18f, 0.53f, 0.79f, 0.90f);
-    style.Colors[ImGuiCol_CloseButton]           = ImVec4(0.90f, 0.90f, 0.90f, 0.90f);
+    style.Colors[ImGuiCol_CloseButton]           = ImVec4(0.07f, 0.23f, 0.34f, 0.90f);
     style.Colors[ImGuiCol_CloseButtonHovered]    = ImVec4(0.13f, 0.40f, 0.60f, 0.90f);
     style.Colors[ImGuiCol_CloseButtonActive]     = ImVec4(0.18f, 0.53f, 0.79f, 0.90f);
     style.Colors[ImGuiCol_PlotLines]             = ImVec4(1.00f, 1.00f, 1.00f, 0.90f);
