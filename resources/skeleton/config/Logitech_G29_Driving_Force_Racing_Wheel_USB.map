@@ -43,6 +43,8 @@ TRUCK_BRAKE                    JoystickAxis         0 1 REVERSE+DEADZONE=0.00
 TRUCK_HORN                     JoystickButton       0 23 
 TRUCK_MANUAL_CLUTCH            JoystickSliderX      0 X 0 REVERSE 
 TRUCK_PARKING_BRAKE            JoystickButton       0 3 
+TRUCK_SHIFT_DOWN               JoystickButton       0 5 
+TRUCK_SHIFT_UP                 JoystickButton       0 4 
 TRUCK_SHIFT_GEAR_REVERSE       JoystickButton       0 18 
 TRUCK_SHIFT_GEAR1              JoystickButton       0 12 
 TRUCK_SHIFT_GEAR2              JoystickButton       0 13 
@@ -58,7 +60,7 @@ TRUCK_STEER_LEFT               JoystickAxis         0 0 LOWER+DEADZONE=0.00
 TRUCK_STEER_RIGHT              JoystickAxis         0 0 UPPER+DEADZONE=0.00 
 TRUCK_SWITCH_SHIFT_MODES       JoystickPov          0 0 East
 TRUCK_TOGGLE_CONTACT           JoystickButton       0 1 
-TRUCK_TOGGLE_AXLE_LOCK         JoystickButton       0 2 
+TRUCK_TOGGLE_INTER_WHEEL_DIFF  JoystickButton       0 2 
 TRUCK_TOGGLE_INTER_AXLE_DIFF   JoystickButton       0 8 
 TRUCK_TOGGLE_TCASE_4WD_MODE    JoystickButton       0 19 
 TRUCK_TOGGLE_TCASE_GEAR_RATIO  JoystickButton       0 20 

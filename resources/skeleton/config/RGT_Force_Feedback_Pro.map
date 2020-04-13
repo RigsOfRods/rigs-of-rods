@@ -33,7 +33,7 @@ TRUCK_SHIFT_UP                 JoystickButton       0 1
 TRUCK_TOGGLE_CONTACT           JoystickButton       0 2
 TRUCK_BLINK_LEFT               JoystickButton       0 3
 TRUCK_BLINK_RIGHT              JoystickButton       0 4
-TRUCK_TOGGLE_AXLE_LOCK         JoystickButton       0 5
+TRUCK_TOGGLE_INTER_WHEEL_DIFF         JoystickButton       0 5
 TRUCK_SHIFT_NEUTRAL            JoystickButton       0 6
 TRUCK_PARKING_BRAKE            JoystickButton       0 7
 
