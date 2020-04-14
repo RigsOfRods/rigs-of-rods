@@ -737,6 +737,13 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
             }
+            char text_buf_rem[200];
+            snprintf(text_buf_rem, 200, "X" "##[%d]", i++);
+            if (ImGui::Button(text_buf_rem))
+            {
+                App::GetSimController()->QueueActorRemove(actor);
+            }
+            ImGui::SameLine();
             if (ImGui::Button(text_buf)) // Button clicked?
             {
                 App::GetSimController()->SetPendingPlayerActor(actor);
