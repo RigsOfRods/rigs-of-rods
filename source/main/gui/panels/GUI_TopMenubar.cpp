@@ -719,6 +719,16 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
         int x = 0;
         for (auto actor : actor_list)
         {
+            char text_buf_rem[200];
+            snprintf(text_buf_rem, 200, "X" "##[%d]", x++);
+            ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
+            if (ImGui::Button(text_buf_rem))
+            {
+                App::GetSimController()->QueueActorRemove(actor);
+            }
+            ImGui::PopStyleColor();
+            ImGui::SameLine();
+
             char text_buf[200];
             snprintf(text_buf, 200, "[%d] %s", i++, actor->ar_design_name.c_str());
             auto linked_actors = actor->GetAllLinkedActors();
@@ -738,13 +748,6 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
             }
-            char text_buf_rem[200];
-            snprintf(text_buf_rem, 200, "X" "##[%d]", x++);
-            if (ImGui::Button(text_buf_rem))
-            {
-                App::GetSimController()->QueueActorRemove(actor);
-            }
-            ImGui::SameLine();
             if (ImGui::Button(text_buf)) // Button clicked?
             {
                 App::GetSimController()->SetPendingPlayerActor(actor);
