@@ -716,11 +716,10 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
     {
         Actor* player_actor = App::GetSimController()->GetPlayerActor();
         int i = 0;
-        int x = 0;
         for (auto actor : actor_list)
         {
             char text_buf_rem[200];
-            snprintf(text_buf_rem, 200, "X" "##[%d]", x++);
+            snprintf(text_buf_rem, 200, "X" "##[%d]", i);
             ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
             if (ImGui::Button(text_buf_rem))
             {
