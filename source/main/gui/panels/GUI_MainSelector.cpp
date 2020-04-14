@@ -224,7 +224,7 @@ void MainSelector::Draw()
             }
             catch(...)
             {
-                Ogre::TexturePtr preview_tex; // Invalid image
+                // Invalid texture file - OGRE exception already logged
             }
         }
 
