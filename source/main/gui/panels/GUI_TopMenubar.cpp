@@ -716,6 +716,7 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
     {
         Actor* player_actor = App::GetSimController()->GetPlayerActor();
         int i = 0;
+        int x = 0;
         for (auto actor : actor_list)
         {
             char text_buf[200];
@@ -738,7 +739,7 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
                 ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
             }
             char text_buf_rem[200];
-            snprintf(text_buf_rem, 200, "X" "##[%d]", i++);
+            snprintf(text_buf_rem, 200, "X" "##[%d]", x++);
             if (ImGui::Button(text_buf_rem))
             {
                 App::GetSimController()->QueueActorRemove(actor);
