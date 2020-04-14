@@ -201,23 +201,30 @@ void MainSelector::Draw()
         if (!sd_entry.sde_entry->filecachename.empty())
         {
             ImVec2 cursor_pos = ImGui::GetCursorPos();
-            Ogre::TexturePtr preview_tex =
-                Ogre::TextureManager::getSingleton().load(
-                    sd_entry.sde_entry->filecachename, Ogre::RGN_DEFAULT);
-            if (preview_tex)
+            try
             {
-                // Scale the image
-                ImVec2 max_size = (ImGui::GetWindowSize() * PREVIEW_SIZE_RATIO);
-                ImVec2 size(preview_tex->getWidth(), preview_tex->getHeight());
-                size *= max_size.x / size.x; // Fit size along X
-                if (size.y > max_size.y) // Reduce size along Y if needed
+                Ogre::TexturePtr preview_tex =
+                    Ogre::TextureManager::getSingleton().load(
+                        sd_entry.sde_entry->filecachename, Ogre::RGN_DEFAULT);
+                if (preview_tex)
                 {
-                    size *= max_size.y / size.y;
+                    // Scale the image
+                    ImVec2 max_size = (ImGui::GetWindowSize() * PREVIEW_SIZE_RATIO);
+                    ImVec2 size(preview_tex->getWidth(), preview_tex->getHeight());
+                    size *= max_size.x / size.x; // Fit size along X
+                    if (size.y > max_size.y) // Reduce size along Y if needed
+                    {
+                        size *= max_size.y / size.y;
+                    }
+                    // Draw the image
+                    ImGui::SetCursorPos((cursor_pos + ImGui::GetWindowSize()) - size);
+                    ImGui::Image(reinterpret_cast<ImTextureID>(preview_tex->getHandle()), size);
+                    ImGui::SetCursorPos(cursor_pos);
                 }
-                // Draw the image
-                ImGui::SetCursorPos((cursor_pos + ImGui::GetWindowSize()) - size);
-                ImGui::Image(reinterpret_cast<ImTextureID>(preview_tex->getHandle()), size);
-                ImGui::SetCursorPos(cursor_pos);
+            }
+            catch(...)
+            {
+                Ogre::TexturePtr preview_tex; // Invalid image
             }
         }
 
