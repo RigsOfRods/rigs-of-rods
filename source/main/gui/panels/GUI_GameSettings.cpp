@@ -382,7 +382,12 @@ void RoR::GUI::GameSettings::Draw()
 
         DrawGFloatSlider(App::io_analog_smoothing,   _LC("GameSettings", "Analog Input Smoothing"),   0.5f, 2.0f);
         DrawGFloatSlider(App::io_analog_sensitivity, _LC("GameSettings", "Analog Input Sensitivity"), 0.5f, 2.0f);
-        DrawGFloatSlider(App::io_blink_lock_range,   _LC("GameSettings", "Blinker Lock Range"),       0.1f, 1.0f);
+
+        DrawGCheckbox(App::io_blink_auto_reset, _LC("GameSettings", "Blinker Auto Reset"));
+        if (App::io_blink_auto_reset.GetActive())
+        {
+            DrawGFloatSlider(App::io_blink_lock_range,   _LC("GameSettings", "Blinker Lock Range"),       0.1f, 1.0f);
+        }
 
         DrawGCheckbox(App::io_arcade_controls, _LC("GameSettings", "Use arcade controls"));
 

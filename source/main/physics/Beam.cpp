@@ -3169,7 +3169,7 @@ void Actor::autoBlinkReset()
 
     if (m_blink_type == BLINK_LEFT && ar_hydro_dir_state < -blink_lock_range)
     // passed the threshold: the turn signal gets locked
-        m_blinker_autoreset = true;
+        m_blinker_autoreset = App::io_blink_auto_reset.GetActive();
 
     if (m_blink_type == BLINK_LEFT && m_blinker_autoreset && ar_hydro_dir_state > -blink_lock_range)
     {
@@ -3180,7 +3180,7 @@ void Actor::autoBlinkReset()
 
     // same for the right turn signal
     if (m_blink_type == BLINK_RIGHT && ar_hydro_dir_state > blink_lock_range)
-        m_blinker_autoreset = true;
+        m_blinker_autoreset = App::io_blink_auto_reset.GetActive();
 
     if (m_blink_type == BLINK_RIGHT && m_blinker_autoreset && ar_hydro_dir_state < blink_lock_range)
     {
