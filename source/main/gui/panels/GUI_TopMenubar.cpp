@@ -435,6 +435,12 @@ void RoR::GUI::TopMenubar::Update()
                 }
             }       
 #endif // USE_CAELUM
+            if (current_actor != nullptr)
+            {
+                ImGui::Separator();
+                ImGui::TextColored(GRAY_HINT_TEXT, "Vehicle control options:");
+                DrawGCheckbox(App::io_hydro_coupling, "Keyboard steering speed coupling");
+            }
             if (App::mp_state.GetActive() == MpState::CONNECTED)
             {
                 ImGui::Separator();
@@ -712,6 +718,16 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
         int i = 0;
         for (auto actor : actor_list)
         {
+            char text_buf_rem[200];
+            snprintf(text_buf_rem, 200, "X" "##[%d]", i);
+            ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
+            if (ImGui::Button(text_buf_rem))
+            {
+                App::GetSimController()->QueueActorRemove(actor);
+            }
+            ImGui::PopStyleColor();
+            ImGui::SameLine();
+
             char text_buf[200];
             snprintf(text_buf, 200, "[%d] %s", i++, actor->ar_design_name.c_str());
             auto linked_actors = actor->GetAllLinkedActors();

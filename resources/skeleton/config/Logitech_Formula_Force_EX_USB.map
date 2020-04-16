@@ -30,4 +30,4 @@ TRUCK_STEER_LEFT               JoystickAxis         0 0 LOWER+DEADZONE=0.00
 TRUCK_STEER_RIGHT              JoystickAxis         0 0 UPPER+DEADZONE=0.00 
 TRUCK_SWITCH_SHIFT_MODES       JoystickButton       0 2 
 TRUCK_TOGGLE_CONTACT           JoystickButton       0 9 
-TRUCK_TOGGLE_AXLE_LOCK         JoystickButton       0 6 
+TRUCK_TOGGLE_INTER_WHEEL_DIFF         JoystickButton       0 6 

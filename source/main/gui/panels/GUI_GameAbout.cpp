@@ -58,17 +58,17 @@ void RoR::GUI::GameAbout::Draw()
 
     ImGui::Separator();
 
-    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Authors"));
+    ImGui::TextColored(theme.value_blue_text_color, "%s:", _LC("About", "Authors"));
     ImGui::Text("%s%s", "Pierre-Michel Ricordel (pricorde):",  " Physics Genius, Original Author, Core Developer, retired");
     ImGui::Text("%s%s", "Thomas Fischer (tdev):",              " Core Developer, inactive");
 
     ImGui::NewLine();
-    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Current Developers"));
+    ImGui::TextColored(theme.value_blue_text_color, "%s:", _LC("About", "Current Developers"));
     ImGui::Text("%s%s", "Petr Ohlidal (only_a_ptr):",  " Core Developer, active");
     ImGui::Text("%s%s", "Edgar (AnotherFoxGuy):",      " Various fixes and features, developer web services, active");
 
     ImGui::NewLine();
-    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Server Contributors"));
+    ImGui::TextColored(theme.value_blue_text_color, "%s:", _LC("About", "Server Contributors"));
     ImGui::Text("%s%s", "Austin:",       " Server funding");
     ImGui::Text("%s%s", "DarthCain:",    " Forum software funding");
     ImGui::Text("%s%s", "Zentro:",       " Systems administrator, web designer");
@@ -76,7 +76,7 @@ void RoR::GUI::GameAbout::Draw()
     ImGui::Text("%s%s", "CuriousMike:",  " Repository & multiplayer server management");
 
     ImGui::NewLine();
-    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Code Contributors"));
+    ImGui::TextColored(theme.value_blue_text_color, "%s:", _LC("About", "Code Contributors"));
     ImGui::Text("%s%s", "Estama:",       " Physics Core Optimizations, Collision/Friction code, Support Beams");
     ImGui::Text("%s%s", "Lifter:",       " Triggers, Animators, Animated Props, Shocks2");
     ImGui::Text("%s%s", "Aperion:",      " Slidenodes, Axles, Improved Engine code, Rigidifiers, Networking code");
@@ -102,21 +102,21 @@ void RoR::GUI::GameAbout::Draw()
     ImGui::Text("%s%s", "tritonas00:",                  " Various improvements and Linux fixes");
 
     ImGui::NewLine();
-    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Core Content Contributors"));
+    ImGui::TextColored(theme.value_blue_text_color, "%s:", _LC("About", "Core Content Contributors"));
     ImGui::Text("%s%s", "donoteat:",       " Improved spawner models, terrain work");
     ImGui::Text("%s%s", "kevinmce:",       " Old character");
     ImGui::Text("%s%s", "vido89",          " Character animations");
 
     ImGui::NewLine();
-    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Mod Contributors"));
+    ImGui::TextColored(theme.value_blue_text_color, "%s:", _LC("About", "Mod Contributors"));
     ImGui::Text("%s%s", "The Rigs of Rods community:",  " Provides us with lots of mods to play with");
 
     ImGui::NewLine();
-    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Testers"));
+    ImGui::TextColored(theme.value_blue_text_color, "%s:", _LC("About", "Testers"));
     ImGui::Text("%s%s", "Invited core team:",  " The invited members helped us a lot along the way at various corners");
 
     ImGui::NewLine();
-    ImGui::TextColored(theme.highlight_text_color, "%s:", _LC("About", "Used Libs"));
+    ImGui::TextColored(theme.value_blue_text_color, "%s:", _LC("About", "Used Libs"));
     ImGui::Text("%s%s", "Ogre3D:",         " 3D rendering engine");
 #ifdef USE_CAELUM
     ImGui::Text("%s%s", "Caelum:",         " Atmospheric effects");

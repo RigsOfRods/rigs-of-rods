@@ -146,6 +146,7 @@ static TerrainManager*  g_sim_terrain;
 // Input - Output
  GVarPod_A<float>         io_analog_smoothing     ("io_analog_smoothing",     "Analog Input Smoothing",    1.f);
  GVarPod_A<float>         io_analog_sensitivity   ("io_analog_sensitivity",   "Analog Input Sensitivity",  1.f);
+ GVarPod_A<float>         io_blink_lock_range     ("io_blink_lock_range",     "Blinker Lock Range",        0.1f);
  GVarPod_A<bool>          io_ffb_enabled          ("io_ffb_enabled",          "Force Feedback",            false);
  GVarPod_A<float>         io_ffb_camera_gain      ("io_ffb_camera_gain",      "Force Feedback Camera",     0.f);
  GVarPod_A<float>         io_ffb_center_gain      ("io_ffb_center_gain",      "Force Feedback Centering",  0.f);
@@ -153,6 +154,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<float>             io_ffb_stress_gain  ("io_ffb_stress_gain",      "Force Feedback Stress",     0.f);
  GVarEnum_AP<IoInputGrabMode> io_input_grab_mode  ("io_input_grab_mode",      "Input Grab",                IoInputGrabMode::ALL,   IoInputGrabMode::ALL);
  GVarPod_A<bool>              io_arcade_controls  ("io_arcade_controls",      "ArcadeControls",            false);
+ GVarPod_A<bool>              io_hydro_coupling  ("io_hydro_coupling",        "Keyboard Steering Speed Coupling",            true);
  GVarPod_A<int>           io_outgauge_mode        ("io_outgauge_mode",        "OutGauge Mode",             0); // 0 = disabled, 1 = enabled
  GVarStr_A<50>            io_outgauge_ip          ("io_outgauge_ip",          "OutGauge IP",               "192.168.1.100");
  GVarPod_A<int>           io_outgauge_port        ("io_outgauge_port",        "OutGauge Port",             1337);

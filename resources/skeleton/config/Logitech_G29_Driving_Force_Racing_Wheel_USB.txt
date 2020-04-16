@@ -1,5 +1,6 @@
 This is an input map for the Logitech G29 Driving Force Racing Wheel USB
 Created by Charger, May 2019
+Last updated: April 5, 2020
 
 Control overview:
 

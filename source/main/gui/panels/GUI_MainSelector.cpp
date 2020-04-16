@@ -201,28 +201,35 @@ void MainSelector::Draw()
         if (!sd_entry.sde_entry->filecachename.empty())
         {
             ImVec2 cursor_pos = ImGui::GetCursorPos();
-            Ogre::TexturePtr preview_tex =
-                Ogre::TextureManager::getSingleton().load(
-                    sd_entry.sde_entry->filecachename, Ogre::RGN_DEFAULT);
-            if (preview_tex)
+            try
             {
-                // Scale the image
-                ImVec2 max_size = (ImGui::GetWindowSize() * PREVIEW_SIZE_RATIO);
-                ImVec2 size(preview_tex->getWidth(), preview_tex->getHeight());
-                size *= max_size.x / size.x; // Fit size along X
-                if (size.y > max_size.y) // Reduce size along Y if needed
+                Ogre::TexturePtr preview_tex =
+                    Ogre::TextureManager::getSingleton().load(
+                        sd_entry.sde_entry->filecachename, Ogre::RGN_DEFAULT);
+                if (preview_tex)
                 {
-                    size *= max_size.y / size.y;
+                    // Scale the image
+                    ImVec2 max_size = (ImGui::GetWindowSize() * PREVIEW_SIZE_RATIO);
+                    ImVec2 size(preview_tex->getWidth(), preview_tex->getHeight());
+                    size *= max_size.x / size.x; // Fit size along X
+                    if (size.y > max_size.y) // Reduce size along Y if needed
+                    {
+                        size *= max_size.y / size.y;
+                    }
+                    // Draw the image
+                    ImGui::SetCursorPos((cursor_pos + ImGui::GetWindowSize()) - size);
+                    ImGui::Image(reinterpret_cast<ImTextureID>(preview_tex->getHandle()), size);
+                    ImGui::SetCursorPos(cursor_pos);
                 }
-                // Draw the image
-                ImGui::SetCursorPos((cursor_pos + ImGui::GetWindowSize()) - size);
-                ImGui::Image(reinterpret_cast<ImTextureID>(preview_tex->getHandle()), size);
-                ImGui::SetCursorPos(cursor_pos);
+            }
+            catch(...)
+            {
+                // Invalid texture file - OGRE exception already logged
             }
         }
 
         // Title and description
-        ImGui::TextColored(theme.highlight_text_color, "%s", sd_entry.sde_entry->dname.c_str());
+        ImGui::TextWrapped("%s", sd_entry.sde_entry->dname.c_str());
         ImGui::TextWrapped("%s", sd_entry.sde_entry->description.c_str());
         ImGui::Separator();
 
@@ -231,20 +238,20 @@ void MainSelector::Draw()
         {
             ImGui::TextDisabled("%s", _L("Author(s): "));
             ImGui::SameLine();
-            ImGui::TextColored(theme.highlight_text_color, "%s [%s]", author.name.c_str(), author.type.c_str());
+            ImGui::TextColored(theme.value_blue_text_color, "%s [%s]", author.name.c_str(), author.type.c_str());
         }
         this->DrawAttrInt(_L("Version: "), sd_entry.sde_entry->version);
         if (sd_entry.sde_entry->wheelcount > 0)
         {
             ImGui::Text("%s", _L("Wheels: ")); 
             ImGui::SameLine();
-            ImGui::TextColored(theme.highlight_text_color, "%dx%d", sd_entry.sde_entry->wheelcount, sd_entry.sde_entry->propwheelcount);
+            ImGui::TextColored(theme.value_blue_text_color, "%dx%d", sd_entry.sde_entry->wheelcount, sd_entry.sde_entry->propwheelcount);
         }
         if (sd_entry.sde_entry->truckmass > 0)
         {
             ImGui::Text("%s", _L("Mass: ")); 
             ImGui::SameLine();
-            ImGui::TextColored(theme.highlight_text_color, "%.2f t", Round(sd_entry.sde_entry->truckmass / 1000.0f, 3));
+            ImGui::TextColored(theme.value_blue_text_color, "%.2f t", Round(sd_entry.sde_entry->truckmass / 1000.0f, 3));
         }
 
         if (m_show_details)
@@ -253,7 +260,7 @@ void MainSelector::Draw()
             {
                 ImGui::Text("%s", _L("Load Mass: ")); 
                 ImGui::SameLine();
-                ImGui::TextColored(theme.highlight_text_color, "%f.2 t", Round(sd_entry.sde_entry->loadmass / 1000.0f, 3));
+                ImGui::TextColored(theme.value_blue_text_color, "%f.2 t", Round(sd_entry.sde_entry->loadmass / 1000.0f, 3));
             }
             this->DrawAttrInt(_L("Nodes: "), sd_entry.sde_entry->nodecount);
             this->DrawAttrInt(_L("Beams: "), sd_entry.sde_entry->beamcount);
@@ -271,7 +278,7 @@ void MainSelector::Draw()
             {
                 ImGui::Text("%s", _L("Using Submeshs: ")); 
                 ImGui::SameLine();
-                ImGui::TextColored(theme.highlight_text_color, "%s", sd_entry.sde_entry->hasSubmeshs ?_L("Yes") : _L("No"));
+                ImGui::TextColored(theme.value_blue_text_color, "%s", sd_entry.sde_entry->hasSubmeshs ?_L("Yes") : _L("No"));
             }
             this->DrawAttrFloat(_L("Torque: "), sd_entry.sde_entry->torque);
             this->DrawAttrInt(_L("Transmission Gear Count: "), sd_entry.sde_entry->numgears);
@@ -279,7 +286,7 @@ void MainSelector::Draw()
             {
                 ImGui::Text("%s", _L("Engine RPM: ")); 
                 ImGui::SameLine();
-                ImGui::TextColored(theme.highlight_text_color, "%f - %f", sd_entry.sde_entry->minrpm, sd_entry.sde_entry->maxrpm);
+                ImGui::TextColored(theme.value_blue_text_color, "%f - %f", sd_entry.sde_entry->minrpm, sd_entry.sde_entry->maxrpm);
             }
             this->DrawAttrStr(_L("Unique ID: "), sd_entry.sde_entry->uniqueid);
             this->DrawAttrStr(_L("GUID: "), sd_entry.sde_entry->guid);
@@ -302,14 +309,14 @@ void MainSelector::Draw()
             {
                 ImGui::Text("%s", _L("Source: "));
                 ImGui::SameLine();
-                ImGui::TextColored(App::GetGuiManager()->GetTheme().highlight_text_color,
+                ImGui::TextColored(App::GetGuiManager()->GetTheme().value_blue_text_color,
                     "%s", sd_entry.sde_entry->resource_bundle_path.c_str());
             }
             if (!sd_entry.sde_entry->fname.empty())
             {
                 ImGui::Text("%s", _L("Filename: "));
                 ImGui::SameLine();
-                ImGui::TextColored(App::GetGuiManager()->GetTheme().highlight_text_color,
+                ImGui::TextColored(App::GetGuiManager()->GetTheme().value_blue_text_color,
                     "%s", sd_entry.sde_entry->fname.c_str());
             }
         }
@@ -480,7 +487,7 @@ void MainSelector::DrawAttrInt(const char* title, int val) const
     {
         ImGui::Text("%s", title);
         ImGui::SameLine();
-        ImGui::TextColored(App::GetGuiManager()->GetTheme().highlight_text_color, "%d", val);
+        ImGui::TextColored(App::GetGuiManager()->GetTheme().value_blue_text_color, "%d", val);
     }
 }
 
@@ -490,7 +497,7 @@ void MainSelector::DrawAttrFloat(const char* title, float val) const
     {
         ImGui::Text("%s", title);
         ImGui::SameLine();
-        ImGui::TextColored(App::GetGuiManager()->GetTheme().highlight_text_color, "%f", val);
+        ImGui::TextColored(App::GetGuiManager()->GetTheme().value_blue_text_color, "%f", val);
     }
 }
 
@@ -508,7 +515,7 @@ void MainSelector::DrawAttrStr(const char* desc, std::string const& str) const
     {
         ImGui::Text("%s", desc);
         ImGui::SameLine();
-        ImGui::TextColored(App::GetGuiManager()->GetTheme().highlight_text_color, "%s", str.c_str());
+        ImGui::TextColored(App::GetGuiManager()->GetTheme().value_blue_text_color, "%s", str.c_str());
     }
 }
 

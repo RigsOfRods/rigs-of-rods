@@ -72,7 +72,14 @@ void RoR::GUI::SurveyMap::Draw()
         view_size.y = ImGui::GetIO().DisplaySize.y -
             ((2 * App::GetGuiManager()->GetTheme().screen_edge_padding.y) + (2 * WINDOW_PADDING));
         Vector3 terrn_size = App::GetSimTerrain()->getMaxTerrainSize(); // Y is 'up'!
-        view_size.x = (view_size.y / terrn_size.z) * terrn_size.x;
+        if (!terrn_size.isZeroLength())
+        {
+            view_size.x = (view_size.y / terrn_size.z) * terrn_size.x;
+        }
+        else // Terrain has no heightmap
+        {
+            view_size.x = view_size.y;
+        }
     }
     else if (mMapMode == SurveyMapMode::SMALL)
     {
@@ -107,7 +114,7 @@ void RoR::GUI::SurveyMap::Draw()
     if (mMapMode == SurveyMapMode::BIG)
     {
         tex = mMapTextureCreatorStatic->GetTexture();
-        view_origin = Ogre::Vector2::ZERO;
+        view_origin = mMapCenterOffset;
     }
     else if (mMapMode == SurveyMapMode::SMALL)
     {
@@ -146,7 +153,7 @@ void RoR::GUI::SurveyMap::Draw()
         Vector2 mouse_map_pos;
         if (mMapMode == SurveyMapMode::BIG)
         {
-            mouse_map_pos = Vector2(mouse_view_offset.x, mouse_view_offset.y) * mTerrainSize;
+            mouse_map_pos = view_origin + Vector2(mouse_view_offset.x, mouse_view_offset.y) * mTerrainSize;
         }
         else if (mMapMode == SurveyMapMode::SMALL)
         {
@@ -166,50 +173,53 @@ void RoR::GUI::SurveyMap::Draw()
         drawlist->AddText(text_pos, ImGui::GetColorU32(ImGui::GetStyle().Colors[ImGuiCol_Text]), title);
     }
 
-    // Draw terrain object icons
-    for (TerrainObjectManager::MapEntity& e: App::GetSimTerrain()->getObjectManager()->GetMapEntities())
+    if (App::gfx_surveymap_icons.GetActive())
     {
-        int id = App::GetSimController()->GetRaceId();
-        bool visible = !((e.type == "checkpoint" && e.id != id) || (e.type == "racestart" && id != -1 && e.id != id));
-        Str<100> filename;
-        filename << "icon_" << e.type << ".dds";
-
-        if (visible)
+        // Draw terrain object icons
+        for (TerrainObjectManager::MapEntity& e: App::GetSimTerrain()->getObjectManager()->GetMapEntities())
         {
-            this->DrawMapIcon(tl_screen_pos, view_size, view_origin, filename.ToCStr(), e.name, e.pos.x, e.pos.z, e.rot);
+            int id = App::GetSimController()->GetRaceId();
+            bool visible = !((e.type == "checkpoint" && e.id != id) || (e.type == "racestart" && id != -1 && e.id != id));
+            Str<100> filename;
+            filename << "icon_" << e.type << ".dds";
+
+            if ((visible) && (!App::gfx_declutter_map.GetActive()))
+            {
+                this->DrawMapIcon(tl_screen_pos, view_size, view_origin, filename.ToCStr(), e.name, e.pos.x, e.pos.z, e.rot);
+            }
         }
-    }
 
-    // Draw actor icons
-    for (GfxActor* gfx_actor: App::GetSimController()->GetGfxScene().GetGfxActors())
-    {
-        const char* type_str = this->getTypeByDriveable(gfx_actor->GetActorDriveable());
-        int truckstate = gfx_actor->GetActorState();
-        Str<100> fileName;
-
-        if (truckstate == static_cast<int>(Actor::SimState::LOCAL_SIMULATED))
-            fileName << "icon_" << type_str << "_activated.dds"; // green icon
-        else if (truckstate == static_cast<int>(Actor::SimState::NETWORKED_OK))
-            fileName << "icon_" << type_str << "_networked.dds"; // blue icon
-        else
-            fileName << "icon_" << type_str << ".dds"; // gray icon
-
-        auto& simbuf = gfx_actor->GetSimDataBuffer();
-        std::string caption = (App::mp_state.GetActive() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
-        this->DrawMapIcon(tl_screen_pos, view_size, view_origin, fileName.ToCStr(), caption, 
-            simbuf.simbuf_pos.x, simbuf.simbuf_pos.z, simbuf.simbuf_rotation);
-    }
-
-    // Draw character icons
-    for (GfxCharacter* gfx_character: App::GetSimController()->GetGfxScene().GetGfxCharacters())
-    {
-        auto& simbuf = gfx_character->xc_simbuf;
-        if (!simbuf.simbuf_actor_coupling)
+        // Draw actor icons
+        for (GfxActor* gfx_actor: App::GetSimController()->GetGfxScene().GetGfxActors())
         {
+            const char* type_str = this->getTypeByDriveable(gfx_actor->GetActorDriveable());
+            int truckstate = gfx_actor->GetActorState();
+            Str<100> fileName;
+
+            if (truckstate == static_cast<int>(Actor::SimState::LOCAL_SIMULATED))
+                fileName << "icon_" << type_str << "_activated.dds"; // green icon
+            else if (truckstate == static_cast<int>(Actor::SimState::NETWORKED_OK))
+                fileName << "icon_" << type_str << "_networked.dds"; // blue icon
+            else
+                fileName << "icon_" << type_str << ".dds"; // gray icon
+
+            auto& simbuf = gfx_actor->GetSimDataBuffer();
             std::string caption = (App::mp_state.GetActive() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
-            this->DrawMapIcon(tl_screen_pos, view_size, view_origin, "icon_person.dds", caption, 
-                simbuf.simbuf_character_pos.x, simbuf.simbuf_character_pos.z,
-                simbuf.simbuf_character_rot.valueRadians());
+            this->DrawMapIcon(tl_screen_pos, view_size, view_origin, fileName.ToCStr(), caption, 
+                simbuf.simbuf_pos.x, simbuf.simbuf_pos.z, simbuf.simbuf_rotation);
+    }
+
+        // Draw character icons
+        for (GfxCharacter* gfx_character: App::GetSimController()->GetGfxScene().GetGfxCharacters())
+        {
+            auto& simbuf = gfx_character->xc_simbuf;
+            if (!simbuf.simbuf_actor_coupling)
+            {
+                std::string caption = (App::mp_state.GetActive() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
+                this->DrawMapIcon(tl_screen_pos, view_size, view_origin, "icon_person.dds", caption, 
+                    simbuf.simbuf_character_pos.x, simbuf.simbuf_character_pos.z,
+                    simbuf.simbuf_character_rot.valueRadians());
+            }
         }
     }
 
@@ -219,6 +229,7 @@ void RoR::GUI::SurveyMap::Draw()
 
 void RoR::GUI::SurveyMap::CreateTerrainTextures()
 {
+    mMapCenterOffset     = Ogre::Vector2::ZERO; // Reset, maybe new terrain was loaded
     AxisAlignedBox aab   = App::GetSimTerrain()->getTerrainCollisionAAB();
     Vector3 terrain_size = App::GetSimTerrain()->getMaxTerrainSize();
     bool use_aab         = App::GetSimTerrain()->isFlat() && std::min(aab.getSize().x, aab.getSize().z) > 50.0f;

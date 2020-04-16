@@ -544,12 +544,14 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     // Input&Output
     if (CheckFloat(App::io_analog_smoothing,       k, v)) { return true; }
     if (CheckFloat(App::io_analog_sensitivity,     k, v)) { return true; }
+    if (CheckFloat(App::io_blink_lock_range,       k, v)) { return true; }
     if (CheckBool (App::io_ffb_enabled,            k, v)) { return true; }
     if (CheckFloat(App::io_ffb_camera_gain,        k, v)) { return true; }
     if (CheckFloat(App::io_ffb_center_gain,        k, v)) { return true; }
     if (CheckFloat(App::io_ffb_master_gain,        k, v)) { return true; }
     if (CheckFloat(App::io_ffb_stress_gain,        k, v)) { return true; }
     if (CheckBool (App::io_arcade_controls,        k, v)) { return true; }
+    if (CheckBool (App::io_hydro_coupling,        k, v)) { return true; }
     if (CheckInt  (App::io_outgauge_mode,          k, v)) { return true; }
     if (CheckStr  (App::io_outgauge_ip,            k, v)) { return true; }
     if (CheckInt  (App::io_outgauge_port,          k, v)) { return true; }
@@ -825,12 +827,14 @@ void Settings::SaveSettings()
     WriteAny (f, App::io_input_grab_mode.conf_name, IoInputGrabToStr(App::io_input_grab_mode.GetActive()));
     WritePod (f, App::io_analog_smoothing);
     WritePod (f, App::io_analog_sensitivity);
+    WritePod (f, App::io_blink_lock_range);
     WriteYN  (f, App::io_ffb_enabled);
     WritePod (f, App::io_ffb_camera_gain);
     WritePod (f, App::io_ffb_center_gain);
     WritePod (f, App::io_ffb_master_gain);
     WritePod (f, App::io_ffb_stress_gain);
     WriteYN  (f, App::io_arcade_controls);
+    WriteYN  (f, App::io_hydro_coupling);
     WritePod (f, App::io_outgauge_mode);
     WriteStr (f, App::io_outgauge_ip);
     WritePod (f, App::io_outgauge_port);
