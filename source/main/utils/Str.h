@@ -38,6 +38,8 @@ public:
     inline             Str()                                 { this->Clear(); }
     inline             Str(Str<L> const & src)               { this->Assign(src); }
     inline             Str(const char* src)                  { this->Assign(src); }
+    inline             Str(std::string::const_iterator& itor,
+                           std::string::const_iterator& endi){ this->Assign(itor, endi); }
 
     // Reading
     inline const char* ToCStr() const                        { return m_buffer; }
@@ -48,13 +50,18 @@ public:
     inline size_t      GetLength() const                     { return std::strlen(m_buffer); }
 
     // Writing
-    inline Str&        Clear()                               { std::memset(m_buffer, 0, L); return *this; }
-    inline Str&        Assign(const char* src)               { this->Clear(); this->Append(src); return *this; }
-    inline Str&        Append(const char* src)               { std::strncat(m_buffer, src, (L - (this->GetLength() + 1))); return *this; }
-    inline Str&        Append(float f)                       { char buf[50]; std::snprintf(buf, 50, "%f", f); this->Append(buf); return *this; }
-    inline Str&        Append(int i)                         { char buf[50]; std::snprintf(buf, 50, "%d", i); this->Append(buf); return *this; }
-    inline Str&        Append(size_t z)                      { char buf[50]; std::snprintf(buf, 50, "%lu", static_cast<unsigned long>(z)); this->Append(buf); return *this; }
-    inline Str&        Append(char c)                        { char buf[2] = {}; buf[0] = c; this->Append(buf); return *this; }
+    inline Str&        Clear()                                   { std::memset(m_buffer, 0, L); return *this; }
+    inline Str&        Assign(const char* src)                   { this->Clear(); this->Append(src); return *this; }
+    inline Str&        Assign(std::string::const_iterator& itor,
+                              std::string::const_iterator& endi) { this->Clear(); this->Append(itor, endi); return *this; }
+
+    inline Str&        Append(const char* src)                   { std::strncat(m_buffer, src, (L - (this->GetLength() + 1))); return *this; }
+    inline Str&        Append(float f)                           { char buf[50]; std::snprintf(buf, 50, "%f", f); this->Append(buf); return *this; }
+    inline Str&        Append(int i)                             { char buf[50]; std::snprintf(buf, 50, "%d", i); this->Append(buf); return *this; }
+    inline Str&        Append(size_t z)                          { char buf[50]; std::snprintf(buf, 50, "%lu", static_cast<unsigned long>(z)); this->Append(buf); return *this; }
+    inline Str&        Append(char c)                            { char buf[2] = {}; buf[0] = c; this->Append(buf); return *this; }
+    inline Str&        Append(std::string::const_iterator& itor,
+                              std::string::const_iterator& endi) { for(;itor!=endi;++itor) { this->Append(*itor); } return *this; }
 
     // Operators
     inline             operator const char*() const          { return this->ToCStr(); }

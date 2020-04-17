@@ -36,6 +36,7 @@
 namespace RoR {
 namespace GUI {
 
+/// Overlay showing chat/console messages on screen, with optional entry field.
 class GameChatBox
 {
 public:

@@ -33,34 +33,35 @@
 RoR::GUI::GameChatBox::GameChatBox()
 {
     m_console_view.cvw_align_bottom = true;
-    m_console_view.cvw_max_lines = 15u;
     m_console_view.cvw_msg_duration_ms = 10000; // 10sec
     m_console_view.cvw_filter_area_actor = false; // Disable vehicle spawn warnings/errors
     m_console_view.cvw_filter_type_error = false; // Disable errors
     m_console_view.cvw_filter_type_cmd = false; // Disable commands
+    m_console_view.cvw_enable_icons = true;
+    m_console_view.cvw_background_padding = ImVec2(2,1);
 }
 
 void RoR::GUI::GameChatBox::Draw()
 {
-    // Begin drawing the messages pane (no input)
-    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoInputs |
-        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
-    ImVec2 size(
-        ImGui::GetIO().DisplaySize.x - (2 * ImGui::GetStyle().WindowPadding.x),
-        (m_console_view.cvw_max_lines * ImGui::GetTextLineHeightWithSpacing()) + (2*ImGui::GetStyle().WindowPadding.y));
-    if (m_is_visible) // Full display?
-    {
-        size.y += ImGui::GetTextLineHeightWithSpacing() + (2 * ImGui::GetStyle().WindowPadding.x); // reserve space for input window
-    }
-    ImGui::SetNextWindowSize(size);
-    if (m_is_visible) // Full display?
-    {
-        size.y +=  35;
-    }
-    ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - size.y));
+    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
-    ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
-    ImGui::Begin("ChatMessages", nullptr, win_flags);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
+
+    // Begin drawing the messages pane (no input)
+    ImGuiWindowFlags msg_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoInputs |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
+    const float width = ImGui::GetIO().DisplaySize.x - (2 * theme.screen_edge_padding.x);
+    ImVec2 msg_size(width, (ImGui::GetIO().DisplaySize.y / 3.f) + (2*ImGui::GetStyle().WindowPadding.y));
+    ImVec2 chat_size(width, ImGui::GetTextLineHeightWithSpacing());
+    ImGui::SetNextWindowSize(msg_size);
+    ImVec2 msg_pos(theme.screen_edge_padding.x, ImGui::GetIO().DisplaySize.y - (msg_size.y + theme.screen_edge_padding.y));
+    if (m_is_visible)
+    {
+        msg_pos.y -= chat_size.y;
+    }
+    ImGui::SetNextWindowPos(msg_pos);
+
+    ImGui::Begin("ChatMessages", nullptr, msg_flags);
 
     if (initialized == true)
     {
@@ -73,15 +74,14 @@ void RoR::GUI::GameChatBox::Draw()
 
     ImGui::End();
 
-    // Draw bottom bar (text input, filter settings)
-    ImGuiWindowFlags bbar_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+    // Draw chat box
+    ImGuiWindowFlags chat_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
-    ImVec2 bbar_size(
-        ImGui::GetIO().DisplaySize.x - (2 * ImGui::GetStyle().WindowPadding.x),
-        ImGui::GetTextLineHeightWithSpacing() + (2 * ImGui::GetStyle().WindowPadding.x));
-    ImGui::SetNextWindowSize(bbar_size);
-    ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - bbar_size.y));
-    ImGui::Begin("ChatBottomBar", nullptr, bbar_flags);
+
+    ImGui::SetNextWindowSize(chat_size);
+    ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, ImGui::GetIO().DisplaySize.y - (chat_size.y + theme.screen_edge_padding.y)));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0.0,0,0)); // Fully transparent background!
+    ImGui::Begin("ChatBottomBar", nullptr, chat_flags);
 
     if (ImGui::IsItemActive() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
     {
@@ -111,7 +111,9 @@ void RoR::GUI::GameChatBox::Draw()
 
     App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
-    ImGui::PopStyleColor(2); // WindowBg, ChildWindowBg
+
+    ImGui::PopStyleColor(2); // 2*WindowBg
+    ImGui::PopStyleVar(); // WindowPadding
 }
 
 void RoR::GUI::GameChatBox::SubmitMessage()
