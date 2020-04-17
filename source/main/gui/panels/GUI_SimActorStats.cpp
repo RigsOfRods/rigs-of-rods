@@ -63,12 +63,12 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
     const float broken_pct = static_cast<float>( Round((float)m_stat_broken_beams / num_beams_f, 2) * 100.0f );
     ImGui::TextColored(theme.value_blue_text_color, _L("Broken beams count: "));
     ImGui::SameLine();
-    ImGui::Text("%d (%.2f%%)", m_stat_broken_beams, broken_pct);
+    ImGui::Text("%d (%.0f%%)", m_stat_broken_beams, broken_pct);
 
     const float deform_pct = static_cast<float>( Round((float)m_stat_deformed_beams / num_beams_f * 100.0f) );
     ImGui::TextColored(theme.value_blue_text_color, _L("Deformed beams count: "));
     ImGui::SameLine();
-    ImGui::Text("%d (%.2f%%)", m_stat_deformed_beams, deform_pct);
+    ImGui::Text("%d (%.0f%%)", m_stat_deformed_beams, deform_pct);
 
     const float avg_deform = static_cast<float>( Round((float)m_stat_avg_deform / num_beams_f, 4) * 100.0f );
     ImGui::TextColored(theme.value_blue_text_color, _L("Average deformation: "));
@@ -113,16 +113,16 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
         ImGui::TextColored(theme.value_blue_text_color, _L("Input shaft RPM: "));
         ImGui::SameLine();
         const float inputshaft_rpm = Round(std::max(0.0f, actorx->GetSimDataBuffer().simbuf_inputshaft_rpm));
-        ImGui::TextColored(rpm_color, "%.2f", inputshaft_rpm);
+        ImGui::TextColored(rpm_color, "%.0f", inputshaft_rpm);
 
         ImGui::TextColored(theme.value_blue_text_color, _L("Current torque: "));
         ImGui::SameLine();
-        ImGui::Text("%.2f Nm", Round(torque));
+        ImGui::Text("%.0f Nm", Round(torque));
 
         const float currentKw = (((cur_rpm * (torque + ((turbo_psi * 6.8) * torque) / 100) * ( PI / 30)) / 1000));
         ImGui::TextColored(theme.value_blue_text_color, _L("Current power: "));
         ImGui::SameLine();
-        ImGui::Text("%.2fhp (%.2fKw)", static_cast<float>(Round(currentKw *1.34102209)), static_cast<float>(Round(currentKw)));
+        ImGui::Text("%.0fhp (%.0fKw)", static_cast<float>(Round(currentKw *1.34102209)), static_cast<float>(Round(currentKw)));
 
         ImGui::TextColored(theme.value_blue_text_color, _L("Current gear: "));
         ImGui::SameLine();
@@ -149,25 +149,25 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
 
         ImGui::TextColored(theme.value_blue_text_color, _L("Wheel speed: "));
         ImGui::SameLine();
-        ImGui::Text("%.2fKm/h (%.2f mph)", Round(velocityKPH), Round(velocityMPH));
+        ImGui::Text("%.0fKm/h (%.0f mph)", Round(velocityKPH), Round(velocityMPH));
 
         ImGui::TextColored(theme.value_blue_text_color, _L("Vehicle speed: "));
         ImGui::SameLine();
-        ImGui::Text("%.2fKm/h (%.2f mph)", Round(carSpeedKPH), Round(carSpeedMPH));
+        ImGui::Text("%.0fKm/h (%.0f mph)", Round(carSpeedKPH), Round(carSpeedMPH));
     }
     else // Aircraft or boat
     {
         float speedKN = n0_velo_len * 1.94384449f;
         ImGui::TextColored(theme.value_blue_text_color, _L("Current speed: "));
         ImGui::SameLine();
-        ImGui::Text("%.2f kn (%.2f Km/h; %.2f mph)", Round(speedKN), Round(speedKN * 1.852), Round(speedKN * 1.151));
+        ImGui::Text("%.0f kn (%.0f Km/h; %.0f mph)", Round(speedKN), Round(speedKN * 1.852), Round(speedKN * 1.151));
 
         if (actorx->GetAttributes().xa_driveable == AIRPLANE)
         {
             const float altitude = actorx->GetSimNodeBuffer()[0].AbsPosition.y / 30.48 * 100;
             ImGui::TextColored(theme.value_blue_text_color, _L("Altitude: "));
             ImGui::SameLine();
-            ImGui::Text("%.2f feet (%.2f meters)", Round(altitude), Round(altitude * 0.30480));
+            ImGui::Text("%.0f feet (%.0f meters)", Round(altitude), Round(altitude * 0.30480));
 
             int engine_num = 1; // UI; count from 1
             for (GfxActor::SimBuffer::AeroEngineSB& ae: actorx->GetSimDataBuffer().simbuf_aeroengines)
@@ -204,7 +204,7 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
     const float speedMPH = actorx->GetSimDataBuffer().simbuf_top_speed * 2.23693629f;
     ImGui::TextColored(theme.value_blue_text_color, _L("Top speed: "));
     ImGui::SameLine();
-    ImGui::Text("%.2f km/h (%.2f mph)", Round(speedKPH), Round(speedMPH));
+    ImGui::Text("%.0f km/h (%.0f mph)", Round(speedKPH), Round(speedMPH));
 
     ImGui::NewLine();
 
