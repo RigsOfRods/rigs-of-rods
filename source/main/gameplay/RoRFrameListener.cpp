@@ -268,15 +268,16 @@ void SimController::HandleSavegameShortcuts()
     }
 }
 
-void write_editor_cfg()
+void write_editor_log()
 {
     static auto& object_list = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
-    const char* filename = "editor_out.cfg";
+    const char* filename = "editor_out.log";
+    std::string editor_logpath = PathCombine(App::sys_logs_dir.GetActive(), filename);
     try
     {
         Ogre::DataStreamPtr stream
             = Ogre::ResourceGroupManager::getSingleton().createResource(
-                filename, RGN_CONFIG, /*overwrite=*/true);
+                editor_logpath, RGN_CONFIG, /*overwrite=*/true);
 
         for (auto object : object_list)
         {
@@ -295,7 +296,7 @@ void write_editor_cfg()
     {
             RoR::LogFormat("[RoR|MapEditor]"
                            "Error saving file '%s' (resource group '%s'), message: '%s'",
-                            filename, RGN_CONFIG, e.what());
+                            editor_logpath, RGN_CONFIG, e.what());
     }
 }
 
@@ -614,7 +615,7 @@ void SimController::UpdateInputEvents(float dt)
         }
         else
         {
-            write_editor_cfg();
+            write_editor_log();
         }
     }
 
@@ -2370,7 +2371,7 @@ void SimController::EnterGameplayLoop()
 
     if (RoR::App::sim_state.GetActive() == RoR::SimState::EDITOR_MODE)
     {
-        write_editor_cfg();
+        write_editor_log();
     }
     m_actor_manager.SaveScene("autosave.sav");
 
