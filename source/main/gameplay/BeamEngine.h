@@ -37,7 +37,7 @@ public:
     ~EngineSim();
 
     /// Sets current engine state;
-    /// @param gear Current gear {-1 = reverse, 0 = neutral, 1...21 = forward}
+    /// @param gear Current gear {-1 = reverse, 0 = neutral, 1...1000 = forward}
     void PushNetworkState(float engine_rpm, float acc, float clutch, int gear, bool running, bool contact, char auto_mode, char auto_select=-1);
 
     /// Sets engine options.
@@ -152,7 +152,7 @@ private:
     // Gearbox
     float          m_ref_wheel_revolutions; //!< Gears; estimated wheel revolutions based on current vehicle speed along the longi. axis
     float          m_cur_wheel_revolutions; //!< Gears; measured wheel revolutions
-    int            m_cur_gear;              //!< Gears; Current gear {-1 = reverse, 0 = neutral, 1...21 = forward} 
+    int            m_cur_gear;              //!< Gears; Current gear {-1 = reverse, 0 = neutral, 1...1000 = forward} 
     int            m_cur_gear_range;        //!< Gears
     int            m_num_gears;             //!< Gears
     std::vector<float> m_gear_ratios;       //!< Gears
