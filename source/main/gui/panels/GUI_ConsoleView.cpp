@@ -86,11 +86,18 @@ void GUI::ConsoleView::DrawConsoleMessages()
         cursor -= ImVec2(0, (line_offset - (float)(int)line_offset)*line_h);
     }
 
+    // Horizontal scrolling
+    if (ImGui::GetScrollMaxX() > 0)
+    {
+        cursor -= ImVec2(ImGui::GetScrollX(), 0);
+    }
+
     // Draw the messages
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     drawlist->ChannelsSplit(2); // 2 layers: 0=background, 1=text
     Str<LINE_BUF_MAX> line;
+    float hscroll_dummy_w = 0;
     for (int i = msg_start; i < msg_start + msg_count; i++)
     {
         const Console::Message& m = *m_display_messages[i];
@@ -144,11 +151,15 @@ void GUI::ConsoleView::DrawConsoleMessages()
         default:;
         }
 
-        this->DrawColorMarkedText(cursor, icon, base_color, line.ToCStr());
+        ImVec2 rect_size = this->DrawColorMarkedText(cursor, icon, base_color, line.ToCStr());
         cursor += ImVec2(0.f, line_h);
+
+        hscroll_dummy_w = (hscroll_dummy_w < rect_size.x) ? rect_size.x : hscroll_dummy_w;
     }
 
     drawlist->ChannelsMerge();
+
+    ImGui::Dummy(ImVec2(hscroll_dummy_w, 0.1)); // Enable horizontal scrolling
 }
 
 void GUI::ConsoleView::DrawFilteringOptions()
@@ -189,7 +200,7 @@ bool GUI::ConsoleView::MessageFilter(Console::Message const& m)
     return type_ok && area_ok;
 }
 
-void GUI::ConsoleView::DrawColorMarkedText(ImVec2 bg_cursor, Ogre::TexturePtr icon, ImVec4 default_color, std::string const& line)
+ImVec2 GUI::ConsoleView::DrawColorMarkedText(ImVec2 bg_cursor, Ogre::TexturePtr icon, ImVec4 default_color, std::string const& line)
 {
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
 
@@ -252,6 +263,7 @@ void GUI::ConsoleView::DrawColorMarkedText(ImVec2 bg_cursor, Ogre::TexturePtr ic
     ImVec2 bg_rect_size = total_text_size + (cvw_background_padding * 2);
     drawlist->AddRectFilled(bg_cursor, bg_cursor + bg_rect_size,
         ImColor(cvw_background_color), ImGui::GetStyle().FrameRounding);
+    return bg_rect_size;
 }
 
 bool GUI::ConsoleView::DrawIcon(Ogre::TexturePtr tex)
