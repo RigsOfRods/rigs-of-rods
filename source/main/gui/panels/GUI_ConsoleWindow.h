@@ -35,11 +35,12 @@
 namespace RoR {
 namespace GUI {
 
-class ConsoleWindow: public ConsoleView
+class ConsoleWindow
 {
 public:
     static const size_t HISTORY_CAP = 100u;
 
+    ConsoleWindow();
     void SetVisible(bool visible) { m_is_visible = visible; }
     bool IsVisible() const { return m_is_visible; }
 
@@ -51,6 +52,7 @@ private:
     static int TextEditCallback(ImGuiTextEditCallbackData *data);
     void TextEditCallbackProc(ImGuiTextEditCallbackData *data);
 
+    ConsoleView              m_console_view;
     Str<500>                 m_cmd_buffer;
     std::vector<std::string> m_cmd_history;
     int                      m_cmd_history_cursor = -1;
