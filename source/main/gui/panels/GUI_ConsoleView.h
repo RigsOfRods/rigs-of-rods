@@ -56,7 +56,7 @@ struct ConsoleView
 
     // Misc options
     size_t cvw_msg_duration_ms = 0u; //!< Message expiration; 0 means unlimited
-    bool   cvw_align_bottom = false;
+    bool   cvw_enable_scrolling = false;
     bool   cvw_enable_icons = false;
     ImVec4 cvw_background_color = ImVec4(0,0,0,0); //!< Text-background color
     ImVec2 cvw_background_padding = ImVec2(0,0);

@@ -28,6 +28,11 @@
 using namespace RoR;
 using namespace Ogre;
 
+GUI::ConsoleWindow::ConsoleWindow()
+{
+    m_console_view.cvw_enable_scrolling = true;
+}
+
 void GUI::ConsoleWindow::Draw()
 {
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar;
@@ -40,7 +45,7 @@ void GUI::ConsoleWindow::Draw()
     {
         if (ImGui::BeginMenu(_LC("Console", "Filter options")))
         {
-            this->DrawFilteringOptions();
+            m_console_view.DrawFilteringOptions();
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu(_LC("Console", "Commands")))
@@ -71,7 +76,7 @@ void GUI::ConsoleWindow::Draw()
     const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetTextLineHeightWithSpacing(); // 1 separator, 1 input text
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar); // Leave room for 1 separator + 1 InputText
 
-    this->DrawConsoleMessages();
+    m_console_view.DrawConsoleMessages();
 
     if (initialized == false) // Initialize auto scrolling
     {
@@ -82,9 +87,9 @@ void GUI::ConsoleWindow::Draw()
         }
     }
 
-    if (this->GetNewestMsgTime() > m_autoscroll_time) // New message arrived?
+    if (m_console_view.GetNewestMsgTime() > m_autoscroll_time) // New message arrived?
     {
-        m_autoscroll_time = this->GetNewestMsgTime();
+        m_autoscroll_time = m_console_view.GetNewestMsgTime();
         if (m_autoscroll_pos >= 1.f) // Only autoscroll if previous position is rougly at bottom (imgui yields ~1.15 at full bottom)
         {
             ImGui::SetScrollFromPosY(9999); // Force to bottom
@@ -94,7 +99,6 @@ void GUI::ConsoleWindow::Draw()
     m_autoscroll_pos = ImGui::GetScrollY() / ImGui::GetScrollMaxY();
 
     ImGui::EndChild();
-    ImGui::Separator();
 
     const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory;
     if (ImGui::InputText(_LC("Console", "Command"), m_cmd_buffer.GetBuffer(), m_cmd_buffer.GetCapacity(), cmd_flags, &GUI::ConsoleWindow::TextEditCallback, this))

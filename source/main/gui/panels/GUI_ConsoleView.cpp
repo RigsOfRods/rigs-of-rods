@@ -59,22 +59,25 @@ void GUI::ConsoleView::DrawConsoleMessages()
     float dummy_h = line_h * (float)m_display_messages.size();
     ImGui::Dummy(ImVec2(1, dummy_h));
 
+    // Calculate message range and cursor pos
     int msg_start = 0, msg_count = 0;
     ImVec2 cursor = ImGui::GetWindowPos();
-    if (ImGui::GetScrollMaxY() < 0)
+    if (!cvw_enable_scrolling)
     {
-        // No scrolling
-        cursor += ImVec2(0, 
-            ImGui::GetWindowHeight() - (float)m_display_messages.size() * (line_h));
-        msg_count = (int)m_display_messages.size();
+        msg_count = std::min((int)(ImGui::GetWindowHeight() / line_h), (int)m_display_messages.size());
+        msg_start = (int)m_display_messages.size() - msg_count;
+        cursor += ImVec2(0, ImGui::GetWindowHeight() - (msg_count * line_h)); // Align to bottom
     }
-    else
+    else if (ImGui::GetScrollMaxY() < 0) // No scrolling
     {
-        // Scrolling
+        msg_count = (int)m_display_messages.size();
+        cursor += ImVec2(0, ImGui::GetWindowHeight() - (msg_count * line_h)); // Align to bottom
+    }
+    else // Scrolling
+    {
         const float scroll_rel = ImGui::GetScrollY()/ImGui::GetScrollMaxY();
         const float scroll_offset = ((dummy_h - ImGui::GetWindowHeight()) *scroll_rel);
-        msg_start = (int)(scroll_offset/line_h);
-        msg_start = std::max(0, msg_start);
+        msg_start = std::max(0, (int)(scroll_offset/line_h));
 
         msg_count = std::min((int)(ImGui::GetWindowHeight() / line_h)+2, // Bias (2) for partially visible messages (1 top, 1 bottom)
                              (int)m_display_messages.size() - msg_start);
