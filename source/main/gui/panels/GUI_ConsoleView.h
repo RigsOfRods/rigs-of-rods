@@ -55,7 +55,7 @@ struct ConsoleView
 
     // Misc options
     size_t cvw_msg_duration_ms = 0u; //!< Message expiration; 0 means unlimited
-    bool   cvw_enable_scrolling = false; // !< Vertical
+    bool   cvw_enable_scrolling = false; // !< Vertical, multiline messages are broken apart when enabled
     bool   cvw_enable_icons = false;
     ImVec4 cvw_background_color = ImVec4(0,0,0,0); //!< Text-background color
     ImVec2 cvw_background_padding = ImVec2(0,0);
@@ -67,6 +67,7 @@ private:
     ImVec2 DrawColorMarkedText(ImVec2 text_cursor, Ogre::TexturePtr icon, ImVec4 default_color, std::string const& line);
     bool   DrawIcon(Ogre::TexturePtr tex);
     int    UpdateMessages(); //!< Ret. num of new message(s)
+    ImVec2 DrawMessage(ImVec2 cursor, Console::Message const& m);
 
     std::vector<Console::Message> m_filtered_messages;    //!< Updated as needed
     std::vector<const Console::Message*> m_display_messages; //!< Rebuilt every frame; kept as member to reuse allocated memory
