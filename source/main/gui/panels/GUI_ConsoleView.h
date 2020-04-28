@@ -41,7 +41,6 @@ struct ConsoleView
 {
     void DrawConsoleMessages();
     void DrawFilteringOptions();
-    unsigned long GetNewestMsgTime() { return m_newest_msg_time; }
 
     // Filtering (true means allowed)
     bool  cvw_filter_type_notice = true;
@@ -67,15 +66,13 @@ private:
     /// Returns final text size
     ImVec2 DrawColorMarkedText(ImVec2 text_cursor, Ogre::TexturePtr icon, ImVec4 default_color, std::string const& line);
     bool   DrawIcon(Ogre::TexturePtr tex);
-    void   UpdateMessages();
+    int    UpdateMessages(); //!< Ret. num of new message(s)
 
-    std::vector<Console::Message> m_filtered_messages; //!< Updated as needed
+    std::vector<Console::Message> m_filtered_messages;    //!< Updated as needed
     std::vector<const Console::Message*> m_display_messages; //!< Rebuilt every frame; kept as member to reuse allocated memory
-    unsigned long                 m_newest_msg_time = 0;      // Updated by `DrawConsoleMessages()`
     std::regex                    m_text_color_regex = std::regex(R"(#[a-fA-F\d]{6})");
     bool                          m_reload_messages = false;
     size_t                        m_total_messages = 0;
-
 };
 
 } // namespace GUI

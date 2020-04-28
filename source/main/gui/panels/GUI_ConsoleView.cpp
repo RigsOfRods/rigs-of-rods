@@ -41,7 +41,7 @@ static const int LINE_BUF_MAX = 5000;
 void GUI::ConsoleView::DrawConsoleMessages()
 {
     // Update pre-filtered message list
-    this->UpdateMessages();
+    int num_incoming = this->UpdateMessages();
 
     // Gather visible (non-expired) messages
     const unsigned long curr_timestamp = App::GetConsole()->QueryMessageTimer();
@@ -57,7 +57,14 @@ void GUI::ConsoleView::DrawConsoleMessages()
     // Add a dummy sized as messages to facilitate builtin scrolling
     float line_h = ImGui::CalcTextSize("").y + (2 * cvw_background_padding.y) + cvw_line_spacing;
     float dummy_h = line_h * (float)m_display_messages.size();
-    ImGui::Dummy(ImVec2(1, dummy_h));
+    ImGui::SetCursorPosY(dummy_h);
+
+    // Autoscroll
+    if (num_incoming != 0 && std::abs(ImGui::GetScrollMaxY() - ImGui::GetScrollY()) < line_h)
+    {
+        // it's evaluated on next frame, so we must exxagerate in advance.
+        ImGui::SetScrollY(ImGui::GetScrollMaxY() + (num_incoming * line_h) + 100.f);
+    }
 
     // Calculate message range and cursor pos
     int msg_start = 0, msg_count = 0;
@@ -97,7 +104,6 @@ void GUI::ConsoleView::DrawConsoleMessages()
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     drawlist->ChannelsSplit(2); // 2 layers: 0=background, 1=text
     Str<LINE_BUF_MAX> line;
-    float hscroll_dummy_w = 0;
     for (int i = msg_start; i < msg_start + msg_count; i++)
     {
         const Console::Message& m = *m_display_messages[i];
@@ -151,15 +157,13 @@ void GUI::ConsoleView::DrawConsoleMessages()
         default:;
         }
 
-        ImVec2 rect_size = this->DrawColorMarkedText(cursor, icon, base_color, line.ToCStr());
-        cursor += ImVec2(0.f, line_h);
+        ImVec2 text_size = this->DrawColorMarkedText(cursor, icon, base_color, line.ToCStr());
+        ImGui::SetCursorPosX(text_size.x); // Enable horizontal scrolling
 
-        hscroll_dummy_w = (hscroll_dummy_w < rect_size.x) ? rect_size.x : hscroll_dummy_w;
+        cursor += ImVec2(0.f, line_h);
     }
 
     drawlist->ChannelsMerge();
-
-    ImGui::Dummy(ImVec2(hscroll_dummy_w, 0.1)); // Enable horizontal scrolling
 }
 
 void GUI::ConsoleView::DrawFilteringOptions()
@@ -252,7 +256,7 @@ ImVec2 GUI::ConsoleView::DrawColorMarkedText(ImVec2 bg_cursor, Ogre::TexturePtr 
     if (seg_start != line.begin() + line.length())
     {
         std::string text(seg_start, line.end()); // TODO: optimize!
-        ImVec2 text_size = ImGui::CalcTextSize(text.c_str());            
+        ImVec2 text_size = ImGui::CalcTextSize(text.c_str());
         drawlist->AddText(text_cursor, ImColor(r,g,b), text.c_str());
         total_text_size.x += text_size.x;
         total_text_size.y = std::max(total_text_size.y, text_size.y);
@@ -280,7 +284,7 @@ bool GUI::ConsoleView::DrawIcon(Ogre::TexturePtr tex)
     return NULL;
 }
 
-void GUI::ConsoleView::UpdateMessages()
+int GUI::ConsoleView::UpdateMessages()
 {
     // Lock the console
     Console::MsgLockGuard lock(App::GetConsole());
@@ -297,21 +301,19 @@ void GUI::ConsoleView::UpdateMessages()
         m_filtered_messages.clear();
         m_total_messages = 0;
         m_reload_messages = false;
-        m_newest_msg_time = 0;
     }
 
     // Apply filtering
+    int orig_size = (int)m_filtered_messages.size();
     for (size_t i = m_total_messages; i < lock.messages.size() ; ++i)
     {
         Console::Message const& m = lock.messages[i];
         if (this->MessageFilter(m))
         {
             m_filtered_messages.push_back(m); // Copy
-            if (m.cm_timestamp > m_newest_msg_time)
-            {
-                m_newest_msg_time = (unsigned long)m.cm_timestamp;
-            }
         }
     }
     m_total_messages = lock.messages.size();
+
+    return (int)m_filtered_messages.size() - orig_size;
 }
