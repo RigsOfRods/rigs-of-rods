@@ -93,9 +93,9 @@ struct send_packet_t
 static RoRnet::ServerInfo m_server_settings;
 
 static Ogre::UTFString m_username; // Shadows GVar 'mp_player_name' for multithreaded access.
-static Str<400> m_net_host; // Shadows GVar 'mp_server_host' for multithreaded access.
-static Str<100> m_password; // Shadows GVar 'mp_server_password' for multithreaded access.
-static Str<100> m_token; // Shadows GVar 'mp_player_token' for multithreaded access.
+static std::string m_net_host; // Shadows GVar 'mp_server_host' for multithreaded access.
+static std::string m_password; // Shadows GVar 'mp_server_password' for multithreaded access.
+static std::string m_token; // Shadows GVar 'mp_player_token' for multithreaded access.
 static int      m_net_port; // Shadows GVar 'mp_server_port' for multithreaded access.
 static int m_uid;
 static int m_authlevel;
@@ -426,7 +426,7 @@ void RecvThread()
 
 void CouldNotConnect(std::string const & msg, bool close_socket = true)
 {
-    RoR::LogFormat("[RoR|Networking] Failed to connect to server [%s:%d], message: %s", m_net_host.GetBuffer(), m_net_port, msg.c_str());
+    RoR::LogFormat("[RoR|Networking] Failed to connect to server [%s:%d], message: %s", m_net_host.c_str(), m_net_port, msg.c_str());
     FireNetEvent(NetEvent::Type::CONNECT_FAILURE, msg);
 
     if (close_socket)
@@ -485,14 +485,14 @@ NetEventQueue CheckEvents()
 
 bool ConnectThread()
 {
-    RoR::LogFormat("[RoR|Networking] Trying to join server '%s' on port '%d' ...", m_net_host.GetBuffer(), m_net_port);
+    RoR::LogFormat("[RoR|Networking] Trying to join server '%s' on port '%d' ...", m_net_host.c_str(), m_net_port);
 
     SWBaseSocket::SWBaseError error;
 
     FireNetEvent(NetEvent::Type::CONNECT_PROGRESS, _LC("Network", "Estabilishing connection..."));
     socket = SWInetSocket();
     socket.set_timeout(10, 0);
-    socket.connect(App::mp_server_port->GetActiveVal<int>(), App::mp_server_host->GetActiveStr(), &error);
+    socket.connect(m_net_port, m_net_host, &error);
     if (error != SWBaseSocket::ok)
     {
         CouldNotConnect(_L("Could not create connection"), false);
@@ -560,8 +560,8 @@ bool ConnectThread()
     memset(&c, 0, sizeof(RoRnet::UserInfo));
     // Cut off the UTF string on the highest level, otherwise you will break UTF info
     strncpy((char *)c.username, m_username.substr(0, RORNET_MAX_USERNAME_LEN * 0.5f).asUTF8_c_str(), RORNET_MAX_USERNAME_LEN);
-    strncpy(c.serverpassword, Utils::Sha1Hash(m_password.GetBuffer()).c_str(), size_t(40));
-    strncpy(c.usertoken, Utils::Sha1Hash(m_token.GetBuffer()).c_str(), size_t(40));
+    strncpy(c.serverpassword, Utils::Sha1Hash(m_password).c_str(), size_t(40));
+    strncpy(c.usertoken, Utils::Sha1Hash(m_token).c_str(), size_t(40));
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
     strncpy(c.clientname, "RoR", 10);
     std::string language = App::app_language->GetActiveStr().substr(0, 2);
