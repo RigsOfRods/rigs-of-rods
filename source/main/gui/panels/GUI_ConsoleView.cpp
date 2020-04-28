@@ -54,62 +54,92 @@ void GUI::ConsoleView::DrawConsoleMessages()
         }
     }
 
-    // Add a dummy sized as messages to facilitate builtin scrolling
-    float line_h = ImGui::CalcTextSize("").y + (2 * cvw_background_padding.y) + cvw_line_spacing;
-    float dummy_h = line_h * (float)m_display_messages.size();
-    ImGui::SetCursorPosY(dummy_h);
-
-    // Autoscroll
-    if (num_incoming != 0 && std::abs(ImGui::GetScrollMaxY() - ImGui::GetScrollY()) < line_h)
-    {
-        // it's evaluated on next frame, so we must exxagerate in advance.
-        ImGui::SetScrollY(ImGui::GetScrollMaxY() + (num_incoming * line_h) + 100.f);
-    }
-
-    // Calculate message range and cursor pos
-    int msg_start = 0, msg_count = 0;
-    ImVec2 cursor = ImGui::GetWindowPos();
-    if (!cvw_enable_scrolling)
-    {
-        msg_count = std::min((int)(ImGui::GetWindowHeight() / line_h), (int)m_display_messages.size());
-        msg_start = (int)m_display_messages.size() - msg_count;
-        cursor += ImVec2(0, ImGui::GetWindowHeight() - (msg_count * line_h)); // Align to bottom
-    }
-    else if (ImGui::GetScrollMaxY() < 0) // No scrolling
-    {
-        msg_count = (int)m_display_messages.size();
-        cursor += ImVec2(0, ImGui::GetWindowHeight() - (msg_count * line_h)); // Align to bottom
-    }
-    else // Scrolling
-    {
-        const float scroll_rel = ImGui::GetScrollY()/ImGui::GetScrollMaxY();
-        const float scroll_offset = ((dummy_h - ImGui::GetWindowHeight()) *scroll_rel);
-        msg_start = std::max(0, (int)(scroll_offset/line_h));
-
-        msg_count = std::min((int)(ImGui::GetWindowHeight() / line_h)+2, // Bias (2) for partially visible messages (1 top, 1 bottom)
-                             (int)m_display_messages.size() - msg_start);
-
-        const float line_offset = scroll_offset/line_h;
-        cursor -= ImVec2(0, (line_offset - (float)(int)line_offset)*line_h);
-    }
-
-    // Horizontal scrolling
-    if (ImGui::GetScrollMaxX() > 0)
-    {
-        cursor -= ImVec2(ImGui::GetScrollX(), 0);
-    }
-
-    // Draw the messages
-    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    // Prepare drawing
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     drawlist->ChannelsSplit(2); // 2 layers: 0=background, 1=text
-    Str<LINE_BUF_MAX> line;
-    for (int i = msg_start; i < msg_start + msg_count; i++)
-    {
-        const Console::Message& m = *m_display_messages[i];
 
-        // Draw icons based on filters
-        Ogre::TexturePtr icon;
+    if (!cvw_enable_scrolling)
+    {
+        // Draw from bottom, messages may be multiline
+        ImVec2 cursor = ImGui::GetWindowPos() + ImVec2(0, ImGui::GetWindowHeight());
+        for (int i = m_display_messages.size() - 1; i > 0; --i)
+        {
+            Console::Message const& m = *m_display_messages[i];
+            float msg_h = ImGui::CalcTextSize(m.cm_text.c_str()).y + (2 * cvw_background_padding.y) + cvw_line_spacing;
+            cursor -= ImVec2(0, msg_h);
+            if (cursor.y < ImGui::GetWindowPos().y)
+            {
+                break; // Window is filled up
+            }
+            this->DrawMessage(cursor, m);
+        }
+    }
+    else
+    {
+        // Add a dummy sized as messages to facilitate builtin scrolling
+        float line_h = ImGui::CalcTextSize("").y + (2 * cvw_background_padding.y) + cvw_line_spacing;
+        float dummy_h = line_h * (float)m_display_messages.size();
+        ImGui::SetCursorPosY(dummy_h);
+
+        // Autoscroll
+        if (num_incoming != 0 && std::abs(ImGui::GetScrollMaxY() - ImGui::GetScrollY()) < line_h)
+        {
+            // it's evaluated on next frame, so we must exxagerate in advance.
+            ImGui::SetScrollY(ImGui::GetScrollMaxY() + (num_incoming * line_h) + 100.f);
+        }
+
+        // Calculate message range and cursor pos
+        int msg_start = 0, msg_count = 0;
+        ImVec2 cursor = ImGui::GetWindowPos();
+        if (ImGui::GetScrollMaxY() < 0) // No scrolling
+        {
+            msg_count = (int)m_display_messages.size();
+            cursor += ImVec2(0, ImGui::GetWindowHeight() - (msg_count * line_h)); // Align to bottom
+        }
+        else // Scrolling
+        {
+            const float scroll_rel = ImGui::GetScrollY()/ImGui::GetScrollMaxY();
+            const float scroll_offset = ((dummy_h - ImGui::GetWindowHeight()) *scroll_rel);
+            msg_start = std::max(0, (int)(scroll_offset/line_h));
+
+            msg_count = std::min((int)(ImGui::GetWindowHeight() / line_h)+2, // Bias (2) for partially visible messages (1 top, 1 bottom)
+                                 (int)m_display_messages.size() - msg_start);
+
+            const float line_offset = scroll_offset/line_h;
+            cursor -= ImVec2(0, (line_offset - (float)(int)line_offset)*line_h);
+        }
+
+        // Horizontal scrolling
+        if (ImGui::GetScrollMaxX() > 0)
+        {
+            cursor -= ImVec2(ImGui::GetScrollX(), 0);
+        }
+
+        // Draw the messages
+        for (int i = msg_start; i < msg_start + msg_count; i++)
+        {
+            const Console::Message& m = *m_display_messages[i];
+
+            ImVec2 text_size = this->DrawMessage(cursor, m);
+            ImGui::SetCursorPosX(text_size.x); // Enable horizontal scrolling
+
+            cursor += ImVec2(0.f, line_h);
+        }
+    }
+
+    // Finalize drawing
+    drawlist->ChannelsMerge();
+}
+
+ImVec2 GUI::ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
+{
+    Str<LINE_BUF_MAX> line;
+    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+
+    // Draw icons based on filters
+    Ogre::TexturePtr icon;
+    if (cvw_enable_icons)
+    {
         if (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
         {
             icon = Ogre::TextureManager::getSingleton().load("script.png", "IconsRG");
@@ -126,44 +156,39 @@ void GUI::ConsoleView::DrawConsoleMessages()
         {
             icon = Ogre::TextureManager::getSingleton().load("comment.png", "IconsRG");
         }
-
-        // Add colored multiplayer username
-        RoRnet::UserInfo user;
-        if (m.cm_net_userid != 0 && RoR::Networking::GetAnyUserInfo((int)m.cm_net_userid, user))
-        {
-            Ogre::ColourValue col = RoR::Networking::GetPlayerColor(user.colournum);
-            char prefix[400] = {};
-            int r,g,b;
-            color2i(ImVec4(col.r, col.g, col.b, col.a), r,g,b);
-            snprintf(prefix, 400, "#%02x%02x%02x%s: #000000", r, g, b, user.username);
-
-            line.Clear();
-            line << prefix << m.cm_text;
-        }
-        else
-        {
-            line = m.cm_text;
-        }
-
-        // Colorize text by type
-        ImVec4 base_color = ImGui::GetStyle().Colors[ImGuiCol_Text];
-        switch (m.cm_type)
-        {
-        case Console::CONSOLE_TITLE:          base_color = theme.highlight_text_color;  break;
-        case Console::CONSOLE_SYSTEM_ERROR:   base_color = theme.error_text_color;      break;
-        case Console::CONSOLE_SYSTEM_WARNING: base_color = theme.warning_text_color;    break;
-        case Console::CONSOLE_SYSTEM_REPLY:   base_color = theme.success_text_color;    break;
-        case Console::CONSOLE_HELP:           base_color = theme.help_text_color;       break;
-        default:;
-        }
-
-        ImVec2 text_size = this->DrawColorMarkedText(cursor, icon, base_color, line.ToCStr());
-        ImGui::SetCursorPosX(text_size.x); // Enable horizontal scrolling
-
-        cursor += ImVec2(0.f, line_h);
     }
 
-    drawlist->ChannelsMerge();
+    // Add colored multiplayer username
+    RoRnet::UserInfo user;
+    if (m.cm_net_userid != 0 && RoR::Networking::GetAnyUserInfo((int)m.cm_net_userid, user))
+    {
+        Ogre::ColourValue col = RoR::Networking::GetPlayerColor(user.colournum);
+        char prefix[400] = {};
+        int r,g,b;
+        color2i(ImVec4(col.r, col.g, col.b, col.a), r,g,b);
+        snprintf(prefix, 400, "#%02x%02x%02x%s: #000000", r, g, b, user.username);
+
+        line.Clear();
+        line << prefix << m.cm_text;
+    }
+    else
+    {
+        line = m.cm_text;
+    }
+
+    // Colorize text by type
+    ImVec4 base_color = ImGui::GetStyle().Colors[ImGuiCol_Text];
+    switch (m.cm_type)
+    {
+    case Console::CONSOLE_TITLE:          base_color = theme.highlight_text_color;  break;
+    case Console::CONSOLE_SYSTEM_ERROR:   base_color = theme.error_text_color;      break;
+    case Console::CONSOLE_SYSTEM_WARNING: base_color = theme.warning_text_color;    break;
+    case Console::CONSOLE_SYSTEM_REPLY:   base_color = theme.success_text_color;    break;
+    case Console::CONSOLE_HELP:           base_color = theme.help_text_color;       break;
+    default:;
+    }
+
+    return this->DrawColorMarkedText(cursor, icon, base_color, line.ToCStr());
 }
 
 void GUI::ConsoleView::DrawFilteringOptions()
@@ -310,7 +335,23 @@ int GUI::ConsoleView::UpdateMessages()
         Console::Message const& m = lock.messages[i];
         if (this->MessageFilter(m))
         {
-            m_filtered_messages.push_back(m); // Copy
+            if (cvw_enable_scrolling && m.cm_text.find("\n"))
+            {
+                // Keep it simple: only use single-line messages with scrolling view
+                Ogre::StringVector v = Ogre::StringUtil::split(m.cm_text, "\n"); // TODO: optimize
+                for (Ogre::String& s: v)
+                {
+                    Ogre::StringUtil::trim(s);
+                    if (s != "")
+                    {
+                        m_filtered_messages.emplace_back(m.cm_area, m.cm_type, s, m.cm_timestamp, m.cm_net_userid);
+                    }
+                }
+            }
+            else
+            {
+                m_filtered_messages.push_back(m); // Copy
+            }
         }
     }
     m_total_messages = lock.messages.size();
