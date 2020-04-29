@@ -314,7 +314,7 @@ void CameraManager::ResetCurrentBehavior()
             m_cam_ratio = 11.0f;
         }
         m_cam_dist_min = 0;
-	m_cam_target_pitch = 0.0f;
+        m_cam_target_pitch = 0.0f;
         return;
     }
 
