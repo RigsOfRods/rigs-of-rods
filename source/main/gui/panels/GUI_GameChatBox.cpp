@@ -50,7 +50,7 @@ void RoR::GUI::GameChatBox::Draw()
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
     const float width = ImGui::GetIO().DisplaySize.x - (2 * theme.screen_edge_padding.x);
     ImVec2 msg_size(width, (ImGui::GetIO().DisplaySize.y / 3.f) + (2*ImGui::GetStyle().WindowPadding.y));
-    ImVec2 chat_size(width, ImGui::GetTextLineHeightWithSpacing());
+    ImVec2 chat_size(width, ImGui::GetTextLineHeightWithSpacing() + 20);
     ImGui::SetNextWindowSize(msg_size);
     ImVec2 msg_pos(theme.screen_edge_padding.x, ImGui::GetIO().DisplaySize.y - (msg_size.y + theme.screen_edge_padding.y));
     if (m_is_visible)
@@ -115,6 +115,7 @@ void RoR::GUI::GameChatBox::Draw()
 
     if (m_is_visible) // Full display?
     {
+        ImGui::Text(_L("Chat history (use mouse wheel to scroll)"));
         ImGui::Text(_L("Message"));
         ImGui::SameLine();
         if (!m_kb_focused)
