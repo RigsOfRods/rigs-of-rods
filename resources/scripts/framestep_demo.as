@@ -47,16 +47,7 @@ void DrawSimBufferWindow(ActorSimBuffer@ data)
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("tyre_pressure          "); ImGui::NextColumn(); ImGui::Text("" + data.tyre_pressure          ); ImGui::NextColumn();
     ImGui::Text("string "); ImGui::NextColumn(); ImGui::Text("net_username           "); ImGui::NextColumn(); ImGui::Text("" + data.net_username           ); ImGui::NextColumn();
     ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("is_remote              "); ImGui::NextColumn(); ImGui::Text("" + data.is_remote              ); ImGui::NextColumn();
-    ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("gear                   "); ImGui::NextColumn(); ImGui::Text("" + data.gear                   ); ImGui::NextColumn();
-    ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("autoshift              "); ImGui::NextColumn(); ImGui::Text("" + data.autoshift              ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("wheel_speed            "); ImGui::NextColumn(); ImGui::Text("" + data.wheel_speed            ); ImGui::NextColumn();
-    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("engine_rpm             "); ImGui::NextColumn(); ImGui::Text("" + data.engine_rpm             ); ImGui::NextColumn();
-    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("engine_crankfactor     "); ImGui::NextColumn(); ImGui::Text("" + data.engine_crankfactor     ); ImGui::NextColumn();
-    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("engine_turbo_psi       "); ImGui::NextColumn(); ImGui::Text("" + data.engine_turbo_psi       ); ImGui::NextColumn();
-    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("engine_accel           "); ImGui::NextColumn(); ImGui::Text("" + data.engine_accel           ); ImGui::NextColumn();
-    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("engine_torque          "); ImGui::NextColumn(); ImGui::Text("" + data.engine_torque          ); ImGui::NextColumn();
-    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("inputshaft_rpm         "); ImGui::NextColumn(); ImGui::Text("" + data.inputshaft_rpm         ); ImGui::NextColumn();
-    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("drive_ratio            "); ImGui::NextColumn(); ImGui::Text("" + data.drive_ratio            ); ImGui::NextColumn();
     ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("beaconlight_active     "); ImGui::NextColumn(); ImGui::Text("" + data.beaconlight_active     ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("hydro_dir_state        "); ImGui::NextColumn(); ImGui::Text("" + data.hydro_dir_state        ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("hydro_aileron_state    "); ImGui::NextColumn(); ImGui::Text("" + data.hydro_aileron_state    ); ImGui::NextColumn();
@@ -65,13 +56,13 @@ void DrawSimBufferWindow(ActorSimBuffer@ data)
     ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("cur_cinecam            "); ImGui::NextColumn(); ImGui::Text("" + data.cur_cinecam            ); ImGui::NextColumn();
     ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("parking_brake          "); ImGui::NextColumn(); ImGui::Text("" + data.parking_brake          ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("brake                  "); ImGui::NextColumn(); ImGui::Text("" + data.brake                  ); ImGui::NextColumn();
-    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("clutch                 "); ImGui::NextColumn(); ImGui::Text("" + data.clutch                 ); ImGui::NextColumn();
     ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("aero_flap_state        "); ImGui::NextColumn(); ImGui::Text("" + data.aero_flap_state        ); ImGui::NextColumn();
     ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("airbrake_state         "); ImGui::NextColumn(); ImGui::Text("" + data.airbrake_state         ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("wing4_aoa              "); ImGui::NextColumn(); ImGui::Text("" + data.wing4_aoa              ); ImGui::NextColumn();
     ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("headlight_on           "); ImGui::NextColumn(); ImGui::Text("" + data.headlight_on           ); ImGui::NextColumn();
     ImGui::Text("vector3"); ImGui::NextColumn(); ImGui::Text("direction              "); ImGui::NextColumn(); ImGui::Text("" + Vector3Str(data.direction)  ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("top_speed              "); ImGui::NextColumn(); ImGui::Text("" + data.top_speed              ); ImGui::NextColumn();
+     // Autopilot
     ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("ap_heading_mode        "); ImGui::NextColumn(); ImGui::Text("" + data.ap_heading_mode        ); ImGui::NextColumn();
     ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("ap_heading_value       "); ImGui::NextColumn(); ImGui::Text("" + data.ap_heading_value       ); ImGui::NextColumn();
     ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("ap_alt_mode            "); ImGui::NextColumn(); ImGui::Text("" + data.ap_alt_mode            ); ImGui::NextColumn();
@@ -83,6 +74,19 @@ void DrawSimBufferWindow(ActorSimBuffer@ data)
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("ap_ils_vdev            "); ImGui::NextColumn(); ImGui::Text("" + data.ap_ils_vdev            ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("ap_ils_hdev            "); ImGui::NextColumn(); ImGui::Text("" + data.ap_ils_hdev            ); ImGui::NextColumn();
     ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("ap_vs_value            "); ImGui::NextColumn(); ImGui::Text("" + data.ap_vs_value            ); ImGui::NextColumn();
+     // Engine & powertrain
+    ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("gear                   "); ImGui::NextColumn(); ImGui::Text("" + data.gear                   ); ImGui::NextColumn();
+    ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("autoshift              "); ImGui::NextColumn(); ImGui::Text("" + data.autoshift              ); ImGui::NextColumn();
+    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("engine_rpm             "); ImGui::NextColumn(); ImGui::Text("" + data.engine_rpm             ); ImGui::NextColumn();
+    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("engine_crankfactor     "); ImGui::NextColumn(); ImGui::Text("" + data.engine_crankfactor     ); ImGui::NextColumn();
+    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("engine_turbo_psi       "); ImGui::NextColumn(); ImGui::Text("" + data.engine_turbo_psi       ); ImGui::NextColumn();
+    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("engine_accel           "); ImGui::NextColumn(); ImGui::Text("" + data.engine_accel           ); ImGui::NextColumn();
+    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("engine_torque          "); ImGui::NextColumn(); ImGui::Text("" + data.engine_torque          ); ImGui::NextColumn();
+    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("inputshaft_rpm         "); ImGui::NextColumn(); ImGui::Text("" + data.inputshaft_rpm         ); ImGui::NextColumn();
+    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("drive_ratio            "); ImGui::NextColumn(); ImGui::Text("" + data.drive_ratio            ); ImGui::NextColumn();
+    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("clutch                 "); ImGui::NextColumn(); ImGui::Text("" + data.clutch                 ); ImGui::NextColumn();    
+    ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("engine_ignition        "); ImGui::NextColumn(); ImGui::Text("" + data.engine_ignition        ); ImGui::NextColumn();
+    ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("engine_running         "); ImGui::NextColumn(); ImGui::Text("" + data.engine_running         ); ImGui::NextColumn();    
     
     ImGui::Columns(1);
     ImGui::End();

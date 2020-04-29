@@ -123,16 +123,7 @@ public:
         Ogre::AxisAlignedBox        simbuf_aabb               = Ogre::AxisAlignedBox::BOX_NULL;
         std::string                 simbuf_net_username;
         bool                        simbuf_is_remote          = false;
-        int                         simbuf_gear               = 0;
-        int                         simbuf_autoshift          = 0;
         float                       simbuf_wheel_speed        = 0;
-        float                       simbuf_engine_rpm         = 0;
-        float                       simbuf_engine_crankfactor = 0;
-        float                       simbuf_engine_turbo_psi   = 0;
-        float                       simbuf_engine_accel       = 0;
-        float                       simbuf_engine_torque      = 0;
-        float                       simbuf_inputshaft_rpm     = 0;     // Land vehicle only
-        float                       simbuf_drive_ratio        = 0;     // Land vehicle only
         float                       simbuf_hydro_dir_state    = 0;     // State of steering actuator ('hydro'), for steeringwheel display
         float                       simbuf_hydro_aileron_state = 0;
         float                       simbuf_hydro_elevator_state = 0;
@@ -145,7 +136,6 @@ public:
         DiffType                    simbuf_diff_type          = DiffType::SPLIT_DIFF;
         bool                        simbuf_parking_brake      = false;
         float                       simbuf_brake              = 0;
-        float                       simbuf_clutch             = 0;
         int                         simbuf_aero_flap_state    = 0;
         int                         simbuf_airbrake_state     = 0;
         float                       simbuf_wing4_aoa          = 0;
@@ -168,6 +158,19 @@ public:
         float                       simbuf_ap_ils_vdev        = 0;
         float                       simbuf_ap_ils_hdev        = 0;
         int                         simbuf_ap_vs_value        = 0;
+        // Engine & powertrain
+        int                         simbuf_gear               = 0;
+        int                         simbuf_autoshift          = 0;
+        float                       simbuf_engine_rpm         = 0;
+        float                       simbuf_engine_crankfactor = 0;
+        float                       simbuf_engine_turbo_psi   = 0;
+        float                       simbuf_engine_accel       = 0;
+        float                       simbuf_engine_torque      = 0;
+        float                       simbuf_inputshaft_rpm     = 0;     // Land vehicle only
+        float                       simbuf_drive_ratio        = 0;     // Land vehicle only
+        float                       simbuf_clutch             = 0;
+        bool                        simbuf_engine_ignition    = false;
+        bool                        simbuf_engine_running     = false;
     };
 
     struct Attributes    //!< Actor visual attributes

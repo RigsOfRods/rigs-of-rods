@@ -124,12 +124,14 @@ int loop(GfxActor@ actor)
 
     ImGui::SetCursorPos(vector2(48,354));
     ImGui::Image(G_icon_lopress_off, vector2(25, 25));
+    
+    bool starter = data.engine_ignition && !data.engine_running;
 
     ImGui::SetCursorPos(vector2(76,348));
-    ImGui::Image(G_icon_battery_off, vector2(35, 35));
+    ImGui::Image(starter ? G_icon_battery_on : G_icon_battery_off, vector2(35, 35));
 
     ImGui::SetCursorPos(vector2(112,348));
-    ImGui::Image(G_icon_ign_off, vector2(35, 35));
+    ImGui::Image(starter ? G_icon_ign_on : G_icon_ign_off, vector2(35, 35));
 
     ImGui::SetCursorPos(vector2(192,300));
     ImGui::Image(G_icon_tractioncontrol1, vector2(25, 25));
