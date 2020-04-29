@@ -22,7 +22,28 @@
 #include "Application.h"
 #include "Console.h"
 
+#include <Ogre.h>
+
 using namespace RoR;
+
+void CVar::LogStr(const char* op, std::string const& old_val, std::string const& new_val)
+{
+    if (!Ogre::LogManager::getSingletonPtr())
+        return;
+
+    Str<100> flags_str;
+    if (m_flags & CVAR_AUTO_APPLY) { flags_str << " [autoapply]"; }
+    if (m_flags & CVAR_AUTO_STORE) { flags_str << " [autostore]"; }
+    LogFormat(CVAR_LOG_FMT, m_name.c_str(), op, new_val.c_str(), old_val.c_str(), flags_str.ToCStr());
+}
+
+void CVar::LogVal(const char* op, float old_val, float new_val)
+{
+    if (!Ogre::LogManager::getSingletonPtr())
+        return;
+
+    this->LogStr(op, Val::ConvertStr(old_val, m_flags), Val::ConvertStr(new_val, m_flags));
+}
 
 void Console::CVarSetupBuiltins()
 {
@@ -255,3 +276,4 @@ CVar* Console::CVarGet(std::string const& input_name, int flags)
 
     return this->CVarCreate(input_name, input_name, flags);
 }
+
