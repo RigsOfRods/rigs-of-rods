@@ -41,6 +41,7 @@ struct ConsoleView
 {
     void DrawConsoleMessages();
     void DrawFilteringOptions();
+    void RequestReloadMessages() {m_reload_messages=true;}
 
     // Filtering (true means allowed)
     bool  cvw_filter_type_notice = true;

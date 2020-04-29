@@ -32,7 +32,6 @@
 
 RoR::GUI::GameChatBox::GameChatBox()
 {
-    m_console_view.cvw_msg_duration_ms = 10000; // 10sec
     m_console_view.cvw_filter_area_actor = false; // Disable vehicle spawn warnings/errors
     m_console_view.cvw_filter_type_error = false; // Disable errors
     m_console_view.cvw_filter_type_cmd = false; // Disable commands
@@ -47,7 +46,7 @@ void RoR::GUI::GameChatBox::Draw()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
 
     // Begin drawing the messages pane (no input)
-    ImGuiWindowFlags msg_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoInputs |
+    ImGuiWindowFlags msg_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
     const float width = ImGui::GetIO().DisplaySize.x - (2 * theme.screen_edge_padding.x);
     ImVec2 msg_size(width, (ImGui::GetIO().DisplaySize.y / 3.f) + (2*ImGui::GetStyle().WindowPadding.y));
@@ -68,8 +67,35 @@ void RoR::GUI::GameChatBox::Draw()
         initialized = false;
     }
 
+    if (m_is_visible)
+    {
+        m_console_view.cvw_enable_scrolling = true;
+        m_console_view.cvw_msg_duration_ms = 3600000; // 1hour
+        m_console_view.cvw_filter_type_notice = false;
+        m_console_view.cvw_filter_type_warning = false; 
+        m_console_view.cvw_filter_area_script = false; 
+        if (init_scroll == false) // Initialize auto scrolling
+        {
+            m_console_view.RequestReloadMessages();
+            ImGui::SetScrollFromPosY(9999); // Force to bottom once
+            init_scroll = true;
+        }
+    }
+    else
+    {
+        m_console_view.cvw_enable_scrolling = false;
+        m_console_view.cvw_filter_type_notice = true;
+        m_console_view.cvw_filter_type_warning = true; 
+        m_console_view.cvw_filter_area_script = true; 
+        m_console_view.cvw_msg_duration_ms = 10000; // 10sec
+        if (init_scroll == true) // Initialize auto scrolling
+        {
+            m_console_view.RequestReloadMessages();
+            init_scroll = false;
+        }
+    }
+
     m_console_view.DrawConsoleMessages();
-    ImGui::SetScrollFromPosY(9999); // Force to bottom
 
     ImGui::End();
 

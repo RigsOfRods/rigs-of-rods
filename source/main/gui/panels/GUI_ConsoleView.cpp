@@ -62,7 +62,7 @@ void GUI::ConsoleView::DrawConsoleMessages()
     {
         // Draw from bottom, messages may be multiline
         ImVec2 cursor = ImGui::GetWindowPos() + ImVec2(0, ImGui::GetWindowHeight());
-        for (int i = m_display_messages.size() - 1; i > 0; --i)
+        for (int i = m_display_messages.size() - 1; i >= 0; --i)
         {
             Console::Message const& m = *m_display_messages[i];
             float msg_h = ImGui::CalcTextSize(m.cm_text.c_str()).y + (2 * cvw_background_padding.y) + cvw_line_spacing;
@@ -293,20 +293,6 @@ ImVec2 GUI::ConsoleView::DrawColorMarkedText(ImVec2 bg_cursor, Ogre::TexturePtr 
     drawlist->AddRectFilled(bg_cursor, bg_cursor + bg_rect_size,
         ImColor(cvw_background_color), ImGui::GetStyle().FrameRounding);
     return bg_rect_size;
-}
-
-bool GUI::ConsoleView::DrawIcon(Ogre::TexturePtr tex)
-{
-    if (!App::GetGuiManager()->IsVisible_Console())
-    {
-        ImGui::SetCursorPosX(10.f); // Give some room for icon
-        if (tex)
-        {
-            ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(16, 16));
-        }
-        ImGui::SameLine(); // Keep icon and text in the same line
-    }
-    return NULL;
 }
 
 int GUI::ConsoleView::UpdateMessages()
