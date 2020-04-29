@@ -303,15 +303,3 @@ void RoR::GfxScene::RemoveGfxCharacter(RoR::GfxCharacter* remove_me)
     m_all_gfx_characters.erase(itor, m_all_gfx_characters.end());
 }
 
-RoR::GfxScene::SimBuffer::SimBuffer():
-    simbuf_player_actor(nullptr),
-    simbuf_character_pos(Ogre::Vector3::ZERO),
-    simbuf_tyrepressurize_active(false),
-    simbuf_race_in_progress(false),
-    simbuf_race_in_progress_prev(false),
-    simbuf_sim_speed(1.0f),
-    simbuf_race_time(0.0f),
-    simbuf_race_best_time(0.0f),
-    simbuf_race_time_diff(0.0f),
-    simbuf_dir_arrow_target(Ogre::Vector3::ZERO)
-{}
