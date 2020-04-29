@@ -481,29 +481,19 @@ void SimController::UpdateInputEvents(float dt)
     // camera FOV settings
     if (this->GetCameraBehavior() != CameraManager::CAMERA_BEHAVIOR_STATIC) // the static camera has its own fov logic
     {
-        const bool fov_less = RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_LESS, 0.1f);
-        const bool fov_more = RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_MORE, 0.1f);
-        if (fov_less || fov_more)
-        {
-            float fov = gEnv->mainCamera->getFOVy().valueDegrees();
-            fov = (fov_less) ? (fov - 1.f) : (fov + 1.f);
-            fov = Round(fov);
+        CVar* cvar_fov = ((this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
+            ? App::gfx_fov_internal : App::gfx_fov_external;
 
+        int modifier = 0;
+        modifier = (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_LESS, 0.1f)) ? -1 : 0;
+        modifier = (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_MORE, 0.1f)) ?  1 : 0;
+        int fov = -1;
+        if (modifier != 0)
+        {
+            fov = cvar_fov->GetActiveVal<int>() + modifier;
             if (fov >= 10 && fov <= 160)
             {
-                gEnv->mainCamera->setFOVy(Degree(fov));
-
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
-
-                // save the settings
-                if (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
-                {
-                    App::gfx_fov_internal->SetActiveVal(fov);
-                }
-                else
-                {
-                    App::gfx_fov_external->SetActiveVal(fov);
-                }
+                cvar_fov->SetActiveVal(fov);
             }
             else
             {
@@ -512,19 +502,14 @@ void SimController::UpdateInputEvents(float dt)
         }
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_RESET))
         {
-            float fov = gEnv->mainCamera->getFOVy().valueDegrees();
-            if (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
-            {
-                fov = App::gfx_fov_internal->GetStoredVal<int>();
-                App::gfx_fov_internal->SetActiveVal(fov);
-            }
-            else
-            {
-                fov = App::gfx_fov_external->GetStoredVal<int>();
-                App::gfx_fov_external->SetActiveVal(fov);
-            }
-            gEnv->mainCamera->setFOVy(Degree(fov));
-            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
+            fov = cvar_fov->GetStoredVal<int>();
+            cvar_fov->SetActiveVal(fov);
+        }
+
+        if (fov != -1)
+        {
+            Str<100> msg; msg << _L("FOV: ") << fov;
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr(), "camera_edit.png", 2000);
         }
     }
 

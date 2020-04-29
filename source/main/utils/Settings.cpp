@@ -266,7 +266,7 @@ void Settings::ParseGlobalVarSetting(CVar* cvar, std::string const & val)
         int fov = Ogre::StringConverter::parseInt(val);
         if (fov >= 10) // FOV shouldn't be below 10
         {
-            cvar->SetActiveVal(fov);
+            App::GetConsole()->CVarAssign(cvar, val, CVAR_FORCE_APPLY | CVAR_FORCE_STORE);
         }
     }
     else
