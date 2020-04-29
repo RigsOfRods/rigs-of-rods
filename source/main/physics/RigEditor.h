@@ -43,7 +43,7 @@ public:
     bool                SaveSnapshot();
     void                LoadSnapshot(ProjectEntry* project, int snapshot);
     void                SetDefinition(std::shared_ptr<RigDef::File> def) { m_def = def; }
-    void                AddExampleScriptToSnapshot();
+    void                AddExampleScriptToSnapshot(std::string const& filename);
     ProjectEntry*       GetProjectEntry() { return m_entry; }
     void                CloseProject();
 

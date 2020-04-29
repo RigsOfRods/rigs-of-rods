@@ -290,7 +290,7 @@ bool RigEditor::SaveSnapshot()
     }
 }
 
-void RigEditor::AddExampleScriptToSnapshot()
+void RigEditor::AddExampleScriptToSnapshot(std::string const& filename)
 {
     assert(m_def);
     assert(m_entry);
@@ -313,7 +313,7 @@ void RigEditor::AddExampleScriptToSnapshot()
         // Open bundled demo script
         Ogre::DataStreamPtr demo_stream
             = Ogre::ResourceGroupManager::getSingleton().openResource(
-                "framestep_demo.as", ContentManager::ResourcePack::SCRIPTS.resource_group_name);
+                filename, ContentManager::ResourcePack::SCRIPTS.resource_group_name);
 
         // Buffer welcome text
         std::stringstream buf;

@@ -338,9 +338,13 @@ void RoR::GUI::TopMenubar::Update()
             {
                 ImGui::Separator(); // Current project actions
 
-                if (ImGui::Button(_L("+ Add Example script")))
+                std::string example_to_add;
+                if (ImGui::Button(_L("+ Add Example script"))) { example_to_add = "framestep_demo.as"; }
+                if (ImGui::Button(_L("+ Add prototype dash"))) { example_to_add = "framestep_dash_demo.as"; }
+
+                if (example_to_add != "")
                 {
-                    App::GetSimController()->GetRigEditor().AddExampleScriptToSnapshot();
+                    App::GetSimController()->GetRigEditor().AddExampleScriptToSnapshot(example_to_add);
                     App::GetSimController()->GetRigEditor().SaveSnapshot();
 
                     ActorModifyRequest rq;
