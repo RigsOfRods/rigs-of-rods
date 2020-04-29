@@ -1559,14 +1559,15 @@ void Parser::ParseEngine()
     engine.reverse_gear_ratio = this->GetArgFloat(4);
     engine.neutral_gear_ratio = this->GetArgFloat(5);
 
-    // Forward gears (max 1000)
-    int gear_index = 0;
-    while ((gear_index < 1000) && (m_num_args > (6 + gear_index)))
+    // Forward gears
+    for (int i = 6; i < m_num_args; i++)
     {
-        float ratio = this->GetArgFloat(gear_index + 6);
-        if (ratio < 0.f) { break; } // Optional terminator argument
-        engine.gear_ratios.push_back(ratio);
-        ++gear_index;
+        float ratio = this->GetArgFloat(i);
+        if (ratio < 0.f)
+        {
+            break; // Optional terminator argument
+        }
+        engine.gear_ratios.push_back(ratio);   
     }
 
     if (engine.gear_ratios.size() == 0)
