@@ -42,19 +42,17 @@ public:
 
     struct SimBuffer /// Buffered simulation state
     {
-        SimBuffer();
-
-        Actor*         simbuf_player_actor;
-        Ogre::Vector3  simbuf_character_pos;
-        Ogre::Vector3  simbuf_dir_arrow_target;
-        bool           simbuf_tyrepressurize_active;
-        bool           simbuf_sim_paused;
-        float          simbuf_sim_speed;
-        float          simbuf_race_time;
-        float          simbuf_race_best_time;
-        float          simbuf_race_time_diff;
-        bool           simbuf_race_in_progress;
-        bool           simbuf_race_in_progress_prev;
+        Actor*         simbuf_player_actor           = nullptr;
+        Ogre::Vector3  simbuf_character_pos          = Ogre::Vector3::ZERO;
+        Ogre::Vector3  simbuf_dir_arrow_target       = Ogre::Vector3::ZERO;
+        bool           simbuf_tyrepressurize_active  = false;
+        bool           simbuf_sim_paused             = false;
+        float          simbuf_sim_speed              = 1.f;
+        float          simbuf_race_time              = 0.f;
+        float          simbuf_race_best_time         = 0.f;
+        float          simbuf_race_time_diff         = 0.f;
+        bool           simbuf_race_in_progress       = false;
+        bool           simbuf_race_in_progress_prev  = false;
     };
 
     GfxScene();
