@@ -141,7 +141,9 @@ void RoR::DrawGIntBox(CVar* cvar, const char* label)
 
 void RoR::DrawGIntSlider(CVar* cvar, const char* label, int v_min, int v_max)
 {
-    int val = cvar->GetActiveVal<int>();
+    int val = (cvar->HasFlags(CVAR_ALLOW_STORE) && !cvar->HasFlags(CVAR_AUTO_STORE))
+        ? cvar->GetStoredVal<int>() : cvar->GetActiveVal<int>();
+
     if (ImGui::SliderInt(label, &val, v_min, v_max))
     {
         cvar->SetActiveVal(val);
@@ -154,7 +156,9 @@ void RoR::DrawGIntSlider(CVar* cvar, const char* label, int v_min, int v_max)
 
 void RoR::DrawGFloatSlider(CVar* cvar, const char* label, float v_min, float v_max)
 {
-    float val = cvar->GetActiveVal<float>();
+    float val = (cvar->HasFlags(CVAR_ALLOW_STORE) && !cvar->HasFlags(CVAR_AUTO_STORE))
+        ? cvar->GetStoredVal<float>() : cvar->GetActiveVal<float>();
+
     if (ImGui::SliderFloat(label, &val, v_min, v_max, "%.2f"))
     {
         cvar->SetActiveVal(val);

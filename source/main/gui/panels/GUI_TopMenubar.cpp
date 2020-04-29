@@ -406,7 +406,6 @@ void RoR::GUI::TopMenubar::Update()
                     if (ImGui::SliderInt("FOV", &fov, 10, 120))
                     {
                         App::gfx_fov_internal->SetActiveVal(fov);
-                        gEnv->mainCamera->setFOVy(Ogre::Degree(fov));
                     }
                 }
                 else
@@ -415,7 +414,6 @@ void RoR::GUI::TopMenubar::Update()
                     if (ImGui::SliderInt("FOV", &fov, 10, 120))
                     {
                         App::gfx_fov_external->SetActiveVal(fov);
-                        gEnv->mainCamera->setFOVy(Ogre::Degree(fov));
                     }
                 }
                 if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)

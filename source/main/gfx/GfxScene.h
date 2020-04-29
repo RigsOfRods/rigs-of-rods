@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "CameraManager.h"
 #include "ForwardDeclarations.h"
 #include "EnvironmentMap.h" // RoR::GfxEnvmap
 
@@ -53,6 +54,8 @@ public:
         float          simbuf_race_time_diff         = 0.f;
         bool           simbuf_race_in_progress       = false;
         bool           simbuf_race_in_progress_prev  = false;
+        CameraManager::CameraBehaviors
+                       simbuf_camera_behavior        = CameraManager::CAMERA_BEHAVIOR_INVALID;
     };
 
     GfxScene();

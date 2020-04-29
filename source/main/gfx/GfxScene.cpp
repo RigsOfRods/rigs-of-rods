@@ -24,6 +24,7 @@
 #include "Application.h"
 #include "Beam.h"
 #include "BeamFactory.h"
+#include "Console.h"
 #include "DustPool.h"
 #include "HydraxWater.h"
 #include "GUIManager.h"
@@ -84,6 +85,11 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         player_gfx_actor = m_simbuf.simbuf_player_actor->GetGfxActor();
         player_connected_gfx_actors = player_gfx_actor->GetLinkedGfxActors();
     }
+
+    // FOV
+    float fov = (m_simbuf.simbuf_camera_behavior == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+        ? App::gfx_fov_internal->GetActiveVal<float>() : App::gfx_fov_external->GetActiveVal<float>();
+    gEnv->mainCamera->setFOVy(Ogre::Degree(fov));
 
     // Particles
     if (App::gfx_particles_mode->GetActiveVal<int>() == 1)
@@ -268,6 +274,7 @@ void RoR::GfxScene::BufferSimulationData()
     m_simbuf.simbuf_race_time_diff = App::GetSimController()->GetRaceTimeDiff();
     m_simbuf.simbuf_race_in_progress_prev = m_simbuf.simbuf_race_in_progress;
     m_simbuf.simbuf_race_in_progress = App::GetSimController()->IsRaceInProgress();
+    m_simbuf.simbuf_camera_behavior = App::GetSimController()->GetCameraBehavior();
 
     m_live_gfx_actors.clear();
     for (GfxActor* a: m_all_gfx_actors)
