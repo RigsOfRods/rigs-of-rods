@@ -88,7 +88,7 @@ void RoR::GUI::GameChatBox::Draw()
         m_console_view.cvw_filter_type_warning = true; 
         m_console_view.cvw_filter_area_script = true; 
         m_console_view.cvw_msg_duration_ms = 10000; // 10sec
-        if (init_scroll == true) // Initialize auto scrolling
+        if (init_scroll == true)
         {
             m_console_view.RequestReloadMessages();
             init_scroll = false;
