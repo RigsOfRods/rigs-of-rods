@@ -29,6 +29,8 @@
 
 namespace RoR {
 
+static const char* CVAR_LOG_FMT = "[RoR|CVar]  %20s:  %s(), new: \"%s\", old: \"%s\"%s";
+
 enum CVarFlags
 {
     CVAR_ALLOW_STORE  = 1,    //<! Will be written to RoR.cfg
@@ -88,6 +90,8 @@ public:
     template <typename T>
     void SetActiveVal(T val)
     {
+        this->LogVal("SetActive", m_value_active.GetValue<float>(), (float)val);
+
         m_value_active.SetValue(val, m_flags);
         m_value_pending.SetValue(val, m_flags);
         if (m_flags & (CVAR_ALLOW_STORE | CVAR_AUTO_STORE))
@@ -98,6 +102,8 @@ public:
 
     void SetActiveStr(std::string const& str)
     {
+        this->LogStr("SetActive", m_value_active.GetString(), str);
+
         m_value_active.SetString(str);
         m_value_pending.SetString(str);
         if (m_flags & (CVAR_ALLOW_STORE | CVAR_AUTO_STORE))
@@ -109,6 +115,8 @@ public:
     template <typename T>
     void SetPendingVal(T val)
     {
+        this->LogVal("SetPending", m_value_pending.GetValue<float>(), (float)val);
+
         m_value_pending.SetValue(val, m_flags);
         if (m_flags & CVAR_AUTO_APPLY)
         {
@@ -122,6 +130,8 @@ public:
 
     void SetPendingStr(std::string const& str)
     {
+        this->LogStr("SetPending", m_value_pending.GetString(), str);
+
         m_value_pending.SetString(str);
         if (m_flags & CVAR_AUTO_APPLY)
         {
@@ -138,6 +148,8 @@ public:
     {
         if (m_flags & CVAR_ALLOW_STORE)
         {
+            this->LogVal("SetStored", m_value_stored.GetValue<float>(), (float)val);
+
             m_value_stored.SetValue(val, m_flags);
             if (m_flags & CVAR_AUTO_APPLY)
             {
@@ -151,6 +163,8 @@ public:
     {
         if (m_flags & CVAR_ALLOW_STORE)
         {
+            this->LogStr("SetStored", m_value_stored.GetString(), str);
+
             m_value_stored.SetString(str);
             if (m_flags & CVAR_AUTO_APPLY)
             {
@@ -221,6 +235,10 @@ public:
         const bool pending = this->CheckPending();
         if (pending)
         {
+            if (m_flags & (CVAR_TYPE_BOOL | CVAR_TYPE_INT | CVAR_TYPE_FLOAT))
+                this->LogVal("ApplyPending", m_value_active.GetValue<float>(), m_value_pending.GetValue<float>());
+            else
+                this->LogStr("ApplyPending", m_value_active.GetString(), m_value_pending.GetString());
             m_value_active = m_value_pending;
         }
         return pending;
@@ -231,6 +249,11 @@ public:
         const bool pending = this->CheckPending();
         if (pending)
         {
+            if (m_flags & (CVAR_TYPE_BOOL | CVAR_TYPE_INT | CVAR_TYPE_FLOAT))
+                this->LogVal("ResetPending", m_value_pending.GetValue<float>(), m_value_active.GetValue<float>());
+            else
+                this->LogStr("ResetPending", m_value_pending.GetString(), m_value_active.GetString());
+
             m_value_pending = m_value_active;
         }
         return pending;
@@ -250,11 +273,8 @@ private:
     class Val
     {
     public:
-        template<typename T>
-        void SetValue(T val, int flags)
+        static std::string ConvertStr(float val, int flags)
         {
-            m_value_num = (float)val;
-
             Str<50> buf;
             if (flags & CVAR_TYPE_BOOL)
             {
@@ -272,7 +292,14 @@ private:
             {
                 buf = std::to_string(val);
             }
-            m_value_str = buf.ToCStr();
+            return buf.ToCStr();
+        }
+
+        template<typename T>
+        void SetValue(T val, int flags)
+        {
+            m_value_num = (float)val;
+            m_value_str = Val::ConvertStr((float)val, flags);
         }
 
         void SetString(std::string const& str)
@@ -306,6 +333,9 @@ private:
         float          m_value_num;
         std::string    m_value_str;
     };
+
+    void LogVal(const char* op, float old_val, float new_val);
+    void LogStr(const char* op, std::string const& old_val, std::string const& new_val);
 
     std::string         m_name;
     std::string         m_long_name;
