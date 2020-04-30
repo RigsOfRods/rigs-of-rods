@@ -1,10 +1,10 @@
-Ogre::TexturePtr G_icon_turbo;
+Ogre::TexturePtr G_turbo_gauge;
 Ogre::TexturePtr G_icon_tacho_4000;
 Ogre::TexturePtr G_icon_tacho_4000_mph;
 Ogre::TexturePtr G_icon_tacho_8000;
 Ogre::TexturePtr G_icon_tacho_8000_mph;
-Ogre::TexturePtr G_icon_needle_part1;
-Ogre::TexturePtr G_icon_needle_part2;
+Ogre::TexturePtr G_pointer_needle;
+Ogre::TexturePtr G_pointer_center;
 Ogre::TexturePtr G_icon_brake_off;
 Ogre::TexturePtr G_icon_brake_on;
 Ogre::TexturePtr G_icon_signal_left_off;
@@ -37,13 +37,13 @@ int setup(string arg)
 {
     string rg = "DashboardsRG";
 
-    G_icon_turbo             = Ogre::TextureManager::getSingleton().load("turbo_v2.png",                 rg);
+    G_turbo_gauge            = Ogre::TextureManager::getSingleton().load("turbo_v2.png",                 rg);
     G_icon_tacho_4000        = Ogre::TextureManager::getSingleton().load("tacho4000_digital_v2.png",     rg);
     G_icon_tacho_4000_mph    = Ogre::TextureManager::getSingleton().load("tacho4000_digital_v2_mph.png", rg);
     G_icon_tacho_8000        = Ogre::TextureManager::getSingleton().load("tacho8000_digital_v2.png",     rg);
     G_icon_tacho_8000_mph    = Ogre::TextureManager::getSingleton().load("tacho8000_digital_v2_mph.png", rg);
-    G_icon_needle_part1      = Ogre::TextureManager::getSingleton().load("redneedle_v2.png",             rg);
-    G_icon_needle_part2      = Ogre::TextureManager::getSingleton().load("needle_prt2.png",              rg);
+    G_pointer_needle         = Ogre::TextureManager::getSingleton().load("redneedle_v2.png",             rg);
+    G_pointer_center         = Ogre::TextureManager::getSingleton().load("needle_prt2.png",              rg);
     G_icon_brake_off         = Ogre::TextureManager::getSingleton().load("pbrake_v2-off.png",            rg);
     G_icon_brake_on          = Ogre::TextureManager::getSingleton().load("pbrake_v2-on.png",             rg);
     G_icon_signal_left_off   = Ogre::TextureManager::getSingleton().load("turn_signal_left-off.png",     rg);
@@ -75,6 +75,18 @@ int setup(string arg)
     return 0;
 }
 
+float PI = 3.141592;
+
+// Calculate angle in radians for gauge needle display
+// Params `gauge_min/gauge_max` are min/max output rotation in radians, relative to standby rotation.
+// Param `gauge_bias` is a standby rotation in radians, useful when needle position in texture doesn't match idle gauge.
+// Params `input_min/input_max` is a range of input values which maps to `gauge_min/gauge_max`
+// Finally, param `input` is the value coming from simulation.
+float CalcAngle(float gauge_min, float gauge_max, float gauge_bias, float input_min, float input_max, float input)
+{
+    return (input / ((input_max - input_min))) * (gauge_max - gauge_min) + gauge_min + gauge_bias;
+}
+
 int loop(GfxActor@ actor)
 {
     ActorSimBuffer@ data = actor.GetSimDataBuffer();
@@ -82,16 +94,24 @@ int loop(GfxActor@ actor)
     ImGui::SetNextWindowSize(vector2(640, 545));
     ImGui::Begin("Default HUD", true);
 
+    /*  //DEBUG - TURBO (PSI)
+    ImGui::SetCursorPos(vector2(232,26));
+    string psi_str = "PSI: " + data.engine_turbo_psi;
+    ImGui::Text(psi_str);
+    */
 
+    // Turbo gauge
     ImGui::SetCursorPos(vector2(232,38));
-    ImGui::Image(G_icon_turbo, vector2(112, 112));
-
-    ImGui::SetCursorPos(vector2(238,42));
-    ImGui::Image(G_icon_needle_part1, vector2(99, 99));
+    ImGui::Image(G_turbo_gauge, vector2(112, 112));
+    
+    float turbo_angle = CalcAngle(0.27*PI, 1.7*PI, PI, 0, 25, data.engine_turbo_psi); // Needle texture points upwars, we need idle downwards -> bias = PI
+    vector2 turbo_center = ImGui::GetCursorScreenPos() + vector2(278, -60);
+    ImGuiEx::DrawListAddImageRotated(G_pointer_needle, turbo_center, vector2(99, 99), turbo_angle);    
 
     ImGui::SetCursorPos(vector2(280,88));
-    ImGui::Image(G_icon_needle_part2, vector2(15, 15));
+    ImGui::Image(G_pointer_center, vector2(15, 15));
 
+    // Tacho gauge with lamps
     ImGui::SetCursorPosY(138);
     ImGui::Image(G_icon_tacho_4000, vector2(333, 250));
 
@@ -102,16 +122,15 @@ int loop(GfxActor@ actor)
     ImGui::Image(data.turn_signal_right ? G_icon_signal_right_on : G_icon_signal_right_off, vector2(31, 40));
 
     ImGui::SetCursorPos(vector2(190,200));
-    ImGui::Image(G_icon_brake_off, vector2(55, 55));
-
-    ImGui::SetCursorPos(vector2(94,140));
-    ImGui::Image(G_icon_needle_part1, vector2(248, 248));
+    ImGui::Image(data.parking_brake ? G_icon_brake_on : G_icon_brake_off, vector2(55, 55));
+    
+   // ImGuiEx::DrawListAddImageRotated(G_icon_needle_part1, ImGui::GetCursorScreenPos() + vector2(278, -60), vector2(99, 99),  126.0 - data.engine_rpm * 0.072);    
 
     ImGui::SetCursorPos(vector2(202,246));
-    ImGui::Image(G_icon_needle_part2, vector2(32, 32));
+   // ImGui::Image(G_icon_needle_part2, vector2(32, 32));
 
     ImGui::SetCursorPos(vector2(58,270));
-    ImGui::Image(G_icon_lights_off, vector2(35, 35));
+    ImGui::Image(data.headlight_on ? G_icon_lights_on : G_icon_lights_off, vector2(35, 35));
 
     ImGui::SetCursorPos(vector2(38,316));
     ImGui::Image(G_icon_secure_off, vector2(25, 25));
