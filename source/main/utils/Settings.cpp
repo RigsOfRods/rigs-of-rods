@@ -208,6 +208,12 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
     }
 }
 
+void AssignHelper(CVar* cvar, int val)
+{
+    Str<25> s; s << val;
+    App::GetConsole()->CVarAssign(cvar, s.ToCStr(), CVAR_FORCE_APPLY | CVAR_FORCE_STORE);
+}
+
 void Settings::ParseGlobalVarSetting(CVar* cvar, std::string const & val)
 {
     if (cvar->GetName() == App::gfx_shadow_quality->GetName())
@@ -219,46 +225,46 @@ void Settings::ParseGlobalVarSetting(CVar* cvar, std::string const & val)
         int rate = Ogre::StringConverter::parseInt(val);
         if (rate < 0) { rate = 0; }
         if (rate > 6) { rate = 6; }
-        App::gfx_envmap_rate->SetActiveVal(rate);
+        AssignHelper(App::gfx_envmap_rate, rate);
     }
     else if (cvar->GetName() == App::gfx_shadow_quality->GetName())
     {
         int quality = Ogre::StringConverter::parseInt(val);
         if (quality < 0) { quality = 0; }
         if (quality > 3) { quality = 3; }
-        App::gfx_shadow_quality->SetActiveVal(quality);
+        AssignHelper(App::gfx_shadow_quality, quality);
     }
     else if (cvar->GetName() == App::gfx_shadow_type->GetName())
     {
-        App::gfx_shadow_type->SetActiveVal((int)ParseGfxShadowType(val));
+        AssignHelper(App::gfx_shadow_type, (int)ParseGfxShadowType(val));
     }
     else if (cvar->GetName() == App::gfx_extcam_mode->GetName())
     {
-        App::gfx_extcam_mode->SetActiveVal((int)ParseGfxExtCamMode(val));
+        AssignHelper(App::gfx_extcam_mode, (int)ParseGfxExtCamMode(val));
     }
     else if (cvar->GetName() == App::gfx_texture_filter->GetName())
     {
-        App::gfx_texture_filter->SetActiveVal((int)ParseGfxTexFilter(val));
+        AssignHelper(App::gfx_texture_filter, (int)ParseGfxTexFilter(val));
     }
     else if (cvar->GetName() == App::gfx_vegetation_mode->GetName())
     {
-        App::gfx_vegetation_mode->SetActiveVal((int)ParseGfxVegetation(val));
+        AssignHelper(App::gfx_vegetation_mode, (int)ParseGfxVegetation(val));
     }
     else if (cvar->GetName() == App::gfx_flares_mode->GetName())
     {
-        App::gfx_flares_mode->SetActiveVal((int)ParseGfxFlaresMode(val));
+        AssignHelper(App::gfx_flares_mode, (int)ParseGfxFlaresMode(val));
     }
     else if (cvar->GetName() == App::gfx_water_mode->GetName())
     {
-        App::gfx_water_mode->SetActiveVal((int)ParseGfxWaterMode(val));
+        AssignHelper(App::gfx_water_mode, (int)ParseGfxWaterMode(val));
     }
     else if (cvar->GetName() == App::gfx_sky_mode->GetName())
     {
-        App::gfx_sky_mode->SetActiveVal((int)ParseGfxSkyMode(val));
+        AssignHelper(App::gfx_sky_mode, (int)ParseGfxSkyMode(val));
     }
     else if (cvar->GetName() == App::sim_gearbox_mode->GetName())
     {
-        App::sim_gearbox_mode->SetActiveVal((int)ParseSimGearboxMode(val));
+        AssignHelper(App::sim_gearbox_mode, (int)ParseSimGearboxMode(val));
     }
     else if (cvar->GetName() == App::gfx_fov_external->GetName() ||
                 cvar->GetName() == App::gfx_fov_internal->GetName())
@@ -266,7 +272,7 @@ void Settings::ParseGlobalVarSetting(CVar* cvar, std::string const & val)
         int fov = Ogre::StringConverter::parseInt(val);
         if (fov >= 10) // FOV shouldn't be below 10
         {
-            App::GetConsole()->CVarAssign(cvar, val, CVAR_FORCE_APPLY | CVAR_FORCE_STORE);
+            AssignHelper(cvar, fov);
         }
     }
     else
