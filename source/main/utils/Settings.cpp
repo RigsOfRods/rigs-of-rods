@@ -216,11 +216,7 @@ void AssignHelper(CVar* cvar, int val)
 
 void Settings::ParseGlobalVarSetting(CVar* cvar, std::string const & val)
 {
-    if (cvar->GetName() == App::gfx_shadow_quality->GetName())
-    {
-        App::app_screenshot_format->SetActiveStr(val.substr(0, 3));
-    }
-    else if (cvar->GetName() == App::gfx_envmap_rate->GetName())
+    if (cvar->GetName() == App::gfx_envmap_rate->GetName())
     {
         int rate = Ogre::StringConverter::parseInt(val);
         if (rate < 0) { rate = 0; }
