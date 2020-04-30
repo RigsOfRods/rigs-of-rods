@@ -211,14 +211,29 @@ public:
         return (T)m_value_stored.GetValue<int>();
     }
 
-    void ApplyPending()
+    bool CheckPending()
     {
-        m_value_active = m_value_pending;
+        return m_value_active != m_value_pending;
     }
 
-    void ResetPending()
+    bool ApplyPending()
     {
-        m_value_pending = m_value_active;
+        const bool pending = this->CheckPending();
+        if (pending)
+        {
+            m_value_active = m_value_pending;
+        }
+        return pending;
+    }
+
+    bool ResetPending()
+    {
+        const bool pending = this->CheckPending();
+        if (pending)
+        {
+            m_value_pending = m_value_active;
+        }
+        return pending;
     }
 
     std::string const& GetName() const
@@ -275,6 +290,16 @@ private:
         std::string const& GetString()
         {
             return m_value_str;
+        }
+
+        bool operator==(const Val& other) const
+        {
+            return m_value_num == other.m_value_num && m_value_str == other.m_value_str;
+        }
+
+        bool operator!=(const Val& other) const
+        {
+            return !(*this == other);
         }
 
     private:
