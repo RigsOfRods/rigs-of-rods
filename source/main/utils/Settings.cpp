@@ -271,7 +271,7 @@ void Settings::ParseGlobalVarSetting(CVar* cvar, std::string const & val)
     }
     else
     {
-        App::GetConsole()->CVarAssign(cvar, val, /*force_active=*/true);
+        App::GetConsole()->CVarAssign(cvar, val, CVAR_FORCE_APPLY | CVAR_FORCE_STORE);
     }
 }
 
