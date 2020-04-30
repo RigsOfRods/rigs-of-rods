@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include "BitFlags.h"
 #include "Str.h"
 
 #include <Ogre.h>
@@ -33,12 +34,14 @@ static const char* CVAR_LOG_FMT = "[RoR|CVar]  %20s:  %s(), new: \"%s\", old: \"
 
 enum CVarFlags
 {
-    CVAR_ALLOW_STORE  = 1,    //<! Will be written to RoR.cfg
-    CVAR_AUTO_STORE   = 2,    //!< 'Active' value automatically propagates to 'Stored'
-    CVAR_AUTO_APPLY   = 4,    //!< 'Pending' value automatically propagates to 'Active'
-    CVAR_TYPE_BOOL    = 8,
-    CVAR_TYPE_INT     = 16,
-    CVAR_TYPE_FLOAT   = 32,
+    CVAR_ALLOW_STORE  = BITMASK(1),    //!< Will be written to RoR.cfg
+    CVAR_AUTO_STORE   = BITMASK(2),    //!< 'Active' value automatically propagates to 'Stored'
+    CVAR_AUTO_APPLY   = BITMASK(3),    //!< 'Stored/Pending' values automatically propagate to 'Active/Pending'
+    CVAR_TYPE_BOOL    = BITMASK(4),
+    CVAR_TYPE_INT     = BITMASK(5),
+    CVAR_TYPE_FLOAT   = BITMASK(6),
+    CVAR_FORCE_APPLY  = BITMASK(7),    //!< Function call argument only
+    CVAR_FORCE_STORE  = BITMASK(8)     //!< Function call argument only
 };
 
 /// Inspired by Quake:
@@ -74,17 +77,17 @@ public:
 
     void SetFlags(int f)
     {
-        m_flags |= f;
+        BITMASK_SET_1(m_flags, f);
     }
 
     void ClearFlags(int f)
     {
-        m_flags &= ~f;
+        BITMASK_SET_0(m_flags, f);
     }
 
     bool HasFlags(int f)
     {
-        return m_flags & f;
+        return BITMASK_IS_1(m_flags, f);
     }
 
     template <typename T>
@@ -94,7 +97,7 @@ public:
 
         m_value_active.SetValue(val, m_flags);
         m_value_pending.SetValue(val, m_flags);
-        if (m_flags & (CVAR_ALLOW_STORE | CVAR_AUTO_STORE))
+        if (this->HasFlags(CVAR_ALLOW_STORE | CVAR_AUTO_STORE))
         {
             m_value_stored.SetValue(val, m_flags);
         }
@@ -106,7 +109,7 @@ public:
 
         m_value_active.SetString(str);
         m_value_pending.SetString(str);
-        if (m_flags & (CVAR_ALLOW_STORE | CVAR_AUTO_STORE))
+        if (this->HasFlags(CVAR_ALLOW_STORE | CVAR_AUTO_STORE))
         {
             m_value_stored.SetString(str);
         }
@@ -118,10 +121,10 @@ public:
         this->LogVal("SetPending", m_value_pending.GetValue<float>(), (float)val);
 
         m_value_pending.SetValue(val, m_flags);
-        if (m_flags & CVAR_AUTO_APPLY)
+        if (this->HasFlags(CVAR_AUTO_APPLY))
         {
             m_value_active.SetValue(val, m_flags);
-            if (m_flags & (CVAR_ALLOW_STORE | CVAR_AUTO_STORE))
+            if (this->HasFlags(CVAR_ALLOW_STORE | CVAR_AUTO_STORE))
             {
                 m_value_stored.SetValue(val, m_flags);
             }
@@ -133,10 +136,10 @@ public:
         this->LogStr("SetPending", m_value_pending.GetString(), str);
 
         m_value_pending.SetString(str);
-        if (m_flags & CVAR_AUTO_APPLY)
+        if (this->HasFlags(CVAR_AUTO_APPLY))
         {
             m_value_active.SetString(str);
-            if (m_flags & (CVAR_ALLOW_STORE | CVAR_AUTO_STORE))
+            if (this->HasFlags(CVAR_ALLOW_STORE | CVAR_AUTO_STORE))
             {
                 m_value_stored.SetString(str);
             }
@@ -146,12 +149,12 @@ public:
     template <typename T>
     void SetStoredVal(T val)
     {
-        if (m_flags & CVAR_ALLOW_STORE)
+        if (this->HasFlags(CVAR_ALLOW_STORE))
         {
             this->LogVal("SetStored", m_value_stored.GetValue<float>(), (float)val);
 
             m_value_stored.SetValue(val, m_flags);
-            if (m_flags & CVAR_AUTO_APPLY)
+            if (this->HasFlags(CVAR_AUTO_APPLY))
             {
                 m_value_active.SetValue(val, m_flags);
                 m_value_pending.SetValue(val, m_flags);
@@ -161,12 +164,12 @@ public:
 
     void SetStoredStr(std::string const& str)
     {
-        if (m_flags & CVAR_ALLOW_STORE)
+        if (this->HasFlags(CVAR_ALLOW_STORE))
         {
             this->LogStr("SetStored", m_value_stored.GetString(), str);
 
             m_value_stored.SetString(str);
-            if (m_flags & CVAR_AUTO_APPLY)
+            if (this->HasFlags(CVAR_AUTO_APPLY))
             {
                 m_value_active.SetString(str);
                 m_value_pending.SetString(str);
@@ -235,7 +238,7 @@ public:
         const bool pending = this->CheckPending();
         if (pending)
         {
-            if (m_flags & (CVAR_TYPE_BOOL | CVAR_TYPE_INT | CVAR_TYPE_FLOAT))
+            if (this->HasFlags(CVAR_TYPE_BOOL | CVAR_TYPE_INT | CVAR_TYPE_FLOAT))
                 this->LogVal("ApplyPending", m_value_active.GetValue<float>(), m_value_pending.GetValue<float>());
             else
                 this->LogStr("ApplyPending", m_value_active.GetString(), m_value_pending.GetString());
@@ -249,7 +252,7 @@ public:
         const bool pending = this->CheckPending();
         if (pending)
         {
-            if (m_flags & (CVAR_TYPE_BOOL | CVAR_TYPE_INT | CVAR_TYPE_FLOAT))
+            if (this->HasFlags(CVAR_TYPE_BOOL | CVAR_TYPE_INT | CVAR_TYPE_FLOAT))
                 this->LogVal("ResetPending", m_value_pending.GetValue<float>(), m_value_active.GetValue<float>());
             else
                 this->LogStr("ResetPending", m_value_pending.GetString(), m_value_active.GetString());

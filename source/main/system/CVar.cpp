@@ -197,7 +197,7 @@ CVar* Console::CVarCreate(std::string const& name, std::string const& long_name,
 
     if (!val.empty())
     {
-        this->CVarAssign(cvar, val, /*force_active = */true);
+        this->CVarAssign(cvar, val, CVAR_FORCE_APPLY | CVAR_FORCE_STORE);
     }
 
     m_cvars.insert(std::make_pair(name, cvar));
@@ -206,35 +206,31 @@ CVar* Console::CVarCreate(std::string const& name, std::string const& long_name,
     return cvar;
 }
 
-void Console::CVarAssign(CVar* cvar, std::string const& value, bool force_active/* = false*/)
+void Console::CVarAssign(CVar* cvar, std::string const& value, int op_flags)
 {
-    if (cvar->HasFlags(CVAR_TYPE_BOOL))
+    const bool set_active = BITMASK_IS_1(op_flags, CVAR_FORCE_APPLY) && !cvar->HasFlags(CVAR_AUTO_APPLY);
+    const bool set_stored = BITMASK_IS_1(op_flags, CVAR_FORCE_STORE) && !cvar->HasFlags(CVAR_AUTO_STORE);
+
+    if (cvar->HasFlags(CVAR_TYPE_BOOL) || cvar->HasFlags(CVAR_TYPE_INT) || cvar->HasFlags(CVAR_TYPE_FLOAT))
     {
-        if (force_active)
-            cvar->SetActiveVal(Ogre::StringConverter::parseBool(value));
-        else
-            cvar->SetPendingVal(Ogre::StringConverter::parseBool(value));
-    }
-    else if (cvar->HasFlags(CVAR_TYPE_INT))
-    {
-        if (force_active)
-            cvar->SetActiveVal(Ogre::StringConverter::parseInt(value));
-        else
-            cvar->SetPendingVal(Ogre::StringConverter::parseInt(value));
-    }
-    else if (cvar->HasFlags(CVAR_TYPE_FLOAT))
-    {
-        if (force_active)
-            cvar->SetActiveVal(Ogre::StringConverter::parseReal(value));
-        else
-            cvar->SetPendingVal(Ogre::StringConverter::parseReal(value));
+        float val = 0.f;
+             if (cvar->HasFlags(CVAR_TYPE_BOOL))  { val = (float)Ogre::StringConverter::parseBool(value); }
+        else if (cvar->HasFlags(CVAR_TYPE_INT))   { val = (float)Ogre::StringConverter::parseInt(value);  }
+        else if (cvar->HasFlags(CVAR_TYPE_FLOAT)) { val =        Ogre::StringConverter::parseReal(value); }
+
+        cvar->SetPendingVal(val);
+        if (set_active)
+            cvar->SetActiveVal(val);
+        if (set_stored)
+            cvar->SetStoredVal(val);
     }
     else
     {
-        if (force_active)
+        cvar->SetPendingStr(value);
+        if (set_active)
             cvar->SetActiveStr(value);
-        else
-            cvar->SetPendingStr(value);
+        if (set_stored)
+            cvar->SetStoredStr(value);
     }
 }
 
@@ -255,12 +251,12 @@ CVar* Console::CVarFind(std::string const& input_name)
     return nullptr;
 }
 
-CVar* Console::CVarSet(std::string const& input_name, std::string const& input_val, bool force_active/* = false*/)
+CVar* Console::CVarSet(std::string const& input_name, std::string const& input_val, int op_flags)
 {
     CVar* found = this->CVarFind(input_name);
     if (found)
     {
-        this->CVarAssign(found, input_val, force_active);
+        this->CVarAssign(found, input_val, op_flags);
     }
 
     return nullptr;
