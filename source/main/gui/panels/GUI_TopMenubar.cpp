@@ -482,6 +482,12 @@ void RoR::GUI::TopMenubar::Update()
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
+            if (ImGui::Button("Game controls"))
+            {
+                App::GetGuiManager()->SetVisible_GameControls(true);
+                m_open_menu = TopMenu::TOPMENU_NONE;
+            }
+
             if (current_actor != nullptr)
             {
                 if (ImGui::Button("Node / Beam utility"))
