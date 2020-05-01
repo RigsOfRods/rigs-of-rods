@@ -138,6 +138,7 @@ set(SOURCE_FILES
         gui/panels/GUI_FrictionSettings.{h,cpp}
         gui/panels/GUI_TopMenubar.{h,cpp}
         gui/panels/GUI_TextureToolWindow.{h,cpp}
+        gui/panels/GUI_GameControls.{h,cpp}
         gui/panels/GUI_GameAbout.{h,cpp}
         gui/panels/GUI_GameChatBox.{h,cpp}
         gui/panels/GUI_GameMainMenu.{h,cpp}

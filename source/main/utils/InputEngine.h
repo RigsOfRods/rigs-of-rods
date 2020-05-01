@@ -489,6 +489,7 @@ public:
     Ogre::String getEventCommand(int eventID);
     static int resolveEventName(Ogre::String eventName);
     static Ogre::String eventIDToName(int eventID);
+    static Ogre::String eventIDToDescription(int eventID);
     event_trigger_t* getEventBySUID(int suid);
 
     void setupDefault(Ogre::String inputhwnd = "");

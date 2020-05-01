@@ -86,6 +86,7 @@ public:
     void SetVisible_VehicleDescription  (bool visible);
     void SetVisible_FrictionSettings    (bool visible);
     void SetVisible_TextureToolWindow   (bool visible);
+    void SetVisible_GameControls   (bool visible);
     void SetVisible_NodeBeamUtils       (bool visible);
     void SetVisible_LoadingWindow       (bool visible);
     void SetVisible_Console             (bool visible);
@@ -104,6 +105,7 @@ public:
     bool IsVisible_VehicleDescription   ();
     bool IsVisible_FrictionSettings     ();
     bool IsVisible_TextureToolWindow    ();
+    bool IsVisible_GameControls    ();
     bool IsVisible_NodeBeamUtils        ();
     bool IsVisible_LoadingWindow        ();
     bool IsVisible_Console              ();

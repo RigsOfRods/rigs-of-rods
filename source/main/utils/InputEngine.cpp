@@ -3462,6 +3462,18 @@ String InputEngine::eventIDToName(int eventID)
     return "unknown";
 }
 
+String InputEngine::eventIDToDescription(int eventID)
+{
+    int i = 0;
+    while (i != EV_MODE_LAST)
+    {
+        if (eventInfo[i].eventID == eventID)
+            return eventInfo[i].description;
+        i++;
+    }
+    return "unknown";
+}
+
 void InputEngine::initAllKeys()
 {
     allkeys["0"] = KC_0;
