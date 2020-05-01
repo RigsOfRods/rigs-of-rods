@@ -59,7 +59,14 @@ void RoR::GUI::GameChatBox::Draw()
     }
     ImGui::SetNextWindowPos(msg_pos);
 
-    ImGui::Begin("ChatMessages", nullptr, msg_flags);
+    if (m_is_visible)
+    {
+        ImGui::Begin("ChatMessages", nullptr, msg_flags);
+    }
+    else
+    {
+        ImGui::Begin("ChatMessages", nullptr, msg_flags | ImGuiWindowFlags_NoInputs);
+    }
 
     if (initialized == true)
     {
