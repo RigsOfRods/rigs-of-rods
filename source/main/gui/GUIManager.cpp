@@ -84,7 +84,7 @@ struct GuiManagerImpl
     GUI::MpClientList           panel_MpClientList;
     GUI::FrictionSettings       panel_FrictionSettings;
     GUI::TextureToolWindow      panel_TextureToolWindow;
-    GUI::GameControls      panel_GameControls;
+    GUI::GameControls           panel_GameControls;
     GUI::NodeBeamUtils          panel_NodeBeamUtils;
     GUI::LoadingWindow          panel_LoadingWindow;
     GUI::TopMenubar             panel_TopMenubar;
@@ -124,7 +124,7 @@ void GUIManager::SetVisible_ChatBox             (bool v) { m_impl->panel_ChatBox
 void GUIManager::SetVisible_VehicleDescription  (bool v) { m_impl->panel_VehicleDescription .SetVisible(v); }
 void GUIManager::SetVisible_FrictionSettings    (bool v) { m_impl->panel_FrictionSettings   .SetVisible(v); }
 void GUIManager::SetVisible_TextureToolWindow   (bool v) { m_impl->panel_TextureToolWindow  .SetVisible(v); }
-void GUIManager::SetVisible_GameControls   (bool v) { m_impl->panel_GameControls  .SetVisible(v); }
+void GUIManager::SetVisible_GameControls        (bool v) { m_impl->panel_GameControls       .SetVisible(v); }
 void GUIManager::SetVisible_LoadingWindow       (bool v) { m_impl->panel_LoadingWindow      .SetVisible(v); }
 void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_ConsoleWindow      .SetVisible(v); }
 void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSettings       .SetVisible(v); }
@@ -140,7 +140,7 @@ bool GUIManager::IsVisible_ChatBox              () { return m_impl->panel_ChatBo
 bool GUIManager::IsVisible_VehicleDescription   () { return m_impl->panel_VehicleDescription .IsVisible(); }
 bool GUIManager::IsVisible_FrictionSettings     () { return m_impl->panel_FrictionSettings   .IsVisible(); }
 bool GUIManager::IsVisible_TextureToolWindow    () { return m_impl->panel_TextureToolWindow  .IsVisible(); }
-bool GUIManager::IsVisible_GameControls    () { return m_impl->panel_GameControls  .IsVisible(); }
+bool GUIManager::IsVisible_GameControls         () { return m_impl->panel_GameControls       .IsVisible(); }
 bool GUIManager::IsVisible_LoadingWindow        () { return m_impl->panel_LoadingWindow      .IsVisible(); }
 bool GUIManager::IsVisible_Console              () { return m_impl->panel_ConsoleWindow      .IsVisible(); }
 bool GUIManager::IsVisible_GameSettings         () { return m_impl->panel_GameSettings       .IsVisible(); }
@@ -422,7 +422,7 @@ void GUIManager::ReflectGameState()
         m_impl->panel_ChatBox            .SetVisible(false);
         m_impl->panel_FrictionSettings   .SetVisible(false);
         m_impl->panel_TextureToolWindow  .SetVisible(false);
-        m_impl->panel_GameControls  .SetVisible(false);
+        m_impl->panel_GameControls       .SetVisible(false);
         m_impl->panel_VehicleDescription .SetVisible(false);
         m_impl->panel_SimActorStats      .SetVisible(false);
         m_impl->panel_SimPerfStats       .SetVisible(false);
