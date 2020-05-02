@@ -1784,7 +1784,19 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
     m_simbuf.simbuf_net_username = m_actor->m_net_username;
     m_simbuf.simbuf_is_remote = m_actor->ar_sim_state == Actor::SimState::NETWORKED_OK;
-    
+    m_simbuf.simbuf_hook_locked = m_actor->isLocked();
+    m_simbuf.simbuf_hydropump_ready = m_actor->ar_engine_hydraulics_ready;
+
+    // ties state (0=unlocked, 1=locking, 2=locked)
+    bool any_tied = false;
+    bool any_tying = false;
+    for (tie_t& t: m_actor->ar_ties)
+    {
+        any_tied = (t.ti_tied && !t.ti_tying) ? true : any_tied;
+        any_tying = (t.ti_tying) ? true : any_tying;
+    }
+    m_simbuf.simbuf_ties_secured_state = (any_tying) ? 1 : (any_tied) ? 2 : 0;
+
     // lights
     m_simbuf.simbuf_beaconlight_active = m_actor->m_beacon_light_is_active;
     m_simbuf.simbuf_headlight_on = m_actor->ar_lights != 0;
@@ -1837,6 +1849,8 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_inputshaft_rpm  = m_actor->ar_engine->GetInputShaftRpm();
         m_simbuf.simbuf_drive_ratio     = m_actor->ar_engine->GetDriveRatio();
         m_simbuf.simbuf_clutch          = m_actor->ar_engine->GetClutch();
+        m_simbuf.simbuf_clutch_force    = m_actor->ar_engine->GetClutchForce();
+        m_simbuf.simbuf_clutch_torque   = m_actor->ar_engine->GetTorque();
         m_simbuf.simbuf_engine_crankfactor = m_actor->ar_engine->GetCrankFactor();
         m_simbuf.simbuf_engine_ignition = m_actor->ar_engine->HasStarterContact();
         m_simbuf.simbuf_engine_running  = m_actor->ar_engine->IsRunning();
@@ -1845,6 +1859,36 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     {
         m_simbuf.simbuf_diff_type = m_actor->m_wheel_diffs[0]->GetActiveDiffType();
     }
+
+    // Traction Control
+    int dash_tc_mode = 0; // 0 = not present, 1 = off, 2 = on, 3 = active
+    if (!m_actor->tc_nodash)
+    {
+        dash_tc_mode = 1;
+        if (m_actor->tc_mode)
+        {
+            if (m_actor->m_tractioncontrol)
+                dash_tc_mode = 3;
+            else
+                dash_tc_mode = 2;
+        }
+    }
+    m_simbuf.simbuf_tc_dashboard_mode = dash_tc_mode;
+
+    // Anti Lock Brake
+    int dash_alb_mode = 0; // 0 = not present, 1 = off, 2 = on, 3 = active
+    if (!m_actor->alb_nodash)
+    {
+        dash_alb_mode = 1;
+        if (m_actor->alb_mode)
+        {
+            if (m_actor->m_antilockbrake)
+                dash_alb_mode = 3;
+            else
+                dash_alb_mode = 2;
+        }
+    }
+    m_simbuf.simbuf_alb_dashboard_mode = dash_alb_mode;
 
     // Command keys
     const int num_commandkeys = MAX_COMMANDS + 10;

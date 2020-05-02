@@ -48,7 +48,6 @@ void DrawSimBufferWindow(ActorSimBuffer@ data)
     ImGui::Text("string "); ImGui::NextColumn(); ImGui::Text("net_username           "); ImGui::NextColumn(); ImGui::Text("" + data.net_username           ); ImGui::NextColumn();
     ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("is_remote              "); ImGui::NextColumn(); ImGui::Text("" + data.is_remote              ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("wheel_speed            "); ImGui::NextColumn(); ImGui::Text("" + data.wheel_speed            ); ImGui::NextColumn();
-    ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("beaconlight_active     "); ImGui::NextColumn(); ImGui::Text("" + data.beaconlight_active     ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("hydro_dir_state        "); ImGui::NextColumn(); ImGui::Text("" + data.hydro_dir_state        ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("hydro_aileron_state    "); ImGui::NextColumn(); ImGui::Text("" + data.hydro_aileron_state    ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("hydro_elevator_state   "); ImGui::NextColumn(); ImGui::Text("" + data.hydro_elevator_state   ); ImGui::NextColumn();
@@ -59,9 +58,18 @@ void DrawSimBufferWindow(ActorSimBuffer@ data)
     ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("aero_flap_state        "); ImGui::NextColumn(); ImGui::Text("" + data.aero_flap_state        ); ImGui::NextColumn();
     ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("airbrake_state         "); ImGui::NextColumn(); ImGui::Text("" + data.airbrake_state         ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("wing4_aoa              "); ImGui::NextColumn(); ImGui::Text("" + data.wing4_aoa              ); ImGui::NextColumn();
-    ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("headlight_on           "); ImGui::NextColumn(); ImGui::Text("" + data.headlight_on           ); ImGui::NextColumn();
     ImGui::Text("vector3"); ImGui::NextColumn(); ImGui::Text("direction              "); ImGui::NextColumn(); ImGui::Text("" + Vector3Str(data.direction)  ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("top_speed              "); ImGui::NextColumn(); ImGui::Text("" + data.top_speed              ); ImGui::NextColumn();
+    ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("hook_locked            "); ImGui::NextColumn(); ImGui::Text("" + data.hook_locked            ); ImGui::NextColumn();
+    ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("ties_secured_state     "); ImGui::NextColumn(); ImGui::Text("" + data.ties_secured_state     ); ImGui::NextColumn();
+    ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("hydropump_ready        "); ImGui::NextColumn(); ImGui::Text("" + data.hydropump_ready        ); ImGui::NextColumn();
+    ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("tc_dashboard_mode      "); ImGui::NextColumn(); ImGui::Text("" + data.tc_dashboard_mode      ); ImGui::NextColumn();
+    ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("alb_dashboard_mode     "); ImGui::NextColumn(); ImGui::Text("" + data.alb_dashboard_mode     ); ImGui::NextColumn();
+     // Lights
+    ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("headlight_on           "); ImGui::NextColumn(); ImGui::Text("" + data.headlight_on           ); ImGui::NextColumn();
+    ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("beaconlight_active     "); ImGui::NextColumn(); ImGui::Text("" + data.beaconlight_active     ); ImGui::NextColumn();
+    ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("turn_signal_left       "); ImGui::NextColumn(); ImGui::Text("" + data.turn_signal_left       ); ImGui::NextColumn();
+    ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("turn_signal_right      "); ImGui::NextColumn(); ImGui::Text("" + data.turn_signal_right      ); ImGui::NextColumn();
      // Autopilot
     ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("ap_heading_mode        "); ImGui::NextColumn(); ImGui::Text("" + data.ap_heading_mode        ); ImGui::NextColumn();
     ImGui::Text("int    "); ImGui::NextColumn(); ImGui::Text("ap_heading_value       "); ImGui::NextColumn(); ImGui::Text("" + data.ap_heading_value       ); ImGui::NextColumn();
@@ -84,9 +92,11 @@ void DrawSimBufferWindow(ActorSimBuffer@ data)
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("engine_torque          "); ImGui::NextColumn(); ImGui::Text("" + data.engine_torque          ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("inputshaft_rpm         "); ImGui::NextColumn(); ImGui::Text("" + data.inputshaft_rpm         ); ImGui::NextColumn();
     ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("drive_ratio            "); ImGui::NextColumn(); ImGui::Text("" + data.drive_ratio            ); ImGui::NextColumn();
-    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("clutch                 "); ImGui::NextColumn(); ImGui::Text("" + data.clutch                 ); ImGui::NextColumn();    
+    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("clutch                 "); ImGui::NextColumn(); ImGui::Text("" + data.clutch                 ); ImGui::NextColumn();
+    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("clutch_force           "); ImGui::NextColumn(); ImGui::Text("" + data.clutch_force           ); ImGui::NextColumn();
+    ImGui::Text("float  "); ImGui::NextColumn(); ImGui::Text("clutch_torque          "); ImGui::NextColumn(); ImGui::Text("" + data.clutch_torque          ); ImGui::NextColumn();
     ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("engine_ignition        "); ImGui::NextColumn(); ImGui::Text("" + data.engine_ignition        ); ImGui::NextColumn();
-    ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("engine_running         "); ImGui::NextColumn(); ImGui::Text("" + data.engine_running         ); ImGui::NextColumn();    
+    ImGui::Text("bool   "); ImGui::NextColumn(); ImGui::Text("engine_running         "); ImGui::NextColumn(); ImGui::Text("" + data.engine_running         ); ImGui::NextColumn();
     
     ImGui::Columns(1);
     ImGui::End();

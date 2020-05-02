@@ -96,8 +96,7 @@ int loop(GfxActor@ actor)
 
     /*  //DEBUG - TURBO (PSI)
     ImGui::SetCursorPos(vector2(232,26));
-    string psi_str = "PSI: " + data.engine_turbo_psi;
-    ImGui::Text(psi_str);
+    ImGui::Text("PSI: " + data.engine_turbo_psi);
     */
 
     // Turbo gauge
@@ -114,6 +113,11 @@ int loop(GfxActor@ actor)
     // Tacho gauge with lamps
     ImGui::SetCursorPosY(138);
     ImGui::Image(G_icon_tacho_4000, vector2(333, 250));
+    
+    /*    // DEBUG - RPM
+    ImGui::SetCursorPos(vector2(100, 100));
+    ImGui::Text("RPM: " + data.engine_rpm);    
+    */
 
     ImGui::SetCursorPos(vector2(162,208));
     ImGui::Image(data.turn_signal_left ? G_icon_signal_left_on : G_icon_signal_left_off, vector2(31, 40));
@@ -124,25 +128,32 @@ int loop(GfxActor@ actor)
     ImGui::SetCursorPos(vector2(190,200));
     ImGui::Image(data.parking_brake ? G_icon_brake_on : G_icon_brake_off, vector2(55, 55));
     
-   // ImGuiEx::DrawListAddImageRotated(G_icon_needle_part1, ImGui::GetCursorScreenPos() + vector2(278, -60), vector2(99, 99),  126.0 - data.engine_rpm * 0.072);    
+    ImGui::SetCursorPos(vector2(123,167));
+    float tacho_angle = CalcAngle(0, 1.3*PI, PI, 0, 4000, data.engine_rpm);
+    vector2 tacho_center = ImGui::GetCursorScreenPos() + vector2(95, 95);
+    ImGuiEx::DrawListAddImageRotated(G_pointer_needle, tacho_center, vector2(245, 245),  tacho_angle);    
 
     ImGui::SetCursorPos(vector2(202,246));
-   // ImGui::Image(G_icon_needle_part2, vector2(32, 32));
+    ImGui::Image(G_pointer_center, vector2(32, 32));
 
+    // Lamps panel
     ImGui::SetCursorPos(vector2(58,270));
     ImGui::Image(data.headlight_on ? G_icon_lights_on : G_icon_lights_off, vector2(35, 35));
 
     ImGui::SetCursorPos(vector2(38,316));
-    ImGui::Image(G_icon_secure_off, vector2(25, 25));
+    ImGui::Image(data.hook_locked ? G_icon_secure_on : G_icon_secure_off, vector2(25, 25));
 
     ImGui::SetCursorPos(vector2(70,312));
-    ImGui::Image(G_icon_locked0, vector2(30, 30));
+    Ogre::TexturePtr secured_icon = (data.ties_secured_state == 0) ? G_icon_locked0 : 
+                                    (data.ties_secured_state == 1) ? G_icon_locked1 : G_icon_locked2;
+    ImGui::Image(secured_icon, vector2(30, 30));
 
+    bool clutch_warning = abs(data.clutch_torque) >= data.clutch_force * 10.0f;
     ImGui::SetCursorPos(vector2(22,354));
-    ImGui::Image(G_icon_clutch_off, vector2(25, 25));
+    ImGui::Image(clutch_warning ? G_icon_clutch_on : G_icon_clutch_off, vector2(25, 25));
 
     ImGui::SetCursorPos(vector2(48,354));
-    ImGui::Image(G_icon_lopress_off, vector2(25, 25));
+    ImGui::Image(data.hydropump_ready ? G_icon_lopress_off : G_icon_lopress_on, vector2(25, 25));
     
     bool starter = data.engine_ignition && !data.engine_running;
 
@@ -152,11 +163,21 @@ int loop(GfxActor@ actor)
     ImGui::SetCursorPos(vector2(112,348));
     ImGui::Image(starter ? G_icon_ign_on : G_icon_ign_off, vector2(35, 35));
 
-    ImGui::SetCursorPos(vector2(192,300));
-    ImGui::Image(G_icon_tractioncontrol1, vector2(25, 25));
-
-    ImGui::SetCursorPos(vector2(222,300));
-    ImGui::Image(G_icon_abs1, vector2(25, 25));
+    if (data.tc_dashboard_mode != 0)
+    {
+        ImGui::SetCursorPos(vector2(192,300));
+        Ogre::TexturePtr tc_icon = (data.tc_dashboard_mode == 1) ? G_icon_tractioncontrol1 : 
+                                   (data.tc_dashboard_mode == 2) ? G_icon_tractioncontrol2 : G_icon_tractioncontrol3;
+        ImGui::Image(tc_icon, vector2(25, 25));
+    }
+    
+    if (data.alb_dashboard_mode != 0)
+    {
+        ImGui::SetCursorPos(vector2(222,300));
+        Ogre::TexturePtr alb_icon = (data.alb_dashboard_mode == 1) ? G_icon_abs1 :         
+                                    (data.alb_dashboard_mode == 2) ? G_icon_abs2 : G_icon_abs3;
+        ImGui::Image(alb_icon, vector2(25, 25));
+    }
 
     ImGui::End();
     

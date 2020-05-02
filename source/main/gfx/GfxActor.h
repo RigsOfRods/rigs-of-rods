@@ -141,6 +141,11 @@ public:
         float                       simbuf_wing4_aoa          = 0;
         Ogre::Vector3               simbuf_direction          = Ogre::Vector3::ZERO;         //!< Output of `Actor::getDirection()`
         float                       simbuf_top_speed          = 0;
+        bool                        simbuf_hook_locked        = false;
+        int                         simbuf_ties_secured_state = 0; //!< 0=unlocked, 1=prelock, 2=locked
+        bool                        simbuf_hydropump_ready    = false;
+        int                         simbuf_tc_dashboard_mode  = 0; //!< Traction control; 0 = not present, 1 = off, 2 = on, 3 = active
+        int                         simbuf_alb_dashboard_mode = 0; //!< Anti-Lock Brake; 0 = not present, 1 = off, 2 = on, 3 = active
         // Lights
         bool                        simbuf_beaconlight_active = false;
         bool                        simbuf_headlight_on       = false;
@@ -169,6 +174,8 @@ public:
         float                       simbuf_inputshaft_rpm     = 0;     // Land vehicle only
         float                       simbuf_drive_ratio        = 0;     // Land vehicle only
         float                       simbuf_clutch             = 0;
+        float                       simbuf_clutch_force       = 0;
+        float                       simbuf_clutch_torque      = 0;
         bool                        simbuf_engine_ignition    = false;
         bool                        simbuf_engine_running     = false;
     };

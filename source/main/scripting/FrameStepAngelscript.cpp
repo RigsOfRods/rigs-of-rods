@@ -59,6 +59,11 @@ void RegisterFrameStepInterface(asIScriptEngine* engine)
     engine->RegisterObjectProperty(obj, "float          wing4_aoa              ", asOFFSET(GfxActor::SimBuffer, simbuf_wing4_aoa              )); //float
     engine->RegisterObjectProperty(obj, "vector3        direction              ", asOFFSET(GfxActor::SimBuffer, simbuf_direction              )); //Ogre::Vector3               
     engine->RegisterObjectProperty(obj, "float          top_speed              ", asOFFSET(GfxActor::SimBuffer, simbuf_top_speed              )); //float  
+    engine->RegisterObjectProperty(obj, "bool           hook_locked            ", asOFFSET(GfxActor::SimBuffer, simbuf_hook_locked            ));
+    engine->RegisterObjectProperty(obj, "int            ties_secured_state     ", asOFFSET(GfxActor::SimBuffer, simbuf_ties_secured_state     ));
+    engine->RegisterObjectProperty(obj, "bool           hydropump_ready        ", asOFFSET(GfxActor::SimBuffer, simbuf_hydropump_ready        ));
+    engine->RegisterObjectProperty(obj, "int            tc_dashboard_mode      ", asOFFSET(GfxActor::SimBuffer, simbuf_tc_dashboard_mode      ));
+    engine->RegisterObjectProperty(obj, "int            alb_dashboard_mode     ", asOFFSET(GfxActor::SimBuffer, simbuf_alb_dashboard_mode     ));
       // Lights
     engine->RegisterObjectProperty(obj, "bool           headlight_on           ", asOFFSET(GfxActor::SimBuffer, simbuf_headlight_on           )); //bool
     engine->RegisterObjectProperty(obj, "bool           beaconlight_active     ", asOFFSET(GfxActor::SimBuffer, simbuf_beaconlight_active     )); //bool
@@ -87,6 +92,8 @@ void RegisterFrameStepInterface(asIScriptEngine* engine)
     engine->RegisterObjectProperty(obj, "float          inputshaft_rpm         ", asOFFSET(GfxActor::SimBuffer, simbuf_inputshaft_rpm         ));
     engine->RegisterObjectProperty(obj, "float          drive_ratio            ", asOFFSET(GfxActor::SimBuffer, simbuf_drive_ratio            ));
     engine->RegisterObjectProperty(obj, "float          clutch                 ", asOFFSET(GfxActor::SimBuffer, simbuf_clutch                 ));
+    engine->RegisterObjectProperty(obj, "float          clutch_force           ", asOFFSET(GfxActor::SimBuffer, simbuf_clutch_force           ));
+    engine->RegisterObjectProperty(obj, "float          clutch_torque          ", asOFFSET(GfxActor::SimBuffer, simbuf_clutch_torque          ));
     engine->RegisterObjectProperty(obj, "bool           engine_ignition        ", asOFFSET(GfxActor::SimBuffer, simbuf_engine_ignition        ));
     engine->RegisterObjectProperty(obj, "bool           engine_running         ", asOFFSET(GfxActor::SimBuffer, simbuf_engine_running         ));
 
