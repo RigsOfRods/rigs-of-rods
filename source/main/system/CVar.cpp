@@ -34,7 +34,7 @@ void Console::CVarSetupBuiltins()
     App::app_skip_main_menu      = this->CVarCreate("app_skip_main_menu",      "SkipMainMenu",               CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");
     App::app_async_physics       = this->CVarCreate("app_async_physics",       "AsyncPhysics",               CVAR_ALLOW_STORE                   | CVAR_TYPE_BOOL,    "true");
     App::app_num_workers         = this->CVarCreate("app_num_workers",         "NumWorkerThreads",           CVAR_ALLOW_STORE);
-    App::app_screenshot_format   = this->CVarCreate("app_screenshot_format",   "Screenshot Format",          CVAR_ALLOW_STORE,                                       "png");
+    App::app_screenshot_format   = this->CVarCreate("app_screenshot_format",   "Screenshot Format",          CVAR_ALLOW_STORE | CVAR_AUTO_APPLY,                     "png");
     App::app_rendersys_override  = this->CVarCreate("app_rendersys_override",  "Render system",              CVAR_ALLOW_STORE | CVAR_AUTO_APPLY);   
     App::app_extra_mod_path      = this->CVarCreate("app_extra_mod_path",      "Extra mod path",             CVAR_ALLOW_STORE | CVAR_AUTO_APPLY);   
     App::app_force_cache_purge   = this->CVarCreate("app_force_cache_purge",   "",                           CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");
