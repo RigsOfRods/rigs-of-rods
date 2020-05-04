@@ -167,7 +167,9 @@ void RoR::GUI::GameSettings::Draw()
         /* Screenshot format: Can be png or jpg*/
         if (ImGui::Combo(_LC("GameSettings", "Screenshot format"), &sshot_select, "png\0jpg\0\0"))
         {
-            App::app_screenshot_format->SetActiveStr((sshot_select == 1) ? "jpg" : "png");
+            std::string str = (sshot_select == 1) ? "jpg" : "png";
+            App::app_screenshot_format->SetPendingStr(str); // auto-apply
+            App::app_screenshot_format->SetStoredStr(str);
         }
 
         DrawGTextEdit(App::app_extra_mod_path, _LC("GameSettings", "Extra mod path"),  m_buf_app_extra_mod_dir);
