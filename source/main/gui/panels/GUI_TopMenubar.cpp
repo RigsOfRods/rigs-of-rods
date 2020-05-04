@@ -565,8 +565,8 @@ void RoR::GUI::TopMenubar::Update()
                 ImGui::Separator();
 
                 ImGui::TextColored(GRAY_HINT_TEXT, "Live diagnostic views:");
-                ImGui::TextColored(GRAY_HINT_TEXT, "(Toggle with '%s')", App::GetInputEngine()->getEventCommand(EV_COMMON_TOGGLE_DEBUG_VIEW));
-                ImGui::TextColored(GRAY_HINT_TEXT, "(Cycle with '%s')", App::GetInputEngine()->getEventCommand(EV_COMMON_CYCLE_DEBUG_VIEWS));
+                ImGui::TextColored(GRAY_HINT_TEXT, "(Toggle with '%s')", App::GetInputEngine()->getEventCommand(EV_COMMON_TOGGLE_DEBUG_VIEW).c_str());
+                ImGui::TextColored(GRAY_HINT_TEXT, "(Cycle with '%s')", App::GetInputEngine()->getEventCommand(EV_COMMON_CYCLE_DEBUG_VIEWS).c_str());
 
                 int debug_view_type = static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NONE);
                 if (current_actor != nullptr)
