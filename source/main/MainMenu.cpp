@@ -335,12 +335,6 @@ void MainMenu::windowFocusChange(Ogre::RenderWindow* rw)
     App::GetInputEngine()->resetKeys();
 }
 
-bool MainMenu::frameRenderingQueued(const Ogre::FrameEvent & evt)
-{
-    App::GetGuiManager()->GetImGui().Render();
-    return true;
-}
-
 bool MainMenu::frameStarted(const Ogre::FrameEvent & evt)
 {
     App::GetGuiManager()->NewImGuiFrame(evt.timeSinceLastFrame); // HACK until OGRE 1.12 migration ~ only_a_ptr, 10/2019

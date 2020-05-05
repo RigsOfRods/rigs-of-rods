@@ -31,8 +31,8 @@ namespace GUI {
 
 void GameControls::Draw()
 {
-    ImGui::SetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(800.f, 600.f), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(800.f, 600.f), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin(_L("Game Controls"), &m_is_visible))
     {
         ImGui::End(); // The window is collapsed

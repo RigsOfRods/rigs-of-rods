@@ -99,27 +99,6 @@ struct GuiManagerImpl
     MyGUI::OgrePlatform*        mygui_platform = nullptr;
 };
 
-GUIManager::GuiTheme::GuiTheme()
-{
-    try
-    {
-        //Setup custom font
-        Str<500> font_path;
-        font_path << App::sys_process_dir->GetActiveStr() << PATH_SLASH << "languages" << PATH_SLASH << "Roboto-Medium.ttf";
-        ImFontConfig font_config;
-        font_config.OversampleH = 1;
-        font_config.OversampleV = 1;
-        font_config.PixelSnapH = true;
-        default_font = ImGui::GetIO().Fonts->AddFontFromFileTTF(font_path, 16, &font_config);
-        ROR_ASSERT(default_font);
-    }
-    catch (...)
-    {
-        LOG("Failed to load font: Roboto-Medium.ttf");
-    }
-
-}
-
 void GUIManager::SetVisible_GameMainMenu        (bool v) { m_impl->panel_GameMainMenu       .SetVisible(v); }
 void GUIManager::SetVisible_GameAbout           (bool v) { m_impl->panel_GameAbout          .SetVisible(v); }
 void GUIManager::SetVisible_MultiplayerSelector (bool v) { m_impl->panel_MultiplayerSelector.SetVisible(v); }
@@ -439,18 +418,19 @@ void GUIManager::ReflectGameState()
 
 void GUIManager::NewImGuiFrame(float dt)
 {
-    // Update screen size
-    int left, top, width, height;
-    App::GetCameraManager()->GetCamera()->getViewport()->getActualDimensions(left, top, width, height); // output params
+    ImGuiIO& io = ImGui::GetIO();
+    OIS::Keyboard* kb = App::GetInputEngine()->GetOisKeyboard();
 
      // Read keyboard modifiers inputs
-    OIS::Keyboard* kb = App::GetInputEngine()->GetOisKeyboard();
-    bool ctrl  = kb->isKeyDown(OIS::KC_LCONTROL);
-    bool shift = kb->isKeyDown(OIS::KC_LSHIFT);
-    bool alt   = kb->isKeyDown(OIS::KC_LMENU);
+    io.KeyCtrl = kb->isKeyDown(OIS::KC_LCONTROL);
+    io.KeyShift = kb->isKeyDown(OIS::KC_LSHIFT);
+    io.KeyAlt = kb->isKeyDown(OIS::KC_LMENU);
+    io.KeySuper = false;
 
     // Call IMGUI
-    m_imgui.NewFrame(dt, static_cast<float>(width), static_cast<float>(height), ctrl, alt, shift);
+    Ogre::FrameEvent ev;
+    ev.timeSinceLastFrame = dt;
+    Ogre::ImGuiOverlay::NewFrame(ev);
 
     // Reset state
     m_gui_kb_capture_queued = false;
@@ -458,10 +438,7 @@ void GUIManager::NewImGuiFrame(float dt)
 
 void GUIManager::SetupImGui()
 {
-    ImGuiIO& io = ImGui::GetIO();
-    io.IniFilename = nullptr; // Disable 'imgui.ini' - we don't need to persist window positions.
-
-    m_imgui.Init(App::GetGfxScene()->GetSceneManager());
+    m_imgui.Init();
     // Colors
     ImGuiStyle& style = ImGui::GetStyle();
     style.Colors[ImGuiCol_Text]                  = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
@@ -482,7 +459,6 @@ void GUIManager::SetupImGui()
     style.Colors[ImGuiCol_ScrollbarGrab]         = ImVec4(0.30f, 0.30f, 0.29f, 0.90f);
     style.Colors[ImGuiCol_ScrollbarGrabHovered]  = ImVec4(0.13f, 0.40f, 0.60f, 0.90f);
     style.Colors[ImGuiCol_ScrollbarGrabActive]   = ImVec4(0.18f, 0.53f, 0.79f, 0.90f);
-    style.Colors[ImGuiCol_ComboBg]               = ImVec4(0.20f, 0.20f, 0.20f, 0.90f);
     style.Colors[ImGuiCol_CheckMark]             = ImVec4(0.90f, 0.90f, 0.90f, 0.90f);
     style.Colors[ImGuiCol_SliderGrab]            = ImVec4(0.39f, 0.39f, 0.39f, 0.90f);
     style.Colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.18f, 0.53f, 0.79f, 0.90f);
@@ -492,15 +468,9 @@ void GUIManager::SetupImGui()
     style.Colors[ImGuiCol_Header]                = ImVec4(0.20f, 0.20f, 0.20f, 0.90f);
     style.Colors[ImGuiCol_HeaderHovered]         = ImVec4(0.13f, 0.40f, 0.60f, 0.90f);
     style.Colors[ImGuiCol_HeaderActive]          = ImVec4(0.18f, 0.53f, 0.79f, 0.90f);
-    style.Colors[ImGuiCol_Column]                = ImVec4(0.50f, 0.50f, 0.50f, 0.90f);
-    style.Colors[ImGuiCol_ColumnHovered]         = ImVec4(0.13f, 0.40f, 0.60f, 0.90f);
-    style.Colors[ImGuiCol_ColumnActive]          = ImVec4(0.18f, 0.53f, 0.79f, 0.90f);
     style.Colors[ImGuiCol_ResizeGrip]            = ImVec4(0.22f, 0.22f, 0.21f, 0.90f);
     style.Colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.13f, 0.40f, 0.60f, 0.90f);
     style.Colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.18f, 0.53f, 0.79f, 0.90f);
-    style.Colors[ImGuiCol_CloseButton]           = ImVec4(0.07f, 0.23f, 0.34f, 0.90f);
-    style.Colors[ImGuiCol_CloseButtonHovered]    = ImVec4(0.13f, 0.40f, 0.60f, 0.90f);
-    style.Colors[ImGuiCol_CloseButtonActive]     = ImVec4(0.18f, 0.53f, 0.79f, 0.90f);
     style.Colors[ImGuiCol_PlotLines]             = ImVec4(1.00f, 1.00f, 1.00f, 0.90f);
     style.Colors[ImGuiCol_PlotLinesHovered]      = ImVec4(0.13f, 0.40f, 0.60f, 0.90f);
     style.Colors[ImGuiCol_PlotHistogram]         = ImVec4(0.18f, 0.53f, 0.79f, 0.90f);
@@ -514,7 +484,9 @@ void GUIManager::SetupImGui()
     style.WindowTitleAlign      = ImVec2(0.5f, 0.5f);
     style.ItemSpacing           = ImVec2(5.f, 5.f);
     style.GrabRounding          = 3.f;
-    style.ChildWindowRounding   = 4.f;
+    style.WindowBorderSize      = 0.f;
+
+    App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(&m_imgui);
 }
 
 void GUIManager::DrawCommonGui()

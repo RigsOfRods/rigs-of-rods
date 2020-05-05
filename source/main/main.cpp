@@ -229,6 +229,7 @@ int main(int argc, char *argv[])
         }
 
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
+        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FONTS);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::WALLPAPERS);
@@ -246,7 +247,7 @@ int main(int argc, char *argv[])
 
         App::GetContentManager()->InitContentManager();
 
-        App::CreateGuiManager();
+        App::CreateGuiManager(); // Needs scene manager
 
         InitDiscord();
 
