@@ -118,12 +118,14 @@ set(SOURCE_FILES
         gui/imgui/imgui.{h,cpp}
         gui/imgui/imgui_demo.cpp
         gui/imgui/imgui_draw.cpp
+        gui/imgui/imgui_widgets.cpp
+        gui/imgui/OgreImGuiOverlay.{h,cpp}
         gui/imgui/OgreImGui.{h,cpp}
         gui/imgui/imconfig.h
         gui/imgui/imgui_internal.h
-        gui/imgui/stb_rect_pack.h
-        gui/imgui/stb_textedit.h
-        gui/imgui/stb_truetype.h
+        gui/imgui/imstb_rectpack.h
+        gui/imgui/imstb_textedit.h
+        gui/imgui/imstb_truetype.h
         gui/mygui/Attribute.h
         gui/mygui/BaseLayout.h
         gui/mygui/Dialog.{h,cpp}

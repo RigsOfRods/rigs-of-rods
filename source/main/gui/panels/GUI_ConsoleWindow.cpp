@@ -36,8 +36,8 @@ GUI::ConsoleWindow::ConsoleWindow()
 void GUI::ConsoleWindow::Draw()
 {
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar;
-    ImGui::SetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2((ImGui::GetIO().DisplaySize.x / 1.6), (ImGui::GetIO().DisplaySize.y / 1.3)), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2((ImGui::GetIO().DisplaySize.x / 1.6), (ImGui::GetIO().DisplaySize.y / 1.3)), ImGuiCond_FirstUseEver);
     bool keep_open = true;
     ImGui::Begin("Console", &keep_open, win_flags);
 

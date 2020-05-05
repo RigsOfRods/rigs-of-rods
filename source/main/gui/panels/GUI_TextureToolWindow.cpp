@@ -36,8 +36,8 @@ namespace GUI {
 
 void TextureToolWindow::Draw()
 {
-    ImGui::SetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH, 550.f), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH, 550.f), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin(_L("Texture Tool"), &m_is_visible))
     {
         ImGui::End(); // The window is collapsed

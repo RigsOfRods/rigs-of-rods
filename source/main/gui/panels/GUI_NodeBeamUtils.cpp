@@ -34,7 +34,7 @@ void RoR::GUI::NodeBeamUtils::Draw()
     }
 
     const int flags = ImGuiWindowFlags_NoCollapse;
-    ImGui::SetNextWindowSize(ImVec2(600.f, 675.f), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(600.f, 675.f), ImGuiCond_FirstUseEver);
     bool keep_open = true;
     ImGui::Begin("Node/Beam Utils", &keep_open, flags);
 
