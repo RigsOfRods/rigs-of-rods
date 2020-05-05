@@ -486,7 +486,7 @@ void SimController::UpdateInputEvents(float dt)
 
         int modifier = 0;
         modifier = (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_LESS, 0.1f)) ? -1 : 0;
-        modifier = (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_MORE, 0.1f)) ?  1 : 0;
+        modifier += (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_MORE, 0.1f)) ?  1 : 0;
         int fov = -1;
         if (modifier != 0)
         {
