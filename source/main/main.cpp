@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
 			// Add the shader libs resource location. a sample shader lib can be found in Samples\Media\RTShaderLib
 			App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RTSHADERLIB);
 			// Set shader cache path.
-			mShaderGenerator->setShaderCachePath(App::sys_cache_dir.GetActive());
+			mShaderGenerator->setShaderCachePath(App::sys_cache_dir->GetActiveStr());
 			// Set the scene manager.
 			mShaderGenerator->addSceneManager(scene_manager);
 		}
