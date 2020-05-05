@@ -44,9 +44,9 @@ void RoR::GUI::VehicleDescription::Draw()
         return;
     }
 
-    ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
+    ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
     ImVec2 size(HELP_TEXTURE_WIDTH + 2*ImGui::GetStyle().WindowPadding.x, 0.f);
-    ImGui::SetNextWindowSize(size, ImGuiSetCond_Appearing);
+    ImGui::SetNextWindowSize(size, ImGuiCond_Appearing);
     if (!ImGui::Begin(actor->GetActorDesignName().c_str(), &m_is_visible))
     {
         ImGui::End(); // The window is collapsed

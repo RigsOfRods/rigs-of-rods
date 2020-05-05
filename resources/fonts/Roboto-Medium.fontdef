@@ -1,0 +1,9 @@
+// OGRE script, see https://ogrecave.github.io/ogre/api/latest/_font-_definition-_scripts.html
+
+font rigsofrods/fonts/Roboto-Medium
+{
+	type 		truetype
+	source 		Roboto-Medium.ttf
+	size 		16
+	resolution 	96
+}

@@ -682,7 +682,8 @@ void RoR::GfxActor::UpdateDebugView()
     // Dummy fullscreen window to draw to
     int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
                      | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
-    ImGui::Begin(("RoR-SoftBodyView-" + TOSTRING(m_actor->ar_instance_id)).c_str(), NULL, screen_size, 0, window_flags);
+    ImGui::SetNextWindowSize(screen_size);
+    ImGui::Begin(("RoR-SoftBodyView-" + TOSTRING(m_actor->ar_instance_id)).c_str(), NULL, window_flags);
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImGui::End();
 
@@ -1319,7 +1320,7 @@ void RoR::GfxActor::UpdateDebugView()
                 }
                 if (!pos1_xy.empty())
                 {
-                    drawlist->AddConvexPolyFilled(pos1_xy.data(), static_cast<int>(pos1_xy.size()), 0x33666666, false);
+                    drawlist->AddConvexPolyFilled(pos1_xy.data(), static_cast<int>(pos1_xy.size()), 0x33666666);
                 }
 
                 Ogre::Real radius2 = 0.0f;
@@ -1346,7 +1347,7 @@ void RoR::GfxActor::UpdateDebugView()
                 }
                 if (!pos2_xy.empty())
                 {
-                    drawlist->AddConvexPolyFilled(pos2_xy.data(), static_cast<int>(pos2_xy.size()), 0x1155a3e0, false);
+                    drawlist->AddConvexPolyFilled(pos2_xy.data(), static_cast<int>(pos2_xy.size()), 0x1155a3e0);
                 }
 
                 for (int k = 0; k < 2; k++)

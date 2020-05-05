@@ -42,7 +42,6 @@ void RegisterImGuiBindings(asIScriptEngine* engine)
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_Text",                (int)ImGuiCol_Text);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_TextDisabled",        (int)ImGuiCol_TextDisabled);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_WindowBg",            (int)ImGuiCol_WindowBg);              // Background of normal windows
-    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ChildWindowBg",       (int)ImGuiCol_ChildWindowBg);         // Background of child windows
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_PopupBg",             (int)ImGuiCol_PopupBg);               // Background of popups, menus, tooltips windows
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_Border",              (int)ImGuiCol_Border);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_BorderShadow",        (int)ImGuiCol_BorderShadow);
@@ -57,7 +56,6 @@ void RegisterImGuiBindings(asIScriptEngine* engine)
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ScrollbarGrab",       (int)ImGuiCol_ScrollbarGrab);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ScrollbarGrabHovered",(int)ImGuiCol_ScrollbarGrabHovered);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ScrollbarGrabActive", (int)ImGuiCol_ScrollbarGrabActive);
-    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ComboBg",             (int)ImGuiCol_ComboBg);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_CheckMark",           (int)ImGuiCol_CheckMark);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_SliderGrab",          (int)ImGuiCol_SliderGrab);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_SliderGrabActive",    (int)ImGuiCol_SliderGrabActive);
@@ -67,21 +65,14 @@ void RegisterImGuiBindings(asIScriptEngine* engine)
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_Header",              (int)ImGuiCol_Header);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_HeaderHovered",       (int)ImGuiCol_HeaderHovered);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_HeaderActive",        (int)ImGuiCol_HeaderActive);
-    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_Column",              (int)ImGuiCol_Column);
-    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ColumnHovered",       (int)ImGuiCol_ColumnHovered);
-    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ColumnActive",        (int)ImGuiCol_ColumnActive);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ResizeGrip",          (int)ImGuiCol_ResizeGrip);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ResizeGripHovered",   (int)ImGuiCol_ResizeGripHovered);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ResizeGripActive",    (int)ImGuiCol_ResizeGripActive);
-    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_CloseButton",         (int)ImGuiCol_CloseButton);
-    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_CloseButtonHovered",  (int)ImGuiCol_CloseButtonHovered);
-    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_CloseButtonActive",   (int)ImGuiCol_CloseButtonActive);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_PlotLines",           (int)ImGuiCol_PlotLines);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_PlotLinesHovered",    (int)ImGuiCol_PlotLinesHovered);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_PlotHistogram",       (int)ImGuiCol_PlotHistogram);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_PlotHistogramHovered",(int)ImGuiCol_PlotHistogramHovered);
     engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_TextSelectedBg",      (int)ImGuiCol_TextSelectedBg);
-    engine->RegisterEnumValue("ImGuiCol_", "ImGuiCol_ModalWindowDarkening",(int)ImGuiCol_ModalWindowDarkening);  // darken entire screen when a modal window is active
 
     engine->RegisterEnum("ImGuiWindowFlags_");  
     // Default: 0
@@ -92,7 +83,6 @@ void RegisterImGuiBindings(asIScriptEngine* engine)
     engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_NoScrollWithMouse",         (int)ImGuiWindowFlags_NoScrollWithMouse      );  // Disable user vertically scrolling with mouse wheel
     engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_NoCollapse",                (int)ImGuiWindowFlags_NoCollapse             );  // Disable user collapsing window by double-clicking on it
     engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_AlwaysAutoResize",          (int)ImGuiWindowFlags_AlwaysAutoResize       );  // Resize every window to its content every frame
-    engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_ShowBorders",               (int)ImGuiWindowFlags_ShowBorders            );  // Show borders around windows and items
     engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_NoSavedSettings",           (int)ImGuiWindowFlags_NoSavedSettings        );  // Never load/save settings in .ini file
     engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_NoInputs",                  (int)ImGuiWindowFlags_NoInputs               );  // Disable catching mouse or keyboard inputs
     engine->RegisterEnumValue("ImGuiWindowFlags_", "ImGuiWindowFlags_MenuBar",                   (int)ImGuiWindowFlags_MenuBar                );  // Has a menu-bar
@@ -122,7 +112,6 @@ void RegisterImGuiBindings(asIScriptEngine* engine)
         auto v = ImGui::GetContentRegionMax(); return Vector2(v.x, v.y); }, (), Vector2), asCALL_CDECL);
     engine->RegisterGlobalFunction("vector2 GetContentRegionAvail()", asFUNCTIONPR([]() { 
         auto v = ImGui::GetContentRegionAvail(); return Vector2(v.x, v.y); }, (), Vector2), asCALL_CDECL);
-    engine->RegisterGlobalFunction("float GetContentRegionAvailWidth()", asFUNCTIONPR(ImGui::GetContentRegionAvailWidth, (), float), asCALL_CDECL);
     engine->RegisterGlobalFunction("vector2 GetWindowContentRegionMin()", asFUNCTIONPR([]() { 
         auto v = ImGui::GetWindowContentRegionMin(); return Vector2(v.x, v.y); }, (), Vector2), asCALL_CDECL);
     engine->RegisterGlobalFunction("vector2 GetWindowContentRegionMax()", asFUNCTIONPR([]() { 
@@ -172,7 +161,6 @@ void RegisterImGuiBindings(asIScriptEngine* engine)
     engine->RegisterGlobalFunction("float GetScrollMaxY()", asFUNCTIONPR(ImGui::GetScrollMaxY, (), float), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetScrollX(float)", asFUNCTIONPR(ImGui::SetScrollX, (float), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetScrollY(float)", asFUNCTIONPR(ImGui::SetScrollY, (float), void), asCALL_CDECL);
-    engine->RegisterGlobalFunction("void SetScrollHere(float = 0.5f)", asFUNCTIONPR(ImGui::SetScrollHere, (float), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetScrollFromPosY(float, float = 0.5f)", asFUNCTIONPR(ImGui::SetScrollFromPosY, (float,float), void), asCALL_CDECL);
 
     engine->RegisterGlobalFunction("void Separator()", asFUNCTIONPR(ImGui::Separator, (), void), asCALL_CDECL);
@@ -398,17 +386,14 @@ void RegisterImGuiBindings(asIScriptEngine* engine)
     engine->RegisterGlobalFunction("bool ColorButton(const string&in, color)", asFUNCTIONPR([](const string& id, ColourValue val) {
         Vector4 v(val.r, val.g, val.b, val.a);
         ImVec4 vv(v.x, v.y, v.z, v.w);
-        //return ImGui::ColorButton(id.c_str(), vv); // FIXME: update imgui!
-        return ImGui::ColorButton(vv);
+        return ImGui::ColorButton(id.c_str(), vv);
     }, (const string&, ColourValue), bool), asCALL_CDECL);
 
     // Widgets: Trees
     engine->RegisterGlobalFunction("bool TreeNode(const string&in)", asFUNCTIONPR([](const string& id) { return ImGui::TreeNode(id.c_str()); }, (const string&), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("void TreePush(const string&in)", asFUNCTIONPR([](const string& id) { ImGui::TreePush(id.c_str()); }, (const string&), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void TreePop()", asFUNCTIONPR(ImGui::TreePop, (), void), asCALL_CDECL);
-    engine->RegisterGlobalFunction("void TreeAdvanceToLabelPos()", asFUNCTIONPR(ImGui::TreeAdvanceToLabelPos, (), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("float GetTreeNodeToLabelSpacing()", asFUNCTIONPR(ImGui::GetTreeNodeToLabelSpacing, (), float), asCALL_CDECL);
-    engine->RegisterGlobalFunction("void SetNextTreeNodeOpen(bool)", asFUNCTIONPR([](bool val) { ImGui::SetNextTreeNodeOpen(val); }, (bool), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool CollapsingHeader(const string&in)", asFUNCTIONPR([](const string& n) { return ImGui::CollapsingHeader(n.c_str()); }, (const string&), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool CollapsingHeader(const string&in, bool&inout)", asFUNCTIONPR([](const string& n, bool& v) { return ImGui::CollapsingHeader(n.c_str(), &v); }, (const string&, bool&), bool), asCALL_CDECL);
 
@@ -449,7 +434,7 @@ void RegisterImGuiBindings(asIScriptEngine* engine)
     engine->RegisterGlobalFunction("bool BeginPopupContextItem(const string&in = string(), int = 1)", asFUNCTIONPR([](const string& a, int b) {  
         return ImGui::BeginPopupContextItem(a.empty() ? a.c_str() : 0x0, b);  }, (const string&, int), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool BeginPopupContextWindow(const string&in = string(), int = 1, bool = true)", asFUNCTIONPR([](const string& a, int b, bool c) {  
-        return ImGui::BeginPopupContextWindow(c, a.empty() ? a.c_str() : 0x0, b);  }, (const string&, int, bool), bool), asCALL_CDECL); // FIXME: update imgui! -- swapped args
+        return ImGui::BeginPopupContextWindow(a.empty() ? a.c_str() : 0x0, b, c);  }, (const string&, int, bool), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool BeginPopupContextVoid(const string&in = string(), int = 1)", asFUNCTIONPR([](const string& a, int b) {  
         return ImGui::BeginPopupContextVoid(a.empty() ? a.c_str() : 0x0, b);  }, (const string&, int), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool BeginPopupModal(const string&in, bool &inout = null, int = 0)", asFUNCTIONPR([](const string& a, bool& b, int c) {  
@@ -485,7 +470,7 @@ void RegisterImGuiBindings(asIScriptEngine* engine)
     engine->RegisterGlobalFunction("bool IsWindowHovered(int = 0)", asFUNCTIONPR([](int a) {  return ImGui::IsWindowHovered(); }, (int), bool), asCALL_CDECL); // TODO: update imgui -- flags omitted
     engine->RegisterGlobalFunction("bool IsRectVisible(const vector2&)", asFUNCTIONPR([](const Vector2& a) {  return ImGui::IsRectVisible(ImVec2(a.x, a.y)); }, (const Vector2&), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool IsRectVisible(const vector2&, const vector2&)", asFUNCTIONPR([](const Vector2& a, const Vector2& b) {  return ImGui::IsRectVisible(ImVec2(a.x, a.y), ImVec2(b.x, b.y));  }, (const Vector2&, const Vector2&), bool), asCALL_CDECL);
-    engine->RegisterGlobalFunction("float GetTime()", asFUNCTIONPR([]() {  return ImGui::GetTime();  }, (), float), asCALL_CDECL);
+    engine->RegisterGlobalFunction("float GetTime()", asFUNCTIONPR([]() {  return (float)ImGui::GetTime();  }, (), float), asCALL_CDECL);
     engine->RegisterGlobalFunction("int GetFrameCount()", asFUNCTIONPR([]() {  return ImGui::GetFrameCount();  }, (), int), asCALL_CDECL);
 
     engine->RegisterGlobalFunction("vector2 CalcTextSize(const string&in, const string&in = string(), bool = false, float = -1.0f)", asFUNCTIONPR([](const string& a, const string& b, bool c, float d) {  

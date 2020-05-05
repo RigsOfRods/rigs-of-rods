@@ -2293,12 +2293,7 @@ void SimController::EnterGameplayLoop()
             }
         }
 
-        // TODO: Ugly! Currently it seems drawing DearIMGUI only works when invoked from `Ogre::FrameListener::frameRenderingQueued`.
-        //       We only want GUI on screen, not other targets (reflections etc...), so we can't have it attached permanently.
-        //       Research and find a more elegant solution.  ~ only_a_ptr, 07/2018
-        RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&App::GetGuiManager()->GetImGui());
         RoR::App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
-        RoR::App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(&App::GetGuiManager()->GetImGui());
 
         if (m_stats_on && RoR::App::GetOverlayWrapper())
         {

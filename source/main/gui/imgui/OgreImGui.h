@@ -25,17 +25,13 @@
 
 #pragma once
 
+#include "OgreImGuiOverlay.h" // RoR's ported version
+
 #include <imgui.h>
-#include <OgreString.h>
-#include <OgreCommon.h>
+#include <Ogre.h>
 #include <OISMouse.h>
 #include <OISKeyboard.h>
-
-#include <OgreFrameListener.h>
-#include <OgreRenderQueueListener.h>
-#include <OgreTexture.h>
-#include "OgreRenderable.h"
-#include <OgreRenderOperation.h>
+#include <memory>
 
 // DearIMGUI math functions, copypasted from <imgui_internal.h>
 static inline ImVec2 operator*(const ImVec2& lhs, const float rhs)              { return ImVec2(lhs.x*rhs, lhs.y*rhs); }
@@ -49,20 +45,16 @@ static inline ImVec2& operator-=(ImVec2& lhs, const ImVec2& rhs)                
 static inline ImVec2& operator*=(ImVec2& lhs, const float rhs)                  { lhs.x *= rhs; lhs.y *= rhs; return lhs; }
 static inline ImVec2& operator/=(ImVec2& lhs, const float rhs)                  { lhs.x /= rhs; lhs.y /= rhs; return lhs; }
 
-/// DearIMGUI rendering for OGRE engine; Usage:
-///  1. Call `Init()` after OGRE was started
-///  2. Call `NewFrame()` before each render, otherwise IMGUI will crash.
-///  3. Use `Inject*()` functions to handle inputs.
-///  4. Use any ImGui*() functions to create your GUI.
-///  5. Call `Render()` to render the GUI; alternatively register the class as frame listener for automated rendering.
-class OgreImGui: public Ogre::FrameListener
+/// DearIMGUI integration.
+/// Input handling is done by injecting OIS events to ImGUI
+/// Rendering is done via port of Ogre::ImGuiOverlay; this is temporary until we migrate to OGRE 1.12.x
+///   however, since our OGRE version doesn't have `OverlayManager::addOverlay()`,
+///   we queue it for rendering ourselves via RenderQueueListener
+///   (code is shamelessly copy-pasted from OGRE)
+class OgreImGui: public Ogre::RenderQueueListener
 {
 public:
-    OgreImGui(): mSceneMgr(nullptr) {}
-
-    void Init(Ogre::SceneManager* scenemgr);
-    void NewFrame(float deltaTime, float vpWidth, float vpHeight, bool ctrl, bool alt, bool shift);
-    void Render();
+    void Init();
 
     // Input-injecting functions
     void InjectMouseMoved( const OIS::MouseEvent &arg );
@@ -71,42 +63,10 @@ public:
     void InjectKeyPressed( const OIS::KeyEvent &arg );
     void InjectKeyReleased( const OIS::KeyEvent &arg );
 
-    // Ogre::FrameListener interface
-    virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt) override;
+    // Ogre::RenderQueueListener
+    virtual void renderQueueStarted(Ogre::uint8 queueGroupId,
+        const Ogre::String& invocation, bool& skipThisInvocation) override;
 
 private:
-
-    class ImGUIRenderable : public Ogre::Renderable
-    {
-    public:
-        ImGUIRenderable();
-        virtual ~ImGUIRenderable();
-
-        void updateVertexData(const ImDrawVert* vtxBuf, const ImDrawIdx* idxBuf, unsigned int vtxCount, unsigned int idxCount);
-        Ogre::Real getSquaredViewDepth(const Ogre::Camera* cam) const   { (void)cam; return 0; }
-
-        void setMaterial( const Ogre::String& matName );
-        void setMaterial(const Ogre::MaterialPtr & material);
-        virtual const Ogre::MaterialPtr& getMaterial(void) const override;
-        virtual void getWorldTransforms( Ogre::Matrix4* xform ) const override;
-        virtual void getRenderOperation( Ogre::RenderOperation& op ) override;
-        virtual const Ogre::LightList& getLights(void) const override;
-
-        int mVertexBufferSize;
-        int mIndexBufferSize;
-
-    private:
-        void initImGUIRenderable(void);
-
-        Ogre::MaterialPtr mMaterial;
-        Ogre::RenderOperation mRenderOp;
-    };
-
-    void createFontTexture();
-    void createMaterial();
-
-    Ogre::Pass*                 mPass;
-    Ogre::TexturePtr            mFontTex;
-    Ogre::SceneManager*         mSceneMgr;
-
+    std::unique_ptr<Ogre::ImGuiOverlay> m_imgui_overlay;
 };

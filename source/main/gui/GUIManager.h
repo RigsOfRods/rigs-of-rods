@@ -44,8 +44,6 @@ public:
 
     struct GuiTheme
     {
-        GuiTheme();
-
         ImVec4 in_progress_text_color    = ImVec4(1.f, 0.832031f, 0.f, 1.f);
         ImVec4 no_entries_text_color     = ImVec4(0.7f, 0.7f, 0.7f, 1.f);
         ImVec4 error_text_color          = ImVec4(1.f, 0.175439f, 0.175439f, 1.f);

@@ -76,6 +76,7 @@ DECLARE_RESOURCE_PACK( CUBEMAPS,              "cubemaps",             "CubemapsR
 DECLARE_RESOURCE_PACK( DASHBOARDS,            "dashboards",           "DashboardsRG");
 DECLARE_RESOURCE_PACK( FAMICONS,              "famicons",             "FamiconsRG");
 DECLARE_RESOURCE_PACK( FLAGS,                 "flags",                "FlagsRG");
+DECLARE_RESOURCE_PACK( FONTS,                 "fonts",                "FontsRG");
 DECLARE_RESOURCE_PACK( HYDRAX,                "hydrax",               "HydraxRG");
 DECLARE_RESOURCE_PACK( ICONS,                 "icons",                "IconsRG");
 DECLARE_RESOURCE_PACK( MATERIALS,             "materials",            "MaterialsRG");

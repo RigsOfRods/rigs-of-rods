@@ -172,7 +172,7 @@ void RoR::DrawGFloatSlider(CVar* cvar, const char* label, float v_min, float v_m
 void RoR::DrawGFloatBox(CVar* cvar, const char* label)
 {
     float fval = cvar->GetActiveVal<float>();
-    if (ImGui::InputFloat(label, &fval, 0.f, 0.f, -1, ImGuiInputTextFlags_EnterReturnsTrue))
+    if (ImGui::InputFloat(label, &fval, 0.f, 0.f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue))
     {
         cvar->SetActiveVal(fval);
         if (!cvar->HasFlags(CVAR_AUTO_STORE))

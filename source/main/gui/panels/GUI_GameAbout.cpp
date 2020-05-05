@@ -38,8 +38,8 @@ void RoR::GUI::GameAbout::Draw()
 {
     RoR::GUIManager::GuiTheme const& theme = RoR::App::GetGuiManager()->GetTheme();
 
-    ImGui::SetNextWindowSize(ImVec2(475.f, ImGui::GetIO().DisplaySize.y - 40.f), ImGuiSetCond_Appearing);
-    ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
+    ImGui::SetNextWindowSize(ImVec2(475.f, ImGui::GetIO().DisplaySize.y - 40.f), ImGuiCond_Appearing);
+    ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
     bool keep_open = true;
     ImGui::Begin(_LC("About", "About Rigs of Rods"), &keep_open, win_flags);

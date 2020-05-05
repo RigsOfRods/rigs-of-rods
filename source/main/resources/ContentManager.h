@@ -62,6 +62,7 @@ public:
         static const ResourcePack DASHBOARDS;
         static const ResourcePack FAMICONS;
         static const ResourcePack FLAGS;
+        static const ResourcePack FONTS;
         static const ResourcePack HYDRAX;
         static const ResourcePack ICONS;
         static const ResourcePack MATERIALS;

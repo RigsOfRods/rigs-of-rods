@@ -171,7 +171,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
     const float TABLE_PADDING_LEFT = 4.f;
 
     int window_flags = ImGuiWindowFlags_NoCollapse;
-    ImGui::SetNextWindowSize(ImVec2(750.f, 400.f), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(750.f, 400.f), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowPosCenter();
     bool keep_open = true;
     ImGui::Begin(m_window_title, &keep_open, window_flags);

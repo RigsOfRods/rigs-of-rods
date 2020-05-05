@@ -54,7 +54,6 @@ private:
 
     // From Ogre::FrameListener
     bool frameStarted(const Ogre::FrameEvent & evt) override;
-    bool frameRenderingQueued(const Ogre::FrameEvent & evt) override;
 
     // Ogre::WindowEventListener
     void windowResized    (Ogre::RenderWindow* rw) override;
