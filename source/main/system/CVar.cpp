@@ -64,9 +64,9 @@ void Console::CVarSetupBuiltins()
     App::mp_pseudo_collisions    = this->CVarCreate("mp_pseudo_collisions",    "Multiplayer collisions",     CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");
     App::mp_server_host          = this->CVarCreate("mp_server_host",          "Server name",                CVAR_ALLOW_STORE);
     App::mp_server_port          = this->CVarCreate("mp_server_port",          "Server port",                CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_INT);
-    App::mp_server_password      = this->CVarCreate("mp_server_password",      "Server password",            CVAR_ALLOW_STORE);       
+    App::mp_server_password      = this->CVarCreate("mp_server_password",      "Server password",            CVAR_ALLOW_STORE | CVAR_NO_LOG);       
     App::mp_player_name          = this->CVarCreate("mp_player_name",          "Nickname",                   CVAR_ALLOW_STORE,                                       "Player");
-    App::mp_player_token         = this->CVarCreate("mp_player_token",         "User Token",                 CVAR_ALLOW_STORE);          
+    App::mp_player_token         = this->CVarCreate("mp_player_token",         "User Token",                 CVAR_ALLOW_STORE | CVAR_NO_LOG);          
     App::mp_api_url              = this->CVarCreate("mp_api_url",              "Online API URL",             CVAR_ALLOW_STORE | CVAR_AUTO_APPLY,                     "http://api.rigsofrods.org");
 
     App::diag_auto_spawner_report= this->CVarCreate("diag_auto_spawner_report","AutoActorSpawnerReport",     CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");
@@ -257,6 +257,9 @@ CVar* Console::CVarGet(std::string const& input_name, int flags)
 void CVar::LogUpdate(const char* op, std::string const& old_val, std::string const& new_val)
 {
     if (!Ogre::LogManager::getSingletonPtr())
+        return;
+
+    if (m_flags & CVAR_NO_LOG)
         return;
 
     Str<100> flags_str;

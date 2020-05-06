@@ -41,7 +41,8 @@ enum CVarFlags
     CVAR_TYPE_INT     = BITMASK(5),
     CVAR_TYPE_FLOAT   = BITMASK(6),
     CVAR_FORCE_APPLY  = BITMASK(7),    //!< Function call argument only
-    CVAR_FORCE_STORE  = BITMASK(8)     //!< Function call argument only
+    CVAR_FORCE_STORE  = BITMASK(8),     //!< Function call argument only
+    CVAR_NO_LOG       = BITMASK(9)     //!< Will not be written to RoR.log
 };
 
 /// Inspired by Quake:
