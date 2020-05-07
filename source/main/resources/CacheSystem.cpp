@@ -1071,30 +1071,34 @@ bool CacheSystem::CheckResourceLoaded(Ogre::String & filename)
 
 bool CacheSystem::CheckResourceLoaded(Ogre::String & filename, Ogre::String& group)
 {
-    // check if we already loaded it via ogre ...
-    if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename))
+    try
     {
-        group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
-        return true;
-    }
-
-    for (auto& entry : m_entries)
-    {
-        // case insensitive comparison
-        String fname = entry.fname;
-        String fname_without_uid = entry.fname_without_uid;
-        StringUtil::toLowerCase(fname);
-        StringUtil::toLowerCase(filename);
-        StringUtil::toLowerCase(fname_without_uid);
-        if (fname == filename || fname_without_uid == filename)
+        // check if we already loaded it via ogre ...
+        if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename))
         {
-            // we found the file, load it
-            LoadResource(entry);
-            filename = entry.fname;
-            group = entry.resource_group;
-            return !group.empty() && ResourceGroupManager::getSingleton().resourceExists(group, filename);
+            group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
+            return true;
+        }
+
+        for (auto& entry : m_entries)
+        {
+            // case insensitive comparison
+            String fname = entry.fname;
+            String fname_without_uid = entry.fname_without_uid;
+            StringUtil::toLowerCase(fname);
+            StringUtil::toLowerCase(filename);
+            StringUtil::toLowerCase(fname_without_uid);
+            if (fname == filename || fname_without_uid == filename)
+            {
+                // we found the file, load it
+                LoadResource(entry);
+                filename = entry.fname;
+                group = entry.resource_group;
+                return !group.empty() && ResourceGroupManager::getSingleton().resourceExists(group, filename);
+            }
         }
     }
+    catch (Ogre::Exception& oex) {} // Already logged by OGRE
 
     return false;
 }
