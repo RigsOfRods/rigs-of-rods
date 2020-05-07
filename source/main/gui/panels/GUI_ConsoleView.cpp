@@ -136,6 +136,17 @@ ImVec2 GUI::ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
     Str<LINE_BUF_MAX> line;
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
 
+    const unsigned long curr_timestamp = App::GetConsole()->QueryMessageTimer();
+    unsigned long overtime = curr_timestamp - (m.cm_timestamp + (cvw_msg_duration_ms - fadeout_interval));
+    if (overtime <= fadeout_interval)
+    {
+        alpha -= (float)overtime/(float)fadeout_interval;
+    }
+    else
+    {
+        alpha = 1.f;
+    }
+
     // Draw icons based on filters
     Ogre::TexturePtr icon;
     if (cvw_enable_icons)
@@ -243,7 +254,7 @@ ImVec2 GUI::ConsoleView::DrawColorMarkedText(ImVec2 bg_cursor, Ogre::TexturePtr 
         ImVec2 icon_size(icon->getWidth(), icon->getHeight());
         ImVec2 tl = ImVec2(text_cursor.x, text_cursor.y + (text_h / 2) - (icon_size.y / 2));
         ImVec2 br = tl + icon_size;
-        drawlist->AddImage(reinterpret_cast<ImTextureID>(icon->getHandle()), tl, br);
+        drawlist->AddImage(reinterpret_cast<ImTextureID>(icon->getHandle()), tl, br, ImVec2(0,0), ImVec2(1,1), ImColor(ImVec4(1,1,1,alpha)));
         const float ICON_GAP = 8;
         total_text_size += ImVec2(icon_size.x + ICON_GAP, text_h);
         text_cursor.x += icon_size.x + ICON_GAP;
@@ -263,7 +274,7 @@ ImVec2 GUI::ConsoleView::DrawColorMarkedText(ImVec2 bg_cursor, Ogre::TexturePtr 
         {
             Str<LINE_BUF_MAX> seg_text(seg_start, seg_end);
             ImVec2 text_size = ImGui::CalcTextSize(seg_text.ToCStr());
-            drawlist->AddText(text_cursor, ImColor(r,g,b), seg_text.ToCStr());
+            drawlist->AddText(text_cursor, ImColor(r,g,b,(int)(alpha*255)), seg_text.ToCStr());
             total_text_size.x += text_size.x;
             total_text_size.y = std::max(total_text_size.y, text_size.y);
             text_cursor.x += text_size.x;
@@ -282,7 +293,7 @@ ImVec2 GUI::ConsoleView::DrawColorMarkedText(ImVec2 bg_cursor, Ogre::TexturePtr 
     {
         std::string text(seg_start, line.end()); // TODO: optimize!
         ImVec2 text_size = ImGui::CalcTextSize(text.c_str());
-        drawlist->AddText(text_cursor, ImColor(r,g,b), text.c_str());
+        drawlist->AddText(text_cursor, ImColor(r,g,b,(int)(alpha*255)), text.c_str());
         total_text_size.x += text_size.x;
         total_text_size.y = std::max(total_text_size.y, text_size.y);
     }
@@ -291,7 +302,7 @@ ImVec2 GUI::ConsoleView::DrawColorMarkedText(ImVec2 bg_cursor, Ogre::TexturePtr 
     drawlist->ChannelsSetCurrent(0); // Background layer
     ImVec2 bg_rect_size = total_text_size + (cvw_background_padding * 2);
     drawlist->AddRectFilled(bg_cursor, bg_cursor + bg_rect_size,
-        ImColor(cvw_background_color), ImGui::GetStyle().FrameRounding);
+        ImColor(ImVec4(0,0,0,(alpha / 2))), ImGui::GetStyle().FrameRounding);
     return bg_rect_size;
 }
 

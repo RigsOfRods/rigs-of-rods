@@ -61,6 +61,8 @@ struct ConsoleView
     ImVec4 cvw_background_color = ImVec4(0,0,0,0); //!< Text-background color
     ImVec2 cvw_background_padding = ImVec2(0,0);
     float  cvw_line_spacing = 1.f;
+    float  alpha = 1.f;
+    size_t fadeout_interval = 700u;
 
 private:
     bool   MessageFilter(Console::Message const& m); //!< Returns true if message should be displayed
