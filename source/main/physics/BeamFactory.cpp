@@ -407,53 +407,67 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
             RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
             if (reg->type == 0)
             {
-                RoRnet::UserInfo info;
-                RoR::Networking::GetUserInfo(reg->origin_sourceid, info);
-                Str<200> text;
-                text << _L(" spawned a new vehicle: ") << Utils::SanitizeUtf8CString(reg->name);
-                App::GetConsole()->putNetMessage(
-                    reg->origin_sourceid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
-
-                LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
                 reg->name[127] = 0;
-                Ogre::String filename(reg->name);
-                if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(filename))
+                std::string filename = Utils::SanitizeUtf8CString(reg->name);
+
+                RoRnet::UserInfo info;
+                if (!RoR::Networking::GetUserInfo(reg->origin_sourceid, info))
                 {
-                    App::GetConsole()->putMessage(
-                        Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
-                        _L("Mod not installed: ") + Utils::SanitizeUtf8CString(reg->name));
-                    RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", reg->name);
-                    AddStreamMismatch(reg->origin_sourceid, reg->origin_streamid);
+                    RoR::LogFormat("[RoR] Invalid STREAM_REGISTER, user id %d does not exist", reg->origin_sourceid);
+                    reg->status = -1;
+                }
+                else if (filename.empty())
+                {
+                    RoR::LogFormat("[RoR] Invalid STREAM_REGISTER (user '%s', ID %d), filename is empty string", info.username, reg->origin_sourceid);
                     reg->status = -1;
                 }
                 else
                 {
-                    auto actor_reg = reinterpret_cast<RoRnet::ActorStreamRegister*>(reg);
-                    if (m_stream_time_offsets.find(reg->origin_sourceid) == m_stream_time_offsets.end())
-                    {
-                        int offset = actor_reg->time - m_net_timer.getMilliseconds();
-                        m_stream_time_offsets[reg->origin_sourceid] = offset - 100;
-                    }
-                    ActorSpawnRequest rq;
-                    rq.asr_origin = ActorSpawnRequest::Origin::NETWORK;
-                    // TODO: Look up cache entry early (eliminate asr_filename) and fetch skin by name+guid! ~ 03/2019
-                    rq.asr_filename = filename;
-                    if (strnlen(actor_reg->skin, 60) < 60 && actor_reg->skin[0] != '\0')
-                    {
-                        rq.asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin);
-                    }
-                    if (strnlen(actor_reg->sectionconfig, 60) < 60)
-                    {
-                        rq.asr_config = actor_reg->sectionconfig;
-                    }
-                    rq.asr_net_username = tryConvertUTF(info.username);
-                    rq.asr_net_color    = info.colournum;
+                    Str<200> text;
+                    text << _L(" spawned a new vehicle: ") << filename;
+                    App::GetConsole()->putNetMessage(
+                        reg->origin_sourceid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
 
-                    Actor* actor = App::GetSimController()->SpawnActorDirectly(rq);
-                    actor->ar_net_source_id = reg->origin_sourceid;
-                    actor->ar_net_stream_id = reg->origin_streamid;
+                    LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
 
-                    reg->status = 1;
+                    if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(filename))
+                    {
+                        App::GetConsole()->putMessage(
+                            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                            _L("Mod not installed: ") + filename);
+                        RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", filename.c_str());
+                        AddStreamMismatch(reg->origin_sourceid, reg->origin_streamid);
+                        reg->status = -1;
+                    }
+                    else
+                    {
+                        auto actor_reg = reinterpret_cast<RoRnet::ActorStreamRegister*>(reg);
+                        if (m_stream_time_offsets.find(reg->origin_sourceid) == m_stream_time_offsets.end())
+                        {
+                            int offset = actor_reg->time - m_net_timer.getMilliseconds();
+                            m_stream_time_offsets[reg->origin_sourceid] = offset - 100;
+                        }
+                        ActorSpawnRequest rq;
+                        rq.asr_origin = ActorSpawnRequest::Origin::NETWORK;
+                        // TODO: Look up cache entry early (eliminate asr_filename) and fetch skin by name+guid! ~ 03/2019
+                        rq.asr_filename = filename;
+                        if (strnlen(actor_reg->skin, 60) < 60 && actor_reg->skin[0] != '\0')
+                        {
+                            rq.asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin);
+                        }
+                        if (strnlen(actor_reg->sectionconfig, 60) < 60)
+                        {
+                            rq.asr_config = actor_reg->sectionconfig;
+                        }
+                        rq.asr_net_username = tryConvertUTF(info.username);
+                        rq.asr_net_color    = info.colournum;
+
+                        Actor* actor = App::GetSimController()->SpawnActorDirectly(rq);
+                        actor->ar_net_source_id = reg->origin_sourceid;
+                        actor->ar_net_stream_id = reg->origin_streamid;
+
+                        reg->status = 1;
+                    }
                 }
 
                 RoR::Networking::AddPacket(reg->origin_streamid, RoRnet::MSG2_STREAM_REGISTER_RESULT, sizeof(RoRnet::StreamRegister), (char *)reg);

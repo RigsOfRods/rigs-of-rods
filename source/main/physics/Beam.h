@@ -330,7 +330,7 @@ public:
     std::string       ar_filename;                    //!< Attribute; filled at spawn
     std::string       ar_filehash;                    //!< Attribute; filled at spawn
     int               ar_airbrake_intensity;          //!< Physics state; values 0-5
-    int               ar_net_source_id;
+    int               ar_net_source_id;               //!< Unique ID of remote player who spawned this actor
     int               ar_net_stream_id;
     std::map<int,int> ar_net_stream_results;
     Ogre::Timer       ar_net_timer;
