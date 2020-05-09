@@ -50,9 +50,10 @@ void GUI::ConsoleWindow::Draw()
         }
         if (ImGui::BeginMenu(_LC("Console", "Commands")))
         {
+            ImGui::Dummy(ImVec2(550.f, 1.f)); // Manually resize width (DearIMGUI bug workaround)
             ImGui::Columns(3);
-            ImGui::SetColumnOffset(1, 100); // TODO: Calculate dynamically
-            ImGui::SetColumnOffset(2, 270); // TODO: Calculate dynamically
+            ImGui::SetColumnWidth(0, 100); // TODO: Calculate dynamically
+            ImGui::SetColumnWidth(1, 170); // TODO: Calculate dynamically
 
             for (auto& cmd_pair: App::GetConsole()->GetCommands())
             {
@@ -73,7 +74,7 @@ void GUI::ConsoleWindow::Draw()
         ImGui::EndMenuBar();
     }
 
-    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetTextLineHeightWithSpacing(); // 1 separator, 1 input text
+    const float footer_height_to_reserve = ImGui::GetFrameHeightWithSpacing(); // 1 input text
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar); // Leave room for 1 separator + 1 InputText
 
     m_console_view.DrawConsoleMessages();

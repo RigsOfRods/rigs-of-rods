@@ -686,34 +686,6 @@ void RoR::GfxActor::UpdateDebugView()
         return; // Nothing to do
     }
 
-    // Original 'debugVisuals' and their replacements ~only_a_ptr, 06/2017
-    // -------------------------------------------------------------------
-    // [1] node-numbers:  -------  Draws node numbers (black letters with white outline), generated nodes (wheels...) get fake sequentially assigned numbers.
-    //                             Replacement: DEBUGVIEW_NODES; Note: real node_t::id value is displayed - generated nodes show "-1"
-    // [2] beam-numbers:  -------  Draws beam numbers (sequentially assigned) as black (thick+distorted) text - almost unreadable, barely useful IMO.
-    //                             Not preserved
-    // [3] node-and-beam-numbers:  [1] + [2] combined
-    //                             Not preserved
-    // [4] node-mass:  ----------  Shows mass in same style as [1]
-    //                             Replacement: Extra info in DEBUGVIEW_NODES with different text color, like "33 (3.3Kg)"
-    // [5] node-locked:  --------  Shows text "unlocked"/"locked" in same style as [1]
-    //                             replacement: colored circles around nodes showing PRELOCK and LOCKED states (not shown when ulocked) - used in all DEBUGVIEW_* modes
-    // [6] beam-compression:  ---  A number shown per beam, same style as [2] - unreadable. Logic:
-    //                              // float stress_ratio = beams[it->id].stress / beams[it->id].minmaxposnegstress;
-    //                              // float color_scale = std::abs(stress_ratio);
-    //                              // color_scale = std::min(color_scale, 1.0f);
-    //                              // int scale = (int)(color_scale * 100);
-    //                              // it->txt->setCaption(TOSTRING(scale));
-    //                             Replacement: DEBUGVIEW_BEAMS -- modified logic, simplified, specific text color
-    // [7] beam-broken  ---------  Shows "BROKEN" label for broken beams (`beam_t::broken` flag) in same style as [2]
-    //                             Replacement - special coloring/display in DEBUGVIEW_* modes.
-    // [8] beam-stress  ---------  Shows value of `beam_t::stress` in style of [2]
-    //                             Replacement: DEBUGVIEW_BEAMS + specific text color
-    // [9] beam-hydro  ----------  Shows a per-hydro number in style of [2], formula: `(beams[it->id].L / beams[it->id].Lhydro) * 100`
-    //                             Replacement: DEBUGVIEW_BEAMS + specific text color
-    // [9] beam-commands  -------  Shows a per-beam number in style of [2], formula: `(beams[it->id].L / beams[it->id].commandLong) * 100`
-    //                             Not preserved - there's no way to distinguish commands on runtime and the number makes no sense for all beams. TODO: make commands distinguishable on runtime!
-
     // Var
     ImVec2 screen_size = ImGui::GetIO().DisplaySize;
     World2ScreenConverter world2screen(
@@ -722,10 +694,13 @@ void RoR::GfxActor::UpdateDebugView()
     // Dummy fullscreen window to draw to
     int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
                      | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
+    ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(screen_size);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
     ImGui::Begin(("RoR-SoftBodyView-" + TOSTRING(m_actor->ar_instance_id)).c_str(), NULL, window_flags);
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImGui::End();
+    ImGui::PopStyleColor(1); // WindowBg
 
     if (m_actor->ar_physics_paused && !RoR::App::GetSimController()->IsGUIHidden())
     {
