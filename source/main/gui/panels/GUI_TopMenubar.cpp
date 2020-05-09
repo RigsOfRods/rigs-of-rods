@@ -64,7 +64,7 @@ void RoR::GUI::TopMenubar::Update()
 
     float menubar_content_width =
         (ImGui::GetStyle().ItemSpacing.x * (NUM_BUTTONS - 1)) +
-        (ImGui::GetStyle().FramePadding.x * ((NUM_BUTTONS * 2) + 2)) +
+        (ImGui::GetStyle().FramePadding.x * (NUM_BUTTONS * 2)) +
         ImGui::CalcTextSize(sim_title).x +
         ImGui::CalcTextSize(actors_title.ToCStr()).x +
         ImGui::CalcTextSize(savegames_title).x +

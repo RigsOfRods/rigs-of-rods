@@ -73,7 +73,7 @@ void RoR::GUI::GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cle
     int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
     if (ImGui::Begin("Pause", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
     {
-        ImVec2 btn_size(WINDOW_WIDTH - ImGui::GetStyle().WindowPadding.x, 0.f);
+        ImVec2 btn_size(WINDOW_WIDTH, 0.f);
 
         const char* resume_title = (m_kb_focus_index == 0) ? "--> Resume game <--" : "Resume game"; // TODO: Localize all!
         if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == 0))

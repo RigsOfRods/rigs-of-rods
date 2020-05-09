@@ -89,7 +89,7 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
     if (ImGui::Begin("Main menu", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
     {
         int button_index = 0;
-        ImVec2 btn_size(WINDOW_WIDTH - ImGui::GetStyle().WindowPadding.x, 0.f);
+        ImVec2 btn_size(WINDOW_WIDTH, 0.f);
 
         const char* sp_title = (m_kb_focus_index == button_index) ? "--> Single player <--" : "Single player"; // TODO: Localize all!
         if (ImGui::Button(sp_title, btn_size) || (m_kb_enter_index == button_index++))
