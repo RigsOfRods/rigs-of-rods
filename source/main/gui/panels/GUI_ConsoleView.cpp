@@ -91,7 +91,7 @@ void GUI::ConsoleView::DrawConsoleMessages()
         // Calculate message range and cursor pos
         int msg_start = 0, msg_count = 0;
         ImVec2 cursor = ImGui::GetWindowPos();
-        if (ImGui::GetScrollMaxY() < 0) // No scrolling
+        if (ImGui::GetScrollMaxY() == 0) // No scrolling
         {
             msg_count = (int)m_display_messages.size();
             cursor += ImVec2(0, ImGui::GetWindowHeight() - (msg_count * line_h)); // Align to bottom

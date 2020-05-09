@@ -56,10 +56,11 @@ void RoR::GUI::TopMenubar::Update()
     const char* savegames_title = "Saves";
     const char* settings_title = "Settings";
     const char* tools_title = "Tools";
+    const int NUM_BUTTONS = 5;
 
     float menubar_content_width =
-        (ImGui::GetStyle().ItemSpacing.x * 4) +
-        (ImGui::GetStyle().FramePadding.x * 12) +
+        (ImGui::GetStyle().ItemSpacing.x * (NUM_BUTTONS - 1)) +
+        (ImGui::GetStyle().FramePadding.x * (NUM_BUTTONS * 2)) +
         ImGui::CalcTextSize(sim_title).x +
         ImGui::CalcTextSize(actors_title.ToCStr()).x +
         ImGui::CalcTextSize(savegames_title).x +
