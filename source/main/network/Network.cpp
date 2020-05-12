@@ -663,6 +663,7 @@ void Disconnect()
 
     m_shutdown = false;
     App::mp_state->SetActiveVal((int)MpState::DISABLED);
+    App::mp_state_requested->SetActiveVal((int)MpState::DISABLED);
 
     LOG("[RoR|Networking] Disconnect() done");
 }

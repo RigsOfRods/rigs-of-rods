@@ -193,6 +193,7 @@ extern CVar* sim_gearbox_mode;
 
 // Multiplayer
 extern CVar* mp_state;
+extern CVar* mp_state_requested;
 extern CVar* mp_join_on_startup;
 extern CVar* mp_chat_auto_hide;
 extern CVar* mp_hide_net_labels;
