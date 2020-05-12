@@ -370,6 +370,7 @@ int main(int argc, char *argv[])
                         App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(&main_obj);     // HACK until OGRE 1.12 migration; We need a frame listener to display loading window ~ only_a_ptr, 10/2019
                         App::GetGuiManager()->ReflectGameState();
                         App::sim_state->SetActiveVal((int)SimState::RUNNING);
+                        App::sim_state_requested->SetActiveVal((int)SimState::RUNNING);
                         sim_controller.EnterGameplayLoop();
                         App::SetSimController(nullptr);
                         App::GetMainMenu()->LeaveMultiplayerServer();
