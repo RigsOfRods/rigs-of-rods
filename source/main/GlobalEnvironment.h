@@ -29,13 +29,11 @@ public:
 
     GlobalEnvironment() :
          mainCamera(0)
-        , player(0)
         , sceneManager(0)
         , SkyX(0)
     {}
 
     Ogre::Camera*       mainCamera;
     Ogre::SceneManager* sceneManager;
-    Character*          player;
     SkyXManager*        SkyX;
 };

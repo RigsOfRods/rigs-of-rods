@@ -143,8 +143,8 @@ bool ActorManager::LoadScene(Ogre::String filename)
     // Character
     auto data = j_doc["player_position"].GetArray();
     Vector3 position = Vector3(data[0].GetFloat(), data[1].GetFloat(), data[2].GetFloat());
-    gEnv->player->setPosition(position);
-    gEnv->player->setRotation(Radian(j_doc["player_rotation"].GetFloat()));
+    App::GetSimController()->GetPlayerCharacter()->setPosition(position);
+    App::GetSimController()->GetPlayerCharacter()->setRotation(Radian(j_doc["player_rotation"].GetFloat()));
 
     // Actors
     auto actors_changed = false;
@@ -530,11 +530,11 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
     // Character
     rapidjson::Value j_player_position(rapidjson::kArrayType);
-    j_player_position.PushBack(gEnv->player->getPosition().x, j_doc.GetAllocator());
-    j_player_position.PushBack(gEnv->player->getPosition().y, j_doc.GetAllocator());
-    j_player_position.PushBack(gEnv->player->getPosition().z, j_doc.GetAllocator());
+    j_player_position.PushBack(App::GetSimController()->GetPlayerCharacter()->getPosition().x, j_doc.GetAllocator());
+    j_player_position.PushBack(App::GetSimController()->GetPlayerCharacter()->getPosition().y, j_doc.GetAllocator());
+    j_player_position.PushBack(App::GetSimController()->GetPlayerCharacter()->getPosition().z, j_doc.GetAllocator());
     j_doc.AddMember("player_position", j_player_position, j_doc.GetAllocator());
-    j_doc.AddMember("player_rotation", gEnv->player->getRotation().valueRadians(), j_doc.GetAllocator());
+    j_doc.AddMember("player_rotation", App::GetSimController()->GetPlayerCharacter()->getRotation().valueRadians(), j_doc.GetAllocator());
 
     std::map<int, int> vector_index_lookup;
     for (auto actor : m_actors)

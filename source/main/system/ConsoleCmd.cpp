@@ -132,8 +132,8 @@ public:
         }
         else
         {
-            assert(gEnv->player);
-            pos = gEnv->player->getPosition();
+            assert(App::GetSimController()->GetPlayerCharacter());
+            pos = App::GetSimController()->GetPlayerCharacter()->getPosition();
         }
         reply << _L("Terrain height at position: ")
               << "x: " << pos.x << " z: " << pos.z << " = "
@@ -152,7 +152,7 @@ public:
         if (!this->CheckAppState(AppState::SIMULATION))
             return;
 
-        assert(gEnv->player);
+        assert(App::GetSimController()->GetPlayerCharacter());
         assert(App::GetSimTerrain());
 
         Str<200> reply;
@@ -168,7 +168,7 @@ public:
             }
             else
             {
-                Ogre::Vector3 pos = gEnv->player->getPosition();
+                Ogre::Vector3 pos = App::GetSimController()->GetPlayerCharacter()->getPosition();
                 Ogre::SceneNode* bake_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
                 App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(args[1], pos, Ogre::Vector3::ZERO, bake_node, "Console", "");
 
@@ -240,9 +240,9 @@ public:
         Console::MessageType reply_type = Console::CONSOLE_SYSTEM_REPLY;
 
         Actor* b = App::GetSimController()->GetPlayerActor();
-        if (!b && gEnv->player)
+        if (!b && App::GetSimController()->GetPlayerCharacter())
         {
-            Ogre::Vector3 pos = gEnv->player->getPosition();
+            Ogre::Vector3 pos = App::GetSimController()->GetPlayerCharacter()->getPosition();
             reply << _L("Character position: ") << "x: " << pos.x << " y: " << pos.y << " z: " << pos.z;
         }
         else if (b)
@@ -280,9 +280,9 @@ public:
             Ogre::Vector3 pos(PARSEREAL(args[1]), PARSEREAL(args[2]), PARSEREAL(args[3]));
 
             Actor* b = App::GetSimController()->GetPlayerActor();
-            if (!b && gEnv->player)
+            if (!b && App::GetSimController()->GetPlayerCharacter())
             {
-                gEnv->player->setPosition(pos);
+                App::GetSimController()->GetPlayerCharacter()->setPosition(pos);
                 reply << _L("Character position set to: ") << "x: " << pos.x << " y: " << pos.y << " z: " << pos.z;
             }
             else if (b)
