@@ -334,8 +334,8 @@ void RoR::GUI::GameSettings::Draw()
             "Pitching\0\0");
 
         DrawGIntSlider(App::gfx_camera_height, _LC("GameSettings", "Static camera height (meters)"), 1, 50);
-        DrawGIntSlider(App::gfx_fov_external, _LC("GameSettings", "Exterior field of view"), 10, 120);
-        DrawGIntSlider(App::gfx_fov_internal, _LC("GameSettings", "Interior field of view"), 10, 120);
+        DrawGIntSlider(App::gfx_fov_external_default, _LC("GameSettings", "Exterior field of view"), 10, 120);
+        DrawGIntSlider(App::gfx_fov_internal_default, _LC("GameSettings", "Interior field of view"), 10, 120);
     }
     else if (m_tab == SettingsTab::DIAG)
     {

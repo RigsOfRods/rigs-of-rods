@@ -371,6 +371,8 @@ int main(int argc, char *argv[])
                         App::GetGuiManager()->ReflectGameState();
                         App::sim_state->SetActiveVal((int)SimState::RUNNING);
                         App::sim_state_requested->SetActiveVal((int)SimState::RUNNING);
+                        App::gfx_fov_external->SetActiveVal(App::gfx_fov_external_default->GetActiveVal<int>());
+                        App::gfx_fov_internal->SetActiveVal(App::gfx_fov_internal_default->GetActiveVal<int>());
                         sim_controller.EnterGameplayLoop();
                         App::SetSimController(nullptr);
                         App::GetMainMenu()->LeaveMultiplayerServer();

@@ -534,8 +534,9 @@ void SimController::UpdateInputEvents(float dt)
         }
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_RESET))
         {
-            fov = cvar_fov->GetStoredVal<int>();
-            cvar_fov->SetActiveVal(fov);
+            CVar* cvar_fov_default = ((this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
+                ? App::gfx_fov_internal_default : App::gfx_fov_external_default;
+            cvar_fov->SetActiveVal(cvar_fov_default->GetActiveVal<int>());
         }
 
         if (fov != -1)
