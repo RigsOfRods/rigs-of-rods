@@ -177,6 +177,7 @@ extern CVar* app_config_long_names;
 
 // Simulation
 extern CVar* sim_state;
+extern CVar* sim_state_requested;
 extern CVar* sim_terrain_name;
 extern CVar* sim_terrain_gui_name;
 extern CVar* sim_savegame;

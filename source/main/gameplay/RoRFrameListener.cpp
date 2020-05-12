@@ -318,11 +318,11 @@ void SimController::UpdateInputEvents(float dt)
         }
         else if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING)
         {
-            App::sim_state->SetPendingVal((int)SimState::PAUSED);
+            App::sim_state_requested->SetActiveVal((int)SimState::PAUSED);
         }
         else if (App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
         {
-            App::sim_state->SetPendingVal((int)SimState::RUNNING);
+            App::sim_state_requested->SetActiveVal((int)SimState::RUNNING);
         }
     }
 
@@ -2262,22 +2262,22 @@ void SimController::EnterGameplayLoop()
         start_time = now;
 
         // Check simulation state change
-        if (App::sim_state->GetPendingEnum<SimState>() != App::sim_state->GetActiveEnum<SimState>())
+        if (App::sim_state_requested->GetActiveEnum<SimState>() != App::sim_state->GetActiveEnum<SimState>())
         {
             if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING)
             {
-                if (App::sim_state->GetPendingEnum<SimState>() == SimState::PAUSED)
+                if (App::sim_state_requested->GetActiveEnum<SimState>() == SimState::PAUSED)
                 {
                     m_actor_manager.MuteAllActors();
-                    App::sim_state->ApplyPending();
+                    App::sim_state->SetActiveVal((int)App::sim_state_requested->GetActiveEnum<SimState>());
                 }
             }
             else if (App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
             {
-                if (App::sim_state->GetPendingEnum<SimState>() == SimState::RUNNING)
+                if (App::sim_state_requested->GetActiveEnum<SimState>() == SimState::RUNNING)
                 {
                     m_actor_manager.UnmuteAllActors();
-                    App::sim_state->ApplyPending();
+                    App::sim_state->SetActiveVal((int)App::sim_state_requested->GetActiveEnum<SimState>());
                 }
             }
         }
