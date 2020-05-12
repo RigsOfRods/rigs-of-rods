@@ -262,8 +262,8 @@ void Settings::ParseGlobalVarSetting(CVar* cvar, std::string const & val)
     {
         AssignHelper(App::sim_gearbox_mode, (int)ParseSimGearboxMode(val));
     }
-    else if (cvar->GetName() == App::gfx_fov_external->GetName() ||
-                cvar->GetName() == App::gfx_fov_internal->GetName())
+    else if (cvar->GetName() == App::gfx_fov_external_default->GetName() ||
+             cvar->GetName() == App::gfx_fov_internal_default->GetName())
     {
         int fov = Ogre::StringConverter::parseInt(val);
         if (fov >= 10) // FOV shouldn't be below 10

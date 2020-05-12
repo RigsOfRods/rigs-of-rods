@@ -151,9 +151,11 @@ void Console::CVarSetupBuiltins()
     App::gfx_shadow_quality      = this->CVarCreate("gfx_shadow_quality",      "Shadows Quality",            CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "2");         
     App::gfx_skidmarks_mode      = this->CVarCreate("gfx_skidmarks_mode",      "Skidmarks",                  CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "0");         
     App::gfx_sight_range         = this->CVarCreate("gfx_sight_range",         "SightRange",                 CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "5000");      
-    App::gfx_camera_height       = this->CVarCreate("gfx_camera_height",       "Static camera height",       CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "5");         
-    App::gfx_fov_external        = this->CVarCreate("gfx_fov_external",        "FOV External",               CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "60");
-    App::gfx_fov_internal        = this->CVarCreate("gfx_fov_internal",        "FOV Internal",               CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "75");
+    App::gfx_camera_height       = this->CVarCreate("gfx_camera_height",       "Static camera height",       CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "5");
+    App::gfx_fov_external        = this->CVarCreate("gfx_fov_external",        "",                                              CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "60");
+    App::gfx_fov_external_default= this->CVarCreate("gfx_fov_external_default","FOV External",               CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "60");
+    App::gfx_fov_internal        = this->CVarCreate("gfx_fov_internal",        "",                                              CVAR_AUTO_APPLY | CVAR_TYPE_INT | CVAR_AUTO_STORE,     "75");
+    App::gfx_fov_internal_default= this->CVarCreate("gfx_fov_internal_default","FOV Internal",               CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_INT | CVAR_AUTO_STORE,     "75");
     App::gfx_static_cam_fov_exp  = this->CVarCreate("gfx_static_cam_fov_exp",  "",                           CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_FLOAT,   "1.0");
     App::gfx_fixed_cam_tracking  = this->CVarCreate("gfx_fixed_cam_tracking",  "",                           CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");
     App::gfx_fps_limit           = this->CVarCreate("gfx_fps_limit",           "FPS-Limiter",                CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "0");        
