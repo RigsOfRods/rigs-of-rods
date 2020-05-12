@@ -120,7 +120,7 @@ float calculate_collision_depth(Vector3 pos)
     Vector3 query = pos + 0.3f * Vector3::UNIT_Y;
     while (query.y > pos.y)
     {
-        if (gEnv->collisions->collisionCorrect(&query, false))
+        if (App::GetSimTerrain()->GetCollisions()->collisionCorrect(&query, false))
             break;
         query.y -= 0.001f;
     }
@@ -146,7 +146,7 @@ void Character::update(float dt)
 
         // Trigger script events and handle mesh (ground) collision
         Vector3 query = position;
-        gEnv->collisions->collisionCorrect(&query);
+        App::GetSimTerrain()->GetCollisions()->collisionCorrect(&query);
 
         // Auto compensate minor height differences
         float depth = calculate_collision_depth(position);
@@ -195,7 +195,7 @@ void Character::update(float dt)
             for (int i = 1; i < numstep; i++)
             {
                 Vector3 query = base + diff * ((float)i / numstep);
-                if (gEnv->collisions->collisionCorrect(&query, false))
+                if (App::GetSimTerrain()->GetCollisions()->collisionCorrect(&query, false))
                 {
                     m_character_v_speed = std::max(0.0f, m_character_v_speed);
                     position = m_prev_position + diff * ((float)(i - 1) / numstep);

@@ -1552,8 +1552,8 @@ void Actor::CalcNodes()
         if (!ar_nodes[i].nd_no_ground_contact)
         {
             Vector3 oripos = ar_nodes[i].AbsPosition;
-            bool contacted = gEnv->collisions->groundCollision(&ar_nodes[i], PHYSICS_DT);
-            contacted = contacted | gEnv->collisions->nodeCollision(&ar_nodes[i], PHYSICS_DT, false);
+            bool contacted = App::GetSimTerrain()->GetCollisions()->groundCollision(&ar_nodes[i], PHYSICS_DT);
+            contacted = contacted | App::GetSimTerrain()->GetCollisions()->nodeCollision(&ar_nodes[i], PHYSICS_DT, false);
             ar_nodes[i].nd_has_ground_contact = contacted;
             if (ar_nodes[i].nd_has_ground_contact || ar_nodes[i].nd_has_mesh_contact)
             {
@@ -1570,7 +1570,7 @@ void Actor::CalcNodes()
             // record g forces on cameras
             m_camera_gforces_accu += ar_nodes[i].Forces / ar_nodes[i].mass;
             // trigger script callbacks
-            gEnv->collisions->nodeCollision(&ar_nodes[i], PHYSICS_DT, true);
+            App::GetSimTerrain()->GetCollisions()->nodeCollision(&ar_nodes[i], PHYSICS_DT, true);
         }
 
         // integration

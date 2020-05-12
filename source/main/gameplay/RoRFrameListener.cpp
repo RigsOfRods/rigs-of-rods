@@ -1495,7 +1495,7 @@ void SimController::UpdateInputEvents(float dt)
 
 void SimController::TeleportPlayerXZ(float x, float z)
 {
-    Real y = gEnv->collisions->getSurfaceHeight(x, z);
+    Real y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(x, z);
     if (!m_player_actor)
     {
         gEnv->player->setPosition(Vector3(x, y, z));
@@ -1516,9 +1516,9 @@ void SimController::TeleportPlayerXZ(float x, float z)
         for (int i = 0; i < actor->ar_num_nodes; i++)
         {
             Vector3 pos = actor->ar_nodes[i].AbsPosition;
-            src_agl = std::min(pos.y - gEnv->collisions->getSurfaceHeight(pos.x, pos.z), src_agl);
+            src_agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(pos.x, pos.z), src_agl);
             pos += translation;
-            dst_agl = std::min(pos.y - gEnv->collisions->getSurfaceHeight(pos.x, pos.z), dst_agl);
+            dst_agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(pos.x, pos.z), dst_agl);
         }
     }
 
@@ -1653,7 +1653,7 @@ void SimController::UpdateSimulation(float dt)
                     float h = m_player_actor->GetMaxHeight(true);
                     rq.asr_rotation = Quaternion(Degree(270) - Radian(m_player_actor->getRotation()), Vector3::UNIT_Y);
                     rq.asr_position = m_player_actor->GetRotationCenter();
-                    rq.asr_position.y = gEnv->collisions->getSurfaceHeightBelow(rq.asr_position.x, rq.asr_position.z, h);
+                    rq.asr_position.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(rq.asr_position.x, rq.asr_position.z, h);
                     rq.asr_position.y += m_player_actor->GetHeightAboveGroundBelow(h, true); // retain height above ground
                 }
                 else
@@ -1729,7 +1729,7 @@ void SimController::UpdateSimulation(float dt)
     if (App::GetGuiManager()->GetFrictionSettings()->HasPendingChanges())
     {
         ground_model_t const& updated_gm = App::GetGuiManager()->GetFrictionSettings()->AcquireUpdatedGroundmodel();
-        ground_model_t* live_gm = gEnv->collisions->getGroundModelByString(updated_gm.name);
+        ground_model_t* live_gm = App::GetSimTerrain()->GetCollisions()->getGroundModelByString(updated_gm.name);
         *live_gm = updated_gm; // Copy over
     }
 
@@ -1812,12 +1812,12 @@ void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const 
     // first, test if the place if clear, BUT NOT IN MULTIPLAYER
     if (!(App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED))
     {
-        collision_box_t* spawnbox = gEnv->collisions->getBox(instance, box);
+        collision_box_t* spawnbox = App::GetSimTerrain()->GetCollisions()->getBox(instance, box);
         for (auto actor : GetActors())
         {
             for (int i = 0; i < actor->ar_num_nodes; i++)
             {
-                if (gEnv->collisions->isInside(actor->ar_nodes[i].AbsPosition, spawnbox))
+                if (App::GetSimTerrain()->GetCollisions()->isInside(actor->ar_nodes[i].AbsPosition, spawnbox))
                 {
                     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
                     return;
@@ -1826,9 +1826,9 @@ void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const 
         }
     }
 
-    m_pending_spawn_rq.asr_position = gEnv->collisions->getPosition(instance, box);
-    m_pending_spawn_rq.asr_rotation = gEnv->collisions->getDirection(instance, box);
-    m_pending_spawn_rq.asr_spawnbox = gEnv->collisions->getBox(instance, box);
+    m_pending_spawn_rq.asr_position = App::GetSimTerrain()->GetCollisions()->getPosition(instance, box);
+    m_pending_spawn_rq.asr_rotation = App::GetSimTerrain()->GetCollisions()->getDirection(instance, box);
+    m_pending_spawn_rq.asr_spawnbox = App::GetSimTerrain()->GetCollisions()->getBox(instance, box);
     App::GetGuiManager()->GetMainSelector()->Show(LoaderType(type));
 }
 
@@ -1942,7 +1942,7 @@ void SimController::HideGUI(bool hidden)
 
 void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
 {
-    Actor* actor = m_actor_manager.FindActorInsideBox(gEnv->collisions, ev_src_instance_name, box_name);
+    Actor* actor = m_actor_manager.FindActorInsideBox(App::GetSimTerrain()->GetCollisions(), ev_src_instance_name, box_name);
     if (actor != nullptr)
     {
         this->QueueActorRemove(actor);
@@ -2008,7 +2008,7 @@ bool SimController::LoadTerrain()
             App::diag_preset_spawn_rot->SetActiveStr("");
         }
 
-        spawn_pos.y = gEnv->collisions->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
+        spawn_pos.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
 
         gEnv->player->setPosition(spawn_pos);
         gEnv->player->setRotation(Degree(spawn_rot));
@@ -2409,11 +2409,11 @@ void SimController::ChangePlayerActor(Actor* actor)
                 // actor has a cinecam (find optimal exit position)
                 Vector3 l = position - 2.0f * prev_player_actor->GetCameraRoll();
                 Vector3 r = position + 2.0f * prev_player_actor->GetCameraRoll();
-                float l_h = gEnv->collisions->getSurfaceHeightBelow(l.x, l.z, l.y + h);
-                float r_h = gEnv->collisions->getSurfaceHeightBelow(r.x, r.z, r.y + h);
+                float l_h = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(l.x, l.z, l.y + h);
+                float r_h = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(r.x, r.z, r.y + h);
                 position  = std::abs(r.y - r_h) * 1.2f < std::abs(l.y - l_h) ? r : l;
             }
-            position.y = gEnv->collisions->getSurfaceHeightBelow(position.x, position.z, position.y + h);
+            position.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(position.x, position.z, position.y + h);
 
             if (gEnv->player)
             {

@@ -49,6 +49,7 @@
 #include "Scripting.h"
 #include "SkinManager.h"
 #include "SoundScriptManager.h"
+#include "TerrainManager.h"
 #include "ThreadPool.h"
 #include "Utils.h"
 #include "VehicleAI.h"
@@ -175,7 +176,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
             bool inside = true;
 
             for (int i = 0; i < actor->ar_num_nodes; i++)
-                inside = (inside && gEnv->collisions->isInside(actor->ar_nodes[i].AbsPosition, rq.asr_spawnbox, 0.2f));
+                inside = (inside && App::GetSimTerrain()->GetCollisions()->isInside(actor->ar_nodes[i].AbsPosition, rq.asr_spawnbox, 0.2f));
 
             if (!inside)
             {
@@ -229,10 +230,10 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     std::string subMeshGroundModelName = spawner.GetSubmeshGroundmodelName();
     if (!subMeshGroundModelName.empty())
     {
-        actor->ar_submesh_ground_model = gEnv->collisions->getGroundModelByString(subMeshGroundModelName);
+        actor->ar_submesh_ground_model = App::GetSimTerrain()->GetCollisions()->getGroundModelByString(subMeshGroundModelName);
         if (!actor->ar_submesh_ground_model)
         {
-            actor->ar_submesh_ground_model = gEnv->collisions->defaultgm;
+            actor->ar_submesh_ground_model = App::GetSimTerrain()->GetCollisions()->defaultgm;
         }
     }
 

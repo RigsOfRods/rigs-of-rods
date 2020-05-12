@@ -1228,7 +1228,7 @@ void Actor::ResetPosition(float px, float pz, bool setInitPosition, float miny)
         while (offset < 1.0f)
         {
             Vector3 query = ar_nodes[i].AbsPosition + Vector3(0.0f, offset, 0.0f);
-            if (!gEnv->collisions->collisionCorrect(&query, false))
+            if (!App::GetSimTerrain()->GetCollisions()->collisionCorrect(&query, false))
             {
                 mesh_offset = offset;
                 break;
@@ -1468,7 +1468,7 @@ float Actor::GetHeightAboveGround(bool skip_virtual_nodes)
         if (!skip_virtual_nodes || !ar_nodes[i].nd_no_ground_contact)
         {
             Vector3 pos = ar_nodes[i].AbsPosition;
-            agl = std::min(pos.y - gEnv->collisions->getSurfaceHeight(pos.x, pos.z), agl);
+            agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(pos.x, pos.z), agl);
         }
     }
     return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGround(false);
@@ -1482,7 +1482,7 @@ float Actor::GetHeightAboveGroundBelow(float height, bool skip_virtual_nodes)
         if (!skip_virtual_nodes || !ar_nodes[i].nd_no_ground_contact)
         {
             Vector3 pos = ar_nodes[i].AbsPosition;
-            agl = std::min(pos.y - gEnv->collisions->getSurfaceHeightBelow(pos.x, pos.z, height), agl);
+            agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(pos.x, pos.z, height), agl);
         }
     }
     return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGroundBelow(height, false);

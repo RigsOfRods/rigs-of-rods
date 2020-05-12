@@ -407,7 +407,7 @@ void GameScript::repairVehicle(const String& instance, const String& box, bool k
     if (!this->HaveSimController(__FUNCTION__))
         return;
 
-    App::GetSimController()->GetBeamFactory()->RepairActor(gEnv->collisions, instance, box, keepPosition);
+    App::GetSimController()->GetBeamFactory()->RepairActor(App::GetSimTerrain()->GetCollisions(), instance, box, keepPosition);
 }
 
 void GameScript::removeVehicle(const String& event_source_instance_name, const String& event_source_box_name)
@@ -666,13 +666,13 @@ int GameScript::getLoadedTerrain(String& result)
 
 void GameScript::clearEventCache()
 {
-    if (gEnv->collisions == nullptr)
+    if (App::GetSimTerrain()->GetCollisions() == nullptr)
     {
         this->logFormat("Cannot execute '%s', collisions not ready", __FUNCTION__);
         return;
     }
 
-    gEnv->collisions->clearEventCache();
+    App::GetSimTerrain()->GetCollisions()->clearEventCache();
 }
 
 void GameScript::setCameraPosition(const Vector3& pos)

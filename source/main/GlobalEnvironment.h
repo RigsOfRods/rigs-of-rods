@@ -28,8 +28,7 @@ class GlobalEnvironment
 public:
 
     GlobalEnvironment() :
-          collisions(0)
-        , mainCamera(0)
+         mainCamera(0)
         , player(0)
         , sceneManager(0)
         , SkyX(0)
@@ -40,7 +39,6 @@ public:
     Ogre::Camera*       mainCamera;
     Ogre::SceneManager* sceneManager;
     Character*          player;
-    Collisions*         collisions;
     SkyXManager*        SkyX;
     ThreadPool*         threadPool;
     float               mrTime;

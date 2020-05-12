@@ -274,7 +274,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
                         {
                             pos.y = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
                             scale *= 0.1f;
-                            gEnv->collisions->addCollisionMesh(String(treeCollmesh), pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
+                            App::GetSimTerrain()->GetCollisions()->addCollisionMesh(String(treeCollmesh), pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
                         }
                     }
                 }
@@ -314,7 +314,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
                                 if (strlen(treeCollmesh))
                                 {
                                     pos.y = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
-                                    gEnv->collisions->addCollisionMesh(String(treeCollmesh), pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
+                                    App::GetSimTerrain()->GetCollisions()->addCollisionMesh(String(treeCollmesh), pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
                                 }
                             }
                         }
@@ -664,11 +664,11 @@ void TerrainObjectManager::unloadObject(const String& instancename)
 
     for (auto tri : obj.collTris)
     {
-        gEnv->collisions->removeCollisionTri(tri);
+        App::GetSimTerrain()->GetCollisions()->removeCollisionTri(tri);
     }
     for (auto box : obj.collBoxes)
     {
-        gEnv->collisions->removeCollisionBox(box);
+        App::GetSimTerrain()->GetCollisions()->removeCollisionBox(box);
     }
 
     obj.sceneNode->detachAllObjects();
@@ -788,7 +788,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     bool rotating = false;
     bool classic_ref = true;
     // everything is of concrete by default
-    ground_model_t* gm = gEnv->collisions->getGroundModelByString("concrete");
+    ground_model_t* gm = App::GetSimTerrain()->GetCollisions()->getGroundModelByString("concrete");
     char eventname[256] = {};
     while (!ds->eof())
     {
@@ -875,7 +875,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             event_filter = EVENT_NONE;
             eventname[0] = 0;
             collmesh[0] = 0;
-            gm = gEnv->collisions->getGroundModelByString("concrete");
+            gm = App::GetSimTerrain()->GetCollisions()->getGroundModelByString("concrete");
             continue;
         };
         if (!strncmp("boxcoords", ptline, 9))
@@ -908,13 +908,13 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         if (!strncmp("frictionconfig", ptline, 14) && strlen(ptline) > 15)
         {
             // load a custom friction config
-            gEnv->collisions->loadGroundModelsConfigFile(String(ptline + 15));
+            App::GetSimTerrain()->GetCollisions()->loadGroundModelsConfigFile(String(ptline + 15));
             continue;
         }
         if ((!strncmp("stdfriction", ptline, 11) || !strncmp("usefriction", ptline, 11)) && strlen(ptline) > 12)
         {
             String modelName = String(ptline + 12);
-            gm = gEnv->collisions->getGroundModelByString(modelName);
+            gm = App::GetSimTerrain()->GetCollisions()->getGroundModelByString(modelName);
             continue;
         }
         if (!strcmp("virtual", ptline))
@@ -962,7 +962,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             bool race_event = !instancename.compare(0, 10, "checkpoint") || !instancename.compare(0, 4, "race");
             if (enable_collisions && (App::sim_races_enabled->GetActiveVal<bool>() || !race_event))
             {
-                int boxnum = gEnv->collisions->addCollisionBox(tenode, rotating, virt, pos, rot, l, h, sr, eventname, instancename, forcecam, fc, sc, dr, event_filter, scripthandler);
+                int boxnum = App::GetSimTerrain()->GetCollisions()->addCollisionBox(tenode, rotating, virt, pos, rot, l, h, sr, eventname, instancename, forcecam, fc, sc, dr, event_filter, scripthandler);
                 obj->collBoxes.push_back((boxnum));
 
                 if (race_event)
@@ -994,7 +994,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             if(strcmp("", collmesh) == 0)
                 RoR::LogFormat("[ODEF] Collision mesh not found in file %s", odefname.c_str());
             else
-                gEnv->collisions->addCollisionMesh(collmesh, Vector3(pos.x, pos.y, pos.z), tenode->getOrientation(), sc, gm, &(obj->collTris));
+                App::GetSimTerrain()->GetCollisions()->addCollisionMesh(collmesh, Vector3(pos.x, pos.y, pos.z), tenode->getOrientation(), sc, gm, &(obj->collTris));
             continue;
         }
 

@@ -109,9 +109,9 @@ int Landusemap::loadConfig(const Ogre::String& filename)
                 if (kname == "texture")
                     textureFilename = kvalue;
                 else if (kname == "frictionconfig" || kname == "loadGroundModelsConfig")
-                    gEnv->collisions->loadGroundModelsConfigFile(kvalue);
+                    App::GetSimTerrain()->GetCollisions()->loadGroundModelsConfigFile(kvalue);
                 else if (kname == "defaultuse")
-                    default_ground_model = gEnv->collisions->getGroundModelByString(kvalue);
+                    default_ground_model = App::GetSimTerrain()->GetCollisions()->getGroundModelByString(kvalue);
             }
             else if (secName == "use-map")
             {
@@ -167,7 +167,7 @@ int Landusemap::loadConfig(const Ogre::String& filename)
                 //	counters[use]++;
 
                 // store the pointer to the ground model in the data slot
-                *ptr = gEnv->collisions->getGroundModelByString(use);
+                *ptr = App::GetSimTerrain()->GetCollisions()->getGroundModelByString(use);
                 ptr++;
             }
         }

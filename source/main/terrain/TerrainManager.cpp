@@ -114,10 +114,10 @@ TerrainManager::~TerrainManager()
         m_shadow_manager = nullptr;
     }
 
-    if (gEnv->collisions != nullptr)
+    if (m_collisions != nullptr)
     {
-        delete(gEnv->collisions);
-        gEnv->collisions = nullptr;
+        delete(m_collisions);
+        m_collisions = nullptr;
     }
 }
 
@@ -196,7 +196,6 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
 
     PROGRESS_WINDOW(60, _L("Initializing Collision Subsystem"));
     m_collisions = new Collisions();
-    gEnv->collisions = m_collisions;
 
     PROGRESS_WINDOW(75, _L("Initializing Script Subsystem"));
     initScripting();

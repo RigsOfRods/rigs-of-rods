@@ -62,6 +62,7 @@
 #include "SkinManager.h"
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
+#include "TerrainManager.h"
 #include "TorqueCurve.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
@@ -350,7 +351,7 @@ void ActorSpawner::InitializeRig()
         m_actor->m_intra_point_col_detector = new PointColDetector(m_actor);
     }
 
-    m_actor->ar_submesh_ground_model = gEnv->collisions->defaultgm;
+    m_actor->ar_submesh_ground_model = App::GetSimTerrain()->GetCollisions()->defaultgm;
 
     // Lights mode
     m_actor->m_flares_mode = App::gfx_flares_mode->GetActiveEnum<GfxFlaresMode>();
