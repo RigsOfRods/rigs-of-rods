@@ -52,6 +52,7 @@
 #include "Utils.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 bool g_is_scaled = false;
 
@@ -711,7 +712,7 @@ void OverlayWrapper::UpdateDirectionArrowHud(RoR::GfxActor* player_vehicle, Ogre
     {
         distance = player_vehicle->GetSimDataBuffer().simbuf_pos.distance(point_to);
     }
-    else if (gEnv->player)
+    else if (App::GetSimController()->GetPlayerCharacter())
     {
         distance = character_pos.distance(point_to);
     }

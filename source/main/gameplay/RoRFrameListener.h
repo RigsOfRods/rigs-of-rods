@@ -115,14 +115,15 @@ public:
     void                         ResetCamera();
     RoR::CameraManager::CameraBehaviors GetCameraBehavior();
 
-    Actor* GetPlayerActor()                                 { return m_player_actor; };
-    Actor* GetPrevPlayerActor()                             { return m_prev_player_actor; };
+    Actor* GetPlayerActor()                                 { return m_player_actor; }
+    Actor* GetPrevPlayerActor()                             { return m_prev_player_actor; }
+    Character* GetPlayerCharacter()                         { return m_player_character; }
 
-    void SetPendingPlayerActor(Actor* actor)                { m_pending_player_actor = actor; };
-    void SetPrevPlayerActorInternal(Actor* actor)           { m_prev_player_actor = actor; };
+    void SetPendingPlayerActor(Actor* actor)                { m_pending_player_actor = actor; }
+    void SetPrevPlayerActorInternal(Actor* actor)           { m_prev_player_actor = actor; }
 
-    bool GetPhysicsPaused()                                 { return m_physics_simulation_paused; };
-    void SetPhysicsPausedInternal(bool paused)              { m_physics_simulation_paused = paused; };
+    bool GetPhysicsPaused()                                 { return m_physics_simulation_paused; }
+    void SetPhysicsPausedInternal(bool paused)              { m_physics_simulation_paused = paused; }
 
     void SetTerrainEditorMouseRay(Ogre::Ray ray);
 
@@ -142,10 +143,11 @@ private:
     Actor*                   m_player_actor;           //!< Actor (vehicle or machine) mounted and controlled by player
     Actor*                   m_prev_player_actor;      //!< Previous actor (vehicle or machine) mounted and controlled by player
     Actor*                   m_pending_player_actor;   //!< Actor scheduled to be seated by player (when none scheduled, equals `player_actor`)
+    Character*               m_player_character;
     RoR::ActorManager        m_actor_manager;
     std::vector<RoR::ActorSpawnRequest>  m_actor_spawn_queue;
     std::vector<RoR::ActorModifyRequest> m_actor_modify_queue;
-    std::vector<Actor*>                  m_actor_remove_queue;             
+    std::vector<Actor*>                  m_actor_remove_queue;
     RoR::CharacterFactory    m_character_factory;
     RoR::GfxScene            m_gfx_scene;
     RoR::SkidmarkConfig*     m_skidmark_conf;

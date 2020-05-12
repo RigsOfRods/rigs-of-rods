@@ -124,7 +124,7 @@ void GameScript::setPersonPosition(const Vector3& vec)
     if (!this->HavePlayerAvatar(__FUNCTION__))
         return;
 
-    gEnv->player->setPosition(vec);
+    App::GetSimController()->GetPlayerCharacter()->setPosition(vec);
 }
 
 void GameScript::loadTerrain(const String& terrain)
@@ -139,8 +139,8 @@ void GameScript::loadTerrain(const String& terrain)
 Vector3 GameScript::getPersonPosition()
 {
     Vector3 result(Vector3::ZERO);
-    if (gEnv->player)
-        result = gEnv->player->getPosition();
+    if (App::GetSimController()->GetPlayerCharacter())
+        result = App::GetSimController()->GetPlayerCharacter()->getPosition();
     return result;
 }
 
@@ -149,7 +149,7 @@ void GameScript::movePerson(const Vector3& vec)
     if (!this->HavePlayerAvatar(__FUNCTION__))
         return;
 
-    gEnv->player->move(vec);
+    App::GetSimController()->GetPlayerCharacter()->move(vec);
 }
 
 void GameScript::setPersonRotation(const Radian& rot)
@@ -157,14 +157,14 @@ void GameScript::setPersonRotation(const Radian& rot)
     if (!this->HavePlayerAvatar(__FUNCTION__))
         return;
 
-    gEnv->player->setRotation(rot);
+    App::GetSimController()->GetPlayerCharacter()->setRotation(rot);
 }
 
 Radian GameScript::getPersonRotation()
 {
     Radian result(0);
-    if (gEnv->player)
-        result = gEnv->player->getRotation();
+    if (App::GetSimController()->GetPlayerCharacter())
+        result = App::GetSimController()->GetPlayerCharacter()->getRotation();
     return result;
 }
 
@@ -997,7 +997,7 @@ bool GameScript::HaveSimTerrain(const char* func_name)
 
 bool GameScript::HavePlayerAvatar(const char* func_name)
 {
-    if (gEnv->player == nullptr)
+    if (App::GetSimController()->GetPlayerCharacter() == nullptr)
     {
         this->logFormat("Cannot execute '%s', player avatar not ready", func_name);
         return false;

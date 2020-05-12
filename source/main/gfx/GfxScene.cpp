@@ -267,7 +267,7 @@ void RoR::GfxScene::RegisterGfxActor(RoR::GfxActor* gfx_actor)
 void RoR::GfxScene::BufferSimulationData()
 {
     m_simbuf.simbuf_player_actor = App::GetSimController()->GetPlayerActor();
-    m_simbuf.simbuf_character_pos = gEnv->player->getPosition();
+    m_simbuf.simbuf_character_pos = App::GetSimController()->GetPlayerCharacter()->getPosition();
     m_simbuf.simbuf_dir_arrow_target = App::GetSimController()->GetDirArrowTarget();
     m_simbuf.simbuf_tyrepressurize_active = App::GetSimController()->IsPressurizingTyres();
     m_simbuf.simbuf_sim_paused = App::GetSimController()->GetPhysicsPaused();

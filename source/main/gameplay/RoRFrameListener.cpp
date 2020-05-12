@@ -87,6 +87,7 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_player_actor(nullptr),
     m_prev_player_actor(nullptr),
     m_pending_player_actor(nullptr),
+    m_player_character(nullptr),
     m_actor_manager(),
     m_character_factory(),
     m_dir_arrow_pointed(Vector3::ZERO),
@@ -633,7 +634,7 @@ void SimController::UpdateInputEvents(float dt)
             if (object_index == -1)
             {
                 // Select nearest object
-                Vector3 ref_pos = this->AreControlsLocked() ? gEnv->mainCamera->getPosition() : gEnv->player->getPosition();
+                Vector3 ref_pos = this->AreControlsLocked() ? gEnv->mainCamera->getPosition() : m_player_character->getPosition();
                 float min_dist = std::numeric_limits<float>::max();
                 for (int i = 0; i < (int)object_list.size(); i++)
                 {
@@ -654,7 +655,7 @@ void SimController::UpdateInputEvents(float dt)
         else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK) &&
                 !last_object_name.empty())
         {
-            Vector3 pos = gEnv->player->getPosition();
+            Vector3 pos = m_player_character->getPosition();
 
             try
             {
@@ -711,7 +712,7 @@ void SimController::UpdateInputEvents(float dt)
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
             if (terrain_editing_track_object)
             {
-                gEnv->player->setPosition(object_list[object_index].node->getPosition());
+                m_player_character->setPosition(object_list[object_index].node->getPosition());
             }
         }
         if (object_index != -1 && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_TRUCK))
@@ -782,13 +783,13 @@ void SimController::UpdateInputEvents(float dt)
 
                 if (terrain_editing_track_object)
                 {
-                    gEnv->player->setPosition(sn->getPosition());
+                    m_player_character->setPosition(sn->getPosition());
                 }
             }
-            else if (terrain_editing_track_object && gEnv->player->getPosition() != sn->getPosition())
+            else if (terrain_editing_track_object && m_player_character->getPosition() != sn->getPosition())
             {
-                object_list[object_index].position = gEnv->player->getPosition();
-                sn->setPosition(gEnv->player->getPosition());
+                object_list[object_index].position = m_player_character->getPosition();
+                sn->setPosition(m_player_character->getPosition());
             }
             if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK))
             {
@@ -1248,7 +1249,7 @@ void SimController::UpdateInputEvents(float dt)
             }
             else if (!m_player_actor)
             {
-                auto res = GetNearestActor(gEnv->player->getPosition());
+                auto res = GetNearestActor(m_player_character->getPosition());
                 if (res.first != nullptr && res.first->ar_import_commands && res.second < res.first->getMinCameraRadius())
                 {
                     // get commands
@@ -1282,9 +1283,9 @@ void SimController::UpdateInputEvents(float dt)
                             continue;
                         }
                         float len = 0.0f;
-                        if (gEnv->player)
+                        if (m_player_character)
                         {
-                            len = actor->ar_nodes[actor->ar_cinecam_node[0]].AbsPosition.distance(gEnv->player->getPosition() + Vector3(0.0, 2.0, 0.0));
+                            len = actor->ar_nodes[actor->ar_cinecam_node[0]].AbsPosition.distance(m_player_character->getPosition() + Vector3(0.0, 2.0, 0.0));
                         }
                         if (len < mindist)
                         {
@@ -1474,8 +1475,8 @@ void SimController::UpdateInputEvents(float dt)
         Radian rotation(0);
         if (m_player_actor == nullptr)
         {
-            position = gEnv->player->getPosition();
-            rotation = gEnv->player->getRotation() + Radian(Math::PI);
+            position = m_player_character->getPosition();
+            rotation = m_player_character->getRotation() + Radian(Math::PI);
         }
         else
         {
@@ -1498,7 +1499,7 @@ void SimController::TeleportPlayerXZ(float x, float z)
     Real y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(x, z);
     if (!m_player_actor)
     {
-        gEnv->player->setPosition(Vector3(x, y, z));
+        m_player_character->setPosition(Vector3(x, y, z));
         return;
     }
 
@@ -1568,7 +1569,7 @@ void SimController::UpdateSimulation(float dt)
         {
             Vector3 center = m_player_actor->GetRotationCenter();
             this->ChangePlayerActor(nullptr); // Get out of the vehicle
-            gEnv->player->setPosition(center);
+            m_player_character->setPosition(center);
         }
 
         if (actor == m_prev_player_actor)
@@ -1658,8 +1659,8 @@ void SimController::UpdateSimulation(float dt)
                 }
                 else
                 {
-                    rq.asr_rotation = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
-                    rq.asr_position = gEnv->player->getPosition();
+                    rq.asr_rotation = Quaternion(Degree(180) - m_player_character->getRotation(), Vector3::UNIT_Y);
+                    rq.asr_position = m_player_character->getPosition();
                 }
             }
 
@@ -1746,9 +1747,9 @@ void SimController::UpdateSimulation(float dt)
         // Update mumble (3d audio)
 #ifdef USE_MUMBLE
         // calculate orientation of avatar first
-        Ogre::Vector3 avatarDir = Ogre::Vector3(Math::Cos(gEnv->player->getRotation()), 0.0f, Math::Sin(gEnv->player->getRotation()));
+        Ogre::Vector3 avatarDir = Ogre::Vector3(Math::Cos(m_player_character->getRotation()), 0.0f, Math::Sin(m_player_character->getRotation()));
         App::GetMumble()->update(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(),
-        gEnv->player->getPosition() + Vector3(0, 1.8f, 0), avatarDir, Ogre::Vector3(0.0f, 1.0f, 0.0f));
+        m_player_character->getPosition() + Vector3(0, 1.8f, 0), avatarDir, Ogre::Vector3(0.0f, 1.0f, 0.0f));
 #endif // USE_MUMBLE
     }
 
@@ -1985,7 +1986,7 @@ bool SimController::LoadTerrain()
     }
     App::sim_terrain_name->ApplyPending();
 
-    if (gEnv->player != nullptr)
+    if (m_player_character != nullptr)
     {
         Vector3 spawn_pos = App::GetSimTerrain()->getSpawnPos();
         Real spawn_rot = 0.0f;
@@ -2010,10 +2011,10 @@ bool SimController::LoadTerrain()
 
         spawn_pos.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
 
-        gEnv->player->setPosition(spawn_pos);
-        gEnv->player->setRotation(Degree(spawn_rot));
+        m_player_character->setPosition(spawn_pos);
+        m_player_character->setRotation(Degree(spawn_rot));
 
-        gEnv->mainCamera->setPosition(gEnv->player->getPosition());
+        gEnv->mainCamera->setPosition(m_player_character->getPosition());
 
         // Small hack to improve the spawn experience
         for (int i = 0; i < 100; i++)
@@ -2036,8 +2037,8 @@ void SimController::CleanupAfterSimulation()
     //Unload all vehicules
     m_actor_manager.CleanUpAllActors();
 
-    delete gEnv->player;
-    gEnv->player = nullptr;
+    delete m_player_character;
+    m_player_character = nullptr;
     m_character_factory.DeleteAllRemoteCharacters();
 
     if (App::GetSimTerrain() != nullptr)
@@ -2059,7 +2060,7 @@ bool SimController::SetupGameplayLoop()
     App::GetContentManager()->LoadGameplayResources();
 
     // Load character - must be done first!
-    gEnv->player = m_character_factory.CreateLocalCharacter();
+    m_player_character = m_character_factory.CreateLocalCharacter();
 
     // init camera manager after mygui and after we have a character
     m_camera_manager.SetCameraReady(); // TODO: get rid of this hack; see == SimCam == ~ only_a_ptr, 06/2018
@@ -2187,8 +2188,8 @@ bool SimController::SetupGameplayLoop()
         ActorSpawnRequest rq;
         rq.asr_filename   = App::diag_preset_vehicle->GetActiveStr();
         rq.asr_config     = App::diag_preset_veh_config->GetActiveStr();
-        rq.asr_position   = gEnv->player->getPosition();
-        rq.asr_rotation   = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
+        rq.asr_position   = m_player_character->getPosition();
+        rq.asr_rotation   = Quaternion(Degree(180) - m_player_character->getRotation(), Vector3::UNIT_Y);
         rq.asr_origin     = ActorSpawnRequest::Origin::CONFIG_FILE;
         this->QueueActorSpawn(rq);
     }
@@ -2415,11 +2416,11 @@ void SimController::ChangePlayerActor(Actor* actor)
             }
             position.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(position.x, position.z, position.y + h);
 
-            if (gEnv->player)
+            if (m_player_character)
             {
-                gEnv->player->SetActorCoupling(false, nullptr);
-                gEnv->player->setRotation(Radian(rotation));
-                gEnv->player->setPosition(position);
+                m_player_character->SetActorCoupling(false, nullptr);
+                m_player_character->setRotation(Radian(rotation));
+                m_player_character->setPosition(position);
             }
         }
 
@@ -2446,9 +2447,9 @@ void SimController::ChangePlayerActor(Actor* actor)
         m_force_feedback->SetEnabled(m_player_actor->ar_driveable == TRUCK); //only for trucks so far
 
         // attach player to vehicle
-        if (gEnv->player)
+        if (m_player_character)
         {
-            gEnv->player->SetActorCoupling(true, m_player_actor);
+            m_player_character->SetActorCoupling(true, m_player_actor);
         }
 
         TRIGGER_EVENT(SE_TRUCK_ENTER, m_player_actor?m_player_actor->ar_instance_id:-1);

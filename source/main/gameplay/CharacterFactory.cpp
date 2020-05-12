@@ -78,7 +78,7 @@ void CharacterFactory::removeStreamSource(int sourceid)
 
 void CharacterFactory::update(float dt)
 {
-    gEnv->player->update(dt);
+    App::GetSimController()->GetPlayerCharacter()->update(dt);
 
     for (auto& c : m_remote_characters)
     {
