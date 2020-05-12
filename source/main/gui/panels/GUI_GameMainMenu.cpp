@@ -101,7 +101,7 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
             }
             else
             {
-                App::app_state->SetPendingVal((int)RoR::AppState::SIMULATION);
+                App::app_state_requested->SetActiveVal((int)RoR::AppState::SIMULATION);
             }
         }
 
@@ -111,7 +111,7 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
             if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == button_index++))
             {
                 App::sim_savegame->SetPendingStr("autosave.sav");
-                App::app_state->SetPendingVal((int)RoR::AppState::SIMULATION);
+                App::app_state_requested->SetActiveVal((int)RoR::AppState::SIMULATION);
                 this->SetVisible(false);
             }
         }
@@ -140,7 +140,7 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
         const char* exit_title = (m_kb_focus_index == button_index) ? "--> Exit game <--" : "Exit game";
         if (ImGui::Button(exit_title, btn_size) || (m_kb_enter_index == button_index++))
         {
-            App::app_state->SetPendingVal((int)RoR::AppState::SHUTDOWN);
+            App::app_state_requested->SetActiveVal((int)RoR::AppState::SHUTDOWN);
             this->SetVisible(false);
         }
     }

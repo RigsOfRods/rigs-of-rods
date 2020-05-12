@@ -2237,12 +2237,12 @@ void SimController::EnterGameplayLoop()
     }
 #endif //USE_SOCKETW
 
-    while (App::app_state->GetPendingEnum<AppState>() == AppState::SIMULATION)
+    while (App::app_state_requested->GetActiveEnum<AppState>() == AppState::SIMULATION)
     {
         OgreBites::WindowEventUtilities::messagePump();
         if (rw->isClosed())
         {
-            App::app_state->SetPendingVal((int)AppState::SHUTDOWN);
+            App::app_state_requested->SetActiveVal((int)AppState::SHUTDOWN);
             continue;
         }
 
@@ -2319,13 +2319,13 @@ void SimController::EnterGameplayLoop()
                 switch (events.front().type)
                 {
                 case Networking::NetEvent::Type::SERVER_KICK:
-                    App::app_state->SetPendingVal((int)AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
+                    App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
                     App::GetGuiManager()->ShowMessageBox(
                         _LC("Network", "Multiplayer: disconnected"), events.front().message.c_str());
                     break;
 
                 case Networking::NetEvent::Type::RECV_ERROR:
-                    App::app_state->SetPendingVal((int)AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
+                    App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
                     App::GetGuiManager()->ShowMessageBox(
                         _L("Network fatal error: "), events.front().message.c_str());
                     break;

@@ -552,7 +552,7 @@ void MainSelector::Apply()
         App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
     {
         App::sim_terrain_name->SetPendingStr(sd_entry.sde_entry->fname.c_str());
-        App::app_state->SetPendingVal((int)AppState::SIMULATION);
+        App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
         this->Close();
     }
     else if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)

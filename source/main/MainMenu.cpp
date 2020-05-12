@@ -59,7 +59,7 @@ void MainMenu::EnterMainMenuLoop()
     
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    while (App::app_state->GetPendingEnum<AppState>() == AppState::MAIN_MENU)
+    while (App::app_state_requested->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
     {
         // Check FPS limit
         if (App::gfx_fps_limit->GetActiveVal<int>() > 0)
@@ -86,7 +86,7 @@ void MainMenu::EnterMainMenuLoop()
         Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
         if (rw->isClosed())
         {
-            App::app_state->SetPendingVal((int)AppState::SHUTDOWN);
+            App::app_state_requested->SetActiveVal((int)AppState::SHUTDOWN);
             continue;
         }
 
@@ -105,7 +105,7 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
 {
     if (RoR::App::GetOgreSubsystem()->GetRenderWindow()->isClosed())
     {
-        App::app_state->SetPendingVal((int)AppState::SHUTDOWN);
+        App::app_state_requested->SetActiveVal((int)AppState::SHUTDOWN);
         return;
     }
 
@@ -150,7 +150,7 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
             if (Networking::GetTerrainName() != "any")
             {
                 App::sim_terrain_name->SetPendingStr(Networking::GetTerrainName());
-                App::app_state->SetPendingVal((int)AppState::SIMULATION);
+                App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
             }
             else
             {
@@ -161,7 +161,7 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
                 }
                 else
                 {
-                    App::app_state->SetPendingVal((int)AppState::SIMULATION);
+                    App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
                 }
             }
             break;
@@ -239,7 +239,7 @@ void MainMenu::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
         }
         else
         {
-            App::app_state->SetPendingVal((int)AppState::SHUTDOWN);
+            App::app_state_requested->SetActiveVal((int)AppState::SHUTDOWN);
         }
         return;
     }
@@ -306,7 +306,7 @@ void MainMenu::HandleSavegameShortcuts()
     {
         Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
         App::sim_savegame->SetPendingStr(filename);
-        App::app_state->SetPendingVal((int)AppState::SIMULATION);
+        App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
     }
 }
 

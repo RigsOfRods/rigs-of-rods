@@ -161,6 +161,7 @@ namespace App {
 
 // App
 extern CVar* app_state;
+extern CVar* app_state_requested;
 extern CVar* app_language;
 extern CVar* app_country;
 extern CVar* app_skip_main_menu;

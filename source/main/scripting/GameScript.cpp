@@ -957,12 +957,12 @@ void GameScript::showMessageBox(Ogre::String& title, Ogre::String& text, bool us
 
 void GameScript::backToMenu()
 {
-    App::app_state->SetPendingVal((int)AppState::MAIN_MENU);
+    App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
 }
 
 void GameScript::quitGame()
 {
-    RoR::App::app_state->SetPendingVal((int)RoR::AppState::SHUTDOWN);
+    App::app_state_requested->SetActiveVal((int)RoR::AppState::SHUTDOWN);
 }
 
 float GameScript::getFPS()

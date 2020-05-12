@@ -241,12 +241,12 @@ void RoR::GUI::TopMenubar::Update()
 
             if (ImGui::Button("Back to menu"))
             {
-                App::app_state->SetPendingVal((int)RoR::AppState::MAIN_MENU);
+                App::app_state_requested->SetActiveVal((int)RoR::AppState::MAIN_MENU);
             }
 
             if (ImGui::Button("Exit"))
             {
-                App::app_state->SetPendingVal((int)RoR::AppState::SHUTDOWN);
+                App::app_state_requested->SetActiveVal((int)RoR::AppState::SHUTDOWN);
             }
 
             m_open_menu_hoverbox_min = menu_pos;
