@@ -35,13 +35,13 @@ static const char* CVAR_LOG_FMT = "[RoR|CVar]  %20s:  %s(), new: \"%s\", old: \"
 enum CVarFlags
 {
     CVAR_ALLOW_STORE  = BITMASK(1),    //!< Will be written to RoR.cfg
-    CVAR_AUTO_STORE   = BITMASK(2),    //!< 'Active' value automatically propagates to 'Stored'
-    CVAR_AUTO_APPLY   = BITMASK(3),    //!< 'Stored/Pending' values automatically propagate to 'Active/Pending'
+    CVAR_AUTO_STORE   = BITMASK(2),    //!< 'Active' value automatically propagates to 'Stored'    OBSOLETE! REMOVAL ONGOING!
+    CVAR_AUTO_APPLY   = BITMASK(3),    //!< 'Stored/Pending' values automatically propagate to 'Active/Pending'  OBSOLETE! REMOVAL ONGOING!
     CVAR_TYPE_BOOL    = BITMASK(4),
     CVAR_TYPE_INT     = BITMASK(5),
     CVAR_TYPE_FLOAT   = BITMASK(6),
-    CVAR_FORCE_APPLY  = BITMASK(7),    //!< Function call argument only
-    CVAR_FORCE_STORE  = BITMASK(8),     //!< Function call argument only
+    CVAR_FORCE_APPLY  = BITMASK(7),    //!< Function call argument only    OBSOLETE! REMOVAL ONGOING!
+    CVAR_FORCE_STORE  = BITMASK(8),     //!< Function call argument only   OBSOLETE! REMOVAL ONGOING!
     CVAR_NO_LOG       = BITMASK(9)     //!< Will not be written to RoR.log
 };
 
@@ -50,20 +50,26 @@ enum CVarFlags
 ///   * Functions:  https://github.com/yquake2/yquake2/blob/master/src/common/cvar.c
 ///   * Global var: https://github.com/yquake2/yquake2/blob/master/src/common/header/common.h#L432
 ///
+///                            *** ATTENTION - ONGOING TRANSFORMATION ***
+///      Separate 'Pending/Archived' fields will be removed - mostly unused and complicated to manage
+///                                             ***
+///
 /// Concept:
 ///   * [A] Active value = the value currently in effect. Each CVar has an active value.
 ///   * [P] Pending value = the value to be set as active on earliest occasion (occasion may be anything from next frame to game restart)
 ///                         When no change is requested, value of Pending equals value of Active.
+///                         OBSOLETE! REMOVAL ONGOING!
 ///   * [S] Stored value = The user-defined value to be persisted in config file.
 ///                        - it's unaffected by Active and only changes when user wants.
+///                        OBSOLETE! REMOVAL ONGOING!
 ///
 /// API usage:
-///   SetPending():   new pending value, active stands.
+///   SetPending():   new pending value, active stands. OBSOLETE! REMOVAL ONGOING!
 ///   SetActive():    direct update of active & pending values.
-///   ApplyPending(): updates active from pending.
-///   ResetPending(): updates pending from active.
-///   GetStored():    gets stored value.
-///   SetStored():    direct update of stored value.
+///   ApplyPending(): updates active from pending. OBSOLETE! REMOVAL ONGOING!
+///   ResetPending(): updates pending from active. OBSOLETE! REMOVAL ONGOING!
+///   GetStored():    gets stored value. OBSOLETE! REMOVAL ONGOING!
+///   SetStored():    direct update of stored value. OBSOLETE! REMOVAL ONGOING!
 ///
 /// @author Petr Ohlidal, 2020
 class CVar
@@ -343,8 +349,8 @@ private:
     std::string         m_long_name;
 
     Val                 m_value_active;
-    Val                 m_value_pending;
-    Val                 m_value_stored;
+    Val                 m_value_pending; // OBSOLETE! REMOVAL ONGOING!
+    Val                 m_value_stored; // OBSOLETE! REMOVAL ONGOING!
 
     int                 m_flags;
 };

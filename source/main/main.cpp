@@ -144,12 +144,12 @@ int main(int argc, char *argv[])
         Settings::getSingleton().LoadRoRCfg(); // Main config file - path obtained from GVars
         Settings::getSingleton().ProcessCommandLine(argc, argv);
 
-        if (App::app_state->GetPendingEnum<AppState>() == AppState::PRINT_HELP_EXIT)
+        if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::PRINT_HELP_EXIT)
         {
             ShowCommandLineUsage();
             return 0;
         }
-        if (App::app_state->GetPendingEnum<AppState>() == AppState::PRINT_VERSION_EXIT)
+        if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::PRINT_VERSION_EXIT)
         {
             ShowVersion();
             return 0;
@@ -316,7 +316,7 @@ int main(int argc, char *argv[])
 
         // ### Main loop (switches application states) ###
 
-        App::app_state->SetPendingVal((int)AppState::MAIN_MENU);
+        App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
 
         if (App::mp_join_on_startup->GetActiveVal<bool>())
         {
@@ -324,19 +324,19 @@ int main(int argc, char *argv[])
         }
         else if (App::diag_preset_terrain->GetActiveStr() != "")
         {
-            App::app_state->SetPendingVal((int)AppState::SIMULATION);
+            App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
         }
         else if (App::sim_savegame->GetActiveStr() != App::sim_savegame->GetPendingStr())
         {
-            App::app_state->SetPendingVal((int)AppState::SIMULATION);
+            App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
         }
 
-        while (App::app_state->GetPendingEnum<AppState>() != AppState::SHUTDOWN)
+        while (App::app_state_requested->GetActiveEnum<AppState>() != AppState::SHUTDOWN)
         {
-            if (App::app_state->GetPendingEnum<AppState>() == AppState::MAIN_MENU)
+            if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
 
             {
-                App::app_state->ApplyPending();
+                App::app_state->SetActiveVal(App::app_state_requested->GetActiveVal<int>());
 
 #ifdef USE_OPENAL
                 if (App::audio_menu_music->GetActiveVal<bool>())
@@ -359,14 +359,14 @@ int main(int argc, char *argv[])
 
                 main_obj.EnterMainMenuLoop();
             }
-            else if (App::app_state->GetPendingEnum<AppState>() == AppState::SIMULATION)
+            else if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::SIMULATION)
             {
                 { // Enclosing scope for SimController
                     SimController sim_controller(&force_feedback, &skidmark_conf);
                     App::SetSimController(&sim_controller);
                     if (sim_controller.SetupGameplayLoop())
                     {
-                        App::app_state->ApplyPending();
+                        App::app_state->SetActiveVal(App::app_state_requested->GetActiveVal<int>());
                         App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(&main_obj);     // HACK until OGRE 1.12 migration; We need a frame listener to display loading window ~ only_a_ptr, 10/2019
                         App::GetGuiManager()->ReflectGameState();
                         App::sim_state->SetActiveVal((int)SimState::RUNNING);
@@ -382,7 +382,7 @@ int main(int argc, char *argv[])
                     }
                     else
                     {
-                        App::app_state->SetPendingVal((int)AppState::MAIN_MENU);
+                        App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
                     }
                 } // Enclosing scope for SimController
                 gEnv->sceneManager->clearScene(); // Wipe the scene after SimController was destroyed

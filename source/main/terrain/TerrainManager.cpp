@@ -62,7 +62,7 @@ TerrainManager::TerrainManager()
 
 TerrainManager::~TerrainManager()
 {
-    if (App::app_state->GetPendingEnum<AppState>() == AppState::SHUTDOWN)
+    if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::SHUTDOWN)
     {
         // Rush to exit
         return;

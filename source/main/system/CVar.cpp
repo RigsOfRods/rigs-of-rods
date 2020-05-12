@@ -28,7 +28,8 @@ using namespace RoR;
 
 void Console::CVarSetupBuiltins()
 {
-    App::app_state               = this->CVarCreate("app_state",               "",                                                                CVAR_TYPE_INT,     "0"/*(int)AppState::BOOTSTRAP*/);
+    App::app_state               = this->CVarCreate("app_state",               "",                                              CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "0"/*(int)AppState::BOOTSTRAP*/);
+    App::app_state_requested     = this->CVarCreate("app_state_requested",     "",                                              CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "0"/*(int)AppState::BOOTSTRAP*/);
     App::app_language            = this->CVarCreate("app_language",            "Language",                   CVAR_ALLOW_STORE | CVAR_AUTO_APPLY,                     "en");          
     App::app_country             = this->CVarCreate("app_country",             "Country",                    CVAR_ALLOW_STORE | CVAR_AUTO_APPLY,                     "us");
     App::app_skip_main_menu      = this->CVarCreate("app_skip_main_menu",      "SkipMainMenu",               CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");

@@ -339,7 +339,7 @@ public:
 
     void Run(Ogre::StringVector const& args) override
     {
-        App::app_state->SetPendingVal((int)AppState::SHUTDOWN);
+        App::app_state_requested->SetActiveVal((int)AppState::SHUTDOWN);
     }
 };
 

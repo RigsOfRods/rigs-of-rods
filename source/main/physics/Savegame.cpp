@@ -120,7 +120,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         App::sim_terrain_name->SetPendingStr(terrain_name.c_str());
         if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
         {
-            App::app_state->SetPendingVal((int)AppState::MAIN_MENU);
+            App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
             App::sim_savegame->SetPendingStr(filename.c_str());
         }
         return true;

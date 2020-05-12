@@ -127,17 +127,17 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
     {
         if (args.LastError() != SO_SUCCESS)
         {
-            RoR::App::app_state->SetPendingVal((int)RoR::AppState::PRINT_HELP_EXIT);
+            RoR::App::app_state_requested->SetActiveVal((int)RoR::AppState::PRINT_HELP_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_HELP)
         {
-            RoR::App::app_state->SetPendingVal((int)RoR::AppState::PRINT_HELP_EXIT);
+            RoR::App::app_state_requested->SetActiveVal((int)RoR::AppState::PRINT_HELP_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_VER)
         {
-            RoR::App::app_state->SetPendingVal((int)RoR::AppState::PRINT_VERSION_EXIT);
+            RoR::App::app_state_requested->SetActiveVal((int)RoR::AppState::PRINT_VERSION_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_TRUCK)

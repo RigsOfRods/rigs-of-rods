@@ -59,6 +59,7 @@ static TerrainManager*  g_sim_terrain;
 
 // App
 CVar* app_state;
+CVar* app_state_requested;
 CVar* app_language;
 CVar* app_country;
 CVar* app_skip_main_menu;
