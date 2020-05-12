@@ -244,7 +244,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         if (ImGui::Button("Join"))
         {
             App::mp_server_password->SetActiveStr(m_password_buf.GetBuffer());
-            App::mp_state->SetPendingVal((int)MpState::CONNECTED);
+            App::mp_state_requested->SetActiveVal((int)MpState::CONNECTED);
         }
 
         ImGui::PopID();
@@ -345,7 +345,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
                     App::mp_server_password->SetActiveStr(m_password_buf.GetBuffer());
                     App::mp_server_host->SetActiveStr(server.net_host.ToCStr());
                     App::mp_server_port->SetActiveVal(server.net_port);
-                    App::mp_state->SetPendingVal((int)MpState::CONNECTED);
+                    App::mp_state_requested->SetActiveVal((int)MpState::CONNECTED);
                 }
                 if (server.has_password)
                 {

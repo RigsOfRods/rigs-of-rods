@@ -110,7 +110,7 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
     }
 
 #ifdef USE_SOCKETW
-    if (App::mp_state->GetPendingEnum<MpState>() == MpState::CONNECTED &&
+    if (App::mp_state_requested->GetActiveEnum<MpState>() == MpState::CONNECTED &&
         App::mp_state->GetActiveEnum<MpState>() == MpState::DISABLED)
     {
         Networking::StartConnecting();
@@ -167,7 +167,7 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
             break;
 
         case Networking::NetEvent::Type::CONNECT_FAILURE:
-            App::mp_state->SetActiveVal((int)MpState::DISABLED);
+            App::mp_state_requested->SetActiveVal((int)MpState::DISABLED);
             App::GetGuiManager()->ShowMessageBox(
                 _LC("Network", "Multiplayer: connection failed"), events.front().message.c_str());
             App::GetGuiManager()->ReflectGameState();

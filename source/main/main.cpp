@@ -320,7 +320,7 @@ int main(int argc, char *argv[])
 
         if (App::mp_join_on_startup->GetActiveVal<bool>())
         {
-            App::mp_state->SetPendingVal((int)RoR::MpState::CONNECTED);
+            App::mp_state_requested->SetActiveVal((int)RoR::MpState::CONNECTED);
         }
         else if (App::diag_preset_terrain->GetActiveStr() != "")
         {
