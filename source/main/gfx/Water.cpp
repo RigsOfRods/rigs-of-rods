@@ -518,6 +518,8 @@ float Water::CalcWavesHeight(Vector3 pos)
         return m_water_height;
     }
 
+    const float time_sec = (float)(App::GetOgreSubsystem()->GetOgreRoot()->getTimer()->getMilliseconds() * 0.001);
+
     // uh, some upper limit?!
     if (pos.y > m_water_height + m_max_ampl)
         return m_water_height;
@@ -533,7 +535,7 @@ float Water::CalcWavesHeight(Vector3 pos)
         float amp = std::min(m_wavetrain_defs[i].amplitude * waveheight, m_wavetrain_defs[i].maxheight);
         // now the main thing:
         // calculate the sinus with the values of the config file and add it to the result
-        result += amp * sin(Math::TWO_PI * ((gEnv->mrTime * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength));
+        result += amp * sin(Math::TWO_PI * ((time_sec * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength));
     }
     // return the summed up waves
     return result;
@@ -568,11 +570,13 @@ Vector3 Water::CalcWavesVelocity(Vector3 pos)
 
     Vector3 result(Vector3::ZERO);
 
+    const float time_sec = (float)(App::GetOgreSubsystem()->GetOgreRoot()->getTimer()->getMilliseconds() * 0.001);
+
     for (size_t i = 0; i < m_wavetrain_defs.size(); i++)
     {
         float amp = std::min(m_wavetrain_defs[i].amplitude * waveheight, m_wavetrain_defs[i].maxheight);
         float speed = Math::TWO_PI * amp / (m_wavetrain_defs[i].wavelength / m_wavetrain_defs[i].wavespeed);
-        float coeff = Math::TWO_PI * (gEnv->mrTime * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength;
+        float coeff = Math::TWO_PI * (time_sec * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength;
         result.y += speed * cos(coeff);
         result += Vector3(m_wavetrain_defs[i].dir_sin, 0, m_wavetrain_defs[i].dir_cos) * speed * sin(coeff);
     }

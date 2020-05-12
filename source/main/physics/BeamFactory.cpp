@@ -1007,8 +1007,6 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
     m_dt_remainder = dt - (m_physics_steps * PHYSICS_DT);
     dt = PHYSICS_DT * m_physics_steps;
 
-    gEnv->mrTime += dt;
-
     this->SyncWithSimThread();
 
     this->UpdateSleepingState(player_actor, dt);
