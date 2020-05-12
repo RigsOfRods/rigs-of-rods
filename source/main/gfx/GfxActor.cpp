@@ -1984,7 +1984,7 @@ void RoR::GfxActor::UpdateWheelVisuals()
                 {
                     w.wx_flex_mesh->flexitCompute();
                 });
-            auto task_handle = gEnv->threadPool->RunTask(func);
+            auto task_handle = App::GetThreadPool()->RunTask(func);
             m_flexwheel_tasks.push_back(task_handle);
         }
     }
@@ -3205,7 +3205,7 @@ void RoR::GfxActor::UpdateFlexbodies()
                 {
                     fb->ComputeFlexbody();
                 });
-            auto task_handle = gEnv->threadPool->RunTask(func);
+            auto task_handle = App::GetThreadPool()->RunTask(func);
             m_flexbody_tasks.push_back(task_handle);
         }
         else

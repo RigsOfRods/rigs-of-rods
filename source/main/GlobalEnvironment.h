@@ -32,12 +32,10 @@ public:
         , player(0)
         , sceneManager(0)
         , SkyX(0)
-        , threadPool(0)
     {}
 
     Ogre::Camera*       mainCamera;
     Ogre::SceneManager* sceneManager;
     Character*          player;
     SkyXManager*        SkyX;
-    ThreadPool*         threadPool;
 };
