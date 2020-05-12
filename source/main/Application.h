@@ -323,6 +323,7 @@ MainMenu*            GetMainMenu();
 SimController*       GetSimController();
 MumbleIntegration*   GetMumble();
 TerrainManager*      GetSimTerrain();
+ThreadPool*          GetThreadPool();
 
 // Factories
 void StartOgreSubsystem();
@@ -333,6 +334,7 @@ void CreateGuiManagerIfNotExists();
 void DeleteGuiManagerIfExists();
 void CreateInputEngine();
 void CheckAndCreateMumble();
+void CreateThreadPool();
 
 // Setters
 void SetMainMenu             (MainMenu*          obj);

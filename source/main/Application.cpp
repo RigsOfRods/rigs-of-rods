@@ -35,6 +35,7 @@
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "MumbleIntegration.h"
+#include "ThreadPool.h"
 
 namespace RoR {
 namespace App {
@@ -56,6 +57,7 @@ static MainMenu*        g_main_menu;
 static SimController*   g_sim_controller;
 static MumbleIntegration* g_mumble;
 static TerrainManager*  g_sim_terrain;
+static ThreadPool*      g_thread_pool;
 
 // App
 CVar* app_state;
@@ -224,6 +226,7 @@ MainMenu*              GetMainMenu           () { return g_main_menu;}
 SimController*         GetSimController      () { return g_sim_controller; }
 MumbleIntegration*     GetMumble             () { return g_mumble; }
 TerrainManager*        GetSimTerrain         () { return g_sim_terrain; }
+ThreadPool*            GetThreadPool         () { return g_thread_pool; }
 
 void StartOgreSubsystem()
 {
@@ -291,6 +294,24 @@ void CheckAndCreateMumble()
     if (g_mumble == nullptr)
         g_mumble = new MumbleIntegration();
 #endif // USE_MUMBLE
+}
+
+void CreateThreadPool()
+{
+    // Create general-purpose thread pool
+    int logical_cores = std::thread::hardware_concurrency();
+
+    int thread_pool_workers = RoR::App::app_num_workers->GetActiveVal<int>();
+    if (thread_pool_workers < 1 || thread_pool_workers > logical_cores)
+    {
+        thread_pool_workers = Ogre::Math::Clamp(logical_cores - 1, 1, 8);
+        RoR::App::app_num_workers->SetActiveVal(thread_pool_workers);
+    }
+
+    assert(g_thread_pool == nullptr);
+    g_thread_pool = new ThreadPool(thread_pool_workers);
+    LogFormat("[RoR] Found %d logical CPU cores, creating %d worker threads",
+              logical_cores, thread_pool_workers);
 }
 
 } // namespace App

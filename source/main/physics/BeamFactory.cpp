@@ -68,20 +68,6 @@ ActorManager::ActorManager()
     // Create worker thread (used for physics calculations)
     m_sim_thread_pool = std::unique_ptr<ThreadPool>(new ThreadPool(1));
 
-    // Create general-purpose thread pool
-    int logical_cores = std::thread::hardware_concurrency();
-    LOG("BEAMFACTORY: " + TOSTRING(logical_cores) + " logical CPU cores" + " found");
-
-    int thread_pool_workers = RoR::App::app_num_workers->GetActiveVal<int>();
-    if (thread_pool_workers < 1 || thread_pool_workers > logical_cores)
-    {
-        thread_pool_workers = Math::Clamp(logical_cores - 1, 1, 8);
-        RoR::App::app_num_workers->SetActiveVal(thread_pool_workers);
-    }
-
-    gEnv->threadPool = new ThreadPool(thread_pool_workers);
-    LOG("BEAMFACTORY: Creating " + TOSTRING(thread_pool_workers) + " worker threads");
-
     // Load inertia config file
     m_inertia_config.LoadDefaultInertiaModels();
 }
@@ -89,7 +75,6 @@ ActorManager::ActorManager()
 ActorManager::~ActorManager()
 {
     this->SyncWithSimThread(); // Wait for sim task to finish
-    delete gEnv->threadPool;
 }
 
 void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
@@ -1122,7 +1107,7 @@ void ActorManager::UpdatePhysicsSimulation()
                     tasks.push_back(func);
                 }
             }
-            gEnv->threadPool->Parallelize(tasks);
+            App::GetThreadPool()->Parallelize(tasks);
             for (auto actor : m_actors)
             {
                 if (actor->ar_update_physics)
@@ -1157,7 +1142,7 @@ void ActorManager::UpdatePhysicsSimulation()
                     tasks.push_back(func);
                 }
             }
-            gEnv->threadPool->Parallelize(tasks);
+            App::GetThreadPool()->Parallelize(tasks);
         }
     }
     for (auto actor : m_actors)
