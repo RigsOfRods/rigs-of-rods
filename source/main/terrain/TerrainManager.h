@@ -48,7 +48,7 @@ public:
     float              getPagedDetailFactor() const  { return m_paged_detail_factor; };
     float              getWaterHeight() const        { return m_def.water_height; };
     Ogre::Vector3      getMaxTerrainSize();
-    Collisions*        getCollisions()               { return m_collisions; };
+    Collisions*        GetCollisions()               { return m_collisions; };
     IWater*            getWater()                    { return m_water.get(); };
     Ogre::Light*       getMainLight()                { return m_main_light; };
     Ogre::Vector3      getSpawnPos()                 { return m_def.start_position; };

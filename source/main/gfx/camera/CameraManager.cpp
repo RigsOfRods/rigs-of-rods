@@ -85,7 +85,7 @@ bool intersectsTerrain(Vector3 a, Vector3 b) // internal helper
             return true;
         }
     }
-    return gEnv->collisions->intersectsTris(Ray(a, b - a)).first;
+    return App::GetSimTerrain()->GetCollisions()->intersectsTris(Ray(a, b - a)).first;
 }
 
 bool intersectsTerrain(Vector3 a, Vector3 start, Vector3 end, float interval) // internal helper
@@ -877,10 +877,10 @@ void CameraManager::CameraBehaviorOrbitUpdate()
 
     Vector3 camPosition = (1.0f / (m_cam_ratio + 1.0f)) * desiredPosition + (m_cam_ratio / (m_cam_ratio + 1.0f)) * precedingPosition;
 
-    if (gEnv->collisions && gEnv->collisions->forcecam)
+    if (App::GetSimTerrain()->GetCollisions() && App::GetSimTerrain()->GetCollisions()->forcecam)
     {
-        gEnv->mainCamera->setPosition(gEnv->collisions->forcecampos);
-        gEnv->collisions->forcecam = false;
+        gEnv->mainCamera->setPosition(App::GetSimTerrain()->GetCollisions()->forcecampos);
+        App::GetSimTerrain()->GetCollisions()->forcecam = false;
     }
     else
     {

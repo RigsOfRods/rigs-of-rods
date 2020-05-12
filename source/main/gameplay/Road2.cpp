@@ -25,6 +25,7 @@
 #include "TerrainManager.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 Road2::Road2(int id) :
     first(true)
@@ -49,7 +50,7 @@ Road2::~Road2()
     }
     for (int number : registeredCollTris)
     {
-        gEnv->collisions->removeCollisionTri(number);
+        App::GetSimTerrain()->GetCollisions()->removeCollisionTri(number);
     }
 }
 
@@ -366,9 +367,9 @@ void Road2::addQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, int texfit, 
     }
     if (collision)
     {
-        ground_model_t* gm = gEnv->collisions->getGroundModelByString("concrete");
+        ground_model_t* gm = App::GetSimTerrain()->GetCollisions()->getGroundModelByString("concrete");
         if (texfit == TEXFIT_ROAD || texfit == TEXFIT_ROADS1 || texfit == TEXFIT_ROADS2 || texfit == TEXFIT_ROADS3 || texfit == TEXFIT_ROADS4)
-            gm = gEnv->collisions->getGroundModelByString("asphalt");
+            gm = App::GetSimTerrain()->GetCollisions()->getGroundModelByString("asphalt");
         addCollisionQuad(p1, p2, p3, p4, gm, flip);
     }
     tricount += 2;
@@ -515,21 +516,21 @@ void Road2::addCollisionQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, gro
     int triID = 0;
     if (flip)
     {
-        triID = gEnv->collisions->addCollisionTri(p1, p2, p4, gm);
+        triID = App::GetSimTerrain()->GetCollisions()->addCollisionTri(p1, p2, p4, gm);
         if (triID >= 0)
             registeredCollTris.push_back(triID);
 
-        triID = gEnv->collisions->addCollisionTri(p4, p2, p3, gm);
+        triID = App::GetSimTerrain()->GetCollisions()->addCollisionTri(p4, p2, p3, gm);
         if (triID >= 0)
             registeredCollTris.push_back(triID);
     }
     else
     {
-        triID = gEnv->collisions->addCollisionTri(p1, p2, p3, gm);
+        triID = App::GetSimTerrain()->GetCollisions()->addCollisionTri(p1, p2, p3, gm);
         if (triID >= 0)
             registeredCollTris.push_back(triID);
 
-        triID = gEnv->collisions->addCollisionTri(p1, p3, p4, gm);
+        triID = App::GetSimTerrain()->GetCollisions()->addCollisionTri(p1, p3, p4, gm);
         if (triID >= 0)
             registeredCollTris.push_back(triID);
     }

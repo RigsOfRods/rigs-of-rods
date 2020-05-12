@@ -32,6 +32,7 @@
 #include "Collisions.h"
 #include "GUIManager.h"
 #include "Language.h"
+#include "TerrainManager.h"
 #include "Utils.h"
 
 void RoR::GUI::FrictionSettings::Draw()
@@ -124,8 +125,8 @@ bool RoR::GUI::FrictionSettings::GmComboItemGetter(void* data, int idx, const ch
 
 void RoR::GUI::FrictionSettings::AnalyzeTerrain()
 {
-    auto itor = gEnv->collisions->getGroundModels()->begin();
-    auto endi = gEnv->collisions->getGroundModels()->end();
+    auto itor = App::GetSimTerrain()->GetCollisions()->getGroundModels()->begin();
+    auto endi = App::GetSimTerrain()->GetCollisions()->getGroundModels()->end();
     for (; itor != endi; ++itor)
     {
         m_gm_entries.emplace_back(&itor->second);
