@@ -45,7 +45,7 @@ namespace RoR {
 /// HISTORICAL NOTE: Until 01/2018, this class was named `BeamFactory` (because `Actor` was `Beam`)
 class ActorManager
 {
-    friend class GameScript; // needs to call RemoveActorByCollisionBox()
+    friend class ::GameScript; // needs to call RemoveActorByCollisionBox()
 public:
 
     ActorManager();

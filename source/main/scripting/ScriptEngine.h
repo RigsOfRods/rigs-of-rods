@@ -27,13 +27,11 @@
 
 #ifdef USE_ANGELSCRIPT
 
-#include <Ogre.h>
-
 #include "RoRPrerequisites.h"
-
 #include "InterThreadStoreVector.h"
 #include "Singleton.h"
 
+#include <Ogre.h>
 #include "scriptdictionary/scriptdictionary.h"
 #include "scriptbuilder/scriptbuilder.h"
 
@@ -43,8 +41,6 @@
  * @brief AngelScript interface to the game
  * @authors Thomas Fischer (thomas{AT}rigsofrods{DOT}com)
  */
-
-class GameScript;
 
 /**
  *  @brief This class represents the angelscript scripting interface. It can load and execute scripts.

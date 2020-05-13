@@ -328,14 +328,11 @@ CameraManager*       GetCameraManager();
 GfxScene*            GetGfxScene();
 
 // Factories
-void StartOgreSubsystem();
-void ShutdownOgreSubsystem();
+void CreateOgreSubsystem();
 void CreateOverlayWrapper();
-void DestroyOverlayWrapper();
-void CreateGuiManagerIfNotExists();
-void DeleteGuiManagerIfExists();
+void CreateGuiManager();
 void CreateInputEngine();
-void CheckAndCreateMumble();
+void CreateMumble();
 void CreateThreadPool();
 void CreateCameraManager();
 void CreateGfxScene();
@@ -345,6 +342,9 @@ void SetMainMenu             (MainMenu*          obj);
 void SetSimController        (SimController*     obj);
 void SetSimTerrain           (TerrainManager*    obj);
 void SetCacheSystem          (CacheSystem*       obj);
+
+// Cleanups
+void DestroyOverlayWrapper();
 
 } // namespace App
 

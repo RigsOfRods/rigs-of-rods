@@ -234,100 +234,62 @@ ThreadPool*            GetThreadPool         () { return g_thread_pool; }
 CameraManager*         GetCameraManager      () { return g_camera_manager; }
 GfxScene*              GetGfxScene           () { return &g_gfx_scene; }
 
-void StartOgreSubsystem()
+// Factories
+void CreateOgreSubsystem()
 {
+    assert(!g_ogre_subsystem);
     g_ogre_subsystem = new OgreSubsystem();
-    if (g_ogre_subsystem == nullptr)
-    {
-        throw std::runtime_error("[RoR] Failed to create OgreSubsystem");
-    }
-
-    if (! g_ogre_subsystem->StartOgre("", ""))
-    {
-        throw std::runtime_error("[RoR] Failed to start up OGRE 3D engine");
-    }
-}
-
-void ShutdownOgreSubsystem()
-{
-    assert(g_ogre_subsystem != nullptr && "ShutdownOgreSubsystem(): Ogre subsystem was not started");
-    delete g_ogre_subsystem;
-    g_ogre_subsystem = nullptr;
 }
 
 void CreateOverlayWrapper()
 {
+    assert(!g_overlay_wrapper);
     g_overlay_wrapper = new OverlayWrapper();
-    if (g_overlay_wrapper == nullptr)
-    {
-        throw std::runtime_error("[RoR] Failed to create OverlayWrapper");
-    }
 }
 
-void DestroyOverlayWrapper()
+void CreateGuiManager()
 {
-    delete g_overlay_wrapper; // deleting nullptr does nothing
-    g_overlay_wrapper = nullptr;
-}
-
-void CreateGuiManagerIfNotExists()
-{
-    if (g_gui_manager == nullptr)
-    {
-        g_gui_manager = new GUIManager();
-    }
-}
-
-void DeleteGuiManagerIfExists()
-{
-    if (g_gui_manager != nullptr)
-    {
-        delete g_gui_manager;
-        g_gui_manager = nullptr;
-    }
+    assert(!g_gui_manager);
+    g_gui_manager = new GUIManager();
 }
 
 void CreateInputEngine()
 {
-    assert(g_input_engine == nullptr);
+    assert(!g_input_engine);
     g_input_engine = new InputEngine();
 }
 
-
-void CheckAndCreateMumble()
+void CreateMumble()
 {
 #ifdef USE_MUMBLE // The class is always forward-declared but only defined if USE_MUMBLE is defined
-    if (g_mumble == nullptr)
-        g_mumble = new MumbleIntegration();
+    assert(!g_mumble);
+    g_mumble = new MumbleIntegration();
 #endif // USE_MUMBLE
 }
 
 void CreateThreadPool()
 {
-    // Create general-purpose thread pool
-    int logical_cores = std::thread::hardware_concurrency();
-
-    int thread_pool_workers = RoR::App::app_num_workers->GetActiveVal<int>();
-    if (thread_pool_workers < 1 || thread_pool_workers > logical_cores)
-    {
-        thread_pool_workers = Ogre::Math::Clamp(logical_cores - 1, 1, 8);
-        RoR::App::app_num_workers->SetActiveVal(thread_pool_workers);
-    }
-
     assert(g_thread_pool == nullptr);
-    g_thread_pool = new ThreadPool(thread_pool_workers);
-    LogFormat("[RoR] Found %d logical CPU cores, creating %d worker threads",
-              logical_cores, thread_pool_workers);
+    g_thread_pool = ThreadPool::DetectNumWorkersAndCreate();
 }
 
 void CreateCameraManager()
 {
+    assert(!g_camera_manager);
     g_camera_manager = new CameraManager();
 }
 
 void CreateGfxScene()
 {
+    assert(!g_gfx_scene.GetSceneManager());
     g_gfx_scene.Init();
+}
+
+// Cleanup
+void DestroyOverlayWrapper()
+{
+    delete g_overlay_wrapper;
+    g_overlay_wrapper = nullptr;
 }
 
 } // namespace App

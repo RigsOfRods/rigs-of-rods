@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
             return 0;
         }
 
-        App::StartOgreSubsystem();
+        App::CreateOgreSubsystem();
 
         Ogre::String src_path = PathCombine(App::sys_resources_dir->GetActiveStr(), "skeleton.zip");
         Ogre::ResourceGroupManager::getSingleton().addResourceLocation(src_path, "Zip", "SrcRG");
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
 
         App::GetContentManager()->InitContentManager();
 
-        App::CreateGuiManagerIfNotExists();
+        App::CreateGuiManager();
 
         InitDiscord();
 
@@ -248,9 +248,7 @@ int main(int argc, char *argv[])
 #endif
 
         App::CreateInputEngine();
-        App::GetInputEngine()->setupDefault(App::GetOgreSubsystem()->GetMainHWND());
 
-        RoR::App::GetInputEngine()->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
         App::GetGuiManager()->SetUpMenuWallpaper();
         MainMenu main_obj;
         App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&main_obj); // HACK until OGRE 1.12 migration; We need a frame listener to display 'progress' window ~ only_a_ptr, 10/2019
@@ -396,11 +394,8 @@ int main(int argc, char *argv[])
 
         Settings::getSingleton().SaveSettings(); // Save RoR.cfg
 
-        App::GetGuiManager()->GetMainSelector()->~MainSelector();
-
         App::GetMainMenu()->LeaveMultiplayerServer();
 
-        App::DestroyOverlayWrapper();
 #ifndef _DEBUG
     }
     catch (Ogre::Exception& e)
