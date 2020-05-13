@@ -512,9 +512,9 @@ void SimController::UpdateInputEvents(float dt)
     this->HandleSavegameShortcuts();
 
     // camera FOV settings
-    if (this->GetCameraBehavior() != CameraManager::CAMERA_BEHAVIOR_STATIC) // the static camera has its own fov logic
+    if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_STATIC) // the static camera has its own fov logic
     {
-        CVar* cvar_fov = ((this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
+        CVar* cvar_fov = ((App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
             ? App::gfx_fov_internal : App::gfx_fov_external;
 
         int modifier = 0;
@@ -535,7 +535,7 @@ void SimController::UpdateInputEvents(float dt)
         }
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_RESET))
         {
-            CVar* cvar_fov_default = ((this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
+            CVar* cvar_fov_default = ((App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
                 ? App::gfx_fov_internal_default : App::gfx_fov_external_default;
             cvar_fov->SetActiveVal(cvar_fov_default->GetActiveVal<int>());
         }
@@ -1755,7 +1755,7 @@ void SimController::UpdateSimulation(float dt)
 
     if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING || App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE)
     {
-        m_camera_manager.Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
+        App::GetCameraManager()->Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
 #ifdef USE_OPENAL
         // update audio listener position
         static Vector3 lastCameraPosition;
@@ -2019,7 +2019,7 @@ bool SimController::LoadTerrain()
         // Small hack to improve the spawn experience
         for (int i = 0; i < 100; i++)
         {
-            m_camera_manager.Update(0.02f, nullptr, 1.0f);
+            App::GetCameraManager()->Update(0.02f, nullptr, 1.0f);
         }
     }
 
@@ -2033,6 +2033,8 @@ bool SimController::LoadTerrain()
 void SimController::CleanupAfterSimulation()
 {
     App::DestroyOverlayWrapper();
+
+    App::GetCameraManager()->ResetAllBehaviors();
 
     //Unload all vehicules
     m_actor_manager.CleanUpAllActors();
@@ -2061,9 +2063,6 @@ bool SimController::SetupGameplayLoop()
 
     // Load character - must be done first!
     m_player_character = m_character_factory.CreateLocalCharacter();
-
-    // init camera manager after mygui and after we have a character
-    m_camera_manager.SetCameraReady(); // TODO: get rid of this hack; see == SimCam == ~ only_a_ptr, 06/2018
 
     // Determine terrain to load
     if (App::sim_savegame->GetPendingStr() != App::sim_savegame->GetActiveStr())
@@ -2457,7 +2456,7 @@ void SimController::ChangePlayerActor(Actor* actor)
 
     if (prev_player_actor != nullptr || m_player_actor != nullptr)
     {
-        m_camera_manager.NotifyVehicleChanged(prev_player_actor, m_player_actor);
+        App::GetCameraManager()->NotifyVehicleChanged(m_player_actor);
     }
 
     m_actor_manager.UpdateSleepingState(m_player_actor, 0.f);
@@ -2465,48 +2464,7 @@ void SimController::ChangePlayerActor(Actor* actor)
 
 bool SimController::AreControlsLocked() const
 {
-    // TODO: remove camera manager from gEnv, see == SimCam == comment in CameraManager.cpp ~ only_a_ptr
-    return (m_camera_manager.IsCameraReady()
-          && m_camera_manager.gameControlsLocked());
-}
-
-void SimController::ResetCamera()
-{
-    // Temporary function, see == SimCam == comment in CameraManager.cpp ~ only_a_ptr
-
-    if (m_camera_manager.IsCameraReady()) // TODO: remove camera manager from gEnv, see SimCam
-    {
-        // TODO: Detect camera changes from sim. state, don't rely on callback; see SimCam
-        m_camera_manager.NotifyContextChange();
-    }
-}
-
-CameraManager::CameraBehaviors SimController::GetCameraBehavior()
-{
-    if (m_camera_manager.IsCameraReady())
-    {
-        return m_camera_manager.GetCurrentBehavior();
-    }
-    return CameraManager::CAMERA_BEHAVIOR_INVALID;
-}
-
-// Temporary interface until camera controls are refactored; see == SimCam == ~ only_a_ptr, 06/2018
-bool SimController::CameraManagerMouseMoved(const OIS::MouseEvent& _arg)
-{
-    if (!m_camera_manager.IsCameraReady())
-    {
-        return true; // This is what SceneMouse expects
-    }
-    return m_camera_manager.mouseMoved(_arg);
-}
-
-// Temporary interface until camera controls are refactored; see == SimCam == ~ only_a_ptr, 06/2018
-void SimController::CameraManagerMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
-{
-    if (m_camera_manager.IsCameraReady())
-    {
-        m_camera_manager.mousePressed(_arg, _id);
-    }
+    return App::GetCameraManager()->gameControlsLocked();
 }
 
 void SimController::SetTerrainEditorMouseRay(Ray ray)

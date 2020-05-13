@@ -389,7 +389,7 @@ void RoR::GUI::TopMenubar::Update()
             {
                 App::GetSimController()->GetBeamFactory()->SetSimulationSpeed(timelapse);
             }
-            if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
+            if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "Camera:");
@@ -400,7 +400,7 @@ void RoR::GUI::TopMenubar::Update()
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "Camera:");
-                if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+                if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
                 {
                     int fov = App::gfx_fov_internal->GetActiveVal<int>();
                     if (ImGui::SliderInt("FOV", &fov, 10, 120))
@@ -416,7 +416,7 @@ void RoR::GUI::TopMenubar::Update()
                         App::gfx_fov_external->SetActiveVal(fov);
                     }
                 }
-                if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
+                if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
                 {
                     DrawGCheckbox(App::gfx_fixed_cam_tracking, "Tracking");
                 }

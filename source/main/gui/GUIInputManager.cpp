@@ -28,6 +28,8 @@
 #include "RoRFrameListener.h" // SimController
 #include "SceneMouse.h"
 
+using namespace RoR;
+
 GUIInputManager::GUIInputManager()
     : m_last_mousemove_time(nullptr)
     , m_is_cursor_supressed(false)
@@ -55,13 +57,9 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 
     if (!handled && RoR::App::GetSimController() != nullptr) // TODO: Fix this hack. Main menu should not use the same input handler as simulation ~ only_a_ptr, 08/2018
     {
-        // not handled by gui
-        bool fixed = RoR::App::GetSimController()->GetSceneMouse().mouseMoved(_arg);
-        if (fixed)
+        if (!App::GetCameraManager()->mouseMoved(_arg))
         {
-            // you would really need to "fix" the actual mouse position, see
-            // http://www.wreckedgames.com/forum/index.php?topic=1104.0
-            return true;
+            App::GetSimController()->GetSceneMouse().mouseMoved(_arg);
         }
     }
 
@@ -86,6 +84,7 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
     if (!handled && (RoR::App::GetSimController() != nullptr)) 
     {
         RoR::App::GetSimController()->GetSceneMouse().mousePressed(_arg, _id);
+        App::GetCameraManager()->mousePressed(_arg, _id);
     }
     return handled;
 }

@@ -324,6 +324,7 @@ SimController*       GetSimController();
 MumbleIntegration*   GetMumble();
 TerrainManager*      GetSimTerrain();
 ThreadPool*          GetThreadPool();
+CameraManager*       GetCameraManager();
 
 // Factories
 void StartOgreSubsystem();
@@ -335,6 +336,7 @@ void DeleteGuiManagerIfExists();
 void CreateInputEngine();
 void CheckAndCreateMumble();
 void CreateThreadPool();
+void CreateCameraManager();
 
 // Setters
 void SetMainMenu             (MainMenu*          obj);

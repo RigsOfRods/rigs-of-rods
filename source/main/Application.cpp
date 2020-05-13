@@ -28,6 +28,7 @@
 #include "Application.h"
 
 #include "CacheSystem.h"
+#include "CameraManager.h"
 #include "Console.h"
 #include "ContentManager.h"
 #include "GUIManager.h"
@@ -58,6 +59,7 @@ static SimController*   g_sim_controller;
 static MumbleIntegration* g_mumble;
 static TerrainManager*  g_sim_terrain;
 static ThreadPool*      g_thread_pool;
+static CameraManager*   g_camera_manager;
 
 // App
 CVar* app_state;
@@ -227,6 +229,7 @@ SimController*         GetSimController      () { return g_sim_controller; }
 MumbleIntegration*     GetMumble             () { return g_mumble; }
 TerrainManager*        GetSimTerrain         () { return g_sim_terrain; }
 ThreadPool*            GetThreadPool         () { return g_thread_pool; }
+CameraManager*         GetCameraManager      () { return g_camera_manager; }
 
 void StartOgreSubsystem()
 {
@@ -312,6 +315,11 @@ void CreateThreadPool()
     g_thread_pool = new ThreadPool(thread_pool_workers);
     LogFormat("[RoR] Found %d logical CPU cores, creating %d worker threads",
               logical_cores, thread_pool_workers);
+}
+
+void CreateCameraManager()
+{
+    g_camera_manager = new CameraManager();
 }
 
 } // namespace App

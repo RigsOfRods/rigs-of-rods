@@ -113,12 +113,6 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 {
     const OIS::MouseState ms = _arg.state;
 
-    // check if handled by the camera
-    if (App::GetSimController()->CameraManagerMouseMoved(_arg))
-    {
-        return true;
-    }
-
     // experimental mouse hack
     if (ms.buttonDown(OIS::MB_Left) && mouseGrabState == 0)
     {
@@ -266,7 +260,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
         }
 
         // Reselect the vehicle orbit camera center
-        if (player_actor && App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE)
+        if (player_actor && App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE)
         {
             Real nearest_camera_distance = std::numeric_limits<float>::max();
             Real nearest_ray_distance = std::numeric_limits<float>::max();
@@ -291,12 +285,10 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
             {
                 player_actor->ar_custom_camera_node = nearest_node_index;
                 player_actor->calculateAveragePosition();
-                App::GetSimController()->ResetCamera();
+                App::GetCameraManager()->NotifyContextChange(); // Reset last 'look at' pos
             }
         }
     }
-
-    App::GetSimController()->CameraManagerMousePressed(_arg, _id);
 
     return true;
 }

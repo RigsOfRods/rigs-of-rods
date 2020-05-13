@@ -30,36 +30,13 @@
 #include "Console.h"
 #include "InputEngine.h"
 #include "Language.h"
+#include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h"
 #include "TerrainManager.h"
 #include "GUIManager.h"
 #include "PerVehicleCameraContext.h"
 #include "Water.h"
-
-// ========== Project 'SimCam' (started June 2018) ==========
-// - Eliminate 'gEnv->mainCamera' (pointer to Ogre::Camera)
-//       because it shouldn't be updated and read from externally throughout the simulation cycle;
-//       instead, it should only be updated internally prior to actual rendering.
-// - [Done] Eliminate 'GlobalEnvironment::cameraManager' (RoR object)
-//       because it serves ad-hoc camera updates throughout the simulation cycle
-//       instead, camera should be updated at the end of sim. cycle from the resulting state;
-//       locking controls based on camera mode (free camera) should be governed by SimController instead
-// - Put camera manager under SimController
-//       because camera state is part of sim. state,
-//       also it will help future refactors - current CameraManager does many things it shouldn't
-//       (it's own input processing, manipulating controls...)
-
-// ==== gEnv->mainCamera RESEARCH ====
-//   Character.cpp:                   getPosition()
-//   SceneMouse.cpp:                  getViewport()
-//   DepthOfFieldEffect.cpp:          getFOVy, setFOVy, getPosition, getViewport
-//   EnvironmentMap.cpp:              setFarClipDistance, getFarClipDistance, getBackgroundColour
-//   GfxActor.cpp:                    getPosition(), 
-//   Heathaze.cpp:                    get/addViewport()
-//   HydraxWater.cpp, skyxManager:    getDerivedPosition()
-//   Scripting:                        setPosition  setDirection  setOrientation yaw  pitch  roll  getPosition  getDirection  getOrientation  lookAt
-//   SimController:                   getUp()
 
 using namespace Ogre;
 using namespace RoR;
@@ -132,11 +109,21 @@ CameraManager::CameraManager() :
     , m_cam_look_at_smooth(Ogre::Vector3::ZERO)
     , m_cam_look_at_smooth_last(Ogre::Vector3::ZERO)
     , m_cam_limit_movement(true)
-    , m_camera_ready(false)
+    , m_camera_node(nullptr)
 {
     m_cct_player_actor = nullptr;
-
     m_staticcam_update_timer.reset();
+
+    Ogre::Camera* camera = gEnv->sceneManager->createCamera("PlayerCam");
+    camera->setNearClipDistance(0.5);
+    camera->setAutoAspectRatio(true);
+
+    m_camera_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    m_camera_node->setFixedYawAxis(true);
+    m_camera_node->attachObject(camera);
+
+    App::GetOgreSubsystem()->GetViewport()->setCamera(camera);
+    gEnv->mainCamera = camera; // Temporary, removal in progress!!! ~ 05/2020 Petr O.
 }
 
 CameraManager::~CameraManager()
@@ -429,7 +416,9 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
         }
         break;
 
-    default:;
+    case CAMERA_BEHAVIOR_INVALID:
+        this->CameraBehaviorOrbitReset();
+        break;
     }
 }
 
@@ -492,6 +481,11 @@ void CameraManager::SwitchBehaviorOnVehicleChange(CameraBehaviors new_behavior, 
 bool CameraManager::hasActiveBehavior()
 {
     return m_current_behavior != CAMERA_BEHAVIOR_INVALID;
+}
+
+void CameraManager::ResetAllBehaviors()
+{
+    this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_INVALID, nullptr);
 }
 
 bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
@@ -595,7 +589,7 @@ void CameraManager::NotifyContextChange()
     }
 }
 
-void CameraManager::NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle)
+void CameraManager::NotifyVehicleChanged(Actor* new_vehicle)
 {
     // Getting out of vehicle
     if (new_vehicle == nullptr)
