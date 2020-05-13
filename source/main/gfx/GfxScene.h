@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2018 Petr Ohlidal & contributors
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -58,11 +58,10 @@ public:
                        simbuf_camera_behavior        = CameraManager::CAMERA_BEHAVIOR_INVALID;
     };
 
-    GfxScene();
-    ~GfxScene();
-
-    void           InitScene(Ogre::SceneManager* sm);
+    void           Init();
+    void           CreateDustPools();
     DustPool*      GetDustPool(const char* name);
+    void           DeleteDustPools();
     void           SetParticlesVisible(bool visible);
     void           UpdateScene(float dt_sec);
     void           RegisterGfxActor(RoR::GfxActor* gfx_actor);
@@ -71,13 +70,15 @@ public:
     void           RemoveGfxCharacter(RoR::GfxCharacter* gfx_character);
     void           BufferSimulationData(); //!< Run this when simulation is halted
     SimBuffer&     GetSimDataBuffer() { return m_simbuf; }
+    GfxEnvmap&     GetEnvMap() { return m_envmap; }
+    Ogre::SceneManager* GetSceneManager() { return m_scene_manager; }
     std::vector<GfxActor*>& GetGfxActors() { return m_all_gfx_actors; }
     std::vector<GfxCharacter*>& GetGfxCharacters() { return m_all_gfx_characters; }
 
 private:
 
     std::map<std::string, DustPool *> m_dustpools;
-    Ogre::SceneManager*               m_ogre_scene;
+    Ogre::SceneManager*               m_scene_manager = nullptr;
     std::vector<GfxActor*>            m_all_gfx_actors;
     std::vector<GfxActor*>            m_live_gfx_actors;
     std::vector<GfxCharacter*>        m_all_gfx_characters;

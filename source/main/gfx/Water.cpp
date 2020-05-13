@@ -639,14 +639,14 @@ void Water::RefractionListener::preRenderTargetUpdate(const Ogre::RenderTargetEv
 {
     this->scene_mgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(false);
     this->waterplane_entity->setVisible(false);
-    App::GetSimController()->GetGfxScene().SetParticlesVisible(false); // Hide water spray
+    App::GetGfxScene()->SetParticlesVisible(false); // Hide water spray
 }
 
 void Water::RefractionListener::postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
 {
     this->scene_mgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(true);
     this->waterplane_entity->setVisible(true);
-    App::GetSimController()->GetGfxScene().SetParticlesVisible(true); // Restore water spray
+    App::GetGfxScene()->SetParticlesVisible(true); // Restore water spray
 }
 
 void Water::ReflectionListener::preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)

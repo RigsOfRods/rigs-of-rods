@@ -1416,8 +1416,7 @@ void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
 
         if (mk_buoyance && (m_actor->m_buoyance == nullptr))
         {
-            auto& dustman = App::GetSimController()->GetGfxScene();
-            Buoyance* buoy = new Buoyance(dustman.GetDustPool("splash"), dustman.GetDustPool("ripple"));
+            Buoyance* buoy = new Buoyance(App::GetGfxScene()->GetDustPool("splash"), App::GetGfxScene()->GetDustPool("ripple"));
             m_actor->m_buoyance.reset(buoy);
         }
         m_actor->ar_num_cabs++;

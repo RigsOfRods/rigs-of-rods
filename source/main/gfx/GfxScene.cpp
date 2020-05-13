@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2018 Petr Ohlidal & contributors
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -28,6 +28,7 @@
 #include "DustPool.h"
 #include "HydraxWater.h"
 #include "GUIManager.h"
+#include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"
@@ -36,36 +37,37 @@
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
 
+#include <Ogre.h>
+
 using namespace Ogre;
 using namespace RoR;
 
-RoR::GfxScene::GfxScene()
-    : m_ogre_scene(nullptr)
+void GfxScene::CreateDustPools()
 {
+    assert(m_dustpools.size() == 0);
+    m_dustpools["dust"]   = new DustPool(m_scene_manager, "tracks/Dust",   20);
+    m_dustpools["clump"]  = new DustPool(m_scene_manager, "tracks/Clump",  20);
+    m_dustpools["sparks"] = new DustPool(m_scene_manager, "tracks/Sparks", 10);
+    m_dustpools["drip"]   = new DustPool(m_scene_manager, "tracks/Drip",   50);
+    m_dustpools["splash"] = new DustPool(m_scene_manager, "tracks/Splash", 20);
+    m_dustpools["ripple"] = new DustPool(m_scene_manager, "tracks/Ripple", 20);
 }
 
-RoR::GfxScene::~GfxScene()
+void GfxScene::DeleteDustPools()
 {
     for (auto itor : m_dustpools)
     {
-        itor.second->Discard(m_ogre_scene);
+        itor.second->Discard(m_scene_manager);
         delete itor.second;
     }
     m_dustpools.clear();
 }
 
-void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
+void RoR::GfxScene::Init()
 {
-    m_dustpools["dust"]   = new DustPool(sm, "tracks/Dust",   20);
-    m_dustpools["clump"]  = new DustPool(sm, "tracks/Clump",  20);
-    m_dustpools["sparks"] = new DustPool(sm, "tracks/Sparks", 10);
-    m_dustpools["drip"]   = new DustPool(sm, "tracks/Drip",   50);
-    m_dustpools["splash"] = new DustPool(sm, "tracks/Splash", 20);
-    m_dustpools["ripple"] = new DustPool(sm, "tracks/Ripple", 20);
-
-    m_ogre_scene = sm;
-
-    m_envmap.SetupEnvMap();
+    assert(!m_scene_manager);
+    m_scene_manager = App::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
+    gEnv->sceneManager = m_scene_manager; // Temporary, removal in progress!!
 }
 
 void RoR::GfxScene::UpdateScene(float dt_sec)

@@ -231,15 +231,11 @@ int main(int argc, char *argv[])
 #endif // NOLANG
         App::GetConsole()->RegBuiltinCommands(); // Call after localization had been set up
 
-        // Setup rendering (menu + simulation)
-        Ogre::SceneManager* scene_manager = App::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
-        gEnv->sceneManager = scene_manager;
-        if (overlay_system)
-        {
-            scene_manager->addRenderQueueListener(overlay_system);
-        }
-
-        App::CreateCameraManager();
+        // Set up rendering
+        App::CreateGfxScene(); // Creates OGRE SceneManager
+        App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(overlay_system);
+        App::CreateCameraManager(); // Creates OGRE Camera
+        App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
 
         App::GetContentManager()->InitContentManager();
 
@@ -403,11 +399,6 @@ int main(int argc, char *argv[])
         App::GetGuiManager()->GetMainSelector()->~MainSelector();
 
         App::GetMainMenu()->LeaveMultiplayerServer();
-
-        //TODO: we should destroy OIS here
-        //TODO: we could also try to destroy SoundScriptManager, but we don't care!
-
-        App::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
 
         App::DestroyOverlayWrapper();
 #ifndef _DEBUG

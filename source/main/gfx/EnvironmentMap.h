@@ -35,7 +35,7 @@ public:
     ~GfxEnvmap();
 
     void SetupEnvMap();
-    void UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor);
+    void UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, bool full = false);
 
 private:
 
@@ -46,7 +46,6 @@ private:
     Ogre::Camera*        m_cameras[NUM_FACES];
     Ogre::RenderTarget*  m_render_targets[NUM_FACES];
     Ogre::TexturePtr     m_rtt_texture;
-    bool                 m_is_initialized;
     int                  m_update_round; /// Render targets are updated one-by-one; this is the index of next target to update.
 };
 

@@ -121,7 +121,7 @@ void RoR::GUI::SurveyMap::Draw()
         // Calc. view center
         smallmap_size = mTerrainSize * (1.0f - mMapZoom);
         Ogre::Vector2 player_map_pos;
-        Actor* actor = App::GetSimController()->GetGfxScene().GetSimDataBuffer().simbuf_player_actor;
+        Actor* actor = App::GetGfxScene()->GetSimDataBuffer().simbuf_player_actor;
         if (actor)
         {
             auto& actor_data = actor->GetGfxActor()->GetSimDataBuffer();
@@ -129,7 +129,7 @@ void RoR::GUI::SurveyMap::Draw()
         }
         else
         {
-            auto& scene_data = App::GetSimController()->GetGfxScene().GetSimDataBuffer();
+            auto& scene_data = App::GetGfxScene()->GetSimDataBuffer();
             player_map_pos = (Vector2(scene_data.simbuf_character_pos.x, scene_data.simbuf_character_pos.z));
         }
 
@@ -190,7 +190,7 @@ void RoR::GUI::SurveyMap::Draw()
         }
 
         // Draw actor icons
-        for (GfxActor* gfx_actor: App::GetSimController()->GetGfxScene().GetGfxActors())
+        for (GfxActor* gfx_actor: App::GetGfxScene()->GetGfxActors())
         {
             const char* type_str = this->getTypeByDriveable(gfx_actor->GetActorDriveable());
             int truckstate = gfx_actor->GetActorState();
@@ -210,7 +210,7 @@ void RoR::GUI::SurveyMap::Draw()
     }
 
         // Draw character icons
-        for (GfxCharacter* gfx_character: App::GetSimController()->GetGfxScene().GetGfxCharacters())
+        for (GfxCharacter* gfx_character: App::GetGfxScene()->GetGfxCharacters())
         {
             auto& simbuf = gfx_character->xc_simbuf;
             if (!simbuf.simbuf_actor_coupling)

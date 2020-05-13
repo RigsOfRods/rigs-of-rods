@@ -1805,7 +1805,7 @@ void SimController::UpdateSimulation(float dt)
 
         m_scene_mouse.UpdateSimulation();
 
-        m_gfx_scene.BufferSimulationData();
+        App::GetGfxScene()->BufferSimulationData();
 
         if (App::sim_state->GetActiveEnum<SimState>() != SimState::PAUSED)
         {
@@ -2057,6 +2057,7 @@ void SimController::CleanupAfterSimulation()
     }
 
     m_scene_mouse.DiscardVisuals(); // TODO: move this to GfxScene ~~ only_a_ptr, 06/2018
+    App::GetGfxScene()->DeleteDustPools();
 
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
 }
@@ -2297,7 +2298,7 @@ void SimController::EnterGameplayLoop()
             this->UpdateSimulation(dt_sec);
             if (RoR::App::sim_state->GetActiveEnum<SimState>() != RoR::SimState::PAUSED)
             {
-                m_gfx_scene.UpdateScene(dt_sec);
+                App::GetGfxScene()->UpdateScene(dt_sec);
                 if (!m_physics_simulation_paused)
                 {
                     m_time += dt_sec;
@@ -2528,7 +2529,7 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
 
 void SimController::RemoveActorDirectly(Actor* actor)
 {
-    m_gfx_scene.RemoveGfxActor(actor->GetGfxActor());
+    App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor());
 
 #ifdef USE_SOCKETW
     if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)

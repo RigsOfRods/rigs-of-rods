@@ -211,7 +211,7 @@ void CacheSystem::UnloadActorFromMemory(std::string filename)
         if (!group.empty() && ResourceGroupManager::getSingleton().resourceGroupExists(group))
         {
             bool unused = true;
-            for (auto gfx_actor : App::GetSimController()->GetGfxScene().GetGfxActors())
+            for (auto gfx_actor : App::GetGfxScene()->GetGfxActors())
             {
                 if (gfx_actor->GetResourceGroup() == group)
                 {

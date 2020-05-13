@@ -102,7 +102,6 @@ public:
 
     RoR::ActorManager*          GetBeamFactory  ()         { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
     RoR::SkidmarkConfig*         GetSkidmarkConf ()         { return m_skidmark_conf; }
-    RoR::GfxScene&               GetGfxScene()              { return m_gfx_scene; }
     RoR::SceneMouse&             GetSceneMouse()            { return m_scene_mouse; }
     Ogre::Vector3                GetDirArrowTarget()        { return m_dir_arrow_pointed; }
     bool                         IsPressurizingTyres() const { return m_pressure_pressed; }
@@ -143,7 +142,6 @@ private:
     std::vector<RoR::ActorModifyRequest> m_actor_modify_queue;
     std::vector<Actor*>                  m_actor_remove_queue;
     RoR::CharacterFactory    m_character_factory;
-    RoR::GfxScene            m_gfx_scene;
     RoR::SkidmarkConfig*     m_skidmark_conf;
     RoR::SceneMouse          m_scene_mouse;
     Ogre::Real               m_time_until_next_toggle; //!< just to stop toggles flipping too fast

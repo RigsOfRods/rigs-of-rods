@@ -274,7 +274,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
         actor->GetGfxActor()->FinishFlexbodyTasks(); // Sync tasks from threadpool
     }
 
-    App::GetSimController()->GetGfxScene().RegisterGfxActor(actor->GetGfxActor());
+    App::GetGfxScene()->RegisterGfxActor(actor->GetGfxActor());
 
     if (actor->ar_engine)
     {

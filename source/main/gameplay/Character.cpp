@@ -70,7 +70,7 @@ Character::~Character()
 {
     if (m_gfx_character != nullptr)
     {
-        App::GetSimController()->GetGfxScene().RemoveGfxCharacter(m_gfx_character);
+        App::GetGfxScene()->RemoveGfxCharacter(m_gfx_character);
         delete m_gfx_character;
     }
 }

@@ -31,6 +31,7 @@
 #include "CameraManager.h"
 #include "Console.h"
 #include "ContentManager.h"
+#include "GfxScene.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "OgreSubsystem.h"
@@ -60,6 +61,7 @@ static MumbleIntegration* g_mumble;
 static TerrainManager*  g_sim_terrain;
 static ThreadPool*      g_thread_pool;
 static CameraManager*   g_camera_manager;
+static GfxScene         g_gfx_scene;
 
 // App
 CVar* app_state;
@@ -230,6 +232,7 @@ MumbleIntegration*     GetMumble             () { return g_mumble; }
 TerrainManager*        GetSimTerrain         () { return g_sim_terrain; }
 ThreadPool*            GetThreadPool         () { return g_thread_pool; }
 CameraManager*         GetCameraManager      () { return g_camera_manager; }
+GfxScene*              GetGfxScene           () { return &g_gfx_scene; }
 
 void StartOgreSubsystem()
 {
@@ -320,6 +323,11 @@ void CreateThreadPool()
 void CreateCameraManager()
 {
     g_camera_manager = new CameraManager();
+}
+
+void CreateGfxScene()
+{
+    g_gfx_scene.Init();
 }
 
 } // namespace App

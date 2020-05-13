@@ -41,8 +41,8 @@ Screwprop::Screwprop(node_t* nodes, int noderef, int nodeback, int nodeup, float
     , fullpower(fullpower)
     , trucknum(trucknum)
 {
-    splashp = RoR::App::GetSimController()->GetGfxScene().GetDustPool("splash");
-    ripplep = RoR::App::GetSimController()->GetGfxScene().GetDustPool("ripple");
+    splashp = RoR::App::GetGfxScene()->GetDustPool("splash");
+    ripplep = RoR::App::GetGfxScene()->GetDustPool("ripple");
     reset();
 }
 

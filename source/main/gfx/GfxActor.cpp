@@ -97,13 +97,12 @@ RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_re
     m_initialized(false)
 {
     // Setup particles
-    RoR::GfxScene& dustman = RoR::App::GetSimController()->GetGfxScene();
-    m_particles_drip   = dustman.GetDustPool("drip");
-    m_particles_misc   = dustman.GetDustPool("dust"); // Dust, water vapour, tyre smoke
-    m_particles_splash = dustman.GetDustPool("splash");
-    m_particles_ripple = dustman.GetDustPool("ripple");
-    m_particles_sparks = dustman.GetDustPool("sparks");
-    m_particles_clump  = dustman.GetDustPool("clump");
+    m_particles_drip   = App::GetGfxScene()->GetDustPool("drip");
+    m_particles_misc   = App::GetGfxScene()->GetDustPool("dust"); // Dust, water vapour, tyre smoke
+    m_particles_splash = App::GetGfxScene()->GetDustPool("splash");
+    m_particles_ripple = App::GetGfxScene()->GetDustPool("ripple");
+    m_particles_sparks = App::GetGfxScene()->GetDustPool("sparks");
+    m_particles_clump  = App::GetGfxScene()->GetDustPool("clump");
 
     m_simbuf.simbuf_nodes.reset(new NodeData[actor->ar_num_nodes]);
     m_simbuf.simbuf_aeroengines.resize(actor->ar_num_aeroengines);
