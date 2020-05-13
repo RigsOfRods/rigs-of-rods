@@ -277,7 +277,7 @@ void RoR::GfxScene::BufferSimulationData()
     m_simbuf.simbuf_race_time_diff = App::GetSimController()->GetRaceTimeDiff();
     m_simbuf.simbuf_race_in_progress_prev = m_simbuf.simbuf_race_in_progress;
     m_simbuf.simbuf_race_in_progress = App::GetSimController()->IsRaceInProgress();
-    m_simbuf.simbuf_camera_behavior = App::GetSimController()->GetCameraBehavior();
+    m_simbuf.simbuf_camera_behavior = App::GetCameraManager()->GetCurrentBehavior();
 
     m_live_gfx_actors.clear();
     for (GfxActor* a: m_all_gfx_actors)

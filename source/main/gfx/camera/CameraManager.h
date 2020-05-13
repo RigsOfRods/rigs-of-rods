@@ -24,16 +24,12 @@
 #include "RoRPrerequisites.h"
 
 #include <OIS.h>
-#include <OgreVector3.h>
-#include <OgreMath.h> // Degree, Radian
-#include <OgreTimer.h>
+#include <Ogre.h>
 
 namespace RoR {
 
 class CameraManager
 {
-    friend class SimController;
-
 public:
 
     CameraManager();
@@ -61,14 +57,16 @@ public:
     CameraBehaviors GetCurrentBehavior() { return m_current_behavior; }
 
     void NotifyContextChange();
-    void NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle);
+    void NotifyVehicleChanged(Actor* new_vehicle);
 
     void CameraBehaviorOrbitReset();
     bool CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg);
     void CameraBehaviorOrbitUpdate();
 
-    bool IsCameraReady() const { return m_camera_ready; } // Temporary; replaces (gEnv->cameraManager != nullptr) checks; see == SimCam ==
-    void SetCameraReady() { m_camera_ready = true; }
+    bool mouseMoved(const OIS::MouseEvent& _arg);
+    bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+
+    void ResetAllBehaviors();
 
 protected:
 
@@ -95,9 +93,11 @@ protected:
     void CameraBehaviorVehicleSplineUpdateSpline();
     void CameraBehaviorVehicleSplineUpdateSplineDisplay();
 
+    Ogre::SceneNode*     m_camera_node;         //!< Has camera permanently attached
+
     CameraBehaviors      m_current_behavior;
-    CameraBehaviors      m_cam_before_toggled; ///< Toggled modes (FREE, FREEFIX) remember original state.
-    CameraBehaviors      m_prev_toggled_cam; ///< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.
+    CameraBehaviors      m_cam_before_toggled;  //!< Toggled modes (FREE, FREEFIX) remember original state.
+    CameraBehaviors      m_prev_toggled_cam;    //!< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.
     // Old `CameraContext`
     Actor*               m_cct_player_actor; // TODO: duplicates `SimController::m_player_actor`
     Ogre::Degree         m_cct_rot_scale;
@@ -136,12 +136,6 @@ protected:
     bool                 m_splinecam_auto_tracking;
     std::deque<node_t*>  m_splinecam_spline_nodes;
     unsigned int         m_splinecam_num_linked_beams;
-
-    bool                 m_camera_ready; // Temporary flag; replaces (gEnv->cameraManager != nullptr) checks; see == SimCam ==
-
-public: // Temporary; only for use by SimController (for some reason the friend decl. is not enough); see == SimCam ==
-    bool mouseMoved(const OIS::MouseEvent& _arg);
-    bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
 };
 
 } // namespace RoR

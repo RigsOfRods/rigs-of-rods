@@ -239,15 +239,7 @@ int main(int argc, char *argv[])
             scene_manager->addRenderQueueListener(overlay_system);
         }
 
-        Ogre::Camera* camera = scene_manager->createCamera("PlayerCam");
-        camera->setPosition(Ogre::Vector3(128, 25, 128)); // Position it at 500 in Z direction
-        camera->lookAt(Ogre::Vector3(0, 0, -300)); // Look back along -Z
-        camera->setNearClipDistance(0.5);
-        camera->setFarClipDistance(1000.0 * 1.733);
-        camera->setFOVy(Ogre::Degree(60));
-        camera->setAutoAspectRatio(true);
-        App::GetOgreSubsystem()->GetViewport()->setCamera(camera);
-        gEnv->mainCamera = camera;
+        App::CreateCameraManager();
 
         App::GetContentManager()->InitContentManager();
 
@@ -414,7 +406,6 @@ int main(int argc, char *argv[])
         //TODO: we should destroy OIS here
         //TODO: we could also try to destroy SoundScriptManager, but we don't care!
 
-        scene_manager->destroyCamera(camera);
         App::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
 
         App::DestroyOverlayWrapper();
