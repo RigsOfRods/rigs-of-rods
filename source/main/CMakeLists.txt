@@ -10,7 +10,6 @@ set(SOURCE_FILES
         PagedGeometryConfig.h
         Application.{h,cpp}
         ForwardDeclarations.h
-        GlobalEnvironment.h
         MainMenu.{h,cpp}
         RoRPrerequisites.h
         audio/MumbleIntegration.{h,cpp}

@@ -40,7 +40,7 @@
 #include "ErrorUtils.h"
 #include "FlexAirfoil.h"
 #include "GfxActor.h"
-#include "GlobalEnvironment.h"
+
 #include "Language.h"
 #include "OgreSubsystem.h"
 #include "RoRFrameListener.h" // SimController
@@ -690,11 +690,11 @@ void OverlayWrapper::SetupDirectionArrow()
     if (RoR::App::GetOverlayWrapper() != nullptr)
     {
         // setup direction arrow
-        Ogre::Entity* arrow_entity = gEnv->sceneManager->createEntity("arrow2.mesh");
+        Ogre::Entity* arrow_entity = App::GetGfxScene()->GetSceneManager()->createEntity("arrow2.mesh");
         arrow_entity->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
 
         // Add entity to the scene node
-        m_direction_arrow_node = new SceneNode(gEnv->sceneManager);
+        m_direction_arrow_node = new SceneNode(App::GetGfxScene()->GetSceneManager());
         m_direction_arrow_node->attachObject(arrow_entity);
         m_direction_arrow_node->setVisible(false);
         m_direction_arrow_node->setScale(0.1, 0.1, 0.1);

@@ -52,8 +52,8 @@ SceneMouse::SceneMouse() :
 void SceneMouse::InitializeVisuals()
 {
     // load 3d line for mouse picking
-    pickLine = gEnv->sceneManager->createManualObject("PickLineObject");
-    pickLineNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("PickLineNode");
+    pickLine = App::GetGfxScene()->GetSceneManager()->createManualObject("PickLineObject");
+    pickLineNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("PickLineNode");
 
     MaterialPtr pickLineMaterial = MaterialManager::getSingleton().getByName("PickLineMaterial", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
     if (pickLineMaterial.isNull())
@@ -78,13 +78,13 @@ void SceneMouse::DiscardVisuals()
 {
     if (pickLineNode != nullptr)
     {
-        gEnv->sceneManager->getRootSceneNode()->removeAndDestroyChild("PickLineNode");
+        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeAndDestroyChild("PickLineNode");
         pickLineNode = nullptr;
     }
 
     if (pickLine != nullptr)
     {
-        gEnv->sceneManager->destroyManualObject("PickLineObject");
+        App::GetGfxScene()->GetSceneManager()->destroyManualObject("PickLineObject");
         pickLine = nullptr;
     }
 }

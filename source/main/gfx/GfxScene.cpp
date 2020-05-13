@@ -67,7 +67,6 @@ void RoR::GfxScene::Init()
 {
     assert(!m_scene_manager);
     m_scene_manager = App::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
-    gEnv->sceneManager = m_scene_manager; // Temporary, removal in progress!!
 }
 
 void RoR::GfxScene::UpdateScene(float dt_sec)

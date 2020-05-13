@@ -61,7 +61,7 @@ TerrainObjectManager::TerrainObjectManager(TerrainManager* terrainManager) :
     terrainManager(terrainManager)
 {
     //prepare for baking
-    m_staticgeometry_bake_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    m_staticgeometry_bake_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
 }
 
 TerrainObjectManager::~TerrainObjectManager()
@@ -78,14 +78,14 @@ TerrainObjectManager::~TerrainObjectManager()
     }
     if (m_staticgeometry != nullptr)
     {
-        gEnv->sceneManager->destroyStaticGeometry("bakeSG");
+        App::GetGfxScene()->GetSceneManager()->destroyStaticGeometry("bakeSG");
         m_staticgeometry = nullptr;
     }
     if (m_procedural_mgr != nullptr)
     {
         delete m_procedural_mgr;
     }
-    gEnv->sceneManager->destroyAllEntities();
+    App::GetGfxScene()->GetSceneManager()->destroyAllEntities();
 }
 
 void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
@@ -195,7 +195,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
             mReferenceObject->end();
             mReferenceObject->setCastShadows(false);
 
-            SceneNode* n = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+            SceneNode* n = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
             n->setPosition(pos);
             n->attachObject(mReferenceObject);
             n->setVisible(true);
@@ -252,7 +252,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
                 tree_loader->setColorMap(ColorMap);
             }
 
-            Entity* curTree = gEnv->sceneManager->createEntity(String("paged_") + treemesh + TOSTRING(m_paged_geometry.size()), treemesh);
+            Entity* curTree = App::GetGfxScene()->GetSceneManager()->createEntity(String("paged_") + treemesh + TOSTRING(m_paged_geometry.size()), treemesh);
 
             if (gridspacing > 0)
             {
@@ -615,7 +615,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
 void TerrainObjectManager::PostLoadTerrain()
 {
     // okay, now bake everything
-    m_staticgeometry = gEnv->sceneManager->createStaticGeometry("bakeSG");
+    m_staticgeometry = App::GetGfxScene()->GetSceneManager()->createStaticGeometry("bakeSG");
     m_staticgeometry->setCastShadows(true);
     m_staticgeometry->addSceneNode(m_staticgeometry_bake_node);
     m_staticgeometry->setRegionDimensions(Vector3(terrainManager->getFarClip() / 2.0f, 10000.0, terrainManager->getFarClip() / 2.0f));
@@ -739,7 +739,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     RoR::Utils::SanitizeUtf8String(entity_name);
     objcounter++;
 
-    SceneNode* tenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    SceneNode* tenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
 
     MeshObject* mo = nullptr;
     if (String(mesh) != "none")
@@ -1008,11 +1008,11 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
             // hacky: prevent duplicates
             String paname = String(pname);
-            while (gEnv->sceneManager->hasParticleSystem(paname))
+            while (App::GetGfxScene()->GetSceneManager()->hasParticleSystem(paname))
                 paname += "_";
 
             // create particle system
-            ParticleSystem* pParticleSys = gEnv->sceneManager->createParticleSystem(paname, String(sname));
+            ParticleSystem* pParticleSys = App::GetGfxScene()->GetSceneManager()->createParticleSystem(paname, String(sname));
             pParticleSys->setCastShadows(false);
             pParticleSys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
 
@@ -1203,7 +1203,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             char name[50];
             snprintf(name, 50, "terrn2/spotlight-%u", counter);
             ++counter;
-            Light* spotLight = gEnv->sceneManager->createLight(name);
+            Light* spotLight = App::GetGfxScene()->GetSceneManager()->createLight(name);
 
             spotLight->setType(Light::LT_SPOTLIGHT);
             spotLight->setPosition(lpos);
@@ -1213,7 +1213,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             spotLight->setSpecularColour(lcol);
             spotLight->setSpotlightRange(Degree(innerAngle), Degree(outerAngle));
 
-            BillboardSet* lflare = gEnv->sceneManager->createBillboardSet(1);
+            BillboardSet* lflare = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
             lflare->createBillboard(lpos, lcol);
             lflare->setMaterialName("tracks/flare");
             lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
@@ -1245,7 +1245,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             char name[50];
             snprintf(name, 50, "terrn2/pointlight-%x", counter);
             ++counter;
-            Light* pointlight = gEnv->sceneManager->createLight(name);
+            Light* pointlight = App::GetGfxScene()->GetSceneManager()->createLight(name);
 
             pointlight->setType(Light::LT_POINT);
             pointlight->setPosition(lpos);
@@ -1254,7 +1254,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             pointlight->setDiffuseColour(lcol);
             pointlight->setSpecularColour(lcol);
 
-            BillboardSet* lflare = gEnv->sceneManager->createBillboardSet(1);
+            BillboardSet* lflare = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
             lflare->createBillboard(lpos, lcol);
             lflare->setMaterialName("tracks/flare");
             lflare->setVisibilityFlags(DEPTHMAP_DISABLED);

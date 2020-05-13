@@ -22,6 +22,7 @@
 
 #include "Application.h"
 #include "BeamData.h"
+#include "GfxScene.h"
 #include "Utils.h"
 
 #include <Ogre.h>
@@ -166,7 +167,7 @@ void RoR::Skidmark::AddObject(Ogre::Vector3 start, Ogre::String texture)
     skid.points.resize(m_length);
     skid.faceSizes.resize(m_length);
     skid.groundTexture.resize(m_length);
-    skid.obj = gEnv->sceneManager->createManualObject("skidmark" + TOSTRING(m_instance_counter++));
+    skid.obj = App::GetGfxScene()->GetSceneManager()->createManualObject("skidmark" + TOSTRING(m_instance_counter++));
     skid.obj->setDynamic(true);
     skid.obj->setRenderingDistance(800); // 800m view distance
     skid.obj->begin(bname, Ogre::RenderOperation::OT_TRIANGLE_STRIP);
@@ -193,7 +194,7 @@ void RoR::Skidmark::PopSegment()
     skid.faceSizes.clear();
     Ogre::MaterialManager::getSingleton().remove(skid.material->getName());
     skid.material.setNull();
-    gEnv->sceneManager->destroyManualObject(skid.obj);
+    App::GetGfxScene()->GetSceneManager()->destroyManualObject(skid.obj);
     m_objects.pop();
 }
 

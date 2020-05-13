@@ -28,7 +28,7 @@
 #include "Beam.h"
 #include "FlexBody.h"
 #include "FlexMeshWheel.h"
-#include "GlobalEnvironment.h"
+#include "GfxScene.h"
 #include "PlatformUtils.h"
 #include "RigDef_File.h"
 #include "RigSpawner.h"
@@ -77,7 +77,7 @@ FlexBody* FlexFactory::CreateFlexBody(
         this->ResolveFlexbodyLOD(def->mesh_name, mesh);
     }
     const std::string flexbody_name = m_rig_spawner->ComposeName("Flexbody", flexbody_id);
-    Ogre::Entity* entity = gEnv->sceneManager->createEntity(flexbody_name, mesh_unique_name, resource_group_name);
+    Ogre::Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(flexbody_name, mesh_unique_name, resource_group_name);
     m_rig_spawner->SetupNewEntity(entity, Ogre::ColourValue(0.5, 0.5, 1));
 
     FLEX_DEBUG_LOG(__FUNCTION__);
@@ -122,7 +122,7 @@ FlexMeshWheel* FlexFactory::CreateFlexMeshWheel(
 
     // Load+instantiate static mesh for rim
     const std::string rim_entity_name = m_rig_spawner->ComposeName("MeshWheelRim", wheel_index);
-    Ogre::Entity* rim_prop_entity = gEnv->sceneManager->createEntity(rim_entity_name, rim_mesh_name, rg_name);
+    Ogre::Entity* rim_prop_entity = App::GetGfxScene()->GetSceneManager()->createEntity(rim_entity_name, rim_mesh_name, rg_name);
     m_rig_spawner->SetupNewEntity(rim_prop_entity, Ogre::ColourValue(0, 0.5, 0.8));
 
     // Create dynamic mesh for tire
@@ -133,7 +133,7 @@ FlexMeshWheel* FlexFactory::CreateFlexMeshWheel(
 
     // Instantiate the dynamic tire mesh
     const std::string tire_instance_name = m_rig_spawner->ComposeName("MWheelTireEntity", wheel_index);
-    Ogre::Entity *tire_entity = gEnv->sceneManager->createEntity(tire_instance_name, tire_mesh_name, rg_name);
+    Ogre::Entity *tire_entity = App::GetGfxScene()->GetSceneManager()->createEntity(tire_instance_name, tire_mesh_name, rg_name);
     m_rig_spawner->SetupNewEntity(tire_entity, Ogre::ColourValue(0, 0.5, 0.8));
     flex_mesh_wheel->m_tire_entity = tire_entity; // Friend access.
 

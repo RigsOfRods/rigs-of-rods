@@ -23,6 +23,7 @@
 
 #include "Application.h"
 #include "CameraManager.h"
+#include "GfxScene.h"
 #include "HydraxWater.h"
 #include "OgreSubsystem.h"
 #include "TerrainManager.h"
@@ -38,7 +39,7 @@ SkyXManager::SkyXManager(Ogre::String configFile)
 	//Ogre::ResourceGroupManager::getSingleton().addResourceLocation("..\\resource\\SkyX\\","FileSystem", "SkyX",true); //Temp
 
 	mBasicController = new SkyX::BasicController();
-	mSkyX = new SkyX::SkyX(gEnv->sceneManager, mBasicController);
+	mSkyX = new SkyX::SkyX(App::GetGfxScene()->GetSceneManager(), mBasicController);
 
 	mCfgFileManager = new SkyX::CfgFileManager(mSkyX, mBasicController, App::GetCameraManager()->GetCamera());
 	mCfgFileManager->load(configFile);
@@ -96,8 +97,8 @@ bool SkyXManager::UpdateSkyLight()
     }
 		
 
-	mLight0 = gEnv->sceneManager->getLight("Light0");
-	mLight1 = gEnv->sceneManager->getLight("Light1");
+	mLight0 = App::GetGfxScene()->GetSceneManager()->getLight("Light0");
+	mLight1 = App::GetGfxScene()->GetSceneManager()->getLight("Light1");
 
 	mLight0->setPosition(sunPos*0.02);
 	mLight1->setDirection(lightDir);
@@ -169,14 +170,14 @@ bool SkyXManager::InitLight()
 	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.1, 0.35f));
 	mAmbientGradient.addCFrame(SkyX::ColorGradient::ColorFrame(Ogre::Vector3(1,1,1)*0.05, 0.0f));
 
-	gEnv->sceneManager->setAmbientLight(ColourValue(0.35,0.35,0.35)); //Not needed because terrn2 has ambientlight settings
+	App::GetGfxScene()->GetSceneManager()->setAmbientLight(ColourValue(0.35,0.35,0.35)); //Not needed because terrn2 has ambientlight settings
 
 	// Light
-	mLight0 = gEnv->sceneManager->createLight("Light0");
+	mLight0 = App::GetGfxScene()->GetSceneManager()->createLight("Light0");
 	mLight0->setDiffuseColour(1, 1, 1);
 	mLight0->setCastShadows(false);
 
-	mLight1 = gEnv->sceneManager->createLight("Light1");
+	mLight1 = App::GetGfxScene()->GetSceneManager()->createLight("Light1");
 	mLight1->setType(Ogre::Light::LT_DIRECTIONAL);
 
 	return true;

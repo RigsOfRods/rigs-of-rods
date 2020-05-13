@@ -25,9 +25,11 @@
 #include "MeshObject.h"
 
 #include "Application.h"
+#include "GfxScene.h"
 #include "MeshLodGenerator/OgreMeshLodGenerator.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 MeshObject::MeshObject(Ogre::String meshName, Ogre::String meshRG, Ogre::String entityName, Ogre::SceneNode* sceneNode)
     : sceneNode(sceneNode)
@@ -106,7 +108,7 @@ void MeshObject::createEntity(Ogre::String meshName, Ogre::String meshRG, Ogre::
 
         // now create an entity around the mesh and attach it to the scene graph
 
-        ent = gEnv->sceneManager->createEntity(entityName, meshName, meshRG);
+        ent = App::GetGfxScene()->GetSceneManager()->createEntity(entityName, meshName, meshRG);
         ent->setCastShadows(castshadows);
 
         sceneNode->attachObject(ent);

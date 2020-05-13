@@ -130,7 +130,7 @@ Actor::~Actor()
             if (!m_deletion_scene_nodes[i])
                 continue;
             m_deletion_scene_nodes[i]->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(m_deletion_scene_nodes[i]);
+            App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_deletion_scene_nodes[i]);
         }
         m_deletion_scene_nodes.clear();
     }
@@ -142,7 +142,7 @@ Actor::~Actor()
             if (!m_deletion_entities[i])
                 continue;
             m_deletion_entities[i]->detachAllObjectsFromBone();
-            gEnv->sceneManager->destroyEntity(m_deletion_entities[i]->getName());
+            App::GetGfxScene()->GetSceneManager()->destroyEntity(m_deletion_entities[i]->getName());
         }
         m_deletion_entities.clear();
     }
@@ -156,7 +156,7 @@ Actor::~Actor()
         if (ar_wings[i].cnode)
         {
             ar_wings[i].cnode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(ar_wings[i].cnode);
+            App::GetGfxScene()->GetSceneManager()->destroySceneNode(ar_wings[i].cnode);
         }
     }
 
@@ -197,12 +197,12 @@ Actor::~Actor()
         if (ar_flares[i].snode)
         {
             ar_flares[i].snode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(ar_flares[i].snode);
+            App::GetGfxScene()->GetSceneManager()->destroySceneNode(ar_flares[i].snode);
         }
         if (ar_flares[i].bbs)
-            gEnv->sceneManager->destroyBillboardSet(ar_flares[i].bbs);
+            App::GetGfxScene()->GetSceneManager()->destroyBillboardSet(ar_flares[i].bbs);
         if (ar_flares[i].light)
-            gEnv->sceneManager->destroyLight(ar_flares[i].light);
+            App::GetGfxScene()->GetSceneManager()->destroyLight(ar_flares[i].light);
     }
     this->ar_flares.clear();
 
@@ -212,13 +212,13 @@ Actor::~Actor()
         if (it->smokeNode)
         {
             it->smokeNode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(it->smokeNode);
+            App::GetGfxScene()->GetSceneManager()->destroySceneNode(it->smokeNode);
         }
         if (it->smoker)
         {
             it->smoker->removeAllAffectors();
             it->smoker->removeAllEmitters();
-            gEnv->sceneManager->destroyParticleSystem(it->smoker);
+            App::GetGfxScene()->GetSceneManager()->destroyParticleSystem(it->smoker);
         }
     }
 
@@ -228,13 +228,13 @@ Actor::~Actor()
         if (ar_custom_particles[i].snode)
         {
             ar_custom_particles[i].snode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(ar_custom_particles[i].snode);
+            App::GetGfxScene()->GetSceneManager()->destroySceneNode(ar_custom_particles[i].snode);
         }
         if (ar_custom_particles[i].psys)
         {
             ar_custom_particles[i].psys->removeAllAffectors();
             ar_custom_particles[i].psys->removeAllEmitters();
-            gEnv->sceneManager->destroyParticleSystem(ar_custom_particles[i].psys);
+            App::GetGfxScene()->GetSceneManager()->destroyParticleSystem(ar_custom_particles[i].psys);
         }
     }
 

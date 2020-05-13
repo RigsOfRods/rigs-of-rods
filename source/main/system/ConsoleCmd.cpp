@@ -168,7 +168,7 @@ public:
             else
             {
                 Ogre::Vector3 pos = App::GetSimController()->GetPlayerCharacter()->getPosition();
-                Ogre::SceneNode* bake_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+                Ogre::SceneNode* bake_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
                 App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(args[1], pos, Ogre::Vector3::ZERO, bake_node, "Console", "");
 
                 reply_type = Console::CONSOLE_SYSTEM_REPLY;

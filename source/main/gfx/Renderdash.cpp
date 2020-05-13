@@ -20,8 +20,13 @@
 
 #include "Renderdash.h"
 
+#include "Application.h"
+#include "GfxScene.h"
+
 #include <Overlay/OgreOverlayManager.h>
 #include <Overlay/OgreOverlay.h>
+
+using namespace RoR;
 
 RoR::Renderdash::Renderdash(std::string const& rg_name, std::string const& tex_name, std::string const& cam_name)
     : m_dash_cam(nullptr)
@@ -38,7 +43,7 @@ RoR::Renderdash::Renderdash(std::string const& rg_name, std::string const& tex_n
     m_rtt_tex = m_texture->getBuffer()->getRenderTarget();
 
     static int cam_counter = 0;
-    m_dash_cam = gEnv->sceneManager->createCamera(cam_name);
+    m_dash_cam = App::GetGfxScene()->GetSceneManager()->createCamera(cam_name);
     m_dash_cam->setNearClipDistance(1.0);
     m_dash_cam->setFarClipDistance(10.0);
     m_dash_cam->setPosition(Ogre::Vector3(0.0, -10000.0, 0.0));
@@ -65,7 +70,7 @@ RoR::Renderdash::~Renderdash()
 {
     if (m_rtt_tex != nullptr)
         m_rtt_tex->removeListener(this);
-    gEnv->sceneManager->destroyCamera(m_dash_cam);
+    App::GetGfxScene()->GetSceneManager()->destroyCamera(m_dash_cam);
     Ogre::TextureManager::getSingleton().remove(m_texture);
 }
 
@@ -77,7 +82,7 @@ void RoR::Renderdash::setEnable(bool en)
 void RoR::Renderdash::preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
 {
     // hide everything
-    gEnv->sceneManager->setFindVisibleObjects(false);
+    App::GetGfxScene()->GetSceneManager()->setFindVisibleObjects(false);
 
     // hide fps stats
     if (m_fps_overlay)
@@ -103,7 +108,7 @@ void RoR::Renderdash::preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
 void RoR::Renderdash::postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
 {
     // show everything
-    gEnv->sceneManager->setFindVisibleObjects(true);
+    App::GetGfxScene()->GetSceneManager()->setFindVisibleObjects(true);
 
     // show everything again, if it was displayed before hiding it...
     if (m_fps_overlay && m_fps_displayed)

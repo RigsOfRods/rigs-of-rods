@@ -32,7 +32,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include "ForwardDeclarations.h"
-#include "GlobalEnvironment.h"
+
 #include "ZeroedMemoryAllocator.h" // this is used quite a lot, so we include it here already
 #include "BitFlags.h"
 #include <OgreWindowEventUtilities.h>
@@ -74,8 +74,6 @@ enum VisibilityMasks {
 	HIDE_MIRROR       = BITMASK(3),
 };
 
-extern GlobalEnvironment *gEnv;
-
 enum LoaderType
 {
     LT_None,
@@ -85,7 +83,7 @@ enum LoaderType
     LT_Car,       // Script "car",       ext: car
     LT_Boat,      // Script "boat",      ext: boat
     LT_Airplane,  // Script "airplane",  ext: airplane
-    LT_Trailer,   // Script "trainer",   ext: trailer
+    LT_Trailer,   // Script "trailer",   ext: trailer
     LT_Train,     // Script "train",     ext: train
     LT_Load,      // Script "load",      ext: load
     LT_Extension, // Script "extension", ext: trailer load

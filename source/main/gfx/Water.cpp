@@ -52,8 +52,8 @@ Water::Water() :
 {
     //Ugh.. Why so ugly and hard to read
     m_map_size = App::GetSimTerrain()->getMaxTerrainSize();
-    m_reflect_listener.scene_mgr = gEnv->sceneManager;
-    m_refract_listener.scene_mgr = gEnv->sceneManager;
+    m_reflect_listener.scene_mgr = App::GetGfxScene()->GetSceneManager();
+    m_refract_listener.scene_mgr = App::GetGfxScene()->GetSceneManager();
 
     if (m_map_size.x < 1500 && m_map_size.z < 1500)
         m_waterplane_mesh_scale = 1.5f;
@@ -98,32 +98,32 @@ Water::~Water()
 {
     if (m_refract_cam != nullptr)
     {
-        gEnv->sceneManager->destroyCamera(m_refract_cam);
+        App::GetGfxScene()->GetSceneManager()->destroyCamera(m_refract_cam);
         m_refract_cam = nullptr;
     }
 
     if (m_reflect_cam != nullptr)
     {
-        gEnv->sceneManager->destroyCamera(m_reflect_cam);
+        App::GetGfxScene()->GetSceneManager()->destroyCamera(m_reflect_cam);
         m_reflect_cam = nullptr;
     }
 
     if (m_waterplane_entity != nullptr)
     {
-        gEnv->sceneManager->destroyEntity("plane");
+        App::GetGfxScene()->GetSceneManager()->destroyEntity("plane");
         m_waterplane_entity = nullptr;
     }
 
     if (m_waterplane_node != nullptr)
     {
-        gEnv->sceneManager->getRootSceneNode()->removeAndDestroyChild("WaterPlane");
+        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeAndDestroyChild("WaterPlane");
         m_waterplane_node = nullptr;
     }
 
     if (m_bottomplane_node != nullptr)
     {
-        gEnv->sceneManager->destroyEntity("bplane");
-        gEnv->sceneManager->getRootSceneNode()->removeAndDestroyChild("BottomWaterPlane");
+        App::GetGfxScene()->GetSceneManager()->destroyEntity("bplane");
+        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeAndDestroyChild("BottomWaterPlane");
         m_bottomplane_node = nullptr;
     }
 
@@ -215,7 +215,7 @@ void Water::PrepareWater()
             m_refract_rtt_texture = m_refract_rtt_targetPtr;
             m_refract_rtt_target = m_refract_rtt_targetPtr->getBuffer()->getRenderTarget();
             {
-                m_refract_cam = gEnv->sceneManager->createCamera("RefractCam");
+                m_refract_cam = App::GetGfxScene()->GetSceneManager()->createCamera("RefractCam");
                 m_refract_cam->setNearClipDistance(App::GetCameraManager()->GetCamera()->getNearClipDistance());
                 m_refract_cam->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
                 m_refract_cam->setAspectRatio(
@@ -224,7 +224,7 @@ void Water::PrepareWater()
 
                 m_refract_rtt_viewport = m_refract_rtt_target->addViewport(m_refract_cam);
                 m_refract_rtt_viewport->setClearEveryFrame(true);
-                m_refract_rtt_viewport->setBackgroundColour(gEnv->sceneManager->getFogColour());
+                m_refract_rtt_viewport->setBackgroundColour(App::GetGfxScene()->GetSceneManager()->getFogColour());
 
                 MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
                 mat->getTechnique(0)->getPass(0)->getTextureUnitState(2)->setTextureName("Refraction");
@@ -248,7 +248,7 @@ void Water::PrepareWater()
         m_reflect_rtt_texture = m_reflect_rtt_targetPtr;
         m_reflect_rtt_target = m_reflect_rtt_targetPtr->getBuffer()->getRenderTarget();
         {
-            m_reflect_cam = gEnv->sceneManager->createCamera("ReflectCam");
+            m_reflect_cam = App::GetGfxScene()->GetSceneManager()->createCamera("ReflectCam");
             m_reflect_cam->setNearClipDistance(App::GetCameraManager()->GetCamera()->getNearClipDistance());
             m_reflect_cam->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
             m_reflect_cam->setAspectRatio(
@@ -257,7 +257,7 @@ void Water::PrepareWater()
 
             m_reflect_rtt_viewport = m_reflect_rtt_target->addViewport(m_reflect_cam);
             m_reflect_rtt_viewport->setClearEveryFrame(true);
-            m_reflect_rtt_viewport->setBackgroundColour(gEnv->sceneManager->getFogColour());
+            m_reflect_rtt_viewport->setBackgroundColour(App::GetGfxScene()->GetSceneManager()->getFogColour());
 
             MaterialPtr mat;
             if (full_gfx)
@@ -292,7 +292,7 @@ void Water::PrepareWater()
             m_water_plane,
             m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, WAVEREZ, WAVEREZ, true, 1, 50, 50, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
-        m_waterplane_entity = gEnv->sceneManager->createEntity("plane", "ReflectPlane");
+        m_waterplane_entity = App::GetGfxScene()->GetSceneManager()->createEntity("plane", "ReflectPlane");
         if (full_gfx)
             m_waterplane_entity->setMaterialName("Examples/FresnelReflectionRefraction");
         else
@@ -304,7 +304,7 @@ void Water::PrepareWater()
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             m_water_plane,
             m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, WAVEREZ, WAVEREZ, true, 1, 50, 50, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-        m_waterplane_entity = gEnv->sceneManager->createEntity("plane", "WaterPlane");
+        m_waterplane_entity = App::GetGfxScene()->GetSceneManager()->createEntity("plane", "WaterPlane");
         m_waterplane_entity->setMaterialName("tracks/basicwater");
     }
 
@@ -312,7 +312,7 @@ void Water::PrepareWater()
     m_reflect_listener.waterplane_entity = m_waterplane_entity;
     m_refract_listener.waterplane_entity = m_waterplane_entity;
     //position
-    m_waterplane_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("WaterPlane");
+    m_waterplane_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("WaterPlane");
     m_waterplane_node->attachObject(m_waterplane_entity);
     m_waterplane_node->setPosition(Vector3((m_map_size.x * m_waterplane_mesh_scale) / 2, m_water_height, (m_map_size.z * m_waterplane_mesh_scale) / 2));
 
@@ -323,12 +323,12 @@ void Water::PrepareWater()
         ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
         m_bottom_plane,
         m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, 1, 1, true, 1, 1, 1, Vector3::UNIT_Z);
-    Entity* pE = gEnv->sceneManager->createEntity("bplane", "BottomPlane");
+    Entity* pE = App::GetGfxScene()->GetSceneManager()->createEntity("bplane", "BottomPlane");
     pE->setMaterialName("tracks/seabottom");
     pE->setCastShadows(false);
 
     //position
-    m_bottomplane_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("BottomWaterPlane");
+    m_bottomplane_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("BottomWaterPlane");
     m_bottomplane_node->attachObject(pE);
     m_bottomplane_node->setPosition(Vector3((m_map_size.x * m_waterplane_mesh_scale) / 2, 0, (m_map_size.z * m_waterplane_mesh_scale) / 2));
 

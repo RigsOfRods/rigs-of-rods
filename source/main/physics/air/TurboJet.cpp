@@ -23,12 +23,15 @@
 
 #include <Ogre.h>
 
+#include "Application.h"
 #include "Beam.h" // class Actor
 #include "BeamData.h"
 #include "GfxActor.h"
+#include "GfxScene.h"
 #include "SoundScriptManager.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 Turbojet::Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, RigDef::Turbojet & def)
 {
@@ -73,14 +76,14 @@ void TurbojetVisual::SetupVisuals(RigDef::Turbojet & def, int num, std::string c
     m_number = num;
 
     m_nozzle_entity = nozzle;
-    m_nozzle_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    m_nozzle_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     m_nozzle_scenenode->attachObject(m_nozzle_entity);
     m_nozzle_scenenode->setScale(def.nozzle_length, def.back_diameter, def.back_diameter);
 
     if (afterburner_flame != nullptr)
     {
         m_flame_entity = afterburner_flame;
-        m_flame_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        m_flame_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         m_flame_scenenode->attachObject(m_flame_entity);
         m_flame_scenenode->setScale(1.0, def.back_diameter, def.back_diameter);
         m_flame_scenenode->setVisible(false);
@@ -93,8 +96,8 @@ void TurbojetVisual::SetupVisuals(RigDef::Turbojet & def, int num, std::string c
     }
     else
     {
-        m_smoke_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-        m_smoke_particle = gEnv->sceneManager->createParticleSystem("SmokeParticle-"+propname, "tracks/TurbopropSmoke");
+        m_smoke_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        m_smoke_particle = App::GetGfxScene()->GetSceneManager()->createParticleSystem("SmokeParticle-"+propname, "tracks/TurbopropSmoke");
         if (m_smoke_particle)
         {
             m_smoke_particle->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap

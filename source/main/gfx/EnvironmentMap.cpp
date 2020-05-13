@@ -23,6 +23,7 @@
 #include "Application.h"
 #include "CameraManager.h"
 #include "GfxActor.h"
+#include "GfxScene.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"
 
@@ -42,7 +43,7 @@ void RoR::GfxEnvmap::SetupEnvMap()
     for (int face = 0; face < NUM_FACES; face++)
     {
         m_render_targets[face] = m_rtt_texture->getBuffer(face)->getRenderTarget();
-        m_cameras[face] = gEnv->sceneManager->createCamera("EnvironmentCamera-" + TOSTRING(face));
+        m_cameras[face] = App::GetGfxScene()->GetSceneManager()->createCamera("EnvironmentCamera-" + TOSTRING(face));
         m_cameras[face]->setAspectRatio(1.0);
         m_cameras[face]->setProjectionType(Ogre::PT_PERSPECTIVE);
         m_cameras[face]->setFixedYawAxis(false);
@@ -167,13 +168,13 @@ void RoR::GfxEnvmap::SetupEnvMap()
             mesh->_setBoundingSphereRadius(10);
             mesh->load();
 
-            Ogre::Entity* e = gEnv->sceneManager->createEntity(mesh->getName());
+            Ogre::Entity* e = App::GetGfxScene()->GetSceneManager()->createEntity(mesh->getName());
             e->setCastShadows(false);
             e->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY - 1);
             e->setVisible(true);
 
             e->setMaterialName("tracks/EnvMapDebug");
-            Ogre::SceneNode* mDebugSceneNode = new Ogre::SceneNode(gEnv->sceneManager);
+            Ogre::SceneNode* mDebugSceneNode = new Ogre::SceneNode(App::GetGfxScene()->GetSceneManager());
             mDebugSceneNode->attachObject(e);
             mDebugSceneNode->setPosition(Ogre::Vector3(0, 0, -5));
             mDebugSceneNode->setFixedYawAxis(true, Ogre::Vector3::UNIT_Y);
@@ -192,7 +193,7 @@ RoR::GfxEnvmap::~GfxEnvmap()
     {
         if (m_cameras[face] != nullptr)
         {
-            gEnv->sceneManager->destroyCamera(m_cameras[face]);
+            App::GetGfxScene()->GetSceneManager()->destroyCamera(m_cameras[face]);
             m_render_targets[face]->removeAllViewports();
         }
     }

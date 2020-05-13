@@ -81,7 +81,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 {
     // ~~~~ Code ported from Actor::Actor()
 
-    Ogre::SceneNode* parent_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    Ogre::SceneNode* parent_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
 
     // ~~~~ Code ported from Actor::LoadActor()
     //      LoadActor(def, beams_parent, pos, rot, spawnbox, cache_entry_number)
@@ -319,7 +319,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 #endif // USE_SOCKETW
         actor->m_net_label_mt->setVisible(true);
 
-        actor->m_net_label_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        actor->m_net_label_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         actor->m_net_label_node->attachObject(actor->m_net_label_mt);
         actor->m_net_label_node->setVisible(true);
         actor->m_deletion_scene_nodes.emplace_back(actor->m_net_label_node);

@@ -21,12 +21,15 @@
 
 #include "FlexMeshWheel.h"
 
+#include "Application.h"
 #include "BeamData.h"
 #include "GfxActor.h"
+#include "GfxScene.h"
 
 #include <Ogre.h>
 
 using namespace Ogre;
+using namespace RoR;
 
 FlexMeshWheel::FlexMeshWheel(
     Ogre::Entity* rim_prop_entity,
@@ -49,7 +52,7 @@ FlexMeshWheel::FlexMeshWheel(
     , m_rim_radius(rimradius)
 {
     m_rim_entity = rim_prop_entity;
-    m_rim_scene_node=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    m_rim_scene_node=App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     m_rim_scene_node->attachObject(m_rim_entity);
 
     // Create the tire mesh via the MeshManager
@@ -165,13 +168,13 @@ FlexMeshWheel::~FlexMeshWheel()
 
     // Rim: we own both Entity and SceneNode
     m_rim_scene_node->detachAllObjects();
-    gEnv->sceneManager->destroySceneNode(m_rim_scene_node);
-    gEnv->sceneManager->destroyEntity(m_rim_entity);
+    App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_rim_scene_node);
+    App::GetGfxScene()->GetSceneManager()->destroyEntity(m_rim_entity);
     m_rim_entity = nullptr;
 
     // Tyre: we own the Entity, SceneNode is owned by vwheel_t
     m_tire_entity->detachFromParent();
-    gEnv->sceneManager->destroyEntity(m_tire_entity);
+    App::GetGfxScene()->GetSceneManager()->destroyEntity(m_tire_entity);
     m_tire_entity = nullptr;
 
     // Delete tyre mesh
