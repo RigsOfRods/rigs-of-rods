@@ -81,7 +81,6 @@ TerrainManager::~TerrainManager()
     if (SkyX_manager != nullptr)
     {
         delete(SkyX_manager);
-        gEnv->SkyX = nullptr;
         SkyX_manager = nullptr;
     }
 
@@ -288,8 +287,6 @@ void TerrainManager::initSkySubSystem()
             SkyX_manager = new SkyXManager(m_def.skyx_config);
          else
             SkyX_manager = new SkyXManager("SkyXDefault.skx");
-
-         gEnv->SkyX = SkyX_manager;
     }
     else
     {
