@@ -1098,7 +1098,7 @@ bool CacheSystem::CheckResourceLoaded(Ogre::String & filename, Ogre::String& gro
             }
         }
     }
-    catch (Ogre::Exception& oex) {} // Already logged by OGRE
+    catch (Ogre::Exception) {} // Already logged by OGRE
 
     return false;
 }
