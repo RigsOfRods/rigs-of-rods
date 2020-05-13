@@ -474,7 +474,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
             }
         }
 
-        SceneNode* bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        SceneNode* bakeNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         const String type = "";
         App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(objectName, pos, rot, bakeNode, instanceName, type, true, handler_func_id, uniquifyMaterials);
     }

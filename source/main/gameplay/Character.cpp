@@ -549,7 +549,7 @@ void Character::SetActorCoupling(bool enabled, Actor* actor)
 
 GfxCharacter* Character::SetupGfx()
 {
-    Entity* entity = gEnv->sceneManager->createEntity(m_instance_name + "_mesh", "character.mesh");
+    Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(m_instance_name + "_mesh", "character.mesh");
     m_driving_anim_length = entity->getAnimationState("Driving")->getLength();
 
     // fix disappearing mesh
@@ -558,7 +558,7 @@ GfxCharacter* Character::SetupGfx()
     entity->getMesh()->_setBounds(aabb);
 
     // add entity to the scene node
-    Ogre::SceneNode* scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    Ogre::SceneNode* scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     scenenode->attachObject(entity);
     scenenode->setScale(0.02f, 0.02f, 0.02f);
     scenenode->setVisible(false);
@@ -581,8 +581,8 @@ RoR::GfxCharacter::~GfxCharacter()
 {
     Entity* ent = static_cast<Ogre::Entity*>(xc_scenenode->getAttachedObject(0));
     xc_scenenode->detachAllObjects();
-    gEnv->sceneManager->destroySceneNode(xc_scenenode);
-    gEnv->sceneManager->destroyEntity(ent);
+    App::GetGfxScene()->GetSceneManager()->destroySceneNode(xc_scenenode);
+    App::GetGfxScene()->GetSceneManager()->destroyEntity(ent);
     if (xc_movable_text != nullptr)
     {
         delete xc_movable_text;

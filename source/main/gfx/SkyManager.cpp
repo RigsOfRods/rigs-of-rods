@@ -25,6 +25,7 @@
 
 #include "Application.h"
 #include "CameraManager.h"
+#include "GfxScene.h"
 #include "OgreSubsystem.h"
 #include "TerrainManager.h"
 #include "TerrainGeometryManager.h"
@@ -38,7 +39,7 @@ SkyManager::SkyManager() : m_caelum_system(nullptr), m_last_clock(0.0)
     // Initialise CaelumSystem.
     m_caelum_system = new Caelum::CaelumSystem(
         RoR::App::GetOgreSubsystem()->GetOgreRoot(),
-        gEnv->sceneManager,
+        App::GetGfxScene()->GetSceneManager(),
         Caelum::CaelumSystem::CAELUM_COMPONENTS_DEFAULT
     );
 

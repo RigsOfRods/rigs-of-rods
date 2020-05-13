@@ -86,7 +86,7 @@ TerrainManager::~TerrainManager()
 
     if (m_main_light != nullptr)
     {
-        gEnv->sceneManager->destroyAllLights();
+        App::GetGfxScene()->GetSceneManager()->destroyAllLights();
         m_main_light = nullptr;
     }
 
@@ -299,12 +299,12 @@ void TerrainManager::initSkySubSystem()
         if (!m_def.cubemap_config.empty())
         {
             // use custom
-            gEnv->sceneManager->setSkyBox(true, m_def.cubemap_config, 100, true);
+            App::GetGfxScene()->GetSceneManager()->setSkyBox(true, m_def.cubemap_config, 100, true);
         }
         else
         {
             // use default
-            gEnv->sceneManager->setSkyBox(true, "tracks/skyboxcol", 100, true);
+            App::GetGfxScene()->GetSceneManager()->setSkyBox(true, "tracks/skyboxcol", 100, true);
         }
     }
 }
@@ -326,7 +326,7 @@ void TerrainManager::initLight()
         // screw caelum, we will roll our own light
 
         // Create a light
-        m_main_light = gEnv->sceneManager->createLight("MainLight");
+        m_main_light = App::GetGfxScene()->GetSceneManager()->createLight("MainLight");
         //directional light for shadow
         m_main_light->setType(Light::LT_DIRECTIONAL);
         m_main_light->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
@@ -342,9 +342,9 @@ void TerrainManager::initLight()
 void TerrainManager::initFog()
 {
     if (m_sight_range >= UNLIMITED_SIGHTRANGE)
-        gEnv->sceneManager->setFog(FOG_NONE);
+        App::GetGfxScene()->GetSceneManager()->setFog(FOG_NONE);
     else
-        gEnv->sceneManager->setFog(FOG_LINEAR, m_def.ambient_color, 0.000f, m_sight_range * 0.65f, m_sight_range*0.9);
+        App::GetGfxScene()->GetSceneManager()->setFog(FOG_LINEAR, m_def.ambient_color, 0.000f, m_sight_range * 0.65f, m_sight_range*0.9);
 }
 
 void TerrainManager::initVegetation()

@@ -139,7 +139,7 @@ RoR::GfxActor::~GfxActor()
         Ogre::TextureManager::getSingleton().remove(vcam.vcam_render_tex->getHandle());
         vcam.vcam_render_tex.setNull();
         vcam.vcam_render_target = nullptr; // Invalidated with parent texture
-        gEnv->sceneManager->destroyCamera(vcam.vcam_ogre_camera);
+        App::GetGfxScene()->GetSceneManager()->destroyCamera(vcam.vcam_ogre_camera);
 
         m_videocameras.pop_back();
     }
@@ -151,12 +151,12 @@ RoR::GfxActor::~GfxActor()
         {
             Ogre::MovableObject* ogre_object = rod.rod_scenenode->getAttachedObject(0);
             rod.rod_scenenode->detachAllObjects();
-            gEnv->sceneManager->destroyEntity(static_cast<Ogre::Entity*>(ogre_object));
+            App::GetGfxScene()->GetSceneManager()->destroyEntity(static_cast<Ogre::Entity*>(ogre_object));
         }
         m_rods.clear();
 
         m_rods_parent_scenenode->removeAndDestroyAllChildren();
-        gEnv->sceneManager->destroySceneNode(m_rods_parent_scenenode);
+        App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_rods_parent_scenenode);
         m_rods_parent_scenenode = nullptr;
     }
 
@@ -170,7 +170,7 @@ RoR::GfxActor::~GfxActor()
         if (m_wheels[i].wx_scenenode != nullptr)
         {
             m_wheels[i].wx_scenenode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(m_wheels[i].wx_scenenode);
+            App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_wheels[i].wx_scenenode);
         }
     }
 
@@ -179,9 +179,9 @@ RoR::GfxActor::~GfxActor()
     {
         // scene node
         abx.abx_scenenode->detachAllObjects();
-        gEnv->sceneManager->destroySceneNode(abx.abx_scenenode);
+        App::GetGfxScene()->GetSceneManager()->destroySceneNode(abx.abx_scenenode);
         // entity
-        gEnv->sceneManager->destroyEntity(abx.abx_entity);
+        App::GetGfxScene()->GetSceneManager()->destroyEntity(abx.abx_entity);
         // mesh
         Ogre::MeshManager::getSingleton().remove(abx.abx_mesh);
     }
@@ -196,23 +196,23 @@ RoR::GfxActor::~GfxActor()
             {
                 Ogre::SceneNode* scene_node = prop.beacon_flare_billboard_scene_node[k];
                 scene_node->removeAndDestroyAllChildren();
-                gEnv->sceneManager->destroySceneNode(scene_node);
+                App::GetGfxScene()->GetSceneManager()->destroySceneNode(scene_node);
             }
             if (prop.beacon_light[k])
             {
-                gEnv->sceneManager->destroyLight(prop.beacon_light[k]);
+                App::GetGfxScene()->GetSceneManager()->destroyLight(prop.beacon_light[k]);
             }
         }
 
         if (prop.scene_node)
         {
             prop.scene_node->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(prop.scene_node);
+            App::GetGfxScene()->GetSceneManager()->destroySceneNode(prop.scene_node);
         }
         if (prop.wheel)
         {
             prop.wheel->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(prop.wheel);
+            App::GetGfxScene()->GetSceneManager()->destroySceneNode(prop.wheel);
         }
         if (prop.mo)
         {
@@ -1642,12 +1642,12 @@ void RoR::GfxActor::AddRod(int beam_index,  int node1_index, int node2_index, co
     {
         Str<100> entity_name;
         entity_name << "rod" << beam_index << "@actor" << m_actor->ar_instance_id;
-        Ogre::Entity* entity = gEnv->sceneManager->createEntity(entity_name.ToCStr(), "beam.mesh");
+        Ogre::Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name.ToCStr(), "beam.mesh");
         entity->setMaterialName(material_name);
 
         if (m_rods_parent_scenenode == nullptr)
         {
-            m_rods_parent_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+            m_rods_parent_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         }
 
         Rod rod;
@@ -1793,11 +1793,11 @@ void RoR::GfxActor::SetRodsVisible(bool visible)
     //       ~ only_a_ptr, 12/2017
     if (visible && !m_rods_parent_scenenode->isInSceneGraph())
     {
-        gEnv->sceneManager->getRootSceneNode()->addChild(m_rods_parent_scenenode);
+        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->addChild(m_rods_parent_scenenode);
     }
     else if (!visible && m_rods_parent_scenenode->isInSceneGraph())
     {
-        gEnv->sceneManager->getRootSceneNode()->removeChild(m_rods_parent_scenenode);
+        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeChild(m_rods_parent_scenenode);
     }
 }
 

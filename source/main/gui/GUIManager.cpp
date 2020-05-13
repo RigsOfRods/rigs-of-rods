@@ -28,6 +28,7 @@
 #include "BeamFactory.h"
 #include "CameraManager.h"
 #include "ContentManager.h"
+#include "GfxScene.h"
 #include "GUIUtils.h"
 #include "InputEngine.h"
 #include "Language.h"
@@ -173,7 +174,7 @@ GUIManager::GUIManager() :
     auto mygui_platform = new MyGUI::OgrePlatform();
     mygui_platform->initialise(
         RoR::App::GetOgreSubsystem()->GetRenderWindow(), 
-        gEnv->sceneManager,
+        App::GetGfxScene()->GetSceneManager(),
         Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
         gui_logpath); // use cache resource group so preview images are working
     auto mygui = new MyGUI::Gui();
@@ -459,7 +460,7 @@ void GUIManager::SetupImGui()
     ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = nullptr; // Disable 'imgui.ini' - we don't need to persist window positions.
 
-    m_imgui.Init(gEnv->sceneManager);
+    m_imgui.Init(App::GetGfxScene()->GetSceneManager());
     // Colors
     ImGuiStyle& style = ImGui::GetStyle();
     style.Colors[ImGuiCol_Text]                  = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);

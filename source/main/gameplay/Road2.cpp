@@ -22,6 +22,7 @@
 
 #include "Application.h"
 #include "Collisions.h"
+#include "GfxScene.h"
 #include "TerrainManager.h"
 
 using namespace Ogre;
@@ -65,8 +66,8 @@ void Road2::finish()
     createMesh();
     String entity_name = String("RoadSystem_Instance-").append(StringConverter::toString(mid));
     String mesh_name = String("RoadSystem-").append(StringConverter::toString(mid));
-    Entity* ec = gEnv->sceneManager->createEntity(entity_name, mesh_name);
-    snode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    Entity* ec = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name, mesh_name);
+    snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     snode->attachObject(ec);
 }
 

@@ -52,9 +52,6 @@
 #   include <curl/curl.h>
 #endif //USE_CURL
 
-GlobalEnvironment* gEnv;         // Global pointer used throughout the game. Declared in "RoRPrerequisites.h". TODO: Eliminate
-GlobalEnvironment  gEnvInstance; // The actual instance
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -73,8 +70,6 @@ int main(int argc, char *argv[])
 #endif
 
         App::GetConsole()->CVarSetupBuiltins();
-
-        gEnv = &gEnvInstance;
 
         // ### Detect system paths ###
 
@@ -376,7 +371,7 @@ int main(int argc, char *argv[])
                         App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
                     }
                 } // Enclosing scope for SimController
-                gEnv->sceneManager->clearScene(); // Wipe the scene after SimController was destroyed
+                App::GetGfxScene()->GetSceneManager()->clearScene(); // Wipe the scene after SimController was destroyed
                 App::GetCameraManager()->ReCreateCameraNode(); // Needed after the wipe
                 App::sim_terrain_name->SetActiveStr("");
                 App::sim_terrain_gui_name->SetActiveStr("");

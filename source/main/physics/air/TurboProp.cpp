@@ -24,11 +24,13 @@
 
 #include "Airfoil.h"
 #include "GfxActor.h"
+#include "GfxScene.h"
 #include "Scripting.h"
 #include "SoundScriptManager.h"
 #include "BeamData.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 Turboprop::Turboprop(
     const char* propname,
@@ -130,8 +132,8 @@ Turboprop::Turboprop(
     {
         char dename[256];
         sprintf(dename, "%s-smoke", propname);
-        smokeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-        smokePS = gEnv->sceneManager->createParticleSystem(dename, "tracks/TurbopropSmoke");
+        smokeNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        smokePS = App::GetGfxScene()->GetSceneManager()->createParticleSystem(dename, "tracks/TurbopropSmoke");
         if (smokePS)
         {
             smokePS->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap

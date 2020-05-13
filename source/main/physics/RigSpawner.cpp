@@ -647,13 +647,13 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
 
     // Visuals
     std::string nozzle_name = this->ComposeName("TurbojetNozzle", m_actor->ar_num_aeroengines);
-    Ogre::Entity* nozzle_ent = gEnv->sceneManager->createEntity(nozzle_name, "nozzle.mesh", m_custom_resource_group);
+    Ogre::Entity* nozzle_ent = App::GetGfxScene()->GetSceneManager()->createEntity(nozzle_name, "nozzle.mesh", m_custom_resource_group);
     this->SetupNewEntity(nozzle_ent, Ogre::ColourValue(1, 0.5, 0.5));
     Ogre::Entity* afterburn_ent = nullptr;
     if (def.wet_thrust > 0.f)
     {
         std::string flame_name = this->ComposeName("AfterburnerFlame", m_actor->ar_num_aeroengines);
-        afterburn_ent = gEnv->sceneManager->createEntity(flame_name, "abflame.mesh", m_custom_resource_group);
+        afterburn_ent = App::GetGfxScene()->GetSceneManager()->createEntity(flame_name, "abflame.mesh", m_custom_resource_group);
         this->SetupNewEntity(afterburn_ent, Ogre::ColourValue(1, 1, 0));
     }
     std::string propname = this->ComposeName("Turbojet", m_actor->ar_num_aeroengines);
@@ -920,7 +920,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
     try
     {
         const std::string wing_instance_name = this->ComposeName("WingEntity", m_actor->ar_num_wings);
-        entity = gEnv->sceneManager->createEntity(wing_instance_name, wing_name);
+        entity = App::GetGfxScene()->GetSceneManager()->createEntity(wing_instance_name, wing_name);
         m_actor->m_deletion_entities.emplace_back(entity);
         this->SetupNewEntity(entity, Ogre::ColourValue(0.5, 1, 0));
     }
@@ -978,8 +978,8 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_green_prop.beacontype='L';
                 left_green_prop.beacon_light[0]=nullptr; //no light
                 //the flare billboard
-                left_green_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                left_green_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_props.size())+1),1);
+                left_green_prop.beacon_flare_billboard_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+                left_green_prop.beacon_flares_billboard_system[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_props.size())+1),1);
                 left_green_prop.beacon_flares_billboard_system[0]->createBillboard(0,0,0);
                 if (left_green_prop.beacon_flares_billboard_system[0])
                 {
@@ -1012,7 +1012,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_flash_prop.beacontype='w';
                 //light
                 std::string prop_name = this->ComposeName("Prop", static_cast<int>(m_props.size())+1);
-                left_flash_prop.beacon_light[0]=gEnv->sceneManager->createLight(prop_name);
+                left_flash_prop.beacon_light[0]=App::GetGfxScene()->GetSceneManager()->createLight(prop_name);
                 left_flash_prop.beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 left_flash_prop.beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
                 left_flash_prop.beacon_light[0]->setSpecularColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1020,8 +1020,8 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_flash_prop.beacon_light[0]->setCastShadows(false);
                 left_flash_prop.beacon_light[0]->setVisible(false);
                 //the flare billboard
-                left_flash_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                left_flash_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(prop_name,1);
+                left_flash_prop.beacon_flare_billboard_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+                left_flash_prop.beacon_flares_billboard_system[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(prop_name,1);
                 left_flash_prop.beacon_flares_billboard_system[0]->createBillboard(0,0,0);
                 if (left_flash_prop.beacon_flares_billboard_system[0])
                 {
@@ -1054,8 +1054,8 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_red_prop.beacontype='R';
                 right_red_prop.beacon_light[0]=nullptr; /* No light */
                 //the flare billboard
-                right_red_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                right_red_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_props.size())+1),1);
+                right_red_prop.beacon_flare_billboard_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+                right_red_prop.beacon_flares_billboard_system[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_props.size())+1),1);
                 right_red_prop.beacon_flares_billboard_system[0]->createBillboard(0,0,0);
                 if (right_red_prop.beacon_flares_billboard_system[0])
                 {
@@ -1088,7 +1088,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.beacontype='w';
                 //light
                 prop_name = this->ComposeName("Prop", static_cast<int>(m_props.size())+1);
-                right_flash_prop.beacon_light[0]=gEnv->sceneManager->createLight(prop_name);
+                right_flash_prop.beacon_light[0]=App::GetGfxScene()->GetSceneManager()->createLight(prop_name);
                 right_flash_prop.beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 right_flash_prop.beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
                 right_flash_prop.beacon_light[0]->setSpecularColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1096,8 +1096,8 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.beacon_light[0]->setCastShadows(false);
                 right_flash_prop.beacon_light[0]->setVisible(false);
                 //the flare billboard
-                right_flash_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                right_flash_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(prop_name,1);
+                right_flash_prop.beacon_flare_billboard_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+                right_flash_prop.beacon_flares_billboard_system[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(prop_name,1);
                 right_flash_prop.beacon_flares_billboard_system[0]->createBillboard(0,0,0);
                 if (right_flash_prop.beacon_flares_billboard_system[0] != nullptr)
                 {
@@ -1131,7 +1131,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
 
     // Add new wing to rig
     m_actor->ar_wings[m_actor->ar_num_wings].fa = flex_airfoil;
-    m_actor->ar_wings[m_actor->ar_num_wings].cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    m_actor->ar_wings[m_actor->ar_num_wings].cnode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     m_actor->ar_wings[m_actor->ar_num_wings].cnode->attachObject(entity);
 
     ++m_actor->ar_num_wings;
@@ -1611,7 +1611,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             steering_wheel_offset = def.special_prop_dashboard.offset;
         }
         prop.wheelrotdegree = def.special_prop_dashboard.rotation_angle;
-        prop.wheel = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        prop.wheel = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         prop.wheelpos = steering_wheel_offset;
         const std::string instance_name = this->ComposeName("SteeringWheelPropEntity", prop_index);
         prop.wheelmo = new MeshObject(
@@ -1625,7 +1625,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
 
     /* CREATE THE PROP */
 
-    prop.scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    prop.scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     const std::string instance_name = this->ComposeName("PropEntity", prop_index);
     prop.mo = new MeshObject(def.mesh_name, m_custom_resource_group, instance_name, prop.scene_node);
     prop.mo->setCastShadows(true); // Orig code {{ prop.mo->setCastShadows(shadowmode != 0); }}, shadowmode has default value 1 and changes with undocumented directive 'set_shadows'
@@ -1674,7 +1674,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             prop.beacon_light_rotation_angle[0] = 2.0 * 3.14 * frand();
             prop.beacon_light_rotation_rate[0] = 4.0 * 3.14 + frand() - 0.5;
             /* the light */
-            auto beacon_light = gEnv->sceneManager->createLight();
+            auto beacon_light = App::GetGfxScene()->GetSceneManager()->createLight();
             beacon_light->setType(Ogre::Light::LT_SPOTLIGHT);
             beacon_light->setDiffuseColour(def.special_prop_beacon.color);
             beacon_light->setSpecularColour(def.special_prop_beacon.color);
@@ -1683,8 +1683,8 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             beacon_light->setCastShadows(false);
             beacon_light->setVisible(false);
             /* the flare billboard */
-            auto flare_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-            auto flare_billboard_sys = gEnv->sceneManager->createBillboardSet(1); //(propname,1);
+            auto flare_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+            auto flare_billboard_sys = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1); //(propname,1);
             if (flare_billboard_sys)
             {
                 flare_billboard_sys->createBillboard(0,0,0);
@@ -1705,7 +1705,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             prop.beacon_light_rotation_rate[0] = 1.0;
             prop.beacontype = 'r';
             //the light
-            auto beacon_light=gEnv->sceneManager->createLight();//propname);
+            auto beacon_light=App::GetGfxScene()->GetSceneManager()->createLight();//propname);
             beacon_light->setType(Ogre::Light::LT_POINT);
             beacon_light->setDiffuseColour( Ogre::ColourValue(1.0, 0.0, 0.0));
             beacon_light->setSpecularColour( Ogre::ColourValue(1.0, 0.0, 0.0));
@@ -1713,8 +1713,8 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             beacon_light->setCastShadows(false);
             beacon_light->setVisible(false);
             //the flare billboard
-            auto flare_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-            auto flare_billboard_sys = gEnv->sceneManager->createBillboardSet(1); //propname,1);
+            auto flare_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+            auto flare_billboard_sys = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1); //propname,1);
             if (flare_billboard_sys)
             {
                 flare_billboard_sys->createBillboard(0,0,0);
@@ -1741,7 +1741,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
                 prop.beacon_light_rotation_rate[k] = 4.0 * 3.14 + frand() - 0.5;
                 prop.beacon_flares_billboard_system[k] = nullptr;
                 //the light
-                prop.beacon_light[k]=gEnv->sceneManager->createLight();
+                prop.beacon_light[k]=App::GetGfxScene()->GetSceneManager()->createLight();
                 prop.beacon_light[k]->setType(Ogre::Light::LT_SPOTLIGHT);
                 if (k>1)
                 {
@@ -1758,8 +1758,8 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
                 prop.beacon_light[k]->setCastShadows(false);
                 prop.beacon_light[k]->setVisible(false);
                 //the flare billboard
-                prop.beacon_flare_billboard_scene_node[k] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                prop.beacon_flares_billboard_system[k]=gEnv->sceneManager->createBillboardSet(1);
+                prop.beacon_flare_billboard_scene_node[k] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+                prop.beacon_flares_billboard_system[k]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
                 prop.beacon_flares_billboard_system[k]->createBillboard(0,0,0);
                 if (prop.beacon_flares_billboard_system[k])
                 {
@@ -2096,9 +2096,9 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     flare.size                 = size;
 
     /* Visuals */
-    flare.snode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    flare.snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     std::string flare_name = this->ComposeName("Flare", static_cast<int>(m_actor->ar_flares.size()));
-    flare.bbs = gEnv->sceneManager->createBillboardSet(flare_name, 1);
+    flare.bbs = App::GetGfxScene()->GetSceneManager()->createBillboardSet(flare_name, 1);
     bool using_default_material = true;
     if (flare.bbs == nullptr)
     {
@@ -2141,7 +2141,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
         if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && using_default_material )
         {
             /* front light */
-            flare.light=gEnv->sceneManager->createLight(flare_name);
+            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setType(Ogre::Light::LT_SPOTLIGHT);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 1));
@@ -2155,28 +2155,28 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
         if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && ! using_default_material)
         {
             /* this is a quick fix for the red backlight when frontlight is switched on */
-            flare.light=gEnv->sceneManager->createLight(flare_name);
+            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setAttenuation(10.0, 1.0, 0, 0);
         }
         else if (def.type == RigDef::Flare2::TYPE_R_REVERSE_LIGHT)
         {
-            flare.light=gEnv->sceneManager->createLight(flare_name);
+            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour(Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour(Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(20.0, 1, 0, 0);
         }
         else if (def.type == RigDef::Flare2::TYPE_b_BRAKELIGHT)
         {
-            flare.light=gEnv->sceneManager->createLight(flare_name);
+            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setAttenuation(10.0, 1.0, 0, 0);
         }
         else if (def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER || (def.type == RigDef::Flare2::TYPE_r_RIGHT_BLINKER))
         {
-            flare.light=gEnv->sceneManager->createLight(flare_name);
+            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 0));
             flare.light->setAttenuation(10.0, 1, 1, 0);
@@ -2185,7 +2185,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
         else if (def.type == RigDef::Flare2::TYPE_u_USER)
         {
             /* user light always white (TODO: improve this) */
-            flare.light=gEnv->sceneManager->createLight(flare_name);
+            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(50.0, 1.0, 1, 0.2);
@@ -4389,7 +4389,7 @@ void ActorSpawner::BuildMeshWheelVisuals(
             rim_reverse,
             mesh_name,
             material_name);
-        Ogre::SceneNode* scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        Ogre::SceneNode* scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         scene_node->attachObject(flexmesh_wheel->GetTireEntity());
 
         GfxActor::WheelGfx visual_wheel;
@@ -4911,9 +4911,9 @@ void ActorSpawner::CreateWheelVisuals(
         );
 
         const std::string instance_name = this->ComposeName("WheelEntity", wheel_index);
-        Ogre::Entity *ec = gEnv->sceneManager->createEntity(instance_name, wheel_mesh_name);
+        Ogre::Entity *ec = App::GetGfxScene()->GetSceneManager()->createEntity(instance_name, wheel_mesh_name);
         this->SetupNewEntity(ec, Ogre::ColourValue(0, 0.5, 0.5));
-        visual_wheel.wx_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        visual_wheel.wx_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         m_actor->m_deletion_entities.emplace_back(ec);
         visual_wheel.wx_scenenode->attachObject(ec);
         m_actor->m_gfx_actor->SetWheelVisuals(wheel_index, visual_wheel);
@@ -5775,7 +5775,7 @@ void ActorSpawner::AddExhaust(
     exhaust.emitterNode = emitter_node_idx;
     exhaust.directionNode = direction_node_idx;
 
-    exhaust.smoker = gEnv->sceneManager->createParticleSystem(
+    exhaust.smoker = App::GetGfxScene()->GetSceneManager()->createParticleSystem(
         this->ComposeName("Exhaust", static_cast<int>(m_actor->exhausts.size())),
         /*quota=*/500, // Default value
         m_custom_resource_group);
@@ -6751,11 +6751,11 @@ void ActorSpawner::FinalizeGfxSetup()
             transmatname
         );
 
-        Ogre::SceneNode* cab_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        Ogre::SceneNode* cab_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         Ogre::Entity *ec = nullptr;
         try
         {
-            ec = gEnv->sceneManager->createEntity(this->ComposeName("VehicleCabEntity", 0), mesh_name);
+            ec = App::GetGfxScene()->GetSceneManager()->createEntity(this->ComposeName("VehicleCabEntity", 0), mesh_name);
             this->SetupNewEntity(ec, Ogre::ColourValue(0.5, 1, 0.5));
             if (ec)
             {
@@ -6961,7 +6961,7 @@ Ogre::ManualObject* CreateVideocameraDebugMesh()
     mat->setLightingEnabled(false);
     mat->setReceiveShadows(false);
     // Create mesh
-    Ogre::ManualObject* mo = gEnv->sceneManager->createManualObject(); // TODO: Eliminate gEnv
+    Ogre::ManualObject* mo = App::GetGfxScene()->GetSceneManager()->createManualObject(); // TODO: Eliminate gEnv
     mo->begin(mat->getName(), Ogre::RenderOperation::OT_LINE_LIST);
     Ogre::ColourValue pos_mark_col(1.f, 0.82f, 0.26f);
     Ogre::ColourValue dir_mark_col(0.f, 1.f, 1.f); // TODO: This comes out green in simulation - why? ~ only_a_ptr, 05/2017
@@ -7046,7 +7046,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         }
 
         // TODO: Eliminate gEnv
-        vcam.vcam_ogre_camera = gEnv->sceneManager->createCamera(vcam.vcam_material->getName() + "_camera");
+        vcam.vcam_ogre_camera = App::GetGfxScene()->GetSceneManager()->createCamera(vcam.vcam_material->getName() + "_camera");
 
         if (!App::gfx_window_videocams->GetActiveVal<bool>())
         {
@@ -7117,7 +7117,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         if (App::diag_videocameras->GetActiveVal<bool>())
         {
             Ogre::ManualObject* mo = CreateVideocameraDebugMesh(); // local helper function
-            vcam.vcam_debug_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+            vcam.vcam_debug_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
             vcam.vcam_debug_node->attachObject(mo);
         }
 
@@ -7170,7 +7170,7 @@ void ActorSpawner::CreateMirrorPropVideoCam(
             , Ogre::TU_RENDERTARGET);
 
         // Create OGRE camera
-        vcam.vcam_ogre_camera = gEnv->sceneManager->createCamera(this->ComposeName("MirrorPropCamera-", static_cast<int>(mprop_counter)));
+        vcam.vcam_ogre_camera = App::GetGfxScene()->GetSceneManager()->createCamera(this->ComposeName("MirrorPropCamera-", static_cast<int>(mprop_counter)));
         vcam.vcam_ogre_camera->setNearClipDistance(0.2f);
         vcam.vcam_ogre_camera->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
         vcam.vcam_ogre_camera->setFOVy(Ogre::Degree(50));
@@ -7236,7 +7236,7 @@ Ogre::ParticleSystem* ActorSpawner::CreateParticleSystem(std::string const & nam
     params["resourceGroup"] = m_custom_resource_group;
     params["templateName"] = template_name;
 
-    Ogre::MovableObject* obj = gEnv->sceneManager->createMovableObject(
+    Ogre::MovableObject* obj = App::GetGfxScene()->GetSceneManager()->createMovableObject(
        name, Ogre::ParticleSystemFactory::FACTORY_TYPE_NAME, &params);
     Ogre::ParticleSystem* psys = static_cast<Ogre::ParticleSystem*>(obj);
     psys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap

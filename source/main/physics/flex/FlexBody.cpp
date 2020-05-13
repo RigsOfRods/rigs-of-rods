@@ -26,11 +26,13 @@
 #include "BeamData.h"
 #include "FlexFactory.h"
 #include "GfxActor.h"
+#include "GfxScene.h"
 #include "RigDef_File.h"
 
 #include <Ogre.h>
 
 using namespace Ogre;
+using namespace RoR;
 
 FlexBody::FlexBody(
     RigDef::Flexbody* def,
@@ -484,7 +486,7 @@ FlexBody::FlexBody(
     mesh->_setBounds(aab, true);
 
     //okay, show the mesh now
-    m_scene_node=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    m_scene_node=App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     m_scene_node->attachObject(ent);
     m_scene_node->setPosition(position);
 
@@ -542,12 +544,12 @@ FlexBody::~FlexBody()
 
     // OGRE resource - scene node
     m_scene_node->getParentSceneNode()->removeChild(m_scene_node);
-    gEnv->sceneManager->destroySceneNode(m_scene_node);
+    App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_scene_node);
     m_scene_node = nullptr;
 
     // OGRE resource - scene entity
     Ogre::MeshPtr mesh = m_scene_entity->getMesh();
-    gEnv->sceneManager->destroyEntity(m_scene_entity);
+    App::GetGfxScene()->GetSceneManager()->destroyEntity(m_scene_entity);
     m_scene_entity = nullptr;
 
     // OGRE resource - mesh (unique copy - should be destroyed)

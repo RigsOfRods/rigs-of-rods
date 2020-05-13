@@ -114,7 +114,7 @@ CameraManager::CameraManager() :
     m_cct_player_actor = nullptr;
     m_staticcam_update_timer.reset();
 
-    m_camera = gEnv->sceneManager->createCamera("PlayerCam");
+    m_camera = App::GetGfxScene()->GetSceneManager()->createCamera("PlayerCam");
     m_camera->setNearClipDistance(0.5);
     m_camera->setAutoAspectRatio(true);
     this->CreateCameraNode();
@@ -133,7 +133,7 @@ CameraManager::~CameraManager()
 void CameraManager::CreateCameraNode()
 {
     assert(!m_camera_node);
-    m_camera_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    m_camera_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     m_camera_node->setFixedYawAxis(true);
     m_camera_node->attachObject(m_camera);
 }
@@ -1283,8 +1283,8 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
 
     if (!m_splinecam_mo && RoR::App::diag_camera->GetActiveVal<bool>())
     {
-        m_splinecam_mo = gEnv->sceneManager->createManualObject();
-        SceneNode* splineNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        m_splinecam_mo = App::GetGfxScene()->GetSceneManager()->createManualObject();
+        SceneNode* splineNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
 
         m_splinecam_mo->begin("tracks/transred", Ogre::RenderOperation::OT_LINE_STRIP);
         for (int i = 0; i < SPLINECAM_DRAW_RESOLUTION; i++)

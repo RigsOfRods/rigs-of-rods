@@ -21,6 +21,7 @@
 #include "ShadowManager.h"
 
 #include "CameraManager.h"
+#include "GfxScene.h"
 
 #include <Ogre.h>
 #include <Terrain/OgreTerrain.h>
@@ -52,13 +53,13 @@ void ShadowManager::loadConfiguration()
 int ShadowManager::updateShadowTechnique()
 {
     float scoef = 0.5;
-    gEnv->sceneManager->setShadowColour(Ogre::ColourValue(0.563 + scoef, 0.578 + scoef, 0.625 + scoef));
-    gEnv->sceneManager->setShowDebugShadows(false);
+    App::GetGfxScene()->GetSceneManager()->setShadowColour(Ogre::ColourValue(0.563 + scoef, 0.578 + scoef, 0.625 + scoef));
+    App::GetGfxScene()->GetSceneManager()->setShowDebugShadows(false);
 
     if (App::gfx_shadow_type->GetActiveEnum<GfxShadowType>() == GfxShadowType::PSSM)
     {
         processPSSM();
-        if (gEnv->sceneManager->getShowDebugShadows())
+        if (App::GetGfxScene()->GetSceneManager()->getShowDebugShadows())
         {
             // add the overlay elements to show the shadow maps:
             // init overlay elements
@@ -67,7 +68,7 @@ int ShadowManager::updateShadowTechnique()
 
             for (int i = 0; i < PSSM_Shadows.ShadowsTextureNum; ++i)
             {
-                TexturePtr tex = gEnv->sceneManager->getShadowTexture(i);
+                TexturePtr tex = App::GetGfxScene()->GetSceneManager()->getShadowTexture(i);
 
                 // Set up a debug panel to display the shadow
                 MaterialPtr debugMat = MaterialManager::getSingleton().create("Ogre/DebugTexture" + StringConverter::toString(i), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -90,46 +91,46 @@ int ShadowManager::updateShadowTechnique()
 
 void ShadowManager::processPSSM()
 {
-    gEnv->sceneManager->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_ADDITIVE_INTEGRATED);
+    App::GetGfxScene()->GetSceneManager()->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_ADDITIVE_INTEGRATED);
 
-    gEnv->sceneManager->setShadowDirectionalLightExtrusionDistance(299.0f);
-    gEnv->sceneManager->setShadowFarDistance(350.0f);
-    gEnv->sceneManager->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, PSSM_Shadows.ShadowsTextureNum);
-    gEnv->sceneManager->setShadowTextureCount(PSSM_Shadows.ShadowsTextureNum);
+    App::GetGfxScene()->GetSceneManager()->setShadowDirectionalLightExtrusionDistance(299.0f);
+    App::GetGfxScene()->GetSceneManager()->setShadowFarDistance(350.0f);
+    App::GetGfxScene()->GetSceneManager()->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, PSSM_Shadows.ShadowsTextureNum);
+    App::GetGfxScene()->GetSceneManager()->setShadowTextureCount(PSSM_Shadows.ShadowsTextureNum);
 
-    gEnv->sceneManager->setShadowTextureSelfShadow(true);
-    gEnv->sceneManager->setShadowCasterRenderBackFaces(true);
+    App::GetGfxScene()->GetSceneManager()->setShadowTextureSelfShadow(true);
+    App::GetGfxScene()->GetSceneManager()->setShadowCasterRenderBackFaces(true);
 
     //Caster is set via materials
     MaterialPtr shadowMat = MaterialManager::getSingleton().getByName("Ogre/shadow/depth/caster");
-    gEnv->sceneManager->setShadowTextureCasterMaterial(shadowMat);
+    App::GetGfxScene()->GetSceneManager()->setShadowTextureCasterMaterial(shadowMat);
 
     if (PSSM_Shadows.Quality == 3)
     {
-        gEnv->sceneManager->setShadowTextureConfig(0, 4096, 4096, PF_FLOAT32_R);
-        gEnv->sceneManager->setShadowTextureConfig(1, 3072, 3072, PF_FLOAT32_R);
-        gEnv->sceneManager->setShadowTextureConfig(2, 2048, 2048, PF_FLOAT32_R);
+        App::GetGfxScene()->GetSceneManager()->setShadowTextureConfig(0, 4096, 4096, PF_FLOAT32_R);
+        App::GetGfxScene()->GetSceneManager()->setShadowTextureConfig(1, 3072, 3072, PF_FLOAT32_R);
+        App::GetGfxScene()->GetSceneManager()->setShadowTextureConfig(2, 2048, 2048, PF_FLOAT32_R);
         PSSM_Shadows.lambda = 0.965f;
     }
     else if (PSSM_Shadows.Quality == 2)
     {
-        gEnv->sceneManager->setShadowTextureConfig(0, 3072, 3072, PF_FLOAT32_R);
-        gEnv->sceneManager->setShadowTextureConfig(1, 2048, 2048, PF_FLOAT32_R);
-        gEnv->sceneManager->setShadowTextureConfig(2, 2048, 2048, PF_FLOAT32_R);
+        App::GetGfxScene()->GetSceneManager()->setShadowTextureConfig(0, 3072, 3072, PF_FLOAT32_R);
+        App::GetGfxScene()->GetSceneManager()->setShadowTextureConfig(1, 2048, 2048, PF_FLOAT32_R);
+        App::GetGfxScene()->GetSceneManager()->setShadowTextureConfig(2, 2048, 2048, PF_FLOAT32_R);
         PSSM_Shadows.lambda = 0.97f;
     }
     else if (PSSM_Shadows.Quality == 1)
     {
-        gEnv->sceneManager->setShadowTextureConfig(0, 2048, 2048, PF_FLOAT32_R);
-        gEnv->sceneManager->setShadowTextureConfig(1, 1024, 1024, PF_FLOAT32_R);
-        gEnv->sceneManager->setShadowTextureConfig(2, 1024, 1024, PF_FLOAT32_R);
+        App::GetGfxScene()->GetSceneManager()->setShadowTextureConfig(0, 2048, 2048, PF_FLOAT32_R);
+        App::GetGfxScene()->GetSceneManager()->setShadowTextureConfig(1, 1024, 1024, PF_FLOAT32_R);
+        App::GetGfxScene()->GetSceneManager()->setShadowTextureConfig(2, 1024, 1024, PF_FLOAT32_R);
         PSSM_Shadows.lambda = 0.975f;
     }
     else
     {
-        gEnv->sceneManager->setShadowTextureConfig(0, 1024, 1024, PF_FLOAT32_R);
-        gEnv->sceneManager->setShadowTextureConfig(1, 1024, 1024, PF_FLOAT32_R);
-        gEnv->sceneManager->setShadowTextureConfig(2, 512, 512, PF_FLOAT32_R);
+        App::GetGfxScene()->GetSceneManager()->setShadowTextureConfig(0, 1024, 1024, PF_FLOAT32_R);
+        App::GetGfxScene()->GetSceneManager()->setShadowTextureConfig(1, 1024, 1024, PF_FLOAT32_R);
+        App::GetGfxScene()->GetSceneManager()->setShadowTextureConfig(2, 512, 512, PF_FLOAT32_R);
         PSSM_Shadows.lambda = 0.98f;
     }
 
@@ -138,7 +139,7 @@ void ShadowManager::processPSSM()
         // shadow camera setup
         Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
 
-        pssmSetup->calculateSplitPoints(3, App::GetCameraManager()->GetCamera()->getNearClipDistance(), gEnv->sceneManager->getShadowFarDistance(), PSSM_Shadows.lambda);
+        pssmSetup->calculateSplitPoints(3, App::GetCameraManager()->GetCamera()->getNearClipDistance(), App::GetGfxScene()->GetSceneManager()->getShadowFarDistance(), PSSM_Shadows.lambda);
         pssmSetup->setSplitPadding(App::GetCameraManager()->GetCamera()->getNearClipDistance());
 
         pssmSetup->setOptimalAdjustFactor(0, -1);
@@ -150,7 +151,7 @@ void ShadowManager::processPSSM()
         //Send split info to managed materials
         setManagedMaterialSplitPoints(pssmSetup->getSplitPoints());
     }
-    gEnv->sceneManager->setShadowCameraSetup(PSSM_Shadows.mPSSMSetup);
+    App::GetGfxScene()->GetSceneManager()->setShadowCameraSetup(PSSM_Shadows.mPSSMSetup);
 }
 
 void ShadowManager::updatePSSM()

@@ -659,7 +659,7 @@ void SimController::UpdateInputEvents(float dt)
 
             try
             {
-                SceneNode* bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+                SceneNode* bakeNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
                 App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(last_object_name, pos, Vector3::ZERO, bakeNode, "Console", "");
 
                 RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, _L("Spawned object at position: ") + String("x: ") + TOSTRING(pos.x) + String("z: ") + TOSTRING(pos.z), "world.png");
@@ -2219,7 +2219,7 @@ bool SimController::SetupGameplayLoop()
 
     m_scene_mouse.InitializeVisuals(); // TODO: Move to GfxScene ~ only_a_ptr, 06/2018
 
-    gEnv->sceneManager->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
+    App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
 
     UpdatePresence();
 
