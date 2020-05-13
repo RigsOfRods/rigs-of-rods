@@ -159,6 +159,7 @@ class FlexMesh;
 class FlexObj;
 class Flexable;
 class ForceFeedback;
+class GameScript;
 class HDRListener;
 class HeightFinder;
 class HydraxWater;

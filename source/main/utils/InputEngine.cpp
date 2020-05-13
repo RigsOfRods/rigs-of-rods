@@ -1829,7 +1829,6 @@ using namespace std;
 using namespace Ogre;
 using namespace OIS;
 
-// Constructor takes a RenderWindow because it uses that to determine input context
 InputEngine::InputEngine() :
     captureMode(false)
     , free_joysticks(0)
@@ -1847,6 +1846,8 @@ InputEngine::InputEngine() :
     LOG("*** Loading OIS ***");
 #endif
     initAllKeys();
+    setup();
+    windowResized(App::GetOgreSubsystem()->GetRenderWindow());
 }
 
 InputEngine::~InputEngine()
@@ -1890,8 +1891,13 @@ void InputEngine::destroy()
     }
 }
 
-bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, bool captureKbd)
+bool InputEngine::setup()
 {
+    const bool capture = true, capturemouse = true, captureKbd = true;
+
+    size_t hWnd = 0;
+    App::GetOgreSubsystem()->GetRenderWindow()->getCustomAttribute("WINDOW", &hWnd);
+
 #ifndef NOOGRE
     LOG("*** Initializing OIS ***");
 #endif
@@ -1900,19 +1906,8 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, bool captu
     captureMode = capture;
     if (captureMode)
     {
-        //size_t hWnd = 0;
-        //win->getCustomAttribute("WINDOW", &hWnd);
         ParamList pl;
-
-#if 0 //OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-        // we get the ogre way of defining the handle, extract the window HWND only
-        int screen=0,app=0,windowhandle=0;
-        sscanf(hwnd.c_str(), "%d:%d:%d", &screen, &app, &windowhandle);
-        hwnd = TOSTRING(windowhandle);
-        printf("OIS windowhandle = %s\n", hwnd.c_str());
-#endif // LINUX
-
-        pl.insert(OIS::ParamList::value_type("WINDOW", hwnd));
+        pl.insert(OIS::ParamList::value_type("WINDOW", TOSTRING(hWnd)));
         if (App::io_input_grab_mode->GetActiveEnum<IoInputGrabMode>() != RoR::IoInputGrabMode::ALL)
         {
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
@@ -1934,10 +1929,6 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, bool captu
             ShowCursor(FALSE);
         }
 #endif
-
-#ifndef NOOGRE
-        LOG("*** OIS WINDOW: "+hwnd);
-#endif //NOOGRE
 
         mInputManager = OIS::InputManager::createInputSystem(pl);
 
@@ -2168,7 +2159,6 @@ void InputEngine::windowResized(Ogre::RenderWindow* rw)
     const OIS::MouseState& ms = mMouse->getMouseState();
     ms.width = width;
     ms.height = height;
-    RoR::App::GetGuiManager()->windowResized(rw);
 }
 
 void InputEngine::SetKeyboardListener(OIS::KeyListener* keyboard_listener)
@@ -3621,15 +3611,6 @@ void InputEngine::initAllKeys()
     allkeys["Y"] = KC_Y;
     allkeys["YEN"] = KC_YEN;
     allkeys["Z"] = KC_Z;
-}
-
-void InputEngine::setupDefault(Ogre::String inputhwnd /* = "" */)
-{
-    // start input engine
-    size_t hWnd = 0;
-    RoR::App::GetOgreSubsystem()->GetRenderWindow()->getCustomAttribute("WINDOW", &hWnd);
-
-    this->setup(TOSTRING(hWnd), true, true);
 }
 
 String InputEngine::getKeyForCommand(int eventID)

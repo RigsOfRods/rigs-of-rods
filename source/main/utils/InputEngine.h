@@ -461,8 +461,6 @@ public:
     bool isEventAnalog(int eventID);
     bool getEventBoolValueBounce(int eventID, float time = 0.2f);
     float getEventBounceTime(int eventID);
-    // we need to use hwnd here, as we are also using this in the configurator
-    bool setup(Ogre::String hwnd, bool capture = false, bool capturemouse = false, bool captureKbd = true);
     Ogre::String getKeyForCommand(int eventID);
     bool isKeyDown(OIS::KeyCode mod); //!< Asks OIS directly
     bool isKeyDownEffective(OIS::KeyCode mod); //!< Reads RoR internal buffer
@@ -535,8 +533,6 @@ public:
 
 protected:
 
-    InputEngine& operator=(const InputEngine&);
-
     //OIS Input devices
     OIS::InputManager* mInputManager;
     OIS::Mouse* mMouse;
@@ -575,6 +571,7 @@ protected:
     bool captureMode;
 
     void initAllKeys();
+    bool setup();
     std::map<std::string, OIS::KeyCode> allkeys;
     std::map<std::string, OIS::KeyCode>::iterator allit;
 

@@ -146,7 +146,10 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
         case Networking::NetEvent::Type::CONNECT_SUCCESS:
             App::mp_state->SetActiveVal((int)RoR::MpState::CONNECTED);
             ChatSystem::SendStreamSetup();
-            App::CheckAndCreateMumble();
+            if (!App::GetMumble())
+            {
+                App::CreateMumble();
+            }
             if (Networking::GetTerrainName() != "any")
             {
                 App::sim_terrain_name->SetPendingStr(Networking::GetTerrainName());

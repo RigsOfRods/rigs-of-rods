@@ -19,6 +19,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "Application.h"
+
 #include <atomic>
 #include <condition_variable>
 #include <functional>
@@ -29,6 +31,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdexcept>
 #include <vector>
 
+using namespace RoR;
 
 /** /brief Handle for a task executed by ThreadPool
  *
@@ -101,13 +104,31 @@ class Task
  */
 class ThreadPool {
 public:
+    static ThreadPool* DetectNumWorkersAndCreate()
+    {
+        // Create general-purpose thread pool
+        int logical_cores = std::thread::hardware_concurrency();
+
+        int num_threads = App::app_num_workers->GetActiveVal<int>();
+        if (num_threads < 1 || num_threads > logical_cores)
+        {
+            num_threads = Ogre::Math::Clamp(logical_cores - 1, 1, 8);
+            App::app_num_workers->SetActiveVal(num_threads);
+        }
+
+        RoR::LogFormat("[RoR|ThreadPool] Found %d logical CPU cores, creating %d worker threads",
+                  logical_cores, num_threads);
+
+        return new ThreadPool(num_threads);
+    }
+
     /** \brief Construct thread pool and launch worker threads.
      *
      * @param num_threads Number of worker threads to use
      */
     ThreadPool(int num_threads)
     {
-        if (num_threads < 1) { throw std::invalid_argument("Number of threads is zero or negative."); }
+        assert(num_threads > 0);
 
         // Generic function (to be run on a separate thread) within which submitted tasks
         // are executed. It implements an endless loop (only returning when the ThreadPool

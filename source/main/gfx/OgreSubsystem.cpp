@@ -51,7 +51,9 @@ OgreSubsystem::OgreSubsystem() :
     m_ogre_root(nullptr),
     m_render_window(nullptr),
     m_viewport(nullptr)
-{}
+{
+    this->StartOgre();
+}
 
 OgreSubsystem::~OgreSubsystem()
 {
@@ -163,11 +165,8 @@ bool OgreSubsystem::LoadOgrePlugins(Ogre::String const & pluginsfile)
     return true;
 }
 
-bool OgreSubsystem::StartOgre(Ogre::String const & hwnd, Ogre::String const & mainhwnd)
+void OgreSubsystem::StartOgre()
 {
-    m_hwnd = hwnd;
-    m_main_hwnd = mainhwnd;
-
     CreateFolder(RoR::App::sys_logs_dir->GetActiveStr());
     CreateFolder(RoR::App::sys_config_dir->GetActiveStr());
 
@@ -196,8 +195,6 @@ bool OgreSubsystem::StartOgre(Ogre::String const & hwnd, Ogre::String const & ma
     Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
     m_render_window->setActive(true);
-
-    return true;
 }
 
 
