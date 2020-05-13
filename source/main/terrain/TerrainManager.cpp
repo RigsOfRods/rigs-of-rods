@@ -217,8 +217,13 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
 
     PROGRESS_WINDOW(92, _L("Initializing Overview Map Subsystem"));
     LoadTelepoints();
-    App::GetSimController()->GetGfxScene().InitScene(gEnv->sceneManager);
+    App::GetGfxScene()->CreateDustPools();
     App::GetGuiManager()->GetSurveyMap()->CreateTerrainTextures(); // Should be done before actors are loaded, otherwise they'd show up in the static texture
+
+    // Initialize envmap textures by rendering center of map
+    Ogre::Vector3 center = this->getMaxTerrainSize() / 2;
+    center.y = this->GetHeightAt(center.x, center.z) + 1.0f;
+    App::GetGfxScene()->GetEnvMap().UpdateEnvMap(center, nullptr);
 
     LOG(" ===== LOADING TERRAIN ACTORS " + filename);
     PROGRESS_WINDOW(95, _L("Loading Terrain Actors"));

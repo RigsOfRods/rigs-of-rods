@@ -29,7 +29,6 @@
 #include <OgreOverlay.h>
 
 RoR::GfxEnvmap::GfxEnvmap():
-    m_is_initialized(false),
     m_update_round(0)
 {
     memset(m_cameras, 0, sizeof(m_cameras));
@@ -185,10 +184,6 @@ void RoR::GfxEnvmap::SetupEnvMap()
             overlay->show();
         }
     }
-
-    Ogre::Vector3 center = App::GetSimTerrain()->getMaxTerrainSize() / 2;
-    center.y = App::GetSimTerrain()->GetHeightAt(center.x, center.z) + 1.0f;
-    UpdateEnvMap(center, nullptr);
 }
 
 RoR::GfxEnvmap::~GfxEnvmap()
@@ -203,9 +198,10 @@ RoR::GfxEnvmap::~GfxEnvmap()
     }
 }
 
-void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor)
+void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, bool full/*=false*/)
 {
-    const int update_rate = m_is_initialized ? App::gfx_envmap_rate->GetActiveVal<int>() : NUM_FACES;
+    // how many of the 6 render planes to update at once? Use cvar 'gfx_envmap_rate', unless instructed to do full render.
+    const int update_rate = full ? NUM_FACES : App::gfx_envmap_rate->GetActiveVal<int>();
     if (!App::gfx_envmap_enabled->GetActiveVal<bool>() || update_rate == 0)
     {
         return;
@@ -246,6 +242,4 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor)
         gfx_actor->SetRodsVisible(true);
         gfx_actor->SetAllMeshesVisible(true);
     }
-
-    m_is_initialized = true;
 }
