@@ -137,16 +137,16 @@ int main(int argc, char *argv[])
         }
 
         Settings::getSingleton().LoadRoRCfg(); // Main config file - path obtained from GVars
-        Settings::getSingleton().ProcessCommandLine(argc, argv);
+        App::GetConsole()->ProcessCommandLine(argc, argv);
 
         if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::PRINT_HELP_EXIT)
         {
-            ShowCommandLineUsage();
+            App::GetConsole()->ShowCommandLineUsage();
             return 0;
         }
         if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::PRINT_VERSION_EXIT)
         {
-            ShowVersion();
+            App::GetConsole()->ShowCommandLineVersion();
             return 0;
         }
 

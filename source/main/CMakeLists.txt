@@ -221,6 +221,7 @@ set(SOURCE_FILES
         resources/rig_def_fileformat/RigDef_Serializer.{h,cpp}
         resources/rig_def_fileformat/RigDef_Validator.{h,cpp}
         resources/terrn2_fileformat/Terrn2Fileformat.{h,cpp}
+        system/CommandLine.cpp
         system/Console.{h,cpp}
         system/ConsoleCmd.{h,cpp}
         system/CVar.{h,cpp}
