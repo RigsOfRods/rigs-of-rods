@@ -26,6 +26,8 @@
 #include "RoRPrerequisites.h"
 #include <OgreFont.h>
 
+#include <Overlay/OgreFont.h>
+
 /**
  *  @brief Saves a texture to the disk.
  *  

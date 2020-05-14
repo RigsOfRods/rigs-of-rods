@@ -130,11 +130,17 @@ public:
     CommandPtrMap& GetCommands() { return m_commands; }
 
     // ----------------------------
-    // Command line (defined in CommandLine.cpp)
+    // Command line (defined in AppCommandLine.cpp)
 
     void ProcessCommandLine(int argc, char *argv[]);
     void ShowCommandLineUsage();
     void ShowCommandLineVersion();
+
+    // ----------------------------
+    // Config file (defined in AppConfig.cpp)
+
+    void LoadConfig();
+    void SaveConfig();
 
 private:
     // Ogre::LogListener

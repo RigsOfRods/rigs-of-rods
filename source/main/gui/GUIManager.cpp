@@ -65,6 +65,7 @@
 #include <OgreOverlay.h>
 #include <OgreOverlayElement.h>
 #include <OgreOverlayContainer.h>
+#include <OgreOverlayManager.h>
 
 #define RESOURCE_FILENAME "MyGUI_Core.xml"
 

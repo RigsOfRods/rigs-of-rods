@@ -22,8 +22,10 @@
 #include "CacheSystem.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
-#include "OgreSubsystem.h"
 #include "Language.h"
+#include "OgreSubsystem.h"
+#include "SoundManager.h"
+
 #include <alc.h>
 
 void RoR::GUI::GameSettings::Draw()

@@ -28,7 +28,6 @@
 
 
 #include "Application.h"
-#include "Settings.h"
 #include "ColoredTextAreaOverlayElementFactory.h"
 #include "ErrorUtils.h"
 #include "SoundScriptManager.h"

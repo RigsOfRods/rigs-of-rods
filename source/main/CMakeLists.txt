@@ -221,7 +221,8 @@ set(SOURCE_FILES
         resources/rig_def_fileformat/RigDef_Serializer.{h,cpp}
         resources/rig_def_fileformat/RigDef_Validator.{h,cpp}
         resources/terrn2_fileformat/Terrn2Fileformat.{h,cpp}
-        system/CommandLine.cpp
+        system/AppCommandLine.cpp
+        system/AppConfig.cpp
         system/Console.{h,cpp}
         system/ConsoleCmd.{h,cpp}
         system/CVar.{h,cpp}
@@ -242,7 +243,6 @@ set(SOURCE_FILES
         utils/Language.{h,cpp}
         utils/MeshObject.{h,cpp}
         utils/PlatformUtils.{h,cpp}
-        utils/Settings.{h,cpp}
         utils/SHA1.{h,cpp}
         utils/SimpleGlob.h
         utils/SimpleOpt.h
