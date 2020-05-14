@@ -36,12 +36,7 @@
 
 #include "Singleton.h"
 
-namespace RoR {
 
-void ShowCommandLineUsage();
-void ShowVersion();
-
-} // namespace RoR
 
 class Settings : public RoRSingleton<Settings>, public ZeroedMemoryAllocator
 {
@@ -52,9 +47,6 @@ public:
     void LoadRoRCfg(); // Reads GVars
 
     void SaveSettings(); // Writes GVars
-
-    /// Process command line arguments into settings.
-    void ProcessCommandLine(int argc, char* argv[]);
 
     void ParseGlobalVarSetting(RoR::CVar* cvar, std::string const & val);
 
