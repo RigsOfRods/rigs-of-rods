@@ -37,7 +37,6 @@
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
 #include "Scripting.h"
-#include "Settings.h"
 #include "Skidmark.h"
 #include "SoundScriptManager.h"
 #include "Utils.h"
@@ -130,13 +129,28 @@ int main(int argc, char *argv[])
         rorlog->stream() << "[RoR] Current date: " << std::put_time(std::localtime(&t), "%Y-%m-%d");
         rorlog->addListener(App::GetConsole());  // Allow console to intercept log messages
 
-        if (! Settings::SetupAllPaths()) // Updates globals
+        // User directories
+        App::sys_config_dir    ->SetActiveStr(PathCombine(App::sys_user_dir->GetActiveStr(), "config").c_str());
+        App::sys_cache_dir     ->SetActiveStr(PathCombine(App::sys_user_dir->GetActiveStr(), "cache").c_str());
+        App::sys_savegames_dir ->SetActiveStr(PathCombine(App::sys_user_dir->GetActiveStr(), "savegames").c_str());
+        App::sys_screenshot_dir->SetActiveStr(PathCombine(App::sys_user_dir->GetActiveStr(), "screenshots").c_str());
+
+        // Resources dir
+        std::string process_dir = PathCombine(App::sys_process_dir->GetActiveStr(), "resources");
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+        if (!FolderExists(process_dir))
+        {
+            process_dir = "/usr/share/rigsofrods/resources/";
+        }
+#endif
+        if (!FolderExists(process_dir))
         {
             ErrorUtils::ShowError(_L("Startup error"), _L("Resources folder not found. Check if correctly installed."));
             return -1;
         }
+        App::sys_resources_dir->SetActiveStr(process_dir);
 
-        Settings::getSingleton().LoadRoRCfg(); // Main config file - path obtained from GVars
+        App::GetConsole()->LoadConfig(); // RoR.cfg
         App::GetConsole()->ProcessCommandLine(argc, argv);
 
         if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::PRINT_HELP_EXIT)
@@ -387,7 +401,7 @@ int main(int argc, char *argv[])
 
         ShutdownDiscord();
 
-        Settings::getSingleton().SaveSettings(); // Save RoR.cfg
+        App::GetConsole()->SaveConfig(); // RoR.cfg
 
         App::GetMainMenu()->LeaveMultiplayerServer();
 

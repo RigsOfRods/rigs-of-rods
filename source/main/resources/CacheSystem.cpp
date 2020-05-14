@@ -37,7 +37,7 @@
 #include "PlatformUtils.h"
 #include "RigDef_Parser.h"
 #include "RoRFrameListener.h"
-#include "Settings.h"
+
 #include "SkinManager.h"
 #include "TerrainManager.h"
 #include "Terrn2Fileformat.h"

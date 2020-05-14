@@ -27,6 +27,8 @@
 #include "SkyManager.h"
 #include "TerrainManager.h"
 
+#include <OgreOverlaySystem.h>
+#include <OgreOverlayManager.h>
 #include <OgreOverlay.h>
 
 RoR::GfxEnvmap::GfxEnvmap():
