@@ -26,7 +26,6 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
-#include "Singleton.h"
 
 #include <OgreUTFString.h>
 
@@ -49,10 +48,10 @@
 #define _L(str) moFileLib::moFileReaderSingleton::GetInstance().Lookup(str).c_str()
 #define _LC(ctx,str) moFileLib::moFileReaderSingleton::GetInstance().LookupWithContext(ctx,str).c_str()
 
-class LanguageEngine : public RoRSingleton<LanguageEngine>, public ZeroedMemoryAllocator
-{
-    friend class RoRSingleton<LanguageEngine>;
+namespace RoR {
 
+class LanguageEngine
+{
 public:
     void setup();
 
@@ -61,5 +60,7 @@ public:
 private:
     std::vector<std::pair<std::string, std::string>> languages;
 };
+
+} // namespace RoR
 
 #endif // NOLANG

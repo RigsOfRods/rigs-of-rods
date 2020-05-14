@@ -327,6 +327,7 @@ ThreadPool*          GetThreadPool();
 CameraManager*       GetCameraManager();
 GfxScene*            GetGfxScene();
 SoundScriptManager*  GetSoundScriptManager();
+LanguageEngine*      GetLanguageEngine();
 
 // Factories
 void CreateOgreSubsystem();

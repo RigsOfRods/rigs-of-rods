@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::WALLPAPERS);
 
 #ifndef NOLANG
-        LanguageEngine::getSingleton().setup();
+        App::GetLanguageEngine()->setup();
 #endif // NOLANG
         App::GetConsole()->RegBuiltinCommands(); // Call after localization had been set up
 
