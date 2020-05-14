@@ -50,6 +50,7 @@
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
+#include "ScriptEngine.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
@@ -67,18 +68,11 @@ using namespace RoR;
 // --> Getter functions should silently return zero/empty value.
 // --> Functions performing simulation changes should log warning and do nothing.
 
-GameScript::GameScript(ScriptEngine* se) :
-    mse(se)
-{
-}
 
-GameScript::~GameScript()
-{
-}
 
 void GameScript::log(const String& msg)
 {
-    ScriptEngine::getSingleton().SLOG(msg);
+    App::GetScriptEngine()->SLOG(msg);
 }
 
 void GameScript::logFormat(const char* format, ...)
@@ -92,7 +86,7 @@ void GameScript::logFormat(const char* format, ...)
         vsprintf(buffer_pos, format, args);
     va_end(args);
 
-    ScriptEngine::getSingleton().SLOG(buffer);
+    App::GetScriptEngine()->SLOG(buffer);
 }
 
 void GameScript::activateAllVehicles()
@@ -329,10 +323,10 @@ int GameScript::GetPlayerActorId()
 
 void GameScript::registerForEvent(int eventValue)
 {
-    if (mse)
+    if (App::GetScriptEngine())
     {
-        mse->eventMask = -1;
-        mse->eventMask += eventValue;
+        App::GetScriptEngine()->eventMask = -1;
+        App::GetScriptEngine()->eventMask += eventValue;
     }
 }
 
@@ -452,10 +446,10 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 
     try
     {
-        AngelScript::asIScriptModule* module = mse->getEngine()->GetModule(mse->moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+        AngelScript::asIScriptModule* module = App::GetScriptEngine()->getEngine()->GetModule(App::GetScriptEngine()->getModuleName(), AngelScript::asGM_ONLY_IF_EXISTS);
         if (module == nullptr)
         {
-            this->logFormat("spawnObject(): Failed to fetch/create script module '%s'", mse->moduleName);
+            this->logFormat("spawnObject(): Failed to fetch/create script module '%s'", App::GetScriptEngine()->getModuleName());
             return;
         }
 
@@ -470,7 +464,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
             else
             {
                 this->logFormat("spawnObject(): Warning; Failed to find handler function '%s' in script module '%s'",
-                    eventhandler.c_str(), mse->moduleName);
+                    eventhandler.c_str(), App::GetScriptEngine()->getModuleName());
             }
         }
 
@@ -777,8 +771,8 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 
     std::string terrain_name = App::GetSimTerrain()->getTerrainName();
 
-    std::string script_name = mse->getScriptName();
-    std::string script_hash = mse->getScriptHash();
+    std::string script_name = App::GetScriptEngine()->getScriptName();
+    std::string script_hash = App::GetScriptEngine()->getScriptHash();
 
     rapidjson::Document j_doc;
     j_doc.SetObject();
@@ -867,27 +861,27 @@ void GameScript::boostCurrentTruck(float factor)
 
 int GameScript::addScriptFunction(const String& arg)
 {
-    return mse->addFunction(arg);
+    return App::GetScriptEngine()->addFunction(arg);
 }
 
 int GameScript::scriptFunctionExists(const String& arg)
 {
-    return mse->functionExists(arg);
+    return App::GetScriptEngine()->functionExists(arg);
 }
 
 int GameScript::deleteScriptFunction(const String& arg)
 {
-    return mse->deleteFunction(arg);
+    return App::GetScriptEngine()->deleteFunction(arg);
 }
 
 int GameScript::addScriptVariable(const String& arg)
 {
-    return mse->addVariable(arg);
+    return App::GetScriptEngine()->addVariable(arg);
 }
 
 int GameScript::deleteScriptVariable(const String& arg)
 {
-    return mse->deleteVariable(arg);
+    return App::GetScriptEngine()->deleteVariable(arg);
 }
 
 int GameScript::sendGameCmd(const String& message)

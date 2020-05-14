@@ -64,7 +64,7 @@ using namespace RoR;
 
 void logString(const std::string &str)
 {
-    ScriptEngine::getSingleton().SLOG(str);
+    App::GetScriptEngine()->SLOG(str);
 }
 
 // the class implementation
@@ -80,12 +80,7 @@ ScriptEngine::ScriptEngine() :
     , scriptLog(0)
     , scriptName()
 {
-    setSingleton(this);
-
-    // create our own log
     scriptLog = LogManager::getSingleton().createLog(PathCombine(App::sys_logs_dir->GetActiveStr(), "Angelscript.log"), false);
-
-    // init not earlier, otherwise crash
     this->init();
 }
 
@@ -377,9 +372,7 @@ void ScriptEngine::init()
     result = engine->RegisterEnumValue("truckTypes", "TT_AI", AI); MYASSERT(result>=0);
 
     // now the global instances
-    GameScript *gamescript = new GameScript(this);
-    result = engine->RegisterGlobalProperty("GameScriptClass game", gamescript); MYASSERT(result>=0);
-    //result = engine->RegisterGlobalProperty("CacheSystemClass cache", &CacheSystem::getSingleton()); MYASSERT(result>=0);
+    result = engine->RegisterGlobalProperty("GameScriptClass game", &m_game_script); MYASSERT(result>=0);
 
     SLOG("Type registrations done. If you see no error above everything should be working");
 }

@@ -46,7 +46,7 @@
 #include "RigDef_Validator.h"
 #include "RigSpawner.h"
 #include "RoRFrameListener.h"
-#include "Scripting.h"
+#include "ScriptEngine.h"
 #include "SkinManager.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"

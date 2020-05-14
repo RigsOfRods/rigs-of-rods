@@ -28,9 +28,10 @@
 #include <OgreSceneNode.h>
 
 #include "RoRPrerequisites.h"
-
+#include "Application.h"
 #include "ScriptEngine.h"
 
+using namespace RoR;
 
 namespace Ogre {
 
@@ -83,12 +84,12 @@ ExtinguishableFireAffector::ExtinguishableFireAffector(ParticleSystem* psys)
     // predefine objectInstanceName
     objectInstanceName = "unknown";
 
-    ScriptEngine::getSingleton().fireEvent(objectInstanceName, mIntensity);
+    App::GetScriptEngine()->fireEvent(objectInstanceName, mIntensity);
 }
 //-----------------------------------------------------------------------
 ExtinguishableFireAffector::~ExtinguishableFireAffector()
 {
-    ScriptEngine::getSingleton().fireEvent(objectInstanceName, mIntensity);
+    App::GetScriptEngine()->fireEvent(objectInstanceName, mIntensity);
 }
 //-----------------------------------------------------------------------
 void ExtinguishableFireAffector::_affectParticles(ParticleSystem* pSystem, Real timeElapsed)
@@ -118,7 +119,7 @@ void ExtinguishableFireAffector::_affectParticles(ParticleSystem* pSystem, Real 
             // update the fire
             mPsys->setDefaultDimensions(originalDimensions.x*mIntensity/originalIntensity, originalDimensions.y*mIntensity/originalIntensity);
             updateIntensityRequired = false;
-            ScriptEngine::getSingleton().fireEvent(objectInstanceName, mIntensity);
+            App::GetScriptEngine()->fireEvent(objectInstanceName, mIntensity);
         }
     }
 }

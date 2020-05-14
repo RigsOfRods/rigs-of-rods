@@ -37,7 +37,6 @@ set(SOURCE_FILES
         gameplay/RoRFrameListener.{h,cpp}
         gameplay/SceneMouse.{h,cpp}
         gameplay/ScriptEvents.h
-        gameplay/Scripting.h
         gameplay/SkinManager.{h,cpp}
         gameplay/TorqueCurve.{h,cpp}
         gameplay/VehicleAI.{h,cpp}

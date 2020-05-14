@@ -30,7 +30,7 @@
 #include "HydraxWater.h"
 #include "Language.h"
 #include "RoRFrameListener.h"
-#include "Scripting.h"
+#include "ScriptEngine.h"
 #include "ShadowManager.h"
 #include "SkyManager.h"
 #include "SkyXManager.h"
@@ -467,17 +467,17 @@ void TerrainManager::initScripting()
 
     for (std::string as_filename : m_def.as_files)
     {
-        if (ScriptEngine::getSingleton().loadScript(as_filename) == 0)
+        if (App::GetScriptEngine()->loadScript(as_filename) == 0)
             loaded = true;
     }
 
     if (!loaded)
     {
         // load a default script that does the most basic things
-        ScriptEngine::getSingleton().loadScript("default.as");
+        App::GetScriptEngine()->loadScript("default.as");
     }
     // finally activate AS logging, so we dont spam the users screen with initialization messages
-    ScriptEngine::getSingleton().activateLogging();
+    App::GetScriptEngine()->activateLogging();
 #endif //USE_ANGELSCRIPT
 }
 

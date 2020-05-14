@@ -411,7 +411,7 @@ void RecvThread()
         else if (header.command == MSG2_GAME_CMD)
         {
 #ifdef USE_ANGELSCRIPT
-            ScriptEngine::getSingleton().queueStringForExecution(Ogre::String(buffer));
+            App::GetScriptEngine()->queueStringForExecution(Ogre::String(buffer));
 #endif // USE_ANGELSCRIPT
             continue;
         }

@@ -67,43 +67,5 @@ public:
 template <class T>
 T* RoRSingleton<T>::_instance = 0;
 
-//////////////////////////////////////////////////////////////////////////
-template <class T>
-class RoRSingletonNoCreation
-{
-    static T* _instance;
-protected:
-    RoRSingletonNoCreation()
-    {
-    }
 
-    virtual ~RoRSingletonNoCreation() { _instance = 0; }
-    void _free() { delete this; }
-    RoRSingletonNoCreation(const RoRSingletonNoCreation&); // not implemented
-    const RoRSingletonNoCreation& operator=(const RoRSingletonNoCreation&); // not implemented
-    void setSingleton(T* i) { _instance = i; }
-public:
-    inline static T& getSingleton()
-    {
-        MYASSERT(_instance);
-        return *_instance;
-    }
-
-    inline static T* getSingletonPtr()
-    {
-        MYASSERT(_instance);
-        return _instance;
-    }
-
-    inline static T* getSingletonPtrNoCreation()
-    {
-        return _instance;
-    }
-
-    static bool singletonExists(void) { return (_instance != 0); }
-    static void freeSingleton() { getSingletonPtr()->_free(); }
-};
-
-template <class T>
-T* RoRSingletonNoCreation<T>::_instance = 0;
 

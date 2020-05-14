@@ -31,7 +31,7 @@
 #include "MovableText.h"
 #include "PlatformUtils.h"
 #include "RoRFrameListener.h"
-#include "Scripting.h"
+#include "ScriptEngine.h"
 #include "TerrainManager.h"
 
 // some gcc fixes
@@ -723,7 +723,7 @@ bool Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
     // this prevents that the same callback gets called at 2k FPS all the time, serious hit on FPS ...
     if (std::find(std::begin(m_last_called_cboxes), std::end(m_last_called_cboxes), cbox) == m_last_called_cboxes.end())
     {
-        if (!ScriptEngine::getSingleton().envokeCallback(eventsources[cbox->eventsourcenum].scripthandler, &eventsources[cbox->eventsourcenum], node))
+        if (!App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].scripthandler, &eventsources[cbox->eventsourcenum], node))
             handled = true;
         m_last_called_cboxes.push_back(cbox);
     }
