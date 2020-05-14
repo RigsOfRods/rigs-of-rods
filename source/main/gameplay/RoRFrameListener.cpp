@@ -1737,9 +1737,9 @@ void SimController::UpdateSimulation(float dt)
     RoR::App::GetInputEngine()->Capture();
     auto s = App::sim_state->GetActiveEnum<SimState>();
 
-    if (OutProtocol::getSingletonPtr())
+    if (m_out_protocol)
     {
-        OutProtocol::getSingleton().Update(dt, m_player_actor);
+        m_out_protocol->Update(dt, m_player_actor);
     }
 
     if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)

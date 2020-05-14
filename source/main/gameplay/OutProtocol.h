@@ -25,7 +25,6 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
-#include "Singleton.h"
 
 #ifdef USE_SOCKETW
 #include "SocketW.h"
@@ -38,7 +37,7 @@
 #define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
 #endif // _WIN32
 
-class OutProtocol : public RoRSingleton< OutProtocol >, public ZeroedMemoryAllocator
+class OutProtocol: public ZeroedMemoryAllocator
 {
 public:
 
