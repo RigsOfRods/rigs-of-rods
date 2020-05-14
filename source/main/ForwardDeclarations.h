@@ -45,6 +45,7 @@ namespace RoR
     class  GUIManager;
     struct GuiManagerImpl;
     class  GuiManagerInterface;
+    class  LanguageEngine;
     class  MainMenu;
     class  OgreSubsystem;
     struct PlatformUtils;

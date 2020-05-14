@@ -34,6 +34,7 @@
 #include "GfxScene.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
+#include "Language.h"
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "MumbleIntegration.h"
@@ -64,6 +65,7 @@ static ThreadPool*      g_thread_pool;
 static CameraManager*   g_camera_manager;
 static GfxScene         g_gfx_scene;
 static SoundScriptManager* g_sound_script_manager;
+static LanguageEngine   g_language_engine;
 
 // App
 CVar* app_state;
@@ -236,6 +238,7 @@ ThreadPool*            GetThreadPool         () { return g_thread_pool; }
 CameraManager*         GetCameraManager      () { return g_camera_manager; }
 GfxScene*              GetGfxScene           () { return &g_gfx_scene; }
 SoundScriptManager*    GetSoundScriptManager () { return g_sound_script_manager; }
+LanguageEngine*        GetLanguageEngine     () { return &g_language_engine; }
 
 // Factories
 void CreateOgreSubsystem()

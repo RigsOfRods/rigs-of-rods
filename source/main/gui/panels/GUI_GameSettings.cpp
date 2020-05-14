@@ -117,7 +117,7 @@ void RoR::GUI::GameSettings::Draw()
         ImGui::TextDisabled(_LC("GameSettings", "Application settings"));
 
 #ifndef NOLANG
-        std::vector<std::pair<std::string, std::string>> languages = LanguageEngine::getSingleton().getLanguages();
+        std::vector<std::pair<std::string, std::string>> languages = App::GetLanguageEngine()->getLanguages();
         std::string lang_values;
         for (auto value : languages)
         {
@@ -129,7 +129,7 @@ void RoR::GUI::GameSettings::Draw()
         if (ImGui::Combo(_LC("GameSettings", "Language"), &lang_selection, lang_values.c_str()))
         {
             App::app_language->SetActiveStr(languages[lang_selection].second);
-            LanguageEngine::getSingleton().setup();
+            App::GetLanguageEngine()->setup();
         }
 #endif
 
