@@ -245,7 +245,6 @@ set(SOURCE_FILES
         utils/SHA1.{h,cpp}
         utils/SimpleGlob.h
         utils/SimpleOpt.h
-        utils/Singleton.h
         utils/Utils.{h,cpp}
         utils/WriteTextToTexture.{h,cpp}
         utils/ZeroedMemoryAllocator.h
