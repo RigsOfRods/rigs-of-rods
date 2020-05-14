@@ -36,7 +36,7 @@ Character* CharacterFactory::CreateLocalCharacter()
 #ifdef USE_SOCKETW
     if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
     {
-        RoRnet::UserInfo info = RoR::Networking::GetLocalUserData();
+        RoRnet::UserInfo info = App::GetNetwork()->GetLocalUserData();
         colourNum = info.colournum;
         playerName = tryConvertUTF(info.username);
     }
@@ -51,7 +51,7 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
 {
 #ifdef USE_SOCKETW
     RoRnet::UserInfo info;
-    RoR::Networking::GetUserInfo(sourceid, info);
+    App::GetNetwork()->GetUserInfo(sourceid, info);
     int colour = info.colournum;
     Ogre::UTFString name = tryConvertUTF(info.username);
 
@@ -103,7 +103,7 @@ void CharacterFactory::DeleteAllRemoteCharacters()
 }
 
 #ifdef USE_SOCKETW
-void CharacterFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
+void CharacterFactory::handleStreamData(std::vector<RoR::NetRecvPacket> packet_buffer)
 {
     for (auto packet : packet_buffer)
     {

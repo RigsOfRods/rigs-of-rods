@@ -47,6 +47,7 @@ namespace RoR
     class  GuiManagerInterface;
     class  LanguageEngine;
     class  MainMenu;
+    class  Network;
     class  OgreSubsystem;
     struct PlatformUtils;
     class  Renderdash;
@@ -172,7 +173,6 @@ class MapTextureCreator;
 class MeshObject;
 class Mirror;
 class MumbleIntegration;
-class Network;
 class OutProtocol;
 class OverlayWrapper;
 class PointColDetector;

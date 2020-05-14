@@ -53,8 +53,8 @@ void MpClientList::Draw()
         ImGui::GetIO().DisplaySize.x - (content_width + (2*ImGui::GetStyle().WindowPadding.x) + theme.screen_edge_padding.x),
         theme.screen_edge_padding.y));
 
-    std::vector<RoRnet::UserInfo> users = RoR::Networking::GetUserInfos();
-    users.insert(users.begin(), RoR::Networking::GetLocalUserData());
+    std::vector<RoRnet::UserInfo> users = App::GetNetwork()->GetUserInfos();
+    users.insert(users.begin(), App::GetNetwork()->GetLocalUserData());
     int y = 20 + (ImGui::GetTextLineHeightWithSpacing() * users.size());
 
     ImGui::SetNextWindowSize(ImVec2((content_width + (2*ImGui::GetStyle().WindowPadding.x)), y));
@@ -71,7 +71,7 @@ void MpClientList::Draw()
         Ogre::TexturePtr up_tex;
 
         // Stream state indicators
-        if (user.uniqueid != RoR::Networking::GetLocalUserData().uniqueid &&
+        if (user.uniqueid != App::GetNetwork()->GetLocalUserData().uniqueid &&
             App::app_state->GetActiveEnum<AppState>() != AppState::MAIN_MENU)
         {
             switch (App::GetSimController()->GetBeamFactory()->CheckNetworkStreamsOk(user.uniqueid))
@@ -113,7 +113,7 @@ void MpClientList::Draw()
 
         // Player name
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetStyle().ItemSpacing.x); // Some extra padding
-        ColourValue col = Networking::GetPlayerColor(user.colournum);
+        ColourValue col = App::GetNetwork()->GetPlayerColor(user.colournum);
         ImGui::TextColored(ImVec4(col.r, col.g, col.b, col.a), "%s", user.username);
         hovered |= ImGui::IsItemHovered();
 
@@ -152,10 +152,10 @@ void MpClientList::Draw()
                 ImGui::SameLine();
             }
 
-            ImGui::Text("%s", Networking::UserAuthToStringLong(user).c_str());
+            ImGui::Text("%s", App::GetNetwork()->UserAuthToStringLong(user).c_str());
 
             // Stream state
-            if (user.uniqueid != RoR::Networking::GetLocalUserData().uniqueid &&
+            if (user.uniqueid != App::GetNetwork()->GetLocalUserData().uniqueid &&
                 App::app_state->GetActiveEnum<AppState>() != AppState::MAIN_MENU)
             {
                 ImGui::Separator();
@@ -194,7 +194,7 @@ void MpClientList::Draw()
         }
     }
 
-    if (RoR::Networking::GetNetQuality() != 0)
+    if (App::GetNetwork()->GetNetQuality() != 0)
     {
         ImGui::Separator();
         ImGui::TextColored(App::GetGuiManager()->GetTheme().error_text_color, "<!> %s", _L("Slow  Network  Download"));

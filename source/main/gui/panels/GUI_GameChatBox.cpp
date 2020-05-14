@@ -164,9 +164,9 @@ void RoR::GUI::GameChatBox::SubmitMessage()
         if (username != nullptr && message != nullptr)
         {
             RoRnet::UserInfo user;
-            if (RoR::Networking::FindUserInfo(username, user))
+            if (App::GetNetwork()->FindUserInfo(username, user))
             {
-                RoR::Networking::WhisperChatMsg(user, message);
+                App::GetNetwork()->WhisperChatMsg(user, message);
             }
             else
             {
@@ -185,7 +185,7 @@ void RoR::GUI::GameChatBox::SubmitMessage()
     }
     else
     {
-        RoR::Networking::BroadcastChatMsg(m_msg_buffer.GetBuffer());
+        App::GetNetwork()->BroadcastChatMsg(m_msg_buffer.GetBuffer());
     }
 #endif // USE_SOCKETW
 }

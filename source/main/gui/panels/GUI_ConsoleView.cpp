@@ -172,9 +172,9 @@ ImVec2 GUI::ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
 
     // Add colored multiplayer username
     RoRnet::UserInfo user;
-    if (m.cm_net_userid != 0 && RoR::Networking::GetAnyUserInfo((int)m.cm_net_userid, user))
+    if (m.cm_net_userid != 0 && App::GetNetwork()->GetAnyUserInfo((int)m.cm_net_userid, user))
     {
-        Ogre::ColourValue col = RoR::Networking::GetPlayerColor(user.colournum);
+        Ogre::ColourValue col = App::GetNetwork()->GetPlayerColor(user.colournum);
         char prefix[400] = {};
         int r,g,b;
         color2i(ImVec4(col.r, col.g, col.b, col.a), r,g,b);

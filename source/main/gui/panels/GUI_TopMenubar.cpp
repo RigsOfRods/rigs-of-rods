@@ -270,10 +270,10 @@ void RoR::GUI::TopMenubar::Update()
             else
             {
 #ifdef USE_SOCKETW
-                RoRnet::UserInfo net_user_info = RoR::Networking::GetLocalUserData();
+                RoRnet::UserInfo net_user_info = App::GetNetwork()->GetLocalUserData();
                 this->DrawMpUserToActorList(net_user_info);
 
-                std::vector<RoRnet::UserInfo> remote_users = RoR::Networking::GetUserInfos();
+                std::vector<RoRnet::UserInfo> remote_users = App::GetNetwork()->GetUserInfos();
                 for (auto& user: remote_users)
                 {
                     this->DrawMpUserToActorList(user);
@@ -677,7 +677,7 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
     // Display user in list
     Ogre::ColourValue player_color;
 #ifdef USE_SOCKETW
-    player_color = RoR::Networking::GetPlayerColor(user.colournum);
+    player_color = App::GetNetwork()->GetPlayerColor(user.colournum);
 #endif
     ImVec4 player_gui_color(player_color.r, player_color.g, player_color.b, 1.f);
     ImGui::PushStyleColor(ImGuiCol_Text, player_gui_color);

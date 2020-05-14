@@ -1538,7 +1538,7 @@ void SimController::UpdateSimulation(float dt)
 #ifdef USE_SOCKETW
     if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
     {
-        std::vector<Networking::recv_packet_t> packets = RoR::Networking::GetIncomingStreamData();
+        std::vector<RoR::NetRecvPacket> packets = App::GetNetwork()->GetIncomingStreamData();
         if (!packets.empty())
         {
             RoR::ChatSystem::HandleStreamData(packets);
@@ -2321,19 +2321,19 @@ void SimController::EnterGameplayLoop()
 #ifdef USE_SOCKETW
         if ((App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED))
         {
-            Networking::NetEventQueue events = Networking::CheckEvents();
+            RoR::NetEventQueue events = App::GetNetwork()->CheckEvents();
             while (!events.empty())
             {
                 switch (events.front().type)
                 {
-                case Networking::NetEvent::Type::SERVER_KICK:
-                    App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
+                case NetEvent::Type::SERVER_KICK:
+                    App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU); // Will perform `App::GetNetwork()->Disconnect()`
                     App::GetGuiManager()->ShowMessageBox(
                         _LC("Network", "Multiplayer: disconnected"), events.front().message.c_str());
                     break;
 
-                case Networking::NetEvent::Type::RECV_ERROR:
-                    App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU); // Will perform `Networking::Disconnect()`
+                case NetEvent::Type::RECV_ERROR:
+                    App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU); // Will perform `App::GetNetwork()->Disconnect()`
                     App::GetGuiManager()->ShowMessageBox(
                         _L("Network fatal error: "), events.front().message.c_str());
                     break;
@@ -2509,7 +2509,7 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
     {
         if (RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
         {
-            RoRnet::UserInfo info = RoR::Networking::GetLocalUserData();
+            RoRnet::UserInfo info = App::GetNetwork()->GetLocalUserData();
             rq.asr_net_username = tryConvertUTF(info.username);
             rq.asr_net_color    = info.colournum;
         }

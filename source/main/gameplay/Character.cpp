@@ -410,7 +410,7 @@ void Character::ReportError(const char* detail)
 #ifdef USE_SOCKETW
     Ogre::UTFString username;
     RoRnet::UserInfo info;
-    if (!RoR::Networking::GetUserInfo(m_source_id, info))
+    if (!App::GetNetwork()->GetUserInfo(m_source_id, info))
         username = "~~ERROR getting username~~";
     else
         username = info.username;
@@ -437,7 +437,7 @@ void Character::SendStreamSetup()
     reg.type = 1;
     reg.data[0] = 2;
 
-    RoR::Networking::AddLocalStream(&reg, sizeof(RoRnet::StreamRegister));
+    App::GetNetwork()->AddLocalStream(&reg, sizeof(RoRnet::StreamRegister));
 
     m_source_id = reg.origin_sourceid;
     m_stream_id = reg.origin_streamid;
@@ -456,8 +456,8 @@ void Character::SendStreamData()
 
     m_net_last_update_time = m_net_timer.getMilliseconds();
 
-    Networking::CharacterMsgPos msg;
-    msg.command = Networking::CHARACTER_CMD_POSITION;
+    NetCharacterMsgPos msg;
+    msg.command = CHARACTER_CMD_POSITION;
     msg.pos_x = m_character_position.x;
     msg.pos_y = m_character_position.y;
     msg.pos_z = m_character_position.z;
@@ -467,7 +467,7 @@ void Character::SendStreamData()
 
     m_net_last_anim_time = m_anim_time;
 
-    RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA_DISCARDABLE, sizeof(Networking::CharacterMsgPos), (char*)&msg);
+    App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA_DISCARDABLE, sizeof(NetCharacterMsgPos), (char*)&msg);
 #endif // USE_SOCKETW
 }
 
@@ -476,10 +476,10 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
 #ifdef USE_SOCKETW
     if (type == RoRnet::MSG2_STREAM_DATA && m_source_id == source && m_stream_id == streamid)
     {
-        auto* msg = reinterpret_cast<Networking::CharacterMsgGeneric*>(buffer);
-        if (msg->command == Networking::CHARACTER_CMD_POSITION)
+        auto* msg = reinterpret_cast<NetCharacterMsgGeneric*>(buffer);
+        if (msg->command == CHARACTER_CMD_POSITION)
         {
-            auto* pos_msg = reinterpret_cast<Networking::CharacterMsgPos*>(buffer);
+            auto* pos_msg = reinterpret_cast<NetCharacterMsgPos*>(buffer);
             this->setPosition(Ogre::Vector3(pos_msg->pos_x, pos_msg->pos_y, pos_msg->pos_z));
             this->setRotation(Ogre::Radian(pos_msg->rot_angle));
             if (strnlen(pos_msg->anim_name, CHARACTER_ANIM_NAME_LEN) < CHARACTER_ANIM_NAME_LEN)
@@ -487,16 +487,16 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
                 this->SetAnimState(pos_msg->anim_name, pos_msg->anim_time);
             }
         }
-        else if (msg->command == Networking::CHARACTER_CMD_DETACH)
+        else if (msg->command == CHARACTER_CMD_DETACH)
         {
             if (m_actor_coupling != nullptr)
                 this->SetActorCoupling(false, nullptr);
             else
                 this->ReportError("Received command `DETACH`, but not currently attached to a vehicle. Ignoring command.");
         }
-        else if (msg->command == Networking::CHARACTER_CMD_ATTACH)
+        else if (msg->command == CHARACTER_CMD_ATTACH)
         {
-            auto* attach_msg = reinterpret_cast<Networking::CharacterMsgAttach*>(buffer);
+            auto* attach_msg = reinterpret_cast<NetCharacterMsgAttach*>(buffer);
             Actor* beam = App::GetSimController()->GetBeamFactory()->GetActorByNetworkLinks(attach_msg->source_id, attach_msg->stream_id);
             if (beam != nullptr)
             {
@@ -531,17 +531,17 @@ void Character::SetActorCoupling(bool enabled, Actor* actor)
     {
         if (enabled)
         {
-            Networking::CharacterMsgAttach msg;
-            msg.command = Networking::CHARACTER_CMD_ATTACH;
+            NetCharacterMsgAttach msg;
+            msg.command = CHARACTER_CMD_ATTACH;
             msg.source_id = m_actor_coupling->ar_net_source_id;
             msg.stream_id = m_actor_coupling->ar_net_stream_id;
-            RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(Networking::CharacterMsgAttach), (char*)&msg);
+            App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(NetCharacterMsgAttach), (char*)&msg);
         }
         else
         {
-            Networking::CharacterMsgGeneric msg;
-            msg.command = Networking::CHARACTER_CMD_DETACH;
-            RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(Networking::CharacterMsgGeneric), (char*)&msg);
+            NetCharacterMsgGeneric msg;
+            msg.command = CHARACTER_CMD_DETACH;
+            App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(NetCharacterMsgGeneric), (char*)&msg);
         }
     }
 #endif // USE_SOCKETW
@@ -706,7 +706,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
                 mat->getTechnique(0)->getPass(1)->getNumTextureUnitStates() > 1)
         {
             const auto& state = mat->getTechnique(0)->getPass(1)->getTextureUnitState(1);
-            Ogre::ColourValue color = Networking::GetPlayerColor(xc_simbuf.simbuf_color_number);
+            Ogre::ColourValue color = App::GetNetwork()->GetPlayerColor(xc_simbuf.simbuf_color_number);
             state->setColourOperationEx(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, color);
             if (xc_movable_text != nullptr)
                 xc_movable_text->setColor(color);
