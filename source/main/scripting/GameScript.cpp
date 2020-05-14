@@ -889,7 +889,7 @@ int GameScript::sendGameCmd(const String& message)
 #ifdef USE_SOCKETW
     if (RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
     {
-        RoR::Networking::AddPacket(0, RoRnet::MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));
+        App::GetNetwork()->AddPacket(0, RoRnet::MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));
         return 0;
     }
 #endif // USE_SOCKETW

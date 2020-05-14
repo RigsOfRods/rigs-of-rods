@@ -38,16 +38,10 @@
 #include <SocketW.h>
 
 #include <algorithm>
-#include <atomic>
 #include <chrono>
-#include <condition_variable>
 #include <cstring>
-#include <mutex>
-#include <deque>
-#include <thread>
 
-namespace RoR {
-namespace Networking {
+using namespace RoR;
 
 static Ogre::ColourValue MP_COLORS[] = // Classic RoR multiplayer colors
 {
@@ -84,58 +78,12 @@ static Ogre::ColourValue MP_COLORS[] = // Classic RoR multiplayer colors
 
 using namespace RoRnet;
 
-struct send_packet_t
-{
-    char buffer[RORNET_MAX_MESSAGE_LENGTH];
-    int size;
-};
-
-static RoRnet::ServerInfo m_server_settings;
-
-static Ogre::UTFString m_username; // Shadows GVar 'mp_player_name' for multithreaded access.
-static std::string m_net_host; // Shadows GVar 'mp_server_host' for multithreaded access.
-static std::string m_password; // Shadows GVar 'mp_server_password' for multithreaded access.
-static std::string m_token; // Shadows GVar 'mp_player_token' for multithreaded access.
-static int      m_net_port; // Shadows GVar 'mp_server_port' for multithreaded access.
-static int m_uid;
-static int m_authlevel;
-static RoRnet::UserInfo m_userdata;
-
-static int m_stream_id = 10;
-
-static std::atomic<int> m_net_quality;
-
-static std::vector<RoRnet::UserInfo> m_users;
-
-static SWInetSocket socket;
-
-static std::thread m_send_thread;
-static std::thread m_recv_thread;
-static std::thread m_connect_thread;
-
-static NetEventQueue     m_event_queue;
-static std::string       m_status_message;
-static std::atomic<bool> m_shutdown;
-
-static std::mutex m_users_mutex;
-static std::mutex m_userdata_mutex;
-static std::mutex m_recv_packetqueue_mutex;
-static std::mutex m_send_packetqueue_mutex;
-static std::mutex m_event_queue_mutex;
-
-static std::condition_variable m_send_packet_available_cv;
-
-static std::vector<recv_packet_t> m_recv_packet_buffer;
-static std::deque <send_packet_t> m_send_packet_buffer;
-
 static const unsigned int m_packet_buffer_size = 20;
 
 #define LOG_THREAD(_MSG_) { std::stringstream s; s << _MSG_ << " (Thread ID: " << std::this_thread::get_id() << ")"; LOG(s.str()); }
 #define LOGSTREAM         Ogre::LogManager().getSingleton().stream()
 
-bool ConnectThread(); // Declaration.
-
-Ogre::ColourValue GetPlayerColor(int color_num)
+Ogre::ColourValue Network::GetPlayerColor(int color_num)
 {
     int numColours = sizeof(MP_COLORS) / sizeof(Ogre::ColourValue);
     if (color_num < 0 || color_num >= numColours)
@@ -144,12 +92,13 @@ Ogre::ColourValue GetPlayerColor(int color_num)
     return MP_COLORS[color_num];
 }
 
-void FireNetEvent(NetEvent::Type type, std::string const & message)
+void Network::FireNetEvent(NetEvent::Type type, std::string const & message)
 {
     std::lock_guard<std::mutex> lock(m_event_queue_mutex);
     m_event_queue.emplace(type, message);
 }
 
+// Internal helper
 void DebugPacket(const char *name, RoRnet::Header *header, char *buffer)
 {
     std::stringstream msg;
@@ -158,26 +107,26 @@ void DebugPacket(const char *name, RoRnet::Header *header, char *buffer)
     LOG(msg.str());
 }
 
-void SetNetQuality(int quality)
+void Network::SetNetQuality(int quality)
 {
     m_net_quality = quality;
 }
 
-int GetNetQuality()
+int Network::GetNetQuality()
 {
     return m_net_quality;
 }
 
-int GetUID()
+int Network::GetUID()
 {
     return m_uid;
 }
 
-bool SendMessageRaw(char *buffer, int msgsize)
+bool Network::SendMessageRaw(char *buffer, int msgsize)
 {
     SWBaseSocket::SWBaseError error;
 
-    if (socket.fsend(buffer, msgsize, &error) < msgsize)
+    if (m_socket.fsend(buffer, msgsize, &error) < msgsize)
     {
         LOG("NET send error: " + error.get_error());
         return false;
@@ -186,7 +135,7 @@ bool SendMessageRaw(char *buffer, int msgsize)
     return true;
 }
 
-bool SendNetMessage(int type, unsigned int streamid, int len, char* content)
+bool Network::SendNetMessage(int type, unsigned int streamid, int len, char* content)
 {
     RoRnet::Header head;
     memset(&head, 0, sizeof(RoRnet::Header));
@@ -209,9 +158,9 @@ bool SendNetMessage(int type, unsigned int streamid, int len, char* content)
     return SendMessageRaw(buffer, msgsize);
 }
 
-void QueueStreamData(RoRnet::Header &header, char *buffer, size_t buffer_len)
+void Network::QueueStreamData(RoRnet::Header &header, char *buffer, size_t buffer_len)
 {
-    recv_packet_t packet;
+    NetRecvPacket packet;
     packet.header = header;
     memcpy(packet.buffer, buffer, std::min(buffer_len, size_t(RORNET_MAX_MESSAGE_LENGTH)));
 
@@ -219,7 +168,7 @@ void QueueStreamData(RoRnet::Header &header, char *buffer, size_t buffer_len)
     m_recv_packet_buffer.push_back(packet);
 }
 
-int ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen)
+int Network::ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen)
 {
     SWBaseSocket::SWBaseError error;
 
@@ -227,7 +176,7 @@ int ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen)
 	LOG_THREAD("[RoR|Networking] ReceiveMessage() waiting...");
 #endif //DEBUG
 
-    if (socket.frecv((char*)head, sizeof(RoRnet::Header), &error) < sizeof(RoRnet::Header))
+    if (m_socket.frecv((char*)head, sizeof(RoRnet::Header), &error) < sizeof(RoRnet::Header))
     {
         LOG("NET receive error 1: " + error.get_error());
         return -1;
@@ -246,7 +195,7 @@ int ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen)
     {
         // Read the packet content
         std::memset(content, 0, bufferlen);
-        if (socket.frecv(content, head->size, &error) < static_cast<int>(head->size))
+        if (m_socket.frecv(content, head->size, &error) < static_cast<int>(head->size))
         {
             LOG_THREAD("NET receive error 2: "+ error.get_error());
             return -1;
@@ -260,12 +209,12 @@ int ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen)
     return 0;
 }
 
-void SendThread()
+void Network::SendThread()
 {
     LOG("[RoR|Networking] SendThread started");
     while (!m_shutdown)
     {
-        send_packet_t packet;
+        NetSendPacket packet;
         {
             std::unique_lock<std::mutex> queue_lock(m_send_packetqueue_mutex);
             while (m_send_packet_buffer.empty() && !m_shutdown)
@@ -284,7 +233,7 @@ void SendThread()
     LOG("[RoR|Networking] SendThread stopped");
 }
 
-void RecvThread()
+void Network::RecvThread()
 {
     LOG_THREAD("[RoR|Networking] RecvThread starting...");
 
@@ -424,19 +373,19 @@ void RecvThread()
 }
 
 
-void CouldNotConnect(std::string const & msg, bool close_socket = true)
+void Network::CouldNotConnect(std::string const & msg, bool close_socket /*= true*/)
 {
     RoR::LogFormat("[RoR|Networking] Failed to connect to server [%s:%d], message: %s", m_net_host.c_str(), m_net_port, msg.c_str());
     FireNetEvent(NetEvent::Type::CONNECT_FAILURE, msg);
 
     if (close_socket)
     {
-        socket.set_timeout(1, 0);
-        socket.disconnect();
+        m_socket.set_timeout(1, 0);
+        m_socket.disconnect();
     }
 }
 
-bool StartConnecting()
+bool Network::StartConnecting()
 {
     // Shadow vars for threaded access
     m_username = App::mp_player_name->GetActiveStr();
@@ -447,7 +396,7 @@ bool StartConnecting()
 
     try
     {
-        m_connect_thread = std::thread(ConnectThread);
+        m_connect_thread = std::thread(&Network::ConnectThread, this);
         App::mp_state->SetActiveVal((int)MpState::CONNECTING); // Mark connect thread as started
         FireNetEvent(NetEvent::Type::CONNECT_STARTED, _LC("Network", "Starting..."));
         return true;
@@ -461,7 +410,7 @@ bool StartConnecting()
     }
 }
 
-NetEventQueue CheckEvents()
+NetEventQueue Network::CheckEvents()
 {
     std::lock_guard<std::mutex> lock(m_event_queue_mutex);
 
@@ -483,16 +432,16 @@ NetEventQueue CheckEvents()
     return qcopy;
 }
 
-bool ConnectThread()
+bool Network::ConnectThread()
 {
     RoR::LogFormat("[RoR|Networking] Trying to join server '%s' on port '%d' ...", m_net_host.c_str(), m_net_port);
 
     SWBaseSocket::SWBaseError error;
 
     FireNetEvent(NetEvent::Type::CONNECT_PROGRESS, _LC("Network", "Estabilishing connection..."));
-    socket = SWInetSocket();
-    socket.set_timeout(10, 0);
-    socket.connect(m_net_port, m_net_host, &error);
+    m_socket = SWInetSocket();
+    m_socket.set_timeout(10, 0);
+    m_socket.connect(m_net_port, m_net_host, &error);
     if (error != SWBaseSocket::ok)
     {
         CouldNotConnect(_L("Could not create connection"), false);
@@ -552,7 +501,7 @@ bool ConnectThread()
     FireNetEvent(NetEvent::Type::CONNECT_PROGRESS, _LC("Network", "Authorizing..."));
 
     // First handshake done, increase the timeout, important!
-    socket.set_timeout(0, 0);
+    m_socket.set_timeout(0, 0);
 
     // Construct user credentials
     // Beware of the wchar_t converted to UTF8 for networking
@@ -588,7 +537,7 @@ bool ConnectThread()
     }
     else if (header.command==MSG2_BANNED)
     {
-        // Do NOT `disconnect()` the socket in this case - causes SocketW to terminate RoR.
+        // Do NOT `disconnect()` the m_socket in this case - causes SocketW to terminate RoR.
         CouldNotConnect(_L("Establishing network session: sorry, you are banned!"), /*close_socket=*/false);
         return false;
     }
@@ -619,14 +568,14 @@ bool ConnectThread()
     m_shutdown = false;
 
     LOG("[RoR|Networking] Connect(): Creating Send/Recv threads");
-    m_send_thread = std::thread(SendThread);
-    m_recv_thread = std::thread(RecvThread);
+    m_send_thread = std::thread(&Network::SendThread, this);
+    m_recv_thread = std::thread(&Network::RecvThread, this);
     FireNetEvent(NetEvent::Type::CONNECT_SUCCESS, "");
 
     return true;
 }
 
-void Disconnect()
+void Network::Disconnect()
 {
     LOG("[RoR|Networking] Disconnect() disconnecting...");
     bool is_clean_disconnect = !m_shutdown; // Hacky detection of invalid network state
@@ -638,7 +587,7 @@ void Disconnect()
     m_send_thread.join();
     LOG("[RoR|Networking] Disconnect() sender thread cleaned up");
 
-    socket.set_timeout(1, 0);
+    m_socket.set_timeout(1, 0);
 
     if (is_clean_disconnect)
     {
@@ -650,11 +599,11 @@ void Disconnect()
 
     if (is_clean_disconnect)
     {
-        socket.disconnect();
+        m_socket.disconnect();
     }
     else
     {
-        socket.close_fd();
+        m_socket.close_fd();
     }
 
     m_users.clear();
@@ -668,7 +617,7 @@ void Disconnect()
     LOG("[RoR|Networking] Disconnect() done");
 }
 
-void AddPacket(int streamid, int type, int len, const char *content)
+void Network::AddPacket(int streamid, int type, int len, const char *content)
 {
     const auto max_len = RORNET_MAX_MESSAGE_LENGTH - sizeof(RoRnet::Header);
     if (len > max_len)
@@ -678,8 +627,8 @@ void AddPacket(int streamid, int type, int len, const char *content)
         return;
     }
 
-    send_packet_t packet;
-    memset(&packet, 0, sizeof(send_packet_t));
+    NetSendPacket packet;
+    memset(&packet, 0, sizeof(NetSendPacket));
 
     char *buffer = (char*)(packet.buffer);
 
@@ -706,7 +655,7 @@ void AddPacket(int streamid, int type, int len, const char *content)
                 return;
             }
             auto search = std::find_if(m_send_packet_buffer.begin(), m_send_packet_buffer.end(),
-                    [&](const send_packet_t& p) { return !memcmp(packet.buffer, p.buffer, sizeof(RoRnet::Header)); });
+                    [&](const NetSendPacket& p) { return !memcmp(packet.buffer, p.buffer, sizeof(RoRnet::Header)); });
             if (search != m_send_packet_buffer.end())
             {
                 // Found outdated discardable streamdata -> replace it
@@ -722,7 +671,7 @@ void AddPacket(int streamid, int type, int len, const char *content)
     m_send_packet_available_cv.notify_one();
 }
 
-void AddLocalStream(RoRnet::StreamRegister *reg, int size)
+void Network::AddLocalStream(RoRnet::StreamRegister *reg, int size)
 {
     reg->origin_sourceid = m_uid;
     reg->origin_streamid = m_stream_id;
@@ -734,44 +683,44 @@ void AddLocalStream(RoRnet::StreamRegister *reg, int size)
     m_stream_id++;
 }
 
-std::vector<recv_packet_t> GetIncomingStreamData()
+std::vector<NetRecvPacket> Network::GetIncomingStreamData()
 {
     std::lock_guard<std::mutex> lock(m_recv_packetqueue_mutex);
-    std::vector<recv_packet_t> buf_copy = m_recv_packet_buffer;
+    std::vector<NetRecvPacket> buf_copy = m_recv_packet_buffer;
     m_recv_packet_buffer.clear();
     return buf_copy;
 }
 
-Ogre::String GetTerrainName()
+Ogre::String Network::GetTerrainName()
 {
     return m_server_settings.terrain;
 }
 
-int GetUserColor()
+int Network::GetUserColor()
 {
     std::lock_guard<std::mutex> lock(m_userdata_mutex);
     return m_userdata.colournum;
 }
 
-Ogre::UTFString GetUsername()
+Ogre::UTFString Network::GetUsername()
 {
     std::lock_guard<std::mutex> lock(m_userdata_mutex);
     return m_username;
 }
 
-RoRnet::UserInfo GetLocalUserData()
+RoRnet::UserInfo Network::GetLocalUserData()
 {
     std::lock_guard<std::mutex> lock(m_userdata_mutex);
     return m_userdata;
 }
 
-std::vector<RoRnet::UserInfo> GetUserInfos()
+std::vector<RoRnet::UserInfo> Network::GetUserInfos()
 {
     std::lock_guard<std::mutex> lock(m_users_mutex);
     return m_users;
 }
 
-bool GetUserInfo(int uid, RoRnet::UserInfo &result)
+bool Network::GetUserInfo(int uid, RoRnet::UserInfo &result)
 {
     std::lock_guard<std::mutex> lock(m_users_mutex);
     for (RoRnet::UserInfo user : m_users)
@@ -785,7 +734,7 @@ bool GetUserInfo(int uid, RoRnet::UserInfo &result)
     return false;
 }
 
-bool GetAnyUserInfo(int uid, RoRnet::UserInfo &result)
+bool Network::GetAnyUserInfo(int uid, RoRnet::UserInfo &result)
 {
     RoRnet::UserInfo tmp;
 
@@ -807,7 +756,7 @@ bool GetAnyUserInfo(int uid, RoRnet::UserInfo &result)
     return false;
 }
 
-bool FindUserInfo(std::string const& username, RoRnet::UserInfo &result)
+bool Network::FindUserInfo(std::string const& username, RoRnet::UserInfo &result)
 {
     std::lock_guard<std::mutex> lock(m_users_mutex);
     for (RoRnet::UserInfo user : m_users)
@@ -821,12 +770,12 @@ bool FindUserInfo(std::string const& username, RoRnet::UserInfo &result)
     return false;
 }
 
-void BroadcastChatMsg(const char* msg)
+void Network::BroadcastChatMsg(const char* msg)
 {
-    Networking::AddPacket(m_stream_id, RoRnet::MSG2_UTF8_CHAT, (int)std::strlen(msg), msg);
+    AddPacket(m_stream_id, RoRnet::MSG2_UTF8_CHAT, (int)std::strlen(msg), msg);
 }
 
-void WhisperChatMsg(RoRnet::UserInfo const& user, const char* msg)
+void Network::WhisperChatMsg(RoRnet::UserInfo const& user, const char* msg)
 {
     // Prepare buffer
     char payload[RORNET_MAX_MESSAGE_LENGTH - sizeof(RoRnet::Header)];
@@ -841,10 +790,10 @@ void WhisperChatMsg(RoRnet::UserInfo const& user, const char* msg)
     payload_len += std::strlen(msg);
 
     // Queue packet
-    Networking::AddPacket(m_stream_id, RoRnet::MSG2_UTF8_PRIVCHAT, (int)payload_len, msg);
+    AddPacket(m_stream_id, RoRnet::MSG2_UTF8_PRIVCHAT, (int)payload_len, msg);
 }
 
-std::string UserAuthToStringShort(RoRnet::UserInfo const &user)
+std::string Network::UserAuthToStringShort(RoRnet::UserInfo const &user)
 {
     // TODO: currently we must allocate & return std::string, see _LC
          if (user.authstatus & AUTH_ADMIN)    { return _LC("NetUserAuth", "Admin");  }
@@ -855,7 +804,7 @@ std::string UserAuthToStringShort(RoRnet::UserInfo const &user)
     else                                      { return _LC("NetUserAuth", "Guest");  }
 }
 
-std::string UserAuthToStringLong(RoRnet::UserInfo const &user)
+std::string Network::UserAuthToStringLong(RoRnet::UserInfo const &user)
 {
     // TODO: currently we must allocate & return std::string, see _L
          if (user.authstatus & AUTH_ADMIN)    { return _L("Server Administrator");   }
@@ -865,8 +814,5 @@ std::string UserAuthToStringLong(RoRnet::UserInfo const &user)
     else if (user.authstatus & AUTH_BANNED)   { return _L("Banned user");            }
     else                                      { return _L("Guest");                  }
 }
-
-} // namespace Networking
-} // namespace RoR
 
 #endif // USE_SOCKETW

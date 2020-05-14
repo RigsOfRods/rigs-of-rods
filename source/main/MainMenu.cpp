@@ -113,46 +113,46 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
     if (App::mp_state_requested->GetActiveEnum<MpState>() == MpState::CONNECTED &&
         App::mp_state->GetActiveEnum<MpState>() == MpState::DISABLED)
     {
-        Networking::StartConnecting();
+        App::GetNetwork()->StartConnecting();
     }
 
-    Networking::NetEventQueue events = Networking::CheckEvents();
+    NetEventQueue events = App::GetNetwork()->CheckEvents();
     while (!events.empty())
     {
         switch (events.front().type)
         {
-        case Networking::NetEvent::Type::SERVER_KICK:
+        case NetEvent::Type::SERVER_KICK:
             this->LeaveMultiplayerServer();
             App::GetGuiManager()->ShowMessageBox(
                 _LC("Network", "Network disconnected"), events.front().message.c_str());
             break;
 
-        case Networking::NetEvent::Type::RECV_ERROR:
+        case NetEvent::Type::RECV_ERROR:
             this->LeaveMultiplayerServer();
             App::GetGuiManager()->ShowMessageBox(
                 _L("Network fatal error: "), events.front().message.c_str());
             break;
 
-        case Networking::NetEvent::Type::CONNECT_STARTED:
+        case NetEvent::Type::CONNECT_STARTED:
             App::GetGuiManager()->SetMpConnectingStatusMsg(events.front().message.c_str());
             App::GetGuiManager()->SetVisible_GameMainMenu(false);
             App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
             break;
 
-        case Networking::NetEvent::Type::CONNECT_PROGRESS:
+        case NetEvent::Type::CONNECT_PROGRESS:
             App::GetGuiManager()->SetMpConnectingStatusMsg(events.front().message.c_str());
             break;
 
-        case Networking::NetEvent::Type::CONNECT_SUCCESS:
+        case NetEvent::Type::CONNECT_SUCCESS:
             App::mp_state->SetActiveVal((int)RoR::MpState::CONNECTED);
             ChatSystem::SendStreamSetup();
             if (!App::GetMumble())
             {
                 App::CreateMumble();
             }
-            if (Networking::GetTerrainName() != "any")
+            if (App::GetNetwork()->GetTerrainName() != "any")
             {
-                App::sim_terrain_name->SetPendingStr(Networking::GetTerrainName());
+                App::sim_terrain_name->SetPendingStr(App::GetNetwork()->GetTerrainName());
                 App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
             }
             else
@@ -169,7 +169,7 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
             }
             break;
 
-        case Networking::NetEvent::Type::CONNECT_FAILURE:
+        case NetEvent::Type::CONNECT_FAILURE:
             App::mp_state_requested->SetActiveVal((int)MpState::DISABLED);
             App::GetGuiManager()->ShowMessageBox(
                 _LC("Network", "Multiplayer: connection failed"), events.front().message.c_str());
@@ -318,7 +318,7 @@ void MainMenu::LeaveMultiplayerServer()
 #ifdef USE_SOCKETW
     if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
     {
-        RoR::Networking::Disconnect();
+        App::GetNetwork()->Disconnect();
         App::GetGuiManager()->GetMainSelector()->Close(); // We may get disconnected while still in map selection
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }

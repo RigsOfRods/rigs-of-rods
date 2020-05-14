@@ -315,7 +315,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
         actor->m_net_label_mt = new MovableText(element_name.ToCStr(), actor->m_net_username);
         actor->m_net_label_mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
 #ifdef USE_SOCKETW
-        actor->m_net_label_mt->setColor(Networking::GetPlayerColor((rq.asr_net_color)));
+        actor->m_net_label_mt->setColor(App::GetNetwork()->GetPlayerColor((rq.asr_net_color)));
 #endif // USE_SOCKETW
         actor->m_net_label_mt->setVisible(true);
 
@@ -374,15 +374,15 @@ void ActorManager::RemoveStreamSource(int sourceid)
 }
 
 #ifdef USE_SOCKETW
-void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
+void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_buffer)
 {
     // Sort by stream source
     std::stable_sort(packet_buffer.begin(), packet_buffer.end(),
-            [](const RoR::Networking::recv_packet_t& a, const RoR::Networking::recv_packet_t& b)
+            [](const RoR::NetRecvPacket& a, const RoR::NetRecvPacket& b)
             { return a.header.source > b.header.source; });
     // Compress data stream by eliminating all but the last update from every consecutive group of stream data updates
     auto it = std::unique(packet_buffer.rbegin(), packet_buffer.rend(),
-            [](const RoR::Networking::recv_packet_t& a, const RoR::Networking::recv_packet_t& b)
+            [](const RoR::NetRecvPacket& a, const RoR::NetRecvPacket& b)
             { return !memcmp(&a.header, &b.header, sizeof(RoRnet::Header)) &&
             a.header.command == RoRnet::MSG2_STREAM_DATA; });
     packet_buffer.erase(packet_buffer.begin(), it.base());
@@ -397,7 +397,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
                 std::string filename = Utils::SanitizeUtf8CString(reg->name);
 
                 RoRnet::UserInfo info;
-                if (!RoR::Networking::GetUserInfo(reg->origin_sourceid, info))
+                if (!App::GetNetwork()->GetUserInfo(reg->origin_sourceid, info))
                 {
                     RoR::LogFormat("[RoR] Invalid STREAM_REGISTER, user id %d does not exist", reg->origin_sourceid);
                     reg->status = -1;
@@ -456,7 +456,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
                     }
                 }
 
-                RoR::Networking::AddPacket(reg->origin_streamid, RoRnet::MSG2_STREAM_REGISTER_RESULT, sizeof(RoRnet::StreamRegister), (char *)reg);
+                App::GetNetwork()->AddPacket(reg->origin_streamid, RoRnet::MSG2_STREAM_REGISTER_RESULT, sizeof(RoRnet::StreamRegister), (char *)reg);
             }
         }
         else if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER_RESULT)
@@ -879,7 +879,7 @@ void ActorManager::DeleteActorInternal(Actor* actor)
     {
         if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
         {
-            RoR::Networking::AddPacket(actor->ar_net_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
+            App::GetNetwork()->AddPacket(actor->ar_net_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
         }
         else if (std::count_if(m_actors.begin(), m_actors.end(), [actor](Actor* b)
                     { return b->ar_net_source_id == actor->ar_net_source_id; }) == 1)

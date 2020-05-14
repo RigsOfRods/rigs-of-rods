@@ -27,20 +27,24 @@
 #include "RoRnet.h"
 #include "RoRPrerequisites.h"
 
+#include <atomic>
+#include <condition_variable>
+#include <deque>
 #include <list>
+#include <mutex>
 #include <queue>
 #include <string>
+#include <thread>
 #include <vector>
 #include <OgreUTFString.h>
 
 namespace RoR {
-namespace Networking {
 
 // ----------------------- Network messages (packed) -------------------------
 
 #pragma pack(push, 1)
 
-enum CharacterCmd
+enum NetCharacterCmd
 {
     CHARACTER_CMD_INVALID,
     CHARACTER_CMD_POSITION,
@@ -48,12 +52,12 @@ enum CharacterCmd
     CHARACTER_CMD_DETACH
 };
 
-struct CharacterMsgGeneric
+struct NetCharacterMsgGeneric
 {
     int32_t command;
 };
 
-struct CharacterMsgPos
+struct NetCharacterMsgPos
 {
     int32_t command;
     float   pos_x, pos_y, pos_z;
@@ -62,7 +66,7 @@ struct CharacterMsgPos
     char    anim_name[CHARACTER_ANIM_NAME_LEN];
 };
 
-struct CharacterMsgAttach
+struct NetCharacterMsgAttach
 {
     int32_t command;
     int32_t source_id;
@@ -70,7 +74,13 @@ struct CharacterMsgAttach
     int32_t position;
 };
 
-struct recv_packet_t
+struct NetSendPacket
+{
+    char buffer[RORNET_MAX_MESSAGE_LENGTH];
+    int size;
+};
+
+struct NetRecvPacket
 {
     RoRnet::Header header;
     char buffer[RORNET_MAX_MESSAGE_LENGTH];
@@ -102,36 +112,89 @@ struct NetEvent
 
 typedef std::queue < NetEvent, std::list<NetEvent>> NetEventQueue;
 
-bool                 StartConnecting();    ///< Launches connecting on background.
-NetEventQueue        CheckEvents();        ///< Processes and returns the event queue.
-void                 Disconnect();
+class Network
+{
+public:
+    bool                 StartConnecting();    ///< Launches connecting on background.
+    NetEventQueue        CheckEvents();        ///< Processes and returns the event queue.
+    void                 Disconnect();
 
-void                 AddPacket(int streamid, int type, int len, const char *content);
-void                 AddLocalStream(RoRnet::StreamRegister *reg, int size);
+    void                 AddPacket(int streamid, int type, int len, const char *content);
+    void                 AddLocalStream(RoRnet::StreamRegister *reg, int size);
 
-std::vector<recv_packet_t> GetIncomingStreamData();
+    std::vector<NetRecvPacket> GetIncomingStreamData();
 
-int                  GetUID();
-int                  GetNetQuality();
+    int                  GetUID();
+    int                  GetNetQuality();
 
-Ogre::String         GetTerrainName();
+    Ogre::String         GetTerrainName();
 
-int                  GetUserColor();
-Ogre::UTFString      GetUsername();
-RoRnet::UserInfo     GetLocalUserData();
-std::vector<RoRnet::UserInfo> GetUserInfos();
-bool                 GetUserInfo(int uid, RoRnet::UserInfo &result);
-bool                 GetAnyUserInfo(int uid, RoRnet::UserInfo &result); //!< Also considers local client
-bool                 FindUserInfo(std::string const& username, RoRnet::UserInfo &result);
-Ogre::ColourValue    GetPlayerColor(int color_num);
+    int                  GetUserColor();
+    Ogre::UTFString      GetUsername();
+    RoRnet::UserInfo     GetLocalUserData();
+    std::vector<RoRnet::UserInfo> GetUserInfos();
+    bool                 GetUserInfo(int uid, RoRnet::UserInfo &result);
+    bool                 GetAnyUserInfo(int uid, RoRnet::UserInfo &result); //!< Also considers local client
+    bool                 FindUserInfo(std::string const& username, RoRnet::UserInfo &result);
+    Ogre::ColourValue    GetPlayerColor(int color_num);
 
-void                 BroadcastChatMsg(const char* msg);
-void                 WhisperChatMsg(RoRnet::UserInfo const& user, const char* msg);
+    void                 BroadcastChatMsg(const char* msg);
+    void                 WhisperChatMsg(RoRnet::UserInfo const& user, const char* msg);
 
-std::string          UserAuthToStringShort(RoRnet::UserInfo const &user);
-std::string          UserAuthToStringLong(RoRnet::UserInfo const &user);
+    std::string          UserAuthToStringShort(RoRnet::UserInfo const &user);
+    std::string          UserAuthToStringLong(RoRnet::UserInfo const &user);
 
-} // namespace Networking
+private:
+    void                 FireNetEvent(NetEvent::Type type, std::string const & message);
+    void                 SetNetQuality(int quality);
+    bool                 SendMessageRaw(char *buffer, int msgsize);
+    bool                 SendNetMessage(int type, unsigned int streamid, int len, char* content);
+    void                 QueueStreamData(RoRnet::Header &header, char *buffer, size_t buffer_len);
+    int                  ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen);
+    void                 CouldNotConnect(std::string const & msg, bool close_socket = true);
+
+    bool                 ConnectThread();
+    void                 SendThread();
+    void                 RecvThread();
+
+    // Variables
+
+    SWInetSocket         m_socket;
+
+    RoRnet::ServerInfo   m_server_settings;
+    RoRnet::UserInfo     m_userdata;
+    std::vector<RoRnet::UserInfo> m_users;
+
+    Ogre::UTFString      m_username; // Shadows GVar 'mp_player_name' for multithreaded access.
+    std::string          m_net_host; // Shadows GVar 'mp_server_host' for multithreaded access.
+    std::string          m_password; // Shadows GVar 'mp_server_password' for multithreaded access.
+    std::string          m_token;    // Shadows GVar 'mp_player_token' for multithreaded access.
+    int                  m_net_port; // Shadows GVar 'mp_server_port' for multithreaded access.
+    int                  m_uid;
+    int                  m_authlevel;
+
+    std::thread          m_send_thread;
+    std::thread          m_recv_thread;
+    std::thread          m_connect_thread;
+
+    NetEventQueue        m_event_queue;
+    std::string          m_status_message;
+    std::atomic<bool>    m_shutdown;
+    std::atomic<int>     m_net_quality;
+    int                  m_stream_id = 10;
+
+    std::mutex           m_users_mutex;
+    std::mutex           m_userdata_mutex;
+    std::mutex           m_recv_packetqueue_mutex;
+    std::mutex           m_send_packetqueue_mutex;
+    std::mutex           m_event_queue_mutex;
+
+    std::condition_variable m_send_packet_available_cv;
+
+    std::vector<NetRecvPacket> m_recv_packet_buffer;
+    std::deque <NetSendPacket> m_send_packet_buffer;
+};
+
 } // namespace RoR
 
 #endif // USE_SOCKETW

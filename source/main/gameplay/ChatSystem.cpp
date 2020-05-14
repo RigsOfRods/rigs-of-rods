@@ -39,7 +39,7 @@ void SendStreamSetup()
     strcpy(reg.name, "chat");
     reg.type = 3;
 
-    RoR::Networking::AddLocalStream(&reg, sizeof(RoRnet::StreamRegister));
+    App::GetNetwork()->AddLocalStream(&reg, sizeof(RoRnet::StreamRegister));
 }
 #endif // USE_SOCKETW
 
@@ -60,7 +60,7 @@ void ReceiveStreamData(unsigned int type, int source, char* buffer)
 #endif // USE_SOCKETW
 
 #ifdef USE_SOCKETW
-void HandleStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
+void HandleStreamData(std::vector<RoR::NetRecvPacket> packet_buffer)
 {
     for (auto packet : packet_buffer)
     {

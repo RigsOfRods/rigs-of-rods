@@ -382,13 +382,13 @@ void Actor::PushNetwork(char* data, int size)
             reg.origin_sourceid = ar_net_source_id;
             reg.origin_streamid = ar_net_stream_id;
             strncpy(reg.name, ar_filename.c_str(), 128);
-            Networking::AddPacket(reg.origin_streamid, RoRnet::MSG2_STREAM_REGISTER_RESULT,
+            App::GetNetwork()->AddPacket(reg.origin_streamid, RoRnet::MSG2_STREAM_REGISTER_RESULT,
                     sizeof(RoRnet::StreamRegister), (char *)&reg);
             App::GetSimController()->GetBeamFactory()->AddStreamMismatch(ar_net_source_id, ar_net_stream_id);
 
             // Inform the local player
             RoRnet::UserInfo info;
-            RoR::Networking::GetUserInfo(reg.origin_sourceid, info);
+            App::GetNetwork()->GetUserInfo(reg.origin_sourceid, info);
             Str<400> text;
             text << info.username << _L(" content mismatch: ") << reg.name;
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, text.ToCStr());
@@ -1933,7 +1933,7 @@ void Actor::sendStreamSetup()
     strncpy(reg.sectionconfig, m_section_config.c_str(), 60);
 
 #ifdef USE_SOCKETW
-    RoR::Networking::AddLocalStream((RoRnet::StreamRegister *)&reg, sizeof(RoRnet::ActorStreamRegister));
+    App::GetNetwork()->AddLocalStream((RoRnet::StreamRegister *)&reg, sizeof(RoRnet::ActorStreamRegister));
 #endif // USE_SOCKETW
 
     ar_net_source_id = reg.origin_sourceid;
@@ -2080,7 +2080,7 @@ void Actor::sendStreamData()
         }
     }
 
-    RoR::Networking::AddPacket(ar_net_stream_id, MSG2_STREAM_DATA_DISCARDABLE, packet_len, send_buffer);
+    App::GetNetwork()->AddPacket(ar_net_stream_id, MSG2_STREAM_DATA_DISCARDABLE, packet_len, send_buffer);
 #endif //SOCKETW
 }
 

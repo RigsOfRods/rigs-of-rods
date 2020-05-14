@@ -38,6 +38,7 @@
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "MumbleIntegration.h"
+#include "Network.h"
 #include "ScriptEngine.h"
 #include "SoundScriptManager.h"
 #include "ThreadPool.h"
@@ -68,6 +69,7 @@ static GfxScene         g_gfx_scene;
 static SoundScriptManager* g_sound_script_manager;
 static LanguageEngine   g_language_engine;
 static ScriptEngine*    g_script_engine;
+static Network          g_network;
 
 // App
 CVar* app_state;
@@ -242,6 +244,7 @@ GfxScene*              GetGfxScene           () { return &g_gfx_scene; }
 SoundScriptManager*    GetSoundScriptManager () { return g_sound_script_manager; }
 LanguageEngine*        GetLanguageEngine     () { return &g_language_engine; }
 ScriptEngine*          GetScriptEngine       () { return g_script_engine; }
+Network*               GetNetwork            () { return &g_network; }
 
 // Factories
 void CreateOgreSubsystem()

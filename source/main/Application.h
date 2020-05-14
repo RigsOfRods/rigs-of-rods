@@ -329,6 +329,7 @@ GfxScene*            GetGfxScene();
 SoundScriptManager*  GetSoundScriptManager();
 LanguageEngine*      GetLanguageEngine();
 ScriptEngine*        GetScriptEngine();
+Network*             GetNetwork();
 
 // Factories
 void CreateOgreSubsystem();
