@@ -33,7 +33,7 @@
 #include "RoRFrameListener.h"
 #include "RoRnet.h"
 #include "RoRVersion.h"
-#include "Scripting.h"
+#include "ScriptEngine.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
 #include "Utils.h"
@@ -313,14 +313,14 @@ public:
 
 #ifdef USE_ANGELSCRIPT
         // we want to notify any running scripts that we might change something (prevent cheating)
-        ScriptEngine::getSingleton().triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS);
+        App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS);
 
         Str<1000> code; // Re-compose the code snippet
         for (int i = 1; i < args.size(); ++i)
         {
             code << " " << args[i];
         }
-        ScriptEngine::getSingleton().executeString(code.ToCStr());
+        App::GetScriptEngine()->executeString(code.ToCStr());
         reply_type = Console::CONSOLE_SYSTEM_REPLY;
         reply << " >>> " << code.ToCStr();
 #else

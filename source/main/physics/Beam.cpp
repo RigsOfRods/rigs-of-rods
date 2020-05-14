@@ -56,7 +56,7 @@
 #include "RoRFrameListener.h"
 #include "RoRnet.h"
 #include "ScrewProp.h"
-#include "Scripting.h"
+#include "ScriptEngine.h"
 #include "Skidmark.h"
 #include "SkinManager.h"
 #include "SlideNode.h"
@@ -1775,7 +1775,7 @@ void Actor::HandleAngelScriptEvents(float dt)
     if (m_water_contact && !m_water_contact_old)
     {
         m_water_contact_old = m_water_contact;
-        ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_TOUCHED_WATER, ar_instance_id);
+        App::GetScriptEngine()->triggerEvent(SE_TRUCK_TOUCHED_WATER, ar_instance_id);
     }
 #endif // USE_ANGELSCRIPT
 }

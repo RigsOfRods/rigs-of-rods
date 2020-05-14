@@ -52,6 +52,7 @@ namespace RoR
     class  Renderdash;
     class  RigLoadingProfiler;
     class  SceneMouse;
+    class  ScriptEngine;
     class  Skidmark;
     class  SkidmarkConfig;
     struct SkinDef;

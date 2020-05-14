@@ -51,7 +51,7 @@
 #include "RigDef_File.h"
 #include "RoRVersion.h"
 #include "ScrewProp.h"
-#include "Scripting.h"
+#include "ScriptEngine.h"
 #include "SkinManager.h"
 #include "SkyManager.h"
 #include "SkyXManager.h"
@@ -1779,7 +1779,7 @@ void SimController::UpdateSimulation(float dt)
     RoR::App::GetGuiManager()->DrawSimulationGui(dt);
 
 #ifdef USE_ANGELSCRIPT
-    ScriptEngine::getSingleton().framestep(dt);
+    App::GetScriptEngine()->framestep(dt);
 #endif
 
     for (auto actor : GetActors())

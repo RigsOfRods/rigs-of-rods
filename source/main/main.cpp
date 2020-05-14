@@ -36,7 +36,7 @@
 #include "PlatformUtils.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
-#include "Scripting.h"
+
 #include "Skidmark.h"
 #include "SoundScriptManager.h"
 #include "Utils.h"
@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
         InitDiscord();
 
 #ifdef USE_ANGELSCRIPT
-        new ScriptEngine(); // Init singleton. TODO: Move under Application
+        App::CreateScriptEngine();
 #endif
 
         App::CreateInputEngine();

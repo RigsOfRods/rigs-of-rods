@@ -328,6 +328,7 @@ CameraManager*       GetCameraManager();
 GfxScene*            GetGfxScene();
 SoundScriptManager*  GetSoundScriptManager();
 LanguageEngine*      GetLanguageEngine();
+ScriptEngine*        GetScriptEngine();
 
 // Factories
 void CreateOgreSubsystem();
@@ -339,6 +340,7 @@ void CreateThreadPool();
 void CreateCameraManager();
 void CreateGfxScene();
 void CreateSoundScriptManager();
+void CreateScriptEngine();
 
 // Setters
 void SetMainMenu             (MainMenu*          obj);

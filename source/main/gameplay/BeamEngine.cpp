@@ -21,10 +21,11 @@
 
 #include "BeamEngine.h"
 
+#include "Application.h"
 #include "ApproxMath.h" // frand()
 #include "Beam.h"
 #include "BeamFactory.h"
-#include "Scripting.h"
+#include "ScriptEngine.h"
 #include "SoundScriptManager.h"
 #include "TorqueCurve.h"
 

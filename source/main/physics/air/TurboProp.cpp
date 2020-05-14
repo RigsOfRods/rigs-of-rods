@@ -25,7 +25,7 @@
 #include "Airfoil.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
-#include "Scripting.h"
+#include "ScriptEngine.h"
 #include "SoundScriptManager.h"
 #include "BeamData.h"
 

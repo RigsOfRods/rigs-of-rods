@@ -27,25 +27,24 @@
 
 #ifdef USE_ANGELSCRIPT
 
+#define TRIGGER_EVENT(x, y) App::GetScriptEngine()->triggerEvent((x), (y))
+
 #include "RoRPrerequisites.h"
+#include "GameScript.h"
 #include "InterThreadStoreVector.h"
-#include "Singleton.h"
+#include "ScriptEvents.h"
 
 #include <Ogre.h>
 #include "scriptdictionary/scriptdictionary.h"
 #include "scriptbuilder/scriptbuilder.h"
 
-/**
- * @file ScriptEngine.h
- * @version 0.1.0
- * @brief AngelScript interface to the game
- * @authors Thomas Fischer (thomas{AT}rigsofrods{DOT}com)
- */
+namespace RoR {
 
 /**
  *  @brief This class represents the angelscript scripting interface. It can load and execute scripts.
+ *  @authors Thomas Fischer (thomas{AT}rigsofrods{DOT}com)
  */
-class ScriptEngine : public RoRSingletonNoCreation<ScriptEngine>, public Ogre::LogListener, public ZeroedMemoryAllocator
+class ScriptEngine : public Ogre::LogListener, public ZeroedMemoryAllocator
 {
     friend class GameScript;
 
@@ -130,8 +129,9 @@ public:
 
     AngelScript::asIScriptEngine* getEngine() { return engine; };
 
-    Ogre::String getScriptName() { return scriptName; };
-    Ogre::String getScriptHash() { return scriptHash; };
+    Ogre::String getScriptName() { return scriptName; }
+    Ogre::String getScriptHash() { return scriptHash; }
+    const char*  getModuleName() { return moduleName; }
 
     // method from Ogre::LogListener
     void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);
@@ -149,6 +149,7 @@ protected:
     Ogre::String scriptName;
     Ogre::String scriptHash;
     Ogre::Log* scriptLog;
+    GameScript m_game_script;
 
     InterThreadStoreVector<Ogre::String> stringExecutionQueue; //!< The string execution queue \see queueStringForExecution
 
@@ -167,4 +168,8 @@ protected:
     void msgCallback(const AngelScript::asSMessageInfo* msg);
 };
 
+} // namespace RoR
+
+#else // USE_ANGELSCRIPT
+#   define TRIGGER_EVENT(x, y)
 #endif // USE_ANGELSCRIPT

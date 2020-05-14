@@ -27,9 +27,8 @@
 
 #include "RoRPrerequisites.h"
 
-#include "ScriptEngine.h"
-
 #include <angelscript.h>
+#include <scriptdictionary/scriptdictionary.h>
 
 struct curlMemoryStruct
 {
@@ -43,16 +42,6 @@ struct curlMemoryStruct
 class GameScript : public ZeroedMemoryAllocator
 {
 public:
-    /**
-     * constructor
-     * @param se pointer to the ScriptEngine instance
-     */
-    GameScript(ScriptEngine* se);
-
-    /**
-     * destructor
-     */
-    ~GameScript();
 
     /**
      * writes a message to the games log (RoR.log)
@@ -381,7 +370,5 @@ private:
     bool HaveSimTerrain(const char* func_name); //!< Helper; Check if SimController instance exists, log warning if not.
     bool HavePlayerAvatar(const char* func_name); //!< Helper; Check if local Character instance exists, log warning if not.
     bool HaveMainCamera(const char* func_name); //!< Helper; Check if main camera exists, log warning if not.
-
-    ScriptEngine* mse; //!< local script engine pointer, used as proxy mostly
 };
 

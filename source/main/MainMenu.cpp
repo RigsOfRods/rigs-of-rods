@@ -203,7 +203,7 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
 #ifdef USE_ANGELSCRIPT
     if (App::GetSimTerrain() != nullptr)
     {
-        ScriptEngine::getSingleton().framestep(seconds_since_last_frame);
+        App::GetScriptEngine()->framestep(seconds_since_last_frame);
     }
 #endif
 }

@@ -27,8 +27,8 @@
 
 #include "Application.h"
 #include "GUIManager.h"
-#include "ScriptEvents.h"
-#include "Scripting.h"
+#include "ScriptEngine.h"
+
 
 #include <imgui.h>
 
