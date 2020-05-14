@@ -198,7 +198,8 @@ void ContentManager::InitContentManager()
     // sound is a bit special as we mark the base sounds so we don't clear them accidentally later on
 #ifdef USE_OPENAL
     LOG("RoR|ContentManager: Creating Sound Manager");
-    SoundScriptManager::getSingleton().setLoadingBaseSounds(true);
+    App::CreateSoundScriptManager();
+    App::GetSoundScriptManager()->setLoadingBaseSounds(true);
 #endif // USE_OPENAL
 
     AddResourcePack(ResourcePack::SOUNDS);
@@ -239,7 +240,7 @@ void ContentManager::InitContentManager()
         LOG("RoR|ContentManager: catched error while initializing Resource groups: " + e.getFullDescription());
     }
 #ifdef USE_OPENAL
-    SoundScriptManager::getSingleton().setLoadingBaseSounds(false);
+    App::GetSoundScriptManager()->setLoadingBaseSounds(false);
 #endif // USE_OPENAL
 }
 

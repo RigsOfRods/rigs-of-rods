@@ -1153,7 +1153,7 @@ void ActorSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
     }
     AddSoundSource(
             m_actor,
-            SoundScriptManager::getSingleton().createInstance(def.sound_script_name, m_actor->ar_instance_id), 
+            App::GetSoundScriptManager()->createInstance(def.sound_script_name, m_actor->ar_instance_id), 
             node_index,
             mode
         );
@@ -1163,7 +1163,7 @@ void ActorSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
 void ActorSpawner::AddSoundSourceInstance(Actor *vehicle, Ogre::String const & sound_script_name, int node_index, int type)
 {
 #ifdef USE_OPENAL
-    AddSoundSource(vehicle, SoundScriptManager::getSingleton().createInstance(sound_script_name, vehicle->ar_instance_id, nullptr), node_index);
+    AddSoundSource(vehicle, App::GetSoundScriptManager()->createInstance(sound_script_name, vehicle->ar_instance_id, nullptr), node_index);
 #endif // USE_OPENAL
 }
 
@@ -1190,7 +1190,7 @@ void ActorSpawner::ProcessSoundSource(RigDef::SoundSource & def)
 #ifdef USE_OPENAL
     AddSoundSource(
             m_actor,
-            SoundScriptManager::getSingleton().createInstance(def.sound_script_name, m_actor->ar_instance_id), 
+            App::GetSoundScriptManager()->createInstance(def.sound_script_name, m_actor->ar_instance_id), 
             GetNodeIndexOrThrow(def.node),
             -2
         );
@@ -6073,7 +6073,7 @@ void ActorSpawner::SetupDefaultSoundSources(Actor *vehicle)
     int ar_exhaust_pos_node = vehicle->ar_exhaust_pos_node;
 
 #ifdef USE_OPENAL
-    if (SoundScriptManager::getSingleton().isDisabled()) 
+    if (App::GetSoundScriptManager()->isDisabled()) 
     {
         return;
     }
@@ -6220,8 +6220,8 @@ void ActorSpawner::SetupDefaultSoundSources(Actor *vehicle)
     // linked sounds
     for (int i=0; i<vehicle->m_num_command_beams; i++)
     {
-        AddSoundSource(vehicle, SoundScriptManager::getSingleton().createInstance(Ogre::String("tracks/linked/default_command/extend"), trucknum, NULL, SL_COMMAND, i), 0);
-        AddSoundSource(vehicle, SoundScriptManager::getSingleton().createInstance(Ogre::String("tracks/linked/default_command/retract"), trucknum, NULL, SL_COMMAND, -i), 0);
+        AddSoundSource(vehicle, App::GetSoundScriptManager()->createInstance(Ogre::String("tracks/linked/default_command/extend"), trucknum, NULL, SL_COMMAND, i), 0);
+        AddSoundSource(vehicle, App::GetSoundScriptManager()->createInstance(Ogre::String("tracks/linked/default_command/retract"), trucknum, NULL, SL_COMMAND, -i), 0);
     }
 
 #endif //OPENAL

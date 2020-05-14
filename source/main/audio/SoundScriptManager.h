@@ -23,19 +23,18 @@
 
 #pragma once
 
+#include "Application.h"
 #include "RoRPrerequisites.h"
-
-#include "Singleton.h"
 
 #include <OgreScriptLoader.h>
 
-#define SOUND_PLAY_ONCE(_ACTOR_, _TRIG_)        SoundScriptManager::getSingleton().trigOnce    ( (_ACTOR_), (_TRIG_) )
-#define SOUND_START(_ACTOR_, _TRIG_)            SoundScriptManager::getSingleton().trigStart   ( (_ACTOR_), (_TRIG_) )
-#define SOUND_STOP(_ACTOR_, _TRIG_)             SoundScriptManager::getSingleton().trigStop    ( (_ACTOR_), (_TRIG_) )
-#define SOUND_TOGGLE(_ACTOR_, _TRIG_)           SoundScriptManager::getSingleton().trigToggle  ( (_ACTOR_), (_TRIG_) )
-#define SOUND_KILL(_ACTOR_, _TRIG_)             SoundScriptManager::getSingleton().trigKill    ( (_ACTOR_), (_TRIG_) )
-#define SOUND_GET_STATE(_ACTOR_, _TRIG_)        SoundScriptManager::getSingleton().getTrigState( (_ACTOR_), (_TRIG_) )
-#define SOUND_MODULATE(_ACTOR_, _MOD_, _VALUE_) SoundScriptManager::getSingleton().modulate    ( (_ACTOR_), (_MOD_), (_VALUE_) )
+#define SOUND_PLAY_ONCE(_ACTOR_, _TRIG_)        App::GetSoundScriptManager()->trigOnce    ( (_ACTOR_), (_TRIG_) )
+#define SOUND_START(_ACTOR_, _TRIG_)            App::GetSoundScriptManager()->trigStart   ( (_ACTOR_), (_TRIG_) )
+#define SOUND_STOP(_ACTOR_, _TRIG_)             App::GetSoundScriptManager()->trigStop    ( (_ACTOR_), (_TRIG_) )
+#define SOUND_TOGGLE(_ACTOR_, _TRIG_)           App::GetSoundScriptManager()->trigToggle  ( (_ACTOR_), (_TRIG_) )
+#define SOUND_KILL(_ACTOR_, _TRIG_)             App::GetSoundScriptManager()->trigKill    ( (_ACTOR_), (_TRIG_) )
+#define SOUND_GET_STATE(_ACTOR_, _TRIG_)        App::GetSoundScriptManager()->getTrigState( (_ACTOR_), (_TRIG_) )
+#define SOUND_MODULATE(_ACTOR_, _MOD_, _VALUE_) App::GetSoundScriptManager()->modulate    ( (_ACTOR_), (_MOD_), (_VALUE_) )
 
 enum {
     MAX_SOUNDS_PER_SCRIPT = 16,
@@ -252,7 +251,7 @@ private:
     int sound_link_item_id; // holds the item number this is for
 };
 
-class SoundScriptManager : public Ogre::ScriptLoader, public RoRSingleton<SoundScriptManager>, public ZeroedMemoryAllocator
+class SoundScriptManager : public Ogre::ScriptLoader, public ZeroedMemoryAllocator
 {
 public:
 

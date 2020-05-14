@@ -855,11 +855,11 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         if (!strncmp("sound", ptline, 5))
         {
 #ifdef USE_OPENAL
-            if (!SoundScriptManager::getSingleton().isDisabled())
+            if (!App::GetSoundScriptManager()->isDisabled())
             {
                 char tmp[255] = "";
                 sscanf(ptline, "sound %s", tmp);
-                SoundScriptInstance* sound = SoundScriptManager::getSingleton().createInstance(tmp, MAX_ACTORS + 1, tenode);
+                SoundScriptInstance* sound = App::GetSoundScriptManager()->createInstance(tmp, MAX_ACTORS + 1, tenode);
                 sound->setPosition(tenode->getPosition(), Vector3::ZERO);
                 sound->start();
             }

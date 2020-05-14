@@ -3212,7 +3212,7 @@ void Actor::ToggleCustomParticles()
 void Actor::UpdateSoundSources()
 {
 #ifdef USE_OPENAL
-    if (SoundScriptManager::getSingleton().isDisabled())
+    if (App::GetSoundScriptManager()->isDisabled())
         return;
     for (int i = 0; i < ar_num_soundsources; i++)
     {

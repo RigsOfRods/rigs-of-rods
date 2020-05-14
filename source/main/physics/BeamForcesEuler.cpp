@@ -906,20 +906,20 @@ void Actor::CalcCommands(bool doUpdate)
                             if (vst == 1)
                             {
                                 // just started
-                                SoundScriptManager::getSingleton().trigStop(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND, -i);
-                                SoundScriptManager::getSingleton().trigStart(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
+                                App::GetSoundScriptManager()->trigStop(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND, -i);
+                                App::GetSoundScriptManager()->trigStart(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
                                 vst = 0;
                             }
                             else if (vst == -1)
                             {
                                 // just stopped
-                                SoundScriptManager::getSingleton().trigStop(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
+                                App::GetSoundScriptManager()->trigStop(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
                                 vst = 0;
                             }
                             else if (vst == 0)
                             {
                                 // already running, modulate
-                                SoundScriptManager::getSingleton().modulate(ar_instance_id, SS_MOD_LINKED_COMMANDRATE, v, SL_COMMAND, i);
+                                App::GetSoundScriptManager()->modulate(ar_instance_id, SS_MOD_LINKED_COMMANDRATE, v, SL_COMMAND, i);
                             }
                         }
 #endif //USE_OPENAL

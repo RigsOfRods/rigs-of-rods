@@ -37,6 +37,7 @@
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "MumbleIntegration.h"
+#include "SoundScriptManager.h"
 #include "ThreadPool.h"
 
 namespace RoR {
@@ -62,6 +63,7 @@ static TerrainManager*  g_sim_terrain;
 static ThreadPool*      g_thread_pool;
 static CameraManager*   g_camera_manager;
 static GfxScene         g_gfx_scene;
+static SoundScriptManager* g_sound_script_manager;
 
 // App
 CVar* app_state;
@@ -233,6 +235,7 @@ TerrainManager*        GetSimTerrain         () { return g_sim_terrain; }
 ThreadPool*            GetThreadPool         () { return g_thread_pool; }
 CameraManager*         GetCameraManager      () { return g_camera_manager; }
 GfxScene*              GetGfxScene           () { return &g_gfx_scene; }
+SoundScriptManager*    GetSoundScriptManager () { return g_sound_script_manager; }
 
 // Factories
 void CreateOgreSubsystem()
@@ -283,6 +286,12 @@ void CreateGfxScene()
 {
     assert(!g_gfx_scene.GetSceneManager());
     g_gfx_scene.Init();
+}
+
+void CreateSoundScriptManager()
+{
+    assert(!g_sound_script_manager);
+    g_sound_script_manager = new SoundScriptManager();
 }
 
 // Cleanup
