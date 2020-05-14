@@ -51,7 +51,7 @@ class ScriptEngine : public RoRSingletonNoCreation<ScriptEngine>, public Ogre::L
 
 public:
 
-    ScriptEngine(Collisions* _coll = nullptr);
+    ScriptEngine();
     ~ScriptEngine();
 
     /**
@@ -141,7 +141,6 @@ public:
 
 protected:
 
-    Collisions* coll;
     AngelScript::asIScriptEngine* engine; //!< instance of the scripting engine
     AngelScript::asIScriptContext* context; //!< context in which all scripting happens
     AngelScript::asIScriptFunction* frameStepFunctionPtr; //!< script function pointer to the frameStep function

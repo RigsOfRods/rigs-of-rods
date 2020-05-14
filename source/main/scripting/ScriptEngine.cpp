@@ -69,9 +69,8 @@ void logString(const std::string &str)
 
 // the class implementation
 
-ScriptEngine::ScriptEngine(Collisions *coll) :
-      coll(coll)
-    , context(0)
+ScriptEngine::ScriptEngine() :
+     context(0)
     , defaultEventCallbackFunctionPtr(nullptr)
     , engine(0)
     , eventCallbackFunctionPtr(nullptr)
