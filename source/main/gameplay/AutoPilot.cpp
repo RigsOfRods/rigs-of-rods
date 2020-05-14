@@ -321,7 +321,7 @@ int Autopilot::adjIAS(int d)
 void Autopilot::gpws_update(float spawnheight)
 {
 #ifdef USE_OPENAL
-    if (SoundScriptManager::getSingleton().isDisabled())
+    if (App::GetSoundScriptManager()->isDisabled())
         return;
     if (mode_gpws && ref_b)
     {

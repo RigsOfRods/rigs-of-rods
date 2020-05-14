@@ -326,6 +326,7 @@ TerrainManager*      GetSimTerrain();
 ThreadPool*          GetThreadPool();
 CameraManager*       GetCameraManager();
 GfxScene*            GetGfxScene();
+SoundScriptManager*  GetSoundScriptManager();
 
 // Factories
 void CreateOgreSubsystem();
@@ -336,6 +337,7 @@ void CreateMumble();
 void CreateThreadPool();
 void CreateCameraManager();
 void CreateGfxScene();
+void CreateSoundScriptManager();
 
 // Setters
 void SetMainMenu             (MainMenu*          obj);
