@@ -19,7 +19,6 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /// @file   Application.h
 /// @author Petr Ohlidal
 /// @date   05/2014
