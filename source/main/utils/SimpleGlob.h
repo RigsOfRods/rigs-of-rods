@@ -203,7 +203,7 @@ enum SG_Error {
 #  define SG_ASSERT(b)    _ASSERTE(b)
 # else
 #  include <assert.h>
-#  define SG_ASSERT(b)    assert(b)
+#  define SG_ASSERT(b)    ROR_ASSERT(b)
 # endif
 #else
 # define SG_ASSERT(b)

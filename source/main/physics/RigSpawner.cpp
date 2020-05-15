@@ -6477,7 +6477,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
 
 Ogre::MaterialPtr ActorSpawner::CreateSimpleMaterial(Ogre::ColourValue color)
 {
-    assert(!m_simple_material_base.isNull());
+    ROR_ASSERT(!m_simple_material_base.isNull());
 
     static unsigned int simple_mat_counter = 0;
     char name_buf[300];

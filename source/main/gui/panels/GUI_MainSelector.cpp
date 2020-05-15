@@ -545,7 +545,7 @@ void MainSelector::Cancel()
 
 void MainSelector::Apply()
 {
-    assert(m_selected_entry > -1); // Programmer error
+    ROR_ASSERT(m_selected_entry > -1); // Programmer error
     DisplayEntry& sd_entry = m_display_entries[m_selected_entry];
 
     if (m_loader_type == LT_Terrain &&

@@ -150,7 +150,7 @@ void RoR::GUI::FrictionSettings::DrawTooltip(const char* title, const char* text
 
 ground_model_t const& RoR::GUI::FrictionSettings::AcquireUpdatedGroundmodel()
 {
-    assert(m_gm_entries[m_selected_gm].is_dirty);
+    ROR_ASSERT(m_gm_entries[m_selected_gm].is_dirty);
     m_gm_entries[m_selected_gm].is_dirty = false;
 
     return m_gm_entries[m_selected_gm].working_copy;

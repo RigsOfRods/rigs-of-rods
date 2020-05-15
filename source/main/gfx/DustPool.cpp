@@ -60,7 +60,7 @@ DustPool::DustPool(Ogre::SceneManager* sm, const char* dname, int dsize):
 
 DustPool::~DustPool()
 {
-	assert(m_is_discarded);
+	ROR_ASSERT(m_is_discarded);
 }
 
 void DustPool::Discard(Ogre::SceneManager* sm)

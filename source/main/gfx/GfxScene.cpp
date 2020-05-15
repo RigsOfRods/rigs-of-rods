@@ -44,7 +44,7 @@ using namespace RoR;
 
 void GfxScene::CreateDustPools()
 {
-    assert(m_dustpools.size() == 0);
+    ROR_ASSERT(m_dustpools.size() == 0);
     m_dustpools["dust"]   = new DustPool(m_scene_manager, "tracks/Dust",   20);
     m_dustpools["clump"]  = new DustPool(m_scene_manager, "tracks/Clump",  20);
     m_dustpools["sparks"] = new DustPool(m_scene_manager, "tracks/Sparks", 10);
@@ -74,7 +74,7 @@ void GfxScene::ClearScene()
 
 void RoR::GfxScene::Init()
 {
-    assert(!m_scene_manager);
+    ROR_ASSERT(!m_scene_manager);
     m_scene_manager = App::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
 }
 

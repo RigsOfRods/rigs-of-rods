@@ -31,7 +31,10 @@
 #include "ForwardDeclarations.h"
 #include "Str.h"
 
+#include <assert.h>
 #include <string>
+
+#define ROR_ASSERT(_EXPR)  assert(_EXPR)
 
 namespace RoR {
 

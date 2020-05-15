@@ -128,7 +128,7 @@ public:
      */
     ThreadPool(int num_threads)
     {
-        assert(num_threads > 0);
+        ROR_ASSERT(num_threads > 0);
 
         // Generic function (to be run on a separate thread) within which submitted tasks
         // are executed. It implements an endless loop (only returning when the ThreadPool

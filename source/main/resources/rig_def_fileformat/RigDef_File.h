@@ -40,8 +40,8 @@
 
 #pragma once
 
+#include "Application.h"
 #include "BitFlags.h"
-
 #include "RigDef_Node.h"
 #include "BeamConstants.h"
 
@@ -1430,7 +1430,7 @@ struct Trigger
 
     inline Trigger::EngineTrigger GetEngineTrigger() const
     {
-        assert(HasFlag_E_EngineTrigger());
+        ROR_ASSERT(HasFlag_E_EngineTrigger());
         EngineTrigger trig;
         trig.function = static_cast<EngineTrigger::Function>(shortbound_trigger_action);
         trig.motor_index = static_cast<unsigned int>(longbound_trigger_action);
@@ -1445,7 +1445,7 @@ struct Trigger
 
     inline CommandKeyTrigger GetCommandKeyTrigger() const
     {
-        assert(BITMASK_IS_0(options, OPTION_B_BLOCK_TRIGGERS | OPTION_A_INV_BLOCK_TRIGGERS 
+        ROR_ASSERT(BITMASK_IS_0(options, OPTION_B_BLOCK_TRIGGERS | OPTION_A_INV_BLOCK_TRIGGERS 
             | OPTION_h_UNLOCK_HOOKGROUPS_KEY | OPTION_H_LOCK_HOOKGROUPS_KEY | OPTION_E_ENGINE_TRIGGER));
         CommandKeyTrigger out;
         out.contraction_trigger_key = static_cast<unsigned int>(shortbound_trigger_action);
@@ -1461,7 +1461,7 @@ struct Trigger
 
     inline HookToggleTrigger GetHookToggleTrigger() const
     {
-        assert(HasFlag_h_UnlocksHookGroup() || HasFlag_H_LocksHookGroup());
+        ROR_ASSERT(HasFlag_h_UnlocksHookGroup() || HasFlag_H_LocksHookGroup());
         HookToggleTrigger trig;
         trig.contraction_trigger_hookgroup_id = shortbound_trigger_action;
         trig.extension_trigger_hookgroup_id = longbound_trigger_action;

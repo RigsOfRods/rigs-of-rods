@@ -729,7 +729,7 @@ void Parser::ParseDirectiveSetBeamDefaults()
 
 void Parser::ParseDirectivePropCameraMode()
 {
-    assert(m_current_module != nullptr);
+    ROR_ASSERT(m_current_module != nullptr);
     if (m_current_module->props.size() == 0)
     {
         this->AddMessage(Message::TYPE_ERROR, "Directive 'prop_camera_mode' found but no 'prop' defined, ignoring...");

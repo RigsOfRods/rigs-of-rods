@@ -307,7 +307,7 @@ typedef enum _ESOArgType {
 #  define SO_ASSERT(b)  _ASSERTE(b)
 # else
 #  include <assert.h>
-#  define SO_ASSERT(b)  assert(b)
+#  define SO_ASSERT(b)  ROR_ASSERT(b)
 # endif
 #else
 # define SO_ASSERT(b)   //!< assertion used to test input data
