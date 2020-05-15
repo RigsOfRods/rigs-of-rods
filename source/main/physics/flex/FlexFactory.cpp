@@ -190,7 +190,7 @@ void FlexBodyFileIO::WriteMetadata()
 void FlexBodyFileIO::ReadMetadata(FlexBodyFileMetadata* meta)
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
-    assert(meta != nullptr);
+    ROR_ASSERT(meta != nullptr);
     this->ReadFromFile((void*)meta, sizeof(FlexBodyFileMetadata));
 }
 

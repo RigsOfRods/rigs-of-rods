@@ -2163,13 +2163,13 @@ void InputEngine::windowResized(Ogre::RenderWindow* rw)
 
 void InputEngine::SetKeyboardListener(OIS::KeyListener* keyboard_listener)
 {
-    assert (mKeyboard != nullptr);
+    ROR_ASSERT (mKeyboard != nullptr);
     mKeyboard->setEventCallback(keyboard_listener);
 }
 
 OIS::MouseState InputEngine::SetMouseListener(OIS::MouseListener* mouse_listener)
 {
-    assert (mMouse != nullptr);
+    ROR_ASSERT (mMouse != nullptr);
     mMouse->setEventCallback(mouse_listener);
     return mMouse->getMouseState();
 }

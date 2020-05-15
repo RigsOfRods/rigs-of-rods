@@ -25,12 +25,13 @@
 
 #pragma once
 
+#include "Application.h"
+#include "RoRPrerequisites.h"
+
 #include <Ogre.h>
 #include <Overlay/OgreFontManager.h>
 
-#include "RoRPrerequisites.h"
 #include <OgreUTFString.h>
-
 namespace Ogre {
 
 class MovableText : public MovableObject, public Renderable
@@ -121,7 +122,7 @@ protected:
 
     // from renderable
     void    getRenderOperation(RenderOperation &op);
-    const   MaterialPtr       &getMaterial(void) const {assert(!mpMaterial.isNull());return mpMaterial;};
+    const   MaterialPtr       &getMaterial(void) const {ROR_ASSERT(!mpMaterial.isNull());return mpMaterial;};
     const   LightList         &getLights(void) const {return mLList;};
 };
 

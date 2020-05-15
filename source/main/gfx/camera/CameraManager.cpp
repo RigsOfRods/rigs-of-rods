@@ -132,7 +132,7 @@ CameraManager::~CameraManager()
 
 void CameraManager::CreateCameraNode()
 {
-    assert(!m_camera_node);
+    ROR_ASSERT(!m_camera_node);
     m_camera_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     m_camera_node->setFixedYawAxis(true);
     m_camera_node->attachObject(m_camera);
@@ -640,7 +640,7 @@ void CameraManager::NotifyVehicleChanged(Actor* new_vehicle)
 
 void CameraManager::ToggleCameraBehavior(CameraBehaviors new_behavior) // Only accepts FREE and FREEFIX modes
 {
-    assert(new_behavior == CAMERA_BEHAVIOR_FIXED || new_behavior == CAMERA_BEHAVIOR_FREE);
+    ROR_ASSERT(new_behavior == CAMERA_BEHAVIOR_FIXED || new_behavior == CAMERA_BEHAVIOR_FREE);
 
     if (m_current_behavior == new_behavior) // Leaving toggled mode?
     {

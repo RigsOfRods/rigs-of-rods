@@ -111,7 +111,7 @@ GUIManager::GuiTheme::GuiTheme()
         font_config.OversampleV = 1;
         font_config.PixelSnapH = true;
         default_font = ImGui::GetIO().Fonts->AddFontFromFileTTF(font_path, 16, &font_config);
-        assert(default_font);
+        ROR_ASSERT(default_font);
     }
     catch (...)
     {

@@ -249,63 +249,63 @@ Network*               GetNetwork            () { return &g_network; }
 // Factories
 void CreateOgreSubsystem()
 {
-    assert(!g_ogre_subsystem);
+    ROR_ASSERT(!g_ogre_subsystem);
     g_ogre_subsystem = new OgreSubsystem();
 }
 
 void CreateOverlayWrapper()
 {
-    assert(!g_overlay_wrapper);
+    ROR_ASSERT(!g_overlay_wrapper);
     g_overlay_wrapper = new OverlayWrapper();
 }
 
 void CreateGuiManager()
 {
-    assert(!g_gui_manager);
+    ROR_ASSERT(!g_gui_manager);
     g_gui_manager = new GUIManager();
 }
 
 void CreateInputEngine()
 {
-    assert(!g_input_engine);
+    ROR_ASSERT(!g_input_engine);
     g_input_engine = new InputEngine();
 }
 
 void CreateMumble()
 {
 #ifdef USE_MUMBLE // The class is always forward-declared but only defined if USE_MUMBLE is defined
-    assert(!g_mumble);
+    ROR_ASSERT(!g_mumble);
     g_mumble = new MumbleIntegration();
 #endif // USE_MUMBLE
 }
 
 void CreateThreadPool()
 {
-    assert(g_thread_pool == nullptr);
+    ROR_ASSERT(g_thread_pool == nullptr);
     g_thread_pool = ThreadPool::DetectNumWorkersAndCreate();
 }
 
 void CreateCameraManager()
 {
-    assert(!g_camera_manager);
+    ROR_ASSERT(!g_camera_manager);
     g_camera_manager = new CameraManager();
 }
 
 void CreateGfxScene()
 {
-    assert(!g_gfx_scene.GetSceneManager());
+    ROR_ASSERT(!g_gfx_scene.GetSceneManager());
     g_gfx_scene.Init();
 }
 
 void CreateSoundScriptManager()
 {
-    assert(!g_sound_script_manager);
+    ROR_ASSERT(!g_sound_script_manager);
     g_sound_script_manager = new SoundScriptManager();
 }
 
 void CreateScriptEngine()
 {
-    assert(!g_script_engine);
+    ROR_ASSERT(!g_script_engine);
     g_script_engine = new ScriptEngine();
 }
 

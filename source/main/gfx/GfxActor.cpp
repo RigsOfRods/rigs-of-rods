@@ -2153,7 +2153,7 @@ void RoR::GfxActor::UpdateNetLabels(float dt)
 
 void RoR::GfxActor::CalculateDriverPos(Ogre::Vector3& out_pos, Ogre::Quaternion& out_rot)
 {
-    assert(m_driverseat_prop_index != -1);
+    ROR_ASSERT(m_driverseat_prop_index != -1);
     prop_t* driverseat_prop = &m_props[m_driverseat_prop_index];
 
     NodeData* nodes = this->GetSimNodeBuffer();

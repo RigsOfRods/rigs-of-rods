@@ -117,7 +117,7 @@ public:
         if (!this->CheckAppState(AppState::SIMULATION))
             return;
 
-        assert(App::GetSimTerrain());
+        ROR_ASSERT(App::GetSimTerrain());
 
         Str<200> reply;
         reply << m_name << ": ";
@@ -131,7 +131,7 @@ public:
         }
         else
         {
-            assert(App::GetSimController()->GetPlayerCharacter());
+            ROR_ASSERT(App::GetSimController()->GetPlayerCharacter());
             pos = App::GetSimController()->GetPlayerCharacter()->getPosition();
         }
         reply << _L("Terrain height at position: ")
@@ -151,8 +151,8 @@ public:
         if (!this->CheckAppState(AppState::SIMULATION))
             return;
 
-        assert(App::GetSimController()->GetPlayerCharacter());
-        assert(App::GetSimTerrain());
+        ROR_ASSERT(App::GetSimController()->GetPlayerCharacter());
+        ROR_ASSERT(App::GetSimTerrain());
 
         Str<200> reply;
         reply << m_name << ": ";

@@ -176,8 +176,8 @@ void MovableText::showOnTop(bool show)
 
 void MovableText::_setupGeometry()
 {
-    assert(mpFont);
-    assert(!mpMaterial.isNull());
+    ROR_ASSERT(mpFont);
+    ROR_ASSERT(!mpMaterial.isNull());
 
     uint vertexCount = static_cast<uint>(mCaption.size() * 6);
 
@@ -460,8 +460,8 @@ void MovableText::_setupGeometry()
 
 void MovableText::_updateColors(void)
 {
-    assert(mpFont);
-    assert(!mpMaterial.isNull());
+    ROR_ASSERT(mpFont);
+    ROR_ASSERT(!mpMaterial.isNull());
 
     // Convert to system-specific
     RGBA color;
@@ -480,13 +480,13 @@ void MovableText::_updateColors(void)
 
 const Quaternion& MovableText::getWorldOrientation(void) const
 {
-    assert(mpCam);
+    ROR_ASSERT(mpCam);
     return const_cast<Quaternion&>(mpCam->getDerivedOrientation());
 }
 
 const Vector3& MovableText::getWorldPosition(void) const
 {
-    assert(mParentNode);
+    ROR_ASSERT(mParentNode);
     return mParentNode->_getDerivedPosition();
 }
 

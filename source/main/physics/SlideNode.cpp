@@ -26,6 +26,7 @@
 
 #include "SlideNode.h"
 
+#include "Application.h"
 #include "BeamData.h"
 #include "RoRPrerequisites.h"
 
@@ -78,7 +79,7 @@ SlideNode::SlideNode(node_t* slidingNode, RailGroup* slidingRail):
     sn_slide_broken(false)
 {
     // make sure they exist
-    MYASSERT( m_sliding_node );
+    ROR_ASSERT( m_sliding_node );
 }
 
 void SlideNode::UpdateForces(float dt)
