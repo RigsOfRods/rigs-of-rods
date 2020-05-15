@@ -4,15 +4,15 @@ cmake
 [requires]
 AngelScript/2.32@anotherfoxguy/stable
 discord-rpc/3.4.0@AnotherFoxGuy/stable
-libcurl/7.61.1@bincrafters/stable
-OpenSSL/1.1.1c@conan/stable
+libcurl/7.69.1
+openssl/1.1.1g
 MofileReader/1.0.0@anotherfoxguy/stable
 MyGUI/3.2.3-OGRE-1.11.6-with-patches@anotherfoxguy/stable
 OGRE/1.11.6-with-patches@anotherfoxguy/stable
 OGREdeps/20.19.4@anotherfoxguy/stable
 SocketW/3.10.36@anotherfoxguy/stable
-openal/1.19.0@bincrafters/stable
-rapidjson/1.1.0@bincrafters/stable
+openal/1.19.1
+rapidjson/cci.20200410
 ogre-caelum/0.6.3-p1@anotherfoxguy/stable
 
 [imports]

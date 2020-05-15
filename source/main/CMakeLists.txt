@@ -415,7 +415,7 @@ if (USE_PACKAGE_MANAGER)
             CONAN_PKG::openal
             CONAN_PKG::rapidjson
             CONAN_PKG::ogre-caelum
-            CONAN_PKG::OpenSSL
+            CONAN_PKG::openssl
             CONAN_PKG::OGRE
             CONAN_PKG::OGREdeps
             CONAN_PKG::zlib
