@@ -53,14 +53,23 @@ void GfxScene::CreateDustPools()
     m_dustpools["ripple"] = new DustPool(m_scene_manager, "tracks/Ripple", 20);
 }
 
-void GfxScene::DeleteDustPools()
+void GfxScene::ClearScene()
 {
+    // Delete dustpools
     for (auto itor : m_dustpools)
     {
         itor.second->Discard(m_scene_manager);
         delete itor.second;
     }
     m_dustpools.clear();
+
+    // Delete game elements
+    m_all_gfx_actors.clear();
+    m_all_gfx_characters.clear();
+
+    // Wipe scene manager
+    m_scene_manager->clearScene();
+    App::GetCameraManager()->ReCreateCameraNode(); // Needed after the wipe
 }
 
 void RoR::GfxScene::Init()
