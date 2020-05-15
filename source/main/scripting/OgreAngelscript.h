@@ -30,7 +30,7 @@
 #include <angelscript.h>
 #include <Ogre.h>
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 // This function will register the following objects with the scriptengine:
 //    - Ogre::Vector3

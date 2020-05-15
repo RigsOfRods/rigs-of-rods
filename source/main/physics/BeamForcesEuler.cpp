@@ -18,12 +18,10 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "RoRPrerequisites.h"
-
+#include "Application.h"
 #include "AeroEngine.h"
 #include "AirBrake.h"
 #include "Airfoil.h"
-#include "Application.h"
 #include "ApproxMath.h"
 #include "Beam.h"
 #include "BeamEngine.h"

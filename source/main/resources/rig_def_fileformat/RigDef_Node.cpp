@@ -25,7 +25,7 @@
 
 #include "RigDef_Node.h"
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 using namespace RigDef;
 

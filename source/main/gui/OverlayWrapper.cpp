@@ -485,17 +485,17 @@ void OverlayWrapper::updateStats(bool detailed)
         OverlayElement* guiBest = OverlayManager::getSingleton().getOverlayElement("Core/BestFps");
         OverlayElement* guiWorst = OverlayManager::getSingleton().getOverlayElement("Core/WorstFps");
 
-        guiAvg->setCaption(avgFps + TOUTFSTRING(stats.avgFPS));
-        guiCurr->setCaption(currFps + TOUTFSTRING(stats.lastFPS));
-        guiBest->setCaption(bestFps + TOUTFSTRING(stats.bestFPS) + U(" ") + TOUTFSTRING(stats.bestFrameTime) + U(" ms"));
-        guiWorst->setCaption(worstFps + TOUTFSTRING(stats.worstFPS) + U(" ") + TOUTFSTRING(stats.worstFrameTime) + U(" ms"));
+        guiAvg->setCaption(avgFps + TOSTRING(stats.avgFPS));
+        guiCurr->setCaption(currFps + TOSTRING(stats.lastFPS));
+        guiBest->setCaption(bestFps + TOSTRING(stats.bestFPS) + U(" ") + TOSTRING(stats.bestFrameTime) + U(" ms"));
+        guiWorst->setCaption(worstFps + TOSTRING(stats.worstFPS) + U(" ") + TOSTRING(stats.worstFrameTime) + U(" ms"));
 
         OverlayElement* guiTris = OverlayManager::getSingleton().getOverlayElement("Core/NumTris");
-        UTFString triss = tris + TOUTFSTRING(stats.triangleCount);
+        UTFString triss = tris + TOSTRING(stats.triangleCount);
         if (stats.triangleCount > 1000000)
-            triss = tris + TOUTFSTRING(stats.triangleCount/1000000.0f) + U(" M");
+            triss = tris + TOSTRING(stats.triangleCount/1000000.0f) + U(" M");
         else if (stats.triangleCount > 1000)
-            triss = tris + TOUTFSTRING(stats.triangleCount/1000.0f) + U(" k");
+            triss = tris + TOSTRING(stats.triangleCount/1000.0f) + U(" k");
         guiTris->setCaption(triss);
 
         // create some memory texts

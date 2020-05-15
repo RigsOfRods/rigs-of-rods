@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 class PointColDetector : public ZeroedMemoryAllocator
 {

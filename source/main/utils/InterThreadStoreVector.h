@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include <mutex>
 

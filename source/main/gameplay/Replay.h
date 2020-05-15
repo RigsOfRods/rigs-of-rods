@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 struct node_simple_t
 {

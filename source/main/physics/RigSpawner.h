@@ -28,7 +28,6 @@
 #pragma once
 
 #include "Application.h"
-#include "RoRPrerequisites.h"
 #include "RigDef_Parser.h"
 #include "BeamData.h"
 #include "FlexFactory.h"

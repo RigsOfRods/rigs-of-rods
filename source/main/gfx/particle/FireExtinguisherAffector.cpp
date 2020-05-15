@@ -30,8 +30,6 @@
 #include <OgreParticleSystemManager.h>
 #include <OgreParticle.h>
 
-#include "RoRPrerequisites.h"
-
 #include "ExtinguishableFireAffectorFactory.h"
 
 

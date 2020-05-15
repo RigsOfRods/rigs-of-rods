@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include "BeamData.h" // for collision_box_t
 

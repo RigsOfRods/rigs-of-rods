@@ -23,7 +23,6 @@
 #include <Ogre.h>
 
 #include "Application.h"
-#include "RoRPrerequisites.h"
 #include "TerrainManager.h"
 #include "Water.h"
 
@@ -49,7 +48,7 @@ DustPool::DustPool(Ogre::SceneManager* sm, const char* dname, int dsize):
         {
             sns[i]->attachObject(pss[i]);
             pss[i]->setCastShadows(false);
-            pss[i]->setVisibilityFlags(DEPTHMAP_DISABLED);
+            pss[i]->setVisibilityFlags(RoR::DEPTHMAP_DISABLED);
             if (pss[i]->getNumEmitters() > 0)
             {
                 pss[i]->getEmitter(0)->setEnabled(false);

@@ -47,7 +47,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 #include <Ogre.h>
 
 // uncomment if you want to use ETM as terrainmanager

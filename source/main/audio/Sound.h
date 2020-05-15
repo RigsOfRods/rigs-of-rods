@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #ifdef __APPLE__
   #include <OpenAL/al.h>

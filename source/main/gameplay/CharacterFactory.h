@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include "Character.h"
 #include "Network.h"

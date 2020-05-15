@@ -29,7 +29,6 @@
 #include "Application.h"
 #include "Console.h"
 #include "RigDef_Parser.h"
-#include "RoRPrerequisites.h"
 
 using namespace RigDef;
 

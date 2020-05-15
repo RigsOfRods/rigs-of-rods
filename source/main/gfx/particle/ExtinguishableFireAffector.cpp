@@ -22,14 +22,13 @@
 
 #include "ExtinguishableFireAffector.h"
 
+#include "Application.h"
+#include "ScriptEngine.h"
+
 #include <OgreParticleSystem.h>
 #include <OgreParticle.h>
 #include <OgreStringConverter.h>
 #include <OgreSceneNode.h>
-
-#include "RoRPrerequisites.h"
-#include "Application.h"
-#include "ScriptEngine.h"
 
 using namespace RoR;
 

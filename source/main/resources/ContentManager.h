@@ -24,7 +24,7 @@
 #pragma once
 
 #include "CacheSystem.h"
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include <OgreResourceGroupManager.h>
 #include <OgreScriptCompiler.h>

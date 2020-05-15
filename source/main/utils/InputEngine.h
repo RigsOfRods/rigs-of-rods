@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include <OgreUTFString.h>
 #include "OISEvents.h"

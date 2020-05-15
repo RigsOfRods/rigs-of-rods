@@ -27,7 +27,6 @@
 
 #include "Application.h"
 #include "GUIManager.h"
-#include "RoRPrerequisites.h"
 
 RoR::GUI::GamePauseMenu::GamePauseMenu(): 
     m_kb_focus_index(-1), m_kb_enter_index(-1)

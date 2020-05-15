@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define _Hydrax_Hydrax_H_
 
 #include "Prerequisites.h"
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include "Enums.h"
 #include "Help.h"

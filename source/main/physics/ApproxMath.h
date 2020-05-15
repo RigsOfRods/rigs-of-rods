@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 static int mirand = 1;
 

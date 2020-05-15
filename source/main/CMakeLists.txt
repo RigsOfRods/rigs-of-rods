@@ -11,7 +11,6 @@ set(SOURCE_FILES
         Application.{h,cpp}
         ForwardDeclarations.h
         MainMenu.{h,cpp}
-        RoRPrerequisites.h
         audio/MumbleIntegration.{h,cpp}
         audio/Sound.{h,cpp}
         audio/SoundManager.{h,cpp}

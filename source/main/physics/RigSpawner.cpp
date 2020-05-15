@@ -26,9 +26,9 @@
 ///    @date   12/2013
 
 
-#include "RoRPrerequisites.h"
 #include "RigSpawner.h"
 
+#include "Application.h"
 #include "AirBrake.h"
 #include "Airfoil.h"
 #include "Application.h"

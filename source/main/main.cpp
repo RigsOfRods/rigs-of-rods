@@ -19,8 +19,6 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "RoRPrerequisites.h"
-
 #include "Application.h"
 #include "CacheSystem.h"
 #include "Console.h"

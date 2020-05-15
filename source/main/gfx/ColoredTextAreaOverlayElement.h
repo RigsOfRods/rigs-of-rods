@@ -23,7 +23,7 @@
 #include <vector>
 #include <Overlay/OgreTextAreaOverlayElement.h>
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 class ColoredTextAreaOverlayElement : public Ogre::TextAreaOverlayElement
 {

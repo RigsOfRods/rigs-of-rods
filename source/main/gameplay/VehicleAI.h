@@ -29,7 +29,7 @@
 
 #ifdef USE_ANGELSCRIPT
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 #include "scriptdictionary/scriptdictionary.h"
 
 /**
