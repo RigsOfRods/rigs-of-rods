@@ -27,14 +27,26 @@
 
 #pragma once
 
+#include "BitFlags.h"
 #include "CVar.h"
 #include "ForwardDeclarations.h"
 #include "Str.h"
+#include "ZeroedMemoryAllocator.h" // Legacy
+
+#include <OgreStringConverter.h>
 
 #include <assert.h>
 #include <string>
 
 #define ROR_ASSERT(_EXPR)  assert(_EXPR)
+
+#define CHARACTER_ANIM_NAME_LEN 10 // Restricted for networking
+
+// Legacy macros
+#define TOSTRING(x)     Ogre::StringConverter::toString(x)
+#define PARSEINT(x)     Ogre::StringConverter::parseInt(x)
+#define PARSEREAL(x)    Ogre::StringConverter::parseReal(x)
+#define HydraxLOG(msg)  Ogre::LogManager::getSingleton().logMessage("[Hydrax] " + Ogre::String(msg));
 
 namespace RoR {
 
@@ -155,6 +167,30 @@ enum class IoInputGrabMode
 };
 IoInputGrabMode ParseIoInputGrabMode(std::string const & s);
 const char* IoInputGrabModeToStr(IoInputGrabMode v);
+
+enum VisibilityMasks
+{
+    DEPTHMAP_ENABLED  = BITMASK(1),
+    DEPTHMAP_DISABLED = BITMASK(2),
+    HIDE_MIRROR       = BITMASK(3),
+};
+
+enum LoaderType //!< Operation mode for GUI::MainSelector
+{
+    LT_None,
+    LT_Terrain,   // Invocable from GUI; No script alias, used in main menu
+    LT_Vehicle,   // Script "vehicle",   ext: truck car
+    LT_Truck,     // Script "truck",     ext: truck car
+    LT_Car,       // Script "car",       ext: car
+    LT_Boat,      // Script "boat",      ext: boat
+    LT_Airplane,  // Script "airplane",  ext: airplane
+    LT_Trailer,   // Script "trailer",   ext: trailer
+    LT_Train,     // Script "train",     ext: train
+    LT_Load,      // Script "load",      ext: load
+    LT_Extension, // Script "extension", ext: trailer load
+    LT_Skin,      // No script alias, invoked automatically
+    LT_AllBeam    // Invocable from GUI; Script "all",  ext: truck car boat airplane train load
+};
 
 // ------------------------------------------------------------------------------------------------
 // Global variables

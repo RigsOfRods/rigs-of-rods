@@ -22,7 +22,7 @@
 
 #include <Ogre.h>
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 #include "BeamData.h" // For MAX_AEROENGINES
 
 class FlexAirfoil : public ZeroedMemoryAllocator

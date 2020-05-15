@@ -26,7 +26,7 @@
 
 #include "GUIInputManager.h"
 #include "OgreImGui.h"
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include <Bites/OgreWindowEventUtilities.h>
 #include <OgreFrameListener.h>

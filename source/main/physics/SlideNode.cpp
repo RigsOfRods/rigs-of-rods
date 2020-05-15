@@ -28,7 +28,6 @@
 
 #include "Application.h"
 #include "BeamData.h"
-#include "RoRPrerequisites.h"
 
 /**
  * Find the point on a line defined by pt1 and pt2 that

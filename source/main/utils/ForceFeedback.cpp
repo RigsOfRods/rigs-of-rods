@@ -23,7 +23,6 @@
 
 #include "Application.h"
 #include "InputEngine.h"
-#include "RoRPrerequisites.h"
 
 #include <OISForceFeedback.h>
 #include <OgreString.h>

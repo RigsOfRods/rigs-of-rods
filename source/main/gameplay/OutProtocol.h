@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #ifdef USE_SOCKETW
 #include "SocketW.h"

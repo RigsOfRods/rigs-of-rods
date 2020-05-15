@@ -24,7 +24,6 @@
 #pragma once
 
 #include "Application.h"
-#include "RoRPrerequisites.h"
 
 #include <OgreScriptLoader.h>
 

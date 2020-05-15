@@ -23,7 +23,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "Noise.h"
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 namespace Hydrax{namespace Noise
 {

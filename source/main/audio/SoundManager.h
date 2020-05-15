@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include <OgreVector3.h>
 #include <OgreString.h>

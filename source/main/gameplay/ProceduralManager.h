@@ -21,7 +21,7 @@
 // thomas, 17th of June 2008
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 class ProceduralPoint : public ZeroedMemoryAllocator
 {

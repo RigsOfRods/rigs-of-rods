@@ -23,7 +23,7 @@
 
 /// @file
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include "OgreImGui.h"
 #include "SurveyMapTextureCreator.h"

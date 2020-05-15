@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 #include <angelscript.h>
 #include "ImprovedConfigFile.h"
 

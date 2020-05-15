@@ -22,7 +22,7 @@
 #pragma once
 
 #include "IWater.h"
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include <OgreHardwareVertexBuffer.h> // Ogre::HardwareVertexBufferSharedPtr
 #include <OgreMesh.h>

@@ -34,7 +34,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include <stdint.h> //"pstdint.h" // Needed for uint32_t, uint8_t
 

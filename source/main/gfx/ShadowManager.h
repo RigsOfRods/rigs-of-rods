@@ -29,7 +29,7 @@
 #include <Terrain/OgreTerrainMaterialGeneratorA.h>
 
 #include "Application.h"
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include "OgreTerrainPSSMMaterialGenerator.h"
 

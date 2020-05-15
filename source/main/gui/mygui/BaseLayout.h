@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 #include <MyGUI.h>
 #include "WrapsAttribute.h"
 

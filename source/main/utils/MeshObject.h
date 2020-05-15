@@ -27,7 +27,7 @@
 
 #include <Ogre.h>
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 class MeshObject : public Ogre::Resource::Listener, public ZeroedMemoryAllocator
 {

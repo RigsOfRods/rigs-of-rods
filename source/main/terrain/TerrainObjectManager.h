@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include "BatchPage.h"
 #include "GrassLoader.h"

@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 class Landusemap : public ZeroedMemoryAllocator
 {

@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 /// Represents an airfoil http://en.wikipedia.org/wiki/Airfoil
 class Airfoil : public ZeroedMemoryAllocator

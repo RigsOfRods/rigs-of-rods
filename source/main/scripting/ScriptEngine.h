@@ -29,7 +29,7 @@
 
 #define TRIGGER_EVENT(x, y) App::GetScriptEngine()->triggerEvent((x), (y))
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 #include "GameScript.h"
 #include "InterThreadStoreVector.h"
 #include "ScriptEvents.h"

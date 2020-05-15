@@ -27,7 +27,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include "utf8/checked.h"
 #include "utf8/unchecked.h"

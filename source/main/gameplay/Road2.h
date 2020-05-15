@@ -22,7 +22,7 @@
 
 #include <Ogre.h>
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 // dynamic roads
 class Road2 : public ZeroedMemoryAllocator

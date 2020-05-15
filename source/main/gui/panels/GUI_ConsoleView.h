@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include "Application.h"
 #include "Console.h"

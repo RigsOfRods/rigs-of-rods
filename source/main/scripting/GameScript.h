@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include <angelscript.h>
 #include <scriptdictionary/scriptdictionary.h>

@@ -22,7 +22,7 @@
 #pragma once
 
 #include "RigDef_Prerequisites.h"
-#include "RoRPrerequisites.h"
+#include "Application.h"
 #include "Flexable.h"
 #include "Locator_t.h"
 

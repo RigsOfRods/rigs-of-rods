@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 #include "Terrn2Fileformat.h"
 
 #include <OgreVector3.h>

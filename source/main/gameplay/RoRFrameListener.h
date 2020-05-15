@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include "BeamData.h" // RoR::ActorSpawnRequest
 #include "BeamFactory.h"
@@ -81,7 +81,7 @@ public:
     void   UpdateDirectionArrow  (char* text, Ogre::Vector3 position);
     void   ShowLoaderGUI         (int type, const Ogre::String& instance, const Ogre::String& box);
     void   OnLoaderGuiCancel     ();
-    void   OnLoaderGuiApply      (LoaderType type, CacheEntry* entry, std::string sectionconfig);
+    void   OnLoaderGuiApply      (RoR::LoaderType type, CacheEntry* entry, std::string sectionconfig);
     void   StartRaceTimer        (int id); // Do not call manually!
     void   StopRaceTimer         (); // Do not call manually!
     void   SetRaceTimeDiff       (float diff) { m_race_time_diff = diff; }; // Do not call manually!

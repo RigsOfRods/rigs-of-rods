@@ -31,8 +31,6 @@
 #include "Console.h"
 #include "RigDef_File.h"
 #include "RigDef_Regexes.h"
-#include "BitFlags.h"
-#include "RoRPrerequisites.h"
 #include "Utils.h"
 
 #include <OgreException.h>

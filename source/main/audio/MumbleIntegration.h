@@ -27,7 +27,7 @@
 
 #ifdef USE_MUMBLE
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #ifdef _WIN32
 #include <windows.h>

@@ -27,7 +27,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include <Overlay/OgreTextAreaOverlayElement.h>
 #include <OIS.h>

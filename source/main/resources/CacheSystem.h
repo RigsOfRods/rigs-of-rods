@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 #include "RigDef_File.h"
 
 #include <Ogre.h>
@@ -159,7 +159,7 @@ enum class CacheSearchMethod // Always case-insensitive
 
 struct CacheQuery
 {
-    LoaderType                     cqy_filter_type = LoaderType::LT_None;
+    RoR::LoaderType                cqy_filter_type = RoR::LoaderType::LT_None;
     int                            cqy_filter_category_id = CacheCategoryId::CID_All;
     std::string                    cqy_filter_guid; //!< Exact match; leave empty to disable
     CacheSearchMethod              cqy_search_method = CacheSearchMethod::NONE;

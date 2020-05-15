@@ -25,8 +25,6 @@
 
 #include "GUI_GameAbout.h"
 
-#include "RoRPrerequisites.h"
-
 #include "Application.h"
 #include "GUIManager.h"
 #include "Language.h"

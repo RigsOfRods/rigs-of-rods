@@ -31,7 +31,6 @@
 #include "Language.h"
 #include "MainMenu.h"
 #include "RoRFrameListener.h"
-#include "RoRPrerequisites.h"
 #include "SkinManager.h"
 #include "Utils.h"
 
