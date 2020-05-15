@@ -19,11 +19,9 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /// @file   Application.cpp
 /// @author Petr Ohlidal
 /// @date   05/2014
-
 
 #include "Application.h"
 
@@ -46,10 +44,9 @@
 namespace RoR {
 namespace App {
 
-// ================================================================================
+// ------------------------------------------------------------------------------------------------
 // Global variables
-// ================================================================================
-
+// ------------------------------------------------------------------------------------------------
 
 // Object instances
 static OgreSubsystem*   g_ogre_subsystem;
@@ -318,6 +315,10 @@ void DestroyOverlayWrapper()
 
 } // namespace App
 
+// ------------------------------------------------------------------------------------------------
+// Global logging
+// ------------------------------------------------------------------------------------------------
+
 void Log(const char* msg)
 {
     Ogre::LogManager::getSingleton().logMessage(msg);
@@ -335,7 +336,9 @@ void LogFormat(const char* format, ...)
     RoR::Log(buffer);
 }
 
-// --------------------- Config enums ---------------------
+// ------------------------------------------------------------------------------------------------
+// Global definitions and enumerations
+// ------------------------------------------------------------------------------------------------
 
 const char* CONF_GFX_SHADOW_PSSM    = "Parallel-split Shadow Maps";
 const char* CONF_GFX_SHADOW_NONE    = "No shadows (fastest)";
