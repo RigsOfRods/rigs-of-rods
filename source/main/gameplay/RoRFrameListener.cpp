@@ -2057,7 +2057,6 @@ void SimController::CleanupAfterSimulation()
     }
 
     m_scene_mouse.DiscardVisuals(); // TODO: move this to GfxScene ~~ only_a_ptr, 06/2018
-    App::GetGfxScene()->DeleteDustPools();
 
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
 }

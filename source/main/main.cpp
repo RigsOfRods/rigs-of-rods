@@ -385,8 +385,7 @@ int main(int argc, char *argv[])
                         App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
                     }
                 } // Enclosing scope for SimController
-                App::GetGfxScene()->GetSceneManager()->clearScene(); // Wipe the scene after SimController was destroyed
-                App::GetCameraManager()->ReCreateCameraNode(); // Needed after the wipe
+                App::GetGfxScene()->ClearScene();
                 App::sim_terrain_name->SetActiveStr("");
                 App::sim_terrain_gui_name->SetActiveStr("");
                 App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&main_obj); // HACK until OGRE 1.12 migration; Needed for GUI display, must be done ASAP ~ only_a_ptr, 10/2019

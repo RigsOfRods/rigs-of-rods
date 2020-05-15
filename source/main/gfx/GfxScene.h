@@ -61,9 +61,9 @@ public:
     void           Init();
     void           CreateDustPools();
     DustPool*      GetDustPool(const char* name);
-    void           DeleteDustPools();
     void           SetParticlesVisible(bool visible);
     void           UpdateScene(float dt_sec);
+    void           ClearScene();
     void           RegisterGfxActor(RoR::GfxActor* gfx_actor);
     void           RemoveGfxActor(RoR::GfxActor* gfx_actor);
     void           RegisterGfxCharacter(RoR::GfxCharacter* gfx_character);
