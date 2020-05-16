@@ -495,13 +495,10 @@ public:
     static Ogre::String eventIDToDescription(int eventID);
     event_trigger_t* getEventBySUID(int suid);
 
-    void setupDefault(Ogre::String inputhwnd = "");
-
     bool isEventDefined(int eventID);
     void addEvent(int eventID, event_trigger_t& t);
     void updateEvent(int eventID, const event_trigger_t& t);
     bool deleteEventBySUID(int suid);
-    void prepareShutdown();
     OIS::MouseState getMouseState();
     // some custom methods
     void windowResized(Ogre::RenderWindow* rw);
@@ -510,7 +507,6 @@ public:
     bool updateConfigline(event_trigger_t* t);
 
     void grabMouse(bool enable);
-    void setMousePosition(int x, int y, bool padding = true);
 
     int getKeboardKeyForCommand(int eventID);
 
@@ -548,7 +544,6 @@ protected:
     std::map<int, float> event_times;
 
     bool processLine(char* line, int deviceID = -1);
-    bool captureMode;
 
     void initAllKeys();
     bool setup();
