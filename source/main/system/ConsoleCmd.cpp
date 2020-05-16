@@ -27,7 +27,7 @@
 #include "GUIManager.h"
 #include "IWater.h"
 #include "Language.h"
-#include "MainMenu.h"
+
 #include "Network.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h"

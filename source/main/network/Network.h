@@ -27,6 +27,8 @@
 #include "RoRnet.h"
 #include "Application.h"
 
+#include <SocketW.h>
+
 #include <atomic>
 #include <condition_variable>
 #include <deque>

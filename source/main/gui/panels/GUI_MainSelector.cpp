@@ -29,7 +29,7 @@
 #include "GUI_LoadingWindow.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "MainMenu.h"
+
 #include "RoRFrameListener.h"
 #include "SkinManager.h"
 #include "Utils.h"
@@ -533,7 +533,7 @@ void MainSelector::Cancel()
 
     if (App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
     {
-        RoR::App::GetMainMenu()->LeaveMultiplayerServer(); // TODO: replace by message queue ~ 11/2019
+        App::mp_state_requested->SetActiveVal((int)MpState::DISABLED);
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
     else if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)

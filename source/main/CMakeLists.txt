@@ -10,7 +10,7 @@ set(SOURCE_FILES
         PagedGeometryConfig.h
         Application.{h,cpp}
         ForwardDeclarations.h
-        MainMenu.{h,cpp}
+        AppContext.{h,cpp}
         audio/MumbleIntegration.{h,cpp}
         audio/Sound.{h,cpp}
         audio/SoundManager.{h,cpp}
@@ -110,7 +110,6 @@ set(SOURCE_FILES
         gfx/skyx/VClouds/LightningManager.{h,cpp}
         gfx/skyx/VClouds/VClouds.{h,cpp}
         gui/DashBoardManager.{h,cpp}
-        gui/GUIInputManager.{h,cpp}
         gui/GUIManager.{h,cpp}
         gui/GUIUtils.{h,cpp}
         gui/OverlayWrapper.{h,cpp}

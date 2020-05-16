@@ -20,21 +20,24 @@
 */
 
 #include "Application.h"
+#include "AppContext.h"
 #include "CacheSystem.h"
+#include "ChatSystem.h"
 #include "Console.h"
 #include "ContentManager.h"
 #include "ErrorUtils.h"
 #include "GUIManager.h"
+#include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
+#include "GUI_MultiplayerSelector.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "MainMenu.h"
 #include "MumbleIntegration.h"
 #include "OgreSubsystem.h"
 #include "PlatformUtils.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
-
+#include "ScriptEngine.h"
 #include "Skidmark.h"
 #include "SoundScriptManager.h"
 #include "Utils.h"
@@ -258,8 +261,8 @@ int main(int argc, char *argv[])
         App::CreateInputEngine();
 
         App::GetGuiManager()->SetUpMenuWallpaper();
-        MainMenu main_obj;
-        App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&main_obj); // HACK until OGRE 1.12 migration; We need a frame listener to display 'progress' window ~ only_a_ptr, 10/2019
+
+        AppContext ctx; // Probably not the final location ~ 05/2020 Petr O.
 
         App::GetContentManager()->InitModCache();
 
@@ -310,8 +313,6 @@ int main(int argc, char *argv[])
 
         App::CreateThreadPool();
 
-        // ### Main loop (switches application states) ###
-
         App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
 
         if (App::mp_join_on_startup->GetActiveVal<bool>())
@@ -327,81 +328,402 @@ int main(int argc, char *argv[])
             App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
         }
 
+        // --------------------------------------------------------------
+        // Main rendering and event handling loop
+        // --------------------------------------------------------------
+
+        auto start_time = std::chrono::high_resolution_clock::now();
+
         while (App::app_state_requested->GetActiveEnum<AppState>() != AppState::SHUTDOWN)
         {
-            if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
+            OgreBites::WindowEventUtilities::messagePump();
 
+            // Enter new app state
+            if (App::app_state_requested->GetActiveEnum<AppState>() != App::app_state->GetActiveEnum<AppState>())
             {
-                App::app_state->SetActiveVal(App::app_state_requested->GetActiveVal<int>());
-
-#ifdef USE_OPENAL
-                if (App::audio_menu_music->GetActiveVal<bool>())
+                if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
                 {
-                    App::GetSoundScriptManager()->createInstance("tracks/main_menu_tune", -1, nullptr);
-                    SOUND_START(-1, SS_TRIG_MAIN_MENU);
-                }
+                    App::app_state->SetActiveVal((int)AppState::MAIN_MENU);
+                    App::GetGuiManager()->ReflectGameState();
+#ifdef USE_OPENAL
+                    if (App::audio_menu_music->GetActiveVal<bool>())
+                    {
+                        App::GetSoundScriptManager()->createInstance("tracks/main_menu_tune", -1, nullptr);
+                        SOUND_START(-1, SS_TRIG_MAIN_MENU);
+                    }
 #endif // USE_OPENAL
 
-                App::GetGuiManager()->ReflectGameState();
-                if (!App::mp_join_on_startup->GetActiveVal<bool>() && App::app_skip_main_menu->GetActiveVal<bool>())
-                {
-                    // MainMenu disabled (singleplayer mode) -> go directly to map selector (traditional behavior)
-                    if (App::diag_preset_terrain->GetActiveStr() == "")
+                    if (!App::mp_join_on_startup->GetActiveVal<bool>() && App::app_skip_main_menu->GetActiveVal<bool>())
                     {
-                        App::GetGuiManager()->SetVisible_GameMainMenu(false);
-                        App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+                        // MainMenu disabled (singleplayer mode) -> go directly to map selector (traditional behavior)
+                        if (App::diag_preset_terrain->GetActiveStr() == "")
+                        {
+                            App::GetGuiManager()->SetVisible_GameMainMenu(false);
+                            App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+                        }
                     }
                 }
-
-                main_obj.EnterMainMenuLoop();
-            }
-            else if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::SIMULATION)
-            {
-                { // Enclosing scope for SimController
-                    SimController sim_controller(&force_feedback, &skidmark_conf);
-                    App::SetSimController(&sim_controller);
-                    if (sim_controller.SetupGameplayLoop())
+                else if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::SIMULATION)
+                {
+                    App::app_state->SetActiveVal((int)AppState::SIMULATION);
+                    App::GetGuiManager()->ReflectGameState();
+                    App::SetSimController(new SimController(&force_feedback, &skidmark_conf));
+                    if (App::GetSimController()->SetupGameplayLoop())
                     {
-                        App::app_state->SetActiveVal(App::app_state_requested->GetActiveVal<int>());
-                        App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(&main_obj);     // HACK until OGRE 1.12 migration; We need a frame listener to display loading window ~ only_a_ptr, 10/2019
-                        App::GetGuiManager()->ReflectGameState();
                         App::sim_state->SetActiveVal((int)SimState::RUNNING);
                         App::sim_state_requested->SetActiveVal((int)SimState::RUNNING);
                         App::gfx_fov_external->SetActiveVal(App::gfx_fov_external_default->GetActiveVal<int>());
                         App::gfx_fov_internal->SetActiveVal(App::gfx_fov_internal_default->GetActiveVal<int>());
-                        sim_controller.EnterGameplayLoop();
-                        App::SetSimController(nullptr);
-                        App::GetMainMenu()->LeaveMultiplayerServer();
-#ifdef USE_MUMBLE
-                        if (App::GetMumble() != nullptr)
+#ifdef USE_SOCKETW
+                        if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
                         {
-                            App::GetMumble()->SetNonPositionalAudio();
+                            char text[300];
+                            std::snprintf(text, 300, _L("Press %s to start chatting"),
+                                RoR::App::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE).c_str());
+                            App::GetConsole()->putMessage(
+                                Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, text, "", 5000);
                         }
-#endif // USE_MUMBLE
+#endif // USE_SOCKETW
                     }
                     else
                     {
+                        delete App::GetSimController();
+                        App::SetSimController(nullptr);
                         App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
                     }
-                } // Enclosing scope for SimController
-                App::GetGfxScene()->ClearScene();
-                App::sim_terrain_name->SetActiveStr("");
-                App::sim_terrain_gui_name->SetActiveStr("");
-                App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&main_obj); // HACK until OGRE 1.12 migration; Needed for GUI display, must be done ASAP ~ only_a_ptr, 10/2019
+                }
+            } // App state change block
+
+#ifdef USE_SOCKETW
+            // Network events
+            NetEventQueue events = App::GetNetwork()->CheckEvents();
+            while (!events.empty())
+            {
+                switch (events.front().type)
+                {
+                case NetEvent::Type::SERVER_KICK:
+                    App::mp_state_requested->SetActiveVal((int)MpState::DISABLED);
+                    App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
+                    App::GetGuiManager()->ShowMessageBox(
+                        _LC("Network", "Network disconnected"), events.front().message.c_str());
+                    break;
+
+                case NetEvent::Type::RECV_ERROR:
+                    App::mp_state_requested->SetActiveVal((int)MpState::DISABLED);
+                    App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
+                    App::GetGuiManager()->ShowMessageBox(
+                        _L("Network fatal error: "), events.front().message.c_str());
+                    break;
+
+                case NetEvent::Type::CONNECT_STARTED:
+                    App::GetGuiManager()->SetMpConnectingStatusMsg(events.front().message.c_str());
+                    App::GetGuiManager()->SetVisible_GameMainMenu(false);
+                    App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
+                    break;
+
+                case NetEvent::Type::CONNECT_PROGRESS:
+                    App::GetGuiManager()->SetMpConnectingStatusMsg(events.front().message.c_str());
+                    break;
+
+                case NetEvent::Type::CONNECT_SUCCESS:
+                    App::mp_state->SetActiveVal((int)RoR::MpState::CONNECTED);
+                    RoR::ChatSystem::SendStreamSetup();
+                    if (!App::GetMumble())
+                    {
+                        App::CreateMumble();
+                    }
+                    if (App::GetNetwork()->GetTerrainName() != "any")
+                    {
+                        App::sim_terrain_name->SetPendingStr(App::GetNetwork()->GetTerrainName());
+                        App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
+                    }
+                    else
+                    {
+                        // Connected -> go directly to map selector
+                        if (App::diag_preset_terrain->GetActiveStr().empty())
+                        {
+                            App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+                        }
+                        else
+                        {
+                            App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
+                        }
+                    }
+                    break;
+
+                case NetEvent::Type::CONNECT_FAILURE:
+                    App::mp_state_requested->SetActiveVal((int)MpState::DISABLED);
+                    App::GetGuiManager()->ShowMessageBox(
+                        _LC("Network", "Multiplayer: connection failed"), events.front().message.c_str());
+                    App::GetGuiManager()->ReflectGameState();
+                    break;
+
+
+                default:;
+                }
+                events.pop();
+            } // Network connecting events block
+
+            App::GetGuiManager()->GetMpSelector()->CheckAndProcessRefreshResult();
+
+            // Change network state
+            if (App::mp_state_requested->GetActiveEnum<MpState>() != App::mp_state->GetActiveEnum<MpState>())
+            {
+                if (App::mp_state_requested->GetActiveEnum<MpState>() == MpState::CONNECTED &&
+                    App::mp_state->GetActiveEnum<MpState>() == MpState::DISABLED)
+                {
+                    App::GetNetwork()->StartConnecting();
+                }
+                else if (App::mp_state_requested->GetActiveEnum<MpState>() == MpState::DISABLED)
+                {
+                    App::GetNetwork()->Disconnect();
+                    if (App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
+                    {
+                        App::GetGuiManager()->GetMainSelector()->Close(); // We may get disconnected while still in map selection
+                        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                    }
+                }
+            } // Net state change block
+#endif // USE_SOCKETW
+
+            // Check FPS limit
+            if (App::gfx_fps_limit->GetActiveVal<int>() > 0)
+            {
+                const float min_frame_time = 1.0f / Ogre::Math::Clamp(App::gfx_fps_limit->GetActiveVal<int>(), 5, 240);
+                float dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
+                while (dt < min_frame_time)
+                {
+                    dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
+                }
+            } // Check FPS limit block
+
+            // Calculate delta time
+            const auto now = std::chrono::high_resolution_clock::now();
+            const float dt_sec = std::chrono::duration<float>(now - start_time).count();
+            start_time = now;
+
+            // Check simulation state change
+            if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
+            {
+                if (App::sim_state_requested->GetActiveEnum<SimState>() != App::sim_state->GetActiveEnum<SimState>())
+                {
+                    if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING)
+                    {
+                        if (App::sim_state_requested->GetActiveEnum<SimState>() == SimState::PAUSED)
+                        {
+                            App::GetSimController()->GetBeamFactory()->MuteAllActors();
+                            App::sim_state->SetActiveVal((int)App::sim_state_requested->GetActiveEnum<SimState>());
+                        }
+                    }
+                    else if (App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
+                    {
+                        if (App::sim_state_requested->GetActiveEnum<SimState>() == SimState::RUNNING)
+                        {
+                            App::GetSimController()->GetBeamFactory()->UnmuteAllActors();
+                            App::sim_state->SetActiveVal((int)App::sim_state_requested->GetActiveEnum<SimState>());
+                        }
+                    }
+                }
             }
 
+            // Prepare for simulation update
+            if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
+            {
+                App::GetSimController()->GetBeamFactory()->SyncWithSimThread();
+            }
 
-        } // End of app state loop
+#ifdef USE_SOCKETW
+            // Process incoming network traffic
+            if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
+            {
+                std::vector<RoR::NetRecvPacket> packets = App::GetNetwork()->GetIncomingStreamData();
+                if (!packets.empty())
+                {
+                    RoR::ChatSystem::HandleStreamData(packets);
+                    if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION && App::GetSimController())
+                    {
+                        App::GetSimController()->GetBeamFactory()->HandleActorStreamData(packets);
+                        App::GetSimController()->GetCharacterFactory()->handleStreamData(packets); // Update characters last (or else beam coupling might fail)
+                    }
+                }
+            }
+#endif // USE_SOCKETW
 
-        // ========================================================================
-        // Cleanup
-        // ========================================================================
+            // Process game events
+            App::GetInputEngine()->Capture();
+            if (App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
+            {
+                App::GetInputEngine()->updateKeyBounces(dt_sec);
+
+                // Savegame shortcuts
+                int slot = -1;
+                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_01, 1.0f))
+                {
+                    slot = 1;
+                }
+                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_02, 1.0f))
+                {
+                    slot = 2;
+                }
+                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_03, 1.0f))
+                {
+                    slot = 3;
+                }
+                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_04, 1.0f))
+                {
+                    slot = 4;
+                }
+                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_05, 1.0f))
+                {
+                    slot = 5;
+                }
+                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_06, 1.0f))
+                {
+                    slot = 6;
+                }
+                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_07, 1.0f))
+                {
+                    slot = 7;
+                }
+                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_08, 1.0f))
+                {
+                    slot = 8;
+                }
+                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_09, 1.0f))
+                {
+                    slot = 9;
+                }
+                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_10, 1.0f))
+                {
+                    slot = 0;
+                }
+                if (slot != -1)
+                {
+                    Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
+                    App::sim_savegame->SetPendingStr(filename);
+                    App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
+                }
+
+                // Handle escape key
+                if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
+                {
+                    if (App::GetGuiManager()->IsVisible_GameAbout())
+                    {
+                        App::GetGuiManager()->SetVisible_GameAbout(false);
+                    }
+                    else if (App::GetGuiManager()->IsVisible_MainSelector())
+                    {
+                        App::GetGuiManager()->GetMainSelector()->Close();
+                    }
+                    else if (App::GetGuiManager()->IsVisible_GameSettings())
+                    {
+                        App::GetGuiManager()->SetVisible_GameSettings(false);
+                    }
+                    else if (App::GetGuiManager()->IsVisible_MultiplayerSelector())
+                    {
+                        App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
+                    }
+                    else
+                    {
+                        App::app_state_requested->SetActiveVal((int)AppState::SHUTDOWN);
+                    }
+                }
+
+                // Draw gui
+                App::GetGuiManager()->NewImGuiFrame(dt_sec);
+                App::GetGuiManager()->DrawMainMenuGui();
+            }
+            else if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION &&
+                     App::app_state_requested->GetActiveEnum<AppState>() == AppState::SIMULATION)
+            {
+                // Update simulation - inputs, gui, gameplay
+                if (dt_sec != 0.f)
+                {
+                    App::GetGuiManager()->NewImGuiFrame(dt_sec); // For historical reasons, simulation update also draws some GUI
+                    App::GetSimController()->UpdateSimulation(dt_sec);
+                    if (App::sim_state->GetActiveEnum<SimState>() != RoR::SimState::PAUSED)
+                    {
+                        App::GetGfxScene()->UpdateScene(dt_sec);
+                    }
+                }
+            }
+
+#ifdef USE_ANGELSCRIPT
+            App::GetScriptEngine()->framestep(dt_sec);
+#endif
+
+            // Render!
+            Ogre::RenderWindow* render_window = RoR::App::GetOgreSubsystem()->GetRenderWindow();
+            if (render_window->isClosed())
+            {
+                App::app_state_requested->SetActiveVal((int)AppState::SHUTDOWN);
+            }
+            else
+            {
+                App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
+                if (!render_window->isActive() && render_window->isVisible())
+                {
+                    render_window->update(); // update even when in background !
+                }
+            } // Render block
+
+            // Update cache if requested
+            if (App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
+            {
+                if (App::app_force_cache_udpate->GetActiveVal<bool>() || App::app_force_cache_purge->GetActiveVal<bool>())
+                {
+                    App::GetGuiManager()->SetVisible_GameSettings(false);
+                    App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+                    App::GetContentManager()->InitModCache();
+                    App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                }
+            } // Update cache block
+
+            // Clean up after previous game state
+            if (App::app_state_requested->GetActiveEnum<AppState>() != App::app_state->GetActiveEnum<AppState>())
+            {
+                if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
+                {
+#ifdef USE_MUMBLE
+                    if (App::GetMumble())
+                    {
+                        App::GetMumble()->SetNonPositionalAudio();
+                    }
+#endif // USE_MUMBLE
+                    if (App::GetSimController())
+                    {
+                        App::GetSimController()->GetBeamFactory()->SaveScene("autosave.sav");
+                        App::GetSimController()->GetBeamFactory()->SyncWithSimThread(); // Wait for background tasks to finish
+                        App::GetSimController()->CleanupAfterSimulation();
+                        App::sim_state->SetActiveVal((int)SimState::OFF);
+                        delete App::GetSimController();
+                        App::SetSimController(nullptr);
+                    }
+
+                    App::GetGfxScene()->ClearScene();
+                    App::sim_terrain_name->SetActiveStr("");
+                    App::sim_terrain_gui_name->SetActiveStr("");
+                }
+            } // Clean up after previous game state block
+
+            App::GetGuiManager()->ApplyGuiCaptureKeyboard();
+
+        } // End of main rendering/input loop
+
+        // --------------------------------------------------------------
+        // Shutdown
+        // --------------------------------------------------------------
 
         ShutdownDiscord();
 
         App::GetConsole()->SaveConfig(); // RoR.cfg
 
-        App::GetMainMenu()->LeaveMultiplayerServer();
+#ifdef USE_SOCKETW
+        if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
+        {
+            App::GetNetwork()->Disconnect();
+        }
+#endif // USE_SOCKETW
 
 #ifndef _DEBUG
     }

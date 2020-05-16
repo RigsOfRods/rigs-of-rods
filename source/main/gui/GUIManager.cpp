@@ -143,13 +143,8 @@ GUI::TopMenubar*            GUIManager::GetTopMenubar()        { return &m_impl-
 GUI::SurveyMap*             GUIManager::GetSurveyMap()         { return &m_impl->panel_SurveyMap           ; }
 GUI::SimActorStats*         GUIManager::GetSimActorStats()     { return &m_impl->panel_SimActorStats       ; }
 
-GUIManager::GUIManager() :
-    m_renderwindow_closed(false),
-    m_impl(nullptr)
+GUIManager::GUIManager()
 {
-    RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
-    OgreBites::WindowEventUtilities::addWindowEventListener(RoR::App::GetOgreSubsystem()->GetRenderWindow(), this);
-
     std::string gui_logpath = PathCombine(App::sys_logs_dir->GetActiveStr(), "MyGUI.log");
     auto mygui_platform = new MyGUI::OgrePlatform();
     mygui_platform->initialise(
@@ -178,7 +173,6 @@ GUIManager::GUIManager() :
 #ifdef _WIN32
     MyGUI::LanguageManager::getInstance().eventRequestTag = MyGUI::newDelegate(this, &GUIManager::eventRequestTag);
 #endif // _WIN32
-    windowResized(RoR::App::GetOgreSubsystem()->GetRenderWindow());
 
     this->SetupImGui();
 
@@ -211,25 +205,9 @@ void GUIManager::ShutdownMyGUI()
     delete m_impl;
 }
 
-bool GUIManager::frameStarted(const Ogre::FrameEvent& evt)
-{
-    if (m_renderwindow_closed) return false;
-    if (!m_impl->mygui) return true;
-
-
-    // now hide the mouse cursor if not used since a long time
-    if (getLastMouseMoveTime() > 5000)
-    {
-        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-    }
-
-    return true;
-}
-
-bool GUIManager::frameEnded(const Ogre::FrameEvent& evt)
+void GUIManager::ApplyGuiCaptureKeyboard()
 {
     m_gui_kb_capture_requested = m_gui_kb_capture_queued;
-    return true;
 };
 
 void GUIManager::DrawSimulationGui(float dt)
@@ -312,11 +290,6 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     }
 }
 
-void GUIManager::windowClosed(Ogre::RenderWindow* rw)
-{
-    m_renderwindow_closed = true;
-}
-
 void GUIManager::eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _result)
 {
     _result = MyGUI::LanguageManager::getInstance().getTag(_tag);
@@ -391,6 +364,14 @@ void GUIManager::SetMouseCursorVisibility(MouseCursorVisibility visi)
         ImGui::GetIO().MouseDrawCursor = false;
         this->SupressCursor(true);
         return;
+    }
+}
+
+void GUIManager::UpdateMouseCursorVisibility()
+{
+    if (m_last_mousemove_time.getMilliseconds() > 5000)
+    {
+        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
     }
 }
 
@@ -583,6 +564,20 @@ void GUIManager::ShowMessageBox(const char* title, const char* text, bool allow_
 void GUIManager::RequestGuiCaptureKeyboard(bool val) 
 { 
     m_gui_kb_capture_queued = m_gui_kb_capture_queued || val;
+}
+
+void GUIManager::WakeUpGUI()
+{
+    m_last_mousemove_time.reset();
+    if (!m_is_cursor_supressed)
+    {
+        RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::VISIBLE);
+    }
+}
+
+void GUIManager::SupressCursor(bool do_supress)
+{
+    m_is_cursor_supressed = do_supress;
 }
 
 } // namespace RoR

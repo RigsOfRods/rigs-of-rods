@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include "GUIInputManager.h"
 #include "OgreImGui.h"
 #include "Application.h"
 
@@ -34,11 +33,7 @@
 
 namespace RoR {
 
-class GUIManager :
-    public GUIInputManager
-    , public Ogre::FrameListener
-    , public Ogre::WindowEventListener
-    , public ZeroedMemoryAllocator
+class GUIManager: public ZeroedMemoryAllocator
 {
 public:
 
@@ -124,9 +119,9 @@ public:
 
     // GUI manipulation
     void ShowMessageBox(const char* title, const char* text, bool allow_close = true, const char* btn1_text = "OK", const char* btn2_text = nullptr);
-    /// Pass true during frame to prevent input passing to application
-    void RequestGuiCaptureKeyboard(bool val);
+    void RequestGuiCaptureKeyboard(bool val); ///< Pass true during frame to prevent input passing to application
     bool IsGuiCaptureKeyboardRequested() const { return m_gui_kb_capture_requested; }
+    void ApplyGuiCaptureKeyboard(); ///< Call after rendered frame to apply queued value
 
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
@@ -143,30 +138,30 @@ public:
     void ShutdownMyGUI();
     void ReflectGameState();
     void SetMouseCursorVisibility(MouseCursorVisibility visi);
+    void UpdateMouseCursorVisibility();
+    void SupressCursor(bool do_supress);
 
     void SetUpMenuWallpaper();
 
     inline OgreImGui& GetImGui() { return m_imgui; }
     inline GuiTheme&  GetTheme() { return m_theme; }
 
+    void WakeUpGUI();
 
 private:
     void SetupImGui();
 
-    virtual bool frameStarted(const Ogre::FrameEvent& _evt);
-    virtual bool frameEnded(const Ogre::FrameEvent& _evt);
-    virtual void windowClosed(Ogre::RenderWindow* rw);
-
     void eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _result);
 
-    GuiManagerImpl*    m_impl;
-    bool               m_renderwindow_closed;
-    bool               m_hide_gui = false;
+    GuiManagerImpl*    m_impl                     = nullptr;
+    bool               m_hide_gui                 = false;
     OgreImGui          m_imgui;
     GuiTheme           m_theme;
     std::string        m_net_connect_status;
-    bool               m_gui_kb_capture_queued; //!< Resets and accumulates every frame
-    bool               m_gui_kb_capture_requested; //!< Effective value, persistent
+    bool               m_gui_kb_capture_queued    = false; ///< Resets and accumulates every frame
+    bool               m_gui_kb_capture_requested = false; ///< Effective value, persistent
+    Ogre::Timer        m_last_mousemove_time;
+    bool               m_is_cursor_supressed      = false; ///< True if cursor was manually hidden.
 };
 
 } // namespace RoR

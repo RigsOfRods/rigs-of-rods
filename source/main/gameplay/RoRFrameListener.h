@@ -58,7 +58,7 @@
 ///   2. Check time since last render; if necessary, copy sim. data and put an "update scene and render" task to threadpool.
 ///   2. Gather user inputs; send/receive network data
 ///   3. Update simulation
-class SimController: public Ogre::WindowEventListener, public ZeroedMemoryAllocator
+class SimController: public ZeroedMemoryAllocator
 {
 public:
     SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf);
@@ -98,9 +98,9 @@ public:
 
     /// @return True if everything was prepared OK and simulation may start.
     bool   SetupGameplayLoop     ();
-    void   EnterGameplayLoop     ();
 
     RoR::ActorManager*          GetBeamFactory  ()         { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
+    RoR::CharacterFactory*       GetCharacterFactory  ()    { return &m_character_factory; }
     RoR::SkidmarkConfig*         GetSkidmarkConf ()         { return m_skidmark_conf; }
     RoR::SceneMouse&             GetSceneMouse()            { return m_scene_mouse; }
     Ogre::Vector3                GetDirArrowTarget()        { return m_dir_arrow_pointed; }
@@ -120,18 +120,15 @@ public:
 
     void SetTerrainEditorMouseRay(Ogre::Ray ray);
 
-private:
+    void   UpdateSimulation(float dt);
+    void   CleanupAfterSimulation(); /// Unloads all data
 
-    // Ogre::WindowEventListener interface
-    void   windowFocusChange       (Ogre::RenderWindow* rw);
-    void   windowResized           (Ogre::RenderWindow* rw);
+private:
 
     void   UpdateForceFeedback     ();
     void   HandleSavegameShortcuts ();
     void   UpdateInputEvents       (float dt);
     void   HideGUI                 (bool hidden);
-    void   CleanupAfterSimulation  (); /// Unloads all data
-    void   UpdateSimulation        (float dt);
 
     Actor*                   m_player_actor;           //!< Actor (vehicle or machine) mounted and controlled by player
     Actor*                   m_prev_player_actor;      //!< Previous actor (vehicle or machine) mounted and controlled by player
