@@ -304,8 +304,6 @@ void SimController::UpdateInputEvents(float dt)
     auto gui_man = App::GetGuiManager();
 
     RoR::App::GetInputEngine()->updateKeyBounces(dt);
-    if (!RoR::App::GetInputEngine()->getInputsChanged())
-        return;
 
     // update overlays if enabled
     if (RoR::App::GetOverlayWrapper())

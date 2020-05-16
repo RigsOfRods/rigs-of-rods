@@ -212,11 +212,6 @@ void MainMenu::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
 {
     RoR::App::GetInputEngine()->updateKeyBounces(seconds_since_last_frame);
 
-    if (! RoR::App::GetInputEngine()->getInputsChanged())
-    {
-        return;
-    }
-
     if (RoR::App::GetOverlayWrapper() != nullptr)
     {
         RoR::App::GetOverlayWrapper()->update(seconds_since_last_frame); // TODO: What's the meaning of this? It only updates some internal timer. ~ only_a_ptr

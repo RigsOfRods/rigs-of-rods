@@ -1832,7 +1832,6 @@ using namespace OIS;
 InputEngine::InputEngine() :
     captureMode(false)
     , free_joysticks(0)
-    , inputsChanged(true)
     , mForceFeedback(0)
     , mInputManager(0)
     , mKeyboard(0)
@@ -2193,8 +2192,6 @@ void InputEngine::RestoreKeyboardListener()
 /* --- Joystik Events ------------------------------------------ */
 bool InputEngine::buttonPressed(const OIS::JoyStickEvent& arg, int button)
 {
-    inputsChanged = true;
-    //LOG("*** buttonPressed " + TOSTRING(button));
     int i = arg.device->getID();
     if (i < 0 || i >= MAX_JOYSTICKS)
         i = 0;
@@ -2204,8 +2201,6 @@ bool InputEngine::buttonPressed(const OIS::JoyStickEvent& arg, int button)
 
 bool InputEngine::buttonReleased(const OIS::JoyStickEvent& arg, int button)
 {
-    inputsChanged = true;
-    //LOG("*** buttonReleased " + TOSTRING(button));
     int i = arg.device->getID();
     if (i < 0 || i >= MAX_JOYSTICKS)
         i = 0;
@@ -2215,8 +2210,6 @@ bool InputEngine::buttonReleased(const OIS::JoyStickEvent& arg, int button)
 
 bool InputEngine::axisMoved(const OIS::JoyStickEvent& arg, int axis)
 {
-    inputsChanged = true;
-    //LOG("*** axisMoved " + TOSTRING(axis) + " / " + TOSTRING((int)(arg.state.mAxes[axis].abs / (float)(mJoy->MAX_AXIS/100))));
     int i = arg.device->getID();
     if (i < 0 || i >= MAX_JOYSTICKS)
         i = 0;
@@ -2226,8 +2219,6 @@ bool InputEngine::axisMoved(const OIS::JoyStickEvent& arg, int axis)
 
 bool InputEngine::sliderMoved(const OIS::JoyStickEvent& arg, int)
 {
-    inputsChanged = true;
-    //LOG("*** sliderMoved");
     int i = arg.device->getID();
     if (i < 0 || i >= MAX_JOYSTICKS)
         i = 0;
@@ -2237,8 +2228,6 @@ bool InputEngine::sliderMoved(const OIS::JoyStickEvent& arg, int)
 
 bool InputEngine::povMoved(const OIS::JoyStickEvent& arg, int)
 {
-    inputsChanged = true;
-    //LOG("*** povMoved");
     int i = arg.device->getID();
     if (i < 0 || i >= MAX_JOYSTICKS)
         i = 0;
@@ -2252,9 +2241,6 @@ bool InputEngine::keyPressed(const OIS::KeyEvent& arg)
     if (RoR::App::GetGuiManager()->keyPressed(arg))
         return true;
 
-    //LOG("*** keyPressed");
-    if (keyState[arg.key] != 1)
-        inputsChanged = true;
     keyState[arg.key] = 1;
 
     return true;
@@ -2264,9 +2250,7 @@ bool InputEngine::keyReleased(const OIS::KeyEvent& arg)
 {
     if (RoR::App::GetGuiManager()->keyReleased(arg))
         return true;
-    //LOG("*** keyReleased");
-    if (keyState[arg.key] != 0)
-        inputsChanged = true;
+
     keyState[arg.key] = 0;
     return true;
 }
@@ -2276,8 +2260,7 @@ bool InputEngine::mouseMoved(const OIS::MouseEvent& arg)
 {
     if (RoR::App::GetGuiManager()->mouseMoved(arg))
         return true;
-    //LOG("*** mouseMoved");
-    inputsChanged = true;
+
     mouseState = arg.state;
     return true;
 }
@@ -2286,8 +2269,7 @@ bool InputEngine::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id
 {
     if (RoR::App::GetGuiManager()->mousePressed(arg, id))
         return true;
-    //LOG("*** mousePressed");
-    inputsChanged = true;
+
     mouseState = arg.state;
     return true;
 }
@@ -2296,8 +2278,7 @@ bool InputEngine::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID i
 {
     if (RoR::App::GetGuiManager()->mouseReleased(arg, id))
         return true;
-    //LOG("*** mouseReleased");
-    inputsChanged = true;
+
     mouseState = arg.state;
     return true;
 }

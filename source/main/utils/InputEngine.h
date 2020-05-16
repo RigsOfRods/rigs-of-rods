@@ -496,7 +496,6 @@ public:
     void addEvent(int eventID, event_trigger_t& t);
     void updateEvent(int eventID, const event_trigger_t& t);
     bool deleteEventBySUID(int suid);
-    bool getInputsChanged() { return inputsChanged; };
     void prepareShutdown();
     OIS::MouseState getMouseState();
     // some custom methods
@@ -581,8 +580,6 @@ protected:
     float logval(float val);
     std::string getEventGroup(Ogre::String eventName);
     bool mappingLoaded;
-
-    bool inputsChanged;
 
     event_trigger_t newEvent();
 };
