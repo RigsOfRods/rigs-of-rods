@@ -29,6 +29,9 @@
 #include "Application.h"
 #include <OIS.h>
 
+#include <OIS.h>
+#include <Ogre.h>
+
 namespace RoR {
 
 class SceneMouse
@@ -40,8 +43,6 @@ public:
     bool mouseMoved(const OIS::MouseEvent& _arg);
     bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
     bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
-    bool keyPressed(const OIS::KeyEvent& _arg);
-    bool keyReleased(const OIS::KeyEvent& _arg);
 
     void InitializeVisuals();
     void UpdateSimulation();

@@ -307,16 +307,6 @@ bool SceneMouse::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _
     return true;
 }
 
-bool SceneMouse::keyPressed(const OIS::KeyEvent& _arg)
-{
-    return false;
-}
-
-bool SceneMouse::keyReleased(const OIS::KeyEvent& _arg)
-{
-    return false;
-}
-
 Ray SceneMouse::getMouseRay()
 {
     Viewport* vp = App::GetCameraManager()->GetCamera()->getViewport();

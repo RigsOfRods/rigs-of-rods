@@ -46,7 +46,7 @@
 #include "Console.h"
 #include "GUIManager.h"
 #include "Language.h"
-#include "MainMenu.h"
+
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"

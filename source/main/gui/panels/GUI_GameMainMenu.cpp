@@ -29,7 +29,7 @@
 #include "GUIManager.h"
 #include "GUI_MainSelector.h"
 #include "Language.h"
-#include "MainMenu.h"
+
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
 #include "RoRnet.h" // for version string

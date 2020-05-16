@@ -21,11 +21,22 @@
 
 #include "GUI_LoadingWindow.h"
 
+#include "GUIManager.h"
 #include "Language.h"
 #include <imgui.h>
 
 void RoR::GUI::LoadingWindow::setProgress(int percent, std::string const& text, bool render_frame/*=true*/)
 {
+    if (render_frame && m_timer.getMilliseconds() > 10)
+    {
+        App::GetGuiManager()->NewImGuiFrame(m_timer.getMilliseconds() * 0.001);
+        m_timer.reset();
+    }
+    else
+    {
+        render_frame = false;
+    }
+
     this->SetVisible(true); // Traditional behavior
     m_percent = percent;
     m_text = text;
@@ -39,10 +50,10 @@ void RoR::GUI::LoadingWindow::setProgress(int percent, std::string const& text, 
         ++m_text_num_lines; // New line
     }
 
-    if (render_frame && m_timer.getMilliseconds() > 10)
+    if (render_frame)
     {
+        this->Draw();
         Ogre::Root::getSingleton().renderOneFrame();
-        m_timer.reset();
     }
 }
 

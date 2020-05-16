@@ -1970,7 +1970,6 @@ bool InputEngine::setup()
             for (int i = 0; i < numSticks; ++i)
             {
                 mJoy[i] = (JoyStick*)mInputManager->createInputObject(OISJoyStick, true);
-                mJoy[i]->setEventCallback(this);
                 free_joysticks++;
                 //create force feedback too
                 //here, we take the first device we can get, but we could take a device index
@@ -2010,19 +2009,6 @@ bool InputEngine::setup()
             }
         }
 
-        //Set initial mouse clipping size
-        //windowResized(win);
-
-        // set Callbacks
-        if (mKeyboard)
-            mKeyboard->setEventCallback(this);
-        if (capturemouse && mMouse)
-        {
-            mMouse->setEventCallback(this);
-
-            // init states (not required for keyboard)
-            mouseState = mMouse->getMouseState();
-        }
         if (free_joysticks)
         {
             for (int i = 0; i < free_joysticks; i++)
@@ -2162,125 +2148,48 @@ void InputEngine::windowResized(Ogre::RenderWindow* rw)
 
 void InputEngine::SetKeyboardListener(OIS::KeyListener* keyboard_listener)
 {
-    ROR_ASSERT (mKeyboard != nullptr);
+    ROR_ASSERT(mKeyboard != nullptr);
     mKeyboard->setEventCallback(keyboard_listener);
 }
 
-OIS::MouseState InputEngine::SetMouseListener(OIS::MouseListener* mouse_listener)
+void InputEngine::SetMouseListener(OIS::MouseListener* mouse_listener)
 {
-    ROR_ASSERT (mMouse != nullptr);
+    ROR_ASSERT(mMouse != nullptr);
     mMouse->setEventCallback(mouse_listener);
-    return mMouse->getMouseState();
 }
 
-void InputEngine::RestoreMouseListener()
+void InputEngine::SetJoystickListener(OIS::JoyStickListener* obj)
 {
-    if (mMouse)
+    for (int i = 0; i < free_joysticks; i++)
     {
-        mMouse->setEventCallback(this);
-
-        // init states (not required for keyboard)
-        mouseState = mMouse->getMouseState();
+        mJoy[i]->setEventCallback(obj);
     }
 }
 
-void InputEngine::RestoreKeyboardListener()
-{
-    SetKeyboardListener(this);
-}
-
-/* --- Joystik Events ------------------------------------------ */
-bool InputEngine::buttonPressed(const OIS::JoyStickEvent& arg, int button)
+/* --- Joystick Events ------------------------------------------ */
+void InputEngine::ProcessJoystickEvent(const OIS::JoyStickEvent& arg)
 {
     int i = arg.device->getID();
     if (i < 0 || i >= MAX_JOYSTICKS)
         i = 0;
     joyState[i] = arg.state;
-    return true;
-}
-
-bool InputEngine::buttonReleased(const OIS::JoyStickEvent& arg, int button)
-{
-    int i = arg.device->getID();
-    if (i < 0 || i >= MAX_JOYSTICKS)
-        i = 0;
-    joyState[i] = arg.state;
-    return true;
-}
-
-bool InputEngine::axisMoved(const OIS::JoyStickEvent& arg, int axis)
-{
-    int i = arg.device->getID();
-    if (i < 0 || i >= MAX_JOYSTICKS)
-        i = 0;
-    joyState[i] = arg.state;
-    return true;
-}
-
-bool InputEngine::sliderMoved(const OIS::JoyStickEvent& arg, int)
-{
-    int i = arg.device->getID();
-    if (i < 0 || i >= MAX_JOYSTICKS)
-        i = 0;
-    joyState[i] = arg.state;
-    return true;
-}
-
-bool InputEngine::povMoved(const OIS::JoyStickEvent& arg, int)
-{
-    int i = arg.device->getID();
-    if (i < 0 || i >= MAX_JOYSTICKS)
-        i = 0;
-    joyState[i] = arg.state;
-    return true;
 }
 
 /* --- Key Events ------------------------------------------ */
-bool InputEngine::keyPressed(const OIS::KeyEvent& arg)
+void InputEngine::ProcessKeyPress(const OIS::KeyEvent& arg)
 {
-    if (RoR::App::GetGuiManager()->keyPressed(arg))
-        return true;
-
     keyState[arg.key] = 1;
-
-    return true;
 }
 
-bool InputEngine::keyReleased(const OIS::KeyEvent& arg)
+void InputEngine::ProcessKeyRelease(const OIS::KeyEvent& arg)
 {
-    if (RoR::App::GetGuiManager()->keyReleased(arg))
-        return true;
-
     keyState[arg.key] = 0;
-    return true;
 }
 
 /* --- Mouse Events ------------------------------------------ */
-bool InputEngine::mouseMoved(const OIS::MouseEvent& arg)
+void InputEngine::ProcessMouseEvent(const OIS::MouseEvent& arg)
 {
-    if (RoR::App::GetGuiManager()->mouseMoved(arg))
-        return true;
-
     mouseState = arg.state;
-    return true;
-}
-
-bool InputEngine::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
-{
-    if (RoR::App::GetGuiManager()->mousePressed(arg, id))
-        return true;
-
-    mouseState = arg.state;
-    return true;
-}
-
-bool InputEngine::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
-{
-    if (RoR::App::GetGuiManager()->mouseReleased(arg, id))
-        return true;
-
-    mouseState = arg.state;
-    return true;
 }
 
 /* --- Custom Methods ------------------------------------------ */

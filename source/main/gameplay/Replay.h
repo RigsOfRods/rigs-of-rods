@@ -22,6 +22,8 @@
 
 #include "Application.h"
 
+#include <MyGUI.h>
+
 struct node_simple_t
 {
     Ogre::Vector3 position;

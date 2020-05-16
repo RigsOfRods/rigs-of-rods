@@ -25,7 +25,7 @@
 #include "Application.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
-#include "MainMenu.h"
+
 #include "RoRnet.h"
 #include "RoRVersion.h"
 
@@ -388,13 +388,11 @@ void RoR::GUI::MultiplayerSelector::RefreshServerlist()
 #endif // defined(USE_CURL)
 }
 
-bool RoR::GUI::MultiplayerSelector::IsRefreshThreadRunning() const
-{
-    return m_is_refreshing;
-}
-
 void RoR::GUI::MultiplayerSelector::CheckAndProcessRefreshResult()
 {
+    if (!m_is_refreshing)
+        return;
+
     std::future_status status = m_serverlist_future.wait_for(std::chrono::seconds(0));
     if (status != std::future_status::ready)
     {

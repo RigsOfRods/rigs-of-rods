@@ -434,18 +434,10 @@ struct event_trigger_t
     int suid; //session unique id
 };
 
-class InputEngine :
-    public OIS::MouseListener,
-    public OIS::KeyListener,
-    public OIS::JoyStickListener,
-    public ZeroedMemoryAllocator
+/// Manages controller configuration, evaluates input events
+class InputEngine : public ZeroedMemoryAllocator
 {
 public:
-
-    InputEngine();
-    ~InputEngine();
-
-    void Capture();
 
     enum
     {
@@ -453,6 +445,19 @@ public:
         ET_DIGITAL,
         ET_ANALOG
     };
+
+    InputEngine();
+    ~InputEngine();
+
+    void Capture();
+    void ProcessMouseEvent(const OIS::MouseEvent& arg);
+    void ProcessKeyPress(const OIS::KeyEvent& arg);
+    void ProcessKeyRelease(const OIS::KeyEvent& arg);
+    void ProcessJoystickEvent(const OIS::JoyStickEvent& arg);
+
+    void SetKeyboardListener(OIS::KeyListener* obj);
+    void SetMouseListener(OIS::MouseListener* obj);
+    void SetJoystickListener(OIS::JoyStickListener* obj);
 
     //valueSource: ET_ANY=digital and analog devices, ET_DIGITAL=only digital, ET_ANALOG=only analog
     float getEventValue(int eventID, bool pure = false, int valueSource = ET_ANY);
@@ -514,14 +519,6 @@ public:
     int getNumJoysticks() { return free_joysticks; };
     OIS::ForceFeedback* getForceFeedbackDevice() { return mForceFeedback; };
 
-    void SetKeyboardListener(OIS::KeyListener* keyboard_listener);
-
-    OIS::MouseState SetMouseListener(OIS::MouseListener* mouse_listener);
-
-    void RestoreMouseListener();
-
-    void RestoreKeyboardListener();
-
     inline OIS::Keyboard* GetOisKeyboard() { return mKeyboard; }
     inline OIS::Mouse*    GetOisMouse()    { return mMouse; }
 
@@ -540,22 +537,6 @@ protected:
     int free_joysticks;
     OIS::ForceFeedback* mForceFeedback;
     int uniqueCounter;
-
-    // JoyStickListener
-    bool buttonPressed(const OIS::JoyStickEvent& arg, int button);
-    bool buttonReleased(const OIS::JoyStickEvent& arg, int button);
-    bool axisMoved(const OIS::JoyStickEvent& arg, int axis);
-    bool sliderMoved(const OIS::JoyStickEvent&, int);
-    bool povMoved(const OIS::JoyStickEvent&, int);
-
-    // KeyListener
-    bool keyPressed(const OIS::KeyEvent& arg);
-    bool keyReleased(const OIS::KeyEvent& arg);
-
-    // MouseListener
-    bool mouseMoved(const OIS::MouseEvent& arg);
-    bool mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id);
-    bool mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID id);
 
     // this stores the key/button/axis values
     std::map<int, bool> keyState;

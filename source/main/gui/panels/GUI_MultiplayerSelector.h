@@ -44,7 +44,6 @@ public:
     void         SetVisible(bool v);
     inline bool  IsVisible()                           { return m_is_visible; }
     void         RefreshServerlist();                  /// Launch refresh from main thread
-    bool         IsRefreshThreadRunning() const;       /// Check status from main thread
     void         CheckAndProcessRefreshResult();       /// To be invoked periodically from main thread if refresh is in progress.
     void         Draw();
 

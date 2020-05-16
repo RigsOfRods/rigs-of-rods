@@ -41,7 +41,7 @@
 #include "InputEngine.h"
 #include "LandVehicleSimulation.h"
 #include "Language.h"
-#include "MainMenu.h"
+
 #include "MumbleIntegration.h"
 #include "OgreSubsystem.h"
 #include "OutProtocol.h"
@@ -1533,18 +1533,7 @@ void SimController::UpdateSimulation(float dt)
 {
     m_actor_manager.SyncWithSimThread();
 
-#ifdef USE_SOCKETW
-    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
-    {
-        std::vector<RoR::NetRecvPacket> packets = App::GetNetwork()->GetIncomingStreamData();
-        if (!packets.empty())
-        {
-            RoR::ChatSystem::HandleStreamData(packets);
-            m_actor_manager.HandleActorStreamData(packets);
-            m_character_factory.handleStreamData(packets); // Update characters last (or else beam coupling might fail)
-        }
-    }
-#endif //SOCKETW
+
 
     // ACTOR CHANGE REQUESTS - Handle early (so that other logic can reflect it)
     //   1. Removal requests - Done first; respective entries in 'modify' queue are erased.
@@ -1732,7 +1721,6 @@ void SimController::UpdateSimulation(float dt)
         *live_gm = updated_gm; // Copy over
     }
 
-    RoR::App::GetInputEngine()->Capture();
     auto s = App::sim_state->GetActiveEnum<SimState>();
 
     if (m_out_protocol)
@@ -1776,10 +1764,6 @@ void SimController::UpdateSimulation(float dt)
 
     RoR::App::GetGuiManager()->DrawSimulationGui(dt);
 
-#ifdef USE_ANGELSCRIPT
-    App::GetScriptEngine()->framestep(dt);
-#endif
-
     for (auto actor : GetActors())
     {
         actor->GetGfxActor()->UpdateDebugView();
@@ -1809,6 +1793,12 @@ void SimController::UpdateSimulation(float dt)
         {
             m_actor_manager.UpdateActors(m_player_actor, m_physics_simulation_time); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
         }
+    }
+
+    if (RoR::App::sim_state->GetActiveEnum<SimState>() != RoR::SimState::PAUSED &&
+        !m_physics_simulation_paused)
+    {
+        m_time += dt;
     }
 }
 
@@ -1913,27 +1903,6 @@ void SimController::UpdateDirectionArrow(char* text, Vector3 position)
     }
 }
 
-/* --- Window Events ------------------------------------------ */
-void SimController::windowResized(Ogre::RenderWindow* rw)
-{
-    if (!rw)
-        return;
-    LOG("[RoR] Received 'window resized' notification");
-
-    if (RoR::App::GetOverlayWrapper())
-        RoR::App::GetOverlayWrapper()->windowResized();
-
-    //update mouse area
-    RoR::App::GetInputEngine()->windowResized(rw);
-
-    m_actor_manager.NotifyActorsWindowResized();
-}
-
-void SimController::windowFocusChange(Ogre::RenderWindow* rw)
-{
-    RoR::App::GetInputEngine()->resetKeys();
-}
-
 void SimController::HideGUI(bool hidden)
 {
     if (m_player_actor && m_player_actor->getReplay())
@@ -2036,6 +2005,11 @@ bool SimController::LoadTerrain()
 
 void SimController::CleanupAfterSimulation()
 {
+    if (App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE)
+    {
+        write_editor_log();
+    }
+
     App::DestroyOverlayWrapper();
 
     App::GetCameraManager()->ResetAllBehaviors();
@@ -2132,7 +2106,6 @@ bool SimController::SetupGameplayLoop()
     if (! this->LoadTerrain())
     {
         LOG("Could not load map. Returning to menu.");
-        App::GetMainMenu()->LeaveMultiplayerServer();
         App::GetGuiManager()->SetVisible_LoadingWindow(false);
         return false;
     }
@@ -2221,139 +2194,6 @@ bool SimController::SetupGameplayLoop()
     UpdatePresence();
 
     return true;
-}
-
-void SimController::EnterGameplayLoop()
-{
-    OgreBites::WindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
-
-    Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
-
-    auto start_time = std::chrono::high_resolution_clock::now();
-
-#ifdef USE_SOCKETW
-    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
-    {
-        char text[300];
-        std::snprintf(text, 300, _L("Press %s to start chatting"),
-            RoR::App::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE).c_str());
-        App::GetConsole()->putMessage(
-            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, text, "", 5000);
-    }
-#endif //USE_SOCKETW
-
-    while (App::app_state_requested->GetActiveEnum<AppState>() == AppState::SIMULATION)
-    {
-        OgreBites::WindowEventUtilities::messagePump();
-        if (rw->isClosed())
-        {
-            App::app_state_requested->SetActiveVal((int)AppState::SHUTDOWN);
-            continue;
-        }
-
-        // Check FPS limit
-        if (App::gfx_fps_limit->GetActiveVal<int>() > 0)
-        {
-            const float min_frame_time = 1.0f / Ogre::Math::Clamp(App::gfx_fps_limit->GetActiveVal<int>(), 5, 240);
-            float dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
-            while (dt < min_frame_time)
-            {
-                dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
-            }
-        }
-
-        const auto now = std::chrono::high_resolution_clock::now();
-        const float dt_sec = std::chrono::duration<float>(now - start_time).count();
-        start_time = now;
-
-        // Check simulation state change
-        if (App::sim_state_requested->GetActiveEnum<SimState>() != App::sim_state->GetActiveEnum<SimState>())
-        {
-            if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING)
-            {
-                if (App::sim_state_requested->GetActiveEnum<SimState>() == SimState::PAUSED)
-                {
-                    m_actor_manager.MuteAllActors();
-                    App::sim_state->SetActiveVal((int)App::sim_state_requested->GetActiveEnum<SimState>());
-                }
-            }
-            else if (App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
-            {
-                if (App::sim_state_requested->GetActiveEnum<SimState>() == SimState::RUNNING)
-                {
-                    m_actor_manager.UnmuteAllActors();
-                    App::sim_state->SetActiveVal((int)App::sim_state_requested->GetActiveEnum<SimState>());
-                }
-            }
-        }
-
-        // Update gameplay and 3D scene
-        App::GetGuiManager()->NewImGuiFrame(dt_sec);
-
-        if (dt_sec != 0.f)
-        {
-            this->UpdateSimulation(dt_sec);
-            if (RoR::App::sim_state->GetActiveEnum<SimState>() != RoR::SimState::PAUSED)
-            {
-                App::GetGfxScene()->UpdateScene(dt_sec);
-                if (!m_physics_simulation_paused)
-                {
-                    m_time += dt_sec;
-                }
-            }
-        }
-
-        RoR::App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
-
-        if (m_stats_on && RoR::App::GetOverlayWrapper())
-        {
-            RoR::App::GetOverlayWrapper()->updateStats();
-        }
-
-#ifdef USE_SOCKETW
-        if ((App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED))
-        {
-            RoR::NetEventQueue events = App::GetNetwork()->CheckEvents();
-            while (!events.empty())
-            {
-                switch (events.front().type)
-                {
-                case NetEvent::Type::SERVER_KICK:
-                    App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU); // Will perform `App::GetNetwork()->Disconnect()`
-                    App::GetGuiManager()->ShowMessageBox(
-                        _LC("Network", "Multiplayer: disconnected"), events.front().message.c_str());
-                    break;
-
-                case NetEvent::Type::RECV_ERROR:
-                    App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU); // Will perform `App::GetNetwork()->Disconnect()`
-                    App::GetGuiManager()->ShowMessageBox(
-                        _L("Network fatal error: "), events.front().message.c_str());
-                    break;
-
-                default:;
-                }
-                events.pop();
-            }
-        }
-#endif
-
-        if (!rw->isActive() && rw->isVisible())
-        {
-            rw->update(); // update even when in background !
-        }
-    }
-
-    if (App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE)
-    {
-        write_editor_log();
-    }
-    m_actor_manager.SaveScene("autosave.sav");
-
-    m_actor_manager.SyncWithSimThread(); // Wait for background tasks to finish
-    App::sim_state->SetActiveVal((int)SimState::OFF);
-    App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Unloading Terrain")); // Renders a frame
-    this->CleanupAfterSimulation();
-    OgreBites::WindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
 }
 
 void SimController::ChangePlayerActor(Actor* actor)
