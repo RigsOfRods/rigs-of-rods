@@ -1821,17 +1821,12 @@ eventInfo_t eventInfo[] = {
 //#include <linux/LinuxMouse.h>
 #endif
 
-#ifndef NOOGRE
-
-#endif
-
 using namespace std;
 using namespace Ogre;
 using namespace OIS;
 
 InputEngine::InputEngine() :
-    captureMode(false)
-    , free_joysticks(0)
+     free_joysticks(0)
     , mForceFeedback(0)
     , mInputManager(0)
     , mKeyboard(0)
@@ -1841,9 +1836,9 @@ InputEngine::InputEngine() :
 {
     for (int i = 0; i < MAX_JOYSTICKS; i++)
         mJoy[i] = 0;
-#ifndef NOOGRE
+
     LOG("*** Loading OIS ***");
-#endif
+
     initAllKeys();
     setup();
     windowResized(App::GetOgreSubsystem()->GetRenderWindow());
@@ -1851,9 +1846,6 @@ InputEngine::InputEngine() :
 
 InputEngine::~InputEngine()
 {
-#ifndef NOOGRE
-    LOG("*** Terminating destructor ***");
-#endif
     destroy();
 }
 
@@ -1861,9 +1853,7 @@ void InputEngine::destroy()
 {
     if (mInputManager)
     {
-#ifndef NOOGRE
         LOG("*** Terminating OIS ***");
-#endif
         if (mMouse)
         {
             mInputManager->destroyInputObject(mMouse);
@@ -1892,150 +1882,128 @@ void InputEngine::destroy()
 
 bool InputEngine::setup()
 {
-    const bool capture = true, capturemouse = true, captureKbd = true;
-
     size_t hWnd = 0;
     App::GetOgreSubsystem()->GetRenderWindow()->getCustomAttribute("WINDOW", &hWnd);
 
-#ifndef NOOGRE
     LOG("*** Initializing OIS ***");
-#endif
+
     //try to delete old ones first (linux can only handle one at a time)
     destroy();
-    captureMode = capture;
-    if (captureMode)
+
+    ParamList pl;
+    pl.insert(OIS::ParamList::value_type("WINDOW", TOSTRING(hWnd)));
+    if (App::io_input_grab_mode->GetActiveEnum<IoInputGrabMode>() != RoR::IoInputGrabMode::ALL)
     {
-        ParamList pl;
-        pl.insert(OIS::ParamList::value_type("WINDOW", TOSTRING(hWnd)));
-        if (App::io_input_grab_mode->GetActiveEnum<IoInputGrabMode>() != RoR::IoInputGrabMode::ALL)
-        {
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-            pl.insert(OIS::ParamList::value_type("x11_mouse_hide", "true"));
-            pl.insert(OIS::ParamList::value_type("XAutoRepeatOn", "false"));
-            pl.insert(OIS::ParamList::value_type("x11_mouse_grab", "false"));
-            pl.insert(OIS::ParamList::value_type("x11_keyboard_grab", "false"));
+        pl.insert(OIS::ParamList::value_type("x11_mouse_hide", "true"));
+        pl.insert(OIS::ParamList::value_type("XAutoRepeatOn", "false"));
+        pl.insert(OIS::ParamList::value_type("x11_mouse_grab", "false"));
+        pl.insert(OIS::ParamList::value_type("x11_keyboard_grab", "false"));
 #else
-            pl.insert(OIS::ParamList::value_type("w32_mouse", "DISCL_FOREGROUND"));
-            pl.insert(OIS::ParamList::value_type("w32_mouse", "DISCL_NONEXCLUSIVE"));
-            pl.insert(OIS::ParamList::value_type("w32_keyboard", "DISCL_FOREGROUND"));
-            pl.insert(OIS::ParamList::value_type("w32_keyboard", "DISCL_NONEXCLUSIVE"));
+        pl.insert(OIS::ParamList::value_type("w32_mouse", "DISCL_FOREGROUND"));
+        pl.insert(OIS::ParamList::value_type("w32_mouse", "DISCL_NONEXCLUSIVE"));
+        pl.insert(OIS::ParamList::value_type("w32_keyboard", "DISCL_FOREGROUND"));
+        pl.insert(OIS::ParamList::value_type("w32_keyboard", "DISCL_NONEXCLUSIVE"));
 #endif // LINUX
-        }
+    }
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-        if (App::io_input_grab_mode->GetActiveEnum<IoInputGrabMode>() != IoInputGrabMode::ALL)
-        {
-            ShowCursor(FALSE);
-        }
+    if (App::io_input_grab_mode->GetActiveEnum<IoInputGrabMode>() != IoInputGrabMode::ALL)
+    {
+        ShowCursor(FALSE);
+    }
 #endif
 
-        mInputManager = OIS::InputManager::createInputSystem(pl);
+    mInputManager = OIS::InputManager::createInputSystem(pl);
 
-#ifndef NOOGRE
-        //Print debugging information
-        unsigned int v = mInputManager->getVersionNumber();
-        LOG("OIS Version: " + TOSTRING(v>>16) + String(".") + TOSTRING((v>>8) & 0x000000FF) + String(".") + TOSTRING(v & 0x000000FF));
-        LOG("+ Release Name: " + mInputManager->getVersionName());
-        LOG("+ Manager: " + mInputManager->inputSystemName());
-        LOG("+ Total Keyboards: " + TOSTRING(mInputManager->getNumberOfDevices(OISKeyboard)));
-        LOG("+ Total Mice: " + TOSTRING(mInputManager->getNumberOfDevices(OISMouse)));
-        LOG("+ Total JoySticks: " + TOSTRING(mInputManager->getNumberOfDevices(OISJoyStick)));
+    //Print debugging information
+    unsigned int v = mInputManager->getVersionNumber();
+    LOG("OIS Version: " + TOSTRING(v>>16) + String(".") + TOSTRING((v>>8) & 0x000000FF) + String(".") + TOSTRING(v & 0x000000FF));
+    LOG("+ Release Name: " + mInputManager->getVersionName());
+    LOG("+ Manager: " + mInputManager->inputSystemName());
+    LOG("+ Total Keyboards: " + TOSTRING(mInputManager->getNumberOfDevices(OISKeyboard)));
+    LOG("+ Total Mice: " + TOSTRING(mInputManager->getNumberOfDevices(OISMouse)));
+    LOG("+ Total JoySticks: " + TOSTRING(mInputManager->getNumberOfDevices(OISJoyStick)));
 
-        //List all devices
-        OIS::DeviceList deviceList = mInputManager->listFreeDevices();
-        for (OIS::DeviceList::iterator i = deviceList.begin(); i != deviceList.end(); ++i)
-        LOG("* Device: " + String(mOISDeviceType[i->first]) + String(" Vendor: ") + i->second);
-#endif //NOOGRE
+    //List all devices
+    OIS::DeviceList deviceList = mInputManager->listFreeDevices();
+    for (OIS::DeviceList::iterator i = deviceList.begin(); i != deviceList.end(); ++i)
+    LOG("* Device: " + String(mOISDeviceType[i->first]) + String(" Vendor: ") + i->second);
 
-        //Create all devices (We only catch joystick exceptions here, as, most people have Key/Mouse)
-        mKeyboard = 0;
-        if (captureKbd)
-        {
-            try
-            {
-                mKeyboard = static_cast<Keyboard*>(mInputManager->createInputObject(OISKeyboard, true));
-                mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
-            }
-            catch (OIS::Exception& ex)
-            {
-                LOG(String("Exception raised on keyboard creation: ") + String(ex.eText));
-            }
-        }
+    //Create all devices (We only catch joystick exceptions here, as, most people have Key/Mouse)
+    mKeyboard = 0;
 
-        try
-        {
-            //This demo uses at most 10 joysticks - use old way to create (i.e. disregard vendor)
-            int numSticks = std::min(mInputManager->getNumberOfDevices(OISJoyStick), 10);
-            free_joysticks = 0;
-            for (int i = 0; i < numSticks; ++i)
-            {
-                mJoy[i] = (JoyStick*)mInputManager->createInputObject(OISJoyStick, true);
-                free_joysticks++;
-                //create force feedback too
-                //here, we take the first device we can get, but we could take a device index
-                if (!mForceFeedback)
-                    mForceFeedback = (OIS::ForceFeedback*)mJoy[i]->queryInterface(OIS::Interface::ForceFeedback);
-
-#ifndef NOOGRE
-                LOG("Creating Joystick " + TOSTRING(i + 1) + " (" + mJoy[i]->vendor() + ")");
-                LOG("* Axes: " + TOSTRING(mJoy[i]->getNumberOfComponents(OIS_Axis)));
-                LOG("* Sliders: " + TOSTRING(mJoy[i]->getNumberOfComponents(OIS_Slider)));
-                LOG("* POV/HATs: " + TOSTRING(mJoy[i]->getNumberOfComponents(OIS_POV)));
-                LOG("* Buttons: " + TOSTRING(mJoy[i]->getNumberOfComponents(OIS_Button)));
-                LOG("* Vector3: " + TOSTRING(mJoy[i]->getNumberOfComponents(OIS_Vector3)));
-#endif //NOOGRE
-            }
-        }
-#ifndef NOOGRE
-        catch (OIS::Exception& ex)
-        {
-            LOG(String("Exception raised on joystick creation: ") + String(ex.eText));
-        }
-#else  //NOOGRE
-        catch (...)
-        {
-        }
-#endif //NOOGRE
-
-        if (capturemouse)
-        {
-            try
-            {
-                mMouse = static_cast<Mouse*>(mInputManager->createInputObject(OISMouse, true));
-            }
-            catch (OIS::Exception& ex)
-            {
-                LOG(String("Exception raised on mouse creation: ") + String(ex.eText));
-            }
-        }
-
-        if (free_joysticks)
-        {
-            for (int i = 0; i < free_joysticks; i++)
-                joyState[i] = mJoy[i]->getJoyStickState();
-        }
-
-        // set the mouse to the middle of the screen, hackish!
-#if _WIN32
-        // under linux, this will not work and the cursor will never reach (0,0)
-        if (mMouse && RoR::App::GetOgreSubsystem()->GetRenderWindow())
-        {
-            OIS::MouseState& mutableMouseState = const_cast<OIS::MouseState &>(mMouse->getMouseState());
-            mutableMouseState.X.abs = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getWidth() * 0.5f;
-            mutableMouseState.Y.abs = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getHeight() * 0.5f;
-        }
-#endif // _WIN32
+    try
+    {
+        mKeyboard = static_cast<Keyboard*>(mInputManager->createInputObject(OISKeyboard, true));
+        mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
     }
+    catch (OIS::Exception& ex)
+    {
+        LOG(String("Exception raised on keyboard creation: ") + String(ex.eText));
+    }
+
+
+    try
+    {
+        //This demo uses at most 10 joysticks - use old way to create (i.e. disregard vendor)
+        int numSticks = std::min(mInputManager->getNumberOfDevices(OISJoyStick), 10);
+        free_joysticks = 0;
+        for (int i = 0; i < numSticks; ++i)
+        {
+            mJoy[i] = (JoyStick*)mInputManager->createInputObject(OISJoyStick, true);
+            free_joysticks++;
+            //create force feedback too
+            //here, we take the first device we can get, but we could take a device index
+            if (!mForceFeedback)
+                mForceFeedback = (OIS::ForceFeedback*)mJoy[i]->queryInterface(OIS::Interface::ForceFeedback);
+
+            LOG("Creating Joystick " + TOSTRING(i + 1) + " (" + mJoy[i]->vendor() + ")");
+            LOG("* Axes: " + TOSTRING(mJoy[i]->getNumberOfComponents(OIS_Axis)));
+            LOG("* Sliders: " + TOSTRING(mJoy[i]->getNumberOfComponents(OIS_Slider)));
+            LOG("* POV/HATs: " + TOSTRING(mJoy[i]->getNumberOfComponents(OIS_POV)));
+            LOG("* Buttons: " + TOSTRING(mJoy[i]->getNumberOfComponents(OIS_Button)));
+            LOG("* Vector3: " + TOSTRING(mJoy[i]->getNumberOfComponents(OIS_Vector3)));
+        }
+    }
+    catch (OIS::Exception& ex)
+    {
+        LOG(String("Exception raised on joystick creation: ") + String(ex.eText));
+    }
+
+    try
+    {
+        mMouse = static_cast<Mouse*>(mInputManager->createInputObject(OISMouse, true));
+    }
+    catch (OIS::Exception& ex)
+    {
+        LOG(String("Exception raised on mouse creation: ") + String(ex.eText));
+    }
+
+
+    if (free_joysticks)
+    {
+        for (int i = 0; i < free_joysticks; i++)
+            joyState[i] = mJoy[i]->getJoyStickState();
+    }
+
+    // set the mouse to the middle of the screen, hackish!
+#if _WIN32
+    // under linux, this will not work and the cursor will never reach (0,0)
+    if (mMouse && RoR::App::GetOgreSubsystem()->GetRenderWindow())
+    {
+        OIS::MouseState& mutableMouseState = const_cast<OIS::MouseState &>(mMouse->getMouseState());
+        mutableMouseState.X.abs = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getWidth() * 0.5f;
+        mutableMouseState.Y.abs = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getHeight() * 0.5f;
+    }
+#endif // _WIN32
+
     //this becomes more and more convoluted!
-#ifdef NOOGRE
-    // we will load the mapping manually
-#else //NOOGRE
     if (!mappingLoaded)
     {
         // load default one
         loadMapping(CONFIGFILENAME);
 
-#ifndef NOOGRE
         // then load device specific ones
         for (int i = 0; i < free_joysticks; ++i)
         {
@@ -2051,21 +2019,19 @@ bool InputEngine::setup()
 
             loadMapping(deviceStr, true, i);
         }
-#endif //NOOGRE
+
         mappingLoaded = true;
         completeMissingEvents();
 
         return false;
     }
-#endif //NOOGRE
+
     return true;
 }
 
 void InputEngine::grabMouse(bool enable)
 {
     static int lastmode = -1;
-    if (!mMouse)
-        return;
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
     if ((enable && lastmode == 0) || (!enable && lastmode == 1) || (lastmode == -1))
     {
@@ -2076,24 +2042,9 @@ void InputEngine::grabMouse(bool enable)
 #endif
 }
 
-void InputEngine::setMousePosition(int x, int y, bool padding)
-{
-    if (!mMouse)
-        return;
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-    // padding ensures that the mouse has a safety area at the window's borders
-    //	((LinuxMouse *)mMouse)->setMousePosition(x, y, padding);
-#endif
-}
-
 OIS::MouseState InputEngine::getMouseState()
 {
-    OIS::MouseState m;
-    if (mMouse)
-    {
-        m = mMouse->getMouseState();
-    }
-    return m;
+    return mMouse->getMouseState();
 }
 
 String InputEngine::getKeyNameForKeyCode(OIS::KeyCode keycode)
@@ -2114,15 +2065,8 @@ String InputEngine::getKeyNameForKeyCode(OIS::KeyCode keycode)
 
 void InputEngine::Capture()
 {
-    if (mKeyboard)
-    {
-        mKeyboard->capture();
-    }
-
-    if (mMouse)
-    {
-        mMouse->capture();
-    }
+    mKeyboard->capture();
+    mMouse->capture();
 
     for (int i = 0; i < free_joysticks; i++)
     {
@@ -2135,8 +2079,6 @@ void InputEngine::Capture()
 
 void InputEngine::windowResized(Ogre::RenderWindow* rw)
 {
-    if (!mMouse)
-        return;
     //update mouse area
     unsigned int width, height, depth;
     int left, top;
@@ -2193,14 +2135,6 @@ void InputEngine::ProcessMouseEvent(const OIS::MouseEvent& arg)
 }
 
 /* --- Custom Methods ------------------------------------------ */
-void InputEngine::prepareShutdown()
-{
-#ifndef NOOGRE
-    LOG("*** Inputsystem prepare for shutdown ***");
-#endif
-    destroy();
-}
-
 void InputEngine::resetKeys()
 {
     for (std::map<int, bool>::iterator iter = keyState.begin(); iter != keyState.end(); ++iter)
@@ -3264,9 +3198,7 @@ void InputEngine::completeMissingEvents()
             // not existing, insert default
             char tmp[256] = "";
             sprintf(tmp, "%s %s", eventInfo[i].name.c_str(), eventInfo[i].defaultKey.c_str());
-#ifndef NOOGRE
-            //LOG("event mapping not existing, using default: '" + String(tmp) + "'");
-#endif
+
             processLine(tmp);
         }
     }
@@ -3309,9 +3241,7 @@ bool InputEngine::loadMapping(String outfile, bool append, int deviceID)
     }
 
     int newEvents = uniqueCounter - oldState;
-#ifndef NOOGRE
     LOG(" * Input map successfully loaded: " + TOSTRING(newEvents) + " entries");
-#endif
     return true;
 }
 
@@ -3324,9 +3254,7 @@ int InputEngine::resolveEventName(String eventName)
             return eventInfo[i].eventID;
         i++;
     }
-#ifndef NOOGRE
     LOG("unknown event (ignored): " + eventName);
-#endif
     return -1;
 }
 
@@ -3481,7 +3409,6 @@ void InputEngine::initAllKeys()
     allkeys["T"] = KC_T;
     allkeys["TAB"] = KC_TAB;
     allkeys["U"] = KC_U;
-    //allkeys["UNASSIGNED"] = KC_UNASSIGNED;
     allkeys["UNDERLINE"] = KC_UNDERLINE;
     allkeys["UNLABELED"] = KC_UNLABELED;
     allkeys["UP"] = KC_UP;
