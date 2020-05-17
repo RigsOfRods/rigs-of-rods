@@ -27,6 +27,7 @@
 #include "ChatSystem.h"
 #include "Console.h"
 #include "ErrorUtils.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "GUI_TopMenubar.h"
 #include "Language.h"
@@ -83,6 +84,13 @@ static const unsigned int m_packet_buffer_size = 20;
 #define LOG_THREAD(_MSG_) { std::stringstream s; s << _MSG_ << " (Thread ID: " << std::this_thread::get_id() << ")"; LOG(s.str()); }
 #define LOGSTREAM         Ogre::LogManager().getSingleton().stream()
 
+void Network::PushNetMessage(MsgType type, std::string const & message)
+{
+    Message m(type);
+    m.description = message;
+    App::GetGameContext()->PushMessage(m);
+}
+
 Ogre::ColourValue Network::GetPlayerColor(int color_num)
 {
     int numColours = sizeof(MP_COLORS) / sizeof(Ogre::ColourValue);
@@ -90,12 +98,6 @@ Ogre::ColourValue Network::GetPlayerColor(int color_num)
         return Ogre::ColourValue::ZERO;
 
     return MP_COLORS[color_num];
-}
-
-void Network::FireNetEvent(NetEvent::Type type, std::string const & message)
-{
-    std::lock_guard<std::mutex> lock(m_event_queue_mutex);
-    m_event_queue.emplace(type, message);
 }
 
 // Internal helper
@@ -249,7 +251,7 @@ void Network::RecvThread()
         {
             LOG_THREAD("[RoR|Networking] RecvThread: Error while receiving data: " + TOSTRING(err));
             m_shutdown = true; // Atomic; instruct sender thread to stop
-            FireNetEvent(NetEvent::Type::RECV_ERROR, _LC("Network", "Error receiving data from network"));
+            PushNetMessage(MSG_NET_RECV_ERROR, _LC("Network", "Error receiving data from network"));
             continue; // Stop receiving data
         }
 
@@ -295,10 +297,11 @@ void Network::RecvThread()
                 msg << _L("disconnected: remote side closed the connection");
                 msg << " ** ";
                 msg << buffer;
-                if (std::strstr(buffer, "disconnected on request") != nullptr) // FIXME: Add a reason code to MSG2_USER_LEAVE, this is ugly!
-                    FireNetEvent(NetEvent::Type::USER_DISCONNECT, msg.str());
-                else
-                    FireNetEvent(NetEvent::Type::SERVER_KICK, msg.str());
+
+                bool was_kick = (std::strstr(buffer, "disconnected on request") == nullptr); // FIXME: Add a reason code to MSG2_USER_LEAVE, this is ugly!
+                PushNetMessage((was_kick) ? MSG_NET_SERVER_KICK : MSG_NET_USER_DISCONNECT, msg.str());
+
+                Message m((was_kick) ? MSG_NET_USER_DISCONNECT : MSG_NET_SERVER_KICK);
             }
             else
             {
@@ -376,7 +379,7 @@ void Network::RecvThread()
 void Network::CouldNotConnect(std::string const & msg, bool close_socket /*= true*/)
 {
     RoR::LogFormat("[RoR|Networking] Failed to connect to server [%s:%d], message: %s", m_net_host.c_str(), m_net_port, msg.c_str());
-    FireNetEvent(NetEvent::Type::CONNECT_FAILURE, msg);
+    PushNetMessage(MSG_NET_CONNECT_FAILURE, msg);
 
     if (close_socket)
     {
@@ -398,38 +401,22 @@ bool Network::StartConnecting()
     {
         m_connect_thread = std::thread(&Network::ConnectThread, this);
         App::mp_state->SetActiveVal((int)MpState::CONNECTING); // Mark connect thread as started
-        FireNetEvent(NetEvent::Type::CONNECT_STARTED, _LC("Network", "Starting..."));
+        PushNetMessage(MSG_NET_CONNECT_STARTED, _LC("Network", "Starting..."));
         return true;
     }
     catch (std::exception& e)
     {
         App::mp_state->SetActiveVal((int)MpState::DISABLED);
-        FireNetEvent(NetEvent::Type::CONNECT_FAILURE, _L("Failed to launch connection thread"));
+        PushNetMessage(MSG_NET_CONNECT_FAILURE, _L("Failed to launch connection thread"));
         RoR::LogFormat("[RoR|Networking] Failed to launch connection thread, message: %s", e.what());
         return false;
     }
 }
 
-NetEventQueue Network::CheckEvents()
+void Network::StopConnecting()
 {
-    std::lock_guard<std::mutex> lock(m_event_queue_mutex);
-
-    NetEventQueue qcopy;
-    while (!m_event_queue.empty())
-    {
-        switch (m_event_queue.front().type)
-        {
-        case NetEvent::Type::CONNECT_FAILURE:
-        case NetEvent::Type::CONNECT_SUCCESS:
-            if (m_connect_thread.joinable())
-                m_connect_thread.join(); // Clean up
-            break;
-        default:;
-        }
-        qcopy.push(m_event_queue.front());
-        m_event_queue.pop();
-    }
-    return qcopy;
+    if (m_connect_thread.joinable())
+        m_connect_thread.join(); // Clean up
 }
 
 bool Network::ConnectThread()
@@ -438,7 +425,7 @@ bool Network::ConnectThread()
 
     SWBaseSocket::SWBaseError error;
 
-    FireNetEvent(NetEvent::Type::CONNECT_PROGRESS, _LC("Network", "Estabilishing connection..."));
+    PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Estabilishing connection..."));
     m_socket = SWInetSocket();
     m_socket.set_timeout(10, 0);
     m_socket.connect(m_net_port, m_net_host, &error);
@@ -448,7 +435,7 @@ bool Network::ConnectThread()
         return false;
     }
 
-    FireNetEvent(NetEvent::Type::CONNECT_PROGRESS, _LC("Network", "Getting server info..."));
+    PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Getting server info..."));
     if (!SendNetMessage(MSG2_HELLO, 0, (int)strlen(RORNET_VERSION), (char *)RORNET_VERSION))
     {
         CouldNotConnect(_L("Establishing network session: error sending hello"));
@@ -498,7 +485,7 @@ bool Network::ConnectThread()
         return false;
     }
 
-    FireNetEvent(NetEvent::Type::CONNECT_PROGRESS, _LC("Network", "Authorizing..."));
+    PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Authorizing..."));
 
     // First handshake done, increase the timeout, important!
     m_socket.set_timeout(0, 0);
@@ -558,7 +545,7 @@ bool Network::ConnectThread()
         return false;
     }
 
-    FireNetEvent(NetEvent::Type::CONNECT_PROGRESS, _LC("Network", "Finishing..."));
+    PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Finishing..."));
 
     m_uid = header.source;
 
@@ -570,7 +557,7 @@ bool Network::ConnectThread()
     LOG("[RoR|Networking] Connect(): Creating Send/Recv threads");
     m_send_thread = std::thread(&Network::SendThread, this);
     m_recv_thread = std::thread(&Network::RecvThread, this);
-    FireNetEvent(NetEvent::Type::CONNECT_SUCCESS, "");
+    PushNetMessage(MSG_NET_CONNECT_SUCCESS, "");
 
     return true;
 }

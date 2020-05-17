@@ -26,6 +26,7 @@
 #include "Console.h"
 #include "ContentManager.h"
 #include "ErrorUtils.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
@@ -394,38 +395,38 @@ int main(int argc, char *argv[])
                 }
             } // App state change block
 
-#ifdef USE_SOCKETW
-            // Network events
-            NetEventQueue events = App::GetNetwork()->CheckEvents();
-            while (!events.empty())
+            // Game events
+            while (App::GetGameContext()->HasMessages())
             {
-                switch (events.front().type)
+                Message m = App::GetGameContext()->PopMessage();
+                switch (m.type)
                 {
-                case NetEvent::Type::SERVER_KICK:
+                case MSG_NET_SERVER_KICK:
                     App::mp_state_requested->SetActiveVal((int)MpState::DISABLED);
                     App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
                     App::GetGuiManager()->ShowMessageBox(
-                        _LC("Network", "Network disconnected"), events.front().message.c_str());
+                        _LC("Network", "Network disconnected"), m.description.c_str());
                     break;
 
-                case NetEvent::Type::RECV_ERROR:
+                case MSG_NET_RECV_ERROR:
                     App::mp_state_requested->SetActiveVal((int)MpState::DISABLED);
                     App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
                     App::GetGuiManager()->ShowMessageBox(
-                        _L("Network fatal error: "), events.front().message.c_str());
+                        _L("Network fatal error: "), m.description.c_str());
                     break;
 
-                case NetEvent::Type::CONNECT_STARTED:
-                    App::GetGuiManager()->SetMpConnectingStatusMsg(events.front().message.c_str());
+                case MSG_NET_CONNECT_STARTED:
+                    App::GetGuiManager()->SetMpConnectingStatusMsg(m.description.c_str());
                     App::GetGuiManager()->SetVisible_GameMainMenu(false);
                     App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
                     break;
 
-                case NetEvent::Type::CONNECT_PROGRESS:
-                    App::GetGuiManager()->SetMpConnectingStatusMsg(events.front().message.c_str());
+                case MSG_NET_CONNECT_PROGRESS:
+                    App::GetGuiManager()->SetMpConnectingStatusMsg(m.description.c_str());
                     break;
 
-                case NetEvent::Type::CONNECT_SUCCESS:
+                case MSG_NET_CONNECT_SUCCESS:
+                    App::GetNetwork()->StopConnecting();
                     App::mp_state->SetActiveVal((int)RoR::MpState::CONNECTED);
                     RoR::ChatSystem::SendStreamSetup();
                     if (!App::GetMumble())
@@ -451,18 +452,17 @@ int main(int argc, char *argv[])
                     }
                     break;
 
-                case NetEvent::Type::CONNECT_FAILURE:
+                case MSG_NET_CONNECT_FAILURE:
                     App::mp_state_requested->SetActiveVal((int)MpState::DISABLED);
+                    App::GetNetwork()->StopConnecting();
                     App::GetGuiManager()->ShowMessageBox(
-                        _LC("Network", "Multiplayer: connection failed"), events.front().message.c_str());
+                        _LC("Network", "Multiplayer: connection failed"), m.description.c_str());
                     App::GetGuiManager()->ReflectGameState();
                     break;
 
-
                 default:;
                 }
-                events.pop();
-            } // Network connecting events block
+            } // Game events block
 
             App::GetGuiManager()->GetMpSelector()->CheckAndProcessRefreshResult();
 
@@ -484,7 +484,6 @@ int main(int argc, char *argv[])
                     }
                 }
             } // Net state change block
-#endif // USE_SOCKETW
 
             // Check FPS limit
             if (App::gfx_fps_limit->GetActiveVal<int>() > 0)

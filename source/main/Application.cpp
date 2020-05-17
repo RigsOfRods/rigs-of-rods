@@ -29,6 +29,7 @@
 #include "CameraManager.h"
 #include "Console.h"
 #include "ContentManager.h"
+#include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
@@ -67,6 +68,7 @@ static SoundScriptManager* g_sound_script_manager;
 static LanguageEngine   g_language_engine;
 static ScriptEngine*    g_script_engine;
 static Network          g_network;
+static GameContext      g_game_context;
 
 // App
 CVar* app_state;
@@ -242,6 +244,7 @@ SoundScriptManager*    GetSoundScriptManager () { return g_sound_script_manager;
 LanguageEngine*        GetLanguageEngine     () { return &g_language_engine; }
 ScriptEngine*          GetScriptEngine       () { return g_script_engine; }
 Network*               GetNetwork            () { return &g_network; }
+GameContext*           GetGameContext        () { return &g_game_context; }
 
 // Factories
 void CreateOgreSubsystem()

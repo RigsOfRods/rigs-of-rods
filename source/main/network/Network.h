@@ -24,8 +24,8 @@
 #ifdef USE_SOCKETW
 
 #include "Application.h"
+#include "GameContext.h"
 #include "RoRnet.h"
-#include "Application.h"
 
 #include <SocketW.h>
 
@@ -92,33 +92,11 @@ struct NetRecvPacket
 
 // ------------------------ End of network messages --------------------------
 
-struct NetEvent
-{
-    enum class Type
-    {
-        INVALID,
-        CONNECT_STARTED,
-        CONNECT_PROGRESS,
-        CONNECT_SUCCESS,
-        CONNECT_FAILURE,
-        SERVER_KICK,
-        USER_DISCONNECT,
-        RECV_ERROR,
-    };
-
-    NetEvent(Type t, std::string const& msg) :type(t), message(msg) {}
-
-    Type type;
-    std::string message;
-};
-
-typedef std::queue < NetEvent, std::list<NetEvent>> NetEventQueue;
-
 class Network
 {
 public:
     bool                 StartConnecting();    ///< Launches connecting on background.
-    NetEventQueue        CheckEvents();        ///< Processes and returns the event queue.
+    void                 StopConnecting();
     void                 Disconnect();
 
     void                 AddPacket(int streamid, int type, int len, const char *content);
@@ -147,7 +125,7 @@ public:
     std::string          UserAuthToStringLong(RoRnet::UserInfo const &user);
 
 private:
-    void                 FireNetEvent(NetEvent::Type type, std::string const & message);
+    void                 PushNetMessage(MsgType type, std::string const & message);
     void                 SetNetQuality(int quality);
     bool                 SendMessageRaw(char *buffer, int msgsize);
     bool                 SendNetMessage(int type, unsigned int streamid, int len, char* content);
@@ -179,7 +157,6 @@ private:
     std::thread          m_recv_thread;
     std::thread          m_connect_thread;
 
-    NetEventQueue        m_event_queue;
     std::string          m_status_message;
     std::atomic<bool>    m_shutdown;
     std::atomic<int>     m_net_quality;
@@ -189,7 +166,6 @@ private:
     std::mutex           m_userdata_mutex;
     std::mutex           m_recv_packetqueue_mutex;
     std::mutex           m_send_packetqueue_mutex;
-    std::mutex           m_event_queue_mutex;
 
     std::condition_variable m_send_packet_available_cv;
 
