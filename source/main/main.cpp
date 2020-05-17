@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
 
         if (App::mp_join_on_startup->GetActiveVal<bool>())
         {
-            App::mp_state_requested->SetActiveVal((int)RoR::MpState::CONNECTED);
+            App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
         }
         else if (App::diag_preset_terrain->GetActiveStr() != "")
         {
@@ -401,15 +401,28 @@ int main(int argc, char *argv[])
                 Message m = App::GetGameContext()->PopMessage();
                 switch (m.type)
                 {
+                case MSG_NET_CONNECT_REQUESTED:
+                    App::GetNetwork()->StartConnecting();
+                    break;
+
+                case MSG_NET_DISCONNECT_REQUESTED:
+                    App::GetNetwork()->Disconnect();
+                    if (App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
+                    {
+                        App::GetGuiManager()->GetMainSelector()->Close(); // We may get disconnected while still in map selection
+                        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                    }
+                    break;
+
                 case MSG_NET_SERVER_KICK:
-                    App::mp_state_requested->SetActiveVal((int)MpState::DISABLED);
+                    App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
                     App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
                     App::GetGuiManager()->ShowMessageBox(
                         _LC("Network", "Network disconnected"), m.description.c_str());
                     break;
 
                 case MSG_NET_RECV_ERROR:
-                    App::mp_state_requested->SetActiveVal((int)MpState::DISABLED);
+                    App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
                     App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
                     App::GetGuiManager()->ShowMessageBox(
                         _L("Network fatal error: "), m.description.c_str());
@@ -453,8 +466,8 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_NET_CONNECT_FAILURE:
-                    App::mp_state_requested->SetActiveVal((int)MpState::DISABLED);
                     App::GetNetwork()->StopConnecting();
+                    App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
                     App::GetGuiManager()->ShowMessageBox(
                         _LC("Network", "Multiplayer: connection failed"), m.description.c_str());
                     App::GetGuiManager()->ReflectGameState();
@@ -466,24 +479,6 @@ int main(int argc, char *argv[])
 
             App::GetGuiManager()->GetMpSelector()->CheckAndProcessRefreshResult();
 
-            // Change network state
-            if (App::mp_state_requested->GetActiveEnum<MpState>() != App::mp_state->GetActiveEnum<MpState>())
-            {
-                if (App::mp_state_requested->GetActiveEnum<MpState>() == MpState::CONNECTED &&
-                    App::mp_state->GetActiveEnum<MpState>() == MpState::DISABLED)
-                {
-                    App::GetNetwork()->StartConnecting();
-                }
-                else if (App::mp_state_requested->GetActiveEnum<MpState>() == MpState::DISABLED)
-                {
-                    App::GetNetwork()->Disconnect();
-                    if (App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
-                    {
-                        App::GetGuiManager()->GetMainSelector()->Close(); // We may get disconnected while still in map selection
-                        App::GetGuiManager()->SetVisible_GameMainMenu(true);
-                    }
-                }
-            } // Net state change block
 
             // Check FPS limit
             if (App::gfx_fps_limit->GetActiveVal<int>() > 0)

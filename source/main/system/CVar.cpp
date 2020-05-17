@@ -59,7 +59,6 @@ void Console::CVarSetupBuiltins()
     App::sim_gearbox_mode        = this->CVarCreate("sim_gearbox_mode",        "GearboxMode",                CVAR_ALLOW_STORE                   | CVAR_TYPE_INT);
 
     App::mp_state                = this->CVarCreate("mp_state",                "",                                              CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "0"/*(int)MpState::DISABLED*/);
-    App::mp_state_requested      = this->CVarCreate("mp_state_requested",      "",                                              CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "0"/*(int)MpState::DISABLED*/);
     App::mp_join_on_startup      = this->CVarCreate("mp_join_on_startup",      "Auto connect",               CVAR_ALLOW_STORE                   | CVAR_TYPE_BOOL,    "false");       
     App::mp_chat_auto_hide       = this->CVarCreate("mp_chat_auto_hide",       "Auto hide chat",             CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "true");
     App::mp_hide_net_labels      = this->CVarCreate("mp_hide_net_labels",      "Hide net labels",            CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");

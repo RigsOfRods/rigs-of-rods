@@ -23,9 +23,9 @@
 #include "GUI_MultiplayerSelector.h"
 
 #include "Application.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
-
 #include "RoRnet.h"
 #include "RoRVersion.h"
 
@@ -244,7 +244,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         if (ImGui::Button("Join"))
         {
             App::mp_server_password->SetActiveStr(m_password_buf.GetBuffer());
-            App::mp_state_requested->SetActiveVal((int)MpState::CONNECTED);
+            App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
         }
 
         ImGui::PopID();
@@ -345,7 +345,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
                     App::mp_server_password->SetActiveStr(m_password_buf.GetBuffer());
                     App::mp_server_host->SetActiveStr(server.net_host.ToCStr());
                     App::mp_server_port->SetActiveVal(server.net_port);
-                    App::mp_state_requested->SetActiveVal((int)MpState::CONNECTED);
+                    App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
                 }
                 if (server.has_password)
                 {
