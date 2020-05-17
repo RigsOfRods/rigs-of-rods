@@ -44,7 +44,6 @@ void Console::CVarSetupBuiltins()
     App::app_config_long_names   = this->CVarCreate("app_config_long_names",   "Config uses long names",     CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "true");
 
     App::sim_state               = this->CVarCreate("sim_state",               "",                                              CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "0"/*(int)SimState::OFF*/);
-    App::sim_state_requested     = this->CVarCreate("sim_state_requested",               "",                                    CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "0"/*(int)SimState::OFF*/);
     App::sim_terrain_name        = this->CVarCreate("sim_terrain_name",        "",                           0);
     App::sim_terrain_gui_name    = this->CVarCreate("sim_terrain_gui_name",    "",                                              CVAR_AUTO_APPLY);
     App::sim_savegame            = this->CVarCreate("sim_savegame",            "",                           0);

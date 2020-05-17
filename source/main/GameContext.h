@@ -46,6 +46,9 @@ enum MsgType
     MSG_NET_DISCONNECT_REQUESTED,
     MSG_NET_USER_DISCONNECT,
     MSG_NET_RECV_ERROR,
+    // Simulation
+    MSG_SIM_PAUSE_REQUESTED,
+    MSG_SIM_UNPAUSE_REQUESTED
 };
 
 /// Unified game event system - all requests and state changes are reported using a message (work in progress)
