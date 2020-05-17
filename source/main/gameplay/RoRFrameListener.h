@@ -91,7 +91,7 @@ public:
     int    GetRaceId             () const { return m_race_id; }
     float  GetRaceTime           () const { return static_cast<float>(m_time - m_race_start_time); }
     bool   IsRaceInProgress      () const { return m_race_id != -1; }
-    bool   LoadTerrain           (); ///< Reads GVar 'sim_terrain_pending'
+    bool   LoadTerrain           (std::string terrn_file);
 
     // GUI interface
     void   TeleportPlayerXZ      (float x, float y); // Teleport UI

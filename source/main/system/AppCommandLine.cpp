@@ -20,6 +20,7 @@
 */
 
 #include "Console.h"
+#include "GameContext.h"
 #include "ErrorUtils.h"
 #include "PlatformUtils.h"
 #include "Utils.h"
@@ -75,17 +76,17 @@ void Console::ProcessCommandLine(int argc, char *argv[])
     {
         if (args.LastError() != SO_SUCCESS)
         {
-            App::app_state_requested->SetActiveVal((int)AppState::PRINT_HELP_EXIT);
+            App::app_state->SetActiveVal((int)AppState::PRINT_HELP_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_HELP)
         {
-            App::app_state_requested->SetActiveVal((int)AppState::PRINT_HELP_EXIT);
+            App::app_state->SetActiveVal((int)AppState::PRINT_HELP_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_VER)
         {
-            App::app_state_requested->SetActiveVal((int)AppState::PRINT_VERSION_EXIT);
+            App::app_state->SetActiveVal((int)AppState::PRINT_VERSION_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_TRUCK)
@@ -118,7 +119,7 @@ void Console::ProcessCommandLine(int argc, char *argv[])
         {
             if (FileExists(PathCombine(App::sys_savegames_dir->GetActiveStr(), "autosave.sav")))
             {
-                App::sim_savegame->SetPendingStr("autosave.sav");
+                App::GetGameContext()->PushMessage(RoR::Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, "autosave.sav"));
             }
         }
         else if (args.OptionId() == OPT_CHECKCACHE)

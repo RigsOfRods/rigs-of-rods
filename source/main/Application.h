@@ -199,7 +199,6 @@ namespace App {
 
 // App
 extern CVar* app_state;
-extern CVar* app_state_requested;
 extern CVar* app_language;
 extern CVar* app_country;
 extern CVar* app_skip_main_menu;
@@ -217,7 +216,6 @@ extern CVar* app_config_long_names;
 extern CVar* sim_state;
 extern CVar* sim_terrain_name;
 extern CVar* sim_terrain_gui_name;
-extern CVar* sim_savegame;
 extern CVar* sim_spawn_running;
 extern CVar* sim_replay_enabled;
 extern CVar* sim_replay_length;

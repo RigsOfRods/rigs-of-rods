@@ -84,17 +84,17 @@ void RoR::GUI::GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cle
         const char* settings_title = (m_kb_focus_index == 1) ? "--> Return to menu <--" : "Return to menu";
         if (ImGui::Button(settings_title, btn_size) || (m_kb_enter_index == 1))
         {
-            App::app_state_requested->SetActiveVal((int)RoR::AppState::MAIN_MENU);
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
             if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
             {
                 App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
-            }            
+            }
         }
 
         const char* exit_title = (m_kb_focus_index == 2) ? "--> Exit game <--" : "Exit game";
         if (ImGui::Button(exit_title, btn_size) || (m_kb_enter_index == 2))
         {
-            App::app_state_requested->SetActiveVal((int)RoR::AppState::SHUTDOWN);
+            App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
         }
     }
 

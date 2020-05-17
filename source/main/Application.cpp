@@ -72,7 +72,6 @@ static GameContext      g_game_context;
 
 // App
 CVar* app_state;
-CVar* app_state_requested;
 CVar* app_language;
 CVar* app_country;
 CVar* app_skip_main_menu;
@@ -91,7 +90,6 @@ CVar* app_config_long_names;
  CVar* sim_state;
  CVar* sim_terrain_name;
  CVar* sim_terrain_gui_name;
- CVar* sim_savegame;
  CVar* sim_load_savegame;
  CVar* sim_spawn_running;
  CVar* sim_replay_enabled;

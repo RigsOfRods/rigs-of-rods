@@ -550,8 +550,7 @@ void MainSelector::Apply()
     if (m_loader_type == LT_Terrain &&
         App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
     {
-        App::sim_terrain_name->SetPendingStr(sd_entry.sde_entry->fname.c_str());
-        App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, sd_entry.sde_entry->fname));
         this->Close();
     }
     else if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)

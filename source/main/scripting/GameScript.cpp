@@ -126,8 +126,7 @@ void GameScript::loadTerrain(const String& terrain)
     if (!this->HaveSimController(__FUNCTION__))
         return;
 
-    App::sim_terrain_name->SetPendingStr(terrain);
-    App::GetSimController()->LoadTerrain();
+    App::GetSimController()->LoadTerrain(terrain);
 }
 
 Vector3 GameScript::getPersonPosition()
@@ -953,12 +952,12 @@ void GameScript::showMessageBox(Ogre::String& title, Ogre::String& text, bool us
 
 void GameScript::backToMenu()
 {
-    App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
+    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
 }
 
 void GameScript::quitGame()
 {
-    App::app_state_requested->SetActiveVal((int)RoR::AppState::SHUTDOWN);
+    App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
 }
 
 float GameScript::getFPS()

@@ -71,6 +71,18 @@ Ogre::String ActorManager::ExtractSceneName(Ogre::String filename)
     return j_doc["scene_name"].GetString();
 }
 
+Ogre::String ActorManager::ExtractTerrainFilename(Ogre::String filename)
+{
+    // Read from disk
+    rapidjson::Document j_doc;
+    if (!App::GetContentManager()->LoadAndParseJson(filename, RGN_SAVEGAMES, j_doc) ||
+        !j_doc.IsObject() || !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber() ||
+        !j_doc.HasMember("terrain_name") || !j_doc["terrain_name"].IsString())
+        return "";
+
+    return j_doc["terrain_name"].GetString();
+}
+
 bool ActorManager::LoadScene(Ogre::String filename)
 {
     // Read from disk
@@ -81,7 +93,6 @@ bool ActorManager::LoadScene(Ogre::String filename)
         RoR::Log("[RoR|Savegame] Invalid or missing savegame file.");
         RoR::App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: File invalid or missing"));
-        App::sim_savegame->SetActiveStr(""); // Also resets 'pending'
         return false;
     }
     if (j_doc["format_version"].GetInt() != SAVEGAME_FILE_FORMAT)
@@ -89,7 +100,6 @@ bool ActorManager::LoadScene(Ogre::String filename)
         RoR::Log("[RoR|Savegame] Savegame file format mismatch.");
         RoR::App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: File format mismatch"));
-        App::sim_savegame->SetActiveStr(""); // Also resets 'pending'
         return false;
     }
 
@@ -112,18 +122,6 @@ bool ActorManager::LoadScene(Ogre::String filename)
                 Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: Too many vehicles"));
             return false;
         }
-    }
-
-    if (terrain_name != App::sim_terrain_name->GetActiveStr() || App::sim_state->GetActiveEnum<SimState>() != SimState::RUNNING)
-    {
-        RoR::LogFormat("[RoR|Savegame] Loading terrain '%s' ...", terrain_name.c_str());
-        App::sim_terrain_name->SetPendingStr(terrain_name.c_str());
-        if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
-        {
-            App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
-            App::sim_savegame->SetPendingStr(filename.c_str());
-        }
-        return true;
     }
 
     m_forced_awake = j_doc["forced_awake"].GetBool();
@@ -485,7 +483,6 @@ bool ActorManager::LoadScene(Ogre::String filename)
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Scene loaded"));
     }
 
-    App::sim_savegame->SetActiveStr(""); // Also resets 'pending'
     return true;
 }
 
