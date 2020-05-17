@@ -11,6 +11,7 @@ set(SOURCE_FILES
         Application.{h,cpp}
         ForwardDeclarations.h
         AppContext.{h,cpp}
+		GameContext.{h,cpp}
         audio/MumbleIntegration.{h,cpp}
         audio/Sound.{h,cpp}
         audio/SoundManager.{h,cpp}

@@ -31,6 +31,7 @@
 namespace RoR
 {
     class  ActorManager;
+    class  AppContext;
     class  CameraManager;
     class  ConfigFile;
     class  Console;
@@ -39,6 +40,7 @@ namespace RoR
     class  FlexBodyFileIO;
     struct FlexBodyCacheData;
     class  FlexFactory;
+    class  GameContext;
     class  GfxActor;
     struct GfxCharacter;
     class  GfxScene;

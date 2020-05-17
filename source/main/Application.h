@@ -368,6 +368,7 @@ SoundScriptManager*  GetSoundScriptManager();
 LanguageEngine*      GetLanguageEngine();
 ScriptEngine*        GetScriptEngine();
 Network*             GetNetwork();
+GameContext*         GetGameContext();
 
 // Factories
 void CreateOgreSubsystem();
