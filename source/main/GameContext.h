@@ -36,6 +36,8 @@ namespace RoR {
 enum MsgType
 {
     MSG_INVALID,
+    // Application
+    MSG_APP_SHUTDOWN_REQUESTED,
     // Networking
     MSG_NET_CONNECT_REQUESTED,
     MSG_NET_CONNECT_STARTED,
@@ -48,13 +50,16 @@ enum MsgType
     MSG_NET_RECV_ERROR,
     // Simulation
     MSG_SIM_PAUSE_REQUESTED,
-    MSG_SIM_UNPAUSE_REQUESTED
+    MSG_SIM_UNPAUSE_REQUESTED,
+    MSG_SIM_LOAD_TERRN_REQUESTED,
+    MSG_SIM_LOAD_SAVEGAME_REQUESTED,
+    MSG_SIM_UNLOAD_TERRN_REQUESTED,
 };
 
 /// Unified game event system - all requests and state changes are reported using a message (work in progress)
 struct Message
 {
-    Message(MsgType _type): type(_type) {}
+    Message(MsgType _type, std::string const& _desc = ""): type(_type), description(_desc) {}
 
     MsgType     type;
     std::string description;

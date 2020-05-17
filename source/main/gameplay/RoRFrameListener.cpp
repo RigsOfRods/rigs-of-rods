@@ -255,7 +255,8 @@ void SimController::HandleSavegameShortcuts()
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD, 1.0f))
     {
-        App::sim_savegame->SetPendingStr(m_actor_manager.GetQuicksaveFilename().c_str());
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED,
+                                                   m_actor_manager.GetQuicksaveFilename()));
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE))
@@ -1703,11 +1704,6 @@ void SimController::UpdateSimulation(float dt)
     }
     m_actor_spawn_queue.clear();
 
-    if (App::sim_savegame->GetActiveStr() != App::sim_savegame->GetPendingStr())
-    {
-        m_actor_manager.LoadScene(App::sim_savegame->GetPendingStr());
-    }
-
     if (m_pending_player_actor != m_player_actor)
     {
         m_prev_player_actor = m_player_actor ? m_player_actor : m_prev_player_actor;
@@ -1923,29 +1919,54 @@ void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instanc
     }
 }
 
-bool SimController::LoadTerrain()
+bool SimController::LoadTerrain(std::string terrain_file)
 {
+    // Load character - must be done first!
+    m_player_character = m_character_factory.CreateLocalCharacter();
+
+    // Look up the terrain in modcache
+    size_t length = std::numeric_limits<size_t>::max();
+    const CacheEntry* lookup = nullptr;
+    String name = terrain_file;
+    StringUtil::toLowerCase(name);
+    for (const auto& entry : App::GetCacheSystem()->GetEntries())
+    {
+        if (entry.fext != "terrn2")
+            continue; 
+        String fname = entry.fname;
+        StringUtil::toLowerCase(fname);
+        if (fname.find(name) != std::string::npos)
+        {
+            if (fname == name)
+            {
+                lookup = &entry;
+                break;
+            }
+            else if (fname.length() < length)
+            {
+                lookup = &entry;
+                length = fname.length();
+            }
+        }
+    }
+    if (lookup != nullptr)
+    {
+        terrain_file = lookup->fname;
+    }
+
     // check if the resource is loaded
-    Ogre::String terrain_file = App::sim_terrain_name->GetPendingStr();
     if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(terrain_file)) // Input-output argument.
     {
         LOG("Terrain not found: " + terrain_file);
         Ogre::UTFString title(_L("Terrain loading error"));
         Ogre::UTFString msg(_L("Terrain not found: ") + terrain_file);
         App::GetGuiManager()->ShowMessageBox(title.asUTF8_c_str(), msg.asUTF8_c_str());
-        App::sim_terrain_name->ResetPending();
         return false;
     }
 
     App::GetGuiManager()->GetLoadingWindow()->setProgress(10, _L("Loading Terrain"));
 
     LOG("Loading terrain: " + terrain_file);
-
-    if (App::GetSimTerrain() != nullptr)
-    {
-        // remove old terrain
-        delete(App::GetSimTerrain()); // TODO: do it when leaving simulation.
-    }
 
     TerrainManager* terrain = new TerrainManager();
     App::SetSimTerrain(terrain); // The terrain preparation logic relies on it.
@@ -1954,10 +1975,9 @@ bool SimController::LoadTerrain()
         App::GetGuiManager()->ShowMessageBox("Failed to load terrain", "See 'RoR.log' for more info.", true, "OK", nullptr);
         App::SetSimTerrain(nullptr);
         delete terrain;
-        App::sim_terrain_name->ResetPending();
         return false;
     }
-    App::sim_terrain_name->ApplyPending();
+    App::sim_terrain_name->SetActiveStr(terrain_file);
 
     if (m_player_character != nullptr)
     {
@@ -1998,8 +2018,6 @@ bool SimController::LoadTerrain()
 
     App::GetGuiManager()->GetFrictionSettings()->AnalyzeTerrain();
 
-    // hide loading window
-    App::GetGuiManager()->SetVisible_LoadingWindow(false);
     return true;
 }
 
@@ -2035,85 +2053,7 @@ void SimController::CleanupAfterSimulation()
 
 bool SimController::SetupGameplayLoop()
 {
-    RoR::Log("[RoR] Loading resources...");
-    App::GetGuiManager()->GetLoadingWindow()->setProgress(5, _L("Loading resources"));
-    App::GetContentManager()->LoadGameplayResources();
-
-    // Load character - must be done first!
-    m_player_character = m_character_factory.CreateLocalCharacter();
-
-    // Determine terrain to load
-    if (App::sim_savegame->GetPendingStr() != App::sim_savegame->GetActiveStr())
-    {
-        if (App::diag_preset_terrain->GetActiveStr() != "")
-        {
-            App::sim_savegame->SetActiveStr(
-                m_actor_manager.GetQuicksaveFilename(App::diag_preset_terrain->GetActiveStr()));
-        }
-
-        if (!m_actor_manager.LoadScene(App::sim_savegame->GetPendingStr())) // Sets pending 'sim_terrain_name'
-        {
-            App::GetGuiManager()->ShowMessageBox(_L("Error"), _L("Could not load saved game"));
-            return false;
-        }
-    }
-    else if (App::diag_preset_terrain->GetActiveStr() != "")
-    {
-        App::sim_terrain_name->SetPendingStr(App::diag_preset_terrain->GetActiveStr());
-        App::diag_preset_terrain->SetActiveStr("");
-    }
-
-    if (App::sim_terrain_name->GetPendingStr() == "")
-    {
-        LOG("No map selected. Returning to menu.");
-        App::GetGuiManager()->SetVisible_LoadingWindow(false);
-        return false;
-    }
-
-    // ============================================================================
-    // Loading map
-    // ============================================================================
-
-    size_t length = std::numeric_limits<size_t>::max();
-    const CacheEntry* lookup = nullptr;
-    String name = App::sim_terrain_name->GetPendingStr();
-    StringUtil::toLowerCase(name);
-    for (const auto& entry : App::GetCacheSystem()->GetEntries())
-    {
-        if (entry.fext != "terrn2")
-            continue; 
-        String fname = entry.fname;
-        StringUtil::toLowerCase(fname);
-        if (fname.find(name) != std::string::npos)
-        {
-            if (fname == name)
-            {
-                lookup = &entry;
-                break;
-            }
-            else if (fname.length() < length)
-            {
-                lookup = &entry;
-                length = fname.length();
-            }
-        }
-    }
-    if (lookup != nullptr)
-    {
-        App::sim_terrain_name->SetPendingStr(lookup->fname);
-    }
-
-    if (! this->LoadTerrain())
-    {
-        LOG("Could not load map. Returning to menu.");
-        App::GetGuiManager()->SetVisible_LoadingWindow(false);
-        return false;
-    }
-
-    // ========================================================================
-    // Loading vehicle
-    // ========================================================================
-
+    // Load preselected vehicle
     if (!App::diag_preset_vehicle->GetActiveStr().empty())
     {
         // Vehicle name lookup

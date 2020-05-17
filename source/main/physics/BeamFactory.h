@@ -94,6 +94,7 @@ public:
 
     Ogre::String   GetQuicksaveFilename(Ogre::String filename = "");
     Ogre::String   ExtractSceneName(Ogre::String filename);
+    static Ogre::String   ExtractTerrainFilename(Ogre::String filename);
     bool           LoadScene(Ogre::String filename);
     bool           SaveScene(Ogre::String filename);
 

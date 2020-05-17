@@ -242,12 +242,12 @@ void RoR::GUI::TopMenubar::Update()
 
             if (ImGui::Button("Back to menu"))
             {
-                App::app_state_requested->SetActiveVal((int)RoR::AppState::MAIN_MENU);
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
             }
 
             if (ImGui::Button("Exit"))
             {
-                App::app_state_requested->SetActiveVal((int)RoR::AppState::SHUTDOWN);
+                App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
             }
 
             m_open_menu_hoverbox_min = menu_pos;

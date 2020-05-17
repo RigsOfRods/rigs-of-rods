@@ -155,12 +155,12 @@ int main(int argc, char *argv[])
         App::GetConsole()->LoadConfig(); // RoR.cfg
         App::GetConsole()->ProcessCommandLine(argc, argv);
 
-        if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::PRINT_HELP_EXIT)
+        if (App::app_state->GetActiveEnum<AppState>() == AppState::PRINT_HELP_EXIT)
         {
             App::GetConsole()->ShowCommandLineUsage();
             return 0;
         }
-        if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::PRINT_VERSION_EXIT)
+        if (App::app_state->GetActiveEnum<AppState>() == AppState::PRINT_VERSION_EXIT)
         {
             App::GetConsole()->ShowCommandLineVersion();
             return 0;
@@ -314,20 +314,32 @@ int main(int argc, char *argv[])
 
         App::CreateThreadPool();
 
-        App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
-
         if (App::mp_join_on_startup->GetActiveVal<bool>())
         {
             App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
         }
         else if (App::diag_preset_terrain->GetActiveStr() != "")
         {
-            App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->GetActiveStr()));
         }
-        else if (App::sim_savegame->GetActiveStr() != App::sim_savegame->GetPendingStr())
+        else if (!App::mp_join_on_startup->GetActiveVal<bool>() && App::app_skip_main_menu->GetActiveVal<bool>())
         {
-            App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
+            // MainMenu disabled (singleplayer mode) -> go directly to map selector (traditional behavior)
+            App::GetGuiManager()->SetVisible_GameMainMenu(false);
+            App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
         }
+
+            // Enter new app state
+        App::app_state->SetActiveVal((int)AppState::MAIN_MENU);
+        App::GetGuiManager()->ReflectGameState();
+
+#ifdef USE_OPENAL
+        if (App::audio_menu_music->GetActiveVal<bool>())
+        {
+            App::GetSoundScriptManager()->createInstance("tracks/main_menu_tune", -1, nullptr);
+            SOUND_START(-1, SS_TRIG_MAIN_MENU);
+        }
+#endif // USE_OPENAL
 
         // --------------------------------------------------------------
         // Main rendering and event handling loop
@@ -335,65 +347,9 @@ int main(int argc, char *argv[])
 
         auto start_time = std::chrono::high_resolution_clock::now();
 
-        while (App::app_state_requested->GetActiveEnum<AppState>() != AppState::SHUTDOWN)
+        while (App::app_state->GetActiveEnum<AppState>() != AppState::SHUTDOWN)
         {
             OgreBites::WindowEventUtilities::messagePump();
-
-            // Enter new app state
-            if (App::app_state_requested->GetActiveEnum<AppState>() != App::app_state->GetActiveEnum<AppState>())
-            {
-                if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
-                {
-                    App::app_state->SetActiveVal((int)AppState::MAIN_MENU);
-                    App::GetGuiManager()->ReflectGameState();
-#ifdef USE_OPENAL
-                    if (App::audio_menu_music->GetActiveVal<bool>())
-                    {
-                        App::GetSoundScriptManager()->createInstance("tracks/main_menu_tune", -1, nullptr);
-                        SOUND_START(-1, SS_TRIG_MAIN_MENU);
-                    }
-#endif // USE_OPENAL
-
-                    if (!App::mp_join_on_startup->GetActiveVal<bool>() && App::app_skip_main_menu->GetActiveVal<bool>())
-                    {
-                        // MainMenu disabled (singleplayer mode) -> go directly to map selector (traditional behavior)
-                        if (App::diag_preset_terrain->GetActiveStr() == "")
-                        {
-                            App::GetGuiManager()->SetVisible_GameMainMenu(false);
-                            App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
-                        }
-                    }
-                }
-                else if (App::app_state_requested->GetActiveEnum<AppState>() == AppState::SIMULATION)
-                {
-                    App::app_state->SetActiveVal((int)AppState::SIMULATION);
-                    App::GetGuiManager()->ReflectGameState();
-                    App::SetSimController(new SimController(&force_feedback, &skidmark_conf));
-                    if (App::GetSimController()->SetupGameplayLoop())
-                    {
-                        App::sim_state->SetActiveVal((int)SimState::RUNNING);
-                        App::GetGameContext()->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
-                        App::gfx_fov_external->SetActiveVal(App::gfx_fov_external_default->GetActiveVal<int>());
-                        App::gfx_fov_internal->SetActiveVal(App::gfx_fov_internal_default->GetActiveVal<int>());
-#ifdef USE_SOCKETW
-                        if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
-                        {
-                            char text[300];
-                            std::snprintf(text, 300, _L("Press %s to start chatting"),
-                                RoR::App::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE).c_str());
-                            App::GetConsole()->putMessage(
-                                Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, text, "", 5000);
-                        }
-#endif // USE_SOCKETW
-                    }
-                    else
-                    {
-                        delete App::GetSimController();
-                        App::SetSimController(nullptr);
-                        App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
-                    }
-                }
-            } // App state change block
 
             // Game events
             while (App::GetGameContext()->HasMessages())
@@ -401,6 +357,21 @@ int main(int argc, char *argv[])
                 Message m = App::GetGameContext()->PopMessage();
                 switch (m.type)
                 {
+
+                // -- Application events --
+
+                case MSG_APP_SHUTDOWN_REQUESTED:
+                    App::GetConsole()->SaveConfig(); // RoR.cfg
+                    ShutdownDiscord();
+#ifdef USE_SOCKETW
+                    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
+                    {
+                        App::GetNetwork()->Disconnect();
+                    }
+#endif // USE_SOCKETW
+                    App::app_state->SetActiveVal((int)AppState::SHUTDOWN);
+                    break;
+
                 // -- Network events --
 
                 case MSG_NET_CONNECT_REQUESTED:
@@ -418,14 +389,14 @@ int main(int argc, char *argv[])
 
                 case MSG_NET_SERVER_KICK:
                     App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
-                    App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
                     App::GetGuiManager()->ShowMessageBox(
                         _LC("Network", "Network disconnected"), m.description.c_str());
                     break;
 
                 case MSG_NET_RECV_ERROR:
                     App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
-                    App::app_state_requested->SetActiveVal((int)AppState::MAIN_MENU);
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
                     App::GetGuiManager()->ShowMessageBox(
                         _L("Network fatal error: "), m.description.c_str());
                     break;
@@ -450,8 +421,7 @@ int main(int argc, char *argv[])
                     }
                     if (App::GetNetwork()->GetTerrainName() != "any")
                     {
-                        App::sim_terrain_name->SetPendingStr(App::GetNetwork()->GetTerrainName());
-                        App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
+                        App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::GetNetwork()->GetTerrainName()));
                     }
                     else
                     {
@@ -462,7 +432,7 @@ int main(int argc, char *argv[])
                         }
                         else
                         {
-                            App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->GetActiveStr()));
                         }
                     }
                     break;
@@ -485,6 +455,79 @@ int main(int argc, char *argv[])
                 case MSG_SIM_UNPAUSE_REQUESTED:
                     App::GetSimController()->GetBeamFactory()->UnmuteAllActors();
                     App::sim_state->SetActiveVal((int)SimState::RUNNING);
+                    break;
+
+                case MSG_SIM_LOAD_TERRN_REQUESTED:
+                    App::SetSimController(new SimController(&force_feedback, &skidmark_conf));
+                    App::GetGuiManager()->GetLoadingWindow()->setProgress(5, _L("Loading resources"));
+                    App::GetContentManager()->LoadGameplayResources();
+
+                    if (App::GetSimController()->LoadTerrain(m.description) &&
+                        App::GetSimController()->SetupGameplayLoop())
+                    {
+                        App::sim_state->SetActiveVal((int)SimState::RUNNING);
+                        App::app_state->SetActiveVal((int)AppState::SIMULATION);
+                        App::GetGuiManager()->ReflectGameState();
+                        App::GetGuiManager()->SetVisible_LoadingWindow(false);
+                        App::gfx_fov_external->SetActiveVal(App::gfx_fov_external_default->GetActiveVal<int>());
+                        App::gfx_fov_internal->SetActiveVal(App::gfx_fov_internal_default->GetActiveVal<int>());
+#ifdef USE_SOCKETW
+                        if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
+                        {
+                            char text[300];
+                            std::snprintf(text, 300, _L("Press %s to start chatting"),
+                                RoR::App::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE).c_str());
+                            App::GetConsole()->putMessage(
+                                Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, text, "", 5000);
+                        }
+#endif // USE_SOCKETW
+                    }
+                    else
+                    {
+                        App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                    }
+                    break;
+
+                case MSG_SIM_UNLOAD_TERRN_REQUESTED:
+#ifdef USE_MUMBLE
+                    if (App::GetMumble())
+                    {
+                        App::GetMumble()->SetNonPositionalAudio();
+                    }
+#endif // USE_MUMBLE
+                    ROR_ASSERT (App::GetSimController());                    
+                    App::GetSimController()->GetBeamFactory()->SaveScene("autosave.sav");
+                    App::GetSimController()->GetBeamFactory()->SyncWithSimThread(); // Wait for background tasks to finish
+                    App::GetSimController()->CleanupAfterSimulation();
+                    App::sim_state->SetActiveVal((int)SimState::OFF);
+                    App::app_state->SetActiveVal((int)AppState::MAIN_MENU);
+                    App::GetGuiManager()->ReflectGameState();
+                    delete App::GetSimController();
+                    App::SetSimController(nullptr);
+                    App::GetGfxScene()->ClearScene();
+                    App::sim_terrain_name->SetActiveStr("");
+                    App::sim_terrain_gui_name->SetActiveStr("");
+                    break;
+
+                case MSG_SIM_LOAD_SAVEGAME_REQUESTED:
+                    {
+                        std::string terrn_filename = ActorManager::ExtractTerrainFilename(m.description);
+                        if (terrn_filename == "")
+                        {
+                            LogFormat("[RoR|Savegame] Could not load '%s'", m.description.c_str());
+                            App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                        }
+                        else if (terrn_filename == App::sim_terrain_name->GetActiveStr())
+                        {
+                            App::GetSimController()->GetBeamFactory()->LoadScene(m.description);
+                        }
+                        else
+                        {
+                            RoR::LogFormat("[RoR|Savegame] Loading terrain '%s' ...", terrn_filename.c_str());
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, terrn_filename));
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, m.description));
+                        }
+                    }
                     break;
 
                 default:;
@@ -584,8 +627,7 @@ int main(int argc, char *argv[])
                 if (slot != -1)
                 {
                     Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
-                    App::sim_savegame->SetPendingStr(filename);
-                    App::app_state_requested->SetActiveVal((int)AppState::SIMULATION);
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, filename));
                 }
 
                 // Handle escape key
@@ -609,7 +651,7 @@ int main(int argc, char *argv[])
                     }
                     else
                     {
-                        App::app_state_requested->SetActiveVal((int)AppState::SHUTDOWN);
+                        App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
                     }
                 }
 
@@ -617,8 +659,7 @@ int main(int argc, char *argv[])
                 App::GetGuiManager()->NewImGuiFrame(dt_sec);
                 App::GetGuiManager()->DrawMainMenuGui();
             }
-            else if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION &&
-                     App::app_state_requested->GetActiveEnum<AppState>() == AppState::SIMULATION)
+            else if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
             {
                 // Update simulation - inputs, gui, gameplay
                 if (dt_sec != 0.f)
@@ -640,7 +681,7 @@ int main(int argc, char *argv[])
             Ogre::RenderWindow* render_window = RoR::App::GetOgreSubsystem()->GetRenderWindow();
             if (render_window->isClosed())
             {
-                App::app_state_requested->SetActiveVal((int)AppState::SHUTDOWN);
+                App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
             }
             else
             {
@@ -663,51 +704,9 @@ int main(int argc, char *argv[])
                 }
             } // Update cache block
 
-            // Clean up after previous game state
-            if (App::app_state_requested->GetActiveEnum<AppState>() != App::app_state->GetActiveEnum<AppState>())
-            {
-                if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
-                {
-#ifdef USE_MUMBLE
-                    if (App::GetMumble())
-                    {
-                        App::GetMumble()->SetNonPositionalAudio();
-                    }
-#endif // USE_MUMBLE
-                    if (App::GetSimController())
-                    {
-                        App::GetSimController()->GetBeamFactory()->SaveScene("autosave.sav");
-                        App::GetSimController()->GetBeamFactory()->SyncWithSimThread(); // Wait for background tasks to finish
-                        App::GetSimController()->CleanupAfterSimulation();
-                        App::sim_state->SetActiveVal((int)SimState::OFF);
-                        delete App::GetSimController();
-                        App::SetSimController(nullptr);
-                    }
-
-                    App::GetGfxScene()->ClearScene();
-                    App::sim_terrain_name->SetActiveStr("");
-                    App::sim_terrain_gui_name->SetActiveStr("");
-                }
-            } // Clean up after previous game state block
-
             App::GetGuiManager()->ApplyGuiCaptureKeyboard();
 
         } // End of main rendering/input loop
-
-        // --------------------------------------------------------------
-        // Shutdown
-        // --------------------------------------------------------------
-
-        ShutdownDiscord();
-
-        App::GetConsole()->SaveConfig(); // RoR.cfg
-
-#ifdef USE_SOCKETW
-        if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
-        {
-            App::GetNetwork()->Disconnect();
-        }
-#endif // USE_SOCKETW
 
 #ifndef _DEBUG
     }

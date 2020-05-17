@@ -29,7 +29,6 @@ using namespace RoR;
 void Console::CVarSetupBuiltins()
 {
     App::app_state               = this->CVarCreate("app_state",               "",                                              CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "0"/*(int)AppState::BOOTSTRAP*/);
-    App::app_state_requested     = this->CVarCreate("app_state_requested",     "",                                              CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "0"/*(int)AppState::BOOTSTRAP*/);
     App::app_language            = this->CVarCreate("app_language",            "Language",                   CVAR_ALLOW_STORE | CVAR_AUTO_APPLY,                     "en");          
     App::app_country             = this->CVarCreate("app_country",             "Country",                    CVAR_ALLOW_STORE | CVAR_AUTO_APPLY,                     "us");
     App::app_skip_main_menu      = this->CVarCreate("app_skip_main_menu",      "SkipMainMenu",               CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");
@@ -44,9 +43,8 @@ void Console::CVarSetupBuiltins()
     App::app_config_long_names   = this->CVarCreate("app_config_long_names",   "Config uses long names",     CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "true");
 
     App::sim_state               = this->CVarCreate("sim_state",               "",                                              CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "0"/*(int)SimState::OFF*/);
-    App::sim_terrain_name        = this->CVarCreate("sim_terrain_name",        "",                           0);
+    App::sim_terrain_name        = this->CVarCreate("sim_terrain_name",        "",                                              CVAR_AUTO_APPLY);
     App::sim_terrain_gui_name    = this->CVarCreate("sim_terrain_gui_name",    "",                                              CVAR_AUTO_APPLY);
-    App::sim_savegame            = this->CVarCreate("sim_savegame",            "",                           0);
     App::sim_spawn_running       = this->CVarCreate("sim_spawn_running",       "Engines spawn running",      CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "true");        
     App::sim_replay_enabled      = this->CVarCreate("sim_replay_enabled",      "Replay mode",                CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");
     App::sim_replay_length       = this->CVarCreate("sim_replay_length",       "Replay length",              CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_INT,     "200");                                                        
