@@ -78,7 +78,7 @@ void RoR::GUI::GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cle
         const char* resume_title = (m_kb_focus_index == 0) ? "--> Resume game <--" : "Resume game"; // TODO: Localize all!
         if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == 0))
         {
-            App::sim_state_requested->SetActiveVal((int)SimState::RUNNING);
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
         }
 
         const char* settings_title = (m_kb_focus_index == 1) ? "--> Return to menu <--" : "Return to menu";

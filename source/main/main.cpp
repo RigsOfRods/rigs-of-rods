@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
                     if (App::GetSimController()->SetupGameplayLoop())
                     {
                         App::sim_state->SetActiveVal((int)SimState::RUNNING);
-                        App::sim_state_requested->SetActiveVal((int)SimState::RUNNING);
+                        App::GetGameContext()->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
                         App::gfx_fov_external->SetActiveVal(App::gfx_fov_external_default->GetActiveVal<int>());
                         App::gfx_fov_internal->SetActiveVal(App::gfx_fov_internal_default->GetActiveVal<int>());
 #ifdef USE_SOCKETW
@@ -401,6 +401,8 @@ int main(int argc, char *argv[])
                 Message m = App::GetGameContext()->PopMessage();
                 switch (m.type)
                 {
+                // -- Network events --
+
                 case MSG_NET_CONNECT_REQUESTED:
                     App::GetNetwork()->StartConnecting();
                     break;
@@ -473,6 +475,18 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->ReflectGameState();
                     break;
 
+                // -- Gameplay events --
+
+                case MSG_SIM_PAUSE_REQUESTED:
+                    App::GetSimController()->GetBeamFactory()->MuteAllActors();
+                    App::sim_state->SetActiveVal((int)SimState::PAUSED);
+                    break;
+
+                case MSG_SIM_UNPAUSE_REQUESTED:
+                    App::GetSimController()->GetBeamFactory()->UnmuteAllActors();
+                    App::sim_state->SetActiveVal((int)SimState::RUNNING);
+                    break;
+
                 default:;
                 }
             } // Game events block
@@ -495,30 +509,6 @@ int main(int argc, char *argv[])
             const auto now = std::chrono::high_resolution_clock::now();
             const float dt_sec = std::chrono::duration<float>(now - start_time).count();
             start_time = now;
-
-            // Check simulation state change
-            if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
-            {
-                if (App::sim_state_requested->GetActiveEnum<SimState>() != App::sim_state->GetActiveEnum<SimState>())
-                {
-                    if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING)
-                    {
-                        if (App::sim_state_requested->GetActiveEnum<SimState>() == SimState::PAUSED)
-                        {
-                            App::GetSimController()->GetBeamFactory()->MuteAllActors();
-                            App::sim_state->SetActiveVal((int)App::sim_state_requested->GetActiveEnum<SimState>());
-                        }
-                    }
-                    else if (App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
-                    {
-                        if (App::sim_state_requested->GetActiveEnum<SimState>() == SimState::RUNNING)
-                        {
-                            App::GetSimController()->GetBeamFactory()->UnmuteAllActors();
-                            App::sim_state->SetActiveVal((int)App::sim_state_requested->GetActiveEnum<SimState>());
-                        }
-                    }
-                }
-            }
 
             // Prepare for simulation update
             if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)

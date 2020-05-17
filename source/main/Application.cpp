@@ -89,7 +89,6 @@ CVar* app_config_long_names;
 
 // Simulation
  CVar* sim_state;
- CVar* sim_state_requested;
  CVar* sim_terrain_name;
  CVar* sim_terrain_gui_name;
  CVar* sim_savegame;

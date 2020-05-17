@@ -317,11 +317,11 @@ void SimController::UpdateInputEvents(float dt)
         }
         else if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING)
         {
-            App::sim_state_requested->SetActiveVal((int)SimState::PAUSED);
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_PAUSE_REQUESTED));
         }
         else if (App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
         {
-            App::sim_state_requested->SetActiveVal((int)SimState::RUNNING);
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
         }
     }
 
