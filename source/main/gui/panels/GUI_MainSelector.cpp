@@ -533,7 +533,7 @@ void MainSelector::Cancel()
 
     if (App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
     {
-        App::mp_state_requested->SetActiveVal((int)MpState::DISABLED);
+        App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
     else if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)

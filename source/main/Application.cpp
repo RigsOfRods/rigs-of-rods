@@ -106,7 +106,6 @@ CVar* app_config_long_names;
 
 // Multiplayer
 CVar* mp_state;
-CVar* mp_state_requested;
 CVar* mp_join_on_startup;
 CVar* mp_chat_auto_hide;
 CVar* mp_hide_net_labels;
