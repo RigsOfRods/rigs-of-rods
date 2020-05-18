@@ -20,7 +20,6 @@
 
 #include "RoRFrameListener.h"
 
-#include "AdvancedScreen.h"
 #include "AircraftSimulation.h"
 #include "AppContext.h"
 #include "Beam.h"
@@ -95,8 +94,6 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_hide_gui(false),
     m_is_pace_reset_pressed(false),
     m_last_cache_selection(nullptr),
-    m_last_screenshot_date(""),
-    m_last_screenshot_id(1),
     m_last_simulation_speed(0.1f),
     m_last_skin_selection(nullptr),
     m_physics_simulation_paused(false),
@@ -109,7 +106,6 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_race_time_diff(0),
     m_reload_dir(Quaternion::IDENTITY),
     m_reload_pos(Vector3::ZERO),
-    m_screenshot_request(false),
     m_stats_on(0),
     m_time(0),
     m_time_until_next_toggle(0),
@@ -344,84 +340,9 @@ void SimController::UpdateInputEvents(float dt)
         gui_man->SetVisible_ChatBox(!gui_man->IsVisible_ChatBox());
     }
 
-    if (m_screenshot_request)
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.25f))
     {
-        std::time_t t = std::time(nullptr);
-        std::stringstream date;
-#if defined(__GNUC__) && (__GNUC__ < 5)
-		date << std::asctime(std::localtime(&t));
-#else
-        date << std::put_time(std::localtime(&t), "%Y-%m-%d_%H-%M-%S");
-#endif
-
-        String fn_prefix = PathCombine(App::sys_screenshot_dir->GetActiveStr(), "screenshot_");
-        String fn_name = date.str() + String("_");
-        String fn_suffix = String(".") + App::app_screenshot_format->GetActiveStr();
-
-        if (m_last_screenshot_date == date.str())
-        {
-            m_last_screenshot_id++;
-        }
-        else
-        {
-            m_last_screenshot_id = 1;
-        }
-        m_last_screenshot_date = date.str();
-
-        fn_name = fn_name + TOSTRING(m_last_screenshot_id);
-
-        String tmpfn = fn_prefix + fn_name + fn_suffix;
-
-        if (App::app_screenshot_format->GetActiveStr() == "png")
-        {
-            // add some more data into the image
-            AdvancedScreen* as = new AdvancedScreen(RoR::App::GetAppContext()->GetRenderWindow(), tmpfn);
-            //as->addData("terrain_Name", loadedTerrain);
-            //as->addData("terrain_ModHash", terrainModHash);
-            //as->addData("terrain_FileHash", terrainFileHash);
-            if (m_player_actor)
-            {
-                as->addData("Truck_Num", TOSTRING(m_player_actor->ar_instance_id));
-                as->addData("Truck_fname", m_player_actor->ar_filename);
-                as->addData("Truck_name", m_player_actor->GetActorDesignName());
-                as->addData("Truck_beams", TOSTRING(m_player_actor->ar_num_beams));
-                as->addData("Truck_nodes", TOSTRING(m_player_actor->ar_num_nodes));
-            }
-            as->addData("User_NickName", App::mp_player_name->GetActiveStr());
-            as->addData("User_Language", App::app_language->GetActiveStr());
-            as->addData("RoR_VersionString", String(ROR_VERSION_STRING));
-            as->addData("RoR_ProtocolVersion", String(RORNET_VERSION));
-            as->addData("RoR_BinaryHash", "");
-            as->addData("MP_ServerName", App::mp_server_host->GetActiveStr());
-            as->addData("MP_ServerPort", TOSTRING(App::mp_server_port->GetActiveVal<int>()));
-            as->addData("MP_NetworkEnabled", (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED) ? "Yes" : "No");
-            as->addData("Camera_Position", TOSTRING(App::GetCameraManager()->GetCameraNode()->getPosition()));
-
-            const RenderTarget::FrameStats& stats = RoR::App::GetAppContext()->GetRenderWindow()->getStatistics();
-            as->addData("AVGFPS", TOSTRING(stats.avgFPS));
-
-            as->write();
-            delete(as);
-        }
-        else
-        {
-            RoR::App::GetAppContext()->GetRenderWindow()->writeContentsToFile(tmpfn);
-        }
-
-        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::VISIBLE);
-
-        // show new flash message
-        String ssmsg = _L("Screenshot:") + String(" ") + fn_name + fn_suffix;
-        LOG(ssmsg);
-        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "camera.png", 10000, false);
-        m_screenshot_request = false;
-    }
-
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.25f))
-    {
-        // Nasty workaround to avoid calling 'GetRenderWindow()->update()' which overwrites the (ImGUI) skeleton view
-        m_screenshot_request = true;
-        RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
+        App::GetGameContext()->PushMessage(Message(MSG_APP_SCREENSHOT_REQUESTED));
     }
 
     if ((m_player_actor != nullptr) &&

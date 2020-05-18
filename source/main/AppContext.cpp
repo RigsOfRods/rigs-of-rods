@@ -21,6 +21,8 @@
 
 #include "AppContext.h"
 
+#include "AdvancedScreen.h"
+#include "Beam.h" // Actor
 #include "ChatSystem.h"
 #include "Console.h"
 #include "ContentManager.h"
@@ -44,6 +46,11 @@
 #ifdef _WIN32
 #   include <windows.h>
 #endif
+
+#include <iomanip>
+#include <sstream>
+#include <string>
+#include <ctime>
 
 using namespace RoR;
 
@@ -314,6 +321,51 @@ Ogre::RenderWindow* AppContext::CreateCustomRenderWindow(std::string const& wind
     Ogre::RenderWindow* rw = Ogre::Root::getSingleton().createRenderWindow(window_name, width, height, false, &misc);
     this->SetRenderWindowIcon(rw);
     return rw;
+}
+
+void AppContext::CaptureScreenshot()
+{
+    const std::time_t time = std::time(nullptr);
+    const int index = (time == m_prev_screenshot_time) ? m_prev_screenshot_index+1 : 1;
+
+    std::stringstream stamp;
+    stamp << std::put_time(std::localtime(&time), "%Y-%m-%d_%H-%M-%S") << "_" << index
+          << "." << App::app_screenshot_format->GetActiveStr();
+    std::string path = PathCombine(App::sys_screenshot_dir->GetActiveStr(), "screenshot_") + stamp.str();
+
+    if (App::app_screenshot_format->GetActiveStr() == "png")
+    {
+        AdvancedScreen png(m_render_window, path);
+
+        png.addData("User_NickName", App::mp_player_name->GetActiveStr());
+        png.addData("User_Language", App::app_language->GetActiveStr());
+        if (App::GetSimController() && App::GetSimController()->GetPlayerActor())
+        {
+            png.addData("Truck_file", App::GetSimController()->GetPlayerActor()->ar_filename);
+            png.addData("Truck_name", App::GetSimController()->GetPlayerActor()->GetActorDesignName());
+        }
+        if (App::GetSimTerrain())
+        {
+            png.addData("Terrn_file", App::sim_terrain_name->GetActiveStr());
+            png.addData("Terrn_name", App::sim_terrain_gui_name->GetActiveStr());
+        }
+        if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
+        {
+            png.addData("MP_ServerName", App::mp_server_host->GetActiveStr());
+        }
+
+        png.write();
+    }
+    else
+    {
+        m_render_window->writeContentsToFile(path);
+    }
+
+    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                  _L("Screenshot:") + stamp.str());
+
+    m_prev_screenshot_time = time;
+    m_prev_screenshot_index = index;
 }
 
 // --------------------------
