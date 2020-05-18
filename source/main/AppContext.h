@@ -49,6 +49,7 @@ public:
     bool                 SetUpRendering();
     bool                 SetUpConfigSkeleton();
     bool                 SetUpInput();
+    void                 SetUpObsoleteConfMarker();
 
     // Rendering
     Ogre::RenderWindow*  CreateCustomRenderWindow(std::string const& name, int width, int height);

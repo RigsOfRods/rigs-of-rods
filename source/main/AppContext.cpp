@@ -444,3 +444,35 @@ bool AppContext::SetUpConfigSkeleton()
 
     return true;
 }
+
+void AppContext::SetUpObsoleteConfMarker()
+{
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+    Ogre::String old_ror_homedir = Ogre::StringUtil::format("%s\\Rigs of Rods 0.4", RoR::GetUserHomeDirectory().c_str());
+    if(FolderExists(old_ror_homedir))
+    {
+        if (!FileExists(Ogre::StringUtil::format("%s\\OBSOLETE_FOLDER.txt", old_ror_homedir.c_str())))
+        {
+            Ogre::String obsoleteMessage = Ogre::StringUtil::format("This folder is obsolete, please move your mods to  %s", App::sys_user_dir->GetActiveStr());
+            try
+            {
+                Ogre::ResourceGroupManager::getSingleton().addResourceLocation(old_ror_homedir, "FileSystem", "homedir", false, false);
+                Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().createResource("OBSOLETE_FOLDER.txt", "homedir");
+                stream->write(obsoleteMessage.c_str(), obsoleteMessage.length());
+                Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("homedir");
+            }
+            catch (std::exception & e)
+            {
+                RoR::LogFormat("Error writing to %s, message: '%s'", old_ror_homedir.c_str(), e.what());
+            }
+            Ogre::String message = Ogre::StringUtil::format(
+                "Welcome to Rigs of Rods %s\nPlease note that the mods folder has moved to:\n\"%s\"\nPlease move your mods to the new folder to continue using them",
+                ROR_VERSION_STRING_SHORT,
+                App::sys_user_dir->GetActiveStr()
+            );
+
+            RoR::App::GetGuiManager()->ShowMessageBox("Obsolete folder detected", message.c_str());
+        }
+    }
+#endif // OGRE_PLATFORM_WIN32
+}
