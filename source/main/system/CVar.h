@@ -30,18 +30,14 @@
 
 namespace RoR {
 
-static const char* CVAR_LOG_FMT = "[RoR|CVar]  %20s:  %s(), new: \"%s\", old: \"%s\"%s";
+static const char* CVAR_LOG_FMT = "[RoR|CVar]  %20s:  \"%s\"( old: \"%s\")";
 
 enum CVarFlags
 {
-    CVAR_ALLOW_STORE  = BITMASK(1),    //!< Will be written to RoR.cfg
-    CVAR_AUTO_STORE   = BITMASK(2),    //!< 'Active' value automatically propagates to 'Stored'    OBSOLETE! REMOVAL ONGOING!
-    CVAR_AUTO_APPLY   = BITMASK(3),    //!< 'Stored/Pending' values automatically propagate to 'Active/Pending'  OBSOLETE! REMOVAL ONGOING!
+    CVAR_ARCHIVE  = BITMASK(1),    //!< Will be written to RoR.cfg
     CVAR_TYPE_BOOL    = BITMASK(4),
     CVAR_TYPE_INT     = BITMASK(5),
     CVAR_TYPE_FLOAT   = BITMASK(6),
-    CVAR_FORCE_APPLY  = BITMASK(7),    //!< Function call argument only    OBSOLETE! REMOVAL ONGOING!
-    CVAR_FORCE_STORE  = BITMASK(8),     //!< Function call argument only   OBSOLETE! REMOVAL ONGOING!
     CVAR_NO_LOG       = BITMASK(9)     //!< Will not be written to RoR.log
 };
 
@@ -49,27 +45,6 @@ enum CVarFlags
 ///   * Struct:     https://github.com/yquake2/yquake2/blob/master/src/common/header/shared.h#L332
 ///   * Functions:  https://github.com/yquake2/yquake2/blob/master/src/common/cvar.c
 ///   * Global var: https://github.com/yquake2/yquake2/blob/master/src/common/header/common.h#L432
-///
-///                            *** ATTENTION - ONGOING TRANSFORMATION ***
-///      Separate 'Pending/Archived' fields will be removed - mostly unused and complicated to manage
-///                                             ***
-///
-/// Concept:
-///   * [A] Active value = the value currently in effect. Each CVar has an active value.
-///   * [P] Pending value = the value to be set as active on earliest occasion (occasion may be anything from next frame to game restart)
-///                         When no change is requested, value of Pending equals value of Active.
-///                         OBSOLETE! REMOVAL ONGOING!
-///   * [S] Stored value = The user-defined value to be persisted in config file.
-///                        - it's unaffected by Active and only changes when user wants.
-///                        OBSOLETE! REMOVAL ONGOING!
-///
-/// API usage:
-///   SetPending():   new pending value, active stands. OBSOLETE! REMOVAL ONGOING!
-///   SetActive():    direct update of active & pending values.
-///   ApplyPending(): updates active from pending. OBSOLETE! REMOVAL ONGOING!
-///   ResetPending(): updates pending from active. OBSOLETE! REMOVAL ONGOING!
-///   GetStored():    gets stored value. OBSOLETE! REMOVAL ONGOING!
-///   SetStored():    direct update of stored value. OBSOLETE! REMOVAL ONGOING!
 ///
 /// @author Petr Ohlidal, 2020
 class CVar
@@ -102,13 +77,8 @@ public:
     {
         if (m_value_active.GetValue<T>() != val)
         {
-            this->LogUpdate("SetActive", m_value_active.GetString(), Val::ConvertStr(val, m_flags));
+            this->LogUpdate(m_value_active.GetString(), Val::ConvertStr(val, m_flags));
             m_value_active.SetValue(val, m_flags);
-            m_value_pending.SetValue(val, m_flags);
-            if (this->HasFlags(CVAR_ALLOW_STORE | CVAR_AUTO_STORE))
-            {
-                m_value_stored.SetValue(val, m_flags);
-            }
         }
     }
 
@@ -116,77 +86,8 @@ public:
     {
         if (m_value_active.GetString() != str)
         {
-            this->LogUpdate("SetActive", m_value_active.GetString(), str);
+            this->LogUpdate(m_value_active.GetString(), str);
             m_value_active.SetString(str);
-            m_value_pending.SetString(str);
-            if (this->HasFlags(CVAR_ALLOW_STORE | CVAR_AUTO_STORE))
-            {
-                m_value_stored.SetString(str);
-            }
-        }
-    }
-
-    template <typename T>
-    void SetPendingVal(T val)
-    {
-        if (m_value_pending.GetValue<T>() != val)
-        {
-            this->LogUpdate("SetPending", m_value_pending.GetString(), Val::ConvertStr(val, m_flags));
-            m_value_pending.SetValue(val, m_flags);
-            if (this->HasFlags(CVAR_AUTO_APPLY))
-            {
-                m_value_active.SetValue(val, m_flags);
-                if (this->HasFlags(CVAR_ALLOW_STORE | CVAR_AUTO_STORE))
-                {
-                    m_value_stored.SetValue(val, m_flags);
-                }
-            }
-        }
-    }
-
-    void SetPendingStr(std::string const& str)
-    {
-        if (m_value_pending.GetString() != str)
-        {
-            this->LogUpdate("SetPending", m_value_pending.GetString(), str);
-            m_value_pending.SetString(str);
-            if (this->HasFlags(CVAR_AUTO_APPLY))
-            {
-                m_value_active.SetString(str);
-                if (this->HasFlags(CVAR_ALLOW_STORE | CVAR_AUTO_STORE))
-                {
-                    m_value_stored.SetString(str);
-                }
-            }
-        }
-    }
-
-    template <typename T>
-    void SetStoredVal(T val)
-    {
-        if (this->HasFlags(CVAR_ALLOW_STORE) && m_value_stored.GetValue<T>() != val)
-        {
-            this->LogUpdate("SetStored", m_value_stored.GetString(), Val::ConvertStr(val, m_flags));
-            m_value_stored.SetValue(val, m_flags);
-            if (this->HasFlags(CVAR_AUTO_APPLY))
-            {
-                m_value_active.SetValue(val, m_flags);
-                m_value_pending.SetValue(val, m_flags);
-            }
-        }
-    }
-
-    void SetStoredStr(std::string const& str)
-    {
-        if (this->HasFlags(CVAR_ALLOW_STORE) && m_value_stored.GetString() != str)
-        {
-            this->LogUpdate("SetStored", m_value_stored.GetString(), str);
-            m_value_stored.SetString(str);
-            if (this->HasFlags(CVAR_AUTO_APPLY))
-            {
-                m_value_active.SetString(str);
-                m_value_pending.SetString(str);
-            }
         }
     }
 
@@ -205,67 +106,6 @@ public:
     T GetActiveEnum()
     {
         return (T)m_value_active.GetValue<int>();
-    }
-
-    std::string const& GetPendingStr()
-    {
-        return m_value_pending.GetString();
-    }
-
-    template <typename T>
-    T GetPendingVal()
-    {
-        return m_value_pending.GetValue<T>();
-    }
-
-    template <typename T>
-    T GetPendingEnum()
-    {
-        return (T)m_value_pending.GetValue<int>();
-    }
-
-    std::string const& GetStoredStr()
-    {
-        return m_value_stored.GetString();
-    }
-
-    template <typename T>
-    T GetStoredVal()
-    {
-        return m_value_stored.GetValue<T>();
-    }
-
-    template <typename T>
-    T GetStoredEnum()
-    {
-        return (T)m_value_stored.GetValue<int>();
-    }
-
-    bool CheckPending()
-    {
-        return m_value_active != m_value_pending;
-    }
-
-    bool ApplyPending()
-    {
-        const bool pending = this->CheckPending();
-        if (pending)
-        {
-            this->LogUpdate("ApplyPending", m_value_active.GetString(), m_value_pending.GetString());
-            m_value_active = m_value_pending;
-        }
-        return pending;
-    }
-
-    bool ResetPending()
-    {
-        const bool pending = this->CheckPending();
-        if (pending)
-        {
-            this->LogUpdate("ResetPending", m_value_pending.GetString(), m_value_active.GetString());
-            m_value_pending = m_value_active;
-        }
-        return pending;
     }
 
     std::string const& GetName() const
@@ -343,14 +183,12 @@ private:
         std::string    m_value_str;
     };
 
-    void LogUpdate(const char* op, std::string const& old_val, std::string const& new_val);
+    void LogUpdate(std::string const& old_val, std::string const& new_val);
 
     std::string         m_name;
     std::string         m_long_name;
 
     Val                 m_value_active;
-    Val                 m_value_pending; // OBSOLETE! REMOVAL ONGOING!
-    Val                 m_value_stored; // OBSOLETE! REMOVAL ONGOING!
 
     int                 m_flags;
 };

@@ -106,10 +106,6 @@ void RoR::DrawGCheckbox(CVar* cvar, const char* label)
     if (ImGui::Checkbox(label, &val))
     {
         cvar->SetActiveVal(val);
-        if (!cvar->HasFlags(CVAR_AUTO_STORE))
-        {
-            cvar->SetStoredVal(val);
-        }
     }
 }
 
@@ -119,10 +115,6 @@ void RoR::DrawGIntCheck(CVar* cvar, const char* label)
     if (ImGui::Checkbox(label, &val))
     {
         cvar->SetActiveVal(val ? 1 : 0);
-        if (!cvar->HasFlags(CVAR_AUTO_STORE))
-        {
-            cvar->SetStoredVal(val);
-        }
     }
 }
 
@@ -132,40 +124,26 @@ void RoR::DrawGIntBox(CVar* cvar, const char* label)
     if (ImGui::InputInt(label, &val, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue))
     {
         cvar->SetActiveVal(val);
-        if (!cvar->HasFlags(CVAR_AUTO_STORE))
-        {
-            cvar->SetStoredVal(val);
-        }
     }
 }
 
 void RoR::DrawGIntSlider(CVar* cvar, const char* label, int v_min, int v_max)
 {
-    int val = (cvar->HasFlags(CVAR_ALLOW_STORE) && !cvar->HasFlags(CVAR_AUTO_STORE))
-        ? cvar->GetStoredVal<int>() : cvar->GetActiveVal<int>();
+    int val = cvar->GetActiveVal<int>();
 
     if (ImGui::SliderInt(label, &val, v_min, v_max))
     {
         cvar->SetActiveVal(val);
-        if (!cvar->HasFlags(CVAR_AUTO_STORE))
-        {
-            cvar->SetStoredVal(val);
-        }
     }
 }
 
 void RoR::DrawGFloatSlider(CVar* cvar, const char* label, float v_min, float v_max)
 {
-    float val = (cvar->HasFlags(CVAR_ALLOW_STORE) && !cvar->HasFlags(CVAR_AUTO_STORE))
-        ? cvar->GetStoredVal<float>() : cvar->GetActiveVal<float>();
+    float val = cvar->GetActiveVal<float>();
 
     if (ImGui::SliderFloat(label, &val, v_min, v_max, "%.2f"))
     {
         cvar->SetActiveVal(val);
-        if (!cvar->HasFlags(CVAR_AUTO_STORE))
-        {
-            cvar->SetStoredVal(val);
-        }
     }
 }
 
@@ -175,10 +153,6 @@ void RoR::DrawGFloatBox(CVar* cvar, const char* label)
     if (ImGui::InputFloat(label, &fval, 0.f, 0.f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue))
     {
         cvar->SetActiveVal(fval);
-        if (!cvar->HasFlags(CVAR_AUTO_STORE))
-        {
-            cvar->SetStoredVal(fval);
-        }
     }
 }
 
@@ -187,10 +161,6 @@ void RoR::DrawGTextEdit(CVar* cvar, const char* label, Str<1000>& buf)
     if (ImGui::InputText(label, buf.GetBuffer(), buf.GetCapacity(), ImGuiInputTextFlags_EnterReturnsTrue))
     {
         cvar->SetActiveStr(buf.GetBuffer());
-        if (!cvar->HasFlags(CVAR_AUTO_STORE))
-        {
-            cvar->SetStoredStr(buf.GetBuffer());
-        }
     }
     if (ImGui::IsItemActive())
     {
@@ -208,9 +178,5 @@ void RoR::DrawGCombo(CVar* cvar, const char* label, const char* values)
     if (ImGui::Combo(label, &selection, values))
     {
         cvar->SetActiveVal(selection);
-        if (!cvar->HasFlags(CVAR_AUTO_STORE))
-        {
-            cvar->SetStoredVal(selection);
-        }
     }
 }

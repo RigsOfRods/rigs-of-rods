@@ -111,13 +111,13 @@ public:
         int flags, std::string const& val = std::string());
 
     /// Parse value by cvar type
-    void CVarAssign(CVar* cvar, std::string const& value, int op_flags = 0);
+    void CVarAssign(CVar* cvar, std::string const& value);
 
     /// Find cvar by short/long name
     CVar* CVarFind(std::string const& input_name);
 
     /// Set existing cvar by short/long name. Return the modified cvar (or NULL if not found)
-    CVar* CVarSet(std::string const& input_name, std::string const& input_val, int op_flags = 0);
+    CVar* CVarSet(std::string const& input_name, std::string const& input_val);
 
     /// Get cvar by short/long name, or create new one using input as short name.
     CVar* CVarGet(std::string const& input_name, int flags);
