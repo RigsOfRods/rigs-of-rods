@@ -19,11 +19,11 @@
 
 #include "GUI_GameSettings.h"
 
+#include "AppContext.h"
 #include "CacheSystem.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
 #include "Language.h"
-#include "OgreSubsystem.h"
 #include "SoundManager.h"
 
 #include <alc.h>
@@ -67,7 +67,7 @@ void RoR::GUI::GameSettings::Draw()
     {
         ImGui::TextDisabled(_LC("GameSettings", "Render system (changes require a restart)"));
 
-        const auto ogre_root = App::GetOgreSubsystem()->GetOgreRoot();
+        const auto ogre_root = App::GetAppContext()->GetOgreRoot();
         const auto render_systems = ogre_root->getAvailableRenderers();
         std::string render_system_names;
         for (auto rs : render_systems)

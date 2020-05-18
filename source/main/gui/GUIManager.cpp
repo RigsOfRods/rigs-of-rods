@@ -24,7 +24,7 @@
 
 #include "GUIManager.h"
 
-#include "Application.h"
+#include "AppContext.h"
 #include "BeamFactory.h"
 #include "CameraManager.h"
 #include "ContentManager.h"
@@ -33,7 +33,6 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "OgreImGui.h"
-#include "OgreSubsystem.h"
 #include "PlatformUtils.h"
 #include "RTTLayer.h"
 #include "TerrainManager.h"
@@ -148,7 +147,7 @@ GUIManager::GUIManager()
     std::string gui_logpath = PathCombine(App::sys_logs_dir->GetActiveStr(), "MyGUI.log");
     auto mygui_platform = new MyGUI::OgrePlatform();
     mygui_platform->initialise(
-        RoR::App::GetOgreSubsystem()->GetRenderWindow(), 
+        RoR::App::GetAppContext()->GetRenderWindow(), 
         App::GetGfxScene()->GetSceneManager(),
         Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
         gui_logpath); // use cache resource group so preview images are working

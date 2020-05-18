@@ -34,7 +34,6 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "MumbleIntegration.h"
-#include "OgreSubsystem.h"
 #include "PlatformUtils.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
@@ -166,7 +165,15 @@ int main(int argc, char *argv[])
             return 0;
         }
 
-        App::CreateOgreSubsystem();
+        CreateFolder(RoR::App::sys_logs_dir->GetActiveStr());
+        CreateFolder(RoR::App::sys_config_dir->GetActiveStr());
+
+        if (!App::GetAppContext()->SetUpRendering())
+        {
+            return -1;
+        }
+
+        Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
         Ogre::String src_path = PathCombine(App::sys_resources_dir->GetActiveStr(), "skeleton.zip");
         Ogre::ResourceGroupManager::getSingleton().addResourceLocation(src_path, "Zip", "SrcRG");
@@ -209,7 +216,7 @@ int main(int argc, char *argv[])
 
         Ogre::OverlaySystem* overlay_system = new Ogre::OverlaySystem(); //Overlay init
 
-        Ogre::ConfigOptionMap ropts = App::GetOgreSubsystem()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
+        Ogre::ConfigOptionMap ropts = App::GetAppContext()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
         int resolution = Ogre::StringConverter::parseInt(Ogre::StringUtil::split(ropts["Video Mode"].currentValue, " x ")[0], 1024);
         int fsaa = 2 * (Ogre::StringConverter::parseInt(ropts["FSAA"].currentValue, 0) / 4);
         int res = std::pow(2, std::floor(std::log2(resolution)));
@@ -259,11 +266,9 @@ int main(int argc, char *argv[])
         App::CreateScriptEngine();
 #endif
 
-        App::CreateInputEngine();
+        App::GetAppContext()->SetUpInput();
 
         App::GetGuiManager()->SetUpMenuWallpaper();
-
-        AppContext ctx; // Probably not the final location ~ 05/2020 Petr O.
 
         App::GetContentManager()->InitModCache();
 
@@ -678,14 +683,14 @@ int main(int argc, char *argv[])
 #endif
 
             // Render!
-            Ogre::RenderWindow* render_window = RoR::App::GetOgreSubsystem()->GetRenderWindow();
+            Ogre::RenderWindow* render_window = RoR::App::GetAppContext()->GetRenderWindow();
             if (render_window->isClosed())
             {
                 App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
             }
             else
             {
-                App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
+                App::GetAppContext()->GetOgreRoot()->renderOneFrame();
                 if (!render_window->isActive() && render_window->isVisible())
                 {
                     render_window->update(); // update even when in background !

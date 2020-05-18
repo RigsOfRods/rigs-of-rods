@@ -28,7 +28,7 @@
 
 #include "RigSpawner.h"
 
-#include "Application.h"
+#include "AppContext.h"
 #include "AirBrake.h"
 #include "Airfoil.h"
 #include "Application.h"
@@ -53,7 +53,6 @@
 #include "Console.h"
 #include "InputEngine.h"
 #include "MeshObject.h"
-#include "OgreSubsystem.h"
 #include "PointColDetector.h"
 #include "Renderdash.h"
 #include "RoRFrameListener.h"
@@ -7064,18 +7063,11 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         }
         else
         {
-            Ogre::NameValuePairList misc;
-
-            Ogre::ConfigOptionMap ropts = App::GetOgreSubsystem()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
-            misc["FSAA"] = Ogre::StringConverter::parseInt(ropts["FSAA"].currentValue, 0);
-
             const std::string window_name = (!def->camera_name.empty()) ? def->camera_name : def->material_name;
-            vcam.vcam_render_window = Ogre::Root::getSingleton().createRenderWindow(
-                window_name, def->texture_width, def->texture_height, false, &misc);
-
+            vcam.vcam_render_window = App::GetAppContext()->CreateCustomRenderWindow(window_name, def->texture_width, def->texture_height);
             vcam.vcam_render_window->setAutoUpdated(false);
-            fixRenderWindowIcon(vcam.vcam_render_window); // Function from 'Utils.h'
             vcam.vcam_render_window->setDeactivateOnFocusChange(false);
+
             // TODO: disable texture mirrors
         }
 

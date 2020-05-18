@@ -51,7 +51,6 @@ set(SOURCE_FILES
         gfx/HydraxWater.{h,cpp}
         gfx/IWater.h
         gfx/MovableText.{h,cpp}
-        gfx/OgreSubsystem.{h,cpp}
         gfx/Renderdash.{h,cpp}
         gfx/ShadowManager.{h,cpp}
         gfx/Skidmark.{h,cpp}

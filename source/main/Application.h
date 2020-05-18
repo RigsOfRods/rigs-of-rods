@@ -346,7 +346,7 @@ extern CVar* gfx_classic_shaders;
 // ------------------------------------------------------------------------------------------------
 
 // Getters
-OgreSubsystem*       GetOgreSubsystem();
+AppContext*          GetAppContext();
 ContentManager*      GetContentManager();
 OverlayWrapper*      GetOverlayWrapper();
 GUIManager*          GetGuiManager();
@@ -367,7 +367,6 @@ Network*             GetNetwork();
 GameContext*         GetGameContext();
 
 // Factories
-void CreateOgreSubsystem();
 void CreateOverlayWrapper();
 void CreateGuiManager();
 void CreateInputEngine();

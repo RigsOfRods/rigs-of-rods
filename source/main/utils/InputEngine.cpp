@@ -21,11 +21,10 @@
 
 #include "InputEngine.h"
 
-#include "Application.h"
+#include "AppContext.h"
 #include "ContentManager.h"
 #include "GUIManager.h"
 #include "Language.h"
-#include "OgreSubsystem.h"
 
 using namespace RoR;
 
@@ -1841,7 +1840,7 @@ InputEngine::InputEngine() :
 
     initAllKeys();
     setup();
-    windowResized(App::GetOgreSubsystem()->GetRenderWindow());
+    windowResized(App::GetAppContext()->GetRenderWindow());
 }
 
 InputEngine::~InputEngine()
@@ -1883,7 +1882,7 @@ void InputEngine::destroy()
 bool InputEngine::setup()
 {
     size_t hWnd = 0;
-    App::GetOgreSubsystem()->GetRenderWindow()->getCustomAttribute("WINDOW", &hWnd);
+    App::GetAppContext()->GetRenderWindow()->getCustomAttribute("WINDOW", &hWnd);
 
     LOG("*** Initializing OIS ***");
 
@@ -1990,11 +1989,11 @@ bool InputEngine::setup()
     // set the mouse to the middle of the screen, hackish!
 #if _WIN32
     // under linux, this will not work and the cursor will never reach (0,0)
-    if (mMouse && RoR::App::GetOgreSubsystem()->GetRenderWindow())
+    if (mMouse && RoR::App::GetAppContext()->GetRenderWindow())
     {
         OIS::MouseState& mutableMouseState = const_cast<OIS::MouseState &>(mMouse->getMouseState());
-        mutableMouseState.X.abs = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getWidth() * 0.5f;
-        mutableMouseState.Y.abs = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getHeight() * 0.5f;
+        mutableMouseState.X.abs = RoR::App::GetAppContext()->GetRenderWindow()->getWidth() * 0.5f;
+        mutableMouseState.Y.abs = RoR::App::GetAppContext()->GetRenderWindow()->getHeight() * 0.5f;
     }
 #endif // _WIN32
 

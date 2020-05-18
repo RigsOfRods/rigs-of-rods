@@ -21,14 +21,13 @@
 
 #include "GfxScene.h"
 
-#include "Application.h"
+#include "AppContext.h"
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "Console.h"
 #include "DustPool.h"
 #include "HydraxWater.h"
 #include "GUIManager.h"
-#include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"
@@ -75,7 +74,7 @@ void GfxScene::ClearScene()
 void RoR::GfxScene::Init()
 {
     ROR_ASSERT(!m_scene_manager);
-    m_scene_manager = App::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
+    m_scene_manager = App::GetAppContext()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
 }
 
 void RoR::GfxScene::UpdateScene(float dt_sec)

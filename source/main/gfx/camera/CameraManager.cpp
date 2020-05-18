@@ -21,7 +21,7 @@
 
 #include "CameraManager.h"
 
-#include "Application.h"
+#include "AppContext.h"
 #include "ApproxMath.h"
 #include "Beam.h"
 #include "BeamFactory.h"
@@ -30,7 +30,6 @@
 #include "Console.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h"
 #include "TerrainManager.h"
@@ -119,7 +118,7 @@ CameraManager::CameraManager() :
     m_camera->setAutoAspectRatio(true);
     this->CreateCameraNode();
 
-    App::GetOgreSubsystem()->GetViewport()->setCamera(m_camera);
+    App::GetAppContext()->GetViewport()->setCamera(m_camera);
 }
 
 CameraManager::~CameraManager()

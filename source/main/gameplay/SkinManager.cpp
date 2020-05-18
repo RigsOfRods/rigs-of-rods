@@ -22,7 +22,6 @@
 #include "SkinManager.h"
 
 #include "Application.h"
-#include "OgreSubsystem.h"
 #include "Utils.h"
 
 #include <OgreEntity.h>

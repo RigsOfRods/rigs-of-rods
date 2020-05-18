@@ -26,8 +26,6 @@
 #   include <curl/easy.h>
 #endif //USE_CURL
 
-#include "OgreSubsystem.h"
-
 // AS addons start
 #include "scriptany/scriptany.h"
 #include "scriptarray/scriptarray.h"
@@ -36,7 +34,7 @@
 #include "scriptstdstring/scriptstdstring.h"
 // AS addons end
 
-#include "Application.h"
+#include "AppContext.h"
 #include "Beam.h"
 #include "BeamEngine.h"
 #include "BeamFactory.h"
@@ -962,12 +960,12 @@ void GameScript::quitGame()
 
 float GameScript::getFPS()
 {
-    return App::GetOgreSubsystem()->GetRenderWindow()->getStatistics().lastFPS;
+    return App::GetAppContext()->GetRenderWindow()->getStatistics().lastFPS;
 }
 
 float GameScript::getAvgFPS()
 {
-    return App::GetOgreSubsystem()->GetRenderWindow()->getStatistics().avgFPS;
+    return App::GetAppContext()->GetRenderWindow()->getStatistics().avgFPS;
 }
 
 bool GameScript::HaveSimController(const char* func_name)

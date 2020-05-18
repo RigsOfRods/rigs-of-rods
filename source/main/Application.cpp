@@ -25,6 +25,7 @@
 
 #include "Application.h"
 
+#include "AppContext.h"
 #include "CacheSystem.h"
 #include "CameraManager.h"
 #include "Console.h"
@@ -34,7 +35,6 @@
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "MumbleIntegration.h"
 #include "Network.h"
@@ -50,7 +50,7 @@ namespace App {
 // ------------------------------------------------------------------------------------------------
 
 // Object instances
-static OgreSubsystem*   g_ogre_subsystem;
+static AppContext       g_app_context;
 static Console          g_console;
 static ContentManager   g_content_manager;
 static OverlayWrapper*  g_overlay_wrapper;
@@ -222,7 +222,7 @@ void SetSimTerrain     (TerrainManager* obj)          { g_sim_terrain = obj;}
 void SetCacheSystem    (CacheSystem* obj)             { g_cache_system = obj; }
 
 // Instance access
-OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
+AppContext*            GetAppContext         () { return &g_app_context; };
 ContentManager*        GetContentManager     () { return &g_content_manager;}
 OverlayWrapper*        GetOverlayWrapper     () { return g_overlay_wrapper;}
 GUIManager*            GetGuiManager         () { return g_gui_manager;}
@@ -243,12 +243,6 @@ Network*               GetNetwork            () { return &g_network; }
 GameContext*           GetGameContext        () { return &g_game_context; }
 
 // Factories
-void CreateOgreSubsystem()
-{
-    ROR_ASSERT(!g_ogre_subsystem);
-    g_ogre_subsystem = new OgreSubsystem();
-}
-
 void CreateOverlayWrapper()
 {
     ROR_ASSERT(!g_overlay_wrapper);

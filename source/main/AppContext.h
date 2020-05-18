@@ -22,7 +22,7 @@
 /// @file
 /// @author Petr Ohlidal
 /// @date   05/2020
-/// @brief  Central handler for input/windowing/rendering/gameplay events.
+/// @brief  System integration layer; inspired by OgreBites::ApplicationContext.
 
 #pragma once
 
@@ -34,36 +34,55 @@
 
 namespace RoR {
 
-/// Central handler for input/windowing/rendering/gameplay events.
+/// Central setup and event handler for input/windowing/rendering.
+/// Inspired by OgreBites::ApplicationContext.
 class AppContext: public OgreBites::WindowEventListener,
                   public OIS::MouseListener,
                   public OIS::KeyListener,
                   public OIS::JoyStickListener
 {
 public:
-    AppContext();
+    // Startup
+    bool                 SetUpRendering();
+    bool                 SetUpInput();
+
+    // Rendering
+    Ogre::RenderWindow*  CreateCustomRenderWindow(std::string const& name, int width, int height);
+
+    // Getters
+    Ogre::Root*          GetOgreRoot() { return m_ogre_root; }
+    Ogre::Viewport*      GetViewport() { return m_viewport; }
+    Ogre::RenderWindow*  GetRenderWindow() { return m_render_window; }
 
 private:
     // OgreBites::WindowEventListener
-    virtual void windowResized(Ogre::RenderWindow* rw) override;
-    virtual void windowFocusChange(Ogre::RenderWindow* rw) override;
+    virtual void         windowResized(Ogre::RenderWindow* rw) override;
+    virtual void         windowFocusChange(Ogre::RenderWindow* rw) override;
 
     // OIS::MouseListener
-    virtual bool mouseMoved(const OIS::MouseEvent& arg) override;
-    virtual bool mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id) override;
-    virtual bool mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID id) override;
+    virtual bool         mouseMoved(const OIS::MouseEvent& arg) override;
+    virtual bool         mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id) override;
+    virtual bool         mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID id) override;
 
     // OIS::KeyListener
-    virtual bool keyPressed(const OIS::KeyEvent& arg) override;
-    virtual bool keyReleased(const OIS::KeyEvent& arg) override;
+    virtual bool         keyPressed(const OIS::KeyEvent& arg) override;
+    virtual bool         keyReleased(const OIS::KeyEvent& arg) override;
 
     // OIS::JoyStickListener
-    virtual bool buttonPressed(const OIS::JoyStickEvent& arg, int button) override;
-    virtual bool buttonReleased(const OIS::JoyStickEvent& arg, int button) override;
-    virtual bool axisMoved(const OIS::JoyStickEvent& arg, int axis) override;
-    virtual bool sliderMoved(const OIS::JoyStickEvent& arg, int) override;
-    virtual bool povMoved(const OIS::JoyStickEvent& arg, int) override;
-    
+    virtual bool         buttonPressed(const OIS::JoyStickEvent& arg, int button) override;
+    virtual bool         buttonReleased(const OIS::JoyStickEvent& arg, int button) override;
+    virtual bool         axisMoved(const OIS::JoyStickEvent& arg, int axis) override;
+    virtual bool         sliderMoved(const OIS::JoyStickEvent& arg, int) override;
+    virtual bool         povMoved(const OIS::JoyStickEvent& arg, int) override;
+
+    // Rendering and window management
+    void                 SetRenderWindowIcon(Ogre::RenderWindow* rw);
+
+    // Variables
+
+    Ogre::Root*          m_ogre_root     = nullptr;
+    Ogre::RenderWindow*  m_render_window = nullptr;
+    Ogre::Viewport*      m_viewport      = nullptr;
 };
 
 } // namespace RoR

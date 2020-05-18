@@ -23,10 +23,9 @@
 
 #include "SkyManager.h"
 
-#include "Application.h"
+#include "AppContext.h"
 #include "CameraManager.h"
 #include "GfxScene.h"
-#include "OgreSubsystem.h"
 #include "TerrainManager.h"
 #include "TerrainGeometryManager.h"
 
@@ -38,21 +37,21 @@ SkyManager::SkyManager() : m_caelum_system(nullptr), m_last_clock(0.0)
 {
     // Initialise CaelumSystem.
     m_caelum_system = new Caelum::CaelumSystem(
-        RoR::App::GetOgreSubsystem()->GetOgreRoot(),
+        RoR::App::GetAppContext()->GetOgreRoot(),
         App::GetGfxScene()->GetSceneManager(),
         Caelum::CaelumSystem::CAELUM_COMPONENTS_DEFAULT
     );
 
-    m_caelum_system->attachViewport(RoR::App::GetOgreSubsystem()->GetViewport());
+    m_caelum_system->attachViewport(RoR::App::GetAppContext()->GetViewport());
 
     // Register caelum as a listener.
-    RoR::App::GetOgreSubsystem()->GetRenderWindow()->addListener(m_caelum_system);
-    RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(m_caelum_system);
+    RoR::App::GetAppContext()->GetRenderWindow()->addListener(m_caelum_system);
+    RoR::App::GetAppContext()->GetOgreRoot()->addFrameListener(m_caelum_system);
 }
 
 SkyManager::~SkyManager()
 {
-    RoR::App::GetOgreSubsystem()->GetRenderWindow()->removeListener(m_caelum_system);
+    RoR::App::GetAppContext()->GetRenderWindow()->removeListener(m_caelum_system);
     m_caelum_system->shutdown(false);
     m_caelum_system = nullptr;
 }

@@ -163,25 +163,6 @@ String getVersionString(bool multiline)
     return String(tmp);
 }
 
-void fixRenderWindowIcon(RenderWindow* rw)
-{
-#ifdef _WIN32
-    size_t hWnd = 0;
-    rw->getCustomAttribute("WINDOW", &hWnd);
-
-    char buf[MAX_PATH];
-    ::GetModuleFileNameA(0, (LPCH)&buf, MAX_PATH);
-
-    HINSTANCE instance = ::GetModuleHandleA(buf);
-    HICON hIcon = ::LoadIconA(instance, MAKEINTRESOURCEA(101));
-    if (hIcon)
-    {
-        ::SendMessageA((HWND)hWnd, WM_SETICON, 1, (LPARAM)hIcon);
-        ::SendMessageA((HWND)hWnd, WM_SETICON, 0, (LPARAM)hIcon);
-    }
-#endif // _WIN32
-}
-
 UTFString ANSI_TO_UTF(const String source)
 {
     return UTFString(RoR::Utils::SanitizeUtf8String(source));

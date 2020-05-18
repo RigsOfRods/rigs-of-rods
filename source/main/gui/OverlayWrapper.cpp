@@ -30,7 +30,7 @@
 #include "OverlayWrapper.h"
 
 #include "AeroEngine.h"
-#include "Application.h"
+#include "AppContext.h"
 #include "AutoPilot.h"
 #include "Beam.h"
 #include "BeamFactory.h"
@@ -42,7 +42,6 @@
 #include "GfxActor.h"
 
 #include "Language.h"
-#include "OgreSubsystem.h"
 #include "RoRFrameListener.h" // SimController
 #include "RoRVersion.h"
 #include "ScrewProp.h"
@@ -62,7 +61,7 @@ OverlayWrapper::OverlayWrapper():
     m_dashboard_visible(false),
     m_visible_overlays(0)
 {
-    win = RoR::App::GetOgreSubsystem()->GetRenderWindow();
+    win = RoR::App::GetAppContext()->GetRenderWindow();
     init();
 }
 
