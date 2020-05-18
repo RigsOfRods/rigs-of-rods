@@ -22,6 +22,7 @@
 #include "AppContext.h"
 
 #include "ChatSystem.h"
+#include "Console.h"
 #include "ContentManager.h"
 #include "ErrorUtils.h"
 #include "GUIManager.h"
@@ -313,5 +314,72 @@ Ogre::RenderWindow* AppContext::CreateCustomRenderWindow(std::string const& wind
     Ogre::RenderWindow* rw = Ogre::Root::getSingleton().createRenderWindow(window_name, width, height, false, &misc);
     this->SetRenderWindowIcon(rw);
     return rw;
+}
+
+// --------------------------
+// Program paths and logging
+
+bool AppContext::SetUpProgramPaths()
+{
+    // Process directory
+    std::string exe_path = RoR::GetExecutablePath();
+    if (exe_path.empty())
+    {
+        ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving program directory path"));
+        return false;
+    }
+    App::sys_process_dir->SetActiveStr(RoR::GetParentDirectory(exe_path.c_str()).c_str());
+
+    // RoR's home directory
+    std::string local_userdir = PathCombine(App::sys_process_dir->GetActiveStr(), "config"); // TODO: Think of a better name, this is ambiguious with ~/.rigsofrods/config which stores configfiles! ~ only_a_ptr, 02/2018
+    if (FolderExists(local_userdir))
+    {
+        // It's a portable installation
+        App::sys_user_dir->SetActiveStr(local_userdir.c_str());
+    }
+    else
+    {
+        // Default location - user's home directory
+        std::string user_home = RoR::GetUserHomeDirectory();
+        if (user_home.empty())
+        {
+            ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving user directory path"));
+            return false;
+        }
+        RoR::Str<500> ror_homedir;
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+        ror_homedir << user_home << PATH_SLASH << "My Games";
+        CreateFolder(ror_homedir.ToCStr());
+        ror_homedir << PATH_SLASH << "Rigs of Rods";
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+        char* env_SNAP = getenv("SNAP_USER_COMMON");
+        if(env_SNAP)
+            ror_homedir = env_SNAP;
+        else
+            ror_homedir << user_home << PATH_SLASH << ".rigsofrods";
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+        ror_homedir << user_home << PATH_SLASH << "RigsOfRods";
+#endif
+        CreateFolder(ror_homedir.ToCStr ());
+        App::sys_user_dir->SetActiveStr(ror_homedir.ToCStr ());
+    }
+
+    return true;
+}
+
+void AppContext::SetUpLogging()
+{
+    std::string logs_dir = PathCombine(App::sys_user_dir->GetActiveStr(), "logs");
+    CreateFolder(logs_dir);
+    App::sys_logs_dir->SetActiveStr(logs_dir.c_str());
+
+    auto ogre_log_manager = OGRE_NEW Ogre::LogManager();
+    std::string rorlog_path = PathCombine(logs_dir, "RoR.log");
+    Ogre::Log* rorlog = ogre_log_manager->createLog(rorlog_path, true, true);
+    rorlog->stream() << "[RoR] Rigs of Rods (www.rigsofrods.org) version " << ROR_VERSION_STRING;
+    std::time_t t = std::time(nullptr);
+    rorlog->stream() << "[RoR] Current date: " << std::put_time(std::localtime(&t), "%Y-%m-%d");
+
+    rorlog->addListener(App::GetConsole());  // Allow console to intercept log messages
 }
 
