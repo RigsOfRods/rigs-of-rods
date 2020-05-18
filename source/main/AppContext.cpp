@@ -383,3 +383,64 @@ void AppContext::SetUpLogging()
     rorlog->addListener(App::GetConsole());  // Allow console to intercept log messages
 }
 
+bool AppContext::SetUpResourcesDir()
+{
+    std::string process_dir = PathCombine(App::sys_process_dir->GetActiveStr(), "resources");
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+    if (!FolderExists(process_dir))
+    {
+        process_dir = "/usr/share/rigsofrods/resources/";
+    }
+#endif
+    if (!FolderExists(process_dir))
+    {
+        ErrorUtils::ShowError(_L("Startup error"), _L("Resources folder not found. Check if correctly installed."));
+        return false;
+    }
+    App::sys_resources_dir->SetActiveStr(process_dir);
+    return true;
+}
+
+bool AppContext::SetUpConfigSkeleton()
+{
+    Ogre::String src_path = PathCombine(App::sys_resources_dir->GetActiveStr(), "skeleton.zip");
+    Ogre::ResourceGroupManager::getSingleton().addResourceLocation(src_path, "Zip", "SrcRG");
+    Ogre::FileInfoListPtr fl = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo("SrcRG", "*", true);
+    if (fl->empty())
+    {
+        ErrorUtils::ShowError(_L("Startup error"), _L("Faulty resource folder. Check if correctly installed."));
+        return false;
+    }
+    Ogre::String dst_path = PathCombine(App::sys_user_dir->GetActiveStr(), "");
+    for (auto file : *fl)
+    {
+        CreateFolder(dst_path + file.basename);
+    }
+    fl = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo("SrcRG", "*");
+    if (fl->empty())
+    {
+        ErrorUtils::ShowError(_L("Startup error"), _L("Faulty resource folder. Check if correctly installed."));
+        return false;
+    }
+    Ogre::ResourceGroupManager::getSingleton().addResourceLocation(dst_path, "FileSystem", "DstRG", false, false);
+    for (auto file : *fl)
+    {
+        if (file.uncompressedSize == 0)
+            continue;
+        Ogre::String path = file.path + file.basename;
+        if (!Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo("DstRG", path)->empty())
+            continue;
+        Ogre::DataStreamPtr src_ds = Ogre::ResourceGroupManager::getSingleton().openResource(path, "SrcRG");
+        Ogre::DataStreamPtr dst_ds = Ogre::ResourceGroupManager::getSingleton().createResource(path, "DstRG");
+        std::vector<char> buf(src_ds->size());
+        size_t read = src_ds->read(buf.data(), src_ds->size());
+        if (read > 0)
+        {
+            dst_ds->write(buf.data(), read);
+        }
+    }
+    Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("SrcRG");
+    Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("DstRG");
+
+    return true;
+}
