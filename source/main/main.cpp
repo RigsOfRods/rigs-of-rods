@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
             return -1; // Error already displayed
         }
 
-        // Create OGRE default logger early.
+        // Create OGRE default logger early
         App::GetAppContext()->SetUpLogging();
 
         // User directories
@@ -87,22 +87,10 @@ int main(int argc, char *argv[])
         App::sys_savegames_dir ->SetActiveStr(PathCombine(App::sys_user_dir->GetActiveStr(), "savegames"));
         App::sys_screenshot_dir->SetActiveStr(PathCombine(App::sys_user_dir->GetActiveStr(), "screenshots"));
 
-        // Resources dir
-        std::string process_dir = PathCombine(App::sys_process_dir->GetActiveStr(), "resources");
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-        if (!FolderExists(process_dir))
-        {
-            process_dir = "/usr/share/rigsofrods/resources/";
-        }
-#endif
-        if (!FolderExists(process_dir))
-        {
-            ErrorUtils::ShowError(_L("Startup error"), _L("Resources folder not found. Check if correctly installed."));
-            return -1;
-        }
-        App::sys_resources_dir->SetActiveStr(process_dir);
+        // Load RoR.cfg - updates cvars
+        App::GetConsole()->LoadConfig();
 
-        App::GetConsole()->LoadConfig(); // RoR.cfg
+        // Process command line params - updates cvars
         App::GetConsole()->ProcessCommandLine(argc, argv);
 
         if (App::app_state->GetActiveEnum<AppState>() == AppState::PRINT_HELP_EXIT)
@@ -116,54 +104,28 @@ int main(int argc, char *argv[])
             return 0;
         }
 
-        CreateFolder(RoR::App::sys_logs_dir->GetActiveStr());
-        CreateFolder(RoR::App::sys_config_dir->GetActiveStr());
+        // Find resources dir, update cvar 'sys_resources_dir'
+        if (!App::GetAppContext()->SetUpResourcesDir())
+        {
+            return -1; // Error already displayed
+        }
 
+        // Make sure config directory exists - to save 'ogre.cfg'
+        CreateFolder(App::sys_config_dir->GetActiveStr());
+
+        // Load and start OGRE renderer, uses config directory
         if (!App::GetAppContext()->SetUpRendering())
         {
-            return -1;
+            return -1; // Error already displayed
         }
 
         Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
-        Ogre::String src_path = PathCombine(App::sys_resources_dir->GetActiveStr(), "skeleton.zip");
-        Ogre::ResourceGroupManager::getSingleton().addResourceLocation(src_path, "Zip", "SrcRG");
-        Ogre::FileInfoListPtr fl = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo("SrcRG", "*", true);
-        if (fl->empty())
+        // Deploy base config files from 'skeleton.zip'
+        if (!App::GetAppContext()->SetUpConfigSkeleton())
         {
-            ErrorUtils::ShowError(_L("Startup error"), _L("Faulty resource folder. Check if correctly installed."));
-            return -1;
+            return -1; // Error already displayed
         }
-        Ogre::String dst_path = PathCombine(App::sys_user_dir->GetActiveStr(), "");
-        for (auto file : *fl)
-        {
-            CreateFolder(dst_path + file.basename);
-        }
-        fl = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo("SrcRG", "*");
-        if (fl->empty())
-        {
-            ErrorUtils::ShowError(_L("Startup error"), _L("Faulty resource folder. Check if correctly installed."));
-            return -1;
-        }
-        Ogre::ResourceGroupManager::getSingleton().addResourceLocation(dst_path, "FileSystem", "DstRG", false, false);
-        for (auto file : *fl)
-        {
-            if (file.uncompressedSize == 0)
-                continue;
-            Ogre::String path = file.path + file.basename;
-            if (!Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo("DstRG", path)->empty())
-                continue;
-            Ogre::DataStreamPtr src_ds = Ogre::ResourceGroupManager::getSingleton().openResource(path, "SrcRG");
-            Ogre::DataStreamPtr dst_ds = Ogre::ResourceGroupManager::getSingleton().createResource(path, "DstRG");
-            std::vector<char> buf(src_ds->size());
-            size_t read = src_ds->read(buf.data(), src_ds->size());
-            if (read > 0)
-            {
-                dst_ds->write(buf.data(), read);
-            }
-        }
-        Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("SrcRG");
-        Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("DstRG");
 
         Ogre::OverlaySystem* overlay_system = new Ogre::OverlaySystem(); //Overlay init
 

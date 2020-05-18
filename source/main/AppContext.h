@@ -45,7 +45,9 @@ public:
     // Startup (in order)
     bool                 SetUpProgramPaths();
     void                 SetUpLogging();
+    bool                 SetUpResourcesDir();
     bool                 SetUpRendering();
+    bool                 SetUpConfigSkeleton();
     bool                 SetUpInput();
 
     // Rendering
