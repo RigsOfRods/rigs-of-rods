@@ -159,9 +159,6 @@ private:
 
     Ogre::Vector3            m_dir_arrow_pointed;
 
-    int                      m_last_screenshot_id;
-    Ogre::String             m_last_screenshot_date;
-
     int                      m_race_id;
     float                    m_race_time_diff;
     float                    m_race_best_time;
@@ -172,8 +169,6 @@ private:
     float                    m_advanced_vehicle_repair_timer;
 
     float                    m_pressure_pressed_timer;
-
-    bool                     m_screenshot_request;
 
     Ogre::Vector3            m_reload_pos;
     Ogre::Quaternion         m_reload_dir;

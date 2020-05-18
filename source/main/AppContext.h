@@ -53,6 +53,7 @@ public:
 
     // Rendering
     Ogre::RenderWindow*  CreateCustomRenderWindow(std::string const& name, int width, int height);
+    void                 CaptureScreenshot();
 
     // Getters
     Ogre::Root*          GetOgreRoot() { return m_ogre_root; }
@@ -88,6 +89,9 @@ private:
     Ogre::Root*          m_ogre_root     = nullptr;
     Ogre::RenderWindow*  m_render_window = nullptr;
     Ogre::Viewport*      m_viewport      = nullptr;
+
+    std::time_t          m_prev_screenshot_time;
+    int                  m_prev_screenshot_index = 1;
 };
 
 } // namespace RoR

@@ -266,6 +266,12 @@ int main(int argc, char *argv[])
                     App::app_state->SetActiveVal((int)AppState::SHUTDOWN);
                     break;
 
+                case MSG_APP_SCREENSHOT_REQUESTED:
+                    App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+                    App::GetAppContext()->CaptureScreenshot();
+                    App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::VISIBLE);
+                    break;
+
                 // -- Network events --
 
                 case MSG_NET_CONNECT_REQUESTED:
