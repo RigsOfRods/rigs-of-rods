@@ -42,7 +42,9 @@ class AppContext: public OgreBites::WindowEventListener,
                   public OIS::JoyStickListener
 {
 public:
-    // Startup
+    // Startup (in order)
+    bool                 SetUpProgramPaths();
+    void                 SetUpLogging();
     bool                 SetUpRendering();
     bool                 SetUpInput();
 
