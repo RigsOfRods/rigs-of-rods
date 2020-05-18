@@ -21,10 +21,9 @@
 
 #include "GUI_SimPerfStats.h"
 
-#include "Application.h"
+#include "AppContext.h"
 #include "GUIManager.h"
 #include "Language.h"
-#include "OgreSubsystem.h"
 
 #include <imgui.h>
 #include <Ogre.h>
@@ -42,7 +41,7 @@ void SimPerfStats::Draw()
     ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
     ImGui::Begin("FPS", &m_is_visible, flags);
 
-    const Ogre::RenderTarget::FrameStats& stats = App::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
+    const Ogre::RenderTarget::FrameStats& stats = App::GetAppContext()->GetRenderWindow()->getStatistics();
     ImGui::Text("%s%.2f", _L("Current FPS: "), stats.lastFPS);
     ImGui::Text("%s%.2f", _L("Average FPS: "), stats.avgFPS);
     ImGui::Text("%s%.2f", _L("Worst FPS: "),   stats.worstFPS);

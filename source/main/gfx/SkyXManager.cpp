@@ -21,11 +21,10 @@
 
 #include "SkyXManager.h"
 
-#include "Application.h"
+#include "AppContext.h"
 #include "CameraManager.h"
 #include "GfxScene.h"
 #include "HydraxWater.h"
-#include "OgreSubsystem.h"
 #include "TerrainManager.h"
 #include "TerrainGeometryManager.h"
 
@@ -46,13 +45,13 @@ SkyXManager::SkyXManager(Ogre::String configFile)
 
 	mSkyX->create();
 
-	RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(mSkyX);
-	RoR::App::GetOgreSubsystem()->GetRenderWindow()->addListener(mSkyX);
+	RoR::App::GetAppContext()->GetOgreRoot()->addFrameListener(mSkyX);
+	RoR::App::GetAppContext()->GetRenderWindow()->addListener(mSkyX);
 }
 
 SkyXManager::~SkyXManager()
 {
-    RoR::App::GetOgreSubsystem()->GetRenderWindow()->removeListener(mSkyX);
+    RoR::App::GetAppContext()->GetRenderWindow()->removeListener(mSkyX);
     mSkyX->remove();
 
     mSkyX = nullptr;

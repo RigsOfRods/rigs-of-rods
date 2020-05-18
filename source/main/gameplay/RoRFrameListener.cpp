@@ -22,7 +22,7 @@
 
 #include "AdvancedScreen.h"
 #include "AircraftSimulation.h"
-#include "Application.h"
+#include "AppContext.h"
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "CacheSystem.h"
@@ -43,7 +43,6 @@
 #include "Language.h"
 
 #include "MumbleIntegration.h"
-#include "OgreSubsystem.h"
 #include "OutProtocol.h"
 #include "OverlayWrapper.h"
 #include "PlatformUtils.h"
@@ -376,7 +375,7 @@ void SimController::UpdateInputEvents(float dt)
         if (App::app_screenshot_format->GetActiveStr() == "png")
         {
             // add some more data into the image
-            AdvancedScreen* as = new AdvancedScreen(RoR::App::GetOgreSubsystem()->GetRenderWindow(), tmpfn);
+            AdvancedScreen* as = new AdvancedScreen(RoR::App::GetAppContext()->GetRenderWindow(), tmpfn);
             //as->addData("terrain_Name", loadedTerrain);
             //as->addData("terrain_ModHash", terrainModHash);
             //as->addData("terrain_FileHash", terrainFileHash);
@@ -398,7 +397,7 @@ void SimController::UpdateInputEvents(float dt)
             as->addData("MP_NetworkEnabled", (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED) ? "Yes" : "No");
             as->addData("Camera_Position", TOSTRING(App::GetCameraManager()->GetCameraNode()->getPosition()));
 
-            const RenderTarget::FrameStats& stats = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
+            const RenderTarget::FrameStats& stats = RoR::App::GetAppContext()->GetRenderWindow()->getStatistics();
             as->addData("AVGFPS", TOSTRING(stats.avgFPS));
 
             as->write();
@@ -406,7 +405,7 @@ void SimController::UpdateInputEvents(float dt)
         }
         else
         {
-            RoR::App::GetOgreSubsystem()->GetRenderWindow()->writeContentsToFile(tmpfn);
+            RoR::App::GetAppContext()->GetRenderWindow()->writeContentsToFile(tmpfn);
         }
 
         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::VISIBLE);
@@ -550,22 +549,22 @@ void SimController::UpdateInputEvents(float dt)
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FULLSCREEN_TOGGLE, 2.0f))
     {
         static int org_width = -1, org_height = -1;
-        int width = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getWidth();
-        int height = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getHeight();
+        int width = RoR::App::GetAppContext()->GetRenderWindow()->getWidth();
+        int height = RoR::App::GetAppContext()->GetRenderWindow()->getHeight();
         if (org_width == -1)
             org_width = width;
         if (org_height == -1)
             org_height = height;
-        bool mode = RoR::App::GetOgreSubsystem()->GetRenderWindow()->isFullScreen();
+        bool mode = RoR::App::GetAppContext()->GetRenderWindow()->isFullScreen();
         if (!mode)
         {
-            RoR::App::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(true, org_width, org_height);
+            RoR::App::GetAppContext()->GetRenderWindow()->setFullscreen(true, org_width, org_height);
             LOG(" ** switched to fullscreen: "+TOSTRING(width)+"x"+TOSTRING(height));
         }
         else
         {
-            RoR::App::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(false, 640, 480);
-            RoR::App::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(false, org_width, org_height);
+            RoR::App::GetAppContext()->GetRenderWindow()->setFullscreen(false, 640, 480);
+            RoR::App::GetAppContext()->GetRenderWindow()->setFullscreen(false, org_width, org_height);
             LOG(" ** switched to windowed mode: ");
         }
     }

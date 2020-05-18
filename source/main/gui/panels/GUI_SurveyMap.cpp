@@ -22,7 +22,7 @@
 
 #include "GUI_SurveyMap.h"
 
-#include "Application.h"
+#include "AppContext.h"
 #include "Beam.h"
 #include "ContentManager.h"
 #include "GUIManager.h"
@@ -31,7 +31,6 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "OgreImGui.h"
-#include "OgreSubsystem.h"
 #include "RoRFrameListener.h"
 #include "SurveyMapTextureCreator.h"
 #include "TerrainManager.h"
@@ -245,7 +244,7 @@ void RoR::GUI::SurveyMap::CreateTerrainTextures()
     mTerrainSize = Vector2(terrain_size.x, terrain_size.z);
     Ogre::Vector2 mMapCenter = mTerrainSize / 2;
 
-    ConfigOptionMap ropts = App::GetOgreSubsystem()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
+    ConfigOptionMap ropts = App::GetAppContext()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
     int resolution = StringConverter::parseInt(StringUtil::split(ropts["Video Mode"].currentValue, " x ")[0], 1024);
     int fsaa = StringConverter::parseInt(ropts["FSAA"].currentValue, 0);
     int res = std::pow(2, std::floor(std::log2(resolution)));

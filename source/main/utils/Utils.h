@@ -53,8 +53,6 @@ std::time_t getTimeStamp();
 
 Ogre::String getVersionString(bool multiline = true);
 
-void fixRenderWindowIcon(Ogre::RenderWindow* rw);
-
 std::wstring ANSI_TO_WCHAR(const Ogre::String source);
 Ogre::UTFString ANSI_TO_UTF(const Ogre::String source);
 

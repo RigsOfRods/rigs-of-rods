@@ -21,8 +21,7 @@
 
 #include "Water.h"
 
-#include "Application.h"
-#include "OgreSubsystem.h"
+#include "AppContext.h"
 #include "PlatformUtils.h" // PathCombine
 #include "RoRFrameListener.h"
 #include "TerrainManager.h"
@@ -219,8 +218,8 @@ void Water::PrepareWater()
                 m_refract_cam->setNearClipDistance(App::GetCameraManager()->GetCamera()->getNearClipDistance());
                 m_refract_cam->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
                 m_refract_cam->setAspectRatio(
-                    (Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
-                    (Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
+                    (Real)RoR::App::GetAppContext()->GetRenderWindow()->getViewport(0)->getActualWidth() /
+                    (Real)RoR::App::GetAppContext()->GetRenderWindow()->getViewport(0)->getActualHeight());
 
                 m_refract_rtt_viewport = m_refract_rtt_target->addViewport(m_refract_cam);
                 m_refract_rtt_viewport->setClearEveryFrame(true);
@@ -252,8 +251,8 @@ void Water::PrepareWater()
             m_reflect_cam->setNearClipDistance(App::GetCameraManager()->GetCamera()->getNearClipDistance());
             m_reflect_cam->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
             m_reflect_cam->setAspectRatio(
-                (Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
-                (Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
+                (Real)RoR::App::GetAppContext()->GetRenderWindow()->getViewport(0)->getActualWidth() /
+                (Real)RoR::App::GetAppContext()->GetRenderWindow()->getViewport(0)->getActualHeight());
 
             m_reflect_rtt_viewport = m_reflect_rtt_target->addViewport(m_reflect_cam);
             m_reflect_rtt_viewport->setClearEveryFrame(true);
@@ -515,7 +514,7 @@ float Water::CalcWavesHeight(Vector3 pos)
         return m_water_height;
     }
 
-    const float time_sec = (float)(App::GetOgreSubsystem()->GetOgreRoot()->getTimer()->getMilliseconds() * 0.001);
+    const float time_sec = (float)(App::GetAppContext()->GetOgreRoot()->getTimer()->getMilliseconds() * 0.001);
 
     // uh, some upper limit?!
     if (pos.y > m_water_height + m_max_ampl)
@@ -567,7 +566,7 @@ Vector3 Water::CalcWavesVelocity(Vector3 pos)
 
     Vector3 result(Vector3::ZERO);
 
-    const float time_sec = (float)(App::GetOgreSubsystem()->GetOgreRoot()->getTimer()->getMilliseconds() * 0.001);
+    const float time_sec = (float)(App::GetAppContext()->GetOgreRoot()->getTimer()->getMilliseconds() * 0.001);
 
     for (size_t i = 0; i < m_wavetrain_defs.size(); i++)
     {

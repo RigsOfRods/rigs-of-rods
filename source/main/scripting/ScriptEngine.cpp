@@ -49,7 +49,6 @@
 #include "LocalStorage.h"
 #include "OgreAngelscript.h"
 #include "OgreScriptBuilder.h"
-#include "OgreSubsystem.h"
 #include "PlatformUtils.h"
 #include "RoRFrameListener.h" // SimController
 #include "ScriptEvents.h"
