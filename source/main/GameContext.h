@@ -49,6 +49,8 @@ enum MsgType
     MSG_NET_DISCONNECT_REQUESTED,
     MSG_NET_USER_DISCONNECT,
     MSG_NET_RECV_ERROR,
+    MSG_NET_REFRESH_SERVERLIST_SUCCESS,
+    MSG_NET_REFRESH_SERVERLIST_FAILURE,
     // Simulation
     MSG_SIM_PAUSE_REQUESTED,
     MSG_SIM_UNPAUSE_REQUESTED,
@@ -60,10 +62,13 @@ enum MsgType
 /// Unified game event system - all requests and state changes are reported using a message (work in progress)
 struct Message
 {
-    Message(MsgType _type, std::string const& _desc = ""): type(_type), description(_desc) {}
+    Message(MsgType _type): type(_type) {}
+    Message(MsgType _type, std::string const& _desc): type(_type), description(_desc) {}
+    Message(MsgType _type, void* _data): type(_type), payload(_data) {}
 
-    MsgType     type;
+    MsgType     type         = MSG_INVALID;
     std::string description;
+    void*       payload      = nullptr;
 };
 
 typedef std::queue < Message, std::list<Message>> GameMsgQueue;
