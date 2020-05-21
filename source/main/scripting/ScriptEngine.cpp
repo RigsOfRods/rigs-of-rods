@@ -79,7 +79,7 @@ ScriptEngine::ScriptEngine() :
     , scriptLog(0)
     , scriptName()
 {
-    scriptLog = LogManager::getSingleton().createLog(PathCombine(App::sys_logs_dir->GetActiveStr(), "Angelscript.log"), false);
+    scriptLog = LogManager::getSingleton().createLog(PathCombine(App::sys_logs_dir->GetStr(), "Angelscript.log"), false);
     this->init();
 }
 

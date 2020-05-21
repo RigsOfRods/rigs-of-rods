@@ -67,7 +67,7 @@ void RoR::GfxEnvmap::SetupEnvMap()
     m_cameras[4]->setDirection(-Ogre::Vector3::UNIT_Z);
     m_cameras[5]->setDirection(+Ogre::Vector3::UNIT_Z);
 
-    if (App::diag_envmap->GetActiveVal<bool>())
+    if (App::diag_envmap->GetBool())
     {
         // create fancy mesh for debugging the envmap
         Ogre::Overlay* overlay = Ogre::OverlayManager::getSingleton().create("EnvMapDebugOverlay");
@@ -204,8 +204,8 @@ RoR::GfxEnvmap::~GfxEnvmap()
 void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, bool full/*=false*/)
 {
     // how many of the 6 render planes to update at once? Use cvar 'gfx_envmap_rate', unless instructed to do full render.
-    const int update_rate = full ? NUM_FACES : App::gfx_envmap_rate->GetActiveVal<int>();
-    if (!App::gfx_envmap_enabled->GetActiveVal<bool>() || update_rate == 0)
+    const int update_rate = full ? NUM_FACES : App::gfx_envmap_rate->GetInt();
+    if (!App::gfx_envmap_enabled->GetBool() || update_rate == 0)
     {
         return;
     }

@@ -115,7 +115,7 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack, std::str
 
     std::stringstream log_msg;
     log_msg << "[RoR|ContentManager] Loading resource pack \"" << resource_pack.name << "\" to group \"" << rg_name << "\"";
-    std::string dir_path = PathCombine(App::sys_resources_dir->GetActiveStr(), resource_pack.name);
+    std::string dir_path = PathCombine(App::sys_resources_dir->GetStr(), resource_pack.name);
     std::string zip_path = dir_path + ".zip";
     if (FileExists(zip_path))
     {
@@ -147,9 +147,9 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack, std::str
 void ContentManager::InitContentManager()
 {
     ResourceGroupManager::getSingleton().addResourceLocation(
-        App::sys_config_dir->GetActiveStr(), "FileSystem", RGN_CONFIG, /*recursive=*/false, /*readOnly=*/false);
+        App::sys_config_dir->GetStr(), "FileSystem", RGN_CONFIG, /*recursive=*/false, /*readOnly=*/false);
     ResourceGroupManager::getSingleton().addResourceLocation(
-        App::sys_savegames_dir->GetActiveStr(), "FileSystem", RGN_SAVEGAMES, /*recursive=*/false, /*readOnly=*/false);
+        App::sys_savegames_dir->GetStr(), "FileSystem", RGN_SAVEGAMES, /*recursive=*/false, /*readOnly=*/false);
 
     Ogre::ScriptCompilerManager::getSingleton().setListener(this);
 
@@ -208,7 +208,7 @@ void ContentManager::InitContentManager()
     LOG("RoR|ContentManager: Loading filesystems");
 
     // add scripts folder
-    ResourceGroupManager::getSingleton().addResourceLocation(std::string(App::sys_user_dir->GetActiveStr()) + PATH_SLASH + "scripts", "FileSystem", "Scripts");
+    ResourceGroupManager::getSingleton().addResourceLocation(std::string(App::sys_user_dir->GetStr()) + PATH_SLASH + "scripts", "FileSystem", "Scripts");
 
     LOG("RoR|ContentManager: Registering colored text overlay factory");
     ColoredTextAreaOverlayElementFactory* pCT = new ColoredTextAreaOverlayElementFactory();
@@ -219,14 +219,14 @@ void ContentManager::InitContentManager()
         TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
     TextureFilterOptions tfo = TFO_NONE;
-    switch (App::gfx_texture_filter->GetActiveEnum<GfxTexFilter>())
+    switch (App::gfx_texture_filter->GetEnum<GfxTexFilter>())
     {
     case GfxTexFilter::ANISOTROPIC: tfo = TFO_ANISOTROPIC;        break;
     case GfxTexFilter::TRILINEAR:   tfo = TFO_TRILINEAR;          break;
     case GfxTexFilter::BILINEAR:    tfo = TFO_BILINEAR;           break;
     case GfxTexFilter::NONE:        tfo = TFO_NONE;               break;
     }
-    MaterialManager::getSingleton().setDefaultAnisotropy(Math::Clamp(App::gfx_anisotropy->GetActiveVal<int>(), 1, 16));
+    MaterialManager::getSingleton().setDefaultAnisotropy(Math::Clamp(App::gfx_anisotropy->GetInt(), 1, 16));
     MaterialManager::getSingleton().setDefaultTextureFiltering(tfo);
 
     // load all resources now, so the zip files are also initiated
@@ -247,14 +247,14 @@ void ContentManager::InitContentManager()
 void ContentManager::InitModCache()
 {
     ResourceGroupManager::getSingleton().addResourceLocation(
-        App::sys_cache_dir->GetActiveStr(), "FileSystem", RGN_CACHE, /*recursive=*/false, /*readOnly=*/false);
-    std::string user = App::sys_user_dir->GetActiveStr();
-    std::string base = App::sys_process_dir->GetActiveStr();
+        App::sys_cache_dir->GetStr(), "FileSystem", RGN_CACHE, /*recursive=*/false, /*readOnly=*/false);
+    std::string user = App::sys_user_dir->GetStr();
+    std::string base = App::sys_process_dir->GetStr();
     std::string objects = PathCombine("resources", "beamobjects.zip");
 
-    if (!App::app_extra_mod_path->GetActiveStr().empty())
+    if (!App::app_extra_mod_path->GetStr().empty())
     {
-        std::string extra_mod_path = App::app_extra_mod_path->GetActiveStr();
+        std::string extra_mod_path = App::app_extra_mod_path->GetStr();
         ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path           , "FileSystem", RGN_CONTENT);
     }
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "mods")    , "FileSystem", RGN_CONTENT);
@@ -265,9 +265,9 @@ void ContentManager::InitModCache()
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, objects)   , "Zip"       , RGN_CONTENT);
 
     ResourceGroupManager::getSingleton().createResourceGroup(RGN_TEMP, false);
-    if (!App::app_extra_mod_path->GetActiveStr().empty())
+    if (!App::app_extra_mod_path->GetStr().empty())
     {
-        std::string extra_mod_path = App::app_extra_mod_path->GetActiveStr();
+        std::string extra_mod_path = App::app_extra_mod_path->GetStr();
         ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path           , "FileSystem", RGN_TEMP, true);
     }
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "mods")    , "FileSystem", RGN_TEMP, true);
@@ -346,10 +346,10 @@ bool ContentManager::handleEvent(ScriptCompiler *compiler, ScriptCompilerEvent *
 
 void ContentManager::InitManagedMaterials(std::string const & rg_name)
 {
-    Ogre::String managed_materials_dir = PathCombine(App::sys_resources_dir->GetActiveStr(), "managed_materials");
+    Ogre::String managed_materials_dir = PathCombine(App::sys_resources_dir->GetStr(), "managed_materials");
 
     //Dirty, needs to be improved
-    if (App::gfx_shadow_type->GetActiveEnum<GfxShadowType>() == GfxShadowType::PSSM)
+    if (App::gfx_shadow_type->GetEnum<GfxShadowType>() == GfxShadowType::PSSM)
     {
         if (rg_name == RGN_MANAGED_MATS) // Only load shared resources on startup
         {
@@ -387,16 +387,16 @@ void ContentManager::LoadGameplayResources()
         m_base_resource_loaded = true;
     }
 
-    if (App::gfx_water_mode->GetActiveEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
+    if (App::gfx_water_mode->GetEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
         this->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
 
-    if (App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
         this->AddResourcePack(ContentManager::ResourcePack::CAELUM);
 
-    if (App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
+    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
         this->AddResourcePack(ContentManager::ResourcePack::SKYX);
 
-    if (App::gfx_vegetation_mode->GetActiveEnum<GfxVegetation>() != RoR::GfxVegetation::NONE)
+    if (App::gfx_vegetation_mode->GetEnum<GfxVegetation>() != RoR::GfxVegetation::NONE)
         this->AddResourcePack(ContentManager::ResourcePack::PAGED);
 }
 

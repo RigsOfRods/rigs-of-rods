@@ -76,38 +76,38 @@ void Console::ProcessCommandLine(int argc, char *argv[])
     {
         if (args.LastError() != SO_SUCCESS)
         {
-            App::app_state->SetActiveVal((int)AppState::PRINT_HELP_EXIT);
+            App::app_state->SetVal((int)AppState::PRINT_HELP_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_HELP)
         {
-            App::app_state->SetActiveVal((int)AppState::PRINT_HELP_EXIT);
+            App::app_state->SetVal((int)AppState::PRINT_HELP_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_VER)
         {
-            App::app_state->SetActiveVal((int)AppState::PRINT_VERSION_EXIT);
+            App::app_state->SetVal((int)AppState::PRINT_VERSION_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_TRUCK)
         {
-            App::diag_preset_vehicle->SetActiveStr(args.OptionArg());
+            App::diag_preset_vehicle->SetStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_TRUCKCONFIG)
         {
-            App::diag_preset_veh_config->SetActiveStr(args.OptionArg());
+            App::diag_preset_veh_config->SetStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_MAP)
         {
-            App::diag_preset_terrain->SetActiveStr(args.OptionArg());
+            App::diag_preset_terrain->SetStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_POS)
         {
-            App::diag_preset_spawn_pos->SetActiveStr(args.OptionArg());
+            App::diag_preset_spawn_pos->SetStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_ROT)
         {
-            App::diag_preset_spawn_rot->SetActiveStr(args.OptionArg());
+            App::diag_preset_spawn_rot->SetStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_WDIR)
         {
@@ -117,18 +117,18 @@ void Console::ProcessCommandLine(int argc, char *argv[])
         }
         else if (args.OptionId() == OPT_RESUME)
         {
-            if (FileExists(PathCombine(App::sys_savegames_dir->GetActiveStr(), "autosave.sav")))
+            if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
             {
                 App::GetGameContext()->PushMessage(RoR::Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, "autosave.sav"));
             }
         }
         else if (args.OptionId() == OPT_CHECKCACHE)
         {
-            App::app_force_cache_udpate->SetActiveVal(true);
+            App::app_force_cache_udpate->SetVal(true);
         }
         else if (args.OptionId() == OPT_ENTERTRUCK)
         {
-            App::diag_preset_veh_enter->SetActiveVal(true);
+            App::diag_preset_veh_enter->SetVal(true);
         }
         else if (args.OptionId() == OPT_JOINMPSERVER)
         {
@@ -136,7 +136,7 @@ void Console::ProcessCommandLine(int argc, char *argv[])
             const int colon = static_cast<int>(server_args.rfind(":"));
             if (colon != std::string::npos)
             {
-                App::mp_join_on_startup->SetActiveVal(true);
+                App::mp_join_on_startup->SetVal(true);
 
                 std::string host_str;
                 std::string port_str;
@@ -150,8 +150,8 @@ void Console::ProcessCommandLine(int argc, char *argv[])
                     host_str = server_args.substr(0, colon);
                     port_str = server_args.substr(colon + 1, server_args.length());
                 }
-                App::mp_server_host->SetActiveStr(host_str.c_str());
-                App::mp_server_port->SetActiveVal(Ogre::StringConverter::parseInt(port_str));
+                App::mp_server_host->SetStr(host_str.c_str());
+                App::mp_server_port->SetVal(Ogre::StringConverter::parseInt(port_str));
             }
         }
     }

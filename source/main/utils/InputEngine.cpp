@@ -1891,7 +1891,7 @@ bool InputEngine::setup()
 
     ParamList pl;
     pl.insert(OIS::ParamList::value_type("WINDOW", TOSTRING(hWnd)));
-    if (App::io_input_grab_mode->GetActiveEnum<IoInputGrabMode>() != RoR::IoInputGrabMode::ALL)
+    if (App::io_input_grab_mode->GetEnum<IoInputGrabMode>() != RoR::IoInputGrabMode::ALL)
     {
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
         pl.insert(OIS::ParamList::value_type("x11_mouse_hide", "true"));
@@ -1907,7 +1907,7 @@ bool InputEngine::setup()
     }
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    if (App::io_input_grab_mode->GetActiveEnum<IoInputGrabMode>() != IoInputGrabMode::ALL)
+    if (App::io_input_grab_mode->GetEnum<IoInputGrabMode>() != IoInputGrabMode::ALL)
     {
         ShowCursor(FALSE);
     }

@@ -267,7 +267,7 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
         }
 
         // arcade controls are only working with auto-clutch!
-        if (!App::io_arcade_controls->GetActiveVal<bool>() || (engine->GetAutoShiftMode() >= SimGearboxMode::MANUAL))
+        if (!App::io_arcade_controls->GetBool() || (engine->GetAutoShiftMode() >= SimGearboxMode::MANUAL))
         {
             // classic mode, realistic
             engine->autoSetAcc(accl);
@@ -399,7 +399,7 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
             else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_DOWN))
             {
                 if (shiftmode > SimGearboxMode::SEMI_AUTO ||
-                    shiftmode == SimGearboxMode::SEMI_AUTO && (!App::io_arcade_controls->GetActiveVal<bool>()) ||
+                    shiftmode == SimGearboxMode::SEMI_AUTO && (!App::io_arcade_controls->GetBool()) ||
                     shiftmode == SimGearboxMode::SEMI_AUTO && engine->GetGear() > 0 ||
                     shiftmode == SimGearboxMode::AUTO)
                 {

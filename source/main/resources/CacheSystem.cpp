@@ -170,18 +170,18 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
             RoR::Log("[RoR|ModCache] Performing update ...");
             this->PruneCache();
         }
-        App::diag_log_console_echo->SetActiveVal(false);
+        App::diag_log_console_echo->SetVal(false);
         this->ParseZipArchives(RGN_CONTENT);
         this->ParseKnownFiles(RGN_CONTENT);
-        App::diag_log_console_echo->SetActiveVal(App::diag_log_console_echo->GetActiveVal<bool>());
+        App::diag_log_console_echo->SetVal(App::diag_log_console_echo->GetBool());
         this->DetectDuplicates();
         this->WriteCacheFileJson();
     }
 
     this->LoadCacheFileJson();
 
-    App::app_force_cache_purge->SetActiveVal(false);
-    App::app_force_cache_udpate->SetActiveVal(false);
+    App::app_force_cache_purge->SetVal(false);
+    App::app_force_cache_udpate->SetVal(false);
 
     RoR::Log("[RoR|ModCache] Cache loaded");
 }
@@ -246,7 +246,7 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
         return CACHE_NEEDS_REBUILD;
     }
 
-    if (App::app_force_cache_purge->GetActiveVal<bool>())
+    if (App::app_force_cache_purge->GetBool())
     {
         RoR::Log("[RoR|ModCache] Cache rebuild requested");
         return CACHE_NEEDS_REBUILD;
@@ -258,7 +258,7 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
         return CACHE_NEEDS_UPDATE;
     }
 
-    if (App::app_force_cache_udpate->GetActiveVal<bool>())
+    if (App::app_force_cache_udpate->GetBool())
     {
         RoR::Log("[RoR|ModCache] Cache update requested");
         return CACHE_NEEDS_UPDATE;

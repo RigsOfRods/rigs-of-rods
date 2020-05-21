@@ -118,7 +118,7 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
 
 void SimController::UpdateForceFeedback()
 {
-    if (!App::io_ffb_enabled->GetActiveVal<bool>()) { return; }
+    if (!App::io_ffb_enabled->GetBool()) { return; }
 
     if (m_player_actor && m_player_actor->ar_driveable == TRUCK)
     {
@@ -196,7 +196,7 @@ void SimController::HandleSavegameShortcuts()
         m_actor_manager.LoadScene(filename);
     }
 
-    if (App::sim_terrain_name->GetActiveStr() == "" || App::sim_state->GetActiveEnum<SimState>() != SimState::RUNNING)
+    if (App::sim_terrain_name->GetStr() == "" || App::sim_state->GetEnum<SimState>() != SimState::RUNNING)
         return;
 
     slot = -1;
@@ -311,17 +311,17 @@ void SimController::UpdateInputEvents(float dt)
         {
             gui_man->GetMainSelector()->Close();
         }
-        else if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING)
+        else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
         {
             App::GetGameContext()->PushMessage(Message(MSG_SIM_PAUSE_REQUESTED));
         }
-        else if (App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
+        else if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
         {
             App::GetGameContext()->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
         }
     }
 
-    if (App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
+    if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
         return; //Stop everything when pause menu is visible
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE))
@@ -334,7 +334,7 @@ void SimController::UpdateInputEvents(float dt)
         gui_man->GetFrictionSettings()->setActiveCol(m_player_actor->ar_last_fuzzy_ground_model);
     }
 
-    const bool mp_connected = (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED);
+    const bool mp_connected = (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED);
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_hide_gui && mp_connected)
     {
         gui_man->SetVisible_ChatBox(!gui_man->IsVisible_ChatBox());
@@ -442,10 +442,10 @@ void SimController::UpdateInputEvents(float dt)
         int fov = -1;
         if (modifier != 0)
         {
-            fov = cvar_fov->GetActiveVal<int>() + modifier;
+            fov = cvar_fov->GetInt() + modifier;
             if (fov >= 10 && fov <= 160)
             {
-                cvar_fov->SetActiveVal(fov);
+                cvar_fov->SetVal(fov);
             }
             else
             {
@@ -456,7 +456,7 @@ void SimController::UpdateInputEvents(float dt)
         {
             CVar* cvar_fov_default = ((App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
                 ? App::gfx_fov_internal_default : App::gfx_fov_external_default;
-            cvar_fov->SetActiveVal(cvar_fov_default->GetActiveVal<int>());
+            cvar_fov->SetVal(cvar_fov_default->GetInt());
         }
 
         if (fov != -1)
@@ -497,17 +497,17 @@ void SimController::UpdateInputEvents(float dt)
     static int object_count = static_cast<int>(object_list.size());
     static int object_index = -1;
 
-    bool toggle_editor = (m_player_actor && App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE) ||
+    bool toggle_editor = (m_player_actor && App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE) ||
         (!m_player_actor && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
 
     if (toggle_editor)
     {
-        App::sim_state->SetActiveVal(App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE ? (int)SimState::RUNNING : (int)SimState::EDITOR_MODE);
-        UTFString ssmsg = App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE ? _L("Entered terrain editing mode") : _L("Left terrain editing mode");
+        App::sim_state->SetVal(App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE ? (int)SimState::RUNNING : (int)SimState::EDITOR_MODE);
+        UTFString ssmsg = App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE ? _L("Entered terrain editing mode") : _L("Left terrain editing mode");
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg,
                 "infromation.png", 2000, false);
 
-        if (App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE)
+        if (App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
         {
             object_list = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
             object_index = -1;
@@ -519,7 +519,7 @@ void SimController::UpdateInputEvents(float dt)
     }
 
     //OLD m_loading_state == ALL_LOADED
-    if (App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE && object_list.size() > 0)
+    if (App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE && object_list.size() > 0)
     {
         bool update = false;
         if (object_count != object_list.size())
@@ -720,7 +720,7 @@ void SimController::UpdateInputEvents(float dt)
             m_character_factory.update(dt);
         }
     }
-    else if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING || App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
+    else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
     {
         m_character_factory.update(dt);
         if (!this->AreControlsLocked())
@@ -1268,9 +1268,9 @@ void SimController::UpdateInputEvents(float dt)
 
 #ifdef USE_CAELUM
 
-        const bool caelum_enabled = App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() == GfxSkyMode::CAELUM;
+        const bool caelum_enabled = App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM;
         SkyManager* sky_mgr = App::GetSimTerrain()->getSkyManager();
-        if (caelum_enabled && (sky_mgr != nullptr) && (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING || App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED || App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE))
+        if (caelum_enabled && (sky_mgr != nullptr) && (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::PAUSED || App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE))
         {
             Real time_factor = 1.0f;
 
@@ -1301,9 +1301,9 @@ void SimController::UpdateInputEvents(float dt)
 #endif // USE_CAELUM
 
 
-        const bool skyx_enabled = App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() == GfxSkyMode::SKYX;
+        const bool skyx_enabled = App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::SKYX;
         SkyXManager* skyx_mgr = App::GetSimTerrain()->getSkyXManager();
-        if (skyx_enabled && (skyx_mgr != nullptr) && (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING || App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED || App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE))
+        if (skyx_enabled && (skyx_mgr != nullptr) && (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::PAUSED || App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE))
         {
 
             if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
@@ -1371,7 +1371,7 @@ void SimController::UpdateInputEvents(float dt)
         }
     }
 
-    if ((App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING || App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED || App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE) && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
+    if ((App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::PAUSED || App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE) && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
     {
         gui_man->SetVisible_SimPerfStats(!gui_man->IsVisible_SimPerfStats());
     }
@@ -1593,7 +1593,7 @@ void SimController::UpdateSimulation(float dt)
             {
                 if (fresh_actor->ar_driveable != NOT_DRIVEABLE &&
                     fresh_actor->ar_num_nodes > 0 &&
-                    App::diag_preset_veh_enter->GetActiveVal<bool>())
+                    App::diag_preset_veh_enter->GetBool())
                 {
                     this->SetPendingPlayerActor(fresh_actor);
                 }
@@ -1637,14 +1637,14 @@ void SimController::UpdateSimulation(float dt)
         *live_gm = updated_gm; // Copy over
     }
 
-    auto s = App::sim_state->GetActiveEnum<SimState>();
+    auto s = App::sim_state->GetEnum<SimState>();
 
     if (m_out_protocol)
     {
         m_out_protocol->Update(dt, m_player_actor);
     }
 
-    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
+    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
     {
         // Update mumble (3d audio)
 #ifdef USE_MUMBLE
@@ -1658,7 +1658,7 @@ void SimController::UpdateSimulation(float dt)
 #endif // USE_MUMBLE
     }
 
-    if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING || App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE)
+    if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
     {
         App::GetCameraManager()->Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
 #ifdef USE_OPENAL
@@ -1685,7 +1685,7 @@ void SimController::UpdateSimulation(float dt)
         actor->GetGfxActor()->UpdateDebugView();
     }
 
-    if (App::sim_state->GetActiveEnum<SimState>() == SimState::RUNNING || App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE || (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED))
+    if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE || (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED))
     {
         float simulation_speed = m_actor_manager.GetSimulationSpeed();
         if (m_race_id != -1 && simulation_speed != 1.0f)
@@ -1705,13 +1705,13 @@ void SimController::UpdateSimulation(float dt)
 
         App::GetGfxScene()->BufferSimulationData();
 
-        if (App::sim_state->GetActiveEnum<SimState>() != SimState::PAUSED)
+        if (App::sim_state->GetEnum<SimState>() != SimState::PAUSED)
         {
             m_actor_manager.UpdateActors(m_player_actor, m_physics_simulation_time); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
         }
     }
 
-    if (RoR::App::sim_state->GetActiveEnum<SimState>() != RoR::SimState::PAUSED &&
+    if (RoR::App::sim_state->GetEnum<SimState>() != RoR::SimState::PAUSED &&
         !m_physics_simulation_paused)
     {
         m_time += dt;
@@ -1721,7 +1721,7 @@ void SimController::UpdateSimulation(float dt)
 void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
 {
     // first, test if the place if clear, BUT NOT IN MULTIPLAYER
-    if (!(App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED))
+    if (!(App::mp_state->GetEnum<MpState>() == MpState::CONNECTED))
     {
         collision_box_t* spawnbox = App::GetSimTerrain()->GetCollisions()->getBox(instance, box);
         for (auto actor : GetActors())
@@ -1897,7 +1897,7 @@ bool SimController::LoadTerrain(std::string terrain_file)
         delete terrain;
         return false;
     }
-    App::sim_terrain_name->SetActiveStr(terrain_file);
+    App::sim_terrain_name->SetStr(terrain_file);
 
     if (m_player_character != nullptr)
     {
@@ -1911,15 +1911,15 @@ bool SimController::LoadTerrain(std::string terrain_file)
             spawn_rot = 180.0f;
         }
 
-        if (App::diag_preset_spawn_pos->GetActiveStr() != "")
+        if (App::diag_preset_spawn_pos->GetStr() != "")
         {
-            spawn_pos = StringConverter::parseVector3(String(App::diag_preset_spawn_pos->GetActiveStr()), spawn_pos);
-            App::diag_preset_spawn_pos->SetActiveStr("");
+            spawn_pos = StringConverter::parseVector3(String(App::diag_preset_spawn_pos->GetStr()), spawn_pos);
+            App::diag_preset_spawn_pos->SetStr("");
         }
-        if (App::diag_preset_spawn_rot->GetActiveStr() != "")
+        if (App::diag_preset_spawn_rot->GetStr() != "")
         {
-            spawn_rot = StringConverter::parseReal(App::diag_preset_spawn_rot->GetActiveStr(), spawn_rot);
-            App::diag_preset_spawn_rot->SetActiveStr("");
+            spawn_rot = StringConverter::parseReal(App::diag_preset_spawn_rot->GetStr(), spawn_rot);
+            App::diag_preset_spawn_rot->SetStr("");
         }
 
         spawn_pos.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
@@ -1974,12 +1974,12 @@ void SimController::CleanupAfterSimulation()
 bool SimController::SetupGameplayLoop()
 {
     // Load preselected vehicle
-    if (!App::diag_preset_vehicle->GetActiveStr().empty())
+    if (!App::diag_preset_vehicle->GetStr().empty())
     {
         // Vehicle name lookup
         size_t length = std::numeric_limits<size_t>::max();
         const CacheEntry* lookup = nullptr;
-        String name = App::diag_preset_vehicle->GetActiveStr();
+        String name = App::diag_preset_vehicle->GetStr();
         StringUtil::toLowerCase(name);
         for (const auto& entry : App::GetCacheSystem()->GetEntries())
         {
@@ -2003,27 +2003,27 @@ bool SimController::SetupGameplayLoop()
         }
         if (lookup != nullptr)
         {
-            App::diag_preset_vehicle->SetActiveStr(lookup->fname);
+            App::diag_preset_vehicle->SetStr(lookup->fname);
             // Section config lookup
             if (!lookup->sectionconfigs.empty())
             {
                 auto cfgs = lookup->sectionconfigs;
-                if (std::find(cfgs.begin(), cfgs.end(), App::diag_preset_veh_config->GetActiveStr()) == cfgs.end())
+                if (std::find(cfgs.begin(), cfgs.end(), App::diag_preset_veh_config->GetStr()) == cfgs.end())
                 {
-                    App::diag_preset_veh_config->SetActiveStr(cfgs[0]);
+                    App::diag_preset_veh_config->SetStr(cfgs[0]);
                 }
             }
         }
 
-        RoR::LogFormat("[RoR|Diag] Preselected Truck: %s", App::diag_preset_vehicle->GetActiveStr());
-        if (!App::diag_preset_veh_config->GetActiveStr().empty())
+        RoR::LogFormat("[RoR|Diag] Preselected Truck: %s", App::diag_preset_vehicle->GetStr());
+        if (!App::diag_preset_veh_config->GetStr().empty())
         {
-            RoR::LogFormat("[RoR|Diag] Preselected Truck Config: %s", App::diag_preset_veh_config->GetActiveStr());
+            RoR::LogFormat("[RoR|Diag] Preselected Truck Config: %s", App::diag_preset_veh_config->GetStr());
         }
 
         ActorSpawnRequest rq;
-        rq.asr_filename   = App::diag_preset_vehicle->GetActiveStr();
-        rq.asr_config     = App::diag_preset_veh_config->GetActiveStr();
+        rq.asr_filename   = App::diag_preset_vehicle->GetStr();
+        rq.asr_config     = App::diag_preset_veh_config->GetStr();
         rq.asr_position   = m_player_character->getPosition();
         rq.asr_rotation   = Quaternion(Degree(180) - m_player_character->getRotation(), Vector3::UNIT_Y);
         rq.asr_origin     = ActorSpawnRequest::Origin::CONFIG_FILE;
@@ -2034,7 +2034,7 @@ bool SimController::SetupGameplayLoop()
     // Extra setup
     // ========================================================================
 
-    if (App::io_outgauge_mode->GetActiveVal<int>() > 0)
+    if (App::io_outgauge_mode->GetInt() > 0)
     {
         m_out_protocol = std::unique_ptr<OutProtocol>(new OutProtocol());
     }
@@ -2042,7 +2042,7 @@ bool SimController::SetupGameplayLoop()
     App::CreateOverlayWrapper();
     App::GetOverlayWrapper()->SetupDirectionArrow();
 
-    if (App::audio_menu_music->GetActiveVal<bool>())
+    if (App::audio_menu_music->GetBool())
     {
         SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
     }
@@ -2199,7 +2199,7 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
 #ifdef USE_SOCKETW
     if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {
-        if (RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
+        if (RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
         {
             RoRnet::UserInfo info = App::GetNetwork()->GetLocalUserData();
             rq.asr_net_username = tryConvertUTF(info.username);
@@ -2224,7 +2224,7 @@ void SimController::RemoveActorDirectly(Actor* actor)
     App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor());
 
 #ifdef USE_SOCKETW
-    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
+    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
     {
         m_character_factory.UndoRemoteActorCoupling(actor);
     }

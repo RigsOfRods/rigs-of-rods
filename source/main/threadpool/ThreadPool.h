@@ -109,11 +109,11 @@ public:
         // Create general-purpose thread pool
         int logical_cores = std::thread::hardware_concurrency();
 
-        int num_threads = App::app_num_workers->GetActiveVal<int>();
+        int num_threads = App::app_num_workers->GetInt();
         if (num_threads < 1 || num_threads > logical_cores)
         {
             num_threads = Ogre::Math::Clamp(logical_cores - 1, 1, 8);
-            App::app_num_workers->SetActiveVal(num_threads);
+            App::app_num_workers->SetVal(num_threads);
         }
 
         RoR::LogFormat("[RoR|ThreadPool] Found %d logical CPU cores, creating %d worker threads",

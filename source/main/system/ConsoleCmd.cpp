@@ -196,10 +196,10 @@ public:
         Console::MessageType reply_type = Console::CONSOLE_SYSTEM_REPLY;
 
         // switch to console logging
-        bool now_logging = !App::diag_log_console_echo->GetActiveVal<bool>();
+        bool now_logging = !App::diag_log_console_echo->GetBool();
         const char* msg = (now_logging) ? " logging to console enabled" : " logging to console disabled";
         reply << _L(msg);
-        App::diag_log_console_echo->SetActiveVal(now_logging);
+        App::diag_log_console_echo->SetVal(now_logging);
 
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
     }
@@ -398,7 +398,7 @@ public:
                     App::GetConsole()->CVarAssign(cvar, args[2]);
                 }
                 reply_type = Console::CONSOLE_SYSTEM_REPLY;
-                reply << cvar->GetName() << " = " << cvar->GetActiveStr();
+                reply << cvar->GetName() << " = " << cvar->GetStr();
             }
             else
             {
@@ -452,7 +452,7 @@ public:
                     App::GetConsole()->CVarAssign(cvar, args[i+1]);
                 }
                 reply_type = Console::CONSOLE_SYSTEM_REPLY;
-                reply << cvar->GetName() << " = " << cvar->GetActiveStr();
+                reply << cvar->GetName() << " = " << cvar->GetStr();
             }
         }
 
@@ -549,7 +549,7 @@ void Console::DoCommand(std::string msg)
     if (cvar)
     {
         Str<200> reply;
-        reply << cvar->GetName() << " = " << cvar->GetActiveStr();
+        reply << cvar->GetName() << " = " << cvar->GetStr();
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, reply.ToCStr());
         return;
     }
@@ -564,7 +564,7 @@ void Console::DoCommand(std::string msg)
 
 bool ConsoleCmd::CheckAppState(AppState state)
 {
-    if (App::app_state->GetActiveEnum<AppState>() == state)
+    if (App::app_state->GetEnum<AppState>() == state)
         return true;
 
     Str<200> reply;

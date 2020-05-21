@@ -234,7 +234,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
             densityMap->setFilter(Forests::MAPFILTER_BILINEAR);
 
             auto geom = new PagedGeometry(App::GetCameraManager()->GetCamera(), 50);
-            geom->setTempDir(PathCombine(App::sys_cache_dir->GetActiveStr(), ""));
+            geom->setTempDir(PathCombine(App::sys_cache_dir->GetStr(), ""));
             Ogre::TRect<Ogre::Real> bounds = TBounds(0, 0, m_terrain_size_x, m_map_size_z);
             geom->setBounds(bounds);
 
@@ -960,7 +960,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             }
 
             bool race_event = !instancename.compare(0, 10, "checkpoint") || !instancename.compare(0, 4, "race");
-            if (enable_collisions && (App::sim_races_enabled->GetActiveVal<bool>() || !race_event))
+            if (enable_collisions && (App::sim_races_enabled->GetBool() || !race_event))
             {
                 int boxnum = App::GetSimTerrain()->GetCollisions()->addCollisionBox(tenode, rotating, virt, pos, rot, l, h, sr, eventname, instancename, forcecam, fc, sc, dr, event_filter, scripthandler);
                 obj->collBoxes.push_back((boxnum));
@@ -1052,7 +1052,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         {
             char matn[256] = "";
             sscanf(ptline, "generateMaterialShaders %s", matn);
-            if (RoR::App::gfx_enable_rtshaders->GetActiveVal<bool>())
+            if (RoR::App::gfx_enable_rtshaders->GetBool())
             {
                 MaterialPtr mat = MaterialManager::getSingleton().create(matn,"generatedMaterialShaders");
                 Ogre::RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(*mat, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
@@ -1307,7 +1307,7 @@ void TerrainObjectManager::LoadTelepoints()
 void TerrainObjectManager::LoadPredefinedActors()
 {
     // in netmode, don't load other actors!
-    if (RoR::App::mp_state->GetActiveEnum<MpState>() == RoR::MpState::CONNECTED)
+    if (RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         return;
     }

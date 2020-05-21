@@ -391,22 +391,22 @@ void Network::CouldNotConnect(std::string const & msg, bool close_socket /*= tru
 bool Network::StartConnecting()
 {
     // Shadow vars for threaded access
-    m_username = App::mp_player_name->GetActiveStr();
-    m_token    = App::mp_player_token->GetActiveStr();
-    m_net_host = App::mp_server_host->GetActiveStr();
-    m_net_port = App::mp_server_port->GetActiveVal<int>();
-    m_password = App::mp_server_password->GetActiveStr();
+    m_username = App::mp_player_name->GetStr();
+    m_token    = App::mp_player_token->GetStr();
+    m_net_host = App::mp_server_host->GetStr();
+    m_net_port = App::mp_server_port->GetInt();
+    m_password = App::mp_server_password->GetStr();
 
     try
     {
         m_connect_thread = std::thread(&Network::ConnectThread, this);
-        App::mp_state->SetActiveVal((int)MpState::CONNECTING); // Mark connect thread as started
+        App::mp_state->SetVal((int)MpState::CONNECTING); // Mark connect thread as started
         PushNetMessage(MSG_NET_CONNECT_STARTED, _LC("Network", "Starting..."));
         return true;
     }
     catch (std::exception& e)
     {
-        App::mp_state->SetActiveVal((int)MpState::DISABLED);
+        App::mp_state->SetVal((int)MpState::DISABLED);
         PushNetMessage(MSG_NET_CONNECT_FAILURE, _L("Failed to launch connection thread"));
         RoR::LogFormat("[RoR|Networking] Failed to launch connection thread, message: %s", e.what());
         return false;
@@ -500,8 +500,8 @@ bool Network::ConnectThread()
     strncpy(c.usertoken, Utils::Sha1Hash(m_token).c_str(), size_t(40));
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
     strncpy(c.clientname, "RoR", 10);
-    std::string language = App::app_language->GetActiveStr().substr(0, 2);
-    std::string country = App::app_country->GetActiveStr().substr(0, 2);
+    std::string language = App::app_language->GetStr().substr(0, 2);
+    std::string country = App::app_country->GetStr().substr(0, 2);
     strncpy(c.language, (language + std::string("_") + country).c_str(), 5);
     strcpy(c.sessiontype, "normal");
     if (!SendNetMessage(MSG2_USER_INFO, 0, sizeof(RoRnet::UserInfo), (char*)&c))
@@ -598,7 +598,7 @@ void Network::Disconnect()
     m_send_packet_buffer.clear();
 
     m_shutdown = false;
-    App::mp_state->SetActiveVal((int)MpState::DISABLED);
+    App::mp_state->SetVal((int)MpState::DISABLED);
 
     LOG("[RoR|Networking] Disconnect() done");
 }
