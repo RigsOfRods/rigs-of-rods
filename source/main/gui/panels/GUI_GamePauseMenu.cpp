@@ -85,7 +85,7 @@ void RoR::GUI::GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cle
         if (ImGui::Button(settings_title, btn_size) || (m_kb_enter_index == 1))
         {
             App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
-            if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
+            if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
             {
                 App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
             }

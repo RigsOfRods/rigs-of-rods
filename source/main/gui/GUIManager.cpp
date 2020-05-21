@@ -144,7 +144,7 @@ GUI::SimActorStats*         GUIManager::GetSimActorStats()     { return &m_impl-
 
 GUIManager::GUIManager()
 {
-    std::string gui_logpath = PathCombine(App::sys_logs_dir->GetActiveStr(), "MyGUI.log");
+    std::string gui_logpath = PathCombine(App::sys_logs_dir->GetStr(), "MyGUI.log");
     auto mygui_platform = new MyGUI::OgrePlatform();
     mygui_platform->initialise(
         RoR::App::GetAppContext()->GetRenderWindow(), 
@@ -211,11 +211,11 @@ void GUIManager::ApplyGuiCaptureKeyboard()
 
 void GUIManager::DrawSimulationGui(float dt)
 {
-    if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
+    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
     {
         m_impl->panel_TopMenubar.Update();
 
-        if (App::sim_state->GetActiveEnum<SimState>() == SimState::PAUSED)
+        if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
         {
             m_impl->panel_GamePauseMenu.Draw();
         }
@@ -376,7 +376,7 @@ void GUIManager::UpdateMouseCursorVisibility()
 
 void GUIManager::ReflectGameState()
 {
-    if (App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
+    if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
     {
         m_impl->overlay_Wallpaper       ->show();
         m_impl->panel_GameMainMenu       .SetVisible(!m_impl->panel_MainSelector.IsVisible());
@@ -389,7 +389,7 @@ void GUIManager::ReflectGameState()
         m_impl->panel_SimActorStats      .SetVisible(false);
         m_impl->panel_SimPerfStats       .SetVisible(false);
     }
-    else if (App::app_state->GetActiveEnum<AppState>() == AppState::SIMULATION)
+    else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
     {
         m_impl->panel_GameMainMenu       .SetVisible(false);
         m_impl->overlay_Wallpaper       ->hide();
@@ -471,7 +471,7 @@ void GUIManager::SetupImGui()
 
 void GUIManager::DrawCommonGui()
 {
-    switch (App::mp_state->GetActiveEnum<MpState>())
+    switch (App::mp_state->GetEnum<MpState>())
     {
         case MpState::CONNECTING:
             this->DrawMpConnectingStatusBox();
@@ -548,7 +548,7 @@ void GUIManager::DrawMpConnectingStatusBox()
 
     ImGui::NextColumn();
     // HACK: The trailing space is a workaround for a scissoring issue in OGRE/DearIMGUI integration. ~ only_a_ptr, 10/2017
-    ImGui::Text("Joining [%s:%d] ", App::mp_server_host->GetActiveStr().c_str(), App::mp_server_port->GetActiveVal<int>());
+    ImGui::Text("Joining [%s:%d] ", App::mp_server_host->GetStr().c_str(), App::mp_server_port->GetInt());
 #ifdef USE_SOCKETW
     ImGui::TextDisabled("%s", m_net_connect_status.c_str());
 #endif

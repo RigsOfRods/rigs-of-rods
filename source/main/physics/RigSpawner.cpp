@@ -264,12 +264,12 @@ void ActorSpawner::InitializeRig()
     m_actor->m_odometer_user  = 0;
 
     m_actor->m_masscount=0;
-    m_actor->m_disable_smoke = App::gfx_particles_mode->GetActiveVal<int>() == 0;
+    m_actor->m_disable_smoke = App::gfx_particles_mode->GetInt() == 0;
     m_actor->ar_exhaust_pos_node=0;
     m_actor->ar_exhaust_dir_node=0;
-    m_actor->m_beam_break_debug_enabled  = App::diag_log_beam_break->GetActiveVal<bool>();
-    m_actor->m_beam_deform_debug_enabled = App::diag_log_beam_deform->GetActiveVal<bool>();
-    m_actor->m_trigger_debug_enabled    = App::diag_log_beam_trigger->GetActiveVal<bool>();
+    m_actor->m_beam_break_debug_enabled  = App::diag_log_beam_break->GetBool();
+    m_actor->m_beam_deform_debug_enabled = App::diag_log_beam_deform->GetBool();
+    m_actor->m_trigger_debug_enabled    = App::diag_log_beam_trigger->GetBool();
     m_actor->ar_origin=Ogre::Vector3::ZERO;
     m_actor->m_slidenodes.clear();
 
@@ -340,12 +340,12 @@ void ActorSpawner::InitializeRig()
 
     /* Collisions */
 
-    if (!App::sim_no_collisions->GetActiveVal<bool>())
+    if (!App::sim_no_collisions->GetBool())
     {
         m_actor->m_inter_point_col_detector = new PointColDetector(m_actor);
     }
 
-    if (!App::sim_no_self_collisions->GetActiveVal<bool>())
+    if (!App::sim_no_self_collisions->GetBool())
     {
         m_actor->m_intra_point_col_detector = new PointColDetector(m_actor);
     }
@@ -353,7 +353,7 @@ void ActorSpawner::InitializeRig()
     m_actor->ar_submesh_ground_model = App::GetSimTerrain()->GetCollisions()->defaultgm;
 
     // Lights mode
-    m_actor->m_flares_mode = App::gfx_flares_mode->GetActiveEnum<GfxFlaresMode>();
+    m_actor->m_flares_mode = App::gfx_flares_mode->GetEnum<GfxFlaresMode>();
 
     m_actor->m_definition = m_file;
 
@@ -363,7 +363,7 @@ void ActorSpawner::InitializeRig()
 
     m_placeholder_managedmat = Ogre::MaterialManager::getSingleton().getByName("rigsofrods/managedmaterial-placeholder"); // Built-in
 
-    m_apply_simple_materials = App::diag_simple_materials->GetActiveVal<bool>();
+    m_apply_simple_materials = App::diag_simple_materials->GetBool();
     if (m_apply_simple_materials)
     {
         m_simple_material_base = Ogre::MaterialManager::getSingleton().getByName("tracks/simple"); // Built-in material
@@ -395,7 +395,7 @@ void ActorSpawner::FinalizeRig()
         }
 
         //Gearbox
-        m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode->GetActiveEnum<SimGearboxMode>());
+        m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode->GetEnum<SimGearboxMode>());
     }
     
     // Sanitize trigger_cmdshort and trigger_cmdlong
@@ -2134,7 +2134,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     flare.isVisible = true;
     flare.light = nullptr;
 
-    if ((App::gfx_flares_mode->GetActiveEnum<GfxFlaresMode>() >= GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && size > 0.001)
+    if ((App::gfx_flares_mode->GetEnum<GfxFlaresMode>() >= GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && size > 0.001)
     {
         //if (type == 'f' && usingDefaultMaterial && flaresMode >=2 && size > 0.001)
         if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && using_default_material )
@@ -2149,7 +2149,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             flare.light->setCastShadows(false);
         }
     }
-    if ((App::gfx_flares_mode->GetActiveEnum<GfxFlaresMode>() >= GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS) && size > 0.001)
+    if ((App::gfx_flares_mode->GetEnum<GfxFlaresMode>() >= GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS) && size > 0.001)
     {
         if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && ! using_default_material)
         {
@@ -2251,7 +2251,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             if (def.HasSpecularMap())
             {
                 /* FLEXMESH, damage, specular */
-                if (App::gfx_classic_shaders->GetActiveVal<bool>())
+                if (App::gfx_classic_shaders->GetBool())
                 {
                 material = this->InstantiateManagedMaterial(mat_name_base + "/speculardamage_nicemetal", custom_name);
                 }
@@ -2263,7 +2263,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
                 {
                     return;
                 }
-                if(App::gfx_classic_shaders->GetActiveVal<bool>())
+                if(App::gfx_classic_shaders->GetBool())
                 {
                 material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
                 material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map")->setTextureName(def.damaged_diffuse_map);
@@ -2294,7 +2294,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             if (def.HasSpecularMap())
             {
                 /* FLEXMESH, no_damage, specular */
-                if (App::gfx_classic_shaders->GetActiveVal<bool>())
+                if (App::gfx_classic_shaders->GetBool())
                 {
                     material = this->InstantiateManagedMaterial(mat_name_base + "/specularonly_nicemetal", custom_name);
                 }
@@ -2306,7 +2306,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
                 {
                     return;
                 }
-                if (App::gfx_classic_shaders->GetActiveVal<bool>())
+                if (App::gfx_classic_shaders->GetBool())
                 {
                     material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
                     material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
@@ -2340,7 +2340,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         if (def.HasSpecularMap())
         {
             /* MESH, specular */
-            if (App::gfx_classic_shaders->GetActiveVal<bool>())
+            if (App::gfx_classic_shaders->GetBool())
             {
                 material = this->InstantiateManagedMaterial(mat_name_base + "/specular_nicemetal", custom_name);
             }
@@ -2352,7 +2352,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             {
                 return;
             }
-            if (App::gfx_classic_shaders->GetActiveVal<bool>())
+            if (App::gfx_classic_shaders->GetBool())
             {
                 material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
                 material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
@@ -2384,7 +2384,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
             if (def.HasSpecularMap())
             {
-                if (App::gfx_classic_shaders->GetActiveVal<bool>())
+                if (App::gfx_classic_shaders->GetBool())
                 {
                     material->getTechnique("BaseTechnique")->getPass("Specular")->setCullingMode(Ogre::CULL_NONE);
                 }
@@ -2644,7 +2644,7 @@ void ActorSpawner::ProcessTorqueCurve(RigDef::TorqueCurve & def)
 
 void ActorSpawner::ProcessParticle(RigDef::Particle & def)
 {
-    if (App::gfx_particles_mode->GetActiveVal<int>() != 1)
+    if (App::gfx_particles_mode->GetInt() != 1)
     {
         return;
     }
@@ -5172,7 +5172,7 @@ void ActorSpawner::ProcessEngine(RigDef::Engine & def)
         m_actor
     );
 
-    m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode->GetActiveEnum<SimGearboxMode>());
+    m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode->GetEnum<SimGearboxMode>());
 };
 
 void ActorSpawner::ProcessHelp()
@@ -6564,7 +6564,7 @@ void ActorSpawner::FinalizeGfxSetup()
         }
     }
 
-    if (!App::gfx_enable_videocams->GetActiveVal<bool>())
+    if (!App::gfx_enable_videocams->GetBool())
     {
         m_actor->m_gfx_actor->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_DISABLED);
     }
@@ -6591,9 +6591,9 @@ void ActorSpawner::FinalizeGfxSetup()
     {
         if (m_actor->ar_driveable == TRUCK) // load default for a truck
         {
-            if (App::gfx_speedo_digital->GetActiveVal<bool>())
+            if (App::gfx_speedo_digital->GetBool())
             {
-                if (App::gfx_speedo_imperial->GetActiveVal<bool>())
+                if (App::gfx_speedo_imperial->GetBool())
                 {
                     if (m_actor->ar_engine->getMaxRPM() > 3500)
                     {
@@ -6622,7 +6622,7 @@ void ActorSpawner::FinalizeGfxSetup()
             }
             else // Analog speedometer
             {
-                if (App::gfx_speedo_imperial->GetActiveVal<bool>())
+                if (App::gfx_speedo_imperial->GetBool())
                 {
                     if (m_actor->ar_engine->getMaxRPM() > 3500)
                     {
@@ -6728,7 +6728,7 @@ void ActorSpawner::FinalizeGfxSetup()
                 Ogre::ColourValue(0,0,0)
             );
         }
-        if (App::gfx_reduce_shadows->GetActiveVal<bool>())
+        if (App::gfx_reduce_shadows->GetBool())
         {
             backmat->setReceiveShadows(false);
         }
@@ -7047,7 +7047,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         // TODO: Eliminate gEnv
         vcam.vcam_ogre_camera = App::GetGfxScene()->GetSceneManager()->createCamera(vcam.vcam_material->getName() + "_camera");
 
-        if (!App::gfx_window_videocams->GetActiveVal<bool>())
+        if (!App::gfx_window_videocams->GetBool())
         {
             vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(
                 vcam.vcam_material->getName() + "_texture",
@@ -7106,7 +7106,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
             vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(vcam.vcam_off_tex_name);
         }
 
-        if (App::diag_videocameras->GetActiveVal<bool>())
+        if (App::diag_videocameras->GetBool())
         {
             Ogre::ManualObject* mo = CreateVideocameraDebugMesh(); // local helper function
             vcam.vcam_debug_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();

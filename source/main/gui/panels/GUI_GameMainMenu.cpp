@@ -38,7 +38,7 @@
 RoR::GUI::GameMainMenu::GameMainMenu(): 
     m_is_visible(false), m_num_buttons(5), m_kb_focus_index(-1), m_kb_enter_index(-1)
 {
-    if (FileExists(PathCombine(App::sys_savegames_dir->GetActiveStr(), "autosave.sav")))
+    if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
     {
         m_num_buttons++;
     }
@@ -96,17 +96,17 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
         if (ImGui::Button(sp_title, btn_size) || (m_kb_enter_index == button_index++))
         {
             this->SetVisible(false);
-            if (App::diag_preset_terrain->GetActiveStr().empty())
+            if (App::diag_preset_terrain->GetStr().empty())
             {
                 App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
             }
             else
             {
-                App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->GetActiveStr()));
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->GetStr()));
             }
         }
 
-        if (FileExists(PathCombine(App::sys_savegames_dir->GetActiveStr(), "autosave.sav")))
+        if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
         {
             const char* resume_title = (m_kb_focus_index == button_index) ? "--> Resume game <--" : "Resume game";
             if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == button_index++))
@@ -145,7 +145,7 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
         }
     }
 
-    if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
+    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
     {
         this->SetVisible(false);
     }

@@ -243,7 +243,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
         if (ImGui::Button("Join"))
         {
-            App::mp_server_password->SetActiveStr(m_password_buf.GetBuffer());
+            App::mp_server_password->SetStr(m_password_buf.GetBuffer());
             App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
         }
 
@@ -342,9 +342,9 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
                 MpServerlistData::ServerInfo& server = m_serverlist_data->servers[m_selected_item];
                 if (ImGui::Button("Join", ImVec2(200.f, 0.f)))
                 {
-                    App::mp_server_password->SetActiveStr(m_password_buf.GetBuffer());
-                    App::mp_server_host->SetActiveStr(server.net_host.ToCStr());
-                    App::mp_server_port->SetActiveVal(server.net_port);
+                    App::mp_server_password->SetStr(m_password_buf.GetBuffer());
+                    App::mp_server_host->SetStr(server.net_host.ToCStr());
+                    App::mp_server_port->SetVal(server.net_port);
                     App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
                 }
                 if (server.has_password)
@@ -384,7 +384,7 @@ void RoR::GUI::MultiplayerSelector::RefreshServerlist()
     m_is_refreshing = true;
     std::packaged_task<MpServerlistData*(std::string)> task(FetchServerlist);
     m_serverlist_future = task.get_future();
-    std::thread(std::move(task), App::mp_api_url->GetActiveStr()).detach(); // launch on a thread
+    std::thread(std::move(task), App::mp_api_url->GetStr()).detach(); // launch on a thread
 #endif // defined(USE_CURL)
 }
 
@@ -410,9 +410,9 @@ void RoR::GUI::MultiplayerSelector::SetVisible(bool visible)
     if (visible && (m_serverlist_data == nullptr)) // Do an initial refresh
     {
         this->RefreshServerlist();
-        m_password_buf = App::mp_server_password->GetActiveStr();
+        m_password_buf = App::mp_server_password->GetStr();
     }
-    else if (!visible && App::app_state->GetActiveEnum<AppState>() == AppState::MAIN_MENU)
+    else if (!visible && App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
     {
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }

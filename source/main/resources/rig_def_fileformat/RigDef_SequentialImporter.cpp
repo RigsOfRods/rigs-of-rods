@@ -92,11 +92,11 @@ void SequentialImporter::Process(std::shared_ptr<RigDef::File> def)
         this->ProcessModule((*itor).second);
     }
 
-    if (RoR::App::diag_rig_log_node_stats->GetActiveVal<bool>())
+    if (RoR::App::diag_rig_log_node_stats->GetBool())
     {
         this->AddMessage(Message::TYPE_INFO, this->GetNodeStatistics());
     }
-    if (RoR::App::diag_rig_log_node_import->GetActiveVal<bool>())
+    if (RoR::App::diag_rig_log_node_import->GetBool())
     {
         this->AddMessage(Message::TYPE_INFO, this->IterateAndPrintAllNodes());
     }

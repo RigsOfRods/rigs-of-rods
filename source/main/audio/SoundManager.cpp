@@ -59,18 +59,18 @@ SoundManager::SoundManager() :
     , sound_context(NULL)
     , audio_device(NULL)
 {
-    if (App::audio_device_name->GetActiveStr() == "")
+    if (App::audio_device_name->GetStr() == "")
     {
         LOGSTREAM << "No audio device configured, opening default.";
         audio_device = alcOpenDevice(nullptr);
     }
     else
     {
-        audio_device = alcOpenDevice(App::audio_device_name->GetActiveStr().c_str());
+        audio_device = alcOpenDevice(App::audio_device_name->GetStr().c_str());
         if (!audio_device)
         {
-            LOGSTREAM << "Failed to open configured audio device \"" << App::audio_device_name->GetActiveStr() << "\", opening default.";
-            App::audio_device_name->SetActiveStr("");
+            LOGSTREAM << "Failed to open configured audio device \"" << App::audio_device_name->GetStr() << "\", opening default.";
+            App::audio_device_name->SetStr("");
             audio_device = alcOpenDevice(nullptr);
         }
     }
@@ -238,7 +238,7 @@ void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vect
                 break;
             case Sound::REASON_STOP: alSourceStop(hw_source);
                 break;
-            case Sound::REASON_GAIN: alSourcef(hw_source, AL_GAIN, vfl * App::audio_master_volume->GetActiveVal<float>());
+            case Sound::REASON_GAIN: alSourcef(hw_source, AL_GAIN, vfl * App::audio_master_volume->GetFloat());
                 break;
             case Sound::REASON_LOOP: alSourcei(hw_source, AL_LOOPING, (vfl > 0.5) ? AL_TRUE : AL_FALSE);
                 break;
@@ -305,7 +305,7 @@ void SoundManager::assign(int source_index, int hardware_index)
 
     // the hardware source is supposed to be stopped!
     alSourcei(hw_source, AL_BUFFER, audio_source->buffer);
-    alSourcef(hw_source, AL_GAIN, audio_source->gain * App::audio_master_volume->GetActiveVal<float>());
+    alSourcef(hw_source, AL_GAIN, audio_source->gain * App::audio_master_volume->GetFloat());
     alSourcei(hw_source, AL_LOOPING, (audio_source->loop) ? AL_TRUE : AL_FALSE);
     alSourcef(hw_source, AL_PITCH, audio_source->pitch);
     alSource3f(hw_source, AL_POSITION, audio_source->position.x, audio_source->position.y, audio_source->position.z);
@@ -344,7 +344,7 @@ void SoundManager::resumeAllSounds()
     if (!audio_device)
         return;
     // no mutex needed
-    alListenerf(AL_GAIN, App::audio_master_volume->GetActiveVal<float>());
+    alListenerf(AL_GAIN, App::audio_master_volume->GetFloat());
 }
 
 void SoundManager::setMasterVolume(float v)
@@ -352,7 +352,7 @@ void SoundManager::setMasterVolume(float v)
     if (!audio_device)
         return;
     // no mutex needed
-    App::audio_master_volume->SetActiveVal(v); // TODO: Use 'pending' mechanism and set externally, only 'apply' here.
+    App::audio_master_volume->SetVal(v); // TODO: Use 'pending' mechanism and set externally, only 'apply' here.
     alListenerf(AL_GAIN, v);
 }
 

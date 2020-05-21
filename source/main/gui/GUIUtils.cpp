@@ -102,57 +102,57 @@ void RoR::DrawImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float
 
 void RoR::DrawGCheckbox(CVar* cvar, const char* label)
 {
-    bool val = cvar->GetActiveVal<bool>();
+    bool val = cvar->GetBool();
     if (ImGui::Checkbox(label, &val))
     {
-        cvar->SetActiveVal(val);
+        cvar->SetVal(val);
     }
 }
 
 void RoR::DrawGIntCheck(CVar* cvar, const char* label)
 {
-    bool val = (cvar->GetActiveVal<int>() != 0);
+    bool val = (cvar->GetInt() != 0);
     if (ImGui::Checkbox(label, &val))
     {
-        cvar->SetActiveVal(val ? 1 : 0);
+        cvar->SetVal(val ? 1 : 0);
     }
 }
 
 void RoR::DrawGIntBox(CVar* cvar, const char* label)
 {
-    int val = cvar->GetActiveVal<int>();
+    int val = cvar->GetInt();
     if (ImGui::InputInt(label, &val, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue))
     {
-        cvar->SetActiveVal(val);
+        cvar->SetVal(val);
     }
 }
 
 void RoR::DrawGIntSlider(CVar* cvar, const char* label, int v_min, int v_max)
 {
-    int val = cvar->GetActiveVal<int>();
+    int val = cvar->GetInt();
 
     if (ImGui::SliderInt(label, &val, v_min, v_max))
     {
-        cvar->SetActiveVal(val);
+        cvar->SetVal(val);
     }
 }
 
 void RoR::DrawGFloatSlider(CVar* cvar, const char* label, float v_min, float v_max)
 {
-    float val = cvar->GetActiveVal<float>();
+    float val = cvar->GetFloat();
 
     if (ImGui::SliderFloat(label, &val, v_min, v_max, "%.2f"))
     {
-        cvar->SetActiveVal(val);
+        cvar->SetVal(val);
     }
 }
 
 void RoR::DrawGFloatBox(CVar* cvar, const char* label)
 {
-    float fval = cvar->GetActiveVal<float>();
+    float fval = cvar->GetFloat();
     if (ImGui::InputFloat(label, &fval, 0.f, 0.f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue))
     {
-        cvar->SetActiveVal(fval);
+        cvar->SetVal(fval);
     }
 }
 
@@ -160,7 +160,7 @@ void RoR::DrawGTextEdit(CVar* cvar, const char* label, Str<1000>& buf)
 {
     if (ImGui::InputText(label, buf.GetBuffer(), buf.GetCapacity(), ImGuiInputTextFlags_EnterReturnsTrue))
     {
-        cvar->SetActiveStr(buf.GetBuffer());
+        cvar->SetStr(buf.GetBuffer());
     }
     if (ImGui::IsItemActive())
     {
@@ -168,15 +168,15 @@ void RoR::DrawGTextEdit(CVar* cvar, const char* label, Str<1000>& buf)
     }
     else
     {
-        buf.Assign(cvar->GetActiveStr().c_str());
+        buf.Assign(cvar->GetStr().c_str());
     }
 }
 
 void RoR::DrawGCombo(CVar* cvar, const char* label, const char* values)
 {
-    int selection = cvar->GetActiveVal<int>();
+    int selection = cvar->GetInt();
     if (ImGui::Combo(label, &selection, values))
     {
-        cvar->SetActiveVal(selection);
+        cvar->SetVal(selection);
     }
 }

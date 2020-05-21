@@ -114,7 +114,7 @@ void RoR::GUI::TopMenubar::Update()
     {
         m_open_menu = TopMenu::TOPMENU_SAVEGAMES;
         m_quicksave_name = App::GetSimController()->GetBeamFactory()->GetQuicksaveFilename();
-        m_quickload = FileExists(PathCombine(App::sys_savegames_dir->GetActiveStr(), m_quicksave_name));
+        m_quickload = FileExists(PathCombine(App::sys_savegames_dir->GetStr(), m_quicksave_name));
         m_savegame_names.clear();
         for (int i = 0; i <= 9; i++)
         {
@@ -132,7 +132,7 @@ void RoR::GUI::TopMenubar::Update()
     {
         m_open_menu = TopMenu::TOPMENU_SETTINGS;
 #ifdef USE_CAELUM
-        if (App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+        if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
             m_daytime = App::GetSimTerrain()->getSkyManager()->GetTime();
 #endif // USE_CAELUM
     }
@@ -264,7 +264,7 @@ void RoR::GUI::TopMenubar::Update()
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin("Actors menu", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
-            if (App::mp_state->GetActiveEnum<MpState>() != MpState::CONNECTED)
+            if (App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
             {
                 this->DrawActorListSinglePlayer();
             }
@@ -368,15 +368,15 @@ void RoR::GUI::TopMenubar::Update()
             DrawGFloatSlider(App::audio_master_volume, "Volume", 0, 1);
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "Frames per second:");
-            if (App::gfx_envmap_enabled->GetActiveVal<bool>())
+            if (App::gfx_envmap_enabled->GetBool())
             {
                 DrawGIntSlider(App::gfx_envmap_rate, "Reflections", 0, 6);
             }
             DrawGIntSlider(App::gfx_fps_limit, "Graphics", 0, 240);
-            int physics_fps = std::round(1.0f / App::diag_physics_dt->GetActiveVal<float>());
+            int physics_fps = std::round(1.0f / App::diag_physics_dt->GetFloat());
             if (ImGui::SliderInt("Physics", &physics_fps, 2000, 10000))
             {
-                App::diag_physics_dt->SetActiveVal(Ogre::Math::Clamp(1.0f / physics_fps, 0.0001f, 0.0005f));
+                App::diag_physics_dt->SetVal(Ogre::Math::Clamp(1.0f / physics_fps, 0.0001f, 0.0005f));
             }
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "Simulation:");
@@ -403,18 +403,18 @@ void RoR::GUI::TopMenubar::Update()
                 ImGui::TextColored(GRAY_HINT_TEXT, "Camera:");
                 if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
                 {
-                    int fov = App::gfx_fov_internal->GetActiveVal<int>();
+                    int fov = App::gfx_fov_internal->GetInt();
                     if (ImGui::SliderInt("FOV", &fov, 10, 120))
                     {
-                        App::gfx_fov_internal->SetActiveVal(fov);
+                        App::gfx_fov_internal->SetVal(fov);
                     }
                 }
                 else
                 {
-                    int fov = App::gfx_fov_external->GetActiveVal<int>();
+                    int fov = App::gfx_fov_external->GetInt();
                     if (ImGui::SliderInt("FOV", &fov, 10, 120))
                     {
-                        App::gfx_fov_external->SetActiveVal(fov);
+                        App::gfx_fov_external->SetVal(fov);
                     }
                 }
                 if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
@@ -423,7 +423,7 @@ void RoR::GUI::TopMenubar::Update()
                 }
             }
 #ifdef USE_CAELUM
-            if (App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+            if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "Time of day:");
@@ -441,7 +441,7 @@ void RoR::GUI::TopMenubar::Update()
                 ImGui::TextColored(GRAY_HINT_TEXT, "Vehicle control options:");
                 DrawGCheckbox(App::io_hydro_coupling, "Keyboard steering speed coupling");
             }
-            if (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED)
+            if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "Multiplayer:");
@@ -499,10 +499,10 @@ void RoR::GUI::TopMenubar::Update()
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "Pre-spawn diag. options:");
 
-            bool diag_mass = App::diag_truck_mass->GetActiveVal<bool>();
+            bool diag_mass = App::diag_truck_mass->GetBool();
             if (ImGui::Checkbox("Node mass recalc. logging", &diag_mass))
             {
-                App::diag_truck_mass->SetActiveVal(diag_mass);
+                App::diag_truck_mass->SetVal(diag_mass);
             }
             if (ImGui::IsItemHovered())
             {
@@ -511,10 +511,10 @@ void RoR::GUI::TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
-            bool diag_break = App::diag_log_beam_break->GetActiveVal<bool>();
+            bool diag_break = App::diag_log_beam_break->GetBool();
             if (ImGui::Checkbox("Beam break logging", &diag_break))
             {
-                App::diag_log_beam_break->SetActiveVal(diag_break);
+                App::diag_log_beam_break->SetVal(diag_break);
             }
             if (ImGui::IsItemHovered())
             {
@@ -523,10 +523,10 @@ void RoR::GUI::TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
-            bool diag_deform = App::diag_log_beam_deform->GetActiveVal<bool>();
+            bool diag_deform = App::diag_log_beam_deform->GetBool();
             if (ImGui::Checkbox("Beam deform. logging", &diag_deform))
             {
-                App::diag_log_beam_deform->SetActiveVal(diag_deform);
+                App::diag_log_beam_deform->SetVal(diag_deform);
             }
             if (ImGui::IsItemHovered())
             {
@@ -535,10 +535,10 @@ void RoR::GUI::TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
-            bool diag_trig = App::diag_log_beam_trigger->GetActiveVal<bool>();
+            bool diag_trig = App::diag_log_beam_trigger->GetBool();
             if (ImGui::Checkbox("Trigger logging", &diag_trig))
             {
-                App::diag_log_beam_trigger->SetActiveVal(diag_trig);
+                App::diag_log_beam_trigger->SetVal(diag_trig);
             }
             if (ImGui::IsItemHovered())
             {
@@ -547,10 +547,10 @@ void RoR::GUI::TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
-            bool diag_vcam = App::diag_videocameras->GetActiveVal<bool>();
+            bool diag_vcam = App::diag_videocameras->GetBool();
             if (ImGui::Checkbox("VideoCamera direction marker", &diag_vcam))
             {
-                App::diag_videocameras->SetActiveVal(diag_vcam);
+                App::diag_videocameras->SetVal(diag_vcam);
             }
             if (ImGui::IsItemHovered())
             {
