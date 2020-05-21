@@ -344,6 +344,15 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->ReflectGameState();
                     break;
 
+                case MSG_NET_REFRESH_SERVERLIST_SUCCESS:
+                    App::GetGuiManager()->GetMpSelector()->UpdateServerlist((GUI::MpServerInfoVec*)m.payload);
+                    delete (GUI::MpServerInfoVec*)m.payload;
+                    break;
+
+                case MSG_NET_REFRESH_SERVERLIST_FAILURE:
+                    App::GetGuiManager()->GetMpSelector()->DisplayRefreshFailed(m.description);
+                    break;
+
                 // -- Gameplay events --
 
                 case MSG_SIM_PAUSE_REQUESTED:
@@ -432,8 +441,6 @@ int main(int argc, char *argv[])
                 default:;
                 }
             } // Game events block
-
-            App::GetGuiManager()->GetMpSelector()->CheckAndProcessRefreshResult();
 
 
             // Check FPS limit

@@ -3,7 +3,7 @@
 
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2017 Petr Ohlidal & contributors
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -23,6 +23,7 @@
 #pragma once
 
 #include "Application.h"
+#include "OgreImGui.h" // ImVec4
 
 #include <future>
 #include <memory>
@@ -32,35 +33,52 @@
 namespace RoR{
 namespace GUI {
 
-struct MpServerlistData; // Forward declaration, private implementation.
+struct MpServerInfo
+{
+    bool          has_password;
+    std::string   display_passwd;
+    std::string   display_name;
+    std::string   display_terrn;
+    int           num_users;
+    int           max_users;
+    std::string   display_users;
+    std::string   net_host;
+    std::string   net_version;
+    std::string   display_version;
+    int           net_port;
+    std::string   display_host;
+};
+
+typedef std::vector<MpServerInfo> MpServerInfoVec;
 
 class MultiplayerSelector
 {
 public:
-
     MultiplayerSelector();
     ~MultiplayerSelector();
 
-    void         SetVisible(bool v);
-    inline bool  IsVisible()                           { return m_is_visible; }
-    void         RefreshServerlist();                  /// Launch refresh from main thread
-    void         CheckAndProcessRefreshResult();       /// To be invoked periodically from main thread if refresh is in progress.
-    void         Draw();
+    void                SetVisible(bool v);
+    inline bool         IsVisible() const { return m_is_visible; }
+    void                StartAsyncRefresh(); //!< Launch refresh from main thread
+    void                Draw();
+    void                DisplayRefreshFailed(std::string const& msg);
+    void                UpdateServerlist(MpServerInfoVec* data);
 
 private:
     enum class Mode { ONLINE, DIRECT, SETUP };
 
-    std::future<MpServerlistData*> m_serverlist_future;
-    std::unique_ptr<MpServerlistData> m_serverlist_data;
-    int                            m_selected_item;
-    Mode                           m_mode;
-    bool                           m_is_refreshing;
-    char                           m_window_title[100];
-    bool                           m_is_visible;
-    Str<1000>                      m_user_token_buf;
-    Str<1000>                      m_player_name_buf;
-    Str<1000>                      m_password_buf;
-    Str<1000>                      m_server_host_buf;
+    MpServerInfoVec     m_serverlist_data;
+    std::string         m_serverlist_msg;
+    ImVec4              m_serverlist_msg_color;
+    int                 m_selected_item;
+    Mode                m_mode;
+    char                m_window_title[100];
+    bool                m_is_visible;
+    bool                m_draw_table;
+    Str<1000>           m_user_token_buf;
+    Str<1000>           m_player_name_buf;
+    Str<1000>           m_password_buf;
+    Str<1000>           m_server_host_buf;
 };
 
 } // namespace GUI
