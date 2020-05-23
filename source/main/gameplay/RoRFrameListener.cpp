@@ -299,8 +299,6 @@ void SimController::UpdateInputEvents(float dt)
 
     auto gui_man = App::GetGuiManager();
 
-    RoR::App::GetInputEngine()->updateKeyBounces(dt);
-
     // update overlays if enabled
     if (RoR::App::GetOverlayWrapper())
         RoR::App::GetOverlayWrapper()->update(dt);
@@ -463,30 +461,6 @@ void SimController::UpdateInputEvents(float dt)
         {
             Str<100> msg; msg << _L("FOV: ") << fov;
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr(), "camera_edit.png", 2000);
-        }
-    }
-
-    // full screen/windowed screen switching
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FULLSCREEN_TOGGLE, 2.0f))
-    {
-        static int org_width = -1, org_height = -1;
-        int width = RoR::App::GetAppContext()->GetRenderWindow()->getWidth();
-        int height = RoR::App::GetAppContext()->GetRenderWindow()->getHeight();
-        if (org_width == -1)
-            org_width = width;
-        if (org_height == -1)
-            org_height = height;
-        bool mode = RoR::App::GetAppContext()->GetRenderWindow()->isFullScreen();
-        if (!mode)
-        {
-            RoR::App::GetAppContext()->GetRenderWindow()->setFullscreen(true, org_width, org_height);
-            LOG(" ** switched to fullscreen: "+TOSTRING(width)+"x"+TOSTRING(height));
-        }
-        else
-        {
-            RoR::App::GetAppContext()->GetRenderWindow()->setFullscreen(false, 640, 480);
-            RoR::App::GetAppContext()->GetRenderWindow()->setFullscreen(false, org_width, org_height);
-            LOG(" ** switched to windowed mode: ");
         }
     }
 
