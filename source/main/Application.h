@@ -365,6 +365,7 @@ LanguageEngine*      GetLanguageEngine();
 ScriptEngine*        GetScriptEngine();
 Network*             GetNetwork();
 GameContext*         GetGameContext();
+OutProtocol*         GetOutGauge();
 
 // Factories
 void CreateOverlayWrapper();
