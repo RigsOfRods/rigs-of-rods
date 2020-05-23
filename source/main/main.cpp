@@ -163,13 +163,13 @@ int main(int argc, char *argv[])
 #endif // NOLANG
         App::GetConsole()->RegBuiltinCommands(); // Call after localization had been set up
 
+        App::GetContentManager()->InitContentManager();
+
         // Set up rendering
-        App::CreateGfxScene(); // Creates OGRE SceneManager
+        App::CreateGfxScene(); // Creates OGRE SceneManager, needs content manager
         App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(overlay_system);
         App::CreateCameraManager(); // Creates OGRE Camera
         App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
-
-        App::GetContentManager()->InitContentManager();
 
         App::CreateGuiManager(); // Needs scene manager
 
@@ -203,8 +203,6 @@ int main(int argc, char *argv[])
 
         // Add "this is obsolete" marker file to old config location
         App::GetAppContext()->SetUpObsoleteConfMarker();
-
-        SkidmarkConfig skidmark_conf; // Loads 'skidmark.cfg' in constructor
 
         App::CreateThreadPool();
 
@@ -378,7 +376,7 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_SIM_LOAD_TERRN_REQUESTED:
-                    App::SetSimController(new SimController(&force_feedback, &skidmark_conf));
+                    App::SetSimController(new SimController(&force_feedback));
                     App::GetGuiManager()->GetLoadingWindow()->setProgress(5, _L("Loading resources"));
                     App::GetContentManager()->LoadGameplayResources();
 

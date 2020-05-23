@@ -81,7 +81,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf) :
+SimController::SimController(RoR::ForceFeedback* ff) :
     m_player_actor(nullptr),
     m_prev_player_actor(nullptr),
     m_pending_player_actor(nullptr),
@@ -90,7 +90,6 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_character_factory(),
     m_dir_arrow_pointed(Vector3::ZERO),
     m_force_feedback(ff),
-    m_skidmark_conf(skid_conf),
     m_hide_gui(false),
     m_is_pace_reset_pressed(false),
     m_last_cache_selection(nullptr),
