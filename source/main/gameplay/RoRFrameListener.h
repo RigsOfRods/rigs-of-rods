@@ -61,7 +61,7 @@
 class SimController: public ZeroedMemoryAllocator
 {
 public:
-    SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf);
+    SimController(RoR::ForceFeedback* ff);
 
     // Actor management interface
     std::vector<Actor*> GetActors() const                             { return m_actor_manager.GetActors(); }
@@ -101,7 +101,6 @@ public:
 
     RoR::ActorManager*          GetBeamFactory  ()         { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
     RoR::CharacterFactory*       GetCharacterFactory  ()    { return &m_character_factory; }
-    RoR::SkidmarkConfig*         GetSkidmarkConf ()         { return m_skidmark_conf; }
     RoR::SceneMouse&             GetSceneMouse()            { return m_scene_mouse; }
     Ogre::Vector3                GetDirArrowTarget()        { return m_dir_arrow_pointed; }
     bool                         IsPressurizingTyres() const { return m_pressure_pressed; }
@@ -139,7 +138,6 @@ private:
     std::vector<RoR::ActorModifyRequest> m_actor_modify_queue;
     std::vector<Actor*>                  m_actor_remove_queue;
     RoR::CharacterFactory    m_character_factory;
-    RoR::SkidmarkConfig*     m_skidmark_conf;
     RoR::SceneMouse          m_scene_mouse;
     Ogre::Real               m_time_until_next_toggle; //!< just to stop toggles flipping too fast
     float                    m_last_simulation_speed;  //!< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)

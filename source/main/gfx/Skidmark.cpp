@@ -22,6 +22,7 @@
 
 #include "Application.h"
 #include "BeamData.h"
+#include "ContentManager.h" // RGN_CONFIG
 #include "GfxScene.h"
 #include "Utils.h"
 
@@ -29,31 +30,17 @@
 
 int RoR::Skidmark::m_instance_counter = 0;
 
-RoR::SkidmarkConfig::SkidmarkConfig()
-{
-    this->LoadDefaultSkidmarkDefs();
-}
-
 void RoR::SkidmarkConfig::LoadDefaultSkidmarkDefs()
 {
     LOG("[RoR] Loading skidmarks.cfg...");
-    Ogre::String group = "";
     try
     {
-        group = Ogre::ResourceGroupManager::getSingleton().findGroupContainingResource("skidmarks.cfg");
-        if (group.empty())
-        {
-            LOG("[RoR] Failed to load skidmarks.cfg (file not found)");
-            return;
-        }
-
-        Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().openResource("skidmarks.cfg", group);
-        Ogre::String line = "";
+        Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().openResource("skidmarks.cfg", RGN_CONFIG);
         Ogre::String currentModel = "";
 
         while (!ds->eof())
         {
-            line = RoR::Utils::SanitizeUtf8String(ds->getLine());
+            Ogre::String line = RoR::Utils::SanitizeUtf8String(ds->getLine());
             Ogre::StringUtil::trim(line);
 
             if (line.empty() || line[0] == ';')
@@ -68,17 +55,16 @@ void RoR::SkidmarkConfig::LoadDefaultSkidmarkDefs()
             }
 
             // process the line if we got a model
-            if (!currentModel.empty())
+            if (currentModel != "")
                 this->ProcessSkidmarkConfLine(args, currentModel);
         }
+        RoR::Log("[RoR] skidmarks.cfg loaded OK");
     }
-    catch (...)
+    catch (Ogre::Exception& e)
     {
-        LOG("[RoR] Error loading skidmarks.cfg (unknown error)");
+        RoR::LogFormat("[RoR] Error loading skidmarks.cfg (%s)", e.getFullDescription().c_str());
         m_models.clear(); // Delete anything we might have loaded
-        return;
     }
-    LOG("[RoR] skidmarks.cfg loaded OK");
 }
 
 int RoR::SkidmarkConfig::ProcessSkidmarkConfLine(Ogre::StringVector args, Ogre::String modelName)

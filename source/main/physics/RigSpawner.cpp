@@ -4649,7 +4649,7 @@ void ActorSpawner::CreateWheelSkidmarks(unsigned int wheel_index)
 {
     // Always create, even if disabled by config
     m_actor->m_skid_trails[wheel_index] = new RoR::Skidmark(
-        RoR::App::GetSimController()->GetSkidmarkConf(), &m_actor->ar_wheels[wheel_index], m_particles_parent_scenenode, 300, 20);
+        RoR::App::GetGfxScene()->GetSkidmarkConf(), &m_actor->ar_wheels[wheel_index], m_particles_parent_scenenode, 300, 20);
 }
 
 unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)

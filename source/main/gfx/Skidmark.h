@@ -33,7 +33,7 @@ class SkidmarkConfig ///< Skidmark config file parser and data container
 {
 public:
 
-    SkidmarkConfig();
+    void LoadDefaultSkidmarkDefs();
 
     int getTexture(Ogre::String model, Ogre::String ground, float slip, Ogre::String& texture);
 
@@ -47,7 +47,6 @@ private:
         float slipTo;   ///< Maximum slipping velocity
     };
 
-    void LoadDefaultSkidmarkDefs();
     int ProcessSkidmarkConfLine(Ogre::StringVector args, Ogre::String model);
 
     std::map<Ogre::String, std::vector<SkidmarkDef>> m_models;

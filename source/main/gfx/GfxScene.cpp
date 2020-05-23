@@ -75,6 +75,8 @@ void RoR::GfxScene::Init()
 {
     ROR_ASSERT(!m_scene_manager);
     m_scene_manager = App::GetAppContext()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
+
+    m_skidmark_conf.LoadDefaultSkidmarkDefs();
 }
 
 void RoR::GfxScene::UpdateScene(float dt_sec)
