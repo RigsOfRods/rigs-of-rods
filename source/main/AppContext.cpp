@@ -368,6 +368,21 @@ void AppContext::CaptureScreenshot()
     m_prev_screenshot_index = index;
 }
 
+void AppContext::ActivateFullscreen(bool val)
+{
+    if (!val && !m_windowed_fix)
+    {
+        // Workaround OGRE glitch - badly aligned viewport after first full->window switch
+        // Observed on Win10/OpenGL (GeForce GTX 660)
+        m_render_window->setFullscreen(false, m_render_window->getWidth()-1, m_render_window->getHeight()-1);    
+        m_render_window->setFullscreen(false, m_render_window->getWidth()+1, m_render_window->getHeight()+1);    
+    }
+    else
+    {
+        m_render_window->setFullscreen(val, m_render_window->getWidth(), m_render_window->getHeight());
+    }
+}
+
 // --------------------------
 // Program paths and logging
 

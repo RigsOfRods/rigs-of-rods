@@ -271,6 +271,18 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::VISIBLE);
                     break;
 
+                case MSG_APP_DISPLAY_FULLSCREEN_REQUESTED:
+                    App::GetAppContext()->ActivateFullscreen(true);
+                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                  _L("Display mode changed to fullscreen"));
+                    break;
+
+                case MSG_APP_DISPLAY_WINDOWED_REQUESTED:
+                    App::GetAppContext()->ActivateFullscreen(false);
+                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                  _L("Display mode changed to windowed"));
+                    break;
+
                 // -- Network events --
 
                 case MSG_NET_CONNECT_REQUESTED:
@@ -482,12 +494,19 @@ int main(int argc, char *argv[])
             }
 #endif // USE_SOCKETW
 
-            // Process game events
+            // Process input events
             App::GetInputEngine()->Capture();
+            App::GetInputEngine()->updateKeyBounces(dt_sec);
+            if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FULLSCREEN_TOGGLE, 2.0f))
+            {   
+                if (App::GetAppContext()->GetRenderWindow()->isFullScreen())
+                    App::GetGameContext()->PushMessage(Message(MSG_APP_DISPLAY_WINDOWED_REQUESTED));
+                else
+                    App::GetGameContext()->PushMessage(Message(MSG_APP_DISPLAY_FULLSCREEN_REQUESTED));
+            }
+
             if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
             {
-                App::GetInputEngine()->updateKeyBounces(dt_sec);
-
                 // Savegame shortcuts
                 int slot = -1;
                 if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_01, 1.0f))

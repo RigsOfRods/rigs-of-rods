@@ -54,6 +54,7 @@ public:
     // Rendering
     Ogre::RenderWindow*  CreateCustomRenderWindow(std::string const& name, int width, int height);
     void                 CaptureScreenshot();
+    void                 ActivateFullscreen(bool val);
 
     // Getters
     Ogre::Root*          GetOgreRoot() { return m_ogre_root; }
@@ -89,6 +90,7 @@ private:
     Ogre::Root*          m_ogre_root     = nullptr;
     Ogre::RenderWindow*  m_render_window = nullptr;
     Ogre::Viewport*      m_viewport      = nullptr;
+    bool                 m_windowed_fix = false; //!< Workaround OGRE glitch when switching from fullscreen.
 
     std::time_t          m_prev_screenshot_time;
     int                  m_prev_screenshot_index = 1;
