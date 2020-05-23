@@ -1610,11 +1610,9 @@ void SimController::UpdateSimulation(float dt)
         *live_gm = updated_gm; // Copy over
     }
 
-    auto s = App::sim_state->GetEnum<SimState>();
-
-    if (m_out_protocol)
+    if (App::io_outgauge_mode->GetInt() > 0)
     {
-        m_out_protocol->Update(dt, m_player_actor);
+        App::GetOutGauge()->Update(dt, m_player_actor);
     }
 
     if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
@@ -2006,11 +2004,6 @@ bool SimController::SetupGameplayLoop()
     // ========================================================================
     // Extra setup
     // ========================================================================
-
-    if (App::io_outgauge_mode->GetInt() > 0)
-    {
-        m_out_protocol = std::unique_ptr<OutProtocol>(new OutProtocol());
-    }
 
     App::CreateOverlayWrapper();
     App::GetOverlayWrapper()->SetupDirectionArrow();

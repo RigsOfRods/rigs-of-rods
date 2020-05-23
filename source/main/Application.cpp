@@ -35,6 +35,7 @@
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "Language.h"
+#include "OutProtocol.h"
 #include "OverlayWrapper.h"
 #include "MumbleIntegration.h"
 #include "Network.h"
@@ -69,6 +70,7 @@ static LanguageEngine   g_language_engine;
 static ScriptEngine*    g_script_engine;
 static Network          g_network;
 static GameContext      g_game_context;
+static OutProtocol      g_out_gauge;
 
 // App
 CVar* app_state;
@@ -241,6 +243,7 @@ LanguageEngine*        GetLanguageEngine     () { return &g_language_engine; }
 ScriptEngine*          GetScriptEngine       () { return g_script_engine; }
 Network*               GetNetwork            () { return &g_network; }
 GameContext*           GetGameContext        () { return &g_game_context; }
+OutProtocol*           GetOutGauge           () { return &g_out_gauge; }
 
 // Factories
 void CreateOverlayWrapper()

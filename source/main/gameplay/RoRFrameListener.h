@@ -172,6 +172,4 @@ private:
     Ogre::Quaternion         m_reload_dir;
 
     Ogre::Ray                m_terrain_editor_mouse_ray;
-
-    std::unique_ptr<OutProtocol> m_out_protocol;
 };

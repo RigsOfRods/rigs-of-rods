@@ -37,24 +37,23 @@
 #define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
 #endif // _WIN32
 
-class OutProtocol: public ZeroedMemoryAllocator
+class OutProtocol
 {
 public:
 
     OutProtocol(void);
-    ~OutProtocol(void);
 
+    void Connect();
     bool Update(float dt, Actor* truck);
+    void Close();
 
 private:
 
     bool working;
-    float delay, timer;
-    int id;
-    int mode;
+    float timer;
     int sockfd;
 
-    void startup();
+    
 
     // from LFS/doc/insim.txt
     enum

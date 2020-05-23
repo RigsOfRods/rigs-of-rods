@@ -33,24 +33,13 @@ using namespace Ogre;
 using namespace RoR;
 
 OutProtocol::OutProtocol(void) :
-    delay(0.1f)
-    , id(0)
-    , mode(0)
-    , sockfd(-1)
+     sockfd(-1)
     , timer(0)
     , working(false)
 {
-    delay *= App::io_outgauge_delay->GetFloat(); // TODO: Use the GVar directly, don't copy it.
-    mode = App::io_outgauge_mode->GetInt();    // TODO: Use the GVar directly, don't copy it.
-    id = App::io_outgauge_id->GetInt();        // TODO: Use the GVar directly, don't copy it.
-
-    if (mode > 0)
-    {
-        startup();
-    }
 }
 
-OutProtocol::~OutProtocol(void)
+void OutProtocol::Close(void)
 {
     if (sockfd != 0)
     {
@@ -65,7 +54,7 @@ OutProtocol::~OutProtocol(void)
     }
 }
 
-void OutProtocol::startup()
+void OutProtocol::Connect()
 {
 #if defined(_WIN32) && defined(USE_SOCKETW)
     SWBaseSocket::SWBaseError error;
@@ -120,7 +109,7 @@ bool OutProtocol::Update(float dt, Actor* truck)
 
     // below the set delay?
     timer += dt;
-    if (timer < delay)
+    if (timer < (0.1f * App::io_outgauge_delay->GetFloat()))
     {
         return true;
     }
@@ -132,7 +121,7 @@ bool OutProtocol::Update(float dt, Actor* truck)
 
     // set some common things
     gd.Time = Root::getSingleton().getTimer()->getMilliseconds();
-    gd.ID = id;
+    gd.ID = App::io_outgauge_id->GetInt();
     gd.Flags = 0 | OG_KM;
     sprintf(gd.Car, "RoR");
 

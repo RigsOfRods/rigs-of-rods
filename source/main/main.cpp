@@ -399,6 +399,10 @@ int main(int argc, char *argv[])
                                 Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, text, "", 5000);
                         }
 #endif // USE_SOCKETW
+                        if (App::io_outgauge_mode->GetInt() > 0)
+                        {
+                            App::GetOutGauge()->Connect();
+                        }
                     }
                     else
                     {
@@ -425,6 +429,7 @@ int main(int argc, char *argv[])
                     App::GetGfxScene()->ClearScene();
                     App::sim_terrain_name->SetStr("");
                     App::sim_terrain_gui_name->SetStr("");
+                    App::GetOutGauge()->Close();
                     break;
 
                 case MSG_SIM_LOAD_SAVEGAME_REQUESTED:
