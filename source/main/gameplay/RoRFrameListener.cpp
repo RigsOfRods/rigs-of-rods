@@ -1443,13 +1443,6 @@ void SimController::TeleportPlayerXZ(float x, float z)
 
 void SimController::UpdateSimulation(float dt)
 {
-    if (App::GetGuiManager()->GetFrictionSettings()->HasPendingChanges())
-    {
-        ground_model_t const& updated_gm = App::GetGuiManager()->GetFrictionSettings()->AcquireUpdatedGroundmodel();
-        ground_model_t* live_gm = App::GetSimTerrain()->GetCollisions()->getGroundModelByString(updated_gm.name);
-        *live_gm = updated_gm; // Copy over
-    }
-
     if (App::io_outgauge_mode->GetInt() > 0)
     {
         App::GetOutGauge()->Update(dt, App::GetGameContext()->GetPlayerActor());

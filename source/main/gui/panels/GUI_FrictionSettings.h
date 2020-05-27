@@ -40,13 +40,12 @@ public:
     struct Entry
     {
         Entry(const ground_model_t* const gm):
-            backup_copy(*gm), working_copy(*gm), live_data(gm), is_dirty(false)
+            backup_copy(*gm), working_copy(*gm), live_data(gm)
         {}
 
         ground_model_t backup_copy;
         ground_model_t working_copy;
         const ground_model_t* const live_data;
-        bool is_dirty;
     };
 
     bool IsVisible() const { return m_is_visible; }
@@ -55,8 +54,6 @@ public:
     void AnalyzeTerrain();
     void setActiveCol(const ground_model_t* gm) { m_nearest_gm = gm; }
     void Draw();
-    bool HasPendingChanges() const { return m_gm_entries[m_selected_gm].is_dirty; }
-    ground_model_t const& AcquireUpdatedGroundmodel();
 
 private:
     static bool GmComboItemGetter(void* data, int idx, const char** out_text);
