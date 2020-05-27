@@ -82,7 +82,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
             }
             else
             {
-                Character* player_character = App::GetSimController()->GetPlayerCharacter();
+                Character* player_character = this->GetPlayerCharacter();
                 rq.asr_rotation = Ogre::Quaternion(Ogre::Degree(180) - player_character->getRotation(), Ogre::Vector3::UNIT_Y);
                 rq.asr_position = player_character->getPosition();
             }
@@ -226,7 +226,7 @@ void GameContext::DeleteActor(Actor* actor)
     {
         Ogre::Vector3 center = m_player_actor->GetRotationCenter();
         this->ChangePlayerActor(nullptr); // Get out of the vehicle
-        App::GetSimController()->GetPlayerCharacter()->setPosition(center);
+        this->GetPlayerCharacter()->setPosition(center);
     }
 
     if (actor == m_prev_player_actor)
@@ -251,7 +251,7 @@ void GameContext::DeleteActor(Actor* actor)
 #ifdef USE_SOCKETW
     if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
     {
-        App::GetSimController()->GetCharacterFactory()->UndoRemoteActorCoupling(actor);
+        m_character_factory.UndoRemoteActorCoupling(actor);
     }
 #endif //SOCKETW
 
@@ -312,7 +312,7 @@ void GameContext::ChangePlayerActor(Actor* actor)
             }
             position.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(position.x, position.z, position.y + h);
 
-            Character* player_character = App::GetSimController()->GetPlayerCharacter();
+            Character* player_character = this->GetPlayerCharacter();
             if (player_character)
             {
                 player_character->SetActorCoupling(false, nullptr);
@@ -343,7 +343,7 @@ void GameContext::ChangePlayerActor(Actor* actor)
         App::GetSimController()->GetForceFeedback()->SetEnabled(m_player_actor->ar_driveable == TRUCK); //only for trucks so far
 
         // attach player to vehicle
-        Character* player_character = App::GetSimController()->GetPlayerCharacter();
+        Character* player_character = this->GetPlayerCharacter();
         if (player_character)
         {
             player_character->SetActorCoupling(true, m_player_actor);
@@ -381,3 +381,10 @@ Actor* GameContext::FindActorByCollisionBox(std::string const & ev_src_instance_
                                               ev_src_instance_name, box_name);
 }
 
+// --------------------------------
+// Characters
+
+Character* GameContext::GetPlayerCharacter() // Convenience ~ counterpart of `GetPlayerActor()`
+{
+    return m_character_factory.GetLocalCharacter();
+}

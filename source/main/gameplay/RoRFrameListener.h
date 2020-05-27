@@ -35,14 +35,6 @@
 /// The simulation controller object
 /// It's lifetime is tied to single gameplay session. When user returns to main menu, it's destroyed.
 ///
-/// RoR's gameplay is quite simple in structure, it consists of:
-///  - static terrain:  static elevation map, managed by `TerrainManager` singleton.
-///                     this includes static collision objects (or intrusion detection objects), managed by `TerrainObjectManager`.
-///  - softbody actors: a.k.a "trucks" or "vehicles", managed by `ActorManager`. They collide with static terrain and each other.
-///                     this includes 'fixes' - actors with partially fixed position.
-///  - characters:      player-controlled human figures with their own primitive physics, managed by `CharacterFactory`
-///                     these only collide with static terrain, not actors.
-/// For convenience and to help manage interactions, this class provides methods to manipulate these elements.
 ///
 /// Architecture is currently undergoing a refactor.
 ///  OLD: We use threadpool; rendering loop runs on main thread, simulation is updated in between frames via 'Ogre::FrameListener' interface which also provides timing.
@@ -91,14 +83,11 @@ public:
     bool   SetupGameplayLoop     ();
 
     RoR::ForceFeedback*          GetForceFeedback()         { return m_force_feedback; }
-    RoR::CharacterFactory*       GetCharacterFactory  ()    { return &m_character_factory; }
     RoR::SceneMouse&             GetSceneMouse()            { return m_scene_mouse; }
     Ogre::Vector3                GetDirArrowTarget()        { return m_dir_arrow_pointed; }
     bool                         IsPressurizingTyres() const { return m_pressure_pressed; }
     bool                         AreControlsLocked() const;
     bool                         IsGUIHidden()              { return m_hide_gui; }
-
-    Character* GetPlayerCharacter()                         { return m_player_character; }
 
     bool GetPhysicsPaused()                                 { return m_physics_simulation_paused; }
     void SetPhysicsPausedInternal(bool paused)              { m_physics_simulation_paused = paused; }
@@ -115,9 +104,6 @@ private:
     void   UpdateInputEvents       (float dt);
     void   HideGUI                 (bool hidden);
 
-
-    Character*               m_player_character;
-    RoR::CharacterFactory    m_character_factory;
     RoR::SceneMouse          m_scene_mouse;
     Ogre::Real               m_time_until_next_toggle; //!< just to stop toggles flipping too fast
     float                    m_last_simulation_speed;  //!< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)

@@ -116,7 +116,7 @@ void GameScript::setPersonPosition(const Vector3& vec)
     if (!this->HavePlayerAvatar(__FUNCTION__))
         return;
 
-    App::GetSimController()->GetPlayerCharacter()->setPosition(vec);
+    App::GetGameContext()->GetPlayerCharacter()->setPosition(vec);
 }
 
 void GameScript::loadTerrain(const String& terrain)
@@ -130,8 +130,8 @@ void GameScript::loadTerrain(const String& terrain)
 Vector3 GameScript::getPersonPosition()
 {
     Vector3 result(Vector3::ZERO);
-    if (App::GetSimController()->GetPlayerCharacter())
-        result = App::GetSimController()->GetPlayerCharacter()->getPosition();
+    if (App::GetGameContext()->GetPlayerCharacter())
+        result = App::GetGameContext()->GetPlayerCharacter()->getPosition();
     return result;
 }
 
@@ -140,7 +140,7 @@ void GameScript::movePerson(const Vector3& vec)
     if (!this->HavePlayerAvatar(__FUNCTION__))
         return;
 
-    App::GetSimController()->GetPlayerCharacter()->move(vec);
+    App::GetGameContext()->GetPlayerCharacter()->move(vec);
 }
 
 void GameScript::setPersonRotation(const Radian& rot)
@@ -148,14 +148,14 @@ void GameScript::setPersonRotation(const Radian& rot)
     if (!this->HavePlayerAvatar(__FUNCTION__))
         return;
 
-    App::GetSimController()->GetPlayerCharacter()->setRotation(rot);
+    App::GetGameContext()->GetPlayerCharacter()->setRotation(rot);
 }
 
 Radian GameScript::getPersonRotation()
 {
     Radian result(0);
-    if (App::GetSimController()->GetPlayerCharacter())
-        result = App::GetSimController()->GetPlayerCharacter()->getRotation();
+    if (App::GetGameContext()->GetPlayerCharacter())
+        result = App::GetGameContext()->GetPlayerCharacter()->getRotation();
     return result;
 }
 
@@ -990,7 +990,7 @@ bool GameScript::HaveSimTerrain(const char* func_name)
 
 bool GameScript::HavePlayerAvatar(const char* func_name)
 {
-    if (App::GetSimController()->GetPlayerCharacter() == nullptr)
+    if (App::GetGameContext()->GetPlayerCharacter() == nullptr)
     {
         this->logFormat("Cannot execute '%s', player avatar not ready", func_name);
         return false;

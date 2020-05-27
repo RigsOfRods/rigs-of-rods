@@ -131,8 +131,8 @@ public:
         }
         else
         {
-            ROR_ASSERT(App::GetSimController()->GetPlayerCharacter());
-            pos = App::GetSimController()->GetPlayerCharacter()->getPosition();
+            ROR_ASSERT(App::GetGameContext()->GetPlayerCharacter());
+            pos = App::GetGameContext()->GetPlayerCharacter()->getPosition();
         }
         reply << _L("Terrain height at position: ")
               << "x: " << pos.x << " z: " << pos.z << " = "
@@ -151,7 +151,7 @@ public:
         if (!this->CheckAppState(AppState::SIMULATION))
             return;
 
-        ROR_ASSERT(App::GetSimController()->GetPlayerCharacter());
+        ROR_ASSERT(App::GetGameContext()->GetPlayerCharacter());
         ROR_ASSERT(App::GetSimTerrain());
 
         Str<200> reply;
@@ -167,7 +167,7 @@ public:
             }
             else
             {
-                Ogre::Vector3 pos = App::GetSimController()->GetPlayerCharacter()->getPosition();
+                Ogre::Vector3 pos = App::GetGameContext()->GetPlayerCharacter()->getPosition();
                 Ogre::SceneNode* bake_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
                 App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(args[1], pos, Ogre::Vector3::ZERO, bake_node, "Console", "");
 
@@ -239,9 +239,9 @@ public:
         Console::MessageType reply_type = Console::CONSOLE_SYSTEM_REPLY;
 
         Actor* b = App::GetGameContext()->GetPlayerActor();
-        if (!b && App::GetSimController()->GetPlayerCharacter())
+        if (!b && App::GetGameContext()->GetPlayerCharacter())
         {
-            Ogre::Vector3 pos = App::GetSimController()->GetPlayerCharacter()->getPosition();
+            Ogre::Vector3 pos = App::GetGameContext()->GetPlayerCharacter()->getPosition();
             reply << _L("Character position: ") << "x: " << pos.x << " y: " << pos.y << " z: " << pos.z;
         }
         else if (b)
@@ -279,9 +279,9 @@ public:
             Ogre::Vector3 pos(PARSEREAL(args[1]), PARSEREAL(args[2]), PARSEREAL(args[3]));
 
             Actor* b = App::GetGameContext()->GetPlayerActor();
-            if (!b && App::GetSimController()->GetPlayerCharacter())
+            if (!b && App::GetGameContext()->GetPlayerCharacter())
             {
-                App::GetSimController()->GetPlayerCharacter()->setPosition(pos);
+                App::GetGameContext()->GetPlayerCharacter()->setPosition(pos);
                 reply << _L("Character position set to: ") << "x: " << pos.x << " y: " << pos.y << " z: " << pos.z;
             }
             else if (b)

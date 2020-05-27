@@ -71,7 +71,7 @@ public:
     Actor*         FetchNextVehicleOnList(Actor* player, Actor* prev_player);
     Actor*         FetchPreviousVehicleOnList(Actor* player, Actor* prev_player);
     Actor*         FetchRescueVehicle();
-    void           CleanUpAllActors(); //!< Call this after simulation loop finishes.
+    void           DeleteAllActors(); //!< Call this after simulation loop finishes.
     Actor*         GetActorByNetworkLinks(int source_id, int stream_id); // used by character
     void           RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition = false);
     void           UpdateSleepingState(Actor* player_actor, float dt);

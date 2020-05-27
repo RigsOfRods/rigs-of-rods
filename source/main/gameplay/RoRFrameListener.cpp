@@ -83,8 +83,6 @@ using namespace Ogre;
 using namespace RoR;
 
 SimController::SimController(RoR::ForceFeedback* ff) :
-    m_player_character(nullptr),
-    m_character_factory(),
     m_dir_arrow_pointed(Vector3::ZERO),
     m_force_feedback(ff),
     m_hide_gui(false),
@@ -523,7 +521,7 @@ void SimController::UpdateInputEvents(float dt)
             if (object_index == -1)
             {
                 // Select nearest object
-                Vector3 ref_pos = this->AreControlsLocked() ? App::GetCameraManager()->GetCameraNode()->getPosition() : m_player_character->getPosition();
+                Vector3 ref_pos = this->AreControlsLocked() ? App::GetCameraManager()->GetCameraNode()->getPosition() : App::GetGameContext()->GetPlayerCharacter()->getPosition();
                 float min_dist = std::numeric_limits<float>::max();
                 for (int i = 0; i < (int)object_list.size(); i++)
                 {
@@ -544,7 +542,7 @@ void SimController::UpdateInputEvents(float dt)
         else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK) &&
                 !last_object_name.empty())
         {
-            Vector3 pos = m_player_character->getPosition();
+            Vector3 pos = App::GetGameContext()->GetPlayerCharacter()->getPosition();
 
             try
             {
@@ -601,7 +599,7 @@ void SimController::UpdateInputEvents(float dt)
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
             if (terrain_editing_track_object)
             {
-                m_player_character->setPosition(object_list[object_index].node->getPosition());
+                App::GetGameContext()->GetPlayerCharacter()->setPosition(object_list[object_index].node->getPosition());
             }
         }
         if (object_index != -1 && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_TRUCK))
@@ -672,13 +670,13 @@ void SimController::UpdateInputEvents(float dt)
 
                 if (terrain_editing_track_object)
                 {
-                    m_player_character->setPosition(sn->getPosition());
+                    App::GetGameContext()->GetPlayerCharacter()->setPosition(sn->getPosition());
                 }
             }
-            else if (terrain_editing_track_object && m_player_character->getPosition() != sn->getPosition())
+            else if (terrain_editing_track_object && App::GetGameContext()->GetPlayerCharacter()->getPosition() != sn->getPosition())
             {
-                object_list[object_index].position = m_player_character->getPosition();
-                sn->setPosition(m_player_character->getPosition());
+                object_list[object_index].position = App::GetGameContext()->GetPlayerCharacter()->getPosition();
+                sn->setPosition(App::GetGameContext()->GetPlayerCharacter()->getPosition());
             }
             if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK))
             {
@@ -687,12 +685,12 @@ void SimController::UpdateInputEvents(float dt)
         }
         else
         {
-            m_character_factory.update(dt);
+            App::GetGameContext()->GetCharacterFactory()->Update(dt);
         }
     }
     else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
     {
-        m_character_factory.update(dt);
+        App::GetGameContext()->GetCharacterFactory()->Update(dt);
         if (!this->AreControlsLocked())
         {
             if (App::GetGameContext()->GetPlayerActor() && App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::NETWORKED_OK) // we are in a vehicle
@@ -1146,7 +1144,7 @@ void SimController::UpdateInputEvents(float dt)
             else if (!App::GetGameContext()->GetPlayerActor())
             {
                 // Find nearest actor
-                const Ogre::Vector3 position = m_player_character->getPosition();
+                const Ogre::Vector3 position = App::GetGameContext()->GetPlayerCharacter()->getPosition();
                 Actor* nearest_actor = nullptr;
                 float min_squared_distance = std::numeric_limits<float>::max();
                 for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
@@ -1195,9 +1193,9 @@ void SimController::UpdateInputEvents(float dt)
                             continue;
                         }
                         float len = 0.0f;
-                        if (m_player_character)
+                        if (App::GetGameContext()->GetPlayerCharacter())
                         {
-                            len = actor->ar_nodes[actor->ar_cinecam_node[0]].AbsPosition.distance(m_player_character->getPosition() + Vector3(0.0, 2.0, 0.0));
+                            len = actor->ar_nodes[actor->ar_cinecam_node[0]].AbsPosition.distance(App::GetGameContext()->GetPlayerCharacter()->getPosition() + Vector3(0.0, 2.0, 0.0));
                         }
                         if (len < mindist)
                         {
@@ -1387,8 +1385,8 @@ void SimController::UpdateInputEvents(float dt)
         Radian rotation(0);
         if (App::GetGameContext()->GetPlayerActor() == nullptr)
         {
-            position = m_player_character->getPosition();
-            rotation = m_player_character->getRotation() + Radian(Math::PI);
+            position = App::GetGameContext()->GetPlayerCharacter()->getPosition();
+            rotation = App::GetGameContext()->GetPlayerCharacter()->getRotation() + Radian(Math::PI);
         }
         else
         {
@@ -1411,7 +1409,7 @@ void SimController::TeleportPlayerXZ(float x, float z)
     Real y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(x, z);
     if (!App::GetGameContext()->GetPlayerActor())
     {
-        m_player_character->setPosition(Vector3(x, y, z));
+        App::GetGameContext()->GetPlayerCharacter()->setPosition(Vector3(x, y, z));
         return;
     }
 
@@ -1462,12 +1460,12 @@ void SimController::UpdateSimulation(float dt)
         // Update mumble (3d audio)
 #ifdef USE_MUMBLE
         // calculate orientation of avatar first
-        Ogre::Vector3 avatarDir = Ogre::Vector3(Math::Cos(m_player_character->getRotation()), 0.0f, Math::Sin(m_player_character->getRotation()));
+        Ogre::Vector3 avatarDir = Ogre::Vector3(Math::Cos(App::GetGameContext()->GetPlayerCharacter()->getRotation()), 0.0f, Math::Sin(App::GetGameContext()->GetPlayerCharacter()->getRotation()));
         Ogre::Vector3 upVector = App::GetCameraManager()->GetCameraNode()->getOrientation() * Ogre::Vector3::UNIT_Y;
         // Direction points down -Z by default (adapted from Ogre::Camera)
         Ogre::Vector3 cameraDir = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
         App::GetMumble()->update(App::GetCameraManager()->GetCameraNode()->getPosition(), cameraDir, upVector,
-        m_player_character->getPosition() + Vector3(0, 1.8f, 0), avatarDir, Ogre::Vector3(0.0f, 1.0f, 0.0f));
+            App::GetGameContext()->GetPlayerCharacter()->getPosition() + Vector3(0, 1.8f, 0), avatarDir, Ogre::Vector3(0.0f, 1.0f, 0.0f));
 #endif // USE_MUMBLE
     }
 
@@ -1657,7 +1655,7 @@ void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instanc
 bool SimController::LoadTerrain(std::string terrain_file)
 {
     // Load character - must be done first!
-    m_player_character = m_character_factory.CreateLocalCharacter();
+    App::GetGameContext()->GetCharacterFactory()->CreateLocalCharacter();
 
     // Look up the terrain in modcache
     size_t length = std::numeric_limits<size_t>::max();
@@ -1714,7 +1712,7 @@ bool SimController::LoadTerrain(std::string terrain_file)
     }
     App::sim_terrain_name->SetStr(terrain_file);
 
-    if (m_player_character != nullptr)
+    if (App::GetGameContext()->GetPlayerCharacter() != nullptr)
     {
         Vector3 spawn_pos = App::GetSimTerrain()->getSpawnPos();
         Real spawn_rot = 0.0f;
@@ -1739,10 +1737,10 @@ bool SimController::LoadTerrain(std::string terrain_file)
 
         spawn_pos.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
 
-        m_player_character->setPosition(spawn_pos);
-        m_player_character->setRotation(Degree(spawn_rot));
+        App::GetGameContext()->GetPlayerCharacter()->setPosition(spawn_pos);
+        App::GetGameContext()->GetPlayerCharacter()->setRotation(Degree(spawn_rot));
 
-        App::GetCameraManager()->GetCameraNode()->setPosition(m_player_character->getPosition());
+        App::GetCameraManager()->GetCameraNode()->setPosition(App::GetGameContext()->GetPlayerCharacter()->getPosition());
 
         // Small hack to improve the spawn experience
         for (int i = 0; i < 100; i++)
@@ -1766,10 +1764,6 @@ void SimController::CleanupAfterSimulation()
     App::DestroyOverlayWrapper();
 
     App::GetCameraManager()->ResetAllBehaviors();
-
-    delete m_player_character;
-    m_player_character = nullptr;
-    m_character_factory.DeleteAllRemoteCharacters();
 
     if (App::GetSimTerrain() != nullptr)
     {
@@ -1836,8 +1830,8 @@ bool SimController::SetupGameplayLoop()
         ActorSpawnRequest* rq = new ActorSpawnRequest;
         rq->asr_filename   = App::diag_preset_vehicle->GetStr();
         rq->asr_config     = App::diag_preset_veh_config->GetStr();
-        rq->asr_position   = m_player_character->getPosition();
-        rq->asr_rotation   = Quaternion(Degree(180) - m_player_character->getRotation(), Vector3::UNIT_Y);
+        rq->asr_position   = App::GetGameContext()->GetPlayerCharacter()->getPosition();
+        rq->asr_rotation   = Quaternion(Degree(180) - App::GetGameContext()->GetPlayerCharacter()->getRotation(), Vector3::UNIT_Y);
         rq->asr_origin     = ActorSpawnRequest::Origin::CONFIG_FILE;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
     }
