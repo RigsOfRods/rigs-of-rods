@@ -653,13 +653,17 @@ int main(int argc, char *argv[])
 #ifdef USE_MUMBLE
             if (App::GetMumble())
             {
-                App::GetMumble()->Update(); // 3d audio
+                App::GetMumble()->Update(); // 3d voice over network
             }
-#endif
+#endif // USE_MUMBLE
+
+#ifdef USE_OPENAL
+            App::GetSoundScriptManager()->update(dt_sec); // update 3d audio listener position
+#endif // USE_OPENAL
 
 #ifdef USE_ANGELSCRIPT
             App::GetScriptEngine()->framestep(dt_sec);
-#endif
+#endif // USE_ANGELSCRIPT
 
             // Render!
             Ogre::RenderWindow* render_window = RoR::App::GetAppContext()->GetRenderWindow();

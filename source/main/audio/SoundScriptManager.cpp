@@ -23,6 +23,7 @@
 #include "SoundScriptManager.h"
 
 #include "Beam.h"
+#include "CameraManager.h"
 #include "Sound.h"
 #include "SoundManager.h"
 #include "Utils.h"
@@ -299,6 +300,22 @@ void SoundScriptManager::modulate(int actor_id, int mod, float value, int linkTy
             pitch = std::max(0.0f, pitch);
             inst->setPitch(pitch);
         }
+    }
+}
+
+void SoundScriptManager::update(float dt_sec)
+{
+    if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING ||
+        App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
+    {
+        Ogre::SceneNode* cam_node = App::GetCameraManager()->GetCameraNode();
+        static Vector3 lastCameraPosition;
+        Vector3 cameraSpeed = (cam_node->getPosition() - lastCameraPosition) / dt_sec;
+        lastCameraPosition = cam_node->getPosition();
+        Ogre::Vector3 upVector = App::GetCameraManager()->GetCameraNode()->getOrientation() * Ogre::Vector3::UNIT_Y;
+        // Direction points down -Z by default (adapted from Ogre::Camera)
+        Ogre::Vector3 cameraDir = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
+        this->setCamera(App::GetCameraManager()->GetCameraNode()->getPosition(), cameraDir, upVector, cameraSpeed);
     }
 }
 
