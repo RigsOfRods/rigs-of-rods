@@ -84,6 +84,8 @@ enum MsgType
     MSG_SIM_MODIFY_ACTOR_REQUESTED,        ///< Payload = ActorModifyRequest* (owner)
     MSG_SIM_DELETE_ACTOR_REQUESTED,        ///< Payload = Actor* (weak)
     MSG_SIM_SEAT_PLAYER_REQUESTED,         ///< Payload = Actor* (weak) | nullptr
+    // Editing
+    MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  ///< Payload = ground_model_t* (weak)
 };
 
 enum class AppState

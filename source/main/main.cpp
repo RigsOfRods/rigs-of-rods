@@ -23,6 +23,7 @@
 #include "AppContext.h"
 #include "CacheSystem.h"
 #include "ChatSystem.h"
+#include "Collisions.h"
 #include "Console.h"
 #include "ContentManager.h"
 #include "ErrorUtils.h"
@@ -40,8 +41,8 @@
 #include "ScriptEngine.h"
 #include "Skidmark.h"
 #include "SoundScriptManager.h"
+#include "TerrainManager.h"
 #include "Utils.h"
-
 #include <Overlay/OgreOverlaySystem.h>
 #include <ctime>
 #include <iomanip>
@@ -493,6 +494,17 @@ int main(int argc, char *argv[])
                     if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
                     {
                         App::GetGameContext()->ChangePlayerActor((Actor*)m.payload);
+                    }
+                    break;
+
+                // -- Editing events --
+
+                case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED:
+                    {
+                        App::GetGameContext()->GetActorManager()->SyncWithSimThread(); // Wait for background tasks to finish
+                        ground_model_t* modified_gm = (ground_model_t*)m.payload;
+                        ground_model_t* live_gm = App::GetSimTerrain()->GetCollisions()->getGroundModelByString(modified_gm->name);
+                        *live_gm = *modified_gm; // Copy over
                     }
                     break;
 
