@@ -421,12 +421,6 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_SIM_UNLOAD_TERRN_REQUESTED:
-#ifdef USE_MUMBLE
-                    if (App::GetMumble())
-                    {
-                        App::GetMumble()->SetNonPositionalAudio();
-                    }
-#endif // USE_MUMBLE
                     ROR_ASSERT (App::GetSimController());
                     App::GetGameContext()->GetActorManager()->SyncWithSimThread(); // Wait for background tasks to finish
                     App::GetGameContext()->SaveScene("autosave.sav");
@@ -655,6 +649,13 @@ int main(int argc, char *argv[])
                     }
                 }
             }
+
+#ifdef USE_MUMBLE
+            if (App::GetMumble())
+            {
+                App::GetMumble()->Update(); // 3d audio
+            }
+#endif
 
 #ifdef USE_ANGELSCRIPT
             App::GetScriptEngine()->framestep(dt_sec);
