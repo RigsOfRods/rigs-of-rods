@@ -26,6 +26,8 @@
 #include "Character.h"
 #include "Network.h"
 
+#include <memory>
+
 namespace RoR {
 
 class CharacterFactory
@@ -33,15 +35,17 @@ class CharacterFactory
 public:
     CharacterFactory() {}
     Character* CreateLocalCharacter();
-    void DeleteAllRemoteCharacters();
+    Character* GetLocalCharacter() { return m_local_character.get(); }
+    void DeleteAllCharacters();
     void UndoRemoteActorCoupling(Actor* actor);
-    void update(float dt);
+    void Update(float dt);
 #ifdef USE_SOCKETW
     void handleStreamData(std::vector<RoR::NetRecvPacket> packet);
 #endif // USE_SOCKETW
 
 private:
 
+    std::unique_ptr<Character>              m_local_character;
     std::vector<std::unique_ptr<Character>> m_remote_characters;
 
     void createRemoteInstance(int sourceid, int streamid);

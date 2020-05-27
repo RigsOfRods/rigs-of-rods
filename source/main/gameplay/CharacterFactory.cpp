@@ -42,9 +42,9 @@ Character* CharacterFactory::CreateLocalCharacter()
     }
 #endif // USE_SOCKETW
 
-    Character* ch = new Character(-1, 0, playerName, colourNum, false);
-    App::GetGfxScene()->RegisterGfxCharacter(ch->SetupGfx());
-    return ch;
+    m_local_character = std::unique_ptr<Character>(new Character(-1, 0, playerName, colourNum, false));
+    App::GetGfxScene()->RegisterGfxCharacter(m_local_character->SetupGfx());
+    return m_local_character.get();
 }
 
 void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
@@ -76,9 +76,9 @@ void CharacterFactory::removeStreamSource(int sourceid)
     }
 }
 
-void CharacterFactory::update(float dt)
+void CharacterFactory::Update(float dt)
 {
-    App::GetSimController()->GetPlayerCharacter()->update(dt);
+    m_local_character->update(dt);
 
     for (auto& c : m_remote_characters)
     {
@@ -97,9 +97,10 @@ void CharacterFactory::UndoRemoteActorCoupling(Actor* actor)
     }
 }
 
-void CharacterFactory::DeleteAllRemoteCharacters()
+void CharacterFactory::DeleteAllCharacters()
 {
     m_remote_characters.clear(); // std::unique_ptr<> will do the cleanup...
+    m_local_character.reset(); // ditto
 }
 
 #ifdef USE_SOCKETW

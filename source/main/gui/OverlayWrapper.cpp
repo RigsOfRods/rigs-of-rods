@@ -711,7 +711,7 @@ void OverlayWrapper::UpdateDirectionArrowHud(RoR::GfxActor* player_vehicle, Ogre
     {
         distance = player_vehicle->GetSimDataBuffer().simbuf_pos.distance(point_to);
     }
-    else if (App::GetSimController()->GetPlayerCharacter())
+    else if (App::GetGameContext()->GetPlayerCharacter())
     {
         distance = character_pos.distance(point_to);
     }

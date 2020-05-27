@@ -28,6 +28,7 @@
 #include "Beam.h" // class Actor
 #include "BeamData.h" // Physics structs
 #include "BeamFactory.h" // class ActorManager
+#include "CharacterFactory.h"
 
 #include <list>
 #include <mutex>
@@ -50,6 +51,14 @@ struct Message
 
 typedef std::queue < Message, std::list<Message>> GameMsgQueue;
 
+/// RoR's gameplay is quite simple in structure, it consists of:
+///  - static terrain:  static elevation map, managed by `TerrainManager`.
+///                     this includes static collision objects (or intrusion detection objects), managed by `TerrainObjectManager`.
+///  - softbody actors: a.k.a "trucks" or "vehicles" (local or remote), managed by `ActorManager`. They collide with static terrain and each other.
+///                     this includes 'fixes' - actors with partially fixed position.
+///  - characters:      player-controlled avatars (local or remote), managed by `CharacterFactory`.
+///                     they have simplified physics and can climb objects.
+/// For convenience and to help manage interactions, this class provides methods to manipulate these elements.
 class GameContext
 {
 public:
@@ -79,6 +88,12 @@ public:
     void                ChangePlayerActor(Actor* actor);
 
     // ----------------------------
+    // Characters
+
+    Character*          GetPlayerCharacter();
+    CharacterFactory*   GetCharacterFactory() { return &m_character_factory; }
+
+    // ----------------------------
     // Savegames (defined in Savegame.cpp)
 
     void                LoadScene(std::string const& filename); ///< Matching terrain must be already loaded
@@ -96,6 +111,9 @@ private:
     ActorManager        m_actor_manager;
     Actor*              m_player_actor = nullptr;           ///< Actor (vehicle or machine) mounted and controlled by player
     Actor*              m_prev_player_actor = nullptr;      ///< Previous actor (vehicle or machine) mounted and controlled by player
+
+    // Characters (simplified physics and netcode)
+    CharacterFactory    m_character_factory;
 };
 
 } // namespace RoR

@@ -858,7 +858,7 @@ std::pair<Actor*, float> ActorManager::GetNearestActor(Vector3 position)
     return std::make_pair(nearest_actor, std::sqrt(min_squared_distance));
 }
 
-void ActorManager::CleanUpAllActors() // Called after simulation finishes
+void ActorManager::DeleteAllActors() // Called after simulation finishes
 {
     for (auto actor : m_actors)
     {

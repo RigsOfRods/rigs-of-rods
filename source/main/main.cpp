@@ -429,7 +429,8 @@ int main(int argc, char *argv[])
                     ROR_ASSERT (App::GetSimController());
                     App::GetGameContext()->GetActorManager()->SyncWithSimThread(); // Wait for background tasks to finish
                     App::GetGameContext()->SaveScene("autosave.sav");
-                    App::GetGameContext()->GetActorManager()->CleanUpAllActors();
+                    App::GetGameContext()->GetActorManager()->DeleteAllActors();
+                    App::GetGameContext()->GetCharacterFactory()->DeleteAllCharacters();
                     App::GetSimController()->CleanupAfterSimulation();
                     App::sim_state->SetVal((int)SimState::OFF);
                     App::app_state->SetVal((int)AppState::MAIN_MENU);
@@ -533,7 +534,7 @@ int main(int argc, char *argv[])
                     if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION && App::GetSimController())
                     {
                         App::GetGameContext()->GetActorManager()->HandleActorStreamData(packets);
-                        App::GetSimController()->GetCharacterFactory()->handleStreamData(packets); // Update characters last (or else beam coupling might fail)
+                        App::GetGameContext()->GetCharacterFactory()->handleStreamData(packets); // Update characters last (or else beam coupling might fail)
                     }
                 }
             }

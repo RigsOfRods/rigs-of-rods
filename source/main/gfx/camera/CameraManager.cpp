@@ -28,6 +28,7 @@
 #include "Character.h"
 #include "Collisions.h"
 #include "Console.h"
+#include "GameContext.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "OverlayWrapper.h"
@@ -186,11 +187,11 @@ void CameraManager::UpdateCurrentBehavior()
     switch(m_current_behavior)
     {
     case CAMERA_BEHAVIOR_CHARACTER: {
-        if (!App::GetSimController()->GetPlayerCharacter())
+        if (!App::GetGameContext()->GetPlayerCharacter())
             return;
-        m_cam_target_direction = -App::GetSimController()->GetPlayerCharacter()->getRotation() - Radian(Math::HALF_PI);
+        m_cam_target_direction = -App::GetGameContext()->GetPlayerCharacter()->getRotation() - Radian(Math::HALF_PI);
         Ogre::Vector3 offset = (!m_charactercam_is_3rdperson) ? CHARACTERCAM_OFFSET_1ST_PERSON : CHARACTERCAM_OFFSET_3RD_PERSON;
-        m_cam_look_at = App::GetSimController()->GetPlayerCharacter()->getPosition() + offset;
+        m_cam_look_at = App::GetGameContext()->GetPlayerCharacter()->getPosition() + offset;
 
         CameraManager::CameraBehaviorOrbitUpdate();
         return;
@@ -508,12 +509,12 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
     switch(m_current_behavior)
     {
     case CAMERA_BEHAVIOR_CHARACTER: {
-        if (!App::GetSimController()->GetPlayerCharacter())
+        if (!App::GetGameContext()->GetPlayerCharacter())
             return false;
         if (!m_charactercam_is_3rdperson)
         {
             const OIS::MouseState ms = _arg.state;
-            Radian angle = App::GetSimController()->GetPlayerCharacter()->getRotation();
+            Radian angle = App::GetGameContext()->GetPlayerCharacter()->getRotation();
 
             m_cam_rot_y += Degree(ms.Y.rel * 0.13f);
             angle += Degree(ms.X.rel * 0.13f);
@@ -521,7 +522,7 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
             m_cam_rot_y = Radian(std::min(+Math::HALF_PI * 0.65f, m_cam_rot_y.valueRadians()));
             m_cam_rot_y = Radian(std::max(m_cam_rot_y.valueRadians(), -Math::HALF_PI * 0.9f));
 
-            App::GetSimController()->GetPlayerCharacter()->setRotation(angle);
+            App::GetGameContext()->GetPlayerCharacter()->setRotation(angle);
 
             RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
 
@@ -695,7 +696,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
     }
     else
     {
-        m_staticcam_look_at = App::GetSimController()->GetPlayerCharacter()->getPosition();
+        m_staticcam_look_at = App::GetGameContext()->GetPlayerCharacter()->getPosition();
     }
 
     m_staticcam_force_update |= RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_RESET, 1.0f);
@@ -1004,7 +1005,7 @@ void CameraManager::UpdateCameraBehaviorFixed()
 {
 	if (App::gfx_fixed_cam_tracking->GetBool())
     {
-        Vector3 look_at = m_cct_player_actor ? m_cct_player_actor->getPosition() : App::GetSimController()->GetPlayerCharacter()->getPosition();
+        Vector3 look_at = m_cct_player_actor ? m_cct_player_actor->getPosition() : App::GetGameContext()->GetPlayerCharacter()->getPosition();
         App::GetCameraManager()->GetCameraNode()->lookAt(look_at, Ogre::Node::TS_WORLD);
     }
 }
