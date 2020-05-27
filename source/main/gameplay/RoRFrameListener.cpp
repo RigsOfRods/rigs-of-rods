@@ -1451,17 +1451,6 @@ void SimController::UpdateSimulation(float dt)
     if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
     {
         App::GetCameraManager()->Update(dt, App::GetGameContext()->GetPlayerActor(), App::GetGameContext()->GetActorManager()->GetSimulationSpeed());
-#ifdef USE_OPENAL
-        // update audio listener position
-        static Vector3 lastCameraPosition;
-        Vector3 cameraSpeed = (App::GetCameraManager()->GetCameraNode()->getPosition() - lastCameraPosition) / dt;
-        lastCameraPosition = App::GetCameraManager()->GetCameraNode()->getPosition();
-
-        Ogre::Vector3 upVector = App::GetCameraManager()->GetCameraNode()->getOrientation() * Ogre::Vector3::UNIT_Y;
-        // Direction points down -Z by default (adapted from Ogre::Camera)
-        Ogre::Vector3 cameraDir = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
-        SoundScriptManager::getSingleton().setCamera(App::GetCameraManager()->GetCameraNode()->getPosition(), cameraDir, upVector, cameraSpeed);
-#endif // USE_OPENAL
     }
 
     m_physics_simulation_time = m_physics_simulation_paused ? 0.0f : dt;

@@ -287,6 +287,8 @@ public:
 
     bool isDisabled() { return disabled; }
 
+    void update(float dt_sec);
+
 private:
 
     SoundScriptTemplate* createTemplate(Ogre::String name, Ogre::String groupname, Ogre::String filename);
