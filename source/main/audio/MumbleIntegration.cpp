@@ -28,11 +28,15 @@
 #include "MumbleIntegration.h"
 
 #include "Application.h"
+#include "CameraManager.h"
+#include "Character.h"
+#include "GameContext.h"
 
 #include <Ogre.h>
 #include <MyGUI_UString.h>
 
 using namespace Ogre;
+using namespace RoR;
 
 MumbleIntegration::MumbleIntegration() : lm(NULL)
 {
@@ -85,7 +89,7 @@ void MumbleIntegration::SetNonPositionalAudio()
     if (! lm)
         return;
 
-    this->update(
+    this->updateMumble(
         Ogre::Vector3::ZERO,
         Ogre::Vector3(0.0f, 0.0f, 1.0f),
         Ogre::Vector3(0.0f, 1.0f, 0.0f),
@@ -94,7 +98,27 @@ void MumbleIntegration::SetNonPositionalAudio()
         Ogre::Vector3(0.0f, 1.0f, 0.0f));
 }
 
-void MumbleIntegration::update(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir, Ogre::Vector3 cameraUp, Ogre::Vector3 avatarPos, Ogre::Vector3 avatarDir, Ogre::Vector3 avatarUp)
+void MumbleIntegration::Update()
+{
+    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION &&
+        App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+    {
+        // calculate orientation of avatar first
+        Character* avatar = App::GetGameContext()->GetPlayerCharacter();
+        Ogre::Vector3 avatarDir = Ogre::Vector3(Math::Cos(avatar->getRotation()), 0.0f, Math::Sin(avatar->getRotation()));
+        Ogre::Vector3 upVector = App::GetCameraManager()->GetCameraNode()->getOrientation() * Ogre::Vector3::UNIT_Y;
+        // Direction points down -Z by default (adapted from Ogre::Camera)
+        Ogre::Vector3 cameraDir = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
+        App::GetMumble()->updateMumble(App::GetCameraManager()->GetCameraNode()->getPosition(), cameraDir, upVector,
+            App::GetGameContext()->GetPlayerCharacter()->getPosition() + Vector3(0, 1.8f, 0), avatarDir, Ogre::Vector3(0.0f, 1.0f, 0.0f));
+    }
+    else
+    {
+        this->SetNonPositionalAudio();
+    }
+}
+
+void MumbleIntegration::updateMumble(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir, Ogre::Vector3 cameraUp, Ogre::Vector3 avatarPos, Ogre::Vector3 avatarDir, Ogre::Vector3 avatarUp)
 {
     if (! lm)
         return;

@@ -40,13 +40,14 @@ class MumbleIntegration : public ZeroedMemoryAllocator
 {
 public:
     MumbleIntegration();
-    void update(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir, Ogre::Vector3 cameraUp, Ogre::Vector3 avatarPos, Ogre::Vector3 avatarDir, Ogre::Vector3 avatarUp);
-    void SetNonPositionalAudio(); // for main menu
+    ~MumbleIntegration();
+    
+    void Update();
 
 protected:
-    ~MumbleIntegration();
-
     void initMumble();
+    void updateMumble(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir, Ogre::Vector3 cameraUp, Ogre::Vector3 avatarPos, Ogre::Vector3 avatarDir, Ogre::Vector3 avatarUp);
+    void SetNonPositionalAudio(); // for main menu
 
     struct LinkedMem
     {
