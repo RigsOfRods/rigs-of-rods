@@ -2028,19 +2028,6 @@ bool InputEngine::setup()
     return true;
 }
 
-void InputEngine::grabMouse(bool enable)
-{
-    static int lastmode = -1;
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-    if ((enable && lastmode == 0) || (!enable && lastmode == 1) || (lastmode == -1))
-    {
-        LOG("*** mouse grab: " + TOSTRING(enable));
-    //((LinuxMouse *)mMouse)->grab(enable);
-        lastmode = enable?1:0;
-    }
-#endif
-}
-
 OIS::MouseState InputEngine::getMouseState()
 {
     return mMouse->getMouseState();

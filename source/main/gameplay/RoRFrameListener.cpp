@@ -82,9 +82,8 @@
 using namespace Ogre;
 using namespace RoR;
 
-SimController::SimController(RoR::ForceFeedback* ff) :
+SimController::SimController() :
     m_dir_arrow_pointed(Vector3::ZERO),
-    m_force_feedback(ff),
     m_hide_gui(false),
     m_is_pace_reset_pressed(false),
     m_last_cache_selection(nullptr),
@@ -108,23 +107,6 @@ SimController::SimController(RoR::ForceFeedback* ff) :
     m_advanced_vehicle_repair_timer(0.f),
     m_terrain_editor_mouse_ray(Ray(Vector3::ZERO, Vector3::ZERO))
 {
-}
-
-void SimController::UpdateForceFeedback()
-{
-    if (!App::io_ffb_enabled->GetBool()) { return; }
-
-    Actor* player_actor = App::GetGameContext()->GetPlayerActor();
-    if (player_actor && player_actor->ar_driveable == TRUCK)
-    {
-        Ogre::Vector3 ff_vehicle = player_actor->GetFFbBodyForces();
-        m_force_feedback->SetForces(
-            -ff_vehicle.dotProduct(player_actor->GetCameraRoll()) / 10000.0,
-             ff_vehicle.dotProduct(player_actor->GetCameraDir())  / 10000.0,
-            player_actor->ar_wheel_speed,
-            player_actor->ar_hydro_dir_command,
-            player_actor->GetFFbHydroForces());
-    }
 }
 
 void SimController::StartRaceTimer(int id)
@@ -1472,8 +1454,6 @@ void SimController::UpdateSimulation(float dt)
             m_last_simulation_speed = simulation_speed;
             App::GetGameContext()->GetActorManager()->SetSimulationSpeed(1.0f);
         }
-
-        this->UpdateForceFeedback();
 
         if (App::GetGameContext()->GetPlayerActor())
         {

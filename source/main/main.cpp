@@ -186,22 +186,6 @@ int main(int argc, char *argv[])
 
         App::GetContentManager()->InitModCache();
 
-        RoR::ForceFeedback force_feedback;
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-        if (App::io_ffb_enabled->GetBool()) // Force feedback
-        {
-            if (App::GetInputEngine()->getForceFeedbackDevice())
-            {
-                force_feedback.Setup();
-            }
-            else
-            {
-                LOG("No force feedback device detected, disabling force feedback");
-                App::io_ffb_enabled->SetVal(false);
-            }
-        }
-#endif // OGRE_PLATFORM_WIN32
-
         // Add "this is obsolete" marker file to old config location
         App::GetAppContext()->SetUpObsoleteConfMarker();
 
@@ -386,7 +370,7 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_SIM_LOAD_TERRN_REQUESTED:
-                    App::SetSimController(new SimController(&force_feedback));
+                    App::SetSimController(new SimController());
                     App::GetGuiManager()->GetLoadingWindow()->setProgress(5, _L("Loading resources"));
                     App::GetContentManager()->LoadGameplayResources();
 
@@ -664,6 +648,12 @@ int main(int argc, char *argv[])
 #ifdef USE_ANGELSCRIPT
             App::GetScriptEngine()->framestep(dt_sec);
 #endif // USE_ANGELSCRIPT
+
+            if (App::io_ffb_enabled->GetBool() &&
+                App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
+            {
+                App::GetAppContext()->GetForceFeedback().Update();
+            }            
 
             // Render!
             Ogre::RenderWindow* render_window = RoR::App::GetAppContext()->GetRenderWindow();

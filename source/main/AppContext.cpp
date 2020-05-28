@@ -65,6 +65,11 @@ bool AppContext::SetUpInput()
     App::GetInputEngine()->SetMouseListener(this);
     App::GetInputEngine()->SetKeyboardListener(this);
     App::GetInputEngine()->SetJoystickListener(this);
+
+    if (App::io_ffb_enabled->GetBool())
+    {
+        m_force_feedback.Setup();
+    }
     return true;
 }
 
