@@ -27,6 +27,7 @@
 #pragma once
 
 #include "Application.h"
+#include "ForceFeedback.h"
 
 #include <Bites/OgreWindowEventUtilities.h>
 #include <Ogre.h>
@@ -60,6 +61,7 @@ public:
     Ogre::Root*          GetOgreRoot() { return m_ogre_root; }
     Ogre::Viewport*      GetViewport() { return m_viewport; }
     Ogre::RenderWindow*  GetRenderWindow() { return m_render_window; }
+    RoR::ForceFeedback&  GetForceFeedback() { return m_force_feedback; }
 
 private:
     // OgreBites::WindowEventListener
@@ -94,6 +96,8 @@ private:
 
     std::time_t          m_prev_screenshot_time;
     int                  m_prev_screenshot_index = 1;
+
+    RoR::ForceFeedback   m_force_feedback;
 };
 
 } // namespace RoR

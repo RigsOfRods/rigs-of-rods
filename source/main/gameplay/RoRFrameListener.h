@@ -28,7 +28,6 @@
 #include "CameraManager.h" // CameraManager::CameraBehaviors
 #include "CharacterFactory.h"
 #include "GfxScene.h"
-#include "ForceFeedback.h"
 #include "OutProtocol.h"
 #include "SceneMouse.h"
 
@@ -53,7 +52,7 @@
 class SimController: public ZeroedMemoryAllocator
 {
 public:
-    SimController(RoR::ForceFeedback* ff);
+    SimController();
 
     // Actor management interface
     void   UpdateLastSpawnInfo   (RoR::ActorSpawnRequest rq);
@@ -82,7 +81,6 @@ public:
     /// @return True if everything was prepared OK and simulation may start.
     bool   SetupGameplayLoop     ();
 
-    RoR::ForceFeedback*          GetForceFeedback()         { return m_force_feedback; }
     RoR::SceneMouse&             GetSceneMouse()            { return m_scene_mouse; }
     Ogre::Vector3                GetDirArrowTarget()        { return m_dir_arrow_pointed; }
     bool                         IsPressurizingTyres() const { return m_pressure_pressed; }
@@ -99,7 +97,6 @@ public:
 
 private:
 
-    void   UpdateForceFeedback     ();
     void   HandleSavegameShortcuts ();
     void   UpdateInputEvents       (float dt);
     void   HideGUI                 (bool hidden);
@@ -112,7 +109,6 @@ private:
     bool                     m_physics_simulation_paused;
     int                      m_stats_on;
     float                    m_time;
-    RoR::ForceFeedback*      m_force_feedback;
     bool                     m_hide_gui;
     bool                     m_pressure_pressed;
 

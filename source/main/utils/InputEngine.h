@@ -27,6 +27,7 @@
 #pragma once
 
 #include "Application.h"
+#include "ForceFeedback.h"
 
 #include <OgreUTFString.h>
 #include "OISEvents.h"
@@ -42,6 +43,8 @@
 #define MAX_JOYSTICK_POVS 4
 #define MAX_JOYSTICK_SLIDERS 4
 #define MAX_JOYSTICK_AXIS 32
+
+namespace RoR {
 
 enum eventtypes
 {
@@ -391,8 +394,6 @@ struct eventInfo_t
     Ogre::UTFString description;
 };
 
-extern eventInfo_t eventInfo[];
-
 struct event_trigger_t
 {
     // general
@@ -506,22 +507,13 @@ public:
     bool reloadConfig(std::string outfile = CONFIGFILENAME);
     bool updateConfigline(event_trigger_t* t);
 
-    void grabMouse(bool enable);
-
     int getKeboardKeyForCommand(int eventID);
 
     void updateKeyBounces(float dt);
     void completeMissingEvents();
-    int getNumJoysticks() { return free_joysticks; };
     OIS::ForceFeedback* getForceFeedbackDevice() { return mForceFeedback; };
 
     inline OIS::Keyboard* GetOisKeyboard() { return mKeyboard; }
-    inline OIS::Mouse*    GetOisMouse()    { return mMouse; }
-
-    std::map<std::string, OIS::KeyCode> GetKeyMap()
-    {
-        return allkeys;
-    }
 
 protected:
 
@@ -559,3 +551,5 @@ protected:
 
     event_trigger_t newEvent();
 };
+
+} // namespace RoR

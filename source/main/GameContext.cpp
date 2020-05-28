@@ -321,7 +321,7 @@ void GameContext::ChangePlayerActor(Actor* actor)
             }
         }
 
-        App::GetSimController()->GetForceFeedback()->SetEnabled(false);
+        App::GetAppContext()->GetForceFeedback().SetEnabled(false);
 
         TRIGGER_EVENT(SE_TRUCK_EXIT, prev_player_actor?prev_player_actor->ar_instance_id:-1);
     }
@@ -340,7 +340,7 @@ void GameContext::ChangePlayerActor(Actor* actor)
         m_player_actor->GetGfxActor()->SetRenderdashActive(true);
 
         // force feedback
-        App::GetSimController()->GetForceFeedback()->SetEnabled(m_player_actor->ar_driveable == TRUCK); //only for trucks so far
+        App::GetAppContext()->GetForceFeedback().SetEnabled(m_player_actor->ar_driveable == TRUCK); //only for trucks so far
 
         // attach player to vehicle
         Character* player_character = this->GetPlayerCharacter();

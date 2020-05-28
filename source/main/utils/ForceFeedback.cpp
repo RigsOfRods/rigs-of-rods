@@ -22,6 +22,9 @@
 #include "ForceFeedback.h"
 
 #include "Application.h"
+#include "Beam.h" // Actor
+#include "Console.h"
+#include "GameContext.h"
 #include "InputEngine.h"
 
 #include <OISForceFeedback.h>
@@ -33,19 +36,12 @@ void ForceFeedback::Setup()
 {
     using namespace Ogre;
     m_device = App::GetInputEngine()->getForceFeedbackDevice();
-    LOG(String("ForceFeedback: ")+TOSTRING(m_device->getFFAxesNumber())+" axe(s)");
-    const OIS::ForceFeedback::SupportedEffectList& supEffects = m_device->getSupportedEffects();
-    if (supEffects.size() > 0)
+    if (!m_device)
     {
-        LOG("ForceFeedback: supported effects:");
-        OIS::ForceFeedback::SupportedEffectList::const_iterator efit;
-#ifdef OISHEAD
-        for (efit=supEffects.begin(); efit!=supEffects.end(); ++efit)
-            LOG(String("ForceFeedback: ")+OIS::Effect::getEffectTypeName(efit->second));
-#endif //OISHEAD
+        return;
     }
-    else
-    LOG("ForceFeedback: no supported effect found!");
+    LOG(String("ForceFeedback: ")+TOSTRING(m_device->getFFAxesNumber())+" axe(s)");
+
     m_device->setAutoCenterMode(false);
     m_device->setMasterGain(0.0);
 
@@ -104,6 +100,29 @@ void ForceFeedback::SetEnabled(bool b)
         m_device->setMasterGain(gain);
     }
     m_enabled = b;
+}
+
+void ForceFeedback::Update()
+{
+    if (!m_device)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                                      _L("Disabling force feedback - no controller found"));
+        App::io_ffb_enabled->SetVal(false);
+        return;
+    }
+
+    Actor* player_actor = App::GetGameContext()->GetPlayerActor();
+    if (player_actor && player_actor->ar_driveable == TRUCK)
+    {
+        Ogre::Vector3 ff_vehicle = player_actor->GetFFbBodyForces();
+        this->SetForces(
+            -ff_vehicle.dotProduct(player_actor->GetCameraRoll()) / 10000.0,
+             ff_vehicle.dotProduct(player_actor->GetCameraDir())  / 10000.0,
+            player_actor->ar_wheel_speed,
+            player_actor->ar_hydro_dir_command,
+            player_actor->GetFFbHydroForces());
+    }
 }
 
 } // namespace RoR
