@@ -109,7 +109,6 @@ struct AeroDashOverlay
 class OverlayWrapper : public ZeroedMemoryAllocator
 {
     friend class SimController;
-    friend class RoR::MainMenu;
 
 public:
 
