@@ -58,7 +58,6 @@ static OverlayWrapper*  g_overlay_wrapper;
 static GUIManager*      g_gui_manager;
 static InputEngine*     g_input_engine;
 static CacheSystem*     g_cache_system;
-static MainMenu*        g_main_menu;
 static SimController*   g_sim_controller;
 static MumbleIntegration* g_mumble;
 static TerrainManager*  g_sim_terrain;
@@ -218,7 +217,6 @@ CVar* gfx_enable_rtshaders;
 CVar* gfx_classic_shaders;
 
 // Instance management
-void SetMainMenu       (MainMenu* obj)                { g_main_menu = obj; }
 void SetSimController  (SimController* obj)           { g_sim_controller = obj;}
 void SetSimTerrain     (TerrainManager* obj)          { g_sim_terrain = obj;}
 void SetCacheSystem    (CacheSystem* obj)             { g_cache_system = obj; }
@@ -231,7 +229,6 @@ GUIManager*            GetGuiManager         () { return g_gui_manager;}
 Console*               GetConsole            () { return &g_console;}
 InputEngine*           GetInputEngine        () { return g_input_engine;}
 CacheSystem*           GetCacheSystem        () { return g_cache_system;}
-MainMenu*              GetMainMenu           () { return g_main_menu;}
 SimController*         GetSimController      () { return g_sim_controller; }
 MumbleIntegration*     GetMumble             () { return g_mumble; }
 TerrainManager*        GetSimTerrain         () { return g_sim_terrain; }
