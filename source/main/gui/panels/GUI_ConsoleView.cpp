@@ -138,13 +138,14 @@ ImVec2 GUI::ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
 
     const unsigned long curr_timestamp = App::GetConsole()->QueryMessageTimer();
     unsigned long overtime = curr_timestamp - (m.cm_timestamp + (cvw_msg_duration_ms - fadeout_interval));
-    if (overtime <= fadeout_interval)
+
+    if (overtime > fadeout_interval)
     {
-        alpha -= (float)overtime/(float)fadeout_interval;
+        alpha = 1.f;
     }
     else
     {
-        alpha = 1.f;
+        alpha -= (float)overtime/(float)fadeout_interval;
     }
 
     // Draw icons based on filters
