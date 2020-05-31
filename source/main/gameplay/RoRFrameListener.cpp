@@ -1372,43 +1372,6 @@ void SimController::UpdateInputEvents(float dt)
     }
 }
 
-void SimController::TeleportPlayerXZ(float x, float z)
-{
-    Real y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(x, z);
-    if (!App::GetGameContext()->GetPlayerActor())
-    {
-        App::GetGameContext()->GetPlayerCharacter()->setPosition(Vector3(x, y, z));
-        return;
-    }
-
-    TRIGGER_EVENT(SE_TRUCK_TELEPORT, App::GetGameContext()->GetPlayerActor()->ar_instance_id);
-
-    Vector3 translation = Vector3(x, y, z) - App::GetGameContext()->GetPlayerActor()->ar_nodes[0].AbsPosition;
-
-    auto actors = App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors();
-    actors.push_back(App::GetGameContext()->GetPlayerActor());
-
-    float src_agl = std::numeric_limits<float>::max(); 
-    float dst_agl = std::numeric_limits<float>::max(); 
-    for (auto actor : actors)
-    {
-        for (int i = 0; i < actor->ar_num_nodes; i++)
-        {
-            Vector3 pos = actor->ar_nodes[i].AbsPosition;
-            src_agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(pos.x, pos.z), src_agl);
-            pos += translation;
-            dst_agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(pos.x, pos.z), dst_agl);
-        }
-    }
-
-    translation += Vector3::UNIT_Y * (std::max(0.0f, src_agl) - dst_agl);
-
-    for (auto actor : actors)
-    {
-        actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
-    }
-}
-
 void SimController::UpdateSimulation(float dt)
 {
     if (App::io_outgauge_mode->GetInt() > 0)

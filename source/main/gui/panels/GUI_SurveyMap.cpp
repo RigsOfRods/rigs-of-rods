@@ -159,8 +159,9 @@ void RoR::GUI::SurveyMap::Draw()
         {
             mouse_map_pos = view_origin + (Vector2(mouse_view_offset.x, mouse_view_offset.y) * smallmap_size);
         }
-        
-        App::GetSimController()->TeleportPlayerXZ(mouse_map_pos.x, mouse_map_pos.y);
+
+        Ogre::Vector3* payload = new Ogre::Vector3(mouse_map_pos.x, 0.f, mouse_map_pos.y);
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_TELEPORT_PLAYER_REQUESTED, (void*)payload));
     }
     else if (ImGui::IsItemHovered())
     {

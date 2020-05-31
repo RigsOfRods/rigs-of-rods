@@ -475,6 +475,15 @@ int main(int argc, char *argv[])
                     }
                     break;
 
+                case MSG_SIM_TELEPORT_PLAYER_REQUESTED:
+                    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+                    {
+                        Ogre::Vector3* pos = (Ogre::Vector3*)m.payload;
+                        App::GetGameContext()->TeleportPlayer(pos->x, pos->z);
+                        delete pos;
+                    }
+                    break;
+
                 // -- Editing events --
 
                 case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED:

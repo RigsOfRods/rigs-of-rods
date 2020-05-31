@@ -65,9 +65,6 @@ public:
     void   OnLoaderGuiApply      (RoR::LoaderType type, CacheEntry* entry, std::string sectionconfig);
     bool   LoadTerrain           (std::string terrn_file);
 
-    // GUI interface
-    void   TeleportPlayerXZ      (float x, float y); // Teleport UI
-
     /// @return True if everything was prepared OK and simulation may start.
     bool   SetupGameplayLoop     ();
 
