@@ -35,17 +35,18 @@
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
+#include "GUI_DirectionArrow.h"
 #include "GUI_SimActorStats.h"
 #include "GUI_SurveyMap.h"
 #include "ForceFeedback.h"
 #include "InputEngine.h"
 #include "LandVehicleSimulation.h"
 #include "Language.h"
-
 #include "MumbleIntegration.h"
 #include "OutProtocol.h"
 #include "OverlayWrapper.h"
 #include "PlatformUtils.h"
+#include "RaceSystem.h"
 #include "Replay.h"
 #include "RigDef_File.h"
 #include "RoRVersion.h"
@@ -83,7 +84,6 @@ using namespace Ogre;
 using namespace RoR;
 
 SimController::SimController() :
-    m_dir_arrow_pointed(Vector3::ZERO),
     m_hide_gui(false),
     m_is_pace_reset_pressed(false),
     m_last_cache_selection(nullptr),
@@ -93,10 +93,6 @@ SimController::SimController() :
     m_physics_simulation_time(0.0f),
     m_pressure_pressed(false),
     m_pressure_pressed_timer(0.0f),
-    m_race_id(-1),
-    m_race_start_time(0),
-    m_race_best_time(0),
-    m_race_time_diff(0),
     m_reload_dir(Quaternion::IDENTITY),
     m_reload_pos(Vector3::ZERO),
     m_stats_on(0),
@@ -107,19 +103,6 @@ SimController::SimController() :
     m_advanced_vehicle_repair_timer(0.f),
     m_terrain_editor_mouse_ray(Ray(Vector3::ZERO, Vector3::ZERO))
 {
-}
-
-void SimController::StartRaceTimer(int id)
-{
-    m_race_start_time = m_time;
-    m_race_time_diff = 0.0f;
-    m_race_id = id;
-}
-
-void SimController::StopRaceTimer()
-{
-    m_race_start_time = 0.0f;
-    m_race_id = -1;
 }
 
 void SimController::HandleSavegameShortcuts()
@@ -337,44 +320,47 @@ void SimController::UpdateInputEvents(float dt)
     }
 
     // Simulation pace adjustment (slowmotion)
-    if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_ACCELERATE_SIMULATION))
+    if (!App::GetGameContext()->GetRaceSystem().IsRaceInProgress())
     {
-        float simulation_speed = App::GetGameContext()->GetActorManager()->GetSimulationSpeed() * pow(2.0f, dt / 2.0f);
-        App::GetGameContext()->GetActorManager()->SetSimulationSpeed(simulation_speed);
-        String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
-        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-    }
-    if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_DECELERATE_SIMULATION))
-    {
-        float simulation_speed = App::GetGameContext()->GetActorManager()->GetSimulationSpeed() * pow(0.5f, dt / 2.0f);
-        App::GetGameContext()->GetActorManager()->SetSimulationSpeed(simulation_speed);
-        String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
-        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-    }
-    if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_SIMULATION_PACE))
-    {
-        if (!m_is_pace_reset_pressed)
+        if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_ACCELERATE_SIMULATION))
         {
-            float simulation_speed = App::GetGameContext()->GetActorManager()->GetSimulationSpeed();
-            if (simulation_speed != 1.0f)
-            {
-                m_last_simulation_speed = simulation_speed;
-                App::GetGameContext()->GetActorManager()->SetSimulationSpeed(1.0f);
-                UTFString ssmsg = _L("Simulation speed reset.");
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-            }
-            else if (m_last_simulation_speed != 1.0f)
-            {
-                App::GetGameContext()->GetActorManager()->SetSimulationSpeed(m_last_simulation_speed);
-                String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(m_last_simulation_speed * 100.0f, 1)) + "%";
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-            }
+            float simulation_speed = App::GetGameContext()->GetActorManager()->GetSimulationSpeed() * pow(2.0f, dt / 2.0f);
+            App::GetGameContext()->GetActorManager()->SetSimulationSpeed(simulation_speed);
+            String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
         }
-        m_is_pace_reset_pressed = true;
-    }
-    else
-    {
-        m_is_pace_reset_pressed = false;
+        if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_DECELERATE_SIMULATION))
+        {
+            float simulation_speed = App::GetGameContext()->GetActorManager()->GetSimulationSpeed() * pow(0.5f, dt / 2.0f);
+            App::GetGameContext()->GetActorManager()->SetSimulationSpeed(simulation_speed);
+            String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+        }
+        if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_SIMULATION_PACE))
+        {
+            if (!m_is_pace_reset_pressed)
+            {
+                float simulation_speed = App::GetGameContext()->GetActorManager()->GetSimulationSpeed();
+                if (simulation_speed != 1.0f)
+                {
+                    m_last_simulation_speed = simulation_speed;
+                    App::GetGameContext()->GetActorManager()->SetSimulationSpeed(1.0f);
+                    UTFString ssmsg = _L("Simulation speed reset.");
+                    RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+                }
+                else if (m_last_simulation_speed != 1.0f)
+                {
+                    App::GetGameContext()->GetActorManager()->SetSimulationSpeed(m_last_simulation_speed);
+                    String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(m_last_simulation_speed * 100.0f, 1)) + "%";
+                    RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+                }
+            }
+            m_is_pace_reset_pressed = true;
+        }
+        else
+        {
+            m_is_pace_reset_pressed = false;
+        }
     }
 
     // Frozen physics logic
@@ -1449,7 +1435,7 @@ void SimController::UpdateSimulation(float dt)
     if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE || (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED))
     {
         float simulation_speed = App::GetGameContext()->GetActorManager()->GetSimulationSpeed();
-        if (m_race_id != -1 && simulation_speed != 1.0f)
+        if (App::GetGameContext()->GetRaceSystem().IsRaceInProgress() && simulation_speed != 1.0f)
         {
             m_last_simulation_speed = simulation_speed;
             App::GetGameContext()->GetActorManager()->SetSimulationSpeed(1.0f);
@@ -1560,23 +1546,6 @@ void SimController::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::st
         *rq = m_pending_spawn_rq;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
         m_pending_spawn_rq = ActorSpawnRequest(); // Reset
-    }
-}
-
-void SimController::UpdateDirectionArrow(char* text, Vector3 position)
-{
-    if (RoR::App::GetOverlayWrapper() == nullptr)
-        return;
-
-    if (text == nullptr)
-    {
-        RoR::App::GetOverlayWrapper()->HideDirectionOverlay();
-        m_dir_arrow_pointed = Vector3::ZERO;
-    }
-    else
-    {
-        RoR::App::GetOverlayWrapper()->ShowDirectionOverlay(text);
-        m_dir_arrow_pointed = position;
     }
 }
 
@@ -1789,7 +1758,7 @@ bool SimController::SetupGameplayLoop()
     // ========================================================================
 
     App::CreateOverlayWrapper();
-    App::GetOverlayWrapper()->SetupDirectionArrow();
+    App::GetGuiManager()->GetDirectionArrow()->LoadOverlay();
 
     if (App::audio_menu_music->GetBool())
     {

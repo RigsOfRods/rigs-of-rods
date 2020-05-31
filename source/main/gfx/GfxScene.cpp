@@ -29,6 +29,7 @@
 #include "HydraxWater.h"
 #include "GameContext.h"
 #include "GUIManager.h"
+#include "GUI_DirectionArrow.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"
@@ -69,7 +70,10 @@ void GfxScene::ClearScene()
 
     // Wipe scene manager
     m_scene_manager->clearScene();
-    App::GetCameraManager()->ReCreateCameraNode(); // Needed after the wipe
+
+    // Recover from the wipe
+    App::GetCameraManager()->ReCreateCameraNode();
+    App::GetGuiManager()->GetDirectionArrow()->CreateArrow();
 }
 
 void RoR::GfxScene::Init()
@@ -164,13 +168,6 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     if (skyx_man != nullptr)
     {
        skyx_man->update(dt_sec); // Light update
-    }
-
-    // GUI - Direction arrow
-    if (App::GetOverlayWrapper() && App::GetOverlayWrapper()->IsDirectionArrowVisible())
-    {
-        App::GetOverlayWrapper()->UpdateDirectionArrowHud(
-            player_gfx_actor, m_simbuf.simbuf_dir_arrow_target, m_simbuf.simbuf_character_pos);
     }
 
     // GUI - race
@@ -279,16 +276,20 @@ void RoR::GfxScene::BufferSimulationData()
 {
     m_simbuf.simbuf_player_actor = App::GetGameContext()->GetPlayerActor();
     m_simbuf.simbuf_character_pos = App::GetGameContext()->GetPlayerCharacter()->getPosition();
-    m_simbuf.simbuf_dir_arrow_target = App::GetSimController()->GetDirArrowTarget();
     m_simbuf.simbuf_tyrepressurize_active = App::GetSimController()->IsPressurizingTyres();
     m_simbuf.simbuf_sim_paused = App::GetSimController()->GetPhysicsPaused();
     m_simbuf.simbuf_sim_speed = App::GetGameContext()->GetActorManager()->GetSimulationSpeed();
-    m_simbuf.simbuf_race_time = App::GetSimController()->GetRaceTime();
-    m_simbuf.simbuf_race_best_time = App::GetSimController()->GetRaceBestTime();
-    m_simbuf.simbuf_race_time_diff = App::GetSimController()->GetRaceTimeDiff();
-    m_simbuf.simbuf_race_in_progress_prev = m_simbuf.simbuf_race_in_progress;
-    m_simbuf.simbuf_race_in_progress = App::GetSimController()->IsRaceInProgress();
     m_simbuf.simbuf_camera_behavior = App::GetCameraManager()->GetCurrentBehavior();
+
+    // Race system
+    m_simbuf.simbuf_race_time = App::GetGameContext()->GetRaceSystem().GetRaceTime();
+    m_simbuf.simbuf_race_best_time = App::GetGameContext()->GetRaceSystem().GetRaceBestTime();
+    m_simbuf.simbuf_race_time_diff = App::GetGameContext()->GetRaceSystem().GetRaceTimeDiff();
+    m_simbuf.simbuf_race_in_progress_prev = m_simbuf.simbuf_race_in_progress;
+    m_simbuf.simbuf_race_in_progress = App::GetGameContext()->GetRaceSystem().IsRaceInProgress();
+    m_simbuf.simbuf_dir_arrow_target = App::GetGameContext()->GetRaceSystem().GetDirArrowTarget();
+    m_simbuf.simbuf_dir_arrow_text = App::GetGameContext()->GetRaceSystem().GetDirArrowText();
+    m_simbuf.simbuf_dir_arrow_visible = App::GetGameContext()->GetRaceSystem().IsDirArrowVisible();
 
     m_live_gfx_actors.clear();
     for (GfxActor* a: m_all_gfx_actors)

@@ -51,6 +51,7 @@
 #include "GUI_MultiplayerClientList.h"
 #include "GUI_MainSelector.h"
 #include "GUI_NodeBeamUtils.h"
+#include "GUI_DirectionArrow.h"
 #include "GUI_SimActorStats.h"
 #include "GUI_SimPerfStats.h"
 #include "GUI_SurveyMap.h"
@@ -92,6 +93,7 @@ struct GuiManagerImpl
     GUI::TopMenubar             panel_TopMenubar;
     GUI::ConsoleWindow          panel_ConsoleWindow;
     GUI::SurveyMap              panel_SurveyMap;
+    GUI::DirectionArrow         panel_DirectionArrow;
     Ogre::Overlay*              overlay_Wallpaper = nullptr;
 
     MyGUI::Gui*                 mygui = nullptr;
@@ -130,6 +132,7 @@ bool GUIManager::IsVisible_NodeBeamUtils        () { return m_impl->panel_NodeBe
 bool GUIManager::IsVisible_SimActorStats        () { return m_impl->panel_SimActorStats      .IsVisible(); }
 bool GUIManager::IsVisible_SimPerfStats         () { return m_impl->panel_SimPerfStats       .IsVisible(); }
 bool GUIManager::IsVisible_SurveyMap            () { return m_impl->panel_SurveyMap          .IsVisible(); }
+bool GUIManager::IsVisible_DirectionArrow       () { return m_impl->panel_DirectionArrow     .IsVisible(); }
 
 // GUI GetInstance*()
 GUI::MainSelector*          GUIManager::GetMainSelector()      { return &m_impl->panel_MainSelector        ; }
@@ -141,6 +144,7 @@ GUI::FrictionSettings*      GUIManager::GetFrictionSettings()  { return &m_impl-
 GUI::TopMenubar*            GUIManager::GetTopMenubar()        { return &m_impl->panel_TopMenubar          ; }
 GUI::SurveyMap*             GUIManager::GetSurveyMap()         { return &m_impl->panel_SurveyMap           ; }
 GUI::SimActorStats*         GUIManager::GetSimActorStats()     { return &m_impl->panel_SimActorStats       ; }
+GUI::DirectionArrow*        GUIManager::GetDirectionArrow()    { return &m_impl->panel_DirectionArrow      ; }
 
 GUIManager::GUIManager()
 {
@@ -287,6 +291,8 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     {
         m_impl->panel_SurveyMap.Draw();
     }
+
+    m_impl->panel_DirectionArrow.Update(player_gfx_actor);
 }
 
 void GUIManager::eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _result)

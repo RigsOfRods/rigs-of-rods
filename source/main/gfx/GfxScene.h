@@ -46,17 +46,21 @@ public:
     {
         Actor*         simbuf_player_actor           = nullptr;
         Ogre::Vector3  simbuf_character_pos          = Ogre::Vector3::ZERO;
-        Ogre::Vector3  simbuf_dir_arrow_target       = Ogre::Vector3::ZERO;
         bool           simbuf_tyrepressurize_active  = false;
         bool           simbuf_sim_paused             = false;
         float          simbuf_sim_speed              = 1.f;
+        CameraManager::CameraBehaviors
+                       simbuf_camera_behavior        = CameraManager::CAMERA_BEHAVIOR_INVALID;
+
+        // Race system
         float          simbuf_race_time              = 0.f;
         float          simbuf_race_best_time         = 0.f;
         float          simbuf_race_time_diff         = 0.f;
         bool           simbuf_race_in_progress       = false;
         bool           simbuf_race_in_progress_prev  = false;
-        CameraManager::CameraBehaviors
-                       simbuf_camera_behavior        = CameraManager::CAMERA_BEHAVIOR_INVALID;
+        Ogre::Vector3  simbuf_dir_arrow_target       = Ogre::Vector3::ZERO;
+        std::string    simbuf_dir_arrow_text;
+        bool           simbuf_dir_arrow_visible      = false;
     };
 
     void           Init();

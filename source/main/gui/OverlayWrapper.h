@@ -136,12 +136,6 @@ public:
     bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
     float mTimeUntilNextToggle;
 
-    void SetupDirectionArrow();
-    void UpdateDirectionArrowHud(RoR::GfxActor* player_vehicle, Ogre::Vector3 point_to, Ogre::Vector3 character_pos);
-    void HideDirectionOverlay();
-    void ShowDirectionOverlay(Ogre::String const & caption);
-    bool IsDirectionArrowVisible() const { return BITMASK_IS_1(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW); }
-
     void UpdatePressureTexture(RoR::GfxActor* ga);
 
     void UpdateLandVehicleHUD(RoR::GfxActor* ga);
@@ -152,11 +146,7 @@ public:
     void HideRacingOverlay();
     void UpdateRacingGui(RoR::GfxScene* gs);
 
-    /// Hides all overlays, but doesn't change visibility flags (for further restoring).
-    void TemporarilyHideAllOverlays(Actor *current_vehicle);
-
-    /// Shows all overlays flagged as "visible".
-    void RestoreOverlaysVisibility(Actor *current_vehicle);
+    Ogre::Overlay *loadOverlay(Ogre::String name, bool autoResizeRation=true);
 
 protected:
 
@@ -165,7 +155,6 @@ protected:
     /// Thus, an external state must be kept to restore overlays after exiting the editor.
     struct VisibleOverlays
     {
-        static const int DIRECTION_ARROW              = BITMASK(1);
         static const int DEBUG_FPS_MEMORY             = BITMASK(2);
         static const int RACING                       = BITMASK(4);
         static const int TRUCK_TIRE_PRESSURE_OVERLAY  = BITMASK(5);
@@ -178,7 +167,6 @@ protected:
     void placeNeedle(Ogre::SceneNode *node, float x, float y, float len);
     void updateStats(bool detailed=false);
 
-    Ogre::Overlay *loadOverlay(Ogre::String name, bool autoResizeRation=true);
     Ogre::OverlayElement *loadOverlayElement(Ogre::String name);
 
     Ogre::RenderWindow* win;
@@ -202,7 +190,6 @@ protected:
     Ogre::Overlay *m_machine_dashboard_overlay;
 
     // Misc
-    Ogre::Overlay *m_direction_arrow_overlay;
     Ogre::Overlay *m_debug_fps_memory_overlay;
     Ogre::Overlay *m_racing_overlay;
 
@@ -225,8 +212,6 @@ protected:
     // Truck (racing overlay)
     Ogre::TextAreaOverlayElement* laptime;
     Ogre::TextAreaOverlayElement* bestlaptime;
-    Ogre::TextAreaOverlayElement* directionArrowText;
-    Ogre::TextAreaOverlayElement* directionArrowDistance;
 
     Ogre::TextAreaOverlayElement* boat_depth_value_taoe; //!< Marine
 
@@ -245,9 +230,6 @@ protected:
     float thrtop;
     float thrheight;
     float throffset;
-
-    // Truck racing overlay
-    Ogre::SceneNode* m_direction_arrow_node;
 
     std::vector<LoadedOverlay> m_loaded_overlays;
 };
