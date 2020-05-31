@@ -25,6 +25,7 @@
 #include "AppContext.h"
 #include "Beam.h"
 #include "ContentManager.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "GUI_MainSelector.h"
 #include "GUIUtils.h"
@@ -177,7 +178,7 @@ void RoR::GUI::SurveyMap::Draw()
         // Draw terrain object icons
         for (TerrainObjectManager::MapEntity& e: App::GetSimTerrain()->getObjectManager()->GetMapEntities())
         {
-            int id = App::GetSimController()->GetRaceId();
+            int id = App::GetGameContext()->GetRaceSystem().GetRaceId();
             bool visible = !((e.type == "checkpoint" && e.id != id) || (e.type == "racestart" && id != -1 && e.id != id));
             Str<100> filename;
             filename << "icon_" << e.type << ".dds";

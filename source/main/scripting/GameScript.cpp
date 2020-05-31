@@ -196,7 +196,7 @@ void GameScript::stopTimer()
     if (!this->HaveSimController(__FUNCTION__))
         return;
 
-    App::GetSimController()->StopRaceTimer();
+    App::GetGameContext()->GetRaceSystem().StopRaceTimer();
 }
 
 void GameScript::startTimer(int id)
@@ -204,7 +204,7 @@ void GameScript::startTimer(int id)
     if (!this->HaveSimController(__FUNCTION__))
         return;
 
-    App::GetSimController()->StartRaceTimer(id);
+    App::GetGameContext()->GetRaceSystem().StartRaceTimer(id);
 }
 
 void GameScript::setTimeDiff(float diff)
@@ -212,7 +212,7 @@ void GameScript::setTimeDiff(float diff)
     if (!this->HaveSimController(__FUNCTION__))
         return;
 
-    App::GetSimController()->SetRaceTimeDiff(diff);
+    App::GetGameContext()->GetRaceSystem().SetRaceTimeDiff(diff);
 }
 
 void GameScript::setBestLapTime(float time)
@@ -220,7 +220,7 @@ void GameScript::setBestLapTime(float time)
     if (!this->HaveSimController(__FUNCTION__))
         return;
 
-    App::GetSimController()->SetRaceBestTime(time);
+    App::GetGameContext()->GetRaceSystem().SetRaceBestTime(time);
 }
 
 void GameScript::setWaterHeight(float value)
@@ -342,7 +342,7 @@ void GameScript::UpdateDirectionArrow(String& text, Vector3& vec)
     if (!this->HaveSimController(__FUNCTION__))
         return;
 
-    App::GetSimController()->UpdateDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
+    App::GetGameContext()->GetRaceSystem().UpdateDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
 }
 
 int GameScript::getChatFontSize()
@@ -481,7 +481,7 @@ void GameScript::hideDirectionArrow()
     if (!this->HaveSimController(__FUNCTION__))
         return;
 
-    App::GetSimController()->UpdateDirectionArrow(0, Vector3::ZERO);
+    App::GetGameContext()->GetRaceSystem().UpdateDirectionArrow(0, Vector3::ZERO);
 }
 
 int GameScript::setMaterialAmbient(const String& materialName, float red, float green, float blue)

@@ -29,6 +29,7 @@
 #include "BeamData.h" // Physics structs
 #include "BeamFactory.h" // class ActorManager
 #include "CharacterFactory.h"
+#include "RaceSystem.h"
 
 #include <list>
 #include <mutex>
@@ -102,6 +103,11 @@ public:
     std::string         ExtractSceneName(std::string const& filename);
     std::string         ExtractSceneTerrain(std::string const& filename); ///< Returns terrain filename
 
+    // ----------------------------
+    // Gameplay feats
+
+    RaceSystem&         GetRaceSystem() { return m_race_system; }
+
 private:
     // Message queue
     GameMsgQueue        m_msg_queue;
@@ -114,6 +120,9 @@ private:
 
     // Characters (simplified physics and netcode)
     CharacterFactory    m_character_factory;
+
+    // Gameplay feats
+    RaceSystem          m_race_system;
 };
 
 } // namespace RoR

@@ -11,7 +11,7 @@ set(SOURCE_FILES
         Application.{h,cpp}
         ForwardDeclarations.h
         AppContext.{h,cpp}
-		GameContext.{h,cpp}
+        GameContext.{h,cpp}
         audio/MumbleIntegration.{h,cpp}
         audio/Sound.{h,cpp}
         audio/SoundManager.{h,cpp}
@@ -38,6 +38,7 @@ set(SOURCE_FILES
         gameplay/SceneMouse.{h,cpp}
         gameplay/ScriptEvents.h
         gameplay/SkinManager.{h,cpp}
+        gameplay/RaceSystem.{h,cpp}
         gameplay/TorqueCurve.{h,cpp}
         gameplay/VehicleAI.{h,cpp}
         gfx/AdvancedScreen.h
@@ -132,6 +133,7 @@ set(SOURCE_FILES
         gui/mygui/WrapsAttribute.h
         gui/panels/GUI_ConsoleView.{h,cpp}
         gui/panels/GUI_ConsoleWindow.{h,cpp}
+        gui/panels/GUI_DirectionArrow.{h,cpp}		
         gui/panels/GUI_LoadingWindow.{h,cpp}
         gui/panels/GUI_FrictionSettings.{h,cpp}
         gui/panels/GUI_TopMenubar.{h,cpp}

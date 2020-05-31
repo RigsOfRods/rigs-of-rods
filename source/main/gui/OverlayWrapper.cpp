@@ -56,7 +56,6 @@ using namespace RoR;
 bool g_is_scaled = false;
 
 OverlayWrapper::OverlayWrapper():
-    m_direction_arrow_node(nullptr),
     mTimeUntilNextToggle(0),
     m_dashboard_visible(false),
     m_visible_overlays(0)
@@ -69,7 +68,6 @@ OverlayWrapper::~OverlayWrapper()
 {
     showDashboardOverlays(false, nullptr);
     HideRacingOverlay();
-    HideDirectionOverlay();
 }
 
 void OverlayWrapper::resizePanel(OverlayElement* oe)
@@ -152,21 +150,6 @@ Ogre::TextureUnitState* GetTexUnit(Ogre::String material_name) // Internal helpe
 
 int OverlayWrapper::init()
 {
-    m_direction_arrow_overlay = loadOverlay("tracks/DirectionArrow", false);
-    try
-    {
-        directionArrowText = (TextAreaOverlayElement*)loadOverlayElement("tracks/DirectionArrow/Text");
-    }
-    catch (...)
-    {
-        ErrorUtils::ShowError("Resources not found!", "please ensure that your installation is complete and the resources are installed properly. If this error persists please re-install RoR.");
-    }
-    directionArrowDistance = (TextAreaOverlayElement*)loadOverlayElement("tracks/DirectionArrow/Distance");
-
-    // openGL fix
-    m_direction_arrow_overlay->show();
-    m_direction_arrow_overlay->hide();
-
     m_debug_fps_memory_overlay = loadOverlay("Core/DebugOverlay", false);
 
     OverlayElement* vere = loadOverlayElement("Core/RoRVersionString");
@@ -684,58 +667,6 @@ bool OverlayWrapper::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButton
     return mouseMoved(_arg);
 }
 
-void OverlayWrapper::SetupDirectionArrow()
-{
-    if (RoR::App::GetOverlayWrapper() != nullptr)
-    {
-        // setup direction arrow
-        Ogre::Entity* arrow_entity = App::GetGfxScene()->GetSceneManager()->createEntity("arrow2.mesh");
-        arrow_entity->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
-
-        // Add entity to the scene node
-        m_direction_arrow_node = new SceneNode(App::GetGfxScene()->GetSceneManager());
-        m_direction_arrow_node->attachObject(arrow_entity);
-        m_direction_arrow_node->setVisible(false);
-        m_direction_arrow_node->setScale(0.1, 0.1, 0.1);
-        m_direction_arrow_node->setPosition(Vector3(-0.6, +0.4, -1));
-        m_direction_arrow_node->setFixedYawAxis(true, Vector3::UNIT_Y);
-        m_direction_arrow_overlay->add3D(m_direction_arrow_node);
-    }
-}
-
-void OverlayWrapper::UpdateDirectionArrowHud(RoR::GfxActor* player_vehicle, Ogre::Vector3 point_to, Ogre::Vector3 character_pos)
-{
-    m_direction_arrow_node->lookAt(point_to, Node::TS_WORLD, Vector3::UNIT_Y);
-    Real distance = 0.0f;
-    if (player_vehicle != nullptr && player_vehicle->GetSimDataBuffer().simbuf_live_local)
-    {
-        distance = player_vehicle->GetSimDataBuffer().simbuf_pos.distance(point_to);
-    }
-    else if (App::GetGameContext()->GetPlayerCharacter())
-    {
-        distance = character_pos.distance(point_to);
-    }
-    char tmp[256];
-    sprintf(tmp, "%0.1f meter", distance);
-    this->directionArrowDistance->setCaption(tmp);
-}
-
-void OverlayWrapper::HideDirectionOverlay()
-{
-    m_direction_arrow_overlay->hide();
-    m_direction_arrow_node->setVisible(false);
-    BITMASK_SET_0(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW);
-}
-
-void OverlayWrapper::ShowDirectionOverlay(Ogre::String const& caption)
-{
-    m_direction_arrow_overlay->show();
-    directionArrowText->setCaption(caption);
-    directionArrowDistance->setCaption("");
-    m_direction_arrow_node->setVisible(true);
-    BITMASK_SET_1(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW);
-}
-
 void OverlayWrapper::UpdatePressureTexture(RoR::GfxActor* ga)
 {
     const float pressure = ga->GetSimDataBuffer().simbuf_tyre_pressure;
@@ -1044,33 +975,6 @@ void OverlayWrapper::HideRacingOverlay()
 {
     m_racing_overlay->hide();
     BITMASK_SET_0(m_visible_overlays, VisibleOverlays::RACING);
-}
-
-void OverlayWrapper::TemporarilyHideAllOverlays(Actor* current_vehicle)
-{
-    m_racing_overlay->hide();
-    m_direction_arrow_overlay->hide();
-    m_debug_fps_memory_overlay->hide();
-
-    showDashboardOverlays(false, current_vehicle);
-}
-
-void OverlayWrapper::RestoreOverlaysVisibility(Actor* current_vehicle)
-{
-    if (BITMASK_IS_1(m_visible_overlays, VisibleOverlays::RACING))
-    {
-        m_racing_overlay->show();
-    }
-    else if (BITMASK_IS_1(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW))
-    {
-        m_direction_arrow_overlay->show();
-    }
-    else if (BITMASK_IS_1(m_visible_overlays, VisibleOverlays::DEBUG_FPS_MEMORY))
-    {
-        m_debug_fps_memory_overlay->show();
-    }
-
-    showDashboardOverlays(!RoR::App::GetSimController()->IsGUIHidden(), current_vehicle);
 }
 
 void OverlayWrapper::UpdateRacingGui(RoR::GfxScene* gs)

@@ -60,19 +60,9 @@ public:
 
     // Scripting interface
     float  getTime               () { return m_time; }
-    void   UpdateDirectionArrow  (char* text, Ogre::Vector3 position);
     void   ShowLoaderGUI         (int type, const Ogre::String& instance, const Ogre::String& box);
     void   OnLoaderGuiCancel     ();
     void   OnLoaderGuiApply      (RoR::LoaderType type, CacheEntry* entry, std::string sectionconfig);
-    void   StartRaceTimer        (int id); // Do not call manually!
-    void   StopRaceTimer         (); // Do not call manually!
-    void   SetRaceTimeDiff       (float diff) { m_race_time_diff = diff; }; // Do not call manually!
-    float  GetRaceTimeDiff       () const { return m_race_time_diff; };
-    void   SetRaceBestTime       (float time) { m_race_best_time = time; }; // Do not call manually!
-    float  GetRaceBestTime       () const { return m_race_best_time; };
-    int    GetRaceId             () const { return m_race_id; }
-    float  GetRaceTime           () const { return static_cast<float>(m_time - m_race_start_time); }
-    bool   IsRaceInProgress      () const { return m_race_id != -1; }
     bool   LoadTerrain           (std::string terrn_file);
 
     // GUI interface
@@ -82,7 +72,6 @@ public:
     bool   SetupGameplayLoop     ();
 
     RoR::SceneMouse&             GetSceneMouse()            { return m_scene_mouse; }
-    Ogre::Vector3                GetDirArrowTarget()        { return m_dir_arrow_pointed; }
     bool                         IsPressurizingTyres() const { return m_pressure_pressed; }
     bool                         AreControlsLocked() const;
     bool                         IsGUIHidden()              { return m_hide_gui; }
@@ -116,13 +105,6 @@ private:
     CacheEntry*              m_last_cache_selection; //!< Vehicle/load
     CacheEntry*              m_last_skin_selection;
     Ogre::String             m_last_section_config;
-
-    Ogre::Vector3            m_dir_arrow_pointed;
-
-    int                      m_race_id;
-    float                    m_race_time_diff;
-    float                    m_race_best_time;
-    float                    m_race_start_time;
 
     bool                     m_soft_reset_mode;
     bool                     m_advanced_vehicle_repair;
