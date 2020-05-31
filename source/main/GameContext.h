@@ -82,11 +82,16 @@ public:
     Actor*              FetchPrevVehicleOnList();
     Actor*              FetchNextVehicleOnList();
     Actor*              FindActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name);
+    void                RespawnLastActor();
 
     Actor*              GetPlayerActor() { return m_player_actor; }
     Actor*              GetPrevPlayerActor() { return m_prev_player_actor; }
     void                SetPrevPlayerActor(Actor* actor) { m_prev_player_actor = actor; }
     void                ChangePlayerActor(Actor* actor);
+
+    void                ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box);
+    void                OnLoaderGuiCancel(); ///< GUI callback
+    void                OnLoaderGuiApply(RoR::LoaderType type, CacheEntry* entry, std::string sectionconfig);  ///< GUI callback
 
     // ----------------------------
     // Characters
@@ -104,11 +109,11 @@ public:
     std::string         ExtractSceneTerrain(std::string const& filename); ///< Returns terrain filename
 
     // ----------------------------
-    // Gameplay feats
+    // Gameplay feats (misc.)
 
     RaceSystem&         GetRaceSystem() { return m_race_system; }
     void                TeleportPlayer(float x, float z);
-
+    
 private:
     // Message queue
     GameMsgQueue        m_msg_queue;
@@ -118,11 +123,16 @@ private:
     ActorManager        m_actor_manager;
     Actor*              m_player_actor = nullptr;           ///< Actor (vehicle or machine) mounted and controlled by player
     Actor*              m_prev_player_actor = nullptr;      ///< Previous actor (vehicle or machine) mounted and controlled by player
+    
+    CacheEntry*         m_last_cache_selection = nullptr;   ///< Vehicle/load
+    CacheEntry*         m_last_skin_selection = nullptr;
+    Ogre::String        m_last_section_config;
+    ActorSpawnRequest   m_current_selection;                ///< Context of the loader UI
 
     // Characters (simplified physics and netcode)
     CharacterFactory    m_character_factory;
 
-    // Gameplay feats
+    // Gameplay feats (misc.)
     RaceSystem          m_race_system;
 };
 

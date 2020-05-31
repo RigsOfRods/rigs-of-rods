@@ -538,7 +538,7 @@ void MainSelector::Cancel()
     }
     else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
     {
-        App::GetSimController()->OnLoaderGuiCancel();
+        App::GetGameContext()->OnLoaderGuiCancel();
     }
 }
 
@@ -568,7 +568,7 @@ void MainSelector::Apply()
             sd_entry.sde_entry = nullptr;
         }
 
-        App::GetSimController()->OnLoaderGuiApply(type, sd_entry.sde_entry, sectionconfig);
+        App::GetGameContext()->OnLoaderGuiApply(type, sd_entry.sde_entry, sectionconfig);
     }
 }
 

@@ -25,8 +25,11 @@
 #include "Beam.h" // class Actor
 #include "CacheSystem.h"
 #include "Collisions.h"
+#include "Console.h"
 #include "DashBoardManager.h"
 #include "GfxScene.h"
+#include "GUIManager.h"
+#include "GUI_MainSelector.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
 #include "ScriptEngine.h"
@@ -68,7 +71,9 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
 
     if (rq.asr_origin == ActorSpawnRequest::Origin::USER)
     {
-        App::GetSimController()->UpdateLastSpawnInfo(rq);
+        m_last_cache_selection = rq.asr_cache_entry;
+        m_last_skin_selection  = rq.asr_skin_entry;
+        m_last_section_config  = rq.asr_config;
 
         if (rq.asr_spawnbox == nullptr)
         {
@@ -379,6 +384,105 @@ Actor* GameContext::FindActorByCollisionBox(std::string const & ev_src_instance_
 {
     return m_actor_manager.FindActorInsideBox(App::GetSimTerrain()->GetCollisions(),
                                               ev_src_instance_name, box_name);
+}
+
+void GameContext::RespawnLastActor()
+{
+    if (m_last_cache_selection != nullptr)
+    {
+        ActorSpawnRequest* rq = new ActorSpawnRequest;
+        rq->asr_cache_entry     = m_last_cache_selection;
+        rq->asr_config          = m_last_section_config;
+        rq->asr_skin_entry      = m_last_skin_selection;
+        rq->asr_origin          = ActorSpawnRequest::Origin::USER;
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+    }
+}
+
+void GameContext::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
+{
+    // first, test if the place if clear, BUT NOT IN MULTIPLAYER
+    if (!(App::mp_state->GetEnum<MpState>() == MpState::CONNECTED))
+    {
+        collision_box_t* spawnbox = App::GetSimTerrain()->GetCollisions()->getBox(instance, box);
+        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+        {
+            for (int i = 0; i < actor->ar_num_nodes; i++)
+            {
+                if (App::GetSimTerrain()->GetCollisions()->isInside(actor->ar_nodes[i].AbsPosition, spawnbox))
+                {
+                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
+                    return;
+                }
+            }
+        }
+    }
+
+    m_current_selection.asr_position = App::GetSimTerrain()->GetCollisions()->getPosition(instance, box);
+    m_current_selection.asr_rotation = App::GetSimTerrain()->GetCollisions()->getDirection(instance, box);
+    m_current_selection.asr_spawnbox = App::GetSimTerrain()->GetCollisions()->getBox(instance, box);
+    App::GetGuiManager()->GetMainSelector()->Show(LoaderType(type));
+}
+
+void GameContext::OnLoaderGuiCancel()
+{
+    m_current_selection = ActorSpawnRequest(); // Reset
+}
+
+void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::string sectionconfig)
+{
+    bool spawn_now = false;
+    switch (type)
+    {
+    case LT_Skin:
+        m_current_selection.asr_skin_entry = entry;
+        spawn_now = true;
+        break;
+
+    case LT_Vehicle:
+    case LT_Truck:
+    case LT_Car:
+    case LT_Boat:
+    case LT_Airplane:
+    case LT_Trailer:
+    case LT_Train:
+    case LT_Load:
+    case LT_Extension:
+    case LT_AllBeam:
+        m_current_selection.asr_cache_entry = entry;
+        m_current_selection.asr_config = sectionconfig;
+        m_current_selection.asr_origin = ActorSpawnRequest::Origin::USER;
+        // Look for extra skins
+        if (!entry->guid.empty())
+        {
+            CacheQuery skin_query;
+            skin_query.cqy_filter_guid = entry->guid;
+            skin_query.cqy_filter_type = LT_Skin;
+            if (App::GetCacheSystem()->Query(skin_query) > 0)
+            {
+                App::GetGuiManager()->GetMainSelector()->Show(LT_Skin, entry->guid);
+            }
+            else
+            {
+                spawn_now = true;
+            }
+        }
+        else
+        {
+            spawn_now = true;
+        }
+        break;
+
+    default:;
+    }
+
+    if (spawn_now)
+    {
+        ActorSpawnRequest* rq = new ActorSpawnRequest;
+        *rq = m_current_selection;
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+        m_current_selection = ActorSpawnRequest(); // Reset
+    }
 }
 
 // --------------------------------

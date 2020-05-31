@@ -55,14 +55,11 @@ public:
     SimController();
 
     // Actor management interface
-    void   UpdateLastSpawnInfo   (RoR::ActorSpawnRequest rq);
+
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
 
     // Scripting interface
     float  getTime               () { return m_time; }
-    void   ShowLoaderGUI         (int type, const Ogre::String& instance, const Ogre::String& box);
-    void   OnLoaderGuiCancel     ();
-    void   OnLoaderGuiApply      (RoR::LoaderType type, CacheEntry* entry, std::string sectionconfig);
     bool   LoadTerrain           (std::string terrn_file);
 
     /// @return True if everything was prepared OK and simulation may start.
@@ -97,11 +94,6 @@ private:
     float                    m_time;
     bool                     m_hide_gui;
     bool                     m_pressure_pressed;
-
-    RoR::ActorSpawnRequest   m_pending_spawn_rq;
-    CacheEntry*              m_last_cache_selection; //!< Vehicle/load
-    CacheEntry*              m_last_skin_selection;
-    Ogre::String             m_last_section_config;
 
     bool                     m_soft_reset_mode;
     bool                     m_advanced_vehicle_repair;
