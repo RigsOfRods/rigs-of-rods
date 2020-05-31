@@ -86,9 +86,7 @@ using namespace RoR;
 SimController::SimController() :
     m_hide_gui(false),
     m_is_pace_reset_pressed(false),
-    m_last_cache_selection(nullptr),
     m_last_simulation_speed(0.1f),
-    m_last_skin_selection(nullptr),
     m_physics_simulation_paused(false),
     m_physics_simulation_time(0.0f),
     m_pressure_pressed(false),
@@ -1205,15 +1203,7 @@ void SimController::UpdateInputEvents(float dt)
             }
             else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK, 0.25f))
             {
-                if (m_last_cache_selection != nullptr)
-                {
-                    ActorSpawnRequest* rq = new ActorSpawnRequest;
-                    rq->asr_cache_entry     = m_last_cache_selection;
-                    rq->asr_config          = m_last_section_config;
-                    rq->asr_skin_entry      = m_last_skin_selection;
-                    rq->asr_origin          = ActorSpawnRequest::Origin::USER;
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
-                }
+                App::GetGameContext()->RespawnLastActor();
             }
             else if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_CYCLE))
             {
@@ -1423,92 +1413,6 @@ void SimController::UpdateSimulation(float dt)
         !m_physics_simulation_paused)
     {
         m_time += dt;
-    }
-}
-
-void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
-{
-    // first, test if the place if clear, BUT NOT IN MULTIPLAYER
-    if (!(App::mp_state->GetEnum<MpState>() == MpState::CONNECTED))
-    {
-        collision_box_t* spawnbox = App::GetSimTerrain()->GetCollisions()->getBox(instance, box);
-        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
-        {
-            for (int i = 0; i < actor->ar_num_nodes; i++)
-            {
-                if (App::GetSimTerrain()->GetCollisions()->isInside(actor->ar_nodes[i].AbsPosition, spawnbox))
-                {
-                    RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
-                    return;
-                }
-            }
-        }
-    }
-
-    m_pending_spawn_rq.asr_position = App::GetSimTerrain()->GetCollisions()->getPosition(instance, box);
-    m_pending_spawn_rq.asr_rotation = App::GetSimTerrain()->GetCollisions()->getDirection(instance, box);
-    m_pending_spawn_rq.asr_spawnbox = App::GetSimTerrain()->GetCollisions()->getBox(instance, box);
-    App::GetGuiManager()->GetMainSelector()->Show(LoaderType(type));
-}
-
-void SimController::OnLoaderGuiCancel()
-{
-    m_pending_spawn_rq = ActorSpawnRequest(); // Reset
-}
-
-void SimController::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::string sectionconfig)
-{
-    bool spawn_now = false;
-    switch (type)
-    {
-    case LT_Skin:
-        m_pending_spawn_rq.asr_skin_entry = entry;
-        spawn_now = true;
-        break;
-
-    case LT_Vehicle:
-    case LT_Truck:
-    case LT_Car:
-    case LT_Boat:
-    case LT_Airplane:
-    case LT_Trailer:
-    case LT_Train:
-    case LT_Load:
-    case LT_Extension:
-    case LT_AllBeam:
-        m_pending_spawn_rq.asr_cache_entry = entry;
-        m_pending_spawn_rq.asr_config = sectionconfig;
-        m_pending_spawn_rq.asr_origin = ActorSpawnRequest::Origin::USER;
-        // Look for extra skins
-        if (!entry->guid.empty())
-        {
-            CacheQuery skin_query;
-            skin_query.cqy_filter_guid = entry->guid;
-            skin_query.cqy_filter_type = LT_Skin;
-            if (App::GetCacheSystem()->Query(skin_query) > 0)
-            {
-                App::GetGuiManager()->GetMainSelector()->Show(LT_Skin, entry->guid);
-            }
-            else
-            {
-                spawn_now = true;
-            }
-        }
-        else
-        {
-            spawn_now = true;
-        }
-        break;
-
-    default:;
-    }
-
-    if (spawn_now)
-    {
-        ActorSpawnRequest* rq = new ActorSpawnRequest;
-        *rq = m_pending_spawn_rq;
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
-        m_pending_spawn_rq = ActorSpawnRequest(); // Reset
     }
 }
 
@@ -1746,13 +1650,3 @@ void SimController::SetTerrainEditorMouseRay(Ray ray)
 {
     m_terrain_editor_mouse_ray = ray;
 }
-
-void SimController::UpdateLastSpawnInfo(RoR::ActorSpawnRequest rq)
-{
-    ROR_ASSERT (rq.asr_origin == ActorSpawnRequest::Origin::USER);
-    
-    m_last_cache_selection = rq.asr_cache_entry;
-    m_last_skin_selection  = rq.asr_skin_entry;
-    m_last_section_config  = rq.asr_config;
-}
-

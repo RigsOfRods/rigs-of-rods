@@ -387,7 +387,7 @@ void GameScript::showChooser(const String& type, const String& instance, const S
 
     if (ntype != LT_None)
     {
-        App::GetSimController()->ShowLoaderGUI(ntype, instance, box);
+        App::GetGameContext()->ShowLoaderGUI(ntype, instance, box);
     }
 
 }
