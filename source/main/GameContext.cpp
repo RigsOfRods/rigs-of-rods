@@ -388,3 +388,43 @@ Character* GameContext::GetPlayerCharacter() // Convenience ~ counterpart of `Ge
 {
     return m_character_factory.GetLocalCharacter();
 }
+
+// --------------------------------
+// Gameplay feats
+
+void GameContext::TeleportPlayer(float x, float z)
+{
+    float y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(x, z);
+    if (!App::GetGameContext()->GetPlayerActor())
+    {
+        App::GetGameContext()->GetPlayerCharacter()->setPosition(Ogre::Vector3(x, y, z));
+        return;
+    }
+
+    TRIGGER_EVENT(SE_TRUCK_TELEPORT, App::GetGameContext()->GetPlayerActor()->ar_instance_id);
+
+    Ogre::Vector3 translation = Ogre::Vector3(x, y, z) - App::GetGameContext()->GetPlayerActor()->ar_nodes[0].AbsPosition;
+
+    auto actors = App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors();
+    actors.push_back(App::GetGameContext()->GetPlayerActor());
+
+    float src_agl = std::numeric_limits<float>::max(); 
+    float dst_agl = std::numeric_limits<float>::max(); 
+    for (auto actor : actors)
+    {
+        for (int i = 0; i < actor->ar_num_nodes; i++)
+        {
+            Ogre::Vector3 pos = actor->ar_nodes[i].AbsPosition;
+            src_agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(pos.x, pos.z), src_agl);
+            pos += translation;
+            dst_agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(pos.x, pos.z), dst_agl);
+        }
+    }
+
+    translation += Ogre::Vector3::UNIT_Y * (std::max(0.0f, src_agl) - dst_agl);
+
+    for (auto actor : actors)
+    {
+        actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
+    }
+}

@@ -84,6 +84,7 @@ enum MsgType
     MSG_SIM_MODIFY_ACTOR_REQUESTED,        ///< Payload = ActorModifyRequest* (owner)
     MSG_SIM_DELETE_ACTOR_REQUESTED,        ///< Payload = Actor* (weak)
     MSG_SIM_SEAT_PLAYER_REQUESTED,         ///< Payload = Actor* (weak) | nullptr
+    MSG_SIM_TELEPORT_PLAYER_REQUESTED,     ///< Payload = Ogre::Vector3* (owner)
     // Editing
     MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  ///< Payload = ground_model_t* (weak)
 };

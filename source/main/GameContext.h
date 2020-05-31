@@ -107,6 +107,7 @@ public:
     // Gameplay feats
 
     RaceSystem&         GetRaceSystem() { return m_race_system; }
+    void                TeleportPlayer(float x, float z);
 
 private:
     // Message queue
