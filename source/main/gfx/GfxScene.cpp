@@ -236,8 +236,6 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
 
     App::GetGuiManager()->DrawSimGuiBuffered(player_gfx_actor);
 
-    App::GetSimController()->GetSceneMouse().UpdateVisuals();
-
     // Actors - finalize threaded tasks
     for (GfxActor* gfx_actor: m_live_gfx_actors)
     {

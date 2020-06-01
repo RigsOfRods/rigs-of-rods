@@ -88,10 +88,7 @@ bool AppContext::mouseMoved(const OIS::MouseEvent& arg) // overrides OIS::MouseL
 
         if (!handled && App::GetSimController())
         {
-            if (!App::GetCameraManager()->mouseMoved(arg))
-            {
-                App::GetSimController()->GetSceneMouse().mouseMoved(arg);
-            }
+            App::GetCameraManager()->mouseMoved(arg);
         }
     }
 
@@ -113,7 +110,6 @@ bool AppContext::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID _id
 
         if (!handled && App::GetSimController())
         {
-            App::GetSimController()->GetSceneMouse().mousePressed(arg, _id);
             App::GetCameraManager()->mousePressed(arg, _id);
         }
     }
@@ -136,10 +132,6 @@ bool AppContext::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID _i
         if (App::GetOverlayWrapper())
             handled = App::GetOverlayWrapper()->mouseReleased(arg, _id); // update the old airplane / autopilot gui
 
-        if (!handled && App::GetSimController())
-        {
-            App::GetSimController()->GetSceneMouse().mouseReleased(arg, _id);
-        }
     }
     else
     {

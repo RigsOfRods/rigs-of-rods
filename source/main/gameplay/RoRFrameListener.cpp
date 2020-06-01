@@ -98,8 +98,7 @@ SimController::SimController() :
     m_time_until_next_toggle(0),
     m_soft_reset_mode(false),
     m_advanced_vehicle_repair(false),
-    m_advanced_vehicle_repair_timer(0.f),
-    m_terrain_editor_mouse_ray(Ray(Vector3::ZERO, Vector3::ZERO))
+    m_advanced_vehicle_repair_timer(0.f)
 {
 }
 
@@ -461,11 +460,15 @@ void SimController::UpdateInputEvents(float dt)
             object_count = static_cast<int>(object_list.size());
             object_index = -1;
         }
-        if (m_terrain_editor_mouse_ray.getDirection() != Vector3::ZERO)
+
+        if (ImGui::IsMouseClicked(1)) // Middle button
         {
+            ImVec2 mouse_screen = ImGui::GetIO().MousePos / ImGui::GetIO().DisplaySize;
+            Ogre::Ray terrain_editor_mouse_ray = App::GetCameraManager()->GetCamera()->getCameraToViewportRay(mouse_screen.x, mouse_screen.y);
+
             float min_dist = std::numeric_limits<float>::max();
-            Vector3 origin = m_terrain_editor_mouse_ray.getOrigin();
-            Vector3 direction = m_terrain_editor_mouse_ray.getDirection();
+            Vector3 origin = terrain_editor_mouse_ray.getOrigin();
+            Vector3 direction = terrain_editor_mouse_ray.getDirection();
             for (int i = 0; i < (int)object_list.size(); i++)
             {
                 Real ray_object_distance = direction.crossProduct(object_list[i].node->getPosition() - origin).length();
@@ -476,7 +479,6 @@ void SimController::UpdateInputEvents(float dt)
                     object_index = i;
                 }
             }
-            m_terrain_editor_mouse_ray.setDirection(Vector3::ZERO);
         }
         if (object_index != -1)
         {
@@ -1399,7 +1401,7 @@ void SimController::UpdateSimulation(float dt)
             App::GetGuiManager()->GetSimActorStats()->UpdateStats(dt, App::GetGameContext()->GetPlayerActor());
         }
 
-        m_scene_mouse.UpdateSimulation();
+        App::GetGuiManager()->GetSceneMouse()->Draw(); // Touches simulation directly - must be done here
 
         App::GetGfxScene()->BufferSimulationData();
 
@@ -1556,8 +1558,6 @@ void SimController::CleanupAfterSimulation()
         App::SetSimTerrain(nullptr);
     }
 
-    m_scene_mouse.DiscardVisuals(); // TODO: move this to GfxScene ~~ only_a_ptr, 06/2018
-
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
 }
 
@@ -1632,8 +1632,6 @@ bool SimController::SetupGameplayLoop()
         SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
     }
 
-    m_scene_mouse.InitializeVisuals(); // TODO: Move to GfxScene ~ only_a_ptr, 06/2018
-
     App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
 
     UpdatePresence();
@@ -1644,9 +1642,4 @@ bool SimController::SetupGameplayLoop()
 bool SimController::AreControlsLocked() const
 {
     return App::GetCameraManager()->gameControlsLocked();
-}
-
-void SimController::SetTerrainEditorMouseRay(Ray ray)
-{
-    m_terrain_editor_mouse_ray = ray;
 }

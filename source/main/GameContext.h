@@ -30,6 +30,7 @@
 #include "BeamFactory.h" // class ActorManager
 #include "CharacterFactory.h"
 #include "RaceSystem.h"
+#include "GUI_SceneMouse.h"
 
 #include <list>
 #include <mutex>

@@ -34,6 +34,7 @@
 #include "FlexBody.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
+#include "GUIUtils.h"
 #include "InputEngine.h" // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
 #include "MeshObject.h"
 #include "MovableText.h"
@@ -687,20 +688,9 @@ void RoR::GfxActor::UpdateDebugView()
     }
 
     // Var
-    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
-    World2ScreenConverter world2screen(
-        App::GetCameraManager()->GetCamera()->getViewMatrix(true), App::GetCameraManager()->GetCamera()->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
-
-    // Dummy fullscreen window to draw to
-    int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
-                     | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
-    ImGui::SetNextWindowPos(ImVec2(0,0));
-    ImGui::SetNextWindowSize(screen_size);
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
-    ImGui::Begin(("RoR-SoftBodyView-" + TOSTRING(m_actor->ar_instance_id)).c_str(), NULL, window_flags);
-    ImDrawList* drawlist = ImGui::GetWindowDrawList();
-    ImGui::End();
-    ImGui::PopStyleColor(1); // WindowBg
+    World2ScreenConverter world2screen;
+    Str<100> window_name; window_name << "RoR-DebugView@" << m_actor->ar_instance_id;
+    ImDrawList* drawlist = ObtainImGuiDrawList(window_name.ToCStr());
 
     if (m_actor->ar_physics_paused && !RoR::App::GetSimController()->IsGUIHidden())
     {

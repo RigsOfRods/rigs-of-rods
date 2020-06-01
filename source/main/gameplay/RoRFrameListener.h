@@ -29,7 +29,7 @@
 #include "CharacterFactory.h"
 #include "GfxScene.h"
 #include "OutProtocol.h"
-#include "SceneMouse.h"
+#include "GUI_SceneMouse.h"
 
 /// The simulation controller object
 /// It's lifetime is tied to single gameplay session. When user returns to main menu, it's destroyed.
@@ -65,15 +65,12 @@ public:
     /// @return True if everything was prepared OK and simulation may start.
     bool   SetupGameplayLoop     ();
 
-    RoR::SceneMouse&             GetSceneMouse()            { return m_scene_mouse; }
     bool                         IsPressurizingTyres() const { return m_pressure_pressed; }
     bool                         AreControlsLocked() const;
     bool                         IsGUIHidden()              { return m_hide_gui; }
 
     bool GetPhysicsPaused()                                 { return m_physics_simulation_paused; }
     void SetPhysicsPausedInternal(bool paused)              { m_physics_simulation_paused = paused; }
-
-    void SetTerrainEditorMouseRay(Ogre::Ray ray);
 
     void   UpdateSimulation(float dt);
     void   CleanupAfterSimulation(); /// Unloads all data
@@ -84,7 +81,6 @@ private:
     void   UpdateInputEvents       (float dt);
     void   HideGUI                 (bool hidden);
 
-    RoR::SceneMouse          m_scene_mouse;
     Ogre::Real               m_time_until_next_toggle; //!< just to stop toggles flipping too fast
     float                    m_last_simulation_speed;  //!< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
     bool                     m_is_pace_reset_pressed;
@@ -103,6 +99,4 @@ private:
 
     Ogre::Vector3            m_reload_pos;
     Ogre::Quaternion         m_reload_dir;
-
-    Ogre::Ray                m_terrain_editor_mouse_ray;
 };

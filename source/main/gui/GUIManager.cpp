@@ -52,6 +52,7 @@
 #include "GUI_MainSelector.h"
 #include "GUI_NodeBeamUtils.h"
 #include "GUI_DirectionArrow.h"
+#include "GUI_SceneMouse.h"
 #include "GUI_SimActorStats.h"
 #include "GUI_SimPerfStats.h"
 #include "GUI_SurveyMap.h"
@@ -94,6 +95,7 @@ struct GuiManagerImpl
     GUI::ConsoleWindow          panel_ConsoleWindow;
     GUI::SurveyMap              panel_SurveyMap;
     GUI::DirectionArrow         panel_DirectionArrow;
+    GUI::SceneMouse             panel_SceneMouse;
     Ogre::Overlay*              overlay_Wallpaper = nullptr;
 
     MyGUI::Gui*                 mygui = nullptr;
@@ -145,6 +147,7 @@ GUI::TopMenubar*            GUIManager::GetTopMenubar()        { return &m_impl-
 GUI::SurveyMap*             GUIManager::GetSurveyMap()         { return &m_impl->panel_SurveyMap           ; }
 GUI::SimActorStats*         GUIManager::GetSimActorStats()     { return &m_impl->panel_SimActorStats       ; }
 GUI::DirectionArrow*        GUIManager::GetDirectionArrow()    { return &m_impl->panel_DirectionArrow      ; }
+GUI::SceneMouse*            GUIManager::GetSceneMouse()        { return &m_impl->panel_SceneMouse          ; }
 
 GUIManager::GUIManager()
 {

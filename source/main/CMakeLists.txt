@@ -35,7 +35,6 @@ set(SOURCE_FILES
         gameplay/Road.{h,cpp}
         gameplay/Road2.{h,cpp}
         gameplay/RoRFrameListener.{h,cpp}
-        gameplay/SceneMouse.{h,cpp}
         gameplay/ScriptEvents.h
         gameplay/SkinManager.{h,cpp}
         gameplay/RaceSystem.{h,cpp}
@@ -133,7 +132,7 @@ set(SOURCE_FILES
         gui/mygui/WrapsAttribute.h
         gui/panels/GUI_ConsoleView.{h,cpp}
         gui/panels/GUI_ConsoleWindow.{h,cpp}
-        gui/panels/GUI_DirectionArrow.{h,cpp}		
+        gui/panels/GUI_DirectionArrow.{h,cpp}
         gui/panels/GUI_LoadingWindow.{h,cpp}
         gui/panels/GUI_FrictionSettings.{h,cpp}
         gui/panels/GUI_TopMenubar.{h,cpp}
@@ -149,6 +148,7 @@ set(SOURCE_FILES
         gui/panels/GUI_MultiplayerSelector.{h,cpp}
         gui/panels/GUI_MultiplayerClientList.{h,cpp}
         gui/panels/GUI_NodeBeamUtils.{h,cpp}
+        gui/panels/GUI_SceneMouse.{h,cpp}
         gui/panels/GUI_SimActorStats.{h,cpp}
         gui/panels/GUI_SimPerfStats.{h,cpp}
         gui/panels/GUI_SurveyMap.{h,cpp}
