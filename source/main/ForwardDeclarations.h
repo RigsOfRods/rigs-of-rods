@@ -78,6 +78,7 @@ namespace RoR
         class  MpClientList;
         class  MultiplayerSelector;
         class  DirectionArrow;
+        class  SceneMouse;
         class  SimActorStats;
         class  SurveyMap;
         class  TopMenubar;
