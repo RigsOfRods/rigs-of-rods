@@ -91,9 +91,6 @@ SimController::SimController() :
     m_physics_simulation_time(0.0f),
     m_pressure_pressed(false),
     m_pressure_pressed_timer(0.0f),
-    m_reload_dir(Quaternion::IDENTITY),
-    m_reload_pos(Vector3::ZERO),
-    m_stats_on(0),
     m_time(0),
     m_time_until_next_toggle(0),
     m_advanced_vehicle_repair(false),
@@ -1324,18 +1321,6 @@ void SimController::UpdateInputEvents(float dt)
     if ((App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::PAUSED || App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE) && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
     {
         gui_man->SetVisible_SimPerfStats(!gui_man->IsVisible_SimPerfStats());
-    }
-
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_MAT_DEBUG))
-    {
-        if (m_stats_on == 0)
-            m_stats_on = 2;
-        else if (m_stats_on == 1)
-            m_stats_on = 2;
-        else if (m_stats_on == 2)
-            m_stats_on = 0;
-        if (RoR::App::GetOverlayWrapper())
-            RoR::App::GetOverlayWrapper()->showDebugOverlay(m_stats_on);
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_OUTPUT_POSITION))

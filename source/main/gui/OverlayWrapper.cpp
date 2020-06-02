@@ -150,12 +150,6 @@ Ogre::TextureUnitState* GetTexUnit(Ogre::String material_name) // Internal helpe
 
 int OverlayWrapper::init()
 {
-    m_debug_fps_memory_overlay = loadOverlay("Core/DebugOverlay", false);
-
-    OverlayElement* vere = loadOverlayElement("Core/RoRVersionString");
-    if (vere)
-        vere->setCaption("Rigs of Rods version " + String(ROR_VERSION_STRING));
-
     m_machine_dashboard_overlay = loadOverlay("tracks/MachineDashboardOverlay");
     m_aerial_dashboard.dash_overlay = loadOverlay("tracks/AirDashboardOverlay", false);
     m_aerial_dashboard.needles_overlay = loadOverlay("tracks/AirNeedlesOverlay", false);
@@ -356,23 +350,6 @@ void OverlayWrapper::update(float dt)
 {
     if (mTimeUntilNextToggle > 0)
         mTimeUntilNextToggle -= dt;
-}
-
-void OverlayWrapper::showDebugOverlay(int mode)
-{
-    if (!m_debug_fps_memory_overlay)
-        return;
-
-    if (mode > 0)
-    {
-        m_debug_fps_memory_overlay->show();
-        BITMASK_SET_1(m_visible_overlays, VisibleOverlays::DEBUG_FPS_MEMORY);
-    }
-    else
-    {
-        m_debug_fps_memory_overlay->hide();
-        BITMASK_SET_0(m_visible_overlays, VisibleOverlays::DEBUG_FPS_MEMORY);
-    }
 }
 
 void OverlayWrapper::showPressureOverlay(bool show)

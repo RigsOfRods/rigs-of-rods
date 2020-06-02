@@ -125,7 +125,6 @@ public:
     void ToggleDashboardOverlays(Actor *actor);
 
     void showDashboardOverlays(bool show, Actor *actor);
-    void showDebugOverlay(int mode);
     void showPressureOverlay(bool show);
 
     void windowResized();
@@ -155,7 +154,6 @@ protected:
     /// Thus, an external state must be kept to restore overlays after exiting the editor.
     struct VisibleOverlays
     {
-        static const int DEBUG_FPS_MEMORY             = BITMASK(2);
         static const int RACING                       = BITMASK(4);
         static const int TRUCK_TIRE_PRESSURE_OVERLAY  = BITMASK(5);
     };
@@ -190,7 +188,6 @@ protected:
     Ogre::Overlay *m_machine_dashboard_overlay;
 
     // Misc
-    Ogre::Overlay *m_debug_fps_memory_overlay;
     Ogre::Overlay *m_racing_overlay;
 
     // -------------------------------------------------------------

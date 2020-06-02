@@ -86,7 +86,6 @@ private:
     bool                     m_is_pace_reset_pressed;
     float                    m_physics_simulation_time; //!< Amount of time the physics simulation is going to be advanced
     bool                     m_physics_simulation_paused;
-    int                      m_stats_on;
     float                    m_time;
     bool                     m_hide_gui;
     bool                     m_pressure_pressed;
@@ -95,7 +94,4 @@ private:
     float                    m_advanced_vehicle_repair_timer;
 
     float                    m_pressure_pressed_timer;
-
-    Ogre::Vector3            m_reload_pos;
-    Ogre::Quaternion         m_reload_dir;
 };
