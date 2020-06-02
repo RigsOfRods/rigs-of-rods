@@ -91,7 +91,6 @@ private:
     bool                     m_hide_gui;
     bool                     m_pressure_pressed;
 
-    bool                     m_soft_reset_mode;
     bool                     m_advanced_vehicle_repair;
     float                    m_advanced_vehicle_repair_timer;
 

@@ -54,6 +54,7 @@ void Console::CVarSetupBuiltins()
     App::sim_no_collisions       = this->CVarCreate("sim_no_collisions",       "DisableCollisions",          CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::sim_no_self_collisions  = this->CVarCreate("sim_no_self_collisions",  "DisableSelfCollisions",      CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::sim_gearbox_mode        = this->CVarCreate("sim_gearbox_mode",        "GearboxMode",                CVAR_ARCHIVE | CVAR_TYPE_INT);
+    App::sim_soft_reset_mode     = this->CVarCreate("sim_soft_reset_mode",     "",                                          CVAR_TYPE_BOOL,    "false");
 
     App::mp_state                = this->CVarCreate("mp_state",                "",                                          CVAR_TYPE_INT,     "0"/*(int)MpState::DISABLED*/);
     App::mp_join_on_startup      = this->CVarCreate("mp_join_on_startup",      "Auto connect",               CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
