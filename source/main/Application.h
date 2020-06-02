@@ -261,6 +261,7 @@ extern CVar* sim_races_enabled;
 extern CVar* sim_no_collisions;
 extern CVar* sim_no_self_collisions;
 extern CVar* sim_gearbox_mode;
+extern CVar* sim_soft_reset_mode;
 
 // Multiplayer
 extern CVar* mp_state;

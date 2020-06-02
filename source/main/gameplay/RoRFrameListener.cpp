@@ -96,7 +96,6 @@ SimController::SimController() :
     m_stats_on(0),
     m_time(0),
     m_time_until_next_toggle(0),
-    m_soft_reset_mode(false),
     m_advanced_vehicle_repair(false),
     m_advanced_vehicle_repair_timer(0.f)
 {
@@ -671,12 +670,12 @@ void SimController::UpdateInputEvents(float dt)
                     }
                     App::GetGameContext()->GetPlayerActor()->ar_physics_paused = !App::GetGameContext()->GetPlayerActor()->ar_physics_paused;
                 }
-                if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_RESET_MODE))
+                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_RESET_MODE))
                 {
-                    m_soft_reset_mode = !m_soft_reset_mode;
-                    RoR::App::GetConsole()->putMessage(
+                    App::sim_soft_reset_mode->SetVal(!App::sim_soft_reset_mode->GetBool());
+                    App::GetConsole()->putMessage(
                         Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                        (m_soft_reset_mode) ? _L("Enabled soft reset mode") : _L("Enabled hard reset mode"));
+                        (App::sim_soft_reset_mode->GetBool()) ? _L("Enabled soft reset mode") : _L("Enabled hard reset mode"));
                 }
                 if (!RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
                 {
@@ -758,7 +757,7 @@ void SimController::UpdateInputEvents(float dt)
                         App::GetGameContext()->GetPlayerActor()->RequestRotation(rotation, rotation_center);
                         App::GetGameContext()->GetPlayerActor()->RequestTranslation(translation);
 
-                        if (m_soft_reset_mode)
+                        if (App::sim_soft_reset_mode->GetBool())
                         {
                             for (auto actor : App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors())
                             {
@@ -772,7 +771,7 @@ void SimController::UpdateInputEvents(float dt)
                     else if (RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
                     {
                         App::GetGameContext()->GetPlayerActor()->RequestAngleSnap(45);
-                        if (m_soft_reset_mode)
+                        if (App::sim_soft_reset_mode->GetBool())
                         {
                             for (auto actor : App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors())
                             {
@@ -786,7 +785,7 @@ void SimController::UpdateInputEvents(float dt)
                     }
 
                     auto reset_type = ActorModifyRequest::Type::RESET_ON_SPOT;
-                    if (m_soft_reset_mode)
+                    if (App::sim_soft_reset_mode->GetBool())
                     {
                         reset_type = ActorModifyRequest::Type::SOFT_RESET;
                         for (auto actor : App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors())
