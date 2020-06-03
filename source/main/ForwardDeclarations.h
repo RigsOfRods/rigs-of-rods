@@ -37,6 +37,7 @@ namespace RoR
     class  Console;
     class  ContentManager;
     class  CVar;
+    class  DiscordRpc;
     class  FlexBodyFileIO;
     struct FlexBodyCacheData;
     class  FlexFactory;
@@ -176,7 +177,7 @@ class MapTextureCreator;
 class MeshObject;
 class Mirror;
 class MumbleIntegration;
-class OutProtocol;
+class OutGauge;
 class OverlayWrapper;
 class PointColDetector;
 class ProceduralManager;

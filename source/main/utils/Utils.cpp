@@ -28,10 +28,6 @@
 
 #include <Ogre.h>
 
-#ifdef USE_DISCORD_RPC
-#include <discord_rpc.h>
-#endif
-
 #ifndef _WIN32
 #   include <iconv.h>
 #endif
@@ -42,71 +38,6 @@
 
 using namespace Ogre;
 using namespace RoR;
-
-#ifdef USE_DISCORD_RPC
-void DiscordErrorCallback(int, const char *error)
-{
-    RoR::LogFormat("Discord Error: %s", error);
-}
-
-void DiscordReadyCallback(const DiscordUser *user)
-{
-    RoR::LogFormat("Discord Ready: %s", user->username);
-}
-#endif
-
-void InitDiscord()
-{
-#ifdef USE_DISCORD_RPC
-    if(App::io_discord_rpc->GetBool())
-    {
-        DiscordEventHandlers handlers;
-        memset(&handlers, 0, sizeof(handlers));
-        handlers.ready = DiscordReadyCallback;
-        handlers.errored = DiscordErrorCallback;
-
-        // Discord_Initialize(const char* applicationId, DiscordEventHandlers* handlers, int autoRegister, const char* optionalSteamId)
-        Discord_Initialize("492484203435393035", &handlers, 1, "1234");
-    }
-#endif
-}
-
-void UpdatePresence()
-{
-#ifdef USE_DISCORD_RPC
-    if(App::io_discord_rpc->GetBool())
-    {
-        char buffer[256];
-        DiscordRichPresence discordPresence;
-        memset(&discordPresence, 0, sizeof(discordPresence));
-        if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
-        {
-            discordPresence.state = "Playing online";
-            sprintf(buffer, "On server: %s:%d  on terrain: %s",
-                    RoR::App::mp_server_host->GetStr().c_str(),
-                    RoR::App::mp_server_port->GetInt(),
-                    RoR::App::sim_terrain_gui_name->GetStr().c_str());
-        }
-        else
-        {
-            discordPresence.state = "Playing singleplayer";
-            sprintf(buffer, "On terrain: %s", RoR::App::sim_terrain_gui_name->GetStr().c_str());
-        }
-        discordPresence.details = buffer;
-        discordPresence.startTimestamp = time(0);
-        discordPresence.largeImageKey = "ror_logo_t";
-        discordPresence.largeImageText = "Rigs of Rods";
-        Discord_UpdatePresence(&discordPresence);
-    }
-#endif
-}
-
-void ShutdownDiscord()
-{
-#ifdef USE_DISCORD_RPC
-    Discord_Shutdown();
-#endif
-}
 
 String sha1sum(const char *key, int len)
 {

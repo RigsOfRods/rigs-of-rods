@@ -32,6 +32,7 @@
 #include "Collisions.h"
 #include "ContentManager.h"
 #include "DashBoardManager.h"
+#include "DiscordRpc.h"
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
@@ -43,7 +44,7 @@
 #include "LandVehicleSimulation.h"
 #include "Language.h"
 #include "MumbleIntegration.h"
-#include "OutProtocol.h"
+#include "OutGauge.h"
 #include "OverlayWrapper.h"
 #include "PlatformUtils.h"
 #include "RaceSystem.h"
@@ -1618,7 +1619,7 @@ bool SimController::SetupGameplayLoop()
 
     App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
 
-    UpdatePresence();
+    App::GetDiscordRpc()->UpdatePresence();
 
     return true;
 }

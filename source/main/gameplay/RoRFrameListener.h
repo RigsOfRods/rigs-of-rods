@@ -28,7 +28,7 @@
 #include "CameraManager.h" // CameraManager::CameraBehaviors
 #include "CharacterFactory.h"
 #include "GfxScene.h"
-#include "OutProtocol.h"
+#include "OutGauge.h"
 #include "GUI_SceneMouse.h"
 
 /// The simulation controller object
