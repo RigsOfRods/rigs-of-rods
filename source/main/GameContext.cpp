@@ -29,6 +29,7 @@
 #include "DashBoardManager.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
+#include "GUI_FrictionSettings.h"
 #include "GUI_MainSelector.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
@@ -60,6 +61,90 @@ Message GameContext::PopMessage()
     Message m = m_msg_queue.front();
     m_msg_queue.pop();
     return m;
+}
+
+// --------------------------------
+// Terrain
+
+bool GameContext::LoadTerrain(std::string const& filename_part)
+{
+    // Load character - must be done first!
+    m_character_factory.CreateLocalCharacter();
+
+    // Find terrain in modcache
+    CacheEntry* terrn_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Terrain, /*partial=*/true, filename_part);
+    if (!terrn_entry)
+    {
+        Str<200> msg; msg << _L("Terrain not found: ") << filename_part;
+        RoR::Log(msg.ToCStr());
+        App::GetGuiManager()->ShowMessageBox(_L("Terrain loading error"), msg.ToCStr());
+        return false;
+    }
+
+    // Init resources
+    App::GetCacheSystem()->LoadResource(*terrn_entry);
+
+    // Perform the loading and setup
+    App::SetSimTerrain(TerrainManager::LoadAndPrepareTerrain(*terrn_entry));
+    if (!App::GetSimTerrain())
+    {
+        return false; // Message box already displayed
+    }
+
+    // Initialize envmap textures by rendering center of map
+    Ogre::Vector3 center = App::GetSimTerrain()->getMaxTerrainSize() / 2;
+    center.y = App::GetSimTerrain()->GetHeightAt(center.x, center.z) + 1.0f;
+    App::GetGfxScene()->GetEnvMap().UpdateEnvMap(center, nullptr);
+
+    // Scan groundmodels
+    App::GetGuiManager()->GetFrictionSettings()->AnalyzeTerrain();
+
+    // Adjust character position
+    Ogre::Vector3 spawn_pos = App::GetSimTerrain()->getSpawnPos();
+    float spawn_rot = 0.0f;
+
+    // Classic behavior, retained for compatibility.
+    // Required for maps like N-Labs or F1 Track.
+    if (!App::GetSimTerrain()->HasPredefinedActors())
+    {
+        spawn_rot = 180.0f;
+    }
+
+    if (App::diag_preset_spawn_pos->GetStr() != "")
+    {
+        spawn_pos = Ogre::StringConverter::parseVector3(App::diag_preset_spawn_pos->GetStr(), spawn_pos);
+        App::diag_preset_spawn_pos->SetStr("");
+    }
+    if (App::diag_preset_spawn_rot->GetStr() != "")
+    {
+        spawn_rot = Ogre::StringConverter::parseReal(App::diag_preset_spawn_rot->GetStr(), spawn_rot);
+        App::diag_preset_spawn_rot->SetStr("");
+    }
+
+    spawn_pos.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
+
+    this->GetPlayerCharacter()->setPosition(spawn_pos);
+    this->GetPlayerCharacter()->setRotation(Ogre::Degree(spawn_rot));
+
+    App::GetCameraManager()->GetCameraNode()->setPosition(App::GetGameContext()->GetPlayerCharacter()->getPosition());
+
+    // Small hack to improve the spawn experience
+    for (int i = 0; i < 100; i++)
+    {
+        App::GetCameraManager()->Update(0.02f, nullptr, 1.0f);
+    }
+
+    return true;
+}
+
+void GameContext::UnloadTerrain()
+{
+    if (App::GetSimTerrain() != nullptr)
+    {
+        // remove old terrain
+        delete(App::GetSimTerrain());
+        App::SetSimTerrain(nullptr);
+    }
 }
 
 // --------------------------------

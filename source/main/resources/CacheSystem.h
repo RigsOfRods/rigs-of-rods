@@ -197,7 +197,7 @@ public:
     };
 
     void                  LoadModCache(CacheValidityState validity);
-    CacheEntry*           FindEntryByFilename(std::string filename); //<! Returns NULL if none found
+    CacheEntry*           FindEntryByFilename(RoR::LoaderType type, bool partial, std::string filename); //<! Returns NULL if none found
     CacheEntry*           FetchSkinByName(std::string const & skin_name);
     void                  UnloadActorFromMemory(std::string filename);
     CacheValidityState    EvaluateCacheValidity();

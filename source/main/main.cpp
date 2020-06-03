@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->GetLoadingWindow()->setProgress(5, _L("Loading resources"));
                     App::GetContentManager()->LoadGameplayResources();
 
-                    if (App::GetSimController()->LoadTerrain(m.description) &&
+                    if (App::GetGameContext()->LoadTerrain(m.description) &&
                         App::GetSimController()->SetupGameplayLoop())
                     {
                         App::sim_state->SetVal((int)SimState::RUNNING);

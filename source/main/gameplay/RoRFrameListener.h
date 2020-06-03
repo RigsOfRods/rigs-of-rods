@@ -60,7 +60,6 @@ public:
 
     // Scripting interface
     float  getTime               () { return m_time; }
-    bool   LoadTerrain           (std::string terrn_file);
 
     /// @return True if everything was prepared OK and simulation may start.
     bool   SetupGameplayLoop     ();

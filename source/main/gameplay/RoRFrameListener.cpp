@@ -1423,108 +1423,6 @@ void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instanc
     }
 }
 
-bool SimController::LoadTerrain(std::string terrain_file)
-{
-    // Load character - must be done first!
-    App::GetGameContext()->GetCharacterFactory()->CreateLocalCharacter();
-
-    // Look up the terrain in modcache
-    size_t length = std::numeric_limits<size_t>::max();
-    const CacheEntry* lookup = nullptr;
-    String name = terrain_file;
-    StringUtil::toLowerCase(name);
-    for (const auto& entry : App::GetCacheSystem()->GetEntries())
-    {
-        if (entry.fext != "terrn2")
-            continue; 
-        String fname = entry.fname;
-        StringUtil::toLowerCase(fname);
-        if (fname.find(name) != std::string::npos)
-        {
-            if (fname == name)
-            {
-                lookup = &entry;
-                break;
-            }
-            else if (fname.length() < length)
-            {
-                lookup = &entry;
-                length = fname.length();
-            }
-        }
-    }
-    if (lookup != nullptr)
-    {
-        terrain_file = lookup->fname;
-    }
-
-    // check if the resource is loaded
-    if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(terrain_file)) // Input-output argument.
-    {
-        LOG("Terrain not found: " + terrain_file);
-        Ogre::UTFString title(_L("Terrain loading error"));
-        Ogre::UTFString msg(_L("Terrain not found: ") + terrain_file);
-        App::GetGuiManager()->ShowMessageBox(title.asUTF8_c_str(), msg.asUTF8_c_str());
-        return false;
-    }
-
-    App::GetGuiManager()->GetLoadingWindow()->setProgress(10, _L("Loading Terrain"));
-
-    LOG("Loading terrain: " + terrain_file);
-
-    TerrainManager* terrain = new TerrainManager();
-    App::SetSimTerrain(terrain); // The terrain preparation logic relies on it.
-    if (!terrain->LoadAndPrepareTerrain(terrain_file))
-    {
-        App::GetGuiManager()->ShowMessageBox("Failed to load terrain", "See 'RoR.log' for more info.", true, "OK", nullptr);
-        App::SetSimTerrain(nullptr);
-        delete terrain;
-        return false;
-    }
-    App::sim_terrain_name->SetStr(terrain_file);
-
-    if (App::GetGameContext()->GetPlayerCharacter() != nullptr)
-    {
-        Vector3 spawn_pos = App::GetSimTerrain()->getSpawnPos();
-        Real spawn_rot = 0.0f;
-
-        // Classic behavior, retained for compatibility.
-        // Required for maps like N-Labs or F1 Track.
-        if (!App::GetSimTerrain()->HasPredefinedActors())
-        {
-            spawn_rot = 180.0f;
-        }
-
-        if (App::diag_preset_spawn_pos->GetStr() != "")
-        {
-            spawn_pos = StringConverter::parseVector3(String(App::diag_preset_spawn_pos->GetStr()), spawn_pos);
-            App::diag_preset_spawn_pos->SetStr("");
-        }
-        if (App::diag_preset_spawn_rot->GetStr() != "")
-        {
-            spawn_rot = StringConverter::parseReal(App::diag_preset_spawn_rot->GetStr(), spawn_rot);
-            App::diag_preset_spawn_rot->SetStr("");
-        }
-
-        spawn_pos.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
-
-        App::GetGameContext()->GetPlayerCharacter()->setPosition(spawn_pos);
-        App::GetGameContext()->GetPlayerCharacter()->setRotation(Degree(spawn_rot));
-
-        App::GetCameraManager()->GetCameraNode()->setPosition(App::GetGameContext()->GetPlayerCharacter()->getPosition());
-
-        // Small hack to improve the spawn experience
-        for (int i = 0; i < 100; i++)
-        {
-            App::GetCameraManager()->Update(0.02f, nullptr, 1.0f);
-        }
-    }
-
-    App::GetGuiManager()->GetFrictionSettings()->AnalyzeTerrain();
-
-    return true;
-}
-
 void SimController::CleanupAfterSimulation()
 {
     if (App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
@@ -1535,13 +1433,6 @@ void SimController::CleanupAfterSimulation()
     App::DestroyOverlayWrapper();
 
     App::GetCameraManager()->ResetAllBehaviors();
-
-    if (App::GetSimTerrain() != nullptr)
-    {
-        // remove old terrain
-        delete(App::GetSimTerrain());
-        App::SetSimTerrain(nullptr);
-    }
 
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
 }

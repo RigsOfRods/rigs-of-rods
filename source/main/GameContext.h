@@ -73,6 +73,12 @@ public:
     Message             PopMessage();
 
     // ----------------------------
+    // Terrain
+
+    bool                LoadTerrain(std::string const& filename_part);
+    void                UnloadTerrain();
+
+    // ----------------------------
     // Actors
 
     Actor*              SpawnActor(ActorSpawnRequest& rq);

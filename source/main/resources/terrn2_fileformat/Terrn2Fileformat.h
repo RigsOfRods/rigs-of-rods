@@ -79,12 +79,9 @@ class Terrn2Parser
 {
 public:
     bool LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds);
-    std::list<std::string> const & GetMessages() const { return m_messages; }
 
 private:
     void ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file);
-    void AddMessage(const char* msg) { m_messages.push_back(msg); }
-    std::list<std::string> m_messages;
 };
 
 } // namespace RoR

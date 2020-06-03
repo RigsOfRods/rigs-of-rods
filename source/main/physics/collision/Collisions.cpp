@@ -115,14 +115,14 @@ unsigned int sbox[] =
 using namespace Ogre;
 using namespace RoR;
 
-Collisions::Collisions():
+Collisions::Collisions(Ogre::Vector3 terrn_size):
       debugMode(false)
     , debugmo(nullptr)
     , forcecam(false)
     , free_eventsource(0)
     , hashmask(0)
     , landuse(0)
-    , m_terrain_size(App::GetSimTerrain()->getMaxTerrainSize())
+    , m_terrain_size(terrn_size)
 {
     debugMode = App::diag_collisions->GetBool(); // TODO: make interactive - do not copy the value, use GVar directly
     for (int i=0; i < HASH_POWER; i++)

@@ -21,7 +21,10 @@
 /// @author Petr Ohlidal, 11/2016
 
 #include "Terrn2Fileformat.h"
+
+#include "AppContext.h"
 #include "ConfigFile.h"
+#include "Console.h"
 #include "Utils.h"
 #include "BeamConstants.h"
 
@@ -41,7 +44,8 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
     def.name = file.GetStringEx("Name", "General");
     if (def.name.empty())
     {
-        this->AddMessage("FATAL: Terrain name is empty");
+        Str<500> msg; msg << "Error in file '" << ds->getName() << "': Terrain name is empty";
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
         return false;
     }
 
@@ -49,7 +53,8 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
     // otc = ogre terrain config
     if (!def.ogre_ter_conf_filename.empty() && def.ogre_ter_conf_filename.find(".otc") == String::npos)
     {
-        this->AddMessage("FATAL: Invalid geometry config file; only '.otc' is supported");
+        Str<500> msg; msg << "Error in file '" << ds->getName() << "': Invalid geometry config file; only '.otc' is supported";
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
         return false;
     }
 
@@ -137,7 +142,8 @@ void Terrn2Parser::ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file)
             snprintf(msg_buf, 500,
                 "ERROR: Field '[Teleport]/%s' ('%s') is not valid XYZ position. Skipping telepoint %u.",
                 key_position, pos_str.c_str(), telepoint_number);
-            this->AddMessage(msg_buf);
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN,
+                                          Console::CONSOLE_SYSTEM_WARNING, msg_buf);
         }
         else
         {

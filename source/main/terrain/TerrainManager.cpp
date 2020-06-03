@@ -22,6 +22,7 @@
 #include "TerrainManager.h"
 
 #include "BeamFactory.h"
+#include "CacheSystem.h"
 #include "Collisions.h"
 #include "Renderdash.h"
 #include "GUIManager.h"
@@ -123,115 +124,114 @@ TerrainManager::~TerrainManager()
 // some shortcut to remove ugly code
 #   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(x, y); }
 
-bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
+TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry& entry)
 {
+    auto terrn_mgr = std::unique_ptr<TerrainManager>(new TerrainManager());
+
+    std::string const& filename = entry.fname;
     try
     {
         Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename);
         LOG(" ===== LOADING TERRAIN " + filename);
         Terrn2Parser parser;
-        if (! parser.LoadTerrn2(m_def, stream))
+        if (! parser.LoadTerrn2(terrn_mgr->m_def, stream))
         {
-            LOG("[RoR|Terrain] Failed to parse: " + filename);
-            for (std::string msg : parser.GetMessages())
-            {
-                LOG("[RoR|Terrain] \tMessage: " + msg);
-            }
-            return false;
+            return nullptr; // Errors already logged to console
         }
     }
-    catch (...)
+    catch (Ogre::Exception& e)
     {
-        this->HandleException("Error reading *.terrn2 file");
-        return false;
+        App::GetGuiManager()->ShowMessageBox(_L("Terrain loading error"), e.getFullDescription().c_str());
+        return nullptr;
     }
 
-    App::sim_terrain_gui_name->SetStr(m_def.name);
+    terrn_mgr->setGravity(terrn_mgr->m_def.gravity);
 
-    this->setGravity(m_def.gravity);
-
-    initShadows();
+    terrn_mgr->initShadows();
 
     PROGRESS_WINDOW(15, _L("Initializing Geometry Subsystem"));
-    m_geometry_manager = new TerrainGeometryManager(this);
+    terrn_mgr->m_geometry_manager = new TerrainGeometryManager(terrn_mgr.get());
 
     // objects  - .odef support
     PROGRESS_WINDOW(17, _L("Initializing Object Subsystem"));
-    initObjects();
+    terrn_mgr->initObjects();
 
     PROGRESS_WINDOW(19, _L("Initializing Shadow Subsystem"));
 
     PROGRESS_WINDOW(23, _L("Initializing Camera Subsystem"));
-    initCamera();
+    terrn_mgr->initCamera();
 
     // sky, must come after camera due to m_sight_range
     PROGRESS_WINDOW(25, _L("Initializing Sky Subsystem"));
-    initSkySubSystem();
+    terrn_mgr->initSkySubSystem();
 
     PROGRESS_WINDOW(27, _L("Initializing Light Subsystem"));
-    initLight();
+    terrn_mgr->initLight();
 
     if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() != GfxSkyMode::CAELUM) //Caelum has its own fog management
     {
         PROGRESS_WINDOW(29, _L("Initializing Fog Subsystem"));
-        initFog();
+        terrn_mgr->initFog();
     }
 
     PROGRESS_WINDOW(31, _L("Initializing Vegetation Subsystem"));
-    initVegetation();
+    terrn_mgr->initVegetation();
 
     // water must be done later on
     //PROGRESS_WINDOW(33, _L("Initializing Water Subsystem"));
     //initWater();
 
-    fixCompositorClearColor();
+    terrn_mgr->fixCompositorClearColor();
 
     LOG(" ===== LOADING TERRAIN GEOMETRY " + filename);
     PROGRESS_WINDOW(40, _L("Loading Terrain Geometry"));
-    if (!m_geometry_manager->InitTerrain(m_def.ogre_ter_conf_filename))
+    if (!terrn_mgr->m_geometry_manager->InitTerrain(terrn_mgr->m_def.ogre_ter_conf_filename))
     {
-        return false; // Error already reported
+        return nullptr; // Error already reported
     }
 
     PROGRESS_WINDOW(60, _L("Initializing Collision Subsystem"));
-    m_collisions = new Collisions();
+    terrn_mgr->m_collisions = new Collisions(terrn_mgr->getMaxTerrainSize());
 
     PROGRESS_WINDOW(75, _L("Initializing Script Subsystem"));
-    initScripting();
+    terrn_mgr->initScripting();
 
-    initWater();
+    terrn_mgr->initWater();
 
     LOG(" ===== LOADING TERRAIN OBJECTS " + filename);
     PROGRESS_WINDOW(80, _L("Loading Terrain Objects"));
-    loadTerrainObjects();
+    terrn_mgr->loadTerrainObjects();
 
     // bake the decals
     //finishTerrainDecal();
 
     // init things after loading the terrain
-    initTerrainCollisions();
+    App::SetSimTerrain(terrn_mgr.get()); // Hack for the Landusemap
+    terrn_mgr->initTerrainCollisions();
+    App::SetSimTerrain(nullptr); // END Hack for the Landusemap
 
     PROGRESS_WINDOW(90, _L("Initializing terrain light properties"));
-    m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
-    m_collisions->finishLoadingTerrain();
+    terrn_mgr->m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
+    terrn_mgr->m_collisions->finishLoadingTerrain();
 
     PROGRESS_WINDOW(92, _L("Initializing Overview Map Subsystem"));
-    LoadTelepoints();
+    terrn_mgr->LoadTelepoints();
     App::GetGfxScene()->CreateDustPools();
-    App::GetGuiManager()->GetSurveyMap()->CreateTerrainTextures(); // Should be done before actors are loaded, otherwise they'd show up in the static texture
 
-    // Initialize envmap textures by rendering center of map
-    Ogre::Vector3 center = this->getMaxTerrainSize() / 2;
-    center.y = this->GetHeightAt(center.x, center.z) + 1.0f;
-    App::GetGfxScene()->GetEnvMap().UpdateEnvMap(center, nullptr);
+    App::SetSimTerrain(terrn_mgr.get()); // Hack for the SurveyMapTextureCreator
+    App::GetGuiManager()->GetSurveyMap()->CreateTerrainTextures(); // Should be done before actors are loaded, otherwise they'd show up in the static texture
+    App::SetSimTerrain(nullptr); // END Hack for the SurveyMapTextureCreator
 
     LOG(" ===== LOADING TERRAIN ACTORS " + filename);
     PROGRESS_WINDOW(95, _L("Loading Terrain Actors"));
-    LoadPredefinedActors();
+    terrn_mgr->LoadPredefinedActors();
 
     LOG(" ===== TERRAIN LOADING DONE " + filename);
 
-    return true;
+    App::sim_terrain_name->SetStr(filename);
+    App::sim_terrain_gui_name->SetStr(terrn_mgr->m_def.name);
+
+    return terrn_mgr.release();
 }
 
 void TerrainManager::initCamera()
@@ -430,7 +430,7 @@ void TerrainManager::initWater()
     }
     else
     {
-        m_water = std::unique_ptr<IWater>(new Water());
+        m_water = std::unique_ptr<IWater>(new Water(this->getMaxTerrainSize()));
         m_water->SetStaticWaterHeight(m_def.water_height);
         m_water->SetWaterBottomHeight(m_def.water_bottom_height);
     }

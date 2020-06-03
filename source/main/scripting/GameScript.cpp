@@ -121,10 +121,7 @@ void GameScript::setPersonPosition(const Vector3& vec)
 
 void GameScript::loadTerrain(const String& terrain)
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return;
-
-    App::GetSimController()->LoadTerrain(terrain);
+    App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, terrain));
 }
 
 Vector3 GameScript::getPersonPosition()

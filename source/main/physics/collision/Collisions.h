@@ -54,6 +54,9 @@ public:
         FX_PARTICLE
     };
 
+    Collisions(Ogre::Vector3 terrn_size);
+    ~Collisions();
+
 private:
 
     /// Static collision object lookup system
@@ -149,9 +152,6 @@ public:
     bool forcecam;
     Ogre::Vector3 forcecampos;
     ground_model_t *defaultgm, *defaultgroundgm;
-
-    Collisions();
-    ~Collisions();
 
     Ogre::Vector3 getPosition(const Ogre::String& inst, const Ogre::String& box);
     Ogre::Quaternion getDirection(const Ogre::String& inst, const Ogre::String& box);
