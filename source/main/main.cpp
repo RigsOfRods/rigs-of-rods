@@ -30,6 +30,7 @@
 #include "ErrorUtils.h"
 #include "GameContext.h"
 #include "GUIManager.h"
+#include "GUI_DirectionArrow.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
 #include "GUI_MultiplayerSelector.h"
@@ -375,9 +376,18 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->GetLoadingWindow()->setProgress(5, _L("Loading resources"));
                     App::GetContentManager()->LoadGameplayResources();
 
-                    if (App::GetGameContext()->LoadTerrain(m.description) &&
-                        App::GetSimController()->SetupGameplayLoop())
+                    if (App::GetGameContext()->LoadTerrain(m.description))
                     {
+                        App::GetGameContext()->CreatePlayerCharacter();
+                        App::GetGameContext()->SpawnPreselectedActor(); // Needs character for position
+                        App::CreateOverlayWrapper();
+                        App::GetGuiManager()->GetDirectionArrow()->LoadOverlay();
+                        if (App::audio_menu_music->GetBool())
+                        {
+                            SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
+                        }
+                        App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
+                        App::GetDiscordRpc()->UpdatePresence();
                         App::sim_state->SetVal((int)SimState::RUNNING);
                         App::app_state->SetVal((int)AppState::SIMULATION);
                         App::GetGuiManager()->ReflectGameState();
@@ -399,10 +409,6 @@ int main(int argc, char *argv[])
                             App::GetOutGauge()->Connect();
                         }
                     }
-                    else
-                    {
-                        App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
-                    }
                     break;
 
                 case MSG_SIM_UNLOAD_TERRN_REQUESTED:
@@ -411,7 +417,9 @@ int main(int argc, char *argv[])
                     App::GetGameContext()->SaveScene("autosave.sav");
                     App::GetGameContext()->GetActorManager()->DeleteAllActors();
                     App::GetGameContext()->GetCharacterFactory()->DeleteAllCharacters();
-                    App::GetSimController()->CleanupAfterSimulation();
+                    App::DestroyOverlayWrapper();
+                    App::GetCameraManager()->ResetAllBehaviors();
+                    App::GetGuiManager()->SetVisible_LoadingWindow(false);
                     App::sim_state->SetVal((int)SimState::OFF);
                     App::app_state->SetVal((int)AppState::MAIN_MENU);
                     App::GetGuiManager()->ReflectGameState();

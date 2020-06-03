@@ -68,9 +68,6 @@ Message GameContext::PopMessage()
 
 bool GameContext::LoadTerrain(std::string const& filename_part)
 {
-    // Load character - must be done first!
-    m_character_factory.CreateLocalCharacter();
-
     // Find terrain in modcache
     CacheEntry* terrn_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Terrain, /*partial=*/true, filename_part);
     if (!terrn_entry)
@@ -98,41 +95,6 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
 
     // Scan groundmodels
     App::GetGuiManager()->GetFrictionSettings()->AnalyzeTerrain();
-
-    // Adjust character position
-    Ogre::Vector3 spawn_pos = App::GetSimTerrain()->getSpawnPos();
-    float spawn_rot = 0.0f;
-
-    // Classic behavior, retained for compatibility.
-    // Required for maps like N-Labs or F1 Track.
-    if (!App::GetSimTerrain()->HasPredefinedActors())
-    {
-        spawn_rot = 180.0f;
-    }
-
-    if (App::diag_preset_spawn_pos->GetStr() != "")
-    {
-        spawn_pos = Ogre::StringConverter::parseVector3(App::diag_preset_spawn_pos->GetStr(), spawn_pos);
-        App::diag_preset_spawn_pos->SetStr("");
-    }
-    if (App::diag_preset_spawn_rot->GetStr() != "")
-    {
-        spawn_rot = Ogre::StringConverter::parseReal(App::diag_preset_spawn_rot->GetStr(), spawn_rot);
-        App::diag_preset_spawn_rot->SetStr("");
-    }
-
-    spawn_pos.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
-
-    this->GetPlayerCharacter()->setPosition(spawn_pos);
-    this->GetPlayerCharacter()->setRotation(Ogre::Degree(spawn_rot));
-
-    App::GetCameraManager()->GetCameraNode()->setPosition(App::GetGameContext()->GetPlayerCharacter()->getPosition());
-
-    // Small hack to improve the spawn experience
-    for (int i = 0; i < 100; i++)
-    {
-        App::GetCameraManager()->Update(0.02f, nullptr, 1.0f);
-    }
 
     return true;
 }
@@ -484,6 +446,45 @@ void GameContext::RespawnLastActor()
     }
 }
 
+void GameContext::SpawnPreselectedActor()
+{
+    if (App::diag_preset_vehicle->GetStr() == "")
+        return;
+    
+    CacheEntry* entry = App::GetCacheSystem()->FindEntryByFilename(
+        LT_AllBeam, /*partial=*/true, App::diag_preset_vehicle->GetStr());
+
+    if (!entry)
+        return;
+
+    ActorSpawnRequest* rq = new ActorSpawnRequest;
+    rq->asr_cache_entry = entry;
+    rq->asr_position    = App::GetGameContext()->GetPlayerCharacter()->getPosition();
+    rq->asr_rotation    = Ogre::Quaternion(Ogre::Degree(180) - App::GetGameContext()->GetPlayerCharacter()->getRotation(), Ogre::Vector3::UNIT_Y);
+    rq->asr_origin      = ActorSpawnRequest::Origin::CONFIG_FILE;
+
+    RoR::LogFormat("[RoR|Diag] Preselected Truck: %s (%s)", entry->dname.c_str(), entry->fname.c_str());
+
+    // Section config lookup
+    if (!entry->sectionconfigs.empty())
+    {
+        if (std::find(entry->sectionconfigs.begin(), entry->sectionconfigs.end(),
+                      App::diag_preset_veh_config->GetStr())
+            == entry->sectionconfigs.end())
+        {
+            // Preselected config doesn't exist -> use first available one
+            rq->asr_config = entry->sectionconfigs[0];
+        }
+        else
+        {
+            rq->asr_config = App::diag_preset_veh_config->GetStr();
+        }
+        RoR::LogFormat("[RoR|Diag] Preselected Truck Config: %s", rq->asr_config.c_str());
+    }
+
+    App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+}
+
 void GameContext::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
 {
     // first, test if the place if clear, BUT NOT IN MULTIPLAYER
@@ -572,6 +573,46 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
 
 // --------------------------------
 // Characters
+
+void GameContext::CreatePlayerCharacter()
+{
+    m_character_factory.CreateLocalCharacter();
+
+    // Adjust character position
+    Ogre::Vector3 spawn_pos = App::GetSimTerrain()->getSpawnPos();
+    float spawn_rot = 0.0f;
+
+    // Classic behavior, retained for compatibility.
+    // Required for maps like N-Labs or F1 Track.
+    if (!App::GetSimTerrain()->HasPredefinedActors())
+    {
+        spawn_rot = 180.0f;
+    }
+
+    if (App::diag_preset_spawn_pos->GetStr() != "")
+    {
+        spawn_pos = Ogre::StringConverter::parseVector3(App::diag_preset_spawn_pos->GetStr(), spawn_pos);
+        App::diag_preset_spawn_pos->SetStr("");
+    }
+    if (App::diag_preset_spawn_rot->GetStr() != "")
+    {
+        spawn_rot = Ogre::StringConverter::parseReal(App::diag_preset_spawn_rot->GetStr(), spawn_rot);
+        App::diag_preset_spawn_rot->SetStr("");
+    }
+
+    spawn_pos.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
+
+    this->GetPlayerCharacter()->setPosition(spawn_pos);
+    this->GetPlayerCharacter()->setRotation(Ogre::Degree(spawn_rot));
+
+    App::GetCameraManager()->GetCameraNode()->setPosition(App::GetGameContext()->GetPlayerCharacter()->getPosition());
+
+    // Small hack to improve the spawn experience
+    for (int i = 0; i < 100; i++)
+    {
+        App::GetCameraManager()->Update(0.02f, nullptr, 1.0f);
+    }
+}
 
 Character* GameContext::GetPlayerCharacter() // Convenience ~ counterpart of `GetPlayerActor()`
 {
