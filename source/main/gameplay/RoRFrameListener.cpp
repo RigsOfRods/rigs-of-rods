@@ -36,7 +36,6 @@
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
-#include "GUI_DirectionArrow.h"
 #include "GUI_SimActorStats.h"
 #include "GUI_SurveyMap.h"
 #include "ForceFeedback.h"
@@ -1421,98 +1420,6 @@ void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instanc
     {
         App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
     }
-}
-
-void SimController::CleanupAfterSimulation()
-{
-    if (App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
-    {
-        write_editor_log();
-    }
-
-    App::DestroyOverlayWrapper();
-
-    App::GetCameraManager()->ResetAllBehaviors();
-
-    App::GetGuiManager()->SetVisible_LoadingWindow(false);
-}
-
-bool SimController::SetupGameplayLoop()
-{
-    // Load preselected vehicle
-    if (!App::diag_preset_vehicle->GetStr().empty())
-    {
-        // Vehicle name lookup
-        size_t length = std::numeric_limits<size_t>::max();
-        const CacheEntry* lookup = nullptr;
-        String name = App::diag_preset_vehicle->GetStr();
-        StringUtil::toLowerCase(name);
-        for (const auto& entry : App::GetCacheSystem()->GetEntries())
-        {
-            if (entry.fext == "terrn2")
-                continue;
-            String fname = entry.fname;
-            StringUtil::toLowerCase(fname);
-            if (fname.find(name) != std::string::npos) 
-            {
-                if (fname == name)
-                {
-                    lookup = &entry;
-                    break;
-                }
-                else if (fname.length() < length)
-                {
-                    lookup = &entry;
-                    length = fname.length();
-                }
-            }
-        }
-        if (lookup != nullptr)
-        {
-            App::diag_preset_vehicle->SetStr(lookup->fname);
-            // Section config lookup
-            if (!lookup->sectionconfigs.empty())
-            {
-                auto cfgs = lookup->sectionconfigs;
-                if (std::find(cfgs.begin(), cfgs.end(), App::diag_preset_veh_config->GetStr()) == cfgs.end())
-                {
-                    App::diag_preset_veh_config->SetStr(cfgs[0]);
-                }
-            }
-        }
-
-        RoR::LogFormat("[RoR|Diag] Preselected Truck: %s", App::diag_preset_vehicle->GetStr());
-        if (!App::diag_preset_veh_config->GetStr().empty())
-        {
-            RoR::LogFormat("[RoR|Diag] Preselected Truck Config: %s", App::diag_preset_veh_config->GetStr());
-        }
-
-        ActorSpawnRequest* rq = new ActorSpawnRequest;
-        rq->asr_filename   = App::diag_preset_vehicle->GetStr();
-        rq->asr_config     = App::diag_preset_veh_config->GetStr();
-        rq->asr_position   = App::GetGameContext()->GetPlayerCharacter()->getPosition();
-        rq->asr_rotation   = Quaternion(Degree(180) - App::GetGameContext()->GetPlayerCharacter()->getRotation(), Vector3::UNIT_Y);
-        rq->asr_origin     = ActorSpawnRequest::Origin::CONFIG_FILE;
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
-    }
-
-    // ========================================================================
-    // Extra setup
-    // ========================================================================
-
-    App::CreateOverlayWrapper();
-    App::GetGuiManager()->GetDirectionArrow()->LoadOverlay();
-
-    if (App::audio_menu_music->GetBool())
-    {
-        SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
-    }
-
-    App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
-
-    App::GetDiscordRpc()->UpdatePresence();
-
-    return true;
 }
 
 bool SimController::AreControlsLocked() const

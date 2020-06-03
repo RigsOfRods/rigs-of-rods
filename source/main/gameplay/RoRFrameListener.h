@@ -61,9 +61,6 @@ public:
     // Scripting interface
     float  getTime               () { return m_time; }
 
-    /// @return True if everything was prepared OK and simulation may start.
-    bool   SetupGameplayLoop     ();
-
     bool                         IsPressurizingTyres() const { return m_pressure_pressed; }
     bool                         AreControlsLocked() const;
     bool                         IsGUIHidden()              { return m_hide_gui; }
@@ -72,7 +69,6 @@ public:
     void SetPhysicsPausedInternal(bool paused)              { m_physics_simulation_paused = paused; }
 
     void   UpdateSimulation(float dt);
-    void   CleanupAfterSimulation(); /// Unloads all data
 
 private:
 
