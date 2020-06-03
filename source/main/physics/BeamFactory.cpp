@@ -1177,7 +1177,7 @@ void HandleErrorLoadingTruckfile(std::string filename, std::string exception_msg
 std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, bool predefined_on_terrain)
 {
     // Find the user content
-    CacheEntry* cache_entry = App::GetCacheSystem()->FindEntryByFilename(filename);
+    CacheEntry* cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, filename);
     if (cache_entry == nullptr)
     {
         HandleErrorLoadingTruckfile(filename, "Truckfile not found in ModCache (probably not installed)");

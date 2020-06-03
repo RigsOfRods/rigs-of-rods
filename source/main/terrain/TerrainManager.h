@@ -30,12 +30,12 @@
 class TerrainManager : public ZeroedMemoryAllocator
 {
 public:
+    static TerrainManager* LoadAndPrepareTerrain(CacheEntry& entry); ///< Factory function
 
     TerrainManager();
     ~TerrainManager();
 
     void               setGravity(float value);
-    std::vector<authorinfo_t>& GetAuthors();
     TerrainGeometryManager* getGeometryManager()     { return m_geometry_manager; };
     TerrainObjectManager* getObjectManager()         { return m_object_manager; };
     Ogre::AxisAlignedBox getTerrainCollisionAAB();
@@ -61,7 +61,6 @@ public:
     void               LoadTelepoints();
     void               LoadPredefinedActors();
     bool               HasPredefinedActors();
-    bool               LoadAndPrepareTerrain(std::string terrn2_filename);
     void               HandleException(const char* summary);
     float              GetHeightAt(float x, float z);
     Ogre::Vector3      GetNormalAt(float x, float y, float z);
@@ -76,12 +75,10 @@ private:
     void initTerrainCollisions();
     void initFog();
     void initLight();
-    void initMotionBlur();
     void initObjects();
     void initScripting();
     void initShadows();
     void initSkySubSystem();
-    void initSunburn();
     void initVegetation();
     void initWater();
 

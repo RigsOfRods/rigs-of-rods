@@ -186,24 +186,38 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
     RoR::Log("[RoR|ModCache] Cache loaded");
 }
 
-CacheEntry* CacheSystem::FindEntryByFilename(std::string filename)
+CacheEntry* CacheSystem::FindEntryByFilename(LoaderType type, bool partial, std::string filename)
 {
     StringUtil::toLowerCase(filename);
+    size_t partial_match_length = std::numeric_limits<size_t>::max();
+    CacheEntry* partial_match = nullptr;
     for (CacheEntry& entry : m_entries)
     {
+        if ((type == LT_Terrain) != (entry.fext == "terrn2"))
+            continue;
+
         String fname = entry.fname;
         String fname_without_uid = entry.fname_without_uid;
         StringUtil::toLowerCase(fname);
         StringUtil::toLowerCase(fname_without_uid);
         if (fname == filename || fname_without_uid == filename)
             return &entry;
+
+        if (partial &&
+            fname.length() < partial_match_length &&
+            fname.find(filename) != std::string::npos)
+        {
+            partial_match = &entry;
+            partial_match_length = fname.length();
+        }
     }
-    return nullptr;
+
+    return (partial) ? partial_match : nullptr;
 }
 
 void CacheSystem::UnloadActorFromMemory(std::string filename)
 {
-    CacheEntry* cache_entry = this->FindEntryByFilename(filename);
+    CacheEntry* cache_entry = this->FindEntryByFilename(LT_AllBeam, /*partial=*/false, filename);
     if (cache_entry != nullptr)
     {
         cache_entry->actor_def.reset();

@@ -36,7 +36,7 @@ class Water : public IWater, public ZeroedMemoryAllocator
 {
 public:
 
-    Water();
+    Water(Ogre::Vector3 terrn_size);
     ~Water();
 
     // Interface `IWater`
