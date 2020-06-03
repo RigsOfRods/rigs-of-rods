@@ -29,7 +29,6 @@ set(SOURCE_FILES
         gameplay/ChatSystem.{h,cpp}
         gameplay/Landusemap.{h,cpp}
         gameplay/LandVehicleSimulation.{h,cpp}
-        gameplay/OutProtocol.{h,cpp}
         gameplay/ProceduralManager.{h,cpp}
         gameplay/Replay.{h,cpp}
         gameplay/Road.{h,cpp}
@@ -153,7 +152,9 @@ set(SOURCE_FILES
         gui/panels/GUI_SimPerfStats.{h,cpp}
         gui/panels/GUI_SurveyMap.{h,cpp}
         gui/panels/GUI_VehicleDescription.{h,cpp}
+        network/DiscordRpc.{h,cpp}
         network/Network.{h,cpp}
+        network/OutGauge.{h,cpp}
         physics/ApproxMath.h
         physics/Beam.{h,cpp}
         physics/BeamData.h

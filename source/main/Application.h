@@ -401,7 +401,8 @@ LanguageEngine*      GetLanguageEngine();
 ScriptEngine*        GetScriptEngine();
 Network*             GetNetwork();
 GameContext*         GetGameContext();
-OutProtocol*         GetOutGauge();
+OutGauge*            GetOutGauge();
+DiscordRpc*          GetDiscordRpc();
 
 // Factories
 void CreateOverlayWrapper();

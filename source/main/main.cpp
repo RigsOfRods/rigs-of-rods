@@ -26,6 +26,7 @@
 #include "Collisions.h"
 #include "Console.h"
 #include "ContentManager.h"
+#include "DiscordRpc.h"
 #include "ErrorUtils.h"
 #include "GameContext.h"
 #include "GUIManager.h"
@@ -174,7 +175,7 @@ int main(int argc, char *argv[])
 
         App::CreateGuiManager(); // Needs scene manager
 
-        InitDiscord();
+        App::GetDiscordRpc()->Init();
 
 #ifdef USE_ANGELSCRIPT
         App::CreateScriptEngine();
@@ -241,7 +242,7 @@ int main(int argc, char *argv[])
 
                 case MSG_APP_SHUTDOWN_REQUESTED:
                     App::GetConsole()->SaveConfig(); // RoR.cfg
-                    ShutdownDiscord();
+                    App::GetDiscordRpc()->Shutdown();
 #ifdef USE_SOCKETW
                     if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
                     {
