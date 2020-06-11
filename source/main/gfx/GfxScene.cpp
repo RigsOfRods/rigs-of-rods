@@ -87,9 +87,12 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     }
 
     // FOV
-    float fov = (m_simbuf.simbuf_camera_behavior == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
-        ? App::gfx_fov_internal->GetActiveVal<float>() : App::gfx_fov_external->GetActiveVal<float>();
-    gEnv->mainCamera->setFOVy(Ogre::Degree(fov));
+    if (m_simbuf.simbuf_camera_behavior != CameraManager::CAMERA_BEHAVIOR_STATIC)
+    {
+        float fov = (m_simbuf.simbuf_camera_behavior == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+            ? App::gfx_fov_internal->GetActiveVal<float>() : App::gfx_fov_external->GetActiveVal<float>();
+        gEnv->mainCamera->setFOVy(Ogre::Degree(fov));
+    }
 
     // Particles
     if (App::gfx_particles_mode->GetActiveVal<int>() == 1)
