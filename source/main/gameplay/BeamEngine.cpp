@@ -21,15 +21,18 @@
 
 #include "BeamEngine.h"
 
-#include "Application.h"
+#include "AppContext.h"
 #include "ApproxMath.h" // frand()
 #include "Beam.h"
 #include "BeamFactory.h"
+#include "Console.h"
+#include "InputEngine.h"
 #include "ScriptEngine.h"
 #include "SoundScriptManager.h"
 #include "TorqueCurve.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<float> gears, float dratio, Actor* actor) :
     m_air_pressure(0.0f)
@@ -1246,4 +1249,270 @@ float EngineSim::getPrimeMixture()
     }
 
     return 0.0f;
+}
+
+void EngineSim::UpdateInputEvents(float dt)
+{
+    float accl = App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE);
+    float brake = App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE);
+
+    if (App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25) ||
+        App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50))
+    {
+        float acclModifier = 0.0f;
+        if (App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25))
+        {
+            acclModifier += 0.25f;
+        }
+        if (App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50))
+        {
+            acclModifier += 0.50f;
+        }
+        accl *= acclModifier;
+    }
+
+    if (App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_25) ||
+        App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50))
+    {
+        float brakeModifier = 0.0f;
+        if (App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_25))
+        {
+            brakeModifier += 0.25f;
+        }
+        if (App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50))
+        {
+            brakeModifier += 0.50f;
+        }
+        brake *= brakeModifier;
+    }
+
+    // arcade controls are only working with auto-clutch!
+    if (!App::io_arcade_controls->GetBool() || (this->GetAutoShiftMode() >= SimGearboxMode::MANUAL))
+    {
+        // classic mode, realistic
+        this->autoSetAcc(accl);
+        m_actor->ar_brake = brake;
+    }
+    else
+    {
+        // start engine
+        if (this->HasStarterContact() && !this->IsRunning() && (accl > 0 || brake > 0))
+        {
+            this->StartEngine();
+        }
+
+        // arcade controls: hey - people wanted it x| ... <- and it's convenient
+        if (this->GetGear() >= 0)
+        {
+            // neutral or drive forward, everything is as its used to be: brake is brake and accel. is accel.
+            this->autoSetAcc(accl);
+            m_actor->ar_brake = brake;
+        }
+        else
+        {
+            // reverse gear, reverse controls: brake is accel. and accel. is brake.
+            this->autoSetAcc(brake);
+            m_actor->ar_brake = accl;
+        }
+
+        // only when the truck really is not moving anymore
+        if (fabs(m_actor->ar_avg_wheel_speed) <= 1.0f)
+        {
+            Ogre::Vector3 hdir = m_actor->getDirection();
+            float velocity = hdir.dotProduct(m_actor->ar_nodes[0].Velocity);
+
+            // switching point, does the user want to drive forward from backward or the other way round? change gears?
+            if (velocity < 1.0f && brake > 0.5f && accl < 0.5f && this->GetGear() > 0)
+            {
+                // we are on the brake, jump to reverse gear
+                if (this->GetAutoShiftMode() == SimGearboxMode::AUTO)
+                {
+                    this->autoShiftSet(EngineSim::REAR);
+                }
+                else
+                {
+                    this->SetGear(-1);
+                }
+            }
+            else if (velocity > -1.0f && brake < 0.5f && accl > 0.5f && this->GetGear() < 0)
+            {
+                // we are on the gas pedal, jump to first gear when we were in rear gear
+                if (this->GetAutoShiftMode() == SimGearboxMode::AUTO)
+                {
+                    this->autoShiftSet(EngineSim::DRIVE);
+                }
+                else
+                {
+                    this->SetGear(1);
+                }
+            }
+        }
+    }
+
+    // IMI
+    // gear management -- it might, should be transferred to a standalone function of Beam or SimController
+    if (this->GetAutoShiftMode() == SimGearboxMode::AUTO)
+    {
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_UP))
+        {
+            this->autoShiftUp();
+        }
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_DOWN))
+        {
+            this->autoShiftDown();
+        }
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_CONTACT))
+    {
+        this->ToggleStarterContact();
+    }
+
+    if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STARTER) && this->HasStarterContact() && !this->IsRunning())
+    {
+        // starter
+        this->SetStarter(1);
+        SOUND_START(m_actor, SS_TRIG_STARTER);
+    }
+    else
+    {
+        this->SetStarter(0);
+        SOUND_STOP(m_actor, SS_TRIG_STARTER);
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SWITCH_SHIFT_MODES))
+    {
+        // toggle Auto shift
+        this->ToggleAutoShiftMode();
+
+        // force gui update
+        m_actor->RequestUpdateHudFeatures();
+        const char* msg = nullptr;
+        switch (this->GetAutoShiftMode())
+        {
+        case SimGearboxMode::AUTO: msg = "Automatic shift";
+            break;
+        case SimGearboxMode::SEMI_AUTO: msg = "Manual shift - Auto clutch";
+            break;
+        case SimGearboxMode::MANUAL: msg = "Fully Manual: sequential shift";
+            break;
+        case SimGearboxMode::MANUAL_STICK: msg = "Fully manual: stick shift";
+            break;
+        case SimGearboxMode::MANUAL_RANGES: msg = "Fully Manual: stick shift with ranges";
+            break;
+        }
+        App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L(msg), "cog.png", 3000);
+    }
+
+    // joy clutch
+    float cval = App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH);
+    this->setManualClutch(cval);
+
+    SimGearboxMode shiftmode = this->GetAutoShiftMode();
+
+    if (shiftmode <= SimGearboxMode::MANUAL) // auto, semi auto and sequential shifting
+    {
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_UP))
+        {
+            this->shift(1);
+        }
+        else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_DOWN))
+        {
+            if (shiftmode > SimGearboxMode::SEMI_AUTO ||
+                shiftmode == SimGearboxMode::SEMI_AUTO && (!App::io_arcade_controls->GetBool()) ||
+                shiftmode == SimGearboxMode::SEMI_AUTO && this->GetGear() > 0 ||
+                shiftmode == SimGearboxMode::AUTO)
+            {
+                this->shift(-1);
+            }
+        }
+        else if (shiftmode != SimGearboxMode::AUTO && App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_NEUTRAL))
+        {
+            this->shiftTo(0);
+        }
+    }
+    else //if (shiftmode > SimGearboxMode::MANUAL) // h-shift or h-shift with ranges shifting
+    {
+        bool gear_changed = false;
+        bool found = false;
+        int curgear = this->GetGear();
+        int curgearrange = this->GetGearRange();
+        int gearoffset = std::max(0, curgear - curgearrange * 6);
+
+        // one can select range only if in neutral
+        if (shiftmode == SimGearboxMode::MANUAL_RANGES && curgear == 0)
+        {
+            //  maybe this should not be here, but should experiment
+            if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_LOWRANGE) && curgearrange != 0)
+            {
+                this->SetGearRange(0);
+                gear_changed = true;
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Low range selected"), "cog.png", 3000);
+            }
+            else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_MIDRANGE) && curgearrange != 1 && this->getNumGearsRanges() > 1)
+            {
+                this->SetGearRange(1);
+                gear_changed = true;
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Mid range selected"), "cog.png", 3000);
+            }
+            else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_HIGHRANGE) && curgearrange != 2 && this->getNumGearsRanges() > 2)
+            {
+                this->SetGearRange(2);
+                gear_changed = true;
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("High range selected"), "cog.png", 3000);
+            }
+        }
+        //zaxxon
+        if (curgear == -1)
+        {
+            gear_changed = !App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR_REVERSE);
+        }
+        else if (curgear > 0 && curgear < 19)
+        {
+            gear_changed = !App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + gearoffset - 1); // range mode
+        }
+
+        if (gear_changed || curgear == 0)
+        {
+            if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR_REVERSE))
+            {
+                this->shiftTo(-1);
+                found = true;
+            }
+            else if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_NEUTRAL))
+            {
+                this->shiftTo(0);
+                found = true;
+            }
+            else
+            {
+                if (shiftmode == SimGearboxMode::MANUAL_STICK)
+                {
+                    for (int i = 1; i < 19 && !found; i++)
+                    {
+                        if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + i - 1))
+                        {
+                            this->shiftTo(i);
+                            found = true;
+                        }
+                    }
+                }
+                else // SimGearboxMode::MANUALMANUAL_RANGES
+                {
+                    for (int i = 1; i < 7 && !found; i++)
+                    {
+                        if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + i - 1))
+                        {
+                            this->shiftTo(i + curgearrange * 6);
+                            found = true;
+                        }
+                    }
+                }
+            }
+            if (!found)
+            {
+                this->shiftTo(0);
+            }
+        } // end of if (gear_changed)
+    } // end of shitmode > SimGearboxMode::MANUAL
 }

@@ -117,6 +117,7 @@ public:
     void           updateShifts();             //!< Changes gears. Plays sounds.
     void           UpdateEngineSim(float dt, int doUpdate);
     void           UpdateEngineAudio();
+    void           UpdateInputEvents(float dt);
 
     enum autoswitch
     {
