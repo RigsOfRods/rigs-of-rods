@@ -23,7 +23,7 @@ set(SOURCE_FILES
         datatypes/wheel_t.h
         gameplay/AircraftSimulation.{h,cpp}
         gameplay/AutoPilot.{h,cpp}
-        gameplay/BeamEngine.{h,cpp}
+        gameplay/EngineSim.{h,cpp}
         gameplay/Character.{h,cpp}
         gameplay/CharacterFactory.{h,cpp}
         gameplay/ChatSystem.{h,cpp}

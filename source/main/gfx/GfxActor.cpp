@@ -24,10 +24,9 @@
 #include "ApproxMath.h"
 #include "AirBrake.h"
 #include "Beam.h"
-#include "BeamEngine.h" // EngineSim
 #include "Collisions.h"
-#include "Renderdash.h" // classic 'renderdash' material
 #include "DustPool.h" // General particle gfx
+#include "EngineSim.h"
 #include "HydraxWater.h"
 #include "FlexAirfoil.h"
 #include "FlexBody.h"
@@ -37,28 +36,19 @@
 #include "InputEngine.h" // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
 #include "MeshObject.h"
 #include "MovableText.h"
+#include "OgreImGui.h"
+#include "Renderdash.h" // classic 'renderdash' material
 #include "RigSpawner.h"
 #include "RoRFrameListener.h" // SimController
 #include "SlideNode.h"
 #include "SkyManager.h"
 #include "SoundScriptManager.h"
-#include "Utils.h"
 #include "TerrainManager.h"
-#include "imgui.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
+#include "Utils.h"
 
-#include <OgreMesh.h>
-#include <OgrePass.h>
-#include <OgreRenderWindow.h>
-#include <OgreRenderWindow.h>
-#include <OgreResourceGroupManager.h>
-#include <OgreSceneManager.h>
-#include <OgreSceneManager.h>
-#include <OgreTechnique.h>
-#include <OgreTextureManager.h>
-#include <OgreTextureManager.h>
-#include <OgreTextureUnitState.h>
+#include <Ogre.h>
 
 RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
                         std::vector<NodeGfx>& gfx_nodes, std::vector<Prop>& props,

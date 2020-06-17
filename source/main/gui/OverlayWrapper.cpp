@@ -36,7 +36,6 @@
 #include "BeamFactory.h"
 #include "Character.h"
 #include "DashBoardManager.h"
-#include "BeamEngine.h"
 #include "ErrorUtils.h"
 #include "FlexAirfoil.h"
 #include "GameContext.h"
