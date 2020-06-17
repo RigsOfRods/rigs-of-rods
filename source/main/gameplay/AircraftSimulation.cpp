@@ -28,7 +28,6 @@
 #include "Application.h"
 #include "AutoPilot.h"
 #include "Beam.h"
-#include "BeamEngine.h"
 #include "InputEngine.h"
 
 using namespace RoR;

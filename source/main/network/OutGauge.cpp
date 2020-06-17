@@ -23,8 +23,8 @@
 
 #include "Application.h"
 #include "Beam.h"
-#include "BeamEngine.h"
 #include "BeamFactory.h"
+#include "EngineSim.h"
 #include "RoRVersion.h"
 
 #include <Ogre.h>

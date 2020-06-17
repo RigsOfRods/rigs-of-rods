@@ -25,10 +25,8 @@
 #include "VehicleAI.h"
 
 #include "Beam.h"
-#include "BeamEngine.h"
 #include "Console.h"
-
-
+#include "EngineSim.h"
 
 #include "scriptdictionary/scriptdictionary.h"
 

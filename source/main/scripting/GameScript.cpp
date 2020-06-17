@@ -36,12 +36,12 @@
 
 #include "AppContext.h"
 #include "Beam.h"
-#include "BeamEngine.h"
 #include "BeamFactory.h"
 #include "Character.h"
 #include "ChatSystem.h"
 #include "Collisions.h"
 #include "Console.h"
+#include "EngineSim.h"
 #include "GameContext.h"
 #include "GUIManager.h"
 #include "Language.h"

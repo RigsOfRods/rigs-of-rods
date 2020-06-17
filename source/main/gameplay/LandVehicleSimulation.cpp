@@ -23,8 +23,8 @@
 
 #include "Application.h"
 #include "Beam.h"
-#include "BeamEngine.h"
 #include "Console.h"
+#include "EngineSim.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "SoundScriptManager.h"
