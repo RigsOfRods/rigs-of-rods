@@ -31,6 +31,7 @@
 #include "GUIManager.h"
 #include "GUI_FrictionSettings.h"
 #include "GUI_MainSelector.h"
+#include "InputEngine.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
 #include "ScriptEngine.h"
@@ -442,7 +443,7 @@ void GameContext::RespawnLastActor()
         rq->asr_config          = m_last_section_config;
         rq->asr_skin_entry      = m_last_skin_selection;
         rq->asr_origin          = ActorSpawnRequest::Origin::USER;
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+        this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
     }
 }
 
@@ -459,8 +460,8 @@ void GameContext::SpawnPreselectedActor()
 
     ActorSpawnRequest* rq = new ActorSpawnRequest;
     rq->asr_cache_entry = entry;
-    rq->asr_position    = App::GetGameContext()->GetPlayerCharacter()->getPosition();
-    rq->asr_rotation    = Ogre::Quaternion(Ogre::Degree(180) - App::GetGameContext()->GetPlayerCharacter()->getRotation(), Ogre::Vector3::UNIT_Y);
+    rq->asr_position    = this->GetPlayerCharacter()->getPosition();
+    rq->asr_rotation    = Ogre::Quaternion(Ogre::Degree(180) - this->GetPlayerCharacter()->getRotation(), Ogre::Vector3::UNIT_Y);
     rq->asr_origin      = ActorSpawnRequest::Origin::CONFIG_FILE;
 
     RoR::LogFormat("[RoR|Diag] Preselected Truck: %s (%s)", entry->dname.c_str(), entry->fname.c_str());
@@ -482,7 +483,7 @@ void GameContext::SpawnPreselectedActor()
         RoR::LogFormat("[RoR|Diag] Preselected Truck Config: %s", rq->asr_config.c_str());
     }
 
-    App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+    this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
 }
 
 void GameContext::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
@@ -491,7 +492,7 @@ void GameContext::ShowLoaderGUI(int type, const Ogre::String& instance, const Og
     if (!(App::mp_state->GetEnum<MpState>() == MpState::CONNECTED))
     {
         collision_box_t* spawnbox = App::GetSimTerrain()->GetCollisions()->getBox(instance, box);
-        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+        for (auto actor : this->GetActorManager()->GetActors())
         {
             for (int i = 0; i < actor->ar_num_nodes; i++)
             {
@@ -566,7 +567,7 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
     {
         ActorSpawnRequest* rq = new ActorSpawnRequest;
         *rq = m_current_selection;
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+        this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
         m_current_selection = ActorSpawnRequest(); // Reset
     }
 }
@@ -605,7 +606,7 @@ void GameContext::CreatePlayerCharacter()
     this->GetPlayerCharacter()->setPosition(spawn_pos);
     this->GetPlayerCharacter()->setRotation(Ogre::Degree(spawn_rot));
 
-    App::GetCameraManager()->GetCameraNode()->setPosition(App::GetGameContext()->GetPlayerCharacter()->getPosition());
+    App::GetCameraManager()->GetCameraNode()->setPosition(this->GetPlayerCharacter()->getPosition());
 
     // Small hack to improve the spawn experience
     for (int i = 0; i < 100; i++)
@@ -625,18 +626,18 @@ Character* GameContext::GetPlayerCharacter() // Convenience ~ counterpart of `Ge
 void GameContext::TeleportPlayer(float x, float z)
 {
     float y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(x, z);
-    if (!App::GetGameContext()->GetPlayerActor())
+    if (!this->GetPlayerActor())
     {
-        App::GetGameContext()->GetPlayerCharacter()->setPosition(Ogre::Vector3(x, y, z));
+        this->GetPlayerCharacter()->setPosition(Ogre::Vector3(x, y, z));
         return;
     }
 
-    TRIGGER_EVENT(SE_TRUCK_TELEPORT, App::GetGameContext()->GetPlayerActor()->ar_instance_id);
+    TRIGGER_EVENT(SE_TRUCK_TELEPORT, this->GetPlayerActor()->ar_instance_id);
 
-    Ogre::Vector3 translation = Ogre::Vector3(x, y, z) - App::GetGameContext()->GetPlayerActor()->ar_nodes[0].AbsPosition;
+    Ogre::Vector3 translation = Ogre::Vector3(x, y, z) - this->GetPlayerActor()->ar_nodes[0].AbsPosition;
 
-    auto actors = App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors();
-    actors.push_back(App::GetGameContext()->GetPlayerActor());
+    auto actors = this->GetPlayerActor()->GetAllLinkedActors();
+    actors.push_back(this->GetPlayerActor());
 
     float src_agl = std::numeric_limits<float>::max(); 
     float dst_agl = std::numeric_limits<float>::max(); 
@@ -656,5 +657,72 @@ void GameContext::TeleportPlayer(float x, float z)
     for (auto actor : actors)
     {
         actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
+    }
+}
+
+void GameContext::HandleCommonInputEvents()
+{
+    // EV_COMMON_QUIT_GAME - Generic escape key event
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
+    {
+        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+        {
+            if (App::GetGuiManager()->IsVisible_GameAbout())
+            {
+                App::GetGuiManager()->SetVisible_GameAbout(false);
+            }
+            else if (App::GetGuiManager()->IsVisible_MainSelector())
+            {
+                App::GetGuiManager()->GetMainSelector()->Close();
+            }
+            else if (App::GetGuiManager()->IsVisible_GameSettings())
+            {
+                App::GetGuiManager()->SetVisible_GameSettings(false);
+            }
+            else if (App::GetGuiManager()->IsVisible_MultiplayerSelector())
+            {
+                App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
+            }
+            else
+            {
+                this->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
+            }
+        }
+        else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+        {
+            if (App::GetGuiManager()->IsVisible_MainSelector())
+            {
+                App::GetGuiManager()->GetMainSelector()->Close();
+            }
+            else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
+            {
+                this->PushMessage(Message(MSG_SIM_PAUSE_REQUESTED));
+            }
+            else if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
+            {
+                this->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
+            }            
+        }
+    }
+
+    // EV_COMMON_CONSOLE_TOGGLE - display console GUI (anytime)
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE))
+    {
+        App::GetGuiManager()->SetVisible_Console(! App::GetGuiManager()->IsVisible_Console());
+    }
+
+    // EV_COMMON_SCREENSHOT
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.25f))
+    {
+        this->PushMessage(Message(MSG_APP_SCREENSHOT_REQUESTED));
+    }
+
+    // EV_COMMON_FULLSCREEN_TOGGLE
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FULLSCREEN_TOGGLE, 2.0f))
+    {   
+        if (App::GetAppContext()->GetRenderWindow()->isFullScreen())
+            this->PushMessage(Message(MSG_APP_DISPLAY_WINDOWED_REQUESTED));
+        else
+            this->PushMessage(Message(MSG_APP_DISPLAY_FULLSCREEN_REQUESTED));
     }
 }

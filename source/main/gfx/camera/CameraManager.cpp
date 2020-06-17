@@ -226,8 +226,8 @@ void CameraManager::UpdateCurrentBehavior()
 
         Quaternion orientation = Quaternion(m_cam_rot_x, up) * Quaternion(Degree(180.0) + m_cam_rot_y, roll) * Quaternion(roll, up, dir);
 
-        App::GetCameraManager()->GetCameraNode()->setPosition(m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_cinecam_node[m_cct_player_actor->ar_current_cinecam]].AbsPosition);
-        App::GetCameraManager()->GetCameraNode()->setOrientation(orientation);
+        this->GetCameraNode()->setPosition(m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_cinecam_node[m_cct_player_actor->ar_current_cinecam]].AbsPosition);
+        this->GetCameraNode()->setOrientation(orientation);
         return;
     }
     case CAMERA_BEHAVIOR_FREE:            this->UpdateCameraBehaviorFree(); return;
@@ -238,7 +238,7 @@ void CameraManager::UpdateCurrentBehavior()
     }
 }
 
-bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // Called every frame
+void CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // Called every frame
 {
     const float trans_scale = TRANS_SPEED  * dt;
     const float rot_scale   = ROTATE_SPEED * dt;
@@ -251,10 +251,10 @@ bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // 
 
     if (App::sim_state->GetEnum<SimState>() == RoR::SimState::PAUSED || dt == 0.0f)
     {
-        return true; // Do nothing when paused
+        return; // Do nothing when paused
     }
 
-    if ( m_current_behavior < CAMERA_BEHAVIOR_END && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
+    if ( m_current_behavior < CAMERA_BEHAVIOR_END && App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
     {
         if ( (m_current_behavior == CAMERA_BEHAVIOR_INVALID) || this->EvaluateSwitchBehavior() )
         {
@@ -262,12 +262,12 @@ bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // 
         }
     }
 
-    if ( RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX) )
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX))
     {
         this->ToggleCameraBehavior(CAMERA_BEHAVIOR_FIXED);
     }
 
-    if ( RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE) )
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE))
     {
         this->ToggleCameraBehavior(CAMERA_BEHAVIOR_FREE);
     }
@@ -281,7 +281,41 @@ bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // 
         switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
     }
 
-    return true;
+    // camera FOV settings
+    if (this->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_STATIC) // the static camera has its own fov logic
+    {
+        CVar* cvar_fov = ((this->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
+            ? App::gfx_fov_internal : App::gfx_fov_external;
+
+        int modifier = 0;
+        modifier = (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_LESS, 0.1f)) ? -1 : 0;
+        modifier += (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_MORE, 0.1f)) ?  1 : 0;
+        int fov = -1;
+        if (modifier != 0)
+        {
+            fov = cvar_fov->GetInt() + modifier;
+            if (fov >= 10 && fov <= 160)
+            {
+                cvar_fov->SetVal(fov);
+            }
+            else
+            {
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: Limit reached"));
+            }
+        }
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_RESET))
+        {
+            CVar* cvar_fov_default = ((this->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
+                ? App::gfx_fov_internal_default : App::gfx_fov_external_default;
+            cvar_fov->SetVal(cvar_fov_default->GetInt());
+        }
+
+        if (fov != -1)
+        {
+            Str<100> msg; msg << _L("FOV: ") << fov;
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr());
+        }
+    }
 }
 
 void CameraManager::switchToNextBehavior()
@@ -762,7 +796,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
     float camDist = m_staticcam_position.distance(m_staticcam_look_at);
     float fov = atan2(20.0f, std::pow(camDist, fovExp));
 
-    App::GetCameraManager()->GetCameraNode()->setPosition(m_staticcam_position);
+    this->GetCameraNode()->setPosition(m_staticcam_position);
     App::GetCameraManager()->GetCameraNode()->lookAt(m_staticcam_look_at, Ogre::Node::TS_WORLD);
     App::GetCameraManager()->GetCamera()->setFOVy(Radian(fov));
 }
@@ -877,21 +911,21 @@ void CameraManager::CameraBehaviorOrbitUpdate()
 
     Vector3 camDisplacement = m_cam_look_at - m_cam_look_at_last;
     Vector3 precedingLookAt = m_cam_look_at_smooth_last + camDisplacement;
-    Vector3 precedingPosition = App::GetCameraManager()->GetCameraNode()->getPosition() + camDisplacement;
+    Vector3 precedingPosition = this->GetCameraNode()->getPosition() + camDisplacement;
 
     Vector3 camPosition = (1.0f / (m_cam_ratio + 1.0f)) * desiredPosition + (m_cam_ratio / (m_cam_ratio + 1.0f)) * precedingPosition;
 
     if (App::GetSimTerrain()->GetCollisions() && App::GetSimTerrain()->GetCollisions()->forcecam)
     {
-        App::GetCameraManager()->GetCameraNode()->setPosition(App::GetSimTerrain()->GetCollisions()->forcecampos);
+        this->GetCameraNode()->setPosition(App::GetSimTerrain()->GetCollisions()->forcecampos);
         App::GetSimTerrain()->GetCollisions()->forcecam = false;
     }
     else
     {
         if (m_cct_player_actor && m_cct_player_actor->ar_replay_mode && camDisplacement != Vector3::ZERO)
-            App::GetCameraManager()->GetCameraNode()->setPosition(desiredPosition);
+            this->GetCameraNode()->setPosition(desiredPosition);
         else
-            App::GetCameraManager()->GetCameraNode()->setPosition(camPosition);
+            this->GetCameraNode()->setPosition(camPosition);
     }
 
     m_cam_look_at_smooth = (1.0f / (m_cam_ratio + 1.0f)) * m_cam_look_at + (m_cam_ratio / (m_cam_ratio + 1.0f)) * precedingLookAt;
@@ -996,9 +1030,9 @@ void CameraManager::UpdateCameraBehaviorFree()
     App::GetCameraManager()->GetCameraNode()->yaw(mRotX, Ogre::Node::TS_WORLD);
     App::GetCameraManager()->GetCameraNode()->pitch(mRotY);
 
-    Vector3 camPosition = App::GetCameraManager()->GetCameraNode()->getPosition() + App::GetCameraManager()->GetCameraNode()->getOrientation() * mTrans.normalisedCopy() * cct_trans_scale;
+    Vector3 camPosition = this->GetCameraNode()->getPosition() + this->GetCameraNode()->getOrientation() * mTrans.normalisedCopy() * cct_trans_scale;
 
-    App::GetCameraManager()->GetCameraNode()->setPosition(camPosition);
+    this->GetCameraNode()->setPosition(camPosition);
 }
 
 void CameraManager::UpdateCameraBehaviorFixed()
@@ -1049,10 +1083,10 @@ bool CameraManager::CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _ar
 		{
 			// Calculate new camera distance
 			Vector3 lookAt = m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_custom_camera_node].AbsPosition;
-			m_cam_dist = 2.0f * App::GetCameraManager()->GetCameraNode()->getPosition().distance(lookAt);
+			m_cam_dist = 2.0f * this->GetCameraNode()->getPosition().distance(lookAt);
 
 			// Calculate new camera pitch
-			Vector3 camDir = (App::GetCameraManager()->GetCameraNode()->getPosition() - lookAt).normalisedCopy();
+			Vector3 camDir = (this->GetCameraNode()->getPosition() - lookAt).normalisedCopy();
 			m_cam_rot_y = asin(camDir.y);
 
 			// Calculate new camera yaw

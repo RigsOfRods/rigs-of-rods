@@ -98,170 +98,20 @@ SimController::SimController() :
 {
 }
 
-void SimController::HandleSavegameShortcuts()
-{
-    // Global savegames
-
-    int slot = -1;
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_01, 1.0f))
-    {
-        slot = 1;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_02, 1.0f))
-    {
-        slot = 2;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_03, 1.0f))
-    {
-        slot = 3;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_04, 1.0f))
-    {
-        slot = 4;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_05, 1.0f))
-    {
-        slot = 5;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_06, 1.0f))
-    {
-        slot = 6;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_07, 1.0f))
-    {
-        slot = 7;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_08, 1.0f))
-    {
-        slot = 8;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_09, 1.0f))
-    {
-        slot = 9;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_10, 1.0f))
-    {
-        slot = 0;
-    }
-    if (slot != -1)
-    {
-        Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
-        App::GetGameContext()->LoadScene(filename);
-    }
-
-    if (App::sim_terrain_name->GetStr() == "" || App::sim_state->GetEnum<SimState>() != SimState::RUNNING)
-        return;
-
-    slot = -1;
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_01, 1.0f))
-    {
-        slot = 1;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_02, 1.0f))
-    {
-        slot = 2;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_03, 1.0f))
-    {
-        slot = 3;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_04, 1.0f))
-    {
-        slot = 4;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_05, 1.0f))
-    {
-        slot = 5;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_06, 1.0f))
-    {
-        slot = 6;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_07, 1.0f))
-    {
-        slot = 7;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_08, 1.0f))
-    {
-        slot = 8;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_09, 1.0f))
-    {
-        slot = 9;
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_10, 1.0f))
-    {
-        slot = 0;
-    }
-    if (slot != -1)
-    {
-        Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
-        App::GetGameContext()->SaveScene(filename);
-    }
-
-    // Terrain local savegames
-
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD, 1.0f))
-    {
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED,
-                                                   App::GetGameContext()->GetQuicksaveFilename()));
-    }
-
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE))
-    {
-        App::GetGameContext()->SaveScene(App::GetGameContext()->GetQuicksaveFilename());
-    }
-}
-
 void SimController::UpdateInputEvents(float dt)
 {
-    if (dt == 0.0f)
-        return;
-
-    auto gui_man = App::GetGuiManager();
-
-    // update overlays if enabled
-    if (RoR::App::GetOverlayWrapper())
-        RoR::App::GetOverlayWrapper()->update(dt);
-
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
-    {
-        if (gui_man->IsVisible_MainSelector())
-        {
-            gui_man->GetMainSelector()->Close();
-        }
-        else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
-        {
-            App::GetGameContext()->PushMessage(Message(MSG_SIM_PAUSE_REQUESTED));
-        }
-        else if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
-        {
-            App::GetGameContext()->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
-        }
-    }
-
     if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
         return; //Stop everything when pause menu is visible
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE))
+    if (App::GetGuiManager()->IsVisible_FrictionSettings() && App::GetGameContext()->GetPlayerActor())
     {
-        gui_man->SetVisible_Console(! gui_man->IsVisible_Console());
-    }
-
-    if (gui_man->IsVisible_FrictionSettings() && App::GetGameContext()->GetPlayerActor())
-    {
-        gui_man->GetFrictionSettings()->setActiveCol(App::GetGameContext()->GetPlayerActor()->ar_last_fuzzy_ground_model);
+        App::GetGuiManager()->GetFrictionSettings()->setActiveCol(App::GetGameContext()->GetPlayerActor()->ar_last_fuzzy_ground_model);
     }
 
     const bool mp_connected = (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED);
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_hide_gui && mp_connected)
     {
-        gui_man->SetVisible_ChatBox(!gui_man->IsVisible_ChatBox());
-    }
-
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.25f))
-    {
-        App::GetGameContext()->PushMessage(Message(MSG_APP_SCREENSHOT_REQUESTED));
+        App::GetGuiManager()->SetVisible_ChatBox(!App::GetGuiManager()->IsVisible_ChatBox());
     }
 
     if ((App::GetGameContext()->GetPlayerActor() != nullptr) &&
@@ -346,44 +196,6 @@ void SimController::UpdateInputEvents(float dt)
             RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.25f))
         {
             m_physics_simulation_time = PHYSICS_DT / App::GetGameContext()->GetActorManager()->GetSimulationSpeed();
-        }
-    }
-
-    this->HandleSavegameShortcuts();
-
-    // camera FOV settings
-    if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_STATIC) // the static camera has its own fov logic
-    {
-        CVar* cvar_fov = ((App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
-            ? App::gfx_fov_internal : App::gfx_fov_external;
-
-        int modifier = 0;
-        modifier = (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_LESS, 0.1f)) ? -1 : 0;
-        modifier += (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_MORE, 0.1f)) ?  1 : 0;
-        int fov = -1;
-        if (modifier != 0)
-        {
-            fov = cvar_fov->GetInt() + modifier;
-            if (fov >= 10 && fov <= 160)
-            {
-                cvar_fov->SetVal(fov);
-            }
-            else
-            {
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: Limit reached"), "camera_edit.png", 2000);
-            }
-        }
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_RESET))
-        {
-            CVar* cvar_fov_default = ((App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
-                ? App::gfx_fov_internal_default : App::gfx_fov_external_default;
-            cvar_fov->SetVal(cvar_fov_default->GetInt());
-        }
-
-        if (fov != -1)
-        {
-            Str<100> msg; msg << _L("FOV: ") << fov;
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr(), "camera_edit.png", 2000);
         }
     }
 
@@ -960,7 +772,7 @@ void SimController::UpdateInputEvents(float dt)
             {
                 App::GetGuiManager()->GetSurveyMap()->ToggleMode();
             }
-        }
+        } // AreControlsLocked()
 
 #ifdef USE_CAELUM
 
@@ -1045,12 +857,12 @@ void SimController::UpdateInputEvents(float dt)
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_INFO) && App::GetGameContext()->GetPlayerActor())
     {
-        gui_man->SetVisible_SimActorStats(!gui_man->IsVisible_SimActorStats());
+        App::GetGuiManager()->SetVisible_SimActorStats(!App::GetGuiManager()->IsVisible_SimActorStats());
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_DESCRIPTION) && App::GetGameContext()->GetPlayerActor())
     {
-        gui_man->SetVisible_VehicleDescription(! gui_man->IsVisible_VehicleDescription());
+        App::GetGuiManager()->SetVisible_VehicleDescription(! App::GetGuiManager()->IsVisible_VehicleDescription());
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_HIDE_GUI))
@@ -1069,7 +881,7 @@ void SimController::UpdateInputEvents(float dt)
 
     if ((App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::PAUSED || App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE) && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
     {
-        gui_man->SetVisible_SimPerfStats(!gui_man->IsVisible_SimPerfStats());
+        App::GetGuiManager()->SetVisible_SimPerfStats(!App::GetGuiManager()->IsVisible_SimPerfStats());
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_OUTPUT_POSITION))
@@ -1110,6 +922,8 @@ void SimController::UpdateSimulation(float dt)
     }
 
     m_physics_simulation_time = m_physics_simulation_paused ? 0.0f : dt;
+
+    App::GetOverlayWrapper()->update(dt);
 
     this->UpdateInputEvents(dt);
 

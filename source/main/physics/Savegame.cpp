@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2019 Petr Ohlidal
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -31,6 +31,7 @@
 #include "EngineSim.h"
 #include "GameContext.h"
 #include "GUIManager.h"
+#include "InputEngine.h"
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RoRFrameListener.h"
@@ -47,10 +48,13 @@
 using namespace Ogre;
 using namespace RoR;
 
+// --------------------------------
+// GameContext functions
+
 std::string GameContext::GetQuicksaveFilename()
 {
     std::string terrain_name = App::sim_terrain_name->GetStr();
-    std::string mp = (RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED) ? "_mp" : "";
+    std::string mp = (App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED) ? "_mp" : "";
 
     return "quicksave_" + StringUtil::replaceAll(terrain_name, ".terrn2", "") + mp + ".sav";
 }
@@ -90,6 +94,123 @@ std::string GameContext::ExtractSceneTerrain(std::string const& filename)
     return j_doc["terrain_name"].GetString();
 }
 
+void GameContext::HandleSavegameHotkeys()
+{
+    // Global savegames
+    int slot = -1;
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_01, 1.0f))
+    {
+        slot = 1;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_02, 1.0f))
+    {
+        slot = 2;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_03, 1.0f))
+    {
+        slot = 3;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_04, 1.0f))
+    {
+        slot = 4;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_05, 1.0f))
+    {
+        slot = 5;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_06, 1.0f))
+    {
+        slot = 6;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_07, 1.0f))
+    {
+        slot = 7;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_08, 1.0f))
+    {
+        slot = 8;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_09, 1.0f))
+    {
+        slot = 9;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_10, 1.0f))
+    {
+        slot = 0;
+    }
+    if (slot != -1)
+    {
+        Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, filename));
+    }
+
+    if (App::sim_terrain_name->GetStr() == "" || App::sim_state->GetEnum<SimState>() != SimState::RUNNING)
+        return;
+
+    slot = -1;
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_01, 1.0f))
+    {
+        slot = 1;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_02, 1.0f))
+    {
+        slot = 2;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_03, 1.0f))
+    {
+        slot = 3;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_04, 1.0f))
+    {
+        slot = 4;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_05, 1.0f))
+    {
+        slot = 5;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_06, 1.0f))
+    {
+        slot = 6;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_07, 1.0f))
+    {
+        slot = 7;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_08, 1.0f))
+    {
+        slot = 8;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_09, 1.0f))
+    {
+        slot = 9;
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_10, 1.0f))
+    {
+        slot = 0;
+    }
+    if (slot != -1)
+    {
+        Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
+        App::GetGameContext()->SaveScene(filename);
+    }
+
+    // Terrain local savegames
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD, 1.0f))
+    {
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED,
+                                                   App::GetGameContext()->GetQuicksaveFilename()));
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE))
+    {
+        App::GetGameContext()->SaveScene(App::GetGameContext()->GetQuicksaveFilename());
+    }
+}
+
+// --------------------------------
+// ActorManager functions
+
 bool ActorManager::LoadScene(Ogre::String filename)
 {
     // Read from disk
@@ -98,14 +219,14 @@ bool ActorManager::LoadScene(Ogre::String filename)
         !j_doc.IsObject() || !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber())
     {
         RoR::Log("[RoR|Savegame] Invalid or missing savegame file.");
-        RoR::App::GetConsole()->putMessage(
+        App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: File invalid or missing"));
         return false;
     }
     if (j_doc["format_version"].GetInt() != SAVEGAME_FILE_FORMAT)
     {
         RoR::Log("[RoR|Savegame] Savegame file format mismatch.");
-        RoR::App::GetConsole()->putMessage(
+        App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: File format mismatch"));
         return false;
     }
@@ -113,19 +234,19 @@ bool ActorManager::LoadScene(Ogre::String filename)
     // Terrain
     String terrain_name = j_doc["terrain_name"].GetString();
 
-    if (RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
+    if (App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         if (filename == "autosave.sav")
             return false;
         if (terrain_name != App::sim_terrain_name->GetStr())
         {
-            RoR::App::GetConsole()->putMessage(
+            App::GetConsole()->putMessage(
                 Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: Terrain mismatch"));
             return false;
         }
         if (j_doc["actors"].GetArray().Size() > 3)
         {
-            RoR::App::GetConsole()->putMessage(
+            App::GetConsole()->putMessage(
                 Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: Too many vehicles"));
             return false;
         }
@@ -486,7 +607,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
     if (filename != "autosave.sav")
     {
-        RoR::App::GetConsole()->putMessage(
+        App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Scene loaded"));
     }
 
@@ -497,13 +618,13 @@ bool ActorManager::SaveScene(Ogre::String filename)
 {
     std::vector<Actor*> x_actors = GetLocalActors();
 
-    if (RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
+    if (App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         if (filename == "autosave.sav")
             return false;
         if (x_actors.size() > 3)
         {
-            RoR::App::GetConsole()->putMessage(
+            App::GetConsole()->putMessage(
                 Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while saving scene: Too many vehicles"));
             return false;
         }
@@ -822,14 +943,14 @@ bool ActorManager::SaveScene(Ogre::String filename)
     if (!App::GetContentManager()->SerializeAndWriteJson(filename, RGN_SAVEGAMES, j_doc))
     {
         // Error already logged
-        RoR::App::GetConsole()->putMessage(
+        App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while saving scene"));
         return false;
     }
 
     if (filename != "autosave.sav")
     {
-        RoR::App::GetConsole()->putMessage(
+        App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Scene saved"));
     }
 

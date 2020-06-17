@@ -49,7 +49,7 @@ public:
         CAMERA_BEHAVIOR_INVALID = -1,
     };
 
-    bool Update(float dt, Actor* player_vehicle, float sim_speed);
+    void Update(float dt, Actor* player_vehicle, float sim_speed);
 
     bool gameControlsLocked() const;
     bool hasActiveBehavior();
