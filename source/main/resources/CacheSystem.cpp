@@ -38,7 +38,7 @@
 #include "RigDef_Parser.h"
 #include "RoRFrameListener.h"
 
-#include "SkinManager.h"
+#include "SkinFileformat.h"
 #include "TerrainManager.h"
 #include "Terrn2Fileformat.h"
 #include "Utils.h"

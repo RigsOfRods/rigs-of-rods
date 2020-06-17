@@ -59,7 +59,6 @@
 #include "ScrewProp.h"
 #include "ScriptEngine.h"
 #include "Skidmark.h"
-#include "SkinManager.h"
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"

@@ -35,7 +35,6 @@ set(SOURCE_FILES
         gameplay/Road2.{h,cpp}
         gameplay/RoRFrameListener.{h,cpp}
         gameplay/ScriptEvents.h
-        gameplay/SkinManager.{h,cpp}
         gameplay/RaceSystem.{h,cpp}
         gameplay/TorqueCurve.{h,cpp}
         gameplay/VehicleAI.{h,cpp}
@@ -224,6 +223,7 @@ set(SOURCE_FILES
         resources/rig_def_fileformat/RigDef_SequentialImporter.{h,cpp}
         resources/rig_def_fileformat/RigDef_Serializer.{h,cpp}
         resources/rig_def_fileformat/RigDef_Validator.{h,cpp}
+        resources/skin_fileformat/SkinFileformat.{h,cpp}
         resources/terrn2_fileformat/Terrn2Fileformat.{h,cpp}
         resources/tobj_fileformat/TObjFileFormat.{h,cpp}
         system/AppCommandLine.cpp
@@ -350,6 +350,7 @@ target_include_directories(${BINNAME} PRIVATE
         resources/odef_fileformat/
         resources/otc_fileformat/
         resources/rig_def_fileformat
+		resources/skin_fileformat
         resources/terrn2_fileformat
         resources/tobj_fileformat
         system

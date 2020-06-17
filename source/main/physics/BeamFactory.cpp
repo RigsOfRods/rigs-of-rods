@@ -48,7 +48,6 @@
 #include "RigSpawner.h"
 #include "RoRFrameListener.h"
 #include "ScriptEngine.h"
-#include "SkinManager.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "ThreadPool.h"
