@@ -72,7 +72,6 @@ public:
 
 private:
 
-    void   HandleSavegameShortcuts ();
     void   UpdateInputEvents       (float dt);
     void   HideGUI                 (bool hidden);
 

@@ -116,12 +116,14 @@ public:
     std::string         GetQuicksaveFilename(); ///< For currently loaded terrain (cvar 'sim_terrain_name')
     std::string         ExtractSceneName(std::string const& filename);
     std::string         ExtractSceneTerrain(std::string const& filename); ///< Returns terrain filename
+    void                HandleSavegameHotkeys();
 
     // ----------------------------
     // Gameplay feats (misc.)
 
     RaceSystem&         GetRaceSystem() { return m_race_system; }
     void                TeleportPlayer(float x, float z);
+    void                HandleCommonInputEvents(); // EV_COMMON*, any game state
     
 private:
     // Message queue

@@ -573,91 +573,17 @@ int main(int argc, char *argv[])
 #endif // USE_SOCKETW
 
             // Process input events
-            App::GetInputEngine()->Capture();
-            App::GetInputEngine()->updateKeyBounces(dt_sec);
-            if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FULLSCREEN_TOGGLE, 2.0f))
-            {   
-                if (App::GetAppContext()->GetRenderWindow()->isFullScreen())
-                    App::GetGameContext()->PushMessage(Message(MSG_APP_DISPLAY_WINDOWED_REQUESTED));
-                else
-                    App::GetGameContext()->PushMessage(Message(MSG_APP_DISPLAY_FULLSCREEN_REQUESTED));
+            if (dt_sec != 0.f)
+            {
+                App::GetInputEngine()->Capture();
+                App::GetInputEngine()->updateKeyBounces(dt_sec);
+
+                App::GetGameContext()->HandleSavegameHotkeys();
+                App::GetGameContext()->HandleCommonInputEvents();
             }
 
             if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
             {
-                // Savegame shortcuts
-                int slot = -1;
-                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_01, 1.0f))
-                {
-                    slot = 1;
-                }
-                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_02, 1.0f))
-                {
-                    slot = 2;
-                }
-                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_03, 1.0f))
-                {
-                    slot = 3;
-                }
-                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_04, 1.0f))
-                {
-                    slot = 4;
-                }
-                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_05, 1.0f))
-                {
-                    slot = 5;
-                }
-                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_06, 1.0f))
-                {
-                    slot = 6;
-                }
-                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_07, 1.0f))
-                {
-                    slot = 7;
-                }
-                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_08, 1.0f))
-                {
-                    slot = 8;
-                }
-                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_09, 1.0f))
-                {
-                    slot = 9;
-                }
-                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_10, 1.0f))
-                {
-                    slot = 0;
-                }
-                if (slot != -1)
-                {
-                    Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, filename));
-                }
-
-                // Handle escape key
-                if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
-                {
-                    if (App::GetGuiManager()->IsVisible_GameAbout())
-                    {
-                        App::GetGuiManager()->SetVisible_GameAbout(false);
-                    }
-                    else if (App::GetGuiManager()->IsVisible_MainSelector())
-                    {
-                        App::GetGuiManager()->GetMainSelector()->Close();
-                    }
-                    else if (App::GetGuiManager()->IsVisible_GameSettings())
-                    {
-                        App::GetGuiManager()->SetVisible_GameSettings(false);
-                    }
-                    else if (App::GetGuiManager()->IsVisible_MultiplayerSelector())
-                    {
-                        App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
-                    }
-                    else
-                    {
-                        App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
-                    }
-                }
-
                 // Draw gui
                 App::GetGuiManager()->NewImGuiFrame(dt_sec);
                 App::GetGuiManager()->DrawMainMenuGui();
