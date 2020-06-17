@@ -52,7 +52,7 @@
 #include "RoRVersion.h"
 #include "ScrewProp.h"
 #include "ScriptEngine.h"
-#include "SkinManager.h"
+#include "SkinFileformat.h"
 #include "SkyManager.h"
 #include "SkyXManager.h"
 #include "SoundScriptManager.h"

@@ -31,7 +31,7 @@
 #include "ColoredTextAreaOverlayElementFactory.h"
 #include "ErrorUtils.h"
 #include "SoundScriptManager.h"
-#include "SkinManager.h"
+#include "SkinFileformat.h"
 #include "Language.h"
 #include "PlatformUtils.h"
 

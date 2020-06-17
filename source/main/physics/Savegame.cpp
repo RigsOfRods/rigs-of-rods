@@ -36,7 +36,6 @@
 #include "RoRFrameListener.h"
 #include "ScrewProp.h"
 #include "Skidmark.h"
-#include "SkinManager.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"
 

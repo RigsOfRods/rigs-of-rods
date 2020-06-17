@@ -59,7 +59,7 @@
 #include "RoRFrameListener.h"
 #include "ScrewProp.h"
 #include "Skidmark.h"
-#include "SkinManager.h"
+#include "SkinFileformat.h"
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
