@@ -180,9 +180,6 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
 
     this->LoadCacheFileJson();
 
-    App::app_force_cache_purge->SetVal(false);
-    App::app_force_cache_udpate->SetVal(false);
-
     RoR::Log("[RoR|ModCache] Cache loaded");
 }
 
@@ -260,21 +257,9 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
         return CACHE_NEEDS_REBUILD;
     }
 
-    if (App::app_force_cache_purge->GetBool())
-    {
-        RoR::Log("[RoR|ModCache] Cache rebuild requested");
-        return CACHE_NEEDS_REBUILD;
-    }
-
     if (j_doc["global_hash"].GetString() != m_filenames_hash)
     {
         RoR::Log("[RoR|ModCache] Cache file out of date");
-        return CACHE_NEEDS_UPDATE;
-    }
-
-    if (App::app_force_cache_udpate->GetBool())
-    {
-        RoR::Log("[RoR|ModCache] Cache update requested");
         return CACHE_NEEDS_UPDATE;
     }
 

@@ -244,7 +244,7 @@ void ContentManager::InitContentManager()
 #endif // USE_OPENAL
 }
 
-void ContentManager::InitModCache()
+void ContentManager::InitModCache(CacheSystem::CacheValidityState validity)
 {
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_cache_dir->GetStr(), "FileSystem", RGN_CACHE, /*recursive=*/false, /*readOnly=*/false);
@@ -285,7 +285,10 @@ void ContentManager::InitModCache()
     }
     ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_TEMP);
 
-    CacheSystem::CacheValidityState validity = m_mod_cache.EvaluateCacheValidity();
+    if (validity == CacheSystem::CacheValidityState::CACHE_STATE_UNKNOWN)
+    {
+        validity = m_mod_cache.EvaluateCacheValidity();
+    }
     m_mod_cache.LoadModCache(validity);
     App::SetCacheSystem(&m_mod_cache); // Temporary solution until Modcache+ContentManager are fully merged and `App::GetCacheSystem()` is removed ~ only_a_ptr, 10/2018
 

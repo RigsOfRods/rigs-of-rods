@@ -186,8 +186,6 @@ int main(int argc, char *argv[])
 
         App::GetGuiManager()->SetUpMenuWallpaper();
 
-        App::GetContentManager()->InitModCache();
-
         // Add "this is obsolete" marker file to old config location
         App::GetAppContext()->SetUpObsoleteConfMarker();
 
@@ -209,6 +207,20 @@ int main(int argc, char *argv[])
             // MainMenu disabled (singleplayer mode) -> go directly to map selector (traditional behavior)
             App::GetGuiManager()->SetVisible_GameMainMenu(false);
             App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+        }
+
+        // Load mod cache
+        if (App::app_force_cache_purge->GetBool())
+        {
+            App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_PURGE_REQUESTED));
+        }
+        else if (App::app_force_cache_udpate->GetBool())
+        {
+            App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_UPDATE_REQUESTED));
+        }
+        else
+        {
+            App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_LOAD_REQUESTED));
         }
 
         App::app_state->SetVal((int)AppState::MAIN_MENU);
@@ -269,6 +281,37 @@ int main(int argc, char *argv[])
                     App::GetAppContext()->ActivateFullscreen(false);
                     App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                                                   _L("Display mode changed to windowed"));
+                    break;
+
+                case MSG_APP_MODCACHE_LOAD_REQUESTED:
+                    if (!App::GetCacheSystem()) // If not already loaded...
+                    {
+                        App::GetGuiManager()->SetVisible_GameMainMenu(false);
+                        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+                        App::GetContentManager()->InitModCache(CacheSystem::CacheValidityState::CACHE_STATE_UNKNOWN);
+                        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                    }
+
+                case MSG_APP_MODCACHE_UPDATE_REQUESTED:
+                    if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU) // No actors must be spawned; they keep pointers to CacheEntries
+                    {
+                        RoR::Log("[RoR|ModCache] Cache update requested");
+                        App::GetGuiManager()->SetVisible_GameSettings(false);
+                        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+                        App::GetContentManager()->InitModCache(CacheSystem::CacheValidityState::CACHE_NEEDS_UPDATE);
+                        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                    }
+                    break;
+
+                case MSG_APP_MODCACHE_PURGE_REQUESTED:
+                    if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU) // No actors must be spawned; they keep pointers to CacheEntries
+                    {
+                        RoR::Log("[RoR|ModCache] Cache rebuild requested");
+                        App::GetGuiManager()->SetVisible_GameSettings(false);
+                        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+                        App::GetContentManager()->InitModCache(CacheSystem::CacheValidityState::CACHE_NEEDS_REBUILD);
+                        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                    }
                     break;
 
                 // -- Network events --
@@ -532,7 +575,6 @@ int main(int argc, char *argv[])
                 }
             } // Game events block
 
-
             // Check FPS limit
             if (App::gfx_fps_limit->GetInt() > 0)
             {
@@ -637,18 +679,6 @@ int main(int argc, char *argv[])
                     render_window->update(); // update even when in background !
                 }
             } // Render block
-
-            // Update cache if requested
-            if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
-            {
-                if (App::app_force_cache_udpate->GetBool() || App::app_force_cache_purge->GetBool())
-                {
-                    App::GetGuiManager()->SetVisible_GameSettings(false);
-                    App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-                    App::GetContentManager()->InitModCache();
-                    App::GetGuiManager()->SetVisible_GameMainMenu(true);
-                }
-            } // Update cache block
 
             App::GetGuiManager()->ApplyGuiCaptureKeyboard();
 

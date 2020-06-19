@@ -21,6 +21,7 @@
 
 #include "AppContext.h"
 #include "CacheSystem.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
 #include "Language.h"
@@ -55,7 +56,7 @@ void RoR::GUI::GameSettings::Draw()
     ImGui::SameLine();
     if (ImGui::Button(_LC("GameSettings", "Update cache")))
     {
-        App::app_force_cache_udpate->SetVal(true);
+        App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_UPDATE_REQUESTED));
     }
 
     ImGui::PopStyleVar(1);
