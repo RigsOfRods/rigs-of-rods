@@ -510,8 +510,8 @@ else (USE_PACKAGE_MANAGER)
 
 endif (USE_PACKAGE_MANAGER)
 
-set_target_properties(${BINNAME} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-cotire(${BINNAME})
+#set_target_properties(${BINNAME} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+#cotire(${BINNAME})
 
 
 ####################################################################################################
