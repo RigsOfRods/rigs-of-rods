@@ -198,7 +198,10 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
     MainMenuLoopUpdateEvents(seconds_since_last_frame);
 
 #ifdef USE_ANGELSCRIPT
-    ScriptEngine::getSingleton().framestep(seconds_since_last_frame);
+    if (App::GetSimTerrain() != nullptr)
+    {
+        ScriptEngine::getSingleton().framestep(seconds_since_last_frame);
+    }
 #endif
 }
 
