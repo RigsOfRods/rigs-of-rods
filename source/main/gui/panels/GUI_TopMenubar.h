@@ -28,6 +28,7 @@
 #include "RoRnet.h"
 
 #include <imgui.h>
+#include <vector>
 
 namespace RoR {
 namespace GUI {

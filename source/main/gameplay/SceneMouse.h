@@ -27,6 +27,7 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
+#include <OIS.h>
 
 namespace RoR {
 
