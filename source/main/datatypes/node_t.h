@@ -20,6 +20,7 @@
 */
 
 #pragma once
+#include <OgreVector3.h>
 
 /// Physics: A vertex in the softbody structure
 struct node_t

@@ -24,6 +24,7 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
+#include <OgreFont.h>
 
 /**
  *  @brief Saves a texture to the disk.

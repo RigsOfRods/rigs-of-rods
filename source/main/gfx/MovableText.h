@@ -29,6 +29,7 @@
 #include <Overlay/OgreFontManager.h>
 
 #include "RoRPrerequisites.h"
+#include <OgreUTFString.h>
 
 namespace Ogre {
 

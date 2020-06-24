@@ -24,6 +24,8 @@
 #include "ForwardDeclarations.h"
 
 #include <OgreUTFString.h>
+#include <OgreMeshManager.h>
+#include <OgreTimer.h>
 #include <string>
 
 class Character

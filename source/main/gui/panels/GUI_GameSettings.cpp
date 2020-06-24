@@ -24,6 +24,7 @@
 #include "GUIUtils.h"
 #include "OgreSubsystem.h"
 #include "Language.h"
+#include <alc.h>
 
 void RoR::GUI::GameSettings::Draw()
 {

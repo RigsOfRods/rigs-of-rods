@@ -28,6 +28,7 @@
 #include <OgreDataStream.h>
 #include <OgreException.h>
 #include <OgreString.h>
+#include <OgreResourceGroupManager.h>
 
 #include <cstdio>
 

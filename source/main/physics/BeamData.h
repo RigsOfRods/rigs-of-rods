@@ -25,6 +25,7 @@
 /// @brief Core data structures for simulation.
 
 #pragma once
+#include <OgreUTFString.h>
 
 /*
  A word of warning:

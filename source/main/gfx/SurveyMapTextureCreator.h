@@ -21,6 +21,7 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
+#include <OgreRenderTargetListener.h>
 
 namespace RoR {
 

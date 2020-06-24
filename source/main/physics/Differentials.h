@@ -21,6 +21,7 @@
 #pragma once
 
 #include <vector>
+#include <OgreUTFString.h>
 
 struct DifferentialData
 {

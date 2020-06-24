@@ -21,6 +21,7 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
+#include <OgreRoot.h>
 
 namespace RoR {
 namespace GUI {

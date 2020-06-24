@@ -31,6 +31,7 @@
 #pragma once
 
 #include <string>
+#include <ctime>
 
 namespace RoR {
 
