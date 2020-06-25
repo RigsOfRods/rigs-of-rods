@@ -470,8 +470,8 @@ int main(int argc, char *argv[])
                     App::sim_state->SetVal((int)SimState::OFF);
                     App::app_state->SetVal((int)AppState::MAIN_MENU);
                     App::GetGuiManager()->ReflectGameState();
-                    delete App::GetSimController();
-                    App::SetSimController(nullptr);
+                    delete App::GetSimController();    App::SetSimController(nullptr);
+                    delete App::GetSimTerrain();       App::SetSimTerrain(nullptr);
                     App::GetGfxScene()->ClearScene();
                     App::sim_terrain_name->SetStr("");
                     App::sim_terrain_gui_name->SetStr("");
