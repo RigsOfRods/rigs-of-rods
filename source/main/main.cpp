@@ -656,7 +656,10 @@ int main(int argc, char *argv[])
 #endif // USE_OPENAL
 
 #ifdef USE_ANGELSCRIPT
-            App::GetScriptEngine()->framestep(dt_sec);
+            if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+            {
+                App::GetScriptEngine()->framestep(dt_sec);
+            }
 #endif // USE_ANGELSCRIPT
 
             if (App::io_ffb_enabled->GetBool() &&
