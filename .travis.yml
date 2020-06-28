@@ -1,10 +1,9 @@
-dist: xenial
-sudo: required
-language: c
+dist: bionic
+language: c++
 
 env:
   global:
-    - CONAN_PKG: conan-ubuntu-64_1_24_1.deb
+    - CONAN_PKG: conan-ubuntu-64_1_26_1.deb
 
 cache:
   directories:
