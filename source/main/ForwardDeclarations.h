@@ -57,6 +57,7 @@ namespace RoR
     struct Prop;
     struct PropAnim;
     class  Renderdash;
+    class  Replay;
     class  RigLoadingProfiler;
     class  ScriptEngine;
     class  Skidmark;
@@ -188,7 +189,6 @@ class PointColDetector;
 class ProceduralManager;
 class RailGroup;
 class RailSegment;
-class Replay;
 class Road2;
 class Road;
 class ScopeLog;

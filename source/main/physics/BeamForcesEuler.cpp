@@ -1088,34 +1088,7 @@ void Actor::CalcReplay()
 {
     if (m_replay_handler && m_replay_handler->isValid())
     {
-        m_replay_timer += PHYSICS_DT;
-        if (m_replay_timer >= ar_replay_precision)
-        {
-            // store nodes
-            node_simple_t* nbuff = (node_simple_t *)m_replay_handler->getWriteBuffer(0);
-            if (nbuff)
-            {
-                for (int i = 0; i < ar_num_nodes; i++)
-                {
-                    nbuff[i].position = ar_nodes[i].AbsPosition;
-                    nbuff[i].velocity = ar_nodes[i].Velocity;
-                }
-            }
-
-            // store beams
-            beam_simple_t* bbuff = (beam_simple_t *)m_replay_handler->getWriteBuffer(1);
-            if (bbuff)
-            {
-                for (int i = 0; i < ar_num_beams; i++)
-                {
-                    bbuff[i].broken = ar_beams[i].bm_broken;
-                    bbuff[i].disabled = ar_beams[i].bm_disabled;
-                }
-            }
-
-            m_replay_handler->writeDone();
-            m_replay_timer = 0.0f;
-        }
+        m_replay_handler->onPhysicsStep();
     }
 }
 

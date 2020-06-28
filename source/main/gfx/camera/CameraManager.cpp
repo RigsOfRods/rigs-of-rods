@@ -32,6 +32,7 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "OverlayWrapper.h"
+#include "Replay.h"
 #include "RoRFrameListener.h"
 #include "TerrainManager.h"
 #include "GUIManager.h"
@@ -705,8 +706,6 @@ void CameraManager::ToggleCameraBehavior(CameraBehaviors new_behavior) // Only a
 
 void CameraManager::UpdateCameraBehaviorStatic()
 {
-    const auto water = App::GetSimTerrain()->getWater();
-
     Vector3 velocity = Vector3::ZERO;
     Radian angle = Degree(90);
     float radius = 3.0f;
@@ -723,9 +722,10 @@ void CameraManager::UpdateCameraBehaviorStatic()
         radius = m_cct_player_actor->getMinCameraRadius();
         angle = (m_staticcam_look_at - m_staticcam_position).angleBetween(velocity);
         speed = velocity.normalise();
-        if (m_cct_player_actor->ar_replay_mode)
+
+        if (m_cct_player_actor->ar_sim_state == Actor::SimState::LOCAL_REPLAY)
         {
-            speed *= m_cct_player_actor->ar_replay_precision;
+            speed *= m_cct_player_actor->GetReplay()->getPrecision();
         }
     }
     else
@@ -749,6 +749,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
                 distance > cmradius * std::max(25.0f, speed * 1.15f) ||
                 intersectsTerrain(m_staticcam_position, lookAt, lookAtPrediction, interval))
         {
+            const auto water = App::GetSimTerrain()->getWater();
             float water_height = (water && !water->IsUnderWater(lookAt)) ? water->GetStaticWaterHeight() : 0.0f;
             float desired_offset = std::max(std::sqrt(radius) * 2.89f, App::gfx_camera_height->GetFloat());
 
@@ -922,7 +923,7 @@ void CameraManager::CameraBehaviorOrbitUpdate()
     }
     else
     {
-        if (m_cct_player_actor && m_cct_player_actor->ar_replay_mode && camDisplacement != Vector3::ZERO)
+        if (m_cct_player_actor && m_cct_player_actor->ar_sim_state == Actor::SimState::LOCAL_REPLAY && camDisplacement != Vector3::ZERO)
             this->GetCameraNode()->setPosition(desiredPosition);
         else
             this->GetCameraNode()->setPosition(camPosition);

@@ -52,7 +52,6 @@ struct beam_t
     ///   Actor::ToggleHooks()             -- WRITE sets to false when hook is unlocked.
     ///   Actor::GetNumActiveConnectedBeams()    -- READ: Counts beams connected to node; Excludes 'disabled' beams.
     ///   Actor::calcForcesEulerCompute() -- READ Saves value to replay buffer
-    ///   Actor::ReplayStep()             -- WRITE: fills from replay buffer
     ///   Actor::CalcBeams()            -- READ excludes beam from physics
     ///                                -- WRITE: when SUPPORTBEAM breaks, it's set to 'disabled' + 'broken'
     ///                                -- WRITE: when regular beam breaks, 'true' is set to it and all beams in it's detacher group.
@@ -67,7 +66,6 @@ struct beam_t
 
     /// Multipurpose: excludes beam from physics (slidenodes) and force feedback, controls visibility
     ///   Actor::SyncReset()           -- WRITE: set to false
-    ///   Actor::ReplayStep()          -- WRITE: fills from replay buffer
     ///   Actor::updateVisual()        -- READ: when 'disabled' or 'broken', hides all visuals - and vice versa.
     ///   Actor::calcForcesEulerCompute() -- READ Excludes broken hydros from ForceFeedback
     ///                                  -- READ Saves value to replay buffer

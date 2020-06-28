@@ -145,7 +145,7 @@ void LandVehicleSimulation::CheckSpeedLimit(Actor* vehicle, float dt)
 
 void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_last_frame)
 {
-    if (vehicle->isBeingReset() || vehicle->ar_physics_paused || vehicle->ar_replay_mode)
+    if (vehicle->isBeingReset() || vehicle->ar_physics_paused)
         return;
 #ifdef USE_ANGELSCRIPT
     if (vehicle->ar_vehicle_ai && vehicle->ar_vehicle_ai->IsActive())
@@ -198,7 +198,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
 
 void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_since_last_frame)
 {
-    if (vehicle->isBeingReset() || vehicle->ar_physics_paused || vehicle->ar_replay_mode)
+    if (vehicle->isBeingReset() || vehicle->ar_physics_paused)
         return;
 #ifdef USE_ANGELSCRIPT
     if (vehicle->ar_vehicle_ai && vehicle->ar_vehicle_ai->IsActive())

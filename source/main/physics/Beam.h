@@ -44,6 +44,7 @@ public:
     {
         LOCAL_SIMULATED,  //!< simulated (local) actor
         NETWORKED_OK,     //!< not simulated (remote) actor
+        LOCAL_REPLAY,
         LOCAL_SLEEPING,   //!< sleeping (local) actor
     };
 
@@ -78,7 +79,6 @@ public:
     float             GetMaxHeight(bool skip_virtual_nodes=true);
     float             GetHeightAboveGround(bool skip_virtual_nodes=true);
     float             GetHeightAboveGroundBelow(float height, bool skip_virtual_nodes=true);
-    bool              ReplayStep();
     void              ForceFeedbackStep(int steps);
     void              HandleInputEvents(float dt);
     void              HandleAngelScriptEvents(float dt);
@@ -104,7 +104,6 @@ public:
     void              ToggleTractionControl();             //!< Event handler
     void              ToggleCruiseControl();               //!< Event handler
     void              ToggleBeacons();                     //!< Event handler
-    void              setReplayMode(bool rm);              //!< Event handler; toggle replay mode.
     bool              Intersects(Actor* actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
     /// Moves the actor at most 'direction.length()' meters towards 'direction' to resolve any collisions
     void              resolveCollisions(Ogre::Vector3 direction);
@@ -149,6 +148,7 @@ public:
     void              UpdateBoundingBoxes();
     void              calculateAveragePosition();
     void              UpdatePhysicsOrigin();
+    void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
     void              SoftReset();
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
     blinktype         getBlinkType();
@@ -164,7 +164,7 @@ public:
     void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
     Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
     Ogre::Real        getMinimalCameraRadius();
-    Replay*           getReplay();
+    Replay*           GetReplay();
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
     bool              isPreloadedWithTerrain() const    { return m_preloaded_with_terrain; };
     bool              isBeingReset() const              { return m_ongoing_reset; };
@@ -308,9 +308,6 @@ public:
     float             ar_hydro_rudder_state;
     float             ar_hydro_elevator_command;
     float             ar_hydro_elevator_state;
-    Ogre::Real        ar_replay_precision;            //!< Sim attribute; determined at startup
-    int               ar_replay_length;               //!< Sim attribute; clone of GVar 'sim_replay_length'
-    int               ar_replay_pos;                  //!< Sim state
     float             ar_sleep_counter;               //!< Sim state; idle time counter
     ground_model_t*   ar_submesh_ground_model;
     bool              ar_parking_brake;
@@ -367,7 +364,6 @@ public:
     bool ar_gui_use_engine_max_rpm:1;  //!< Gfx attr
     bool ar_hydro_speed_coupling:1;
     bool ar_collision_relevant:1;      //!< Physics state;
-    bool ar_replay_mode:1;      //!< Sim state
     bool ar_is_police:1;        //!< Gfx/sfx attr
     bool ar_rescuer_flag:1;     //!< Gameplay attr; defined in truckfile. TODO: Does anybody use this anymore?
     bool ar_forward_commands:1; //!< Sim state
@@ -419,7 +415,6 @@ private:
     void              UpdateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces
     void              resetSlideNodePositions();           //!< Recalculate SlideNode positions
     void              resetSlideNodes();                   //!< Reset all the SlideNodes
-    void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
     void              ResetAngle(float rot);
     void              calculateLocalGForces();             //!< Derive the truck local g-forces from the global ones
     /// Virtually moves the actor at most 'direction.length()' meters towards 'direction' trying to resolve any collisions
@@ -453,7 +448,6 @@ private:
     Ogre::Real        m_min_camera_radius;
     Ogre::Vector3     m_avg_node_position_prev;
     Ogre::Vector3     m_avg_node_velocity;          //!< average node velocity (compared to the previous frame step)
-    Ogre::Real        m_replay_timer;               //!< Sim state
     blinktype         m_blink_type;                 //!< Sim state; Blinker = turn signal
     float             m_stabilizer_shock_sleep;     //!< Sim state
     Replay*           m_replay_handler;
@@ -488,7 +482,6 @@ private:
     int               m_net_node_buf_size;     //!< Network attr; buffer size
     int               m_net_buffer_size;       //!< Network attr; buffer size
     int               m_wheel_node_count;      //!< Static attr; filled at spawn
-    int               m_replay_pos_prev;       //!< Sim state
     int               m_previous_gear;         //!< Sim state; land vehicle shifting
     float             m_handbrake_force;       //!< Physics attr; defined in truckfile
     Airfoil*          m_fusealge_airfoil;      //!< Physics attr; defined in truckfile

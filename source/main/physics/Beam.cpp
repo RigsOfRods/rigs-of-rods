@@ -1716,48 +1716,6 @@ void Actor::ApplyNodeBeamScales()
     }
 }
 
-bool Actor::ReplayStep()
-{
-    if (!ar_replay_mode || !m_replay_handler || !m_replay_handler->isValid())
-        return false;
-
-    // no replay update needed if position was not changed
-    if (ar_replay_pos != m_replay_pos_prev)
-    {
-        unsigned long time = 0;
-
-        node_simple_t* nbuff = (node_simple_t *)m_replay_handler->getReadBuffer(ar_replay_pos, 0, time);
-        if (nbuff)
-        {
-            for (int i = 0; i < ar_num_nodes; i++)
-            {
-                ar_nodes[i].AbsPosition = nbuff[i].position;
-                ar_nodes[i].RelPosition = nbuff[i].position - ar_origin;
-
-                ar_nodes[i].Velocity = nbuff[i].velocity;
-                ar_nodes[i].Forces = Vector3::ZERO;
-            }
-
-            updateSlideNodePositions();
-            this->UpdateBoundingBoxes();
-            calculateAveragePosition();
-        }
-
-        beam_simple_t* bbuff = (beam_simple_t *)m_replay_handler->getReadBuffer(ar_replay_pos, 1, time);
-        if (bbuff)
-        {
-            for (int i = 0; i < ar_num_beams; i++)
-            {
-                ar_beams[i].bm_broken = bbuff[i].broken;
-                ar_beams[i].bm_disabled = bbuff[i].disabled;
-            }
-        }
-        m_replay_pos_prev = ar_replay_pos;
-    }
-
-    return true;
-}
-
 void Actor::ForceFeedbackStep(int steps)
 {
     m_force_sensors.out_body_forces = m_force_sensors.accu_body_forces / steps;
@@ -3857,21 +3815,6 @@ void Actor::ToggleBeacons()
     TRIGGER_EVENT(SE_TRUCK_BEACONS_TOGGLE, ar_instance_id);
 }
 
-void Actor::setReplayMode(bool rm)
-{
-    if (!m_replay_handler || !m_replay_handler->isValid())
-        return;
-
-    if (ar_replay_mode && !rm)
-    {
-        ar_replay_pos = 0;
-        m_replay_pos_prev = -1;
-    }
-
-    ar_replay_mode = rm;
-    m_replay_handler->setVisible(ar_replay_mode);
-}
-
 bool Actor::getReverseLightVisible()
 {
     if (ar_sim_state == SimState::NETWORKED_OK)
@@ -4504,18 +4447,12 @@ Actor::Actor(
     , m_net_label_mt(0)
     , m_net_reverse_light(false)
     , ar_initial_total_mass(0)
-    , m_replay_pos_prev(-1)
     , ar_parking_brake(false)
     , ar_trailer_parking_brake(false)
     , m_avg_node_position(rq.asr_position)
     , m_previous_gear(0)
     , m_ref_tyre_pressure(50.0)
     , m_replay_handler(nullptr)
-    , ar_replay_precision(0)
-    , m_replay_timer(0)
-    , ar_replay_length(10000)
-    , ar_replay_mode(false)
-    , ar_replay_pos(0)
     , m_reverse_light_active(false)
     , ar_right_mirror_angle(-0.52)
     , ar_rudder(0)
@@ -4652,9 +4589,12 @@ Ogre::Real Actor::getMinimalCameraRadius()
     return m_min_camera_radius;
 }
 
-Replay* Actor::getReplay()
+Replay* Actor::GetReplay()
 {
-    return m_replay_handler;
+    if (m_replay_handler && m_replay_handler->isValid())
+        return m_replay_handler;
+    else
+        return nullptr;
 }
 
 Vector3 Actor::getNodePosition(int nodeNumber)

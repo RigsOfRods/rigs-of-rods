@@ -22,20 +22,22 @@
 
 #include "Application.h"
 #include "Beam.h"
+#include "BeamFactory.h"
+#include "GameContext.h"
 #include "GUIManager.h"
+#include "InputEngine.h"
 #include "Language.h"
 #include "Utils.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 Replay::Replay(Actor* actor, int _numFrames)
 {
-    numNodes = actor->ar_num_nodes;
-    numBeams = actor->ar_num_beams;
+    m_actor = actor;
     numFrames = _numFrames;
 
     curFrameTime = 0;
-    curOffset = 0;
 
     replayTimer = new Timer();
 
@@ -46,33 +48,24 @@ Replay::Replay(Actor* actor, int _numFrames)
 
     outOfMemory = false;
 
-    unsigned long bsize = (numNodes * numFrames * sizeof(node_simple_t) + numBeams * numFrames * sizeof(beam_simple_t) + numFrames * sizeof(unsigned long)) / 1024.0f;
+    unsigned long bsize = (actor->ar_num_nodes * numFrames * sizeof(node_simple_t) + actor->ar_num_beams * numFrames * sizeof(beam_simple_t) + numFrames * sizeof(unsigned long)) / 1024.0f;
     LOG("replay buffer size: " + TOSTRING(bsize) + " kB");
 
     writeIndex = 0;
     firstRun = 1;
 
-    hidden = false;
-    visible = false;
+    int steps = App::sim_replay_stepping->GetInt();
+
+    if (steps <= 0)
+        this->ar_replay_precision = 0.0f;
+    else
+        this->ar_replay_precision = 1.0f / ((float)steps);
 
     // windowing
     int width = 300;
     int height = 60;
     int x = (MyGUI::RenderManager::getInstance().getViewSize().width - width) / 2;
     int y = 0;
-
-    panel = MyGUI::Gui::getInstance().createWidget<MyGUI::Widget>("Panel", x, y, width, height, MyGUI::Align::HCenter | MyGUI::Align::Top, "Back");
-    //panel->setCaption(_L("Replay"));
-    panel->setAlpha(0.6);
-
-    pr = panel->createWidget<MyGUI::Progress>("Progress", 10, 10, 280, 20, MyGUI::Align::Default);
-    pr->setProgressRange(_numFrames);
-    pr->setProgressPosition(0);
-
-    txt = panel->createWidget<MyGUI::StaticText>("StaticText", 10, 30, 280, 20, MyGUI::Align::Default);
-    txt->setCaption(_L("Position:"));
-
-    panel->setVisible(false);
 }
 
 Replay::~Replay()
@@ -96,13 +89,13 @@ void* Replay::getWriteBuffer(int type)
     if (!nodes)
     {
         // get memory
-        nodes = (node_simple_t*)calloc(numNodes * numFrames, sizeof(node_simple_t));
+        nodes = (node_simple_t*)calloc(m_actor->ar_num_nodes * numFrames, sizeof(node_simple_t));
         if (!nodes)
         {
             outOfMemory = true;
             return 0;
         }
-        beams = (beam_simple_t*)calloc(numBeams * numFrames, sizeof(beam_simple_t));
+        beams = (beam_simple_t*)calloc(m_actor->ar_num_beams * numFrames, sizeof(beam_simple_t));
         if (!beams)
         {
             free(nodes);
@@ -126,12 +119,12 @@ void* Replay::getWriteBuffer(int type)
     if (type == 0)
     {
         // nodes
-        ptr = (void *)(nodes + (writeIndex * numNodes));
+        ptr = (void *)(nodes + (writeIndex * m_actor->ar_num_nodes));
     }
     else if (type == 1)
     {
         // beams
-        ptr = (void *)(beams + (writeIndex * numBeams));
+        ptr = (void *)(beams + (writeIndex * m_actor->ar_num_beams));
     }
     return ptr;
 }
@@ -168,56 +161,141 @@ void* Replay::getReadBuffer(int offset, int type, unsigned long& time)
     // set the time
     time = times[delta];
     curFrameTime = time;
-    curOffset = offset;
-    updateGUI();
 
     if (outOfMemory)
         return 0;
 
     // return buffer pointer
     if (type == 0)
-        return (void *)(nodes + delta * numNodes);
+        return (void *)(nodes + delta * m_actor->ar_num_nodes);
     else if (type == 1)
-        return (void *)(beams + delta * numBeams);
+        return (void *)(beams + delta * m_actor->ar_num_beams);
     return 0;
-}
-
-void Replay::updateGUI()
-{
-    if (outOfMemory)
-    {
-        txt->setCaption(_L("Out of Memory"));
-        pr->setProgressPosition(0);
-    }
-    else
-    {
-        wchar_t tmp[128] = L"";
-        unsigned long t = curFrameTime;
-        UTFString format = _L("Position: %0.6f s, frame %i / %i");
-        swprintf(tmp, 128, format.asWStr_c_str(), ((float)t) / 1000000.0f, curOffset, numFrames);
-        txt->setCaption(convertToMyGUIString(tmp, 128));
-        pr->setProgressPosition(abs(curOffset));
-    }
 }
 
 unsigned long Replay::getLastReadTime()
 {
     return curFrameTime;
 }
-
-void Replay::setHidden(bool value)
+ 
+void Replay::onPhysicsStep()
 {
-    hidden = value;
-    panel->setVisible(visible && !hidden);
+    m_replay_timer += PHYSICS_DT;
+    if (m_replay_timer >= ar_replay_precision)
+    {
+        // store nodes
+        node_simple_t* nbuff = (node_simple_t *)this->getWriteBuffer(0);
+        if (nbuff)
+        {
+            for (int i = 0; i < m_actor->ar_num_nodes; i++)
+            {
+                nbuff[i].position = m_actor->ar_nodes[i].AbsPosition;
+                nbuff[i].velocity = m_actor->ar_nodes[i].Velocity;
+            }
+        }
+
+        // store beams
+        beam_simple_t* bbuff = (beam_simple_t *)this->getWriteBuffer(1);
+        if (bbuff)
+        {
+            for (int i = 0; i < m_actor->ar_num_beams; i++)
+            {
+                bbuff[i].broken = m_actor->ar_beams[i].bm_broken;
+                bbuff[i].disabled = m_actor->ar_beams[i].bm_disabled;
+            }
+        }
+
+        this->writeDone();
+        m_replay_timer = 0.0f;
+    }
 }
 
-void Replay::setVisible(bool value)
+void Replay::replayStepActor()
 {
-    visible = value;
-    panel->setVisible(visible && !hidden);
+    if (ar_replay_pos != m_replay_pos_prev)
+    {
+        unsigned long time = 0;
+
+        node_simple_t* nbuff = (node_simple_t *)this->getReadBuffer(ar_replay_pos, 0, time);
+        if (nbuff)
+        {
+            for (int i = 0; i < m_actor->ar_num_nodes; i++)
+            {
+                m_actor->ar_nodes[i].AbsPosition = nbuff[i].position;
+                m_actor->ar_nodes[i].RelPosition = nbuff[i].position - m_actor->ar_origin;
+
+                m_actor->ar_nodes[i].Velocity = nbuff[i].velocity;
+                m_actor->ar_nodes[i].Forces = Vector3::ZERO;
+            }
+
+            m_actor->updateSlideNodePositions();
+            m_actor->UpdateBoundingBoxes();
+            m_actor->calculateAveragePosition();
+        }
+
+        beam_simple_t* bbuff = (beam_simple_t *)this->getReadBuffer(ar_replay_pos, 1, time);
+        if (bbuff)
+        {
+            for (int i = 0; i < m_actor->ar_num_beams; i++)
+            {
+                m_actor->ar_beams[i].bm_broken = bbuff[i].broken;
+                m_actor->ar_beams[i].bm_disabled = bbuff[i].disabled;
+            }
+        }
+        m_replay_pos_prev = ar_replay_pos;
+    }
 }
 
-bool Replay::getVisible()
+void Replay::UpdateInputEvents()
 {
-    return visible;
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_REPLAY_MODE))
+    {
+        if (m_actor->ar_sim_state == Actor::SimState::LOCAL_REPLAY)
+            m_actor->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
+        else
+            m_actor->ar_sim_state = Actor::SimState::LOCAL_REPLAY;
+    }
+
+    if (m_actor->ar_sim_state == Actor::SimState::LOCAL_REPLAY)
+    {
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.1f) && this->ar_replay_pos <= 0)
+        {
+            this->ar_replay_pos++;
+        }
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_BACKWARD, 0.1f) && this->ar_replay_pos > -this->getNumFrames())
+        {
+            this->ar_replay_pos--;
+        }
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_FORWARD, 0.1f) && this->ar_replay_pos + 10 <= 0)
+        {
+            this->ar_replay_pos += 10;
+        }
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_BACKWARD, 0.1f) && this->ar_replay_pos - 10 > -this->getNumFrames())
+        {
+            this->ar_replay_pos -= 10;
+        }
+
+        if (App::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
+        {
+            if (this->ar_replay_pos <= 0 && this->ar_replay_pos >= -this->getNumFrames())
+            {
+                if (App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
+                {
+                    this->ar_replay_pos += App::GetInputEngine()->getMouseState().X.rel * 1.5f;
+                }
+                else
+                {
+                    this->ar_replay_pos += App::GetInputEngine()->getMouseState().X.rel * 0.05f;
+                }
+                if (this->ar_replay_pos > 0)
+                {
+                    this->ar_replay_pos = 0;
+                }
+                if (this->ar_replay_pos < -this->getNumFrames())
+                {
+                    this->ar_replay_pos = -this->getNumFrames();
+                }
+            }
+        }
+    }
 }

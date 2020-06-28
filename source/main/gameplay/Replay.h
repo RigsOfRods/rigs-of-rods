@@ -22,7 +22,7 @@
 
 #include "Application.h"
 
-#include <MyGUI.h>
+namespace RoR {
 
 struct node_simple_t
 {
@@ -42,42 +42,36 @@ public:
     Replay(Actor* b, int nframes);
     ~Replay();
 
-    void* getWriteBuffer(int type);
-    void* getReadBuffer(int offset, int type, unsigned long& time);
-    unsigned long getLastReadTime();
-    void writeDone();
-
-    void setHidden(bool value);
-
-    void setVisible(bool value);
-    bool getVisible();
-
-    bool isValid() { return numFrames && !outOfMemory; };
+    void*               getWriteBuffer(int type);
+    void*               getReadBuffer(int offset, int type, unsigned long& time);
+    unsigned long       getLastReadTime();
+    void                writeDone();
+    void                onPhysicsStep();
+    void                replayStepActor();
+    float               getPrecision() const { return ar_replay_precision; }
+    float               getReplayPositionSec() const { return ((float)curFrameTime) / 1000000.0f; }
+    int                 getNumFrames() const { return numFrames; }
+    int                 getCurrentFrame() const { return ar_replay_pos; }
+    bool                isValid() { return numFrames && !outOfMemory; };
+    void                UpdateInputEvents();
 
 protected:
-    Ogre::Timer* replayTimer;
-    int numNodes;
-    int numBeams;
-    int numFrames;
-    bool outOfMemory;
-
-    bool hidden;
-    bool visible;
-
-    int writeIndex;
-    int firstRun;
-    unsigned long curFrameTime;
-    int curOffset;
+    Actor*              m_actor = nullptr;
+    float               m_replay_timer = 0.f;
+    float               ar_replay_precision = 1.f;
+    int                 ar_replay_pos = 0;
+    int                 m_replay_pos_prev = 0;
+    Ogre::Timer*        replayTimer;
+    int                 numFrames;
+    bool                outOfMemory;
+    int                 writeIndex;
+    int                 firstRun;
+    unsigned long       curFrameTime;
 
     // malloc'ed
-    node_simple_t* nodes;
-    beam_simple_t* beams;
-    unsigned long* times;
-
-    // windowing
-    MyGUI::WidgetPtr panel;
-    MyGUI::StaticTextPtr txt;
-    MyGUI::ProgressPtr pr;
-
-    void updateGUI();
+    node_simple_t*      nodes;
+    beam_simple_t*      beams;
+    unsigned long*      times;
 };
+
+} // namespace RoR
