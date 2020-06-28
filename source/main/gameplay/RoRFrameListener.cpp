@@ -239,18 +239,21 @@ void SimController::UpdateInputEvents(float dt)
                 {
                     m_advanced_vehicle_repair_timer = 0.0f;
                 }
-                if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) && !App::GetGameContext()->GetPlayerActor()->ar_replay_mode)
+                if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) &&
+                    App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::LOCAL_REPLAY)
                 {
                     ActorModifyRequest* rq = new ActorModifyRequest;
                     rq->amr_actor = App::GetGameContext()->GetPlayerActor();
                     rq->amr_type  = ActorModifyRequest::Type::RESET_ON_INIT_POS;
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
                 }
-                else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK) && !App::GetGameContext()->GetPlayerActor()->ar_replay_mode)
+                else if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK) &&
+                         App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::LOCAL_REPLAY)
                 {
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)App::GetGameContext()->GetPlayerActor()));
                 }
-                else if ((RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_vehicle_repair) && !App::GetGameContext()->GetPlayerActor()->ar_replay_mode)
+                else if ((App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_vehicle_repair) &&
+                         App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::LOCAL_REPLAY)
                 {
                     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
                     {
@@ -396,115 +399,79 @@ void SimController::UpdateInputEvents(float dt)
                             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("importcommands disabled"), "information.png", 3000);
                         }
                     }
-                    // replay mode
-                    if (App::GetGameContext()->GetPlayerActor()->ar_replay_mode)
+                    if (App::GetGameContext()->GetPlayerActor()->GetReplay())
                     {
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.1f) && App::GetGameContext()->GetPlayerActor()->ar_replay_pos <= 0)
-                        {
-                            App::GetGameContext()->GetPlayerActor()->ar_replay_pos++;
-                        }
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_BACKWARD, 0.1f) && App::GetGameContext()->GetPlayerActor()->ar_replay_pos > -App::GetGameContext()->GetPlayerActor()->ar_replay_length)
-                        {
-                            App::GetGameContext()->GetPlayerActor()->ar_replay_pos--;
-                        }
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_FORWARD, 0.1f) && App::GetGameContext()->GetPlayerActor()->ar_replay_pos + 10 <= 0)
-                        {
-                            App::GetGameContext()->GetPlayerActor()->ar_replay_pos += 10;
-                        }
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_BACKWARD, 0.1f) && App::GetGameContext()->GetPlayerActor()->ar_replay_pos - 10 > -App::GetGameContext()->GetPlayerActor()->ar_replay_length)
-                        {
-                            App::GetGameContext()->GetPlayerActor()->ar_replay_pos -= 10;
-                        }
+                        App::GetGameContext()->GetPlayerActor()->GetReplay()->UpdateInputEvents();
+                    }
 
-                        if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
+                    if (App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::LOCAL_REPLAY)
+                    {
+                        if (App::GetGameContext()->GetPlayerActor()->ar_driveable == TRUCK)
                         {
-                            if (App::GetGameContext()->GetPlayerActor()->ar_replay_pos <= 0 && App::GetGameContext()->GetPlayerActor()->ar_replay_pos >= -App::GetGameContext()->GetPlayerActor()->ar_replay_length)
+                            LandVehicleSimulation::UpdateInputEvents(App::GetGameContext()->GetPlayerActor(), dt);
+                        }
+                        if (App::GetGameContext()->GetPlayerActor()->ar_driveable == AIRPLANE)
+                        {
+                            AircraftSimulation::UpdateInputEvents(App::GetGameContext()->GetPlayerActor(), dt);
+                        }
+                        if (App::GetGameContext()->GetPlayerActor()->ar_driveable == BOAT)
+                        {
+                            //BOAT SPECIFICS
+
+                            //throttle
+                            if (RoR::App::GetInputEngine()->isEventDefined(EV_BOAT_THROTTLE_AXIS))
                             {
-                                if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
-                                {
-                                    App::GetGameContext()->GetPlayerActor()->ar_replay_pos += RoR::App::GetInputEngine()->getMouseState().X.rel * 1.5f;
-                                }
-                                else
-                                {
-                                    App::GetGameContext()->GetPlayerActor()->ar_replay_pos += RoR::App::GetInputEngine()->getMouseState().X.rel * 0.05f;
-                                }
-                                if (App::GetGameContext()->GetPlayerActor()->ar_replay_pos > 0)
-                                {
-                                    App::GetGameContext()->GetPlayerActor()->ar_replay_pos = 0;
-                                }
-                                if (App::GetGameContext()->GetPlayerActor()->ar_replay_pos < -App::GetGameContext()->GetPlayerActor()->ar_replay_length)
-                                {
-                                    App::GetGameContext()->GetPlayerActor()->ar_replay_pos = -App::GetGameContext()->GetPlayerActor()->ar_replay_length;
-                                }
+                                float f = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_THROTTLE_AXIS);
+                                // use negative values also!
+                                f = f * 2 - 1;
+                                for (int i = 0; i < App::GetGameContext()->GetPlayerActor()->ar_num_screwprops; i++)
+                                    App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->setThrottle(-f);
                             }
-                        }
-                    }
+                            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_THROTTLE_DOWN, 0.1f))
+                            {
+                                //throttle down
+                                for (int i = 0; i < App::GetGameContext()->GetPlayerActor()->ar_num_screwprops; i++)
+                                    App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->setThrottle(App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->getThrottle() - 0.05);
+                            }
+                            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_THROTTLE_UP, 0.1f))
+                            {
+                                //throttle up
+                                for (int i = 0; i < App::GetGameContext()->GetPlayerActor()->ar_num_screwprops; i++)
+                                    App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->setThrottle(App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->getThrottle() + 0.05);
+                            }
 
-                    if (App::GetGameContext()->GetPlayerActor()->ar_driveable == TRUCK)
-                    {
-                        LandVehicleSimulation::UpdateInputEvents(App::GetGameContext()->GetPlayerActor(), dt);
-                    }
-                    if (App::GetGameContext()->GetPlayerActor()->ar_driveable == AIRPLANE)
-                    {
-                        AircraftSimulation::UpdateInputEvents(App::GetGameContext()->GetPlayerActor(), dt);
-                    }
-                    if (App::GetGameContext()->GetPlayerActor()->ar_driveable == BOAT)
-                    {
-                        //BOAT SPECIFICS
+                            // steer
+                            float tmp_steer_left = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_LEFT);
+                            float tmp_steer_right = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_RIGHT);
+                            float stime = RoR::App::GetInputEngine()->getEventBounceTime(EV_BOAT_STEER_LEFT) + RoR::App::GetInputEngine()->getEventBounceTime(EV_BOAT_STEER_RIGHT);
+                            float sum_steer = (tmp_steer_left - tmp_steer_right) * dt;
+                            // do not center the rudder!
+                            if (fabs(sum_steer) > 0 && stime <= 0)
+                            {
+                                for (int i = 0; i < App::GetGameContext()->GetPlayerActor()->ar_num_screwprops; i++)
+                                    App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->setRudder(App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->getRudder() + sum_steer);
+                            }
+                            if (RoR::App::GetInputEngine()->isEventDefined(EV_BOAT_STEER_LEFT_AXIS) && RoR::App::GetInputEngine()->isEventDefined(EV_BOAT_STEER_RIGHT_AXIS))
+                            {
+                                tmp_steer_left = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_LEFT_AXIS);
+                                tmp_steer_right = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_RIGHT_AXIS);
+                                sum_steer = (tmp_steer_left - tmp_steer_right);
+                                for (int i = 0; i < App::GetGameContext()->GetPlayerActor()->ar_num_screwprops; i++)
+                                    App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->setRudder(sum_steer);
+                            }
+                            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_CENTER_RUDDER, 0.1f))
+                            {
+                                for (int i = 0; i < App::GetGameContext()->GetPlayerActor()->ar_num_screwprops; i++)
+                                    App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->setRudder(0);
+                            }
 
-                        //throttle
-                        if (RoR::App::GetInputEngine()->isEventDefined(EV_BOAT_THROTTLE_AXIS))
-                        {
-                            float f = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_THROTTLE_AXIS);
-                            // use negative values also!
-                            f = f * 2 - 1;
-                            for (int i = 0; i < App::GetGameContext()->GetPlayerActor()->ar_num_screwprops; i++)
-                                App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->setThrottle(-f);
-                        }
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_THROTTLE_DOWN, 0.1f))
-                        {
-                            //throttle down
-                            for (int i = 0; i < App::GetGameContext()->GetPlayerActor()->ar_num_screwprops; i++)
-                                App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->setThrottle(App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->getThrottle() - 0.05);
-                        }
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_THROTTLE_UP, 0.1f))
-                        {
-                            //throttle up
-                            for (int i = 0; i < App::GetGameContext()->GetPlayerActor()->ar_num_screwprops; i++)
-                                App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->setThrottle(App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->getThrottle() + 0.05);
-                        }
-
-                        // steer
-                        float tmp_steer_left = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_LEFT);
-                        float tmp_steer_right = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_RIGHT);
-                        float stime = RoR::App::GetInputEngine()->getEventBounceTime(EV_BOAT_STEER_LEFT) + RoR::App::GetInputEngine()->getEventBounceTime(EV_BOAT_STEER_RIGHT);
-                        float sum_steer = (tmp_steer_left - tmp_steer_right) * dt;
-                        // do not center the rudder!
-                        if (fabs(sum_steer) > 0 && stime <= 0)
-                        {
-                            for (int i = 0; i < App::GetGameContext()->GetPlayerActor()->ar_num_screwprops; i++)
-                                App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->setRudder(App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->getRudder() + sum_steer);
-                        }
-                        if (RoR::App::GetInputEngine()->isEventDefined(EV_BOAT_STEER_LEFT_AXIS) && RoR::App::GetInputEngine()->isEventDefined(EV_BOAT_STEER_RIGHT_AXIS))
-                        {
-                            tmp_steer_left = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_LEFT_AXIS);
-                            tmp_steer_right = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_RIGHT_AXIS);
-                            sum_steer = (tmp_steer_left - tmp_steer_right);
-                            for (int i = 0; i < App::GetGameContext()->GetPlayerActor()->ar_num_screwprops; i++)
-                                App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->setRudder(sum_steer);
-                        }
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_CENTER_RUDDER, 0.1f))
-                        {
-                            for (int i = 0; i < App::GetGameContext()->GetPlayerActor()->ar_num_screwprops; i++)
-                                App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->setRudder(0);
-                        }
-
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_REVERSE))
-                        {
-                            for (int i = 0; i < App::GetGameContext()->GetPlayerActor()->ar_num_screwprops; i++)
-                                App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->toggleReverse();
-                        }
-                    }
+                            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_REVERSE))
+                            {
+                                for (int i = 0; i < App::GetGameContext()->GetPlayerActor()->ar_num_screwprops; i++)
+                                    App::GetGameContext()->GetPlayerActor()->ar_screwprops[i]->toggleReverse();
+                            }
+                        } // if driveable == BOAT
+                    } // if not in replay mode
                     //COMMON KEYS
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_REMOVE))
@@ -530,15 +497,6 @@ void SimController::UpdateInputEvents(float dt)
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SECURE_LOAD))
                     {
                         App::GetGameContext()->GetPlayerActor()->ar_toggle_ties = true;
-                    }
-
-                    //replay mode
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_REPLAY_MODE))
-                    {
-                        if (App::GetGameContext()->GetPlayerActor()->getReplay() != nullptr)
-                        {
-                            App::GetGameContext()->GetPlayerActor()->setReplayMode(!App::GetGameContext()->GetPlayerActor()->ar_replay_mode);
-                        }
                     }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_CUSTOM_PARTICLES))
@@ -967,9 +925,6 @@ void SimController::UpdateSimulation(float dt)
 
 void SimController::HideGUI(bool hidden)
 {
-    if (App::GetGameContext()->GetPlayerActor() && App::GetGameContext()->GetPlayerActor()->getReplay())
-        App::GetGameContext()->GetPlayerActor()->getReplay()->setHidden(hidden);
-
     if (RoR::App::GetOverlayWrapper())
         RoR::App::GetOverlayWrapper()->showDashboardOverlays(!hidden, App::GetGameContext()->GetPlayerActor());
 

@@ -36,6 +36,7 @@
 #include "Language.h"
 #include "Network.h"
 #include "PlatformUtils.h"
+#include "Replay.h"
 #include "RoRFrameListener.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"
@@ -766,22 +767,33 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
 void RoR::GUI::TopMenubar::DrawSpecialStateBox(float top_offset)
 {
     std::string special_text;
-    ImVec4 special_color;
+    ImVec4 special_color = ImGui::GetStyle().Colors[ImGuiCol_Text]; // Regular color
+    float content_width = 0.f;
+    bool replay_box = false;
 
     // Gather state info
-    if (App::GetSimController()->GetPhysicsPaused() && !RoR::App::GetSimController()->IsGUIHidden())
+    if (App::GetSimController()->GetPhysicsPaused() && !App::GetSimController()->IsGUIHidden())
     {
         special_color = ORANGE_TEXT;
         special_text = Ogre::StringUtil::replaceAll(_L("All physics paused, press '{}' to resume"),
             "{}", App::GetInputEngine()->getEventCommand(EV_COMMON_TOGGLE_PHYSICS));
+        content_width = ImGui::CalcTextSize(special_text.c_str()).x;
     }
     else if (App::GetGameContext()->GetPlayerActor() &&
-             App::GetGameContext()->GetPlayerActor()->ar_physics_paused
-             && !RoR::App::GetSimController()->IsGUIHidden())
+             App::GetGameContext()->GetPlayerActor()->ar_physics_paused &&
+             !App::GetSimController()->IsGUIHidden())
     {
         special_color = GREEN_TEXT;
         special_text = Ogre::StringUtil::replaceAll(_L("Vehicle physics paused, press '{}' to resume"),
             "{}", App::GetInputEngine()->getEventCommand(EV_TRUCK_TOGGLE_PHYSICS));
+        content_width = ImGui::CalcTextSize(special_text.c_str()).x;
+    }
+    else if (App::GetGameContext()->GetPlayerActor() &&
+            App::GetGameContext()->GetPlayerActor()->ar_sim_state == Actor::SimState::LOCAL_REPLAY)
+    {
+        content_width = 300;
+        replay_box = true;
+        special_text = _L("Replay");
     }
 
     // Draw box if needed
@@ -789,7 +801,7 @@ void RoR::GUI::TopMenubar::DrawSpecialStateBox(float top_offset)
     {
         ImVec2 box_pos;
         box_pos.y = top_offset;
-        box_pos.x = (ImGui::GetIO().DisplaySize.x / 2) - ((ImGui::CalcTextSize(special_text.c_str()).x / 2) + ImGui::GetStyle().FramePadding.x);
+        box_pos.x = (ImGui::GetIO().DisplaySize.x / 2) - ((content_width / 2) + ImGui::GetStyle().FramePadding.x);
         ImGui::SetNextWindowPos(box_pos);
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize    | ImGuiWindowFlags_NoMove |
                                  ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize;
@@ -797,6 +809,31 @@ void RoR::GUI::TopMenubar::DrawSpecialStateBox(float top_offset)
         if (ImGui::Begin("Special state box", nullptr, flags))
         {
             ImGui::TextColored(special_color, "%s", special_text.c_str());
+            if (replay_box)
+            {
+                ImGui::SameLine();
+                
+                // Progress bar with frame index/count
+                Replay* replay = App::GetGameContext()->GetPlayerActor()->GetReplay();
+                float fraction = (float)std::abs(replay->getCurrentFrame())/(float)replay->getNumFrames();
+                Str<100> pbar_text; pbar_text << replay->getCurrentFrame() << "/" << replay->getNumFrames();
+                float pbar_width = content_width - (ImGui::GetStyle().ItemSpacing.x + ImGui::CalcTextSize(special_text.c_str()).x);
+                ImGui::ProgressBar(fraction, ImVec2(pbar_width, ImGui::GetTextLineHeight()), pbar_text.ToCStr());
+
+                // Game time text
+                float time_sec = replay->getLastReadTime() / 1000000.0;
+                char str[200];
+                int str_pos = 0;
+                if (time_sec > 60)
+                {
+                    int min = (int)time_sec / 60;
+                    str_pos = snprintf(str, 200, "%dmin ", min);
+                    time_sec -= (float)min * 60.f;
+                }
+                snprintf(str+str_pos, 200-str_pos, "%.2fsec", time_sec);
+                ImGui::TextDisabled("%s: %s", _L("Time"), str);
+                
+            }
             ImGui::End();
         }
         ImGui::PopStyleColor(1); // WindowBg

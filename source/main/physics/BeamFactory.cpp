@@ -324,15 +324,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     }
     else if (App::sim_replay_enabled->GetBool())
     {
-        actor->ar_replay_length = App::sim_replay_length->GetInt();
-        actor->m_replay_handler = new Replay(actor, actor->ar_replay_length);
-
-        int steps = App::sim_replay_stepping->GetInt();
-
-        if (steps <= 0)
-            actor->ar_replay_precision = 0.0f;
-        else
-            actor->ar_replay_precision = 1.0f / ((float)steps);
+        actor->m_replay_handler = new Replay(actor, App::sim_replay_length->GetInt());
     }
 
     LOG(" ===== DONE LOADING VEHICLE");
@@ -1051,8 +1043,11 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
         }
         player_actor->updateDashBoards(dt);
         player_actor->ForceFeedbackStep(m_physics_steps);
-        if (player_actor->ReplayStep())
-            return; // Skip UpdatePhysicsSimulation()
+
+        if (player_actor->ar_sim_state == Actor::SimState::LOCAL_REPLAY)
+        {
+            player_actor->GetReplay()->replayStepActor();
+        }
     }
 
     auto func = std::function<void()>([this]()
