@@ -13,7 +13,6 @@ ogre-caelum/0.6.3-p1@anotherfoxguy/stable
 openal/1.19.1
 openssl/1.1.1g
 rapidjson/cci.20200410
-ogre-caelum/0.6.3@anotherfoxguy/stable
 zlib/1.2.11
 
 [imports]

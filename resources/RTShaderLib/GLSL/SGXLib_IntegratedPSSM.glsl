@@ -31,6 +31,10 @@ THE SOFTWARE.
 // Language: GLSL
 //-----------------------------------------------------------------------------
 
+#ifdef DEBUG_PSSM
+vec3 pssm_lod_info = vec3(0);
+#endif
+
 //-----------------------------------------------------------------------------
 void SGX_ApplyShadowFactor_Diffuse(in vec4 ambient, 
 					  in vec4 lightSum, 
@@ -39,30 +43,49 @@ void SGX_ApplyShadowFactor_Diffuse(in vec4 ambient,
 {
 	oLight.rgb = ambient.rgb + (lightSum.rgb - ambient.rgb) * fShadowFactor;
 	oLight.a   = lightSum.a;
+
+#ifdef DEBUG_PSSM
+	oLight.rgb += pssm_lod_info;
+#endif
 }
 	
 //-----------------------------------------------------------------------------
 void SGX_ShadowPCF4(in sampler2D shadowMap, in vec4 shadowMapPos, in vec2 offset, out float c)
 {
 	shadowMapPos = shadowMapPos / shadowMapPos.w;
+#ifndef OGRE_REVERSED_Z
 	shadowMapPos.z = shadowMapPos.z * 0.5 + 0.5; // convert -1..1 to 0..1
+#endif
 	vec2 uv = shadowMapPos.xy;
 	vec3 o = vec3(offset, -offset.x) * 0.3;
 
+	float depth = texture2D(shadowMap, uv.xy - o.xy).r;
+	if(depth >= 1.0)
+	{
+		// early out, if sampling behind far plane
+		c = 1.0;
+		return;
+	}
+
 	// Note: We using 2x2 PCF. Good enough and is a lot faster.
-	c =	 (shadowMapPos.z <= texture2D(shadowMap, uv.xy - o.xy).r) ? 1.0 : 0.0; // top left
+	c =	 (shadowMapPos.z <= depth) ? 1.0 : 0.0; // top left
 	c += (shadowMapPos.z <= texture2D(shadowMap, uv.xy + o.xy).r) ? 1.0 : 0.0; // bottom right
 	c += (shadowMapPos.z <= texture2D(shadowMap, uv.xy + o.zy).r) ? 1.0 : 0.0; // bottom left
 	c += (shadowMapPos.z <= texture2D(shadowMap, uv.xy - o.zy).r) ? 1.0 : 0.0; // top right
 		
 	c /= 4.0;
+#ifdef OGRE_REVERSED_Z
+    c = 1.0 - c;
+#endif
 }
 
 void SGX_ShadowPCF4(in sampler2DShadow shadowMap, in vec4 shadowMapPos, out float c)
 {
 #ifndef GL_ES
+#ifndef OGRE_REVERSED_Z
     shadowMapPos.z = shadowMapPos.z * 0.5 + 0.5 * shadowMapPos.w; // convert -1..1 to 0..1
-    c = shadow2DProj(shadowMap, shadowMapPos).r;
+#endif
+    c = vec4(shadow2DProj(shadowMap, shadowMapPos)).r; // avoid scalar swizzle with textureProj
 #endif
 }
 
@@ -83,14 +106,23 @@ void SGX_ComputeShadowFactor_PSSM3(in float fDepth,
 	if (fDepth  <= vSplitPoints.x)
 	{									
 		SGX_ShadowPCF4(shadowMap0, lightPosition0, invShadowMapSize0.xy, oShadowFactor);
+#ifdef DEBUG_PSSM
+        pssm_lod_info.r = 1.0;
+#endif
 	}
 	else if (fDepth <= vSplitPoints.y)
 	{									
 		SGX_ShadowPCF4(shadowMap1, lightPosition1, invShadowMapSize1.xy, oShadowFactor);
+#ifdef DEBUG_PSSM
+        pssm_lod_info.g = 1.0;
+#endif
 	}
 	else
 	{										
 		SGX_ShadowPCF4(shadowMap2, lightPosition2, invShadowMapSize2.xy, oShadowFactor);
+#ifdef DEBUG_PSSM
+        pssm_lod_info.b = 1.0;
+#endif
 	}
 }
 
@@ -107,13 +139,22 @@ void SGX_ComputeShadowFactor_PSSM3(in float fDepth,
 	if (fDepth  <= vSplitPoints.x)
 	{
         SGX_ShadowPCF4(shadowMap0, lightPosition0, oShadowFactor);
+#ifdef DEBUG_PSSM
+        pssm_lod_info.r = 1.0;
+#endif
 	}
 	else if (fDepth <= vSplitPoints.y)
 	{
         SGX_ShadowPCF4(shadowMap1, lightPosition1, oShadowFactor);
+#ifdef DEBUG_PSSM
+        pssm_lod_info.g = 1.0;
+#endif
 	}
 	else
 	{
         SGX_ShadowPCF4(shadowMap2, lightPosition2, oShadowFactor);
+#ifdef DEBUG_PSSM
+        pssm_lod_info.b = 1.0;
+#endif
 	}
 }

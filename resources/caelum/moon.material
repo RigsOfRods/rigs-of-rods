@@ -22,12 +22,24 @@ fragment_program Caelum/PhaseMoonFP cg
 {
 	source CaelumPhaseMoon.cg
 	entry_point PhaseMoonFP
-	profiles ps_2_0 arbfp1 fp30
+	profiles ps_2_0 arbfp1 fp30 glslf
 
 	default_params
 	{
 		param_named phase float 0.3
 	}
+}
+
+vertex_program Caelum/PhaseMoonVP cg
+{
+    source CaelumPhaseMoon.cg
+    entry_point PhaseMoonVP
+    profiles vs_2_0 arbvp1 glslv
+
+    default_params
+    {
+        param_named_auto worldviewproj_matrix worldviewproj_matrix
+    }
 }
 
 material Caelum/FullMoon
@@ -52,18 +64,6 @@ material Caelum/FullMoon
             }
         }
     }
-    technique HydraxDepth
-    {
-        scheme HydraxDepth
-        pass
-        {
-					lighting off
-					texture_unit
-					{
-            colour_op_ex modulate src_manual src_current 0 0 0
-					}
-        }
-    } 
 }
 
 material Caelum/PhaseMoon
@@ -86,23 +86,15 @@ material Caelum/PhaseMoon
                 texture moon_disc.dds
             }
             
+            vertex_program_ref Caelum/PhaseMoonVP
+            {
+            }
+            
             fragment_program_ref Caelum/PhaseMoonFP
             {
             }
         }
     }
-		 technique HydraxDepth
-    {
-        scheme HydraxDepth
-        pass
-        {
-					lighting off
-					texture_unit
-					{
-            colour_op_ex modulate src_manual src_current 0 0 0
-					}
-        }
-    } 
 }
 
 material Caelum/MoonBackground
@@ -127,17 +119,5 @@ material Caelum/MoonBackground
             }
         }
     }
-     technique HydraxDepth
-    {
-        scheme HydraxDepth
-        pass
-        {
-					lighting off
-					texture_unit
-					{
-            colour_op_ex modulate src_manual src_current 0 0 0
-					}
-        }
-    } 
 }
 

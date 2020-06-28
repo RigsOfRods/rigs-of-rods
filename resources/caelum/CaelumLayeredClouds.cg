@@ -82,19 +82,19 @@ float4 OldCloudColor
 		float3       relPosition,
 		float        sunGlow,
 
-        uniform float   cloudMassInvScale,
-        uniform float   cloudDetailInvScale,
-        uniform float2  cloudMassOffset,
-        uniform float2  cloudDetailOffset,
-        uniform float   cloudMassBlend,
-        uniform float   cloudDetailBlend,
+        float   cloudMassInvScale,
+        float   cloudDetailInvScale,
+        float2  cloudMassOffset,
+        float2  cloudDetailOffset,
+        float   cloudMassBlend,
+        float   cloudDetailBlend,
 
-        uniform float   cloudCoverageThreshold,
+        float   cloudCoverageThreshold,
 
-        uniform float4  sunColour,
-        uniform float4  fogColour,
-        uniform float   cloudSharpness,
-        uniform float   cloudThickness
+        float4  sunColour,
+        float4  fogColour,
+        float   cloudSharpness,
+        float   cloudThickness
 
 ) {
     // Initialize output.

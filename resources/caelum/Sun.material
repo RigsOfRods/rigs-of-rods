@@ -31,18 +31,6 @@ material CaelumSphereSun
             diffuse 0 0 0
         }
     }
-    technique HydraxDepth
-    {
-        scheme HydraxDepth
-        pass
-        {
-					lighting off
-					texture_unit
-					{
-            colour_op_ex modulate src_manual src_current 0 0 0
-					}
-        }
-    } 
 }
 
 material CaelumSpriteSun
@@ -67,16 +55,4 @@ material CaelumSpriteSun
             }
         }
     }
-    technique HydraxDepth
-    {
-        scheme HydraxDepth
-        pass
-        {
-					lighting off
-					texture_unit
-					{
-            colour_op_ex modulate src_manual src_current 0 0 0
-					}
-        }
-    } 
 }

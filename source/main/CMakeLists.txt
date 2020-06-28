@@ -399,7 +399,6 @@ if (USE_PACKAGE_MANAGER)
             CONAN_PKG::openal
             CONAN_PKG::openssl
             CONAN_PKG::rapidjson
-            CONAN_PKG::ogre-caelum
             CONAN_PKG::openssl
             CONAN_PKG::OGRE
             CONAN_PKG::OIS
@@ -423,12 +422,6 @@ if (USE_PACKAGE_MANAGER)
             USE_CAELUM
             USE_DISCORD_RPC
             )
-
-    if (UNIX)
-        set(CFG_OGRE_PLUGIN_CAELUM   "Plugin=libCaelum.so")
-    else ()
-        set(CFG_OGRE_PLUGIN_CAELUM   "Plugin=Caelum")
-    endif ()
 
 else (USE_PACKAGE_MANAGER)
     target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator)
@@ -479,11 +472,7 @@ else (USE_PACKAGE_MANAGER)
         endif ()
     endif ()
 
-    if (TARGET Caelum::Caelum)
-        set(CFG_OGRE_PLUGIN_CAELUM   "Plugin=../libCaelum.so")
-        target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
-        target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
-    endif ()
+    target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
 
 endif (USE_PACKAGE_MANAGER)
 

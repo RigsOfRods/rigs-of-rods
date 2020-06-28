@@ -22,7 +22,7 @@ vertex_program Caelum/StarPointVP cg
 {
 	source CaelumPointStarfield.cg
 	entry_point StarPointVP
-	profiles vs_2_0 arbvp1 vp30
+	profiles vs_2_0 arbvp1 vp30 glslv
 
 	default_params
 	{
@@ -42,7 +42,7 @@ fragment_program Caelum/StarPointFP cg
 {
 	source CaelumPointStarfield.cg
 	entry_point StarPointFP
-	profiles ps_2_0 arbfp1 fp30
+	profiles ps_2_0 arbfp1 fp30 glslf
 
 	default_params
 	{

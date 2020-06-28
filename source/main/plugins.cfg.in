@@ -12,4 +12,3 @@ Plugin=RenderSystem_GL
 Plugin=Plugin_ParticleFX
 Plugin=Plugin_OctreeSceneManager
 Plugin=Plugin_CgProgramManager
-@CFG_OGRE_PLUGIN_CAELUM@

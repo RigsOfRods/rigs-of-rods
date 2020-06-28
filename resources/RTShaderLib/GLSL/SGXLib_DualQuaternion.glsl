@@ -105,7 +105,7 @@ void SGX_NormalizeDualQuaternion(inout mat2x4 dq)
 }
 
 //-----------------------------------------------------------------------------
-void SGX_AdjointTransposeMatrix(in mat3x3 M, out mat3x3 vOut)
+void SGX_AdjointTransposeMatrix(in mat3x4 M, out mat3 vOut)
 {
 	mat3x3 atM;
 	atM[0][0] = M[2][2] * M[1][1] - M[1][2] * M[2][1];
