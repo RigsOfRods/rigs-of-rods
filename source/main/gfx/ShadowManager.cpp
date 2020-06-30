@@ -178,6 +178,9 @@ void ShadowManager::setManagedMaterialSplitPoints(Ogre::PSSMShadowCameraSetup::S
     for (int i = 0; i < 3; ++i)
         splitPoints[i] = splitPointList[i];
 
-    GpuSharedParametersPtr p = GpuProgramManager::getSingleton().getSharedParameters("pssm_params");
-    p->setNamedConstant("pssmSplitPoints", splitPoints);
+    if (App::gfx_shadow_type->GetActiveEnum<GfxShadowType>() == GfxShadowType::PSSM)
+    {
+        GpuSharedParametersPtr p = GpuProgramManager::getSingleton().getSharedParameters("pssm_params");
+        p->setNamedConstant("pssmSplitPoints", splitPoints);
+    }
 }

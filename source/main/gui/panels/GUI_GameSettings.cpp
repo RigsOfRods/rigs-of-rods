@@ -252,7 +252,7 @@ void RoR::GUI::GameSettings::Draw()
             "All vehicles, main lights\0"
             "All vehicles, all lights\0\0");
 
-        DrawGCombo(App::gfx_shadow_type, _LC("GameSettings", "Shadow type (requires restart)"),
+        DrawGCombo(App::gfx_shadow_type, _LC("GameSettings", "Shadow type"),
             "Disabled\0"
             "PSSM\0\0");
 
