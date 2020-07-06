@@ -223,6 +223,7 @@ set(SOURCE_FILES
         resources/rig_def_fileformat/RigDef_Serializer.{h,cpp}
         resources/rig_def_fileformat/RigDef_Validator.{h,cpp}
         resources/terrn2_fileformat/Terrn2Fileformat.{h,cpp}
+        resources/tobj_fileformat/TObjFileFormat.{h,cpp}
         system/AppCommandLine.cpp
         system/AppConfig.cpp
         system/Console.{h,cpp}
@@ -346,6 +347,7 @@ target_include_directories(${BINNAME} PRIVATE
         resources/otc_fileformat/
         resources/rig_def_fileformat
         resources/terrn2_fileformat
+        resources/tobj_fileformat
         system
         rig_editor
         rig_editor/rig_data
