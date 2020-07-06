@@ -70,15 +70,39 @@ public:
     void           PostLoadTerrain();
     bool           UpdateTerrainObjects(float dt);
 
-    typedef struct localizer_t
+    void ProcessTree(
+        float yawfrom, float yawto,
+        float scalefrom, float scaleto,
+        char* ColorMap, char* DensityMap, char* treemesh, char* treeCollmesh,
+        float gridspacing, float highdens,
+        int minDist, int maxDist, int mapsizex, int mapsizez);
+
+    void ProcessGrass(
+        float SwaySpeed, float SwayLength, float SwayDistribution, float Density,
+        float minx, float miny, float minH, float maxx, float maxy, float maxH,
+        char* grassmat, char* colorMapFilename, char* densityMapFilename,
+        int growtechnique, int techn, int range, int mapsizex, int mapsizez);
+
+    struct localizer_t
     {
         int type;
         Ogre::Vector3 position;
         Ogre::Quaternion rotation;
-    } localizer_t;
+    };
+
+    struct object_t
+    {
+        Ogre::String name;
+        Ogre::Vector3 position;
+        Ogre::Vector3 rotation;
+        Ogre::Vector3 initial_position;
+        Ogre::Vector3 initial_rotation;
+        Ogre::SceneNode* node;
+    };
 
     std::vector<localizer_t> GetLocalizers() { return localizers; }
-private:
+
+protected:
 
     struct AnimatedObject
     {

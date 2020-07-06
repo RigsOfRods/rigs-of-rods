@@ -38,6 +38,7 @@
 #include "SoundScriptManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainManager.h"
+#include "TObjFileFormat.h"
 #include "Utils.h"
 #include "WriteTextToTexture.h"
 
@@ -89,527 +90,348 @@ TerrainObjectManager::~TerrainObjectManager()
     App::GetGfxScene()->GetSceneManager()->destroyAllEntities();
 }
 
-void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
+void GenerateGridAndPutToScene(Ogre::Vector3 position)
 {
+    Ogre::ColourValue background_color(Ogre::ColourValue::White);
+    Ogre::ColourValue grid_color(0.2f, 0.2f, 0.2f, 1.0f);
+
+    Ogre::ManualObject* mo = new Ogre::ManualObject("ReferenceGrid");
+
+    mo->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+
+    const float step = 1.0f;
+    const size_t count = 50;
+    unsigned int halfCount = count / 2;
+    const float half = (step * count) / 2;
+    const float y = 0;
+    Ogre::ColourValue c;
+    for (size_t i=0; i < count+1; i++)
+    {
+        if (i == halfCount)
+            c = Ogre::ColourValue(1.f, 0.f, 0.f, 1.f);
+        else
+            c = grid_color;
+
+        mo->position(-half, y, -half+(step*i));
+        mo->colour(background_color);
+        mo->position(0, y, -half+(step*i));
+        mo->colour(c);
+        mo->position(0, y, -half+(step*i));
+        mo->colour(c);
+        mo->position(half, y, -half+(step*i));
+        mo->colour(background_color);
+
+        if (i == halfCount)
+            c = Ogre::ColourValue(0,0,1,1.0f);
+        else
+            c = grid_color;
+
+        mo->position(-half+(step*i), y, -half);
+        mo->colour(background_color);
+        mo->position(-half+(step*i), y, 0);
+        mo->colour(c);
+        mo->position(-half+(step*i), y, 0);
+        mo->colour(c);
+        mo->position(-half+(step*i), y, half);
+        mo->colour(background_color);
+    }
+
+    mo->end();
+    mo->setCastShadows(false);
+    Ogre::SceneNode *n = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    n->setPosition(position);
+    n->attachObject(mo);
+    n->setVisible(true);
+}
+
+void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
+{
+    std::shared_ptr<TObjFile> tobj;
+    try
+    {
+        DataStreamPtr stream_ptr = ResourceGroupManager::getSingleton().openResource(
+            tobj_name, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
+        TObjParser parser;
+        parser.Prepare();
+        parser.ProcessOgreStream(stream_ptr.get());
+        tobj = parser.Finalize();
+    }
+    catch (Ogre::Exception& e)
+    {
+        LOG("[RoR|Terrain] Error reading TObj file: " + tobj_name + "\nMessage" + e.getFullDescription());
+        return;
+    }
+    catch (std::exception& e)
+    {
+        LOG("[RoR|Terrain] Error reading TObj file: " + tobj_name + "\nMessage" + e.what());
+        return;
+    }
+
     if (m_procedural_mgr == nullptr)
     {
         m_procedural_mgr = new ProceduralManager();
     }
 
-    localizers.clear();
-    ProceduralObject po;
-    po.loadingState = -1;
-    int r2oldmode = 0;
-    int lastprogress = 0;
-    bool proroad = false;
+    int mapsizex = terrainManager->getGeometryManager()->getMaxTerrainSize().x;
+    int mapsizez = terrainManager->getGeometryManager()->getMaxTerrainSize().z;
 
-    DataStreamPtr ds;
-    try
+    // Section 'grid'
+    if (tobj->grid_enabled)
     {
-        ds = ResourceGroupManager::getSingleton().openResource(odefname, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
+        GenerateGridAndPutToScene(tobj->grid_position);
     }
-    catch (...)
+
+    // Section 'trees'
+    if (App::gfx_vegetation_mode->GetEnum<GfxVegetation>() != GfxVegetation::NONE)
     {
-        LOG("Error opening object configuration: " + odefname);
+        for (TObjTree tree : tobj->trees)
+        {
+            this->ProcessTree(
+                tree.yaw_from, tree.yaw_to,
+                tree.scale_from, tree.scale_to,
+                tree.color_map, tree.density_map, tree.tree_mesh, tree.collision_mesh,
+                tree.grid_spacing, tree.high_density,
+                tree.min_distance, tree.max_distance, mapsizex, mapsizez);
+        }
+    }
+
+    // Section 'grass' / 'grass2'
+    if (App::gfx_vegetation_mode->GetEnum<GfxVegetation>() != GfxVegetation::NONE)
+    {
+        for (TObjGrass grass : tobj->grass)
+        {
+            this->ProcessGrass(
+                grass.sway_speed, grass.sway_length, grass.sway_distrib, grass.density,
+                grass.min_x, grass.min_y, grass.min_h,
+                grass.max_x, grass.max_y, grass.max_h,
+                grass.material_name, grass.color_map_filename, grass.density_map_filename,
+                grass.grow_techniq, grass.technique, grass.range, mapsizex, mapsizez);
+        }
+    }
+
+    // Procedural roads
+    for (ProceduralObject po : tobj->proc_objects)
+    {
+        m_procedural_mgr->addObject(po);
+    }
+
+    // Vehicles
+    for (TObjVehicle veh : tobj->vehicles)
+    {
+        if ((veh.type == TObj::SpecialObject::BOAT) && (terrainManager->getWater() == nullptr))
+        {
+            continue; // Don't spawn boats if there's no water.
+        }
+
+        Ogre::String group;
+        Ogre::String filename(veh.name);
+        if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(filename, group))
+        {
+            LOG(std::string("[RoR|Terrain] Vehicle ") + veh.name + " not found. ignoring.");
+            continue;
+        }
+
+        PredefinedActor p;
+        p.px           = veh.position.x;
+        p.py           = veh.position.y;
+        p.pz           = veh.position.z;
+        p.freePosition = (veh.type == TObj::SpecialObject::TRUCK2);
+        p.ismachine    = (veh.type == TObj::SpecialObject::MACHINE);
+        p.rotation     = veh.rotation;
+        p.name         = veh.name;
+        m_predefined_actors.push_back(p);
+    }
+
+    // Entries
+    for (TObjEntry entry : tobj->objects)
+    {
+        this->LoadTerrainObject(entry.odef_name, entry.position, entry.rotation, m_staticgeometry_bake_node, entry.instance_name, entry.type);
+    }
+}
+
+void TerrainObjectManager::ProcessTree(
+    float yawfrom, float yawto,
+    float scalefrom, float scaleto,
+    char* ColorMap, char* DensityMap, char* treemesh, char* treeCollmesh,
+    float gridspacing, float highdens,
+    int minDist, int maxDist, int mapsizex, int mapsizez)
+{
+    if (strnlen(ColorMap, 3) == 0)
+    {
+        LOG("tree ColorMap map zero!");
         return;
     }
-
-    int m_terrain_size_x = terrainManager->getGeometryManager()->getMaxTerrainSize().x;
-    int m_map_size_z = terrainManager->getGeometryManager()->getMaxTerrainSize().z;
-
-    Vector3 r2lastpos = Vector3::ZERO;
-    Quaternion r2lastrot = Quaternion::IDENTITY;
-
-    //long line = 0;
-    char line[4096] = "";
-
-    while (!ds->eof())
+    if (strnlen(DensityMap, 3) == 0)
     {
-        int progress = ((float)(ds->tell()) / (float)(ds->size())) * 100.0f;
-        if (progress > lastprogress)
-        {
-            RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading Terrain Objects"), false);
-            lastprogress = progress;
-        }
+        LOG("tree DensityMap zero!");
+        return;
+    }
+    Forests::DensityMap *densityMap = Forests::DensityMap::load(DensityMap, Forests::CHANNEL_COLOR);
+    if (!densityMap)
+    {
+        LOG("could not load densityMap: "+String(DensityMap));
+        return;
+    }
+    densityMap->setFilter(Forests::MAPFILTER_BILINEAR);
+    //densityMap->setMapBounds(TRect(0, 0, mapsizex, mapsizez));
 
-        char oname[1024] = {};
-        char type[256] = {};
-        char name[256] = {};
-        Vector3 pos(Vector3::ZERO);
-        Vector3 rot(Vector3::ZERO);
+    PagedGeometry* geom = new PagedGeometry();
+    geom->setTempDir(App::sys_cache_dir->GetStr() + PATH_SLASH);
+    geom->setCamera(App::GetCameraManager()->GetCamera());
+    geom->setPageSize(50);
+    geom->setInfinite();
+    Ogre::TRect<Ogre::Real> bounds = TBounds(0, 0, mapsizex, mapsizez);
+    geom->setBounds(bounds);
 
-        size_t ll = ds->readLine(line, 1023);
-        if (line[0] == '/' || line[0] == ';' || ll == 0)
-            continue; //comments
-        if (!strcmp("end", line))
-            break;
-
-        if (!strncmp(line, "grid", 4))
-        {
-            sscanf(line, "grid %f, %f, %f", &pos.x, &pos.y, &pos.z);
-
-            Ogre::ColourValue BackgroundColour = Ogre::ColourValue::White;//Ogre::ColourValue(0.1337f, 0.1337f, 0.1337f, 1.0f);
-            Ogre::ColourValue GridColour = Ogre::ColourValue(0.2f, 0.2f, 0.2f, 1.0f);
-
-            Ogre::ManualObject* mReferenceObject = new Ogre::ManualObject("ReferenceGrid");
-
-            mReferenceObject->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
-
-            Ogre::Real step = 1.0f;
-            unsigned int count = 50;
-            unsigned int halfCount = count / 2;
-            Ogre::Real full = (step * count);
-            Ogre::Real half = full / 2;
-            Ogre::Real y = 0;
-            Ogre::ColourValue c;
-            for (unsigned i = 0; i < count + 1; i++)
-            {
-                if (i == halfCount)
-                    c = Ogre::ColourValue(1, 0, 0, 1.0f);
-                else
-                    c = GridColour;
-
-                mReferenceObject->position(-half, y, -half + (step * i));
-                mReferenceObject->colour(BackgroundColour);
-                mReferenceObject->position(0, y, -half + (step * i));
-                mReferenceObject->colour(c);
-                mReferenceObject->position(0, y, -half + (step * i));
-                mReferenceObject->colour(c);
-                mReferenceObject->position(half, y, -half + (step * i));
-                mReferenceObject->colour(BackgroundColour);
-
-                if (i == halfCount)
-                    c = Ogre::ColourValue(0, 0, 1, 1.0f);
-                else
-                    c = GridColour;
-
-                mReferenceObject->position(-half + (step * i), y, -half);
-                mReferenceObject->colour(BackgroundColour);
-                mReferenceObject->position(-half + (step * i), y, 0);
-                mReferenceObject->colour(c);
-                mReferenceObject->position(-half + (step * i), y, 0);
-                mReferenceObject->colour(c);
-                mReferenceObject->position(-half + (step * i), y, half);
-                mReferenceObject->colour(BackgroundColour);
-            }
-
-            mReferenceObject->end();
-            mReferenceObject->setCastShadows(false);
-
-            SceneNode* n = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-            n->setPosition(pos);
-            n->attachObject(mReferenceObject);
-            n->setVisible(true);
-        }
-        //ugly stuff to parse trees :)
-        if (!strncmp("trees", line, 5))
-        {
-            if (terrainManager->getPagedDetailFactor() == 0.0f)
-                continue;
-            char ColorMap[256] = {};
-            char DensityMap[256] = {};
-            char treemesh[256] = {};
-            char treeCollmesh[256] = {};
-            float gridspacing = 0.0f;
-            float yawfrom = 0.0f, yawto = 0.0f;
-            float scalefrom = 0.0f, scaleto = 0.0f;
-            float highdens = 1.0f;
-            int minDist = 90, maxDist = 700;
-            sscanf(line, "trees %f, %f, %f, %f, %f, %d, %d, %s %s %s %f %s", &yawfrom, &yawto, &scalefrom, &scaleto, &highdens, &minDist, &maxDist, treemesh, ColorMap, DensityMap, &gridspacing, treeCollmesh);
-            if (strnlen(ColorMap, 3) == 0)
-            {
-                LOG("tree ColorMap map zero!");
-                continue;
-            }
-            if (strnlen(DensityMap, 3) == 0)
-            {
-                LOG("tree DensityMap zero!");
-                continue;
-            }
-            Forests::DensityMap* densityMap = Forests::DensityMap::load(DensityMap, Forests::CHANNEL_COLOR);
-            if (!densityMap)
-            {
-                LOG("could not load densityMap: "+String(DensityMap));
-                continue;
-            }
-            densityMap->setFilter(Forests::MAPFILTER_BILINEAR);
-
-            auto geom = new PagedGeometry(App::GetCameraManager()->GetCamera(), 50);
-            geom->setTempDir(PathCombine(App::sys_cache_dir->GetStr(), ""));
-            Ogre::TRect<Ogre::Real> bounds = TBounds(0, 0, m_terrain_size_x, m_map_size_z);
-            geom->setBounds(bounds);
-
-            // Set up LODs
-            float batchRange = std::max(50.0f, minDist * terrainManager->getPagedDetailFactor());
-            float imposterRange = std::max(1.5f * minDist, maxDist * terrainManager->getPagedDetailFactor());
-            geom->addDetailLevel<BatchPage>(batchRange, batchRange / 2.0f);
-            geom->addDetailLevel<ImpostorPage>(imposterRange, imposterRange / 10.0f);
-
-            TreeLoader2D* tree_loader = new TreeLoader2D(geom, TBounds(0, 0, m_terrain_size_x, m_map_size_z));
-            geom->setPageLoader(tree_loader);
-            tree_loader->setHeightFunction(&getTerrainHeight);
-            if (String(ColorMap) != "none")
-            {
-                tree_loader->setColorMap(ColorMap);
-            }
-
-            Entity* curTree = App::GetGfxScene()->GetSceneManager()->createEntity(String("paged_") + treemesh + TOSTRING(m_paged_geometry.size()), treemesh);
-
-            if (gridspacing > 0)
-            {
-                // grid style
-                for (float x = 0; x < m_terrain_size_x; x += gridspacing)
-                {
-                    for (float z = 0; z < m_map_size_z; z += gridspacing)
-                    {
-                        float density = densityMap->_getDensityAt_Unfiltered(x, z, bounds);
-                        if (density < 0.8f)
-                            continue;
-                        float nx = x + gridspacing * 0.5f;
-                        float nz = z + gridspacing * 0.5f;
-                        float yaw = Math::RangeRandom(yawfrom, yawto);
-                        float scale = Math::RangeRandom(scalefrom, scaleto);
-                        Vector3 pos = Vector3(nx, 0, nz);
-                        tree_loader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
-                        if (strlen(treeCollmesh))
-                        {
-                            pos.y = terrainManager->GetHeightAt(pos.x, pos.z);
-                            scale *= 0.1f;
-                            terrainManager->GetCollisions()->addCollisionMesh(String(treeCollmesh), pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
-                        }
-                    }
-                }
-            }
-            else
-            {
-                float gridsize = 10;
-                if (gridspacing < 0 && gridspacing != 0)
-                {
-                    gridsize = -gridspacing;
-                }
-                float hd = highdens;
-                // normal style, random
-                for (float x = 0; x < m_terrain_size_x; x += gridsize)
-                {
-                    for (float z = 0; z < m_map_size_z; z += gridsize)
-                    {
-                        if (highdens < 0)
-                            hd = Math::RangeRandom(0, -highdens);
-                        float numTreesToPlace = hd * densityMap->_getDensityAt_Unfiltered(x, z, bounds);
-                        if (numTreesToPlace >= 1.0f)
-                        {
-                            numTreesToPlace *= terrainManager->getPagedDetailFactor();
-                            if (numTreesToPlace > 1.0f || Math::RangeRandom(0, 1.0f) > numTreesToPlace)
-                            {
-                                numTreesToPlace = Math::Floor(numTreesToPlace);
-                            }
-                            float nx = 0, nz = 0;
-                            while (numTreesToPlace-- > 0)
-                            {
-                                nx = Math::RangeRandom(x, x + gridsize);
-                                nz = Math::RangeRandom(z, z + gridsize);
-                                float yaw = Math::RangeRandom(yawfrom, yawto);
-                                float scale = Math::RangeRandom(scalefrom, scaleto);
-                                Vector3 pos = Vector3(nx, 0, nz);
-                                tree_loader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
-                                if (strlen(treeCollmesh))
-                                {
-                                    pos.y = terrainManager->GetHeightAt(pos.x, pos.z);
-                                    terrainManager->GetCollisions()->addCollisionMesh(String(treeCollmesh), pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            m_paged_geometry.push_back(geom);
-        }
-
-        //ugly stuff to parse grass :)
-        if (!strncmp("grass", line, 5) || !strncmp("grass2", line, 6))
-        {
-            // is paged geometry disabled by configuration?
-            if (terrainManager->getPagedDetailFactor() == 0.0f)
-                continue;
-            int range = 80;
-            float SwaySpeed = 0.5, SwayLength = 0.05, SwayDistribution = 10.0, minx = 0.2, miny = 0.2, maxx = 1, maxy = 0.6, Density = 0.6, minH = -9999, maxH = 9999;
-            char grassmat[256] = "";
-            char colorMapFilename[256] = "";
-            char densityMapFilename[256] = "";
-            int growtechnique = 0;
-            int techn = GRASSTECH_CROSSQUADS;
-            if (!strncmp("grass2", line, 6))
-                sscanf(line, "grass2 %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %d, %s %s %s", &range, &SwaySpeed, &SwayLength, &SwayDistribution, &Density, &minx, &miny, &maxx, &maxy, &growtechnique, &minH, &maxH, &techn, grassmat, colorMapFilename, densityMapFilename);
-            else if (!strncmp("grass", line, 5))
-                sscanf(line, "grass %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %s %s %s", &range, &SwaySpeed, &SwayLength, &SwayDistribution, &Density, &minx, &miny, &maxx, &maxy, &growtechnique, &minH, &maxH, grassmat, colorMapFilename, densityMapFilename);
-
-            //Initialize the PagedGeometry engine
-            try
-            {
-                PagedGeometry* grass = new PagedGeometry(App::GetCameraManager()->GetCamera(), 30);
-                //Set up LODs
-
-                grass->addDetailLevel<GrassPage>(range * terrainManager->getPagedDetailFactor()); // original value: 80
-
-                //Set up a GrassLoader for easy use
-                GrassLoader* grassLoader = new GrassLoader(grass);
-                grass->setPageLoader(grassLoader);
-                grassLoader->setHeightFunction(&getTerrainHeight);
-
-                // render grass at first
-                grassLoader->setRenderQueueGroup(RENDER_QUEUE_MAIN - 1);
-
-                GrassLayer* grassLayer = grassLoader->addLayer(grassmat);
-                grassLayer->setHeightRange(minH, maxH);
-                grassLayer->setLightingEnabled(true);
-
-                grassLayer->setAnimationEnabled((SwaySpeed > 0));
-                grassLayer->setSwaySpeed(SwaySpeed);
-                grassLayer->setSwayLength(SwayLength);
-                grassLayer->setSwayDistribution(SwayDistribution);
-
-                //String grassdensityTextureFilename = String(DensityMap);
-
-                grassLayer->setDensity(Density * terrainManager->getPagedDetailFactor());
-                if (techn > 10)
-                    grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn - 10), true);
-                else
-                    grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn), false);
-
-                grassLayer->setMapBounds(TBounds(0, 0, m_terrain_size_x, m_map_size_z));
-
-                if (strcmp(colorMapFilename, "none") != 0)
-                {
-                    grassLayer->setColorMap(colorMapFilename);
-                    grassLayer->setColorMapFilter(MAPFILTER_BILINEAR);
-                }
-
-                if (strcmp(densityMapFilename, "none") != 0)
-                {
-                    grassLayer->setDensityMap(densityMapFilename);
-                    grassLayer->setDensityMapFilter(MAPFILTER_BILINEAR);
-                }
-
-                //grassLayer->setMinimumSize(0.5,0.5);
-                //grassLayer->setMaximumSize(1.0, 1.0);
-
-                grassLayer->setMinimumSize(minx, miny);
-                grassLayer->setMaximumSize(maxx, maxy);
-
-                // growtechnique
-                if (growtechnique == 0)
-                    grassLayer->setFadeTechnique(FADETECH_GROW);
-                else if (growtechnique == 1)
-                    grassLayer->setFadeTechnique(FADETECH_ALPHAGROW);
-                else if (growtechnique == 2)
-                    grassLayer->setFadeTechnique(FADETECH_ALPHA);
-                m_paged_geometry.push_back(grass);
-            }
-            catch (...)
-            {
-                LOG("error loading grass!");
-            }
-
-            continue;
-        }
-
-        { // ugly stuff to parse procedural roads
-            if (!strncmp("begin_procedural_roads", line, 22))
-            {
-                po = ProceduralObject();
-                po.loadingState = 1;
-                r2oldmode = 1;
-                proroad = true;
-                continue;
-            }
-            if (!strncmp("end_procedural_roads", line, 20))
-            {
-                if (r2oldmode)
-                {
-                    if (m_procedural_mgr)
-                        m_procedural_mgr->addObject(po);
-                    po = ProceduralObject();
-                }
-                proroad = false;
-                continue;
-            }
-            if (proroad)
-            {
-                float rwidth, bwidth, bheight;
-                //position x,y,z rotation rx,ry,rz, width, border width, border height, type
-                int r = sscanf(line, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %s", &pos.x, &pos.y, &pos.z, &rot.x, &rot.y, &rot.z, &rwidth, &bwidth, &bheight, oname);
-                Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-                int roadtype = Road2::ROAD_AUTOMATIC;
-                int pillartype = 0;
-                if (!strcmp(oname, "flat"))
-                    roadtype = Road2::ROAD_FLAT;
-                if (!strcmp(oname, "left"))
-                    roadtype = Road2::ROAD_LEFT;
-                if (!strcmp(oname, "right"))
-                    roadtype = Road2::ROAD_RIGHT;
-                if (!strcmp(oname, "both"))
-                    roadtype = Road2::ROAD_BOTH;
-                if (!strcmp(oname, "bridge"))
-                {
-                    roadtype = Road2::ROAD_BRIDGE;
-                    pillartype = 1;
-                }
-                if (!strcmp(oname, "monorail"))
-                {
-                    roadtype = Road2::ROAD_MONORAIL;
-                    pillartype = 2;
-                }
-                if (!strcmp(oname, "monorail2"))
-                {
-                    roadtype = Road2::ROAD_MONORAIL;
-                    pillartype = 0;
-                }
-                if (!strcmp(oname, "bridge_no_pillars"))
-                {
-                    roadtype = Road2::ROAD_BRIDGE;
-                    pillartype = 0;
-                }
-
-                if (r2oldmode)
-                {
-                    //fill object
-                    ProceduralPoint pp;
-                    pp.bheight = bheight;
-                    pp.bwidth = bwidth;
-                    pp.pillartype = pillartype;
-                    pp.position = pos;
-                    pp.rotation = rotation;
-                    pp.type = roadtype;
-                    pp.width = rwidth;
-
-                    po.points.push_back(pp);
-                }
-                continue;
-            }
-        } //end of the ugly (somewhat)
-
-        memset(oname, 0, 1023);
-        memset(type, 0, 255);
-        memset(name, 0, 255);
-        int r = sscanf(line, "%f, %f, %f, %f, %f, %f, %s %s %s", &pos.x, &pos.y, &pos.z, &rot.x, &rot.y, &rot.z, oname, type, name);
-        if (r < 6)
-            continue;
-        if ((!strcmp(oname, "truck")) || (!strcmp(oname, "load") || (!strcmp(oname, "machine")) || (!strcmp(oname, "boat")) || (!strcmp(oname, "truck2"))))
-        {
-            if (!strcmp(oname, "boat") && !terrainManager->getWater())
-            {
-                // no water so do not load boats!
-                continue;
-            }
-
-            String actor_filename(type);
-            if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(actor_filename))
-            {
-                LOG("Error while loading Terrain: truck " + actor_filename + " not found. ignoring.");
-                continue;
-            }
-
-            PredefinedActor predef;
-            //this is a truck or load declaration
-            predef.px = pos.x;
-            predef.py = pos.y;
-            predef.pz = pos.z;
-            predef.freePosition = (!strcmp(oname, "truck2"));
-            predef.ismachine = (!strcmp(oname, "machine"));
-            predef.rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-            predef.name = actor_filename;
-            m_predefined_actors.push_back(predef);
-
-            continue;
-        }
-        if (!strcmp(oname, "road")
-            || !strcmp(oname, "roadborderleft")
-            || !strcmp(oname, "roadborderright")
-            || !strcmp(oname, "roadborderboth")
-            || !strcmp(oname, "roadbridgenopillar")
-            || !strcmp(oname, "roadbridge"))
-        {
-            int pillartype = !(strcmp(oname, "roadbridgenopillar") == 0);
-            // okay, this is a job for roads2
-            int roadtype = Road2::ROAD_AUTOMATIC;
-            if (!strcmp(oname, "road"))
-                roadtype = Road2::ROAD_FLAT;
-            Quaternion rotation;
-            rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-            if (pos.distance(r2lastpos) > 20.0f)
-            {
-                // break the road
-                if (r2oldmode != 0)
-                {
-                    // fill object
-                    ProceduralPoint pp;
-                    pp.bheight = 0.2;
-                    pp.bwidth = 1.4;
-                    pp.pillartype = pillartype;
-                    pp.position = r2lastpos + r2lastrot * Vector3(10.0f, 0.0f, 0.9f);
-                    pp.rotation = r2lastrot;
-                    pp.type = roadtype;
-                    pp.width = 8;
-                    po.points.push_back(pp);
-
-                    // finish it and start new object
-                    if (m_procedural_mgr)
-                        m_procedural_mgr->addObject(po);
-                    po = ProceduralObject();
-                    r2oldmode = 1;
-                }
-                r2oldmode = 1;
-                // beginning of new
-                ProceduralPoint pp;
-                pp.bheight = 0.2;
-                pp.bwidth = 1.4;
-                pp.pillartype = pillartype;
-                pp.position = pos;
-                pp.rotation = rotation;
-                pp.type = roadtype;
-                pp.width = 8;
-                po.points.push_back(pp);
-            }
-            else
-            {
-                // fill object
-                ProceduralPoint pp;
-                pp.bheight = 0.2;
-                pp.bwidth = 1.4;
-                pp.pillartype = pillartype;
-                pp.position = pos;
-                pp.rotation = rotation;
-                pp.type = roadtype;
-                pp.width = 8;
-                po.points.push_back(pp);
-            }
-            r2lastpos = pos;
-            r2lastrot = rotation;
-
-            continue;
-        }
-        LoadTerrainObject(oname, pos, rot, m_staticgeometry_bake_node, name, type);
+    //Set up LODs
+    //trees->addDetailLevel<EntityPage>(50);
+    float min = minDist * terrainManager->getPagedDetailFactor();
+    if (min < 10)
+        min = 10;
+    geom->addDetailLevel<BatchPage>(min, min / 2);
+    float max = maxDist * terrainManager->getPagedDetailFactor();
+    if (max < 10)
+        max = 10;
+    geom->addDetailLevel<ImpostorPage>(max, max / 10);
+    TreeLoader2D *treeLoader = new TreeLoader2D(geom, TBounds(0, 0, mapsizex, mapsizez));
+    geom->setPageLoader(treeLoader);
+    treeLoader->setHeightFunction(&getTerrainHeight);
+    if (String(ColorMap) != "none")
+    {
+        treeLoader->setColorMap(ColorMap);
     }
 
-    // ds closes automatically, so do not close it explicitly here: ds->close();
+    Entity* curTree = App::GetGfxScene()->GetSceneManager()->createEntity(String("paged_") + treemesh + TOSTRING(m_paged_geometry.size()), treemesh);
 
-    // finish the last road
-    if (r2oldmode != 0)
+    if (gridspacing > 0)
     {
-        // fill object
-        ProceduralPoint pp;
-        pp.bheight = 0.2;
-        pp.bwidth = 1.4;
-        pp.pillartype = 1;
-        pp.position = r2lastpos + r2lastrot * Vector3(10.0, 0, 0);
-        pp.rotation = r2lastrot;
-        pp.type = Road2::ROAD_AUTOMATIC;
-        pp.width = 8;
-        po.points.push_back(pp);
+        // grid style
+        for (float x=0; x < mapsizex; x += gridspacing)
+        {
+            for (float z=0; z < mapsizez; z += gridspacing)
+            {
+                float density = densityMap->_getDensityAt_Unfiltered(x, z, bounds);
+                if (density < 0.8f) continue;
+                float nx = x + gridspacing * 0.5f;
+                float nz = z + gridspacing * 0.5f;
+                float yaw = Math::RangeRandom(yawfrom, yawto);
+                float scale = Math::RangeRandom(scalefrom, scaleto);
+                Vector3 pos = Vector3(nx, 0, nz);
+                treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                if (strlen(treeCollmesh))
+                {
+                    pos.y = terrainManager->GetHeightAt(pos.x, pos.z);
+                    scale *= 0.1f;
+                    terrainManager->GetCollisions()->addCollisionMesh(String(treeCollmesh), pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
+                }
+            }
+        }
+    }
+    else
+    {
+        float gridsize = 10;
+        if (gridspacing < 0 && gridspacing != 0)
+        {
+            gridsize = -gridspacing;
+        }
+        float hd = highdens;
+        // normal style, random
+        for (float x=0; x < mapsizex; x += gridsize)
+        {
+            for (float z=0; z < mapsizez; z += gridsize)
+            {
+                if (highdens < 0) hd = Math::RangeRandom(0, -highdens);
+                float density = densityMap->_getDensityAt_Unfiltered(x, z, bounds);
+                int numTreesToPlace = (int)((float)(hd) * density * terrainManager->getPagedDetailFactor());
+                float nx=0, nz=0;
+                while(numTreesToPlace-->0)
+                {
+                    nx = Math::RangeRandom(x, x + gridsize);
+                    nz = Math::RangeRandom(z, z + gridsize);
+                    float yaw = Math::RangeRandom(yawfrom, yawto);
+                    float scale = Math::RangeRandom(scalefrom, scaleto);
+                    Vector3 pos = Vector3(nx, 0, nz);
+                    treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                    if (strlen(treeCollmesh))
+                    {
+                        pos.y = terrainManager->GetHeightAt(pos.x, pos.z);
+                        terrainManager->GetCollisions()->addCollisionMesh(String(treeCollmesh),pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
+                    }
+                }
+            }
+        }
+    }
+    m_paged_geometry.push_back(geom);
+}
 
-        // finish it and start new object
-        if (m_procedural_mgr)
-            m_procedural_mgr->addObject(po);
+void TerrainObjectManager::ProcessGrass(
+        float SwaySpeed, float SwayLength, float SwayDistribution, float Density,
+        float minx, float miny, float minH, float maxx, float maxy, float maxH,
+        char* grassmat, char* colorMapFilename, char* densityMapFilename,
+        int growtechnique, int techn, int range,
+        int mapsizex, int mapsizez)
+{
+    //Initialize the PagedGeometry engine
+    try
+    {
+        PagedGeometry *grass = new PagedGeometry(App::GetCameraManager()->GetCamera(), 30);
+        //Set up LODs
+
+        grass->addDetailLevel<GrassPage>(range * terrainManager->getPagedDetailFactor()); // original value: 80
+
+        //Set up a GrassLoader for easy use
+        GrassLoader *grassLoader = new GrassLoader(grass);
+        grass->setPageLoader(grassLoader);
+        grassLoader->setHeightFunction(&getTerrainHeight);
+
+        // render grass at first
+        grassLoader->setRenderQueueGroup(RENDER_QUEUE_MAIN-1);
+
+        GrassLayer* grassLayer = grassLoader->addLayer(grassmat);
+        grassLayer->setHeightRange(minH, maxH);
+        grassLayer->setLightingEnabled(true);
+
+        grassLayer->setAnimationEnabled((SwaySpeed>0));
+        grassLayer->setSwaySpeed(SwaySpeed);
+        grassLayer->setSwayLength(SwayLength);
+        grassLayer->setSwayDistribution(SwayDistribution);
+
+        grassLayer->setDensity(Density * terrainManager->getPagedDetailFactor());
+        if (techn>10)
+            grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn-10), true);
+        else
+            grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn), false);
+
+        grassLayer->setMapBounds(TBounds(0, 0, mapsizex, mapsizez));
+
+        if (strcmp(colorMapFilename,"none") != 0)
+        {
+            grassLayer->setColorMap(colorMapFilename);
+            grassLayer->setColorMapFilter(MAPFILTER_BILINEAR);
+        }
+
+        if (strcmp(densityMapFilename,"none") != 0)
+        {
+            grassLayer->setDensityMap(densityMapFilename);
+            grassLayer->setDensityMapFilter(MAPFILTER_BILINEAR);
+        }
+
+        grassLayer->setMinimumSize(minx, miny);
+        grassLayer->setMaximumSize(maxx, maxy);
+
+        // growtechnique
+        if (growtechnique == 0)
+            grassLayer->setFadeTechnique(FADETECH_GROW);
+        else if (growtechnique == 1)
+            grassLayer->setFadeTechnique(FADETECH_ALPHAGROW);
+        else if (growtechnique == 2)
+            grassLayer->setFadeTechnique(FADETECH_ALPHA);
+
+        m_paged_geometry.push_back(grass);
+    } 
+    catch(...)
+    {
+        LOG("error loading grass!");
     }
 }
 
@@ -1044,8 +866,6 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             if (mo->getEntity() && strnlen(mat, 250) > 0)
             {
                 mo->getEntity()->setMaterialName(String(mat));
-                // load it
-                //MaterialManager::getSingleton().load(String(mat), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             }
             continue;
         }
