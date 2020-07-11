@@ -321,11 +321,14 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_NET_DISCONNECT_REQUESTED:
-                    App::GetNetwork()->Disconnect();
-                    if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+                    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
                     {
-                        App::GetGuiManager()->GetMainSelector()->Close(); // We may get disconnected while still in map selection
-                        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                        App::GetNetwork()->Disconnect();
+                        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+                        {
+                            App::GetGuiManager()->GetMainSelector()->Close(); // We may get disconnected while still in map selection
+                            App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                        }
                     }
                     break;
 
