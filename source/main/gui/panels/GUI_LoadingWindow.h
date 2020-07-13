@@ -42,6 +42,7 @@ private:
     bool m_is_visible = false;
     std::string m_text;
     int m_text_num_lines = -1;
+    Ogre::Timer m_timer;
 };
 
 } // namespace GUI
