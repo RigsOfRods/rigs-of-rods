@@ -39,9 +39,10 @@ void RoR::GUI::LoadingWindow::setProgress(int percent, std::string const& text, 
         ++m_text_num_lines; // New line
     }
 
-    if (render_frame)
+    if (render_frame && m_timer.getMilliseconds() > 10)
     {
         Ogre::Root::getSingleton().renderOneFrame();
+        m_timer.reset();
     }
 }
 
