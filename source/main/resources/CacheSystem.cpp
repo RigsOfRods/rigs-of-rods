@@ -988,7 +988,7 @@ void CacheSystem::ParseZipArchives(String group)
         int progress = ((float)i++ / (float)count) * 100;
         UTFString tmp = _L("Loading zips in group ") + ANSI_TO_UTF(group) + L"\n" +
             ANSI_TO_UTF(file.filename) + L"\n" + ANSI_TO_UTF(TOSTRING(i)) + L"/" + ANSI_TO_UTF(TOSTRING(count));
-        RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, tmp);
+        RoR::App::GetGuiManager()->GetLoadingWindow()->SetProgress(progress, tmp);
 
         String path = PathCombine(file.archive->getName(), file.filename);
         this->ParseSingleZip(path);

@@ -31,18 +31,23 @@ namespace GUI {
 class LoadingWindow 
 {
 public:
-    void setProgress(int _percent, const std::string& _text = "", bool render_frame = true);
+    const int PERC_HIDE_PROGRESSBAR = -1;
+    const int PERC_SHOW_SPINNER = -2;
+
+    void SetProgress(int _percent, const std::string& _text = "", bool render_frame = true);
+    void SetProgressNetConnect(const std::string& net_status);
     void Draw();
 
     void SetVisible(bool v)           { m_is_visible = v; }
     bool IsVisible() const            { return m_is_visible; }
 
 private:
-    int  m_percent = -1; // -1 disables progressbar display
-    bool m_is_visible = false;
-    std::string m_text;
-    int m_text_num_lines = -1;
-    Ogre::Timer m_timer;
+    int                 m_percent = PERC_HIDE_PROGRESSBAR;
+    bool                m_is_visible = false;
+    std::string         m_text;
+    int                 m_text_num_lines = -1;
+    Ogre::Timer         m_timer;
+    float               m_spinner_counter = 0.f;
 };
 
 } // namespace GUI

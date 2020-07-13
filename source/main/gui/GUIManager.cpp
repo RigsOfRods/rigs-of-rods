@@ -480,21 +480,9 @@ void GUIManager::SetupImGui()
 
 void GUIManager::DrawCommonGui()
 {
-    switch (App::mp_state->GetEnum<MpState>())
+    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED && !m_hide_gui)
     {
-        case MpState::CONNECTING:
-            this->DrawMpConnectingStatusBox();
-            break;
-
-        case MpState::CONNECTED:
-            if (!m_hide_gui)
-            {
-                m_impl->panel_MpClientList.Draw();
-            }
-            break;
-
-        default:
-            break;
+        m_impl->panel_MpClientList.Draw();
     }
 
     if (m_impl->panel_MainSelector.IsVisible())
@@ -536,32 +524,6 @@ void GUIManager::DrawMainMenuGui()
     {
         m_impl->panel_GameAbout.Draw();
     }
-}
-
-void GUIManager::DrawMpConnectingStatusBox()
-{
-    static float spin_counter=0.f;
-
-    const ImVec2 spin_size(20.f, 20.f);
-    const float spin_column_w(50.f);
-    const int win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoInputs
-        | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
-
-    ImGui::SetNextWindowPosCenter();
-    ImGui::Begin("Connecting to MP server...", nullptr, win_flags);
-    ImGui::Columns(2);
-    ImGui::SetColumnOffset(1, spin_column_w);
-
-    ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(5.f, 7.f)); // NOTE: Hand aligned; I failed calculate the positioning here ~ only_a_ptr, 10/2017
-    DrawImGuiSpinner(spin_counter, spin_size);
-
-    ImGui::NextColumn();
-    // HACK: The trailing space is a workaround for a scissoring issue in OGRE/DearIMGUI integration. ~ only_a_ptr, 10/2017
-    ImGui::Text("Joining [%s:%d] ", App::mp_server_host->GetStr().c_str(), App::mp_server_port->GetInt());
-#ifdef USE_SOCKETW
-    ImGui::TextDisabled("%s", m_net_connect_status.c_str());
-#endif
-    ImGui::End();
 }
 
 void GUIManager::ShowMessageBox(const char* title, const char* text, bool allow_close, const char* btn1_text, const char* btn2_text)
