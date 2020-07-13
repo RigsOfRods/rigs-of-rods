@@ -347,16 +347,17 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_NET_CONNECT_STARTED:
-                    App::GetGuiManager()->SetMpConnectingStatusMsg(m.description.c_str());
+                    App::GetGuiManager()->GetLoadingWindow()->SetProgressNetConnect(m.description);
                     App::GetGuiManager()->SetVisible_GameMainMenu(false);
                     App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
                     break;
 
                 case MSG_NET_CONNECT_PROGRESS:
-                    App::GetGuiManager()->SetMpConnectingStatusMsg(m.description.c_str());
+                    App::GetGuiManager()->GetLoadingWindow()->SetProgressNetConnect(m.description);
                     break;
 
                 case MSG_NET_CONNECT_SUCCESS:
+                    App::GetGuiManager()->GetLoadingWindow()->SetVisible(false);
                     App::GetNetwork()->StopConnecting();
                     App::mp_state->SetVal((int)RoR::MpState::CONNECTED);
                     RoR::ChatSystem::SendStreamSetup();
@@ -383,6 +384,7 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_NET_CONNECT_FAILURE:
+                    App::GetGuiManager()->GetLoadingWindow()->SetVisible(false);
                     App::GetNetwork()->StopConnecting();
                     App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
                     App::GetGuiManager()->ShowMessageBox(
@@ -419,7 +421,7 @@ int main(int argc, char *argv[])
 
                 case MSG_SIM_LOAD_TERRN_REQUESTED:
                     App::SetSimController(new SimController());
-                    App::GetGuiManager()->GetLoadingWindow()->setProgress(5, _L("Loading resources"));
+                    App::GetGuiManager()->GetLoadingWindow()->SetProgress(5, _L("Loading resources"));
                     App::GetContentManager()->LoadGameplayResources();
 
                     if (App::GetGameContext()->LoadTerrain(m.description))

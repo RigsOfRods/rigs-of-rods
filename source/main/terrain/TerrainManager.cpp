@@ -122,7 +122,7 @@ TerrainManager::~TerrainManager()
 }
 
 // some shortcut to remove ugly code
-#   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(x, y); }
+#   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::App::GetGuiManager()->GetLoadingWindow()->SetProgress(x, y); }
 
 TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry& entry)
 {

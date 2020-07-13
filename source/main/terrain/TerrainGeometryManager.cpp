@@ -323,7 +323,7 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
     }
 
     // sync load since we want everything in place when we start
-    App::GetGuiManager()->GetLoadingWindow()->setProgress(44, _L("Loading terrain pages ..."));
+    App::GetGuiManager()->GetLoadingWindow()->SetProgress(44, _L("Loading terrain pages ..."));
     m_ogre_terrain_group->loadAllTerrains(true);
 
     Terrain* terrain = m_ogre_terrain_group->getTerrain(0, 0);
@@ -370,7 +370,7 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
         // always save the results when it was imported
         if (!m_spec->disable_cache)
         {
-            App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Saving all terrain pages ..."));
+            App::GetGuiManager()->GetLoadingWindow()->SetProgress(50, _L("Saving all terrain pages ..."));
             m_ogre_terrain_group->saveAllTerrains(false);
         }
     }

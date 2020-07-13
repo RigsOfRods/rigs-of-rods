@@ -132,8 +132,6 @@ public:
     void DrawSimGuiBuffered(GfxActor* player_gfx_actor); //!< Reads data from simbuffer
     void DrawCommonGui();
 
-    void SetMpConnectingStatusMsg(std::string const & msg) { m_net_connect_status = msg; }
-    void DrawMpConnectingStatusBox();
     void hideGUI(bool visible);
 
     void SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager);
@@ -160,7 +158,6 @@ private:
     bool               m_hide_gui                 = false;
     OgreImGui          m_imgui;
     GuiTheme           m_theme;
-    std::string        m_net_connect_status;
     bool               m_gui_kb_capture_queued    = false; ///< Resets and accumulates every frame
     bool               m_gui_kb_capture_requested = false; ///< Effective value, persistent
     Ogre::Timer        m_last_mousemove_time;

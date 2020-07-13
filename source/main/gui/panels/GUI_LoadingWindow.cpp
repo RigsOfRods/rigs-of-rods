@@ -22,10 +22,13 @@
 #include "GUI_LoadingWindow.h"
 
 #include "GUIManager.h"
+#include "GUIUtils.h"
+#include "OgreImGui.h"
 #include "Language.h"
-#include <imgui.h>
 
-void RoR::GUI::LoadingWindow::setProgress(int percent, std::string const& text, bool render_frame/*=true*/)
+using namespace RoR;
+
+void GUI::LoadingWindow::SetProgress(int percent, std::string const& text, bool render_frame/*=true*/)
 {
     if (render_frame && m_timer.getMilliseconds() > 10)
     {
@@ -55,9 +58,25 @@ void RoR::GUI::LoadingWindow::setProgress(int percent, std::string const& text, 
         this->Draw();
         Ogre::Root::getSingleton().renderOneFrame();
     }
+
+    // Echo status to log
+    Str<200> msg;
+    msg << "[RoR|PleaseWaitUI] ";
+    if      (percent == PERC_SHOW_SPINNER)     { msg << "<spinner>"; }
+    else if (percent != PERC_HIDE_PROGRESSBAR) { msg << "<" << percent << "%>"; }
+    msg << " " << text;
+    RoR::Log(msg);
 }
 
-void RoR::GUI::LoadingWindow::Draw()
+void GUI::LoadingWindow::SetProgressNetConnect(const std::string& net_status)
+{
+    Str<500> text;
+    text << "Joining [" << App::mp_server_host->GetStr() << ":" << App::mp_server_port->GetInt() << "]";
+    text << "\n" << net_status;
+    this->SetProgress(PERC_SHOW_SPINNER, text.ToCStr());
+}
+
+void GUI::LoadingWindow::Draw()
 {
     // Height calc
     float text_h = ImGui::CalcTextSize("A").y;
@@ -76,9 +95,18 @@ void RoR::GUI::LoadingWindow::Draw()
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove;
     ImGui::Begin(_L("Please wait"), nullptr, flags);
     ImGui::Text("%s", m_text.c_str());
-    ImGui::NewLine();
-    if (m_percent >= 0)
+    
+    if (m_percent == PERC_SHOW_SPINNER)
     {
+        DrawImGuiSpinner(m_spinner_counter, ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()));
+    }
+    else if (m_percent == PERC_HIDE_PROGRESSBAR)
+    {
+        ImGui::NewLine();
+    }
+    else
+    {
+        ImGui::NewLine();
         ImGui::ProgressBar(static_cast<float>(m_percent)/100.f);
     }
     ImGui::End();
