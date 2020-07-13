@@ -22,6 +22,8 @@
 
 #include "RoRPrerequisites.h"
 #include <OgreRoot.h>
+#include <OgreTimer.h>
+
 
 namespace RoR {
 namespace GUI {
