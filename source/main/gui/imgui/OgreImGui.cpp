@@ -6,7 +6,7 @@
 
 /*
     This source file is part of Rigs of Rods
-    Copyright 2016-2017 Petr Ohlidal & contributors
+    Copyright 2016-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
