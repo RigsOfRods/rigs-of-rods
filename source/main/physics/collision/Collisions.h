@@ -3,7 +3,7 @@
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
     Copyright 2009      Lefteris Stamatogiannakis
-    Copyright 2013-2017 Petr Ohlidal
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
