@@ -1553,7 +1553,6 @@ void SimController::UpdateSimulation(float dt)
             if (actorx->isTied() && std::find(linked_actors.begin(), linked_actors.end(), actorx) != linked_actors.end())
             {
                 actorx->ToggleTies();
-                actorx->ar_toggle_ties = false;
              }
          }
 
