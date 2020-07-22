@@ -1349,8 +1349,7 @@ void EngineSim::UpdateInputEvents(float dt)
         }
     }
 
-    // IMI
-    // gear management -- it might, should be transferred to a standalone function of Beam or SimController
+    // gear management
     if (this->GetAutoShiftMode() == SimGearboxMode::AUTO)
     {
         if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_UP))
