@@ -1546,6 +1546,17 @@ void SimController::UpdateSimulation(float dt)
     //   4. Player seating change requests - TODO; currently done ad-hoc
     for (Actor* actor: m_actor_remove_queue)
     {
+        // Find linked actors and un-tie if tied
+        auto linked_actors = actor->GetAllLinkedActors();
+        for (auto actorx : GetLocalActors())
+        {
+            if (actorx->isTied() && std::find(linked_actors.begin(), linked_actors.end(), actorx) != linked_actors.end())
+            {
+                actorx->ToggleTies();
+                actorx->ar_toggle_ties = false;
+             }
+         }
+
         if (actor == m_player_actor)
         {
             Vector3 center = m_player_actor->GetRotationCenter();
