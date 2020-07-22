@@ -20,7 +20,7 @@
 /// @file
 /// @author Petr Ohlidal, 11/2016
 
-#include "OTCFileformat.h"
+#include "OTCFileFormat.h"
 
 #include "Application.h"
 #include "BeamConstants.h"

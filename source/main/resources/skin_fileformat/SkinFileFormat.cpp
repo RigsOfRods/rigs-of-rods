@@ -19,7 +19,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "SkinFileformat.h"
+#include "SkinFileFormat.h"
 
 #include "Application.h"
 #include "Utils.h"

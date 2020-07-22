@@ -30,7 +30,7 @@
 #include "TerrainManager.h"
 #include "ShadowManager.h"
 #include "OgreTerrainPSSMMaterialGenerator.h"
-#include "OTCFileformat.h"
+#include "OTCFileFormat.h"
 
 #include <OgreLight.h>
 #include <Terrain/OgreTerrainGroup.h>
