@@ -467,6 +467,7 @@ int main(int argc, char *argv[])
                         App::GetSimTerrain()->GetTerrainEditor()->WriteOutputFile();
                     }
                     App::GetGameContext()->SaveScene("autosave.sav");
+                    App::GetGameContext()->ChangePlayerActor(nullptr);
                     App::GetGameContext()->GetActorManager()->DeleteAllActors();
                     App::GetGameContext()->GetCharacterFactory()->DeleteAllCharacters();
                     App::DestroyOverlayWrapper();
