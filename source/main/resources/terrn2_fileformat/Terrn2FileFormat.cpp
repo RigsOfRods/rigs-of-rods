@@ -20,7 +20,7 @@
 /// @file
 /// @author Petr Ohlidal, 11/2016
 
-#include "Terrn2Fileformat.h"
+#include "Terrn2FileFormat.h"
 
 #include "AppContext.h"
 #include "ConfigFile.h"

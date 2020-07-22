@@ -31,7 +31,7 @@
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "MeshObject.h"
-#include "ODefFileformat.h"
+#include "ODefFileFormat.h"
 #include "PlatformUtils.h"
 #include "ProceduralManager.h"
 #include "Road2.h"

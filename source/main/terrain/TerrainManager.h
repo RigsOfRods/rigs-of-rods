@@ -23,7 +23,7 @@
 
 #include "Application.h"
 #include "TerrainEditor.h"
-#include "Terrn2Fileformat.h"
+#include "Terrn2FileFormat.h"
 
 #include <OgreVector3.h>
 #include <string>

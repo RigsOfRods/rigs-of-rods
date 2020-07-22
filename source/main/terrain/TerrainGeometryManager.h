@@ -23,7 +23,7 @@
 
 #include "Application.h"
 #include "ConfigFile.h"
-#include "OTCFileformat.h"
+#include "OTCFileFormat.h"
 
 #include <OgreVector3.h>
 #include <Terrain/OgreTerrain.h>
