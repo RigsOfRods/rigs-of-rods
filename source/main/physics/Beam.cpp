@@ -631,33 +631,6 @@ void Actor::CalcNetwork()
     m_net_initialized = true;
 }
 
-bool Actor::AddTyrePressure(float v)
-{
-    if (!ar_free_pressure_beam)
-        return false;
-
-    float newpressure = Math::Clamp(m_ref_tyre_pressure + v, 0.0f, 100.0f);
-
-    for (int i = 0; i < ar_free_pressure_beam; i++)
-    {
-        ar_beams[ar_pressure_beams[i]].k = 10000 + newpressure * 10000;
-    }
-
-    if (newpressure == m_ref_tyre_pressure)
-        return false;
-
-    m_ref_tyre_pressure = newpressure;
-
-    return true;
-}
-
-float Actor::GetTyrePressure()
-{
-    if (ar_free_pressure_beam)
-        return m_ref_tyre_pressure;
-    return 0;
-}
-
 void Actor::RecalculateNodeMasses(Real total)
 {
     //reset
@@ -4451,7 +4424,7 @@ Actor::Actor(
     , ar_trailer_parking_brake(false)
     , m_avg_node_position(rq.asr_position)
     , m_previous_gear(0)
-    , m_ref_tyre_pressure(50.0)
+    , m_tyre_pressure(this)
     , m_replay_handler(nullptr)
     , m_reverse_light_active(false)
     , ar_right_mirror_angle(-0.52)
@@ -4498,8 +4471,6 @@ Actor::Actor(
     , ar_num_camera_rails(0)
     , ar_aeroengines() // Zero-init array
     , ar_num_aeroengines() // Zero-init
-    , ar_pressure_beams() // Zero-init array
-    , ar_free_pressure_beam() // Zero-init
     , ar_wheels() // array
     , ar_num_wheels() // int
     , m_avg_proped_wheel_radius(0.2f)

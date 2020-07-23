@@ -125,7 +125,6 @@ public:
     void ToggleDashboardOverlays(Actor *actor);
 
     void showDashboardOverlays(bool show, Actor *actor);
-    void showPressureOverlay(bool show);
 
     void windowResized();
     void resizeOverlay(LoadedOverlay & overlay);
@@ -135,7 +134,7 @@ public:
     bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
     float mTimeUntilNextToggle;
 
-    void UpdatePressureTexture(RoR::GfxActor* ga);
+    void UpdatePressureOverlay(RoR::GfxActor* ga);
 
     void UpdateLandVehicleHUD(RoR::GfxActor* ga);
     void UpdateAerialHUD(RoR::GfxActor* ga);
@@ -164,6 +163,7 @@ protected:
     void reposPanel(Ogre::OverlayElement *oe);
     void placeNeedle(Ogre::SceneNode *node, float x, float y, float len);
     void updateStats(bool detailed=false);
+    void showPressureOverlay(bool show);
 
     Ogre::OverlayElement *loadOverlayElement(Ogre::String name);
 

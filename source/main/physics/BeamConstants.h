@@ -29,7 +29,6 @@ static const int   MAX_AEROENGINES            = 8;               //!< maximum nu
 static const int   MAX_SCREWPROPS             = 8;               //!< maximum number of boat screws per actor
 static const int   MAX_SOUNDSCRIPTS_PER_TRUCK = 128;             //!< maximum number of soundsscripts per actor
 static const int   MAX_CPARTICLES             = 10;              //!< maximum number of custom particles per actor
-static const int   MAX_PRESSURE_BEAMS         = 4000;            //!< maximum number of pressure beams per actor
 static const int   MAX_CAMERARAIL             = 50;              //!< maximum number of camera rail points
 
 static const float RAD_PER_SEC_TO_RPM         = 9.5492965855137f; //!< Convert radian/second to RPM (60/2*PI)
