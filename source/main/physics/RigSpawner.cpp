@@ -1309,6 +1309,16 @@ std::string ActorSpawner::GetSubmeshGroundmodelName()
 
 void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
 {
+    std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+    for (; module_itor != m_selected_modules.end(); module_itor++)
+    {
+        auto module = module_itor->get();
+        if (module->submeshes.empty())
+        {
+            return;
+        }
+    }
+
     if (! CheckSubmeshLimit(1))
     {
         return;
