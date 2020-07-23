@@ -196,7 +196,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
     }
 }
 
-void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_since_last_frame)
+void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float dt)
 {
     if (vehicle->isBeingReset() || vehicle->ar_physics_paused)
         return;
@@ -231,7 +231,7 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
 
     if (vehicle->ar_engine)
     {
-        vehicle->ar_engine->UpdateInputEvents(seconds_since_last_frame);
+        vehicle->ar_engine->UpdateInputEvents(dt);
     }
 
     if (vehicle->ar_brake > 1.0f / 6.0f)
@@ -305,5 +305,10 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_CRUISE_CONTROL))
     {
         vehicle->ToggleCruiseControl();
+    }
+
+    if (vehicle->GetTyrePressure().IsEnabled())
+    {
+        vehicle->GetTyrePressure().UpdateInputEvents(dt);
     }
 }

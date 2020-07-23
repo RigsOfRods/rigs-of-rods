@@ -643,11 +643,19 @@ bool OverlayWrapper::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButton
     return mouseMoved(_arg);
 }
 
-void OverlayWrapper::UpdatePressureTexture(RoR::GfxActor* ga)
+void OverlayWrapper::UpdatePressureOverlay(RoR::GfxActor* ga)
 {
-    const float pressure = ga->GetSimDataBuffer().simbuf_tyre_pressure;
-    Real angle = 135.0 - pressure * 2.7;
-    pressuretexture->setTextureRotate(Degree(angle));
+    if (ga->GetSimDataBuffer().simbuf_tyre_pressurizing)
+    {
+        this->showPressureOverlay(true);
+        const float pressure = ga->GetSimDataBuffer().simbuf_tyre_pressure;
+        Real angle = 135.0 - pressure * 2.7;
+        pressuretexture->setTextureRotate(Degree(angle));
+    }
+    else
+    {
+        this->showPressureOverlay(false);
+    }
 }
 
 void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)

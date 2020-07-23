@@ -119,6 +119,7 @@ public:
         bool                        simbuf_physics_paused     = false;
         float                       simbuf_rotation           = 0;
         float                       simbuf_tyre_pressure      = 0;
+        bool                        simbuf_tyre_pressurizing  = false;
         Ogre::AxisAlignedBox        simbuf_aabb               = Ogre::AxisAlignedBox::BOX_NULL;
         std::string                 simbuf_net_username;
         bool                        simbuf_is_remote          = false;

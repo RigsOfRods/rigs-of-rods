@@ -27,6 +27,7 @@
 #include "GfxActor.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
+#include "TyrePressure.h"
 
 #include <OgreTimer.h>
 
@@ -60,8 +61,6 @@ public:
     void              ApplyNodeBeamScales();
     void              PushNetwork(char* data, int size);   //!< Parses network data; fills actor's data buffers and flips them. Called by the network thread.
     void              CalcNetwork();
-    bool              AddTyrePressure(float v);
-    float             GetTyrePressure();
     float             getRotation();
     Ogre::Vector3     getDirection();
     Ogre::Vector3     getPosition();
@@ -175,6 +174,7 @@ public:
     void              SetUsedSkin(CacheEntry* skin)     { m_used_skin_entry = skin; }
     float             getSpeed()                        { return m_avg_node_velocity.length(); };
     Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
+    TyrePressure&     GetTyrePressure()                 { return m_tyre_pressure; }
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
     void              addRef()                          {};
@@ -224,8 +224,6 @@ public:
     int               ar_num_custom_particles;
     soundsource_t     ar_soundsources[MAX_SOUNDSCRIPTS_PER_TRUCK];
     int               ar_num_soundsources;
-    int               ar_pressure_beams[MAX_PRESSURE_BEAMS];
-    int               ar_free_pressure_beam;
     AeroEngine*       ar_aeroengines[MAX_AEROENGINES];
     int               ar_num_aeroengines;
     Screwprop*        ar_screwprops[MAX_SCREWPROPS];
@@ -469,7 +467,6 @@ private:
     Ogre::Vector3     m_camera_gforces;           //!< Physics state (global)
     Ogre::Vector3     m_camera_local_gforces_cur; //!< Physics state (camera local)
     Ogre::Vector3     m_camera_local_gforces_max; //!< Physics state (camera local)
-    float             m_ref_tyre_pressure;        //!< Physics state
     float             m_stabilizer_shock_ratio;   //!< Physics state
     int               m_stabilizer_shock_request; //!< Physics state; values: { -1, 0, 1 }
     Differential*     m_axle_diffs[1+MAX_WHEELS/2];//!< Physics
@@ -504,6 +501,7 @@ private:
     bool              m_tractioncontrol;       //!< GUI state
     bool              m_ongoing_reset;         //!< Hack to prevent position/rotation creep during interactive truck reset
     bool              m_has_axles_section;     //!< Temporary (legacy parsing helper) until central diffs are implemented
+    TyrePressure      m_tyre_pressure;
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?

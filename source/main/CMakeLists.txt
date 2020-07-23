@@ -30,13 +30,14 @@ set(SOURCE_FILES
         gameplay/Landusemap.{h,cpp}
         gameplay/LandVehicleSimulation.{h,cpp}
         gameplay/ProceduralManager.{h,cpp}
+        gameplay/RaceSystem.{h,cpp}
         gameplay/Replay.{h,cpp}
         gameplay/Road.{h,cpp}
         gameplay/Road2.{h,cpp}
         gameplay/RoRFrameListener.{h,cpp}
         gameplay/ScriptEvents.h
-        gameplay/RaceSystem.{h,cpp}
         gameplay/TorqueCurve.{h,cpp}
+        gameplay/TyrePressure.{h,cpp}
         gameplay/VehicleAI.{h,cpp}
         gfx/AdvancedScreen.h
         gfx/ColoredTextAreaOverlayElement.{h,cpp}

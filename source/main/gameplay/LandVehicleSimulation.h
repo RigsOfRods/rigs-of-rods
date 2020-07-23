@@ -41,12 +41,12 @@ struct LandVehicleSimulation
     /**
     * Logic: driving aids and such
     */
-    static void UpdateVehicle(Actor* vehicle, float seconds_since_last_frame);
+    static void UpdateVehicle(Actor* vehicle, float dt);
 
     /**
     * Logic: input, sound, vehicle state
     */
-    static void UpdateInputEvents(Actor* vehicle, float seconds_since_last_frame);
+    static void UpdateInputEvents(Actor* vehicle, float dt);
 
 };
 

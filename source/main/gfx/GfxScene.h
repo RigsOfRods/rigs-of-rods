@@ -46,7 +46,6 @@ public:
     {
         Actor*         simbuf_player_actor           = nullptr;
         Ogre::Vector3  simbuf_character_pos          = Ogre::Vector3::ZERO;
-        bool           simbuf_tyrepressurize_active  = false;
         bool           simbuf_sim_paused             = false;
         float          simbuf_sim_speed              = 1.f;
         CameraManager::CameraBehaviors

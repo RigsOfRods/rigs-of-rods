@@ -61,7 +61,6 @@ public:
     // Scripting interface
     float  getTime               () { return m_time; }
 
-    bool                         IsPressurizingTyres() const { return m_pressure_pressed; }
     bool                         AreControlsLocked() const;
     bool                         IsGUIHidden()              { return m_hide_gui; }
 
@@ -82,10 +81,9 @@ private:
     bool                     m_physics_simulation_paused;
     float                    m_time;
     bool                     m_hide_gui;
-    bool                     m_pressure_pressed;
 
     bool                     m_advanced_vehicle_repair;
     float                    m_advanced_vehicle_repair_timer;
 
-    float                    m_pressure_pressed_timer;
+
 };
