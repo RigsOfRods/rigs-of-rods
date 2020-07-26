@@ -701,14 +701,89 @@ void GameContext::HandleCommonInputEvents()
             else if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
             {
                 this->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
-            }            
+            }
         }
     }
 
-    // EV_COMMON_CONSOLE_TOGGLE - display console GUI (anytime)
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE))
+    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION &&
+        App::sim_state->GetEnum<SimState>() != SimState::PAUSED &&
+        !App::GetSimController()->AreControlsLocked())
     {
-        App::GetGuiManager()->SetVisible_Console(! App::GetGuiManager()->IsVisible_Console());
+        // EV_COMMON_GET_NEW_VEHICLE
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_GET_NEW_VEHICLE))
+        {
+            App::GetGuiManager()->GetMainSelector()->Show(LT_AllBeam);
+        }
+
+        // EV_COMMON_ENTER_OR_EXIT_TRUCK - With a toggle delay
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_OR_EXIT_TRUCK, 0.5f))
+        {
+            if (this->GetPlayerActor() == nullptr) // no vehicle
+            {
+                // find the nearest vehicle
+                float mindist = 1000.0;
+                Actor* nearest_actor = nullptr;
+                for (auto actor : this->GetActorManager()->GetActors())
+                {
+                    if (!actor->ar_driveable)
+                        continue;
+                    if (actor->ar_cinecam_node[0] == -1)
+                    {
+                        LOG("cinecam missing, cannot enter the actor!");
+                        continue;
+                    }
+                    float len = 0.0f;
+                    if (this->GetPlayerCharacter())
+                    {
+                        len = actor->ar_nodes[actor->ar_cinecam_node[0]].AbsPosition.distance(this->GetPlayerCharacter()->getPosition() + Ogre::Vector3(0.0, 2.0, 0.0));
+                    }
+                    if (len < mindist)
+                    {
+                        mindist = len;
+                        nearest_actor = actor;
+                    }
+                }
+
+                if (mindist < 20.0)
+                {
+                    this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)nearest_actor));
+                }
+            }
+            else // We're in a vehicle -> If moving slowly enough, get out
+            {
+                if (this->GetPlayerActor()->ar_nodes[0].Velocity.squaredLength() < 1.0f ||
+                    this->GetPlayerActor()->ar_sim_state == Actor::SimState::NETWORKED_OK)
+                {
+                    this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, nullptr));
+                }
+            }
+        }
+
+        // EV_COMMON_ENTER_NEXT_TRUCK
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
+        {
+            Actor* actor = this->FetchNextVehicleOnList();
+            if (actor != this->GetPlayerActor())
+            {
+                this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
+            }
+        }
+
+        // EV_COMMON_ENTER_PREVIOUS_TRUCK
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
+        {
+            Actor* actor = this->FetchPrevVehicleOnList();
+            if (actor != this->GetPlayerActor())
+            {
+                this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
+            }
+        }
+
+        // EV_COMMON_RESPAWN_LAST_TRUCK
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK, 0.25f))
+        {
+            this->RespawnLastActor();
+        }
     }
 
     // EV_COMMON_SCREENSHOT
@@ -724,5 +799,38 @@ void GameContext::HandleCommonInputEvents()
             this->PushMessage(Message(MSG_APP_DISPLAY_WINDOWED_REQUESTED));
         else
             this->PushMessage(Message(MSG_APP_DISPLAY_FULLSCREEN_REQUESTED));
+    }
+
+    // EV_COMMON_TOGGLE_RENDER_MODE
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_RENDER_MODE, 0.5f))
+    {
+        static int mSceneDetailIndex;
+        mSceneDetailIndex = (mSceneDetailIndex + 1) % 3;
+        switch (mSceneDetailIndex)
+        {
+        case 0: App::GetCameraManager()->GetCamera()->setPolygonMode(Ogre::PM_SOLID);       break;
+        case 1: App::GetCameraManager()->GetCamera()->setPolygonMode(Ogre::PM_WIREFRAME);   break;
+        case 2: App::GetCameraManager()->GetCamera()->setPolygonMode(Ogre::PM_POINTS);      break;
+        }
+    }
+
+    // EV_COMMON_OUTPUT_POSITION - Old map creator feat
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_OUTPUT_POSITION))
+    {
+        Ogre::Vector3 position(Ogre::Vector3::ZERO);
+        Ogre::Radian rotation(0);
+        if (this->GetPlayerActor() == nullptr)
+        {
+            position = this->GetPlayerCharacter()->getPosition();
+            rotation = this->GetPlayerCharacter()->getRotation() + Ogre::Radian(Ogre::Math::PI);
+        }
+        else
+        {
+            position = this->GetPlayerActor()->getPosition();
+            rotation = this->GetPlayerActor()->getRotation();
+        }
+        Ogre::String pos = Ogre::StringUtil::format("%8.3f, %8.3f, %8.3f"   , position.x, position.y, position.z);
+        Ogre::String rot = Ogre::StringUtil::format("% 6.1f, % 6.1f, % 6.1f",       0.0f, rotation.valueDegrees()  ,       0.0f);
+        LOG("Position: " + pos + ", " + rot);
     }
 }

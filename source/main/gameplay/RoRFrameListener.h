@@ -28,6 +28,7 @@
 #include "CameraManager.h" // CameraManager::CameraBehaviors
 #include "CharacterFactory.h"
 #include "GfxScene.h"
+#include "GUIManager.h"
 #include "OutGauge.h"
 #include "GUI_SceneMouse.h"
 
@@ -62,7 +63,7 @@ public:
     float  getTime               () { return m_time; }
 
     bool                         AreControlsLocked() const;
-    bool                         IsGUIHidden()              { return m_hide_gui; }
+    bool                         IsGUIHidden() const              { return RoR::App::GetGuiManager()->IsGuiHidden(); }
 
     bool GetPhysicsPaused()                                 { return m_physics_simulation_paused; }
     void SetPhysicsPausedInternal(bool paused)              { m_physics_simulation_paused = paused; }
@@ -72,15 +73,13 @@ public:
 private:
 
     void   UpdateInputEvents       (float dt);
-    void   HideGUI                 (bool hidden);
 
-    Ogre::Real               m_time_until_next_toggle; //!< just to stop toggles flipping too fast
+    
     float                    m_last_simulation_speed;  //!< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
     bool                     m_is_pace_reset_pressed;
     float                    m_physics_simulation_time; //!< Amount of time the physics simulation is going to be advanced
     bool                     m_physics_simulation_paused;
     float                    m_time;
-    bool                     m_hide_gui;
 
     bool                     m_advanced_vehicle_repair;
     float                    m_advanced_vehicle_repair_timer;

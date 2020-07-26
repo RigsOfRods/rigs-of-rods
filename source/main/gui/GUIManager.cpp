@@ -28,12 +28,15 @@
 #include "BeamFactory.h"
 #include "CameraManager.h"
 #include "ContentManager.h"
+#include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIUtils.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "OgreImGui.h"
+#include "OverlayWrapper.h"
 #include "PlatformUtils.h"
+#include "RoRFrameListener.h" // SimController
 #include "RTTLayer.h"
 #include "TerrainManager.h"
 
@@ -154,7 +157,7 @@ GUIManager::GUIManager()
     std::string gui_logpath = PathCombine(App::sys_logs_dir->GetStr(), "MyGUI.log");
     auto mygui_platform = new MyGUI::OgrePlatform();
     mygui_platform->initialise(
-        RoR::App::GetAppContext()->GetRenderWindow(), 
+        App::GetAppContext()->GetRenderWindow(), 
         App::GetGfxScene()->GetSceneManager(),
         Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
         gui_logpath); // use cache resource group so preview images are working
@@ -345,9 +348,10 @@ void GUIManager::SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manage
     m_impl->mygui_platform->getRenderManagerPtr()->setSceneManager(scene_manager);
 }
 
-void GUIManager::hideGUI(bool hidden)
+void GUIManager::SetGuiHidden(bool hidden)
 {
     m_hide_gui = hidden;
+    App::GetOverlayWrapper()->showDashboardOverlays(!hidden, App::GetGameContext()->GetPlayerActor());
     if (hidden)
     {
         m_impl->panel_SimPerfStats.SetVisible(false);
@@ -541,13 +545,77 @@ void GUIManager::WakeUpGUI()
     m_last_mousemove_time.reset();
     if (!m_is_cursor_supressed)
     {
-        RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::VISIBLE);
+        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::VISIBLE);
     }
 }
 
 void GUIManager::SupressCursor(bool do_supress)
 {
     m_is_cursor_supressed = do_supress;
+}
+
+void GUIManager::UpdateInputEvents(float dt)
+{
+    // EV_COMMON_CONSOLE_TOGGLE - display console GUI (anytime)
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE))
+    {
+        App::GetGuiManager()->SetVisible_Console(! App::GetGuiManager()->IsVisible_Console());
+    }
+
+    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+    {
+        // EV_COMMON_HIDE_GUI
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_HIDE_GUI))
+        {
+            App::GetGuiManager()->SetGuiHidden(!App::GetGuiManager()->IsGuiHidden());
+        }
+
+        // EV_COMMON_ENTER_CHATMODE
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) &&
+            App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+        {
+            App::GetGuiManager()->SetVisible_ChatBox(!App::GetGuiManager()->IsVisible_ChatBox());
+        }
+
+        // EV_COMMON_TRUCK_INFO - Vehicle status panel
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_INFO) && App::GetGameContext()->GetPlayerActor())
+        {
+            App::GetGuiManager()->SetVisible_SimActorStats(!App::GetGuiManager()->IsVisible_SimActorStats());
+        }
+
+        // EV_COMMON_TRUCK_DESCRIPTION - Vehicle controls and details
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_DESCRIPTION) && App::GetGameContext()->GetPlayerActor())
+        {
+            App::GetGuiManager()->SetVisible_VehicleDescription(!App::GetGuiManager()->IsVisible_VehicleDescription());
+        }
+
+        // EV_COMMON_TOGGLE_DASHBOARD
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DASHBOARD))
+        {
+            App::GetOverlayWrapper()->ToggleDashboardOverlays(App::GetGameContext()->GetPlayerActor());
+        }
+
+        // EV_COMMON_TOGGLE_STATS - FPS, draw batch count etc...
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
+        {
+            App::GetGuiManager()->SetVisible_SimPerfStats(!App::GetGuiManager()->IsVisible_SimPerfStats());
+        }
+
+        if (!App::GetSimController()->AreControlsLocked())
+        {
+            // EV_SURVEY_MAP_CYCLE
+            if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_CYCLE))
+            {
+                App::GetGuiManager()->GetSurveyMap()->CycleMode();
+            }
+
+            // EV_SURVEY_MAP_TOGGLE
+            if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE))
+            {
+                App::GetGuiManager()->GetSurveyMap()->ToggleMode();
+            }
+        }
+    }
 }
 
 } // namespace RoR

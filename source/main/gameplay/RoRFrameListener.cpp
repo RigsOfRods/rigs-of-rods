@@ -84,13 +84,11 @@ using namespace Ogre;
 using namespace RoR;
 
 SimController::SimController() :
-    m_hide_gui(false),
     m_is_pace_reset_pressed(false),
     m_last_simulation_speed(0.1f),
     m_physics_simulation_paused(false),
     m_physics_simulation_time(0.0f),
     m_time(0),
-    m_time_until_next_toggle(0),
     m_advanced_vehicle_repair(false),
     m_advanced_vehicle_repair_timer(0.f)
 {
@@ -98,20 +96,17 @@ SimController::SimController() :
 
 void SimController::UpdateInputEvents(float dt)
 {
+    // ** Move outside
     if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
         return; //Stop everything when pause menu is visible
 
+    // ** put to GUI::Frictionsettings::Draw() via scene simbuffer
     if (App::GetGuiManager()->IsVisible_FrictionSettings() && App::GetGameContext()->GetPlayerActor())
     {
         App::GetGuiManager()->GetFrictionSettings()->setActiveCol(App::GetGameContext()->GetPlayerActor()->ar_last_fuzzy_ground_model);
     }
 
     const bool mp_connected = (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED);
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_hide_gui && mp_connected)
-    {
-        App::GetGuiManager()->SetVisible_ChatBox(!App::GetGuiManager()->IsVisible_ChatBox());
-    }
-
     if ((App::GetGameContext()->GetPlayerActor() != nullptr) &&
         (App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::NETWORKED_OK) &&
         App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f))
@@ -121,11 +116,6 @@ void SimController::UpdateInputEvents(float dt)
         rq->amr_actor = App::GetGameContext()->GetPlayerActor();
         App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
         return;
-    }
-
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_GET_NEW_VEHICLE))
-    {
-        App::GetGuiManager()->GetMainSelector()->Show(LT_AllBeam);
     }
 
     // Simulation pace adjustment (slowmotion)
@@ -233,10 +223,12 @@ void SimController::UpdateInputEvents(float dt)
                         Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                         (App::sim_soft_reset_mode->GetBool()) ? _L("Enabled soft reset mode") : _L("Enabled hard reset mode"));
                 }
+
                 if (!RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
                 {
                     m_advanced_vehicle_repair_timer = 0.0f;
                 }
+
                 if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) &&
                     App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::LOCAL_REPLAY)
                 {
@@ -614,79 +606,13 @@ void SimController::UpdateInputEvents(float dt)
                 }
             }
 
-            if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_ENTER_OR_EXIT_TRUCK) && m_time_until_next_toggle <= 0)
+            // EV_COMMON_ENTER_OR_EXIT_TRUCK - Without a delay: the vehicle must brake like braking normally
+            if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_ENTER_OR_EXIT_TRUCK) &&
+                App::GetGameContext()->GetPlayerActor())
             {
-                m_time_until_next_toggle = 0.5; // Some delay before trying to re-enter(exit) actor
-                // perso in/out
-                if (App::GetGameContext()->GetPlayerActor() == nullptr)
-                {
-                    // find the nearest vehicle
-                    float mindist = 1000.0;
-                    Actor* nearest_actor = nullptr;
-                    for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
-                    {
-                        if (!actor->ar_driveable)
-                            continue;
-                        if (actor->ar_cinecam_node[0] == -1)
-                        {
-                            LOG("cinecam missing, cannot enter the actor!");
-                            continue;
-                        }
-                        float len = 0.0f;
-                        if (App::GetGameContext()->GetPlayerCharacter())
-                        {
-                            len = actor->ar_nodes[actor->ar_cinecam_node[0]].AbsPosition.distance(App::GetGameContext()->GetPlayerCharacter()->getPosition() + Vector3(0.0, 2.0, 0.0));
-                        }
-                        if (len < mindist)
-                        {
-                            mindist = len;
-                            nearest_actor = actor;
-                        }
-                    }
-                    if (mindist < 20.0)
-                    {
-                        App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)nearest_actor));
-                    }
-                }
-                else if (App::GetGameContext()->GetPlayerActor()->ar_nodes[0].Velocity.squaredLength() < 1.0f ||
-                        App::GetGameContext()->GetPlayerActor()->ar_sim_state == Actor::SimState::NETWORKED_OK)
-                {
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, nullptr));
-                }
-                else
-                {
-                    App::GetGameContext()->GetPlayerActor()->ar_brake = 0.66f;
-                    m_time_until_next_toggle = 0.0; // No delay in this case: the vehicle must brake like braking normally
-                }
+                App::GetGameContext()->GetPlayerActor()->ar_brake = 0.66f;
             }
-            else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
-            {
-                Actor* actor = App::GetGameContext()->FetchNextVehicleOnList();
-                if (actor != App::GetGameContext()->GetPlayerActor())
-                {
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
-                }
-            }
-            else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
-            {
-                Actor* actor = App::GetGameContext()->FetchPrevVehicleOnList();
-                if (actor != App::GetGameContext()->GetPlayerActor())
-                {
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
-                }
-            }
-            else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK, 0.25f))
-            {
-                App::GetGameContext()->RespawnLastActor();
-            }
-            else if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_CYCLE))
-            {
-                App::GetGuiManager()->GetSurveyMap()->CycleMode();
-            }
-            else if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE))
-            {
-                App::GetGuiManager()->GetSurveyMap()->ToggleMode();
-            }
+            
         } // AreControlsLocked()
 
 #ifdef USE_CAELUM
@@ -750,78 +676,9 @@ void SimController::UpdateInputEvents(float dt)
                 skyx_mgr->GetSkyX()->setTimeMultiplier(0.01f);
             }
         }
-
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_RENDER_MODE, 0.5f))
-        {
-            static int mSceneDetailIndex;
-            mSceneDetailIndex = (mSceneDetailIndex + 1) % 3;
-            switch (mSceneDetailIndex)
-            {
-            case 0:
-                App::GetCameraManager()->GetCamera()->setPolygonMode(PM_SOLID);
-                break;
-            case 1:
-                App::GetCameraManager()->GetCamera()->setPolygonMode(PM_WIREFRAME);
-                break;
-            case 2:
-                App::GetCameraManager()->GetCamera()->setPolygonMode(PM_POINTS);
-                break;
-            }
-        }
     }
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_INFO) && App::GetGameContext()->GetPlayerActor())
-    {
-        App::GetGuiManager()->SetVisible_SimActorStats(!App::GetGuiManager()->IsVisible_SimActorStats());
-    }
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_DESCRIPTION) && App::GetGameContext()->GetPlayerActor())
-    {
-        App::GetGuiManager()->SetVisible_VehicleDescription(! App::GetGuiManager()->IsVisible_VehicleDescription());
-    }
-
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_HIDE_GUI))
-    {
-        m_hide_gui = !m_hide_gui;
-        this->HideGUI(m_hide_gui);
-    }
-
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DASHBOARD))
-    {
-        if (RoR::App::GetOverlayWrapper())
-        {
-            RoR::App::GetOverlayWrapper()->ToggleDashboardOverlays(App::GetGameContext()->GetPlayerActor());
-        }
-    }
-
-    if ((App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::PAUSED || App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE) && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
-    {
-        App::GetGuiManager()->SetVisible_SimPerfStats(!App::GetGuiManager()->IsVisible_SimPerfStats());
-    }
-
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_OUTPUT_POSITION))
-    {
-        Vector3 position(Vector3::ZERO);
-        Radian rotation(0);
-        if (App::GetGameContext()->GetPlayerActor() == nullptr)
-        {
-            position = App::GetGameContext()->GetPlayerCharacter()->getPosition();
-            rotation = App::GetGameContext()->GetPlayerCharacter()->getRotation() + Radian(Math::PI);
-        }
-        else
-        {
-            position = App::GetGameContext()->GetPlayerActor()->getPosition();
-            rotation = App::GetGameContext()->GetPlayerActor()->getRotation();
-        }
-        String pos = StringUtil::format("%8.3f, %8.3f, %8.3f"   , position.x, position.y, position.z);
-        String rot = StringUtil::format("% 6.1f, % 6.1f, % 6.1f",       0.0f, rotation.valueDegrees()  ,       0.0f);
-        LOG("Position: " + pos + ", " + rot);
-    }
-
-    if (m_time_until_next_toggle >= 0)
-    {
-        m_time_until_next_toggle -= dt;
-    }
 }
 
 void SimController::UpdateSimulation(float dt)
@@ -878,14 +735,6 @@ void SimController::UpdateSimulation(float dt)
     {
         m_time += dt;
     }
-}
-
-void SimController::HideGUI(bool hidden)
-{
-    if (RoR::App::GetOverlayWrapper())
-        RoR::App::GetOverlayWrapper()->showDashboardOverlays(!hidden, App::GetGameContext()->GetPlayerActor());
-
-    App::GetGuiManager()->hideGUI(hidden);
 }
 
 void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
