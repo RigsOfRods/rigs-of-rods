@@ -132,7 +132,8 @@ public:
     void DrawSimGuiBuffered(GfxActor* player_gfx_actor); //!< Reads data from simbuffer
     void DrawCommonGui();
 
-    void hideGUI(bool visible);
+    void SetGuiHidden(bool visible);
+    bool IsGuiHidden() const { return m_hide_gui; }
 
     void SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager);
 
@@ -148,6 +149,8 @@ public:
     inline GuiTheme&  GetTheme() { return m_theme; }
 
     void WakeUpGUI();
+
+    void UpdateInputEvents(float dt);
 
 private:
     void SetupImGui();
