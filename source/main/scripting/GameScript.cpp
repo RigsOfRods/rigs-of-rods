@@ -40,6 +40,7 @@
 #include "Beam.h"
 #include "BeamEngine.h"
 #include "BeamFactory.h"
+#include "CacheSystem.h"
 #include "Character.h"
 #include "ChatSystem.h"
 #include "Collisions.h"
@@ -925,7 +926,7 @@ VehicleAI* GameScript::getTruckAIByNum(int num)
     return result;
 }
 
-Actor* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
+Actor* GameScript::spawnTruck(const std::string& truckName, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const std::string& skinName)
 {
     if (!this->HaveSimController(__FUNCTION__))
         return nullptr;
@@ -934,6 +935,7 @@ Actor* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre:
     rq.asr_position = pos;
     rq.asr_rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
     rq.asr_filename = truckName;
+    rq.asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(skinName);
     return App::GetSimController()->SpawnActorDirectly(rq);
 }
 

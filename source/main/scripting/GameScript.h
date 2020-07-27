@@ -367,7 +367,7 @@ public:
     VehicleAI* getCurrentTruckAI();
     VehicleAI* getTruckAIByNum(int num);
 
-    Actor* spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot);
+    Actor* spawnTruck(const std::string& truckName, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const std::string& skinName);
 
     void showMessageBox(Ogre::String& title, Ogre::String& text, bool use_btn1, Ogre::String& btn1_text, bool allow_close, bool use_btn2, Ogre::String& btn2_text);
     void backToMenu();
