@@ -22,7 +22,7 @@
 #include "DynamicCollisions.h"
 
 #include "Application.h"
-#include "Beam.h"
+#include "Actor.h"
 #include "BeamData.h"
 #include "CartesianToTriangleTransform.h"
 #include "Collisions.h"

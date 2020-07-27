@@ -24,7 +24,7 @@
 #include "Application.h"
 
 #include "BeamData.h" // RoR::ActorSpawnRequest
-#include "BeamFactory.h"
+#include "ActorManager.h"
 #include "CameraManager.h" // CameraManager::CameraBehaviors
 #include "CharacterFactory.h"
 #include "GfxScene.h"

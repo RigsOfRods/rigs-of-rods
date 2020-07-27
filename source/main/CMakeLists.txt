@@ -156,16 +156,16 @@ set(SOURCE_FILES
         network/DiscordRpc.{h,cpp}
         network/Network.{h,cpp}
         network/OutGauge.{h,cpp}
+        physics/Actor.{h,cpp}
         physics/ApproxMath.h
-        physics/Beam.{h,cpp}
+        physics/ActorForcesEuler.cpp
+        physics/ActorManager.{h,cpp}
+        physics/ActorSlideNode.cpp
+        physics/ActorSpawner.{h,cpp}
+        physics/ActorSpawnerFlow.cpp
         physics/BeamData.h
-        physics/BeamFactory.{h,cpp}
-        physics/BeamForcesEuler.cpp
-        physics/BeamSlideNode.cpp
         physics/CmdKeyInertia.{h,cpp}
         physics/Differentials.{h,cpp}
-        physics/RigSpawner.{h,cpp}
-        physics/RigSpawner_ProcessControl.cpp
         physics/Savegame.cpp
         physics/SlideNode.{h,cpp}
         physics/air/AeroEngine.h

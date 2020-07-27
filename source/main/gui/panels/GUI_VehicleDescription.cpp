@@ -26,7 +26,7 @@
 #include "GUI_VehicleDescription.h"
 
 #include "Application.h"
-#include "Beam.h"
+#include "Actor.h"
 #include "GameContext.h"
 #include "GUIManager.h"
 #include "InputEngine.h"

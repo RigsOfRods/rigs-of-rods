@@ -23,8 +23,8 @@
 
 #include "Application.h"
 #include "ApproxMath.h"
-#include "Beam.h"
-#include "BeamFactory.h"
+#include "Actor.h"
+#include "ActorManager.h"
 #include "ErrorUtils.h"
 #include "GameContext.h"
 #include "Landusemap.h"

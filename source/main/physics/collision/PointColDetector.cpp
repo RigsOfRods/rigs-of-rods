@@ -20,8 +20,8 @@
 
 #include "PointColDetector.h"
 
-#include "Beam.h"
-#include "BeamFactory.h"
+#include "Actor.h"
+#include "ActorManager.h"
 #include "GameContext.h"
 #include "RoRFrameListener.h"
 

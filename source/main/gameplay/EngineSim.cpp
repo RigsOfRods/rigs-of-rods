@@ -23,8 +23,8 @@
 
 #include "AppContext.h"
 #include "ApproxMath.h" // frand()
-#include "Beam.h"
-#include "BeamFactory.h"
+#include "Actor.h"
+#include "ActorManager.h"
 #include "Console.h"
 #include "InputEngine.h"
 #include "ScriptEngine.h"

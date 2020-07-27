@@ -21,7 +21,7 @@
 
 #include "TyrePressure.h"
 
-#include "Beam.h"
+#include "Actor.h"
 #include "InputEngine.h"
 #include "SoundScriptManager.h"
 

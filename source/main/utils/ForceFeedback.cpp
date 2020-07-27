@@ -22,7 +22,7 @@
 #include "ForceFeedback.h"
 
 #include "Application.h"
-#include "Beam.h" // Actor
+#include "Actor.h"
 #include "Console.h"
 #include "GameContext.h"
 #include "InputEngine.h"

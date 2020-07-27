@@ -22,8 +22,8 @@
 #include "OutGauge.h"
 
 #include "Application.h"
-#include "Beam.h"
-#include "BeamFactory.h"
+#include "Actor.h"
+#include "ActorManager.h"
 #include "EngineSim.h"
 #include "RoRVersion.h"
 

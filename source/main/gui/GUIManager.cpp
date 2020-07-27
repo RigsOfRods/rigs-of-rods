@@ -25,7 +25,7 @@
 #include "GUIManager.h"
 
 #include "AppContext.h"
-#include "BeamFactory.h"
+#include "ActorManager.h"
 #include "CameraManager.h"
 #include "ContentManager.h"
 #include "GameContext.h"

@@ -29,7 +29,7 @@
 #include "GUI_MultiplayerClientList.h"
 
 #include "Application.h"
-#include "BeamFactory.h"
+#include "ActorManager.h"
 #include "GameContext.h"
 #include "GUIManager.h"
 #include "Language.h"

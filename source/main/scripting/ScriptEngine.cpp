@@ -41,8 +41,8 @@
 #endif //USE_CURL
 
 #include "Application.h"
-#include "Beam.h"
-#include "BeamFactory.h"
+#include "Actor.h"
+#include "ActorManager.h"
 #include "Collisions.h"
 #include "Console.h"
 #include "GameContext.h"

@@ -23,7 +23,7 @@
 #include "AeroEngine.h"
 #include "Airfoil.h"
 #include "ApproxMath.h"
-#include "Beam.h" // class Actor
+#include "Actor.h"
 #include "BeamData.h"
 #include "GfxActor.h"
 

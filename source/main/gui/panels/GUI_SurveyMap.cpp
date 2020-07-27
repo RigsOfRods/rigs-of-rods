@@ -23,7 +23,7 @@
 #include "GUI_SurveyMap.h"
 
 #include "AppContext.h"
-#include "Beam.h"
+#include "Actor.h"
 #include "ContentManager.h"
 #include "GameContext.h"
 #include "GUIManager.h"

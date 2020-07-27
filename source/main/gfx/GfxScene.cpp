@@ -22,8 +22,8 @@
 #include "GfxScene.h"
 
 #include "AppContext.h"
-#include "Beam.h"
-#include "BeamFactory.h"
+#include "Actor.h"
+#include "ActorManager.h"
 #include "Console.h"
 #include "DustPool.h"
 #include "HydraxWater.h"

@@ -22,7 +22,7 @@
 #include "GUI_MainSelector.h"
 
 #include "Application.h"
-#include "BeamFactory.h"
+#include "ActorManager.h"
 #include "CacheSystem.h"
 #include "ContentManager.h"
 #include "GameContext.h"

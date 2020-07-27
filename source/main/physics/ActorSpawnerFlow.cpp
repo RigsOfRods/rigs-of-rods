@@ -26,9 +26,9 @@
     @date   12/2013
 */
 
-#include "RigSpawner.h"
+#include "ActorSpawner.h"
 
-#include "Beam.h"
+#include "Actor.h"
 #include "Renderdash.h"
 
 #define PROCESS_SECTION_IN_ANY_MODULE(_KEYWORD_, _FIELD_, _FUNCTION_)   \
