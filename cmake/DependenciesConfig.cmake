@@ -17,7 +17,7 @@ if (USE_PACKAGE_MANAGER)
     set(ROR_USE_MOFILEREADER TRUE)
 
     include(pmm)
-    pmm(CONAN REMOTES rigs-of-rods-deps https://conan.cloudsmith.io/rigs-of-rods/deps/ BINCRAFTERS
+    pmm(CONAN REMOTES ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies BINCRAFTERS
         CMakeCM ROLLING)
 
     include(cotire)
