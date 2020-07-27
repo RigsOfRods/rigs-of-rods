@@ -434,9 +434,10 @@ public:
 	 *  @param truckName The filename of the truck
 	 *  @param pos The position where the truck should be spawned
 	 *  @param rot The rotation in which the truck should be spawned
+     *  @param skinName Designated name of the SkinZIP to use. Ignored if not found.
 	 *  @return reference to Beam object
 	 */
-	BeamClass @spawnTruck(stringtruckName, vector3 pos, vector3 rot);
+	BeamClass @spawnTruck(string truckName, vector3 pos, vector3 rot, string skinName);
 
 	/**
 	*  Gets the Curent frames per second (FPS)
