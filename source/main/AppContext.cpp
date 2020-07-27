@@ -22,7 +22,7 @@
 #include "AppContext.h"
 
 #include "AdvancedScreen.h"
-#include "Beam.h" // Actor
+#include "Actor.h"
 #include "ChatSystem.h"
 #include "Console.h"
 #include "ContentManager.h"

@@ -22,7 +22,7 @@
 #include "LandVehicleSimulation.h"
 
 #include "Application.h"
-#include "Beam.h"
+#include "Actor.h"
 #include "Console.h"
 #include "EngineSim.h"
 #include "InputEngine.h"

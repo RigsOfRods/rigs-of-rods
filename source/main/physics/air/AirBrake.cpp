@@ -22,7 +22,7 @@
 
 #include "Application.h"
 #include "BeamData.h"
-#include "Beam.h" // class Actor
+#include "Actor.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
 

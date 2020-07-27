@@ -22,7 +22,7 @@
 
 #include "Application.h"
 #include "BeamData.h"
-#include "BeamFactory.h"
+#include "ActorManager.h"
 #include "GfxScene.h"
 #include "DustPool.h"
 #include "TerrainManager.h"

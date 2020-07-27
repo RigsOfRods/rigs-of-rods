@@ -22,7 +22,7 @@
 #include "GameContext.h"
 
 #include "AppContext.h"
-#include "Beam.h" // class Actor
+#include "Actor.h"
 #include "CacheSystem.h"
 #include "Collisions.h"
 #include "Console.h"

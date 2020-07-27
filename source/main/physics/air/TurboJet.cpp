@@ -24,7 +24,7 @@
 #include <Ogre.h>
 
 #include "Application.h"
-#include "Beam.h" // class Actor
+#include "Actor.h"
 #include "BeamData.h"
 #include "GfxActor.h"
 #include "GfxScene.h"

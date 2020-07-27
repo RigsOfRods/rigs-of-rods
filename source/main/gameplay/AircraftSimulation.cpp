@@ -27,7 +27,7 @@
 #include "AeroEngine.h"
 #include "Application.h"
 #include "AutoPilot.h"
-#include "Beam.h"
+#include "Actor.h"
 #include "InputEngine.h"
 
 using namespace RoR;

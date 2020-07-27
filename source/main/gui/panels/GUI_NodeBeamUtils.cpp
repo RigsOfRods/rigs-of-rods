@@ -20,7 +20,7 @@
 #include "GUI_NodeBeamUtils.h"
 
 #include "Application.h"
-#include "Beam.h"
+#include "Actor.h"
 #include "GameContext.h"
 #include "GUIManager.h"
 #include "RoRFrameListener.h"

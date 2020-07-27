@@ -22,8 +22,8 @@
 
 #include "AircraftSimulation.h"
 #include "AppContext.h"
-#include "Beam.h"
-#include "BeamFactory.h"
+#include "Actor.h"
+#include "ActorManager.h"
 #include "CacheSystem.h"
 #include "CameraManager.h"
 #include "Character.h"

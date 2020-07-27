@@ -23,7 +23,7 @@
 
 #include "AeroEngine.h"
 #include "Application.h"
-#include "Beam.h"
+#include "Actor.h"
 #include "Buoyance.h"
 #include "CacheSystem.h"
 #include "ContentManager.h"

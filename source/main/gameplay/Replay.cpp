@@ -21,8 +21,8 @@
 #include "Replay.h"
 
 #include "Application.h"
-#include "Beam.h"
-#include "BeamFactory.h"
+#include "Actor.h"
+#include "ActorManager.h"
 #include "GameContext.h"
 #include "GUIManager.h"
 #include "InputEngine.h"

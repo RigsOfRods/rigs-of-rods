@@ -22,8 +22,8 @@
 #include "Character.h"
 
 #include "Application.h"
-#include "Beam.h"
-#include "BeamFactory.h"
+#include "Actor.h"
+#include "ActorManager.h"
 #include "Collisions.h"
 #include "GameContext.h"
 #include "InputEngine.h"

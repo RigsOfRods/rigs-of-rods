@@ -23,7 +23,7 @@
 
 #include "ApproxMath.h"
 #include "AirBrake.h"
-#include "Beam.h"
+#include "Actor.h"
 #include "Collisions.h"
 #include "DustPool.h" // General particle gfx
 #include "EngineSim.h"
@@ -38,7 +38,7 @@
 #include "MovableText.h"
 #include "OgreImGui.h"
 #include "Renderdash.h" // classic 'renderdash' material
-#include "RigSpawner.h"
+#include "ActorSpawner.h"
 #include "RoRFrameListener.h" // SimController
 #include "SlideNode.h"
 #include "SkyManager.h"

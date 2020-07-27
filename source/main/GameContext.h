@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "Beam.h" // class Actor
+#include "Actor.h"
 #include "BeamData.h" // Physics structs
-#include "BeamFactory.h" // class ActorManager
+#include "ActorManager.h"
 #include "CharacterFactory.h"
 #include "RaceSystem.h"
 #include "GUI_SceneMouse.h"

@@ -25,13 +25,13 @@
 #include "FlexFactory.h"
 
 #include "Application.h"
-#include "Beam.h"
+#include "Actor.h"
 #include "FlexBody.h"
 #include "FlexMeshWheel.h"
 #include "GfxScene.h"
 #include "PlatformUtils.h"
 #include "RigDef_File.h"
-#include "RigSpawner.h"
+#include "ActorSpawner.h"
 
 #include <OgreMeshManager.h>
 #include <OgreSceneManager.h>

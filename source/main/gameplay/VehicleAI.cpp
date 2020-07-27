@@ -24,7 +24,7 @@
 
 #include "VehicleAI.h"
 
-#include "Beam.h"
+#include "Actor.h"
 #include "Console.h"
 #include "EngineSim.h"
 

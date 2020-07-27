@@ -22,7 +22,7 @@
 
 #include "SoundScriptManager.h"
 
-#include "Beam.h"
+#include "Actor.h"
 #include "CameraManager.h"
 #include "Sound.h"
 #include "SoundManager.h"

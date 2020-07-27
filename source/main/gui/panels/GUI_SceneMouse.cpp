@@ -26,7 +26,7 @@
 #include "GUI_SceneMouse.h"
 
 #include "Application.h"
-#include "Beam.h"
+#include "Actor.h"
 #include "CameraManager.h"
 #include "GameContext.h"
 #include "OgreImGui.h"

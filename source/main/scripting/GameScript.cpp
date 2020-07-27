@@ -35,8 +35,8 @@
 // AS addons end
 
 #include "AppContext.h"
-#include "Beam.h"
-#include "BeamFactory.h"
+#include "Actor.h"
+#include "ActorManager.h"
 #include "Character.h"
 #include "ChatSystem.h"
 #include "Collisions.h"
