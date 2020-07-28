@@ -798,7 +798,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         while (*text_pointer!=0) {if (*text_pointer=='_') *text_pointer=' ';text_pointer++;};
 
         String font_name_str(tex_print.font_name);
-        Font* font = (Font *)FontManager::getSingleton().getByName(font_name_str).getPointer();
+        Ogre::Font* font = (Ogre::Font *)FontManager::getSingleton().getByName(font_name_str).getPointer();
         if (!font)
         {
             LOG("[ODEF] problem with drawTextOnMeshTexture command: font not found: "+odefname+" : "+font_name_str);
