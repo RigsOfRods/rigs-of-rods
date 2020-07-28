@@ -254,7 +254,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
     m_forced_awake = j_doc["forced_awake"].GetBool();
 
-    App::GetSimController()->SetPhysicsPausedInternal(j_doc["physics_paused"].GetBool());
+    App::GetGameContext()->GetActorManager()->SetSimulationPaused(j_doc["physics_paused"].GetBool());
 
 #ifdef USE_CAELUM
     if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
@@ -651,7 +651,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
     j_doc.AddMember("forced_awake", m_forced_awake, j_doc.GetAllocator());
 
-    j_doc.AddMember("physics_paused", App::GetSimController()->GetPhysicsPaused(), j_doc.GetAllocator());
+    j_doc.AddMember("physics_paused", App::GetGameContext()->GetActorManager()->IsSimulationPaused(), j_doc.GetAllocator());
 
     // Character
     rapidjson::Value j_player_position(rapidjson::kArrayType);

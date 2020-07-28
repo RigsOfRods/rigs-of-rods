@@ -38,6 +38,7 @@
 #include "GUIManager.h"
 #include "Console.h"
 #include "GUI_TopMenubar.h"
+#include "InputEngine.h"
 #include "LandVehicleSimulation.h"
 #include "Language.h"
 #include "MovableText.h"
@@ -110,7 +111,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     actor->UpdateBoundingBoxes(); // (records the unrotated dimensions for 'veh_aab_size')
 
-    if (RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
+    if (App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         // Calculate optimal node position compression (for network transfer)
         Vector3 aabb_size = actor->ar_bounding_box.getSize();
@@ -289,7 +290,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
 
-    if (RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
+    if (App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         // network buffer layout (without RoRnet::VehicleState):
         //
@@ -409,7 +410,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
 
                     LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
 
-                    if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(filename))
+                    if (!App::GetCacheSystem()->CheckResourceLoaded(filename))
                     {
                         App::GetConsole()->putMessage(
                             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
@@ -852,13 +853,18 @@ std::pair<Actor*, float> ActorManager::GetNearestActor(Vector3 position)
     return std::make_pair(nearest_actor, std::sqrt(min_squared_distance));
 }
 
-void ActorManager::DeleteAllActors() // Called after simulation finishes
+void ActorManager::CleanUpSimulation() // Called after simulation finishes
 {
     for (auto actor : m_actors)
     {
         delete actor;
     }
     m_actors.clear();
+
+    m_total_sim_time = 0.f;
+    m_last_simulation_speed = 0.1f;
+    m_simulation_paused = false;
+    m_simulation_speed = 1.f;
 }
 
 void ActorManager::DeleteActorInternal(Actor* actor)
@@ -869,7 +875,7 @@ void ActorManager::DeleteActorInternal(Actor* actor)
     this->SyncWithSimThread();
 
 #ifdef USE_SOCKETW
-    if (RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
+    if (App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
         {
@@ -969,8 +975,10 @@ Actor* ActorManager::FetchRescueVehicle()
     return nullptr;
 }
 
-void ActorManager::UpdateActors(Actor* player_actor, float dt)
+void ActorManager::UpdateActors(Actor* player_actor)
 {
+    float dt = m_simulation_time;
+
     // do not allow dt > 1/20
     dt = std::min(dt, 1.0f / 20.0f);
 
@@ -1022,7 +1030,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
                 actor->updateSkidmarks();
             }
         }
-        if (RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
+        if (App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
         {
             if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
                 actor->CalcNetwork();
@@ -1059,7 +1067,9 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
         });
     m_sim_task = m_sim_thread_pool->RunTask(func);
 
-    if (!RoR::App::app_async_physics->GetBool())
+    m_total_sim_time += dt;
+
+    if (!App::app_async_physics->GetBool())
         m_sim_task->join();
 }
 
@@ -1162,7 +1172,7 @@ void HandleErrorLoadingFile(std::string type, std::string filename, std::string 
 {
     RoR::Str<200> msg;
     msg << "Failed to load '" << filename << "' (type: '" << type << "'), message: " << exception_msg;
-    RoR::App::GetConsole()->putMessage(
+    App::GetConsole()->putMessage(
         Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr(), "error.png", 30000, true);
 }
 
@@ -1192,7 +1202,7 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, 
     {
         Ogre::String resource_filename = filename;
         Ogre::String resource_groupname;
-        if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(resource_filename, resource_groupname)) // Validates the filename and finds resource group
+        if (!App::GetCacheSystem()->CheckResourceLoaded(resource_filename, resource_groupname)) // Validates the filename and finds resource group
         {
             HandleErrorLoadingTruckfile(filename, "Truckfile not found");
             return nullptr;
@@ -1266,5 +1276,95 @@ std::vector<Actor*> ActorManager::GetLocalActors()
             actors.push_back(actor);
     }
     return actors;
+}
+
+void ActorManager::UpdateInputEvents(float dt)
+{
+    // Simulation pace adjustment (slowmotion)
+    if (!App::GetGameContext()->GetRaceSystem().IsRaceInProgress())
+    {
+        // EV_COMMON_ACCELERATE_SIMULATION
+        if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_ACCELERATE_SIMULATION))
+        {
+            float simulation_speed = this->GetSimulationSpeed() * pow(2.0f, dt / 2.0f);
+            this->SetSimulationSpeed(simulation_speed);
+            String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg);
+        }
+
+        // EV_COMMON_DECELERATE_SIMULATION
+        if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_DECELERATE_SIMULATION))
+        {
+            float simulation_speed = this->GetSimulationSpeed() * pow(0.5f, dt / 2.0f);
+            this->SetSimulationSpeed(simulation_speed);
+            String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg);
+        }
+
+        // EV_COMMON_RESET_SIMULATION_PACE
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_SIMULATION_PACE, 5.f))
+        {
+            float simulation_speed = this->GetSimulationSpeed();
+            if (simulation_speed != 1.0f)
+            {
+                m_last_simulation_speed = simulation_speed;
+                this->SetSimulationSpeed(1.0f);
+                UTFString ssmsg = _L("Simulation speed reset.");
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg);
+            }
+            else if (m_last_simulation_speed != 1.0f)
+            {
+                this->SetSimulationSpeed(m_last_simulation_speed);
+                String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(m_last_simulation_speed * 100.0f, 1)) + "%";
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg);
+            }
+        }
+
+        // Special adjustment while racing
+        if (App::GetGameContext()->GetRaceSystem().IsRaceInProgress() && this->GetSimulationSpeed() != 1.0f)
+        {
+            m_last_simulation_speed = this->GetSimulationSpeed();
+            this->SetSimulationSpeed(1.f);
+        }
+    }
+
+    // EV_COMMON_TOGGLE_PHYSICS - Freeze/unfreeze physics
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_PHYSICS))
+    {
+        m_simulation_paused = !m_simulation_paused;
+
+        if (m_simulation_paused)
+        {
+            String ssmsg = _L("Physics paused");
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg);
+        }
+        else
+        {
+            String ssmsg = _L("Physics unpaused");
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg);
+        }
+    }
+
+    // Calculate simulation time
+    if (m_simulation_paused)
+    {
+        m_simulation_time = 0.f;
+
+        // Frozen physics stepping
+        if (this->GetSimulationSpeed() > 0.0f)
+        {
+            // EV_COMMON_REPLAY_FAST_FORWARD - Advance simulation while pressed
+            // EV_COMMON_REPLAY_FORWARD - Advanced simulation one step
+            if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPLAY_FAST_FORWARD) ||
+                App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.25f))
+            {
+                m_simulation_time = PHYSICS_DT / this->GetSimulationSpeed();
+            }
+        }
+    }
+    else
+    {
+        m_simulation_time = dt;
+    }
 }
 

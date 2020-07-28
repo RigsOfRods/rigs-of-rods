@@ -772,7 +772,7 @@ void RoR::GUI::TopMenubar::DrawSpecialStateBox(float top_offset)
     bool replay_box = false;
 
     // Gather state info
-    if (App::GetSimController()->GetPhysicsPaused() && !App::GetSimController()->IsGUIHidden())
+    if (App::GetGameContext()->GetActorManager()->IsSimulationPaused() && !App::GetSimController()->IsGUIHidden())
     {
         special_color = ORANGE_TEXT;
         special_text = Ogre::StringUtil::replaceAll(_L("All physics paused, press '{}' to resume"),

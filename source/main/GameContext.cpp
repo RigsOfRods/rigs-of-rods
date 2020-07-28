@@ -423,9 +423,9 @@ Actor* GameContext::FetchNextVehicleOnList()
     return m_actor_manager.FetchNextVehicleOnList(m_player_actor, m_prev_player_actor);
 }
 
-void GameContext::UpdateActors(float dt_sec)
+void GameContext::UpdateActors()
 {
-    m_actor_manager.UpdateActors(m_player_actor, dt_sec);   
+    m_actor_manager.UpdateActors(m_player_actor);   
 }
 
 Actor* GameContext::FindActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)

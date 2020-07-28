@@ -50,7 +50,7 @@ public:
     ~ActorManager();
 
     Actor*         CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def);
-    void           UpdateActors(Actor* player_actor, float dt);
+    void           UpdateActors(Actor* player_actor);
     void           SyncWithSimThread();
     void           UpdatePhysicsSimulation();
     void           WakeUpAllActors();
@@ -67,17 +67,21 @@ public:
     bool           AreTrucksForcedAwake() const            { return m_forced_awake; }
     void           SetSimulationSpeed(float speed)         { m_simulation_speed = std::max(0.0f, speed); };
     float          GetSimulationSpeed() const              { return m_simulation_speed; };
+    bool           IsSimulationPaused() const              { return m_simulation_paused; }
+    void           SetSimulationPaused(bool v)             { m_simulation_paused = v; }
+    float          GetTotalTime() const                    { return m_total_sim_time; }
     RoR::CmdKeyInertiaConfig& GetInertiaConfig()           { return m_inertia_config; }
     Actor*         FetchNextVehicleOnList(Actor* player, Actor* prev_player);
     Actor*         FetchPreviousVehicleOnList(Actor* player, Actor* prev_player);
     Actor*         FetchRescueVehicle();
-    void           DeleteAllActors(); //!< Call this after simulation loop finishes.
+    void           CleanUpSimulation(); //!< Call this after simulation loop finishes.
     Actor*         GetActorByNetworkLinks(int source_id, int stream_id); // used by character
     void           RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition = false);
     void           UpdateSleepingState(Actor* player_actor, float dt);
     void           DeleteActorInternal(Actor* b);      //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
     Actor*         GetActorById(int actor_id);
     Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
+    void           UpdateInputEvents(float dt);
     std::shared_ptr<RigDef::File>   FetchActorDef(std::string filename, bool predefined_on_terrain = false);
 
 #ifdef USE_SOCKETW
@@ -110,21 +114,25 @@ private:
     void           ForwardCommands(Actor* source_actor); //!< Fowards things to trailers
 
     // Networking
-    std::map<int, std::set<int>>  m_stream_mismatches;   //!< Networking: A set of streams without a corresponding actor in the actor-array for each stream source
-    std::map<int, int>            m_stream_time_offsets; //!< Networking: A network time offset for each stream source
-    Ogre::Timer                   m_net_timer;
+    std::map<int, std::set<int>> m_stream_mismatches; //!< Networking: A set of streams without a corresponding actor in the actor-array for each stream source
+    std::map<int, int>  m_stream_time_offsets;       //!< Networking: A network time offset for each stream source
+    Ogre::Timer         m_net_timer;
 
     // Physics
-    std::vector<Actor*>           m_actors;
-    bool                          m_forced_awake;        //!< disables sleep counters
-    int                           m_physics_steps;
-    float                         m_dt_remainder;        //!< Keeps track of the rounding error in the time step calculation
-    float                         m_simulation_speed;    //!< slow motion < 1.0 < fast motion
+    std::vector<Actor*> m_actors;
+    bool                m_forced_awake           = false; //!< disables sleep counters
+    int                 m_physics_steps          = 0;
+    float               m_dt_remainder           = 0.f;   //!< Keeps track of the rounding error in the time step calculation
+    float               m_simulation_speed       = 1.f;   //!< slow motion < 1.0 < fast motion
+    float               m_last_simulation_speed  = 0.1f;  //!< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
+    float               m_simulation_time        = 0.f;   //!< Amount of time the physics simulation is going to be advanced
+    bool                m_simulation_paused      = false;
+    float               m_total_sim_time         = 0.f;
 
     // Utils
-    std::unique_ptr<ThreadPool>   m_sim_thread_pool;
-    std::shared_ptr<Task>         m_sim_task;
-    RoR::CmdKeyInertiaConfig      m_inertia_config;
+    std::unique_ptr<ThreadPool> m_sim_thread_pool;
+    std::shared_ptr<Task>       m_sim_task;
+    RoR::CmdKeyInertiaConfig    m_inertia_config;
 };
 
 } // namespace RoR

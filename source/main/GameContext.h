@@ -84,7 +84,7 @@ public:
     Actor*              SpawnActor(ActorSpawnRequest& rq);
     void                ModifyActor(ActorModifyRequest& rq);
     void                DeleteActor(Actor* actor);
-    void                UpdateActors(float dt_sec);
+    void                UpdateActors();
     ActorManager*       GetActorManager() { return &m_actor_manager; }
     Actor*              FetchPrevVehicleOnList();
     Actor*              FetchNextVehicleOnList();

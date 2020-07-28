@@ -59,14 +59,9 @@ public:
 
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); //!< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
 
-    // Scripting interface
-    float  getTime               () { return m_time; }
-
     bool                         AreControlsLocked() const;
     bool                         IsGUIHidden() const              { return RoR::App::GetGuiManager()->IsGuiHidden(); }
 
-    bool GetPhysicsPaused()                                 { return m_physics_simulation_paused; }
-    void SetPhysicsPausedInternal(bool paused)              { m_physics_simulation_paused = paused; }
 
     void   UpdateSimulation(float dt);
 
@@ -74,12 +69,7 @@ private:
 
     void   UpdateInputEvents       (float dt);
 
-    
-    float                    m_last_simulation_speed;  //!< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
-    bool                     m_is_pace_reset_pressed;
-    float                    m_physics_simulation_time; //!< Amount of time the physics simulation is going to be advanced
-    bool                     m_physics_simulation_paused;
-    float                    m_time;
+   
 
     bool                     m_advanced_vehicle_repair;
     float                    m_advanced_vehicle_repair_timer;
