@@ -105,10 +105,7 @@ void GameScript::SetTrucksForcedAwake(bool forceActive)
 
 float GameScript::getTime()
 {
-    float result = 0.f;
-    if (App::GetSimController())
-        result = App::GetSimController()->getTime();
-    return result;
+    return App::GetGameContext()->GetActorManager()->GetTotalTime();
 }
 
 void GameScript::setPersonPosition(const Vector3& vec)

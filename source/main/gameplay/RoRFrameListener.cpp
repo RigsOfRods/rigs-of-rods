@@ -84,11 +84,6 @@ using namespace Ogre;
 using namespace RoR;
 
 SimController::SimController() :
-    m_is_pace_reset_pressed(false),
-    m_last_simulation_speed(0.1f),
-    m_physics_simulation_paused(false),
-    m_physics_simulation_time(0.0f),
-    m_time(0),
     m_advanced_vehicle_repair(false),
     m_advanced_vehicle_repair_timer(0.f)
 {
@@ -118,74 +113,7 @@ void SimController::UpdateInputEvents(float dt)
         return;
     }
 
-    // Simulation pace adjustment (slowmotion)
-    if (!App::GetGameContext()->GetRaceSystem().IsRaceInProgress())
-    {
-        if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_ACCELERATE_SIMULATION))
-        {
-            float simulation_speed = App::GetGameContext()->GetActorManager()->GetSimulationSpeed() * pow(2.0f, dt / 2.0f);
-            App::GetGameContext()->GetActorManager()->SetSimulationSpeed(simulation_speed);
-            String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-        }
-        if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_DECELERATE_SIMULATION))
-        {
-            float simulation_speed = App::GetGameContext()->GetActorManager()->GetSimulationSpeed() * pow(0.5f, dt / 2.0f);
-            App::GetGameContext()->GetActorManager()->SetSimulationSpeed(simulation_speed);
-            String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-        }
-        if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_SIMULATION_PACE))
-        {
-            if (!m_is_pace_reset_pressed)
-            {
-                float simulation_speed = App::GetGameContext()->GetActorManager()->GetSimulationSpeed();
-                if (simulation_speed != 1.0f)
-                {
-                    m_last_simulation_speed = simulation_speed;
-                    App::GetGameContext()->GetActorManager()->SetSimulationSpeed(1.0f);
-                    UTFString ssmsg = _L("Simulation speed reset.");
-                    RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-                }
-                else if (m_last_simulation_speed != 1.0f)
-                {
-                    App::GetGameContext()->GetActorManager()->SetSimulationSpeed(m_last_simulation_speed);
-                    String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(m_last_simulation_speed * 100.0f, 1)) + "%";
-                    RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-                }
-            }
-            m_is_pace_reset_pressed = true;
-        }
-        else
-        {
-            m_is_pace_reset_pressed = false;
-        }
-    }
 
-    // Frozen physics logic
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_PHYSICS))
-    {
-        m_physics_simulation_paused = !m_physics_simulation_paused;
-
-        if (m_physics_simulation_paused)
-        {
-            String ssmsg = _L("Physics paused");
-            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-        }
-        else
-        {
-            String ssmsg = _L("Physics unpaused");
-            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-        }
-    }
-    if (m_physics_simulation_paused && App::GetGameContext()->GetActorManager()->GetSimulationSpeed() > 0.0f)
-    {
-        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPLAY_FAST_FORWARD) ||
-            RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.25f))
-        {
-            m_physics_simulation_time = PHYSICS_DT / App::GetGameContext()->GetActorManager()->GetSimulationSpeed();
-        }
-    }
 
     bool toggle_editor = (App::GetGameContext()->GetPlayerActor() && App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE) ||
         (!App::GetGameContext()->GetPlayerActor() && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
@@ -693,11 +621,10 @@ void SimController::UpdateSimulation(float dt)
         App::GetCameraManager()->Update(dt, App::GetGameContext()->GetPlayerActor(), App::GetGameContext()->GetActorManager()->GetSimulationSpeed());
     }
 
-    m_physics_simulation_time = m_physics_simulation_paused ? 0.0f : dt;
-
     App::GetOverlayWrapper()->update(dt);
 
     this->UpdateInputEvents(dt);
+    App::GetGameContext()->GetActorManager()->UpdateInputEvents(dt);
 
     RoR::App::GetGuiManager()->DrawSimulationGui(dt);
 
@@ -708,13 +635,6 @@ void SimController::UpdateSimulation(float dt)
 
     if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE || (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED))
     {
-        float simulation_speed = App::GetGameContext()->GetActorManager()->GetSimulationSpeed();
-        if (App::GetGameContext()->GetRaceSystem().IsRaceInProgress() && simulation_speed != 1.0f)
-        {
-            m_last_simulation_speed = simulation_speed;
-            App::GetGameContext()->GetActorManager()->SetSimulationSpeed(1.0f);
-        }
-
         if (App::GetGameContext()->GetPlayerActor())
         {
             App::GetGuiManager()->GetSimActorStats()->UpdateStats(dt, App::GetGameContext()->GetPlayerActor());
@@ -726,14 +646,8 @@ void SimController::UpdateSimulation(float dt)
 
         if (App::sim_state->GetEnum<SimState>() != SimState::PAUSED)
         {
-            App::GetGameContext()->UpdateActors(m_physics_simulation_time); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
+            App::GetGameContext()->UpdateActors(); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
         }
-    }
-
-    if (RoR::App::sim_state->GetEnum<SimState>() != RoR::SimState::PAUSED &&
-        !m_physics_simulation_paused)
-    {
-        m_time += dt;
     }
 }
 

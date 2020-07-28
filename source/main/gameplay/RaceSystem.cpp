@@ -25,7 +25,7 @@
 #include "RaceSystem.h"
 
 #include "AppContext.h"
-#include "RoRFrameListener.h" // SimController
+#include "GameContext.h"
 
 using namespace RoR;
 
@@ -46,7 +46,7 @@ void RaceSystem::UpdateDirectionArrow(char* text, Ogre::Vector3 position)
 
 void RaceSystem::StartRaceTimer(int id)
 {
-    m_race_start_time = App::GetSimController()->getTime();
+    m_race_start_time = App::GetGameContext()->GetActorManager()->GetTotalTime();
     m_race_time_diff = 0.0f;
     m_race_id = id;
 }
@@ -59,5 +59,5 @@ void RaceSystem::StopRaceTimer()
 
 float RaceSystem::GetRaceTime() const
 {
-    return App::GetSimController()->getTime() - m_race_start_time;
+    return App::GetGameContext()->GetActorManager()->GetTotalTime() - m_race_start_time;
 }
