@@ -426,7 +426,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
 
         if ( RoR::App::GetOverlayWrapper() != nullptr )
         {
-            bool visible = m_cct_player_actor->ar_driveable == AIRPLANE && !RoR::App::GetSimController()->IsGUIHidden();
+            bool visible = m_cct_player_actor->ar_driveable == AIRPLANE && !App::GetGuiManager()->IsGuiHidden();
             RoR::App::GetOverlayWrapper()->showDashboardOverlays(visible, m_cct_player_actor);
         }
 
@@ -496,7 +496,7 @@ void CameraManager::switchBehavior(CameraBehaviors new_behavior)
     if (m_cct_player_actor != nullptr)
     {
         m_cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_EXTERNAL;
-        if ( RoR::App::GetOverlayWrapper() != nullptr && !RoR::App::GetSimController()->IsGUIHidden() )
+        if (!App::GetGuiManager()->IsGuiHidden())
         {
             RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, m_cct_player_actor);
         }
@@ -610,12 +610,6 @@ bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID
     case CAMERA_BEHAVIOR_INVALID:         return false;
     default:                              return false;
     }
-}
-
-bool CameraManager::gameControlsLocked() const
-{
-    // game controls are only disabled in free camera mode for now
-    return (m_current_behavior == CAMERA_BEHAVIOR_FREE);
 }
 
 void CameraManager::NotifyContextChange()

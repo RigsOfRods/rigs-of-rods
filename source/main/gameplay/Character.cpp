@@ -134,7 +134,7 @@ void Character::update(float dt)
     {
         // disable character movement when using the free camera mode or when the menu is opened
         // TODO: check for menu being opened
-        if (App::GetSimController()->AreControlsLocked())
+        if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FREE)
         {
             return;
         }

@@ -51,7 +51,6 @@ public:
 
     void Update(float dt, Actor* player_vehicle, float sim_speed);
 
-    bool gameControlsLocked() const;
     bool hasActiveBehavior();
 
     CameraBehaviors   GetCurrentBehavior() const  { return m_current_behavior; }

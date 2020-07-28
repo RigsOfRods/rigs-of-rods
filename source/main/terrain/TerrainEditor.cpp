@@ -69,7 +69,9 @@ void TerrainEditor::UpdateInputEvents(float dt)
         if (m_object_index == -1)
         {
             // Select nearest object
-            Vector3 ref_pos = App::GetSimController()->AreControlsLocked() ? App::GetCameraManager()->GetCameraNode()->getPosition() : App::GetGameContext()->GetPlayerCharacter()->getPosition();
+            Vector3 ref_pos = App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FREE 
+                              ? App::GetCameraManager()->GetCameraNode()->getPosition()
+                              : App::GetGameContext()->GetPlayerCharacter()->getPosition();
             float min_dist = std::numeric_limits<float>::max();
             for (int i = 0; i < (int)object_list.size(); i++)
             {
@@ -162,7 +164,7 @@ void TerrainEditor::UpdateInputEvents(float dt)
         sn->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
         sn->pitch(Degree(-90));
     }
-    if (m_object_index != -1 && !App::GetSimController()->AreControlsLocked())
+    if (m_object_index != -1 && App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
     {
         SceneNode* sn = object_list[m_object_index].node;
 

@@ -132,7 +132,7 @@ void SimController::UpdateInputEvents(float dt)
     else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
     {
         App::GetGameContext()->GetCharacterFactory()->Update(dt);
-        if (!this->AreControlsLocked())
+        if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
         {
             if (App::GetGameContext()->GetPlayerActor() && App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::NETWORKED_OK) // we are in a vehicle
             {
@@ -660,7 +660,3 @@ void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instanc
     }
 }
 
-bool SimController::AreControlsLocked() const
-{
-    return App::GetCameraManager()->gameControlsLocked();
-}

@@ -59,8 +59,8 @@ public:
 
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); //!< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
 
-    bool                         AreControlsLocked() const;
-    bool                         IsGUIHidden() const              { return RoR::App::GetGuiManager()->IsGuiHidden(); }
+
+
 
 
     void   UpdateSimulation(float dt);
