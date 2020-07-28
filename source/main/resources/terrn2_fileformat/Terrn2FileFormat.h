@@ -39,7 +39,7 @@ struct Terrn2Author
     std::string name;
 };
 
-struct Terrn2Telepoint ///< Teleport drop location
+struct Terrn2Telepoint //!< Teleport drop location
 {
     Ogre::Vector3 position;
     std::string   name;

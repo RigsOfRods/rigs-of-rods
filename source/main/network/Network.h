@@ -94,7 +94,7 @@ struct NetRecvPacket
 class Network
 {
 public:
-    bool                 StartConnecting();    ///< Launches connecting on background.
+    bool                 StartConnecting();    //!< Launches connecting on background.
     void                 StopConnecting();
     void                 Disconnect();
 

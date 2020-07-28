@@ -84,10 +84,10 @@ struct beam_t
 
     shock_t *shock;
 
-    Ogre::Real initial_beam_strength; ///< for reset
-    Ogre::Real default_beam_deform; ///< for reset
+    Ogre::Real initial_beam_strength; //!< for reset
+    Ogre::Real default_beam_deform; //!< for reset
 
-    Ogre::Real debug_k; //< debug shock spring_rate
-    Ogre::Real debug_d; //< debug shock damping
-    Ogre::Real debug_v; //< debug shock velocity
+    Ogre::Real debug_k; //!< debug shock spring_rate
+    Ogre::Real debug_d; //!< debug shock damping
+    Ogre::Real debug_v; //!< debug shock velocity
 };

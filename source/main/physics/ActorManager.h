@@ -107,19 +107,24 @@ private:
     bool           PredictActorCollAabbIntersect(int a, int b);  //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
     void           RemoveStreamSource(int sourceid);
     void           RecursiveActivation(int j, std::vector<bool>& visited);
-    void           ForwardCommands(Actor* source_actor); //< Fowards things to trailers
+    void           ForwardCommands(Actor* source_actor); //!< Fowards things to trailers
 
-    std::map<int, std::set<int>> m_stream_mismatches; //!< Networking: A set of streams without a corresponding actor in the actor-array for each stream source
-    std::map<int, int> m_stream_time_offsets; //!< Networking: A network time offset for each stream source
-    std::unique_ptr<ThreadPool>     m_sim_thread_pool;
-    std::shared_ptr<Task>           m_sim_task;
-    std::vector<Actor*>             m_actors;
-    Ogre::Timer                     m_net_timer;
-    RoR::CmdKeyInertiaConfig        m_inertia_config;
-    bool            m_forced_awake;      //!< disables sleep counters
-    int             m_physics_steps;
-    float           m_dt_remainder;     ///< Keeps track of the rounding error in the time step calculation
-    float           m_simulation_speed; ///< slow motion < 1.0 < fast motion
+    // Networking
+    std::map<int, std::set<int>>  m_stream_mismatches;   //!< Networking: A set of streams without a corresponding actor in the actor-array for each stream source
+    std::map<int, int>            m_stream_time_offsets; //!< Networking: A network time offset for each stream source
+    Ogre::Timer                   m_net_timer;
+
+    // Physics
+    std::vector<Actor*>           m_actors;
+    bool                          m_forced_awake;        //!< disables sleep counters
+    int                           m_physics_steps;
+    float                         m_dt_remainder;        //!< Keeps track of the rounding error in the time step calculation
+    float                         m_simulation_speed;    //!< slow motion < 1.0 < fast motion
+
+    // Utils
+    std::unique_ptr<ThreadPool>   m_sim_thread_pool;
+    std::shared_ptr<Task>         m_sim_task;
+    RoR::CmdKeyInertiaConfig      m_inertia_config;
 };
 
 } // namespace RoR

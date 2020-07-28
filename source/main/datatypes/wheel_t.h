@@ -30,11 +30,11 @@ struct wheel_t
 {
     enum class BrakeCombo /// Wheels are braked by three mechanisms: A footbrake, a handbrake/parkingbrake, and directional brakes used for skidsteer steering.
     {
-        NONE,                 /// - 0 = no  footbrake, no  handbrake, no  direction control -- wheel is unbraked
-        FOOT_HAND,            /// - 1 = yes footbrake, yes handbrake, no  direction control
-        FOOT_HAND_SKID_LEFT,  /// - 2 = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the left)
-        FOOT_HAND_SKID_RIGHT, /// - 3 = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the right)
-        FOOT_ONLY             /// - 4 = yes footbrake, no  handbrake, no  direction control -- footbrake only, such as with the front wheels of a passenger car
+        NONE,                 //!< - 0 = no  footbrake, no  handbrake, no  direction control -- wheel is unbraked
+        FOOT_HAND,            //!< - 1 = yes footbrake, yes handbrake, no  direction control
+        FOOT_HAND_SKID_LEFT,  //!< - 2 = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the left)
+        FOOT_HAND_SKID_RIGHT, //!< - 3 = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the right)
+        FOOT_ONLY             //!< - 4 = yes footbrake, no  handbrake, no  direction control -- footbrake only, such as with the front wheels of a passenger car
     };
 
     int         wh_num_nodes;
@@ -49,14 +49,14 @@ struct wheel_t
     int         wh_propulsed;             // TODO: add enum ~ only_a_ptr, 08/2017
     Ogre::Real  wh_radius;
     Ogre::Real  wh_rim_radius;
-    Ogre::Real  wh_speed;             //<! Current wheel speed in m/s
-    Ogre::Real  wh_avg_speed;         //<! Internal physics state; Do not read from this
-    Ogre::Real  wh_alb_coef;          //<! Sim state; Current anti-lock  brake modulation ratio
-    Ogre::Real  wh_tc_coef;           //<! Sim state; Current traction control modulation ratio
-    Ogre::Real  wh_mass;              //<! Total rotational mass of the wheel
-    Ogre::Real  wh_torque;            //<! Internal physics state; Do not read from this
-    Ogre::Real  wh_last_torque;       //<! Last internal forces (engine / brakes / diffs)
-    Ogre::Real  wh_last_retorque;     //<! Last external forces (friction, ...)
+    Ogre::Real  wh_speed;             //!< Current wheel speed in m/s
+    Ogre::Real  wh_avg_speed;         //!< Internal physics state; Do not read from this
+    Ogre::Real  wh_alb_coef;          //!< Sim state; Current anti-lock  brake modulation ratio
+    Ogre::Real  wh_tc_coef;           //!< Sim state; Current traction control modulation ratio
+    Ogre::Real  wh_mass;              //!< Total rotational mass of the wheel
+    Ogre::Real  wh_torque;            //!< Internal physics state; Do not read from this
+    Ogre::Real  wh_last_torque;       //!< Last internal forces (engine / brakes / diffs)
+    Ogre::Real  wh_last_retorque;     //!< Last external forces (friction, ...)
     float       wh_net_rp;
     float       wh_width;
     int         wh_detacher_group;

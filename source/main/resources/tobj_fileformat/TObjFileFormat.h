@@ -170,7 +170,7 @@ public:
     void                       Prepare();
     bool                       ProcessLine(const char* line);
     void                       ProcessOgreStream(Ogre::DataStream* stream);
-    std::shared_ptr<TObjFile>  Finalize(); ///< Passes ownership
+    std::shared_ptr<TObjFile>  Finalize(); //!< Passes ownership
 
 private:
     bool                       ProcessCurrentLine();

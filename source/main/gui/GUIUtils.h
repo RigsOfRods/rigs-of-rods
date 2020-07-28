@@ -27,14 +27,14 @@ namespace RoR {
 
 /// @author http://www.ogre3d.org/forums/viewtopic.php?p=463232#p463232
 /// @author http://www.ogre3d.org/tikiwiki/tiki-index.php?page=GetScreenspaceCoords&structure=Cookbook
-class World2ScreenConverter ///< Keeps data close for faster access.
+class World2ScreenConverter //!< Keeps data close for faster access.
 {
 public:
     World2ScreenConverter(Ogre::Matrix4 view_mtx, Ogre::Matrix4 proj_mtx, Ogre::Vector2 screen_size):
         m_view_matrix(view_mtx), m_projection_matrix(proj_mtx), m_screen_size(screen_size)
     {}
 
-    World2ScreenConverter(); ///< Gets data from CameraManager and DearIMGUI.
+    World2ScreenConverter(); //!< Gets data from CameraManager and DearIMGUI.
 
     /// @return X,Y=screen pos, Z=view space pos ('Z<0' means 'in front of the camera')
     Ogre::Vector3 Convert(Ogre::Vector3 world_pos)

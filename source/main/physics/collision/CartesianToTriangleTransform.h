@@ -50,11 +50,11 @@ public:
      */
     struct TriangleCoord {
         const struct {
-            Ogre::Real alpha,  ///< Barycentric coordinate
-                       beta,   ///< Barycentric coordinate
-                       gamma;  ///< Barycentric coordinate
+            Ogre::Real alpha,  //!< Barycentric coordinate
+                       beta,   //!< Barycentric coordinate
+                       gamma;  //!< Barycentric coordinate
         } barycentric;
-        const Ogre::Real distance;  ///< Shortest (signed) distance to triangle plane
+        const Ogre::Real distance;  //!< Shortest (signed) distance to triangle plane
     };
 
     /// Construct transformation for specified triangle.
@@ -132,7 +132,7 @@ private:
                                   u[2], v[2], n[2] }.Inverse();
     }
 
-    const Triangle m_triangle;       //< The triangle on which the transformation is based.
+    const Triangle m_triangle;       //!< The triangle on which the transformation is based.
     mutable bool m_initialized;
-    mutable Ogre::Matrix3 m_matrix;  ///< Cached transformation matrix.
+    mutable Ogre::Matrix3 m_matrix;  //!< Cached transformation matrix.
 };

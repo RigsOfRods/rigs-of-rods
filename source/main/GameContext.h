@@ -90,7 +90,7 @@ public:
     Actor*              FetchNextVehicleOnList();
     Actor*              FindActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name);
     void                RespawnLastActor();
-    void                SpawnPreselectedActor(); ///< Reads cvar 'diag_preset_vehicle', needs `Character` to exist
+    void                SpawnPreselectedActor(); //!< Reads cvar 'diag_preset_vehicle', needs `Character` to exist
 
     Actor*              GetPlayerActor() { return m_player_actor; }
     Actor*              GetPrevPlayerActor() { return m_prev_player_actor; }
@@ -98,24 +98,24 @@ public:
     void                ChangePlayerActor(Actor* actor);
 
     void                ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box);
-    void                OnLoaderGuiCancel(); ///< GUI callback
-    void                OnLoaderGuiApply(RoR::LoaderType type, CacheEntry* entry, std::string sectionconfig);  ///< GUI callback
+    void                OnLoaderGuiCancel(); //!< GUI callback
+    void                OnLoaderGuiApply(RoR::LoaderType type, CacheEntry* entry, std::string sectionconfig);  //!< GUI callback
 
     // ----------------------------
     // Characters
 
-    void                CreatePlayerCharacter(); ///< Terrain must be loaded
+    void                CreatePlayerCharacter(); //!< Terrain must be loaded
     Character*          GetPlayerCharacter();
     CharacterFactory*   GetCharacterFactory() { return &m_character_factory; }
 
     // ----------------------------
     // Savegames (defined in Savegame.cpp)
 
-    void                LoadScene(std::string const& filename); ///< Matching terrain must be already loaded
+    void                LoadScene(std::string const& filename); //!< Matching terrain must be already loaded
     void                SaveScene(std::string const& filename);
-    std::string         GetQuicksaveFilename(); ///< For currently loaded terrain (cvar 'sim_terrain_name')
+    std::string         GetQuicksaveFilename(); //!< For currently loaded terrain (cvar 'sim_terrain_name')
     std::string         ExtractSceneName(std::string const& filename);
-    std::string         ExtractSceneTerrain(std::string const& filename); ///< Returns terrain filename
+    std::string         ExtractSceneTerrain(std::string const& filename); //!< Returns terrain filename
     void                HandleSavegameHotkeys();
 
     // ----------------------------
@@ -132,13 +132,13 @@ private:
 
     // Actors (physics and netcode)
     ActorManager        m_actor_manager;
-    Actor*              m_player_actor = nullptr;           ///< Actor (vehicle or machine) mounted and controlled by player
-    Actor*              m_prev_player_actor = nullptr;      ///< Previous actor (vehicle or machine) mounted and controlled by player
+    Actor*              m_player_actor = nullptr;           //!< Actor (vehicle or machine) mounted and controlled by player
+    Actor*              m_prev_player_actor = nullptr;      //!< Previous actor (vehicle or machine) mounted and controlled by player
     
-    CacheEntry*         m_last_cache_selection = nullptr;   ///< Vehicle/load
+    CacheEntry*         m_last_cache_selection = nullptr;   //!< Vehicle/load
     CacheEntry*         m_last_skin_selection = nullptr;
     Ogre::String        m_last_section_config;
-    ActorSpawnRequest   m_current_selection;                ///< Context of the loader UI
+    ActorSpawnRequest   m_current_selection;                //!< Context of the loader UI
 
     // Characters (simplified physics and netcode)
     CharacterFactory    m_character_factory;

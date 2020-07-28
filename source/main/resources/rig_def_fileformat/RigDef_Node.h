@@ -158,7 +158,7 @@ struct Node
 
     Id id;
     Ogre::Vector3 position;
-    unsigned int options; ///< Bit flags
+    unsigned int options; //!< Bit flags
     float load_weight_override;
     bool _has_load_weight_override;
     std::shared_ptr<NodeDefaults> node_defaults;

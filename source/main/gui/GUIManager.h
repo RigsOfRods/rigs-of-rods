@@ -62,9 +62,9 @@ public:
     // NOTE: RoR's mouse cursor management is a mess - cursor is hidden/revealed ad-hoc in the code (originally by calling `MyGUI::PointerManager::setVisible()`); this enum+API cleans it up a bit ~ only_a_ptr, 09/2017
     enum class MouseCursorVisibility
     {
-        VISIBLE,   ///< Visible, will be auto-hidden if not moving for a while.
-        HIDDEN,    ///< Hidden as inactive, will re-appear the moment user moves mouse.
-        SUPRESSED, ///< Hidden manually, will not re-appear until explicitly set VISIBLE.
+        VISIBLE,   //!< Visible, will be auto-hidden if not moving for a while.
+        HIDDEN,    //!< Hidden as inactive, will re-appear the moment user moves mouse.
+        SUPRESSED, //!< Hidden manually, will not re-appear until explicitly set VISIBLE.
     };
 
     GUIManager();
@@ -122,9 +122,9 @@ public:
 
     // GUI manipulation
     void ShowMessageBox(const char* title, const char* text, bool allow_close = true, const char* btn1_text = "OK", const char* btn2_text = nullptr);
-    void RequestGuiCaptureKeyboard(bool val); ///< Pass true during frame to prevent input passing to application
+    void RequestGuiCaptureKeyboard(bool val); //!< Pass true during frame to prevent input passing to application
     bool IsGuiCaptureKeyboardRequested() const { return m_gui_kb_capture_requested; }
-    void ApplyGuiCaptureKeyboard(); ///< Call after rendered frame to apply queued value
+    void ApplyGuiCaptureKeyboard(); //!< Call after rendered frame to apply queued value
 
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
@@ -161,10 +161,10 @@ private:
     bool               m_hide_gui                 = false;
     OgreImGui          m_imgui;
     GuiTheme           m_theme;
-    bool               m_gui_kb_capture_queued    = false; ///< Resets and accumulates every frame
-    bool               m_gui_kb_capture_requested = false; ///< Effective value, persistent
+    bool               m_gui_kb_capture_queued    = false; //!< Resets and accumulates every frame
+    bool               m_gui_kb_capture_requested = false; //!< Effective value, persistent
     Ogre::Timer        m_last_mousemove_time;
-    bool               m_is_cursor_supressed      = false; ///< True if cursor was manually hidden.
+    bool               m_is_cursor_supressed      = false; //!< True if cursor was manually hidden.
 };
 
 } // namespace RoR

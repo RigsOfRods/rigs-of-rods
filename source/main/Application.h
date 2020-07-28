@@ -75,7 +75,7 @@ enum MsgType
     MSG_NET_DISCONNECT_REQUESTED,
     MSG_NET_USER_DISCONNECT,
     MSG_NET_RECV_ERROR,
-    MSG_NET_REFRESH_SERVERLIST_SUCCESS,    ///< Payload = GUI::MpServerInfoVec* (owner)
+    MSG_NET_REFRESH_SERVERLIST_SUCCESS,    //!< Payload = GUI::MpServerInfoVec* (owner)
     MSG_NET_REFRESH_SERVERLIST_FAILURE,
     // Simulation
     MSG_SIM_PAUSE_REQUESTED,
@@ -83,20 +83,20 @@ enum MsgType
     MSG_SIM_LOAD_TERRN_REQUESTED,
     MSG_SIM_LOAD_SAVEGAME_REQUESTED,
     MSG_SIM_UNLOAD_TERRN_REQUESTED,
-    MSG_SIM_SPAWN_ACTOR_REQUESTED,         ///< Payload = ActorSpawnRequest* (owner)
-    MSG_SIM_MODIFY_ACTOR_REQUESTED,        ///< Payload = ActorModifyRequest* (owner)
-    MSG_SIM_DELETE_ACTOR_REQUESTED,        ///< Payload = Actor* (weak)
-    MSG_SIM_SEAT_PLAYER_REQUESTED,         ///< Payload = Actor* (weak) | nullptr
-    MSG_SIM_TELEPORT_PLAYER_REQUESTED,     ///< Payload = Ogre::Vector3* (owner)
+    MSG_SIM_SPAWN_ACTOR_REQUESTED,         //!< Payload = ActorSpawnRequest* (owner)
+    MSG_SIM_MODIFY_ACTOR_REQUESTED,        //!< Payload = ActorModifyRequest* (owner)
+    MSG_SIM_DELETE_ACTOR_REQUESTED,        //!< Payload = Actor* (weak)
+    MSG_SIM_SEAT_PLAYER_REQUESTED,         //!< Payload = Actor* (weak) | nullptr
+    MSG_SIM_TELEPORT_PLAYER_REQUESTED,     //!< Payload = Ogre::Vector3* (owner)
     // Editing
-    MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  ///< Payload = ground_model_t* (weak)
+    MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  //!< Payload = ground_model_t* (weak)
     MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,
     MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED,
 };
 
 enum class AppState
 {
-    BOOTSTRAP,          ///< Initial state
+    BOOTSTRAP,          //!< Initial state
     MAIN_MENU,
     SIMULATION,
     SHUTDOWN,
@@ -106,7 +106,7 @@ enum class AppState
 
 enum class MpState
 {
-    DISABLED,  ///< Not connected for whatever reason.
+    DISABLED,  //!< Not connected for whatever reason.
     CONNECTING,
     CONNECTED,
 };
@@ -116,16 +116,16 @@ enum class SimState
     OFF,
     RUNNING,
     PAUSED,
-    EDITOR_MODE ///< Hacky, but whatever... added by Ulteq, 2016
+    EDITOR_MODE //!< Hacky, but whatever... added by Ulteq, 2016
 };
 
 enum class SimGearboxMode
 {
-    AUTO,          ///< Automatic shift
-    SEMI_AUTO,     ///< Manual shift - Auto clutch
-    MANUAL,        ///< Fully Manual: sequential shift
-    MANUAL_STICK,  ///< Fully manual: stick shift
-    MANUAL_RANGES, ///< Fully Manual: stick shift with ranges
+    AUTO,          //!< Automatic shift
+    SEMI_AUTO,     //!< Manual shift - Auto clutch
+    MANUAL,        //!< Fully Manual: sequential shift
+    MANUAL_STICK,  //!< Fully manual: stick shift
+    MANUAL_RANGES, //!< Fully Manual: stick shift with ranges
 };
 SimGearboxMode ParseSimGearboxMode(std::string const & s);
 const char* SimGearboxModeToStr(SimGearboxMode v);
@@ -169,32 +169,32 @@ const char* GfxVegetationToStr(GfxVegetation v);
 
 enum class GfxFlaresMode
 {
-    NONE,                    ///< None (fastest)
-    NO_LIGHTSOURCES,         ///< No light sources
-    CURR_VEHICLE_HEAD_ONLY,  ///< Only current vehicle, main lights
-    ALL_VEHICLES_HEAD_ONLY,  ///< All vehicles, main lights
-    ALL_VEHICLES_ALL_LIGHTS, ///< All vehicles, all lights
+    NONE,                    //!< None (fastest)
+    NO_LIGHTSOURCES,         //!< No light sources
+    CURR_VEHICLE_HEAD_ONLY,  //!< Only current vehicle, main lights
+    ALL_VEHICLES_HEAD_ONLY,  //!< All vehicles, main lights
+    ALL_VEHICLES_ALL_LIGHTS, //!< All vehicles, all lights
 };
 GfxFlaresMode ParseGfxFlaresMode(std::string const & s);
 const char* GfxFlaresModeToStr(GfxFlaresMode v);
 
 enum class GfxWaterMode
 {
-    NONE,       ///< None
-    BASIC,      ///< Basic (fastest)
-    REFLECT,    ///< Reflection
-    FULL_FAST,  ///< Reflection + refraction (speed optimized)
-    FULL_HQ,    ///< Reflection + refraction (quality optimized)
-    HYDRAX,     ///< HydraX
+    NONE,       //!< None
+    BASIC,      //!< Basic (fastest)
+    REFLECT,    //!< Reflection
+    FULL_FAST,  //!< Reflection + refraction (speed optimized)
+    FULL_HQ,    //!< Reflection + refraction (quality optimized)
+    HYDRAX,     //!< HydraX
 };
 GfxWaterMode ParseGfxWaterMode(std::string const & s);
 const char* GfxWaterModeToStr(GfxWaterMode v);
 
 enum class GfxSkyMode
 {
-    SANDSTORM,  ///< Sandstorm (fastest)
-    CAELUM,     ///< Caelum (best looking, slower)
-    SKYX,       ///< SkyX (best looking, slower)
+    SANDSTORM,  //!< Sandstorm (fastest)
+    CAELUM,     //!< Caelum (best looking, slower)
+    SKYX,       //!< SkyX (best looking, slower)
 };
 GfxSkyMode ParseGfxSkyMode(std::string const & s);
 const char* GfxSkyModeToStr(GfxSkyMode v);
@@ -434,11 +434,11 @@ void DestroyOverlayWrapper();
 // Logging
 // ------------------------------------------------------------------------------------------------
 
-void          Log(const char* msg);               ///< The ultimate, application-wide logging function. Adds a line (any length) in 'RoR.log' file.
-void          LogFormat(const char* format, ...); ///< Improved logging utility. Uses fixed 2Kb buffer.
+void          Log(const char* msg);               //!< The ultimate, application-wide logging function. Adds a line (any length) in 'RoR.log' file.
+void          LogFormat(const char* format, ...); //!< Improved logging utility. Uses fixed 2Kb buffer.
 
 } // namespace RoR
 
-inline void   LOG(const char* msg)           { RoR::Log(msg); }         ///< Legacy alias - formerly a macro
-inline void   LOG(std::string const & msg)   { RoR::Log(msg.c_str()); } ///< Legacy alias - formerly a macro
+inline void   LOG(const char* msg)           { RoR::Log(msg); }         //!< Legacy alias - formerly a macro
+inline void   LOG(std::string const & msg)   { RoR::Log(msg.c_str()); } //!< Legacy alias - formerly a macro
 

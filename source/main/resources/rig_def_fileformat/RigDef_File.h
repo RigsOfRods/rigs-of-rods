@@ -93,7 +93,7 @@ struct NodeDefaults
     float friction;
     float volume;
     float surface;
-    unsigned int options; ///< Bit flags
+    unsigned int options; //!< Bit flags
 };
 
 /* -------------------------------------------------------------------------- */
@@ -161,9 +161,9 @@ struct BeamDefaults
     float visual_beam_diameter;
     Ogre::String beam_material_name;
     float plastic_deform_coef;
-    bool _enable_advanced_deformation; ///< Informs whether "enable_advanced_deformation" directive preceded these defaults.
+    bool _enable_advanced_deformation; //!< Informs whether "enable_advanced_deformation" directive preceded these defaults.
     bool _is_plastic_deform_coef_user_defined;
-    bool _is_user_defined; ///< Informs whether these data were read from "set_beam_defaults" directive or filled in by the parser on startup.
+    bool _is_user_defined; //!< Informs whether these data were read from "set_beam_defaults" directive or filled in by the parser on startup.
     BeamDefaultsScale scale;
 };
 
@@ -473,7 +473,7 @@ struct Beam
     BITMASK_PROPERTY(options, 3, OPTION_s_SUPPORT  , HasFlag_s_Support  , SetFlag_s_Support  );
 
     Node::Ref nodes[2];
-    unsigned int options; ///< Bit flags
+    unsigned int options; //!< Bit flags
     float extension_break_limit;
     bool _has_extension_break_limit;
     int detacher_group;
@@ -636,9 +636,9 @@ struct Engoption
     float inertia;
     EngineType type;
     float clutch_force;
-    float shift_time;       ///< Seconds
-    float clutch_time;      ///< Seconds
-    float post_shift_time;  ///< Seconds
+    float shift_time;       //!< Seconds
+    float clutch_time;      //!< Seconds
+    float post_shift_time;  //!< Seconds
     float idle_rpm;
     float stall_rpm;
     float max_idle_mixture;
@@ -995,7 +995,7 @@ struct Flexbody
     Ogre::Vector3 rotation;
     Ogre::String mesh_name;
     std::list<Animation> animations;
-    std::vector<Node::Range> node_list_to_import; //< Node ranges are disallowed in fileformatversion >=450
+    std::vector<Node::Range> node_list_to_import; //!< Node ranges are disallowed in fileformatversion >=450
     std::vector<Node::Ref> node_list;
     CameraSettings camera_settings;
 };
@@ -1075,12 +1075,12 @@ struct Shock
     BITMASK_PROPERTY(options, 4, OPTION_m_METRIC       , HasOption_m_Metric,      SetOption_m_Metric) 
 
     Node::Ref nodes[2];
-    float spring_rate;         ///< The 'stiffness' of the shock. The higher the value, the less the shock will move for a given bump. 
-    float damping;             ///< The 'resistance to motion' of the shock. The best value is given by this equation:  2 * sqrt(suspended mass * springness)
-    float short_bound;         ///< Maximum contraction. The shortest length the shock can be, as a proportion of its original length. "0" means the shock will not be able to contract at all, "1" will let it contract all the way to zero length. If the shock tries to shorten more than this value allows, it will become as rigid as a normal beam. 
-    float long_bound;          ///< Maximum extension. The longest length a shock can be, as a proportion of its original length. "0" means the shock will not be able to extend at all. "1" means the shock will be able to double its length. Higher values allow for longer extension.
-    float precompression;      ///< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0. 
-    unsigned int options;      ///< Bit flags.
+    float spring_rate;         //!< The 'stiffness' of the shock. The higher the value, the less the shock will move for a given bump. 
+    float damping;             //!< The 'resistance to motion' of the shock. The best value is given by this equation:  2 * sqrt(suspended mass * springness)
+    float short_bound;         //!< Maximum contraction. The shortest length the shock can be, as a proportion of its original length. "0" means the shock will not be able to contract at all, "1" will let it contract all the way to zero length. If the shock tries to shorten more than this value allows, it will become as rigid as a normal beam. 
+    float long_bound;          //!< Maximum extension. The longest length a shock can be, as a proportion of its original length. "0" means the shock will not be able to extend at all. "1" means the shock will be able to double its length. Higher values allow for longer extension.
+    float precompression;      //!< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0. 
+    unsigned int options;      //!< Bit flags.
     std::shared_ptr<BeamDefaults> beam_defaults;
     int detacher_group;
 };
@@ -1102,18 +1102,18 @@ struct Shock2
     BITMASK_PROPERTY(options, 4, OPTION_M_ABSOLUTE_METRIC , HasOption_M_AbsoluteMetric, SetOption_M_AbsoluteMetric)  
 
     Node::Ref nodes[2];
-    float spring_in;                  ///< Spring value applied when the shock is compressing.
-    float damp_in;                    ///< Damping value applied when the shock is compressing. 
-    float progress_factor_spring_in;  ///< Progression factor for springin. A value of 0 disables this option. 1...x as multipliers, example:maximum springrate == springrate + (factor*springrate)
-    float progress_factor_damp_in;    ///< Progression factor for dampin. 0 = disabled, 1...x as multipliers, example:maximum dampingrate == springrate + (factor*dampingrate)
-    float spring_out;                 ///< spring value applied when shock extending
-    float damp_out;                   ///< damping value applied when shock extending
-    float progress_factor_spring_out; ///< Progression factor springout, 0 = disabled, 1...x as multipliers, example:maximum springrate == springrate + (factor*springrate)
-    float progress_factor_damp_out;   ///< Progression factor dampout, 0 = disabled, 1...x as multipliers, example:maximum dampingrate == springrate + (factor*dampingrate)
-    float short_bound;                ///< Maximum contraction limit, in percentage ( 1.00 = 100% )
-    float long_bound;                 ///< Maximum extension limit, in percentage ( 1.00 = 100% )
-    float precompression;             ///< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0.  
-    unsigned int options;             ///< Bit flags.
+    float spring_in;                  //!< Spring value applied when the shock is compressing.
+    float damp_in;                    //!< Damping value applied when the shock is compressing. 
+    float progress_factor_spring_in;  //!< Progression factor for springin. A value of 0 disables this option. 1...x as multipliers, example:maximum springrate == springrate + (factor*springrate)
+    float progress_factor_damp_in;    //!< Progression factor for dampin. 0 = disabled, 1...x as multipliers, example:maximum dampingrate == springrate + (factor*dampingrate)
+    float spring_out;                 //!< spring value applied when shock extending
+    float damp_out;                   //!< damping value applied when shock extending
+    float progress_factor_spring_out; //!< Progression factor springout, 0 = disabled, 1...x as multipliers, example:maximum springrate == springrate + (factor*springrate)
+    float progress_factor_damp_out;   //!< Progression factor dampout, 0 = disabled, 1...x as multipliers, example:maximum dampingrate == springrate + (factor*dampingrate)
+    float short_bound;                //!< Maximum contraction limit, in percentage ( 1.00 = 100% )
+    float long_bound;                 //!< Maximum extension limit, in percentage ( 1.00 = 100% )
+    float precompression;             //!< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0.  
+    unsigned int options;             //!< Bit flags.
     std::shared_ptr<BeamDefaults> beam_defaults;
     int detacher_group;
 };
@@ -1133,20 +1133,20 @@ struct Shock3
     BITMASK_PROPERTY(options, 3, OPTION_M_ABSOLUTE_METRIC , HasOption_M_AbsoluteMetric, SetOption_M_AbsoluteMetric)  
 
     Node::Ref nodes[2];
-    float spring_in;                  ///< Spring value applied when the shock is compressing.
-    float damp_in;                    ///< Damping value applied when the shock is compressing. 
-    float spring_out;                 ///< Spring value applied when shock extending
-    float damp_out;                   ///< Damping value applied when shock extending
-    float damp_in_slow;               ///< Damping value applied when shock is commpressing slower than split in velocity
-    float split_vel_in;               ///< Split velocity in (m/s) - threshold for slow / fast damping during compression
-    float damp_in_fast;               ///< Damping value applied when shock is commpressing faster than split in velocity
-    float damp_out_slow;              ///< Damping value applied when shock is commpressing slower than split out velocity
-    float split_vel_out;              ///< Split velocity in (m/s) - threshold for slow / fast damping during extension
-    float damp_out_fast;              ///< Damping value applied when shock is commpressing faster than split out velocity
-    float short_bound;                ///< Maximum contraction limit, in percentage ( 1.00 = 100% )
-    float long_bound;                 ///< Maximum extension limit, in percentage ( 1.00 = 100% )
-    float precompression;             ///< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0.  
-    unsigned int options;             ///< Bit flags.
+    float spring_in;                  //!< Spring value applied when the shock is compressing.
+    float damp_in;                    //!< Damping value applied when the shock is compressing. 
+    float spring_out;                 //!< Spring value applied when shock extending
+    float damp_out;                   //!< Damping value applied when shock extending
+    float damp_in_slow;               //!< Damping value applied when shock is commpressing slower than split in velocity
+    float split_vel_in;               //!< Split velocity in (m/s) - threshold for slow / fast damping during compression
+    float damp_in_fast;               //!< Damping value applied when shock is commpressing faster than split in velocity
+    float damp_out_slow;              //!< Damping value applied when shock is commpressing slower than split out velocity
+    float split_vel_out;              //!< Split velocity in (m/s) - threshold for slow / fast damping during extension
+    float damp_out_fast;              //!< Damping value applied when shock is commpressing faster than split out velocity
+    float short_bound;                //!< Maximum contraction limit, in percentage ( 1.00 = 100% )
+    float long_bound;                 //!< Maximum extension limit, in percentage ( 1.00 = 100% )
+    float precompression;             //!< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0.  
+    unsigned int options;             //!< Bit flags.
     std::shared_ptr<BeamDefaults> beam_defaults;
     int detacher_group;
 };
@@ -1382,8 +1382,8 @@ struct Trigger
             ENGINE_TRIGGER_FUNCTION_BRAKE       = 1,
             ENGINE_TRIGGER_FUNCTION_ACCELERATOR = 2,
             ENGINE_TRIGGER_FUNCTION_RPM_CONTROL = 3,
-            ENGINE_TRIGGER_FUNCTION_SHIFT_UP    = 4, ///< Do not mix with OPTION_t_CONTINUOUS
-            ENGINE_TRIGGER_FUNCTION_SHIFT_DOWN  = 5, ///< Do not mix with OPTION_t_CONTINUOUS
+            ENGINE_TRIGGER_FUNCTION_SHIFT_UP    = 4, //!< Do not mix with OPTION_t_CONTINUOUS
+            ENGINE_TRIGGER_FUNCTION_SHIFT_DOWN  = 5, //!< Do not mix with OPTION_t_CONTINUOUS
 
             ENGINE_TRIGGER_FUNCTION_INVALID     = 0xFFFFFFFF
         };
@@ -2296,7 +2296,7 @@ struct File
         SECTION_TRACTION_CONTROL,
         SECTION_TRANSFER_CASE,
         SECTION_TRIGGERS,
-        SECTION_TRUCK_NAME, ///< The very start of file	
+        SECTION_TRUCK_NAME, //!< The very start of file	
         SECTION_TURBOJETS,
         SECTION_TURBOPROPS,
         SECTION_TURBOPROPS_2,
@@ -2306,7 +2306,7 @@ struct File
         SECTION_WHEELS_2,
         SECTION_WINGS,
 
-        SECTION_NONE,       ///< Right after rig name, for example.
+        SECTION_NONE,       //!< Right after rig name, for example.
 
         SECTION_INVALID = 0xFFFFFFFF
     };
@@ -2349,7 +2349,7 @@ struct File
     std::string hash;
 
     // Vehicle modules (caled 'sections' in truckfile doc)
-    std::shared_ptr<Module> root_module; ///< Required to exist. `shared_ptr` is used for unified handling with other modules.
+    std::shared_ptr<Module> root_module; //!< Required to exist. `shared_ptr` is used for unified handling with other modules.
     std::map< Ogre::String, std::shared_ptr<Module> > user_modules;
 
     // File sections

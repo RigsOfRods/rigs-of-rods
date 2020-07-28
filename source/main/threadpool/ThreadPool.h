@@ -72,10 +72,10 @@ class Task
     Task(Task &) = delete;
     Task & operator=(Task &) = delete;
 
-    bool m_is_finished = false;                   ///< Indicates whether the task execution has finished.
-    mutable std::condition_variable m_finish_cv;  ///< Used to signal the current thread when the task has finished.
-    mutable std::mutex m_task_mutex;              ///< Mutex which is locked while the task is running.
-    const std::function<void()> m_task_func;      ///< Callable object which implements the task to execute.
+    bool m_is_finished = false;                   //!< Indicates whether the task execution has finished.
+    mutable std::condition_variable m_finish_cv;  //!< Used to signal the current thread when the task has finished.
+    mutable std::mutex m_task_mutex;              //!< Mutex which is locked while the task is running.
+    const std::function<void()> m_task_func;      //!< Callable object which implements the task to execute.
 };
 
 /** \brief Facilitates execution of (small) tasks on separate threads.
@@ -210,9 +210,9 @@ public:
         for(const auto &h : handles) { h->join(); }
     }
 
-    std::atomic_bool m_terminate{false};            ///< Indicates destruction of ThreadPool instance to worker threads
-    std::vector<std::thread> m_threads;             ///< Collection of worker threads to run tasks
-    std::queue<std::shared_ptr<Task>> m_taskqueue;  ///< Queue of submitted tasks pending for execution
-    std::mutex m_taskqueue_mutex;                   ///< Protects task queue from concurrent access.
-    std::condition_variable m_task_available_cv;    ///< Used to signal threads that a new task was submitted and is ready to run.
+    std::atomic_bool m_terminate{false};            //!< Indicates destruction of ThreadPool instance to worker threads
+    std::vector<std::thread> m_threads;             //!< Collection of worker threads to run tasks
+    std::queue<std::shared_ptr<Task>> m_taskqueue;  //!< Queue of submitted tasks pending for execution
+    std::mutex m_taskqueue_mutex;                   //!< Protects task queue from concurrent access.
+    std::condition_variable m_task_available_cv;    //!< Used to signal threads that a new task was submitted and is ready to run.
 };
