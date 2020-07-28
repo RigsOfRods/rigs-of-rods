@@ -97,7 +97,7 @@ private:
 //  Directive parsers
 // --------------------------------------------------------------------------
 
-    void ProcessGlobalDirective(File::Keyword keyword); ///< Directives that should only appear in root module
+    void ProcessGlobalDirective(File::Keyword keyword); //!< Directives that should only appear in root module
     void ParseDirectiveAddAnimation();
     void ParseDirectiveBackmesh();
     void ParseDirectiveDetacherGroup();
@@ -243,7 +243,7 @@ private:
     {
         this->AddMessage(m_current_line, type, msg);
     }
-    void VerifyModuleIsRoot(File::Keyword keyword); ///< Reports warning message if we're not in root module
+    void VerifyModuleIsRoot(File::Keyword keyword); //!< Reports warning message if we're not in root module
 
     /// Print a log INFO message.
     void _PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node);
@@ -281,15 +281,15 @@ private:
 
     unsigned int                         m_current_line_number;
     char                                 m_current_line[LINE_BUFFER_LENGTH];
-    Token                                m_args[LINE_MAX_ARGS];    ///< Tokens of current line.
-    int                                  m_num_args;               ///< Number of tokens on current line.
-    File::Section                        m_current_section;        ///< Parser state.
-    File::Subsection                     m_current_subsection;     ///< Parser state.
-    bool                                 m_in_block_comment;       ///< Parser state.
-    bool                                 m_in_description_section; ///< Parser state.
-    bool                                 m_any_named_node_defined; ///< Parser state.
-    std::shared_ptr<Submesh>             m_current_submesh;        ///< Parser state.
-    std::shared_ptr<CameraRail>          m_current_camera_rail;    ///< Parser state.
+    Token                                m_args[LINE_MAX_ARGS];    //!< Tokens of current line.
+    int                                  m_num_args;               //!< Number of tokens on current line.
+    File::Section                        m_current_section;        //!< Parser state.
+    File::Subsection                     m_current_subsection;     //!< Parser state.
+    bool                                 m_in_block_comment;       //!< Parser state.
+    bool                                 m_in_description_section; //!< Parser state.
+    bool                                 m_any_named_node_defined; //!< Parser state.
+    std::shared_ptr<Submesh>             m_current_submesh;        //!< Parser state.
+    std::shared_ptr<CameraRail>          m_current_camera_rail;    //!< Parser state.
     std::shared_ptr<Flexbody>            m_last_flexbody;
 
     SequentialImporter                   m_sequential_importer;

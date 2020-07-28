@@ -33,7 +33,7 @@ namespace RoR {
 class TerrainManager : public ZeroedMemoryAllocator
 {
 public:
-    static TerrainManager* LoadAndPrepareTerrain(CacheEntry& entry); ///< Factory function
+    static TerrainManager* LoadAndPrepareTerrain(CacheEntry& entry); //!< Factory function
 
     TerrainManager();
     ~TerrainManager();

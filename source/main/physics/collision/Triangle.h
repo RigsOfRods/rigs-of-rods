@@ -50,14 +50,14 @@ public:
         return m_normal;
     }
 
-    const Ogre::Vector3 a, ///< Vertex a
-                        b, ///< Vertex b
-                        c; ///< Vertex c
+    const Ogre::Vector3 a, //!< Vertex a
+                        b, //!< Vertex b
+                        c; //!< Vertex c
 
-    const Ogre::Vector3 u, ///< Span vector u
-                        v; ///< Span vector v
+    const Ogre::Vector3 u, //!< Span vector u
+                        v; //!< Span vector v
 
 private:
     mutable bool m_initialized;
-    mutable Ogre::Vector3 m_normal; ///< Cached normal vector
+    mutable Ogre::Vector3 m_normal; //!< Cached normal vector
 };

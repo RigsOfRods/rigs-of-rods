@@ -35,8 +35,8 @@ namespace GUI {
 class DirectionArrow
 {
 public:
-    void LoadOverlay(); ///< Must be called after meshes+overlays were loaded
-    void CreateArrow(); ///< Must be called again after OGRE scenemanager is cleared.
+    void LoadOverlay(); //!< Must be called after meshes+overlays were loaded
+    void CreateArrow(); //!< Must be called again after OGRE scenemanager is cleared.
     void Update(RoR::GfxActor* player);
     bool IsVisible() { return m_overlay->isVisible(); }
 

@@ -124,8 +124,8 @@ struct ODefSpotlight
     Ogre::Vector3      pos = Ogre::Vector3::ZERO;
     Ogre::Vector3      dir = Ogre::Vector3::ZERO;
     float              range = 0.f;
-    float              angle_inner = 0.f; ///< Degrees
-    float              angle_outer = 0.f; ///< Degrees
+    float              angle_inner = 0.f;                //!< Degrees
+    float              angle_outer = 0.f;                //!< Degrees
     Ogre::ColourValue  color = Ogre::ColourValue::Black;
 };
 
@@ -153,11 +153,11 @@ struct ODefFile
     std::list<ODefCollisionMesh>  collision_meshes;
     std::list<ODefParticleSys>    particle_systems;
     std::list<ODefAnimation>      animations;
-    std::list<ODefTexPrint>       texture_prints;    ///< Section 'drawTextOnMeshTexture'
+    std::list<ODefTexPrint>       texture_prints;    //!< Section 'drawTextOnMeshTexture'
     std::list<ODefSpotlight>      spotlights;
     std::list<ODefPointLight>     point_lights;
-    std::string                   mat_name;          ///< Section 'setMeshMaterial'
-    std::string                   mat_name_generate; ///< Section 'generateMaterialShaders'
+    std::string                   mat_name;          //!< Section 'setMeshMaterial'
+    std::string                   mat_name_generate; //!< Section 'generateMaterialShaders'
 };
 
 // -----------------------------------------------------------------------------
@@ -167,7 +167,7 @@ public:
     void                       Prepare();
     bool                       ProcessLine(const char* line);
     void                       ProcessOgreStream(Ogre::DataStream* stream);
-    std::shared_ptr<ODefFile>  Finalize(); ///< Passes ownership
+    std::shared_ptr<ODefFile>  Finalize(); //!< Passes ownership
 
 private:
     bool                       ProcessCurrentLine();
@@ -184,14 +184,14 @@ private:
         bool                cbox_is_virtual;
         bool                cbox_force_cam;
         Ogre::Vector3       cbox_rotation;
-        Ogre::Vector3       cbox_cam_pos; ///< Section 'forcecamera'
+        Ogre::Vector3       cbox_cam_pos; //!< Section 'forcecamera'
         ODef::EventType     cbox_event_filter;
         std::string         cbox_event_name;
         std::string         cbox_mesh_name;
         std::string         cbox_groundmodel_name;
         Ogre::Vector3       cbox_aabb_min;
         Ogre::Vector3       cbox_aabb_max;
-    }                          m_ctx; ///< Parser context
+    }                          m_ctx; //!< Parser context
 
     std::shared_ptr<ODefFile>  m_def;
     int                        m_line_number;

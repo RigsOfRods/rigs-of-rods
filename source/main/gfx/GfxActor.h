@@ -301,7 +301,7 @@ private:
     Ogre::Entity*               m_cab_entity;
 
     // Cab materials and their features
-    Ogre::MaterialPtr           m_cab_mat_visual; ///< Updated in-place from templates
+    Ogre::MaterialPtr           m_cab_mat_visual; //!< Updated in-place from templates
     Ogre::MaterialPtr           m_cab_mat_visual_trans;
     Ogre::MaterialPtr           m_cab_mat_template_plain;
     Ogre::MaterialPtr           m_cab_mat_template_emissive;

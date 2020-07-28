@@ -126,12 +126,12 @@ struct Prop
     float                 pp_wheel_rot_degree     = 0;
     
     // Special prop - beacon
-    char                  pp_beacon_type          = 0;                   //<! Special prop: beacon {0 = none, 'b' = user-specified, 'r' = red, 'p' = police lightbar, 'L'/'R'/'w' - aircraft wings}
+    char                  pp_beacon_type          = 0;                   //!< Special prop: beacon {0 = none, 'b' = user-specified, 'r' = red, 'p' = police lightbar, 'L'/'R'/'w' - aircraft wings}
     Ogre::BillboardSet*   pp_beacon_bbs[4]        = {};
     Ogre::SceneNode*      pp_beacon_scene_node[4] = {};
     Ogre::Light*          pp_beacon_light[4]      = {};
-    float                 pp_beacon_rot_rate[4]   = {};                  //<! Radians per second
-    float                 pp_beacon_rot_angle[4]  = {};                  //<! Radians
+    float                 pp_beacon_rot_rate[4]   = {};                  //!< Radians per second
+    float                 pp_beacon_rot_angle[4]  = {};                  //!< Radians
     
     // Special prop - aero engine
     int                   pp_aero_engine_idx      = -1;                  //!< Special - a turboprop/pistonprop reference

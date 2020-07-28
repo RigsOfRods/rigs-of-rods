@@ -49,7 +49,7 @@ public:
     const float WINDOW_PADDING = 4.f;
     const float WINDOW_ROUNDING = 2.f;
 
-    void CreateTerrainTextures(); //< Init
+    void CreateTerrainTextures(); //!< Init
     void Draw();
     bool IsVisible() const { return mMapMode != SurveyMapMode::NONE; }
     void CycleMode();

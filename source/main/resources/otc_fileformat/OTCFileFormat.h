@@ -71,7 +71,7 @@ struct OTCFile
     int          world_size_x, world_size_y, world_size_z;
     int          page_size;
     int          world_size;
-    int          pages_max_x, pages_max_z; ///< Highest page index
+    int          pages_max_x, pages_max_z; //!< Highest page index
     int          max_pixel_error;
     int          batch_size_min, batch_size_max;
     int          layer_blendmap_size;

@@ -92,7 +92,7 @@ private:
     std::time_t        m_cache_file_freshness;
     CacheSearchMethod  m_search_method = CacheSearchMethod::NONE;
     std::string        m_search_string;
-    std::string        m_filter_guid;                //<! Used for skins
+    std::string        m_filter_guid;                //!< Used for skins
     Str<500>           m_search_input;
     bool               m_show_details = false;
     bool               m_searchbox_was_active = false;

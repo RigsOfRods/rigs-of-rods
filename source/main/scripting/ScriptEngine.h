@@ -136,8 +136,8 @@ public:
     // method from Ogre::LogListener
     void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);
 
-    inline void SLOG(const char* msg) { this->scriptLog->logMessage(msg); } ///< Replacement of macro
-    inline void SLOG(std::string msg) { this->scriptLog->logMessage(msg); } ///< Replacement of macro
+    inline void SLOG(const char* msg) { this->scriptLog->logMessage(msg); } //!< Replacement of macro
+    inline void SLOG(std::string msg) { this->scriptLog->logMessage(msg); } //!< Replacement of macro
 
 protected:
 

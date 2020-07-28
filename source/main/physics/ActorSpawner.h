@@ -921,9 +921,9 @@ private:
 
     Ogre::ParticleSystem* CreateParticleSystem(std::string const & name, std::string const & template_name);
 
-    RigDef::MaterialFlareBinding* FindFlareBindingForMaterial(std::string const & material_name); ///< Returns NULL if none found
+    RigDef::MaterialFlareBinding* FindFlareBindingForMaterial(std::string const & material_name); //!< Returns NULL if none found
 
-    RigDef::VideoCamera* FindVideoCameraByMaterial(std::string const & material_name); ///< Returns NULL if none found
+    RigDef::VideoCamera* FindVideoCameraByMaterial(std::string const & material_name); //!< Returns NULL if none found
 
     void CreateVideoCamera(RigDef::VideoCamera* def);
     void CreateMirrorPropVideoCam(Ogre::MaterialPtr custom_mat, CustomMaterial::MirrorPropType type, Ogre::SceneNode* prop_scenenode);
@@ -1046,7 +1046,7 @@ private:
     Actor*             m_actor; //!< The output actor.
     Ogre::Vector3      m_spawn_position;
     bool               m_apply_simple_materials;
-    std::string        m_cab_material_name; ///< Original name defined in truckfile/globals.
+    std::string        m_cab_material_name; //!< Original name defined in truckfile/globals.
     std::string        m_custom_resource_group;
     std::string        m_help_material_name;
     float              m_wing_area;
