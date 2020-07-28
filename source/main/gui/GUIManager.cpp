@@ -601,7 +601,7 @@ void GUIManager::UpdateInputEvents(float dt)
             App::GetGuiManager()->SetVisible_SimPerfStats(!App::GetGuiManager()->IsVisible_SimPerfStats());
         }
 
-        if (!App::GetSimController()->AreControlsLocked())
+        if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
         {
             // EV_SURVEY_MAP_CYCLE
             if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_CYCLE))

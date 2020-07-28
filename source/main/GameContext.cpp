@@ -382,7 +382,7 @@ void GameContext::ChangePlayerActor(Actor* actor)
     {
         // getting inside
         App::GetOverlayWrapper()->showDashboardOverlays(
-            !App::GetSimController()->IsGUIHidden(), m_player_actor);
+            !App::GetGuiManager()->IsGuiHidden(), m_player_actor);
 
 
         if (m_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE)
@@ -707,7 +707,7 @@ void GameContext::HandleCommonInputEvents()
 
     if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION &&
         App::sim_state->GetEnum<SimState>() != SimState::PAUSED &&
-        !App::GetSimController()->AreControlsLocked())
+        App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
     {
         // EV_COMMON_GET_NEW_VEHICLE
         if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_GET_NEW_VEHICLE))
