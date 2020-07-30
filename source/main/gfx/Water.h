@@ -32,6 +32,8 @@
 #include <OgreVector3.h>
 #include <vector>
 
+namespace RoR {
+
 class Water : public IWater, public ZeroedMemoryAllocator
 {
 public:
@@ -123,3 +125,5 @@ private:
     Ogre::Plane           m_bottom_plane;
     std::vector<WaveTrain>  m_wavetrain_defs;
 };
+
+} // namespace RoR

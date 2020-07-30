@@ -32,6 +32,8 @@
 #include <Overlay/OgreTextAreaOverlayElement.h>
 #include <OIS.h>
 
+namespace RoR {
+
 struct AeroEngineOverlay
 {
     Ogre::OverlayElement *thr_element;
@@ -230,3 +232,5 @@ protected:
 
     std::vector<LoadedOverlay> m_loaded_overlays;
 };
+
+} // namespace RoR

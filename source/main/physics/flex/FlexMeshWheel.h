@@ -24,11 +24,10 @@
 #include "ForwardDeclarations.h"
 #include "FlexMesh.h"
 
-#include <OgreVector3.h>
-#include <OgreMesh.h>
-#include <OgreSubMesh.h>
-#include <OgreHardwareBuffer.h>
+#include <Ogre.h>
 #include <string>
+
+namespace RoR {
 
 /// Consists of static mesh, representing the rim, and dynamic mesh, representing the tire.
 class FlexMeshWheel: public Flexable
@@ -101,3 +100,5 @@ private:
     size_t           m_index_count;
     unsigned short*  m_indices;
 };
+
+} // namespace RoR

@@ -28,7 +28,10 @@
 #include "BatchPage.h"
 #include "GrassLoader.h"
 #include "ImpostorPage.h"
+#include "MeshObject.h"
 #include "PagedGeometry.h"
+#include "ProceduralManager.h"
+#include "Road.h"
 #include "TreeLoader2D.h"
 #include "TreeLoader3D.h"
 

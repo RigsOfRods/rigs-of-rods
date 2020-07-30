@@ -21,7 +21,7 @@
 #include "AutoPilot.h"
 
 #include "Application.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "Water.h"

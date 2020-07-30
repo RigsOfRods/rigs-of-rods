@@ -24,6 +24,8 @@
 #include "AeroEngine.h"
 #include "RigDef_File.h"
 
+namespace RoR {
+
 class TurbojetVisual
 {
 public:
@@ -115,3 +117,5 @@ private:
     int m_sound_src;
     int m_sound_thr;
 };
+
+} // namespace RoR

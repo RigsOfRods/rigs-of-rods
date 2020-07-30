@@ -36,6 +36,8 @@
   #include <AL/alc.h>
 #endif // __APPLE__
 
+namespace RoR {
+
 class SoundManager : public ZeroedMemoryAllocator
 {
     friend class Sound;
@@ -91,5 +93,7 @@ private:
     ALCdevice*    audio_device;
     ALCcontext*   sound_context;
 };
+
+} // namespace RoR
 
 #endif // USE_OPENAL

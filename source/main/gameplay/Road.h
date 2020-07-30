@@ -22,6 +22,8 @@
 
 #include "Application.h"
 
+namespace RoR {
+
 struct RoadType_t
 {
     char name[256];
@@ -67,3 +69,5 @@ private:
 
     char curtype[256];
 };
+
+} // namespace RoR

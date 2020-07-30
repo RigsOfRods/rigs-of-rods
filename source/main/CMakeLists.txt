@@ -16,11 +16,6 @@ set(SOURCE_FILES
         audio/Sound.{h,cpp}
         audio/SoundManager.{h,cpp}
         audio/SoundScriptManager.{h,cpp}
-        datatypes/beam_t.h
-        datatypes/node_t.h
-        datatypes/rig_t.h
-        datatypes/shock_t.h
-        datatypes/wheel_t.h
         gameplay/AircraftSimulation.{h,cpp}
         gameplay/AutoPilot.{h,cpp}
         gameplay/EngineSim.{h,cpp}
@@ -163,10 +158,11 @@ set(SOURCE_FILES
         physics/ActorSlideNode.cpp
         physics/ActorSpawner.{h,cpp}
         physics/ActorSpawnerFlow.cpp
-        physics/BeamData.h
         physics/CmdKeyInertia.{h,cpp}
         physics/Differentials.{h,cpp}
         physics/Savegame.cpp
+        physics/SimConstants.h
+        physics/SimData.h
         physics/SlideNode.{h,cpp}
         physics/air/AeroEngine.h
         physics/air/AirBrake.{h,cpp}

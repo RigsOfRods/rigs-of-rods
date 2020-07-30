@@ -28,7 +28,7 @@
 
 #include "Application.h"
 
-#include "BeamData.h"
+#include "SimData.h"
 
 namespace RoR {
 namespace GUI {

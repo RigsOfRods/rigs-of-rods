@@ -22,7 +22,7 @@
 #include "FlexMeshWheel.h"
 
 #include "Application.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
 

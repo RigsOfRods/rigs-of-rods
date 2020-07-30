@@ -24,6 +24,8 @@
 
 #include "Application.h"
 
+namespace RoR {
+
 // dynamic roads
 class Road2 : public ZeroedMemoryAllocator
 {
@@ -104,4 +106,6 @@ private:
     int mid;
     std::vector<int> registeredCollTris;
 };
+
+} // namespace RoR
 

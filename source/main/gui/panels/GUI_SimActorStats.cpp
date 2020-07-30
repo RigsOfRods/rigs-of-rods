@@ -23,7 +23,7 @@
 
 #include "Application.h"
 #include "Actor.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "Language.h"
 #include "GfxActor.h"
 #include "GUIManager.h"

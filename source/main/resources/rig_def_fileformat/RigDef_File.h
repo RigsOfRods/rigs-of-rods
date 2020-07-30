@@ -43,7 +43,7 @@
 #include "Application.h"
 #include "BitFlags.h"
 #include "RigDef_Node.h"
-#include "BeamConstants.h"
+#include "SimConstants.h"
 
 #include <list>
 #include <memory>

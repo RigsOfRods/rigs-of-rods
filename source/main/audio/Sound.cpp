@@ -24,6 +24,7 @@
 #include "SoundManager.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 Sound::Sound(ALuint buffer, SoundManager* soundManager, int sourceIndex) :
     buffer(buffer)

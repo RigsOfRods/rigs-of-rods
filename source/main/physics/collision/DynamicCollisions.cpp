@@ -23,13 +23,14 @@
 
 #include "Application.h"
 #include "Actor.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "CartesianToTriangleTransform.h"
 #include "Collisions.h"
 #include "PointColDetector.h"
 #include "Triangle.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 /// Determine on which side of a triangle an occuring collision takes place.
 /**
@@ -113,7 +114,7 @@ void ResolveCollisionForces(const float penetration_depth,
 }
 
 
-void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
+void RoR::ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
         const int free_collcab, int collcabs[], int cabs[],
         collcab_rate_t inter_collcabrate[], node_t nodes[],
         const float collrange,
@@ -196,7 +197,7 @@ void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
 }
 
 
-void ResolveIntraActorCollisions(const float dt, PointColDetector &intraPointCD,
+void RoR::ResolveIntraActorCollisions(const float dt, PointColDetector &intraPointCD,
         const int free_collcab, int collcabs[], int cabs[],
         collcab_rate_t intra_collcabrate[], node_t nodes[],
         const float collrange,

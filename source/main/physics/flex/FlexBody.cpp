@@ -23,7 +23,7 @@
 
 #include "Application.h"
 #include "ApproxMath.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "FlexFactory.h"
 #include "GfxActor.h"
 #include "GfxScene.h"

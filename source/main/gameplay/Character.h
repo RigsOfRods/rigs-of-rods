@@ -28,6 +28,8 @@
 #include <OgreTimer.h>
 #include <string>
 
+namespace RoR {
+
 class Character
 {
 public:
@@ -53,8 +55,7 @@ public:
     void           updateCharacterRotation();
     void           receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer);
     void           SetActorCoupling(bool enabled, Actor* actor);
-
-    RoR::GfxCharacter* SetupGfx();
+    GfxCharacter*  SetupGfx();
 
 private:
 
@@ -82,11 +83,8 @@ private:
     Ogre::UTFString  m_net_username;
     Ogre::Timer      m_net_timer;
     unsigned long    m_net_last_update_time;
-
-    RoR::GfxCharacter* m_gfx_character;
+    GfxCharacter*    m_gfx_character;
 };
-
-namespace RoR {
 
 struct GfxCharacter
 {
@@ -108,7 +106,7 @@ struct GfxCharacter
     void            UpdateCharacterInScene();
 
     Ogre::SceneNode*          xc_scenenode;
-    Ogre::MovableText*        xc_movable_text; // TODO: Remake using GUI; the network labels shouldn't be part of scene. ~only_a_ptr, 05/2018
+    MovableText*              xc_movable_text; // TODO: Remake using GUI; the network labels shouldn't be part of scene. ~only_a_ptr, 05/2018
     SimBuffer                 xc_simbuf;
     SimBuffer                 xc_simbuf_prev;
     Character*                xc_character;

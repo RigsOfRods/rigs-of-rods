@@ -22,14 +22,17 @@
 #pragma once
 
 #include "Application.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "CmdKeyInertia.h"
 #include "GfxActor.h"
+#include "MovableText.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
 #include "TyrePressure.h"
 
-#include <OgreTimer.h>
+#include <Ogre.h>
+
+namespace RoR {
 
 /// Softbody object; can be anything from soda can to a space shuttle
 /// Monsterclass; contains logic related to physics, network, sound, threading, rendering.
@@ -37,8 +40,8 @@
 class Actor : public ZeroedMemoryAllocator
 {
     friend class ActorSpawner;
-    friend class RoR::ActorManager;
-    friend class RoR::GfxActor; // Temporary until all visuals are moved there. ~ only_a_ptr, 2018
+    friend class ActorManager;
+    friend class GfxActor; // Temporary until all visuals are moved there. ~ only_a_ptr, 2018
 public:
 
     enum class SimState
@@ -53,7 +56,7 @@ public:
           int actor_id
         , unsigned int vector_index
         , std::shared_ptr<RigDef::File> def
-        , RoR::ActorSpawnRequest rq
+        , ActorSpawnRequest rq
         );
 
     ~Actor();
@@ -154,12 +157,12 @@ public:
     std::vector<authorinfo_t>     getAuthors();
     std::vector<std::string>      getDescription();
     Ogre::String     GetSectionConfig()                 { return m_section_config; }
-    RoR::PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
+    PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
     std::vector<Actor*> GetAllLinkedActors()            { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     Ogre::Vector3     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetCameraRoll()                   { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
-    RoR::GfxActor*    GetGfxActor()                     { return m_gfx_actor.get(); }
+    GfxActor*         GetGfxActor()                     { return m_gfx_actor.get(); }
     void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
     Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
     Ogre::Real        getMinimalCameraRadius();
@@ -183,18 +186,18 @@ public:
 
     // -------------------- Public data -------------------- //
 
-    node_t*           ar_nodes;
-    int               ar_num_nodes;
-    beam_t*           ar_beams;
-    int               ar_num_beams;
-    std::vector<beam_t*> ar_inter_beams;    //!< Beams connecting 2 actors
-    shock_t*          ar_shocks;            //!< Shock absorbers
-    int               ar_num_shocks;        //!< Number of shock absorbers
-    bool              ar_has_active_shocks; //!< Are there active stabilizer shocks?
-    rotator_t*        ar_rotators;
-    int               ar_num_rotators;
-    wing_t*           ar_wings;
-    int               ar_num_wings;
+    node_t*              ar_nodes;
+    int                  ar_num_nodes;
+    beam_t*              ar_beams;
+    int                  ar_num_beams;
+    std::vector<beam_t*> ar_inter_beams;       //!< Beams connecting 2 actors
+    shock_t*             ar_shocks;            //!< Shock absorbers
+    int                  ar_num_shocks;        //!< Number of shock absorbers
+    bool                 ar_has_active_shocks; //!< Are there active stabilizer shocks?
+    rotator_t*           ar_rotators;
+    int                  ar_num_rotators;
+    wing_t*              ar_wings;
+    int                  ar_num_wings;
     std::vector<std::string>  description;
     std::vector<authorinfo_t> authors;
     std::vector<exhaust_t>    exhausts;
@@ -372,35 +375,31 @@ public:
 
 private:
 
-    bool              CalcForcesEulerPrepare(bool doUpdate); //!< TIGHT LOOP; Physics;
-    void              CalcAircraftForces(bool doUpdate);   //!< TIGHT LOOP; Physics;
-    void              CalcAnimatedProps(bool doUpdate);    //!< TIGHT LOOP; Physics;
-    void              CalcForcesEulerCompute(bool doUpdate, int num_steps); //!< TIGHT LOOP; Physics;
-    void              CalcAnimators(const int flag_state, float &cstate, int &div, float timer, const float lower_limit, const float upper_limit, const float option3); //!< TIGHT LOOP; Physics;
-    void              CalcBeams(bool trigger_hooks);       //!< TIGHT LOOP; Physics;
-    void              CalcBeamsInterActor();               //!< TIGHT LOOP; Physics;
-    void              CalcBuoyance(bool doUpdate);         //!< TIGHT LOOP; Physics;
-    void              CalcCommands(bool doUpdate);         //!< TIGHT LOOP; Physics;
-    void              CalcCabCollisions();                 //!< TIGHT LOOP; Physics;
-    void              CalcDifferentials();                 //!< TIGHT LOOP; Physics;
-    void              CalcForceFeedback(bool doUpdate);    //!< TIGHT LOOP; Physics;
-    void              CalcFuseDrag();                      //!< TIGHT LOOP; Physics;
-    void              CalcHooks();                         //!< TIGHT LOOP; Physics;
-    void              CalcHooks(bool doUpdate);            //!< TIGHT LOOP; Physics;
-    void              CalcHydros();                        //!< TIGHT LOOP; Physics;
-    void              CalcMouse();                         //!< TIGHT LOOP; Physics;
-    void              CalcNodes();                         //!< TIGHT LOOP; Physics;
-    void              CalcReplay();                        //!< TIGHT LOOP; Physics;
-    void              CalcRopes();                         //!< TIGHT LOOP; Physics;
-    void              CalcShocks(bool doUpdate, int num_steps); //!< TIGHT LOOP; Physics;
+    bool              CalcForcesEulerPrepare(bool doUpdate); 
+    void              CalcAircraftForces(bool doUpdate);   
+    void              CalcForcesEulerCompute(bool doUpdate, int num_steps); 
+    void              CalcAnimators(const int flag_state, float &cstate, int &div, float timer, const float lower_limit, const float upper_limit, const float option3); 
+    void              CalcBeams(bool trigger_hooks);       
+    void              CalcBeamsInterActor();               
+    void              CalcBuoyance(bool doUpdate);         
+    void              CalcCommands(bool doUpdate);         
+    void              CalcCabCollisions();                 
+    void              CalcDifferentials();                 
+    void              CalcForceFeedback(bool doUpdate);    
+    void              CalcFuseDrag();                      
+    void              CalcHooks();                         
+    void              CalcHydros();                        
+    void              CalcMouse();                         
+    void              CalcNodes();                         
+    void              CalcReplay();                        
+    void              CalcRopes();                         
+    void              CalcShocks(bool doUpdate, int num_steps); 
     void              CalcShocks2(int i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, Ogre::Real v);
     void              CalcShocks3(int i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, Ogre::Real v);
     void              CalcTriggers(int i, Ogre::Real difftoBeamL, bool update_hooks);
-    void              CalcSlideNodes();                    //!< TIGHT LOOP; Physics;
-    void              CalcTies();                          //!< TIGHT LOOP; Physics;
-    void              CalcTruckEngine(bool doUpdate);      //!< TIGHT LOOP; Physics;
-    void              CalcAxles();                         //!< TIGHT LOOP; Physics;
-    void              CalcWheels(bool doUpdate, int num_steps); //!< TIGHT LOOP; Physics;
+    void              CalcTies();                          
+    void              CalcTruckEngine(bool doUpdate);      
+    void              CalcWheels(bool doUpdate, int num_steps); 
 
     void              DetermineLinkedActors();
     void              RecalculateNodeMasses(Ogre::Real total); //!< Previously 'calc_masses2()'
@@ -428,8 +427,8 @@ private:
 
     std::vector<std::shared_ptr<Task>> m_flexbody_tasks;   //!< Gfx state
     std::shared_ptr<RigDef::File>      m_definition;
-    std::unique_ptr<RoR::GfxActor>     m_gfx_actor;
-    RoR::PerVehicleCameraContext       m_camera_context;
+    std::unique_ptr<GfxActor>          m_gfx_actor;
+    PerVehicleCameraContext            m_camera_context;
     Ogre::String                       m_section_config;
     std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this actor
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
@@ -454,7 +453,7 @@ private:
     Ogre::Vector3     m_mouse_grab_pos;
     float             m_mouse_grab_move_force;
     float             m_spawn_rotation;
-    Ogre::MovableText* m_net_label_mt;
+    MovableText*      m_net_label_mt;
     Ogre::SceneNode*  m_net_label_node;
     Ogre::UTFString   m_net_username;
     Ogre::Timer       m_reset_timer;
@@ -493,10 +492,10 @@ private:
     float             m_dry_mass;              //!< Physics attr;
     unsigned int      m_net_custom_lights[4];  //!< Sim state
     unsigned char     m_net_custom_light_count;//!< Sim attr
-    RoR::GfxFlaresMode m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
+    GfxFlaresMode     m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
     CacheEntry*       m_used_skin_entry;       //!< Graphics
-    RoR::Skidmark*    m_skid_trails[MAX_WHEELS*2];
+    Skidmark*         m_skid_trails[MAX_WHEELS*2];
     bool              m_antilockbrake;         //!< GUI state
     bool              m_tractioncontrol;       //!< GUI state
     bool              m_ongoing_reset;         //!< Hack to prevent position/rotation creep during interactive truck reset
@@ -547,3 +546,5 @@ private:
 
     std::deque<NetUpdate> m_net_updates; //!< Incoming stream of NetUpdates
 };
+
+} // namespace RoR

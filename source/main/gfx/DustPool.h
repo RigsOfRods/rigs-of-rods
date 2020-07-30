@@ -23,6 +23,9 @@
 #include "Application.h"
 
 #include <mutex>
+#include <Ogre.h>
+
+namespace RoR {
 
 class DustPool : public ZeroedMemoryAllocator
 {
@@ -80,3 +83,5 @@ protected:
     int types[MAX_DUSTS];
     bool m_is_discarded;
 };
+
+} // namespace RoRs

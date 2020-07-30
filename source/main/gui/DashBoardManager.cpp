@@ -29,6 +29,7 @@
 #include "Utils.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 #define INITDATA(key, type, name) data[key] = dashData_t(type, name)
 

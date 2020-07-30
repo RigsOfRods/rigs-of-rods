@@ -1307,7 +1307,7 @@ bool Collisions::groundCollision(node_t *node, float dt)
     return false;
 }
 
-Vector3 primitiveCollision(node_t *node, Vector3 velocity, float mass, Vector3 normal, float dt, ground_model_t* gm, float penetration)
+Vector3 RoR::primitiveCollision(node_t *node, Vector3 velocity, float mass, Vector3 normal, float dt, ground_model_t* gm, float penetration)
 {
     Vector3 force = Vector3::ZERO;
     float Vnormal = velocity.dotProduct(normal);

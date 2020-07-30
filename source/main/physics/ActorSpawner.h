@@ -29,13 +29,15 @@
 
 #include "Application.h"
 #include "RigDef_Parser.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "FlexFactory.h"
 #include "FlexObj.h"
 #include "GfxActor.h"
 
 #include <OgreString.h>
 #include <string>
+
+namespace RoR {
 
 /// Processes a RigDef::File data structure (result of parsing a "Truckfile" fileformat) into 'an Actor' - a simulated physical object.
 ///
@@ -981,7 +983,7 @@ private:
         std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
         float max_contraction = -1.f,
         float max_extension = -1.f,
-        int type = BEAM_NORMAL /* Anonymous enum in BeamData.h */
+        int type = BEAM_NORMAL /* Anonymous enum in SimData.h */
     );
 
     /**
@@ -1082,3 +1084,5 @@ private:
     std::list<std::shared_ptr<RigDef::File::Module>>  m_selected_modules;
 
 };
+
+} // namespace RoR

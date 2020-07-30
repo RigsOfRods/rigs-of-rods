@@ -25,7 +25,7 @@
 
 #include "Application.h"
 #include "Actor.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
 #include "SoundScriptManager.h"

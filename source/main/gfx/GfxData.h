@@ -21,11 +21,11 @@
 
 /// @file
 /// @brief  Constants and data structures dedicated exclusively to visualization.
-///         For simulation-related data structures, see 'physics/BeamData.h'
+///         For simulation-related data structures, see 'physics/SimData.h'
 
 #pragma once
 
-#include "BeamData.h"
+#include "SimData.h"
 
 #include <Ogre.h>
 #include <stdint.h>

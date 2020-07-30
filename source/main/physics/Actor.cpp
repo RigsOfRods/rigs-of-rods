@@ -25,7 +25,7 @@
 #include "Airfoil.h"
 #include "Application.h"
 #include "AutoPilot.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "ActorManager.h"
 #include "Buoyance.h"
 #include "CacheSystem.h"

@@ -21,7 +21,7 @@
 #include "AirBrake.h"
 
 #include "Application.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "Actor.h"
 #include "GfxActor.h"
 #include "GfxScene.h"

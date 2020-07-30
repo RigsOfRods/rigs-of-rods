@@ -22,7 +22,9 @@
 
 #include "Application.h"
 
-#include <OgreMesh.h>
+#include <Ogre.h>
+
+namespace RoR {
 
 class Airbrake : public ZeroedMemoryAllocator
 {
@@ -57,3 +59,5 @@ public:
     void updatePosition(float amount);
     void applyForce();
 };
+
+} // namespace RoR

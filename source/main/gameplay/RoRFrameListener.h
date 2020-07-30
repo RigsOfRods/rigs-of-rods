@@ -23,7 +23,7 @@
 
 #include "Application.h"
 
-#include "BeamData.h" // RoR::ActorSpawnRequest
+#include "SimData.h" // RoR::ActorSpawnRequest
 #include "ActorManager.h"
 #include "CameraManager.h" // CameraManager::CameraBehaviors
 #include "CharacterFactory.h"
@@ -31,6 +31,8 @@
 #include "GUIManager.h"
 #include "OutGauge.h"
 #include "GUI_SceneMouse.h"
+
+namespace RoR {
 
 /// The simulation controller object
 /// It's lifetime is tied to single gameplay session. When user returns to main menu, it's destroyed.
@@ -76,3 +78,5 @@ private:
 
 
 };
+
+} // namespace RoR

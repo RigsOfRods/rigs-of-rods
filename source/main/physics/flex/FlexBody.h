@@ -23,13 +23,14 @@
 
 #include "RigDef_Prerequisites.h"
 #include "Application.h"
-#include "Flexable.h"
 #include "Locator_t.h"
 
 #include <OgreVector3.h>
 #include <OgreQuaternion.h>
 #include <OgreHardwareVertexBuffer.h>
 #include <OgreMesh.h>
+
+namespace RoR {
 
 /// Flexbody = A deformable mesh; updated on CPU every frame, then uploaded to video memory
 class FlexBody
@@ -108,3 +109,5 @@ private:
     bool m_has_texture_blend;
     bool m_blend_changed;
 };
+
+} // namespace RoR

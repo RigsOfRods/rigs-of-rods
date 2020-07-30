@@ -24,6 +24,8 @@
 
 #include "AeroEngine.h"
 
+using namespace RoR;
+
 class Turboprop: public AeroEngine, public ZeroedMemoryAllocator
 {
 public:

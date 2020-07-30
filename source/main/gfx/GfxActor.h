@@ -42,12 +42,11 @@
 #include <string>
 #include <vector>
 
-namespace RoR
-{
+namespace RoR {
 
 class GfxActor
 {
-    friend class ::ActorSpawner; // The factory
+    friend class ActorSpawner; // The factory
 
 public:
 

@@ -22,7 +22,9 @@
 #pragma once
 
 #include "ForwardDeclarations.h"
-#include "BeamData.h"
+#include "SimData.h"
+
+namespace RoR {
 
 void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
         const int free_collcab, int collcabs[], int cabs[],
@@ -36,3 +38,4 @@ void ResolveIntraActorCollisions(const float dt, PointColDetector &intraPointCD,
         const float collrange,
         ground_model_t &submesh_ground_model);
 
+} // namespace RoRs

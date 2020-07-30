@@ -24,7 +24,7 @@
 /// @date   12/2013
 
 #include "RigDef_File.h"
-#include "BeamConstants.h"
+#include "SimConstants.h"
 
 namespace RigDef
 {

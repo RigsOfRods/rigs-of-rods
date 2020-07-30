@@ -32,6 +32,8 @@
 #include "Application.h"
 #include "scriptdictionary/scriptdictionary.h"
 
+namespace RoR {
+
 /**
 *	Enum with AI events
 */
@@ -138,5 +140,7 @@ private:
     int free_waypoints = 0;//!< The amount of waypoints.
     float acc_power = 0.8;//!< The engine power.
 };
+
+} // namespace RoR
 
 #endif // USE_ANGELSCRIPT

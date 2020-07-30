@@ -22,10 +22,10 @@
 
 #include "Application.h"
 
+namespace RoR {
+
 class Screwprop : public ZeroedMemoryAllocator
 {
-    friend class RigInspector;
-
 public:
 
     Screwprop( node_t *nd, int nr, int nb, int nu, float power, int trucknum);
@@ -52,4 +52,6 @@ private:
     node_t *nodes;
 
 };
+
+} // namespace RoR
 

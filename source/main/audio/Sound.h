@@ -25,10 +25,12 @@
 #include "Application.h"
 
 #ifdef __APPLE__
-  #include <OpenAL/al.h>
+#   include <OpenAL/al.h>
 #else
-#include <AL/al.h>
+#   include <AL/al.h>
 #endif // __APPLE__
+
+namespace RoR {
 
 class Sound : public ZeroedMemoryAllocator
 {
@@ -82,4 +84,6 @@ private:
     int source_index;
 };
 
-#endif // __Sound_H_
+} // namespace RoR
+
+#endif // USE_OPENAL

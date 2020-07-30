@@ -24,8 +24,10 @@
 #include "Airfoil.h"
 #include "ApproxMath.h"
 #include "Actor.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "GfxActor.h"
+
+using namespace RoR;
 
 float refairfoilpos[90]={
         0.00, 0.50, 0.00,

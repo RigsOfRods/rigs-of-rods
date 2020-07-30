@@ -21,7 +21,7 @@
 #include "Buoyance.h"
 
 #include "Application.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "ActorManager.h"
 #include "GfxScene.h"
 #include "DustPool.h"

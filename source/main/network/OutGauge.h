@@ -37,6 +37,8 @@
 #define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
 #endif // _WIN32
 
+namespace RoR {
+
 class OutGauge
 {
 public:
@@ -106,4 +108,6 @@ private:
         int            ID;           // optional - only if OutGauge ID is specified
     });
 };
+
+} // namespace RoR
 
