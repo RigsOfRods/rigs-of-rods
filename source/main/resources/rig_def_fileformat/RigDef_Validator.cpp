@@ -25,7 +25,7 @@
 
 #include "RigDef_Validator.h"
 
-#include "BeamConstants.h"
+#include "SimConstants.h"
 #include "Application.h"
 #include "Console.h"
 

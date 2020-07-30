@@ -31,6 +31,7 @@
 #include "scriptdictionary/scriptdictionary.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 VehicleAI::VehicleAI(Actor* b) :
     is_waiting(false),

@@ -36,8 +36,6 @@
 #include <OgreColourValue.h>
 #include <vector>
 
-class FlexMeshWheel; // Forward decl.
-
 namespace RoR
 {
 

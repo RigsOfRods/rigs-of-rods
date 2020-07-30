@@ -35,6 +35,8 @@
 #define CACHE_FILE "mods.cache"
 #define CACHE_FILE_FORMAT 11
 
+namespace RoR {
+
 struct AuthorInfo
 {
     int id;
@@ -253,3 +255,5 @@ private:
     std::set<Ogre::String>               m_resource_paths;   //!< A temporary list of existing resource paths
     std::map<int, const CacheCategory*>  m_category_lookup;
 };
+
+} // namespace RoR

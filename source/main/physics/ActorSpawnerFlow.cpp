@@ -31,6 +31,8 @@
 #include "Actor.h"
 #include "Renderdash.h"
 
+using namespace RoR;
+
 #define PROCESS_SECTION_IN_ANY_MODULE(_KEYWORD_, _FIELD_, _FUNCTION_)   \
 {                                                                       \
     this->SetCurrentKeyword(_KEYWORD_);                                 \

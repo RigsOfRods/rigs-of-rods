@@ -23,6 +23,9 @@
 #pragma once
 
 #include "Application.h"
+#include "SimData.h"
+
+namespace RoR {
 
 class Landusemap : public ZeroedMemoryAllocator
 {
@@ -41,3 +44,5 @@ protected:
 
     Ogre::Vector3 mapsize;
 };
+
+} // namespace RoR

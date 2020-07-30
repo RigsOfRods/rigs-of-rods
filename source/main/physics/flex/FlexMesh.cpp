@@ -24,10 +24,11 @@
 #include <Ogre.h>
 
 #include "ApproxMath.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "GfxActor.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 FlexMesh::FlexMesh(
     Ogre::String const & name, 

@@ -25,6 +25,7 @@
 #include <Ogre.h>
 
 using namespace Ogre;
+using namespace RoR;
 
 Airfoil::Airfoil(Ogre::String const& fname)
 {

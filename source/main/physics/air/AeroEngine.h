@@ -22,6 +22,10 @@
 
 #include "Application.h"
 
+#include <Ogre.h>
+
+namespace RoR {
+
 class AeroEngine
 {
 public:
@@ -62,3 +66,5 @@ public:
     virtual bool getWarmup() =0;
     virtual float getRadius() =0;
 };
+
+} // namespace RoR

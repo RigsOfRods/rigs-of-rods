@@ -48,7 +48,6 @@ using namespace Ogre;
 TerrainManager::TerrainManager()
     : m_collisions(0)
     , m_geometry_manager(0)
-    , m_hdr_listener(0)
     , m_object_manager(0)
     , m_shadow_manager(0)
     , m_sky_manager(0)

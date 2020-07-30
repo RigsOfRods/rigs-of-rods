@@ -21,7 +21,7 @@
 #include "Skidmark.h"
 
 #include "Application.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "ContentManager.h" // RGN_CONFIG
 #include "GfxScene.h"
 #include "Utils.h"

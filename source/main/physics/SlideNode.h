@@ -31,6 +31,8 @@
 #include <OgreVector3.h>
 #include <vector>
 
+namespace RoR {
+
 struct RailSegment //!< A single beam in a chain
 {
     RailSegment(beam_t* beam): rs_prev(nullptr), rs_next(nullptr), rs_beam(beam) {}
@@ -178,4 +180,6 @@ public:
      */
     Ogre::Real getLenTo( const beam_t* beam) const;
 };
+
+} // namespace RoR
 

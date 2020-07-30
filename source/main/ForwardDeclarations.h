@@ -30,40 +30,81 @@
 
 namespace RoR
 {
+    class  Actor;
     class  ActorManager;
+    class  ActorSpawner;
+    class  AeroEngine;
+    class  Airbrake;
+    class  Airfoil;
     class  AppContext;
+    class  Autopilot;
+    class  Buoyance;
+    class  CacheEntry;
+    class  CacheSystem;
     class  CameraManager;
+    class  Character;
+    class  Collisions;
     class  ConfigFile;
     class  Console;
     class  ContentManager;
     class  CVar;
+    class  DashBoard;
+    class  DashBoardManager;
+    class  DustPool;
     class  DiscordRpc;
+    class  EngineSim;
+    class  Flexable;
+    class  FlexAirfoil;
+    class  FlexBody;
     class  FlexBodyFileIO;
     struct FlexBodyCacheData;
     class  FlexFactory;
+    class  FlexMeshWheel;
+    class  FlexObj;
     class  ForceFeedback;
     class  GameContext;
+    class  GameScript;
     class  GfxActor;
     struct GfxCharacter;
+    class  GfxEnvmap;
     class  GfxScene;
     class  GUIManager;
     struct GuiManagerImpl;
-    class  GuiManagerInterface;
+    class  HydraxWater;
     class  InputEngine;
+    class  IWater;
+    class  Landusemap;
     class  LanguageEngine;
+    class  MovableText;
+    class  MumbleIntegration;
+    class  OutGauge;
+    class  OverlayWrapper;
     class  Network;
     class  OgreSubsystem;
     struct PlatformUtils;
+    class  PointColDetector;
     struct Prop;
     struct PropAnim;
+    class  RailGroup;
     class  Renderdash;
     class  Replay;
     class  RigLoadingProfiler;
+    class  Screwprop;
     class  ScriptEngine;
+    class  ShadowManager;
+    class  SimController;
     class  Skidmark;
     class  SkidmarkConfig;
     struct SkinDef;
     class  SkinManager;
+    class  SkyManager;
+    class  SkyXManager;
+    class  SlideNode;
+    class  Sound;
+    class  SoundManager;
+    class  SoundScriptInstance;
+    class  SoundScriptManager;
+    class  Task;
     class  TerrainEditor;
     class  TerrainGeometryManager;
     class  TerrainManager;
@@ -72,7 +113,34 @@ namespace RoR
     struct Terrn2Def;
     class  Terrn2Parser;
     struct Terrn2Telepoint;
+    class  TorqueCurve;
+    class  ThreadPool;
+    class  VehicleAI;
     class  VideoCamera;
+
+    // SimData.h
+    struct node_t;
+    struct beam_t;
+    struct shock_t;
+    struct eventsource_t;
+    struct soundsource_t;
+    struct rigidifier_t;
+    struct wheel_t;
+    struct vwheel_t;
+    struct ropable_t;
+    struct wing_t;
+    struct command_t;
+    struct rotator_t;
+    struct flare_t;
+    struct rope_t;
+    struct exhaust_t;
+    struct cparticle_t;
+    struct collision_box_t;
+    struct tie_t;
+    struct hook_t;
+    struct ground_model_t;
+    struct client_t;
+    struct authorinfo_t;
 
     namespace GUI
     {
@@ -93,11 +161,6 @@ namespace RoR
     }
 } // namespace RoR
 
-namespace MyGUI
-{
-    class  OgrePlatform;
-}
-
 namespace RoRnet
 {
     struct Header;
@@ -107,113 +170,6 @@ namespace RoRnet
     struct ServerInfo;
     struct VehicleState;
 }
-
-struct node_t;
-struct beam_t;
-struct shock_t;
-struct eventsource_t;
-struct soundsource_t;
-struct rigidifier_t;
-struct wheel_t;
-struct vwheel_t;
-struct ropable_t;
-struct wing_t;
-struct command_t;
-struct rotator_t;
-struct flare_t;
-struct rope_t;
-struct exhaust_t;
-struct cparticle_t;
-struct collision_box_t;
-struct tie_t;
-struct hook_t;
-struct ground_model_t;
-struct client_t;
-struct authorinfo_t;
-
-namespace MOC
-{
-    class CollisionTools;
-}
-
-namespace Ogre
-{
-    class Camera;
-    class ConfigFile;
-    class MovableText;
-    class Overlay;
-    class RenderTarget;
-    class TerrainGroup;
-}
-
-class Actor;
-class ActorSpawner;
-class AeroEngine;
-class Airbrake;
-class Airfoil;
-class Autopilot;
-class Buoyance;
-class CacheEntry;
-class CacheSystem;
-class Character;
-class ChatSystem;
-class CmdKeyInertia;
-class Collisions;
-class ColoredTextAreaOverlayElement;
-class DashBoard;
-class DashBoardManager;
-class Differential;
-class DotSceneLoader;
-class DustPool;
-class Editor;
-class EngineSim;
-class Envmap;
-class FlexAirfoil;
-class FlexBody;
-class FlexMesh;
-class FlexObj;
-class Flexable;
-class GameScript;
-class HDRListener;
-class HeightFinder;
-class HydraxWater;
-class IWater;
-class Landusemap;
-class MapTextureCreator;
-class MeshObject;
-class Mirror;
-class MumbleIntegration;
-class OutGauge;
-class OverlayWrapper;
-class PointColDetector;
-class ProceduralManager;
-class RailGroup;
-class RailSegment;
-class Road2;
-class Road;
-class ScopeLog;
-class Screwprop;
-class ShadowManager;
-class SimController;
-class SkyManager;
-class SkyXManager;
-class SlideNode;
-class Sound;
-class SoundManager;
-class SoundScriptInstance;
-class SoundScriptManager;
-class SurveyMapManager;
-class Task;
-class TerrainHeightFinder;
-class ThreadPool;
-class ThreadWorker;
-class TorqueCurve;
-class TransferCase;
-class TruckEditor;
-class Turbojet;
-class Turboprop;
-class VehicleAI;
-class Water;
 
 #ifdef USE_SOCKETW
 class SWBaseSocket;

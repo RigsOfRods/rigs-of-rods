@@ -22,6 +22,8 @@
 
 #include "Application.h"
 
+namespace RoR {
+
 /// Represents an airfoil http://en.wikipedia.org/wiki/Airfoil
 class Airfoil : public ZeroedMemoryAllocator
 {
@@ -40,3 +42,5 @@ private:
     float cd[3601];
     float cm[3601];
 };
+
+} // namespace RoR

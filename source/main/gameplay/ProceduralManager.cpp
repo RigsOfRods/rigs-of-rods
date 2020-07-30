@@ -24,6 +24,7 @@
 #include "Road2.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 ProceduralManager::ProceduralManager() :
     objectcounter(0)

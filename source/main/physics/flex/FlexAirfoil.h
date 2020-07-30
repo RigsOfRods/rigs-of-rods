@@ -23,14 +23,13 @@
 #include <Ogre.h>
 
 #include "Application.h"
-#include "BeamData.h" // For MAX_AEROENGINES
+#include "SimData.h" // For MAX_AEROENGINES
+
+namespace RoR {
 
 class FlexAirfoil : public ZeroedMemoryAllocator
 {
-    friend class RigInspector; // Debug utility class
-
 public:
-
     FlexAirfoil(Ogre::String const& wname, Actor* actor,
         int pnfld, int pnfrd, int pnflu, int pnfru, int pnbld, int pnbrd, int pnblu, int pnbru,
         std::string const & texname,
@@ -131,3 +130,5 @@ private:
     int washpropnum[MAX_AEROENGINES];
     float washpropratio[MAX_AEROENGINES];
 };
+
+} // namespace RoRs

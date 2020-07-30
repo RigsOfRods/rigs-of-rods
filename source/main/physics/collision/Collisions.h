@@ -23,10 +23,12 @@
 #pragma once
 
 #include "Application.h"
-
-#include "BeamData.h" // for collision_box_t
+#include "SimData.h" // for collision_box_t
 
 #include <mutex>
+#include <Ogre.h>
+
+namespace RoR {
 
 struct eventsource_t
 {
@@ -38,8 +40,6 @@ struct eventsource_t
     int cbox;
     bool enabled;
 };
-
-class Landusemap;
 
 class Collisions : public ZeroedMemoryAllocator
 {
@@ -193,3 +193,5 @@ public:
 };
 
 Ogre::Vector3 primitiveCollision(node_t* node, Ogre::Vector3 velocity, float mass, Ogre::Vector3 normal, float dt, ground_model_t* gm, float penetration = 0);
+
+} // namespace RoR

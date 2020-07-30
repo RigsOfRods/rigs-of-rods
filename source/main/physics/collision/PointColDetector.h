@@ -21,6 +21,8 @@
 
 #include "Application.h"
 
+namespace RoR {
+
 class PointColDetector : public ZeroedMemoryAllocator
 {
 public:
@@ -72,3 +74,5 @@ private:
     void partintwo(const int start, const int median, const int end, const int axis, float& minex, float& maxex);
     void update_structures_for_contacters(bool ignoreinternal);
 };
+
+} // namespace RoR

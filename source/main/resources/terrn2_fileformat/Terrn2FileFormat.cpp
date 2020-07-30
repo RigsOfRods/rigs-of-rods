@@ -26,7 +26,7 @@
 #include "ConfigFile.h"
 #include "Console.h"
 #include "Utils.h"
-#include "BeamConstants.h"
+#include "SimConstants.h"
 
 #include <OgreException.h>
 

@@ -32,6 +32,8 @@
 #include <OgreSubMesh.h>
 #include <OgreHardwareBuffer.h>
 
+namespace RoR {
+
 class FlexMesh: public Flexable
 {
 public:
@@ -90,3 +92,5 @@ private:
     unsigned short*   m_wheelface_indices;
     unsigned short*   m_tiretread_indices;
 };
+
+} // namespace RoR

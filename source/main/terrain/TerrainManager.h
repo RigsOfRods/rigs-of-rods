@@ -94,7 +94,6 @@ private:
     std::unique_ptr<IWater> m_water;
     TerrainEditor  m_terrain_editor;
     Collisions*    m_collisions;
-    HDRListener*   m_hdr_listener;
     ShadowManager* m_shadow_manager;
     SkyManager*    m_sky_manager;
     HydraxWater*   m_hydrax_water;

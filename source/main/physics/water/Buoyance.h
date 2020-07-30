@@ -22,6 +22,8 @@
 
 #include "Application.h"
 
+namespace RoR {
+
 class Buoyance
 {
 public:
@@ -49,4 +51,6 @@ private:
     DustPool *splashp, *ripplep;
     bool update;
 };
+
+} // namespace RoRs
 

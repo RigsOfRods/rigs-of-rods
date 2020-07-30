@@ -24,6 +24,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gfx/skyx/SkyX.h"
 
+namespace RoR {
+
 class SkyXManager : public ZeroedMemoryAllocator
 {
 public:
@@ -61,3 +63,5 @@ protected:
 
     int mLastHour = 0;
 };
+
+} // namespace RoRs

@@ -28,6 +28,8 @@
 /// @authors flypiper
 /// @authors Thomas Fischer (thomas{AT}rigsofrods{DOT}com)
 
+namespace RoR {
+
 /**
  *  @brief This class loads and processes a torque curve for a vehicle.
  */
@@ -86,9 +88,6 @@ public:
     int spaceCurveEvenly(Ogre::SimpleSpline* spline);
 
 protected:
-    Ogre::SimpleSpline* usedSpline; //!< spline which is used for calculating the torque, set by setTorqueModel().
-    Ogre::String usedModel; //!< name of the torque model used by the truck.
-    std::map<Ogre::String, Ogre::SimpleSpline> splines; //!< container were all torque curve splines are stored in.
 
     /**
      * Loads default torque models from the 'torque_models.cfg' file.
@@ -104,4 +103,10 @@ protected:
      * @return setTorqueModel() called if one argument given, 1 on error, 0 on success
      */
     int processLine(Ogre::StringVector args, Ogre::String model);
+
+    Ogre::SimpleSpline* usedSpline; //!< spline which is used for calculating the torque, set by setTorqueModel().
+    Ogre::String usedModel; //!< name of the torque model used by the truck.
+    std::map<Ogre::String, Ogre::SimpleSpline> splines; //!< container were all torque curve splines are stored in.
 };
+
+} // namespace RoR

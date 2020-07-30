@@ -26,7 +26,7 @@
 #pragma once
 
 #include "Actor.h"
-#include "BeamData.h" // Physics structs
+#include "SimData.h" // Physics structs
 #include "ActorManager.h"
 #include "CharacterFactory.h"
 #include "RaceSystem.h"

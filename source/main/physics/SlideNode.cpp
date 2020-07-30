@@ -27,7 +27,9 @@
 #include "SlideNode.h"
 
 #include "Application.h"
-#include "BeamData.h"
+#include "SimData.h"
+
+using namespace RoR;
 
 /**
  * Find the point on a line defined by pt1 and pt2 that

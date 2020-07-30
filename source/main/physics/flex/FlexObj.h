@@ -22,13 +22,11 @@
 #pragma once
 
 #include "Application.h"
+#include "SimData.h"
 
-#include "BeamData.h"
+#include <Ogre.h>
 
-#include <OgreVector3.h>
-#include <OgreMesh.h>
-#include <OgreSubMesh.h>
-#include <OgreHardwareBuffer.h>
+namespace RoR {
 
 /// Texture coordinates for old-style actor body (the "cab")
 struct CabTexcoord
@@ -105,3 +103,5 @@ private:
     unsigned short*             m_indices;
     int                         m_triangle_count;	
 };
+
+} // namespace RoRs

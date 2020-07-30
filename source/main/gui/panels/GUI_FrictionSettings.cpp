@@ -28,7 +28,7 @@
 #include "GUI_FrictionSettings.h"
 
 #include "Application.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "Collisions.h"
 #include "GameContext.h"
 #include "GUIManager.h"

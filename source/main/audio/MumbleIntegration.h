@@ -36,6 +36,8 @@
   #include <fcntl.h> /* For O_* constants */
 #endif // _WIN32
 
+namespace RoR {
+
 class MumbleIntegration : public ZeroedMemoryAllocator
 {
 public:
@@ -77,5 +79,7 @@ protected:
 
     LinkedMem* lm;
 };
+
+} // namespace RoR
 
 #endif //USE_MUMBLE

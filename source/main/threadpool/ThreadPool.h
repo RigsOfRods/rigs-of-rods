@@ -31,7 +31,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdexcept>
 #include <vector>
 
-using namespace RoR;
+namespace RoR {
 
 /** /brief Handle for a task executed by ThreadPool
  *
@@ -216,3 +216,5 @@ public:
     std::mutex m_taskqueue_mutex;                   //!< Protects task queue from concurrent access.
     std::condition_variable m_task_available_cv;    //!< Used to signal threads that a new task was submitted and is ready to run.
 };
+
+} // namespace RoR

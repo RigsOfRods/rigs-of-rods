@@ -23,6 +23,8 @@
 #include "Application.h"
 #include "TerrainObjectManager.h"
 
+namespace RoR {
+
 class Autopilot : public ZeroedMemoryAllocator
 {
 public:
@@ -114,3 +116,5 @@ private:
 
     int m_actor_id;
 };
+
+} // namespace RoR

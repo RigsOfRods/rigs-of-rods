@@ -26,24 +26,22 @@
 
 #include "Application.h"
 
-#include "BeamData.h"
+#include "SimData.h"
 #include "CmdKeyInertia.h"
 #include "Network.h"
 #include "RigDef_Prerequisites.h"
+#include "ThreadPool.h"
 
 #include <string>
 #include <vector>
 
 #define PHYSICS_DT App::diag_physics_dt->GetFloat()
 
-class ThreadPool;
-
 namespace RoR {
 
 /// Builds and manages softbody actors (physics on background thread, networking)
 class ActorManager
 {
-    friend class ::GameScript; // needs to call RemoveActorByCollisionBox()
 public:
 
     ActorManager();

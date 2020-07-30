@@ -27,6 +27,7 @@
 #include "Water.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 #ifndef _WIN32
 // This definitions is needed because the variable is declared but not defined in DustPool

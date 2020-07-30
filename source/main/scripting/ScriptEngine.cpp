@@ -55,10 +55,10 @@
 #include "ScriptEvents.h"
 #include "VehicleAI.h"
 
-const char *ScriptEngine::moduleName = "RoRScript";
-
 using namespace Ogre;
 using namespace RoR;
+
+const char *ScriptEngine::moduleName = "RoRScript";
 
 // some hacky functions
 

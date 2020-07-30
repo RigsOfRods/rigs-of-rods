@@ -27,7 +27,7 @@
 #include "GfxScene.h"
 #include "ScriptEngine.h"
 #include "SoundScriptManager.h"
-#include "BeamData.h"
+#include "SimData.h"
 
 using namespace Ogre;
 using namespace RoR;

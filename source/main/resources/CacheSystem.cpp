@@ -27,7 +27,7 @@
 
 #include <OgreException.h>
 #include "Application.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "ContentManager.h"
 #include "ErrorUtils.h"
 #include "GUI_LoadingWindow.h"

@@ -33,6 +33,8 @@
 
 #include "OgreTerrainPSSMMaterialGenerator.h"
 
+namespace RoR {
+
 //Store datas using structs
 struct PSSM_Shadows_Data
 {
@@ -65,3 +67,5 @@ protected:
 
     PSSM_Shadows_Data PSSM_Shadows;
 };
+
+} // namespace RoR

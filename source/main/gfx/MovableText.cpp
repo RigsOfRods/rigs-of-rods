@@ -29,6 +29,7 @@
 #include <Overlay/OgreFontManager.h>
 
 using namespace Ogre;
+using namespace RoR;
 
 #define POS_TEX_BINDING    0
 #define COLOUR_BINDING     1

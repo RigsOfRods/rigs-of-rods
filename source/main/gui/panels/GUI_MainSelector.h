@@ -26,7 +26,7 @@
 #pragma once
 
 #include "Application.h" // Str
-#include "BeamData.h" // ActorSpawnRequest
+#include "SimData.h" // ActorSpawnRequest
 #include "CacheSystem.h" // CacheSearchMethod
 #include "ForwardDeclarations.h"
 

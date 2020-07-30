@@ -23,7 +23,7 @@
 #include "OTCFileFormat.h"
 
 #include "Application.h"
-#include "BeamConstants.h"
+#include "SimConstants.h"
 #include "ConfigFile.h"
 #include "Utils.h"
 

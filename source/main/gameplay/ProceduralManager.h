@@ -22,6 +22,9 @@
 #pragma once
 
 #include "Application.h"
+#include "Road2.h"
+
+namespace RoR {
 
 class ProceduralPoint : public ZeroedMemoryAllocator
 {
@@ -70,3 +73,5 @@ public:
 
     std::vector<ProceduralObject>& getObjects();
 };
+
+} // namespace RoR

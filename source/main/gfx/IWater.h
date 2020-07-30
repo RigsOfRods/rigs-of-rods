@@ -22,7 +22,9 @@
 #pragma once
 
 #include "ForwardDeclarations.h"
-#include <OgreVector3.h>
+#include <Ogre.h>
+
+namespace RoR {
 
 class IWater //!< TODO: Mixed gfx+physics (waves) - must be separated ~ only_a_ptr, 02/2018
 {
@@ -49,3 +51,5 @@ public:
     virtual void           WaterPrepareShutdown() {}
     virtual void           UpdateWater() = 0;
 };
+
+} // namespace RoR

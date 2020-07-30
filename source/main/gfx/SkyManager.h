@@ -29,6 +29,8 @@
 
 #include <Caelum.h>
 
+namespace RoR {
+
 class SkyManager : public ZeroedMemoryAllocator
 {
 public:
@@ -52,5 +54,7 @@ private:
     Caelum::LongReal      m_last_clock;
     Caelum::CaelumSystem* m_caelum_system;
 };
+
+} // namespace RoR
 
 #endif // USE_CAELUM

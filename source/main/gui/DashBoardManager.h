@@ -32,7 +32,7 @@
 
 #include <string>
 
-// TODO: Clean up this header
+namespace RoR {
 
 #define DD_MAXCHAR 255
 #define DD_MAX_SCREWPROP  6
@@ -313,3 +313,5 @@ protected:
     layoutLink_t controls[MAX_CONTROLS];
     int free_controls;
 };
+
+} // namespace RoR

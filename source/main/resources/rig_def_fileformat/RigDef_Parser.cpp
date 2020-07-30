@@ -26,7 +26,7 @@
 #include "RigDef_Parser.h"
 
 #include "Application.h"
-#include "BeamConstants.h"
+#include "SimConstants.h"
 #include "CacheSystem.h"
 #include "Console.h"
 #include "RigDef_File.h"

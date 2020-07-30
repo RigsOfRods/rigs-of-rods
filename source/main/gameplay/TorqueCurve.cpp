@@ -26,6 +26,7 @@
 #include <Ogre.h>
 
 using namespace Ogre;
+using namespace RoR;
 
 const String TorqueCurve::customModel = "CustomModel";
 

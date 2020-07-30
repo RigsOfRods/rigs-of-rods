@@ -21,7 +21,7 @@
 #include "ScrewProp.h"
 
 #include "Application.h"
-#include "BeamData.h"
+#include "SimData.h"
 #include "ActorManager.h"
 #include "DustPool.h"
 #include "GfxScene.h"

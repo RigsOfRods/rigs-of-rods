@@ -30,6 +30,8 @@
 #include <angelscript.h>
 #include <scriptdictionary/scriptdictionary.h>
 
+namespace RoR {
+
 struct curlMemoryStruct
 {
     char* memory;
@@ -372,3 +374,4 @@ private:
     bool HaveMainCamera(const char* func_name); //!< Helper; Check if main camera exists, log warning if not.
 };
 
+} // namespace RoR

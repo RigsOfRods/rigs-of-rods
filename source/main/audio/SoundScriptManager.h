@@ -35,6 +35,8 @@
 #define SOUND_GET_STATE(_ACTOR_, _TRIG_)        App::GetSoundScriptManager()->getTrigState( (_ACTOR_), (_TRIG_) )
 #define SOUND_MODULATE(_ACTOR_, _MOD_, _VALUE_) App::GetSoundScriptManager()->modulate    ( (_ACTOR_), (_MOD_), (_VALUE_) )
 
+namespace RoR {
+
 enum {
     MAX_SOUNDS_PER_SCRIPT = 16,
     MAX_INSTANCES_PER_GROUP = 256
@@ -164,10 +166,6 @@ enum SoundLinkTypes {
     SL_MAX
 };
 
-class Sound;
-class SoundManager;
-class MumbleIntegration;
-
 class SoundScriptTemplate : public ZeroedMemoryAllocator
 {
     friend class SoundScriptManager;
@@ -214,7 +212,6 @@ private:
 class SoundScriptInstance : public ZeroedMemoryAllocator
 {
     friend class SoundScriptManager;
-    friend class RigInspector;
 
 public:
 
@@ -321,6 +318,8 @@ private:
 
     SoundManager* sound_manager;
 };
+
+} // namespace RoR
 
 #else // USE_OPENAL
 
