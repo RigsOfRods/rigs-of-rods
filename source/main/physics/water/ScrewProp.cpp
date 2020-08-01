@@ -25,7 +25,6 @@
 #include "ActorManager.h"
 #include "DustPool.h"
 #include "GfxScene.h"
-#include "RoRFrameListener.h" // SimController
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "Water.h"

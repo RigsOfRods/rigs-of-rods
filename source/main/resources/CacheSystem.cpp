@@ -33,10 +33,10 @@
 #include "GUI_LoadingWindow.h"
 #include "GUIManager.h"
 #include "GfxActor.h"
+#include "GfxScene.h"
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RigDef_Parser.h"
-#include "RoRFrameListener.h"
 
 #include "SkinFileFormat.h"
 #include "TerrainManager.h"

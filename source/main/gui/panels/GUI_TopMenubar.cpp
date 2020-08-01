@@ -28,6 +28,7 @@
 #include "Application.h"
 #include "Actor.h"
 #include "ActorManager.h"
+#include "CameraManager.h"
 #include "GameContext.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
@@ -37,7 +38,6 @@
 #include "Network.h"
 #include "PlatformUtils.h"
 #include "Replay.h"
-#include "RoRFrameListener.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"
 

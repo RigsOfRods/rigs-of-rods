@@ -92,7 +92,6 @@ namespace RoR
     class  Screwprop;
     class  ScriptEngine;
     class  ShadowManager;
-    class  SimController;
     class  Skidmark;
     class  SkidmarkConfig;
     struct SkinDef;

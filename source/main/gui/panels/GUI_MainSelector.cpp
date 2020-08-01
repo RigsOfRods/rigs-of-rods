@@ -30,7 +30,6 @@
 #include "GUI_LoadingWindow.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "RoRFrameListener.h"
 #include "Utils.h"
 
 #include <MyGUI.h>

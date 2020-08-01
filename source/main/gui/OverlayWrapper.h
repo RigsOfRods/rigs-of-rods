@@ -110,8 +110,6 @@ struct AeroDashOverlay
 
 class OverlayWrapper : public ZeroedMemoryAllocator
 {
-    friend class SimController;
-
 public:
 
     OverlayWrapper();
@@ -137,7 +135,7 @@ public:
     float mTimeUntilNextToggle;
 
     void UpdatePressureOverlay(RoR::GfxActor* ga);
-
+    void update(float dt);
     void UpdateLandVehicleHUD(RoR::GfxActor* ga);
     void UpdateAerialHUD(RoR::GfxActor* ga);
     void UpdateMarineHUD(Actor * vehicle);
@@ -160,7 +158,6 @@ protected:
     };
 
     int init();
-    void update(float dt);
     void resizePanel(Ogre::OverlayElement *oe);
     void reposPanel(Ogre::OverlayElement *oe);
     void placeNeedle(Ogre::SceneNode *node, float x, float y, float len);

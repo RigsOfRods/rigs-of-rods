@@ -27,6 +27,7 @@
 #include "Collisions.h"
 #include "DustPool.h" // General particle gfx
 #include "EngineSim.h"
+#include "GfxScene.h"
 #include "HydraxWater.h"
 #include "FlexAirfoil.h"
 #include "FlexBody.h"
@@ -39,7 +40,6 @@
 #include "OgreImGui.h"
 #include "Renderdash.h" // classic 'renderdash' material
 #include "ActorSpawner.h"
-#include "RoRFrameListener.h" // SimController
 #include "SlideNode.h"
 #include "SkyManager.h"
 #include "SoundScriptManager.h"

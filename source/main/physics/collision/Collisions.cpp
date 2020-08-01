@@ -27,11 +27,11 @@
 #include "ActorManager.h"
 #include "ErrorUtils.h"
 #include "GameContext.h"
+#include "GfxScene.h"
 #include "Landusemap.h"
 #include "Language.h"
 #include "MovableText.h"
 #include "PlatformUtils.h"
-#include "RoRFrameListener.h"
 #include "ScriptEngine.h"
 #include "TerrainManager.h"
 

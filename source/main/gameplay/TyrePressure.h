@@ -22,7 +22,6 @@
 #pragma once
 
 /// @file Wheel 'pressure adjustment' logic (only for 'wheels2')
-///       Originally placed in RoRFrameListener.h|cpp and Beam.h|cpp
 
 #include "Application.h"
 

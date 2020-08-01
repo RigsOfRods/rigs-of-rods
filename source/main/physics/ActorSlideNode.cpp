@@ -27,7 +27,6 @@
 
 #include "Actor.h"
 #include "GameContext.h"
-#include "RoRFrameListener.h"
 
 using namespace RoR;
 

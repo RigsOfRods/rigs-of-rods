@@ -23,7 +23,6 @@
 #include "Actor.h"
 #include "ActorManager.h"
 #include "GameContext.h"
-#include "RoRFrameListener.h"
 
 using namespace Ogre;
 using namespace RoR;

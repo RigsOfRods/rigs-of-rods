@@ -36,7 +36,6 @@
 #include "OgreImGui.h"
 #include "OverlayWrapper.h"
 #include "PlatformUtils.h"
-#include "RoRFrameListener.h" // SimController
 #include "RTTLayer.h"
 #include "TerrainManager.h"
 
