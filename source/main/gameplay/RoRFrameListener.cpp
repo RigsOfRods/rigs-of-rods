@@ -532,12 +532,5 @@ void SimController::UpdateSimulation(float dt)
     }
 }
 
-void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
-{
-    Actor* actor = App::GetGameContext()->FindActorByCollisionBox(ev_src_instance_name, box_name);
-    if (actor)
-    {
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
-    }
-}
+
 

@@ -399,7 +399,11 @@ void GameScript::removeVehicle(const String& event_source_instance_name, const S
     if (!this->HaveSimController(__FUNCTION__))
         return;
 
-    App::GetSimController()->RemoveActorByCollisionBox(event_source_instance_name, event_source_box_name);
+    Actor* actor = App::GetGameContext()->FindActorByCollisionBox(event_source_instance_name, event_source_box_name);
+    if (actor)
+    {
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
+    }
 }
 
 void GameScript::destroyObject(const String& instanceName)
