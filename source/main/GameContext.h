@@ -26,11 +26,11 @@
 #pragma once
 
 #include "Actor.h"
-#include "SimData.h" // Physics structs
 #include "ActorManager.h"
 #include "CharacterFactory.h"
 #include "RaceSystem.h"
-#include "GUI_SceneMouse.h"
+#include "RecoveryMode.h"
+#include "SimData.h"
 
 #include <list>
 #include <mutex>
@@ -122,6 +122,7 @@ public:
     // Gameplay feats (misc.)
 
     RaceSystem&         GetRaceSystem() { return m_race_system; }
+    RecoveryMode&       GetRecoveryMode() { return m_recovery_mode; }
     void                TeleportPlayer(float x, float z);
     void                HandleCommonInputEvents(); // EV_COMMON*, any game state
     
@@ -145,6 +146,7 @@ private:
 
     // Gameplay feats (misc.)
     RaceSystem          m_race_system;
+    RecoveryMode        m_recovery_mode;                     //!< Aka 'advanced repair' or 'interactive reset'
 };
 
 } // namespace RoR

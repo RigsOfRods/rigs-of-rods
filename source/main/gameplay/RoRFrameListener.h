@@ -34,48 +34,17 @@
 
 namespace RoR {
 
-/// The simulation controller object
-/// It's lifetime is tied to single gameplay session. When user returns to main menu, it's destroyed.
-///
-///
-/// Architecture is currently undergoing a refactor.
-///  OLD: We use threadpool; rendering loop runs on main thread, simulation is updated in between frames via 'Ogre::FrameListener' interface which also provides timing.
-///   1. SimController::EnterGameplayLoop() invokes Ogre::Root::renderOneFrame() which invokes SimController::frameStarted()
-///   2. Wait for simulation task to finish.
-///   3. Gather user inputs; send/receive network data
-///   3. Update OGRE scene; Put flexbody tasks to threadpool and wait for them to finish.
-///   4. Run new sim. task: split time since last frame into constant size chunks and advance simulation
-///   5. While sim. task is running, let main thread do the rendering
-///
-///  FUTURE: Use threadpool, run simulation loop on main thread and render in background.
-///   1. Check time since last sim. update and sleep if we're up-to-date.
-///   2. Check time since last render; if necessary, copy sim. data and put an "update scene and render" task to threadpool.
-///   2. Gather user inputs; send/receive network data
-///   3. Update simulation
-class SimController: public ZeroedMemoryAllocator
+/// UNDER REMOVAL
+class SimController
 {
 public:
-    SimController();
-
-    // Actor management interface
-
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); //!< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
-
-
-
-
 
     void   UpdateSimulation(float dt);
 
 private:
 
     void   UpdateInputEvents       (float dt);
-
-   
-
-    bool                     m_advanced_vehicle_repair;
-    float                    m_advanced_vehicle_repair_timer;
-
 
 };
 

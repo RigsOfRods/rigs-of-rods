@@ -83,11 +83,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-SimController::SimController() :
-    m_advanced_vehicle_repair(false),
-    m_advanced_vehicle_repair_timer(0.f)
-{
-}
+
 
 void SimController::UpdateInputEvents(float dt)
 {
@@ -152,11 +148,6 @@ void SimController::UpdateInputEvents(float dt)
                         (App::sim_soft_reset_mode->GetBool()) ? _L("Enabled soft reset mode") : _L("Enabled hard reset mode"));
                 }
 
-                if (!RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
-                {
-                    m_advanced_vehicle_repair_timer = 0.0f;
-                }
-
                 if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) &&
                     App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::LOCAL_REPLAY)
                 {
@@ -169,117 +160,6 @@ void SimController::UpdateInputEvents(float dt)
                          App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::LOCAL_REPLAY)
                 {
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)App::GetGameContext()->GetPlayerActor()));
-                }
-                else if ((App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_vehicle_repair) &&
-                         App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::LOCAL_REPLAY)
-                {
-                    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
-                    {
-                        m_advanced_vehicle_repair = m_advanced_vehicle_repair_timer > 1.0f;
-                    }
-
-                    Vector3 translation = Vector3::ZERO;
-                    float rotation = 0.0f;
-
-                    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_ACCELERATE))
-                    {
-                        translation += 2.0f * Vector3::UNIT_Y * dt;
-                    }
-                    else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_BRAKE))
-                    {
-                        translation -= 2.0f * Vector3::UNIT_Y * dt;
-                    }
-                    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STEER_LEFT))
-                    {
-                        rotation += 0.5f * dt;
-                    }
-                    else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STEER_RIGHT))
-                    {
-                        rotation -= 0.5f * dt;
-                    }
-                    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_FORWARD))
-                    {
-                        float curRot = App::GetGameContext()->GetPlayerActor()->getRotation();
-                        translation.x += 2.0f * cos(curRot - Ogre::Math::HALF_PI) * dt;
-                        translation.z += 2.0f * sin(curRot - Ogre::Math::HALF_PI) * dt;
-                    }
-                    else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_BACKWARDS))
-                    {
-                        float curRot = App::GetGameContext()->GetPlayerActor()->getRotation();
-                        translation.x -= 2.0f * cos(curRot - Ogre::Math::HALF_PI) * dt;
-                        translation.z -= 2.0f * sin(curRot - Ogre::Math::HALF_PI) * dt;
-                    }
-                    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_RIGHT))
-                    {
-                        float curRot = App::GetGameContext()->GetPlayerActor()->getRotation();
-                        translation.x += 2.0f * cos(curRot) * dt;
-                        translation.z += 2.0f * sin(curRot) * dt;
-                    }
-                    else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_LEFT))
-                    {
-                        float curRot = App::GetGameContext()->GetPlayerActor()->getRotation();
-                        translation.x -= 2.0f * cos(curRot) * dt;
-                        translation.z -= 2.0f * sin(curRot) * dt;
-                    }
-
-                    if (translation != Vector3::ZERO || rotation != 0.0f)
-                    {
-                        float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.1f : 1.0f;
-                        scale *= RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) ? 3.0f : 1.0f;
-                        scale *= RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
-
-                        Vector3 rotation_center = App::GetGameContext()->GetPlayerActor()->GetRotationCenter();
-
-                        rotation *= Ogre::Math::Clamp(scale, 0.1f, 10.0f);
-                        translation *= scale;
-
-                        App::GetGameContext()->GetPlayerActor()->RequestRotation(rotation, rotation_center);
-                        App::GetGameContext()->GetPlayerActor()->RequestTranslation(translation);
-
-                        if (App::sim_soft_reset_mode->GetBool())
-                        {
-                            for (auto actor : App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors())
-                            {
-                                actor->RequestRotation(rotation, rotation_center);
-                                actor->RequestTranslation(translation);
-                            }
-                        }
-
-                        m_advanced_vehicle_repair_timer = 0.0f;
-                    }
-                    else if (RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
-                    {
-                        App::GetGameContext()->GetPlayerActor()->RequestAngleSnap(45);
-                        if (App::sim_soft_reset_mode->GetBool())
-                        {
-                            for (auto actor : App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors())
-                            {
-                                actor->RequestAngleSnap(45);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        m_advanced_vehicle_repair_timer += dt;
-                    }
-
-                    auto reset_type = ActorModifyRequest::Type::RESET_ON_SPOT;
-                    if (App::sim_soft_reset_mode->GetBool())
-                    {
-                        reset_type = ActorModifyRequest::Type::SOFT_RESET;
-                        for (auto actor : App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors())
-                        {
-                            ActorModifyRequest* rq = new ActorModifyRequest;
-                            rq->amr_actor = actor;
-                            rq->amr_type = reset_type;
-                            App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
-                        }
-                    }
-
-                    ActorModifyRequest* rq = new ActorModifyRequest;
-                    rq->amr_actor = App::GetGameContext()->GetPlayerActor();
-                    rq->amr_type = reset_type;
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
                 }
                 else
                 {
@@ -624,6 +504,7 @@ void SimController::UpdateSimulation(float dt)
     App::GetOverlayWrapper()->update(dt);
 
     this->UpdateInputEvents(dt);
+    App::GetGameContext()->GetRecoveryMode().UpdateInputEvents(dt);
     App::GetGameContext()->GetActorManager()->UpdateInputEvents(dt);
 
     RoR::App::GetGuiManager()->DrawSimulationGui(dt);
