@@ -26,6 +26,7 @@ set(SOURCE_FILES
         gameplay/LandVehicleSimulation.{h,cpp}
         gameplay/ProceduralManager.{h,cpp}
         gameplay/RaceSystem.{h,cpp}
+        gameplay/RecoveryMode.{h,cpp}
         gameplay/Replay.{h,cpp}
         gameplay/Road.{h,cpp}
         gameplay/Road2.{h,cpp}
