@@ -21,24 +21,18 @@
 
 #pragma once
 
-/// @file Actor feat - interactive recovery and repair mode
-
-#include "Application.h"
-
-#include <vector>
-
 namespace RoR {
 
-/// Actor feat - interactive recovery and repair mode, operates on player vehicle
-///              Aka 'advanced repair' or 'interactive reset'
-class RecoveryMode
+struct GeneralSimulation
 {
 public:
-    void                UpdateInputEvents(float dt);
+
+    static void   UpdateSimulation(float dt);
 
 private:
-    bool                m_advanced_vehicle_repair = false;
-    float               m_advanced_vehicle_repair_timer = 0.f;
+
+    static void   UpdateInputEvents(float dt);
+
 };
 
 } // namespace RoR

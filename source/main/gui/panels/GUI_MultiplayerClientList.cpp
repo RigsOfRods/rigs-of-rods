@@ -34,7 +34,6 @@
 #include "GUIManager.h"
 #include "Language.h"
 #include "Network.h"
-#include "RoRFrameListener.h"
 
 #include <vector>
 

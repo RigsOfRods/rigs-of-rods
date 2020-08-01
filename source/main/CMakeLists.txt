@@ -22,6 +22,7 @@ set(SOURCE_FILES
         gameplay/Character.{h,cpp}
         gameplay/CharacterFactory.{h,cpp}
         gameplay/ChatSystem.{h,cpp}
+        gameplay/GeneralSimulation.{h,cpp}
         gameplay/Landusemap.{h,cpp}
         gameplay/LandVehicleSimulation.{h,cpp}
         gameplay/ProceduralManager.{h,cpp}
@@ -30,7 +31,6 @@ set(SOURCE_FILES
         gameplay/Replay.{h,cpp}
         gameplay/Road.{h,cpp}
         gameplay/Road2.{h,cpp}
-        gameplay/RoRFrameListener.{h,cpp}
         gameplay/ScriptEvents.h
         gameplay/TorqueCurve.{h,cpp}
         gameplay/TyrePressure.{h,cpp}

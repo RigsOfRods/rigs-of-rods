@@ -23,6 +23,7 @@
 
 #include "AdvancedScreen.h"
 #include "Actor.h"
+#include "CameraManager.h"
 #include "ChatSystem.h"
 #include "Console.h"
 #include "ContentManager.h"
@@ -37,7 +38,6 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "PlatformUtils.h"
-#include "RoRFrameListener.h" // SimController
 #include "RoRVersion.h"
 #include "OverlayWrapper.h"
 
@@ -85,8 +85,7 @@ bool AppContext::mouseMoved(const OIS::MouseEvent& arg) // overrides OIS::MouseL
         {
             handled = App::GetOverlayWrapper()->mouseMoved(arg); // update the old airplane / autopilot gui
         }
-
-        if (!handled && App::GetSimController())
+        if (!handled)
         {
             App::GetCameraManager()->mouseMoved(arg);
         }
@@ -108,7 +107,7 @@ bool AppContext::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID _id
             handled = App::GetOverlayWrapper()->mousePressed(arg, _id); // update the old airplane / autopilot gui
         }
 
-        if (!handled && App::GetSimController())
+        if (!handled && App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
         {
             App::GetCameraManager()->mousePressed(arg, _id);
         }
@@ -130,8 +129,9 @@ bool AppContext::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID _i
     {
         bool handled = false;
         if (App::GetOverlayWrapper())
+        {
             handled = App::GetOverlayWrapper()->mouseReleased(arg, _id); // update the old airplane / autopilot gui
-
+        }
     }
     else
     {
@@ -341,7 +341,9 @@ void AppContext::CaptureScreenshot()
 
         png.addData("User_NickName", App::mp_player_name->GetStr());
         png.addData("User_Language", App::app_language->GetStr());
-        if (App::GetSimController() && App::GetGameContext()->GetPlayerActor())
+
+        if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION && 
+            App::GetGameContext()->GetPlayerActor())
         {
             png.addData("Truck_file", App::GetGameContext()->GetPlayerActor()->ar_filename);
             png.addData("Truck_name", App::GetGameContext()->GetPlayerActor()->GetActorDesignName());

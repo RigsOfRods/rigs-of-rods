@@ -23,7 +23,7 @@
 
 #include "Application.h"
 #include "Character.h"
-#include "RoRFrameListener.h" // SimController
+#include "GfxScene.h"
 #include "Utils.h"
 
 using namespace RoR;

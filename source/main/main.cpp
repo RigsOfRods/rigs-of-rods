@@ -22,6 +22,7 @@
 #include "Application.h"
 #include "AppContext.h"
 #include "CacheSystem.h"
+#include "CameraManager.h"
 #include "ChatSystem.h"
 #include "Collisions.h"
 #include "Console.h"
@@ -29,6 +30,8 @@
 #include "DiscordRpc.h"
 #include "ErrorUtils.h"
 #include "GameContext.h"
+#include "GeneralSimulation.h"
+#include "GfxScene.h"
 #include "GUIManager.h"
 #include "GUI_DirectionArrow.h"
 #include "GUI_LoadingWindow.h"
@@ -37,8 +40,8 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "MumbleIntegration.h"
+#include "OutGauge.h"
 #include "PlatformUtils.h"
-#include "RoRFrameListener.h"
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
 #include "Skidmark.h"
@@ -420,7 +423,6 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_SIM_LOAD_TERRN_REQUESTED:
-                    App::SetSimController(new SimController());
                     App::GetGuiManager()->GetLoadingWindow()->SetProgress(5, _L("Loading resources"));
                     App::GetContentManager()->LoadGameplayResources();
 
@@ -460,7 +462,6 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_SIM_UNLOAD_TERRN_REQUESTED:
-                    ROR_ASSERT (App::GetSimController());
                     App::GetGameContext()->GetActorManager()->SyncWithSimThread(); // Wait for background tasks to finish
                     if (App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
                     {
@@ -476,8 +477,8 @@ int main(int argc, char *argv[])
                     App::sim_state->SetVal((int)SimState::OFF);
                     App::app_state->SetVal((int)AppState::MAIN_MENU);
                     App::GetGuiManager()->ReflectGameState();
-                    delete App::GetSimController();    App::SetSimController(nullptr);
-                    delete App::GetSimTerrain();       App::SetSimTerrain(nullptr);
+                    delete App::GetSimTerrain();
+                    App::SetSimTerrain(nullptr);
                     App::GetGfxScene()->ClearScene();
                     App::sim_terrain_name->SetStr("");
                     App::sim_terrain_gui_name->SetStr("");
@@ -611,7 +612,7 @@ int main(int argc, char *argv[])
                 if (!packets.empty())
                 {
                     RoR::ChatSystem::HandleStreamData(packets);
-                    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION && App::GetSimController())
+                    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
                     {
                         App::GetGameContext()->GetActorManager()->HandleActorStreamData(packets);
                         App::GetGameContext()->GetCharacterFactory()->handleStreamData(packets); // Update characters last (or else beam coupling might fail)
@@ -642,7 +643,7 @@ int main(int argc, char *argv[])
                 if (dt_sec != 0.f)
                 {
                     App::GetGuiManager()->NewImGuiFrame(dt_sec); // For historical reasons, simulation update also draws some GUI
-                    App::GetSimController()->UpdateSimulation(dt_sec);
+                    GeneralSimulation::UpdateSimulation(dt_sec);
                     if (App::sim_state->GetEnum<SimState>() != RoR::SimState::PAUSED)
                     {
                         App::GetGfxScene()->UpdateScene(dt_sec);

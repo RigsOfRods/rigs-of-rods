@@ -22,8 +22,9 @@
 #include "Water.h"
 
 #include "AppContext.h"
+#include "CameraManager.h"
+#include "GfxScene.h"
 #include "PlatformUtils.h" // PathCombine
-#include "RoRFrameListener.h"
 #include "TerrainManager.h"
 
 #include <Ogre.h>

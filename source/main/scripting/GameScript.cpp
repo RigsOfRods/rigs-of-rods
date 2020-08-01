@@ -43,10 +43,10 @@
 #include "Console.h"
 #include "EngineSim.h"
 #include "GameContext.h"
+#include "GfxScene.h"
 #include "GUIManager.h"
 #include "Language.h"
 #include "Network.h"
-#include "RoRFrameListener.h"
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
 #include "SkyManager.h"
@@ -248,10 +248,7 @@ float GameScript::getWaterHeight()
 
 Actor* GameScript::getCurrentTruck()
 {
-    Actor* result = nullptr;
-    if (App::GetSimController())
-        result = App::GetGameContext()->GetPlayerActor();
-    return result;
+    return App::GetGameContext()->GetPlayerActor();
 }
 
 float GameScript::getGravity()
@@ -274,26 +271,16 @@ void GameScript::setGravity(float value)
 
 Actor* GameScript::getTruckByNum(int num)
 {
-    // TODO: Do we have to add a 'GetActorByIndex' method to keep this backwards compatible?
-    Actor* result = nullptr;
-    if (App::GetSimController())
-        result = App::GetGameContext()->GetActorManager()->GetActorById(num);
-    return result;
+    return App::GetGameContext()->GetActorManager()->GetActorById(num);
 }
 
 int GameScript::getNumTrucks()
 {
-    int result = 0;
-    if (App::GetSimController())
-        result = static_cast<int>(App::GetGameContext()->GetActorManager()->GetActors().size());
-    return result;
+    return (int)App::GetGameContext()->GetActorManager()->GetActors().size();
 }
 
 int GameScript::getNumTrucksByFlag(int flag)
 {
-    if (App::GetSimController() == nullptr)
-        return 0;
-
     int result = 0;
     for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
@@ -305,9 +292,6 @@ int GameScript::getNumTrucksByFlag(int flag)
 
 int GameScript::GetPlayerActorId()
 {
-    if (App::GetSimController() == nullptr)
-        return -1;
-
     Actor* actor = App::GetGameContext()->GetPlayerActor();
     return (actor != nullptr) ? actor->ar_instance_id : -1;
 }
@@ -895,11 +879,9 @@ int GameScript::sendGameCmd(const String& message)
 VehicleAI* GameScript::getCurrentTruckAI()
 {
     VehicleAI* result = nullptr;
-    if (App::GetSimController())
+    if (App::GetGameContext()->GetPlayerActor())
     {
-        Actor* actor = App::GetGameContext()->GetPlayerActor();
-        if (actor != nullptr)
-            result = actor->ar_vehicle_ai;
+        result = App::GetGameContext()->GetPlayerActor()->ar_vehicle_ai;
     }
     return result;
 }
@@ -907,11 +889,10 @@ VehicleAI* GameScript::getCurrentTruckAI()
 VehicleAI* GameScript::getTruckAIByNum(int num)
 {
     VehicleAI* result = nullptr;
-    if (App::GetSimController())
+    Actor* actor = App::GetGameContext()->GetActorManager()->GetActorById(num);
+    if (actor != nullptr)
     {
-        Actor* actor = App::GetGameContext()->GetActorManager()->GetActorById(num);
-        if (actor != nullptr)
-            result = actor->ar_vehicle_ai;
+        result = actor->ar_vehicle_ai;
     }
     return result;
 }
@@ -968,7 +949,7 @@ float GameScript::getAvgFPS()
 
 bool GameScript::HaveSimController(const char* func_name)
 {
-    if (App::GetSimController() == nullptr)
+    if (App::app_state->GetEnum<AppState>() != AppState::SIMULATION)
     {
         this->logFormat("Cannot execute '%s', simulation not ready", func_name);
         return false;

@@ -22,21 +22,24 @@
 #include "Application.h"
 #include "Actor.h"
 #include "ActorManager.h"
+#include "CameraManager.h"
 #include "Character.h"
 #include "Console.h"
 #include "GameContext.h"
+#include "GfxScene.h"
 #include "GUIManager.h"
 #include "IWater.h"
 #include "Language.h"
 #include "Network.h"
 #include "OverlayWrapper.h"
-#include "RoRFrameListener.h"
 #include "RoRnet.h"
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
 #include "Utils.h"
+
+#include <Ogre.h>
 
 using namespace RoR;
 

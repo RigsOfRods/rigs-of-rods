@@ -33,7 +33,6 @@
 #include "GUI_MainSelector.h"
 #include "InputEngine.h"
 #include "OverlayWrapper.h"
-#include "RoRFrameListener.h" // SimController
 #include "ScriptEngine.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
@@ -115,8 +114,6 @@ void GameContext::UnloadTerrain()
 
 Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
 {
-    // --- From `SimController::UpdateSimulation() ~~ for (ActorSpawnRequest& rq: m_actor_spawn_queue)`
-
     if (rq.asr_origin == ActorSpawnRequest::Origin::USER)
     {
         m_last_cache_selection = rq.asr_cache_entry;
@@ -142,7 +139,6 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
         }
     }
 
-    // --- From `SimController::SpawnActorDirectly()`
     LOG(" ===== LOADING VEHICLE: " + rq.asr_filename);
 
     if (rq.asr_cache_entry != nullptr)
@@ -185,8 +181,6 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
     {
         fresh_actor->ToggleSlideNodeLock();
     }
-
-    // --- Continued `SimController::UpdateSimulation() | for (ActorSpawnRequest& rq: m_actor_spawn_queue)`
 
     if (rq.asr_origin == ActorSpawnRequest::Origin::USER)
     {
@@ -274,7 +268,6 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
 
 void GameContext::DeleteActor(Actor* actor)
 {
-    // --- From `SimController::UpdateSimulation() | for (Actor* a: m_actor_remove_queue)`
     if (actor == m_player_actor)
     {
         Ogre::Vector3 center = m_player_actor->GetRotationCenter();
@@ -296,8 +289,6 @@ void GameContext::DeleteActor(Actor* actor)
             actorx->ToggleTies();
         }
     }
-
-    // --- From `SimController::RemoveActorDirectly()`
 
     App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor());
 

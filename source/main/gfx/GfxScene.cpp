@@ -31,7 +31,6 @@
 #include "GUIManager.h"
 #include "GUI_DirectionArrow.h"
 #include "OverlayWrapper.h"
-#include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"
 #include "SkyXManager.h"
 #include "TerrainGeometryManager.h"

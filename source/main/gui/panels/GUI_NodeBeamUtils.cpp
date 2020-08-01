@@ -23,7 +23,6 @@
 #include "Actor.h"
 #include "GameContext.h"
 #include "GUIManager.h"
-#include "RoRFrameListener.h"
 
 void RoR::GUI::NodeBeamUtils::Draw()
 {

@@ -395,7 +395,6 @@ GUIManager*          GetGuiManager();
 Console*             GetConsole();
 InputEngine*         GetInputEngine();
 CacheSystem*         GetCacheSystem();
-SimController*       GetSimController();
 MumbleIntegration*   GetMumble();
 TerrainManager*      GetSimTerrain();
 ThreadPool*          GetThreadPool();
@@ -421,7 +420,6 @@ void CreateSoundScriptManager();
 void CreateScriptEngine();
 
 // Setters
-void SetSimController        (SimController*     obj);
 void SetSimTerrain           (TerrainManager*    obj);
 void SetCacheSystem          (CacheSystem*       obj);
 

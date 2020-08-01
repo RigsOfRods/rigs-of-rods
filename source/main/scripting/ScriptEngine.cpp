@@ -51,7 +51,6 @@
 #include "OgreAngelscript.h"
 #include "OgreScriptBuilder.h"
 #include "PlatformUtils.h"
-#include "RoRFrameListener.h" // SimController
 #include "ScriptEvents.h"
 #include "VehicleAI.h"
 

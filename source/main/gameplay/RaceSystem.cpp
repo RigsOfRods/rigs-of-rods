@@ -20,7 +20,6 @@
 */
 
 /// Counterpart to Neorej16's race system script
-/// Originally placed in RoRFrameListener.h|cpp
 
 #include "RaceSystem.h"
 

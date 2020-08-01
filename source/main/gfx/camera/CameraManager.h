@@ -103,7 +103,7 @@ protected:
     CameraBehaviors      m_cam_before_toggled;  //!< Toggled modes (FREE, FREEFIX) remember original state.
     CameraBehaviors      m_prev_toggled_cam;    //!< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.
     // Old `CameraContext`
-    Actor*               m_cct_player_actor; // TODO: duplicates `SimController::m_player_actor`
+    Actor*               m_cct_player_actor; // TODO: duplicates `GameContext::m_player_actor`
     Ogre::Degree         m_cct_rot_scale;
     Ogre::Real           m_cct_dt;
     Ogre::Real           m_cct_trans_scale;

@@ -40,8 +40,8 @@
 #include "FlexAirfoil.h"
 #include "GameContext.h"
 #include "GfxActor.h"
+#include "GfxScene.h"
 #include "Language.h"
-#include "RoRFrameListener.h" // SimController
 #include "RoRVersion.h"
 #include "ScrewProp.h"
 #include "SoundScriptManager.h"
