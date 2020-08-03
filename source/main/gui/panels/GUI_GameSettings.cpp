@@ -372,7 +372,7 @@ void RoR::GUI::GameSettings::Draw()
         DrawGCheckbox(App::diag_log_beam_trigger,    _LC("GameSettings", "Log beam triggers"));
         if (ImGui::Button(_LC("GameSettings", "Rebuild cache")))
         {
-            App::app_force_cache_purge->SetVal(true);
+            App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_PURGE_REQUESTED));
         }
     }
     else if (m_tab == SettingsTab::CONTROL)
