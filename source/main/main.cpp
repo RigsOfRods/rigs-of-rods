@@ -414,6 +414,10 @@ int main(int argc, char *argv[])
                 case MSG_SIM_UNLOAD_TERRN_REQUESTED:
                     ROR_ASSERT (App::GetSimController());
                     App::GetGameContext()->GetActorManager()->SyncWithSimThread(); // Wait for background tasks to finish
+                    if (App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
+                    {
+                        App::GetSimTerrain()->GetTerrainEditor()->WriteOutputFile();
+                    }
                     App::GetGameContext()->SaveScene("autosave.sav");
                     App::GetGameContext()->GetActorManager()->DeleteAllActors();
                     App::GetGameContext()->GetCharacterFactory()->DeleteAllCharacters();
@@ -501,6 +505,26 @@ int main(int argc, char *argv[])
                         ground_model_t* modified_gm = (ground_model_t*)m.payload;
                         ground_model_t* live_gm = App::GetSimTerrain()->GetCollisions()->getGroundModelByString(modified_gm->name);
                         *live_gm = *modified_gm; // Copy over
+                    }
+                    break;
+
+                case MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED:
+                    if (App::sim_state->GetEnum<SimState>() != SimState::EDITOR_MODE)
+                    {
+                        App::sim_state->SetVal((int)SimState::EDITOR_MODE);
+                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                      _L("Entered terrain editing mode"));
+                    }
+                    break;
+
+                case MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED:
+                    if (App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
+                    {
+                        App::GetSimTerrain()->GetTerrainEditor()->WriteOutputFile();
+                        App::GetSimTerrain()->GetTerrainEditor()->ClearSelection();
+                        App::sim_state->SetVal((int)SimState::RUNNING);
+                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                      _L("Left terrain editing mode"));
                     }
                     break;
 

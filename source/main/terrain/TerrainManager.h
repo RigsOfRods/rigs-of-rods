@@ -22,10 +22,13 @@
 #pragma once
 
 #include "Application.h"
+#include "TerrainEditor.h"
 #include "Terrn2Fileformat.h"
 
 #include <OgreVector3.h>
 #include <string>
+
+namespace RoR {
 
 class TerrainManager : public ZeroedMemoryAllocator
 {
@@ -49,6 +52,7 @@ public:
     float              getWaterHeight() const        { return m_def.water_height; };
     Ogre::Vector3      getMaxTerrainSize();
     Collisions*        GetCollisions()               { return m_collisions; };
+    TerrainEditor*     GetTerrainEditor()            { return &m_terrain_editor; }
     IWater*            getWater()                    { return m_water.get(); };
     Ogre::Light*       getMainLight()                { return m_main_light; };
     Ogre::Vector3      getSpawnPos()                 { return m_def.start_position; };
@@ -88,6 +92,7 @@ private:
     TerrainObjectManager*   m_object_manager;
     TerrainGeometryManager* m_geometry_manager;
     std::unique_ptr<IWater> m_water;
+    TerrainEditor  m_terrain_editor;
     Collisions*    m_collisions;
     HDRListener*   m_hdr_listener;
     ShadowManager* m_shadow_manager;
@@ -99,3 +104,5 @@ private:
     float          m_paged_detail_factor;
     int            m_sight_range;
 };
+
+} // namespace RoR

@@ -87,6 +87,8 @@ enum MsgType
     MSG_SIM_TELEPORT_PLAYER_REQUESTED,     ///< Payload = Ogre::Vector3* (owner)
     // Editing
     MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  ///< Payload = ground_model_t* (weak)
+    MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,
+    MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED,
 };
 
 enum class AppState

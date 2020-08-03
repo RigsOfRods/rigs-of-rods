@@ -35,6 +35,7 @@
 #include <map>
 #include <unordered_map>
 
+namespace RoR {
 
 class TerrainObjectManager : public ZeroedMemoryAllocator
 {
@@ -159,3 +160,4 @@ protected:
     std::vector<Forests::PagedGeometry*> m_paged_geometry;
 };
 
+} // namespace RoR

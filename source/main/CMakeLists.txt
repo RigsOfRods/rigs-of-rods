@@ -233,6 +233,7 @@ set(SOURCE_FILES
         system/CVar.{h,cpp}
         terrain/IHeightFinder.h
         terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
+        terrain/TerrainEditor.{h,cpp}
         terrain/TerrainGeometryManager.{h,cpp}
         terrain/TerrainManager.{h,cpp}
         terrain/TerrainObjectManager.{h,cpp}
