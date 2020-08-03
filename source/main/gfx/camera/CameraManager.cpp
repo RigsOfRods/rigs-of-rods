@@ -239,21 +239,19 @@ void CameraManager::UpdateCurrentBehavior()
     }
 }
 
-void CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // Called every frame
+void CameraManager::UpdateInputEvents(float dt) // Called every frame
 {
-    const float trans_scale = TRANS_SPEED  * dt;
-    const float rot_scale   = ROTATE_SPEED * dt;
-
-    m_cct_player_actor = player_vehicle;
-    m_cct_sim_speed    = sim_speed;
-    m_cct_dt           = dt;
-    m_cct_rot_scale    = Degree(rot_scale);
-    m_cct_trans_scale  = trans_scale;
-
-    if (App::sim_state->GetEnum<SimState>() == RoR::SimState::PAUSED || dt == 0.0f)
+    if (App::sim_state->GetEnum<SimState>() != SimState::RUNNING &&
+        App::sim_state->GetEnum<SimState>() != SimState::EDITOR_MODE)
     {
-        return; // Do nothing when paused
+        return;
     }
+
+    m_cct_player_actor = App::GetGameContext()->GetPlayerActor();
+    m_cct_sim_speed    = App::GetGameContext()->GetActorManager()->GetSimulationSpeed();
+    m_cct_dt           = dt;
+    m_cct_rot_scale    = Degree(TRANS_SPEED * dt);
+    m_cct_trans_scale  = ROTATE_SPEED * dt;
 
     if ( m_current_behavior < CAMERA_BEHAVIOR_END && App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
     {

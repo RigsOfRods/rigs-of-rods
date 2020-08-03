@@ -481,10 +481,7 @@ void GeneralSimulation::UpdateSimulation(float dt)
         App::GetOutGauge()->Update(dt, App::GetGameContext()->GetPlayerActor());
     }
 
-    if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
-    {
-        App::GetCameraManager()->Update(dt, App::GetGameContext()->GetPlayerActor(), App::GetGameContext()->GetActorManager()->GetSimulationSpeed());
-    }
+    App::GetCameraManager()->UpdateInputEvents(dt);
 
     App::GetOverlayWrapper()->update(dt);
 
