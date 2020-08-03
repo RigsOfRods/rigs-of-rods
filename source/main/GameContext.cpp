@@ -602,7 +602,7 @@ void GameContext::CreatePlayerCharacter()
     // Small hack to improve the spawn experience
     for (int i = 0; i < 100; i++)
     {
-        App::GetCameraManager()->Update(0.02f, nullptr, 1.0f);
+        App::GetCameraManager()->UpdateInputEvents(0.02f);
     }
 }
 

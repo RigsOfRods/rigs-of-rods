@@ -49,7 +49,7 @@ public:
         CAMERA_BEHAVIOR_INVALID = -1,
     };
 
-    void Update(float dt, Actor* player_vehicle, float sim_speed);
+    void UpdateInputEvents(float dt);
 
     bool hasActiveBehavior();
 
