@@ -124,7 +124,7 @@ void Console::ProcessCommandLine(int argc, char *argv[])
         }
         else if (args.OptionId() == OPT_CHECKCACHE)
         {
-            App::app_force_cache_udpate->SetVal(true);
+            App::app_force_cache_update->SetVal(true);
         }
         else if (args.OptionId() == OPT_ENTERTRUCK)
         {

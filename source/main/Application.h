@@ -249,7 +249,7 @@ extern CVar* app_screenshot_format;
 extern CVar* app_rendersys_override;
 extern CVar* app_extra_mod_path;
 extern CVar* app_force_cache_purge;
-extern CVar* app_force_cache_udpate;
+extern CVar* app_force_cache_update;
 extern CVar* app_disable_online_api;
 extern CVar* app_config_long_names;
 
