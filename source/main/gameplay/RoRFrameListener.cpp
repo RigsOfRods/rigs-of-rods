@@ -267,7 +267,7 @@ void write_editor_log()
 {
     static auto& object_list = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
     const char* filename = "editor_out.log";
-    std::string editor_logpath = PathCombine(App::sys_logs_dir.GetActive(), filename);
+    std::string editor_logpath = PathCombine(App::sys_logs_dir->GetActiveStr(), filename);
     try
     {
         Ogre::DataStreamPtr stream
@@ -2343,7 +2343,7 @@ void SimController::EnterGameplayLoop()
         }
     }
 
-    if (RoR::App::sim_state.GetActive() == RoR::SimState::EDITOR_MODE)
+    if (App::sim_state->GetActiveEnum<SimState>() == SimState::EDITOR_MODE)
     {
         write_editor_log();
     }
