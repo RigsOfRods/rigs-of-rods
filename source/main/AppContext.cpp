@@ -63,7 +63,10 @@ bool AppContext::mouseMoved(const OIS::MouseEvent& arg) // overrides OIS::MouseL
 
         if (!handled && App::GetSimController())
         {
-            App::GetSimController()->GetSceneMouse().mouseMoved(arg);
+            if (!App::GetCameraManager()->mouseMoved(arg))
+            {
+                App::GetSimController()->GetSceneMouse().mouseMoved(arg);
+            }
         }
     }
 
