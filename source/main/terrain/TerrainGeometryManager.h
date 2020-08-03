@@ -28,6 +28,8 @@
 #include <OgreVector3.h>
 #include <Terrain/OgreTerrain.h>
 
+namespace RoR {
+
 /// this class handles all interactions with the Ogre Terrain system
 class TerrainGeometryManager : public ZeroedMemoryAllocator
 {
@@ -80,3 +82,4 @@ private:
     float mMaxHeight;
 };
 
+} // namespace RoR
