@@ -37,10 +37,13 @@
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
 #include "GUI_MultiplayerSelector.h"
+#include "GUI_SceneMouse.h"
+#include "GUI_SimActorStats.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "MumbleIntegration.h"
 #include "OutGauge.h"
+#include "OverlayWrapper.h"
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
@@ -595,10 +598,10 @@ int main(int argc, char *argv[])
 
             // Calculate delta time
             const auto now = std::chrono::high_resolution_clock::now();
-            const float dt_sec = std::chrono::duration<float>(now - start_time).count();
+            const float dt = std::chrono::duration<float>(now - start_time).count();
             start_time = now;
 
-            // Prepare for simulation update
+            // Halt physics (wait for async tasks to finish)
             if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
             {
                 App::GetGameContext()->GetActorManager()->SyncWithSimThread();
@@ -622,32 +625,43 @@ int main(int argc, char *argv[])
 #endif // USE_SOCKETW
 
             // Process input events
-            if (dt_sec != 0.f)
+            if (dt != 0.f)
             {
                 App::GetInputEngine()->Capture();
-                App::GetInputEngine()->updateKeyBounces(dt_sec);
+                App::GetInputEngine()->updateKeyBounces(dt);
 
                 App::GetGameContext()->HandleSavegameHotkeys();
                 App::GetGameContext()->HandleCommonInputEvents();
+
+                if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+                {
+                    App::GetCameraManager()->UpdateInputEvents(dt);
+                    App::GetOverlayWrapper()->update(dt);
+                    GeneralSimulation::UpdateInputEvents(dt);
+                    App::GetGameContext()->GetRecoveryMode().UpdateInputEvents(dt);
+                    App::GetGameContext()->GetActorManager()->UpdateInputEvents(dt);
+                }
             }
 
-            if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+            // Update OutGauge device
+            if (App::io_outgauge_mode->GetInt() > 0)
             {
-                // Draw gui
-                App::GetGuiManager()->NewImGuiFrame(dt_sec);
-                App::GetGuiManager()->DrawMainMenuGui();
+                App::GetOutGauge()->Update(dt, App::GetGameContext()->GetPlayerActor());
             }
-            else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+
+            // Early GUI updates which require halted physics
+            App::GetGuiManager()->NewImGuiFrame(dt);
+            if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
             {
-                // Update simulation - inputs, gui, gameplay
-                if (dt_sec != 0.f)
+                App::GetGuiManager()->DrawSimulationGui(dt);
+                App::GetGuiManager()->GetSceneMouse()->Draw();
+                for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
                 {
-                    App::GetGuiManager()->NewImGuiFrame(dt_sec); // For historical reasons, simulation update also draws some GUI
-                    GeneralSimulation::UpdateSimulation(dt_sec);
-                    if (App::sim_state->GetEnum<SimState>() != RoR::SimState::PAUSED)
-                    {
-                        App::GetGfxScene()->UpdateScene(dt_sec);
-                    }
+                    actor->GetGfxActor()->UpdateDebugView();
+                }
+                if (App::GetGameContext()->GetPlayerActor())
+                {
+                    App::GetGuiManager()->GetSimActorStats()->UpdateStats(dt, App::GetGameContext()->GetPlayerActor());
                 }
             }
 
@@ -659,13 +673,13 @@ int main(int argc, char *argv[])
 #endif // USE_MUMBLE
 
 #ifdef USE_OPENAL
-            App::GetSoundScriptManager()->update(dt_sec); // update 3d audio listener position
+            App::GetSoundScriptManager()->update(dt); // update 3d audio listener position
 #endif // USE_OPENAL
 
 #ifdef USE_ANGELSCRIPT
             if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
             {
-                App::GetScriptEngine()->framestep(dt_sec);
+                App::GetScriptEngine()->framestep(dt);
             }
 #endif // USE_ANGELSCRIPT
 
@@ -673,7 +687,29 @@ int main(int argc, char *argv[])
                 App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
             {
                 App::GetAppContext()->GetForceFeedback().Update();
-            }            
+            }
+
+            // Create snapshot of simulation state for Gfx/GUI updates
+            if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
+            {
+                App::GetGfxScene()->BufferSimulationData();
+            }
+
+            // Advance simulation
+            if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
+            {
+                App::GetGameContext()->UpdateActors(); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
+            }
+
+            // Scene and GUI updates
+            if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+            {
+                App::GetGuiManager()->DrawMainMenuGui();
+            }
+            else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+            {
+                App::GetGfxScene()->UpdateScene(dt); // Draws GUI as well
+            }
 
             // Render!
             Ogre::RenderWindow* render_window = RoR::App::GetAppContext()->GetRenderWindow();

@@ -27,10 +27,6 @@ struct GeneralSimulation
 {
 public:
 
-    static void   UpdateSimulation(float dt);
-
-private:
-
     static void   UpdateInputEvents(float dt);
 
 };
