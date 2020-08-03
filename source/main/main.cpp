@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
         {
             App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_PURGE_REQUESTED));
         }
-        else if (App::app_force_cache_udpate->GetBool())
+        else if (App::app_force_cache_update->GetBool())
         {
             App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_UPDATE_REQUESTED));
         }

@@ -83,7 +83,7 @@ CVar* app_screenshot_format;
 CVar* app_rendersys_override;
 CVar* app_extra_mod_path;
 CVar* app_force_cache_purge;
-CVar* app_force_cache_udpate;
+CVar* app_force_cache_update;
 CVar* app_disable_online_api;
 CVar* app_config_long_names;
 

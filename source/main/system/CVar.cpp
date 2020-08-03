@@ -38,7 +38,7 @@ void Console::CVarSetupBuiltins()
     App::app_rendersys_override  = this->CVarCreate("app_rendersys_override",  "Render system",              CVAR_ARCHIVE);
     App::app_extra_mod_path      = this->CVarCreate("app_extra_mod_path",      "Extra mod path",             CVAR_ARCHIVE);
     App::app_force_cache_purge   = this->CVarCreate("app_force_cache_purge",   "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
-    App::app_force_cache_udpate  = this->CVarCreate("app_force_cache_udpate",  "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::app_force_cache_update  = this->CVarCreate("app_force_cache_update",  "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::app_disable_online_api  = this->CVarCreate("app_disable_online_api",  "Disable Online API",         CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::app_config_long_names   = this->CVarCreate("app_config_long_names",   "Config uses long names",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
 
