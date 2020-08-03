@@ -24,10 +24,10 @@
 #include "BeamFactory.h"
 #include "Character.h"
 #include "Console.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "IWater.h"
 #include "Language.h"
-
 #include "Network.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h"
@@ -123,7 +123,7 @@ public:
         reply << m_name << ": ";
         Console::MessageType reply_type = Console::CONSOLE_SYSTEM_REPLY;
         Ogre::Vector3 pos;
-        Actor* const actor = App::GetSimController()->GetPlayerActor();
+        Actor* const actor = App::GetGameContext()->GetPlayerActor();
         if (actor)
         {
             pos = actor->getPosition();
@@ -238,7 +238,7 @@ public:
         reply << m_name << ": ";
         Console::MessageType reply_type = Console::CONSOLE_SYSTEM_REPLY;
 
-        Actor* b = App::GetSimController()->GetPlayerActor();
+        Actor* b = App::GetGameContext()->GetPlayerActor();
         if (!b && App::GetSimController()->GetPlayerCharacter())
         {
             Ogre::Vector3 pos = App::GetSimController()->GetPlayerCharacter()->getPosition();
@@ -278,7 +278,7 @@ public:
             reply_type = Console::CONSOLE_SYSTEM_REPLY;
             Ogre::Vector3 pos(PARSEREAL(args[1]), PARSEREAL(args[2]), PARSEREAL(args[3]));
 
-            Actor* b = App::GetSimController()->GetPlayerActor();
+            Actor* b = App::GetGameContext()->GetPlayerActor();
             if (!b && App::GetSimController()->GetPlayerCharacter())
             {
                 App::GetSimController()->GetPlayerCharacter()->setPosition(pos);

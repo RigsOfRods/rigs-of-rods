@@ -40,9 +40,7 @@ class ThreadPool;
 
 namespace RoR {
 
-/// Builds and manages softbody actors. Manage physics and threading.
-/// TODO: Currently also manages gfx, which should be done by GfxActor
-/// HISTORICAL NOTE: Until 01/2018, this class was named `BeamFactory` (because `Actor` was `Beam`)
+/// Builds and manages softbody actors (physics on background thread, networking)
 class ActorManager
 {
     friend class ::GameScript; // needs to call RemoveActorByCollisionBox()
@@ -63,7 +61,6 @@ public:
     void           AddStreamMismatch(int sourceid, int streamid) { m_stream_mismatches[sourceid].insert(streamid); };
     int            CheckNetworkStreamsOk(int sourceid);
     int            CheckNetRemoteStreamsOk(int sourceid);
-    void           NotifyActorsWindowResized();
     void           MuteAllActors();
     void           UnmuteAllActors();
     void           SetTrucksForcedAwake(bool forced)       { m_forced_awake = forced; };
@@ -79,7 +76,7 @@ public:
     void           RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition = false);
     void           UpdateSleepingState(Actor* player_actor, float dt);
     void           DeleteActorInternal(Actor* b);      //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
-    Actor*         GetActorByIdInternal(int actor_id); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
+    Actor*         GetActorById(int actor_id);
     Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     std::shared_ptr<RigDef::File>   FetchActorDef(std::string filename, bool predefined_on_terrain = false);
 
@@ -92,9 +89,6 @@ public:
     void           Release() {};
 #endif
 
-    Ogre::String   GetQuicksaveFilename(Ogre::String filename = "");
-    Ogre::String   ExtractSceneName(Ogre::String filename);
-    static Ogre::String   ExtractTerrainFilename(Ogre::String filename);
     bool           LoadScene(Ogre::String filename);
     bool           SaveScene(Ogre::String filename);
 

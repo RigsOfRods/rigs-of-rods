@@ -27,6 +27,7 @@
 
 #include "Application.h"
 #include "Beam.h"
+#include "GameContext.h"
 #include "RoRFrameListener.h"
 
 #include <OgreSceneManager.h>
@@ -124,7 +125,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         // walk all trucks
         minnode = -1;
         grab_truck = NULL;
-        for (auto actor : App::GetSimController()->GetActors())
+        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
             {
@@ -234,13 +235,13 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
             return true;
         }
 
-        Actor* player_actor = App::GetSimController()->GetPlayerActor();
+        Actor* player_actor = App::GetGameContext()->GetPlayerActor();
 
         // Reselect the player actor
         {
             Real nearest_ray_distance = std::numeric_limits<float>::max();
 
-            for (auto actor : App::GetSimController()->GetActors())
+            for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
                 if (actor != player_actor)
                 {
@@ -252,7 +253,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
                         if (ray_distance < nearest_ray_distance)
                         {
                             nearest_ray_distance = ray_distance;
-                            App::GetSimController()->SetPendingPlayerActor(actor);
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
                         }
                     }
                 }

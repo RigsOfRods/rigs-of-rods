@@ -30,6 +30,7 @@
 
 #include "Application.h"
 #include "BeamFactory.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "Language.h"
 #include "Network.h"
@@ -74,7 +75,7 @@ void MpClientList::Draw()
         if (user.uniqueid != App::GetNetwork()->GetLocalUserData().uniqueid &&
             App::app_state->GetEnum<AppState>() != AppState::MAIN_MENU)
         {
-            switch (App::GetSimController()->GetBeamFactory()->CheckNetworkStreamsOk(user.uniqueid))
+            switch (App::GetGameContext()->GetActorManager()->CheckNetworkStreamsOk(user.uniqueid))
             {
             case 0: down_tex = this->FetchIcon("arrow_down_red.png");  break;
             case 1: down_tex = this->FetchIcon("arrow_down.png");      break;
@@ -83,7 +84,7 @@ void MpClientList::Draw()
             }
             
 
-            switch (App::GetSimController()->GetBeamFactory()->CheckNetRemoteStreamsOk(user.uniqueid))
+            switch (App::GetGameContext()->GetActorManager()->CheckNetRemoteStreamsOk(user.uniqueid))
             {
             case 0: up_tex = this->FetchIcon("arrow_up_red.png");  break;
             case 1: up_tex = this->FetchIcon("arrow_up.png");      break;
@@ -166,7 +167,7 @@ void MpClientList::Draw()
                         ImVec2(down_tex->getWidth(), down_tex->getHeight()));
                     ImGui::SameLine();
                 }
-                switch (App::GetSimController()->GetBeamFactory()->CheckNetworkStreamsOk(user.uniqueid))
+                switch (App::GetGameContext()->GetActorManager()->CheckNetworkStreamsOk(user.uniqueid))
                 {
                 case 0: ImGui::Text("%s", _L("Truck loading errors")); break;
                 case 1: ImGui::Text("%s", _L("Truck loaded correctly, no errors")); break;
@@ -181,7 +182,7 @@ void MpClientList::Draw()
                         ImVec2(up_tex->getWidth(), up_tex->getHeight()));
                     ImGui::SameLine();
                 }
-                switch (App::GetSimController()->GetBeamFactory()->CheckNetRemoteStreamsOk(user.uniqueid))
+                switch (App::GetGameContext()->GetActorManager()->CheckNetRemoteStreamsOk(user.uniqueid))
                 {
                 case 0: ImGui::Text("%s", _L("Remote Truck loading errors")); break;
                 case 1: ImGui::Text("%s", _L("Remote Truck loaded correctly, no errors")); break;

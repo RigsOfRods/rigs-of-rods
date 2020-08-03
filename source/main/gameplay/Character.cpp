@@ -25,6 +25,7 @@
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "Collisions.h"
+#include "GameContext.h"
 #include "InputEngine.h"
 #include "MovableText.h"
 #include "Network.h"
@@ -160,7 +161,7 @@ void Character::update(float dt)
         // Submesh "collision"
         {
             float depth = 0.0f;
-            for (auto actor : App::GetSimController()->GetActors())
+            for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
                 if (actor->ar_bounding_box.contains(position))
                 {
@@ -497,7 +498,7 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
         else if (msg->command == CHARACTER_CMD_ATTACH)
         {
             auto* attach_msg = reinterpret_cast<NetCharacterMsgAttach*>(buffer);
-            Actor* beam = App::GetSimController()->GetBeamFactory()->GetActorByNetworkLinks(attach_msg->source_id, attach_msg->stream_id);
+            Actor* beam = App::GetGameContext()->GetActorManager()->GetActorByNetworkLinks(attach_msg->source_id, attach_msg->stream_id);
             if (beam != nullptr)
             {
                 this->SetActorCoupling(true, beam);

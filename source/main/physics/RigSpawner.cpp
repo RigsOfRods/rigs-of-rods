@@ -49,6 +49,7 @@
 #include "FlexMesh.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
+#include "GameContext.h"
 #include "GfxActor.h"
 #include "Console.h"
 #include "InputEngine.h"
@@ -3348,7 +3349,7 @@ void ActorSpawner::_ProcessKeyInertia(
     if (inertia.start_delay_factor != 0.f && inertia.stop_delay_factor != 0.f)
     {
         contract_cmd.SetCmdKeyDelay(
-            App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
+            App::GetGameContext()->GetActorManager()->GetInertiaConfig(),
             inertia.start_delay_factor,
             inertia.stop_delay_factor,
             start_function,
@@ -3356,7 +3357,7 @@ void ActorSpawner::_ProcessKeyInertia(
         );
 
         extend_cmd.SetCmdKeyDelay(
-            App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
+            App::GetGameContext()->GetActorManager()->GetInertiaConfig(),
             inertia.start_delay_factor,
             inertia.stop_delay_factor,
             start_function,
@@ -3366,7 +3367,7 @@ void ActorSpawner::_ProcessKeyInertia(
     else if (inertia_defaults.start_delay_factor > 0 || inertia_defaults.stop_delay_factor > 0)
     {
         contract_cmd.SetCmdKeyDelay(
-            App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
+            App::GetGameContext()->GetActorManager()->GetInertiaConfig(),
             inertia_defaults.start_delay_factor,
             inertia_defaults.stop_delay_factor,
             inertia_defaults.start_function,
@@ -3374,7 +3375,7 @@ void ActorSpawner::_ProcessKeyInertia(
         );
 
         extend_cmd.SetCmdKeyDelay(
-            App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
+            App::GetGameContext()->GetActorManager()->GetInertiaConfig(),
             inertia_defaults.start_delay_factor,
             inertia_defaults.stop_delay_factor,
             inertia_defaults.start_function,
@@ -3604,7 +3605,7 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
     if (def.inertia_defaults->start_delay_factor > 0 && def.inertia_defaults->stop_delay_factor > 0)
     {
         hb.hb_inertia.SetCmdKeyDelay(
-            App::GetSimController()->GetBeamFactory()->GetInertiaConfig(),
+            App::GetGameContext()->GetActorManager()->GetInertiaConfig(),
             def.inertia_defaults->start_delay_factor,
             def.inertia_defaults->stop_delay_factor,
             def.inertia_defaults->start_function,

@@ -25,11 +25,11 @@
 #include "BeamFactory.h"
 #include "CacheSystem.h"
 #include "ContentManager.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "InputEngine.h"
 #include "Language.h"
-
 #include "RoRFrameListener.h"
 #include "SkinManager.h"
 #include "Utils.h"

@@ -45,6 +45,7 @@
 #include "BeamFactory.h"
 #include "Collisions.h"
 #include "Console.h"
+#include "GameContext.h"
 #include "GameScript.h"
 #include "LocalStorage.h"
 #include "OgreAngelscript.h"
@@ -99,10 +100,10 @@ void ScriptEngine::messageLogged( const String& message, LogMessageLevel lml, bo
 
 void AS_RequestActorReset(Actor* a, bool keep_position) // Substitute for removed `Actor` function
 {
-    ActorModifyRequest rq;
-    rq.amr_actor = a;
-    rq.amr_type  = (keep_position) ? ActorModifyRequest::Type::RESET_ON_SPOT : ActorModifyRequest::Type::RESET_ON_INIT_POS;
-    RoR::App::GetSimController()->QueueActorModify(rq);
+    ActorModifyRequest* rq = new ActorModifyRequest;
+    rq->amr_actor = a;
+    rq->amr_type  = (keep_position) ? ActorModifyRequest::Type::RESET_ON_SPOT : ActorModifyRequest::Type::RESET_ON_INIT_POS;
+    App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
 }
 
 // continue with initializing everything

@@ -42,9 +42,9 @@
 #include "ChatSystem.h"
 #include "Collisions.h"
 #include "Console.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "Language.h"
-
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
@@ -92,7 +92,7 @@ void GameScript::activateAllVehicles()
     if (!this->HaveSimController(__FUNCTION__))
         return;
 
-    App::GetSimController()->GetBeamFactory()->WakeUpAllActors();
+    App::GetGameContext()->GetActorManager()->WakeUpAllActors();
 }
 
 void GameScript::SetTrucksForcedAwake(bool forceActive)
@@ -100,7 +100,7 @@ void GameScript::SetTrucksForcedAwake(bool forceActive)
     if (!this->HaveSimController(__FUNCTION__))
         return;
 
-    App::GetSimController()->GetBeamFactory()->SetTrucksForcedAwake(forceActive);
+    App::GetGameContext()->GetActorManager()->SetTrucksForcedAwake(forceActive);
 }
 
 float GameScript::getTime()
@@ -256,7 +256,7 @@ Actor* GameScript::getCurrentTruck()
 {
     Actor* result = nullptr;
     if (App::GetSimController())
-        result = App::GetSimController()->GetPlayerActor();
+        result = App::GetGameContext()->GetPlayerActor();
     return result;
 }
 
@@ -283,7 +283,7 @@ Actor* GameScript::getTruckByNum(int num)
     // TODO: Do we have to add a 'GetActorByIndex' method to keep this backwards compatible?
     Actor* result = nullptr;
     if (App::GetSimController())
-        result = App::GetSimController()->GetActorById(num);
+        result = App::GetGameContext()->GetActorManager()->GetActorById(num);
     return result;
 }
 
@@ -291,7 +291,7 @@ int GameScript::getNumTrucks()
 {
     int result = 0;
     if (App::GetSimController())
-        result = static_cast<int>(App::GetSimController()->GetBeamFactory()->GetActors().size());
+        result = static_cast<int>(App::GetGameContext()->GetActorManager()->GetActors().size());
     return result;
 }
 
@@ -301,7 +301,7 @@ int GameScript::getNumTrucksByFlag(int flag)
         return 0;
 
     int result = 0;
-    for (auto actor : App::GetSimController()->GetActors())
+    for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if (!flag || static_cast<int>(actor->ar_sim_state) == flag)
             result++;
@@ -314,7 +314,7 @@ int GameScript::GetPlayerActorId()
     if (App::GetSimController() == nullptr)
         return -1;
 
-    Actor* actor = App::GetSimController()->GetPlayerActor();
+    Actor* actor = App::GetGameContext()->GetPlayerActor();
     return (actor != nullptr) ? actor->ar_instance_id : -1;
 }
 
@@ -397,7 +397,7 @@ void GameScript::repairVehicle(const String& instance, const String& box, bool k
     if (!this->HaveSimController(__FUNCTION__))
         return;
 
-    App::GetSimController()->GetBeamFactory()->RepairActor(App::GetSimTerrain()->GetCollisions(), instance, box, keepPosition);
+    App::GetGameContext()->GetActorManager()->RepairActor(App::GetSimTerrain()->GetCollisions(), instance, box, keepPosition);
 }
 
 void GameScript::removeVehicle(const String& event_source_instance_name, const String& event_source_box_name)
@@ -756,7 +756,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     if (App::app_disable_online_api->GetBool())
         return 0;
 
-    Actor* player_actor = App::GetSimController()->GetPlayerActor();
+    Actor* player_actor = App::GetGameContext()->GetPlayerActor();
 
     if (player_actor == nullptr)
         return 1;
@@ -847,7 +847,7 @@ void GameScript::boostCurrentTruck(float factor)
     if (!this->HaveSimController(__FUNCTION__))
         return;
 
-    Actor* actor = App::GetSimController()->GetPlayerActor();
+    Actor* actor = App::GetGameContext()->GetPlayerActor();
     if (actor && actor->ar_engine)
     {
         float rpm = actor->ar_engine->GetEngineRpm();
@@ -899,7 +899,7 @@ VehicleAI* GameScript::getCurrentTruckAI()
     VehicleAI* result = nullptr;
     if (App::GetSimController())
     {
-        Actor* actor = App::GetSimController()->GetPlayerActor();
+        Actor* actor = App::GetGameContext()->GetPlayerActor();
         if (actor != nullptr)
             result = actor->ar_vehicle_ai;
     }
@@ -911,7 +911,7 @@ VehicleAI* GameScript::getTruckAIByNum(int num)
     VehicleAI* result = nullptr;
     if (App::GetSimController())
     {
-        Actor* actor = App::GetSimController()->GetActorById(num);
+        Actor* actor = App::GetGameContext()->GetActorManager()->GetActorById(num);
         if (actor != nullptr)
             result = actor->ar_vehicle_ai;
     }
@@ -927,7 +927,7 @@ Actor* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre:
     rq.asr_position = pos;
     rq.asr_rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
     rq.asr_filename = truckName;
-    return App::GetSimController()->SpawnActorDirectly(rq);
+    return App::GetGameContext()->SpawnActor(rq);
 }
 
 void GameScript::showMessageBox(Ogre::String& title, Ogre::String& text, bool use_btn1, Ogre::String& btn1_text, bool allow_close, bool use_btn2, Ogre::String& btn2_text)

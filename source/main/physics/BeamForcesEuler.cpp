@@ -31,6 +31,7 @@
 #include "Collisions.h"
 #include "Differentials.h"
 #include "FlexAirfoil.h"
+#include "GameContext.h"
 #include "Replay.h"
 #include "RoRFrameListener.h"
 #include "ScrewProp.h"
@@ -64,7 +65,7 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
 
 void Actor::CalcForceFeedback(bool doUpdate)
 {
-    if (this == RoR::App::GetSimController()->GetPlayerActor())
+    if (this == App::GetGameContext()->GetPlayerActor())
     {
         if (doUpdate)
         {
@@ -984,7 +985,7 @@ void Actor::CalcCommands(bool doUpdate)
             ar_engine->SetEnginePriming(requested);
         }
 
-        if (doUpdate && this == RoR::App::GetSimController()->GetPlayerActor())
+        if (doUpdate && this == App::GetGameContext()->GetPlayerActor())
         {
 #ifdef USE_OPENAL
             if (active > 0)
@@ -1590,10 +1591,10 @@ void Actor::CalcNodes()
         // anti-explsion guard (mach 20)
         if (approx_speed > 6860 && !m_ongoing_reset)
         {
-            ActorModifyRequest rq; // actor exploded, schedule reset
-            rq.amr_actor = this;
-            rq.amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
-            App::GetSimController()->QueueActorModify(rq);
+            ActorModifyRequest* rq = new ActorModifyRequest; // actor exploded, schedule reset
+            rq->amr_actor = this;
+            rq->amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
             m_ongoing_reset = true;
         }
 

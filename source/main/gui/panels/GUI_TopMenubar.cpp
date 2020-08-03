@@ -28,6 +28,7 @@
 #include "Application.h"
 #include "Beam.h"
 #include "BeamFactory.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
 #include "GUI_MainSelector.h"
@@ -50,7 +51,7 @@ void RoR::GUI::TopMenubar::Update()
 
     const char* sim_title = "Simulation"; // TODO: Localize all!
     Str<50> actors_title;
-    auto actors = App::GetSimController()->GetActors();
+    auto actors = App::GetGameContext()->GetActorManager()->GetActors();
     int num_playable_actors = std::count_if(actors.begin(), actors.end(), [](Actor* a) {return !a->ar_hide_in_actor_list;});
     actors_title << "Vehicles (" << num_playable_actors << ")";
     const char* savegames_title = "Saves";
@@ -113,13 +114,13 @@ void RoR::GUI::TopMenubar::Update()
     if ((m_open_menu != TopMenu::TOPMENU_SAVEGAMES) && ImGui::IsItemHovered())
     {
         m_open_menu = TopMenu::TOPMENU_SAVEGAMES;
-        m_quicksave_name = App::GetSimController()->GetBeamFactory()->GetQuicksaveFilename();
+        m_quicksave_name = App::GetGameContext()->GetQuicksaveFilename();
         m_quickload = FileExists(PathCombine(App::sys_savegames_dir->GetStr(), m_quicksave_name));
         m_savegame_names.clear();
         for (int i = 0; i <= 9; i++)
         {
             Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
-            m_savegame_names.push_back(App::GetSimController()->GetBeamFactory()->ExtractSceneName(filename));
+            m_savegame_names.push_back(App::GetGameContext()->ExtractSceneName(filename));
         }
     }
 
@@ -154,7 +155,7 @@ void RoR::GUI::TopMenubar::Update()
     this->DrawSpecialStateBox(window_target_pos.y + topmenu_final_size.y + 10.f);
 
     ImVec2 menu_pos;
-    Actor* current_actor = App::GetSimController()->GetPlayerActor();
+    Actor* current_actor = App::GetGameContext()->GetPlayerActor();
     switch (m_open_menu)
     {
     case TopMenu::TOPMENU_SIM:
@@ -183,21 +184,21 @@ void RoR::GUI::TopMenubar::Update()
                     if (ImGui::Button("Reload current vehicle"))
                     {
                         {
-                            ActorModifyRequest rq;
-                            rq.amr_type = ActorModifyRequest::Type::RELOAD;
-                            rq.amr_actor = current_actor;
-                            App::GetSimController()->QueueActorModify(rq);
+                            ActorModifyRequest* rq = new ActorModifyRequest;
+                            rq->amr_type = ActorModifyRequest::Type::RELOAD;
+                            rq->amr_actor = current_actor;
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
                         }
                     }
 
                     if (ImGui::Button("Remove current vehicle"))
                     {
-                        App::GetSimController()->QueueActorRemove(current_actor);
+                        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)current_actor));
                     }
                 }
             }
 
-            if (!App::GetSimController()->GetLocalActors().empty())
+            if (!App::GetGameContext()->GetActorManager()->GetLocalActors().empty())
             {
                 if (ImGui::Button("Remove all vehicles"))
                 {
@@ -208,12 +209,12 @@ void RoR::GUI::TopMenubar::Update()
                     ImGui::PushStyleColor(ImGuiCol_Text, ORANGE_TEXT);
                     if (ImGui::Button(" [!] Confirm removal"))
                     {
-                        for (auto actor : App::GetSimController()->GetLocalActors())
+                        for (auto actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
                         {
                             if (!actor->ar_hide_in_actor_list && !actor->isPreloadedWithTerrain() && 
                                     actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
                             {
-                                App::GetSimController()->QueueActorRemove(actor);
+                                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
                             }
                         }
                         m_confirm_remove_all = false;
@@ -223,18 +224,18 @@ void RoR::GUI::TopMenubar::Update()
 
                 if (ImGui::Button("Activate all vehicles"))
                 {
-                    App::GetSimController()->GetBeamFactory()->WakeUpAllActors();
+                    App::GetGameContext()->GetActorManager()->WakeUpAllActors();
                 }
 
-                bool force_trucks_active = App::GetSimController()->GetBeamFactory()->AreTrucksForcedAwake();
+                bool force_trucks_active = App::GetGameContext()->GetActorManager()->AreTrucksForcedAwake();
                 if (ImGui::Checkbox("Activated vehicles never sleep", &force_trucks_active))
                 {
-                    App::GetSimController()->GetBeamFactory()->SetTrucksForcedAwake(force_trucks_active);
+                    App::GetGameContext()->GetActorManager()->SetTrucksForcedAwake(force_trucks_active);
                 }
 
                 if (ImGui::Button("Send all vehicles to sleep"))
                 {
-                    App::GetSimController()->GetBeamFactory()->SendAllActorsSleeping();
+                    App::GetGameContext()->GetActorManager()->SendAllActorsSleeping();
                 }
             }
 
@@ -297,7 +298,7 @@ void RoR::GUI::TopMenubar::Update()
         {
             if (ImGui::Button("Quicksave"))
             {
-                App::GetSimController()->GetBeamFactory()->SaveScene(m_quicksave_name);
+                App::GetGameContext()->GetActorManager()->SaveScene(m_quicksave_name);
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
             ImGui::SameLine();
@@ -307,7 +308,7 @@ void RoR::GUI::TopMenubar::Update()
             {
                 if (ImGui::Button("Quickload"))
                 {
-                    App::GetSimController()->GetBeamFactory()->LoadScene(m_quicksave_name);
+                    App::GetGameContext()->GetActorManager()->LoadScene(m_quicksave_name);
                     m_open_menu = TopMenu::TOPMENU_NONE;
                 }
                 ImGui::SameLine();
@@ -328,7 +329,7 @@ void RoR::GUI::TopMenubar::Update()
                 if (ImGui::Button(caption.c_str()))
                 {
                     Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
-                    App::GetSimController()->GetBeamFactory()->SaveScene(filename);
+                    App::GetGameContext()->GetActorManager()->SaveScene(filename);
                     m_open_menu = TopMenu::TOPMENU_NONE;
                 }
             }
@@ -343,7 +344,7 @@ void RoR::GUI::TopMenubar::Update()
                     if (ImGui::Button(caption.c_str()))
                     {
                         Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
-                        App::GetSimController()->GetBeamFactory()->LoadScene(filename);
+                        App::GetGameContext()->GetActorManager()->LoadScene(filename);
                         m_open_menu = TopMenu::TOPMENU_NONE;
                     }
                 }
@@ -380,15 +381,15 @@ void RoR::GUI::TopMenubar::Update()
             }
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "Simulation:");
-            float slowmotion = std::min(App::GetSimController()->GetBeamFactory()->GetSimulationSpeed(), 1.0f);
+            float slowmotion = std::min(App::GetGameContext()->GetActorManager()->GetSimulationSpeed(), 1.0f);
             if (ImGui::SliderFloat("Slow motion", &slowmotion, 0.01f, 1.0f))
             {
-                App::GetSimController()->GetBeamFactory()->SetSimulationSpeed(slowmotion);
+                App::GetGameContext()->GetActorManager()->SetSimulationSpeed(slowmotion);
             }
-            float timelapse = std::max(App::GetSimController()->GetBeamFactory()->GetSimulationSpeed(), 1.0f);
+            float timelapse = std::max(App::GetGameContext()->GetActorManager()->GetSimulationSpeed(), 1.0f);
             if (ImGui::SliderFloat("Time lapse", &timelapse, 1.0f, 10.0f))
             {
-                App::GetSimController()->GetBeamFactory()->SetSimulationSpeed(timelapse);
+                App::GetGameContext()->GetActorManager()->SetSimulationSpeed(timelapse);
             }
             if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
             {
@@ -655,7 +656,7 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 {
     // Count actors owned by the player
     unsigned int num_actors_player = 0;
-    for (Actor* actor : App::GetSimController()->GetActors())
+    for (Actor* actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if (actor->ar_net_source_id == user.uniqueid)
         {
@@ -687,7 +688,7 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 
     // Display actor list
     int i = 0;
-    for (auto actor : App::GetSimController()->GetActors())
+    for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if ((!actor->ar_hide_in_actor_list) && (actor->ar_net_source_id == user.uniqueid))
         {
@@ -695,7 +696,7 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
             snprintf(actortext_buf, 400, "  + %s (%s) ##[%d:%d]", actor->ar_design_name.c_str(), actor->ar_filename.c_str(), i++, user.uniqueid);
             if (ImGui::Button(actortext_buf)) // Button clicked?
             {
-                App::GetSimController()->SetPendingPlayerActor(actor);
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
             }
         }
     }
@@ -704,7 +705,7 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
 {
     std::vector<Actor*> actor_list;
-    for (auto actor : App::GetSimController()->GetActors())
+    for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if (!actor->ar_hide_in_actor_list)
         {
@@ -720,7 +721,7 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
     }
     else
     {
-        Actor* player_actor = App::GetSimController()->GetPlayerActor();
+        Actor* player_actor = App::GetGameContext()->GetPlayerActor();
         int i = 0;
         for (auto actor : actor_list)
         {
@@ -729,7 +730,7 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
             ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
             if (ImGui::Button(text_buf_rem))
             {
-                App::GetSimController()->QueueActorRemove(actor);
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
             }
             ImGui::PopStyleColor();
             ImGui::SameLine();
@@ -755,7 +756,7 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
             }
             if (ImGui::Button(text_buf)) // Button clicked?
             {
-                App::GetSimController()->SetPendingPlayerActor(actor);
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
             }
             ImGui::PopStyleColor();
         }
@@ -774,8 +775,8 @@ void RoR::GUI::TopMenubar::DrawSpecialStateBox(float top_offset)
         special_text = Ogre::StringUtil::replaceAll(_L("All physics paused, press '{}' to resume"),
             "{}", App::GetInputEngine()->getEventCommand(EV_COMMON_TOGGLE_PHYSICS));
     }
-    else if (App::GetSimController()->GetPlayerActor() &&
-             App::GetSimController()->GetPlayerActor()->ar_physics_paused
+    else if (App::GetGameContext()->GetPlayerActor() &&
+             App::GetGameContext()->GetPlayerActor()->ar_physics_paused
              && !RoR::App::GetSimController()->IsGUIHidden())
     {
         special_color = GREEN_TEXT;

@@ -206,6 +206,9 @@ int main(int argc, char *argv[])
 
         App::CreateThreadPool();
 
+        // Load inertia config file
+        App::GetGameContext()->GetActorManager()->GetInertiaConfig().LoadDefaultInertiaModels();
+
         if (App::mp_join_on_startup->GetBool())
         {
             App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
@@ -366,12 +369,18 @@ int main(int argc, char *argv[])
                 // -- Gameplay events --
 
                 case MSG_SIM_PAUSE_REQUESTED:
-                    App::GetSimController()->GetBeamFactory()->MuteAllActors();
+                    for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
+                    {
+                        actor->StopAllSounds();
+                    }
                     App::sim_state->SetVal((int)SimState::PAUSED);
                     break;
 
                 case MSG_SIM_UNPAUSE_REQUESTED:
-                    App::GetSimController()->GetBeamFactory()->UnmuteAllActors();
+                    for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
+                    {
+                        actor->UnmuteAllSounds();
+                    }
                     App::sim_state->SetVal((int)SimState::RUNNING);
                     break;
 
@@ -417,9 +426,10 @@ int main(int argc, char *argv[])
                         App::GetMumble()->SetNonPositionalAudio();
                     }
 #endif // USE_MUMBLE
-                    ROR_ASSERT (App::GetSimController());                    
-                    App::GetSimController()->GetBeamFactory()->SaveScene("autosave.sav");
-                    App::GetSimController()->GetBeamFactory()->SyncWithSimThread(); // Wait for background tasks to finish
+                    ROR_ASSERT (App::GetSimController());
+                    App::GetGameContext()->GetActorManager()->SyncWithSimThread(); // Wait for background tasks to finish
+                    App::GetGameContext()->SaveScene("autosave.sav");
+                    App::GetGameContext()->GetActorManager()->CleanUpAllActors();
                     App::GetSimController()->CleanupAfterSimulation();
                     App::sim_state->SetVal((int)SimState::OFF);
                     App::app_state->SetVal((int)AppState::MAIN_MENU);
@@ -434,7 +444,7 @@ int main(int argc, char *argv[])
 
                 case MSG_SIM_LOAD_SAVEGAME_REQUESTED:
                     {
-                        std::string terrn_filename = ActorManager::ExtractTerrainFilename(m.description);
+                        std::string terrn_filename = App::GetGameContext()->ExtractSceneTerrain(m.description);
                         if (terrn_filename == "")
                         {
                             LogFormat("[RoR|Savegame] Could not load '%s'", m.description.c_str());
@@ -442,7 +452,7 @@ int main(int argc, char *argv[])
                         }
                         else if (terrn_filename == App::sim_terrain_name->GetStr())
                         {
-                            App::GetSimController()->GetBeamFactory()->LoadScene(m.description);
+                            App::GetGameContext()->LoadScene(m.description);
                         }
                         else
                         {
@@ -450,6 +460,38 @@ int main(int argc, char *argv[])
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, terrn_filename));
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, m.description));
                         }
+                    }
+                    break;
+
+                case MSG_SIM_SPAWN_ACTOR_REQUESTED:
+                    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+                    {
+                        ActorSpawnRequest* rq = (ActorSpawnRequest*)m.payload;
+                        App::GetGameContext()->SpawnActor(*rq);
+                        delete rq;
+                    }
+                    break;
+
+                case MSG_SIM_MODIFY_ACTOR_REQUESTED:
+                    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+                    {
+                        ActorModifyRequest* rq = (ActorModifyRequest*)m.payload;
+                        App::GetGameContext()->ModifyActor(*rq);
+                        delete rq;
+                    }
+                    break;
+
+                case MSG_SIM_DELETE_ACTOR_REQUESTED:
+                    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+                    {
+                        App::GetGameContext()->DeleteActor((Actor*)m.payload);
+                    }
+                    break;
+
+                case MSG_SIM_SEAT_PLAYER_REQUESTED:
+                    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+                    {
+                        App::GetGameContext()->ChangePlayerActor((Actor*)m.payload);
                     }
                     break;
 
@@ -477,7 +519,7 @@ int main(int argc, char *argv[])
             // Prepare for simulation update
             if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
             {
-                App::GetSimController()->GetBeamFactory()->SyncWithSimThread();
+                App::GetGameContext()->GetActorManager()->SyncWithSimThread();
             }
 
 #ifdef USE_SOCKETW
@@ -490,7 +532,7 @@ int main(int argc, char *argv[])
                     RoR::ChatSystem::HandleStreamData(packets);
                     if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION && App::GetSimController())
                     {
-                        App::GetSimController()->GetBeamFactory()->HandleActorStreamData(packets);
+                        App::GetGameContext()->GetActorManager()->HandleActorStreamData(packets);
                         App::GetSimController()->GetCharacterFactory()->handleStreamData(packets); // Update characters last (or else beam coupling might fail)
                     }
                 }

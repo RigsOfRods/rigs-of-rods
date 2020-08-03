@@ -21,12 +21,13 @@
 
 #include "Application.h"
 #include "Beam.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "RoRFrameListener.h"
 
 void RoR::GUI::NodeBeamUtils::Draw()
 {
-    Actor* actor = App::GetSimController()->GetPlayerActor();
+    Actor* actor = App::GetGameContext()->GetPlayerActor();
     if (!actor)
     {
         this->SetVisible(false);

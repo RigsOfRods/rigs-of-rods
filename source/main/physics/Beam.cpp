@@ -42,6 +42,7 @@
 #include "FlexMesh.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "Console.h"
 #include "GfxActor.h"
@@ -384,7 +385,7 @@ void Actor::PushNetwork(char* data, int size)
             strncpy(reg.name, ar_filename.c_str(), 128);
             App::GetNetwork()->AddPacket(reg.origin_streamid, RoRnet::MSG2_STREAM_REGISTER_RESULT,
                     sizeof(RoRnet::StreamRegister), (char *)&reg);
-            App::GetSimController()->GetBeamFactory()->AddStreamMismatch(ar_net_source_id, ar_net_stream_id);
+            App::GetGameContext()->GetActorManager()->AddStreamMismatch(ar_net_source_id, ar_net_stream_id);
 
             // Inform the local player
             RoRnet::UserInfo info;
@@ -394,7 +395,7 @@ void Actor::PushNetwork(char* data, int size)
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, text.ToCStr());
 
             // Remove self
-            App::GetSimController()->QueueActorRemove(this);
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)this));
 
             m_net_initialized = true;
         }
@@ -406,11 +407,11 @@ void Actor::PushNetwork(char* data, int size)
     if (!m_net_initialized)
     {
         RoRnet::VehicleState* oob = (RoRnet::VehicleState*)update.veh_state.data();
-        int tnow = App::GetSimController()->GetBeamFactory()->GetNetTime();
-        int rnow = std::max(0, tnow + App::GetSimController()->GetBeamFactory()->GetNetTimeOffset(ar_net_source_id));
+        int tnow = App::GetGameContext()->GetActorManager()->GetNetTime();
+        int rnow = std::max(0, tnow + App::GetGameContext()->GetActorManager()->GetNetTimeOffset(ar_net_source_id));
         if (oob->time > rnow + 100)
         {
-            App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, oob->time - rnow);
+            App::GetGameContext()->GetActorManager()->UpdateNetTimeOffset(ar_net_source_id, oob->time - rnow);
         }
     }
 
@@ -424,8 +425,8 @@ void Actor::CalcNetwork()
     if (m_net_updates.size() < 2)
         return;
 
-    int tnow = App::GetSimController()->GetBeamFactory()->GetNetTime();
-    int rnow = std::max(0, tnow + App::GetSimController()->GetBeamFactory()->GetNetTimeOffset(ar_net_source_id));
+    int tnow = App::GetGameContext()->GetActorManager()->GetNetTime();
+    int rnow = std::max(0, tnow + App::GetGameContext()->GetActorManager()->GetNetTimeOffset(ar_net_source_id));
 
     // Find index offset into the stream data for the current time
     int index_offset = 0;
@@ -453,11 +454,11 @@ void Actor::CalcNetwork()
     }
     else if (tratio > 1.0f)
     {
-        App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, -std::pow(2, tratio));
+        App::GetGameContext()->GetActorManager()->UpdateNetTimeOffset(ar_net_source_id, -std::pow(2, tratio));
     }
     else if (index_offset == 0 && (m_net_updates.size() > 5 || (tratio < 0.125f && m_net_updates.size() > 2)))
     {
-        App::GetSimController()->GetBeamFactory()->UpdateNetTimeOffset(ar_net_source_id, +1);
+        App::GetGameContext()->GetActorManager()->UpdateNetTimeOffset(ar_net_source_id, +1);
     }
 
     short* sp1 = (short*)(netb1 + sizeof(float) * 3);
@@ -775,7 +776,7 @@ void Actor::DetermineLinkedActors() //TODO: Refactor this - logic iterating over
 
     lookup_table.insert(std::pair<Actor*, bool>(this, false));
     
-    auto inter_actor_links = App::GetSimController()->GetBeamFactory()->inter_actor_links; // TODO: Shouldn't this have been a reference?? Also, ugly, see the TODO note above ~ only_a_ptr, 01/2018
+    auto inter_actor_links = App::GetGameContext()->GetActorManager()->inter_actor_links; // TODO: Shouldn't this have been a reference?? Also, ugly, see the TODO note above ~ only_a_ptr, 01/2018
 
     while (found)
     {
@@ -914,7 +915,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
 
         bool collision = false;
 
-        for (auto actor : App::GetSimController()->GetActors())
+        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             if (actor == this)
                 continue;
@@ -994,7 +995,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
         // Test beams (between contactable nodes) against cabs
         if (!collision)
         {
-            for (auto actor : App::GetSimController()->GetActors())
+            for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
                 if (actor == this)
                     continue;
@@ -1924,7 +1925,7 @@ void Actor::sendStreamSetup()
     memset(&reg, 0, sizeof(RoRnet::ActorStreamRegister));
     reg.status = 0;
     reg.type = 0;
-    reg.time = App::GetSimController()->GetBeamFactory()->GetNetTime();
+    reg.time = App::GetGameContext()->GetActorManager()->GetNetTime();
     strncpy(reg.name, ar_filename.c_str(), 128);
     if (m_used_skin_entry != nullptr)
     {
@@ -1967,7 +1968,7 @@ void Actor::sendStreamData()
 
         send_oob->flagmask = 0;
 
-        send_oob->time = App::GetSimController()->GetBeamFactory()->GetNetTime();
+        send_oob->time = App::GetGameContext()->GetActorManager()->GetNetTime();
         if (ar_engine)
         {
             send_oob->engine_speed = ar_engine->GetEngineRpm();
@@ -2984,10 +2985,10 @@ void Actor::prepareInside(bool inside)
 void Actor::ToggleLights()
 {
     // export light command
-    Actor* player_actor = App::GetSimController()->GetPlayerActor();
+    Actor* player_actor = App::GetGameContext()->GetPlayerActor();
     if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == player_actor && ar_forward_commands)
     {
-        for (auto actor : App::GetSimController()->GetActors())
+        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this != actor && actor->ar_import_commands)
                 actor->ToggleLights();
@@ -3079,7 +3080,7 @@ void Actor::UpdateFlareStates(float dt)
         }
         else if (ar_flares[i].fl_type == FlareType::USER && ar_flares[i].controlnumber != -1) // controlnumber = read only attribute
         {
-            if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == App::GetSimController()->GetPlayerActor()) // no network!!
+            if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == App::GetGameContext()->GetPlayerActor()) // no network!!
             {
                 // networked customs are set directly, so skip this
                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (ar_flares[i].controlnumber - 1)) && m_custom_light_toggle_countdown <= 0)
@@ -3343,7 +3344,7 @@ void Actor::AddInterActorBeam(beam_t* beam, Actor* a, Actor* b)
     }
 
     std::pair<Actor*, Actor*> actor_pair(a, b);
-    App::GetSimController()->GetBeamFactory()->inter_actor_links[beam] = actor_pair;
+    App::GetGameContext()->GetActorManager()->inter_actor_links[beam] = actor_pair;
 
     a->DetermineLinkedActors();
     for (auto actor : a->m_linked_actors)
@@ -3362,11 +3363,11 @@ void Actor::RemoveInterActorBeam(beam_t* beam)
         ar_inter_beams.erase(pos);
     }
 
-    auto it = App::GetSimController()->GetBeamFactory()->inter_actor_links.find(beam);
-    if (it != App::GetSimController()->GetBeamFactory()->inter_actor_links.end())
+    auto it = App::GetGameContext()->GetActorManager()->inter_actor_links.find(beam);
+    if (it != App::GetGameContext()->GetActorManager()->inter_actor_links.end())
     {
         auto actor_pair = it->second;
-        App::GetSimController()->GetBeamFactory()->inter_actor_links.erase(it);
+        App::GetGameContext()->GetActorManager()->inter_actor_links.erase(it);
 
         actor_pair.first->DetermineLinkedActors();
         for (auto actor : actor_pair.first->m_linked_actors)
@@ -3381,7 +3382,7 @@ void Actor::RemoveInterActorBeam(beam_t* beam)
 void Actor::DisjoinInterActorBeams()
 {
     ar_inter_beams.clear();
-    auto inter_actor_links = &App::GetSimController()->GetBeamFactory()->inter_actor_links;
+    auto inter_actor_links = &App::GetGameContext()->GetActorManager()->inter_actor_links;
     for (auto it = inter_actor_links->begin(); it != inter_actor_links->end();)
     {
         auto actor_pair = it->second;
@@ -3409,7 +3410,7 @@ void Actor::DisjoinInterActorBeams()
 
 void Actor::ToggleTies(int group)
 {
-    Actor* player_actor = App::GetSimController()->GetPlayerActor();
+    Actor* player_actor = App::GetGameContext()->GetPlayerActor();
 
     // untie all ties if one is tied
     bool istied = false;
@@ -3480,7 +3481,7 @@ void Actor::ToggleTies(int group)
                 Actor* nearest_actor = 0;
                 ropable_t* locktedto = 0;
                 // iterate over all actors
-                for (auto actor : App::GetSimController()->GetActors())
+                for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
                 {
                     if (actor->ar_sim_state == SimState::LOCAL_SLEEPING ||
                         (actor == this && it->ti_no_self_lock))
@@ -3557,7 +3558,7 @@ void Actor::ToggleTies(int group)
 
 void Actor::ToggleRopes(int group)
 {
-    Actor* player_actor = App::GetSimController()->GetPlayerActor();
+    Actor* player_actor = App::GetGameContext()->GetPlayerActor();
 
     // iterate over all ropes
     for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
@@ -3609,7 +3610,7 @@ void Actor::ToggleRopes(int group)
             Actor* nearest_actor = nullptr;
             ropable_t* rop = 0;
             // iterate over all actor_slots
-            for (auto actor : App::GetSimController()->GetActors())
+            for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
                 if (actor->ar_sim_state == SimState::LOCAL_SLEEPING)
                     continue;
@@ -3718,7 +3719,7 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
             float mindist = it->hk_lockrange;
             float distance = 100000000.0f;
             // iterate over all actor_slots
-            for (auto actor : App::GetSimController()->GetActors())
+            for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
                 if (actor->ar_sim_state == SimState::LOCAL_SLEEPING)
                     continue;

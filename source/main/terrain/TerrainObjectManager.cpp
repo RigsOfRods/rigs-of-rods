@@ -27,6 +27,7 @@
 #include "Collisions.h"
 #include "ErrorUtils.h"
 #include "Language.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "MeshObject.h"
@@ -1314,14 +1315,14 @@ void TerrainObjectManager::LoadPredefinedActors()
 
     for (unsigned int i = 0; i < m_predefined_actors.size(); i++)
     {
-        ActorSpawnRequest rq;
-        rq.asr_position      = Vector3(m_predefined_actors[i].px, m_predefined_actors[i].py, m_predefined_actors[i].pz);
-        rq.asr_filename      = m_predefined_actors[i].name;
-        rq.asr_rotation      = m_predefined_actors[i].rotation;
-        rq.asr_origin        = ActorSpawnRequest::Origin::TERRN_DEF;
-        rq.asr_free_position = m_predefined_actors[i].freePosition;
-        rq.asr_terrn_machine = m_predefined_actors[i].ismachine;
-        App::GetSimController()->QueueActorSpawn(rq);
+        ActorSpawnRequest* rq = new ActorSpawnRequest;
+        rq->asr_position      = Vector3(m_predefined_actors[i].px, m_predefined_actors[i].py, m_predefined_actors[i].pz);
+        rq->asr_filename      = m_predefined_actors[i].name;
+        rq->asr_rotation      = m_predefined_actors[i].rotation;
+        rq->asr_origin        = ActorSpawnRequest::Origin::TERRN_DEF;
+        rq->asr_free_position = m_predefined_actors[i].freePosition;
+        rq->asr_terrn_machine = m_predefined_actors[i].ismachine;
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
     }
 }
 

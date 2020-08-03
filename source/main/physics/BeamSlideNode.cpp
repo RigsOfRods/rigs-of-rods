@@ -26,7 +26,10 @@
 #include "SlideNode.h"
 
 #include "Beam.h"
+#include "GameContext.h"
 #include "RoRFrameListener.h"
+
+using namespace RoR;
 
 // ug... BAD PERFORMNCE, BAD!!
 void Actor::ToggleSlideNodeLock()
@@ -51,7 +54,7 @@ void Actor::ToggleSlideNodeLock()
         }
 
         // check all the slide rail on all the other trucks :(
-        for (auto actor : RoR::App::GetSimController()->GetActors())
+        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             // make sure this truck is allowed
             if ((this != actor && !itNode->sn_attach_foreign) || (this == actor && !itNode->sn_attach_self))

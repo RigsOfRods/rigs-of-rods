@@ -34,6 +34,7 @@
 #include "Collisions.h"
 #include "DashBoardManager.h"
 #include "DynamicCollisions.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "Console.h"
 #include "GUI_TopMenubar.h"
@@ -67,9 +68,6 @@ ActorManager::ActorManager()
 {
     // Create worker thread (used for physics calculations)
     m_sim_thread_pool = std::unique_ptr<ThreadPool>(new ThreadPool(1));
-
-    // Load inertia config file
-    m_inertia_config.LoadDefaultInertiaModels();
 }
 
 ActorManager::~ActorManager()
@@ -260,6 +258,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     // Initialize visuals
     actor->updateVisual();
     actor->ToggleLights();
+    actor->GetGfxActor()->SetDebugView((GfxActor::DebugViewType)rq.asr_debugview);
 
     if (actor->isPreloadedWithTerrain())
     {
@@ -368,7 +367,7 @@ void ActorManager::RemoveStreamSource(int sourceid)
 
         if (actor->ar_net_source_id == sourceid)
         {
-            App::GetSimController()->QueueActorRemove(actor);
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
         }
     }
 }
@@ -433,24 +432,25 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
                             int offset = actor_reg->time - m_net_timer.getMilliseconds();
                             m_stream_time_offsets[reg->origin_sourceid] = offset - 100;
                         }
-                        ActorSpawnRequest rq;
-                        rq.asr_origin = ActorSpawnRequest::Origin::NETWORK;
+                        ActorSpawnRequest* rq = new ActorSpawnRequest;
+                        rq->asr_origin = ActorSpawnRequest::Origin::NETWORK;
                         // TODO: Look up cache entry early (eliminate asr_filename) and fetch skin by name+guid! ~ 03/2019
-                        rq.asr_filename = filename;
+                        rq->asr_filename = filename;
                         if (strnlen(actor_reg->skin, 60) < 60 && actor_reg->skin[0] != '\0')
                         {
-                            rq.asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin);
+                            rq->asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin);
                         }
                         if (strnlen(actor_reg->sectionconfig, 60) < 60)
                         {
-                            rq.asr_config = actor_reg->sectionconfig;
+                            rq->asr_config = actor_reg->sectionconfig;
                         }
-                        rq.asr_net_username = tryConvertUTF(info.username);
-                        rq.asr_net_color    = info.colournum;
+                        rq->asr_net_username = tryConvertUTF(info.username);
+                        rq->asr_net_color    = info.colournum;
+                        rq->net_source_id    = reg->origin_sourceid;
+                        rq->net_stream_id    = reg->origin_streamid;
 
-                        Actor* actor = App::GetSimController()->SpawnActorDirectly(rq);
-                        actor->ar_net_source_id = reg->origin_sourceid;
-                        actor->ar_net_stream_id = reg->origin_streamid;
+                        App::GetGameContext()->PushMessage(Message(
+                            MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
 
                         reg->status = 1;
                     }
@@ -487,7 +487,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
             Actor* b = this->GetActorByNetworkLinks(packet.header.source, packet.header.streamid);
             if (b && b->ar_sim_state == Actor::SimState::NETWORKED_OK)
             {
-                App::GetSimController()->QueueActorRemove(b);
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)b));
             }
             m_stream_mismatches[packet.header.source].erase(packet.header.streamid);
         }
@@ -670,7 +670,7 @@ void ActorManager::ForwardCommands(Actor* source_actor)
     {
         auto linked_actors = source_actor->GetAllLinkedActors();
 
-        for (auto actor : RoR::App::GetSimController()->GetActors())
+        for (auto actor : this->GetActors())
         {
             if (actor != source_actor && actor->ar_import_commands &&
                     (actor->getPosition().distance(source_actor->getPosition()) < 
@@ -819,10 +819,10 @@ void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst,
     {
         SOUND_PLAY_ONCE(actor, SS_TRIG_REPAIR);
 
-        ActorModifyRequest rq;
-        rq.amr_actor = actor;
-        rq.amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
-        App::GetSimController()->QueueActorModify(rq);
+        ActorModifyRequest* rq = new ActorModifyRequest;
+        rq->amr_actor = actor;
+        rq->amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
     }
 }
 
@@ -1066,15 +1066,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
         m_sim_task->join();
 }
 
-void ActorManager::NotifyActorsWindowResized()
-{
-    for (auto actor : m_actors)
-    {
-        actor->ar_dashboard->windowResized();
-    }
-}
-
-Actor* ActorManager::GetActorByIdInternal(int actor_id)
+Actor* ActorManager::GetActorById(int actor_id)
 {
     for (auto actor : m_actors)
     {
@@ -1279,15 +1271,3 @@ std::vector<Actor*> ActorManager::GetLocalActors()
     return actors;
 }
 
-ActorSpawnRequest::ActorSpawnRequest()
-    : asr_position(Ogre::Vector3::ZERO)
-    , asr_rotation(Ogre::Quaternion::ZERO)
-    , asr_spawnbox(nullptr)
-    , asr_skin_entry(nullptr)
-    , asr_origin(Origin::UNKNOWN)
-    , asr_cache_entry(nullptr)
-    , asr_free_position(false)
-    , asr_terrn_machine(false)
-    , asr_net_username("")
-    , asr_net_color(0)
-{}
