@@ -39,8 +39,8 @@
 #include "BeamEngine.h"
 #include "ErrorUtils.h"
 #include "FlexAirfoil.h"
+#include "GameContext.h"
 #include "GfxActor.h"
-
 #include "Language.h"
 #include "RoRFrameListener.h" // SimController
 #include "RoRVersion.h"
@@ -541,7 +541,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
     bool res = false;
     const OIS::MouseState ms = _arg.state;
     
-    Actor* player_actor = RoR::App::GetSimController()->GetPlayerActor();
+    Actor* player_actor = App::GetGameContext()->GetPlayerActor();
 
     if (!player_actor)
         return res;

@@ -27,6 +27,7 @@
 
 #include "Application.h"
 #include "Beam.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "Language.h"
@@ -36,7 +37,7 @@
 
 void RoR::GUI::VehicleDescription::Draw()
 {
-    Actor* actor = App::GetSimController()->GetPlayerActor();
+    Actor* actor = App::GetGameContext()->GetPlayerActor();
     if (!actor)
     {
         m_is_visible = false;

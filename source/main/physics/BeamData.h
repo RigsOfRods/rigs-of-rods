@@ -543,20 +543,21 @@ struct ActorSpawnRequest
         NETWORK       //!< Remote controlled
     };
 
-    ActorSpawnRequest();
-
-    CacheEntry*       asr_cache_entry; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
+    CacheEntry*       asr_cache_entry = nullptr; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
     std::string       asr_filename;
     Ogre::String      asr_config;
-    Ogre::Vector3     asr_position;
-    Ogre::Quaternion  asr_rotation;
-    collision_box_t*  asr_spawnbox;
-    CacheEntry*       asr_skin_entry;
-    Origin            asr_origin;
+    Ogre::Vector3     asr_position = Ogre::Vector3::ZERO;
+    Ogre::Quaternion  asr_rotation = Ogre::Quaternion::ZERO;
+    collision_box_t*  asr_spawnbox = nullptr;
+    CacheEntry*       asr_skin_entry = nullptr;
+    Origin            asr_origin = Origin::UNKNOWN;
+    int               asr_debugview = 0; //(int)GfxActor::DebugViewType::DEBUGVIEW_NONE;
     Ogre::UTFString   asr_net_username;
-    int               asr_net_color;
-    bool              asr_free_position:1;   //!< Disables the automatic spawn position adjustment
-    bool              asr_terrn_machine:1;   //!< This is a fixed machinery
+    int               asr_net_color = 0;
+    int               net_source_id = 0;
+    int               net_stream_id = 0;
+    bool              asr_free_position = false;   //!< Disables the automatic spawn position adjustment
+    bool              asr_terrn_machine = false;   //!< This is a fixed machinery
 };
 
 struct ActorModifyRequest

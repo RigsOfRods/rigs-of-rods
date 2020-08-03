@@ -26,6 +26,7 @@
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "ErrorUtils.h"
+#include "GameContext.h"
 #include "Landusemap.h"
 #include "Language.h"
 #include "MovableText.h"
@@ -33,6 +34,8 @@
 #include "RoRFrameListener.h"
 #include "ScriptEngine.h"
 #include "TerrainManager.h"
+
+using namespace RoR;
 
 // some gcc fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
@@ -1012,7 +1015,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
 
 bool Collisions::permitEvent(int filter)
 {
-    Actor *b = RoR::App::GetSimController()->GetPlayerActor();
+    Actor *b = App::GetGameContext()->GetPlayerActor();
 
     switch (filter)
     {

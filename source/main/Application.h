@@ -53,6 +53,39 @@ namespace RoR {
 // Global definitions and enumerations
 // ------------------------------------------------------------------------------------------------
 
+/// Global gameplay message loop (work in progress), see `struct Message` in GameContext.h
+enum MsgType
+{
+    MSG_INVALID,
+    // Application
+    MSG_APP_SHUTDOWN_REQUESTED,
+    MSG_APP_SCREENSHOT_REQUESTED,
+    MSG_APP_DISPLAY_FULLSCREEN_REQUESTED,
+    MSG_APP_DISPLAY_WINDOWED_REQUESTED,
+    // Networking
+    MSG_NET_CONNECT_REQUESTED,
+    MSG_NET_CONNECT_STARTED,
+    MSG_NET_CONNECT_PROGRESS,
+    MSG_NET_CONNECT_SUCCESS,
+    MSG_NET_CONNECT_FAILURE,
+    MSG_NET_SERVER_KICK,
+    MSG_NET_DISCONNECT_REQUESTED,
+    MSG_NET_USER_DISCONNECT,
+    MSG_NET_RECV_ERROR,
+    MSG_NET_REFRESH_SERVERLIST_SUCCESS,    ///< Payload = GUI::MpServerInfoVec* (owner)
+    MSG_NET_REFRESH_SERVERLIST_FAILURE,
+    // Simulation
+    MSG_SIM_PAUSE_REQUESTED,
+    MSG_SIM_UNPAUSE_REQUESTED,
+    MSG_SIM_LOAD_TERRN_REQUESTED,
+    MSG_SIM_LOAD_SAVEGAME_REQUESTED,
+    MSG_SIM_UNLOAD_TERRN_REQUESTED,
+    MSG_SIM_SPAWN_ACTOR_REQUESTED,         ///< Payload = ActorSpawnRequest* (owner)
+    MSG_SIM_MODIFY_ACTOR_REQUESTED,        ///< Payload = ActorModifyRequest* (owner)
+    MSG_SIM_DELETE_ACTOR_REQUESTED,        ///< Payload = Actor* (weak)
+    MSG_SIM_SEAT_PLAYER_REQUESTED,         ///< Payload = Actor* (weak) | nullptr
+};
+
 enum class AppState
 {
     BOOTSTRAP,          ///< Initial state

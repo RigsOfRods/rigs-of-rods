@@ -26,7 +26,9 @@
 #include "ChatSystem.h"
 #include "Console.h"
 #include "ContentManager.h"
+#include "DashBoardManager.h"
 #include "ErrorUtils.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
@@ -185,7 +187,10 @@ void AppContext::windowResized(Ogre::RenderWindow* rw)
     App::GetOverlayWrapper()->windowResized();
     if (App::sim_state->GetEnum<AppState>() == RoR::AppState::SIMULATION)
     {
-        App::GetSimController()->GetBeamFactory()->NotifyActorsWindowResized();
+        for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
+        {
+            actor->ar_dashboard->windowResized();
+        }
     }
 }
 
@@ -233,7 +238,7 @@ bool AppContext::SetUpRendering()
     {
         Ogre::ConfigFile cfg;
         cfg.load(plugins_path);
-        std::string plugin_dir = cfg.getSetting("PluginFolder", /*section=*/"", /*default=*/App::sys_process_dir->GetActiveStr());
+        std::string plugin_dir = cfg.getSetting("PluginFolder", /*section=*/"", /*default=*/App::sys_process_dir->GetStr());
         Ogre::StringVector plugins = cfg.getMultiSetting("Plugin");
         for (Ogre::String plugin_filename: plugins)
         {
@@ -339,10 +344,10 @@ void AppContext::CaptureScreenshot()
 
         png.addData("User_NickName", App::mp_player_name->GetStr());
         png.addData("User_Language", App::app_language->GetStr());
-        if (App::GetSimController() && App::GetSimController()->GetPlayerActor())
+        if (App::GetSimController() && App::GetGameContext()->GetPlayerActor())
         {
-            png.addData("Truck_file", App::GetSimController()->GetPlayerActor()->ar_filename);
-            png.addData("Truck_name", App::GetSimController()->GetPlayerActor()->GetActorDesignName());
+            png.addData("Truck_file", App::GetGameContext()->GetPlayerActor()->ar_filename);
+            png.addData("Truck_name", App::GetGameContext()->GetPlayerActor()->GetActorDesignName());
         }
         if (App::GetSimTerrain())
         {

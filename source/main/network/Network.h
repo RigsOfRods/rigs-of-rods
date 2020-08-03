@@ -24,7 +24,6 @@
 #ifdef USE_SOCKETW
 
 #include "Application.h"
-#include "GameContext.h"
 #include "RoRnet.h"
 
 #include <SocketW.h>

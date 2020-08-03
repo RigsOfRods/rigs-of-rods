@@ -22,9 +22,11 @@
 
 #include "Beam.h"
 #include "BeamFactory.h"
+#include "GameContext.h"
 #include "RoRFrameListener.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 void PointColDetector::UpdateIntraPoint(bool contactables)
 {
@@ -48,7 +50,7 @@ void PointColDetector::UpdateInterPoint(bool ignorestate)
 
     int contacters_size = 0;
     std::vector<Actor*> collision_partners;
-    for (auto actor : RoR::App::GetSimController()->GetActors())
+    for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if (actor != m_actor && (ignorestate || actor->ar_update_physics) &&
                 m_actor->ar_bounding_box.intersects(actor->ar_bounding_box))

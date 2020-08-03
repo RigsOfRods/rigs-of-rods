@@ -27,6 +27,7 @@
 #include "Console.h"
 #include "DustPool.h"
 #include "HydraxWater.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
@@ -276,12 +277,12 @@ void RoR::GfxScene::RegisterGfxActor(RoR::GfxActor* gfx_actor)
 
 void RoR::GfxScene::BufferSimulationData()
 {
-    m_simbuf.simbuf_player_actor = App::GetSimController()->GetPlayerActor();
+    m_simbuf.simbuf_player_actor = App::GetGameContext()->GetPlayerActor();
     m_simbuf.simbuf_character_pos = App::GetSimController()->GetPlayerCharacter()->getPosition();
     m_simbuf.simbuf_dir_arrow_target = App::GetSimController()->GetDirArrowTarget();
     m_simbuf.simbuf_tyrepressurize_active = App::GetSimController()->IsPressurizingTyres();
     m_simbuf.simbuf_sim_paused = App::GetSimController()->GetPhysicsPaused();
-    m_simbuf.simbuf_sim_speed = App::GetSimController()->GetBeamFactory()->GetSimulationSpeed();
+    m_simbuf.simbuf_sim_speed = App::GetGameContext()->GetActorManager()->GetSimulationSpeed();
     m_simbuf.simbuf_race_time = App::GetSimController()->GetRaceTime();
     m_simbuf.simbuf_race_best_time = App::GetSimController()->GetRaceBestTime();
     m_simbuf.simbuf_race_time_diff = App::GetSimController()->GetRaceTimeDiff();

@@ -64,16 +64,7 @@ public:
     SimController(RoR::ForceFeedback* ff);
 
     // Actor management interface
-    std::vector<Actor*> GetActors() const                             { return m_actor_manager.GetActors(); }
-    std::vector<Actor*> GetLocalActors()                              { return m_actor_manager.GetLocalActors(); }
-    Actor* GetActorById          (int actor_id)                       { return m_actor_manager.GetActorByIdInternal(actor_id); }
-    std::pair<Actor*, float> GetNearestActor(Ogre::Vector3 position)  { return  m_actor_manager.GetNearestActor(position); };
-    void   ChangePlayerActor     (Actor* actor);
-    void   QueueActorSpawn       (RoR::ActorSpawnRequest const & rq)  { m_actor_spawn_queue.push_back(rq); }
-    void   QueueActorModify      (RoR::ActorModifyRequest const & rq) { m_actor_modify_queue.push_back(rq); }
-    void   QueueActorRemove      (Actor* actor)                       { m_actor_remove_queue.push_back(actor); }
-    Actor* SpawnActorDirectly    (RoR::ActorSpawnRequest rq);
-    void   RemoveActorDirectly   (Actor* actor);
+    void   UpdateLastSpawnInfo   (RoR::ActorSpawnRequest rq);
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
 
     // Scripting interface
@@ -99,7 +90,7 @@ public:
     /// @return True if everything was prepared OK and simulation may start.
     bool   SetupGameplayLoop     ();
 
-    RoR::ActorManager*          GetBeamFactory  ()         { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
+    RoR::ForceFeedback*          GetForceFeedback()         { return m_force_feedback; }
     RoR::CharacterFactory*       GetCharacterFactory  ()    { return &m_character_factory; }
     RoR::SceneMouse&             GetSceneMouse()            { return m_scene_mouse; }
     Ogre::Vector3                GetDirArrowTarget()        { return m_dir_arrow_pointed; }
@@ -107,12 +98,7 @@ public:
     bool                         AreControlsLocked() const;
     bool                         IsGUIHidden()              { return m_hide_gui; }
 
-    Actor* GetPlayerActor()                                 { return m_player_actor; }
-    Actor* GetPrevPlayerActor()                             { return m_prev_player_actor; }
     Character* GetPlayerCharacter()                         { return m_player_character; }
-
-    void SetPendingPlayerActor(Actor* actor)                { m_pending_player_actor = actor; }
-    void SetPrevPlayerActorInternal(Actor* actor)           { m_prev_player_actor = actor; }
 
     bool GetPhysicsPaused()                                 { return m_physics_simulation_paused; }
     void SetPhysicsPausedInternal(bool paused)              { m_physics_simulation_paused = paused; }
@@ -129,14 +115,8 @@ private:
     void   UpdateInputEvents       (float dt);
     void   HideGUI                 (bool hidden);
 
-    Actor*                   m_player_actor;           //!< Actor (vehicle or machine) mounted and controlled by player
-    Actor*                   m_prev_player_actor;      //!< Previous actor (vehicle or machine) mounted and controlled by player
-    Actor*                   m_pending_player_actor;   //!< Actor scheduled to be seated by player (when none scheduled, equals `player_actor`)
+
     Character*               m_player_character;
-    RoR::ActorManager        m_actor_manager;
-    std::vector<RoR::ActorSpawnRequest>  m_actor_spawn_queue;
-    std::vector<RoR::ActorModifyRequest> m_actor_modify_queue;
-    std::vector<Actor*>                  m_actor_remove_queue;
     RoR::CharacterFactory    m_character_factory;
     RoR::SceneMouse          m_scene_mouse;
     Ogre::Real               m_time_until_next_toggle; //!< just to stop toggles flipping too fast
