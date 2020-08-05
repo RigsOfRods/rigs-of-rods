@@ -34,104 +34,6 @@
 
 using namespace RoR;
 
-void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
-{
-    EngineSim* engine = vehicle->ar_engine;
-
-    if ((engine->GetGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE) > 0.05f) ||
-        (engine->GetGear() > 0 && vehicle->cc_target_speed < vehicle->cc_target_speed_lower_limit) ||
-        (engine->GetGear() > 0 && vehicle->ar_parking_brake) ||
-        (engine->GetGear() < 0) ||
-        !engine->IsRunning() ||
-        !engine->HasStarterContact())
-    {
-        vehicle->ToggleCruiseControl();
-        return;
-    }
-
-    if (engine->GetGear() != 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f)
-        return;
-
-    float acc = engine->GetAccToHoldRPM();
-
-    if (engine->GetGear() > 0)
-    {
-        // Try to maintain the target speed
-        float power_weight_ratio = vehicle->getTotalMass(true) / engine->getEnginePower();
-        acc += (vehicle->cc_target_speed - vehicle->ar_wheel_speed) * power_weight_ratio * 0.25;
-    }
-    else if (engine->GetGear() == 0) // out of gear
-    {
-        // Try to maintain the target rpm
-        float speed_range = (engine->getMaxRPM() - engine->getMinRPM()) / 50.0f;
-        acc += engine->GetEngineInertia() * (vehicle->cc_target_rpm - engine->GetEngineRpm()) / speed_range;
-    }
-
-    vehicle->cc_accs.push_front(Ogre::Math::Clamp(acc, -1.0f, +1.0f));
-    if (vehicle->cc_accs.size() > 30)
-    {
-        vehicle->cc_accs.pop_back();
-    }
-
-    float avg_acc = 0.0f;
-    for (unsigned int i = 0; i < vehicle->cc_accs.size(); i++)
-    {
-        avg_acc += vehicle->cc_accs[i];
-    }
-    avg_acc /= vehicle->cc_accs.size();
-
-    engine->autoSetAcc(Ogre::Math::Clamp(avg_acc, engine->GetAcceleration(), 1.0f));
-
-    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_ACCL))
-    {
-        if (engine->GetGear() > 0)
-        {
-            vehicle->cc_target_speed *= pow(2.0f, dt / 5.0f);
-            vehicle->cc_target_speed = std::max(vehicle->cc_target_speed_lower_limit, vehicle->cc_target_speed);
-            if (vehicle->sl_enabled)
-            {
-                vehicle->cc_target_speed = std::min(vehicle->cc_target_speed, vehicle->sl_speed_limit);
-            }
-        }
-        else if (engine->GetGear() == 0) // out of gear
-        {
-            vehicle->cc_target_rpm *= pow(2.0f, dt / 5.0f);
-            vehicle->cc_target_rpm = std::min(vehicle->cc_target_rpm, engine->getMaxRPM());
-        }
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_DECL))
-    {
-        if (engine->GetGear() > 0)
-        {
-            vehicle->cc_target_speed *= pow(0.5f, dt / 5.0f);
-            vehicle->cc_target_speed = std::max(vehicle->cc_target_speed_lower_limit, vehicle->cc_target_speed);
-        }
-        else if (engine->GetGear() == 0) // out of gear
-        {
-            vehicle->cc_target_rpm *= pow(0.5f, dt / 5.0f);
-            vehicle->cc_target_rpm = std::max(engine->getMinRPM(), vehicle->cc_target_rpm);
-        }
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_READJUST))
-    {
-        vehicle->cc_target_speed = std::max(vehicle->ar_avg_wheel_speed, vehicle->cc_target_speed);
-        if (vehicle->sl_enabled)
-        {
-            vehicle->cc_target_speed = std::min(vehicle->cc_target_speed, vehicle->sl_speed_limit);
-        }
-        vehicle->cc_target_rpm = engine->GetEngineRpm();
-    }
-
-    if (vehicle->cc_can_brake)
-    {
-        if (vehicle->ar_avg_wheel_speed > vehicle->cc_target_speed + 0.5f && !RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE))
-        {
-            float brake = (vehicle->ar_avg_wheel_speed - vehicle->cc_target_speed) * 0.5f;
-            vehicle->ar_brake = std::min(brake, 1.0f);
-        }
-    }
-}
-
 void LandVehicleSimulation::CheckSpeedLimit(Actor* vehicle, float dt)
 {
     EngineSim* engine = vehicle->ar_engine;
@@ -188,7 +90,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
 
     if (vehicle->cc_mode)
     {
-        LandVehicleSimulation::UpdateCruiseControl(vehicle, seconds_since_last_frame);
+        vehicle->UpdateCruiseControl(seconds_since_last_frame);
     }
     if (vehicle->sl_enabled)
     {
