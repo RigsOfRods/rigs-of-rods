@@ -700,96 +700,6 @@ void GameContext::UpdateGlobalInputEvents()
         }
     }
 
-    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION &&
-        App::sim_state->GetEnum<SimState>() != SimState::PAUSED &&
-        App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
-    {
-        // get new vehicle
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_GET_NEW_VEHICLE))
-        {
-            App::GetGuiManager()->GetMainSelector()->Show(LT_AllBeam);
-        }
-
-        // Enter/exit truck - With a toggle delay
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_OR_EXIT_TRUCK, 0.5f))
-        {
-            if (this->GetPlayerActor() == nullptr) // no vehicle
-            {
-                // find the nearest vehicle
-                float mindist = 1000.0;
-                Actor* nearest_actor = nullptr;
-                for (auto actor : this->GetActorManager()->GetActors())
-                {
-                    if (!actor->ar_driveable)
-                        continue;
-                    if (actor->ar_cinecam_node[0] == -1)
-                    {
-                        LOG("cinecam missing, cannot enter the actor!");
-                        continue;
-                    }
-                    float len = 0.0f;
-                    if (this->GetPlayerCharacter())
-                    {
-                        len = actor->ar_nodes[actor->ar_cinecam_node[0]].AbsPosition.distance(this->GetPlayerCharacter()->getPosition() + Ogre::Vector3(0.0, 2.0, 0.0));
-                    }
-                    if (len < mindist)
-                    {
-                        mindist = len;
-                        nearest_actor = actor;
-                    }
-                }
-
-                if (mindist < 20.0)
-                {
-                    this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)nearest_actor));
-                }
-            }
-            else // We're in a vehicle -> If moving slowly enough, get out
-            {
-                if (this->GetPlayerActor()->ar_nodes[0].Velocity.squaredLength() < 1.0f ||
-                    this->GetPlayerActor()->ar_sim_state == Actor::SimState::NETWORKED_OK)
-                {
-                    this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, nullptr));
-                }
-            }
-        }
-
-        // enter next truck
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
-        {
-            Actor* actor = this->FetchNextVehicleOnList();
-            if (actor != this->GetPlayerActor())
-            {
-                this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
-            }
-        }
-
-        // enter previous truck
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
-        {
-            Actor* actor = this->FetchPrevVehicleOnList();
-            if (actor != this->GetPlayerActor())
-            {
-                this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
-            }
-        }
-
-        // respawn last truck
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK, 0.25f))
-        {
-            this->RespawnLastActor();
-        }
-
-        // reload current truck
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f))
-        {
-            ActorModifyRequest* rq = new ActorModifyRequest;
-            rq->amr_type = ActorModifyRequest::Type::RELOAD;
-            rq->amr_actor = this->GetPlayerActor();
-            App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
-        }
-    }
-
     // screenshot
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.25f))
     {
@@ -836,6 +746,260 @@ void GameContext::UpdateGlobalInputEvents()
         Ogre::String pos = Ogre::StringUtil::format("%8.3f, %8.3f, %8.3f"   , position.x, position.y, position.z);
         Ogre::String rot = Ogre::StringUtil::format("% 6.1f, % 6.1f, % 6.1f",       0.0f, rotation.valueDegrees()  ,       0.0f);
         LOG("Position: " + pos + ", " + rot);
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_RESET_MODE))
+    {
+        App::sim_soft_reset_mode->SetVal(!App::sim_soft_reset_mode->GetBool());
+        App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+            (App::sim_soft_reset_mode->GetBool()) ? _L("Enabled soft reset mode") : _L("Enabled hard reset mode"));
+    }
+}
+
+void GameContext::UpdateSimInputEvents(float dt)
+{
+    // get new vehicle
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_GET_NEW_VEHICLE))
+    {
+        App::GetGuiManager()->GetMainSelector()->Show(LT_AllBeam);
+    }
+
+    // Enter/exit truck - With a toggle delay
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_OR_EXIT_TRUCK, 0.5f))
+    {
+        if (this->GetPlayerActor() == nullptr) // no vehicle
+        {
+            // find the nearest vehicle
+            float mindist = 1000.0;
+            Actor* nearest_actor = nullptr;
+            for (auto actor : this->GetActorManager()->GetActors())
+            {
+                if (!actor->ar_driveable)
+                    continue;
+                if (actor->ar_cinecam_node[0] == -1)
+                {
+                    LOG("cinecam missing, cannot enter the actor!");
+                    continue;
+                }
+                float len = 0.0f;
+                if (this->GetPlayerCharacter())
+                {
+                    len = actor->ar_nodes[actor->ar_cinecam_node[0]].AbsPosition.distance(this->GetPlayerCharacter()->getPosition() + Ogre::Vector3(0.0, 2.0, 0.0));
+                }
+                if (len < mindist)
+                {
+                    mindist = len;
+                    nearest_actor = actor;
+                }
+            }
+
+            if (mindist < 20.0)
+            {
+                this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)nearest_actor));
+            }
+        }
+        else // We're in a vehicle -> If moving slowly enough, get out
+        {
+            if (this->GetPlayerActor()->ar_nodes[0].Velocity.squaredLength() < 1.0f ||
+                this->GetPlayerActor()->ar_sim_state == Actor::SimState::NETWORKED_OK)
+            {
+                this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, nullptr));
+            }
+        }
+    }
+
+    // enter next truck
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
+    {
+        Actor* actor = this->FetchNextVehicleOnList();
+        if (actor != this->GetPlayerActor())
+        {
+            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
+        }
+    }
+
+    // enter previous truck
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
+    {
+        Actor* actor = this->FetchPrevVehicleOnList();
+        if (actor != this->GetPlayerActor())
+        {
+            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
+        }
+    }
+
+    // respawn last truck
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK, 0.25f))
+    {
+        this->RespawnLastActor();
+    }
+
+    // terrain editor toggle
+    bool toggle_editor = (App::GetGameContext()->GetPlayerActor() && App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE) ||
+        (!App::GetGameContext()->GetPlayerActor() && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
+    if (toggle_editor)
+    {
+        Message m(App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE ?
+                    MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED : MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED);
+        App::GetGameContext()->PushMessage(m);
+    }
+}
+
+void GameContext::UpdateCommonInputEvents(float dt)
+{
+    // reload current truck
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f))
+    {
+        ActorModifyRequest* rq = new ActorModifyRequest;
+        rq->amr_type = ActorModifyRequest::Type::RELOAD;
+        rq->amr_actor = m_player_actor;
+        this->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
+    }
+
+    // remove current truck
+    if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK))
+    {
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)m_player_actor));
+    }
+
+    // blinkers
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_LEFT))
+        m_player_actor->toggleBlinkType(BLINK_LEFT);
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_RIGHT))
+        m_player_actor->toggleBlinkType(BLINK_RIGHT);
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_WARN))
+        m_player_actor->toggleBlinkType(BLINK_WARN);
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_REMOVE))
+    {
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)m_player_actor));
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ROPELOCK))
+    {
+        m_player_actor->ar_toggle_ropes = true;
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_LOCK))
+    {
+        m_player_actor->ToggleHooks(-1, HOOK_TOGGLE, -1);
+        m_player_actor->ToggleSlideNodeLock();
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_AUTOLOCK))
+    {
+        m_player_actor->ToggleHooks(-2, HOOK_UNLOCK, -1); //unlock all autolocks
+    }
+
+    //strap
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SECURE_LOAD))
+    {
+        m_player_actor->ar_toggle_ties = true;
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_CUSTOM_PARTICLES))
+    {
+        m_player_actor->ToggleCustomParticles();
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DEBUG_VIEW))
+    {
+        m_player_actor->GetGfxActor()->ToggleDebugView();
+        for (auto actor : m_player_actor->GetAllLinkedActors())
+        {
+            actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
+        }
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CYCLE_DEBUG_VIEWS))
+    {
+        m_player_actor->GetGfxActor()->CycleDebugViews();
+        for (auto actor : m_player_actor->GetAllLinkedActors())
+        {
+            actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
+        }
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LIGHTS))
+    {
+        m_player_actor->ToggleLights();
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_BEACONS))
+    {
+        m_player_actor->ToggleBeacons();
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) &&
+        App::mp_state->GetEnum<MpState>() != MpState::CONNECTED &&
+        m_player_actor->ar_driveable != AIRPLANE)
+    {
+        Actor* rescuer = nullptr;
+        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+        {
+            if (actor->ar_rescuer_flag)
+            {
+                rescuer = actor;
+            }
+        }
+        if (rescuer == nullptr)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("No rescue truck found!"), "warning.png");
+        }
+        else
+        {
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)rescuer));
+        }
+    }
+
+    // parking brake
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TRAILER_PARKING_BRAKE))
+    {
+        if (m_player_actor->ar_driveable == TRUCK)
+            m_player_actor->ar_trailer_parking_brake = !m_player_actor->ar_trailer_parking_brake;
+        else if (m_player_actor->ar_driveable == NOT_DRIVEABLE)
+            m_player_actor->ToggleParkingBrake();
+    }
+
+    // videocam
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_VIDEOCAMERA, 0.5f))
+    {
+        if (m_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_DISABLED)
+        {
+            m_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE);
+        }
+        else
+        {
+            m_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_DISABLED);
+        }
+    }
+
+    // enter/exit truck - Without a delay: the vehicle must brake like braking normally
+    if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_ENTER_OR_EXIT_TRUCK))
+    {
+        m_player_actor->ar_brake = 0.66f;
+    }
+
+    // toggle physics
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_PHYSICS))
+    {
+        for (auto actor : App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors())
+        {
+            actor->ar_physics_paused = !App::GetGameContext()->GetPlayerActor()->ar_physics_paused;
+        }
+        App::GetGameContext()->GetPlayerActor()->ar_physics_paused = !App::GetGameContext()->GetPlayerActor()->ar_physics_paused;
+    }
+
+    // reset truck
+    if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK))
+    {
+        ActorModifyRequest* rq = new ActorModifyRequest;
+        rq->amr_actor = App::GetGameContext()->GetPlayerActor();
+        rq->amr_type  = ActorModifyRequest::Type::RESET_ON_INIT_POS;
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
     }
 }
 

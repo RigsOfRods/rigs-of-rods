@@ -637,6 +637,23 @@ int main(int argc, char *argv[])
                 {
                     App::GetCameraManager()->UpdateInputEvents(dt);
                     App::GetOverlayWrapper()->update(dt);
+                    if (App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
+                    {
+                        App::GetSimTerrain()->GetTerrainEditor()->UpdateInputEvents(dt);
+                    }
+                    else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
+                    {
+                        App::GetGameContext()->GetCharacterFactory()->Update(dt);
+                        if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
+                        {
+                            App::GetGameContext()->UpdateSimInputEvents(dt);
+                            if (App::GetGameContext()->GetPlayerActor() &&
+                                App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::NETWORKED_OK) // we are in a vehicle
+                            {
+                                App::GetGameContext()->UpdateCommonInputEvents(dt);
+                            }
+                        }
+                    }
                     GeneralSimulation::UpdateInputEvents(dt);
                     App::GetGameContext()->GetRecoveryMode().UpdateInputEvents(dt);
                     App::GetGameContext()->GetActorManager()->UpdateInputEvents(dt);
