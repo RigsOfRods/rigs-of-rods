@@ -244,6 +244,10 @@ void RoR::GUI::TopMenubar::Update()
 
             if (ImGui::Button("Back to menu"))
             {
+                if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+                {
+                    App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
+                }
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
             }
 
