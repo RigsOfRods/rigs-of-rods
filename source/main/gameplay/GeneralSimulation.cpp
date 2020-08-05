@@ -85,57 +85,15 @@ void GeneralSimulation::UpdateInputEvents(float dt)
 
     const bool mp_connected = (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED);
 
-    bool toggle_editor = (App::GetGameContext()->GetPlayerActor() && App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE) ||
-        (!App::GetGameContext()->GetPlayerActor() && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
 
-    if (toggle_editor)
-    {
-        Message m(App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE ?
-                  MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED : MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED);
-        App::GetGameContext()->PushMessage(m);
-    }
 
-    if (App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
+
+    if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
     {
-        App::GetSimTerrain()->GetTerrainEditor()->UpdateInputEvents(dt);
-    }
-    else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
-    {
-        App::GetGameContext()->GetCharacterFactory()->Update(dt);
         if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
         {
             if (App::GetGameContext()->GetPlayerActor() && App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::NETWORKED_OK) // we are in a vehicle
             {
-                if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_PHYSICS))
-                {
-                    for (auto actor : App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors())
-                    {
-                        actor->ar_physics_paused = !App::GetGameContext()->GetPlayerActor()->ar_physics_paused;
-                    }
-                    App::GetGameContext()->GetPlayerActor()->ar_physics_paused = !App::GetGameContext()->GetPlayerActor()->ar_physics_paused;
-                }
-                if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_RESET_MODE))
-                {
-                    App::sim_soft_reset_mode->SetVal(!App::sim_soft_reset_mode->GetBool());
-                    App::GetConsole()->putMessage(
-                        Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                        (App::sim_soft_reset_mode->GetBool()) ? _L("Enabled soft reset mode") : _L("Enabled hard reset mode"));
-                }
-
-                if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) &&
-                    App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::LOCAL_REPLAY)
-                {
-                    ActorModifyRequest* rq = new ActorModifyRequest;
-                    rq->amr_actor = App::GetGameContext()->GetPlayerActor();
-                    rq->amr_type  = ActorModifyRequest::Type::RESET_ON_INIT_POS;
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
-                }
-                else if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK) &&
-                         App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::LOCAL_REPLAY)
-                {
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)App::GetGameContext()->GetPlayerActor()));
-                }
-                else
                 {
                     // get commands
                     // -- here we should define a maximum numbers per actor. Some actors does not have that much commands
@@ -191,115 +149,7 @@ void GeneralSimulation::UpdateInputEvents(float dt)
                             App::GetGameContext()->UpdateBoatInputEvents(dt);
                         } // if driveable == BOAT
                     } // if not in replay mode
-                    //COMMON KEYS
 
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_REMOVE))
-                    {
-                        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)App::GetGameContext()->GetPlayerActor()));
-                    }
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ROPELOCK))
-                    {
-                        App::GetGameContext()->GetPlayerActor()->ar_toggle_ropes = true;
-                    }
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_LOCK))
-                    {
-                        App::GetGameContext()->GetPlayerActor()->ToggleHooks(-1, HOOK_TOGGLE, -1);
-                        //SlideNodeLock
-                        App::GetGameContext()->GetPlayerActor()->ToggleSlideNodeLock();
-                    }
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_AUTOLOCK))
-                    {
-                        //unlock all autolocks
-                        App::GetGameContext()->GetPlayerActor()->ToggleHooks(-2, HOOK_UNLOCK, -1);
-                    }
-                    //strap
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SECURE_LOAD))
-                    {
-                        App::GetGameContext()->GetPlayerActor()->ar_toggle_ties = true;
-                    }
-
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_CUSTOM_PARTICLES))
-                    {
-                        App::GetGameContext()->GetPlayerActor()->ToggleCustomParticles();
-                    }
-
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DEBUG_VIEW))
-                    {
-                        App::GetGameContext()->GetPlayerActor()->GetGfxActor()->ToggleDebugView();
-                        for (auto actor : App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors())
-                        {
-                            actor->GetGfxActor()->SetDebugView(App::GetGameContext()->GetPlayerActor()->GetGfxActor()->GetDebugView());
-                        }
-                    }
-
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CYCLE_DEBUG_VIEWS))
-                    {
-                        App::GetGameContext()->GetPlayerActor()->GetGfxActor()->CycleDebugViews();
-                        for (auto actor : App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors())
-                        {
-                            actor->GetGfxActor()->SetDebugView(App::GetGameContext()->GetPlayerActor()->GetGfxActor()->GetDebugView());
-                        }
-                    }
-
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LIGHTS))
-                    {
-                        App::GetGameContext()->GetPlayerActor()->ToggleLights();
-                    }
-
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_BEACONS))
-                    {
-                        App::GetGameContext()->GetPlayerActor()->ToggleBeacons();
-                    }
-
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) && !mp_connected && App::GetGameContext()->GetPlayerActor()->ar_driveable != AIRPLANE)
-                    {
-                        Actor* rescuer = nullptr;
-                        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
-                        {
-                            if (actor->ar_rescuer_flag)
-                            {
-                                rescuer = actor;
-                            }
-                        }
-                        if (rescuer == nullptr)
-                        {
-                            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("No rescue truck found!"), "warning.png");
-                        }
-                        else
-                        {
-                            App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)rescuer));
-                        }
-                    }
-
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TRAILER_PARKING_BRAKE))
-                    {
-                        if (App::GetGameContext()->GetPlayerActor()->ar_driveable == TRUCK)
-                            App::GetGameContext()->GetPlayerActor()->ar_trailer_parking_brake = !App::GetGameContext()->GetPlayerActor()->ar_trailer_parking_brake;
-                        else if (App::GetGameContext()->GetPlayerActor()->ar_driveable == NOT_DRIVEABLE)
-                            App::GetGameContext()->GetPlayerActor()->ToggleParkingBrake();
-                    }
-
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_VIDEOCAMERA, 0.5f))
-                    {
-                        if (App::GetGameContext()->GetPlayerActor()->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_DISABLED)
-                        {
-                            App::GetGameContext()->GetPlayerActor()->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE);
-                        }
-                        else
-                        {
-                            App::GetGameContext()->GetPlayerActor()->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_DISABLED);
-                        }
-                    }
-
-                    if (!RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESPAWN_LAST_TRUCK))
-                    {
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_LEFT))
-                            App::GetGameContext()->GetPlayerActor()->toggleBlinkType(BLINK_LEFT);
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_RIGHT))
-                            App::GetGameContext()->GetPlayerActor()->toggleBlinkType(BLINK_RIGHT);
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_WARN))
-                            App::GetGameContext()->GetPlayerActor()->toggleBlinkType(BLINK_WARN);
-                    }
                 }
             }
             else if (!App::GetGameContext()->GetPlayerActor())
@@ -334,14 +184,6 @@ void GeneralSimulation::UpdateInputEvents(float dt)
                     }
                 }
             }
-
-            // EV_COMMON_ENTER_OR_EXIT_TRUCK - Without a delay: the vehicle must brake like braking normally
-            if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_ENTER_OR_EXIT_TRUCK) &&
-                App::GetGameContext()->GetPlayerActor())
-            {
-                App::GetGameContext()->GetPlayerActor()->ar_brake = 0.66f;
-            }
-            
         } // AreControlsLocked()
 
 #ifdef USE_CAELUM

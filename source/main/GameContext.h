@@ -125,6 +125,8 @@ public:
     RecoveryMode&       GetRecoveryMode() { return m_recovery_mode; }
     void                TeleportPlayer(float x, float z);
     void                UpdateGlobalInputEvents();
+    void                UpdateSimInputEvents(float dt);
+    void                UpdateCommonInputEvents(float dt);
     void                UpdateAirplaneInputEvents(float dt);
     void                UpdateBoatInputEvents(float dt);
     void                UpdateTruckInputEvents(float dt);
