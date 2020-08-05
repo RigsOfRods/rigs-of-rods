@@ -1099,3 +1099,120 @@ void GameContext::UpdateBoatInputEvents(float dt)
     }
 }
 
+void GameContext::UpdateTruckInputEvents(float dt)
+{
+    if (m_player_actor->isBeingReset() || m_player_actor->ar_physics_paused)
+        return;
+#ifdef USE_ANGELSCRIPT
+    if (m_player_actor->ar_vehicle_ai && m_player_actor->ar_vehicle_ai->IsActive())
+        return;
+#endif // USE_ANGELSCRIPT
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LEFT_MIRROR_LEFT))
+        m_player_actor->ar_left_mirror_angle -= 0.001;
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LEFT_MIRROR_RIGHT))
+        m_player_actor->ar_left_mirror_angle += 0.001;
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_RIGHT_MIRROR_LEFT))
+        m_player_actor->ar_right_mirror_angle -= 0.001;
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_RIGHT_MIRROR_RIGHT))
+        m_player_actor->ar_right_mirror_angle += 0.001;
+
+    // steering
+    float tmp_left_digital  = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT , false, InputEngine::ET_DIGITAL);
+    float tmp_right_digital = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_RIGHT, false, InputEngine::ET_DIGITAL);
+    float tmp_left_analog   = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT , false, InputEngine::ET_ANALOG);
+    float tmp_right_analog  = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_RIGHT, false, InputEngine::ET_ANALOG);
+
+    float sum = -std::max(tmp_left_digital, tmp_left_analog) + std::max(tmp_right_digital, tmp_right_analog);
+
+    m_player_actor->ar_hydro_dir_command = Ogre::Math::Clamp(sum, -1.0f, 1.0f);
+
+    m_player_actor->ar_hydro_speed_coupling = (tmp_left_digital >= tmp_left_analog) && (tmp_right_digital >= tmp_right_analog);
+
+    if (m_player_actor->ar_engine)
+    {
+        m_player_actor->ar_engine->UpdateInputEvents(dt);
+    }
+
+    if (m_player_actor->ar_brake > 1.0f / 6.0f)
+    {
+        SOUND_START(m_player_actor, SS_TRIG_BRAKE);
+    }
+    else
+    {
+        SOUND_STOP(m_player_actor, SS_TRIG_BRAKE);
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_INTER_AXLE_DIFF))
+    {
+        m_player_actor->ToggleAxleDiffMode();
+        m_player_actor->DisplayAxleDiffMode();
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_INTER_WHEEL_DIFF))
+    {
+        m_player_actor->ToggleWheelDiffMode();
+        m_player_actor->DisplayWheelDiffMode();
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_TCASE_4WD_MODE))
+    {
+        m_player_actor->ToggleTransferCaseMode();
+        m_player_actor->DisplayTransferCaseMode();
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_TCASE_GEAR_RATIO))
+    {
+        m_player_actor->ToggleTransferCaseGearRatio();
+        m_player_actor->DisplayTransferCaseMode();
+    }
+
+    if (m_player_actor->ar_is_police)
+    {
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_HORN))
+        {
+            SOUND_TOGGLE(m_player_actor, SS_TRIG_HORN); // Police siren
+        }
+    }
+    else
+    {
+        if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN))
+        {
+            SOUND_START(m_player_actor, SS_TRIG_HORN);
+        }
+        else
+        {
+            SOUND_STOP(m_player_actor, SS_TRIG_HORN);
+        }
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_PARKING_BRAKE) &&
+            !App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TRAILER_PARKING_BRAKE))
+    {
+        m_player_actor->ToggleParkingBrake();
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_ANTILOCK_BRAKE))
+    {
+        m_player_actor->ToggleAntiLockBrake();
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TRACTION_CONTROL))
+    {
+        m_player_actor->ToggleTractionControl();
+    }
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_CRUISE_CONTROL))
+    {
+        m_player_actor->ToggleCruiseControl();
+    }
+
+    if (m_player_actor->GetTyrePressure().IsEnabled())
+    {
+        m_player_actor->GetTyrePressure().UpdateInputEvents(dt);
+    }
+}
+

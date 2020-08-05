@@ -127,7 +127,8 @@ public:
     void                UpdateGlobalInputEvents();
     void                UpdateAirplaneInputEvents(float dt);
     void                UpdateBoatInputEvents(float dt);
-    
+    void                UpdateTruckInputEvents(float dt);
+
 private:
     // Message queue
     GameMsgQueue        m_msg_queue;

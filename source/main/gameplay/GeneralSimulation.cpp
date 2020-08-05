@@ -180,7 +180,7 @@ void GeneralSimulation::UpdateInputEvents(float dt)
                     {
                         if (App::GetGameContext()->GetPlayerActor()->ar_driveable == TRUCK)
                         {
-                            LandVehicleSimulation::UpdateInputEvents(App::GetGameContext()->GetPlayerActor(), dt);
+                            App::GetGameContext()->UpdateTruckInputEvents(dt);
                         }
                         if (App::GetGameContext()->GetPlayerActor()->ar_driveable == AIRPLANE)
                         {
