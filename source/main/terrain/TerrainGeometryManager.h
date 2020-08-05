@@ -27,6 +27,7 @@
 
 #include <OgreVector3.h>
 #include <Terrain/OgreTerrain.h>
+#include <Terrain/OgreTerrainGroup.h>
 
 namespace RoR {
 

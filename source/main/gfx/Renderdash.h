@@ -23,6 +23,7 @@
 #include "Application.h"
 
 #include <Ogre.h>
+#include <Overlay/OgreOverlay.h>
 
 namespace RoR {
 
