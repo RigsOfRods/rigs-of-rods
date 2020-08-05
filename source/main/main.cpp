@@ -632,6 +632,7 @@ int main(int argc, char *argv[])
 
                 App::GetGameContext()->HandleSavegameHotkeys();
                 App::GetGameContext()->UpdateGlobalInputEvents();
+                App::GetGuiManager()->UpdateInputEvents(dt);
 
                 if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
                 {
