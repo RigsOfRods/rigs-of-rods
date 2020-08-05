@@ -3758,23 +3758,6 @@ void Actor::ToggleTractionControl()
         tc_mode = !tc_mode;
 }
 
-void Actor::ToggleCruiseControl()
-{
-    cc_mode = !cc_mode;
-
-    if (cc_mode)
-    {
-        cc_target_speed = ar_avg_wheel_speed;
-        cc_target_rpm = ar_engine->GetEngineRpm();
-    }
-    else
-    {
-        cc_target_speed = 0;
-        cc_target_rpm = 0;
-        cc_accs.clear();
-    }
-}
-
 void Actor::ToggleBeacons()
 {
     if (m_flares_mode == GfxFlaresMode::NONE)

@@ -18,10 +18,11 @@ set(SOURCE_FILES
         audio/SoundScriptManager.{h,cpp}
         gameplay/AircraftSimulation.{h,cpp}
         gameplay/AutoPilot.{h,cpp}
-        gameplay/EngineSim.{h,cpp}
         gameplay/Character.{h,cpp}
         gameplay/CharacterFactory.{h,cpp}
         gameplay/ChatSystem.{h,cpp}
+        gameplay/CruiseControl.cpp
+        gameplay/EngineSim.{h,cpp}
         gameplay/GeneralSimulation.{h,cpp}
         gameplay/Landusemap.{h,cpp}
         gameplay/LandVehicleSimulation.{h,cpp}

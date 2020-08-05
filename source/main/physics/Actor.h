@@ -104,7 +104,8 @@ public:
     void              ToggleParkingBrake();                //!< Event handler
     void              ToggleAntiLockBrake();               //!< Event handler
     void              ToggleTractionControl();             //!< Event handler
-    void              ToggleCruiseControl();               //!< Event handler
+    void              ToggleCruiseControl();               //!< Defined in 'gameplay/CruiseControl.cpp'
+    void              UpdateCruiseControl(float dt);       //!< Defined in 'gameplay/CruiseControl.cpp'
     void              ToggleBeacons();                     //!< Event handler
     bool              Intersects(Actor* actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
     /// Moves the actor at most 'direction.length()' meters towards 'direction' to resolve any collisions
