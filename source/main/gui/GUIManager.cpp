@@ -250,11 +250,7 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
         m_impl->panel_SimActorStats.Draw(player_gfx_actor);
     }
 
-    if (this->IsVisible_Console())
-    {
-        m_impl->panel_ConsoleWindow.Draw();
-    }
-    else
+    if (!this->IsVisible_Console())
     {
         if (!m_hide_gui)
         {
@@ -491,6 +487,11 @@ void GUIManager::DrawCommonGui()
     if (m_impl->panel_MainSelector.IsVisible())
     {
         m_impl->panel_MainSelector.Draw();
+    }
+
+    if (m_impl->panel_ConsoleWindow.IsVisible())
+    {
+        m_impl->panel_ConsoleWindow.Draw();
     }
 }
 
