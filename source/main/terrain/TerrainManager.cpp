@@ -199,7 +199,9 @@ TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry& entry)
 
     LOG(" ===== LOADING TERRAIN OBJECTS " + filename);
     PROGRESS_WINDOW(80, _L("Loading Terrain Objects"));
+    App::SetSimTerrain(terrn_mgr.get()); // Hack for the ProceduralManager
     terrn_mgr->loadTerrainObjects();
+    App::SetSimTerrain(nullptr); // END Hack for the ProceduralManager
 
     // bake the decals
     //finishTerrainDecal();
