@@ -16,7 +16,6 @@ set(SOURCE_FILES
         audio/Sound.{h,cpp}
         audio/SoundManager.{h,cpp}
         audio/SoundScriptManager.{h,cpp}
-        gameplay/AircraftSimulation.{h,cpp}
         gameplay/AutoPilot.{h,cpp}
         gameplay/Character.{h,cpp}
         gameplay/CharacterFactory.{h,cpp}

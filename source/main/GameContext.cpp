@@ -23,6 +23,7 @@
 
 #include "AppContext.h"
 #include "Actor.h"
+#include "AeroEngine.h"
 #include "CacheSystem.h"
 #include "Collisions.h"
 #include "Console.h"
@@ -33,6 +34,7 @@
 #include "GUI_MainSelector.h"
 #include "InputEngine.h"
 #include "OverlayWrapper.h"
+#include "ScrewProp.h"
 #include "ScriptEngine.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
@@ -651,7 +653,7 @@ void GameContext::TeleportPlayer(float x, float z)
     }
 }
 
-void GameContext::HandleCommonInputEvents()
+void GameContext::UpdateGlobalInputEvents()
 {
     // EV_COMMON_QUIT_GAME - Generic escape key event
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
@@ -775,6 +777,14 @@ void GameContext::HandleCommonInputEvents()
         {
             this->RespawnLastActor();
         }
+
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f))
+        {
+            ActorModifyRequest* rq = new ActorModifyRequest;
+            rq->amr_type = ActorModifyRequest::Type::RELOAD;
+            rq->amr_actor = this->GetPlayerActor();
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
+        }
     }
 
     // EV_COMMON_SCREENSHOT
@@ -825,3 +835,267 @@ void GameContext::HandleCommonInputEvents()
         LOG("Position: " + pos + ", " + rot);
     }
 }
+
+void GameContext::UpdateAirplaneInputEvents(float dt)
+{
+    if (m_player_actor->isBeingReset() || m_player_actor->ar_physics_paused)
+        return;
+
+    //autopilot
+    if (m_player_actor->ar_autopilot && m_player_actor->ar_autopilot->wantsdisconnect)
+    {
+        m_player_actor->ar_autopilot->disconnect();
+    }
+
+    // EV_AIRPLANE_STEER_LEFT/EV_AIRPLANE_STEER_RIGHT
+    float commandrate = 4.0;
+    float tmp_left = App::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_LEFT);
+    float tmp_right = App::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_RIGHT);
+    float sum_steer = -tmp_left + tmp_right;
+    App::GetInputEngine()->smoothValue(m_player_actor->ar_aileron, sum_steer, dt * commandrate);
+    m_player_actor->ar_hydro_dir_command = m_player_actor->ar_aileron;
+    m_player_actor->ar_hydro_speed_coupling = !(App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_LEFT) && App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_RIGHT));
+
+    // EV_AIRPLANE_ELEVATOR_UP/EV_AIRPLANE_ELEVATOR_DOWN (pitch)
+    float tmp_pitch_up = App::GetInputEngine()->getEventValue(EV_AIRPLANE_ELEVATOR_UP);
+    float tmp_pitch_down = App::GetInputEngine()->getEventValue(EV_AIRPLANE_ELEVATOR_DOWN);
+    float sum_pitch = tmp_pitch_down - tmp_pitch_up;
+    App::GetInputEngine()->smoothValue(m_player_actor->ar_elevator, sum_pitch, dt * commandrate);
+
+    // EV_AIRPLANE_RUDDER_LEFT/EV_AIRPLANE_RUDDER_RIGHT
+    float tmp_rudder_left = App::GetInputEngine()->getEventValue(EV_AIRPLANE_RUDDER_LEFT);
+    float tmp_rudder_right = App::GetInputEngine()->getEventValue(EV_AIRPLANE_RUDDER_RIGHT);
+    float sum_rudder = tmp_rudder_left - tmp_rudder_right;
+    App::GetInputEngine()->smoothValue(m_player_actor->ar_rudder, sum_rudder, dt * commandrate);
+
+    // EV_AIRPLANE_BRAKE
+    if (!m_player_actor->ar_parking_brake)
+    {
+        m_player_actor->ar_brake = App::GetInputEngine()->getEventValue(EV_AIRPLANE_BRAKE) * 0.66f;
+    }
+
+    // EV_AIRPLANE_PARKING_BRAKE
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_PARKING_BRAKE))
+    {
+        m_player_actor->ToggleParkingBrake();
+    }
+
+    // EV_AIRPLANE_REVERSE
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_REVERSE))
+    {
+        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        {
+            m_player_actor->ar_aeroengines[i]->toggleReverse();
+        }
+    }
+
+    // EV_AIRPLANE_TOGGLE_ENGINES
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_TOGGLE_ENGINES))
+    {
+        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        {
+            m_player_actor->ar_aeroengines[i]->flipStart();
+        }
+    }
+
+    // EV_AIRPLANE_FLAPS_NONE
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_NONE))
+    {
+        if (m_player_actor->ar_aerial_flap > 0)
+        {
+            m_player_actor->ar_aerial_flap = 0;
+        }
+    }
+
+    // EV_AIRPLANE_FLAPS_FULL
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_FULL))
+    {
+        if (m_player_actor->ar_aerial_flap < 5)
+        {
+            m_player_actor->ar_aerial_flap = 5;
+        }
+    }
+
+    // EV_AIRPLANE_FLAPS_LESS
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_LESS))
+    {
+        if (m_player_actor->ar_aerial_flap > 0)
+        {
+            m_player_actor->ar_aerial_flap = (m_player_actor->ar_aerial_flap) - 1;
+        }
+    }
+
+    // EV_AIRPLANE_FLAPS_MORE
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_MORE))
+    {
+        if (m_player_actor->ar_aerial_flap < 5)
+        {
+            m_player_actor->ar_aerial_flap = (m_player_actor->ar_aerial_flap) + 1;
+        }
+    }
+
+    // EV_AIRPLANE_AIRBRAKES_NONE
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_NONE))
+    {
+        if (m_player_actor->ar_airbrake_intensity > 0)
+        {
+            m_player_actor->setAirbrakeIntensity(0);
+        }
+    }
+
+    // EV_AIRPLANE_AIRBRAKES_FULL
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_FULL))
+    {
+        if (m_player_actor->ar_airbrake_intensity < 5)
+        {
+            m_player_actor->setAirbrakeIntensity(5);
+        }
+    }
+
+    // EV_AIRPLANE_AIRBRAKES_LESS
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_LESS))
+    {
+        if (m_player_actor->ar_airbrake_intensity > 0)
+        {
+            m_player_actor->setAirbrakeIntensity((m_player_actor->ar_airbrake_intensity) - 1);
+        }
+    }
+
+    // EV_AIRPLANE_AIRBRAKES_MORE
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_MORE))
+    {
+        if (m_player_actor->ar_airbrake_intensity < 5)
+        {
+            m_player_actor->setAirbrakeIntensity((m_player_actor->ar_airbrake_intensity) + 1);
+        }
+    }
+
+    // EV_AIRPLANE_THROTTLE
+    float tmp_throttle = App::GetInputEngine()->getEventBoolValue(EV_AIRPLANE_THROTTLE);
+    if (tmp_throttle > 0)
+    {
+        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        {
+            m_player_actor->ar_aeroengines[i]->setThrottle(tmp_throttle);
+        }
+    }
+
+    // EV_AIRPLANE_THROTTLE_AXIS
+    if (App::GetInputEngine()->isEventDefined(EV_AIRPLANE_THROTTLE_AXIS))
+    {
+        float f = App::GetInputEngine()->getEventValue(EV_AIRPLANE_THROTTLE_AXIS);
+        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        {
+            m_player_actor->ar_aeroengines[i]->setThrottle(f);
+        }
+    }
+
+    // EV_AIRPLANE_THROTTLE_DOWN
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_DOWN, 0.1f))
+    {
+        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        {
+            m_player_actor->ar_aeroengines[i]->setThrottle(m_player_actor->ar_aeroengines[i]->getThrottle() - 0.05);
+        }
+    }
+
+    // EV_AIRPLANE_THROTTLE_UP
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_UP, 0.1f))
+    {
+        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        {
+            m_player_actor->ar_aeroengines[i]->setThrottle(m_player_actor->ar_aeroengines[i]->getThrottle() + 0.05);
+        }
+    }
+
+    // EV_AIRPLANE_THROTTLE_NO
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_NO, 0.1f))
+    {
+        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        {
+            m_player_actor->ar_aeroengines[i]->setThrottle(0);
+        }
+    }
+
+    // EV_AIRPLANE_THROTTLE_FULL
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_FULL, 0.1f))
+    {
+        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        {
+            m_player_actor->ar_aeroengines[i]->setThrottle(1);
+        }
+    }
+
+    // autopilot
+    if (m_player_actor->ar_autopilot)
+    {
+        for (int i = 0; i < m_player_actor->ar_num_aeroengines; i++)
+        {
+            m_player_actor->ar_aeroengines[i]->setThrottle(m_player_actor->ar_autopilot->getThrottle(m_player_actor->ar_aeroengines[i]->getThrottle(), dt));
+        }
+    }
+}
+
+void GameContext::UpdateBoatInputEvents(float dt)
+{
+    // EV_BOAT_THROTTLE_AXIS
+    if (App::GetInputEngine()->isEventDefined(EV_BOAT_THROTTLE_AXIS))
+    {
+        float f = App::GetInputEngine()->getEventValue(EV_BOAT_THROTTLE_AXIS);
+        // use negative values also!
+        f = f * 2 - 1;
+        for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
+            m_player_actor->ar_screwprops[i]->setThrottle(-f);
+    }
+
+    // EV_BOAT_THROTTLE_DOWN
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_THROTTLE_DOWN, 0.1f))
+    {
+        for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
+            m_player_actor->ar_screwprops[i]->setThrottle(m_player_actor->ar_screwprops[i]->getThrottle() - 0.05);
+    }
+
+    // EV_BOAT_THROTTLE_UP
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_THROTTLE_UP, 0.1f))
+    {
+        for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
+            m_player_actor->ar_screwprops[i]->setThrottle(m_player_actor->ar_screwprops[i]->getThrottle() + 0.05);
+    }
+
+    // EV_BOAT_STEER_LEFT/EV_BOAT_STEER_RIGHT
+    float tmp_steer_left = App::GetInputEngine()->getEventValue(EV_BOAT_STEER_LEFT);
+    float tmp_steer_right = App::GetInputEngine()->getEventValue(EV_BOAT_STEER_RIGHT);
+    float stime = App::GetInputEngine()->getEventBounceTime(EV_BOAT_STEER_LEFT) + App::GetInputEngine()->getEventBounceTime(EV_BOAT_STEER_RIGHT);
+    float sum_steer = (tmp_steer_left - tmp_steer_right) * dt;
+    // do not center the rudder!
+    if (fabs(sum_steer) > 0 && stime <= 0)
+    {
+        for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
+            m_player_actor->ar_screwprops[i]->setRudder(m_player_actor->ar_screwprops[i]->getRudder() + sum_steer);
+    }
+
+    // EV_BOAT_STEER_LEFT_AXIS/EV_BOAT_STEER_RIGHT_AXIS
+    if (App::GetInputEngine()->isEventDefined(EV_BOAT_STEER_LEFT_AXIS) && App::GetInputEngine()->isEventDefined(EV_BOAT_STEER_RIGHT_AXIS))
+    {
+        tmp_steer_left = App::GetInputEngine()->getEventValue(EV_BOAT_STEER_LEFT_AXIS);
+        tmp_steer_right = App::GetInputEngine()->getEventValue(EV_BOAT_STEER_RIGHT_AXIS);
+        sum_steer = (tmp_steer_left - tmp_steer_right);
+        for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
+            m_player_actor->ar_screwprops[i]->setRudder(sum_steer);
+    }
+
+    // EV_BOAT_CENTER_RUDDER
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_CENTER_RUDDER, 0.1f))
+    {
+        for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
+            m_player_actor->ar_screwprops[i]->setRudder(0);
+    }
+
+    // EV_BOAT_REVERSE
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_REVERSE))
+    {
+        for (int i = 0; i < m_player_actor->ar_num_screwprops; i++)
+            m_player_actor->ar_screwprops[i]->toggleReverse();
+    }
+}
+
