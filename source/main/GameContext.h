@@ -124,7 +124,9 @@ public:
     RaceSystem&         GetRaceSystem() { return m_race_system; }
     RecoveryMode&       GetRecoveryMode() { return m_recovery_mode; }
     void                TeleportPlayer(float x, float z);
-    void                HandleCommonInputEvents(); // EV_COMMON*, any game state
+    void                UpdateGlobalInputEvents();
+    void                UpdateAirplaneInputEvents(float dt);
+    void                UpdateBoatInputEvents(float dt);
     
 private:
     // Message queue
