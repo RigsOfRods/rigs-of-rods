@@ -22,9 +22,7 @@ set(SOURCE_FILES
         gameplay/ChatSystem.{h,cpp}
         gameplay/CruiseControl.cpp
         gameplay/EngineSim.{h,cpp}
-        gameplay/GeneralSimulation.{h,cpp}
         gameplay/Landusemap.{h,cpp}
-        gameplay/LandVehicleSimulation.{h,cpp}
         gameplay/ProceduralManager.{h,cpp}
         gameplay/RaceSystem.{h,cpp}
         gameplay/RecoveryMode.{h,cpp}

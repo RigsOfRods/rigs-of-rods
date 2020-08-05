@@ -35,8 +35,11 @@
 #include "GUI_MainSelector.h"
 #include "InputEngine.h"
 #include "OverlayWrapper.h"
+#include "Replay.h"
 #include "ScrewProp.h"
 #include "ScriptEngine.h"
+#include "SkyManager.h"
+#include "SkyXManager.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "Utils.h"
@@ -420,7 +423,7 @@ Actor* GameContext::FetchNextVehicleOnList()
 
 void GameContext::UpdateActors()
 {
-    m_actor_manager.UpdateActors(m_player_actor);   
+    m_actor_manager.UpdateActors(m_player_actor);
 }
 
 Actor* GameContext::FindActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
@@ -844,6 +847,97 @@ void GameContext::UpdateSimInputEvents(float dt)
                     MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED : MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED);
         App::GetGameContext()->PushMessage(m);
     }
+
+#ifdef USE_CAELUM
+    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM &&
+        App::GetSimTerrain()->getSkyManager())
+    {
+        float time_factor = 1.0f;
+
+        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
+        {
+            time_factor = 1000.0f;
+        }
+        else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST))
+        {
+            time_factor = 10000.0f;
+        }
+        else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME))
+        {
+            time_factor = -1000.0f;
+        }
+        else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST))
+        {
+            time_factor = -10000.0f;
+        }
+
+        if (App::GetSimTerrain()->getSkyManager()->GetSkyTimeFactor() != time_factor)
+        {
+            App::GetSimTerrain()->getSkyManager()->SetSkyTimeFactor(time_factor);
+            Str<200> msg; msg << _L("Time set to ") << App::GetSimTerrain()->getSkyManager()->GetPrettyTime();
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr());
+        }
+    }
+
+#endif // USE_CAELUM
+    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::SKYX &&
+        App::GetSimTerrain()->getSkyXManager())
+    {
+        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
+        {
+            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(1.0f);
+        }
+        else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST))
+        {
+            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(2.0f);
+        }
+        else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME))
+        {
+            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(-1.0f);
+        }
+        else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST))
+        {
+            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(-2.0f);
+        }
+        else
+        {
+            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(0.01f);
+        }
+    }
+
+    // forward commands from character
+    if (!m_player_actor)
+    {
+        // Find nearest actor
+        const Ogre::Vector3 position = App::GetGameContext()->GetPlayerCharacter()->getPosition();
+        Actor* nearest_actor = nullptr;
+        float min_squared_distance = std::numeric_limits<float>::max();
+        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+        {
+            float squared_distance = position.squaredDistance(actor->ar_nodes[0].AbsPosition);
+            if (squared_distance < min_squared_distance)
+            {
+                min_squared_distance = squared_distance;
+                nearest_actor = actor;
+            }
+        }
+
+        // Evaluate
+        if (nearest_actor != nullptr &&
+            nearest_actor->ar_import_commands &&
+            min_squared_distance < (nearest_actor->getMinCameraRadius()*nearest_actor->getMinCameraRadius()))
+        {
+            // get commands
+            // -- here we should define a maximum numbers per actor. Some actors does not have that much commands
+            // -- available, so why should we iterate till MAX_COMMANDS?
+            for (int i = 1; i <= MAX_COMMANDS + 1; i++)
+            {
+                int eventID = EV_COMMANDS_01 + (i - 1);
+
+                nearest_actor->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
+            }
+        }
+    }
 }
 
 void GameContext::UpdateCommonInputEvents(float dt)
@@ -1000,6 +1094,45 @@ void GameContext::UpdateCommonInputEvents(float dt)
         rq->amr_actor = App::GetGameContext()->GetPlayerActor();
         rq->amr_type  = ActorModifyRequest::Type::RESET_ON_INIT_POS;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
+    }
+
+    // all commands
+    for (int i = 1; i <= MAX_COMMANDS + 1; i++)
+    {
+        int eventID = EV_COMMANDS_01 + (i - 1);
+
+        m_player_actor->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
+    }
+
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_FORWARDCOMMANDS))
+    {
+        m_player_actor->ar_forward_commands = !m_player_actor->ar_forward_commands;
+        if (m_player_actor->ar_forward_commands)
+        {
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("forwardcommands enabled"), "information.png", 3000);
+        }
+        else
+        {
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("forwardcommands disabled"), "information.png", 3000);
+        }
+    }
+
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_IMPORTCOMMANDS))
+    {
+        m_player_actor->ar_import_commands = !m_player_actor->ar_import_commands;
+        if (m_player_actor->ar_import_commands)
+        {
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("importcommands enabled"), "information.png", 3000);
+        }
+        else
+        {
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("importcommands disabled"), "information.png", 3000);
+        }
+    }
+
+    if (m_player_actor->GetReplay())
+    {
+        m_player_actor->GetReplay()->UpdateInputEvents();
     }
 }
 

@@ -110,6 +110,7 @@ private:
     void           RemoveStreamSource(int sourceid);
     void           RecursiveActivation(int j, std::vector<bool>& visited);
     void           ForwardCommands(Actor* source_actor); //!< Fowards things to trailers
+    void           UpdateTruckFeatures(Actor* vehicle, float dt);
 
     // Networking
     std::map<int, std::set<int>> m_stream_mismatches; //!< Networking: A set of streams without a corresponding actor in the actor-array for each stream source

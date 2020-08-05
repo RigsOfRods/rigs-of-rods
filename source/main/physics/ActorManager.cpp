@@ -40,7 +40,6 @@
 #include "Console.h"
 #include "GUI_TopMenubar.h"
 #include "InputEngine.h"
-#include "LandVehicleSimulation.h"
 #include "Language.h"
 #include "MovableText.h"
 #include "Network.h"
@@ -1012,7 +1011,7 @@ void ActorManager::UpdateActors(Actor* player_actor)
         {
             if (actor->ar_driveable == TRUCK)
             {
-                LandVehicleSimulation::UpdateVehicle(actor, dt);
+                this->UpdateTruckFeatures(actor, dt);
             }
             if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
             {
@@ -1365,6 +1364,64 @@ void ActorManager::UpdateInputEvents(float dt)
     else
     {
         m_simulation_time = dt;
+    }
+}
+
+void ActorManager::UpdateTruckFeatures(Actor* vehicle, float dt)
+{
+    if (vehicle->isBeingReset() || vehicle->ar_physics_paused)
+        return;
+#ifdef USE_ANGELSCRIPT
+    if (vehicle->ar_vehicle_ai && vehicle->ar_vehicle_ai->IsActive())
+        return;
+#endif // USE_ANGELSCRIPT
+
+    EngineSim* engine = vehicle->ar_engine;
+
+    if (engine && engine->HasStarterContact() &&
+        engine->GetAutoShiftMode() == SimGearboxMode::AUTO &&
+        engine->getAutoShift() != EngineSim::NEUTRAL)
+    {
+        Ogre::Vector3 dirDiff = vehicle->getDirection();
+        Ogre::Degree pitchAngle = Ogre::Radian(asin(dirDiff.dotProduct(Ogre::Vector3::UNIT_Y)));
+
+        if (std::abs(pitchAngle.valueDegrees()) > 2.0f)
+        {
+            if (engine->getAutoShift() > EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed < +0.02f && pitchAngle.valueDegrees() > 0.0f ||
+                engine->getAutoShift() < EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed > -0.02f && pitchAngle.valueDegrees() < 0.0f)
+            {
+                // anti roll back in SimGearboxMode::AUTO (DRIVE, TWO, ONE) mode
+                // anti roll forth in SimGearboxMode::AUTO (REAR) mode
+                float g = std::abs(App::GetSimTerrain()->getGravity());
+                float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * vehicle->getTotalMass()) * g;
+                float engine_force = std::abs(engine->GetTorque()) / vehicle->getAvgPropedWheelRadius();
+                float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force));
+                if (vehicle->ar_avg_wheel_speed * pitchAngle.valueDegrees() > 0.0f)
+                {
+                    ratio *= sqrt((0.02f - vehicle->ar_avg_wheel_speed) / 0.02f);
+                }
+                vehicle->ar_brake = sqrt(ratio);
+            }
+        }
+        else if (vehicle->ar_brake == 0.0f && !vehicle->ar_parking_brake && engine->GetTorque() == 0.0f)
+        {
+            float ratio = std::max(0.0f, 0.2f - std::abs(vehicle->ar_avg_wheel_speed)) / 0.2f;
+            vehicle->ar_brake = ratio;
+        }
+    }
+
+    if (vehicle->cc_mode)
+    {
+        vehicle->UpdateCruiseControl(dt);
+    }
+    if (vehicle->sl_enabled)
+    {
+        // check speed limit
+        if (engine && engine->GetGear() != 0)
+        {
+            float accl = (vehicle->sl_speed_limit - std::abs(vehicle->ar_wheel_speed / 1.02f)) * 2.0f;
+            engine->SetAcceleration(Ogre::Math::Clamp(accl, 0.0f, engine->GetAcceleration()));
+        }
     }
 }
 

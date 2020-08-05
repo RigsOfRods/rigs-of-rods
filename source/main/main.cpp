@@ -30,10 +30,10 @@
 #include "DiscordRpc.h"
 #include "ErrorUtils.h"
 #include "GameContext.h"
-#include "GeneralSimulation.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
 #include "GUI_DirectionArrow.h"
+#include "GUI_FrictionSettings.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
 #include "GUI_MultiplayerSelector.h"
@@ -641,7 +641,7 @@ int main(int argc, char *argv[])
                     {
                         App::GetSimTerrain()->GetTerrainEditor()->UpdateInputEvents(dt);
                     }
-                    else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING || App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
+                    else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
                     {
                         App::GetGameContext()->GetCharacterFactory()->Update(dt);
                         if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
@@ -651,10 +651,24 @@ int main(int argc, char *argv[])
                                 App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::NETWORKED_OK) // we are in a vehicle
                             {
                                 App::GetGameContext()->UpdateCommonInputEvents(dt);
+                                if (App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::LOCAL_REPLAY)
+                                {
+                                    if (App::GetGameContext()->GetPlayerActor()->ar_driveable == TRUCK)
+                                    {
+                                        App::GetGameContext()->UpdateTruckInputEvents(dt);
+                                    }
+                                    if (App::GetGameContext()->GetPlayerActor()->ar_driveable == AIRPLANE)
+                                    {
+                                        App::GetGameContext()->UpdateAirplaneInputEvents(dt);
+                                    }
+                                    if (App::GetGameContext()->GetPlayerActor()->ar_driveable == BOAT)
+                                    {
+                                        App::GetGameContext()->UpdateBoatInputEvents(dt);
+                                    }
+                                }
                             }
                         }
                     }
-                    GeneralSimulation::UpdateInputEvents(dt);
                     App::GetGameContext()->GetRecoveryMode().UpdateInputEvents(dt);
                     App::GetGameContext()->GetActorManager()->UpdateInputEvents(dt);
                 }
@@ -679,6 +693,10 @@ int main(int argc, char *argv[])
                 if (App::GetGameContext()->GetPlayerActor())
                 {
                     App::GetGuiManager()->GetSimActorStats()->UpdateStats(dt, App::GetGameContext()->GetPlayerActor());
+                    if (App::GetGuiManager()->IsVisible_FrictionSettings())
+                    {
+                        App::GetGuiManager()->GetFrictionSettings()->setActiveCol(App::GetGameContext()->GetPlayerActor()->ar_last_fuzzy_ground_model);
+                    }
                 }
             }
 
