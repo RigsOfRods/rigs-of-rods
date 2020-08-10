@@ -59,6 +59,7 @@ private:
     void ProcessNode(Node & node);
     void ProcessNodeDefaults(NodeDefaults* node_defaults);
     void ProcessNodeOptions(unsigned int options);
+    void ProcessMinimassPreset(MinimassPreset* minimass_preset);
     
     void ProcessBeams(File::Module*);
     void ProcessBeamDefaults(BeamDefaults* beam_defaults);
@@ -151,17 +152,25 @@ private:
 
 protected:
 
-    std::string RigidityNodeToStr(Node::Ref node) { return (node.IsValidAnyState()) ? node.Str() : "9999"; }
+    std::string         RigidityNodeToStr(Node::Ref node) { return (node.IsValidAnyState()) ? node.Str() : "9999"; }
+
+    // Presets, i.e. `set_[node/beam]_defaults`, `set_default_minimass`
+    void                ResetPresets();
+    void                UpdatePresets(BeamDefaults* beam, NodeDefaults* node, MinimassPreset* minimass);
 
     std::stringstream                 m_stream;
     std::shared_ptr<RigDef::File>     m_rig_def;
+    // Settings
     int                               m_float_precision;
     int                               m_float_width;
     int                               m_bool_width;
     int                               m_node_id_width;
     int                               m_command_key_width;
     int                               m_inertia_function_width;
-    
+    // State
+    BeamDefaults*     m_current_beam_preset = nullptr;
+    NodeDefaults*     m_current_node_preset = nullptr;
+    MinimassPreset*   m_current_minimass_preset = nullptr;
 };
 
 } // namespace RigDef
