@@ -1516,10 +1516,15 @@ void Serializer::ProcessFlexBodyWheels(File::Module* module)
     {
         return;
     }
+
+    this->ResetPresets();
+
     m_stream << "flexbodywheels" << endl << endl;
     auto end_itor = module->flex_body_wheels.end();
     for (auto itor = module->flex_body_wheels.begin(); itor != end_itor; ++itor)
     {
+        this->UpdatePresets(itor->beam_defaults.get(), itor->node_defaults.get(), nullptr);
+
         m_stream << "\t"
             << setw(m_float_width)   << itor->tyre_radius                   << ", "
             << setw(m_float_width)   << itor->rim_radius                    << ", "
@@ -1700,10 +1705,14 @@ void Serializer::ProcessWheels2(File::Module* module)
     {
         return;
     }
+
+    this->ResetPresets();
     m_stream << "wheels2" << endl << endl;
     auto end_itor = module->wheels_2.end();
     for (auto itor = module->wheels_2.begin(); itor != end_itor; ++itor)
     {
+        this->UpdatePresets(itor->beam_defaults.get(), itor->node_defaults.get(), nullptr);
+
         m_stream << "\t"
             << setw(m_float_width)   << itor->tyre_radius                   << ", "
             << setw(m_float_width)   << itor->rim_radius                    << ", "
@@ -1735,10 +1744,14 @@ void Serializer::ProcessWheels(File::Module* module)
     {
         return;
     }
+
+    this->ResetPresets();
     m_stream << "wheels" << endl << endl;
     auto end_itor = module->wheels.end();
     for (auto itor = module->wheels.begin(); itor != end_itor; ++itor)
     {
+        this->UpdatePresets(itor->beam_defaults.get(), itor->node_defaults.get(), nullptr);
+
         m_stream << "\t"
             << setw(m_float_width)   << itor->radius                        << ", "
             << setw(m_float_width)   << itor->width                         << ", "
@@ -1770,6 +1783,7 @@ void Serializer::ProcessMeshWheels(File::Module* module)
 
     for (int i = 1; i <= 2; ++i)
     {
+        this->ResetPresets();
         m_stream << "meshwheels" << ((i == 2) ? "2" : "") << "\n\n";
         auto end_itor = module->mesh_wheels.end();
         for (auto itor = module->mesh_wheels.begin(); itor != end_itor; ++itor)
@@ -1778,6 +1792,8 @@ void Serializer::ProcessMeshWheels(File::Module* module)
             {
                 continue;
             }
+
+            this->UpdatePresets(itor->beam_defaults.get(), itor->node_defaults.get(), nullptr);
 
             m_stream << "\t"
             << setw(m_float_width)   << itor->tyre_radius                   << ", "
@@ -2398,8 +2414,12 @@ void Serializer::ProcessBeamDefaults(BeamDefaults* beam_defaults)
 {
     if (beam_defaults == nullptr)
     {
+        // reset everything to defaults
+        m_stream << "\tset_beam_defaults       -1, -1, -1, -1, -1, -1, -1" << endl;
+        m_stream << "\tset_beam_defaults_scale -1, -1, -1, -1" << endl;
         return;
     }
+
     m_stream << "\tset_beam_defaults       " // Extra spaces to align with "set_beam_defaults_scale"
         << beam_defaults->springiness           << ", "
         << beam_defaults->damping_constant      << ", "
@@ -2563,7 +2583,7 @@ void Serializer::ProcessNodeDefaults(NodeDefaults* node_defaults)
     m_stream << "\tset_node_defaults ";
     if (node_defaults == nullptr)
     {
-        m_stream << "-1, -1, -1, -1, n" << endl;
+        m_stream << "-1, -1, -1, -1, n" << endl; // reset all to defaults
         return;
     }
 
@@ -2597,6 +2617,19 @@ void Serializer::ProcessNodeOptions(unsigned int options)
     if (options & Node::OPTION_p_NO_PARTICLES      ) { m_stream << 'p'; }
     if (options & Node::OPTION_L_LOG               ) { m_stream << 'L'; }
     if (options & Node::OPTION_l_LOAD_WEIGHT       ) { m_stream << 'l'; }
+}
+
+void Serializer::ProcessMinimassPreset(MinimassPreset* minimass_preset)
+{
+    m_stream << "\tset_default_minimass ";
+    if (minimass_preset != nullptr)
+    {
+        m_stream << minimass_preset->min_mass << endl;
+    }
+    else
+    {
+        m_stream << "-1" << endl; // reset to default
+    }
 }
 
 void Serializer::ProcessNode(Node & node)
@@ -2718,5 +2751,33 @@ void Serializer::ProcessGlobals(File::Module* module)
         m_stream << ", " << module->globals->material_name;
     }
     m_stream << endl << endl;
+}
+
+void Serializer::ResetPresets()
+{
+    m_current_node_preset = nullptr;
+    m_current_beam_preset = nullptr;
+    m_current_minimass_preset = nullptr;
+}
+
+void Serializer::UpdatePresets(BeamDefaults* beam_preset, NodeDefaults* node_preset, MinimassPreset* minimass_preset)
+{
+    if (m_current_node_preset != node_preset)
+    {
+        m_current_node_preset = node_preset;
+        this->ProcessNodeDefaults(node_preset);
+    }
+
+    if (m_current_beam_preset != beam_preset)
+    {
+        m_current_beam_preset = beam_preset;
+        this->ProcessBeamDefaults(beam_preset);
+    }
+
+    if (m_current_minimass_preset != minimass_preset)
+    {
+        m_current_minimass_preset = minimass_preset;
+        this->ProcessMinimassPreset(minimass_preset);
+    }
 }
 
