@@ -31,14 +31,6 @@ namespace RigDef
 
 const char* ROOT_MODULE_NAME = "_Root_"; // Static
 
-#ifndef _WIN32
-    /* These definitions are needed because the variables are declared but not defined in Axle */
-    const char Axle::OPTION_o_OPEN;
-    const char Axle::OPTION_l_LOCKED;
-    const char Axle::OPTION_s_SPLIT;
-    const char Axle::OPTION_s_VISCOUS;
-#endif // !_WIN32
-
 /* -------------------------------------------------------------------------- */
 /* Sections                                                                   */
 /*                                                                            */
