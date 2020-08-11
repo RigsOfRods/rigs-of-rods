@@ -1747,6 +1747,7 @@ struct SlideNode
     Node::Ref slide_node;
     std::vector<Node::Range> rail_node_ranges;
     unsigned int constraint_flags;
+    int editor_group_id = -1;
 
     // Optional args
     float spring_rate=0.f;      bool _spring_rate_set=false;
@@ -2035,15 +2036,17 @@ struct Wing
 
 struct File
 {
+    enum Section; // Forward decl.
+
     /// Group of elements of same type, formed by i.e. ';grp:NAME' comments in nodews/beams
     struct EditorGroup
     {
-        EditorGroup(const char* _name): name(_name) {}
+        EditorGroup(const char* _name, Section sect): name(_name), section(sect) {}
         std::string name;
+        Section section;
     }; // more attributes may be needed...
 
-    /** Modular part of vehicle (part of file wrapped in 'section ~ end_section' tags)
-    */
+    /// Modular part of vehicle (part of file wrapped in 'section ~ end_section' tags)
     struct Module
     {
         Module(Ogre::String const & name);
@@ -2059,7 +2062,6 @@ struct File
         std::shared_ptr<AntiLockBrakes>    anti_lock_brakes;
         std::vector<Axle>                  axles;
         std::vector<Beam>                  beams;
-        std::vector<EditorGroup>           beam_editor_groups; // Originally ';grp:NAME' comments from Editorizer tool
         std::shared_ptr<Brakes>            brakes;
         std::vector<Camera>                cameras;
         std::vector<CameraRail>            camera_rails;
@@ -2088,7 +2090,6 @@ struct File
         std::vector<MaterialFlareBinding>  material_flare_bindings;
         std::vector<MeshWheel>             mesh_wheels;
         std::vector<Node>                  nodes; /* Nodes and Nodes2 are unified in this parser */
-        std::vector<EditorGroup>           node_editor_groups; // Originally ';grp:NAME' comments from Editorizer tool
         std::vector<NodeCollision>         node_collisions;
         std::vector<Particle>              particles;
         std::vector<Pistonprop>            pistonprops;
@@ -2122,6 +2123,8 @@ struct File
         std::vector<Wheel>                 wheels;
         std::vector<Wheel2>                wheels_2;
         std::vector<Wing>                  wings;
+
+        std::vector<EditorGroup>           editor_groups; // Originally ';grp:NAME' comments from Editorizer tool
     };
 
     File();

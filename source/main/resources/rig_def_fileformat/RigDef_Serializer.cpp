@@ -1172,12 +1172,15 @@ void Serializer::ProcessSlideNodes(File::Module* module)
         return;
     }
     m_stream << "slidenodes" << endl << endl;
+    this->ResetGroup();
     auto end_itor = module->slidenodes.end();
     for (auto itor = module->slidenodes.begin(); itor != end_itor; ++itor)
     {
         RigDef::SlideNode & def = *itor;
+        this->UpdateGroup(module, def.editor_group_id);
 
-        m_stream << "\n\t" << setw(m_node_id_width) << def.slide_node.Str();
+        // Node ID
+        m_stream << "\t" << setw(m_node_id_width) << def.slide_node.Str();
 
         // Define rail - either list of nodes, or raigroup ID
         if (!def.rail_node_ranges.empty())
@@ -1210,6 +1213,8 @@ void Serializer::ProcessSlideNodes(File::Module* module)
         else if (def.HasConstraint_f_AttachForeign()) { m_stream << ", cf"; }
         else if (def.HasConstraint_s_AttachSelf())    { m_stream << ", cs"; }
         else if (def.HasConstraint_n_AttachNone())    { m_stream << ", cn"; }
+
+        m_stream << endl;
     }
     m_stream << endl << endl; // Empty line
 }
@@ -1875,6 +1880,7 @@ void Serializer::ProcessBeams(File::Module* module)
     {
         return;
     }
+    this->ResetGroup();
 
     // Group beams by presets
     std::map< BeamDefaults*, std::vector<Beam*> > beams_by_preset;
@@ -1914,16 +1920,7 @@ void Serializer::ProcessBeams(File::Module* module)
         int current_group_id = -1;
         for (Beam* beam: preset_itor->second)
         {
-            if (beam->editor_group_id != current_group_id)
-            {
-                m_stream << ";grp:";
-                current_group_id = beam->editor_group_id;
-                if (current_group_id != -1)
-                {
-                    m_stream << module->beam_editor_groups[current_group_id].name;
-                }
-                m_stream << endl;
-            }
+            this->UpdateGroup(module, beam->editor_group_id);
             ProcessBeam(*beam);
         }
     }
@@ -2537,6 +2534,7 @@ void Serializer::ProcessNodes(File::Module* module)
 
     // == Write nodes to file ==
     m_stream << "nodes" << endl << endl;
+    this->ResetGroup();
 
     // Node zero first
     if (node_zero == nullptr)
@@ -2546,6 +2544,7 @@ void Serializer::ProcessNodes(File::Module* module)
         RoR::LogFormat("[RoR] Warning: '%s'", msg.ToCStr());
         RoR::App::GetGuiManager()->ShowMessageBox("Warning!", msg.ToCStr());
     }
+    this->UpdateGroup(module, node_zero->editor_group_id);
     this->ProcessNodeDefaults(node_zero->node_defaults.get());
     this->ProcessNode(*node_zero);
 
@@ -2559,16 +2558,7 @@ void Serializer::ProcessNodes(File::Module* module)
         {
             if (node->id.IsTypeNumbered())
             {
-                if (node->editor_group_id != current_group_id)
-                {
-                    m_stream << ";grp:";
-                    current_group_id = node->editor_group_id;
-                    if (current_group_id != -1)
-                    {
-                        m_stream << module->node_editor_groups[current_group_id].name;
-                    }                    
-                    m_stream << endl;
-                }
+                this->UpdateGroup(module, node->editor_group_id);
                 this->ProcessNode(*node);
             }
         }
@@ -2587,16 +2577,7 @@ void Serializer::ProcessNodes(File::Module* module)
                 int current_group_id = -1;
                 if (node->id.IsTypeNamed())
                 {
-                    if (node->editor_group_id != current_group_id)
-                    {
-                        m_stream << ";grp:";
-                        current_group_id = node->editor_group_id;
-                        if (current_group_id != -1)
-                        {
-                            m_stream << module->node_editor_groups[current_group_id].name;
-                        }                        
-                        m_stream << endl;
-                    }
+                    this->UpdateGroup(module, node->editor_group_id);
                     this->ProcessNode(*node);
                 }
             }
@@ -2807,6 +2788,20 @@ void Serializer::UpdatePresets(BeamDefaults* beam_preset, NodeDefaults* node_pre
     {
         m_current_minimass_preset = minimass_preset;
         this->ProcessMinimassPreset(minimass_preset);
+    }
+}
+
+void Serializer::ResetGroup()
+{
+    m_current_editor_group = -1; // No group
+}
+
+void Serializer::UpdateGroup(File::Module* module, int group_id)
+{
+    if (m_current_editor_group != group_id)
+    {
+        m_current_editor_group = group_id;
+        m_stream << "\t;grp:" << module->editor_groups[m_current_editor_group].name << endl;
     }
 }
 

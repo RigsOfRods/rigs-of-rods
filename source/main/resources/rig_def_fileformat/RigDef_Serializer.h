@@ -154,9 +154,13 @@ protected:
 
     std::string         RigidityNodeToStr(Node::Ref node) { return (node.IsValidAnyState()) ? node.Str() : "9999"; }
 
-    // Presets, i.e. `set_[node/beam]_defaults`, `set_default_minimass`
+    // Presets = `set_[node/beam]_defaults`, `set_default_minimass`
     void                ResetPresets();
     void                UpdatePresets(BeamDefaults* beam, NodeDefaults* node, MinimassPreset* minimass);
+
+    // Groups = `;grp:NAME` comments
+    void                ResetGroup();
+    void                UpdateGroup(File::Module* module, int group_id);
 
     std::stringstream                 m_stream;
     std::shared_ptr<RigDef::File>     m_rig_def;
@@ -171,6 +175,7 @@ protected:
     BeamDefaults*     m_current_beam_preset = nullptr;
     NodeDefaults*     m_current_node_preset = nullptr;
     MinimassPreset*   m_current_minimass_preset = nullptr;
+    int               m_current_editor_group = -1;
 };
 
 } // namespace RigDef

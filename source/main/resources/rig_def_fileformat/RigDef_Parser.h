@@ -260,6 +260,8 @@ private:
 
     void ParseOptionalInertia(Inertia& inertia, int index);
 
+    int GetCurrentEditorGroup(); //!< Determines group ID for current line
+
 // --------------------------------------------------------------------------
 
     // RoR defaults
