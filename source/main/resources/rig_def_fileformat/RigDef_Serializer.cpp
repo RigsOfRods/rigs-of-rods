@@ -2295,7 +2295,7 @@ void Serializer::ProcessShock2(Shock2 & def)
     m_stream << std::setw(m_float_width) << def.precompression             << ", ";
 
     // Options
-    if (def.options != 0)
+    if (def.options == 0)
     {
         m_stream << "n"; // Placeholder
     }
