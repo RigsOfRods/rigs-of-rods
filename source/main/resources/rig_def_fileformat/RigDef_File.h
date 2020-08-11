@@ -168,7 +168,7 @@ struct BeamDefaults
 };
 
 /* -------------------------------------------------------------------------- */
-/* Hybrid section MINIMASS                                                    */
+/* Section MINIMASS & Directive SET_DEFAULT_MINIMASS                          */
 /* -------------------------------------------------------------------------- */
 
 struct MinimassPreset
