@@ -2243,7 +2243,8 @@ void Parser::ParseSlidenodes()
             break;
         }
     }
-    
+
+    slidenode.editor_group_id = this->GetCurrentEditorGroup();
     m_current_module->slidenodes.push_back(slidenode);
 }
 
@@ -2778,7 +2779,6 @@ void Parser::ParseNodesUnified()
     node.beam_defaults = m_user_beam_defaults;
     node.node_minimass = m_user_minimass;
     node.detacher_group = m_current_detacher_group;
-    node.editor_group_id = (int)m_current_module->node_editor_groups.size() - 1; // Empty -> -1 (none), otherwise last index.
 
     if (m_current_section == File::SECTION_NODES_2)
     {
@@ -2821,6 +2821,7 @@ void Parser::ParseNodesUnified()
         }
     }
 
+    node.editor_group_id = this->GetCurrentEditorGroup();
     m_current_module->nodes.push_back(node);
 }
 
@@ -3024,8 +3025,7 @@ void Parser::ParseBeams()
     Beam beam;
     beam.defaults       = m_user_beam_defaults;
     beam.detacher_group = m_current_detacher_group;
-    beam.editor_group_id = m_current_module->beam_editor_groups.size() - 1; // Empty -> -1 (none), otherwise last index.
-    
+
     beam.nodes[0] = this->GetArgNodeRef(0);
     beam.nodes[1] = this->GetArgNodeRef(1);
 
@@ -3061,6 +3061,7 @@ void Parser::ParseBeams()
         beam._has_extension_break_limit = true;
     }
 
+    beam.editor_group_id = this->GetCurrentEditorGroup();
     m_current_module->beams.push_back(beam);
 }
 
@@ -3763,19 +3764,19 @@ void Parser::ProcessCommentLine()
         return;
     }
 
-    switch (m_current_section)
+    m_current_module->editor_groups.push_back(File::EditorGroup(name.ToCStr(), m_current_section));
+}
+
+int Parser::GetCurrentEditorGroup()
+{
+    if (!m_current_module->editor_groups.empty() &&
+        m_current_module->editor_groups.rbegin()->section == m_current_section)
     {
-    case File::SECTION_NODES:
-    case File::SECTION_NODES_2:
-        m_current_module->node_editor_groups.push_back(File::EditorGroup(name.ToCStr()));
-        break;
-
-    case File::SECTION_BEAMS:
-        m_current_module->beam_editor_groups.push_back(File::EditorGroup(name.ToCStr()));
-        break;
-
-    default:
-        break;
+        return (int)m_current_module->editor_groups.size();
+    }
+    else
+    {
+        return -1; // no group
     }
 }
 

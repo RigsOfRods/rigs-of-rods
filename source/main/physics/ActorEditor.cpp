@@ -171,7 +171,6 @@ void ActorEditor::ImportModuleToSnapshot(std::shared_ptr<RigDef::File::Module> s
     dst->anti_lock_brakes           = src->anti_lock_brakes           ; //std::shared_ptr<AntiLockBrakes>    
     dst->axles                      = src->axles                      ; //std::vector<Axle>                  
     dst->beams                      = src->beams                      ; //std::vector<Beam>
-    dst->beam_editor_groups         = src->beam_editor_groups         ; //std::vector<EditorGroup>  
     dst->brakes                     = src->brakes                     ; //std::shared_ptr<Brakes>            
     dst->cameras                    = src->cameras                    ; //std::vector<Camera>                
     dst->camera_rails               = src->camera_rails               ; //std::vector<CameraRail>            
@@ -201,7 +200,6 @@ void ActorEditor::ImportModuleToSnapshot(std::shared_ptr<RigDef::File::Module> s
     dst->mesh_wheels                = src->mesh_wheels                ; //std::vector<MeshWheel>             
     dst->nodes                      = src->nodes                      ; //std::vector<Node>                  
     dst->node_collisions            = src->node_collisions            ; //std::vector<NodeCollision> 
-    dst->node_editor_groups         = src->node_editor_groups         ; //std::vector<EditorGroup>  
     dst->particles                  = src->particles                  ; //std::vector<Particle>              
     dst->pistonprops                = src->pistonprops                ; //std::vector<Pistonprop>            
     dst->props                      = src->props                      ; //std::vector<Prop>                  
@@ -234,6 +232,8 @@ void ActorEditor::ImportModuleToSnapshot(std::shared_ptr<RigDef::File::Module> s
     dst->wheels                     = src->wheels                     ; //std::vector<Wheel>                  
     dst->wheels_2                   = src->wheels_2                   ; //std::vector<Wheel2>                 
     dst->wings                      = src->wings                      ; //std::vector<Wing>                   
+
+    dst->editor_groups              = src->editor_groups              ; //std::vector<EditorGroup>  
 
     if (src->name == RigDef::ROOT_MODULE_NAME)
     {
