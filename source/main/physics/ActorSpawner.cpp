@@ -2732,14 +2732,13 @@ void ActorSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 {
     node_t & node = GetNodeOrThrow(def.slide_node);
     SlideNode slide_node(& node, nullptr);
-    slide_node.SetCorThreshold(def.tolerance);
-    slide_node.SetSpringRate(def.spring_rate);
-    slide_node.SetAttachmentRate(def.attachment_rate);
-    if (def._break_force_set)
-    {
-        slide_node.SetBreakForce(def.break_force);
-    }
-    slide_node.SetAttachmentDistance(def.max_attachment_distance);
+
+    // Optional args
+    if (def._spring_rate_set)      { slide_node.SetSpringRate(def.spring_rate); }
+    if (def._break_force_set)      { slide_node.SetBreakForce(def.break_force); }
+    if (def._tolerance_set)        { slide_node.SetCorThreshold(def.tolerance); }
+    if (def._attachment_rate_set)  { slide_node.SetAttachmentRate(def.attachment_rate); }
+    if (def._max_attach_dist_set)  { slide_node.SetAttachmentDistance(def.max_attach_dist); }
 
     // Constraints
     if (BITMASK_IS_1(def.constraint_flags, RigDef::SlideNode::CONSTRAINT_ATTACH_ALL))
@@ -2763,7 +2762,7 @@ void ActorSpawner::ProcessSlidenode(RigDef::SlideNode & def)
         slide_node.sn_attach_foreign = false;
     }
 
-    /* RailGroup */
+    // RailGroup
     RailGroup *rail_group = nullptr;
     if (def._railgroup_id_set)
     {

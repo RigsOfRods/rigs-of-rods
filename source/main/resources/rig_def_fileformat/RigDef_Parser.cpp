@@ -2191,6 +2191,7 @@ void Parser::ParseSlidenodes()
         {
         case 'S':
             slidenode.spring_rate = this->ParseArgFloat(itor->substr(1));
+            slidenode._spring_rate_set = true;
             in_rail_node_list = false;
             break;
         case 'B':
@@ -2200,10 +2201,12 @@ void Parser::ParseSlidenodes()
             break;
         case 'T':
             slidenode.tolerance = this->ParseArgFloat(itor->substr(1));
+            slidenode._tolerance_set = true;
             in_rail_node_list = false;
             break;
         case 'R':
             slidenode.attachment_rate = this->ParseArgFloat(itor->substr(1));
+            slidenode._attachment_rate_set = true;
             in_rail_node_list = false;
             break;
         case 'G':
@@ -2212,7 +2215,8 @@ void Parser::ParseSlidenodes()
             in_rail_node_list = false;
             break;
         case 'D':
-            slidenode.max_attachment_distance = this->ParseArgFloat(itor->substr(1));
+            slidenode.max_attach_dist = this->ParseArgFloat(itor->substr(1));
+            slidenode._max_attach_dist_set = true;
             in_rail_node_list = false;
             break;
         case 'C':

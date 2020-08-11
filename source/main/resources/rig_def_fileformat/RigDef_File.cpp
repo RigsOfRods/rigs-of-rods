@@ -190,20 +190,6 @@ Shock3::Shock3():
     detacher_group(0)
 {}
 
-SlideNode::SlideNode():
-    spring_rate(9000000),
-    break_force(0),
-    tolerance(0),
-    railgroup_id(-1),
-    _railgroup_id_set(false),
-    attachment_rate(1.f),
-    max_attachment_distance(0.1f),
-    constraint_flags(0),
-    _break_force_set(false)
-{
-    rail_node_ranges.reserve(25);
-}
-
 Tie::Tie():
     max_reach_length(0),
     auto_shorten_rate(0),
