@@ -1198,13 +1198,12 @@ void Serializer::ProcessSlideNodes(File::Module* module)
             m_stream << ", g" << def.railgroup_id;
         }
 
-        // Params
-        m_stream
-            << ", s" << def.spring_rate
-            << ", b" << def.break_force
-            << ", t" << def.tolerance
-            << ", r" << def.attachment_rate
-            << ", d" << def.max_attachment_distance;
+        // Optional args
+        if (def._spring_rate_set)      { m_stream << ", s" << def.spring_rate; }
+        if (def._break_force_set)      { m_stream << ", b" << def.break_force; }
+        if (def._tolerance_set)        { m_stream << ", t" << def.tolerance; }
+        if (def._attachment_rate_set)  { m_stream << ", r" << def.attachment_rate; }
+        if (def._max_attach_dist_set)  { m_stream << ", d" << def.max_attach_dist; }
 
         // Constraint flags (cX)
              if (def.HasConstraint_a_AttachAll())     { m_stream << ", ca"; }
