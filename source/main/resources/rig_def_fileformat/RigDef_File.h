@@ -1725,8 +1725,6 @@ struct Screwprop
 
 struct SlideNode
 {
-    SlideNode();
-
     BITMASK_PROPERTY( constraint_flags, 1, CONSTRAINT_ATTACH_ALL     , HasConstraint_a_AttachAll     , SetConstraint_a_AttachAll     )   
     BITMASK_PROPERTY( constraint_flags, 2, CONSTRAINT_ATTACH_FOREIGN , HasConstraint_f_AttachForeign , SetConstraint_f_AttachForeign )
     BITMASK_PROPERTY( constraint_flags, 3, CONSTRAINT_ATTACH_SELF    , HasConstraint_s_AttachSelf 	 , SetConstraint_s_AttachSelf	 )
@@ -1734,15 +1732,15 @@ struct SlideNode
 
     Node::Ref slide_node;
     std::vector<Node::Range> rail_node_ranges;
-    float spring_rate;
-    float break_force;
-    float tolerance;
-    int railgroup_id;
-    bool _railgroup_id_set;
-    float attachment_rate;
-    float max_attachment_distance;
-    bool _break_force_set;
     unsigned int constraint_flags;
+
+    // Optional args
+    float spring_rate=0.f;      bool _spring_rate_set=false;
+    float break_force=0.f;      bool _break_force_set=false;
+    float tolerance=0.f;        bool _tolerance_set=false;
+    float attachment_rate=0.f;  bool _attachment_rate_set=false;
+    int   railgroup_id=-1;      bool _railgroup_id_set=false;
+    float max_attach_dist=0.f;  bool _max_attach_dist_set=false;
 };
 
 /* -------------------------------------------------------------------------- */
