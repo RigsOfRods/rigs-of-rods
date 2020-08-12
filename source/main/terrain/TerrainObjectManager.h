@@ -31,7 +31,6 @@
 #include "MeshObject.h"
 #include "PagedGeometry.h"
 #include "ProceduralManager.h"
-#include "Road.h"
 #include "TreeLoader2D.h"
 #include "TreeLoader3D.h"
 
@@ -155,7 +154,6 @@ protected:
     TerrainManager*           terrainManager;
     Ogre::StaticGeometry*     m_staticgeometry;
     ProceduralManager*        m_procedural_mgr;
-    Road*                     m_road;
     Ogre::SceneNode*          m_staticgeometry_bake_node;
     int                       m_entity_counter = 0;
     std::string               m_resource_group;
