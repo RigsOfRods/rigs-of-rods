@@ -27,7 +27,6 @@ set(SOURCE_FILES
         gameplay/RaceSystem.{h,cpp}
         gameplay/RecoveryMode.{h,cpp}
         gameplay/Replay.{h,cpp}
-        gameplay/Road.{h,cpp}
         gameplay/Road2.{h,cpp}
         gameplay/ScriptEvents.h
         gameplay/TorqueCurve.{h,cpp}
