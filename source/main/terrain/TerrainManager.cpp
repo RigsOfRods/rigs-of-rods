@@ -120,12 +120,10 @@ TerrainManager::~TerrainManager()
     }
 }
 
-// some shortcut to remove ugly code
-#   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::App::GetGuiManager()->GetLoadingWindow()->SetProgress(x, y); }
-
 TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry& entry)
 {
     auto terrn_mgr = std::unique_ptr<TerrainManager>(new TerrainManager());
+    auto loading_window = App::GetGuiManager()->GetLoadingWindow();
 
     std::string const& filename = entry.fname;
     try
@@ -146,85 +144,76 @@ TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry& entry)
 
     terrn_mgr->setGravity(terrn_mgr->m_def.gravity);
 
+    loading_window->SetProgress(15, _L("Initializing Shadow Subsystem"));
     terrn_mgr->initShadows();
 
-    PROGRESS_WINDOW(15, _L("Initializing Geometry Subsystem"));
+    loading_window->SetProgress(17, _L("Initializing Geometry Subsystem"));
     terrn_mgr->m_geometry_manager = new TerrainGeometryManager(terrn_mgr.get());
 
-    // objects  - .odef support
-    PROGRESS_WINDOW(17, _L("Initializing Object Subsystem"));
-    terrn_mgr->initObjects();
+    loading_window->SetProgress(19, _L("Initializing Object Subsystem"));
+    terrn_mgr->initObjects(); // *.odef files
 
-    PROGRESS_WINDOW(19, _L("Initializing Shadow Subsystem"));
-
-    PROGRESS_WINDOW(23, _L("Initializing Camera Subsystem"));
+    loading_window->SetProgress(23, _L("Initializing Camera Subsystem"));
     terrn_mgr->initCamera();
 
     // sky, must come after camera due to m_sight_range
-    PROGRESS_WINDOW(25, _L("Initializing Sky Subsystem"));
+    loading_window->SetProgress(25, _L("Initializing Sky Subsystem"));
     terrn_mgr->initSkySubSystem();
 
-    PROGRESS_WINDOW(27, _L("Initializing Light Subsystem"));
+    loading_window->SetProgress(27, _L("Initializing Light Subsystem"));
     terrn_mgr->initLight();
 
     if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() != GfxSkyMode::CAELUM) //Caelum has its own fog management
     {
-        PROGRESS_WINDOW(29, _L("Initializing Fog Subsystem"));
+        loading_window->SetProgress(29, _L("Initializing Fog Subsystem"));
         terrn_mgr->initFog();
     }
 
-    PROGRESS_WINDOW(31, _L("Initializing Vegetation Subsystem"));
+    loading_window->SetProgress(31, _L("Initializing Vegetation Subsystem"));
     terrn_mgr->initVegetation();
-
-    // water must be done later on
-    //PROGRESS_WINDOW(33, _L("Initializing Water Subsystem"));
-    //initWater();
 
     terrn_mgr->fixCompositorClearColor();
 
-    LOG(" ===== LOADING TERRAIN GEOMETRY " + filename);
-    PROGRESS_WINDOW(40, _L("Loading Terrain Geometry"));
+    loading_window->SetProgress(40, _L("Loading Terrain Geometry"));
     if (!terrn_mgr->m_geometry_manager->InitTerrain(terrn_mgr->m_def.ogre_ter_conf_filename))
     {
         return nullptr; // Error already reported
     }
 
-    PROGRESS_WINDOW(60, _L("Initializing Collision Subsystem"));
+    loading_window->SetProgress(60, _L("Initializing Collision Subsystem"));
     terrn_mgr->m_collisions = new Collisions(terrn_mgr->getMaxTerrainSize());
 
-    PROGRESS_WINDOW(75, _L("Initializing Script Subsystem"));
+    loading_window->SetProgress(75, _L("Initializing Script Subsystem"));
     terrn_mgr->initScripting();
 
+    loading_window->SetProgress(77, _L("Initializing Water Subsystem"));
     terrn_mgr->initWater();
 
-    LOG(" ===== LOADING TERRAIN OBJECTS " + filename);
-    PROGRESS_WINDOW(80, _L("Loading Terrain Objects"));
+    loading_window->SetProgress(80, _L("Loading Terrain Objects"));
     App::SetSimTerrain(terrn_mgr.get()); // Hack for the ProceduralManager
-    terrn_mgr->loadTerrainObjects();
+    terrn_mgr->loadTerrainObjects(); // *.tobj files
     App::SetSimTerrain(nullptr); // END Hack for the ProceduralManager
-
-    // bake the decals
-    //finishTerrainDecal();
 
     // init things after loading the terrain
     App::SetSimTerrain(terrn_mgr.get()); // Hack for the Landusemap
     terrn_mgr->initTerrainCollisions();
     App::SetSimTerrain(nullptr); // END Hack for the Landusemap
 
-    PROGRESS_WINDOW(90, _L("Initializing terrain light properties"));
+    loading_window->SetProgress(90, _L("Initializing terrain light properties"));
     terrn_mgr->m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
     terrn_mgr->m_collisions->finishLoadingTerrain();
 
-    PROGRESS_WINDOW(92, _L("Initializing Overview Map Subsystem"));
-    terrn_mgr->LoadTelepoints();
-    App::GetGfxScene()->CreateDustPools();
+    terrn_mgr->LoadTelepoints(); // *.terrn2 file feature
 
+    App::GetGfxScene()->CreateDustPools(); // Particle effects
+
+    loading_window->SetProgress(92, _L("Initializing Overview Map Subsystem"));
     App::SetSimTerrain(terrn_mgr.get()); // Hack for the SurveyMapTextureCreator
     App::GetGuiManager()->GetSurveyMap()->CreateTerrainTextures(); // Should be done before actors are loaded, otherwise they'd show up in the static texture
     App::SetSimTerrain(nullptr); // END Hack for the SurveyMapTextureCreator
 
     LOG(" ===== LOADING TERRAIN ACTORS " + filename);
-    PROGRESS_WINDOW(95, _L("Loading Terrain Actors"));
+    loading_window->SetProgress(95, _L("Loading Terrain Actors"));
     terrn_mgr->LoadPredefinedActors();
 
     LOG(" ===== TERRAIN LOADING DONE " + filename);
