@@ -184,7 +184,9 @@ TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry& entry)
     terrn_mgr->m_collisions = new Collisions(terrn_mgr->getMaxTerrainSize());
 
     loading_window->SetProgress(75, _L("Initializing Script Subsystem"));
+    App::SetSimTerrain(terrn_mgr.get()); // Hack for GameScript::spawnObject()
     terrn_mgr->initScripting();
+    App::SetSimTerrain(nullptr); // END Hack for GameScript::spawnObject()
 
     loading_window->SetProgress(77, _L("Initializing Water Subsystem"));
     terrn_mgr->initWater();
