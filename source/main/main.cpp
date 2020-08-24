@@ -200,6 +200,21 @@ int main(int argc, char *argv[])
         // Load inertia config file
         App::GetGameContext()->GetActorManager()->GetInertiaConfig().LoadDefaultInertiaModels();
 
+        // Load mod cache
+        if (App::app_force_cache_purge->GetBool())
+        {
+            App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_PURGE_REQUESTED));
+        }
+        else if (App::app_force_cache_update->GetBool())
+        {
+            App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_UPDATE_REQUESTED));
+        }
+        else
+        {
+            App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_LOAD_REQUESTED));
+        }
+
+        // Handle game state requests
         if (App::mp_join_on_startup->GetBool())
         {
             App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
@@ -213,20 +228,6 @@ int main(int argc, char *argv[])
             // MainMenu disabled (singleplayer mode) -> go directly to map selector (traditional behavior)
             App::GetGuiManager()->SetVisible_GameMainMenu(false);
             App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
-        }
-
-        // Load mod cache
-        if (App::app_force_cache_purge->GetBool())
-        {
-            App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_PURGE_REQUESTED));
-        }
-        else if (App::app_force_cache_update->GetBool())
-        {
-            App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_UPDATE_REQUESTED));
-        }
-        else
-        {
-            App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_LOAD_REQUESTED));
         }
 
         App::app_state->SetVal((int)AppState::MAIN_MENU);
