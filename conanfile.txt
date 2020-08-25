@@ -7,7 +7,7 @@ discord-rpc/3.4.0@AnotherFoxGuy/stable
 libcurl/7.69.1
 openssl/1.1.1g
 MofileReader/1.0.0@anotherfoxguy/stable
-MyGUI/3.2.3-OGRE-1.11.6-with-patches@anotherfoxguy/stable
+MyGUI/3.4.0-OGRE-1.11.6-with-patches@anotherfoxguy/stable
 OGRE/1.11.6-with-patches@anotherfoxguy/stable
 OGREdeps/20.19.4@anotherfoxguy/stable
 SocketW/3.10.36@anotherfoxguy/stable
