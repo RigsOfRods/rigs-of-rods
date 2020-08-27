@@ -157,19 +157,29 @@ bool TObjParser::ProcessCurrentLine()
     }
     if (strncmp("begin_procedural_roads", m_cur_line, 22) == 0)
     {
+        m_cur_procedural_obj = ProceduralObject(); // Hard reset, discarding last "non-procedural" road strip. For backwards compatibility. ~ Petr Ohlidal, 08/2020
         m_in_procedural_road = true;
-        //m_road2_use_old_mode = true;
+        m_road2_use_old_mode = true;
         return true;
     }
     else if (strncmp("end_procedural_roads", m_cur_line, 20) == 0)
     {
+        if (m_road2_use_old_mode)
+        {
+            m_def->proc_objects.push_back(m_cur_procedural_obj);
+            m_cur_procedural_obj = ProceduralObject();
+        }
         m_in_procedural_road = false;
-        m_def->proc_objects.push_back(m_cur_procedural_obj);
-        m_cur_procedural_obj = ProceduralObject();
+        return true;
     }
     
     if (m_in_procedural_road)
     {
+        if (!m_road2_use_old_mode)
+        {
+            return true;
+        }
+
         ProceduralPoint point;
         char obj_name[TObj::STR_LEN] = "";
         sscanf(m_cur_line, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %s",
