@@ -234,7 +234,7 @@ bool TObjParser::ProcessCurrentLine()
     }
 
     // okay, this is a job for roads2
-    int pillar_type = (int)(special_def == TObj::SpecialObject::ROAD_BRIDGE_NO_PILLARS);
+    int pillar_type = (int)(special_def != TObj::SpecialObject::ROAD_BRIDGE_NO_PILLARS);
     int roadtype=Road2::ROAD_AUTOMATIC;
     if (special_def == TObj::SpecialObject::ROAD) roadtype=Road2::ROAD_FLAT;
     Quaternion rotation;
