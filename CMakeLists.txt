@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8.0)
+cmake_minimum_required(VERSION 3.16)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/3rdparty)
 
 include(CMakeDependentOption)
@@ -21,6 +21,7 @@ option(BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
 option(BUILD_REDIST_FOLDER "Build a folder for redistributing the game" OFF)
 option(USE_PACKAGE_MANAGER "Use conan for managing packages" ON)
+option(USE_PHC "Use a Precompiled header for speeding up the build" ON)
 
 # global cmake options
 SET(BUILD_SHARED_LIBS ON)

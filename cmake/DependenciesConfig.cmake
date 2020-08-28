@@ -17,16 +17,9 @@ if (USE_PACKAGE_MANAGER)
     set(ROR_USE_MOFILEREADER TRUE)
 
     include(pmm)
-    pmm(CONAN REMOTES ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies BINCRAFTERS
-        CMakeCM ROLLING)
-
-    include(cotire)
+    pmm(CONAN REMOTES ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies BINCRAFTERS)
 
 else (USE_PACKAGE_MANAGER)
-    include(pmm)
-    pmm(CMakeCM ROLLING)
-    include(cotire)
-
     # components
     set(ROR_USE_OPENAL "TRUE" CACHE BOOL "use OPENAL")
     set(ROR_USE_SOCKETW "TRUE" CACHE BOOL "use SOCKETW")
