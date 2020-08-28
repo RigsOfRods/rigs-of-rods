@@ -254,6 +254,11 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     {
         this->LoadTerrainObject(entry.odef_name, entry.position, entry.rotation, m_staticgeometry_bake_node, entry.instance_name, entry.type);
     }
+
+    if (App::diag_terrn_log_roads->GetBool())
+    {
+        m_procedural_mgr->logDiagnostics();
+    }
 }
 
 void TerrainObjectManager::ProcessTree(

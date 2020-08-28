@@ -26,52 +26,38 @@
 
 namespace RoR {
 
-class ProceduralPoint : public ZeroedMemoryAllocator
+struct ProceduralPoint
 {
-public:
-    Ogre::Vector3 position;
-    Ogre::Quaternion rotation;
-    int type;
-    float width;
-    float bwidth;
-    float bheight;
-    int pillartype;
+    Ogre::Vector3 position = Ogre::Vector3::ZERO;
+    Ogre::Quaternion rotation = Ogre::Quaternion::IDENTITY;
+    int type = 0;
+    float width = 0.f;
+    float bwidth = 0.f;
+    float bheight = 0.f;
+    int pillartype = 0;
 };
 
-class ProceduralObject : public ZeroedMemoryAllocator
+struct ProceduralObject
 {
-public:
-    ProceduralObject() : loadingState(-1), name(""), road(0)
-    {
-    }
-
-    int loadingState;
-    std::string name;
     std::vector<ProceduralPoint> points;
-
-    // runtime
-    Road2* road;
+    Road2* road = nullptr;
 };
 
-class ProceduralManager : public ZeroedMemoryAllocator
+class ProceduralManager
 {
-protected:
-    std::vector<ProceduralObject> pObjects;
-    int objectcounter;
-
 public:
-    ProceduralManager();
     ~ProceduralManager();
 
-    int addObject(ProceduralObject& po);
+    int  addObject(ProceduralObject& po);
 
-    int updateAllObjects();
+    int  deleteObject(ProceduralObject& po);
+
+    void logDiagnostics();
+
+private:
     int updateObject(ProceduralObject& po);
 
-    int deleteAllObjects();
-    int deleteObject(ProceduralObject& po);
-
-    std::vector<ProceduralObject>& getObjects();
+    std::vector<ProceduralObject> pObjects;
 };
 
 } // namespace RoR

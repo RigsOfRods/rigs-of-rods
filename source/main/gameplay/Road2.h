@@ -39,10 +39,11 @@ public:
      * @param p1 Top left point.
      * @param p2 Top right point.
      */
-    void addQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, int texfit, bool collision, Ogre::Vector3 pos, Ogre::Vector3 lastpos, float width, bool flip = false);
+    void addQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, int texfit, Ogre::Vector3 pos, Ogre::Vector3 lastpos, float width, bool flip = false);
     void addCollisionQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, ground_model_t* gm, bool flip = false);
     void createMesh();
     void finish();
+    void setCollisionEnabled(bool v) { collision = v; }
 
     static const unsigned int MAX_VERTEX = 50000;
     static const unsigned int MAX_TRIS = 50000;
@@ -104,6 +105,7 @@ private:
     float lastwidth;
     int lasttype;
     int mid;
+    bool collision; //!< Register collision triangles?
     std::vector<int> registeredCollTris;
 };
 
