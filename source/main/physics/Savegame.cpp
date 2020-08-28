@@ -39,10 +39,7 @@
 #include "SkyManager.h"
 #include "TerrainManager.h"
 
-#include <rapidjson/document.h>
-#include <rapidjson/istreamwrapper.h>
-#include <rapidjson/ostreamwrapper.h>
-#include <rapidjson/writer.h>
+#include <rapidjson/rapidjson.h>
 #include <fstream>
 
 #define SAVEGAME_FILE_FORMAT 2

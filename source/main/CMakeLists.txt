@@ -59,7 +59,7 @@ set(SOURCE_FILES
         gfx/Skidmark.{h,cpp}
         gfx/SkyManager.{h,cpp}
         gfx/SkyXManager.{h,cpp}
-        gfx/SurveyMapTextureCreator.{h,cpp}        
+        gfx/SurveyMapTextureCreator.{h,cpp}
         gfx/Water.{h,cpp}
         gfx/camera/CameraManager.{h,cpp}
         gfx/camera/PerVehicleCameraContext.h
@@ -440,10 +440,10 @@ if (USE_PACKAGE_MANAGER)
             )
 
     if (UNIX)
-        set(CFG_OGRE_PLUGIN_CAELUM   "Plugin=libCaelum.so")
+        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=libCaelum.so")
         set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=libCaelum_d.so")
     else ()
-        set(CFG_OGRE_PLUGIN_CAELUM   "Plugin=Caelum")
+        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=Caelum")
         set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=Caelum_d")
     endif ()
 
@@ -502,7 +502,7 @@ else (USE_PACKAGE_MANAGER)
     endif ()
 
     if (TARGET Caelum::Caelum)
-        set(CFG_OGRE_PLUGIN_CAELUM   "Plugin=../libCaelum.so")
+        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
         set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=../libCaelum_d.so")
         target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
         target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
@@ -510,9 +510,9 @@ else (USE_PACKAGE_MANAGER)
 
 endif (USE_PACKAGE_MANAGER)
 
-set_target_properties(${BINNAME} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-cotire(${BINNAME})
-
+if (USE_PHC)
+    target_precompile_headers(${BINNAME} PRIVATE phc.h)
+endif ()
 
 ####################################################################################################
 #  POST-BUILD STEPS
@@ -534,7 +534,7 @@ else ()
     set(PLUGINS_FOLDER ${OGRE_PLUGIN_DIR})
 endif ()
 
-configure_file(plugins.cfg.in   ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
+configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
 configure_file(plugins_d.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins_d.cfg)
 
 
