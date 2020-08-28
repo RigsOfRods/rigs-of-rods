@@ -145,6 +145,7 @@ CVar* diag_hide_wheel_info;
 CVar* diag_hide_wheels;
 CVar* diag_hide_nodes;
 CVar* diag_physics_dt;
+CVar* diag_terrn_log_roads;
 
 // System
 CVar* sys_process_dir;

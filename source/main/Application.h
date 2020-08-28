@@ -310,6 +310,7 @@ extern CVar* diag_hide_wheel_info;
 extern CVar* diag_hide_wheels;
 extern CVar* diag_hide_nodes;
 extern CVar* diag_physics_dt;
+extern CVar* diag_terrn_log_roads;
 
 // System
 extern CVar* sys_process_dir;

@@ -35,7 +35,6 @@ void TObjParser::Prepare()
     m_road2_use_old_mode = false;
     
     m_def = std::shared_ptr<TObjFile>(new TObjFile());
-    m_cur_procedural_obj.loadingState = -1;
 }
 
 bool TObjParser::ProcessLine(const char* line)

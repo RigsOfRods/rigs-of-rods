@@ -59,9 +59,9 @@ void Road2::finish()
 {
     Vector3 pts[8];
     computePoints(pts, lastpos, lastrot, lasttype, lastwidth, lastbwidth, lastbheight);
-    addQuad(pts[7], pts[6], pts[5], pts[4], TEXFIT_NONE, true, lastpos, lastpos, lastwidth);
-    addQuad(pts[7], pts[4], pts[3], pts[0], TEXFIT_NONE, true, lastpos, lastpos, lastwidth);
-    addQuad(pts[3], pts[2], pts[1], pts[0], TEXFIT_NONE, true, lastpos, lastpos, lastwidth);
+    addQuad(pts[7], pts[6], pts[5], pts[4], TEXFIT_NONE, lastpos, lastpos, lastwidth);
+    addQuad(pts[7], pts[4], pts[3], pts[0], TEXFIT_NONE, lastpos, lastpos, lastwidth);
+    addQuad(pts[3], pts[2], pts[1], pts[0], TEXFIT_NONE, lastpos, lastpos, lastwidth);
 
     createMesh();
     String entity_name = String("RoadSystem_Instance-").append(StringConverter::toString(mid));
@@ -100,9 +100,10 @@ void Road2::addBlock(Vector3 pos, Quaternion rot, int type, float width, float b
             bheight = 0.5;
         };
     }
+
+    Vector3 pts[8];
     if (!first)
     {
-        Vector3 pts[8];
         Vector3 lpts[8];
         if (type == ROAD_MONORAIL)
             pos.y += 2;
@@ -112,41 +113,41 @@ void Road2::addBlock(Vector3 pos, Quaternion rot, int type, float width, float b
 
         //tarmac
         if (type == ROAD_MONORAIL)
-            addQuad(pts[4], lpts[4], lpts[3], pts[3], TEXFIT_CONCRETETOP, true, pos, lastpos, width);
+            addQuad(pts[4], lpts[4], lpts[3], pts[3], TEXFIT_CONCRETETOP, pos, lastpos, width);
         else
-            addQuad(pts[4], lpts[4], lpts[3], pts[3], TEXFIT_ROAD, true, pos, lastpos, width);
+            addQuad(pts[4], lpts[4], lpts[3], pts[3], TEXFIT_ROAD, pos, lastpos, width);
 
         if (type == ROAD_FLAT && lasttype == ROAD_FLAT)
         {
             //sides (close)
-            addQuad(pts[5], lpts[5], lpts[4], pts[4], TEXFIT_ROADS3, true, pos, lastpos, width);
-            addQuad(pts[3], lpts[3], lpts[2], pts[2], TEXFIT_ROADS2, true, pos, lastpos, width);
+            addQuad(pts[5], lpts[5], lpts[4], pts[4], TEXFIT_ROADS3, pos, lastpos, width);
+            addQuad(pts[3], lpts[3], lpts[2], pts[2], TEXFIT_ROADS2, pos, lastpos, width);
             //sides (far)
-            addQuad(pts[6], lpts[6], lpts[5], pts[5], TEXFIT_ROADS4, true, pos, lastpos, width);
-            addQuad(pts[2], lpts[2], lpts[1], pts[1], TEXFIT_ROADS1, true, pos, lastpos, width);
+            addQuad(pts[6], lpts[6], lpts[5], pts[5], TEXFIT_ROADS4, pos, lastpos, width);
+            addQuad(pts[2], lpts[2], lpts[1], pts[1], TEXFIT_ROADS1, pos, lastpos, width);
         }
         else
         {
             //sides (close)
-            addQuad(pts[5], lpts[5], lpts[4], pts[4], TEXFIT_CONCRETEWALLI, true, pos, lastpos, width, (type == ROAD_FLAT || type == ROAD_LEFT));
-            addQuad(pts[3], lpts[3], lpts[2], pts[2], TEXFIT_CONCRETEWALLI, true, pos, lastpos, width, !(type == ROAD_FLAT || type == ROAD_RIGHT));
+            addQuad(pts[5], lpts[5], lpts[4], pts[4], TEXFIT_CONCRETEWALLI, pos, lastpos, width, (type == ROAD_FLAT || type == ROAD_LEFT));
+            addQuad(pts[3], lpts[3], lpts[2], pts[2], TEXFIT_CONCRETEWALLI, pos, lastpos, width, !(type == ROAD_FLAT || type == ROAD_RIGHT));
             //sides (far)
-            addQuad(pts[6], lpts[6], lpts[5], pts[5], TEXFIT_CONCRETETOP, true, pos, lastpos, width, (type == ROAD_FLAT || type == ROAD_LEFT));
-            addQuad(pts[2], lpts[2], lpts[1], pts[1], TEXFIT_CONCRETETOP, true, pos, lastpos, width, !(type == ROAD_FLAT || type == ROAD_RIGHT));
+            addQuad(pts[6], lpts[6], lpts[5], pts[5], TEXFIT_CONCRETETOP, pos, lastpos, width, (type == ROAD_FLAT || type == ROAD_LEFT));
+            addQuad(pts[2], lpts[2], lpts[1], pts[1], TEXFIT_CONCRETETOP, pos, lastpos, width, !(type == ROAD_FLAT || type == ROAD_RIGHT));
         }
         if (type == ROAD_BRIDGE || lasttype == ROAD_BRIDGE || type == ROAD_MONORAIL || lasttype == ROAD_MONORAIL)
         {
             //walls
-            addQuad(pts[1], lpts[1], lpts[0], pts[0], TEXFIT_CONCRETEWALL, true, pos, lastpos, width);
-            addQuad(lpts[6], pts[6], pts[7], lpts[7], TEXFIT_CONCRETEWALL, true, pos, lastpos, width);
+            addQuad(pts[1], lpts[1], lpts[0], pts[0], TEXFIT_CONCRETEWALL, pos, lastpos, width);
+            addQuad(lpts[6], pts[6], pts[7], lpts[7], TEXFIT_CONCRETEWALL, pos, lastpos, width);
             //underside - we flip the underside so it folds gracefully with the top
-            addQuad(pts[0], lpts[0], lpts[7], pts[7], TEXFIT_CONCRETEUNDER, true, pos, lastpos, width, true);
+            addQuad(pts[0], lpts[0], lpts[7], pts[7], TEXFIT_CONCRETEUNDER, pos, lastpos, width, true);
         }
         else
         {
             //walls
-            addQuad(pts[1], lpts[1], lpts[0], pts[0], TEXFIT_BRICKWALL, true, pos, lastpos, width);
-            addQuad(lpts[6], pts[6], pts[7], lpts[7], TEXFIT_BRICKWALL, true, pos, lastpos, width);
+            addQuad(pts[1], lpts[1], lpts[0], pts[0], TEXFIT_BRICKWALL, pos, lastpos, width);
+            addQuad(lpts[6], pts[6], pts[7], lpts[7], TEXFIT_BRICKWALL, pos, lastpos, width);
         }
         if ((type == ROAD_BRIDGE || type == ROAD_MONORAIL) && pillartype > 0)
         {
@@ -211,36 +212,35 @@ void Road2::addBlock(Vector3 pos, Quaternion rot, int type, float width, float b
                     middle + Vector3(-width2, 0, -width2),
                     middle + Vector3(width2, 0, -width2),
                     middle + Vector3(width2, -len, -width2),
-                    TEXFIT_CONCRETETOP, true, pos, lastpos, width2);
+                    TEXFIT_CONCRETETOP, pos, lastpos, width2);
 
                 addQuad(middle + Vector3(width2, -len, width2),
                     middle + Vector3(width2, 0, width2),
                     middle + Vector3(-width2, 0, width2),
                     middle + Vector3(-width2, -len, width2),
-                    TEXFIT_CONCRETETOP, true, pos, lastpos, width2);
+                    TEXFIT_CONCRETETOP, pos, lastpos, width2);
 
                 addQuad(middle + Vector3(-width2, -len, width2),
                     middle + Vector3(-width2, 0, width2),
                     middle + Vector3(-width2, 0, -width2),
                     middle + Vector3(-width2, -len, -width2),
-                    TEXFIT_CONCRETETOP, true, pos, lastpos, width2);
+                    TEXFIT_CONCRETETOP, pos, lastpos, width2);
 
                 addQuad(middle + Vector3(width2, -len, -width2),
                     middle + Vector3(width2, 0, -width2),
                     middle + Vector3(width2, 0, width2),
                     middle + Vector3(width2, -len, width2),
-                    TEXFIT_CONCRETETOP, true, pos, lastpos, width2);
+                    TEXFIT_CONCRETETOP, pos, lastpos, width2);
             }
         }
     }
     else
     {
         first = false;
-        Vector3 pts[8];
         computePoints(pts, pos, rot, type, width, bwidth, bheight);
-        addQuad(pts[0], pts[1], pts[2], pts[3], TEXFIT_NONE, true, pos, pos, width);
-        addQuad(pts[0], pts[3], pts[4], pts[7], TEXFIT_NONE, true, pos, pos, width);
-        addQuad(pts[4], pts[5], pts[6], pts[7], TEXFIT_NONE, true, pos, pos, width);
+        addQuad(pts[0], pts[1], pts[2], pts[3], TEXFIT_NONE, pos, pos, width);
+        addQuad(pts[0], pts[3], pts[4], pts[7], TEXFIT_NONE, pos, pos, width);
+        addQuad(pts[4], pts[5], pts[6], pts[7], TEXFIT_NONE, pos, pos, width);
     }
     lastpos = pos;
     lastrot = rot;
@@ -248,6 +248,22 @@ void Road2::addBlock(Vector3 pos, Quaternion rot, int type, float width, float b
     lastbwidth = bwidth;
     lastbheight = bheight;
     lasttype = type;
+
+    if (App::diag_terrn_log_roads->GetBool())
+    {
+        Str<2000> msg; msg << "[RoR] Road Block |";
+        msg << " pos=(" << pos.x << " " << pos.y << " " << pos.z << ")";
+        msg << " rot=(" << rot.x << " " << rot.y << " " << rot.z << ")";
+        msg << " width=" << width;
+        msg << " bwidth=" << bwidth;
+        msg << " bheight=" << bheight;
+        msg << " type=" << type;
+        for (int i = 0; i < 8; ++i)
+        {
+            msg << "\n\t Point#" << i << ": " << pts[i].x << " " << pts[i].y << " " << pts[i].z;
+        }
+        Log(msg.ToCStr());
+    }
 }
 
 void Road2::computePoints(Vector3* pts, Vector3 pos, Quaternion rot, int type, float width, float bwidth, float bheight)
@@ -332,7 +348,7 @@ inline Vector3 Road2::baseOf(Vector3 p)
     return Vector3(p.x, y, p.z);
 }
 
-void Road2::addQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, int texfit, bool collision, Vector3 pos, Vector3 lastpos, float width, bool flip)
+void Road2::addQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, int texfit, Vector3 pos, Vector3 lastpos, float width, bool flip)
 {
     if (vertexcount + 3 >= MAX_VERTEX || tricount * 3 + 3 + 2 >= MAX_TRIS * 3)
         return;
