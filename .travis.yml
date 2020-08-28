@@ -39,11 +39,11 @@ install:
   - conan user
 
 script:
-  - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
+  - /usr/bin/cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
   - ninja
 
 before_cache:
-  - cmake -P ./cmake/3rdparty/pmm.cmake /Conan /Clean
+  - /usr/bin/cmake -P ./cmake/3rdparty/pmm.cmake /Conan /Clean
 
 after_success:
   - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sh ./tools/CI/upload-CI-build.sh; fi
