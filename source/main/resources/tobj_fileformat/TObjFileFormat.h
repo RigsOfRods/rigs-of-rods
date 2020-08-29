@@ -148,12 +148,10 @@ struct TObjEntry
 struct TObjFile
 {
     TObjFile():
-        num_collision_triangles(-1),
         grid_position(),
         grid_enabled(false)
     {}
 
-    long                          num_collision_triangles;
     Ogre::Vector3                 grid_position;
     bool                          grid_enabled;
     std::vector<TObjTree>         trees;

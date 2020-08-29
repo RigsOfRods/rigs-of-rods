@@ -91,8 +91,7 @@ bool TObjParser::ProcessCurrentLine()
     }
     if (strncmp(m_cur_line, "collision-tris", 14) == 0)
     {
-        sscanf(m_cur_line, "collision-tris %ld", &m_def->num_collision_triangles);
-        return true;
+        return true; // Obsolete - ignore it.
     }
     if (strncmp(m_cur_line, "grid", 4) == 0)
     {        
