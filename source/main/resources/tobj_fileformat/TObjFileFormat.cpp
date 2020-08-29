@@ -181,10 +181,15 @@ bool TObjParser::ProcessCurrentLine()
 
         ProceduralPoint point;
         char obj_name[TObj::STR_LEN] = "";
+        Ogre::Vector3 rot = Ogre::Vector3::ZERO;
         sscanf(m_cur_line, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %s",
             &point.position.x, &point.position.y,  &point.position.z,
-            &point.rotation.x, &point.rotation.y,  &point.rotation.z,
+            &rot.x, &rot.y,  &rot.z,
             &point.width, &point.bwidth, &point.bheight, obj_name);
+
+        point.rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) *
+                         Quaternion(Degree(rot.y), Vector3::UNIT_Y) *
+                         Quaternion(Degree(rot.z), Vector3::UNIT_Z);
 
              if (!strcmp(obj_name, "flat"))              { point.type = Road2::ROAD_FLAT;  }
         else if (!strcmp(obj_name, "left"))              { point.type = Road2::ROAD_LEFT;  }
