@@ -187,9 +187,7 @@ bool TObjParser::ProcessCurrentLine()
             &rot.x, &rot.y,  &rot.z,
             &point.width, &point.bwidth, &point.bheight, obj_name);
 
-        point.rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) *
-                         Quaternion(Degree(rot.y), Vector3::UNIT_Y) *
-                         Quaternion(Degree(rot.z), Vector3::UNIT_Z);
+        point.rotation = this->CalcRotation(rot);
 
              if (!strcmp(obj_name, "flat"))              { point.type = Road2::ROAD_FLAT;  }
         else if (!strcmp(obj_name, "left"))              { point.type = Road2::ROAD_LEFT;  }
@@ -223,7 +221,7 @@ bool TObjParser::ProcessCurrentLine()
     {
         TObjVehicle v;
         v.position = pos;
-        v.rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X)*Quaternion(Degree(rot.y), Vector3::UNIT_Y)*Quaternion(Degree(rot.z), Vector3::UNIT_Z);
+        v.rotation = this->CalcRotation(rot);
         v.type = special_def;
         strcpy(v.name, type);
 
@@ -238,58 +236,30 @@ bool TObjParser::ProcessCurrentLine()
     }
 
     // okay, this is a job for roads2
-    int pillar_type = (int)(special_def != TObj::SpecialObject::ROAD_BRIDGE_NO_PILLARS);
-    int roadtype=Road2::ROAD_AUTOMATIC;
-    if (special_def == TObj::SpecialObject::ROAD) roadtype=Road2::ROAD_FLAT;
-    Quaternion rotation;
-    rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X)*Quaternion(Degree(rot.y), Vector3::UNIT_Y)*Quaternion(Degree(rot.z), Vector3::UNIT_Z);
+
     if (pos.distance(m_road2_last_pos) > 20.0f)
     {
         // break the road
         if (m_road2_use_old_mode)
         {
-            // fill object
-            ProceduralPoint pp;
-            pp.bheight = 0.2;
-            pp.bwidth = 1.4;
-            pp.pillartype = pillar_type;
-            pp.position = m_road2_last_pos + m_road2_last_rot * Vector3(10.0f, 0.0f, 0.9f);
-            pp.rotation = m_road2_last_rot;
-            pp.type = roadtype;
-            pp.width = 8;
-            m_cur_procedural_obj.points.push_back(pp);
+            Vector3 pp_pos = m_road2_last_pos + this->CalcRotation(m_road2_last_rot) * Vector3(10.0f, 0.0f, 0.9f);
+            this->ImportProceduralPoint(pp_pos, m_road2_last_rot, special_def);
 
             // finish it and start new object
             m_def->proc_objects.push_back(m_cur_procedural_obj);
             m_cur_procedural_obj = ProceduralObject();
         }
         m_road2_use_old_mode = true;
+
         // beginning of new
-        ProceduralPoint pp;
-        pp.bheight = 0.2;
-        pp.bwidth = 1.4;
-        pp.pillartype = pillar_type;
-        pp.position = pos;
-        pp.rotation = rotation;
-        pp.type = roadtype;
-        pp.width = 8;
-        m_cur_procedural_obj.points.push_back(pp);
+        this->ImportProceduralPoint(pos, rot, special_def);
     }
     else
     {
-        // fill object
-        ProceduralPoint pp;
-        pp.bheight = 0.2;
-        pp.bwidth = 1.4;
-        pp.pillartype = pillar_type;
-        pp.position = pos;
-        pp.rotation = rotation;
-        pp.type = roadtype;
-        pp.width = 8;
-        m_cur_procedural_obj.points.push_back(pp);
+        this->ImportProceduralPoint(pos, rot, special_def);
     }
     m_road2_last_pos=pos;
-    m_road2_last_rot=rotation;
+    m_road2_last_rot=rot;
 
     return true;
 }
@@ -299,16 +269,8 @@ std::shared_ptr<TObjFile> TObjParser::Finalize()
     // finish the last road
     if (m_road2_use_old_mode != 0)
     {
-        // fill object
-        ProceduralPoint pp;
-        pp.bheight = 0.2;
-        pp.bwidth = 1.4;
-        pp.pillartype = 1;
-        pp.position = m_road2_last_pos+m_road2_last_rot*Vector3(10.0,0,0);
-        pp.rotation = m_road2_last_rot;
-        pp.type = Road2::ROAD_AUTOMATIC;
-        pp.width = 8;
-        m_cur_procedural_obj.points.push_back(pp);
+        Vector3 pp_pos = m_road2_last_pos + m_road2_last_rot * Vector3(10.0f, 0.0f, 0.9f);
+        this->ImportProceduralPoint(pp_pos, m_road2_last_rot, TObj::SpecialObject::ROAD);
 
         m_def->proc_objects.push_back(m_cur_procedural_obj);
     }
@@ -327,4 +289,31 @@ void TObjParser::ProcessOgreStream(Ogre::DataStream* stream)
         stream->readLine(raw_line_buf, TObj::LINE_BUF_LEN);
         keep_reading = this->ProcessLine(raw_line_buf);
     }
+}
+
+// --------------------------------
+// Parsing
+
+void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObj::SpecialObject special)
+{
+    ProceduralPoint pp;
+    pp.bheight    = 0.2;
+    pp.bwidth     = 1.4;
+    pp.pillartype = (int)(special != TObj::SpecialObject::ROAD_BRIDGE_NO_PILLARS);
+    pp.position   = pos;
+    pp.rotation   = this->CalcRotation(rot);
+    pp.type       = (special == TObj::SpecialObject::ROAD) ? Road2::ROAD_FLAT : Road2::ROAD_AUTOMATIC;
+    pp.width      = 8;
+
+    m_cur_procedural_obj.points.push_back(pp);
+}
+
+// --------------------------------
+// Helpers
+
+Ogre::Quaternion TObjParser::CalcRotation(Ogre::Vector3 const& rot) const
+{
+    return Quaternion(Degree(rot.x), Vector3::UNIT_X) *
+           Quaternion(Degree(rot.y), Vector3::UNIT_Y) *
+           Quaternion(Degree(rot.z), Vector3::UNIT_Z);
 }
