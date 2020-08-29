@@ -132,6 +132,7 @@ struct TObjVehicle
 // -----------------------------------------------------------------------------
 struct TObjEntry
 {
+    TObjEntry() {};
     TObjEntry(
         Ogre::Vector3 pos, Ogre::Vector3 rot, const char* instance_name,
         TObj::SpecialObject special, const char* type, const char* name);
@@ -171,16 +172,19 @@ public:
     std::shared_ptr<TObjFile>  Finalize(); //!< Passes ownership
 
 private:
-    // Parsing:
+    // Processing:
     bool                       ProcessCurrentLine();
     void                       ProcessProceduralLine();
     void                       ProcessGridLine();
     void                       ProcessTreesLine();
     void                       ProcessGrassLine();
-    void                       ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObj::SpecialObject special);
+    void                       ProcessActorObject(const TObjEntry& object);
+    void                       ProcessRoadObject(const TObjEntry& object);
 
     // Helpers:
+    void                       ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObj::SpecialObject special);
     Ogre::Quaternion           CalcRotation(Ogre::Vector3 const& rot) const;
+    bool                       ParseObjectLine(TObjEntry& object);
 
     std::shared_ptr<TObjFile>  m_def;
     int                        m_line_number;
