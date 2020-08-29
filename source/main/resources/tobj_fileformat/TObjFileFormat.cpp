@@ -171,35 +171,14 @@ bool TObjParser::ProcessCurrentLine()
         m_in_procedural_road = false;
         return true;
     }
-    
+
     if (m_in_procedural_road)
     {
-        if (!m_road2_use_old_mode)
+        if (m_road2_use_old_mode)
         {
-            return true;
+            this->ProcessProceduralLine();
         }
 
-        ProceduralPoint point;
-        char obj_name[TObj::STR_LEN] = "";
-        Ogre::Vector3 rot = Ogre::Vector3::ZERO;
-        sscanf(m_cur_line, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %s",
-            &point.position.x, &point.position.y,  &point.position.z,
-            &rot.x, &rot.y,  &rot.z,
-            &point.width, &point.bwidth, &point.bheight, obj_name);
-
-        point.rotation = this->CalcRotation(rot);
-
-             if (!strcmp(obj_name, "flat"))              { point.type = Road2::ROAD_FLAT;  }
-        else if (!strcmp(obj_name, "left"))              { point.type = Road2::ROAD_LEFT;  }
-        else if (!strcmp(obj_name, "right"))             { point.type = Road2::ROAD_RIGHT; }
-        else if (!strcmp(obj_name, "both" ))             { point.type = Road2::ROAD_BOTH;  }
-        else if (!strcmp(obj_name, "bridge"))            { point.type = Road2::ROAD_BRIDGE;    point.pillartype = 1; }
-        else if (!strcmp(obj_name, "monorail"))          { point.type = Road2::ROAD_MONORAIL;  point.pillartype = 2; }
-        else if (!strcmp(obj_name, "monorail2"))         { point.type = Road2::ROAD_MONORAIL;  point.pillartype = 0; }
-        else if (!strcmp(obj_name, "bridge_no_pillars")) { point.type = Road2::ROAD_BRIDGE;    point.pillartype = 0; }
-        else                                             { point.type = Road2::ROAD_AUTOMATIC; point.pillartype = 0; }
-        
-        m_cur_procedural_obj.points.push_back(point);
         return true;
     }
 
@@ -293,6 +272,31 @@ void TObjParser::ProcessOgreStream(Ogre::DataStream* stream)
 
 // --------------------------------
 // Parsing
+
+void TObjParser::ProcessProceduralLine()
+{
+    ProceduralPoint point;
+    Str<300> obj_name;
+    Ogre::Vector3 rot = Ogre::Vector3::ZERO;
+    sscanf(m_cur_line, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %s",
+        &point.position.x, &point.position.y,  &point.position.z,
+        &rot.x, &rot.y, &rot.z,
+        &point.width, &point.bwidth, &point.bheight, obj_name.GetBuffer());
+
+    point.rotation = this->CalcRotation(rot);
+
+         if (obj_name == "flat"             ) { point.type = Road2::ROAD_FLAT;  }
+    else if (obj_name == "left"             ) { point.type = Road2::ROAD_LEFT;  }
+    else if (obj_name == "right"            ) { point.type = Road2::ROAD_RIGHT; }
+    else if (obj_name == "both"             ) { point.type = Road2::ROAD_BOTH;  }
+    else if (obj_name == "bridge"           ) { point.type = Road2::ROAD_BRIDGE;    point.pillartype = 1; }
+    else if (obj_name == "monorail"         ) { point.type = Road2::ROAD_MONORAIL;  point.pillartype = 2; }
+    else if (obj_name == "monorail2"        ) { point.type = Road2::ROAD_MONORAIL;  point.pillartype = 0; }
+    else if (obj_name == "bridge_no_pillars") { point.type = Road2::ROAD_BRIDGE;    point.pillartype = 0; }
+    else                                      { point.type = Road2::ROAD_AUTOMATIC; point.pillartype = 0; }
+
+    m_cur_procedural_obj.points.push_back(point);
+}
 
 void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObj::SpecialObject special)
 {
