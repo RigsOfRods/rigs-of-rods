@@ -174,6 +174,9 @@ private:
     // Parsing:
     bool                       ProcessCurrentLine();
     void                       ProcessProceduralLine();
+    void                       ProcessGridLine();
+    void                       ProcessTreesLine();
+    void                       ProcessGrassLine();
     void                       ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObj::SpecialObject special);
 
     // Helpers:

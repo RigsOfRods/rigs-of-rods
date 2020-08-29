@@ -94,63 +94,18 @@ bool TObjParser::ProcessCurrentLine()
         return true; // Obsolete - ignore it.
     }
     if (strncmp(m_cur_line, "grid", 4) == 0)
-    {        
-        Ogre::Vector3 & pos = m_def->grid_position;
-        sscanf(m_cur_line, "grid %f, %f, %f", &pos.x, &pos.y, &pos.z); // No error check by design
-        m_def->grid_enabled = true;
+    {
+        this->ProcessGridLine();
         return true;
     }
     if (strncmp(m_cur_line, "trees", 5) == 0)
     {
-        TObjTree tree;
-        sscanf(m_cur_line, "trees %f, %f, %f, %f, %f, %f, %f, %s %s %s %f %s",
-            &tree.yaw_from,      &tree.yaw_to,
-            &tree.scale_from,    &tree.scale_to,
-            &tree.high_density,
-            &tree.min_distance,  &tree.max_distance,
-             tree.tree_mesh,      tree.color_map,         tree.density_map,
-            &tree.grid_spacing,   tree.collision_mesh);
-
-        m_def->trees.push_back(tree);
-        return true; 
+        this->ProcessTreesLine();
+        return true;
     }
     if (strncmp(m_cur_line, "grass", 5) == 0)
     {
-        TObjGrass grass;
-        if (strncmp(m_cur_line, "grass2", 6) == 0)
-        {
-            sscanf(m_cur_line, "grass2 %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %d, %s %s %s",
-                &grass.range,
-                &grass.sway_speed,   &grass.sway_length, &grass.sway_distrib, &grass.density,
-                &grass.min_x,        &grass.min_y,       &grass.max_x,        &grass.max_y,
-                &grass.grow_techniq, &grass.min_h,       &grass.max_h,        &grass.technique,
-                 grass.material_name,
-                 grass.color_map_filename,
-                 grass.density_map_filename);
-        }
-        else
-        {
-            // Same as 'grass2', except without 'technique' parameter
-            sscanf(m_cur_line, "grass %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %s %s %s",
-                &grass.range,
-                &grass.sway_speed,   &grass.sway_length, &grass.sway_distrib, &grass.density,
-                &grass.min_x,        &grass.min_y,       &grass.max_x,        &grass.max_y,
-                &grass.grow_techniq, &grass.min_h,       &grass.max_h,
-                 grass.material_name,
-                 grass.color_map_filename,
-                 grass.density_map_filename);
-        }
-
-        // 0: GRASSTECH_QUAD;       // Grass constructed of randomly placed and rotated quads
-        // 1: GRASSTECH_CROSSQUADS; // Grass constructed of two quads forming a "X" cross shape
-        // 2: GRASSTECH_SPRITE;     // Grass constructed of camera-facing billboard quads
-        if ((grass.technique < 0) || (grass.technique > 2))
-        {
-            LOGSTREAM << "Invalid parameter 'technique': '" << grass.technique << "', falling back to default '1: GRASSTECH_CROSSQUADS'";
-            grass.technique = 1;
-        }
-
-        m_def->grass.push_back(grass);
+        this->ProcessGrassLine();
         return true;
     }
     if (strncmp("begin_procedural_roads", m_cur_line, 22) == 0)
@@ -177,7 +132,6 @@ bool TObjParser::ProcessCurrentLine()
         {
             this->ProcessProceduralLine();
         }
-
         return true;
     }
 
@@ -295,6 +249,66 @@ void TObjParser::ProcessProceduralLine()
     else                                      { point.type = Road2::ROAD_AUTOMATIC; point.pillartype = 0; }
 
     m_cur_procedural_obj.points.push_back(point);
+}
+
+void TObjParser::ProcessGridLine()
+{
+    Ogre::Vector3 & pos = m_def->grid_position;
+    sscanf(m_cur_line, "grid %f, %f, %f", &pos.x, &pos.y, &pos.z); // No error check by design
+    m_def->grid_enabled = true;
+}
+
+void TObjParser::ProcessTreesLine()
+{
+    TObjTree tree;
+    sscanf(m_cur_line, "trees %f, %f, %f, %f, %f, %f, %f, %s %s %s %f %s",
+        &tree.yaw_from,      &tree.yaw_to,
+        &tree.scale_from,    &tree.scale_to,
+        &tree.high_density,
+        &tree.min_distance,  &tree.max_distance,
+         tree.tree_mesh,      tree.color_map,         tree.density_map,
+        &tree.grid_spacing,   tree.collision_mesh);
+
+    m_def->trees.push_back(tree);
+}
+
+void TObjParser::ProcessGrassLine()
+{
+    TObjGrass grass;
+    if (strncmp(m_cur_line, "grass2", 6) == 0)
+    {
+        sscanf(m_cur_line, "grass2 %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %d, %s %s %s",
+            &grass.range,
+            &grass.sway_speed,   &grass.sway_length, &grass.sway_distrib, &grass.density,
+            &grass.min_x,        &grass.min_y,       &grass.max_x,        &grass.max_y,
+            &grass.grow_techniq, &grass.min_h,       &grass.max_h,        &grass.technique,
+                grass.material_name,
+                grass.color_map_filename,
+                grass.density_map_filename);
+    }
+    else
+    {
+        // Same as 'grass2', except without 'technique' parameter
+        sscanf(m_cur_line, "grass %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %s %s %s",
+            &grass.range,
+            &grass.sway_speed,   &grass.sway_length, &grass.sway_distrib, &grass.density,
+            &grass.min_x,        &grass.min_y,       &grass.max_x,        &grass.max_y,
+            &grass.grow_techniq, &grass.min_h,       &grass.max_h,
+                grass.material_name,
+                grass.color_map_filename,
+                grass.density_map_filename);
+    }
+
+    // 0: GRASSTECH_QUAD;       // Grass constructed of randomly placed and rotated quads
+    // 1: GRASSTECH_CROSSQUADS; // Grass constructed of two quads forming a "X" cross shape
+    // 2: GRASSTECH_SPRITE;     // Grass constructed of camera-facing billboard quads
+    if ((grass.technique < 0) || (grass.technique > 2))
+    {
+        LOGSTREAM << "Invalid parameter 'technique': '" << grass.technique << "', falling back to default '1: GRASSTECH_CROSSQUADS'";
+        grass.technique = 1;
+    }
+
+    m_def->grass.push_back(grass);
 }
 
 void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObj::SpecialObject special)
