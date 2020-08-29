@@ -173,7 +173,12 @@ public:
     std::shared_ptr<TObjFile>  Finalize(); //!< Passes ownership
 
 private:
+    // Parsing:
     bool                       ProcessCurrentLine();
+    void                       ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObj::SpecialObject special);
+
+    // Helpers:
+    Ogre::Quaternion           CalcRotation(Ogre::Vector3 const& rot) const;
 
     std::shared_ptr<TObjFile>  m_def;
     int                        m_line_number;
@@ -181,7 +186,7 @@ private:
     bool                       m_in_procedural_road; // Old parser: 'bool proroad'
     bool                       m_road2_use_old_mode; // Old parser: 'int r2oldmode'
     Ogre::Vector3              m_road2_last_pos;
-    Ogre::Quaternion           m_road2_last_rot;
+    Ogre::Vector3              m_road2_last_rot;
     ProceduralObject           m_cur_procedural_obj;
 };
 

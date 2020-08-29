@@ -48,7 +48,7 @@ public:
     static const unsigned int MAX_VERTEX = 50000;
     static const unsigned int MAX_TRIS = 50000;
 
-    enum
+    enum RoadType
     {
         ROAD_AUTOMATIC,
         ROAD_FLAT,
