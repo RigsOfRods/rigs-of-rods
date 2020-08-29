@@ -49,24 +49,6 @@ bool TObjParser::ProcessLine(const char* line)
     return result;
 }
 
-inline TObj::SpecialObject CheckSpecialObject(const char* spec)
-{
-    if (strcmp(spec, "truck")              == 0) { return TObj::SpecialObject::TRUCK                 ; }
-    if (strcmp(spec, "load")               == 0) { return TObj::SpecialObject::LOAD                  ; }
-    if (strcmp(spec, "machine")            == 0) { return TObj::SpecialObject::MACHINE               ; }
-    if (strcmp(spec, "boat")               == 0) { return TObj::SpecialObject::BOAT                  ; }
-    if (strcmp(spec, "truck2")             == 0) { return TObj::SpecialObject::TRUCK2                ; }
-    if (strcmp(spec, "grid")               == 0) { return TObj::SpecialObject::GRID                  ; }
-    if (strcmp(spec, "road")               == 0) { return TObj::SpecialObject::ROAD                  ; }
-    if (strcmp(spec, "roadborderleft")     == 0) { return TObj::SpecialObject::ROAD_BORDER_LEFT      ; }
-    if (strcmp(spec, "roadborderright")    == 0) { return TObj::SpecialObject::ROAD_BORDER_RIGHT     ; }
-    if (strcmp(spec, "roadborderboth")     == 0) { return TObj::SpecialObject::ROAD_BORDER_BOTH      ; }
-    if (strcmp(spec, "roadbridgenopillar") == 0) { return TObj::SpecialObject::ROAD_BRIDGE_NO_PILLARS; }
-    if (strcmp(spec, "roadbridge")         == 0) { return TObj::SpecialObject::ROAD_BRIDGE           ; }
-
-    return TObj::SpecialObject::NONE;
-}
-
 inline bool IsDefRoad(TObj::SpecialObject special)
 {
     return (special >= TObj::SpecialObject::ROAD) && (special <= TObj::SpecialObject::ROAD_BRIDGE);
@@ -135,64 +117,26 @@ bool TObjParser::ProcessCurrentLine()
         return true;
     }
 
-    char object_def[100] = "generic";
-    char type[100] = {};
-    char name[100] = {};
-    Ogre::Vector3 pos(Ogre::Vector3::ZERO);
-    Ogre::Vector3 rot(Ogre::Vector3::ZERO);
-    int r = sscanf(m_cur_line, "%f, %f, %f, %f, %f, %f, %s %s %s",
-        &pos.x, &pos.y, &pos.z, &rot.x, &rot.y, &rot.z, object_def, type, name);
-    if (r < 6)
+    TObjEntry object;
+    if (!this->ParseObjectLine(object))
     {
         return true;
     }
-    TObj::SpecialObject special_def = CheckSpecialObject(object_def);
-    if ((special_def == TObj::SpecialObject::TRUCK)   || (special_def == TObj::SpecialObject::LOAD) ||
-        (special_def == TObj::SpecialObject::MACHINE) || (special_def == TObj::SpecialObject::BOAT) ||
-        (special_def == TObj::SpecialObject::TRUCK2))
-    {
-        TObjVehicle v;
-        v.position = pos;
-        v.rotation = this->CalcRotation(rot);
-        v.type = special_def;
-        strcpy(v.name, type);
 
-        m_def->vehicles.push_back(v);
-        return true;
+    if ((object.special == TObj::SpecialObject::TRUCK)   || (object.special == TObj::SpecialObject::LOAD) ||
+        (object.special == TObj::SpecialObject::MACHINE) || (object.special == TObj::SpecialObject::BOAT) ||
+        (object.special == TObj::SpecialObject::TRUCK2))
+    {
+        this->ProcessActorObject(object);
     }
-
-    if (! IsDefRoad(special_def))
+    else if (IsDefRoad(object.special))
     {
-        m_def->objects.emplace_back(pos, rot, object_def, special_def, type, name);
-        return true;
-    }
-
-    // okay, this is a job for roads2
-
-    if (pos.distance(m_road2_last_pos) > 20.0f)
-    {
-        // break the road
-        if (m_road2_use_old_mode)
-        {
-            Vector3 pp_pos = m_road2_last_pos + this->CalcRotation(m_road2_last_rot) * Vector3(10.0f, 0.0f, 0.9f);
-            this->ImportProceduralPoint(pp_pos, m_road2_last_rot, special_def);
-
-            // finish it and start new object
-            m_def->proc_objects.push_back(m_cur_procedural_obj);
-            m_cur_procedural_obj = ProceduralObject();
-        }
-        m_road2_use_old_mode = true;
-
-        // beginning of new
-        this->ImportProceduralPoint(pos, rot, special_def);
+        this->ProcessRoadObject(object);
     }
     else
     {
-        this->ImportProceduralPoint(pos, rot, special_def);
+        m_def->objects.push_back(object);
     }
-    m_road2_last_pos=pos;
-    m_road2_last_rot=rot;
-
     return true;
 }
 
@@ -224,7 +168,7 @@ void TObjParser::ProcessOgreStream(Ogre::DataStream* stream)
 }
 
 // --------------------------------
-// Parsing
+// Processing
 
 void TObjParser::ProcessProceduralLine()
 {
@@ -311,6 +255,49 @@ void TObjParser::ProcessGrassLine()
     m_def->grass.push_back(grass);
 }
 
+void TObjParser::ProcessActorObject(const TObjEntry& object)
+{
+    TObjVehicle v;
+    v.position = object.position;
+    v.rotation = this->CalcRotation(object.rotation);
+    v.type = object.special;
+    strcpy(v.name, object.type);
+
+    m_def->vehicles.push_back(v);
+}
+
+void TObjParser::ProcessRoadObject(const TObjEntry& object)
+{
+    // ** Import road objects as procedural road
+
+    if (object.position.distance(m_road2_last_pos) > 20.0f)
+    {
+        // break the road
+        if (m_road2_use_old_mode)
+        {
+            Vector3 pp_pos = m_road2_last_pos + this->CalcRotation(m_road2_last_rot) * Vector3(10.0f, 0.0f, 0.9f);
+            this->ImportProceduralPoint(pp_pos, m_road2_last_rot, object.special);
+
+            // finish it and start new object
+            m_def->proc_objects.push_back(m_cur_procedural_obj);
+            m_cur_procedural_obj = ProceduralObject();
+        }
+        m_road2_use_old_mode = true;
+
+        // beginning of new
+        this->ImportProceduralPoint(object.position, object.rotation, object.special);
+    }
+    else
+    {
+        this->ImportProceduralPoint(object.position, object.rotation, object.special);
+    }
+    m_road2_last_pos=object.position;
+    m_road2_last_rot=object.rotation;
+}
+
+// --------------------------------
+// Helpers
+
 void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObj::SpecialObject special)
 {
     ProceduralPoint pp;
@@ -325,12 +312,41 @@ void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 c
     m_cur_procedural_obj.points.push_back(pp);
 }
 
-// --------------------------------
-// Helpers
-
 Ogre::Quaternion TObjParser::CalcRotation(Ogre::Vector3 const& rot) const
 {
     return Quaternion(Degree(rot.x), Vector3::UNIT_X) *
            Quaternion(Degree(rot.y), Vector3::UNIT_Y) *
            Quaternion(Degree(rot.z), Vector3::UNIT_Z);
+}
+
+bool TObjParser::ParseObjectLine(TObjEntry& object)
+{
+    Str<300> odef("generic");
+    char type[100] = {};
+    char name[100] = {};
+    Ogre::Vector3 pos(Ogre::Vector3::ZERO);
+    Ogre::Vector3 rot(Ogre::Vector3::ZERO);
+    int r = sscanf(m_cur_line, "%f, %f, %f, %f, %f, %f, %s %s %s",
+        &pos.x, &pos.y, &pos.z, &rot.x, &rot.y, &rot.z, odef.GetBuffer(), type, name);
+    if (r < 6)
+    {
+        return false;
+    }
+
+    TObj::SpecialObject special = TObj::SpecialObject::NONE;
+         if (odef == "truck"             ) { special = TObj::SpecialObject::TRUCK                 ; }
+    else if (odef == "load"              ) { special = TObj::SpecialObject::LOAD                  ; }
+    else if (odef == "machine"           ) { special = TObj::SpecialObject::MACHINE               ; }
+    else if (odef == "boat"              ) { special = TObj::SpecialObject::BOAT                  ; }
+    else if (odef == "truck2"            ) { special = TObj::SpecialObject::TRUCK2                ; }
+    else if (odef == "grid"              ) { special = TObj::SpecialObject::GRID                  ; }
+    else if (odef == "road"              ) { special = TObj::SpecialObject::ROAD                  ; }
+    else if (odef == "roadborderleft"    ) { special = TObj::SpecialObject::ROAD_BORDER_LEFT      ; }
+    else if (odef == "roadborderright"   ) { special = TObj::SpecialObject::ROAD_BORDER_RIGHT     ; }
+    else if (odef == "roadborderboth"    ) { special = TObj::SpecialObject::ROAD_BORDER_BOTH      ; }
+    else if (odef == "roadbridgenopillar") { special = TObj::SpecialObject::ROAD_BRIDGE_NO_PILLARS; }
+    else if (odef == "roadbridge"        ) { special = TObj::SpecialObject::ROAD_BRIDGE           ; }
+
+    object = TObjEntry(pos, rot, odef.ToCStr(), special, type, name);
+    return true;
 }
