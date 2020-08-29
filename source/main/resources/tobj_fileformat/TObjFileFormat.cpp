@@ -26,6 +26,34 @@
 using namespace RoR;
 using namespace Ogre;
 
+// --------------------------------
+// TObjEntry
+
+TObjEntry::TObjEntry(Ogre::Vector3 pos, Ogre::Vector3 rot, const char* odef, TObj::SpecialObject spc, const char* ty, const char* nam):
+    position(pos),
+    rotation(rot),
+    special(spc)
+{
+    strcpy(type, ty);
+    strcpy(instance_name, nam);
+    strcpy(odef_name, odef);
+}
+
+bool TObjEntry::IsRoad() const
+{
+    return (special >= TObj::SpecialObject::ROAD) && (special <= TObj::SpecialObject::ROAD_BRIDGE);
+}
+
+bool TObjEntry::IsActor() const
+{
+    return (special == TObj::SpecialObject::TRUCK)   || (special == TObj::SpecialObject::LOAD) ||
+           (special == TObj::SpecialObject::MACHINE) || (special == TObj::SpecialObject::BOAT) ||
+           (special == TObj::SpecialObject::TRUCK2);
+}
+
+// --------------------------------
+// Parser
+
 void TObjParser::Prepare()
 {
     m_cur_line           = nullptr;
@@ -49,24 +77,11 @@ bool TObjParser::ProcessLine(const char* line)
     return result;
 }
 
-inline bool IsDefRoad(TObj::SpecialObject special)
-{
-    return (special >= TObj::SpecialObject::ROAD) && (special <= TObj::SpecialObject::ROAD_BRIDGE);
-}
-
-TObjEntry::TObjEntry(Ogre::Vector3 pos, Ogre::Vector3 rot, const char* odef, TObj::SpecialObject spc, const char* ty, const char* nam):
-    position(pos),
-    rotation(rot),
-    special(spc)
-{
-    strcpy(type, ty);
-    strcpy(instance_name, nam);
-    strcpy(odef_name, odef);
-}
-
 // retval true = continue processing (false = stop)
 bool TObjParser::ProcessCurrentLine()
 {
+    // ** Process keywords
+
     if (!strcmp(m_cur_line, "end"))
     {
         return false;
@@ -108,34 +123,33 @@ bool TObjParser::ProcessCurrentLine()
         return true;
     }
 
+    // ** Process entries (ODEF or special objects)
+
     if (m_in_procedural_road)
     {
         if (m_road2_use_old_mode)
         {
             this->ProcessProceduralLine();
         }
-        return true;
-    }
-
-    TObjEntry object;
-    if (!this->ParseObjectLine(object))
-    {
-        return true;
-    }
-
-    if ((object.special == TObj::SpecialObject::TRUCK)   || (object.special == TObj::SpecialObject::LOAD) ||
-        (object.special == TObj::SpecialObject::MACHINE) || (object.special == TObj::SpecialObject::BOAT) ||
-        (object.special == TObj::SpecialObject::TRUCK2))
-    {
-        this->ProcessActorObject(object);
-    }
-    else if (IsDefRoad(object.special))
-    {
-        this->ProcessRoadObject(object);
     }
     else
     {
-        m_def->objects.push_back(object);
+        TObjEntry object;
+        if (this->ParseObjectLine(object))
+        {
+            if (object.IsActor())
+            {
+                this->ProcessActorObject(object);
+            }
+            else if (object.IsRoad())
+            {
+                this->ProcessRoadObject(object);
+            }
+            else
+            {
+                m_def->objects.push_back(object);
+            }
+        }
     }
     return true;
 }

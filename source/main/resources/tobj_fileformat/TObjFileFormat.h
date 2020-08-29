@@ -19,13 +19,13 @@
 
 #pragma once
 
-/// @file
+/// @file   Parser and data structures for TOBJ (Terrain Objects) file format.
 /// @author Petr Ohlidal, 11/2016
 
 #include "Collisions.h"
 #include "ProceduralManager.h"
 
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 #include <memory>
 
@@ -137,12 +137,15 @@ struct TObjEntry
         Ogre::Vector3 pos, Ogre::Vector3 rot, const char* instance_name,
         TObj::SpecialObject special, const char* type, const char* name);
 
-    Ogre::Vector3        position;
-    Ogre::Vector3        rotation;
-    TObj::SpecialObject  special;
-    char                 type[TObj::STR_LEN];
-    char                 instance_name[TObj::STR_LEN];
-    char                 odef_name[TObj::STR_LEN];
+    bool IsActor() const;
+    bool IsRoad() const;
+
+    Ogre::Vector3        position                     = Ogre::Vector3::ZERO;
+    Ogre::Vector3        rotation                     = Ogre::Vector3::ZERO;
+    TObj::SpecialObject  special                      = TObj::SpecialObject::NONE;
+    char                 type[TObj::STR_LEN]          = {};
+    char                 instance_name[TObj::STR_LEN] = {};
+    char                 odef_name[TObj::STR_LEN]     = {};
 };
 
 // -----------------------------------------------------------------------------
