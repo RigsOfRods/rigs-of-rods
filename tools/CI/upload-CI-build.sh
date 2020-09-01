@@ -9,7 +9,7 @@ then
 	cp /usr/lib/x86_64-linux-gnu/libfreeimage.so.3          ./redist/lib/
 	cp /usr/lib/x86_64-linux-gnu/libjpegxr.so.0             ./redist/lib/
 	cp /usr/lib/x86_64-linux-gnu/libjxrglue.so.0            ./redist/lib/
-	cp /usr/lib/x86_64-linux-gnu/libraw.so.15               ./redist/lib/
+	cp /usr/lib/x86_64-linux-gnu/libraw.so.16               ./redist/lib/
 	cp /usr/lib/x86_64-linux-gnu/libwebp.so.5               ./redist/lib/
 	cp /usr/lib/x86_64-linux-gnu/libwebpmux.so.1            ./redist/lib/
 	cp /usr/lib/x86_64-linux-gnu/libIlmImf-2_2.so.22        ./redist/lib/
