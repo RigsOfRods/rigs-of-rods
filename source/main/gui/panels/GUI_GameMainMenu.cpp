@@ -52,11 +52,11 @@ void RoR::GUI::GameMainMenu::Draw()
 void RoR::GUI::GameMainMenu::DrawMenuPanel()
 {
     // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
-    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
+    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow)))
     {
         m_kb_focus_index = (m_kb_focus_index <= 0) ? (m_num_buttons - 1) : (m_kb_focus_index - 1);
     }
-    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
+    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow)))
     {
         m_kb_focus_index = (m_kb_focus_index < (m_num_buttons - 1)) ? (m_kb_focus_index + 1) : 0;
     }
@@ -79,6 +79,8 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
     if (App::GetGuiManager()->IsVisible_MainSelector() || App::GetGuiManager()->IsVisible_MultiplayerSelector() || App::GetGuiManager()->IsVisible_GameSettings() || App::GetGuiManager()->IsVisible_GameAbout())
     {
         flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoInputs;
+        m_kb_enter_index = -1;
+        m_kb_focus_index = -1;
     }
 
     if (ImGui::Begin("Main menu", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
@@ -95,7 +97,7 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
             DrawIcon(Ogre::TextureManager::getSingleton().load("singleplayer.png", "IconsRG"));
         }
 
-        const char* sp_title = (m_kb_focus_index == button_index) ? "--> Single player <--" : "Single player"; // TODO: Localize all!
+        const char* sp_title = (m_kb_focus_index == button_index) ? "[Single player]" : "Single player"; // TODO: Localize all!
         if (ImGui::Button(sp_title, btn_size) || (m_kb_enter_index == button_index++))
         {
             if (App::diag_preset_terrain->GetActiveStr().empty())
@@ -114,7 +116,7 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
         {
             DrawIcon(Ogre::TextureManager::getSingleton().load("resume.png", "IconsRG"));
 
-            const char* resume_title = (m_kb_focus_index == button_index) ? "--> Resume game <--" : "Resume game";
+            const char* resume_title = (m_kb_focus_index == button_index) ? "[Resume game]" : "Resume game";
             if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == button_index++))
             {
                 App::sim_savegame->SetPendingStr("autosave.sav");
@@ -134,7 +136,7 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
             DrawIcon(Ogre::TextureManager::getSingleton().load("multiplayer.png", "IconsRG"));
         }
 
-        const char* mp_title = (m_kb_focus_index == button_index) ? "--> Multi player <--" : "Multi player";
+        const char* mp_title = (m_kb_focus_index == button_index) ? "[Multi player]" : "Multi player";
         if (ImGui::Button(mp_title , btn_size) || (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
@@ -151,7 +153,7 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
             DrawIcon(Ogre::TextureManager::getSingleton().load("settings.png", "IconsRG"));
         }
 
-        const char* settings_title = (m_kb_focus_index == button_index) ? "--> Settings <--" : "Settings";
+        const char* settings_title = (m_kb_focus_index == button_index) ? "[Settings]" : "Settings";
         if (ImGui::Button(settings_title, btn_size) || (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_GameSettings(true);
@@ -168,7 +170,7 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
             DrawIcon(Ogre::TextureManager::getSingleton().load("about.png", "IconsRG"));
         }
 
-        const char* about_title = (m_kb_focus_index == button_index) ? "--> About <--" : "About";
+        const char* about_title = (m_kb_focus_index == button_index) ? "[About]" : "About";
         if (ImGui::Button(about_title, btn_size)|| (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_GameAbout(true);
@@ -178,7 +180,7 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
 
         DrawIcon(Ogre::TextureManager::getSingleton().load("exit.png", "IconsRG"));
 
-        const char* exit_title = (m_kb_focus_index == button_index) ? "--> Exit game <--" : "Exit game";
+        const char* exit_title = (m_kb_focus_index == button_index) ? "[Exit game]" : "Exit game";
         if (ImGui::Button(exit_title, btn_size) || (m_kb_enter_index == button_index++))
         {
             App::app_state->SetPendingVal((int)RoR::AppState::SHUTDOWN);
