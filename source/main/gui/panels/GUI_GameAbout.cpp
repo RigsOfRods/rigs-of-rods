@@ -38,7 +38,7 @@ void RoR::GUI::GameAbout::Draw()
 {
     RoR::GUIManager::GuiTheme const& theme = RoR::App::GetGuiManager()->GetTheme();
 
-    ImGui::SetNextWindowSize(ImVec2(475.f, ImGui::GetIO().DisplaySize.y - 40.f), ImGuiSetCond_Appearing);
+    ImGui::SetNextWindowSize(ImVec2(475.f, ImGui::GetIO().DisplaySize.y - 140.f), ImGuiSetCond_Appearing);
     ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
     bool keep_open = true;
@@ -116,7 +116,7 @@ void RoR::GUI::GameAbout::Draw()
     ImGui::Text("%s%s", "Invited core team:",  " The invited members helped us a lot along the way at various corners");
 
     ImGui::NewLine();
-    ImGui::TextColored(theme.value_blue_text_color, "%s:", _LC("About", "Used Libs"));
+    ImGui::TextColored(theme.value_blue_text_color, "%s:", _LC("About", "Used Projects"));
     ImGui::Text("%s%s", "Ogre3D:",         " 3D rendering engine");
 #ifdef USE_CAELUM
     ImGui::Text("%s%s", "Caelum:",         " Atmospheric effects");
@@ -145,6 +145,7 @@ void RoR::GUI::GameAbout::Draw()
 #endif
     ImGui::Text("%s%s", "pThreads:",       " POSIX threads library");
     ImGui::Text("%s%s", "RapidJSON:",      " JSON parser/generator, used for online services");
+    ImGui::Text("%s%s", "feathericons:",      " Main menu icons");
 
     App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();

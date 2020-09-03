@@ -34,10 +34,11 @@ class GameMainMenu
 {
 public:
     // This class implements hand-made keyboard focus - button count must be known for wrapping
-    const float   WINDOW_WIDTH          = 200.f;
+    const float   WINDOW_WIDTH          = 110.f;
+    const float   WINDOW_HEIGHT          = 785.f;
     const ImVec4  WINDOW_BG_COLOR       = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
     const ImVec4  BUTTON_BG_COLOR       = ImVec4(0.25f, 0.25f, 0.24f, 0.6f); // Drawn on top of a transparent panel; make it just a shade
-    const ImVec2  BUTTON_PADDING        = ImVec2(4.f, 6.f);
+    const ImVec2  BUTTON_PADDING        = ImVec2(4.f, 4.f);
 
     GameMainMenu();
 
@@ -54,6 +55,7 @@ private:
     int    m_num_buttons;
     int    m_kb_focus_index; // -1 = no focus; 0+ = button index
     int    m_kb_enter_index; // Focus positon when enter key was pressed.
+    bool DrawIcon(Ogre::TexturePtr tex);
 };
 
 } // namespace GUI
