@@ -29,7 +29,10 @@
 
 #include <alc.h>
 
-void RoR::GUI::GameSettings::Draw()
+using namespace RoR;
+using namespace GUI;
+
+void GameSettings::Draw()
 {
     const int flags = ImGuiWindowFlags_NoCollapse;
     ImGui::SetNextWindowSize(ImVec2(670.f, 400.f), ImGuiCond_FirstUseEver);
@@ -421,7 +424,7 @@ void RoR::GUI::GameSettings::Draw()
     }
 }
 
-void RoR::GUI::GameSettings::SetVisible(bool v)
+void GameSettings::SetVisible(bool v)
 {
     m_is_visible = v;
     if (v)

@@ -34,7 +34,10 @@
 
 #include <imgui.h>
 
-void RoR::GUI::VehicleDescription::Draw()
+using namespace RoR;
+using namespace GUI;
+
+void VehicleDescription::Draw()
 {
     Actor* actor = App::GetGameContext()->GetPlayerActor();
     if (!actor)

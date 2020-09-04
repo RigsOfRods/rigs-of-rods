@@ -35,7 +35,10 @@
 #include "RoRVersion.h"
 #include "RoRnet.h" // for version string
 
-RoR::GUI::GameMainMenu::GameMainMenu(): 
+using namespace RoR;
+using namespace GUI;
+
+GameMainMenu::GameMainMenu(): 
     m_is_visible(false), m_num_buttons(5), m_kb_focus_index(-1), m_kb_enter_index(-1)
 {
     if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
@@ -44,13 +47,13 @@ RoR::GUI::GameMainMenu::GameMainMenu():
     }
 }
 
-void RoR::GUI::GameMainMenu::Draw()
+void GameMainMenu::Draw()
 {
     this->DrawMenuPanel();
     this->DrawVersionBox();
 }
 
-void RoR::GUI::GameMainMenu::DrawMenuPanel()
+void GameMainMenu::DrawMenuPanel()
 {
     // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
     if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
@@ -157,10 +160,10 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
     m_kb_enter_index = -1;
 }
 
-void RoR::GUI::GameMainMenu::DrawVersionBox()
+void GameMainMenu::DrawVersionBox()
 {
     const float margin = ImGui::GetIO().DisplaySize.y / 30.f;
-    RoR::Str<200> game_ver, rornet_ver;
+    Str<200> game_ver, rornet_ver;
     game_ver << _L("Game version") << ": " << ROR_VERSION_STRING;
     rornet_ver << _L("Net. protocol") << ": " << RORNET_VERSION;
     float text_w = std::max(

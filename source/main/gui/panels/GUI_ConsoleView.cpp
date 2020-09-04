@@ -32,13 +32,14 @@
 #include <stdio.h> // sscanf
 
 using namespace RoR;
+using namespace GUI;
 using namespace Ogre;
 
 inline void color2i(ImVec4 v, int&r, int&g, int&b) { r=(int)(v.x*255); g=(int)(v.y*255); b=(int)(v.z*255); }
 
 static const int LINE_BUF_MAX = 5000;
 
-void GUI::ConsoleView::DrawConsoleMessages()
+void ConsoleView::DrawConsoleMessages()
 {
     // Update pre-filtered message list
     int num_incoming = this->UpdateMessages();
@@ -131,7 +132,7 @@ void GUI::ConsoleView::DrawConsoleMessages()
     drawlist->ChannelsMerge();
 }
 
-ImVec2 GUI::ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
+ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
 {
     Str<LINE_BUF_MAX> line;
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
@@ -203,7 +204,7 @@ ImVec2 GUI::ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
     return this->DrawColorMarkedText(cursor, icon, base_color, line.ToCStr());
 }
 
-void GUI::ConsoleView::DrawFilteringOptions()
+void ConsoleView::DrawFilteringOptions()
 {
     ImGui::TextDisabled(_LC("Console", "By area:"));
     m_reload_messages |= ImGui::MenuItem(_LC("Console", "Logfile echo"), "", &cvw_filter_area_echo);
@@ -220,7 +221,7 @@ void GUI::ConsoleView::DrawFilteringOptions()
     m_reload_messages |= ImGui::MenuItem(_LC("Console", "Commands"), "", &cvw_filter_type_cmd);
 }
 
-bool GUI::ConsoleView::MessageFilter(Console::Message const& m)
+bool ConsoleView::MessageFilter(Console::Message const& m)
 {
     const bool area_ok =
         (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_INFO) ||
@@ -241,7 +242,7 @@ bool GUI::ConsoleView::MessageFilter(Console::Message const& m)
     return type_ok && area_ok;
 }
 
-ImVec2 GUI::ConsoleView::DrawColorMarkedText(ImVec2 bg_cursor, Ogre::TexturePtr icon, ImVec4 default_color, std::string const& line)
+ImVec2 ConsoleView::DrawColorMarkedText(ImVec2 bg_cursor, Ogre::TexturePtr icon, ImVec4 default_color, std::string const& line)
 {
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
 
@@ -307,7 +308,7 @@ ImVec2 GUI::ConsoleView::DrawColorMarkedText(ImVec2 bg_cursor, Ogre::TexturePtr 
     return bg_rect_size;
 }
 
-int GUI::ConsoleView::UpdateMessages()
+int ConsoleView::UpdateMessages()
 {
     // Lock the console
     Console::MsgLockGuard lock(App::GetConsole());

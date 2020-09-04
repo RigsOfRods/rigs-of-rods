@@ -26,14 +26,15 @@
 #include "Language.h"
 
 using namespace RoR;
+using namespace GUI;
 using namespace Ogre;
 
-GUI::ConsoleWindow::ConsoleWindow()
+ConsoleWindow::ConsoleWindow()
 {
     m_console_view.cvw_enable_scrolling = true;
 }
 
-void GUI::ConsoleWindow::Draw()
+void ConsoleWindow::Draw()
 {
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar;
     ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
@@ -82,7 +83,7 @@ void GUI::ConsoleWindow::Draw()
     ImGui::EndChild();
 
     const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory;
-    if (ImGui::InputText(_LC("Console", "Command"), m_cmd_buffer.GetBuffer(), m_cmd_buffer.GetCapacity(), cmd_flags, &GUI::ConsoleWindow::TextEditCallback, this))
+    if (ImGui::InputText(_LC("Console", "Command"), m_cmd_buffer.GetBuffer(), m_cmd_buffer.GetCapacity(), cmd_flags, &ConsoleWindow::TextEditCallback, this))
     {
         this->DoCommand(m_cmd_buffer.ToCStr());
         m_cmd_buffer.Clear();
@@ -97,7 +98,7 @@ void GUI::ConsoleWindow::Draw()
     }
 }
 
-void GUI::ConsoleWindow::DoCommand(std::string msg) // All commands are processed here
+void ConsoleWindow::DoCommand(std::string msg) // All commands are processed here
 {
     Ogre::StringUtil::trim(msg);
     if (msg.empty())
@@ -116,14 +117,14 @@ void GUI::ConsoleWindow::DoCommand(std::string msg) // All commands are processe
     App::GetConsole()->DoCommand(msg);
 }
 
-int GUI::ConsoleWindow::TextEditCallback(ImGuiTextEditCallbackData *data)
+int ConsoleWindow::TextEditCallback(ImGuiTextEditCallbackData *data)
 {
     ConsoleWindow* c = static_cast<ConsoleWindow*>(data->UserData);
     c->TextEditCallbackProc(data);
     return 0;
 }
 
-void GUI::ConsoleWindow::TextEditCallbackProc(ImGuiTextEditCallbackData *data)
+void ConsoleWindow::TextEditCallbackProc(ImGuiTextEditCallbackData *data)
 {
     if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory)
     {

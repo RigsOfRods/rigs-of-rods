@@ -24,7 +24,10 @@
 #include "GameContext.h"
 #include "GUIManager.h"
 
-void RoR::GUI::NodeBeamUtils::Draw()
+using namespace RoR;
+using namespace GUI;
+
+void NodeBeamUtils::Draw()
 {
     Actor* actor = App::GetGameContext()->GetPlayerActor();
     if (!actor)
@@ -178,7 +181,7 @@ void RoR::GUI::NodeBeamUtils::Draw()
     }
 }
 
-void RoR::GUI::NodeBeamUtils::SetVisible(bool v)
+void NodeBeamUtils::SetVisible(bool v)
 {
     m_is_visible = v;
     if (!v)

@@ -29,7 +29,10 @@
 #include "GUIManager.h"
 #include "Utils.h"
 
-void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
+using namespace RoR;
+using namespace GUI;
+
+void SimActorStats::Draw(RoR::GfxActor* actorx)
 {
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
 
@@ -217,7 +220,7 @@ void RoR::GUI::SimActorStats::Draw(RoR::GfxActor* actorx)
     ImGui::End();
 }
 
-void RoR::GUI::SimActorStats::UpdateStats(float dt, Actor* actor)
+void SimActorStats::UpdateStats(float dt, Actor* actor)
 {
     //taken from TruckHUD.cpp (now removed)
     beam_t* beam = actor->ar_beams;

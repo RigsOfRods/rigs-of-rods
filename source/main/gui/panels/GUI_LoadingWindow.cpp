@@ -27,8 +27,9 @@
 #include "Language.h"
 
 using namespace RoR;
+using namespace GUI;
 
-void GUI::LoadingWindow::SetProgress(int percent, std::string const& text, bool render_frame/*=true*/)
+void LoadingWindow::SetProgress(int percent, std::string const& text, bool render_frame/*=true*/)
 {
     if (render_frame && m_timer.getMilliseconds() > 10)
     {
@@ -68,7 +69,7 @@ void GUI::LoadingWindow::SetProgress(int percent, std::string const& text, bool 
     RoR::Log(msg);
 }
 
-void GUI::LoadingWindow::SetProgressNetConnect(const std::string& net_status)
+void LoadingWindow::SetProgressNetConnect(const std::string& net_status)
 {
     Str<500> text;
     text << "Joining [" << App::mp_server_host->GetStr() << ":" << App::mp_server_port->GetInt() << "]";
@@ -76,7 +77,7 @@ void GUI::LoadingWindow::SetProgressNetConnect(const std::string& net_status)
     this->SetProgress(PERC_SHOW_SPINNER, text.ToCStr());
 }
 
-void GUI::LoadingWindow::Draw()
+void LoadingWindow::Draw()
 {
     // Height calc
     float text_h = ImGui::CalcTextSize("A").y;

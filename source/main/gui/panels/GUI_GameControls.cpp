@@ -26,8 +26,8 @@
 #include "GUIManager.h"
 #include "InputEngine.h"
 
-namespace RoR {
-namespace GUI {
+using namespace RoR;
+using namespace GUI;
 
 void GameControls::Draw()
 {
@@ -888,6 +888,3 @@ void GameControls::Draw()
     }    
     ImGui::End();
 }
-
-} // namespace GUI
-} // namespace RoR

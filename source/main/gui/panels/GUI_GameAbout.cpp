@@ -32,9 +32,12 @@
 #include "Utils.h"
 #include "RoRnet.h"
 
-void RoR::GUI::GameAbout::Draw()
+using namespace RoR;
+using namespace GUI;
+
+void GameAbout::Draw()
 {
-    RoR::GUIManager::GuiTheme const& theme = RoR::App::GetGuiManager()->GetTheme();
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGui::SetNextWindowSize(ImVec2(475.f, ImGui::GetIO().DisplaySize.y - 40.f), ImGuiCond_Appearing);
     ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
@@ -152,10 +155,10 @@ void RoR::GUI::GameAbout::Draw()
     }
 }
 
-void RoR::GUI::GameAbout::SetVisible(bool v)
+void GameAbout::SetVisible(bool v)
 {
     m_is_visible = v;
-    if(!v && (App::app_state->GetEnum<AppState>() == RoR::AppState::MAIN_MENU))
+    if(!v && (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU))
     {
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }

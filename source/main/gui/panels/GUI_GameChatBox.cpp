@@ -30,7 +30,10 @@
 #include <cstring> // strtok, strncmp
 #include <imgui.h>
 
-RoR::GUI::GameChatBox::GameChatBox()
+using namespace RoR;
+using namespace GUI;
+
+GameChatBox::GameChatBox()
 {
     m_console_view.cvw_filter_area_actor = false; // Disable vehicle spawn warnings/errors
     m_console_view.cvw_filter_type_error = false; // Disable errors
@@ -39,7 +42,7 @@ RoR::GUI::GameChatBox::GameChatBox()
     m_console_view.cvw_background_padding = ImVec2(2,1);
 }
 
-void RoR::GUI::GameChatBox::Draw()
+void GameChatBox::Draw()
 {
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
@@ -70,7 +73,7 @@ void RoR::GUI::GameChatBox::Draw()
 
     if (initialized == true)
     {
-        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, "Welcome to Rigs of Rods!", "", 10000, false);
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, "Welcome to Rigs of Rods!", "", 10000, false);
         initialized = false;
     }
 
@@ -133,7 +136,7 @@ void RoR::GUI::GameChatBox::Draw()
         const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
         if (ImGui::InputText("", m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
         {
-            if (RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
+            if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
             {
                 this->SubmitMessage();
             }
@@ -149,7 +152,7 @@ void RoR::GUI::GameChatBox::Draw()
     ImGui::PopStyleVar(); // WindowPadding
 }
 
-void RoR::GUI::GameChatBox::SubmitMessage()
+void GameChatBox::SubmitMessage()
 {
 #ifdef USE_SOCKETW
     if (m_msg_buffer.IsEmpty())
