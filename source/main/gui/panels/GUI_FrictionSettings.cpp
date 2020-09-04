@@ -36,7 +36,10 @@
 #include "TerrainManager.h"
 #include "Utils.h"
 
-void RoR::GUI::FrictionSettings::Draw()
+using namespace RoR;
+using namespace GUI;
+
+void FrictionSettings::Draw()
 {
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
     bool keep_open = true;
@@ -121,15 +124,15 @@ void RoR::GUI::FrictionSettings::Draw()
 }
 
 // Static helper
-bool RoR::GUI::FrictionSettings::GmComboItemGetter(void* data, int idx, const char** out_text)
+bool FrictionSettings::GmComboItemGetter(void* data, int idx, const char** out_text)
 {
-    auto items = static_cast<std::vector<RoR::GUI::FrictionSettings::Entry>*>(data);
+    auto items = static_cast<std::vector<FrictionSettings::Entry>*>(data);
     if (out_text)
         *out_text = (*items)[idx].live_data->name;
     return true;
 }
 
-void RoR::GUI::FrictionSettings::AnalyzeTerrain()
+void FrictionSettings::AnalyzeTerrain()
 {
     auto itor = App::GetSimTerrain()->GetCollisions()->getGroundModels()->begin();
     auto endi = App::GetSimTerrain()->GetCollisions()->getGroundModels()->end();
@@ -139,7 +142,7 @@ void RoR::GUI::FrictionSettings::AnalyzeTerrain()
     }
 }
 
-void RoR::GUI::FrictionSettings::DrawTooltip(const char* title, const char* text)
+void FrictionSettings::DrawTooltip(const char* title, const char* text)
 {
     ImGui::SameLine();
     ImGui::TextDisabled("[?]");

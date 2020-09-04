@@ -43,7 +43,10 @@
 
 #include <algorithm>
 
-void RoR::GUI::TopMenubar::Update()
+using namespace RoR;
+using namespace GUI;
+
+void TopMenubar::Update()
 {
     // ## ImGui's 'menubar' and 'menuitem' features won't quite cut it...
     // ## Let's do our own menus and menuitems using buttons and coloring tricks.
@@ -639,7 +642,7 @@ void RoR::GUI::TopMenubar::Update()
     ImGui::PopStyleColor(2); // WindowBg, Button
 }
 
-bool RoR::GUI::TopMenubar::ShouldDisplay(ImVec2 window_pos)
+bool TopMenubar::ShouldDisplay(ImVec2 window_pos)
 {
     ImVec2 box_min(0,0);
     ImVec2 box_max(ImGui::GetIO().DisplaySize.x, ImGui::GetStyle().WindowPadding.y + PANEL_HOVERBOX_HEIGHT);
@@ -657,7 +660,7 @@ bool RoR::GUI::TopMenubar::ShouldDisplay(ImVec2 window_pos)
     return (menu_hovered || window_hovered);
 }
 
-void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
+void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 {
     // Count actors owned by the player
     unsigned int num_actors_player = 0;
@@ -707,7 +710,7 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
     }
 }
 
-void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
+void TopMenubar::DrawActorListSinglePlayer()
 {
     std::vector<Actor*> actor_list;
     for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
@@ -768,7 +771,7 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
     }
 }
 
-void RoR::GUI::TopMenubar::DrawSpecialStateBox(float top_offset)
+void TopMenubar::DrawSpecialStateBox(float top_offset)
 {
     std::string special_text;
     ImVec4 special_color = ImGui::GetStyle().Colors[ImGuiCol_Text]; // Regular color

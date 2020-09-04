@@ -31,8 +31,8 @@
 #include "PlatformUtils.h"
 #include "Utils.h"
 
-namespace RoR {
-namespace GUI {
+using namespace RoR;
+using namespace GUI;
 
 void TextureToolWindow::Draw()
 {
@@ -177,6 +177,3 @@ void TextureToolWindow::SaveTexture(std::string texName, bool usePNG)
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, str, "error.png");
     }
 }
-
-} // namespace GUI
-} // namespace RoR

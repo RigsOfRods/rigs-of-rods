@@ -38,9 +38,11 @@
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
 
+using namespace RoR;
+using namespace GUI;
 using namespace Ogre;
 
-void RoR::GUI::SurveyMap::Draw()
+void SurveyMap::Draw()
 {
     // Check special cases
     if ((mMapMode == SurveyMapMode::BIG &&
@@ -230,7 +232,7 @@ void RoR::GUI::SurveyMap::Draw()
     ImGui::PopStyleVar(2); // WindowPadding, WindowRounding
 }
 
-void RoR::GUI::SurveyMap::CreateTerrainTextures()
+void SurveyMap::CreateTerrainTextures()
 {
     mMapCenterOffset     = Ogre::Vector2::ZERO; // Reset, maybe new terrain was loaded
     AxisAlignedBox aab   = App::GetSimTerrain()->getTerrainCollisionAAB();
@@ -264,7 +266,7 @@ void RoR::GUI::SurveyMap::CreateTerrainTextures()
 }
 
 
-void RoR::GUI::SurveyMap::setMapZoom(float zoom)
+void SurveyMap::setMapZoom(float zoom)
 {
     zoom = Math::Clamp(zoom, 0.0f, std::max(0.0f, (mTerrainSize.x - 50.0f) / mTerrainSize.x));
 
@@ -274,13 +276,13 @@ void RoR::GUI::SurveyMap::setMapZoom(float zoom)
     mMapZoom = zoom;
 }
 
-void RoR::GUI::SurveyMap::setMapZoomRelative(float delta)
+void SurveyMap::setMapZoomRelative(float delta)
 {
     setMapZoom(mMapZoom + 0.5f * delta * (1.0f - mMapZoom));
 }
 
 
-const char* RoR::GUI::SurveyMap::getTypeByDriveable(int driveable)
+const char* SurveyMap::getTypeByDriveable(int driveable)
 {
     switch (driveable)
     {
@@ -299,7 +301,7 @@ const char* RoR::GUI::SurveyMap::getTypeByDriveable(int driveable)
     }
 }
 
-void RoR::GUI::SurveyMap::CycleMode()
+void SurveyMap::CycleMode()
 {
     switch (mMapMode)
     {
@@ -310,12 +312,12 @@ void RoR::GUI::SurveyMap::CycleMode()
     }
 }
 
-void RoR::GUI::SurveyMap::ToggleMode()
+void SurveyMap::ToggleMode()
 {
     mMapMode = (mMapMode == SurveyMapMode::NONE) ? mMapLastMode : SurveyMapMode::NONE;
 }
 
-void RoR::GUI::SurveyMap::DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin,
+void SurveyMap::DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin,
                                       std::string const& filename, std::string const& caption, 
                                       float pos_x, float pos_y, float angle)
 {
@@ -323,7 +325,7 @@ void RoR::GUI::SurveyMap::DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::V
     try
     {
         tex = Ogre::TextureManager::getSingleton().load(
-            filename, RoR::ContentManager::ResourcePack::TEXTURES.resource_group_name);
+            filename, ContentManager::ResourcePack::TEXTURES.resource_group_name);
     }
     catch (Ogre::FileNotFoundException)
     {
@@ -334,7 +336,7 @@ void RoR::GUI::SurveyMap::DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::V
         try
         {
             tex = Ogre::TextureManager::getSingleton().load(
-                "icon_missing.dds", RoR::ContentManager::ResourcePack::TEXTURES.resource_group_name);
+                "icon_missing.dds", ContentManager::ResourcePack::TEXTURES.resource_group_name);
         }
         catch (Ogre::FileNotFoundException)
         {

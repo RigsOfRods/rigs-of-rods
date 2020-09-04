@@ -29,11 +29,14 @@
 #include "GameContext.h"
 #include "GUIManager.h"
 
-RoR::GUI::GamePauseMenu::GamePauseMenu(): 
+using namespace RoR;
+using namespace GUI;
+
+GamePauseMenu::GamePauseMenu(): 
     m_kb_focus_index(-1), m_kb_enter_index(-1)
 {}
 
-void RoR::GUI::GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cleanup and unify the logic! ~ only_a_ptr, 06/2017
+void GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cleanup and unify the logic! ~ only_a_ptr, 06/2017
 {
     // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
     if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))

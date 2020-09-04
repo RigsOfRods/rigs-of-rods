@@ -29,18 +29,20 @@
 #include "GUIManager.h"
 #include "ScriptEngine.h"
 
-
 #include <imgui.h>
 
-RoR::GUI::MessageBoxDialog::MessageBoxDialog():
+using namespace RoR;
+using namespace GUI;
+
+MessageBoxDialog::MessageBoxDialog():
     m_close_handle(nullptr),
     m_is_visible(false)
 {}
 
-RoR::GUI::MessageBoxDialog::~MessageBoxDialog()
+MessageBoxDialog::~MessageBoxDialog()
 {}
 
-void RoR::GUI::MessageBoxDialog::Draw()
+void MessageBoxDialog::Draw()
 {
     const bool was_visible = m_is_visible;
 
@@ -77,7 +79,7 @@ void RoR::GUI::MessageBoxDialog::Draw()
     }
 }
 
-void RoR::GUI::MessageBoxDialog::Show(const char* title, const char* text, bool allow_close, const char* button1_text, const char* button2_text)
+void MessageBoxDialog::Show(const char* title, const char* text, bool allow_close, const char* button1_text, const char* button2_text)
 {
     m_is_visible = true;
     m_title = title;
