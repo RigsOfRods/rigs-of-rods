@@ -72,10 +72,17 @@ void RoR::GUI::GameMainMenu::DrawMenuPanel()
     ImGui::PushStyleColor(ImGuiCol_WindowBg, WINDOW_BG_COLOR);
     ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_BG_COLOR);
 
-    ImGui::SetNextWindowPos(ImVec2(((ImGui::GetIO().DisplaySize.x / 2) - (WINDOW_HEIGHT / 2)), theme.screen_edge_padding.y));
-    ImGui::SetNextWindowContentWidth(WINDOW_HEIGHT);
+    float CONTENT_WIDTH = 785.f;
 
-    int  flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
+    if (!FileExists(PathCombine(App::sys_savegames_dir->GetActiveStr(), "autosave.sav")))
+    {
+        CONTENT_WIDTH = CONTENT_WIDTH - 120;
+    }
+
+    ImGui::SetNextWindowContentWidth(CONTENT_WIDTH);
+    ImGui::SetNextWindowPos(ImVec2(((ImGui::GetIO().DisplaySize.x / 2) - (CONTENT_WIDTH / 2)), theme.screen_edge_padding.y));
+
+    int  flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
     if (App::GetGuiManager()->IsVisible_MainSelector() || App::GetGuiManager()->IsVisible_MultiplayerSelector() || App::GetGuiManager()->IsVisible_GameSettings() || App::GetGuiManager()->IsVisible_GameAbout())
     {
         flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoInputs;
