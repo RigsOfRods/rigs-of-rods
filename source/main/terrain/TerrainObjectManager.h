@@ -47,11 +47,14 @@ public:
     {
         Ogre::String name;
         Ogre::String instance_name;
-        Ogre::Vector3 position;
-        Ogre::Vector3 rotation;
-        Ogre::Vector3 initial_position;
-        Ogre::Vector3 initial_rotation;
-        Ogre::SceneNode* node;
+        Ogre::String type;
+        Ogre::Vector3 position = Ogre::Vector3::ZERO;
+        Ogre::Vector3 rotation = Ogre::Vector3::ZERO;
+        Ogre::Vector3 initial_position = Ogre::Vector3::ZERO;
+        Ogre::Vector3 initial_rotation = Ogre::Vector3::ZERO;
+        Ogre::SceneNode* node = nullptr;
+        bool enable_collisions = true;
+        int script_handler = -1;
     };
 
     struct MapEntity
@@ -112,8 +115,6 @@ public:
 
 protected:
 
-    RoR::ODefFile* FetchODef(std::string const & odef_name);
-
     struct AnimatedObject
     {
         Ogre::Entity* ent;
@@ -142,7 +143,17 @@ protected:
         std::vector<int> collTris;
     };
 
+    // ODef processing functions
+
+    RoR::ODefFile* FetchODef(std::string const & odef_name);
+    void           ProcessODefCollisionBoxes(StaticObject* obj, ODefFile* odef, const EditorObject& params);
+
+    // Misc functions
+
     bool           UpdateAnimatedObjects(float dt);
+
+    // Variables
+
     std::vector<localizer_t> localizers;
     std::unordered_map<std::string, std::shared_ptr<RoR::ODefFile>> m_odef_cache;
     std::map<std::string, StaticObject>   m_static_objects;
