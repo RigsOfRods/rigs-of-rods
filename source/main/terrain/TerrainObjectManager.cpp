@@ -598,11 +598,14 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     EditorObject object;
     object.name = name;
     object.instance_name = instancename;
+    object.type = type;
     object.position = pos;
     object.rotation = rot;
     object.initial_position = pos;
     object.initial_rotation = rot;
     object.node = tenode;
+    object.enable_collisions = enable_collisions;
+    object.script_handler = scripthandler;
     m_editor_objects.push_back(object);
 
     if (mo && uniquifyMaterial && !instancename.empty())
@@ -657,16 +660,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         terrainManager->GetCollisions()->loadGroundModelsConfigFile(gmodel_file);
     }
 
-    for (ODefCollisionBox& cbox : odef->collision_boxes)
-    {
-        int boxnum = terrainManager->GetCollisions()->addCollisionBox(
-            tenode, cbox.is_rotating, cbox.is_virtual, pos, rot,
-            cbox.aabb_min, cbox.aabb_max, cbox.box_rot, cbox.event_name,
-            instancename, cbox.force_cam_pos, cbox.cam_pos,
-            cbox.scale, cbox.direction, cbox.event_filter, scripthandler);
-
-        obj->collBoxes.push_back(boxnum);
-    }
+    this->ProcessODefCollisionBoxes(obj, odef, object);
 
     for (ODefCollisionMesh& cmesh : odef->collision_meshes)
     {
@@ -939,4 +933,46 @@ bool TerrainObjectManager::UpdateTerrainObjects(float dt)
     this->UpdateAnimatedObjects(dt);
 
     return true;
+}
+
+void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile* odef, const EditorObject& params)
+{
+    for (ODefCollisionBox& cbox : odef->collision_boxes)
+    {
+        bool race_event = !params.instance_name.compare(0, 10, "checkpoint") ||
+                          !params.instance_name.compare(0,  4, "race");
+
+        if (params.enable_collisions && (App::sim_races_enabled->GetBool() || !race_event))
+        {
+            int boxnum = terrainManager->GetCollisions()->addCollisionBox(
+                params.node, cbox.is_rotating, cbox.is_virtual, params.position, params.rotation,
+                cbox.aabb_min, cbox.aabb_max, cbox.box_rot, cbox.event_name,
+                params.instance_name, cbox.force_cam_pos, cbox.cam_pos,
+                cbox.scale, cbox.direction, cbox.event_filter, params.script_handler);
+
+            obj->collBoxes.push_back(boxnum);
+
+            if (race_event)
+            {
+                String type = "checkpoint";
+                auto res = StringUtil::split(params.instance_name, "|");
+                if ((res.size() == 4 && res[2] == "0") || !params.instance_name.compare(0, 4, "race"))
+                {
+                    type = "racestart";
+                }
+                int race_id = res.size() > 1 ? StringConverter::parseInt(res[1], -1) : -1;
+                m_map_entities.push_back({type, "", params.position, params.rotation.y, race_id});
+            }
+            else if (!params.type.empty())
+            {
+                String caption = "";
+                if (params.type == "station" || params.type == "hotel" || params.type == "village" ||
+                        params.type == "observatory" || params.type == "farm" || params.type == "ship")
+                {
+                    caption = params.instance_name + " " + params.type;
+                }
+                m_map_entities.push_back({params.type, caption, params.position, params.rotation.y, -1});
+            }
+        }
+    }
 }
