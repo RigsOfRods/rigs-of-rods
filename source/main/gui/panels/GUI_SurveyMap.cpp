@@ -212,7 +212,7 @@ void SurveyMap::Draw()
             std::string caption = (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
             this->DrawMapIcon(tl_screen_pos, view_size, view_origin, fileName.ToCStr(), caption, 
                 simbuf.simbuf_pos.x, simbuf.simbuf_pos.z, simbuf.simbuf_rotation);
-    }
+        }
 
         // Draw character icons
         for (GfxCharacter* gfx_character: App::GetGfxScene()->GetGfxCharacters())
