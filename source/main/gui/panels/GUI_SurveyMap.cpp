@@ -352,7 +352,7 @@ void SurveyMap::DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 vie
 
     ImVec2 img_pos;
     img_pos.x = view_pos.x + ((pos_x - view_origin.x) / terrn_size_adj.x) * view_size.x;
-    img_pos.y = view_pos.y + ((pos_y - view_origin.y) / terrn_size_adj.x) * view_size.y;
+    img_pos.y = view_pos.y + ((pos_y - view_origin.y) / terrn_size_adj.y) * view_size.y;
 
     DrawImageRotated(reinterpret_cast<ImTextureID>(tex->getHandle()), img_pos,
         ImVec2(tex->getWidth(), tex->getHeight()), angle);
