@@ -2431,7 +2431,7 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
     //flaps
     if (flag_state & ANIM_FLAG_FLAP)
     {
-        float flaps = flapangles[ar_aerial_flap];
+        float flaps = FLAP_ANGLES[ar_aerial_flap];
         // cstate limited to -1.0f
         cstate = flaps;
         div++;
@@ -3242,15 +3242,15 @@ void Actor::updateVisual(float dt)
         if (ar_wings[i].fa->type == 'e' || ar_wings[i].fa->type == 'S' || ar_wings[i].fa->type == 'T')
             ar_wings[i].fa->setControlDeflection(autoelevator);
         if (ar_wings[i].fa->type == 'f')
-            ar_wings[i].fa->setControlDeflection(flapangles[ar_aerial_flap]);
+            ar_wings[i].fa->setControlDeflection(FLAP_ANGLES[ar_aerial_flap]);
         if (ar_wings[i].fa->type == 'c' || ar_wings[i].fa->type == 'V')
             ar_wings[i].fa->setControlDeflection((autoaileron + autoelevator) / 2.0);
         if (ar_wings[i].fa->type == 'd' || ar_wings[i].fa->type == 'U')
             ar_wings[i].fa->setControlDeflection((-autoaileron + autoelevator) / 2.0);
         if (ar_wings[i].fa->type == 'g')
-            ar_wings[i].fa->setControlDeflection((autoaileron + flapangles[ar_aerial_flap]) / 2.0);
+            ar_wings[i].fa->setControlDeflection((autoaileron + FLAP_ANGLES[ar_aerial_flap]) / 2.0);
         if (ar_wings[i].fa->type == 'h')
-            ar_wings[i].fa->setControlDeflection((-autoaileron + flapangles[ar_aerial_flap]) / 2.0);
+            ar_wings[i].fa->setControlDeflection((-autoaileron + FLAP_ANGLES[ar_aerial_flap]) / 2.0);
         if (ar_wings[i].fa->type == 'i')
             ar_wings[i].fa->setControlDeflection((-autoelevator + autorudder) / 2.0);
         if (ar_wings[i].fa->type == 'j')
