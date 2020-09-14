@@ -80,7 +80,8 @@ enum ActorType //!< Aka 'Driveable'
     AI,             //!< machine controlled by an Artificial Intelligence
 };
 
-enum {
+enum SpecialBeam: short
+{
     NOSHOCK,        //!< not a shock
     SHOCK1,         //!< shock1
     SHOCK2,         //!< shock2
@@ -89,6 +90,7 @@ enum {
     SUPPORTBEAM,    //!<
     ROPE            //!<
 };
+
 enum blinktype {
     BLINK_NONE,     //!<
     BLINK_LEFT,     //!<
@@ -266,7 +268,7 @@ struct beam_t
     Ogre::Real      stress;
     Ogre::Real      plastic_coef;
     int             detacher_group;        //!< Attribute: detacher group number (integer)
-    short           bounded;               //!< { SHOCK1=1, SHOCK2=2, SHOCK3=3, TRIGGER=4, SUPPORTBEAM=5, ROPE=6 }
+    SpecialBeam     bounded;
     BeamType        bm_type;
     bool            bm_inter_actor;        //!< in case p2 is on another actor
     Actor*          bm_locked_actor;       //!< in case p2 is on another actor
