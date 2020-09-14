@@ -3045,7 +3045,6 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
         m_actor->ar_command_key[def.longbound_trigger_action].trigger_cmdkeyblock_state = false;
     }
 
-    unsigned int hydro_type = BEAM_HYDRO;
     unsigned int shock_flags = SHOCK_FLAG_NORMAL | SHOCK_FLAG_ISTRIGGER;
     float short_limit = def.contraction_trigger_limit;
     float long_limit = def.expansion_trigger_limit;
@@ -3121,7 +3120,7 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     }
     int beam_index = m_actor->ar_num_beams;
     beam_t & beam = AddBeam(GetNode(node_1_index), GetNode(node_2_index), def.beam_defaults, def.detacher_group);
-    beam.bm_type = hydro_type;
+    beam.bm_type = BEAM_HYDRO;
     SetBeamStrength(beam, def.beam_defaults->breaking_threshold);
     SetBeamSpring(beam, 0.f);
     SetBeamDamping(beam, 0.f);
@@ -4883,7 +4882,7 @@ unsigned int ActorSpawner::AddWheelBeam(
     std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
     float max_contraction,   /* Default: -1.f */
     float max_extension,     /* Default: -1.f */
-    int type                 /* Default: BEAM_INVISIBLE */
+    BeamType type            /* Default: BEAM_INVISIBLE */
 )
 {
     unsigned int index = m_actor->ar_num_beams;

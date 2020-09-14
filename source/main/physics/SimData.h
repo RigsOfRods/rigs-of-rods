@@ -55,8 +55,8 @@ enum HookAction
     MOUSE_HOOK_TOGGLE,
 };
 
-/* Enumerations */
-enum {
+enum BeamType: short
+{
     BEAM_NORMAL,
     BEAM_HYDRO,
     BEAM_VIRTUAL,         //!< Excluded from mass calculations, visuals permanently disabled
@@ -264,7 +264,7 @@ struct beam_t
     Ogre::Real      plastic_coef;
     int             detacher_group;        //!< Attribute: detacher group number (integer)
     short           bounded;               //!< { SHOCK1=1, SHOCK2=2, SHOCK3=3, TRIGGER=4, SUPPORTBEAM=5, ROPE=6 }
-    short           bm_type;               //!< { BEAM_NORMAL, BEAM_HYDRO, BEAM_VIRTUAL }
+    BeamType        bm_type;
     bool            bm_inter_actor;        //!< in case p2 is on another actor
     Actor*          bm_locked_actor;       //!< in case p2 is on another actor
     bool            bm_disabled;
