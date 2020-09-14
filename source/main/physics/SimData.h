@@ -47,7 +47,8 @@ enum CollisionEventFilter: short
     EVENT_DELETE
 };
 
-enum hook_states {
+enum HookAction
+{
     HOOK_LOCK=0,
     HOOK_UNLOCK,
     HOOK_TOGGLE,
