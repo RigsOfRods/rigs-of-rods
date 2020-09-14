@@ -254,15 +254,15 @@ bool ODefParser::ProcessCurrentLine()
         sscanf(line_str.c_str(), "event %s %s", ev_name, ev_type);
         m_ctx.cbox_event_name = ev_name;
 
-             if (!strncmp(ev_type, "avatar",    6)) { m_ctx.cbox_event_filter = ODef::EventType::AVATAR;   }
-        else if (!strncmp(ev_type, "truck",     5)) { m_ctx.cbox_event_filter = ODef::EventType::TRUCK;    }
-        else if (!strncmp(ev_type, "airplane",  8)) { m_ctx.cbox_event_filter = ODef::EventType::AIRPLANE; }
-        else if (!strncmp(ev_type, "boat",      4)) { m_ctx.cbox_event_filter = ODef::EventType::BOAT;     }
-        else if (!strncmp(ev_type, "delete",    6)) { m_ctx.cbox_event_filter = ODef::EventType::DELETE;   }
-        else                                        { m_ctx.cbox_event_filter = ODef::EventType::NONE;     }
+             if (!strncmp(ev_type, "avatar",    6)) { m_ctx.cbox_event_filter = EVENT_AVATAR;   }
+        else if (!strncmp(ev_type, "truck",     5)) { m_ctx.cbox_event_filter = EVENT_TRUCK;    }
+        else if (!strncmp(ev_type, "airplane",  8)) { m_ctx.cbox_event_filter = EVENT_AIRPLANE; }
+        else if (!strncmp(ev_type, "boat",      4)) { m_ctx.cbox_event_filter = EVENT_BOAT;     }
+        else if (!strncmp(ev_type, "delete",    6)) { m_ctx.cbox_event_filter = EVENT_DELETE;   }
+        else                                        { m_ctx.cbox_event_filter = EVENT_NONE;     }
 
         // hack to avoid fps drops near spawnzones
-        if (!strncmp(ev_name, "spawnzone", 9)) { m_ctx.cbox_event_filter = ODef::EventType::AVATAR; }
+        if (!strncmp(ev_name, "spawnzone", 9)) { m_ctx.cbox_event_filter = EVENT_AVATAR; }
     }
     else if (line_str == "endbox")
     {
@@ -270,7 +270,7 @@ bool ODefParser::ProcessCurrentLine()
             m_ctx.cbox_aabb_min, m_ctx.cbox_aabb_max,
             m_ctx.cbox_rotation, m_ctx.cbox_cam_pos,
             m_ctx.cbox_direction, m_ctx.header_scale,
-            m_ctx.cbox_event_name, static_cast<int>(m_ctx.cbox_event_filter),
+            m_ctx.cbox_event_name, m_ctx.cbox_event_filter,
             m_ctx.cbox_is_rotating, m_ctx.cbox_is_virtual, m_ctx.cbox_force_cam);
     }
     else if (line_str == "endmesh")
@@ -287,7 +287,7 @@ void ODefParser::ResetCBoxContext()
     m_ctx.cbox_is_rotating = false;
     m_ctx.cbox_is_virtual = false;
     m_ctx.cbox_force_cam = false;
-    m_ctx.cbox_event_filter = ODef::EventType::NONE;
+    m_ctx.cbox_event_filter = EVENT_NONE;
     m_ctx.cbox_event_name.clear();
     m_ctx.cbox_mesh_name.clear();
     m_ctx.cbox_groundmodel_name = "concrete";

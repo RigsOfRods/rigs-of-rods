@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "SimData.h"
+
 #include <OgreColourValue.h>
 #include <OgreDataStream.h>
 #include <OgreVector3.h>
@@ -44,37 +46,27 @@ namespace ODef {
         VOR,
     };
 
-    enum class EventType
-    {
-        NONE,
-        AVATAR,
-        TRUCK,
-        AIRPLANE,
-        BOAT,
-        DELETE,
-    };
-
 } // namespace ODef
 
 struct ODefCollisionBox
 {
     ODefCollisionBox(Ogre::Vector3 min, Ogre::Vector3 max, Ogre::Vector3 rot,
         Ogre::Vector3 campos, Ogre::Vector3 dir, Ogre::Vector3 scal,
-        std::string ev_name, int ev_filter, bool is_rot, bool is_virt, bool forcecam):
+        std::string ev_name, CollisionEventFilter ev_filter, bool is_rot, bool is_virt, bool forcecam):
 
         aabb_min(min), aabb_max(max), box_rot(rot), cam_pos(campos), direction(dir), scale(scal),
         event_name(ev_name), event_filter(ev_filter),
         is_rotating(is_rot), is_virtual(is_virt), force_cam_pos(forcecam)
     {}
 
-    Ogre::Vector3 aabb_min;
-    Ogre::Vector3 aabb_max;
-    Ogre::Vector3 box_rot;
-    Ogre::Vector3 cam_pos;
-    Ogre::Vector3 direction;
-    Ogre::Vector3 scale;
-    std::string   event_name;
-    int           event_filter;
+    Ogre::Vector3        aabb_min;
+    Ogre::Vector3        aabb_max;
+    Ogre::Vector3        box_rot;
+    Ogre::Vector3        cam_pos;
+    Ogre::Vector3        direction;
+    Ogre::Vector3        scale;
+    std::string          event_name;
+    CollisionEventFilter event_filter;
 
     // Flags
     bool is_rotating:1;
@@ -175,22 +167,22 @@ private:
 
     struct ODefParserContext
     {
-        bool                header_done;
-        std::string         header_mesh_name;
-        Ogre::Vector3       header_scale;
+        bool                 header_done;
+        std::string          header_mesh_name;
+        Ogre::Vector3        header_scale;
         // Collision boxes or meshes
-        Ogre::Vector3       cbox_direction;
-        bool                cbox_is_rotating;
-        bool                cbox_is_virtual;
-        bool                cbox_force_cam;
-        Ogre::Vector3       cbox_rotation;
-        Ogre::Vector3       cbox_cam_pos; //!< Section 'forcecamera'
-        ODef::EventType     cbox_event_filter;
-        std::string         cbox_event_name;
-        std::string         cbox_mesh_name;
-        std::string         cbox_groundmodel_name;
-        Ogre::Vector3       cbox_aabb_min;
-        Ogre::Vector3       cbox_aabb_max;
+        Ogre::Vector3        cbox_direction;
+        bool                 cbox_is_rotating;
+        bool                 cbox_is_virtual;
+        bool                 cbox_force_cam;
+        Ogre::Vector3        cbox_rotation;
+        Ogre::Vector3        cbox_cam_pos; //!< Section 'forcecamera'
+        CollisionEventFilter cbox_event_filter;
+        std::string          cbox_event_name;
+        std::string          cbox_mesh_name;
+        std::string          cbox_groundmodel_name;
+        Ogre::Vector3        cbox_aabb_min;
+        Ogre::Vector3        cbox_aabb_max;
     }                          m_ctx; //!< Parser context
 
     std::shared_ptr<ODefFile>  m_def;
