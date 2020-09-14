@@ -222,7 +222,7 @@ public:
     int                       GetNumFlexbodies   () const { return static_cast<int>(m_flexbodies.size()); }
     void                      ResetFlexbodies    ();
     void                      SetFlexbodiesVisible(bool visible);
-    int                       GetActorDriveable  () const;
+    ActorType                 GetActorDriveable  () const;
     void                      RegisterAirbrakes  ();
     void                      UpdateAirbrakes    ();
     void                      UpdateCParticles   ();

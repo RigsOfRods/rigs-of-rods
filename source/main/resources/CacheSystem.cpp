@@ -95,7 +95,7 @@ CacheEntry::CacheEntry() :
     custom_particles(false),
     customtach(false),
     deleted(false),
-    driveable(0), // driveable = 0 = NOT_DRIVEABLE
+    driveable(NOT_DRIVEABLE),
     enginetype('t'), // enginetype = t = truck is default
     exhaustscount(0),
     fileformatversion(0),
@@ -342,7 +342,7 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
     out_entry.forwardcommands =   j_entry["forwardcommands"].GetBool();
     out_entry.importcommands =    j_entry["importcommands"].GetBool();
     out_entry.rescuer =           j_entry["rescuer"].GetBool();
-    out_entry.driveable =         j_entry["driveable"].GetInt();
+    out_entry.driveable =         ActorType(j_entry["driveable"].GetInt());
     out_entry.numgears =          j_entry["numgears"].GetInt();
     out_entry.enginetype =        static_cast<char>(j_entry["enginetype"].GetInt());
 
@@ -804,7 +804,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     /* NOTE: RigDef::File allows modularization of vehicle type. Cache only supports single type.
         This is a temporary solution which has undefined results for mixed-type vehicles.
     */
-    int vehicle_type = NOT_DRIVEABLE;
+    ActorType vehicle_type = NOT_DRIVEABLE;
     module_itor = def->user_modules.begin();
     for (; module_itor != def->user_modules.end(); module_itor++)
     {

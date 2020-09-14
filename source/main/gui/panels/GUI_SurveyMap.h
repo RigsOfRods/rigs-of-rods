@@ -24,6 +24,7 @@
 /// @file
 
 #include "Application.h"
+#include "SimData.h"
 
 #include "OgreImGui.h"
 #include "SurveyMapTextureCreator.h"
@@ -68,6 +69,7 @@ protected:
 
     void setMapZoom(float zoom);
     void setMapZoomRelative(float dt_sec);
+    const char* getTypeByDriveable(ActorType driveable);
 
     void DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin,
                      std::string const& filename, std::string const& caption, 

@@ -1946,7 +1946,11 @@ void RoR::GfxActor::SetWheelsVisible(bool value)
 
 int RoR::GfxActor::GetActorId          () const { return m_actor->ar_instance_id; }
 int RoR::GfxActor::GetActorState       () const { return static_cast<int>(m_actor->ar_sim_state); }
-int RoR::GfxActor::GetActorDriveable   () const { return m_actor->ar_driveable; }
+
+ActorType RoR::GfxActor::GetActorDriveable() const
+{
+    return m_actor->ar_driveable;
+}
 
 void RoR::GfxActor::RegisterAirbrakes()
 {

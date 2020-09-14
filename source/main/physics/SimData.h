@@ -70,7 +70,8 @@ enum HookState
     LOCKED          //!< lock locked.
 };
 
-enum {
+enum ActorType //!< Aka 'Driveable'
+{
     NOT_DRIVEABLE,  //!< not drivable at all
     TRUCK,          //!< its a truck (or other land vehicle)
     AIRPLANE,       //!< its an airplane
