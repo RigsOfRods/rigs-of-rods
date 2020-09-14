@@ -203,7 +203,9 @@ TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry& entry)
 
     loading_window->SetProgress(90, _L("Initializing terrain light properties"));
     terrn_mgr->m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
+    App::SetSimTerrain(terrn_mgr.get()); // Hack for the Collision debug visual
     terrn_mgr->m_collisions->finishLoadingTerrain();
+    App::SetSimTerrain(nullptr); // END Hack for the Collision debug visual
 
     terrn_mgr->LoadTelepoints(); // *.terrn2 file feature
 

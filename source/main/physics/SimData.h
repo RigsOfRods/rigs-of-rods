@@ -36,8 +36,9 @@
 
 namespace RoR {
 
-enum event_types {
-    EVENT_NONE=0,
+enum CollisionEventFilter: short
+{
+    EVENT_NONE = 0,
     EVENT_ALL,
     EVENT_AVATAR,
     EVENT_TRUCK,
@@ -558,7 +559,7 @@ struct collision_box_t
     bool selfrotated;
     bool camforced;
     bool enabled;
-    short event_filter;
+    CollisionEventFilter event_filter;
     short eventsourcenum;
     Ogre::Vector3 lo;           //!< absolute collision box
     Ogre::Vector3 hi;           //!< absolute collision box
