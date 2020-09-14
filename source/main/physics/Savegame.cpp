@@ -545,7 +545,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
             int locked_actor = hooks[i]["locked_actor"].GetInt();
             if (lock_node != -1 && locked_actor != -1 && actors[locked_actor] != nullptr)
             {
-                actor->ar_hooks[i].hk_locked = hooks[i]["locked"].GetInt();
+                actor->ar_hooks[i].hk_locked = HookState(hooks[i]["locked"].GetInt());
                 actor->ar_hooks[i].hk_locked_actor = actors[locked_actor];
                 actor->ar_hooks[i].hk_lock_node = &actors[locked_actor]->ar_nodes[lock_node];
                 if (actor->ar_hooks[i].hk_beam->bm_inter_actor)
