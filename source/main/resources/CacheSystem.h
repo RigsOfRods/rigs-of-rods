@@ -28,6 +28,7 @@
 
 #include "Application.h"
 #include "RigDef_File.h"
+#include "SimData.h"
 
 #include <Ogre.h>
 #include <rapidjson/document.h>
@@ -115,7 +116,7 @@ public:
     bool importcommands;
     bool rescuer;
 
-    int driveable;
+    ActorType driveable;
     int numgears;
     char enginetype;
     std::vector<Ogre::String> sectionconfigs;

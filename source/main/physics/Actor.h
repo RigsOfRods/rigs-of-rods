@@ -277,7 +277,7 @@ public:
     int               ar_exhaust_dir_node; //!< Old-format exhaust (one per vehicle) backwards direction node
     int               ar_instance_id;              //!< Static attr; session-unique ID
     unsigned int      ar_vector_index;             //!< Sim attr; actor element index in std::vector<m_actors>
-    int               ar_driveable;                //!< Sim attr; marks vehicle type and features
+    ActorType         ar_driveable;                //!< Sim attr; marks vehicle type and features
     EngineSim*        ar_engine;
     int               ar_cinecam_node[MAX_CAMERAS];//!< Sim attr; Cine-camera node indexes
     int               ar_num_cinecams;             //!< Sim attr;

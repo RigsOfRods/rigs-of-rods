@@ -282,7 +282,7 @@ void SurveyMap::setMapZoomRelative(float delta)
 }
 
 
-const char* SurveyMap::getTypeByDriveable(int driveable)
+const char* SurveyMap::getTypeByDriveable(ActorType driveable)
 {
     switch (driveable)
     {
