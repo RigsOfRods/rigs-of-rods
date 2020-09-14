@@ -184,10 +184,6 @@ enum {
     TRG_ENGINE_SHIFTDOWN = 5 
 };
 
-enum {
-    DEFAULT_DETACHER_GROUP  = 0, // default for detaching beam group
-};
-
 enum class FlareType: char
 {
     NONE           = 0,
