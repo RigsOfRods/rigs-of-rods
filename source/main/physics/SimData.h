@@ -99,7 +99,8 @@ enum BlinkType //!< Turn signal
     BLINK_WARN      //!<
 };
 
-enum {
+enum HydroFlags
+{
     HYDRO_FLAG_SPEED        = BITMASK(1),
     HYDRO_FLAG_DIR          = BITMASK(2),
     HYDRO_FLAG_AILERON      = BITMASK(3),
@@ -110,7 +111,8 @@ enum {
     HYDRO_FLAG_REV_ELEVATOR = BITMASK(8),
 };
 
-enum {
+enum AnimFlags
+{
     ANIM_FLAG_AIRSPEED      = BITMASK(1),
     ANIM_FLAG_VVI           = BITMASK(2),
     ANIM_FLAG_ALTIMETER     = BITMASK(3),
@@ -145,7 +147,8 @@ enum {
     ANIM_FLAG_ELEVATORS     = BITMASK(32),
 };
 
-enum {
+enum AnimModes
+{
     ANIM_MODE_ROTA_X        = BITMASK(1),
     ANIM_MODE_ROTA_Y        = BITMASK(2),
     ANIM_MODE_ROTA_Z        = BITMASK(3),
@@ -157,22 +160,23 @@ enum {
     ANIM_MODE_BOUNCE        = BITMASK(9),
 };
 
-enum {
-    SHOCK_FLAG_NORMAL			= BITMASK(1),
-    SHOCK_FLAG_LACTIVE			= BITMASK(3),
-    SHOCK_FLAG_RACTIVE			= BITMASK(4),
-    SHOCK_FLAG_ISSHOCK2			= BITMASK(5),
-    SHOCK_FLAG_ISSHOCK3			= BITMASK(6),
-    SHOCK_FLAG_SOFTBUMP			= BITMASK(7),
-    SHOCK_FLAG_ISTRIGGER		= BITMASK(8),
-    SHOCK_FLAG_TRG_BLOCKER		= BITMASK(9),
-    SHOCK_FLAG_TRG_CMD_SWITCH	= BITMASK(10),
-    SHOCK_FLAG_TRG_CMD_BLOCKER	= BITMASK(11),
-    SHOCK_FLAG_TRG_BLOCKER_A	= BITMASK(12),
-    SHOCK_FLAG_TRG_HOOK_UNLOCK 	= BITMASK(13),
-    SHOCK_FLAG_TRG_HOOK_LOCK   	= BITMASK(14),
-    SHOCK_FLAG_TRG_CONTINUOUS	= BITMASK(15),
-    SHOCK_FLAG_TRG_ENGINE		= BITMASK(16)
+enum ShockFlags
+{
+    SHOCK_FLAG_NORMAL           = BITMASK(1),
+    SHOCK_FLAG_LACTIVE          = BITMASK(3),
+    SHOCK_FLAG_RACTIVE          = BITMASK(4),
+    SHOCK_FLAG_ISSHOCK2         = BITMASK(5),
+    SHOCK_FLAG_ISSHOCK3         = BITMASK(6),
+    SHOCK_FLAG_SOFTBUMP         = BITMASK(7),
+    SHOCK_FLAG_ISTRIGGER        = BITMASK(8),
+    SHOCK_FLAG_TRG_BLOCKER      = BITMASK(9),
+    SHOCK_FLAG_TRG_CMD_SWITCH   = BITMASK(10),
+    SHOCK_FLAG_TRG_CMD_BLOCKER  = BITMASK(11),
+    SHOCK_FLAG_TRG_BLOCKER_A    = BITMASK(12),
+    SHOCK_FLAG_TRG_HOOK_UNLOCK  = BITMASK(13),
+    SHOCK_FLAG_TRG_HOOK_LOCK    = BITMASK(14),
+    SHOCK_FLAG_TRG_CONTINUOUS   = BITMASK(15),
+    SHOCK_FLAG_TRG_ENGINE       = BITMASK(16)
 };
 
 enum EngineTriggerType
@@ -197,6 +201,7 @@ enum class FlareType: char
 };
 
 static const float flapangles[6] = {0.f, -0.07f, -0.17f, -0.33f, -0.67f, -1.f};
+
 
 // --------------------------------
 // Soft body physics
@@ -552,8 +557,8 @@ struct cparticle_t
 };
 
 
-
-// some non-beam structs
+// --------------------------------
+// some non-actor structs
 
 
 struct collision_box_t
