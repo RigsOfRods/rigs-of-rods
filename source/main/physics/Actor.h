@@ -90,7 +90,7 @@ public:
     void              ToggleTies(int group=-1);
     void              ToggleRopes(int group=-1);            //!< Event handler
     void              ToggleHooks(int group=-1, HookAction mode=HOOK_TOGGLE, int node_number=-1); //!< Event handler
-    void              EngineTriggerHelper(int engineNumber, int type, float triggerValue);
+    void              EngineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              ToggleSlideNodeLock();
     void              ToggleCustomParticles();
     void              ToggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
