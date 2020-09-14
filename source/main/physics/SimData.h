@@ -91,7 +91,8 @@ enum SpecialBeam: short
     ROPE            //!<
 };
 
-enum blinktype {
+enum BlinkType //!< Turn signal
+{
     BLINK_NONE,     //!<
     BLINK_LEFT,     //!<
     BLINK_RIGHT,    //!<
