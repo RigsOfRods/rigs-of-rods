@@ -62,12 +62,14 @@ enum BeamType: short
     BEAM_VIRTUAL,         //!< Excluded from mass calculations, visuals permanently disabled
 };
 
-enum {
+enum HookState
+{
     UNLOCKED,       //!< lock not locked
     PREUNLOCK,      //!< preunlocking, inter-actor beam deletion in progress
     PRELOCK,        //!< prelocking, attraction forces in action
     LOCKED          //!< lock locked.
 };
+
 enum {
     NOT_DRIVEABLE,  //!< not drivable at all
     TRUCK,          //!< its a truck (or other land vehicle)
@@ -379,7 +381,7 @@ struct wheel_t
 
 struct hook_t
 {
-    int     hk_locked;
+    HookState hk_locked;
     int     hk_group;
     int     hk_lockgroup;
     bool    hk_selflock;
