@@ -596,7 +596,7 @@ void Actor::CalcNetwork()
     m_tractioncontrol = flagmask & NETMASK_TC_ACTIVE;
     ar_parking_brake = flagmask & NETMASK_PBRAKE;
 
-    blinktype btype = BLINK_NONE;
+    BlinkType btype = BLINK_NONE;
     if ((flagmask & NETMASK_BLINK_LEFT) != 0)
         btype = BLINK_LEFT;
     else if ((flagmask & NETMASK_BLINK_RIGHT) != 0)
@@ -1935,7 +1935,7 @@ void Actor::sendStreamData()
         send_oob->brake = ar_brake;
         send_oob->wheelspeed = ar_wheel_speed;
 
-        blinktype b = getBlinkType();
+        BlinkType b = getBlinkType();
         if (b == BLINK_LEFT)
             send_oob->flagmask += NETMASK_BLINK_LEFT;
         else if (b == BLINK_RIGHT)
@@ -3067,7 +3067,7 @@ void Actor::UpdateFlareStates(float dt)
         m_custom_light_toggle_countdown = 0.2;
 }
 
-void Actor::toggleBlinkType(blinktype blink)
+void Actor::toggleBlinkType(BlinkType blink)
 {
     if (m_blink_type == blink)
         setBlinkType(BLINK_NONE);
@@ -3075,7 +3075,7 @@ void Actor::toggleBlinkType(blinktype blink)
         setBlinkType(blink);
 }
 
-void Actor::setBlinkType(blinktype blink)
+void Actor::setBlinkType(BlinkType blink)
 {
     m_blink_type = blink;
 
@@ -4528,7 +4528,7 @@ bool Actor::getBeaconMode() // Angelscript export
     return m_beacon_light_is_active;
 }
 
-blinktype Actor::getBlinkType()
+BlinkType Actor::getBlinkType()
 {
     return m_blink_type;
 }

@@ -139,8 +139,8 @@ public:
     bool              getCustomLightVisible(int number);
     void              setCustomLightVisible(int number, bool visible);
     bool              getBeaconMode();
-    void              toggleBlinkType(blinktype blink);
-    void              setBlinkType(blinktype blink);
+    void              toggleBlinkType(BlinkType blink);
+    void              setBlinkType(BlinkType blink);
     void              setAirbrakeIntensity(float intensity);
     bool              getCustomParticleMode();
     void              sendStreamData();
@@ -154,7 +154,7 @@ public:
     void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
     void              SoftReset();
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
-    blinktype         getBlinkType();
+    BlinkType         getBlinkType();
     std::vector<authorinfo_t>     getAuthors();
     std::vector<std::string>      getDescription();
     Ogre::String     GetSectionConfig()                 { return m_section_config; }
@@ -446,7 +446,7 @@ private:
     Ogre::Real        m_min_camera_radius;
     Ogre::Vector3     m_avg_node_position_prev;
     Ogre::Vector3     m_avg_node_velocity;          //!< average node velocity (compared to the previous frame step)
-    blinktype         m_blink_type;                 //!< Sim state; Blinker = turn signal
+    BlinkType         m_blink_type;                 //!< Sim state; Blinker = turn signal
     float             m_stabilizer_shock_sleep;     //!< Sim state
     Replay*           m_replay_handler;
     float             m_total_mass;            //!< Physics state; total mass in Kg
