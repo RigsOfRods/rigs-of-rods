@@ -175,7 +175,8 @@ enum {
     SHOCK_FLAG_TRG_ENGINE		= BITMASK(16)
 };
 
-enum {
+enum EngineTriggerType
+{
     TRG_ENGINE_CLUTCH    = 0,
     TRG_ENGINE_BRAKE     = 1,
     TRG_ENGINE_ACC       = 2,
