@@ -2852,7 +2852,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     //flaps
     if (flag_state & PROP_ANIM_FLAG_FLAP)
     {
-        float flaps = flapangles[m_simbuf.simbuf_aero_flap_state];
+        float flaps = FLAP_ANGLES[m_simbuf.simbuf_aero_flap_state];
         // cstate limited to -1.0f
         cstate = flaps;
         div++;
