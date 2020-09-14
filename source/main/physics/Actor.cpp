@@ -3595,7 +3595,7 @@ void Actor::ToggleRopes(int group)
     }
 }
 
-void Actor::ToggleHooks(int group, hook_states mode, int node_number)
+void Actor::ToggleHooks(int group, HookAction mode, int node_number)
 {
     // iterate over all hooks
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)

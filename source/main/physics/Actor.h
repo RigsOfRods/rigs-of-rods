@@ -89,7 +89,7 @@ public:
     void              ToggleLights();                      //!< Event handler
     void              ToggleTies(int group=-1);
     void              ToggleRopes(int group=-1);            //!< Event handler
-    void              ToggleHooks(int group=-1, hook_states mode=HOOK_TOGGLE, int node_number=-1); //!< Event handler
+    void              ToggleHooks(int group=-1, HookAction mode=HOOK_TOGGLE, int node_number=-1); //!< Event handler
     void              EngineTriggerHelper(int engineNumber, int type, float triggerValue);
     void              ToggleSlideNodeLock();
     void              ToggleCustomParticles();
