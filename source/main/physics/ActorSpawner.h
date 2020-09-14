@@ -983,7 +983,7 @@ private:
         std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
         float max_contraction = -1.f,
         float max_extension = -1.f,
-        int type = BEAM_NORMAL /* Anonymous enum in SimData.h */
+        BeamType type = BEAM_NORMAL
     );
 
     /**
