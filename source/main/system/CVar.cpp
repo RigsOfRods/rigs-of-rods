@@ -26,6 +26,25 @@
 
 using namespace RoR;
 
+void CVar::LogStr(const char* op, std::string const& old_val, std::string const& new_val)
+{
+    if (!Ogre::LogManager::getSingletonPtr())
+        return;
+
+    Str<100> flags_str;
+    if (m_flags & CVAR_AUTO_APPLY) { flags_str << " [autoapply]"; }
+    if (m_flags & CVAR_AUTO_STORE) { flags_str << " [autostore]"; }
+    LogFormat(CVAR_LOG_FMT, m_name.c_str(), op, new_val.c_str(), old_val.c_str(), flags_str.ToCStr());
+}
+
+void CVar::LogVal(const char* op, float old_val, float new_val)
+{
+    if (!Ogre::LogManager::getSingletonPtr())
+        return;
+
+    this->LogStr(op, Val::ConvertStr(old_val, m_flags), Val::ConvertStr(new_val, m_flags));
+}
+
 void Console::CVarSetupBuiltins()
 {
     App::app_state               = this->CVarCreate("app_state",               "",                                                                CVAR_TYPE_INT,     "0"/*(int)AppState::BOOTSTRAP*/);
@@ -34,7 +53,7 @@ void Console::CVarSetupBuiltins()
     App::app_skip_main_menu      = this->CVarCreate("app_skip_main_menu",      "SkipMainMenu",               CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");
     App::app_async_physics       = this->CVarCreate("app_async_physics",       "AsyncPhysics",               CVAR_ALLOW_STORE                   | CVAR_TYPE_BOOL,    "true");
     App::app_num_workers         = this->CVarCreate("app_num_workers",         "NumWorkerThreads",           CVAR_ALLOW_STORE);
-    App::app_screenshot_format   = this->CVarCreate("app_screenshot_format",   "Screenshot Format",          CVAR_ALLOW_STORE | CVAR_AUTO_APPLY,                     "png");
+    App::app_screenshot_format   = this->CVarCreate("app_screenshot_format",   "Screenshot Format",          CVAR_ALLOW_STORE,                                       "png");
     App::app_rendersys_override  = this->CVarCreate("app_rendersys_override",  "Render system",              CVAR_ALLOW_STORE | CVAR_AUTO_APPLY);   
     App::app_extra_mod_path      = this->CVarCreate("app_extra_mod_path",      "Extra mod path",             CVAR_ALLOW_STORE | CVAR_AUTO_APPLY);   
     App::app_force_cache_purge   = this->CVarCreate("app_force_cache_purge",   "",                           CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");
@@ -64,9 +83,9 @@ void Console::CVarSetupBuiltins()
     App::mp_pseudo_collisions    = this->CVarCreate("mp_pseudo_collisions",    "Multiplayer collisions",     CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");
     App::mp_server_host          = this->CVarCreate("mp_server_host",          "Server name",                CVAR_ALLOW_STORE);
     App::mp_server_port          = this->CVarCreate("mp_server_port",          "Server port",                CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_INT);
-    App::mp_server_password      = this->CVarCreate("mp_server_password",      "Server password",            CVAR_ALLOW_STORE | CVAR_NO_LOG);       
+    App::mp_server_password      = this->CVarCreate("mp_server_password",      "Server password",            CVAR_ALLOW_STORE);       
     App::mp_player_name          = this->CVarCreate("mp_player_name",          "Nickname",                   CVAR_ALLOW_STORE,                                       "Player");
-    App::mp_player_token         = this->CVarCreate("mp_player_token",         "User Token",                 CVAR_ALLOW_STORE | CVAR_NO_LOG);          
+    App::mp_player_token         = this->CVarCreate("mp_player_token",         "User Token",                 CVAR_ALLOW_STORE);          
     App::mp_api_url              = this->CVarCreate("mp_api_url",              "Online API URL",             CVAR_ALLOW_STORE | CVAR_AUTO_APPLY,                     "http://api.rigsofrods.org");
 
     App::diag_auto_spawner_report= this->CVarCreate("diag_auto_spawner_report","AutoActorSpawnerReport",     CVAR_ALLOW_STORE | CVAR_AUTO_APPLY | CVAR_TYPE_BOOL,    "false");
@@ -254,16 +273,3 @@ CVar* Console::CVarGet(std::string const& input_name, int flags)
     return this->CVarCreate(input_name, input_name, flags);
 }
 
-void CVar::LogUpdate(const char* op, std::string const& old_val, std::string const& new_val)
-{
-    if (!Ogre::LogManager::getSingletonPtr())
-        return;
-
-    if (m_flags & CVAR_NO_LOG)
-        return;
-
-    Str<100> flags_str;
-    if (m_flags & CVAR_AUTO_APPLY) { flags_str << " [autoapply]"; }
-    if (m_flags & CVAR_AUTO_STORE) { flags_str << " [autostore]"; }
-    LogFormat(CVAR_LOG_FMT, m_name.c_str(), op, new_val.c_str(), old_val.c_str(), flags_str.ToCStr());
-}

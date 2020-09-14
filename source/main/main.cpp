@@ -326,10 +326,6 @@ int main(int argc, char *argv[])
         {
             App::app_state->SetPendingVal((int)AppState::SIMULATION);
         }
-        else if (App::sim_savegame->GetActiveStr() != App::sim_savegame->GetPendingStr())
-        {
-            App::app_state->SetPendingVal((int)AppState::SIMULATION);
-        }
 
         while (App::app_state->GetPendingEnum<AppState>() != AppState::SHUTDOWN)
         {
@@ -337,6 +333,11 @@ int main(int argc, char *argv[])
 
             {
                 App::app_state->ApplyPending();
+
+                if (App::sim_savegame->GetActiveStr() != App::sim_savegame->GetPendingStr())
+                {
+                    App::app_state->SetPendingVal((int)AppState::SIMULATION);
+                }
 
 #ifdef USE_OPENAL
                 if (App::audio_menu_music->GetActiveVal<bool>())
