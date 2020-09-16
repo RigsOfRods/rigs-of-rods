@@ -123,18 +123,22 @@ bool ODefParser::ProcessCurrentLine()
     }
     else if (StartsWith(line_str, "sound"))
     {
-        char tmp[255]="";
-        sscanf(line_str.c_str(), "sound %s", tmp);
+        char tmp[201] = "";
+        sscanf(line_str.c_str(), "sound %200s", tmp);
         m_def->sounds.push_back(tmp);
     }
     else if (StartsWith(line_str, "particleSystem"))
     {
         ODefParticleSys psys;
-        int res = sscanf(line_str.c_str(), "particleSystem %f, %f, %f, %f, %s %s", 
-            &psys.scale, &psys.pos.x, &psys.pos.y, &psys.pos.z, psys.instance_name, psys.template_name);
+        char instance_name[201] = "";
+        char template_name[201] = "";
+        int res = sscanf(line_str.c_str(), "particleSystem %f, %f, %f, %f, %200s %200s", 
+            &psys.scale, &psys.pos.x, &psys.pos.y, &psys.pos.z, instance_name, template_name);
 
         if (res == 6)
         {
+            psys.instance_name = instance_name;
+            psys.template_name = template_name;
             m_def->particle_systems.push_back(psys);
         }
     }
@@ -149,9 +153,10 @@ bool ODefParser::ProcessCurrentLine()
     else if (StartsWith(line_str, "playanimation"))
     {
         ODefAnimation anim;
-        Str<100> anim_name;
-        sscanf(line_str.c_str(), "playanimation %f, %f, %100s", &anim.speed_min, &anim.speed_max, anim_name.GetBuffer());
-        if (anim_name != "")
+        char anim_name[201] = "";
+        sscanf(line_str.c_str(), "playanimation %f, %f, %200s", &anim.speed_min, &anim.speed_max, anim_name);
+        anim.name = anim_name;
+        if (anim.name != "")
         {
             m_def->animations.push_back(anim);
         }
@@ -159,13 +164,19 @@ bool ODefParser::ProcessCurrentLine()
     else if (StartsWith(line_str, "drawTextOnMeshTexture"))
     {
         ODefTexPrint tp;
+        char font_name[201] = "";
+        char text[501] = "";
         int res = sscanf(line_str.c_str(),
-            "drawTextOnMeshTexture %f, %f, %f, %f, %f, %f, %f, %f, %c, %i, %i, %s %s", 
+            "drawTextOnMeshTexture %f, %f, %f, %f, %f, %f, %f, %f, %c, %i, %i, %200s %500s", 
             &tp.x, &tp.y, &tp.w, &tp.h, &tp.r, &tp.g, &tp.b, &tp.a,
-            &tp.option, &tp.font_size, &tp.font_dpi, tp.font_name, tp.text);
+            &tp.option, &tp.font_size, &tp.font_dpi, font_name, text);
 
         if (res == 13)
+        {
+            tp.font_name = font_name;
+            tp.text = text;
             m_def->texture_prints.push_back(tp);
+        }
         else
             LOG("[RoR|ODef] Warning: invalid 'drawTextOnMeshTexture' line.");
     }
@@ -215,7 +226,7 @@ bool ODefParser::ProcessCurrentLine()
     else if (StartsWith(line_str, "mesh"))
     {
         char tmp[200] = "";
-        sscanf(line_str.c_str(), "mesh %s", tmp);
+        sscanf(line_str.c_str(), "mesh %200s", tmp);
         m_ctx.cbox_mesh_name = tmp;
     }
     else if (StartsWith(line_str, "rotate"))
@@ -249,9 +260,9 @@ bool ODefParser::ProcessCurrentLine()
     }
     else if (StartsWith(line_str, "event"))
     {
-        char ev_name[300] = "";
-        char ev_type[300] = "";
-        sscanf(line_str.c_str(), "event %s %s", ev_name, ev_type);
+        char ev_name[301] = "";
+        char ev_type[301] = "";
+        sscanf(line_str.c_str(), "event %300s %300s", ev_name, ev_type);
         m_ctx.cbox_event_name = ev_name;
 
              if (!strncmp(ev_type, "avatar",    6)) { m_ctx.cbox_event_filter = EVENT_AVATAR;   }
