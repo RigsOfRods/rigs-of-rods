@@ -23,6 +23,7 @@
 
 #include <Ogre.h>
 #include <OgrePrerequisites.h>
+#include <Bites/OgreWindowEventUtilities.h>
 #include <OIS.h>
 #include <MyGUI.h>
 #include <imgui.h>
@@ -57,5 +58,3 @@
 #include <windows.h>
 #endif
 
-
-#include "RoRPrerequisites.h"
