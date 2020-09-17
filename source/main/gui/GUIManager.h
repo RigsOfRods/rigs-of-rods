@@ -91,7 +91,6 @@ public:
     bool IsVisible_GameAbout            ();
     bool IsVisible_GameSettings         ();
     bool IsVisible_TopMenubar           ();
-    bool IsVisible_MessageBox           ();
     bool IsVisible_MultiplayerSelector  ();
     bool IsVisible_MainSelector         ();
     bool IsVisible_ChatBox              ();
