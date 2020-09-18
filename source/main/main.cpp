@@ -251,6 +251,12 @@ int main(int argc, char *argv[])
         {
             OgreBites::WindowEventUtilities::messagePump();
 
+            // Halt physics (wait for async tasks to finish)
+            if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+            {
+                App::GetGameContext()->GetActorManager()->SyncWithSimThread();
+            }
+
             // Game events
             while (App::GetGameContext()->HasMessages())
             {
@@ -467,7 +473,6 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_SIM_UNLOAD_TERRN_REQUESTED:
-                    App::GetGameContext()->GetActorManager()->SyncWithSimThread(); // Wait for background tasks to finish
                     if (App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
                     {
                         App::GetSimTerrain()->GetTerrainEditor()->WriteOutputFile();
@@ -556,7 +561,6 @@ int main(int argc, char *argv[])
 
                 case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED:
                     {
-                        App::GetGameContext()->GetActorManager()->SyncWithSimThread(); // Wait for background tasks to finish
                         ground_model_t* modified_gm = (ground_model_t*)m.payload;
                         ground_model_t* live_gm = App::GetSimTerrain()->GetCollisions()->getGroundModelByString(modified_gm->name);
                         *live_gm = *modified_gm; // Copy over
@@ -602,12 +606,6 @@ int main(int argc, char *argv[])
             const auto now = std::chrono::high_resolution_clock::now();
             const float dt = std::chrono::duration<float>(now - start_time).count();
             start_time = now;
-
-            // Halt physics (wait for async tasks to finish)
-            if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
-            {
-                App::GetGameContext()->GetActorManager()->SyncWithSimThread();
-            }
 
 #ifdef USE_SOCKETW
             // Process incoming network traffic
