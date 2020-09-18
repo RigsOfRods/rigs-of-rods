@@ -298,6 +298,7 @@ int main(int argc, char *argv[])
                         App::GetContentManager()->InitModCache(CacheSystem::CacheValidityState::CACHE_STATE_UNKNOWN);
                         App::GetGuiManager()->SetVisible_GameMainMenu(true);
                     }
+                    break;
 
                 case MSG_APP_MODCACHE_UPDATE_REQUESTED:
                     if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU) // No actors must be spawned; they keep pointers to CacheEntries
