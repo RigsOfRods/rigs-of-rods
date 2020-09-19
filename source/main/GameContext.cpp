@@ -56,6 +56,15 @@ void GameContext::PushMessage(Message m)
     m_msg_queue.push(m);
 }
 
+void GameContext::ChainMessage(Message m)
+{
+    std::lock_guard<std::mutex> lock(m_msg_mutex);
+    if (!m_msg_queue.empty())
+    {
+        m_msg_queue.back().chain.push_back(m);
+    }
+}
+
 bool GameContext::HasMessages()
 {
     std::lock_guard<std::mutex> lock(m_msg_mutex);

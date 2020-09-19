@@ -49,6 +49,7 @@ struct Message
     MsgType     type         = MSG_INVALID;
     std::string description;
     void*       payload      = nullptr;
+    std::vector<Message> chain; //!< Posted after the message is processed
 };
 
 typedef std::queue < Message, std::list<Message>> GameMsgQueue;
@@ -69,6 +70,7 @@ public:
     // Message queue
 
     void                PushMessage(Message m);
+    void                ChainMessage(Message m); //!< Add to last pushed message's chain
     bool                HasMessages();
     Message             PopMessage();
 
