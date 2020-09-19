@@ -509,6 +509,11 @@ int main(int argc, char *argv[])
                         }
                         else
                         {
+                            if (App::sim_terrain_name->GetStr() != "")
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                            }
+
                             RoR::LogFormat("[RoR|Savegame] Loading terrain '%s' ...", terrn_filename.c_str());
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, terrn_filename));
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, m.description));
