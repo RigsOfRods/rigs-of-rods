@@ -331,12 +331,17 @@ bool ActorManager::LoadScene(Ogre::String filename)
             rq->asr_position.y    = preloaded ? j_entry["position"][1].GetFloat() : j_entry["min_height"].GetFloat();
             rq->asr_position.z    = j_entry["position"][2].GetFloat();
             rq->asr_rotation      = Quaternion(Degree(270) - Radian(j_entry["rotation"].GetFloat()), Vector3::UNIT_Y);
-            rq->asr_skin_entry          = skin;
+            rq->asr_skin_entry    = skin;
             rq->asr_config        = section_config;
             rq->asr_origin        = preloaded ? ActorSpawnRequest::Origin::TERRN_DEF : ActorSpawnRequest::Origin::SAVEGAME;
             rq->asr_free_position = preloaded;
+            // Copy saved state
+            rq->asr_saved_state = std::shared_ptr<rapidjson::Document>(new rapidjson::Document());
+            rq->asr_saved_state->CopyFrom(j_entry, rq->asr_saved_state->GetAllocator());
+
             App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
             actors_changed = true;
+            // CAUTION: `actor` remains nullptr!
         }
 
         actors.push_back(actor);
@@ -364,244 +369,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         Actor* actor = actors[index];
         rapidjson::Value& j_entry = j_doc["actors"][index];
 
-        actor->m_spawn_rotation = j_entry["spawn_rotation"].GetFloat();
-        actor->ar_sim_state = static_cast<Actor::SimState>(j_entry["sim_state"].GetInt());
-        actor->ar_physics_paused = j_entry["physics_paused"].GetBool();
-
-        if (j_entry["player_actor"].GetBool())
-        {
-            if (actors_changed || player_actor != App::GetGameContext()->GetPlayerActor())
-            {
-                App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
-            }
-        } else if (j_entry["prev_player_actor"].GetBool())
-        {
-            if (actors_changed || prev_player_actor != App::GetGameContext()->GetPrevPlayerActor())
-            {
-                App::GetGameContext()->SetPrevPlayerActor(actor);
-            }
-        }
-
-        if (actor->ar_engine)
-        {
-            int gear = j_entry["engine_gear"].GetInt();
-            float rpm = j_entry["engine_rpm"].GetFloat();
-            int automode = j_entry["engine_auto_mode"].GetInt();
-            int autoselect = j_entry["engine_auto_select"].GetInt();
-            bool running = j_entry["engine_is_running"].GetBool();
-            bool contact = j_entry["engine_has_contact"].GetBool();
-            if (running != actor->ar_engine->IsRunning())
-            {
-                if (running)
-                    actor->ar_engine->StartEngine();
-                else
-                    actor->ar_engine->StopEngine();
-            }
-            actor->ar_engine->PushNetworkState(rpm, 0.0f, 0.0f, gear, running, contact, automode, autoselect);
-            actor->ar_engine->SetWheelSpin(j_entry["wheel_spin"].GetFloat() * RAD_PER_SEC_TO_RPM);
-            actor->alb_mode = j_entry["alb_mode"].GetBool();
-            actor->tc_mode = j_entry["tc_mode"].GetBool();
-            actor->cc_mode = j_entry["cc_mode"].GetBool();
-            actor->cc_target_rpm = j_entry["cc_target_rpm"].GetFloat();
-            actor->cc_target_speed = j_entry["cc_target_speed"].GetFloat();
-        }
-
-        actor->ar_hydro_dir_state = j_entry["hydro_dir_state"].GetFloat();
-        actor->ar_hydro_aileron_state = j_entry["hydro_aileron_state"].GetFloat();
-        actor->ar_hydro_rudder_state = j_entry["hydro_rudder_state"].GetFloat();
-        actor->ar_hydro_elevator_state = j_entry["hydro_elevator_state"].GetFloat();
-        actor->ar_parking_brake = j_entry["parking_brake"].GetBool();
-        actor->ar_trailer_parking_brake = j_entry["trailer_parking_brake"].GetBool();
-        actor->ar_avg_wheel_speed = j_entry["avg_wheel_speed"].GetFloat();
-        actor->ar_wheel_speed = j_entry["wheel_speed"].GetFloat();
-        actor->ar_wheel_spin = j_entry["wheel_spin"].GetFloat();
-
-        if (actor->ar_lights != j_entry["lights"].GetInt())
-        {
-            actor->ToggleLights();
-        }
-        actor->m_beacon_light_is_active = j_entry["pp_beacon_light"].GetBool();
-        if (actor->m_custom_particles_enabled != j_entry["custom_particles"].GetBool())
-        {
-            actor->ToggleCustomParticles();
-        }
-
-        auto flares = j_entry["flares"].GetArray();
-        for (int i = 0; i < static_cast<int>(actor->ar_flares.size()); i++)
-        {
-            actor->ar_flares[i].controltoggle_status = flares[i].GetBool();
-        }
-
-        if (actor->m_buoyance)
-        {
-            actor->m_buoyance->sink = j_entry["buoyance_sink"].GetBool();
-        }
-
-        auto aeroengines = j_entry["aeroengines"].GetArray();
-        for (int i = 0; i < actor->ar_num_aeroengines; i++)
-        {
-            actor->ar_aeroengines[i]->setRPM(aeroengines[i]["rpm"].GetFloat());
-            actor->ar_aeroengines[i]->setReverse(aeroengines[i]["reverse"].GetBool());
-            actor->ar_aeroengines[i]->setIgnition(aeroengines[i]["ignition"].GetBool());
-            actor->ar_aeroengines[i]->setThrottle(aeroengines[i]["throttle"].GetFloat());
-        }
-
-        auto screwprops = j_entry["screwprops"].GetArray();
-        for (int i = 0; i < actor->ar_num_screwprops; i++)
-        {
-            actor->ar_screwprops[i]->setRudder(screwprops[i]["rudder"].GetFloat());
-            actor->ar_screwprops[i]->setThrottle(screwprops[i]["throttle"].GetFloat());
-        }
-
-        for (int i = 0; i < actor->ar_num_rotators; i++)
-        {
-            actor->ar_rotators[i].angle = j_entry["rotators"][i].GetFloat();
-        }
-
-        for (int i = 0; i < actor->ar_num_wheels; i++)
-        {
-            if (actor->m_skid_trails[i])
-            {
-                actor->m_skid_trails[i]->reset();
-            }
-            actor->ar_wheels[i].wh_is_detached = j_entry["wheels"][i].GetBool();
-        }
-
-        for (int i = 0; i < actor->m_num_wheel_diffs; i++)
-        {
-            for (int k = 0; k < actor->m_wheel_diffs[i]->GetNumDiffTypes(); k++)
-            {
-                if (actor->m_wheel_diffs[i]->GetActiveDiffType() != j_entry["wheel_diffs"][i].GetInt())
-                    actor->m_wheel_diffs[i]->ToggleDifferentialMode();
-            }
-        }
-
-        for (int i = 0; i < actor->m_num_axle_diffs; i++)
-        {
-            for (int k = 0; k < actor->m_axle_diffs[i]->GetNumDiffTypes(); k++)
-            {
-                if (actor->m_axle_diffs[i]->GetActiveDiffType() != j_entry["axle_diffs"][i].GetInt())
-                    actor->m_axle_diffs[i]->ToggleDifferentialMode();
-            }
-        }
-
-        if (actor->m_transfer_case)
-        {
-            actor->m_transfer_case->tr_4wd_mode = j_entry["transfercase"]["4WD"].GetBool();
-            for (int k = 0; k < actor->m_transfer_case->tr_gear_ratios.size(); k++)
-            {
-                if (actor->m_transfer_case->tr_gear_ratios[0] != j_entry["transfercase"]["GearRatio"].GetFloat())
-                    actor->ToggleTransferCaseGearRatio();
-            }
-        }
-
-        auto commands = j_entry["commands"].GetArray();
-        for (int i = 0; i < MAX_COMMANDS; i++)
-        {
-            auto& command_key = actor->ar_command_key[i];
-            command_key.commandValue = commands[i][0].GetFloat();
-            command_key.triggerInputValue = commands[i][1].GetFloat();
-            auto command_beams = commands[i][2].GetArray();
-            for (int j = 0; j < (int)command_key.beams.size(); j++)
-            {
-                command_key.beams[j].cmb_state->auto_moving_mode = command_beams[j][0].GetInt();
-                command_key.beams[j].cmb_state->pressed_center_mode = command_beams[j][1].GetBool();
-            }
-        }
-
-        auto nodes = j_entry["nodes"].GetArray();
-        for (rapidjson::SizeType i = 0; i < nodes.Size(); i++)
-        {
-            auto data = nodes[i].GetArray();
-            actor->ar_nodes[i].AbsPosition      = Vector3(data[0].GetFloat(), data[1].GetFloat(), data[2].GetFloat());
-            actor->ar_nodes[i].RelPosition      = actor->ar_nodes[i].AbsPosition - actor->ar_origin;
-            actor->ar_nodes[i].Velocity         = Vector3(data[3].GetFloat(), data[4].GetFloat(), data[5].GetFloat());
-            actor->ar_initial_node_positions[i] = Vector3(data[6].GetFloat(), data[7].GetFloat(), data[8].GetFloat());
-        }
-
-        auto beams = j_entry["beams"].GetArray();
-        for (rapidjson::SizeType i = 0; i < beams.Size(); i++)
-        {
-            auto data = beams[i].GetArray();
-            actor->ar_beams[i].maxposstress       = data[0].GetFloat();
-            actor->ar_beams[i].maxnegstress       = data[1].GetFloat();
-            actor->ar_beams[i].minmaxposnegstress = data[2].GetFloat();
-            actor->ar_beams[i].strength           = data[3].GetFloat();
-            actor->ar_beams[i].L                  = data[4].GetFloat();
-            actor->ar_beams[i].bm_broken          = data[5].GetBool();
-            actor->ar_beams[i].bm_disabled        = data[6].GetBool();
-            actor->ar_beams[i].bm_inter_actor     = data[7].GetBool();
-            int locked_actor                      = data[8].GetInt();
-            if (locked_actor != -1 && actors[locked_actor] != nullptr)
-            {
-                actor->AddInterActorBeam(&actor->ar_beams[i], actor, actors[locked_actor]);
-            }
-        }
-
-        auto hooks = j_entry["hooks"].GetArray();
-        for (int i = 0; i < actor->ar_hooks.size(); i++)
-        {
-            int lock_node = hooks[i]["lock_node"].GetInt();
-            int locked_actor = hooks[i]["locked_actor"].GetInt();
-            if (lock_node != -1 && locked_actor != -1 && actors[locked_actor] != nullptr)
-            {
-                actor->ar_hooks[i].hk_locked = HookState(hooks[i]["locked"].GetInt());
-                actor->ar_hooks[i].hk_locked_actor = actors[locked_actor];
-                actor->ar_hooks[i].hk_lock_node = &actors[locked_actor]->ar_nodes[lock_node];
-                if (actor->ar_hooks[i].hk_beam->bm_inter_actor)
-                {
-                    actor->ar_hooks[i].hk_beam->p2 = actor->ar_hooks[i].hk_lock_node;
-                }
-            }
-        }
-
-        auto ropes = j_entry["ropes"].GetArray();
-        for (int i = 0; i < actor->ar_ropes.size(); i++)
-        {
-            int ropable = ropes[i]["locked_ropable"].GetInt();
-            int locked_actor = ropes[i]["locked_actor"].GetInt();
-            if (ropable != -1 && locked_actor != -1 && actors[locked_actor] != nullptr)
-            {
-                actor->ar_ropes[i].rp_locked = ropes[i]["locked"].GetInt();
-                actor->ar_ropes[i].rp_locked_actor = actors[locked_actor];
-                actor->ar_ropes[i].rp_locked_ropable = &actors[locked_actor]->ar_ropables[ropable];
-            }
-        }
-
-        auto ties = j_entry["ties"].GetArray();
-        for (int i = 0; i < actor->ar_ties.size(); i++)
-        {
-            int ropable = ties[i]["locked_ropable"].GetInt();
-            int locked_actor = ties[i]["locked_actor"].GetInt();
-            if (ropable != -1 && locked_actor != -1 && actors[locked_actor] != nullptr)
-            {
-                actor->ar_ties[i].ti_tied  = ties[i]["tied"].GetBool();
-                actor->ar_ties[i].ti_tying = ties[i]["tying"].GetBool();
-                actor->ar_ties[i].ti_locked_actor = actors[locked_actor];
-                actor->ar_ties[i].ti_locked_ropable = &actors[locked_actor]->ar_ropables[ropable];
-                if (actor->ar_ties[i].ti_beam->bm_inter_actor)
-                {
-                    actor->ar_ties[i].ti_beam->p2 = actor->ar_ties[i].ti_locked_ropable->node;
-                }
-            }
-        }
-
-        auto ropables = j_entry["ropables"].GetArray();
-        for (int i = 0; i < actor->ar_ropables.size(); i++)
-        {
-            actor->ar_ropables[i].attached_ties  = ropables[i]["attached_ties"].GetInt();
-            actor->ar_ropables[i].attached_ropes = ropables[i]["attached_ropes"].GetInt();
-        }
-
-        actor->resetSlideNodes();
-        if (actor->m_slidenodes_locked != j_entry["slidenodes_locked"].GetBool())
-        {
-            actor->ToggleSlideNodeLock();
-        }
-
-        actor->UpdateBoundingBoxes();
-        actor->calculateAveragePosition();
-        actor->m_avg_node_position_prev = actor->m_avg_node_position;
+        this->RestoreSavedState(actor, j_entry);
     }
 
     if (filename != "autosave.sav")
@@ -954,4 +722,254 @@ bool ActorManager::SaveScene(Ogre::String filename)
     }
 
     return true;
+}
+
+void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_entry)
+{
+    actor->m_spawn_rotation = j_entry["spawn_rotation"].GetFloat();
+    actor->ar_sim_state = static_cast<Actor::SimState>(j_entry["sim_state"].GetInt());
+    actor->ar_physics_paused = j_entry["physics_paused"].GetBool();
+
+    if (j_entry["player_actor"].GetBool())
+    {
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
+    }
+    else if (j_entry["prev_player_actor"].GetBool())
+    {
+        App::GetGameContext()->SetPrevPlayerActor(actor);
+    }
+
+    if (actor->ar_engine)
+    {
+        int gear = j_entry["engine_gear"].GetInt();
+        float rpm = j_entry["engine_rpm"].GetFloat();
+        int automode = j_entry["engine_auto_mode"].GetInt();
+        int autoselect = j_entry["engine_auto_select"].GetInt();
+        bool running = j_entry["engine_is_running"].GetBool();
+        bool contact = j_entry["engine_has_contact"].GetBool();
+        if (running != actor->ar_engine->IsRunning())
+        {
+            if (running)
+                actor->ar_engine->StartEngine();
+            else
+                actor->ar_engine->StopEngine();
+        }
+        actor->ar_engine->PushNetworkState(rpm, 0.0f, 0.0f, gear, running, contact, automode, autoselect);
+        actor->ar_engine->SetWheelSpin(j_entry["wheel_spin"].GetFloat() * RAD_PER_SEC_TO_RPM);
+        actor->alb_mode = j_entry["alb_mode"].GetBool();
+        actor->tc_mode = j_entry["tc_mode"].GetBool();
+        actor->cc_mode = j_entry["cc_mode"].GetBool();
+        actor->cc_target_rpm = j_entry["cc_target_rpm"].GetFloat();
+        actor->cc_target_speed = j_entry["cc_target_speed"].GetFloat();
+    }
+
+    actor->ar_hydro_dir_state = j_entry["hydro_dir_state"].GetFloat();
+    actor->ar_hydro_aileron_state = j_entry["hydro_aileron_state"].GetFloat();
+    actor->ar_hydro_rudder_state = j_entry["hydro_rudder_state"].GetFloat();
+    actor->ar_hydro_elevator_state = j_entry["hydro_elevator_state"].GetFloat();
+    actor->ar_parking_brake = j_entry["parking_brake"].GetBool();
+    actor->ar_trailer_parking_brake = j_entry["trailer_parking_brake"].GetBool();
+    actor->ar_avg_wheel_speed = j_entry["avg_wheel_speed"].GetFloat();
+    actor->ar_wheel_speed = j_entry["wheel_speed"].GetFloat();
+    actor->ar_wheel_spin = j_entry["wheel_spin"].GetFloat();
+
+    if (actor->ar_lights != j_entry["lights"].GetInt())
+    {
+        actor->ToggleLights();
+    }
+    actor->m_beacon_light_is_active = j_entry["pp_beacon_light"].GetBool();
+    if (actor->m_custom_particles_enabled != j_entry["custom_particles"].GetBool())
+    {
+        actor->ToggleCustomParticles();
+    }
+
+    auto flares = j_entry["flares"].GetArray();
+    for (int i = 0; i < static_cast<int>(actor->ar_flares.size()); i++)
+    {
+        actor->ar_flares[i].controltoggle_status = flares[i].GetBool();
+    }
+
+    if (actor->m_buoyance)
+    {
+        actor->m_buoyance->sink = j_entry["buoyance_sink"].GetBool();
+    }
+
+    auto aeroengines = j_entry["aeroengines"].GetArray();
+    for (int i = 0; i < actor->ar_num_aeroengines; i++)
+    {
+        actor->ar_aeroengines[i]->setRPM(aeroengines[i]["rpm"].GetFloat());
+        actor->ar_aeroengines[i]->setReverse(aeroengines[i]["reverse"].GetBool());
+        actor->ar_aeroengines[i]->setIgnition(aeroengines[i]["ignition"].GetBool());
+        actor->ar_aeroengines[i]->setThrottle(aeroengines[i]["throttle"].GetFloat());
+    }
+
+    auto screwprops = j_entry["screwprops"].GetArray();
+    for (int i = 0; i < actor->ar_num_screwprops; i++)
+    {
+        actor->ar_screwprops[i]->setRudder(screwprops[i]["rudder"].GetFloat());
+        actor->ar_screwprops[i]->setThrottle(screwprops[i]["throttle"].GetFloat());
+    }
+
+    for (int i = 0; i < actor->ar_num_rotators; i++)
+    {
+        actor->ar_rotators[i].angle = j_entry["rotators"][i].GetFloat();
+    }
+
+    for (int i = 0; i < actor->ar_num_wheels; i++)
+    {
+        if (actor->m_skid_trails[i])
+        {
+            actor->m_skid_trails[i]->reset();
+        }
+        actor->ar_wheels[i].wh_is_detached = j_entry["wheels"][i].GetBool();
+    }
+
+    for (int i = 0; i < actor->m_num_wheel_diffs; i++)
+    {
+        for (int k = 0; k < actor->m_wheel_diffs[i]->GetNumDiffTypes(); k++)
+        {
+            if (actor->m_wheel_diffs[i]->GetActiveDiffType() != j_entry["wheel_diffs"][i].GetInt())
+                actor->m_wheel_diffs[i]->ToggleDifferentialMode();
+        }
+    }
+
+    for (int i = 0; i < actor->m_num_axle_diffs; i++)
+    {
+        for (int k = 0; k < actor->m_axle_diffs[i]->GetNumDiffTypes(); k++)
+        {
+            if (actor->m_axle_diffs[i]->GetActiveDiffType() != j_entry["axle_diffs"][i].GetInt())
+                actor->m_axle_diffs[i]->ToggleDifferentialMode();
+        }
+    }
+
+    if (actor->m_transfer_case)
+    {
+        actor->m_transfer_case->tr_4wd_mode = j_entry["transfercase"]["4WD"].GetBool();
+        for (int k = 0; k < actor->m_transfer_case->tr_gear_ratios.size(); k++)
+        {
+            if (actor->m_transfer_case->tr_gear_ratios[0] != j_entry["transfercase"]["GearRatio"].GetFloat())
+                actor->ToggleTransferCaseGearRatio();
+        }
+    }
+
+    auto commands = j_entry["commands"].GetArray();
+    for (int i = 0; i < MAX_COMMANDS; i++)
+    {
+        auto& command_key = actor->ar_command_key[i];
+        command_key.commandValue = commands[i][0].GetFloat();
+        command_key.triggerInputValue = commands[i][1].GetFloat();
+        auto command_beams = commands[i][2].GetArray();
+        for (int j = 0; j < (int)command_key.beams.size(); j++)
+        {
+            command_key.beams[j].cmb_state->auto_moving_mode = command_beams[j][0].GetInt();
+            command_key.beams[j].cmb_state->pressed_center_mode = command_beams[j][1].GetBool();
+        }
+    }
+
+    auto nodes = j_entry["nodes"].GetArray();
+    for (rapidjson::SizeType i = 0; i < nodes.Size(); i++)
+    {
+        auto data = nodes[i].GetArray();
+        actor->ar_nodes[i].AbsPosition      = Vector3(data[0].GetFloat(), data[1].GetFloat(), data[2].GetFloat());
+        actor->ar_nodes[i].RelPosition      = actor->ar_nodes[i].AbsPosition - actor->ar_origin;
+        actor->ar_nodes[i].Velocity         = Vector3(data[3].GetFloat(), data[4].GetFloat(), data[5].GetFloat());
+        actor->ar_initial_node_positions[i] = Vector3(data[6].GetFloat(), data[7].GetFloat(), data[8].GetFloat());
+    }
+
+    std::vector<Actor*> actors = this->GetLocalActors();
+
+    auto beams = j_entry["beams"].GetArray();
+    for (rapidjson::SizeType i = 0; i < beams.Size(); i++)
+    {
+        auto data = beams[i].GetArray();
+        actor->ar_beams[i].maxposstress       = data[0].GetFloat();
+        actor->ar_beams[i].maxnegstress       = data[1].GetFloat();
+        actor->ar_beams[i].minmaxposnegstress = data[2].GetFloat();
+        actor->ar_beams[i].strength           = data[3].GetFloat();
+        actor->ar_beams[i].L                  = data[4].GetFloat();
+        actor->ar_beams[i].bm_broken          = data[5].GetBool();
+        actor->ar_beams[i].bm_disabled        = data[6].GetBool();
+        actor->ar_beams[i].bm_inter_actor     = data[7].GetBool();
+        int locked_actor                      = data[8].GetInt();
+        if (locked_actor != -1 &&
+            locked_actor < (int)actors.size() &&
+            actors[locked_actor] != nullptr)
+        {
+            actor->AddInterActorBeam(&actor->ar_beams[i], actor, actors[locked_actor]);
+        }
+    }
+
+    auto hooks = j_entry["hooks"].GetArray();
+    for (int i = 0; i < actor->ar_hooks.size(); i++)
+    {
+        int lock_node = hooks[i]["lock_node"].GetInt();
+        int locked_actor = hooks[i]["locked_actor"].GetInt();
+        if (lock_node != -1 &&
+            locked_actor != -1 &&
+            locked_actor < (int)actors.size() &&
+            actors[locked_actor] != nullptr)
+        {
+            actor->ar_hooks[i].hk_locked = HookState(hooks[i]["locked"].GetInt());
+            actor->ar_hooks[i].hk_locked_actor = actors[locked_actor];
+            actor->ar_hooks[i].hk_lock_node = &actors[locked_actor]->ar_nodes[lock_node];
+            if (actor->ar_hooks[i].hk_beam->bm_inter_actor)
+            {
+                actor->ar_hooks[i].hk_beam->p2 = actor->ar_hooks[i].hk_lock_node;
+            }
+        }
+    }
+
+    auto ropes = j_entry["ropes"].GetArray();
+    for (int i = 0; i < actor->ar_ropes.size(); i++)
+    {
+        int ropable = ropes[i]["locked_ropable"].GetInt();
+        int locked_actor = ropes[i]["locked_actor"].GetInt();
+        if (ropable != -1 &&
+            locked_actor != -1 &&
+            locked_actor < (int)actors.size() &&
+            actors[locked_actor] != nullptr)
+        {
+            actor->ar_ropes[i].rp_locked = ropes[i]["locked"].GetInt();
+            actor->ar_ropes[i].rp_locked_actor = actors[locked_actor];
+            actor->ar_ropes[i].rp_locked_ropable = &actors[locked_actor]->ar_ropables[ropable];
+        }
+    }
+
+    auto ties = j_entry["ties"].GetArray();
+    for (int i = 0; i < actor->ar_ties.size(); i++)
+    {
+        int ropable = ties[i]["locked_ropable"].GetInt();
+        int locked_actor = ties[i]["locked_actor"].GetInt();
+        if (ropable != -1 &&
+            locked_actor != -1 &&
+            locked_actor < (int)actors.size() &&
+            actors[locked_actor] != nullptr)
+        {
+            actor->ar_ties[i].ti_tied  = ties[i]["tied"].GetBool();
+            actor->ar_ties[i].ti_tying = ties[i]["tying"].GetBool();
+            actor->ar_ties[i].ti_locked_actor = actors[locked_actor];
+            actor->ar_ties[i].ti_locked_ropable = &actors[locked_actor]->ar_ropables[ropable];
+            if (actor->ar_ties[i].ti_beam->bm_inter_actor)
+            {
+                actor->ar_ties[i].ti_beam->p2 = actor->ar_ties[i].ti_locked_ropable->node;
+            }
+        }
+    }
+
+    auto ropables = j_entry["ropables"].GetArray();
+    for (int i = 0; i < actor->ar_ropables.size(); i++)
+    {
+        actor->ar_ropables[i].attached_ties  = ropables[i]["attached_ties"].GetInt();
+        actor->ar_ropables[i].attached_ropes = ropables[i]["attached_ropes"].GetInt();
+    }
+
+    actor->resetSlideNodes();
+    if (actor->m_slidenodes_locked != j_entry["slidenodes_locked"].GetBool())
+    {
+        actor->ToggleSlideNodeLock();
+    }
+
+    actor->UpdateBoundingBoxes();
+    actor->calculateAveragePosition();
+    actor->m_avg_node_position_prev = actor->m_avg_node_position;
 }

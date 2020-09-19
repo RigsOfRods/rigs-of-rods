@@ -91,8 +91,11 @@ public:
     void           Release() {};
 #endif
 
+    // Savegames (defined in Savegame.cpp)
+
     bool           LoadScene(Ogre::String filename);
     bool           SaveScene(Ogre::String filename);
+    void           RestoreSavedState(Actor* actor, rapidjson::Value const& j_entry);
 
     std::vector<Actor*> GetActors() const                  { return m_actors; };
     std::vector<Actor*> GetLocalActors();
