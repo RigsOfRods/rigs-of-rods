@@ -31,8 +31,10 @@
 #include "BitFlags.h"
 #include "CmdKeyInertia.h"
 
+#include <memory>
 #include <Ogre.h>
 #include <OgreUTFString.h>
+#include <rapidjson/document.h>
 
 namespace RoR {
 
@@ -639,21 +641,23 @@ struct ActorSpawnRequest
         NETWORK       //!< Remote controlled
     };
 
-    CacheEntry*       asr_cache_entry = nullptr; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
-    std::string       asr_filename;
-    Ogre::String      asr_config;
-    Ogre::Vector3     asr_position = Ogre::Vector3::ZERO;
-    Ogre::Quaternion  asr_rotation = Ogre::Quaternion::ZERO;
-    collision_box_t*  asr_spawnbox = nullptr;
-    CacheEntry*       asr_skin_entry = nullptr;
-    Origin            asr_origin = Origin::UNKNOWN;
-    int               asr_debugview = 0; //(int)GfxActor::DebugViewType::DEBUGVIEW_NONE;
-    Ogre::UTFString   asr_net_username;
-    int               asr_net_color = 0;
-    int               net_source_id = 0;
-    int               net_stream_id = 0;
-    bool              asr_free_position = false;   //!< Disables the automatic spawn position adjustment
-    bool              asr_terrn_machine = false;   //!< This is a fixed machinery
+    CacheEntry*         asr_cache_entry = nullptr; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
+    std::string         asr_filename;
+    Ogre::String        asr_config;
+    Ogre::Vector3       asr_position = Ogre::Vector3::ZERO;
+    Ogre::Quaternion    asr_rotation = Ogre::Quaternion::ZERO;
+    collision_box_t*    asr_spawnbox = nullptr;
+    CacheEntry*         asr_skin_entry = nullptr;
+    Origin              asr_origin = Origin::UNKNOWN;
+    int                 asr_debugview = 0; //(int)GfxActor::DebugViewType::DEBUGVIEW_NONE;
+    Ogre::UTFString     asr_net_username;
+    int                 asr_net_color = 0;
+    int                 net_source_id = 0;
+    int                 net_stream_id = 0;
+    bool                asr_free_position = false;   //!< Disables the automatic spawn position adjustment
+    bool                asr_terrn_machine = false;   //!< This is a fixed machinery
+    std::shared_ptr<rapidjson::Document>
+                        asr_saved_state;             //!< Pushes msg MODIFY_ACTOR (type RESTORE_SAVED) after spawn.
 };
 
 struct ActorModifyRequest
@@ -664,11 +668,14 @@ struct ActorModifyRequest
         RELOAD,               //!< Full reload from filesystem, requested by user
         RESET_ON_INIT_POS,
         RESET_ON_SPOT,
-        SOFT_RESET
+        SOFT_RESET,
+        RESTORE_SAVED
     };
 
-    Actor* amr_actor;
-    Type   amr_type;
+    Actor*              amr_actor;
+    Type                amr_type;
+    std::shared_ptr<rapidjson::Document>
+                        amr_saved_state;
 };
 
 } // namespace RoR

@@ -231,11 +231,21 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
         fresh_actor->ar_net_source_id = rq.net_source_id;
         fresh_actor->ar_net_stream_id = rq.net_stream_id;
     }
+    else if (rq.asr_origin == ActorSpawnRequest::Origin::SAVEGAME)
+    {
+        if (rq.asr_saved_state)
+        {
+            ActorModifyRequest* req = new ActorModifyRequest();
+            req->amr_actor = fresh_actor;
+            req->amr_type = ActorModifyRequest::Type::RESTORE_SAVED;
+            req->amr_saved_state = rq.asr_saved_state;
+            this->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)req));
+        }
+    }
     else
     {
         if (fresh_actor->ar_driveable != NOT_DRIVEABLE &&
-            rq.asr_origin != ActorSpawnRequest::Origin::NETWORK &&
-            rq.asr_origin != ActorSpawnRequest::Origin::SAVEGAME)
+            rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
         {
             this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)fresh_actor));
         }
@@ -254,6 +264,10 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         (rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS))
     {
         rq.amr_actor->SyncReset(rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS);
+    }
+    if (rq.amr_type == ActorModifyRequest::Type::RESTORE_SAVED)
+    {
+        m_actor_manager.RestoreSavedState(rq.amr_actor, *rq.amr_saved_state.get());
     }
     if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
     {
