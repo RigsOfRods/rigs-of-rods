@@ -516,7 +516,8 @@ int main(int argc, char *argv[])
 
                             RoR::LogFormat("[RoR|Savegame] Loading terrain '%s' ...", terrn_filename.c_str());
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, terrn_filename));
-                            App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, m.description));
+                            // Loading terrain may produce actor-spawn requests; the savegame-request must be posted after them.
+                            App::GetGameContext()->ChainMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, m.description));
                         }
                     }
                     break;
@@ -594,6 +595,13 @@ int main(int argc, char *argv[])
 
                 default:;
                 }
+
+                // Process chained messages
+                for (Message& chained_msg: m.chain)
+                {
+                    App::GetGameContext()->PushMessage(chained_msg);
+                }
+
             } // Game events block
 
             // Check FPS limit
