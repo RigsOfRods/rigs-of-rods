@@ -352,7 +352,7 @@ void TopMenubar::Update()
                     if (ImGui::Button(caption.c_str()))
                     {
                         Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
-                        App::GetGameContext()->GetActorManager()->LoadScene(filename);
+                        App::GetGameContext()->PushMessage(RoR::Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, filename));
                         m_open_menu = TopMenu::TOPMENU_NONE;
                     }
                 }
