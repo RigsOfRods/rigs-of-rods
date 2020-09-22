@@ -1561,6 +1561,11 @@ void SimController::UpdateSimulation(float dt)
             {
                 actorx->ToggleTies();
             }
+
+            if (actorx->isLocked() && std::find(linked_actors.begin(), linked_actors.end(), actorx) != linked_actors.end())
+            {
+                actorx->ToggleHooks();
+            }
         }
 
         if (actor == m_player_actor)
