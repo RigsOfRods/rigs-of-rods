@@ -257,7 +257,11 @@ void Turbojet::updateForces(float dt, int doUpdate)
     else
         SOUND_STOP(m_actor, m_sound_ab);
 
-    m_actor->ar_nodes[m_node_back].Forces += (enginethrust * 1000.0) * m_axis;
+    if (m_reverse)
+        m_actor->ar_nodes[m_node_back].Forces -= (enginethrust * 1000.0) * m_axis;
+    else
+        m_actor->ar_nodes[m_node_back].Forces += (enginethrust * 1000.0) * m_axis;
+
     m_exhaust_velocity = enginethrust * 5.6 / m_area;
 }
 
