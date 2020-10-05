@@ -233,7 +233,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
             }
             densityMap->setFilter(Forests::MAPFILTER_BILINEAR);
 
-            auto geom = new PagedGeometry(gEnv->mainCamera, 50);
+            auto geom = new PagedGeometry(App::GetCameraManager()->GetCamera(), 50);
             geom->setTempDir(PathCombine(App::sys_cache_dir->GetActiveStr(), ""));
             Ogre::TRect<Ogre::Real> bounds = TBounds(0, 0, m_terrain_size_x, m_map_size_z);
             geom->setBounds(bounds);
@@ -345,7 +345,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
             //Initialize the PagedGeometry engine
             try
             {
-                PagedGeometry* grass = new PagedGeometry(gEnv->mainCamera, 30);
+                PagedGeometry* grass = new PagedGeometry(App::GetCameraManager()->GetCamera(), 30);
                 //Set up LODs
 
                 grass->addDetailLevel<GrassPage>(range * terrainManager->getPagedDetailFactor()); // original value: 80

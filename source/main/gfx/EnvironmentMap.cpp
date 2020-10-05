@@ -48,12 +48,12 @@ void RoR::GfxEnvmap::SetupEnvMap()
         m_cameras[face]->setFixedYawAxis(false);
         m_cameras[face]->setFOVy(Ogre::Degree(90));
         m_cameras[face]->setNearClipDistance(0.1f);
-        m_cameras[face]->setFarClipDistance(gEnv->mainCamera->getFarClipDistance());
+        m_cameras[face]->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
 
         Ogre::Viewport* v = m_render_targets[face]->addViewport(m_cameras[face]);
         v->setOverlaysEnabled(false);
         v->setClearEveryFrame(true);
-        v->setBackgroundColour(gEnv->mainCamera->getViewport()->getBackgroundColour());
+        v->setBackgroundColour(App::GetCameraManager()->GetCamera()->getViewport()->getBackgroundColour());
         m_render_targets[face]->setAutoUpdated(false);
     }
 
@@ -236,7 +236,7 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor)
 #ifdef USE_CAELUM
     if (App::GetSimTerrain()->getSkyManager())
     {
-        App::GetSimTerrain()->getSkyManager()->NotifySkyCameraChanged(gEnv->mainCamera);
+        App::GetSimTerrain()->getSkyManager()->NotifySkyCameraChanged(App::GetCameraManager()->GetCamera());
     }
 #endif // USE_CAELUM
 

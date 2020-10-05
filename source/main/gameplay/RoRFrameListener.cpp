@@ -1416,13 +1416,13 @@ void SimController::UpdateInputEvents(float dt)
             switch (mSceneDetailIndex)
             {
             case 0:
-                gEnv->mainCamera->setPolygonMode(PM_SOLID);
+                App::GetCameraManager()->GetCamera()->setPolygonMode(PM_SOLID);
                 break;
             case 1:
-                gEnv->mainCamera->setPolygonMode(PM_WIREFRAME);
+                App::GetCameraManager()->GetCamera()->setPolygonMode(PM_WIREFRAME);
                 break;
             case 2:
-                gEnv->mainCamera->setPolygonMode(PM_POINTS);
+                App::GetCameraManager()->GetCamera()->setPolygonMode(PM_POINTS);
                 break;
             }
         }

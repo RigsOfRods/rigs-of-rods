@@ -23,15 +23,83 @@
 
 #include "ForwardDeclarations.h"
 
+// -----==== DEBUG ====----
+#include "Application.h"
+#include "CameraManager.h"
+
+class CamProxy
+{
+public:
+    // getters
+    Ogre::Vector3 getPosition()
+    {
+        return RoR::App::GetCameraManager()->GetCameraNode()->getPosition();
+    }
+    Ogre::Vector3 getDerivedPosition()
+    {
+        return RoR::App::GetCameraManager()->GetCameraNode()->_getDerivedPosition();
+    }
+    Ogre::Vector3 getDirection()
+    {
+        // Direction points down -Z by default (adapted from Ogre::Camera)
+        return RoR::App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
+    }
+    Ogre::Quaternion getOrientation()
+    {
+        return RoR::App::GetCameraManager()->GetCameraNode()->getOrientation();
+    }
+    Ogre::Vector3 getUp()
+    {
+        // (adapted from Ogre::Camera)
+        return RoR::App::GetCameraManager()->GetCameraNode()->getOrientation() * Ogre::Vector3::UNIT_Y;
+    }
+
+    // setters
+    void setPosition(Ogre::Vector3 pos)
+    {
+        RoR::App::GetCameraManager()->GetCameraNode()->setPosition(pos);
+    }
+    void setOrientation(const Ogre::Quaternion &q)
+    {
+        RoR::App::GetCameraManager()->GetCameraNode()->setOrientation(q);
+    }
+    void yaw(const Ogre::Radian& angle)
+    {
+        RoR::App::GetCameraManager()->GetCameraNode()->yaw(angle);
+    }
+    void pitch(const Ogre::Radian& angle)
+    {
+        RoR::App::GetCameraManager()->GetCameraNode()->pitch(angle);
+    }
+    void roll(const Ogre::Radian& angle)
+    {
+        RoR::App::GetCameraManager()->GetCameraNode()->roll(angle);
+    }
+    void lookAt(const Ogre::Vector3& targetPoint)
+    {
+        // ??
+        RoR::App::GetCameraManager()->GetCameraNode()->lookAt(targetPoint, Ogre::Node::TS_WORLD);
+    }
+    void setDirection(const Ogre::Vector3& dir)
+    {
+        // ??
+        RoR::App::GetCameraManager()->GetCameraNode()->setDirection(dir);
+    }
+};
+// ----==== END DEBUG ====----
+
 class GlobalEnvironment
 {
 public:
 
     GlobalEnvironment() :
-         mainCamera(0)
+         mainCamera(&m_camproxy)
         , sceneManager(0)
     {}
 
-    Ogre::Camera*       mainCamera;
+    CamProxy*       mainCamera;
     Ogre::SceneManager* sceneManager;
+
+private:
+    CamProxy m_camproxy;
 };

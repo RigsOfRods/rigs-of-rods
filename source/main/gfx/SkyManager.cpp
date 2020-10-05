@@ -93,13 +93,13 @@ void SkyManager::LoadCaelumScript(std::string script, int fogStart, int fogEnd)
         if (fogStart != -1 && fogEnd != -1 && fogStart < fogEnd)
         {
             // setting farclip (hacky)
-            gEnv->mainCamera->setFarClipDistance(fogEnd / 0.8);
+            App::GetCameraManager()->GetCamera()->setFarClipDistance(fogEnd / 0.8);
             // custom boundaries
             m_caelum_system->setManageSceneFog(Ogre::FOG_LINEAR);
             m_caelum_system->setManageSceneFogStart(fogStart);
             m_caelum_system->setManageSceneFogEnd(fogEnd);
         }
-        else if (gEnv->mainCamera->getFarClipDistance() > 0)
+        else if (App::GetCameraManager()->GetCamera()->getFarClipDistance() > 0)
         {
             if (fogStart != -1 && fogEnd != -1)
             {
@@ -110,7 +110,7 @@ void SkyManager::LoadCaelumScript(std::string script, int fogStart, int fogEnd)
                 LOG("You always need to define both boundaries (CaelumFogStart AND CaelumFogEnd). Ignoring boundaries.");
             }
             // non infinite farclip
-            float farclip = gEnv->mainCamera->getFarClipDistance();
+            float farclip = App::GetCameraManager()->GetCamera()->getFarClipDistance();
             m_caelum_system->setManageSceneFog(Ogre::FOG_LINEAR);
             m_caelum_system->setManageSceneFogStart(farclip * 0.7);
             m_caelum_system->setManageSceneFogEnd(farclip * 0.9);

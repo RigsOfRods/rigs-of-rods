@@ -56,6 +56,7 @@ public:
 
     CameraBehaviors   GetCurrentBehavior() const  { return m_current_behavior; }
     Ogre::SceneNode*  GetCameraNode()             { return m_camera_node; }
+    Ogre::Camera*     GetCamera()                 { return m_camera; }
 
     void NotifyContextChange();
     void NotifyVehicleChanged(Actor* new_vehicle);

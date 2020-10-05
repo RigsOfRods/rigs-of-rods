@@ -7092,7 +7092,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         {
             Ogre::Viewport* vp = vcam.vcam_render_target->addViewport(vcam.vcam_ogre_camera);
             vp->setClearEveryFrame(true);
-            vp->setBackgroundColour(gEnv->mainCamera->getViewport()->getBackgroundColour());
+            vp->setBackgroundColour(App::GetCameraManager()->GetCamera()->getViewport()->getBackgroundColour());
             vp->setVisibilityMask(~HIDE_MIRROR);
             vp->setVisibilityMask(~DEPTHMAP_DISABLED);
             vp->setOverlaysEnabled(false);
@@ -7108,7 +7108,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         {
             Ogre::Viewport* vp = vcam.vcam_render_window->addViewport(vcam.vcam_ogre_camera);
             vp->setClearEveryFrame(true);
-            vp->setBackgroundColour(gEnv->mainCamera->getViewport()->getBackgroundColour());
+            vp->setBackgroundColour(App::GetCameraManager()->GetCamera()->getViewport()->getBackgroundColour());
             vp->setVisibilityMask(~HIDE_MIRROR);
             vp->setVisibilityMask(~DEPTHMAP_DISABLED);
             vp->setOverlaysEnabled(false);
@@ -7173,17 +7173,17 @@ void ActorSpawner::CreateMirrorPropVideoCam(
         // Create OGRE camera
         vcam.vcam_ogre_camera = gEnv->sceneManager->createCamera(this->ComposeName("MirrorPropCamera-", static_cast<int>(mprop_counter)));
         vcam.vcam_ogre_camera->setNearClipDistance(0.2f);
-        vcam.vcam_ogre_camera->setFarClipDistance(gEnv->mainCamera->getFarClipDistance());
+        vcam.vcam_ogre_camera->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
         vcam.vcam_ogre_camera->setFOVy(Ogre::Degree(50));
         vcam.vcam_ogre_camera->setAspectRatio(
-            (gEnv->mainCamera->getViewport()->getActualWidth() / gEnv->mainCamera->getViewport()->getActualHeight()) / 2.0f);
+            (App::GetCameraManager()->GetCamera()->getViewport()->getActualWidth() / App::GetCameraManager()->GetCamera()->getViewport()->getActualHeight()) / 2.0f);
 
         // Setup rendering
         vcam.vcam_render_target = vcam.vcam_render_tex->getBuffer()->getRenderTarget();
         vcam.vcam_render_target->setActive(true);
         Ogre::Viewport* v = vcam.vcam_render_target->addViewport(vcam.vcam_ogre_camera);
         v->setClearEveryFrame(true);
-        v->setBackgroundColour(gEnv->mainCamera->getViewport()->getBackgroundColour());
+        v->setBackgroundColour(App::GetCameraManager()->GetCamera()->getViewport()->getBackgroundColour());
         v->setOverlaysEnabled(false);
 
         // Setup material
