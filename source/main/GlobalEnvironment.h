@@ -33,10 +33,7 @@ public:
 
 
     // setters
-    void setPosition(Ogre::Vector3 pos)
-    {
-        RoR::App::GetCameraManager()->GetCameraNode()->setPosition(pos);
-    }
+
     void setOrientation(const Ogre::Quaternion &q)
     {
         RoR::App::GetCameraManager()->GetCameraNode()->setOrientation(q);

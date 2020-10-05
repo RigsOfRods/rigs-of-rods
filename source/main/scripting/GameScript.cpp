@@ -679,7 +679,7 @@ void GameScript::setCameraPosition(const Vector3& pos)
     if (!this->HaveMainCamera(__FUNCTION__))
         return;
 
-    gEnv->mainCamera->setPosition(Vector3(pos.x, pos.y, pos.z));
+    App::GetCameraManager()->GetCameraNode()->setPosition(Vector3(pos.x, pos.y, pos.z));
 }
 
 void GameScript::setCameraDirection(const Vector3& rot)

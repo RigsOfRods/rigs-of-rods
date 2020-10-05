@@ -226,7 +226,7 @@ void CameraManager::UpdateCurrentBehavior()
 
         Quaternion orientation = Quaternion(m_cam_rot_x, up) * Quaternion(Degree(180.0) + m_cam_rot_y, roll) * Quaternion(roll, up, dir);
 
-        gEnv->mainCamera->setPosition(m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_cinecam_node[m_cct_player_actor->ar_current_cinecam]].AbsPosition);
+        App::GetCameraManager()->GetCameraNode()->setPosition(m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_cinecam_node[m_cct_player_actor->ar_current_cinecam]].AbsPosition);
         gEnv->mainCamera->setOrientation(orientation);
         return;
     }
@@ -762,7 +762,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
     float camDist = m_staticcam_position.distance(m_staticcam_look_at);
     float fov = atan2(20.0f, std::pow(camDist, fovExp));
 
-    gEnv->mainCamera->setPosition(m_staticcam_position);
+    App::GetCameraManager()->GetCameraNode()->setPosition(m_staticcam_position);
     gEnv->mainCamera->lookAt(m_staticcam_look_at);
     App::GetCameraManager()->GetCamera()->setFOVy(Radian(fov));
 }
@@ -883,15 +883,15 @@ void CameraManager::CameraBehaviorOrbitUpdate()
 
     if (App::GetSimTerrain()->GetCollisions() && App::GetSimTerrain()->GetCollisions()->forcecam)
     {
-        gEnv->mainCamera->setPosition(App::GetSimTerrain()->GetCollisions()->forcecampos);
+        App::GetCameraManager()->GetCameraNode()->setPosition(App::GetSimTerrain()->GetCollisions()->forcecampos);
         App::GetSimTerrain()->GetCollisions()->forcecam = false;
     }
     else
     {
         if (m_cct_player_actor && m_cct_player_actor->ar_replay_mode && camDisplacement != Vector3::ZERO)
-            gEnv->mainCamera->setPosition(desiredPosition);
+            App::GetCameraManager()->GetCameraNode()->setPosition(desiredPosition);
         else
-            gEnv->mainCamera->setPosition(camPosition);
+            App::GetCameraManager()->GetCameraNode()->setPosition(camPosition);
     }
 
     m_cam_look_at_smooth = (1.0f / (m_cam_ratio + 1.0f)) * m_cam_look_at + (m_cam_ratio / (m_cam_ratio + 1.0f)) * precedingLookAt;
@@ -998,7 +998,7 @@ void CameraManager::UpdateCameraBehaviorFree()
 
     Vector3 camPosition = App::GetCameraManager()->GetCameraNode()->getPosition() + App::GetCameraManager()->GetCameraNode()->getOrientation() * mTrans.normalisedCopy() * cct_trans_scale;
 
-    gEnv->mainCamera->setPosition(camPosition);
+    App::GetCameraManager()->GetCameraNode()->setPosition(camPosition);
 }
 
 void CameraManager::UpdateCameraBehaviorFixed()
