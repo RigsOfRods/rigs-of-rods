@@ -73,6 +73,9 @@ void GUI::DirectionArrow::Update(RoR::GfxActor* player_vehicle)
         // Update arrow direction
         m_node->lookAt(data.simbuf_dir_arrow_target, Ogre::Node::TS_WORLD, Ogre::Vector3::UNIT_Y);
 
+        // Update status text
+        m_text->setCaption(data.simbuf_dir_arrow_text);
+
         // Update distance text
         float distance = 0.0f;
         if (player_vehicle != nullptr && player_vehicle->GetSimDataBuffer().simbuf_live_local)
