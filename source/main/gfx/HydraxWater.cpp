@@ -98,7 +98,7 @@ void HydraxWater::UpdateWater()
     if (RoR::App::GetSimTerrain()->getSkyManager() != nullptr)
     {
         SkyManager* sky = RoR::App::GetSimTerrain()->getSkyManager();
-        Ogre::Vector3 sunPosition = gEnv->mainCamera->getDerivedPosition();
+        Ogre::Vector3 sunPosition = App::GetCameraManager()->GetCameraNode()->_getDerivedPosition();
         sunPosition -= sky->GetCaelumSys()->getSun()->getLightDirection() * 80000;
         mHydrax->setSunPosition(sunPosition);
         mHydrax->setSunColor(Ogre::Vector3(sky->GetCaelumSys()->getSun()->getBodyColour().r, sky->GetCaelumSys()->getSun()->getBodyColour().g, sky->GetCaelumSys()->getSun()->getBodyColour().b));

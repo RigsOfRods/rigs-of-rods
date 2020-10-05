@@ -82,7 +82,8 @@ bool SkyXManager::update(float dt)
 bool SkyXManager::UpdateSkyLight()
 {
 	Ogre::Vector3 lightDir = -getMainLightDirection();
-	Ogre::Vector3 sunPos = gEnv->mainCamera->getDerivedPosition() - lightDir*mSkyX->getMeshManager()->getSkydomeRadius(App::GetCameraManager()->GetCamera());
+	const Ogre::Vector3 camPos = App::GetCameraManager()->GetCameraNode()->_getDerivedPosition();
+	Ogre::Vector3 sunPos = camPos - lightDir*mSkyX->getMeshManager()->getSkydomeRadius(App::GetCameraManager()->GetCamera());
 
 	// Calculate current color gradients point
 	float point = (-lightDir.y + 1.0f) / 2.0f;
