@@ -65,7 +65,7 @@ public:
     }
     void yaw(const Ogre::Radian& angle)
     {
-        RoR::App::GetCameraManager()->GetCameraNode()->yaw(angle);
+        RoR::App::GetCameraManager()->GetCameraNode()->yaw(angle, Ogre::Node::TS_WORLD);
     }
     void pitch(const Ogre::Radian& angle)
     {
