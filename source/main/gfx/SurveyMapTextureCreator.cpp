@@ -98,7 +98,6 @@ void SurveyMapTextureCreator::preRenderTargetUpdate(const RenderTargetEvent &evt
         water->WaterSetCamera(mCamera);
         water->SetStaticWaterHeight(water->GetStaticWaterHeight());
         water->UpdateWater();
-        water->SetStaticWaterHeight(water->GetStaticWaterHeight());
     }
 }
 
