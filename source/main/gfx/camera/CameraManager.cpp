@@ -877,7 +877,7 @@ void CameraManager::CameraBehaviorOrbitUpdate()
 
     Vector3 camDisplacement = m_cam_look_at - m_cam_look_at_last;
     Vector3 precedingLookAt = m_cam_look_at_smooth_last + camDisplacement;
-    Vector3 precedingPosition = gEnv->mainCamera->getPosition() + camDisplacement;
+    Vector3 precedingPosition = App::GetCameraManager()->GetCameraNode()->getPosition() + camDisplacement;
 
     Vector3 camPosition = (1.0f / (m_cam_ratio + 1.0f)) * desiredPosition + (m_cam_ratio / (m_cam_ratio + 1.0f)) * precedingPosition;
 
@@ -996,7 +996,7 @@ void CameraManager::UpdateCameraBehaviorFree()
     gEnv->mainCamera->yaw(mRotX);
     gEnv->mainCamera->pitch(mRotY);
 
-    Vector3 camPosition = gEnv->mainCamera->getPosition() + gEnv->mainCamera->getOrientation() * mTrans.normalisedCopy() * cct_trans_scale;
+    Vector3 camPosition = App::GetCameraManager()->GetCameraNode()->getPosition() + gEnv->mainCamera->getOrientation() * mTrans.normalisedCopy() * cct_trans_scale;
 
     gEnv->mainCamera->setPosition(camPosition);
 }
@@ -1049,10 +1049,10 @@ bool CameraManager::CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _ar
 		{
 			// Calculate new camera distance
 			Vector3 lookAt = m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_custom_camera_node].AbsPosition;
-			m_cam_dist = 2.0f * gEnv->mainCamera->getPosition().distance(lookAt);
+			m_cam_dist = 2.0f * App::GetCameraManager()->GetCameraNode()->getPosition().distance(lookAt);
 
 			// Calculate new camera pitch
-			Vector3 camDir = (gEnv->mainCamera->getPosition() - lookAt).normalisedCopy();
+			Vector3 camDir = (App::GetCameraManager()->GetCameraNode()->getPosition() - lookAt).normalisedCopy();
 			m_cam_rot_y = asin(camDir.y);
 
 			// Calculate new camera yaw

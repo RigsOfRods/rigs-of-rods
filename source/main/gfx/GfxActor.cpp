@@ -469,10 +469,10 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
                 - Ogre::Radian(asin(m_actor->getDirection().dotProduct(Ogre::Vector3::UNIT_Y)));
 
             Ogre::Plane plane = Ogre::Plane(normal, center);
-            Ogre::Vector3 project = plane.projectVector(gEnv->mainCamera->getPosition() - center);
+            Ogre::Vector3 project = plane.projectVector(App::GetCameraManager()->GetCameraNode()->getPosition() - center);
 
             vidcam.vcam_ogre_camera->setPosition(center);
-            vidcam.vcam_ogre_camera->lookAt(gEnv->mainCamera->getPosition() - 2.0f * project);
+            vidcam.vcam_ogre_camera->lookAt(App::GetCameraManager()->GetCameraNode()->getPosition() - 2.0f * project);
             vidcam.vcam_ogre_camera->roll(roll);
 
             continue; // Done processing mirror prop.
@@ -511,7 +511,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
             //rotate the normal of the mirror by user rotation setting so it reflects correct
             normal = vidcam.vcam_rotation * normal;
             // merge camera direction and reflect it on our plane
-            vidcam.vcam_ogre_camera->setDirection((pos - gEnv->mainCamera->getPosition()).reflect(normal));
+            vidcam.vcam_ogre_camera->setDirection((pos - App::GetCameraManager()->GetCameraNode()->getPosition()).reflect(normal));
         }
         else if (vidcam.vcam_type == GfxActor::VideoCamType::VCTYPE_VIDEOCAM)
         {
@@ -2126,7 +2126,7 @@ void RoR::GfxActor::UpdateNetLabels(float dt)
             return;
         }
 
-        float vlen = m_simbuf.simbuf_pos.distance(gEnv->mainCamera->getPosition());
+        float vlen = m_simbuf.simbuf_pos.distance(App::GetCameraManager()->GetCameraNode()->getPosition());
 
         float y_offset = (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_pos.y) + (vlen / 100.0);
         m_actor->m_net_label_node->setPosition(m_simbuf.simbuf_pos + Ogre::Vector3::UNIT_Y * y_offset);
@@ -2205,7 +2205,7 @@ void RoR::GfxActor::UpdateBeaconFlare(prop_t & prop, float dt, bool is_player_ac
         beacon_rotation_angle += dt * beacon_rotation_rate;//rotate baby!
         beacon_light->setDirection(beacon_orientation * Ogre::Vector3(cos(beacon_rotation_angle), sin(beacon_rotation_angle), 0));
         //billboard
-        Ogre::Vector3 vdir = beacon_light->getPosition() - gEnv->mainCamera->getPosition(); // TODO: verify the position is already updated here ~ only_a_ptr, 06/2018
+        Ogre::Vector3 vdir = beacon_light->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition(); // TODO: verify the position is already updated here ~ only_a_ptr, 06/2018
         float vlen = vdir.length();
         if (vlen > 100.0)
         {
@@ -2251,7 +2251,7 @@ void RoR::GfxActor::UpdateBeaconFlare(prop_t & prop, float dt, bool is_player_ac
             prop.beacon_light_rotation_angle[k] += dt * prop.beacon_light_rotation_rate[k];//rotate baby!
             prop.beacon_light[k]->setDirection(orientation * Vector3(cos(prop.beacon_light_rotation_angle[k]), sin(prop.beacon_light_rotation_angle[k]), 0));
             //billboard
-            Vector3 vdir = prop.beacon_light[k]->getPosition() - gEnv->mainCamera->getPosition();
+            Vector3 vdir = prop.beacon_light[k]->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition();
             float vlen = vdir.length();
             if (vlen > 100.0)
             {
@@ -2281,7 +2281,7 @@ void RoR::GfxActor::UpdateBeaconFlare(prop_t & prop, float dt, bool is_player_ac
         prop.beacon_light[0]->setPosition(prop.scene_node->getPosition() + orientation * Vector3(0, 0, 0.06));
         prop.beacon_light_rotation_angle[0] += dt * prop.beacon_light_rotation_rate[0];//rotate baby!
         //billboard
-        Vector3 vdir = prop.beacon_light[0]->getPosition() - gEnv->mainCamera->getPosition();
+        Vector3 vdir = prop.beacon_light[0]->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition();
         float vlen = vdir.length();
         if (vlen > 100.0)
         {
@@ -2305,7 +2305,7 @@ void RoR::GfxActor::UpdateBeaconFlare(prop_t & prop, float dt, bool is_player_ac
     {
         Vector3 mposition = nodes[prop.noderef].AbsPosition + prop.offsetx * (nodes[prop.nodex].AbsPosition - nodes[prop.noderef].AbsPosition) + prop.offsety * (nodes[prop.nodey].AbsPosition - nodes[prop.noderef].AbsPosition);
         //billboard
-        Vector3 vdir = mposition - gEnv->mainCamera->getPosition();
+        Vector3 vdir = mposition - App::GetCameraManager()->GetCameraNode()->getPosition();
         float vlen = vdir.length();
         if (vlen > 100.0)
         {
@@ -2322,7 +2322,7 @@ void RoR::GfxActor::UpdateBeaconFlare(prop_t & prop, float dt, bool is_player_ac
         prop.beacon_light[0]->setPosition(mposition);
         prop.beacon_light_rotation_angle[0] += dt * prop.beacon_light_rotation_rate[0];//rotate baby!
         //billboard
-        Vector3 vdir = mposition - gEnv->mainCamera->getPosition();
+        Vector3 vdir = mposition - App::GetCameraManager()->GetCameraNode()->getPosition();
         float vlen = vdir.length();
         if (vlen > 100.0)
         {
@@ -3274,7 +3274,7 @@ void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
         Ogre::Vector3 normal = (nodes[flare.nodey].AbsPosition - nodes[flare.noderef].AbsPosition).crossProduct(nodes[flare.nodex].AbsPosition - nodes[flare.noderef].AbsPosition);
         normal.normalise();
         Ogre::Vector3 mposition = nodes[flare.noderef].AbsPosition + flare.offsetx * (nodes[flare.nodex].AbsPosition - nodes[flare.noderef].AbsPosition) + flare.offsety * (nodes[flare.nodey].AbsPosition - nodes[flare.noderef].AbsPosition);
-        Ogre::Vector3 vdir = mposition - gEnv->mainCamera->getPosition();
+        Ogre::Vector3 vdir = mposition - App::GetCameraManager()->GetCameraNode()->getPosition();
         float vlen = vdir.length();
         // not visible from 500m distance
         if (vlen > 500.0)
