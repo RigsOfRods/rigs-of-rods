@@ -117,7 +117,7 @@ void GUI::SceneMouse::Draw()
         lastgrabpos = Vector3::ZERO;
     }
 
-    if (ImGui::IsMouseClicked(1)) // Middle mouse button
+    if (ImGui::IsMouseClicked(2)) // Middle mouse button
     {
         Ogre::Ray mouse_ray = this->CastMouseRay();
         Real nearest_ray_distance = std::numeric_limits<float>::max();
