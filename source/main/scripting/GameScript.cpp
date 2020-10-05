@@ -240,7 +240,6 @@ void GameScript::setWaterHeight(float value)
     if (App::GetSimTerrain()->getWater())
     {
         IWater* water = App::GetSimTerrain()->getWater();
-        water->WaterSetCamera(App::GetCameraManager()->GetCamera());
         water->SetStaticWaterHeight(value);
         water->UpdateWater();
     }

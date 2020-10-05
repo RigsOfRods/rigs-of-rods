@@ -95,7 +95,6 @@ void SurveyMapTextureCreator::preRenderTargetUpdate(const RenderTargetEvent &evt
     auto water = App::GetSimTerrain()->getWater();
     if (water)
     {
-        water->WaterSetCamera(mCamera);
         water->SetStaticWaterHeight(water->GetStaticWaterHeight());
         water->UpdateWater();
     }
@@ -106,7 +105,6 @@ void SurveyMapTextureCreator::postRenderTargetUpdate(const RenderTargetEvent &ev
     auto water = App::GetSimTerrain()->getWater();
     if (water)
     {
-        water->WaterSetCamera(App::GetCameraManager()->GetCamera());
         water->UpdateWater();
     }
 }

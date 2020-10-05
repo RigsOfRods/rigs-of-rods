@@ -46,7 +46,6 @@ public:
     float          CalcWavesHeight(Ogre::Vector3 pos) override;
     Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos) override;
     void           SetWaterVisible(bool value) override;
-    void           WaterSetCamera(Ogre::Camera* cam) override;
     bool           IsUnderWater(Ogre::Vector3 pos) override;
     void           SetReflectionPlaneHeight(float centerheight) override;
     void           UpdateReflectionPlane(float h) override;
@@ -101,7 +100,6 @@ private:
     float                 m_waterplane_mesh_scale;
     int                   m_frame_counter;
     Ogre::Vector3         m_map_size;
-    Ogre::Camera*         m_render_cam;
     Ogre::Plane           m_water_plane;
     Ogre::MeshPtr         m_waterplane_mesh;
     Ogre::Entity*         m_waterplane_entity;

@@ -40,7 +40,6 @@ Water::Water() :
     m_waterplane_mesh_scale(1.0f),
     m_refract_rtt_viewport(0),
     m_reflect_rtt_viewport(0),
-    m_render_cam(App::GetCameraManager()->GetCamera()),
     m_bottom_height(0),
     m_water_height(0),
     m_waterplane_node(0),
@@ -129,7 +128,6 @@ Water::~Water()
     }
 
     m_water_height = m_bottom_height = 0;
-    m_render_cam = nullptr;
 
     if (m_refract_rtt_target)
     {
@@ -218,8 +216,8 @@ void Water::PrepareWater()
             m_refract_rtt_target = m_refract_rtt_targetPtr->getBuffer()->getRenderTarget();
             {
                 m_refract_cam = gEnv->sceneManager->createCamera("RefractCam");
-                m_refract_cam->setNearClipDistance(m_render_cam->getNearClipDistance());
-                m_refract_cam->setFarClipDistance(m_render_cam->getFarClipDistance());
+                m_refract_cam->setNearClipDistance(App::GetCameraManager()->GetCamera()->getNearClipDistance());
+                m_refract_cam->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
                 m_refract_cam->setAspectRatio(
                     (Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
                     (Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
@@ -251,8 +249,8 @@ void Water::PrepareWater()
         m_reflect_rtt_target = m_reflect_rtt_targetPtr->getBuffer()->getRenderTarget();
         {
             m_reflect_cam = gEnv->sceneManager->createCamera("ReflectCam");
-            m_reflect_cam->setNearClipDistance(m_render_cam->getNearClipDistance());
-            m_reflect_cam->setFarClipDistance(m_render_cam->getFarClipDistance());
+            m_reflect_cam->setNearClipDistance(App::GetCameraManager()->GetCamera()->getNearClipDistance());
+            m_reflect_cam->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
             m_reflect_cam->setAspectRatio(
                 (Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
                 (Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
@@ -406,24 +404,20 @@ void Water::ShowWave(Vector3 refpos)
 
 bool Water::IsCameraUnderWater()
 {
-    if (m_render_cam)
-    {
-        return (m_render_cam->getPosition().y < CalcWavesHeight(m_render_cam->getPosition()));
-    }
-    return false;
+    return (gEnv->mainCamera->getPosition().y < CalcWavesHeight(gEnv->mainCamera->getPosition()));
 }
 
 void Water::UpdateWater()
 {
-    if (!m_water_visible || !m_render_cam)
+    if (!m_water_visible)
         return;
 
     if (m_waterplane_node)
     {
-        Vector3 cameraPos(m_render_cam->getPosition().x, m_water_height, m_render_cam->getPosition().z);
+        Vector3 cameraPos(gEnv->mainCamera->getPosition().x, m_water_height, gEnv->mainCamera->getPosition().z);
         Vector3 sightPos(cameraPos);
 
-        Ray lineOfSight(m_render_cam->getPosition(), m_render_cam->getDirection());
+        Ray lineOfSight(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection());
         Plane waterPlane(Vector3::UNIT_Y, Vector3::UNIT_Y * m_water_height);
 
         std::pair<bool, Real> intersection = lineOfSight.intersects(waterPlane);
@@ -450,35 +444,36 @@ void Water::UpdateWater()
     {
         if (m_frame_counter % 2 == 1 || m_waterplane_force_update_pos)
         {
-            m_reflect_cam->setOrientation(m_render_cam->getOrientation());
-            m_reflect_cam->setPosition(m_render_cam->getPosition());
-            m_reflect_cam->setFOVy(m_render_cam->getFOVy());
+            m_reflect_cam->setOrientation(gEnv->mainCamera->getOrientation());
+            m_reflect_cam->setPosition(gEnv->mainCamera->getPosition());
+            m_reflect_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
             m_reflect_rtt_target->update();
         }
         if (m_frame_counter % 2 == 0 || m_waterplane_force_update_pos)
         {
-            m_refract_cam->setOrientation(m_render_cam->getOrientation());
-            m_refract_cam->setPosition(m_render_cam->getPosition());
-            m_refract_cam->setFOVy(m_render_cam->getFOVy());
+            m_refract_cam->setOrientation(gEnv->mainCamera->getOrientation());
+            m_refract_cam->setPosition(gEnv->mainCamera->getPosition());
+            m_refract_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
             m_refract_rtt_target->update();
         }
     }
     else if (App::gfx_water_mode->GetActiveEnum<GfxWaterMode>() == GfxWaterMode::FULL_HQ)
     {
-        m_reflect_cam->setOrientation(m_render_cam->getOrientation());
-        m_reflect_cam->setPosition(m_render_cam->getPosition());
-        m_reflect_cam->setFOVy(m_render_cam->getFOVy());
+        m_reflect_cam->setOrientation(gEnv->mainCamera->getOrientation());
+        m_reflect_cam->setPosition(gEnv->mainCamera->getPosition());
+        m_reflect_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
         m_reflect_rtt_target->update();
-        m_refract_cam->setOrientation(m_render_cam->getOrientation());
-        m_refract_cam->setPosition(m_render_cam->getPosition());
-        m_refract_cam->setFOVy(m_render_cam->getFOVy());
+
+        m_refract_cam->setOrientation(gEnv->mainCamera->getOrientation());
+        m_refract_cam->setPosition(gEnv->mainCamera->getPosition());
+        m_refract_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
         m_refract_rtt_target->update();
     }
     else if (App::gfx_water_mode->GetActiveEnum<GfxWaterMode>() == GfxWaterMode::REFLECT)
     {
-        m_reflect_cam->setOrientation(m_render_cam->getOrientation());
-        m_reflect_cam->setPosition(m_render_cam->getPosition());
-        m_reflect_cam->setFOVy(m_render_cam->getFOVy());
+        m_reflect_cam->setOrientation(gEnv->mainCamera->getOrientation());
+        m_reflect_cam->setPosition(gEnv->mainCamera->getPosition());
+        m_reflect_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
         m_reflect_rtt_target->update();
     }
 
@@ -613,11 +608,6 @@ void Water::UpdateReflectionPlane(float h)
     {
         m_refract_cam->enableCustomNearClipPlane(m_refract_plane);
     }
-}
-
-void Water::WaterSetCamera(Ogre::Camera* cam)
-{
-    m_render_cam = cam;
 }
 
 void Water::FrameStepWater(float dt)

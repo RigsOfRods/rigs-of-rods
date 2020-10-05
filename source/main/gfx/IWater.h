@@ -41,7 +41,6 @@ public:
     virtual float          CalcWavesHeight(Ogre::Vector3 pos) = 0;
     virtual Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos) = 0;
     virtual void           SetWaterVisible(bool value) = 0;
-    virtual void           WaterSetCamera(Ogre::Camera* cam) {}
     virtual void           WaterSetSunPosition(Ogre::Vector3) {}
     virtual bool           IsUnderWater(Ogre::Vector3 pos) = 0;
     virtual void           FrameStepWater(float dt) = 0;
