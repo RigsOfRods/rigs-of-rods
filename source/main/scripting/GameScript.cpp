@@ -726,7 +726,7 @@ Vector3 GameScript::getCameraPosition()
 {
     Vector3 result(Vector3::ZERO);
     if (gEnv->mainCamera)
-        result = gEnv->mainCamera->getPosition();
+        result = App::GetCameraManager()->GetCameraNode()->getPosition();
     return result;
 }
 

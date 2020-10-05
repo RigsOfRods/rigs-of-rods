@@ -720,7 +720,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
                 return;
             }
 
-            float camDist = (xc_scenenode->getPosition() - gEnv->mainCamera->getPosition()).length();
+            float camDist = (xc_scenenode->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition()).length();
 
             xc_movable_text->setCaption(xc_simbuf.simbuf_net_username);
             if (camDist > 1000.0f)

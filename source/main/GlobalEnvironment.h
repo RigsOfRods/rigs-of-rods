@@ -31,10 +31,6 @@ class CamProxy
 {
 public:
     // getters
-    Ogre::Vector3 getPosition()
-    {
-        return RoR::App::GetCameraManager()->GetCameraNode()->getPosition();
-    }
     Ogre::Vector3 getDerivedPosition()
     {
         return RoR::App::GetCameraManager()->GetCameraNode()->_getDerivedPosition();

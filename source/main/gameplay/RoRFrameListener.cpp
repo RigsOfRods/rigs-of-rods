@@ -397,7 +397,7 @@ void SimController::UpdateInputEvents(float dt)
             as->addData("MP_ServerName", App::mp_server_host->GetActiveStr());
             as->addData("MP_ServerPort", TOSTRING(App::mp_server_port->GetActiveVal<int>()));
             as->addData("MP_NetworkEnabled", (App::mp_state->GetActiveEnum<MpState>() == MpState::CONNECTED) ? "Yes" : "No");
-            as->addData("Camera_Position", TOSTRING(gEnv->mainCamera->getPosition()));
+            as->addData("Camera_Position", TOSTRING(App::GetCameraManager()->GetCameraNode()->getPosition()));
 
             const RenderTarget::FrameStats& stats = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
             as->addData("AVGFPS", TOSTRING(stats.avgFPS));
@@ -634,7 +634,7 @@ void SimController::UpdateInputEvents(float dt)
             if (object_index == -1)
             {
                 // Select nearest object
-                Vector3 ref_pos = this->AreControlsLocked() ? gEnv->mainCamera->getPosition() : m_player_character->getPosition();
+                Vector3 ref_pos = this->AreControlsLocked() ? App::GetCameraManager()->GetCameraNode()->getPosition() : m_player_character->getPosition();
                 float min_dist = std::numeric_limits<float>::max();
                 for (int i = 0; i < (int)object_list.size(); i++)
                 {
@@ -1748,7 +1748,7 @@ void SimController::UpdateSimulation(float dt)
 #ifdef USE_MUMBLE
         // calculate orientation of avatar first
         Ogre::Vector3 avatarDir = Ogre::Vector3(Math::Cos(m_player_character->getRotation()), 0.0f, Math::Sin(m_player_character->getRotation()));
-        App::GetMumble()->update(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(),
+        App::GetMumble()->update(App::GetCameraManager()->GetCameraNode()->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(),
         m_player_character->getPosition() + Vector3(0, 1.8f, 0), avatarDir, Ogre::Vector3(0.0f, 1.0f, 0.0f));
 #endif // USE_MUMBLE
     }
@@ -1759,10 +1759,10 @@ void SimController::UpdateSimulation(float dt)
 #ifdef USE_OPENAL
         // update audio listener position
         static Vector3 lastCameraPosition;
-        Vector3 cameraSpeed = (gEnv->mainCamera->getPosition() - lastCameraPosition) / dt;
-        lastCameraPosition = gEnv->mainCamera->getPosition();
+        Vector3 cameraSpeed = (App::GetCameraManager()->GetCameraNode()->getPosition() - lastCameraPosition) / dt;
+        lastCameraPosition = App::GetCameraManager()->GetCameraNode()->getPosition();
 
-        SoundScriptManager::getSingleton().setCamera(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(), cameraSpeed);
+        SoundScriptManager::getSingleton().setCamera(App::GetCameraManager()->GetCameraNode()->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(), cameraSpeed);
 #endif // USE_OPENAL
     }
 
