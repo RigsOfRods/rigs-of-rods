@@ -47,11 +47,7 @@ public:
     {
         RoR::App::GetCameraManager()->GetCameraNode()->roll(angle);
     }
-    void lookAt(const Ogre::Vector3& targetPoint)
-    {
-        // ??
-        RoR::App::GetCameraManager()->GetCameraNode()->lookAt(targetPoint, Ogre::Node::TS_WORLD);
-    }
+
     void setDirection(const Ogre::Vector3& dir)
     {
         // ??
