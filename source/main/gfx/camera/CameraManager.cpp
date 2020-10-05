@@ -227,7 +227,7 @@ void CameraManager::UpdateCurrentBehavior()
         Quaternion orientation = Quaternion(m_cam_rot_x, up) * Quaternion(Degree(180.0) + m_cam_rot_y, roll) * Quaternion(roll, up, dir);
 
         App::GetCameraManager()->GetCameraNode()->setPosition(m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_cinecam_node[m_cct_player_actor->ar_current_cinecam]].AbsPosition);
-        gEnv->mainCamera->setOrientation(orientation);
+        App::GetCameraManager()->GetCameraNode()->setOrientation(orientation);
         return;
     }
     case CAMERA_BEHAVIOR_FREE:            this->UpdateCameraBehaviorFree(); return;

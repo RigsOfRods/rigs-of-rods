@@ -695,7 +695,7 @@ void GameScript::setCameraOrientation(const Quaternion& q)
     if (!this->HaveMainCamera(__FUNCTION__))
         return;
 
-    gEnv->mainCamera->setOrientation(Quaternion(q.w, q.x, q.y, q.z));
+    App::GetCameraManager()->GetCameraNode()->setOrientation(Quaternion(q.w, q.x, q.y, q.z));
 }
 
 void GameScript::setCameraYaw(float rotX)

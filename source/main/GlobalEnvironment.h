@@ -34,10 +34,7 @@ public:
 
     // setters
 
-    void setOrientation(const Ogre::Quaternion &q)
-    {
-        RoR::App::GetCameraManager()->GetCameraNode()->setOrientation(q);
-    }
+
     void yaw(const Ogre::Radian& angle)
     {
         RoR::App::GetCameraManager()->GetCameraNode()->yaw(angle, Ogre::Node::TS_WORLD);
