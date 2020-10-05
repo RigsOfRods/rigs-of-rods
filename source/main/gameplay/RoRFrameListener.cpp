@@ -1749,7 +1749,9 @@ void SimController::UpdateSimulation(float dt)
         // calculate orientation of avatar first
         Ogre::Vector3 avatarDir = Ogre::Vector3(Math::Cos(m_player_character->getRotation()), 0.0f, Math::Sin(m_player_character->getRotation()));
         Ogre::Vector3 upVector = App::GetCameraManager()->GetCameraNode()->getOrientation() * Ogre::Vector3::UNIT_Y;
-        App::GetMumble()->update(App::GetCameraManager()->GetCameraNode()->getPosition(), gEnv->mainCamera->getDirection(), upVector,
+        // Direction points down -Z by default (adapted from Ogre::Camera)
+        Ogre::Vector3 cameraDir = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
+        App::GetMumble()->update(App::GetCameraManager()->GetCameraNode()->getPosition(), cameraDir, upVector,
         m_player_character->getPosition() + Vector3(0, 1.8f, 0), avatarDir, Ogre::Vector3(0.0f, 1.0f, 0.0f));
 #endif // USE_MUMBLE
     }
@@ -1764,7 +1766,9 @@ void SimController::UpdateSimulation(float dt)
         lastCameraPosition = App::GetCameraManager()->GetCameraNode()->getPosition();
 
         Ogre::Vector3 upVector = App::GetCameraManager()->GetCameraNode()->getOrientation() * Ogre::Vector3::UNIT_Y;
-        SoundScriptManager::getSingleton().setCamera(App::GetCameraManager()->GetCameraNode()->getPosition(), gEnv->mainCamera->getDirection(), upVector, cameraSpeed);
+        // Direction points down -Z by default (adapted from Ogre::Camera)
+        Ogre::Vector3 cameraDir = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
+        SoundScriptManager::getSingleton().setCamera(App::GetCameraManager()->GetCameraNode()->getPosition(), cameraDir, upVector, cameraSpeed);
 #endif // USE_OPENAL
     }
 

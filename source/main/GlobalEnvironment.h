@@ -35,11 +35,7 @@ public:
     {
         return RoR::App::GetCameraManager()->GetCameraNode()->_getDerivedPosition();
     }
-    Ogre::Vector3 getDirection()
-    {
-        // Direction points down -Z by default (adapted from Ogre::Camera)
-        return RoR::App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
-    }
+
 
     // setters
     void setPosition(Ogre::Vector3 pos)

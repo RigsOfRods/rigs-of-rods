@@ -416,8 +416,10 @@ void Water::UpdateWater()
     {
         Vector3 cameraPos(App::GetCameraManager()->GetCameraNode()->getPosition().x, m_water_height, App::GetCameraManager()->GetCameraNode()->getPosition().z);
         Vector3 sightPos(cameraPos);
+        // Direction points down -Z by default (adapted from Ogre::Camera)
+        Ogre::Vector3 cameraDir = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
 
-        Ray lineOfSight(App::GetCameraManager()->GetCameraNode()->getPosition(), gEnv->mainCamera->getDirection());
+        Ray lineOfSight(App::GetCameraManager()->GetCameraNode()->getPosition(), cameraDir);
         Plane waterPlane(Vector3::UNIT_Y, Vector3::UNIT_Y * m_water_height);
 
         std::pair<bool, Real> intersection = lineOfSight.intersects(waterPlane);
