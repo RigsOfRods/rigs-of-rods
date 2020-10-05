@@ -703,7 +703,7 @@ void GameScript::setCameraYaw(float rotX)
     if (!this->HaveMainCamera(__FUNCTION__))
         return;
 
-    gEnv->mainCamera->yaw(Degree(rotX));
+    App::GetCameraManager()->GetCameraNode()->yaw(Degree(rotX), Ogre::Node::TS_WORLD);
 }
 
 void GameScript::setCameraPitch(float rotY)
@@ -711,7 +711,7 @@ void GameScript::setCameraPitch(float rotY)
     if (!this->HaveMainCamera(__FUNCTION__))
         return;
 
-    gEnv->mainCamera->pitch(Degree(rotY));
+    App::GetCameraManager()->GetCameraNode()->pitch(Degree(rotY));
 }
 
 void GameScript::setCameraRoll(float rotZ)
@@ -719,13 +719,13 @@ void GameScript::setCameraRoll(float rotZ)
     if (!this->HaveMainCamera(__FUNCTION__))
         return;
 
-    gEnv->mainCamera->roll(Degree(rotZ));
+    App::GetCameraManager()->GetCameraNode()->roll(Degree(rotZ));
 }
 
 Vector3 GameScript::getCameraPosition()
 {
     Vector3 result(Vector3::ZERO);
-    if (gEnv->mainCamera)
+    if (App::GetCameraManager()->GetCameraNode())
         result = App::GetCameraManager()->GetCameraNode()->getPosition();
     return result;
 }
@@ -733,7 +733,7 @@ Vector3 GameScript::getCameraPosition()
 Vector3 GameScript::getCameraDirection()
 {
     Vector3 result(Vector3::ZERO);
-    if (gEnv->mainCamera)
+    if (App::GetCameraManager()->GetCameraNode())
     {
         // Direction points down -Z by default (adapted from Ogre::Camera)
         result = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
@@ -744,7 +744,7 @@ Vector3 GameScript::getCameraDirection()
 Quaternion GameScript::getCameraOrientation()
 {
     Quaternion result(Quaternion::ZERO);
-    if (gEnv->mainCamera)
+    if (App::GetCameraManager()->GetCameraNode())
         result = App::GetCameraManager()->GetCameraNode()->getOrientation();
     return result;
 }
@@ -1009,7 +1009,7 @@ bool GameScript::HavePlayerAvatar(const char* func_name)
 
 bool GameScript::HaveMainCamera(const char* func_name)
 {
-    if (gEnv->mainCamera == nullptr)
+    if (App::GetCameraManager()->GetCamera() == nullptr)
     {
         this->logFormat("Cannot execute '%s', main camera not ready", func_name);
         return false;

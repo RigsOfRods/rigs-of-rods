@@ -26,6 +26,7 @@
 
 #include "Application.h"
 #include "BeamFactory.h"
+#include "CameraManager.h"
 #include "ContentManager.h"
 #include "GUIUtils.h"
 #include "InputEngine.h"

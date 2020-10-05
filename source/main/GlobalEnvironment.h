@@ -23,47 +23,14 @@
 
 #include "ForwardDeclarations.h"
 
-// -----==== DEBUG ====----
-#include "Application.h"
-#include "CameraManager.h"
-
-class CamProxy
-{
-public:
-
-
-    // setters
-
-
-    void yaw(const Ogre::Radian& angle)
-    {
-        RoR::App::GetCameraManager()->GetCameraNode()->yaw(angle, Ogre::Node::TS_WORLD);
-    }
-    void pitch(const Ogre::Radian& angle)
-    {
-        RoR::App::GetCameraManager()->GetCameraNode()->pitch(angle);
-    }
-    void roll(const Ogre::Radian& angle)
-    {
-        RoR::App::GetCameraManager()->GetCameraNode()->roll(angle);
-    }
-
-
-};
-// ----==== END DEBUG ====----
-
 class GlobalEnvironment
 {
 public:
 
     GlobalEnvironment() :
-         mainCamera(&m_camproxy)
-        , sceneManager(0)
+         sceneManager(0)
     {}
 
-    CamProxy*       mainCamera;
-    Ogre::SceneManager* sceneManager;
 
-private:
-    CamProxy m_camproxy;
+    Ogre::SceneManager* sceneManager;
 };

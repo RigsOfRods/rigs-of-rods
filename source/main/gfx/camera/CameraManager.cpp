@@ -538,8 +538,8 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
     case CAMERA_BEHAVIOR_FREE: {
         const OIS::MouseState ms = _arg.state;
 
-        gEnv->mainCamera->yaw(Degree(-ms.X.rel * 0.13f));
-        gEnv->mainCamera->pitch(Degree(-ms.Y.rel * 0.13f));
+        App::GetCameraManager()->GetCameraNode()->yaw(Degree(-ms.X.rel * 0.13f), Ogre::Node::TS_WORLD);
+        App::GetCameraManager()->GetCameraNode()->pitch(Degree(-ms.Y.rel * 0.13f));
 
         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
 
@@ -993,8 +993,8 @@ void CameraManager::UpdateCameraBehaviorFree()
         mRotY -= cct_rot_scale;
     }
 
-    gEnv->mainCamera->yaw(mRotX);
-    gEnv->mainCamera->pitch(mRotY);
+    App::GetCameraManager()->GetCameraNode()->yaw(mRotX, Ogre::Node::TS_WORLD);
+    App::GetCameraManager()->GetCameraNode()->pitch(mRotY);
 
     Vector3 camPosition = App::GetCameraManager()->GetCameraNode()->getPosition() + App::GetCameraManager()->GetCameraNode()->getOrientation() * mTrans.normalisedCopy() * cct_trans_scale;
 
