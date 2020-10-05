@@ -734,7 +734,10 @@ Vector3 GameScript::getCameraDirection()
 {
     Vector3 result(Vector3::ZERO);
     if (gEnv->mainCamera)
-        result = gEnv->mainCamera->getDirection();
+    {
+        // Direction points down -Z by default (adapted from Ogre::Camera)
+        result = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
+    }
     return result;
 }
 
