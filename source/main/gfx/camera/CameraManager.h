@@ -54,7 +54,8 @@ public:
     bool gameControlsLocked() const;
     bool hasActiveBehavior();
 
-    CameraBehaviors GetCurrentBehavior() { return m_current_behavior; }
+    CameraBehaviors   GetCurrentBehavior() const  { return m_current_behavior; }
+    Ogre::SceneNode*  GetCameraNode()             { return m_camera_node; }
 
     void NotifyContextChange();
     void NotifyVehicleChanged(Actor* new_vehicle);
@@ -67,6 +68,7 @@ public:
     bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
 
     void ResetAllBehaviors();
+    void ReCreateCameraNode(); //!< Needed since we call `Ogre::SceneManager::ClearScene()` after end of sim. session
 
 protected:
 
@@ -92,8 +94,10 @@ protected:
     void CameraBehaviorVehicleSplineCreateSpline();
     void CameraBehaviorVehicleSplineUpdateSpline();
     void CameraBehaviorVehicleSplineUpdateSplineDisplay();
+    void CreateCameraNode();
 
-    Ogre::SceneNode*     m_camera_node;         //!< Has camera permanently attached
+    Ogre::Camera*        m_camera;
+    Ogre::SceneNode*     m_camera_node;
 
     CameraBehaviors      m_current_behavior;
     CameraBehaviors      m_cam_before_toggled;  //!< Toggled modes (FREE, FREEFIX) remember original state.
