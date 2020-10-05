@@ -40,7 +40,7 @@ Water::Water() :
     m_waterplane_mesh_scale(1.0f),
     m_refract_rtt_viewport(0),
     m_reflect_rtt_viewport(0),
-    m_render_cam(gEnv->mainCamera),
+    m_render_cam(App::GetCameraManager()->GetCamera()),
     m_bottom_height(0),
     m_water_height(0),
     m_waterplane_node(0),

@@ -30,6 +30,7 @@
 #endif // USE_CAELUM
 
 using namespace Ogre;
+using namespace RoR;
 
 // HydraxWater
 HydraxWater::HydraxWater(float water_height, Ogre::String conf_file):
@@ -37,10 +38,9 @@ HydraxWater::HydraxWater(float water_height, Ogre::String conf_file):
     , mHydrax(0)
     , waterHeight(water_height)
     , waveHeight(water_height)
-    , mRenderCamera(gEnv->mainCamera)
     , CurrentConfigFile(conf_file)
 {
-    mRenderCamera->setNearClipDistance(0.1f);
+    App::GetCameraManager()->GetCamera()->setNearClipDistance(0.1f);
 
     InitHydrax();
 }
@@ -53,7 +53,7 @@ HydraxWater::~HydraxWater()
 
 void HydraxWater::InitHydrax()
 {
-    mHydrax = new Hydrax::Hydrax(gEnv->sceneManager, mRenderCamera, RoR::App::GetOgreSubsystem()->GetViewport());
+    mHydrax = new Hydrax::Hydrax(gEnv->sceneManager, App::GetCameraManager()->GetCamera(), RoR::App::GetOgreSubsystem()->GetViewport());
 
     waternoise = new Hydrax::Noise::Perlin();
     mModule = new Hydrax::Module::ProjectedGrid(// Hydrax parent pointer

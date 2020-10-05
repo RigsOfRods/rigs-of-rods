@@ -231,7 +231,7 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
 
 void TerrainManager::initCamera()
 {
-    gEnv->mainCamera->getViewport()->setBackgroundColour(m_def.ambient_color);
+    App::GetCameraManager()->GetCamera()->getViewport()->setBackgroundColour(m_def.ambient_color);
     gEnv->mainCamera->setPosition(m_def.start_position);
 
     if (App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
@@ -245,15 +245,15 @@ void TerrainManager::initCamera()
 
     if (m_sight_range < UNLIMITED_SIGHTRANGE && App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() != GfxSkyMode::SKYX)
     {
-        gEnv->mainCamera->setFarClipDistance(m_sight_range);
+        App::GetCameraManager()->GetCamera()->setFarClipDistance(m_sight_range);
     }
     else
     {
         // disabled in global config
         if (App::gfx_water_mode->GetActiveEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX)
-            gEnv->mainCamera->setFarClipDistance(0); //Unlimited
+            App::GetCameraManager()->GetCamera()->setFarClipDistance(0); //Unlimited
         else
-            gEnv->mainCamera->setFarClipDistance(9999 * 6); //Unlimited for hydrax and stuff
+            App::GetCameraManager()->GetCamera()->setFarClipDistance(9999 * 6); //Unlimited for hydrax and stuff
     }
 }
 
@@ -365,9 +365,9 @@ void TerrainManager::fixCompositorClearColor()
 {
     // hack
     // now with extensive error checking
-    if (CompositorManager::getSingleton().hasCompositorChain(gEnv->mainCamera->getViewport()))
+    if (CompositorManager::getSingleton().hasCompositorChain(App::GetCameraManager()->GetCamera()->getViewport()))
     {
-        CompositorInstance* co = CompositorManager::getSingleton().getCompositorChain(gEnv->mainCamera->getViewport())->_getOriginalSceneCompositor();
+        CompositorInstance* co = CompositorManager::getSingleton().getCompositorChain(App::GetCameraManager()->GetCamera()->getViewport())->_getOriginalSceneCompositor();
         if (co)
         {
             CompositionTechnique* ct = co->getTechnique();

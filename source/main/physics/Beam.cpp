@@ -2947,7 +2947,7 @@ void Actor::prepareInside(bool inside)
     // TODO: this whole function belongs to GfxActor ~ 08/2018
     if (inside)
     {
-        gEnv->mainCamera->setNearClipDistance(0.1f);
+        App::GetCameraManager()->GetCamera()->setNearClipDistance(0.1f);
 
         // enable transparent seat
         MaterialPtr seatmat = (MaterialPtr)(MaterialManager::getSingleton().getByName("driversseat"));
@@ -2961,7 +2961,7 @@ void Actor::prepareInside(bool inside)
             ar_dashboard->setVisible(false);
         }
 
-        gEnv->mainCamera->setNearClipDistance(0.5f);
+        App::GetCameraManager()->GetCamera()->setNearClipDistance(0.5f);
 
         // disable transparent seat
         MaterialPtr seatmat = (MaterialPtr)(MaterialManager::getSingleton().getByName("driversseat"));

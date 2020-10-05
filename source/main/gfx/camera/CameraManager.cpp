@@ -120,7 +120,6 @@ CameraManager::CameraManager() :
     this->CreateCameraNode();
 
     App::GetOgreSubsystem()->GetViewport()->setCamera(m_camera);
-    gEnv->mainCamera = m_camera; // Temporary, removal in progress!!! ~ 05/2020 Petr O.
 }
 
 CameraManager::~CameraManager()
@@ -329,7 +328,7 @@ void CameraManager::ResetCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
         CameraManager::CameraBehaviorOrbitReset();
         m_cam_rot_y = Degree(DEFAULT_INTERNAL_CAM_PITCH);
-        gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_internal->GetActiveVal<int>()));
+        App::GetCameraManager()->GetCamera()->setFOVy(Degree(App::gfx_fov_internal->GetActiveVal<int>()));
         return;
 
     case CAMERA_BEHAVIOR_FREE:            return;
@@ -358,7 +357,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
         break;
 
     case CAMERA_BEHAVIOR_STATIC:
-        m_staticcam_previous_fov = gEnv->mainCamera->getFOVy();
+        m_staticcam_previous_fov = App::GetCameraManager()->GetCamera()->getFOVy();
         break;
 
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:
@@ -386,7 +385,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
             this->ResetCurrentBehavior();
         }
 
-        gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_internal->GetActiveVal<int>()));
+        App::GetCameraManager()->GetCamera()->setFOVy(Degree(App::gfx_fov_internal->GetActiveVal<int>()));
 
         m_cct_player_actor->prepareInside(true);
 
@@ -437,13 +436,13 @@ void CameraManager::DeactivateCurrentBehavior()
 {
     if (m_current_behavior == CAMERA_BEHAVIOR_STATIC)
     {
-        gEnv->mainCamera->setFOVy(m_staticcam_previous_fov);
+        App::GetCameraManager()->GetCamera()->setFOVy(m_staticcam_previous_fov);
     }
     else if (m_current_behavior == CAMERA_BEHAVIOR_VEHICLE_CINECAM)
     {
         if ( m_cct_player_actor != nullptr )
         {
-            gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_external->GetActiveVal<int>()));
+            App::GetCameraManager()->GetCamera()->setFOVy(Degree(App::gfx_fov_external->GetActiveVal<int>()));
             m_cct_player_actor->prepareInside(false);
             m_cct_player_actor->NotifyActorCameraChanged();
         }
@@ -765,7 +764,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
 
     gEnv->mainCamera->setPosition(m_staticcam_position);
     gEnv->mainCamera->lookAt(m_staticcam_look_at);
-    gEnv->mainCamera->setFOVy(Radian(fov));
+    App::GetCameraManager()->GetCamera()->setFOVy(Radian(fov));
 }
 
 bool CameraManager::CameraBehaviorStaticMouseMoved(const OIS::MouseEvent& _arg)
@@ -925,7 +924,7 @@ void CameraManager::CameraBehaviorOrbitReset()
     m_cam_look_at_last = Vector3::ZERO;
     m_cam_look_at_smooth = Vector3::ZERO;
     m_cam_look_at_smooth_last = Vector3::ZERO;
-    gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_external->GetActiveVal<int>()));
+    App::GetCameraManager()->GetCamera()->setFOVy(Degree(App::gfx_fov_external->GetActiveVal<int>()));
 }
 
 void CameraManager::UpdateCameraBehaviorFree()

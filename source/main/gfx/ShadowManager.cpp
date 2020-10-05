@@ -136,8 +136,8 @@ void ShadowManager::processPSSM()
         // shadow camera setup
         Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
 
-        pssmSetup->calculateSplitPoints(3, gEnv->mainCamera->getNearClipDistance(), gEnv->sceneManager->getShadowFarDistance(), PSSM_Shadows.lambda);
-        pssmSetup->setSplitPadding(gEnv->mainCamera->getNearClipDistance());
+        pssmSetup->calculateSplitPoints(3, App::GetCameraManager()->GetCamera()->getNearClipDistance(), gEnv->sceneManager->getShadowFarDistance(), PSSM_Shadows.lambda);
+        pssmSetup->setSplitPadding(App::GetCameraManager()->GetCamera()->getNearClipDistance());
 
         pssmSetup->setOptimalAdjustFactor(0, -1);
         pssmSetup->setOptimalAdjustFactor(1, -1);

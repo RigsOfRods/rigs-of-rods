@@ -91,7 +91,7 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     {
         float fov = (m_simbuf.simbuf_camera_behavior == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
             ? App::gfx_fov_internal->GetActiveVal<float>() : App::gfx_fov_external->GetActiveVal<float>();
-        gEnv->mainCamera->setFOVy(Ogre::Degree(fov));
+        RoR::App::GetCameraManager()->GetCamera()->setFOVy(Ogre::Degree(fov));
     }
 
     // Particles
@@ -128,7 +128,7 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     IWater* water = App::GetSimTerrain()->getWater();
     if (water)
     {
-        water->WaterSetCamera(gEnv->mainCamera);
+        water->WaterSetCamera(App::GetCameraManager()->GetCamera());
         if (player_gfx_actor != nullptr)
         {
             water->SetReflectionPlaneHeight(water->CalcWavesHeight(player_gfx_actor->GetSimDataBuffer().simbuf_pos));

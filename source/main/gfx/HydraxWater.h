@@ -52,7 +52,6 @@ protected:
     Hydrax::Hydrax* mHydrax;
     float waveHeight;
     float waterHeight;
-    Ogre::Camera* mRenderCamera;
     Hydrax::Noise::Perlin* waternoise;
     Hydrax::Module::ProjectedGrid* mModule;
     Ogre::String CurrentConfigFile;
