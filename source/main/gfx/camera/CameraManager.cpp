@@ -114,16 +114,13 @@ CameraManager::CameraManager() :
     m_cct_player_actor = nullptr;
     m_staticcam_update_timer.reset();
 
-    Ogre::Camera* camera = gEnv->sceneManager->createCamera("PlayerCam");
-    camera->setNearClipDistance(0.5);
-    camera->setAutoAspectRatio(true);
+    m_camera = gEnv->sceneManager->createCamera("PlayerCam");
+    m_camera->setNearClipDistance(0.5);
+    m_camera->setAutoAspectRatio(true);
+    this->CreateCameraNode();
 
-    m_camera_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-    m_camera_node->setFixedYawAxis(true);
-    m_camera_node->attachObject(camera);
-
-    App::GetOgreSubsystem()->GetViewport()->setCamera(camera);
-    gEnv->mainCamera = camera; // Temporary, removal in progress!!! ~ 05/2020 Petr O.
+    App::GetOgreSubsystem()->GetViewport()->setCamera(m_camera);
+    gEnv->mainCamera = m_camera; // Temporary, removal in progress!!! ~ 05/2020 Petr O.
 }
 
 CameraManager::~CameraManager()
@@ -132,6 +129,20 @@ CameraManager::~CameraManager()
         delete m_splinecam_spline;
     if (m_splinecam_mo)
         delete m_splinecam_mo;
+}
+
+void CameraManager::CreateCameraNode()
+{
+    assert(!m_camera_node);
+    m_camera_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    m_camera_node->setFixedYawAxis(true);
+    m_camera_node->attachObject(m_camera);
+}
+
+void CameraManager::ReCreateCameraNode()
+{
+    m_camera_node = nullptr; // after call to `Ogre::SceneManager::ClearScene()`, the node pointer is invalid.
+    this->CreateCameraNode();
 }
 
 bool CameraManager::EvaluateSwitchBehavior()

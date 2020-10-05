@@ -383,6 +383,7 @@ int main(int argc, char *argv[])
                     }
                 } // Enclosing scope for SimController
                 gEnv->sceneManager->clearScene(); // Wipe the scene after SimController was destroyed
+                App::GetCameraManager()->ReCreateCameraNode(); // Needed after the wipe
                 App::sim_terrain_name->SetActiveStr("");
                 App::sim_terrain_gui_name->SetActiveStr("");
                 App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&main_obj); // HACK until OGRE 1.12 migration; Needed for GUI display, must be done ASAP ~ only_a_ptr, 10/2019
