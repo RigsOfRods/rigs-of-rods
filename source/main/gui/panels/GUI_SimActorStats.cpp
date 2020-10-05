@@ -179,11 +179,11 @@ void SimActorStats::Draw(RoR::GfxActor* actorx)
                 ImGui::SameLine();
                 if (ae.simbuf_ae_turboprop) // Turboprop or pistonprop
                 {
-                    ImGui::Text("%f RPM", ae.simbuf_ae_rpm);
+                    ImGui::Text("%.2f RPM", ae.simbuf_ae_rpm);
                 }
                 else // Turbojet
                 {
-                    ImGui::Text("%f%", ae.simbuf_ae_rpm);
+                    ImGui::Text("%.2f", ae.simbuf_ae_rpm);
                 }
                 ++engine_num;
             }
