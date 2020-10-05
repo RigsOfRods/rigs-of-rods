@@ -763,7 +763,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
     float fov = atan2(20.0f, std::pow(camDist, fovExp));
 
     App::GetCameraManager()->GetCameraNode()->setPosition(m_staticcam_position);
-    gEnv->mainCamera->lookAt(m_staticcam_look_at);
+    App::GetCameraManager()->GetCameraNode()->lookAt(m_staticcam_look_at, Ogre::Node::TS_WORLD);
     App::GetCameraManager()->GetCamera()->setFOVy(Radian(fov));
 }
 
@@ -898,7 +898,7 @@ void CameraManager::CameraBehaviorOrbitUpdate()
 
     m_cam_look_at_last = m_cam_look_at;
     m_cam_look_at_smooth_last = m_cam_look_at_smooth;
-    gEnv->mainCamera->lookAt(m_cam_look_at_smooth);
+    App::GetCameraManager()->GetCameraNode()->lookAt(m_cam_look_at_smooth, Ogre::Node::TS_WORLD);
 }
 
 bool CameraManager::CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg)
@@ -1006,7 +1006,7 @@ void CameraManager::UpdateCameraBehaviorFixed()
 	if (App::gfx_fixed_cam_tracking->GetActiveVal<bool>())
     {
         Vector3 look_at = m_cct_player_actor ? m_cct_player_actor->getPosition() : App::GetSimController()->GetPlayerCharacter()->getPosition();
-        gEnv->mainCamera->lookAt(look_at);
+        App::GetCameraManager()->GetCameraNode()->lookAt(look_at, Ogre::Node::TS_WORLD);
     }
 }
 

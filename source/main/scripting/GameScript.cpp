@@ -754,7 +754,7 @@ void GameScript::cameraLookAt(const Vector3& pos)
     if (!this->HaveMainCamera(__FUNCTION__))
         return;
 
-    gEnv->mainCamera->lookAt(Vector3(pos.x, pos.y, pos.z));
+    App::GetCameraManager()->GetCameraNode()->lookAt(Vector3(pos.x, pos.y, pos.z), Ogre::Node::TS_WORLD);
 }
 
 int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptDictionary& dict, String& result)
