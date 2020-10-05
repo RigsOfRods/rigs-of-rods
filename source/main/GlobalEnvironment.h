@@ -48,11 +48,7 @@ public:
         RoR::App::GetCameraManager()->GetCameraNode()->roll(angle);
     }
 
-    void setDirection(const Ogre::Vector3& dir)
-    {
-        // ??
-        RoR::App::GetCameraManager()->GetCameraNode()->setDirection(dir);
-    }
+
 };
 // ----==== END DEBUG ====----
 

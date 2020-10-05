@@ -687,7 +687,7 @@ void GameScript::setCameraDirection(const Vector3& rot)
     if (!this->HaveMainCamera(__FUNCTION__))
         return;
 
-    gEnv->mainCamera->setDirection(Vector3(rot.x, rot.y, rot.z));
+    App::GetCameraManager()->GetCameraNode()->setDirection(Vector3(rot.x, rot.y, rot.z), Ogre::Node::TS_WORLD);
 }
 
 void GameScript::setCameraOrientation(const Quaternion& q)
