@@ -444,14 +444,14 @@ void Water::UpdateWater()
     {
         if (m_frame_counter % 2 == 1 || m_waterplane_force_update_pos)
         {
-            m_reflect_cam->setOrientation(gEnv->mainCamera->getOrientation());
+            m_reflect_cam->setOrientation(App::GetCameraManager()->GetCameraNode()->getOrientation());
             m_reflect_cam->setPosition(App::GetCameraManager()->GetCameraNode()->getPosition());
             m_reflect_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
             m_reflect_rtt_target->update();
         }
         if (m_frame_counter % 2 == 0 || m_waterplane_force_update_pos)
         {
-            m_refract_cam->setOrientation(gEnv->mainCamera->getOrientation());
+            m_refract_cam->setOrientation(App::GetCameraManager()->GetCameraNode()->getOrientation());
             m_refract_cam->setPosition(App::GetCameraManager()->GetCameraNode()->getPosition());
             m_refract_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
             m_refract_rtt_target->update();
@@ -459,19 +459,19 @@ void Water::UpdateWater()
     }
     else if (App::gfx_water_mode->GetActiveEnum<GfxWaterMode>() == GfxWaterMode::FULL_HQ)
     {
-        m_reflect_cam->setOrientation(gEnv->mainCamera->getOrientation());
+        m_reflect_cam->setOrientation(App::GetCameraManager()->GetCameraNode()->getOrientation());
         m_reflect_cam->setPosition(App::GetCameraManager()->GetCameraNode()->getPosition());
         m_reflect_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
         m_reflect_rtt_target->update();
 
-        m_refract_cam->setOrientation(gEnv->mainCamera->getOrientation());
+        m_refract_cam->setOrientation(App::GetCameraManager()->GetCameraNode()->getOrientation());
         m_refract_cam->setPosition(App::GetCameraManager()->GetCameraNode()->getPosition());
         m_refract_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
         m_refract_rtt_target->update();
     }
     else if (App::gfx_water_mode->GetActiveEnum<GfxWaterMode>() == GfxWaterMode::REFLECT)
     {
-        m_reflect_cam->setOrientation(gEnv->mainCamera->getOrientation());
+        m_reflect_cam->setOrientation(App::GetCameraManager()->GetCameraNode()->getOrientation());
         m_reflect_cam->setPosition(App::GetCameraManager()->GetCameraNode()->getPosition());
         m_reflect_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
         m_reflect_rtt_target->update();

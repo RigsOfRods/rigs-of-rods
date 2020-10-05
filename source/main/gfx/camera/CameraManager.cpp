@@ -996,7 +996,7 @@ void CameraManager::UpdateCameraBehaviorFree()
     gEnv->mainCamera->yaw(mRotX);
     gEnv->mainCamera->pitch(mRotY);
 
-    Vector3 camPosition = App::GetCameraManager()->GetCameraNode()->getPosition() + gEnv->mainCamera->getOrientation() * mTrans.normalisedCopy() * cct_trans_scale;
+    Vector3 camPosition = App::GetCameraManager()->GetCameraNode()->getPosition() + App::GetCameraManager()->GetCameraNode()->getOrientation() * mTrans.normalisedCopy() * cct_trans_scale;
 
     gEnv->mainCamera->setPosition(camPosition);
 }

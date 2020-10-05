@@ -742,7 +742,7 @@ Quaternion GameScript::getCameraOrientation()
 {
     Quaternion result(Quaternion::ZERO);
     if (gEnv->mainCamera)
-        result = gEnv->mainCamera->getOrientation();
+        result = App::GetCameraManager()->GetCameraNode()->getOrientation();
     return result;
 }
 
