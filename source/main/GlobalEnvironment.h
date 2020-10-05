@@ -30,11 +30,6 @@
 class CamProxy
 {
 public:
-    // getters
-    Ogre::Vector3 getDerivedPosition()
-    {
-        return RoR::App::GetCameraManager()->GetCameraNode()->_getDerivedPosition();
-    }
 
 
     // setters
