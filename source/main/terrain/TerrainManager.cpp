@@ -232,7 +232,7 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
 void TerrainManager::initCamera()
 {
     App::GetCameraManager()->GetCamera()->getViewport()->setBackgroundColour(m_def.ambient_color);
-    gEnv->mainCamera->setPosition(m_def.start_position);
+    App::GetCameraManager()->GetCameraNode()->setPosition(m_def.start_position);
 
     if (App::gfx_sky_mode->GetActiveEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
     {

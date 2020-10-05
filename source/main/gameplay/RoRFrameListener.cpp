@@ -2020,7 +2020,7 @@ bool SimController::LoadTerrain()
         m_player_character->setPosition(spawn_pos);
         m_player_character->setRotation(Degree(spawn_rot));
 
-        gEnv->mainCamera->setPosition(m_player_character->getPosition());
+        App::GetCameraManager()->GetCameraNode()->setPosition(m_player_character->getPosition());
 
         // Small hack to improve the spawn experience
         for (int i = 0; i < 100; i++)
