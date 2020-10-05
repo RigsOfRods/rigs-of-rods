@@ -21,6 +21,7 @@
 #include "EnvironmentMap.h"
 
 #include "Application.h"
+#include "CameraManager.h"
 #include "GfxActor.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"

@@ -21,6 +21,7 @@
 #include "HydraxWater.h"
 
 #include "Application.h"
+#include "CameraManager.h"
 #include "OgreSubsystem.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"

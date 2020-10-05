@@ -20,6 +20,8 @@
 
 #include "ShadowManager.h"
 
+#include "CameraManager.h"
+
 #include <Ogre.h>
 #include <Terrain/OgreTerrain.h>
 #include <Overlay/OgreOverlayManager.h>

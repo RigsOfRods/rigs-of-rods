@@ -24,6 +24,7 @@
 #include "SkyManager.h"
 
 #include "Application.h"
+#include "CameraManager.h"
 #include "OgreSubsystem.h"
 #include "TerrainManager.h"
 #include "TerrainGeometryManager.h"

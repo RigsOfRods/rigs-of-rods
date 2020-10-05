@@ -22,6 +22,7 @@
 #include "SkyXManager.h"
 
 #include "Application.h"
+#include "CameraManager.h"
 #include "HydraxWater.h"
 #include "OgreSubsystem.h"
 #include "TerrainManager.h"
