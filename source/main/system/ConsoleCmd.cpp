@@ -98,7 +98,6 @@ public:
             {
                 IWater* water = App::GetSimTerrain()->getWater();
                 float height = (args[1] == "default") ? App::GetSimTerrain()->getWaterHeight() : PARSEREAL(args[1]);
-                water->WaterSetCamera(App::GetCameraManager()->GetCamera());
                 water->SetStaticWaterHeight(height);
                 water->UpdateWater();
             }

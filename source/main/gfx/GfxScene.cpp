@@ -128,7 +128,6 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     IWater* water = App::GetSimTerrain()->getWater();
     if (water)
     {
-        water->WaterSetCamera(App::GetCameraManager()->GetCamera());
         if (player_gfx_actor != nullptr)
         {
             water->SetReflectionPlaneHeight(water->CalcWavesHeight(player_gfx_actor->GetSimDataBuffer().simbuf_pos));
