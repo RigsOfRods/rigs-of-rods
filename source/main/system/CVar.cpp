@@ -33,7 +33,7 @@ void Console::CVarSetupBuiltins()
     App::app_country             = this->CVarCreate("app_country",             "Country",                    CVAR_ARCHIVE,                     "us");
     App::app_skip_main_menu      = this->CVarCreate("app_skip_main_menu",      "SkipMainMenu",               CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::app_async_physics       = this->CVarCreate("app_async_physics",       "AsyncPhysics",               CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
-    App::app_num_workers         = this->CVarCreate("app_num_workers",         "NumWorkerThreads",           CVAR_ARCHIVE);
+    App::app_num_workers         = this->CVarCreate("app_num_workers",         "NumWorkerThreads",           CVAR_ARCHIVE | CVAR_TYPE_INT);
     App::app_screenshot_format   = this->CVarCreate("app_screenshot_format",   "Screenshot Format",          CVAR_ARCHIVE,                     "png");
     App::app_rendersys_override  = this->CVarCreate("app_rendersys_override",  "Render system",              CVAR_ARCHIVE);
     App::app_extra_mod_path      = this->CVarCreate("app_extra_mod_path",      "Extra mod path",             CVAR_ARCHIVE);
@@ -267,7 +267,7 @@ std::string CVar::ConvertStr(float val)
     }
     else if (this->HasFlag(CVAR_TYPE_INT))
     {
-        return std::to_string((int)val);
+        return Ogre::StringUtil::format("%d", (int)val);
     }
     else if (this->HasFlag(CVAR_TYPE_FLOAT))
     {
