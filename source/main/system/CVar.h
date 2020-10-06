@@ -53,7 +53,13 @@ public:
         m_name(name),
         m_long_name(long_name),
         m_flags(flags)
-    {}
+    {
+        // Initialize string representation
+        if (this->HasFlag(CVAR_TYPE_BOOL | CVAR_TYPE_INT | CVAR_TYPE_FLOAT))
+        {
+            m_value_str = this->ConvertStr(m_value_num);
+        }
+    }
 
     // Data setters
 
