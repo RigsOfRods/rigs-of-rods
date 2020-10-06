@@ -119,7 +119,7 @@ void Console::LoadConfig()
             CVar* cvar = App::GetConsole()->CVarFind(cvar_name);
             if (cvar && !cvar->HasFlag(CVAR_ARCHIVE))
             {
-                RoR::LogFormat("[RoR|Settings] CVar '%s' cannot be set from %s (defined without 'archive' flag)", cvar->GetName(), CONFIG_FILE_NAME);
+                RoR::LogFormat("[RoR|Settings] CVar '%s' cannot be set from %s (defined without 'archive' flag)", cvar->GetName().c_str(), CONFIG_FILE_NAME);
                 i.moveNext();
                 continue;
             }
