@@ -91,7 +91,7 @@ public:
 
     std::string const&      GetName() const       { return m_name; }
     std::string const&      GetLongName() const   { return m_long_name; }
-    bool                    HasFlags(int f) const { return BITMASK_IS_1(m_flags, f); }
+    bool                    HasFlag(int f) const  { return m_flags & f; }
 
 private:
     void                    LogUpdate(std::string const& new_val);
