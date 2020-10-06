@@ -117,7 +117,7 @@ void Console::LoadConfig()
         {
             std::string cvar_name = RoR::Utils::SanitizeUtf8String(i.peekNextKey());
             CVar* cvar = App::GetConsole()->CVarFind(cvar_name);
-            if (cvar && !cvar->HasFlags(CVAR_ARCHIVE))
+            if (cvar && !cvar->HasFlag(CVAR_ARCHIVE))
             {
                 RoR::LogFormat("[RoR|Settings] CVar '%s' cannot be set from %s (defined without 'archive' flag)", cvar->GetName(), CONFIG_FILE_NAME);
                 i.moveNext();
@@ -143,7 +143,7 @@ void WriteVarsHelper(std::stringstream& f, const char* label, const char* prefix
 
     for (auto& pair: App::GetConsole()->GetCVars())
     {
-        if (pair.second->HasFlags(CVAR_ARCHIVE) && pair.first.find(prefix) == 0)
+        if (pair.second->HasFlag(CVAR_ARCHIVE) && pair.first.find(prefix) == 0)
         {
             if (App::app_config_long_names->GetBool())
             {

@@ -192,12 +192,12 @@ CVar* Console::CVarCreate(std::string const& name, std::string const& long_name,
 
 void Console::CVarAssign(CVar* cvar, std::string const& value)
 {
-    if (cvar->HasFlags(CVAR_TYPE_BOOL) || cvar->HasFlags(CVAR_TYPE_INT) || cvar->HasFlags(CVAR_TYPE_FLOAT))
+    if (cvar->HasFlag(CVAR_TYPE_BOOL | CVAR_TYPE_INT | CVAR_TYPE_FLOAT))
     {
         float val = 0.f;
-             if (cvar->HasFlags(CVAR_TYPE_BOOL))  { val = (float)Ogre::StringConverter::parseBool(value); }
-        else if (cvar->HasFlags(CVAR_TYPE_INT))   { val = (float)Ogre::StringConverter::parseInt(value);  }
-        else if (cvar->HasFlags(CVAR_TYPE_FLOAT)) { val =        Ogre::StringConverter::parseReal(value); }
+             if (cvar->HasFlag(CVAR_TYPE_BOOL))  { val = (float)Ogre::StringConverter::parseBool(value); }
+        else if (cvar->HasFlag(CVAR_TYPE_INT))   { val = (float)Ogre::StringConverter::parseInt(value);  }
+        else if (cvar->HasFlag(CVAR_TYPE_FLOAT)) { val =        Ogre::StringConverter::parseReal(value); }
 
 
         cvar->SetVal(val);
@@ -252,7 +252,7 @@ void CVar::LogUpdate(std::string const& new_val)
     if (!Ogre::LogManager::getSingletonPtr())
         return;
 
-    if (m_flags & CVAR_NO_LOG)
+    if (this->HasFlag(CVAR_NO_LOG))
         return;
 
     LogFormat("[RoR|CVar]  %20s:  \"%s\" (was: \"%s\")",
@@ -261,15 +261,15 @@ void CVar::LogUpdate(std::string const& new_val)
 
 std::string CVar::ConvertStr(float val)
 {
-    if (m_flags & CVAR_TYPE_BOOL)
+    if (this->HasFlag(CVAR_TYPE_BOOL))
     {
         return ((bool)val) ? "Yes" : "No";
     }
-    else if (m_flags & CVAR_TYPE_INT)
+    else if (this->HasFlag(CVAR_TYPE_INT))
     {
         return std::to_string((int)val);
     }
-    else if (m_flags & CVAR_TYPE_FLOAT)
+    else if (this->HasFlag(CVAR_TYPE_FLOAT))
     {
         return std::to_string((float)val);
     }
