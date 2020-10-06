@@ -52,7 +52,8 @@ public:
     CVar(std::string const& name, std::string const& long_name, int flags):
         m_name(name),
         m_long_name(long_name),
-        m_flags(flags)
+        m_flags(flags),
+        m_value_num(0.f)
     {
         // Initialize string representation
         if (this->HasFlag(CVAR_TYPE_BOOL | CVAR_TYPE_INT | CVAR_TYPE_FLOAT))
