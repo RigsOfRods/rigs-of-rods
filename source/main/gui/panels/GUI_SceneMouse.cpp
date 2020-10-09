@@ -39,7 +39,8 @@ using namespace RoR;
 
 void GUI::SceneMouse::Draw()
 {
-    if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
+    if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED ||
+        ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
         return; // Do nothing when paused
     }
