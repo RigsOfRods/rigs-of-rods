@@ -87,7 +87,10 @@ bool AppContext::mouseMoved(const OIS::MouseEvent& arg) // overrides OIS::MouseL
         }
         if (!handled)
         {
-            App::GetCameraManager()->mouseMoved(arg);
+            if (!App::GetCameraManager()->mouseMoved(arg))
+            {
+                App::GetGameContext()->GetSceneMouse().mouseMoved(arg);
+            }
         }
     }
 
@@ -109,6 +112,7 @@ bool AppContext::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID _id
 
         if (!handled && App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
         {
+            App::GetGameContext()->GetSceneMouse().mousePressed(arg, _id);
             App::GetCameraManager()->mousePressed(arg, _id);
         }
     }
@@ -131,6 +135,10 @@ bool AppContext::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID _i
         if (App::GetOverlayWrapper())
         {
             handled = App::GetOverlayWrapper()->mouseReleased(arg, _id); // update the old airplane / autopilot gui
+        }
+        if (!handled && App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+        {
+            App::GetGameContext()->GetSceneMouse().mouseReleased(arg, _id);
         }
     }
     else

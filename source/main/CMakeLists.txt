@@ -28,6 +28,7 @@ set(SOURCE_FILES
         gameplay/RecoveryMode.{h,cpp}
         gameplay/Replay.{h,cpp}
         gameplay/Road2.{h,cpp}
+        gameplay/SceneMouse.{h,cpp}
         gameplay/ScriptEvents.h
         gameplay/TorqueCurve.{h,cpp}
         gameplay/TyrePressure.{h,cpp}
@@ -141,7 +142,6 @@ set(SOURCE_FILES
         gui/panels/GUI_MultiplayerSelector.{h,cpp}
         gui/panels/GUI_MultiplayerClientList.{h,cpp}
         gui/panels/GUI_NodeBeamUtils.{h,cpp}
-        gui/panels/GUI_SceneMouse.{h,cpp}
         gui/panels/GUI_SimActorStats.{h,cpp}
         gui/panels/GUI_SimPerfStats.{h,cpp}
         gui/panels/GUI_SurveyMap.{h,cpp}

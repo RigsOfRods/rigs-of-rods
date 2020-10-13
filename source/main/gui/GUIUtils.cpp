@@ -19,17 +19,6 @@
 
 #include "GUIUtils.h"
 
-#include "CameraManager.h"
-
-using namespace RoR;
-
-World2ScreenConverter::World2ScreenConverter()
-{
-    m_view_matrix = App::GetCameraManager()->GetCamera()->getViewMatrix(true);
-    m_projection_matrix = App::GetCameraManager()->GetCamera()->getProjectionMatrix();
-    m_screen_size = Ogre::Vector2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
-}
-
 void RoR::DrawImGuiSpinner(float& counter, const ImVec2 size, const float spacing, const float step_sec)
 {
     // Hardcoded to 4 segments, counter is reset after full round (4 steps)
@@ -190,18 +179,4 @@ void RoR::DrawGCombo(CVar* cvar, const char* label, const char* values)
     {
         cvar->SetVal(selection);
     }
-}
-
-ImDrawList* RoR::ObtainImGuiDrawList(const char* window_name)
-{
-    // Dummy fullscreen window to draw to
-    int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
-                     | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
-    ImGui::SetNextWindowPos(ImVec2(0,0));
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
-    ImGui::Begin(window_name, nullptr, window_flags);
-    ImDrawList* drawlist = ImGui::GetWindowDrawList();
-    ImGui::End();
-    ImGui::PopStyleColor(1); // WindowBg
-    return drawlist;
 }
