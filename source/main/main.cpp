@@ -37,7 +37,6 @@
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
 #include "GUI_MultiplayerSelector.h"
-#include "GUI_SceneMouse.h"
 #include "GUI_SimActorStats.h"
 #include "InputEngine.h"
 #include "Language.h"
@@ -441,6 +440,7 @@ int main(int argc, char *argv[])
                     {
                         App::GetGameContext()->CreatePlayerCharacter();
                         App::GetGameContext()->SpawnPreselectedActor(); // Needs character for position
+                        App::GetGameContext()->GetSceneMouse().InitializeVisuals();
                         App::CreateOverlayWrapper();
                         App::GetGuiManager()->GetDirectionArrow()->LoadOverlay();
                         if (App::audio_menu_music->GetBool())
@@ -481,6 +481,7 @@ int main(int argc, char *argv[])
                     App::GetGameContext()->ChangePlayerActor(nullptr);
                     App::GetGameContext()->GetActorManager()->CleanUpSimulation();
                     App::GetGameContext()->GetCharacterFactory()->DeleteAllCharacters();
+                    App::GetGameContext()->GetSceneMouse().DiscardVisuals();
                     App::DestroyOverlayWrapper();
                     App::GetCameraManager()->ResetAllBehaviors();
                     App::GetGuiManager()->SetVisible_LoadingWindow(false);
@@ -699,7 +700,6 @@ int main(int argc, char *argv[])
             if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
             {
                 App::GetGuiManager()->DrawSimulationGui(dt);
-                App::GetGuiManager()->GetSceneMouse()->Draw();
                 for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
                 {
                     actor->GetGfxActor()->UpdateDebugView();
@@ -736,6 +736,11 @@ int main(int argc, char *argv[])
                 App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
             {
                 App::GetAppContext()->GetForceFeedback().Update();
+            }
+
+            if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
+            {
+                App::GetGameContext()->GetSceneMouse().UpdateSimulation();
             }
 
             // Create snapshot of simulation state for Gfx/GUI updates

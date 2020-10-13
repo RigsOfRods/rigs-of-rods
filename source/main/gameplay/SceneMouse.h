@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2014 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -19,12 +19,10 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file
-/// @brief  Mouse interaction with 3D scene: node grab (LMB), player actor/camera node select (MMB)
+/// @file   SceneMouse.h
 /// @author Thomas Fischer <thomas@thomasfischer.biz>
 /// @date   11th of March 2011
-
-// Remade with DearIMGUI by Petr Ohlidal, 2020
+/// @brief  Mouse interaction with 3D scene.
 
 #pragma once
 
@@ -35,21 +33,37 @@
 #include <Ogre.h>
 
 namespace RoR {
-namespace GUI {
 
 class SceneMouse
 {
 public:
-    void Draw();
+
+    SceneMouse();
+
+    bool mouseMoved(const OIS::MouseEvent& _arg);
+    bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+
+    void InitializeVisuals();
+    void UpdateSimulation();
+    void UpdateVisuals();
+    void DiscardVisuals();
 
 protected:
-    Ogre::Ray CastMouseRay();
 
-    int minnode = -1;
-    float mindist = 0;
-    Actor* grab_truck = nullptr;
-    Ogre::Vector3 lastgrabpos = Ogre::Vector3::ZERO;
+    Ogre::ManualObject* pickLine;
+    Ogre::SceneNode* pickLineNode;
+    int mouseGrabState;
+
+    int minnode;
+    float mindist;
+    Actor* grab_truck;
+    Ogre::Vector3 lastgrabpos;
+    int lastMouseX, lastMouseY;
+
+    void releaseMousePick();
+    Ogre::Ray getMouseRay();
+    void reset();
 };
 
-} // namespace GUI
 } // namespace RoR

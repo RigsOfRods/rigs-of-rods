@@ -30,6 +30,7 @@
 #include "CharacterFactory.h"
 #include "RaceSystem.h"
 #include "RecoveryMode.h"
+#include "SceneMouse.h"
 #include "SimData.h"
 
 #include <list>
@@ -125,6 +126,7 @@ public:
 
     RaceSystem&         GetRaceSystem() { return m_race_system; }
     RecoveryMode&       GetRecoveryMode() { return m_recovery_mode; }
+    SceneMouse&         GetSceneMouse() { return m_scene_mouse; }
     void                TeleportPlayer(float x, float z);
     void                UpdateGlobalInputEvents();
     void                UpdateSimInputEvents(float dt);
@@ -154,6 +156,7 @@ private:
     // Gameplay feats (misc.)
     RaceSystem          m_race_system;
     RecoveryMode        m_recovery_mode;                     //!< Aka 'advanced repair' or 'interactive reset'
+    SceneMouse          m_scene_mouse;                       //!< Mouse interaction with scene
 };
 
 } // namespace RoR
