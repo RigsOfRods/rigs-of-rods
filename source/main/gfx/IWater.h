@@ -50,6 +50,10 @@ public:
     virtual void           UpdateReflectionPlane(float h) {}
     virtual void           WaterPrepareShutdown() {}
     virtual void           UpdateWater() = 0;
+
+    // Only used by class Water for SurveyMap texture creation
+    virtual void           SetForcedCameraTransform(Ogre::Radian fovy, Ogre::Vector3 pos, Ogre::Quaternion rot) {};
+    virtual void           ClearForcedCameraTransform() {};
 };
 
 } // namespace RoR
