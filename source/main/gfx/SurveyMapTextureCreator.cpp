@@ -97,7 +97,10 @@ void SurveyMapTextureCreator::preRenderTargetUpdate(const RenderTargetEvent &evt
     if (water)
     {
         water->SetStaticWaterHeight(water->GetStaticWaterHeight());
+        water->SetForcedCameraTransform(mCamera->getFOVy(),
+            mCamera->getPosition(), mCamera->getOrientation()); // FIXME: Legacy OGRE API! Use camera node instead!
         water->UpdateWater();
+        water->ClearForcedCameraTransform();
     }
 }
 

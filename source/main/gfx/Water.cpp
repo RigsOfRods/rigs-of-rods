@@ -412,14 +412,18 @@ void Water::UpdateWater()
     if (!m_water_visible)
         return;
 
+    const Ogre::Vector3    camera_pos = (m_cam_forced) ? m_cam_forced_position : App::GetCameraManager()->GetCameraNode()->getPosition();
+    const Ogre::Quaternion camera_rot = (m_cam_forced) ? m_cam_forced_orientation : App::GetCameraManager()->GetCameraNode()->getOrientation();
+    const Ogre::Radian     camera_fov = (m_cam_forced) ? m_cam_forced_fovy : App::GetCameraManager()->GetCamera()->getFOVy();
+
     if (m_waterplane_node)
     {
-        Vector3 cameraPos(App::GetCameraManager()->GetCameraNode()->getPosition().x, m_water_height, App::GetCameraManager()->GetCameraNode()->getPosition().z);
-        Vector3 sightPos(cameraPos);
+        const Vector3 water_cam_pos(camera_pos.x, m_water_height, camera_pos.z);
+        Vector3 sightPos(water_cam_pos);
         // Direction points down -Z by default (adapted from Ogre::Camera)
-        Ogre::Vector3 cameraDir = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
+        Ogre::Vector3 cameraDir = camera_rot * -Ogre::Vector3::UNIT_Z;
 
-        Ray lineOfSight(App::GetCameraManager()->GetCameraNode()->getPosition(), cameraDir);
+        Ray lineOfSight(camera_pos, cameraDir);
         Plane waterPlane(Vector3::UNIT_Y, Vector3::UNIT_Y * m_water_height);
 
         std::pair<bool, Real> intersection = lineOfSight.intersects(waterPlane);
@@ -427,9 +431,9 @@ void Water::UpdateWater()
         if (intersection.first && intersection.second > 0.0f)
             sightPos = lineOfSight.getPoint(intersection.second);
 
-        Real offset = std::min(cameraPos.distance(sightPos), std::min(m_map_size.x, m_map_size.z) * 0.5f);
+        Real offset = std::min(water_cam_pos.distance(sightPos), std::min(m_map_size.x, m_map_size.z) * 0.5f);
 
-        Vector3 waterPos = cameraPos + (sightPos - cameraPos).normalisedCopy() * offset;
+        Vector3 waterPos = water_cam_pos + (sightPos - water_cam_pos).normalisedCopy() * offset;
         Vector3 bottomPos = Vector3(waterPos.x, m_bottom_height, waterPos.z);
 
         if (waterPos.distance(m_waterplane_node->getPosition()) > 200.0f || m_waterplane_force_update_pos)
@@ -446,36 +450,36 @@ void Water::UpdateWater()
     {
         if (m_frame_counter % 2 == 1 || m_waterplane_force_update_pos)
         {
-            m_reflect_cam->setOrientation(App::GetCameraManager()->GetCameraNode()->getOrientation());
-            m_reflect_cam->setPosition(App::GetCameraManager()->GetCameraNode()->getPosition());
-            m_reflect_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
+            m_reflect_cam->setOrientation(camera_rot);
+            m_reflect_cam->setPosition(camera_pos);
+            m_reflect_cam->setFOVy(camera_fov);
             m_reflect_rtt_target->update();
         }
         if (m_frame_counter % 2 == 0 || m_waterplane_force_update_pos)
         {
-            m_refract_cam->setOrientation(App::GetCameraManager()->GetCameraNode()->getOrientation());
-            m_refract_cam->setPosition(App::GetCameraManager()->GetCameraNode()->getPosition());
-            m_refract_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
+            m_refract_cam->setOrientation(camera_rot);
+            m_refract_cam->setPosition(camera_pos);
+            m_refract_cam->setFOVy(camera_fov);
             m_refract_rtt_target->update();
         }
     }
     else if (App::gfx_water_mode->GetEnum<GfxWaterMode>() == GfxWaterMode::FULL_HQ)
     {
-        m_reflect_cam->setOrientation(App::GetCameraManager()->GetCameraNode()->getOrientation());
-        m_reflect_cam->setPosition(App::GetCameraManager()->GetCameraNode()->getPosition());
-        m_reflect_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
+        m_reflect_cam->setOrientation(camera_rot);
+        m_reflect_cam->setPosition(camera_pos);
+        m_reflect_cam->setFOVy(camera_fov);
         m_reflect_rtt_target->update();
 
-        m_refract_cam->setOrientation(App::GetCameraManager()->GetCameraNode()->getOrientation());
-        m_refract_cam->setPosition(App::GetCameraManager()->GetCameraNode()->getPosition());
-        m_refract_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
+        m_refract_cam->setOrientation(camera_rot);
+        m_refract_cam->setPosition(camera_pos);
+        m_refract_cam->setFOVy(camera_fov);
         m_refract_rtt_target->update();
     }
     else if (App::gfx_water_mode->GetEnum<GfxWaterMode>() == GfxWaterMode::REFLECT)
     {
-        m_reflect_cam->setOrientation(App::GetCameraManager()->GetCameraNode()->getOrientation());
-        m_reflect_cam->setPosition(App::GetCameraManager()->GetCameraNode()->getPosition());
-        m_reflect_cam->setFOVy(App::GetCameraManager()->GetCamera()->getFOVy());
+        m_reflect_cam->setOrientation(camera_rot);
+        m_reflect_cam->setPosition(camera_pos);
+        m_reflect_cam->setFOVy(camera_fov);
         m_reflect_rtt_target->update();
     }
 
@@ -618,6 +622,22 @@ void Water::FrameStepWater(float dt)
     {
         this->UpdateWater();
     }
+}
+
+void Water::SetForcedCameraTransform(Ogre::Radian fovy, Ogre::Vector3 pos, Ogre::Quaternion rot)
+{
+    m_cam_forced = true;
+    m_cam_forced_fovy = fovy;
+    m_cam_forced_position = pos;
+    m_cam_forced_orientation = rot;
+}
+
+void Water::ClearForcedCameraTransform()
+{
+    m_cam_forced = false;
+    m_cam_forced_fovy = 0;
+    m_cam_forced_position = Ogre::Vector3::ZERO;
+    m_cam_forced_orientation = Ogre::Quaternion::IDENTITY;
 }
 
 float Water::GetWaveHeight(Vector3 pos)

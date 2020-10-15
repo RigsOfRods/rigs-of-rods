@@ -54,6 +54,8 @@ public:
     void           WaterPrepareShutdown() override;
     void           UpdateWater() override;
     void           FrameStepWater(float dt) override;
+    void           SetForcedCameraTransform(Ogre::Radian fovy, Ogre::Vector3 pos, Ogre::Quaternion rot) override;
+    void           ClearForcedCameraTransform() override;
 
 private:
 
@@ -124,6 +126,12 @@ private:
     Ogre::SceneNode*      m_bottomplane_node;
     Ogre::Plane           m_bottom_plane;
     std::vector<WaveTrain>  m_wavetrain_defs;
+
+    // Forced camera transforms, used by UpdateWater()
+    bool                  m_cam_forced;
+    Ogre::Radian          m_cam_forced_fovy;
+    Ogre::Vector3         m_cam_forced_position;
+    Ogre::Quaternion      m_cam_forced_orientation;
 };
 
 } // namespace RoR
