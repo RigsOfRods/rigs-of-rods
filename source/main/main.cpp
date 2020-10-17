@@ -361,7 +361,6 @@ int main(int argc, char *argv[])
 
                 case MSG_NET_CONNECT_STARTED:
                     App::GetGuiManager()->GetLoadingWindow()->SetProgressNetConnect(m.description);
-                    App::GetGuiManager()->SetVisible_GameMainMenu(false);
                     App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
                     break;
 

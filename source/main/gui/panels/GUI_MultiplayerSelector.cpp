@@ -335,6 +335,10 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
     if (!keep_open)
     {
         this->SetVisible(false);
+        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+        {
+            App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        }
     }
 }
 
@@ -358,10 +362,6 @@ void MultiplayerSelector::SetVisible(bool visible)
     {
         this->StartAsyncRefresh();
         m_password_buf = App::mp_server_password->GetStr();
-    }
-    else if (!visible && App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
-    {
-        App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
 }
 
