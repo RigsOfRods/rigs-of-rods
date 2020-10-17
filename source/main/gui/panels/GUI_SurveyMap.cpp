@@ -221,7 +221,7 @@ void SurveyMap::Draw()
             if (!simbuf.simbuf_actor_coupling)
             {
                 std::string caption = (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
-                this->DrawMapIcon(tl_screen_pos, view_size, view_origin, "icon_person.dds", caption, 
+                this->DrawMapIcon(tl_screen_pos, view_size, view_origin, "icon_person_activated.dds", caption, 
                     simbuf.simbuf_character_pos.x, simbuf.simbuf_character_pos.z,
                     simbuf.simbuf_character_rot.valueRadians());
             }
