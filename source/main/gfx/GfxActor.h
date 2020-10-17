@@ -182,7 +182,7 @@ public:
     };
 
     GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
-        std::vector<NodeGfx>& gfx_nodes, std::vector<Prop>& props, int driverseat_prop_idx, RoR::Renderdash* renderdash);
+        std::vector<NodeGfx>& gfx_nodes, RoR::Renderdash* renderdash);
 
     ~GfxActor();
 
@@ -224,6 +224,7 @@ public:
     void                      SetFlexbodiesVisible(bool visible);
     ActorType                 GetActorDriveable  () const;
     void                      RegisterAirbrakes  ();
+    void                      RegisterProps      (std::vector<Prop> const& props, int driverseat_prop_idx);
     void                      UpdateAirbrakes    ();
     void                      UpdateCParticles   ();
     void                      UpdateAeroEngines  ();

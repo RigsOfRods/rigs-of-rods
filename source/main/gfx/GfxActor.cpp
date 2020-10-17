@@ -51,8 +51,7 @@
 #include <Ogre.h>
 
 RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
-                        std::vector<NodeGfx>& gfx_nodes, std::vector<Prop>& props,
-                        int driverseat_prop_idx, RoR::Renderdash* renderdash):
+                        std::vector<NodeGfx>& gfx_nodes, RoR::Renderdash* renderdash):
     m_actor(actor),
     m_custom_resource_group(ogre_resource_group),
     m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE),
@@ -60,11 +59,9 @@ RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_re
     m_last_debug_view(DebugViewType::DEBUGVIEW_SKELETON),
     m_rods_parent_scenenode(nullptr),
     m_gfx_nodes(gfx_nodes),
-    m_props(props),
     m_cab_scene_node(nullptr),
     m_cab_mesh(nullptr),
     m_cab_entity(nullptr),
-    m_driverseat_prop_index(driverseat_prop_idx),
     m_renderdash(renderdash),
     m_prop_anim_crankfactor_prev(0.f),
     m_prop_anim_shift_timer(0.f),
@@ -1988,6 +1985,12 @@ void RoR::GfxActor::RegisterAirbrakes()
 
         m_gfx_airbrakes.push_back(abx);
     }
+}
+
+void RoR::GfxActor::RegisterProps(std::vector<Prop> const& props, int driverseat_prop_idx)
+{
+    m_props = props;
+    m_driverseat_prop_index = driverseat_prop_idx;
 }
 
 void RoR::GfxActor::UpdateAirbrakes()
