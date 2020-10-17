@@ -318,6 +318,11 @@ void GameContext::DeleteActor(Actor* actor)
         {
             actorx->ToggleTies();
         }
+
+        if (actorx->isLocked() && std::find(linked_actors.begin(), linked_actors.end(), actorx) != linked_actors.end())
+        {
+            actorx->ToggleHooks();
+        }
     }
 
     App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor());
