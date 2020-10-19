@@ -23,12 +23,10 @@ then
 	cp /usr/lib/x86_64-linux-gnu/libXaw.so.7                ./redist/lib/
 
 	# Get butler
-	wget https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default -O butler.zip
-	7z x butler.zip
-	sudo chmod a+x ./butler
+	curl "https://raw.githubusercontent.com/AnotherFoxGuy/ci-scripts/main/install-butler.sh" | sudo bash
 
 	# Setup redist folder and push it to itch
 	ninja zip_and_copy_resources
 	ninja install
-	./butler push redist rigs-of-rods/rigs-of-rods-dev:linux-ci --userversion 0.4.8.0-CIBuild-${TRAVIS_JOB_NUMBER}
+	butler push redist rigs-of-rods/rigs-of-rods-dev:linux-ci --userversion 0.4.8.0-CIBuild-${TRAVIS_JOB_NUMBER}
 fi
