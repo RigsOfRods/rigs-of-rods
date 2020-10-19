@@ -1,49 +1,37 @@
 dist: bionic
 language: c++
 
-env:
-  global:
-    - CONAN_PKG: conan-ubuntu-64_1_26_1.deb
-
 cache:
   directories:
     - $HOME/.conan/
 
 addons:
   apt:
-    sources:
-    # Official Kitware APT repository. Currently supports Bionic and Xenial.
-    # More information at: https://apt.kitware.com
-    - sourceline: 'deb https://apt.kitware.com/ubuntu/ xenial main'
-      key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
     packages:
-    - cmake
-    - p7zip-full
-    - pkg-config
-    - ninja-build
-    - nvidia-cg-toolkit
-    - libfreetype6-dev
-    - libfreeimage-dev
-    - libzzip-dev
-    - libois-dev
-    - libgl1-mesa-dev
-    - libglu1-mesa-dev
-    - libx11-dev
-    - libxt-dev
-    - libxaw7-dev
-    - libxrandr-dev
+      - pkg-config
+      - ninja-build
+      - nvidia-cg-toolkit
+      - libfreetype6-dev
+      - libfreeimage-dev
+      - libzzip-dev
+      - libois-dev
+      - libgl1-mesa-dev
+      - libglu1-mesa-dev
+      - libx11-dev
+      - libxt-dev
+      - libxaw7-dev
+      - libxrandr-dev
 
 install:
-  - wget https://dl.bintray.com/conan/installers/$CONAN_PKG -nv
-  - sudo dpkg -i ./$CONAN_PKG
-  - conan user
+  - curl "https://raw.githubusercontent.com/AnotherFoxGuy/ci-scripts/main/install-cmake.sh" | sudo bash
+  - curl "https://raw.githubusercontent.com/AnotherFoxGuy/ci-scripts/main/install-conan.sh" | sudo bash
 
 script:
-  - /usr/bin/cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
+  - /usr/local/bin/cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
   - ninja
 
 before_cache:
-  - /usr/bin/cmake -P ./cmake/3rdparty/pmm.cmake /Conan /Clean
+  - /usr/local/bin/cmake -P ./cmake/3rdparty/pmm.cmake /Conan /Clean
 
 after_success:
   - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sh ./tools/CI/upload-CI-build.sh; fi
