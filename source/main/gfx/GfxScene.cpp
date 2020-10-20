@@ -205,18 +205,22 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     }
 
     // Actors - update misc visuals
-    for (GfxActor* gfx_actor: m_live_gfx_actors)
+    for (GfxActor* gfx_actor: m_all_gfx_actors)
     {
         bool is_player_connected = (player_connected_gfx_actors.find(gfx_actor) != player_connected_gfx_actors.end());
-        gfx_actor->UpdateRods();
-        gfx_actor->UpdateCabMesh();
-        gfx_actor->UpdateWingMeshes();
-        gfx_actor->UpdateAirbrakes();
-        gfx_actor->UpdateCParticles();
-        gfx_actor->UpdateAeroEngines();
-        gfx_actor->UpdatePropAnimations(dt_sec, (gfx_actor == player_gfx_actor) || is_player_connected);
+        if (gfx_actor->IsActorLive())
+        {
+            gfx_actor->UpdateRods();
+            gfx_actor->UpdateCabMesh();
+            gfx_actor->UpdateWingMeshes();
+            gfx_actor->UpdateAirbrakes();
+            gfx_actor->UpdateCParticles();
+            gfx_actor->UpdateAeroEngines();
+            gfx_actor->UpdatePropAnimations(dt_sec, (gfx_actor == player_gfx_actor) || is_player_connected);
+            gfx_actor->UpdateFlares(dt_sec, (gfx_actor == player_gfx_actor));
+        }
+        // Beacon flares must always be updated
         gfx_actor->UpdateProps(dt_sec, (gfx_actor == player_gfx_actor));
-        gfx_actor->UpdateFlares(dt_sec, (gfx_actor == player_gfx_actor));
     }
     if (player_gfx_actor != nullptr)
     {
