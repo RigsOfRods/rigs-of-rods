@@ -1020,10 +1020,12 @@ void ActorManager::UpdateActors(Actor* player_actor)
             actor->ar_engine->UpdateEngineAudio();
         }
 
+        // Blinkers (turn signals) must always be updated
+        actor->UpdateFlareStates(dt);
+
         if (actor->ar_sim_state != Actor::SimState::LOCAL_SLEEPING)
         {
             actor->updateVisual(dt);
-            actor->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
             if (actor->ar_update_physics && App::gfx_skidmarks_mode->GetInt() > 0)
             {
                 actor->updateSkidmarks();
