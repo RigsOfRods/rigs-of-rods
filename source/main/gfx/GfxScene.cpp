@@ -217,10 +217,11 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
             gfx_actor->UpdateCParticles();
             gfx_actor->UpdateAeroEngines();
             gfx_actor->UpdatePropAnimations(dt_sec, (gfx_actor == player_gfx_actor) || is_player_connected);
-            gfx_actor->UpdateFlares(dt_sec, (gfx_actor == player_gfx_actor));
         }
         // Beacon flares must always be updated
         gfx_actor->UpdateProps(dt_sec, (gfx_actor == player_gfx_actor));
+        // Blinkers (turn signals) must always be updated
+        gfx_actor->UpdateFlares(dt_sec, (gfx_actor == player_gfx_actor));
     }
     if (player_gfx_actor != nullptr)
     {
