@@ -2014,9 +2014,24 @@ bool InputEngine::setup()
             {
                 deviceStr = StringUtil::replaceAll(deviceStr, repl.substr(c, 1), "_");
             }
-            deviceStr += ".map";
 
-            loadMapping(deviceStr, true, i);
+            // Look for OS-specific device mapping
+            String osSpecificMapFile;
+#if         OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+            osSpecificMapFile = deviceStr + ".windows.map";
+#elif       OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+            osSpecificMapFile = deviceStr + ".linux.map";
+#endif
+            if (osSpecificMapFile != "" &&
+                ResourceGroupManager::getSingleton().resourceExists(RGN_CONFIG, osSpecificMapFile))
+            {
+                loadMapping(osSpecificMapFile, true, i);
+            }
+            else
+            {
+                // Load generic device mapping
+                loadMapping(deviceStr + ".map", true, i);
+            }
         }
 
         mappingLoaded = true;
