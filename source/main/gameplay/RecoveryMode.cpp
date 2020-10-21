@@ -36,6 +36,13 @@ void RecoveryMode::UpdateInputEvents(float dt)
         return;
     }
 
+    if (!App::GetGameContext()->GetPlayerActor())
+    {
+        m_advanced_vehicle_repair = false;
+        m_advanced_vehicle_repair_timer = 0.0f;
+        return;
+    }
+
     if (!App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
     {
         m_advanced_vehicle_repair_timer = 0.0f;
