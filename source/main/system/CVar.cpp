@@ -64,9 +64,9 @@ void Console::CVarSetupBuiltins()
     App::mp_pseudo_collisions    = this->CVarCreate("mp_pseudo_collisions",    "Multiplayer collisions",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::mp_server_host          = this->CVarCreate("mp_server_host",          "Server name",                CVAR_ARCHIVE);
     App::mp_server_port          = this->CVarCreate("mp_server_port",          "Server port",                CVAR_ARCHIVE | CVAR_TYPE_INT);
-    App::mp_server_password      = this->CVarCreate("mp_server_password",      "Server password",            CVAR_ARCHIVE);
+    App::mp_server_password      = this->CVarCreate("mp_server_password",      "Server password",            CVAR_ARCHIVE | CVAR_NO_LOG);
     App::mp_player_name          = this->CVarCreate("mp_player_name",          "Nickname",                   CVAR_ARCHIVE,                     "Player");
-    App::mp_player_token         = this->CVarCreate("mp_player_token",         "User Token",                 CVAR_ARCHIVE);
+    App::mp_player_token         = this->CVarCreate("mp_player_token",         "User Token",                 CVAR_ARCHIVE | CVAR_NO_LOG);
     App::mp_api_url              = this->CVarCreate("mp_api_url",              "Online API URL",             CVAR_ARCHIVE,                     "http://api.rigsofrods.org");
 
     App::diag_auto_spawner_report= this->CVarCreate("diag_auto_spawner_report","AutoActorSpawnerReport",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
