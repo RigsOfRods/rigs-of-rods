@@ -143,7 +143,7 @@ void SurveyMap::Draw()
         view_origin = ((smallmap_center + mMapCenterOffset) - smallmap_size / 2);
 
         // Update texture
-        if ((App::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_IN)) || (App::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_OUT)))
+        if (mMapZoom != 0.0f)
         {
             mMapTextureCreatorDynamic->update(smallmap_center + mMapCenterOffset, smallmap_size);
         }
