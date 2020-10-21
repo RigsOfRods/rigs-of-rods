@@ -3038,8 +3038,6 @@ void Actor::UpdateFlareStates(float dt)
 
             if (ar_left_blink_on)
                 SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_TICK);
-
-            ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
         }
         else if (ar_flares[i].fl_type == FlareType::BLINKER_RIGHT && m_blink_type == BLINK_RIGHT)
         {
@@ -3047,8 +3045,6 @@ void Actor::UpdateFlareStates(float dt)
 
             if (ar_right_blink_on)
                 SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_TICK);
-
-            ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
         }
         else if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT && m_blink_type == BLINK_WARN)
         {
@@ -3056,9 +3052,6 @@ void Actor::UpdateFlareStates(float dt)
 
             if (ar_warn_blink_on)
                 SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_WARN_TICK);
-
-            ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
-            ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
         }
 
         ar_flares[i].isVisible = isvisible; // 3D engine objects are updated in GfxActor
@@ -3995,6 +3988,12 @@ void Actor::updateDashBoards(float dt)
     // lights
     bool lightsOn = (ar_lights > 0);
     ar_dashboard->setBool(DD_LIGHTS, lightsOn);
+
+    // turn signals
+    bool rightTurnOn = ar_right_blink_on || ar_warn_blink_on;
+    bool leftTurnOn = ar_left_blink_on || ar_warn_blink_on;
+    ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, rightTurnOn);
+    ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, leftTurnOn);
 
     // Traction Control
     if (!tc_nodash)
