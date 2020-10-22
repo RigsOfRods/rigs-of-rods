@@ -234,11 +234,7 @@ bool AppContext::SetUpRendering()
     m_ogre_root = new Ogre::Root("", cfg_filepath, log_filepath);
 
     // load OGRE plugins manually
-#ifdef _DEBUG
-    std::string plugins_path = PathCombine(RoR::App::sys_process_dir->GetStr(), "plugins_d.cfg");
-#else
 	std::string plugins_path = PathCombine(RoR::App::sys_process_dir->GetStr(), "plugins.cfg");
-#endif
     try
     {
         Ogre::ConfigFile cfg;

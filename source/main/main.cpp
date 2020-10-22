@@ -53,6 +53,7 @@
 #include "TerrainManager.h"
 #include "Utils.h"
 #include <Overlay/OgreOverlaySystem.h>
+#include <RTShaderSystem/OgreShaderGenerator.h>
 #include <ctime>
 #include <iomanip>
 #include <string>
@@ -188,9 +189,9 @@ int main(int argc, char *argv[])
 			// Add the shader libs resource location. a sample shader lib can be found in Samples\Media\RTShaderLib
 			App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RTSHADERLIB);
 			// Set shader cache path.
-			mShaderGenerator->setShaderCachePath(App::sys_cache_dir->GetActiveStr());
+			mShaderGenerator->setShaderCachePath(App::sys_cache_dir->GetStr());
 			// Set the scene manager.
-			mShaderGenerator->addSceneManager(scene_manager);
+			mShaderGenerator->addSceneManager(App::GetGfxScene()->GetSceneManager());
 		}
 
         App::CreateGuiManager(); // Needs scene manager
