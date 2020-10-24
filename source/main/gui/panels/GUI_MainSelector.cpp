@@ -27,6 +27,7 @@
 #include "ContentManager.h"
 #include "GameContext.h"
 #include "GUIManager.h"
+#include "GUIUtils.h"
 #include "GUI_LoadingWindow.h"
 #include "InputEngine.h"
 #include "Language.h"
@@ -160,11 +161,22 @@ void MainSelector::Draw()
         }
     }
     // Entry list: display
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
+    drawlist->ChannelsSplit(2); // 0=background selection indicator, 1=text
     for (int i = 0; i < num_entries; ++i)
     {
         DisplayEntry& d_entry = m_display_entries[i];
         bool is_selected = (i == m_selected_entry);
-        if (ImGui::Selectable(d_entry.sde_entry->dname.c_str(), &is_selected))
+
+        // Draw text manually to enable coloring.
+        drawlist->ChannelsSetCurrent(1);
+        ImVec2 size = RoR::DrawColorMarkedText(drawlist, ImGui::GetCursorScreenPos(),
+                                               ImGui::GetStyle().Colors[ImGuiCol_Text], /*override_alpha=*/1.f,
+                                               d_entry.sde_entry->dname.c_str());
+
+        ImGui::PushID(i);
+        drawlist->ChannelsSetCurrent(0);
+        if (ImGui::Selectable("##dummy", &is_selected, 0, size)) // Use invisible label + size parameter.
         {
             m_selected_entry = i;
             m_last_selected_entry[m_loader_type] = m_selected_entry;
@@ -181,7 +193,9 @@ void MainSelector::Draw()
         {
             ImGui::SetScrollHere();
         }
+        ImGui::PopID();
     }
+    drawlist->ChannelsMerge();
     ImGui::EndChild();
     ImGui::SameLine();
 
