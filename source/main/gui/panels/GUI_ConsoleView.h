@@ -30,7 +30,6 @@
 #include "OgreImGui.h"
 
 #include <vector>
-#include <regex>
 
 
 namespace RoR {
@@ -67,14 +66,12 @@ struct ConsoleView
 private:
     bool   MessageFilter(Console::Message const& m); //!< Returns true if message should be displayed
     /// Returns final text size
-    ImVec2 DrawColorMarkedText(ImVec2 text_cursor, Ogre::TexturePtr icon, ImVec4 default_color, std::string const& line);
-    bool   DrawIcon(Ogre::TexturePtr tex);
+    ImVec2 DrawColoredTextWithIcon(ImVec2 text_cursor, Ogre::TexturePtr icon, ImVec4 default_color, std::string const& line);
     int    UpdateMessages(); //!< Ret. num of new message(s)
     ImVec2 DrawMessage(ImVec2 cursor, Console::Message const& m);
 
     std::vector<Console::Message> m_filtered_messages;    //!< Updated as needed
     std::vector<const Console::Message*> m_display_messages; //!< Rebuilt every frame; kept as member to reuse allocated memory
-    std::regex                    m_text_color_regex = std::regex(R"(#[a-fA-F\d]{6})");
     bool                          m_reload_messages = false;
     size_t                        m_total_messages = 0;
 };

@@ -32,6 +32,9 @@ void DrawImGuiSpinner(
 /// Add rotated textured quad to ImDrawList, source: https://github.com/ocornut/imgui/issues/1982#issuecomment-408834301
 void DrawImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float angle);
 
+/// Draw multiline text with '#rrggbb' color markers. Returns total text size.
+ImVec2 DrawColorMarkedText(ImDrawList* drawlist, ImVec2 text_cursor, ImVec4 default_color, float override_alpha, std::string const& line);
+
 void DrawGCheckbox(CVar* cvar, const char* label);
 
 void DrawGIntCheck(CVar* cvar, const char* label);

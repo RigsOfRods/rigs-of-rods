@@ -25,11 +25,11 @@
 #include "Application.h"
 #include "Console.h"
 #include "GUIManager.h"
+#include "GUIUtils.h"
 #include "Language.h"
 #include "Network.h"
 
 #include <algorithm> // min
-#include <stdio.h> // sscanf
 
 using namespace RoR;
 using namespace GUI;
@@ -201,7 +201,7 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
     default:;
     }
 
-    return this->DrawColorMarkedText(cursor, icon, base_color, line.ToCStr());
+    return this->DrawColoredTextWithIcon(cursor, icon, base_color, line.ToCStr());
 }
 
 void ConsoleView::DrawFilteringOptions()
@@ -242,7 +242,7 @@ bool ConsoleView::MessageFilter(Console::Message const& m)
     return type_ok && area_ok;
 }
 
-ImVec2 ConsoleView::DrawColorMarkedText(ImVec2 bg_cursor, Ogre::TexturePtr icon, ImVec4 default_color, std::string const& line)
+ImVec2 ConsoleView::DrawColoredTextWithIcon(ImVec2 bg_cursor, Ogre::TexturePtr icon, ImVec4 default_color, std::string const& line)
 {
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
 
@@ -263,42 +263,7 @@ ImVec2 ConsoleView::DrawColorMarkedText(ImVec2 bg_cursor, Ogre::TexturePtr icon,
     }
 
     // Print colored line segments
-
-    int r,g,b;
-    color2i(default_color, r,g,b);
-    std::smatch color_match;
-    std::string::const_iterator seg_start = line.begin();
-    while (std::regex_search(seg_start, line.end(), color_match, m_text_color_regex)) // Find next marker
-    {
-        // Print segment before the color marker (if any)
-        std::string::const_iterator seg_end = color_match[0].first;
-        if (seg_start != seg_end)
-        {
-            Str<LINE_BUF_MAX> seg_text(seg_start, seg_end);
-            ImVec2 text_size = ImGui::CalcTextSize(seg_text.ToCStr());
-            drawlist->AddText(text_cursor, ImColor(r,g,b,(int)(alpha*255)), seg_text.ToCStr());
-            total_text_size.x += text_size.x;
-            total_text_size.y = std::max(total_text_size.y, text_size.y);
-            text_cursor.x += text_size.x;
-        }
-        // Prepare for printing segment after color marker
-        sscanf(color_match.str(0).c_str(), "#%2x%2x%2x", &r, &g, &b);
-        if (r==0 && g==0 && b==0)
-        {
-            color2i(default_color, r,g,b);
-        }
-        seg_start = color_match[0].second;
-    }
-
-    // Print final segment (if any)
-    if (seg_start != line.begin() + line.length())
-    {
-        std::string text(seg_start, line.end()); // TODO: optimize!
-        ImVec2 text_size = ImGui::CalcTextSize(text.c_str());
-        drawlist->AddText(text_cursor, ImColor(r,g,b,(int)(alpha*255)), text.c_str());
-        total_text_size.x += text_size.x;
-        total_text_size.y = std::max(total_text_size.y, text_size.y);
-    }
+    total_text_size += DrawColorMarkedText(drawlist, text_cursor, default_color, alpha, line);
 
     // Draw background
     drawlist->ChannelsSetCurrent(0); // Background layer

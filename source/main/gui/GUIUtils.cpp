@@ -19,6 +19,15 @@
 
 #include "GUIUtils.h"
 
+#include <regex>
+#include <stdio.h> // sscanf
+
+static const std::regex  TEXT_COLOR_REGEX = std::regex(R"(#[a-fA-F\d]{6})");
+static const int         TEXT_COLOR_MAX_LEN = 5000;
+
+// Internal helper
+inline void ColorToInts(ImVec4 v, int&r, int&g, int&b) { r=(int)(v.x*255); g=(int)(v.y*255); b=(int)(v.z*255); }
+
 void RoR::DrawImGuiSpinner(float& counter, const ImVec2 size, const float spacing, const float step_sec)
 {
     // Hardcoded to 4 segments, counter is reset after full round (4 steps)
@@ -98,6 +107,48 @@ void RoR::DrawImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float
     };
 
     draw_list->AddImageQuad(tex_id, pos[0], pos[1], pos[2], pos[3], uvs[0], uvs[1], uvs[2], uvs[3], IM_COL32_WHITE);
+}
+
+ImVec2 RoR::DrawColorMarkedText(ImDrawList* drawlist, ImVec2 text_cursor, ImVec4 default_color, float override_alpha, std::string const& line)
+{
+    ImVec2 total_text_size(0,0); // Accumulator
+    int r,g,b;
+    ColorToInts(default_color, r,g,b);
+    std::smatch color_match;
+    std::string::const_iterator seg_start = line.begin();
+    while (std::regex_search(seg_start, line.end(), color_match, TEXT_COLOR_REGEX)) // Find next marker
+    {
+        // Print segment before the color marker (if any)
+        std::string::const_iterator seg_end = color_match[0].first;
+        if (seg_start != seg_end)
+        {
+            Str<TEXT_COLOR_MAX_LEN> seg_text(seg_start, seg_end);
+            ImVec2 text_size = ImGui::CalcTextSize(seg_text.ToCStr());
+            drawlist->AddText(text_cursor, ImColor(r,g,b,(int)(override_alpha*255)), seg_text.ToCStr());
+            total_text_size.x += text_size.x;
+            total_text_size.y = std::max(total_text_size.y, text_size.y);
+            text_cursor.x += text_size.x;
+        }
+        // Prepare for printing segment after color marker
+        sscanf(color_match.str(0).c_str(), "#%2x%2x%2x", &r, &g, &b);
+        if (r==0 && g==0 && b==0)
+        {
+            ColorToInts(default_color, r,g,b);
+        }
+        seg_start = color_match[0].second;
+    }
+
+    // Print final segment (if any)
+    if (seg_start != line.begin() + line.length())
+    {
+        Str<TEXT_COLOR_MAX_LEN> seg_text(seg_start, line.end());
+        ImVec2 text_size = ImGui::CalcTextSize(seg_text.ToCStr());
+        drawlist->AddText(text_cursor, ImColor(r,g,b,(int)(override_alpha*255)), seg_text.ToCStr());
+        total_text_size.x += text_size.x;
+        total_text_size.y = std::max(total_text_size.y, text_size.y);
+    }
+
+    return total_text_size;
 }
 
 void RoR::DrawGCheckbox(CVar* cvar, const char* label)
