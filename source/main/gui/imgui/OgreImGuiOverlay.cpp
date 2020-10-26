@@ -92,7 +92,7 @@ ImFont* ImGuiOverlay::addFont(const String& name, const String& group)
     }
 
     ImGuiIO& io = ImGui::GetIO();
-    const ImWchar* cprangePtr = io.Fonts->GetGlyphRangesDefault();
+    const ImWchar* cprangePtr = io.Fonts->GetGlyphRangesAll();
     if (!cprange.empty())
     {
         cprange.push_back(0); // terminate
