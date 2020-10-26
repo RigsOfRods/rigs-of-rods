@@ -2440,6 +2440,15 @@ const ImWchar*  ImFontAtlas::GetGlyphRangesVietnamese()
     return &ranges[0];
 }
 
+const ImWchar*  ImFontAtlas::GetGlyphRangesAll()
+{
+    static const ImWchar ranges[] =
+    {
+        0x20, 0xFFFF, 0, // Everything in the font
+    };
+    return &ranges[0];
+}
+
 //-----------------------------------------------------------------------------
 // [SECTION] ImFontGlyphRangesBuilder
 //-----------------------------------------------------------------------------
