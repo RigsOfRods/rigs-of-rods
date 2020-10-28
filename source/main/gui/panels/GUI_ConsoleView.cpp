@@ -263,7 +263,7 @@ ImVec2 ConsoleView::DrawColoredTextWithIcon(ImVec2 bg_cursor, Ogre::TexturePtr i
     }
 
     // Print colored line segments
-    total_text_size += DrawColorMarkedText(drawlist, text_cursor, default_color, alpha, line);
+    total_text_size += DrawColorMarkedText(drawlist, text_cursor, default_color, alpha, /*wrap_width=*/-1.f, line);
 
     // Draw background
     drawlist->ChannelsSetCurrent(0); // Background layer

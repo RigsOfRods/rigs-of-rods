@@ -19,11 +19,108 @@
 
 #include "GUIUtils.h"
 
+#include "imgui_internal.h" // ImTextCharFromUtf8
 #include <regex>
 #include <stdio.h> // sscanf
 
 static const std::regex  TEXT_COLOR_REGEX = std::regex(R"(#[a-fA-F\d]{6})");
 static const int         TEXT_COLOR_MAX_LEN = 5000;
+
+// --------------------------------
+// ImTextFeeder
+
+void RoR::ImTextFeeder::AddInline(ImU32 color, ImVec2 text_size, const char* text_begin, const char* text_end)
+{
+    drawlist->AddText(this->cursor, color, text_begin, text_end);
+    this->cursor.x += text_size.x;
+    this->size.x = std::max(this->cursor.x - this->origin.x, this->size.x);
+    this->size.y = std::max(this->size.y, text_size.y);
+}
+
+void RoR::ImTextFeeder::AddWrapped(ImU32 color, float wrap_width, const char* text_begin, const char* text_end)
+{
+    ImVec2 size = ImGui::CalcTextSize(text_begin, text_end);
+    const float cur_width = this->cursor.x - this->origin.x;
+    if (wrap_width > 0.f && cur_width + size.x > wrap_width)
+    {
+        this->NextLine();
+    }
+
+    // Trim blanks at the start of new line (not first line), like ImGui::TextWrapped() does.
+    bool recalc_size = false;
+    if (this->cursor.x == this->origin.x && this->cursor.y != this->origin.y)
+    {
+        while ((*text_begin == ' ' || *text_begin == '\t'))
+        {
+            ++text_begin;
+            recalc_size = true;
+            if (text_begin == text_end)
+                return; // Nothing more to draw
+        }
+    }
+
+    if (recalc_size)
+        size = ImGui::CalcTextSize(text_begin, text_end);
+
+    this->AddInline(color, size, text_begin, text_end);
+}
+
+void RoR::ImTextFeeder::AddMultiline(ImU32 color, float wrap_width, const char* text_begin, const char* text_end)
+{
+    const char* text_pos = text_begin;
+    const char* tok_begin = nullptr;
+    while (text_pos != text_end)
+    {
+        // Decode and advance one character
+        unsigned int c = (unsigned int)*text_pos;
+        int bytes_advance = 1;
+        if (c >= 0x80)
+            bytes_advance += ImTextCharFromUtf8(&c, text_pos, text_end);
+
+        if (c == '\r')
+        {} // Ignore carriage return
+        else if (c == '\n')
+        {
+            if (tok_begin != nullptr)
+            {
+                this->AddWrapped(color, wrap_width, tok_begin, text_pos); // Print the token
+            }
+            tok_begin = nullptr;
+            this->NextLine();
+        }
+        else if (c == ' ' || c == '\t')
+        {
+            if (tok_begin != nullptr)
+            {
+                this->AddWrapped(color, wrap_width, tok_begin, text_pos); // Print the token
+                tok_begin = nullptr;
+            }
+            this->AddWrapped(color, wrap_width, text_pos, text_pos + bytes_advance); // Print the blank
+        }
+        else
+        {
+            if (tok_begin == nullptr)
+                tok_begin = text_pos;
+        }
+        text_pos += bytes_advance;
+    }
+
+    if (tok_begin != nullptr)
+    {
+        this->AddWrapped(color, wrap_width, tok_begin, text_end); // Print last token
+    }
+}
+
+void RoR::ImTextFeeder::NextLine()
+{
+    const float height = ImGui::GetTextLineHeight();
+    this->size.y += height;
+    this->cursor.x = this->origin.x;
+    this->cursor.y += height;
+}
+
+// --------------------------------
+// Global functions
 
 // Internal helper
 inline void ColorToInts(ImVec4 v, int&r, int&g, int&b) { r=(int)(v.x*255); g=(int)(v.y*255); b=(int)(v.z*255); }
@@ -78,12 +175,6 @@ void RoR::DrawImGuiSpinner(float& counter, const ImVec2 size, const float spacin
     draw_list->AddTriangleFilled(ImVec2(mid_x-spacing, mid_y),   ImVec2(left, bottom - spacing),  ImVec2(left, top + spacing),      COLORS[(color_start+1)%4]);
 }
 
-// Internal helper
-static inline ImVec2 ImRotate(const ImVec2& v, float cos_a, float sin_a) 
-{ 
-    return ImVec2(v.x * cos_a - v.y * sin_a, v.x * sin_a + v.y * cos_a);
-}
-
 //source: https://github.com/ocornut/imgui/issues/1982#issuecomment-408834301
 void RoR::DrawImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float angle)
 {
@@ -109,9 +200,9 @@ void RoR::DrawImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float
     draw_list->AddImageQuad(tex_id, pos[0], pos[1], pos[2], pos[3], uvs[0], uvs[1], uvs[2], uvs[3], IM_COL32_WHITE);
 }
 
-ImVec2 RoR::DrawColorMarkedText(ImDrawList* drawlist, ImVec2 text_cursor, ImVec4 default_color, float override_alpha, std::string const& line)
+ImVec2 RoR::DrawColorMarkedText(ImDrawList* drawlist, ImVec2 text_cursor, ImVec4 default_color, float override_alpha, float wrap_width, std::string const& line)
 {
-    ImVec2 total_text_size(0,0); // Accumulator
+    ImTextFeeder feeder(drawlist, text_cursor);
     int r,g,b;
     ColorToInts(default_color, r,g,b);
     std::smatch color_match;
@@ -122,12 +213,7 @@ ImVec2 RoR::DrawColorMarkedText(ImDrawList* drawlist, ImVec2 text_cursor, ImVec4
         std::string::const_iterator seg_end = color_match[0].first;
         if (seg_start != seg_end)
         {
-            Str<TEXT_COLOR_MAX_LEN> seg_text(seg_start, seg_end);
-            ImVec2 text_size = ImGui::CalcTextSize(seg_text.ToCStr());
-            drawlist->AddText(text_cursor, ImColor(r,g,b,(int)(override_alpha*255)), seg_text.ToCStr());
-            total_text_size.x += text_size.x;
-            total_text_size.y = std::max(total_text_size.y, text_size.y);
-            text_cursor.x += text_size.x;
+            feeder.AddMultiline(ImColor(r,g,b,(int)(override_alpha*255)), wrap_width, &*seg_start, &*seg_end);
         }
         // Prepare for printing segment after color marker
         sscanf(color_match.str(0).c_str(), "#%2x%2x%2x", &r, &g, &b);
@@ -141,14 +227,10 @@ ImVec2 RoR::DrawColorMarkedText(ImDrawList* drawlist, ImVec2 text_cursor, ImVec4
     // Print final segment (if any)
     if (seg_start != line.begin() + line.length())
     {
-        Str<TEXT_COLOR_MAX_LEN> seg_text(seg_start, line.end());
-        ImVec2 text_size = ImGui::CalcTextSize(seg_text.ToCStr());
-        drawlist->AddText(text_cursor, ImColor(r,g,b,(int)(override_alpha*255)), seg_text.ToCStr());
-        total_text_size.x += text_size.x;
-        total_text_size.y = std::max(total_text_size.y, text_size.y);
+        feeder.AddMultiline(ImColor(r,g,b,(int)(override_alpha*255)), wrap_width, &*seg_start, &*line.end());
     }
 
-    return total_text_size;
+    return feeder.size;
 }
 
 void RoR::DrawGCheckbox(CVar* cvar, const char* label)
