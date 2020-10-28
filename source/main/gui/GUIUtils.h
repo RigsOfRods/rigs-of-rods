@@ -24,6 +24,24 @@
 
 namespace RoR {
 
+struct ImTextFeeder /// Helper for drawing multiline wrapped & colored text.
+{
+    ImTextFeeder(ImDrawList* _drawlist, ImVec2 _origin): drawlist(_drawlist), origin(_origin), cursor(_origin) {}
+
+    /// No wrapping or trimming
+    void AddInline(ImU32 color, ImVec2 text_size, const char* text, const char* text_end);
+    /// Wraps entire input. Trims leading blanks on extra lines. `wrap_width=-1.f` disables wrapping.
+    void AddWrapped(ImU32 color, float wrap_width, const char* text, const char* text_end);
+    /// Wraps substrings separated by blanks. `wrap_width=-1.f` disables wrapping.
+    void AddMultiline(ImU32 color, float wrap_width, const char* text, const char* text_end);
+    void NextLine();
+
+    ImDrawList* drawlist;
+    ImVec2 cursor; //!< Next draw position, screen space
+    ImVec2 origin; //!< First draw position, screen space
+    ImVec2 size = ImVec2(0,0); //!< Accumulated text size
+};
+
 /// Draws animated loading spinner
 void DrawImGuiSpinner(
     float& counter, const ImVec2 size = ImVec2(16.f, 16.f),
@@ -33,7 +51,7 @@ void DrawImGuiSpinner(
 void DrawImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float angle);
 
 /// Draw multiline text with '#rrggbb' color markers. Returns total text size.
-ImVec2 DrawColorMarkedText(ImDrawList* drawlist, ImVec2 text_cursor, ImVec4 default_color, float override_alpha, std::string const& line);
+ImVec2 DrawColorMarkedText(ImDrawList* drawlist, ImVec2 text_cursor, ImVec4 default_color, float override_alpha, float wrap_width, std::string const& line);
 
 void DrawGCheckbox(CVar* cvar, const char* label);
 

@@ -171,7 +171,8 @@ void MainSelector::Draw()
         // Draw text manually to enable coloring.
         drawlist->ChannelsSetCurrent(1);
         ImVec2 size = RoR::DrawColorMarkedText(drawlist, ImGui::GetCursorScreenPos(),
-                                               ImGui::GetStyle().Colors[ImGuiCol_Text], /*override_alpha=*/1.f,
+                                               ImGui::GetStyle().Colors[ImGuiCol_Text],
+                                                /*override_alpha=*/1.f, /*wrap_width=*/-1.f,
                                                d_entry.sde_entry->dname.c_str());
 
         ImGui::PushID(i);
