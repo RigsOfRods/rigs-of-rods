@@ -241,7 +241,11 @@ void MainSelector::Draw()
         }
 
         // Title and description
-        ImGui::TextWrapped("%s", sd_entry.sde_entry->dname.c_str());
+        ImVec2 size = RoR::DrawColorMarkedText(drawlist, ImGui::GetCursorScreenPos(), ImGui::GetStyle().Colors[ImGuiCol_Text],
+                                               /*override_alpha=*/1.f,
+                                               ImGui::GetWindowContentRegionWidth() - ImGui::GetCursorPosX(),
+                                               sd_entry.sde_entry->dname);
+        ImGui::SetCursorPos(ImGui::GetCursorPos() + size);
         ImGui::TextWrapped("%s", sd_entry.sde_entry->description.c_str());
         ImGui::Separator();
 
