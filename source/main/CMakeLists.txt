@@ -387,6 +387,8 @@ IF (WIN32)
     # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
     # warning C4305: 'initializing' : truncation from 'double' to 'const float'
     add_definitions("/wd4305 /wd4244 /wd4193 -DNOMINMAX")
+    # Disable non-standard behavior
+    add_definitions("/permissive-")
 ELSEIF (UNIX)
     #  include_directories(${GTK_INCLUDE_DIRS})
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
