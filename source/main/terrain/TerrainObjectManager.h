@@ -96,7 +96,7 @@ public:
 
     struct localizer_t
     {
-        int type;
+        LocalizerType type;
         Ogre::Vector3 position;
         Ogre::Quaternion rotation;
     };
