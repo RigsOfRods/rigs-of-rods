@@ -114,10 +114,10 @@ bool ODefParser::ProcessCurrentLine()
     }
     else if (StartsWith(line_str, "localizer-"))
     {
-        if (line_str.compare(10, 3, "vor")) { m_def->localizers.push_back(ODef::Localizer::VOR       ); return true; }
-        if (line_str.compare(10, 3, "ndb")) { m_def->localizers.push_back(ODef::Localizer::NDB       ); return true; }
-        if (line_str.compare(10, 1, "v"  )) { m_def->localizers.push_back(ODef::Localizer::VERTICAL  ); return true; }
-        if (line_str.compare(10, 1, "h"  )) { m_def->localizers.push_back(ODef::Localizer::HORIZONTAL); return true; }
+        if (line_str.compare(10, 3, "vor") == 0) { m_def->localizers.push_back(ODef::Localizer::VOR       ); return true; }
+        if (line_str.compare(10, 3, "ndb") == 0) { m_def->localizers.push_back(ODef::Localizer::NDB       ); return true; }
+        if (line_str.compare(10, 1, "v"  ) == 0) { m_def->localizers.push_back(ODef::Localizer::VERTICAL  ); return true; }
+        if (line_str.compare(10, 1, "h"  ) == 0) { m_def->localizers.push_back(ODef::Localizer::HORIZONTAL); return true; }
 
         LOG("[RoR|ODef] Invalid line: " + line_str);
     }
