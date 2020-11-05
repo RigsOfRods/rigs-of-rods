@@ -24,13 +24,15 @@
 using namespace RoR;
 using namespace Ogre;
 
+const int ODEF_LINE_BUF_LEN = 4000;
+
 void ODefParser::ProcessOgreStream(Ogre::DataStream* stream)
 {
-    char raw_line_buf[ODef::LINE_BUF_LEN];
+    char raw_line_buf[ODEF_LINE_BUF_LEN];
     bool keep_reading = true;
     while (keep_reading && !stream->eof())
     {
-        stream->readLine(raw_line_buf, ODef::LINE_BUF_LEN);
+        stream->readLine(raw_line_buf, ODEF_LINE_BUF_LEN);
         keep_reading = this->ProcessLine(raw_line_buf);
     }
 }
@@ -114,10 +116,10 @@ bool ODefParser::ProcessCurrentLine()
     }
     else if (StartsWith(line_str, "localizer-"))
     {
-        if (line_str.compare(10, 3, "vor") == 0) { m_def->localizers.push_back(ODef::Localizer::VOR       ); return true; }
-        if (line_str.compare(10, 3, "ndb") == 0) { m_def->localizers.push_back(ODef::Localizer::NDB       ); return true; }
-        if (line_str.compare(10, 1, "v"  ) == 0) { m_def->localizers.push_back(ODef::Localizer::VERTICAL  ); return true; }
-        if (line_str.compare(10, 1, "h"  ) == 0) { m_def->localizers.push_back(ODef::Localizer::HORIZONTAL); return true; }
+        if (line_str.compare(10, 3, "vor") == 0) { m_def->localizers.push_back(LOCALIZER_VOR       ); return true; }
+        if (line_str.compare(10, 3, "ndb") == 0) { m_def->localizers.push_back(LOCALIZER_NDB       ); return true; }
+        if (line_str.compare(10, 1, "v"  ) == 0) { m_def->localizers.push_back(LOCALIZER_VERTICAL  ); return true; }
+        if (line_str.compare(10, 1, "h"  ) == 0) { m_def->localizers.push_back(LOCALIZER_HORIZONTAL); return true; }
 
         LOG("[RoR|ODef] Invalid line: " + line_str);
     }

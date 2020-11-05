@@ -33,20 +33,6 @@
 #endif
 
 namespace RoR {
-namespace ODef {
-
-    const int LINE_BUF_LEN = 4000;
-
-    enum class Localizer
-    {
-        NONE,
-        HORIZONTAL,
-        VERTICAL,
-        NDB,
-        VOR,
-    };
-
-} // namespace ODef
 
 struct ODefCollisionBox
 {
@@ -138,7 +124,7 @@ struct ODefFile
     }                             header;
 
     bool                          mode_standard = false;
-    std::vector<ODef::Localizer>  localizers;
+    std::vector<LocalizerType>    localizers;
     std::list<std::string>        sounds;
     std::list<std::string>        groundmodel_files;
     std::list<ODefCollisionBox>   collision_boxes;

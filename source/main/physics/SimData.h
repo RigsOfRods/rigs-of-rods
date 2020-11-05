@@ -202,6 +202,14 @@ enum class FlareType: char
     USER           = 'u'
 };
 
+enum LocalizerType
+{
+    LOCALIZER_VERTICAL,
+    LOCALIZER_HORIZONTAL,
+    LOCALIZER_NDB,
+    LOCALIZER_VOR
+};
+
 
 // --------------------------------
 // Soft body physics

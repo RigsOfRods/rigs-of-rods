@@ -44,14 +44,6 @@ public:
         ALT_VS
     };
 
-    enum
-    {
-        LOCALIZER_VERTICAL,
-        LOCALIZER_HORIZONTAL,
-        LOCALIZER_NDB,
-        LOCALIZER_VOR
-    };
-
     int heading;
     bool wantsdisconnect;
 

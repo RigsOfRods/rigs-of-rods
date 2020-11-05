@@ -386,7 +386,7 @@ void Autopilot::UpdateIls(std::vector<TerrainObjectManager::localizer_t> localiz
             //we are in the visibility cone, we search the closest
             float dist = (localizers[i].position - position).length();
             //horizontal
-            if (localizers[i].type == Autopilot::LOCALIZER_HORIZONTAL)
+            if (localizers[i].type == LOCALIZER_HORIZONTAL)
             {
                 if (closest_hdist < 0 || closest_hdist > dist)
                 {
@@ -399,7 +399,7 @@ void Autopilot::UpdateIls(std::vector<TerrainObjectManager::localizer_t> localiz
                 }
             }
             //vertical
-            if (localizers[i].type == Autopilot::LOCALIZER_VERTICAL)
+            if (localizers[i].type == LOCALIZER_VERTICAL)
             {
                 if (closest_vdist < 0 || closest_vdist > dist)
                 {

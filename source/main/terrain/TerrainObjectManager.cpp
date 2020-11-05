@@ -620,17 +620,8 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         }
     }
 
-    for (ODef::Localizer loc_type : odef->localizers)
+    for (LocalizerType type : odef->localizers)
     {
-        int type;
-        switch (loc_type)
-        {
-        case ODef::Localizer::HORIZONTAL:  type = Autopilot::LOCALIZER_HORIZONTAL; break;
-        case ODef::Localizer::VERTICAL:    type = Autopilot::LOCALIZER_VERTICAL;   break;
-        case ODef::Localizer::NDB:         type = Autopilot::LOCALIZER_NDB;        break;
-        case ODef::Localizer::VOR:         type = Autopilot::LOCALIZER_VOR;        break;
-        default: continue; // Invalid - skip this
-        }
         localizer_t loc;
         loc.position = Vector3(pos.x, pos.y, pos.z);
         loc.rotation = rotation;
