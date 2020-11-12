@@ -288,7 +288,7 @@ add_executable(${BINNAME} ${SOURCE_FILES} ${pagedgeometry_SOURCE_FILES})
 
 if (WIN32)
     set_target_properties(${BINNAME} PROPERTIES WIN32_EXECUTABLE YES)
-    add_definitions(-DWIN32_LEAN_AND_MEAN)
+    add_compile_definitions(WIN32_LEAN_AND_MEAN)
 endif ()
 
 ####################################################################################################
@@ -386,9 +386,9 @@ IF (WIN32)
     # disable some annoying VS warnings:
     # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
     # warning C4305: 'initializing' : truncation from 'double' to 'const float'
-    add_definitions("/wd4305 /wd4244 /wd4193 -DNOMINMAX")
+    add_compile_options("/wd4305 /wd4244 /wd4193 -DNOMINMAX")
     # Disable non-standard behavior
-    add_definitions("/permissive-")
+    add_compile_options("/permissive-")
 ELSEIF (UNIX)
     #  include_directories(${GTK_INCLUDE_DIRS})
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
@@ -501,7 +501,7 @@ else (USE_PACKAGE_MANAGER)
         target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
 
         if (WIN32)
-            add_definitions(-DWIN32_LEAN_AND_MEAN)
+            add_compile_definitions(WIN32_LEAN_AND_MEAN)
         endif ()
     endif ()
 
