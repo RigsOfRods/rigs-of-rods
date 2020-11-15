@@ -288,7 +288,12 @@ add_executable(${BINNAME} ${SOURCE_FILES} ${pagedgeometry_SOURCE_FILES})
 
 if (WIN32)
     set_target_properties(${BINNAME} PROPERTIES WIN32_EXECUTABLE YES)
-    add_compile_definitions(WIN32_LEAN_AND_MEAN)
+    # disable some annoying VS warnings:
+    # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+    # warning C4305: 'initializing' : truncation from 'double' to 'const float'
+    target_compile_options(${BINNAME} PRIVATE /wd4305 /wd4244)
+    # Disable non-standard behavior
+    target_compile_options(${BINNAME} PRIVATE /permissive-)
 endif ()
 
 ####################################################################################################
@@ -308,6 +313,9 @@ if (ROR_USE_OIS_G27)
     target_compile_definitions(${BINNAME} PRIVATE USE_OIS_G27)
 endif ()
 
+if (WIN32)
+    target_compile_definitions(${BINNAME} PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+endif ()
 
 ####################################################################################################
 #  INCLUDE DIRECTORIES
@@ -382,17 +390,10 @@ target_include_directories(${BINNAME} PRIVATE
 #  REQUIRED DEPENDENCIES
 # -----------------------
 
-IF (WIN32)
-    # disable some annoying VS warnings:
-    # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-    # warning C4305: 'initializing' : truncation from 'double' to 'const float'
-    add_compile_options("/wd4305 /wd4244 /wd4193 -DNOMINMAX")
-    # Disable non-standard behavior
-    add_compile_options("/permissive-")
-ELSEIF (UNIX)
+IF (UNIX)
     #  include_directories(${GTK_INCLUDE_DIRS})
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
-ENDIF (WIN32)
+ENDIF (UNIX)
 target_link_libraries(${BINNAME} PRIVATE
         ${OS_LIBS}
         version_info
