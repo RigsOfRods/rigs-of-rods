@@ -241,7 +241,8 @@ void MainSelector::Draw()
         }
 
         // Title and description
-        ImVec2 size = RoR::DrawColorMarkedText(drawlist, ImGui::GetCursorScreenPos(), ImGui::GetStyle().Colors[ImGuiCol_Text],
+        ImDrawList* child_drawlist = ImGui::GetWindowDrawList(); // Important for correct clipping
+        ImVec2 size = RoR::DrawColorMarkedText(child_drawlist, ImGui::GetCursorScreenPos(), ImGui::GetStyle().Colors[ImGuiCol_Text],
                                                /*override_alpha=*/1.f,
                                                ImGui::GetWindowContentRegionWidth() - ImGui::GetCursorPosX(),
                                                sd_entry.sde_entry->dname);
