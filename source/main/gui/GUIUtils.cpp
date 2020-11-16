@@ -203,8 +203,9 @@ void RoR::DrawImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float
 ImVec2 RoR::DrawColorMarkedText(ImDrawList* drawlist, ImVec2 text_cursor, ImVec4 default_color, float override_alpha, float wrap_width, std::string const& line)
 {
     ImTextFeeder feeder(drawlist, text_cursor);
-    int r,g,b;
+    int r,g,b, dark_r,dark_g,dark_b;
     ColorToInts(default_color, r,g,b);
+    ColorToInts(App::GetGuiManager()->GetTheme().color_mark_max_darkness, dark_r, dark_g, dark_b);
     std::smatch color_match;
     std::string::const_iterator seg_start = line.begin();
     while (std::regex_search(seg_start, line.end(), color_match, TEXT_COLOR_REGEX)) // Find next marker
@@ -220,6 +221,13 @@ ImVec2 RoR::DrawColorMarkedText(ImDrawList* drawlist, ImVec2 text_cursor, ImVec4
         if (r==0 && g==0 && b==0)
         {
             ColorToInts(default_color, r,g,b);
+        }
+        else if (r < dark_r && g < dark_g && b < dark_b)
+        {
+            // If below darkness limit, invert the color to lighen it up.
+            r = 255-r;
+            g = 255-g;
+            b = 255-b;
         }
         seg_start = color_match[0].second;
     }
