@@ -77,14 +77,14 @@ macro(add_main_dir BINNAME)
 endmacro(add_main_dir)
 
 macro(get_sub_dirs result curdir)
-  FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
-  SET(dirlist "")
-  FOREACH(child ${children})
-    IF(IS_DIRECTORY ${curdir}/${child})
-      LIST(APPEND dirlist ${child})
-    ENDIF()
-  ENDFOREACH()
-  SET(${result} ${dirlist})
+    FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
+    SET(dirlist "")
+    FOREACH (child ${children})
+        IF (IS_DIRECTORY ${curdir}/${child})
+            LIST(APPEND dirlist ${child})
+        ENDIF ()
+    ENDFOREACH ()
+    SET(${result} ${dirlist})
 endmacro(get_sub_dirs)
 
 macro(recursive_zip_folder name in_dir out_dir result)
@@ -93,23 +93,28 @@ macro(recursive_zip_folder name in_dir out_dir result)
     file(MAKE_DIRECTORY ${out_dir})
 
     foreach (ZIP_DIR ${SUB_DIRS})
-
-        string(COMPARE EQUAL "${ZIP_DIR}" ".git" _cmp)
-        if (_cmp)
+        if ("${ZIP_DIR}" STREQUAL ".git")
             continue()
         endif ()
 
-        file(GLOB ZIP_FILES RELATIVE "${in_dir}/${ZIP_DIR}" "${in_dir}/${ZIP_DIR}/*")
+        file(GLOB_RECURSE ZIP_FILES LIST_DIRECTORIES TRUE "${in_dir}/${ZIP_DIR}/*")
+
         set(ZIP_FILES_TXT "")
+        set(ZIP_FILES_DEP "")
         foreach (ZIP_FILE ${ZIP_FILES})
-            set(ZIP_FILES_TXT "${ZIP_FILES_TXT}${ZIP_FILE}\n")
+            file(RELATIVE_PATH REL_PATH "${in_dir}/${ZIP_DIR}" "${ZIP_FILE}")
+            set(ZIP_FILES_TXT "${ZIP_FILES_TXT}${REL_PATH}\n")
+            if(NOT IS_DIRECTORY ${ZIP_FILE})
+                list(APPEND ZIP_FILES_DEP ${ZIP_FILE})
+            endif()
         endforeach ()
         file(WRITE "${TMP_FILE_DIR}/${ZIP_DIR}-filelist.txt" ${ZIP_FILES_TXT})
 
         set(ZIP_NAME "${out_dir}/${ZIP_DIR}.zip")
         add_custom_command(
                 OUTPUT ${ZIP_NAME}
-                COMMAND ${CMAKE_COMMAND} -E tar "cf" ${ZIP_NAME} --format=zip --files-from="${TMP_FILE_DIR}/${ZIP_DIR}-filelist.txt"
+                DEPENDS ${ZIP_FILES_DEP}
+                COMMAND ${CMAKE_COMMAND} -E tar c ${ZIP_NAME} --format=zip --files-from="${TMP_FILE_DIR}/${ZIP_DIR}-filelist.txt"
                 WORKING_DIRECTORY "${in_dir}/${ZIP_DIR}"
         )
         list(APPEND ${result} ${ZIP_NAME})
