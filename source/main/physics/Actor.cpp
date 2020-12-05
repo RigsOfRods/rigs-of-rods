@@ -1280,11 +1280,13 @@ void Actor::DisplayAxleDiffMode()
         {
             if (m_axle_diffs[i])
             {
+                if (i > 0)
+                    message += "\n";
+
                 int a1 = m_axle_diffs[i]->di_idx_1 + 1;
                 int a2 = m_axle_diffs[i]->di_idx_2 + 1;
                 message += _L("Axle ") + TOSTRING(a1) + " <--> " + _L("Axle ") + TOSTRING(a2) + ": ";
                 message += m_axle_diffs[i]->GetDifferentialTypeName();
-                message += "\n";
             }
         }
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
@@ -1306,9 +1308,11 @@ void Actor::DisplayWheelDiffMode()
         {
             if (m_wheel_diffs[i])
             {
+                if (i > 0)
+                    message += "\n";
+
                 message += _L("Axle ") + TOSTRING(i + 1) + ": ";
                 message += m_wheel_diffs[i]->GetDifferentialTypeName();
-                message += "\n";
             }
         }
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
