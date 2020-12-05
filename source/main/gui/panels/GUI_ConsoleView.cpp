@@ -249,7 +249,7 @@ ImVec2 ConsoleView::DrawColoredTextWithIcon(ImVec2 bg_cursor, Ogre::TexturePtr i
     // Print icon
     drawlist->ChannelsSetCurrent(1); // Text layer
     ImVec2 text_cursor = bg_cursor + cvw_background_padding;
-    ImVec2 total_text_size(0,0);
+    ImVec2 indent_size(0,0);
     float text_h = ImGui::CalcTextSize("").y;
     if (cvw_enable_icons && icon)
     {
@@ -258,12 +258,13 @@ ImVec2 ConsoleView::DrawColoredTextWithIcon(ImVec2 bg_cursor, Ogre::TexturePtr i
         ImVec2 br = tl + icon_size;
         drawlist->AddImage(reinterpret_cast<ImTextureID>(icon->getHandle()), tl, br, ImVec2(0,0), ImVec2(1,1), ImColor(ImVec4(1,1,1,alpha)));
         const float ICON_GAP = 8;
-        total_text_size += ImVec2(icon_size.x + ICON_GAP, text_h);
-        text_cursor.x += icon_size.x + ICON_GAP;
+        indent_size = ImVec2(icon_size.x + ICON_GAP, text_h);
+        text_cursor.x += indent_size.x;
     }
 
     // Print colored line segments
-    total_text_size += DrawColorMarkedText(drawlist, text_cursor, default_color, alpha, /*wrap_width=*/-1.f, line);
+    ImVec2 text_size = DrawColorMarkedText(drawlist, text_cursor, default_color, alpha, /*wrap_width=*/-1.f, line);
+    const ImVec2 total_text_size(indent_size.x + text_size.x, std::max(indent_size.y, text_size.y));
 
     // Draw background
     drawlist->ChannelsSetCurrent(0); // Background layer
