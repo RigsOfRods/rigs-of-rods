@@ -177,7 +177,8 @@ void MainSelector::Draw()
 
         ImGui::PushID(i);
         drawlist->ChannelsSetCurrent(0);
-        if (ImGui::Selectable("##dummy", &is_selected, 0, size)) // Use invisible label + size parameter.
+        ImVec2 mouse_area(LEFT_PANE_WIDTH, size.y); // Monitor the whole line (excess width gets clipped)
+        if (ImGui::Selectable("##dummy", &is_selected, 0, mouse_area)) // Use invisible label + size parameter.
         {
             m_selected_entry = i;
             m_last_selected_entry[m_loader_type] = m_selected_entry;
