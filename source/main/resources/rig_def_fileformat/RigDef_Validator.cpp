@@ -437,15 +437,21 @@ bool Validator::CheckShock3(RigDef::Shock3 & shock3)
 
 bool Validator::CheckAnimator(RigDef::Animator & def)
 {
+    // Ignore non-source flags
     unsigned int source_check = def.flags;
     BITMASK_SET_0(source_check, RigDef::Animator::OPTION_SHORT_LIMIT);
     BITMASK_SET_0(source_check, RigDef::Animator::OPTION_LONG_LIMIT);
-    if (source_check == 0)
+    BITMASK_SET_0(source_check, RigDef::Animator::OPTION_VISIBLE);
+    BITMASK_SET_0(source_check, RigDef::Animator::OPTION_INVISIBLE);
+    if (source_check != 0 || def.aero_animator.flags != 0)
     {
-        AddMessage(Message::TYPE_ERROR, "Failed to identify animator source");
+        return true;
+    }
+    else
+    {
+        AddMessage(Message::TYPE_ERROR, "Animator: No animator source defined");
         return false;
     }
-    return true;
 }
 
 bool Validator::CheckCommand(RigDef::Command2 & def)
