@@ -107,6 +107,17 @@ void Console::CVarSetupBuiltins()
     App::sys_savegames_dir       = this->CVarCreate("sys_savegames_dir",       "",                           0);
     App::sys_screenshot_dir      = this->CVarCreate("sys_screenshot_dir",      "",                           0);
 
+    App::cli_server_host         = this->CVarCreate("cli_server_host",         "",                           0);
+    App::cli_server_port         = this->CVarCreate("cli_server_port",         "",                                          CVAR_TYPE_INT,     "0");
+    App::cli_preset_vehicle      = this->CVarCreate("cli_preset_vehicle",      "",                           0);
+    App::cli_preset_veh_config   = this->CVarCreate("cli_preset_veh_config",   "",                           0);
+    App::cli_preset_terrain      = this->CVarCreate("cli_preset_terrain",      "",                           0);
+    App::cli_preset_spawn_pos    = this->CVarCreate("cli_preset_spawn_pos",    "",                           0);
+    App::cli_preset_spawn_rot    = this->CVarCreate("cli_preset_spawn_rot",    "",                           0);
+    App::cli_preset_veh_enter    = this->CVarCreate("cli_preset_veh_enter",    "",                                          CVAR_TYPE_BOOL,    "false");
+    App::cli_force_cache_update  = this->CVarCreate("cli_force_cache_update",  "",                                          CVAR_TYPE_BOOL,    "false");
+    App::cli_resume_autosave     = this->CVarCreate("cli_resume_autosave",     "",                                          CVAR_TYPE_BOOL,    "false");
+
     App::io_analog_smoothing     = this->CVarCreate("io_analog_smoothing",     "Analog Input Smoothing",     CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
     App::io_analog_sensitivity   = this->CVarCreate("io_analog_sensitivity",   "Analog Input Sensitivity",   CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
     App::io_blink_lock_range     = this->CVarCreate("io_blink_lock_range",     "Blinker Lock Range",         CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "0.1");
@@ -164,6 +175,8 @@ void Console::CVarSetupBuiltins()
     App::gfx_reduce_shadows      = this->CVarCreate("gfx_reduce_shadows",      "Shadow optimizations",       CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::gfx_enable_rtshaders    = this->CVarCreate("gfx_enable_rtshaders",    "Use RTShader System",        CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::gfx_classic_shaders     = this->CVarCreate("gfx_classic_shaders",     "Classic material shaders",   CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+
+
 }
 
 CVar* Console::CVarCreate(std::string const& name, std::string const& long_name,

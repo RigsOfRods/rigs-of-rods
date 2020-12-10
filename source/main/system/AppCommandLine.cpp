@@ -89,38 +89,35 @@ void Console::ProcessCommandLine(int argc, char *argv[])
         }
         else if (args.OptionId() == OPT_TRUCK)
         {
-            App::diag_preset_vehicle->SetStr(args.OptionArg());
+            App::cli_preset_vehicle->SetStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_TRUCKCONFIG)
         {
-            App::diag_preset_veh_config->SetStr(args.OptionArg());
+            App::cli_preset_veh_config->SetStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_MAP)
         {
-            App::diag_preset_terrain->SetStr(args.OptionArg());
+            App::cli_preset_terrain->SetStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_POS)
         {
-            App::diag_preset_spawn_pos->SetStr(args.OptionArg());
+            App::cli_preset_spawn_pos->SetStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_ROT)
         {
-            App::diag_preset_spawn_rot->SetStr(args.OptionArg());
+            App::cli_preset_spawn_rot->SetStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_RESUME)
         {
-            if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
-            {
-                App::GetGameContext()->PushMessage(RoR::Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, "autosave.sav"));
-            }
+            App::cli_resume_autosave->SetVal(true);
         }
         else if (args.OptionId() == OPT_CHECKCACHE)
         {
-            App::app_force_cache_update->SetVal(true);
+            App::cli_force_cache_update->SetVal(true);
         }
         else if (args.OptionId() == OPT_ENTERTRUCK)
         {
-            App::diag_preset_veh_enter->SetVal(true);
+            App::cli_preset_veh_enter->SetVal(true);
         }
         else if (args.OptionId() == OPT_JOINMPSERVER)
         {
@@ -128,8 +125,6 @@ void Console::ProcessCommandLine(int argc, char *argv[])
             const int colon = static_cast<int>(server_args.rfind(":"));
             if (colon != std::string::npos)
             {
-                App::mp_join_on_startup->SetVal(true);
-
                 std::string host_str;
                 std::string port_str;
                 if (server_args.find("rorserver://") != String::npos) // Windows URI Scheme retuns rorserver://server:port/
@@ -142,8 +137,8 @@ void Console::ProcessCommandLine(int argc, char *argv[])
                     host_str = server_args.substr(0, colon);
                     port_str = server_args.substr(colon + 1, server_args.length());
                 }
-                App::mp_server_host->SetStr(host_str.c_str());
-                App::mp_server_port->SetVal(Ogre::StringConverter::parseInt(port_str));
+                App::cli_server_host->SetStr(host_str.c_str());
+                App::cli_server_port->SetVal(Ogre::StringConverter::parseInt(port_str));
             }
         }
     }

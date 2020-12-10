@@ -158,6 +158,18 @@ CVar* sys_profiler_dir;
 CVar* sys_savegames_dir;
 CVar* sys_screenshot_dir;
 
+// OS command line
+CVar* cli_server_host;
+CVar* cli_server_port;
+CVar* cli_preset_vehicle;
+CVar* cli_preset_veh_config;
+CVar* cli_preset_terrain;
+CVar* cli_preset_spawn_pos;
+CVar* cli_preset_spawn_rot;
+CVar* cli_preset_veh_enter;
+CVar* cli_force_cache_update;
+CVar* cli_resume_autosave;
+
 // Input - Output
 CVar* io_analog_smoothing;
 CVar* io_analog_sensitivity;
