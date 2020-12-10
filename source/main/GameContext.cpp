@@ -473,13 +473,10 @@ void GameContext::RespawnLastActor()
     }
 }
 
-void GameContext::SpawnPreselectedActor()
+void GameContext::SpawnPreselectedActor(std::string const& preset_vehicle, std::string const& preset_veh_config)
 {
-    if (App::diag_preset_vehicle->GetStr() == "")
-        return;
-    
     CacheEntry* entry = App::GetCacheSystem()->FindEntryByFilename(
-        LT_AllBeam, /*partial=*/true, App::diag_preset_vehicle->GetStr());
+        LT_AllBeam, /*partial=*/true, preset_vehicle);
 
     if (!entry)
         return;
@@ -496,7 +493,7 @@ void GameContext::SpawnPreselectedActor()
     if (!entry->sectionconfigs.empty())
     {
         if (std::find(entry->sectionconfigs.begin(), entry->sectionconfigs.end(),
-                      App::diag_preset_veh_config->GetStr())
+                      preset_veh_config)
             == entry->sectionconfigs.end())
         {
             // Preselected config doesn't exist -> use first available one
@@ -504,7 +501,7 @@ void GameContext::SpawnPreselectedActor()
         }
         else
         {
-            rq->asr_config = App::diag_preset_veh_config->GetStr();
+            rq->asr_config = preset_veh_config;
         }
         RoR::LogFormat("[RoR|Diag] Preselected Truck Config: %s", rq->asr_config.c_str());
     }
@@ -616,12 +613,25 @@ void GameContext::CreatePlayerCharacter()
         spawn_rot = 180.0f;
     }
 
-    if (App::diag_preset_spawn_pos->GetStr() != "")
+    // Preset position - commandline has precedence
+    if (App::cli_preset_spawn_pos->GetStr() != "")
+    {
+        spawn_pos = Ogre::StringConverter::parseVector3(App::cli_preset_spawn_pos->GetStr(), spawn_pos);
+        App::cli_preset_spawn_pos->SetStr("");
+    }
+    else if (App::diag_preset_spawn_pos->GetStr() != "")
     {
         spawn_pos = Ogre::StringConverter::parseVector3(App::diag_preset_spawn_pos->GetStr(), spawn_pos);
         App::diag_preset_spawn_pos->SetStr("");
     }
-    if (App::diag_preset_spawn_rot->GetStr() != "")
+
+    // Preset rotation - commandline has precedence
+    if (App::cli_preset_spawn_rot->GetStr() != "")
+    {
+        spawn_rot = Ogre::StringConverter::parseReal(App::cli_preset_spawn_rot->GetStr(), spawn_rot);
+        App::cli_preset_spawn_rot->SetStr("");
+    }
+    else if (App::diag_preset_spawn_rot->GetStr() != "")
     {
         spawn_rot = Ogre::StringConverter::parseReal(App::diag_preset_spawn_rot->GetStr(), spawn_rot);
         App::diag_preset_spawn_rot->SetStr("");

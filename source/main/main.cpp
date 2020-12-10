@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
         // Load RoR.cfg - updates cvars
         App::GetConsole()->LoadConfig();
 
-        // Process command line params - updates cvars
+        // Process command line params - updates 'cli_*' cvars
         App::GetConsole()->ProcessCommandLine(argc, argv);
 
         if (App::app_state->GetEnum<AppState>() == AppState::PRINT_HELP_EXIT)
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
         {
             App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_PURGE_REQUESTED));
         }
-        else if (App::app_force_cache_update->GetBool())
+        else if (App::cli_force_cache_update->GetBool() || App::app_force_cache_update->GetBool())
         {
             App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_UPDATE_REQUESTED));
         }
@@ -213,20 +213,43 @@ int main(int argc, char *argv[])
             App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_LOAD_REQUESTED));
         }
 
-        // Handle game state requests
-        if (App::mp_join_on_startup->GetBool())
+        // Handle game state presets
+        if (App::cli_server_host->GetStr() != "" && App::cli_server_port->GetInt() != 0) // Multiplayer, commandline
+        {
+            App::mp_server_host->SetStr(App::cli_server_host->GetStr());
+            App::mp_server_port->SetVal(App::cli_server_port->GetInt());
+            App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
+        }
+        else if (App::mp_join_on_startup->GetBool()) // Multiplayer, conf file
         {
             App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
         }
-        else if (App::diag_preset_terrain->GetStr() != "")
+        else // Single player
         {
-            App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->GetStr()));
-        }
-        else if (!App::mp_join_on_startup->GetBool() && App::app_skip_main_menu->GetBool())
-        {
-            // MainMenu disabled (singleplayer mode) -> go directly to map selector (traditional behavior)
-            App::GetGuiManager()->SetVisible_GameMainMenu(false);
-            App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+            if (App::cli_preset_terrain->GetStr() != "") // Terrain, commandline
+            {
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::cli_preset_terrain->GetStr()));
+            }
+            else if (App::diag_preset_terrain->GetStr() != "") // Terrain, conf file
+            {
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->GetStr()));
+            }
+            else // Main menu
+            {
+                if (App::cli_resume_autosave->GetBool())
+                {
+                    if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
+                    {
+                        App::GetGameContext()->PushMessage(RoR::Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, "autosave.sav"));
+                    }
+                }
+                else if (App::app_skip_main_menu->GetBool())
+                {
+                    // MainMenu disabled (singleplayer mode) -> go directly to map selector (traditional behavior)
+                    App::GetGuiManager()->SetVisible_GameMainMenu(false);
+                    App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+                }
+            }
         }
 
         App::app_state->SetVal((int)AppState::MAIN_MENU);
@@ -439,7 +462,11 @@ int main(int argc, char *argv[])
                     if (App::GetGameContext()->LoadTerrain(m.description))
                     {
                         App::GetGameContext()->CreatePlayerCharacter();
-                        App::GetGameContext()->SpawnPreselectedActor(); // Needs character for position
+                        // Spawn preselected vehicle; commandline has precedence
+                        if (App::cli_preset_vehicle->GetStr() != "")
+                            App::GetGameContext()->SpawnPreselectedActor(App::cli_preset_vehicle->GetStr(), App::cli_preset_veh_config->GetStr()); // Needs character for position
+                        else if (App::diag_preset_vehicle->GetStr() != "")
+                            App::GetGameContext()->SpawnPreselectedActor(App::diag_preset_vehicle->GetStr(), App::diag_preset_veh_config->GetStr()); // Needs character for position
                         App::GetGameContext()->GetSceneMouse().InitializeVisuals();
                         App::CreateOverlayWrapper();
                         App::GetGuiManager()->GetDirectionArrow()->LoadOverlay();

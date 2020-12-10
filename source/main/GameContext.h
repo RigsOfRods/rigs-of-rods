@@ -93,7 +93,7 @@ public:
     Actor*              FetchNextVehicleOnList();
     Actor*              FindActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name);
     void                RespawnLastActor();
-    void                SpawnPreselectedActor(); //!< Reads cvar 'diag_preset_vehicle', needs `Character` to exist
+    void                SpawnPreselectedActor(std::string const& preset_vehicle, std::string const& preset_veh_config); //!< needs `Character` to exist
 
     Actor*              GetPlayerActor() { return m_player_actor; }
     Actor*              GetPrevPlayerActor() { return m_prev_player_actor; }
