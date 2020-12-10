@@ -113,6 +113,7 @@ public:
     RoRnet::UserInfo     GetLocalUserData();
     std::vector<RoRnet::UserInfo> GetUserInfos();
     bool                 GetUserInfo(int uid, RoRnet::UserInfo &result);
+    bool                 GetDisconnectedUserInfo(int uid, RoRnet::UserInfo &result);
     bool                 GetAnyUserInfo(int uid, RoRnet::UserInfo &result); //!< Also considers local client
     bool                 FindUserInfo(std::string const& username, RoRnet::UserInfo &result);
     Ogre::ColourValue    GetPlayerColor(int color_num);
@@ -143,6 +144,7 @@ private:
     RoRnet::ServerInfo   m_server_settings;
     RoRnet::UserInfo     m_userdata;
     std::vector<RoRnet::UserInfo> m_users;
+    std::vector<RoRnet::UserInfo> m_disconnected_users;
 
     Ogre::UTFString      m_username; // Shadows GVar 'mp_player_name' for multithreaded access.
     std::string          m_net_host; // Shadows GVar 'mp_server_host' for multithreaded access.

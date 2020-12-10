@@ -175,19 +175,25 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
     }
 
     // Add colored multiplayer username
-    RoRnet::UserInfo user;
-    if (m.cm_net_userid != 0 && App::GetNetwork()->GetAnyUserInfo((int)m.cm_net_userid, user))
+    if (m.cm_net_userid)
     {
-        Ogre::ColourValue col = App::GetNetwork()->GetPlayerColor(user.colournum);
-        char prefix[400] = {};
-        int r,g,b;
-        color2i(ImVec4(col.r, col.g, col.b, col.a), r,g,b);
-        snprintf(prefix, 400, "#%02x%02x%02x%s: #000000", r, g, b, user.username);
+        RoRnet::UserInfo user;
+        if (App::GetNetwork()->GetAnyUserInfo((int)m.cm_net_userid, user)) // Local or remote user
+        {
+            Ogre::ColourValue col = App::GetNetwork()->GetPlayerColor(user.colournum);
+            char prefix[400] = {};
+            int r,g,b;
+            color2i(ImVec4(col.r, col.g, col.b, col.a), r,g,b);
+            snprintf(prefix, 400, "#%02x%02x%02x%s: #000000", r, g, b, user.username);
 
-        line.Clear();
-        line << prefix << m.cm_text;
+            line << prefix << m.cm_text;
+        }
+        else if (App::GetNetwork()->GetDisconnectedUserInfo((int)m.cm_net_userid, user)) // Disconnected remote user
+        {
+            line << user.username << " [offline]: " << m.cm_text;
+        }
     }
-    else
+    else // not multiplayer chat
     {
         line = m.cm_text;
     }
