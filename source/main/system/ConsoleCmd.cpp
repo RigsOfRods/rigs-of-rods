@@ -375,6 +375,45 @@ public:
 // -------------------------------------------------------------------------------------
 // CVar (builtin) console commmands
 
+class VarsCmd: public ConsoleCmd
+{
+public:
+    VarsCmd(): ConsoleCmd("vars", "[<expr> ...]", _L("Print cvars with one of <expr> in name")) {}
+
+    void Run(Ogre::StringVector const& args) override
+    {
+        for (auto& pair: App::GetConsole()->GetCVars())
+        {
+            bool match = args.size() == 1;
+            for (size_t i = 1; i < args.size(); ++i)
+            {
+                if (pair.first.find(args[i]) != std::string::npos)
+                {
+                    match = true;
+                    break;
+                }
+            }
+
+            if (match)
+            {
+                Str<200> reply;
+                reply << "vars: " << pair.first << "=" << pair.second->GetStr() << " (";
+
+                if      (pair.second->HasFlag(CVAR_TYPE_BOOL))  { reply << "bool"; }
+                else if (pair.second->HasFlag(CVAR_TYPE_INT))   { reply << "int"; }
+                else if (pair.second->HasFlag(CVAR_TYPE_FLOAT)) { reply << "float"; }
+                else                                            { reply << "string"; }
+
+                if (pair.second->HasFlag(CVAR_ARCHIVE)) { reply << ", archive"; }
+                if (pair.second->HasFlag(CVAR_NO_LOG))  { reply << ", no log"; }
+
+                reply << ")";
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, reply.ToCStr());
+            }
+        }
+    }
+};
+
 class SetCmd: public ConsoleCmd
 {
 public:
@@ -528,6 +567,7 @@ void Console::RegBuiltinCommands()
     cmd = new SetboolCmd();               m_commands.insert(std::make_pair(cmd->GetName(), cmd));
     cmd = new SetintCmd();                m_commands.insert(std::make_pair(cmd->GetName(), cmd));
     cmd = new SetfloatCmd();              m_commands.insert(std::make_pair(cmd->GetName(), cmd));
+    cmd = new VarsCmd();                  m_commands.insert(std::make_pair(cmd->GetName(), cmd));
 }
 
 void Console::DoCommand(std::string msg)
