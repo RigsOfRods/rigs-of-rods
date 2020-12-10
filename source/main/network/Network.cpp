@@ -317,6 +317,7 @@ void Network::RecvThread()
                     LOG_THREAD(text);
 
                     m_users.erase(user);
+                    m_disconnected_users.push_back(*user);
                 }
             }
         }
@@ -710,6 +711,20 @@ bool Network::GetUserInfo(int uid, RoRnet::UserInfo &result)
 {
     std::lock_guard<std::mutex> lock(m_users_mutex);
     for (RoRnet::UserInfo user : m_users)
+    {
+        if ((int)user.uniqueid == uid)
+        {
+            result = user;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Network::GetDisconnectedUserInfo(int uid, RoRnet::UserInfo &result)
+{
+    std::lock_guard<std::mutex> lock(m_users_mutex);
+    for (RoRnet::UserInfo user : m_disconnected_users)
     {
         if ((int)user.uniqueid == uid)
         {
