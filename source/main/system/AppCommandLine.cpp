@@ -40,7 +40,6 @@ enum {
     OPT_POS,
     OPT_ROT,
     OPT_TRUCK,
-    OPT_WDIR,
     OPT_VER,
     OPT_RESUME,
     OPT_CHECKCACHE,
@@ -58,7 +57,6 @@ CSimpleOpt::SOption cmdline_options[] = {
     { OPT_TRUCK,          ("-truck"),       SO_REQ_SEP },
     { OPT_TRUCKCONFIG,    ("-truckconfig"), SO_REQ_SEP },
     { OPT_ENTERTRUCK,     ("-enter"),       SO_NONE    },
-    { OPT_WDIR,           ("-wd"),          SO_REQ_SEP },
     { OPT_HELP,           ("--help"),       SO_NONE    },
     { OPT_HELP,           ("-help"),        SO_NONE    },
     { OPT_RESUME,         ("-resume"),      SO_NONE    },
@@ -108,12 +106,6 @@ void Console::ProcessCommandLine(int argc, char *argv[])
         else if (args.OptionId() == OPT_ROT)
         {
             App::diag_preset_spawn_rot->SetStr(args.OptionArg());
-        }
-        else if (args.OptionId() == OPT_WDIR)
-        {
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-            SetCurrentDirectory(args.OptionArg());
-#endif
         }
         else if (args.OptionId() == OPT_RESUME)
         {
