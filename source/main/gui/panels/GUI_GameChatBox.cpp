@@ -54,13 +54,14 @@ void GameChatBox::Draw()
     const float width = ImGui::GetIO().DisplaySize.x - (2 * theme.screen_edge_padding.x);
     ImVec2 msg_size(width, (ImGui::GetIO().DisplaySize.y / 3.f) + (2*ImGui::GetStyle().WindowPadding.y));
     ImVec2 chat_size(width, ImGui::GetTextLineHeightWithSpacing() + 20);
-    ImGui::SetNextWindowSize(ImVec2(msg_size.x, msg_size.y - 6.f));
     ImVec2 msg_pos(theme.screen_edge_padding.x, ImGui::GetIO().DisplaySize.y - (msg_size.y + theme.screen_edge_padding.y));
     if (m_is_visible)
     {
         msg_pos.y -= chat_size.y;
+        msg_size.y -= 6.f; // prevents partially bottom chat messages
     }
     ImGui::SetNextWindowPos(msg_pos);
+    ImGui::SetNextWindowSize(msg_size);
 
     if (m_is_visible)
     {
