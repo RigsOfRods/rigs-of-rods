@@ -28,6 +28,7 @@
 #include "GfxActor.h"
 #include "GUIManager.h"
 #include "Utils.h"
+#include "GUIUtils.h"
 
 using namespace RoR;
 using namespace GUI;
@@ -41,7 +42,14 @@ void SimActorStats::Draw(RoR::GfxActor* actorx)
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
     ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, (theme.screen_edge_padding.y + 150)));
     ImGui::Begin("SimActorStats", nullptr, flags);
-    ImGui::Text(actorx->FetchActorDesignName().c_str());
+
+    ImDrawList* child_drawlist = ImGui::GetWindowDrawList(); // Important for correct clipping
+    ImVec2 size = RoR::DrawColorMarkedText(child_drawlist, ImGui::GetCursorScreenPos(), ImGui::GetStyle().Colors[ImGuiCol_Text],
+                                            /*override_alpha=*/1.f,
+                                            ImGui::GetWindowContentRegionWidth() - ImGui::GetCursorPosX(),
+                                            actorx->FetchActorDesignName().c_str());
+    ImGui::SetCursorPos(ImGui::GetCursorPos() + (size * 1.5));
+
     ImGui::Separator();
     if (m_stat_health < 1.0f)
     {
