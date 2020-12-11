@@ -107,7 +107,10 @@ void ConsoleView::DrawConsoleMessages()
                                  (int)m_display_messages.size() - msg_start);
 
             const float line_offset = scroll_offset/line_h;
-            cursor -= ImVec2(0, (line_offset - (float)(int)line_offset)*line_h);
+            if (cvw_smooth_scrolling)
+            {
+                cursor -= ImVec2(0, (line_offset - (float)(int)line_offset)*line_h);
+            }
         }
 
         // Horizontal scrolling
