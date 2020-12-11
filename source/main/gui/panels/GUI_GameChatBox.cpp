@@ -114,7 +114,7 @@ void GameChatBox::Draw()
 
     // Draw chat box
     ImGuiWindowFlags chat_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
     ImGui::SetNextWindowSize(chat_size);
     ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, ImGui::GetIO().DisplaySize.y - (chat_size.y + theme.screen_edge_padding.y)));
