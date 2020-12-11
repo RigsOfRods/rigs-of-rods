@@ -54,7 +54,7 @@ void GameChatBox::Draw()
     const float width = ImGui::GetIO().DisplaySize.x - (2 * theme.screen_edge_padding.x);
     ImVec2 msg_size(width, (ImGui::GetIO().DisplaySize.y / 3.f) + (2*ImGui::GetStyle().WindowPadding.y));
     ImVec2 chat_size(width, ImGui::GetTextLineHeightWithSpacing() + 20);
-    ImGui::SetNextWindowSize(msg_size);
+    ImGui::SetNextWindowSize(ImVec2(msg_size.x, msg_size.y - 6.f));
     ImVec2 msg_pos(theme.screen_edge_padding.x, ImGui::GetIO().DisplaySize.y - (msg_size.y + theme.screen_edge_padding.y));
     if (m_is_visible)
     {
@@ -80,6 +80,7 @@ void GameChatBox::Draw()
     if (m_is_visible)
     {
         m_console_view.cvw_enable_scrolling = true;
+        m_console_view.cvw_smooth_scrolling = false;
         m_console_view.cvw_msg_duration_ms = 3600000; // 1hour
         m_console_view.cvw_filter_type_notice = false;
         m_console_view.cvw_filter_type_warning = false; 
@@ -94,6 +95,7 @@ void GameChatBox::Draw()
     else
     {
         m_console_view.cvw_enable_scrolling = false;
+        m_console_view.cvw_smooth_scrolling = true;
         m_console_view.cvw_filter_type_notice = true;
         m_console_view.cvw_filter_type_warning = true; 
         m_console_view.cvw_filter_area_script = true; 

@@ -52,6 +52,7 @@ struct ConsoleView
     bool  cvw_filter_area_script = true;
     bool  cvw_filter_area_actor = true;
     bool  cvw_filter_area_terrn = true;
+    bool  cvw_smooth_scrolling = true;
 
     // Misc options
     size_t cvw_msg_duration_ms = 0u; //!< Message expiration; 0 means unlimited
