@@ -642,7 +642,7 @@ struct ActorSpawnRequest
     enum class Origin //!< Enables special processing
     {
         UNKNOWN,
-        CONFIG_FILE,  //!< 'Preselected vehicle' in RoR.cfg
+        CONFIG_FILE,  //!< 'Preselected vehicle' in RoR.cfg or command line
         TERRN_DEF,    //!< Preloaded with terrain
         USER,         //!< Direct selection by user via GUI
         SAVEGAME,     //!< User spawned and part of a savegame
