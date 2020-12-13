@@ -259,7 +259,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     actor->ToggleLights();
     actor->GetGfxActor()->SetDebugView((GfxActor::DebugViewType)rq.asr_debugview);
 
-    if (actor->isPreloadedWithTerrain())
+    if (actor->isPreloadedWithTerrain() || rq.asr_origin == ActorSpawnRequest::Origin::CONFIG_FILE)
     {
         actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill of sim data buffers
 
