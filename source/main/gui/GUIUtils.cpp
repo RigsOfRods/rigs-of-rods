@@ -241,6 +241,17 @@ ImVec2 RoR::DrawColorMarkedText(ImDrawList* drawlist, ImVec2 text_cursor, ImVec4
     return feeder.size;
 }
 
+void RoR::ImTextWrappedColorMarked(std::string const& text)
+{
+    ImVec2 size = RoR::DrawColorMarkedText(ImGui::GetWindowDrawList(),
+                                           ImGui::GetCursorScreenPos(),
+                                           ImGui::GetStyle().Colors[ImGuiCol_Text],
+                                           /*override_alpha=*/1.f,
+                                           ImGui::GetWindowContentRegionWidth() - ImGui::GetCursorPosX(),
+                                           text);
+    ImGui::SetCursorPos(ImGui::GetCursorPos() + size);
+}
+
 void RoR::DrawGCheckbox(CVar* cvar, const char* label)
 {
     bool val = cvar->GetBool();

@@ -53,6 +53,9 @@ void DrawImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float angl
 /// Draw multiline text with '#rrggbb' color markers. Returns total text size.
 ImVec2 DrawColorMarkedText(ImDrawList* drawlist, ImVec2 text_cursor, ImVec4 default_color, float override_alpha, float wrap_width, std::string const& line);
 
+/// Prints multiline text with '#rrggbb' color markers. Behaves like `ImGui::Text*` functions.
+void ImTextWrappedColorMarked(std::string const& text);
+
 void DrawGCheckbox(CVar* cvar, const char* label);
 
 void DrawGIntCheck(CVar* cvar, const char* label);

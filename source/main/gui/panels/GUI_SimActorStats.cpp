@@ -43,12 +43,8 @@ void SimActorStats::Draw(RoR::GfxActor* actorx)
     ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, (theme.screen_edge_padding.y + 150)));
     ImGui::Begin("SimActorStats", nullptr, flags);
 
-    ImDrawList* child_drawlist = ImGui::GetWindowDrawList(); // Important for correct clipping
-    ImVec2 size = RoR::DrawColorMarkedText(child_drawlist, ImGui::GetCursorScreenPos(), ImGui::GetStyle().Colors[ImGuiCol_Text],
-                                            /*override_alpha=*/1.f,
-                                            ImGui::GetWindowContentRegionWidth() - ImGui::GetCursorPosX(),
-                                            actorx->FetchActorDesignName().c_str());
-    ImGui::SetCursorPos(ImGui::GetCursorPos() + (size * 1.5));
+    RoR::ImTextWrappedColorMarked(actorx->FetchActorDesignName());
+    ImGui::Dummy(ImGui::GetStyle().FramePadding);
 
     ImGui::Separator();
     if (m_stat_health < 1.0f)
