@@ -75,7 +75,7 @@ void RoR::ImTextFeeder::AddMultiline(ImU32 color, float wrap_width, const char* 
         unsigned int c = (unsigned int)*text_pos;
         int bytes_advance = 1;
         if (c >= 0x80)
-            bytes_advance += ImTextCharFromUtf8(&c, text_pos, text_end);
+            bytes_advance = ImTextCharFromUtf8(&c, text_pos, text_end);
 
         if (c == '\r')
         {} // Ignore carriage return
