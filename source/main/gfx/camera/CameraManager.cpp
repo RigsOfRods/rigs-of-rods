@@ -711,7 +711,10 @@ void CameraManager::UpdateCameraBehaviorStatic()
         }
         m_staticcam_look_at = m_cct_player_actor->getPosition();
         velocity = m_cct_player_actor->ar_nodes[0].Velocity * m_cct_sim_speed;
-        radius = m_cct_player_actor->getMinCameraRadius();
+        if (App::GetGameContext()->GetPlayerActor()->ar_driveable != AIRPLANE)
+        {
+            radius = m_cct_player_actor->getMinCameraRadius();
+        }
         angle = (m_staticcam_look_at - m_staticcam_position).angleBetween(velocity);
         speed = velocity.normalise();
 
