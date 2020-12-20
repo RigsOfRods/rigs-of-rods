@@ -283,6 +283,7 @@ int main(int argc, char *argv[])
             while (App::GetGameContext()->HasMessages())
             {
                 Message m = App::GetGameContext()->PopMessage();
+                bool failed_m = false;
                 switch (m.type)
                 {
 
@@ -497,6 +498,11 @@ int main(int argc, char *argv[])
                             App::GetOutGauge()->Connect();
                         }
                     }
+                    else
+                    {
+                        App::GetGuiManager()->SetVisible_LoadingWindow(false);
+                        failed_m = true;
+                    }
                     break;
 
                 case MSG_SIM_UNLOAD_TERRN_REQUESTED:
@@ -625,9 +631,12 @@ int main(int argc, char *argv[])
                 }
 
                 // Process chained messages
-                for (Message& chained_msg: m.chain)
+                if (!failed_m)
                 {
-                    App::GetGameContext()->PushMessage(chained_msg);
+                    for (Message& chained_msg: m.chain)
+                    {
+                        App::GetGameContext()->PushMessage(chained_msg);
+                    }
                 }
 
             } // Game events block
