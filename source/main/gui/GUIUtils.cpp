@@ -235,7 +235,8 @@ ImVec2 RoR::DrawColorMarkedText(ImDrawList* drawlist, ImVec2 text_cursor, ImVec4
     // Print final segment (if any)
     if (seg_start != line.begin() + line.length())
     {
-        feeder.AddMultiline(ImColor(r,g,b,(int)(override_alpha*255)), wrap_width, &*seg_start, &*line.end());
+        const char* end_ptr = &line.c_str()[line.length()];
+        feeder.AddMultiline(ImColor(r,g,b,(int)(override_alpha*255)), wrap_width, &*seg_start, end_ptr);
     }
 
     return feeder.size;
