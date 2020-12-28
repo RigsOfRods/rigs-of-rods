@@ -25,6 +25,7 @@
 #include "AutoPilot.h"
 #include "CacheSystem.h"
 #include "Collisions.h"
+#include "Console.h"
 #include "ErrorUtils.h"
 #include "Language.h"
 #include "GameContext.h"
@@ -935,6 +936,14 @@ void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile
 
         if (params.enable_collisions && (App::sim_races_enabled->GetBool() || !race_event))
         {
+            // Validate AABB (minimum corners must be less or equal to maximum corners)
+            if (cbox.aabb_min.x > cbox.aabb_max.x || cbox.aabb_min.y > cbox.aabb_max.y || cbox.aabb_min.z > cbox.aabb_max.z)
+            {
+                std::string msg = "ODEF: Skipping invalid collision box, min: " + TOSTRING(cbox.aabb_min) + ", max: " + TOSTRING(cbox.aabb_max);
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING, msg);
+                continue;
+            }
+
             int boxnum = terrainManager->GetCollisions()->addCollisionBox(
                 params.node, cbox.is_rotating, cbox.is_virtual, params.position, params.rotation,
                 cbox.aabb_min, cbox.aabb_max, cbox.box_rot, cbox.event_name,
