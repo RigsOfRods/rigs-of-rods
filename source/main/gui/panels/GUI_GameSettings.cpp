@@ -347,11 +347,6 @@ void GameSettings::Draw()
         ImGui::TextDisabled(_LC("GameSettings", "Diagnostic options"));
         ImGui::TextColored(ImVec4(0.89f,0.15f,0.21f,1.0f), _LC("GameSettings", "These settings are for advanced users only, you should only change these if you know what you're doing"));
 
-        int physics_fps = std::round(1.0f / App::diag_physics_dt->GetFloat());
-        if (ImGui::SliderInt(_LC("GameSettings", "Physics frames per second"), &physics_fps, 2000, 10000))
-        {
-            App::diag_physics_dt->SetVal(Ogre::Math::Clamp(1.0f / physics_fps, 0.0001f, 0.0005f));
-        }
         DrawGTextEdit(App::diag_preset_terrain,      _LC("GameSettings", "Preselected terrain"),         m_buf_diag_preset_terrain);
         DrawGTextEdit(App::diag_preset_vehicle,      _LC("GameSettings", "Preselected vehicle"),         m_buf_diag_preset_vehicle);
         DrawGTextEdit(App::diag_preset_veh_config,   _LC("GameSettings", "Presel. veh. config"),         m_buf_diag_preset_veh_config);
