@@ -212,33 +212,6 @@ CacheEntry* CacheSystem::FindEntryByFilename(LoaderType type, bool partial, std:
     return (partial) ? partial_match : nullptr;
 }
 
-void CacheSystem::UnloadActorFromMemory(std::string filename)
-{
-    CacheEntry* cache_entry = this->FindEntryByFilename(LT_AllBeam, /*partial=*/false, filename);
-    if (cache_entry != nullptr)
-    {
-        cache_entry->actor_def.reset();
-        String group = cache_entry->resource_group;
-        if (!group.empty() && ResourceGroupManager::getSingleton().resourceGroupExists(group))
-        {
-            bool unused = true;
-            for (auto gfx_actor : App::GetGfxScene()->GetGfxActors())
-            {
-                if (gfx_actor->GetResourceGroup() == group)
-                {
-                    unused = false;
-                    break;
-                }
-            }
-            if (unused)
-            {
-                ResourceGroupManager::getSingleton().destroyResourceGroup(group);
-                m_loaded_resource_bundles[cache_entry->resource_bundle_path] = "";
-            }
-        }
-    }
-}
-
 CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
 {
     this->GenerateHashFromFilenames();
@@ -1104,15 +1077,21 @@ bool CacheSystem::CheckResourceLoaded(Ogre::String & filename, Ogre::String& gro
 
 void CacheSystem::LoadResource(CacheEntry& t)
 {
-    if (!m_loaded_resource_bundles[t.resource_bundle_path].empty())
+    // Check if already loaded for this entry.
+    if (t.resource_group != "")
     {
-        t.resource_group = m_loaded_resource_bundles[t.resource_bundle_path];
         return;
     }
 
-    static int rg_counter = 0;
-    String group = std::to_string(rg_counter++) + "-" + t.fname;
+    // Check if already loaded for different entry from the same bundle.
+    Ogre::String group = "bundle " + t.resource_bundle_path; // Compose group name from full path.
+    if (Ogre::ResourceGroupManager::getSingleton().resourceGroupExists(group))
+    {
+        t.resource_group = group;
+        return;
+    }
 
+    // Load now.
     try
     {
         if (t.fext == "terrn2")
@@ -1124,6 +1103,7 @@ void CacheSystem::LoadResource(CacheEntry& t)
         else if (t.fext == "skin")
         {
             // This is a SkinZip bundle - use `inGlobalPool=false` to prevent resource name conflicts.
+            // Note: this code won't execute for .skin files in vehicle-bundles because in such case the bundle is already loaded by the vehicle's CacheEntry.
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
             ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
             App::GetContentManager()->InitManagedMaterials(group);
@@ -1144,7 +1124,6 @@ void CacheSystem::LoadResource(CacheEntry& t)
         ResourceGroupManager::getSingleton().initialiseResourceGroup(group);
 
         t.resource_group = group;
-        m_loaded_resource_bundles[t.resource_bundle_path] = group;
     }
     catch (Ogre::Exception& e)
     {
@@ -1155,6 +1134,18 @@ void CacheSystem::LoadResource(CacheEntry& t)
             ResourceGroupManager::getSingleton().destroyResourceGroup(group);
         }
     }
+}
+
+void CacheSystem::ReLoadResource(CacheEntry& t)
+{
+    if (t.resource_group == "")
+    {
+        return; // Not loaded - nothing to do
+    }
+
+    Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(t.resource_group);
+    t.resource_group = "";
+    this->LoadResource(t); // Will create the same resource group again
 }
 
 CacheEntry* CacheSystem::FetchSkinByName(std::string const & skin_name)

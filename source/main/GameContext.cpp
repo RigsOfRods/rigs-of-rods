@@ -271,6 +271,14 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
     }
     if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
     {
+        CacheEntry* entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, rq.amr_actor->ar_filename);
+        if (!entry)
+        {
+            Str<500> msg; msg <<"Cannot reload vehicle; file '" << rq.amr_actor->ar_filename << "' not found in ModCache.";
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
+            return;
+        }
+
         auto reload_pos = rq.amr_actor->getPosition();
         auto reload_dir = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(m_player_actor->getRotation()), Ogre::Vector3::UNIT_Y);
         auto debug_view = rq.amr_actor->GetGfxActor()->GetDebugView();
@@ -280,20 +288,19 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         reload_pos.y = m_player_actor->GetMinHeight();
 
         m_prev_player_actor = nullptr;
-        std::string filename = rq.amr_actor->ar_filename;
         this->DeleteActor(rq.amr_actor);
-        App::GetCacheSystem()->UnloadActorFromMemory(filename); // Force reload from filesystem
+        App::GetCacheSystem()->ReLoadResource(*entry);
 
         ActorSpawnRequest* srq = new ActorSpawnRequest;
         srq->asr_position   = reload_pos;
         srq->asr_rotation   = reload_dir;
         srq->asr_config     = asr_config;
         srq->asr_skin_entry = used_skin;
-        srq->asr_filename   = filename;
+        srq->asr_cache_entry= entry;
         srq->asr_debugview  = (int)debug_view;
         srq->asr_origin     = ActorSpawnRequest::Origin::USER;
         this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));
-    }    
+    }
 }
 
 void GameContext::DeleteActor(Actor* actor)
