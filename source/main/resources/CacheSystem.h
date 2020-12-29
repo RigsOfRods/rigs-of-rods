@@ -69,7 +69,7 @@ public:
     int version;                        //!< file's version
     Ogre::String fext;                  //!< file's extension
     std::string resource_bundle_type;   //!< Archive type recognized by OGRE resource system: 'FileSystem' or 'Zip'
-    std::string resource_bundle_path;   //!< Path of ZIP or directory which contains the media.
+    std::string resource_bundle_path;   //!< Path of ZIP or directory which contains the media. Shared between CacheEntries, loaded only once.
     int number;                         //!< Sequential number, assigned internally, used by Selector-GUI
     std::time_t filetime;               //!< filetime
     bool deleted;                       //!< is this mod deleted?
@@ -77,7 +77,7 @@ public:
     std::vector<AuthorInfo> authors;    //!< authors
     Ogre::String filecachename;         //!< preview image filename
 
-    Ogre::String resource_group;        //!< the name of the resource group this entry belongs to
+    Ogre::String resource_group;        //!< Resource group of the loaded bundle. Empty if not loaded yet.
 
     std::shared_ptr<RigDef::File> actor_def; //!< Cached actor definition (aka truckfile) after first spawn
     std::shared_ptr<RoR::SkinDef> skin_def;  //!< Cached skin info, added on first use or during cache rebuild
@@ -179,8 +179,8 @@ struct CacheQuery
 /// HOW IT WORKS:
 ///    For each recognized resource type (vehicle, terrain, skin...) an instance of 'CacheEntry' is created.
 ///       These entries are persisted in file CACHE_FILE (see above)
-///    Associated media live in a "resource bundle" (ZIP archive or subdirectory) in content directories (ROR_HOME/vehicles, ROR_HOME/terrains etc...)
-///       Bundles are shared among cache entries and loaded only once, when related CacheEntry is loaded.
+///    Associated media live in a "resource bundle" (ZIP archive or subdirectory) in content directory (ROR_HOME/mods) and subdirectories.
+///       If multiple CacheEntries share a bundle, the bundle is loaded only once. Each bundle has dedicated OGRE resource group.
 class CacheSystem : public ZeroedMemoryAllocator
 {
 public:
@@ -202,13 +202,13 @@ public:
     void                  LoadModCache(CacheValidityState validity);
     CacheEntry*           FindEntryByFilename(RoR::LoaderType type, bool partial, std::string filename); //!< Returns NULL if none found
     CacheEntry*           FetchSkinByName(std::string const & skin_name);
-    void                  UnloadActorFromMemory(std::string filename);
     CacheValidityState    EvaluateCacheValidity();
     size_t                Query(CacheQuery& query);
 
     void LoadResource(CacheEntry& t); //!< Loads the associated resource bundle if not already done.
     bool CheckResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
     bool CheckResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
+    void ReLoadResource(CacheEntry& t); //!< Forces reloading the associated bundle.
 
     const std::vector<CacheEntry> &GetEntries()        const { return m_entries; }
 
@@ -250,7 +250,6 @@ private:
 
     std::time_t                          m_update_time;      //!< Ensures that all inserted files share the same timestamp
     std::string                          m_filenames_hash;   //!< stores hash over the content, for quick update detection
-    std::map<Ogre::String, Ogre::String> m_loaded_resource_bundles; //!< Assosiates resource path with resource group
     std::vector<CacheEntry>              m_entries;
     std::vector<Ogre::String>            m_known_extensions; //!< the extensions we track in the cache system
     std::set<Ogre::String>               m_resource_paths;   //!< A temporary list of existing resource paths
