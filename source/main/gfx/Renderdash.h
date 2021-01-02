@@ -36,6 +36,7 @@ public:
 
     void setEnable(bool en);
     Ogre::TexturePtr getTexture() { return m_texture; }
+    Ogre::RenderTarget* getRenderTarget() { return m_rtt_tex; }
 
     // Ogre::RenderTargetListener
     void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;

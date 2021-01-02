@@ -2380,6 +2380,14 @@ void RoR::GfxActor::SetRenderdashActive(bool active)
     }
 }
 
+void RoR::GfxActor::UpdateRenderdashRTT()
+{
+    if (m_renderdash != nullptr)
+    {
+        m_renderdash->getRenderTarget()->update();
+    }
+}
+
 void RoR::GfxActor::SetBeaconsEnabled(bool beacon_light_is_active)
 {
     const bool enableLight = (App::gfx_flares_mode->GetEnum<GfxFlaresMode>() != GfxFlaresMode::NO_LIGHTSOURCES);
