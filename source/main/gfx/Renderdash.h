@@ -47,9 +47,7 @@ private:
     Ogre::TexturePtr       m_texture;
     Ogre::Overlay*         m_blend_overlay;
     Ogre::Overlay*         m_dash_overlay;
-    Ogre::Overlay*         m_fps_overlay;
     Ogre::Overlay*         m_needles_overlay;
-    bool                   m_fps_displayed;
 };
 
 } // namespace RoR
