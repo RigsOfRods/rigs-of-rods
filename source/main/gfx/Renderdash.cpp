@@ -62,6 +62,10 @@ RoR::Renderdash::Renderdash(std::string const& rg_name, std::string const& tex_n
 
     m_rtt_tex->addListener(this);
     m_rtt_tex->setActive(false);
+
+    // IMPORTANT: Must be manually updated as a workaround
+    //  Under Windows with DirectX9 rendering, once auto-updated RTT is enabled, all DearIMGUI colors change: blue turns light orange, yellow turns light blue, red turns dark purple etc... looks like a hue shift but I haven't researched further. The moment the RTT is deactivated colors go back to normal.
+    m_rtt_tex->setAutoUpdated(false);
 }
 
 RoR::Renderdash::~Renderdash()

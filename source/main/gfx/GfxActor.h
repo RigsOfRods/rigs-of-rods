@@ -250,6 +250,7 @@ public:
     void                 UpdatePropAnimations(float dt, bool is_player_connected);
     void                 SetPropsVisible     (bool visible);
     void                 SetRenderdashActive (bool active);
+    void                 UpdateRenderdashRTT ();
     void                 SetBeaconsEnabled   (bool beacon_light_is_active);
     void                 CalcPropAnimation   (const int flag_state, float& cstate, int& div, float timer,
                                               const float lower_limit, const float upper_limit, const float option3);
