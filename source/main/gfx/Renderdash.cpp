@@ -33,9 +33,7 @@ RoR::Renderdash::Renderdash(std::string const& rg_name, std::string const& tex_n
     , m_rtt_tex(nullptr)
     , m_blend_overlay(nullptr)
     , m_dash_overlay(nullptr)
-    , m_fps_overlay(nullptr)
     , m_needles_overlay(nullptr)
-    , m_fps_displayed(false)
 {
     m_texture = Ogre::TextureManager::getSingleton().createManual(
         tex_name, rg_name, Ogre::TEX_TYPE_2D, 1024, 512, 0, Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
@@ -84,21 +82,6 @@ void RoR::Renderdash::preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
     // hide everything
     App::GetGfxScene()->GetSceneManager()->setFindVisibleObjects(false);
 
-    // hide fps stats
-    if (m_fps_overlay)
-    {
-        m_fps_displayed = m_fps_overlay->isVisible();
-        if (m_fps_displayed)
-        {
-            m_fps_overlay->hide();
-        }
-    }
-    else
-    {
-        // this must be here and not in the constructor, as upon construction time the overlaymanager is not working, somehow
-        m_fps_overlay = Ogre::OverlayManager::getSingleton().getByName("Core/DebugOverlay");
-    }
-
     //show overlay
     m_dash_overlay->show();
     m_needles_overlay->show();
@@ -109,12 +92,6 @@ void RoR::Renderdash::postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
 {
     // show everything
     App::GetGfxScene()->GetSceneManager()->setFindVisibleObjects(true);
-
-    // show everything again, if it was displayed before hiding it...
-    if (m_fps_overlay && m_fps_displayed)
-    {
-        m_fps_overlay->show();
-    }
 
     // hide overlay
     m_dash_overlay->hide();
