@@ -197,7 +197,6 @@ void GameSettings::Draw()
         DrawGCheckbox(App::gfx_speedo_digital, _LC("GameSettings", "Digital speedometer"));
         DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial speedometer"));
 
-        //DrawGCheckbox(App::gfx_flexbody_lods,      "Enable flexbody LODs");
         //DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
 
         DrawGCheckbox(App::sim_spawn_running, _LC("GameSettings", "Engines spawn running"));
