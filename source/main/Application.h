@@ -390,7 +390,6 @@ extern CVar* gfx_fixed_cam_tracking;
 extern CVar* gfx_fps_limit;
 extern CVar* gfx_speedo_digital;
 extern CVar* gfx_speedo_imperial;
-extern CVar* gfx_flexbody_lods;
 extern CVar* gfx_flexbody_cache;
 extern CVar* gfx_reduce_shadows;
 extern CVar* gfx_enable_rtshaders;

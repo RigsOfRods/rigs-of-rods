@@ -190,8 +190,6 @@ public:
 
 private:
 
-    void  ResolveFlexbodyLOD(std::string meshname, Ogre::MeshPtr newmesh);
-
     ActorSpawner*             m_rig_spawner;
 
     FlexBodyFileIO          m_flexbody_cache;

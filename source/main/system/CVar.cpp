@@ -170,7 +170,6 @@ void Console::CVarSetupBuiltins()
     App::gfx_fps_limit           = this->CVarCreate("gfx_fps_limit",           "FPS-Limiter",                CVAR_ARCHIVE | CVAR_TYPE_INT,     "0");
     App::gfx_speedo_digital      = this->CVarCreate("gfx_speedo_digital",      "DigitalSpeedo",              CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::gfx_speedo_imperial     = this->CVarCreate("gfx_speedo_imperial",     "gfx_speedo_imperial",        CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
-    App::gfx_flexbody_lods       = this->CVarCreate("gfx_flexbody_lods",       "Flexbody_EnableLODs",        CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::gfx_flexbody_cache      = this->CVarCreate("gfx_flexbody_cache",      "Flexbody_UseCache",          CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::gfx_reduce_shadows      = this->CVarCreate("gfx_reduce_shadows",      "Shadow optimizations",       CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::gfx_enable_rtshaders    = this->CVarCreate("gfx_enable_rtshaders",    "Use RTShader System",        CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");

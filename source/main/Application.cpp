@@ -225,7 +225,6 @@ CVar* gfx_fixed_cam_tracking;
 CVar* gfx_fps_limit;
 CVar* gfx_speedo_digital;
 CVar* gfx_speedo_imperial;
-CVar* gfx_flexbody_lods;
 CVar* gfx_flexbody_cache;
 CVar* gfx_reduce_shadows;
 CVar* gfx_enable_rtshaders;

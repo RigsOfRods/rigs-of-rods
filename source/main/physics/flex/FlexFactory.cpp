@@ -72,10 +72,6 @@ FlexBody* FlexFactory::CreateFlexBody(
     int flexbody_id = m_rig_spawner->GetActor()->GetGfxActor()->GetNumFlexbodies();
     const std::string mesh_unique_name = m_rig_spawner->ComposeName("FlexbodyMesh", flexbody_id);
     Ogre::MeshPtr mesh = common_mesh->clone(mesh_unique_name);
-    if (App::gfx_flexbody_lods->GetBool())
-    {
-        this->ResolveFlexbodyLOD(def->mesh_name, mesh);
-    }
     const std::string flexbody_name = m_rig_spawner->ComposeName("Flexbody", flexbody_id);
     Ogre::Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(flexbody_name, mesh_unique_name, resource_group_name);
     m_rig_spawner->SetupNewEntity(entity, Ogre::ColourValue(0.5, 0.5, 1));
@@ -413,22 +409,3 @@ void FlexFactory::SaveFlexbodiesToCache()
     }
 }
 
-void FlexFactory::ResolveFlexbodyLOD(std::string meshname, Ogre::MeshPtr newmesh)
-{
-    std::string basename, ext;
-    Ogre::StringUtil::splitBaseFilename(meshname, basename, ext);
-    for (int i=0; i<4;i++)
-    {
-        const std::string fn = basename + "_" + TOSTRING(i) + ".mesh";
-
-        if (!Ogre::ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(fn))
-            continue;
-
-        float distance = 3;
-        if (i == 1) distance = 20;
-        if (i == 2) distance = 50;
-        if (i == 3) distance = 200;
-        //newmesh->createManualLodLevel(distance, fn);
-        Ogre::MeshLodGenerator::getSingleton().generateAutoconfiguredLodLevels(newmesh);
-    }
-}
