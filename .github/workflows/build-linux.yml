@@ -1,0 +1,51 @@
+---
+name: Build Linux
+
+on: [push, pull_request]
+
+jobs:
+  build-gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          submodules: true
+
+      - name: Cache conan
+        uses: actions/cache@v1
+        with:
+          key: conan-root-${{ hashFiles('**/conanfile.txt') }}
+          path: ~/.conan/
+
+      - name: Install dependencies
+        run: |
+          curl "https://raw.githubusercontent.com/AnotherFoxGuy/ci-scripts/main/install-conan.sh" | sudo bash
+          sudo apt-get update
+          sudo apt-get -y install \
+                  pkg-config \
+                  ninja-build \
+                  nvidia-cg-toolkit \
+                  libfreetype6-dev \
+                  libfreeimage-dev \
+                  libzzip-dev \
+                  libois-dev \
+                  libgl1-mesa-dev \
+                  libglu1-mesa-dev \
+                  libx11-dev \
+                  libxt-dev \
+                  libxaw7-dev \
+                  libxrandr-dev
+
+        shell: bash
+
+      - name: Configure
+        run: cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
+        shell: bash
+
+      - name: Build
+        run: ninja
+        shell: bash
+
+      - name: Clean Conan pkgs
+        run: cmake -P ./cmake/3rdparty/pmm.cmake /Conan /Clean
+        shell: bash
