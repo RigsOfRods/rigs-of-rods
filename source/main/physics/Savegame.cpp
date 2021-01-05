@@ -217,14 +217,12 @@ bool ActorManager::LoadScene(Ogre::String filename)
     if (!App::GetContentManager()->LoadAndParseJson(filename, RGN_SAVEGAMES, j_doc) ||
         !j_doc.IsObject() || !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber())
     {
-        RoR::Log("[RoR|Savegame] Invalid or missing savegame file.");
         App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: File invalid or missing"));
         return false;
     }
     if (j_doc["format_version"].GetInt() != SAVEGAME_FILE_FORMAT)
     {
-        RoR::Log("[RoR|Savegame] Savegame file format mismatch.");
         App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: File format mismatch"));
         return false;
@@ -282,7 +280,8 @@ bool ActorManager::LoadScene(Ogre::String filename)
         String filename = j_entry["filename"].GetString();
         if (!App::GetCacheSystem()->CheckResourceLoaded(filename))
         {
-            RoR::LogFormat("[RoR|Savegame] Missing content ... failed to create actor: '%s'", filename.c_str());
+            Str<600> msg; msg << _L("Error while loading scene: Missing content (probably not installed)") << " '" << filename << "'";
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
             actors.push_back(nullptr);
             continue;
         }

@@ -534,7 +534,8 @@ int main(int argc, char *argv[])
                         std::string terrn_filename = App::GetGameContext()->ExtractSceneTerrain(m.description);
                         if (terrn_filename == "")
                         {
-                            LogFormat("[RoR|Savegame] Could not load '%s'", m.description.c_str());
+                            Str<400> msg; msg << _L("Could not read savegame file") << "'" << m.description << "'";
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
                             App::GetGuiManager()->SetVisible_GameMainMenu(true);
                         }
                         else if (terrn_filename == App::sim_terrain_name->GetStr())
