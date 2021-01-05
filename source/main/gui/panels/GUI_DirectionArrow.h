@@ -39,6 +39,7 @@ public:
     void CreateArrow(); //!< Must be called again after OGRE scenemanager is cleared.
     void Update(RoR::GfxActor* player);
     bool IsVisible() { return m_overlay->isVisible(); }
+    void SetVisible(bool value); //!< Only effective in main menu, simulation visibility is set in `Update()`
 
 private:
     Ogre::SceneNode*              m_node = nullptr;

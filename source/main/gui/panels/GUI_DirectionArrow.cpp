@@ -96,3 +96,16 @@ void GUI::DirectionArrow::Update(RoR::GfxActor* player_vehicle)
         m_overlay->hide();
     }
 }
+
+// Only effective in main menu, simulation visibility is set in `Update()`
+void GUI::DirectionArrow::SetVisible(bool value)
+{
+    if (m_node && m_overlay)
+    {
+        m_node->setVisible(value);
+        if (value)
+            m_overlay->show();
+        else
+            m_overlay->hide();
+    }
+}
