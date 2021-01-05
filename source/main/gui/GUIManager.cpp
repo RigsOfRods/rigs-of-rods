@@ -393,6 +393,7 @@ void GUIManager::ReflectGameState()
         m_impl->panel_VehicleDescription .SetVisible(false);
         m_impl->panel_SimActorStats      .SetVisible(false);
         m_impl->panel_SimPerfStats       .SetVisible(false);
+        m_impl->panel_DirectionArrow     .SetVisible(false);
     }
     else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
     {
