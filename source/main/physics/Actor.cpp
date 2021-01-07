@@ -3936,9 +3936,9 @@ void Actor::updateDashBoards(float dt)
     {
         velocity = cam_dir.dotProduct(ar_nodes[0].Velocity);
     }
-    float speed_kph = velocity * 3.6f;
+    float speed_kph = ar_wheel_speed * 3.6f;
     ar_dashboard->setFloat(DD_ENGINE_SPEEDO_KPH, speed_kph);
-    float speed_mph = velocity * 2.23693629f;
+    float speed_mph = ar_wheel_speed * 2.23693629f;
     ar_dashboard->setFloat(DD_ENGINE_SPEEDO_MPH, speed_mph);
 
     // roll
