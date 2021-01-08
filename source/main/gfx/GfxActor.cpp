@@ -2384,9 +2384,7 @@ void RoR::GfxActor::UpdateRenderdashRTT()
 {
     if (m_renderdash != nullptr)
     {
-        App::GetGfxScene()->GetSceneManager()->removeRenderQueueListener(&App::GetGuiManager()->GetImGui()); // Hack to prevent DearIMGUI being drawn to renderdash
         m_renderdash->getRenderTarget()->update();
-        App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(&App::GetGuiManager()->GetImGui()); // Resume DearIMGUI rendering
     }
 }
 
