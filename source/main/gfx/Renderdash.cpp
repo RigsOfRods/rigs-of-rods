@@ -22,6 +22,9 @@
 
 #include "Application.h"
 #include "GfxScene.h"
+#include "GUIManager.h"
+#include "GUI_DirectionArrow.h"
+#include "OverlayWrapper.h"
 
 #include <Overlay/OgreOverlayManager.h>
 #include <Overlay/OgreOverlay.h>
@@ -86,6 +89,13 @@ void RoR::Renderdash::preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
     // hide everything
     App::GetGfxScene()->GetSceneManager()->setFindVisibleObjects(false);
 
+    // Disable DearIMGUI overlay
+    App::GetGfxScene()->GetSceneManager()->removeRenderQueueListener(&App::GetGuiManager()->GetImGui());
+
+    // Disable other overlays
+    App::GetOverlayWrapper()->HideRacingOverlay();
+    App::GetGuiManager()->GetDirectionArrow()->SetVisible(false);
+
     //show overlay
     m_dash_overlay->show();
     m_needles_overlay->show();
@@ -96,6 +106,11 @@ void RoR::Renderdash::postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
 {
     // show everything
     App::GetGfxScene()->GetSceneManager()->setFindVisibleObjects(true);
+
+    // Enable DearIMGUI overlay
+    App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(&App::GetGuiManager()->GetImGui());
+
+    // Overlays 'racing' and 'direction arrow' are re-enabled automatically if needed
 
     // hide overlay
     m_dash_overlay->hide();
