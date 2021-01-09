@@ -108,6 +108,11 @@ void GameChatBox::Draw()
         }
     }
 
+    if (!App::mp_chat_auto_hide->GetBool())
+    {
+        m_console_view.cvw_msg_duration_ms = 2629800000; // 1month, should be enough
+    }
+
     m_console_view.DrawConsoleMessages();
 
     ImGui::End();
