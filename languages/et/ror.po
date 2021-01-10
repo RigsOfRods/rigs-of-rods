@@ -1,0 +1,4023 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+# Aivar <aivar1304@gmail.com>, 2016
+# Aivar <aivar1304@gmail.com>, 2015-2016
+msgid ""
+msgstr ""
+"Project-Id-Version: Rigs of Rods\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-12-15 12:32+0100\n"
+"PO-Revision-Date: 2018-12-15 12:09+0000\n"
+"Last-Translator: Hiradur\n"
+"Language-Team: Estonian (http://www.transifex.com/rigsofrods/rigs-of-rods/language/et/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: et\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../../source/main/gui/panels/GUI_VehicleDescription.cpp:95
+msgid ""
+"\n"
+"Commands: \n"
+msgstr "\nKäsklused:\n"
+
+#: ../../source/main/gui/panels/GUI_VehicleDescription.cpp:90
+msgid ""
+"\n"
+"Description: \n"
+msgstr "\nKirjeldus:\n"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:747
+#, c-format
+msgid ""
+"\n"
+"Parameter range: %f to %f"
+msgstr "\nParameetri vahemik: %f kuni %f"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:368
+msgid " = "
+msgstr "="
+
+#: ../../source/main/gameplay/ChatSystem.cpp:161
+msgid " [whispered to "
+msgstr " [sosistasid kasutajale "
+
+#. server said something
+#: ../../source/main/gameplay/ChatSystem.cpp:101
+#: ../../source/main/gameplay/ChatSystem.cpp:108
+msgid " [whispered] "
+msgstr " [sosistatud] "
+
+#: ../../source/main/network/Network.cpp:487
+#: ../../source/main/network/Network.cpp:494
+msgid " joined the game"
+msgstr " liitus mänguga"
+
+#: ../../source/main/network/Network.cpp:444
+#: ../../source/main/network/Network.cpp:451
+msgid " left the game"
+msgstr " lahkus mängust"
+
+#: ../../source/main/resources/CacheSystem.cpp:415
+msgid " not existing"
+msgstr " puuduvad"
+
+#: ../../source/main/physics/BeamFactory.cpp:430
+msgid " spawned a new vehicle: "
+msgstr " võttis uue sõiduki: "
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:193
+msgid " user country: "
+msgstr "kasutaja riik:"
+
+#: ../../source/configurator/Configurator.cpp:1025
+msgid "(Re)load info"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:892
+msgid "(Read more on how to use these options here)"
+msgstr "(Loe nende valikute kohta siit lisaks)"
+
+#: ../../source/configurator/Configurator.cpp:677
+msgid "(more help here)"
+msgstr "(rohkem abi siit)"
+
+#: ../../source/main/gui/panels/GUI_VehicleDescription.cpp:83
+msgid "(no author information available) "
+msgstr "(autori info puudub)"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:267
+msgid "- use Arrow Up/Down Keys in the InputBox to reuse old messages"
+msgstr "- kasuta nool üles/nool alla klahve saadetud sõnumite uuesti kasutamiseks"
+
+#: ../../source/main/utils/Settings.cpp:98
+msgid ""
+"--help (this)\n"
+"-map <map> (loads map on startup)\n"
+"-pos <Vect> (overrides spawn position)\n"
+"-rot <float> (overrides spawn rotation)\n"
+"-truck <truck> (loads truck on startup)\n"
+"-setup shows the ogre configurator\n"
+"-version shows the version information\n"
+"-enter enters the selected truck\n"
+"-userpath <path> sets the user directory\n"
+"For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck -enter"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1064
+msgid "100 %"
+msgstr "100 %"
+
+#: ../../source/configurator/Configurator.cpp:957
+msgid "20%"
+msgstr "20%"
+
+#: ../../source/configurator/Configurator.cpp:958
+msgid "50%"
+msgstr "50%"
+
+#: ../../source/main/resources/CacheSystem.cpp:399
+msgid ": "
+msgstr ": "
+
+#: ../../source/configurator/Configurator.cpp:701
+msgid "About"
+msgstr "Lisateave"
+
+#: ../../source/main/physics/Beam.cpp:1691
+msgid "Actor is too big to be sent over the net."
+msgstr ""
+
+#. VideoCameraDebug
+#: ../../source/configurator/Configurator.cpp:857
+msgid ""
+"Adds a virtuals camera mesh that should help you position the camera "
+"correctly"
+msgstr "Lisab meshi mis peaks aitama sul uut kaamerat õigesti paigutada"
+
+#: ../../source/configurator/Configurator.cpp:977
+msgid "Adds tire tracks to the ground."
+msgstr "Lisab maapinnale rehvijäljed."
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:184
+msgid "Adhesion velocity"
+msgstr "Kleepumiskiirus"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:173
+msgid "Adhesion velocity:"
+msgstr "Kleepumiskiirus:"
+
+#: ../../source/configurator/Configurator.cpp:1000
+msgid ""
+"Adjusts the contribution of forces coming from the wheels and the steering "
+"mechanism."
+msgstr "Kohandab ratastest ja juhtmehhanismist tulevate jõudude hulka."
+
+#: ../../source/configurator/Configurator.cpp:1010
+msgid ""
+"Adjusts the contribution of forces coming shocks and accelerations (this "
+"parameter is currently unused)."
+msgstr "Kohandab vedrustusest ja kiirendamisest tulenevate jõudude hulka (ei ole hetkel kasutusel)."
+
+#: ../../source/configurator/Configurator.cpp:995
+msgid "Adjusts the level of all the forces."
+msgstr "Kohandab kõigi jõudude taset."
+
+#: ../../source/configurator/Configurator.cpp:1005
+msgid ""
+"Adjusts the self-centering effect applied to the driving wheel when driving "
+"at high speed."
+msgstr "Häälestab suurel kiirusel sõites rooli tagasikeerlemise efekti."
+
+#: ../../source/configurator/Configurator.cpp:687
+msgid "Advanced"
+msgstr "Täpsemalt"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:882
+msgid "Airplane"
+msgstr "Lennuk"
+
+#: ../../source/configurator/Configurator.cpp:874
+msgid "All"
+msgstr "Kõik"
+
+#: ../../source/configurator/Configurator.cpp:1075
+msgid "All vehicles, all lights"
+msgstr "Kõik sõidukid, kõik tuled"
+
+#: ../../source/configurator/Configurator.cpp:1074
+msgid "All vehicles, main lights"
+msgstr "Kõik sõidukid, peamised tuled"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:276
+msgid "Alpha"
+msgstr "Läbipaistvus"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:305
+msgid "Altitude: "
+msgstr "Kõrgus:"
+
+#: ../../source/main/main.cpp:407
+msgid "An exception (std::runtime_error) has occured!"
+msgstr "Tekkinud on erand (std::runtime_error)!"
+
+#: ../../source/main/main.cpp:403
+msgid "An exception has occured!"
+msgstr "Tekkinud on erand!"
+
+#: ../../source/main/utils/ErrorUtils.cpp:43
+msgid ""
+"An internal error occured in Rigs of Rods.\n"
+"\n"
+"Technical details below: \n"
+"\n"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:904
+msgid "Anisotropic (best looking)"
+msgstr "Anisotroopne (parima välimusega)"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:230
+msgctxt "GameSettings"
+msgid "Anisotropy"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:115
+msgctxt "GameSettings"
+msgid "Application settings"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:449
+msgid "Apply Changes"
+msgstr "Salvesta muudatused"
+
+#: ../../source/configurator/Configurator.cpp:763
+msgid "Arcade Controls"
+msgstr "Arkaadklahvistik"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:129
+msgctxt "GameSettings"
+msgid "Async physics"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:55
+msgctxt "GameSettings"
+msgid "Audio"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:178
+msgctxt "GameSettings"
+msgid "Audio device"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1034
+msgid "Audio device:"
+msgstr "Heliseade:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:162
+msgctxt "GameSettings"
+msgid "Audio settings"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:672
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:825
+msgid "Author(s): "
+msgstr "Autor(id):"
+
+#: ../../source/configurator/Configurator.cpp:815
+#: ../../source/configurator/Configurator.cpp:816
+msgid "Authors"
+msgstr "Autorid"
+
+#: ../../source/main/gui/panels/GUI_VehicleDescription.cpp:80
+msgid "Authors: \n"
+msgstr "Autorid:\n"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:278
+msgctxt "GameSettings"
+msgid "Auto actor spawner report"
+msgstr ""
+
+#: ../../source/main/gfx/camera/CameraManager.cpp:1030
+#: ../../source/main/gfx/camera/CameraManager.cpp:1031
+msgid "Auto tracking disabled"
+msgstr "Automaatne jälgimine keelatud"
+
+#: ../../source/main/gfx/camera/CameraManager.cpp:1025
+#: ../../source/main/gfx/camera/CameraManager.cpp:1026
+msgid "Auto tracking enabled"
+msgstr "Automaatne jälgimine lubatud"
+
+#: ../../source/configurator/Configurator.cpp:743
+msgid "Automatic shift"
+msgstr "Automaatkäigukast"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:242
+msgid "Available commands:"
+msgstr "Võimalikud käsklused:"
+
+#: ../../source/main/gui/OverlayWrapper.cpp:451
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:173
+msgid "Average FPS: "
+msgstr "Keskmine FPS: "
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:229
+msgid "Average deformation: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:234
+msgid "Average stress: "
+msgstr ""
+
+#: ../../source/main/physics/Beam.cpp:1289
+#: ../../source/main/physics/Beam.cpp:1316
+msgid "Axle "
+msgstr ""
+
+#. water->AppendValueItem(wxT("None"), _("None")); //we don't want that! //
+#. WTF?? ~ only_a_ptr, 02/2017
+#: ../../source/configurator/Configurator.cpp:942
+msgid "Basic (fastest)"
+msgstr "Tavaline (kiireim)"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:177
+msgid "Batch count: "
+msgstr "Pakkide arv:"
+
+#: ../../source/configurator/Configurator.cpp:848
+msgid "Beam Break Debug"
+msgstr "Talade purunemise silur"
+
+#: ../../source/configurator/Configurator.cpp:852
+msgid "Beam Deform Debug"
+msgstr "Talade väändumise silur"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:226
+msgid "Beam count: "
+msgstr "Talade arv:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:838
+msgid "Beams: "
+msgstr "Talasid:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:184
+msgid ""
+"Below this value static friction laws apply, above it dynamic friction laws "
+"apply. Value should be small, in the range of 0.1-0.4 . This velocity "
+"threshold is also used by fluid dynamics so you should always define it. "
+"NEVER set it to 0."
+msgstr "Sellest väärtusest allpool kehtivad seisuhõõrdumise, ülalpool aga veerehõõrdumise seadused.\nVäärtus peaks olema väike, jääma vahemikku 0.1-0.4. Seda kiirusläve kasutatakse ka vedelike simuleerimiseks, seetõttu tuleb see väärtus alati määrata. Seda väärtust ei tohi KUNAGI jätta 0-ks."
+
+#: ../../source/main/gui/OverlayWrapper.cpp:452
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:175
+msgid "Best FPS: "
+msgstr "Parim FPS: "
+
+#: ../../source/configurator/Configurator.cpp:902
+msgid "Bilinear"
+msgstr "Bilineaarne"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:882
+msgid "Boat"
+msgstr "Paat"
+
+#: ../../source/configurator/Configurator.cpp:764
+msgid "Braking will switch into reverse gear and accelerate."
+msgstr "Pidurdades lülitub sisse tagurpidikäik ja sõiduk kiirendab."
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:227
+msgid "Broken beams count: "
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:787
+#, c-format
+msgid "Build time: %s, %s"
+msgstr "Järgu aeg: %s, %s"
+
+#: ../../source/configurator/Configurator.cpp:804
+msgid "Built for ARCH SSE (/arch:SSE)"
+msgstr "Tehtud ARCH SSE jaoks(/arch:SSE)"
+
+#: ../../source/configurator/Configurator.cpp:806
+msgid "Built for ARCH SSE2 (/arch:SSE2)"
+msgstr "Tehtud ARCH SSE2 jaoks(/arch:SSE2)"
+
+#: ../../source/configurator/Configurator.cpp:809
+msgid "Built for x64 processors"
+msgstr "Tehtud x64 protsessorite jaoks"
+
+#: ../../source/configurator/Configurator.cpp:799
+msgid "Built in DEBUG mode (/LDd, /MDd, or /MTd.)"
+msgstr "Loodud DEBUG režiimis (/LDd, /MDd, or /MTd.)"
+
+#: ../../source/configurator/Configurator.cpp:2319
+msgid "Cache cleared"
+msgstr "Vahemälu tühjendatud"
+
+#: ../../source/configurator/Configurator.cpp:2297
+msgid "Cache is already empty"
+msgstr "Vahemälu on juba tühi"
+
+#: ../../source/configurator/Configurator.cpp:912
+msgid "Caelum (best looking, slower)"
+msgstr "Caelum (parima välimusega, aeglaseim)"
+
+#: ../../source/configurator/Configurator.cpp:914
+msgid ""
+"Caelum / SkyX sky is nice but quite slow unless you have a high-powered GPU."
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1102
+msgid "Can be used to quick save and load positions of trucks"
+msgstr "Kasutatakse sõidukite asukohtade kiireks salvestamiseks ja laadimiseks"
+
+#: ../../source/configurator/Configurator.cpp:637
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:83
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:1041
+msgid "Cancel"
+msgstr "Tühista"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:1037
+msgid "Cancel (disconnect)"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:638
+msgid "Cancel the configuration changes and close the configuration program."
+msgstr "Tühista muudatused ja sulge programm"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:341
+msgid "Character position set to: "
+msgstr "Tegelase asend seatud: "
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:317
+msgid "Character position: "
+msgstr "Tegelase asukoht: "
+
+#: ../../source/configurator/Configurator.cpp:1137
+msgid "Check OpenCL Bandwidth"
+msgstr "Kontrolli OpenCL ribalaiust"
+
+#: ../../source/configurator/Configurator.cpp:1134
+msgid "Check for OpenCL Support"
+msgstr "Kontrolli OpenCL toetust"
+
+#: ../../source/configurator/Configurator.cpp:1092
+msgid "Clear cache"
+msgstr "Tühjenda vahemälu"
+
+#: ../../source/configurator/Configurator.cpp:969
+msgid "Cockpit options:"
+msgstr "Kabiini valikud:"
+
+#: ../../source/main/utils/InputEngine.cpp:350
+msgid "Command 1"
+msgstr "Käsklus 1"
+
+#: ../../source/main/utils/InputEngine.cpp:404
+msgid "Command 10"
+msgstr "Käsklus 10"
+
+#: ../../source/main/utils/InputEngine.cpp:410
+msgid "Command 11"
+msgstr "Käsklus 11"
+
+#: ../../source/main/utils/InputEngine.cpp:416
+msgid "Command 12"
+msgstr "Käsklus 12"
+
+#: ../../source/main/utils/InputEngine.cpp:422
+msgid "Command 13"
+msgstr "Käsklus 13"
+
+#: ../../source/main/utils/InputEngine.cpp:428
+msgid "Command 14"
+msgstr "Käsklus 14"
+
+#: ../../source/main/utils/InputEngine.cpp:434
+msgid "Command 15"
+msgstr "Käsklus 15"
+
+#: ../../source/main/utils/InputEngine.cpp:440
+msgid "Command 16"
+msgstr "Käsklus 16"
+
+#: ../../source/main/utils/InputEngine.cpp:446
+msgid "Command 17"
+msgstr "Käsklus 17"
+
+#: ../../source/main/utils/InputEngine.cpp:452
+msgid "Command 18"
+msgstr "Käsklus 18"
+
+#: ../../source/main/utils/InputEngine.cpp:458
+msgid "Command 19"
+msgstr "Käsklus 19"
+
+#: ../../source/main/utils/InputEngine.cpp:356
+msgid "Command 2"
+msgstr "Käsklus 2"
+
+#: ../../source/main/utils/InputEngine.cpp:464
+msgid "Command 20"
+msgstr "Käsklus 20"
+
+#: ../../source/main/utils/InputEngine.cpp:470
+msgid "Command 21"
+msgstr "Käsklus 21"
+
+#: ../../source/main/utils/InputEngine.cpp:476
+msgid "Command 22"
+msgstr "Käsklus 22"
+
+#: ../../source/main/utils/InputEngine.cpp:482
+msgid "Command 23"
+msgstr "Käsklus 23"
+
+#: ../../source/main/utils/InputEngine.cpp:488
+msgid "Command 24"
+msgstr "Käsklus 24"
+
+#: ../../source/main/utils/InputEngine.cpp:494
+msgid "Command 25"
+msgstr "Käsklus 25"
+
+#: ../../source/main/utils/InputEngine.cpp:500
+msgid "Command 26"
+msgstr "Käsklus 26"
+
+#: ../../source/main/utils/InputEngine.cpp:506
+msgid "Command 27"
+msgstr "Käsklus 27"
+
+#: ../../source/main/utils/InputEngine.cpp:512
+msgid "Command 28"
+msgstr "Käsklus 28"
+
+#: ../../source/main/utils/InputEngine.cpp:518
+msgid "Command 29"
+msgstr "Käsklus 29"
+
+#: ../../source/main/utils/InputEngine.cpp:362
+msgid "Command 3"
+msgstr "Käsklus 3"
+
+#: ../../source/main/utils/InputEngine.cpp:524
+msgid "Command 30"
+msgstr "Käsklus 30"
+
+#: ../../source/main/utils/InputEngine.cpp:530
+msgid "Command 31"
+msgstr "Käsklus 31"
+
+#: ../../source/main/utils/InputEngine.cpp:536
+msgid "Command 32"
+msgstr "Käsklus 32"
+
+#: ../../source/main/utils/InputEngine.cpp:542
+msgid "Command 33"
+msgstr "Käsklus 33"
+
+#: ../../source/main/utils/InputEngine.cpp:548
+msgid "Command 34"
+msgstr "Käsklus 34"
+
+#: ../../source/main/utils/InputEngine.cpp:554
+msgid "Command 35"
+msgstr "Käsklus 35"
+
+#: ../../source/main/utils/InputEngine.cpp:560
+msgid "Command 36"
+msgstr "Käsklus 36"
+
+#: ../../source/main/utils/InputEngine.cpp:566
+msgid "Command 37"
+msgstr "Käsklus 37"
+
+#: ../../source/main/utils/InputEngine.cpp:572
+msgid "Command 38"
+msgstr "Käsklus 38"
+
+#: ../../source/main/utils/InputEngine.cpp:578
+msgid "Command 39"
+msgstr "Käsklus 39"
+
+#: ../../source/main/utils/InputEngine.cpp:368
+msgid "Command 4"
+msgstr "Käsklus 4"
+
+#: ../../source/main/utils/InputEngine.cpp:584
+msgid "Command 40"
+msgstr "Käsklus 40"
+
+#: ../../source/main/utils/InputEngine.cpp:590
+msgid "Command 41"
+msgstr "Käsklus 41"
+
+#: ../../source/main/utils/InputEngine.cpp:596
+msgid "Command 42"
+msgstr "Käsklus 42"
+
+#: ../../source/main/utils/InputEngine.cpp:602
+msgid "Command 43"
+msgstr "Käsklus 43"
+
+#: ../../source/main/utils/InputEngine.cpp:608
+msgid "Command 44"
+msgstr "Käsklus 44"
+
+#: ../../source/main/utils/InputEngine.cpp:614
+msgid "Command 45"
+msgstr "Käsklus 45"
+
+#: ../../source/main/utils/InputEngine.cpp:620
+msgid "Command 46"
+msgstr "Käsklus 46"
+
+#: ../../source/main/utils/InputEngine.cpp:626
+msgid "Command 47"
+msgstr "Käsklus 47"
+
+#: ../../source/main/utils/InputEngine.cpp:632
+msgid "Command 48"
+msgstr "Käsklus 48"
+
+#: ../../source/main/utils/InputEngine.cpp:638
+msgid "Command 49"
+msgstr "Käsklus 49"
+
+#: ../../source/main/utils/InputEngine.cpp:374
+msgid "Command 5"
+msgstr "Käsklus 5"
+
+#: ../../source/main/utils/InputEngine.cpp:644
+msgid "Command 50"
+msgstr "Käsklus 50"
+
+#: ../../source/main/utils/InputEngine.cpp:650
+msgid "Command 51"
+msgstr "Käsklus 51"
+
+#: ../../source/main/utils/InputEngine.cpp:656
+msgid "Command 52"
+msgstr "Käsklus 52"
+
+#: ../../source/main/utils/InputEngine.cpp:662
+msgid "Command 53"
+msgstr "Käsklus 53"
+
+#: ../../source/main/utils/InputEngine.cpp:668
+msgid "Command 54"
+msgstr "Käsklus 54"
+
+#: ../../source/main/utils/InputEngine.cpp:674
+msgid "Command 55"
+msgstr "Käsklus 55"
+
+#: ../../source/main/utils/InputEngine.cpp:680
+msgid "Command 56"
+msgstr "Käsklus 56"
+
+#: ../../source/main/utils/InputEngine.cpp:686
+msgid "Command 57"
+msgstr "Käsklus 57"
+
+#: ../../source/main/utils/InputEngine.cpp:692
+msgid "Command 58"
+msgstr "Käsklus 58"
+
+#: ../../source/main/utils/InputEngine.cpp:698
+msgid "Command 59"
+msgstr "Käsklus 59"
+
+#: ../../source/main/utils/InputEngine.cpp:380
+msgid "Command 6"
+msgstr "Käsklus 6"
+
+#: ../../source/main/utils/InputEngine.cpp:704
+msgid "Command 60"
+msgstr "Käsklus 60"
+
+#: ../../source/main/utils/InputEngine.cpp:710
+msgid "Command 61"
+msgstr "Käsklus 61"
+
+#: ../../source/main/utils/InputEngine.cpp:716
+msgid "Command 62"
+msgstr "Käsklus 62"
+
+#: ../../source/main/utils/InputEngine.cpp:722
+msgid "Command 63"
+msgstr "Käsklus 63"
+
+#: ../../source/main/utils/InputEngine.cpp:728
+msgid "Command 64"
+msgstr "Käsklus 64"
+
+#: ../../source/main/utils/InputEngine.cpp:734
+msgid "Command 65"
+msgstr "Käsklus 65"
+
+#: ../../source/main/utils/InputEngine.cpp:740
+msgid "Command 66"
+msgstr "Käsklus 66"
+
+#: ../../source/main/utils/InputEngine.cpp:746
+msgid "Command 67"
+msgstr "Käsklus 67"
+
+#: ../../source/main/utils/InputEngine.cpp:752
+msgid "Command 68"
+msgstr "Käsklus 68"
+
+#: ../../source/main/utils/InputEngine.cpp:758
+msgid "Command 69"
+msgstr "Käsklus 69"
+
+#: ../../source/main/utils/InputEngine.cpp:386
+msgid "Command 7"
+msgstr "Käsklus 7"
+
+#: ../../source/main/utils/InputEngine.cpp:764
+msgid "Command 70"
+msgstr "Käsklus 70"
+
+#: ../../source/main/utils/InputEngine.cpp:770
+msgid "Command 71"
+msgstr "Käsklus 71"
+
+#: ../../source/main/utils/InputEngine.cpp:776
+msgid "Command 72"
+msgstr "Käsklus 72"
+
+#: ../../source/main/utils/InputEngine.cpp:782
+msgid "Command 73"
+msgstr "Käsklus 73"
+
+#: ../../source/main/utils/InputEngine.cpp:788
+msgid "Command 74"
+msgstr "Käsklus 74"
+
+#: ../../source/main/utils/InputEngine.cpp:794
+msgid "Command 75"
+msgstr "Käsklus 75"
+
+#: ../../source/main/utils/InputEngine.cpp:800
+msgid "Command 76"
+msgstr "Käsklus 76"
+
+#: ../../source/main/utils/InputEngine.cpp:806
+msgid "Command 77"
+msgstr "Käsklus 77"
+
+#: ../../source/main/utils/InputEngine.cpp:812
+msgid "Command 78"
+msgstr "Käsklus 78"
+
+#: ../../source/main/utils/InputEngine.cpp:818
+msgid "Command 79"
+msgstr "Käsklus 79"
+
+#: ../../source/main/utils/InputEngine.cpp:392
+msgid "Command 8"
+msgstr "Käsklus 8"
+
+#: ../../source/main/utils/InputEngine.cpp:824
+msgid "Command 80"
+msgstr "Käsklus 80"
+
+#: ../../source/main/utils/InputEngine.cpp:830
+msgid "Command 81"
+msgstr "Käsklus 81"
+
+#: ../../source/main/utils/InputEngine.cpp:836
+msgid "Command 82"
+msgstr "Käsklus 82"
+
+#: ../../source/main/utils/InputEngine.cpp:842
+msgid "Command 83"
+msgstr "Käsklus 83"
+
+#: ../../source/main/utils/InputEngine.cpp:848
+msgid "Command 84"
+msgstr "Käsklus 84"
+
+#: ../../source/main/utils/InputEngine.cpp:398
+msgid "Command 9"
+msgstr "Käsklus 9"
+
+#: ../../source/main/utils/Settings.cpp:97
+msgid "Command Line Arguments"
+msgstr "Käsurea argumendid"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:846
+msgid "Commands: "
+msgstr "Käskluseid:"
+
+#: ../../source/main/gui/OverlayWrapper.cpp:483
+msgid "Compositors: "
+msgstr "Valmistajad:"
+
+#: ../../source/main/physics/collision/Collisions.cpp:201
+msgid "Configuration error"
+msgstr "Seadistuse viga"
+
+#: ../../source/configurator/Configurator.cpp:1904
+msgid "Configure error"
+msgstr "Seadistuse viga"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:299
+msgctxt "GameSettings"
+msgid "Controller options"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:665
+msgid "Controls"
+msgstr "Klahvistik"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:58
+msgctxt "GameSettings"
+msgid "Controls"
+msgstr "Klahvistik"
+
+#: ../../source/main/network/Network.cpp:610
+msgid "Could not create connection"
+msgstr ""
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:444
+#: ../../source/main/gameplay/RoRFrameListener.cpp:445
+msgid "Could not load position from slot "
+msgstr "Ei saanud laadida asukohta "
+
+#: ../../source/configurator/Configurator.cpp:1904
+msgid "Could not write config file"
+msgstr "Ei saanud kirjutada sättefaili"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:183
+msgctxt "GameSettings"
+msgid "Creak sound"
+msgstr ""
+
+#: ../../source/main/gui/OverlayWrapper.cpp:450
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:172
+msgid "Current FPS: "
+msgstr "Praegune FPS: "
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:532
+msgid "Current active Ground: "
+msgstr "Hetkel aktiivne pind:"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:266
+msgid "Current gear: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:287
+msgid "Current gravity is: "
+msgstr "Praegune gravitatsioon:"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:264
+msgid "Current power: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:299
+msgid "Current speed: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:260
+msgid "Current torque: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:879
+msgid "Date and Time installed: "
+msgstr "Paigaldamise aeg:"
+
+#: ../../source/configurator/Configurator.cpp:690
+msgid "Debug"
+msgstr "Veaotsing"
+
+#: ../../source/configurator/Configurator.cpp:868
+msgid "Debug Collision Meshes"
+msgstr "Avasta vigu kokkupõrke meshides"
+
+#: ../../source/configurator/Configurator.cpp:860
+msgid "Debug EnvironmentMapping / Chrome"
+msgstr "EnvironmentMapping / Chrome Silur"
+
+#: ../../source/configurator/Configurator.cpp:844
+msgid "Debug Truck Mass"
+msgstr "Avasta sõiduki massis vigu"
+
+#: ../../source/configurator/Configurator.cpp:856
+msgid "Debug VideoCameras"
+msgstr "Videokaamerate silur"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:284
+msgctxt "GameSettings"
+msgid "Debug actor mass"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:282
+msgctxt "GameSettings"
+msgid "Debug camera (rails)"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:283
+msgctxt "GameSettings"
+msgid "Debug collisions"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:285
+msgctxt "GameSettings"
+msgid "Debug realtime reflections"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:286
+msgctxt "GameSettings"
+msgid "Debug videocameras"
+msgstr ""
+
+#. Gearbox
+#: ../../source/configurator/Configurator.cpp:741
+msgid "Default Gearbox mode:"
+msgstr "Vaikimisi käigukast:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:367
+msgid "Default Skin"
+msgstr "Vaikeskinn"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:228
+msgid "Deformed beams count: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:673
+msgid "Description: "
+msgstr "Kirjeldus: "
+
+#: ../../source/configurator/Configurator.cpp:877
+msgid ""
+"Determines the input capture mode. All is the default, Dynamically is good "
+"for windowed mode."
+msgstr "Määrab sisendsalvestuse viisi. Kõik on vaikeseade, Dünaamiliselt on hea aknas-režiimi jaoks."
+
+#: ../../source/configurator/Configurator.cpp:1076
+msgid ""
+"Determines which lights will project light on the environment.\n"
+"The more light sources are used, the slowest it will be."
+msgstr "Määrab keskkonnas valgusallikate hulga.\n\nMida rohkem valgusallikaid, seda aeglasem."
+
+#: ../../source/configurator/Configurator.cpp:840
+msgid "Developer mode"
+msgstr "Arendaja režiim"
+
+#: ../../source/configurator/Configurator.cpp:684
+msgid "Device info"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:60
+msgctxt "GameSettings"
+msgid "Diagnostic"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:276
+msgctxt "GameSettings"
+msgid "Diagnostic options"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:141
+msgctxt "GameSettings"
+msgid "Digital speedometer"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:759
+msgid "Disable Camera Pitching"
+msgstr "Keela kaamera ühtlustamine"
+
+#: ../../source/configurator/Configurator.cpp:1105
+msgid "Disable Overview Map"
+msgstr "Ära näita ülevaatekaarti"
+
+#. creak sound?
+#: ../../source/configurator/Configurator.cpp:771
+msgid "Disable creak sound"
+msgstr "Keela kriuksuv hääl"
+
+#: ../../source/configurator/Configurator.cpp:1113
+msgid "Disable inter-vehicle collisions"
+msgstr "Keela sõidukitevahelised kokkupõrked"
+
+#: ../../source/configurator/Configurator.cpp:1117
+msgid "Disable intra-vehicle collisions"
+msgstr "Keela sõidukivahelised kokkupõrked"
+
+#: ../../source/configurator/Configurator.cpp:1109
+msgid "Disable multi-threading"
+msgstr "Keela lõimtöötlus"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:614
+msgid "Disabled object tracking"
+msgstr "Objektijälgimine keelatud"
+
+#: ../../source/configurator/Configurator.cpp:1106
+msgid ""
+"Disabled the map. This is for testing purposes only, you should not gain any"
+" FPS with that."
+msgstr "Keela kaart. See on ainult testimiseks, ei tohiks jõudlust suurendada."
+
+#: ../../source/configurator/Configurator.cpp:1110
+msgid ""
+"Disables all separate physics threads (might be an option to avoid camera "
+"stuttering)."
+msgstr "Keelab kõik eraldi füüsikalõimed (võib kasutada kaamera jõnksumise vältimiseks)."
+
+#: ../../source/configurator/Configurator.cpp:1114
+msgid "Disables the collision detection between multiple trucks."
+msgstr "Keelab kokkupõrked erinevate sõidukite vahel."
+
+#: ../../source/configurator/Configurator.cpp:1118
+msgid ""
+"Disables the collision detection within one truck (no self-collisions)."
+msgstr "Keelab sõiduki kokkupõrked iseendaga (sõiduki detailid ei põrku)"
+
+#: ../../source/main/MainMenu.cpp:281
+msgid "Disconnecting, wait 10 seconds ..."
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:861
+msgid ""
+"Displays an unwrapped cube on what is used to project the reflections on "
+"vehicles"
+msgstr "Kuvab sõidukite peegelduse kuvamiseks kasutatava kuubi pinnalaotuse"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:430
+msgid "Drag anisotropy"
+msgstr "Lohistamise anisotroopia"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:419
+msgid "Drag anisotropy:"
+msgstr "Hõõrdumise anisotroopia:"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:268
+msgid "Drive ratio: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:207
+msgid "Dynamic friction coef"
+msgstr "Veerehõõrdumise tegur:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:196
+msgid "Dynamic friction coef:"
+msgstr "Veerehõõrdumise tegur:"
+
+#: ../../source/configurator/Configurator.cpp:875
+msgid "Dynamically"
+msgstr "Dünaamiliselt"
+
+#: ../../source/main/utils/InputEngine.cpp:1112
+msgid "EXPERIMENTAL: add some grass"
+msgstr "KATSEJÄRGUS: lisa rohtu"
+
+#: ../../source/main/utils/InputEngine.cpp:1124
+msgid "EXPERIMENTAL: remove grass completely"
+msgstr "KATSEJÄRGUS: eemalda rohi täielikult"
+
+#: ../../source/main/utils/InputEngine.cpp:1106
+msgid "EXPERIMENTAL: remove some grass"
+msgstr "KATSEJÄRGUS: eemalda rohtu"
+
+#: ../../source/main/utils/InputEngine.cpp:1130
+msgid "EXPERIMENTAL: save changes to the grass density image"
+msgstr "KATSEJÄRGUS: salvesta muudatused rohutiheduse pildile"
+
+#: ../../source/main/utils/InputEngine.cpp:1118
+msgid "EXPERIMENTAL: set maximum amount of grass"
+msgstr "KATSEJÄRGUS: sea rohu maksimaalne hulk"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:288
+msgctxt "GameSettings"
+msgid "Echo log to console"
+msgstr ""
+
+#. force feedback panel
+#: ../../source/configurator/Configurator.cpp:991
+msgid "Enable Force Feedback"
+msgstr "Luba Force Feedback"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:301
+msgctxt "GameSettings"
+msgid "Enable ForceFeedback"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:318
+msgctxt "GameSettings"
+msgid "Enable OutGauge protocol"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:965
+msgid "Enable Particle Systems"
+msgstr "Luba osakesed"
+
+#: ../../source/configurator/Configurator.cpp:1101
+msgid "Enable Position Storage"
+msgstr "Luba asukohasalvestus"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:252
+msgctxt "GameSettings"
+msgid "Enable particle gfx"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:253
+msgctxt "GameSettings"
+msgid "Enable skidmarks"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:950
+msgid "Enable waves"
+msgstr "Aktiveeri lained"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:614
+msgid "Enabled object tracking"
+msgstr "Objektijälgimine lubatud"
+
+#: ../../source/configurator/Configurator.cpp:865
+msgid "Enables Trigger debug messages"
+msgstr "Lubab kirjed trigerite veaotsinguks"
+
+#: ../../source/configurator/Configurator.cpp:981
+msgid "Enables high quality reflective effects. Causes a slowdown."
+msgstr "Lubab kõrgekvaliteedilise peegelduse. Põhjustab aeglustumist."
+
+#: ../../source/configurator/Configurator.cpp:837
+msgid "Enables the Scripting Console ingame. Use the ~ key."
+msgstr "Lubab mängusisese skriptimiskonsooli. Kasuta ~ klahvi."
+
+#: ../../source/configurator/Configurator.cpp:951
+msgid ""
+"Enabling waves adds a lot of fun in boats, but can have a big performance "
+"impact on some specific hardwares."
+msgstr "Lainete lubamine teeb paadisõidu lõbusamaks, kuid võib mõjuda mõne riistvara jõudlusele."
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:301
+msgid "Engine "
+msgstr "Mootor"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:866
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:252
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:254
+msgid "Engine RPM: "
+msgstr "Mootori pöörded:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:287
+msgctxt "GameSettings"
+msgid "Enter preselected vehicle"
+msgstr ""
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:517
+msgid "Entered terrain editing mode"
+msgstr "Sisenesid maastikuredaktori režiimi"
+
+#: ../../source/configurator/Configurator.cpp:1871
+msgid "Error setting Ogre Values"
+msgstr "Viga Ogre väärtuste seadmisel"
+
+#: ../../source/main/gameplay/Landusemap.cpp:92
+msgid "Error while loading landuse config"
+msgstr "Viga maapinna seadistuse laadimisel"
+
+#: ../../source/main/main.cpp:74
+msgid "Error while retrieving program directory path"
+msgstr ""
+
+#: ../../source/configurator/conf_file.cpp:179
+msgid "Error while retrieving program space path"
+msgstr "Viga programmitee leidmisel"
+
+#: ../../source/main/main.cpp:92
+msgid "Error while retrieving user directory path"
+msgstr ""
+
+#: ../../source/configurator/conf_file.cpp:189
+msgid "Error while retrieving user space path"
+msgstr "Viga kasutajaruumi tee leidmisel"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:381
+#: ../../source/main/gameplay/RoRFrameListener.cpp:382
+msgid "Error while saving position saved under slot "
+msgstr "Viga asukoha salvestamisel kohas "
+
+#: ../../source/configurator/Configurator.cpp:1374
+msgid "Error: no rendersystems found"
+msgstr "Viga: rendersüsteemi ei leitud"
+
+#: ../../source/main/network/Network.cpp:700
+msgid "Establishing network session: error getting server authorization"
+msgstr "Ühendan võrguga: ei saanud serverilt luba"
+
+#: ../../source/main/network/Network.cpp:648
+msgid "Establishing network session: error getting server hello"
+msgstr "Ühendan serveriga: ei saanud serverilt tervitust"
+
+#: ../../source/main/network/Network.cpp:627
+msgid "Establishing network session: error getting server version"
+msgstr "Ühendan serveriga: Viga serveri versiooni saamisel"
+
+#: ../../source/main/network/Network.cpp:617
+msgid "Establishing network session: error sending hello"
+msgstr "Ühendan serveriga: viga tervituse saatmisel"
+
+#: ../../source/main/network/Network.cpp:693
+msgid "Establishing network session: error sending user info"
+msgstr "Ühendan serveriga: tekkis viga kasutajainfo saatmisel"
+
+#: ../../source/main/network/Network.cpp:706
+msgid "Establishing network session: sorry, server has too many players"
+msgstr "Ühendan serveriga: serveril on liiga palju mängijaid"
+
+#: ../../source/main/network/Network.cpp:739
+msgid "Establishing network session: sorry, unknown server response"
+msgstr "Ühendan serveriga: serveri vastus tundmatu"
+
+#: ../../source/main/network/Network.cpp:728
+msgid "Establishing network session: sorry, wrong password!"
+msgstr "Ühendan serveriga: vale parool!"
+
+#: ../../source/main/network/Network.cpp:733
+msgid "Establishing network session: sorry, wrong protocol version!"
+msgstr "Ühendan serveriga: vale serveri versioon!"
+
+#: ../../source/main/network/Network.cpp:722
+msgid "Establishing network session: sorry, you are banned!"
+msgstr "Ühendan serveriga: vabandust, teil on sisenemiskeeld!"
+
+#: ../../source/main/network/Network.cpp:716
+#, c-format
+msgid ""
+"Establishing network session: sorry, you are banned:\n"
+"%s"
+msgstr "Ühendan serveriga: vabandust, teil on sisenemiskeeld: %s"
+
+#: ../../source/main/network/Network.cpp:634
+#: ../../source/main/network/Network.cpp:658
+#, c-format
+msgid ""
+"Establishing network session: wrong server version, you are using version "
+"'%s' and the server is using '%s'"
+msgstr "Ühendan serveriga: vale serveri versioon, kasutate versiooni '%s' aga server kasutab versiooni '%s'"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:850
+msgid "Exhausts: "
+msgstr "Väljalasketorusid:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:271
+msgctxt "GameSettings"
+msgid "Exterior field of view"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:295
+msgctxt "GameSettings"
+msgid "Extra resources directory"
+msgstr ""
+
+#: ../../source/main/utils/ErrorUtils.cpp:44
+msgid "FATAL ERROR"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:305
+msgctxt "GameSettings"
+msgid "FFB camera gain"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:306
+msgctxt "GameSettings"
+msgid "FFB center gain"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:307
+msgctxt "GameSettings"
+msgid "FFB master gain"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:308
+msgctxt "GameSettings"
+msgid "FFB stress gain"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:751
+msgid "FOV External:"
+msgstr "Väline FOV:"
+
+#: ../../source/configurator/Configurator.cpp:755
+msgid "FOV Internal:"
+msgstr "Sisemine FOV:"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:463
+#: ../../source/main/gameplay/RoRFrameListener.cpp:464
+msgid "FOV: "
+msgstr "Vaateväli: "
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:478
+#: ../../source/main/gameplay/RoRFrameListener.cpp:479
+msgid "FOV: Limit reached"
+msgstr "FOV: limiit"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:250
+msgctxt "GameSettings"
+msgid "FPS limit"
+msgstr ""
+
+#. FPS-Limiter
+#: ../../source/configurator/Configurator.cpp:1080
+msgid "FPS-Limiter:"
+msgstr "FPS-piiraja:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:323
+msgid "FX Colour"
+msgstr "Efekti värv"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:299
+msgid "FX Type"
+msgstr "Efekti tüüp"
+
+#: ../../source/main/network/Network.cpp:572
+msgid "Failed to launch connection thread"
+msgstr ""
+
+#: ../../source/main/main.cpp:144 ../../source/main/main.cpp:155
+msgid "Faulty resource folder. Check if correctly installed."
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:914
+msgid "Filename: "
+msgstr "Faili nimi:"
+
+#: ../../source/main/gfx/camera/CameraManager.cpp:335
+#: ../../source/main/gfx/camera/CameraManager.cpp:336
+msgid "Fixed camera"
+msgstr "Fikseeritud vaade"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:852
+msgid "Flares: "
+msgstr "Tuled:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:856
+msgid "Flexbodies: "
+msgstr "Flexbody'd:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:361
+msgid "Flow behavior index"
+msgstr "Vedeliku käitumisindeks"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:350
+msgid "Flow behavior index:"
+msgstr "Vedeliku käitumisindeks:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:384
+msgid "Flow consistency"
+msgstr "Voolavuse aste"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:373
+msgid "Flow consistency:"
+msgstr "Voolavuse aste"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:338
+msgid "Fluid Settings"
+msgstr "Vedelike seaded"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:407
+msgid "Fluid density"
+msgstr "Vedelike tihedus"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:396
+msgid "Fluid density:"
+msgstr "Vedeliku tihedus:"
+
+#: ../../source/main/gui/OverlayWrapper.cpp:485
+msgid "Fonts: "
+msgstr "Fondid:"
+
+#: ../../source/configurator/Configurator.cpp:681
+msgid "Force Feedback"
+msgstr "Force Feedback"
+
+#: ../../source/main/gfx/camera/CameraManager.cpp:329
+#: ../../source/main/gfx/camera/CameraManager.cpp:330
+msgid "Free camera"
+msgstr "Vaba vaade"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:53
+msgid "Friction Help"
+msgstr "Hõõrdumise abi"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:883
+msgid "Friction Help: "
+msgstr "Hõõrdumise abi:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:62
+msgid "Friction Settings"
+msgstr "Hõõrdumise seaded"
+
+#: ../../source/configurator/Configurator.cpp:959
+msgid "Full (best looking, slower)"
+msgstr "Täielik (parima välimusega, aeglasem)"
+
+#: ../../source/configurator/Configurator.cpp:745
+msgid "Fully Manual: sequential shift"
+msgstr "Manuaalkäigukast: järjestikud"
+
+#: ../../source/configurator/Configurator.cpp:746
+msgid "Fully Manual: stick shift"
+msgstr "Manuaalkäigukast: käigukang"
+
+#: ../../source/configurator/Configurator.cpp:747
+msgid "Fully Manual: stick shift with ranges"
+msgstr "Manuaalkäigukast: vahemikud"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:331
+msgid "G-Forces:\n"
+msgstr "G-jõud:\n"
+
+#: ../../source/main/gui/OverlayWrapper.cpp:487
+msgid "GPU Program: "
+msgstr "Videokaardi Programm:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:870
+msgid "GUID: "
+msgstr "GUID:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:33
+msgctxt "GameSettings"
+msgid "Game settings"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:661
+msgid "Gameplay"
+msgstr "Mäng"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:134
+msgctxt "GameSettings"
+msgid "Gearbox mode"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:50
+msgctxt "GameSettings"
+msgid "General"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:658
+msgid "Graphics"
+msgstr "Graafika"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:52
+msgctxt "GameSettings"
+msgid "Graphics"
+msgstr "Graafika"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:292
+msgid "Gravity set to: "
+msgstr "Gravitatsioon seatud:"
+
+#: ../../source/main/gui/OverlayWrapper.cpp:489
+msgid "HL GPU Program: "
+msgstr "HL GPU Programm:"
+
+#: ../../source/configurator/Configurator.cpp:980
+msgid "HQ reflections"
+msgstr "HQ peegeldus"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:916
+msgid "Hash: "
+msgstr "Räsiväärtus:"
+
+#: ../../source/main/gameplay/LandVehicleSimulation.cpp:453
+msgid "High range selected"
+msgstr "Kõrge vahemik valitud"
+
+#: ../../source/configurator/Configurator.cpp:946
+msgid "Hydrax"
+msgstr "Hydrax vesi"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:230
+msgid "Hydrodynamic friction coef"
+msgstr "Veehõõrde koefitsent:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:219
+msgid "Hydrodynamic friction coef:"
+msgstr "Veehõõrde koefitsent:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:842
+msgid "Hydros: "
+msgstr "Hüdrod:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:361
+msgid ""
+"If it is 1.0 then the fluid will behave like water. The lower you get from "
+"1.0, the more like mud the fluid will behave, meaning that for small "
+"velocities the fluid will resist motion and for large velocities the fluid "
+"will not resist so much. The higher you get from 1.0 the more like sand the "
+"fluid will behave. The bigger the velocity, the bigger the resistance of the"
+" fluid (try to hit sand hard it'll feel like stone)."
+msgstr "Kui see on 1.0, siis käitub vedelik nagu vesi. Mida madalam 1.0'st, seda mudasemana vedelik käitub, st et väiksematel kiirustel piirab vedelik sõiduki liikumist, suurematel kiirustel ei piira nii palju. Mida suurem aga 1.0'st, seda liivasemalt see vedelik käitub. Mida suurem kiirus, seda suurem vedeliku takistus (sõites kiiresti liivale, tundub see nagu kivi)."
+
+#: ../../source/configurator/Configurator.cpp:821
+msgid ""
+"If we are missing someone on this list, please drop us a line at:\n"
+"support@rigsofrods.org"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:760
+msgid ""
+"If you dislike the pitching external vehicle camera, you can disable it "
+"here."
+msgstr "Kui sulle ei meeldi välise kaamera ühtlustumine, võid selle siit keelata."
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:142
+msgctxt "GameSettings"
+msgid "Imperial speedometer"
+msgstr ""
+
+#. Cache
+#: ../../source/configurator/Configurator.cpp:1087
+msgid ""
+"In case the mods cache becomes corrupted, \n"
+"use these buttons to fix the cache."
+msgstr "Juhul, kui  modifikatsioonide vahemälu rikneb, \nkasuta neid nuppe, et parandada vahemälu."
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:407
+msgid ""
+"In mud (or sand) the resistance of the fluid described by the parameters "
+"above will stop you and so keep you from sinking. But for substances like "
+"water it isn't the drag that stops you from sinking. Its buoyancy. This "
+"parameter is here so as to keep you from sinking when you wish to simulate "
+"fluids with low drag (resistance). For fluids like mud or sand you can put "
+"it at 0, but it is best to keep it at some minimum value. For fluids with "
+"behavior index >=1 it will behave like you are in water. For fluids with "
+"behavior index <1 it'll behave like you are in mud."
+msgstr "Mudas (või liivas) vedeliku takistus, mis on määratud nende parameetritega; peatab su ja ei lase uppuda. Vee puhul ei piira hõõrdejõud sind uppumast, vaid üleslükkejõud. See parameeter väldib uppumist, kui proovid simuleerida madala hõõrdega (takistusega) vedelikke. Näiteks muda või liiva puhul võid selle panna 0, kuid on kasulik hoida seda minimaalsel tasemel. Vedelikud, mille käitumisindeks on >=1, käituvad nagu vesi. Vedelikud, mille käitumisindeks on <1, käituvad nagu oleksid mudas."
+
+#: ../../source/configurator/Configurator.cpp:988
+msgid "In what Format should screenshots be saved?"
+msgstr "Mis formaadis tuleks ekraanipildid salvestada?"
+
+#: ../../source/configurator/Configurator.cpp:1008
+msgid "Inertia feedback level:"
+msgstr "Inertsi tagasiside tase:"
+
+#: ../../source/configurator/Configurator.cpp:673
+msgid "Info"
+msgstr "Info"
+
+#: ../../source/configurator/Configurator.cpp:836
+msgid "Ingame Console"
+msgstr "Kuva konsool"
+
+#: ../../source/main/terrain/TerrainManager.cpp:163
+msgid "Initializing Camera Subsystem"
+msgstr "Käivitan kaamera alamsüsteemi"
+
+#: ../../source/main/terrain/TerrainManager.cpp:198
+msgid "Initializing Collision Subsystem"
+msgstr "Käivitan kokkupõrgete alamsüsteemi"
+
+#. water must be done later on
+#. PROGRESS_WINDOW(33, _L("Initializing Water Subsystem"));
+#. initWater();
+#: ../../source/main/terrain/TerrainManager.cpp:186
+msgid "Initializing Dashboards Subsystem"
+msgstr "Käivitan armatuurlaudade alamsüsteemi"
+
+#: ../../source/main/terrain/TerrainManager.cpp:175
+msgid "Initializing Fog Subsystem"
+msgstr "Käivitan udu alamsüsteemi"
+
+#: ../../source/main/terrain/TerrainManager.cpp:154
+msgid "Initializing Geometry Subsystem"
+msgstr "Käivitan geomeetria alamsüsteemi"
+
+#: ../../source/main/terrain/TerrainManager.cpp:170
+msgid "Initializing Light Subsystem"
+msgstr "Käivitan valguse alamsüsteemi"
+
+#. objects  - .odef support
+#: ../../source/main/terrain/TerrainManager.cpp:158
+msgid "Initializing Object Subsystem"
+msgstr "Käivitan objektide alamsüsteemi"
+
+#. Init minimap
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1908
+msgid "Initializing Overview Map Subsystem"
+msgstr "Käivitan ülevaatekaardi alamsüsteemi"
+
+#: ../../source/main/terrain/TerrainManager.cpp:202
+msgid "Initializing Script Subsystem"
+msgstr "Käivitan skriptide alamsüsteemi"
+
+#: ../../source/main/terrain/TerrainManager.cpp:161
+msgid "Initializing Shadow Subsystem"
+msgstr "Käivitan varjude alamsüsteemi"
+
+#. sky, must come after camera due to m_sight_range
+#: ../../source/main/terrain/TerrainManager.cpp:167
+msgid "Initializing Sky Subsystem"
+msgstr "Käivitan taeva alamsüsteemi"
+
+#: ../../source/main/terrain/TerrainManager.cpp:179
+msgid "Initializing Vegetation Subsystem"
+msgstr "Käivitan taimestiku alamsüsteemi"
+
+#: ../../source/main/terrain/TerrainManager.cpp:218
+msgid "Initializing terrain light properties"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:872
+msgid "Input Grabbing:"
+msgstr "Sisendsalvestus:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:312
+msgctxt "GameSettings"
+msgid "Input grab mode"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:256
+msgid "Input shaft RPM: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:272
+msgctxt "GameSettings"
+msgid "Interior field of view"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:276
+msgid "Its usual value is 2. But you can try others."
+msgstr "Tavaline väärtus on 2, aga võib proovida ka muud."
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:118
+msgctxt "GameSettings"
+msgid "Language"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:719
+msgid "Language:"
+msgstr "Keel:"
+
+#: ../../source/main/gui/OverlayWrapper.cpp:1202
+#, c-format
+msgid "Last lap: %.2i'%.2i.%.2i"
+msgstr "Viimase ringi aeg: %.2i'%.2i.%.2i"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:517
+msgid "Left terrain editing mode"
+msgstr "Lahkusid maastikuredaktori režiimist"
+
+#. Lights
+#: ../../source/configurator/Configurator.cpp:1069
+msgid "Light source effects:"
+msgstr "Valgusallika efektid:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:192
+msgctxt "GameSettings"
+msgid "Lights"
+msgstr ""
+
+#: ../../source/main/gfx/camera/CameraManager.cpp:758
+#: ../../source/main/gfx/camera/CameraManager.cpp:759
+msgid "Limited camera movement disabled"
+msgstr "Piiratud kaamera liikumine keelatud"
+
+#: ../../source/main/gfx/camera/CameraManager.cpp:753
+#: ../../source/main/gfx/camera/CameraManager.cpp:754
+msgid "Limited camera movement enabled"
+msgstr "Piiratud kaamera liikumine lubatud"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:834
+msgid "Load Mass: "
+msgstr "Laadungi mass:"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:439
+#: ../../source/main/gameplay/RoRFrameListener.cpp:440
+msgid "Loaded position from slot "
+msgstr "Laaditud asukoht "
+
+#. From old file
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:79
+msgid "Loader"
+msgstr "Laadija"
+
+#: ../../source/main/gui/panels/GUI_LoadingWindow.cpp:38
+msgid "Loading ..."
+msgstr "Laadimine..."
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1885
+msgid "Loading Terrain"
+msgstr "Laadin maastikku"
+
+#: ../../source/main/terrain/TerrainManager.cpp:192
+msgid "Loading Terrain Geometry"
+msgstr "Laadin maastiku geomeetriat"
+
+#: ../../source/main/terrain/TerrainManager.cpp:209
+#: ../../source/main/terrain/TerrainObjectManager.cpp:132
+msgid "Loading Terrain Objects"
+msgstr "Laadin maastikuobjekte"
+
+#: ../../source/main/resources/CacheSystem.cpp:1457
+msgid "Loading directory\n"
+msgstr "Laadin kataloogi\n"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:2001
+msgid "Loading resources"
+msgstr ""
+
+#: ../../source/main/resources/CacheSystem.cpp:1435
+msgid "Loading zips in group "
+msgstr "Laadin zippe grupis "
+
+#: ../../source/main/physics/Differentials.cpp:53
+msgid "Locked"
+msgstr "Lukustatud"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:289
+msgctxt "GameSettings"
+msgid "Log beam breaking"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:290
+msgctxt "GameSettings"
+msgid "Log beam deforming"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:291
+msgctxt "GameSettings"
+msgid "Log beam triggers"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:281
+msgctxt "GameSettings"
+msgid "Log messages (spawn)"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:279
+msgctxt "GameSettings"
+msgid "Log node import (spawn)"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:280
+msgctxt "GameSettings"
+msgid "Log node stats (spawn)"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:849
+msgid "Logs the beam info to RoR.log whenever a beam breaks"
+msgstr "Logib talade info RoR.log faili, kui mõni tala puruneb."
+
+#: ../../source/configurator/Configurator.cpp:853
+msgid "Logs the beam info to RoR.log whenever a beam deforms"
+msgstr "Logib talade info RoR.log faili, kui mõni tala deformeerub."
+
+#: ../../source/main/gameplay/LandVehicleSimulation.cpp:441
+msgid "Low range selected"
+msgstr "Madal vahemik valitud"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:882
+msgid "Machine"
+msgstr "Masin"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:184
+msgctxt "GameSettings"
+msgid "Main menu music"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:744
+msgid "Manual shift - Auto clutch"
+msgstr "Manuaalkäigukast - automaatsidur"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:832
+msgid "Mass: "
+msgstr "Mass: "
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:185
+msgctxt "GameSettings"
+msgid "Master volume"
+msgstr ""
+
+#: ../../source/main/gui/OverlayWrapper.cpp:491
+#: ../../source/main/gui/OverlayWrapper.cpp:497
+msgid "Materials: "
+msgstr "Materjalid:"
+
+#: ../../source/main/gui/OverlayWrapper.cpp:504
+msgid "Memory (Ogre): "
+msgstr "Mälu kasutus (Ogre):"
+
+#: ../../source/main/gui/OverlayWrapper.cpp:493
+msgid "Meshes: "
+msgstr "Meshid:"
+
+#: ../../source/main/gameplay/LandVehicleSimulation.cpp:447
+msgid "Mid range selected"
+msgstr "Keskmine vahemik valitud"
+
+#: ../../source/configurator/Configurator.cpp:970
+msgid "Mirrors"
+msgstr "Peeglid"
+
+#: ../../source/configurator/Configurator.cpp:820
+#: ../../source/configurator/Configurator.cpp:821
+msgid "Missing someone?"
+msgstr "On keegi puudu?"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:918
+msgid "Mod Number: "
+msgstr "Modi number:"
+
+#: ../../source/configurator/Configurator.cpp:905
+msgid ""
+"Most recent hardware can do Anisotropic filtering without significant slowdown.\n"
+"Use lower settings only on old or poor video chipsets."
+msgstr "Uusim riistvara suudab Anisotroopse filtreerimisega hakkama saada ilma jõudluse vähenemiseta.\nKasuta madalamaid seadeid ainult vanemate või nõrgemate videokaartidega."
+
+#: ../../source/configurator/Configurator.cpp:2350
+msgid "Muted"
+msgstr "Hääletu"
+
+#: ../../source/configurator/Configurator.cpp:784
+#, c-format
+msgid "Network Protocol version: %s"
+msgstr "Võrguprotokolli versioon: %s"
+
+#: ../../source/main/physics/Beam.cpp:1691
+msgid "Network error!"
+msgstr "Võrgu viga!"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:2195
+#: ../../source/main/MainMenu.cpp:114
+msgid "Network fatal error: "
+msgstr "Võrgu viga:"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:967
+#: ../../source/main/gameplay/RoRFrameListener.cpp:975
+#: ../../source/main/gameplay/RoRFrameListener.cpp:995
+msgid "New simulation speed: "
+msgstr "Uus simulatsiooni kiirus:"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:285
+msgid "No Trucks loaded"
+msgstr "Ühtegi sõidukit pole laaditud"
+
+#: ../../source/main/resources/CacheSystem.cpp:154
+msgid "No content installed"
+msgstr "Sisu pole lisatud"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:157
+msgctxt "GameSettings"
+msgid "No inter truck collisions"
+msgstr ""
+
+#: ../../source/main/physics/Beam.cpp:1276
+#: ../../source/main/physics/Beam.cpp:1278
+msgid "No inter-axle differential installed on current vehicle!"
+msgstr ""
+
+#: ../../source/main/physics/Beam.cpp:1305
+#: ../../source/main/physics/Beam.cpp:1307
+msgid "No inter-wheel differential installed on current vehicle!"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:156
+msgctxt "GameSettings"
+msgid "No intra truck collisions"
+msgstr ""
+
+#. flaresMode->AppendValueItem(wxT("None (fastest)"), _("None (fastest)"));
+#. //this creates a bug in the autopilot // WTF?? ~ only_a_ptr, 02/2017
+#: ../../source/configurator/Configurator.cpp:1072
+msgid "No light sources"
+msgstr "Valgusallikad puuduvad"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1123
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1124
+msgid "No rescue truck found!"
+msgstr "Hädaabi sõidukit ei leitud!"
+
+#: ../../source/configurator/Configurator.cpp:920
+msgid "No shadows (fastest)"
+msgstr "Varjusid pole (kiireim)"
+
+#: ../../source/main/physics/Beam.cpp:1338
+msgid "No transfercase installed on current vehicle!"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:241
+msgid "Node count: "
+msgstr "Sõlmede arv:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:836
+msgid "Nodes: "
+msgstr "Sõlmi: "
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:882
+msgid "Non-Driveable"
+msgstr "Sõidukõlbmatu"
+
+#: ../../source/configurator/Configurator.cpp:876
+msgid "None"
+msgstr "Puudub"
+
+#: ../../source/configurator/Configurator.cpp:901
+#: ../../source/configurator/Configurator.cpp:956
+msgid "None (fastest)"
+msgstr "Puudub (kiireim)"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:82
+msgid "OK"
+msgstr "OK"
+
+#: ../../source/configurator/Configurator.cpp:1877
+msgid "Ogre config validation error"
+msgstr "Ogre seadistuse kontrollimise viga"
+
+#: ../../source/configurator/Configurator.cpp:1871
+msgid "Ogre config validation error, unknown render option detected: "
+msgstr "Ogre seadistuse viga, teadmata render-valik tuvastatud: "
+
+#: ../../source/configurator/Configurator.cpp:1073
+msgid "Only current vehicle, main lights"
+msgstr "Praegune sõiduk, peamised tuled"
+
+#: ../../source/main/physics/Differentials.cpp:51
+msgid "Open"
+msgstr "Avatud"
+
+#: ../../source/configurator/Configurator.cpp:705
+msgid "OpenCL"
+msgstr "OpenCL"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:207
+msgid ""
+"Or sliding friction coef. It should be smaller than static friction coef. "
+"This parameter defines how much friction you'll have when sliding. Try to "
+"find some values for it from the net."
+msgstr "Liughõõrdejõu koefitsient. Peaks olema väiksem kui staatilise hõõrdumise koefitsient. Parameeter märgib, kui palju hõõrdumist on libisemisel. Proovi leida sobivad väärtused internetist."
+
+#: ../../source/main/gameplay/Replay.cpp:189
+msgid "Out of Memory"
+msgstr "Mälu on otsas"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:324
+msgctxt "GameSettings"
+msgid "OutGauge ID"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:321
+msgctxt "GameSettings"
+msgid "OutGauge IP"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:325
+msgctxt "GameSettings"
+msgid "OutGauge delay"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:323
+msgctxt "GameSettings"
+msgid "OutGauge port"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:993
+msgid "Overall force level:"
+msgstr "Üldine jõutase:"
+
+#: ../../source/configurator/Configurator.cpp:923
+msgid "Parallel-split Shadow Maps"
+msgstr "Parallel-split tüüpi varjud"
+
+#: ../../source/configurator/Configurator.cpp:964
+msgid "Particle systems:"
+msgstr "Osakeste süsteem:"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:56
+msgid "Player Information"
+msgstr "Mängija Info"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1763
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1764
+msgid "Please clear the place first"
+msgstr "Palun vabasta enne koht"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:307
+msgid "Please enter a correct value. "
+msgstr "Sisesta palun õige väärtus."
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:922
+msgid "Please select a configuration below!"
+msgstr "Palun vali seadistus allpool!"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:376
+#: ../../source/main/gameplay/RoRFrameListener.cpp:377
+msgid "Position saved under slot "
+msgstr "Salvestatud asukoht "
+
+#: ../../source/main/gameplay/Replay.cpp:73
+msgid "Position:"
+msgstr "Asukoht:"
+
+#: ../../source/main/gameplay/Replay.cpp:196
+#, c-format
+msgid "Position: %0.6f s, frame %i / %i"
+msgstr "Asukoht: %0.6f s, kaader %i / %i"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:260
+msgid ""
+"Possible values: \n"
+" earth \n"
+" moon \n"
+" jupiter \n"
+" A random number (use negative)"
+msgstr "Võimalikud väärtused:\nearth\nmoon\njupiter\nsuvaline arv (kasuta negatiivset)"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:294
+msgctxt "GameSettings"
+msgid "Presel. veh. config"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:881
+msgid "Preselected Map: "
+msgstr "Eelvalitud maastik:"
+
+#: ../../source/configurator/Configurator.cpp:886
+msgid "Preselected Truck: "
+msgstr "Eelvalitud sõiduk:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:292
+msgctxt "GameSettings"
+msgid "Preselected terrain"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:293
+msgctxt "GameSettings"
+msgid "Preselected vehicle"
+msgstr ""
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:2016
+#, c-format
+msgid "Press %ls to start chatting"
+msgstr "Vestluse alustamiseks vajuta %ls"
+
+#: ../../source/configurator/Configurator.cpp:845
+msgid "Prints all node masses to the RoR.log"
+msgstr "Kuvab RoR.log'is kõikide sõlmede massid"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:858
+msgid "Props: "
+msgstr "Props: "
+
+#. Width includes [+/-] buttons
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:259
+msgctxt "GameSettings"
+msgid "Realtime refl. update rate"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:255
+msgctxt "GameSettings"
+msgid "Realtime reflections"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:943
+msgid "Reflection"
+msgstr "Peegeldus"
+
+#: ../../source/configurator/Configurator.cpp:945
+msgid "Reflection + refraction (quality optimized)"
+msgstr "Peegeldus + lainete murdumine (välimus)"
+
+#: ../../source/configurator/Configurator.cpp:944
+msgid "Reflection + refraction (speed optimized)"
+msgstr "Peegeldus + lainete murdumine (kiirus)"
+
+#: ../../source/configurator/Configurator.cpp:1089
+msgid "Regen cache"
+msgstr "Taasta vahemälu"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:279
+msgid "Remote Truck loaded correctly, no errors"
+msgstr "Serveripoolselt sõiduk laaditud korralikult, vead puuduvad"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:273
+msgid "Remote Truck loading errors"
+msgstr "Viga sõiduki laadimisel serveris"
+
+#. clear the renderer settings and fill them later
+#: ../../source/configurator/Configurator.cpp:655
+#: ../../source/configurator/Configurator.cpp:711
+msgid "Render System"
+msgstr "Render-süsteem"
+
+#. Combobox for selecting the Render System
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:48
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:82
+msgctxt "GameSettings"
+msgid "Render System"
+msgstr "Render-süsteem"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:69
+msgctxt "GameSettings"
+msgid "Render system"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:263
+msgctxt "GameSettings"
+msgid "Render video cameras"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1098
+msgid "Replay Mode"
+msgstr "Kordusrežiim"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:150
+msgctxt "GameSettings"
+msgid "Replay length"
+msgstr ""
+
+#. DrawGCheckbox(App::gfx_flexbody_lods,      "Enable flexbody LODs");
+#. DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:147
+msgctxt "GameSettings"
+msgid "Replay mode"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1099
+msgid "Replay mode. (Will affect your frame rate)"
+msgstr "Kordusrežiim. (Mõjutab jõudlust)"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:151
+msgctxt "GameSettings"
+msgid "Replay stepping"
+msgstr ""
+
+#: ../../source/main/main.cpp:122
+msgid "Resources folder not found. Check if correctly installed."
+msgstr "Resources kausta ei leitud. Kontrolli kas on õigesti paigaldatud."
+
+#: ../../source/configurator/Configurator.cpp:625
+msgid "Restore Defaults"
+msgstr "Taasta vaikeseaded"
+
+#: ../../source/configurator/Configurator.cpp:626
+msgid "Restore the default configuration."
+msgstr "Taasta vaikeseaded."
+
+#. tell the user
+#: ../../source/configurator/Configurator.cpp:481
+#, c-format
+msgid ""
+"Rigs of Rods User directory missing:\n"
+"%s\n"
+"\n"
+"it could not be created since skeleton.zip was not found in\n"
+" %s"
+msgstr "Rigs of Rods kasutajakataloog puudub:\n%s\n\nei saanud kataloogi luua, sest ei leidnud faili skeleton.zip asukohast\n%s"
+
+#. create the main application window
+#: ../../source/configurator/Configurator.cpp:570
+#, c-format
+msgid "Rigs of Rods version %s configuration"
+msgstr "Rigs of Rods versiooni %s seaded"
+
+#: ../../source/configurator/Configurator.cpp:781
+#, c-format
+msgid "Rigs of Rods version: %s"
+msgstr "Rigs of Rods'i versioon: %s"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:607
+msgid "Rotating: "
+msgstr "Pöörlemas:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:848
+msgid "Rotators: "
+msgstr "Rotaatorid:"
+
+#: ../../source/configurator/Configurator.cpp:911
+msgid "Sandstorm (fastest)"
+msgstr "Kollane taevas (kiireim)"
+
+#: ../../source/main/gui/panels/GUI_TextureToolWindow.cpp:49
+msgid "Save Raw"
+msgstr "Salvesta raw"
+
+#: ../../source/configurator/Configurator.cpp:633
+msgid "Save and Exit"
+msgstr "Salvesta ja Välju"
+
+#: ../../source/configurator/Configurator.cpp:629
+msgid "Save and Play"
+msgstr "Salvesta ja Mängi"
+
+#: ../../source/main/gui/panels/GUI_TextureToolWindow.cpp:46
+msgid "Save as PNG"
+msgstr "Salvesta PNG failina"
+
+#: ../../source/configurator/Configurator.cpp:634
+msgid "Save the current configuration and close the configuration program."
+msgstr "Salvesta praegune seadistus ja sulge seadistusprogramm"
+
+#: ../../source/configurator/Configurator.cpp:630
+msgid "Save the current configuration and start RoR."
+msgstr "Salvesta praegused seaded ja ava RoR"
+
+#: ../../source/configurator/Configurator.cpp:984
+msgid "Screenshot Format:"
+msgstr "Ekraanipildi vorming:"
+
+#. Dummy; TODO: List available languages
+#. Hardcoded; TODO: list available formats.
+#. Screenshot format: Can be png or jpg
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:123
+msgctxt "GameSettings"
+msgid "Screenshot format"
+msgstr ""
+
+#. show new flash message
+#: ../../source/main/gameplay/RoRFrameListener.cpp:302
+msgid "Screenshot:"
+msgstr "Ekraanipilt:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:148
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:267
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:1077
+msgid "Search ..."
+msgstr "Otsing ..."
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:1068
+msgid "Search Results"
+msgstr "Otsingu tulemused"
+
+#: ../../source/configurator/Configurator.cpp:1036
+msgid ""
+"Select the appropriate sound source.\n"
+"Leaving to Default should work most of the time."
+msgstr "Vali sobiv heli lähtekoht.\nJättes selle vaikimisi heli peale peaks see töötama enamuse ajast."
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:620
+msgid "Selected object: ["
+msgstr "Valitud objekt: ["
+
+#: ../../source/configurator/Configurator.cpp:1003
+msgid "Self-centering level:"
+msgstr "Tagasipöörlemise tase:"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:213
+msgid "Server Administrator"
+msgstr "Serveri administraator"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:222
+msgid "Server Moderator"
+msgstr "Serveri moderaator"
+
+#: ../../source/configurator/Configurator.cpp:646
+msgid "Settings"
+msgstr "Seaded"
+
+#: ../../source/configurator/Configurator.cpp:935
+msgid "Shadow Performance Optimizations"
+msgstr "Varjude jõudluse optimeerimine"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:206
+msgctxt "GameSettings"
+msgid "Shadow optimizations"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:209
+msgctxt "GameSettings"
+msgid "Shadow quality"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:925
+msgid "Shadow technique to be used ingame."
+msgstr "Mängus kasutatav varjutüüp."
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:199
+msgctxt "GameSettings"
+msgid "Shadow type"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:918
+msgid "Shadow type:"
+msgstr "Varju tüüp:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:840
+msgid "Shocks: "
+msgstr "Amorte: "
+
+#: ../../source/configurator/Configurator.cpp:869
+msgid ""
+"Shows all Collision meshes in Red to be able to position them correctly. "
+"Only use for debugging!"
+msgstr "Näitab kõiki kokkupõrkemeshe punastena asetamaks neid õigesti. Kasuta ainult vigade silumiseks!"
+
+#: ../../source/configurator/Configurator.cpp:971
+msgid ""
+"Shows the rear view mirrors in 1st person view. May cause compatibility "
+"problems for very old video cards."
+msgstr "Näitab sisevaates tahavaatepeegleid. Ei pruugi olla väga vanade videokaartidega ühilduv."
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:218
+msgctxt "GameSettings"
+msgid "Sight range (meters)"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:929
+msgid "Sightrange:"
+msgstr "Vaatevälja ulatus:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:132
+msgctxt "GameSettings"
+msgid "Simulation settings"
+msgstr ""
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:988
+msgid "Simulation speed reset."
+msgstr "Simulatsiooni kiirus taastatud."
+
+#: ../../source/main/gui/OverlayWrapper.cpp:495
+msgid "Skeletons: "
+msgstr "Raam:"
+
+#: ../../source/configurator/Configurator.cpp:976
+msgid "Skidmarks"
+msgstr "Rehvijäljed"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:363
+msgid "Skins"
+msgstr "Skinnid"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:128
+msgctxt "GameSettings"
+msgid "Skip main menu"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:909
+msgid "Sky type:"
+msgstr "Taeva tüüp:"
+
+#: ../../source/configurator/Configurator.cpp:913
+msgid "SkyX (best looking, slower)"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:69
+msgid "Slow  Network  Download"
+msgstr "Aeglane allalaadimine"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:115
+msgid "Solid ground level"
+msgstr "Tahke maapind"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:104
+msgid "Solid ground level:"
+msgstr "Tahke pinna tase:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:93
+msgid "Solid ground settings"
+msgstr "Tahke pinna seaded"
+
+#: ../../source/configurator/Configurator.cpp:1061
+msgid "Sound Volume:"
+msgstr "Helitugevus:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:844
+msgid "SoundSources: "
+msgstr "Helide lähteasukohad:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:912
+msgid "Source: "
+msgstr "Allikas:"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:426
+msgid "Spawned object at position: "
+msgstr ""
+
+#: ../../source/main/physics/Differentials.cpp:50
+msgid "Split"
+msgstr "Jaotatud"
+
+#: ../../source/configurator/conf_file.cpp:179
+#: ../../source/configurator/conf_file.cpp:189 ../../source/main/main.cpp:74
+#: ../../source/main/main.cpp:92 ../../source/main/main.cpp:122
+#: ../../source/main/main.cpp:144 ../../source/main/main.cpp:155
+msgid "Startup error"
+msgstr "Käivitusviga"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:161
+msgid "Static friction coef"
+msgstr "Seisuhõõrdumise tegur:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:150
+msgid "Static friction coef:"
+msgstr "Seisuhõõrdumise tegur:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:161
+msgid ""
+"Static friction keeps you in the same place when you are stopped on a hill. "
+"In the real world this friction is always bigger than dynamic friction "
+"(sliding friction). Start with 0.5 and work from there. It is better to try "
+"to find some experimentally validated values for this and the rest of "
+"surface friction variables in the net, and then to fine tune via strength."
+msgstr "Seisuhõõrdumine hoiab sind mäe peal peatudes paigal. Reaaloludes on see hõõrdumine alati suurem kui liugehõõrdumine. Alusta 0.5-st ja jätka sealt. Parem on otsida sellele veebist mõned kontrollitud väärtused, samuti muudele pinnahõõrdumise teguritele. Seejärel võib juba tugevuse abil täpsemalt seadistama hakata."
+
+#: ../../source/configurator/Configurator.cpp:998
+msgid "Steering feedback level:"
+msgstr "Roolimise tagasiside tase:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:138
+msgid "Strength"
+msgstr "Tugevus"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:127
+msgid "Strength:"
+msgstr "Tugevus:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:251
+msgid "Stribeck velocity"
+msgstr "Stribecki kiirus"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:242
+msgid "Stribeck velocity:"
+msgstr "Stribeck kiirus:"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:368
+msgid "Terrain height at position: "
+msgstr "Maastiku kõrgus asukohas:"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1878
+msgid "Terrain loading error"
+msgstr "Maastiku laadimise viga"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1879
+msgid "Terrain not found: "
+msgstr "Maastikku ei leitud: "
+
+#: ../../source/main/gui/panels/GUI_TextureToolWindow.cpp:43
+msgid "Texture Tool"
+msgstr "Tekstuuri tööriist"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:220
+msgctxt "GameSettings"
+msgid "Texture filtering"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:899
+msgid "Texture filtering:"
+msgstr "Tekstuuri filtreerimine:"
+
+#: ../../source/configurator/Configurator.cpp:921
+msgid "Texture shadows"
+msgstr "Tekstuuri varjud"
+
+#: ../../source/main/gui/OverlayWrapper.cpp:481
+msgid "Textures: "
+msgstr "Tekstuurid:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:323
+msgid "The color of RoR's special effects"
+msgstr "RoR'i eriefektide värvus"
+
+#: ../../source/configurator/Configurator.cpp:748
+msgid "The default mode for the gearbox when a new vehicle is loaded."
+msgstr "Uue sõiduki laadimisel kasutatav käigukasti tüüp."
+
+#: ../../source/configurator/Configurator.cpp:883
+msgid ""
+"The terrain you want to load upon RoR startup. Might remove the startup "
+"selection menu."
+msgstr "Maastik, mis laaditakse RoR käivitusel. Eemaldab valikumenüü."
+
+#: ../../source/configurator/Configurator.cpp:888
+msgid ""
+"The truck you want to load upon RoR startup. Might remove the startup "
+"selection menu."
+msgstr "Sõiduk, mis laaditakse RoR käivitusel. Eemaldab valikumenüü."
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:299
+msgid ""
+"The type of special effects that RoR will use to give the appearance of a "
+"surface. It doesn't affect the physics at all"
+msgstr "Seda tüüpi eriefektid annavad maapinnale välimuse, kuid ei mõjuta muud simulatsiooni."
+
+#: ../../source/configurator/Configurator.cpp:2063
+msgid "The update service is currently only available for windows users."
+msgstr "Uuendamise teenus on hetkel saadaval ainult Windowsi kasutajatele."
+
+#: ../../source/configurator/Configurator.cpp:833
+msgid ""
+"These settings are for debugging RoR in various ways.\n"
+"If you do not know how to use these features, stay away from them."
+msgstr "Neid seadeid kasutatakse RoR vigade silumiseks.\nKui sa ei oska neid seadeid kasutada, hoia neist eemale."
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:384
+msgid ""
+"Think of it as default fluid resistance. Behavior index above changes it at "
+"real time. Useful values in practice are quite large."
+msgstr "Mõtle sellest kui tavalisest vedeliku takistusest. Käitumise indeks muutub reaalajas. Kasulikud väärtused on praktikas päris suured."
+
+#: ../../source/configurator/Configurator.cpp:960
+msgid ""
+"This determines how much grass and how many trees (and such objects) should "
+"get displayed."
+msgstr "See määrab kui palju muru ja puid (ning muid objekte) peaks näitama."
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:230
+msgid ""
+"This friction defines the added friction that you'll feel from a surface "
+"that has a little film of fluid on it. It is kind of redundant with all the "
+"fluid physics below, but it is here so as for experimentally validated "
+"values from the net to be usable. If you decide that you'll simulate the "
+"film of fluid with the more complex fluid physics below, then just set this "
+"to 0."
+msgstr "See hõõrdumine määrab lisahõõrdumise pinnal, mis on kaetud õhukese vedelikukihiga. Võib tunduda allpool olevate vedeliku suvandite juures üleliigne, kuid on jäetud kasutamiseks veebist leitavate andmetega. Kui otsustad siiski kasutada allpool olevaid vedelikusuvandeid, võid selle väärtuse jätta 0-iks."
+
+#: ../../source/configurator/Configurator.cpp:966
+msgid ""
+"This may hurt framerate a bit on old systems, but it looks pretty good."
+msgstr "See võib halvendada vanemate süsteemide jõudlust, kuid näeb hea välja."
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:430
+msgid ""
+"This parameter is for making it easier(cheating) to get out from mud. To get"
+" stuck in real mud isn't fun at all, so this makes the mud push up. Ranges "
+"in this parameter are from 0 to 1 . If you set it at 1 then you'll get real "
+"mud. For values from 0 to 1, the behavior goes from real mud to easy mud "
+"depending on this parameter and the value of Adhesion velocity. For velocity"
+" 0 real mud it is. For velocity >= adhesion velocity easy mud it is."
+msgstr "See väärtus on selleks, et saada mudast kergemini välja. Mudasse kinni jääda pole üldse lõbus, seega paneb see parameeter muda sõidukit üles lükkama. Väärtuste vahe on 0st 1ni. Kui sa sead väärtuse 1 peale, saad reaalse muda. 0st 1ni, käitumisviis muutub reaalsest mudast kergesse mutta, sõltub sellest parameetrist ning kinnijäämise kiiruse näidust. Kui kiirus on 0 saad reaalse muda. Aga kui see muda väärtus on suurem-võrdne kiiruse väärtusega, siis saad kerge muda."
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:138
+msgid ""
+"This parameter raises or diminishes surface friction in a generic way. It is"
+" here so as to be able to do quick calibrations of friction. Start with "
+"having this to 1.0 and after tuning the rest of the surface variables, come "
+"back and play with this."
+msgstr "See parameeter suurendab või vähendab pinna hõõrdumist tavalisel moel. See on hõõrdumise kiiremaks seadistamiseks.. Alusta väärtusega 1.0 ja hiljem, peale teiste pinnamuutujate seadistamist, tule tagasi ja muuda seda sobiva tulemuse saavutamiseni."
+
+#: ../../source/configurator/Configurator.cpp:737
+msgid ""
+"This setting overrides the system's default language. You need to restart "
+"the configurator to apply the changes."
+msgstr "See seadistus tühistab süsteemi vaikekeele. Muudatuste rakendamiseks tuleb seadistaja taaskäivitada."
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1199
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1200
+msgid "Time set to "
+msgstr "Aeg seatud "
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:872
+msgid "Times used: "
+msgstr "Kasutuskordi:"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:266
+msgid "Tips:"
+msgstr "Näpunäited:"
+
+#: ../../source/configurator/Configurator.cpp:674
+msgid ""
+"To change the keymap edit input.map with a texteditor.\n"
+"input.map is located at: \n"
+"My Documents\\Rigs of Rods\\config\\input.map (Windows)\n"
+"~/.rigsofrods/config/input.map (Linux)\n"
+"~/RigsOfRods/config/input.map (OS X)"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:854
+msgid "Torque: "
+msgstr "Pöördemoment: "
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:245
+msgid "Total mass: "
+msgstr "Kogumass:"
+
+#: ../../source/main/physics/Beam.cpp:1332
+msgid "Transfercase switched to: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:864
+msgid "Transmission Gear Count: "
+msgstr "Käike:"
+
+#: ../../source/main/gui/OverlayWrapper.cpp:454
+msgid "Triangle Count: "
+msgstr "Kolmnurkade arv: "
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:176
+msgid "Triangle count: "
+msgstr "Kolmnurkade arv:"
+
+#: ../../source/configurator/Configurator.cpp:864
+msgid "Trigger Debug"
+msgstr "Trigerite Silur"
+
+#: ../../source/configurator/Configurator.cpp:903
+msgid "Trilinear"
+msgstr "Trilineaarne"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:882
+msgid "Truck"
+msgstr "Sõiduk"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:259
+msgid "Truck loaded correctly, no errors"
+msgstr "Sõiduk laaditud korralikult, vead puuduvad"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:253
+msgid "Truck loading errors"
+msgstr "Sõiduki laadimise vead"
+
+#: ../../source/configurator/Configurator.cpp:1373
+msgid ""
+"Unable to load the render systems. Please check if all required files are there and the plugins.cfg file is correct.\n"
+"This is a fatal error and the game will not start."
+msgstr "Ei suuda laadida esitamissüsteemi. Palun kontrolli, kas kõik vajalikud failid on seal ja plugins.cfg fail on õige.\nSee on suur viga ja mäng ei käivitu."
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:868
+msgid "Unique ID: "
+msgstr "Ainu-ID:"
+
+#: ../../source/configurator/Configurator.cpp:932
+#: ../../source/configurator/Configurator.cpp:1083
+#: ../../source/configurator/Configurator.cpp:2334
+#: ../../source/configurator/Configurator.cpp:2386
+msgid "Unlimited"
+msgstr "Piiramatu"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:2210
+msgid "Unloading Terrain"
+msgstr "Maastiku simulatsioonist eemaldamine"
+
+#: ../../source/configurator/Configurator.cpp:841
+msgid "Unlocks disabled & unfinished features for developement"
+msgstr "Lubab väljalülitatud & pooleli funktsioonid. Arenduseks."
+
+#: ../../source/configurator/Configurator.cpp:697
+msgid "Updates"
+msgstr "Värskendused"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:317
+msgctxt "GameSettings"
+msgid "Use arcade controls"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:154
+msgctxt "GameSettings"
+msgid "Use position storage"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1090
+msgid ""
+"Use this to regenerate the cache outside of RoR. If this does not work, use "
+"the clear cache button."
+msgstr "Kasuta seda vahemälu taasloomiseks. Kui see ei toimi, kasuta tühjenda vahemälu nuppu."
+
+#: ../../source/configurator/Configurator.cpp:1093
+msgid ""
+"Use this to remove the whole cache and force the generation from ground up."
+msgstr "Kasuta seda vahemälu kustutamiseks ja uuesti loomiseks."
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:862
+msgid "Using Submeshs: "
+msgstr "Kasutab submeshe:"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:233
+msgid ""
+"Using slashes before commands are deprecated, you can now type command "
+"without any slashes"
+msgstr ""
+
+#. Various Settings
+#: ../../source/configurator/Configurator.cpp:1097
+msgid "Various Settings:"
+msgstr "Erinevad seaded:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:236
+msgctxt "GameSettings"
+msgid "Vegetation density"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:954
+msgid "Vegetation:"
+msgstr "Taimestik:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:884
+msgid "Vehicle Type: "
+msgstr "Sõiduki tüüp: "
+
+#. When this condition is true, it means that health is at 0% which means 100%
+#. of destruction.
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:223
+msgid "Vehicle destruction: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:218
+msgid "Vehicle health: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:346
+msgid "Vehicle position set to: "
+msgstr "Sõiduki asukoht seatud: "
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:322
+msgid "Vehicle position: "
+msgstr "Sõiduki asukoht: "
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:294
+msgid "Vehicle speed: "
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:780
+msgid "Version"
+msgstr "Versioon"
+
+#: ../../source/main/utils/Settings.cpp:112
+msgid "Version Information"
+msgstr "Versiooni Info"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:828
+msgid "Version: "
+msgstr "Versioon:"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:329
+#, c-format
+msgid ""
+"Vertical: % 1.2fg\n"
+"Sagittal: % 1.2fg\n"
+"Lateral:  % 1.2fg"
+msgstr "Vertikaalsed: % 1.2fg\nPikisuunalised: % 1.2fg\nKülgmised: % 1.2fg"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:190
+msgctxt "GameSettings"
+msgid "Video settings"
+msgstr ""
+
+#: ../../source/main/physics/Differentials.cpp:52
+msgid "Viscous"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:974
+msgid "Visual effects:"
+msgstr "Visuaalefektid:"
+
+#: ../../source/configurator/Configurator.cpp:2063
+msgid "Warning"
+msgstr "Hoiatus"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:242
+msgctxt "GameSettings"
+msgid "Water gfx"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:303
+msgid "Water level set to: "
+msgstr "Veetase seatud:"
+
+#: ../../source/configurator/Configurator.cpp:947
+msgid ""
+"Water reflection is slower, and requires a good GPU. In speed optimized mode"
+" you may experience excessive camera shaking."
+msgstr "Veepeegeldus on aeglasem ja vajab head GPUd. Kiirusele kohandatud režiimis võib kaamera rappuda."
+
+#: ../../source/configurator/Configurator.cpp:939
+msgid "Water type:"
+msgstr "Vee tüüp:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:264
+msgctxt "GameSettings"
+msgid "Waves on water"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:285
+msgid "Wheel speed: "
+msgstr "Rataste kiirus:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:830
+msgid "Wheels: "
+msgstr "Rattaid: "
+
+#: ../../source/configurator/Configurator.cpp:936
+msgid ""
+"When turned on, it disables the vehicles shadow when driving in first person"
+" mode."
+msgstr "Sisse lülitatud, keelab sisevaates sõiduki varjud."
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:860
+msgid "Wings: "
+msgstr "Tiibu:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:115
+msgid ""
+"With this you can define how deep the solid ground is. If it is 0 then the "
+"surface will be solid. If it is 0.1 then you'll have 10 cm of fluid on top "
+"of solid ground. If it is 100 then the solid ground will be way deep (100m),"
+" with fluid on top."
+msgstr "Sellega saab määratleda, kui sügav on tahke maapind. Kui see on 0, siis maapind on tahke. Kui see 0.1, siis on maapinnal 10cm-ne vedelikukiht. Kui see on 100, siis maapinnal on vedeliku kiht väga paks (100m)."
+
+#: ../../source/main/gui/OverlayWrapper.cpp:453
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:174
+msgid "Worst FPS: "
+msgstr "Halvim FPS: "
+
+#: ../../source/configurator/Configurator.cpp:772
+msgid "You can disable the default creak sound by checking this box"
+msgstr "Linnukese panemine keelab kriuksumisheli"
+
+#: ../../source/configurator/Configurator.cpp:816
+msgid ""
+"You can find a complete list of the RoR's authors ingame: about->credits."
+msgstr "Täieliku nimekirja RoR'i autoritest leiad mängus lisateabe alt."
+
+#: ../../source/configurator/Configurator.cpp:1030
+msgid ""
+"You do not need to change these settings unless you experience problems"
+msgstr "Sa ei pea neid seadeid muutma kui sul ei esine probleeme."
+
+#: ../../source/main/resources/CacheSystem.cpp:154
+msgid "You have no content installed"
+msgstr "Sa ei ole sisu lisanud"
+
+#: ../../source/configurator/Configurator.cpp:1324
+msgid "You must save and restart the program to activate the new language!"
+msgstr "Uue keele aktiveerimiseks pead salvestama ja programmi taaskäivitama!"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:251
+msgid ""
+"You'll either find stribeck velocity in the net, or the inverse (1/stribeck "
+"velocity) of it described as 'stribeck coef'. It defines the shape of the "
+"dynamic friction curve. Lets leave it at that. Just find some nice values "
+"for it from the net."
+msgstr "Stribecki kiiruse või selle pöördväärtuse, Stribecki koefitsendi (1/stribecki kiirus) leiad võrgust. See määrab liugehõõrdumise kõvera kuju. Lihtsalt leia sellele võrgust sobivaid väärtusi."
+
+#: ../../source/main/physics/collision/Collisions.cpp:201
+msgid ""
+"Your ground configuration is too old, please copy "
+"skeleton/config/ground_models.cfg to My Documents/Rigs of Rods/config"
+msgstr "Sinu maapinna seaded on liiga vanad, kopeeri skeleton/config/ground_models.cfg asukohta My Documents/Rigs of Rods/config"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:903
+msgid "[car engine]"
+msgstr "[auto mootor]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:889
+msgid "[forwards commands]"
+msgstr "[edastab käsklusi]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:899
+msgid "[has fixes]"
+msgstr "[on fikseeritud]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:891
+msgid "[imports commands]"
+msgstr "[võtab käsklusi]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:895
+msgid "[is rescuer]"
+msgstr "[on puksiir]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:893
+msgid "[is rollon]"
+msgstr "[ratastega kontakt]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:907
+msgid "[unpacked in directory]"
+msgstr "[lahti pakitud kausta]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:897
+msgid "[uses custom particles]"
+msgstr "[kasutab eriosakesi]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:905
+msgid "[zip archive]"
+msgstr "[zip arhiiv]"
+
+#: ../../source/main/utils/InputEngine.cpp:854
+msgid "accelerate the simulation"
+msgstr "kiirenda simulatsiooni"
+
+#: ../../source/main/utils/InputEngine.cpp:1190
+msgid "accelerate the truck"
+msgstr "kiirenda sõidukit"
+
+#: ../../source/main/utils/InputEngine.cpp:1196
+msgid "accelerate with 25 percent pedal input"
+msgstr "kiirenda 25 protsendilise pedaalivajutusega"
+
+#: ../../source/main/utils/InputEngine.cpp:1202
+msgid "accelerate with 50 percent pedal input"
+msgstr "kiirenda 50 protsendilise pedaalivajutusega"
+
+#: ../../source/main/utils/InputEngine.cpp:85
+msgid "airplane parking brake."
+msgstr "lennuki seisupidur"
+
+#: ../../source/main/utils/InputEngine.cpp:1691
+msgid "airplane throttle"
+msgstr "lennuki gaas"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:265
+msgid "alpha:"
+msgstr "läbipaistvus:"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:256
+msgid "as <code here> - interpret angel code using console"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1238
+msgid "brake"
+msgstr "pidur"
+
+#: ../../source/main/utils/InputEngine.cpp:1244
+msgid "brake with 25 percent pedal input"
+msgstr "pidurda 25 protsendilise pedaalivajutusega"
+
+#: ../../source/main/utils/InputEngine.cpp:1250
+msgid "brake with 50 percent pedal input"
+msgstr "pidurda 50 protsendilise pedaalivajutusega"
+
+#: ../../source/configurator/Configurator.cpp:541
+#: ../../source/configurator/Configurator.cpp:589
+#: ../../source/configurator/Configurator.cpp:1890
+msgid "caught exception"
+msgstr "erandolek"
+
+#: ../../source/main/utils/InputEngine.cpp:158
+msgid "center the rudder"
+msgstr "tüür algasendisse"
+
+#: ../../source/main/utils/InputEngine.cpp:236
+msgid "change camera mode"
+msgstr "vaheta kaamerarežiimi"
+
+#: ../../source/main/resources/CacheSystem.cpp:1509
+#: ../../source/main/resources/CacheSystem.cpp:1513
+msgid "checking for new directories in "
+msgstr "kontrollin uusi katalooge kohas "
+
+#: ../../source/main/resources/CacheSystem.cpp:1486
+#: ../../source/main/resources/CacheSystem.cpp:1490
+msgid "checking for new zips in "
+msgstr "kontrollin uusi zippe kohas "
+
+#: ../../source/main/utils/InputEngine.cpp:944
+msgid "connect a rope to a node in close proximity"
+msgstr "ühenda köis lähedalasuva sõlmega"
+
+#: ../../source/main/utils/InputEngine.cpp:932
+msgid "connect hook node to a node in close proximity"
+msgstr "ühenda konks lähima teise sõlmeiga"
+
+#: ../../source/main/utils/InputEngine.cpp:1551
+msgid "cycle between available inter axle differential modes"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1557
+msgid "cycle between available inter wheel differential modes"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1028
+msgid "cycle debug views"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1172
+msgid "cycle map modes"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1046
+msgid "debug purpose - dont use"
+msgstr "vigade otsimiseks - ära kasuta"
+
+#: ../../source/main/utils/InputEngine.cpp:860
+msgid "decelerate the simulation"
+msgstr "aeglusta simulatsiooni"
+
+#: ../../source/main/utils/InputEngine.cpp:212
+msgid "decrease day-time"
+msgstr "vähenda päeva-aega kiiremini"
+
+#: ../../source/main/utils/InputEngine.cpp:218
+msgid "decrease day-time a lot faster"
+msgstr "vähenda päeva-aega palju kiiremini"
+
+#: ../../source/main/utils/InputEngine.cpp:1370
+msgid "decrease target speed / rpm"
+msgstr "vähenda sihtkiirust / pöördeid"
+
+#: ../../source/main/utils/InputEngine.cpp:200
+msgid "decrease throttle"
+msgstr "vähenda gaasi"
+
+#: ../../source/main/utils/InputEngine.cpp:962
+msgid "decrease tire pressure (note: only very few trucks support this)"
+msgstr "vähenda rehvirõhku (märkus: ainult mõned sõidukid toetavad seda)"
+
+#: ../../source/main/utils/InputEngine.cpp:128
+msgid "decreases the airplane thrust"
+msgstr "vähendab lennuki tõukejõudu"
+
+#: ../../source/main/utils/InputEngine.cpp:1094
+msgid "decreases the current FOV value"
+msgstr "vähendab vaatevälja suurust"
+
+#: ../../source/main/utils/InputEngine.cpp:1697
+msgid "delete current truck"
+msgstr "kustuta praegune sõiduk"
+
+#: ../../source/configurator/Configurator.cpp:931
+msgid "determines how far you can see in meters"
+msgstr "määrab kui kaugele on võimalik näha meetrites"
+
+#: ../../source/main/network/Network.cpp:435
+msgid "disconnected: remote side closed the connection"
+msgstr "Ühendus katkes: kaugem osapool sulges ühenduse"
+
+#: ../../source/main/utils/InputEngine.cpp:1703
+msgid "display or hide net chat"
+msgstr "kuva või peida vestluse aken"
+
+#: ../../source/main/utils/InputEngine.cpp:926
+msgid "display or hide the dashboard overlay"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1613
+msgid "enable / disable free camera mode"
+msgstr "luba / keela vaba kaamera"
+
+#: ../../source/main/utils/InputEngine.cpp:1058
+msgid "enable or disable replay mode"
+msgstr "kordusrežiim sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:896
+msgid "enter next truck"
+msgstr "sisene järgmisesse sõidukisse"
+
+#: ../../source/main/utils/InputEngine.cpp:890
+msgid "enter or exit a truck"
+msgstr "sisene või välju sõidukist"
+
+#: ../../source/main/utils/InputEngine.cpp:902
+msgid "enter previous truck"
+msgstr "sisene eelmisesse sõidukisse"
+
+#: ../../source/main/utils/InputEngine.cpp:878
+msgid "enter the chat"
+msgstr "sisene vestlusse"
+
+#. Only in character mode
+#: ../../source/main/utils/InputEngine.cpp:1601
+msgid "enter/exit teleport mode"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:482
+msgid "error upon loading RoR user directory"
+msgstr "viga RoR kasutajakataloogi laadimisel"
+
+#: ../../source/configurator/Configurator.cpp:1297
+msgid "error upon restoring Ogre Configuration"
+msgstr "viga Ogre seadete taastamisel"
+
+#: ../../source/main/utils/InputEngine.cpp:974
+msgid "exit the game"
+msgstr "välju mängust"
+
+#: ../../source/main/utils/InputEngine.cpp:1607
+msgid "fix the camera to a position"
+msgstr "fikseeri kaamera kindlasse asendisse"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:827
+msgid "forwardcommands disabled"
+msgstr "käskluste edastamine keelatud"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:823
+msgid "forwardcommands enabled"
+msgstr "käskluste edastamine lubatud"
+
+#: ../../source/main/utils/InputEngine.cpp:1673
+msgid "full airbrakes"
+msgstr "maksimaalsed õhupidurid"
+
+#: ../../source/main/utils/InputEngine.cpp:61
+msgid "full flaps in an aircraft."
+msgstr "maksimaalsed klapid lennukil"
+
+#: ../../source/main/utils/InputEngine.cpp:134
+msgid "full thrust"
+msgstr "täielik tõukejõud"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:311
+msgid "fx_color:"
+msgstr "efekti värv:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:288
+msgid "fx_type:"
+msgstr "efekti tüüp:"
+
+#: ../../source/main/utils/InputEngine.cpp:956
+msgid "get new vehicle"
+msgstr "Võta uus sõiduk"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:139
+msgid "go to user"
+msgstr "mine kasutaja juurde"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:246
+msgid "goto <x> <y> <z> - jumps to the mentioned position"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:259
+msgid ""
+"gravity <real> or <text string> - changes gravity constant. Outputs current "
+"value if no argument is given"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:243
+msgid "help - information on commands (this)"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:920
+msgid "hide all GUI elements"
+msgstr "peida kõik GUI elemendid"
+
+#: ../../source/main/utils/InputEngine.cpp:1527
+msgid "hold to start the engine"
+msgstr "hoia mootori käivitamiseks"
+
+#: ../../source/configurator/Configurator.cpp:677
+msgid ""
+"http://docs.rigsofrods.org/gameplay/controls-config/#config-file-inputmap"
+msgstr "http://docs.rigsofrods.org/gameplay/controls-config/#config-file-inputmap"
+
+#: ../../source/configurator/Configurator.cpp:892
+msgid "http://www.rigsofrods.org/wiki/pages/Debugging_Trucks"
+msgstr ""
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:839
+msgid "importcommands disabled"
+msgstr "käskluste vastuvõtt keelatud"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:835
+msgid "importcommands enabled"
+msgstr "käskluste vastuvõtt lubatud"
+
+#: ../../source/main/utils/InputEngine.cpp:224
+msgid "increase day-time"
+msgstr "suurenda päeva"
+
+#: ../../source/main/utils/InputEngine.cpp:230
+msgid "increase day-time a lot faster"
+msgstr "suurenda päeva palju kiiremini"
+
+#: ../../source/main/utils/InputEngine.cpp:1364
+msgid "increase target speed / rpm"
+msgstr "suurenda sihtkiirust / rpm"
+
+#: ../../source/main/utils/InputEngine.cpp:146
+msgid "increase the airplane thrust"
+msgstr "suurenda lennuki tõukejõudu"
+
+#: ../../source/main/utils/InputEngine.cpp:1100
+msgid "increase the current FOV value"
+msgstr "suurenda vaatevälja"
+
+#: ../../source/main/utils/InputEngine.cpp:206
+msgid "increase throttle"
+msgstr "anna gaasi"
+
+#: ../../source/main/utils/InputEngine.cpp:968
+msgid "increase tire pressure (note: only very few trucks support this)"
+msgstr "suurenda rehvirõhku (märkus: seda toetavad vaid mõned sõidukid)"
+
+#: ../../source/main/resources/CacheSystem.cpp:391
+msgid "incremental check: deleted and changed files"
+msgstr "Lisakontroll: kustutatud ja muudetud failid"
+
+#: ../../source/main/resources/CacheSystem.cpp:399
+#: ../../source/main/resources/CacheSystem.cpp:415
+msgid "incremental check: deleted and changed files\n"
+msgstr "Lisakontroll: kustutatud ja muudetud failid\n"
+
+#: ../../source/main/resources/CacheSystem.cpp:468
+msgid "incremental check: duplicates\n"
+msgstr "Lisakontroll: kattuvad failid\n"
+
+#: ../../source/main/resources/CacheSystem.cpp:460
+msgid "incremental check: new content\n"
+msgstr "Lisakontroll: uus sisu\n"
+
+#: ../../source/main/resources/CacheSystem.cpp:464
+msgid "incremental check: new files\n"
+msgstr "Lisakontroll: uued failid\n"
+
+#: ../../source/main/resources/CacheSystem.cpp:440
+#: ../../source/main/resources/CacheSystem.cpp:454
+msgid "incremental check: processing changed zips\n"
+msgstr "Lisakontroll: töötlen uuendatud zippe\n"
+
+#: ../../source/main/physics/Differentials.cpp:46
+#: ../../source/main/physics/Differentials.cpp:54
+msgid "invalid"
+msgstr "väär"
+
+#: ../../source/configurator/Configurator.cpp:986
+msgid "jpg (smaller, default)"
+msgstr "jpg (väiksem, vaikeseade)"
+
+#: ../../source/main/utils/InputEngine.cpp:1679
+msgid "less airbrakes"
+msgstr "vähem õhupidureid"
+
+#: ../../source/main/utils/InputEngine.cpp:314
+msgid "let the character jump"
+msgstr "lase tegelasel hüpata"
+
+#: ../../source/main/utils/InputEngine.cpp:332
+msgid "let the character run"
+msgstr "lase tegelasel joosta"
+
+#: ../../source/main/utils/InputEngine.cpp:1748
+msgid "load position under slot 1"
+msgstr "laadi asukoht 1"
+
+#: ../../source/main/utils/InputEngine.cpp:1757
+msgid "load position under slot 10"
+msgstr "laadi asukoht 10"
+
+#: ../../source/main/utils/InputEngine.cpp:1749
+msgid "load position under slot 2"
+msgstr "laadi asukoht 2"
+
+#: ../../source/main/utils/InputEngine.cpp:1750
+msgid "load position under slot 3"
+msgstr "laadi asukoht 3"
+
+#: ../../source/main/utils/InputEngine.cpp:1751
+msgid "load position under slot 4"
+msgstr "laadi asukoht 4"
+
+#: ../../source/main/utils/InputEngine.cpp:1752
+msgid "load position under slot 5"
+msgstr "laadi asukoht 5"
+
+#: ../../source/main/utils/InputEngine.cpp:1753
+msgid "load position under slot 6"
+msgstr "laadi asukoht 6"
+
+#: ../../source/main/utils/InputEngine.cpp:1754
+msgid "load position under slot 7"
+msgstr "laadi asukoht 7"
+
+#: ../../source/main/utils/InputEngine.cpp:1755
+msgid "load position under slot 8"
+msgstr "laadi asukoht 8"
+
+#: ../../source/main/utils/InputEngine.cpp:1756
+msgid "load position under slot 9"
+msgstr "laadi asukoht 9"
+
+#: ../../source/main/resources/CacheSystem.cpp:1513
+msgid "loading new directory: "
+msgstr "laadin uut kataloogi: "
+
+#: ../../source/main/resources/CacheSystem.cpp:1490
+msgid "loading new zip: "
+msgstr "laadin uut zippi: "
+
+#: ../../source/main/terrain/TerrainGeometryManager.cpp:350
+msgid "loading terrain page blend maps "
+msgstr "laadin maastikusektorite sujupilte"
+
+#: ../../source/main/terrain/TerrainGeometryManager.cpp:348
+msgid "loading terrain page layers "
+msgstr "laadin maastikusektorite kihte"
+
+#. sync load since we want everything in place when we start
+#: ../../source/main/terrain/TerrainGeometryManager.cpp:322
+msgid "loading terrain pages"
+msgstr "laadin maastikusektoreid"
+
+#: ../../source/main/resources/CacheSystem.cpp:544
+msgid "loading...\n"
+msgstr "laadimine...\n"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:251
+msgid "log - toggles log output on the console"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:242
+msgid "look back (toggles between normal and lookback)"
+msgstr "vaata tagasi (lülitub tavavaate ja tagasivaate vahel)"
+
+#: ../../source/main/utils/InputEngine.cpp:1322
+msgid "manual clutch (for manual transmission)"
+msgstr "sidur (manuaalkäigukasti kasutades)"
+
+#: ../../source/main/utils/InputEngine.cpp:1358
+msgid "match target speed / rpm with current truck speed / rpm"
+msgstr "muuda sihtkiirus / rpm võrdseks praeguse sõidukikiirusega / rpm"
+
+#: ../../source/main/utils/InputEngine.cpp:1685
+msgid "more airbrakes"
+msgstr "rohkem õhupidureid"
+
+#: ../../source/main/utils/InputEngine.cpp:1649
+msgid "more replay backward"
+msgstr "keri kordusrežiimis tagasi"
+
+#: ../../source/main/utils/InputEngine.cpp:1643
+msgid "more replay forward"
+msgstr "keri kordusrežiimis edasi"
+
+#: ../../source/main/utils/InputEngine.cpp:1631
+msgid "more right mirror to the left"
+msgstr "keera paremat peeglit vasakule"
+
+#: ../../source/main/utils/InputEngine.cpp:1733
+msgid "move camera down"
+msgstr "liiguta kaamerat alla"
+
+#: ../../source/main/utils/InputEngine.cpp:1727
+msgid "move camera up"
+msgstr "liiguta kaamerat üles"
+
+#: ../../source/main/utils/InputEngine.cpp:1619
+msgid "move left mirror to the left"
+msgstr "liiguta vasakut peeglit vasakule"
+
+#: ../../source/main/utils/InputEngine.cpp:1625
+msgid "move left mirror to the right"
+msgstr "liiguta vasakut peeglit paremale"
+
+#: ../../source/main/utils/InputEngine.cpp:1661
+msgid "move replay fast backward"
+msgstr "keri kordusrežiimis kiiresti tagasi"
+
+#: ../../source/main/utils/InputEngine.cpp:1655
+msgid "move replay fast forward"
+msgstr "keri kordusrežiimis kiiresti edasi"
+
+#: ../../source/main/utils/InputEngine.cpp:1637
+msgid "move right mirror to the right"
+msgstr "liiguta paremat peeglit paremale"
+
+#: ../../source/configurator/Configurator.cpp:1325
+msgid "new Language selected"
+msgstr "uus keel valitud"
+
+#: ../../source/main/utils/InputEngine.cpp:1667
+msgid "no airbrakes"
+msgstr "õhupidureid pole"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:806
+msgid "no author information available"
+msgstr "autori info puudub"
+
+#: ../../source/main/utils/InputEngine.cpp:79
+msgid "no flaps."
+msgstr "klapid algasendisse"
+
+#: ../../source/main/utils/InputEngine.cpp:140
+#: ../../source/main/utils/InputEngine.cpp:164
+msgid "no thrust"
+msgstr "tõukejõud nullis"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:265
+msgid "no truck loaded"
+msgstr "Sõidukit ei ole laaditud"
+
+#: ../../source/main/utils/InputEngine.cpp:43
+msgid "normal brake for an aircraft"
+msgstr "lennuki tavapidurid"
+
+#: ../../source/main/utils/InputEngine.cpp:67
+msgid "one step less flaps."
+msgstr "vähem klappe"
+
+#: ../../source/main/utils/InputEngine.cpp:73
+msgid "one step more flaps."
+msgstr "rohkem klappe"
+
+#: ../../source/configurator/Configurator.cpp:987
+msgid "png (bigger, no quality loss)"
+msgstr "png (suurem, kvaliteet ei lähe kaotsi)"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:245
+msgid "pos - outputs the current position"
+msgstr ""
+
+#: ../../source/main/terrain/TerrainGeometryManager.cpp:317
+msgid "preparing terrain page "
+msgstr "maastikusektori ettevalmistamine"
+
+#: ../../source/main/utils/InputEngine.cpp:49
+msgid "pull the elevator down in an aircraft."
+msgstr "liiguta lennukis kõrgustüüri alla"
+
+#: ../../source/main/utils/InputEngine.cpp:55
+msgid "pull the elevator up in an aircraft."
+msgstr "liiguta lennukis kõrgustüüri üles"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:253
+msgid "quit - exit Rigs of Rods"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:231
+msgid "ranked user"
+msgstr "tuvastatud kasutaja"
+
+#: ../../source/main/utils/InputEngine.cpp:1759
+msgid "reload truck"
+msgstr "laadi sõiduk uuesti"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:129
+msgid "remote truck loading state"
+msgstr "serveripoolne sõiduki laadimise seisund"
+
+#: ../../source/main/utils/InputEngine.cpp:908
+msgid "remove current truck"
+msgstr "eemalda praegune sõiduk"
+
+#: ../../source/main/utils/InputEngine.cpp:980
+msgid "repair truck"
+msgstr "paranda sõiduk"
+
+#: ../../source/main/utils/InputEngine.cpp:248
+msgid "reset the camera position"
+msgstr "kaamera algasendisse"
+
+#: ../../source/main/utils/InputEngine.cpp:866
+msgid "reset the simulation pace"
+msgstr "taasta simulatsiooni kiirus"
+
+#: ../../source/main/utils/InputEngine.cpp:992
+msgid "reset truck to original starting position"
+msgstr "aseta sõiduk algasendisse"
+
+#: ../../source/main/utils/InputEngine.cpp:914
+msgid "respawn last truck"
+msgstr "vali viimane sõiduk uuesti"
+
+#: ../../source/main/utils/InputEngine.cpp:92
+msgid "reverse the turboprops"
+msgstr "turbomootorite tagurpidikäik"
+
+#: ../../source/main/utils/InputEngine.cpp:254
+msgid "rotate camera down"
+msgstr "pööra kaamerat allapoole"
+
+#: ../../source/main/utils/InputEngine.cpp:260
+msgid "rotate camera left"
+msgstr "pööra kaamerat vasakule"
+
+#: ../../source/main/utils/InputEngine.cpp:266
+msgid "rotate camera right"
+msgstr "pööra kaamerat paremale"
+
+#: ../../source/main/utils/InputEngine.cpp:272
+msgid "rotate camera up"
+msgstr "pööra kaamerat ülespoole"
+
+#: ../../source/main/utils/InputEngine.cpp:320
+msgid "rotate character left"
+msgstr "pööra tegelast vasakule"
+
+#: ../../source/main/utils/InputEngine.cpp:326
+msgid "rotate character right"
+msgstr "pööra tegelast paremale"
+
+#: ../../source/main/utils/InputEngine.cpp:1721
+msgid "rotate view down"
+msgstr "pööra vaadet allapoole"
+
+#: ../../source/main/utils/InputEngine.cpp:1715
+msgid "rotate view up"
+msgstr "pööra vaadet ülespoole"
+
+#: ../../source/main/utils/InputEngine.cpp:98
+msgid "rudder left"
+msgstr "tüüri vasakule"
+
+#: ../../source/main/utils/InputEngine.cpp:104
+msgid "rudder right"
+msgstr "tüüri paremale"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:604
+msgid "rx"
+msgstr "rx"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:591
+#: ../../source/main/gameplay/RoRFrameListener.cpp:594
+msgid "ry"
+msgstr "ry"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:599
+msgid "rz"
+msgstr "rz"
+
+#. now position storage
+#: ../../source/main/utils/InputEngine.cpp:1737
+msgid "save position as slot 1"
+msgstr "salvesta asukoht 1"
+
+#: ../../source/main/utils/InputEngine.cpp:1746
+msgid "save position as slot 10"
+msgstr "salvesta asukoht 10"
+
+#: ../../source/main/utils/InputEngine.cpp:1738
+msgid "save position as slot 2"
+msgstr "salvesta asukoht 2"
+
+#: ../../source/main/utils/InputEngine.cpp:1739
+msgid "save position as slot 3"
+msgstr "salvesta asukoht 3"
+
+#: ../../source/main/utils/InputEngine.cpp:1740
+msgid "save position as slot 4"
+msgstr "salvesta asukoht 4"
+
+#: ../../source/main/utils/InputEngine.cpp:1741
+msgid "save position as slot 5"
+msgstr "salvesta asukoht 5"
+
+#: ../../source/main/utils/InputEngine.cpp:1742
+msgid "save position as slot 6"
+msgstr "salvesta asukoht 6"
+
+#: ../../source/main/utils/InputEngine.cpp:1743
+msgid "save position as slot 7"
+msgstr "salvesta asukoht 7"
+
+#: ../../source/main/utils/InputEngine.cpp:1744
+msgid "save position as slot 8"
+msgstr "salvesta asukoht 8"
+
+#: ../../source/main/utils/InputEngine.cpp:1745
+msgid "save position as slot 9"
+msgstr "salvesta asukoht 9"
+
+#: ../../source/main/utils/InputEngine.cpp:1010
+msgid "save the currently loaded terrain to a mesh file"
+msgstr "salvesta praegu laaditud maastik mesh faili"
+
+#: ../../source/main/gui/panels/GUI_TextureToolWindow.cpp:128
+msgid "saved texture as "
+msgstr "tekstuur salvestatud kui "
+
+#: ../../source/main/terrain/TerrainGeometryManager.cpp:359
+msgid "saving all terrain pages ..."
+msgstr "salvestan kõiki maastikusektoreid ..."
+
+#: ../../source/main/utils/InputEngine.cpp:1154
+msgid "select focussed item and close menu"
+msgstr "vali objekt ja sulge menüü"
+
+#: ../../source/main/utils/InputEngine.cpp:1148
+msgid "select next category"
+msgstr "vali järgmine kategooria"
+
+#: ../../source/main/utils/InputEngine.cpp:1136
+msgid "select next element in current category"
+msgstr "vali kategoorias järgnev element"
+
+#: ../../source/main/utils/InputEngine.cpp:1142
+msgid "select previous category"
+msgstr "vali eelnev kategooria"
+
+#: ../../source/main/utils/InputEngine.cpp:1160
+msgid "select previous element in current category"
+msgstr "vali kategoorias eelnev element"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:80
+msgid "selected Ground Type:"
+msgstr "valitud pinnatüüp:"
+
+#: ../../source/main/utils/InputEngine.cpp:884
+msgid "sends the entered text"
+msgstr "saadab sisestatud teksti"
+
+#: ../../source/main/network/Network.cpp:643
+msgid "server uses a different protocol version"
+msgstr "serveris kasutatakse erinevat protokolli versiooni"
+
+#: ../../source/main/utils/InputEngine.cpp:1521
+msgid "sets high range (13-18) for H-shaft"
+msgstr "seab kõrge vahemiku (13-18) H-shafti jaoks"
+
+#: ../../source/main/utils/InputEngine.cpp:1509
+msgid "sets low range (1-6) for H-shaft"
+msgstr "seab madala vahemiku (1-6) H-shafti jaoks"
+
+#: ../../source/main/utils/InputEngine.cpp:1515
+msgid "sets middle range (7-12) for H-shaft"
+msgstr "seab keskmise vahemiku (7-12) H-shafti jaoks"
+
+#: ../../source/configurator/Configurator.cpp:1063
+msgid "sets the master volume"
+msgstr "seab helitugevuse"
+
+#: ../../source/configurator/Configurator.cpp:1082
+msgid "sets the maximum frames per second"
+msgstr "seab maksimaalse kaadrisageduse"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:262
+msgid "setwaterlevel <real> - changes water's level"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1208
+msgid "shift automatic transmission one gear down"
+msgstr "vaheta automaatkäigukastis käik alla"
+
+#: ../../source/main/utils/InputEngine.cpp:1214
+msgid "shift automatic transmission one gear up"
+msgstr "vaheta automaatkäigukastis käik üles"
+
+#: ../../source/main/utils/InputEngine.cpp:1454
+msgid "shift directly to 10th gear"
+msgstr "vaheta otse 10. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1460
+msgid "shift directly to 11th gear"
+msgstr "vaheta otse 11. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1466
+msgid "shift directly to 12th gear"
+msgstr "vaheta otse 12. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1473
+msgid "shift directly to 13th gear"
+msgstr "vaheta otse 13. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1479
+msgid "shift directly to 14th gear"
+msgstr "vaheta otse 14. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1485
+msgid "shift directly to 15th gear"
+msgstr "vaheta otse 15. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1491
+msgid "shift directly to 16th gear"
+msgstr "vaheta otse 16. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1497
+msgid "shift directly to 17th gear"
+msgstr "vaheta otse 17. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1503
+msgid "shift directly to 18th gear"
+msgstr "vaheta otse 18. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1424
+msgid "shift directly to 5th gear"
+msgstr "vaheta otse 5. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1430
+msgid "shift directly to 6th gear"
+msgstr "vaheta otse 6. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1436
+msgid "shift directly to 7th gear"
+msgstr "vaheta otse 7. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1442
+msgid "shift directly to 8th gear"
+msgstr "vaheta otse 8. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1448
+msgid "shift directly to 9th gear"
+msgstr "vaheta otse 9. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1400
+msgid "shift directly to first gear"
+msgstr "vaheta otse esimesele käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1418
+msgid "shift directly to fourth gear"
+msgstr "vaheta otse 4. käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1394
+msgid "shift directly to reverse gear"
+msgstr "vaheta otse tagurpidikäigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1406
+msgid "shift directly to second gear"
+msgstr "vaheta otse teisele käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1412
+msgid "shift directly to third gear"
+msgstr "vaheta otse kolmandale käigule"
+
+#: ../../source/main/utils/InputEngine.cpp:1376
+msgid "shift one gear down in manual transmission mode"
+msgstr "vaheta käik alla (manuaalkäigukasti kasutades)"
+
+#: ../../source/main/utils/InputEngine.cpp:1388
+msgid "shift one gear up in manual transmission mode"
+msgstr "vaheta käik üles (manuaalkäigukasti kasutades)"
+
+#: ../../source/main/utils/InputEngine.cpp:1382
+msgid "shift to neutral gear in manual transmission mode"
+msgstr "lülitu vabakäigule (manuaalkäigukasti kasutades)"
+
+#: ../../source/main/utils/InputEngine.cpp:872
+msgid "show / hide the console"
+msgstr "näita / peida konsool"
+
+#: ../../source/main/utils/InputEngine.cpp:338
+msgid "sidestep to the left"
+msgstr "astu vasakule küljele"
+
+#: ../../source/main/utils/InputEngine.cpp:344
+msgid "sidestep to the right"
+msgstr "astu paremale küljele"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:264
+msgid "spawnobject <odef name> - spawn a object at the player position"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:110
+#: ../../source/main/utils/InputEngine.cpp:1533
+msgid "steer left"
+msgstr "rooli vasakule"
+
+#: ../../source/main/utils/InputEngine.cpp:176
+msgid "steer left (analog value!)"
+msgstr "rooli vasakule (analoogväärtus!)"
+
+#: ../../source/main/utils/InputEngine.cpp:170
+msgid "steer left a step"
+msgstr "rooli veidi vasakule"
+
+#: ../../source/main/utils/InputEngine.cpp:37
+#: ../../source/main/utils/InputEngine.cpp:116
+#: ../../source/main/utils/InputEngine.cpp:1539
+msgid "steer right"
+msgstr "rooli paremale"
+
+#: ../../source/main/utils/InputEngine.cpp:188
+msgid "steer right (analog value!)"
+msgstr "rooli paremale (analoogväärtus!)"
+
+#: ../../source/main/utils/InputEngine.cpp:182
+msgid "steer right a step"
+msgstr "rooli veidi paremale"
+
+#: ../../source/main/utils/InputEngine.cpp:302
+msgid "step backwards with the character"
+msgstr "astu tegelasega tahapoole"
+
+#: ../../source/main/utils/InputEngine.cpp:308
+msgid "step forward with the character"
+msgstr "astu tegelasega ettepoole"
+
+#: ../../source/main/utils/InputEngine.cpp:152
+msgid "switch all engines on / off"
+msgstr "lülita kõik mootorid sisse / välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1004
+msgid "take a big screenshot (3 times the screen size)"
+msgstr "tee suur ekraanipilt (3 korda ekraanist suurem)"
+
+#: ../../source/main/utils/InputEngine.cpp:998
+msgid "take a screenshot"
+msgstr "tee ekraanipilt"
+
+#: ../../source/main/utils/InputEngine.cpp:986
+msgid "teleport to rescue truck"
+msgstr "Liigu puksiiri juurde"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:249
+msgid "terrainheight - get height of terrain at current position"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:122
+#: ../../source/main/utils/InputEngine.cpp:194
+msgid ""
+"throttle axis. Only use this if you have fitting hardware :) (i.e. a Slider)"
+msgstr "gaasipedaali telg. Kasuta ainult sobiva riistvara olamasolul :)"
+
+#: ../../source/main/utils/InputEngine.cpp:1016
+msgid "tie a load to the truck"
+msgstr "kinnita koorem sõidukile"
+
+#: ../../source/main/utils/InputEngine.cpp:1064
+msgid "toggle Ogre statistics (FPS etc.)"
+msgstr "lülita Ogre statistika (FPS jne) sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1232
+msgid "toggle all direction indicators"
+msgstr "lülita ohutuled sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1334
+msgid "toggle antilock brake"
+msgstr "lülita blokeerumisvastane pidur sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1709
+msgid "toggle between net chat display modes"
+msgstr "muuda võrguvestluse kuvaviise"
+
+#: ../../source/main/utils/InputEngine.cpp:1545
+msgid "toggle between transmission modes"
+msgstr "lülitu käigukastitüüpide vahel"
+
+#: ../../source/main/utils/InputEngine.cpp:1595
+msgid "toggle between windowed and fullscreen mode"
+msgstr "lülitu akna ja täisekraani vahel"
+
+#: ../../source/main/utils/InputEngine.cpp:1352
+msgid "toggle cruise control"
+msgstr "püsikiiruse hoidja"
+
+#: ../../source/main/utils/InputEngine.cpp:1262
+msgid "toggle custom light 1"
+msgstr "lülita lisatuli 1 sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1316
+msgid "toggle custom light 10"
+msgstr "lülita lisatuli 10 sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1268
+msgid "toggle custom light 2"
+msgstr "lülita lisatuli 2 sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1274
+msgid "toggle custom light 3"
+msgstr "lülita lisatuli 3 sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1280
+msgid "toggle custom light 4"
+msgstr "lülita lisatuli 4 sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1286
+msgid "toggle custom light 5"
+msgstr "lülita lisatuli 5 sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1292
+msgid "toggle custom light 6"
+msgstr "lülita lisatuli 6 sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1298
+msgid "toggle custom light 7"
+msgstr "lülita lisatuli 7 sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1304
+msgid "toggle custom light 8"
+msgstr "lülita lisatuli 8 sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1310
+msgid "toggle custom light 9"
+msgstr "lülita lisatuli 9 sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1022
+msgid "toggle debug view"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1581
+msgid "toggle forwardcommands"
+msgstr "luba/keela käskluste edastus"
+
+#: ../../source/main/utils/InputEngine.cpp:1575
+msgid "toggle ignition"
+msgstr "lülita süüde sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1587
+msgid "toggle importcommands"
+msgstr "luba/keela käskluste vastuvõtt"
+
+#: ../../source/main/utils/InputEngine.cpp:1220
+msgid "toggle left direction indicator (blinker)"
+msgstr "lülita vasak suunatuli sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1166
+msgid "toggle map"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1328
+msgid "toggle parking brake"
+msgstr "lülita seisupidur sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1040
+msgid "toggle particle cannon"
+msgstr "lülita eriosakesed sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1052
+msgid "toggle render mode (solid, wireframe and points)"
+msgstr "muuda visualiseerimisviisi (täieliku, sõrestiku ja punktidena)"
+
+#: ../../source/main/utils/InputEngine.cpp:1226
+msgid "toggle right direction indicator (blinker)"
+msgstr "lülita parem suunatuli sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1034
+msgid "toggle terrain editor"
+msgstr "luba/keela maastikuredaktor"
+
+#: ../../source/main/utils/InputEngine.cpp:1346
+msgid "toggle traction control"
+msgstr "lülita veojõukontroll sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1569
+msgid "toggle transfer case gear ratio"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1563
+msgid "toggle transfer case mode"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1082
+msgid "toggle truck HUD"
+msgstr "lülita sõiduki infoekraan sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1070
+msgid "toggle truck beacons"
+msgstr "lülita sõiduki vilkurid sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1088
+msgid "toggle truck description"
+msgstr "näita sõiduki kirjeldust"
+
+#: ../../source/main/utils/InputEngine.cpp:1076
+msgid "toggle truck front lights"
+msgstr "lülita sõiduki esituled sisse või välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1340
+msgid "toggle videocamera"
+msgstr "luba/keela videokaamera"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:832
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:834
+msgid "tons"
+msgstr "tonni"
+
+#: ../../source/main/utils/InputEngine.cpp:1256
+msgid "truck horn"
+msgstr "sõiduki signaal"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:120
+msgid "truck loading state"
+msgstr "sõiduki laadimise seisund"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:446
+msgid "unknown"
+msgstr "teadmata"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:441
+msgid "unknown command: "
+msgstr " tundmatu käsklus: "
+
+#: ../../source/main/gui/panels/GUI_VehicleDescription.cpp:124
+msgid "unknown function"
+msgstr "tundmatu funktsioon"
+
+#: ../../source/main/utils/InputEngine.cpp:938
+msgid "unlock autolock hook node"
+msgstr "vabasta automaatselt lukustatav konksu sõlm"
+
+#: ../../source/main/gui/panels/GUI_GameChatBox.cpp:116
+msgid "usage: /whisper username message"
+msgstr "kasutus: /whisper kasutajanimi sõnum"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:331
+msgid "usage: goto x y z"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:112
+msgid "user authentication level"
+msgstr "kasutaja autentimise tase"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:104
+msgid "user country"
+msgstr "kasutaja riik"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:193
+msgid "user language: "
+msgstr "kasutaja keel:"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:94
+msgid "user name"
+msgstr "kasutaja nimi"
+
+#: ../../source/main/gameplay/ChatSystem.cpp:186
+msgid "user not found: "
+msgstr "kasutajat ei leitud: "
+
+#: ../../source/main/scripting/GameScript.cpp:886
+#: ../../source/main/scripting/GameScript.cpp:887
+msgid "using Online API..."
+msgstr "kasutan online API-liidest..."
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:244
+msgid "ver - shows the Rigs of Rods version"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:950
+msgid ""
+"write current position to log (you can open the logfile and reuse the "
+"position)"
+msgstr "Logi praegune asukoht(võid pärast logifaili avada ja asukohta kasutada)"
+
+#: ../../source/main/utils/InputEngine.cpp:278
+msgid "zoom camera in"
+msgstr "suumi kaamerat sisse"
+
+#: ../../source/main/utils/InputEngine.cpp:284
+msgid "zoom camera in faster"
+msgstr "suumi kaamerat kiiremini sisse"
+
+#: ../../source/main/utils/InputEngine.cpp:290
+msgid "zoom camera out"
+msgstr "suumi kaamerat välja"
+
+#: ../../source/main/utils/InputEngine.cpp:296
+msgid "zoom camera out faster"
+msgstr "suumi kaamerat kiiremini välja"
+
+#: ../../source/main/utils/InputEngine.cpp:1178
+msgid "zoom in"
+msgstr "suumi sisse"
+
+#: ../../source/main/utils/InputEngine.cpp:1184
+msgid "zoom out"
+msgstr "suumi välja"
