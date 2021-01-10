@@ -1,0 +1,4021 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: Rigs of Rods\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-12-15 12:32+0100\n"
+"PO-Revision-Date: 2018-12-15 12:09+0000\n"
+"Last-Translator: Hiradur\n"
+"Language-Team: Romanian (http://www.transifex.com/rigsofrods/rigs-of-rods/language/ro/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ro\n"
+"Plural-Forms: nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));\n"
+
+#: ../../source/main/gui/panels/GUI_VehicleDescription.cpp:95
+msgid ""
+"\n"
+"Commands: \n"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_VehicleDescription.cpp:90
+msgid ""
+"\n"
+"Description: \n"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:747
+#, c-format
+msgid ""
+"\n"
+"Parameter range: %f to %f"
+msgstr "\nRangul Parametrilor: %f la %f"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:368
+msgid " = "
+msgstr ""
+
+#: ../../source/main/gameplay/ChatSystem.cpp:161
+msgid " [whispered to "
+msgstr " [șoptit spre "
+
+#. server said something
+#: ../../source/main/gameplay/ChatSystem.cpp:101
+#: ../../source/main/gameplay/ChatSystem.cpp:108
+msgid " [whispered] "
+msgstr " [șoptit] "
+
+#: ../../source/main/network/Network.cpp:487
+#: ../../source/main/network/Network.cpp:494
+msgid " joined the game"
+msgstr " a intrat în joc"
+
+#: ../../source/main/network/Network.cpp:444
+#: ../../source/main/network/Network.cpp:451
+msgid " left the game"
+msgstr " a părăsit jocul"
+
+#: ../../source/main/resources/CacheSystem.cpp:415
+msgid " not existing"
+msgstr " nu există"
+
+#: ../../source/main/physics/BeamFactory.cpp:430
+msgid " spawned a new vehicle: "
+msgstr " folosește un vehicul nou "
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:193
+msgid " user country: "
+msgstr " țara utilizatorului: "
+
+#: ../../source/configurator/Configurator.cpp:1025
+msgid "(Re)load info"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:892
+msgid "(Read more on how to use these options here)"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:677
+msgid "(more help here)"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_VehicleDescription.cpp:83
+msgid "(no author information available) "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:267
+msgid "- use Arrow Up/Down Keys in the InputBox to reuse old messages"
+msgstr ""
+
+#: ../../source/main/utils/Settings.cpp:98
+msgid ""
+"--help (this)\n"
+"-map <map> (loads map on startup)\n"
+"-pos <Vect> (overrides spawn position)\n"
+"-rot <float> (overrides spawn rotation)\n"
+"-truck <truck> (loads truck on startup)\n"
+"-setup shows the ogre configurator\n"
+"-version shows the version information\n"
+"-enter enters the selected truck\n"
+"-userpath <path> sets the user directory\n"
+"For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck -enter"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1064
+msgid "100 %"
+msgstr "100 %"
+
+#: ../../source/configurator/Configurator.cpp:957
+msgid "20%"
+msgstr "20%"
+
+#: ../../source/configurator/Configurator.cpp:958
+msgid "50%"
+msgstr "50%"
+
+#: ../../source/main/resources/CacheSystem.cpp:399
+msgid ": "
+msgstr ": "
+
+#: ../../source/configurator/Configurator.cpp:701
+msgid "About"
+msgstr "Despre"
+
+#: ../../source/main/physics/Beam.cpp:1691
+msgid "Actor is too big to be sent over the net."
+msgstr ""
+
+#. VideoCameraDebug
+#: ../../source/configurator/Configurator.cpp:857
+msgid ""
+"Adds a virtuals camera mesh that should help you position the camera "
+"correctly"
+msgstr "Adaugă o cameră virtuală care ar trebui să te ajute să poziționezi corect camera."
+
+#: ../../source/configurator/Configurator.cpp:977
+msgid "Adds tire tracks to the ground."
+msgstr "Adaugă urme de roți"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:184
+msgid "Adhesion velocity"
+msgstr "Aderență la Viteză"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:173
+msgid "Adhesion velocity:"
+msgstr "Aderență la Viteză:"
+
+#: ../../source/configurator/Configurator.cpp:1000
+msgid ""
+"Adjusts the contribution of forces coming from the wheels and the steering "
+"mechanism."
+msgstr "Reglează contribuția forțelor ce vin dinspre roți și mecanismul de virare."
+
+#: ../../source/configurator/Configurator.cpp:1010
+msgid ""
+"Adjusts the contribution of forces coming shocks and accelerations (this "
+"parameter is currently unused)."
+msgstr "Reglează contribuția forțelor ce vin de la șocuri și accelerări (acest parametru este momentan neutilizat)"
+
+#: ../../source/configurator/Configurator.cpp:995
+msgid "Adjusts the level of all the forces."
+msgstr "Reglează nivelul tuturor forțelor."
+
+#: ../../source/configurator/Configurator.cpp:1005
+msgid ""
+"Adjusts the self-centering effect applied to the driving wheel when driving "
+"at high speed."
+msgstr "Ajustează efectul de auto-centrare aplicat volanului atunci când conduci cu viteză mare."
+
+#: ../../source/configurator/Configurator.cpp:687
+msgid "Advanced"
+msgstr "Avansat"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:882
+msgid "Airplane"
+msgstr "Avion"
+
+#: ../../source/configurator/Configurator.cpp:874
+msgid "All"
+msgstr "Toate"
+
+#: ../../source/configurator/Configurator.cpp:1075
+msgid "All vehicles, all lights"
+msgstr "Toate vehiculele, toate luminile"
+
+#: ../../source/configurator/Configurator.cpp:1074
+msgid "All vehicles, main lights"
+msgstr "Toate vehiculele, luminile de bază"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:276
+msgid "Alpha"
+msgstr "Alfa"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:305
+msgid "Altitude: "
+msgstr ""
+
+#: ../../source/main/main.cpp:407
+msgid "An exception (std::runtime_error) has occured!"
+msgstr ""
+
+#: ../../source/main/main.cpp:403
+msgid "An exception has occured!"
+msgstr "O excepție a avut loc!"
+
+#: ../../source/main/utils/ErrorUtils.cpp:43
+msgid ""
+"An internal error occured in Rigs of Rods.\n"
+"\n"
+"Technical details below: \n"
+"\n"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:904
+msgid "Anisotropic (best looking)"
+msgstr "Anisotropic (arată cel mai bine)"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:230
+msgctxt "GameSettings"
+msgid "Anisotropy"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:115
+msgctxt "GameSettings"
+msgid "Application settings"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:449
+msgid "Apply Changes"
+msgstr "Aplică Modificările"
+
+#: ../../source/configurator/Configurator.cpp:763
+msgid "Arcade Controls"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:129
+msgctxt "GameSettings"
+msgid "Async physics"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:55
+msgctxt "GameSettings"
+msgid "Audio"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:178
+msgctxt "GameSettings"
+msgid "Audio device"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1034
+msgid "Audio device:"
+msgstr "Dispozitiv audio:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:162
+msgctxt "GameSettings"
+msgid "Audio settings"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:672
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:825
+msgid "Author(s): "
+msgstr "Autor(i): "
+
+#: ../../source/configurator/Configurator.cpp:815
+#: ../../source/configurator/Configurator.cpp:816
+msgid "Authors"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_VehicleDescription.cpp:80
+msgid "Authors: \n"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:278
+msgctxt "GameSettings"
+msgid "Auto actor spawner report"
+msgstr ""
+
+#: ../../source/main/gfx/camera/CameraManager.cpp:1030
+#: ../../source/main/gfx/camera/CameraManager.cpp:1031
+msgid "Auto tracking disabled"
+msgstr ""
+
+#: ../../source/main/gfx/camera/CameraManager.cpp:1025
+#: ../../source/main/gfx/camera/CameraManager.cpp:1026
+msgid "Auto tracking enabled"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:743
+msgid "Automatic shift"
+msgstr "Schimbător Automat"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:242
+msgid "Available commands:"
+msgstr ""
+
+#: ../../source/main/gui/OverlayWrapper.cpp:451
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:173
+msgid "Average FPS: "
+msgstr "Media FPS: "
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:229
+msgid "Average deformation: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:234
+msgid "Average stress: "
+msgstr ""
+
+#: ../../source/main/physics/Beam.cpp:1289
+#: ../../source/main/physics/Beam.cpp:1316
+msgid "Axle "
+msgstr ""
+
+#. water->AppendValueItem(wxT("None"), _("None")); //we don't want that! //
+#. WTF?? ~ only_a_ptr, 02/2017
+#: ../../source/configurator/Configurator.cpp:942
+msgid "Basic (fastest)"
+msgstr "De bază (cel mai rapid)"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:177
+msgid "Batch count: "
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:848
+msgid "Beam Break Debug"
+msgstr "Depanare Distrugerii Barelor"
+
+#: ../../source/configurator/Configurator.cpp:852
+msgid "Beam Deform Debug"
+msgstr "Depanarea Deformării Barelor"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:226
+msgid "Beam count: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:838
+msgid "Beams: "
+msgstr "Bare: "
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:184
+msgid ""
+"Below this value static friction laws apply, above it dynamic friction laws "
+"apply. Value should be small, in the range of 0.1-0.4 . This velocity "
+"threshold is also used by fluid dynamics so you should always define it. "
+"NEVER set it to 0."
+msgstr ""
+
+#: ../../source/main/gui/OverlayWrapper.cpp:452
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:175
+msgid "Best FPS: "
+msgstr "Cel mai bun FPS: "
+
+#: ../../source/configurator/Configurator.cpp:902
+msgid "Bilinear"
+msgstr "Biliniar"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:882
+msgid "Boat"
+msgstr "Barcă"
+
+#: ../../source/configurator/Configurator.cpp:764
+msgid "Braking will switch into reverse gear and accelerate."
+msgstr "Frânarea se va schimba în marșarier și accelerație."
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:227
+msgid "Broken beams count: "
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:787
+#, c-format
+msgid "Build time: %s, %s"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:804
+msgid "Built for ARCH SSE (/arch:SSE)"
+msgstr "Creat pentru ARCH SSE (/arch:SSE)"
+
+#: ../../source/configurator/Configurator.cpp:806
+msgid "Built for ARCH SSE2 (/arch:SSE2)"
+msgstr "Creat pentru ARCH SSE2 (/arch:SSE2)"
+
+#: ../../source/configurator/Configurator.cpp:809
+msgid "Built for x64 processors"
+msgstr "Creat pentru procesoarele x64"
+
+#: ../../source/configurator/Configurator.cpp:799
+msgid "Built in DEBUG mode (/LDd, /MDd, or /MTd.)"
+msgstr "Dezvoltat în modul Depanare (/LDd, /MDd, sau /MTd.)"
+
+#: ../../source/configurator/Configurator.cpp:2319
+msgid "Cache cleared"
+msgstr "Cache golit"
+
+#: ../../source/configurator/Configurator.cpp:2297
+msgid "Cache is already empty"
+msgstr "Cache-ul este deja gol"
+
+#: ../../source/configurator/Configurator.cpp:912
+msgid "Caelum (best looking, slower)"
+msgstr "Caelum (arată cel mai bine, dar consumă)"
+
+#: ../../source/configurator/Configurator.cpp:914
+msgid ""
+"Caelum / SkyX sky is nice but quite slow unless you have a high-powered GPU."
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1102
+msgid "Can be used to quick save and load positions of trucks"
+msgstr "Poate fi folosit pentru a salva și încărca rapid pozițiile camioanelor"
+
+#: ../../source/configurator/Configurator.cpp:637
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:83
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:1041
+msgid "Cancel"
+msgstr "Renunță"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:1037
+msgid "Cancel (disconnect)"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:638
+msgid "Cancel the configuration changes and close the configuration program."
+msgstr "Renunță la schimbările de configurare și închide programul de configurare."
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:341
+msgid "Character position set to: "
+msgstr "Poziția personajului setată la: "
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:317
+msgid "Character position: "
+msgstr "Poziția personajului: "
+
+#: ../../source/configurator/Configurator.cpp:1137
+msgid "Check OpenCL Bandwidth"
+msgstr "Verifică Lățimea de bandă a OpenCL"
+
+#: ../../source/configurator/Configurator.cpp:1134
+msgid "Check for OpenCL Support"
+msgstr "Verifică suportul pentru OpenCL"
+
+#: ../../source/configurator/Configurator.cpp:1092
+msgid "Clear cache"
+msgstr "Șterge cache-ul"
+
+#: ../../source/configurator/Configurator.cpp:969
+msgid "Cockpit options:"
+msgstr "Funcții în cockpit:"
+
+#: ../../source/main/utils/InputEngine.cpp:350
+msgid "Command 1"
+msgstr "Comanda 1"
+
+#: ../../source/main/utils/InputEngine.cpp:404
+msgid "Command 10"
+msgstr "Comanda 10"
+
+#: ../../source/main/utils/InputEngine.cpp:410
+msgid "Command 11"
+msgstr "Comanda 11"
+
+#: ../../source/main/utils/InputEngine.cpp:416
+msgid "Command 12"
+msgstr "Comanda 12"
+
+#: ../../source/main/utils/InputEngine.cpp:422
+msgid "Command 13"
+msgstr "Comanda 13"
+
+#: ../../source/main/utils/InputEngine.cpp:428
+msgid "Command 14"
+msgstr "Comanda 14"
+
+#: ../../source/main/utils/InputEngine.cpp:434
+msgid "Command 15"
+msgstr "Comanda 15"
+
+#: ../../source/main/utils/InputEngine.cpp:440
+msgid "Command 16"
+msgstr "Comanda 16"
+
+#: ../../source/main/utils/InputEngine.cpp:446
+msgid "Command 17"
+msgstr "Comanda 17"
+
+#: ../../source/main/utils/InputEngine.cpp:452
+msgid "Command 18"
+msgstr "Comanda 18"
+
+#: ../../source/main/utils/InputEngine.cpp:458
+msgid "Command 19"
+msgstr "Comanda 19"
+
+#: ../../source/main/utils/InputEngine.cpp:356
+msgid "Command 2"
+msgstr "Comanda 2"
+
+#: ../../source/main/utils/InputEngine.cpp:464
+msgid "Command 20"
+msgstr "Comanda 20"
+
+#: ../../source/main/utils/InputEngine.cpp:470
+msgid "Command 21"
+msgstr "Comanda 21"
+
+#: ../../source/main/utils/InputEngine.cpp:476
+msgid "Command 22"
+msgstr "Comanda 22"
+
+#: ../../source/main/utils/InputEngine.cpp:482
+msgid "Command 23"
+msgstr "Comanda 23"
+
+#: ../../source/main/utils/InputEngine.cpp:488
+msgid "Command 24"
+msgstr "Comanda 24"
+
+#: ../../source/main/utils/InputEngine.cpp:494
+msgid "Command 25"
+msgstr "Comanda 25"
+
+#: ../../source/main/utils/InputEngine.cpp:500
+msgid "Command 26"
+msgstr "Comanda 26"
+
+#: ../../source/main/utils/InputEngine.cpp:506
+msgid "Command 27"
+msgstr "Comanda 27"
+
+#: ../../source/main/utils/InputEngine.cpp:512
+msgid "Command 28"
+msgstr "Comanda 28"
+
+#: ../../source/main/utils/InputEngine.cpp:518
+msgid "Command 29"
+msgstr "Comanda 29"
+
+#: ../../source/main/utils/InputEngine.cpp:362
+msgid "Command 3"
+msgstr "Comanda 3"
+
+#: ../../source/main/utils/InputEngine.cpp:524
+msgid "Command 30"
+msgstr "Comanda 30"
+
+#: ../../source/main/utils/InputEngine.cpp:530
+msgid "Command 31"
+msgstr "Comanda 31"
+
+#: ../../source/main/utils/InputEngine.cpp:536
+msgid "Command 32"
+msgstr "Comanda 32"
+
+#: ../../source/main/utils/InputEngine.cpp:542
+msgid "Command 33"
+msgstr "Comanda 33"
+
+#: ../../source/main/utils/InputEngine.cpp:548
+msgid "Command 34"
+msgstr "Comanda 34"
+
+#: ../../source/main/utils/InputEngine.cpp:554
+msgid "Command 35"
+msgstr "Comanda 35"
+
+#: ../../source/main/utils/InputEngine.cpp:560
+msgid "Command 36"
+msgstr "Comanda 36"
+
+#: ../../source/main/utils/InputEngine.cpp:566
+msgid "Command 37"
+msgstr "Comanda 37"
+
+#: ../../source/main/utils/InputEngine.cpp:572
+msgid "Command 38"
+msgstr "Comanda 38"
+
+#: ../../source/main/utils/InputEngine.cpp:578
+msgid "Command 39"
+msgstr "Comanda 39"
+
+#: ../../source/main/utils/InputEngine.cpp:368
+msgid "Command 4"
+msgstr "Comanda 4"
+
+#: ../../source/main/utils/InputEngine.cpp:584
+msgid "Command 40"
+msgstr "Comanda 40"
+
+#: ../../source/main/utils/InputEngine.cpp:590
+msgid "Command 41"
+msgstr "Comanda 41"
+
+#: ../../source/main/utils/InputEngine.cpp:596
+msgid "Command 42"
+msgstr "Comanda 42"
+
+#: ../../source/main/utils/InputEngine.cpp:602
+msgid "Command 43"
+msgstr "Comanda 43"
+
+#: ../../source/main/utils/InputEngine.cpp:608
+msgid "Command 44"
+msgstr "Comanda 44"
+
+#: ../../source/main/utils/InputEngine.cpp:614
+msgid "Command 45"
+msgstr "Comanda 45"
+
+#: ../../source/main/utils/InputEngine.cpp:620
+msgid "Command 46"
+msgstr "Comanda 46"
+
+#: ../../source/main/utils/InputEngine.cpp:626
+msgid "Command 47"
+msgstr "Comanda 47"
+
+#: ../../source/main/utils/InputEngine.cpp:632
+msgid "Command 48"
+msgstr "Comanda 48"
+
+#: ../../source/main/utils/InputEngine.cpp:638
+msgid "Command 49"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:374
+msgid "Command 5"
+msgstr "Comanda 5"
+
+#: ../../source/main/utils/InputEngine.cpp:644
+msgid "Command 50"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:650
+msgid "Command 51"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:656
+msgid "Command 52"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:662
+msgid "Command 53"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:668
+msgid "Command 54"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:674
+msgid "Command 55"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:680
+msgid "Command 56"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:686
+msgid "Command 57"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:692
+msgid "Command 58"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:698
+msgid "Command 59"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:380
+msgid "Command 6"
+msgstr "Comanda 6"
+
+#: ../../source/main/utils/InputEngine.cpp:704
+msgid "Command 60"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:710
+msgid "Command 61"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:716
+msgid "Command 62"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:722
+msgid "Command 63"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:728
+msgid "Command 64"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:734
+msgid "Command 65"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:740
+msgid "Command 66"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:746
+msgid "Command 67"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:752
+msgid "Command 68"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:758
+msgid "Command 69"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:386
+msgid "Command 7"
+msgstr "Comanda 7"
+
+#: ../../source/main/utils/InputEngine.cpp:764
+msgid "Command 70"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:770
+msgid "Command 71"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:776
+msgid "Command 72"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:782
+msgid "Command 73"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:788
+msgid "Command 74"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:794
+msgid "Command 75"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:800
+msgid "Command 76"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:806
+msgid "Command 77"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:812
+msgid "Command 78"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:818
+msgid "Command 79"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:392
+msgid "Command 8"
+msgstr "Comanda 8"
+
+#: ../../source/main/utils/InputEngine.cpp:824
+msgid "Command 80"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:830
+msgid "Command 81"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:836
+msgid "Command 82"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:842
+msgid "Command 83"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:848
+msgid "Command 84"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:398
+msgid "Command 9"
+msgstr "Comanda 9"
+
+#: ../../source/main/utils/Settings.cpp:97
+msgid "Command Line Arguments"
+msgstr "Argumente Linie de Comandă"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:846
+msgid "Commands: "
+msgstr "Comenzi: "
+
+#: ../../source/main/gui/OverlayWrapper.cpp:483
+msgid "Compositors: "
+msgstr "Compoziți: "
+
+#: ../../source/main/physics/collision/Collisions.cpp:201
+msgid "Configuration error"
+msgstr "Eroare de configurare"
+
+#: ../../source/configurator/Configurator.cpp:1904
+msgid "Configure error"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:299
+msgctxt "GameSettings"
+msgid "Controller options"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:665
+msgid "Controls"
+msgstr "Controluri"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:58
+msgctxt "GameSettings"
+msgid "Controls"
+msgstr "Controluri"
+
+#: ../../source/main/network/Network.cpp:610
+msgid "Could not create connection"
+msgstr ""
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:444
+#: ../../source/main/gameplay/RoRFrameListener.cpp:445
+msgid "Could not load position from slot "
+msgstr "Nu s-a putut încărca poziția de la slotul "
+
+#: ../../source/configurator/Configurator.cpp:1904
+msgid "Could not write config file"
+msgstr "Nu s-a putut scrie fișierul config"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:183
+msgctxt "GameSettings"
+msgid "Creak sound"
+msgstr ""
+
+#: ../../source/main/gui/OverlayWrapper.cpp:450
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:172
+msgid "Current FPS: "
+msgstr "FPS actual: "
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:532
+msgid "Current active Ground: "
+msgstr "Actualul Sol activ: "
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:266
+msgid "Current gear: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:287
+msgid "Current gravity is: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:264
+msgid "Current power: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:299
+msgid "Current speed: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:260
+msgid "Current torque: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:879
+msgid "Date and Time installed: "
+msgstr "Data și Ora instalării: "
+
+#: ../../source/configurator/Configurator.cpp:690
+msgid "Debug"
+msgstr "Depanare"
+
+#: ../../source/configurator/Configurator.cpp:868
+msgid "Debug Collision Meshes"
+msgstr "Depanează Mesh-urile de Coliziune"
+
+#: ../../source/configurator/Configurator.cpp:860
+msgid "Debug EnvironmentMapping / Chrome"
+msgstr "Depanează EnvironmentMapping / Chrome"
+
+#: ../../source/configurator/Configurator.cpp:844
+msgid "Debug Truck Mass"
+msgstr "Depanează Masa Vehicului"
+
+#: ../../source/configurator/Configurator.cpp:856
+msgid "Debug VideoCameras"
+msgstr "Depanează Camerele Video"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:284
+msgctxt "GameSettings"
+msgid "Debug actor mass"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:282
+msgctxt "GameSettings"
+msgid "Debug camera (rails)"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:283
+msgctxt "GameSettings"
+msgid "Debug collisions"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:285
+msgctxt "GameSettings"
+msgid "Debug realtime reflections"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:286
+msgctxt "GameSettings"
+msgid "Debug videocameras"
+msgstr ""
+
+#. Gearbox
+#: ../../source/configurator/Configurator.cpp:741
+msgid "Default Gearbox mode:"
+msgstr "Cutia de Viteză prestabilită:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:367
+msgid "Default Skin"
+msgstr "Înveliș Inițial"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:228
+msgid "Deformed beams count: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:673
+msgid "Description: "
+msgstr "Descriere: "
+
+#: ../../source/configurator/Configurator.cpp:877
+msgid ""
+"Determines the input capture mode. All is the default, Dynamically is good "
+"for windowed mode."
+msgstr "Determină modul de capturare ale intrărilor. Toate sunt pentru prestabilit, Dinamic e bun pentru modul ecran încadrat."
+
+#: ../../source/configurator/Configurator.cpp:1076
+msgid ""
+"Determines which lights will project light on the environment.\n"
+"The more light sources are used, the slowest it will be."
+msgstr "Determină care lumini vor proiecta lumină în împrejur.\nCu cât sunt folosite mai multe surse de lumină, cu atât totul se va mișca mai greu."
+
+#: ../../source/configurator/Configurator.cpp:840
+msgid "Developer mode"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:684
+msgid "Device info"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:60
+msgctxt "GameSettings"
+msgid "Diagnostic"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:276
+msgctxt "GameSettings"
+msgid "Diagnostic options"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:141
+msgctxt "GameSettings"
+msgid "Digital speedometer"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:759
+msgid "Disable Camera Pitching"
+msgstr "Dezactivează Mișcarea Camerei"
+
+#: ../../source/configurator/Configurator.cpp:1105
+msgid "Disable Overview Map"
+msgstr "Dezactivează Harta de Ansamblu"
+
+#. creak sound?
+#: ../../source/configurator/Configurator.cpp:771
+msgid "Disable creak sound"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1113
+msgid "Disable inter-vehicle collisions"
+msgstr "Dezactivează coliziunile inter-vehicul"
+
+#: ../../source/configurator/Configurator.cpp:1117
+msgid "Disable intra-vehicle collisions"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1109
+msgid "Disable multi-threading"
+msgstr "Dezactivează multi-threading"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:614
+msgid "Disabled object tracking"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1106
+msgid ""
+"Disabled the map. This is for testing purposes only, you should not gain any"
+" FPS with that."
+msgstr "Harta a fost dezactivată. Aceasta este numai pentru scopuri de testare, n-ai să beneficiezi de vreo performanță notabilă."
+
+#: ../../source/configurator/Configurator.cpp:1110
+msgid ""
+"Disables all separate physics threads (might be an option to avoid camera "
+"stuttering)."
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1114
+msgid "Disables the collision detection between multiple trucks."
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1118
+msgid ""
+"Disables the collision detection within one truck (no self-collisions)."
+msgstr ""
+
+#: ../../source/main/MainMenu.cpp:281
+msgid "Disconnecting, wait 10 seconds ..."
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:861
+msgid ""
+"Displays an unwrapped cube on what is used to project the reflections on "
+"vehicles"
+msgstr "Afișează un cub despachetat ca să poată fi folosit la proiectarea reflexiilor pe vehicule."
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:430
+msgid "Drag anisotropy"
+msgstr "Afișează anizotropia"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:419
+msgid "Drag anisotropy:"
+msgstr "Aplică anizotropia:"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:268
+msgid "Drive ratio: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:207
+msgid "Dynamic friction coef"
+msgstr "Coeficientul Frecării Dinamice"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:196
+msgid "Dynamic friction coef:"
+msgstr "Coeficientul de frecare dinamică:"
+
+#: ../../source/configurator/Configurator.cpp:875
+msgid "Dynamically"
+msgstr "Dinamic"
+
+#: ../../source/main/utils/InputEngine.cpp:1112
+msgid "EXPERIMENTAL: add some grass"
+msgstr "EXPERIMENT: adaugă ceva iarbă"
+
+#: ../../source/main/utils/InputEngine.cpp:1124
+msgid "EXPERIMENTAL: remove grass completely"
+msgstr "EXPERIMENT: înlătură iarba complet"
+
+#: ../../source/main/utils/InputEngine.cpp:1106
+msgid "EXPERIMENTAL: remove some grass"
+msgstr "EXPERIMENT: înlătură ceva iarbă"
+
+#: ../../source/main/utils/InputEngine.cpp:1130
+msgid "EXPERIMENTAL: save changes to the grass density image"
+msgstr "EXPERIMENT: salvează setările pentru imaginea densității ierbii"
+
+#: ../../source/main/utils/InputEngine.cpp:1118
+msgid "EXPERIMENTAL: set maximum amount of grass"
+msgstr "EXPERIMENT: stabilește cantitatea maximă de iarbă"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:288
+msgctxt "GameSettings"
+msgid "Echo log to console"
+msgstr ""
+
+#. force feedback panel
+#: ../../source/configurator/Configurator.cpp:991
+msgid "Enable Force Feedback"
+msgstr "Activează Force Feedback-ul"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:301
+msgctxt "GameSettings"
+msgid "Enable ForceFeedback"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:318
+msgctxt "GameSettings"
+msgid "Enable OutGauge protocol"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:965
+msgid "Enable Particle Systems"
+msgstr "Activează Sistemele de Particule"
+
+#: ../../source/configurator/Configurator.cpp:1101
+msgid "Enable Position Storage"
+msgstr "Înregistrează Poziția"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:252
+msgctxt "GameSettings"
+msgid "Enable particle gfx"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:253
+msgctxt "GameSettings"
+msgid "Enable skidmarks"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:950
+msgid "Enable waves"
+msgstr "Activează valurile"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:614
+msgid "Enabled object tracking"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:865
+msgid "Enables Trigger debug messages"
+msgstr "Activează mesajele de depanare a Trigger-ului"
+
+#: ../../source/configurator/Configurator.cpp:981
+msgid "Enables high quality reflective effects. Causes a slowdown."
+msgstr "Activează efectul de reflexii. Cauzează o încetinire."
+
+#: ../../source/configurator/Configurator.cpp:837
+msgid "Enables the Scripting Console ingame. Use the ~ key."
+msgstr "Activează Consola de Scripting în joc. Folosește tasta ~ ."
+
+#: ../../source/configurator/Configurator.cpp:951
+msgid ""
+"Enabling waves adds a lot of fun in boats, but can have a big performance "
+"impact on some specific hardwares."
+msgstr "Activând valurile, adaugi destul de multă distracție într-o barcă, doar că pe unele sisteme ar putea avea un mare impact asupra performanțelor din joc."
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:301
+msgid "Engine "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:866
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:252
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:254
+msgid "Engine RPM: "
+msgstr "RPM Motorului: "
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:287
+msgctxt "GameSettings"
+msgid "Enter preselected vehicle"
+msgstr ""
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:517
+msgid "Entered terrain editing mode"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1871
+msgid "Error setting Ogre Values"
+msgstr "Eroare la setarea valorilor Ogre"
+
+#: ../../source/main/gameplay/Landusemap.cpp:92
+msgid "Error while loading landuse config"
+msgstr "Eroare la încărcarea configurării landuse"
+
+#: ../../source/main/main.cpp:74
+msgid "Error while retrieving program directory path"
+msgstr ""
+
+#: ../../source/configurator/conf_file.cpp:179
+msgid "Error while retrieving program space path"
+msgstr "Eroare in timpul primirii caii de spatiu a programului"
+
+#: ../../source/main/main.cpp:92
+msgid "Error while retrieving user directory path"
+msgstr ""
+
+#: ../../source/configurator/conf_file.cpp:189
+msgid "Error while retrieving user space path"
+msgstr "Eroare in timpul primirii caii de distribuire a spatiului"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:381
+#: ../../source/main/gameplay/RoRFrameListener.cpp:382
+msgid "Error while saving position saved under slot "
+msgstr "Eroare la salvarea poziției sub slotul "
+
+#: ../../source/configurator/Configurator.cpp:1374
+msgid "Error: no rendersystems found"
+msgstr "Eroare: niciun sistem de randare găsit"
+
+#: ../../source/main/network/Network.cpp:700
+msgid "Establishing network session: error getting server authorization"
+msgstr "Se stabilește o sesiune de rețea: eroare la primirea autorizației de server"
+
+#: ../../source/main/network/Network.cpp:648
+msgid "Establishing network session: error getting server hello"
+msgstr "Se stabilește o sesiune de rețea: eroare la primirea hello din partea serverului"
+
+#: ../../source/main/network/Network.cpp:627
+msgid "Establishing network session: error getting server version"
+msgstr "Se stabilește o sesiune de rețea: eroare la solicitarea versiunii de server"
+
+#: ../../source/main/network/Network.cpp:617
+msgid "Establishing network session: error sending hello"
+msgstr "Se stabilește o sesiune de rețea: eroare la trimiterea hello"
+
+#: ../../source/main/network/Network.cpp:693
+msgid "Establishing network session: error sending user info"
+msgstr "Se stabilește o sesiune de rețea: eroare trimitere informații utilizator"
+
+#: ../../source/main/network/Network.cpp:706
+msgid "Establishing network session: sorry, server has too many players"
+msgstr "Se stabilește o sesiune de rețea: scuze, serverul are prea mulți utilizatori"
+
+#: ../../source/main/network/Network.cpp:739
+msgid "Establishing network session: sorry, unknown server response"
+msgstr "Se stabilește o sesiune de rețea: scuze, reacție de server necunoscută"
+
+#: ../../source/main/network/Network.cpp:728
+msgid "Establishing network session: sorry, wrong password!"
+msgstr "Se stabilește o sesiune de rețea: scuze, parolă greșită!"
+
+#: ../../source/main/network/Network.cpp:733
+msgid "Establishing network session: sorry, wrong protocol version!"
+msgstr "Se stabilește o sesiune de rețea: scuze, versiunea de protocol nepotrivită!"
+
+#: ../../source/main/network/Network.cpp:722
+msgid "Establishing network session: sorry, you are banned!"
+msgstr "Se stabilește o sesiune de rețea: scuze, ai acces interzis!"
+
+#: ../../source/main/network/Network.cpp:716
+#, c-format
+msgid ""
+"Establishing network session: sorry, you are banned:\n"
+"%s"
+msgstr "Se stabilește o sesiune de rețea: scuze, ai acces interzis:\n%s"
+
+#: ../../source/main/network/Network.cpp:634
+#: ../../source/main/network/Network.cpp:658
+#, c-format
+msgid ""
+"Establishing network session: wrong server version, you are using version "
+"'%s' and the server is using '%s'"
+msgstr "Se stabilește o sesiune de rețea: versiune de server nepotrivită, folosești versiunea '%s' iar serverul folosește '%s'"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:850
+msgid "Exhausts: "
+msgstr "Evacuări: "
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:271
+msgctxt "GameSettings"
+msgid "Exterior field of view"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:295
+msgctxt "GameSettings"
+msgid "Extra resources directory"
+msgstr ""
+
+#: ../../source/main/utils/ErrorUtils.cpp:44
+msgid "FATAL ERROR"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:305
+msgctxt "GameSettings"
+msgid "FFB camera gain"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:306
+msgctxt "GameSettings"
+msgid "FFB center gain"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:307
+msgctxt "GameSettings"
+msgid "FFB master gain"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:308
+msgctxt "GameSettings"
+msgid "FFB stress gain"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:751
+msgid "FOV External:"
+msgstr "FOV Extern:"
+
+#: ../../source/configurator/Configurator.cpp:755
+msgid "FOV Internal:"
+msgstr "FOV Intern:"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:463
+#: ../../source/main/gameplay/RoRFrameListener.cpp:464
+msgid "FOV: "
+msgstr "FOV: "
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:478
+#: ../../source/main/gameplay/RoRFrameListener.cpp:479
+msgid "FOV: Limit reached"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:250
+msgctxt "GameSettings"
+msgid "FPS limit"
+msgstr ""
+
+#. FPS-Limiter
+#: ../../source/configurator/Configurator.cpp:1080
+msgid "FPS-Limiter:"
+msgstr "Limitator-FPS:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:323
+msgid "FX Colour"
+msgstr "Culoare FX"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:299
+msgid "FX Type"
+msgstr "Tip FX"
+
+#: ../../source/main/network/Network.cpp:572
+msgid "Failed to launch connection thread"
+msgstr ""
+
+#: ../../source/main/main.cpp:144 ../../source/main/main.cpp:155
+msgid "Faulty resource folder. Check if correctly installed."
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:914
+msgid "Filename: "
+msgstr "Numele fișierului: "
+
+#: ../../source/main/gfx/camera/CameraManager.cpp:335
+#: ../../source/main/gfx/camera/CameraManager.cpp:336
+msgid "Fixed camera"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:852
+msgid "Flares: "
+msgstr "Semnalizatoare: "
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:856
+msgid "Flexbodies: "
+msgstr "Corpuri flexibile: "
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:361
+msgid "Flow behavior index"
+msgstr "Indexul comportamentului curgerii"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:350
+msgid "Flow behavior index:"
+msgstr "Indexul comportării curgerii:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:384
+msgid "Flow consistency"
+msgstr "Consistența curgerii:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:373
+msgid "Flow consistency:"
+msgstr "Consistența curgerii:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:338
+msgid "Fluid Settings"
+msgstr "Setări Lichide"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:407
+msgid "Fluid density"
+msgstr "Densitatea lichidului"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:396
+msgid "Fluid density:"
+msgstr "Densitatea lichidului:"
+
+#: ../../source/main/gui/OverlayWrapper.cpp:485
+msgid "Fonts: "
+msgstr "Fonturi: "
+
+#: ../../source/configurator/Configurator.cpp:681
+msgid "Force Feedback"
+msgstr "Force Feedback"
+
+#: ../../source/main/gfx/camera/CameraManager.cpp:329
+#: ../../source/main/gfx/camera/CameraManager.cpp:330
+msgid "Free camera"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:53
+msgid "Friction Help"
+msgstr "Ajutor la Frecare"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:883
+msgid "Friction Help: "
+msgstr "Ajutor Frecare: "
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:62
+msgid "Friction Settings"
+msgstr "Setări Frecare"
+
+#: ../../source/configurator/Configurator.cpp:959
+msgid "Full (best looking, slower)"
+msgstr "Complet (arată cel mai bine, dar încetinește)"
+
+#: ../../source/configurator/Configurator.cpp:745
+msgid "Fully Manual: sequential shift"
+msgstr "Manuală: schimbător secvențial"
+
+#: ../../source/configurator/Configurator.cpp:746
+msgid "Fully Manual: stick shift"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:747
+msgid "Fully Manual: stick shift with ranges"
+msgstr "Manuală: schimbător în etape"
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:331
+msgid "G-Forces:\n"
+msgstr ""
+
+#: ../../source/main/gui/OverlayWrapper.cpp:487
+msgid "GPU Program: "
+msgstr "Program GPU: "
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:870
+msgid "GUID: "
+msgstr "GUID: "
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:33
+msgctxt "GameSettings"
+msgid "Game settings"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:661
+msgid "Gameplay"
+msgstr "Gameplay"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:134
+msgctxt "GameSettings"
+msgid "Gearbox mode"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:50
+msgctxt "GameSettings"
+msgid "General"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:658
+msgid "Graphics"
+msgstr "Grafica"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:52
+msgctxt "GameSettings"
+msgid "Graphics"
+msgstr "Grafica"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:292
+msgid "Gravity set to: "
+msgstr ""
+
+#: ../../source/main/gui/OverlayWrapper.cpp:489
+msgid "HL GPU Program: "
+msgstr "Program HL GPU: "
+
+#: ../../source/configurator/Configurator.cpp:980
+msgid "HQ reflections"
+msgstr "Reflexii de calitate"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:916
+msgid "Hash: "
+msgstr "Hash: "
+
+#: ../../source/main/gameplay/LandVehicleSimulation.cpp:453
+msgid "High range selected"
+msgstr "Interval înalt selectat"
+
+#: ../../source/configurator/Configurator.cpp:946
+msgid "Hydrax"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:230
+msgid "Hydrodynamic friction coef"
+msgstr "Coeficientul Frecării Hidrodinamice"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:219
+msgid "Hydrodynamic friction coef:"
+msgstr "Coeficientul Frecării Hidrodinamice:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:842
+msgid "Hydros: "
+msgstr "Hidraulice: "
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:361
+msgid ""
+"If it is 1.0 then the fluid will behave like water. The lower you get from "
+"1.0, the more like mud the fluid will behave, meaning that for small "
+"velocities the fluid will resist motion and for large velocities the fluid "
+"will not resist so much. The higher you get from 1.0 the more like sand the "
+"fluid will behave. The bigger the velocity, the bigger the resistance of the"
+" fluid (try to hit sand hard it'll feel like stone)."
+msgstr "Dacă e 1.0 atunci lichidul se va comporta ca apa. Cu cât cobori în jos de la 1.0, cu atât mai mult va semăna lichidul ca noroiul, însemnând că pentru viteze mici va rezista mișcării iar pentru viteze mai mari, lichidul nu va rezista prea mult. Cu cât urci mai mult de 1.0, cu atât mai mult va semăna lichidul cu nisipul. Cu cât e mai mare viteza, cu atât mai mare rezistența lichidului (încearcă să lovești nisipul puternic și îl vei simți ca piatra)."
+
+#: ../../source/configurator/Configurator.cpp:821
+msgid ""
+"If we are missing someone on this list, please drop us a line at:\n"
+"support@rigsofrods.org"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:760
+msgid ""
+"If you dislike the pitching external vehicle camera, you can disable it "
+"here."
+msgstr "Dacă nu-ți place mișcarea camerei (în față, spate, etc. de la viteză) poți dezactiva asta aici."
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:142
+msgctxt "GameSettings"
+msgid "Imperial speedometer"
+msgstr ""
+
+#. Cache
+#: ../../source/configurator/Configurator.cpp:1087
+msgid ""
+"In case the mods cache becomes corrupted, \n"
+"use these buttons to fix the cache."
+msgstr "În caz de coruperea cache-ului, \nfolosește aceste butoane pentru a repara cache-ul."
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:407
+msgid ""
+"In mud (or sand) the resistance of the fluid described by the parameters "
+"above will stop you and so keep you from sinking. But for substances like "
+"water it isn't the drag that stops you from sinking. Its buoyancy. This "
+"parameter is here so as to keep you from sinking when you wish to simulate "
+"fluids with low drag (resistance). For fluids like mud or sand you can put "
+"it at 0, but it is best to keep it at some minimum value. For fluids with "
+"behavior index >=1 it will behave like you are in water. For fluids with "
+"behavior index <1 it'll behave like you are in mud."
+msgstr "În noroi (sau nisip) rezistența lichidului descrisă de parametrii de mai sus, te vor ține departe de scufundare. Numai că pentru substanțe ca apa, nu e aceeași treabă să te ferească de scufundare. E doar nivelul de flotabilitate. Acest parametru e aici să te țină departe de scufundare atunci când vei dori să simulezi lichidele cu rezistență. Pentru lichide de tipul noroiului sau nisipului, poți să-l setezi la 0, numai că e recomandat să-l ții la o valoare cât de minimă posibil. Pentru lichide cu indexul comportării >=1 se va comporta ca și cum ai fi în apă. Pentru lichide cu indexul comportării <1 se va comporta de parcă ai fi în noroi."
+
+#: ../../source/configurator/Configurator.cpp:988
+msgid "In what Format should screenshots be saved?"
+msgstr "În ce format dorești să fie salvate pozele?"
+
+#: ../../source/configurator/Configurator.cpp:1008
+msgid "Inertia feedback level:"
+msgstr "Nivelul de feedback al inerției:"
+
+#: ../../source/configurator/Configurator.cpp:673
+msgid "Info"
+msgstr "Informații"
+
+#: ../../source/configurator/Configurator.cpp:836
+msgid "Ingame Console"
+msgstr ""
+
+#: ../../source/main/terrain/TerrainManager.cpp:163
+msgid "Initializing Camera Subsystem"
+msgstr ""
+
+#: ../../source/main/terrain/TerrainManager.cpp:198
+msgid "Initializing Collision Subsystem"
+msgstr ""
+
+#. water must be done later on
+#. PROGRESS_WINDOW(33, _L("Initializing Water Subsystem"));
+#. initWater();
+#: ../../source/main/terrain/TerrainManager.cpp:186
+msgid "Initializing Dashboards Subsystem"
+msgstr ""
+
+#: ../../source/main/terrain/TerrainManager.cpp:175
+msgid "Initializing Fog Subsystem"
+msgstr ""
+
+#: ../../source/main/terrain/TerrainManager.cpp:154
+msgid "Initializing Geometry Subsystem"
+msgstr ""
+
+#: ../../source/main/terrain/TerrainManager.cpp:170
+msgid "Initializing Light Subsystem"
+msgstr ""
+
+#. objects  - .odef support
+#: ../../source/main/terrain/TerrainManager.cpp:158
+msgid "Initializing Object Subsystem"
+msgstr ""
+
+#. Init minimap
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1908
+msgid "Initializing Overview Map Subsystem"
+msgstr ""
+
+#: ../../source/main/terrain/TerrainManager.cpp:202
+msgid "Initializing Script Subsystem"
+msgstr ""
+
+#: ../../source/main/terrain/TerrainManager.cpp:161
+msgid "Initializing Shadow Subsystem"
+msgstr ""
+
+#. sky, must come after camera due to m_sight_range
+#: ../../source/main/terrain/TerrainManager.cpp:167
+msgid "Initializing Sky Subsystem"
+msgstr ""
+
+#: ../../source/main/terrain/TerrainManager.cpp:179
+msgid "Initializing Vegetation Subsystem"
+msgstr ""
+
+#: ../../source/main/terrain/TerrainManager.cpp:218
+msgid "Initializing terrain light properties"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:872
+msgid "Input Grabbing:"
+msgstr "Colectarea Intrărilor:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:312
+msgctxt "GameSettings"
+msgid "Input grab mode"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:256
+msgid "Input shaft RPM: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:272
+msgctxt "GameSettings"
+msgid "Interior field of view"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:276
+msgid "Its usual value is 2. But you can try others."
+msgstr "Valoarea obișnuită este 2. Dar poți încerca și altele."
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:118
+msgctxt "GameSettings"
+msgid "Language"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:719
+msgid "Language:"
+msgstr ""
+
+#: ../../source/main/gui/OverlayWrapper.cpp:1202
+#, c-format
+msgid "Last lap: %.2i'%.2i.%.2i"
+msgstr "Ultima tură: %.2i'%.2i.%.2i"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:517
+msgid "Left terrain editing mode"
+msgstr ""
+
+#. Lights
+#: ../../source/configurator/Configurator.cpp:1069
+msgid "Light source effects:"
+msgstr "Surse de lumină:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:192
+msgctxt "GameSettings"
+msgid "Lights"
+msgstr ""
+
+#: ../../source/main/gfx/camera/CameraManager.cpp:758
+#: ../../source/main/gfx/camera/CameraManager.cpp:759
+msgid "Limited camera movement disabled"
+msgstr ""
+
+#: ../../source/main/gfx/camera/CameraManager.cpp:753
+#: ../../source/main/gfx/camera/CameraManager.cpp:754
+msgid "Limited camera movement enabled"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:834
+msgid "Load Mass: "
+msgstr "Masa Încărcăturii: "
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:439
+#: ../../source/main/gameplay/RoRFrameListener.cpp:440
+msgid "Loaded position from slot "
+msgstr "Poziție încărcată din slotul "
+
+#. From old file
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:79
+msgid "Loader"
+msgstr "Meniu"
+
+#: ../../source/main/gui/panels/GUI_LoadingWindow.cpp:38
+msgid "Loading ..."
+msgstr "Se încarcă ..."
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1885
+msgid "Loading Terrain"
+msgstr "Se încarcă Terenul"
+
+#: ../../source/main/terrain/TerrainManager.cpp:192
+msgid "Loading Terrain Geometry"
+msgstr ""
+
+#: ../../source/main/terrain/TerrainManager.cpp:209
+#: ../../source/main/terrain/TerrainObjectManager.cpp:132
+msgid "Loading Terrain Objects"
+msgstr ""
+
+#: ../../source/main/resources/CacheSystem.cpp:1457
+msgid "Loading directory\n"
+msgstr "Se încarcă directorul\n"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:2001
+msgid "Loading resources"
+msgstr ""
+
+#: ../../source/main/resources/CacheSystem.cpp:1435
+msgid "Loading zips in group "
+msgstr "Se încarcă fișierele zip în grup"
+
+#: ../../source/main/physics/Differentials.cpp:53
+msgid "Locked"
+msgstr "Închis"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:289
+msgctxt "GameSettings"
+msgid "Log beam breaking"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:290
+msgctxt "GameSettings"
+msgid "Log beam deforming"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:291
+msgctxt "GameSettings"
+msgid "Log beam triggers"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:281
+msgctxt "GameSettings"
+msgid "Log messages (spawn)"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:279
+msgctxt "GameSettings"
+msgid "Log node import (spawn)"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:280
+msgctxt "GameSettings"
+msgid "Log node stats (spawn)"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:849
+msgid "Logs the beam info to RoR.log whenever a beam breaks"
+msgstr "Înregistrează informații despre bare în RoR.log oricând o bară se deformează"
+
+#: ../../source/configurator/Configurator.cpp:853
+msgid "Logs the beam info to RoR.log whenever a beam deforms"
+msgstr "Înregistrează informații despre bare în RoR.log oricând o bară se deformează"
+
+#: ../../source/main/gameplay/LandVehicleSimulation.cpp:441
+msgid "Low range selected"
+msgstr "Raport mic selectat"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:882
+msgid "Machine"
+msgstr "Mașină"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:184
+msgctxt "GameSettings"
+msgid "Main menu music"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:744
+msgid "Manual shift - Auto clutch"
+msgstr "Cutie Manuală - ambreiaj Automat"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:832
+msgid "Mass: "
+msgstr "Masa: "
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:185
+msgctxt "GameSettings"
+msgid "Master volume"
+msgstr ""
+
+#: ../../source/main/gui/OverlayWrapper.cpp:491
+#: ../../source/main/gui/OverlayWrapper.cpp:497
+msgid "Materials: "
+msgstr "Materiale: "
+
+#: ../../source/main/gui/OverlayWrapper.cpp:504
+msgid "Memory (Ogre): "
+msgstr "Memorie (Ogre): "
+
+#: ../../source/main/gui/OverlayWrapper.cpp:493
+msgid "Meshes: "
+msgstr "Mesh-uri: "
+
+#: ../../source/main/gameplay/LandVehicleSimulation.cpp:447
+msgid "Mid range selected"
+msgstr "Interval mijlociu selectat"
+
+#: ../../source/configurator/Configurator.cpp:970
+msgid "Mirrors"
+msgstr "Oglinzi"
+
+#: ../../source/configurator/Configurator.cpp:820
+#: ../../source/configurator/Configurator.cpp:821
+msgid "Missing someone?"
+msgstr "Lipsește cineva?"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:918
+msgid "Mod Number: "
+msgstr "Numărul Mod-ului: "
+
+#: ../../source/configurator/Configurator.cpp:905
+msgid ""
+"Most recent hardware can do Anisotropic filtering without significant slowdown.\n"
+"Use lower settings only on old or poor video chipsets."
+msgstr "Majoritatea plăcilor video recente pot rula filtrul Anisotropic fără scăderi sesizabile de performanță.\nFolosește setările slabe numai cu plăcile video vechi ori ieftine."
+
+#: ../../source/configurator/Configurator.cpp:2350
+msgid "Muted"
+msgstr "Dezactivat"
+
+#: ../../source/configurator/Configurator.cpp:784
+#, c-format
+msgid "Network Protocol version: %s"
+msgstr ""
+
+#: ../../source/main/physics/Beam.cpp:1691
+msgid "Network error!"
+msgstr "Eroare de Rețea!"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:2195
+#: ../../source/main/MainMenu.cpp:114
+msgid "Network fatal error: "
+msgstr "Eroare fatală de Rețea: "
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:967
+#: ../../source/main/gameplay/RoRFrameListener.cpp:975
+#: ../../source/main/gameplay/RoRFrameListener.cpp:995
+msgid "New simulation speed: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:285
+msgid "No Trucks loaded"
+msgstr "Niciun Camion încărcat"
+
+#: ../../source/main/resources/CacheSystem.cpp:154
+msgid "No content installed"
+msgstr "Niciun conținut instalat"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:157
+msgctxt "GameSettings"
+msgid "No inter truck collisions"
+msgstr ""
+
+#: ../../source/main/physics/Beam.cpp:1276
+#: ../../source/main/physics/Beam.cpp:1278
+msgid "No inter-axle differential installed on current vehicle!"
+msgstr ""
+
+#: ../../source/main/physics/Beam.cpp:1305
+#: ../../source/main/physics/Beam.cpp:1307
+msgid "No inter-wheel differential installed on current vehicle!"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:156
+msgctxt "GameSettings"
+msgid "No intra truck collisions"
+msgstr ""
+
+#. flaresMode->AppendValueItem(wxT("None (fastest)"), _("None (fastest)"));
+#. //this creates a bug in the autopilot // WTF?? ~ only_a_ptr, 02/2017
+#: ../../source/configurator/Configurator.cpp:1072
+msgid "No light sources"
+msgstr "Nicio sursă de lumină"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1123
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1124
+msgid "No rescue truck found!"
+msgstr "Niciun camion de salvare găsit!"
+
+#: ../../source/configurator/Configurator.cpp:920
+msgid "No shadows (fastest)"
+msgstr "Fără umbre (cel mai rapid)"
+
+#: ../../source/main/physics/Beam.cpp:1338
+msgid "No transfercase installed on current vehicle!"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:241
+msgid "Node count: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:836
+msgid "Nodes: "
+msgstr "Noduri: "
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:882
+msgid "Non-Driveable"
+msgstr "Nu poate fi condus"
+
+#: ../../source/configurator/Configurator.cpp:876
+msgid "None"
+msgstr "Nimic"
+
+#: ../../source/configurator/Configurator.cpp:901
+#: ../../source/configurator/Configurator.cpp:956
+msgid "None (fastest)"
+msgstr "Deloc (cel mai rapid)"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:82
+msgid "OK"
+msgstr "OK"
+
+#: ../../source/configurator/Configurator.cpp:1877
+msgid "Ogre config validation error"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1871
+msgid "Ogre config validation error, unknown render option detected: "
+msgstr "Eroare la validarea Ogre config, opțiune necunoscută de randare detectată: "
+
+#: ../../source/configurator/Configurator.cpp:1073
+msgid "Only current vehicle, main lights"
+msgstr "Numai actualul vehicul, cu luminile de bază"
+
+#: ../../source/main/physics/Differentials.cpp:51
+msgid "Open"
+msgstr "Deschis"
+
+#: ../../source/configurator/Configurator.cpp:705
+msgid "OpenCL"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:207
+msgid ""
+"Or sliding friction coef. It should be smaller than static friction coef. "
+"This parameter defines how much friction you'll have when sliding. Try to "
+"find some values for it from the net."
+msgstr "Ori coeficientul frecării de alunecare. Ar trebui să fie mai mic decât coeficientul frecării statice. Acest parametru definește cât de multă frecare vei avea atunci când aluneci. Încearcă să găsești niște valori de pe internet."
+
+#: ../../source/main/gameplay/Replay.cpp:189
+msgid "Out of Memory"
+msgstr "Memorie Insuficientă"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:324
+msgctxt "GameSettings"
+msgid "OutGauge ID"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:321
+msgctxt "GameSettings"
+msgid "OutGauge IP"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:325
+msgctxt "GameSettings"
+msgid "OutGauge delay"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:323
+msgctxt "GameSettings"
+msgid "OutGauge port"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:993
+msgid "Overall force level:"
+msgstr "Nivelul forței în general:"
+
+#: ../../source/configurator/Configurator.cpp:923
+msgid "Parallel-split Shadow Maps"
+msgstr "Umbre Paralel-secționate"
+
+#: ../../source/configurator/Configurator.cpp:964
+msgid "Particle systems:"
+msgstr "Sisteme de particule:"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:56
+msgid "Player Information"
+msgstr "Informații despre Jucător:"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1763
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1764
+msgid "Please clear the place first"
+msgstr "Te rog, eliberează locul mai întâi"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:307
+msgid "Please enter a correct value. "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:922
+msgid "Please select a configuration below!"
+msgstr "Te rog, selectează o configurație de mai jos!"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:376
+#: ../../source/main/gameplay/RoRFrameListener.cpp:377
+msgid "Position saved under slot "
+msgstr "Poziția salvată sub slotul "
+
+#: ../../source/main/gameplay/Replay.cpp:73
+msgid "Position:"
+msgstr "Poziția:"
+
+#: ../../source/main/gameplay/Replay.cpp:196
+#, c-format
+msgid "Position: %0.6f s, frame %i / %i"
+msgstr "Poziția: %0.6f s, cadrul %i / %i"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:260
+msgid ""
+"Possible values: \n"
+" earth \n"
+" moon \n"
+" jupiter \n"
+" A random number (use negative)"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:294
+msgctxt "GameSettings"
+msgid "Presel. veh. config"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:881
+msgid "Preselected Map: "
+msgstr "Harta Preselectată: "
+
+#: ../../source/configurator/Configurator.cpp:886
+msgid "Preselected Truck: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:292
+msgctxt "GameSettings"
+msgid "Preselected terrain"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:293
+msgctxt "GameSettings"
+msgid "Preselected vehicle"
+msgstr ""
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:2016
+#, c-format
+msgid "Press %ls to start chatting"
+msgstr "Apasă %ls pentru a începe chat-ul"
+
+#: ../../source/configurator/Configurator.cpp:845
+msgid "Prints all node masses to the RoR.log"
+msgstr "Copiază toate masele nodurilor în fișierul RoR.log"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:858
+msgid "Props: "
+msgstr "Accesorii: "
+
+#. Width includes [+/-] buttons
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:259
+msgctxt "GameSettings"
+msgid "Realtime refl. update rate"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:255
+msgctxt "GameSettings"
+msgid "Realtime reflections"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:943
+msgid "Reflection"
+msgstr "Reflexie"
+
+#: ../../source/configurator/Configurator.cpp:945
+msgid "Reflection + refraction (quality optimized)"
+msgstr "Reflexie + refracție (optimizat pentru calitate)"
+
+#: ../../source/configurator/Configurator.cpp:944
+msgid "Reflection + refraction (speed optimized)"
+msgstr "Reflexie + refracție (optimizat pentru viteză)"
+
+#: ../../source/configurator/Configurator.cpp:1089
+msgid "Regen cache"
+msgstr "Regenerează"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:279
+msgid "Remote Truck loaded correctly, no errors"
+msgstr "Camionul controlabil de la distanță s-a încărcat corect, fără erori"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:273
+msgid "Remote Truck loading errors"
+msgstr "Erori la încărcarea Camionului controbabil de la distanță"
+
+#. clear the renderer settings and fill them later
+#: ../../source/configurator/Configurator.cpp:655
+#: ../../source/configurator/Configurator.cpp:711
+msgid "Render System"
+msgstr "Sistemul de Randare"
+
+#. Combobox for selecting the Render System
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:48
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:82
+msgctxt "GameSettings"
+msgid "Render System"
+msgstr "Sistemul de Randare"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:69
+msgctxt "GameSettings"
+msgid "Render system"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:263
+msgctxt "GameSettings"
+msgid "Render video cameras"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1098
+msgid "Replay Mode"
+msgstr "Funcția de Reluare"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:150
+msgctxt "GameSettings"
+msgid "Replay length"
+msgstr ""
+
+#. DrawGCheckbox(App::gfx_flexbody_lods,      "Enable flexbody LODs");
+#. DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:147
+msgctxt "GameSettings"
+msgid "Replay mode"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1099
+msgid "Replay mode. (Will affect your frame rate)"
+msgstr "Funcția de Reluare. (afectează performanțele)"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:151
+msgctxt "GameSettings"
+msgid "Replay stepping"
+msgstr ""
+
+#: ../../source/main/main.cpp:122
+msgid "Resources folder not found. Check if correctly installed."
+msgstr "Folderul cu resurse n-a fost găsit. Verifică dacă a fost instalat corect. "
+
+#: ../../source/configurator/Configurator.cpp:625
+msgid "Restore Defaults"
+msgstr "Resetează tot"
+
+#: ../../source/configurator/Configurator.cpp:626
+msgid "Restore the default configuration."
+msgstr ""
+
+#. tell the user
+#: ../../source/configurator/Configurator.cpp:481
+#, c-format
+msgid ""
+"Rigs of Rods User directory missing:\n"
+"%s\n"
+"\n"
+"it could not be created since skeleton.zip was not found in\n"
+" %s"
+msgstr ""
+
+#. create the main application window
+#: ../../source/configurator/Configurator.cpp:570
+#, c-format
+msgid "Rigs of Rods version %s configuration"
+msgstr "Configuratorul Versiunii %s Rigs of Rods"
+
+#: ../../source/configurator/Configurator.cpp:781
+#, c-format
+msgid "Rigs of Rods version: %s"
+msgstr "versiune Rigs of Rods: %s"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:607
+msgid "Rotating: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:848
+msgid "Rotators: "
+msgstr "Rotatoare: "
+
+#: ../../source/configurator/Configurator.cpp:911
+msgid "Sandstorm (fastest)"
+msgstr "Sandstorm (cel mai rapid)"
+
+#: ../../source/main/gui/panels/GUI_TextureToolWindow.cpp:49
+msgid "Save Raw"
+msgstr "Salvează Raw"
+
+#: ../../source/configurator/Configurator.cpp:633
+msgid "Save and Exit"
+msgstr "Salvează și Ieși"
+
+#: ../../source/configurator/Configurator.cpp:629
+msgid "Save and Play"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_TextureToolWindow.cpp:46
+msgid "Save as PNG"
+msgstr "Salvează ca PNG"
+
+#: ../../source/configurator/Configurator.cpp:634
+msgid "Save the current configuration and close the configuration program."
+msgstr "Salvează configurația actuală și închide programul."
+
+#: ../../source/configurator/Configurator.cpp:630
+msgid "Save the current configuration and start RoR."
+msgstr "Salvează configurația actuală și pornește RoR."
+
+#: ../../source/configurator/Configurator.cpp:984
+msgid "Screenshot Format:"
+msgstr "Formatul Pozelor:"
+
+#. Dummy; TODO: List available languages
+#. Hardcoded; TODO: list available formats.
+#. Screenshot format: Can be png or jpg
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:123
+msgctxt "GameSettings"
+msgid "Screenshot format"
+msgstr ""
+
+#. show new flash message
+#: ../../source/main/gameplay/RoRFrameListener.cpp:302
+msgid "Screenshot:"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:148
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:267
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:1077
+msgid "Search ..."
+msgstr "Caută ..."
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:1068
+msgid "Search Results"
+msgstr "Rezultatele Căutării"
+
+#: ../../source/configurator/Configurator.cpp:1036
+msgid ""
+"Select the appropriate sound source.\n"
+"Leaving to Default should work most of the time."
+msgstr "Selectează sursa de sunet potrivită.\nLăsând în modul prestabilit ar trebui să funcționeze ca în majoritatea cazurilor."
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:620
+msgid "Selected object: ["
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1003
+msgid "Self-centering level:"
+msgstr "Nivelul de auto-centrare:"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:213
+msgid "Server Administrator"
+msgstr "Administrator de Server"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:222
+msgid "Server Moderator"
+msgstr "Moderator de Server"
+
+#: ../../source/configurator/Configurator.cpp:646
+msgid "Settings"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:935
+msgid "Shadow Performance Optimizations"
+msgstr "Optimizările Performanței Umbrei"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:206
+msgctxt "GameSettings"
+msgid "Shadow optimizations"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:209
+msgctxt "GameSettings"
+msgid "Shadow quality"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:925
+msgid "Shadow technique to be used ingame."
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:199
+msgctxt "GameSettings"
+msgid "Shadow type"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:918
+msgid "Shadow type:"
+msgstr "Tipul umbrei:"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:840
+msgid "Shocks: "
+msgstr "Șocuri: "
+
+#: ../../source/configurator/Configurator.cpp:869
+msgid ""
+"Shows all Collision meshes in Red to be able to position them correctly. "
+"Only use for debugging!"
+msgstr "Arată toate mesh-urile de Coliziune în Roșu, ca să le poți poziționa corect. Folosește asta numai pentru depanare!"
+
+#: ../../source/configurator/Configurator.cpp:971
+msgid ""
+"Shows the rear view mirrors in 1st person view. May cause compatibility "
+"problems for very old video cards."
+msgstr "Arată oglinzile în modul prima persoană. S-ar putea să cauzeze probleme de compatibilitate pe plăcile video mai vechi."
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:218
+msgctxt "GameSettings"
+msgid "Sight range (meters)"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:929
+msgid "Sightrange:"
+msgstr "Vedere generală:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:132
+msgctxt "GameSettings"
+msgid "Simulation settings"
+msgstr ""
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:988
+msgid "Simulation speed reset."
+msgstr ""
+
+#: ../../source/main/gui/OverlayWrapper.cpp:495
+msgid "Skeletons: "
+msgstr "Schelete: "
+
+#: ../../source/configurator/Configurator.cpp:976
+msgid "Skidmarks"
+msgstr "Urme de roți"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:363
+msgid "Skins"
+msgstr "Învelișuri"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:128
+msgctxt "GameSettings"
+msgid "Skip main menu"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:909
+msgid "Sky type:"
+msgstr "Tipul cerului:"
+
+#: ../../source/configurator/Configurator.cpp:913
+msgid "SkyX (best looking, slower)"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:69
+msgid "Slow  Network  Download"
+msgstr "Descărcare  Slabă  Rețea"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:115
+msgid "Solid ground level"
+msgstr "Nivel de sol solid"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:104
+msgid "Solid ground level:"
+msgstr "Nivel sol solid:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:93
+msgid "Solid ground settings"
+msgstr "Setări de sol solid"
+
+#: ../../source/configurator/Configurator.cpp:1061
+msgid "Sound Volume:"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:844
+msgid "SoundSources: "
+msgstr "Surse de Sunet: "
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:912
+msgid "Source: "
+msgstr "Sursa: "
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:426
+msgid "Spawned object at position: "
+msgstr ""
+
+#: ../../source/main/physics/Differentials.cpp:50
+msgid "Split"
+msgstr "Separă"
+
+#: ../../source/configurator/conf_file.cpp:179
+#: ../../source/configurator/conf_file.cpp:189 ../../source/main/main.cpp:74
+#: ../../source/main/main.cpp:92 ../../source/main/main.cpp:122
+#: ../../source/main/main.cpp:144 ../../source/main/main.cpp:155
+msgid "Startup error"
+msgstr "Eroare la pornire"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:161
+msgid "Static friction coef"
+msgstr "Coeficientul Frecării Statice"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:150
+msgid "Static friction coef:"
+msgstr "Coeficientul frecării statice:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:161
+msgid ""
+"Static friction keeps you in the same place when you are stopped on a hill. "
+"In the real world this friction is always bigger than dynamic friction "
+"(sliding friction). Start with 0.5 and work from there. It is better to try "
+"to find some experimentally validated values for this and the rest of "
+"surface friction variables in the net, and then to fine tune via strength."
+msgstr "Frecarea statică te ține în același loc unde te-ai oprit pe deal. În realitate, această frecare e tot timpul mai mare decât frecarea dinamică (frecare de alunecare). Pornește cu 0.5 și continuă de aici. E recomandat să încerci să experimentezi niște valori valide pentru asta și pentru restul suprafeței de frecare de pe internet, apoi să reglezi ușor via rezistență."
+
+#: ../../source/configurator/Configurator.cpp:998
+msgid "Steering feedback level:"
+msgstr "Nivelul de feedback al virării:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:138
+msgid "Strength"
+msgstr "Rezistență"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:127
+msgid "Strength:"
+msgstr "Rezistență:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:251
+msgid "Stribeck velocity"
+msgstr "Viteză stribeck"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:242
+msgid "Stribeck velocity:"
+msgstr "Viteză Stribeck:"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:368
+msgid "Terrain height at position: "
+msgstr "Înălțimea terenului la poziția: "
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1878
+msgid "Terrain loading error"
+msgstr "Eroare la încărcarea terenului"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1879
+msgid "Terrain not found: "
+msgstr "Terenul nu a fost găsit: "
+
+#: ../../source/main/gui/panels/GUI_TextureToolWindow.cpp:43
+msgid "Texture Tool"
+msgstr "Unealtă pentru textură"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:220
+msgctxt "GameSettings"
+msgid "Texture filtering"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:899
+msgid "Texture filtering:"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:921
+msgid "Texture shadows"
+msgstr ""
+
+#: ../../source/main/gui/OverlayWrapper.cpp:481
+msgid "Textures: "
+msgstr "Texturi: "
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:323
+msgid "The color of RoR's special effects"
+msgstr "Culoarea efectelor speciale ale RoR"
+
+#: ../../source/configurator/Configurator.cpp:748
+msgid "The default mode for the gearbox when a new vehicle is loaded."
+msgstr "Cutia de viteze prestabilită pentru noul vehicul ce va fi folosit."
+
+#: ../../source/configurator/Configurator.cpp:883
+msgid ""
+"The terrain you want to load upon RoR startup. Might remove the startup "
+"selection menu."
+msgstr "Terenul pe care dorești să-l încarci la pornirea RoR. S-ar putea să scoată meniul de selectare de la pornire."
+
+#: ../../source/configurator/Configurator.cpp:888
+msgid ""
+"The truck you want to load upon RoR startup. Might remove the startup "
+"selection menu."
+msgstr "Camionul pe care dorești să-l încarci când pornește RoR. S-ar putea să elimine meniul de selectare de la pornire."
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:299
+msgid ""
+"The type of special effects that RoR will use to give the appearance of a "
+"surface. It doesn't affect the physics at all"
+msgstr "Acel tip de efect special pe care RoR îl folosește pentru a da înfățișarea unei suprafețe. Nu afectează cu nimic simularea din joc."
+
+#: ../../source/configurator/Configurator.cpp:2063
+msgid "The update service is currently only available for windows users."
+msgstr "Serviciul de actualizare este momentan disponibil doar pentru utilizatorii de windows."
+
+#: ../../source/configurator/Configurator.cpp:833
+msgid ""
+"These settings are for debugging RoR in various ways.\n"
+"If you do not know how to use these features, stay away from them."
+msgstr "Setările respective sunt pentru depanarea RoR în diferite moduri.\nDacă nu știi cum se folosesc, stai departe de ele."
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:384
+msgid ""
+"Think of it as default fluid resistance. Behavior index above changes it at "
+"real time. Useful values in practice are quite large."
+msgstr "Gândește ca și cum ar fi rezistența prestabilită a lichidului. Indexul comportării este în timp real. Valorile bune de pus în practică sunt destul de largi."
+
+#: ../../source/configurator/Configurator.cpp:960
+msgid ""
+"This determines how much grass and how many trees (and such objects) should "
+"get displayed."
+msgstr "Determină cât de multă iarbă și câți copaci (plus altele de genul) trebuie să fie afișate."
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:230
+msgid ""
+"This friction defines the added friction that you'll feel from a surface "
+"that has a little film of fluid on it. It is kind of redundant with all the "
+"fluid physics below, but it is here so as for experimentally validated "
+"values from the net to be usable. If you decide that you'll simulate the "
+"film of fluid with the more complex fluid physics below, then just set this "
+"to 0."
+msgstr "Această frecare definește frecarea adăugată ce îți va da senzația că suprafața are o peliculă de lichid. E într-un fel exagerat după toate celelalte tipuri de lichide de mai jos, dar e aici doar pentru scopuri experimentale cu valori valide de pe internet, ce pot fi folosite. Dacă te decizi să simulezi pelicula de lichid cu un grad de simulare mai complex decât cele de mai jos, atunci setează asta pe 0."
+
+#: ../../source/configurator/Configurator.cpp:966
+msgid ""
+"This may hurt framerate a bit on old systems, but it looks pretty good."
+msgstr "Asta ar putea să încetinească serios sistemele mai vechi, dar arată destul de bine."
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:430
+msgid ""
+"This parameter is for making it easier(cheating) to get out from mud. To get"
+" stuck in real mud isn't fun at all, so this makes the mud push up. Ranges "
+"in this parameter are from 0 to 1 . If you set it at 1 then you'll get real "
+"mud. For values from 0 to 1, the behavior goes from real mud to easy mud "
+"depending on this parameter and the value of Adhesion velocity. For velocity"
+" 0 real mud it is. For velocity >= adhesion velocity easy mud it is."
+msgstr "Acest parametru este pentru a ușura (trișa) ieșirea din noroi. Să rămâi cu vehiculul împotmolit în noroi nu e deloc distractiv, deci asta va face ca noroiul să te împingă în sus. "
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:138
+msgid ""
+"This parameter raises or diminishes surface friction in a generic way. It is"
+" here so as to be able to do quick calibrations of friction. Start with "
+"having this to 1.0 and after tuning the rest of the surface variables, come "
+"back and play with this."
+msgstr "Acest parametru crește sau scade indicele de frecare a suprafeței într-un mod general. E aici doar ca să poți face ușoare calibrări ale frecării. Începe cu 1.0, iar după ce reglezi celelalte variabile ale suprafeței, revin-o să mai umbli pe aici."
+
+#: ../../source/configurator/Configurator.cpp:737
+msgid ""
+"This setting overrides the system's default language. You need to restart "
+"the configurator to apply the changes."
+msgstr "Această setare înlocuiește limba prestabilită a întregului sistem. Va fi nevoie să repornești configuratorul, ca schimbarea să poată fi aplicată."
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1199
+#: ../../source/main/gameplay/RoRFrameListener.cpp:1200
+msgid "Time set to "
+msgstr "Ora setată la "
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:872
+msgid "Times used: "
+msgstr "De câte ori a fost folosit: "
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:266
+msgid "Tips:"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:674
+msgid ""
+"To change the keymap edit input.map with a texteditor.\n"
+"input.map is located at: \n"
+"My Documents\\Rigs of Rods\\config\\input.map (Windows)\n"
+"~/.rigsofrods/config/input.map (Linux)\n"
+"~/RigsOfRods/config/input.map (OS X)"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:854
+msgid "Torque: "
+msgstr "Cuplu: "
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:245
+msgid "Total mass: "
+msgstr ""
+
+#: ../../source/main/physics/Beam.cpp:1332
+msgid "Transfercase switched to: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:864
+msgid "Transmission Gear Count: "
+msgstr "Totalul Vitezelor: "
+
+#: ../../source/main/gui/OverlayWrapper.cpp:454
+msgid "Triangle Count: "
+msgstr "Totalul Triunghiurilor: "
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:176
+msgid "Triangle count: "
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:864
+msgid "Trigger Debug"
+msgstr "Depanare Trigger"
+
+#: ../../source/configurator/Configurator.cpp:903
+msgid "Trilinear"
+msgstr "Triliniar"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:882
+msgid "Truck"
+msgstr "Camion"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:259
+msgid "Truck loaded correctly, no errors"
+msgstr "Camion încărcat corect, fără erori"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:253
+msgid "Truck loading errors"
+msgstr "Erori la încărcarea camionului"
+
+#: ../../source/configurator/Configurator.cpp:1373
+msgid ""
+"Unable to load the render systems. Please check if all required files are there and the plugins.cfg file is correct.\n"
+"This is a fatal error and the game will not start."
+msgstr "Nu se pot încărca sistemele de randare. Te rog, verifică dacă toate fișierele necesare sunt unde trebuie și fișierul plugins.cfg este corect.\nEste o eroare fatală iar jocul nu poate fi pornit."
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:868
+msgid "Unique ID: "
+msgstr "ID unic: "
+
+#: ../../source/configurator/Configurator.cpp:932
+#: ../../source/configurator/Configurator.cpp:1083
+#: ../../source/configurator/Configurator.cpp:2334
+#: ../../source/configurator/Configurator.cpp:2386
+msgid "Unlimited"
+msgstr "Nelimitat"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:2210
+msgid "Unloading Terrain"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:841
+msgid "Unlocks disabled & unfinished features for developement"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:697
+msgid "Updates"
+msgstr "Actualizări"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:317
+msgctxt "GameSettings"
+msgid "Use arcade controls"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:154
+msgctxt "GameSettings"
+msgid "Use position storage"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1090
+msgid ""
+"Use this to regenerate the cache outside of RoR. If this does not work, use "
+"the clear cache button."
+msgstr "Folosește asta ca să regenerezi cache-ul în afara RoR. Dacă nu funcționează, folosește butonul de ștergere a cache-ului."
+
+#: ../../source/configurator/Configurator.cpp:1093
+msgid ""
+"Use this to remove the whole cache and force the generation from ground up."
+msgstr "Folosește asta pentru a elimina întregul cache și forțarea generării de la 0."
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:862
+msgid "Using Submeshs: "
+msgstr "Folosește Sub-mesh-uri: "
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:233
+msgid ""
+"Using slashes before commands are deprecated, you can now type command "
+"without any slashes"
+msgstr ""
+
+#. Various Settings
+#: ../../source/configurator/Configurator.cpp:1097
+msgid "Various Settings:"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:236
+msgctxt "GameSettings"
+msgid "Vegetation density"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:954
+msgid "Vegetation:"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:884
+msgid "Vehicle Type: "
+msgstr "Tip de vehicul: "
+
+#. When this condition is true, it means that health is at 0% which means 100%
+#. of destruction.
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:223
+msgid "Vehicle destruction: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:218
+msgid "Vehicle health: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:346
+msgid "Vehicle position set to: "
+msgstr "Poziția vehicului setată la: "
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:322
+msgid "Vehicle position: "
+msgstr "Poziția vehicului: "
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:294
+msgid "Vehicle speed: "
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:780
+msgid "Version"
+msgstr ""
+
+#: ../../source/main/utils/Settings.cpp:112
+msgid "Version Information"
+msgstr "Informații despre Versiune"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:828
+msgid "Version: "
+msgstr "Versiunea: "
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:329
+#, c-format
+msgid ""
+"Vertical: % 1.2fg\n"
+"Sagittal: % 1.2fg\n"
+"Lateral:  % 1.2fg"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:190
+msgctxt "GameSettings"
+msgid "Video settings"
+msgstr ""
+
+#: ../../source/main/physics/Differentials.cpp:52
+msgid "Viscous"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:974
+msgid "Visual effects:"
+msgstr "Efecte vizuale:"
+
+#: ../../source/configurator/Configurator.cpp:2063
+msgid "Warning"
+msgstr "Avertizare"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:242
+msgctxt "GameSettings"
+msgid "Water gfx"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:303
+msgid "Water level set to: "
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:947
+msgid ""
+"Water reflection is slower, and requires a good GPU. In speed optimized mode"
+" you may experience excessive camera shaking."
+msgstr "Reflexiile apei încetinesc jocul și ai nevoie de o placă video bună. În modul vitezei optimizate s-ar putea să ai probleme cu camera tremurând excesiv."
+
+#: ../../source/configurator/Configurator.cpp:939
+msgid "Water type:"
+msgstr "Tipul apei:"
+
+#: ../../source/main/gui/panels/GUI_GameSettings.cpp:264
+msgctxt "GameSettings"
+msgid "Waves on water"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:285
+msgid "Wheel speed: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:830
+msgid "Wheels: "
+msgstr "Roți: "
+
+#: ../../source/configurator/Configurator.cpp:936
+msgid ""
+"When turned on, it disables the vehicles shadow when driving in first person"
+" mode."
+msgstr "Atunci când este pornit, dezactivează umbra vehicului atunci când conduci în modul prima persoană"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:860
+msgid "Wings: "
+msgstr "Aripi: "
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:115
+msgid ""
+"With this you can define how deep the solid ground is. If it is 0 then the "
+"surface will be solid. If it is 0.1 then you'll have 10 cm of fluid on top "
+"of solid ground. If it is 100 then the solid ground will be way deep (100m),"
+" with fluid on top."
+msgstr "Cu asta definești cât de adânc e solul solid. Dacă e 0, atunci suprafața va fi solidă. Dacă e 0.1, atunci vei avea 10 cm de lichid deasupra solului solid. Dacă e 100, atunci solul solid va fi foarte adânc (100m), cu lichid deasupra."
+
+#: ../../source/main/gui/OverlayWrapper.cpp:453
+#: ../../source/main/gui/panels/GUI_SimUtils.cpp:174
+msgid "Worst FPS: "
+msgstr "Cel mai slab FPS: "
+
+#: ../../source/configurator/Configurator.cpp:772
+msgid "You can disable the default creak sound by checking this box"
+msgstr "Poți dezactiva scârțâitul prestabilit bifând această căsuță"
+
+#: ../../source/configurator/Configurator.cpp:816
+msgid ""
+"You can find a complete list of the RoR's authors ingame: about->credits."
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1030
+msgid ""
+"You do not need to change these settings unless you experience problems"
+msgstr "N-ai nevoie să schimbi setările respective în afară de cazul că întâmpini probleme"
+
+#: ../../source/main/resources/CacheSystem.cpp:154
+msgid "You have no content installed"
+msgstr "Nu ai niciun conținut instalat"
+
+#: ../../source/configurator/Configurator.cpp:1324
+msgid "You must save and restart the program to activate the new language!"
+msgstr "Trebuie să salvezi și să repornești programul pentru a putea folosi limba selectată!"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:251
+msgid ""
+"You'll either find stribeck velocity in the net, or the inverse (1/stribeck "
+"velocity) of it described as 'stribeck coef'. It defines the shape of the "
+"dynamic friction curve. Lets leave it at that. Just find some nice values "
+"for it from the net."
+msgstr "Fie vei găsi frecarea stribeck pe internet, sau inversul (1/frecare stribeck) descrisă ca și 'coef stribeck'. Definește forma dinamică a curbei de frecare. S-o lăsăm așa. Doar caută niște valori bune pentru asta pe internet."
+
+#: ../../source/main/physics/collision/Collisions.cpp:201
+msgid ""
+"Your ground configuration is too old, please copy "
+"skeleton/config/ground_models.cfg to My Documents/Rigs of Rods/config"
+msgstr "Configurația ta de sol e prea veche, te rog copiază skeleton/config/ground_models.cfg în My Documents/Rigs of Rods/config"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:903
+msgid "[car engine]"
+msgstr "[motorul mașinii]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:889
+msgid "[forwards commands]"
+msgstr "[înaintează comenzi]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:899
+msgid "[has fixes]"
+msgstr "[are noduri fixate]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:891
+msgid "[imports commands]"
+msgstr "[importă comenzi]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:895
+msgid "[is rescuer]"
+msgstr "[e salvator]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:893
+msgid "[is rollon]"
+msgstr "[se poate ciocni de alte vehicule]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:907
+msgid "[unpacked in directory]"
+msgstr "[despachetat în directorul]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:897
+msgid "[uses custom particles]"
+msgstr "[utilizează particule personalizate]"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:905
+msgid "[zip archive]"
+msgstr "[arhivă zip]"
+
+#: ../../source/main/utils/InputEngine.cpp:854
+msgid "accelerate the simulation"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1190
+msgid "accelerate the truck"
+msgstr "accelerează camionul"
+
+#: ../../source/main/utils/InputEngine.cpp:1196
+msgid "accelerate with 25 percent pedal input"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1202
+msgid "accelerate with 50 percent pedal input"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:85
+msgid "airplane parking brake."
+msgstr "frâna de parcare a avionului."
+
+#: ../../source/main/utils/InputEngine.cpp:1691
+msgid "airplane throttle"
+msgstr "accelerația avionului"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:265
+msgid "alpha:"
+msgstr "alfa:"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:256
+msgid "as <code here> - interpret angel code using console"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1238
+msgid "brake"
+msgstr "frână"
+
+#: ../../source/main/utils/InputEngine.cpp:1244
+msgid "brake with 25 percent pedal input"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1250
+msgid "brake with 50 percent pedal input"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:541
+#: ../../source/configurator/Configurator.cpp:589
+#: ../../source/configurator/Configurator.cpp:1890
+msgid "caught exception"
+msgstr "excepție întâmpinată"
+
+#: ../../source/main/utils/InputEngine.cpp:158
+msgid "center the rudder"
+msgstr "centrează cârma"
+
+#: ../../source/main/utils/InputEngine.cpp:236
+msgid "change camera mode"
+msgstr "schimbă modul camerei"
+
+#: ../../source/main/resources/CacheSystem.cpp:1509
+#: ../../source/main/resources/CacheSystem.cpp:1513
+msgid "checking for new directories in "
+msgstr "se caută directoare noi în "
+
+#: ../../source/main/resources/CacheSystem.cpp:1486
+#: ../../source/main/resources/CacheSystem.cpp:1490
+msgid "checking for new zips in "
+msgstr "se caută zip-uri noi în "
+
+#: ../../source/main/utils/InputEngine.cpp:944
+msgid "connect a rope to a node in close proximity"
+msgstr "conectează o frânghie de un nod în imediata apropiere"
+
+#: ../../source/main/utils/InputEngine.cpp:932
+msgid "connect hook node to a node in close proximity"
+msgstr "conectează nodul cârligului de un nod în imediata apropiere"
+
+#: ../../source/main/utils/InputEngine.cpp:1551
+msgid "cycle between available inter axle differential modes"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1557
+msgid "cycle between available inter wheel differential modes"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1028
+msgid "cycle debug views"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1172
+msgid "cycle map modes"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1046
+msgid "debug purpose - dont use"
+msgstr "pentru depanare - nu folosi nimic"
+
+#: ../../source/main/utils/InputEngine.cpp:860
+msgid "decelerate the simulation"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:212
+msgid "decrease day-time"
+msgstr "descrește timpul zilei"
+
+#: ../../source/main/utils/InputEngine.cpp:218
+msgid "decrease day-time a lot faster"
+msgstr "descrește timpul zilei mai repede"
+
+#: ../../source/main/utils/InputEngine.cpp:1370
+msgid "decrease target speed / rpm"
+msgstr "scade viteza target-ului / rpm"
+
+#: ../../source/main/utils/InputEngine.cpp:200
+msgid "decrease throttle"
+msgstr "scade accelerația"
+
+#: ../../source/main/utils/InputEngine.cpp:962
+msgid "decrease tire pressure (note: only very few trucks support this)"
+msgstr "scade presiunea roților (notă: numai unele camioane permit azzz)"
+
+#: ../../source/main/utils/InputEngine.cpp:128
+msgid "decreases the airplane thrust"
+msgstr "reduce puterea motorului de avion"
+
+#: ../../source/main/utils/InputEngine.cpp:1094
+msgid "decreases the current FOV value"
+msgstr "scade valoarea actuală a FOV-ului"
+
+#: ../../source/main/utils/InputEngine.cpp:1697
+msgid "delete current truck"
+msgstr "şterge camionul actual"
+
+#: ../../source/configurator/Configurator.cpp:931
+msgid "determines how far you can see in meters"
+msgstr "determină cât de departe poți vedea în metri"
+
+#: ../../source/main/network/Network.cpp:435
+msgid "disconnected: remote side closed the connection"
+msgstr "deconectat: cealaltă parte a închis conexiunea"
+
+#: ../../source/main/utils/InputEngine.cpp:1703
+msgid "display or hide net chat"
+msgstr "arată sau ascunde chat-ul"
+
+#: ../../source/main/utils/InputEngine.cpp:926
+msgid "display or hide the dashboard overlay"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1613
+msgid "enable / disable free camera mode"
+msgstr "activează / dezactivează modul cameră liberă"
+
+#: ../../source/main/utils/InputEngine.cpp:1058
+msgid "enable or disable replay mode"
+msgstr "activează sau dezactivează funcția de reluare"
+
+#: ../../source/main/utils/InputEngine.cpp:896
+msgid "enter next truck"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:890
+msgid "enter or exit a truck"
+msgstr "intră sau ieși dintr-un camion"
+
+#: ../../source/main/utils/InputEngine.cpp:902
+msgid "enter previous truck"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:878
+msgid "enter the chat"
+msgstr "intră pe chat"
+
+#. Only in character mode
+#: ../../source/main/utils/InputEngine.cpp:1601
+msgid "enter/exit teleport mode"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:482
+msgid "error upon loading RoR user directory"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1297
+msgid "error upon restoring Ogre Configuration"
+msgstr "eroare la restaurarea Configurației Ogre"
+
+#: ../../source/main/utils/InputEngine.cpp:974
+msgid "exit the game"
+msgstr "ieși din joc"
+
+#: ../../source/main/utils/InputEngine.cpp:1607
+msgid "fix the camera to a position"
+msgstr "fixează camera într-o poziție"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:827
+msgid "forwardcommands disabled"
+msgstr ""
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:823
+msgid "forwardcommands enabled"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1673
+msgid "full airbrakes"
+msgstr "frâne pneumatice complete"
+
+#: ../../source/main/utils/InputEngine.cpp:61
+msgid "full flaps in an aircraft."
+msgstr "flapsuri complete ale aeronavei."
+
+#: ../../source/main/utils/InputEngine.cpp:134
+msgid "full thrust"
+msgstr "tracţiune integrala"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:311
+msgid "fx_color:"
+msgstr "culoare_fx:"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:288
+msgid "fx_type:"
+msgstr "tip_fx:"
+
+#: ../../source/main/utils/InputEngine.cpp:956
+msgid "get new vehicle"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:139
+msgid "go to user"
+msgstr "mergi la utilizator"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:246
+msgid "goto <x> <y> <z> - jumps to the mentioned position"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:259
+msgid ""
+"gravity <real> or <text string> - changes gravity constant. Outputs current "
+"value if no argument is given"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:243
+msgid "help - information on commands (this)"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:920
+msgid "hide all GUI elements"
+msgstr "ascunde toate elementele GUI"
+
+#: ../../source/main/utils/InputEngine.cpp:1527
+msgid "hold to start the engine"
+msgstr "apasă lung ca să pornești motorul"
+
+#: ../../source/configurator/Configurator.cpp:677
+msgid ""
+"http://docs.rigsofrods.org/gameplay/controls-config/#config-file-inputmap"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:892
+msgid "http://www.rigsofrods.org/wiki/pages/Debugging_Trucks"
+msgstr ""
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:839
+msgid "importcommands disabled"
+msgstr ""
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:835
+msgid "importcommands enabled"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:224
+msgid "increase day-time"
+msgstr "mărește timpul zilei"
+
+#: ../../source/main/utils/InputEngine.cpp:230
+msgid "increase day-time a lot faster"
+msgstr "mărește timpul zilei mai repede"
+
+#: ../../source/main/utils/InputEngine.cpp:1364
+msgid "increase target speed / rpm"
+msgstr "crește viteza target-ului / rpm"
+
+#: ../../source/main/utils/InputEngine.cpp:146
+msgid "increase the airplane thrust"
+msgstr "mărește accelerația avionului"
+
+#: ../../source/main/utils/InputEngine.cpp:1100
+msgid "increase the current FOV value"
+msgstr "mărește valoarea actuală a FOV-ului"
+
+#: ../../source/main/utils/InputEngine.cpp:206
+msgid "increase throttle"
+msgstr "mărește accelerația"
+
+#: ../../source/main/utils/InputEngine.cpp:968
+msgid "increase tire pressure (note: only very few trucks support this)"
+msgstr "crește presiunea roților (notă: doar câteva camioane suportă așa ceva)"
+
+#: ../../source/main/resources/CacheSystem.cpp:391
+msgid "incremental check: deleted and changed files"
+msgstr "verificare de bază: fișiere șterse și schimbate"
+
+#: ../../source/main/resources/CacheSystem.cpp:399
+#: ../../source/main/resources/CacheSystem.cpp:415
+msgid "incremental check: deleted and changed files\n"
+msgstr "verificare de bază: fișiere șterse și schimbate\n"
+
+#: ../../source/main/resources/CacheSystem.cpp:468
+msgid "incremental check: duplicates\n"
+msgstr "verificare de bază: dubluri\n"
+
+#: ../../source/main/resources/CacheSystem.cpp:460
+msgid "incremental check: new content\n"
+msgstr "verificare de bază: conținut nou\n"
+
+#: ../../source/main/resources/CacheSystem.cpp:464
+msgid "incremental check: new files\n"
+msgstr "verificare de bază: fișiere noi\n"
+
+#: ../../source/main/resources/CacheSystem.cpp:440
+#: ../../source/main/resources/CacheSystem.cpp:454
+msgid "incremental check: processing changed zips\n"
+msgstr "verificare de bază: se procesează zip-urile schimbate\n"
+
+#: ../../source/main/physics/Differentials.cpp:46
+#: ../../source/main/physics/Differentials.cpp:54
+msgid "invalid"
+msgstr "invalid"
+
+#: ../../source/configurator/Configurator.cpp:986
+msgid "jpg (smaller, default)"
+msgstr "jpg (ocupă puțin, prestabilit)"
+
+#: ../../source/main/utils/InputEngine.cpp:1679
+msgid "less airbrakes"
+msgstr "frâne pneumatice mai slabe"
+
+#: ../../source/main/utils/InputEngine.cpp:314
+msgid "let the character jump"
+msgstr "lasă personajul să sară"
+
+#: ../../source/main/utils/InputEngine.cpp:332
+msgid "let the character run"
+msgstr "lasă personajul să fugă"
+
+#: ../../source/main/utils/InputEngine.cpp:1748
+msgid "load position under slot 1"
+msgstr "încarcă poziția sub slotul 1"
+
+#: ../../source/main/utils/InputEngine.cpp:1757
+msgid "load position under slot 10"
+msgstr "încarcă poziția sub slotul 10"
+
+#: ../../source/main/utils/InputEngine.cpp:1749
+msgid "load position under slot 2"
+msgstr "încarcă poziția sub slotul 2"
+
+#: ../../source/main/utils/InputEngine.cpp:1750
+msgid "load position under slot 3"
+msgstr "încarcă poziția sub slotul 3"
+
+#: ../../source/main/utils/InputEngine.cpp:1751
+msgid "load position under slot 4"
+msgstr "se încarcă poziția sub slotul 4"
+
+#: ../../source/main/utils/InputEngine.cpp:1752
+msgid "load position under slot 5"
+msgstr "încarcă poziția sub slotul 5"
+
+#: ../../source/main/utils/InputEngine.cpp:1753
+msgid "load position under slot 6"
+msgstr "încarcă poziția sub slotul 6"
+
+#: ../../source/main/utils/InputEngine.cpp:1754
+msgid "load position under slot 7"
+msgstr "încarcă poziția sub slotul 7"
+
+#: ../../source/main/utils/InputEngine.cpp:1755
+msgid "load position under slot 8"
+msgstr "încarcă poziția sub slotul 8"
+
+#: ../../source/main/utils/InputEngine.cpp:1756
+msgid "load position under slot 9"
+msgstr "încarcă poziția sub slotul 9"
+
+#: ../../source/main/resources/CacheSystem.cpp:1513
+msgid "loading new directory: "
+msgstr "se încarcă directorul nou: "
+
+#: ../../source/main/resources/CacheSystem.cpp:1490
+msgid "loading new zip: "
+msgstr "se încarcă noul fișier zip: "
+
+#: ../../source/main/terrain/TerrainGeometryManager.cpp:350
+msgid "loading terrain page blend maps "
+msgstr ""
+
+#: ../../source/main/terrain/TerrainGeometryManager.cpp:348
+msgid "loading terrain page layers "
+msgstr ""
+
+#. sync load since we want everything in place when we start
+#: ../../source/main/terrain/TerrainGeometryManager.cpp:322
+msgid "loading terrain pages"
+msgstr ""
+
+#: ../../source/main/resources/CacheSystem.cpp:544
+msgid "loading...\n"
+msgstr "se încarcă...\n"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:251
+msgid "log - toggles log output on the console"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:242
+msgid "look back (toggles between normal and lookback)"
+msgstr "uită-te în spate (schimbă între normal și uită-te în spate)"
+
+#: ../../source/main/utils/InputEngine.cpp:1322
+msgid "manual clutch (for manual transmission)"
+msgstr "ambreiaj manual (pentru cutie manuală)"
+
+#: ../../source/main/utils/InputEngine.cpp:1358
+msgid "match target speed / rpm with current truck speed / rpm"
+msgstr "egalează viteza target-ului / rpm cu viteza actuală a camionului / rpm"
+
+#: ../../source/main/utils/InputEngine.cpp:1685
+msgid "more airbrakes"
+msgstr "frâne pneumatice mai puternice"
+
+#: ../../source/main/utils/InputEngine.cpp:1649
+msgid "more replay backward"
+msgstr "mai multă reluare inversă"
+
+#: ../../source/main/utils/InputEngine.cpp:1643
+msgid "more replay forward"
+msgstr "mai multă reluare înainte"
+
+#: ../../source/main/utils/InputEngine.cpp:1631
+msgid "more right mirror to the left"
+msgstr "mai multă oglindă dreaptă spre dreapta"
+
+#: ../../source/main/utils/InputEngine.cpp:1733
+msgid "move camera down"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1727
+msgid "move camera up"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1619
+msgid "move left mirror to the left"
+msgstr "mișcă oglinda stângă câtre stânga"
+
+#: ../../source/main/utils/InputEngine.cpp:1625
+msgid "move left mirror to the right"
+msgstr "mișcă oglinda stângă către dreapta"
+
+#: ../../source/main/utils/InputEngine.cpp:1661
+msgid "move replay fast backward"
+msgstr "reluare rapidă înapoi"
+
+#: ../../source/main/utils/InputEngine.cpp:1655
+msgid "move replay fast forward"
+msgstr "mai multă reluare rapidă înainte"
+
+#: ../../source/main/utils/InputEngine.cpp:1637
+msgid "move right mirror to the right"
+msgstr "mișcă oglinda dreaptă spre dreapta"
+
+#: ../../source/configurator/Configurator.cpp:1325
+msgid "new Language selected"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1667
+msgid "no airbrakes"
+msgstr "fără frâne pneumatice"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:806
+msgid "no author information available"
+msgstr "nu există informații despre autor"
+
+#: ../../source/main/utils/InputEngine.cpp:79
+msgid "no flaps."
+msgstr "fără flapsuri."
+
+#: ../../source/main/utils/InputEngine.cpp:140
+#: ../../source/main/utils/InputEngine.cpp:164
+msgid "no thrust"
+msgstr "motor oprit"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:265
+msgid "no truck loaded"
+msgstr "niciun camion încărcat"
+
+#: ../../source/main/utils/InputEngine.cpp:43
+msgid "normal brake for an aircraft"
+msgstr "frâna normală pentru un avion"
+
+#: ../../source/main/utils/InputEngine.cpp:67
+msgid "one step less flaps."
+msgstr "flapsuri cu un pas în minus."
+
+#: ../../source/main/utils/InputEngine.cpp:73
+msgid "one step more flaps."
+msgstr "flapsuri cu un pas în plus."
+
+#: ../../source/configurator/Configurator.cpp:987
+msgid "png (bigger, no quality loss)"
+msgstr "png (ocupă mult, fără pierderi de calitate)"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:245
+msgid "pos - outputs the current position"
+msgstr ""
+
+#: ../../source/main/terrain/TerrainGeometryManager.cpp:317
+msgid "preparing terrain page "
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:49
+msgid "pull the elevator down in an aircraft."
+msgstr "deschide rampa avionului."
+
+#: ../../source/main/utils/InputEngine.cpp:55
+msgid "pull the elevator up in an aircraft."
+msgstr "închide rampa avionului."
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:253
+msgid "quit - exit Rigs of Rods"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:231
+msgid "ranked user"
+msgstr "utilizator clasat"
+
+#: ../../source/main/utils/InputEngine.cpp:1759
+msgid "reload truck"
+msgstr "încarcă din nou camionul"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:129
+msgid "remote truck loading state"
+msgstr "starea încărcării camionului controlat de la distanță"
+
+#: ../../source/main/utils/InputEngine.cpp:908
+msgid "remove current truck"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:980
+msgid "repair truck"
+msgstr "repară camionul"
+
+#: ../../source/main/utils/InputEngine.cpp:248
+msgid "reset the camera position"
+msgstr "resetează poziția camerei"
+
+#: ../../source/main/utils/InputEngine.cpp:866
+msgid "reset the simulation pace"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:992
+msgid "reset truck to original starting position"
+msgstr "resetează poziția camionului în locul unde inițial a fost parcat"
+
+#: ../../source/main/utils/InputEngine.cpp:914
+msgid "respawn last truck"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:92
+msgid "reverse the turboprops"
+msgstr "inversează turbopropulsoarele"
+
+#: ../../source/main/utils/InputEngine.cpp:254
+msgid "rotate camera down"
+msgstr "rotește camera în jos"
+
+#: ../../source/main/utils/InputEngine.cpp:260
+msgid "rotate camera left"
+msgstr "rotește camera spre stânga"
+
+#: ../../source/main/utils/InputEngine.cpp:266
+msgid "rotate camera right"
+msgstr "rotește camera spre dreapta"
+
+#: ../../source/main/utils/InputEngine.cpp:272
+msgid "rotate camera up"
+msgstr "rotește camera în sus"
+
+#: ../../source/main/utils/InputEngine.cpp:320
+msgid "rotate character left"
+msgstr "rotește personajul spre stânga"
+
+#: ../../source/main/utils/InputEngine.cpp:326
+msgid "rotate character right"
+msgstr "rotește caracterul spre dreapta"
+
+#: ../../source/main/utils/InputEngine.cpp:1721
+msgid "rotate view down"
+msgstr "rotește vederea în jos"
+
+#: ../../source/main/utils/InputEngine.cpp:1715
+msgid "rotate view up"
+msgstr "rotește vederea în sus"
+
+#: ../../source/main/utils/InputEngine.cpp:98
+msgid "rudder left"
+msgstr "girează la stânga"
+
+#: ../../source/main/utils/InputEngine.cpp:104
+msgid "rudder right"
+msgstr "încârnește la dreapta"
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:604
+msgid "rx"
+msgstr ""
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:591
+#: ../../source/main/gameplay/RoRFrameListener.cpp:594
+msgid "ry"
+msgstr ""
+
+#: ../../source/main/gameplay/RoRFrameListener.cpp:599
+msgid "rz"
+msgstr ""
+
+#. now position storage
+#: ../../source/main/utils/InputEngine.cpp:1737
+msgid "save position as slot 1"
+msgstr "salvează poziția ca slotul 1"
+
+#: ../../source/main/utils/InputEngine.cpp:1746
+msgid "save position as slot 10"
+msgstr "salvează poziția ca slotul 10"
+
+#: ../../source/main/utils/InputEngine.cpp:1738
+msgid "save position as slot 2"
+msgstr "salvează poziția ca slotul 2"
+
+#: ../../source/main/utils/InputEngine.cpp:1739
+msgid "save position as slot 3"
+msgstr "salvează poziția ca slotul 3"
+
+#: ../../source/main/utils/InputEngine.cpp:1740
+msgid "save position as slot 4"
+msgstr "salvează poziția ca slotul 4"
+
+#: ../../source/main/utils/InputEngine.cpp:1741
+msgid "save position as slot 5"
+msgstr "salvează poziția ca slotul 5"
+
+#: ../../source/main/utils/InputEngine.cpp:1742
+msgid "save position as slot 6"
+msgstr "salvează poziția ca slotul 6"
+
+#: ../../source/main/utils/InputEngine.cpp:1743
+msgid "save position as slot 7"
+msgstr "salvează poziția ca slotul 7"
+
+#: ../../source/main/utils/InputEngine.cpp:1744
+msgid "save position as slot 8"
+msgstr "salvează poziția ca slotul 8"
+
+#: ../../source/main/utils/InputEngine.cpp:1745
+msgid "save position as slot 9"
+msgstr "salvează poziția ca slotul 9"
+
+#: ../../source/main/utils/InputEngine.cpp:1010
+msgid "save the currently loaded terrain to a mesh file"
+msgstr "salvează actualul teren într-un mesh"
+
+#: ../../source/main/gui/panels/GUI_TextureToolWindow.cpp:128
+msgid "saved texture as "
+msgstr "salvează textura ca "
+
+#: ../../source/main/terrain/TerrainGeometryManager.cpp:359
+msgid "saving all terrain pages ..."
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1154
+msgid "select focussed item and close menu"
+msgstr "selectează elementul focusat și închide meniul"
+
+#: ../../source/main/utils/InputEngine.cpp:1148
+msgid "select next category"
+msgstr "selectează categoria următoare"
+
+#: ../../source/main/utils/InputEngine.cpp:1136
+msgid "select next element in current category"
+msgstr "selectează următorul element în actuala categorie"
+
+#: ../../source/main/utils/InputEngine.cpp:1142
+msgid "select previous category"
+msgstr "selectează categoria anterioară"
+
+#: ../../source/main/utils/InputEngine.cpp:1160
+msgid "select previous element in current category"
+msgstr "selectează elementul anterior în actuala categorie"
+
+#: ../../source/main/gui/panels/GUI_FrictionSettings.cpp:80
+msgid "selected Ground Type:"
+msgstr "Tipul de Sol selectat:"
+
+#: ../../source/main/utils/InputEngine.cpp:884
+msgid "sends the entered text"
+msgstr "trimite textul scris"
+
+#: ../../source/main/network/Network.cpp:643
+msgid "server uses a different protocol version"
+msgstr "serverul folosește o versiune de protocol diferită"
+
+#: ../../source/main/utils/InputEngine.cpp:1521
+msgid "sets high range (13-18) for H-shaft"
+msgstr "selecteaza raportul mare (13-18) pentru schimbator H"
+
+#: ../../source/main/utils/InputEngine.cpp:1509
+msgid "sets low range (1-6) for H-shaft"
+msgstr "setează intervalul scăzut (1-6) pentru H-shaft"
+
+#: ../../source/main/utils/InputEngine.cpp:1515
+msgid "sets middle range (7-12) for H-shaft"
+msgstr "setează intervalul mijlociu (7-12) pentru H-shaft"
+
+#: ../../source/configurator/Configurator.cpp:1063
+msgid "sets the master volume"
+msgstr ""
+
+#: ../../source/configurator/Configurator.cpp:1082
+msgid "sets the maximum frames per second"
+msgstr "stabilește maximul de frame pe secundă"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:262
+msgid "setwaterlevel <real> - changes water's level"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1208
+msgid "shift automatic transmission one gear down"
+msgstr "schimbă cu o viteză în minus în modul cutie automată"
+
+#: ../../source/main/utils/InputEngine.cpp:1214
+msgid "shift automatic transmission one gear up"
+msgstr "schimbă cu o viteză în plus în modul cutie automată"
+
+#: ../../source/main/utils/InputEngine.cpp:1454
+msgid "shift directly to 10th gear"
+msgstr "schimbă direct într-a zecea viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1460
+msgid "shift directly to 11th gear"
+msgstr "schimbă direct într-a unsprezecea viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1466
+msgid "shift directly to 12th gear"
+msgstr "schimbă direct într-a doisprezecea viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1473
+msgid "shift directly to 13th gear"
+msgstr "schimbă direct într-a treisprezecea viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1479
+msgid "shift directly to 14th gear"
+msgstr "schimbă direct într-a paisprezecea viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1485
+msgid "shift directly to 15th gear"
+msgstr "schimbă direct într-a cincisprezecea viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1491
+msgid "shift directly to 16th gear"
+msgstr "schimbă direct într-a șaisprezecea viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1497
+msgid "shift directly to 17th gear"
+msgstr "schimbă direct într-a șaptesprezecea viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1503
+msgid "shift directly to 18th gear"
+msgstr "schimbă direct într-a optsprezecea viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1424
+msgid "shift directly to 5th gear"
+msgstr "schimbă direct într-a cincea viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1430
+msgid "shift directly to 6th gear"
+msgstr "schimbă direct într-a șasea viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1436
+msgid "shift directly to 7th gear"
+msgstr "schimbă direct într-a șaptea viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1442
+msgid "shift directly to 8th gear"
+msgstr "schimbă direct într-a opta viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1448
+msgid "shift directly to 9th gear"
+msgstr "schimbă direct într-a noua viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1400
+msgid "shift directly to first gear"
+msgstr "schimbă direct în prima viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1418
+msgid "shift directly to fourth gear"
+msgstr "schimbă direct într-a patra viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1394
+msgid "shift directly to reverse gear"
+msgstr "schimbă direct în marșarier"
+
+#: ../../source/main/utils/InputEngine.cpp:1406
+msgid "shift directly to second gear"
+msgstr "schimbă direct într-a doua viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1412
+msgid "shift directly to third gear"
+msgstr "schimbă direct într-a treia viteză"
+
+#: ../../source/main/utils/InputEngine.cpp:1376
+msgid "shift one gear down in manual transmission mode"
+msgstr "schimbă cu o viteză în minus în modul cutie manuală"
+
+#: ../../source/main/utils/InputEngine.cpp:1388
+msgid "shift one gear up in manual transmission mode"
+msgstr "schimbă cu o viteză în plus în modul cutie manuală"
+
+#: ../../source/main/utils/InputEngine.cpp:1382
+msgid "shift to neutral gear in manual transmission mode"
+msgstr "scoate din viteză în modul de transmisie manuală"
+
+#: ../../source/main/utils/InputEngine.cpp:872
+msgid "show / hide the console"
+msgstr "arată / ascunde consola"
+
+#: ../../source/main/utils/InputEngine.cpp:338
+msgid "sidestep to the left"
+msgstr "ocolește spre stânga"
+
+#: ../../source/main/utils/InputEngine.cpp:344
+msgid "sidestep to the right"
+msgstr "ocolește spre dreapta"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:264
+msgid "spawnobject <odef name> - spawn a object at the player position"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:110
+#: ../../source/main/utils/InputEngine.cpp:1533
+msgid "steer left"
+msgstr "virează stânga"
+
+#: ../../source/main/utils/InputEngine.cpp:176
+msgid "steer left (analog value!)"
+msgstr "virează stânga (valoare analogică!)"
+
+#: ../../source/main/utils/InputEngine.cpp:170
+msgid "steer left a step"
+msgstr "virează stânga un pas"
+
+#: ../../source/main/utils/InputEngine.cpp:37
+#: ../../source/main/utils/InputEngine.cpp:116
+#: ../../source/main/utils/InputEngine.cpp:1539
+msgid "steer right"
+msgstr "virează dreapta"
+
+#: ../../source/main/utils/InputEngine.cpp:188
+msgid "steer right (analog value!)"
+msgstr "virează dreapta (valoare analogică!)"
+
+#: ../../source/main/utils/InputEngine.cpp:182
+msgid "steer right a step"
+msgstr "virează spre dreapta un pas"
+
+#: ../../source/main/utils/InputEngine.cpp:302
+msgid "step backwards with the character"
+msgstr "mergi înapoi"
+
+#: ../../source/main/utils/InputEngine.cpp:308
+msgid "step forward with the character"
+msgstr "mergi înainte"
+
+#: ../../source/main/utils/InputEngine.cpp:152
+msgid "switch all engines on / off"
+msgstr "schimbă toate motoarele pornit / oprit"
+
+#: ../../source/main/utils/InputEngine.cpp:1004
+msgid "take a big screenshot (3 times the screen size)"
+msgstr "realizează o poză mare (de 3 ori mărimea ecranului)"
+
+#: ../../source/main/utils/InputEngine.cpp:998
+msgid "take a screenshot"
+msgstr "fă o poză"
+
+#: ../../source/main/utils/InputEngine.cpp:986
+msgid "teleport to rescue truck"
+msgstr "teleportează-te către camionul de salvare"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:249
+msgid "terrainheight - get height of terrain at current position"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:122
+#: ../../source/main/utils/InputEngine.cpp:194
+msgid ""
+"throttle axis. Only use this if you have fitting hardware :) (i.e. a Slider)"
+msgstr "axa pedalei de accelerație. Folosește asta numai dacă ai hardware-ul potrivit :) (de ex. Slider)"
+
+#: ../../source/main/utils/InputEngine.cpp:1016
+msgid "tie a load to the truck"
+msgstr "leagă o încărcătură de camion"
+
+#: ../../source/main/utils/InputEngine.cpp:1064
+msgid "toggle Ogre statistics (FPS etc.)"
+msgstr "activează statisticile Ogre (FPS etc.)"
+
+#: ../../source/main/utils/InputEngine.cpp:1232
+msgid "toggle all direction indicators"
+msgstr "activează toate indicatoarele de direcție"
+
+#: ../../source/main/utils/InputEngine.cpp:1334
+msgid "toggle antilock brake"
+msgstr "activează anti-blocare la frânare"
+
+#: ../../source/main/utils/InputEngine.cpp:1709
+msgid "toggle between net chat display modes"
+msgstr "schimbă între modurile de afișare a chat-ului"
+
+#: ../../source/main/utils/InputEngine.cpp:1545
+msgid "toggle between transmission modes"
+msgstr "schimbă între moduri de transmisie"
+
+#: ../../source/main/utils/InputEngine.cpp:1595
+msgid "toggle between windowed and fullscreen mode"
+msgstr "schimbă între ecran încadrat și ecran complet"
+
+#: ../../source/main/utils/InputEngine.cpp:1352
+msgid "toggle cruise control"
+msgstr "activează cruise controlul"
+
+#: ../../source/main/utils/InputEngine.cpp:1262
+msgid "toggle custom light 1"
+msgstr "aprinde lumina personalizată 1"
+
+#: ../../source/main/utils/InputEngine.cpp:1316
+msgid "toggle custom light 10"
+msgstr "aprinde lumina personalizată 10"
+
+#: ../../source/main/utils/InputEngine.cpp:1268
+msgid "toggle custom light 2"
+msgstr "aprinde lumina personalizată 2"
+
+#: ../../source/main/utils/InputEngine.cpp:1274
+msgid "toggle custom light 3"
+msgstr "aprinde lumina personalizată 3"
+
+#: ../../source/main/utils/InputEngine.cpp:1280
+msgid "toggle custom light 4"
+msgstr "aprinde lumina personalizată 4"
+
+#: ../../source/main/utils/InputEngine.cpp:1286
+msgid "toggle custom light 5"
+msgstr "aprinde lumina personalizată 5"
+
+#: ../../source/main/utils/InputEngine.cpp:1292
+msgid "toggle custom light 6"
+msgstr "aprinde lumina personalizată 6"
+
+#: ../../source/main/utils/InputEngine.cpp:1298
+msgid "toggle custom light 7"
+msgstr "aprinde lumina personalizată 7"
+
+#: ../../source/main/utils/InputEngine.cpp:1304
+msgid "toggle custom light 8"
+msgstr "aprinde lumina personalizată 8"
+
+#: ../../source/main/utils/InputEngine.cpp:1310
+msgid "toggle custom light 9"
+msgstr "aprinde lumina personalizată 9"
+
+#: ../../source/main/utils/InputEngine.cpp:1022
+msgid "toggle debug view"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1581
+msgid "toggle forwardcommands"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1575
+msgid "toggle ignition"
+msgstr "dă-i cheie"
+
+#: ../../source/main/utils/InputEngine.cpp:1587
+msgid "toggle importcommands"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1220
+msgid "toggle left direction indicator (blinker)"
+msgstr "semnalizează stânga"
+
+#: ../../source/main/utils/InputEngine.cpp:1166
+msgid "toggle map"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1328
+msgid "toggle parking brake"
+msgstr "trage frâna de mână"
+
+#: ../../source/main/utils/InputEngine.cpp:1040
+msgid "toggle particle cannon"
+msgstr "activează tunul de particule"
+
+#: ../../source/main/utils/InputEngine.cpp:1052
+msgid "toggle render mode (solid, wireframe and points)"
+msgstr "schimbă modul de randare (solid, cadru și puncte)"
+
+#: ../../source/main/utils/InputEngine.cpp:1226
+msgid "toggle right direction indicator (blinker)"
+msgstr "semnalizează dreapta"
+
+#: ../../source/main/utils/InputEngine.cpp:1034
+msgid "toggle terrain editor"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1346
+msgid "toggle traction control"
+msgstr "activează controlul de tracțiune"
+
+#: ../../source/main/utils/InputEngine.cpp:1569
+msgid "toggle transfer case gear ratio"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1563
+msgid "toggle transfer case mode"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1082
+msgid "toggle truck HUD"
+msgstr "activează HUD-ul camionului"
+
+#: ../../source/main/utils/InputEngine.cpp:1070
+msgid "toggle truck beacons"
+msgstr "aprinde girofarul"
+
+#: ../../source/main/utils/InputEngine.cpp:1088
+msgid "toggle truck description"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:1076
+msgid "toggle truck front lights"
+msgstr "aprinde farurile"
+
+#: ../../source/main/utils/InputEngine.cpp:1340
+msgid "toggle videocamera"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:832
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:834
+msgid "tons"
+msgstr "tone"
+
+#: ../../source/main/utils/InputEngine.cpp:1256
+msgid "truck horn"
+msgstr "claxon"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:120
+msgid "truck loading state"
+msgstr "stadiul încărcării camionului"
+
+#: ../../source/main/gui/panels/GUI_MainSelector.cpp:446
+msgid "unknown"
+msgstr "necunoscut"
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:441
+msgid "unknown command: "
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_VehicleDescription.cpp:124
+msgid "unknown function"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:938
+msgid "unlock autolock hook node"
+msgstr "deblochează auto-blocarea nodului hook"
+
+#: ../../source/main/gui/panels/GUI_GameChatBox.cpp:116
+msgid "usage: /whisper username message"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:331
+msgid "usage: goto x y z"
+msgstr ""
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:112
+msgid "user authentication level"
+msgstr "nivelul autentificării utilizatorului"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:104
+msgid "user country"
+msgstr "țara utilizatorului"
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:193
+msgid "user language: "
+msgstr "limba utilizatorului: "
+
+#: ../../source/main/gui/panels/GUI_MultiplayerClientList.cpp:94
+msgid "user name"
+msgstr "porecla"
+
+#: ../../source/main/gameplay/ChatSystem.cpp:186
+msgid "user not found: "
+msgstr "utilizator negăsit: "
+
+#: ../../source/main/scripting/GameScript.cpp:886
+#: ../../source/main/scripting/GameScript.cpp:887
+msgid "using Online API..."
+msgstr "folosind API-ul Online..."
+
+#: ../../source/main/gui/panels/GUI_GameConsole.cpp:244
+msgid "ver - shows the Rigs of Rods version"
+msgstr ""
+
+#: ../../source/main/utils/InputEngine.cpp:950
+msgid ""
+"write current position to log (you can open the logfile and reuse the "
+"position)"
+msgstr "scrie actuala poziție în log (vei putea deschide logfile-ul și refolosi poziția)"
+
+#: ../../source/main/utils/InputEngine.cpp:278
+msgid "zoom camera in"
+msgstr "apropie camera"
+
+#: ../../source/main/utils/InputEngine.cpp:284
+msgid "zoom camera in faster"
+msgstr "apropie camera mai repede"
+
+#: ../../source/main/utils/InputEngine.cpp:290
+msgid "zoom camera out"
+msgstr "depărtează camera"
+
+#: ../../source/main/utils/InputEngine.cpp:296
+msgid "zoom camera out faster"
+msgstr "depărtează camera mai repede"
+
+#: ../../source/main/utils/InputEngine.cpp:1178
+msgid "zoom in"
+msgstr "apropie"
+
+#: ../../source/main/utils/InputEngine.cpp:1184
+msgid "zoom out"
+msgstr ""
