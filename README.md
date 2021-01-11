@@ -5,7 +5,7 @@
 ![contributors](https://flat.badgen.net/github/contributors/RigsOfRods/rigs-of-rods)
 ![issues-pr](https://flat.badgen.net/github/open-prs/RigsOfRods/rigs-of-rods)
 ![last commit](https://flat.badgen.net/github/last-commit/RigsOfRods/rigs-of-rods)
-
+[![Translations](https://hosted.weblate.org/widgets/rigs-of-rods/-/game/svg-badge.svg)](https://hosted.weblate.org/projects/rigs-of-rods/)
 
 
 |  Build status 	|  [![Coverity Scan Status](https://img.shields.io/coverity/scan/16646.svg?style=flat-square)](https://scan.coverity.com/projects/rigsofrods-rigs-of-rods)	|
@@ -35,7 +35,7 @@ For a simple overview of the features Rigs of Rods provides please refer to [doc
 * Github: https://github.com/RigsOfRods/rigs-of-rods
 * Discord: https://discord.gg/rigsofrods
 * [doc/](doc/)
-* Translation interface: https://www.transifex.com/rigsofrods/rigs-of-rods/
+* Translation interface: https://hosted.weblate.org/projects/rigs-of-rods/
 
 
 ## Paths
