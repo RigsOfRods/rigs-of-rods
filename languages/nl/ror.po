@@ -4,30 +4,30 @@
 #
 # Translators:
 # Edgar <Edgar@AnotherFoxGuy.com>, 2016-2018
+# Edgar <Edgar@anotherfoxguy.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-10 15:39+0100\n"
-"PO-Revision-Date: 2018-12-15 12:15+0000\n"
-"Last-Translator: Edgar <Edgar@AnotherFoxGuy.com>\n"
-"Language-Team: Dutch (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/nl/)\n"
+"PO-Revision-Date: 2021-01-11 11:13+0000\n"
+"Last-Translator: Edgar <Edgar@anotherfoxguy.com>\n"
+"Language-Team: Dutch <https://hosted.weblate.org/projects/rigs-of-rods/game/"
+"nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.4.1-dev\n"
 
 #: source/main/gameplay/ChatSystem.cpp:55
 msgid " [whispered] "
 msgstr " [fluisterde] "
 
 #: source/main/physics/Actor.cpp:393
-#, fuzzy
-#| msgid "No content installed"
 msgid " content mismatch: "
-msgstr "Geen inhoud geinstalleerd"
+msgstr " inhoud mismatch: "
 
 #: source/main/network/Network.cpp:354
 msgid " joined the game"
@@ -52,19 +52,6 @@ msgstr ""
 "hergebruiken"
 
 #: source/main/system/AppCommandLine.cpp:151
-#, fuzzy
-#| msgid ""
-#| "--help (this)\n"
-#| "-map <map> (loads map on startup)\n"
-#| "-pos <Vect> (overrides spawn position)\n"
-#| "-rot <float> (overrides spawn rotation)\n"
-#| "-truck <truck> (loads truck on startup)\n"
-#| "-setup shows the ogre configurator\n"
-#| "-version shows the version information\n"
-#| "-enter enters the selected truck\n"
-#| "-userpath <path> sets the user directory\n"
-#| "For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi."
-#| "truck -enter"
 msgid ""
 "--help (this)\n"
 "-map <map> (loads map on startup)\n"
@@ -80,24 +67,24 @@ msgid ""
 "For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck "
 "-enter"
 msgstr ""
-"--help (this)\n"
-"-map <map> (laad map bij startup)\n"
+"--help (dit)\n"
+"-map <map> (laadt map bij opstarten)\n"
 "-pos <Vect> (overschrijft spawn-positie)\n"
 "-rot <float> (overschrijft spawn-rotatie)\n"
-"-truck <truck> (laad vrachtwagen bij startup)\n"
-"-setup geeft de ogre configurator weer\n"
-"-version geeft de versie informatie\n"
-"-enter gaat in de geselecteerde vrachtwagen\n"
-"-userpath <path> stelt de gebruiker directory in\n"
-"Bijvoorbeeld:  RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi."
-"truck -enter"
+"-truck <truck> (laadt vrachtwagen bij opstarten)\n"
+"-truckconfig <sectie>\n"
+"-enter (speler betreedt de geselecteerde vrachtwagen)\n"
+"-hervatten laadt vorige autosave\n"
+"-checkcache forceert cache-update\n"
+"-version toont de versie-informatie\n"
+"-joinserver = <server>: <port> (word lid van multiplayer-server)\n"
+"Bijvoorbeeld: RoR.exe -map simple2 -pos '518 0518' -rot 45 -truck semi.truck "
+"-enter"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:46
-#, fuzzy
-#| msgid "quit - exit Rigs of Rods"
 msgctxt "About"
 msgid "About Rigs of Rods"
-msgstr "quit - sluit Rigs of Rods af"
+msgstr "Over Rigs of Rods"
 
 #: source/main/physics/Actor.cpp:1890
 msgid "Actor is too big to be sent over the net."
@@ -106,7 +93,7 @@ msgstr "Vrachtwagen is te groot om over het net te worden verzonden."
 #: source/main/gui/panels/GUI_ConsoleView.cpp:221
 msgctxt "Console"
 msgid "Actors"
-msgstr ""
+msgstr "Actors"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:73
 msgid "Adhesion velocity"
@@ -120,7 +107,7 @@ msgstr "Hechting snelheid:"
 #: source/main/network/Network.cpp:800
 msgctxt "NetUserAuth"
 msgid "Admin"
-msgstr ""
+msgstr "Admin"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:616
 msgid "Airplane"
@@ -128,7 +115,7 @@ msgstr "Vliegtuig"
 
 #: source/main/gui/panels/GUI_TopMenubar.cpp:789
 msgid "All physics paused, press '{}' to resume"
-msgstr ""
+msgstr "Alle physics gepauzeerd, druk op '{}' om te hervatten"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:85
 msgid "Alpha"
@@ -161,7 +148,7 @@ msgstr ""
 #: source/main/gui/panels/GUI_GameSettings.cpp:385
 msgctxt "GameSettings"
 msgid "Analog Input Sensitivity"
-msgstr ""
+msgstr "Gevoeligheid analoge input"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:384
 msgctxt "GameSettings"
@@ -205,15 +192,13 @@ msgstr "Auteur(s)"
 #: source/main/network/Network.cpp:489
 msgctxt "Network"
 msgid "Authorizing..."
-msgstr ""
+msgstr "Autoriseren ..."
 
 #: source/main/gui/panels/GUI_VehicleDescription.cpp:115
 msgid "Authors"
 msgstr "Auteurs"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:62
-#, fuzzy
-#| msgid "Authors"
 msgctxt "About"
 msgid "Authors"
 msgstr "Auteurs"
@@ -255,13 +240,11 @@ msgstr "As"
 #: source/main/network/Network.cpp:804
 msgctxt "NetUserAuth"
 msgid "Banned"
-msgstr ""
+msgstr "Verbannen"
 
 #: source/main/network/Network.cpp:815
-#, fuzzy
-#| msgid "ranked user"
 msgid "Banned user"
-msgstr "gerangschikte gebruiker"
+msgstr "Verbannen gebruiker"
 
 #: source/main/gui/panels/GUI_SimPerfStats.cpp:51
 msgid "Batch count: "
@@ -303,38 +286,32 @@ msgid "Boat"
 msgstr "Boot"
 
 #: source/main/network/Network.cpp:813
-#, fuzzy
-#| msgid "Boat"
 msgid "Bot"
-msgstr "Boot"
+msgstr "Bot"
 
 #: source/main/network/Network.cpp:802
-#, fuzzy
-#| msgid "Boat"
 msgctxt "NetUserAuth"
 msgid "Bot"
-msgstr "Boot"
+msgstr "Bot"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:71
 msgid "Broken beams count: "
 msgstr "Gebroken Beams count: "
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:56
-#, fuzzy
-#| msgid "Build time: %s, %s"
 msgctxt "About"
 msgid "Build time"
-msgstr "Bouwtijd: %s, %s"
+msgstr "Bouwtijd"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:218
 msgctxt "Console"
 msgid "By area:"
-msgstr ""
+msgstr "Bij gebied:"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:225
 msgctxt "Console"
 msgid "By level:"
-msgstr ""
+msgstr "Bij niveau:"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:359
 msgid "Cancel"
@@ -350,30 +327,26 @@ msgstr "Plaats van persoon: "
 
 #: source/main/gui/panels/GUI_GameChatBox.cpp:131
 msgid "Chat history (use mouse wheel to scroll)"
-msgstr ""
+msgstr "Chatgeschiedenis (gebruik muiswiel om te scrollen)"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:333
 msgctxt "GameSettings"
 msgid "Classic material shaders (experimental)"
-msgstr ""
+msgstr "Klassieke materiaal shaders (experimenteel)"
 
 #: source/main/system/ConsoleCmd.cpp:534
 msgid "Clear console history"
-msgstr ""
+msgstr "Consolegeschiedenis wissen"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:80
-#, fuzzy
-#| msgid "Arcade Controls"
 msgctxt "About"
 msgid "Code Contributors"
-msgstr "Arcade Bediening"
+msgstr "Code-bijdragers"
 
 #: source/main/gui/panels/GUI_ConsoleWindow.cpp:86
-#, fuzzy
-#| msgid "Command 1"
 msgctxt "Console"
 msgid "Command"
-msgstr "Commando 1"
+msgstr "Commando"
 
 #: source/main/utils/InputEngine.cpp:352
 msgid "Command 1"
@@ -716,18 +689,14 @@ msgid "Command Line Arguments"
 msgstr "Argumenten op de opdrachtregel"
 
 #: source/main/gui/panels/GUI_VehicleDescription.cpp:73
-#, fuzzy
-#| msgid "Commands: "
 msgid "Commands"
-msgstr "Commando's:"
+msgstr "Commando's"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:230
 #: source/main/gui/panels/GUI_ConsoleWindow.cpp:52
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "Console"
 msgid "Commands"
-msgstr "Commando's:"
+msgstr "Commando's"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:283
 msgid "Commands: "
@@ -738,10 +707,8 @@ msgid "Compositors: "
 msgstr "Compositors:"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:346
-#, fuzzy
-#| msgid "Configuration error"
 msgid "Configuration"
-msgstr "Configuratie error"
+msgstr "Configuratie"
 
 #: source/main/physics/collision/Collisions.cpp:204
 msgid "Configuration error"
@@ -758,26 +725,23 @@ msgid "Controls"
 msgstr "Controls"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:106
+#, fuzzy
 msgctxt "About"
 msgid "Core Content Contributors"
-msgstr ""
+msgstr "Kerncontentbijdragers"
 
 #: source/main/network/Network.cpp:435
 msgid "Could not create connection"
 msgstr "Kon geen verbinding maken"
 
 #: source/main/main.cpp:537
-#, fuzzy
-#| msgid "Could not write config file"
 msgid "Could not read savegame file"
-msgstr "Niet mogelijk om het configuratie bestand te maken."
+msgstr "Kan savegame-bestand niet lezen"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:166
-#, fuzzy
-#| msgid "user country"
 msgctxt "GameSettings"
 msgid "Country"
-msgstr "gebruikers land"
+msgstr "Land"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:244
 msgctxt "GameSettings"
@@ -785,11 +749,9 @@ msgid "Creak sound"
 msgstr "Kraak geluid"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:67
-#, fuzzy
-#| msgid "Current power: "
 msgctxt "About"
 msgid "Current Developers"
-msgstr "Huidig Vermogen: "
+msgstr "Huidige ontwikkelaars"
 
 #: source/main/gui/OverlayWrapper.cpp:431
 #: source/main/gui/panels/GUI_SimPerfStats.cpp:45
@@ -828,7 +790,7 @@ msgstr "Tijd en datum Geinstalleerd: "
 #, fuzzy
 #| msgid "Date and Time installed: "
 msgid "Date and Time modified: "
-msgstr "Tijd en datum Geinstalleerd: "
+msgstr "Datum en tijd gewijzigd: "
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:358
 msgctxt "GameSettings"
@@ -851,11 +813,9 @@ msgid "Debug realtime reflections"
 msgstr "Debug realtime reflecties"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:361
-#, fuzzy
-#| msgid "saved texture as "
 msgctxt "GameSettings"
 msgid "Debug textures"
-msgstr "Sla structuur op als"
+msgstr "Debug texturen"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:360
 msgctxt "GameSettings"
@@ -867,17 +827,15 @@ msgstr "Debug videocamera's"
 #| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Declutter overview map"
-msgstr "Zet Overzicht Map uit"
+msgstr "Overzichtskaart opruimen"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:76
 msgid "Deformed beams count: "
 msgstr "Vervormde Beams count: "
 
 #: source/main/gui/panels/GUI_VehicleDescription.cpp:65
-#, fuzzy
-#| msgid "Description: "
 msgid "Description"
-msgstr "Omschrijving: "
+msgstr "Omschrijving"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:58
 msgctxt "GameSettings"
@@ -895,11 +853,9 @@ msgid "Digital speedometer"
 msgstr "Digitale snelheidsmeter"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:185
-#, fuzzy
-#| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Disable online api"
-msgstr "Zet Overzicht Map uit"
+msgstr "Schakel online api uit"
 
 #: source/main/terrain/TerrainEditor.cpp:143
 msgid "Disabled object tracking"
@@ -907,20 +863,22 @@ msgstr "Object tracking uitgeschakeld"
 
 #: source/main/utils/ForceFeedback.cpp:110
 msgid "Disabling force feedback - no controller found"
-msgstr ""
+msgstr "Force feedback uitgeschakeld - geen controller gevonden"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:218
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Discord Rich Presence"
-msgstr ""
+msgstr "Discord Rich Presence"
 
 #: source/main/main.cpp:313
 msgid "Display mode changed to fullscreen"
-msgstr ""
+msgstr "Weergavemodus gewijzigd in volledig scherm"
 
 #: source/main/main.cpp:319
+#, fuzzy
 msgid "Display mode changed to windowed"
-msgstr ""
+msgstr "Weergavemodus gewijzigd in venster"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:99
 msgid "Drag anisotropy"
@@ -943,10 +901,8 @@ msgid "Dynamic friction coef:"
 msgstr "Dynamische Frictie Coefficient"
 
 #: source/main/gui/panels/GUI_TextureToolWindow.cpp:50
-#, fuzzy
-#| msgid "Dynamically"
 msgid "Dynamic only"
-msgstr "Dynamisch"
+msgstr "Alleen dynamisch"
 
 #: source/main/utils/InputEngine.cpp:1144
 msgid "EXPERIMENTAL: add some grass"
@@ -989,11 +945,9 @@ msgid "Enable particle gfx"
 msgstr "Particle gfx inschakelen"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:213
-#, fuzzy
-#| msgid "Enable waves"
 msgctxt "GameSettings"
 msgid "Enable races"
-msgstr "Zet golven aan"
+msgstr "Races inschakelen"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:316
 msgctxt "GameSettings"
@@ -1001,10 +955,8 @@ msgid "Enable skidmarks"
 msgstr "Skidmarks inschakelen"
 
 #: source/main/GameContext.cpp:804
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgid "Enabled hard reset mode"
-msgstr "zet herhaling aan/uit"
+msgstr "Harde resetmodus ingeschakeld"
 
 #: source/main/terrain/TerrainEditor.cpp:143
 msgid "Enabled object tracking"
@@ -1012,7 +964,7 @@ msgstr "Object tracking ingeschakeld "
 
 #: source/main/GameContext.cpp:804
 msgid "Enabled soft reset mode"
-msgstr ""
+msgstr "Zachte resetmodus ingeschakeld"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:182
 #: source/main/gui/panels/GUI_SimActorStats.cpp:200
@@ -1026,9 +978,10 @@ msgstr "Motor toerental"
 
 #. DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
 #: source/main/gui/panels/GUI_GameSettings.cpp:202
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Engines spawn running"
-msgstr ""
+msgstr "Start met draaiende motoren"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:352
 msgctxt "GameSettings"
@@ -1043,39 +996,33 @@ msgstr "Terrein bewerkingsmodus ingeschakeld"
 #: source/main/network/Network.cpp:254
 msgctxt "Network"
 msgid "Error receiving data from network"
-msgstr ""
+msgstr "Fout bij het ontvangen van gegevens van het netwerk"
 
 #: source/main/gameplay/Landusemap.cpp:90
 msgid "Error while loading landuse config"
 msgstr "Foutmelding tijdens laden van landuse config"
 
 #: source/main/physics/Savegame.cpp:227
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: File format mismatch"
-msgstr "Foutmelding tijdens laden van landuse config"
+msgstr "Fout tijdens het laden van scène: bestandsformaat komt niet overeen"
 
 #: source/main/physics/Savegame.cpp:221
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: File invalid or missing"
-msgstr "Foutmelding tijdens laden van landuse config"
+msgstr "Fout bij het laden van de scène: Bestand ongeldig of ontbreekt"
 
 #: source/main/physics/Savegame.cpp:283
 msgid "Error while loading scene: Missing content (probably not installed)"
 msgstr ""
+"Fout tijdens het laden scène: Ontbrekende inhoud (waarschijnlijk niet "
+"geïnstalleerd)"
 
 #: source/main/physics/Savegame.cpp:241
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: Terrain mismatch"
-msgstr "Foutmelding tijdens laden van landuse config"
+msgstr "Fout tijdens het laden van de scène: Terrein mismatch"
 
 #: source/main/physics/Savegame.cpp:247
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: Too many vehicles"
-msgstr "Foutmelding tijdens laden van landuse config"
+msgstr "Fout bij het laden van de scène: Te veel voertuigen"
 
 #: source/main/AppContext.cpp:407
 msgid "Error while retrieving program directory path"
@@ -1086,28 +1033,22 @@ msgid "Error while retrieving user directory path"
 msgstr "Fout tijdens het ophalen van pad van de gebruikersdirectory"
 
 #: source/main/physics/Savegame.cpp:713
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while saving scene"
-msgstr "Foutmelding tijdens laden van landuse config"
+msgstr "Fout bij het opslaan van scène"
 
 #: source/main/physics/Savegame.cpp:394
-#, fuzzy
-#| msgid "Error while saving position saved under slot "
 msgid "Error while saving scene: Too many vehicles"
-msgstr "Fout tijdens positie opslaan opgeslagen onder slot "
+msgstr "Fout bij opslaan scène: te veel voertuigen"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:228
-#, fuzzy
-#| msgid "Mirrors"
 msgctxt "Console"
 msgid "Errors"
-msgstr "Spiegels"
+msgstr "Fouten"
 
 #: source/main/network/Network.cpp:429
 msgctxt "Network"
 msgid "Estabilishing connection..."
-msgstr ""
+msgstr "Verbinding tot stand brengen ..."
 
 #: source/main/network/Network.cpp:517
 msgid "Establishing network session: error getting server authorization"
@@ -1172,7 +1113,7 @@ msgstr "Exterieur gezichtsveld"
 #: source/main/gui/panels/GUI_GameSettings.cpp:181
 msgctxt "GameSettings"
 msgid "Extra mod path"
-msgstr ""
+msgstr "Extra mod-pad"
 
 #: source/main/utils/ErrorUtils.cpp:44
 msgid "FATAL ERROR"
@@ -1224,12 +1165,9 @@ msgid "Filename: "
 msgstr "Bestandsnaam: "
 
 #: source/main/gui/panels/GUI_ConsoleWindow.cpp:47
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Controller options"
 msgctxt "Console"
 msgid "Filter options"
-msgstr "Controller opties"
+msgstr "Filteropties"
 
 #: source/main/network/Network.cpp:549
 msgctxt "Network"
@@ -1289,10 +1227,8 @@ msgid "Friction Settings"
 msgstr "Frictie instellingen"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:218
-#, fuzzy
-#| msgid "G-Forces:\n"
 msgid "G-Forces:"
-msgstr "G-Forces:\n"
+msgstr "G-Forces:"
 
 #: source/main/gui/OverlayWrapper.cpp:468
 msgid "GPU Program: "
@@ -1306,7 +1242,7 @@ msgstr "GUID: "
 #, fuzzy
 #| msgid "Arcade Controls"
 msgid "Game Controls"
-msgstr "Arcade Bediening"
+msgstr "Gamebesturing"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:41
 msgctxt "GameSettings"
@@ -1314,11 +1250,8 @@ msgid "Game settings"
 msgstr "Spelinstellingen"
 
 #: source/main/gui/panels/GUI_GameMainMenu.cpp:167
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Game settings"
 msgid "Game version"
-msgstr "Spelinstellingen"
+msgstr "Gameversie"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:190
 msgctxt "GameSettings"
@@ -1331,27 +1264,29 @@ msgid "General"
 msgstr "Algemeen"
 
 #: source/main/system/ConsoleCmd.cpp:116
-#, fuzzy
-#| msgid "terrainheight - get height of terrain at current position"
 msgid "Get elevation of terrain at current position"
-msgstr "terrainheight - toont de hoogte van het terrein op de huidige positie"
+msgstr "Krijg hoogte van het terrein op de huidige positie"
 
 #: source/main/system/ConsoleCmd.cpp:52
+#, fuzzy
 msgid "Get or set terrain gravity. Constants: earth/moon/mars/jupiter."
 msgstr ""
+"Verkrijg of stel de zwaartekracht van het terrein in. Constanten: earth/moon/"
+"mars/jupiter."
 
 #: source/main/system/ConsoleCmd.cpp:420
 msgid "Get or set value of existing CVar"
-msgstr ""
+msgstr "Waarde van bestaande CVar ophalen of instellen"
 
 #: source/main/system/ConsoleCmd.cpp:82
+#, fuzzy
 msgid "Get or set water level."
-msgstr ""
+msgstr "Waterpeil ophalen of instellen."
 
 #: source/main/network/Network.cpp:439
 msgctxt "Network"
 msgid "Getting server info..."
-msgstr ""
+msgstr "Serverinformatie ophalen ..."
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:50
 msgctxt "GameSettings"
@@ -1364,12 +1299,12 @@ msgstr "Gravity ingesteld op:"
 
 #: source/main/network/Network.cpp:816
 msgid "Guest"
-msgstr ""
+msgstr "Gast"
 
 #: source/main/network/Network.cpp:805
 msgctxt "NetUserAuth"
 msgid "Guest"
-msgstr ""
+msgstr "Gast"
 
 #: source/main/gui/OverlayWrapper.cpp:470
 msgid "HL GPU Program: "
@@ -1378,22 +1313,22 @@ msgstr "HL GPU Programma: "
 #: source/main/gui/panels/GUI_GameSettings.cpp:362
 msgctxt "GameSettings"
 msgid "Hide broken beams"
-msgstr ""
+msgstr "Verberg gebroken beams"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:365
 msgctxt "GameSettings"
 msgid "Hide nodes"
-msgstr ""
+msgstr "Verberg nodes"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:363
 msgctxt "GameSettings"
 msgid "Hide wheel info"
-msgstr ""
+msgstr "Verberg wielinformatie"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:364
 msgctxt "GameSettings"
 msgid "Hide wheels"
-msgstr ""
+msgstr "Verberg wielen"
 
 #: source/main/gameplay/EngineSim.cpp:1461
 msgid "High range selected"
@@ -1506,10 +1441,8 @@ msgstr "Vegetatie Subsystem Initialiseren"
 
 #. END Hack for GameScript::spawnObject()
 #: source/main/terrain/TerrainManager.cpp:191
-#, fuzzy
-#| msgid "Initializing Camera Subsystem"
 msgid "Initializing Water Subsystem"
-msgstr "Camera Subsystem Initialiseren"
+msgstr "Watersubsysteem initialiseren"
 
 #. END Hack for the Landusemap
 #: source/main/terrain/TerrainManager.cpp:204
@@ -1565,10 +1498,8 @@ msgid "Loader"
 msgstr "Lader"
 
 #: source/main/terrain/TerrainManager.cpp:220
-#, fuzzy
-#| msgid "Loading Terrain Objects"
 msgid "Loading Terrain Actors"
-msgstr "Terrain Objecten Laden "
+msgstr "Terreinactoren laden"
 
 #: source/main/terrain/TerrainManager.cpp:177
 msgid "Loading Terrain Geometry"
@@ -1584,10 +1515,8 @@ msgstr "Resources laden"
 
 #. sync load since we want everything in place when we start
 #: source/main/terrain/TerrainGeometryManager.cpp:326
-#, fuzzy
-#| msgid "loading terrain pages"
 msgid "Loading terrain pages ..."
-msgstr "terrein lagen laden"
+msgstr "Terrein lagen laden ..."
 
 #: source/main/resources/CacheSystem.cpp:962
 msgid "Loading zips in group "
@@ -1625,7 +1554,7 @@ msgstr "Log node stats (spawn)"
 #: source/main/gui/panels/GUI_ConsoleView.cpp:219
 msgctxt "Console"
 msgid "Logfile echo"
-msgstr ""
+msgstr "Logfile echo"
 
 #: source/main/gameplay/EngineSim.cpp:1449
 msgid "Low range selected"
@@ -1664,17 +1593,15 @@ msgstr "Meshes: "
 
 #: source/main/gui/panels/GUI_GameChatBox.cpp:132
 msgid "Message"
-msgstr ""
+msgstr "Bericht"
 
 #: source/main/gameplay/EngineSim.cpp:1455
 msgid "Mid range selected"
 msgstr "middelmatig bereik geselecteerd"
 
 #: source/main/system/ConsoleCmd.cpp:169
-#, fuzzy
-#| msgid "Missing someone?"
 msgid "Missing parameter: "
-msgstr "Iemand vergeten ?"
+msgstr "Ontbrekende parameter: "
 
 #: source/main/network/Network.cpp:801
 msgctxt "NetUserAuth"
@@ -1684,36 +1611,30 @@ msgstr ""
 #: source/main/gui/panels/GUI_GameAbout.cpp:112
 msgctxt "About"
 msgid "Mod Contributors"
-msgstr ""
+msgstr "Mod-bijdragers"
 
 #: source/main/physics/ActorManager.cpp:416
-#, fuzzy
-#| msgid "No content installed"
 msgid "Mod not installed: "
-msgstr "Geen inhoud geinstalleerd"
+msgstr "Mod niet geïnstalleerd: "
 
 #: source/main/main.cpp:428
 msgctxt "Network"
 msgid "Multiplayer: connection failed"
-msgstr ""
+msgstr "Multiplayer: verbinding mislukt"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:229
-#, fuzzy
-#| msgid "enter the chat"
 msgctxt "Console"
 msgid "Net chat"
-msgstr "begin de chatsessie"
+msgstr "Net-chat"
 
 #: source/main/gui/panels/GUI_GameMainMenu.cpp:168
 msgid "Net. protocol"
-msgstr ""
+msgstr "Net. protocol"
 
 #: source/main/main.cpp:376
-#, fuzzy
-#| msgid "Cancel (disconnect)"
 msgctxt "Network"
 msgid "Network disconnected"
-msgstr "Annuleren (disconnect)"
+msgstr "Netwerkverbinding verbroken"
 
 #: source/main/physics/Actor.cpp:1890
 msgid "Network error!"
@@ -1724,11 +1645,9 @@ msgid "Network fatal error: "
 msgstr "Netwerk fatale error:"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:52
-#, fuzzy
-#| msgid "Network Protocol version: %s"
 msgctxt "About"
 msgid "Network protocol"
-msgstr "Netwerk Protocol versie: %s"
+msgstr "Netwerkprotocol"
 
 #: source/main/physics/ActorManager.cpp:1292
 #: source/main/physics/ActorManager.cpp:1301
@@ -1737,10 +1656,8 @@ msgid "New simulation speed: "
 msgstr "Nieuwe simulatie snelheid:"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:294
-#, fuzzy
-#| msgid "None"
 msgid "No"
-msgstr "Niets"
+msgstr "Nee"
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:188
 msgid "No Trucks loaded"
@@ -1766,7 +1683,7 @@ msgstr "Geen inner-voertuig collisie"
 
 #: source/main/AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
-msgstr ""
+msgstr "Geen render-systeem plugin beschikbaar. Controleer uw plugins.cfg"
 
 #: source/main/GameContext.cpp:1089
 msgid "No rescue truck found!"
@@ -1774,7 +1691,7 @@ msgstr "Geen bergings-truck gevonden!"
 
 #: source/main/system/ConsoleCmd.cpp:448
 msgid "No such CVar: "
-msgstr ""
+msgstr "Geen dergelijke CVar: "
 
 #: source/main/physics/Actor.cpp:1333
 msgid "No transfercase installed on current vehicle!"
@@ -1794,12 +1711,12 @@ msgstr "Niet berijdbaar"
 
 #: source/main/system/ConsoleCmd.cpp:621
 msgid "Not allowed in current app state"
-msgstr ""
+msgstr "Niet toegestaan in de huidige app-status"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:226
 msgctxt "Console"
 msgid "Notices"
-msgstr ""
+msgstr "Mededelingen"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:352
 msgid "OK"
@@ -1807,7 +1724,7 @@ msgstr "Ok"
 
 #: source/main/system/ConsoleCmd.cpp:617
 msgid "Only allowed when simulation is running"
-msgstr ""
+msgstr "Alleen toegestaan als simulatie actief is"
 
 #: source/main/physics/Differentials.cpp:55
 msgid "Open"
@@ -1846,11 +1763,11 @@ msgstr "OutGauge port"
 #: source/main/gui/panels/GUI_GameSettings.cpp:327
 msgctxt "GameSettings"
 msgid "Overview map icons"
-msgstr ""
+msgstr "Overzichtskaartpictogrammen"
 
 #: source/main/physics/ActorManager.cpp:1339
 msgid "Physics paused"
-msgstr ""
+msgstr "Physics gepauzeerd"
 
 #: source/main/physics/ActorManager.cpp:1344
 msgid "Physics unpaused"
@@ -1862,7 +1779,7 @@ msgstr "Eerst het platform leeghalen AUB"
 
 #: source/main/gui/panels/GUI_LoadingWindow.cpp:97
 msgid "Please wait"
-msgstr ""
+msgstr "Een ogenblik geduld aub"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:351
 msgctxt "GameSettings"
@@ -1880,14 +1797,14 @@ msgid "Preselected vehicle"
 msgstr "Voorgeselecteerd voertuig"
 
 #: source/main/main.cpp:490
-#, fuzzy, c-format
-#| msgid "Press %ls to start chatting"
+#, c-format
 msgid "Press %s to start chatting"
-msgstr "druk op %ls om met chatten te beginnen"
+msgstr "Druk op %s om te beginnen met chatten"
 
 #: source/main/system/ConsoleCmd.cpp:381
+#, fuzzy
 msgid "Print cvars with one of <expr> in name"
-msgstr ""
+msgstr "Print cvars met een <expr> in naam"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:288
 msgid "Props: "
@@ -1899,11 +1816,9 @@ msgid "Ranked"
 msgstr ""
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:211
-#, fuzzy
-#| msgid "[forwards commands]"
 msgctxt "GameSettings"
 msgid "Realistic forward commands"
-msgstr "[forwards commands]"
+msgstr "Realistische forward commando's"
 
 #. Width includes [+/-] buttons
 #: source/main/gui/panels/GUI_GameSettings.cpp:322
@@ -1917,11 +1832,9 @@ msgid "Realtime reflections"
 msgstr "Realtime reflecties"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:370
-#, fuzzy
-#| msgid "Regen cache"
 msgctxt "GameSettings"
 msgid "Rebuild cache"
-msgstr "regenereer cache"
+msgstr "Cache opnieuw opbouwen"
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:187
 msgid "Remote Truck loaded correctly, no errors"
@@ -1941,7 +1854,7 @@ msgstr "Render Systeem"
 #: source/main/gui/panels/GUI_GameSettings.cpp:72
 msgctxt "GameSettings"
 msgid "Render system (changes require a restart)"
-msgstr ""
+msgstr "Render systeem (wijzigingen vereisen een herstart)"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:326
 msgctxt "GameSettings"
@@ -1949,10 +1862,8 @@ msgid "Render video cameras"
 msgstr "Geef videocamera's weer"
 
 #: source/main/gui/panels/GUI_TopMenubar.cpp:807
-#, fuzzy
-#| msgid "Gameplay"
 msgid "Replay"
-msgstr "Gameplay"
+msgstr "Herhaling"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:207
 msgctxt "GameSettings"
@@ -1983,7 +1894,7 @@ msgstr "Draaipunten: "
 
 #: source/main/system/ConsoleCmd.cpp:306
 msgid "Run AngelScript code snippet"
-msgstr ""
+msgstr "AngelScript-codefragment uitvoeren"
 
 #: source/main/gui/panels/GUI_TextureToolWindow.cpp:139
 msgid "Save Raw"
@@ -1994,18 +1905,16 @@ msgid "Save as PNG"
 msgstr "Opslaan als PNG"
 
 #: source/main/terrain/TerrainGeometryManager.cpp:373
-#, fuzzy
-#| msgid "saving all terrain pages ..."
 msgid "Saving all terrain pages ..."
-msgstr "alle terrein lagen opslaan ..."
+msgstr "Alle terrein lagen opslaan ..."
 
 #: source/main/physics/Savegame.cpp:377
 msgid "Scene loaded"
-msgstr ""
+msgstr "Scène geladen"
 
 #: source/main/physics/Savegame.cpp:720
 msgid "Scene saved"
-msgstr ""
+msgstr "Scène opgeslagen"
 
 #. Hardcoded; TODO: list available formats.
 #. Screenshot format: Can be png or jpg
@@ -2019,15 +1928,14 @@ msgid "Screenshot:"
 msgstr "Screenshot:"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:220
-#, fuzzy
-#| msgid "Description: "
 msgctxt "Console"
 msgid "Scripting"
-msgstr "Omschrijving: "
+msgstr "Scripting"
 
 #: source/main/system/ConsoleCmd.cpp:331
+#, fuzzy
 msgid "Scripting disabled in this build"
-msgstr ""
+msgstr "Scripting is uitgeschakeld in deze build"
 
 #: source/main/terrain/TerrainEditor.cpp:148
 msgid "Selected object: ["
@@ -2039,11 +1947,9 @@ msgid "Server Administrator"
 msgstr "Server Administrator"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:72
-#, fuzzy
-#| msgid "Server Moderator"
 msgctxt "About"
 msgid "Server Contributors"
-msgstr "Server Moderator"
+msgstr "Serverbijdragers"
 
 #: source/main/network/Network.cpp:812
 msgid "Server Moderator"
@@ -2051,19 +1957,20 @@ msgstr "Server Moderator"
 
 #: source/main/system/ConsoleCmd.cpp:516
 msgid "Set or create boolean CVar"
-msgstr ""
+msgstr "Stel een boolean CVar in of maak deze aan"
 
 #: source/main/system/ConsoleCmd.cpp:522
 msgid "Set or create integer CVar"
-msgstr ""
+msgstr "Stel of creëer integer CVar"
 
 #: source/main/system/ConsoleCmd.cpp:528
+#, fuzzy
 msgid "Set or create real-number CVar"
-msgstr ""
+msgstr "Stel of creëer real-number CVar"
 
 #: source/main/system/ConsoleCmd.cpp:510
 msgid "Set or create string CVar"
-msgstr ""
+msgstr "Stel of creëer string CVar"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:266
 msgctxt "GameSettings"
@@ -2078,7 +1985,7 @@ msgstr "Schaduw kwaliteit"
 #: source/main/gui/panels/GUI_GameSettings.cpp:260
 msgctxt "GameSettings"
 msgid "Shadow type (requires restart)"
-msgstr ""
+msgstr "Schaduwtype (opnieuw opstarten vereist)"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:280
 msgid "Shocks: "
@@ -2086,7 +1993,7 @@ msgstr "Schokbrekers:"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:336
 msgid "Show details"
-msgstr ""
+msgstr "Toon details"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:280
 msgctxt "GameSettings"
@@ -2146,11 +2053,9 @@ msgstr "Split"
 
 #. Mark connect thread as started
 #: source/main/network/Network.cpp:405
-#, fuzzy
-#| msgid "loading...\n"
 msgctxt "Network"
 msgid "Starting..."
-msgstr "Laden...\n"
+msgstr "Bezig met starten..."
 
 #: source/main/AppContext.cpp:259 source/main/AppContext.cpp:270
 #: source/main/AppContext.cpp:407 source/main/AppContext.cpp:425
@@ -2160,11 +2065,9 @@ msgid "Startup error"
 msgstr "Opstart foutmelding"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:340
-#, fuzzy
-#| msgid "rotate camera right"
 msgctxt "GameSettings"
 msgid "Static camera height (meters)"
-msgstr "draai de camera naar rechts"
+msgstr "Statische camerahoogte (meters)"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:70
 msgid "Static friction coef"
@@ -2206,11 +2109,9 @@ msgid "Stribeck velocity:"
 msgstr "Stribeck snelheid:"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:222
-#, fuzzy
-#| msgid "Loading Terrain"
 msgctxt "Console"
 msgid "Terrain"
-msgstr "Terrein laden:"
+msgstr "Terrein"
 
 #: source/main/system/ConsoleCmd.cpp:140
 msgid "Terrain height at position: "
@@ -2248,6 +2149,8 @@ msgid ""
 "These settings are for advanced users only, you should only change these if "
 "you know what you're doing"
 msgstr ""
+"Deze instellingen zijn alleen voor gevorderde gebruikers, u moet deze "
+"waarden alleen wijzigen als u weet wat u doet"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:93
 msgid ""
@@ -2306,11 +2209,11 @@ msgstr ""
 
 #: source/main/system/ConsoleCmd.cpp:95
 msgid "This terrain does not have water."
-msgstr ""
+msgstr "Dit terrein heeft geen water."
 
 #: source/main/gui/panels/GUI_TopMenubar.cpp:845
 msgid "Time"
-msgstr ""
+msgstr "Tijd"
 
 #: source/main/GameContext.cpp:922
 msgid "Time set to "
@@ -2325,10 +2228,8 @@ msgid "Tips:"
 msgstr "Tips:"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:212
-#, fuzzy
-#| msgid "Wheel speed: "
 msgid "Top speed: "
-msgstr "Wiel snelheid: "
+msgstr "Topsnelheid: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:296
 msgid "Torque: "
@@ -2371,11 +2272,9 @@ msgid "Unique ID: "
 msgstr "Unieke ID: "
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:60
-#, fuzzy
-#| msgid "Updates"
 msgctxt "GameSettings"
 msgid "Update cache"
-msgstr "Updates"
+msgstr "Update cache"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:388
 msgctxt "GameSettings"
@@ -2385,7 +2284,7 @@ msgstr "Gebruik arcade-besturing"
 #: source/main/gui/panels/GUI_GameAbout.cpp:120
 msgctxt "About"
 msgid "Used Libs"
-msgstr ""
+msgstr "Gebruikte Libs"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:292
 msgid "Using Submeshs: "
@@ -2418,7 +2317,7 @@ msgstr "Voertuig gezondheid: "
 
 #: source/main/gui/panels/GUI_TopMenubar.cpp:798
 msgid "Vehicle physics paused, press '{}' to resume"
-msgstr ""
+msgstr "Voertuig physics gepauzeerd, druk op '{}' om te hervatten"
 
 #: source/main/system/ConsoleCmd.cpp:294
 msgid "Vehicle position set to: "
@@ -2433,8 +2332,6 @@ msgid "Vehicle speed: "
 msgstr "Voertuig snelheid: "
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:48
-#, fuzzy
-#| msgid "Version"
 msgctxt "About"
 msgid "Version"
 msgstr "Versie"
@@ -2457,11 +2354,9 @@ msgid "Viscous"
 msgstr "Viscous"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:227
-#, fuzzy
-#| msgid "Warning"
 msgctxt "Console"
 msgid "Warnings"
-msgstr "Waarschuwing"
+msgstr "Waarschuwingen"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:305
 msgctxt "GameSettings"
@@ -2487,7 +2382,7 @@ msgstr "Wielen: "
 
 #: source/main/gui/panels/GUI_GameChatBox.cpp:180
 msgid "Whisper message not sent, unknown username"
-msgstr ""
+msgstr "Fluisterbericht niet verzonden, onbekende gebruikersnaam"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:289
 msgid "Wings: "
@@ -2512,7 +2407,7 @@ msgstr "Laagste FPS: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:294
 msgid "Yes"
-msgstr ""
+msgstr "Ja"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:82
 msgid ""
@@ -2696,10 +2591,8 @@ msgid "enable / disable free camera mode"
 msgstr "inschakelen / uitschakelen vrije camera modus"
 
 #: source/main/utils/InputEngine.cpp:1084
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgid "enable or disable physics"
-msgstr "zet herhaling aan/uit"
+msgstr "physics in- of uitschakelen"
 
 #: source/main/utils/InputEngine.cpp:1078
 msgid "enable or disable replay mode"
@@ -2823,64 +2716,44 @@ msgid "let the character run"
 msgstr "laat het karakter rennen"
 
 #: source/main/utils/InputEngine.cpp:1792
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 01"
-msgstr "Positie geladen vanaf slot "
+msgstr "laad scène uit slot 01"
 
 #: source/main/utils/InputEngine.cpp:1793
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 02"
-msgstr "Positie geladen vanaf slot "
+msgstr "laad scène uit slot 02"
 
 #: source/main/utils/InputEngine.cpp:1794
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 03"
-msgstr "Positie geladen vanaf slot "
+msgstr "laad scène uit slot 03"
 
 #: source/main/utils/InputEngine.cpp:1795
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 04"
-msgstr "Positie geladen vanaf slot "
+msgstr "laad scène uit slot 04"
 
 #: source/main/utils/InputEngine.cpp:1796
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 05"
-msgstr "Positie geladen vanaf slot "
+msgstr "laad scène uit slot 05"
 
 #: source/main/utils/InputEngine.cpp:1797
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 06"
-msgstr "Positie geladen vanaf slot "
+msgstr "laad scène uit slot 06"
 
 #: source/main/utils/InputEngine.cpp:1798
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 07"
-msgstr "Positie geladen vanaf slot "
+msgstr "laad scène uit slot 07"
 
 #: source/main/utils/InputEngine.cpp:1799
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 08"
-msgstr "Positie geladen vanaf slot "
+msgstr "laad scène uit slot 08"
 
 #: source/main/utils/InputEngine.cpp:1800
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 09"
-msgstr "Positie geladen vanaf slot "
+msgstr "laad scène uit slot 09"
 
 #: source/main/utils/InputEngine.cpp:1801
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 10"
-msgstr "Positie geladen vanaf slot "
+msgstr "laad scène uit slot 10"
 
 #: source/main/system/ConsoleCmd.cpp:193
 msgid "log - toggles log output on the console"
@@ -3015,10 +2888,8 @@ msgid "repair truck"
 msgstr "repareer voertuig"
 
 #: source/main/utils/InputEngine.cpp:1132
-#, fuzzy
-#| msgid "increase the current FOV value"
 msgid "reset the FOV value"
-msgstr "vergroot nu gebruikt FOV aantal"
+msgstr "reset de FOV-waarde"
 
 #: source/main/utils/InputEngine.cpp:250
 msgid "reset the camera position"
@@ -3095,64 +2966,44 @@ msgstr "rz"
 
 #. now position storage
 #: source/main/utils/InputEngine.cpp:1781
-#, fuzzy
-#| msgid "save position as slot 1"
 msgid "save scene in slot 01"
-msgstr "sla positie op in slot 1"
+msgstr "scène opslaan in slot 01"
 
 #: source/main/utils/InputEngine.cpp:1782
-#, fuzzy
-#| msgid "save position as slot 2"
 msgid "save scene in slot 02"
-msgstr "sla positie op in slot 2"
+msgstr "scène opslaan in slot 02"
 
 #: source/main/utils/InputEngine.cpp:1783
-#, fuzzy
-#| msgid "save position as slot 3"
 msgid "save scene in slot 03"
-msgstr "sla positie op in slot 3"
+msgstr "scène opslaan in slot 03"
 
 #: source/main/utils/InputEngine.cpp:1784
-#, fuzzy
-#| msgid "save position as slot 4"
 msgid "save scene in slot 04"
-msgstr "sla positie op in slot 4"
+msgstr "scène opslaan in slot 04"
 
 #: source/main/utils/InputEngine.cpp:1785
-#, fuzzy
-#| msgid "save position as slot 5"
 msgid "save scene in slot 05"
-msgstr "sla positie op in slot 5"
+msgstr "scène opslaan in slot 05"
 
 #: source/main/utils/InputEngine.cpp:1786
-#, fuzzy
-#| msgid "save position as slot 6"
 msgid "save scene in slot 06"
-msgstr "sla positie op in slot 6"
+msgstr "scène opslaan in slot 06"
 
 #: source/main/utils/InputEngine.cpp:1787
-#, fuzzy
-#| msgid "save position as slot 7"
 msgid "save scene in slot 07"
-msgstr "sla positie op in slot 7"
+msgstr "scène opslaan in slot 07"
 
 #: source/main/utils/InputEngine.cpp:1788
-#, fuzzy
-#| msgid "save position as slot 8"
 msgid "save scene in slot 08"
-msgstr "sla positie op in slot 8"
+msgstr "scène opslaan in slot 08"
 
 #: source/main/utils/InputEngine.cpp:1789
-#, fuzzy
-#| msgid "save position as slot 9"
 msgid "save scene in slot 09"
-msgstr "sla positie op in slot 9"
+msgstr "scène opslaan in slot 09"
 
 #: source/main/utils/InputEngine.cpp:1790
-#, fuzzy
-#| msgid "save position as slot 10"
 msgid "save scene in slot 10"
-msgstr "sla positie op in slot 10"
+msgstr "scène opslaan in slot 10"
 
 #: source/main/utils/InputEngine.cpp:1030
 msgid "save the currently loaded terrain to a mesh file"
@@ -3315,10 +3166,8 @@ msgid "sidestep to the right"
 msgstr "zijstap naar rechts"
 
 #: source/main/system/ConsoleCmd.cpp:150
-#, fuzzy
-#| msgid "spawnobject <odef name> - spawn a object at the player position"
 msgid "spawnobject  - spawn a object at the player position"
-msgstr "spawnobject <odef name> - spawn een object op de spelerpositie"
+msgstr "spawnobject   - spawn een object op de spelerpositie"
 
 #: source/main/utils/InputEngine.cpp:112 source/main/utils/InputEngine.cpp:1577
 msgid "steer left"
@@ -3473,10 +3322,8 @@ msgid "toggle map"
 msgstr "kaart aan/uit"
 
 #: source/main/utils/InputEngine.cpp:1198
-#, fuzzy
-#| msgid "toggle map"
 msgid "toggle map icons"
-msgstr "kaart aan/uit"
+msgstr "kaartpictogrammen in- en uitschakelen"
 
 #: source/main/utils/InputEngine.cpp:1366
 msgid "toggle parking brake"
@@ -3487,20 +3334,16 @@ msgid "toggle particle cannon"
 msgstr "deeltjes kanon uit/aan"
 
 #: source/main/utils/InputEngine.cpp:1607
-#, fuzzy
-#| msgid "toggle map"
 msgid "toggle physics"
-msgstr "kaart aan/uit"
+msgstr "physics in- en uitschakelen"
 
 #: source/main/utils/InputEngine.cpp:1072
 msgid "toggle render mode (solid, wireframe and points)"
 msgstr "schakel doen modus (vast, draadframe en punten)"
 
 #: source/main/utils/InputEngine.cpp:1012
-#, fuzzy
-#| msgid "toggle transfer case mode"
 msgid "toggle reset mode"
-msgstr "switch verdeelbak mode"
+msgstr "switch resetmodus"
 
 #: source/main/utils/InputEngine.cpp:1264
 msgid "toggle right direction indicator (blinker)"
@@ -3518,7 +3361,7 @@ msgstr "verander tractiecontrole"
 #, fuzzy
 #| msgid "toggle parking brake"
 msgid "toggle trailer parking brake"
-msgstr "Handrem"
+msgstr "parkeerrem voor aanhangwagens aan/uit"
 
 #: source/main/utils/InputEngine.cpp:1619
 msgid "toggle transfer case gear ratio"
@@ -3581,10 +3424,8 @@ msgid "user authentication level"
 msgstr "gebruiker authenticatie niveau"
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:136
-#, fuzzy
-#| msgid " user country: "
 msgid "user country: "
-msgstr "gebruikers land:"
+msgstr "gebruikersland: "
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:132
 msgid "user language: "
