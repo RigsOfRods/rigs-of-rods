@@ -3,30 +3,30 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# Allan Nordhøy <epost@anotheragency.no>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-10 15:39+0100\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: Norwegian Bokmål (http://www.transifex.com/rigsofrods/rigs-of-"
-"rods/language/nb/)\n"
+"PO-Revision-Date: 2021-01-11 13:51+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
+"rigs-of-rods/game/nb_NO/>\n"
 "Language: nb\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.4.1-dev\n"
 
 #: source/main/gameplay/ChatSystem.cpp:55
 msgid " [whispered] "
 msgstr " [hvisket] "
 
 #: source/main/physics/Actor.cpp:393
-#, fuzzy
-#| msgid "No content installed"
 msgid " content mismatch: "
-msgstr "Intet innhold er installert"
+msgstr " innholdsuoverensstemmelse: "
 
 #: source/main/network/Network.cpp:354
 msgid " joined the game"
@@ -34,11 +34,12 @@ msgstr " ble med i spillet"
 
 #: source/main/network/Network.cpp:314
 msgid " left the game"
-msgstr " gikk fra spillet"
+msgstr " forlot spillet"
 
 #: source/main/physics/ActorManager.cpp:406
+#, fuzzy
 msgid " spawned a new vehicle: "
-msgstr " spawn et nytt kjøretøy "
+msgstr " tryllet fram et nytt kjøretøy "
 
 #: source/main/gui/panels/GUI_VehicleDescription.cpp:124
 msgid "(no author information available) "
@@ -80,12 +81,14 @@ msgid "Actors"
 msgstr ""
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:73
+#, fuzzy
 msgid "Adhesion velocity"
-msgstr "Adhesjon hastighet"
+msgstr "Vedheftelseshastighet"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:72
+#, fuzzy
 msgid "Adhesion velocity:"
-msgstr "Adhesion hastighet"
+msgstr "Vedheftelseshastighet:"
 
 #. TODO: currently we must allocate & return std::string, see _LC
 #: source/main/network/Network.cpp:800
@@ -167,7 +170,7 @@ msgstr ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:252
 msgid "Author(s): "
-msgstr "Skaper(e)"
+msgstr "Skaper(e): "
 
 #: source/main/network/Network.cpp:489
 msgctxt "Network"
@@ -240,7 +243,7 @@ msgstr ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:279
 msgid "Beams: "
-msgstr "Bjelker"
+msgstr "Bjelker: "
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:73
 msgid ""
@@ -674,22 +677,18 @@ msgid "Command Line Arguments"
 msgstr "Kommandolinjeargumenter"
 
 #: source/main/gui/panels/GUI_VehicleDescription.cpp:73
-#, fuzzy
-#| msgid "Commands: "
 msgid "Commands"
-msgstr "Kommandoer:"
+msgstr "Kommandoer"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:230
 #: source/main/gui/panels/GUI_ConsoleWindow.cpp:52
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "Console"
 msgid "Commands"
-msgstr "Kommandoer:"
+msgstr "Kommandoer"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:283
 msgid "Commands: "
-msgstr "Kommandoer:"
+msgstr "Kommandoer: "
 
 #: source/main/gui/OverlayWrapper.cpp:464
 msgid "Compositors: "
@@ -754,7 +753,7 @@ msgstr "Nåværende FPS: "
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:48
 msgid "Current active Ground: "
-msgstr "Gjeldende aktive grund:"
+msgstr "Gjeldende aktive grund: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:134
 msgid "Current gear: "
@@ -778,13 +777,11 @@ msgstr ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:308
 msgid "Date and Time installed: "
-msgstr "dato og klokkeslett installert:"
+msgstr "dato og klokkeslett installert: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:307
-#, fuzzy
-#| msgid "Date and Time installed: "
 msgid "Date and Time modified: "
-msgstr "dato og klokkeslett installert:"
+msgstr "Dato og tid endret: "
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:358
 msgctxt "GameSettings"
@@ -807,11 +804,9 @@ msgid "Debug realtime reflections"
 msgstr ""
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:361
-#, fuzzy
-#| msgid "saved texture as "
 msgctxt "GameSettings"
 msgid "Debug textures"
-msgstr "lagret tekstur som "
+msgstr "Avlus teksturer"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:360
 msgctxt "GameSettings"
@@ -830,10 +825,8 @@ msgid "Deformed beams count: "
 msgstr ""
 
 #: source/main/gui/panels/GUI_VehicleDescription.cpp:65
-#, fuzzy
-#| msgid "Description: "
 msgid "Description"
-msgstr "Beskrivelse: "
+msgstr "Beskrivelse"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:58
 msgctxt "GameSettings"
@@ -883,8 +876,9 @@ msgid "Drag anisotropy"
 msgstr "Drag anistropi"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:98
+#, fuzzy
 msgid "Drag anisotropy:"
-msgstr "Drag anistropi"
+msgstr "Drag anistropi:"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:138
 msgid "Drive ratio: "
@@ -1117,7 +1111,7 @@ msgstr ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:285
 msgid "Exhausts: "
-msgstr "Eksos"
+msgstr "Eksos: "
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:341
 msgctxt "GameSettings"
@@ -1196,11 +1190,11 @@ msgstr ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:286
 msgid "Flares: "
-msgstr "bluss"
+msgstr "Bluss: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:287
 msgid "Flexbodies: "
-msgstr "Fleksible deler:"
+msgstr "Fleksible deler: "
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:90
 msgid "Flow behavior index"
@@ -1216,7 +1210,7 @@ msgstr "Flytkonsistens"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:92
 msgid "Flow consistency:"
-msgstr "Flytkonsistens"
+msgstr "Flytkonsistens:"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:87
 msgid "Fluid Settings"
@@ -1228,7 +1222,7 @@ msgstr "Væske tetthet"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:95
 msgid "Fluid density:"
-msgstr "Veske tetthet"
+msgstr "Vesketetthet:"
 
 #: source/main/gui/OverlayWrapper.cpp:466
 msgid "Fonts: "
@@ -1320,7 +1314,7 @@ msgstr ""
 
 #: source/main/gui/OverlayWrapper.cpp:470
 msgid "HL GPU Program: "
-msgstr "HL GPU Program"
+msgstr "HL GPU-program: "
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:362
 msgctxt "GameSettings"
@@ -1352,11 +1346,11 @@ msgstr "Hydrodynamisk friksjon coef"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:78
 msgid "Hydrodynamic friction coef:"
-msgstr "Hydrodynamisk frisjon coef"
+msgstr "Hydrodynamisk frisjonskoeffisient:"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:281
 msgid "Hydros: "
-msgstr "Hydroer"
+msgstr "Hydroer: "
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:90
 msgid ""
@@ -1387,14 +1381,14 @@ msgid ""
 "behavior index >=1 it will behave like you are in water. For fluids with "
 "behavior index <1 it'll behave like you are in mud."
 msgstr ""
-"I gjørme (eller sand) vil væskemotstanden beskrevet av parameterene over "
+"I gjørme (eller sand) vil væskemotstanden beskrevet av parametrene over "
 "stoppe deg og hindre deg i å synke. Men for substanser som vann så er det "
 "ikke draget som stopper deg, men heller dens oppdrift. Dette parameteret er "
 "her så du kan hindre deg selv i å synke om du ønsker å simulere væsker med "
 "lav motstand. For gjørmeaktige eller sandaktige væsker kan verdien stå på 0. "
-"Men det er best å ha den i en eller annen minimumsverdi.  For væsker med "
-"oppførselsindeks >=1 så vil det oppføre seg som om du er i vann.  "
-"oppførselsindeks <1 vil det oppføre seg som om du er i gjørme. "
+"Men det er best å ha den i en eller annen minimumsverdi. For væsker med "
+"oppførselsindeks >=1 så vil det oppføre seg som om du er i vann. For "
+"oppførselsindeks <1 vil det oppføre seg som om du er i gjørme."
 
 #. *.odef files
 #: source/main/terrain/TerrainManager.cpp:156
@@ -1497,7 +1491,7 @@ msgstr ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:274
 msgid "Load Mass: "
-msgstr "Laste masse:"
+msgstr "Lastemasse: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:78
 msgid "Loader"
@@ -1595,7 +1589,7 @@ msgstr "Materialer: "
 
 #: source/main/gui/OverlayWrapper.cpp:485
 msgid "Memory (Ogre): "
-msgstr "Minne (Ogre)"
+msgstr "Minne (Ogre): "
 
 #: source/main/gui/OverlayWrapper.cpp:474
 msgid "Meshes: "
@@ -1610,10 +1604,8 @@ msgid "Mid range selected"
 msgstr "Mellomserie valgt"
 
 #: source/main/system/ConsoleCmd.cpp:169
-#, fuzzy
-#| msgid "Missing someone?"
 msgid "Missing parameter: "
-msgstr "Mangler noen?"
+msgstr "Manglende parameter: "
 
 #: source/main/network/Network.cpp:801
 msgctxt "NetUserAuth"
@@ -1626,10 +1618,8 @@ msgid "Mod Contributors"
 msgstr ""
 
 #: source/main/physics/ActorManager.cpp:416
-#, fuzzy
-#| msgid "No content installed"
 msgid "Mod not installed: "
-msgstr "Intet innhold er installert"
+msgstr "Modifisering ikke installert: "
 
 #: source/main/main.cpp:428
 msgctxt "Network"
@@ -1827,7 +1817,7 @@ msgstr ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:288
 msgid "Props: "
-msgstr "Rekvisiter:"
+msgstr "Rekvisiter: "
 
 #: source/main/network/Network.cpp:803
 msgctxt "NetUserAuth"
@@ -1872,7 +1862,7 @@ msgstr "Fjernsyrt kjøretøy innlastings feil"
 #: source/main/gui/panels/GUI_GameSettings.cpp:86
 msgctxt "GameSettings"
 msgid "Render System"
-msgstr "Gjengivelsesmetode:"
+msgstr "Gjengivelsesmetode"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:72
 msgctxt "GameSettings"
@@ -1914,8 +1904,9 @@ msgid "Rotating: "
 msgstr ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:284
+#, fuzzy
 msgid "Rotators: "
-msgstr "Rotatorer"
+msgstr "Rotatorer: "
 
 #: source/main/system/ConsoleCmd.cpp:306
 msgid "Run AngelScript code snippet"
@@ -1953,11 +1944,9 @@ msgid "Screenshot:"
 msgstr ""
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:220
-#, fuzzy
-#| msgid "Description: "
 msgctxt "Console"
 msgid "Scripting"
-msgstr "Beskrivelse: "
+msgstr "Skripting"
 
 #: source/main/system/ConsoleCmd.cpp:331
 msgid "Scripting disabled in this build"
@@ -2016,7 +2005,7 @@ msgstr ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:280
 msgid "Shocks: "
-msgstr "Dempere:"
+msgstr "Dempere: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:336
 msgid "Show details"
@@ -2055,7 +2044,7 @@ msgstr "Solid bakkenivå"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:63
 msgid "Solid ground level:"
-msgstr "Solid bakkeverdi "
+msgstr "Solid bakkeverdi:"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:61
 msgid "Solid ground settings"
@@ -2067,7 +2056,7 @@ msgstr "Lydkilder "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:323
 msgid "Source: "
-msgstr "Kilde:"
+msgstr "Kilde: "
 
 #: source/main/system/ConsoleCmd.cpp:178
 #: source/main/terrain/TerrainEditor.cpp:102
@@ -2106,7 +2095,7 @@ msgstr "Statisk friksjons koeffisiens"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:69
 msgid "Static friction coef:"
-msgstr "Statisk friksjons koefissiens "
+msgstr "Statisk friksjonskoeffisient:"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:70
 msgid ""
@@ -2136,7 +2125,7 @@ msgstr "Stribeck hastighet"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:81
 msgid "Stribeck velocity:"
-msgstr "Stribeck hastighet"
+msgstr "Stribeck-hastighet:"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:222
 #, fuzzy
@@ -2200,10 +2189,10 @@ msgid ""
 "to 0."
 msgstr ""
 "Denne friksjonen definerer friksjonen du vil føle fra en overflate med en "
-"tynn væskefilm på seg. Den er noe  overflødig med all væskefysikken under, "
+"tynn væskefilm på seg. Den er noe overflødig med all væskefysikken under, "
 "men er her for at eksperimentelle verdier skal kunne brukes. Om du skal "
-"eksperimentere med de andre væskefysikk instillingene, sett verdien på denne "
-"som 0."
+"eksperimentere med de andre væskefysikk innstillingene, sett verdien på "
+"denne til 0."
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:99
 msgid ""
@@ -2267,7 +2256,7 @@ msgstr ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:297
 msgid "Transmission Gear Count: "
-msgstr "Gir teller"
+msgstr "Gir teller: "
 
 #: source/main/gui/OverlayWrapper.cpp:435
 msgid "Triangle Count: "
@@ -2354,11 +2343,9 @@ msgid "Vehicle speed: "
 msgstr ""
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:48
-#, fuzzy
-#| msgid "Version: "
 msgctxt "About"
 msgid "Version"
-msgstr "Versjon "
+msgstr "Versjon"
 
 #: source/main/system/AppCommandLine.cpp:167
 msgid "Version Information"
@@ -2512,7 +2499,7 @@ msgstr "Motorstyring for fly"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:84
 msgid "alpha:"
-msgstr "alfa"
+msgstr "alfa:"
 
 #: source/main/utils/InputEngine.cpp:1276
 msgid "brake"
@@ -2576,7 +2563,7 @@ msgstr "Reverser dagstiden my fortere"
 
 #: source/main/utils/InputEngine.cpp:1414
 msgid "decrease target speed / rpm"
-msgstr "senke målets fart  rpm"
+msgstr "senke målets fart / rpm"
 
 #: source/main/utils/InputEngine.cpp:202
 msgid "decrease throttle"
@@ -2706,7 +2693,7 @@ msgstr "Øk Dag-Tid mye raskere"
 
 #: source/main/utils/InputEngine.cpp:1408
 msgid "increase target speed / rpm"
-msgstr "øke målet hastighet  rpm"
+msgstr "øke målet hastighet / rpm"
 
 #: source/main/utils/InputEngine.cpp:148
 msgid "increase the airplane thrust"
@@ -2742,64 +2729,44 @@ msgid "let the character run"
 msgstr "Lar karakteren løpe"
 
 #: source/main/utils/InputEngine.cpp:1792
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 01"
-msgstr "lastet posisjon ifra slot "
+msgstr "last inn scene fra plass 01"
 
 #: source/main/utils/InputEngine.cpp:1793
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 02"
-msgstr "lastet posisjon ifra slot "
+msgstr "last inn scene fra plass 02"
 
 #: source/main/utils/InputEngine.cpp:1794
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 03"
-msgstr "lastet posisjon ifra slot "
+msgstr "last inn scene fra plass 03"
 
 #: source/main/utils/InputEngine.cpp:1795
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 04"
-msgstr "lastet posisjon ifra slot "
+msgstr "last inn scene fra plass 04"
 
 #: source/main/utils/InputEngine.cpp:1796
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 05"
-msgstr "lastet posisjon ifra slot "
+msgstr "last inn scene fra plass 05"
 
 #: source/main/utils/InputEngine.cpp:1797
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 06"
-msgstr "lastet posisjon ifra slot "
+msgstr "last inn scene fra plass 06"
 
 #: source/main/utils/InputEngine.cpp:1798
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 07"
-msgstr "lastet posisjon ifra slot "
+msgstr "last inn scene fra plass 07"
 
 #: source/main/utils/InputEngine.cpp:1799
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 08"
-msgstr "lastet posisjon ifra slot "
+msgstr "last inn scene fra plass 08"
 
 #: source/main/utils/InputEngine.cpp:1800
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 09"
-msgstr "lastet posisjon ifra slot "
+msgstr "last inn scene fra plass 09"
 
 #: source/main/utils/InputEngine.cpp:1801
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 10"
-msgstr "lastet posisjon ifra slot "
+msgstr "last inn scene fra plass 10"
 
 #: source/main/system/ConsoleCmd.cpp:193
 msgid "log - toggles log output on the console"
@@ -2815,7 +2782,7 @@ msgstr "Manuell clutch (for manuell giring)"
 
 #: source/main/utils/InputEngine.cpp:1402
 msgid "match target speed / rpm with current truck speed / rpm"
-msgstr "samsvare målets fart  rpm med nåværende kjøretøyets fart  rpm"
+msgstr "samsvare målets fart / rpm med nåværende kjøretøyets fart / rpm"
 
 #: source/main/utils/InputEngine.cpp:1729
 msgid "more airbrakes"
@@ -2875,7 +2842,7 @@ msgstr "Ingen kraft"
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:173
 msgid "no truck loaded"
-msgstr "Ingen bil lastet inn "
+msgstr "ingen bil innlastet"
 
 #: source/main/utils/InputEngine.cpp:45
 msgid "normal brake for an aircraft"
@@ -3103,7 +3070,7 @@ msgstr "velg forrige element i nåverende kategori"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:55
 msgid "selected Ground Type:"
-msgstr "valgt bakketype"
+msgstr "valgt bakketype:"
 
 #: source/main/utils/InputEngine.cpp:886
 msgid "sends the entered text"
@@ -3503,7 +3470,7 @@ msgstr "bruker land: "
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:132
 msgid "user language: "
-msgstr "bruker språk"
+msgstr "brukerspråk: "
 
 #. TextDisabled() are captions, Text() are values
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:127
