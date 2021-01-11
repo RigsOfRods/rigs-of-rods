@@ -36,8 +36,7 @@ using namespace GUI;
 void SimActorStats::Draw(RoR::GfxActor* actorx)
 {
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
-
-    // TODO: Localize all! See https://github.com/RigsOfRods/rigs-of-rods/issues/1269
+    
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
     ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, (theme.screen_edge_padding.y + 150)));

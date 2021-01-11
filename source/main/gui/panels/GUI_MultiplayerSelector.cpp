@@ -28,6 +28,7 @@
 #include "GUIUtils.h"
 #include "RoRnet.h"
 #include "RoRVersion.h"
+#include "Language.h"
 
 #include <imgui.h>
 #include <rapidjson/document.h>
@@ -78,7 +79,7 @@ void FetchServerlist(std::string portal_url)
         Ogre::LogManager::getSingleton().stream() 
             << "[RoR|Multiplayer] Failed to retrieve serverlist; HTTP status code: " << response_code;
         App::GetGameContext()->PushMessage(
-            Message(MSG_NET_REFRESH_SERVERLIST_FAILURE, "Error connecting to server :("));
+            Message(MSG_NET_REFRESH_SERVERLIST_FAILURE, _L("Error connecting to server :(")));
         return;
     }
 
@@ -89,7 +90,7 @@ void FetchServerlist(std::string portal_url)
         Ogre::LogManager::getSingleton().stream() 
             << "[RoR|Multiplayer] Error parsing serverlist JSON"; // TODO: Report the actual error
         App::GetGameContext()->PushMessage(
-            Message(MSG_NET_REFRESH_SERVERLIST_FAILURE, "Server returned invalid data :("));
+            Message(MSG_NET_REFRESH_SERVERLIST_FAILURE, _L("Server returned invalid data :(")));
         return;
     }
 
@@ -160,7 +161,7 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
     // Window mode buttons
     MultiplayerSelector::Mode next_mode = m_mode;
 
-    if (ImGui::Button("Online (click to refresh)"))
+    if (ImGui::Button(_L("Online (click to refresh)")))
     {
         if (m_mode == Mode::ONLINE)
             this->StartAsyncRefresh();
@@ -168,12 +169,12 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
             next_mode = Mode::ONLINE;
     }
     ImGui::SameLine();
-    if (ImGui::Button("Direct IP"))
+    if (ImGui::Button(_L("Direct IP")))
     {
         next_mode = Mode::DIRECT;
     }
     ImGui::SameLine();
-    if (ImGui::Button("Settings"))
+    if (ImGui::Button(_L("Settings")))
     {
         next_mode = Mode::SETUP;
     }
@@ -188,25 +189,25 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
     {
         ImGui::PushID("setup");
 
-        DrawGCheckbox(App::mp_join_on_startup,    "Auto connect");
-        DrawGCheckbox(App::mp_chat_auto_hide,     "Auto hide chat");
-        DrawGCheckbox(App::mp_hide_net_labels,    "Hide net labels");
-        DrawGCheckbox(App::mp_hide_own_net_label, "Hide own net label");
-        DrawGCheckbox(App::mp_pseudo_collisions,  "Multiplayer collisions");
+        DrawGCheckbox(App::mp_join_on_startup,    _L("Auto connect"));
+        DrawGCheckbox(App::mp_chat_auto_hide,     _L("Auto hide chat"));
+        DrawGCheckbox(App::mp_hide_net_labels,    _L("Hide net labels"));
+        DrawGCheckbox(App::mp_hide_own_net_label, _L("Hide own net label"));
+        DrawGCheckbox(App::mp_pseudo_collisions,  _L("Multiplayer collisions"));
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
         ImGui::Separator();
 
         ImGui::PushItemWidth(250.f);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
-        DrawGTextEdit(App::mp_player_name,        "Player nickname", m_player_name_buf);
-        DrawGTextEdit(App::mp_server_password,    "Default server password", m_password_buf);
+        DrawGTextEdit(App::mp_player_name,        _L("Player nickname"), m_player_name_buf);
+        DrawGTextEdit(App::mp_server_password,    _L("Default server password"), m_password_buf);
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
         ImGui::Separator();
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
-        DrawGTextEdit(App::mp_player_token,       "User token", m_user_token_buf);
+        DrawGTextEdit(App::mp_player_token,       _L("User token"), m_user_token_buf);
         ImGui::PopItemWidth();
 
         ImGui::PopID();
@@ -216,13 +217,13 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
         ImGui::PushID("direct");
 
         ImGui::PushItemWidth(250.f);
-        DrawGTextEdit(App::mp_server_host, "Server host", m_server_host_buf);
-        DrawGIntBox(App::mp_server_port, "Server port");
-        ImGui::InputText("Server password", m_password_buf.GetBuffer(), m_password_buf.GetCapacity());
+        DrawGTextEdit(App::mp_server_host,  _L("Server host"), m_server_host_buf);
+        DrawGIntBox(App::mp_server_port,    _L("Server port"));
+        ImGui::InputText(                   _L("Server password"), m_password_buf.GetBuffer(), m_password_buf.GetCapacity());
         ImGui::PopItemWidth();
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
-        if (ImGui::Button("Join"))
+        if (ImGui::Button(_L("Join")))
         {
             App::mp_server_password->SetStr(m_password_buf.GetBuffer());
             App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
@@ -260,12 +261,12 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
             ImGui::SetColumnOffset(5, 0.82f * table_width);   // Col #5: Host/Port
             // Draw table header
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + TABLE_PADDING_LEFT);
-            DrawTableHeader("Passwd?");
-            DrawTableHeader("Name");
-            DrawTableHeader("Terrain");
-            DrawTableHeader("Users");
-            DrawTableHeader("Version");
-            DrawTableHeader("Host/Port");
+            DrawTableHeader(_L("Passwd?"));
+            DrawTableHeader(_L("Name"));
+            DrawTableHeader(_L("Terrain"));
+            DrawTableHeader(_L("Users"));
+            DrawTableHeader(_L("Version"));
+            DrawTableHeader(_L("Host/Port"));
             ImGui::Separator();
             // Draw table body
             for (int i = 0; i < (int)m_serverlist_data.size(); i++)
@@ -302,7 +303,7 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
             if (m_selected_item != -1 && m_serverlist_data[m_selected_item].net_version == RORNET_VERSION)
             {
                 MpServerInfo& server = m_serverlist_data[m_selected_item];
-                if (ImGui::Button("Join", ImVec2(200.f, 0.f)))
+                if (ImGui::Button(_L("Join"), ImVec2(200.f, 0.f)))
                 {
                     App::mp_server_password->SetStr(m_password_buf.GetBuffer());
                     App::mp_server_host->SetStr(server.net_host.c_str());
@@ -314,7 +315,7 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
                     // TODO: Find out why this is always visible ~ ulteq 01/2019
                     ImGui::SameLine();
                     ImGui::PushItemWidth(250.f);
-                    ImGui::InputText("Server password", m_password_buf.GetBuffer(), m_password_buf.GetCapacity());
+                    ImGui::InputText(_L("Server password"), m_password_buf.GetBuffer(), m_password_buf.GetCapacity());
                     ImGui::PopItemWidth();
                 }
             }
@@ -344,7 +345,7 @@ void MultiplayerSelector::StartAsyncRefresh()
     m_draw_table = false;
     m_serverlist_data.clear();
     m_selected_item = -1;
-    m_serverlist_msg = "... refreshing ...";
+    m_serverlist_msg = _L("... refreshing ...");
     m_serverlist_msg_color = App::GetGuiManager()->GetTheme().in_progress_text_color;
     std::packaged_task<void(std::string)> task(FetchServerlist);
     std::thread(std::move(task), App::mp_api_url->GetStr()).detach(); // launch on a thread
@@ -378,7 +379,7 @@ void MultiplayerSelector::UpdateServerlist(MpServerInfoVec* data)
     m_draw_table = true;
     if (m_serverlist_data.empty())
     {
-        m_serverlist_msg = "There are no available servers :/";
+        m_serverlist_msg = _L("There are no available servers :/");
         m_serverlist_msg_color = App::GetGuiManager()->GetTheme().no_entries_text_color;
     }
     else

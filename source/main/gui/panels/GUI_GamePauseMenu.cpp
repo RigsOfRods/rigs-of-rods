@@ -28,9 +28,12 @@
 #include "Application.h"
 #include "GameContext.h"
 #include "GUIManager.h"
+#include "Language.h"
 
 using namespace RoR;
 using namespace GUI;
+
+#define formatbutton(args, button_index) (m_kb_focus_index == button_index) ? std::string("--> ").append(args).append(" <--").c_str() : args
 
 GamePauseMenu::GamePauseMenu(): 
     m_kb_focus_index(-1), m_kb_enter_index(-1)
@@ -74,18 +77,17 @@ void GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cleanup and u
     }
     ImGui::SetNextWindowContentWidth(WINDOW_WIDTH);
     int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
-    if (ImGui::Begin("Pause", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+    // The Pause menu
+    if (ImGui::Begin(_L("Pause"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
     {
         ImVec2 btn_size(WINDOW_WIDTH, 0.f);
 
-        const char* resume_title = (m_kb_focus_index == 0) ? "--> Resume game <--" : "Resume game"; // TODO: Localize all!
-        if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == 0))
+        if (ImGui::Button(formatbutton(_L("Resume game"), 0), btn_size) || (m_kb_enter_index == 0))
         {
             App::GetGameContext()->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
         }
 
-        const char* settings_title = (m_kb_focus_index == 1) ? "--> Return to menu <--" : "Return to menu";
-        if (ImGui::Button(settings_title, btn_size) || (m_kb_enter_index == 1))
+        if (ImGui::Button(formatbutton(_L("Return to menu"), 1), btn_size) || (m_kb_enter_index == 1))
         {
             App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
             if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
@@ -94,8 +96,7 @@ void GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cleanup and u
             }
         }
 
-        const char* exit_title = (m_kb_focus_index == 2) ? "--> Exit game <--" : "Exit game";
-        if (ImGui::Button(exit_title, btn_size) || (m_kb_enter_index == 2))
+        if (ImGui::Button(formatbutton(_L("Exit game"), 2), btn_size) || (m_kb_enter_index == 2))
         {
             App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
         }

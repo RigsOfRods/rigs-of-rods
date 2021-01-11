@@ -38,6 +38,8 @@
 using namespace RoR;
 using namespace GUI;
 
+#define formatbutton(args) (m_kb_focus_index == button_index) ? std::string("--> ").append(args).append(" <--").c_str() : args
+
 GameMainMenu::GameMainMenu(): 
     m_is_visible(false), m_num_buttons(5), m_kb_focus_index(-1), m_kb_enter_index(-1)
 {
@@ -90,13 +92,12 @@ void GameMainMenu::DrawMenuPanel()
     }
     ImGui::SetNextWindowContentWidth(WINDOW_WIDTH);
     int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
-    if (ImGui::Begin("Main menu", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+    if (ImGui::Begin(_L("Main menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
     {
         int button_index = 0;
         ImVec2 btn_size(WINDOW_WIDTH, 0.f);
 
-        const char* sp_title = (m_kb_focus_index == button_index) ? "--> Single player <--" : "Single player"; // TODO: Localize all!
-        if (ImGui::Button(sp_title, btn_size) || (m_kb_enter_index == button_index++))
+        if (ImGui::Button(formatbutton(_L("Single player")), btn_size) || (m_kb_enter_index == button_index++))
         {
             this->SetVisible(false);
             if (App::diag_preset_terrain->GetStr().empty())
@@ -111,37 +112,32 @@ void GameMainMenu::DrawMenuPanel()
 
         if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
         {
-            const char* resume_title = (m_kb_focus_index == button_index) ? "--> Resume game <--" : "Resume game";
-            if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == button_index++))
+            if (ImGui::Button(formatbutton(_L("Resume game")), btn_size) || (m_kb_enter_index == button_index++))
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, "autosave.sav"));
                 this->SetVisible(false);
             }
         }
 
-        const char* mp_title = (m_kb_focus_index == button_index) ? "--> Multi player <--" : "Multi player";
-        if (ImGui::Button(mp_title , btn_size) || (m_kb_enter_index == button_index++))
+        if (ImGui::Button(formatbutton(_L("Multi player")), btn_size) || (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
             this->SetVisible(false);
         }
 
-        const char* settings_title = (m_kb_focus_index == button_index) ? "--> Settings <--" : "Settings";
-        if (ImGui::Button(settings_title, btn_size) || (m_kb_enter_index == button_index++))
+        if (ImGui::Button(formatbutton(_L("Settings")), btn_size) || (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_GameSettings(true);
             this->SetVisible(false);
         }
 
-        const char* about_title = (m_kb_focus_index == button_index) ? "--> About <--" : "About";
-        if (ImGui::Button(about_title, btn_size)|| (m_kb_enter_index == button_index++))
+        if (ImGui::Button(formatbutton(_L("About")), btn_size)|| (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_GameAbout(true);
             this->SetVisible(false);
         }
 
-        const char* exit_title = (m_kb_focus_index == button_index) ? "--> Exit game <--" : "Exit game";
-        if (ImGui::Button(exit_title, btn_size) || (m_kb_enter_index == button_index++))
+        if (ImGui::Button(formatbutton(_L("Exit game")), btn_size) || (m_kb_enter_index == button_index++))
         {
             App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
             this->SetVisible(false);
@@ -178,7 +174,7 @@ void GameMainMenu::DrawVersionBox()
         ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize |
         ImGuiWindowFlags_NoResize   | ImGuiWindowFlags_NoTitleBar |
         ImGuiWindowFlags_NoInputs;
-    if (ImGui::Begin("Version box", nullptr, flags))
+    if (ImGui::Begin(_L("Version box"), nullptr, flags))
     {
         ImGui::Text("%s", game_ver.ToCStr());
         ImGui::Text("%s", rornet_ver.ToCStr());

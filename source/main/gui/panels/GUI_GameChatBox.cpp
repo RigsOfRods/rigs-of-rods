@@ -74,7 +74,7 @@ void GameChatBox::Draw()
 
     if (initialized == true)
     {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, "Welcome to Rigs of Rods!", "", 10000, false);
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _LC("ChatBox", "Welcome to Rigs of Rods!"), "", 10000, false);
         initialized = false;
     }
 
@@ -133,8 +133,8 @@ void GameChatBox::Draw()
 
     if (m_is_visible) // Full display?
     {
-        ImGui::Text(_L("Chat history (use mouse wheel to scroll)"));
-        ImGui::Text(_L("Message"));
+        ImGui::Text(_LC("ChatBox", "Chat history (use mouse wheel to scroll)"));
+        ImGui::Text(_LC("ChatBox", "Message"));
         ImGui::SameLine();
         if (!m_kb_focused)
         {
@@ -182,7 +182,7 @@ void GameChatBox::SubmitMessage()
             else
             {
                 Str<200> text;
-                text << _L("Whisper message not sent, unknown username") << ": " << username;
+                text << _LC("ChatBox", "Whisper message not sent, unknown username") << ": " << username;
                 App::GetConsole()->putMessage(
                     Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, text.ToCStr());
             }
@@ -191,7 +191,7 @@ void GameChatBox::SubmitMessage()
         {
             App::GetConsole()->putMessage(
                 Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                _L("usage: /whisper username message"));
+                _LC("ChatBox", "usage: /whisper username message"));
         }
     }
     else

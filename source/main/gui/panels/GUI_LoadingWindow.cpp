@@ -72,7 +72,7 @@ void LoadingWindow::SetProgress(int percent, std::string const& text, bool rende
 void LoadingWindow::SetProgressNetConnect(const std::string& net_status)
 {
     Str<500> text;
-    text << "Joining [" << App::mp_server_host->GetStr() << ":" << App::mp_server_port->GetInt() << "]";
+    text << _L("Joining") << " [" << App::mp_server_host->GetStr() << ":" << App::mp_server_port->GetInt() << "]";
     text << "\n" << net_status;
     this->SetProgress(PERC_SHOW_SPINNER, text.ToCStr());
 }
