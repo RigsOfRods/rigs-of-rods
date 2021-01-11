@@ -44,27 +44,27 @@ void GameControls::Draw()
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 8.f));
 
-    if (ImGui::Button("Airplane")) { m_tab = ControlsTab::AIRPLANE; }
+    if (ImGui::Button(_L("Airplane"))) { m_tab = ControlsTab::AIRPLANE; }
     ImGui::SameLine();
-    if (ImGui::Button("Boat")) { m_tab = ControlsTab::BOAT; }
+    if (ImGui::Button(_L("Boat"))) { m_tab = ControlsTab::BOAT; }
     ImGui::SameLine();
-    if (ImGui::Button("Camera")) { m_tab = ControlsTab::CAMERA; }
+    if (ImGui::Button(_L("Camera"))) { m_tab = ControlsTab::CAMERA; }
     ImGui::SameLine();
-    if (ImGui::Button("Sky")) { m_tab = ControlsTab::SKY; }
+    if (ImGui::Button(_L("Sky"))) { m_tab = ControlsTab::SKY; }
     ImGui::SameLine();
-    if (ImGui::Button("Character")) { m_tab = ControlsTab::CHARACTER; }
+    if (ImGui::Button(_L("Character"))) { m_tab = ControlsTab::CHARACTER; }
     ImGui::SameLine();
-    if (ImGui::Button("Commands")) { m_tab = ControlsTab::COMMANDS; }
+    if (ImGui::Button(_L("Commands"))) { m_tab = ControlsTab::COMMANDS; }
     ImGui::SameLine();
-    if (ImGui::Button("Common")) { m_tab = ControlsTab::COMMON; }
+    if (ImGui::Button(_L("Common"))) { m_tab = ControlsTab::COMMON; }
     ImGui::SameLine();
-    if (ImGui::Button("Grass")) { m_tab = ControlsTab::GRASS; }
+    if (ImGui::Button(_L("Grass"))) { m_tab = ControlsTab::GRASS; }
     ImGui::SameLine();
-    if (ImGui::Button("Map")) { m_tab = ControlsTab::MAP; }
+    if (ImGui::Button(_L("Map"))) { m_tab = ControlsTab::MAP; }
     ImGui::SameLine();
-    if (ImGui::Button("Menu")) { m_tab = ControlsTab::MENU; }
+    if (ImGui::Button(_L("Menu"))) { m_tab = ControlsTab::MENU; }
     ImGui::SameLine();
-    if (ImGui::Button("Truck")) { m_tab = ControlsTab::TRUCK; }
+    if (ImGui::Button(_L("Truck"))) { m_tab = ControlsTab::TRUCK; }
 
     ImGui::PopStyleVar(1);
 
