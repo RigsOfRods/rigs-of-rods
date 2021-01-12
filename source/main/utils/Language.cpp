@@ -32,11 +32,11 @@
 using namespace Ogre;
 using namespace RoR;
 
-std::pair<std::string, std::string> extractLang(std::string info)
+std::pair<std::string, std::string> extractLang(const std::string& info)
 {
     String lang_long  = "";
     String lang_short = "";
-    for (auto line : StringUtil::split(info, "\n"))
+    for (const auto& line : StringUtil::split(info, "\n"))
     {
         auto token = StringUtil::split(line);
         if (token[0] == "Language-Team:")
@@ -59,11 +59,10 @@ void LanguageEngine::setup()
     FileInfoListPtr fl = ResourceGroupManager::getSingleton().findResourceFileInfo("LngRG", "*", true);
     if (!fl->empty())
     {
-        for (auto file : *fl)
+        for (const auto& file : *fl)
         {
             String locale_path = PathCombine(base_path, file.filename);
-            String lang_path = PathCombine(locale_path, "LC_MESSAGES");
-            String mo_path = PathCombine(lang_path, "ror.mo");
+            String mo_path = PathCombine(locale_path, "ror.mo");
             if (moFileReader.ReadFile(mo_path.c_str()) == moFileLib::moFileReader::EC_SUCCESS)
             {
                 String info = moFileLib::moFileReaderSingleton::GetInstance().Lookup("");
@@ -76,8 +75,7 @@ void LanguageEngine::setup()
     ResourceGroupManager::getSingleton().destroyResourceGroup("LngRG");
 
     String locale_path = PathCombine(base_path, App::app_language->GetStr().substr(0, 2));
-    String lang_path = PathCombine(locale_path, "LC_MESSAGES");
-    String mo_path = PathCombine(lang_path, "ror.mo");
+    String mo_path = PathCombine(locale_path, "ror.mo");
 
     if (moFileReader.ReadFile(mo_path.c_str()) == moFileLib::moFileReader::EC_SUCCESS)
     {
