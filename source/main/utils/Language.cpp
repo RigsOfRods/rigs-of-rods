@@ -22,8 +22,6 @@
 /// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
 /// @date   12th of January 2009
 
-#ifndef NOLANG
-
 #include "Language.h"
 
 #include "Application.h"
@@ -91,4 +89,3 @@ void LanguageEngine::setup()
 
     RoR::Log("[RoR|App] Language successfully loaded");
 }
-#endif //NOLANG

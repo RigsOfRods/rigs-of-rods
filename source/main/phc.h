@@ -33,10 +33,6 @@
 #include <SocketW.h>
 #endif //USE_SOCKETW
 
-#ifdef USE_MOFILEREADER
-#include <moFileReader.h>
-#endif //USE_MOFILEREADER
-
 #ifdef USE_ANGELSCRIPT
 #include <angelscript.h>
 #endif //USE_ANGELSCRIPT

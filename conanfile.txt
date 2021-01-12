@@ -3,7 +3,6 @@ cmake
 
 [requires]
 AngelScript/2.32@anotherfoxguy/stable
-MofileReader/1.0.0@anotherfoxguy/stable
 MyGUI/3.4.0-OGRE-1.11.6-with-patches@anotherfoxguy/stable
 OGRE/1.11.6-with-patches@anotherfoxguy/stable
 OGREdeps/20.19.4@anotherfoxguy/stable
