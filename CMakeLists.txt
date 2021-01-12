@@ -99,11 +99,10 @@ endif (WIN32)
 ################################################################################
 include(DependenciesConfig)
 
-
 ################################################################################
 # Recurse into subdirectories
 ################################################################################
-add_subdirectory(source/angelscript_addons)
+add_subdirectory(external/angelscript_addons)
 add_subdirectory(source/version_info)
 add_subdirectory(source/main)
 
