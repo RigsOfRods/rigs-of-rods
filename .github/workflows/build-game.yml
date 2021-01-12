@@ -1,0 +1,135 @@
+---
+name: Build game
+
+on: [push, pull_request]
+
+jobs:
+  build-gcc:
+    name: Linux build on Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          submodules: true
+
+      - name: Cache conan
+        uses: actions/cache@v1
+        with:
+          key: conan-root-${{ hashFiles('**/conanfile.txt') }}
+          path: ~/.conan/
+
+      - name: Install dependencies
+        run: |
+          curl "https://raw.githubusercontent.com/AnotherFoxGuy/ci-scripts/main/install-conan.sh" | sudo bash
+          sudo apt-get update
+          sudo apt-get -y install \
+                  pkg-config \
+                  ninja-build \
+                  nvidia-cg-toolkit \
+                  libfreetype6-dev \
+                  libfreeimage-dev \
+                  libzzip-dev \
+                  libois-dev \
+                  libgl1-mesa-dev \
+                  libglu1-mesa-dev \
+                  libx11-dev \
+                  libxt-dev \
+                  libxaw7-dev \
+                  libxrandr-dev
+
+        shell: bash
+
+      - name: Configure
+        run: cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
+        shell: bash
+
+      - name: Build
+        run: ninja
+        shell: bash
+
+      - name: Create redis folder
+        run: |
+          ninja zip_and_copy_resources
+          ninja install
+        shell: bash
+
+      - name: Upload redist folder
+        uses: actions/upload-artifact@v2
+        with:
+          name: ror-linux
+          path: redist
+
+      - name: Clean Conan pkgs
+        run: cmake -P ./cmake/3rdparty/pmm.cmake /Conan /Clean
+        shell: bash
+
+  build-msvc:
+    name: Windows build
+    runs-on: windows-latest
+    env:
+        DXSDK_DIR: C:\apps\Microsoft DirectX SDK
+        SCOOP: C:\Scoop\
+    steps:
+      - run: echo "C:\Scoop\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - uses: actions/checkout@v2.3.4
+        with:
+          submodules: true
+
+      - name: Install Microsoft DirectX SDK
+        shell: cmake -P {0}
+        run: |
+          file(MAKE_DIRECTORY $ENV{DXSDK_DIR})
+          file(DOWNLOAD https://vps.anotherfoxguy.com/ipfs/QmZm8WtxLxpmgxmYDTMPYjsbwmipr3KtrkPgGJoYiGBqhx "$ENV{TMP}/dl.zip" SHOW_PROGRESS)
+          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "$ENV{TMP}/dl.zip" WORKING_DIRECTORY "$ENV{DXSDK_DIR}")
+
+      - name: Cache conan
+        uses: actions/cache@v1
+        with:
+          key: conan-root-${{ hashFiles('**/conanfile.txt') }}
+          path: ~/.conan
+
+      - name: Cache conan packages
+        uses: actions/cache@v1
+        with:
+          key: conan-pkg-${{ hashFiles('**/conanfile.txt') }}
+          path: C:/.conan/
+
+      - name: Install build dependencies
+        run: |
+          iwr -useb get.scoop.sh | iex
+          scoop install conan ninja
+        shell: powershell
+
+      - name: Configure
+        run: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
+        shell: cmd
+
+      - name: Build
+        run: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+
+          ninja
+        shell: cmd
+
+      - name: Create redis folder
+        run: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+
+          ninja zip_and_copy_resources
+
+          ninja install
+        shell: cmd
+
+      - name: Upload redist folder
+        uses: actions/upload-artifact@v2
+        with:
+          name: ror-win
+          path: redist
+
+      - name: Clean Conan pkgs
+        run: cmake -P ./cmake/3rdparty/pmm.cmake /Conan /Clean
+        shell: cmd
