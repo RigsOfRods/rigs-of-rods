@@ -452,7 +452,7 @@ else (USE_PACKAGE_MANAGER)
                 AngelScript::use_namespace
                 )
         target_compile_definitions(${BINNAME} PRIVATE USE_ANGELSCRIPT)
-        target_include_directories(${BINNAME} PRIVATE ../angelscript_addons)
+        target_include_directories(${BINNAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/angelscript_addons)
         target_link_libraries(${BINNAME} PRIVATE angelscript_addons)
     endif ()
 
