@@ -1,5 +1,7 @@
 find_package(Threads REQUIRED)
 
+include("${CMAKE_SOURCE_DIR}/external/pagedgeometry.cmake")
+
 # some obsolete options:
 # disabled some options for now
 #set(ROR_FEAT_TIMING     "FALSE" CACHE BOOL "enable beam statistics. For core development only")

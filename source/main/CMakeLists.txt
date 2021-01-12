@@ -182,30 +182,6 @@ set(SOURCE_FILES
         physics/flex/Locator_t.h
         physics/water/Buoyance.{h,cpp}
         physics/water/ScrewProp.{h,cpp}
-        plugins/pagedgeometry/include/BatchPage.h
-        plugins/pagedgeometry/source/BatchPage.cpp
-        plugins/pagedgeometry/include/BatchedGeometry.h
-        plugins/pagedgeometry/source/BatchedGeometry.cpp
-        plugins/pagedgeometry/include/GrassLoader.h
-        plugins/pagedgeometry/source/GrassLoader.cpp
-        plugins/pagedgeometry/include/ImpostorPage.h
-        plugins/pagedgeometry/source/ImpostorPage.cpp
-        plugins/pagedgeometry/include/MersenneTwister.h
-        plugins/pagedgeometry/include/PagedGeometry.h
-        plugins/pagedgeometry/source/PagedGeometry.cpp
-        plugins/pagedgeometry/include/PropertyMaps.h
-        plugins/pagedgeometry/source/PropertyMaps.cpp
-        plugins/pagedgeometry/include/RandomTable.h
-        plugins/pagedgeometry/include/StaticBillboardSet.h
-        plugins/pagedgeometry/source/StaticBillboardSet.cpp
-        plugins/pagedgeometry/include/TreeLoader2D.h
-        plugins/pagedgeometry/source/TreeLoader2D.cpp
-        plugins/pagedgeometry/include/TreeLoader3D.h
-        plugins/pagedgeometry/source/TreeLoader3D.cpp
-        plugins/pagedgeometry/include/WindBatchPage.h
-        plugins/pagedgeometry/source/WindBatchPage.cpp
-        plugins/pagedgeometry/include/WindBatchedGeometry.h
-        plugins/pagedgeometry/source/WindBatchedGeometry.cpp
         resources/CacheSystem.{h,cpp}
         resources/ContentManager.{h,cpp}
         resources/otc_fileformat/OTCFileFormat.{h,cpp}
@@ -244,8 +220,6 @@ set(SOURCE_FILES
         utils/MeshObject.{h,cpp}
         utils/PlatformUtils.{h,cpp}
         utils/SHA1.{h,cpp}
-        utils/SimpleGlob.h
-        utils/SimpleOpt.h
         utils/Utils.{h,cpp}
         utils/WriteTextToTexture.{h,cpp}
         utils/ZeroedMemoryAllocator.h
@@ -269,7 +243,6 @@ expand_file_extensions(SOURCE_FILES ${SOURCE_FILES})
 # Generate source groups for use in IDEs
 generate_source_groups(${SOURCE_FILES})
 
-
 if (WIN32)
     # clang-cl doesn't support resource files
     if (NOT (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
@@ -283,8 +256,7 @@ endif ()
 ####################################################################################################
 
 set(BINNAME "RoR")
-link_directories(${MYGUI_LIBRARY_DIRS})
-add_executable(${BINNAME} ${SOURCE_FILES} ${pagedgeometry_SOURCE_FILES})
+add_executable(${BINNAME} ${SOURCE_FILES})
 
 if (WIN32)
     set_target_properties(${BINNAME} PROPERTIES WIN32_EXECUTABLE YES)
@@ -321,9 +293,8 @@ endif ()
 #  INCLUDE DIRECTORIES
 ####################################################################################################
 
-
-include_directories(${MYGUI_INCLUDE_DIRS})
 target_include_directories(${BINNAME} PRIVATE
+        ${CMAKE_SOURCE_DIR}/external/header_only
         .
         audio
         datatypes
@@ -347,7 +318,6 @@ target_include_directories(${BINNAME} PRIVATE
         physics/threading
         physics/utils
         physics/water
-        plugins/pagedgeometry/include
         resources
         resources/odef_fileformat/
         resources/otc_fileformat/
@@ -394,7 +364,8 @@ if (UNIX)
     #  include_directories(${GTK_INCLUDE_DIRS})
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
 endif ()
-target_link_libraries(${BINNAME} PRIVATE ${OS_LIBS} version_info)
+target_link_libraries(${BINNAME} PRIVATE ${OS_LIBS} PagedGeometry version_info)
+        
 
 # --- Threading support (still needed for GCC even with C++11)
 set(CMAKE_THREAD_PREFER_PTHREAD YES)
@@ -402,8 +373,7 @@ target_link_libraries(${BINNAME} PRIVATE Threads::Threads)
 
 
 if (USE_PACKAGE_MANAGER)
-
-    target_include_directories(${BINNAME} PRIVATE ${CMAKE_SOURCE_DIR}/source/angelscript_addons)
+    target_include_directories(${BINNAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/angelscript_addons)
 
     target_link_libraries(${BINNAME} PRIVATE
             CONAN_PKG::AngelScript
@@ -456,6 +426,7 @@ else (USE_PACKAGE_MANAGER)
     target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
     target_include_directories(${BINNAME} PRIVATE ${OIS_INCLUDE_DIRS})
 
+    include_directories(${MYGUI_INCLUDE_DIRS})
     target_link_libraries(${BINNAME} PRIVATE
             MyGUI::MyGUI
             MyGUI::OgrePlatform
