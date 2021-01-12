@@ -4,13 +4,14 @@
 #
 # Translators:
 # Antoni A. <antoni.andric@gmail.com>, 2015-2016,2018-2019, 2021.
+# WillyB <superwillie911@hotmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-10 15:39+0100\n"
-"PO-Revision-Date: 2021-01-12 07:55+0000\n"
-"Last-Translator: Antoni A. <antoni.andric@gmail.com>\n"
+"PO-Revision-Date: 2021-01-13 11:11+0000\n"
+"Last-Translator: WillyB <superwillie911@hotmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
 "Language: fr\n"
@@ -40,17 +41,17 @@ msgstr " a quitté le jeu"
 
 #: source/main/physics/ActorManager.cpp:406
 msgid " spawned a new vehicle: "
-msgstr " a chargé un nouveau véhicule: "
+msgstr " a chargé un nouveau véhicule : "
 
 #: source/main/gui/panels/GUI_VehicleDescription.cpp:124
 msgid "(no author information available) "
-msgstr "(pas d'informations d'auteur disponnible)"
+msgstr "(pas d'informations d'auteur disponible) "
 
 #: source/main/system/ConsoleCmd.cpp:371
 msgid "- use Arrow Up/Down Keys in the InputBox to reuse old messages"
 msgstr ""
 "- utilisez les touches directionnelles haut et bas dans la boîte de dialogue "
-"pour réutiliser d'anciens messages."
+"pour réutiliser d'anciens messages"
 
 #: source/main/system/AppCommandLine.cpp:151
 #, fuzzy
@@ -115,7 +116,7 @@ msgstr "Vitesse d'adhérence"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:72
 msgid "Adhesion velocity:"
-msgstr "Vitesse d'adhérence:"
+msgstr "Vitesse d'adhérence :"
 
 #. TODO: currently we must allocate & return std::string, see _LC
 #: source/main/network/Network.cpp:800
@@ -137,15 +138,15 @@ msgstr "Opacité"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:175
 msgid "Altitude: "
-msgstr "Altitude: "
+msgstr "Altitude : "
 
 #: source/main/main.cpp:834
 msgid "An exception (std::runtime_error) has occured!"
-msgstr "Une exception (std::runtime_error) est survenue!"
+msgstr "Une exception (std ::runtime_error) est survenue !"
 
 #: source/main/main.cpp:829
 msgid "An exception has occured!"
-msgstr "Une exception est survenue!"
+msgstr "Une exception est survenue !"
 
 #: source/main/utils/ErrorUtils.cpp:43
 msgid ""
@@ -156,7 +157,7 @@ msgid ""
 msgstr ""
 "Une erreur interne est survenue dans Rigs of Rods.\n"
 "\n"
-"Informations techniques ci-dessous:\n"
+"Informations techniques ci-dessous : \n"
 "\n"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:385
@@ -201,7 +202,7 @@ msgstr "Paramètres audio"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:252
 msgid "Author(s): "
-msgstr "Auteur(s): "
+msgstr "Auteur(s) : "
 
 #: source/main/network/Network.cpp:489
 msgctxt "Network"
@@ -234,16 +235,16 @@ msgstr "Traçage automatique activé"
 
 #: source/main/system/ConsoleCmd.cpp:356
 msgid "Available commands:"
-msgstr "Commandes disponibles:"
+msgstr "Commandes disponibles :"
 
 #: source/main/gui/OverlayWrapper.cpp:432
 #: source/main/gui/panels/GUI_SimPerfStats.cpp:46
 msgid "Average FPS: "
-msgstr "FPS moyen: "
+msgstr "FPS moyen : "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:81
 msgid "Average deformation: "
-msgstr "Déformation moyenne: "
+msgstr "Déformation moyenne : "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:86
 msgid "Average stress: "
@@ -251,7 +252,7 @@ msgstr "Stress moyen: "
 
 #: source/main/physics/Actor.cpp:1288 source/main/physics/Actor.cpp:1314
 msgid "Axle "
-msgstr "Essieu"
+msgstr "Essieu "
 
 #: source/main/network/Network.cpp:804
 msgctxt "NetUserAuth"
@@ -272,7 +273,7 @@ msgstr "Nombre de poutres:"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:279
 msgid "Beams: "
-msgstr "Poutres:"
+msgstr "Poutres : "
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:73
 msgid ""
@@ -1004,59 +1005,52 @@ msgstr "Terrain entré en mode éditeur"
 #: source/main/network/Network.cpp:254
 msgctxt "Network"
 msgid "Error receiving data from network"
-msgstr "Erreur de reçu de données du réseau"
+msgstr "Erreur de réception de données du réseau"
 
 #: source/main/gameplay/Landusemap.cpp:90
 msgid "Error while loading landuse config"
-msgstr "Erreur lors du chargement configuration du terrain"
+msgstr "Erreur lors du chargement de la configuration du terrain"
 
 #: source/main/physics/Savegame.cpp:227
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: File format mismatch"
-msgstr "Erreur lors du chargement configuration du terrain"
+msgstr ""
+"Erreur lors du chargement de la sauvegarde : Format de fichier incompatible"
 
 #: source/main/physics/Savegame.cpp:221
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: File invalid or missing"
-msgstr "Erreur lors du chargement configuration du terrain"
+msgstr ""
+"Erreur lors du chargement de la sauvegarde : Fichier invalide ou manquant"
 
 #: source/main/physics/Savegame.cpp:283
 msgid "Error while loading scene: Missing content (probably not installed)"
 msgstr ""
+"Erreur pendant le chargement de la sauvegarde : Contenu manquant (non-"
+"installé)"
 
 #: source/main/physics/Savegame.cpp:241
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: Terrain mismatch"
-msgstr "Erreur lors du chargement configuration du terrain"
+msgstr "Erreur lors du chargement de la sauvegarde : Terrain incompatible"
 
 #: source/main/physics/Savegame.cpp:247
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: Too many vehicles"
-msgstr "Erreur lors du chargement configuration du terrain"
+msgstr "Erreur lors du chargement de la sauvegarde : Trop de véhicules"
 
 #: source/main/AppContext.cpp:407
 msgid "Error while retrieving program directory path"
-msgstr "Erreur lors de la récupération du chemin d'accès du programme"
+msgstr ""
+"Erreur lors de la récupération du chemin d'accès du dossier de programme"
 
 #: source/main/AppContext.cpp:425
 msgid "Error while retrieving user directory path"
-msgstr "Erreur lors de la récupération du chemin d'accès de l'utilisateur"
+msgstr "Erreur lors de la récupération du chemin d'accès du dossier utilisateur"
 
 #: source/main/physics/Savegame.cpp:713
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while saving scene"
-msgstr "Erreur lors du chargement configuration du terrain"
+msgstr "Erreur lors de la sauvegarde"
 
 #: source/main/physics/Savegame.cpp:394
-#, fuzzy
-#| msgid "Error while saving position saved under slot "
 msgid "Error while saving scene: Too many vehicles"
-msgstr "Erreur lors de la sauvegarde de la position"
+msgstr "Erreur lors de la sauvegarde : Trop de véhicules"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:228
 #, fuzzy
@@ -2922,7 +2916,7 @@ msgstr "Pas d'aérofreins"
 
 #: source/main/utils/InputEngine.cpp:81
 msgid "no flaps."
-msgstr "Pas de volets"
+msgstr "Pas de volets."
 
 #: source/main/utils/InputEngine.cpp:142 source/main/utils/InputEngine.cpp:166
 msgid "no thrust"
