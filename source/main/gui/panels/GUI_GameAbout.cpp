@@ -131,9 +131,7 @@ void GameAbout::Draw()
 #endif
     ImGui::Text("%s%s", "MyGUI:",          " Legacy GUI System");
     ImGui::Text("%s%s", "Dear ImGui:",     " GUI System");
-#ifdef USE_MOFILEREADER
     ImGui::Text("%s%s", "mofilereader:",   " Used for Internationalization");
-#endif
     ImGui::Text("%s%s", "OIS:",            " Used as Input System");
 
     ImGui::Text("%s%s", "pagedgeometry:",  " Used for foliage (grass, trees, etc)");

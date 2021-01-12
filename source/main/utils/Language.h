@@ -35,15 +35,8 @@
 
 # define U(str) Ogre::UTFString(L##str)
 
-#ifdef NOLANG
-// no language mode
-# define _L
-# define _LC
-
-#else // NOLANG
-
 // using mofilereader as gettext replacement
-#include <moFileReader.h>
+#include <moFileReader.hpp>
 
 #define _L(str) moFileLib::moFileReaderSingleton::GetInstance().Lookup(str).c_str()
 #define _LC(ctx,str) moFileLib::moFileReaderSingleton::GetInstance().LookupWithContext(ctx,str).c_str()
@@ -63,4 +56,3 @@ private:
 
 } // namespace RoR
 
-#endif // NOLANG

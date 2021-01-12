@@ -377,7 +377,6 @@ if (USE_PACKAGE_MANAGER)
 
     target_link_libraries(${BINNAME} PRIVATE
             CONAN_PKG::AngelScript
-            CONAN_PKG::MofileReader
             CONAN_PKG::MyGUI
             CONAN_PKG::OGRE
             CONAN_PKG::OGREdeps
@@ -435,13 +434,6 @@ else (USE_PACKAGE_MANAGER)
             USE_MYGUI
             $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
             )
-
-    if (MoFileReader_FOUND)
-        target_link_libraries(${BINNAME} PRIVATE MoFileReader::MoFileReader)
-        target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
-    else ()
-        target_compile_definitions(${BINNAME} PRIVATE NOLANG)
-    endif ()
 
     if (OPENAL_FOUND)
         target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
