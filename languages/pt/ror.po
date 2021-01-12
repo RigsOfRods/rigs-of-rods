@@ -267,8 +267,8 @@ msgid ""
 "NEVER set it to 0."
 msgstr ""
 "Abaixo deste valor aplicam-se as leis de atrito estático, acima dele aplicam-"
-"se as leis de atrito dinâmico. O valor deve ser pequeno, na faixa de 0,1-"
-"0,4. Este limite de velocidade também é usado pela dinâmica de fluidos, "
+"se as leis de atrito dinâmico. O valor deve ser pequeno, na faixa de "
+"0,1-0,4. Este limite de velocidade também é usado pela dinâmica de fluidos, "
 "então você deve sempre defini-lo. NUNCA defini-lo como 0."
 
 #: source/main/gui/OverlayWrapper.cpp:433
@@ -1004,7 +1004,8 @@ msgstr "Erro ao carregar a cena: Arquivo inválido ou ausente"
 
 #: source/main/physics/Savegame.cpp:283
 msgid "Error while loading scene: Missing content (probably not installed)"
-msgstr "Erro ao carregar a cena: conteúdo ausente (provavelmente não instalado)"
+msgstr ""
+"Erro ao carregar a cena: conteúdo ausente (provavelmente não instalado)"
 
 #: source/main/physics/Savegame.cpp:241
 msgid "Error while loading scene: Terrain mismatch"
@@ -2074,8 +2075,8 @@ msgid ""
 "surface friction variables in the net, and then to fine tune via strength."
 msgstr ""
 "O atrito estático o mantém no mesmo lugar quando você é parado em uma "
-"colina. No mundo real, esse atrito é sempre maior do que o atrito dinâmico ("
-"atrito deslizante). Comece com 0,5 e trabalhe a partir daí. É melhor tentar "
+"colina. No mundo real, esse atrito é sempre maior do que o atrito dinâmico "
+"(atrito deslizante). Comece com 0,5 e trabalhe a partir daí. É melhor tentar "
 "encontrar alguns valores validados experimentalmente para isso e o resto das "
 "variáveis de fricção de superfície na rede, e então fazer o ajuste fino via "
 "resistência."
