@@ -11,7 +11,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-10 15:39+0100\n"
 "PO-Revision-Date: 2021-01-15 06:32+0000\n"
-"Last-Translator: Antoni A. <antoni.andric@gmail.com>\n"
+"Last-Translator: WillyB <superwillie911@hotmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
 "Language: fr\n"
@@ -108,7 +108,7 @@ msgstr "L'acteur est trop gros pour être envoyé sur internet."
 #: source/main/gui/panels/GUI_ConsoleView.cpp:221
 msgctxt "Console"
 msgid "Actors"
-msgstr ""
+msgstr "Véhicules"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:73
 msgid "Adhesion velocity"
@@ -122,7 +122,7 @@ msgstr "Vitesse d'adhérence :"
 #: source/main/network/Network.cpp:800
 msgctxt "NetUserAuth"
 msgid "Admin"
-msgstr ""
+msgstr "Administrateur"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:616
 msgid "Airplane"
@@ -935,7 +935,7 @@ msgstr "EXPERIMENTAL : Règle la quantité maximum de gazon"
 #: source/main/gui/panels/GUI_GameSettings.cpp:366
 msgctxt "GameSettings"
 msgid "Echo log to console"
-msgstr ""
+msgstr "Montrer le log à la console"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:390
 msgctxt "GameSettings"
@@ -1146,12 +1146,12 @@ msgstr "ERREUR FATALE"
 #: source/main/gui/panels/GUI_GameSettings.cpp:394
 msgctxt "GameSettings"
 msgid "FFB camera gain"
-msgstr ""
+msgstr "Effet de la caméra sur le retour de force"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:395
 msgctxt "GameSettings"
 msgid "FFB center gain"
-msgstr ""
+msgstr "Force de l'effet de recentrage"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:396
 msgctxt "GameSettings"
@@ -1161,7 +1161,7 @@ msgstr ""
 #: source/main/gui/panels/GUI_GameSettings.cpp:397
 msgctxt "GameSettings"
 msgid "FFB stress gain"
-msgstr ""
+msgstr "Gain du stress de la direction"
 
 #: source/main/gfx/camera/CameraManager.cpp:314
 msgid "FOV: "
@@ -1297,7 +1297,7 @@ msgstr ""
 
 #: source/main/system/ConsoleCmd.cpp:420
 msgid "Get or set value of existing CVar"
-msgstr ""
+msgstr "Obtenir ou définir la valeur d'une variable de console"
 
 #: source/main/system/ConsoleCmd.cpp:82
 msgid "Get or set water level."
@@ -1549,17 +1549,17 @@ msgstr "Verouillé"
 #: source/main/gui/panels/GUI_GameSettings.cpp:367
 msgctxt "GameSettings"
 msgid "Log beam breaking"
-msgstr ""
+msgstr "Rapporter le bris des poutres"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:368
 msgctxt "GameSettings"
 msgid "Log beam deforming"
-msgstr ""
+msgstr "Rapporter la déformation des poutres"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:369
 msgctxt "GameSettings"
 msgid "Log beam triggers"
-msgstr ""
+msgstr "Rapporter les poutres déclencheur"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:354
 msgctxt "GameSettings"
