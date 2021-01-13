@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-10 15:39+0100\n"
-"PO-Revision-Date: 2021-01-13 11:54+0000\n"
+"PO-Revision-Date: 2021-01-13 18:13+0000\n"
 "Last-Translator: Petr Ohlídal <petr@ohlidal.cz>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "cs/>\n"
@@ -242,11 +242,11 @@ msgstr "Počet dávek: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:66
 msgid "Beam count: "
-msgstr ""
+msgstr "Počet paprsků: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:279
 msgid "Beams: "
-msgstr "Beamy"
+msgstr "Paprsky: "
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:73
 msgid ""
@@ -255,54 +255,52 @@ msgid ""
 "threshold is also used by fluid dynamics so you should always define it. "
 "NEVER set it to 0."
 msgstr ""
+"Při nižších hodnotách než tato se aplikují zákony pro statickou frikci, při "
+"vyžších hodnotách pro dynamickou frikci. Tento práh rychlosti je také "
+"využíván dynamikou kapalin, takže by jste ho měl/a vždy nastavit. Hodnota by "
+"měla být malá, v rozmezí 0,1 - 0,4. NIKDY ji nenastavujte na 0."
 
 #: source/main/gui/OverlayWrapper.cpp:433
 #: source/main/gui/panels/GUI_SimPerfStats.cpp:48
 msgid "Best FPS: "
-msgstr "Nejlepší FPS:"
+msgstr "Nejlepší FPS: "
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:386
 msgctxt "GameSettings"
 msgid "Blinker Lock Range"
-msgstr ""
+msgstr "Rozmezí pro uzamknutí blinkrů"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:616
 msgid "Boat"
 msgstr "Loď"
 
 #: source/main/network/Network.cpp:813
-#, fuzzy
-#| msgid "Boat"
 msgid "Bot"
-msgstr "Loď"
+msgstr "Bot"
 
 #: source/main/network/Network.cpp:802
-#, fuzzy
-#| msgid "Boat"
 msgctxt "NetUserAuth"
 msgid "Bot"
-msgstr "Loď"
+msgstr "Bot"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:71
 msgid "Broken beams count: "
-msgstr ""
+msgstr "Počet zlomených paprsků: "
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:56
-#, fuzzy
-#| msgid "Build time: %s, %s"
 msgctxt "About"
 msgid "Build time"
-msgstr "Čas stavby: %s, %s"
+msgstr "Čas sestavení: %s, %s"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:218
 msgctxt "Console"
 msgid "By area:"
-msgstr ""
+msgstr "Podle oblasti:"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:225
 msgctxt "Console"
 msgid "By level:"
-msgstr ""
+msgstr "Podle úrovně:"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:359
 msgid "Cancel"
@@ -318,30 +316,26 @@ msgstr "Pozice postavy: "
 
 #: source/main/gui/panels/GUI_GameChatBox.cpp:131
 msgid "Chat history (use mouse wheel to scroll)"
-msgstr ""
+msgstr "Historie chatu (rolovat můžete kolečkem myši)"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:333
 msgctxt "GameSettings"
 msgid "Classic material shaders (experimental)"
-msgstr ""
+msgstr "Klasické shadery (experimentální)"
 
 #: source/main/system/ConsoleCmd.cpp:534
 msgid "Clear console history"
-msgstr ""
+msgstr "Vymazat historii konzole"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:80
-#, fuzzy
-#| msgid "Arcade Controls"
 msgctxt "About"
 msgid "Code Contributors"
-msgstr "Arkádové ovládání"
+msgstr "Programátoři kteří přispěli"
 
 #: source/main/gui/panels/GUI_ConsoleWindow.cpp:86
-#, fuzzy
-#| msgid "Command 1"
 msgctxt "Console"
 msgid "Command"
-msgstr "Příkaz 1"
+msgstr "Příkaz"
 
 #: source/main/utils/InputEngine.cpp:352
 msgid "Command 1"
@@ -684,32 +678,26 @@ msgid "Command Line Arguments"
 msgstr "Argumenty příkazového řádku"
 
 #: source/main/gui/panels/GUI_VehicleDescription.cpp:73
-#, fuzzy
-#| msgid "Commands: "
 msgid "Commands"
-msgstr "Příkazy:"
+msgstr "Příkazy"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:230
 #: source/main/gui/panels/GUI_ConsoleWindow.cpp:52
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "Console"
 msgid "Commands"
-msgstr "Příkazy:"
+msgstr "Příkazy"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:283
 msgid "Commands: "
-msgstr "Příkazy:"
+msgstr "Příkazy: "
 
 #: source/main/gui/OverlayWrapper.cpp:464
 msgid "Compositors: "
-msgstr "Sazeči: "
+msgstr "Kompozitory: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:346
-#, fuzzy
-#| msgid "Configuration error"
 msgid "Configuration"
-msgstr "Chyba konfigurace"
+msgstr "Konfigurace"
 
 #: source/main/physics/collision/Collisions.cpp:204
 msgid "Configuration error"
@@ -718,7 +706,7 @@ msgstr "Chyba konfigurace"
 #: source/main/gui/panels/GUI_GameSettings.cpp:377
 msgctxt "GameSettings"
 msgid "Controller options"
-msgstr ""
+msgstr "Možnosti ovladače"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:56
 msgctxt "GameSettings"
@@ -728,39 +716,35 @@ msgstr "Ovládací prvky"
 #: source/main/gui/panels/GUI_GameAbout.cpp:106
 msgctxt "About"
 msgid "Core Content Contributors"
-msgstr ""
+msgstr "Hlavní tvůrci obsahu"
 
 #: source/main/network/Network.cpp:435
 msgid "Could not create connection"
-msgstr ""
+msgstr "Nepodařilo se navázat spojení"
 
 #: source/main/main.cpp:537
-#, fuzzy
-#| msgid "Could not write config file"
 msgid "Could not read savegame file"
-msgstr "Nelze zapsat konfigurační soubor"
+msgstr "Nepodařilo se přečíst soubor s uloženou hrou"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:166
-#, fuzzy
-#| msgid "user country"
 msgctxt "GameSettings"
 msgid "Country"
-msgstr "země uživatele"
+msgstr "Země"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:244
 msgctxt "GameSettings"
 msgid "Creak sound"
-msgstr ""
+msgstr "Zvuk skřípění"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:67
 msgctxt "About"
 msgid "Current Developers"
-msgstr ""
+msgstr "Současní vývojáři"
 
 #: source/main/gui/OverlayWrapper.cpp:431
 #: source/main/gui/panels/GUI_SimPerfStats.cpp:45
 msgid "Current FPS: "
-msgstr "Aktuální FPS:"
+msgstr "Aktuální FPS: "
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:48
 msgid "Current active Ground: "
@@ -768,125 +752,115 @@ msgstr "Momentálně aktivní Podklad: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:134
 msgid "Current gear: "
-msgstr ""
+msgstr "Aktuální převod: "
 
 #: source/main/system/ConsoleCmd.cpp:62
 msgid "Current gravity is: "
-msgstr "Současná gravitace je:"
+msgstr "Současná gravitace je: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:130
 msgid "Current power: "
-msgstr ""
+msgstr "Aktuální výkon: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:168
 msgid "Current speed: "
-msgstr ""
+msgstr "Aktuální rychlost: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:125
 msgid "Current torque: "
-msgstr ""
+msgstr "Kroutivý moment: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:308
 msgid "Date and Time installed: "
 msgstr "Datum a čas nainstalování: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:307
-#, fuzzy
-#| msgid "Date and Time installed: "
 msgid "Date and Time modified: "
-msgstr "Datum a čas nainstalování: "
+msgstr "Datum a čas změny: "
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:358
 msgctxt "GameSettings"
 msgid "Debug actor mass"
-msgstr ""
+msgstr "Ladit hmotnost"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:356
 msgctxt "GameSettings"
 msgid "Debug camera (rails)"
-msgstr ""
+msgstr "Ladit kameru (s madlem)"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:357
 msgctxt "GameSettings"
 msgid "Debug collisions"
-msgstr ""
+msgstr "Ladit kolize"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:359
 msgctxt "GameSettings"
 msgid "Debug realtime reflections"
-msgstr ""
+msgstr "Ladit dynamické odlesky"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:361
-#, fuzzy
-#| msgid "saved texture as "
 msgctxt "GameSettings"
 msgid "Debug textures"
-msgstr "textura uložena jako "
+msgstr "Ladit textury"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:360
 msgctxt "GameSettings"
 msgid "Debug videocameras"
-msgstr ""
+msgstr "Ladit videokamery"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:330
-#, fuzzy
-#| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Declutter overview map"
-msgstr "Zakázat přehlednou mapu."
+msgstr "Pročistit přehledovou mapu"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:76
 msgid "Deformed beams count: "
-msgstr ""
+msgstr "Počet deform. paprsků: "
 
 #: source/main/gui/panels/GUI_VehicleDescription.cpp:65
-#, fuzzy
-#| msgid "Description: "
 msgid "Description"
-msgstr "Popis: "
+msgstr "Popis:"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:58
 msgctxt "GameSettings"
 msgid "Diagnostic"
-msgstr ""
+msgstr "Diagnostika"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:346
 msgctxt "GameSettings"
 msgid "Diagnostic options"
-msgstr ""
+msgstr "Možnosti diagnostiky"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:197
 msgctxt "GameSettings"
 msgid "Digital speedometer"
-msgstr ""
+msgstr "Digitální rychloměr"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:185
-#, fuzzy
-#| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Disable online api"
-msgstr "Zakázat přehlednou mapu."
+msgstr "Zakázat online API"
 
 #: source/main/terrain/TerrainEditor.cpp:143
 msgid "Disabled object tracking"
-msgstr ""
+msgstr "Zakázat sledování objektu"
 
 #: source/main/utils/ForceFeedback.cpp:110
 msgid "Disabling force feedback - no controller found"
-msgstr ""
+msgstr "Vypínám force feedback - nenalezen žádný ovladač"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:218
 msgctxt "GameSettings"
 msgid "Discord Rich Presence"
-msgstr ""
+msgstr "Discord Rich Presence"
 
 #: source/main/main.cpp:313
 msgid "Display mode changed to fullscreen"
-msgstr ""
+msgstr "Režim zobrazení změněn na celou obrazovku"
 
 #: source/main/main.cpp:319
 msgid "Display mode changed to windowed"
-msgstr ""
+msgstr "Režim zobrazení změněn na okno"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:99
 msgid "Drag anisotropy"
@@ -909,10 +883,8 @@ msgid "Dynamic friction coef:"
 msgstr "Součinitel smykového tření:"
 
 #: source/main/gui/panels/GUI_TextureToolWindow.cpp:50
-#, fuzzy
-#| msgid "Dynamically"
 msgid "Dynamic only"
-msgstr "Dynamické"
+msgstr "Pouze dynamické"
 
 #: source/main/utils/InputEngine.cpp:1144
 msgid "EXPERIMENTAL: add some grass"
@@ -937,53 +909,49 @@ msgstr "EXPERIMENTÁLNÍ: nastavit maximální množství trávy"
 #: source/main/gui/panels/GUI_GameSettings.cpp:366
 msgctxt "GameSettings"
 msgid "Echo log to console"
-msgstr ""
+msgstr "Propisovat log do konzole"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:390
 msgctxt "GameSettings"
 msgid "Enable ForceFeedback"
-msgstr ""
+msgstr "Zapnout Force Feedback"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:401
 msgctxt "GameSettings"
 msgid "Enable OutGauge protocol"
-msgstr ""
+msgstr "Zapnout výstup OutGauge"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:315
 msgctxt "GameSettings"
 msgid "Enable particle gfx"
-msgstr ""
+msgstr "Zapnout částicové efekty"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:213
-#, fuzzy
-#| msgid "Enable waves"
 msgctxt "GameSettings"
 msgid "Enable races"
-msgstr "Povolit vlny"
+msgstr "Zapnout závodění"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:316
 msgctxt "GameSettings"
 msgid "Enable skidmarks"
-msgstr ""
+msgstr "Zapnout stopy po smyku"
 
 #: source/main/GameContext.cpp:804
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgid "Enabled hard reset mode"
-msgstr "povolit nebo zakázat mód opakování"
+msgstr "Zapnut režim tvrdého resetu"
 
 #: source/main/terrain/TerrainEditor.cpp:143
 msgid "Enabled object tracking"
-msgstr ""
+msgstr "Zapnuto sledování objektu"
 
 #: source/main/GameContext.cpp:804
 msgid "Enabled soft reset mode"
-msgstr ""
+msgstr "Zapnut režim měkkého resetu"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:182
 #: source/main/gui/panels/GUI_SimActorStats.cpp:200
 msgid "Engine "
-msgstr ""
+msgstr "Motor "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:300
 #: source/main/gui/panels/GUI_SimActorStats.cpp:115
@@ -994,86 +962,72 @@ msgstr "Otáčky motoru: "
 #: source/main/gui/panels/GUI_GameSettings.cpp:202
 msgctxt "GameSettings"
 msgid "Engines spawn running"
-msgstr ""
+msgstr "Motory se tvoří již nastartované"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:352
 msgctxt "GameSettings"
 msgid "Enter preselected vehicle"
-msgstr ""
+msgstr "Nastoupit do předvoleného vozidla"
 
 #: source/main/main.cpp:616
 msgid "Entered terrain editing mode"
-msgstr ""
+msgstr "Aktivovat režim úprav terénu"
 
 #. Atomic; instruct sender thread to stop
 #: source/main/network/Network.cpp:254
 msgctxt "Network"
 msgid "Error receiving data from network"
-msgstr ""
+msgstr "Chyba příjmu dat ze sítě"
 
 #: source/main/gameplay/Landusemap.cpp:90
 msgid "Error while loading landuse config"
 msgstr "Chyba při načítání konfigurace využívání krajiny"
 
 #: source/main/physics/Savegame.cpp:227
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: File format mismatch"
-msgstr "Chyba při načítání konfigurace využívání krajiny"
+msgstr "Chyba při načítání scény: Formát souboru neodpovídá"
 
 #: source/main/physics/Savegame.cpp:221
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: File invalid or missing"
-msgstr "Chyba při načítání konfigurace využívání krajiny"
+msgstr "Chyba při načítání scény: Soubor chybí nebo je neplatný"
 
 #: source/main/physics/Savegame.cpp:283
 msgid "Error while loading scene: Missing content (probably not installed)"
-msgstr ""
+msgstr "Chyba při načítání scény: Není nainstalován odpovídající obsah"
 
 #: source/main/physics/Savegame.cpp:241
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: Terrain mismatch"
-msgstr "Chyba při načítání konfigurace využívání krajiny"
+msgstr "Chyba při načítání scény: terén neodpovídá"
 
 #: source/main/physics/Savegame.cpp:247
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: Too many vehicles"
-msgstr "Chyba při načítání konfigurace využívání krajiny"
+msgstr "Chyba při načítání scény: příliš mnoho vozidel"
 
 #: source/main/AppContext.cpp:407
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Nebylo možné zjistit cestu ke složce programu"
 
 #: source/main/AppContext.cpp:425
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Nebylo možné zjistit cestu ke složce uživatele"
 
 #: source/main/physics/Savegame.cpp:713
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while saving scene"
-msgstr "Chyba při načítání konfigurace využívání krajiny"
+msgstr "Chyba při ukládání scény"
 
 #: source/main/physics/Savegame.cpp:394
-#, fuzzy
-#| msgid "Error while saving position saved under slot "
 msgid "Error while saving scene: Too many vehicles"
-msgstr "Chyba při ukládání pozice uložené v slotu "
+msgstr "Chyba při ukládání pozice: příliš mnoho vozidel"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:228
-#, fuzzy
-#| msgid "Mirrors"
 msgctxt "Console"
 msgid "Errors"
-msgstr "Zrcátka"
+msgstr "Chyby"
 
 #: source/main/network/Network.cpp:429
 msgctxt "Network"
 msgid "Estabilishing connection..."
-msgstr ""
+msgstr "Navazuji spojení..."
 
 #: source/main/network/Network.cpp:517
 msgid "Establishing network session: error getting server authorization"
@@ -1132,36 +1086,36 @@ msgstr "Výfuky: "
 #: source/main/gui/panels/GUI_GameSettings.cpp:341
 msgctxt "GameSettings"
 msgid "Exterior field of view"
-msgstr ""
+msgstr "Venkovní zorné pole"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:181
 msgctxt "GameSettings"
 msgid "Extra mod path"
-msgstr ""
+msgstr "Dodatečná složka s obsahem"
 
 #: source/main/utils/ErrorUtils.cpp:44
 msgid "FATAL ERROR"
-msgstr ""
+msgstr "FATÁLNÍ CHYBA"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:394
 msgctxt "GameSettings"
 msgid "FFB camera gain"
-msgstr ""
+msgstr "FFB síla kamery"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:395
 msgctxt "GameSettings"
 msgid "FFB center gain"
-msgstr ""
+msgstr "FFB síla středu"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:396
 msgctxt "GameSettings"
 msgid "FFB master gain"
-msgstr ""
+msgstr "FFB celková intenzita"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:397
 msgctxt "GameSettings"
 msgid "FFB stress gain"
-msgstr ""
+msgstr "FFB síla z napětí"
 
 #: source/main/gfx/camera/CameraManager.cpp:314
 msgid "FOV: "
@@ -1174,39 +1128,38 @@ msgstr "FOV: Limit dosažen"
 #: source/main/gui/panels/GUI_GameSettings.cpp:313
 msgctxt "GameSettings"
 msgid "FPS limit"
-msgstr ""
+msgstr "Limit FPS"
 
 #: source/main/network/Network.cpp:411
 msgid "Failed to launch connection thread"
-msgstr ""
+msgstr "Nepodařilo se spustit vlákno pro připojení"
 
 #: source/main/AppContext.cpp:490 source/main/AppContext.cpp:501
 msgid "Faulty resource folder. Check if correctly installed."
 msgstr ""
+"Chybná složka 'resources'. Zkontrolujte jestli je správně nainstalována."
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:330
 msgid "Filename: "
 msgstr "Název souboru: "
 
 #: source/main/gui/panels/GUI_ConsoleWindow.cpp:47
-#, fuzzy
-#| msgid "Cockpit options:"
 msgctxt "Console"
 msgid "Filter options"
-msgstr "Možnosti kokpitu:"
+msgstr "Možnosti filtrování"
 
 #: source/main/network/Network.cpp:549
 msgctxt "Network"
 msgid "Finishing..."
-msgstr ""
+msgstr "Dokončuji..."
 
 #: source/main/gfx/camera/CameraManager.cpp:389
 msgid "Fixed camera"
-msgstr ""
+msgstr "Fixní kamera"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:286
 msgid "Flares: "
-msgstr "Signalizační světla: "
+msgstr "Světla: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:287
 msgid "Flexbodies: "
@@ -1242,7 +1195,7 @@ msgstr "Hustota tekutiny:"
 
 #: source/main/gui/OverlayWrapper.cpp:466
 msgid "Fonts: "
-msgstr "Fonty:"
+msgstr "Fonty: "
 
 #: source/main/gfx/camera/CameraManager.cpp:384
 msgid "Free camera"
@@ -1254,7 +1207,7 @@ msgstr "Nastavení tření"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:218
 msgid "G-Forces:"
-msgstr ""
+msgstr "Odstředivé síly:"
 
 #: source/main/gui/OverlayWrapper.cpp:468
 msgid "GPU Program: "
@@ -1265,52 +1218,50 @@ msgid "GUID: "
 msgstr "GUID: "
 
 #: source/main/gui/panels/GUI_GameControls.cpp:36
-#, fuzzy
-#| msgid "Arcade Controls"
 msgid "Game Controls"
-msgstr "Arkádové ovládání"
+msgstr "Ovládání hry"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:41
 msgctxt "GameSettings"
 msgid "Game settings"
-msgstr ""
+msgstr "Nastavení hry"
 
 #: source/main/gui/panels/GUI_GameMainMenu.cpp:167
-#, fuzzy
-#| msgid "Version"
 msgid "Game version"
-msgstr "Verze"
+msgstr "Verze hry"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:190
 msgctxt "GameSettings"
 msgid "Gearbox mode"
-msgstr ""
+msgstr "Režim převodovky"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:48
 msgctxt "GameSettings"
 msgid "General"
-msgstr ""
+msgstr "Obecné"
 
 #: source/main/system/ConsoleCmd.cpp:116
 msgid "Get elevation of terrain at current position"
-msgstr ""
+msgstr "Zjistit výšku terénu na současné pozici"
 
 #: source/main/system/ConsoleCmd.cpp:52
 msgid "Get or set terrain gravity. Constants: earth/moon/mars/jupiter."
 msgstr ""
+"Vypsat nebo nastavit gravitaci terénu. Konstanty: \"earth/moon/mars/jupiter\""
+"."
 
 #: source/main/system/ConsoleCmd.cpp:420
 msgid "Get or set value of existing CVar"
-msgstr ""
+msgstr "Přečíst nebo nastavit existující CVar"
 
 #: source/main/system/ConsoleCmd.cpp:82
 msgid "Get or set water level."
-msgstr ""
+msgstr "Vypsat nebo nastavit výšku vodní hladiny."
 
 #: source/main/network/Network.cpp:439
 msgctxt "Network"
 msgid "Getting server info..."
-msgstr ""
+msgstr "Přijímám informace o serveru..."
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:50
 msgctxt "GameSettings"
@@ -1319,16 +1270,16 @@ msgstr "Grafika"
 
 #: source/main/system/ConsoleCmd.cpp:72
 msgid "Gravity set to: "
-msgstr "Gravitace nastavena na:"
+msgstr "Gravitace nastavena na: "
 
 #: source/main/network/Network.cpp:816
 msgid "Guest"
-msgstr ""
+msgstr "Host"
 
 #: source/main/network/Network.cpp:805
 msgctxt "NetUserAuth"
 msgid "Guest"
-msgstr ""
+msgstr "Host"
 
 #: source/main/gui/OverlayWrapper.cpp:470
 msgid "HL GPU Program: "
@@ -1337,22 +1288,22 @@ msgstr "HL GPU Program: "
 #: source/main/gui/panels/GUI_GameSettings.cpp:362
 msgctxt "GameSettings"
 msgid "Hide broken beams"
-msgstr ""
+msgstr "Skrýt zlomené paprsky"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:365
 msgctxt "GameSettings"
 msgid "Hide nodes"
-msgstr ""
+msgstr "Skrýt vrcholy"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:363
 msgctxt "GameSettings"
 msgid "Hide wheel info"
-msgstr ""
+msgstr "Skrýt detaily kol"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:364
 msgctxt "GameSettings"
 msgid "Hide wheels"
-msgstr ""
+msgstr "Skrýt kola"
 
 #: source/main/gameplay/EngineSim.cpp:1461
 msgid "High range selected"
