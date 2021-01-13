@@ -1042,7 +1042,8 @@ msgstr ""
 
 #: source/main/AppContext.cpp:425
 msgid "Error while retrieving user directory path"
-msgstr "Erreur lors de la récupération du chemin d'accès du dossier utilisateur"
+msgstr ""
+"Erreur lors de la récupération du chemin d'accès du dossier utilisateur"
 
 #: source/main/physics/Savegame.cpp:713
 msgid "Error while saving scene"
