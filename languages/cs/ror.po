@@ -1247,8 +1247,8 @@ msgstr "Zjistit výšku terénu na současné pozici"
 #: source/main/system/ConsoleCmd.cpp:52
 msgid "Get or set terrain gravity. Constants: earth/moon/mars/jupiter."
 msgstr ""
-"Vypsat nebo nastavit gravitaci terénu. Konstanty: \"earth/moon/mars/jupiter\""
-"."
+"Vypsat nebo nastavit gravitaci terénu. Konstanty: \"earth/moon/mars/jupiter"
+"\"."
 
 #: source/main/system/ConsoleCmd.cpp:420
 msgid "Get or set value of existing CVar"
