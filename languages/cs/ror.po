@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-10 15:39+0100\n"
-"PO-Revision-Date: 2021-01-13 11:39+0000\n"
+"PO-Revision-Date: 2021-01-13 11:54+0000\n"
 "Last-Translator: Petr Ohlídal <petr@ohlidal.cz>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "cs/>\n"
@@ -95,7 +95,7 @@ msgstr "Adhezní rychlost:"
 #: source/main/network/Network.cpp:800
 msgctxt "NetUserAuth"
 msgid "Admin"
-msgstr ""
+msgstr "Správce"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:616
 msgid "Airplane"
@@ -103,7 +103,7 @@ msgstr "Letadlo"
 
 #: source/main/gui/panels/GUI_TopMenubar.cpp:789
 msgid "All physics paused, press '{}' to resume"
-msgstr ""
+msgstr "Veškerá fyzika pozastavena, pro pokračování stiskněte '{}'"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:85
 msgid "Alpha"
@@ -111,11 +111,11 @@ msgstr "Alfa"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:175
 msgid "Altitude: "
-msgstr ""
+msgstr "Výška: "
 
 #: source/main/main.cpp:834
 msgid "An exception (std::runtime_error) has occured!"
-msgstr "Výjimka (std::runtime_error) se objevila!"
+msgstr "Nastala interní chyba (std::runtime_error)!"
 
 #: source/main/main.cpp:829
 msgid "An exception has occured!"
@@ -128,46 +128,50 @@ msgid ""
 "Technical details below: \n"
 "\n"
 msgstr ""
+"V programu Rigs of Rods nastala interní chyba.\n"
+"\n"
+"Technické podrobnosti jsou uvedeny níže: \n"
+"\n"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:385
 msgctxt "GameSettings"
 msgid "Analog Input Sensitivity"
-msgstr ""
+msgstr "Citlivost analogového vstupu"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:384
 msgctxt "GameSettings"
 msgid "Analog Input Smoothing"
-msgstr ""
+msgstr "Vyhlazování analogového vstupu"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:293
 msgctxt "GameSettings"
 msgid "Anisotropy"
-msgstr ""
+msgstr "Anisotropie"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:123
 msgctxt "GameSettings"
 msgid "Application settings"
-msgstr ""
+msgstr "Nastavení aplikace"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:184
 msgctxt "GameSettings"
 msgid "Async physics"
-msgstr ""
+msgstr "Asynchronní fyzika"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:53
 msgctxt "GameSettings"
 msgid "Audio"
-msgstr ""
+msgstr "Zvuk"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:239
 msgctxt "GameSettings"
 msgid "Audio device"
-msgstr ""
+msgstr "Zvukové zařízení"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:223
 msgctxt "GameSettings"
 msgid "Audio settings"
-msgstr ""
+msgstr "Nastavení zvuku"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:252
 msgid "Author(s): "
@@ -176,7 +180,7 @@ msgstr "Autor/ři: "
 #: source/main/network/Network.cpp:489
 msgctxt "Network"
 msgid "Authorizing..."
-msgstr ""
+msgstr "Probíhá autorizace..."
 
 #: source/main/gui/panels/GUI_VehicleDescription.cpp:115
 msgid "Authors"
@@ -196,11 +200,11 @@ msgstr ""
 
 #: source/main/gfx/camera/CameraManager.cpp:1143
 msgid "Auto tracking disabled"
-msgstr ""
+msgstr "Automat. sledování vypnuto"
 
 #: source/main/gfx/camera/CameraManager.cpp:1139
 msgid "Auto tracking enabled"
-msgstr ""
+msgstr "Automat. sledování zapnuto"
 
 #: source/main/system/ConsoleCmd.cpp:356
 msgid "Available commands:"
@@ -213,30 +217,28 @@ msgstr "Průměrné FPS: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:81
 msgid "Average deformation: "
-msgstr ""
+msgstr "Průměrná deformace: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:86
 msgid "Average stress: "
-msgstr ""
+msgstr "Průměrné napětí: "
 
 #: source/main/physics/Actor.cpp:1288 source/main/physics/Actor.cpp:1314
 msgid "Axle "
-msgstr ""
+msgstr "Náprava "
 
 #: source/main/network/Network.cpp:804
 msgctxt "NetUserAuth"
 msgid "Banned"
-msgstr ""
+msgstr "Zakázán"
 
 #: source/main/network/Network.cpp:815
-#, fuzzy
-#| msgid "ranked user"
 msgid "Banned user"
-msgstr "hodnocený uživatel"
+msgstr "Zakázaný uživatel"
 
 #: source/main/gui/panels/GUI_SimPerfStats.cpp:51
 msgid "Batch count: "
-msgstr ""
+msgstr "Počet dávek: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:66
 msgid "Beam count: "
