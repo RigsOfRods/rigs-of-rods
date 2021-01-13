@@ -6,31 +6,31 @@
 # Filip Mašata <F.masata@gmail.com>, 2015
 # Jakub veselý <klubajs@gmail.com>, 2016
 # Petr Ohlidal <nobodysbussiness1@gmail.com>, 2015
+# Petr Ohlídal <petr@ohlidal.cz>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-10 15:39+0100\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: Czech (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/cs/)\n"
+"PO-Revision-Date: 2021-01-13 11:39+0000\n"
+"Last-Translator: Petr Ohlídal <petr@ohlidal.cz>\n"
+"Language-Team: Czech <https://hosted.weblate.org/projects/rigs-of-rods/game/"
+"cs/>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
 "<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
+"X-Generator: Weblate 4.4.1-dev\n"
 
 #: source/main/gameplay/ChatSystem.cpp:55
 msgid " [whispered] "
 msgstr " [šeptáno] "
 
 #: source/main/physics/Actor.cpp:393
-#, fuzzy
-#| msgid "No content installed"
 msgid " content mismatch: "
-msgstr "Není nainstalován žádný obsah"
+msgstr " Obsah se neshoduje s protějškem: "
 
 #: source/main/network/Network.cpp:354
 msgid " joined the game"
@@ -46,7 +46,7 @@ msgstr " vytvořeno nové vozidlo: "
 
 #: source/main/gui/panels/GUI_VehicleDescription.cpp:124
 msgid "(no author information available) "
-msgstr ""
+msgstr "(žádný autor není uveden) "
 
 #: source/main/system/ConsoleCmd.cpp:371
 msgid "- use Arrow Up/Down Keys in the InputBox to reuse old messages"
