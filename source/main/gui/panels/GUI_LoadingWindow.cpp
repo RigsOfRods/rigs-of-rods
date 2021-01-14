@@ -18,8 +18,8 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "GUI_LoadingWindow.h"
+#include <fmt/format.h>
 
 #include "GUIManager.h"
 #include "GUIUtils.h"
@@ -94,7 +94,7 @@ void LoadingWindow::Draw()
     ImGui::SetNextWindowSize(ImVec2(500.f, height));
     ImGui::SetNextWindowPosCenter();
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove;
-    ImGui::Begin(_L("Please wait"), nullptr, flags);
+    ImGui::Begin(_LC("LoadingWindow", "Please wait"), nullptr, flags);
     ImGui::Text("%s", m_text.c_str());
     
     if (m_percent == PERC_SHOW_SPINNER)

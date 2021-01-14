@@ -63,7 +63,7 @@ void VehicleDescription::Draw()
         ImGui::Image(im_tex, ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT));
     }
 
-    if (ImGui::CollapsingHeader(_L("Description"), ImGuiTreeNodeFlags_DefaultOpen))
+    if (ImGui::CollapsingHeader(_LC("VehicleDescription", "Description"), ImGuiTreeNodeFlags_DefaultOpen))
     {
         for (auto line : actor->getDescription())
         {
@@ -71,7 +71,7 @@ void VehicleDescription::Draw()
         }
     }
 
-    if (ImGui::CollapsingHeader(_L("Commands"), ImGuiTreeNodeFlags_DefaultOpen))
+    if (ImGui::CollapsingHeader(_LC("VehicleDescription", "Commands"), ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::Columns(2, /*id=*/nullptr, /*border=*/true);
         for (int i = 1; i < MAX_COMMANDS; i += 2)
@@ -101,14 +101,14 @@ void VehicleDescription::Draw()
             }
             else
             {
-                ImGui::TextDisabled("%s", _L("unknown function"));
+                ImGui::TextDisabled("%s", _LC("VehicleDescription", "unknown function"));
             }
             ImGui::NextColumn();
         }
         ImGui::Columns(1);
     }
 
-    if (ImGui::CollapsingHeader(_L("Authors")))
+    if (ImGui::CollapsingHeader(_LC("VehicleDescription", "Authors")))
     {
         for (authorinfo_t const& author: actor->getAuthors())
         {
@@ -117,7 +117,7 @@ void VehicleDescription::Draw()
 
         if (actor->getAuthors().empty())
         {
-            ImGui::TextDisabled("%s", _L("(no author information available) "));
+            ImGui::TextDisabled("%s", _LC("VehicleDescription", "(no author information available) "));
         }
     }
 

@@ -124,16 +124,16 @@ void MpClientList::Draw()
 
             // TextDisabled() are captions, Text() are values
 
-            ImGui::TextDisabled("%s: ",_L("user name"));
+            ImGui::TextDisabled("%s: ",_LC("MultiplayerClientList", "user name"));
             ImGui::SameLine();
             ImGui::TextColored(ImVec4(col.r, col.g, col.b, col.a), "%s", user.username);
             ImGui::Separator();
 
-            ImGui::TextDisabled("%s", _L("user language: "));
+            ImGui::TextDisabled("%s", _LC("MultiplayerClientList", "user language: "));
             ImGui::SameLine();
             ImGui::Text("%s", parts[0].c_str());
 
-            ImGui::TextDisabled("%s", _L("user country: "));
+            ImGui::TextDisabled("%s", _LC("MultiplayerClientList", "user country: "));
             ImGui::SameLine();
             ImGui::Text("%s", parts[1].c_str());
             if (flag_tex)
@@ -144,7 +144,7 @@ void MpClientList::Draw()
             }
 
             ImGui::Separator();
-            ImGui::TextDisabled("%s", _L("user authentication level"));
+            ImGui::TextDisabled("%s", _LC("MultiplayerClientList", "user authentication level"));
             if (auth_tex)
             {
                 ImGui::Image(reinterpret_cast<ImTextureID>(auth_tex->getHandle()),
@@ -159,7 +159,7 @@ void MpClientList::Draw()
                 App::app_state->GetEnum<AppState>() != AppState::MAIN_MENU)
             {
                 ImGui::Separator();
-                ImGui::TextDisabled("%s", _L("truck loading state"));
+                ImGui::TextDisabled("%s", _LC("MultiplayerClientList", "truck loading state"));
                 if (down_tex)
                 {
                     ImGui::Image(reinterpret_cast<ImTextureID>(down_tex->getHandle()),
@@ -168,13 +168,13 @@ void MpClientList::Draw()
                 }
                 switch (App::GetGameContext()->GetActorManager()->CheckNetworkStreamsOk(user.uniqueid))
                 {
-                case 0: ImGui::Text("%s", _L("Truck loading errors")); break;
-                case 1: ImGui::Text("%s", _L("Truck loaded correctly, no errors")); break;
-                case 2: ImGui::Text("%s", _L("no truck loaded")); break;
+                case 0: ImGui::Text("%s", _LC("MultiplayerClientList", "Truck loading errors")); break;
+                case 1: ImGui::Text("%s", _LC("MultiplayerClientList", "Truck loaded correctly, no errors")); break;
+                case 2: ImGui::Text("%s", _LC("MultiplayerClientList", "no truck loaded")); break;
                 default:; // never happens
                 }
 
-                ImGui::TextDisabled("%s", _L("remote truck loading state"));
+                ImGui::TextDisabled("%s", _LC("MultiplayerClientList", "remote truck loading state"));
                 if (up_tex)
                 {
                     ImGui::Image(reinterpret_cast<ImTextureID>(up_tex->getHandle()),
@@ -183,9 +183,9 @@ void MpClientList::Draw()
                 }
                 switch (App::GetGameContext()->GetActorManager()->CheckNetRemoteStreamsOk(user.uniqueid))
                 {
-                case 0: ImGui::Text("%s", _L("Remote Truck loading errors")); break;
-                case 1: ImGui::Text("%s", _L("Remote Truck loaded correctly, no errors")); break;
-                case 2: ImGui::Text("%s", _L("No Trucks loaded")); break;
+                case 0: ImGui::Text("%s", _LC("MultiplayerClientList", "Remote Truck loading errors")); break;
+                case 1: ImGui::Text("%s", _LC("MultiplayerClientList", "Remote Truck loaded correctly, no errors")); break;
+                case 2: ImGui::Text("%s", _LC("MultiplayerClientList", "No Trucks loaded")); break;
                 default:; // never happens
                 }
             }
@@ -197,7 +197,7 @@ void MpClientList::Draw()
     if (App::GetNetwork()->GetNetQuality() != 0)
     {
         ImGui::Separator();
-        ImGui::TextColored(App::GetGuiManager()->GetTheme().error_text_color, "<!> %s", _L("Slow  Network  Download"));
+        ImGui::TextColored(App::GetGuiManager()->GetTheme().error_text_color, "<!> %s", _LC("MultiplayerClientList", "Slow  Network  Download"));
     }
 
     ImGui::End();

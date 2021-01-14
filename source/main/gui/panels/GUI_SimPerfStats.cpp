@@ -42,13 +42,13 @@ void SimPerfStats::Draw()
     ImGui::Begin("FPS", &m_is_visible, flags);
 
     const Ogre::RenderTarget::FrameStats& stats = App::GetAppContext()->GetRenderWindow()->getStatistics();
-    ImGui::Text("%s%.2f", _L("Current FPS: "), stats.lastFPS);
-    ImGui::Text("%s%.2f", _L("Average FPS: "), stats.avgFPS);
-    ImGui::Text("%s%.2f", _L("Worst FPS: "),   stats.worstFPS);
-    ImGui::Text("%s%.2f", _L("Best FPS: "),    stats.bestFPS);
+    ImGui::Text("%s%.2f", _LC("SimPerfStats", "Current FPS: "), stats.lastFPS);
+    ImGui::Text("%s%.2f", _LC("SimPerfStats", "Average FPS: "), stats.avgFPS);
+    ImGui::Text("%s%.2f", _LC("SimPerfStats", "Worst FPS: "),   stats.worstFPS);
+    ImGui::Text("%s%.2f", _LC("SimPerfStats", "Best FPS: "),    stats.bestFPS);
     ImGui::Separator();
-    ImGui::Text("%s%zu", _L("Triangle count: "), stats.triangleCount);
-    ImGui::Text("%s%zu", _L("Batch count: "),    stats.batchCount);
+    ImGui::Text("%s%zu", _LC("SimPerfStats", "Triangle count: "), stats.triangleCount);
+    ImGui::Text("%s%zu", _LC("SimPerfStats", "Batch count: "),    stats.batchCount);
 
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg

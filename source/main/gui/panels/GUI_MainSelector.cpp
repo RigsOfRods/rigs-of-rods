@@ -75,7 +75,7 @@ void MainSelector::Draw()
     ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2((ImGui::GetIO().DisplaySize.x / 1.4), (ImGui::GetIO().DisplaySize.y / 1.2)), ImGuiCond_FirstUseEver);
     bool keep_open = true;
-    if (!ImGui::Begin(_L("Loader"), &keep_open, win_flags))
+    if (!ImGui::Begin(_LC("MainSelector", "Loader"), &keep_open, win_flags))
     {
         return;
     }
@@ -249,20 +249,20 @@ void MainSelector::Draw()
         // Details
         for (AuthorInfo const& author: sd_entry.sde_entry->authors)
         {
-            ImGui::TextDisabled("%s", _L("Author(s): "));
+            ImGui::TextDisabled("%s", _LC("MainSelector", "Author(s): "));
             ImGui::SameLine();
             ImGui::TextColored(theme.value_blue_text_color, "%s [%s]", author.name.c_str(), author.type.c_str());
         }
-        this->DrawAttrInt(_L("Version: "), sd_entry.sde_entry->version);
+        this->DrawAttrInt(_LC("MainSelector", "Version: "), sd_entry.sde_entry->version);
         if (sd_entry.sde_entry->wheelcount > 0)
         {
-            ImGui::Text("%s", _L("Wheels: ")); 
+            ImGui::Text("%s", _LC("MainSelector", "Wheels: ")); 
             ImGui::SameLine();
             ImGui::TextColored(theme.value_blue_text_color, "%dx%d", sd_entry.sde_entry->wheelcount, sd_entry.sde_entry->propwheelcount);
         }
         if (sd_entry.sde_entry->truckmass > 0)
         {
-            ImGui::Text("%s", _L("Mass: ")); 
+            ImGui::Text("%s", _LC("MainSelector", "Mass: ")); 
             ImGui::SameLine();
             ImGui::TextColored(theme.value_blue_text_color, "%.2f t", Round(sd_entry.sde_entry->truckmass / 1000.0f, 3));
         }
@@ -271,69 +271,69 @@ void MainSelector::Draw()
         {
             if (sd_entry.sde_entry->loadmass > 0)
             {
-                ImGui::Text("%s", _L("Load Mass: ")); 
+                ImGui::Text("%s", _LC("MainSelector", "Load Mass: ")); 
                 ImGui::SameLine();
                 ImGui::TextColored(theme.value_blue_text_color, "%f.2 t", Round(sd_entry.sde_entry->loadmass / 1000.0f, 3));
             }
-            this->DrawAttrInt(_L("Nodes: "), sd_entry.sde_entry->nodecount);
-            this->DrawAttrInt(_L("Beams: "), sd_entry.sde_entry->beamcount);
-            this->DrawAttrInt(_L("Shocks: "), sd_entry.sde_entry->shockcount);
-            this->DrawAttrInt(_L("Hydros: "), sd_entry.sde_entry->hydroscount);
-            this->DrawAttrInt(_L("SoundSources: "), sd_entry.sde_entry->soundsourcescount);
-            this->DrawAttrInt(_L("Commands: "), sd_entry.sde_entry->commandscount);
-            this->DrawAttrInt(_L("Rotators: "), sd_entry.sde_entry->rotatorscount);
-            this->DrawAttrInt(_L("Exhausts: "), sd_entry.sde_entry->exhaustscount);
-            this->DrawAttrInt(_L("Flares: "), sd_entry.sde_entry->flarescount);
-            this->DrawAttrInt(_L("Flexbodies: "), sd_entry.sde_entry->flexbodiescount);
-            this->DrawAttrInt(_L("Props: "), sd_entry.sde_entry->propscount);
-            this->DrawAttrInt(_L("Wings: "), sd_entry.sde_entry->wingscount);
+            this->DrawAttrInt(_LC("MainSelector", "Nodes: "), sd_entry.sde_entry->nodecount);
+            this->DrawAttrInt(_LC("MainSelector", "Beams: "), sd_entry.sde_entry->beamcount);
+            this->DrawAttrInt(_LC("MainSelector", "Shocks: "), sd_entry.sde_entry->shockcount);
+            this->DrawAttrInt(_LC("MainSelector", "Hydros: "), sd_entry.sde_entry->hydroscount);
+            this->DrawAttrInt(_LC("MainSelector", "SoundSources: "), sd_entry.sde_entry->soundsourcescount);
+            this->DrawAttrInt(_LC("MainSelector", "Commands: "), sd_entry.sde_entry->commandscount);
+            this->DrawAttrInt(_LC("MainSelector", "Rotators: "), sd_entry.sde_entry->rotatorscount);
+            this->DrawAttrInt(_LC("MainSelector", "Exhausts: "), sd_entry.sde_entry->exhaustscount);
+            this->DrawAttrInt(_LC("MainSelector", "Flares: "), sd_entry.sde_entry->flarescount);
+            this->DrawAttrInt(_LC("MainSelector", "Flexbodies: "), sd_entry.sde_entry->flexbodiescount);
+            this->DrawAttrInt(_LC("MainSelector", "Props: "), sd_entry.sde_entry->propscount);
+            this->DrawAttrInt(_LC("MainSelector", "Wings: "), sd_entry.sde_entry->wingscount);
             if (sd_entry.sde_entry->hasSubmeshs)
             {
-                ImGui::Text("%s", _L("Using Submeshs: ")); 
+                ImGui::Text("%s", _LC("MainSelector", "Using Submeshs: ")); 
                 ImGui::SameLine();
-                ImGui::TextColored(theme.value_blue_text_color, "%s", sd_entry.sde_entry->hasSubmeshs ?_L("Yes") : _L("No"));
+                ImGui::TextColored(theme.value_blue_text_color, "%s", sd_entry.sde_entry->hasSubmeshs ?_LC("MainSelector", "Yes") : _LC("MainSelector", "No"));
             }
-            this->DrawAttrFloat(_L("Torque: "), sd_entry.sde_entry->torque);
-            this->DrawAttrInt(_L("Transmission Gear Count: "), sd_entry.sde_entry->numgears);
+            this->DrawAttrFloat(_LC("MainSelector", "Torque: "), sd_entry.sde_entry->torque);
+            this->DrawAttrInt(_LC("MainSelector", "Transmission Gear Count: "), sd_entry.sde_entry->numgears);
             if (sd_entry.sde_entry->minrpm > 0)
             {
-                ImGui::Text("%s", _L("Engine RPM: ")); 
+                ImGui::Text("%s", _LC("MainSelector", "Engine RPM: ")); 
                 ImGui::SameLine();
                 ImGui::TextColored(theme.value_blue_text_color, "%f - %f", sd_entry.sde_entry->minrpm, sd_entry.sde_entry->maxrpm);
             }
-            this->DrawAttrStr(_L("Unique ID: "), sd_entry.sde_entry->uniqueid);
-            this->DrawAttrStr(_L("GUID: "), sd_entry.sde_entry->guid);
-            this->DrawAttrInt(_L("Times used: "), sd_entry.sde_entry->usagecounter);
-            this->DrawAttrStr(_L("Date and Time modified: "), sd_entry.sde_filetime_str.ToCStr());
-            this->DrawAttrStr(_L("Date and Time installed: "), sd_entry.sde_addtime_str.ToCStr());
-            this->DrawAttrStr(_L("Vehicle Type: "), sd_entry.sde_driveable_str.ToCStr());
+            this->DrawAttrStr(_LC("MainSelector", "Unique ID: "), sd_entry.sde_entry->uniqueid);
+            this->DrawAttrStr(_LC("MainSelector", "GUID: "), sd_entry.sde_entry->guid);
+            this->DrawAttrInt(_LC("MainSelector", "Times used: "), sd_entry.sde_entry->usagecounter);
+            this->DrawAttrStr(_LC("MainSelector", "Date and Time modified: "), sd_entry.sde_filetime_str.ToCStr());
+            this->DrawAttrStr(_LC("MainSelector", "Date and Time installed: "), sd_entry.sde_addtime_str.ToCStr());
+            this->DrawAttrStr(_LC("MainSelector", "Vehicle Type: "), sd_entry.sde_driveable_str.ToCStr());
 
-            this->DrawAttrSpecial(sd_entry.sde_entry->forwardcommands, _L("[forwards commands]"));
-            this->DrawAttrSpecial(sd_entry.sde_entry->importcommands, _L("[imports commands]"));
-            this->DrawAttrSpecial(sd_entry.sde_entry->rescuer, _L("[is rescuer]"));
-            this->DrawAttrSpecial(sd_entry.sde_entry->custom_particles, _L("[uses custom particles]"));
-            this->DrawAttrSpecial(sd_entry.sde_entry->fixescount > 0, _L("[has fixes]"));
+            this->DrawAttrSpecial(sd_entry.sde_entry->forwardcommands, _LC("MainSelector", "[forwards commands]"));
+            this->DrawAttrSpecial(sd_entry.sde_entry->importcommands, _LC("MainSelector", "[imports commands]"));
+            this->DrawAttrSpecial(sd_entry.sde_entry->rescuer, _LC("MainSelector", "[is rescuer]"));
+            this->DrawAttrSpecial(sd_entry.sde_entry->custom_particles, _LC("MainSelector", "[uses custom particles]"));
+            this->DrawAttrSpecial(sd_entry.sde_entry->fixescount > 0, _LC("MainSelector", "[has fixes]"));
             // Engine type 't' (truck) is the default, do not display it
-            this->DrawAttrSpecial(sd_entry.sde_entry->enginetype == 'c', _L("[car engine]"));
-            this->DrawAttrSpecial(sd_entry.sde_entry->resource_bundle_type == "Zip", _L("[zip archive]"));
-            this->DrawAttrSpecial(sd_entry.sde_entry->resource_bundle_type == "FileSystem", _L("[unpacked in directory]"));
+            this->DrawAttrSpecial(sd_entry.sde_entry->enginetype == 'c', _LC("MainSelector", "[car engine]"));
+            this->DrawAttrSpecial(sd_entry.sde_entry->resource_bundle_type == "Zip", _LC("MainSelector", "[zip archive]"));
+            this->DrawAttrSpecial(sd_entry.sde_entry->resource_bundle_type == "FileSystem", _LC("MainSelector", "[unpacked in directory]"));
 
             if (!sd_entry.sde_entry->resource_bundle_path.empty())
             {
-                ImGui::Text("%s", _L("Source: "));
+                ImGui::Text("%s", _LC("MainSelector", "Source: "));
                 ImGui::SameLine();
                 ImGui::TextColored(App::GetGuiManager()->GetTheme().value_blue_text_color,
                     "%s", sd_entry.sde_entry->resource_bundle_path.c_str());
             }
             if (!sd_entry.sde_entry->fname.empty())
             {
-                ImGui::Text("%s", _L("Filename: "));
+                ImGui::Text("%s", _LC("MainSelector", "Filename: "));
                 ImGui::SameLine();
                 ImGui::TextColored(App::GetGuiManager()->GetTheme().value_blue_text_color,
                     "%s", sd_entry.sde_entry->fname.c_str());
             }
         }
-        ImGui::Checkbox(_L("Show details"), &m_show_details);
+        ImGui::Checkbox(_LC("MainSelector", "Show details"), &m_show_details);
     }
     ImGui::EndChild();
 
@@ -343,20 +343,20 @@ void MainSelector::Draw()
         DisplayEntry& sd_entry = m_display_entries[m_selected_entry];
         if (sd_entry.sde_entry->sectionconfigs.size() > 0)
         {
-            ImGui::Combo(_L("Configuration"), &m_selected_sectionconfig,
+            ImGui::Combo(_LC("MainSelector", "Configuration"), &m_selected_sectionconfig,
                     &MainSelector::ScComboItemGetter, sd_entry.sde_entry,
                     static_cast<int>(sd_entry.sde_entry->sectionconfigs.size()));
             ImGui::SameLine();
         }
         ImGui::SameLine(ImGui::GetWindowWidth()-100);
-        if (ImGui::Button(_L("OK")) ||
+        if (ImGui::Button(_LC("MainSelector", "OK")) ||
             ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
         {
             this->Apply();
         }
     }
     ImGui::SameLine(ImGui::GetWindowWidth()-70);
-    if (ImGui::Button(_L("Cancel")) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
+    if (ImGui::Button(_LC("MainSelector", "Cancel")) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
     {
         this->Cancel();
     }
@@ -613,7 +613,7 @@ MainSelector::DisplayEntry::DisplayEntry(CacheEntry* entry):
     if (sde_entry->nodecount > 0)
     {
         static const char* str[] =
-            {_L("Non-Driveable"), _L("Truck"), _L("Airplane"), _L("Boat"), _L("Machine")};
+            {_LC("MainSelector", "Non-Driveable"), _LC("MainSelector", "Truck"), _LC("MainSelector", "Airplane"), _LC("MainSelector", "Boat"), _LC("MainSelector", "Machine")};
         sde_driveable_str = str[sde_entry->driveable];
     }
 }
