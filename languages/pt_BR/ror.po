@@ -4,28 +4,30 @@
 #
 # Translators:
 # Kassio Cruz <kassiocs16@gmail.com>, 2018
+# Bruno Dias Barros <brunodiasbarros09@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-10 15:39+0100\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Kassio Cruz <kassiocs16@gmail.com>\n"
-"Language-Team: Portuguese (Brazil) (http://www.transifex.com/rigsofrods/rigs-"
-"of-rods/language/pt_BR/)\n"
+"PO-Revision-Date: 2021-01-15 06:32+0000\n"
+"Last-Translator: Bruno Dias Barros <brunodiasbarros09@gmail.com>\n"
+"Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
+"rigs-of-rods/game/pt_BR/>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.5-dev\n"
 
 #: source/main/gameplay/ChatSystem.cpp:55
 msgid " [whispered] "
-msgstr ""
+msgstr " [sussurrou] "
 
 #: source/main/physics/Actor.cpp:393
 msgid " content mismatch: "
-msgstr ""
+msgstr " incompatibilidade de conteúdo: "
 
 #: source/main/network/Network.cpp:354
 msgid " joined the game"
@@ -46,6 +48,8 @@ msgstr "(nenhuma informação do autor disponível)"
 #: source/main/system/ConsoleCmd.cpp:371
 msgid "- use Arrow Up/Down Keys in the InputBox to reuse old messages"
 msgstr ""
+"- use as teclas de seta para cima / para baixo no InputBox para reutilizar "
+"mensagens antigas"
 
 #: source/main/system/AppCommandLine.cpp:151
 msgid ""
@@ -63,34 +67,47 @@ msgid ""
 "For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck "
 "-enter"
 msgstr ""
+"--help (isso)\n"
+"-map <map> (carrega o mapa na inicialização)\n"
+"-pos <Vect> (substitui a posição do spawn)\n"
+"-rot <float> (substitui a rotação do spawn)\n"
+"-truck <truck> (carrega o caminhão na inicialização)\n"
+"-truckconfig <seção>\n"
+"-enter (o jogador entra no caminhão selecionado)\n"
+"- retomar carrega salvamento automático anterior\n"
+"-checkcache força a atualização do cache\n"
+"-version mostra as informações da versão\n"
+"-joinserver = <server>: <port> (entrar no servidor multijogador)\n"
+"Por exemplo: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck "
+"-enter"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:46
 msgctxt "About"
 msgid "About Rigs of Rods"
-msgstr ""
+msgstr "Sobre Rigs of Rods"
 
 #: source/main/physics/Actor.cpp:1890
 msgid "Actor is too big to be sent over the net."
-msgstr ""
+msgstr "O ator é muito grande para ser enviado pela rede."
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:221
 msgctxt "Console"
 msgid "Actors"
-msgstr ""
+msgstr "Atores"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:73
 msgid "Adhesion velocity"
-msgstr ""
+msgstr "Velocidade de adesão"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:72
 msgid "Adhesion velocity:"
-msgstr ""
+msgstr "Velocidade de adesão:"
 
 #. TODO: currently we must allocate & return std::string, see _LC
 #: source/main/network/Network.cpp:800
 msgctxt "NetUserAuth"
 msgid "Admin"
-msgstr ""
+msgstr "Administrador"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:616
 msgid "Airplane"
@@ -98,11 +115,11 @@ msgstr "Avião"
 
 #: source/main/gui/panels/GUI_TopMenubar.cpp:789
 msgid "All physics paused, press '{}' to resume"
-msgstr ""
+msgstr "Toda a física pausada, pressione '{}' para retomar"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:85
 msgid "Alpha"
-msgstr ""
+msgstr "Alfa"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:175
 msgid "Altitude: "
@@ -110,11 +127,11 @@ msgstr "Altitude:"
 
 #: source/main/main.cpp:834
 msgid "An exception (std::runtime_error) has occured!"
-msgstr ""
+msgstr "Ocorreu uma exceção (std :: runtime_error)!"
 
 #: source/main/main.cpp:829
 msgid "An exception has occured!"
-msgstr ""
+msgstr "Ocorreu uma exceção!"
 
 #: source/main/utils/ErrorUtils.cpp:43
 msgid ""
@@ -123,46 +140,50 @@ msgid ""
 "Technical details below: \n"
 "\n"
 msgstr ""
+"Ocorreu um erro interno no Rigs of Rods.\n"
+"\n"
+"Detalhes técnicos abaixo: \n"
+"\n"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:385
 msgctxt "GameSettings"
 msgid "Analog Input Sensitivity"
-msgstr ""
+msgstr "Sensibilidade de entrada analógica"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:384
 msgctxt "GameSettings"
 msgid "Analog Input Smoothing"
-msgstr ""
+msgstr "Suavização de entrada analógica"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:293
 msgctxt "GameSettings"
 msgid "Anisotropy"
-msgstr ""
+msgstr "Anisotropia"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:123
 msgctxt "GameSettings"
 msgid "Application settings"
-msgstr ""
+msgstr "Configurações do aplicativo"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:184
 msgctxt "GameSettings"
 msgid "Async physics"
-msgstr ""
+msgstr "Física assíncrona"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:53
 msgctxt "GameSettings"
 msgid "Audio"
-msgstr ""
+msgstr "Som"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:239
 msgctxt "GameSettings"
 msgid "Audio device"
-msgstr ""
+msgstr "Dispositivo de Som"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:223
 msgctxt "GameSettings"
 msgid "Audio settings"
-msgstr ""
+msgstr "Configurações de Som"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:252
 msgid "Author(s): "
@@ -171,15 +192,13 @@ msgstr "Autor(es):"
 #: source/main/network/Network.cpp:489
 msgctxt "Network"
 msgid "Authorizing..."
-msgstr ""
+msgstr "Autorizando..."
 
 #: source/main/gui/panels/GUI_VehicleDescription.cpp:115
 msgid "Authors"
 msgstr "Autores"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:62
-#, fuzzy
-#| msgid "Authors"
 msgctxt "About"
 msgid "Authors"
 msgstr "Autores"
@@ -187,15 +206,15 @@ msgstr "Autores"
 #: source/main/gui/panels/GUI_GameSettings.cpp:353
 msgctxt "GameSettings"
 msgid "Auto actor spawner report"
-msgstr ""
+msgstr "Relatório de gerador de ator automático"
 
 #: source/main/gfx/camera/CameraManager.cpp:1143
 msgid "Auto tracking disabled"
-msgstr ""
+msgstr "Rastreamento automático desativado"
 
 #: source/main/gfx/camera/CameraManager.cpp:1139
 msgid "Auto tracking enabled"
-msgstr ""
+msgstr "Rastreamento automático Ativado"
 
 #: source/main/system/ConsoleCmd.cpp:356
 msgid "Available commands:"
@@ -204,40 +223,40 @@ msgstr "Comandos disponíveis:"
 #: source/main/gui/OverlayWrapper.cpp:432
 #: source/main/gui/panels/GUI_SimPerfStats.cpp:46
 msgid "Average FPS: "
-msgstr ""
+msgstr "Média de FPS: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:81
 msgid "Average deformation: "
-msgstr ""
+msgstr "Média de Deformação: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:86
 msgid "Average stress: "
-msgstr ""
+msgstr "Média da Tensão: "
 
 #: source/main/physics/Actor.cpp:1288 source/main/physics/Actor.cpp:1314
 msgid "Axle "
-msgstr ""
+msgstr "Eixo "
 
 #: source/main/network/Network.cpp:804
 msgctxt "NetUserAuth"
 msgid "Banned"
-msgstr ""
+msgstr "Banido"
 
 #: source/main/network/Network.cpp:815
 msgid "Banned user"
-msgstr ""
+msgstr "Usuário Banido"
 
 #: source/main/gui/panels/GUI_SimPerfStats.cpp:51
 msgid "Batch count: "
-msgstr ""
+msgstr "Contagem do lote: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:66
 msgid "Beam count: "
-msgstr ""
+msgstr "Contagem de feixe: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:279
 msgid "Beams: "
-msgstr ""
+msgstr "Feixes: "
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:73
 msgid ""
@@ -246,6 +265,10 @@ msgid ""
 "threshold is also used by fluid dynamics so you should always define it. "
 "NEVER set it to 0."
 msgstr ""
+"Abaixo deste valor aplicam-se as leis de atrito estático, acima dele aplicam-"
+"se as leis de atrito dinâmico. O valor deve ser pequeno, na faixa de 0,1-"
+"0,4. Este limite de velocidade também é usado pela dinâmica de fluidos, "
+"então você deve sempre defini-lo. NUNCA defina como 0."
 
 #: source/main/gui/OverlayWrapper.cpp:433
 #: source/main/gui/panels/GUI_SimPerfStats.cpp:48
@@ -255,43 +278,39 @@ msgstr "Melhor FPS:"
 #: source/main/gui/panels/GUI_GameSettings.cpp:386
 msgctxt "GameSettings"
 msgid "Blinker Lock Range"
-msgstr ""
+msgstr "Alcance do Blinker Lock"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:616
 msgid "Boat"
 msgstr "Barco"
 
 #: source/main/network/Network.cpp:813
-#, fuzzy
-#| msgid "Boat"
 msgid "Bot"
-msgstr "Barco"
+msgstr "Robô"
 
 #: source/main/network/Network.cpp:802
-#, fuzzy
-#| msgid "Boat"
 msgctxt "NetUserAuth"
 msgid "Bot"
-msgstr "Barco"
+msgstr "Robô"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:71
 msgid "Broken beams count: "
-msgstr ""
+msgstr "Contagem das feixes quebrados: "
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:56
 msgctxt "About"
 msgid "Build time"
-msgstr ""
+msgstr "Tempo da construção"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:218
 msgctxt "Console"
 msgid "By area:"
-msgstr ""
+msgstr "Por área:"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:225
 msgctxt "Console"
 msgid "By level:"
-msgstr ""
+msgstr "Por nível:"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:359
 msgid "Cancel"
@@ -299,36 +318,34 @@ msgstr "Cancelar"
 
 #: source/main/system/ConsoleCmd.cpp:288
 msgid "Character position set to: "
-msgstr ""
+msgstr "Posição do caractere definida para: "
 
 #: source/main/system/ConsoleCmd.cpp:248
 msgid "Character position: "
-msgstr ""
+msgstr "Posição do personagem: "
 
 #: source/main/gui/panels/GUI_GameChatBox.cpp:131
 msgid "Chat history (use mouse wheel to scroll)"
-msgstr ""
+msgstr "Histórico do bate-papo (use a roda do mouse para rolar)"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:333
 msgctxt "GameSettings"
 msgid "Classic material shaders (experimental)"
-msgstr ""
+msgstr "Shaders do material clássico (experimental)"
 
 #: source/main/system/ConsoleCmd.cpp:534
 msgid "Clear console history"
-msgstr ""
+msgstr "Limpar histórico do console"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:80
 msgctxt "About"
 msgid "Code Contributors"
-msgstr ""
+msgstr "Contribuintes de código"
 
 #: source/main/gui/panels/GUI_ConsoleWindow.cpp:86
-#, fuzzy
-#| msgid "Command 1"
 msgctxt "Console"
 msgid "Command"
-msgstr "Comando 1"
+msgstr "Comando"
 
 #: source/main/utils/InputEngine.cpp:352
 msgid "Command 1"
@@ -412,565 +429,555 @@ msgstr "Comando 27"
 
 #: source/main/utils/InputEngine.cpp:514
 msgid "Command 28"
-msgstr ""
+msgstr "Comando 28"
 
 #: source/main/utils/InputEngine.cpp:520
 msgid "Command 29"
-msgstr ""
+msgstr "Comando 29"
 
 #: source/main/utils/InputEngine.cpp:364
 msgid "Command 3"
-msgstr ""
+msgstr "Comando 3"
 
 #: source/main/utils/InputEngine.cpp:526
 msgid "Command 30"
-msgstr ""
+msgstr "Comando 30"
 
 #: source/main/utils/InputEngine.cpp:532
 msgid "Command 31"
-msgstr ""
+msgstr "Comando 31"
 
 #: source/main/utils/InputEngine.cpp:538
 msgid "Command 32"
-msgstr ""
+msgstr "Comando 32"
 
 #: source/main/utils/InputEngine.cpp:544
 msgid "Command 33"
-msgstr ""
+msgstr "Comando 33"
 
 #: source/main/utils/InputEngine.cpp:550
 msgid "Command 34"
-msgstr ""
+msgstr "Comando 34"
 
 #: source/main/utils/InputEngine.cpp:556
 msgid "Command 35"
-msgstr ""
+msgstr "Comando 35"
 
 #: source/main/utils/InputEngine.cpp:562
 msgid "Command 36"
-msgstr ""
+msgstr "Comando 36"
 
 #: source/main/utils/InputEngine.cpp:568
 msgid "Command 37"
-msgstr ""
+msgstr "Comando 37"
 
 #: source/main/utils/InputEngine.cpp:574
 msgid "Command 38"
-msgstr ""
+msgstr "Comando 38"
 
 #: source/main/utils/InputEngine.cpp:580
 msgid "Command 39"
-msgstr ""
+msgstr "Comando 39"
 
 #: source/main/utils/InputEngine.cpp:370
 msgid "Command 4"
-msgstr ""
+msgstr "Comando 4"
 
 #: source/main/utils/InputEngine.cpp:586
 msgid "Command 40"
-msgstr ""
+msgstr "Comando 40"
 
 #: source/main/utils/InputEngine.cpp:592
 msgid "Command 41"
-msgstr ""
+msgstr "Comando 41"
 
 #: source/main/utils/InputEngine.cpp:598
 msgid "Command 42"
-msgstr ""
+msgstr "Comando 42"
 
 #: source/main/utils/InputEngine.cpp:604
 msgid "Command 43"
-msgstr ""
+msgstr "Comando 43"
 
 #: source/main/utils/InputEngine.cpp:610
 msgid "Command 44"
-msgstr ""
+msgstr "Comando 44"
 
 #: source/main/utils/InputEngine.cpp:616
 msgid "Command 45"
-msgstr ""
+msgstr "Comando 45"
 
 #: source/main/utils/InputEngine.cpp:622
 msgid "Command 46"
-msgstr ""
+msgstr "Comando 46"
 
 #: source/main/utils/InputEngine.cpp:628
 msgid "Command 47"
-msgstr ""
+msgstr "Comando 47"
 
 #: source/main/utils/InputEngine.cpp:634
 msgid "Command 48"
-msgstr ""
+msgstr "Comando 48"
 
 #: source/main/utils/InputEngine.cpp:640
 msgid "Command 49"
-msgstr ""
+msgstr "Comando 49"
 
 #: source/main/utils/InputEngine.cpp:376
 msgid "Command 5"
-msgstr ""
+msgstr "Comando 5"
 
 #: source/main/utils/InputEngine.cpp:646
 msgid "Command 50"
-msgstr ""
+msgstr "Comando 50"
 
 #: source/main/utils/InputEngine.cpp:652
 msgid "Command 51"
-msgstr ""
+msgstr "Comando 51"
 
 #: source/main/utils/InputEngine.cpp:658
 msgid "Command 52"
-msgstr ""
+msgstr "Comando 52"
 
 #: source/main/utils/InputEngine.cpp:664
 msgid "Command 53"
-msgstr ""
+msgstr "Comando 53"
 
 #: source/main/utils/InputEngine.cpp:670
 msgid "Command 54"
-msgstr ""
+msgstr "Comando 54"
 
 #: source/main/utils/InputEngine.cpp:676
 msgid "Command 55"
-msgstr ""
+msgstr "Comando 55"
 
 #: source/main/utils/InputEngine.cpp:682
 msgid "Command 56"
-msgstr ""
+msgstr "Comando 56"
 
 #: source/main/utils/InputEngine.cpp:688
 msgid "Command 57"
-msgstr ""
+msgstr "Comando 57"
 
 #: source/main/utils/InputEngine.cpp:694
 msgid "Command 58"
-msgstr ""
+msgstr "Comando 58"
 
 #: source/main/utils/InputEngine.cpp:700
 msgid "Command 59"
-msgstr ""
+msgstr "Comando 59"
 
 #: source/main/utils/InputEngine.cpp:382
 msgid "Command 6"
-msgstr ""
+msgstr "Comando 6"
 
 #: source/main/utils/InputEngine.cpp:706
 msgid "Command 60"
-msgstr ""
+msgstr "Comando 60"
 
 #: source/main/utils/InputEngine.cpp:712
 msgid "Command 61"
-msgstr ""
+msgstr "Comando 61"
 
 #: source/main/utils/InputEngine.cpp:718
 msgid "Command 62"
-msgstr ""
+msgstr "Comando 62"
 
 #: source/main/utils/InputEngine.cpp:724
 msgid "Command 63"
-msgstr ""
+msgstr "Comando 63"
 
 #: source/main/utils/InputEngine.cpp:730
 msgid "Command 64"
-msgstr ""
+msgstr "Comando 64"
 
 #: source/main/utils/InputEngine.cpp:736
 msgid "Command 65"
-msgstr ""
+msgstr "Comando 65"
 
 #: source/main/utils/InputEngine.cpp:742
 msgid "Command 66"
-msgstr ""
+msgstr "Comando 66"
 
 #: source/main/utils/InputEngine.cpp:748
 msgid "Command 67"
-msgstr ""
+msgstr "Comando 67"
 
 #: source/main/utils/InputEngine.cpp:754
 msgid "Command 68"
-msgstr ""
+msgstr "Comando 68"
 
 #: source/main/utils/InputEngine.cpp:760
 msgid "Command 69"
-msgstr ""
+msgstr "Comando 69"
 
 #: source/main/utils/InputEngine.cpp:388
 msgid "Command 7"
-msgstr ""
+msgstr "Comando 7"
 
 #: source/main/utils/InputEngine.cpp:766
 msgid "Command 70"
-msgstr ""
+msgstr "Comando 70"
 
 #: source/main/utils/InputEngine.cpp:772
 msgid "Command 71"
-msgstr ""
+msgstr "Comando 71"
 
 #: source/main/utils/InputEngine.cpp:778
 msgid "Command 72"
-msgstr ""
+msgstr "Comando 72"
 
 #: source/main/utils/InputEngine.cpp:784
 msgid "Command 73"
-msgstr ""
+msgstr "Comando 73"
 
 #: source/main/utils/InputEngine.cpp:790
 msgid "Command 74"
-msgstr ""
+msgstr "Comando 74"
 
 #: source/main/utils/InputEngine.cpp:796
 msgid "Command 75"
-msgstr ""
+msgstr "Comando 75"
 
 #: source/main/utils/InputEngine.cpp:802
 msgid "Command 76"
-msgstr ""
+msgstr "Comando 76"
 
 #: source/main/utils/InputEngine.cpp:808
 msgid "Command 77"
-msgstr ""
+msgstr "Comando 77"
 
 #: source/main/utils/InputEngine.cpp:814
 msgid "Command 78"
-msgstr ""
+msgstr "Comando 78"
 
 #: source/main/utils/InputEngine.cpp:820
 msgid "Command 79"
-msgstr ""
+msgstr "Comando 79"
 
 #: source/main/utils/InputEngine.cpp:394
 msgid "Command 8"
-msgstr ""
+msgstr "Comando 8"
 
 #: source/main/utils/InputEngine.cpp:826
 msgid "Command 80"
-msgstr ""
+msgstr "Comando 80"
 
 #: source/main/utils/InputEngine.cpp:832
 msgid "Command 81"
-msgstr ""
+msgstr "Comando 81"
 
 #: source/main/utils/InputEngine.cpp:838
 msgid "Command 82"
-msgstr ""
+msgstr "Comando 82"
 
 #: source/main/utils/InputEngine.cpp:844
 msgid "Command 83"
-msgstr ""
+msgstr "Comando"
 
 #: source/main/utils/InputEngine.cpp:850
 msgid "Command 84"
-msgstr ""
+msgstr "Comando 84"
 
 #: source/main/utils/InputEngine.cpp:400
 msgid "Command 9"
-msgstr ""
+msgstr "Comando 9"
 
 #: source/main/system/AppCommandLine.cpp:150
 msgid "Command Line Arguments"
-msgstr ""
+msgstr "Argumentos de linha do comando"
 
 #: source/main/gui/panels/GUI_VehicleDescription.cpp:73
-#, fuzzy
-#| msgid "Command 1"
 msgid "Commands"
-msgstr "Comando 1"
+msgstr "Comandos"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:230
 #: source/main/gui/panels/GUI_ConsoleWindow.cpp:52
-#, fuzzy
-#| msgid "Command 1"
 msgctxt "Console"
 msgid "Commands"
-msgstr "Comando 1"
+msgstr "Comandos"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:283
 msgid "Commands: "
-msgstr ""
+msgstr "Comandos: "
 
 #: source/main/gui/OverlayWrapper.cpp:464
 msgid "Compositors: "
-msgstr ""
+msgstr "Compositores: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:346
 msgid "Configuration"
-msgstr ""
+msgstr "Configuração"
 
 #: source/main/physics/collision/Collisions.cpp:204
 msgid "Configuration error"
-msgstr ""
+msgstr "Erro de configuração"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:377
 msgctxt "GameSettings"
 msgid "Controller options"
-msgstr ""
+msgstr "Opções do controlador"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:56
 msgctxt "GameSettings"
 msgid "Controls"
-msgstr ""
+msgstr "Controles"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:106
 msgctxt "About"
 msgid "Core Content Contributors"
-msgstr ""
+msgstr "Contribuidores do conteúdo principal"
 
 #: source/main/network/Network.cpp:435
 msgid "Could not create connection"
-msgstr ""
+msgstr "Não foi possível criar conexão"
 
 #: source/main/main.cpp:537
 msgid "Could not read savegame file"
-msgstr ""
+msgstr "Não foi possível ler o arquivo savegame"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:166
 msgctxt "GameSettings"
 msgid "Country"
-msgstr ""
+msgstr "País"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:244
 msgctxt "GameSettings"
 msgid "Creak sound"
-msgstr ""
+msgstr "Som de chiasso"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:67
 msgctxt "About"
 msgid "Current Developers"
-msgstr ""
+msgstr "Desenvolvedores Atuais"
 
 #: source/main/gui/OverlayWrapper.cpp:431
 #: source/main/gui/panels/GUI_SimPerfStats.cpp:45
 msgid "Current FPS: "
-msgstr ""
+msgstr "FPS Atual: "
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:48
 msgid "Current active Ground: "
-msgstr ""
+msgstr "Terreno ativo atual: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:134
 msgid "Current gear: "
-msgstr ""
+msgstr "Marcha atual "
 
 #: source/main/system/ConsoleCmd.cpp:62
 msgid "Current gravity is: "
-msgstr ""
+msgstr "A gravidade atual é: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:130
 msgid "Current power: "
-msgstr ""
+msgstr "Potência atual: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:168
 msgid "Current speed: "
-msgstr ""
+msgstr "Velocidade atual: "
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:125
 msgid "Current torque: "
-msgstr ""
+msgstr "Torque atual: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:308
 msgid "Date and Time installed: "
-msgstr ""
+msgstr "Data e hora da instalação: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:307
 msgid "Date and Time modified: "
-msgstr ""
+msgstr "Data e hora modificados: "
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:358
 msgctxt "GameSettings"
 msgid "Debug actor mass"
-msgstr ""
+msgstr "Depurar massa do ator"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:356
 msgctxt "GameSettings"
 msgid "Debug camera (rails)"
-msgstr ""
+msgstr "Câmera de depuração (trilhos)"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:357
 msgctxt "GameSettings"
 msgid "Debug collisions"
-msgstr ""
+msgstr "Depurar colisões"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:359
 msgctxt "GameSettings"
 msgid "Debug realtime reflections"
-msgstr ""
+msgstr "Depurar reflexões em tempo real"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:361
 msgctxt "GameSettings"
 msgid "Debug textures"
-msgstr ""
+msgstr "Depurar texturas"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:360
 msgctxt "GameSettings"
 msgid "Debug videocameras"
-msgstr ""
+msgstr "Depurar câmeras de vídeo"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:330
 msgctxt "GameSettings"
 msgid "Declutter overview map"
-msgstr ""
+msgstr "Mapa de visão geral do Declutter"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:76
 msgid "Deformed beams count: "
-msgstr ""
+msgstr "Contagem dos feixes deformados: "
 
 #: source/main/gui/panels/GUI_VehicleDescription.cpp:65
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "Description: \n"
 msgid "Description"
-msgstr ""
-"\n"
-"Descrição: \n"
+msgstr "Descrição"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:58
 msgctxt "GameSettings"
 msgid "Diagnostic"
-msgstr ""
+msgstr "Diagnóstico"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:346
 msgctxt "GameSettings"
 msgid "Diagnostic options"
-msgstr ""
+msgstr "Opções de diagnóstico"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:197
 msgctxt "GameSettings"
 msgid "Digital speedometer"
-msgstr ""
+msgstr "Velocímetro digital"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:185
 msgctxt "GameSettings"
 msgid "Disable online api"
-msgstr ""
+msgstr "Desativar api online"
 
 #: source/main/terrain/TerrainEditor.cpp:143
 msgid "Disabled object tracking"
-msgstr ""
+msgstr "Rastreamento de objetos desativado"
 
 #: source/main/utils/ForceFeedback.cpp:110
 msgid "Disabling force feedback - no controller found"
-msgstr ""
+msgstr "Desativando o force feedback - nenhum controlador encontrado"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:218
 msgctxt "GameSettings"
 msgid "Discord Rich Presence"
-msgstr ""
+msgstr "Presença de Discord"
 
 #: source/main/main.cpp:313
 msgid "Display mode changed to fullscreen"
-msgstr ""
+msgstr "Modo de exibição alterado para tela cheia"
 
 #: source/main/main.cpp:319
 msgid "Display mode changed to windowed"
-msgstr ""
+msgstr "Modo de exibição alterado para janela"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:99
 msgid "Drag anisotropy"
-msgstr ""
+msgstr "Anisotropia de arrasto"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:98
 msgid "Drag anisotropy:"
-msgstr ""
+msgstr "Anisotropia de arrasto:"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:138
 msgid "Drive ratio: "
-msgstr ""
+msgstr "Proporção da movimentação: "
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:76
 msgid "Dynamic friction coef"
-msgstr ""
+msgstr "Coef de atrito dinâmico"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:75
 msgid "Dynamic friction coef:"
-msgstr ""
+msgstr "Coef de atrito dinâmico:"
 
 #: source/main/gui/panels/GUI_TextureToolWindow.cpp:50
 msgid "Dynamic only"
-msgstr ""
+msgstr "Somente dinamico"
 
 #: source/main/utils/InputEngine.cpp:1144
 msgid "EXPERIMENTAL: add some grass"
-msgstr ""
+msgstr "EXPERIMENTAL: adicione um pouco de grama"
 
 #: source/main/utils/InputEngine.cpp:1156
 msgid "EXPERIMENTAL: remove grass completely"
-msgstr ""
+msgstr "EXPERIMENTAL: remova a grama completamente"
 
 #: source/main/utils/InputEngine.cpp:1138
 msgid "EXPERIMENTAL: remove some grass"
-msgstr ""
+msgstr "EXPERIMENTAL: remova um pouco de grama"
 
 #: source/main/utils/InputEngine.cpp:1162
 msgid "EXPERIMENTAL: save changes to the grass density image"
-msgstr ""
+msgstr "EXPERIMENTAL: salvar as alterações na imagem de densidade da grama"
 
 #: source/main/utils/InputEngine.cpp:1150
 msgid "EXPERIMENTAL: set maximum amount of grass"
-msgstr ""
+msgstr "EXPERIMENTAL: defina a quantidade máxima de grama"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:366
 msgctxt "GameSettings"
 msgid "Echo log to console"
-msgstr ""
+msgstr "Echo log para console"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:390
 msgctxt "GameSettings"
 msgid "Enable ForceFeedback"
-msgstr ""
+msgstr "Ativar ForceFeedback"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:401
 msgctxt "GameSettings"
 msgid "Enable OutGauge protocol"
-msgstr ""
+msgstr "Ativar protocolo OutGauge"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:315
 msgctxt "GameSettings"
 msgid "Enable particle gfx"
-msgstr ""
+msgstr "Ativar partícula gfx"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:213
 msgctxt "GameSettings"
 msgid "Enable races"
-msgstr ""
+msgstr "Ativar Corridas"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:316
 msgctxt "GameSettings"
 msgid "Enable skidmarks"
-msgstr ""
+msgstr "Ativar Skidmarks"
 
 #: source/main/GameContext.cpp:804
 msgid "Enabled hard reset mode"
-msgstr ""
+msgstr "Modo hard reset habilitado"
 
 #: source/main/terrain/TerrainEditor.cpp:143
 msgid "Enabled object tracking"
-msgstr ""
+msgstr "Rastreamento de objeto ativado"
 
 #: source/main/GameContext.cpp:804
 msgid "Enabled soft reset mode"
-msgstr ""
+msgstr "Modo de reinicialização suave ativado"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:182
 #: source/main/gui/panels/GUI_SimActorStats.cpp:200
 msgid "Engine "
-msgstr ""
+msgstr "Motor "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:300
 #: source/main/gui/panels/GUI_SimActorStats.cpp:115
 msgid "Engine RPM: "
-msgstr ""
+msgstr "RPM do Motor "
 
 #. DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
 #: source/main/gui/panels/GUI_GameSettings.cpp:202
 msgctxt "GameSettings"
 msgid "Engines spawn running"
-msgstr ""
+msgstr "Gerar carros com motores ligados"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:352
 msgctxt "GameSettings"
 msgid "Enter preselected vehicle"
-msgstr ""
+msgstr "Entrar com um carro pré-selecionado"
 
 #: source/main/main.cpp:616
 msgid "Entered terrain editing mode"
