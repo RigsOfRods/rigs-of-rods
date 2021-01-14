@@ -160,11 +160,10 @@ void GameMainMenu::DrawMenuPanel()
 void GameMainMenu::DrawVersionBox()
 {
     const float margin = ImGui::GetIO().DisplaySize.y / 30.f;
-    fmt::memory_buffer  game_ver, rornet_ver;
-    format_to(game_ver, "{}: {}", _LC("MainMenu", "Game version"), ROR_VERSION_STRING);
-    format_to(rornet_ver, "{}: {}", _LC("MainMenu", "Net. protocol"), RORNET_VERSION);
+    std::string game_ver   = fmt::format("{}: {}", _LC("MainMenu", "Game version"), ROR_VERSION_STRING);
+    std::string rornet_ver = fmt::format("{}: {}", _LC("MainMenu", "Net. protocol"), RORNET_VERSION);
     float text_w = std::max(
-        ImGui::CalcTextSize(game_ver.data()).x, ImGui::CalcTextSize(rornet_ver.data()).x);
+        ImGui::CalcTextSize(game_ver.c_str()).x, ImGui::CalcTextSize(rornet_ver.c_str()).x);
     ImVec2 box_size(
         (2 * ImGui::GetStyle().WindowPadding.y) + text_w,
         (2 * ImGui::GetStyle().WindowPadding.y) + (2 * ImGui::GetTextLineHeight()));
@@ -177,8 +176,8 @@ void GameMainMenu::DrawVersionBox()
         ImGuiWindowFlags_NoInputs;
     if (ImGui::Begin(_LC("MainMenu", "Version box"), nullptr, flags))
     {
-        ImGui::Text("%s", game_ver.data());
-        ImGui::Text("%s", rornet_ver.data());
+        ImGui::Text("%s", game_ver.c_str());
+        ImGui::Text("%s", rornet_ver.c_str());
         ImGui::End();
     }
     ImGui::PopStyleColor(1);
