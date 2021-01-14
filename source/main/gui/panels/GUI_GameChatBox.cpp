@@ -134,8 +134,8 @@ void GameChatBox::Draw()
 
     if (m_is_visible) // Full display?
     {
-        ImGui::Text(_LC("ChatBox", "Chat history (use mouse wheel to scroll)"));
-        ImGui::Text(_LC("ChatBox", "Message"));
+        ImGui::Text("%s", _LC("ChatBox", "Chat history (use mouse wheel to scroll)"));
+        ImGui::Text("%s", _LC("ChatBox", "Message"));
         ImGui::SameLine();
         if (!m_kb_focused)
         {
