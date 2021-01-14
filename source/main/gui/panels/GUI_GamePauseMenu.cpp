@@ -30,10 +30,10 @@
 #include "GUIManager.h"
 #include "Language.h"
 
+#include <fmt/format.h>
+
 using namespace RoR;
 using namespace GUI;
-
-#define formatbutton(args, button_index) (m_kb_focus_index == button_index) ? std::string("--> ").append(args).append(" <--").c_str() : args
 
 GamePauseMenu::GamePauseMenu(): 
     m_kb_focus_index(-1), m_kb_enter_index(-1)
@@ -82,12 +82,12 @@ void GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cleanup and u
     {
         ImVec2 btn_size(WINDOW_WIDTH, 0.f);
 
-        if (ImGui::Button(formatbutton(_L("Resume game"), 0), btn_size) || (m_kb_enter_index == 0))
+        if (HighlightButton(_L("Resume game"), btn_size, 0))
         {
             App::GetGameContext()->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
         }
 
-        if (ImGui::Button(formatbutton(_L("Return to menu"), 1), btn_size) || (m_kb_enter_index == 1))
+        if (HighlightButton(_L("Return to menu"), btn_size, 1))
         {
             App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
             if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
@@ -96,7 +96,7 @@ void GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cleanup and u
             }
         }
 
-        if (ImGui::Button(formatbutton(_L("Exit game"), 2), btn_size) || (m_kb_enter_index == 2))
+        if (HighlightButton(_L("Exit game"), btn_size, 2))
         {
             App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
         }
@@ -110,3 +110,7 @@ void GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cleanup and u
     m_kb_enter_index = -1;
 }
 
+bool GamePauseMenu::HighlightButton(const std::string& txt,ImVec2 btn_size, int index) const{
+    std::string button_txt = (m_kb_focus_index == index) ? fmt::format("--> {}  <--", txt) : txt;
+    return ImGui::Button(button_txt.c_str(), btn_size) || (m_kb_enter_index == index);
+}

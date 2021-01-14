@@ -39,9 +39,7 @@
 using namespace RoR;
 using namespace GUI;
 
-#define formatbutton(args) (m_kb_focus_index == button_index) ? std::string("--> ").append(args).append(" <--").c_str() : args
-
-GameMainMenu::GameMainMenu(): 
+GameMainMenu::GameMainMenu():
     m_is_visible(false), m_num_buttons(5), m_kb_focus_index(-1), m_kb_enter_index(-1)
 {
     if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
@@ -98,7 +96,7 @@ void GameMainMenu::DrawMenuPanel()
         int button_index = 0;
         ImVec2 btn_size(WINDOW_WIDTH, 0.f);
 
-        if (ImGui::Button(formatbutton(_LC("MainMenu", "Single player")), btn_size) || (m_kb_enter_index == button_index++))
+        if (HighlightButton(_LC("MainMenu", "Single player"), btn_size, button_index++))
         {
             this->SetVisible(false);
             if (App::diag_preset_terrain->GetStr().empty())
@@ -113,32 +111,32 @@ void GameMainMenu::DrawMenuPanel()
 
         if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
         {
-            if (ImGui::Button(formatbutton(_LC("MainMenu", "Resume game")), btn_size) || (m_kb_enter_index == button_index++))
+            if ( HighlightButton(_LC("MainMenu", "Resume game"), btn_size, button_index++))
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, "autosave.sav"));
                 this->SetVisible(false);
             }
         }
 
-        if (ImGui::Button(formatbutton(_LC("MainMenu", "Multi player")), btn_size) || (m_kb_enter_index == button_index++))
+        if (HighlightButton(_LC("MainMenu", "Multi player"), btn_size, button_index++))
         {
             App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
             this->SetVisible(false);
         }
 
-        if (ImGui::Button(formatbutton(_LC("MainMenu", "Settings")), btn_size) || (m_kb_enter_index == button_index++))
+        if (HighlightButton(_LC("MainMenu", "Settings"), btn_size, button_index++))
         {
             App::GetGuiManager()->SetVisible_GameSettings(true);
             this->SetVisible(false);
         }
 
-        if (ImGui::Button(formatbutton(_LC("MainMenu", "About")), btn_size)|| (m_kb_enter_index == button_index++))
+        if (HighlightButton(_LC("MainMenu", "About"), btn_size, button_index++))
         {
             App::GetGuiManager()->SetVisible_GameAbout(true);
             this->SetVisible(false);
         }
 
-        if (ImGui::Button(formatbutton(_LC("MainMenu", "Exit game")), btn_size) || (m_kb_enter_index == button_index++))
+        if (HighlightButton(_LC("MainMenu", "Exit game"), btn_size, button_index))
         {
             App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
             this->SetVisible(false);
@@ -183,3 +181,7 @@ void GameMainMenu::DrawVersionBox()
     ImGui::PopStyleColor(1);
 }
 
+bool GameMainMenu::HighlightButton(const std::string& txt,ImVec2 btn_size, int index) const{
+    std::string button_txt = (m_kb_focus_index == index) ? fmt::format("--> {}  <--", txt) : txt;
+    return ImGui::Button(button_txt.c_str(), btn_size) || (m_kb_enter_index == index);
+}
