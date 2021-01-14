@@ -7,7 +7,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: PACKAGE VERSION\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2021-01-14 12:02+0100\n"
+        "POT-Creation-Date: 2021-01-14 14:53+0100\n"
         "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
         "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
         "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -666,52 +666,52 @@ msgctxt "GameControls"
 msgid   "Truck"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:96
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:94
 msgctxt "MainMenu"
 msgid   "Main menu"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:101
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:99
 msgctxt "MainMenu"
 msgid   "Single player"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:116
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:114
 msgctxt "MainMenu"
 msgid   "Resume game"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:123
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:121
 msgctxt "MainMenu"
 msgid   "Multi player"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:129
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:127
 msgctxt "MainMenu"
 msgid   "Settings"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:135
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:133
 msgctxt "MainMenu"
 msgid   "About"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:141
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:139
 msgctxt "MainMenu"
 msgid   "Exit game"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:164
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:161
 msgctxt "MainMenu"
 msgid   "Game version"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:165
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:162
 msgctxt "MainMenu"
 msgid   "Net. protocol"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:178
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:175
 msgctxt "MainMenu"
 msgid   "Version box"
 msgstr  ""
@@ -1782,35 +1782,14 @@ msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:163
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:167
-#, c-format
-msgctxt "NodeBeamUtils"
-msgid   "%s: %f (%f)"
-msgstr  ""
-
-#: source/main/gui/panels/GUI_NodeBeamUtils.cpp:163
-#: source/main/gui/panels/GUI_NodeBeamUtils.cpp:167
 msgctxt "NodeBeamUtils"
 msgid   "Movement"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:164
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:168
-#, c-format
-msgctxt "NodeBeamUtils"
-msgid   "%s: %.2f (%.2f)"
-msgstr  ""
-
-#: source/main/gui/panels/GUI_NodeBeamUtils.cpp:164
-#: source/main/gui/panels/GUI_NodeBeamUtils.cpp:168
 msgctxt "NodeBeamUtils"
 msgid   "Stress"
-msgstr  ""
-
-#: source/main/gui/panels/GUI_NodeBeamUtils.cpp:165
-#: source/main/gui/panels/GUI_NodeBeamUtils.cpp:169
-#, c-format
-msgctxt "NodeBeamUtils"
-msgid   "%s:   %f (%f)"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:165
@@ -1985,7 +1964,7 @@ msgctxt "TextureToolWindow"
 msgid   "saved texture as "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:57
+#: source/main/gui/panels/GUI_TopMenubar.cpp:60
 msgctxt "TopMenubar"
 msgid   "Simulation"
 msgstr  ""
