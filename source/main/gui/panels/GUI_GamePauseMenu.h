@@ -47,6 +47,8 @@ public:
 private:
     int    m_kb_focus_index; // -1 = no focus; 0+ = button index
     int    m_kb_enter_index; // Index of focus confirmed by ENTER key
+    bool HighlightButton(const std::string &txt, ImVec2 btn_size,
+                         int index) const;
 };
 
 } // namespace GUI
