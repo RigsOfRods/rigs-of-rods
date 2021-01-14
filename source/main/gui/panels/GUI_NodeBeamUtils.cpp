@@ -134,8 +134,8 @@ void NodeBeamUtils::Draw()
     ImGui::PopItemWidth();
     ImGui::Separator();
     ImGui::Spacing();
-    auto txt = m_is_searching ? _LC("NodeBeamUtils", "Stop searching") : actor->ar_nb_initialized ? _LC("NodeBeamUtils", "Continue searching") : _LC("NodeBeamUtils", "Start searching");
-    if (ImGui::Button(txt, ImVec2(280.f, 25.f)))
+    if (ImGui::Button(m_is_searching ? _LC("NodeBeamUtils", "Stop searching") : actor->ar_nb_initialized ? _LC("NodeBeamUtils", "Continue searching") : _LC("NodeBeamUtils", "Start searching"),
+                      ImVec2(280.f, 25.f)))
     {
         m_is_searching = !m_is_searching;
         if (!m_is_searching)
