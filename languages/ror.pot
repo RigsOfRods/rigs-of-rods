@@ -7,7 +7,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: PACKAGE VERSION\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2021-01-11 14:07+0100\n"
+        "POT-Creation-Date: 2021-01-14 12:02+0100\n"
         "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
         "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
         "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -127,39 +127,35 @@ msgstr  ""
 msgid   "Fixed camera"
 msgstr  ""
 
-#: source/main/gfx/camera/CameraManager.cpp:860
+#: source/main/gfx/camera/CameraManager.cpp:863
 msgid   "Limited camera movement enabled"
 msgstr  ""
 
-#: source/main/gfx/camera/CameraManager.cpp:864
+#: source/main/gfx/camera/CameraManager.cpp:867
 msgid   "Limited camera movement disabled"
 msgstr  ""
 
-#: source/main/gfx/camera/CameraManager.cpp:1139
+#: source/main/gfx/camera/CameraManager.cpp:1142
 msgid   "Auto tracking enabled"
 msgstr  ""
 
-#: source/main/gfx/camera/CameraManager.cpp:1143
+#: source/main/gfx/camera/CameraManager.cpp:1146
 msgid   "Auto tracking disabled"
 msgstr  ""
 
 #: source/main/gui/OverlayWrapper.cpp:431
-#: source/main/gui/panels/GUI_SimPerfStats.cpp:45
 msgid   "Current FPS: "
 msgstr  ""
 
 #: source/main/gui/OverlayWrapper.cpp:432
-#: source/main/gui/panels/GUI_SimPerfStats.cpp:46
 msgid   "Average FPS: "
 msgstr  ""
 
 #: source/main/gui/OverlayWrapper.cpp:433
-#: source/main/gui/panels/GUI_SimPerfStats.cpp:48
 msgid   "Best FPS: "
 msgstr  ""
 
 #: source/main/gui/OverlayWrapper.cpp:434
-#: source/main/gui/panels/GUI_SimPerfStats.cpp:47
 msgid   "Worst FPS: "
 msgstr  ""
 
@@ -204,57 +200,57 @@ msgstr  ""
 msgid   "Memory (Ogre): "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_ConsoleView.cpp:218
+#: source/main/gui/panels/GUI_ConsoleView.cpp:216
 msgctxt "Console"
 msgid   "By area:"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_ConsoleView.cpp:219
+#: source/main/gui/panels/GUI_ConsoleView.cpp:217
 msgctxt "Console"
 msgid   "Logfile echo"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_ConsoleView.cpp:220
+#: source/main/gui/panels/GUI_ConsoleView.cpp:218
 msgctxt "Console"
 msgid   "Scripting"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_ConsoleView.cpp:221
+#: source/main/gui/panels/GUI_ConsoleView.cpp:219
 msgctxt "Console"
 msgid   "Actors"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_ConsoleView.cpp:222
+#: source/main/gui/panels/GUI_ConsoleView.cpp:220
 msgctxt "Console"
 msgid   "Terrain"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_ConsoleView.cpp:225
+#: source/main/gui/panels/GUI_ConsoleView.cpp:223
 msgctxt "Console"
 msgid   "By level:"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_ConsoleView.cpp:226
+#: source/main/gui/panels/GUI_ConsoleView.cpp:224
 msgctxt "Console"
 msgid   "Notices"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_ConsoleView.cpp:227
+#: source/main/gui/panels/GUI_ConsoleView.cpp:225
 msgctxt "Console"
 msgid   "Warnings"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_ConsoleView.cpp:228
+#: source/main/gui/panels/GUI_ConsoleView.cpp:226
 msgctxt "Console"
 msgid   "Errors"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_ConsoleView.cpp:229
+#: source/main/gui/panels/GUI_ConsoleView.cpp:227
 msgctxt "Console"
 msgid   "Net chat"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_ConsoleView.cpp:230
+#: source/main/gui/panels/GUI_ConsoleView.cpp:228
 #: source/main/gui/panels/GUI_ConsoleWindow.cpp:52
 msgctxt "Console"
 msgid   "Commands"
@@ -271,8 +267,8 @@ msgid   "Command"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_DirectionArrow.cpp:91
-#, c-format
-msgid   "%0.1f meter"
+msgctxt "DirectionArrow"
+msgid   "meter"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:46
@@ -585,124 +581,138 @@ msgctxt "About"
 msgid   "Used Libs"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameChatBox.cpp:77
+#: source/main/gui/panels/GUI_GameChatBox.cpp:78
 msgctxt "ChatBox"
 msgid   "Welcome to Rigs of Rods!"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameChatBox.cpp:131
+#: source/main/gui/panels/GUI_GameChatBox.cpp:137
 msgctxt "ChatBox"
 msgid   "Chat history (use mouse wheel to scroll)"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameChatBox.cpp:132
+#: source/main/gui/panels/GUI_GameChatBox.cpp:138
 msgctxt "ChatBox"
 msgid   "Message"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameChatBox.cpp:180
+#: source/main/gui/panels/GUI_GameChatBox.cpp:186
 msgctxt "ChatBox"
-msgid   "Whisper message not sent, unknown username"
+msgid   "Whisper message not sent, unknown username: {}"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameChatBox.cpp:189
+#: source/main/gui/panels/GUI_GameChatBox.cpp:195
 msgctxt "ChatBox"
 msgid   "usage: /whisper username message"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_GameControls.cpp:36
+msgctxt "GameControls"
 msgid   "Game Controls"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_GameControls.cpp:47
-#: source/main/gui/panels/GUI_MainSelector.cpp:616
+msgctxt "GameControls"
 msgid   "Airplane"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_GameControls.cpp:49
-#: source/main/gui/panels/GUI_MainSelector.cpp:616
+msgctxt "GameControls"
 msgid   "Boat"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_GameControls.cpp:51
+msgctxt "GameControls"
 msgid   "Camera"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_GameControls.cpp:53
+msgctxt "GameControls"
 msgid   "Sky"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_GameControls.cpp:55
+msgctxt "GameControls"
 msgid   "Character"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_GameControls.cpp:57
-#: source/main/gui/panels/GUI_VehicleDescription.cpp:73
+msgctxt "GameControls"
 msgid   "Commands"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_GameControls.cpp:59
+msgctxt "GameControls"
 msgid   "Common"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_GameControls.cpp:61
+msgctxt "GameControls"
 msgid   "Grass"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_GameControls.cpp:63
+msgctxt "GameControls"
 msgid   "Map"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_GameControls.cpp:65
+msgctxt "GameControls"
 msgid   "Menu"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_GameControls.cpp:67
-#: source/main/gui/panels/GUI_MainSelector.cpp:616
+msgctxt "GameControls"
 msgid   "Truck"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:95
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:96
+msgctxt "MainMenu"
 msgid   "Main menu"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:100
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:101
+msgctxt "MainMenu"
 msgid   "Single player"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:115
-#: source/main/gui/panels/GUI_GamePauseMenu.cpp:85
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:116
+msgctxt "MainMenu"
 msgid   "Resume game"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:122
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:123
+msgctxt "MainMenu"
 msgid   "Multi player"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:128
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:177
-#: source/main/gui/panels/GUI_TopMenubar.cpp:62
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:129
+msgctxt "MainMenu"
 msgid   "Settings"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:134
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:135
+msgctxt "MainMenu"
 msgid   "About"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:140
-#: source/main/gui/panels/GUI_GamePauseMenu.cpp:99
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:141
+msgctxt "MainMenu"
 msgid   "Exit game"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:163
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:164
+msgctxt "MainMenu"
 msgid   "Game version"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:164
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:165
+msgctxt "MainMenu"
 msgid   "Net. protocol"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_GameMainMenu.cpp:177
+#: source/main/gui/panels/GUI_GameMainMenu.cpp:178
+msgctxt "MainMenu"
 msgid   "Version box"
 msgstr  ""
 
@@ -711,8 +721,16 @@ msgstr  ""
 msgid   "Pause"
 msgstr  ""
 
+#: source/main/gui/panels/GUI_GamePauseMenu.cpp:85
+msgid   "Resume game"
+msgstr  ""
+
 #: source/main/gui/panels/GUI_GamePauseMenu.cpp:90
 msgid   "Return to menu"
+msgstr  ""
+
+#: source/main/gui/panels/GUI_GamePauseMenu.cpp:99
+msgid   "Exit game"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:41
@@ -1212,928 +1230,1235 @@ msgctxt "GameSettings"
 msgid   "OutGauge delay"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_LoadingWindow.cpp:75
+#: source/main/gui/panels/GUI_LoadingWindow.cpp:76
+msgctxt "LoadingWindow"
 msgid   "Joining"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_LoadingWindow.cpp:97
+msgctxt "LoadingWindow"
 msgid   "Please wait"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:78
+msgctxt "MainSelector"
 msgid   "Loader"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:252
+msgctxt "MainSelector"
 msgid   "Author(s): "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:256
+msgctxt "MainSelector"
 msgid   "Version: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:259
+msgctxt "MainSelector"
 msgid   "Wheels: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:265
+msgctxt "MainSelector"
 msgid   "Mass: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:274
+msgctxt "MainSelector"
 msgid   "Load Mass: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:278
+msgctxt "MainSelector"
 msgid   "Nodes: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:279
+msgctxt "MainSelector"
 msgid   "Beams: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:280
+msgctxt "MainSelector"
 msgid   "Shocks: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:281
+msgctxt "MainSelector"
 msgid   "Hydros: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:282
+msgctxt "MainSelector"
 msgid   "SoundSources: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:283
+msgctxt "MainSelector"
 msgid   "Commands: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:284
+msgctxt "MainSelector"
 msgid   "Rotators: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:285
+msgctxt "MainSelector"
 msgid   "Exhausts: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:286
+msgctxt "MainSelector"
 msgid   "Flares: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:287
+msgctxt "MainSelector"
 msgid   "Flexbodies: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:288
+msgctxt "MainSelector"
 msgid   "Props: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:289
+msgctxt "MainSelector"
 msgid   "Wings: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:292
+msgctxt "MainSelector"
 msgid   "Using Submeshs: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:294
+msgctxt "MainSelector"
 msgid   "No"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:294
+msgctxt "MainSelector"
 msgid   "Yes"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:296
+msgctxt "MainSelector"
 msgid   "Torque: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:297
+msgctxt "MainSelector"
 msgid   "Transmission Gear Count: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:300
-#: source/main/gui/panels/GUI_SimActorStats.cpp:115
+msgctxt "MainSelector"
 msgid   "Engine RPM: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:304
+msgctxt "MainSelector"
 msgid   "Unique ID: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:305
+msgctxt "MainSelector"
 msgid   "GUID: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:306
+msgctxt "MainSelector"
 msgid   "Times used: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:307
+msgctxt "MainSelector"
 msgid   "Date and Time modified: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:308
+msgctxt "MainSelector"
 msgid   "Date and Time installed: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:309
+msgctxt "MainSelector"
 msgid   "Vehicle Type: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:311
+msgctxt "MainSelector"
 msgid   "[forwards commands]"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:312
+msgctxt "MainSelector"
 msgid   "[imports commands]"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:313
+msgctxt "MainSelector"
 msgid   "[is rescuer]"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:314
+msgctxt "MainSelector"
 msgid   "[uses custom particles]"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:315
+msgctxt "MainSelector"
 msgid   "[has fixes]"
 msgstr  ""
 
 #. Engine type 't' (truck) is the default, do not display it
 #: source/main/gui/panels/GUI_MainSelector.cpp:317
+msgctxt "MainSelector"
 msgid   "[car engine]"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:318
+msgctxt "MainSelector"
 msgid   "[zip archive]"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:319
+msgctxt "MainSelector"
 msgid   "[unpacked in directory]"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:323
+msgctxt "MainSelector"
 msgid   "Source: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:330
+msgctxt "MainSelector"
 msgid   "Filename: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:336
+msgctxt "MainSelector"
 msgid   "Show details"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:346
+msgctxt "MainSelector"
 msgid   "Configuration"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:352
+msgctxt "MainSelector"
 msgid   "OK"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:359
+msgctxt "MainSelector"
 msgid   "Cancel"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:616
+msgctxt "MainSelector"
+msgid   "Airplane"
+msgstr  ""
+
+#: source/main/gui/panels/GUI_MainSelector.cpp:616
+msgctxt "MainSelector"
+msgid   "Boat"
+msgstr  ""
+
+#: source/main/gui/panels/GUI_MainSelector.cpp:616
+msgctxt "MainSelector"
 msgid   "Machine"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:616
+msgctxt "MainSelector"
 msgid   "Non-Driveable"
+msgstr  ""
+
+#: source/main/gui/panels/GUI_MainSelector.cpp:616
+msgctxt "MainSelector"
+msgid   "Truck"
 msgstr  ""
 
 #. TextDisabled() are captions, Text() are values
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:127
+msgctxt "MultiplayerClientList"
 msgid   "user name"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:132
+msgctxt "MultiplayerClientList"
 msgid   "user language: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:136
+msgctxt "MultiplayerClientList"
 msgid   "user country: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:147
+msgctxt "MultiplayerClientList"
 msgid   "user authentication level"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:162
+msgctxt "MultiplayerClientList"
 msgid   "truck loading state"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:171
+msgctxt "MultiplayerClientList"
 msgid   "Truck loading errors"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:172
+msgctxt "MultiplayerClientList"
 msgid   "Truck loaded correctly, no errors"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:173
+msgctxt "MultiplayerClientList"
 msgid   "no truck loaded"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:177
+msgctxt "MultiplayerClientList"
 msgid   "remote truck loading state"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:186
+msgctxt "MultiplayerClientList"
 msgid   "Remote Truck loading errors"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:187
+msgctxt "MultiplayerClientList"
 msgid   "Remote Truck loaded correctly, no errors"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:188
+msgctxt "MultiplayerClientList"
 msgid   "No Trucks loaded"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:200
+msgctxt "MultiplayerClientList"
 msgid   "Slow  Network  Download"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:82
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:83
+msgctxt "MultiplayerSelector"
 msgid   "Error connecting to server :("
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:93
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:94
+msgctxt "MultiplayerSelector"
 msgid   "Server returned invalid data :("
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:164
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:113
+msgctxt "MultiplayerSelector"
+msgid   "No"
+msgstr  ""
+
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:113
+msgctxt "MultiplayerSelector"
+msgid   "Yes"
+msgstr  ""
+
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:160
+msgctxt "MultiplayerSelector"
 msgid   "Online (click to refresh)"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:172
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:168
+msgctxt "MultiplayerSelector"
 msgid   "Direct IP"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:192
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:173
+msgctxt "MultiplayerSelector"
+msgid   "Settings"
+msgstr  ""
+
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:188
+msgctxt "MultiplayerSelector"
 msgid   "Auto connect"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:193
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:189
+msgctxt "MultiplayerSelector"
 msgid   "Auto hide chat"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:194
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:190
+msgctxt "MultiplayerSelector"
 msgid   "Hide net labels"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:195
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:191
+msgctxt "MultiplayerSelector"
 msgid   "Hide own net label"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:196
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:192
+msgctxt "MultiplayerSelector"
 msgid   "Multiplayer collisions"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:203
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:199
+msgctxt "MultiplayerSelector"
 msgid   "Player nickname"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:204
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:200
+msgctxt "MultiplayerSelector"
 msgid   "Default server password"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:210
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:206
+msgctxt "MultiplayerSelector"
 msgid   "User token"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:220
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:216
+msgctxt "MultiplayerSelector"
 msgid   "Server host"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:221
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:217
+msgctxt "MultiplayerSelector"
 msgid   "Server port"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:222
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:318
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:218
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:314
+msgctxt "MultiplayerSelector"
 msgid   "Server password"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:226
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:306
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:222
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:302
+msgctxt "MultiplayerSelector"
 msgid   "Join"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:264
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:260
+msgctxt "MultiplayerSelector"
 msgid   "Passwd?"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:265
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:261
+msgctxt "MultiplayerSelector"
 msgid   "Name"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:266
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:262
+msgctxt "MultiplayerSelector"
 msgid   "Terrain"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:267
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:263
+msgctxt "MultiplayerSelector"
 msgid   "Users"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:268
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:264
+msgctxt "MultiplayerSelector"
 msgid   "Version"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:269
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:265
+msgctxt "MultiplayerSelector"
 msgid   "Host/Port"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:348
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:344
+msgctxt "MultiplayerSelector"
 msgid   "... refreshing ..."
 msgstr  ""
 
-#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:382
+#: source/main/gui/panels/GUI_MultiplayerSelector.cpp:378
+msgctxt "MultiplayerSelector"
 msgid   "There are no available servers :/"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:44
+msgctxt "NodeBeamUtils"
 msgid   "Node/Beam Utils"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:49
+msgctxt "NodeBeamUtils"
 msgid   "Total mass"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:56
+msgctxt "NodeBeamUtils"
 msgid   "Beams:"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:66
+msgctxt "NodeBeamUtils"
 msgid   "Shocks:"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:76
+msgctxt "NodeBeamUtils"
 msgid   "Wheels:"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:87
+msgctxt "NodeBeamUtils"
 msgid   "Reset to default settings"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:96
+msgctxt "NodeBeamUtils"
 msgid   "Update initial node positions"
 msgstr  ""
 
 #. Width includes [+/-] buttons
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:103
+msgctxt "NodeBeamUtils"
 msgid   "Physics steps:"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:110
+msgctxt "NodeBeamUtils"
 msgid   "Beams (spring & damping search interval):"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:118
+msgctxt "NodeBeamUtils"
 msgid   "Shocks (spring & damping search interval):"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:126
+msgctxt "NodeBeamUtils"
 msgid   "Wheels (spring & damping search interval):"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:137
+msgctxt "NodeBeamUtils"
 msgid   "Continue searching"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:137
+msgctxt "NodeBeamUtils"
 msgid   "Start searching"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:137
+msgctxt "NodeBeamUtils"
 msgid   "Stop searching"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:147
+msgctxt "NodeBeamUtils"
 msgid   "Reset search"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:156
+msgctxt "NodeBeamUtils"
 msgid   "Search results"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:158
+msgctxt "NodeBeamUtils"
 msgid   "Reference"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:160
+msgctxt "NodeBeamUtils"
 msgid   "Optimum"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:163
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:167
 #, c-format
-msgid   "Movement: %f (%f)"
+msgctxt "NodeBeamUtils"
+msgid   "%s: %f (%f)"
+msgstr  ""
+
+#: source/main/gui/panels/GUI_NodeBeamUtils.cpp:163
+#: source/main/gui/panels/GUI_NodeBeamUtils.cpp:167
+msgctxt "NodeBeamUtils"
+msgid   "Movement"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:164
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:168
 #, c-format
-msgid   "Stress: %.2f (%.2f)"
+msgctxt "NodeBeamUtils"
+msgid   "%s: %.2f (%.2f)"
+msgstr  ""
+
+#: source/main/gui/panels/GUI_NodeBeamUtils.cpp:164
+#: source/main/gui/panels/GUI_NodeBeamUtils.cpp:168
+msgctxt "NodeBeamUtils"
+msgid   "Stress"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:165
 #: source/main/gui/panels/GUI_NodeBeamUtils.cpp:169
 #, c-format
-msgid   "Yitter:   %f (%f)"
+msgctxt "NodeBeamUtils"
+msgid   "%s:   %f (%f)"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:53
+#: source/main/gui/panels/GUI_NodeBeamUtils.cpp:165
+#: source/main/gui/panels/GUI_NodeBeamUtils.cpp:169
+msgctxt "NodeBeamUtils"
+msgid   "Yitter"
+msgstr  ""
+
+#: source/main/gui/panels/GUI_SimActorStats.cpp:52
+msgctxt "SimActorStats"
 msgid   "Vehicle health: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:59
+#: source/main/gui/panels/GUI_SimActorStats.cpp:58
+msgctxt "SimActorStats"
 msgid   "Vehicle destruction: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:66
+#: source/main/gui/panels/GUI_SimActorStats.cpp:65
+msgctxt "SimActorStats"
 msgid   "Beam count: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:71
+#: source/main/gui/panels/GUI_SimActorStats.cpp:70
+msgctxt "SimActorStats"
 msgid   "Broken beams count: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:76
+#: source/main/gui/panels/GUI_SimActorStats.cpp:75
+msgctxt "SimActorStats"
 msgid   "Deformed beams count: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:81
+#: source/main/gui/panels/GUI_SimActorStats.cpp:80
+msgctxt "SimActorStats"
 msgid   "Average deformation: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:86
+#: source/main/gui/panels/GUI_SimActorStats.cpp:85
+msgctxt "SimActorStats"
 msgid   "Average stress: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:94
+#: source/main/gui/panels/GUI_SimActorStats.cpp:93
+msgctxt "SimActorStats"
 msgid   "Node count: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:98
+#: source/main/gui/panels/GUI_SimActorStats.cpp:97
+msgctxt "SimActorStats"
 msgid   "Total mass: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:120
+#: source/main/gui/panels/GUI_SimActorStats.cpp:114
+msgctxt "SimActorStats"
+msgid   "Engine RPM: "
+msgstr  ""
+
+#: source/main/gui/panels/GUI_SimActorStats.cpp:119
+msgctxt "SimActorStats"
 msgid   "Input shaft RPM: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:125
+#: source/main/gui/panels/GUI_SimActorStats.cpp:124
+msgctxt "SimActorStats"
 msgid   "Current torque: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:130
+#: source/main/gui/panels/GUI_SimActorStats.cpp:129
+msgctxt "SimActorStats"
 msgid   "Current power: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:134
+#: source/main/gui/panels/GUI_SimActorStats.cpp:133
+msgctxt "SimActorStats"
 msgid   "Current gear: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:138
+#: source/main/gui/panels/GUI_SimActorStats.cpp:137
+msgctxt "SimActorStats"
 msgid   "Drive ratio: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:157
+#: source/main/gui/panels/GUI_SimActorStats.cpp:156
+msgctxt "SimActorStats"
 msgid   "Wheel speed: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:161
+#: source/main/gui/panels/GUI_SimActorStats.cpp:160
+msgctxt "SimActorStats"
 msgid   "Vehicle speed: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:168
+#: source/main/gui/panels/GUI_SimActorStats.cpp:167
+msgctxt "SimActorStats"
 msgid   "Current speed: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:175
+#: source/main/gui/panels/GUI_SimActorStats.cpp:174
+msgctxt "SimActorStats"
 msgid   "Altitude: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:182
-#: source/main/gui/panels/GUI_SimActorStats.cpp:200
+#: source/main/gui/panels/GUI_SimActorStats.cpp:181
+#: source/main/gui/panels/GUI_SimActorStats.cpp:199
+msgctxt "SimActorStats"
 msgid   "Engine "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:212
+#: source/main/gui/panels/GUI_SimActorStats.cpp:211
+msgctxt "SimActorStats"
 msgid   "Top speed: "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_SimActorStats.cpp:218
+#: source/main/gui/panels/GUI_SimActorStats.cpp:217
+msgctxt "SimActorStats"
 msgid   "G-Forces:"
 msgstr  ""
 
+#: source/main/gui/panels/GUI_SimPerfStats.cpp:45
+msgctxt "SimPerfStats"
+msgid   "Current FPS: "
+msgstr  ""
+
+#: source/main/gui/panels/GUI_SimPerfStats.cpp:46
+msgctxt "SimPerfStats"
+msgid   "Average FPS: "
+msgstr  ""
+
+#: source/main/gui/panels/GUI_SimPerfStats.cpp:47
+msgctxt "SimPerfStats"
+msgid   "Worst FPS: "
+msgstr  ""
+
+#: source/main/gui/panels/GUI_SimPerfStats.cpp:48
+msgctxt "SimPerfStats"
+msgid   "Best FPS: "
+msgstr  ""
+
 #: source/main/gui/panels/GUI_SimPerfStats.cpp:50
+msgctxt "SimPerfStats"
 msgid   "Triangle count: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_SimPerfStats.cpp:51
+msgctxt "SimPerfStats"
 msgid   "Batch count: "
 msgstr  ""
 
 #: source/main/gui/panels/GUI_TextureToolWindow.cpp:41
+msgctxt "TextureToolWindow"
 msgid   "Texture Tool"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_TextureToolWindow.cpp:50
+msgctxt "TextureToolWindow"
 msgid   "Dynamic only"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_TextureToolWindow.cpp:134
+msgctxt "TextureToolWindow"
 msgid   "Save as PNG"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_TextureToolWindow.cpp:139
+msgctxt "TextureToolWindow"
 msgid   "Save Raw"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_TextureToolWindow.cpp:171
+msgctxt "TextureToolWindow"
 msgid   "saved texture as "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:56
+#: source/main/gui/panels/GUI_TopMenubar.cpp:57
+msgctxt "TopMenubar"
 msgid   "Simulation"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:60
+#: source/main/gui/panels/GUI_TopMenubar.cpp:61
+msgctxt "TopMenubar"
 msgid   "Vehicles"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:61
+#: source/main/gui/panels/GUI_TopMenubar.cpp:62
+msgctxt "TopMenubar"
 msgid   "Saves"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_TopMenubar.cpp:63
+msgctxt "TopMenubar"
+msgid   "Settings"
+msgstr  ""
+
+#: source/main/gui/panels/GUI_TopMenubar.cpp:64
+msgctxt "TopMenubar"
 msgid   "Tools"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:169
+#: source/main/gui/panels/GUI_TopMenubar.cpp:170
+msgctxt "TopMenubar"
 msgid   "Sim menu"
 msgstr  ""
 
 #. TODO: Display hotkeys on the right side of the menu (with different text color)
-#: source/main/gui/panels/GUI_TopMenubar.cpp:173
+#: source/main/gui/panels/GUI_TopMenubar.cpp:174
+msgctxt "TopMenubar"
 msgid   "Get new vehicle"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:181
+#: source/main/gui/panels/GUI_TopMenubar.cpp:182
+msgctxt "TopMenubar"
 msgid   "Show vehicle description"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:188
+#: source/main/gui/panels/GUI_TopMenubar.cpp:189
+msgctxt "TopMenubar"
 msgid   "Reload current vehicle"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:198
+#: source/main/gui/panels/GUI_TopMenubar.cpp:199
+msgctxt "TopMenubar"
 msgid   "Remove current vehicle"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:207
+#: source/main/gui/panels/GUI_TopMenubar.cpp:208
+msgctxt "TopMenubar"
 msgid   "Remove all vehicles"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:214
+#: source/main/gui/panels/GUI_TopMenubar.cpp:215
+msgctxt "TopMenubar"
 msgid   " [!] Confirm removal"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:229
+#: source/main/gui/panels/GUI_TopMenubar.cpp:230
+msgctxt "TopMenubar"
 msgid   "Activate all vehicles"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:235
+#: source/main/gui/panels/GUI_TopMenubar.cpp:236
+msgctxt "TopMenubar"
 msgid   "Activated vehicles never sleep"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:240
+#: source/main/gui/panels/GUI_TopMenubar.cpp:241
+msgctxt "TopMenubar"
 msgid   "Send all vehicles to sleep"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:248
+#: source/main/gui/panels/GUI_TopMenubar.cpp:249
+msgctxt "TopMenubar"
 msgid   "Back to menu"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:257
+#: source/main/gui/panels/GUI_TopMenubar.cpp:258
+msgctxt "TopMenubar"
 msgid   "Exit"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:274
+#: source/main/gui/panels/GUI_TopMenubar.cpp:275
+msgctxt "TopMenubar"
 msgid   "Actors menu"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:305
+#: source/main/gui/panels/GUI_TopMenubar.cpp:306
+msgctxt "TopMenubar"
 msgid   "Savegames"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:307
+#: source/main/gui/panels/GUI_TopMenubar.cpp:308
+msgctxt "TopMenubar"
 msgid   "Quicksave"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:317
+#: source/main/gui/panels/GUI_TopMenubar.cpp:318
+msgctxt "TopMenubar"
 msgid   "Quickload"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:328
+#: source/main/gui/panels/GUI_TopMenubar.cpp:329
+msgctxt "TopMenubar"
 msgid   "(Save with 'CTRL+ALT+1..5')"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:331
+#: source/main/gui/panels/GUI_TopMenubar.cpp:332
+msgctxt "TopMenubar"
 msgid   "Empty Slot"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:345
+#: source/main/gui/panels/GUI_TopMenubar.cpp:346
+msgctxt "TopMenubar"
 msgid   "(Load with 'ALT+1..5')"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:373
+#: source/main/gui/panels/GUI_TopMenubar.cpp:374
+msgctxt "TopMenubar"
 msgid   "Settings menu"
 msgstr  ""
 
 #. Width includes [+/-] buttons
-#: source/main/gui/panels/GUI_TopMenubar.cpp:376
+#: source/main/gui/panels/GUI_TopMenubar.cpp:377
+msgctxt "TopMenubar"
 msgid   "Audio:"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:377
+#: source/main/gui/panels/GUI_TopMenubar.cpp:378
+msgctxt "TopMenubar"
 msgid   "Volume"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:379
+#: source/main/gui/panels/GUI_TopMenubar.cpp:380
+msgctxt "TopMenubar"
 msgid   "Frames per second:"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:382
+#: source/main/gui/panels/GUI_TopMenubar.cpp:383
+msgctxt "TopMenubar"
 msgid   "Reflections"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:384
+#: source/main/gui/panels/GUI_TopMenubar.cpp:385
+msgctxt "TopMenubar"
 msgid   "Game"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:395
+#: source/main/gui/panels/GUI_TopMenubar.cpp:396
+msgctxt "TopMenubar"
 msgid   "Simulation:"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:397
+#: source/main/gui/panels/GUI_TopMenubar.cpp:398
+msgctxt "TopMenubar"
 msgid   "Slow motion"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:402
+#: source/main/gui/panels/GUI_TopMenubar.cpp:403
+msgctxt "TopMenubar"
 msgid   "Time lapse"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:409
-#: source/main/gui/panels/GUI_TopMenubar.cpp:416
+#: source/main/gui/panels/GUI_TopMenubar.cpp:410
+#: source/main/gui/panels/GUI_TopMenubar.cpp:417
+msgctxt "TopMenubar"
 msgid   "Camera:"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:410
-#: source/main/gui/panels/GUI_TopMenubar.cpp:420
-#: source/main/gui/panels/GUI_TopMenubar.cpp:428
+#: source/main/gui/panels/GUI_TopMenubar.cpp:411
+#: source/main/gui/panels/GUI_TopMenubar.cpp:421
+#: source/main/gui/panels/GUI_TopMenubar.cpp:429
+msgctxt "TopMenubar"
 msgid   "FOV"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:411
+#: source/main/gui/panels/GUI_TopMenubar.cpp:412
+msgctxt "TopMenubar"
 msgid   "Height"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:435
+#: source/main/gui/panels/GUI_TopMenubar.cpp:436
+msgctxt "TopMenubar"
 msgid   "Tracking"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:442
+#: source/main/gui/panels/GUI_TopMenubar.cpp:443
+msgctxt "TopMenubar"
 msgid   "Time of day:"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:454
+#: source/main/gui/panels/GUI_TopMenubar.cpp:455
+msgctxt "TopMenubar"
 msgid   "Vehicle control options:"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:455
+#: source/main/gui/panels/GUI_TopMenubar.cpp:456
+msgctxt "TopMenubar"
 msgid   "Keyboard steering speed coupling"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:460
+#: source/main/gui/panels/GUI_TopMenubar.cpp:461
+msgctxt "TopMenubar"
 msgid   "Multiplayer:"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:461
+#: source/main/gui/panels/GUI_TopMenubar.cpp:462
+msgctxt "TopMenubar"
 msgid   "Collisions"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:462
+#: source/main/gui/panels/GUI_TopMenubar.cpp:463
+msgctxt "TopMenubar"
 msgid   "Hide labels"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:477
+#: source/main/gui/panels/GUI_TopMenubar.cpp:478
+msgctxt "TopMenubar"
 msgid   "Tools menu"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:479
+#: source/main/gui/panels/GUI_TopMenubar.cpp:480
+msgctxt "TopMenubar"
 msgid   "Friction settings"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:485
+#: source/main/gui/panels/GUI_TopMenubar.cpp:486
+msgctxt "TopMenubar"
 msgid   "Show console"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:491
+#: source/main/gui/panels/GUI_TopMenubar.cpp:492
+msgctxt "TopMenubar"
 msgid   "Texture tool"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:497
+#: source/main/gui/panels/GUI_TopMenubar.cpp:498
+msgctxt "TopMenubar"
 msgid   "Game controls"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:505
+#: source/main/gui/panels/GUI_TopMenubar.cpp:506
+msgctxt "TopMenubar"
 msgid   "Node / Beam utility"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:513
+#: source/main/gui/panels/GUI_TopMenubar.cpp:514
+msgctxt "TopMenubar"
 msgid   "Pre-spawn diag. options:"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:516
+#: source/main/gui/panels/GUI_TopMenubar.cpp:517
+msgctxt "TopMenubar"
 msgid   "Node mass recalc. logging"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:523
+#: source/main/gui/panels/GUI_TopMenubar.cpp:524
+msgctxt "TopMenubar"
 msgid   "Extra logging on runtime - mass recalculation"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:528
+#: source/main/gui/panels/GUI_TopMenubar.cpp:529
+msgctxt "TopMenubar"
 msgid   "Beam break logging"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:535
-#: source/main/gui/panels/GUI_TopMenubar.cpp:547
+#: source/main/gui/panels/GUI_TopMenubar.cpp:536
+#: source/main/gui/panels/GUI_TopMenubar.cpp:548
+msgctxt "TopMenubar"
 msgid   "Extra logging on runtime"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:540
+#: source/main/gui/panels/GUI_TopMenubar.cpp:541
+msgctxt "TopMenubar"
 msgid   "Beam deform. logging"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:552
+#: source/main/gui/panels/GUI_TopMenubar.cpp:553
+msgctxt "TopMenubar"
 msgid   "Trigger logging"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:559
+#: source/main/gui/panels/GUI_TopMenubar.cpp:560
+msgctxt "TopMenubar"
 msgid   "Extra logging on runtime - trigger beams activity"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:564
+#: source/main/gui/panels/GUI_TopMenubar.cpp:565
+msgctxt "TopMenubar"
 msgid   "VideoCamera direction marker"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:571
+#: source/main/gui/panels/GUI_TopMenubar.cpp:572
+msgctxt "TopMenubar"
 msgid   "Visual marker of VideoCameras direction"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:579
-msgid   "Live diagnostic views:"
-msgstr  ""
-
 #: source/main/gui/panels/GUI_TopMenubar.cpp:580
-#, c-format
-msgid   "(Toggle with '%s')"
+msgctxt "TopMenubar"
+msgid   "Live diagnostic views:"
 msgstr  ""
 
 #: source/main/gui/panels/GUI_TopMenubar.cpp:581
 #, c-format
+msgctxt "TopMenubar"
+msgid   "(Toggle with '%s')"
+msgstr  ""
+
+#: source/main/gui/panels/GUI_TopMenubar.cpp:582
+#, c-format
+msgctxt "TopMenubar"
 msgid   "(Cycle with '%s')"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:588
+#: source/main/gui/panels/GUI_TopMenubar.cpp:589
+msgctxt "TopMenubar"
 msgid   "Normal view"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:589
+#: source/main/gui/panels/GUI_TopMenubar.cpp:590
+msgctxt "TopMenubar"
 msgid   "Skeleton view"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:590
+#: source/main/gui/panels/GUI_TopMenubar.cpp:591
+msgctxt "TopMenubar"
 msgid   "Node details"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:591
+#: source/main/gui/panels/GUI_TopMenubar.cpp:592
+msgctxt "TopMenubar"
 msgid   "Beam details"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:594
+#: source/main/gui/panels/GUI_TopMenubar.cpp:595
+msgctxt "TopMenubar"
 msgid   "Wheel details"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:598
+#: source/main/gui/panels/GUI_TopMenubar.cpp:599
+msgctxt "TopMenubar"
 msgid   "Shock details"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:602
+#: source/main/gui/panels/GUI_TopMenubar.cpp:603
+msgctxt "TopMenubar"
 msgid   "Rotator details"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:606
+#: source/main/gui/panels/GUI_TopMenubar.cpp:607
+msgctxt "TopMenubar"
 msgid   "Slidenode details"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:610
+#: source/main/gui/panels/GUI_TopMenubar.cpp:611
+msgctxt "TopMenubar"
 msgid   "Submesh details"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:621
+#: source/main/gui/panels/GUI_TopMenubar.cpp:622
+msgctxt "TopMenubar"
 msgid   "Settings:"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:622
+#: source/main/gui/panels/GUI_TopMenubar.cpp:623
+msgctxt "TopMenubar"
 msgid   "Hide broken beams"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:623
+#: source/main/gui/panels/GUI_TopMenubar.cpp:624
+msgctxt "TopMenubar"
 msgid   "Hide beam stress"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:624
+#: source/main/gui/panels/GUI_TopMenubar.cpp:625
+msgctxt "TopMenubar"
 msgid   "Hide wheels"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:625
+#: source/main/gui/panels/GUI_TopMenubar.cpp:626
+msgctxt "TopMenubar"
 msgid   "Hide nodes"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:628
+#: source/main/gui/panels/GUI_TopMenubar.cpp:629
+msgctxt "TopMenubar"
 msgid   "Hide wheel info"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:681
+#: source/main/gui/panels/GUI_TopMenubar.cpp:682
+msgctxt "TopMenubar"
 msgid   "Bot, "
 msgstr  ""
 
 #. Old coloring: #0000c9
-#: source/main/gui/panels/GUI_TopMenubar.cpp:682
+#: source/main/gui/panels/GUI_TopMenubar.cpp:683
+msgctxt "TopMenubar"
 msgid   "Banned, "
 msgstr  ""
 
 #. Old coloring: none
-#: source/main/gui/panels/GUI_TopMenubar.cpp:683
+#: source/main/gui/panels/GUI_TopMenubar.cpp:684
+msgctxt "TopMenubar"
 msgid   "Ranked, "
 msgstr  ""
 
 #. Old coloring: #00c900
-#: source/main/gui/panels/GUI_TopMenubar.cpp:684
+#: source/main/gui/panels/GUI_TopMenubar.cpp:685
+msgctxt "TopMenubar"
 msgid   "Moderator, "
 msgstr  ""
 
 #. Old coloring: #c90000
-#: source/main/gui/panels/GUI_TopMenubar.cpp:685
+#: source/main/gui/panels/GUI_TopMenubar.cpp:686
+msgctxt "TopMenubar"
 msgid   "Admin, "
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:730
+#: source/main/gui/panels/GUI_TopMenubar.cpp:729
+msgctxt "TopMenubar"
 msgid   "None spawned yet"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:731
+#: source/main/gui/panels/GUI_TopMenubar.cpp:730
+msgctxt "TopMenubar"
 msgid   "Use [Simulation] menu"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:789
+#: source/main/gui/panels/GUI_TopMenubar.cpp:788
+msgctxt "TopMenubar"
 msgid   "All physics paused, press '{}' to resume"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:798
+#: source/main/gui/panels/GUI_TopMenubar.cpp:797
+msgctxt "TopMenubar"
 msgid   "Vehicle physics paused, press '{}' to resume"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:807
+#: source/main/gui/panels/GUI_TopMenubar.cpp:806
+msgctxt "TopMenubar"
 msgid   "Replay"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:845
+#: source/main/gui/panels/GUI_TopMenubar.cpp:844
+msgctxt "TopMenubar"
 msgid   "Time"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_VehicleDescription.cpp:65
+#: source/main/gui/panels/GUI_VehicleDescription.cpp:66
+msgctxt "VehicleDescription"
 msgid   "Description"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_VehicleDescription.cpp:108
+#: source/main/gui/panels/GUI_VehicleDescription.cpp:74
+msgctxt "VehicleDescription"
+msgid   "Commands"
+msgstr  ""
+
+#: source/main/gui/panels/GUI_VehicleDescription.cpp:104
+msgctxt "VehicleDescription"
 msgid   "unknown function"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_VehicleDescription.cpp:115
+#: source/main/gui/panels/GUI_VehicleDescription.cpp:111
+msgctxt "VehicleDescription"
 msgid   "Authors"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_VehicleDescription.cpp:124
+#: source/main/gui/panels/GUI_VehicleDescription.cpp:120
+msgctxt "VehicleDescription"
 msgid   "(no author information available) "
 msgstr  ""
 
