@@ -32,6 +32,7 @@
 
 #include <imgui.h>
 #include <rapidjson/document.h>
+#include <fmt/core.h>
 #include <vector>
 
 #ifdef USE_CURL
@@ -111,13 +112,8 @@ void FetchServerlist(std::string portal_url)
         servers[i].has_password  = j_row["has-password"].GetBool();
         servers[i].display_passwd = servers[i].has_password ? "Yes" : "No";
 
-        char display_host[400];
-        snprintf(display_host, 400, "%s:%d", j_row["ip"].GetString(), j_row["port"].GetInt());
-        servers[i].display_host  = display_host;
-
-        char display_users[200];
-        snprintf(display_users, 200, "%d / %d", j_row["current-users"].GetInt(), j_row["max-clients"].GetInt());
-        servers[i].display_users = display_users;
+        servers[i].display_host  = fmt::format("{}:{}", j_row["ip"].GetString(), j_row["port"].GetInt());
+        servers[i].display_users = fmt::format("{} / {}", j_row["current-users"].GetInt(), j_row["max-clients"].GetInt());
 
         servers[i].net_version = j_row["version"].GetString();
         servers[i].display_version = Ogre::StringUtil::replaceAll(j_row["version"].GetString(), "RoRnet_", "");

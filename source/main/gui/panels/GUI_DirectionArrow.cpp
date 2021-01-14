@@ -28,6 +28,7 @@
 #include "Language.h"
 
 #include <Overlay/OgreOverlayManager.h>
+#include <fmt/core.h>
 
 using namespace RoR;
 
@@ -87,9 +88,7 @@ void GUI::DirectionArrow::Update(RoR::GfxActor* player_vehicle)
         {
             distance = data.simbuf_character_pos.distance(data.simbuf_dir_arrow_target);
         }
-        char tmp[256];
-        sprintf(tmp, _L("%0.1f meter"), distance);
-        m_distance_text->setCaption(tmp);
+        m_distance_text->setCaption(fmt::format("{:.1f} {}", distance, _LC("DirectionArrow", "meter")));
     }
     else
     {

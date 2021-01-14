@@ -32,6 +32,7 @@
 #include "InputEngine.h"
 #include "Language.h"
 
+#include <fmt/format.h>
 #include <imgui.h>
 
 using namespace RoR;
@@ -80,14 +81,9 @@ void VehicleDescription::Draw()
             if (actor->ar_command_key[i].beams.empty() && actor->ar_command_key[i].rotators.empty())
                 continue;
 
-            char commandID[256] = {};
-            Ogre::String keyStr = "";
-
-            sprintf(commandID, "COMMANDS_%02d", i);
-            int eventID = RoR::App::GetInputEngine()->resolveEventName(Ogre::String(commandID));
+            int eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{}", i));
             Ogre::String keya = RoR::App::GetInputEngine()->getEventCommand(eventID);
-            sprintf(commandID, "COMMANDS_%02d", i + 1);
-            eventID = RoR::App::GetInputEngine()->resolveEventName(Ogre::String(commandID));
+            eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{}", i + 1));
             Ogre::String keyb = RoR::App::GetInputEngine()->getEventCommand(eventID);
 
             // cut off expl

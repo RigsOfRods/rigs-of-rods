@@ -28,6 +28,7 @@
 #include "Language.h"
 
 #include <cstring> // strtok, strncmp
+#include <fmt/format.h>
 #include <imgui.h>
 
 using namespace RoR;
@@ -181,10 +182,10 @@ void GameChatBox::SubmitMessage()
             }
             else
             {
-                Str<200> text;
-                text << _LC("ChatBox", "Whisper message not sent, unknown username") << ": " << username;
+                fmt::memory_buffer text_buff;
+                format_to(text_buff, _LC("ChatBox", "Whisper message not sent, unknown username: {}"), username);
                 App::GetConsole()->putMessage(
-                    Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, text.ToCStr());
+                    Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, text_buff.data());
             }
         }
         else

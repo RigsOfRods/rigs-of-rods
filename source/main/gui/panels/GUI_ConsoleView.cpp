@@ -30,6 +30,7 @@
 #include "Network.h"
 
 #include <algorithm> // min
+#include <fmt/core.h>
 
 using namespace RoR;
 using namespace GUI;
@@ -181,12 +182,9 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
         if (App::GetNetwork()->GetAnyUserInfo((int)m.cm_net_userid, user)) // Local or remote user
         {
             Ogre::ColourValue col = App::GetNetwork()->GetPlayerColor(user.colournum);
-            char prefix[400] = {};
             int r,g,b;
             color2i(ImVec4(col.r, col.g, col.b, col.a), r,g,b);
-            snprintf(prefix, 400, "#%02x%02x%02x%s: #000000", r, g, b, user.username);
-
-            line << prefix << m.cm_text;
+            line << fmt::format("#{}x{}x{}x{}: #000000 {}", r, g, b, user.username, m.cm_text);
         }
         else if (App::GetNetwork()->GetDisconnectedUserInfo((int)m.cm_net_userid, user)) // Disconnected remote user
         {
