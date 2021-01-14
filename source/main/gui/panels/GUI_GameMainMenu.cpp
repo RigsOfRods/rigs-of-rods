@@ -93,12 +93,12 @@ void GameMainMenu::DrawMenuPanel()
     }
     ImGui::SetNextWindowContentWidth(WINDOW_WIDTH);
     int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
-    if (ImGui::Begin(_L("Main menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+    if (ImGui::Begin(_LC("MainMenu", "Main menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
     {
         int button_index = 0;
         ImVec2 btn_size(WINDOW_WIDTH, 0.f);
 
-        if (ImGui::Button(formatbutton(_L("Single player")), btn_size) || (m_kb_enter_index == button_index++))
+        if (ImGui::Button(formatbutton(_LC("MainMenu", "Single player")), btn_size) || (m_kb_enter_index == button_index++))
         {
             this->SetVisible(false);
             if (App::diag_preset_terrain->GetStr().empty())
@@ -113,32 +113,32 @@ void GameMainMenu::DrawMenuPanel()
 
         if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
         {
-            if (ImGui::Button(formatbutton(_L("Resume game")), btn_size) || (m_kb_enter_index == button_index++))
+            if (ImGui::Button(formatbutton(_LC("MainMenu", "Resume game")), btn_size) || (m_kb_enter_index == button_index++))
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, "autosave.sav"));
                 this->SetVisible(false);
             }
         }
 
-        if (ImGui::Button(formatbutton(_L("Multi player")), btn_size) || (m_kb_enter_index == button_index++))
+        if (ImGui::Button(formatbutton(_LC("MainMenu", "Multi player")), btn_size) || (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
             this->SetVisible(false);
         }
 
-        if (ImGui::Button(formatbutton(_L("Settings")), btn_size) || (m_kb_enter_index == button_index++))
+        if (ImGui::Button(formatbutton(_LC("MainMenu", "Settings")), btn_size) || (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_GameSettings(true);
             this->SetVisible(false);
         }
 
-        if (ImGui::Button(formatbutton(_L("About")), btn_size)|| (m_kb_enter_index == button_index++))
+        if (ImGui::Button(formatbutton(_LC("MainMenu", "About")), btn_size)|| (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_GameAbout(true);
             this->SetVisible(false);
         }
 
-        if (ImGui::Button(formatbutton(_L("Exit game")), btn_size) || (m_kb_enter_index == button_index++))
+        if (ImGui::Button(formatbutton(_LC("MainMenu", "Exit game")), btn_size) || (m_kb_enter_index == button_index++))
         {
             App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
             this->SetVisible(false);

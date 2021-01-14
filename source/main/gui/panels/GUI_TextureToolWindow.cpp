@@ -38,7 +38,7 @@ void TextureToolWindow::Draw()
 {
     ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH, 550.f), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin(_L("Texture Tool"), &m_is_visible))
+    if (!ImGui::Begin(_LC("TextureToolWindow", "Texture Tool"), &m_is_visible))
     {
         ImGui::End(); // The window is collapsed
         return;
@@ -47,7 +47,7 @@ void TextureToolWindow::Draw()
     // left
     ImGui::BeginGroup();
 
-    ImGui::Checkbox(_L("Dynamic only"), &m_show_dynamic_only);
+    ImGui::Checkbox(_LC("TextureToolWindow", "Dynamic only"), &m_show_dynamic_only);
 
     ImGui::BeginChild("texture list", ImVec2(LEFT_PANE_WIDTH, 0), true);
     auto itor = Ogre::TextureManager::getSingleton().getResourceIterator();
@@ -131,12 +131,12 @@ void TextureToolWindow::Draw()
         ImGui::EndChild(); // tex info
 
         ImGui::BeginChild("buttons");
-        if (ImGui::Button(_L("Save as PNG")))
+        if (ImGui::Button(_LC("TextureToolWindow", "Save as PNG")))
         {
             this->SaveTexture(m_display_tex->getName(), /*usePNG =*/ true);
         }
         ImGui::SameLine();
-        if (ImGui::Button(_L("Save Raw")))
+        if (ImGui::Button(_LC("TextureToolWindow", "Save Raw")))
         {
             this->SaveTexture(m_display_tex->getName(), /*usePNG =*/ false);
         }
@@ -168,7 +168,7 @@ void TextureToolWindow::SaveTexture(std::string texName, bool usePNG)
 
         img.save(outname);
 
-        std::string msg = _L("saved texture as ") + outname;
+        std::string msg = _LC("TextureToolWindow", "saved texture as ") + outname;
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg, "information.png");
     }
     catch (Exception& e)
