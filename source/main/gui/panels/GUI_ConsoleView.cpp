@@ -184,7 +184,7 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
             Ogre::ColourValue col = App::GetNetwork()->GetPlayerColor(user.colournum);
             int r,g,b;
             color2i(ImVec4(col.r, col.g, col.b, col.a), r,g,b);
-            line << fmt::format("#{}x{}x{}x{}: #000000 {}", r, g, b, user.username, m.cm_text);
+            line << fmt::format("#{:02x}{:02x}{:02x}{}: #000000{}", r, g, b, user.username, m.cm_text);
         }
         else if (App::GetNetwork()->GetDisconnectedUserInfo((int)m.cm_net_userid, user)) // Disconnected remote user
         {

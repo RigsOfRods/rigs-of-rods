@@ -81,9 +81,9 @@ void VehicleDescription::Draw()
             if (actor->ar_command_key[i].beams.empty() && actor->ar_command_key[i].rotators.empty())
                 continue;
 
-            int eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{}", i));
+            int eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", i));
             Ogre::String keya = RoR::App::GetInputEngine()->getEventCommand(eventID);
-            eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{}", i + 1));
+            eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", i + 1));
             Ogre::String keyb = RoR::App::GetInputEngine()->getEventCommand(eventID);
 
             // cut off expl
