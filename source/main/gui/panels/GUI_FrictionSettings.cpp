@@ -58,7 +58,7 @@ void FrictionSettings::Draw()
     ground_model_t& gm = m_gm_entries[m_selected_gm].working_copy;
     bool dirty = false;
 
-    ImGui::TextDisabled(_LC("FrictionSettings", "Solid ground settings"));
+    ImGui::TextDisabled("%s", _LC("FrictionSettings", "Solid ground settings"));
 
     if (ImGui::SliderFloat(_LC("FrictionSettings", "Solid ground level:"), &gm.solid_ground_level, 0.f, 200.f)) { dirty = true; }
     this->DrawTooltip(_LC("FrictionSettings", "Solid ground level"), _LC("FrictionSettings", "With this you can define how deep the solid ground is. If it is 0 then the surface will be solid. If it is 0.1 then you'll have 10 cm of fluid on top of solid ground. If it is 100 then the solid ground will be way deep (100m), with fluid on top."));
@@ -84,7 +84,7 @@ void FrictionSettings::Draw()
     if (ImGui::SliderFloat(_LC("FrictionSettings", "alpha:"), &gm.alpha, 0.f, 200.f)) { dirty = true; }
     this->DrawTooltip(_LC("FrictionSettings", "Alpha"), _LC("FrictionSettings", "Its usual value is 2. But you can try others."));
 
-    ImGui::TextDisabled(_LC("FrictionSettings", "Fluid Settings"));
+    ImGui::TextDisabled("%s", _LC("FrictionSettings", "Fluid Settings"));
 
     if (ImGui::SliderFloat(_LC("FrictionSettings", "Flow behavior index:"), &gm.flow_behavior_index, -2.f, 2.f)) { dirty = true; }
     this->DrawTooltip(_LC("FrictionSettings", "Flow behavior index"), _LC("FrictionSettings", "If it is 1.0 then the fluid will behave like water. The lower you get from 1.0, the more like mud the fluid will behave, meaning that for small velocities the fluid will resist motion and for large velocities the fluid will not resist so much. The higher you get from 1.0 the more like sand the fluid will behave. The bigger the velocity, the bigger the resistance of the fluid (try to hit sand hard it'll feel like stone)."));

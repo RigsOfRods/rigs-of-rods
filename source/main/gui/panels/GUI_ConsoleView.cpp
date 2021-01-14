@@ -213,14 +213,14 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
 
 void ConsoleView::DrawFilteringOptions()
 {
-    ImGui::TextDisabled(_LC("Console", "By area:"));
+    ImGui::TextDisabled("%s", _LC("Console", "By area:"));
     m_reload_messages |= ImGui::MenuItem(_LC("Console", "Logfile echo"), "", &cvw_filter_area_echo);
     m_reload_messages |= ImGui::MenuItem(_LC("Console", "Scripting"),    "", &cvw_filter_area_script);
     m_reload_messages |= ImGui::MenuItem(_LC("Console", "Actors"),       "", &cvw_filter_area_actor);
     m_reload_messages |= ImGui::MenuItem(_LC("Console", "Terrain"),      "", &cvw_filter_area_terrn);
 
     ImGui::Separator();
-    ImGui::TextDisabled(_LC("Console", "By level:"));
+    ImGui::TextDisabled("%s",_LC("Console", "By level:"));
     m_reload_messages |= ImGui::MenuItem(_LC("Console", "Notices"),  "", &cvw_filter_type_notice);
     m_reload_messages |= ImGui::MenuItem(_LC("Console", "Warnings"), "", &cvw_filter_type_warning);
     m_reload_messages |= ImGui::MenuItem(_LC("Console", "Errors"),   "", &cvw_filter_type_error);

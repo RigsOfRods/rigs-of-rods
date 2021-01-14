@@ -69,7 +69,7 @@ void GameSettings::Draw()
 
     if (m_tab == SettingsTab::RENDER_SYSTEM)
     {
-        ImGui::TextDisabled(_LC("GameSettings", "Render system (changes require a restart)"));
+        ImGui::TextDisabled("%s", _LC("GameSettings", "Render system (changes require a restart)"));
 
         const auto ogre_root = App::GetAppContext()->GetOgreRoot();
         const auto render_systems = ogre_root->getAvailableRenderers();
@@ -120,7 +120,7 @@ void GameSettings::Draw()
     }
     else if (m_tab == SettingsTab::GENERAL)
     {
-        ImGui::TextDisabled(_LC("GameSettings", "Application settings"));
+        ImGui::TextDisabled("%s", _LC("GameSettings", "Application settings"));
 
 #ifndef NOLANG
         std::vector<std::pair<std::string, std::string>> languages = App::GetLanguageEngine()->getLanguages();
@@ -185,7 +185,7 @@ void GameSettings::Draw()
         DrawGCheckbox(App::app_disable_online_api, _LC("GameSettings", "Disable online api"));
 
         ImGui::Separator();
-        ImGui::TextDisabled(_LC("GameSettings", "Simulation settings"));
+        ImGui::TextDisabled("%s", _LC("GameSettings", "Simulation settings"));
 
         DrawGCombo(App::sim_gearbox_mode, _LC("GameSettings", "Gearbox mode"),
             "Automatic shift\0"
@@ -220,7 +220,7 @@ void GameSettings::Draw()
 #ifdef USE_OPENAL
     else if (m_tab == SettingsTab::AUDIO)
     {
-        ImGui::TextDisabled(_LC("GameSettings", "Audio settings"));
+        ImGui::TextDisabled("%s", _LC("GameSettings", "Audio settings"));
 
         static const ALCchar *devices = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
         const ALCchar *device = devices, *next = devices + 1;
@@ -248,7 +248,7 @@ void GameSettings::Draw()
 #endif // USE_OPENAL
     else if (m_tab == SettingsTab::GRAPHICS)
     {
-        ImGui::TextDisabled(_LC("GameSettings", "Video settings"));
+        ImGui::TextDisabled("%s", _LC("GameSettings", "Video settings"));
 
         DrawGCombo(App::gfx_flares_mode, _LC("GameSettings", "Lights"),
             "None (fastest)\0"
@@ -343,8 +343,8 @@ void GameSettings::Draw()
     }
     else if (m_tab == SettingsTab::DIAG)
     {
-        ImGui::TextDisabled(_LC("GameSettings", "Diagnostic options"));
-        ImGui::TextColored(ImVec4(0.89f,0.15f,0.21f,1.0f), _LC("GameSettings", "These settings are for advanced users only, you should only change these if you know what you're doing"));
+        ImGui::TextDisabled("%s", _LC("GameSettings", "Diagnostic options"));
+        ImGui::TextColored(ImVec4(0.89f,0.15f,0.21f,1.0f), "%s", _LC("GameSettings", "These settings are for advanced users only, you should only change these if you know what you're doing"));
 
         DrawGTextEdit(App::diag_preset_terrain,      _LC("GameSettings", "Preselected terrain"),         m_buf_diag_preset_terrain);
         DrawGTextEdit(App::diag_preset_vehicle,      _LC("GameSettings", "Preselected vehicle"),         m_buf_diag_preset_vehicle);
@@ -374,7 +374,7 @@ void GameSettings::Draw()
     }
     else if (m_tab == SettingsTab::CONTROL)
     {
-        ImGui::TextDisabled(_LC("GameSettings", "Controller options"));
+        ImGui::TextDisabled("%s", _LC("GameSettings", "Controller options"));
 
         DrawGCombo(App::io_input_grab_mode, _LC("GameSettings", "Input grab mode"),
             "None\0"
