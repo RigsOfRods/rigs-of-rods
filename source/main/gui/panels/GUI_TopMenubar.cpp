@@ -54,24 +54,24 @@ void TopMenubar::Update()
 
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
-    const char* sim_title = _LC("TopMenubar", "Simulation");
-    Str<50> actors_title;
     auto actors = App::GetGameContext()->GetActorManager()->GetActors();
     int num_playable_actors = std::count_if(actors.begin(), actors.end(), [](Actor* a) {return !a->ar_hide_in_actor_list;});
-    actors_title << _LC("TopMenubar", "Vehicles") << " (" << num_playable_actors << ")";
-    const char* savegames_title =   _LC("TopMenubar", "Saves");
-    const char* settings_title =    _LC("TopMenubar", "Settings");
-    const char* tools_title =       _LC("TopMenubar", "Tools");
+
+    std::string sim_title =         _LC("TopMenubar", "Simulation");
+    std::string actors_title = fmt::format("{} ({})", _LC("TopMenubar", "Vehicles"), num_playable_actors);
+    std::string savegames_title =   _LC("TopMenubar", "Saves");
+    std::string settings_title =    _LC("TopMenubar", "Settings");
+    std::string tools_title =       _LC("TopMenubar", "Tools");
     const int NUM_BUTTONS = 5;
 
     float menubar_content_width =
         (ImGui::GetStyle().ItemSpacing.x * (NUM_BUTTONS - 1)) +
         (ImGui::GetStyle().FramePadding.x * (NUM_BUTTONS * 2)) +
-        ImGui::CalcTextSize(sim_title).x +
-        ImGui::CalcTextSize(actors_title.ToCStr()).x +
-        ImGui::CalcTextSize(savegames_title).x +
-        ImGui::CalcTextSize(settings_title).x +
-        ImGui::CalcTextSize(tools_title).x;
+        ImGui::CalcTextSize(sim_title.c_str()).x +
+        ImGui::CalcTextSize(actors_title.c_str()).x +
+        ImGui::CalcTextSize(savegames_title.c_str()).x +
+        ImGui::CalcTextSize(settings_title.c_str()).x +
+        ImGui::CalcTextSize(tools_title.c_str()).x;
 
     ImVec2 window_target_pos = ImVec2((ImGui::GetIO().DisplaySize.x/2.f) - (menubar_content_width / 2.f), theme.screen_edge_padding.y);
     if (!this->ShouldDisplay(window_target_pos))
@@ -95,7 +95,7 @@ void TopMenubar::Update()
     // The 'simulation' button
     ImVec2 window_pos = ImGui::GetWindowPos();
     ImVec2 sim_cursor = ImGui::GetCursorPos();
-    ImGui::Button(sim_title);
+    ImGui::Button(sim_title.c_str());
     if ((m_open_menu != TopMenu::TOPMENU_SIM) && ImGui::IsItemHovered())
     {
         m_open_menu = TopMenu::TOPMENU_SIM;
@@ -105,7 +105,7 @@ void TopMenubar::Update()
 
     // The 'vehicles' button
     ImVec2 actors_cursor = ImGui::GetCursorPos();
-    ImGui::Button(actors_title);
+    ImGui::Button(actors_title.c_str());
     if ((m_open_menu != TopMenu::TOPMENU_ACTORS) && ImGui::IsItemHovered())
     {
         m_open_menu = TopMenu::TOPMENU_ACTORS;
@@ -115,7 +115,7 @@ void TopMenubar::Update()
 
     // The 'savegames' button
     ImVec2 savegames_cursor = ImGui::GetCursorPos();
-    ImGui::Button(savegames_title);
+    ImGui::Button(savegames_title.c_str());
     if ((m_open_menu != TopMenu::TOPMENU_SAVEGAMES) && ImGui::IsItemHovered())
     {
         m_open_menu = TopMenu::TOPMENU_SAVEGAMES;
@@ -133,7 +133,7 @@ void TopMenubar::Update()
 
     // The 'settings' button
     ImVec2 settings_cursor = ImGui::GetCursorPos();
-    ImGui::Button(settings_title);
+    ImGui::Button(settings_title.c_str());
     if ((m_open_menu != TopMenu::TOPMENU_SETTINGS) && ImGui::IsItemHovered())
     {
         m_open_menu = TopMenu::TOPMENU_SETTINGS;
@@ -147,7 +147,7 @@ void TopMenubar::Update()
 
     // The 'tools' button
     ImVec2 tools_cursor = ImGui::GetCursorPos();
-    ImGui::Button(tools_title);
+    ImGui::Button(tools_title.c_str());
     if ((m_open_menu != TopMenu::TOPMENU_TOOLS) && ImGui::IsItemHovered())
     {
         m_open_menu = TopMenu::TOPMENU_TOOLS;
@@ -737,7 +737,7 @@ void TopMenubar::DrawActorListSinglePlayer()
         for (auto actor : actor_list)
         {
             fmt::memory_buffer text_buf_rem;
-            format_to(text_buf_rem, "X ##[%d]", i);
+            format_to(text_buf_rem, "X ##[{}]", i);
             ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
             if (ImGui::Button(text_buf_rem.data()))
             {
