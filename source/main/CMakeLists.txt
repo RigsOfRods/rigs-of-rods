@@ -412,17 +412,18 @@ if (USE_PACKAGE_MANAGER)
 
     target_link_libraries(${BINNAME} PRIVATE
             CONAN_PKG::AngelScript
-            CONAN_PKG::libcurl
-            CONAN_PKG::discord-rpc
             CONAN_PKG::MofileReader
             CONAN_PKG::MyGUI
-            CONAN_PKG::SocketW
-            CONAN_PKG::openal
-            CONAN_PKG::rapidjson
-            CONAN_PKG::ogre-caelum
-            CONAN_PKG::openssl
             CONAN_PKG::OGRE
             CONAN_PKG::OGREdeps
+            CONAN_PKG::SocketW
+            CONAN_PKG::discord-rpc
+            CONAN_PKG::fmt
+            CONAN_PKG::libcurl
+            CONAN_PKG::ogre-caelum
+            CONAN_PKG::openal
+            CONAN_PKG::openssl
+            CONAN_PKG::rapidjson
             CONAN_PKG::zlib
             Threads::Threads
             version_info

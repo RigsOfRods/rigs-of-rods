@@ -24,6 +24,7 @@
 /// @date   06/2017
 
 #include "GUI_GameMainMenu.h"
+#include <fmt/format.h>
 
 #include "Application.h"
 #include "GameContext.h"
@@ -159,11 +160,11 @@ void GameMainMenu::DrawMenuPanel()
 void GameMainMenu::DrawVersionBox()
 {
     const float margin = ImGui::GetIO().DisplaySize.y / 30.f;
-    Str<200> game_ver, rornet_ver;
-    game_ver << _L("Game version") << ": " << ROR_VERSION_STRING;
-    rornet_ver << _L("Net. protocol") << ": " << RORNET_VERSION;
+    fmt::memory_buffer  game_ver, rornet_ver;
+    format_to(game_ver, "{}: {}", _LC("MainMenu", "Game version"), ROR_VERSION_STRING);
+    format_to(rornet_ver, "{}: {}", _LC("MainMenu", "Net. protocol"), RORNET_VERSION);
     float text_w = std::max(
-        ImGui::CalcTextSize(game_ver.ToCStr()).x, ImGui::CalcTextSize(rornet_ver.ToCStr()).x);
+        ImGui::CalcTextSize(game_ver.data()).x, ImGui::CalcTextSize(rornet_ver.data()).x);
     ImVec2 box_size(
         (2 * ImGui::GetStyle().WindowPadding.y) + text_w,
         (2 * ImGui::GetStyle().WindowPadding.y) + (2 * ImGui::GetTextLineHeight()));
@@ -174,10 +175,10 @@ void GameMainMenu::DrawVersionBox()
         ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize |
         ImGuiWindowFlags_NoResize   | ImGuiWindowFlags_NoTitleBar |
         ImGuiWindowFlags_NoInputs;
-    if (ImGui::Begin(_L("Version box"), nullptr, flags))
+    if (ImGui::Begin(_LC("MainMenu", "Version box"), nullptr, flags))
     {
-        ImGui::Text("%s", game_ver.ToCStr());
-        ImGui::Text("%s", rornet_ver.ToCStr());
+        ImGui::Text("%s", game_ver.data());
+        ImGui::Text("%s", rornet_ver.data());
         ImGui::End();
     }
     ImGui::PopStyleColor(1);

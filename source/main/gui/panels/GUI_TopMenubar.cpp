@@ -42,6 +42,7 @@
 #include "TerrainManager.h"
 
 #include <algorithm>
+#include <fmt/format.h>
 
 using namespace RoR;
 using namespace GUI;
@@ -684,9 +685,6 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
     else if (user.authstatus & RoRnet::AUTH_MOD)     { user_type_str = _L("Moderator, "); } // Old coloring: #c90000
     else if (user.authstatus & RoRnet::AUTH_ADMIN)   { user_type_str = _L("Admin, ");     } // Old coloring: #c97100
 
-    char usertext_buf[400];
-    snprintf(usertext_buf, 400, "%s: %u (%sVer: %s, Lang: %s)",
-        user.username, num_actors_player, user_type_str, user.clientversion, user.language);
 
     // Display user in list
     Ogre::ColourValue player_color;
@@ -695,7 +693,8 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 #endif
     ImVec4 player_gui_color(player_color.r, player_color.g, player_color.b, 1.f);
     ImGui::PushStyleColor(ImGuiCol_Text, player_gui_color);
-    ImGui::Text("%s", usertext_buf);
+    ImGui::Text("%s: %u (%sVer: %s, Lang: %s)",
+                user.username, num_actors_player, user_type_str, user.clientversion, user.language);
     ImGui::PopStyleColor();
 
     // Display actor list
@@ -704,9 +703,9 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
     {
         if ((!actor->ar_hide_in_actor_list) && (actor->ar_net_source_id == user.uniqueid))
         {
-            char actortext_buf[400];
-            snprintf(actortext_buf, 400, "  + %s (%s) ##[%d:%d]", actor->ar_design_name.c_str(), actor->ar_filename.c_str(), i++, user.uniqueid);
-            if (ImGui::Button(actortext_buf)) // Button clicked?
+            fmt::memory_buffer actortext_buf;
+            format_to(actortext_buf, "  + {} ({}) ##[{}:{}]", actor->ar_design_name.c_str(), actor->ar_filename.c_str(), i++, user.uniqueid);
+            if (ImGui::Button(actortext_buf.data())) // Button clicked?
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
             }
@@ -737,18 +736,18 @@ void TopMenubar::DrawActorListSinglePlayer()
         int i = 0;
         for (auto actor : actor_list)
         {
-            char text_buf_rem[200];
-            snprintf(text_buf_rem, 200, "X" "##[%d]", i);
+            fmt::memory_buffer text_buf_rem;
+            format_to(text_buf_rem, "X ##[%d]", i);
             ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
-            if (ImGui::Button(text_buf_rem))
+            if (ImGui::Button(text_buf_rem.data()))
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
             }
             ImGui::PopStyleColor();
             ImGui::SameLine();
 
-            char text_buf[200];
-            snprintf(text_buf, 200, "[%d] %s", i++, actor->ar_design_name.c_str());
+            fmt::memory_buffer text_buf;
+            format_to(text_buf, "[{}] {}", i++, actor->ar_design_name.c_str());
             auto linked_actors = actor->GetAllLinkedActors();
             if (actor == player_actor)
             {
@@ -766,7 +765,7 @@ void TopMenubar::DrawActorListSinglePlayer()
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
             }
-            if (ImGui::Button(text_buf)) // Button clicked?
+            if (ImGui::Button(text_buf.data())) // Button clicked?
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
             }
@@ -786,8 +785,8 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
     if (App::GetGameContext()->GetActorManager()->IsSimulationPaused() && !App::GetGuiManager()->IsGuiHidden())
     {
         special_color = ORANGE_TEXT;
-        special_text = Ogre::StringUtil::replaceAll(_L("All physics paused, press '{}' to resume"),
-            "{}", App::GetInputEngine()->getEventCommand(EV_COMMON_TOGGLE_PHYSICS));
+        special_text = fmt::format(_LC("TopMenubar", "All physics paused, press '{}' to resume"),
+                                   App::GetInputEngine()->getEventCommand(EV_COMMON_TOGGLE_PHYSICS));
         content_width = ImGui::CalcTextSize(special_text.c_str()).x;
     }
     else if (App::GetGameContext()->GetPlayerActor() &&
@@ -795,8 +794,8 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
              !App::GetGuiManager()->IsGuiHidden())
     {
         special_color = GREEN_TEXT;
-        special_text = Ogre::StringUtil::replaceAll(_L("Vehicle physics paused, press '{}' to resume"),
-            "{}", App::GetInputEngine()->getEventCommand(EV_TRUCK_TOGGLE_PHYSICS));
+        special_text = fmt::format(_LC("TopMenubar", "Vehicle physics paused, press '{}' to resume"),
+                                   App::GetInputEngine()->getEventCommand(EV_TRUCK_TOGGLE_PHYSICS));
         content_width = ImGui::CalcTextSize(special_text.c_str()).x;
     }
     else if (App::GetGameContext()->GetPlayerActor() &&
