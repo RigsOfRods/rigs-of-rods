@@ -7,7 +7,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: PACKAGE VERSION\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2021-01-14 14:53+0100\n"
+        "POT-Creation-Date: 2021-01-15 12:59+0100\n"
         "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
         "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
         "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2357,61 +2357,32 @@ msgctxt "TopMenubar"
 msgid   "Hide wheel info"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:682
-msgctxt "TopMenubar"
-msgid   "Bot, "
-msgstr  ""
-
-#. Old coloring: #0000c9
-#: source/main/gui/panels/GUI_TopMenubar.cpp:683
-msgctxt "TopMenubar"
-msgid   "Banned, "
-msgstr  ""
-
-#. Old coloring: none
-#: source/main/gui/panels/GUI_TopMenubar.cpp:684
-msgctxt "TopMenubar"
-msgid   "Ranked, "
-msgstr  ""
-
-#. Old coloring: #00c900
-#: source/main/gui/panels/GUI_TopMenubar.cpp:685
-msgctxt "TopMenubar"
-msgid   "Moderator, "
-msgstr  ""
-
-#. Old coloring: #c90000
-#: source/main/gui/panels/GUI_TopMenubar.cpp:686
-msgctxt "TopMenubar"
-msgid   "Admin, "
-msgstr  ""
-
-#: source/main/gui/panels/GUI_TopMenubar.cpp:729
+#: source/main/gui/panels/GUI_TopMenubar.cpp:722
 msgctxt "TopMenubar"
 msgid   "None spawned yet"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:730
+#: source/main/gui/panels/GUI_TopMenubar.cpp:723
 msgctxt "TopMenubar"
 msgid   "Use [Simulation] menu"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:788
+#: source/main/gui/panels/GUI_TopMenubar.cpp:781
 msgctxt "TopMenubar"
 msgid   "All physics paused, press '{}' to resume"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:797
+#: source/main/gui/panels/GUI_TopMenubar.cpp:790
 msgctxt "TopMenubar"
 msgid   "Vehicle physics paused, press '{}' to resume"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:806
+#: source/main/gui/panels/GUI_TopMenubar.cpp:799
 msgctxt "TopMenubar"
 msgid   "Replay"
 msgstr  ""
 
-#: source/main/gui/panels/GUI_TopMenubar.cpp:844
+#: source/main/gui/panels/GUI_TopMenubar.cpp:837
 msgctxt "TopMenubar"
 msgid   "Time"
 msgstr  ""
@@ -2640,7 +2611,7 @@ msgid   "Bot"
 msgstr  ""
 
 #: source/main/network/Network.cpp:814
-msgid   "ranked user"
+msgid   "Ranked user"
 msgstr  ""
 
 #: source/main/network/Network.cpp:815

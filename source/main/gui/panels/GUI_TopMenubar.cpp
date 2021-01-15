@@ -677,15 +677,6 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
         }
     }
 
-    // Prepare user info text
-    const char* user_type_str = "";
-         if (user.authstatus & RoRnet::AUTH_BOT)     { user_type_str = _LC("TopMenubar", "Bot, ");       } // Old coloring: #0000c9
-    else if (user.authstatus & RoRnet::AUTH_BANNED)  { user_type_str = _LC("TopMenubar", "Banned, ");    } // Old coloring: none
-    else if (user.authstatus & RoRnet::AUTH_RANKED)  { user_type_str = _LC("TopMenubar", "Ranked, ");    } // Old coloring: #00c900
-    else if (user.authstatus & RoRnet::AUTH_MOD)     { user_type_str = _LC("TopMenubar", "Moderator, "); } // Old coloring: #c90000
-    else if (user.authstatus & RoRnet::AUTH_ADMIN)   { user_type_str = _LC("TopMenubar", "Admin, ");     } // Old coloring: #c97100
-
-
     // Display user in list
     Ogre::ColourValue player_color;
 #ifdef USE_SOCKETW
@@ -693,8 +684,10 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 #endif
     ImVec4 player_gui_color(player_color.r, player_color.g, player_color.b, 1.f);
     ImGui::PushStyleColor(ImGuiCol_Text, player_gui_color);
-    ImGui::Text("%s: %u (%sVer: %s, Lang: %s)",
-                user.username, num_actors_player, user_type_str, user.clientversion, user.language);
+    ImGui::Text("%s: %u (%s, Ver: %s, Lang: %s)",
+                user.username, num_actors_player,
+                App::GetNetwork()->UserAuthToStringShort(user).c_str(),
+                user.clientversion, user.language);
     ImGui::PopStyleColor();
 
     // Display actor list
