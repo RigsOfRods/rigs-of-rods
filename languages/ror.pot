@@ -7,7 +7,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: PACKAGE VERSION\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2021-01-15 12:59+0100\n"
+        "POT-Creation-Date: 2021-01-15 13:05+0100\n"
         "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
         "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
         "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2577,7 +2577,7 @@ msgctxt "NetUserAuth"
 msgid   "Mod"
 msgstr  ""
 
-#: source/main/network/Network.cpp:802
+#: source/main/network/Network.cpp:802 source/main/network/Network.cpp:813
 msgctxt "NetUserAuth"
 msgid   "Bot"
 msgstr  ""
@@ -2592,34 +2592,30 @@ msgctxt "NetUserAuth"
 msgid   "Banned"
 msgstr  ""
 
-#: source/main/network/Network.cpp:805
+#: source/main/network/Network.cpp:805 source/main/network/Network.cpp:816
 msgctxt "NetUserAuth"
 msgid   "Guest"
 msgstr  ""
 
 #. TODO: currently we must allocate & return std::string, see _L
 #: source/main/network/Network.cpp:811
+msgctxt "NetUserAuth"
 msgid   "Server Administrator"
 msgstr  ""
 
 #: source/main/network/Network.cpp:812
+msgctxt "NetUserAuth"
 msgid   "Server Moderator"
 msgstr  ""
 
-#: source/main/network/Network.cpp:813
-msgid   "Bot"
-msgstr  ""
-
 #: source/main/network/Network.cpp:814
+msgctxt "NetUserAuth"
 msgid   "Ranked user"
 msgstr  ""
 
 #: source/main/network/Network.cpp:815
+msgctxt "NetUserAuth"
 msgid   "Banned user"
-msgstr  ""
-
-#: source/main/network/Network.cpp:816
-msgid   "Guest"
 msgstr  ""
 
 #: source/main/physics/Actor.cpp:393
