@@ -88,7 +88,7 @@ macro(get_sub_dirs result curdir)
 endmacro(get_sub_dirs)
 
 macro(recursive_zip_folder name in_dir out_dir result)
-    set(TMP_FILE_DIR ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/tmp/${name})
+    set(TMP_FILE_DIR ${CMAKE_BINARY_DIR}/tmp/${name})
     get_sub_dirs(SUB_DIRS "${in_dir}")
     file(MAKE_DIRECTORY ${out_dir})
 
