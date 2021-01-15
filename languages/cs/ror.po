@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-10 15:39+0100\n"
-"PO-Revision-Date: 2021-01-13 18:13+0000\n"
+"PO-Revision-Date: 2021-01-16 02:32+0000\n"
 "Last-Translator: Petr Ohlídal <petr@ohlidal.cz>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "cs/>\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
 "<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
-"X-Generator: Weblate 4.4.1-dev\n"
+"X-Generator: Weblate 4.5-dev\n"
 
 #: source/main/gameplay/ChatSystem.cpp:55
 msgid " [whispered] "
@@ -51,6 +51,7 @@ msgstr "(žádný autor není uveden) "
 #: source/main/system/ConsoleCmd.cpp:371
 msgid "- use Arrow Up/Down Keys in the InputBox to reuse old messages"
 msgstr ""
+"- klávesami Šipka Nahoru/Dolů ve vstupním poli můžete vybrat starší zprávy"
 
 #: source/main/system/AppCommandLine.cpp:151
 msgid ""
@@ -68,20 +69,33 @@ msgid ""
 "For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck "
 "-enter"
 msgstr ""
+"--help (tato nápověda)\n"
+"-map <soubor terénu> (nahraje terén při startu)\n"
+"-pos '<Souřadnice X Y Z>' (nastaví startovní pozici)\n"
+"-rot <číslo> (nastaví startovní rotaci)\n"
+"-truck <soubor vozidla> (nahraje vozidlo při startu)\n"
+"-truckconfig <název konfigurace vozidla>\n"
+"-enter (při startu nastoupíte do vozidla)\n"
+"-resume (nahraje poslední uloženou hru)\n"
+"-checkcache (vynutí aktualizaci ModCache)\n"
+"-version (zobrazí informace o verzi)\n"
+"-joinserver=<server>:<port> (připojí se k serveru pro více hráčů)\n"
+"Příklad: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck "
+"-enter"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:46
 msgctxt "About"
 msgid "About Rigs of Rods"
-msgstr ""
+msgstr "O Rigs of Rods"
 
 #: source/main/physics/Actor.cpp:1890
 msgid "Actor is too big to be sent over the net."
-msgstr ""
+msgstr "Objekt je moc velký pro síťovou hru."
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:221
 msgctxt "Console"
 msgid "Actors"
-msgstr ""
+msgstr "Aktoři"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:73
 msgid "Adhesion velocity"
@@ -1340,7 +1354,7 @@ msgstr ""
 #: source/main/gui/panels/GUI_GameSettings.cpp:198
 msgctxt "GameSettings"
 msgid "Imperial speedometer"
-msgstr ""
+msgstr "Imperiální rychloměr (v mílích)"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:96
 msgid ""
@@ -1412,29 +1426,27 @@ msgstr "Načítání subsystému vegetace"
 
 #. END Hack for GameScript::spawnObject()
 #: source/main/terrain/TerrainManager.cpp:191
-#, fuzzy
-#| msgid "Initializing Camera Subsystem"
 msgid "Initializing Water Subsystem"
-msgstr "Načítání subsystému kamery"
+msgstr "Načítání subsystému vody"
 
 #. END Hack for the Landusemap
 #: source/main/terrain/TerrainManager.cpp:204
 msgid "Initializing terrain light properties"
-msgstr ""
+msgstr "Nastavuji osvětlení terénu"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:379
 msgctxt "GameSettings"
 msgid "Input grab mode"
-msgstr ""
+msgstr "Režim odchycení kurzoru myši"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:120
 msgid "Input shaft RPM: "
-msgstr ""
+msgstr "Otáčky vstupní hřídele: "
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:342
 msgctxt "GameSettings"
 msgid "Interior field of view"
-msgstr ""
+msgstr "Zorné pole v interiéru"
 
 #: source/main/gui/panels/GUI_FrictionSettings.cpp:85
 msgid "Its usual value is 2. But you can try others."
@@ -1443,24 +1455,24 @@ msgstr "Obvyklá hodnota je 2. Ale můžete zkusit jinou."
 #: source/main/gui/panels/GUI_GameSettings.cpp:135
 msgctxt "GameSettings"
 msgid "Language"
-msgstr ""
+msgstr "Jazyk"
 
 #: source/main/main.cpp:627
 msgid "Left terrain editing mode"
-msgstr ""
+msgstr "Režim úprav terénu byl ukončen"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:253
 msgctxt "GameSettings"
 msgid "Lights"
-msgstr ""
+msgstr "Světla"
 
 #: source/main/gfx/camera/CameraManager.cpp:864
 msgid "Limited camera movement disabled"
-msgstr ""
+msgstr "Omezení pohybu kamery vypnuto"
 
 #: source/main/gfx/camera/CameraManager.cpp:860
 msgid "Limited camera movement enabled"
-msgstr ""
+msgstr "Omezení pohybu kamery zapnuto"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:274
 msgid "Load Mass: "
@@ -1471,10 +1483,8 @@ msgid "Loader"
 msgstr "Nakladač"
 
 #: source/main/terrain/TerrainManager.cpp:220
-#, fuzzy
-#| msgid "Loading Terrain Objects"
 msgid "Loading Terrain Actors"
-msgstr "Načítání objektů terénu"
+msgstr "Načítání aktorů v terénu"
 
 #: source/main/terrain/TerrainManager.cpp:177
 msgid "Loading Terrain Geometry"
@@ -1486,14 +1496,12 @@ msgstr "Načítání objektů terénu"
 
 #: source/main/main.cpp:460
 msgid "Loading resources"
-msgstr ""
+msgstr "Načítání potřebných dat"
 
 #. sync load since we want everything in place when we start
 #: source/main/terrain/TerrainGeometryManager.cpp:326
-#, fuzzy
-#| msgid "Loading Terrain Objects"
 msgid "Loading terrain pages ..."
-msgstr "Načítání objektů terénu"
+msgstr "Načítání geometrie terénu"
 
 #: source/main/resources/CacheSystem.cpp:962
 msgid "Loading zips in group "
@@ -1506,32 +1514,32 @@ msgstr "Zamčený"
 #: source/main/gui/panels/GUI_GameSettings.cpp:367
 msgctxt "GameSettings"
 msgid "Log beam breaking"
-msgstr ""
+msgstr "Logovat lámání paprsků"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:368
 msgctxt "GameSettings"
 msgid "Log beam deforming"
-msgstr ""
+msgstr "Logovat deformaci paprsků"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:369
 msgctxt "GameSettings"
 msgid "Log beam triggers"
-msgstr ""
+msgstr "Logovat spouštěče paprsků"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:354
 msgctxt "GameSettings"
 msgid "Log node import (spawn)"
-msgstr ""
+msgstr "Logovat import nodů"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:355
 msgctxt "GameSettings"
 msgid "Log node stats (spawn)"
-msgstr ""
+msgstr "Logovat statistiky nodů (během stváření)"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:219
 msgctxt "Console"
 msgid "Logfile echo"
-msgstr ""
+msgstr "Propisovat log"
 
 #: source/main/gameplay/EngineSim.cpp:1449
 msgid "Low range selected"
@@ -1544,7 +1552,7 @@ msgstr "Stroj"
 #: source/main/gui/panels/GUI_GameSettings.cpp:245
 msgctxt "GameSettings"
 msgid "Main menu music"
-msgstr ""
+msgstr "Hudba v hlavním menu"
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:265
 msgid "Mass: "
@@ -1553,7 +1561,7 @@ msgstr "Hmotnost: "
 #: source/main/gui/panels/GUI_GameSettings.cpp:246
 msgctxt "GameSettings"
 msgid "Master volume"
-msgstr ""
+msgstr "Celková hlasitost"
 
 #: source/main/gui/OverlayWrapper.cpp:472
 #: source/main/gui/OverlayWrapper.cpp:478
@@ -1562,7 +1570,7 @@ msgstr "Materiály: "
 
 #: source/main/gui/OverlayWrapper.cpp:485
 msgid "Memory (Ogre): "
-msgstr "Paměť (Orge):"
+msgstr "Paměť (Ogre): "
 
 #: source/main/gui/OverlayWrapper.cpp:474
 msgid "Meshes: "
@@ -1570,54 +1578,48 @@ msgstr "Mřížky: "
 
 #: source/main/gui/panels/GUI_GameChatBox.cpp:132
 msgid "Message"
-msgstr ""
+msgstr "Zpráva"
 
 #: source/main/gameplay/EngineSim.cpp:1455
 msgid "Mid range selected"
 msgstr "Střední rozsah vybrán"
 
 #: source/main/system/ConsoleCmd.cpp:169
-#, fuzzy
-#| msgid "Missing someone?"
 msgid "Missing parameter: "
-msgstr "Postrádáte někoho?"
+msgstr "Chybějící parametr: "
 
 #: source/main/network/Network.cpp:801
 msgctxt "NetUserAuth"
 msgid "Mod"
-msgstr ""
+msgstr "Mod"
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:112
 msgctxt "About"
 msgid "Mod Contributors"
-msgstr ""
+msgstr "Tvůrci obsahu"
 
 #: source/main/physics/ActorManager.cpp:416
-#, fuzzy
-#| msgid "No content installed"
 msgid "Mod not installed: "
-msgstr "Není nainstalován žádný obsah"
+msgstr "Obsah není nainstalován: "
 
 #: source/main/main.cpp:428
 msgctxt "Network"
 msgid "Multiplayer: connection failed"
-msgstr ""
+msgstr "Připojení ke hře více hráčů selhalo"
 
 #: source/main/gui/panels/GUI_ConsoleView.cpp:229
-#, fuzzy
-#| msgid "enter the chat"
 msgctxt "Console"
 msgid "Net chat"
-msgstr "vložit chat"
+msgstr "Síťový chat"
 
 #: source/main/gui/panels/GUI_GameMainMenu.cpp:168
 msgid "Net. protocol"
-msgstr ""
+msgstr "Síť. protokol"
 
 #: source/main/main.cpp:376
 msgctxt "Network"
 msgid "Network disconnected"
-msgstr ""
+msgstr "Síť byla odpojena"
 
 #: source/main/physics/Actor.cpp:1890
 msgid "Network error!"
@@ -1625,26 +1627,22 @@ msgstr "Chyba sítě!"
 
 #: source/main/main.cpp:383
 msgid "Network fatal error: "
-msgstr "Kritická chyba sítě:"
+msgstr "Kritická chyba sítě: "
 
 #: source/main/gui/panels/GUI_GameAbout.cpp:52
-#, fuzzy
-#| msgid "Network Protocol version: %s"
 msgctxt "About"
 msgid "Network protocol"
-msgstr "Verze protokolu sítě: %s"
+msgstr "Síťový protokol"
 
 #: source/main/physics/ActorManager.cpp:1292
 #: source/main/physics/ActorManager.cpp:1301
 #: source/main/physics/ActorManager.cpp:1319
 msgid "New simulation speed: "
-msgstr ""
+msgstr "Nová rychlost simulace: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:294
-#, fuzzy
-#| msgid "None"
 msgid "No"
-msgstr "Žádné"
+msgstr "Ne"
 
 #: source/main/gui/panels/GUI_MultiplayerClientList.cpp:188
 msgid "No Trucks loaded"
@@ -1653,24 +1651,24 @@ msgstr "Žádná načtená vozidla"
 #: source/main/gui/panels/GUI_GameSettings.cpp:216
 msgctxt "GameSettings"
 msgid "No inter truck collisions"
-msgstr ""
+msgstr "Žádné kolize mezi vozidly"
 
 #: source/main/physics/Actor.cpp:1274
 msgid "No inter-axle differential installed on current vehicle!"
-msgstr ""
+msgstr "Toto vozidlo nemá žádný mezi-nápravový diferenciál!"
 
 #: source/main/physics/Actor.cpp:1302
 msgid "No inter-wheel differential installed on current vehicle!"
-msgstr ""
+msgstr "Toto vozidlo nemá na žádné nápravě diferenciál!"
 
 #: source/main/gui/panels/GUI_GameSettings.cpp:215
 msgctxt "GameSettings"
 msgid "No intra truck collisions"
-msgstr ""
+msgstr "Žádné kolize mezi vozidly"
 
 #: source/main/AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
-msgstr ""
+msgstr "Nenalezen žádný renderovací modul. Zkontrolujte soubor \"plugins.cfg\""
 
 #: source/main/GameContext.cpp:1089
 msgid "No rescue truck found!"
@@ -1678,15 +1676,15 @@ msgstr "Žádné vyprošťovací vozidlo nenalezeno!"
 
 #: source/main/system/ConsoleCmd.cpp:448
 msgid "No such CVar: "
-msgstr ""
+msgstr "Taková CVar tu není: "
 
 #: source/main/physics/Actor.cpp:1333
 msgid "No transfercase installed on current vehicle!"
-msgstr ""
+msgstr "Toto vozidlo nemá žádnou rozvodovku!"
 
 #: source/main/gui/panels/GUI_SimActorStats.cpp:94
 msgid "Node count: "
-msgstr ""
+msgstr "Počet nodů: "
 
 #: source/main/gui/panels/GUI_MainSelector.cpp:278
 msgid "Nodes: "
