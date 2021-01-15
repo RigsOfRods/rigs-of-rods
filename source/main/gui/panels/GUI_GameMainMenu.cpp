@@ -182,6 +182,6 @@ void GameMainMenu::DrawVersionBox()
 }
 
 bool GameMainMenu::HighlightButton(const std::string& txt,ImVec2 btn_size, int index) const{
-    std::string button_txt = (m_kb_focus_index == index) ? fmt::format("--> {}  <--", txt) : txt;
+    std::string button_txt = (m_kb_focus_index == index) ? fmt::format("--> {} <--", txt) : txt;
     return ImGui::Button(button_txt.c_str(), btn_size) || (m_kb_enter_index == index);
 }
