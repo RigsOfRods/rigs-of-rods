@@ -808,12 +808,12 @@ std::string Network::UserAuthToStringShort(RoRnet::UserInfo const &user)
 std::string Network::UserAuthToStringLong(RoRnet::UserInfo const &user)
 {
     // TODO: currently we must allocate & return std::string, see _L
-         if (user.authstatus & AUTH_ADMIN)    { return _L("Server Administrator");   }
-    else if (user.authstatus & AUTH_MOD)      { return _L("Server Moderator");       }
-    else if (user.authstatus & AUTH_BOT)      { return _L("Bot");                    }
-    else if (user.authstatus & AUTH_RANKED)   { return _L("Ranked user");            }
-    else if (user.authstatus & AUTH_BANNED)   { return _L("Banned user");            }
-    else                                      { return _L("Guest");                  }
+         if (user.authstatus & AUTH_ADMIN)    { return _LC("NetUserAuth","Server Administrator");   }
+    else if (user.authstatus & AUTH_MOD)      { return _LC("NetUserAuth","Server Moderator");       }
+    else if (user.authstatus & AUTH_BOT)      { return _LC("NetUserAuth","Bot");                    }
+    else if (user.authstatus & AUTH_RANKED)   { return _LC("NetUserAuth","Ranked user");            }
+    else if (user.authstatus & AUTH_BANNED)   { return _LC("NetUserAuth","Banned user");            }
+    else                                      { return _LC("NetUserAuth","Guest");                  }
 }
 
 #endif // USE_SOCKETW
