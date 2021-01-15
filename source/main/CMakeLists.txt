@@ -523,6 +523,9 @@ endif ()
 ####################################################################################################
 #  POST-BUILD STEPS
 ####################################################################################################
+include(l10n)
+
+extract_pot("${SOURCE_FILES}")
 
 # configure plugins.cfg
 if (NOT WIN32)
@@ -542,7 +545,6 @@ endif ()
 
 configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
 configure_file(plugins_d.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins_d.cfg)
-
 
 IF (BUILD_REDIST_FOLDER)
     INSTALL(
