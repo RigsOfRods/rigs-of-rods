@@ -51,6 +51,16 @@ jobs:
         run: |
           ninja zip_and_copy_resources
           ninja install
+          cmake -P ./tools/CI/copy_libs.cmake
+        shell: bash
+
+      - name: Upload build to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        if: env.BUTLER_API_KEY != null && github.ref == 'refs/heads/master'
+        run: |
+          curl "https://raw.githubusercontent.com/AnotherFoxGuy/ci-scripts/main/install-butler.sh" | sudo bash
+          butler push redist rigs-of-rods/rigs-of-rods-dev:linux-ci --userversion CIBuild-${GITHUB_RUN_NUMBER}-commit-${GITHUB_SHA}
         shell: bash
 
       - name: Upload redist folder
@@ -67,10 +77,10 @@ jobs:
     name: Windows build
     runs-on: windows-latest
     env:
-        DXSDK_DIR: C:\apps\Microsoft DirectX SDK
-        SCOOP: C:\Scoop\
+      DXSDK_DIR: C:\apps\Microsoft DirectX SDK
+      CONAN_PATH: C:\Program Files\Conan\conan\
     steps:
-      - run: echo "C:\Scoop\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - run: echo $env:CONAN_PATH | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - uses: actions/checkout@v2.3.4
         with:
@@ -96,10 +106,7 @@ jobs:
           path: C:/.conan/
 
       - name: Install build dependencies
-        run: |
-          iwr -useb get.scoop.sh | iex
-          scoop install conan ninja
-        shell: powershell
+        run: choco install conan ninja -y
 
       - name: Configure
         run: |
@@ -122,6 +129,15 @@ jobs:
           ninja zip_and_copy_resources
 
           ninja install
+        shell: cmd
+
+      - name: Upload build to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        if: env.BUTLER_API_KEY != null && github.ref == 'refs/heads/master'
+        run: |
+          choco install butler -y
+          butler push redist rigs-of-rods/rigs-of-rods-dev:windows-ci --userversion CIBuild-%GITHUB_RUN_NUMBER%-Commit-%GITHUB_SHA%
         shell: cmd
 
       - name: Upload redist folder
