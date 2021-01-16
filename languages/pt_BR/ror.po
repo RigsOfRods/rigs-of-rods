@@ -10,10 +10,10 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-15 14:29+0100\n"
-"PO-Revision-Date: 2021-01-15 06:32+0000\n"
+"PO-Revision-Date: 2021-01-17 01:32+0000\n"
 "Last-Translator: Bruno Dias Barros <brunodiasbarros09@gmail.com>\n"
-"Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/rigs-"
-"of-rods/game/pt_BR/>\n"
+"Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
+"rigs-of-rods/game/pt_BR/>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -24,43 +24,47 @@ msgstr ""
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:407 AppContext.cpp:425
 #: AppContext.cpp:476 AppContext.cpp:490 AppContext.cpp:501
 msgid "Startup error"
-msgstr ""
+msgstr "Erro de inicialização"
 
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
 msgstr ""
+"Nenhum plugin de sistema de renderização disponível. Verifique seu plugins."
+"cfg"
 
 #: AppContext.cpp:377
 msgid "Screenshot:"
-msgstr ""
+msgstr "Captura de tela:"
 
 #: AppContext.cpp:407
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Erro ao recuperar o caminho do diretório do programa"
 
 #: AppContext.cpp:425
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Erro ao recuperar o caminho do diretório do usuário"
 
 #: AppContext.cpp:476
 msgid "Resources folder not found. Check if correctly installed."
 msgstr ""
+"Pasta de recursos não encontrada. Verifique se está instalado corretamente."
 
 #: AppContext.cpp:490 AppContext.cpp:501
 msgid "Faulty resource folder. Check if correctly installed."
 msgstr ""
+"Pasta de recursos com defeito. Verifique se está instalado corretamente."
 
 #: GameContext.cpp:91
 msgid "Terrain not found: "
-msgstr ""
+msgstr "Terreno não encontrado: "
 
 #: GameContext.cpp:93 terrain/TerrainManager.cpp:141
 msgid "Terrain loading error"
-msgstr ""
+msgstr "Erro ao carregar terreno"
 
 #: GameContext.cpp:531
 msgid "Please clear the place first"
-msgstr ""
+msgstr "Limpe o lugar primeiro"
 
 #: GameContext.cpp:804
 msgid "Enabled hard reset mode"
@@ -72,27 +76,27 @@ msgstr "Modo de reinicialização suave ativado"
 
 #: GameContext.cpp:922
 msgid "Time set to "
-msgstr ""
+msgstr "Tempo definido para "
 
 #: GameContext.cpp:1089
 msgid "No rescue truck found!"
-msgstr ""
+msgstr "Nenhum caminhão de resgate encontrado!"
 
 #: GameContext.cpp:1157
 msgid "forwardcommands enabled"
-msgstr ""
+msgstr "forwardcommands habilitados"
 
 #: GameContext.cpp:1161
 msgid "forwardcommands disabled"
-msgstr ""
+msgstr "forwardcommands Desabilitadas"
 
 #: GameContext.cpp:1170
 msgid "importcommands enabled"
-msgstr ""
+msgstr "importcommands Habilitados"
 
 #: GameContext.cpp:1174
 msgid "importcommands disabled"
-msgstr ""
+msgstr "importcommands desabilitados"
 
 #: gameplay/ChatSystem.cpp:55
 msgid " [whispered] "
@@ -100,15 +104,15 @@ msgstr " [sussurrou] "
 
 #: gameplay/EngineSim.cpp:1449
 msgid "Low range selected"
-msgstr ""
+msgstr "Faixa baixa selecionada"
 
 #: gameplay/EngineSim.cpp:1455
 msgid "Mid range selected"
-msgstr ""
+msgstr "Intervalo médio selecionado"
 
 #: gameplay/EngineSim.cpp:1461
 msgid "High range selected"
-msgstr ""
+msgstr "Faixa alta selecionada"
 
 #: gameplay/Landusemap.cpp:90
 msgid "Error while loading landuse config"
