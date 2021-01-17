@@ -1,5 +1,5 @@
 cmake_policy(SET CMP0057 NEW)
-set(rgx "[A-Za-z0-9.+\\-_]+.so[0-9.]*")
+set(rgx "[A-Za-z0-9.+_-]+.so[0-9.]*")
 
 set(out_dir "${CMAKE_SOURCE_DIR}/redist/lib/")
 file(MAKE_DIRECTORY ${out_dir})
