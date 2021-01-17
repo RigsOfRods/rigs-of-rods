@@ -35,7 +35,8 @@ jobs:
                   libx11-dev \
                   libxt-dev \
                   libxaw7-dev \
-                  libxrandr-dev
+                  libxrandr-dev \
+                  libopenjp2-7-dev
 
         shell: bash
 
