@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-18 10:45+0100\n"
-"PO-Revision-Date: 2021-01-15 06:32+0000\n"
-"Last-Translator: WillyB <superwillie911@hotmail.com>\n"
+"PO-Revision-Date: 2021-01-19 03:32+0000\n"
+"Last-Translator: Antoni A. <antoni.andric@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
 "Language: fr\n"
@@ -213,7 +213,7 @@ msgstr "Par surface:"
 #: gui/panels/GUI_ConsoleView.cpp:217
 msgctxt "Console"
 msgid "Logfile echo"
-msgstr ""
+msgstr "Echo du fichier .log"
 
 #: gui/panels/GUI_ConsoleView.cpp:218
 #, fuzzy
@@ -275,7 +275,7 @@ msgstr "Commande"
 #: gui/panels/GUI_DirectionArrow.cpp:91
 msgctxt "DirectionArrow"
 msgid "meter"
-msgstr ""
+msgstr "mètres"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
 #, fuzzy
@@ -782,9 +782,10 @@ msgid "Testers"
 msgstr "Testeurs"
 
 #: gui/panels/GUI_GameAbout.cpp:120
+#, fuzzy
 msgctxt "About"
 msgid "Used Libs"
-msgstr ""
+msgstr "Ressources utilisées"
 
 #: gui/panels/GUI_GameChatBox.cpp:78
 #, fuzzy
@@ -846,12 +847,12 @@ msgstr "Bateau"
 #: gui/panels/GUI_GameControls.cpp:51
 msgctxt "GameControls"
 msgid "Camera"
-msgstr ""
+msgstr "Caméra"
 
 #: gui/panels/GUI_GameControls.cpp:53
 msgctxt "GameControls"
 msgid "Sky"
-msgstr ""
+msgstr "Ciel"
 
 #: gui/panels/GUI_GameControls.cpp:55
 #, fuzzy
@@ -878,17 +879,17 @@ msgstr "Commande"
 #: gui/panels/GUI_GameControls.cpp:61
 msgctxt "GameControls"
 msgid "Grass"
-msgstr ""
+msgstr "Gazon"
 
 #: gui/panels/GUI_GameControls.cpp:63
 msgctxt "GameControls"
 msgid "Map"
-msgstr ""
+msgstr "Carte"
 
 #: gui/panels/GUI_GameControls.cpp:65
 msgctxt "GameControls"
 msgid "Menu"
-msgstr ""
+msgstr "Menu"
 
 #: gui/panels/GUI_GameControls.cpp:67
 #, fuzzy
@@ -908,17 +909,17 @@ msgstr "Musique du menu principal"
 #: gui/panels/GUI_GameMainMenu.cpp:99
 msgctxt "MainMenu"
 msgid "Single player"
-msgstr ""
+msgstr "Mode solo"
 
 #: gui/panels/GUI_GameMainMenu.cpp:114
 msgctxt "MainMenu"
 msgid "Resume game"
-msgstr ""
+msgstr "Résumer le jeu"
 
 #: gui/panels/GUI_GameMainMenu.cpp:121
 msgctxt "MainMenu"
 msgid "Multi player"
-msgstr ""
+msgstr "Mode multijoueurs"
 
 #: gui/panels/GUI_GameMainMenu.cpp:127
 #, fuzzy
@@ -965,15 +966,15 @@ msgstr "Version: "
 #. The Pause menu
 #: gui/panels/GUI_GamePauseMenu.cpp:81
 msgid "Pause"
-msgstr ""
+msgstr "Pause"
 
 #: gui/panels/GUI_GamePauseMenu.cpp:85
 msgid "Resume game"
-msgstr ""
+msgstr "Résumer le jeu"
 
 #: gui/panels/GUI_GamePauseMenu.cpp:90
 msgid "Return to menu"
-msgstr ""
+msgstr "Retourner au menu"
 
 #: gui/panels/GUI_GamePauseMenu.cpp:99
 #, fuzzy
@@ -1246,7 +1247,7 @@ msgstr "Rendu vidéo des caméras"
 #: gui/panels/GUI_GameSettings.cpp:327
 msgctxt "GameSettings"
 msgid "Overview map icons"
-msgstr ""
+msgstr "Icones de carte"
 
 #: gui/panels/GUI_GameSettings.cpp:330
 msgctxt "GameSettings"
@@ -1933,12 +1934,13 @@ msgstr "Téléchargement réseau lent"
 #: gui/panels/GUI_MultiplayerSelector.cpp:83
 msgctxt "MultiplayerSelector"
 msgid "Error connecting to server :("
-msgstr ""
+msgstr "Erreur de connection au serveur :("
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:94
+#, fuzzy
 msgctxt "MultiplayerSelector"
 msgid "Server returned invalid data :("
-msgstr ""
+msgstr "Le serveur à retourné des données invalides :("
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:113
 #, fuzzy
@@ -1957,12 +1959,12 @@ msgstr "Oui"
 #: gui/panels/GUI_MultiplayerSelector.cpp:160
 msgctxt "MultiplayerSelector"
 msgid "Online (click to refresh)"
-msgstr ""
+msgstr "En ligne (cliquez pour rafraîchir)"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:168
 msgctxt "MultiplayerSelector"
 msgid "Direct IP"
-msgstr ""
+msgstr "IP direct"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:173
 #, fuzzy
@@ -2020,12 +2022,12 @@ msgstr "Informations sur le joueur"
 #: gui/panels/GUI_MultiplayerSelector.cpp:200
 msgctxt "MultiplayerSelector"
 msgid "Default server password"
-msgstr ""
+msgstr "Mot de passe du serveur"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:206
 msgctxt "MultiplayerSelector"
 msgid "User token"
-msgstr ""
+msgstr "Jeton d'utilisateur"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:216
 #, fuzzy
@@ -2053,17 +2055,17 @@ msgstr "Modérateur du serveur"
 #: gui/panels/GUI_MultiplayerSelector.cpp:302
 msgctxt "MultiplayerSelector"
 msgid "Join"
-msgstr ""
+msgstr "Rejoindre"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:260
 msgctxt "MultiplayerSelector"
 msgid "Passwd?"
-msgstr ""
+msgstr "Mot de passe?"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:261
 msgctxt "MultiplayerSelector"
 msgid "Name"
-msgstr ""
+msgstr "Nom"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:262
 #, fuzzy
@@ -2076,7 +2078,7 @@ msgstr "Terrain"
 #: gui/panels/GUI_MultiplayerSelector.cpp:263
 msgctxt "MultiplayerSelector"
 msgid "Users"
-msgstr ""
+msgstr "Utilisateurs"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:264
 #, fuzzy
@@ -2089,17 +2091,17 @@ msgstr "Version"
 #: gui/panels/GUI_MultiplayerSelector.cpp:265
 msgctxt "MultiplayerSelector"
 msgid "Host/Port"
-msgstr ""
+msgstr "Hôte/port"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:344
 msgctxt "MultiplayerSelector"
 msgid "... refreshing ..."
-msgstr ""
+msgstr "... rafraîchissement ..."
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:378
 msgctxt "MultiplayerSelector"
 msgid "There are no available servers :/"
-msgstr ""
+msgstr "Il n'y a pas de serveurs disponible :/"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:44
 msgctxt "NodeBeamUtils"
@@ -2172,7 +2174,7 @@ msgstr ""
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
 msgid "Continue searching"
-msgstr ""
+msgstr "Poursuivre la recherche"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 #, fuzzy
@@ -2185,12 +2187,12 @@ msgstr "Démarrage..."
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
 msgid "Stop searching"
-msgstr ""
+msgstr "Stopper la recherche"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:147
 msgctxt "NodeBeamUtils"
 msgid "Reset search"
-msgstr ""
+msgstr "Remettre à zéro la recherche"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:156
 #, fuzzy
@@ -2202,7 +2204,7 @@ msgstr "Résultats de la recherche"
 #: gui/panels/GUI_NodeBeamUtils.cpp:158
 msgctxt "NodeBeamUtils"
 msgid "Reference"
-msgstr ""
+msgstr "Référence"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:160
 msgctxt "NodeBeamUtils"
@@ -2212,12 +2214,12 @@ msgstr ""
 #: gui/panels/GUI_NodeBeamUtils.cpp:163 gui/panels/GUI_NodeBeamUtils.cpp:167
 msgctxt "NodeBeamUtils"
 msgid "Movement"
-msgstr ""
+msgstr "Mouvement"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:164 gui/panels/GUI_NodeBeamUtils.cpp:168
 msgctxt "NodeBeamUtils"
 msgid "Stress"
-msgstr ""
+msgstr "Stress"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:165 gui/panels/GUI_NodeBeamUtils.cpp:169
 msgctxt "NodeBeamUtils"
@@ -2487,7 +2489,7 @@ msgstr "Paramètres"
 #: gui/panels/GUI_TopMenubar.cpp:64
 msgctxt "TopMenubar"
 msgid "Tools"
-msgstr ""
+msgstr "Outils"
 
 #: gui/panels/GUI_TopMenubar.cpp:170
 #, fuzzy
@@ -2529,17 +2531,17 @@ msgstr "Enlever le véhicule actuel"
 #: gui/panels/GUI_TopMenubar.cpp:208
 msgctxt "TopMenubar"
 msgid "Remove all vehicles"
-msgstr ""
+msgstr "Supprimer tous les véhicules"
 
 #: gui/panels/GUI_TopMenubar.cpp:215
 msgctxt "TopMenubar"
 msgid " [!] Confirm removal"
-msgstr ""
+msgstr " [!] Confirmer la suppression"
 
 #: gui/panels/GUI_TopMenubar.cpp:230
 msgctxt "TopMenubar"
 msgid "Activate all vehicles"
-msgstr ""
+msgstr "Activer tous les véhicules"
 
 #: gui/panels/GUI_TopMenubar.cpp:236
 msgctxt "TopMenubar"
@@ -2549,17 +2551,17 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:241
 msgctxt "TopMenubar"
 msgid "Send all vehicles to sleep"
-msgstr ""
+msgstr "Mettre tous les véhicules en sommeil"
 
 #: gui/panels/GUI_TopMenubar.cpp:249
 msgctxt "TopMenubar"
 msgid "Back to menu"
-msgstr ""
+msgstr "Retour au menu"
 
 #: gui/panels/GUI_TopMenubar.cpp:258
 msgctxt "TopMenubar"
 msgid "Exit"
-msgstr ""
+msgstr "Sortie"
 
 #: gui/panels/GUI_TopMenubar.cpp:275
 #, fuzzy
@@ -2593,17 +2595,17 @@ msgstr "Charge rapide de la scène"
 #: gui/panels/GUI_TopMenubar.cpp:329
 msgctxt "TopMenubar"
 msgid "(Save with 'CTRL+ALT+1..5')"
-msgstr ""
+msgstr "(Sauvegarder avec 'CTRL+ALT+1..5')"
 
 #: gui/panels/GUI_TopMenubar.cpp:332
 msgctxt "TopMenubar"
 msgid "Empty Slot"
-msgstr ""
+msgstr "Emplacement vide"
 
 #: gui/panels/GUI_TopMenubar.cpp:346
 msgctxt "TopMenubar"
 msgid "(Load with 'ALT+1..5')"
-msgstr ""
+msgstr "(Charger avec 'ALT+1..5')"
 
 #: gui/panels/GUI_TopMenubar.cpp:374
 #, fuzzy
@@ -2645,7 +2647,7 @@ msgstr "Réflexion"
 #: gui/panels/GUI_TopMenubar.cpp:385
 msgctxt "TopMenubar"
 msgid "Game"
-msgstr ""
+msgstr "Jeu"
 
 #: gui/panels/GUI_TopMenubar.cpp:396
 #, fuzzy
@@ -2658,7 +2660,7 @@ msgstr "Paramètres de simulation"
 #: gui/panels/GUI_TopMenubar.cpp:398
 msgctxt "TopMenubar"
 msgid "Slow motion"
-msgstr ""
+msgstr "Mode ralenti"
 
 #: gui/panels/GUI_TopMenubar.cpp:403
 #, fuzzy
@@ -2670,7 +2672,7 @@ msgstr "Heure réglée à "
 #: gui/panels/GUI_TopMenubar.cpp:410 gui/panels/GUI_TopMenubar.cpp:417
 msgctxt "TopMenubar"
 msgid "Camera:"
-msgstr ""
+msgstr "Caméra:"
 
 #: gui/panels/GUI_TopMenubar.cpp:411 gui/panels/GUI_TopMenubar.cpp:421
 #: gui/panels/GUI_TopMenubar.cpp:429
@@ -2696,7 +2698,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:443
 msgctxt "TopMenubar"
 msgid "Time of day:"
-msgstr ""
+msgstr "Temps du jour"
 
 #: gui/panels/GUI_TopMenubar.cpp:455
 #, fuzzy
@@ -2713,7 +2715,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:461
 msgctxt "TopMenubar"
 msgid "Multiplayer:"
-msgstr ""
+msgstr "Multijoueur"
 
 #: gui/panels/GUI_TopMenubar.cpp:462
 #, fuzzy
@@ -2734,7 +2736,7 @@ msgstr "Cacher les roues"
 #: gui/panels/GUI_TopMenubar.cpp:478
 msgctxt "TopMenubar"
 msgid "Tools menu"
-msgstr ""
+msgstr "Menu d'outils"
 
 #: gui/panels/GUI_TopMenubar.cpp:480
 #, fuzzy
@@ -2768,7 +2770,7 @@ msgstr "Contrôles du jeu"
 #: gui/panels/GUI_TopMenubar.cpp:506
 msgctxt "TopMenubar"
 msgid "Node / Beam utility"
-msgstr ""
+msgstr "Utilitaire de nœuds / poutres"
 
 #: gui/panels/GUI_TopMenubar.cpp:514
 msgctxt "TopMenubar"
@@ -2848,7 +2850,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:589
 msgctxt "TopMenubar"
 msgid "Normal view"
-msgstr ""
+msgstr "Vue normale"
 
 #: gui/panels/GUI_TopMenubar.cpp:590
 #, fuzzy
@@ -3240,31 +3242,23 @@ msgid "Server Administrator"
 msgstr "Administrateur du serveur"
 
 #: network/Network.cpp:812
-#, fuzzy
-#| msgid "Server Moderator"
 msgctxt "NetUserAuth"
 msgid "Server Moderator"
 msgstr "Modérateur du serveur"
 
 #: network/Network.cpp:814
-#, fuzzy
-#| msgid "ranked user"
 msgctxt "NetUserAuth"
 msgid "Ranked user"
 msgstr "Utilisateur classé"
 
 #: network/Network.cpp:815
-#, fuzzy
-#| msgid "Banned user"
 msgctxt "NetUserAuth"
 msgid "Banned user"
 msgstr "Utilisateur banni"
 
 #: physics/Actor.cpp:393
-#, fuzzy
-#| msgid "No content installed"
 msgid " content mismatch: "
-msgstr "Aucun contenu installé"
+msgstr " contenu incompatible: "
 
 #: physics/Actor.cpp:1274
 msgid "No inter-axle differential installed on current vehicle!"
