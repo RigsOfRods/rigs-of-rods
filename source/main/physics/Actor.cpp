@@ -3936,10 +3936,16 @@ void Actor::updateDashBoards(float dt)
     {
         velocity = cam_dir.dotProduct(ar_nodes[0].Velocity);
     }
-    float speed_kph = ar_wheel_speed * 3.6f;
-    ar_dashboard->setFloat(DD_ENGINE_SPEEDO_KPH, speed_kph);
-    float speed_mph = ar_wheel_speed * 2.23693629f;
-    ar_dashboard->setFloat(DD_ENGINE_SPEEDO_MPH, speed_mph);
+
+    // KPH
+    float cur_speed_kph = ar_wheel_speed * 3.6f;
+    float smooth_kph = (cur_speed_kph * 0.3) + (ar_dashboard->_getFloat(DD_ENGINE_SPEEDO_KPH) * 0.7);
+    ar_dashboard->setFloat(DD_ENGINE_SPEEDO_KPH, smooth_kph);
+
+    // MPH
+    float cur_speed_mph = ar_wheel_speed * 2.23693629f;
+    float smooth_mph = (cur_speed_mph * 0.3) + (ar_dashboard->_getFloat(DD_ENGINE_SPEEDO_MPH) * 0.7);
+    ar_dashboard->setFloat(DD_ENGINE_SPEEDO_MPH, smooth_mph);
 
     // roll
     if (cam_roll != Vector3::ZERO)
