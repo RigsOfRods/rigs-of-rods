@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-15 14:29+0100\n"
+"POT-Creation-Date: 2021-01-18 10:45+0100\n"
 "PO-Revision-Date: 2021-01-15 06:32+0000\n"
 "Last-Translator: WillyB <superwillie911@hotmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
@@ -808,14 +808,14 @@ msgctxt "ChatBox"
 msgid "Message"
 msgstr "Message"
 
-#: gui/panels/GUI_GameChatBox.cpp:186
+#: gui/panels/GUI_GameChatBox.cpp:187
 #, fuzzy
 #| msgid "Whisper message not sent, unknown username"
 msgctxt "ChatBox"
 msgid "Whisper message not sent, unknown username: {}"
 msgstr "Message direct pas envoyé, utilisateur inconnu"
 
-#: gui/panels/GUI_GameChatBox.cpp:195
+#: gui/panels/GUI_GameChatBox.cpp:194
 #, fuzzy
 #| msgid "usage: /whisper username message"
 msgctxt "ChatBox"
@@ -1483,12 +1483,12 @@ msgctxt "GameSettings"
 msgid "OutGauge delay"
 msgstr "Délai OutGauge"
 
-#: gui/panels/GUI_LoadingWindow.cpp:76
+#: gui/panels/GUI_LoadingWindow.cpp:75
 msgctxt "LoadingWindow"
 msgid "Joining"
 msgstr ""
 
-#: gui/panels/GUI_LoadingWindow.cpp:97
+#: gui/panels/GUI_LoadingWindow.cpp:96
 #, fuzzy
 #| msgid "Please wait"
 msgctxt "LoadingWindow"
