@@ -182,10 +182,9 @@ void GameChatBox::SubmitMessage()
             }
             else
             {
-                fmt::memory_buffer text_buff;
-                format_to(text_buff, _LC("ChatBox", "Whisper message not sent, unknown username: {}"), username);
                 App::GetConsole()->putMessage(
-                    Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, text_buff.data());
+                    Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format(_LC("ChatBox", "Whisper message not sent, unknown username: {}"), username));
             }
         }
         else

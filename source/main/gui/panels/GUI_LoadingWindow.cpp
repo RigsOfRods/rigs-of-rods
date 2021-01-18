@@ -71,10 +71,9 @@ void LoadingWindow::SetProgress(int percent, std::string const& text, bool rende
 
 void LoadingWindow::SetProgressNetConnect(const std::string& net_status)
 {
-    fmt::memory_buffer text;
-    format_to(text, "{} [{}:{}]\n{}", 
-              _LC("LoadingWindow", "Joining"), App::mp_server_host->GetStr(), App::mp_server_port->GetInt(), net_status);
-    this->SetProgress(PERC_SHOW_SPINNER, text.data());
+    this->SetProgress(PERC_SHOW_SPINNER,
+                    fmt::format( "{} [{}:{}]\n{}", _LC("LoadingWindow", "Joining"),
+                                App::mp_server_host->GetStr(), App::mp_server_port->GetInt(), net_status));
 }
 
 void LoadingWindow::Draw()
