@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-15 14:29+0100\n"
+"POT-Creation-Date: 2021-01-18 10:45+0100\n"
 "PO-Revision-Date: 2021-01-17 01:32+0000\n"
 "Last-Translator: Bruno Dias Barros <brunodiasbarros09@gmail.com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/rigs-of-rods/"
@@ -363,8 +363,8 @@ msgid ""
 "surface friction variables in the net, and then to fine tune via strength."
 msgstr ""
 "O atrito estático o mantém no mesmo lugar quando você é parado em uma "
-"colina. No mundo real, esse atrito é sempre maior do que o atrito dinâmico ("
-"atrito deslizante). Comece com 0,5 e trabalhe a partir daí. É melhor tentar "
+"colina. No mundo real, esse atrito é sempre maior do que o atrito dinâmico "
+"(atrito deslizante). Comece com 0,5 e trabalhe a partir daí. É melhor tentar "
 "encontrar alguns valores validados experimentalmente para isso e o resto das "
 "variáveis de fricção de superfície na rede, e então fazer o ajuste fino via "
 "resistência."
@@ -388,8 +388,8 @@ msgid ""
 "NEVER set it to 0."
 msgstr ""
 "Abaixo deste valor aplicam-se as leis de atrito estático, acima dele aplicam-"
-"se as leis de atrito dinâmico. O valor deve ser pequeno, na faixa de 0,1-"
-"0,4. Este limite de velocidade também é usado pela dinâmica de fluidos, "
+"se as leis de atrito dinâmico. O valor deve ser pequeno, na faixa de "
+"0,1-0,4. Este limite de velocidade também é usado pela dinâmica de fluidos, "
 "então você deve sempre defini-lo. NUNCA defini-lo como 0."
 
 #: gui/panels/GUI_FrictionSettings.cpp:75
@@ -664,12 +664,12 @@ msgctxt "ChatBox"
 msgid "Message"
 msgstr "Mensagem"
 
-#: gui/panels/GUI_GameChatBox.cpp:186
+#: gui/panels/GUI_GameChatBox.cpp:187
 msgctxt "ChatBox"
 msgid "Whisper message not sent, unknown username: {}"
 msgstr "Mensagem de sussurro não enviada, nome de usuário desconhecido"
 
-#: gui/panels/GUI_GameChatBox.cpp:195
+#: gui/panels/GUI_GameChatBox.cpp:194
 msgctxt "ChatBox"
 msgid "usage: /whisper username message"
 msgstr "uso: / sussurrar mensagem de nome de usuário"
@@ -1300,12 +1300,12 @@ msgctxt "GameSettings"
 msgid "OutGauge delay"
 msgstr "Atraso OutGauge"
 
-#: gui/panels/GUI_LoadingWindow.cpp:76
+#: gui/panels/GUI_LoadingWindow.cpp:75
 msgctxt "LoadingWindow"
 msgid "Joining"
 msgstr "Entrando"
 
-#: gui/panels/GUI_LoadingWindow.cpp:97
+#: gui/panels/GUI_LoadingWindow.cpp:96
 msgctxt "LoadingWindow"
 msgid "Please wait"
 msgstr "Por favor, espere"

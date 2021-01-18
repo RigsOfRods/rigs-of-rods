@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-15 14:29+0100\n"
+"POT-Creation-Date: 2021-01-18 10:45+0100\n"
 "PO-Revision-Date: 2018-12-15 12:09+0000\n"
 "Last-Translator: Hiradur\n"
 "Language-Team: Bosnian (http://www.transifex.com/rigsofrods/rigs-of-rods/"
@@ -606,12 +606,12 @@ msgctxt "ChatBox"
 msgid "Message"
 msgstr ""
 
-#: gui/panels/GUI_GameChatBox.cpp:186
+#: gui/panels/GUI_GameChatBox.cpp:187
 msgctxt "ChatBox"
 msgid "Whisper message not sent, unknown username: {}"
 msgstr ""
 
-#: gui/panels/GUI_GameChatBox.cpp:195
+#: gui/panels/GUI_GameChatBox.cpp:194
 msgctxt "ChatBox"
 msgid "usage: /whisper username message"
 msgstr ""
@@ -1246,12 +1246,12 @@ msgctxt "GameSettings"
 msgid "OutGauge delay"
 msgstr ""
 
-#: gui/panels/GUI_LoadingWindow.cpp:76
+#: gui/panels/GUI_LoadingWindow.cpp:75
 msgctxt "LoadingWindow"
 msgid "Joining"
 msgstr ""
 
-#: gui/panels/GUI_LoadingWindow.cpp:97
+#: gui/panels/GUI_LoadingWindow.cpp:96
 msgctxt "LoadingWindow"
 msgid "Please wait"
 msgstr ""
