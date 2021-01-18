@@ -39,5 +39,6 @@ else (USE_PACKAGE_MANAGER)
     find_package(CURL)
     find_package(Caelum)
     find_package(MoFileReader)
+    find_package(fmt REQUIRED)
 
 endif (USE_PACKAGE_MANAGER)

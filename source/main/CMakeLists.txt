@@ -390,20 +390,15 @@ target_include_directories(${BINNAME} PRIVATE
 #  REQUIRED DEPENDENCIES
 # -----------------------
 
-IF (UNIX)
+if (UNIX)
     #  include_directories(${GTK_INCLUDE_DIRS})
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
-ENDIF (UNIX)
-target_link_libraries(${BINNAME} PRIVATE
-        ${OS_LIBS}
-        version_info
-        )
+endif ()
+target_link_libraries(${BINNAME} PRIVATE ${OS_LIBS} version_info)
 
 # --- Threading support (still needed for GCC even with C++11)
 set(CMAKE_THREAD_PREFER_PTHREAD YES)
-target_link_libraries(${BINNAME} PRIVATE
-        Threads::Threads
-        )
+target_link_libraries(${BINNAME} PRIVATE Threads::Threads)
 
 
 if (USE_PACKAGE_MANAGER)
@@ -453,10 +448,11 @@ if (USE_PACKAGE_MANAGER)
         set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=Caelum_d")
     endif ()
 
-else (USE_PACKAGE_MANAGER)
-
+else (USE_PACKAGE_MANAGER) 
     target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator)
 
+    target_link_libraries(${BINNAME} PRIVATE fmt::fmt)
+    
     target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
     target_include_directories(${BINNAME} PRIVATE ${OIS_INCLUDE_DIRS})
 
