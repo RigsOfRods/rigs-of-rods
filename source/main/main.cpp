@@ -796,6 +796,7 @@ int main(int argc, char *argv[])
             if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
             {
                 App::GetGuiManager()->DrawMainMenuGui();
+                App::GetConsole()->DoCommand("clear");
             }
             else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
             {
