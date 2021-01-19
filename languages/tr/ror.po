@@ -3,20 +3,22 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# baristurunc <baristurunc@hotmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-18 10:45+0100\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: Turkish (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/tr/)\n"
+"PO-Revision-Date: 2021-01-20 08:32+0000\n"
+"Last-Translator: baristurunc <baristurunc@hotmail.com>\n"
+"Language-Team: Turkish <https://hosted.weblate.org/projects/rigs-of-rods/"
+"game/tr/>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.5-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:407 AppContext.cpp:425
 #: AppContext.cpp:476 AppContext.cpp:490 AppContext.cpp:501
@@ -26,26 +28,27 @@ msgstr "Başlangıç Hatası"
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
 msgstr ""
+"Render sistemi eklentisi bulunamadı. plugins.cfg dosyasını kontrol edin."
 
 #: AppContext.cpp:377
 msgid "Screenshot:"
-msgstr ""
+msgstr "Ekran görüntüsü:"
 
 #: AppContext.cpp:407
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Program klasörünü getirirken hata oluştu"
 
 #: AppContext.cpp:425
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Kullanıcı klasörünü getirirken hata oluştu"
 
 #: AppContext.cpp:476
 msgid "Resources folder not found. Check if correctly installed."
-msgstr ""
+msgstr "Kaynak klasörü bulunamadı. Doğru bir şekilde kurulduğundan emin olun."
 
 #: AppContext.cpp:490 AppContext.cpp:501
 msgid "Faulty resource folder. Check if correctly installed."
-msgstr ""
+msgstr "Hatalı kaynak klasörü. Doğru bir şekilde kurulduğundan emin olun."
 
 #: GameContext.cpp:91
 msgid "Terrain not found: "
@@ -60,14 +63,12 @@ msgid "Please clear the place first"
 msgstr "Lütfen alanı boşaltın"
 
 #: GameContext.cpp:804
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgid "Enabled hard reset mode"
-msgstr "Yeniden oynatma modunu aç/kapat"
+msgstr "Hard reset modunu aç/kapat"
 
 #: GameContext.cpp:804
 msgid "Enabled soft reset mode"
-msgstr ""
+msgstr "Soft reset modu açıldı"
 
 #: GameContext.cpp:922
 msgid "Time set to "
@@ -79,23 +80,23 @@ msgstr "Kurtarma aracı bulunamadı!"
 
 #: GameContext.cpp:1157
 msgid "forwardcommands enabled"
-msgstr ""
+msgstr "forwardcommands etkin"
 
 #: GameContext.cpp:1161
 msgid "forwardcommands disabled"
-msgstr ""
+msgstr "forwardcommands devre dışı"
 
 #: GameContext.cpp:1170
 msgid "importcommands enabled"
-msgstr ""
+msgstr "importcommands etkin"
 
 #: GameContext.cpp:1174
 msgid "importcommands disabled"
-msgstr ""
+msgstr "importcommands devre dışı"
 
 #: gameplay/ChatSystem.cpp:55
 msgid " [whispered] "
-msgstr ""
+msgstr " [fısıldadı] "
 
 #: gameplay/EngineSim.cpp:1449
 msgid "Low range selected"
@@ -103,47 +104,47 @@ msgstr "Düşük vites seçildi"
 
 #: gameplay/EngineSim.cpp:1455
 msgid "Mid range selected"
-msgstr ""
+msgstr "Orta menzil seçildi"
 
 #: gameplay/EngineSim.cpp:1461
 msgid "High range selected"
-msgstr ""
+msgstr "Yüksek menzil seçildi"
 
 #: gameplay/Landusemap.cpp:90
 msgid "Error while loading landuse config"
-msgstr ""
+msgstr "Landuse ayarları yüklenirken hata oluştu"
 
 #: gfx/camera/CameraManager.cpp:302
 msgid "FOV: Limit reached"
-msgstr ""
+msgstr "FOV (Görüş Alanı): Limite ulaşıldı"
 
 #: gfx/camera/CameraManager.cpp:314
 msgid "FOV: "
-msgstr ""
+msgstr "FOV (Görüş alanı): "
 
 #: gfx/camera/CameraManager.cpp:384
 msgid "Free camera"
-msgstr ""
+msgstr "Serbest kamera"
 
 #: gfx/camera/CameraManager.cpp:389
 msgid "Fixed camera"
-msgstr ""
+msgstr "Sabit kamera"
 
 #: gfx/camera/CameraManager.cpp:863
 msgid "Limited camera movement enabled"
-msgstr ""
+msgstr "Sınırlı kamera hareketi etkinleştirildi"
 
 #: gfx/camera/CameraManager.cpp:867
 msgid "Limited camera movement disabled"
-msgstr ""
+msgstr "Sınırlı kamera hareketi devre dışı bırakıldı"
 
 #: gfx/camera/CameraManager.cpp:1142
 msgid "Auto tracking enabled"
-msgstr ""
+msgstr "Otomatik takip etkinleştirildi"
 
 #: gfx/camera/CameraManager.cpp:1146
 msgid "Auto tracking disabled"
-msgstr ""
+msgstr "Otomatik takip devre dışı bırakıldı"
 
 #: gui/OverlayWrapper.cpp:431
 msgid "Current FPS: "
@@ -179,7 +180,7 @@ msgstr "Yazı tipleri: "
 
 #: gui/OverlayWrapper.cpp:468
 msgid "GPU Program: "
-msgstr ""
+msgstr "Grafik İşlemci Programı: "
 
 #: gui/OverlayWrapper.cpp:470
 msgid "HL GPU Program: "
@@ -195,139 +196,111 @@ msgstr ""
 
 #: gui/OverlayWrapper.cpp:476
 msgid "Skeletons: "
-msgstr ""
+msgstr "İskeletler: "
 
 #: gui/OverlayWrapper.cpp:485
 msgid "Memory (Ogre): "
-msgstr ""
+msgstr "Bellek (Ogre): "
 
 #: gui/panels/GUI_ConsoleView.cpp:216
 msgctxt "Console"
 msgid "By area:"
-msgstr ""
+msgstr "Alana göre:"
 
 #: gui/panels/GUI_ConsoleView.cpp:217
 msgctxt "Console"
 msgid "Logfile echo"
-msgstr ""
+msgstr "Logfile echo"
 
 #: gui/panels/GUI_ConsoleView.cpp:218
-#, fuzzy
-#| msgid "Description: "
 msgctxt "Console"
 msgid "Scripting"
-msgstr "Açıklama: "
+msgstr "Scripting:"
 
 #: gui/panels/GUI_ConsoleView.cpp:219
 msgctxt "Console"
 msgid "Actors"
-msgstr ""
+msgstr "Aktörler"
 
 #: gui/panels/GUI_ConsoleView.cpp:220
-#, fuzzy
-#| msgid "Loading Terrain"
 msgctxt "Console"
 msgid "Terrain"
-msgstr "Harita Yükleniyor"
+msgstr "Harita"
 
 #: gui/panels/GUI_ConsoleView.cpp:223
 msgctxt "Console"
 msgid "By level:"
-msgstr ""
+msgstr "Seviyeye göre:"
 
 #: gui/panels/GUI_ConsoleView.cpp:224
 msgctxt "Console"
 msgid "Notices"
-msgstr ""
+msgstr "Bilgilendirmeler"
 
 #: gui/panels/GUI_ConsoleView.cpp:225
-#, fuzzy
-#| msgid "Warning"
 msgctxt "Console"
 msgid "Warnings"
-msgstr "Uyarı"
+msgstr "Uyarılar"
 
 #: gui/panels/GUI_ConsoleView.cpp:226
-#, fuzzy
-#| msgid "Mirrors"
 msgctxt "Console"
 msgid "Errors"
-msgstr "Aynalar"
+msgstr "Hatalar"
 
 #: gui/panels/GUI_ConsoleView.cpp:227
-#, fuzzy
-#| msgid "enter the chat"
 msgctxt "Console"
 msgid "Net chat"
-msgstr "sohbeti aç"
+msgstr "Ağ sohbeti"
 
 #: gui/panels/GUI_ConsoleView.cpp:228 gui/panels/GUI_ConsoleWindow.cpp:52
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "Console"
 msgid "Commands"
-msgstr "Kontroller"
+msgstr "Komutlar"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:47
-#, fuzzy
-#| msgid "Cockpit options:"
 msgctxt "Console"
 msgid "Filter options"
-msgstr "cabin ayarlar"
+msgstr "Filtre seçenekleri"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:86
-#, fuzzy
-#| msgid "Command 4"
 msgctxt "Console"
 msgid "Command"
-msgstr "4.Komut"
+msgstr "Komut"
 
 #: gui/panels/GUI_DirectionArrow.cpp:91
 msgctxt "DirectionArrow"
 msgid "meter"
-msgstr ""
+msgstr "metre"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
-#, fuzzy
-#| msgid "Friction Settings"
 msgctxt "FrictionSettings"
 msgid "Friction Settings"
-msgstr "sürtume ayarlari"
+msgstr "Sürtünme ayarları"
 
 #: gui/panels/GUI_FrictionSettings.cpp:48
-#, fuzzy
-#| msgid "Current active Ground: "
 msgctxt "FrictionSettings"
 msgid "Current active Ground: "
-msgstr "Mevcut aktif zemin:"
+msgstr "Mevcut aktif zemin: "
 
 #: gui/panels/GUI_FrictionSettings.cpp:55
-#, fuzzy
-#| msgid "selected Ground Type:"
 msgctxt "FrictionSettings"
 msgid "selected Ground Type:"
-msgstr "Seçilen zemin türü: "
+msgstr "Seçilen zemin türü:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:61
-#, fuzzy
-#| msgid "Solid ground settings"
 msgctxt "FrictionSettings"
 msgid "Solid ground settings"
-msgstr "sert yer ayarlari"
+msgstr "Katı zemin ayarları"
 
 #: gui/panels/GUI_FrictionSettings.cpp:63
-#, fuzzy
-#| msgid "Solid ground settings"
 msgctxt "FrictionSettings"
 msgid "Solid ground level:"
-msgstr "sert yer ayarlari"
+msgstr "Katı zemin seviyesi:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:64
-#, fuzzy
-#| msgid "Solid ground settings"
 msgctxt "FrictionSettings"
 msgid "Solid ground level"
-msgstr "sert yer ayarlari"
+msgstr "Katı zemin seviyesi"
 
 #: gui/panels/GUI_FrictionSettings.cpp:64
 msgctxt "FrictionSettings"
@@ -337,28 +310,22 @@ msgid ""
 "of solid ground. If it is 100 then the solid ground will be way deep (100m), "
 "with fluid on top."
 msgstr ""
+"Bununla, katı zeminin ne kadar derinlikte başladığını ayarlayabilirsiniz. 0 "
+"yapılırsa yüzey katı olacaktır. 0.1 ise katı zemin üzerinde 10cm sıvı "
+"oluşur. 100 ise katı zemin (toprak) suyun altında 100m derinlikte "
+"bulunacaktır."
 
 #: gui/panels/GUI_FrictionSettings.cpp:66
-#, fuzzy
-#| msgid "Strength:"
 msgctxt "FrictionSettings"
 msgid "Strength:"
-msgstr "güc"
+msgstr "Güç:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:67
-#, fuzzy
-#| msgid "Strength:"
 msgctxt "FrictionSettings"
 msgid "Strength"
-msgstr "güc"
+msgstr "Güç"
 
 #: gui/panels/GUI_FrictionSettings.cpp:67
-#, fuzzy
-#| msgid ""
-#| "This parameter raises or diminishes surface friction in a generic way. It "
-#| "is here so as to be able to do quick calibrations of friction. Start with "
-#| "having this to 1.0 and after tuning the rest of the surface variables, "
-#| "come back and play with this."
 msgctxt "FrictionSettings"
 msgid ""
 "This parameter raises or diminishes surface friction in a generic way. It is "
@@ -371,18 +338,14 @@ msgstr ""
 "yüzey değişkenlerini ayarladıktan sonra bu değerle oynayın."
 
 #: gui/panels/GUI_FrictionSettings.cpp:69
-#, fuzzy
-#| msgid "Static friction coef:"
 msgctxt "FrictionSettings"
 msgid "Static friction coef:"
-msgstr "Durağan sürtünme katsayısı: "
+msgstr "Durağan sürtünme katsayısı:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:70
-#, fuzzy
-#| msgid "Static friction coef:"
 msgctxt "FrictionSettings"
 msgid "Static friction coef"
-msgstr "Durağan sürtünme katsayısı: "
+msgstr "Durağan sürtünme katsayısı"
 
 #: gui/panels/GUI_FrictionSettings.cpp:70
 msgctxt "FrictionSettings"
@@ -393,16 +356,21 @@ msgid ""
 "to find some experimentally validated values for this and the rest of "
 "surface friction variables in the net, and then to fine tune via strength."
 msgstr ""
+"Durağan sürtünme sizi bayırda sabit tutan şeydir. Gerçek hayatta durağan "
+"sürtünme her zaman dinamik (kayarkenki) sürtünmeden daha büyük olacaktır. "
+"Oynamaya 0.5 değeri ile başlayın. Bu değer ve diğer yüzey sürtünmesi "
+"değerleri için en iyisi deneysel olarak doğrulanmış değerleri internetten "
+"bulup kullanmak, sonrasında ince ayarlar için güç değerleri ile oynamaktır."
 
 #: gui/panels/GUI_FrictionSettings.cpp:72
 msgctxt "FrictionSettings"
 msgid "Adhesion velocity:"
-msgstr ""
+msgstr "Adhezyon hızı:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:73
 msgctxt "FrictionSettings"
 msgid "Adhesion velocity"
-msgstr ""
+msgstr "Adhezyon hızı"
 
 #: gui/panels/GUI_FrictionSettings.cpp:73
 msgctxt "FrictionSettings"
@@ -412,27 +380,22 @@ msgid ""
 "threshold is also used by fluid dynamics so you should always define it. "
 "NEVER set it to 0."
 msgstr ""
+"Bu değerin altında; durağan sürtünme katsayısı, üstünde dinamik sürtünme "
+"katsayısı geçerlidir. Bu değer, 0.1-0.4 aralığında olmalıdır. Bu hız eşiği "
+"değeri, sıvı dinamikleri için de kullanıldığından her zaman tanımlı "
+"olmalıdır. ASLA 0'a ayarlamayın."
 
 #: gui/panels/GUI_FrictionSettings.cpp:75
-#, fuzzy
-#| msgid "Dynamic friction coef:"
 msgctxt "FrictionSettings"
 msgid "Dynamic friction coef:"
 msgstr "Dinamik sürtünme katsayısı:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:76
-#, fuzzy
-#| msgid "Dynamic friction coef"
 msgctxt "FrictionSettings"
 msgid "Dynamic friction coef"
 msgstr "Dinamik sürtünme katsayısı"
 
 #: gui/panels/GUI_FrictionSettings.cpp:76
-#, fuzzy
-#| msgid ""
-#| "Or sliding friction coef. It should be smaller than static friction coef. "
-#| "This parameter defines how much friction you'll have when sliding. Try to "
-#| "find some values for it from the net."
 msgctxt "FrictionSettings"
 msgid ""
 "Or sliding friction coef. It should be smaller than static friction coef. "
@@ -444,18 +407,14 @@ msgstr ""
 "karşılık gelir. Bu değişken için internetten bazı değerler bulmaya çalışın."
 
 #: gui/panels/GUI_FrictionSettings.cpp:78
-#, fuzzy
-#| msgid "Hydrodynamic friction coef:"
 msgctxt "FrictionSettings"
 msgid "Hydrodynamic friction coef:"
 msgstr "Hidrodinamik sürtünme katsayısı:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:79
-#, fuzzy
-#| msgid "Hydrodynamic friction coef:"
 msgctxt "FrictionSettings"
 msgid "Hydrodynamic friction coef"
-msgstr "Hidrodinamik sürtünme katsayısı:"
+msgstr "Hidrodinamik sürtünme katsayısı"
 
 #: gui/panels/GUI_FrictionSettings.cpp:79
 msgctxt "FrictionSettings"
@@ -471,12 +430,12 @@ msgstr ""
 #: gui/panels/GUI_FrictionSettings.cpp:81
 msgctxt "FrictionSettings"
 msgid "Stribeck velocity:"
-msgstr ""
+msgstr "Stribeck hızı:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:82
 msgctxt "FrictionSettings"
 msgid "Stribeck velocity"
-msgstr ""
+msgstr "Stribeck hızı"
 
 #: gui/panels/GUI_FrictionSettings.cpp:82
 msgctxt "FrictionSettings"
@@ -486,38 +445,40 @@ msgid ""
 "dynamic friction curve. Lets leave it at that. Just find some nice values "
 "for it from the net."
 msgstr ""
+"İnternette stribeck hızı veya tersi olan (1/stribeck hızı) stribeck "
+"katsayısı hakkında bilgi bulabilirsiniz. Bu katsayı, dinamik sürtünme "
+"katsayısı fonksyionunun şeklini tanımlar. Buradaki açıklaması bu kadar. "
+"Uğraşmaya gerek yok, internetten uygun bir değer alıp geçin."
 
 #: gui/panels/GUI_FrictionSettings.cpp:84
 msgctxt "FrictionSettings"
 msgid "alpha:"
-msgstr ""
+msgstr "alpha:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:85
 msgctxt "FrictionSettings"
 msgid "Alpha"
-msgstr ""
+msgstr "Alpha"
 
 #: gui/panels/GUI_FrictionSettings.cpp:85
 msgctxt "FrictionSettings"
 msgid "Its usual value is 2. But you can try others."
-msgstr ""
+msgstr "Asıl değeri 2. Başka değerler de deneyebilirsiniz."
 
 #: gui/panels/GUI_FrictionSettings.cpp:87
-#, fuzzy
-#| msgid "Fluid Settings"
 msgctxt "FrictionSettings"
 msgid "Fluid Settings"
-msgstr "sivi ayarlari"
+msgstr "Sıvı Ayarları"
 
 #: gui/panels/GUI_FrictionSettings.cpp:89
 msgctxt "FrictionSettings"
 msgid "Flow behavior index:"
-msgstr ""
+msgstr "Sıvı davranışı indisi:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:90
 msgctxt "FrictionSettings"
 msgid "Flow behavior index"
-msgstr ""
+msgstr "Sıvı davranışı indisi"
 
 #: gui/panels/GUI_FrictionSettings.cpp:90
 msgctxt "FrictionSettings"
@@ -533,12 +494,12 @@ msgstr ""
 #: gui/panels/GUI_FrictionSettings.cpp:92
 msgctxt "FrictionSettings"
 msgid "Flow consistency:"
-msgstr ""
+msgstr "Akış tutarlılığı:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:93
 msgctxt "FrictionSettings"
 msgid "Flow consistency"
-msgstr ""
+msgstr "Akış tutarlılığı"
 
 #: gui/panels/GUI_FrictionSettings.cpp:93
 msgctxt "FrictionSettings"
@@ -548,11 +509,9 @@ msgid ""
 msgstr ""
 
 #: gui/panels/GUI_FrictionSettings.cpp:95
-#, fuzzy
-#| msgid "Fluid density:"
 msgctxt "FrictionSettings"
 msgid "Fluid density:"
-msgstr "sivi yogunluk"
+msgstr "Sıvı yoğunluğu:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:96
 #, fuzzy
@@ -598,102 +557,92 @@ msgstr ""
 #: gui/panels/GUI_GameAbout.cpp:46
 msgctxt "About"
 msgid "About Rigs of Rods"
-msgstr ""
+msgstr "Rigs of Rods hakkında"
 
 #: gui/panels/GUI_GameAbout.cpp:48
-#, fuzzy
-#| msgid "Version: "
 msgctxt "About"
 msgid "Version"
-msgstr "versiyon"
+msgstr "Sürüm"
 
 #: gui/panels/GUI_GameAbout.cpp:52
-#, fuzzy
-#| msgid "Network error!"
 msgctxt "About"
 msgid "Network protocol"
-msgstr " Ağ hatası!"
+msgstr "Ağ protokolü"
 
 #: gui/panels/GUI_GameAbout.cpp:56
 msgctxt "About"
 msgid "Build time"
-msgstr ""
+msgstr "Yapı zamanı"
 
 #: gui/panels/GUI_GameAbout.cpp:62
-#, fuzzy
-#| msgid "Author(s): "
 msgctxt "About"
 msgid "Authors"
-msgstr "Tasarımcı(lar): "
+msgstr "Yazarlar"
 
 #: gui/panels/GUI_GameAbout.cpp:67
 msgctxt "About"
 msgid "Current Developers"
-msgstr ""
+msgstr "Aktif Geliştiriciler"
 
 #: gui/panels/GUI_GameAbout.cpp:72
-#, fuzzy
-#| msgid "Server Administrator"
 msgctxt "About"
 msgid "Server Contributors"
-msgstr "Sunucu yöneticisi"
+msgstr "Sunucuya Katkı Sağlayanlar"
 
 #: gui/panels/GUI_GameAbout.cpp:80
 msgctxt "About"
 msgid "Code Contributors"
-msgstr ""
+msgstr "Koda Katkı Sağlayanlar"
 
 #: gui/panels/GUI_GameAbout.cpp:106
 msgctxt "About"
 msgid "Core Content Contributors"
-msgstr ""
+msgstr "Ana İçeriğe Katkı Sağlayanlar"
 
 #: gui/panels/GUI_GameAbout.cpp:112
 msgctxt "About"
 msgid "Mod Contributors"
-msgstr ""
+msgstr "Modlara Katkıda Bulunanlar"
 
 #: gui/panels/GUI_GameAbout.cpp:116
 msgctxt "About"
 msgid "Testers"
-msgstr ""
+msgstr "Testçiler"
 
 #: gui/panels/GUI_GameAbout.cpp:120
 msgctxt "About"
 msgid "Used Libs"
-msgstr ""
+msgstr "Kullanılan Kütüphaneler"
 
 #: gui/panels/GUI_GameChatBox.cpp:78
 msgctxt "ChatBox"
 msgid "Welcome to Rigs of Rods!"
-msgstr ""
+msgstr "Rigs of Rods'a hoş geldiniz!"
 
 #: gui/panels/GUI_GameChatBox.cpp:137
 msgctxt "ChatBox"
 msgid "Chat history (use mouse wheel to scroll)"
-msgstr ""
+msgstr "Sohbet geçmişi (fare tekerleği ile yukarı/aşağı hareket edebilirsiniz)"
 
 #: gui/panels/GUI_GameChatBox.cpp:138
 msgctxt "ChatBox"
 msgid "Message"
-msgstr ""
+msgstr "Mesaj"
 
 #: gui/panels/GUI_GameChatBox.cpp:187
 msgctxt "ChatBox"
 msgid "Whisper message not sent, unknown username: {}"
-msgstr ""
+msgstr "Fısıldayışınız başarısız oldu. Bilinmeyen kullanıcı adı: {}"
 
 #: gui/panels/GUI_GameChatBox.cpp:194
 msgctxt "ChatBox"
 msgid "usage: /whisper username message"
-msgstr ""
+msgstr "kullanım: /whisper kullanıcı_adı mesaj"
 
 #: gui/panels/GUI_GameControls.cpp:36
-#, fuzzy
-#| msgid "Controls"
 msgctxt "GameControls"
 msgid "Game Controls"
-msgstr "Kontroller"
+msgstr "Oyun Kontrolleri"
 
 #: gui/panels/GUI_GameControls.cpp:47
 #, fuzzy
@@ -712,50 +661,44 @@ msgstr "Tekne"
 #: gui/panels/GUI_GameControls.cpp:51
 msgctxt "GameControls"
 msgid "Camera"
-msgstr ""
+msgstr "Kamera"
 
 #: gui/panels/GUI_GameControls.cpp:53
 msgctxt "GameControls"
 msgid "Sky"
-msgstr ""
+msgstr "Gökyüzü"
 
 #: gui/panels/GUI_GameControls.cpp:55
 msgctxt "GameControls"
 msgid "Character"
-msgstr ""
+msgstr "Karakter"
 
 #: gui/panels/GUI_GameControls.cpp:57
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "GameControls"
 msgid "Commands"
-msgstr "Kontroller"
+msgstr "Komutlar"
 
 #: gui/panels/GUI_GameControls.cpp:59
-#, fuzzy
-#| msgid "Command 4"
 msgctxt "GameControls"
 msgid "Common"
-msgstr "4.Komut"
+msgstr "Ortak"
 
 #: gui/panels/GUI_GameControls.cpp:61
 msgctxt "GameControls"
 msgid "Grass"
-msgstr ""
+msgstr "Yeşillik"
 
 #: gui/panels/GUI_GameControls.cpp:63
 msgctxt "GameControls"
 msgid "Map"
-msgstr ""
+msgstr "Harita"
 
 #: gui/panels/GUI_GameControls.cpp:65
 msgctxt "GameControls"
 msgid "Menu"
-msgstr ""
+msgstr "Menü"
 
 #: gui/panels/GUI_GameControls.cpp:67
-#, fuzzy
-#| msgid "Truck"
 msgctxt "GameControls"
 msgid "Truck"
 msgstr "Kamyon"
@@ -763,86 +706,74 @@ msgstr "Kamyon"
 #: gui/panels/GUI_GameMainMenu.cpp:94
 msgctxt "MainMenu"
 msgid "Main menu"
-msgstr ""
+msgstr "Ana Menü"
 
 #: gui/panels/GUI_GameMainMenu.cpp:99
 msgctxt "MainMenu"
 msgid "Single player"
-msgstr ""
+msgstr "Tek oyunculu"
 
 #: gui/panels/GUI_GameMainMenu.cpp:114
 msgctxt "MainMenu"
 msgid "Resume game"
-msgstr ""
+msgstr "Oyuna devam et"
 
 #: gui/panels/GUI_GameMainMenu.cpp:121
 msgctxt "MainMenu"
 msgid "Multi player"
-msgstr ""
+msgstr "Çok oyunculu"
 
 #: gui/panels/GUI_GameMainMenu.cpp:127
-#, fuzzy
-#| msgid "Fluid Settings"
 msgctxt "MainMenu"
 msgid "Settings"
-msgstr "sivi ayarlari"
+msgstr "Ayarlar"
 
 #: gui/panels/GUI_GameMainMenu.cpp:133
 msgctxt "MainMenu"
 msgid "About"
-msgstr ""
+msgstr "Hakkında"
 
 #: gui/panels/GUI_GameMainMenu.cpp:139
-#, fuzzy
-#| msgid "exit the game"
 msgctxt "MainMenu"
 msgid "Exit game"
-msgstr "oyundan cik"
+msgstr "Oyundan çık"
 
 #: gui/panels/GUI_GameMainMenu.cpp:161
-#, fuzzy
-#| msgid "Version: "
 msgctxt "MainMenu"
 msgid "Game version"
-msgstr "versiyon"
+msgstr "Oyun sürümü"
 
 #: gui/panels/GUI_GameMainMenu.cpp:162
-#, fuzzy
-#| msgid "Network error!"
 msgctxt "MainMenu"
 msgid "Net. protocol"
-msgstr " Ağ hatası!"
+msgstr "Ağ protokolü"
 
 #: gui/panels/GUI_GameMainMenu.cpp:175
-#, fuzzy
-#| msgid "Version: "
 msgctxt "MainMenu"
 msgid "Version box"
-msgstr "versiyon"
+msgstr "Sürüm kutusu"
 
 #. The Pause menu
 #: gui/panels/GUI_GamePauseMenu.cpp:81
 msgid "Pause"
-msgstr ""
+msgstr "Duraklat"
 
 #: gui/panels/GUI_GamePauseMenu.cpp:85
 msgid "Resume game"
-msgstr ""
+msgstr "Oyuna devam et"
 
 #: gui/panels/GUI_GamePauseMenu.cpp:90
 msgid "Return to menu"
-msgstr ""
+msgstr "Ana menüye dön"
 
 #: gui/panels/GUI_GamePauseMenu.cpp:99
-#, fuzzy
-#| msgid "exit the game"
 msgid "Exit game"
-msgstr "oyundan cik"
+msgstr "Oyundan çık"
 
 #: gui/panels/GUI_GameSettings.cpp:41
 msgctxt "GameSettings"
 msgid "Game settings"
-msgstr ""
+msgstr "Oyun ayarları"
 
 #. Combobox for selecting the Render System
 #: gui/panels/GUI_GameSettings.cpp:46 gui/panels/GUI_GameSettings.cpp:86
@@ -853,7 +784,7 @@ msgstr "Görselleme Sistemi"
 #: gui/panels/GUI_GameSettings.cpp:48
 msgctxt "GameSettings"
 msgid "General"
-msgstr ""
+msgstr "Genel"
 
 #: gui/panels/GUI_GameSettings.cpp:50
 msgctxt "GameSettings"
@@ -863,7 +794,7 @@ msgstr "Grafikler"
 #: gui/panels/GUI_GameSettings.cpp:53
 msgctxt "GameSettings"
 msgid "Audio"
-msgstr ""
+msgstr "Ses"
 
 #: gui/panels/GUI_GameSettings.cpp:56
 msgctxt "GameSettings"
@@ -873,232 +804,226 @@ msgstr "Kontroller"
 #: gui/panels/GUI_GameSettings.cpp:58
 msgctxt "GameSettings"
 msgid "Diagnostic"
-msgstr ""
+msgstr "Tanılama"
 
 #: gui/panels/GUI_GameSettings.cpp:60
-#, fuzzy
-#| msgid "Updates"
 msgctxt "GameSettings"
 msgid "Update cache"
-msgstr "Güncelleştirmeler"
+msgstr "Güncelleştirme önbelleği"
 
 #: gui/panels/GUI_GameSettings.cpp:72
 msgctxt "GameSettings"
 msgid "Render system (changes require a restart)"
-msgstr ""
+msgstr "Render sistemi (değişiklikler oyunun kapanıp açılmasını gerektirir)"
 
 #: gui/panels/GUI_GameSettings.cpp:123
 msgctxt "GameSettings"
 msgid "Application settings"
-msgstr ""
+msgstr "Uygulama ayarları"
 
 #: gui/panels/GUI_GameSettings.cpp:135
 msgctxt "GameSettings"
 msgid "Language"
-msgstr ""
+msgstr "Dil"
 
 #: gui/panels/GUI_GameSettings.cpp:166
 msgctxt "GameSettings"
 msgid "Country"
-msgstr ""
+msgstr "Ülke"
 
 #. Hardcoded; TODO: list available formats.
 #. Screenshot format: Can be png or jpg
 #: gui/panels/GUI_GameSettings.cpp:175
 msgctxt "GameSettings"
 msgid "Screenshot format"
-msgstr ""
+msgstr "Ekran görüntüsü formatı"
 
 #: gui/panels/GUI_GameSettings.cpp:181
 msgctxt "GameSettings"
 msgid "Extra mod path"
-msgstr ""
+msgstr "Ekstra mod dosya yolu"
 
 #: gui/panels/GUI_GameSettings.cpp:183
 msgctxt "GameSettings"
 msgid "Skip main menu"
-msgstr ""
+msgstr "Ana menüyü atla"
 
 #: gui/panels/GUI_GameSettings.cpp:184
 msgctxt "GameSettings"
 msgid "Async physics"
-msgstr ""
+msgstr "Asenkron fizik"
 
 #: gui/panels/GUI_GameSettings.cpp:185
-#, fuzzy
-#| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Disable online api"
-msgstr "Taslak Haritayı İptal Et"
+msgstr "Online API'ı devre dışı bırak"
 
 #: gui/panels/GUI_GameSettings.cpp:188
 msgctxt "GameSettings"
 msgid "Simulation settings"
-msgstr ""
+msgstr "Simülasyon ayarları"
 
 #: gui/panels/GUI_GameSettings.cpp:190
 msgctxt "GameSettings"
 msgid "Gearbox mode"
-msgstr ""
+msgstr "Vites modu"
 
 #: gui/panels/GUI_GameSettings.cpp:197
 msgctxt "GameSettings"
 msgid "Digital speedometer"
-msgstr ""
+msgstr "Dijital hız göstergesi"
 
 #: gui/panels/GUI_GameSettings.cpp:198
 msgctxt "GameSettings"
 msgid "Imperial speedometer"
-msgstr ""
+msgstr "Sığır hız göstergesi"
 
 #. DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
 #: gui/panels/GUI_GameSettings.cpp:202
 msgctxt "GameSettings"
 msgid "Engines spawn running"
-msgstr ""
+msgstr "Motorlar çalışır halde doğar"
 
 #: gui/panels/GUI_GameSettings.cpp:204
 msgctxt "GameSettings"
 msgid "Replay mode"
-msgstr ""
+msgstr "Tekrar oynat modu"
 
 #: gui/panels/GUI_GameSettings.cpp:207
 msgctxt "GameSettings"
 msgid "Replay length"
-msgstr ""
+msgstr "Tekrar oynat uzunluğu"
 
 #: gui/panels/GUI_GameSettings.cpp:208
 msgctxt "GameSettings"
 msgid "Replay stepping"
-msgstr ""
+msgstr "Tekrar oynat adımlaması"
 
 #: gui/panels/GUI_GameSettings.cpp:211
 msgctxt "GameSettings"
 msgid "Realistic forward commands"
-msgstr ""
+msgstr "Gerçekçi ilerleme komutları"
 
 #: gui/panels/GUI_GameSettings.cpp:213
-#, fuzzy
-#| msgid "Enable waves"
 msgctxt "GameSettings"
 msgid "Enable races"
-msgstr "Dalgaları etkinleştir"
+msgstr "Yarışları etkinleştir"
 
 #: gui/panels/GUI_GameSettings.cpp:215
 msgctxt "GameSettings"
 msgid "No intra truck collisions"
-msgstr ""
+msgstr "Araç içi çarpışmaları kapat"
 
 #: gui/panels/GUI_GameSettings.cpp:216
 msgctxt "GameSettings"
 msgid "No inter truck collisions"
-msgstr ""
+msgstr "Araçlar arası çarpışmaları kapat"
 
 #: gui/panels/GUI_GameSettings.cpp:218
 msgctxt "GameSettings"
 msgid "Discord Rich Presence"
-msgstr ""
+msgstr "Discord Entegrasyonu"
 
 #: gui/panels/GUI_GameSettings.cpp:223
 msgctxt "GameSettings"
 msgid "Audio settings"
-msgstr ""
+msgstr "Ses ayarları"
 
 #: gui/panels/GUI_GameSettings.cpp:239
 msgctxt "GameSettings"
 msgid "Audio device"
-msgstr ""
+msgstr "Ses cihazı"
 
 #: gui/panels/GUI_GameSettings.cpp:244
 msgctxt "GameSettings"
 msgid "Creak sound"
-msgstr ""
+msgstr "Gıcırdama sesi"
 
 #: gui/panels/GUI_GameSettings.cpp:245
 msgctxt "GameSettings"
 msgid "Main menu music"
-msgstr ""
+msgstr "Ana menü müziği"
 
 #: gui/panels/GUI_GameSettings.cpp:246
 msgctxt "GameSettings"
 msgid "Master volume"
-msgstr ""
+msgstr "Ana ses seviyesi"
 
 #: gui/panels/GUI_GameSettings.cpp:251
 msgctxt "GameSettings"
 msgid "Video settings"
-msgstr ""
+msgstr "Vidyo ayarları"
 
 #: gui/panels/GUI_GameSettings.cpp:253
 msgctxt "GameSettings"
 msgid "Lights"
-msgstr ""
+msgstr "Işıklar"
 
 #: gui/panels/GUI_GameSettings.cpp:260
 msgctxt "GameSettings"
 msgid "Shadow type (requires restart)"
-msgstr ""
+msgstr "Gölge tipi (oyunu kapatıp açmayı gerektirir)"
 
 #: gui/panels/GUI_GameSettings.cpp:266
 msgctxt "GameSettings"
 msgid "Shadow optimizations"
-msgstr ""
+msgstr "Gölge eniyileme"
 
 #: gui/panels/GUI_GameSettings.cpp:269
 msgctxt "GameSettings"
 msgid "Shadow quality"
-msgstr ""
+msgstr "Gölge kalitesi"
 
 #: gui/panels/GUI_GameSettings.cpp:280
 msgctxt "GameSettings"
 msgid "Sight range (meters)"
-msgstr ""
+msgstr "Görüş uzaklığı (metre)"
 
 #: gui/panels/GUI_GameSettings.cpp:283
 msgctxt "GameSettings"
 msgid "Texture filtering"
-msgstr ""
+msgstr "Doku filtreleme"
 
 #: gui/panels/GUI_GameSettings.cpp:293
 msgctxt "GameSettings"
 msgid "Anisotropy"
-msgstr ""
+msgstr "Anizotropi"
 
 #: gui/panels/GUI_GameSettings.cpp:299
 msgctxt "GameSettings"
 msgid "Vegetation density"
-msgstr ""
+msgstr "Yeşillik yoğunluğu"
 
 #: gui/panels/GUI_GameSettings.cpp:305
 msgctxt "GameSettings"
 msgid "Water gfx"
-msgstr ""
+msgstr "Su efektleri"
 
 #: gui/panels/GUI_GameSettings.cpp:313
 msgctxt "GameSettings"
 msgid "FPS limit"
-msgstr ""
+msgstr "FPS Limiti"
 
 #: gui/panels/GUI_GameSettings.cpp:315
 msgctxt "GameSettings"
 msgid "Enable particle gfx"
-msgstr ""
+msgstr "Partikül efektlerini etkinleştir"
 
 #: gui/panels/GUI_GameSettings.cpp:316
 msgctxt "GameSettings"
 msgid "Enable skidmarks"
-msgstr ""
+msgstr "Teker izini etkinleştir"
 
 #: gui/panels/GUI_GameSettings.cpp:318
 msgctxt "GameSettings"
 msgid "Realtime reflections"
-msgstr ""
+msgstr "Gerçek zamanlı yansımalar"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_GameSettings.cpp:322
 msgctxt "GameSettings"
 msgid "Realtime refl. update rate"
-msgstr ""
+msgstr "Gerçek zamanlı yansıma güncelleme frekansı"
 
 #: gui/panels/GUI_GameSettings.cpp:326
 msgctxt "GameSettings"
