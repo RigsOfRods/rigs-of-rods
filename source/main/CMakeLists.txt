@@ -7,7 +7,6 @@ project(RoR_Main)
 
 set(SOURCE_FILES
         main.cpp
-        PagedGeometryConfig.h
         Application.{h,cpp}
         ForwardDeclarations.h
         AppContext.{h,cpp}
@@ -359,6 +358,8 @@ target_include_directories(${BINNAME} PRIVATE
 
 #  REQUIRED DEPENDENCIES
 # -----------------------
+
+include("${CMAKE_SOURCE_DIR}/external/pagedgeometry.cmake")
 
 if (UNIX)
     #  include_directories(${GTK_INCLUDE_DIRS})
