@@ -660,7 +660,7 @@ int main(int argc, char *argv[])
 
 #ifdef USE_SOCKETW
             // Process incoming network traffic
-            if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+            if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED && App::sim_state->GetEnum<SimState>() != SimState::PAUSED)
             {
                 std::vector<RoR::NetRecvPacket> packets = App::GetNetwork()->GetIncomingStreamData();
                 if (!packets.empty())
