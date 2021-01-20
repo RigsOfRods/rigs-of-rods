@@ -4,15 +4,16 @@
 #
 # Translators:
 # Алексей <alexaxel705@gmail.com>, 2016
+# Влад ххх <error.exe1234567890@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-18 10:45+0100\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: Russian (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/ru/)\n"
+"PO-Revision-Date: 2021-01-21 03:32+0000\n"
+"Last-Translator: Влад ххх <error.exe1234567890@gmail.com>\n"
+"Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
+"game/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,6 +21,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
+"X-Generator: Weblate 4.5-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:407 AppContext.cpp:425
 #: AppContext.cpp:476 AppContext.cpp:490 AppContext.cpp:501
@@ -63,14 +65,12 @@ msgid "Please clear the place first"
 msgstr "Пожалуйста, сначала освободите площадку"
 
 #: GameContext.cpp:804
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgid "Enabled hard reset mode"
-msgstr "включить или выключить режим повтора"
+msgstr "Включен жесткий режим сброса транспорта"
 
 #: GameContext.cpp:804
 msgid "Enabled soft reset mode"
-msgstr ""
+msgstr "Включен мягкий режим сброса транспорта"
 
 #: GameContext.cpp:922
 msgid "Time set to "
@@ -738,119 +738,99 @@ msgstr ""
 #: gui/panels/GUI_GameAbout.cpp:46
 msgctxt "About"
 msgid "About Rigs of Rods"
-msgstr ""
+msgstr "Об игре Rigs of Rods"
 
 #: gui/panels/GUI_GameAbout.cpp:48
-#, fuzzy
-#| msgid "Version"
 msgctxt "About"
 msgid "Version"
-msgstr "Версия"
+msgstr "Версия игры"
 
 #: gui/panels/GUI_GameAbout.cpp:52
-#, fuzzy
-#| msgid "Network Protocol version: %s"
 msgctxt "About"
 msgid "Network protocol"
-msgstr "Версия сетевого протокола: %s"
+msgstr "Сетевой протокол"
 
 #: gui/panels/GUI_GameAbout.cpp:56
-#, fuzzy
-#| msgid "Build time: %s, %s"
 msgctxt "About"
 msgid "Build time"
-msgstr "Время сборки: %s, %s"
+msgstr "Время сборки"
 
 #: gui/panels/GUI_GameAbout.cpp:62
-#, fuzzy
-#| msgid "Authors"
 msgctxt "About"
 msgid "Authors"
-msgstr "Авторы"
+msgstr "Авторы игры"
 
 #: gui/panels/GUI_GameAbout.cpp:67
-#, fuzzy
-#| msgid "Current power: "
 msgctxt "About"
 msgid "Current Developers"
-msgstr "Текущая мощность:"
+msgstr "Текущие разработчики"
 
 #: gui/panels/GUI_GameAbout.cpp:72
-#, fuzzy
-#| msgid "Server Moderator"
 msgctxt "About"
 msgid "Server Contributors"
-msgstr "Модератор сервера"
+msgstr "Модераторы сервера"
 
 #: gui/panels/GUI_GameAbout.cpp:80
-#, fuzzy
-#| msgid "Arcade Controls"
 msgctxt "About"
 msgid "Code Contributors"
-msgstr "Аркадное Управление"
+msgstr "Авторы кода"
 
 #: gui/panels/GUI_GameAbout.cpp:106
 msgctxt "About"
 msgid "Core Content Contributors"
-msgstr ""
+msgstr "Авторы основного контента"
 
 #: gui/panels/GUI_GameAbout.cpp:112
 msgctxt "About"
 msgid "Mod Contributors"
-msgstr ""
+msgstr "Авторы модификаций"
 
 #: gui/panels/GUI_GameAbout.cpp:116
 msgctxt "About"
 msgid "Testers"
-msgstr ""
+msgstr "Тестировщики"
 
 #: gui/panels/GUI_GameAbout.cpp:120
 msgctxt "About"
 msgid "Used Libs"
-msgstr ""
+msgstr "Используемые библиотеки"
 
 #: gui/panels/GUI_GameChatBox.cpp:78
 msgctxt "ChatBox"
 msgid "Welcome to Rigs of Rods!"
-msgstr ""
+msgstr "Добро пожаловать в Rigs of Rods!"
 
 #: gui/panels/GUI_GameChatBox.cpp:137
 msgctxt "ChatBox"
 msgid "Chat history (use mouse wheel to scroll)"
-msgstr ""
+msgstr "История чата (используйте мышку, чтобы скролить)"
 
 #: gui/panels/GUI_GameChatBox.cpp:138
 msgctxt "ChatBox"
 msgid "Message"
-msgstr ""
+msgstr "Сообщение"
 
 #: gui/panels/GUI_GameChatBox.cpp:187
 msgctxt "ChatBox"
 msgid "Whisper message not sent, unknown username: {}"
-msgstr ""
+msgstr "Сообщение шепотом не отправлено, неизвестное имя пользователя: {}"
 
 #: gui/panels/GUI_GameChatBox.cpp:194
 msgctxt "ChatBox"
 msgid "usage: /whisper username message"
-msgstr ""
+msgstr "используйте: /whisper имя сообщение"
 
 #: gui/panels/GUI_GameControls.cpp:36
-#, fuzzy
-#| msgid "Arcade Controls"
 msgctxt "GameControls"
 msgid "Game Controls"
-msgstr "Аркадное Управление"
+msgstr "Управление в игре"
 
 #: gui/panels/GUI_GameControls.cpp:47
-#, fuzzy
-#| msgid "Airplane"
 msgctxt "GameControls"
 msgid "Airplane"
 msgstr "Самолёт"
 
 #: gui/panels/GUI_GameControls.cpp:49
-#, fuzzy
-#| msgid "Boat"
 msgctxt "GameControls"
 msgid "Boat"
 msgstr "Лодка"
@@ -858,152 +838,130 @@ msgstr "Лодка"
 #: gui/panels/GUI_GameControls.cpp:51
 msgctxt "GameControls"
 msgid "Camera"
-msgstr ""
+msgstr "Камера"
 
 #: gui/panels/GUI_GameControls.cpp:53
 msgctxt "GameControls"
 msgid "Sky"
-msgstr ""
+msgstr "Небо"
 
 #: gui/panels/GUI_GameControls.cpp:55
-#, fuzzy
-#| msgid "Character position: "
 msgctxt "GameControls"
 msgid "Character"
-msgstr "Позиция персонажа: "
+msgstr "Персонаж"
 
 #: gui/panels/GUI_GameControls.cpp:57
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "GameControls"
 msgid "Commands"
-msgstr "Доп. гидравлические узлы: "
+msgstr "Команды"
 
 #: gui/panels/GUI_GameControls.cpp:59
-#, fuzzy
-#| msgid "Command 1"
 msgctxt "GameControls"
 msgid "Common"
-msgstr "Команда №1"
+msgstr "Общие"
 
 #: gui/panels/GUI_GameControls.cpp:61
 msgctxt "GameControls"
 msgid "Grass"
-msgstr ""
+msgstr "Трава (растительность)"
 
 #: gui/panels/GUI_GameControls.cpp:63
 msgctxt "GameControls"
 msgid "Map"
-msgstr ""
+msgstr "Карта"
 
 #: gui/panels/GUI_GameControls.cpp:65
 msgctxt "GameControls"
 msgid "Menu"
-msgstr ""
+msgstr "Меню"
 
 #: gui/panels/GUI_GameControls.cpp:67
-#, fuzzy
-#| msgid "Truck"
 msgctxt "GameControls"
 msgid "Truck"
-msgstr "Автомобиль"
+msgstr "Транспортное средство"
 
 #: gui/panels/GUI_GameMainMenu.cpp:94
 msgctxt "MainMenu"
 msgid "Main menu"
-msgstr ""
+msgstr "Главное меню"
 
 #: gui/panels/GUI_GameMainMenu.cpp:99
 msgctxt "MainMenu"
 msgid "Single player"
-msgstr ""
+msgstr "Одиночная игра"
 
 #: gui/panels/GUI_GameMainMenu.cpp:114
 msgctxt "MainMenu"
 msgid "Resume game"
-msgstr ""
+msgstr "Продолжить игру"
 
 #: gui/panels/GUI_GameMainMenu.cpp:121
 msgctxt "MainMenu"
 msgid "Multi player"
-msgstr ""
+msgstr "Многопользовательская игра"
 
 #: gui/panels/GUI_GameMainMenu.cpp:127
-#, fuzzy
-#| msgid "Settings"
 msgctxt "MainMenu"
 msgid "Settings"
 msgstr "Настройки"
 
 #: gui/panels/GUI_GameMainMenu.cpp:133
-#, fuzzy
-#| msgid "About"
 msgctxt "MainMenu"
 msgid "About"
 msgstr "О программе"
 
 #: gui/panels/GUI_GameMainMenu.cpp:139
-#, fuzzy
-#| msgid "exit the game"
 msgctxt "MainMenu"
 msgid "Exit game"
 msgstr "Выйти из игры"
 
 #: gui/panels/GUI_GameMainMenu.cpp:161
-#, fuzzy
-#| msgid "Version"
 msgctxt "MainMenu"
 msgid "Game version"
-msgstr "Версия"
+msgstr "Версия игры"
 
 #: gui/panels/GUI_GameMainMenu.cpp:162
-#, fuzzy
-#| msgid "Network Protocol version: %s"
 msgctxt "MainMenu"
 msgid "Net. protocol"
-msgstr "Версия сетевого протокола: %s"
+msgstr "Сетевой протокол"
 
 #: gui/panels/GUI_GameMainMenu.cpp:175
-#, fuzzy
-#| msgid "Version: "
 msgctxt "MainMenu"
 msgid "Version box"
-msgstr "Версия: "
+msgstr "Версия:"
 
 #. The Pause menu
 #: gui/panels/GUI_GamePauseMenu.cpp:81
 msgid "Pause"
-msgstr ""
+msgstr "Пауза"
 
 #: gui/panels/GUI_GamePauseMenu.cpp:85
 msgid "Resume game"
-msgstr ""
+msgstr "Продолжить игру"
 
 #: gui/panels/GUI_GamePauseMenu.cpp:90
 msgid "Return to menu"
-msgstr ""
+msgstr "Вернуться в главное меню"
 
 #: gui/panels/GUI_GamePauseMenu.cpp:99
-#, fuzzy
-#| msgid "exit the game"
 msgid "Exit game"
 msgstr "Выйти из игры"
 
 #: gui/panels/GUI_GameSettings.cpp:41
 msgctxt "GameSettings"
 msgid "Game settings"
-msgstr ""
+msgstr "Настройки игры"
 
 #. Combobox for selecting the Render System
 #: gui/panels/GUI_GameSettings.cpp:46 gui/panels/GUI_GameSettings.cpp:86
 msgctxt "GameSettings"
 msgid "Render System"
-msgstr "Система визуализации"
+msgstr "Система рендера"
 
 #: gui/panels/GUI_GameSettings.cpp:48
 msgctxt "GameSettings"
 msgid "General"
-msgstr ""
+msgstr "Главное"
 
 #: gui/panels/GUI_GameSettings.cpp:50
 msgctxt "GameSettings"
@@ -1013,7 +971,7 @@ msgstr "Графика"
 #: gui/panels/GUI_GameSettings.cpp:53
 msgctxt "GameSettings"
 msgid "Audio"
-msgstr ""
+msgstr "Аудио"
 
 #: gui/panels/GUI_GameSettings.cpp:56
 msgctxt "GameSettings"
@@ -1023,285 +981,271 @@ msgstr "Управление"
 #: gui/panels/GUI_GameSettings.cpp:58
 msgctxt "GameSettings"
 msgid "Diagnostic"
-msgstr ""
+msgstr "Диагностика"
 
 #: gui/panels/GUI_GameSettings.cpp:60
-#, fuzzy
-#| msgid "Updates"
 msgctxt "GameSettings"
 msgid "Update cache"
-msgstr "Обновления"
+msgstr "Обновить кэш"
 
 #: gui/panels/GUI_GameSettings.cpp:72
 msgctxt "GameSettings"
 msgid "Render system (changes require a restart)"
-msgstr ""
+msgstr "Система рендера (изменяется после перезапуска игры)"
 
 #: gui/panels/GUI_GameSettings.cpp:123
 msgctxt "GameSettings"
 msgid "Application settings"
-msgstr ""
+msgstr "Настройки приложения"
 
 #: gui/panels/GUI_GameSettings.cpp:135
 msgctxt "GameSettings"
 msgid "Language"
-msgstr ""
+msgstr "Язык"
 
 #: gui/panels/GUI_GameSettings.cpp:166
-#, fuzzy
-#| msgid "user country"
 msgctxt "GameSettings"
 msgid "Country"
-msgstr "Страна пользователя"
+msgstr "Страна"
 
 #. Hardcoded; TODO: list available formats.
 #. Screenshot format: Can be png or jpg
 #: gui/panels/GUI_GameSettings.cpp:175
 msgctxt "GameSettings"
 msgid "Screenshot format"
-msgstr ""
+msgstr "Формат скриншота"
 
 #: gui/panels/GUI_GameSettings.cpp:181
 msgctxt "GameSettings"
 msgid "Extra mod path"
-msgstr ""
+msgstr "Дополнительный путь к модификации"
 
 #: gui/panels/GUI_GameSettings.cpp:183
 msgctxt "GameSettings"
 msgid "Skip main menu"
-msgstr ""
+msgstr "Пропустить главное меню"
 
 #: gui/panels/GUI_GameSettings.cpp:184
 msgctxt "GameSettings"
 msgid "Async physics"
-msgstr ""
+msgstr "Асинхронная физика"
 
 #: gui/panels/GUI_GameSettings.cpp:185
-#, fuzzy
-#| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Disable online api"
-msgstr "Отключить карту"
+msgstr "Отключить онлайн API"
 
 #: gui/panels/GUI_GameSettings.cpp:188
 msgctxt "GameSettings"
 msgid "Simulation settings"
-msgstr ""
+msgstr "Настройка симуляции"
 
 #: gui/panels/GUI_GameSettings.cpp:190
 msgctxt "GameSettings"
 msgid "Gearbox mode"
-msgstr ""
+msgstr "Режим коробки передач"
 
 #: gui/panels/GUI_GameSettings.cpp:197
 msgctxt "GameSettings"
 msgid "Digital speedometer"
-msgstr ""
+msgstr "Цифровой спидометр"
 
 #: gui/panels/GUI_GameSettings.cpp:198
 msgctxt "GameSettings"
 msgid "Imperial speedometer"
-msgstr ""
+msgstr "Имперский спидометр (футы, мили, узлы)"
 
 #. DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
 #: gui/panels/GUI_GameSettings.cpp:202
 msgctxt "GameSettings"
 msgid "Engines spawn running"
-msgstr ""
+msgstr "Автозапуск двигателя"
 
 #: gui/panels/GUI_GameSettings.cpp:204
 msgctxt "GameSettings"
 msgid "Replay mode"
-msgstr ""
+msgstr "Режим повтора"
 
 #: gui/panels/GUI_GameSettings.cpp:207
 msgctxt "GameSettings"
 msgid "Replay length"
-msgstr ""
+msgstr "Длина повтора"
 
 #: gui/panels/GUI_GameSettings.cpp:208
 msgctxt "GameSettings"
 msgid "Replay stepping"
-msgstr ""
+msgstr "Шаг повтора"
 
 #: gui/panels/GUI_GameSettings.cpp:211
-#, fuzzy
-#| msgid "[forwards commands]"
 msgctxt "GameSettings"
 msgid "Realistic forward commands"
-msgstr "[ведущая команда]"
+msgstr "Реалистичные команды"
 
 #: gui/panels/GUI_GameSettings.cpp:213
-#, fuzzy
-#| msgid "Enable waves"
 msgctxt "GameSettings"
 msgid "Enable races"
-msgstr "Включить волны"
+msgstr "Включить гонки (скрипт)"
 
 #: gui/panels/GUI_GameSettings.cpp:215
 msgctxt "GameSettings"
 msgid "No intra truck collisions"
-msgstr ""
+msgstr "Нет внутренних столкновений"
 
 #: gui/panels/GUI_GameSettings.cpp:216
 msgctxt "GameSettings"
 msgid "No inter truck collisions"
-msgstr ""
+msgstr "Нет внешних столкновений"
 
 #: gui/panels/GUI_GameSettings.cpp:218
 msgctxt "GameSettings"
 msgid "Discord Rich Presence"
-msgstr ""
+msgstr "Расширенный статус в Discord"
 
 #: gui/panels/GUI_GameSettings.cpp:223
 msgctxt "GameSettings"
 msgid "Audio settings"
-msgstr ""
+msgstr "Настройки Аудио"
 
 #: gui/panels/GUI_GameSettings.cpp:239
 msgctxt "GameSettings"
 msgid "Audio device"
-msgstr ""
+msgstr "Аудио устройства"
 
 #: gui/panels/GUI_GameSettings.cpp:244
 msgctxt "GameSettings"
 msgid "Creak sound"
-msgstr ""
+msgstr "Приглушить звук"
 
 #: gui/panels/GUI_GameSettings.cpp:245
 msgctxt "GameSettings"
 msgid "Main menu music"
-msgstr ""
+msgstr "Музыка в главном меню"
 
 #: gui/panels/GUI_GameSettings.cpp:246
 msgctxt "GameSettings"
 msgid "Master volume"
-msgstr ""
+msgstr "Основная громкость"
 
 #: gui/panels/GUI_GameSettings.cpp:251
 msgctxt "GameSettings"
 msgid "Video settings"
-msgstr ""
+msgstr "Настройки видео"
 
 #: gui/panels/GUI_GameSettings.cpp:253
 msgctxt "GameSettings"
 msgid "Lights"
-msgstr ""
+msgstr "Освещение, фары"
 
 #: gui/panels/GUI_GameSettings.cpp:260
 msgctxt "GameSettings"
 msgid "Shadow type (requires restart)"
-msgstr ""
+msgstr "Тип теней (нужен перезапуск)"
 
 #: gui/panels/GUI_GameSettings.cpp:266
 msgctxt "GameSettings"
 msgid "Shadow optimizations"
-msgstr ""
+msgstr "Оптимизация теней"
 
 #: gui/panels/GUI_GameSettings.cpp:269
 msgctxt "GameSettings"
 msgid "Shadow quality"
-msgstr ""
+msgstr "Качество теней"
 
 #: gui/panels/GUI_GameSettings.cpp:280
 msgctxt "GameSettings"
 msgid "Sight range (meters)"
-msgstr ""
+msgstr "Дальность прорисовки (метры)"
 
 #: gui/panels/GUI_GameSettings.cpp:283
 msgctxt "GameSettings"
 msgid "Texture filtering"
-msgstr ""
+msgstr "Фильтрация текстур"
 
 #: gui/panels/GUI_GameSettings.cpp:293
 msgctxt "GameSettings"
 msgid "Anisotropy"
-msgstr ""
+msgstr "Антизатропная фильтрация"
 
 #: gui/panels/GUI_GameSettings.cpp:299
 msgctxt "GameSettings"
 msgid "Vegetation density"
-msgstr ""
+msgstr "Плотность растительности"
 
 #: gui/panels/GUI_GameSettings.cpp:305
 msgctxt "GameSettings"
 msgid "Water gfx"
-msgstr ""
+msgstr "Частицы воды"
 
 #: gui/panels/GUI_GameSettings.cpp:313
 msgctxt "GameSettings"
 msgid "FPS limit"
-msgstr ""
+msgstr "Лимит FPS"
 
 #: gui/panels/GUI_GameSettings.cpp:315
 msgctxt "GameSettings"
 msgid "Enable particle gfx"
-msgstr ""
+msgstr "Включить частицы"
 
 #: gui/panels/GUI_GameSettings.cpp:316
 msgctxt "GameSettings"
 msgid "Enable skidmarks"
-msgstr ""
+msgstr "Включить следы"
 
 #: gui/panels/GUI_GameSettings.cpp:318
 msgctxt "GameSettings"
 msgid "Realtime reflections"
-msgstr ""
+msgstr "Отражение в реальном времени"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_GameSettings.cpp:322
 msgctxt "GameSettings"
 msgid "Realtime refl. update rate"
-msgstr ""
+msgstr "Частота обновлений отражений"
 
 #: gui/panels/GUI_GameSettings.cpp:326
 msgctxt "GameSettings"
 msgid "Render video cameras"
-msgstr ""
+msgstr "Рендер видеокамер"
 
 #: gui/panels/GUI_GameSettings.cpp:327
 msgctxt "GameSettings"
 msgid "Overview map icons"
-msgstr ""
+msgstr "Значки обзорной карты"
 
 #: gui/panels/GUI_GameSettings.cpp:330
-#, fuzzy
-#| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Declutter overview map"
-msgstr "Отключить карту"
+msgstr "Убрать карту"
 
 #: gui/panels/GUI_GameSettings.cpp:332
 msgctxt "GameSettings"
 msgid "Waves on water"
-msgstr ""
+msgstr "Волны в воде"
 
 #: gui/panels/GUI_GameSettings.cpp:333
 msgctxt "GameSettings"
 msgid "Classic material shaders (experimental)"
-msgstr ""
+msgstr "Классические материалы шейдеров (эксперементально)"
 
 #: gui/panels/GUI_GameSettings.cpp:340
-#, fuzzy
-#| msgid "rotate camera right"
 msgctxt "GameSettings"
 msgid "Static camera height (meters)"
-msgstr "вращать камеру в право"
+msgstr "Высота статичной камеры (метров)"
 
 #: gui/panels/GUI_GameSettings.cpp:341
 msgctxt "GameSettings"
 msgid "Exterior field of view"
-msgstr ""
+msgstr "Внешнее поле зрения"
 
 #: gui/panels/GUI_GameSettings.cpp:342
 msgctxt "GameSettings"
 msgid "Interior field of view"
-msgstr ""
+msgstr "Внутреннее поле зрения"
 
 #: gui/panels/GUI_GameSettings.cpp:346
 msgctxt "GameSettings"
 msgid "Diagnostic options"
-msgstr ""
+msgstr "Опции диагностики"
 
 #: gui/panels/GUI_GameSettings.cpp:347
 msgctxt "GameSettings"
@@ -1309,73 +1253,73 @@ msgid ""
 "These settings are for advanced users only, you should only change these if "
 "you know what you're doing"
 msgstr ""
+"Эти настройки ТОЛЬКО для опытных пользователей, меняйте, если знаете, что "
+"делаете"
 
 #: gui/panels/GUI_GameSettings.cpp:349
 msgctxt "GameSettings"
 msgid "Preselected terrain"
-msgstr ""
+msgstr "Заранее выбранный ландшафт"
 
 #: gui/panels/GUI_GameSettings.cpp:350
 msgctxt "GameSettings"
 msgid "Preselected vehicle"
-msgstr ""
+msgstr "Заранее выбранный транспорт"
 
 #: gui/panels/GUI_GameSettings.cpp:351
 msgctxt "GameSettings"
 msgid "Presel. veh. config"
-msgstr ""
+msgstr "Заранее выбранная конфиг. для Транспорта"
 
 #: gui/panels/GUI_GameSettings.cpp:352
 msgctxt "GameSettings"
 msgid "Enter preselected vehicle"
-msgstr ""
+msgstr "Введите предустановленный транспорт"
 
 #: gui/panels/GUI_GameSettings.cpp:353
 msgctxt "GameSettings"
 msgid "Auto actor spawner report"
-msgstr ""
+msgstr "Автоматический отчёт о создании"
 
 #: gui/panels/GUI_GameSettings.cpp:354
 msgctxt "GameSettings"
 msgid "Log node import (spawn)"
-msgstr ""
+msgstr "Импорт узла журнала (создание)"
 
 #: gui/panels/GUI_GameSettings.cpp:355
 msgctxt "GameSettings"
 msgid "Log node stats (spawn)"
-msgstr ""
+msgstr "Статистика узла журнала (создание)"
 
 #: gui/panels/GUI_GameSettings.cpp:356
 msgctxt "GameSettings"
 msgid "Debug camera (rails)"
-msgstr ""
+msgstr "Режим отладки (рельсы)"
 
 #: gui/panels/GUI_GameSettings.cpp:357
 msgctxt "GameSettings"
 msgid "Debug collisions"
-msgstr ""
+msgstr "Отладка коллизии"
 
 #: gui/panels/GUI_GameSettings.cpp:358
 msgctxt "GameSettings"
 msgid "Debug actor mass"
-msgstr ""
+msgstr "Отладка массы"
 
 #: gui/panels/GUI_GameSettings.cpp:359
 msgctxt "GameSettings"
 msgid "Debug realtime reflections"
-msgstr ""
+msgstr "Отладка отражений"
 
 #: gui/panels/GUI_GameSettings.cpp:360
 msgctxt "GameSettings"
 msgid "Debug videocameras"
-msgstr ""
+msgstr "Отладка видеокамер"
 
 #: gui/panels/GUI_GameSettings.cpp:361
-#, fuzzy
-#| msgid "saved texture as "
 msgctxt "GameSettings"
 msgid "Debug textures"
-msgstr "текстура сохранена как"
+msgstr "Отладка текстур"
 
 #: gui/panels/GUI_GameSettings.cpp:362
 msgctxt "GameSettings"
@@ -4783,7 +4727,7 @@ msgstr "Тяга (в самолёте)"
 
 #: utils/InputEngine.cpp:1741
 msgid "delete current truck"
-msgstr "Удалить текущий автомобиль"
+msgstr "Удалить текущий транспорт"
 
 #: utils/InputEngine.cpp:1747
 msgid "display or hide net chat"
@@ -4811,124 +4755,84 @@ msgstr "перемещать камеру вниз"
 
 #. now position storage
 #: utils/InputEngine.cpp:1781
-#, fuzzy
-#| msgid "save position as slot 1"
 msgid "save scene in slot 01"
-msgstr "Сохранить в слоте 1."
+msgstr "Сцена сохранена в слоте 1"
 
 #: utils/InputEngine.cpp:1782
-#, fuzzy
-#| msgid "save position as slot 2"
 msgid "save scene in slot 02"
-msgstr "сохранить позицию как слот 2"
+msgstr "Сцена сохранена в слоте 2"
 
 #: utils/InputEngine.cpp:1783
-#, fuzzy
-#| msgid "save position as slot 3"
 msgid "save scene in slot 03"
-msgstr "сохранить позицию как слот 3"
+msgstr "Сцена сохранена в слоте 3"
 
 #: utils/InputEngine.cpp:1784
-#, fuzzy
-#| msgid "save position as slot 4"
 msgid "save scene in slot 04"
-msgstr "сохранить позицию как слот 4"
+msgstr "Сцена сохранена в слоте 4"
 
 #: utils/InputEngine.cpp:1785
-#, fuzzy
-#| msgid "save position as slot 5"
 msgid "save scene in slot 05"
-msgstr "сохранить позицию как слот 5"
+msgstr "Сцена сохранена в слоте 5"
 
 #: utils/InputEngine.cpp:1786
-#, fuzzy
-#| msgid "save position as slot 6"
 msgid "save scene in slot 06"
-msgstr "сохранить позицию как слот 6 "
+msgstr "Сцена сохранена в слоте 6"
 
 #: utils/InputEngine.cpp:1787
-#, fuzzy
-#| msgid "save position as slot 7"
 msgid "save scene in slot 07"
-msgstr "сохранить позицию как слот 7"
+msgstr "Сцена сохранена в слоте 7"
 
 #: utils/InputEngine.cpp:1788
-#, fuzzy
-#| msgid "save position as slot 8"
 msgid "save scene in slot 08"
-msgstr "сохранить позицию как слот 8"
+msgstr "Сцена сохранена в слоте 8"
 
 #: utils/InputEngine.cpp:1789
-#, fuzzy
-#| msgid "save position as slot 9"
 msgid "save scene in slot 09"
-msgstr "сохранить позицию как слот 9"
+msgstr "Сцена сохранена в слоте 9"
 
 #: utils/InputEngine.cpp:1790
-#, fuzzy
-#| msgid "save position as slot 10"
 msgid "save scene in slot 10"
-msgstr "сохранить позицию как слот 10"
+msgstr "Сцена сохранена в слоте 10"
 
 #: utils/InputEngine.cpp:1792
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 01"
-msgstr "Загружена позиция из слота"
+msgstr "Загрузить сцену из слота 1"
 
 #: utils/InputEngine.cpp:1793
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 02"
-msgstr "Загружена позиция из слота"
+msgstr "Загрузить сцену из слота 2"
 
 #: utils/InputEngine.cpp:1794
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 03"
-msgstr "Загружена позиция из слота"
+msgstr "Загрузить сцену из слота 3"
 
 #: utils/InputEngine.cpp:1795
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 04"
-msgstr "Загружена позиция из слота"
+msgstr "Загрузить сцену из слота 4"
 
 #: utils/InputEngine.cpp:1796
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 05"
-msgstr "Загружена позиция из слота"
+msgstr "Загрузить сцену из слота 5"
 
 #: utils/InputEngine.cpp:1797
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 06"
-msgstr "Загружена позиция из слота"
+msgstr "Загрузить сцену из слота 6"
 
 #: utils/InputEngine.cpp:1798
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 07"
-msgstr "Загружена позиция из слота"
+msgstr "Загрузить сцену из слота 7"
 
 #: utils/InputEngine.cpp:1799
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 08"
-msgstr "Загружена позиция из слота"
+msgstr "Загрузить сцену из слота 8"
 
 #: utils/InputEngine.cpp:1800
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 09"
-msgstr "Загружена позиция из слота"
+msgstr "Загрузить сцену из слота 9"
 
 #: utils/InputEngine.cpp:1801
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgid "load scene from slot 10"
-msgstr "Загружена позиция из слота"
+msgstr "Загрузить сцену из слота 10"
 
 #: utils/InputEngine.cpp:1803
 msgid "reload truck"
