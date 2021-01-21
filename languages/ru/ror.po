@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-18 10:45+0100\n"
-"PO-Revision-Date: 2021-01-21 03:32+0000\n"
+"PO-Revision-Date: 2021-01-22 07:32+0000\n"
 "Last-Translator: Влад ххх <error.exe1234567890@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
@@ -30,7 +30,7 @@ msgstr "Ошибка загрузки"
 
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
-msgstr ""
+msgstr "Недоступен плагин для отрисовки. Проверьте plugins.cfg."
 
 #: AppContext.cpp:377
 msgid "Screenshot:"
@@ -66,11 +66,11 @@ msgstr "Пожалуйста, сначала освободите площадк
 
 #: GameContext.cpp:804
 msgid "Enabled hard reset mode"
-msgstr "Включен жесткий режим сброса транспорта"
+msgstr "Активирован жесткий режим сброса"
 
 #: GameContext.cpp:804
 msgid "Enabled soft reset mode"
-msgstr "Включен мягкий режим сброса транспорта"
+msgstr "Активирован мягкий режим сброса"
 
 #: GameContext.cpp:922
 msgid "Time set to "
