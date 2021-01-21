@@ -8,20 +8,22 @@
 # Niklas Kersten, 2015
 # Hiradur, 2015-2016
 # Danny Schmarsel <danny@schmarsel.de>, 2015
+# J. Lavoie <j.lavoie@net-c.ca>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-18 10:45+0100\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: German (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/de/)\n"
+"PO-Revision-Date: 2021-01-21 18:32+0000\n"
+"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
+"Language-Team: German <https://hosted.weblate.org/projects/rigs-of-rods/game/"
+"de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.5-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:407 AppContext.cpp:425
 #: AppContext.cpp:476 AppContext.cpp:490 AppContext.cpp:501
@@ -1827,72 +1829,52 @@ msgid "Cancel"
 msgstr "Abbrechen"
 
 #: gui/panels/GUI_MainSelector.cpp:616
-#, fuzzy
-#| msgid "Airplane"
 msgctxt "MainSelector"
 msgid "Airplane"
 msgstr "Flugzeug"
 
 #: gui/panels/GUI_MainSelector.cpp:616
-#, fuzzy
-#| msgid "Boat"
 msgctxt "MainSelector"
 msgid "Boat"
 msgstr "Boot"
 
 #: gui/panels/GUI_MainSelector.cpp:616
-#, fuzzy
-#| msgid "Machine"
 msgctxt "MainSelector"
 msgid "Machine"
 msgstr "Maschine"
 
 #: gui/panels/GUI_MainSelector.cpp:616
-#, fuzzy
-#| msgid "Non-Driveable"
 msgctxt "MainSelector"
 msgid "Non-Driveable"
 msgstr "Nicht angetrieben"
 
 #: gui/panels/GUI_MainSelector.cpp:616
-#, fuzzy
-#| msgid "Truck"
 msgctxt "MainSelector"
 msgid "Truck"
 msgstr "LKW"
 
 #. TextDisabled() are captions, Text() are values
 #: gui/panels/GUI_MultiplayerClientList.cpp:127
-#, fuzzy
-#| msgid "user name"
 msgctxt "MultiplayerClientList"
 msgid "user name"
 msgstr "Benutzername"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:132
-#, fuzzy
-#| msgid "user language: "
 msgctxt "MultiplayerClientList"
 msgid "user language: "
-msgstr "Benutzer-Sprache: "
+msgstr "Sprache des Benutzers: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:136
-#, fuzzy
-#| msgid " user country: "
 msgctxt "MultiplayerClientList"
 msgid "user country: "
 msgstr "Herkunft des Benutzers: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:147
-#, fuzzy
-#| msgid "user authentication level"
 msgctxt "MultiplayerClientList"
 msgid "user authentication level"
 msgstr "Benutzer-Authentifizierungsebene"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:162
-#, fuzzy
-#| msgid "truck loading state"
 msgctxt "MultiplayerClientList"
 msgid "truck loading state"
 msgstr "Ladestatus des Fahrzeugs"
