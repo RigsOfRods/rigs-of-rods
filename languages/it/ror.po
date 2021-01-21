@@ -6,13 +6,14 @@
 # The Registrar <gustaftoni@gmail.com>, 2016
 # Vincenzo Luongo <luongo.vincenzo.92@gmail.com>, 2019
 # Francesco Manichino <francescoman55@gmail.com>, 2021.
+# J. Lavoie <j.lavoie@net-c.ca>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-18 10:45+0100\n"
-"PO-Revision-Date: 2021-01-12 21:24+0000\n"
-"Last-Translator: Francesco Manichino <francescoman55@gmail.com>\n"
+"PO-Revision-Date: 2021-01-21 18:32+0000\n"
+"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/it/>\n"
 "Language: it\n"
@@ -20,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.4.1-dev\n"
+"X-Generator: Weblate 4.5-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:407 AppContext.cpp:425
 #: AppContext.cpp:476 AppContext.cpp:490 AppContext.cpp:501
@@ -1819,75 +1820,55 @@ msgid "Configuration"
 msgstr "Errore di configurazione"
 
 #: gui/panels/GUI_MainSelector.cpp:352
-#, fuzzy
-#| msgid "OK"
 msgctxt "MainSelector"
 msgid "OK"
-msgstr "Si"
+msgstr "OK"
 
 #: gui/panels/GUI_MainSelector.cpp:359
-#, fuzzy
-#| msgid "Cancel"
 msgctxt "MainSelector"
 msgid "Cancel"
 msgstr "Annulla"
 
 #: gui/panels/GUI_MainSelector.cpp:616
-#, fuzzy
-#| msgid "Airplane"
 msgctxt "MainSelector"
 msgid "Airplane"
 msgstr "Aereoplano"
 
 #: gui/panels/GUI_MainSelector.cpp:616
-#, fuzzy
-#| msgid "Boat"
 msgctxt "MainSelector"
 msgid "Boat"
 msgstr "Barca"
 
 #: gui/panels/GUI_MainSelector.cpp:616
-#, fuzzy
-#| msgid "Machine"
 msgctxt "MainSelector"
 msgid "Machine"
 msgstr "Macchina"
 
 #: gui/panels/GUI_MainSelector.cpp:616
-#, fuzzy
-#| msgid "Non-Driveable"
 msgctxt "MainSelector"
 msgid "Non-Driveable"
 msgstr "Non guidabile"
 
 #: gui/panels/GUI_MainSelector.cpp:616
-#, fuzzy
-#| msgid "Truck"
 msgctxt "MainSelector"
 msgid "Truck"
 msgstr "Veicolo"
 
 #. TextDisabled() are captions, Text() are values
 #: gui/panels/GUI_MultiplayerClientList.cpp:127
-#, fuzzy
-#| msgid "user name"
 msgctxt "MultiplayerClientList"
 msgid "user name"
 msgstr "nome utente"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:132
-#, fuzzy
-#| msgid "user language: "
 msgctxt "MultiplayerClientList"
 msgid "user language: "
-msgstr "Lingua utente:"
+msgstr "Lingua utente: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:136
-#, fuzzy
-#| msgid " user country: "
 msgctxt "MultiplayerClientList"
 msgid "user country: "
-msgstr "paese dell'utente:"
+msgstr "paese dell'utente: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:147
 #, fuzzy
@@ -1979,12 +1960,12 @@ msgstr "Nessuno"
 #: gui/panels/GUI_MultiplayerSelector.cpp:113
 msgctxt "MultiplayerSelector"
 msgid "Yes"
-msgstr ""
+msgstr "Sì"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:160
 msgctxt "MultiplayerSelector"
 msgid "Online (click to refresh)"
-msgstr ""
+msgstr "In linea (clicca per aggiornare)"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:168
 msgctxt "MultiplayerSelector"
