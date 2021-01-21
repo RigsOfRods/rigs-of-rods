@@ -316,8 +316,8 @@ void Network::RecvThread()
                         Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
                     LOG_THREAD(text);
 
+                    m_disconnected_users.push_back(*user); // Copy
                     m_users.erase(user);
-                    m_disconnected_users.push_back(*user);
                 }
             }
         }
