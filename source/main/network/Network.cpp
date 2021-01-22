@@ -333,16 +333,8 @@ void Network::RecvThread()
             }
             else
             {
-                // NB: Console is threadsafe
                 RoRnet::UserInfo user_info;
-                if (GetUserInfo(header.source, user_info)) // Check duplicate user ID
-                {
-                    Str<300> txt;
-                    txt << "Duplicate net userID: " << header.source << ", orig. user: '" << user_info.username << "'";
-                    App::GetConsole()->putMessage(
-                        Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, txt.ToCStr());
-                }
-                else
+                if (!GetUserInfo(header.source, user_info)) // Check that user doesn't exist yet.
                 {
                     memcpy(&user_info, buffer, sizeof(RoRnet::UserInfo));
                     Str<300> text;
@@ -352,6 +344,8 @@ void Network::RecvThread()
                         text << " (" << UserAuthToStringShort(user_info) << ")";
                     }
                     text << _L(" joined the game");
+                    
+                    // NB: Console is threadsafe
                     App::GetConsole()->putNetMessage(
                         user_info.uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
                     // Lock and update userlist
