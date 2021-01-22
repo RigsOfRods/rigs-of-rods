@@ -6,17 +6,12 @@
 ![issues-pr](https://flat.badgen.net/github/open-prs/RigsOfRods/rigs-of-rods)
 ![last commit](https://flat.badgen.net/github/last-commit/RigsOfRods/rigs-of-rods)
 [![Translations](https://hosted.weblate.org/widgets/rigs-of-rods/-/game/svg-badge.svg)](https://hosted.weblate.org/projects/rigs-of-rods/)
-
-
-|  Build status 	|  [![Coverity Scan Status](https://img.shields.io/coverity/scan/16646.svg?style=flat-square)](https://scan.coverity.com/projects/rigsofrods-rigs-of-rods)	|
-|---------------	|------------------	|
-| Linux:        	| [![travis build Status](https://flat.badgen.net/travis/RigsOfRods/rigs-of-rods/master?icon=travis)](https://travis-ci.org/RigsOfRods/rigs-of-rods)                                    	|
-| Windows:      	| [![appveyor build Status](https://flat.badgen.net/appveyor/ci/AnotherFoxGuy/rigs-of-rods/master?icon=appveyor)](https://ci.appveyor.com/project/AnotherFoxGuy/rigs-of-rods) 	|
+[![Coverity Scan Status](https://img.shields.io/coverity/scan/16646.svg?style=flat-square)](https://scan.coverity.com/projects/rigsofrods-rigs-of-rods)
+[![Build game](https://github.com/RigsOfRods/rigs-of-rods/workflows/Build%20game/badge.svg)](https://github.com/RigsOfRods/rigs-of-rods/actions?query=workflow%3A%22Build+game%22)
 
 
 Rigs of Rods is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics. The soft-body physics system is based on mass-spring-damper theory.  
 For a simple overview of the features Rigs of Rods provides please refer to [doc/Things you can do in Rigs of Rods.pdf](doc/Things%20you%20can%20do%20in%20Rigs%20of%20Rods.pdf)  
-
 
 #### Trailer:
 
