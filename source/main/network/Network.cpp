@@ -595,6 +595,7 @@ void Network::Disconnect()
     }
 
     m_users.clear();
+    m_disconnected_users.clear();
     m_recv_packet_buffer.clear();
     m_send_packet_buffer.clear();
 
