@@ -53,40 +53,6 @@
 using namespace Ogre;
 using namespace RoR;
 
-const CacheCategory CacheSystem::CATEGORIES[] = {
-    {9991,   "All"},
-    {9992,   "Fresh"},
-    {129,    "AddonTerrains"},
-    {114,    "Aircraft"},
-    {150,    "Bikes"},
-    {110,    "Boats"},
-    {107,    "Buses"},
-    {859,    "Container"},
-    {155,    "Crawlers"},
-    {149,    "FantasyCars"},
-    {159,    "FantasyTrucks"},
-    {156,    "Forklifts"},
-    {113,    "Helicopters"},
-    {9993,   "Hidden"},
-    {147,    "LightRacingCars"},
-    {153,    "MobileCranes"},
-    {5001,   "NightTerrains"},
-    {5000,   "OfficialTerrains"},
-    {148,    "OffroadCars"},
-    {162,    "OffroadTrucks"},
-    {108,    "OtherLandVehicles"},
-    {118,    "OtherLoads"},
-    {154,    "Othercranes"},
-    {161,    "RacingTrucks"},
-    {146,    "StreetCars"},
-    {875,    "Submarine"},
-    {152,    "Towercranes"},
-    {151,    "Tractors"},
-    {117,    "Trailers"},
-    {160,    "TransportTrucks"},
-    {9990,   "Unsorted"},
-};
-
 CacheEntry::CacheEntry() :
     addtimestamp(0),
     beamcount(0),
@@ -144,13 +110,6 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("load");
     m_known_extensions.push_back("train");
     m_known_extensions.push_back("skin");
-
-    // Prepare lookup table
-    for (size_t i = 0; i < NUM_CATEGORIES; ++i)
-    {
-        m_category_lookup.insert(std::make_pair(
-            CacheSystem::CATEGORIES[i].ccg_id, &CacheSystem::CATEGORIES[i]));
-    }
 }
 
 void CacheSystem::LoadModCache(CacheValidityState validity)
@@ -262,13 +221,13 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
 
     // Category
     int category_id = j_entry["categoryid"].GetInt();
-    auto category_itor = m_category_lookup.find(category_id);
-    if (category_itor == m_category_lookup.end() || category_id >= CID_Max)
+    auto category_itor = m_categories.find(category_id);
+    if (category_itor == m_categories.end() || category_id >= CID_Max)
     {
-        category_itor = m_category_lookup.find(CID_Unsorted);
+        category_itor = m_categories.find(CID_Unsorted);
     }
-    out_entry.categoryname = category_itor->second->ccg_name;
-    out_entry.categoryid = category_itor->second->ccg_id;
+    out_entry.categoryname = category_itor->second;
+    out_entry.categoryid = category_itor->first;
 
      // Common - Authors
     for (rapidjson::Value& j_author: j_entry["authors"].GetArray())

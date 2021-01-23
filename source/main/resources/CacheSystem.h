@@ -27,11 +27,13 @@
 #pragma once
 
 #include "Application.h"
+#include "Language.h"
 #include "RigDef_File.h"
 #include "SimData.h"
 
 #include <Ogre.h>
 #include <rapidjson/document.h>
+#include <string>
 
 #define CACHE_FILE "mods.cache"
 #define CACHE_FILE_FORMAT 11
@@ -132,12 +134,6 @@ enum CacheCategoryId
     CID_SearchResults = 9994
 };
 
-struct CacheCategory
-{
-    const int    ccg_id;
-    const char*  ccg_name;
-};
-
 struct CacheQueryResult
 {
     CacheQueryResult(CacheEntry* entry, size_t score):
@@ -184,9 +180,7 @@ struct CacheQuery
 class CacheSystem : public ZeroedMemoryAllocator
 {
 public:
-
-    static const size_t        NUM_CATEGORIES = 31;
-    static const CacheCategory CATEGORIES[NUM_CATEGORIES];
+    typedef std::map<int, Ogre::String> CategoryIdNameMap;
 
     CacheSystem();
 
@@ -210,7 +204,8 @@ public:
     bool CheckResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
     void ReLoadResource(CacheEntry& t); //!< Forces reloading the associated bundle.
 
-    const std::vector<CacheEntry> &GetEntries()        const { return m_entries; }
+    const std::vector<CacheEntry>   &GetEntries()        const { return m_entries; }
+    const CategoryIdNameMap         &GetCategories()     const { return m_categories; }
 
     std::shared_ptr<RoR::SkinDef> FetchSkinDef(CacheEntry* cache_entry); //!< Loads+parses the .skin file once
 
@@ -253,7 +248,56 @@ private:
     std::vector<CacheEntry>              m_entries;
     std::vector<Ogre::String>            m_known_extensions; //!< the extensions we track in the cache system
     std::set<Ogre::String>               m_resource_paths;   //!< A temporary list of existing resource paths
-    std::map<int, const CacheCategory*>  m_category_lookup;
+    std::map<int, Ogre::String>          m_categories = {
+            // these are the category numbers from the repository. do not modify them!
+
+            // vehicles
+            {108, _LC("ModCategory", "Other Land Vehicles")},
+
+            {146, _LC("ModCategory", "Street Cars")},
+            {147, _LC("ModCategory", "Light Racing Cars")},
+            {148, _LC("ModCategory", "Offroad Cars")},
+            {149, _LC("ModCategory", "Fantasy Cars")},
+            {150, _LC("ModCategory", "Bikes")},
+            {155, _LC("ModCategory", "Crawlers")},
+
+            {152, _LC("ModCategory", "Towercranes")},
+            {153, _LC("ModCategory", "Mobile Cranes")},
+            {154, _LC("ModCategory", "Other cranes")},
+
+            {107, _LC("ModCategory", "Buses")},
+            {151, _LC("ModCategory", "Tractors")},
+            {156, _LC("ModCategory", "Forklifts")},
+            {159, _LC("ModCategory", "Fantasy Trucks")},
+            {160, _LC("ModCategory", "Transport Trucks")},
+            {161, _LC("ModCategory", "Racing Trucks")},
+            {162, _LC("ModCategory", "Offroad Trucks")},
+
+            {110, _LC("ModCategory", "Boats")},
+
+            {113, _LC("ModCategory", "Helicopters")},
+            {114, _LC("ModCategory", "Aircraft")},
+
+            {117, _LC("ModCategory", "Trailers")},
+            {118, _LC("ModCategory", "Other Loads")},
+
+            // terrains
+            {129, _LC("ModCategory", "Addon Terrains")},
+
+            {859, _LC("ModCategory", "Container")},
+
+            {875, _LC("ModCategory", "Submarine")},
+
+            // note: these categories are NOT in the repository:
+            {5000, _LC("ModCategory", "Official Terrains")},
+            {5001, _LC("ModCategory", "Night Terrains")},
+
+            // do not use category numbers above 9000!
+            {9990, _LC("ModCategory", "Unsorted")},
+            {9991, _LC("ModCategory", "All")},
+            {9992, _LC("ModCategory", "Fresh")},
+            {9993, _LC("ModCategory", "Hidden")}
+        };
 };
 
 } // namespace RoR

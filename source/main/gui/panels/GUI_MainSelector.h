@@ -50,14 +50,10 @@ public:
 private:
     struct DisplayCategory
     {
-        DisplayCategory(const CacheCategory* cat, size_t usage)
-            : sdc_category(cat)
-        {
-            sdc_title << "(" << usage << ") " << cat->ccg_name;
-        }
+        DisplayCategory(int id, std::string const& name, size_t usage);
 
-        const CacheCategory* sdc_category;
-        Str<200>             sdc_title;
+        int        sdc_category_id;
+        Str<200>   sdc_title;
     };
 
     struct DisplayEntry

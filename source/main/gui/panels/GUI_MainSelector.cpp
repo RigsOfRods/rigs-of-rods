@@ -371,16 +371,34 @@ void MainSelector::Draw()
     }
 };
 
+template <typename T1, typename T2>
+struct sort_cats
+{
+    bool operator ()(std::pair<int, Ogre::String> const& a, std::pair<int, Ogre::String> const& b) const
+    {
+        if (a.first == CID_All)
+            return true;
+        if (b.first == CID_All)
+            return false;
+        if (a.first == CID_Fresh)
+            return true;
+        if (b.first == CID_Fresh)
+            return false;
+        return a.second < b.second;
+    }
+};
+
+
 void MainSelector::UpdateDisplayLists()
 {
-    int active_category_id = CacheSystem::CATEGORIES[0].ccg_id; // Fallback
+    int active_category_id = CID_All; // Fallback
     if (!m_display_categories.empty())
     {
         if (m_selected_category >= m_display_categories.size())
         {
             m_selected_category = 0;
         }
-        active_category_id = m_display_categories[m_selected_category].sdc_category->ccg_id;
+        active_category_id = m_display_categories[m_selected_category].sdc_category_id;
     }
 
     m_display_categories.clear();
@@ -423,14 +441,18 @@ void MainSelector::UpdateDisplayLists()
         }
     }
 
+    // Sort categories alphabetically
+    const CacheSystem::CategoryIdNameMap& cats = RoR::App::GetCacheSystem()->GetCategories();
+    std::vector<std::pair<int, Ogre::String>> sorted_cats(cats.begin(), cats.end());
+    std::sort(sorted_cats.begin(), sorted_cats.end(), sort_cats<int, Ogre::String>());
+
     // Display used categories
-    for (size_t i = 0; i < CacheSystem::NUM_CATEGORIES; ++i)
+    for (auto itor: sorted_cats)
     {
-        size_t usage = query.cqy_res_category_usage[CacheSystem::CATEGORIES[i].ccg_id];
-        if (usage > 0 ||
-            CacheSystem::CATEGORIES[i].ccg_id == CacheCategoryId::CID_Fresh) // HACK: Always include the "fresh" category
+        size_t usage = query.cqy_res_category_usage[itor.first];
+        if (usage > 0 || itor.first == CacheCategoryId::CID_Fresh) // HACK: Always include the "fresh" category
         {
-            m_display_categories.emplace_back(&CacheSystem::CATEGORIES[i], usage);
+            m_display_categories.emplace_back(itor.first, itor.second, usage);
         }
     }
 }
@@ -616,4 +638,10 @@ MainSelector::DisplayEntry::DisplayEntry(CacheEntry* entry):
             {_LC("MainSelector", "Non-Driveable"), _LC("MainSelector", "Truck"), _LC("MainSelector", "Airplane"), _LC("MainSelector", "Boat"), _LC("MainSelector", "Machine")};
         sde_driveable_str = str[sde_entry->driveable];
     }
+}
+
+MainSelector::DisplayCategory::DisplayCategory(int id, std::string const& name, size_t usage)
+    : sdc_category_id(id)
+{
+    sdc_title << "(" << usage << ") " << _LC("ModCategory", name.c_str());
 }
