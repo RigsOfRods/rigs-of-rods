@@ -22,10 +22,7 @@
 ///  @file   PlatformUtils.h
 ///  @author Petr Ohlidal
 ///  @date   05/2014
-///  @brief  Platform-specific utilities
-///
-///  For filesystem operations, we use narrow UTF-8 encoded strings as paths.
-///  Inspired by manifesto http://utf8everywhere.org/
+///  @brief  Platform-specific utilities. We use narrow UTF-8 encoded strings as paths. Inspired by http://utf8everywhere.org/ manifesto.
 ///  Code based on https://github.com/only-a-ptr/filepaths4rigs
 
 #pragma once
