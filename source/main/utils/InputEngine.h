@@ -386,7 +386,7 @@ enum events
     EV_MODE_LAST
 };
 
-struct eventInfo_t
+struct InputEvent
 {
     Ogre::String name;
     int eventID;
