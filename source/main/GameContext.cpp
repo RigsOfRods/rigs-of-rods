@@ -1003,17 +1003,14 @@ void GameContext::UpdateCommonInputEvents(float dt)
     }
 
     // blinkers
-    if (!RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESPAWN_LAST_TRUCK))
-    {
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_LEFT))
-            m_player_actor->toggleBlinkType(BLINK_LEFT);
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_LEFT))
+        m_player_actor->toggleBlinkType(BLINK_LEFT);
 
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_RIGHT))
-            m_player_actor->toggleBlinkType(BLINK_RIGHT);
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_RIGHT))
+        m_player_actor->toggleBlinkType(BLINK_RIGHT);
 
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_WARN))
-            m_player_actor->toggleBlinkType(BLINK_WARN);
-    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_WARN))
+        m_player_actor->toggleBlinkType(BLINK_WARN);
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_REMOVE))
     {

@@ -235,9 +235,9 @@ TRUCK_ACCELERATE_MODIFIER_50   Keyboard             CTRL+UP
 TRUCK_ANTILOCK_BRAKE           Keyboard             EXPL+SHIFT+B 
 TRUCK_AUTOSHIFT_DOWN           Keyboard             PGDOWN 
 TRUCK_AUTOSHIFT_UP             Keyboard             PGUP 
-TRUCK_BLINK_LEFT               Keyboard             COMMA 
-TRUCK_BLINK_RIGHT              Keyboard             PERIOD 
-TRUCK_BLINK_WARN               Keyboard             MINUS 
+TRUCK_BLINK_LEFT               Keyboard             EXPL+COMMA 
+TRUCK_BLINK_RIGHT              Keyboard             EXPL+PERIOD 
+TRUCK_BLINK_WARN               Keyboard             EXPL+MINUS 
 TRUCK_BRAKE                    Keyboard             DOWN 
 TRUCK_BRAKE_MODIFIER_25        Keyboard             ALT+DOWN 
 TRUCK_BRAKE_MODIFIER_50        Keyboard             CTRL+DOWN 
