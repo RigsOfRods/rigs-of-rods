@@ -39,7 +39,9 @@
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 
+#include <algorithm>
 #include <Ogre.h>
+#include <fmt/core.h>
 
 using namespace RoR;
 
@@ -531,12 +533,53 @@ public:
 class ClearCmd: public ConsoleCmd
 {
 public:
-    ClearCmd(): ConsoleCmd("clear", "[]", _L("Clear console history")) {}
+    ClearCmd(): ConsoleCmd("clear", "[<type>]", _L("Clear console history. Types: all/info/net/chat/terrn/actor/script")) {}
 
     void Run(Ogre::StringVector const& args) override
     {
-        Console::MsgLockGuard lock(App::GetConsole());
-        lock.messages.clear();
+        if (args.size() < 2 || args[1] == "all")
+        {
+            Console::MsgLockGuard lock(App::GetConsole());
+            lock.messages.clear();
+        }
+        else
+        {
+            // Create a predicate function
+            std::function<bool(Console::Message const& m)> filter_fn;
+            if (args[1] == "chat")
+            {
+                filter_fn = [](Console::Message const& m){ return m.cm_type == Console::CONSOLE_SYSTEM_NETCHAT; };
+            }
+            else if (args[1] == "net") // Chat and user notifications
+            {
+                filter_fn = [](Console::Message const& m){ return m.cm_net_userid != 0; };
+            }
+            else
+            {
+                Console::MessageArea area;
+                bool valid = false;
+                     if (args[1] == "info")   { area = Console::CONSOLE_MSGTYPE_INFO;   valid = true; }
+                else if (args[1] == "terrn")  { area = Console::CONSOLE_MSGTYPE_TERRN;  valid = true; }
+                else if (args[1] == "actor")  { area = Console::CONSOLE_MSGTYPE_ACTOR;  valid = true; }
+                else if (args[1] == "script") { area = Console::CONSOLE_MSGTYPE_SCRIPT; valid = true; }
+
+                if (valid)
+                {
+                    filter_fn = [area](Console::Message const& m) { return m.cm_area == area; };
+                }
+                else
+                {
+                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                        fmt::format(_L("No such message type: {}"), args[1]));
+                }
+            }
+
+            Console::MsgLockGuard lock(App::GetConsole());
+            // Shove unwanted entries to the end
+            auto erase_begin = std::remove_if(lock.messages.begin(), lock.messages.end(), filter_fn);
+            // Erase unwanted
+            lock.messages.erase(erase_begin, lock.messages.end());
+        }
     }
 };
 
