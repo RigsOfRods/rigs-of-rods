@@ -102,9 +102,6 @@ void Character::setRotation(Radian rotation)
 
 void Character::SetAnimState(std::string mode, float time)
 {
-    if (mode.empty())
-        return; // Multiplayer safe-guard
-
     if (m_anim_name != mode)
     {
         m_anim_name = mode;
@@ -523,8 +520,6 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
 #endif
 }
 
-
-
 void Character::SetActorCoupling(bool enabled, Actor* actor)
 {
     m_actor_coupling = actor;
@@ -548,6 +543,9 @@ void Character::SetActorCoupling(bool enabled, Actor* actor)
     }
 #endif // USE_SOCKETW
 }
+
+// --------------------------------
+// GfxCharacter
 
 GfxCharacter* Character::SetupGfx()
 {
@@ -682,7 +680,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
             }
         }
     }
-    else
+    else if (xc_simbuf.simbuf_anim_name != "") // Just do nothing if animation name is empty. May happen during networked play.
     {
         auto* as_cur = entity->getAnimationState(xc_simbuf.simbuf_anim_name);
         as_cur->setTimePosition(xc_simbuf.simbuf_anim_time);
