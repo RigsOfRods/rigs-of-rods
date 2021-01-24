@@ -34,6 +34,7 @@
  * # Gameplay concepts
  *
  * Rigs of Rods is a sandbox physics simulator with static terrain, scriptable events, free-moving player characters and deformable physics objects.
+ *
  * The main interface to gameplay logic is RoR::GameContext. It maintains the simulation state, loads/updates/unloads individual elements and resolves their interactions.
  *
  * ## Message queue
@@ -41,9 +42,22 @@
  * Message queue lives in RoR::GameContext. To add message, call RoR::GameContext::PushMessage() (write: `App::GetGameContext()->PushMessage()`). See RoR::MsgType for list of available messages. Currently, messages can be only submitted from code. In the future, it will be possible from scripting as well.
  * Messages are processed exclusively in main(). In the future it will be possible to register for messages from scripting.
  *
- * ## Console variables (CVars)
+ * ## Console
+ * The console receives text messages from all areas of the game; see RoR::Console::MessageType and RoR::Console::MessageArea. To submit a message, call RoR::Console::putMessage() (write: `App::GetConsole()->putMessage()`).
+ * To view the messages in-game, use console window (GUI::ConsoleWindow) or on-screen chat display (GUI::GameChatBox). Both use GUI::ConsoleView to retrieve and filter the messages. All messages are also written to RoR.log.
+ * 
+ * ### Console variables (CVars)
  * This concept is borrowed from Quake engine. CVars configure every aspect of the program; see source of RoR::Console::CVarSetupBuiltins() for complete listing and partial doc on <a href="https://github.com/RigsOfRods/rigs-of-rods/wiki/CVars-(console-variables)"> github wiki </a>.
  * RoR::Console reads main configuration file 'RoR.cfg' and loads known values to cvars, see RoR::Console::LoadConfig(). Command-line arguments are also stored as cvars, see RoR::Console::ProcessCommandLine().
- * The console receives text messages from all areas of the game; see RoR::Console::MessageType and RoR::Console::MessageArea. To submit a message, call RoR::Console::putMessage() (write: `App::GetConsole()->putMessage()`).
+ *
+ * ## ModCache
+ * A database of all user-made content (mods). This includes terrains, trucks (.truck/load/etc.., see fileformat truck) and skins.
+ * ModCache is maintained by object RoR::CacheSystem (use `App::GetCacheSystem()`). The process of (re)building the database is called 'cache regen' or the like. It's done by RoR::CacheSystem::LoadModCache().
+ *
+ * Mods are distributed in zip archives, traditionally with extensions .zip (terrain/truck/skin) or .skinzip (skin). Loading from directiories is also possible. These locations are reffered to as 'bundles'. Each bundle may contain several mods of mixed types. Bundles are shared between mods and loaded only once, each gets it's own OGRE resource group named "bundle $FULLPATH$". To load a bundle, use RoR::CacheSystem::LoadResource(), or helper RoR::CacheSystem::CheckResourceLoaded().
+ * Mods are located under 'Documents\My Games\Rigs of Rods\mods', cached files are in 'Documents\My Games\Rigs of Rods\cache' (see cvar 'sys_cache_dir').
+ * For each mod, a RoR::CacheEntry is created. To retrieve cache entries from modcache, use RoR::CacheSystem::Query() with RoR::CacheQuery, or RoR::CacheSystem::FindEntryByFilename(), or RoR::CacheSystem::FetchSkinByName().
+ *
+ * 
  * 
  */
