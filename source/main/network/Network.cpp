@@ -312,8 +312,7 @@ void Network::RecvThread()
                     // Console is now threadsafe, no need to send fake chatmessages to ourselves
                     Str<300> text;
                     text << user->username << _L(" left the game");
-                    App::GetConsole()->putMessage( // NOTE: we can't use `putNetMessage()` since the user info gets deleted.
-                        Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
+                    App::GetConsole()->putNetMessage(user->uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
                     LOG_THREAD(text);
 
                     m_disconnected_users.push_back(*user); // Copy
@@ -592,6 +591,7 @@ void Network::Disconnect()
     m_disconnected_users.clear();
     m_recv_packet_buffer.clear();
     m_send_packet_buffer.clear();
+    App::GetConsole()->DoCommand("clear net");
 
     m_shutdown = false;
     App::mp_state->SetVal((int)MpState::DISABLED);

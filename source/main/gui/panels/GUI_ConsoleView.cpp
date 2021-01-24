@@ -179,19 +179,20 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
     if (m.cm_net_userid)
     {
         RoRnet::UserInfo user;
-        if (App::GetNetwork()->GetAnyUserInfo((int)m.cm_net_userid, user)) // Local or remote user
+        if (App::GetNetwork()->GetAnyUserInfo((int)m.cm_net_userid, user) ||         // Local or remote user
+            App::GetNetwork()->GetDisconnectedUserInfo((int)m.cm_net_userid, user))  // Disconnected remote user
         {
             Ogre::ColourValue col = App::GetNetwork()->GetPlayerColor(user.colournum);
             int r,g,b;
             color2i(ImVec4(col.r, col.g, col.b, col.a), r,g,b);
             line << fmt::format("#{:02x}{:02x}{:02x}{}: #000000{}", r, g, b, user.username, m.cm_text);
         }
-        else if (App::GetNetwork()->GetDisconnectedUserInfo((int)m.cm_net_userid, user)) // Disconnected remote user
+        else // Invalid net userID, display anyway.
         {
-            line << user.username << " [offline]: " << m.cm_text;
+            line = m.cm_text;
         }
     }
-    else // not multiplayer chat
+    else // not multiplayer message
     {
         line = m.cm_text;
     }
