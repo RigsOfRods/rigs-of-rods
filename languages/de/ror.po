@@ -9,13 +9,14 @@
 # Hiradur, 2015-2016
 # Danny Schmarsel <danny@schmarsel.de>, 2015
 # J. Lavoie <j.lavoie@net-c.ca>, 2021.
+# freddii <fredfire11@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-18 10:45+0100\n"
-"PO-Revision-Date: 2021-01-21 18:32+0000\n"
-"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
+"PO-Revision-Date: 2021-01-25 15:32+0000\n"
+"Last-Translator: freddii <fredfire11@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "de/>\n"
 "Language: de\n"
@@ -33,6 +34,8 @@ msgstr "Fehler beim Starten"
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
 msgstr ""
+"Kein Render-System-Plugin verfügbar. Biite überprüfen Sie Ihre plugins.cfg "
+"Datei."
 
 #: AppContext.cpp:377
 msgid "Screenshot:"
@@ -40,11 +43,11 @@ msgstr "Bildschirmfoto"
 
 #: AppContext.cpp:407
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Fehler beim Abrufen des Programmverzeichnispfads"
 
 #: AppContext.cpp:425
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Fehler beim Abrufen des Benutzerverzeichnispfads"
 
 #: AppContext.cpp:476
 msgid "Resources folder not found. Check if correctly installed."
@@ -53,6 +56,7 @@ msgstr "Ressourcen Ordner nicht gefunden. Überprüfe auf korrekte Installation.
 #: AppContext.cpp:490 AppContext.cpp:501
 msgid "Faulty resource folder. Check if correctly installed."
 msgstr ""
+"Fehlerhafter Ressourcenordner. Überprüfen Sie, ob es richtig installiert ist."
 
 #: GameContext.cpp:91
 msgid "Terrain not found: "
@@ -231,11 +235,9 @@ msgid "Actors"
 msgstr ""
 
 #: gui/panels/GUI_ConsoleView.cpp:220
-#, fuzzy
-#| msgid "Loading Terrain"
 msgctxt "Console"
 msgid "Terrain"
-msgstr "Lade Karte"
+msgstr "Karte"
 
 #: gui/panels/GUI_ConsoleView.cpp:223
 msgctxt "Console"
@@ -245,21 +247,17 @@ msgstr ""
 #: gui/panels/GUI_ConsoleView.cpp:224
 msgctxt "Console"
 msgid "Notices"
-msgstr ""
+msgstr "Hinweise"
 
 #: gui/panels/GUI_ConsoleView.cpp:225
-#, fuzzy
-#| msgid "Warning"
 msgctxt "Console"
 msgid "Warnings"
-msgstr "Warnung"
+msgstr "Warnungen"
 
 #: gui/panels/GUI_ConsoleView.cpp:226
-#, fuzzy
-#| msgid "Mirrors"
 msgctxt "Console"
 msgid "Errors"
-msgstr "Spiegel"
+msgstr "Fehler"
 
 #: gui/panels/GUI_ConsoleView.cpp:227
 #, fuzzy
@@ -269,34 +267,26 @@ msgid "Net chat"
 msgstr "Dem Chat beitreten"
 
 #: gui/panels/GUI_ConsoleView.cpp:228 gui/panels/GUI_ConsoleWindow.cpp:52
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "Console"
 msgid "Commands"
-msgstr "Befehle: "
+msgstr "Befehle"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:47
-#, fuzzy
-#| msgid "Cockpit options:"
 msgctxt "Console"
 msgid "Filter options"
-msgstr "Cockpit-Optionen: "
+msgstr "Filter-Optionen"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:86
-#, fuzzy
-#| msgid "Command 1"
 msgctxt "Console"
 msgid "Command"
-msgstr "Funktion 1"
+msgstr "Befehl"
 
 #: gui/panels/GUI_DirectionArrow.cpp:91
 msgctxt "DirectionArrow"
 msgid "meter"
-msgstr ""
+msgstr "Meter"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
-#, fuzzy
-#| msgid "Friction Settings"
 msgctxt "FrictionSettings"
 msgid "Friction Settings"
 msgstr "Reibungseinstellungen"
@@ -309,8 +299,6 @@ msgid "Current active Ground: "
 msgstr "Momentan aktiver Bodenbelag: "
 
 #: gui/panels/GUI_FrictionSettings.cpp:55
-#, fuzzy
-#| msgid "selected Ground Type:"
 msgctxt "FrictionSettings"
 msgid "selected Ground Type:"
 msgstr "Ausgewählter Untergrundtyp:"
@@ -323,26 +311,16 @@ msgid "Solid ground settings"
 msgstr "Einstellungen des festen Bodens"
 
 #: gui/panels/GUI_FrictionSettings.cpp:63
-#, fuzzy
-#| msgid "Solid ground level:"
 msgctxt "FrictionSettings"
 msgid "Solid ground level:"
 msgstr "Ebene des festen Bodens:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:64
-#, fuzzy
-#| msgid "Solid ground level"
 msgctxt "FrictionSettings"
 msgid "Solid ground level"
 msgstr "Ebene des festen Bodens"
 
 #: gui/panels/GUI_FrictionSettings.cpp:64
-#, fuzzy
-#| msgid ""
-#| "With this you can define how deep the solid ground is. If it is 0 then "
-#| "the surface will be solid. If it is 0.1 then you'll have 10 cm of fluid "
-#| "on top of solid ground. If it is 100 then the solid ground will be way "
-#| "deep (100m), with fluid on top."
 msgctxt "FrictionSettings"
 msgid ""
 "With this you can define how deep the solid ground is. If it is 0 then the "
@@ -355,26 +333,16 @@ msgstr ""
 "Boden. Bei 100 liegt der feste Boden 100m tief, darüber das Fluid."
 
 #: gui/panels/GUI_FrictionSettings.cpp:66
-#, fuzzy
-#| msgid "Strength:"
 msgctxt "FrictionSettings"
 msgid "Strength:"
 msgstr "Stärke:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:67
-#, fuzzy
-#| msgid "Strength"
 msgctxt "FrictionSettings"
 msgid "Strength"
 msgstr "Stärke"
 
 #: gui/panels/GUI_FrictionSettings.cpp:67
-#, fuzzy
-#| msgid ""
-#| "This parameter raises or diminishes surface friction in a generic way. It "
-#| "is here so as to be able to do quick calibrations of friction. Start with "
-#| "having this to 1.0 and after tuning the rest of the surface variables, "
-#| "come back and play with this."
 msgctxt "FrictionSettings"
 msgid ""
 "This parameter raises or diminishes surface friction in a generic way. It is "
@@ -388,28 +356,16 @@ msgstr ""
 "aller anderen Oberflächenvariablen."
 
 #: gui/panels/GUI_FrictionSettings.cpp:69
-#, fuzzy
-#| msgid "Static friction coef:"
 msgctxt "FrictionSettings"
 msgid "Static friction coef:"
 msgstr "Haftreibungskoeffizient:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:70
-#, fuzzy
-#| msgid "Static friction coef"
 msgctxt "FrictionSettings"
 msgid "Static friction coef"
 msgstr "Haftreibungskoeffizient"
 
 #: gui/panels/GUI_FrictionSettings.cpp:70
-#, fuzzy
-#| msgid ""
-#| "Static friction keeps you in the same place when you are stopped on a "
-#| "hill. In the real world this friction is always bigger than dynamic "
-#| "friction (sliding friction). Start with 0.5 and work from there. It is "
-#| "better to try to find some experimentally validated values for this and "
-#| "the rest of surface friction variables in the net, and then to fine tune "
-#| "via strength."
 msgctxt "FrictionSettings"
 msgid ""
 "Static friction keeps you in the same place when you are stopped on a hill. "
@@ -440,12 +396,6 @@ msgid "Adhesion velocity"
 msgstr "Haftgeschwindigkeit"
 
 #: gui/panels/GUI_FrictionSettings.cpp:73
-#, fuzzy
-#| msgid ""
-#| "Below this value static friction laws apply, above it dynamic friction "
-#| "laws apply. Value should be small, in the range of 0.1-0.4 . This "
-#| "velocity threshold is also used by fluid dynamics so you should always "
-#| "define it. NEVER set it to 0."
 msgctxt "FrictionSettings"
 msgid ""
 "Below this value static friction laws apply, above it dynamic friction laws "
@@ -459,25 +409,16 @@ msgstr ""
 "sollte deshalb immer definiert werden. Der Wert darf NIEMALS 0 werden."
 
 #: gui/panels/GUI_FrictionSettings.cpp:75
-#, fuzzy
-#| msgid "Dynamic friction coef:"
 msgctxt "FrictionSettings"
 msgid "Dynamic friction coef:"
 msgstr "Gleitreibungskoeffizient:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:76
-#, fuzzy
-#| msgid "Dynamic friction coef"
 msgctxt "FrictionSettings"
 msgid "Dynamic friction coef"
 msgstr "Gleitreibungskoeffizient"
 
 #: gui/panels/GUI_FrictionSettings.cpp:76
-#, fuzzy
-#| msgid ""
-#| "Or sliding friction coef. It should be smaller than static friction coef. "
-#| "This parameter defines how much friction you'll have when sliding. Try to "
-#| "find some values for it from the net."
 msgctxt "FrictionSettings"
 msgid ""
 "Or sliding friction coef. It should be smaller than static friction coef. "
@@ -489,15 +430,11 @@ msgstr ""
 "während du rutscht. Versuche Werte im Internet zu finden."
 
 #: gui/panels/GUI_FrictionSettings.cpp:78
-#, fuzzy
-#| msgid "Hydrodynamic friction coef:"
 msgctxt "FrictionSettings"
 msgid "Hydrodynamic friction coef:"
 msgstr "Hydrodynamischer Reibungskoeffizient:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:79
-#, fuzzy
-#| msgid "Hydrodynamic friction coef"
 msgctxt "FrictionSettings"
 msgid "Hydrodynamic friction coef"
 msgstr "Hydrodynamischer Reibungskoeffizient"
