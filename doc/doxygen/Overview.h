@@ -43,12 +43,15 @@
  * Messages are processed exclusively in main(). In the future it will be possible to register for messages from scripting.
  *
  * ## Console
- * The console receives text messages from all areas of the game; see RoR::Console::MessageType and RoR::Console::MessageArea. To submit a message, call RoR::Console::putMessage() (write: `App::GetConsole()->putMessage()`).
+ * The console receives text messages from all areas of the game; see RoR::Console::MessageType and RoR::Console::MessageArea. To submit a message, call RoR::Console::putMessage() (write: `App::GetConsole()->putMessage()`). This function is thread-safe.
  * To view the messages in-game, use console window (GUI::ConsoleWindow) or on-screen chat display (GUI::GameChatBox). Both use GUI::ConsoleView to retrieve and filter the messages. All messages are also written to RoR.log.
+ *
+ * ### Console commands
+ * Each command is a RoR::ConsoleCmd object. Built-in commands are defined in ConsoleCmd.cpp and registered with RoR::Console::RegBuiltinCommands(). Invoking a command is done through RoR::Console::DoCommand().
  * 
  * ### Console variables (CVars)
  * This concept is borrowed from Quake engine. CVars configure every aspect of the program; see source of RoR::Console::CVarSetupBuiltins() for complete listing and partial doc on <a href="https://github.com/RigsOfRods/rigs-of-rods/wiki/CVars-(console-variables)"> github wiki </a>.
- * RoR::Console reads main configuration file 'RoR.cfg' and loads known values to cvars, see RoR::Console::LoadConfig(). Command-line arguments are also stored as cvars, see RoR::Console::ProcessCommandLine().
+ * Cvars are stored in 'RoR.cfg' and loaded on startup by RoR::Console::LoadConfig(). Command-line arguments are also loaded as cvars, see RoR::Console::ProcessCommandLine().
  *
  * ## ModCache
  * A database of all user-made content (mods). This includes terrains, trucks (.truck/load/etc.., see fileformat truck) and skins.
@@ -58,6 +61,32 @@
  * Mods are located under 'Documents\My Games\Rigs of Rods\mods', cached files are in 'Documents\My Games\Rigs of Rods\cache' (see cvar 'sys_cache_dir').
  * For each mod, a RoR::CacheEntry is created. To retrieve cache entries from modcache, use RoR::CacheSystem::Query() with RoR::CacheQuery, or RoR::CacheSystem::FindEntryByFilename(), or RoR::CacheSystem::FetchSkinByName().
  *
+ * ## Terrain
+ * The primary interface to terrain is RoR::TerrainManager (use `App::GetSimTerrain()`).
+ * To request (un)loading a terrain, use RoR::MsgType::MSG_SIM_LOAD_TERRN_REQUESTED and RoR::MsgType::MSG_SIM_UNLOAD_TERRN_REQUESTED.
+ * The central definiton fileformat for terrain is <a href="https://docs.rigsofrods.org/terrain-creation/terrn2-subsystem/">terrn2</a>.
  * 
+ * Terrains are generated from elevation maps (aka heightmaps).
+ * This is done by RoR::TerrainGeometryManager (use `RoR::GetSimTerrain()->getGeometryManager()`) which relies on <a href="https://ogrecave.github.io/ogre/api/latest/group___terrain.html">OgreTerrain</a> to generate the geometry. Once generated, geometry is saved to cache folder (see ModCache).
+ * Related file format is <a href="https://docs.rigsofrods.org/terrain-creation/terrn2-subsystem/#ogre-terrain-config-otc">OTC</a>.
  * 
+ * ### Terrain objects
+ * Managed by RoR::TerrainObjectManager (use `RoR::GetSimTerrain()->getObjectManager()`).
+ * A terrain object is defined using <a href="https://docs.rigsofrods.org/terrain-creation/object-format/">ODEF</a> file format. This format defines visual meshes, collision meshes or event boxes.
+ * You can add terrain objects dynamically using RoR::TerrainObjectManager::LoadTerrainObject() or define them in <a href="https://docs.rigsofrods.org/terrain-creation/intro/#static-objects_1">TOBJ</a> file. Loading TOBJ files is done using TObjFileformat.h. For details visit RoR::TObjParser::ProcessCurrentLine()
+ *
+ * ### Procedural roads
+ * Dynamically generated meshes based on TOBJ file. There is a dedicated keyword 'begin/end_procedural_road', but regular object lines with predefined names are also processed, see RoR::TObj::SpecialObject.
+ * Procedural objects are defined using RoR::ProceduralManager, the actual mesh generation is done by RoR::Road2.
+ *
+ * ### Scripting
+ * Managed by RoR::ScriptEngine (use `App::GetScriptEngine()`). Scripts can come from several sources:
+ * * From .as files referenced by terrn2 files. Or by manually invoking RoR::ScriptEngine::loadScript().
+ * * From console as user input, see RoR::AsCmd. Or by manually invoking RoR::ScriptEngine::executeString() on main thread.
+ * * From server in multiplayer, see RoRnet::MessageType::MSG2_GAME_CMD. Or by invoking RoR::ScriptEngine::queueStringForExecution() on any thread.
+ *
+ * Script functions are invoked in 3 ways:
+ * * Once when RoR::ScriptEngine::loadScript() is invoked. The script function must be "void main()".
+ * * Periodically every frame via RoR::ScriptEngine::framestep(). This also processes all queued strings. The script function must be "void frameStep(float)" - the parameter is time since last frame in seconds.
+ * * When RoR::ScriptEngine::triggerEvent() is called, look for TRIGGER_EVENT() macros across the codebase. For list of events see scriptEvents (ScriptEvents.h).
  */
