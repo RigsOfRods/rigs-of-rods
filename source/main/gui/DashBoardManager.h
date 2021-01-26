@@ -81,7 +81,7 @@ typedef struct dashData_t
 
 // DashData enum definition
 // important: if you add things here, also change the initialization in the constructor
-enum
+enum DashData
 {
     DD_ENGINE_RPM,
     DD_ENGINE_SPEEDO_KPH,      /// speedo in kilometer per hour
