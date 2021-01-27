@@ -290,6 +290,10 @@ int main(int argc, char *argv[])
                 // -- Application events --
 
                 case MSG_APP_SHUTDOWN_REQUESTED:
+                    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+                    {
+                        App::GetGameContext()->SaveScene("autosave.sav");
+                    }
                     App::GetConsole()->SaveConfig(); // RoR.cfg
                     App::GetDiscordRpc()->Shutdown();
 #ifdef USE_SOCKETW
