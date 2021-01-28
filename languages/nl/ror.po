@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-28 10:37+0100\n"
-"PO-Revision-Date: 2021-01-16 10:30+0000\n"
+"PO-Revision-Date: 2021-01-28 23:32+0000\n"
 "Last-Translator: Edgar <Edgar@anotherfoxguy.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "nl/>\n"
@@ -278,8 +278,6 @@ msgid "Friction Settings"
 msgstr "Frictie instellingen"
 
 #: gui/panels/GUI_FrictionSettings.cpp:48
-#, fuzzy
-#| msgid "Current active Ground: "
 msgctxt "FrictionSettings"
 msgid "Current active Ground: "
 msgstr "Huidige actieve terrein: "
@@ -730,7 +728,7 @@ msgstr "Kaart"
 #: gui/panels/GUI_GameControls.cpp:65
 msgctxt "GameControls"
 msgid "Menu"
-msgstr ""
+msgstr "Menu"
 
 #: gui/panels/GUI_GameControls.cpp:67
 msgctxt "GameControls"
@@ -1847,8 +1845,6 @@ msgid "Reset search"
 msgstr ""
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:156
-#, fuzzy
-#| msgid "Search Results"
 msgctxt "NodeBeamUtils"
 msgid "Search results"
 msgstr "Zoekresultaten"
@@ -1989,11 +1985,9 @@ msgid "G-Forces:"
 msgstr "G-Forces:"
 
 #: gui/panels/GUI_SimPerfStats.cpp:45
-#, fuzzy
-#| msgid "Current FPS: "
 msgctxt "SimPerfStats"
 msgid "Current FPS: "
-msgstr "FPS "
+msgstr "Huidige FPS: "
 
 #: gui/panels/GUI_SimPerfStats.cpp:46
 msgctxt "SimPerfStats"
@@ -2264,9 +2258,10 @@ msgid "Hide labels"
 msgstr "Labels verbergen"
 
 #: gui/panels/GUI_TopMenubar.cpp:478
+#, fuzzy
 msgctxt "TopMenubar"
 msgid "Tools menu"
-msgstr ""
+msgstr "Gereedschap menu"
 
 #: gui/panels/GUI_TopMenubar.cpp:480
 msgctxt "TopMenubar"
@@ -2496,7 +2491,6 @@ msgid "Display mode changed to fullscreen"
 msgstr "Weergavemodus gewijzigd in volledig scherm"
 
 #: main.cpp:319
-#, fuzzy
 msgid "Display mode changed to windowed"
 msgstr "Weergavemodus gewijzigd in venster"
 
@@ -2686,8 +2680,6 @@ msgid "Server Administrator"
 msgstr "Server Administrator"
 
 #: network/Network.cpp:805
-#, fuzzy
-#| msgid "Server Moderator"
 msgctxt "NetUserAuth"
 msgid "Server Moderator"
 msgstr "Server Moderator"
@@ -2697,7 +2689,7 @@ msgstr "Server Moderator"
 #| msgid "ranked user"
 msgctxt "NetUserAuth"
 msgid "Ranked user"
-msgstr "gerangschikte gebruiker"
+msgstr "Gerangschikte gebruiker"
 
 #: network/Network.cpp:808
 msgctxt "NetUserAuth"
@@ -2840,27 +2832,27 @@ msgstr "Meerde zip bestanden samen laden "
 #: resources/CacheSystem.h:255
 msgctxt "ModCategory"
 msgid "Other Land Vehicles"
-msgstr ""
+msgstr "Andere landvoertuigen"
 
 #: resources/CacheSystem.h:257
 msgctxt "ModCategory"
 msgid "Street Cars"
-msgstr ""
+msgstr "Straat Auto's"
 
 #: resources/CacheSystem.h:258
 msgctxt "ModCategory"
 msgid "Light Racing Cars"
-msgstr ""
+msgstr "Lichte raceauto's"
 
 #: resources/CacheSystem.h:259
 msgctxt "ModCategory"
 msgid "Offroad Cars"
-msgstr ""
+msgstr "Offroad Auto's"
 
 #: resources/CacheSystem.h:260
 msgctxt "ModCategory"
 msgid "Fantasy Cars"
-msgstr ""
+msgstr "Fantasie Auto's"
 
 #: resources/CacheSystem.h:261
 msgctxt "ModCategory"
@@ -2870,148 +2862,131 @@ msgstr ""
 #: resources/CacheSystem.h:262
 msgctxt "ModCategory"
 msgid "Crawlers"
-msgstr ""
+msgstr "Crawlers"
 
 #: resources/CacheSystem.h:264
 msgctxt "ModCategory"
 msgid "Towercranes"
-msgstr ""
+msgstr "Torenkranen"
 
 #: resources/CacheSystem.h:265
 msgctxt "ModCategory"
 msgid "Mobile Cranes"
-msgstr ""
+msgstr "Mobiele kranen"
 
 #: resources/CacheSystem.h:266
 msgctxt "ModCategory"
 msgid "Other cranes"
-msgstr ""
+msgstr "Andere kranen"
 
 #: resources/CacheSystem.h:268
 msgctxt "ModCategory"
 msgid "Buses"
-msgstr ""
+msgstr "Bussen"
 
 #: resources/CacheSystem.h:269
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Actors"
 msgctxt "ModCategory"
 msgid "Tractors"
-msgstr "Actors"
+msgstr "Tractoren"
 
 #: resources/CacheSystem.h:270
 msgctxt "ModCategory"
 msgid "Forklifts"
-msgstr ""
+msgstr "Vorkheftrucks"
 
 #: resources/CacheSystem.h:271
 msgctxt "ModCategory"
 msgid "Fantasy Trucks"
-msgstr ""
+msgstr "Fantasie vrachtwagens"
 
 #: resources/CacheSystem.h:272
 msgctxt "ModCategory"
 msgid "Transport Trucks"
-msgstr ""
+msgstr "Transporttrucks"
 
 #: resources/CacheSystem.h:273
-#, fuzzy
-#| msgid "Loading resources"
 msgctxt "ModCategory"
 msgid "Racing Trucks"
-msgstr "Resources laden"
+msgstr "Racetrucks"
 
 #: resources/CacheSystem.h:274
-#, fuzzy
-#| msgid "reload truck"
 msgctxt "ModCategory"
 msgid "Offroad Trucks"
-msgstr "herlaad voertuig"
+msgstr "Offroad vrachtwagens"
 
 #: resources/CacheSystem.h:276
-#, fuzzy
-#| msgctxt "GameControls"
-#| msgid "Boat"
 msgctxt "ModCategory"
 msgid "Boats"
-msgstr "Boot"
+msgstr "Boten"
 
 #: resources/CacheSystem.h:278
 msgctxt "ModCategory"
 msgid "Helicopters"
-msgstr ""
+msgstr "Helikopters"
 
 #: resources/CacheSystem.h:279
 msgctxt "ModCategory"
 msgid "Aircraft"
-msgstr ""
+msgstr "Vliegtuigen"
 
 #: resources/CacheSystem.h:281
 msgctxt "ModCategory"
 msgid "Trailers"
-msgstr ""
+msgstr "Aanhangwagens"
 
 #: resources/CacheSystem.h:282
 msgctxt "ModCategory"
 msgid "Other Loads"
-msgstr ""
+msgstr "Andere ladingen"
 
 #. terrains
 #: resources/CacheSystem.h:285
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Terrain"
 msgctxt "ModCategory"
 msgid "Addon Terrains"
-msgstr "Terrein"
+msgstr "Addon Terreinen"
 
 #: resources/CacheSystem.h:287
 msgctxt "ModCategory"
 msgid "Container"
-msgstr ""
+msgstr "Container"
 
 #: resources/CacheSystem.h:289
 msgctxt "ModCategory"
 msgid "Submarine"
-msgstr ""
+msgstr "Onderzeeër"
 
 #. note: these categories are NOT in the repository:
 #: resources/CacheSystem.h:292
 msgctxt "ModCategory"
 msgid "Official Terrains"
-msgstr ""
+msgstr "Officiële Terreinen"
 
 #: resources/CacheSystem.h:293
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Terrain"
 msgctxt "ModCategory"
 msgid "Night Terrains"
-msgstr "Terrein"
+msgstr "Nacht Terreinen"
 
 #. do not use category numbers above 9000!
 #: resources/CacheSystem.h:296
 msgctxt "ModCategory"
 msgid "Unsorted"
-msgstr ""
+msgstr "Ongesorteerd"
 
 #: resources/CacheSystem.h:297
-#, fuzzy
-#| msgid "All"
 msgctxt "ModCategory"
 msgid "All"
 msgstr "Alles"
 
 #: resources/CacheSystem.h:298
+#, fuzzy
 msgctxt "ModCategory"
 msgid "Fresh"
-msgstr ""
+msgstr "Vers"
 
 #: resources/CacheSystem.h:299
 msgctxt "ModCategory"
 msgid "Hidden"
-msgstr ""
+msgstr "Verborgen"
 
 #: scripting/GameScript.cpp:800
 msgid "using Online API..."
@@ -3198,10 +3173,11 @@ msgstr "Stel of creëer real-number CVar"
 #: system/ConsoleCmd.cpp:536
 msgid "Clear console history. Types: all/info/net/chat/terrn/actor/script"
 msgstr ""
+"Console geschiedenis wissen. Types: all/info/net/chat/terrn/actor/script"
 
 #: system/ConsoleCmd.cpp:573
 msgid "No such message type: {}"
-msgstr ""
+msgstr "Geen bericht van dit type: {}"
 
 #: system/ConsoleCmd.cpp:621
 msgid ""
@@ -3353,31 +3329,21 @@ msgstr "Force feedback uitgeschakeld - geen controller gevonden"
 
 #. Common: generic
 #: utils/InputEngine.cpp:35
-#, fuzzy
-#| msgid "accelerate the simulation"
 msgctxt "InputEvent"
 msgid "accelerate the simulation"
 msgstr "versnel de simulatie"
 
 #: utils/InputEngine.cpp:36
-#, fuzzy
-#| msgid "decelerate the simulation"
 msgctxt "InputEvent"
 msgid "decelerate the simulation"
 msgstr "vertraag de simulatie"
 
 #: utils/InputEngine.cpp:37
-#, fuzzy
-#| msgid "reset the simulation pace"
 msgctxt "InputEvent"
 msgid "reset the simulation pace"
 msgstr "reset de simulatie snelheid"
 
 #: utils/InputEngine.cpp:38
-#, fuzzy
-#| msgid ""
-#| "write current position to log (you can open the logfile and reuse the "
-#| "position)"
 msgctxt "InputEvent"
 msgid ""
 "write current position to log (you can open the logfile and reuse the "
@@ -3387,170 +3353,122 @@ msgstr ""
 "de positie gebruiken)"
 
 #: utils/InputEngine.cpp:39
-#, fuzzy
-#| msgid "exit the game"
 msgctxt "InputEvent"
 msgid "exit the game"
 msgstr "Spel afsluiten"
 
 #: utils/InputEngine.cpp:40
-#, fuzzy
-#| msgid "quickload scene"
 msgctxt "InputEvent"
 msgid "quickload scene"
 msgstr "quickload-scène"
 
 #: utils/InputEngine.cpp:41
-#, fuzzy
-#| msgid "quicksave scene"
 msgctxt "InputEvent"
 msgid "quicksave scene"
 msgstr "quicksave-scène"
 
 #: utils/InputEngine.cpp:42
-#, fuzzy
-#| msgid "take a screenshot"
 msgctxt "InputEvent"
 msgid "take a screenshot"
 msgstr "Maak een screenshot"
 
 #: utils/InputEngine.cpp:43
-#, fuzzy
-#| msgid "take a big screenshot (3 times the screen size)"
 msgctxt "InputEvent"
 msgid "take a big screenshot (3 times the screen size)"
 msgstr "maak een grote screenshot (3 x de schermgrootte)"
 
 #: utils/InputEngine.cpp:44
-#, fuzzy
-#| msgid "debug purpose - dont use"
 msgctxt "InputEvent"
 msgid "debug purpose - dont use"
 msgstr "debug doeleinden - niet gebruiken"
 
 #: utils/InputEngine.cpp:45
-#, fuzzy
-#| msgid "toggle render mode (solid, wireframe and points)"
 msgctxt "InputEvent"
 msgid "toggle render mode (solid, wireframe and points)"
-msgstr "schakel doen modus (vast, draadframe en punten)"
+msgstr "schakelen tussen rendermodus (vast, draadframe en punten)"
 
 #: utils/InputEngine.cpp:46
-#, fuzzy
-#| msgid "enable or disable physics"
 msgctxt "InputEvent"
 msgid "enable or disable physics"
 msgstr "physics in- of uitschakelen"
 
 #: utils/InputEngine.cpp:47
-#, fuzzy
-#| msgid "decreases the current FOV value"
 msgctxt "InputEvent"
 msgid "decreases the current FOV value"
 msgstr "verlaag de nu gebruikte FOV hoeveelheid"
 
 #: utils/InputEngine.cpp:48
-#, fuzzy
-#| msgid "increase the current FOV value"
 msgctxt "InputEvent"
 msgid "increase the current FOV value"
 msgstr "vergroot nu gebruikt FOV aantal"
 
 #: utils/InputEngine.cpp:49
-#, fuzzy
-#| msgid "reset the FOV value"
 msgctxt "InputEvent"
 msgid "reset the FOV value"
 msgstr "reset de FOV-waarde"
 
 #: utils/InputEngine.cpp:50
-#, fuzzy
-#| msgid "save the currently loaded terrain to a mesh file"
 msgctxt "InputEvent"
 msgid "save the currently loaded terrain to a mesh file"
 msgstr "sla het huidige terrein naar een mesh bestand op"
 
 #: utils/InputEngine.cpp:51
-#, fuzzy
-#| msgid "toggle terrain editor"
 msgctxt "InputEvent"
 msgid "toggle terrain editor"
 msgstr "terrain editor aan/uit"
 
 #: utils/InputEngine.cpp:52
-#, fuzzy
-#| msgid "toggle between windowed and fullscreen mode"
 msgctxt "InputEvent"
 msgid "toggle between windowed and fullscreen mode"
-msgstr "wissel tussen volledig scherm en in een kader mode"
+msgstr "schakelen tussen venstermodus en volledig scherm"
 
 #. Comon: actor interaction
 #: utils/InputEngine.cpp:55
-#, fuzzy
-#| msgid "enter or exit a truck"
 msgctxt "InputEvent"
 msgid "enter or exit a truck"
 msgstr "stap in of uit een voertuig"
 
 #: utils/InputEngine.cpp:56
-#, fuzzy
-#| msgid "enter next truck"
 msgctxt "InputEvent"
 msgid "enter next truck"
 msgstr "spring naar de volgende truck"
 
 #: utils/InputEngine.cpp:57
-#, fuzzy
-#| msgid "enter previous truck"
 msgctxt "InputEvent"
 msgid "enter previous truck"
 msgstr "spring naar de vorige truck"
 
 #: utils/InputEngine.cpp:58
-#, fuzzy
-#| msgid "remove current truck"
 msgctxt "InputEvent"
 msgid "remove current truck"
 msgstr "verwijder huidige truck"
 
 #: utils/InputEngine.cpp:59
-#, fuzzy
-#| msgid "delete current truck"
 msgctxt "InputEvent"
 msgid "delete current truck"
 msgstr "verwijder nu gebruikte truck"
 
 #: utils/InputEngine.cpp:60
-#, fuzzy
-#| msgid "respawn last truck"
 msgctxt "InputEvent"
 msgid "respawn last truck"
 msgstr "respawn laatste truck"
 
 #: utils/InputEngine.cpp:61
-#, fuzzy
-#| msgid "get new vehicle"
 msgctxt "InputEvent"
 msgid "get new vehicle"
 msgstr "nieuw voertuig"
 
 #: utils/InputEngine.cpp:62
-#, fuzzy
-#| msgid "decrease tire pressure (note: only very few trucks support this)"
 msgctxt "InputEvent"
 msgid "decrease tire pressure (note: only very few trucks support this)"
 msgstr "verlaag de bandendruk(notitie: weinig voertuigen ondersteunen dit)"
 
 #: utils/InputEngine.cpp:63
-#, fuzzy
-#| msgid "increase tire pressure (note: only very few trucks support this)"
 msgctxt "InputEvent"
 msgid "increase tire pressure (note: only very few trucks support this)"
 msgstr "verhoog bandendruk(notitie: weinig voertuigen ondersteunen dit)"
 
 #: utils/InputEngine.cpp:64
-#, fuzzy
-#| msgid "connect hook node to a node in close proximity"
 msgctxt "InputEvent"
 msgid "connect hook node to a node in close proximity"
 msgstr "koppel een hook node dicht bij een andere node aan"
@@ -3570,29 +3488,21 @@ msgid "connect a rope to a node in close proximity"
 msgstr "koppel een kabel aan als er een andere node in de buurt is"
 
 #: utils/InputEngine.cpp:67
-#, fuzzy
-#| msgid "repair truck"
 msgctxt "InputEvent"
 msgid "repair truck"
 msgstr "repareer voertuig"
 
 #: utils/InputEngine.cpp:68
-#, fuzzy
-#| msgid "teleport to rescue truck"
 msgctxt "InputEvent"
 msgid "teleport to rescue truck"
-msgstr "Ga naar de bergingswagen"
+msgstr "teleporteer naar de bergingswagen"
 
 #: utils/InputEngine.cpp:69
-#, fuzzy
-#| msgid "reset truck to original starting position"
 msgctxt "InputEvent"
 msgid "reset truck to original starting position"
-msgstr "Herstel het voertuig op de startpositie"
+msgstr "truck terugzetten naar oorspronkelijke startpositie"
 
 #: utils/InputEngine.cpp:70
-#, fuzzy
-#| msgid "toggle reset mode"
 msgctxt "InputEvent"
 msgid "toggle reset mode"
 msgstr "switch resetmodus"
@@ -3605,15 +3515,11 @@ msgid "tie a load to the truck"
 msgstr "lading vastbinden"
 
 #: utils/InputEngine.cpp:72
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle truck beacons"
 msgstr "zwaailichten aan/uit"
 
 #: utils/InputEngine.cpp:73
-#, fuzzy
-#| msgid "toggle truck front lights"
 msgctxt "InputEvent"
 msgid "toggle truck front lights"
 msgstr "Koplampen aan/uit"
@@ -3626,11 +3532,9 @@ msgid "toggle particle cannon"
 msgstr "deeltjes kanon uit/aan"
 
 #: utils/InputEngine.cpp:75
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgctxt "InputEvent"
 msgid "enable or disable replay mode"
-msgstr "zet herhaling aan/uit"
+msgstr "replay mode in- of uitschakelen"
 
 #: utils/InputEngine.cpp:76
 #, fuzzy
@@ -3662,234 +3566,168 @@ msgstr "Replay snel achteruitspoelen"
 
 #. Common: UI
 #: utils/InputEngine.cpp:82
-#, fuzzy
-#| msgid "show / hide the console"
 msgctxt "InputEvent"
 msgid "show / hide the console"
-msgstr "laat zien / verberg console"
+msgstr "toon / verberg de console"
 
 #: utils/InputEngine.cpp:83
-#, fuzzy
-#| msgid "enter the chat"
 msgctxt "InputEvent"
 msgid "enter the chat"
 msgstr "begin de chatsessie"
 
 #: utils/InputEngine.cpp:84
-#, fuzzy
-#| msgid "sends the entered text"
 msgctxt "InputEvent"
 msgid "sends the entered text"
 msgstr "stuurt de ingevoerde tekst"
 
 #: utils/InputEngine.cpp:85
-#, fuzzy
-#| msgid "hide all GUI elements"
 msgctxt "InputEvent"
 msgid "hide all GUI elements"
-msgstr "verberg alle grafische elementen"
+msgstr "verberg alle GUI elementen"
 
 #: utils/InputEngine.cpp:86
-#, fuzzy
-#| msgid "display or hide the dashboard overlay"
 msgctxt "InputEvent"
 msgid "display or hide the dashboard overlay"
-msgstr "Laat de dashboard overlay zien of verbergen"
+msgstr "de dashboard overlay tonen of verbergen"
 
 #: utils/InputEngine.cpp:87
-#, fuzzy
-#| msgid "toggle debug view"
 msgctxt "InputEvent"
 msgid "toggle debug view"
 msgstr "debug view aan/uit"
 
 #: utils/InputEngine.cpp:88
-#, fuzzy
-#| msgid "cycle debug views"
 msgctxt "InputEvent"
 msgid "cycle debug views"
 msgstr "cycle debug views"
 
 #: utils/InputEngine.cpp:89
-#, fuzzy
-#| msgid "toggle truck HUD"
 msgctxt "InputEvent"
 msgid "toggle truck HUD"
 msgstr "truck HUD aan/uit"
 
 #: utils/InputEngine.cpp:90
-#, fuzzy
-#| msgid "toggle truck description"
 msgctxt "InputEvent"
 msgid "toggle truck description"
 msgstr "truck beschrijving aan/uit"
 
 #: utils/InputEngine.cpp:91
-#, fuzzy
-#| msgid "display or hide net chat"
 msgctxt "InputEvent"
 msgid "display or hide net chat"
-msgstr "Laat het chat venster zien of verbergen"
+msgstr "chat venster tonen of verbergen"
 
 #: utils/InputEngine.cpp:92
-#, fuzzy
-#| msgid "toggle between net chat display modes"
 msgctxt "InputEvent"
 msgid "toggle between net chat display modes"
 msgstr "wissel tussen chat scherm modes"
 
 #: utils/InputEngine.cpp:93
-#, fuzzy
-#| msgid "toggle Ogre statistics (FPS etc.)"
 msgctxt "InputEvent"
 msgid "toggle Ogre statistics (FPS etc.)"
-msgstr "OGRE statistieken uit/aan"
+msgstr "OGRE statistieken uit/aan (FPS enz.)"
 
 #. Common: savegames
 #: utils/InputEngine.cpp:96
-#, fuzzy
-#| msgid "save scene in slot 01"
 msgctxt "InputEvent"
 msgid "save scene in slot 01"
 msgstr "scène opslaan in slot 01"
 
 #: utils/InputEngine.cpp:97
-#, fuzzy
-#| msgid "save scene in slot 02"
 msgctxt "InputEvent"
 msgid "save scene in slot 02"
 msgstr "scène opslaan in slot 02"
 
 #: utils/InputEngine.cpp:98
-#, fuzzy
-#| msgid "save scene in slot 03"
 msgctxt "InputEvent"
 msgid "save scene in slot 03"
 msgstr "scène opslaan in slot 03"
 
 #: utils/InputEngine.cpp:99
-#, fuzzy
-#| msgid "save scene in slot 04"
 msgctxt "InputEvent"
 msgid "save scene in slot 04"
 msgstr "scène opslaan in slot 04"
 
 #: utils/InputEngine.cpp:100
-#, fuzzy
-#| msgid "save scene in slot 05"
 msgctxt "InputEvent"
 msgid "save scene in slot 05"
 msgstr "scène opslaan in slot 05"
 
 #: utils/InputEngine.cpp:101
-#, fuzzy
-#| msgid "save scene in slot 06"
 msgctxt "InputEvent"
 msgid "save scene in slot 06"
 msgstr "scène opslaan in slot 06"
 
 #: utils/InputEngine.cpp:102
-#, fuzzy
-#| msgid "save scene in slot 07"
 msgctxt "InputEvent"
 msgid "save scene in slot 07"
 msgstr "scène opslaan in slot 07"
 
 #: utils/InputEngine.cpp:103
-#, fuzzy
-#| msgid "save scene in slot 08"
 msgctxt "InputEvent"
 msgid "save scene in slot 08"
 msgstr "scène opslaan in slot 08"
 
 #: utils/InputEngine.cpp:104
-#, fuzzy
-#| msgid "save scene in slot 09"
 msgctxt "InputEvent"
 msgid "save scene in slot 09"
 msgstr "scène opslaan in slot 09"
 
 #: utils/InputEngine.cpp:105
-#, fuzzy
-#| msgid "save scene in slot 10"
 msgctxt "InputEvent"
 msgid "save scene in slot 10"
 msgstr "scène opslaan in slot 10"
 
 #: utils/InputEngine.cpp:107
-#, fuzzy
-#| msgid "load scene from slot 01"
 msgctxt "InputEvent"
 msgid "load scene from slot 01"
 msgstr "laad scène uit slot 01"
 
 #: utils/InputEngine.cpp:108
-#, fuzzy
-#| msgid "load scene from slot 02"
 msgctxt "InputEvent"
 msgid "load scene from slot 02"
 msgstr "laad scène uit slot 02"
 
 #: utils/InputEngine.cpp:109
-#, fuzzy
-#| msgid "load scene from slot 03"
 msgctxt "InputEvent"
 msgid "load scene from slot 03"
 msgstr "laad scène uit slot 03"
 
 #: utils/InputEngine.cpp:110
-#, fuzzy
-#| msgid "load scene from slot 04"
 msgctxt "InputEvent"
 msgid "load scene from slot 04"
 msgstr "laad scène uit slot 04"
 
 #: utils/InputEngine.cpp:111
-#, fuzzy
-#| msgid "load scene from slot 05"
 msgctxt "InputEvent"
 msgid "load scene from slot 05"
 msgstr "laad scène uit slot 05"
 
 #: utils/InputEngine.cpp:112
-#, fuzzy
-#| msgid "load scene from slot 06"
 msgctxt "InputEvent"
 msgid "load scene from slot 06"
 msgstr "laad scène uit slot 06"
 
 #: utils/InputEngine.cpp:113
-#, fuzzy
-#| msgid "load scene from slot 07"
 msgctxt "InputEvent"
 msgid "load scene from slot 07"
 msgstr "laad scène uit slot 07"
 
 #: utils/InputEngine.cpp:114
-#, fuzzy
-#| msgid "load scene from slot 08"
 msgctxt "InputEvent"
 msgid "load scene from slot 08"
 msgstr "laad scène uit slot 08"
 
 #: utils/InputEngine.cpp:115
-#, fuzzy
-#| msgid "load scene from slot 09"
 msgctxt "InputEvent"
 msgid "load scene from slot 09"
 msgstr "laad scène uit slot 09"
 
 #: utils/InputEngine.cpp:116
-#, fuzzy
-#| msgid "load scene from slot 10"
 msgctxt "InputEvent"
 msgid "load scene from slot 10"
 msgstr "laad scène uit slot 10"
 
 #. Truck: generic
 #: utils/InputEngine.cpp:119
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "InputEvent"
 msgid "accelerate the truck"
 msgstr "Accelereert de vrachtwagen"
@@ -3909,32 +3747,24 @@ msgid "accelerate with 50 percent pedal input"
 msgstr "versnellen met 50 procent kracht"
 
 #: utils/InputEngine.cpp:122
-#, fuzzy
-#| msgid "toggle left direction indicator (blinker)"
 msgctxt "InputEvent"
 msgid "toggle left direction indicator (blinker)"
 msgstr "linker knipperlicht uit/aan"
 
 #: utils/InputEngine.cpp:123
-#, fuzzy
-#| msgid "toggle right direction indicator (blinker)"
 msgctxt "InputEvent"
 msgid "toggle right direction indicator (blinker)"
 msgstr "rechter knipperlicht uit/aan"
 
 #: utils/InputEngine.cpp:124
-#, fuzzy
-#| msgid "toggle all direction indicators"
 msgctxt "InputEvent"
 msgid "toggle all direction indicators"
 msgstr "schakel alle knipperlichten"
 
 #: utils/InputEngine.cpp:125
-#, fuzzy
-#| msgid "brake"
 msgctxt "InputEvent"
 msgid "brake"
-msgstr "Rem"
+msgstr "rem"
 
 #: utils/InputEngine.cpp:126
 #, fuzzy
@@ -3951,113 +3781,81 @@ msgid "brake with 50 percent pedal input"
 msgstr "rem met 50 procent kracht"
 
 #: utils/InputEngine.cpp:128
-#, fuzzy
-#| msgid "truck horn"
 msgctxt "InputEvent"
 msgid "truck horn"
-msgstr "Claxon"
+msgstr "vrachtwagenhoorn"
 
 #: utils/InputEngine.cpp:129
-#, fuzzy
-#| msgid "toggle custom light 1"
 msgctxt "InputEvent"
 msgid "toggle custom light 1"
 msgstr "speciaal licht 1 aan/uit"
 
 #: utils/InputEngine.cpp:130
-#, fuzzy
-#| msgid "toggle custom light 2"
 msgctxt "InputEvent"
 msgid "toggle custom light 2"
 msgstr "speciaal licht 2 aan/uit"
 
 #: utils/InputEngine.cpp:131
-#, fuzzy
-#| msgid "toggle custom light 3"
 msgctxt "InputEvent"
 msgid "toggle custom light 3"
 msgstr "speciaal licht 3 aan/uit"
 
 #: utils/InputEngine.cpp:132
-#, fuzzy
-#| msgid "toggle custom light 4"
 msgctxt "InputEvent"
 msgid "toggle custom light 4"
 msgstr "speciaal licht 4 aan/uit"
 
 #: utils/InputEngine.cpp:133
-#, fuzzy
-#| msgid "toggle custom light 5"
 msgctxt "InputEvent"
 msgid "toggle custom light 5"
 msgstr "speciaal licht 5 aan/uit"
 
 #: utils/InputEngine.cpp:134
-#, fuzzy
-#| msgid "toggle custom light 6"
 msgctxt "InputEvent"
 msgid "toggle custom light 6"
 msgstr "speciaal licht 6 aan/uit"
 
 #: utils/InputEngine.cpp:135
-#, fuzzy
-#| msgid "toggle custom light 7"
 msgctxt "InputEvent"
 msgid "toggle custom light 7"
 msgstr "speciaal licht 7 aan/uit"
 
 #: utils/InputEngine.cpp:136
-#, fuzzy
-#| msgid "toggle custom light 8"
 msgctxt "InputEvent"
 msgid "toggle custom light 8"
 msgstr "speciaal licht 8 aan/uit"
 
 #: utils/InputEngine.cpp:137
-#, fuzzy
-#| msgid "toggle custom light 9"
 msgctxt "InputEvent"
 msgid "toggle custom light 9"
 msgstr "speciaal licht 9 aan/uit"
 
 #: utils/InputEngine.cpp:138
-#, fuzzy
-#| msgid "toggle custom light 10"
 msgctxt "InputEvent"
 msgid "toggle custom light 10"
 msgstr "speciaal licht 10 aan/uit"
 
 #: utils/InputEngine.cpp:139
-#, fuzzy
-#| msgid "toggle parking brake"
 msgctxt "InputEvent"
 msgid "toggle parking brake"
 msgstr "Handrem"
 
 #: utils/InputEngine.cpp:140
-#, fuzzy
-#| msgid "toggle parking brake"
 msgctxt "InputEvent"
 msgid "toggle trailer parking brake"
 msgstr "parkeerrem voor aanhangwagens aan/uit"
 
 #: utils/InputEngine.cpp:141
-#, fuzzy
-#| msgid "toggle antilock brake"
 msgctxt "InputEvent"
 msgid "toggle antilock brake"
 msgstr "verander antiblokkeer remsysteem"
 
 #: utils/InputEngine.cpp:142
-#, fuzzy
-#| msgid "toggle videocamera"
 msgctxt "InputEvent"
 msgid "toggle videocamera"
 msgstr "videocamera aan/uit"
 
 #: utils/InputEngine.cpp:143
-#, fuzzy
-#| msgid "toggle traction control"
 msgctxt "InputEvent"
 msgid "toggle traction control"
 msgstr "verander tractiecontrole"
