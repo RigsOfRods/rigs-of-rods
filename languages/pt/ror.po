@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-28 10:37+0100\n"
-"PO-Revision-Date: 2021-01-17 01:32+0000\n"
+"PO-Revision-Date: 2021-01-30 02:32+0000\n"
 "Last-Translator: Bruno Dias Barros <brunodiasbarros09@gmail.com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/pt/>\n"
@@ -2822,165 +2822,147 @@ msgstr "Carregando zips no grupo "
 #: resources/CacheSystem.h:255
 msgctxt "ModCategory"
 msgid "Other Land Vehicles"
-msgstr ""
+msgstr "Outros veículos terrestres"
 
 #: resources/CacheSystem.h:257
 msgctxt "ModCategory"
 msgid "Street Cars"
-msgstr ""
+msgstr "Carros de estrada"
 
 #: resources/CacheSystem.h:258
 msgctxt "ModCategory"
 msgid "Light Racing Cars"
-msgstr ""
+msgstr "Carros leves de corrida"
 
 #: resources/CacheSystem.h:259
 msgctxt "ModCategory"
 msgid "Offroad Cars"
-msgstr ""
+msgstr "Carros Off-Road"
 
 #: resources/CacheSystem.h:260
 msgctxt "ModCategory"
 msgid "Fantasy Cars"
-msgstr ""
+msgstr "Carros Fantasia"
 
 #: resources/CacheSystem.h:261
 msgctxt "ModCategory"
 msgid "Bikes"
-msgstr ""
+msgstr "Motos"
 
 #: resources/CacheSystem.h:262
 msgctxt "ModCategory"
 msgid "Crawlers"
-msgstr ""
+msgstr "Gaiolas"
 
 #: resources/CacheSystem.h:264
 msgctxt "ModCategory"
 msgid "Towercranes"
-msgstr ""
+msgstr "Guindastes de torre"
 
 #: resources/CacheSystem.h:265
 msgctxt "ModCategory"
 msgid "Mobile Cranes"
-msgstr ""
+msgstr "Guindastes Móveis"
 
 #: resources/CacheSystem.h:266
 msgctxt "ModCategory"
 msgid "Other cranes"
-msgstr ""
+msgstr "Outros guindastes"
 
 #: resources/CacheSystem.h:268
 msgctxt "ModCategory"
 msgid "Buses"
-msgstr ""
+msgstr "Onibus"
 
 #: resources/CacheSystem.h:269
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Actors"
 msgctxt "ModCategory"
 msgid "Tractors"
-msgstr "Atores"
+msgstr "Tratores"
 
 #: resources/CacheSystem.h:270
 msgctxt "ModCategory"
 msgid "Forklifts"
-msgstr ""
+msgstr "Empilhadeiras"
 
 #: resources/CacheSystem.h:271
 msgctxt "ModCategory"
 msgid "Fantasy Trucks"
-msgstr ""
+msgstr "Caminhões de fantasia"
 
 #: resources/CacheSystem.h:272
 msgctxt "ModCategory"
 msgid "Transport Trucks"
-msgstr ""
+msgstr "Caminhões de transporte"
 
 #: resources/CacheSystem.h:273
-#, fuzzy
-#| msgid "Loading resources"
 msgctxt "ModCategory"
 msgid "Racing Trucks"
-msgstr "Carregando recursos"
+msgstr "Caminhões de corrida"
 
 #: resources/CacheSystem.h:274
-#, fuzzy
-#| msgid "reload truck"
 msgctxt "ModCategory"
 msgid "Offroad Trucks"
-msgstr "recarregar Truck"
+msgstr "Caminhões Off-Road"
 
 #: resources/CacheSystem.h:276
-#, fuzzy
-#| msgctxt "GameControls"
-#| msgid "Boat"
 msgctxt "ModCategory"
 msgid "Boats"
-msgstr "Barco"
+msgstr "Barcos"
 
 #: resources/CacheSystem.h:278
 msgctxt "ModCategory"
 msgid "Helicopters"
-msgstr ""
+msgstr "Helicopteros"
 
 #: resources/CacheSystem.h:279
 msgctxt "ModCategory"
 msgid "Aircraft"
-msgstr ""
+msgstr "Aeronave"
 
 #: resources/CacheSystem.h:281
 msgctxt "ModCategory"
 msgid "Trailers"
-msgstr ""
+msgstr "Reboques"
 
 #: resources/CacheSystem.h:282
 msgctxt "ModCategory"
 msgid "Other Loads"
-msgstr ""
+msgstr "Outras cargas"
 
 #. terrains
 #: resources/CacheSystem.h:285
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Terrain"
 msgctxt "ModCategory"
 msgid "Addon Terrains"
-msgstr "Terreno"
+msgstr "Adicionais de Terreno"
 
 #: resources/CacheSystem.h:287
 msgctxt "ModCategory"
 msgid "Container"
-msgstr ""
+msgstr "Recipiente"
 
 #: resources/CacheSystem.h:289
 msgctxt "ModCategory"
 msgid "Submarine"
-msgstr ""
+msgstr "Sub-marino"
 
 #. note: these categories are NOT in the repository:
 #: resources/CacheSystem.h:292
 msgctxt "ModCategory"
 msgid "Official Terrains"
-msgstr ""
+msgstr "Terrenos Oficiais"
 
 #: resources/CacheSystem.h:293
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Terrain"
 msgctxt "ModCategory"
 msgid "Night Terrains"
-msgstr "Terreno"
+msgstr "Terrenos Noturnos"
 
 #. do not use category numbers above 9000!
 #: resources/CacheSystem.h:296
 msgctxt "ModCategory"
 msgid "Unsorted"
-msgstr ""
+msgstr "não triados"
 
 #: resources/CacheSystem.h:297
-#, fuzzy
-#| msgid "All"
 msgctxt "ModCategory"
 msgid "All"
 msgstr "Todos"
@@ -2988,12 +2970,12 @@ msgstr "Todos"
 #: resources/CacheSystem.h:298
 msgctxt "ModCategory"
 msgid "Fresh"
-msgstr ""
+msgstr "Atualizar"
 
 #: resources/CacheSystem.h:299
 msgctxt "ModCategory"
 msgid "Hidden"
-msgstr ""
+msgstr "Escondido"
 
 #: scripting/GameScript.cpp:800
 msgid "using Online API..."
@@ -3179,10 +3161,11 @@ msgstr "Definir ou criar CVar de número real"
 #: system/ConsoleCmd.cpp:536
 msgid "Clear console history. Types: all/info/net/chat/terrn/actor/script"
 msgstr ""
+"Limpe o histórico do console. Tipos: all/info/net/chat/terrn/actor/script"
 
 #: system/ConsoleCmd.cpp:573
 msgid "No such message type: {}"
-msgstr ""
+msgstr "Esse tipo de mensagem não existe: {}"
 
 #: system/ConsoleCmd.cpp:621
 msgid ""
@@ -3334,31 +3317,21 @@ msgstr "Desativando o force feedback - nenhum controlador encontrado"
 
 #. Common: generic
 #: utils/InputEngine.cpp:35
-#, fuzzy
-#| msgid "accelerate the simulation"
 msgctxt "InputEvent"
 msgid "accelerate the simulation"
 msgstr "acelere a simulação"
 
 #: utils/InputEngine.cpp:36
-#, fuzzy
-#| msgid "decelerate the simulation"
 msgctxt "InputEvent"
 msgid "decelerate the simulation"
 msgstr "desacelerar a simulação"
 
 #: utils/InputEngine.cpp:37
-#, fuzzy
-#| msgid "reset the simulation pace"
 msgctxt "InputEvent"
 msgid "reset the simulation pace"
 msgstr "redefinir o ritmo de simulação"
 
 #: utils/InputEngine.cpp:38
-#, fuzzy
-#| msgid ""
-#| "write current position to log (you can open the logfile and reuse the "
-#| "position)"
 msgctxt "InputEvent"
 msgid ""
 "write current position to log (you can open the logfile and reuse the "
@@ -3368,721 +3341,515 @@ msgstr ""
 "reutilizar a posição)"
 
 #: utils/InputEngine.cpp:39
-#, fuzzy
-#| msgid "exit the game"
 msgctxt "InputEvent"
 msgid "exit the game"
 msgstr "sair do jogo"
 
 #: utils/InputEngine.cpp:40
-#, fuzzy
-#| msgid "quickload scene"
 msgctxt "InputEvent"
 msgid "quickload scene"
 msgstr "cena de carregamento rápido"
 
 #: utils/InputEngine.cpp:41
-#, fuzzy
-#| msgid "quicksave scene"
 msgctxt "InputEvent"
 msgid "quicksave scene"
 msgstr "cena de carregamento rápido"
 
 #: utils/InputEngine.cpp:42
-#, fuzzy
-#| msgid "take a screenshot"
 msgctxt "InputEvent"
 msgid "take a screenshot"
-msgstr "Capta uma imagem do jogo"
+msgstr "tirar uma captura de tela"
 
 #: utils/InputEngine.cpp:43
-#, fuzzy
-#| msgid "take a big screenshot (3 times the screen size)"
 msgctxt "InputEvent"
 msgid "take a big screenshot (3 times the screen size)"
 msgstr "tirar um grande screenshot (3 vezes o tamanho da tela)"
 
 #: utils/InputEngine.cpp:44
-#, fuzzy
-#| msgid "debug purpose - dont use"
 msgctxt "InputEvent"
 msgid "debug purpose - dont use"
-msgstr "debug objectivo - não usar"
+msgstr "finalidade de depuração - não use"
 
 #: utils/InputEngine.cpp:45
-#, fuzzy
-#| msgid "toggle render mode (solid, wireframe and points)"
 msgctxt "InputEvent"
 msgid "toggle render mode (solid, wireframe and points)"
 msgstr "(Des)Ligar modo de renderização (sólidos, linhas e pontos)"
 
 #: utils/InputEngine.cpp:46
-#, fuzzy
-#| msgid "enable or disable physics"
 msgctxt "InputEvent"
 msgid "enable or disable physics"
 msgstr "habilitar ou desabilitar física"
 
 #: utils/InputEngine.cpp:47
-#, fuzzy
-#| msgid "decreases the current FOV value"
 msgctxt "InputEvent"
 msgid "decreases the current FOV value"
 msgstr "diminuir o valor atual do FOV"
 
 #: utils/InputEngine.cpp:48
-#, fuzzy
-#| msgid "increase the current FOV value"
 msgctxt "InputEvent"
 msgid "increase the current FOV value"
 msgstr "aumentar o valor curente do FOV"
 
 #: utils/InputEngine.cpp:49
-#, fuzzy
-#| msgid "reset the FOV value"
 msgctxt "InputEvent"
 msgid "reset the FOV value"
 msgstr "redefinir o valor do FOV"
 
 #: utils/InputEngine.cpp:50
-#, fuzzy
-#| msgid "save the currently loaded terrain to a mesh file"
 msgctxt "InputEvent"
 msgid "save the currently loaded terrain to a mesh file"
 msgstr "salva o terreno atualmente carregado para um arquivo de mesh"
 
 #: utils/InputEngine.cpp:51
-#, fuzzy
-#| msgid "toggle terrain editor"
 msgctxt "InputEvent"
 msgid "toggle terrain editor"
 msgstr "alternar editor de terreno"
 
 #: utils/InputEngine.cpp:52
-#, fuzzy
-#| msgid "toggle between windowed and fullscreen mode"
 msgctxt "InputEvent"
 msgid "toggle between windowed and fullscreen mode"
 msgstr "alternar entre o modo de janela e de tela cheia"
 
 #. Comon: actor interaction
 #: utils/InputEngine.cpp:55
-#, fuzzy
-#| msgid "enter or exit a truck"
 msgctxt "InputEvent"
 msgid "enter or exit a truck"
-msgstr "entre ou saia do Truck"
+msgstr "entre ou saia do .Truck"
 
 #: utils/InputEngine.cpp:56
-#, fuzzy
-#| msgid "enter next truck"
 msgctxt "InputEvent"
 msgid "enter next truck"
-msgstr "entrar no próximo Truck"
+msgstr "entrar no próximo .Truck"
 
 #: utils/InputEngine.cpp:57
-#, fuzzy
-#| msgid "enter previous truck"
 msgctxt "InputEvent"
 msgid "enter previous truck"
-msgstr "entrar no Truck anterior"
+msgstr "entrar no .Truck anterior"
 
 #: utils/InputEngine.cpp:58
-#, fuzzy
-#| msgid "remove current truck"
 msgctxt "InputEvent"
 msgid "remove current truck"
-msgstr "Remover Truck atual"
+msgstr "Remover .Truck atual"
 
 #: utils/InputEngine.cpp:59
-#, fuzzy
-#| msgid "delete current truck"
 msgctxt "InputEvent"
 msgid "delete current truck"
-msgstr "Apaga o truck atual"
+msgstr "Apaga o .Truck atual"
 
 #: utils/InputEngine.cpp:60
-#, fuzzy
-#| msgid "respawn last truck"
 msgctxt "InputEvent"
 msgid "respawn last truck"
-msgstr "Gerar Truck Anterior"
+msgstr "Gerar .Truck Anterior"
 
 #: utils/InputEngine.cpp:61
-#, fuzzy
-#| msgid "get new vehicle"
 msgctxt "InputEvent"
 msgid "get new vehicle"
 msgstr "obter um novo veículo"
 
 #: utils/InputEngine.cpp:62
-#, fuzzy
-#| msgid "decrease tire pressure (note: only very few trucks support this)"
 msgctxt "InputEvent"
 msgid "decrease tire pressure (note: only very few trucks support this)"
-msgstr ""
-"diminuir a pressão dos pneus (nota: só muito poucos caminhões suportam isto)"
+msgstr "diminuir a pressão dos pneus (aviso: poucos .Trucks suportam isto)"
 
 #: utils/InputEngine.cpp:63
-#, fuzzy
-#| msgid "increase tire pressure (note: only very few trucks support this)"
 msgctxt "InputEvent"
 msgid "increase tire pressure (note: only very few trucks support this)"
-msgstr ""
-"aumento da pressão dos pneus (nota: só muito poucos caminhões suportam isto)"
+msgstr "aumento da pressão dos pneus (aviso: poucos .Trucks suportam isto)"
 
 #: utils/InputEngine.cpp:64
-#, fuzzy
-#| msgid "connect hook node to a node in close proximity"
 msgctxt "InputEvent"
 msgid "connect hook node to a node in close proximity"
 msgstr "conectar o nó-gancho a um nó nas proximidades"
 
 #: utils/InputEngine.cpp:65
-#, fuzzy
-#| msgid "unlock autolock hook node"
 msgctxt "InputEvent"
 msgid "unlock autolock hook node"
 msgstr "desbloquear bloqueio automático das nodes do gancho"
 
 #: utils/InputEngine.cpp:66
-#, fuzzy
-#| msgid "connect a rope to a node in close proximity"
 msgctxt "InputEvent"
 msgid "connect a rope to a node in close proximity"
 msgstr "conectar um cabo a um nó do na proximidade"
 
 #: utils/InputEngine.cpp:67
-#, fuzzy
-#| msgid "repair truck"
 msgctxt "InputEvent"
 msgid "repair truck"
-msgstr "reparar Truck"
+msgstr "reparar .Truck"
 
 #: utils/InputEngine.cpp:68
-#, fuzzy
-#| msgid "teleport to rescue truck"
 msgctxt "InputEvent"
 msgid "teleport to rescue truck"
-msgstr "Teleportar para o Truck de resgate"
+msgstr "Teleportar para o .Truck de resgate"
 
 #: utils/InputEngine.cpp:69
-#, fuzzy
-#| msgid "reset truck to original starting position"
 msgctxt "InputEvent"
 msgid "reset truck to original starting position"
-msgstr "reiniciar o Truck para a posição inicial original"
+msgstr "reiniciar o .Truck para a posição inicial original"
 
 #: utils/InputEngine.cpp:70
-#, fuzzy
-#| msgid "toggle reset mode"
 msgctxt "InputEvent"
 msgid "toggle reset mode"
 msgstr "alternar o modo de redefinição"
 
 #: utils/InputEngine.cpp:71
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "InputEvent"
 msgid "tie a load to the truck"
-msgstr "Amarrar uma carga ao camião"
+msgstr "Engatar uma carga ao camião"
 
 #: utils/InputEngine.cpp:72
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle truck beacons"
 msgstr "(Des)Ligar luzes de presença do camião"
 
 #: utils/InputEngine.cpp:73
-#, fuzzy
-#| msgid "toggle truck front lights"
 msgctxt "InputEvent"
 msgid "toggle truck front lights"
 msgstr "(Des)Ligar luzes dianteiras do camião"
 
 #: utils/InputEngine.cpp:74
-#, fuzzy
-#| msgid "toggle particle cannon"
 msgctxt "InputEvent"
 msgid "toggle particle cannon"
 msgstr "alternar o canhao de particulas"
 
 #: utils/InputEngine.cpp:75
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgctxt "InputEvent"
 msgid "enable or disable replay mode"
 msgstr "liga ou desliga o modo de replay"
 
 #: utils/InputEngine.cpp:76
-#, fuzzy
-#| msgid "more replay forward"
 msgctxt "InputEvent"
 msgid "more replay forward"
-msgstr "avancar na repetição"
+msgstr "mais repetição adiante"
 
 #: utils/InputEngine.cpp:77
-#, fuzzy
-#| msgid "more replay backward"
 msgctxt "InputEvent"
 msgid "more replay backward"
 msgstr "mais repetição para trás"
 
 #: utils/InputEngine.cpp:78
-#, fuzzy
-#| msgid "move replay fast forward"
 msgctxt "InputEvent"
 msgid "move replay fast forward"
 msgstr "Avançar na repetição para a frente"
 
 #: utils/InputEngine.cpp:79
-#, fuzzy
-#| msgid "move replay fast backward"
 msgctxt "InputEvent"
 msgid "move replay fast backward"
 msgstr "voltar para trás na repetição"
 
 #. Common: UI
 #: utils/InputEngine.cpp:82
-#, fuzzy
-#| msgid "show / hide the console"
 msgctxt "InputEvent"
 msgid "show / hide the console"
 msgstr "mostrar / esconder o console"
 
 #: utils/InputEngine.cpp:83
-#, fuzzy
-#| msgid "enter the chat"
 msgctxt "InputEvent"
 msgid "enter the chat"
 msgstr "entrar no chat"
 
 #: utils/InputEngine.cpp:84
-#, fuzzy
-#| msgid "sends the entered text"
 msgctxt "InputEvent"
 msgid "sends the entered text"
 msgstr "manda o texto inserido"
 
 #: utils/InputEngine.cpp:85
-#, fuzzy
-#| msgid "hide all GUI elements"
 msgctxt "InputEvent"
 msgid "hide all GUI elements"
 msgstr "ocultar todos os elementos do GUI"
 
 #: utils/InputEngine.cpp:86
-#, fuzzy
-#| msgid "display or hide the dashboard overlay"
 msgctxt "InputEvent"
 msgid "display or hide the dashboard overlay"
 msgstr "exibir ou ocultar a sobreposição do painel"
 
 #: utils/InputEngine.cpp:87
-#, fuzzy
-#| msgid "toggle debug view"
 msgctxt "InputEvent"
 msgid "toggle debug view"
 msgstr "alternar visualização de depuração"
 
 #: utils/InputEngine.cpp:88
-#, fuzzy
-#| msgid "cycle debug views"
 msgctxt "InputEvent"
 msgid "cycle debug views"
 msgstr "ciclos de depuração de visualizações"
 
 #: utils/InputEngine.cpp:89
-#, fuzzy
-#| msgid "toggle truck HUD"
 msgctxt "InputEvent"
 msgid "toggle truck HUD"
-msgstr "alternar mostrador do truck"
+msgstr "alternar mostrador do .truck"
 
 #: utils/InputEngine.cpp:90
-#, fuzzy
-#| msgid "toggle truck description"
 msgctxt "InputEvent"
 msgid "toggle truck description"
 msgstr "descrição do truck de alternância"
 
 #: utils/InputEngine.cpp:91
-#, fuzzy
-#| msgid "display or hide net chat"
 msgctxt "InputEvent"
 msgid "display or hide net chat"
 msgstr "Exibir ou ocultar o chat on line"
 
 #: utils/InputEngine.cpp:92
-#, fuzzy
-#| msgid "toggle between net chat display modes"
 msgctxt "InputEvent"
 msgid "toggle between net chat display modes"
 msgstr "alternar entre os modos de exibição do chat online"
 
 #: utils/InputEngine.cpp:93
-#, fuzzy
-#| msgid "toggle Ogre statistics (FPS etc.)"
 msgctxt "InputEvent"
 msgid "toggle Ogre statistics (FPS etc.)"
-msgstr "alternar as estatisticas da Orge (FPS e etc.)"
+msgstr "alternar as estatisticas da Ogre (FPS e etc.)"
 
 #. Common: savegames
 #: utils/InputEngine.cpp:96
-#, fuzzy
-#| msgid "save scene in slot 01"
 msgctxt "InputEvent"
 msgid "save scene in slot 01"
 msgstr "salvar posição no slot 1"
 
 #: utils/InputEngine.cpp:97
-#, fuzzy
-#| msgid "save scene in slot 02"
 msgctxt "InputEvent"
 msgid "save scene in slot 02"
 msgstr "salvar posição como slot 2"
 
 #: utils/InputEngine.cpp:98
-#, fuzzy
-#| msgid "save scene in slot 03"
 msgctxt "InputEvent"
 msgid "save scene in slot 03"
 msgstr "salvar cena no slot 3"
 
 #: utils/InputEngine.cpp:99
-#, fuzzy
-#| msgid "save scene in slot 04"
 msgctxt "InputEvent"
 msgid "save scene in slot 04"
 msgstr "salvar cena no slot 4"
 
 #: utils/InputEngine.cpp:100
-#, fuzzy
-#| msgid "save scene in slot 05"
 msgctxt "InputEvent"
 msgid "save scene in slot 05"
 msgstr "salvar cena no slot 5"
 
 #: utils/InputEngine.cpp:101
-#, fuzzy
-#| msgid "save scene in slot 06"
 msgctxt "InputEvent"
 msgid "save scene in slot 06"
 msgstr "salvar posição no slot 6"
 
 #: utils/InputEngine.cpp:102
-#, fuzzy
-#| msgid "save scene in slot 07"
 msgctxt "InputEvent"
 msgid "save scene in slot 07"
 msgstr "Salvar posição como slot 7"
 
 #: utils/InputEngine.cpp:103
-#, fuzzy
-#| msgid "save scene in slot 08"
 msgctxt "InputEvent"
 msgid "save scene in slot 08"
 msgstr "Salvar posição como slot 8"
 
 #: utils/InputEngine.cpp:104
-#, fuzzy
-#| msgid "save scene in slot 09"
 msgctxt "InputEvent"
 msgid "save scene in slot 09"
 msgstr "Salvar posição como slot 9"
 
 #: utils/InputEngine.cpp:105
-#, fuzzy
-#| msgid "save scene in slot 10"
 msgctxt "InputEvent"
 msgid "save scene in slot 10"
 msgstr "salvar cena no slot 10"
 
 #: utils/InputEngine.cpp:107
-#, fuzzy
-#| msgid "load scene from slot 01"
 msgctxt "InputEvent"
 msgid "load scene from slot 01"
 msgstr "carregar cena do slot 01"
 
 #: utils/InputEngine.cpp:108
-#, fuzzy
-#| msgid "load scene from slot 02"
 msgctxt "InputEvent"
 msgid "load scene from slot 02"
 msgstr "Carregar cena do slot 2"
 
 #: utils/InputEngine.cpp:109
-#, fuzzy
-#| msgid "load scene from slot 03"
 msgctxt "InputEvent"
 msgid "load scene from slot 03"
 msgstr "Carregar cena do Slot 3"
 
 #: utils/InputEngine.cpp:110
-#, fuzzy
-#| msgid "load scene from slot 04"
 msgctxt "InputEvent"
 msgid "load scene from slot 04"
 msgstr "Carregar cena do Slot 4"
 
 #: utils/InputEngine.cpp:111
-#, fuzzy
-#| msgid "load scene from slot 05"
 msgctxt "InputEvent"
 msgid "load scene from slot 05"
 msgstr "Carregar cena do Slot 5"
 
 #: utils/InputEngine.cpp:112
-#, fuzzy
-#| msgid "load scene from slot 06"
 msgctxt "InputEvent"
 msgid "load scene from slot 06"
 msgstr "Carregar cena do Slot 6"
 
 #: utils/InputEngine.cpp:113
-#, fuzzy
-#| msgid "load scene from slot 07"
 msgctxt "InputEvent"
 msgid "load scene from slot 07"
 msgstr "posição da carga no slot 7"
 
 #: utils/InputEngine.cpp:114
-#, fuzzy
-#| msgid "load scene from slot 08"
 msgctxt "InputEvent"
 msgid "load scene from slot 08"
 msgstr "posição da carga no slot 8"
 
 #: utils/InputEngine.cpp:115
-#, fuzzy
-#| msgid "load scene from slot 09"
 msgctxt "InputEvent"
 msgid "load scene from slot 09"
 msgstr "posição da carga no slot 9"
 
 #: utils/InputEngine.cpp:116
-#, fuzzy
-#| msgid "load scene from slot 10"
 msgctxt "InputEvent"
 msgid "load scene from slot 10"
 msgstr "posição da carga no slot 10"
 
 #. Truck: generic
 #: utils/InputEngine.cpp:119
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "InputEvent"
 msgid "accelerate the truck"
-msgstr "acelerar o Truck"
+msgstr "acelerar o .Truck"
 
 #: utils/InputEngine.cpp:120
-#, fuzzy
-#| msgid "accelerate with 25 percent pedal input"
 msgctxt "InputEvent"
 msgid "accelerate with 25 percent pedal input"
 msgstr "acelere com 25 por cento de entrada do pedal"
 
 #: utils/InputEngine.cpp:121
-#, fuzzy
-#| msgid "accelerate with 50 percent pedal input"
 msgctxt "InputEvent"
 msgid "accelerate with 50 percent pedal input"
 msgstr "acelere com 50 por cento de entrada do pedal"
 
 #: utils/InputEngine.cpp:122
-#, fuzzy
-#| msgid "toggle left direction indicator (blinker)"
 msgctxt "InputEvent"
 msgid "toggle left direction indicator (blinker)"
 msgstr "(Des)Ligar pisca-pisca da esquerda"
 
 #: utils/InputEngine.cpp:123
-#, fuzzy
-#| msgid "toggle right direction indicator (blinker)"
 msgctxt "InputEvent"
 msgid "toggle right direction indicator (blinker)"
 msgstr "(Des)Ligar pisca-pisca da direita"
 
 #: utils/InputEngine.cpp:124
-#, fuzzy
-#| msgid "toggle all direction indicators"
 msgctxt "InputEvent"
 msgid "toggle all direction indicators"
 msgstr "(Des)Ligar todos os indicadores de direcção"
 
 #: utils/InputEngine.cpp:125
-#, fuzzy
-#| msgid "brake"
 msgctxt "InputEvent"
 msgid "brake"
 msgstr "freio"
 
 #: utils/InputEngine.cpp:126
-#, fuzzy
-#| msgid "brake with 25 percent pedal input"
 msgctxt "InputEvent"
 msgid "brake with 25 percent pedal input"
 msgstr "freio com entrada de pedal de 25 por cento"
 
 #: utils/InputEngine.cpp:127
-#, fuzzy
-#| msgid "brake with 50 percent pedal input"
 msgctxt "InputEvent"
 msgid "brake with 50 percent pedal input"
 msgstr "freio com entrada de pedal de 50 por cento"
 
 #: utils/InputEngine.cpp:128
-#, fuzzy
-#| msgid "truck horn"
 msgctxt "InputEvent"
 msgid "truck horn"
 msgstr "Buzina do camião"
 
 #: utils/InputEngine.cpp:129
-#, fuzzy
-#| msgid "toggle custom light 1"
 msgctxt "InputEvent"
 msgid "toggle custom light 1"
 msgstr "(Des)Ligar a luz personalizada 1"
 
 #: utils/InputEngine.cpp:130
-#, fuzzy
-#| msgid "toggle custom light 2"
 msgctxt "InputEvent"
 msgid "toggle custom light 2"
 msgstr "(Des)Ligar a luz personalizada 2"
 
 #: utils/InputEngine.cpp:131
-#, fuzzy
-#| msgid "toggle custom light 3"
 msgctxt "InputEvent"
 msgid "toggle custom light 3"
 msgstr "(Des)Ligar a luz personalizada 3"
 
 #: utils/InputEngine.cpp:132
-#, fuzzy
-#| msgid "toggle custom light 4"
 msgctxt "InputEvent"
 msgid "toggle custom light 4"
 msgstr "(Des)Ligar a luz personalizada 4"
 
 #: utils/InputEngine.cpp:133
-#, fuzzy
-#| msgid "toggle custom light 5"
 msgctxt "InputEvent"
 msgid "toggle custom light 5"
 msgstr "(Des)Ligar a luz personalizada 5"
 
 #: utils/InputEngine.cpp:134
-#, fuzzy
-#| msgid "toggle custom light 6"
 msgctxt "InputEvent"
 msgid "toggle custom light 6"
 msgstr "(Des)Ligar a luz personalizada 6"
 
 #: utils/InputEngine.cpp:135
-#, fuzzy
-#| msgid "toggle custom light 7"
 msgctxt "InputEvent"
 msgid "toggle custom light 7"
 msgstr "(Des)Ligar a luz personalizada 7"
 
 #: utils/InputEngine.cpp:136
-#, fuzzy
-#| msgid "toggle custom light 8"
 msgctxt "InputEvent"
 msgid "toggle custom light 8"
 msgstr "(Des)Ligar a luz personalizada 8"
 
 #: utils/InputEngine.cpp:137
-#, fuzzy
-#| msgid "toggle custom light 9"
 msgctxt "InputEvent"
 msgid "toggle custom light 9"
 msgstr "(Des)Ligar a luz personalizada 9"
 
 #: utils/InputEngine.cpp:138
-#, fuzzy
-#| msgid "toggle custom light 10"
 msgctxt "InputEvent"
 msgid "toggle custom light 10"
 msgstr "(Des)Ligar a luz personalizada 10"
 
 #: utils/InputEngine.cpp:139
-#, fuzzy
-#| msgid "toggle parking brake"
 msgctxt "InputEvent"
 msgid "toggle parking brake"
 msgstr "Travar/destravar o travão de mão"
 
 #: utils/InputEngine.cpp:140
-#, fuzzy
-#| msgid "toggle trailer parking brake"
 msgctxt "InputEvent"
 msgid "toggle trailer parking brake"
 msgstr "ativar o freio de estacionamento do trailer"
 
 #: utils/InputEngine.cpp:141
-#, fuzzy
-#| msgid "toggle antilock brake"
 msgctxt "InputEvent"
 msgid "toggle antilock brake"
 msgstr "alternar freio antibloqueio"
 
 #: utils/InputEngine.cpp:142
-#, fuzzy
-#| msgid "toggle videocamera"
 msgctxt "InputEvent"
 msgid "toggle videocamera"
 msgstr "alternar a câmera de vídeo"
 
 #: utils/InputEngine.cpp:143
-#, fuzzy
-#| msgid "toggle traction control"
 msgctxt "InputEvent"
 msgid "toggle traction control"
 msgstr "alternar controle de tração"
 
 #: utils/InputEngine.cpp:144
-#, fuzzy
-#| msgid "toggle cruise control"
 msgctxt "InputEvent"
 msgid "toggle cruise control"
 msgstr "alternar controle de cruzeiro"
 
 #: utils/InputEngine.cpp:145
-#, fuzzy
-#| msgid "match target speed / rpm with current truck speed / rpm"
 msgctxt "InputEvent"
 msgid "match target speed / rpm with current truck speed / rpm"
 msgstr "combinar a velocidade alvo / rpm com a velocidade atual do truck / rpm"
 
 #: utils/InputEngine.cpp:146
-#, fuzzy
-#| msgid "increase target speed / rpm"
 msgctxt "InputEvent"
 msgid "increase target speed / rpm"
 msgstr "aumentar a velocidade alvo / rpm"
 
 #: utils/InputEngine.cpp:147
-#, fuzzy
-#| msgid "decrease target speed / rpm"
 msgctxt "InputEvent"
 msgid "decrease target speed / rpm"
-msgstr "diminuir a velocidade alvo / rpm"
+msgstr "Engatar uma carga ao camião"
 
 #: utils/InputEngine.cpp:148
-#, fuzzy
-#| msgid "hold to start the engine"
 msgctxt "InputEvent"
 msgid "hold to start the engine"
 msgstr "Segure para dar a partida"
 
 #: utils/InputEngine.cpp:149 utils/InputEngine.cpp:208
-#, fuzzy
-#| msgid "steer left"
 msgctxt "InputEvent"
 msgid "steer left"
 msgstr "virar para a esquerda"
@@ -4090,1416 +3857,1014 @@ msgstr "virar para a esquerda"
 #. Airplane
 #: utils/InputEngine.cpp:150 utils/InputEngine.cpp:196
 #: utils/InputEngine.cpp:209
-#, fuzzy
-#| msgid "steer right"
 msgctxt "InputEvent"
 msgid "steer right"
 msgstr "Virar a direita"
 
 #: utils/InputEngine.cpp:151
-#, fuzzy
-#| msgid "toggle ignition"
 msgctxt "InputEvent"
 msgid "toggle ignition"
 msgstr "(Des)Ligar a ignição"
 
 #: utils/InputEngine.cpp:152
-#, fuzzy
-#| msgid "toggle forwardcommands"
 msgctxt "InputEvent"
 msgid "toggle forwardcommands"
 msgstr "alternar comandos para frente"
 
 #: utils/InputEngine.cpp:153
-#, fuzzy
-#| msgid "toggle importcommands"
 msgctxt "InputEvent"
 msgid "toggle importcommands"
 msgstr "alternar comandos de importação"
 
 #: utils/InputEngine.cpp:154
-#, fuzzy
-#| msgid "toggle physics"
 msgctxt "InputEvent"
 msgid "toggle physics"
 msgstr "alternar física"
 
 #: utils/InputEngine.cpp:155
-#, fuzzy
-#| msgid "cycle between available inter axle differential modes"
 msgctxt "InputEvent"
 msgid "cycle between available inter axle differential modes"
 msgstr "ciclo entre os modos diferenciais entre eixos disponíveis"
 
 #: utils/InputEngine.cpp:156
-#, fuzzy
-#| msgid "cycle between available inter wheel differential modes"
 msgctxt "InputEvent"
 msgid "cycle between available inter wheel differential modes"
 msgstr "ciclo entre os modos diferenciais entre rodas disponíveis"
 
 #: utils/InputEngine.cpp:157
-#, fuzzy
-#| msgid "toggle transfer case mode"
 msgctxt "InputEvent"
 msgid "toggle transfer case mode"
 msgstr "alternar modo de transferência"
 
 #: utils/InputEngine.cpp:158
-#, fuzzy
-#| msgid "toggle transfer case gear ratio"
 msgctxt "InputEvent"
 msgid "toggle transfer case gear ratio"
 msgstr "alternar relação de engrenagem da caixa de transferência"
 
 #: utils/InputEngine.cpp:159
-#, fuzzy
-#| msgid "move left mirror to the left"
 msgctxt "InputEvent"
 msgid "move left mirror to the left"
 msgstr "mover retrovisor esquerdo para esquerda"
 
 #: utils/InputEngine.cpp:160
-#, fuzzy
-#| msgid "move left mirror to the right"
 msgctxt "InputEvent"
 msgid "move left mirror to the right"
 msgstr "mover o retrovisor esquerdo para direita"
 
 #: utils/InputEngine.cpp:161
-#, fuzzy
-#| msgid "more right mirror to the left"
 msgctxt "InputEvent"
 msgid "more right mirror to the left"
 msgstr "retrovisor direito mais para esquerda"
 
 #: utils/InputEngine.cpp:162
-#, fuzzy
-#| msgid "move right mirror to the right"
 msgctxt "InputEvent"
 msgid "move right mirror to the right"
 msgstr "mover retrovisor direito para a direita"
 
 #. Truck: transmission
 #: utils/InputEngine.cpp:165
-#, fuzzy
-#| msgid "shift automatic transmission one gear down"
 msgctxt "InputEvent"
 msgid "shift automatic transmission one gear down"
 msgstr "colocar uma mudança abaixo na mudança automática"
 
 #: utils/InputEngine.cpp:166
-#, fuzzy
-#| msgid "shift automatic transmission one gear up"
 msgctxt "InputEvent"
 msgid "shift automatic transmission one gear up"
 msgstr "colocar uma mudança acima na mudança automática"
 
 #: utils/InputEngine.cpp:167
-#, fuzzy
-#| msgid "manual clutch (for manual transmission)"
 msgctxt "InputEvent"
 msgid "manual clutch (for manual transmission)"
 msgstr "Embreagem manual (para marcha manual)"
 
 #: utils/InputEngine.cpp:168
-#, fuzzy
-#| msgid "shift one gear down in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift one gear down in manual transmission mode"
 msgstr "Por uma mudança abaixo na caixa de velocidade manual"
 
 #: utils/InputEngine.cpp:169
-#, fuzzy
-#| msgid "shift to neutral gear in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift to neutral gear in manual transmission mode"
 msgstr "Colocar em ponto morto a caixa de velocidade manual"
 
 #: utils/InputEngine.cpp:170
-#, fuzzy
-#| msgid "shift one gear up in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift one gear up in manual transmission mode"
 msgstr "Por uma mudança acima na caixa de velocidade manual"
 
 #: utils/InputEngine.cpp:171
-#, fuzzy
-#| msgid "shift directly to reverse gear"
 msgctxt "InputEvent"
 msgid "shift directly to reverse gear"
 msgstr "colocar directamente em marcha-atrâs"
 
 #: utils/InputEngine.cpp:172
-#, fuzzy
-#| msgid "shift directly to first gear"
 msgctxt "InputEvent"
 msgid "shift directly to first gear"
 msgstr "Colocar directamente na 1ª marcha"
 
 #: utils/InputEngine.cpp:173
-#, fuzzy
-#| msgid "shift directly to second gear"
 msgctxt "InputEvent"
 msgid "shift directly to second gear"
 msgstr "Colocar directamente na 2ª marcha"
 
 #: utils/InputEngine.cpp:174
-#, fuzzy
-#| msgid "shift directly to third gear"
 msgctxt "InputEvent"
 msgid "shift directly to third gear"
 msgstr "Colocar directamente a 3ª marcha"
 
 #: utils/InputEngine.cpp:175
-#, fuzzy
-#| msgid "shift directly to fourth gear"
 msgctxt "InputEvent"
 msgid "shift directly to fourth gear"
 msgstr "Colocar directamente na 4ª marcha"
 
 #: utils/InputEngine.cpp:176
-#, fuzzy
-#| msgid "shift directly to 5th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 5th gear"
 msgstr "Colocar directamente na 5ª marcha"
 
 #: utils/InputEngine.cpp:177
-#, fuzzy
-#| msgid "shift directly to 6th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 6th gear"
 msgstr "Colocar directamente na 6ª marcha"
 
 #: utils/InputEngine.cpp:178
-#, fuzzy
-#| msgid "shift directly to 7th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 7th gear"
 msgstr "Colocar directamente na 7ª marcha"
 
 #: utils/InputEngine.cpp:179
-#, fuzzy
-#| msgid "shift directly to 8th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 8th gear"
 msgstr "Colocar directamente na 8ª marcha"
 
 #: utils/InputEngine.cpp:180
-#, fuzzy
-#| msgid "shift directly to 9th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 9th gear"
 msgstr "Colocar directamente na 9ª marcha"
 
 #: utils/InputEngine.cpp:181
-#, fuzzy
-#| msgid "shift directly to 10th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 10th gear"
 msgstr "Colocar directamente na 10ª marcha"
 
 #: utils/InputEngine.cpp:182
-#, fuzzy
-#| msgid "shift directly to 11th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 11th gear"
 msgstr "Colocar directamente na 11ª marcha"
 
 #: utils/InputEngine.cpp:183
-#, fuzzy
-#| msgid "shift directly to 12th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 12th gear"
 msgstr "Colocar directamente na 12ª marcha"
 
 #: utils/InputEngine.cpp:184
-#, fuzzy
-#| msgid "shift directly to 13th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 13th gear"
 msgstr "Colocar directamente na 13ª marcha"
 
 #: utils/InputEngine.cpp:185
-#, fuzzy
-#| msgid "shift directly to 14th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 14th gear"
 msgstr "Colocar diretamente na 14ª marcha"
 
 #: utils/InputEngine.cpp:186
-#, fuzzy
-#| msgid "shift directly to 15th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 15th gear"
 msgstr "Colocar directamente na 15ª Marcha"
 
 #: utils/InputEngine.cpp:187
-#, fuzzy
-#| msgid "shift directly to 16th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 16th gear"
 msgstr "Colocar directamente na 16ª marcha"
 
 #: utils/InputEngine.cpp:188
-#, fuzzy
-#| msgid "shift directly to 17th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 17th gear"
 msgstr "Colocar directamente na 17ª marcha"
 
 #: utils/InputEngine.cpp:189
-#, fuzzy
-#| msgid "shift directly to 18th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 18th gear"
 msgstr "Colocar directamente na 18ª marcha"
 
 #: utils/InputEngine.cpp:190
-#, fuzzy
-#| msgid "sets low range (1-6) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets low range (1-6) for H-shaft"
 msgstr "muda para mudanças baixas (1-6) nas automáticas"
 
 #: utils/InputEngine.cpp:191
-#, fuzzy
-#| msgid "sets middle range (7-12) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets middle range (7-12) for H-shaft"
 msgstr "muda para mudanças médias (7-12) nas automáticas"
 
 #: utils/InputEngine.cpp:192
-#, fuzzy
-#| msgid "sets high range (13-18) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets high range (13-18) for H-shaft"
 msgstr "muda para mudanças altas (13-18) nas automáticas"
 
 #: utils/InputEngine.cpp:193
-#, fuzzy
-#| msgid "toggle between transmission modes"
 msgctxt "InputEvent"
 msgid "toggle between transmission modes"
 msgstr "Alternar entre os modos de transmissão"
 
 #: utils/InputEngine.cpp:197
-#, fuzzy
-#| msgid "normal brake for an aircraft"
 msgctxt "InputEvent"
 msgid "normal brake for an aircraft"
 msgstr "travao normal para um aviao"
 
 #: utils/InputEngine.cpp:198
-#, fuzzy
-#| msgid "pull the elevator down in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator down in an aircraft."
 msgstr "puxar o elevador para baixo em um avião."
 
 #: utils/InputEngine.cpp:199
-#, fuzzy
-#| msgid "pull the elevator up in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator up in an aircraft."
 msgstr "puxar o elevador para cima de uma aeronave."
 
 #: utils/InputEngine.cpp:200
-#, fuzzy
-#| msgid "full flaps in an aircraft."
 msgctxt "InputEvent"
 msgid "full flaps in an aircraft."
 msgstr "flaps no maximo numa aeronave."
 
 #: utils/InputEngine.cpp:201
-#, fuzzy
-#| msgid "one step less flaps."
 msgctxt "InputEvent"
 msgid "one step less flaps."
 msgstr "um nivel menos flaps."
 
 #: utils/InputEngine.cpp:202
-#, fuzzy
-#| msgid "one step more flaps."
 msgctxt "InputEvent"
 msgid "one step more flaps."
 msgstr "um passo mais abas."
 
 #: utils/InputEngine.cpp:203
-#, fuzzy
-#| msgid "no flaps."
 msgctxt "InputEvent"
 msgid "no flaps."
 msgstr "sem flaps."
 
 #: utils/InputEngine.cpp:204
-#, fuzzy
-#| msgid "airplane parking brake."
 msgctxt "InputEvent"
 msgid "airplane parking brake."
 msgstr "Travão de mão do avião."
 
 #: utils/InputEngine.cpp:205
-#, fuzzy
-#| msgid "reverse the turboprops"
 msgctxt "InputEvent"
 msgid "reverse the turboprops"
 msgstr "reverter as turbinas"
 
 #: utils/InputEngine.cpp:206
-#, fuzzy
-#| msgid "rudder left"
 msgctxt "InputEvent"
 msgid "rudder left"
 msgstr "leme esquerdo"
 
 #: utils/InputEngine.cpp:207
-#, fuzzy
-#| msgid "rudder right"
 msgctxt "InputEvent"
 msgid "rudder right"
 msgstr "leme direito"
 
 #: utils/InputEngine.cpp:210 utils/InputEngine.cpp:229
-#, fuzzy
-#| msgid ""
-#| "throttle axis. Only use this if you have fitting hardware :) (i.e. a "
-#| "Slider)"
 msgctxt "InputEvent"
 msgid ""
 "throttle axis. Only use this if you have fitting hardware :) (i.e. a Slider)"
 msgstr ""
-"eixo do acelerador. Só use isso se você tiver o hardware apropriado:) "
-"(Exemplo , um slider)"
+"eixo do acelerador. Só use isso se você tiver o hardware apropriado:) ("
+"Exemplo , um slider)"
 
 #: utils/InputEngine.cpp:211
-#, fuzzy
-#| msgid "decreases the airplane thrust"
 msgctxt "InputEvent"
 msgid "decreases the airplane thrust"
-msgstr "diminui o motor do avião"
+msgstr "diminui a potencia do avião"
 
 #: utils/InputEngine.cpp:212
-#, fuzzy
-#| msgid "full thrust"
 msgctxt "InputEvent"
 msgid "full thrust"
 msgstr "turbinas no maximo"
 
 #: utils/InputEngine.cpp:213 utils/InputEngine.cpp:224
-#, fuzzy
-#| msgid "no thrust"
 msgctxt "InputEvent"
 msgid "no thrust"
 msgstr "sem motor"
 
 #: utils/InputEngine.cpp:214
-#, fuzzy
-#| msgid "increase the airplane thrust"
 msgctxt "InputEvent"
 msgid "increase the airplane thrust"
 msgstr "aumentar a turbina do avião"
 
 #: utils/InputEngine.cpp:215
-#, fuzzy
-#| msgid "switch all engines on / off"
 msgctxt "InputEvent"
 msgid "switch all engines on / off"
 msgstr "Ligar ou desligar todos os motores"
 
 #: utils/InputEngine.cpp:216
-#, fuzzy
-#| msgid "no airbrakes"
 msgctxt "InputEvent"
 msgid "no airbrakes"
 msgstr "sem travões a ar"
 
 #: utils/InputEngine.cpp:217
-#, fuzzy
-#| msgid "full airbrakes"
 msgctxt "InputEvent"
 msgid "full airbrakes"
 msgstr "máximo de travões a ar"
 
 #: utils/InputEngine.cpp:218
-#, fuzzy
-#| msgid "less airbrakes"
 msgctxt "InputEvent"
 msgid "less airbrakes"
 msgstr "aplicar menos travões a ar"
 
 #: utils/InputEngine.cpp:219
-#, fuzzy
-#| msgid "more airbrakes"
 msgctxt "InputEvent"
 msgid "more airbrakes"
 msgstr "aplicar mais travões a ar"
 
 #: utils/InputEngine.cpp:220
-#, fuzzy
-#| msgid "airplane throttle"
 msgctxt "InputEvent"
 msgid "airplane throttle"
 msgstr "acelerador do aviao"
 
 #. Boat
 #: utils/InputEngine.cpp:223
-#, fuzzy
-#| msgid "center the rudder"
 msgctxt "InputEvent"
 msgid "center the rudder"
 msgstr "centralizar o leme"
 
 #: utils/InputEngine.cpp:225
-#, fuzzy
-#| msgid "steer left a step"
 msgctxt "InputEvent"
 msgid "steer left a step"
 msgstr "virar para esquerda um passo"
 
 #: utils/InputEngine.cpp:226
-#, fuzzy
-#| msgid "steer left (analog value!)"
 msgctxt "InputEvent"
 msgid "steer left (analog value!)"
 msgstr "virar para a esquerda (valor analógico!)"
 
 #: utils/InputEngine.cpp:227
-#, fuzzy
-#| msgid "steer right a step"
 msgctxt "InputEvent"
 msgid "steer right a step"
 msgstr "Virar a direita um passo"
 
 #: utils/InputEngine.cpp:228
-#, fuzzy
-#| msgid "steer right (analog value!)"
 msgctxt "InputEvent"
 msgid "steer right (analog value!)"
 msgstr "virar a direita (valor analógico!)"
 
 #: utils/InputEngine.cpp:230
-#, fuzzy
-#| msgid "decrease throttle"
 msgctxt "InputEvent"
 msgid "decrease throttle"
 msgstr "diminuir pressão"
 
 #: utils/InputEngine.cpp:231
-#, fuzzy
-#| msgid "increase throttle"
 msgctxt "InputEvent"
 msgid "increase throttle"
-msgstr "aumentar turbina"
+msgstr "aumentar potencia"
 
 #. Commands
 #: utils/InputEngine.cpp:234
-#, fuzzy
-#| msgid "Command 1"
 msgctxt "InputEvent"
 msgid "Command 1"
 msgstr "Comando 1"
 
 #: utils/InputEngine.cpp:235
-#, fuzzy
-#| msgid "Command 2"
 msgctxt "InputEvent"
 msgid "Command 2"
 msgstr "Comando 2"
 
 #: utils/InputEngine.cpp:236
-#, fuzzy
-#| msgid "Command 3"
 msgctxt "InputEvent"
 msgid "Command 3"
 msgstr "Comando 3"
 
 #: utils/InputEngine.cpp:237
-#, fuzzy
-#| msgid "Command 4"
 msgctxt "InputEvent"
 msgid "Command 4"
 msgstr "Comando 4"
 
 #: utils/InputEngine.cpp:238
-#, fuzzy
-#| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 5"
 msgstr "Comando 5"
 
 #: utils/InputEngine.cpp:239
-#, fuzzy
-#| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 6"
 msgstr "Comando 6"
 
 #: utils/InputEngine.cpp:240
-#, fuzzy
-#| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 7"
 msgstr "Comando 7"
 
 #: utils/InputEngine.cpp:241
-#, fuzzy
-#| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 8"
 msgstr "Comando 8"
 
 #: utils/InputEngine.cpp:242
-#, fuzzy
-#| msgid "Command 9"
 msgctxt "InputEvent"
 msgid "Command 9"
 msgstr "comando 9"
 
 #: utils/InputEngine.cpp:243
-#, fuzzy
-#| msgid "Command 10"
 msgctxt "InputEvent"
 msgid "Command 10"
 msgstr "Comando 10"
 
 #: utils/InputEngine.cpp:244
-#, fuzzy
-#| msgid "Command 11"
 msgctxt "InputEvent"
 msgid "Command 11"
 msgstr "Comando 11"
 
 #: utils/InputEngine.cpp:245
-#, fuzzy
-#| msgid "Command 12"
 msgctxt "InputEvent"
 msgid "Command 12"
 msgstr "Comando 12"
 
 #: utils/InputEngine.cpp:246
-#, fuzzy
-#| msgid "Command 13"
 msgctxt "InputEvent"
 msgid "Command 13"
 msgstr "Comando 13"
 
 #: utils/InputEngine.cpp:247
-#, fuzzy
-#| msgid "Command 14"
 msgctxt "InputEvent"
 msgid "Command 14"
 msgstr "Comando 14"
 
 #: utils/InputEngine.cpp:248
-#, fuzzy
-#| msgid "Command 15"
 msgctxt "InputEvent"
 msgid "Command 15"
 msgstr "Comando 15"
 
 #: utils/InputEngine.cpp:249
-#, fuzzy
-#| msgid "Command 16"
 msgctxt "InputEvent"
 msgid "Command 16"
 msgstr "Comando 16"
 
 #: utils/InputEngine.cpp:250
-#, fuzzy
-#| msgid "Command 17"
 msgctxt "InputEvent"
 msgid "Command 17"
 msgstr "Comando 17"
 
 #: utils/InputEngine.cpp:251
-#, fuzzy
-#| msgid "Command 18"
 msgctxt "InputEvent"
 msgid "Command 18"
 msgstr "Comando 18"
 
 #: utils/InputEngine.cpp:252
-#, fuzzy
-#| msgid "Command 19"
 msgctxt "InputEvent"
 msgid "Command 19"
 msgstr "Comando 19"
 
 #: utils/InputEngine.cpp:253
-#, fuzzy
-#| msgid "Command 20"
 msgctxt "InputEvent"
 msgid "Command 20"
 msgstr "Comando 20"
 
 #: utils/InputEngine.cpp:254
-#, fuzzy
-#| msgid "Command 21"
 msgctxt "InputEvent"
 msgid "Command 21"
 msgstr "Comando 21"
 
 #: utils/InputEngine.cpp:255
-#, fuzzy
-#| msgid "Command 22"
 msgctxt "InputEvent"
 msgid "Command 22"
 msgstr "Comando 22"
 
 #: utils/InputEngine.cpp:256
-#, fuzzy
-#| msgid "Command 23"
 msgctxt "InputEvent"
 msgid "Command 23"
 msgstr "Comando 23"
 
 #: utils/InputEngine.cpp:257
-#, fuzzy
-#| msgid "Command 24"
 msgctxt "InputEvent"
 msgid "Command 24"
 msgstr "Comando 24"
 
 #: utils/InputEngine.cpp:258
-#, fuzzy
-#| msgid "Command 25"
 msgctxt "InputEvent"
 msgid "Command 25"
 msgstr "Comando 25"
 
 #: utils/InputEngine.cpp:259
-#, fuzzy
-#| msgid "Command 26"
 msgctxt "InputEvent"
 msgid "Command 26"
 msgstr "Comando 26"
 
 #: utils/InputEngine.cpp:260
-#, fuzzy
-#| msgid "Command 27"
 msgctxt "InputEvent"
 msgid "Command 27"
 msgstr "Comando 27"
 
 #: utils/InputEngine.cpp:261
-#, fuzzy
-#| msgid "Command 28"
 msgctxt "InputEvent"
 msgid "Command 28"
 msgstr "Comando 28"
 
 #: utils/InputEngine.cpp:262
-#, fuzzy
-#| msgid "Command 29"
 msgctxt "InputEvent"
 msgid "Command 29"
 msgstr "Comando 29"
 
 #: utils/InputEngine.cpp:263
-#, fuzzy
-#| msgid "Command 30"
 msgctxt "InputEvent"
 msgid "Command 30"
 msgstr "Comando 30"
 
 #: utils/InputEngine.cpp:264
-#, fuzzy
-#| msgid "Command 31"
 msgctxt "InputEvent"
 msgid "Command 31"
 msgstr "Comando 31"
 
 #: utils/InputEngine.cpp:265
-#, fuzzy
-#| msgid "Command 32"
 msgctxt "InputEvent"
 msgid "Command 32"
 msgstr "Comando 32"
 
 #: utils/InputEngine.cpp:266
-#, fuzzy
-#| msgid "Command 33"
 msgctxt "InputEvent"
 msgid "Command 33"
 msgstr "Comando 33"
 
 #: utils/InputEngine.cpp:267
-#, fuzzy
-#| msgid "Command 34"
 msgctxt "InputEvent"
 msgid "Command 34"
 msgstr "Comando 34"
 
 #: utils/InputEngine.cpp:268
-#, fuzzy
-#| msgid "Command 35"
 msgctxt "InputEvent"
 msgid "Command 35"
 msgstr "Comando 35"
 
 #: utils/InputEngine.cpp:269
-#, fuzzy
-#| msgid "Command 36"
 msgctxt "InputEvent"
 msgid "Command 36"
 msgstr "Comando 36"
 
 #: utils/InputEngine.cpp:270
-#, fuzzy
-#| msgid "Command 37"
 msgctxt "InputEvent"
 msgid "Command 37"
 msgstr "Comando 37"
 
 #: utils/InputEngine.cpp:271
-#, fuzzy
-#| msgid "Command 38"
 msgctxt "InputEvent"
 msgid "Command 38"
 msgstr "Comando 38"
 
 #: utils/InputEngine.cpp:272
-#, fuzzy
-#| msgid "Command 39"
 msgctxt "InputEvent"
 msgid "Command 39"
 msgstr "Comando 39"
 
 #: utils/InputEngine.cpp:273
-#, fuzzy
-#| msgid "Command 40"
 msgctxt "InputEvent"
 msgid "Command 40"
 msgstr "Comando 40"
 
 #: utils/InputEngine.cpp:274
-#, fuzzy
-#| msgid "Command 41"
 msgctxt "InputEvent"
 msgid "Command 41"
 msgstr "Comando 41"
 
 #: utils/InputEngine.cpp:275
-#, fuzzy
-#| msgid "Command 42"
 msgctxt "InputEvent"
 msgid "Command 42"
 msgstr "comando 42"
 
 #: utils/InputEngine.cpp:276
-#, fuzzy
-#| msgid "Command 43"
 msgctxt "InputEvent"
 msgid "Command 43"
 msgstr "comando 43"
 
 #: utils/InputEngine.cpp:277
-#, fuzzy
-#| msgid "Command 44"
 msgctxt "InputEvent"
 msgid "Command 44"
 msgstr "comando 44"
 
 #: utils/InputEngine.cpp:278
-#, fuzzy
-#| msgid "Command 45"
 msgctxt "InputEvent"
 msgid "Command 45"
 msgstr "comando 45"
 
 #: utils/InputEngine.cpp:279
-#, fuzzy
-#| msgid "Command 46"
 msgctxt "InputEvent"
 msgid "Command 46"
 msgstr "Comando 46"
 
 #: utils/InputEngine.cpp:280
-#, fuzzy
-#| msgid "Command 47"
 msgctxt "InputEvent"
 msgid "Command 47"
 msgstr "Comando 47"
 
 #: utils/InputEngine.cpp:281
-#, fuzzy
-#| msgid "Command 48"
 msgctxt "InputEvent"
 msgid "Command 48"
 msgstr "Comando 48"
 
 #: utils/InputEngine.cpp:282
-#, fuzzy
-#| msgid "Command 49"
 msgctxt "InputEvent"
 msgid "Command 49"
 msgstr "Comando 49"
 
 #: utils/InputEngine.cpp:283
-#, fuzzy
-#| msgid "Command 50"
 msgctxt "InputEvent"
 msgid "Command 50"
 msgstr "Comando 50"
 
 #: utils/InputEngine.cpp:284
-#, fuzzy
-#| msgid "Command 51"
 msgctxt "InputEvent"
 msgid "Command 51"
 msgstr "Comando 51"
 
 #: utils/InputEngine.cpp:285
-#, fuzzy
-#| msgid "Command 52"
 msgctxt "InputEvent"
 msgid "Command 52"
 msgstr "Comando 52"
 
 #: utils/InputEngine.cpp:286
-#, fuzzy
-#| msgid "Command 53"
 msgctxt "InputEvent"
 msgid "Command 53"
 msgstr "Comando 53"
 
 #: utils/InputEngine.cpp:287
-#, fuzzy
-#| msgid "Command 54"
 msgctxt "InputEvent"
 msgid "Command 54"
 msgstr "Comando 54"
 
 #: utils/InputEngine.cpp:288
-#, fuzzy
-#| msgid "Command 55"
 msgctxt "InputEvent"
 msgid "Command 55"
 msgstr "Comando 55"
 
 #: utils/InputEngine.cpp:289
-#, fuzzy
-#| msgid "Command 56"
 msgctxt "InputEvent"
 msgid "Command 56"
 msgstr "Comando 56"
 
 #: utils/InputEngine.cpp:290
-#, fuzzy
-#| msgid "Command 57"
 msgctxt "InputEvent"
 msgid "Command 57"
 msgstr "Comando 57"
 
 #: utils/InputEngine.cpp:291
-#, fuzzy
-#| msgid "Command 58"
 msgctxt "InputEvent"
 msgid "Command 58"
 msgstr "Comando 58"
 
 #: utils/InputEngine.cpp:292
-#, fuzzy
-#| msgid "Command 59"
 msgctxt "InputEvent"
 msgid "Command 59"
 msgstr "Comando 59"
 
 #: utils/InputEngine.cpp:293
-#, fuzzy
-#| msgid "Command 60"
 msgctxt "InputEvent"
 msgid "Command 60"
 msgstr "Comando 60"
 
 #: utils/InputEngine.cpp:294
-#, fuzzy
-#| msgid "Command 61"
 msgctxt "InputEvent"
 msgid "Command 61"
 msgstr "Comando 61"
 
 #: utils/InputEngine.cpp:295
-#, fuzzy
-#| msgid "Command 62"
 msgctxt "InputEvent"
 msgid "Command 62"
 msgstr "Comando 62"
 
 #: utils/InputEngine.cpp:296
-#, fuzzy
-#| msgid "Command 63"
 msgctxt "InputEvent"
 msgid "Command 63"
 msgstr "Comando 63"
 
 #: utils/InputEngine.cpp:297
-#, fuzzy
-#| msgid "Command 64"
 msgctxt "InputEvent"
 msgid "Command 64"
 msgstr "Comando 64"
 
 #: utils/InputEngine.cpp:298
-#, fuzzy
-#| msgid "Command 65"
 msgctxt "InputEvent"
 msgid "Command 65"
 msgstr "Comando 65"
 
 #: utils/InputEngine.cpp:299
-#, fuzzy
-#| msgid "Command 66"
 msgctxt "InputEvent"
 msgid "Command 66"
 msgstr "Comando 66"
 
 #: utils/InputEngine.cpp:300
-#, fuzzy
-#| msgid "Command 67"
 msgctxt "InputEvent"
 msgid "Command 67"
 msgstr "Comando 67"
 
 #: utils/InputEngine.cpp:301
-#, fuzzy
-#| msgid "Command 68"
 msgctxt "InputEvent"
 msgid "Command 68"
 msgstr "Comando 68"
 
 #: utils/InputEngine.cpp:302
-#, fuzzy
-#| msgid "Command 69"
 msgctxt "InputEvent"
 msgid "Command 69"
 msgstr "Comando 69"
 
 #: utils/InputEngine.cpp:303
-#, fuzzy
-#| msgid "Command 70"
 msgctxt "InputEvent"
 msgid "Command 70"
 msgstr "Comando 70"
 
 #: utils/InputEngine.cpp:304
-#, fuzzy
-#| msgid "Command 71"
 msgctxt "InputEvent"
 msgid "Command 71"
 msgstr "Comando 71"
 
 #: utils/InputEngine.cpp:305
-#, fuzzy
-#| msgid "Command 72"
 msgctxt "InputEvent"
 msgid "Command 72"
 msgstr "Comando 72"
 
 #: utils/InputEngine.cpp:306
-#, fuzzy
-#| msgid "Command 73"
 msgctxt "InputEvent"
 msgid "Command 73"
 msgstr "Comando 73"
 
 #: utils/InputEngine.cpp:307
-#, fuzzy
-#| msgid "Command 74"
 msgctxt "InputEvent"
 msgid "Command 74"
 msgstr "Comando 74"
 
 #: utils/InputEngine.cpp:308
-#, fuzzy
-#| msgid "Command 75"
 msgctxt "InputEvent"
 msgid "Command 75"
 msgstr "Comando 75"
 
 #: utils/InputEngine.cpp:309
-#, fuzzy
-#| msgid "Command 76"
 msgctxt "InputEvent"
 msgid "Command 76"
 msgstr "Comando 76"
 
 #: utils/InputEngine.cpp:310
-#, fuzzy
-#| msgid "Command 77"
 msgctxt "InputEvent"
 msgid "Command 77"
 msgstr "Comando 77"
 
 #: utils/InputEngine.cpp:311
-#, fuzzy
-#| msgid "Command 78"
 msgctxt "InputEvent"
 msgid "Command 78"
 msgstr "Comando 78"
 
 #: utils/InputEngine.cpp:312
-#, fuzzy
-#| msgid "Command 79"
 msgctxt "InputEvent"
 msgid "Command 79"
 msgstr "Comando 79"
 
 #: utils/InputEngine.cpp:313
-#, fuzzy
-#| msgid "Command 80"
 msgctxt "InputEvent"
 msgid "Command 80"
 msgstr "Comando 80"
 
 #: utils/InputEngine.cpp:314
-#, fuzzy
-#| msgid "Command 81"
 msgctxt "InputEvent"
 msgid "Command 81"
 msgstr "Comando 81"
 
 #: utils/InputEngine.cpp:315
-#, fuzzy
-#| msgid "Command 82"
 msgctxt "InputEvent"
 msgid "Command 82"
 msgstr "Comando 82"
 
 #: utils/InputEngine.cpp:316
-#, fuzzy
-#| msgid "Command 83"
 msgctxt "InputEvent"
 msgid "Command 83"
 msgstr "Comando 83"
 
 #: utils/InputEngine.cpp:317
-#, fuzzy
-#| msgid "Command 84"
 msgctxt "InputEvent"
 msgid "Command 84"
 msgstr "Comando 84"
 
 #. Character
 #: utils/InputEngine.cpp:320
-#, fuzzy
-#| msgid "step backwards with the character"
 msgctxt "InputEvent"
 msgid "step backwards with the character"
 msgstr "ir para trás com o personagem"
 
 #: utils/InputEngine.cpp:321
-#, fuzzy
-#| msgid "step forward with the character"
 msgctxt "InputEvent"
 msgid "step forward with the character"
 msgstr "ir em frente com o personagem"
 
 #: utils/InputEngine.cpp:322
-#, fuzzy
-#| msgid "let the character jump"
 msgctxt "InputEvent"
 msgid "let the character jump"
 msgstr "fazer o personagem saltar"
 
 #: utils/InputEngine.cpp:323
-#, fuzzy
-#| msgid "rotate character left"
 msgctxt "InputEvent"
 msgid "rotate character left"
 msgstr "rodar a personagem para esquerda"
 
 #: utils/InputEngine.cpp:324
-#, fuzzy
-#| msgid "rotate character right"
 msgctxt "InputEvent"
 msgid "rotate character right"
 msgstr "rodar a personagem para direita"
 
 #: utils/InputEngine.cpp:325
-#, fuzzy
-#| msgid "let the character run"
 msgctxt "InputEvent"
 msgid "let the character run"
 msgstr "faz a personagem correr"
 
 #: utils/InputEngine.cpp:326
-#, fuzzy
-#| msgid "sidestep to the left"
 msgctxt "InputEvent"
 msgid "sidestep to the left"
 msgstr "passo lateral para a esquerda"
 
 #: utils/InputEngine.cpp:327
-#, fuzzy
-#| msgid "sidestep to the right"
 msgctxt "InputEvent"
 msgid "sidestep to the right"
 msgstr "passo lateral para a direita"
 
 #: utils/InputEngine.cpp:328
-#, fuzzy
-#| msgid "rotate view up"
 msgctxt "InputEvent"
 msgid "rotate view up"
 msgstr "rodar a visão para cima"
 
 #: utils/InputEngine.cpp:329
-#, fuzzy
-#| msgid "rotate view down"
 msgctxt "InputEvent"
 msgid "rotate view down"
 msgstr "rodar a visao para baixo"
 
 #. Camera
 #: utils/InputEngine.cpp:332
-#, fuzzy
-#| msgid "change camera mode"
 msgctxt "InputEvent"
 msgid "change camera mode"
 msgstr "Trocar o modo da câmera"
 
 #: utils/InputEngine.cpp:333
-#, fuzzy
-#| msgid "look back (toggles between normal and lookback)"
 msgctxt "InputEvent"
 msgid "look back (toggles between normal and lookback)"
 msgstr "olhar para trás (para alternar entre normal e visao traseira)"
 
 #: utils/InputEngine.cpp:334
-#, fuzzy
-#| msgid "reset the camera position"
 msgctxt "InputEvent"
 msgid "reset the camera position"
 msgstr "resetar a posicao da camera"
 
 #: utils/InputEngine.cpp:335
-#, fuzzy
-#| msgid "rotate camera down"
 msgctxt "InputEvent"
 msgid "rotate camera down"
 msgstr "rodar camera para baixo"
 
 #: utils/InputEngine.cpp:336
-#, fuzzy
-#| msgid "rotate camera left"
 msgctxt "InputEvent"
 msgid "rotate camera left"
 msgstr "rodar a camera para esquerda"
 
 #: utils/InputEngine.cpp:337
-#, fuzzy
-#| msgid "rotate camera right"
 msgctxt "InputEvent"
 msgid "rotate camera right"
 msgstr "rodar a camera para esquerda"
 
 #: utils/InputEngine.cpp:338
-#, fuzzy
-#| msgid "rotate camera up"
 msgctxt "InputEvent"
 msgid "rotate camera up"
 msgstr "rodar a camera para cima"
 
 #: utils/InputEngine.cpp:339
-#, fuzzy
-#| msgid "zoom camera in"
 msgctxt "InputEvent"
 msgid "zoom camera in"
 msgstr "aproximar a camera"
 
 #: utils/InputEngine.cpp:340
-#, fuzzy
-#| msgid "zoom camera in faster"
 msgctxt "InputEvent"
 msgid "zoom camera in faster"
 msgstr "aproximar a camera rapidamente"
 
 #: utils/InputEngine.cpp:341
-#, fuzzy
-#| msgid "zoom camera out"
 msgctxt "InputEvent"
 msgid "zoom camera out"
 msgstr "afastar a camara"
 
 #: utils/InputEngine.cpp:342
-#, fuzzy
-#| msgid "zoom camera out faster"
 msgctxt "InputEvent"
 msgid "zoom camera out faster"
 msgstr "afastar a camera rapidamente"
 
 #: utils/InputEngine.cpp:343
-#, fuzzy
-#| msgid "fix the camera to a position"
 msgctxt "InputEvent"
 msgid "fix the camera to a position"
 msgstr "fixar a camera numa posiçao"
 
 #: utils/InputEngine.cpp:344
-#, fuzzy
-#| msgid "enable / disable free camera mode"
 msgctxt "InputEvent"
 msgid "enable / disable free camera mode"
 msgstr "ativar / desativar a camera livre"
 
 #: utils/InputEngine.cpp:345
-#, fuzzy
-#| msgid "move camera up"
 msgctxt "InputEvent"
 msgid "move camera up"
 msgstr "mova a câmera para cima"
 
 #: utils/InputEngine.cpp:346
-#, fuzzy
-#| msgid "move camera down"
 msgctxt "InputEvent"
 msgid "move camera down"
 msgstr "mova a câmera para baixo"
 
 #. Sky
 #: utils/InputEngine.cpp:349
-#, fuzzy
-#| msgid "decrease day-time"
 msgctxt "InputEvent"
 msgid "decrease day-time"
 msgstr "reduzir a hora do dia"
 
 #: utils/InputEngine.cpp:350
-#, fuzzy
-#| msgid "decrease day-time a lot faster"
 msgctxt "InputEvent"
 msgid "decrease day-time a lot faster"
 msgstr "diminuir a hora do dia rapidamente"
 
 #: utils/InputEngine.cpp:351
-#, fuzzy
-#| msgid "increase day-time"
 msgctxt "InputEvent"
 msgid "increase day-time"
 msgstr "Aumenta o tempo do dia"
 
 #: utils/InputEngine.cpp:352
-#, fuzzy
-#| msgid "increase day-time a lot faster"
 msgctxt "InputEvent"
 msgid "increase day-time a lot faster"
 msgstr "aumentar a hora do dia rapidamante"
 
 #. Grass
 #: utils/InputEngine.cpp:355
-#, fuzzy
-#| msgid "EXPERIMENTAL: remove some grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove some grass"
 msgstr "EXPERIMENTAL: remove algumas gramíneas/plantas"
 
 #: utils/InputEngine.cpp:356
-#, fuzzy
-#| msgid "EXPERIMENTAL: add some grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: add some grass"
 msgstr "EXPERIMENTAL: adicionar um pouco de grama"
 
 #: utils/InputEngine.cpp:357
-#, fuzzy
-#| msgid "EXPERIMENTAL: set maximum amount of grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: set maximum amount of grass"
 msgstr "EXPERIMENTAL: colocar máximo de erva"
 
 #: utils/InputEngine.cpp:358
-#, fuzzy
-#| msgid "EXPERIMENTAL: remove grass completely"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove grass completely"
 msgstr "EXPERIMENTAL: remover plantas completamente"
 
 #: utils/InputEngine.cpp:359
-#, fuzzy
-#| msgid "EXPERIMENTAL: save changes to the grass density image"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: save changes to the grass density image"
 msgstr "EXPERIMENTAL: gravar as alterações para a imagem da densidade da erva"
 
 #. Survey map
 #: utils/InputEngine.cpp:362
-#, fuzzy
-#| msgid "toggle map icons"
 msgctxt "InputEvent"
 msgid "toggle map icons"
 msgstr "alternar ícones do mapa"
 
 #: utils/InputEngine.cpp:363
-#, fuzzy
-#| msgid "toggle map"
 msgctxt "InputEvent"
 msgid "toggle map"
 msgstr "alternar mapa"
 
 #: utils/InputEngine.cpp:364
-#, fuzzy
-#| msgid "cycle map modes"
 msgctxt "InputEvent"
 msgid "cycle map modes"
 msgstr "modos de mapa de ciclo"
 
 #: utils/InputEngine.cpp:365
-#, fuzzy
-#| msgid "zoom in"
 msgctxt "InputEvent"
 msgid "zoom in"
 msgstr "ampliar"
 
 #: utils/InputEngine.cpp:366
-#, fuzzy
-#| msgid "zoom out"
 msgctxt "InputEvent"
 msgid "zoom out"
 msgstr "Afastar"
 
 #. Menu
 #: utils/InputEngine.cpp:369
-#, fuzzy
-#| msgid "select next element in current category"
 msgctxt "InputEvent"
 msgid "select next element in current category"
 msgstr "selecionar proximo elemento na categoria atual"
 
 #: utils/InputEngine.cpp:370
-#, fuzzy
-#| msgid "select previous category"
 msgctxt "InputEvent"
 msgid "select previous category"
 msgstr "selecionar categoria anterior"
 
 #: utils/InputEngine.cpp:371
-#, fuzzy
-#| msgid "select next category"
 msgctxt "InputEvent"
 msgid "select next category"
 msgstr "seleciona a proxima categoria"
 
 #: utils/InputEngine.cpp:372
-#, fuzzy
-#| msgid "select focussed item and close menu"
 msgctxt "InputEvent"
 msgid "select focussed item and close menu"
 msgstr "escolha o item indicado e feche o menu"
 
 #: utils/InputEngine.cpp:373
-#, fuzzy
-#| msgid "select previous element in current category"
 msgctxt "InputEvent"
 msgid "select previous element in current category"
 msgstr "selecione elemento anterior na categoria atual"
 
 #. Truck editing
 #: utils/InputEngine.cpp:376
-#, fuzzy
-#| msgid "reload truck"
 msgctxt "InputEvent"
 msgid "reload truck"
 msgstr "recarregar Truck"
