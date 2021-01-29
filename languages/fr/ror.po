@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-28 10:37+0100\n"
-"PO-Revision-Date: 2021-01-21 18:32+0000\n"
-"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
+"PO-Revision-Date: 2021-01-30 02:32+0000\n"
+"Last-Translator: Antoni A. <antoni.andric@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
 "Language: fr\n"
@@ -217,11 +217,9 @@ msgid "Logfile echo"
 msgstr "Écho du fichier .log"
 
 #: gui/panels/GUI_ConsoleView.cpp:219
-#, fuzzy
-#| msgid "Description: "
 msgctxt "Console"
 msgid "Scripting"
-msgstr "Scriptage"
+msgstr "Script"
 
 #: gui/panels/GUI_ConsoleView.cpp:220
 msgctxt "Console"
@@ -289,11 +287,9 @@ msgid "Current active Ground: "
 msgstr "Sol actuel actif : "
 
 #: gui/panels/GUI_FrictionSettings.cpp:55
-#, fuzzy
-#| msgid "selected Ground Type:"
 msgctxt "FrictionSettings"
 msgid "selected Ground Type:"
-msgstr "Type de sol sélectionné :"
+msgstr "Type de sol sélectionné:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:61
 msgctxt "FrictionSettings"
