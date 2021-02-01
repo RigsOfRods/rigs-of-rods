@@ -210,6 +210,12 @@ enum LocalizerType
     LOCALIZER_VOR
 };
 
+enum AeroEngineType
+{
+    AEROENGINE_UNKNOWN,
+    AEROENGINE_TURBOPROP_PISTONPROP,
+    AEROENGINE_TURBOJET,
+};
 
 // --------------------------------
 // Soft body physics

@@ -21,6 +21,7 @@
 #pragma once
 
 #include "Application.h"
+#include "SimData.h"
 
 #include <Ogre.h>
 
@@ -29,12 +30,6 @@ namespace RoR {
 class AeroEngine
 {
 public:
-    enum
-    {
-        AEROENGINE_TYPE_TURBOPROP,
-        AEROENGINE_TYPE_TURBOJET
-    };
-
     virtual ~AeroEngine() {}
 
     virtual void updateVisuals(RoR::GfxActor* gfx_actor) =0;
@@ -59,7 +54,7 @@ public:
     virtual float getpropwash() =0;
     virtual Ogre::Vector3 getAxis() =0;
     virtual bool isFailed() =0;
-    virtual int getType() =0;
+    virtual AeroEngineType getType() =0;
     virtual bool getIgnition() =0;
     virtual void setIgnition(bool val) =0;
     virtual int getNoderef() =0;
