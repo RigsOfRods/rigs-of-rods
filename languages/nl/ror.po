@@ -5,13 +5,14 @@
 # Translators:
 # Edgar <Edgar@AnotherFoxGuy.com>, 2016-2018
 # Edgar <Edgar@anotherfoxguy.com>, 2021.
+# Quinten Steeland <quinten.steeland@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-28 10:37+0100\n"
-"PO-Revision-Date: 2021-01-28 23:32+0000\n"
-"Last-Translator: Edgar <Edgar@anotherfoxguy.com>\n"
+"PO-Revision-Date: 2021-02-02 05:41+0000\n"
+"Last-Translator: Quinten Steeland <quinten.steeland@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "nl/>\n"
 "Language: nl\n"
@@ -2642,7 +2643,7 @@ msgstr "Vaststellen netwerk sessie: sorry, onbekende server reactie"
 #: network/Network.cpp:542
 msgctxt "Network"
 msgid "Finishing..."
-msgstr ""
+msgstr "Voltooien"
 
 #: network/Network.cpp:794
 msgctxt "NetUserAuth"
@@ -3889,11 +3890,9 @@ msgid "decrease target speed / rpm"
 msgstr "verminder doelsnelheid /rpm"
 
 #: utils/InputEngine.cpp:148
-#, fuzzy
-#| msgid "hold to start the engine"
 msgctxt "InputEvent"
 msgid "hold to start the engine"
-msgstr "start de motor"
+msgstr "Ingedrukt houden om motor te starten"
 
 #: utils/InputEngine.cpp:149 utils/InputEngine.cpp:208
 #, fuzzy
