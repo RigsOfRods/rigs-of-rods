@@ -2288,7 +2288,7 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         }
 
         if (flag_state & ANIM_FLAG_AETORQUE)
-            if (ar_aeroengines[aenum]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+            if (ar_aeroengines[aenum]->getType() == AEROENGINE_TURBOPROP_PISTONPROP)
             {
                 Turboprop* tp = (Turboprop*)ar_aeroengines[aenum];
                 cstate = (100.0 * tp->indicated_torque / tp->max_torque) / 120.0f;
@@ -2296,7 +2296,7 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
             }
 
         if (flag_state & ANIM_FLAG_AEPITCH)
-            if (ar_aeroengines[aenum]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+            if (ar_aeroengines[aenum]->getType() == AEROENGINE_TURBOPROP_PISTONPROP)
             {
                 Turboprop* tp = (Turboprop*)ar_aeroengines[aenum];
                 cstate = tp->pitch / 120.0f;
@@ -4216,7 +4216,7 @@ void Actor::updateDashBoards(float dt)
 	RoR::App::GetOverlayWrapper()->vvitexture->setTextureRotate(Degree(-angle+90.0));
 
 
-	if (curr_truck->aeroengines[0]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+	if (curr_truck->aeroengines[0]->getType() == AEROENGINE_TURBOPROP_PISTONPROP)
 	{
 		Turboprop *tp=(Turboprop*)curr_truck->aeroengines[0];
     //pitch
@@ -4229,7 +4229,7 @@ void Actor::updateDashBoards(float dt)
 		RoR::App::GetOverlayWrapper()->airtorque1texture->setTextureRotate(Degree(-angle));
 	}
 
-	if (ftp>1 && curr_truck->aeroengines[1]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+	if (ftp>1 && curr_truck->aeroengines[1]->getType()==AEROENGINE_TURBOPROP_PISTONPROP)
 	{
 		Turboprop *tp=(Turboprop*)curr_truck->aeroengines[1];
     //pitch
@@ -4242,7 +4242,7 @@ void Actor::updateDashBoards(float dt)
 		RoR::App::GetOverlayWrapper()->airtorque2texture->setTextureRotate(Degree(-angle));
 	}
 
-	if (ftp>2 && curr_truck->aeroengines[2]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+	if (ftp>2 && curr_truck->aeroengines[2]->getType()==AEROENGINE_TURBOPROP_PISTONPROP)
 	{
 		Turboprop *tp=(Turboprop*)curr_truck->aeroengines[2];
     //pitch
@@ -4255,7 +4255,7 @@ void Actor::updateDashBoards(float dt)
 		RoR::App::GetOverlayWrapper()->airtorque3texture->setTextureRotate(Degree(-angle));
 	}
 
-	if (ftp>3 && curr_truck->aeroengines[3]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+	if (ftp>3 && curr_truck->aeroengines[3]->getType()==AEROENGINE_TURBOPROP_PISTONPROP)
 	{
 		Turboprop *tp=(Turboprop*)curr_truck->aeroengines[3];
     //pitch

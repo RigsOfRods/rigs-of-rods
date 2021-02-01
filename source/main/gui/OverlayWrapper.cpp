@@ -868,6 +868,8 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
         angle = -105.75;
     m_aerial_dashboard.vvitexture->setTextureRotate(Degree(-angle + 90.0));
 
+    const bool is_prop = simbuf_ae[0].simbuf_ae_type == AEROENGINE_TURBOPROP_PISTONPROP;
+
     //rpm
     m_aerial_dashboard.SetEngineRpm(0, simbuf_ae[0].simbuf_ae_rpmpc);
     m_aerial_dashboard.SetEngineRpm(1, (num_ae > 1) ? simbuf_ae[1].simbuf_ae_rpmpc : 0.f);
@@ -875,16 +877,16 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
     m_aerial_dashboard.SetEngineRpm(3, (num_ae > 3) ? simbuf_ae[3].simbuf_ae_rpmpc : 0.f);
 
     //turboprops - pitch
-    m_aerial_dashboard.SetEnginePitch(0, (simbuf_ae[0].simbuf_ae_turboprop) ? simbuf_ae[0].simbuf_tp_aepitch : 0.f);
-    m_aerial_dashboard.SetEnginePitch(1, (num_ae > 1 && simbuf_ae[1].simbuf_ae_turboprop) ? simbuf_ae[1].simbuf_tp_aepitch : 0.f);
-    m_aerial_dashboard.SetEnginePitch(2, (num_ae > 2 && simbuf_ae[2].simbuf_ae_turboprop) ? simbuf_ae[2].simbuf_tp_aepitch : 0.f);
-    m_aerial_dashboard.SetEnginePitch(3, (num_ae > 3 && simbuf_ae[3].simbuf_ae_turboprop) ? simbuf_ae[3].simbuf_tp_aepitch : 0.f);
+    m_aerial_dashboard.SetEnginePitch(0, (is_prop) ? simbuf_ae[0].simbuf_tp_aepitch : 0.f);
+    m_aerial_dashboard.SetEnginePitch(1, (num_ae > 1 && is_prop) ? simbuf_ae[1].simbuf_tp_aepitch : 0.f);
+    m_aerial_dashboard.SetEnginePitch(2, (num_ae > 2 && is_prop) ? simbuf_ae[2].simbuf_tp_aepitch : 0.f);
+    m_aerial_dashboard.SetEnginePitch(3, (num_ae > 3 && is_prop) ? simbuf_ae[3].simbuf_tp_aepitch : 0.f);
 
     //turboprops - torque
-    m_aerial_dashboard.SetEngineTorque(0, (simbuf_ae[0].simbuf_ae_turboprop) ? simbuf_ae[0].simbuf_tp_aetorque : 0.f);
-    m_aerial_dashboard.SetEngineTorque(1, (num_ae > 1 && simbuf_ae[1].simbuf_ae_turboprop) ? simbuf_ae[1].simbuf_tp_aetorque : 0.f);
-    m_aerial_dashboard.SetEngineTorque(2, (num_ae > 2 && simbuf_ae[2].simbuf_ae_turboprop) ? simbuf_ae[2].simbuf_tp_aetorque : 0.f);
-    m_aerial_dashboard.SetEngineTorque(3, (num_ae > 3 && simbuf_ae[3].simbuf_ae_turboprop) ? simbuf_ae[3].simbuf_tp_aetorque : 0.f);
+    m_aerial_dashboard.SetEngineTorque(0, (is_prop) ? simbuf_ae[0].simbuf_tp_aetorque : 0.f);
+    m_aerial_dashboard.SetEngineTorque(1, (num_ae > 1 && is_prop) ? simbuf_ae[1].simbuf_tp_aetorque : 0.f);
+    m_aerial_dashboard.SetEngineTorque(2, (num_ae > 2 && is_prop) ? simbuf_ae[2].simbuf_tp_aetorque : 0.f);
+    m_aerial_dashboard.SetEngineTorque(3, (num_ae > 3 && is_prop) ? simbuf_ae[3].simbuf_tp_aetorque : 0.f);
 
     //starters
     m_aerial_dashboard.SetIgnition(0, true, simbuf_ae[0].simbuf_ae_ignition);

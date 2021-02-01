@@ -76,7 +76,7 @@ public:
     float getpropwash() { return propwash; };
     Ogre::Vector3 getAxis() { return axis; };
     bool isFailed() { return failed; };
-    int getType() { return AEROENGINE_TYPE_TURBOPROP; };
+    AeroEngineType getType() { return AEROENGINE_TURBOPROP_PISTONPROP; };
     bool getIgnition() { return ignition; };
     void setIgnition(bool val) { ignition = val; };
     int getNoderef() { return noderef; };
