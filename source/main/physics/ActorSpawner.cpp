@@ -6132,7 +6132,7 @@ void ActorSpawner::SetupDefaultSoundSources(Actor *vehicle)
         int turbojet_node = vehicle->ar_aeroengines[i]->getNoderef();
         Ogre::String index_str = TOSTRING(i+1);
 
-        if (vehicle->ar_aeroengines[i]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOJET)
+        if (vehicle->ar_aeroengines[i]->getType() == AeroEngineType::AE_TURBOJET)
         {
             AddSoundSourceInstance(vehicle, "tracks/default_turbojet_start" + index_str, turbojet_node);
             AddSoundSourceInstance(vehicle, "tracks/default_turbojet_lopower" + index_str, turbojet_node);
@@ -6142,7 +6142,7 @@ void ActorSpawner::SetupDefaultSoundSources(Actor *vehicle)
                 AddSoundSourceInstance(vehicle, "tracks/default_turbojet_afterburner" + index_str, turbojet_node);
             }
         }
-        else if (vehicle->ar_aeroengines[i]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+        else if (vehicle->ar_aeroengines[i]->getType() == AeroEngineType::AE_XPROP)
         {
             if (((Turboprop*)vehicle->ar_aeroengines[i])->is_piston)
             {

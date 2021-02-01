@@ -91,7 +91,7 @@ public:
     float getThrottle();
     float getpropwash() { return m_propwash; };
     int getNoderef() { return m_node_back; };
-    int getType() { return AEROENGINE_TYPE_TURBOJET; };
+    AeroEngineType getType() { return AeroEngineType::AE_TURBOJET; };
 
     // AeroEngine visuals
 
