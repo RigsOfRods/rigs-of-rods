@@ -5,13 +5,14 @@
 # Translators:
 # Алексей <alexaxel705@gmail.com>, 2016
 # Влад ххх <error.exe1234567890@gmail.com>, 2021.
+# Rassul <r.eleuov@icloud.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-28 10:37+0100\n"
-"PO-Revision-Date: 2021-01-22 07:32+0000\n"
-"Last-Translator: Влад ххх <error.exe1234567890@gmail.com>\n"
+"PO-Revision-Date: 2021-02-02 05:41+0000\n"
+"Last-Translator: Rassul <r.eleuov@icloud.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
 "Language: ru\n"
@@ -118,7 +119,7 @@ msgstr "Ошибка при загрузке настроек карты."
 
 #: gfx/camera/CameraManager.cpp:302
 msgid "FOV: Limit reached"
-msgstr "FOV: Достигнутый предел"
+msgstr "угол обзора: Достигнут предел"
 
 #: gfx/camera/CameraManager.cpp:314
 msgid "FOV: "
@@ -170,7 +171,7 @@ msgstr "Количество треугольников: "
 
 #: gui/OverlayWrapper.cpp:462
 msgid "Textures: "
-msgstr "Текстуры:  "
+msgstr "Текстуры: "
 
 #: gui/OverlayWrapper.cpp:464
 msgid "Compositors: "
@@ -178,15 +179,15 @@ msgstr "Сборщики: "
 
 #: gui/OverlayWrapper.cpp:466
 msgid "Fonts: "
-msgstr "Шрифты:"
+msgstr "Шрифты: "
 
 #: gui/OverlayWrapper.cpp:468
 msgid "GPU Program: "
-msgstr "GPU программа:"
+msgstr "GPU программа: "
 
 #: gui/OverlayWrapper.cpp:470
 msgid "HL GPU Program: "
-msgstr "HL GPU Program: "
+msgstr "HL GPU Программа: "
 
 #: gui/OverlayWrapper.cpp:472 gui/OverlayWrapper.cpp:478
 msgid "Materials: "
@@ -227,11 +228,9 @@ msgid "Actors"
 msgstr ""
 
 #: gui/panels/GUI_ConsoleView.cpp:221
-#, fuzzy
-#| msgid "Loading Terrain"
 msgctxt "Console"
 msgid "Terrain"
-msgstr "Загрузка карты"
+msgstr "Карта"
 
 #: gui/panels/GUI_ConsoleView.cpp:224
 msgctxt "Console"
@@ -239,56 +238,45 @@ msgid "By level:"
 msgstr ""
 
 #: gui/panels/GUI_ConsoleView.cpp:225
+#, fuzzy
 msgctxt "Console"
 msgid "Notices"
-msgstr ""
+msgstr "Сообщения"
 
 #: gui/panels/GUI_ConsoleView.cpp:226
-#, fuzzy
-#| msgid "Warning"
 msgctxt "Console"
 msgid "Warnings"
-msgstr "Предупреждение"
+msgstr "Предупреждения"
 
 #: gui/panels/GUI_ConsoleView.cpp:227
-#, fuzzy
-#| msgid "Mirrors"
 msgctxt "Console"
 msgid "Errors"
-msgstr "Зеркала"
+msgstr "Ошибки"
 
 #: gui/panels/GUI_ConsoleView.cpp:228
-#, fuzzy
-#| msgid "enter the chat"
 msgctxt "Console"
 msgid "Net chat"
-msgstr "войти в чат"
+msgstr "Сетевой чат"
 
 #: gui/panels/GUI_ConsoleView.cpp:229 gui/panels/GUI_ConsoleWindow.cpp:52
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "Console"
 msgid "Commands"
-msgstr "Доп. гидравлические узлы: "
+msgstr "Команды"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:47
-#, fuzzy
-#| msgid "Cockpit options:"
 msgctxt "Console"
 msgid "Filter options"
-msgstr "Опции кокпита: "
+msgstr "Настройки фильтра"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:86
-#, fuzzy
-#| msgid "Command 1"
 msgctxt "Console"
 msgid "Command"
-msgstr "Команда №1"
+msgstr "Команда"
 
 #: gui/panels/GUI_DirectionArrow.cpp:91
 msgctxt "DirectionArrow"
 msgid "meter"
-msgstr ""
+msgstr "метр"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
 #, fuzzy
@@ -302,11 +290,9 @@ msgstr "Настройки трения"
 #| msgid "Current active Ground: "
 msgctxt "FrictionSettings"
 msgid "Current active Ground: "
-msgstr "Текущий тип поверхности: "
+msgstr "Текущая активная поверхность: "
 
 #: gui/panels/GUI_FrictionSettings.cpp:55
-#, fuzzy
-#| msgid "selected Ground Type:"
 msgctxt "FrictionSettings"
 msgid "selected Ground Type:"
 msgstr "Выделенный тип поверхности:"
@@ -319,18 +305,14 @@ msgid "Solid ground settings"
 msgstr "Настройки поверхности"
 
 #: gui/panels/GUI_FrictionSettings.cpp:63
-#, fuzzy
-#| msgid "Solid ground level:"
 msgctxt "FrictionSettings"
 msgid "Solid ground level:"
-msgstr "Глубина затверд. земли:"
+msgstr "Глубина поверхности:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:64
-#, fuzzy
-#| msgid "Solid ground level"
 msgctxt "FrictionSettings"
 msgid "Solid ground level"
-msgstr "Глубина затвердевания земли"
+msgstr "Глубина поверхности"
 
 #: gui/panels/GUI_FrictionSettings.cpp:64
 #, fuzzy
@@ -346,9 +328,10 @@ msgid ""
 "of solid ground. If it is 100 then the solid ground will be way deep (100m), "
 "with fluid on top."
 msgstr ""
-"Устанавливает, на какой глубине земля будет твёрдой. При 0 поверхность будет "
-"твёрдой. При 0.1, верхние 10 см. грунта будут неплотными. Если значение 100, "
-"то поверхность будет жидкой на 100м в глубину."
+"С помощью этого вы можете установить на какой глубине земля будет твёрдой. "
+"При 0 поверхность будет твёрдой. При 0.1, верхние 10 см. грунта будут "
+"неплотными. Если значение 100, то поверхность будет глубже на 100м, с "
+"неплотным грунтом на поверхности."
 
 #: gui/panels/GUI_FrictionSettings.cpp:66
 #, fuzzy
@@ -365,12 +348,6 @@ msgid "Strength"
 msgstr "Сила трения"
 
 #: gui/panels/GUI_FrictionSettings.cpp:67
-#, fuzzy
-#| msgid ""
-#| "This parameter raises or diminishes surface friction in a generic way. It "
-#| "is here so as to be able to do quick calibrations of friction. Start with "
-#| "having this to 1.0 and after tuning the rest of the surface variables, "
-#| "come back and play with this."
 msgctxt "FrictionSettings"
 msgid ""
 "This parameter raises or diminishes surface friction in a generic way. It is "
@@ -378,21 +355,17 @@ msgid ""
 "having this to 1.0 and after tuning the rest of the surface variables, come "
 "back and play with this."
 msgstr ""
-"Усиливает или ослабляет поверхностное трение обобщённым образом. Этот "
-"параметр предоставляет возможность быстрой регулировки трения. Начните с "
-"1.0, и после настройки остальных параметров трения поверхности вернитесь к "
-"нему."
+"Этот параметр усиливает или ослабляет поверхностное трение обобщённым "
+"образом. Этот параметр предоставляет возможность быстрой регулировки трения. "
+"Начните с 1.0, и после настройки остальных параметров трения поверхности "
+"вернитесь к нему."
 
 #: gui/panels/GUI_FrictionSettings.cpp:69
-#, fuzzy
-#| msgid "Static friction coef:"
 msgctxt "FrictionSettings"
 msgid "Static friction coef:"
-msgstr "Статическ. коэфф. трения:"
+msgstr "Статический коэффициент трения:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:70
-#, fuzzy
-#| msgid "Static friction coef"
 msgctxt "FrictionSettings"
 msgid "Static friction coef"
 msgstr "Статичный коэффициент трения"
@@ -436,12 +409,6 @@ msgid "Adhesion velocity"
 msgstr "Скорость застревания"
 
 #: gui/panels/GUI_FrictionSettings.cpp:73
-#, fuzzy
-#| msgid ""
-#| "Below this value static friction laws apply, above it dynamic friction "
-#| "laws apply. Value should be small, in the range of 0.1-0.4 . This "
-#| "velocity threshold is also used by fluid dynamics so you should always "
-#| "define it. NEVER set it to 0."
 msgctxt "FrictionSettings"
 msgid ""
 "Below this value static friction laws apply, above it dynamic friction laws "
@@ -452,18 +419,14 @@ msgstr ""
 "Для этого значения применяются законы трения покоя, над ним динамические "
 "законы трения. Значение должно быть малым , в диапазоне 0,1-0,4. Этот порог "
 "скорости также используется для гидродинамики, так что вы всегда должны "
-"определять его. НИКОГДА не устанавливайте значение 0."
+"определять его. НИКОГДА не устанавливайте значение на 0."
 
 #: gui/panels/GUI_FrictionSettings.cpp:75
-#, fuzzy
-#| msgid "Dynamic friction coef:"
 msgctxt "FrictionSettings"
 msgid "Dynamic friction coef:"
-msgstr "Динамич. коэфф. трения:"
+msgstr "Динамический коэффициент трения:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:76
-#, fuzzy
-#| msgid "Dynamic friction coef"
 msgctxt "FrictionSettings"
 msgid "Dynamic friction coef"
 msgstr "Динамический коэффициент трения"
@@ -485,18 +448,14 @@ msgstr ""
 "будет при скольжении. Попробуйте найти величины в сети."
 
 #: gui/panels/GUI_FrictionSettings.cpp:78
-#, fuzzy
-#| msgid "Hydrodynamic friction coef:"
 msgctxt "FrictionSettings"
 msgid "Hydrodynamic friction coef:"
-msgstr "Гидродин. коэфф. трения:"
+msgstr "Гидродинамический коэффициент трения:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:79
-#, fuzzy
-#| msgid "Hydrodynamic friction coef"
 msgctxt "FrictionSettings"
 msgid "Hydrodynamic friction coef"
-msgstr "Гидродинамический коэфф. трения"
+msgstr "Гидродинамический коэффициент трения"
 
 #: gui/panels/GUI_FrictionSettings.cpp:79
 #, fuzzy
@@ -556,29 +515,21 @@ msgstr ""
 "подходящие значения в сети."
 
 #: gui/panels/GUI_FrictionSettings.cpp:84
-#, fuzzy
-#| msgid "alpha:"
 msgctxt "FrictionSettings"
 msgid "alpha:"
 msgstr "Альфа:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:85
-#, fuzzy
-#| msgid "Alpha"
 msgctxt "FrictionSettings"
 msgid "Alpha"
 msgstr "Альфа"
 
 #: gui/panels/GUI_FrictionSettings.cpp:85
-#, fuzzy
-#| msgid "Its usual value is 2. But you can try others."
 msgctxt "FrictionSettings"
 msgid "Its usual value is 2. But you can try others."
-msgstr "Обычное значение 2. Но вы можете попробовать другие. "
+msgstr "Обычное значение 2. Но вы можете попробовать другие."
 
 #: gui/panels/GUI_FrictionSettings.cpp:87
-#, fuzzy
-#| msgid "Fluid Settings"
 msgctxt "FrictionSettings"
 msgid "Fluid Settings"
 msgstr "Настройки жидкости"
@@ -622,15 +573,11 @@ msgstr ""
 "скорость, тем больше сопротивления. (при ударе песок твёрдый как камень)"
 
 #: gui/panels/GUI_FrictionSettings.cpp:92
-#, fuzzy
-#| msgid "Flow consistency:"
 msgctxt "FrictionSettings"
 msgid "Flow consistency:"
 msgstr "Однородность жидкости:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:93
-#, fuzzy
-#| msgid "Flow consistency"
 msgctxt "FrictionSettings"
 msgid "Flow consistency"
 msgstr "Однородность жидкости"
@@ -650,15 +597,11 @@ msgstr ""
 "практике значения довольно велики."
 
 #: gui/panels/GUI_FrictionSettings.cpp:95
-#, fuzzy
-#| msgid "Fluid density:"
 msgctxt "FrictionSettings"
 msgid "Fluid density:"
 msgstr "Плотность жидкости:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:96
-#, fuzzy
-#| msgid "Fluid density"
 msgctxt "FrictionSettings"
 msgid "Fluid density"
 msgstr "Плотность жидкости"
@@ -803,7 +746,7 @@ msgstr "Добро пожаловать в Rigs of Rods!"
 #: gui/panels/GUI_GameChatBox.cpp:137
 msgctxt "ChatBox"
 msgid "Chat history (use mouse wheel to scroll)"
-msgstr "История чата (используйте мышку, чтобы скролить)"
+msgstr "История чата (используйте мышку, чтобы прокрутить)"
 
 #: gui/panels/GUI_GameChatBox.cpp:138
 msgctxt "ChatBox"
@@ -928,7 +871,7 @@ msgstr "Сетевой протокол"
 #: gui/panels/GUI_GameMainMenu.cpp:175
 msgctxt "MainMenu"
 msgid "Version box"
-msgstr "Версия:"
+msgstr "Версия"
 
 #. The Pause menu
 #: gui/panels/GUI_GamePauseMenu.cpp:81
@@ -1164,7 +1107,7 @@ msgstr "Фильтрация текстур"
 #: gui/panels/GUI_GameSettings.cpp:293
 msgctxt "GameSettings"
 msgid "Anisotropy"
-msgstr "Антизатропная фильтрация"
+msgstr "Анизатропная фильтрация"
 
 #: gui/panels/GUI_GameSettings.cpp:299
 msgctxt "GameSettings"
@@ -1189,7 +1132,7 @@ msgstr "Включить частицы"
 #: gui/panels/GUI_GameSettings.cpp:316
 msgctxt "GameSettings"
 msgid "Enable skidmarks"
-msgstr "Включить следы"
+msgstr "Включить следы от шин"
 
 #: gui/panels/GUI_GameSettings.cpp:318
 msgctxt "GameSettings"
@@ -1322,19 +1265,20 @@ msgid "Debug textures"
 msgstr "Отладка текстур"
 
 #: gui/panels/GUI_GameSettings.cpp:362
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Hide broken beams"
-msgstr ""
+msgstr "Скрыть сломанные балки"
 
 #: gui/panels/GUI_GameSettings.cpp:363
 msgctxt "GameSettings"
 msgid "Hide wheel info"
-msgstr ""
+msgstr "Скрыть информацию о колесе"
 
 #: gui/panels/GUI_GameSettings.cpp:364
 msgctxt "GameSettings"
 msgid "Hide wheels"
-msgstr ""
+msgstr "Скрыть колеса"
 
 #: gui/panels/GUI_GameSettings.cpp:365
 msgctxt "GameSettings"
@@ -1347,14 +1291,16 @@ msgid "Echo log to console"
 msgstr ""
 
 #: gui/panels/GUI_GameSettings.cpp:367
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Log beam breaking"
-msgstr ""
+msgstr "Регистрировать ломание балок"
 
 #: gui/panels/GUI_GameSettings.cpp:368
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Log beam deforming"
-msgstr ""
+msgstr "Регистрировать деформацию балок"
 
 #: gui/panels/GUI_GameSettings.cpp:369
 msgctxt "GameSettings"
@@ -1371,7 +1317,7 @@ msgstr "Регенерация кэша"
 #: gui/panels/GUI_GameSettings.cpp:377
 msgctxt "GameSettings"
 msgid "Controller options"
-msgstr ""
+msgstr "Настройки контроллера"
 
 #: gui/panels/GUI_GameSettings.cpp:379
 msgctxt "GameSettings"
@@ -1396,7 +1342,7 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:388
 msgctxt "GameSettings"
 msgid "Use arcade controls"
-msgstr ""
+msgstr "Использовать аркадное управление"
 
 #: gui/panels/GUI_GameSettings.cpp:390
 msgctxt "GameSettings"
@@ -1451,12 +1397,12 @@ msgstr ""
 #: gui/panels/GUI_LoadingWindow.cpp:75
 msgctxt "LoadingWindow"
 msgid "Joining"
-msgstr ""
+msgstr "Присоединение к игре"
 
 #: gui/panels/GUI_LoadingWindow.cpp:96
 msgctxt "LoadingWindow"
 msgid "Please wait"
-msgstr ""
+msgstr "Пожалуйста, подождите"
 
 #: gui/panels/GUI_MainSelector.cpp:78
 #, fuzzy
@@ -3271,22 +3217,22 @@ msgstr "Загрузка ZIP в группу "
 #: resources/CacheSystem.h:255
 msgctxt "ModCategory"
 msgid "Other Land Vehicles"
-msgstr ""
+msgstr "Другой наземный транспорт"
 
 #: resources/CacheSystem.h:257
 msgctxt "ModCategory"
 msgid "Street Cars"
-msgstr ""
+msgstr "Уличные автомобили"
 
 #: resources/CacheSystem.h:258
 msgctxt "ModCategory"
 msgid "Light Racing Cars"
-msgstr ""
+msgstr "Легкие Гоночные Автомобили"
 
 #: resources/CacheSystem.h:259
 msgctxt "ModCategory"
 msgid "Offroad Cars"
-msgstr ""
+msgstr "Внедорожники"
 
 #: resources/CacheSystem.h:260
 msgctxt "ModCategory"
@@ -3296,32 +3242,32 @@ msgstr ""
 #: resources/CacheSystem.h:261
 msgctxt "ModCategory"
 msgid "Bikes"
-msgstr ""
+msgstr "Мотоциклы"
 
 #: resources/CacheSystem.h:262
 msgctxt "ModCategory"
 msgid "Crawlers"
-msgstr ""
+msgstr "Внедорожники"
 
 #: resources/CacheSystem.h:264
 msgctxt "ModCategory"
 msgid "Towercranes"
-msgstr ""
+msgstr "Башенные краны"
 
 #: resources/CacheSystem.h:265
 msgctxt "ModCategory"
 msgid "Mobile Cranes"
-msgstr ""
+msgstr "Мобильные краны"
 
 #: resources/CacheSystem.h:266
 msgctxt "ModCategory"
 msgid "Other cranes"
-msgstr ""
+msgstr "Другие краны"
 
 #: resources/CacheSystem.h:268
 msgctxt "ModCategory"
 msgid "Buses"
-msgstr ""
+msgstr "Автобусы"
 
 #: resources/CacheSystem.h:269
 msgctxt "ModCategory"
@@ -3331,57 +3277,53 @@ msgstr ""
 #: resources/CacheSystem.h:270
 msgctxt "ModCategory"
 msgid "Forklifts"
-msgstr ""
+msgstr "Грузоподъемник"
 
 #: resources/CacheSystem.h:271
+#, fuzzy
 msgctxt "ModCategory"
 msgid "Fantasy Trucks"
-msgstr ""
+msgstr "Вымышленные транспортные средства"
 
 #: resources/CacheSystem.h:272
 msgctxt "ModCategory"
 msgid "Transport Trucks"
-msgstr ""
+msgstr "Транспортные Грузовики"
 
 #: resources/CacheSystem.h:273
 msgctxt "ModCategory"
 msgid "Racing Trucks"
-msgstr ""
+msgstr "Гоночные Грузовики"
 
 #: resources/CacheSystem.h:274
-#, fuzzy
-#| msgid "reload truck"
 msgctxt "ModCategory"
 msgid "Offroad Trucks"
-msgstr "Перезагрузить автомобиль"
+msgstr "Внедорожные грузовики"
 
 #: resources/CacheSystem.h:276
-#, fuzzy
-#| msgctxt "GameControls"
-#| msgid "Boat"
 msgctxt "ModCategory"
 msgid "Boats"
-msgstr "Лодка"
+msgstr "Лодки"
 
 #: resources/CacheSystem.h:278
 msgctxt "ModCategory"
 msgid "Helicopters"
-msgstr ""
+msgstr "Вертолеты"
 
 #: resources/CacheSystem.h:279
 msgctxt "ModCategory"
 msgid "Aircraft"
-msgstr ""
+msgstr "Самолет"
 
 #: resources/CacheSystem.h:281
 msgctxt "ModCategory"
 msgid "Trailers"
-msgstr ""
+msgstr "Трейлеры"
 
 #: resources/CacheSystem.h:282
 msgctxt "ModCategory"
 msgid "Other Loads"
-msgstr ""
+msgstr "Другие грузы"
 
 #. terrains
 #: resources/CacheSystem.h:285
@@ -3399,20 +3341,18 @@ msgstr ""
 #: resources/CacheSystem.h:289
 msgctxt "ModCategory"
 msgid "Submarine"
-msgstr ""
+msgstr "Подводные лодки"
 
 #. note: these categories are NOT in the repository:
 #: resources/CacheSystem.h:292
 msgctxt "ModCategory"
 msgid "Official Terrains"
-msgstr ""
+msgstr "Официальные карты"
 
 #: resources/CacheSystem.h:293
-#, fuzzy
-#| msgid "Loading Terrain"
 msgctxt "ModCategory"
 msgid "Night Terrains"
-msgstr "Загрузка карты"
+msgstr "Ночные карты"
 
 #. do not use category numbers above 9000!
 #: resources/CacheSystem.h:296
@@ -3430,12 +3370,12 @@ msgstr "Все"
 #: resources/CacheSystem.h:298
 msgctxt "ModCategory"
 msgid "Fresh"
-msgstr ""
+msgstr "Новые"
 
 #: resources/CacheSystem.h:299
 msgctxt "ModCategory"
 msgid "Hidden"
-msgstr ""
+msgstr "Скрытые"
 
 #: scripting/GameScript.cpp:800
 msgid "using Online API..."
@@ -3464,7 +3404,7 @@ msgstr ""
 
 #: system/AppCommandLine.cpp:167
 msgid "Version Information"
-msgstr "Сведения о версии "
+msgstr "Информация о версии"
 
 #: system/ConsoleCmd.cpp:54
 msgid "Get or set terrain gravity. Constants: earth/moon/mars/jupiter."
@@ -3488,7 +3428,7 @@ msgstr ""
 
 #: system/ConsoleCmd.cpp:109
 msgid "Water level set to: "
-msgstr "Уровень воды установлен в:"
+msgstr "Уровень воды установлен на: "
 
 #: system/ConsoleCmd.cpp:118
 msgid "Get elevation of terrain at current position"
@@ -3503,10 +3443,8 @@ msgid "spawnobject  - spawn a object at the player position"
 msgstr ""
 
 #: system/ConsoleCmd.cpp:171
-#, fuzzy
-#| msgid "Missing someone?"
 msgid "Missing parameter: "
-msgstr "Не нашли кого-то в этом списке?"
+msgstr "Отсутствует параметр: "
 
 #: system/ConsoleCmd.cpp:180 terrain/TerrainEditor.cpp:102
 msgid "Spawned object at position: "
@@ -3558,11 +3496,11 @@ msgstr ""
 
 #: system/ConsoleCmd.cpp:342
 msgid "quit - exit Rigs of Rods"
-msgstr ""
+msgstr "Выйти- Выйти из Rigs of Rods"
 
 #: system/ConsoleCmd.cpp:353
 msgid "help - information on commands (this)"
-msgstr ""
+msgstr "помощь - информация о командах (это)"
 
 #: system/ConsoleCmd.cpp:358
 msgid "Available commands:"
@@ -3650,28 +3588,24 @@ msgstr "Вращение: "
 
 #: terrain/TerrainEditor.cpp:143
 msgid "Disabled object tracking"
-msgstr ""
+msgstr "Выключено отслеживание объекта"
 
 #: terrain/TerrainEditor.cpp:143
 msgid "Enabled object tracking"
-msgstr ""
+msgstr "Включено отслеживание объекта"
 
 #: terrain/TerrainEditor.cpp:148
 msgid "Selected object: ["
-msgstr ""
+msgstr "Выбран объект: ["
 
 #. sync load since we want everything in place when we start
 #: terrain/TerrainGeometryManager.cpp:326
-#, fuzzy
-#| msgid "loading terrain pages"
 msgid "Loading terrain pages ..."
-msgstr "загрузка страниц местности"
+msgstr "Загрузка страниц местности"
 
 #: terrain/TerrainGeometryManager.cpp:373
-#, fuzzy
-#| msgid "saving all terrain pages ..."
 msgid "Saving all terrain pages ..."
-msgstr "сохранение всех страниц местности ..."
+msgstr "Сохранение всех страниц местности..."
 
 #: terrain/TerrainManager.cpp:147
 msgid "Initializing Shadow Subsystem"
@@ -3721,10 +3655,8 @@ msgstr "Инициализация Подсистемы Скриптов"
 
 #. END Hack for GameScript::spawnObject()
 #: terrain/TerrainManager.cpp:191
-#, fuzzy
-#| msgid "Initializing Camera Subsystem"
 msgid "Initializing Water Subsystem"
-msgstr "Инициализация Подсистемы Камеры"
+msgstr "Инициализация Подсистемы Воды"
 
 #: terrain/TerrainManager.cpp:194
 msgid "Loading Terrain Objects"
@@ -3755,10 +3687,14 @@ msgid ""
 "Technical details below: \n"
 "\n"
 msgstr ""
+"Возникла внутренняя ошибка в Rigs of Rods.\n"
+"\n"
+"Технические данные внизу: \n"
+"\n"
 
 #: utils/ErrorUtils.cpp:44
 msgid "FATAL ERROR"
-msgstr ""
+msgstr "КРИТИЧЕСКАЯ ОШИБКА"
 
 #: utils/ForceFeedback.cpp:110
 msgid "Disabling force feedback - no controller found"
@@ -3809,12 +3745,12 @@ msgstr "Выйти из игры"
 #: utils/InputEngine.cpp:40
 msgctxt "InputEvent"
 msgid "quickload scene"
-msgstr ""
+msgstr "быстро загрузить сцену"
 
 #: utils/InputEngine.cpp:41
 msgctxt "InputEvent"
 msgid "quicksave scene"
-msgstr ""
+msgstr "быстро сохранить сцену"
 
 #: utils/InputEngine.cpp:42
 #, fuzzy
