@@ -264,6 +264,13 @@ enum class ActorState
     LOCAL_SLEEPING,   //!< sleeping (local) actor
 };
 
+enum class AeroEngineType
+{
+    AE_UNKNOWN,
+    AE_XPROP,
+    AE_TURBOJET,
+};
+
 // --------------------------------
 // Soft body physics
 

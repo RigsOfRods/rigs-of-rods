@@ -181,7 +181,7 @@ void SimActorStats::Draw(RoR::GfxActor* actorx)
             {
                 ImGui::TextColored(theme.value_blue_text_color, "%s #%d:", _LC("SimActorStats", "Engine "), engine_num);
                 ImGui::SameLine();
-                if (ae.simbuf_ae_turboprop) // Turboprop or pistonprop
+                if (ae.simbuf_ae_type == AeroEngineType::AE_XPROP)
                 {
                     ImGui::Text("%.2f RPM", ae.simbuf_ae_rpm);
                 }

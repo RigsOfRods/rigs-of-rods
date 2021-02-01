@@ -97,6 +97,7 @@ public:
 
         struct AeroEngineSB
         {
+            AeroEngineType simbuf_ae_type;
             float simbuf_ae_rpm;
             float simbuf_ae_rpmpc;
             float simbuf_ae_throttle;
@@ -104,7 +105,6 @@ public:
             float simbuf_tp_aepitch;  //!< Turboprop pitch, used by animation "aepitch"
             float simbuf_tj_ab_thrust; //! Turbojet afterburner
             float simbuf_tj_exhaust_velo; //! Turbojet
-            bool  simbuf_ae_turboprop:1; //!< This is a TurboProp/PistonProp
             bool  simbuf_ae_ignition:1;
             bool  simbuf_ae_failed:1;
             bool  simbuf_tj_afterburn:1; //! Turbojet afterburner
