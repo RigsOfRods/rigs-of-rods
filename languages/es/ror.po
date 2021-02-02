@@ -5,20 +5,22 @@
 # Translators:
 # Eugenio Martínez Seguín <eumase-04@hotmail.com>, 2016
 # Lepe City <lepecity@gmail.com>, 2017
+# Joaquín Lafuente <lafuente_45@hotmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-28 10:37+0100\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: Spanish (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/es/)\n"
+"PO-Revision-Date: 2021-02-03 08:41+0000\n"
+"Last-Translator: Joaquín Lafuente <lafuente_45@hotmail.com>\n"
+"Language-Team: Spanish <https://hosted.weblate.org/projects/rigs-of-rods/"
+"game/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.5-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:407 AppContext.cpp:425
 #: AppContext.cpp:476 AppContext.cpp:490 AppContext.cpp:501
@@ -28,6 +30,8 @@ msgstr "Error al arrancar"
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
 msgstr ""
+"No hay ningún plugin de renderizado disponible. Comprueba el archivo plugins."
+"cfg"
 
 #: AppContext.cpp:377
 msgid "Screenshot:"
@@ -35,7 +39,7 @@ msgstr "Captura de pantalla:"
 
 #: AppContext.cpp:407
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Error obteniendo la ruta del directorio del programa"
 
 #: AppContext.cpp:425
 msgid "Error while retrieving user directory path"
