@@ -1225,19 +1225,14 @@ struct Hydro
 
 struct AeroAnimator
 {
-    AeroAnimator():
-        flags(0),
-        motor(0)
-    {}
-
     static const unsigned int OPTION_THROTTLE = BITMASK(1);
     static const unsigned int OPTION_RPM      = BITMASK(2);
     static const unsigned int OPTION_TORQUE   = BITMASK(3);
     static const unsigned int OPTION_PITCH    = BITMASK(4);
     static const unsigned int OPTION_STATUS   = BITMASK(5);
 
-    unsigned int flags;
-    unsigned int motor;
+    unsigned int flags      = 0u;
+    unsigned int engine_idx = 0u;
 };
 
 struct Animator

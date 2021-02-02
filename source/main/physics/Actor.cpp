@@ -2019,20 +2019,10 @@ void Actor::sendStreamData()
 #endif //SOCKETW
 }
 
-void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real timer, const float lower_limit, const float upper_limit, const float option3)
+void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
 {
-    // ## DEV NOTE:
-    // ## Until 06/2018, this function was used for both animator-beams (physics, part of softbody) and animated props (visual-only).
-    // ## Animated props are now done by `GfxActor::CalcPropAnimation()`   ~ only_a_ptr
-
-    // -- WRITES --
-    // ANIM_FLAG_TORQUE: ar_anim_previous_crank
-    // sequential shifting: m_previous_gear, ar_anim_shift_timer
-
-    Real dt = timer;
-
-    //boat rudder - read only
-    if (flag_state & ANIM_FLAG_BRUDDER)
+    // boat rudder
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_BRUDDER)
     {
         int spi;
         float ctmp = 0.0f;
@@ -2046,8 +2036,8 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //boat throttle - read only
-    if (flag_state & ANIM_FLAG_BTHROTTLE)
+    // boat throttle
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_BTHROTTLE)
     {
         int spi;
         float ctmp = 0.0f;
@@ -2061,8 +2051,8 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //differential lock status - read only
-    if (flag_state & ANIM_FLAG_DIFFLOCK)
+    // differential lock status
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_DIFFLOCK)
     {
         if (m_num_wheel_diffs && m_wheel_diffs[0])
         {
@@ -2080,8 +2070,8 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //heading - read only
-    if (flag_state & ANIM_FLAG_HEADING)
+    // heading
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_HEADING)
     {
         float heading = getRotation();
         // rad2deg limitedrange  -1 to +1
@@ -2089,8 +2079,8 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //torque - WRITES 
-    if (ar_engine && flag_state & ANIM_FLAG_TORQUE)
+    // torque
+    if (ar_engine && hydrobeam.hb_anim_flags & ANIM_FLAG_TORQUE)
     {
         float torque = ar_engine->GetCrankFactor();
         if (torque <= 0.0f)
@@ -2106,57 +2096,43 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //shifterseq, to amimate sequentiell shifting
-    if (ar_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 3.0f)
+    // shifterseq, to amimate sequentiell shifting
+    if (ar_engine && (hydrobeam.hb_anim_flags & ANIM_FLAG_SHIFTER) && hydrobeam.hb_anim_param == 3.0f)
     {
-        // opt1 &opt2 = 0   this is a shifter
-        if (!lower_limit && !upper_limit)
-        {
-            int shifter = ar_engine->GetGear();
-            if (shifter > m_previous_gear)
-            {
-                cstate = 1.0f;
-                ar_anim_shift_timer = 0.2f;
-            }
-            if (shifter < m_previous_gear)
-            {
-                cstate = -1.0f;
-                ar_anim_shift_timer = -0.2f;
-            }
-            m_previous_gear = shifter;
 
-            if (ar_anim_shift_timer > 0.0f)
-            {
-                cstate = 1.0f;
-                ar_anim_shift_timer -= dt;
-                if (ar_anim_shift_timer < 0.0f)
-                    ar_anim_shift_timer = 0.0f;
-            }
-            if (ar_anim_shift_timer < 0.0f)
-            {
-                cstate = -1.0f;
-                ar_anim_shift_timer += dt;
-                if (ar_anim_shift_timer > 0.0f)
-                    ar_anim_shift_timer = 0.0f;
-            }
-        }
-        else
+        int shifter = ar_engine->GetGear();
+        if (shifter > m_previous_gear)
         {
-            // check if lower_limit is a valid to get commandvalue, then get commandvalue
-            if (lower_limit >= 1.0f && lower_limit <= 48.0)
-                if (ar_command_key[int(lower_limit)].commandValue > 0)
-                    cstate += 1.0f;
-            // check if upper_limit is a valid to get commandvalue, then get commandvalue
-            if (upper_limit >= 1.0f && upper_limit <= 48.0)
-                if (ar_command_key[int(upper_limit)].commandValue > 0)
-                    cstate -= 1.0f;
+            cstate = 1.0f;
+            ar_anim_shift_timer = 0.2f;
+        }
+        if (shifter < m_previous_gear)
+        {
+            cstate = -1.0f;
+            ar_anim_shift_timer = -0.2f;
+        }
+        m_previous_gear = shifter;
+
+        if (ar_anim_shift_timer > 0.0f)
+        {
+            cstate = 1.0f;
+            ar_anim_shift_timer -= PHYSICS_DT;
+            if (ar_anim_shift_timer < 0.0f)
+                ar_anim_shift_timer = 0.0f;
+        }
+        if (ar_anim_shift_timer < 0.0f)
+        {
+            cstate = -1.0f;
+            ar_anim_shift_timer += PHYSICS_DT;
+            if (ar_anim_shift_timer > 0.0f)
+                ar_anim_shift_timer = 0.0f;
         }
 
         div++;
     }
 
-    //shifterman1, left/right
-    if (ar_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 1.0f)
+    // shifterman1, left/right
+    if (ar_engine && (hydrobeam.hb_anim_flags & ANIM_FLAG_SHIFTER) && hydrobeam.hb_anim_param == 1.0f)
     {
         int shifter = ar_engine->GetGear();
         if (!shifter)
@@ -2174,8 +2150,8 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //shifterman2, up/down
-    if (ar_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 2.0f)
+    // shifterman2, up/down
+    if (ar_engine && (hydrobeam.hb_anim_flags & ANIM_FLAG_SHIFTER) && hydrobeam.hb_anim_param == 2.0f)
     {
         int shifter = ar_engine->GetGear();
         cstate = 0.5f;
@@ -2190,8 +2166,8 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //shifterlinear, to amimate cockpit gearselect gauge and autotransmission stick
-    if (ar_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 4.0f)
+    // shifterlinear, to amimate cockpit gearselect gauge and autotransmission stick
+    if (ar_engine && (hydrobeam.hb_anim_flags & ANIM_FLAG_SHIFTER) && hydrobeam.hb_anim_param == 4.0f)
     {
         int shifter = ar_engine->GetGear();
         int numgears = ar_engine->getNumGears();
@@ -2199,47 +2175,47 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //parking brake
-    if (flag_state & ANIM_FLAG_PBRAKE)
+    // parking brake
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_PBRAKE)
     {
         float pbrake = ar_parking_brake;
         cstate -= pbrake;
         div++;
     }
 
-    //speedo ( scales with speedomax )
-    if (flag_state & ANIM_FLAG_SPEEDO)
+    // speedo ( scales with speedomax )
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_SPEEDO)
     {
         float speedo = ar_wheel_speed / ar_speedo_max_kph;
         cstate -= speedo * 3.0f;
         div++;
     }
 
-    //engine tacho ( scales with maxrpm, default is 3500 )
-    if (ar_engine && flag_state & ANIM_FLAG_TACHO)
+    // engine tacho ( scales with maxrpm, default is 3500 )
+    if (ar_engine && hydrobeam.hb_anim_flags & ANIM_FLAG_TACHO)
     {
         float tacho = ar_engine->GetEngineRpm() / ar_engine->getMaxRPM();
         cstate -= tacho;
         div++;
     }
 
-    //turbo
-    if (ar_engine && flag_state & ANIM_FLAG_TURBO)
+    // turbo
+    if (ar_engine && hydrobeam.hb_anim_flags & ANIM_FLAG_TURBO)
     {
         float turbo = ar_engine->GetTurboPsi() * 3.34;
         cstate -= turbo / 67.0f;
         div++;
     }
 
-    //brake
-    if (flag_state & ANIM_FLAG_BRAKE)
+    // brake
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_BRAKE)
     {
         cstate -= ar_brake;
         div++;
     }
 
-    //accelerator
-    if (ar_engine && flag_state & ANIM_FLAG_ACCEL)
+    // accelerator
+    if (ar_engine && hydrobeam.hb_anim_flags & ANIM_FLAG_ACCEL)
     {
         float accel = ar_engine->GetAcceleration();
         cstate -= accel + 0.06f;
@@ -2247,21 +2223,19 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //clutch
-    if (ar_engine && flag_state & ANIM_FLAG_CLUTCH)
+    // clutch
+    if (ar_engine && hydrobeam.hb_anim_flags & ANIM_FLAG_CLUTCH)
     {
         float clutch = ar_engine->GetClutch();
         cstate -= fabs(1.0f - clutch);
         div++;
     }
 
-    //aeroengines rpm + throttle + torque ( turboprop ) + pitch ( turboprop ) + status +  fire
-    int ftp = ar_num_aeroengines;
-
-    if (ftp > option3 - 1.0f)
+    // aeroengines (hb_anim_param is the engine index)
+    if ((int)hydrobeam.hb_anim_param < ar_num_aeroengines)
     {
-        int aenum = int(option3 - 1.0f);
-        if (flag_state & ANIM_FLAG_RPM)
+        int aenum = (int)hydrobeam.hb_anim_param;
+        if (hydrobeam.hb_anim_flags & ANIM_FLAG_RPM)
         {
             float angle;
             float pcent = ar_aeroengines[aenum]->getRPMpc();
@@ -2274,14 +2248,14 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
             cstate -= angle / 314.0f;
             div++;
         }
-        if (flag_state & ANIM_FLAG_THROTTLE)
+        if (hydrobeam.hb_anim_flags & ANIM_FLAG_THROTTLE)
         {
             float throttle = ar_aeroengines[aenum]->getThrottle();
             cstate -= throttle;
             div++;
         }
 
-        if (flag_state & ANIM_FLAG_AETORQUE)
+        if (hydrobeam.hb_anim_flags & ANIM_FLAG_AETORQUE)
             if (ar_aeroengines[aenum]->getType() == AEROENGINE_TURBOPROP_PISTONPROP)
             {
                 Turboprop* tp = (Turboprop*)ar_aeroengines[aenum];
@@ -2289,7 +2263,7 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
                 div++;
             }
 
-        if (flag_state & ANIM_FLAG_AEPITCH)
+        if (hydrobeam.hb_anim_flags & ANIM_FLAG_AEPITCH)
             if (ar_aeroengines[aenum]->getType() == AEROENGINE_TURBOPROP_PISTONPROP)
             {
                 Turboprop* tp = (Turboprop*)ar_aeroengines[aenum];
@@ -2297,7 +2271,7 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
                 div++;
             }
 
-        if (flag_state & ANIM_FLAG_AESTATUS)
+        if (hydrobeam.hb_anim_flags & ANIM_FLAG_AESTATUS)
         {
             if (!ar_aeroengines[aenum]->getIgnition())
                 cstate = 0.0f;
@@ -2309,20 +2283,12 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         }
     }
 
-    //airspeed indicator
-    if (flag_state & ANIM_FLAG_AIRSPEED)
+    // airspeed indicator
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_AIRSPEED)
     {
-        // TODO Unused Varaible
-        //float angle=0.0;
         float ground_speed_kt = ar_nodes[0].Velocity.length() * 1.9438;
         float altitude = ar_nodes[0].AbsPosition.y;
-
-        // TODO Unused Varaible
-        //float sea_level_temperature=273.15+15.0; //in Kelvin
         float sea_level_pressure = 101325; //in Pa
-
-        // TODO Unused Varaible
-        //float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
         float airpressure = sea_level_pressure * pow(1.0 - 0.0065 * altitude / 288.15, 5.24947); //in Pa
         float airdensity = airpressure * 0.0000120896;//1.225 at sea level
         float kt = ground_speed_kt * sqrt(airdensity / 1.225);
@@ -2330,8 +2296,8 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //vvi indicator
-    if (flag_state & ANIM_FLAG_VVI)
+    // vvi indicator
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_VVI)
     {
         float vvi = ar_nodes[0].Velocity.y * 196.85;
         // limit vvi scale to +/- 6m/s
@@ -2343,11 +2309,11 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //altimeter
-    if (flag_state & ANIM_FLAG_ALTIMETER)
+    // altimeter
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_ALTIMETER)
     {
         //altimeter indicator 1k oscillating
-        if (option3 == 3.0f)
+        if (hydrobeam.hb_anim_param == 3.0f)
         {
             float altimeter = (ar_nodes[0].AbsPosition.y * 1.1811) / 360.0f;
             int alti_int = int(altimeter);
@@ -2356,7 +2322,7 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         }
 
         //altimeter indicator 10k oscillating
-        if (option3 == 2.0f)
+        if (hydrobeam.hb_anim_param == 2.0f)
         {
             float alti = ar_nodes[0].AbsPosition.y * 1.1811 / 3600.0f;
             int alti_int = int(alti);
@@ -2367,7 +2333,7 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         }
 
         //altimeter indicator 100k limited
-        if (option3 == 1.0f)
+        if (hydrobeam.hb_anim_param == 1.0f)
         {
             float alti = ar_nodes[0].AbsPosition.y * 1.1811 / 36000.0f;
             cstate -= alti;
@@ -2377,8 +2343,8 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //AOA
-    if (flag_state & ANIM_FLAG_AOA)
+    // AOA
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_AOA)
     {
         float aoa = 0;
         if (ar_num_wings > 4)
@@ -2394,7 +2360,7 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
     }
 
     // roll
-    if (flag_state & ANIM_FLAG_ROLL)
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_ROLL)
     {
         Vector3 rollv = this->GetCameraRoll();
         Vector3 dirv = this->GetCameraDir();
@@ -2414,7 +2380,7 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
     }
 
     // pitch
-    if (flag_state & ANIM_FLAG_PITCH)
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_PITCH)
     {
         Vector3 dirv = this->GetCameraDir();
         float pitchangle = asin(dirv.dotProduct(Vector3::UNIT_Y));
@@ -2424,7 +2390,7 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
     }
 
     // airbrake
-    if (flag_state & ANIM_FLAG_AIRBRAKE)
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_AIRBRAKE)
     {
         float airbrake = ar_airbrake_intensity;
         // cstate limited to -1.0f
@@ -2432,8 +2398,8 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //flaps
-    if (flag_state & ANIM_FLAG_FLAP)
+    // flaps
+    if (hydrobeam.hb_anim_flags & ANIM_FLAG_FLAP)
     {
         float flaps = FLAP_ANGLES[ar_aerial_flap];
         // cstate limited to -1.0f

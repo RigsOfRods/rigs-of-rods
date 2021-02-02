@@ -1268,7 +1268,7 @@ void Serializer::ProcessTriggers(File::Module* module)
     if (AND_VAR) { m_stream << " | "; } \
     if (BITMASK_IS_1((DEF_VAR).aero_animator.flags, RigDef::AeroAnimator::BITMASK_CONST)) { \
         AND_VAR = true; \
-        m_stream << NAME_STR << DEF_VAR.aero_animator.motor; \
+        m_stream << NAME_STR << DEF_VAR.aero_animator.engine_idx + 1; \
     }
 
 #define ANIMATOR_ADD_LIMIT(DEF_VAR, AND_VAR, BITMASK_CONST, NAME_STR, VALUE) \

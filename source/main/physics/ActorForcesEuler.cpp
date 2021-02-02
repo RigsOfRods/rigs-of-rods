@@ -697,26 +697,27 @@ void Actor::CalcHydros()
             cstate = 1.0;
         if (cstate < -1.0)
             cstate = -1.0;
-        // Animators following, if no animator, skip all the tests...
-        int flagstate = hydrobeam.hb_anim_flags;
-        if (flagstate)
+
+        // Animators
+        if (hydrobeam.hb_anim_flags)
         {
-            this->CalcAnimators(flagstate, cstate, div, PHYSICS_DT, 0.0f, 0.0f, hydrobeam.hb_anim_param);
+            this->CalcAnimators(hydrobeam, cstate, div);
         }
 
+        // Final composition
         if (div)
         {
             cstate /= (float)div;
 
             cstate = hydrobeam.hb_inertia.CalcCmdKeyDelay(cstate, PHYSICS_DT);
 
-            if (!(hydrobeam.hb_flags & HYDRO_FLAG_SPEED) && !flagstate)
+            if (!(hydrobeam.hb_flags & HYDRO_FLAG_SPEED) && !hydrobeam.hb_anim_flags)
                 ar_hydro_dir_wheel_display = cstate;
 
             float factor = 1.0 - cstate * hydrobeam.hb_speed;
 
             // check and apply animators limits if set
-            if (flagstate)
+            if (hydrobeam.hb_anim_flags)
             {
                 if (factor < 1.0f - ar_beams[beam_idx].shortbound)
                     factor = 1.0f - ar_beams[beam_idx].shortbound;
