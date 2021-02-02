@@ -3480,23 +3480,23 @@ void ActorSpawner::ProcessAnimator(Truck::Animator & def)
     /* Aerial */
     if (BITMASK_IS_1(def.aero_animator.flags, Truck::AeroAnimator::OPTION_THROTTLE)) {
         BITMASK_SET_1(anim_flags, ANIM_FLAG_THROTTLE);
-        anim_option = static_cast<float>(def.aero_animator.motor);
+        anim_option = static_cast<float>(def.aero_animator.engine_idx);
     }
     if (BITMASK_IS_1(def.aero_animator.flags, Truck::AeroAnimator::OPTION_RPM)) {
         BITMASK_SET_1(anim_flags, ANIM_FLAG_RPM);
-        anim_option = static_cast<float>(def.aero_animator.motor);
+        anim_option = static_cast<float>(def.aero_animator.engine_idx);
     }
     if (BITMASK_IS_1(def.aero_animator.flags, Truck::AeroAnimator::OPTION_TORQUE)) {
         BITMASK_SET_1(anim_flags, ANIM_FLAG_AETORQUE);
-        anim_option = static_cast<float>(def.aero_animator.motor);
+        anim_option = static_cast<float>(def.aero_animator.engine_idx);
     }
     if (BITMASK_IS_1(def.aero_animator.flags, Truck::AeroAnimator::OPTION_PITCH)) {
         BITMASK_SET_1(anim_flags, ANIM_FLAG_AEPITCH);
-        anim_option = static_cast<float>(def.aero_animator.motor);
+        anim_option = static_cast<float>(def.aero_animator.engine_idx);
     }
     if (BITMASK_IS_1(def.aero_animator.flags, Truck::AeroAnimator::OPTION_STATUS)) {
         BITMASK_SET_1(anim_flags, ANIM_FLAG_AESTATUS);
-        anim_option = static_cast<float>(def.aero_animator.motor);
+        anim_option = static_cast<float>(def.aero_animator.engine_idx);
     }
 
     unsigned int beam_index = m_actor->ar_num_beams;

@@ -385,7 +385,7 @@ private:
     bool              CalcForcesEulerPrepare(bool doUpdate); 
     void              CalcAircraftForces(bool doUpdate);   
     void              CalcForcesEulerCompute(bool doUpdate, int num_steps); 
-    void              CalcAnimators(const int flag_state, float &cstate, int &div, float timer, const float lower_limit, const float upper_limit, const float option3); 
+    void              CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div);
     void              CalcBeams(bool trigger_hooks);       
     void              CalcBeamsInterActor();               
     void              CalcBuoyance(bool doUpdate);         

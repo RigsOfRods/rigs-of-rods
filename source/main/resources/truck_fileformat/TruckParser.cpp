@@ -3100,7 +3100,7 @@ void Parser::ParseAnimator()
             else if (results[1] == "aeropit")    animator.aero_animator.flags |= AeroAnimator::OPTION_PITCH;
             else if (results[1] == "aerostatus") animator.aero_animator.flags |= AeroAnimator::OPTION_STATUS;
 
-            animator.aero_animator.motor = this->ParseArgInt(results[2].str().c_str());
+            animator.aero_animator.engine_idx = this->ParseArgUint(results[2].str().c_str()) - 1;
         }
         else if ((is_shortlimit = (token.compare(0, 10, "shortlimit") == 0)) || (token.compare(0, 9, "longlimit") == 0))
         {
