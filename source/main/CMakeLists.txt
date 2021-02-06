@@ -487,25 +487,6 @@ include(../../cmake/l10n.cmake)
 
 extract_pot("${SOURCE_FILES}")
 
-# configure plugins.cfg
-if (NOT WIN32)
-    set(CFG_COMMENT_RENDERSYSTEM_D3D9 "# ")
-endif ()
-
-set(CFG_COMMENT_RENDERSYSTEM_D3D11 "# ")
-set(CFG_COMMENT_RENDERSYSTEM_GL3PLUS "# ")
-
-if (BUILD_REDIST_FOLDER AND UNIX)
-    set(PLUGINS_FOLDER "lib")
-elseif (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-    set(PLUGINS_FOLDER ".")
-else ()
-    set(PLUGINS_FOLDER ${OGRE_PLUGIN_DIR})
-endif ()
-
-configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
-configure_file(plugins_d.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins_d.cfg)
-
 IF (BUILD_REDIST_FOLDER)
     INSTALL(
             TARGETS ${BINNAME}
