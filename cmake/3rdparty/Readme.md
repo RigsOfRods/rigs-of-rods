@@ -9,9 +9,12 @@ These modules provide custom targets to link against. With newer CMake versions 
 
   * FindThreads.cmake  (for CMake < 3.1.0)
 
-# OGRE project modules
+# OGRE 2.x project modules
 
-  * FindOGRE.cmake
+  * OGRE.cmake
+  
+# OGRE 1.x project modules
+  
   * FindOIS.cmake
   * FindPkgMacros.cmake
   * PreprocessorUtils.cmake

@@ -106,8 +106,8 @@ add_subdirectory(external/angelscript_addons)
 add_subdirectory(source/version_info)
 add_subdirectory(source/main)
 
-include(Resources)
-include(Install)
+include(cmake/Resources.cmake)
+include(cmake/Install.cmake)
 
 add_subdirectory(doc)
 

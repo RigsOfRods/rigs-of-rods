@@ -234,7 +234,7 @@ if (ROR_USE_ANGELSCRIPT)
             )
 endif ()
 
-include(SourceFileUtils)
+include(../../cmake/SourceFileUtils.cmake)
 
 # Expand file extensions (i.e. path/to/file.{h,cpp} becomes path/to/file.h;path/to/file.cpp)
 expand_file_extensions(SOURCE_FILES ${SOURCE_FILES})
@@ -483,7 +483,7 @@ endif ()
 ####################################################################################################
 #  POST-BUILD STEPS
 ####################################################################################################
-include(l10n)
+include(../../cmake/l10n.cmake)
 
 extract_pot("${SOURCE_FILES}")
 

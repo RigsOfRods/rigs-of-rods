@@ -28,14 +28,17 @@ else (USE_PACKAGE_MANAGER)
     set(ROR_USE_CURL "TRUE" CACHE BOOL "use curl, required for communication with online services")
 
     # find packages
-    find_package(OGRE 1.11 REQUIRED COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
     find_package(OpenAL)
     find_package(OIS REQUIRED)
-    find_package(MyGUI REQUIRED)
-    find_package(SocketW)
+    #find_package(MyGUI REQUIRED)
+    #find_package(SocketW)
     find_package(AngelScript)
     find_package(CURL)
-    find_package(Caelum)
+    #find_package(Caelum)
     find_package(fmt REQUIRED)
+    
+    # find OGRE, see https://ogrecave.github.io/ogre-next/api/2.2/_using_ogre_in_your_app.html and https://forums.ogre3d.org/viewtopic.php?p=547467#p547467
+    include( cmake/3rdparty/OGRE.cmake )
+    setupOgre( OGRE_SOURCE, OGRE_BINARIES, OGRE_LIBRARIES, FALSE )
 
 endif (USE_PACKAGE_MANAGER)

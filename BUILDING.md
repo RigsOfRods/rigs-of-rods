@@ -2,6 +2,36 @@
 Please refer to https://github.com/RigsOfRods/rigs-of-rods/wiki
 
 # Dependencies
+* Download and build https://github.com/OGRECave/ogre-next-deps/
+* Download, build and install https://github.com/OGRECave/ogre-next
+* Download https://github.com/RigsOfRods/ror-dependencies disable {BUILD_CAELUM, BUILD_MYGUI, BUILD_OGRE, BUILD_SOCKETW} and build
+* Download https://github.com/wgois/OIS.git, check out tag 'v1.5', build and install
+* Obtain 'fmt' library from a package manager. Windows tip: use 'vcpkg'.
+
+
+# CMake configuration
+ USE_PACKAGE_MANAGER=OFF
+ ROR_USE_SOCKETW=FALSE
+ ROR_USE_PAGED=FALSE
+ ROR_USE_CAELUM=FALSE
+ OGRE_SOURCE= (source tree root)
+ OGRE_BINARIES= (build tree root)
+ fmt_DIR= (directory containing 'fmt-config.cmake', if on Windows using vcpkg, it's 'vcpkg/packages/fmt_x64-windows/share/fmt' )
+ SDL2_DIR= (ogre deps build root)/ogredeps/cmake
+ CMAKE_PREFIX_PATH= (ror dependencies output subdir under build dir, for example "/Dependencies_Windows_Visual-Studio-16-2019")
+ 
+# CMake configuration issues
+
+If you receive
+```
+CMake Error at C:/Users/myself/builds/ogre-next-deps/ogredeps/cmake/SDL2Targets.cmake:91 (message):
+  The imported target "SDL2::SDL2" references the file
+
+     "C:/Users/myself/builds/ogre-next-deps/ogredeps/bin/SDL2.dll"
+```
+manually copy "SDL2.dll" from "ogredeps/bin/Release" to "ogredeps/bin".    
+
+
 core requirements:
 * C/C++ compiler with support for C++11 (e.g. gcc >= 4.8)
 * boost: >= 1.50
