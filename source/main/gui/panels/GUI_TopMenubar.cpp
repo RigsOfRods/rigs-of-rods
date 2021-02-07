@@ -696,9 +696,8 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
     {
         if ((!actor->ar_hide_in_actor_list) && (actor->ar_net_source_id == user.uniqueid))
         {
-            fmt::memory_buffer actortext_buf;
-            format_to(actortext_buf, "  + {} ({}) ##[{}:{}]", actor->ar_design_name.c_str(), actor->ar_filename.c_str(), i++, user.uniqueid);
-            if (ImGui::Button(actortext_buf.data())) // Button clicked?
+            std::string actortext_buf = fmt::format("  + {} ({}) ##[{}:{}]", actor->ar_design_name.c_str(), actor->ar_filename.c_str(), i++, user.uniqueid);
+            if (ImGui::Button(actortext_buf.c_str())) // Button clicked?
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
             }
@@ -729,18 +728,16 @@ void TopMenubar::DrawActorListSinglePlayer()
         int i = 0;
         for (auto actor : actor_list)
         {
-            fmt::memory_buffer text_buf_rem;
-            format_to(text_buf_rem, "X ##[{}]", i);
+            std::string text_buf_rem = fmt::format("X ##[{}]", i);
             ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
-            if (ImGui::Button(text_buf_rem.data()))
+            if (ImGui::Button(text_buf_rem.c_str()))
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
             }
             ImGui::PopStyleColor();
             ImGui::SameLine();
 
-            fmt::memory_buffer text_buf;
-            format_to(text_buf, "[{}] {}", i++, actor->ar_design_name.c_str());
+            std::string text_buf = fmt::format( "[{}] {}", i++, actor->ar_design_name.c_str());
             auto linked_actors = actor->GetAllLinkedActors();
             if (actor == player_actor)
             {
@@ -758,7 +755,7 @@ void TopMenubar::DrawActorListSinglePlayer()
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
             }
-            if (ImGui::Button(text_buf.data())) // Button clicked?
+            if (ImGui::Button(text_buf.c_str())) // Button clicked?
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
             }
