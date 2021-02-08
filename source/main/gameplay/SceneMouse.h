@@ -51,7 +51,7 @@ public:
 
 protected:
 
-    Ogre::ManualObject* pickLine;
+    Ogre::v1::ManualObject* pickLine;
     Ogre::SceneNode* pickLineNode;
     int mouseGrabState;
 

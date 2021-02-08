@@ -283,8 +283,8 @@ void LocalStorage::eraseKey(std::string &key)
 {
     std::string sec;
     parseKey(key, sec);
-    if (mSettingsPtr.find(sec) != mSettingsPtr.end() && mSettingsPtr[sec]->find(key) != mSettingsPtr[sec]->end())
-        if (mSettingsPtr[sec]->erase(key) > 0)
+    if (mSettings.find(sec) != mSettings.end() && mSettings[sec]->find(key) != mSettings[sec]->end())
+        if (mSettings[sec]->erase(key) > 0)
             saved = false;
 }
 

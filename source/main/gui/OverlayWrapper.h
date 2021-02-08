@@ -29,16 +29,16 @@
 
 #include "Application.h"
 
-#include <Overlay/OgreTextAreaOverlayElement.h>
+#include <OgreTextAreaOverlayElement.h>
 #include <OIS.h>
 
 namespace RoR {
 
 struct AeroEngineOverlay
 {
-    Ogre::OverlayElement *thr_element;
-    Ogre::OverlayElement *engfire_element;
-    Ogre::OverlayElement *engstart_element;
+    Ogre::v1::OverlayElement *thr_element;
+    Ogre::v1::OverlayElement *engfire_element;
+    Ogre::v1::OverlayElement *engstart_element;
     Ogre::TextureUnitState *rpm_texture;
     Ogre::TextureUnitState *pitch_texture;
     Ogre::TextureUnitState *torque_texture;
@@ -49,7 +49,7 @@ struct AeroSwitchOverlay
     void Setup(std::string const & elem_name, std::string const & mat_on, std::string const & mat_off);
     void SetActive(bool value);
 
-    Ogre::OverlayElement *element;
+    Ogre::v1::OverlayElement *element;
     Ogre::MaterialPtr on_material;
     Ogre::MaterialPtr off_material;
 };
@@ -59,9 +59,9 @@ struct AeroTrimOverlay
     void Setup(std::string const & up, std::string const & dn, std::string const & disp);
     void DisplayFormat(const char* fmt, ...);
 
-    Ogre::OverlayElement *up_button;
-    Ogre::OverlayElement *dn_button;
-    Ogre::OverlayElement *display;
+    Ogre::v1::OverlayElement *up_button;
+    Ogre::v1::OverlayElement *dn_button;
+    Ogre::v1::OverlayElement *display;
 };
 
 struct AeroDashOverlay
@@ -75,8 +75,8 @@ struct AeroDashOverlay
 
     AeroEngineOverlay engines[4];
 
-    Ogre::Overlay *dash_overlay;
-    Ogre::Overlay *needles_overlay;
+    Ogre::v1::Overlay *dash_overlay;
+    Ogre::v1::Overlay *needles_overlay;
 
     Ogre::TextureUnitState *adibugstexture;
     Ogre::TextureUnitState *aditapetexture;
@@ -88,7 +88,7 @@ struct AeroDashOverlay
     Ogre::TextureUnitState *altimetertexture;
     Ogre::TextureUnitState *vvitexture;
     Ogre::TextureUnitState *aoatexture;
-    Ogre::TextAreaOverlayElement* alt_value_textarea;
+    Ogre::v1::TextAreaOverlayElement* alt_value_textarea;
 
     AeroSwitchOverlay hdg;
     AeroSwitchOverlay wlv;
@@ -119,7 +119,7 @@ public:
     {
         float orgScaleX;
         float orgScaleY;
-        Ogre::Overlay *o;
+        Ogre::v1::Overlay *o;
     };
 
     void ToggleDashboardOverlays(Actor *actor);
@@ -144,7 +144,7 @@ public:
     void HideRacingOverlay();
     void UpdateRacingGui(RoR::GfxScene* gs);
 
-    Ogre::Overlay *loadOverlay(Ogre::String name, bool autoResizeRation=true);
+    Ogre::v1::Overlay *loadOverlay(Ogre::String name, bool autoResizeRation=true);
 
 protected:
 
@@ -158,15 +158,15 @@ protected:
     };
 
     int init();
-    void resizePanel(Ogre::OverlayElement *oe);
-    void reposPanel(Ogre::OverlayElement *oe);
+    void resizePanel(Ogre::v1::OverlayElement *oe);
+    void reposPanel(Ogre::v1::OverlayElement *oe);
     void placeNeedle(Ogre::SceneNode *node, float x, float y, float len);
     void updateStats(bool detailed=false);
     void showPressureOverlay(bool show);
 
-    Ogre::OverlayElement *loadOverlayElement(Ogre::String name);
+    Ogre::v1::OverlayElement *loadOverlayElement(Ogre::String name);
 
-    Ogre::RenderWindow* win;
+    Ogre::Window* win;
 
     bool m_dashboard_visible;
 
@@ -176,40 +176,40 @@ protected:
 
     unsigned int  m_visible_overlays;
 
-    Ogre::Overlay *m_truck_pressure_overlay;
-    Ogre::Overlay *m_truck_pressure_needle_overlay;
+    Ogre::v1::Overlay *m_truck_pressure_overlay;
+    Ogre::v1::Overlay *m_truck_pressure_needle_overlay;
 
     AeroDashOverlay m_aerial_dashboard;
 
-    Ogre::Overlay *m_marine_dashboard_overlay;
-    Ogre::Overlay *m_marine_dashboard_needles_overlay;
+    Ogre::v1::Overlay *m_marine_dashboard_overlay;
+    Ogre::v1::Overlay *m_marine_dashboard_needles_overlay;
 
-    Ogre::Overlay *m_machine_dashboard_overlay;
+    Ogre::v1::Overlay *m_machine_dashboard_overlay;
 
     // Misc
-    Ogre::Overlay *m_racing_overlay;
+    Ogre::v1::Overlay *m_racing_overlay;
 
     // -------------------------------------------------------------
     // Overlay elements
     // -------------------------------------------------------------
 
     // Truck
-    Ogre::OverlayElement* guiGear;      //!< truck
-    Ogre::OverlayElement* guiGear3D;    //!< truck
+    Ogre::v1::OverlayElement* guiGear;      //!< truck
+    Ogre::v1::OverlayElement* guiGear3D;    //!< truck
 
     // Marine overlay elements
-    Ogre::OverlayElement *bthro1;
-    Ogre::OverlayElement *bthro2;
+    Ogre::v1::OverlayElement *bthro1;
+    Ogre::v1::OverlayElement *bthro2;
 
     // Truck
-    Ogre::TextAreaOverlayElement* guiAuto[5];
-    Ogre::TextAreaOverlayElement* guiAuto3D[5];
+    Ogre::v1::TextAreaOverlayElement* guiAuto[5];
+    Ogre::v1::TextAreaOverlayElement* guiAuto3D[5];
 
     // Truck (racing overlay)
-    Ogre::TextAreaOverlayElement* laptime;
-    Ogre::TextAreaOverlayElement* bestlaptime;
+    Ogre::v1::TextAreaOverlayElement* laptime;
+    Ogre::v1::TextAreaOverlayElement* bestlaptime;
 
-    Ogre::TextAreaOverlayElement* boat_depth_value_taoe; //!< Marine
+    Ogre::v1::TextAreaOverlayElement* boat_depth_value_taoe; //!< Marine
 
     // truck
     Ogre::TextureUnitState *speedotexture; // Needed for dashboard prop

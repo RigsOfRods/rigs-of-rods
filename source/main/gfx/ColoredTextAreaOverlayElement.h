@@ -21,11 +21,11 @@
 #pragma once
 
 #include <vector>
-#include <Overlay/OgreTextAreaOverlayElement.h>
+#include <OgreTextAreaOverlayElement.h>
 
 #include "Application.h"
 
-class ColoredTextAreaOverlayElement : public Ogre::TextAreaOverlayElement
+class ColoredTextAreaOverlayElement : public Ogre::v1::TextAreaOverlayElement
 {
 public:
     ColoredTextAreaOverlayElement(const Ogre::String& name);
@@ -33,8 +33,8 @@ public:
 
     void setValueBottom(float Value);
     void setValueTop(float Value);
-    void setCaption(const Ogre::DisplayString& text);
-    static Ogre::DisplayString StripColors(const Ogre::String& text);
+    void setCaption(const Ogre::v1::DisplayString& text);
+    static Ogre::v1::DisplayString StripColors(const Ogre::String& text);
     static Ogre::ColourValue GetColor(unsigned char ID, float Value = 1.0f);
 
     void updateColours(void);

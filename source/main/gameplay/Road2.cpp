@@ -26,6 +26,7 @@
 #include "TerrainManager.h"
 
 using namespace Ogre;
+using namespace Ogre::v1;
 using namespace RoR;
 
 Road2::Road2(int id) :
@@ -46,7 +47,7 @@ Road2::~Road2()
     }
     if (!msh.isNull())
     {
-        MeshManager::getSingleton().remove(msh->getName());
+        Ogre::v1::MeshManager::getSingleton().remove(msh->getName());
         msh.setNull();
     }
     for (int number : registeredCollTris)
@@ -563,7 +564,7 @@ void Road2::createMesh()
     };
     /// Create the mesh via the MeshManager
     Ogre::String mesh_name = Ogre::String("RoadSystem-").append(Ogre::StringConverter::toString(mid));
-    msh = MeshManager::getSingleton().createManual(mesh_name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    msh = Ogre::v1::MeshManager::getSingleton().createManual(mesh_name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
     mainsub = msh->createSubMesh();
     mainsub->setMaterialName("road2");
@@ -604,11 +605,11 @@ void Road2::createMesh()
     }
 
     /// Create vertex data structure for vertices shared between sub meshes
-    msh->sharedVertexData = new VertexData();
-    msh->sharedVertexData->vertexCount = vertexcount;
+    msh->sharedVertexData[Ogre::VpNormal] = new VertexData();
+    msh->sharedVertexData[Ogre::VpNormal]->vertexCount = vertexcount;
 
     /// Create declaration (memory format) of vertex data
-    VertexDeclaration* decl = msh->sharedVertexData->vertexDeclaration;
+    VertexDeclaration* decl = msh->sharedVertexData[Ogre::VpNormal]->vertexDeclaration;
     size_t offset = 0;
     decl->addElement(0, offset, VET_FLOAT3, VES_POSITION);
     offset += VertexElement::getTypeSize(VET_FLOAT3);
@@ -621,13 +622,13 @@ void Road2::createMesh()
     /// and bytes per vertex (offset)
     HardwareVertexBufferSharedPtr vbuf =
         HardwareBufferManager::getSingleton().createVertexBuffer(
-            offset, msh->sharedVertexData->vertexCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+            offset, msh->sharedVertexData[Ogre::VpNormal]->vertexCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 
     /// Upload the vertex data to the card
     vbuf->writeData(0, vbuf->getSizeInBytes(), vertices, true);
 
     /// Set vertex buffer binding so buffer 0 is bound to our vertex buffer
-    VertexBufferBinding* bind = msh->sharedVertexData->vertexBufferBinding;
+    VertexBufferBinding* bind = msh->sharedVertexData[Ogre::VpNormal]->vertexBufferBinding;
     bind->setBinding(0, vbuf);
 
     //for the face
@@ -643,9 +644,9 @@ void Road2::createMesh()
 
     /// Set parameters of the submesh
     mainsub->useSharedVertices = true;
-    mainsub->indexData->indexBuffer = ibuf;
-    mainsub->indexData->indexCount = ibufCount;
-    mainsub->indexData->indexStart = 0;
+    mainsub->indexData[Ogre::VpNormal]->indexBuffer = ibuf;
+    mainsub->indexData[Ogre::VpNormal]->indexCount = ibufCount;
+    mainsub->indexData[Ogre::VpNormal]->indexStart = 0;
 
     msh->_setBounds(aab, true);
 

@@ -29,7 +29,6 @@
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "InputEngine.h"
-#include "MovableText.h"
 #include "Network.h"
 #include "TerrainManager.h"
 #include "Utils.h"
@@ -407,7 +406,7 @@ void Character::move(Vector3 offset)
 void Character::ReportError(const char* detail)
 {
 #ifdef USE_SOCKETW
-    Ogre::UTFString username;
+    Ogre::v1::DisplayString username;
     RoRnet::UserInfo info;
     if (!App::GetNetwork()->GetUserInfo(m_source_id, info))
         username = "~~ERROR getting username~~";
@@ -549,7 +548,7 @@ void Character::SetActorCoupling(bool enabled, Actor* actor)
 
 GfxCharacter* Character::SetupGfx()
 {
-    Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(m_instance_name + "_mesh", "character.mesh");
+    v1::Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(m_instance_name + "_mesh", "character.mesh");
     m_driving_anim_length = entity->getAnimationState("Driving")->getLength();
 
     // fix disappearing mesh
@@ -570,24 +569,19 @@ GfxCharacter* Character::SetupGfx()
 
     m_gfx_character = new GfxCharacter();
     m_gfx_character->xc_scenenode = scenenode;
-    m_gfx_character->xc_movable_text = nullptr;
     m_gfx_character->xc_character = this;
-    m_gfx_character->xc_instance_name = m_instance_name;
 
     return m_gfx_character;
 }
 
 RoR::GfxCharacter::~GfxCharacter()
 {
-    Entity* ent = static_cast<Ogre::Entity*>(xc_scenenode->getAttachedObject(0));
+    v1::Entity* ent = static_cast<Ogre::v1::Entity*>(xc_scenenode->getAttachedObject(0));
     xc_scenenode->detachAllObjects();
     App::GetGfxScene()->GetSceneManager()->destroySceneNode(xc_scenenode);
     App::GetGfxScene()->GetSceneManager()->destroyEntity(ent);
-    if (xc_movable_text != nullptr)
-    {
-        delete xc_movable_text;
-    }
-    MaterialManager::getSingleton().unload("tracks/" + xc_instance_name);
+
+
 }
 
 void RoR::GfxCharacter::BufferSimulationData()
@@ -612,20 +606,14 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         if (xc_simbuf.simbuf_actor_coupling != nullptr)
         {
             // Entering/switching vehicle
-            if (xc_movable_text != nullptr)
-            {
-                xc_movable_text->setVisible(false);
-            }
+
             xc_scenenode->getAttachedObject(0)->setCastShadows(false);
             xc_scenenode->setVisible(xc_simbuf.simbuf_actor_coupling->GetGfxActor()->HasDriverSeatProp());
         }
         else if (xc_simbuf_prev.simbuf_actor_coupling != nullptr)
         {
             // Leaving vehicle
-            if (xc_movable_text != nullptr)
-            {
-                xc_movable_text->setVisible(true);
-            }
+
             xc_scenenode->getAttachedObject(0)->setCastShadows(true);
             xc_scenenode->resetOrientation();
         }
@@ -636,10 +624,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
     {
         if (xc_simbuf.simbuf_actor_coupling->GetGfxActor()->HasDriverSeatProp())
         {
-            if (xc_movable_text != nullptr)
-            {
-                xc_movable_text->setVisible(false);
-            }
+
             Ogre::Vector3 pos;
             Ogre::Quaternion rot;
             xc_simbuf.simbuf_actor_coupling->GetGfxActor()->CalculateDriverPos(pos, rot);
@@ -657,15 +642,15 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
     }
 
     // Animation
-    Ogre::Entity* entity = static_cast<Ogre::Entity*>(xc_scenenode->getAttachedObject(0));
+    Ogre::v1::Entity* entity = static_cast<Ogre::v1::Entity*>(xc_scenenode->getAttachedObject(0));
     if (xc_simbuf.simbuf_anim_name != xc_simbuf_prev.simbuf_anim_name)
     {
         // 'Classic' method - enable one anim, exterminate the others ~ only_a_ptr, 06/2018
-        AnimationStateIterator it = entity->getAllAnimationStates()->getAnimationStateIterator();
+        v1::AnimationStateIterator it = entity->getAllAnimationStates()->getAnimationStateIterator();
 
         while (it.hasMoreElements())
         {
-            AnimationState* as = it.getNext();
+            v1::AnimationState* as = it.getNext();
 
             if (as->getAnimationName() == xc_simbuf.simbuf_anim_name)
             {

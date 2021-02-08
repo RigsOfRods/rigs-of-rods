@@ -127,7 +127,7 @@ struct Prop
     
     // Special prop - beacon
     char                  pp_beacon_type          = 0;                   //!< Special prop: beacon {0 = none, 'b' = user-specified, 'r' = red, 'p' = police lightbar, 'L'/'R'/'w' - aircraft wings}
-    Ogre::BillboardSet*   pp_beacon_bbs[4]        = {};
+    Ogre::v1::BillboardSet*   pp_beacon_bbs[4]        = {};
     Ogre::SceneNode*      pp_beacon_scene_node[4] = {};
     Ogre::Light*          pp_beacon_light[4]      = {};
     float                 pp_beacon_rot_rate[4]   = {};                  //!< Radians per second
@@ -164,10 +164,9 @@ struct VideoCamera
     Ogre::MaterialPtr    vcam_material;
     std::string          vcam_off_tex_name;                         //!< Used when videocamera is offline
     Ogre::Camera*        vcam_ogre_camera    = nullptr;
-    Ogre::RenderTexture* vcam_render_target  = nullptr;
-    Ogre::TexturePtr     vcam_render_tex;
+    Ogre::TextureGpu*     vcam_render_tex;
     Ogre::SceneNode*     vcam_debug_node     = nullptr;
-    Ogre::RenderWindow*  vcam_render_window  = nullptr;
+    Ogre::Window*  vcam_render_window  = nullptr;
     Ogre::SceneNode*     vcam_prop_scenenode = nullptr;             //!< Only for VCTYPE_MIRROR_PROP_*
 };
 
@@ -198,7 +197,7 @@ struct NodeGfx
 /// Visuals of softbody beam (`beam_t` struct); Partially updated along with SimBuffer
 struct Rod
 {
-    // We don't keep pointer to the Ogre::Entity - we rely on the SceneNode keeping it attached all the time.
+    // We don't keep pointer to the Ogre::v1::Entity - we rely on the SceneNode keeping it attached all the time.
     Ogre::SceneNode* rod_scenenode       = nullptr;
     uint16_t         rod_beam_index      = 0;
     uint16_t         rod_diameter_mm     = 0;                    //!< Diameter in millimeters
@@ -211,7 +210,7 @@ struct Rod
 
 struct WheelGfx
 {
-    Flexable*        wx_flex_mesh        = nullptr;
+
     Ogre::SceneNode* wx_scenenode        = nullptr;
     bool             wx_is_meshwheel     = false;
 };
@@ -220,7 +219,7 @@ struct AirbrakeGfx
 {
     Ogre::MeshPtr    abx_mesh;
     Ogre::SceneNode* abx_scenenode;
-    Ogre::Entity*    abx_entity;
+    Ogre::v1::Entity*    abx_entity;
     Ogre::Vector3    abx_offset;
     uint16_t         abx_ref_node;
     uint16_t         abx_x_node;

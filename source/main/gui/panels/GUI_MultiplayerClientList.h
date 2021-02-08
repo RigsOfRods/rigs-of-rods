@@ -38,8 +38,8 @@ class MpClientList
 public:
     void Draw();
 private:
-    Ogre::TexturePtr FetchIcon(const char* name);
-    bool DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box); // Returns true if hovered
+    Ogre::TextureGpu* FetchIcon(const char* name);
+    bool DrawIcon(Ogre::TextureGpu* tex, ImVec2 reference_box); // Returns true if hovered
 };
 
 } // namespace GUI

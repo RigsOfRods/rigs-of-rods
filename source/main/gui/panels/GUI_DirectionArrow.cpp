@@ -27,7 +27,7 @@
 #include "GfxScene.h"
 #include "Language.h"
 
-#include <Overlay/OgreOverlayManager.h>
+#include <OgreOverlayManager.h>
 #include <fmt/core.h>
 
 using namespace RoR;
@@ -35,9 +35,9 @@ using namespace RoR;
 void GUI::DirectionArrow::LoadOverlay()
 {
     // Load overlay from .overlay file
-    m_overlay = Ogre::OverlayManager::getSingleton().getByName("tracks/DirectionArrow");
-    m_text = (Ogre::TextAreaOverlayElement*)Ogre::OverlayManager::getSingleton().getOverlayElement("tracks/DirectionArrow/Text");
-    m_distance_text = (Ogre::TextAreaOverlayElement*)Ogre::OverlayManager::getSingleton().getOverlayElement("tracks/DirectionArrow/Distance");
+    m_overlay = Ogre::v1::OverlayManager::getSingleton().getByName("tracks/DirectionArrow");
+    m_text = (Ogre::TextAreaOverlayElement*)Ogre::v1::OverlayManager::getSingleton().getOverlayElement("tracks/DirectionArrow/Text");
+    m_distance_text = (Ogre::TextAreaOverlayElement*)Ogre::v1::OverlayManager::getSingleton().getOverlayElement("tracks/DirectionArrow/Distance");
 
     // openGL fix
     m_overlay->show();
@@ -49,7 +49,7 @@ void GUI::DirectionArrow::LoadOverlay()
 void GUI::DirectionArrow::CreateArrow()
 {
     // setup direction arrow
-    Ogre::Entity* arrow_entity = App::GetGfxScene()->GetSceneManager()->createEntity("arrow2.mesh");
+    Ogre::v1::Entity* arrow_entity = App::GetGfxScene()->GetSceneManager()->createEntity("arrow2.mesh");
     arrow_entity->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
 
     // Add entity to the scene node

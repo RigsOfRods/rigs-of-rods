@@ -37,7 +37,6 @@
 #include <OgreColourValue.h>
 #include <OgreMaterial.h>
 #include <OgreQuaternion.h>
-#include <OgreTexture.h>
 #include <OgreVector3.h>
 #include <string>
 #include <vector>
@@ -178,18 +177,18 @@ public:
         bool             xa_has_autopilot;
         bool             xa_has_engine;
         Ogre::MaterialPtr xa_help_mat;
-        Ogre::TexturePtr  xa_help_tex;
+        //OGRE1x Ogre::TextureGpu*  xa_help_tex;
     };
 
     GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
-        std::vector<NodeGfx>& gfx_nodes, RoR::Renderdash* renderdash);
+        std::vector<NodeGfx>& gfx_nodes);
 
     ~GfxActor();
 
     void                      AddMaterialFlare   (int flare_index, Ogre::MaterialPtr mat);
     void                      SetMaterialFlareOn (int flare_index, bool state_on);
     void                      RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
-    void                      RegisterCabMesh    (Ogre::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj);
+
     void                      SetCabLightsActive (bool state_on);
     void                      SetVideoCamState   (VideoCamState state);
     void                      UpdateVideoCameras (float dt_sec);
@@ -219,7 +218,7 @@ public:
     void                      UpdateWingMeshes   ();
     int                       GetActorId         () const;
     int                       GetActorState      () const;
-    int                       GetNumFlexbodies   () const { return static_cast<int>(m_flexbodies.size()); }
+
     void                      ResetFlexbodies    ();
     void                      SetFlexbodiesVisible(bool visible);
     ActorType                 GetActorDriveable  () const;
@@ -231,7 +230,7 @@ public:
     void                      UpdateNetLabels    (float dt);
     void                      SetDebugView       (DebugViewType dv);
     void                      SortFlexbodies     ();
-    void                      AddFlexbody        (FlexBody* fb)           { m_flexbodies.push_back(fb); }
+
     Attributes&               GetAttributes      ()                       { return m_attr; }
     inline Ogre::MaterialPtr& GetCabTransMaterial()                       { return m_cab_mat_visual_trans; }
     inline VideoCamState      GetVideoCamState   () const                 { return m_vidcam_state; }
@@ -271,7 +270,6 @@ private:
     std::vector<NodeGfx>        m_gfx_nodes;
     std::vector<AirbrakeGfx>    m_gfx_airbrakes;
     std::vector<Prop>           m_props;
-    std::vector<FlexBody*>      m_flexbodies;
     int                         m_driverseat_prop_index;
     Attributes                  m_attr;
     DustPool*                   m_particles_drip;
@@ -283,9 +281,7 @@ private:
     std::vector<Rod>            m_rods;
     std::vector<WheelGfx>       m_wheels;
     Ogre::SceneNode*            m_rods_parent_scenenode;
-    RoR::Renderdash*            m_renderdash;
-    std::vector<std::shared_ptr<Task>> m_flexwheel_tasks;
-    std::vector<std::shared_ptr<Task>> m_flexbody_tasks;
+
     bool                        m_beaconlight_active;
     float                       m_prop_anim_crankfactor_prev;
     float                       m_prop_anim_shift_timer;
@@ -297,9 +293,8 @@ private:
     SimBuffer                   m_simbuf;
 
     // Old cab mesh
-    FlexObj*                    m_cab_mesh;
     Ogre::SceneNode*            m_cab_scene_node;
-    Ogre::Entity*               m_cab_entity;
+    Ogre::v1::Entity*               m_cab_entity;
 
     // Cab materials and their features
     Ogre::MaterialPtr           m_cab_mat_visual; //!< Updated in-place from templates

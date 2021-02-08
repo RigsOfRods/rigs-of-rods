@@ -52,7 +52,7 @@ public:
 
     bool hasSetting(Ogre::String key, Ogre::String section = "")
     {
-        return (mSettingsPtr.find(section) != mSettingsPtr.end() && mSettingsPtr[section]->find(key) != mSettingsPtr[section]->end());
+        return (mSettings.find(section) != mSettings.end() && mSettings[section]->find(key) != mSettings[section]->end());
     }
 
     bool saveImprovedCfg()
@@ -64,7 +64,7 @@ public:
         const size_t BUF_LEN = 2000;
         char buf[BUF_LEN];
         SettingsBySection::iterator secIt;
-        for (secIt = mSettingsPtr.begin(); secIt != mSettingsPtr.end(); secIt++)
+        for (secIt = mSettings.begin(); secIt != mSettings.end(); secIt++)
         {
             if (secIt->first.size() > 0)
             {
@@ -82,14 +82,14 @@ public:
         return true;
     }
 
-    void setSetting(Ogre::String key, Ogre::String value, Ogre::String section = Ogre::StringUtil::BLANK)
+    void setSetting(Ogre::String key, Ogre::String value, Ogre::String section = Ogre::BLANKSTRING)
     {
-        SettingsMultiMap* set = mSettingsPtr[section];
+        SettingsMultiMap* set = mSettings[section];
         if (!set)
         {
             // new section
             set = new SettingsMultiMap();
-            mSettingsPtr[section] = set;
+            mSettings[section] = set;
         }
         if (set->count(key))
         // known key, delete old first
@@ -99,132 +99,132 @@ public:
     }
 
     // type specific implementations
-    Ogre::Radian getSettingRadian(Ogre::String key, Ogre::String section = Ogre::StringUtil::BLANK)
+    Ogre::Radian getSettingRadian(Ogre::String key, Ogre::String section = Ogre::BLANKSTRING)
     {
         return Ogre::StringConverter::parseAngle(GetStringEx(key, section));
     }
 
-    void setSetting(Ogre::String key, Ogre::Radian value, Ogre::String section = Ogre::StringUtil::BLANK)
+    void setSetting(Ogre::String key, Ogre::Radian value, Ogre::String section = Ogre::BLANKSTRING)
     {
         setSetting(key, TOSTRING(value), section);
     }
 
-    bool getSettingBool(Ogre::String key, Ogre::String section = Ogre::StringUtil::BLANK)
+    bool getSettingBool(Ogre::String key, Ogre::String section = Ogre::BLANKSTRING)
     {
         return Ogre::StringConverter::parseBool(GetStringEx(key, section));
     }
 
-    void setSetting(Ogre::String key, bool value, Ogre::String section = Ogre::StringUtil::BLANK)
+    void setSetting(Ogre::String key, bool value, Ogre::String section = Ogre::BLANKSTRING)
     {
         setSetting(key, TOSTRING(value), section);
     }
 
-    Ogre::Real getSettingReal(Ogre::String key, Ogre::String section = Ogre::StringUtil::BLANK)
+    Ogre::Real getSettingReal(Ogre::String key, Ogre::String section = Ogre::BLANKSTRING)
     {
         return Ogre::StringConverter::parseReal(GetStringEx(key, section));
     }
 
-    void setSetting(Ogre::String key, Ogre::Real value, Ogre::String section = Ogre::StringUtil::BLANK)
+    void setSetting(Ogre::String key, Ogre::Real value, Ogre::String section = Ogre::BLANKSTRING)
     {
         setSetting(key, TOSTRING(value), section);
     }
 
-    int getSettingInt(Ogre::String key, Ogre::String section = Ogre::StringUtil::BLANK)
+    int getSettingInt(Ogre::String key, Ogre::String section = Ogre::BLANKSTRING)
     {
         return Ogre::StringConverter::parseInt(GetStringEx(key, section));
     }
 
-    void setSetting(Ogre::String key, int value, Ogre::String section = Ogre::StringUtil::BLANK)
+    void setSetting(Ogre::String key, int value, Ogre::String section = Ogre::BLANKSTRING)
     {
         setSetting(key, TOSTRING(value), section);
     }
 
-    unsigned int getSettingUnsignedInt(Ogre::String key, Ogre::String section = Ogre::StringUtil::BLANK)
+    unsigned int getSettingUnsignedInt(Ogre::String key, Ogre::String section = Ogre::BLANKSTRING)
     {
         return Ogre::StringConverter::parseUnsignedInt(GetStringEx(key, section));
     }
 
-    void setSetting(Ogre::String key, unsigned int value, Ogre::String section = Ogre::StringUtil::BLANK)
+    void setSetting(Ogre::String key, unsigned int value, Ogre::String section = Ogre::BLANKSTRING)
     {
         setSetting(key, TOSTRING(value), section);
     }
 
-    long getSettingLong(Ogre::String key, Ogre::String section = Ogre::StringUtil::BLANK)
+    long getSettingLong(Ogre::String key, Ogre::String section = Ogre::BLANKSTRING)
     {
         return Ogre::StringConverter::parseLong(GetStringEx(key, section));
     }
 
-    void setSetting(Ogre::String key, long value, Ogre::String section = Ogre::StringUtil::BLANK)
+    void setSetting(Ogre::String key, long value, Ogre::String section = Ogre::BLANKSTRING)
     {
         setSetting(key, TOSTRING(value), section);
     }
 
-    unsigned long getSettingUnsignedLong(Ogre::String key, Ogre::String section = Ogre::StringUtil::BLANK)
+    unsigned long getSettingUnsignedLong(Ogre::String key, Ogre::String section = Ogre::BLANKSTRING)
     {
         return Ogre::StringConverter::parseUnsignedLong(GetStringEx(key, section));
     }
 
-    void setSetting(Ogre::String key, unsigned long value, Ogre::String section = Ogre::StringUtil::BLANK)
+    void setSetting(Ogre::String key, unsigned long value, Ogre::String section = Ogre::BLANKSTRING)
     {
         setSetting(key, TOSTRING(value), section);
     }
 
-    Ogre::Vector3 getSettingVector3(Ogre::String key, Ogre::String section = Ogre::StringUtil::BLANK)
+    Ogre::Vector3 getSettingVector3(Ogre::String key, Ogre::String section = Ogre::BLANKSTRING)
     {
         return Ogre::StringConverter::parseVector3(GetStringEx(key, section));
     }
 
-    void setSetting(Ogre::String key, Ogre::Vector3 value, Ogre::String section = Ogre::StringUtil::BLANK)
+    void setSetting(Ogre::String key, Ogre::Vector3 value, Ogre::String section = Ogre::BLANKSTRING)
     {
         setSetting(key, TOSTRING(value), section);
     }
 
-    Ogre::Matrix3 getSettingMatrix3(Ogre::String key, Ogre::String section = Ogre::StringUtil::BLANK)
+    Ogre::Matrix3 getSettingMatrix3(Ogre::String key, Ogre::String section = Ogre::BLANKSTRING)
     {
         return Ogre::StringConverter::parseMatrix3(GetStringEx(key, section));
     }
 
-    void setSetting(Ogre::String key, Ogre::Matrix3 value, Ogre::String section = Ogre::StringUtil::BLANK)
+    void setSetting(Ogre::String key, Ogre::Matrix3 value, Ogre::String section = Ogre::BLANKSTRING)
     {
         setSetting(key, TOSTRING(value), section);
     }
 
-    Ogre::Matrix4 getSettingMatrix4(Ogre::String key, Ogre::String section = Ogre::StringUtil::BLANK)
+    Ogre::Matrix4 getSettingMatrix4(Ogre::String key, Ogre::String section = Ogre::BLANKSTRING)
     {
         return Ogre::StringConverter::parseMatrix4(GetStringEx(key, section));
     }
 
-    void setSetting(Ogre::String key, Ogre::Matrix4 value, Ogre::String section = Ogre::StringUtil::BLANK)
+    void setSetting(Ogre::String key, Ogre::Matrix4 value, Ogre::String section = Ogre::BLANKSTRING)
     {
         setSetting(key, TOSTRING(value), section);
     }
 
-    Ogre::Quaternion getSettingQuaternion(Ogre::String key, Ogre::String section = Ogre::StringUtil::BLANK)
+    Ogre::Quaternion getSettingQuaternion(Ogre::String key, Ogre::String section = Ogre::BLANKSTRING)
     {
         return Ogre::StringConverter::parseQuaternion(GetStringEx(key, section));
     }
 
-    void setSetting(Ogre::String key, Ogre::Quaternion value, Ogre::String section = Ogre::StringUtil::BLANK)
+    void setSetting(Ogre::String key, Ogre::Quaternion value, Ogre::String section = Ogre::BLANKSTRING)
     {
         setSetting(key, TOSTRING(value), section);
     }
 
-    Ogre::ColourValue getSettingColorValue(Ogre::String key, Ogre::String section = Ogre::StringUtil::BLANK)
+    Ogre::ColourValue getSettingColorValue(Ogre::String key, Ogre::String section = Ogre::BLANKSTRING)
     {
         return Ogre::StringConverter::parseColourValue(GetStringEx(key, section));
     }
 
-    void setSetting(Ogre::String key, Ogre::ColourValue value, Ogre::String section = Ogre::StringUtil::BLANK)
+    void setSetting(Ogre::String key, Ogre::ColourValue value, Ogre::String section = Ogre::BLANKSTRING)
     {
         setSetting(key, TOSTRING(value), section);
     }
 
-    Ogre::StringVector getSettingStringVector(Ogre::String key, Ogre::String section = Ogre::StringUtil::BLANK)
+    Ogre::StringVector getSettingStringVector(Ogre::String key, Ogre::String section = Ogre::BLANKSTRING)
     {
         return Ogre::StringConverter::parseStringVector(GetStringEx(key, section));
     }
 
-    void setSetting(Ogre::String key, Ogre::StringVector value, Ogre::String section = Ogre::StringUtil::BLANK)
+    void setSetting(Ogre::String key, Ogre::StringVector value, Ogre::String section = Ogre::BLANKSTRING)
     {
         setSetting(key, TOSTRING(value), section);
     }

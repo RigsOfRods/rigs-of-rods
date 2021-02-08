@@ -26,10 +26,12 @@
 #include "OgreImGui.h"
 
 #include "ContentManager.h"
+#include "GfxScene.h"
 #include "OgreImGuiOverlay.h"
 
 #include <imgui.h>
 #include <Ogre.h>
+#include <OgreOverlayManager.h>
 
 using namespace RoR;
 
@@ -118,20 +120,19 @@ void OgreImGui::InjectKeyReleased( const OIS::KeyEvent &arg )
     io.KeysDown[arg.key] = false;
 }
 
-void OgreImGui::renderQueueStarted(Ogre::uint8 queueGroupId,
+void OgreImGui::renderQueueStarted(Ogre::RenderQueue *rq, Ogre::uint8 queueGroupId,
         const Ogre::String& invocation, bool& skipThisInvocation)
 {
     // Shamelessly copy-pasted from `Ogre::OverlaySystem::renderQueueStarted()`
-    if(queueGroupId == Ogre::RENDER_QUEUE_OVERLAY)
+    if(queueGroupId == 100) // Ogre::RENDER_QUEUE_OVERLAY (100) from OGRE1x
     {
-        Ogre::Viewport* vp = Ogre::Root::getSingletonPtr()->getRenderSystem()->_getViewport();
-        if(vp != NULL)
+        Ogre::Viewport* vp = Ogre::Root::getSingletonPtr()->getRenderSystem()->getCurrentRenderViewports();
+        if(vp)
         {
-            Ogre::SceneManager* sceneMgr = vp->getCamera()->getSceneManager();
+            Ogre::SceneManager* sceneMgr = App::GetGfxScene()->GetSceneManager();
             if (vp->getOverlaysEnabled() && sceneMgr->_getCurrentRenderStage() != Ogre::SceneManager::IRS_RENDER_TO_TEXTURE)
             {
-                //ORIG//Ogre::OverlayManager::getSingleton()._queueOverlaysForRendering(vp->getCamera(), sceneMgr->getRenderQueue(), vp);
-                m_imgui_overlay->_findVisibleObjects(vp->getCamera(), sceneMgr->getRenderQueue(), vp);
+                Ogre::v1::OverlayManager::getSingleton()._queueOverlaysForRendering(rq, vp);
             }
         }
     }

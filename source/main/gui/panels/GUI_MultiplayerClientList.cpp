@@ -65,10 +65,10 @@ void MpClientList::Draw()
     {
         // Icon sizes: flag(16x11), auth(16x16), up(16x16), down(16x16)
         bool hovered = false;
-        Ogre::TexturePtr flag_tex;
-        Ogre::TexturePtr auth_tex;
-        Ogre::TexturePtr down_tex;
-        Ogre::TexturePtr up_tex;
+        Ogre::TextureGpu* flag_tex;
+        Ogre::TextureGpu* auth_tex;
+        Ogre::TextureGpu* down_tex;
+        Ogre::TextureGpu* up_tex;
 
         // Stream state indicators
         if (user.uniqueid != App::GetNetwork()->GetLocalUserData().uniqueid &&
@@ -204,7 +204,7 @@ void MpClientList::Draw()
     ImGui::PopStyleColor(1); // WindowBg
 }
 
-Ogre::TexturePtr MpClientList::FetchIcon(const char* name)
+Ogre::TextureGpu* MpClientList::FetchIcon(const char* name)
 {
     try
     {
@@ -213,10 +213,10 @@ Ogre::TexturePtr MpClientList::FetchIcon(const char* name)
     }
     catch (...) {}
 
-    return Ogre::TexturePtr(); // null
+    return Ogre::TextureGpu*(); // null
 }
 
-bool MpClientList::DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box)
+bool MpClientList::DrawIcon(Ogre::TextureGpu* tex, ImVec2 reference_box)
 {
     ImVec2 orig_pos = ImGui::GetCursorPos();
     bool hovered = false;

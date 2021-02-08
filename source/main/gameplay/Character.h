@@ -34,14 +34,14 @@ class Character
 {
 public:
 
-    Character(int source = -1, unsigned int streamid = 0, Ogre::UTFString playerName = "", int color_number = 0, bool is_remote = true);
+    Character(int source = -1, unsigned int streamid = 0, Ogre::v1::DisplayString playerName = "", int color_number = 0, bool is_remote = true);
     ~Character();
        
     int            getSourceID() const                  { return m_source_id; }
     bool           isRemote() const                     { return m_is_remote; }
     int            GetColorNum() const                  { return m_color_number; }
     bool           GetIsRemote() const                  { return m_is_remote; }
-    Ogre::UTFString const& GetNetUsername()             { return m_net_username; }
+    Ogre::v1::DisplayString const& GetNetUsername()             { return m_net_username; }
     std::string const &    GetAnimName() const          { return m_anim_name; }
     float          GetAnimTime() const                  { return m_anim_time; }
     Ogre::Radian   getRotation() const                  { return m_character_rotation; }
@@ -80,7 +80,7 @@ private:
     float            m_net_last_anim_time;
     float            m_driving_anim_length;
     std::string      m_instance_name;
-    Ogre::UTFString  m_net_username;
+    Ogre::v1::DisplayString  m_net_username;
     Ogre::Timer      m_net_timer;
     unsigned long    m_net_last_update_time;
     GfxCharacter*    m_gfx_character;
@@ -92,7 +92,7 @@ struct GfxCharacter
     {
         Ogre::Vector3      simbuf_character_pos;
         Ogre::Radian       simbuf_character_rot; //!< When on foot
-        Ogre::UTFString    simbuf_net_username;
+        Ogre::v1::DisplayString    simbuf_net_username;
         bool               simbuf_is_remote;
         int                simbuf_color_number;
         Actor*             simbuf_actor_coupling;
@@ -106,11 +106,9 @@ struct GfxCharacter
     void            UpdateCharacterInScene();
 
     Ogre::SceneNode*          xc_scenenode;
-    MovableText*              xc_movable_text; // TODO: Remake using GUI; the network labels shouldn't be part of scene. ~only_a_ptr, 05/2018
     SimBuffer                 xc_simbuf;
     SimBuffer                 xc_simbuf_prev;
     Character*                xc_character;
-    std::string               xc_instance_name; // TODO: Store MaterialPtr-s directly ~only_a_ptr, 05/2018
 };
 
 } // namespace RoR

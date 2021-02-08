@@ -27,6 +27,8 @@
 #include <OgreVector2.h>
 #include <OgreVector3.h>
 
+#include <queue>
+
 namespace RoR {
 
 class SkidmarkConfig //!< Skidmark config file parser and data container
@@ -67,7 +69,7 @@ private:
 
     struct SkidmarkSegment //!< Also reffered to as 'bucket'
     {
-        Ogre::ManualObject* obj;
+        Ogre::v1::ManualObject* obj;
         Ogre::MaterialPtr material;
         std::vector<Ogre::Vector3> points;
         std::vector<Ogre::Real> faceSizes;

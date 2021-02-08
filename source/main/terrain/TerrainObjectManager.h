@@ -25,14 +25,8 @@
 
 #include "ODefFileFormat.h"
 
-#include "BatchPage.h"
-#include "GrassLoader.h"
-#include "ImpostorPage.h"
 #include "MeshObject.h"
-#include "PagedGeometry.h"
 #include "ProceduralManager.h"
-#include "TreeLoader2D.h"
-#include "TreeLoader3D.h"
 
 #include <map>
 #include <unordered_map>
@@ -117,9 +111,9 @@ protected:
 
     struct AnimatedObject
     {
-        Ogre::Entity* ent;
+        Ogre::v1::Entity* ent;
         Ogre::SceneNode* node;
-        Ogre::AnimationState* anim;
+        Ogre::v1::AnimationState* anim;
         float speedfactor;
     };
 
@@ -163,13 +157,11 @@ protected:
     std::vector<MeshObject*>              m_mesh_objects;
     std::vector<MapEntity>                m_map_entities;
     TerrainManager*           terrainManager;
-    Ogre::StaticGeometry*     m_staticgeometry;
+    Ogre::v1::StaticGeometry*     m_staticgeometry;
     ProceduralManager*        m_procedural_mgr;
     Ogre::SceneNode*          m_staticgeometry_bake_node;
     int                       m_entity_counter = 0;
     std::string               m_resource_group;
-
-    std::vector<Forests::PagedGeometry*> m_paged_geometry;
 };
 
 } // namespace RoR

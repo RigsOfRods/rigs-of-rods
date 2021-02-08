@@ -27,9 +27,8 @@
 #include "OgreImGui.h"
 #include "Application.h"
 
-#include <Bites/OgreWindowEventUtilities.h>
+#include <OgreWindowEventUtilities.h>
 #include <OgreFrameListener.h>
-#include <MyGUI_UString.h>
 
 namespace RoR {
 
@@ -134,9 +133,6 @@ public:
     void SetGuiHidden(bool visible);
     bool IsGuiHidden() const { return m_hide_gui; }
 
-    void SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager);
-
-    void ShutdownMyGUI();
     void ReflectGameState();
     void SetMouseCursorVisibility(MouseCursorVisibility visi);
     void UpdateMouseCursorVisibility();
@@ -153,8 +149,6 @@ public:
 
 private:
     void SetupImGui();
-
-    void eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _result);
 
     GuiManagerImpl*    m_impl                     = nullptr;
     bool               m_hide_gui                 = false;

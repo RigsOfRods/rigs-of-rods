@@ -87,8 +87,8 @@ private:
         Ogre::Vector2 texcoord;
     } CoVertice_t;
 
-    Ogre::MeshPtr msh;
-    Ogre::SubMesh* mainsub;
+    Ogre::v1::MeshPtr msh;
+    Ogre::v1::SubMesh* mainsub;
 
     Ogre::Vector2 tex[MAX_VERTEX];
     Ogre::Vector3 vertex[MAX_VERTEX];

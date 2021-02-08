@@ -50,7 +50,7 @@ private:
     float maxangle; //!< attribute from truckfile
     float area; //!< Attribute set at spawn
 
-    Ogre::Entity* ec;
+    Ogre::v1::Entity* ec;
 
 public:
     Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, node_t* ndx, node_t* ndy, node_t* nda, Ogre::Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float tx2, float tx3, float tx4, float lift_coef);

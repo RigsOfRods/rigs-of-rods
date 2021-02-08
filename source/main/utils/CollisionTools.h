@@ -84,9 +84,9 @@ public:
     CollisionTools(Ogre::SceneManager* sceneMgr);
     ~CollisionTools();
 
-    bool raycastFromCamera(Ogre::RenderWindow* rw, Ogre::Camera* camera, const Ogre::Vector2& mousecoords, Ogre::Vector3& result, Ogre::MovableObject* & target, float& closest_distance, const Ogre::uint32 queryMask = 0xFFFFFFFF);
-    // convenience wrapper with Ogre::Entity to it:
-    bool raycastFromCamera(Ogre::RenderWindow* rw, Ogre::Camera* camera, const Ogre::Vector2& mousecoords, Ogre::Vector3& result, Ogre::Entity* & target, float& closest_distance, const Ogre::uint32 queryMask = 0xFFFFFFFF);
+    bool raycastFromCamera(Ogre::Window* rw, Ogre::Camera* camera, const Ogre::Vector2& mousecoords, Ogre::Vector3& result, Ogre::MovableObject* & target, float& closest_distance, const Ogre::uint32 queryMask = 0xFFFFFFFF);
+    // convenience wrapper with Ogre::v1::Entity to it:
+    bool raycastFromCamera(Ogre::Window* rw, Ogre::Camera* camera, const Ogre::Vector2& mousecoords, Ogre::Vector3& result, Ogre::v1::Entity* & target, float& closest_distance, const Ogre::uint32 queryMask = 0xFFFFFFFF);
 
     bool collidesWithEntity(const Ogre::Vector3& fromPoint, const Ogre::Vector3& toPoint, const float collisionRadius = 2.5f, const float rayHeightLevel = 0.0f, const Ogre::uint32 queryMask = 0xFFFFFFFF);
 
@@ -95,12 +95,12 @@ public:
     float getTSMHeightAt(const float x, const float z);
 
     bool raycastFromPoint(const Ogre::Vector3& point, const Ogre::Vector3& normal, Ogre::Vector3& result, Ogre::MovableObject* & target, float& closest_distance, const Ogre::uint32 queryMask = 0xFFFFFFFF);
-    // convenience wrapper with Ogre::Entity to it:
-    bool raycastFromPoint(const Ogre::Vector3& point, const Ogre::Vector3& normal, Ogre::Vector3& result, Ogre::Entity* & target, float& closest_distance, const Ogre::uint32 queryMask = 0xFFFFFFFF);
+    // convenience wrapper with Ogre::v1::Entity to it:
+    bool raycastFromPoint(const Ogre::Vector3& point, const Ogre::Vector3& normal, Ogre::Vector3& result, Ogre::v1::Entity* & target, float& closest_distance, const Ogre::uint32 queryMask = 0xFFFFFFFF);
 
     bool raycast(const Ogre::Ray& ray, Ogre::Vector3& result, Ogre::MovableObject* & target, float& closest_distance, const Ogre::uint32 queryMask = 0xFFFFFFFF);
-    // convenience wrapper with Ogre::Entity to it:
-    bool raycast(const Ogre::Ray& ray, Ogre::Vector3& result, Ogre::Entity* & target, float& closest_distance, const Ogre::uint32 queryMask = 0xFFFFFFFF);
+    // convenience wrapper with Ogre::v1::Entity to it:
+    bool raycast(const Ogre::Ray& ray, Ogre::Vector3& result, Ogre::v1::Entity* & target, float& closest_distance, const Ogre::uint32 queryMask = 0xFFFFFFFF);
 
     void setHeightAdjust(const float heightadjust);
     float getHeightAdjust(void);

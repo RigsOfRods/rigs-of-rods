@@ -32,50 +32,23 @@
 #include "utf8/checked.h"
 #include "utf8/unchecked.h"
 
-#include <MyGUI.h>
+
 #include <OgreUTFString.h>
 
 Ogre::String sha1sum(const char *key, int len);
 
 Ogre::String HashData(const char *key, int len);
 
-Ogre::UTFString tryConvertUTF(const char* buffer);
+Ogre::v1::DisplayString tryConvertUTF(const char* buffer);
 
-Ogre::UTFString formatBytes(double bytes);
+Ogre::v1::DisplayString formatBytes(double bytes);
 
 std::time_t getTimeStamp();
 
 Ogre::String getVersionString(bool multiline = true);
 
 std::wstring ANSI_TO_WCHAR(const Ogre::String source);
-Ogre::UTFString ANSI_TO_UTF(const Ogre::String source);
-
-void trimUTFString(Ogre::UTFString& str, bool left = true, bool right = true);
-
-inline MyGUI::UString convertToMyGUIString(char* charstr)
-{
-    return MyGUI::UString(ANSI_TO_WCHAR(charstr));
-}
-
-inline MyGUI::UString convertToMyGUIString(wchar_t* charstr, int len)
-{
-    return MyGUI::UString(charstr, len);
-}
-
-inline MyGUI::UString convertToMyGUIString(std::wstring str)
-{
-    return MyGUI::UString(str);
-}
-
-inline MyGUI::UString convertToMyGUIString(Ogre::UTFString str)
-{
-    return MyGUI::UString(str.asWStr());
-}
-
-inline Ogre::UTFString convertFromMyGUIString(MyGUI::UString str)
-{
-    return Ogre::UTFString(str.asWStr());
-}
+Ogre::v1::DisplayString ANSI_TO_UTF(const Ogre::String source);
 
 inline void replaceString(std::string& str, std::string searchString, std::string replaceString)
 {
@@ -99,11 +72,11 @@ std::string SanitizeUtf8CString(const char* start, const char* end = nullptr);
 }
 
 namespace Color {
-const Ogre::UTFString CommandColour = Ogre::UTFString("#00FF00");
-const Ogre::UTFString WarningColour = Ogre::UTFString("#FF0000");
-const Ogre::UTFString NormalColour = Ogre::UTFString("#FFFFFF");
-const Ogre::UTFString WhisperColour = Ogre::UTFString("#FFCC00");
-const Ogre::UTFString ScriptCommandColour = Ogre::UTFString("#0099FF");
+const Ogre::v1::DisplayString CommandColour = Ogre::v1::DisplayString("#00FF00");
+const Ogre::v1::DisplayString WarningColour = Ogre::v1::DisplayString("#FF0000");
+const Ogre::v1::DisplayString NormalColour = Ogre::v1::DisplayString("#FFFFFF");
+const Ogre::v1::DisplayString WhisperColour = Ogre::v1::DisplayString("#FFCC00");
+const Ogre::v1::DisplayString ScriptCommandColour = Ogre::v1::DisplayString("#0099FF");
 }
 
 /// @author http://www.ogre3d.org/forums/viewtopic.php?p=463232#p463232

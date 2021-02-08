@@ -25,7 +25,6 @@
 #include "SimData.h"
 #include "CmdKeyInertia.h"
 #include "GfxActor.h"
-#include "MovableText.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
 #include "TyrePressure.h"
@@ -433,7 +432,7 @@ private:
     Ogre::String                       m_section_config;
     std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this actor
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
-    std::vector<Ogre::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.
+    std::vector<Ogre::v1::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::SceneNode*>      m_deletion_scene_nodes; //!< For unloading vehicle; filled at spawn.
     int               m_proped_wheel_pairs[MAX_WHEELS];    //!< Physics attr; For inter-differential locking
     int               m_num_proped_wheels;          //!< Physics attr, filled at spawn - Number of propelled wheels.
@@ -454,9 +453,9 @@ private:
     Ogre::Vector3     m_mouse_grab_pos;
     float             m_mouse_grab_move_force;
     float             m_spawn_rotation;
-    MovableText*      m_net_label_mt;
+
     Ogre::SceneNode*  m_net_label_node;
-    Ogre::UTFString   m_net_username;
+    Ogre::v1::DisplayString   m_net_username;
     Ogre::Timer       m_reset_timer;
     float             m_custom_light_toggle_countdown; //!< Input system helper status
     Ogre::Vector3     m_rotation_request_center;

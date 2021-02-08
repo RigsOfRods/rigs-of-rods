@@ -37,76 +37,23 @@ set(SOURCE_FILES
         gfx/ColoredTextAreaOverlayElementFactory.h
         gfx/DecalManager.{h,cpp}
         gfx/DustPool.{h,cpp}
-        gfx/EnvironmentMap.{h,cpp}
         gfx/GfxActor.{h,cpp}
         gfx/GfxData.h
         gfx/GfxScene.{h,cpp}
-        gfx/HydraxWater.{h,cpp}
-        gfx/IWater.h
-        gfx/MovableText.{h,cpp}
-        gfx/Renderdash.{h,cpp}
         gfx/ShadowManager.{h,cpp}
         gfx/Skidmark.{h,cpp}
         gfx/SkyManager.{h,cpp}
-        gfx/SkyXManager.{h,cpp}
-        gfx/SurveyMapTextureCreator.{h,cpp}
-        gfx/Water.{h,cpp}
         gfx/camera/CameraManager.{h,cpp}
         gfx/camera/PerVehicleCameraContext.h
-        gfx/hydrax/CfgFileManager.{h,cpp}
-        gfx/hydrax/DecalsManager.{h,cpp}
-        gfx/hydrax/Enums.{h,cpp}
-        gfx/hydrax/FFT.{h,cpp}
-        gfx/hydrax/GodRaysManager.{h,cpp}
-        gfx/hydrax/GPUNormalMapManager.{h,cpp}
-        gfx/hydrax/Help.{h,cpp}
-        gfx/hydrax/Hydrax.{h,cpp}
-        gfx/hydrax/Image.{h,cpp}
-        gfx/hydrax/MaterialManager.{h,cpp}
-        gfx/hydrax/Mesh.{h,cpp}
-        gfx/hydrax/Module.{h,cpp}
-        gfx/hydrax/Noise.{h,cpp}
-        gfx/hydrax/Perlin.{h,cpp}
-        gfx/hydrax/Prerequisites.{h,cpp}
-        gfx/hydrax/PressurePoint.{h,cpp}
-        gfx/hydrax/ProjectedGrid.{h,cpp}
-        gfx/hydrax/RadialGrid.{h,cpp}
-        gfx/hydrax/Real.{h,cpp}
-        gfx/hydrax/RttManager.{h,cpp}
-        gfx/hydrax/SimpleGrid.{h,cpp}
-        gfx/hydrax/TextureManager.{h,cpp}
-        gfx/hydrax/Wave.{h,cpp}
         gfx/particle/ExtinguishableFireAffector.{h,cpp}
         gfx/particle/ExtinguishableFireAffectorFactory.h
         gfx/particle/FireExtinguisherAffector.{h,cpp}
         gfx/particle/FireExtinguisherAffectorFactory.h
         gfx/particle/OgreParticleCustomParam.h
-        gfx/particle/OgreShaderParticleRenderer.{h,cpp}
-        gfx/skyx/AtmosphereManager.{h,cpp}
-        gfx/skyx/BasicController.{h,cpp}
-        gfx/skyx/CloudsManager.{h,cpp}
-        gfx/skyx/ColorGradient.{h,cpp}
-        gfx/skyx/Controller.h
-        gfx/skyx/GPUManager.{h,cpp}
-        gfx/skyx/MeshManager.{h,cpp}
-        gfx/skyx/MoonManager.{h,cpp}
-        gfx/skyx/Prerequisites.{h,cpp}
-        gfx/skyx/SCfgFileManager.{h,cpp}
-        gfx/skyx/SkyX.{h,cpp}
-        gfx/skyx/VCloudsManager.{h,cpp}
-        gfx/skyx/VClouds/DataManager.{h,cpp}
-        gfx/skyx/VClouds/Ellipsoid.{h,cpp}
-        gfx/skyx/VClouds/FastFakeRandom.{h,cpp}
-        gfx/skyx/VClouds/GeometryBlock.{h,cpp}
-        gfx/skyx/VClouds/GeometryManager.{h,cpp}
-        gfx/skyx/VClouds/Lightning.{h,cpp}
-        gfx/skyx/VClouds/LightningManager.{h,cpp}
-        gfx/skyx/VClouds/VClouds.{h,cpp}
         gui/DashBoardManager.{h,cpp}
         gui/GUIManager.{h,cpp}
         gui/GUIUtils.{h,cpp}
         gui/OverlayWrapper.{h,cpp}
-        gui/RTTLayer.{h,cpp}
         gui/imgui/imgui.{h,cpp}
         gui/imgui/imgui_demo.cpp
         gui/imgui/imgui_draw.cpp
@@ -118,11 +65,6 @@ set(SOURCE_FILES
         gui/imgui/imstb_rectpack.h
         gui/imgui/imstb_textedit.h
         gui/imgui/imstb_truetype.h
-        gui/mygui/Attribute.h
-        gui/mygui/BaseLayout.h
-        gui/mygui/Dialog.{h,cpp}
-        gui/mygui/GuiPanelBase.h
-        gui/mygui/WrapsAttribute.h
         gui/panels/GUI_ConsoleView.{h,cpp}
         gui/panels/GUI_ConsoleWindow.{h,cpp}
         gui/panels/GUI_DirectionArrow.{h,cpp}
@@ -171,14 +113,7 @@ set(SOURCE_FILES
         physics/collision/DynamicCollisions.{h,cpp}
         physics/collision/PointColDetector.{h,cpp}
         physics/collision/Triangle.h
-        physics/flex/Flexable.h
         physics/flex/FlexAirfoil.{h,cpp}
-        physics/flex/FlexBody.{h,cpp}
-        physics/flex/FlexFactory.{h,cpp}
-        physics/flex/FlexMesh.{h,cpp}
-        physics/flex/FlexMeshWheel.{h,cpp}
-        physics/flex/FlexObj.{h,cpp}
-        physics/flex/Locator_t.h
         physics/water/Buoyance.{h,cpp}
         physics/water/ScrewProp.{h,cpp}
         resources/CacheSystem.{h,cpp}
@@ -201,9 +136,7 @@ set(SOURCE_FILES
         system/Console.{h,cpp}
         system/ConsoleCmd.{h,cpp}
         system/CVar.{h,cpp}
-        terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
         terrain/TerrainEditor.{h,cpp}
-        terrain/TerrainGeometryManager.{h,cpp}
         terrain/TerrainManager.{h,cpp}
         terrain/TerrainObjectManager.{h,cpp}
         threadpool/ThreadPool.h
@@ -300,7 +233,6 @@ target_include_directories(${BINNAME} PRIVATE
         gameplay
         gfx
         gfx/camera
-        gfx/hydrax
         gfx/particle
         gfx/procedural
         gfx/skyx
@@ -358,8 +290,6 @@ target_include_directories(${BINNAME} PRIVATE
 
 #  REQUIRED DEPENDENCIES
 # -----------------------
-
-include("${CMAKE_SOURCE_DIR}/external/pagedgeometry.cmake")
 
 if (UNIX)
     #  include_directories(${GTK_INCLUDE_DIRS})
@@ -419,22 +349,12 @@ if (USE_PACKAGE_MANAGER)
     endif ()
 
 else (USE_PACKAGE_MANAGER) 
-    target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator)
+    target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreOverlay OgreMeshLodGenerator)
 
     target_link_libraries(${BINNAME} PRIVATE fmt::fmt)
     
     target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
     target_include_directories(${BINNAME} PRIVATE ${OIS_INCLUDE_DIRS})
-
-    include_directories(${MYGUI_INCLUDE_DIRS})
-    target_link_libraries(${BINNAME} PRIVATE
-            MyGUI::MyGUI
-            MyGUI::OgrePlatform
-            )
-    target_compile_definitions(${BINNAME} PRIVATE
-            USE_MYGUI
-            $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
-            )
 
     if (OPENAL_FOUND)
         target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})

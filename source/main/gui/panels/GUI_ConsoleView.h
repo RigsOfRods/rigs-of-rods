@@ -67,7 +67,7 @@ struct ConsoleView
 private:
     bool   MessageFilter(Console::Message const& m); //!< Returns true if message should be displayed
     /// Returns final text size
-    ImVec2 DrawColoredTextWithIcon(ImVec2 text_cursor, Ogre::TexturePtr icon, ImVec4 default_color, std::string const& line);
+    ImVec2 DrawColoredTextWithIcon(ImVec2 text_cursor, Ogre::TextureGpu* icon, ImVec4 default_color, std::string const& line);
     int    UpdateMessages(); //!< Ret. num of new message(s)
     ImVec2 DrawMessage(ImVec2 cursor, Console::Message const& m);
 

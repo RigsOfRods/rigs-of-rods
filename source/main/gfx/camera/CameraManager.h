@@ -132,7 +132,7 @@ protected:
     // Character cam attributes
     bool                 m_charactercam_is_3rdperson;
     // Spline cam attributes
-    Ogre::ManualObject*  m_splinecam_mo;
+    Ogre::v1::ManualObject*  m_splinecam_mo;
     Ogre::SimpleSpline*  m_splinecam_spline;
     Ogre::Real           m_splinecam_spline_len;
     Ogre::Real           m_splinecam_spline_pos;

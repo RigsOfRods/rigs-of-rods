@@ -22,10 +22,12 @@
 #pragma once
 
 #include <Ogre.h>
+#include <OgreOverlayElement.h>
 #include <OgrePrerequisites.h>
-#include <Bites/OgreWindowEventUtilities.h>
+#include <OgreWindow.h>
+#include <OgreWindowEventUtilities.h>
+#include <Compositor/OgreCompositorManager2.h>
 #include <OIS.h>
-#include <MyGUI.h>
 #include <imgui.h>
 #include <rapidjson/rapidjson.h>
 

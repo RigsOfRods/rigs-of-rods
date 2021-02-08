@@ -53,13 +53,13 @@ public:
     Ogre::Vector3      getMaxTerrainSize();
     Collisions*        GetCollisions()               { return m_collisions; };
     TerrainEditor*     GetTerrainEditor()            { return &m_terrain_editor; }
-    IWater*            getWater()                    { return m_water.get(); };
+
     Ogre::Light*       getMainLight()                { return m_main_light; };
     Ogre::Vector3      getSpawnPos()                 { return m_def.start_position; };
     RoR::Terrn2Def&    GetDef()                      { return m_def; }
-    HydraxWater*       getHydraxManager()            { return m_hydrax_water; }
+
     SkyManager*        getSkyManager();
-    SkyXManager*       getSkyXManager()              { return SkyX_manager; };
+
     ShadowManager*     getShadowManager()            { return m_shadow_manager; };
     bool               isFlat();
     void               LoadTelepoints();
@@ -73,7 +73,6 @@ public:
 
 private:
 
-    SkyXManager *SkyX_manager;
     // internal methods
     void initCamera();
     void initTerrainCollisions();
@@ -96,7 +95,7 @@ private:
     Collisions*    m_collisions;
     ShadowManager* m_shadow_manager;
     SkyManager*    m_sky_manager;
-    HydraxWater*   m_hydrax_water;
+
     Ogre::Light*   m_main_light;
     RoR::Terrn2Def m_def;
     float          m_cur_gravity;

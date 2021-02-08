@@ -26,8 +26,8 @@
 #include "ForwardDeclarations.h"
 
 #include <Ogre.h>
-#include <Overlay/OgreOverlay.h>
-#include <Overlay/OgreTextAreaOverlayElement.h>
+#include <OgreOverlay.h>
+#include <OgreTextAreaOverlayElement.h>
 
 namespace RoR {
 namespace GUI {
@@ -43,7 +43,7 @@ public:
 
 private:
     Ogre::SceneNode*              m_node = nullptr;
-    Ogre::Overlay*                m_overlay = nullptr;
+    Ogre::v1::Overlay*                m_overlay = nullptr;
     Ogre::TextAreaOverlayElement* m_text = nullptr;
     Ogre::TextAreaOverlayElement* m_distance_text = nullptr;
 };

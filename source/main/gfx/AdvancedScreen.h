@@ -32,6 +32,8 @@
 #define CLEAR_LSB(var)      ((var) &= ~1)
 #define CHECK_BIT(var,pos)  ((var) & (1<<(pos)))
 
+/* TODO OGRE2x
+
 void save(Ogre::uchar* data, Ogre::uchar* databuf, int mWidth, int mHeight, Ogre::PixelFormat pf, Ogre::String filename)
 {
     Ogre::Image img;
@@ -48,7 +50,7 @@ class AdvancedScreen : public ZeroedMemoryAllocator
 {
 public:
 
-    AdvancedScreen(Ogre::RenderWindow* win, Ogre::String filename) :
+    AdvancedScreen(Ogre::Window* win, Ogre::String filename) :
         win(win)
         , filename(filename)
     {
@@ -122,7 +124,9 @@ public:
 
 protected:
 
-    Ogre::RenderWindow* win;
+    Ogre::Window* win;
     Ogre::String filename;
     std::map<Ogre::String, Ogre::String> map;
 };
+
+*/

@@ -33,7 +33,7 @@
 // #define NOLANG            = no language translations at all, removes any special parsing tags
 // #define USE_MOFILEREADER  = windows gettext replacement
 
-# define U(str) Ogre::UTFString(L##str)
+# define U(str) Ogre::v1::DisplayString(L##str)
 
 // using mofilereader as gettext replacement
 #include <moFileReader.hpp>

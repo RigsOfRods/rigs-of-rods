@@ -42,14 +42,11 @@
 #include "CameraManager.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
+#include "ContentManager.h"
 #include "DashBoardManager.h"
 #include "Differentials.h"
 #include "EngineSim.h"
 #include "FlexAirfoil.h"
-#include "FlexBody.h"
-#include "FlexMesh.h"
-#include "FlexMeshWheel.h"
-#include "FlexObj.h"
 #include "GameContext.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
@@ -57,7 +54,7 @@
 #include "InputEngine.h"
 #include "MeshObject.h"
 #include "PointColDetector.h"
-#include "Renderdash.h"
+
 #include "ScrewProp.h"
 #include "Skidmark.h"
 #include "SkinFileFormat.h"
@@ -75,6 +72,7 @@
 #include <OgreMovableObject.h>
 #include <OgreParticleSystem.h>
 #include <OgreEntity.h>
+#include <OgreTextureGpuManager.h>
 #include <climits>
 
 const char* ACTOR_ID_TOKEN = "@Actor_"; // Appended to material name, followed by actor ID (aka 'trucknum')
@@ -359,9 +357,9 @@ void ActorSpawner::InitializeRig()
 
     m_actor->m_definition = m_file;
 
-    m_flex_factory = RoR::FlexFactory(this);
 
-    m_flex_factory.CheckAndLoadFlexbodyCache();
+
+
 
     m_placeholder_managedmat = Ogre::MaterialManager::getSingleton().getByName("rigsofrods/managedmaterial-placeholder"); // Built-in
 
@@ -582,7 +580,7 @@ void ActorSpawner::FinalizeRig()
 
     this->UpdateCollcabContacterNodes();
 
-    m_flex_factory.SaveFlexbodiesToCache();
+
 
     m_actor->GetGfxActor()->SortFlexbodies();
 }
@@ -647,14 +645,14 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     Turbojet *tj = new Turbojet(m_actor, front, back, ref, def);
 
     // Visuals
-    std::string nozzle_name = this->ComposeName("TurbojetNozzle", m_actor->ar_num_aeroengines);
-    Ogre::Entity* nozzle_ent = App::GetGfxScene()->GetSceneManager()->createEntity(nozzle_name, "nozzle.mesh", m_custom_resource_group);
+
+    Ogre::v1::Entity* nozzle_ent = App::GetGfxScene()->GetSceneManager()->createEntity("nozzle.mesh", m_custom_resource_group);
     this->SetupNewEntity(nozzle_ent, Ogre::ColourValue(1, 0.5, 0.5));
-    Ogre::Entity* afterburn_ent = nullptr;
+    Ogre::v1::Entity* afterburn_ent = nullptr;
     if (def.wet_thrust > 0.f)
     {
-        std::string flame_name = this->ComposeName("AfterburnerFlame", m_actor->ar_num_aeroengines);
-        afterburn_ent = App::GetGfxScene()->GetSceneManager()->createEntity(flame_name, "abflame.mesh", m_custom_resource_group);
+
+        afterburn_ent = App::GetGfxScene()->GetSceneManager()->createEntity("abflame.mesh", m_custom_resource_group);
         this->SetupNewEntity(afterburn_ent, Ogre::ColourValue(1, 1, 0));
     }
     std::string propname = this->ComposeName("Turbojet", m_actor->ar_num_aeroengines);
@@ -917,7 +915,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
         m_actor->ar_sim_state != Actor::SimState::NETWORKED_OK
     );
 
-    Ogre::Entity* entity = nullptr;
+    Ogre::v1::Entity* entity = nullptr;
     try
     {
         const std::string wing_instance_name = this->ComposeName("WingEntity", m_actor->ar_num_wings);
@@ -975,12 +973,12 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_green_prop.pp_beacon_light[0]=nullptr; //no light
                 //the flare billboard
                 left_green_prop.pp_beacon_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                left_green_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_props.size())+1),1);
+                left_green_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
                 left_green_prop.pp_beacon_bbs[0]->createBillboard(0,0,0);
                 if (left_green_prop.pp_beacon_bbs[0])
                 {
                     left_green_prop.pp_beacon_bbs[0]->setVisibilityFlags(DEPTHMAP_DISABLED);
-                    left_green_prop.pp_beacon_bbs[0]->setMaterialName("tracks/greenflare");
+                    left_green_prop.pp_beacon_bbs[0]->setMaterialName("tracks/greenflare", RoR::ContentManager::ResourcePack::MATERIALS.resource_group_name);
                     left_green_prop.pp_beacon_scene_node[0]->attachObject(left_green_prop.pp_beacon_bbs[0]);
                 }
                 left_green_prop.pp_beacon_scene_node[0]->setVisible(false);
@@ -1000,8 +998,8 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_flash_prop.pp_beacon_rot_rate[0]=1.0;
                 left_flash_prop.pp_beacon_type='w';
                 //light
-                std::string prop_name = this->ComposeName("Prop", static_cast<int>(m_props.size())+1);
-                left_flash_prop.pp_beacon_light[0]=App::GetGfxScene()->GetSceneManager()->createLight(prop_name);
+
+                left_flash_prop.pp_beacon_light[0]=App::GetGfxScene()->GetSceneManager()->createLight();
                 left_flash_prop.pp_beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 left_flash_prop.pp_beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
                 left_flash_prop.pp_beacon_light[0]->setSpecularColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1010,12 +1008,12 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_flash_prop.pp_beacon_light[0]->setVisible(false);
                 //the flare billboard
                 left_flash_prop.pp_beacon_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                left_flash_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(prop_name,1);
+                left_flash_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
                 left_flash_prop.pp_beacon_bbs[0]->createBillboard(0,0,0);
                 if (left_flash_prop.pp_beacon_bbs[0])
                 {
                     left_flash_prop.pp_beacon_bbs[0]->setVisibilityFlags(DEPTHMAP_DISABLED);
-                    left_flash_prop.pp_beacon_bbs[0]->setMaterialName("tracks/flare");
+                    left_flash_prop.pp_beacon_bbs[0]->setMaterialName("tracks/flare", RoR::ContentManager::ResourcePack::MATERIALS.resource_group_name);
                     left_flash_prop.pp_beacon_scene_node[0]->attachObject(left_flash_prop.pp_beacon_bbs[0]);
                 }
                 left_flash_prop.pp_beacon_scene_node[0]->setVisible(false);
@@ -1039,12 +1037,12 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_red_prop.pp_beacon_light[0]=nullptr; /* No light */
                 //the flare billboard
                 right_red_prop.pp_beacon_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                right_red_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_props.size())+1),1);
+                right_red_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
                 right_red_prop.pp_beacon_bbs[0]->createBillboard(0,0,0);
                 if (right_red_prop.pp_beacon_bbs[0])
                 {
                     right_red_prop.pp_beacon_bbs[0]->setVisibilityFlags(DEPTHMAP_DISABLED);
-                    right_red_prop.pp_beacon_bbs[0]->setMaterialName("tracks/redflare");
+                    right_red_prop.pp_beacon_bbs[0]->setMaterialName("tracks/redflare", RoR::ContentManager::ResourcePack::MATERIALS.resource_group_name);
                     right_red_prop.pp_beacon_scene_node[0]->attachObject(right_red_prop.pp_beacon_bbs[0]);
                 }
                 right_red_prop.pp_beacon_scene_node[0]->setVisible(false);
@@ -1064,8 +1062,8 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.pp_beacon_rot_rate[0]=1.0;
                 right_flash_prop.pp_beacon_type='w';
                 //light
-                prop_name = this->ComposeName("Prop", static_cast<int>(m_props.size())+1);
-                right_flash_prop.pp_beacon_light[0]=App::GetGfxScene()->GetSceneManager()->createLight(prop_name);
+
+                right_flash_prop.pp_beacon_light[0]=App::GetGfxScene()->GetSceneManager()->createLight();
                 right_flash_prop.pp_beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 right_flash_prop.pp_beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
                 right_flash_prop.pp_beacon_light[0]->setSpecularColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1074,12 +1072,12 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.pp_beacon_light[0]->setVisible(false);
                 //the flare billboard
                 right_flash_prop.pp_beacon_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                right_flash_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(prop_name,1);
+                right_flash_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
                 right_flash_prop.pp_beacon_bbs[0]->createBillboard(0,0,0);
                 if (right_flash_prop.pp_beacon_bbs[0] != nullptr)
                 {
                     right_flash_prop.pp_beacon_bbs[0]->setVisibilityFlags(DEPTHMAP_DISABLED);
-                    right_flash_prop.pp_beacon_bbs[0]->setMaterialName("tracks/flare");
+                    right_flash_prop.pp_beacon_bbs[0]->setMaterialName("tracks/flare", RoR::ContentManager::ResourcePack::MATERIALS.resource_group_name);
                     right_flash_prop.pp_beacon_scene_node[0]->attachObject(right_flash_prop.pp_beacon_bbs[0]);
                 }
                 right_flash_prop.pp_beacon_scene_node[0]->setVisible(false);
@@ -1292,20 +1290,7 @@ void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
 
     /* TEXCOORDS */
 
-    std::vector<RigDef::Texcoord>::iterator texcoord_itor = def.texcoords.begin();
-    for ( ; texcoord_itor != def.texcoords.end(); texcoord_itor++)
-    {
-        if (! CheckTexcoordLimit(1))
-        {
-            break;
-        }
-
-        CabTexcoord texcoord;
-        texcoord.node_id    = GetNodeIndexOrThrow(texcoord_itor->node);
-        texcoord.texcoord_u = texcoord_itor->u;
-        texcoord.texcoord_v = texcoord_itor->v;
-        m_oldstyle_cab_texcoords.push_back(texcoord);
-    }
+//TODO OGRE2x
 
     /* CAB */
 
@@ -1398,71 +1383,11 @@ void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
     }
 
     //close the current mesh
-    CabSubmesh submesh;
-    submesh.texcoords_pos = m_oldstyle_cab_texcoords.size();
-    submesh.cabs_pos = static_cast<unsigned int>(m_actor->ar_num_cabs);
-    submesh.backmesh_type = CabSubmesh::BACKMESH_NONE;
-    m_oldstyle_cab_submeshes.push_back(submesh);
+ //TODO OGRE2x
 
     /* BACKMESH */
 
-    if (def.backmesh)
-    {
-
-        // Check limit
-        if (! CheckCabLimit(1))
-        {
-            return;
-        }
-
-        // === add an extra front mesh ===
-        //texcoords
-        int uv_start = (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->texcoords_pos);
-        for (size_t i=uv_start; i<m_oldstyle_cab_submeshes.back().texcoords_pos; i++)
-        {
-            m_oldstyle_cab_texcoords.push_back(m_oldstyle_cab_texcoords[i]);
-        }
-        //cab
-        int cab_start =  (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->cabs_pos);
-        for (size_t i=cab_start; i<m_oldstyle_cab_submeshes.back().cabs_pos; i++)
-        {
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3]=m_actor->ar_cabs[i*3];
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3+1]=m_actor->ar_cabs[i*3+1];
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3+2]=m_actor->ar_cabs[i*3+2];
-            m_actor->ar_num_cabs++;
-        }
-        // Finalize
-        CabSubmesh submesh;
-        submesh.backmesh_type = CabSubmesh::BACKMESH_TRANSPARENT;
-        submesh.texcoords_pos = m_oldstyle_cab_texcoords.size();
-        submesh.cabs_pos      = static_cast<unsigned int>(m_actor->ar_num_cabs);
-        m_oldstyle_cab_submeshes.push_back(submesh);
-
-        // === add an extra back mesh ===
-        //texcoords
-        uv_start = (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->texcoords_pos);
-        for (size_t i=uv_start; i<m_oldstyle_cab_submeshes.back().texcoords_pos; i++)
-        {
-            m_oldstyle_cab_texcoords.push_back(m_oldstyle_cab_texcoords[i]);
-        }
-
-        //cab
-        cab_start =  (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->cabs_pos);
-        for (size_t i=cab_start; i<m_oldstyle_cab_submeshes.back().cabs_pos; i++)
-        {
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3]=m_actor->ar_cabs[i*3+1];
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3+1]=m_actor->ar_cabs[i*3];
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3+2]=m_actor->ar_cabs[i*3+2];
-            m_actor->ar_num_cabs++;
-        }
-    
-        //close the current mesh
-        CabSubmesh submesh2;
-        submesh2.texcoords_pos = m_oldstyle_cab_texcoords.size();
-        submesh2.cabs_pos = static_cast<unsigned int>(m_actor->ar_num_cabs);
-        submesh2.backmesh_type = CabSubmesh::BACKMESH_OPAQUE;
-        m_oldstyle_cab_submeshes.push_back(submesh2);
-    }
+//TODO OGRE2x
 }
 
 void ActorSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
@@ -1500,26 +1425,7 @@ void ActorSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
     rot=rot*Ogre::Quaternion(Ogre::Degree(def->rotation.y), Ogre::Vector3::UNIT_Y);
     rot=rot*Ogre::Quaternion(Ogre::Degree(def->rotation.x), Ogre::Vector3::UNIT_X);
 
-    try
-    {
-        auto* flexbody = m_flex_factory.CreateFlexBody(
-            def.get(), reference_node, x_axis_node, y_axis_node, rot, node_indices, m_custom_resource_group);
-
-        if (flexbody == nullptr)
-            return; // Error already logged
-
-        if (def->camera_settings.mode == RigDef::CameraSettings::MODE_CINECAM)
-            flexbody->setCameraMode(static_cast<int>(def->camera_settings.cinecam_index));
-        else
-            flexbody->setCameraMode(static_cast<int>(def->camera_settings.mode));
-
-        m_actor->GetGfxActor()->AddFlexbody(flexbody);
-    }
-    catch (Ogre::Exception& e)
-    {
-        this->AddMessage(Message::TYPE_ERROR, 
-            "Failed to create flexbody '" + def->mesh_name + "', reason:" + e.getFullDescription());
-    }
+// TODO OGRE2x
 }
 
 void ActorSpawner::ProcessProp(RigDef::Prop & def)
@@ -1650,7 +1556,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             if (flare_billboard_sys)
             {
                 flare_billboard_sys->createBillboard(0,0,0);
-                flare_billboard_sys->setMaterialName(def.special_prop_beacon.flare_material_name);
+                flare_billboard_sys->setMaterialName(def.special_prop_beacon.flare_material_name, m_custom_resource_group);
                 flare_billboard_sys->setVisibilityFlags(DEPTHMAP_DISABLED);
                 flare_scene_node->attachObject(flare_billboard_sys);
             }
@@ -1680,7 +1586,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             if (flare_billboard_sys)
             {
                 flare_billboard_sys->createBillboard(0,0,0);
-                flare_billboard_sys->setMaterialName("tracks/redbeaconflare");
+                flare_billboard_sys->setMaterialName("tracks/redbeaconflare", RoR::ContentManager::ResourcePack::MATERIALS.resource_group_name);
                 flare_billboard_sys->setVisibilityFlags(DEPTHMAP_DISABLED);
                 flare_billboard_sys->setDefaultDimensions(1.0, 1.0);
                 flare_scene_node->attachObject(flare_billboard_sys);
@@ -1727,11 +1633,11 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
                 {
                     if (k>1)
                     {
-                        prop.pp_beacon_bbs[k]->setMaterialName("tracks/brightredflare");
+                        prop.pp_beacon_bbs[k]->setMaterialName("tracks/brightredflare", RoR::ContentManager::ResourcePack::MATERIALS.resource_group_name);
                     }
                     else
                     {
-                        prop.pp_beacon_bbs[k]->setMaterialName("tracks/brightblueflare");
+                        prop.pp_beacon_bbs[k]->setMaterialName("tracks/brightblueflare", RoR::ContentManager::ResourcePack::MATERIALS.resource_group_name);
                     }
 
                     prop.pp_beacon_bbs[k]->setVisibilityFlags(DEPTHMAP_DISABLED);
@@ -2048,12 +1954,12 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
 
     /* Visuals */
     flare.snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-    std::string flare_name = this->ComposeName("Flare", static_cast<int>(m_actor->ar_flares.size()));
-    flare.bbs = App::GetGfxScene()->GetSceneManager()->createBillboardSet(flare_name, 1);
+
+    flare.bbs = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
     bool using_default_material = true;
     if (flare.bbs == nullptr)
     {
-        AddMessage(Message::TYPE_WARNING, "Failed to create flare: '" + flare_name + "', continuing without it (compatibility)...");
+        AddMessage(Message::TYPE_WARNING, "Failed to create flare, continuing without it (compatibility)...");
     }
     else
     {
@@ -2092,7 +1998,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
         if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && using_default_material )
         {
             /* front light */
-            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
+            flare.light=App::GetGfxScene()->GetSceneManager()->createLight();
             flare.light->setType(Ogre::Light::LT_SPOTLIGHT);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 1));
@@ -2106,28 +2012,28 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
         if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && ! using_default_material)
         {
             /* this is a quick fix for the red backlight when frontlight is switched on */
-            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
+            flare.light=App::GetGfxScene()->GetSceneManager()->createLight();
             flare.light->setDiffuseColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setAttenuation(10.0, 1.0, 0, 0);
         }
         else if (def.type == RigDef::Flare2::TYPE_R_REVERSE_LIGHT)
         {
-            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
+            flare.light=App::GetGfxScene()->GetSceneManager()->createLight();
             flare.light->setDiffuseColour(Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour(Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(20.0, 1, 0, 0);
         }
         else if (def.type == RigDef::Flare2::TYPE_b_BRAKELIGHT)
         {
-            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
+            flare.light=App::GetGfxScene()->GetSceneManager()->createLight();
             flare.light->setDiffuseColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setAttenuation(10.0, 1.0, 0, 0);
         }
         else if (def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER || (def.type == RigDef::Flare2::TYPE_r_RIGHT_BLINKER))
         {
-            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
+            flare.light=App::GetGfxScene()->GetSceneManager()->createLight();
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 0));
             flare.light->setAttenuation(10.0, 1, 1, 0);
@@ -2136,7 +2042,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
         else if (def.type == RigDef::Flare2::TYPE_u_USER)
         {
             /* user light always white (TODO: improve this) */
-            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
+            flare.light=App::GetGfxScene()->GetSceneManager()->createLight();
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(50.0, 1.0, 1, 0.2);
@@ -2333,18 +2239,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
     {
         if (def.options.double_sided)
         {
-            material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
-            if (def.HasSpecularMap())
-            {
-                if (App::gfx_classic_shaders->GetBool())
-                {
-                    material->getTechnique("BaseTechnique")->getPass("Specular")->setCullingMode(Ogre::CULL_NONE);
-                }
-                else
-                {
-                    material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
-                }
-            }
+           //TODO OGRE2x
         }
     }
 
@@ -4327,32 +4222,7 @@ void ActorSpawner::BuildMeshWheelVisuals(
     bool rim_reverse
 )
 {
-    try
-    {
-        FlexMeshWheel* flexmesh_wheel = m_flex_factory.CreateFlexMeshWheel(
-            wheel_index, 
-            axis_node_1_index,
-            axis_node_2_index,
-            base_node_index,
-            num_rays,
-            rim_radius,
-            rim_reverse,
-            mesh_name,
-            material_name);
-        Ogre::SceneNode* scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-        scene_node->attachObject(flexmesh_wheel->GetTireEntity());
-
-        WheelGfx visual_wheel;
-        visual_wheel.wx_is_meshwheel = false;
-        visual_wheel.wx_flex_mesh = flexmesh_wheel;
-        visual_wheel.wx_scenenode = scene_node;
-        m_actor->m_gfx_actor->SetWheelVisuals(wheel_index, visual_wheel);
-    }
-    catch (Ogre::Exception& e)
-    {
-        this->AddMessage(Message::TYPE_ERROR, "Failed to create meshwheel visuals, message: " + e.getFullDescription());
-        return;
-    }
+    //TODO OGRE2x
 }
 
 unsigned int ActorSpawner::BuildWheelObjectAndNodes( 
@@ -4841,37 +4711,7 @@ void ActorSpawner::CreateWheelVisuals(
 {
     wheel_t & wheel = m_actor->ar_wheels[wheel_index];
 
-    try
-    {
-        WheelGfx visual_wheel;
-
-        const std::string wheel_mesh_name = this->ComposeName("WheelMesh", wheel_index);
-        visual_wheel.wx_is_meshwheel = false;
-        visual_wheel.wx_flex_mesh = new FlexMesh(
-            wheel_mesh_name,
-            m_actor->m_gfx_actor.get(),
-            wheel.wh_axis_node_0->pos,
-            wheel.wh_axis_node_1->pos,
-            node_base_index,
-            num_rays,
-            rim_material_name,
-            band_material_name,
-            separate_rim,
-            rim_ratio
-        );
-
-        const std::string instance_name = this->ComposeName("WheelEntity", wheel_index);
-        Ogre::Entity *ec = App::GetGfxScene()->GetSceneManager()->createEntity(instance_name, wheel_mesh_name);
-        this->SetupNewEntity(ec, Ogre::ColourValue(0, 0.5, 0.5));
-        visual_wheel.wx_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-        m_actor->m_deletion_entities.emplace_back(ec);
-        visual_wheel.wx_scenenode->attachObject(ec);
-        m_actor->m_gfx_actor->SetWheelVisuals(wheel_index, visual_wheel);
-    }
-    catch (Ogre::Exception& e)
-    {
-        AddMessage(Message::TYPE_ERROR, "Failed to create wheel visuals: " +  e.getFullDescription());
-    }
+  //TODO OGRE2x
 }
 
 unsigned int ActorSpawner::AddWheelBeam(
@@ -5725,7 +5565,6 @@ void ActorSpawner::AddExhaust(
     exhaust.directionNode = direction_node_idx;
 
     exhaust.smoker = App::GetGfxScene()->GetSceneManager()->createParticleSystem(
-        this->ComposeName("Exhaust", static_cast<int>(m_actor->exhausts.size())),
         /*quota=*/500, // Default value
         m_custom_resource_group);
 
@@ -5871,25 +5710,13 @@ bool ActorSpawner::CheckAxleLimit(unsigned int count)
 
 bool ActorSpawner::CheckSubmeshLimit(unsigned int count)
 {
-    if ((m_oldstyle_cab_submeshes.size() + count) > MAX_SUBMESHES)
-    {
-        std::stringstream msg;
-        msg << "Submesh limit (" << MAX_SUBMESHES << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
+
     return true;
 }
 
 bool ActorSpawner::CheckTexcoordLimit(unsigned int count)
 {
-    if ((m_oldstyle_cab_texcoords.size() + count) > MAX_TEXCOORDS)
-    {
-        std::stringstream msg;
-        msg << "Texcoord limit (" << MAX_TEXCOORDS << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
+    
     return true;
 }
 
@@ -6353,27 +6180,20 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
         }
 
         // Finally, query texture replacements - .skin and builtins
-        for (auto& technique: lookup_entry.material->getTechniques())
+        auto tech_itr = lookup_entry.material->getTechniqueIterator();
+        while (tech_itr.hasMoreElements())
         {
-            for (auto& pass: technique->getPasses())
+            auto pass_itr = tech_itr.getNext()->getPassIterator();
+            while (pass_itr.hasMoreElements())
             {
-                for (auto& tex_unit: pass->getTextureUnitStates())
+                auto tus_itr = pass_itr.getNext()->getTextureUnitStateIterator();
+                while (tus_itr.hasMoreElements())
                 {
+                    Ogre::TextureUnitState* tex_unit = tus_itr.getNext();
                     // Built-ins
                     if (tex_unit->getTextureName() == "dashtexture")
                     {
-                        if (!m_oldstyle_renderdash)
-                        {
-                            // This is technically a bug, but does it matter at all? Let's watch ~ only_a_ptr, 05/2019
-                            std::stringstream msg;
-                            msg << "Warning: '" << mat_lookup_name
-                                << "' references 'dashtexture', but Renderdash isn't created yet! Texture will be blank.";
-                            this->AddMessage(Message::TYPE_WARNING, msg.str());
-                        }
-                        else
-                        {
-                            tex_unit->setTexture(m_oldstyle_renderdash->getTexture());
-                        }
+                        // TODO OGRE2x // 
                     }
                     // .skin
                     else if (m_actor->m_used_skin_entry != nullptr)
@@ -6388,16 +6208,15 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
                                 // Skin has replacement for this texture
                                 if (m_actor->m_used_skin_entry->resource_group != m_custom_resource_group) // The skin comes from a SkinZip bundle (different resource group)
                                 {
-                                    Ogre::TexturePtr tex = Ogre::TextureManager::getSingleton().getByName(
-                                        query->second, m_actor->m_used_skin_entry->resource_group);
-                                    if (tex.isNull())
+                                    Ogre::TextureGpuManager* mgr = Ogre::Root::getSingleton().getRenderSystem()->getTextureGpuManager();
+                                    Ogre::TextureGpu* tex = mgr->findTextureNoThrow(Ogre::IdString(query->second));
+                                    if (!tex)
                                     {
                                         // `Ogre::TextureManager` doesn't automatically register all images in resource groups,
                                         // it waits for `Ogre::Resource`s to be created explicitly.
                                         // Normally this is done by `Ogre::MaterialManager` when loading a material.
                                         // In this case we must do it manually
-                                        tex = Ogre::TextureManager::getSingleton().create(
-                                            query->second, m_actor->m_used_skin_entry->resource_group);
+                                        tex = mgr->createTexture(query->second, Ogre::GpuPageOutStrategy::Discard, 0, Ogre::TextureTypes::Type2D, m_actor->m_used_skin_entry->resource_group);
                                     }
                                     tex_unit->_setTexturePtr(tex, i);
                                 }
@@ -6438,7 +6257,7 @@ Ogre::MaterialPtr ActorSpawner::CreateSimpleMaterial(Ogre::ColourValue color)
     return newmat;
 }
 
-void ActorSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_color)
+void ActorSpawner::SetupNewEntity(Ogre::v1::Entity* ent, Ogre::ColourValue simple_color)
 {
     if (ent == nullptr)
     {
@@ -6455,7 +6274,7 @@ void ActorSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_co
         size_t num_sub_entities = ent->getNumSubEntities();
         for (size_t i = 0; i < num_sub_entities; i++)
         {
-            Ogre::SubEntity* subent = ent->getSubEntity(i);
+            Ogre::v1::SubEntity* subent = ent->getSubEntity(i);
             subent->setMaterial(mat);
         }
 
@@ -6466,11 +6285,11 @@ void ActorSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_co
     size_t subent_max = ent->getNumSubEntities();
     for (size_t i = 0; i < subent_max; ++i)
     {
-        Ogre::SubEntity* subent = ent->getSubEntity(i);
+        Ogre::v1::SubEntity* subent = ent->getSubEntity(i);
 
         if (!subent->getMaterial().isNull())
         {
-            Ogre::MaterialPtr own_mat = this->FindOrCreateCustomizedMaterial(subent->getMaterialName());
+            Ogre::MaterialPtr own_mat = this->FindOrCreateCustomizedMaterial(subent->getMaterial()->getName());
             if (!own_mat.isNull())
             {
                 subent->setMaterial(own_mat);
@@ -6617,113 +6436,7 @@ void ActorSpawner::FinalizeGfxSetup()
         m_actor->m_gfx_actor->AddRod(bv.beam_index, node1, node2, bv.material_name.c_str(), bv.visible, bv.diameter);
     }
 
-    //add the cab visual
-    // TODO: The 'cab mesh' functionality is a legacy quagmire, 
-    //        data are scattered across `Actor`, `GfxActor` and `FlexObj` - research and unify!! ~ only_a_ptr, 04/2018
-    if (!m_oldstyle_cab_texcoords.empty() && m_actor->ar_num_cabs>0)
-    {
-        //the cab materials are as follow:
-        //texname: base texture with emissive(2 pass) or without emissive if none available(1 pass), alpha cutting
-        //texname-trans: transparency texture (1 pass)
-        //texname-back: backface texture: black+alpha cutting (1 pass)
-        //texname-noem: base texture without emissive (1 pass), alpha cutting
 
-        //material passes must be:
-        //0: normal texture
-        //1: transparent (windows)
-        //2: emissive
-
-        Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(m_cab_material_name);
-        if (mat.isNull())
-        {
-            Ogre::String msg = "Material '"+m_cab_material_name+"' missing!";
-            AddMessage(Message::TYPE_ERROR, msg);
-            return;
-        }
-
-        //-trans
-        char transmatname[256];
-        static int trans_counter = 0;
-        sprintf(transmatname, "%s-trans-%d", m_cab_material_name.c_str(), trans_counter++);
-        Ogre::MaterialPtr transmat=mat->clone(transmatname);
-        if (mat->getTechnique(0)->getNumPasses()>1) // If there's the "emissive pass", remove it from the 'transmat'
-        {
-            transmat->getTechnique(0)->removePass(1);
-        }
-        transmat->getTechnique(0)->getPass(0)->setAlphaRejectSettings(Ogre::CMPF_LESS_EQUAL, 128);
-        transmat->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
-        if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates()>0)
-        {
-            transmat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
-        }
-        transmat->compile();
-        m_cab_trans_material = transmat;
-
-        //-back
-        char backmatname[256];
-        static int back_counter = 0;
-        sprintf(backmatname, "%s-back-%d", m_cab_material_name.c_str(), back_counter++);
-        Ogre::MaterialPtr backmat=mat->clone(backmatname);
-        if (mat->getTechnique(0)->getNumPasses()>1)// If there's the "emissive pass", remove it from the 'transmat'
-        {
-            backmat->getTechnique(0)->removePass(1);
-        }
-        if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates()>0)
-        {
-            backmat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setColourOperationEx(
-                Ogre::LBX_SOURCE1, 
-                Ogre::LBS_MANUAL, 
-                Ogre::LBS_MANUAL, 
-                Ogre::ColourValue(0,0,0),
-                Ogre::ColourValue(0,0,0)
-            );
-        }
-        if (App::gfx_reduce_shadows->GetBool())
-        {
-            backmat->setReceiveShadows(false);
-        }
-        backmat->compile();
-
-        char cab_material_name_cstr[1000] = {};
-        strncpy(cab_material_name_cstr, m_cab_material_name.c_str(), 999);
-        std::string mesh_name = this->ComposeName("VehicleCabMesh", 0);
-        FlexObj* cab_mesh =new FlexObj(
-            m_actor->m_gfx_actor.get(),
-            m_actor->ar_nodes,
-            m_oldstyle_cab_texcoords,
-            m_actor->ar_num_cabs,
-            m_actor->ar_cabs,
-            m_oldstyle_cab_submeshes,
-            cab_material_name_cstr,
-            mesh_name.c_str(),
-            backmatname,
-            transmatname
-        );
-
-        Ogre::SceneNode* cab_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-        Ogre::Entity *ec = nullptr;
-        try
-        {
-            ec = App::GetGfxScene()->GetSceneManager()->createEntity(this->ComposeName("VehicleCabEntity", 0), mesh_name);
-            this->SetupNewEntity(ec, Ogre::ColourValue(0.5, 1, 0.5));
-            if (ec)
-            {
-                cab_scene_node->attachObject(ec);
-            }
-
-            // Process "emissive cab" materials
-            auto search_itor = m_material_substitutions.find(m_cab_material_name);
-            m_actor->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
-            m_actor->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
-
-            m_actor->GetGfxActor()->RegisterCabMesh(ec, cab_scene_node, cab_mesh);
-        }
-        catch (...)
-        {
-            this->AddMessage(Message::TYPE_ERROR, "error loading mesh: "+mesh_name);
-            // TODO: do not leak memory here! ~ 08/2018
-        }
-    };
 
     // Process wheel visuals
     for (WheelVisualsTicket& ticket: m_wheel_visuals_queue)
@@ -6792,30 +6505,7 @@ void ActorSpawner::FinalizeGfxSetup()
             flexbody_def.mesh_name = def.tyre_mesh_name;
             flexbody_def.offset = Ogre::Vector3(0.5,0,0);
 
-            try
-            {
-                auto* flexbody = m_flex_factory.CreateFlexBody(
-                    &flexbody_def,
-                    ticket.axis_node_1,
-                    ticket.axis_node_2,
-                    static_cast<int>(ticket.base_node_index),
-                    Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
-                    node_indices,
-                    m_custom_resource_group
-                    );
 
-                if (flexbody == nullptr)
-                    return; // Error already logged
-
-                this->CreateWheelSkidmarks(static_cast<unsigned>(ticket.wheel_index));
-
-                m_actor->GetGfxActor()->AddFlexbody(flexbody);
-            }
-            catch (Ogre::Exception& e)
-            {
-                this->AddMessage(Message::TYPE_ERROR, 
-                    "Failed to create flexbodywheel visuals '" + def.tyre_mesh_name + "', reason:" + e.getFullDescription());
-            }
         }
     }
 
@@ -6835,9 +6525,9 @@ void ActorSpawner::FinalizeGfxSetup()
                 mat->getTechnique(0)->getPass(0)->getNumTextureUnitStates() > 0 &&
                 mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getNumFrames() > 0)
             {
-                m_actor->GetGfxActor()->GetAttributes().xa_help_tex =
-                    Ogre::TextureManager::getSingleton().getByName(
-                        mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getFrameTextureName(0), m_custom_resource_group);
+  //TODO OGRE2x              m_actor->GetGfxActor()->GetAttributes().xa_help_tex =
+  //TODO OGRE2x                  Ogre::TextureManager::getSingleton().getByName(
+  //TODO OGRE2x                      mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getFrameTextureName(0), m_custom_resource_group);
             }
         }
         catch (Ogre::Exception& e)
@@ -6866,8 +6556,8 @@ void ActorSpawner::ValidateRotator(int id, int axis1, int axis2, int *nodes1, in
     if ((std::max(a1len, a3len) / std::min(a1len, a3len) > 1.f + eps) ||
         (std::max(a2len, a4len) / std::min(a2len, a4len) > 1.f + eps))
     {
-        Ogre::String msg = Ogre::StringUtil::format("Off-centered axis on base plate of rotator %d", id);
-        AddMessage(Message::TYPE_WARNING, msg);	
+        Str<100> msg; msg << "Off-centered axis on base plate of rotator %d"<< id;
+        AddMessage(Message::TYPE_WARNING, msg.ToCStr());	
     }
 
     Ogre::Vector3 b1 = pl.projectVector(ax2 - m_actor->ar_nodes[nodes2[0]].AbsPosition);
@@ -6881,8 +6571,8 @@ void ActorSpawner::ValidateRotator(int id, int axis1, int axis2, int *nodes1, in
     if ((std::max(b1len, b3len) / std::min(b1len, b3len) > 1.f + eps) ||
         (std::max(b2len, b4len) / std::min(b2len, b4len) > 1.f + eps))
     {
-        Ogre::String msg = Ogre::StringUtil::format("Off-centered axis on rotating plate of rotator %d", id);
-        AddMessage(Message::TYPE_WARNING, msg);	
+        Str<100> msg; msg << "Off-centered axis on rotating plate of rotator %d"<< id;
+        AddMessage(Message::TYPE_WARNING, msg.ToCStr());	
     }
 
     float rot1 = a1.dotProduct(b1);
@@ -6894,12 +6584,12 @@ void ActorSpawner::ValidateRotator(int id, int axis1, int axis2, int *nodes1, in
         (std::max(rot3, rot4) / std::min(rot3, rot4) > 1.f + eps) ||
         (std::max(rot4, rot1) / std::min(rot4, rot1) > 1.f + eps))
     {
-        Ogre::String msg = Ogre::StringUtil::format("Misaligned plates on rotator %d", id);
-        AddMessage(Message::TYPE_WARNING, msg);	
+        Str<100> msg; msg << "Misaligned plates on rotator " << id;
+        AddMessage(Message::TYPE_WARNING, msg.ToCStr());	
     }
 }
 
-Ogre::ManualObject* CreateVideocameraDebugMesh()
+Ogre::v1::ManualObject* CreateVideocameraDebugMesh()
 {
     // Create material
     static size_t counter = 0;
@@ -6907,13 +6597,14 @@ Ogre::ManualObject* CreateVideocameraDebugMesh()
         "VideoCamDebugMat-" + TOSTRING(counter), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
     ++counter;
     mat->getTechnique(0)->getPass(0)->createTextureUnitState();
-    mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_ANISOTROPIC);
-    mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureAnisotropy(3);
-    mat->setLightingEnabled(false);
+
     mat->setReceiveShadows(false);
     // Create mesh
-    Ogre::ManualObject* mo = App::GetGfxScene()->GetSceneManager()->createManualObject(); // TODO: Eliminate gEnv
-    mo->begin(mat->getName(), Ogre::RenderOperation::OT_LINE_LIST);
+    Ogre::v1::ManualObject* mo = new Ogre::v1::ManualObject(
+        App::GetGfxScene()->GenerateId(),
+        &App::GetGfxScene()->GetSceneManager()->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC),
+        App::GetGfxScene()->GetSceneManager());
+    mo->begin(mat->getName(), Ogre::OperationType::OT_LINE_LIST);
     Ogre::ColourValue pos_mark_col(1.f, 0.82f, 0.26f);
     Ogre::ColourValue dir_mark_col(0.f, 1.f, 1.f); // TODO: This comes out green in simulation - why? ~ only_a_ptr, 05/2017
     const float pos_mark_len = 0.8f;
@@ -6996,7 +6687,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
             vcam.vcam_node_lookat = static_cast<uint16_t>(this->GetNodeOrThrow(def->alt_orientation_node).pos);
         }
 
-        // TODO: Eliminate gEnv
+#if 0 // TODO OGRE2x
         vcam.vcam_ogre_camera = App::GetGfxScene()->GetSceneManager()->createCamera(vcam.vcam_material->getName() + "_camera");
 
         if (!App::gfx_window_videocams->GetBool())
@@ -7060,12 +6751,13 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
 
         if (App::diag_videocameras->GetBool())
         {
-            Ogre::ManualObject* mo = CreateVideocameraDebugMesh(); // local helper function
+            Ogre::v1::ManualObject* mo = CreateVideocameraDebugMesh(); // local helper function
             vcam.vcam_debug_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
             vcam.vcam_debug_node->attachObject(mo);
         }
 
         m_actor->m_gfx_actor->m_videocameras.push_back(vcam);
+#endif // 0 TODO OGRE2x
     }
     catch (std::exception & ex)
     {
@@ -7075,6 +6767,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
     {
         this->AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");
     }
+
 }
 
 void ActorSpawner::CreateMirrorPropVideoCam(
@@ -7101,7 +6794,7 @@ void ActorSpawner::CreateMirrorPropVideoCam(
             this->AddMessage(Message::TYPE_ERROR, "Cannot create mirror prop of type 'MPROP_NONE'");
             return;
         }
-
+#if 0 // TODO OGRE2x
         // Create rendering texture
         const std::string mirror_tex_name = this->ComposeName("MirrorPropTexture-", static_cast<int>(mprop_counter));
         vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(mirror_tex_name
@@ -7136,6 +6829,7 @@ void ActorSpawner::CreateMirrorPropVideoCam(
 
         // Submit the videocamera
         m_actor->m_gfx_actor->m_videocameras.push_back(vcam);
+#endif //0 // TODO OGRE2x
     }
     catch (std::exception & ex)
     {
@@ -7171,6 +6865,7 @@ void ActorSpawner::HandleException()
     }
 }
 
+#if 0 // TODO OGRE2x
 Ogre::ParticleSystem* ActorSpawner::CreateParticleSystem(std::string const & name, std::string const & template_name)
 {
     // None of `Ogre::SceneManager::createParticleSystem()` overloads
@@ -7186,3 +6881,4 @@ Ogre::ParticleSystem* ActorSpawner::CreateParticleSystem(std::string const & nam
     psys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
     return psys;
 }
+#endif // 0 // TODO OGRE2x

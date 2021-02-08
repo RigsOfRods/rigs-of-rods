@@ -1080,7 +1080,7 @@ void CacheSystem::LoadResource(CacheEntry& t)
             App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES, group);
         }
 
-        ResourceGroupManager::getSingleton().initialiseResourceGroup(group);
+        ResourceGroupManager::getSingleton().initialiseResourceGroup(group, /*changeLocaleTemporarily=*/true);
 
         t.resource_group = group;
     }

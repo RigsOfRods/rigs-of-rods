@@ -53,7 +53,6 @@
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
 #include "Utils.h"
-#include "Water.h"
 
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
@@ -222,12 +221,7 @@ void GameScript::setWaterHeight(float value)
     if (!this->HaveSimTerrain(__FUNCTION__))
         return;
 
-    if (App::GetSimTerrain()->getWater())
-    {
-        IWater* water = App::GetSimTerrain()->getWater();
-        water->SetStaticWaterHeight(value);
-        water->UpdateWater();
-    }
+    // TODO OGRE2x // 
 }
 
 float GameScript::getGroundHeight(Vector3& v)
@@ -241,8 +235,7 @@ float GameScript::getGroundHeight(Vector3& v)
 float GameScript::getWaterHeight()
 {
     float result = 0.0f;
-    if (App::GetSimTerrain() && App::GetSimTerrain()->getWater())
-        result = App::GetSimTerrain()->getWater()->GetStaticWaterHeight();
+// TODO OGRE2x // 
     return result;
 }
 

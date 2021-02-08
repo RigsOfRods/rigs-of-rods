@@ -119,8 +119,6 @@ CameraManager::CameraManager() :
     m_camera->setNearClipDistance(0.5);
     m_camera->setAutoAspectRatio(true);
     this->CreateCameraNode();
-
-    App::GetAppContext()->GetViewport()->setCamera(m_camera);
 }
 
 CameraManager::~CameraManager()

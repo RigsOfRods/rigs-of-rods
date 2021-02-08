@@ -28,7 +28,7 @@
 
 #include "Application.h"
 
-#include <MyGUI.h>
+
 
 #include <string>
 
@@ -181,7 +181,7 @@ enum
     DD_MAX
 };
 
-// this class is NOT intended to be thread safe - performance is required
+/// Formerly used MyGUI - to be remade with Ogre::Overlays or otherwise
 class DashBoardManager : public ZeroedMemoryAllocator
 {
 public:
@@ -232,7 +232,7 @@ public:
     DashBoard(DashBoardManager* manager, Ogre::String filename, bool textureLayer);
     ~DashBoard();
 
-    void setVisible(bool visible, bool smooth = true);
+
     bool getVisible() { return visible; };
 
     bool getIsTextureLayer() { return textureLayer; }
@@ -245,8 +245,7 @@ public:
 protected:
     DashBoardManager* manager;
     Ogre::String filename;
-    MyGUI::VectorWidgetPtr widgets;
-    MyGUI::WindowPtr mainWidget;
+
     bool visible, textureLayer;
     std::string prefix;
 
@@ -297,19 +296,14 @@ protected:
         char name[255]; // widget name
         char format_neg_zero[255]; //!< Test for undesired '-0.0' on display. Only for link type "format". Empty if not applicable.
 
-        MyGUI::Widget* widget;
-        MyGUI::RotatingSkin* rotImg;
-        MyGUI::ImageBox* img;
-        MyGUI::TextBox* txt;
-        MyGUI::IntSize initialSize;
-        MyGUI::IntPoint initialPosition;
+
 
         float last;
         bool lastState;
     } layoutLink_t;
 
-    void loadLayout(Ogre::String filename);
-    void loadLayoutRecursive(MyGUI::WidgetPtr ptr);
+
+
     layoutLink_t controls[MAX_CONTROLS];
     int free_controls;
 };

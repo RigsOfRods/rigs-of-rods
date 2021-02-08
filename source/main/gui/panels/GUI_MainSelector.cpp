@@ -33,7 +33,7 @@
 #include "Language.h"
 #include "Utils.h"
 
-#include <MyGUI.h>
+
 #include <imgui.h>
 #include <imgui_internal.h>
 
@@ -216,7 +216,7 @@ void MainSelector::Draw()
             ImVec2 cursor_pos = ImGui::GetCursorPos();
             try
             {
-                Ogre::TexturePtr preview_tex =
+                Ogre::TextureGpu* preview_tex =
                     Ogre::TextureManager::getSingleton().load(
                         sd_entry.sde_entry->filecachename, Ogre::RGN_DEFAULT);
                 if (preview_tex)

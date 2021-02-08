@@ -22,13 +22,13 @@
 
 #include "Application.h"
 
-#include <Overlay/OgreFont.h>
+#include <OgreFont.h>
 #include <OgreHardwarePixelBuffer.h>
 #include <OgreMaterial.h>
 #include <OgreTechnique.h>
 #include <OgreTexture.h>
 #include <OgreTextureManager.h>
-#include <Overlay/OgreFontManager.h>
+#include <OgreFontManager.h>
 
 // source: ogre wiki: http://www.ogre3d.org/tikiwiki/tiki-index.php?page=HowTo%3A+Write+text+on+texture
 using namespace Ogre;

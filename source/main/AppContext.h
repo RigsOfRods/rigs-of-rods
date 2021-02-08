@@ -29,15 +29,16 @@
 #include "Application.h"
 #include "ForceFeedback.h"
 
-#include <Bites/OgreWindowEventUtilities.h>
+#include <OgreWindowEventUtilities.h>
 #include <Ogre.h>
 #include <OIS.h>
 
 namespace RoR {
 
 /// Central setup and event handler for input/windowing/rendering.
-/// Inspired by OgreBites::ApplicationContext.
-class AppContext: public OgreBites::WindowEventListener,
+/// Inspired by OgreBites::ApplicationContext (OGRE 1.x).
+/// Rougly matches Demo::GraphicsSystem and Demo::SdlInputHandler (OGRE 2.x).
+class AppContext: public Ogre::WindowEventListener,
                   public OIS::MouseListener,
                   public OIS::KeyListener,
                   public OIS::JoyStickListener
@@ -50,23 +51,21 @@ public:
     bool                 SetUpRendering();
     bool                 SetUpConfigSkeleton();
     bool                 SetUpInput();
-    void                 SetUpObsoleteConfMarker();
 
     // Rendering
-    Ogre::RenderWindow*  CreateCustomRenderWindow(std::string const& name, int width, int height);
+    Ogre::Window*        CreateCustomRenderWindow(std::string const& name, int width, int height);
     void                 CaptureScreenshot();
     void                 ActivateFullscreen(bool val);
 
     // Getters
     Ogre::Root*          GetOgreRoot() { return m_ogre_root; }
-    Ogre::Viewport*      GetViewport() { return m_viewport; }
-    Ogre::RenderWindow*  GetRenderWindow() { return m_render_window; }
+    Ogre::Window*        GetRenderWindow() { return m_render_window; }
     RoR::ForceFeedback&  GetForceFeedback() { return m_force_feedback; }
 
 private:
     // OgreBites::WindowEventListener
-    virtual void         windowResized(Ogre::RenderWindow* rw) override;
-    virtual void         windowFocusChange(Ogre::RenderWindow* rw) override;
+    virtual void         windowResized(Ogre::Window* rw) override;
+    virtual void         windowFocusChange(Ogre::Window* rw) override;
 
     // OIS::MouseListener
     virtual bool         mouseMoved(const OIS::MouseEvent& arg) override;
@@ -85,14 +84,12 @@ private:
     virtual bool         povMoved(const OIS::JoyStickEvent& arg, int) override;
 
     // Rendering and window management
-    void                 SetRenderWindowIcon(Ogre::RenderWindow* rw);
+    void                 SetRenderWindowIcon(Ogre::Window* rw);
 
     // Variables
 
     Ogre::Root*          m_ogre_root     = nullptr;
-    Ogre::RenderWindow*  m_render_window = nullptr;
-    Ogre::Viewport*      m_viewport      = nullptr;
-    bool                 m_windowed_fix = false; //!< Workaround OGRE glitch when switching from fullscreen.
+    Ogre::Window*        m_render_window = nullptr;
 
     std::time_t          m_prev_screenshot_time;
     int                  m_prev_screenshot_index = 1;

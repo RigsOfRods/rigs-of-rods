@@ -534,7 +534,7 @@ struct flare_t
     float offsety;
     float offsetz;
     Ogre::SceneNode *snode;
-    Ogre::BillboardSet *bbs;
+    Ogre::v1::BillboardSet *bbs;
     Ogre::Light *light;
     FlareType fl_type;
     int controlnumber;
@@ -658,7 +658,7 @@ struct ActorSpawnRequest
     CacheEntry*         asr_skin_entry = nullptr;
     Origin              asr_origin = Origin::UNKNOWN;
     int                 asr_debugview = 0; //(int)GfxActor::DebugViewType::DEBUGVIEW_NONE;
-    Ogre::UTFString     asr_net_username;
+    Ogre::v1::DisplayString     asr_net_username;
     int                 asr_net_color = 0;
     int                 net_source_id = 0;
     int                 net_stream_id = 0;

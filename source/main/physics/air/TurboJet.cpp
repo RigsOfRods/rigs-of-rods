@@ -70,7 +70,7 @@ Turbojet::Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, Ri
     reset();
 }
 
-void TurbojetVisual::SetupVisuals(RigDef::Turbojet & def, int num, std::string const& propname, Ogre::Entity* nozzle, Ogre::Entity* afterburner_flame, bool disable_smoke)
+void TurbojetVisual::SetupVisuals(RigDef::Turbojet & def, int num, std::string const& propname, Ogre::v1::Entity* nozzle, Ogre::v1::Entity* afterburner_flame, bool disable_smoke)
 {
     m_radius = def.back_diameter / 2.0;
     m_number = num;

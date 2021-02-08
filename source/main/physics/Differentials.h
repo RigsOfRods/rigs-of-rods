@@ -67,7 +67,7 @@ public:
     void             AddDifferentialType(DiffType diff) { m_available_diffs.push_back(diff); }
     void             ToggleDifferentialMode();
     void             CalcAxleTorque(DifferentialData& diff_data);
-    Ogre::UTFString  GetDifferentialTypeName();
+    Ogre::v1::DisplayString  GetDifferentialTypeName();
     DiffType         GetActiveDiffType() const { return m_available_diffs[0]; }
     int              GetNumDiffTypes() { return static_cast<int>(m_available_diffs.size()); }
     

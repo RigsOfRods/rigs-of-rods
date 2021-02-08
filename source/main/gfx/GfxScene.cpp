@@ -26,13 +26,12 @@
 #include "ActorManager.h"
 #include "Console.h"
 #include "DustPool.h"
-#include "HydraxWater.h"
 #include "GameContext.h"
 #include "GUIManager.h"
 #include "GUI_DirectionArrow.h"
+#include "IWater.h"
 #include "OverlayWrapper.h"
 #include "SkyManager.h"
-#include "SkyXManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
@@ -68,7 +67,7 @@ void GfxScene::ClearScene()
     m_all_gfx_characters.clear();
 
     // Wipe scene manager
-    m_scene_manager->clearScene();
+    m_scene_manager->clearScene(/*destructibleToo=*/false, /*reattachCamerasToRootNode=*/false);
 
     // Recover from the wipe
     App::GetCameraManager()->ReCreateCameraNode();
@@ -78,7 +77,7 @@ void GfxScene::ClearScene()
 void RoR::GfxScene::Init()
 {
     ROR_ASSERT(!m_scene_manager);
-    m_scene_manager = App::GetAppContext()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
+    m_scene_manager = App::GetAppContext()->GetOgreRoot()->createSceneManager( Ogre::ST_GENERIC, /*numWorkerThreads=*/1 );
 
     m_skidmark_conf.LoadDefaultSkidmarkDefs();
 }
@@ -129,15 +128,12 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     // IMPORTANT: Toggles visibility of all meshes -> must be done before any other visibility control is evaluated (i.e. aero propellers)
     if (player_gfx_actor != nullptr)
     {
-        // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
-        m_envmap.UpdateEnvMap(player_gfx_actor->GetSimDataBuffer().simbuf_pos, player_gfx_actor);
+// TODO OGRE2x //  update env map
     }
 
     // Terrain - animated meshes and paged geometry
     App::GetSimTerrain()->getObjectManager()->UpdateTerrainObjects(dt_sec);
 
-    // Terrain - lightmap; TODO: ported as-is from TerrainManager::update(), is it needed? ~ only_a_ptr, 05/2018
-    App::GetSimTerrain()->getGeometryManager()->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017
 
     // Terrain - water
     IWater* water = App::GetSimTerrain()->getWater();

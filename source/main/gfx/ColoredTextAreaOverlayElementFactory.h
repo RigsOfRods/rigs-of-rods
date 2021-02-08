@@ -23,16 +23,16 @@
 #include "Application.h"
 
 #include <OgreString.h>
-#include <Overlay/OgreOverlayElement.h>
-#include <Overlay/OgreOverlayElementFactory.h>
+#include <OgreOverlayElement.h>
+#include <OgreOverlayElementFactory.h>
 #include "ColoredTextAreaOverlayElement.h"
 
 /** Factory for creating TextAreaOverlayElement instances. */
-class ColoredTextAreaOverlayElementFactory : public Ogre::OverlayElementFactory
+class ColoredTextAreaOverlayElementFactory : public Ogre::v1::OverlayElementFactory
 {
 public:
     /** See OverlayElementFactory */
-    Ogre::OverlayElement* createOverlayElement(const Ogre::String& instanceName)
+    Ogre::v1::OverlayElement* createOverlayElement(const Ogre::String& instanceName)
     {
         return new ColoredTextAreaOverlayElement(instanceName);
     }

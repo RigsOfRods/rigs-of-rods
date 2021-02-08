@@ -5,12 +5,13 @@
 #pragma once
 
 #include <OgreOverlay.h>
-
+#include <Ogre.h>
+#include <OgrePsoCacheHelper.h>
 #include <imgui.h>
 
 namespace Ogre
 {
-class ImGuiOverlay : public Overlay
+class ImGuiOverlay : public v1::Overlay
 {
 public:
     ImGuiOverlay();
@@ -18,11 +19,9 @@ public:
 
     /// add font from ogre .fontdef file
     /// must be called before first show()
-    ImFont* addFont(const String& name, const String& group OGRE_RESOURCE_GROUP_INIT);
+    ImFont* addFont(const String& name, const String& group);
 
     static void NewFrame(const FrameEvent& evt);
-
-    void _findVisibleObjects(Camera* cam, RenderQueue* queue, Viewport* vp);
 
     void initialise(); // RIGSOFRODS: Private and non-virtual in OGRE... how does it even work?
 
@@ -44,7 +43,7 @@ private:
         bool preRender(SceneManager* sm, RenderSystem* rsys);
 
         virtual void getWorldTransforms(Matrix4* xform) const { *xform = mXform; }
-        virtual void getRenderOperation(RenderOperation& op) { op = mRenderOp; }
+        virtual void getRenderOperation(v1::RenderOperation& op, bool casterPass) override { op = mRenderOp; }
 
         const LightList& getLights(void) const;
 
@@ -57,12 +56,11 @@ private:
 
         void _update();
 
-        bool mConvertToBGR;
-
         Matrix4 mXform;
-        RenderOperation mRenderOp;
-        TexturePtr mFontTex;
+        v1::RenderOperation mRenderOp;
+        TextureGpu* mFontTex;
         MaterialPtr mMaterial;
+        PsoCacheHelper* mPSOCache;
     };
 
     ImGUIRenderable mRenderable;

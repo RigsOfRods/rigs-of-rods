@@ -37,12 +37,12 @@ public:
     void setMaterialName(Ogre::String m);
     void setCastShadows(bool b);
     void setVisible(bool b);
-    inline Ogre::Entity*    getEntity() { return ent; };
+    inline Ogre::v1::Entity*    getEntity() { return ent; };
     inline Ogre::SceneNode* GetSceneNode() { return sceneNode; }
 
 protected:
     Ogre::SceneNode* sceneNode;
-    Ogre::Entity* ent;
+    Ogre::v1::Entity* ent;
     Ogre::MeshPtr mesh;
 
     bool castshadows;

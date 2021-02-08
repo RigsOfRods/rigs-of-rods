@@ -39,7 +39,7 @@ struct ErrorUtils
      * @param msg error text
      * @return 0 on success, everything else on error
      */
-    static int ShowError(Ogre::UTFString title, Ogre::UTFString message);
+    static int ShowError(Ogre::v1::DisplayString title, Ogre::v1::DisplayString message);
 
     /**
      * shows a simple info message box
@@ -47,7 +47,7 @@ struct ErrorUtils
      * @param msg error text
      * @return 0 on success, everything else on error
      */
-    static int ShowInfo(Ogre::UTFString title, Ogre::UTFString message);
+    static int ShowInfo(Ogre::v1::DisplayString title, Ogre::v1::DisplayString message);
 
     /**
      * shows a generic message box
@@ -56,5 +56,5 @@ struct ErrorUtils
      * @param type 0 for error, 1 for info
      * @return 0 on success, everything else on error
      */
-    static int ShowMsgBox(Ogre::UTFString title, Ogre::UTFString err, int type);
+    static int ShowMsgBox(Ogre::v1::DisplayString title, Ogre::v1::DisplayString err, int type);
 };

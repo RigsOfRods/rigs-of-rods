@@ -50,7 +50,11 @@
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "Utils.h"
-#include <Overlay/OgreOverlaySystem.h>
+
+#include <Compositor/OgreCompositorManager2.h>
+#include <Ogre.h>
+#include <OgreOverlaySystem.h>
+#include <OgreWindow.h>
 #include <ctime>
 #include <iomanip>
 #include <string>
@@ -127,37 +131,10 @@ int main(int argc, char *argv[])
             return -1; // Error already displayed
         }
 
-        Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
-
         // Deploy base config files from 'skeleton.zip'
         if (!App::GetAppContext()->SetUpConfigSkeleton())
         {
             return -1; // Error already displayed
-        }
-
-        Ogre::OverlaySystem* overlay_system = new Ogre::OverlaySystem(); //Overlay init
-
-        Ogre::ConfigOptionMap ropts = App::GetAppContext()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
-        int resolution = Ogre::StringConverter::parseInt(Ogre::StringUtil::split(ropts["Video Mode"].currentValue, " x ")[0], 1024);
-        int fsaa = 2 * (Ogre::StringConverter::parseInt(ropts["FSAA"].currentValue, 0) / 4);
-        int res = std::pow(2, std::floor(std::log2(resolution)));
-
-        Ogre::TextureManager::getSingleton().createManual ("EnvironmentTexture",
-            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_CUBE_MAP, res / 4, res / 4, 0,
-            Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, fsaa);
-        Ogre::TextureManager::getSingleton ().createManual ("Refraction",
-            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, res / 2, res / 2, 0,
-            Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, fsaa);
-        Ogre::TextureManager::getSingleton ().createManual ("Reflection",
-            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, res / 2, res / 2, 0,
-            Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, fsaa);
-
-        if (!App::diag_warning_texture->GetBool())
-        {
-            // We overwrite the default warning texture (yellow stripes) with something unobtrusive
-            Ogre::uchar data[3] = {0};
-            Ogre::PixelBox pixels(1, 1, 1, Ogre::PF_BYTE_RGB, &data);
-            Ogre::TextureManager::getSingleton()._getWarningTexture()->getBuffer()->blitFromMemory(pixels);
         }
 
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
@@ -175,9 +152,20 @@ int main(int argc, char *argv[])
 
         // Set up rendering
         App::CreateGfxScene(); // Creates OGRE SceneManager, needs content manager
-        App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(overlay_system);
+        App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(new Ogre::v1::OverlaySystem());
         App::CreateCameraManager(); // Creates OGRE Camera
         App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
+
+        // Setup a basic compositor with a blue clear colour
+        Ogre::CompositorManager2 *compositorManager = Ogre::Root::getSingleton().getCompositorManager2();
+        const Ogre::String workspaceName( "Workspace" );
+        const Ogre::ColourValue backgroundColour( 0.2f, 0.4f, 0.6f );
+        compositorManager->createBasicWorkspaceDef( workspaceName, backgroundColour, Ogre::IdString() );
+        compositorManager->addWorkspace(App::GetGfxScene()->GetSceneManager(),
+                                        App::GetAppContext()->GetRenderWindow()->getTexture(),
+                                        App::GetCameraManager()->GetCamera(),
+                                        workspaceName,
+                                        /*enabled=*/true);
 
         App::CreateGuiManager(); // Needs scene manager
 
@@ -190,9 +178,6 @@ int main(int argc, char *argv[])
         App::GetAppContext()->SetUpInput();
 
         App::GetGuiManager()->SetUpMenuWallpaper();
-
-        // Add "this is obsolete" marker file to old config location
-        App::GetAppContext()->SetUpObsoleteConfMarker();
 
         App::CreateThreadPool();
 
@@ -271,7 +256,7 @@ int main(int argc, char *argv[])
 
         while (App::app_state->GetEnum<AppState>() != AppState::SHUTDOWN)
         {
-            OgreBites::WindowEventUtilities::messagePump();
+            Ogre::WindowEventUtilities::messagePump();
 
             // Halt physics (wait for async tasks to finish)
             if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
@@ -358,10 +343,13 @@ int main(int argc, char *argv[])
                 // -- Network events --
 
                 case MSG_NET_CONNECT_REQUESTED:
+#if USE_SOCKETW
                     App::GetNetwork()->StartConnecting();
+#endif
                     break;
 
                 case MSG_NET_DISCONNECT_REQUESTED:
+#if USE_SOCKETW
                     if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
                     {
                         App::GetNetwork()->Disconnect();
@@ -371,6 +359,7 @@ int main(int argc, char *argv[])
                             App::GetGuiManager()->SetVisible_GameMainMenu(true);
                         }
                     }
+#endif // USE_SOCKETW
                     break;
 
                 case MSG_NET_SERVER_KICK:
@@ -398,6 +387,7 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_NET_CONNECT_SUCCESS:
+#if USE_SOCKETW
                     App::GetGuiManager()->GetLoadingWindow()->SetVisible(false);
                     App::GetNetwork()->StopConnecting();
                     App::mp_state->SetVal((int)RoR::MpState::CONNECTED);
@@ -422,15 +412,18 @@ int main(int argc, char *argv[])
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->GetStr()));
                         }
                     }
+#endif // USE_SOCKETW
                     break;
 
                 case MSG_NET_CONNECT_FAILURE:
+#if USE_SOCKETW
                     App::GetGuiManager()->GetLoadingWindow()->SetVisible(false);
                     App::GetNetwork()->StopConnecting();
                     App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
                     App::GetGuiManager()->ShowMessageBox(
                         _LC("Network", "Multiplayer: connection failed"), m.description.c_str());
                     App::GetGuiManager()->ReflectGameState();
+#endif // USE_SOCKETW
                     break;
 
                 case MSG_NET_REFRESH_SERVERLIST_SUCCESS:
@@ -479,7 +472,8 @@ int main(int argc, char *argv[])
                         {
                             SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
                         }
-                        App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
+                        App::GetGfxScene()->GetSceneManager()->setAmbientLight(
+                            Ogre::ColourValue(0.3f, 0.3f, 0.3f), Ogre::ColourValue(0.3f, 0.3f, 0.3f), Ogre::Vector3::UNIT_Y);
                         App::GetDiscordRpc()->UpdatePresence();
                         App::sim_state->SetVal((int)SimState::RUNNING);
                         App::app_state->SetVal((int)AppState::SIMULATION);
@@ -807,7 +801,7 @@ int main(int argc, char *argv[])
             }
 
             // Render!
-            Ogre::RenderWindow* render_window = RoR::App::GetAppContext()->GetRenderWindow();
+            Ogre::Window* render_window = RoR::App::GetAppContext()->GetRenderWindow();
             if (render_window->isClosed())
             {
                 App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
@@ -815,9 +809,9 @@ int main(int argc, char *argv[])
             else
             {
                 App::GetAppContext()->GetOgreRoot()->renderOneFrame();
-                if (!render_window->isActive() && render_window->isVisible())
+                if (!render_window->isFocused() && render_window->isVisible())
                 {
-                    render_window->update(); // update even when in background !
+                    render_window->swapBuffers(); // update even when in background !
                 }
             } // Render block
 

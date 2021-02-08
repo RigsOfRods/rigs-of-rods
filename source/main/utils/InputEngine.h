@@ -391,7 +391,7 @@ struct InputEvent
     Ogre::String name;
     int eventID;
     Ogre::String defaultKey;
-    Ogre::UTFString description;
+    Ogre::v1::DisplayString description;
 };
 
 struct event_trigger_t
@@ -502,7 +502,7 @@ public:
     bool deleteEventBySUID(int suid);
     OIS::MouseState getMouseState();
     // some custom methods
-    void windowResized(Ogre::RenderWindow* rw);
+    void windowResized(Ogre::Window* rw);
 
     bool reloadConfig(std::string outfile = CONFIGFILENAME);
     bool updateConfigline(event_trigger_t* t);

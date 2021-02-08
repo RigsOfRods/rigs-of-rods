@@ -45,10 +45,8 @@
 #    include "ScriptEngine.h"
 #endif
 
-#ifdef _WIN32
-#   include <windows.h>
-#endif
-
+#include <Ogre.h>
+#include <OgreWindow.h>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -186,7 +184,7 @@ bool AppContext::axisMoved(const OIS::JoyStickEvent& arg, int)      { App::GetIn
 bool AppContext::sliderMoved(const OIS::JoyStickEvent& arg, int)    { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
 bool AppContext::povMoved(const OIS::JoyStickEvent& arg, int)       { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
 
-void AppContext::windowResized(Ogre::RenderWindow* rw)
+void AppContext::windowResized(Ogre::Window* rw)
 {
     App::GetInputEngine()->windowResized(rw); // Update mouse area
     App::GetOverlayWrapper()->windowResized();
@@ -199,7 +197,7 @@ void AppContext::windowResized(Ogre::RenderWindow* rw)
     }
 }
 
-void AppContext::windowFocusChange(Ogre::RenderWindow* rw)
+void AppContext::windowFocusChange(Ogre::Window* rw)
 {
     App::GetInputEngine()->resetKeys();
 }
@@ -207,7 +205,7 @@ void AppContext::windowFocusChange(Ogre::RenderWindow* rw)
 // --------------------------
 // Rendering
 
-void AppContext::SetRenderWindowIcon(Ogre::RenderWindow* rw)
+void AppContext::SetRenderWindowIcon(Ogre::Window* rw)
 {
 #ifdef _WIN32
     size_t hWnd = 0;
@@ -294,7 +292,7 @@ bool AppContext::SetUpRendering()
     const auto it = std::find(rd.possibleValues.begin(), rd.possibleValues.end(), rd.currentValue);
     const int idx = std::distance(rd.possibleValues.begin(), it);
     miscParams["monitorIndex"] = Ogre::StringConverter::toString(idx);
-    miscParams["windowProc"] = Ogre::StringConverter::toString((size_t)OgreBites::WindowEventUtilities::_WndProc);
+    miscParams["windowProc"] = Ogre::StringConverter::toString((size_t)Ogre::WindowEventUtilities::_WndProc);
 #endif
 
     // Validate rendering resolution
@@ -312,23 +310,18 @@ bool AppContext::SetUpRendering()
     m_render_window = Ogre::Root::getSingleton().createRenderWindow (
         "Rigs of Rods version " + Ogre::String (ROR_VERSION_STRING),
         width, height, ropts["Full Screen"].currentValue == "Yes", &miscParams);
-    OgreBites::WindowEventUtilities::_addRenderWindow(m_render_window);
-    m_render_window->setActive(true);
-
-    // Create viewport (without camera)
-    m_viewport = m_render_window->addViewport(/*camera=*/nullptr);
-    m_viewport->setBackgroundColour(Ogre::ColourValue::Black);
+    Ogre::WindowEventUtilities::_addRenderWindow(m_render_window);
 
     return true;
 }
 
-Ogre::RenderWindow* AppContext::CreateCustomRenderWindow(std::string const& window_name, int width, int height)
+Ogre::Window* AppContext::CreateCustomRenderWindow(std::string const& window_name, int width, int height)
 {
     Ogre::NameValuePairList misc;
     Ogre::ConfigOptionMap ropts = m_ogre_root->getRenderSystem()->getConfigOptions();
     misc["FSAA"] = Ogre::StringConverter::parseInt(ropts["FSAA"].currentValue, 0);
 
-    Ogre::RenderWindow* rw = Ogre::Root::getSingleton().createRenderWindow(window_name, width, height, false, &misc);
+    Ogre::Window* rw = Ogre::Root::getSingleton().createRenderWindow(window_name, width, height, false, &misc);
     this->SetRenderWindowIcon(rw);
     return rw;
 }
@@ -343,35 +336,8 @@ void AppContext::CaptureScreenshot()
           << "." << App::app_screenshot_format->GetStr();
     std::string path = PathCombine(App::sys_screenshot_dir->GetStr(), "screenshot_") + stamp.str();
 
-    if (App::app_screenshot_format->GetStr() == "png")
-    {
-        AdvancedScreen png(m_render_window, path);
 
-        png.addData("User_NickName", App::mp_player_name->GetStr());
-        png.addData("User_Language", App::app_language->GetStr());
-
-        if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION && 
-            App::GetGameContext()->GetPlayerActor())
-        {
-            png.addData("Truck_file", App::GetGameContext()->GetPlayerActor()->ar_filename);
-            png.addData("Truck_name", App::GetGameContext()->GetPlayerActor()->GetActorDesignName());
-        }
-        if (App::GetSimTerrain())
-        {
-            png.addData("Terrn_file", App::sim_terrain_name->GetStr());
-            png.addData("Terrn_name", App::sim_terrain_gui_name->GetStr());
-        }
-        if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
-        {
-            png.addData("MP_ServerName", App::mp_server_host->GetStr());
-        }
-
-        png.write();
-    }
-    else
-    {
-        m_render_window->writeContentsToFile(path);
-    }
+// TODO OGRE2x // 
 
     App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                                   _L("Screenshot:") + stamp.str());
@@ -382,17 +348,7 @@ void AppContext::CaptureScreenshot()
 
 void AppContext::ActivateFullscreen(bool val)
 {
-    if (!val && !m_windowed_fix)
-    {
-        // Workaround OGRE glitch - badly aligned viewport after first full->window switch
-        // Observed on Win10/OpenGL (GeForce GTX 660)
-        m_render_window->setFullscreen(false, m_render_window->getWidth()-1, m_render_window->getHeight()-1);    
-        m_render_window->setFullscreen(false, m_render_window->getWidth()+1, m_render_window->getHeight()+1);    
-    }
-    else
-    {
-        m_render_window->setFullscreen(val, m_render_window->getWidth(), m_render_window->getHeight());
-    }
+    m_render_window->requestFullscreenSwitch(val, m_render_window->getBorderless(), /*monitorIdx=*/0, /*dummies...*/ 0,0,0,0);
 }
 
 // --------------------------
@@ -524,34 +480,3 @@ bool AppContext::SetUpConfigSkeleton()
     return true;
 }
 
-void AppContext::SetUpObsoleteConfMarker()
-{
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    Ogre::String old_ror_homedir = Ogre::StringUtil::format("%s\\Rigs of Rods 0.4", RoR::GetUserHomeDirectory().c_str());
-    if(FolderExists(old_ror_homedir))
-    {
-        if (!FileExists(Ogre::StringUtil::format("%s\\OBSOLETE_FOLDER.txt", old_ror_homedir.c_str())))
-        {
-            Ogre::String obsoleteMessage = Ogre::StringUtil::format("This folder is obsolete, please move your mods to  %s", App::sys_user_dir->GetStr());
-            try
-            {
-                Ogre::ResourceGroupManager::getSingleton().addResourceLocation(old_ror_homedir, "FileSystem", "homedir", false, false);
-                Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().createResource("OBSOLETE_FOLDER.txt", "homedir");
-                stream->write(obsoleteMessage.c_str(), obsoleteMessage.length());
-                Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("homedir");
-            }
-            catch (std::exception & e)
-            {
-                RoR::LogFormat("Error writing to %s, message: '%s'", old_ror_homedir.c_str(), e.what());
-            }
-            Ogre::String message = Ogre::StringUtil::format(
-                "Welcome to Rigs of Rods %s\nPlease note that the mods folder has moved to:\n\"%s\"\nPlease move your mods to the new folder to continue using them",
-                ROR_VERSION_STRING_SHORT,
-                App::sys_user_dir->GetStr()
-            );
-
-            RoR::App::GetGuiManager()->ShowMessageBox("Obsolete folder detected", message.c_str());
-        }
-    }
-#endif // OGRE_PLATFORM_WIN32
-}

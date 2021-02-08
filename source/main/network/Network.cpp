@@ -327,7 +327,7 @@ void Network::RecvThread()
                 std::lock_guard<std::mutex> lock(m_userdata_mutex);
                 memcpy(&m_userdata, buffer, sizeof(RoRnet::UserInfo));
                 m_authlevel = m_userdata.authstatus;
-                m_username = Ogre::UTFString(m_userdata.username);
+                m_username = Ogre::v1::DisplayString(m_userdata.username);
                 // TODO: Update the global variable 'mp_player_name' in a threadsafe way.
             }
             else
@@ -449,7 +449,7 @@ bool Network::ConnectThread()
     {
         RoRnet::LegacyServerInfo info;
         memcpy(&info, buffer, sizeof(RoRnet::LegacyServerInfo));
-        Ogre::UTFString format_wstr = _L("Establishing network session: wrong server version, you are using version '%s' and the server is using '%s'");
+        Ogre::v1::DisplayString format_wstr = _L("Establishing network session: wrong server version, you are using version '%s' and the server is using '%s'");
         const char* server_ver = (info.protocolversion[0] != 0) ? info.protocolversion : "~ RoRnet_2.38 or earlier (not detected) ~";
         char msg_buf[500];
         snprintf(msg_buf, 500, format_wstr.asUTF8_c_str(), RORNET_VERSION, server_ver);
@@ -473,7 +473,7 @@ bool Network::ConnectThread()
     if (strncmp(m_server_settings.protocolversion, RORNET_VERSION, strlen(RORNET_VERSION)))
     {
         wchar_t tmp[512] = L"";
-        Ogre::UTFString tmp2 = _L("Establishing network session: wrong server version, you are using version '%s' and the server is using '%s'");
+        Ogre::v1::DisplayString tmp2 = _L("Establishing network session: wrong server version, you are using version '%s' and the server is using '%s'");
         swprintf(tmp, 512, tmp2.asWStr_c_str(), RORNET_VERSION, m_server_settings.protocolversion);
         CouldNotConnect(MyGUI::UString(tmp).asUTF8_c_str());
         return false;
@@ -684,7 +684,7 @@ int Network::GetUserColor()
     return m_userdata.colournum;
 }
 
-Ogre::UTFString Network::GetUsername()
+Ogre::v1::DisplayString Network::GetUsername()
 {
     std::lock_guard<std::mutex> lock(m_userdata_mutex);
     return m_username;

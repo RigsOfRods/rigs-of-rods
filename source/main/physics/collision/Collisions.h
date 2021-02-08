@@ -129,7 +129,7 @@ private:
     bool envokeScriptCallback(collision_box_t* cbox, node_t* node = 0);
 
     Landusemap* landuse;
-    Ogre::ManualObject* debugmo;
+    Ogre::v1::ManualObject* debugmo;
     bool debugMode;
     int collision_version;
     inline int GetNumCollisionTris() const { return static_cast<int>(m_collision_tris.size()); }

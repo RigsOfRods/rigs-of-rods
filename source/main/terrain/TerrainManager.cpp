@@ -24,23 +24,16 @@
 #include "ActorManager.h"
 #include "CacheSystem.h"
 #include "Collisions.h"
-#include "Renderdash.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_SurveyMap.h"
-#include "HydraxWater.h"
 #include "Language.h"
 #include "ScriptEngine.h"
 #include "ShadowManager.h"
 #include "SkyManager.h"
-#include "SkyXManager.h"
-#include "TerrainGeometryManager.h"
 #include "TerrainObjectManager.h"
-#include "Water.h"
 
-#include <Terrain/OgreTerrainPaging.h>
-#include <Terrain/OgreTerrainGroup.h>
 
 using namespace RoR;
 using namespace Ogre;
@@ -51,12 +44,10 @@ TerrainManager::TerrainManager()
     , m_object_manager(0)
     , m_shadow_manager(0)
     , m_sky_manager(0)
-    , SkyX_manager(0)
     , m_sight_range(1000)
     , m_main_light(0)
     , m_paged_detail_factor(0.0f)
     , m_cur_gravity(DEFAULT_GRAVITY)
-    , m_hydrax_water(nullptr)
 {
 }
 
@@ -78,11 +69,7 @@ TerrainManager::~TerrainManager()
     }
 #endif // USE_CAELUM
 
-    if (SkyX_manager != nullptr)
-    {
-        delete(SkyX_manager);
-        SkyX_manager = nullptr;
-    }
+
 
     if (m_main_light != nullptr)
     {
@@ -90,10 +77,7 @@ TerrainManager::~TerrainManager()
         m_main_light = nullptr;
     }
 
-    if (m_hydrax_water != nullptr)
-    {
-        m_water.reset(); // TODO: Currently needed - research and get rid of this ~ only_a_ptr, 08/2018
-    }
+
 
     if (m_object_manager != nullptr)
     {
@@ -147,8 +131,7 @@ TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry& entry)
     loading_window->SetProgress(15, _L("Initializing Shadow Subsystem"));
     terrn_mgr->initShadows();
 
-    loading_window->SetProgress(17, _L("Initializing Geometry Subsystem"));
-    terrn_mgr->m_geometry_manager = new TerrainGeometryManager(terrn_mgr.get());
+
 
     loading_window->SetProgress(19, _L("Initializing Object Subsystem"));
     terrn_mgr->initObjects(); // *.odef files
@@ -174,11 +157,7 @@ TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry& entry)
 
     terrn_mgr->fixCompositorClearColor();
 
-    loading_window->SetProgress(40, _L("Loading Terrain Geometry"));
-    if (!terrn_mgr->m_geometry_manager->InitTerrain(terrn_mgr->m_def.ogre_ter_conf_filename))
-    {
-        return nullptr; // Error already reported
-    }
+
 
     loading_window->SetProgress(60, _L("Initializing Collision Subsystem"));
     terrn_mgr->m_collisions = new Collisions(terrn_mgr->getMaxTerrainSize());
@@ -202,7 +181,7 @@ TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry& entry)
     App::SetSimTerrain(nullptr); // END Hack for the Landusemap
 
     loading_window->SetProgress(90, _L("Initializing terrain light properties"));
-    terrn_mgr->m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
+
     App::SetSimTerrain(terrn_mgr.get()); // Hack for the Collision debug visual
     terrn_mgr->m_collisions->finishLoadingTerrain();
     App::SetSimTerrain(nullptr); // END Hack for the Collision debug visual
@@ -230,7 +209,7 @@ TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry& entry)
 
 void TerrainManager::initCamera()
 {
-    App::GetCameraManager()->GetCamera()->getViewport()->setBackgroundColour(m_def.ambient_color);
+
     App::GetCameraManager()->GetCameraNode()->setPosition(m_def.start_position);
 
     if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
@@ -278,59 +257,15 @@ void TerrainManager::initSkySubSystem()
     }
     else
 #endif //USE_CAELUM
-    // SkyX skies
-    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
-    {
-         // try to load SkyX config
-         if (!m_def.skyx_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.skyx_config))
-            SkyX_manager = new SkyXManager(m_def.skyx_config);
-         else
-            SkyX_manager = new SkyXManager("SkyXDefault.skx");
-    }
-    else
-    {
 
-        if (!m_def.cubemap_config.empty())
-        {
-            // use custom
-            App::GetGfxScene()->GetSceneManager()->setSkyBox(true, m_def.cubemap_config, 100, true);
-        }
-        else
-        {
             // use default
-            App::GetGfxScene()->GetSceneManager()->setSkyBox(true, "tracks/skyboxcol", 100, true);
-        }
-    }
+      // TODO OGRE2x //       App::GetGfxScene()->GetSceneManager()->setSkyBox(true, "tracks/skyboxcol", 100, true);
+
 }
 
 void TerrainManager::initLight()
 {
-    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
-    {
-#ifdef USE_CAELUM
-        m_main_light = m_sky_manager->GetSkyMainLight();
-#endif
-    }
-    else if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
-    {
-        m_main_light = SkyX_manager->getMainLight();
-    }
-    else
-    {
-        // screw caelum, we will roll our own light
-
-        // Create a light
-        m_main_light = App::GetGfxScene()->GetSceneManager()->createLight("MainLight");
-        //directional light for shadow
-        m_main_light->setType(Light::LT_DIRECTIONAL);
-        m_main_light->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
-
-        m_main_light->setDiffuseColour(m_def.ambient_color);
-        m_main_light->setSpecularColour(m_def.ambient_color);
-        m_main_light->setCastShadows(true);
-        m_main_light->setShadowFarDistance(1000.0f);
-        m_main_light->setShadowNearClipDistance(-1);
-    }
+// TODO OGRE2x // 
 }
 
 void TerrainManager::initFog()
@@ -362,72 +297,12 @@ void TerrainManager::initVegetation()
 
 void TerrainManager::fixCompositorClearColor()
 {
-    // hack
-    // now with extensive error checking
-    if (CompositorManager::getSingleton().hasCompositorChain(App::GetCameraManager()->GetCamera()->getViewport()))
-    {
-        CompositorInstance* co = CompositorManager::getSingleton().getCompositorChain(App::GetCameraManager()->GetCamera()->getViewport())->_getOriginalSceneCompositor();
-        if (co)
-        {
-            CompositionTechnique* ct = co->getTechnique();
-            if (ct)
-            {
-                CompositionTargetPass* ctp = ct->getOutputTargetPass();
-                if (ctp)
-                {
-                    CompositionPass* p = ctp->getPass(0);
-                    if (p)
-                    {
-                        p->setClearColour(Ogre::ColourValue::Black);
-                    }
-                }
-            }
-        }
-    }
+    // TODO OGRE2x // 
 }
 
 void TerrainManager::initWater()
 {
-    // disabled in global config
-    if (App::gfx_water_mode->GetEnum<GfxWaterMode>() == GfxWaterMode::NONE)
-        return;
-
-    // disabled in map config
-    if (!m_def.has_water)
-    {
-        return;
-    }
-
-    if (App::gfx_water_mode->GetEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
-    {
-        // try to load hydrax config
-        if (!m_def.hydrax_conf_file.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.hydrax_conf_file))
-        {
-            m_hydrax_water = new HydraxWater(m_def.water_height, m_def.hydrax_conf_file);
-        }
-        else
-        {
-            // no config provided, fall back to the default one
-            m_hydrax_water = new HydraxWater(m_def.water_height);
-        }
-
-        m_water = std::unique_ptr<IWater>(m_hydrax_water);
-
-        //Apply depth technique to the terrain
-        TerrainGroup::TerrainIterator ti = m_geometry_manager->getTerrainGroup()->getTerrainIterator();
-        while (ti.hasMoreElements())
-        {
-            Terrain* t = ti.getNext()->instance;
-            MaterialPtr ptr = t->getMaterial();
-            m_hydrax_water->GetHydrax()->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
-        }
-    }
-    else
-    {
-        m_water = std::unique_ptr<IWater>(new Water(this->getMaxTerrainSize()));
-        m_water->SetStaticWaterHeight(m_def.water_height);
-        m_water->SetWaterBottomHeight(m_def.water_bottom_height);
-    }
+// TODO OGRE2x // 
 }
 
 void TerrainManager::initShadows()
@@ -492,19 +367,19 @@ Ogre::AxisAlignedBox TerrainManager::getTerrainCollisionAAB()
 
 Ogre::Vector3 TerrainManager::getMaxTerrainSize()
 {
-    if (!m_geometry_manager)
-        return Vector3::ZERO;
-    return m_geometry_manager->getMaxTerrainSize();
+
+        return Vector3::ZERO; 
+
 }
 
 float TerrainManager::GetHeightAt(float x, float z)
 {
-    return m_geometry_manager->getHeightAt(x, z);
+    return 0.f; // TODO OGRE2x // 
 }
 
 Ogre::Vector3 TerrainManager::GetNormalAt(float x, float y, float z)
 {
-    return m_geometry_manager->getNormalAt(x, y, z);
+    return Vector3::ZERO; // TODO OGRE2x // 
 }
 
 SkyManager* TerrainManager::getSkyManager()
@@ -514,7 +389,7 @@ SkyManager* TerrainManager::getSkyManager()
 
 bool TerrainManager::isFlat()
 {
-    return m_geometry_manager->isFlat();
+    return true;// TODO OGRE2x // 
 }
 
 void TerrainManager::LoadTelepoints()

@@ -25,8 +25,6 @@
 #include "ErrorUtils.h"
 #include "Language.h"
 #include "TerrainManager.h"
-#include "PropertyMaps.h"
-#include "PagedGeometry.h"
 
 #include <OgreConfigFile.h>
 
@@ -129,6 +127,7 @@ int Landusemap::loadConfig(const Ogre::String& filename)
     // process the config data and load the buffers finally
     try
     {
+        #if 0 // TODO OGRE2x
         Forests::ColorMap* colourMap = Forests::ColorMap::load(textureFilename, Forests::CHANNEL_COLOR);
         colourMap->setFilter(Forests::MAPFILTER_NONE);
 
@@ -171,6 +170,7 @@ int Landusemap::loadConfig(const Ogre::String& filename)
                 ptr++;
             }
         }
+        #endif 0 // TODO OGRE2x
     }
     catch (Ogre::Exception& oex)
     {

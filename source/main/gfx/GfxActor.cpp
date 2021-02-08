@@ -29,16 +29,10 @@
 #include "EngineSim.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
-#include "HydraxWater.h"
 #include "FlexAirfoil.h"
-#include "FlexBody.h"
-#include "FlexMeshWheel.h"
-#include "FlexObj.h"
 #include "InputEngine.h" // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
 #include "MeshObject.h"
-#include "MovableText.h"
 #include "OgreImGui.h"
-#include "Renderdash.h" // classic 'renderdash' material
 #include "ActorSpawner.h"
 #include "SlideNode.h"
 #include "SkyManager.h"
@@ -51,7 +45,7 @@
 #include <Ogre.h>
 
 RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
-                        std::vector<NodeGfx>& gfx_nodes, RoR::Renderdash* renderdash):
+                        std::vector<NodeGfx>& gfx_nodes):
     m_actor(actor),
     m_custom_resource_group(ogre_resource_group),
     m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE),
@@ -60,9 +54,7 @@ RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_re
     m_rods_parent_scenenode(nullptr),
     m_gfx_nodes(gfx_nodes),
     m_cab_scene_node(nullptr),
-    m_cab_mesh(nullptr),
     m_cab_entity(nullptr),
-    m_renderdash(renderdash),
     m_prop_anim_crankfactor_prev(0.f),
     m_prop_anim_shift_timer(0.f),
     m_beaconlight_active(true), // 'true' will trigger SetBeaconsEnabled(false) on the first buffer update
@@ -107,11 +99,6 @@ RoR::GfxActor::~GfxActor()
     this->SetVideoCamState(VideoCamState::VCSTATE_DISABLED);
     while (!m_videocameras.empty())
     {
-        VideoCamera& vcam = m_videocameras.back();
-        Ogre::TextureManager::getSingleton().remove(vcam.vcam_render_tex->getHandle());
-        vcam.vcam_render_tex.setNull();
-        vcam.vcam_render_target = nullptr; // Invalidated with parent texture
-        App::GetGfxScene()->GetSceneManager()->destroyCamera(vcam.vcam_ogre_camera);
 
         m_videocameras.pop_back();
     }
@@ -123,7 +110,7 @@ RoR::GfxActor::~GfxActor()
         {
             Ogre::MovableObject* ogre_object = rod.rod_scenenode->getAttachedObject(0);
             rod.rod_scenenode->detachAllObjects();
-            App::GetGfxScene()->GetSceneManager()->destroyEntity(static_cast<Ogre::Entity*>(ogre_object));
+            App::GetGfxScene()->GetSceneManager()->destroyEntity(static_cast<Ogre::v1::Entity*>(ogre_object));
         }
         m_rods.clear();
 
@@ -135,10 +122,7 @@ RoR::GfxActor::~GfxActor()
     // delete meshwheels
     for (size_t i = 0; i < m_wheels.size(); i++)
     {
-        if (m_wheels[i].wx_flex_mesh != nullptr)
-        {
-            delete m_wheels[i].wx_flex_mesh;
-        }
+
         if (m_wheels[i].wx_scenenode != nullptr)
         {
             m_wheels[i].wx_scenenode->removeAndDestroyAllChildren();
@@ -155,7 +139,7 @@ RoR::GfxActor::~GfxActor()
         // entity
         App::GetGfxScene()->GetSceneManager()->destroyEntity(abx.abx_entity);
         // mesh
-        Ogre::MeshManager::getSingleton().remove(abx.abx_mesh);
+
     }
     m_gfx_airbrakes.clear();
 
@@ -197,31 +181,10 @@ RoR::GfxActor::~GfxActor()
     }
     m_props.clear();
 
-    // Delete flexbodies
-    for (FlexBody* fb: m_flexbodies)
-    {
-        delete fb;
-    }
 
-    // Delete old cab mesh
-    if (m_cab_mesh != nullptr)
-    {
-        m_cab_scene_node->detachAllObjects();
-        m_cab_scene_node->getParentSceneNode()->removeAndDestroyChild(m_cab_scene_node);
-        m_cab_scene_node = nullptr;
 
-        m_cab_entity->_getManager()->destroyEntity(m_cab_entity);
-        m_cab_entity = nullptr;
 
-        delete m_cab_mesh; // Unloads the ManualMesh resource; do this last
-        m_cab_mesh = nullptr;
-    }
 
-    // Delete old dashboard RTT
-    if (m_renderdash != nullptr)
-    {
-        delete m_renderdash;
-    }
 }
 
 void RoR::GfxActor::AddMaterialFlare(int flareid, Ogre::MaterialPtr m)
@@ -356,6 +319,7 @@ void RoR::GfxActor::SetVideoCamState(VideoCamState state)
     const bool enable = (state == VideoCamState::VCSTATE_ENABLED_ONLINE);
     for (VideoCamera vidcam: m_videocameras)
     {
+        #if 0 // TODO OGRE2x
         if (vidcam.vcam_render_target != nullptr)
         {
             vidcam.vcam_render_target->setActive(enable);
@@ -370,6 +334,7 @@ void RoR::GfxActor::SetVideoCamState(VideoCamState state)
         {
             vidcam.vcam_render_window->setActive(enable);
         }
+        #endif //0 // TODO OGRE2x
     }
     m_vidcam_state = state;
 }
@@ -424,12 +389,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
             continue; // Done processing mirror prop.
         }
 
-        // update the texture now, otherwise shuttering
-        if (vidcam.vcam_render_target != nullptr)
-            vidcam.vcam_render_target->update();
 
-        if (vidcam.vcam_render_window != nullptr)
-            vidcam.vcam_render_window->update();
 
         // get the normal of the camera plane now
         GfxActor::SimBuffer::NodeSB* node_buf = m_simbuf.simbuf_nodes.get();
@@ -1565,7 +1525,7 @@ void RoR::GfxActor::AddRod(int beam_index,  int node1_index, int node2_index, co
     {
         Str<100> entity_name;
         entity_name << "rod" << beam_index << "@actor" << m_actor->ar_instance_id;
-        Ogre::Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name.ToCStr(), "beam.mesh");
+        Ogre::v1::Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name.ToCStr(), "beam.mesh");
         entity->setMaterialName(material_name);
 
         if (m_rods_parent_scenenode == nullptr)
@@ -1941,7 +1901,7 @@ void RoR::GfxActor::SetWheelsVisible(bool value)
             w.wx_flex_mesh->setVisible(value);
             if (w.wx_is_meshwheel)
             {
-                Ogre::Entity* e = ((FlexMeshWheel*)(w.wx_flex_mesh))->getRimEntity();
+                Ogre::v1::Entity* e = ((FlexMeshWheel*)(w.wx_flex_mesh))->getRimEntity();
                 if (e != nullptr)
                 {
                     e->setVisible(false);
@@ -3259,7 +3219,7 @@ void RoR::GfxActor::SetCastShadows(bool value)
     // Cab mesh
     if (m_cab_scene_node != nullptr)
     {
-        static_cast<Ogre::Entity*>(m_cab_scene_node->getAttachedObject(0))->setCastShadows(value);
+        static_cast<Ogre::v1::Entity*>(m_cab_scene_node->getAttachedObject(0))->setCastShadows(value);
     }
 
     // Props
@@ -3274,13 +3234,13 @@ void RoR::GfxActor::SetCastShadows(bool value)
     // Wheels
     for (WheelGfx& wheel: m_wheels)
     {
-        static_cast<Ogre::Entity*>(wheel.wx_scenenode->getAttachedObject(0))->setCastShadows(value);
+        static_cast<Ogre::v1::Entity*>(wheel.wx_scenenode->getAttachedObject(0))->setCastShadows(value);
     }
 
     // Softbody beams
     for (Rod& rod: m_rods)
     {
-        static_cast<Ogre::Entity*>(rod.rod_scenenode->getAttachedObject(0))->setCastShadows(value);
+        static_cast<Ogre::v1::Entity*>(rod.rod_scenenode->getAttachedObject(0))->setCastShadows(value);
     }
 
     // Flexbody meshes
@@ -3290,7 +3250,7 @@ void RoR::GfxActor::SetCastShadows(bool value)
     }
 }
 
-void RoR::GfxActor::RegisterCabMesh(Ogre::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj)
+void RoR::GfxActor::RegisterCabMesh(Ogre::v1::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj)
 {
     m_cab_mesh = flexobj;
     m_cab_entity = ent;

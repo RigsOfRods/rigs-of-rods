@@ -64,14 +64,14 @@ Ogre::String ConfigFile::GetStringEx(Ogre::String const& key, Ogre::String const
     return RoR::Utils::SanitizeUtf8String(setting);
 }
 
-void ConfigFile::SetString(Ogre::String key, Ogre::String value, Ogre::String section /* = Ogre::StringUtil::BLANK */)
+void ConfigFile::SetString(Ogre::String key, Ogre::String value, Ogre::String section /* = Ogre::BLANKSTRING */)
 {
-    SettingsMultiMap* set = mSettingsPtr[section];
+    SettingsMultiMap* set = mSettings[section];
     if (!set)
     {
         // new section
         set = new SettingsMultiMap();
-        mSettingsPtr[section] = set;
+        mSettings[section] = set;
     }
     if (set->count(key))
     {
@@ -84,7 +84,5 @@ void ConfigFile::SetString(Ogre::String key, Ogre::String value, Ogre::String se
 
 bool ConfigFile::HasSection(std::string const & name)
 {
-    // This is the only way to check existence of section
-    //  without either an OGRE exception being logged or using deprecated API.
-    return this->getSettingsBySection().find(name) != this->getSettingsBySection().end();
+    this->mSettings.find(name) != this->mSettings.end();
 }

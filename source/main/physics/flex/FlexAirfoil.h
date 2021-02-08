@@ -27,6 +27,7 @@
 
 namespace RoR {
 
+/// WARNING: gutted during OGRE2x port
 class FlexAirfoil : public ZeroedMemoryAllocator
 {
 public:
@@ -78,33 +79,9 @@ private:
         Ogre::Vector2 texcoord;
     } CoVertice_t;
 
-    Ogre::MeshPtr msh;
-    Ogre::SubMesh* subface;
-    Ogre::SubMesh* subband;
 
-    Ogre::SubMesh* subcup;
-    Ogre::SubMesh* subcdn;
 
-    Ogre::VertexDeclaration* decl;
-    Ogre::HardwareVertexBufferSharedPtr vbuf;
 
-    size_t nVertices;
-    size_t vbufCount;
-
-    union
-    {
-        float* vertices;
-        CoVertice_t* covertices;
-    };
-
-    size_t faceibufCount;
-    size_t bandibufCount;
-    size_t cupibufCount;
-    size_t cdnibufCount;
-    unsigned short* facefaces;
-    unsigned short* bandfaces;
-    unsigned short* cupfaces;
-    unsigned short* cdnfaces;
     node_t* nodes;
 
     float sref;

@@ -30,16 +30,16 @@ class TurbojetVisual
 {
 public:
     ~TurbojetVisual();
-    void SetupVisuals(RigDef::Turbojet & def, int num, std::string const& propname, Ogre::Entity* nozzle, Ogre::Entity* afterburner_flame, bool disable_smoke);
+    void SetupVisuals(RigDef::Turbojet & def, int num, std::string const& propname, Ogre::v1::Entity* nozzle, Ogre::v1::Entity* afterburner_flame, bool disable_smoke);
     void SetNodes(int front, int back, int ref);
     void UpdateVisuals(RoR::GfxActor* gfx_actor);
 
 private:
     Ogre::SceneNode*      m_smoke_scenenode;
     Ogre::ParticleSystem* m_smoke_particle;
-    Ogre::Entity*         m_flame_entity;
+    Ogre::v1::Entity*         m_flame_entity;
     Ogre::SceneNode*      m_flame_scenenode;
-    Ogre::Entity*         m_nozzle_entity;
+    Ogre::v1::Entity*         m_nozzle_entity;
     Ogre::SceneNode*      m_nozzle_scenenode;
 
     int      m_number;

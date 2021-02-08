@@ -22,9 +22,9 @@
 #include "ContentManager.h"
 
 
-#include <Overlay/OgreOverlayManager.h>
-#include <Overlay/OgreOverlay.h>
-#include <Plugins/ParticleFX/OgreBoxEmitterFactory.h>
+#include <OgreOverlayManager.h>
+#include <OgreOverlay.h>
+
 
 
 #include "Application.h"
@@ -37,7 +37,7 @@
 
 #include "CacheSystem.h"
 
-#include "OgreShaderParticleRenderer.h"
+
 
 // Removed by Skybon as part of OGRE 1.9 port 
 // Disabling temporarily for 1.8.1 as well. ~ only_a_ptr, 2015-11
@@ -140,7 +140,7 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack, std::str
 
     if (override_rgn.empty()) // Only init the default RG
     {
-        rgm.initialiseResourceGroup(rg_name);
+        rgm.initialiseResourceGroup(rg_name, /*changeLocaleTemporarily=*/true);
     }
 }
 
@@ -171,19 +171,7 @@ void ContentManager::InitContentManager()
     this->AddResourcePack(ResourcePack::DASHBOARDS);
 
 
-#ifdef _WIN32
-    // TODO: FIX UNDER LINUX!
-    // register particle classes
-    LOG("RoR|ContentManager: Registering Particle Box Emitter");
-    ParticleSystemRendererFactory* mParticleSystemRendererFact = OGRE_NEW ShaderParticleRendererFactory();
-    ParticleSystemManager::getSingleton().addRendererFactory(mParticleSystemRendererFact);
 
-    // Removed by Skybon as part of OGRE 1.9 port 
-    // Disabling temporarily for 1.8.1 as well.  ~ only_a_ptr, 2015-11
-    //ParticleEmitterFactory *mParticleEmitterFact = OGRE_NEW BoxEmitterFactory();
-    //ParticleSystemManager::getSingleton().addEmitterFactory(mParticleEmitterFact);
-
-#endif // _WIN32
 
 #ifdef USE_ANGELSCRIPT
     // FireExtinguisherAffector
@@ -212,11 +200,9 @@ void ContentManager::InitContentManager()
 
     LOG("RoR|ContentManager: Registering colored text overlay factory");
     ColoredTextAreaOverlayElementFactory* pCT = new ColoredTextAreaOverlayElementFactory();
-    OverlayManager::getSingleton().addOverlayElementFactory(pCT);
+    v1::OverlayManager::getSingleton().addOverlayElementFactory(pCT);
 
-    // set default mipmap level (NB some APIs ignore this)
-    if (TextureManager::getSingletonPtr())
-        TextureManager::getSingleton().setDefaultNumMipmaps(5);
+
 
     TextureFilterOptions tfo = TFO_NONE;
     switch (App::gfx_texture_filter->GetEnum<GfxTexFilter>())
@@ -226,14 +212,13 @@ void ContentManager::InitContentManager()
     case GfxTexFilter::BILINEAR:    tfo = TFO_BILINEAR;           break;
     case GfxTexFilter::NONE:        tfo = TFO_NONE;               break;
     }
-    MaterialManager::getSingleton().setDefaultAnisotropy(Math::Clamp(App::gfx_anisotropy->GetInt(), 1, 16));
-    MaterialManager::getSingleton().setDefaultTextureFiltering(tfo);
+
 
     // load all resources now, so the zip files are also initiated
     LOG("RoR|ContentManager: Calling initialiseAllResourceGroups()");
     try
     {
-        ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+        ResourceGroupManager::getSingleton().initialiseAllResourceGroups(/*changeLocaleTemporarily=*/true);
     }
     catch (Ogre::Exception& e)
     {
@@ -371,7 +356,7 @@ void ContentManager::InitManagedMaterials(std::string const & rg_name)
     ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir, "FileSystem", rg_name);
 
     if (rg_name == RGN_MANAGED_MATS) // Only initialize the global resource group
-        ResourceGroupManager::getSingleton().initialiseResourceGroup(rg_name);
+        ResourceGroupManager::getSingleton().initialiseResourceGroup(rg_name, /*changeLocaleTemporarily=*/true);
 }
 
 void ContentManager::LoadGameplayResources()

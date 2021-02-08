@@ -111,7 +111,7 @@ void SurveyMap::Draw()
 
     // Draw map texture
     ImVec2 tl_screen_pos = ImGui::GetCursorScreenPos();
-    Ogre::TexturePtr tex;
+    Ogre::TextureGpu* tex;
     Ogre::Vector2 smallmap_center;
     Ogre::Vector2 smallmap_size;
     Ogre::Vector2 view_origin;
@@ -321,7 +321,7 @@ void SurveyMap::DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 vie
                                       std::string const& filename, std::string const& caption, 
                                       float pos_x, float pos_y, float angle)
 {
-    Ogre::TexturePtr tex;
+    Ogre::TextureGpu* tex;
     try
     {
         tex = Ogre::TextureManager::getSingleton().load(

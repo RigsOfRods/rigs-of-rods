@@ -36,7 +36,6 @@
 #include "OgreImGui.h"
 #include "OverlayWrapper.h"
 #include "PlatformUtils.h"
-#include "RTTLayer.h"
 #include "TerrainManager.h"
 
 //Managed GUI panels
@@ -62,14 +61,12 @@
 #include "GUI_TopMenubar.h"
 #include "GUI_VehicleDescription.h"
 
-#include <MyGUI.h>
-#include <MyGUI_OgrePlatform.h>
+
 #include <OgreOverlay.h>
 #include <OgreOverlayElement.h>
 #include <OgreOverlayContainer.h>
 #include <OgreOverlayManager.h>
-
-#define RESOURCE_FILENAME "MyGUI_Core.xml"
+#include <OgreTextureGpuManager.h>
 
 namespace RoR {
 
@@ -96,10 +93,9 @@ struct GuiManagerImpl
     GUI::ConsoleWindow          panel_ConsoleWindow;
     GUI::SurveyMap              panel_SurveyMap;
     GUI::DirectionArrow         panel_DirectionArrow;
-    Ogre::Overlay*              overlay_Wallpaper = nullptr;
+    Ogre::v1::Overlay*          overlay_Wallpaper = nullptr;
 
-    MyGUI::Gui*                 mygui = nullptr;
-    MyGUI::OgrePlatform*        mygui_platform = nullptr;
+
 };
 
 void GUIManager::SetVisible_GameMainMenu        (bool v) { m_impl->panel_GameMainMenu       .SetVisible(v); }
@@ -150,35 +146,6 @@ GUI::DirectionArrow*        GUIManager::GetDirectionArrow()    { return &m_impl-
 
 GUIManager::GUIManager()
 {
-    std::string gui_logpath = PathCombine(App::sys_logs_dir->GetStr(), "MyGUI.log");
-    auto mygui_platform = new MyGUI::OgrePlatform();
-    mygui_platform->initialise(
-        App::GetAppContext()->GetRenderWindow(), 
-        App::GetGfxScene()->GetSceneManager(),
-        Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
-        gui_logpath); // use cache resource group so preview images are working
-    auto mygui = new MyGUI::Gui();
-
-    // empty init
-    mygui->initialise("");
-
-    // add layer factory
-    MyGUI::FactoryManager::getInstance().registerFactory<MyGUI::RTTLayer>("Layer");
-
-    // then load the actual config
-    MyGUI::ResourceManager::getInstance().load(RESOURCE_FILENAME);
-
-    MyGUI::ResourceManager::getInstance().load("MyGUI_FontsEnglish.xml");
-
-    m_impl = new GuiManagerImpl();
-    m_impl->mygui_platform = mygui_platform;
-    m_impl->mygui = mygui;
-    MyGUI::PointerManager::getInstance().setVisible(false); // RoR is using mouse cursor drawn by DearIMGUI.
-
-#ifdef _WIN32
-    MyGUI::LanguageManager::getInstance().eventRequestTag = MyGUI::newDelegate(this, &GUIManager::eventRequestTag);
-#endif // _WIN32
-
     this->SetupImGui();
 
     // Configure the chatbox console view
@@ -188,25 +155,6 @@ GUIManager::GUIManager()
 
 GUIManager::~GUIManager()
 {
-    delete m_impl;
-}
-
-void GUIManager::ShutdownMyGUI()
-{
-    if (m_impl->mygui)
-    {
-        m_impl->mygui->shutdown();
-        delete m_impl->mygui;
-        m_impl->mygui = nullptr;
-    }
-
-    if (m_impl->mygui_platform)
-    {
-        m_impl->mygui_platform->shutdown();
-        delete m_impl->mygui_platform;
-        m_impl->mygui_platform = nullptr;
-    }
-
     delete m_impl;
 }
 
@@ -293,10 +241,7 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     m_impl->panel_DirectionArrow.Update(player_gfx_actor);
 }
 
-void GUIManager::eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _result)
-{
-    _result = MyGUI::LanguageManager::getInstance().getTag(_tag);
-}
+
 
 void GUIManager::SetUpMenuWallpaper()
 {
@@ -315,29 +260,24 @@ void GUIManager::SetUpMenuWallpaper()
 
     // Set up wallpaper
     // ...texture...
-    Ogre::ResourceManager::ResourceCreateOrRetrieveResult wp_tex_result
-        = Ogre::TextureManager::getSingleton().createOrRetrieve(files->at(num).filename, "Wallpapers");
-    Ogre::TexturePtr wp_tex = wp_tex_result.first.staticCast<Ogre::Texture>();
+    Ogre::TextureGpu* wp_tex = Ogre::Root::getSingleton().getRenderSystem()->getTextureGpuManager()->createOrRetrieveTexture(
+        files->at(num).filename, Ogre::GpuPageOutStrategy::Discard, Ogre::CommonTextureTypes::Diffuse, "Wallpapers");
+
     // ...material...
-    Ogre::MaterialPtr wp_mat = Ogre::MaterialManager::getSingleton().create("rigsofrods/WallpaperMat", Ogre::RGN_DEFAULT);
+    Ogre::MaterialPtr wp_mat = Ogre::MaterialManager::getSingleton().create("rigsofrods/WallpaperMat", "Wallpapers");
     Ogre::TextureUnitState* wp_tus = wp_mat->getTechnique(0)->getPass(0)->createTextureUnitState();
     wp_tus->setTexture(wp_tex);
     wp_mat->compile();
     // ...panel...
-    Ogre::OverlayElement* wp_panel = Ogre::OverlayManager::getSingleton()
+    Ogre::v1::OverlayElement* wp_panel = Ogre::v1::v1::OverlayManager::getSingleton()
         .createOverlayElement("Panel", "rigsofrods/WallpaperPanel", /*isTemplate=*/false);
     wp_panel->setMaterial(wp_mat);
     wp_panel->setDimensions(1.f, 1.f);
     // ...overlay...
-    m_impl->overlay_Wallpaper = Ogre::OverlayManager::getSingleton().create("rigsofrods/WallpaperOverlay");
-    m_impl->overlay_Wallpaper->add2D(static_cast<Ogre::OverlayContainer*>(wp_panel)); // 'Panel' inherits from 'Container'
+    m_impl->overlay_Wallpaper = Ogre::v1::v1::OverlayManager::getSingleton().create("rigsofrods/WallpaperOverlay");
+    m_impl->overlay_Wallpaper->add2D(static_cast<Ogre::v1::OverlayContainer*>(wp_panel)); // 'Panel' inherits from 'Container'
     m_impl->overlay_Wallpaper->setZOrder(0);
     m_impl->overlay_Wallpaper->show();
-}
-
-void GUIManager::SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager)
-{
-    m_impl->mygui_platform->getRenderManagerPtr()->setSceneManager(scene_manager);
 }
 
 void GUIManager::SetGuiHidden(bool hidden)

@@ -25,9 +25,9 @@
 
 #include <Ogre.h>
 #include <Terrain/OgreTerrain.h>
-#include <Overlay/OgreOverlayManager.h>
-#include <Overlay/OgreOverlayContainer.h>
-#include <Overlay/OgreOverlay.h>
+#include <OgreOverlayManager.h>
+#include <OgreOverlayContainer.h>
+#include <OgreOverlay.h>
 #include <OgreMaterialManager.h>
 
 using namespace Ogre;
@@ -63,7 +63,7 @@ int ShadowManager::updateShadowTechnique()
         {
             // add the overlay elements to show the shadow maps:
             // init overlay elements
-            OverlayManager& mgr = Ogre::OverlayManager::getSingleton();
+            OverlayManager& mgr = Ogre::v1::OverlayManager::getSingleton();
             Overlay* overlay = mgr.create("DebugOverlay");
 
             for (int i = 0; i < PSSM_Shadows.ShadowsTextureNum; ++i)
@@ -76,7 +76,7 @@ int ShadowManager::updateShadowTechnique()
                 TextureUnitState* t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState(tex->getName());
                 t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
 
-                OverlayContainer* debugPanel = (OverlayContainer*)(OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugTexPanel" + StringConverter::toString(i)));
+                OverlayContainer* debugPanel = (OverlayContainer*)(v1::OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugTexPanel" + StringConverter::toString(i)));
                 debugPanel->_setPosition(0.8, i * 0.25);
                 debugPanel->_setDimensions(0.2, 0.24);
                 debugPanel->setMaterialName(debugMat->getName());

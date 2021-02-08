@@ -154,7 +154,7 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
     }
 
     // Draw icons based on filters
-    Ogre::TexturePtr icon;
+    Ogre::TextureGpu* icon;
     if (cvw_enable_icons)
     {
         if (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
@@ -250,7 +250,7 @@ bool ConsoleView::MessageFilter(Console::Message const& m)
     return type_ok && area_ok;
 }
 
-ImVec2 ConsoleView::DrawColoredTextWithIcon(ImVec2 bg_cursor, Ogre::TexturePtr icon, ImVec4 default_color, std::string const& line)
+ImVec2 ConsoleView::DrawColoredTextWithIcon(ImVec2 bg_cursor, Ogre::TextureGpu* icon, ImVec4 default_color, std::string const& line)
 {
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
 

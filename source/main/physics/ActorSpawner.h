@@ -30,8 +30,6 @@
 #include "Application.h"
 #include "RigDef_Parser.h"
 #include "SimData.h"
-#include "FlexFactory.h"
-#include "FlexObj.h"
 #include "GfxActor.h"
 
 #include <OgreString.h>
@@ -900,7 +898,7 @@ private:
     *   8. SkinZIP _texture replacements_ are queried. If match is found, substitute material is updated.
     *   9. Material is added to lookup table, processing ends.
     */
-    void SetupNewEntity(Ogre::Entity* e, Ogre::ColourValue simple_color);
+    void SetupNewEntity(Ogre::v1::Entity* e, Ogre::ColourValue simple_color);
 
     void CreateGfxActor();
 
@@ -1054,7 +1052,7 @@ private:
     float              m_wing_area;
     int                m_airplane_left_light;
     int                m_airplane_right_light;
-    RoR::FlexFactory   m_flex_factory;
+
     Ogre::MaterialPtr  m_placeholder_managedmat;
     Ogre::SceneNode*   m_particles_parent_scenenode;
     Ogre::MaterialPtr  m_cab_trans_material;
@@ -1069,8 +1067,7 @@ private:
     Ogre::SceneNode*   m_curr_mirror_prop_scenenode;
     std::vector<RoR::Prop>    m_props;
     int                       m_driverseat_prop_index;
-    std::vector<CabTexcoord>  m_oldstyle_cab_texcoords;
-    std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;
+
     ActorMemoryRequirements   m_memory_requirements;
     RigDef::File::Keyword     m_current_keyword; //!< For error reports
     std::vector<RoR::NodeGfx> m_gfx_nodes;

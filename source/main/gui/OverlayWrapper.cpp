@@ -24,9 +24,9 @@
 /// @date   6th of May 2010
 
 #include <Ogre.h>
-#include <Overlay/OgreOverlayManager.h>
-#include <Overlay/OgreOverlay.h>
-#include <Overlay/OgreFontManager.h>
+#include <OgreOverlayManager.h>
+#include <OgreOverlay.h>
+#include <OgreFontManager.h>
 #include "OverlayWrapper.h"
 
 #include "AeroEngine.h"
@@ -69,7 +69,7 @@ OverlayWrapper::~OverlayWrapper()
     HideRacingOverlay();
 }
 
-void OverlayWrapper::resizePanel(OverlayElement* oe)
+void OverlayWrapper::resizePanel(v1::OverlayElement* oe)
 {
     if (g_is_scaled)
         return;
@@ -77,7 +77,7 @@ void OverlayWrapper::resizePanel(OverlayElement* oe)
     oe->setTop(oe->getTop() * (Real)win->getWidth() / (Real)win->getHeight());
 }
 
-void OverlayWrapper::reposPanel(OverlayElement* oe)
+void OverlayWrapper::reposPanel(v1::OverlayElement* oe)
 {
     if (g_is_scaled)
         return;
@@ -90,9 +90,9 @@ void OverlayWrapper::placeNeedle(SceneNode* node, float x, float y, float len)
     node->setScale(0.0025, 0.007 * len, 0.007);
 }
 
-Overlay* OverlayWrapper::loadOverlay(String name, bool autoResizeRation)
+v1::Overlay* OverlayWrapper::loadOverlay(String name, bool autoResizeRation)
 {
-    Overlay* o = OverlayManager::getSingleton().getByName(name);
+    v1::Overlay* o = v1::v1::OverlayManager::getSingleton().getByName(name);
     if (!o)
         return NULL;
 
@@ -137,9 +137,9 @@ void OverlayWrapper::windowResized()
     }
 }
 
-OverlayElement* OverlayWrapper::loadOverlayElement(String name)
+v1::OverlayElement* OverlayWrapper::loadOverlayElement(String name)
 {
-    return OverlayManager::getSingleton().getOverlayElement(name);
+    return v1::v1::OverlayManager::getSingleton().getOverlayElement(name);
 }
 
 Ogre::TextureUnitState* GetTexUnit(Ogre::String material_name) // Internal helper
@@ -168,18 +168,18 @@ int OverlayWrapper::init()
     resizePanel(loadOverlayElement("tracks/machineinstructions"));
     resizePanel(loadOverlayElement("tracks/machinehelppanel"));
 
-    resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/machinedashbar"));
-    resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/machinedashfiller"));
+    resizePanel(v1::OverlayManager::getSingleton().getOverlayElement("tracks/machinedashbar"));
+    resizePanel(v1::OverlayManager::getSingleton().getOverlayElement("tracks/machinedashfiller"));
 
-    resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/airdashbar"));
-    resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/airdashfiller"));
+    resizePanel(v1::OverlayManager::getSingleton().getOverlayElement("tracks/airdashbar"));
+    resizePanel(v1::OverlayManager::getSingleton().getOverlayElement("tracks/airdashfiller"));
 
     OverlayElement* tempoe;
-    resizePanel(tempoe = OverlayManager::getSingleton().getOverlayElement("tracks/thrusttrack1"));
+    resizePanel(tempoe = v1::OverlayManager::getSingleton().getOverlayElement("tracks/thrusttrack1"));
 
-    resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/thrusttrack2"));
-    resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/thrusttrack3"));
-    resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/thrusttrack4"));
+    resizePanel(v1::OverlayManager::getSingleton().getOverlayElement("tracks/thrusttrack2"));
+    resizePanel(v1::OverlayManager::getSingleton().getOverlayElement("tracks/thrusttrack3"));
+    resizePanel(v1::OverlayManager::getSingleton().getOverlayElement("tracks/thrusttrack4"));
 
     resizePanel(m_aerial_dashboard.engines[0].thr_element = loadOverlayElement("tracks/thrust1"));
     resizePanel(m_aerial_dashboard.engines[1].thr_element = loadOverlayElement("tracks/thrust2"));
@@ -402,7 +402,7 @@ void OverlayWrapper::showDashboardOverlays(bool show, Actor* actor)
         }
         else if (mode == MACHINE)
         {
-            Ogre::OverlayElement* help_elem = OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel");
+            Ogre::v1::OverlayElement* help_elem = v1::OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel");
             if (actor->GetGfxActor()->GetAttributes().xa_help_mat)
             {
                 help_elem->setMaterial(actor->GetGfxActor()->GetAttributes().xa_help_mat);
@@ -438,17 +438,17 @@ void OverlayWrapper::updateStats(bool detailed)
     // update stats when necessary
     try
     {
-        OverlayElement* guiAvg = OverlayManager::getSingleton().getOverlayElement("Core/AverageFps");
-        OverlayElement* guiCurr = OverlayManager::getSingleton().getOverlayElement("Core/CurrFps");
-        OverlayElement* guiBest = OverlayManager::getSingleton().getOverlayElement("Core/BestFps");
-        OverlayElement* guiWorst = OverlayManager::getSingleton().getOverlayElement("Core/WorstFps");
+        OverlayElement* guiAvg = v1::OverlayManager::getSingleton().getOverlayElement("Core/AverageFps");
+        OverlayElement* guiCurr = v1::OverlayManager::getSingleton().getOverlayElement("Core/CurrFps");
+        OverlayElement* guiBest = v1::OverlayManager::getSingleton().getOverlayElement("Core/BestFps");
+        OverlayElement* guiWorst = v1::OverlayManager::getSingleton().getOverlayElement("Core/WorstFps");
 
         guiAvg->setCaption(avgFps + TOSTRING(stats.avgFPS));
         guiCurr->setCaption(currFps + TOSTRING(stats.lastFPS));
         guiBest->setCaption(bestFps + TOSTRING(stats.bestFPS) + U(" ") + TOSTRING(stats.bestFrameTime) + U(" ms"));
         guiWorst->setCaption(worstFps + TOSTRING(stats.worstFPS) + U(" ") + TOSTRING(stats.worstFrameTime) + U(" ms"));
 
-        OverlayElement* guiTris = OverlayManager::getSingleton().getOverlayElement("Core/NumTris");
+        OverlayElement* guiTris = v1::OverlayManager::getSingleton().getOverlayElement("Core/NumTris");
         UTFString triss = tris + TOSTRING(stats.triangleCount);
         if (stats.triangleCount > 1000000)
             triss = tris + TOSTRING(stats.triangleCount/1000000.0f) + U(" M");
@@ -478,13 +478,13 @@ void OverlayWrapper::updateStats(bool detailed)
             memoryText = memoryText + _L("Materials: ") + formatBytes(MaterialManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(MaterialManager::getSingleton().getMemoryBudget()) + U("\n");
         memoryText = memoryText + U("\n");
 
-        OverlayElement* memoryDbg = OverlayManager::getSingleton().getOverlayElement("Core/MemoryText");
+        OverlayElement* memoryDbg = v1::OverlayManager::getSingleton().getOverlayElement("Core/MemoryText");
         memoryDbg->setCaption(memoryText);
 
         float sumMem = TextureManager::getSingleton().getMemoryUsage() + CompositorManager::getSingleton().getMemoryUsage() + FontManager::getSingleton().getMemoryUsage() + GpuProgramManager::getSingleton().getMemoryUsage() + HighLevelGpuProgramManager::getSingleton().getMemoryUsage() + MaterialManager::getSingleton().getMemoryUsage() + MeshManager::getSingleton().getMemoryUsage() + SkeletonManager::getSingleton().getMemoryUsage() + MaterialManager::getSingleton().getMemoryUsage();
         String sumMemoryText = _L("Memory (Ogre): ") + formatBytes(sumMem) + U("\n");
 
-        OverlayElement* memorySumDbg = OverlayManager::getSingleton().getOverlayElement("Core/CurrMemory");
+        OverlayElement* memorySumDbg = v1::OverlayManager::getSingleton().getOverlayElement("Core/CurrMemory");
         memorySumDbg->setCaption(sumMemoryText);
     }
     catch (...)
@@ -1062,16 +1062,16 @@ void AeroSwitchOverlay::SetActive(bool value)
 
 void AeroSwitchOverlay::Setup(std::string const & elem_name, std::string const & mat_on, std::string const & mat_off)
 {
-    element = Ogre::OverlayManager::getSingleton().getOverlayElement(elem_name);
+    element = Ogre::v1::OverlayManager::getSingleton().getOverlayElement(elem_name);
     on_material = Ogre::MaterialManager::getSingleton().getByName(mat_on);
     off_material = Ogre::MaterialManager::getSingleton().getByName(mat_off);
 }
 
 void AeroTrimOverlay::Setup(std::string const & up, std::string const & dn, std::string const & disp)
 {
-    display = Ogre::OverlayManager::getSingleton().getOverlayElement(disp);
-    up_button = Ogre::OverlayManager::getSingleton().getOverlayElement(up);
-    dn_button = Ogre::OverlayManager::getSingleton().getOverlayElement(dn);
+    display = Ogre::v1::OverlayManager::getSingleton().getOverlayElement(disp);
+    up_button = Ogre::v1::OverlayManager::getSingleton().getOverlayElement(up);
+    dn_button = Ogre::v1::OverlayManager::getSingleton().getOverlayElement(dn);
 }
 
 void AeroTrimOverlay::DisplayFormat(const char* fmt, ...)

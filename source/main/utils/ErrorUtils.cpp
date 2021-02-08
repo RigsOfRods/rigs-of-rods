@@ -38,18 +38,18 @@
 
 using namespace Ogre;
 
-int ErrorUtils::ShowError(Ogre::UTFString title, Ogre::UTFString err)
+int ErrorUtils::ShowError(Ogre::v1::DisplayString title, Ogre::v1::DisplayString err)
 {
-    Ogre::UTFString infoText = _L("An internal error occured in Rigs of Rods.\n\nTechnical details below: \n\n");
+    Ogre::v1::DisplayString infoText = _L("An internal error occured in Rigs of Rods.\n\nTechnical details below: \n\n");
     return ErrorUtils::ShowMsgBox(_L("FATAL ERROR"), infoText + err, 0);
 }
 
-int ErrorUtils::ShowInfo(Ogre::UTFString title, Ogre::UTFString err)
+int ErrorUtils::ShowInfo(Ogre::v1::DisplayString title, Ogre::v1::DisplayString err)
 {
     return ErrorUtils::ShowMsgBox(title, err, 1);
 }
 
-int ErrorUtils::ShowMsgBox(Ogre::UTFString title, Ogre::UTFString err, int type)
+int ErrorUtils::ShowMsgBox(Ogre::v1::DisplayString title, Ogre::v1::DisplayString err, int type)
 {
     // we might call the ErrorUtils::ShowMsgBox without having ogre created yet!
     //LOG("message box: " + title + ": " + err);

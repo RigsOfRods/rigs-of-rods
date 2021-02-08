@@ -48,7 +48,7 @@ static inline ImVec2& operator/=(ImVec2& lhs, const float rhs)                  
 /// DearIMGUI integration.
 /// Input handling is done by injecting OIS events to ImGUI
 /// Rendering is done via port of Ogre::ImGuiOverlay; this is temporary until we migrate to OGRE 1.12.x
-///   however, since our OGRE version doesn't have `OverlayManager::addOverlay()`,
+///   however, since our OGRE version doesn't have `v1::OverlayManager::addOverlay()`,
 ///   we queue it for rendering ourselves via RenderQueueListener
 ///   (code is shamelessly copy-pasted from OGRE)
 class OgreImGui: public Ogre::RenderQueueListener
@@ -64,8 +64,8 @@ public:
     void InjectKeyReleased( const OIS::KeyEvent &arg );
 
     // Ogre::RenderQueueListener
-    virtual void renderQueueStarted(Ogre::uint8 queueGroupId,
-        const Ogre::String& invocation, bool& skipThisInvocation) override;
+    virtual void renderQueueStarted( Ogre::RenderQueue *rq, Ogre::uint8 queueGroupId, const Ogre::String& invocation, 
+                                        bool& skipThisInvocation) override;
 
 private:
     std::unique_ptr<Ogre::ImGuiOverlay> m_imgui_overlay;

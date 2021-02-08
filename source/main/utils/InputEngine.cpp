@@ -651,7 +651,7 @@ void InputEngine::Capture()
     }
 }
 
-void InputEngine::windowResized(Ogre::RenderWindow* rw)
+void InputEngine::windowResized(Ogre::Window* rw)
 {
     //update mouse area
     unsigned int width, height, depth;

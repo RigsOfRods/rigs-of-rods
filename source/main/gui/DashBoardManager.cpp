@@ -113,8 +113,7 @@ DashBoardManager::DashBoardManager(void) : visible(true), free_dashboard(0)
 
     INITDATA(DD_SIGNAL_TURNLEFT         , DC_BOOL, "signal_turnleft");
     INITDATA(DD_SIGNAL_TURNRIGHT        , DC_BOOL, "signal_turnright");
-    // load dash fonts
-    MyGUI::ResourceManager::getInstance().load("MyGUI_FontsDash.xml");
+
 }
 
 DashBoardManager::~DashBoardManager(void)
@@ -219,20 +218,17 @@ void DashBoardManager::windowResized()
 
 // DASHBOARD class below
 
-DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, bool _textureLayer) : manager(manager), filename(filename), free_controls(0), visible(false), mainWidget(nullptr), textureLayer(_textureLayer)
+DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, bool _textureLayer) : manager(manager), filename(filename), free_controls(0), visible(false), textureLayer(_textureLayer)
 {
-    // use 'this' class pointer to make layout unique
-    prefix = MyGUI::utility::toString(this, "_");
+
     memset(&controls, 0, sizeof(controls));
     loadLayout(filename);
-    // hide first
-    if (mainWidget)
-        mainWidget->setVisible(false);
+
 }
 
 DashBoard::~DashBoard()
 {
-    MyGUI::LayoutManager::getInstance().unloadLayout(widgets);
+
 }
 
 void DashBoard::updateFeatures()
@@ -242,7 +238,7 @@ void DashBoard::updateFeatures()
     {
         bool enabled = manager->getEnabled(controls[i].linkID);
 
-        controls[i].widget->setVisible(enabled);
+        //TODO OGRE2x controls[i].widget->setVisible(enabled);
     }
 }
 
@@ -270,7 +266,7 @@ void DashBoard::update(float& dt)
             else if (angle > controls[i].wmax)
                 angle = controls[i].wmax;
             // rotate finally
-            controls[i].rotImg->setAngle(Ogre::Degree(angle).valueRadians());
+            // TODO OGRE2x // controls[i].rotImg->setAngle(Ogre::Degree(angle).valueRadians());
         }
         else if (controls[i].animationType == ANIM_LAMP)
         {
@@ -299,11 +295,11 @@ void DashBoard::update(float& dt)
             // switch states
             if (state)
             {
-                controls[i].img->setImageTexture(String(controls[i].texture) + "-on.png");
+                // TODO OGRE2x // controls[i].img->setImageTexture(String(controls[i].texture) + "-on.png");
             }
             else
             {
-                controls[i].img->setImageTexture(String(controls[i].texture) + "-off.png");
+                // TODO OGRE2x // controls[i].img->setImageTexture(String(controls[i].texture) + "-off.png");
             }
         }
         else if (controls[i].animationType == ANIM_SERIES)
@@ -316,7 +312,7 @@ void DashBoard::update(float& dt)
                 continue;
             controls[i].last = val;
 
-            controls[i].img->setImageTexture(fn);
+            // TODO OGRE2x // controls[i].img->setImageTexture(fn);
         }
         else if (controls[i].animationType == ANIM_SCALE)
         {
@@ -329,23 +325,23 @@ void DashBoard::update(float& dt)
             float scale = (val - controls[i].vmin) * (controls[i].wmax - controls[i].wmin) / (controls[i].vmax - controls[i].vmin) + controls[i].wmin;
             if (controls[i].direction == DIRECTION_UP)
             {
-                controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top - scale);
-                controls[i].widget->setSize(controls[i].initialSize.width, controls[i].initialSize.height + scale);
+                // TODO OGRE2x // controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top - scale);
+                // TODO OGRE2x // controls[i].widget->setSize(controls[i].initialSize.width, controls[i].initialSize.height + scale);
             }
             else if (controls[i].direction == DIRECTION_DOWN)
             {
-                controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top);
-                controls[i].widget->setSize(controls[i].initialSize.width, controls[i].initialSize.height + scale);
+                // TODO OGRE2x // controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top);
+                // TODO OGRE2x // controls[i].widget->setSize(controls[i].initialSize.width, controls[i].initialSize.height + scale);
             }
             else if (controls[i].direction == DIRECTION_LEFT)
             {
-                controls[i].widget->setPosition(controls[i].initialPosition.left - scale, controls[i].initialPosition.top);
-                controls[i].widget->setSize(controls[i].initialSize.width + scale, controls[i].initialSize.height);
+                // TODO OGRE2x // controls[i].widget->setPosition(controls[i].initialPosition.left - scale, controls[i].initialPosition.top);
+                // TODO OGRE2x // controls[i].widget->setSize(controls[i].initialSize.width + scale, controls[i].initialSize.height);
             }
             else if (controls[i].direction == DIRECTION_RIGHT)
             {
-                controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top);
-                controls[i].widget->setSize(controls[i].initialSize.width + scale, controls[i].initialSize.height);
+                // TODO OGRE2x // controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top);
+                // TODO OGRE2x // controls[i].widget->setSize(controls[i].initialSize.width + scale, controls[i].initialSize.height);
             }
         }
         else if (controls[i].animationType == ANIM_TRANSLATE)
@@ -358,13 +354,13 @@ void DashBoard::update(float& dt)
 
             float translation = (val - controls[i].vmin) * (controls[i].wmax - controls[i].wmin) / (controls[i].vmax - controls[i].vmin) + controls[i].wmin;
             if (controls[i].direction == DIRECTION_UP)
-                controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top - translation);
+                ;// TODO OGRE2x // controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top - translation);
             else if (controls[i].direction == DIRECTION_DOWN)
-                controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top + translation);
+                ;// TODO OGRE2x // controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top + translation);
             else if (controls[i].direction == DIRECTION_LEFT)
-                controls[i].widget->setPosition(controls[i].initialPosition.left - translation, controls[i].initialPosition.top);
+                ;// TODO OGRE2x // controls[i].widget->setPosition(controls[i].initialPosition.left - translation, controls[i].initialPosition.top);
             else if (controls[i].direction == DIRECTION_RIGHT)
-                controls[i].widget->setPosition(controls[i].initialPosition.left + translation, controls[i].initialPosition.top);
+                ;// TODO OGRE2x // controls[i].widget->setPosition(controls[i].initialPosition.left + translation, controls[i].initialPosition.top);
         }
         else if (controls[i].animationType == ANIM_TEXTFORMAT)
         {
@@ -374,7 +370,7 @@ void DashBoard::update(float& dt)
                 continue;
             controls[i].last = val;
 
-            MyGUI::UString s;
+            Ogre::v1::DisplayString s;
             if (strlen(controls[i].format) == 0)
             {
                 s = Ogre::StringConverter::toString(val);
@@ -390,359 +386,20 @@ void DashBoard::update(float& dt)
                     sprintf(tmp, controls[i].format, 0.f);
                 }
 
-                s = MyGUI::UString(tmp);
+                s = tmp;
             }
 
-            controls[i].txt->setCaption(s);
+            // TODO OGRE2x // controls[i].txt->setCaption(s);
         }
         else if (controls[i].animationType == ANIM_TEXTSTRING)
         {
             char* val = manager->getChar(controls[i].linkID);
-            controls[i].txt->setCaption(MyGUI::UString(val));
+            // TODO OGRE2x // controls[i].txt->setCaption(MyGUI::UString(val));
         }
     }
 }
 
 void DashBoard::windowResized()
 {
-    if (!mainWidget)
-        return;
-    mainWidget->setPosition(0, 0);
-    if (textureLayer)
-    {
-        // texture layers are independent from the screen size, but rather from the layer texture size
-        TexturePtr tex = TextureManager::getSingleton().getByName("RTTTexture1");
-        if (!tex.isNull())
-            mainWidget->setSize(tex->getWidth(), tex->getHeight());
-    }
-    else
-    {
-        MyGUI::IntSize screenSize = MyGUI::RenderManager::getInstance().getViewSize();
-        mainWidget->setSize(screenSize);
-    }
-}
 
-void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
-{
-    std::string name = w->getName();
-    std::string anim = w->getUserString("anim");
-    std::string debug = w->getUserString("debug");
-    std::string linkArgs = w->getUserString("link");
-
-    // make it unclickable
-    w->setUserString("interactive", "0");
-
-    if (!debug.empty())
-    {
-        w->setVisible(false);
-        return;
-    }
-
-    // find the root widget and ignore debug widgets
-    if (name.size() > prefix.size())
-    {
-        std::string prefixLessName = name.substr(prefix.size());
-        if (prefixLessName == "_Main")
-        {
-            mainWidget = (MyGUI::WindowPtr)w;
-            // resize it
-            windowResized();
-        }
-
-        // ignore debug widgets
-        if (prefixLessName == "DEBUG")
-        {
-            w->setVisible(false);
-            return;
-        }
-    }
-
-    // animations for this control?
-    if (!linkArgs.empty())
-    {
-        layoutLink_t ctrl;
-        memset(&ctrl, 0, sizeof(ctrl));
-
-        if (!name.empty())
-            strncpy(ctrl.name, name.c_str(), 255);
-        ctrl.widget = w;
-        ctrl.initialSize = w->getSize();
-        ctrl.initialPosition = w->getPosition();
-        ctrl.last = 1337.1337f; // force update
-        ctrl.lastState = true;
-
-        // establish the link
-        {
-            replaceString(linkArgs, "&gt;", ">");
-            replaceString(linkArgs, "&lt;", "<");
-            String linkName = "";
-            if (linkArgs.empty())
-            {
-                LOG("Dashboard ("+filename+"/"+name+"): empty Link");
-                return;
-            }
-            // conditional checks
-            // TODO: improve the logic, this is crap ...
-            if (linkArgs.find(">") != linkArgs.npos)
-            {
-                Ogre::StringVector args = Ogre::StringUtil::split(linkArgs, ">");
-                if (args.size() == 2)
-                {
-                    linkName = args[0];
-                    ctrl.conditionArgument = StringConverter::parseReal(args[1]);
-                    ctrl.condition = CONDITION_GREATER;
-                }
-                else
-                {
-                    LOG("Dashboard ("+filename+"/"+name+"): error in conditional Link: " + linkArgs);
-                    return;
-                }
-            }
-            else if (linkArgs.find("<") != linkArgs.npos)
-            {
-                Ogre::StringVector args = Ogre::StringUtil::split(linkArgs, "<");
-                if (args.size() == 2)
-                {
-                    linkName = args[0];
-                    ctrl.conditionArgument = StringConverter::parseReal(args[1]);
-                    ctrl.condition = CONDITION_LESSER;
-                }
-                else
-                {
-                    LOG("Dashboard ("+filename+"/"+name+"): error in conditional Link: " + linkArgs);
-                    return;
-                }
-            }
-            else
-            {
-                ctrl.condition = CONDITION_NONE;
-                ctrl.conditionArgument = 0;
-                linkName = linkArgs;
-            }
-
-            // now try to get the enum id for it
-            int linkID = manager->getLinkIDForName(linkName);
-            if (linkID < 0)
-            {
-                LOG("Dashboard ("+filename+"/"+name+"): unknown Link: " + linkName);
-                return;
-            }
-
-            ctrl.linkID = linkID;
-        }
-
-        // parse more attributes
-        ctrl.wmin = StringConverter::parseReal(w->getUserString("min"));
-        ctrl.wmax = StringConverter::parseReal(w->getUserString("max"));
-        ctrl.vmin = StringConverter::parseReal(w->getUserString("vmin"));
-        ctrl.vmax = StringConverter::parseReal(w->getUserString("vmax"));
-
-        String texture = w->getUserString("texture");
-        if (!texture.empty())
-            strncpy(ctrl.texture, texture.c_str(), 255);
-
-        String format = w->getUserString("format");
-        if (!format.empty())
-            strncpy(ctrl.format, format.c_str(), 255);
-
-        String direction = w->getUserString("direction");
-        if (direction == "right")
-            ctrl.direction = DIRECTION_RIGHT;
-        else if (direction == "left")
-            ctrl.direction = DIRECTION_LEFT;
-        else if (direction == "down")
-            ctrl.direction = DIRECTION_DOWN;
-        else if (direction == "up")
-            ctrl.direction = DIRECTION_UP;
-        else if (!direction.empty())
-        {
-            LOG("Dashboard ("+filename+"/"+name+"): unknown direction: " + direction);
-            return;
-        }
-        // then specializations
-        if (anim == "rotate")
-        {
-            ctrl.animationType = ANIM_ROTATE;
-            // check if its the correct control
-            // try to cast, will throw
-            // and if the link is a float
-            /*
-            if (manager->getDataType(ctrl.linkID) != DC_FLOAT)
-            {
-                LOG("Dashboard ("+filename+"/"+name+"): Rotating controls can only link to floats");
-                continue;
-            }
-            */
-
-            try
-            {
-                ctrl.rotImg = w->getSubWidgetMain()->castType<MyGUI::RotatingSkin>();
-            }
-            catch (...)
-            {
-                LOG("Dashboard ("+filename+"/"+name+"): Rotating controls must use the RotatingSkin");
-                return;
-            }
-            if (!ctrl.rotImg)
-            {
-                LOG("Dashboard ("+filename+"/"+name+"): error loading rotation control");
-                return;
-            }
-
-            // special: set rotation center now into the middle
-            ctrl.rotImg->setCenter(MyGUI::IntPoint(w->getHeight() * 0.5f, w->getWidth() * 0.5f));
-        }
-        else if (anim == "scale")
-        {
-            ctrl.animationType = ANIM_SCALE;
-            if (ctrl.direction == DIRECTION_NONE)
-            {
-                LOG("Dashboard ("+filename+"/"+name+"): direction empty: scale needs a direction");
-                return;
-            }
-        }
-        else if (anim == "translate")
-        {
-            ctrl.animationType = ANIM_TRANSLATE;
-            if (ctrl.direction == DIRECTION_NONE)
-            {
-                LOG("Dashboard ("+filename+"/"+name+"): direction empty: translate needs a direction");
-                return;
-            }
-        }
-        else if (anim == "series")
-        {
-            ctrl.animationType = ANIM_SERIES;
-            ctrl.img = (MyGUI::ImageBox *)w; //w->getSubWidgetMain()->castType<MyGUI::ImageBox>();
-            if (!ctrl.img)
-            {
-                LOG("Dashboard ("+filename+"/"+name+"): error loading series control");
-                return;
-            }
-        }
-        else if (anim == "textcolor" || anim == "textcolour")
-        {
-            ctrl.animationType = ANIM_TEXTCOLOR;
-
-            // try to cast, will throw
-            try
-            {
-                ctrl.txt = (MyGUI::TextBox *)w;
-            }
-            catch (...)
-            {
-                LOG("Dashboard ("+filename+"/"+name+"): textcolor controls must use the TextBox Control");
-                return;
-            }
-        }
-        else if (anim == "textformat")
-        {
-            // try to cast, will throw
-            try
-            {
-                ctrl.txt = (MyGUI::TextBox *)w; // w->getSubWidgetMain()->castType<MyGUI::TextBox>();
-            }
-            catch (...)
-            {
-                LOG("Dashboard ("+filename+"/"+name+"): Lamp controls must use the ImageBox Control");
-                return;
-            }
-            ctrl.animationType = ANIM_TEXTFORMAT;
-
-            // Prepare for eliminating negative zero (-0.0) display
-            // Must be done on string-level because -0.001 with format "%1.0f" would still produce "-0"
-            if (std::strlen(ctrl.format))
-            {
-                std::snprintf(ctrl.format_neg_zero, 255, ctrl.format, -0.f);
-            }
-        }
-        else if (anim == "textstring")
-        {
-            // try to cast, will throw
-            try
-            {
-                ctrl.txt = (MyGUI::TextBox *)w; // w->getSubWidgetMain()->castType<MyGUI::TextBox>();
-            }
-            catch (...)
-            {
-                LOG("Dashboard ("+filename+"/"+name+"): Lamp controls must use the ImageBox Control");
-                return;
-            }
-            ctrl.animationType = ANIM_TEXTSTRING;
-        }
-        else if (anim == "lamp")
-        {
-            // try to cast, will throw
-            /*
-            {
-                try
-                {
-                    w->getSubWidgetMain()->castType<MyGUI::ImageBox>();
-                }
-                catch (...)
-                {
-                    LOG("Dashboard ("+filename+"/"+name+"): Lamp controls must use the ImageBox Control");
-                    continue;
-                }
-            }
-            */
-            ctrl.animationType = ANIM_LAMP;
-            ctrl.img = (MyGUI::ImageBox *)w; //w->getSubWidgetMain()->castType<MyGUI::ImageBox>();
-            if (!ctrl.img)
-            {
-                LOG("Dashboard ("+filename+"/"+name+"): error loading Lamp control");
-                return;
-            }
-        }
-
-        controls[free_controls] = ctrl;
-        free_controls++;
-        if (free_controls >= MAX_CONTROLS)
-        {
-            LOG("maximum amount of controls reached, discarding the rest: " + TOSTRING(MAX_CONTROLS));
-            return;
-        }
-    }
-
-    // walk the children now
-    MyGUI::EnumeratorWidgetPtr e = w->getEnumerator();
-    while (e.next())
-    {
-        loadLayoutRecursive(e.current());
-    }
-}
-
-void DashBoard::loadLayout(Ogre::String filename)
-{
-    widgets = MyGUI::LayoutManager::getInstance().loadLayout(filename, prefix, nullptr); // never has a parent
-
-    for (MyGUI::VectorWidgetPtr::iterator iter = widgets.begin(); iter != widgets.end(); ++iter)
-    {
-        loadLayoutRecursive(*iter);
-    }
-
-    // if this thing should be rendered to texture, relocate the main window to the RTT layer
-    if (textureLayer && mainWidget)
-        mainWidget->detachFromWidget("RTTLayer1");
-}
-
-void DashBoard::setVisible(bool v, bool smooth)
-{
-    visible = v;
-
-    if (!mainWidget)
-    {
-        for (MyGUI::VectorWidgetPtr::iterator iter = widgets.begin(); iter != widgets.end(); ++iter)
-        {
-            (*iter)->setVisible(v);
-        }
-        return;
-    }
-
-    /*
-    // buggy for some reason
-    if (smooth)
-        mainWidget->setVisibleSmooth(v);
-    */
-    mainWidget->setVisible(v);
 }

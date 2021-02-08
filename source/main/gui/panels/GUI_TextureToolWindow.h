@@ -41,7 +41,7 @@ private:
 
     bool m_is_visible = false;
     bool m_show_dynamic_only = true;
-    Ogre::TexturePtr m_display_tex;
+    Ogre::TextureGpu* m_display_tex;
 };
 
 } // namespace GUI

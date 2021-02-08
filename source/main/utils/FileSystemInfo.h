@@ -34,7 +34,7 @@
 
 #pragma once
 
-#include <MyGUI.h>
+
 #if MYGUI_PLATFORM == MYGUI_PLATFORM_WIN32
 #include <windows.h>
 #include <io.h>

@@ -45,6 +45,9 @@
 #include "Utils.h"
 #include "VehicleAI.h"
 
+#include <fmt/format.h>
+#include <OgreWindow.h>
+
 using namespace RoR;
 
 // --------------------------------
@@ -756,24 +759,11 @@ void GameContext::UpdateGlobalInputEvents()
 
     // fullscreen toggle
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FULLSCREEN_TOGGLE, 2.0f))
-    {   
-        if (App::GetAppContext()->GetRenderWindow()->isFullScreen())
+    {
+        if (App::GetAppContext()->GetRenderWindow()->isFullscreen())
             this->PushMessage(Message(MSG_APP_DISPLAY_WINDOWED_REQUESTED));
         else
             this->PushMessage(Message(MSG_APP_DISPLAY_FULLSCREEN_REQUESTED));
-    }
-
-    // toggle render mode
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_RENDER_MODE, 0.5f))
-    {
-        static int mSceneDetailIndex;
-        mSceneDetailIndex = (mSceneDetailIndex + 1) % 3;
-        switch (mSceneDetailIndex)
-        {
-        case 0: App::GetCameraManager()->GetCamera()->setPolygonMode(Ogre::PM_SOLID);       break;
-        case 1: App::GetCameraManager()->GetCamera()->setPolygonMode(Ogre::PM_WIREFRAME);   break;
-        case 2: App::GetCameraManager()->GetCamera()->setPolygonMode(Ogre::PM_POINTS);      break;
-        }
     }
 
     // Write player position to log
@@ -791,8 +781,8 @@ void GameContext::UpdateGlobalInputEvents()
             position = this->GetPlayerActor()->getPosition();
             rotation = this->GetPlayerActor()->getRotation();
         }
-        Ogre::String pos = Ogre::StringUtil::format("%8.3f, %8.3f, %8.3f"   , position.x, position.y, position.z);
-        Ogre::String rot = Ogre::StringUtil::format("% 6.1f, % 6.1f, % 6.1f",       0.0f, rotation.valueDegrees()  ,       0.0f);
+        Ogre::String pos = fmt::format("%8.3f, %8.3f, %8.3f"   , position.x, position.y, position.z);
+        Ogre::String rot = fmt::format("% 6.1f, % 6.1f, % 6.1f",       0.0f, rotation.valueDegrees()  ,       0.0f);
         LOG("Position: " + pos + ", " + rot);
     }
 

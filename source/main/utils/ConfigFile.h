@@ -40,47 +40,46 @@ public:
 
     Ogre::ColourValue GetColourValue(Ogre::String const& key, Ogre::ColourValue const& defaultValue = Ogre::ColourValue())
     {
-        return this->GetColourValue(key, Ogre::StringUtil::BLANK, defaultValue);
+        return this->GetColourValue(key, Ogre::BLANKSTRING, defaultValue);
     }
 
     Ogre::ColourValue GetColourValue(Ogre::String const& key, Ogre::String const& section, Ogre::ColourValue const& defaultValue = Ogre::ColourValue());
 
     float GetFloat(Ogre::String const& key, float defaultValue = 0.f)
     {
-        return this->GetFloat(key, Ogre::StringUtil::BLANK, defaultValue);
+        return this->GetFloat(key, Ogre::BLANKSTRING, defaultValue);
     }
 
     float GetFloat(Ogre::String const& key, Ogre::String const& section, float defaultValue = 0.f);
 
     bool GetBool(Ogre::String const& key, bool defaultValue = false)
     {
-        return this->GetBool(key, Ogre::StringUtil::BLANK, defaultValue);
+        return this->GetBool(key, Ogre::BLANKSTRING, defaultValue);
     }
 
     bool GetBool(Ogre::String const& key, Ogre::String const& section, bool defaultValue = false);
 
     int GetInt(Ogre::String const& key, int defaultValue = 0)
     {
-        return this->GetInt(key, Ogre::StringUtil::BLANK, defaultValue);
+        return this->GetInt(key, Ogre::BLANKSTRING, defaultValue);
     }
 
     int GetInt(Ogre::String const& key, Ogre::String const& section, int defaultValue = 0);
 
     Ogre::String GetString(Ogre::String const& key, Ogre::String const& defaultValue = "")
     {
-        return this->GetStringEx(key, Ogre::StringUtil::BLANK, defaultValue);
+        return this->GetStringEx(key, Ogre::BLANKSTRING, defaultValue);
     }
 
     Ogre::String GetStringEx(Ogre::String const& key, Ogre::String const& section, Ogre::String const& defaultValue = "");
 
-    void SetString(Ogre::String key, Ogre::String value, Ogre::String section = Ogre::StringUtil::BLANK);
+    void SetString(Ogre::String key, Ogre::String value, Ogre::String section = Ogre::BLANKSTRING);
 
     bool HasSection(std::string const & name);
 
 private:
     //Block access to Ogre::ConfigFile::getSetting() - not UTF8 safe!
-    Ogre::String getSetting(Ogre::String, Ogre::String);
-    Ogre::String getSetting(Ogre::String, Ogre::String, Ogre::String);
+    Ogre::String getSetting(const Ogre::String& key, const Ogre::String& section = Ogre::BLANKSTRING, const Ogre::String& defaultValue = Ogre::BLANKSTRING) const;
 };
 
 } // namespace RoR

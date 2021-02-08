@@ -27,7 +27,6 @@
 
 #include "CameraManager.h"
 #include "ForwardDeclarations.h"
-#include "EnvironmentMap.h" // RoR::GfxEnvmap
 #include "Skidmark.h"
 
 #include <map>
@@ -74,7 +73,8 @@ public:
     void           RemoveGfxCharacter(RoR::GfxCharacter* gfx_character);
     void           BufferSimulationData(); //!< Run this when simulation is halted
     SimBuffer&     GetSimDataBuffer() { return m_simbuf; }
-    GfxEnvmap&     GetEnvMap() { return m_envmap; }
+
+    Ogre::IdType   GenerateId() { return (Ogre::IdType)m_id_counter++; }
     RoR::SkidmarkConfig* GetSkidmarkConf () { return &m_skidmark_conf; }
     Ogre::SceneManager* GetSceneManager() { return m_scene_manager; }
     std::vector<GfxActor*>& GetGfxActors() { return m_all_gfx_actors; }
@@ -87,9 +87,9 @@ private:
     std::vector<GfxActor*>            m_all_gfx_actors;
     std::vector<GfxActor*>            m_live_gfx_actors;
     std::vector<GfxCharacter*>        m_all_gfx_characters;
-    RoR::GfxEnvmap                    m_envmap;
     SimBuffer                         m_simbuf;
     SkidmarkConfig                    m_skidmark_conf;
+    Ogre::uint32                      m_id_counter = 0;
 };
 
 } // namespace RoR

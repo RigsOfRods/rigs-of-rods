@@ -53,7 +53,7 @@ void TextureToolWindow::Draw()
     auto itor = Ogre::TextureManager::getSingleton().getResourceIterator();
     while (itor.hasMoreElements())
     {
-        Ogre::TexturePtr tex = Ogre::static_pointer_cast<Ogre::Texture>(itor.getNext());
+        Ogre::TextureGpu* tex = Ogre::static_pointer_cast<Ogre::Texture>(itor.getNext());
         if (m_show_dynamic_only && ((tex->getUsage() & Ogre::TU_STATIC) != 0))
         {
             continue;

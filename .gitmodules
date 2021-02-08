@@ -1,6 +1,3 @@
 [submodule "content"]
 	path = content
 	url = https://github.com/RigsOfRods/content.git
-[submodule "pagedgeometry"]
-	path = external/pagedgeometry
-	url = https://github.com/RigsOfRods/ogre-pagedgeometry.git
