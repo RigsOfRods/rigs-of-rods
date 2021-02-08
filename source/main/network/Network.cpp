@@ -344,7 +344,8 @@ void Network::RecvThread()
                     text << _L(" joined the game");
                     
                     // NB: Console is threadsafe
-                    App::GetConsole()->putNetMessage(user_info.uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
+                    App::GetConsole()->putNetMessage(
+                        user_info.uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
                     // Lock and update userlist
                     std::lock_guard<std::mutex> lock(m_users_mutex);
                     m_users.push_back(user_info);
