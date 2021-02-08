@@ -403,7 +403,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
                 else
                 {
                     Str<200> text;
-                    text << _L(" spawned a new vehicle: ") << filename;
+                    text << _L("spawned a new vehicle: ") << filename;
                     App::GetConsole()->putNetMessage(
                         reg->origin_sourceid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
 
