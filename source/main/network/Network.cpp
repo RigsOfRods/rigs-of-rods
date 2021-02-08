@@ -311,8 +311,8 @@ void Network::RecvThread()
                 {
                     // Console is now threadsafe, no need to send fake chatmessages to ourselves
                     Str<300> text;
-                    text << user->username << _L(" left the game");
-                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
+                    text << _L(" left the game");
+                    App::GetConsole()->putNetMessage(user->uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
                     LOG_THREAD(text);
 
                     m_disconnected_users.push_back(*user); // Copy
@@ -337,7 +337,6 @@ void Network::RecvThread()
                 {
                     memcpy(&user_info, buffer, sizeof(RoRnet::UserInfo));
                     Str<300> text;
-                    text << user_info.username;
                     if (user_info.authstatus != 0) // Show nothing for guests (no special authorization)
                     {
                         text << " (" << UserAuthToStringShort(user_info) << ")";
@@ -345,7 +344,7 @@ void Network::RecvThread()
                     text << _L(" joined the game");
                     
                     // NB: Console is threadsafe
-                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
+                    App::GetConsole()->putNetMessage(user_info.uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
                     // Lock and update userlist
                     std::lock_guard<std::mutex> lock(m_users_mutex);
                     m_users.push_back(user_info);
