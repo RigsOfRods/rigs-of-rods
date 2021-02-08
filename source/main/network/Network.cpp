@@ -311,7 +311,7 @@ void Network::RecvThread()
                 {
                     // Console is now threadsafe, no need to send fake chatmessages to ourselves
                     Str<300> text;
-                    text << _L(" left the game");
+                    text << _L("left the game");
                     App::GetConsole()->putNetMessage(user->uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
                     LOG_THREAD(text);
 
@@ -339,7 +339,7 @@ void Network::RecvThread()
                     Str<300> text;
                     if (user_info.authstatus != 0) // Show nothing for guests (no special authorization)
                     {
-                        text << " (" << UserAuthToStringShort(user_info) << ")";
+                        text << "(" << UserAuthToStringShort(user_info) << ")";
                     }
                     text << _L(" joined the game");
                     
