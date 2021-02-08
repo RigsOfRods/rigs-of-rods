@@ -339,9 +339,9 @@ void Network::RecvThread()
                     Str<300> text;
                     if (user_info.authstatus != 0) // Show nothing for guests (no special authorization)
                     {
-                        text << "(" << UserAuthToStringShort(user_info) << ")";
+                        text << "(" << UserAuthToStringShort(user_info) << ") ";
                     }
-                    text << _L(" joined the game");
+                    text << _L("joined the game");
                     
                     // NB: Console is threadsafe
                     App::GetConsole()->putNetMessage(
