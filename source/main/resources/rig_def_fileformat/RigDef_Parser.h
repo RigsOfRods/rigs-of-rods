@@ -97,7 +97,7 @@ private:
 //  Directive parsers
 // --------------------------------------------------------------------------
 
-    void ProcessGlobalDirective(File::Keyword keyword); //!< Directives that should only appear in root module
+    void ProcessGlobalDirective(Keyword keyword); //!< Directives that should only appear in root module
     void ParseDirectiveAddAnimation();
     void ParseDirectiveBackmesh();
     void ParseDirectiveDetacherGroup();
@@ -198,8 +198,8 @@ private:
     void             ProcessCurrentLine();
     int              TokenizeCurrentLine();
     bool             CheckNumArguments(int num_required_args);
-    void             ChangeSection(RigDef::File::Section new_section);
-    void             ProcessChangeModuleLine(File::Keyword keyword);
+    void             ChangeSection(RigDef::Section new_section);
+    void             ProcessChangeModuleLine(Keyword keyword);
 
     std::string        GetArgStr          (int index);
     int                GetArgInt          (int index);
@@ -228,10 +228,10 @@ private:
     void _CheckInvalidTrailingText(Ogre::String const & line, std::smatch const & results, unsigned int index);
 
     /// Keyword scan function. 
-    File::Keyword IdentifyKeywordInCurrentLine();
+    Keyword IdentifyKeywordInCurrentLine();
 
     /// Keyword scan utility function. 
-    File::Keyword FindKeywordMatch(std::smatch& search_results);
+    Keyword FindKeywordMatch(std::smatch& search_results);
 
     /// Adds a message to console
     void AddMessage(std::string const & line, Message::Type type, std::string const & message);
@@ -243,7 +243,7 @@ private:
     {
         this->AddMessage(m_current_line, type, msg);
     }
-    void VerifyModuleIsRoot(File::Keyword keyword); //!< Reports warning message if we're not in root module
+    void VerifyModuleIsRoot(Keyword keyword); //!< Reports warning message if we're not in root module
 
     /// Print a log INFO message.
     void _PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node);
@@ -283,8 +283,8 @@ private:
     char                                 m_current_line[LINE_BUFFER_LENGTH];
     Token                                m_args[LINE_MAX_ARGS];    //!< Tokens of current line.
     int                                  m_num_args;               //!< Number of tokens on current line.
-    File::Section                        m_current_section;        //!< Parser state.
-    File::Subsection                     m_current_subsection;     //!< Parser state.
+    Section                        m_current_section;        //!< Parser state.
+    Subsection                     m_current_subsection;     //!< Parser state.
     bool                                 m_in_block_comment;       //!< Parser state.
     bool                                 m_in_description_section; //!< Parser state.
     bool                                 m_any_named_node_defined; //!< Parser state.
