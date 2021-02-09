@@ -96,7 +96,7 @@ void ActorSpawner::Setup(
     m_file = file;
     m_particles_parent_scenenode = parent;
     m_spawn_position = spawn_position;
-    m_current_keyword = RigDef::File::KEYWORD_INVALID;
+    m_current_keyword = RigDef::KEYWORD_INVALID;
     m_wing_area = 0.f;
     m_fuse_z_min = 1000.0f;
     m_fuse_z_max = -1000.0f;
@@ -5126,7 +5126,7 @@ void ActorSpawner::ProcessEngine(RigDef::Engine & def)
 
 void ActorSpawner::ProcessHelp()
 {
-    SetCurrentKeyword(RigDef::File::KEYWORD_HELP);
+    SetCurrentKeyword(RigDef::KEYWORD_HELP);
     unsigned int material_count = 0;
 
     std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
@@ -5147,12 +5147,12 @@ void ActorSpawner::ProcessHelp()
         AddMessage(Message::TYPE_WARNING, msg.str());	
     }
 
-    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);
+    SetCurrentKeyword(RigDef::KEYWORD_INVALID);
 };
 
 void ActorSpawner::ProcessAuthors()
 {
-    SetCurrentKeyword(RigDef::File::KEYWORD_FILEFORMATVERSION);
+    SetCurrentKeyword(RigDef::KEYWORD_FILEFORMATVERSION);
 
     std::vector<RigDef::Author>::iterator author_itor = m_file->authors.begin();
     for (; author_itor != m_file->authors.end(); author_itor++)
@@ -5168,7 +5168,7 @@ void ActorSpawner::ProcessAuthors()
         m_actor->authors.push_back(author);
     }	
 
-    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);
+    SetCurrentKeyword(RigDef::KEYWORD_INVALID);
 };
 
 unsigned int ActorSpawner::GetNodeIndexOrThrow(RigDef::Node::Ref const & node_ref)
@@ -5461,7 +5461,7 @@ void ActorSpawner::AddMessage(ActorSpawner::Message::Type type,	Ogre::String con
 {
     Str<4000> txt;
     txt << m_file->name;
-    if (m_current_keyword != RigDef::File::KEYWORD_INVALID)
+    if (m_current_keyword != RigDef::KEYWORD_INVALID)
     {
         txt << " (" << RigDef::File::KeywordToString(m_current_keyword) << ")";
     }
@@ -6507,9 +6507,9 @@ void ActorSpawner::FinalizeGfxSetup()
         }
         else if (entry.second.video_camera_def != nullptr) // 'videocameras'
         {
-            this->SetCurrentKeyword(RigDef::File::KEYWORD_VIDEOCAMERA); // Logging
+            this->SetCurrentKeyword(RigDef::KEYWORD_VIDEOCAMERA); // Logging
             this->CreateVideoCamera(entry.second.video_camera_def);
-            this->SetCurrentKeyword(RigDef::File::KEYWORD_INVALID); // Logging
+            this->SetCurrentKeyword(RigDef::KEYWORD_INVALID); // Logging
         }
     }
 

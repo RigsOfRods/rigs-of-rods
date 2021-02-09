@@ -269,326 +269,177 @@ void Animation::AddMotorSource(unsigned int source, unsigned int motor)
 /* File                                                                       */
 /* -------------------------------------------------------------------------- */
 
-const char * File::SectionToString(File::Section section)
+const char * File::SectionToString(Section section)
 {
     switch (section)
     {
-        case (File::SECTION_AIRBRAKES):
-            return "airbrakes";
-        case (File::SECTION_ANIMATORS):
-            return "animators";
-        case (File::SECTION_ANTI_LOCK_BRAKES):
-            return "AntiLockBrakes";
-        case (File::SECTION_AUTHOR):
-            return "author";
-        case (File::SECTION_AXLES):
-            return "axles";
-        case (File::SECTION_BEAMS):
-            return "beams";
-        case (File::SECTION_BRAKES):
-            return "brakes";
-        case (File::SECTION_CAMERAS):
-            return "cameras";
-        case (File::SECTION_CAMERA_RAIL):
-            return "camerarail";
-        case (File::SECTION_CINECAM):
-            return "cinecam";
-        case (File::SECTION_COLLISION_BOXES):
-            return "collisionboxes";
-        case (File::SECTION_COMMANDS):
-            return "commands";
-        case (File::SECTION_COMMANDS_2):
-            return "commands2";
-        case (File::SECTION_CONTACTERS):
-            return "contacters";
-        case (File::SECTION_ENGINE):
-            return "engine";
-        case (File::SECTION_ENGOPTION):
-            return "engoption";
-        case (File::SECTION_ENGTURBO) :
-            return "engturbo";
-        case (File::SECTION_EXHAUSTS):
-            return "exhausts";
-        case (File::SECTION_FIXES):
-            return "fixes";
-        case (File::SECTION_FLARES):
-            return "flares";
-        case (File::SECTION_FLARES_2):
-            return "flares2";
-        case (File::SECTION_FLEXBODIES):
-            return "flexbodies";
-        case (File::SECTION_FLEX_BODY_WHEELS):
-            return "flexbodywheels";
-        case (File::SECTION_FUSEDRAG):
-            return "fusedrag";
-        case (File::SECTION_GLOBALS):
-            return "globals";
-        case (File::SECTION_GUI_SETTINGS):
-            return "guisettings";
-        case (File::SECTION_HYDROS):
-            return "hydros";
-        case (File::SECTION_HELP):
-            return "help";
-        case (File::SECTION_HOOKS):
-            return "hooks";
-        case (File::SECTION_INTERAXLES):
-            return "interaxles";
-        case (File::SECTION_LOCKGROUPS):
-            return "lockgroups";
-        case (File::SECTION_MANAGED_MATERIALS):
-            return "managedmaterials";
-        case (File::SECTION_MAT_FLARE_BINDINGS):
-            return "materialflarebindings";
-        case (File::SECTION_MESH_WHEELS):
-            return "meshwheels";
-        case (File::SECTION_MESH_WHEELS_2):
-            return "meshwheels2";
-        case (File::SECTION_MINIMASS):
-            return "minimass";
-        case (File::SECTION_NODES):
-            return "nodes";
-        case (File::SECTION_NODES_2):
-            return "nodes2";
-        case (File::SECTION_PARTICLES):
-            return "particles";
-        case (File::SECTION_PISTONPROPS):
-            return "pistonprops";
-        case (File::SECTION_PROPS):
-            return "props";
-        case (File::SECTION_RAILGROUPS):
-            return "railgroups";
-        case (File::SECTION_ROPABLES):
-            return "ropables";
-        case (File::SECTION_ROPES):
-            return "ropes";
-        case (File::SECTION_ROTATORS):
-            return "rotators";
-        case (File::SECTION_ROTATORS_2):
-            return "rotators_2";
-        case (File::SECTION_SCREWPROPS):
-            return "screwprops";
-        case (File::SECTION_SHOCKS):
-            return "shocks";
-        case (File::SECTION_SHOCKS_2):
-            return "shocks2";
-        case (File::SECTION_SHOCKS_3):
-            return "shocks3";
-        case (File::SECTION_SLIDENODES):
-            return "slidenodes";
-        case (File::SECTION_SOUNDSOURCES):
-            return "soundsources";
-        case (File::SECTION_SOUNDSOURCES2):
-            return "soundsources2";
-        case (File::SECTION_SLOPE_BRAKE):
-            return "SlopeBrake";
-        case (File::SECTION_SUBMESH):
-            return "submesh";
-        case (File::SECTION_TIES):
-            return "ties";
-        case (File::SECTION_TORQUE_CURVE):
-            return "torquecurve";
-        case (File::SECTION_TRACTION_CONTROL):
-            return "TractionControl";
-        case (File::SECTION_TRANSFER_CASE):
-            return "transfercase";
-        case (File::SECTION_TRIGGERS):
-            return "triggers";
-        case (File::SECTION_TRUCK_NAME):
-            return "<truck name>";
-        case (File::SECTION_TURBOJETS):
-            return "turbojets";
-        case (File::SECTION_TURBOPROPS):
-            return "turboprops";
-        case (File::SECTION_TURBOPROPS_2):
-            return "turboprops";
-        case (File::SECTION_VIDEO_CAMERA):
-            return "videocamera";
-        case (File::SECTION_WHEELS):
-            return "wheels";
-        case (File::SECTION_WHEELS_2):
-            return "wheels2";
-        case (File::SECTION_WINGS):
-            return "wings";
+        case (SECTION_AIRBRAKES):            return "airbrakes";
+        case (SECTION_ANIMATORS):            return "animators";
+        case (SECTION_ANTI_LOCK_BRAKES):     return "AntiLockBrakes";
+        case (SECTION_AUTHOR):               return "author";
+        case (SECTION_AXLES):                return "axles";
+        case (SECTION_BEAMS):                return "beams";
+        case (SECTION_BRAKES):               return "brakes";
+        case (SECTION_CAMERAS):              return "cameras";
+        case (SECTION_CAMERA_RAIL):          return "camerarail";
+        case (SECTION_CINECAM):              return "cinecam";
+        case (SECTION_COLLISION_BOXES):      return "collisionboxes";
+        case (SECTION_COMMANDS):             return "commands";
+        case (SECTION_COMMANDS_2):           return "commands2";
+        case (SECTION_CONTACTERS):           return "contacters";
+        case (SECTION_ENGINE):               return "engine";
+        case (SECTION_ENGOPTION):            return "engoption";
+        case (SECTION_ENGTURBO) :            return "engturbo";
+        case (SECTION_EXHAUSTS):             return "exhausts";
+        case (SECTION_FIXES):                return "fixes";
+        case (SECTION_FLARES):               return "flares";
+        case (SECTION_FLARES_2):             return "flares2";
+        case (SECTION_FLEXBODIES):           return "flexbodies";
+        case (SECTION_FLEX_BODY_WHEELS):     return "flexbodywheels";
+        case (SECTION_FUSEDRAG):             return "fusedrag";
+        case (SECTION_GLOBALS):              return "globals";
+        case (SECTION_GUI_SETTINGS):         return "guisettings";
+        case (SECTION_HYDROS):               return "hydros";
+        case (SECTION_HELP):                 return "help";
+        case (SECTION_HOOKS):                return "hooks";
+        case (SECTION_INTERAXLES):           return "interaxles";
+        case (SECTION_LOCKGROUPS):           return "lockgroups";
+        case (SECTION_MANAGED_MATERIALS):    return "managedmaterials";
+        case (SECTION_MAT_FLARE_BINDINGS):   return "materialflarebindings";
+        case (SECTION_MESH_WHEELS):          return "meshwheels";
+        case (SECTION_MESH_WHEELS_2):        return "meshwheels2";
+        case (SECTION_MINIMASS):             return "minimass";
+        case (SECTION_NODES):                return "nodes";
+        case (SECTION_NODES_2):              return "nodes2";
+        case (SECTION_PARTICLES):            return "particles";
+        case (SECTION_PISTONPROPS):          return "pistonprops";
+        case (SECTION_PROPS):                return "props";
+        case (SECTION_RAILGROUPS):           return "railgroups";
+        case (SECTION_ROPABLES):             return "ropables";
+        case (SECTION_ROPES):                return "ropes";
+        case (SECTION_ROTATORS):             return "rotators";
+        case (SECTION_ROTATORS_2):           return "rotators_2";
+        case (SECTION_SCREWPROPS):           return "screwprops";
+        case (SECTION_SHOCKS):               return "shocks";
+        case (SECTION_SHOCKS_2):             return "shocks2";
+        case (SECTION_SHOCKS_3):             return "shocks3";
+        case (SECTION_SLIDENODES):           return "slidenodes";
+        case (SECTION_SOUNDSOURCES):         return "soundsources";
+        case (SECTION_SOUNDSOURCES2):        return "soundsources2";
+        case (SECTION_SLOPE_BRAKE):          return "SlopeBrake";
+        case (SECTION_SUBMESH):              return "submesh";
+        case (SECTION_TIES):                 return "ties";
+        case (SECTION_TORQUE_CURVE):         return "torquecurve";
+        case (SECTION_TRACTION_CONTROL):     return "TractionControl";
+        case (SECTION_TRANSFER_CASE):        return "transfercase";
+        case (SECTION_TRIGGERS):             return "triggers";
+        case (SECTION_TRUCK_NAME):           return "<truck name>";
+        case (SECTION_TURBOJETS):            return "turbojets";
+        case (SECTION_TURBOPROPS):           return "turboprops";
+        case (SECTION_TURBOPROPS_2):         return "turboprops";
+        case (SECTION_VIDEO_CAMERA):         return "videocamera";
+        case (SECTION_WHEELS):               return "wheels";
+        case (SECTION_WHEELS_2):             return "wheels2";
+        case (SECTION_WINGS):                return "wings";
 
-        case (File::SECTION_NONE):
-            return "SECTION_NONE";
-        default: 
-            return "<unknown>";
+        case (SECTION_NONE):                 return "SECTION_NONE";
+        default:                             return "<unknown>";
     }
 }
 
-const char * File::SubsectionToString(File::Subsection subsection)
+const char * File::SubsectionToString(Subsection subsection)
 {
     switch (subsection)
     {
-        case (File::SUBSECTION_NONE):
-            return "SUBSECTION_NONE";
-        case (File::SUBSECTION__FLEXBODIES__PROPLIKE_LINE):
-            return "SUBSECTION_PROPLIKE_LINE";
-        case (File::SUBSECTION__FLEXBODIES__FORSET_LINE):
-            return "SUBSECTION_FORSET_LINE";
-        case (File::SUBSECTION__SUBMESH__TEXCOORDS):
-            return "SUBSECTION_TEXCOORDS";
-        case (File::SUBSECTION__SUBMESH__CAB):
-            return "SUBSECTION_CAB";
-        default:
-            return "~ UNKNOWN SUBSECTION ~";
+        case (SUBSECTION_NONE):                      return "SUBSECTION_NONE";
+        case (SUBSECTION__FLEXBODIES__PROPLIKE_LINE):return "SUBSECTION_PROPLIKE_LINE";
+        case (SUBSECTION__FLEXBODIES__FORSET_LINE):  return "SUBSECTION_FORSET_LINE";
+        case (SUBSECTION__SUBMESH__TEXCOORDS):       return "SUBSECTION_TEXCOORDS";
+        case (SUBSECTION__SUBMESH__CAB):             return "SUBSECTION_CAB";
+        default:                                     return "~ UNKNOWN SUBSECTION ~";
     }
 }
 
-const char * File::KeywordToString(File::Keyword keyword)
+const char * File::KeywordToString(Keyword keyword)
 {
     /* NOTE: Maintain alphabetical order! */
 
     switch (keyword)
     {
-        case (File::KEYWORD_AIRBRAKES):
-            return "airbrakes";
-        case (File::KEYWORD_ANIMATORS):
-            return "animators";
-        case (File::KEYWORD_ANTI_LOCK_BRAKES):
-            return "AntiLockBrakes";
-        case (File::KEYWORD_AUTHOR):
-            return "author";
-        case (File::KEYWORD_AXLES):
-            return "axles";
-        case (File::KEYWORD_BEAMS):
-            return "beams";
-        case (File::KEYWORD_BRAKES):
-            return "brakes";
-        case (File::KEYWORD_CAB):
-            return "submesh >> cab";
-        case (File::KEYWORD_CAMERAS):
-            return "cameras";
-        case (File::KEYWORD_CAMERARAIL):
-            return "camerarail";
-        case (File::KEYWORD_CINECAM):
-            return "cinecam";
-        case (File::KEYWORD_COLLISIONBOXES):
-            return "collisionboxes";
-        case (File::KEYWORD_COMMANDS):
-            return "commands";
-        case (File::KEYWORD_COMMANDS2):
-            return "commands2";
-        case (File::KEYWORD_CONTACTERS):
-            return "contacters";
-        case (File::KEYWORD_CRUISECONTROL):
-            return "cruisecontrol";
-        case (File::KEYWORD_DESCRIPTION):
-            return "description";
-        case (File::KEYWORD_ENGINE):
-            return "engine";
-        case (File::KEYWORD_ENGOPTION):
-            return "engoption";
-        case (File::KEYWORD_ENGTURBO) :
-            return "engturbo";
-        case (File::KEYWORD_EXHAUSTS):
-            return "exhausts";
-        case (File::KEYWORD_FILEINFO):
-            return "fileinfo";
-        case (File::KEYWORD_FILEFORMATVERSION):
-            return "fileformatversion";
-        case (File::KEYWORD_FIXES):
-            return "fixes";
-        case (File::KEYWORD_FLARES):
-            return "flares";
-        case (File::KEYWORD_FLARES2):
-            return "flares2";
-        case (File::KEYWORD_FLEXBODIES):
-            return "flexbodies";
-        case (File::KEYWORD_FLEXBODYWHEELS):
-            return "flexbodywheels";
-        case (File::KEYWORD_FUSEDRAG):
-            return "fusedrag";
-        case (File::KEYWORD_GLOBALS):
-            return "globals";
-        case (File::KEYWORD_GUISETTINGS):
-            return "guisettings";
-        case (File::KEYWORD_HELP):
-            return "help";
-        case (File::KEYWORD_HOOKS):
-            return "hooks";
-        case (File::KEYWORD_HYDROS):
-            return "hydros";
-        case (File::KEYWORD_INTERAXLES):
-            return "interaxles";
-        case (File::KEYWORD_MANAGEDMATERIALS):
-            return "managedmaterials";
-        case (File::KEYWORD_MATERIALFLAREBINDINGS):
-            return "materialflarebindings";
-        case (File::KEYWORD_MESHWHEELS):
-            return "meshwheels";
-        case (File::KEYWORD_MESHWHEELS2):
-            return "meshwheels2";
-        case (File::KEYWORD_MINIMASS):
-            return "minimass";
-        case (File::KEYWORD_NODES):
-            return "nodes";
-        case (File::KEYWORD_NODES2):
-            return "nodes2";
-        case (File::KEYWORD_PARTICLES):
-            return "particles";
-        case (File::KEYWORD_PISTONPROPS):
-            return "pistonprops";
-        case (File::KEYWORD_PROPS):
-            return "props";
-        case (File::KEYWORD_RAILGROUPS):
-            return "railgroups";
-        case (File::KEYWORD_ROPABLES):
-            return "ropables";
-        case (File::KEYWORD_ROPES):
-            return "ropes";
-        case (File::KEYWORD_ROTATORS):
-            return "rotators";
-        case (File::KEYWORD_ROTATORS2):
-            return "rotators_2";
-        case (File::KEYWORD_SCREWPROPS):
-            return "screwprops";
-        case (File::KEYWORD_SHOCKS):
-            return "shocks";
-        case (File::KEYWORD_SHOCKS2):
-            return "shocks2";
-        case (File::KEYWORD_SHOCKS3):
-            return "shocks3";
-        case (File::KEYWORD_SLIDENODES):
-            return "slidenodes";
-        case (File::KEYWORD_SLOPE_BRAKE):
-            return "SlopeBrake";
-        case (File::KEYWORD_SOUNDSOURCES):
-            return "soundsources";
-        case (File::KEYWORD_SOUNDSOURCES2):
-            return "soundsources2";
-        case (File::KEYWORD_SUBMESH) :
-            return "submesh";
-        case (File::KEYWORD_TEXCOORDS):
-            return "submesh >> texcoords";
-        case (File::KEYWORD_TIES):
-            return "ties";
-        case (File::KEYWORD_TORQUECURVE):
-            return "torquecurve";
-        case (File::KEYWORD_TRACTION_CONTROL):
-            return "TractionControl";
-        case (File::KEYWORD_TRANSFER_CASE):
-            return "transfercase";
-        case (File::KEYWORD_TRIGGERS):
-            return "triggers";
-        case (File::KEYWORD_TURBOJETS):
-            return "turbojets";
-        case (File::KEYWORD_TURBOPROPS):
-            return "turboprops";
-        case (File::KEYWORD_TURBOPROPS2):
-            return "turboprops2";
-        case (File::KEYWORD_VIDEOCAMERA):
-            return "videocamera";
-        case (File::KEYWORD_WHEELS):
-            return "wheels";
-        case (File::KEYWORD_WHEELS2):
-            return "wheels2";
-        case (File::KEYWORD_WINGS):
-            return "wings";
+        case (KEYWORD_AIRBRAKES):            return "airbrakes";
+        case (KEYWORD_ANIMATORS):            return "animators";
+        case (KEYWORD_ANTI_LOCK_BRAKES):     return "AntiLockBrakes";
+        case (KEYWORD_AUTHOR):               return "author";
+        case (KEYWORD_AXLES):                return "axles";
+        case (KEYWORD_BEAMS):                return "beams";
+        case (KEYWORD_BRAKES):               return "brakes";
+        case (KEYWORD_CAB):                  return "submesh >> cab";
+        case (KEYWORD_CAMERAS):              return "cameras";
+        case (KEYWORD_CAMERARAIL):           return "camerarail";
+        case (KEYWORD_CINECAM):              return "cinecam";
+        case (KEYWORD_COLLISIONBOXES):       return "collisionboxes";
+        case (KEYWORD_COMMANDS):             return "commands";
+        case (KEYWORD_COMMANDS2):            return "commands2";
+        case (KEYWORD_CONTACTERS):           return "contacters";
+        case (KEYWORD_CRUISECONTROL):        return "cruisecontrol";
+        case (KEYWORD_DESCRIPTION):          return "description";
+        case (KEYWORD_ENGINE):               return "engine";
+        case (KEYWORD_ENGOPTION):            return "engoption";
+        case (KEYWORD_ENGTURBO):             return "engturbo";
+        case (KEYWORD_EXHAUSTS):             return "exhausts";
+        case (KEYWORD_FILEINFO):             return "fileinfo";
+        case (KEYWORD_FILEFORMATVERSION):    return "fileformatversion";
+        case (KEYWORD_FIXES):                return "fixes";
+        case (KEYWORD_FLARES):               return "flares";
+        case (KEYWORD_FLARES2):              return "flares2";
+        case (KEYWORD_FLEXBODIES):           return "flexbodies";
+        case (KEYWORD_FLEXBODYWHEELS):       return "flexbodywheels";
+        case (KEYWORD_FUSEDRAG):             return "fusedrag";
+        case (KEYWORD_GLOBALS):              return "globals";
+        case (KEYWORD_GUISETTINGS):          return "guisettings";
+        case (KEYWORD_HELP):                 return "help";
+        case (KEYWORD_HOOKS):                return "hooks";
+        case (KEYWORD_HYDROS):               return "hydros";
+        case (KEYWORD_INTERAXLES):           return "interaxles";
+        case (KEYWORD_MANAGEDMATERIALS):     return "managedmaterials";
+        case (KEYWORD_MATERIALFLAREBINDINGS):return "materialflarebindings";
+        case (KEYWORD_MESHWHEELS):           return "meshwheels";
+        case (KEYWORD_MESHWHEELS2):          return "meshwheels2";
+        case (KEYWORD_MINIMASS):             return "minimass";
+        case (KEYWORD_NODES):                return "nodes";
+        case (KEYWORD_NODES2):               return "nodes2";
+        case (KEYWORD_PARTICLES):            return "particles";
+        case (KEYWORD_PISTONPROPS):          return "pistonprops";
+        case (KEYWORD_PROPS):                return "props";
+        case (KEYWORD_RAILGROUPS):           return "railgroups";
+        case (KEYWORD_ROPABLES):             return "ropables";
+        case (KEYWORD_ROPES):                return "ropes";
+        case (KEYWORD_ROTATORS):             return "rotators";
+        case (KEYWORD_ROTATORS2):            return "rotators_2";
+        case (KEYWORD_SCREWPROPS):           return "screwprops";
+        case (KEYWORD_SHOCKS):               return "shocks";
+        case (KEYWORD_SHOCKS2):              return "shocks2";
+        case (KEYWORD_SHOCKS3):              return "shocks3";
+        case (KEYWORD_SLIDENODES):           return "slidenodes";
+        case (KEYWORD_SLOPE_BRAKE):          return "SlopeBrake";
+        case (KEYWORD_SOUNDSOURCES):         return "soundsources";
+        case (KEYWORD_SOUNDSOURCES2):        return "soundsources2";
+        case (KEYWORD_SUBMESH) :             return "submesh";
+        case (KEYWORD_TEXCOORDS):            return "submesh >> texcoords";
+        case (KEYWORD_TIES):                 return "ties";
+        case (KEYWORD_TORQUECURVE):          return "torquecurve";
+        case (KEYWORD_TRACTION_CONTROL):     return "TractionControl";
+        case (KEYWORD_TRANSFER_CASE):        return "transfercase";
+        case (KEYWORD_TRIGGERS):             return "triggers";
+        case (KEYWORD_TURBOJETS):            return "turbojets";
+        case (KEYWORD_TURBOPROPS):           return "turboprops";
+        case (KEYWORD_TURBOPROPS2):          return "turboprops2";
+        case (KEYWORD_VIDEOCAMERA):          return "videocamera";
+        case (KEYWORD_WHEELS):               return "wheels";
+        case (KEYWORD_WHEELS2):              return "wheels2";
+        case (KEYWORD_WINGS):                return "wings";
 
-        default: 
-            return "~Unknown~";
+        default:                             return "~Unknown~";
     }
 }
 
