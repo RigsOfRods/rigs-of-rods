@@ -120,190 +120,190 @@ void Parser::ProcessCurrentLine()
     this->TokenizeCurrentLine();
 
     // Detect keywords on current line 
-    File::Keyword keyword = IdentifyKeywordInCurrentLine();
+    Keyword keyword = IdentifyKeywordInCurrentLine();
     switch (keyword)
     {
-        case File::KEYWORD_INVALID: break; // No new section  - carry on with processing data
+        case KEYWORD_INVALID: break; // No new section  - carry on with processing data
 
-        case File::KEYWORD_ADD_ANIMATION:            this->ParseDirectiveAddAnimation();                  return;
-        case File::KEYWORD_AIRBRAKES:                this->ChangeSection(File::SECTION_AIRBRAKES);        return;
-        case File::KEYWORD_ANIMATORS:                this->ChangeSection(File::SECTION_ANIMATORS);        return;
-        case File::KEYWORD_ANTI_LOCK_BRAKES:         this->ParseAntiLockBrakes();                         return;
-        case File::KEYWORD_AXLES:                    this->ChangeSection(File::SECTION_AXLES);            return;
-        case File::KEYWORD_AUTHOR:                   this->ParseAuthor();                                 return;
-        case File::KEYWORD_BACKMESH:                 this->ParseDirectiveBackmesh();                      return;
-        case File::KEYWORD_BEAMS:                    this->ChangeSection(File::SECTION_BEAMS);            return;
-        case File::KEYWORD_BRAKES:                   this->ChangeSection(File::SECTION_BRAKES);           return;
-        case File::KEYWORD_CAB:                      this->ProcessKeywordCab();                           return;
-        case File::KEYWORD_CAMERAS:                  this->ChangeSection(File::SECTION_CAMERAS);          return;
-        case File::KEYWORD_CAMERARAIL:               this->ChangeSection(File::SECTION_CAMERA_RAIL);      return;
-        case File::KEYWORD_CINECAM:                  this->ChangeSection(File::SECTION_CINECAM);          return;
-        case File::KEYWORD_COLLISIONBOXES:           this->ChangeSection(File::SECTION_COLLISION_BOXES);  return;
-        case File::KEYWORD_COMMANDS:                 this->ChangeSection(File::SECTION_COMMANDS);         return;
-        case File::KEYWORD_COMMANDS2:                this->ChangeSection(File::SECTION_COMMANDS_2);       return;
-        case File::KEYWORD_CONTACTERS:               this->ChangeSection(File::SECTION_CONTACTERS);       return;
-        case File::KEYWORD_CRUISECONTROL:            this->ParseCruiseControl();                          return;
-        case File::KEYWORD_DESCRIPTION:              this->ChangeSection(File::SECTION_NONE); m_in_description_section = true; return;
-        case File::KEYWORD_DETACHER_GROUP:           this->ParseDirectiveDetacherGroup();                 return;
-        case File::KEYWORD_DISABLEDEFAULTSOUNDS:     this->ProcessGlobalDirective(keyword);               return;
-        case File::KEYWORD_ENABLE_ADVANCED_DEFORM:   this->ProcessGlobalDirective(keyword);               return;
-        case File::KEYWORD_END:                      this->ChangeSection(File::SECTION_NONE);             return;
-        case File::KEYWORD_END_SECTION:              this->ProcessChangeModuleLine(keyword);              return;
-        case File::KEYWORD_ENGINE:                   this->ChangeSection(File::SECTION_ENGINE);           return;
-        case File::KEYWORD_ENGOPTION:                this->ChangeSection(File::SECTION_ENGOPTION);        return;
-        case File::KEYWORD_ENGTURBO:                 this->ChangeSection(File::SECTION_ENGTURBO);         return;
-        case File::KEYWORD_ENVMAP:                   /* Ignored */                                        return;
-        case File::KEYWORD_EXHAUSTS:                 this->ChangeSection(File::SECTION_EXHAUSTS);         return;
-        case File::KEYWORD_EXTCAMERA:                this->ParseExtCamera();                              return;
-        case File::KEYWORD_FILEFORMATVERSION:        this->ParseFileFormatVersion();                      return;
-        case File::KEYWORD_FILEINFO:                 this->ParseFileinfo();                               return;
-        case File::KEYWORD_FIXES:                    this->ChangeSection(File::SECTION_FIXES);            return;
-        case File::KEYWORD_FLARES:                   this->ChangeSection(File::SECTION_FLARES);           return;
-        case File::KEYWORD_FLARES2:                  this->ChangeSection(File::SECTION_FLARES_2);         return;
-        case File::KEYWORD_FLEXBODIES:               this->ChangeSection(File::SECTION_FLEXBODIES);       return;
-        case File::KEYWORD_FLEXBODY_CAMERA_MODE:     this->ParseDirectiveFlexbodyCameraMode();            return;
-        case File::KEYWORD_FLEXBODYWHEELS:           this->ChangeSection(File::SECTION_FLEX_BODY_WHEELS); return;
-        case File::KEYWORD_FORWARDCOMMANDS:          this->ProcessGlobalDirective(keyword);               return;
-        case File::KEYWORD_FUSEDRAG:                 this->ChangeSection(File::SECTION_FUSEDRAG);         return;
-        case File::KEYWORD_GLOBALS:                  this->ChangeSection(File::SECTION_GLOBALS);          return;
-        case File::KEYWORD_GUID:                     this->ParseGuid();                                   return;
-        case File::KEYWORD_GUISETTINGS:              this->ChangeSection(File::SECTION_GUI_SETTINGS);     return;
-        case File::KEYWORD_HELP:                     this->ChangeSection(File::SECTION_HELP);             return;
-        case File::KEYWORD_HIDE_IN_CHOOSER:          this->ProcessGlobalDirective(keyword);               return;
-        case File::KEYWORD_HOOKGROUP:                /* Obsolete, ignored */                              return;
-        case File::KEYWORD_HOOKS:                    this->ChangeSection(File::SECTION_HOOKS);            return;
-        case File::KEYWORD_HYDROS:                   this->ChangeSection(File::SECTION_HYDROS);           return;
-        case File::KEYWORD_IMPORTCOMMANDS:           m_definition->import_commands = true;                return;
-        case File::KEYWORD_INTERAXLES:               this->ChangeSection(File::SECTION_INTERAXLES);       return;
-        case File::KEYWORD_LOCKGROUPS:               this->ChangeSection(File::SECTION_LOCKGROUPS);       return;
-        case File::KEYWORD_LOCKGROUP_DEFAULT_NOLOCK: this->ProcessGlobalDirective(keyword);               return;
-        case File::KEYWORD_MANAGEDMATERIALS:         this->ChangeSection(File::SECTION_MANAGED_MATERIALS); return;
-        case File::KEYWORD_MATERIALFLAREBINDINGS:    this->ChangeSection(File::SECTION_MAT_FLARE_BINDINGS); return;
-        case File::KEYWORD_MESHWHEELS:               this->ChangeSection(File::SECTION_MESH_WHEELS);      return;
-        case File::KEYWORD_MESHWHEELS2:              this->ChangeSection(File::SECTION_MESH_WHEELS_2);    return;
-        case File::KEYWORD_MINIMASS:                 this->ChangeSection(File::SECTION_MINIMASS);         return;
-        case File::KEYWORD_NODECOLLISION:            this->ChangeSection(File::SECTION_NODE_COLLISION);   return;
-        case File::KEYWORD_NODES:                    this->ChangeSection(File::SECTION_NODES);            return;
-        case File::KEYWORD_NODES2:                   this->ChangeSection(File::SECTION_NODES_2);          return;
-        case File::KEYWORD_PARTICLES:                this->ChangeSection(File::SECTION_PARTICLES);        return;
-        case File::KEYWORD_PISTONPROPS:              this->ChangeSection(File::SECTION_PISTONPROPS);      return;
-        case File::KEYWORD_PROP_CAMERA_MODE:         this->ParseDirectivePropCameraMode();                return;
-        case File::KEYWORD_PROPS:                    this->ChangeSection(File::SECTION_PROPS);            return;
-        case File::KEYWORD_RAILGROUPS:               this->ChangeSection(File::SECTION_RAILGROUPS);       return;
-        case File::KEYWORD_RESCUER:                  this->ProcessGlobalDirective(keyword);               return;
-        case File::KEYWORD_RIGIDIFIERS:              this->AddMessage(Message::TYPE_WARNING, "Rigidifiers are not supported, ignoring..."); return;
-        case File::KEYWORD_ROLLON:                   this->ProcessGlobalDirective(keyword);               return;
-        case File::KEYWORD_ROPABLES:                 this->ChangeSection(File::SECTION_ROPABLES);         return;
-        case File::KEYWORD_ROPES:                    this->ChangeSection(File::SECTION_ROPES);            return;
-        case File::KEYWORD_ROTATORS:                 this->ChangeSection(File::SECTION_ROTATORS);         return;
-        case File::KEYWORD_ROTATORS2:                this->ChangeSection(File::SECTION_ROTATORS_2);       return;
-        case File::KEYWORD_SCREWPROPS:               this->ChangeSection(File::SECTION_SCREWPROPS);       return;
-        case File::KEYWORD_SECTION:                  this->ProcessChangeModuleLine(keyword);              return;
-        case File::KEYWORD_SECTIONCONFIG:            /* Ignored */                                        return;
-        case File::KEYWORD_SET_BEAM_DEFAULTS:        this->ParseDirectiveSetBeamDefaults();               return;
-        case File::KEYWORD_SET_BEAM_DEFAULTS_SCALE:  this->ParseDirectiveSetBeamDefaultsScale();          return;
-        case File::KEYWORD_SET_COLLISION_RANGE:      this->ParseSetCollisionRange();                      return;
-        case File::KEYWORD_SET_DEFAULT_MINIMASS:     this->ParseDirectiveSetDefaultMinimass();            return;
-        case File::KEYWORD_SET_INERTIA_DEFAULTS:     this->ParseDirectiveSetInertiaDefaults();            return;
-        case File::KEYWORD_SET_MANAGEDMATS_OPTIONS:  this->ParseDirectiveSetManagedMaterialsOptions();    return;
-        case File::KEYWORD_SET_NODE_DEFAULTS:        this->ParseDirectiveSetNodeDefaults();               return;
-        case File::KEYWORD_SET_SKELETON_SETTINGS:    this->ParseSetSkeletonSettings();                    return;
-        case File::KEYWORD_SHOCKS:                   this->ChangeSection(File::SECTION_SHOCKS);           return;
-        case File::KEYWORD_SHOCKS2:                  this->ChangeSection(File::SECTION_SHOCKS_2);         return;
-        case File::KEYWORD_SHOCKS3:                  this->ChangeSection(File::SECTION_SHOCKS_3);         return;
-        case File::KEYWORD_SLIDENODE_CONNECT_INSTANT:this->ProcessGlobalDirective(keyword);               return;
-        case File::KEYWORD_SLIDENODES:               this->ChangeSection(File::SECTION_SLIDENODES);       return;
-        case File::KEYWORD_SLOPE_BRAKE:              this->ParseSlopeBrake();                             return;
-        case File::KEYWORD_SOUNDSOURCES:             this->ChangeSection(File::SECTION_SOUNDSOURCES);     return;
-        case File::KEYWORD_SOUNDSOURCES2:            this->ChangeSection(File::SECTION_SOUNDSOURCES2);    return;
-        case File::KEYWORD_SPEEDLIMITER:             this->ParseSpeedLimiter();                           return;
-        case File::KEYWORD_SUBMESH_GROUNDMODEL:      this->ParseSubmeshGroundModel();                     return;
-        case File::KEYWORD_SUBMESH:                  this->ChangeSection(File::SECTION_SUBMESH);          return;
-        case File::KEYWORD_TEXCOORDS:                this->ProcessKeywordTexcoords();                     return;
-        case File::KEYWORD_TIES:                     this->ChangeSection(File::SECTION_TIES);             return;
-        case File::KEYWORD_TORQUECURVE:              this->ChangeSection(File::SECTION_TORQUE_CURVE);     return;
-        case File::KEYWORD_TRACTION_CONTROL:         this->ParseTractionControl();                        return;
-        case File::KEYWORD_TRANSFER_CASE:            this->ChangeSection(File::SECTION_TRANSFER_CASE);    return;
-        case File::KEYWORD_TRIGGERS:                 this->ChangeSection(File::SECTION_TRIGGERS);         return;
-        case File::KEYWORD_TURBOJETS:                this->ChangeSection(File::SECTION_TURBOJETS);        return;
-        case File::KEYWORD_TURBOPROPS:               this->ChangeSection(File::SECTION_TURBOPROPS);       return;
-        case File::KEYWORD_TURBOPROPS2:              this->ChangeSection(File::SECTION_TURBOPROPS_2);     return;
-        case File::KEYWORD_VIDEOCAMERA:              this->ChangeSection(File::SECTION_VIDEO_CAMERA);     return;
-        case File::KEYWORD_WHEELDETACHERS:           this->ChangeSection(File::SECTION_WHEELDETACHERS);   return;
-        case File::KEYWORD_WHEELS:                   this->ChangeSection(File::SECTION_WHEELS);           return;
-        case File::KEYWORD_WHEELS2:                  this->ChangeSection(File::SECTION_WHEELS_2);         return;
-        case File::KEYWORD_WINGS:                    this->ChangeSection(File::SECTION_WINGS);            return;
+        case KEYWORD_ADD_ANIMATION:            this->ParseDirectiveAddAnimation();                  return;
+        case KEYWORD_AIRBRAKES:                this->ChangeSection(SECTION_AIRBRAKES);        return;
+        case KEYWORD_ANIMATORS:                this->ChangeSection(SECTION_ANIMATORS);        return;
+        case KEYWORD_ANTI_LOCK_BRAKES:         this->ParseAntiLockBrakes();                         return;
+        case KEYWORD_AXLES:                    this->ChangeSection(SECTION_AXLES);            return;
+        case KEYWORD_AUTHOR:                   this->ParseAuthor();                                 return;
+        case KEYWORD_BACKMESH:                 this->ParseDirectiveBackmesh();                      return;
+        case KEYWORD_BEAMS:                    this->ChangeSection(SECTION_BEAMS);            return;
+        case KEYWORD_BRAKES:                   this->ChangeSection(SECTION_BRAKES);           return;
+        case KEYWORD_CAB:                      this->ProcessKeywordCab();                           return;
+        case KEYWORD_CAMERAS:                  this->ChangeSection(SECTION_CAMERAS);          return;
+        case KEYWORD_CAMERARAIL:               this->ChangeSection(SECTION_CAMERA_RAIL);      return;
+        case KEYWORD_CINECAM:                  this->ChangeSection(SECTION_CINECAM);          return;
+        case KEYWORD_COLLISIONBOXES:           this->ChangeSection(SECTION_COLLISION_BOXES);  return;
+        case KEYWORD_COMMANDS:                 this->ChangeSection(SECTION_COMMANDS);         return;
+        case KEYWORD_COMMANDS2:                this->ChangeSection(SECTION_COMMANDS_2);       return;
+        case KEYWORD_CONTACTERS:               this->ChangeSection(SECTION_CONTACTERS);       return;
+        case KEYWORD_CRUISECONTROL:            this->ParseCruiseControl();                          return;
+        case KEYWORD_DESCRIPTION:              this->ChangeSection(SECTION_NONE); m_in_description_section = true; return;
+        case KEYWORD_DETACHER_GROUP:           this->ParseDirectiveDetacherGroup();                 return;
+        case KEYWORD_DISABLEDEFAULTSOUNDS:     this->ProcessGlobalDirective(keyword);               return;
+        case KEYWORD_ENABLE_ADVANCED_DEFORM:   this->ProcessGlobalDirective(keyword);               return;
+        case KEYWORD_END:                      this->ChangeSection(SECTION_NONE);             return;
+        case KEYWORD_END_SECTION:              this->ProcessChangeModuleLine(keyword);              return;
+        case KEYWORD_ENGINE:                   this->ChangeSection(SECTION_ENGINE);           return;
+        case KEYWORD_ENGOPTION:                this->ChangeSection(SECTION_ENGOPTION);        return;
+        case KEYWORD_ENGTURBO:                 this->ChangeSection(SECTION_ENGTURBO);         return;
+        case KEYWORD_ENVMAP:                   /* Ignored */                                        return;
+        case KEYWORD_EXHAUSTS:                 this->ChangeSection(SECTION_EXHAUSTS);         return;
+        case KEYWORD_EXTCAMERA:                this->ParseExtCamera();                              return;
+        case KEYWORD_FILEFORMATVERSION:        this->ParseFileFormatVersion();                      return;
+        case KEYWORD_FILEINFO:                 this->ParseFileinfo();                               return;
+        case KEYWORD_FIXES:                    this->ChangeSection(SECTION_FIXES);            return;
+        case KEYWORD_FLARES:                   this->ChangeSection(SECTION_FLARES);           return;
+        case KEYWORD_FLARES2:                  this->ChangeSection(SECTION_FLARES_2);         return;
+        case KEYWORD_FLEXBODIES:               this->ChangeSection(SECTION_FLEXBODIES);       return;
+        case KEYWORD_FLEXBODY_CAMERA_MODE:     this->ParseDirectiveFlexbodyCameraMode();            return;
+        case KEYWORD_FLEXBODYWHEELS:           this->ChangeSection(SECTION_FLEX_BODY_WHEELS); return;
+        case KEYWORD_FORWARDCOMMANDS:          this->ProcessGlobalDirective(keyword);               return;
+        case KEYWORD_FUSEDRAG:                 this->ChangeSection(SECTION_FUSEDRAG);         return;
+        case KEYWORD_GLOBALS:                  this->ChangeSection(SECTION_GLOBALS);          return;
+        case KEYWORD_GUID:                     this->ParseGuid();                                   return;
+        case KEYWORD_GUISETTINGS:              this->ChangeSection(SECTION_GUI_SETTINGS);     return;
+        case KEYWORD_HELP:                     this->ChangeSection(SECTION_HELP);             return;
+        case KEYWORD_HIDE_IN_CHOOSER:          this->ProcessGlobalDirective(keyword);               return;
+        case KEYWORD_HOOKGROUP:                /* Obsolete, ignored */                              return;
+        case KEYWORD_HOOKS:                    this->ChangeSection(SECTION_HOOKS);            return;
+        case KEYWORD_HYDROS:                   this->ChangeSection(SECTION_HYDROS);           return;
+        case KEYWORD_IMPORTCOMMANDS:           m_definition->import_commands = true;                return;
+        case KEYWORD_INTERAXLES:               this->ChangeSection(SECTION_INTERAXLES);       return;
+        case KEYWORD_LOCKGROUPS:               this->ChangeSection(SECTION_LOCKGROUPS);       return;
+        case KEYWORD_LOCKGROUP_DEFAULT_NOLOCK: this->ProcessGlobalDirective(keyword);               return;
+        case KEYWORD_MANAGEDMATERIALS:         this->ChangeSection(SECTION_MANAGED_MATERIALS); return;
+        case KEYWORD_MATERIALFLAREBINDINGS:    this->ChangeSection(SECTION_MAT_FLARE_BINDINGS); return;
+        case KEYWORD_MESHWHEELS:               this->ChangeSection(SECTION_MESH_WHEELS);      return;
+        case KEYWORD_MESHWHEELS2:              this->ChangeSection(SECTION_MESH_WHEELS_2);    return;
+        case KEYWORD_MINIMASS:                 this->ChangeSection(SECTION_MINIMASS);         return;
+        case KEYWORD_NODECOLLISION:            this->ChangeSection(SECTION_NODE_COLLISION);   return;
+        case KEYWORD_NODES:                    this->ChangeSection(SECTION_NODES);            return;
+        case KEYWORD_NODES2:                   this->ChangeSection(SECTION_NODES_2);          return;
+        case KEYWORD_PARTICLES:                this->ChangeSection(SECTION_PARTICLES);        return;
+        case KEYWORD_PISTONPROPS:              this->ChangeSection(SECTION_PISTONPROPS);      return;
+        case KEYWORD_PROP_CAMERA_MODE:         this->ParseDirectivePropCameraMode();                return;
+        case KEYWORD_PROPS:                    this->ChangeSection(SECTION_PROPS);            return;
+        case KEYWORD_RAILGROUPS:               this->ChangeSection(SECTION_RAILGROUPS);       return;
+        case KEYWORD_RESCUER:                  this->ProcessGlobalDirective(keyword);               return;
+        case KEYWORD_RIGIDIFIERS:              this->AddMessage(Message::TYPE_WARNING, "Rigidifiers are not supported, ignoring..."); return;
+        case KEYWORD_ROLLON:                   this->ProcessGlobalDirective(keyword);               return;
+        case KEYWORD_ROPABLES:                 this->ChangeSection(SECTION_ROPABLES);         return;
+        case KEYWORD_ROPES:                    this->ChangeSection(SECTION_ROPES);            return;
+        case KEYWORD_ROTATORS:                 this->ChangeSection(SECTION_ROTATORS);         return;
+        case KEYWORD_ROTATORS2:                this->ChangeSection(SECTION_ROTATORS_2);       return;
+        case KEYWORD_SCREWPROPS:               this->ChangeSection(SECTION_SCREWPROPS);       return;
+        case KEYWORD_SECTION:                  this->ProcessChangeModuleLine(keyword);              return;
+        case KEYWORD_SECTIONCONFIG:            /* Ignored */                                        return;
+        case KEYWORD_SET_BEAM_DEFAULTS:        this->ParseDirectiveSetBeamDefaults();               return;
+        case KEYWORD_SET_BEAM_DEFAULTS_SCALE:  this->ParseDirectiveSetBeamDefaultsScale();          return;
+        case KEYWORD_SET_COLLISION_RANGE:      this->ParseSetCollisionRange();                      return;
+        case KEYWORD_SET_DEFAULT_MINIMASS:     this->ParseDirectiveSetDefaultMinimass();            return;
+        case KEYWORD_SET_INERTIA_DEFAULTS:     this->ParseDirectiveSetInertiaDefaults();            return;
+        case KEYWORD_SET_MANAGEDMATS_OPTIONS:  this->ParseDirectiveSetManagedMaterialsOptions();    return;
+        case KEYWORD_SET_NODE_DEFAULTS:        this->ParseDirectiveSetNodeDefaults();               return;
+        case KEYWORD_SET_SKELETON_SETTINGS:    this->ParseSetSkeletonSettings();                    return;
+        case KEYWORD_SHOCKS:                   this->ChangeSection(SECTION_SHOCKS);           return;
+        case KEYWORD_SHOCKS2:                  this->ChangeSection(SECTION_SHOCKS_2);         return;
+        case KEYWORD_SHOCKS3:                  this->ChangeSection(SECTION_SHOCKS_3);         return;
+        case KEYWORD_SLIDENODE_CONNECT_INSTANT:this->ProcessGlobalDirective(keyword);               return;
+        case KEYWORD_SLIDENODES:               this->ChangeSection(SECTION_SLIDENODES);       return;
+        case KEYWORD_SLOPE_BRAKE:              this->ParseSlopeBrake();                             return;
+        case KEYWORD_SOUNDSOURCES:             this->ChangeSection(SECTION_SOUNDSOURCES);     return;
+        case KEYWORD_SOUNDSOURCES2:            this->ChangeSection(SECTION_SOUNDSOURCES2);    return;
+        case KEYWORD_SPEEDLIMITER:             this->ParseSpeedLimiter();                           return;
+        case KEYWORD_SUBMESH_GROUNDMODEL:      this->ParseSubmeshGroundModel();                     return;
+        case KEYWORD_SUBMESH:                  this->ChangeSection(SECTION_SUBMESH);          return;
+        case KEYWORD_TEXCOORDS:                this->ProcessKeywordTexcoords();                     return;
+        case KEYWORD_TIES:                     this->ChangeSection(SECTION_TIES);             return;
+        case KEYWORD_TORQUECURVE:              this->ChangeSection(SECTION_TORQUE_CURVE);     return;
+        case KEYWORD_TRACTION_CONTROL:         this->ParseTractionControl();                        return;
+        case KEYWORD_TRANSFER_CASE:            this->ChangeSection(SECTION_TRANSFER_CASE);    return;
+        case KEYWORD_TRIGGERS:                 this->ChangeSection(SECTION_TRIGGERS);         return;
+        case KEYWORD_TURBOJETS:                this->ChangeSection(SECTION_TURBOJETS);        return;
+        case KEYWORD_TURBOPROPS:               this->ChangeSection(SECTION_TURBOPROPS);       return;
+        case KEYWORD_TURBOPROPS2:              this->ChangeSection(SECTION_TURBOPROPS_2);     return;
+        case KEYWORD_VIDEOCAMERA:              this->ChangeSection(SECTION_VIDEO_CAMERA);     return;
+        case KEYWORD_WHEELDETACHERS:           this->ChangeSection(SECTION_WHEELDETACHERS);   return;
+        case KEYWORD_WHEELS:                   this->ChangeSection(SECTION_WHEELS);           return;
+        case KEYWORD_WHEELS2:                  this->ChangeSection(SECTION_WHEELS_2);         return;
+        case KEYWORD_WINGS:                    this->ChangeSection(SECTION_WINGS);            return;
     }
 
     // Parse current section, if any 
     switch (m_current_section)
     {
-        case (File::SECTION_AIRBRAKES):            this->ParseAirbrakes();               return;
-        case (File::SECTION_ANIMATORS):            this->ParseAnimator();                return;
-        case (File::SECTION_AXLES):                this->ParseAxles();                   return;
-        case (File::SECTION_TRUCK_NAME):           this->ParseActorNameLine();           return; 
-        case (File::SECTION_BEAMS):                this->ParseBeams();                   return;
-        case (File::SECTION_BRAKES):               this->ParseBrakes();                  return;
-        case (File::SECTION_CAMERAS):              this->ParseCameras();                 return;
-        case (File::SECTION_CAMERA_RAIL):          this->ParseCameraRails();             return;
-        case (File::SECTION_CINECAM):              this->ParseCinecam();                 return;
-        case (File::SECTION_COMMANDS):
-        case (File::SECTION_COMMANDS_2):           this->ParseCommandsUnified();         return;
-        case (File::SECTION_COLLISION_BOXES):      this->ParseCollisionBox();            return;
-        case (File::SECTION_CONTACTERS):           this->ParseContacter();               return;
-        case (File::SECTION_ENGINE):               this->ParseEngine();                  return;
-        case (File::SECTION_ENGOPTION):            this->ParseEngoption();               return;
-        case (File::SECTION_ENGTURBO) :            this->ParseEngturbo();                return;
-        case (File::SECTION_EXHAUSTS):             this->ParseExhaust();                 return;
-        case (File::SECTION_FIXES):                this->ParseFixes();                   return;
-        case (File::SECTION_FLARES):
-        case (File::SECTION_FLARES_2):             this->ParseFlaresUnified();           return;
-        case (File::SECTION_FLEXBODIES):           this->ParseFlexbody();                return;
-        case (File::SECTION_FLEX_BODY_WHEELS):     this->ParseFlexBodyWheel();           return;
-        case (File::SECTION_FUSEDRAG):             this->ParseFusedrag();                return;
-        case (File::SECTION_GLOBALS):              this->ParseGlobals();                 return;
-        case (File::SECTION_GUI_SETTINGS):         this->ParseGuiSettings();             return;
-        case (File::SECTION_HELP):                 this->ParseHelp();                    return;
-        case (File::SECTION_HOOKS):                this->ParseHook();                    return;
-        case (File::SECTION_HYDROS):               this->ParseHydros();                  return;
-        case (File::SECTION_INTERAXLES):           this->ParseInterAxles();              return;
-        case (File::SECTION_LOCKGROUPS):           this->ParseLockgroups();              return;
-        case (File::SECTION_MANAGED_MATERIALS):    this->ParseManagedMaterials();        return;
-        case (File::SECTION_MAT_FLARE_BINDINGS):   this->ParseMaterialFlareBindings();   return;
-        case (File::SECTION_MESH_WHEELS):
-        case (File::SECTION_MESH_WHEELS_2):        this->ParseMeshWheelUnified();        return;
-        case (File::SECTION_MINIMASS):             this->ParseMinimass();                return;
-        case (File::SECTION_NODE_COLLISION):       this->ParseNodeCollision();           return;
-        case (File::SECTION_NODES):
-        case (File::SECTION_NODES_2):              this->ParseNodesUnified();            return;
-        case (File::SECTION_PARTICLES):            this->ParseParticles();               return;
-        case (File::SECTION_PISTONPROPS):          this->ParsePistonprops();             return;
-        case (File::SECTION_PROPS):                this->ParseProps();                   return;
-        case (File::SECTION_RAILGROUPS):           this->ParseRailGroups();              return;
-        case (File::SECTION_ROPABLES):             this->ParseRopables();                return;
-        case (File::SECTION_ROPES):                this->ParseRopes();                   return;
-        case (File::SECTION_ROTATORS):
-        case (File::SECTION_ROTATORS_2):           this->ParseRotatorsUnified();         return;
-        case (File::SECTION_SCREWPROPS):           this->ParseScrewprops();              return;
-        case (File::SECTION_SHOCKS):               this->ParseShock();                   return;
-        case (File::SECTION_SHOCKS_2):             this->ParseShock2();                  return;
-        case (File::SECTION_SHOCKS_3):             this->ParseShock3();                  return;
-        case (File::SECTION_SLIDENODES):           this->ParseSlidenodes();              return;
-        case (File::SECTION_SOUNDSOURCES):         this->ParseSoundsources();            return;
-        case (File::SECTION_SOUNDSOURCES2):        this->ParseSoundsources2();           return;
-        case (File::SECTION_SUBMESH):              this->ParseSubmesh();                 return;
-        case (File::SECTION_TIES):                 this->ParseTies();                    return;
-        case (File::SECTION_TORQUE_CURVE):         this->ParseTorqueCurve();             return;
-        case (File::SECTION_TRANSFER_CASE):        this->ParseTransferCase();            return;
-        case (File::SECTION_TRIGGERS):             this->ParseTriggers();                return;
-        case (File::SECTION_TURBOJETS):            this->ParseTurbojets();               return;
-        case (File::SECTION_TURBOPROPS):           
-        case (File::SECTION_TURBOPROPS_2):         this->ParseTurbopropsUnified();       return;
-        case (File::SECTION_VIDEO_CAMERA):         this->ParseVideoCamera();             return;
-        case (File::SECTION_WHEELDETACHERS):       this->ParseWheelDetachers();          return;
-        case (File::SECTION_WHEELS):               this->ParseWheel();                   return;
-        case (File::SECTION_WHEELS_2):             this->ParseWheel2();                  return;
-        case (File::SECTION_WINGS):                this->ParseWing();                    return;
+        case (SECTION_AIRBRAKES):            this->ParseAirbrakes();               return;
+        case (SECTION_ANIMATORS):            this->ParseAnimator();                return;
+        case (SECTION_AXLES):                this->ParseAxles();                   return;
+        case (SECTION_TRUCK_NAME):           this->ParseActorNameLine();           return; 
+        case (SECTION_BEAMS):                this->ParseBeams();                   return;
+        case (SECTION_BRAKES):               this->ParseBrakes();                  return;
+        case (SECTION_CAMERAS):              this->ParseCameras();                 return;
+        case (SECTION_CAMERA_RAIL):          this->ParseCameraRails();             return;
+        case (SECTION_CINECAM):              this->ParseCinecam();                 return;
+        case (SECTION_COMMANDS):
+        case (SECTION_COMMANDS_2):           this->ParseCommandsUnified();         return;
+        case (SECTION_COLLISION_BOXES):      this->ParseCollisionBox();            return;
+        case (SECTION_CONTACTERS):           this->ParseContacter();               return;
+        case (SECTION_ENGINE):               this->ParseEngine();                  return;
+        case (SECTION_ENGOPTION):            this->ParseEngoption();               return;
+        case (SECTION_ENGTURBO) :            this->ParseEngturbo();                return;
+        case (SECTION_EXHAUSTS):             this->ParseExhaust();                 return;
+        case (SECTION_FIXES):                this->ParseFixes();                   return;
+        case (SECTION_FLARES):
+        case (SECTION_FLARES_2):             this->ParseFlaresUnified();           return;
+        case (SECTION_FLEXBODIES):           this->ParseFlexbody();                return;
+        case (SECTION_FLEX_BODY_WHEELS):     this->ParseFlexBodyWheel();           return;
+        case (SECTION_FUSEDRAG):             this->ParseFusedrag();                return;
+        case (SECTION_GLOBALS):              this->ParseGlobals();                 return;
+        case (SECTION_GUI_SETTINGS):         this->ParseGuiSettings();             return;
+        case (SECTION_HELP):                 this->ParseHelp();                    return;
+        case (SECTION_HOOKS):                this->ParseHook();                    return;
+        case (SECTION_HYDROS):               this->ParseHydros();                  return;
+        case (SECTION_INTERAXLES):           this->ParseInterAxles();              return;
+        case (SECTION_LOCKGROUPS):           this->ParseLockgroups();              return;
+        case (SECTION_MANAGED_MATERIALS):    this->ParseManagedMaterials();        return;
+        case (SECTION_MAT_FLARE_BINDINGS):   this->ParseMaterialFlareBindings();   return;
+        case (SECTION_MESH_WHEELS):
+        case (SECTION_MESH_WHEELS_2):        this->ParseMeshWheelUnified();        return;
+        case (SECTION_MINIMASS):             this->ParseMinimass();                return;
+        case (SECTION_NODE_COLLISION):       this->ParseNodeCollision();           return;
+        case (SECTION_NODES):
+        case (SECTION_NODES_2):              this->ParseNodesUnified();            return;
+        case (SECTION_PARTICLES):            this->ParseParticles();               return;
+        case (SECTION_PISTONPROPS):          this->ParsePistonprops();             return;
+        case (SECTION_PROPS):                this->ParseProps();                   return;
+        case (SECTION_RAILGROUPS):           this->ParseRailGroups();              return;
+        case (SECTION_ROPABLES):             this->ParseRopables();                return;
+        case (SECTION_ROPES):                this->ParseRopes();                   return;
+        case (SECTION_ROTATORS):
+        case (SECTION_ROTATORS_2):           this->ParseRotatorsUnified();         return;
+        case (SECTION_SCREWPROPS):           this->ParseScrewprops();              return;
+        case (SECTION_SHOCKS):               this->ParseShock();                   return;
+        case (SECTION_SHOCKS_2):             this->ParseShock2();                  return;
+        case (SECTION_SHOCKS_3):             this->ParseShock3();                  return;
+        case (SECTION_SLIDENODES):           this->ParseSlidenodes();              return;
+        case (SECTION_SOUNDSOURCES):         this->ParseSoundsources();            return;
+        case (SECTION_SOUNDSOURCES2):        this->ParseSoundsources2();           return;
+        case (SECTION_SUBMESH):              this->ParseSubmesh();                 return;
+        case (SECTION_TIES):                 this->ParseTies();                    return;
+        case (SECTION_TORQUE_CURVE):         this->ParseTorqueCurve();             return;
+        case (SECTION_TRANSFER_CASE):        this->ParseTransferCase();            return;
+        case (SECTION_TRIGGERS):             this->ParseTriggers();                return;
+        case (SECTION_TURBOJETS):            this->ParseTurbojets();               return;
+        case (SECTION_TURBOPROPS):           
+        case (SECTION_TURBOPROPS_2):         this->ParseTurbopropsUnified();       return;
+        case (SECTION_VIDEO_CAMERA):         this->ParseVideoCamera();             return;
+        case (SECTION_WHEELDETACHERS):       this->ParseWheelDetachers();          return;
+        case (SECTION_WHEELS):               this->ParseWheel();                   return;
+        case (SECTION_WHEELS_2):             this->ParseWheel2();                  return;
+        case (SECTION_WINGS):                this->ParseWing();                    return;
         default:;
     };
 }
@@ -327,7 +327,7 @@ bool Parser::CheckNumArguments(int num_required_args)
 void Parser::ParseActorNameLine()
 {
     m_definition->name = m_current_line; // Already trimmed
-    this->ChangeSection(File::SECTION_NONE);
+    this->ChangeSection(SECTION_NONE);
 }
 
 void Parser::ParseWing()
@@ -388,7 +388,7 @@ void Parser::ParseWheel2()
 
     if (m_sequential_importer.IsEnabled())
     {
-        m_sequential_importer.GenerateNodesForWheel(File::KEYWORD_WHEELS2, wheel_2.num_rays, wheel_2.rigidity_node.IsValidAnyState());
+        m_sequential_importer.GenerateNodesForWheel(KEYWORD_WHEELS2, wheel_2.num_rays, wheel_2.rigidity_node.IsValidAnyState());
     }
 
     m_current_module->wheels_2.push_back(wheel_2);
@@ -419,7 +419,7 @@ void Parser::ParseWheel()
 
     if (m_sequential_importer.IsEnabled())
     {
-        m_sequential_importer.GenerateNodesForWheel(File::KEYWORD_WHEELS, wheel.num_rays, wheel.rigidity_node.IsValidAnyState());
+        m_sequential_importer.GenerateNodesForWheel(KEYWORD_WHEELS, wheel.num_rays, wheel.rigidity_node.IsValidAnyState());
     }
 
     m_current_module->wheels.push_back(wheel);
@@ -749,7 +749,7 @@ void Parser::ParseDirectivePropCameraMode()
 
 void Parser::ParseDirectiveBackmesh()
 {
-    if (m_current_section == File::SECTION_SUBMESH)
+    if (m_current_section == SECTION_SUBMESH)
     {
         m_current_submesh->backmesh = true;
     }
@@ -761,48 +761,48 @@ void Parser::ParseDirectiveBackmesh()
 
 void Parser::ProcessKeywordTexcoords()
 {
-    if (m_current_section == File::SECTION_SUBMESH)
+    if (m_current_section == SECTION_SUBMESH)
     {
-        m_current_subsection = File::SUBSECTION__SUBMESH__TEXCOORDS;
+        m_current_subsection = SUBSECTION__SUBMESH__TEXCOORDS;
     }
     else
     {
         this->AddMessage(Message::TYPE_WARNING, "Misplaced sub-section 'texcoords' (belongs in section 'submesh'), falling back to classic unsafe parsing method.");
-        this->ChangeSection(File::SECTION_SUBMESH);
+        this->ChangeSection(SECTION_SUBMESH);
     }
 }
 
 void Parser::ProcessKeywordCab()
 {
-    m_current_subsection = File::SUBSECTION__SUBMESH__CAB;
-    if (m_current_section != File::SECTION_SUBMESH)
+    m_current_subsection = SUBSECTION__SUBMESH__CAB;
+    if (m_current_section != SECTION_SUBMESH)
     {
         this->AddMessage(Message::TYPE_WARNING, "Misplaced sub-section 'cab' (belongs in section 'submesh')");
-        this->ChangeSection(File::SECTION_SUBMESH);
+        this->ChangeSection(SECTION_SUBMESH);
     }
 }
 
-void Parser::ProcessGlobalDirective(File::Keyword keyword)   // Directives that should only appear in root module
+void Parser::ProcessGlobalDirective(Keyword keyword)   // Directives that should only appear in root module
 {
     this->VerifyModuleIsRoot(keyword); // Reports warning message if we're not in root module
 
     switch (keyword)
     {
-    case File::KEYWORD_DISABLEDEFAULTSOUNDS:      m_definition->disable_default_sounds = true;        return;
-    case File::KEYWORD_ENABLE_ADVANCED_DEFORM:    m_definition->enable_advanced_deformation = true;   return;
-    case File::KEYWORD_FORWARDCOMMANDS:           m_definition->forward_commands = true;              return;
-    case File::KEYWORD_HIDE_IN_CHOOSER:           m_definition->hide_in_chooser = true;               return;
-    case File::KEYWORD_LOCKGROUP_DEFAULT_NOLOCK:  m_definition->lockgroup_default_nolock = true;      return;
-    case File::KEYWORD_RESCUER:                   m_definition->rescuer = true;                       return;
-    case File::KEYWORD_ROLLON:                    m_definition->rollon = true;                        return;
-    case File::KEYWORD_SLIDENODE_CONNECT_INSTANT: m_definition->slide_nodes_connect_instantly = true; return;
+    case KEYWORD_DISABLEDEFAULTSOUNDS:      m_definition->disable_default_sounds = true;        return;
+    case KEYWORD_ENABLE_ADVANCED_DEFORM:    m_definition->enable_advanced_deformation = true;   return;
+    case KEYWORD_FORWARDCOMMANDS:           m_definition->forward_commands = true;              return;
+    case KEYWORD_HIDE_IN_CHOOSER:           m_definition->hide_in_chooser = true;               return;
+    case KEYWORD_LOCKGROUP_DEFAULT_NOLOCK:  m_definition->lockgroup_default_nolock = true;      return;
+    case KEYWORD_RESCUER:                   m_definition->rescuer = true;                       return;
+    case KEYWORD_ROLLON:                    m_definition->rollon = true;                        return;
+    case KEYWORD_SLIDENODE_CONNECT_INSTANT: m_definition->slide_nodes_connect_instantly = true; return;
 
     default: this->AddMessage(Message::TYPE_ERROR, "INTERNAL ERROR: '"
                  + std::string(File::KeywordToString(keyword)) + "' is not a global directive");      return;
     }
 }
 
-void Parser::VerifyModuleIsRoot(File::Keyword keyword)
+void Parser::VerifyModuleIsRoot(Keyword keyword)
 {
     if (m_current_module != m_root_module)
     {
@@ -817,7 +817,7 @@ void Parser::ParseMeshWheelUnified()
     if (! this->CheckNumArguments(16)) { return; }
 
     MeshWheel mesh_wheel;
-    mesh_wheel._is_meshwheel2     = (m_current_section == File::SECTION_MESH_WHEELS_2);
+    mesh_wheel._is_meshwheel2     = (m_current_section == SECTION_MESH_WHEELS_2);
     mesh_wheel.node_defaults      = m_user_node_defaults;
     mesh_wheel.beam_defaults      = m_user_beam_defaults;
 
@@ -840,9 +840,9 @@ void Parser::ParseMeshWheelUnified()
 
     if (m_sequential_importer.IsEnabled())
     {
-        File::Keyword keyword = (mesh_wheel._is_meshwheel2)
-            ? File::KEYWORD_MESHWHEELS2
-            : File::KEYWORD_MESHWHEELS;
+        Keyword keyword = (mesh_wheel._is_meshwheel2)
+            ? KEYWORD_MESHWHEELS2
+            : KEYWORD_MESHWHEELS;
         m_sequential_importer.GenerateNodesForWheel(keyword, mesh_wheel.num_rays, mesh_wheel.rigidity_node.IsValidAnyState());
     }
 
@@ -1025,7 +1025,7 @@ void Parser::ParseDirectiveFlexbodyCameraMode()
 
 void Parser::ParseSubmesh()
 {
-    if (m_current_subsection == File::SUBSECTION__SUBMESH__CAB)
+    if (m_current_subsection == SUBSECTION__SUBMESH__CAB)
     {
         if (! this->CheckNumArguments(3)) { return; }
 
@@ -1061,7 +1061,7 @@ void Parser::ParseSubmesh()
 
         m_current_submesh->cab_triangles.push_back(cab);
     }
-    else if (m_current_subsection == File::SUBSECTION__SUBMESH__TEXCOORDS)
+    else if (m_current_subsection == SUBSECTION__SUBMESH__TEXCOORDS)
     {
         if (! this->CheckNumArguments(3)) { return; }
 
@@ -1080,7 +1080,7 @@ void Parser::ParseSubmesh()
 
 void Parser::ParseFlexbody()
 {
-    if (m_current_subsection == File::SUBSECTION__FLEXBODIES__PROPLIKE_LINE)
+    if (m_current_subsection == SUBSECTION__FLEXBODIES__PROPLIKE_LINE)
     {
         if (! this->CheckNumArguments(10)) { return; }
 
@@ -1100,9 +1100,9 @@ void Parser::ParseFlexbody()
         m_current_module->flexbodies.push_back(m_last_flexbody);
 
         // Switch subsection
-        m_current_subsection =  File::SUBSECTION__FLEXBODIES__FORSET_LINE;
+        m_current_subsection =  SUBSECTION__FLEXBODIES__FORSET_LINE;
     }
-    else if (m_current_subsection == File::SUBSECTION__FLEXBODIES__FORSET_LINE)
+    else if (m_current_subsection == SUBSECTION__FLEXBODIES__FORSET_LINE)
     {
         // Syntax: "forset", followed by space/comma, followed by ","-separated items.
         // Acceptable item forms:
@@ -1157,7 +1157,7 @@ void Parser::ParseFlexbody()
         }
 
         // Switch subsection 
-        m_current_subsection =  File::SUBSECTION__FLEXBODIES__PROPLIKE_LINE;
+        m_current_subsection =  SUBSECTION__FLEXBODIES__PROPLIKE_LINE;
     }
     else
     {
@@ -1167,7 +1167,7 @@ void Parser::ParseFlexbody()
 
 void Parser::ParseFlaresUnified()
 {
-    const bool is_flares2 = (m_current_section == File::SECTION_FLARES_2);
+    const bool is_flares2 = (m_current_section == SECTION_FLARES_2);
     if (! this->CheckNumArguments(is_flares2 ? 6 : 5)) { return; }
 
     Flare2 flare2;
@@ -1178,7 +1178,7 @@ void Parser::ParseFlaresUnified()
     flare2.offset.x       = this->GetArgFloat  (pos++);
     flare2.offset.y       = this->GetArgFloat  (pos++);
 
-    if (m_current_section == File::SECTION_FLARES_2)
+    if (m_current_section == SECTION_FLARES_2)
     {
         flare2.offset.z = this->GetArgFloat(pos++);
     }
@@ -1253,7 +1253,7 @@ void Parser::ParseFileFormatVersion()
         m_sequential_importer.Disable();
     }
 
-    this->ChangeSection(File::SECTION_NONE);
+    this->ChangeSection(SECTION_NONE);
 }
 
 void Parser::ParseDirectiveDetacherGroup()
@@ -1596,7 +1596,7 @@ void Parser::ParseContacter()
 
 void Parser::ParseCommandsUnified()
 {
-    const bool is_commands2 = (m_current_section == File::SECTION_COMMANDS_2);
+    const bool is_commands2 = (m_current_section == SECTION_COMMANDS_2);
     const int max_args = (is_commands2 ? 8 : 7);
     if (! this->CheckNumArguments(max_args)) { return; }
 
@@ -1744,7 +1744,7 @@ void Parser::ParseCinecam()
 
     if (m_sequential_importer.IsEnabled())
     {
-        m_sequential_importer.AddGeneratedNode(File::KEYWORD_CINECAM);
+        m_sequential_importer.AddGeneratedNode(KEYWORD_CINECAM);
     }
 
     m_current_module->cinecam.push_back(cinecam);
@@ -1939,7 +1939,7 @@ void Parser::ParseCameras()
 
 void Parser::ParseTurbopropsUnified()
 {
-    bool is_turboprop_2 = m_current_section == File::SECTION_TURBOPROPS_2;
+    bool is_turboprop_2 = m_current_section == SECTION_TURBOPROPS_2;
 
     if (! this->CheckNumArguments(is_turboprop_2 ? 9 : 8)) { return; }
 
@@ -2523,7 +2523,7 @@ void Parser::ParseRotatorsUnified()
     
     int offset = 0;
 
-    if (m_current_section == File::SECTION_ROTATORS_2)
+    if (m_current_section == SECTION_ROTATORS_2)
     {
         if (! this->CheckNumArguments(16)) { return; }
         if (m_num_args > 13) { rotator.rotating_force  = this->GetArgFloat(13); }
@@ -2537,7 +2537,7 @@ void Parser::ParseRotatorsUnified()
     if (m_num_args > 17 + offset) { rotator.engine_coupling = this->GetArgFloat(17 + offset); }
     if (m_num_args > 18 + offset) { rotator.needs_engine    = this->GetArgBool (18 + offset); }
 
-        if (m_current_section == File::SECTION_ROTATORS_2)
+        if (m_current_section == SECTION_ROTATORS_2)
         {
             m_current_module->rotators_2.push_back(rotator);
         }
@@ -2566,7 +2566,7 @@ void Parser::ParseFileinfo()
 
     m_definition->file_info = std::shared_ptr<Fileinfo>( new Fileinfo(fileinfo) );
 
-    this->ChangeSection(File::SECTION_NONE);
+    this->ChangeSection(SECTION_NONE);
 }
 
 void Parser::ParseRopes()
@@ -2780,7 +2780,7 @@ void Parser::ParseNodesUnified()
     node.node_minimass = m_user_minimass;
     node.detacher_group = m_current_detacher_group;
 
-    if (m_current_section == File::SECTION_NODES_2)
+    if (m_current_section == SECTION_NODES_2)
     {
         std::string node_name = this->GetArgStr(0);
         node.id.SetStr(node_name);
@@ -2863,7 +2863,7 @@ void Parser::ParseMinimass()
 
     m_ror_minimass->min_mass = minimass;
 
-    this->ChangeSection(File::SECTION_NONE);
+    this->ChangeSection(SECTION_NONE);
 }
 
 void Parser::ParseFlexBodyWheel()
@@ -2896,7 +2896,7 @@ void Parser::ParseFlexBodyWheel()
 
     if (m_sequential_importer.IsEnabled())
     {
-        m_sequential_importer.GenerateNodesForWheel(File::KEYWORD_FLEXBODYWHEELS, flexbody_wheel.num_rays, flexbody_wheel.rigidity_node.IsValidAnyState());
+        m_sequential_importer.GenerateNodesForWheel(KEYWORD_FLEXBODYWHEELS, flexbody_wheel.num_rays, flexbody_wheel.rigidity_node.IsValidAnyState());
     }
 
     m_current_module->flex_body_wheels.push_back(flexbody_wheel);
@@ -3171,7 +3171,7 @@ void Parser::ParseAuthor()
     if (m_num_args > 4) { author.email            = this->GetArgStr(4); }
     m_definition->authors.push_back(author);
 
-    this->ChangeSection(File::SECTION_NONE);
+    this->ChangeSection(SECTION_NONE);
 }
 
 // -------------------------------------------------------------------------- 
@@ -3192,10 +3192,10 @@ void Parser::AddMessage(std::string const & line, Message::Type type, std::strin
     }
 
     txt << " (line " << (size_t)m_current_line_number;
-    if (m_current_section != File::Section::SECTION_INVALID)
+    if (m_current_section != Section::SECTION_INVALID)
     {
         txt << " '" << RigDef::File::SectionToString(m_current_section);
-        if (m_current_subsection != File::Subsection::SUBSECTION_NONE)
+        if (m_current_subsection != Subsection::SUBSECTION_NONE)
         {
             txt << "/" << RigDef::File::SubsectionToString(m_current_subsection);
         }
@@ -3229,21 +3229,21 @@ void Parser::AddMessage(std::string const & line, Message::Type type, std::strin
     RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_ACTOR, cm_type, txt.ToCStr());
 }
 
-File::Keyword Parser::IdentifyKeywordInCurrentLine()
+Keyword Parser::IdentifyKeywordInCurrentLine()
 {
     // Quick check - keyword always starts with ASCII letter
     char c = tolower(m_current_line[0]); // Note: line comes in trimmed
     if (c > 'z' || c < 'a')
     {
-        return File::KEYWORD_INVALID;
+        return KEYWORD_INVALID;
     }
 
     // Search with correct lettercase
     std::smatch results;
     std::string line(m_current_line);
     std::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_RESPECT_CASE); // Always returns true.
-    File::Keyword keyword = FindKeywordMatch(results);
-    if (keyword != File::KEYWORD_INVALID)
+    Keyword keyword = FindKeywordMatch(results);
+    if (keyword != KEYWORD_INVALID)
     {
         return keyword;
     }
@@ -3251,7 +3251,7 @@ File::Keyword Parser::IdentifyKeywordInCurrentLine()
     // Search and ignore lettercase
     std::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_IGNORE_CASE); // Always returns true.
     keyword = FindKeywordMatch(results);
-    if (keyword != File::KEYWORD_INVALID)
+    if (keyword != KEYWORD_INVALID)
     {
         this->AddMessage(line, Message::TYPE_WARNING,
             "Keyword has invalid lettercase. Correct form is: " + std::string(File::KeywordToString(keyword)));
@@ -3259,10 +3259,10 @@ File::Keyword Parser::IdentifyKeywordInCurrentLine()
     return keyword;
 }
 
-File::Keyword Parser::FindKeywordMatch(std::smatch& search_results)
+Keyword Parser::FindKeywordMatch(std::smatch& search_results)
 {
     // The 'results' array contains a complete match at positon [0] and sub-matches starting with [1], 
-    //    so we get exact positions in Regexes::IDENTIFY_KEYWORD, which again match File::Keyword enum members
+    //    so we get exact positions in Regexes::IDENTIFY_KEYWORD, which again match Keyword enum members
 
     for (unsigned int i = 1; i < search_results.size(); i++)
     {
@@ -3270,16 +3270,16 @@ File::Keyword Parser::FindKeywordMatch(std::smatch& search_results)
         if (sub.matched)
         {
             // Build enum value directly from result offset
-            return File::Keyword(i);
+            return Keyword(i);
         }
     }
-    return File::KEYWORD_INVALID;
+    return KEYWORD_INVALID;
 }
 
 void Parser::Prepare()
 {
-    m_current_section = File::SECTION_TRUCK_NAME;
-    m_current_subsection = File::SUBSECTION_NONE;
+    m_current_section = SECTION_TRUCK_NAME;
+    m_current_subsection = SUBSECTION_NONE;
     m_current_line_number = 1;
     m_definition = std::shared_ptr<File>(new File());
     m_in_block_comment = false;
@@ -3306,7 +3306,7 @@ void Parser::Prepare()
     m_sequential_importer.Init(true); // Enabled=true
 }
 
-void Parser::ChangeSection(RigDef::File::Section new_section)
+void Parser::ChangeSection(RigDef::Section new_section)
 {
     // ## Section-specific switch logic ##
 
@@ -3314,7 +3314,7 @@ void Parser::ChangeSection(RigDef::File::Section new_section)
     {
         m_current_module->submeshes.push_back(*m_current_submesh);
         m_current_submesh.reset(); // Set to nullptr
-        m_current_subsection = File::SUBSECTION_NONE;
+        m_current_subsection = SUBSECTION_NONE;
     }
 
     if (m_current_camera_rail != nullptr)
@@ -3330,26 +3330,26 @@ void Parser::ChangeSection(RigDef::File::Section new_section)
         }
     }
 
-    if (m_current_section == File::SECTION_FLEXBODIES)
+    if (m_current_section == SECTION_FLEXBODIES)
     {
-        m_current_subsection = File::SUBSECTION_NONE;
+        m_current_subsection = SUBSECTION_NONE;
     }
 
     // Enter sections
     m_current_section = new_section;
-    if (new_section == File::SECTION_SUBMESH)
+    if (new_section == SECTION_SUBMESH)
     {
         m_current_submesh = std::shared_ptr<Submesh>( new Submesh() );
     }
-    else if (new_section == File::SECTION_CAMERA_RAIL)
+    else if (new_section == SECTION_CAMERA_RAIL)
     {
         m_current_camera_rail = std::shared_ptr<CameraRail>( new CameraRail() );
     }
-    else if (new_section == File::SECTION_FLEXBODIES)
+    else if (new_section == SECTION_FLEXBODIES)
     {
-        m_current_subsection = File::SUBSECTION__FLEXBODIES__PROPLIKE_LINE;
+        m_current_subsection = SUBSECTION__FLEXBODIES__PROPLIKE_LINE;
     }
-    else if (new_section == File::SECTION_GUI_SETTINGS)
+    else if (new_section == SECTION_GUI_SETTINGS)
     {
         if (m_current_module->gui_settings == nullptr)
         {
@@ -3358,11 +3358,11 @@ void Parser::ChangeSection(RigDef::File::Section new_section)
     }
 }
 
-void Parser::ProcessChangeModuleLine(File::Keyword keyword)
+void Parser::ProcessChangeModuleLine(Keyword keyword)
 {
     // Determine and verify new module
     std::string new_module_name;
-    if (keyword == File::KEYWORD_END_SECTION)
+    if (keyword == KEYWORD_END_SECTION)
     {
         if (m_current_module == m_root_module)
         {
@@ -3371,7 +3371,7 @@ void Parser::ProcessChangeModuleLine(File::Keyword keyword)
         }
         new_module_name = ROOT_MODULE_NAME;
     }
-    else if (keyword == File::KEYWORD_SECTION)
+    else if (keyword == KEYWORD_SECTION)
     {
         if (!this->CheckNumArguments(3)) // Syntax: "section VERSION NAME"; VERSION is unused
         {
@@ -3387,7 +3387,7 @@ void Parser::ProcessChangeModuleLine(File::Keyword keyword)
     }
 
     // Perform the switch
-    this->ChangeSection(RigDef::File::SECTION_NONE);
+    this->ChangeSection(RigDef::SECTION_NONE);
     m_last_flexbody.reset(); // Set to nullptr
 
     if (new_module_name == ROOT_MODULE_NAME)
@@ -3410,7 +3410,7 @@ void Parser::ProcessChangeModuleLine(File::Keyword keyword)
 
 void Parser::Finalize()
 {
-    this->ChangeSection(File::SECTION_NONE);
+    this->ChangeSection(SECTION_NONE);
     m_definition->global_minimass = m_ror_minimass;
 
     if (m_sequential_importer.IsEnabled())

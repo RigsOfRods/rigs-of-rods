@@ -89,14 +89,14 @@ public:
             DETAIL_UNDEFINED = 0xFFFFFFFF
         };
 
-        NodeMapEntry(File::Keyword keyword, Node::Id id, unsigned node_sub_index, OriginDetail detail=NodeMapEntry::DETAIL_UNDEFINED):
+        NodeMapEntry(Keyword keyword, Node::Id id, unsigned node_sub_index, OriginDetail detail=NodeMapEntry::DETAIL_UNDEFINED):
             origin_keyword(keyword),
             origin_detail(detail),
             node_sub_index(node_sub_index),
             node_id(id)
         {}
 
-        RigDef::File::Keyword origin_keyword;
+        RigDef::Keyword origin_keyword;
         OriginDetail          origin_detail;
         Node::Id              node_id;
         unsigned              node_sub_index;
@@ -129,9 +129,9 @@ public:
 
     bool AddNamedNode(std::string const & name);
 
-    void AddGeneratedNode(File::Keyword generated_from, NodeMapEntry::OriginDetail detail = NodeMapEntry::DETAIL_UNDEFINED);
+    void AddGeneratedNode(Keyword generated_from, NodeMapEntry::OriginDetail detail = NodeMapEntry::DETAIL_UNDEFINED);
 
-    void GenerateNodesForWheel(File::Keyword generated_from, int num_rays, bool has_rigidity_node);
+    void GenerateNodesForWheel(Keyword generated_from, int num_rays, bool has_rigidity_node);
 
     /// Traverse whole rig definition and resolve all node references
     void Process(std::shared_ptr<RigDef::File> def);
@@ -145,7 +145,7 @@ private:
 
     Node::Ref ResolveNode(Node::Ref const & noderef_in);
     Node::Ref ResolveNodeByIndex(unsigned int index, unsigned int def_line_number);
-    unsigned GetNodeArrayOffset(File::Keyword keyword);
+    unsigned GetNodeArrayOffset(Keyword keyword);
     void ResolveNodeRanges(std::vector<Node::Range>& ranges);
     void ResolveFlexbodyForset(std::vector<Node::Range>& ranges, std::vector<Node::Ref>& out_nodes);
 
@@ -166,7 +166,7 @@ private:
     // Logging
     int                                 m_total_resolved;
     int                                 m_num_resolved_to_self;
-    File::Keyword                       m_current_keyword;
+    Keyword                       m_current_keyword;
     std::shared_ptr<File::Module>       m_current_module;
 };
 

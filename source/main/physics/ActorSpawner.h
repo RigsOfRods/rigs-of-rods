@@ -780,7 +780,7 @@ private:
     /**
     * Setter.
     */
-    void SetCurrentKeyword(RigDef::File::Keyword keyword)
+    void SetCurrentKeyword(RigDef::Keyword keyword)
     {
         m_current_keyword = keyword;
     }
@@ -1072,7 +1072,7 @@ private:
     std::vector<CabTexcoord>  m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;
     ActorMemoryRequirements   m_memory_requirements;
-    RigDef::File::Keyword     m_current_keyword; //!< For error reports
+    RigDef::Keyword     m_current_keyword; //!< For error reports
     std::vector<RoR::NodeGfx> m_gfx_nodes;
     CustomMaterial::MirrorPropType         m_curr_mirror_prop_type;
     std::shared_ptr<RigDef::File>          m_file; //!< The parsed input file.
