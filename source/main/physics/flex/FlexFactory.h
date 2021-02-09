@@ -30,7 +30,7 @@
 #include "BitFlags.h"
 #include "ForwardDeclarations.h"
 #include "Locator_t.h"
-#include "RigDef_Prerequisites.h"
+#include "TruckFileFormat.h"
 
 #include <OgreVector3.h>
 #include <OgreColourValue.h>
@@ -166,7 +166,7 @@ public:
     FlexFactory(ActorSpawner* spawner);
 
     FlexBody* CreateFlexBody(
-        RigDef::Flexbody* def,
+        Truck::Flexbody* def,
         const int ref_node, 
         const int x_node, 
         const int y_node, 

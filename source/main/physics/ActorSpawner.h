@@ -28,7 +28,7 @@
 #pragma once
 
 #include "Application.h"
-#include "RigDef_Parser.h"
+#include "TruckParser.h"
 #include "SimData.h"
 #include "FlexFactory.h"
 #include "FlexObj.h"
@@ -39,7 +39,7 @@
 
 namespace RoR {
 
-/// Processes a RigDef::File data structure (result of parsing a "Truckfile" fileformat) into 'an Actor' - a simulated physical object.
+/// Processes a Truck::File data structure (result of parsing a "Truckfile" fileformat) into 'an Actor' - a simulated physical object.
 ///
 /// HISTORY:
 ///
@@ -48,14 +48,14 @@ namespace RoR {
 /// As a result, the logic was chaotic: some features broke each other (most notably VideoCameras X MaterialFlares X SkinZips) and the sim. structs often contained parser context variables.
 /// Also, the whole system was extremely sensitive to order of definitions in truckfile - often [badly/not] documented, known only by forum/IRC users at the time.
 ///
-/// Since v0.4.5, RoR has `RigDef::Parser` which reads truckfile and emits instance of `RigDef::File` - all data from truckfile in memory. `RigDef::File` doesn't preserve the order of definitions,
-/// instead it's designed to resolve all order-dependent references to order-independent, see `RigDef::SequentialImporter` (resources/rig_def_fileformat/RigDef_SequentialImporter.h) for more info.
+/// Since v0.4.5, RoR has `Truck::Parser` which reads truckfile and emits instance of `Truck::File` - all data from truckfile in memory. `Truck::File` doesn't preserve the order of definitions,
+/// instead it's designed to resolve all order-dependent references to order-independent, see `Truck::SequentialImporter` (resources/rig_def_fileformat/RigDef_SequentialImporter.h) for more info.
 /// `ActorSpawner` was created by carefully refactoring old `SerializedRig` described above, so a lot of the dirty logic remained. Elements were still written into constant-size arrays.
 ///
 /// PRESENT (06/2017):
 ///
 /// RoR is being refactored to get rid of the MAX_[BEAMS/NODES/***] limits. Static arrays in `rig_t` are replaced with pointers to dynamically allocated memory.
-/// Memory requirements are calculated upfront from `RigDef::File`.
+/// Memory requirements are calculated upfront from `Truck::File`.
 ///
 /// FUTURE:
 ///
@@ -116,7 +116,7 @@ public:
 
     void Setup(
         Actor *actor,
-        std::shared_ptr<RigDef::File> file,
+        std::shared_ptr<Truck::File> file,
         Ogre::SceneNode *parent,
         Ogre::Vector3 const & spawn_position
         );
@@ -133,7 +133,7 @@ public:
     * Adds a vehicle module to the validated configuration.
     * @param module_name A module from the validated rig-def file.
     */
-    void AddModule(std::shared_ptr<RigDef::File::Module> module)
+    void AddModule(std::shared_ptr<Truck::File::Module> module)
     {
         m_selected_modules.push_back(module);
     }
@@ -159,7 +159,7 @@ public:
     * @return Index of existing node
     * @throws Exception If the node isn't found.
     */
-    unsigned int GetNodeIndexOrThrow(RigDef::Node::Ref const & id);
+    unsigned int GetNodeIndexOrThrow(Truck::Node::Ref const & id);
 
     static void SetupDefaultSoundSources(Actor *vehicle);
 
@@ -194,8 +194,8 @@ private:
         {}
 
         Ogre::MaterialPtr              material;
-        RigDef::MaterialFlareBinding*  material_flare_def;
-        RigDef::VideoCamera*           video_camera_def;
+        Truck::MaterialFlareBinding*  material_flare_def;
+        Truck::VideoCamera*           video_camera_def;
         MirrorPropType                 mirror_prop_type;
         Ogre::SceneNode*               mirror_prop_scenenode;
     };
@@ -214,32 +214,32 @@ private:
 
     struct WheelVisualsTicket //!< Wheel visuals are queued for processing using this struct
     {
-        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::Wheel* def):
+        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, Truck::Wheel* def):
             wheel_index(wheel_idx), base_node_index(node_idx),
             wheel_def(def), wheel2_def(nullptr), meshwheel_def(nullptr), flexbodywheel_def(nullptr)
         {}
 
-        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::Wheel2* def):
+        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, Truck::Wheel2* def):
             wheel_index(wheel_idx), base_node_index(node_idx),
             wheel_def(nullptr), wheel2_def(def), meshwheel_def(nullptr), flexbodywheel_def(nullptr)
         {}
 
-        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::MeshWheel* def, uint16_t axis1, uint16_t axis2):
+        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, Truck::MeshWheel* def, uint16_t axis1, uint16_t axis2):
             wheel_index(wheel_idx), base_node_index(node_idx),
             wheel_def(nullptr), wheel2_def(nullptr), meshwheel_def(def), flexbodywheel_def(nullptr),
             axis_node_1(axis1), axis_node_2(axis2)
         {}
 
-        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::FlexBodyWheel* def, uint16_t axis1, uint16_t axis2):
+        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, Truck::FlexBodyWheel* def, uint16_t axis1, uint16_t axis2):
             wheel_index(wheel_idx), base_node_index(node_idx),
             wheel_def(nullptr), wheel2_def(nullptr), meshwheel_def(nullptr), flexbodywheel_def(def),
             axis_node_1(axis1), axis_node_2(axis2)
         {}
 
-        RigDef::Wheel*         wheel_def;
-        RigDef::Wheel2*        wheel2_def;
-        RigDef::MeshWheel*     meshwheel_def;
-        RigDef::FlexBodyWheel* flexbodywheel_def;
+        Truck::Wheel*         wheel_def;
+        Truck::Wheel2*        wheel2_def;
+        Truck::MeshWheel*     meshwheel_def;
+        Truck::FlexBodyWheel* flexbodywheel_def;
 
         uint16_t               wheel_index;
         uint16_t               base_node_index;
@@ -255,17 +255,17 @@ private:
     /**
     * Section 'airbrakes'.
     */
-    void ProcessAirbrake(RigDef::Airbrake & def);
+    void ProcessAirbrake(Truck::Airbrake & def);
 
     /**
     * Section 'animators'.
     */
-    void ProcessAnimator(RigDef::Animator & def);
+    void ProcessAnimator(Truck::Animator & def);
 
     /**
     * Section 'AntiLockBrakes'.
     */
-    void ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def);
+    void ProcessAntiLockBrakes(Truck::AntiLockBrakes & def);
 
     /**
     * Section 'author' in root module.
@@ -275,281 +275,281 @@ private:
     /**
     * Section 'axles'.
     */
-    void ProcessAxle(RigDef::Axle & def);
+    void ProcessAxle(Truck::Axle & def);
 
     /**
     * Section 'beams'. Depends on 'nodes'
     */
-    void ProcessBeam(RigDef::Beam & def);
+    void ProcessBeam(Truck::Beam & def);
 
     /**
     * Section 'brakes' in any module.
     */
-    void ProcessBrakes(RigDef::Brakes & def);
+    void ProcessBrakes(Truck::Brakes & def);
 
     /**
     * Section 'camerarail', depends on 'nodes'.
     */
-    void ProcessCameraRail(RigDef::CameraRail & def);
+    void ProcessCameraRail(Truck::CameraRail & def);
 
     /**
     * Section 'cameras', depends on 'nodes'.
     */
-    void ProcessCamera(RigDef::Camera & def);
+    void ProcessCamera(Truck::Camera & def);
 
     /**
     * Section 'cinecam', depends on 'nodes'.
     */
-    void ProcessCinecam(RigDef::Cinecam & def);
+    void ProcessCinecam(Truck::Cinecam & def);
 
     /**
     * Section 'collisionboxes'
     */
-    void ProcessCollisionBox(RigDef::CollisionBox & def);
+    void ProcessCollisionBox(Truck::CollisionBox & def);
 
     /**
     * Processes sections 'commands' and 'commands2' (unified).
     */
-    void ProcessCommand(RigDef::Command2 & def);
+    void ProcessCommand(Truck::Command2 & def);
 
     /**
     * Section 'contacters'.
     */
-    void ProcessContacter(RigDef::Node::Ref & node_ref);
+    void ProcessContacter(Truck::Node::Ref & node_ref);
 
     /**
     * Section 'cruisecontrol' in any module.
     */
-    void ProcessCruiseControl(RigDef::CruiseControl & def);
+    void ProcessCruiseControl(Truck::CruiseControl & def);
 
     /**
     * Section 'engine' in any module.
     */
-    void ProcessEngine(RigDef::Engine & def);
+    void ProcessEngine(Truck::Engine & def);
 
     /**
     * Section 'engoption' in any module.
     */ 
-    void ProcessEngoption(RigDef::Engoption & def);
+    void ProcessEngoption(Truck::Engoption & def);
 
     /**
     * Section 'engturbo' in any module.
     */
-    void ProcessEngturbo(RigDef::Engturbo & def);
+    void ProcessEngturbo(Truck::Engturbo & def);
 
     /**
     * Section 'exhausts'.
     */
-    void ProcessExhaust(RigDef::Exhaust & def);
+    void ProcessExhaust(Truck::Exhaust & def);
 
     /**
     * Inline-section 'extcamera'.
     */
-    void ProcessExtCamera(RigDef::ExtCamera & def);
+    void ProcessExtCamera(Truck::ExtCamera & def);
 
     /**
     * Section 'fixes'
     */
-    void ProcessFixedNode(RigDef::Node::Ref node_ref);
+    void ProcessFixedNode(Truck::Node::Ref node_ref);
 
     /**
     * Sections 'flares' and 'flares2'.
     */
-    void ProcessFlare2(RigDef::Flare2 & def);
+    void ProcessFlare2(Truck::Flare2 & def);
 
     /**
     * Section 'flexbodies'.
     */
-    void ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def);
+    void ProcessFlexbody(std::shared_ptr<Truck::Flexbody> def);
 
     /**
     * Section 'flexbodywheels'.
     */
-    void ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def);
+    void ProcessFlexBodyWheel(Truck::FlexBodyWheel & def);
 
     /**
     * Section 'fusedrag'.
     */
-    void ProcessFusedrag(RigDef::Fusedrag & def);
+    void ProcessFusedrag(Truck::Fusedrag & def);
 
     /**
     * Section 'gobals' in any module
     */
-    void ProcessGlobals(RigDef::Globals & def);
+    void ProcessGlobals(Truck::Globals & def);
 
     /**
     * Section 'guisettings'.
     */
-    void ProcessGuiSettings(RigDef::GuiSettings & def);
+    void ProcessGuiSettings(Truck::GuiSettings & def);
 
     void ProcessHelp();
 
     /**
     * Depends on 'nodes'
     */
-    void ProcessHook(RigDef::Hook & def);
+    void ProcessHook(Truck::Hook & def);
 
-    void ProcessHydro(RigDef::Hydro & def);
+    void ProcessHydro(Truck::Hydro & def);
 
     /**
     * Section 'interaxles'.
     */
-    void ProcessInterAxle(RigDef::InterAxle & def);
+    void ProcessInterAxle(Truck::InterAxle & def);
 
     /**
     * Depends on section 'nodes'
     */
-    void ProcessLockgroup(RigDef::Lockgroup & lockgroup);
+    void ProcessLockgroup(Truck::Lockgroup & lockgroup);
 
     /**
     * Section 'managedmaterials'
     */
-    void ProcessManagedMaterial(RigDef::ManagedMaterial & def);
+    void ProcessManagedMaterial(Truck::ManagedMaterial & def);
 
     /**
     * Section 'meshwheels'.
     */
-    void ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def);
+    void ProcessMeshWheel(Truck::MeshWheel & meshwheel_def);
 
     /**
     * Section 'meshwheels2'.
     */
-    void ProcessMeshWheel2(RigDef::MeshWheel & def);
+    void ProcessMeshWheel2(Truck::MeshWheel & def);
 
     /**
     * Section 'minimass'.
     */
     void ProcessMinimassInAnyModule();
 
-    void ProcessNode(RigDef::Node & def);
+    void ProcessNode(Truck::Node & def);
 
     /**
     * Section 'particles'.
     */
-    void ProcessParticle(RigDef::Particle & def);
+    void ProcessParticle(Truck::Particle & def);
 
     /**
     * Section 'pistonprops'.
     */
-    void ProcessPistonprop(RigDef::Pistonprop & def);
+    void ProcessPistonprop(Truck::Pistonprop & def);
 
     /**
     * Section 'props'.
     */
-    void ProcessProp(RigDef::Prop & def);
+    void ProcessProp(Truck::Prop & def);
 
     /**
     * Section 'railgroups'.
     */
-    void ProcessRailGroup(RigDef::RailGroup & def);
+    void ProcessRailGroup(Truck::RailGroup & def);
 
     /**
     * Section 'ropables'.
     */
-    void ProcessRopable(RigDef::Ropable & def);
+    void ProcessRopable(Truck::Ropable & def);
 
     /**
     * Section 'ropes'.
     */
-    void ProcessRope(RigDef::Rope & def);
+    void ProcessRope(Truck::Rope & def);
 
-    void ProcessRotator(RigDef::Rotator & def);
+    void ProcessRotator(Truck::Rotator & def);
 
-    void ProcessRotator2(RigDef::Rotator2 & def);
+    void ProcessRotator2(Truck::Rotator2 & def);
 
-    void ProcessScrewprop(RigDef::Screwprop & def);
+    void ProcessScrewprop(Truck::Screwprop & def);
 
     /**
     * Section 'shocks'.
     */
-    void ProcessShock(RigDef::Shock & def);
+    void ProcessShock(Truck::Shock & def);
 
     /**
     * Add a shock absorber (section 'shocks2') to the rig.
     */
-    void ProcessShock2(RigDef::Shock2 & def);
+    void ProcessShock2(Truck::Shock2 & def);
 
     /**
     * Add a shock absorber (section 'shocks3') to the rig.
     */
-    void ProcessShock3(RigDef::Shock3 & def);
+    void ProcessShock3(Truck::Shock3 & def);
 
     /**
     * Section 'slidenodes'. Depends on 'railgroups'
     */
-    void ProcessSlidenode(RigDef::SlideNode & def);
+    void ProcessSlidenode(Truck::SlideNode & def);
 
     /**
     * Section 'SlopeBrake' in any module.
     */
-    void ProcessSlopeBrake(RigDef::SlopeBrake & def);
+    void ProcessSlopeBrake(Truck::SlopeBrake & def);
 
     /**
     * Section 'soundsources'.
     */
-    void ProcessSoundSource(RigDef::SoundSource & def); 
+    void ProcessSoundSource(Truck::SoundSource & def); 
 
     /**
     * Section 'soundsources2'.
     */
-    void ProcessSoundSource2(RigDef::SoundSource2 & def); 
+    void ProcessSoundSource2(Truck::SoundSource2 & def); 
 
     /**
     * Section 'submeshes'.
     */
-    void ProcessSubmesh(RigDef::Submesh & def);
+    void ProcessSubmesh(Truck::Submesh & def);
 
     /**
     * Section 'ties'.
     */
-    void ProcessTie(RigDef::Tie & def);
+    void ProcessTie(Truck::Tie & def);
 
     /**
     * Section 'torquecurve' in any module. Depends on 'engine'.
     */
-    void ProcessTorqueCurve(RigDef::TorqueCurve & def);
+    void ProcessTorqueCurve(Truck::TorqueCurve & def);
 
     /**
     * Section 'TractionControl' in any module.
     */
-    void ProcessTractionControl(RigDef::TractionControl & def);
+    void ProcessTractionControl(Truck::TractionControl & def);
 
     /**
     * Section 'transfercase'.
     */
-    void ProcessTransferCase(RigDef::TransferCase & def);
+    void ProcessTransferCase(Truck::TransferCase & def);
 
-    void ProcessTrigger(RigDef::Trigger & def);
+    void ProcessTrigger(Truck::Trigger & def);
 
-    void ProcessTurbojet(RigDef::Turbojet & def);
+    void ProcessTurbojet(Truck::Turbojet & def);
 
     /**
     * Sections 'turboprops' and 'turboprops2'
     */
-    void ProcessTurboprop2(RigDef::Turboprop2 & def);
+    void ProcessTurboprop2(Truck::Turboprop2 & def);
 
     /**
     * Section 'wheeldetachers' in all modules.
     */
-    void ProcessWheelDetacher(RigDef::WheelDetacher & def);
+    void ProcessWheelDetacher(Truck::WheelDetacher & def);
 
     /**
     * Section 'wheels' in all modules.
     */
-    void ProcessWheel(RigDef::Wheel & def);
+    void ProcessWheel(Truck::Wheel & def);
 
     /**
     * Section 'wheels2' in all modules.
     * @author Pierre-Michel Ricordel
     * @author Thomas Fischer
     */
-    void ProcessWheel2(RigDef::Wheel2 & def);
+    void ProcessWheel2(Truck::Wheel2 & def);
 
     /**
     * Section 'wings'.
     * @author 
     */
-    void ProcessWing(RigDef::Wing & def);
+    void ProcessWing(Truck::Wing & def);
 
 /* -------------------------------------------------------------------------- */
 /* Partial processing functions.                                              */
@@ -575,7 +575,7 @@ private:
     beam_t & AddBeam(
         node_t & node_1, 
         node_t & node_2, 
-        std::shared_ptr<RigDef::BeamDefaults> & defaults,
+        std::shared_ptr<Truck::BeamDefaults> & defaults,
         int detacher_group
     );
 
@@ -583,17 +583,17 @@ private:
     * Adds complete wheel (section 'wheels') to the rig.
     * @return wheel index in rig_t::wheels array.
     */
-    unsigned int AddWheel(RigDef::Wheel & wheel);
+    unsigned int AddWheel(Truck::Wheel & wheel);
 
     /**
     * Adds wheel from section 'wheels2'.
     * @return wheel index.
     */
-    unsigned int AddWheel2(RigDef::Wheel2 & wheel_2_def);
+    unsigned int AddWheel2(Truck::Wheel2 & wheel_2_def);
 
-    void CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override="");
+    void CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::shared_ptr<Truck::BeamDefaults> const& beam_defaults, std::string material_override="");
 
-    RailGroup *CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
+    RailGroup *CreateRail(std::vector<Truck::Node::Range> & node_ranges);
 
     static void AddSoundSource(Actor *vehicle, SoundScriptInstance *sound_script, int node_index, int type = -2);
 
@@ -674,13 +674,13 @@ private:
     * Seeks node.
     * @return Pointer to node, or nullptr if not found.
     */
-    node_t* GetBeamNodePointer(RigDef::Node::Ref const & node_ref);
+    node_t* GetBeamNodePointer(Truck::Node::Ref const & node_ref);
 
     /**
-    * Seeks node in both RigDef::File definition and rig_t generated rig.
+    * Seeks node in both Truck::File definition and rig_t generated rig.
     * @return Node index or -1 if the node was not found.
     */
-    int FindNodeIndex(RigDef::Node::Ref & node_ref, bool silent = false);
+    int FindNodeIndex(Truck::Node::Ref & node_ref, bool silent = false);
 
     /**
     * Finds wheel with given axle nodes and returns it's index.
@@ -700,7 +700,7 @@ private:
     * Adds a node to the rig.
     * @return First: node index, second: True if the node was inserted, false if duplicate.
     */
-    std::pair<unsigned int, bool> AddNode(RigDef::Node::Id & id);
+    std::pair<unsigned int, bool> AddNode(Truck::Node::Id & id);
 
     /**
     * Adds a message to internal log.
@@ -716,33 +716,33 @@ private:
     * Finds existing node by Node::Ref
     * @return First: Index of existing node; Second: true if node was found.
     */
-    std::pair<unsigned int, bool> GetNodeIndex(RigDef::Node::Ref const & node_ref, bool quiet = false);
+    std::pair<unsigned int, bool> GetNodeIndex(Truck::Node::Ref const & node_ref, bool quiet = false);
 
     /**
     * Finds existing node by Node::Ref
     * @return Pointer to node or nullptr if not found.
     */
-    node_t* GetNodePointer(RigDef::Node::Ref const & node_ref);
+    node_t* GetNodePointer(Truck::Node::Ref const & node_ref);
 
     /**
     * Finds existing node by Node::Ref
     * @return Pointer to node
     * @throws Exception If the node isn't found.
     */
-    node_t* GetNodePointerOrThrow(RigDef::Node::Ref const & node_ref);
+    node_t* GetNodePointerOrThrow(Truck::Node::Ref const & node_ref);
 
     /**
     * Finds existing node by Node::Ref; throws an exception if the node doesn't exist.
     * @return Reference to existing node.
     * @throws Exception If the node isn't found.
     */
-    node_t & GetNodeOrThrow(RigDef::Node::Ref const & node_ref);
+    node_t & GetNodeOrThrow(Truck::Node::Ref const & node_ref);
 
     /**
     * Finds existing pointer by Node::Id
     * @return Ref. to node.
     */
-    node_t & GetNode(RigDef::Node::Ref & node_ref)
+    node_t & GetNode(Truck::Node::Ref & node_ref)
     {
         node_t * node = GetNodePointer(node_ref);
         if (node == nullptr)
@@ -774,13 +774,13 @@ private:
     void InitNode(
         node_t & node, 
         Ogre::Vector3 const & position,
-        std::shared_ptr<RigDef::NodeDefaults> node_defaults
+        std::shared_ptr<Truck::NodeDefaults> node_defaults
     );
 
     /**
     * Setter.
     */
-    void SetCurrentKeyword(RigDef::Keyword keyword)
+    void SetCurrentKeyword(Truck::Keyword keyword)
     {
         m_current_keyword = keyword;
     }
@@ -792,7 +792,7 @@ private:
     * @return False if some nodes could not be found and thus the lookup wasn't completed.
     */
     bool CollectNodesFromRanges(
-        std::vector<RigDef::Node::Range> & node_ranges,
+        std::vector<Truck::Node::Range> & node_ranges,
         std::vector<unsigned int> & out_node_indices
     );
 
@@ -837,34 +837,34 @@ private:
 
     beam_t *FindBeamInRig(unsigned int node_a, unsigned int node_b);
 
-    void SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults);
+    void SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<Truck::BeamDefaults> beam_defaults);
 
     void UpdateCollcabContacterNodes();
 
-    wheel_t::BrakeCombo TranslateBrakingDef(RigDef::Wheels::Braking def);
+    wheel_t::BrakeCombo TranslateBrakingDef(Truck::Wheels::Braking def);
 
     /**
     * Checks a section only appears in one module and reports a warning if not.
     */
     void CheckSectionSingleModule(
         Ogre::String const & section_name,
-        std::list<std::shared_ptr<RigDef::File::Module>> & found_items	
+        std::list<std::shared_ptr<Truck::File::Module>> & found_items	
     );
 
     /**
     * Creates beam pre-configured for use as rim with section 'wheels2'.
     */
-    unsigned int AddWheelRimBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
+    unsigned int AddWheelRimBeam(Truck::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
 
     /**
     * Creates beam pre-configured for use as tyre with section 'wheels2'.
     */
-    unsigned int AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
+    unsigned int AddTyreBeam(Truck::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
 
     /**
     * Creates beam partially configured for use with section 'wheels2'.
     */
-    unsigned int _SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
+    unsigned int _SectionWheels2AddBeam(Truck::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
 
     /**
     * Builds complete wheel visuals (sections 'wheels', 'wheels2').
@@ -923,11 +923,11 @@ private:
 
     Ogre::ParticleSystem* CreateParticleSystem(std::string const & name, std::string const & template_name);
 
-    RigDef::MaterialFlareBinding* FindFlareBindingForMaterial(std::string const & material_name); //!< Returns NULL if none found
+    Truck::MaterialFlareBinding* FindFlareBindingForMaterial(std::string const & material_name); //!< Returns NULL if none found
 
-    RigDef::VideoCamera* FindVideoCameraByMaterial(std::string const & material_name); //!< Returns NULL if none found
+    Truck::VideoCamera* FindVideoCameraByMaterial(std::string const & material_name); //!< Returns NULL if none found
 
-    void CreateVideoCamera(RigDef::VideoCamera* def);
+    void CreateVideoCamera(Truck::VideoCamera* def);
     void CreateMirrorPropVideoCam(Ogre::MaterialPtr custom_mat, CustomMaterial::MirrorPropType type, Ogre::SceneNode* prop_scenenode);
 
     /**
@@ -948,9 +948,9 @@ private:
         unsigned int reserve_nodes,
         unsigned int reserve_beams,
         float wheel_radius,
-        RigDef::Wheels::Propulsion propulsion,
-        RigDef::Wheels::Braking braking,
-        std::shared_ptr<RigDef::NodeDefaults> node_defaults,
+        Truck::Wheels::Propulsion propulsion,
+        Truck::Wheels::Braking braking,
+        std::shared_ptr<Truck::NodeDefaults> node_defaults,
         float wheel_mass,
         float wheel_width = -1.f
     );
@@ -967,8 +967,8 @@ private:
         float tyre_damping,
         float rim_spring,
         float rim_damping,
-        std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
-        RigDef::Node::Ref const & rigidity_node_id,
+        std::shared_ptr<Truck::BeamDefaults> beam_defaults,
+        Truck::Node::Ref const & rigidity_node_id,
         float max_extension = 0.f
     );
 
@@ -980,7 +980,7 @@ private:
         node_t *node_2,
         float spring,
         float damping,
-        std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
+        std::shared_ptr<Truck::BeamDefaults> beam_defaults,
         float max_contraction = -1.f,
         float max_extension = -1.f,
         BeamType type = BEAM_NORMAL
@@ -1009,13 +1009,13 @@ private:
     void FetchAxisNodes(
         node_t* & axis_node_1, 
         node_t* & axis_node_2, 
-        RigDef::Node::Ref const & axis_node_1_id,
-        RigDef::Node::Ref const & axis_node_2_id
+        Truck::Node::Ref const & axis_node_1_id,
+        Truck::Node::Ref const & axis_node_2_id
     );
 
     void _ProcessKeyInertia(
-        RigDef::Inertia & inertia, 
-        RigDef::Inertia & inertia_defaults, 
+        Truck::Inertia & inertia, 
+        Truck::Inertia & inertia_defaults, 
         RoR::CmdKeyInertia& contract_key, 
         RoR::CmdKeyInertia& extend_key
     );
@@ -1023,12 +1023,12 @@ private:
     /** 
     * For specified nodes
     */
-    void AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, std::shared_ptr<RigDef::NodeDefaults> defaults);
+    void AdjustNodeBuoyancy(node_t & node, Truck::Node & node_def, std::shared_ptr<Truck::NodeDefaults> defaults);
 
     /** 
     * For generated nodes
     */
-    void AdjustNodeBuoyancy(node_t & node, std::shared_ptr<RigDef::NodeDefaults> defaults);
+    void AdjustNodeBuoyancy(node_t & node, std::shared_ptr<Truck::NodeDefaults> defaults);
 
     /**
     * Ported from SerializedRig::loadTruck() [v0.4.0.7]
@@ -1040,7 +1040,7 @@ private:
     */
     void InitializeRig();
 
-    void CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::File::Module* module_def);
+    void CalcMemoryRequirements(ActorMemoryRequirements& req, Truck::File::Module* module_def);
 
     void HandleException();
 
@@ -1072,16 +1072,16 @@ private:
     std::vector<CabTexcoord>  m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;
     ActorMemoryRequirements   m_memory_requirements;
-    RigDef::Keyword     m_current_keyword; //!< For error reports
+    Truck::Keyword     m_current_keyword; //!< For error reports
     std::vector<RoR::NodeGfx> m_gfx_nodes;
     CustomMaterial::MirrorPropType         m_curr_mirror_prop_type;
-    std::shared_ptr<RigDef::File>          m_file; //!< The parsed input file.
+    std::shared_ptr<Truck::File>          m_file; //!< The parsed input file.
     std::map<Ogre::String, unsigned int>   m_named_nodes;
     std::map<std::string, CustomMaterial>  m_material_substitutions; //!< Maps original material names (shared) to their actor-specific substitutes; There's 1 substitute per 1 material, regardless of user count.
     std::vector<BeamVisualsTicket>         m_beam_visuals_queue; //!< We want to spawn visuals asynchronously in the future
     std::vector<WheelVisualsTicket>        m_wheel_visuals_queue; //!< We want to spawn visuals asynchronously in the future
     std::map<std::string, Ogre::MaterialPtr>  m_managed_materials;
-    std::list<std::shared_ptr<RigDef::File::Module>>  m_selected_modules;
+    std::list<std::shared_ptr<Truck::File::Module>>  m_selected_modules;
 
 };
 

@@ -30,7 +30,7 @@
 #include "Differentials.h"
 #include "ForwardDeclarations.h"
 #include "GfxData.h"
-#include "RigDef_Prerequisites.h"
+#include "TruckFileFormat.h"
 #include "ThreadPool.h" // class Task
 
 #include <OgreAxisAlignedBox.h>

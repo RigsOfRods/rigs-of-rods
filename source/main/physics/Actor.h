@@ -27,7 +27,7 @@
 #include "GfxActor.h"
 #include "MovableText.h"
 #include "PerVehicleCameraContext.h"
-#include "RigDef_Prerequisites.h"
+#include "TruckFileFormat.h"
 #include "TyrePressure.h"
 
 #include <Ogre.h>
@@ -55,7 +55,7 @@ public:
     Actor(
           int actor_id
         , unsigned int vector_index
-        , std::shared_ptr<RigDef::File> def
+        , std::shared_ptr<Truck::File> def
         , ActorSpawnRequest rq
         );
 
@@ -160,7 +160,7 @@ public:
     Ogre::String     GetSectionConfig()                 { return m_section_config; }
     PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
     std::vector<Actor*> GetAllLinkedActors()            { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
-    std::shared_ptr<RigDef::File> GetDefinition()       { return m_definition; }
+    std::shared_ptr<Truck::File> GetDefinition()       { return m_definition; }
     Ogre::Vector3     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetCameraRoll()                   { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
@@ -430,7 +430,7 @@ private:
     // -------------------- data -------------------- //
 
     std::vector<std::shared_ptr<Task>> m_flexbody_tasks;   //!< Gfx state
-    std::shared_ptr<RigDef::File>      m_definition;
+    std::shared_ptr<Truck::File>      m_definition;
     std::unique_ptr<GfxActor>          m_gfx_actor;
     PerVehicleCameraContext            m_camera_context;
     Ogre::String                       m_section_config;

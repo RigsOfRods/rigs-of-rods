@@ -25,23 +25,23 @@
 
 #pragma once
 
-#include "RigDef_File.h"
+#include "TruckFileFormat.h"
 
-namespace RigDef{
+namespace Truck{
 
 /// @class  Serializer
 /// @author Petr Ohlidal
 ///
-/// @brief Serializes the `RigDef::File` data structure to string.
+/// @brief Serializes the `Truck::File` data structure to string.
 class Serializer
 {
 public:
-    Serializer(std::shared_ptr<RigDef::File> rig_def);
+    Serializer(std::shared_ptr<Truck::File> rig_def);
     void Serialize();
     std::string GetOutput() const { return m_stream.str(); }
 
 private:
-    void SerializeModule(std::shared_ptr<RigDef::File::Module> m);
+    void SerializeModule(std::shared_ptr<Truck::File::Module> m);
 
     void ProcessAuthors();
     void ProcessGlobals(File::Module* module);
@@ -121,7 +121,7 @@ private:
     void ProcessMaterialFlareBindings(File::Module* module);
     void ProcessPropsAndAnimations(File::Module* module);
     void ProcessFlexbodies(File::Module* module);
-    void ProcessDirectiveAddAnimation(RigDef::Animation & anim);
+    void ProcessDirectiveAddAnimation(Truck::Animation & anim);
     /* TODO: 
     5.5.17 Camerarail
     5.5.8 Flexbodies
@@ -163,7 +163,7 @@ protected:
     void                UpdateGroup(File::Module* module, int group_id);
 
     std::stringstream                 m_stream;
-    std::shared_ptr<RigDef::File>     m_rig_def;
+    std::shared_ptr<Truck::File>     m_rig_def;
     // Settings
     int                               m_float_precision;
     int                               m_float_width;
@@ -178,4 +178,4 @@ protected:
     int               m_current_editor_group = -1;
 };
 
-} // namespace RigDef
+} // namespace Truck

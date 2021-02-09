@@ -25,7 +25,7 @@
 
 #include "CacheSystem.h"
 #include "Application.h"
-#include "RigDef_File.h"
+#include "TruckFileFormat.h"
 
 #include <OgreResourceGroupManager.h>
 #include <OgreScriptCompiler.h>
@@ -91,7 +91,7 @@ public:
     void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
     void               ReScanProjects();
-    bool               ImportProjectSnapshot(ProjectEntry* dest_proj, const char* filename, std::shared_ptr<RigDef::File> def); //!< "Project snapshot" is an equivalent of Truckfile
+    bool               ImportProjectSnapshot(ProjectEntry* dest_proj, const char* filename, std::shared_ptr<Truck::File> def); //!< "Project snapshot" is an equivalent of Truckfile
     ProjectEntry*      CreateNewProject(std::string const& dir_name, const char* prj_name);
 
     bool               DeleteDiskFile(std::string const& filename, std::string const& rg_name);
@@ -110,7 +110,7 @@ private:
     // Ogre::ScriptCompilerListener
     bool handleEvent(Ogre::ScriptCompiler *compiler, Ogre::ScriptCompilerEvent *evt, void *retval) override;
     
-    void ImportProjectActorModule(std::shared_ptr<RigDef::File::Module> dst, std::shared_ptr<RigDef::File::Module> src);
+    void ImportProjectActorModule(std::shared_ptr<Truck::File::Module> dst, std::shared_ptr<Truck::File::Module> src);
 
 
     CacheSystem       m_mod_cache; //!< Database of addon content

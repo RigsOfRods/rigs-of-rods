@@ -20,7 +20,7 @@
 /// @file
 
 #include "CacheSystem.h" // RoR::ProjectEntry, PROJECT_FILE
-#include "RigDef_File.h" // RigDef::File
+#include "TruckFileFormat.h" // Truck::File
 #include <memory>
 
 namespace RoR {
@@ -31,12 +31,12 @@ namespace RoR {
 /// TERMINOLOGY:
 ///  * Project = directory with JSON, truckfiles and resources, located under ROR_HOME/projects
 ///  * Snapshot = a truckfile in project directory. NOTE: file extension is always .truck
-///  * Module = a `RigDef::File::Module` object (see truckfile feature 'sectionconfig')
+///  * Module = a `Truck::File::Module` object (see truckfile feature 'sectionconfig')
 class ActorEditor
 {
 public:
-    bool                ImportSnapshotToProject(std::string const& filename, std::shared_ptr<RigDef::File> def); //!< Imports truckfile to current project + opens it
-    void                ImportModuleToSnapshot(std::shared_ptr<RigDef::File::Module> m); //!< Imports module (see 'sectionconfig') to current actor
+    bool                ImportSnapshotToProject(std::string const& filename, std::shared_ptr<Truck::File> def); //!< Imports truckfile to current project + opens it
+    void                ImportModuleToSnapshot(std::shared_ptr<Truck::File::Module> m); //!< Imports module (see 'sectionconfig') to current actor
     bool                SaveSnapshot();
     void                SetProject(ProjectEntry* e) { m_entry = e; }
 
@@ -46,7 +46,7 @@ public:
 private:
     ProjectEntry*                   m_entry = nullptr;    //!< Currently open project
     ProjectSnapshot*                m_snapshot = nullptr; //!< Currently open actor
-    std::shared_ptr<RigDef::File>   m_def;                //!< Currently open actor
+    std::shared_ptr<Truck::File>   m_def;                //!< Currently open actor
 };
 
 } // namespace RoR

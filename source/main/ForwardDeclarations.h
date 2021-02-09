@@ -171,6 +171,13 @@ namespace RoRnet
     struct VehicleState;
 }
 
+namespace Truck
+{
+    struct NodeDefaults;
+    struct MinimassPreset;
+    struct BeamDefaults;
+}
+
 #ifdef USE_SOCKETW
 class SWBaseSocket;
 #endif // USE_SOCKETW

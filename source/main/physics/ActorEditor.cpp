@@ -25,7 +25,7 @@
 #include "ContentManager.h"
 #include "GUIManager.h"
 #include "Language.h"
-#include "RigDef_Serializer.h"
+#include "TruckSerializer.h"
 
 #include <OgreDataStream.h>
 #include <rapidjson/stringbuffer.h>
@@ -89,7 +89,7 @@ bool ActorEditor::SaveProject(ProjectEntry* proj)
     return true;
 }
 
-bool ActorEditor::ImportSnapshotToProject(std::string const& filename, std::shared_ptr<RigDef::File> src_def)
+bool ActorEditor::ImportSnapshotToProject(std::string const& filename, std::shared_ptr<Truck::File> src_def)
 {
     // Generate filename (avoid duplicates)
     Str<200> filename_buf;
@@ -111,7 +111,7 @@ bool ActorEditor::ImportSnapshotToProject(std::string const& filename, std::shar
     while (!is_unique);
 
     // Create new blank actor
-    m_def = std::make_shared<RigDef::File>();
+    m_def = std::make_shared<Truck::File>();
     m_def->name = "(Imported) " + src_def->name;
 
     // copy global attributes
@@ -131,7 +131,7 @@ bool ActorEditor::ImportSnapshotToProject(std::string const& filename, std::shar
     m_def->global_minimass               = src_def->global_minimass                ;   //float  
     m_def->description                   = src_def->description                    ;   // vector<string>
     m_def->authors                       = src_def->authors                        ;   // vector<>
-    m_def->file_info = std::make_shared<RigDef::Fileinfo>();
+    m_def->file_info = std::make_shared<Truck::Fileinfo>();
     if (src_def->file_info)
     {
         *(m_def->file_info.get()) = *(src_def->file_info.get()); // Copy the object contents
@@ -160,9 +160,9 @@ bool ActorEditor::ImportSnapshotToProject(std::string const& filename, std::shar
     return true;
 }
 
-void ActorEditor::ImportModuleToSnapshot(std::shared_ptr<RigDef::File::Module> src)
+void ActorEditor::ImportModuleToSnapshot(std::shared_ptr<Truck::File::Module> src)
 {
-    std::shared_ptr<RigDef::File::Module> dst = std::make_shared<RigDef::File::Module>(src->name);
+    std::shared_ptr<Truck::File::Module> dst = std::make_shared<Truck::File::Module>(src->name);
 
     dst->help_panel_material_name   = src->help_panel_material_name   ; //Ogre::String                       
     dst->contacter_nodes            = src->contacter_nodes            ; //std::vector<unsigned int>          
@@ -235,7 +235,7 @@ void ActorEditor::ImportModuleToSnapshot(std::shared_ptr<RigDef::File::Module> s
 
     dst->editor_groups              = src->editor_groups              ; //std::vector<EditorGroup>  
 
-    if (src->name == RigDef::ROOT_MODULE_NAME)
+    if (src->name == Truck::ROOT_MODULE_NAME)
     {
         m_def->root_module = dst;
     }
@@ -262,7 +262,7 @@ bool ActorEditor::SaveSnapshot()
         }
 
         // Serialize actor to string
-        RigDef::Serializer serializer(m_def);
+        Truck::Serializer serializer(m_def);
         serializer.Serialize();
 
         // Flush the string to file

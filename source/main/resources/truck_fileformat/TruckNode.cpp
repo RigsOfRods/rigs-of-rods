@@ -23,11 +23,11 @@
 /// @author Petr Ohlidal
 /// @date   04/2015
 
-#include "RigDef_Node.h"
+#include "TruckNode.h"
 
 #include "Application.h"
 
-using namespace RigDef;
+using namespace Truck;
 
 // Ctors
 

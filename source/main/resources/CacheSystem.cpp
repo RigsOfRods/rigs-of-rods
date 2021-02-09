@@ -36,7 +36,7 @@
 #include "GfxScene.h"
 #include "Language.h"
 #include "PlatformUtils.h"
-#include "RigDef_Parser.h"
+#include "TruckParser.h"
 
 #include "SkinFileFormat.h"
 #include "TerrainManager.h"
@@ -278,7 +278,7 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
     out_entry.numgears =          j_entry["numgears"].GetInt();
     out_entry.enginetype =        static_cast<char>(j_entry["enginetype"].GetInt());
 
-    // Vehicle 'section-configs' (aka Modules in RigDef namespace)
+    // Vehicle 'section-configs' (aka Modules in Truck namespace)
     for (rapidjson::Value& j_module_name: j_entry["sectionconfigs"].GetArray())
     {
         out_entry.sectionconfigs.push_back(j_module_name.GetString());
@@ -500,7 +500,7 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
     j_entry.AddMember("numgears",            entry.numgears,          j_doc.GetAllocator());
     j_entry.AddMember("enginetype",          entry.enginetype,        j_doc.GetAllocator());
 
-    // Vehicle 'section-configs' (aka Modules in RigDef namespace)
+    // Vehicle 'section-configs' (aka Modules in Truck namespace)
     rapidjson::Value j_sectionconfigs(rapidjson::kArrayType);
     for (std::string const & module_name: entry.sectionconfigs)
     {
@@ -654,7 +654,7 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
 void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr stream, String file_name, String group)
 {
     /* LOAD AND PARSE THE VEHICLE */
-    RigDef::Parser parser;
+    Truck::Parser parser;
     parser.Prepare();
     parser.ProcessOgreStream(stream.getPointer(), group);
     parser.GetSequentialImporter()->Disable();
@@ -662,7 +662,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
 
     /* RETRIEVE DATA */
 
-    std::shared_ptr<RigDef::File> def = parser.GetFile();
+    std::shared_ptr<Truck::File> def = parser.GetFile();
 
     /* Name */
     if (!def->name.empty())
@@ -682,7 +682,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* Authors */
-    std::vector<RigDef::Author>::iterator author_itor = def->authors.begin();
+    std::vector<Truck::Author>::iterator author_itor = def->authors.begin();
     for (; author_itor != def->authors.end(); author_itor++)
     {
         AuthorInfo author;
@@ -695,7 +695,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* Modules (previously called "sections") */
-    std::map<Ogre::String, std::shared_ptr<RigDef::File::Module>>::iterator module_itor = def->user_modules.begin();
+    std::map<Ogre::String, std::shared_ptr<Truck::File::Module>>::iterator module_itor = def->user_modules.begin();
     for (; module_itor != def->user_modules.end(); module_itor++)
     {
         entry.sectionconfigs.push_back(module_itor->second->name);
@@ -705,14 +705,14 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     /* TODO: Handle engines in modules */
     if (def->root_module->engine != nullptr)
     {
-        std::shared_ptr<RigDef::Engine> engine = def->root_module->engine;
+        std::shared_ptr<Truck::Engine> engine = def->root_module->engine;
         entry.numgears = static_cast<int>(engine->gear_ratios.size());
         entry.minrpm = engine->shift_down_rpm;
         entry.maxrpm = engine->shift_up_rpm;
         entry.torque = engine->torque;
         entry.enginetype = 't'; /* Truck (default) */
         if (def->root_module->engoption != nullptr
-            && def->root_module->engoption->type == RigDef::Engoption::ENGINE_TYPE_c_CAR)
+            && def->root_module->engoption->type == Truck::Engoption::ENGINE_TYPE_c_CAR)
         {
             entry.enginetype = 'c';
         }
@@ -733,7 +733,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* Vehicle type */
-    /* NOTE: RigDef::File allows modularization of vehicle type. Cache only supports single type.
+    /* NOTE: Truck::File allows modularization of vehicle type. Cache only supports single type.
         This is a temporary solution which has undefined results for mixed-type vehicles.
     */
     ActorType vehicle_type = NOT_DRIVEABLE;
@@ -804,25 +804,25 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     for (const auto& w : def->root_module->wheels)
     {
         entry.wheelcount++;
-        if (w.propulsion != RigDef::Wheels::PROPULSION_NONE)
+        if (w.propulsion != Truck::Wheels::PROPULSION_NONE)
             entry.propwheelcount++;
     }
     for (const auto& w : def->root_module->wheels_2)
     {
         entry.wheelcount++;
-        if (w.propulsion != RigDef::Wheels::PROPULSION_NONE)
+        if (w.propulsion != Truck::Wheels::PROPULSION_NONE)
             entry.propwheelcount++;
     }
     for (const auto& w : def->root_module->mesh_wheels)
     {
         entry.wheelcount++;
-        if (w.propulsion != RigDef::Wheels::PROPULSION_NONE)
+        if (w.propulsion != Truck::Wheels::PROPULSION_NONE)
             entry.propwheelcount++;
     }
     for (const auto& w : def->root_module->flex_body_wheels)
     {
         entry.wheelcount++;
-        if (w.propulsion != RigDef::Wheels::PROPULSION_NONE)
+        if (w.propulsion != Truck::Wheels::PROPULSION_NONE)
             entry.propwheelcount++;
     }
 

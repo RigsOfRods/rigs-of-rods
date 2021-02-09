@@ -4332,7 +4332,7 @@ void Actor::EngineTriggerHelper(int engineNumber, EngineTriggerType type, float 
 Actor::Actor(
     int actor_id,
     unsigned int vector_index,
-    std::shared_ptr<RigDef::File> def,
+    std::shared_ptr<Truck::File> def,
     RoR::ActorSpawnRequest rq
 ) 
     : ar_nodes(nullptr), ar_num_nodes(0)

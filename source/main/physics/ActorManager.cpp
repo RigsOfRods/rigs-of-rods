@@ -45,7 +45,7 @@
 #include "Network.h"
 #include "PointColDetector.h"
 #include "Replay.h"
-#include "RigDef_Validator.h"
+#include "TruckValidator.h"
 #include "ActorSpawner.h"
 #include "ScriptEngine.h"
 #include "SoundScriptManager.h"
@@ -74,7 +74,7 @@ ActorManager::~ActorManager()
     this->SyncWithSimThread(); // Wait for sim task to finish
 }
 
-void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
+void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_ptr<Truck::File> def)
 {
     // ~~~~ Code ported from Actor::Actor()
 
@@ -83,7 +83,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     // ~~~~ Code ported from Actor::LoadActor()
     //      LoadActor(def, beams_parent, pos, rot, spawnbox, cache_entry_number)
     //      bool Actor::LoadActor(
-    //          std::shared_ptr<RigDef::File> def,
+    //          std::shared_ptr<Truck::File> def,
     //          Ogre::SceneNode* parent_scene_node,
     //          Ogre::Vector3 const& spawn_position,
     //          Ogre::Quaternion& spawn_rotation,
@@ -333,7 +333,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     LOG(" ===== DONE LOADING VEHICLE");
 }
 
-Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
+Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<Truck::File> def)
 {
     Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
     actor->SetUsedSkin(rq.asr_skin_entry);
@@ -1182,7 +1182,7 @@ void HandleErrorLoadingTruckfile(std::string filename, std::string exception_msg
     HandleErrorLoadingFile("actor", filename, exception_msg);
 }
 
-std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(RoR::ActorSpawnRequest& rq)
+std::shared_ptr<Truck::File> ActorManager::FetchActorDef(RoR::ActorSpawnRequest& rq)
 {
     if (rq.asr_project) // Always load from disk
     {
@@ -1208,13 +1208,13 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(RoR::ActorSpawnRequest
 
     // Load the 'truckfile'
     App::GetCacheSystem()->LoadResource(*rq.asr_cache_entry);
-    std::shared_ptr<RigDef::File> def = this->LoadActorDef(rq.asr_cache_entry->fname, rq.asr_cache_entry->resource_group);
+    std::shared_ptr<Truck::File> def = this->LoadActorDef(rq.asr_cache_entry->fname, rq.asr_cache_entry->resource_group);
     if (!def)
     {
         return nullptr; // Error already reported
     }
 
-    RigDef::Validator validator;
+    Truck::Validator validator;
     validator.Setup(def);
 
     if (rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF)
@@ -1233,7 +1233,7 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(RoR::ActorSpawnRequest
     return def;
 }
 
-std::shared_ptr<RigDef::File> ActorManager::LoadActorDef(std::string const& filename, std::string const& rg_name)
+std::shared_ptr<Truck::File> ActorManager::LoadActorDef(std::string const& filename, std::string const& rg_name)
 {
     try
     {
@@ -1246,7 +1246,7 @@ std::shared_ptr<RigDef::File> ActorManager::LoadActorDef(std::string const& file
         }
 
         RoR::LogFormat("[RoR] Parsing truckfile '%s'", filename.c_str());
-        RigDef::Parser parser;
+        Truck::Parser parser;
         parser.Prepare();
         parser.ProcessOgreStream(stream.getPointer(), rg_name);
         parser.Finalize();

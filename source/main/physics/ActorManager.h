@@ -29,7 +29,7 @@
 #include "SimData.h"
 #include "CmdKeyInertia.h"
 #include "Network.h"
-#include "RigDef_Prerequisites.h"
+#include "TruckFileFormat.h"
 #include "ThreadPool.h"
 
 #include <string>
@@ -47,7 +47,7 @@ public:
     ActorManager();
     ~ActorManager();
 
-    Actor*         CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def);
+    Actor*         CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<Truck::File> def);
     void           UpdateActors(Actor* player_actor);
     void           SyncWithSimThread();
     void           UpdatePhysicsSimulation();
@@ -80,7 +80,7 @@ public:
     Actor*         GetActorById(int actor_id);
     Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void           UpdateInputEvents(float dt);
-    std::shared_ptr<RigDef::File>   FetchActorDef(RoR::ActorSpawnRequest& rq);
+    std::shared_ptr<Truck::File>   FetchActorDef(RoR::ActorSpawnRequest& rq);
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet);
@@ -107,14 +107,14 @@ public:
 
 private:
 
-    void           SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def);
+    void           SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_ptr<Truck::File> def);
     bool           CheckActorCollAabbIntersect(int a, int b);    //!< Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.
     bool           PredictActorCollAabbIntersect(int a, int b);  //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
     void           RemoveStreamSource(int sourceid);
     void           RecursiveActivation(int j, std::vector<bool>& visited);
     void           ForwardCommands(Actor* source_actor); //!< Fowards things to trailers
     void           UpdateTruckFeatures(Actor* vehicle, float dt);
-    std::shared_ptr<RigDef::File>  LoadActorDef(std::string const& filename, std::string const& rg_name);
+    std::shared_ptr<Truck::File>  LoadActorDef(std::string const& filename, std::string const& rg_name);
 
     // Networking
     std::map<int, std::set<int>> m_stream_mismatches; //!< Networking: A set of streams without a corresponding actor in the actor-array for each stream source

@@ -20,7 +20,7 @@
 */
 
 /**
-    @file   RigDef_Regexes.h
+    @file   
     @author Petr Ohlidal
     @date   12/2013
 
@@ -52,7 +52,7 @@
 
 #include <regex>
 
-namespace RigDef
+namespace Truck
 {
 
 namespace Regexes
@@ -410,4 +410,4 @@ DEFINE_REGEX( SECTION_COLLISIONBOXES,
 
 } // namespace Regexes
 
-} // namespace RigDef
+} // namespace Truck

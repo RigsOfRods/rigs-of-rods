@@ -20,29 +20,21 @@
 */
 
 /** 
-    @file   RigDef_File.h
+    @file
     @author Petr Ohlidal
     @date   12/2013
-    @brief Structures which represent a rig-definition file (1:1 match) 
+    @brief Structures which represent a truck file (1:1 match) 
 
     Values are initialised to their defaults, or 0 if there's no default.
 
-    NOTE ON ARCHITECTURE:
-    These structs were designed for a single purpose - to bring data 
-    from rig def. file.	Do not use them for any other purpose, don't 
-    modify them beyond their original purpose. Avoid modifying their
-    contents, only Parser should do that; use them only for reading;
-
-    NOTES: 
-    * Since these are open structs, the m_ prefix for member variables is not used.
-    * Members prefixed by _ are helper flags which mark special values or missing values.
+    Members prefixed by _ are helper flags which mark special values or missing values.
 */
 
 #pragma once
 
 #include "Application.h"
 #include "BitFlags.h"
-#include "RigDef_Node.h"
+#include "TruckNode.h"
 #include "SimConstants.h"
 
 #include <list>
@@ -53,7 +45,7 @@
 #include <OgreVector3.h>
 #include <OgreStringConverter.h>
 
-namespace RigDef {
+namespace Truck {
 
 extern const char* ROOT_MODULE_NAME;
 
@@ -1401,17 +1393,17 @@ struct Hydro
     static const char OPTION_g_INPUT_ELEVATOR_RUDDER     = 'g';
     static const char OPTION_h_INPUT_InvELEVATOR_RUDDER  = 'h';
 
-    inline bool HasFlag_a() { return options.find(RigDef::Hydro::OPTION_a_INPUT_AILERON)             != std::string::npos; }
-    inline bool HasFlag_e() { return options.find(RigDef::Hydro::OPTION_e_INPUT_ELEVATOR)            != std::string::npos; }
-    inline bool HasFlag_g() { return options.find(RigDef::Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER)     != std::string::npos; }
-    inline bool HasFlag_h() { return options.find(RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER)  != std::string::npos; }
-    inline bool HasFlag_i() { return options.find(RigDef::Hydro::OPTION_i_INVISIBLE)                 != std::string::npos; }
-    inline bool HasFlag_r() { return options.find(RigDef::Hydro::OPTION_r_INPUT_RUDDER)              != std::string::npos; }
-    inline bool HasFlag_s() { return options.find(RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED)     != std::string::npos; }
-    inline bool HasFlag_u() { return options.find(RigDef::Hydro::OPTION_u_INPUT_AILERON_ELEVATOR)    != std::string::npos; }
-    inline bool HasFlag_v() { return options.find(RigDef::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR) != std::string::npos; }
-    inline bool HasFlag_x() { return options.find(RigDef::Hydro::OPTION_x_INPUT_AILERON_RUDDER)      != std::string::npos; }
-    inline bool HasFlag_y() { return options.find(RigDef::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER)   != std::string::npos; }
+    inline bool HasFlag_a() { return options.find(Truck::Hydro::OPTION_a_INPUT_AILERON)             != std::string::npos; }
+    inline bool HasFlag_e() { return options.find(Truck::Hydro::OPTION_e_INPUT_ELEVATOR)            != std::string::npos; }
+    inline bool HasFlag_g() { return options.find(Truck::Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER)     != std::string::npos; }
+    inline bool HasFlag_h() { return options.find(Truck::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER)  != std::string::npos; }
+    inline bool HasFlag_i() { return options.find(Truck::Hydro::OPTION_i_INVISIBLE)                 != std::string::npos; }
+    inline bool HasFlag_r() { return options.find(Truck::Hydro::OPTION_r_INPUT_RUDDER)              != std::string::npos; }
+    inline bool HasFlag_s() { return options.find(Truck::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED)     != std::string::npos; }
+    inline bool HasFlag_u() { return options.find(Truck::Hydro::OPTION_u_INPUT_AILERON_ELEVATOR)    != std::string::npos; }
+    inline bool HasFlag_v() { return options.find(Truck::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR) != std::string::npos; }
+    inline bool HasFlag_x() { return options.find(Truck::Hydro::OPTION_x_INPUT_AILERON_RUDDER)      != std::string::npos; }
+    inline bool HasFlag_y() { return options.find(Truck::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER)   != std::string::npos; }
 
     inline void AddFlag(char flag) { options += flag; }
 
@@ -2365,4 +2357,4 @@ struct File
     bool minimass_skip_loaded_nodes; //!< Only apply minimum mass to nodes without "L" option. Global effect.
 };
 
-} // namespace RigDef
+} // namespace Truck
