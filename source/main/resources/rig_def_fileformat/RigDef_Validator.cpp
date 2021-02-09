@@ -58,32 +58,32 @@ bool Validator::Validate()
 
     /* CHECK CONFIGURATION (SELECTED MODULES TOGETHER) */
 
-    valid &= CheckSection(RigDef::File::KEYWORD_GLOBALS, true, true); /* Unique, required */
+    valid &= CheckSection(RigDef::KEYWORD_GLOBALS, true, true); /* Unique, required */
 
-    valid &= CheckSection(RigDef::File::KEYWORD_NODES, false, true); /* Required; sections nodes/nodes2 are unified here. */
+    valid &= CheckSection(RigDef::KEYWORD_NODES, false, true); /* Required; sections nodes/nodes2 are unified here. */
 
     if (m_check_beams)
     {
-        valid &= CheckSection(RigDef::File::KEYWORD_BEAMS, false, true); /* Required */
+        valid &= CheckSection(RigDef::KEYWORD_BEAMS, false, true); /* Required */
     }
 
-    valid &= CheckSection(RigDef::File::KEYWORD_ENGINE, true, false); /* Unique */
+    valid &= CheckSection(RigDef::KEYWORD_ENGINE, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::File::KEYWORD_ENGOPTION, true, false); /* Unique */
+    valid &= CheckSection(RigDef::KEYWORD_ENGOPTION, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::File::KEYWORD_ENGTURBO, true, false); /* Unique */
+    valid &= CheckSection(RigDef::KEYWORD_ENGTURBO, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::File::KEYWORD_TORQUECURVE, true, false); /* Unique */
+    valid &= CheckSection(RigDef::KEYWORD_TORQUECURVE, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::File::KEYWORD_SPEEDLIMITER, true, false); /* Unique */
+    valid &= CheckSection(RigDef::KEYWORD_SPEEDLIMITER, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::File::KEYWORD_MANAGEDMATERIALS, true, false); /* Unique */
+    valid &= CheckSection(RigDef::KEYWORD_MANAGEDMATERIALS, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::File::KEYWORD_GUISETTINGS, true, false); /* Unique */
+    valid &= CheckSection(RigDef::KEYWORD_GUISETTINGS, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::File::KEYWORD_EXTCAMERA, true, false); /* Unique */
+    valid &= CheckSection(RigDef::KEYWORD_EXTCAMERA, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::File::KEYWORD_FUSEDRAG, true, false); /* Unique */
+    valid &= CheckSection(RigDef::KEYWORD_FUSEDRAG, true, false); /* Unique */
 
     valid &= CheckSectionSubmeshGroundmodel(); /* Unique */
 
@@ -164,7 +164,7 @@ bool Validator::CheckSectionSubmeshGroundmodel()
     return true;
 }
 
-bool Validator::CheckSection(RigDef::File::Keyword keyword, bool unique, bool required)
+bool Validator::CheckSection(RigDef::Keyword keyword, bool unique, bool required)
 {
     Ogre::String *containing_module_name = nullptr;
 
@@ -199,7 +199,7 @@ bool Validator::CheckSection(RigDef::File::Keyword keyword, bool unique, bool re
     return true;
 }
 
-bool Validator::HasModuleKeyword(std::shared_ptr<RigDef::File::Module> module, RigDef::File::Keyword keyword)
+bool Validator::HasModuleKeyword(std::shared_ptr<RigDef::File::Module> module, RigDef::Keyword keyword)
 {
     using namespace RigDef;
 
@@ -207,44 +207,44 @@ bool Validator::HasModuleKeyword(std::shared_ptr<RigDef::File::Module> module, R
     {
         /* Please maintain alphabetical order */
 
-        case (File::KEYWORD_BEAMS):
+        case (KEYWORD_BEAMS):
             return ! module->beams.empty();
 
-        case (File::KEYWORD_ENGINE):
+        case (KEYWORD_ENGINE):
             return (module->engine != nullptr);
 
-        case (File::KEYWORD_ENGOPTION):
+        case (KEYWORD_ENGOPTION):
             return (module->engoption != nullptr);
 
-        case (File::KEYWORD_ENGTURBO) :
+        case (KEYWORD_ENGTURBO) :
             return (module->engturbo != nullptr);
 
-        case (File::KEYWORD_EXTCAMERA):
+        case (KEYWORD_EXTCAMERA):
             return (module->ext_camera != nullptr);
 
-        case (File::KEYWORD_FUSEDRAG):
+        case (KEYWORD_FUSEDRAG):
             return ! module->fusedrag.empty();
 
-        case (File::KEYWORD_GLOBALS):
+        case (KEYWORD_GLOBALS):
             return (module->globals != nullptr);
 
-        case (File::KEYWORD_GUISETTINGS):
+        case (KEYWORD_GUISETTINGS):
             return (module->gui_settings != nullptr);
 
-        case (File::KEYWORD_MANAGEDMATERIALS):
+        case (KEYWORD_MANAGEDMATERIALS):
             return ! module->managed_materials.empty();
 
-        case (File::KEYWORD_NODES):
+        case (KEYWORD_NODES):
             return ! module->nodes.empty();
 
-        case (File::KEYWORD_SPEEDLIMITER):
+        case (KEYWORD_SPEEDLIMITER):
             return (module->speed_limiter.is_enabled);
 
-        case (File::KEYWORD_TORQUECURVE):
+        case (KEYWORD_TORQUECURVE):
             return (module->torque_curve != nullptr);
         
         /* TEMPLATE
-        case (File::SECTION_):
+        case (SECTION_):
             return (module->globals != nullptr);
         */
 
