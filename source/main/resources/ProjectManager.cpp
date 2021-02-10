@@ -1,6 +1,6 @@
 /*
     This source file is part of Rigs of Rods
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2021 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -17,29 +17,85 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file
-
-#include "ActorEditor.h"
+#include "ProjectManager.h"
 
 #include "Application.h"
+#include "Console.h"
 #include "ContentManager.h"
 #include "GUIManager.h"
 #include "Language.h"
+#include "PlatformUtils.h"
 #include "TruckSerializer.h"
 
 #include <OgreDataStream.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/prettywriter.h>
 
+#include <fmt/core.h>
+
 using namespace RoR;
 
-// static
-bool ActorEditor::ReLoadProjectFromDirectory(ProjectEntry* proj)
-{
-    Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
+// --------------------------------
+// Project list management
 
+void ProjectManager::ReScanProjects()
+{
+    // Initialize projects dir
+    if (!Ogre::ResourceGroupManager::getSingleton().resourceGroupExists(RGN_PROJECTS))
+    {
+        Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+            App::sys_projects_dir->GetStr(), "FileSystem", RGN_PROJECTS, /*recursive=*/false, /*readOnly=*/false);
+    }
+
+    // Mark all entries "out of sync"
+    for (Project& p: m_projects)
+    {
+        p.prj_valid = false;
+    }
+
+    // List project directories and check if entries exist.
+    Ogre::FileInfoListPtr files = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_PROJECTS, "*", /*only_dirs:*/true);
+    for (Ogre::FileInfo proj_dir: *files)
+    {
+        try
+        {
+            // Find or create project entry
+            Project* p = this->FindProjectByDirName(proj_dir.filename);
+            if (!p)
+            {
+                p = this->RegisterProjectDir(proj_dir.filename);
+            }
+
+            // (Re)Load the entry
+            this->ReLoadProjectDir(p);
+        }
+        catch (Ogre::Exception& oex)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_ERROR,
+                                          fmt::format("Problem scanning directory '{}': {}", proj_dir.filename, oex.getFullDescription()));
+        }
+    }
+
+    // Delete entries which are still out of sync (directory missing or corrupted)
+    this->PruneInvalidProjects();
+}
+
+Project* ProjectManager::RegisterProjectDir(std::string const& dirname)
+{
+    Project p;
+    p.prj_dirname = dirname;
+    p.prj_rg_name = fmt::format("project {}", dirname);
+    std::string path = PathCombine(App::sys_projects_dir->GetStr(), dirname);
+    Ogre::ResourceGroupManager::getSingleton().addResourceLocation(path, "Directory", p.prj_rg_name, /*recursive=*/false, /*readOnly=*/false);
+    Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(p.prj_rg_name);
+    m_projects.push_back(p);
+    return &m_projects.back();
+}
+
+void ProjectManager::ReLoadProjectDir(Project* proj)
+{
     // Load project file
-    Ogre::DataStreamPtr stream = rgm.openResource(PROJECT_FILE, proj->prj_rg_name);
+    Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(PROJECT_FILE, proj->prj_rg_name);
     std::string proj_file_data(stream->size() + 1, '\0');
     stream->read(&proj_file_data[0], stream->size()); // Copy entire project file to buffer
     rapidjson::StringStream j_stream(proj_file_data.c_str());
@@ -49,9 +105,10 @@ bool ActorEditor::ReLoadProjectFromDirectory(ProjectEntry* proj)
         !j_doc.HasMember("name") || !j_doc["name"].IsString() || 
         !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber())
     {
-        LogFormat("[RoR|Editor] Loading project directory '%s' failed, JSON invalid", proj->prj_dirname);
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_ERROR,
+                                      fmt::format("Problem loading directory '{}': JSON is invalid", proj->prj_dirname));
         proj->prj_valid = false;
-        return false;
+        return;
     }
 
     // Update project entry
@@ -59,20 +116,86 @@ bool ActorEditor::ReLoadProjectFromDirectory(ProjectEntry* proj)
     proj->prj_format_version = j_doc["format_version"].GetUint();
 
     // List actor snapshots
-    proj->prj_snapshots.clear();
-    Ogre::FileInfoListPtr truckfiles = rgm.findResourceFileInfo(proj->prj_rg_name, "*.truck"); // It's always *.truck in project folders!
+    proj->prj_trucks.clear();
+    Ogre::FileInfoListPtr truckfiles = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(proj->prj_rg_name, "*.truck"); // It's always *.truck in project folders!
     for (Ogre::FileInfo truckfile: *truckfiles)
     {
-        ProjectSnapshot snap;
-        snap.prs_filename = truckfile.filename;
-        snap.prs_name = truckfile.filename; // TODO: load actual truckfile name
-        proj->prj_snapshots.push_back(snap);
+        ProjectTruck t;
+        t.prt_filename = truckfile.filename;
+        t.prt_name = truckfile.filename; // TODO: load actual truckfile name
+        proj->prj_trucks.push_back(t);
     }
 
-    return true;
+    proj->prj_valid = true;
 }
 
-bool ActorEditor::SaveProject(ProjectEntry* proj)
+Project* ProjectManager::FindProjectByDirName(std::string const& dirname)
+{
+    for (Project& p: m_projects)
+    {
+        if (p.prj_dirname == dirname)
+        {
+            return &p;
+        }
+    }
+    return nullptr;
+}
+
+void ProjectManager::PruneInvalidProjects()
+{
+    for (auto itor = m_projects.begin(); itor != m_projects.end(); ++itor)
+    {
+        if (!itor->prj_valid)
+        {
+            Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(itor->prj_rg_name);
+            itor = m_projects.erase(itor);
+        }
+    }
+}
+
+// --------------------------------
+// Project handling
+
+Project* ProjectManager::CreateNewProject(std::string const& dir_name, std::string const& project_name)
+{
+    try
+    {
+        // Create project directory
+        Str<150> dir_name_buf(dir_name);
+        Str<300> dir_path;
+        dir_path << App::sys_projects_dir->GetStr() << PATH_SLASH << dir_name;
+        while (RoR::FolderExists(dir_path.ToCStr()))
+        {
+            static int dir_counter = 2;
+            dir_name_buf.Clear() << dir_name << dir_counter++;
+            dir_path.Clear() << App::sys_projects_dir->GetStr() << PATH_SLASH << dir_name_buf;
+        }
+        RoR::CreateFolder(dir_path.ToCStr());
+
+        // Create project entry
+        Project* p = this->RegisterProjectDir(dir_name_buf.ToCStr());
+        p->prj_name = project_name;
+
+        if (this->SaveProject(p))
+        {
+            return p;
+        }
+        else
+        {
+            p->prj_valid = false;
+            this->PruneInvalidProjects();
+            return nullptr;
+        }
+    }
+    catch (Ogre::Exception& oex)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_ERROR,
+                                      fmt::format("Could not creat new project: {}", oex.getFullDescription()));
+        return nullptr;
+    }
+}
+
+bool ProjectManager::SaveProject(Project* proj)
 {
     // Create JSON
     rapidjson::Document j_doc;
@@ -89,7 +212,7 @@ bool ActorEditor::SaveProject(ProjectEntry* proj)
     return true;
 }
 
-bool ActorEditor::ImportSnapshotToProject(std::string const& filename, std::shared_ptr<Truck::File> src_def)
+bool ProjectManager::ImportTruckToProject(std::string const& filename, std::shared_ptr<Truck::File> src_def)
 {
     // Generate filename (avoid duplicates)
     Str<200> filename_buf;
@@ -99,9 +222,9 @@ bool ActorEditor::ImportSnapshotToProject(std::string const& filename, std::shar
     {
         is_unique = true;
         filename_buf << "imported_" << import_counter++ << "_" << filename;
-        for (auto& snap: m_entry->prj_snapshots)
+        for (auto& t: m_entry->prj_trucks)
         {
-            if (snap.prs_filename == filename_buf.ToCStr())
+            if (t.prt_filename == filename_buf.ToCStr())
             {
                 is_unique = false;
                 break;
@@ -138,29 +261,29 @@ bool ActorEditor::ImportSnapshotToProject(std::string const& filename, std::shar
     }
 
     // Vehicle modules (caled 'sections' in truckfile doc)
-    this->ImportModuleToSnapshot(src_def->root_module);
+    this->ImportModuleToTruck(src_def->root_module);
     for (auto module_itor: src_def->user_modules)
     {
-        this->ImportModuleToSnapshot(module_itor.second);
+        this->ImportModuleToTruck(module_itor.second);
     }
 
     // Save the snapshot
-    ProjectSnapshot snap;
-    snap.prs_filename = filename_buf;
-    snap.prs_name = filename_buf;
+    ProjectTruck snap;
+    snap.prt_filename = filename_buf;
+    snap.prt_name = filename_buf;
     m_snapshot = &snap; // Temporary, just for the initial save.
-    if (!this->SaveSnapshot())
+    if (!this->SaveTruck())
     {
         return false; // Error already reported
     }
 
     // Persist the snapshot in project
-    m_entry->prj_snapshots.push_back(snap);
-    m_snapshot = &m_entry->prj_snapshots.back();
+    m_entry->prj_trucks.push_back(snap);
+    m_snapshot = &m_entry->prj_trucks.back();
     return true;
 }
 
-void ActorEditor::ImportModuleToSnapshot(std::shared_ptr<Truck::File::Module> src)
+void ProjectManager::ImportModuleToTruck(std::shared_ptr<Truck::File::Module> src)
 {
     std::shared_ptr<Truck::File::Module> dst = std::make_shared<Truck::File::Module>(src->name);
 
@@ -245,7 +368,7 @@ void ActorEditor::ImportModuleToSnapshot(std::shared_ptr<Truck::File::Module> sr
     }
 }
 
-bool ActorEditor::SaveSnapshot()
+bool ProjectManager::SaveTruck()
 {
     try
     {
@@ -253,11 +376,11 @@ bool ActorEditor::SaveSnapshot()
 
         // Open OGRE stream for writing
         const bool overwrite = true;
-        Ogre::DataStreamPtr stream = rgm.createResource(m_snapshot->prs_filename, m_entry->prj_rg_name, overwrite);
+        Ogre::DataStreamPtr stream = rgm.createResource(m_snapshot->prt_filename, m_entry->prj_rg_name, overwrite);
         if (stream.isNull() || !stream->isWriteable())
         {
             OGRE_EXCEPT(Ogre::Exception::ERR_CANNOT_WRITE_TO_FILE,
-                "Stream NULL or not writeable, filename: '" + m_snapshot->prs_filename
+                "Stream NULL or not writeable, filename: '" + m_snapshot->prt_filename
                 + "', resource group: '" + m_entry->prj_rg_name + "'");
         }
 

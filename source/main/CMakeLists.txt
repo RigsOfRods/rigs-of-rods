@@ -149,7 +149,6 @@ set(SOURCE_FILES
         network/Network.{h,cpp}
         network/OutGauge.{h,cpp}
         physics/Actor.{h,cpp}
-        physics/ActorEditor.{h,cpp}
         physics/ActorForcesEuler.cpp
         physics/ActorManager.{h,cpp}
         physics/ActorSlideNode.cpp
@@ -184,6 +183,7 @@ set(SOURCE_FILES
         physics/water/ScrewProp.{h,cpp}
         resources/CacheSystem.{h,cpp}
         resources/ContentManager.{h,cpp}
+        resources/ProjectManager.{h,cpp}
         resources/otc_fileformat/OTCFileFormat.{h,cpp}
         resources/odef_fileformat/ODefFileFormat.{h,cpp}
         resources/skin_fileformat/SkinFileFormat.{h,cpp}

@@ -161,6 +161,10 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
         {
             icon = Ogre::TextureManager::getSingleton().load("script.png", "IconsRG");
         }
+        else if (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_PROJECT)
+        {
+            icon = Ogre::TextureManager::getSingleton().load("wrench.png", "IconsRG");
+        }
         else if (m.cm_type == Console::CONSOLE_SYSTEM_NOTICE)
         {
             icon = Ogre::TextureManager::getSingleton().load("information.png", "IconsRG");
@@ -219,6 +223,7 @@ void ConsoleView::DrawFilteringOptions()
     m_reload_messages |= ImGui::MenuItem(_LC("Console", "Scripting"),    "", &cvw_filter_area_script);
     m_reload_messages |= ImGui::MenuItem(_LC("Console", "Actors"),       "", &cvw_filter_area_actor);
     m_reload_messages |= ImGui::MenuItem(_LC("Console", "Terrain"),      "", &cvw_filter_area_terrn);
+    m_reload_messages |= ImGui::MenuItem(_LC("Console", "Project"),      "", &cvw_filter_area_project);
 
     ImGui::Separator();
     ImGui::TextDisabled("%s",_LC("Console", "By level:"));
@@ -233,10 +238,11 @@ bool ConsoleView::MessageFilter(Console::Message const& m)
 {
     const bool area_ok =
         (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_INFO) ||
-        (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_LOG    && cvw_filter_area_echo) ||
-        (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_ACTOR  && cvw_filter_area_actor) ||
-        (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_TERRN  && cvw_filter_area_terrn) ||
-        (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT && cvw_filter_area_script);
+        (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_LOG     && cvw_filter_area_echo) ||
+        (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_ACTOR   && cvw_filter_area_actor) ||
+        (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_TERRN   && cvw_filter_area_terrn) ||
+        (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_PROJECT && cvw_filter_area_project) ||
+        (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT  && cvw_filter_area_script);
 
     const bool type_ok =
         (m.cm_type == Console::CONSOLE_HELP           && cvw_filter_type_cmd) ||

@@ -90,10 +90,6 @@ public:
     void               InitModCache(CacheSystem::CacheValidityState validity);
     void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
-    void               ReScanProjects();
-    bool               ImportProjectSnapshot(ProjectEntry* dest_proj, const char* filename, std::shared_ptr<Truck::File> def); //!< "Project snapshot" is an equivalent of Truckfile
-    ProjectEntry*      CreateNewProject(std::string const& dir_name, const char* prj_name);
-
     bool               DeleteDiskFile(std::string const& filename, std::string const& rg_name);
 
     // JSON:
@@ -109,9 +105,6 @@ private:
 
     // Ogre::ScriptCompilerListener
     bool handleEvent(Ogre::ScriptCompiler *compiler, Ogre::ScriptCompilerEvent *evt, void *retval) override;
-    
-    void ImportProjectActorModule(std::shared_ptr<Truck::File::Module> dst, std::shared_ptr<Truck::File::Module> src);
-
 
     CacheSystem       m_mod_cache; //!< Database of addon content
     bool              m_base_resource_loaded;

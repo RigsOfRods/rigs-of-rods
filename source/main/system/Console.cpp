@@ -70,10 +70,11 @@ void Console::HandleMessage(MessageArea area, MessageType type, std::string cons
         txt << "[RoR|";
         switch (area)
         {
-            case MessageArea::CONSOLE_MSGTYPE_INFO:   txt << "General"; break;
-            case MessageArea::CONSOLE_MSGTYPE_SCRIPT: txt << "Script";  break;
-            case MessageArea::CONSOLE_MSGTYPE_ACTOR:  txt << "Actor";   break;
-            case MessageArea::CONSOLE_MSGTYPE_TERRN:  txt << "Terrn";   break;
+            case MessageArea::CONSOLE_MSGTYPE_INFO:    txt << "General"; break;
+            case MessageArea::CONSOLE_MSGTYPE_SCRIPT:  txt << "Script";  break;
+            case MessageArea::CONSOLE_MSGTYPE_ACTOR:   txt << "Actor";   break;
+            case MessageArea::CONSOLE_MSGTYPE_TERRN:   txt << "Terrn";   break;
+            case MessageArea::CONSOLE_MSGTYPE_PROJECT: txt << "Project"; break;
             default:;
         }
         txt << "|";

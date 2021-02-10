@@ -27,7 +27,6 @@
 
 #include "Application.h"
 #include "Actor.h"
-#include "ActorEditor.h"
 #include "ActorManager.h"
 #include "CacheSystem.h"
 #include "CameraManager.h"
@@ -40,6 +39,7 @@
 #include "Language.h"
 #include "Network.h"
 #include "PlatformUtils.h"
+#include "ProjectManager.h"
 #include "Replay.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"
@@ -323,22 +323,21 @@ void TopMenubar::Update()
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin("Projects menu", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
-            CacheSystem::ProjectEntryVec& projects = App::GetCacheSystem()->GetProjectEntries();
             int id_counter = 0; // Project names may not be unique
-            for (std::unique_ptr<ProjectEntry>& project: projects)
+            for (Project const& p: App::GetProjectManager()->GetProjects())
             {
                 ImGui::PushID(id_counter++);
-                if (ImGui::TreeNode(project->prj_name.c_str())) // TODO: EDIT button
+                if (ImGui::TreeNode(p.prj_name.c_str())) // TODO: EDIT button
                 {
-                    for (ProjectSnapshot& snap: project->prj_snapshots)
+                    for (ProjectTruck const& t: p.prj_trucks)
                     {
-                        if (ImGui::Button(snap.prs_name.c_str()))
+                        if (ImGui::Button(t.prt_name.c_str()))
                         {
                             // Spawn the actor from project snapshot
                             ActorSpawnRequest* rq = new ActorSpawnRequest;
                             rq->asr_origin = ActorSpawnRequest::Origin::USER;
-                            rq->asr_project = project.get(); // Load from project
-                            rq->asr_filename = snap.prs_filename;
+                            rq->asr_project = &p;
+                            rq->asr_filename = t.prt_filename;
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
                         }
                     }
@@ -347,7 +346,7 @@ void TopMenubar::Update()
                 ImGui::PopID();
             }
 
-            if (projects.size() == 0)
+            if (App::GetProjectManager()->GetProjects().size() == 0)
             {
                 ImGui::TextColored(GRAY_HINT_TEXT, _L("There are no projects"));
             }
@@ -356,7 +355,7 @@ void TopMenubar::Update()
 
             if (ImGui::Button(_L("Refresh list")))
             {
-                App::GetContentManager()->ReScanProjects(); // TODO: Make it happen asynchronously!
+                App::GetProjectManager()->ReScanProjects(); // TODO: Make it happen asynchronously!
             }
 
             if (App::GetGameContext()->GetPlayerActor() == nullptr)
@@ -374,12 +373,11 @@ void TopMenubar::Update()
                     std::string filename = src_actor->GetActorFileName();
                     Str<200> prj_name;
                     prj_name << "(Imported) " << src_actor->GetActorDesignName();
-                    ProjectEntry* proj = App::GetContentManager()->CreateNewProject(filename, prj_name.ToCStr());
+                    Project* proj = App::GetProjectManager()->CreateNewProject(filename, prj_name.ToCStr());
                     if (proj != nullptr) // Error already logged + displayed
                     {
-                        ActorEditor e;
-                        e.SetProject(proj);
-                        e.ImportSnapshotToProject(filename, src_actor->GetDefinition()); // Logs+displays errors
+                        App::GetProjectManager()->SetProject(proj);
+                        App::GetProjectManager()->ImportTruckToProject(filename, src_actor->GetDefinition());
                     }
                 }
             }

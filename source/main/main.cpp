@@ -44,6 +44,7 @@
 #include "OutGauge.h"
 #include "OverlayWrapper.h"
 #include "PlatformUtils.h"
+#include "ProjectManager.h"
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
 #include "Skidmark.h"
@@ -500,6 +501,7 @@ int main(int argc, char *argv[])
                         App::GetGuiManager()->SetVisible_LoadingWindow(false);
                         App::gfx_fov_external->SetVal(App::gfx_fov_external_default->GetInt());
                         App::gfx_fov_internal->SetVal(App::gfx_fov_internal_default->GetInt());
+                        App::GetProjectManager()->ReScanProjects();
 #ifdef USE_SOCKETW
                         if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
                         {

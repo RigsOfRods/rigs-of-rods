@@ -650,7 +650,7 @@ struct ActorSpawnRequest
     };
 
     CacheEntry*         asr_cache_entry = nullptr; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
-    ProjectEntry*     asr_project = nullptr;     //!< Optional, load from project folder
+    const Project*      asr_project = nullptr;     //!< Optional, load from project folder
     std::string         asr_filename;
     Ogre::String        asr_config;
     Ogre::Vector3       asr_position = Ogre::Vector3::ZERO;

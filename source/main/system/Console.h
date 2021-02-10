@@ -53,11 +53,12 @@ public:
 
     enum MessageArea
     {
-        CONSOLE_MSGTYPE_INFO,   //!< Generic message
-        CONSOLE_MSGTYPE_LOG,    //!< Logfile echo
-        CONSOLE_MSGTYPE_SCRIPT, //!< Any scripting subsystem
-        CONSOLE_MSGTYPE_ACTOR,  //!< Parsing/spawn/simulation messages for actors
-        CONSOLE_MSGTYPE_TERRN   //!< Parsing/spawn/simulation messages for terrain
+        CONSOLE_MSGTYPE_INFO,    //!< Generic message
+        CONSOLE_MSGTYPE_LOG,     //!< Logfile echo
+        CONSOLE_MSGTYPE_SCRIPT,  //!< Any scripting subsystem
+        CONSOLE_MSGTYPE_ACTOR,   //!< Parsing/spawn/simulation messages for actors
+        CONSOLE_MSGTYPE_TERRN,   //!< Parsing/spawn/simulation messages for terrain
+        CONSOLE_MSGTYPE_PROJECT  //!< Project manager or any editing tool
     };
 
     struct Message

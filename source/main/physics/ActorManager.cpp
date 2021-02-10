@@ -44,6 +44,7 @@
 #include "MovableText.h"
 #include "Network.h"
 #include "PointColDetector.h"
+#include "ProjectManager.h"
 #include "Replay.h"
 #include "TruckValidator.h"
 #include "ActorSpawner.h"

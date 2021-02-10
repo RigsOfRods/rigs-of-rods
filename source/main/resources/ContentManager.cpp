@@ -27,7 +27,6 @@
 #include <Plugins/ParticleFX/OgreBoxEmitterFactory.h>
 
 #include "Application.h"
-#include "ActorEditor.h"
 #include "ColoredTextAreaOverlayElementFactory.h"
 #include "ErrorUtils.h"
 #include "SoundScriptManager.h"
@@ -293,11 +292,6 @@ void ContentManager::InitModCache(CacheSystem::CacheValidityState validity)
     App::SetCacheSystem(&m_mod_cache); // Temporary solution until Modcache+ContentManager are fully merged and `App::GetCacheSystem()` is removed ~ only_a_ptr, 10/2018
 
     ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_CONTENT);
-
-    // Load projects
-    ResourceGroupManager::getSingleton().addResourceLocation(
-        App::sys_projects_dir->GetStr(), "FileSystem", RGN_PROJECTS, /*recursive=*/false, /*readOnly=*/false);
-    this->ReScanProjects();
 }
 
 Ogre::DataStreamPtr ContentManager::resourceLoading(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource)
@@ -510,114 +504,4 @@ bool ContentManager::DeleteDiskFile(std::string const& filename, std::string con
         return false;
     }
 }
-
-void ContentManager::ReScanProjects()
-{
-    // Invalidate existing entries
-    for (auto& proj: App::GetCacheSystem()->GetProjectEntries())
-    {
-        proj->prj_valid = false;
-    }
-
-    // List project directories and check if entries exist.
-    Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
-    Ogre::FileInfoListPtr files = rgm.findResourceFileInfo(RGN_PROJECTS, "*", /*only_dirs:*/true);
-    for (Ogre::FileInfo proj_dir: *files)
-    {
-        try
-        {
-            // Look for existing entry
-            ProjectEntry* found_proj = nullptr;
-            for (auto& proj: App::GetCacheSystem()->GetProjectEntries())
-            {
-                if (proj->prj_dirname == proj_dir.filename)
-                {
-                    found_proj = proj.get();
-                    break;
-                }
-            }
-
-            if (found_proj) // Entry exists -> validate it.
-            {
-                if (ActorEditor::ReLoadProjectFromDirectory(found_proj))
-                {
-                    found_proj->prj_valid = true;
-                }
-            }
-            else // Entry doesn't exist yet -> add it.
-            {
-                std::unique_ptr<ProjectEntry> tmp_proj = std::unique_ptr<ProjectEntry>(new ProjectEntry());
-                tmp_proj->prj_dirname = proj_dir.filename;
-                tmp_proj->prj_rg_name = proj_dir.filename;
-
-                Str<300> full_path;
-                full_path << App::sys_projects_dir->GetStr() << PATH_SLASH << proj_dir.filename;
-                rgm.addResourceLocation(full_path.ToCStr(), "FileSystem",
-                    tmp_proj->prj_rg_name, /*recursive=*/false, /*readOnly=*/false);
-                rgm.initialiseResourceGroup(tmp_proj->prj_rg_name);
-
-                if (ActorEditor::ReLoadProjectFromDirectory(tmp_proj.get()))
-                {
-                    tmp_proj->prj_valid = true;
-                    App::GetCacheSystem()->AddProjectEntry(std::move(tmp_proj));
-                }
-            }
-        }
-        catch (Ogre::Exception& oex)
-        {
-            RoR::LogFormat("[RoR] Processing project dir '%s' failed, message: '%s'",
-                proj_dir.filename.c_str(), oex.getFullDescription().c_str());
-        }
-    }
-
-    App::GetCacheSystem()->PruneInvalidProjects();
-}
-
-ProjectEntry* ContentManager::CreateNewProject(std::string const& dir_name, const char* prj_name)
-{
-    try
-    {
-        // Create project directory
-        Str<150> dir_name_buf(dir_name);
-        Str<300> dir_path;
-        dir_path << App::sys_projects_dir->GetStr() << PATH_SLASH << dir_name;
-        while (RoR::FolderExists(dir_path.ToCStr()))
-        {
-            static int dir_counter = 2;
-            dir_name_buf.Clear() << dir_name << dir_counter++;
-            dir_path.Clear() << App::sys_projects_dir->GetStr() << PATH_SLASH << dir_name_buf;
-        }
-        RoR::CreateFolder(dir_path.ToCStr());
-
-        // Create project RG
-        Ogre::String rg_name(dir_name_buf.ToCStr());
-        Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-            dir_path.ToCStr(), "FileSystem", rg_name, /*recursive=*/false, /*readOnly=*/false);
-        Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(rg_name);
-
-        // Create project entry
-        std::unique_ptr<ProjectEntry> proj = std::unique_ptr<ProjectEntry>(new ProjectEntry());
-        proj->prj_name = prj_name;
-        proj->prj_dirname = dir_name_buf;
-        proj->prj_format_version = 1;
-        proj->prj_rg_name = rg_name;
-
-        // Save project JSON
-        ProjectEntry* proj_ptr = proj.get();
-        if (!ActorEditor::SaveProject(proj_ptr))
-        {
-            return nullptr; // Error already logged
-        }
-        App::GetCacheSystem()->AddProjectEntry(std::move(proj));
-        return proj_ptr;
-    }
-    catch (Ogre::Exception& oex)
-    {
-        std::string msg = "Failed to create new project, message: " + oex.getFullDescription();
-        RoR::LogFormat("[RoR] %s", msg.c_str());
-        App::GetGuiManager()->ShowMessageBox("Error!", msg.c_str());
-        return nullptr;
-    }
-}
-
 

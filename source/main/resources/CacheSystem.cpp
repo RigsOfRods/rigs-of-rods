@@ -1293,21 +1293,3 @@ bool CacheQueryResult::operator<(CacheQueryResult const& other)
     return cqr_score < other.cqr_score;
 }
 
-
-void CacheSystem::PruneInvalidProjects()
-{
-    auto itor = m_projects.begin();
-    while (itor != m_projects.end())
-    {
-        ProjectEntry* proj = itor->get();
-        if (!proj->prj_valid)
-        {
-            Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(proj->prj_rg_name);
-            itor = m_projects.erase(itor);
-        }
-        else
-        {
-            ++itor;
-        }
-    }
-}
