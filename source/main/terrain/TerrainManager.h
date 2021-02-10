@@ -53,7 +53,7 @@ public:
     Ogre::Vector3      getMaxTerrainSize();
     Collisions*        GetCollisions()               { return m_collisions; };
     TerrainEditor*     GetTerrainEditor()            { return &m_terrain_editor; }
-
+    IWater*            getWater()                    { return m_water.get(); };
     Ogre::Light*       getMainLight()                { return m_main_light; };
     Ogre::Vector3      getSpawnPos()                 { return m_def.start_position; };
     RoR::Terrn2Def&    GetDef()                      { return m_def; }

@@ -33,6 +33,7 @@
 #include "ShadowManager.h"
 #include "SkyManager.h"
 #include "TerrainObjectManager.h"
+#include "Water.h"
 
 
 using namespace RoR;
@@ -302,7 +303,19 @@ void TerrainManager::fixCompositorClearColor()
 
 void TerrainManager::initWater()
 {
-// TODO OGRE2x // 
+    // disabled in global config
+    if (App::gfx_water_mode->GetEnum<GfxWaterMode>() == GfxWaterMode::NONE)
+        return;
+
+    // disabled in map config
+    if (!m_def.has_water)
+    {
+        return;
+    }
+
+    m_water = std::unique_ptr<IWater>(new Water(this->getMaxTerrainSize()));
+    m_water->SetStaticWaterHeight(m_def.water_height);
+    m_water->SetWaterBottomHeight(m_def.water_bottom_height);
 }
 
 void TerrainManager::initShadows()

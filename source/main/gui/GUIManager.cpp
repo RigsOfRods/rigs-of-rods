@@ -269,12 +269,12 @@ void GUIManager::SetUpMenuWallpaper()
     wp_tus->setTexture(wp_tex);
     wp_mat->compile();
     // ...panel...
-    Ogre::v1::OverlayElement* wp_panel = Ogre::v1::v1::OverlayManager::getSingleton()
+    Ogre::v1::OverlayElement* wp_panel = Ogre::v1::OverlayManager::getSingleton()
         .createOverlayElement("Panel", "rigsofrods/WallpaperPanel", /*isTemplate=*/false);
     wp_panel->setMaterial(wp_mat);
     wp_panel->setDimensions(1.f, 1.f);
     // ...overlay...
-    m_impl->overlay_Wallpaper = Ogre::v1::v1::OverlayManager::getSingleton().create("rigsofrods/WallpaperOverlay");
+    m_impl->overlay_Wallpaper = Ogre::v1::OverlayManager::getSingleton().create("rigsofrods/WallpaperOverlay");
     m_impl->overlay_Wallpaper->add2D(static_cast<Ogre::v1::OverlayContainer*>(wp_panel)); // 'Panel' inherits from 'Container'
     m_impl->overlay_Wallpaper->setZOrder(0);
     m_impl->overlay_Wallpaper->show();

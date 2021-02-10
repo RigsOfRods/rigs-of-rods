@@ -31,6 +31,8 @@
 
 #include <algorithm> // min
 #include <fmt/core.h>
+#include <Ogre.h>
+#include <OgreTextureGpuManager.h>
 
 using namespace RoR;
 using namespace GUI;
@@ -159,22 +161,27 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
     {
         if (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
         {
-            icon = Ogre::TextureManager::getSingleton().load("script.png", "IconsRG");
+            icon = Ogre::Root::getSingleton().getRenderSystem()->getTextureGpuManager()->createOrRetrieveTexture(
+                "script.png", Ogre::GpuPageOutStrategy::Discard, Ogre::CommonTextureTypes::Diffuse, "IconsRG");
         }
         else if (m.cm_type == Console::CONSOLE_SYSTEM_NOTICE)
         {
-            icon = Ogre::TextureManager::getSingleton().load("information.png", "IconsRG");
+            icon = Ogre::Root::getSingleton().getRenderSystem()->getTextureGpuManager()->createOrRetrieveTexture(
+                "information.png", Ogre::GpuPageOutStrategy::Discard, Ogre::CommonTextureTypes::Diffuse, "IconsRG");
         }
         else if (m.cm_type == Console::CONSOLE_SYSTEM_WARNING)
         {
-            icon = Ogre::TextureManager::getSingleton().load("error.png", "IconsRG");
+            icon = Ogre::Root::getSingleton().getRenderSystem()->getTextureGpuManager()->createOrRetrieveTexture(
+                "error.png", Ogre::GpuPageOutStrategy::Discard, Ogre::CommonTextureTypes::Diffuse, "IconsRG");
         }
         else if (m.cm_type == Console::CONSOLE_SYSTEM_NETCHAT)
         {
-            icon = Ogre::TextureManager::getSingleton().load("comment.png", "IconsRG");
+            icon = Ogre::Root::getSingleton().getRenderSystem()->getTextureGpuManager()->createOrRetrieveTexture(
+                "comment.png", Ogre::GpuPageOutStrategy::Discard, Ogre::CommonTextureTypes::Diffuse, "IconsRG");
         }
     }
 
+#if USE_SOCKETW
     // Add colored multiplayer username
     if (m.cm_net_userid)
     {
@@ -196,6 +203,10 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
     {
         line = m.cm_text;
     }
+#else  // USE_SOCKETW
+    line = m.cm_text;
+#endif // USE_SOCKETW
+
 
     // Colorize text by type
     ImVec4 base_color = ImGui::GetStyle().Colors[ImGuiCol_Text];
@@ -264,7 +275,7 @@ ImVec2 ConsoleView::DrawColoredTextWithIcon(ImVec2 bg_cursor, Ogre::TextureGpu* 
         ImVec2 icon_size(icon->getWidth(), icon->getHeight());
         ImVec2 tl = ImVec2(text_cursor.x, text_cursor.y + (text_h / 2) - (icon_size.y / 2));
         ImVec2 br = tl + icon_size;
-        drawlist->AddImage(reinterpret_cast<ImTextureID>(icon->getHandle()), tl, br, ImVec2(0,0), ImVec2(1,1), ImColor(ImVec4(1,1,1,alpha)));
+        drawlist->AddImage(reinterpret_cast<ImTextureID>(icon), tl, br, ImVec2(0,0), ImVec2(1,1), ImColor(ImVec4(1,1,1,alpha)));
         const float ICON_GAP = 8;
         indent_size = ImVec2(icon_size.x + ICON_GAP, text_h);
         text_cursor.x += indent_size.x;

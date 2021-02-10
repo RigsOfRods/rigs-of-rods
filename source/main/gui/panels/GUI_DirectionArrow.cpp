@@ -36,8 +36,8 @@ void GUI::DirectionArrow::LoadOverlay()
 {
     // Load overlay from .overlay file
     m_overlay = Ogre::v1::OverlayManager::getSingleton().getByName("tracks/DirectionArrow");
-    m_text = (Ogre::TextAreaOverlayElement*)Ogre::v1::OverlayManager::getSingleton().getOverlayElement("tracks/DirectionArrow/Text");
-    m_distance_text = (Ogre::TextAreaOverlayElement*)Ogre::v1::OverlayManager::getSingleton().getOverlayElement("tracks/DirectionArrow/Distance");
+    m_text = (Ogre::v1::TextAreaOverlayElement*)Ogre::v1::OverlayManager::getSingleton().getOverlayElement("tracks/DirectionArrow/Text");
+    m_distance_text = (Ogre::v1::TextAreaOverlayElement*)Ogre::v1::OverlayManager::getSingleton().getOverlayElement("tracks/DirectionArrow/Distance");
 
     // openGL fix
     m_overlay->show();
@@ -50,9 +50,10 @@ void GUI::DirectionArrow::CreateArrow()
 {
     // setup direction arrow
     Ogre::v1::Entity* arrow_entity = App::GetGfxScene()->GetSceneManager()->createEntity("arrow2.mesh");
-    arrow_entity->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
+    arrow_entity->setRenderQueueGroup(/*originally Ogre::RENDER_QUEUE_OVERLAY*/ 100);
 
     // Add entity to the scene node
+    #if 0 // TODO OGRE2x
     m_node = new Ogre::SceneNode(App::GetGfxScene()->GetSceneManager());
     m_node->attachObject(arrow_entity);
     m_node->setVisible(false);
@@ -60,6 +61,7 @@ void GUI::DirectionArrow::CreateArrow()
     m_node->setPosition(Ogre::Vector3(-0.6, +0.4, -1));
     m_node->setFixedYawAxis(true, Ogre::Vector3::UNIT_Y);
     m_overlay->add3D(m_node);
+#endif
 }
 
 void GUI::DirectionArrow::Update(RoR::GfxActor* player_vehicle)

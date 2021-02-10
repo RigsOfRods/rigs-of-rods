@@ -161,7 +161,6 @@ protected:
     void resizePanel(Ogre::v1::OverlayElement *oe);
     void reposPanel(Ogre::v1::OverlayElement *oe);
     void placeNeedle(Ogre::SceneNode *node, float x, float y, float len);
-    void updateStats(bool detailed=false);
     void showPressureOverlay(bool show);
 
     Ogre::v1::OverlayElement *loadOverlayElement(Ogre::String name);

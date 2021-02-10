@@ -71,7 +71,7 @@ namespace RoR {
 /// @author Petr Ohlidal
 class ActorSpawner
 {
-    friend class RoR::FlexFactory; // Needs to use `ComposeName()` and `SetupNewEntity()`
+
 
 public:
 
@@ -1057,7 +1057,7 @@ private:
     Ogre::SceneNode*   m_particles_parent_scenenode;
     Ogre::MaterialPtr  m_cab_trans_material;
     Ogre::MaterialPtr  m_simple_material_base;
-    RoR::Renderdash*   m_oldstyle_renderdash;
+
     float              m_fuse_z_min;
     float              m_fuse_z_max;
     float              m_fuse_y_min;

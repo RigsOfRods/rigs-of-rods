@@ -144,19 +144,18 @@ void RoR::Skidmark::AddObject(Ogre::Vector3 start, Ogre::String texture)
     Ogre::Pass* p = skid.material->getTechnique(0)->getPass(0);
 
     p->createTextureUnitState(texture);
-    p->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
-    p->setLightingEnabled(false);
-    p->setDepthWriteEnabled(false);
-    p->setDepthBias(3, 3);
-    p->setCullingMode(Ogre::CULL_NONE);
+
 
     skid.points.resize(m_length);
     skid.faceSizes.resize(m_length);
     skid.groundTexture.resize(m_length);
-    skid.obj = App::GetGfxScene()->GetSceneManager()->createManualObject("skidmark" + TOSTRING(m_instance_counter++));
+    skid.obj = new Ogre::v1::ManualObject(
+        App::GetGfxScene()->GenerateId(),
+        &App::GetGfxScene()->GetSceneManager()->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC),
+        App::GetGfxScene()->GetSceneManager());
     skid.obj->setDynamic(true);
     skid.obj->setRenderingDistance(800); // 800m view distance
-    skid.obj->begin(bname, Ogre::RenderOperation::OT_TRIANGLE_STRIP);
+    skid.obj->begin(bname, Ogre::OperationType::OT_TRIANGLE_STRIP);
     for (int i = 0; i < m_length; i++)
     {
         skid.points[i] = start;
@@ -180,7 +179,7 @@ void RoR::Skidmark::PopSegment()
     skid.faceSizes.clear();
     Ogre::MaterialManager::getSingleton().remove(skid.material->getName());
     skid.material.setNull();
-    App::GetGfxScene()->GetSceneManager()->destroyManualObject(skid.obj);
+    delete skid.obj;
     m_objects.pop();
 }
 
@@ -375,7 +374,7 @@ void RoR::Skidmark::update(Ogre::Vector3 contact_point, int index, float slip, O
     }
     skid.obj->end();
 
-    skid.obj->setBoundingBox(Ogre::AxisAlignedBox(vaabMin, vaabMax));
+    skid.obj->setLocalAabb(Ogre::Aabb::newFromExtents(vaabMin, vaabMax));
 
     m_is_dirty = false;
 }

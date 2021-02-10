@@ -1311,10 +1311,13 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
 
     if (!m_splinecam_mo && RoR::App::diag_camera->GetBool())
     {
-        m_splinecam_mo = App::GetGfxScene()->GetSceneManager()->createManualObject();
+        m_splinecam_mo = new Ogre::v1::ManualObject(
+            App::GetGfxScene()->GenerateId(),
+            &App::GetGfxScene()->GetSceneManager()->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC),
+            App::GetGfxScene()->GetSceneManager());
         SceneNode* splineNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
 
-        m_splinecam_mo->begin("tracks/transred", Ogre::RenderOperation::OT_LINE_STRIP);
+        m_splinecam_mo->begin("tracks/transred", Ogre::OperationType::OT_LINE_STRIP);
         for (int i = 0; i < SPLINECAM_DRAW_RESOLUTION; i++)
         {
             m_splinecam_mo->position(0, 0, 0);

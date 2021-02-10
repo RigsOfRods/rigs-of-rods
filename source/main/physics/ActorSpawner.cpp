@@ -102,7 +102,7 @@ void ActorSpawner::Setup(
     m_fuse_y_max = -1000.0f;
     m_first_wing_index = -1;
     m_driverseat_prop_index = -1;
-    m_oldstyle_renderdash = nullptr;
+    
 
     m_generate_wing_position_lights = true;
     // TODO: Handle modules
@@ -6302,7 +6302,7 @@ void ActorSpawner::CreateGfxActor()
 {
     // Create the actor
     m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
-        new RoR::GfxActor(m_actor, this, m_custom_resource_group, m_gfx_nodes, m_oldstyle_renderdash));
+        new RoR::GfxActor(m_actor, this, m_custom_resource_group, m_gfx_nodes));
 
     m_actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill (to setup flexing meshes)
 }

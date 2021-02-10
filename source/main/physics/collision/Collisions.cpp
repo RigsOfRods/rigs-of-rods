@@ -30,7 +30,6 @@
 #include "GfxScene.h"
 #include "Landusemap.h"
 #include "Language.h"
-#include "MovableText.h"
 #include "PlatformUtils.h"
 #include "ScriptEngine.h"
 #include "TerrainManager.h"
@@ -137,8 +136,11 @@ Collisions::Collisions(Ogre::Vector3 terrn_size):
 
     if (debugMode)
     {
-        debugmo = App::GetGfxScene()->GetSceneManager()->createManualObject();
-        debugmo->begin("tracks/debug/collision/triangle", RenderOperation::OT_TRIANGLE_LIST);
+        debugmo = new Ogre::v1::ManualObject(
+            App::GetGfxScene()->GenerateId(),
+            &App::GetGfxScene()->GetSceneManager()->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC),
+            App::GetGfxScene()->GetSceneManager());
+        debugmo->begin("tracks/debug/collision/triangle", Ogre::OperationType::OT_TRIANGLE_LIST);
     }
 }
 
@@ -539,7 +541,10 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
     {
         debugsn->setPosition(pos);
         // box content
-        ManualObject *mo = App::GetGfxScene()->GetSceneManager()->createManualObject();
+        v1::ManualObject *mo = new Ogre::v1::ManualObject(
+            App::GetGfxScene()->GenerateId(),
+            &App::GetGfxScene()->GetSceneManager()->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC),
+            App::GetGfxScene()->GetSceneManager());
         String matName = "tracks/debug/collision/box";
         if (virt && scripthandler == -1)
             matName = "tracks/debug/eventbox/unused";
@@ -550,7 +555,7 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
         {
             aa->merge(cube_points[i]);
         }
-        mo->begin(matName, Ogre::RenderOperation::OT_TRIANGLE_LIST);
+        mo->begin(matName, Ogre::OperationType::OT_TRIANGLE_LIST);
         mo->position(cube_points[0]);
         mo->position(cube_points[1]);
         mo->position(cube_points[2]);
@@ -580,13 +585,16 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
         mo->triangle(3,7,6);
 
         mo->end();
-        mo->setBoundingBox(*aa);
+        mo->setLocalAabb(Aabb::newFromExtents(aa->getMinimum(), aa->getMaximum()));
         mo->setRenderingDistance(200);
         debugsn->attachObject(mo);
 
         // the border
-        mo = App::GetGfxScene()->GetSceneManager()->createManualObject();
-        mo->begin(matName, Ogre::RenderOperation::OT_LINE_LIST);
+        mo = new Ogre::v1::ManualObject(
+            App::GetGfxScene()->GenerateId(),
+            &App::GetGfxScene()->GetSceneManager()->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC),
+            App::GetGfxScene()->GetSceneManager());
+        mo->begin(matName, Ogre::OperationType::OT_LINE_LIST);
         mo->position(cube_points[0]);
         mo->position(cube_points[1]);
         mo->position(cube_points[2]);
@@ -605,13 +613,14 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
         mo->index(5);mo->index(4); mo->index(4);mo->index(6); mo->index(6);mo->index(7); mo->index(7);mo->index(5);
         // bottom and top not needed
         mo->end();
-        mo->setBoundingBox(*aa);
+        mo->setLocalAabb(Aabb::newFromExtents(aa->getMinimum(), aa->getMaximum()));
         debugsn->attachObject(mo);
         mo->setRenderingDistance(200);
         delete(aa);
 
         // label
         // setup a label
+#if 0 // TODO OGRE2x
         if (virt)
         {
             String labelName = "collision_box_label_"+TOSTRING(coll_box_index);
@@ -630,6 +639,7 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
             n2->attachObject(mt);
             n2->setPosition(coll_box.lo + (coll_box.hi - coll_box.lo) * 0.5f);
         }
+#endif
     }
 
     // register this collision box in the index
@@ -1412,24 +1422,12 @@ int Collisions::createCollisionDebugVisualization()
         float f = fabs(((float)i)/100);
         Pass *p = mat->getTechnique(0)->getPass(0); //
         p->createTextureUnitState()->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, ColourValue(f*2.0, 2.0*(1.0-f), 0.2, 0.7));
-        p->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
-        p->setLightingEnabled(false);
-        p->setDepthWriteEnabled(false);
-        p->setDepthBias(3, 3);
-        p->setCullingMode(Ogre::CULL_NONE);
 
         Pass *p2 = mat->getTechnique(0)->createPass();
-        p2->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
-        p2->setLightingEnabled(false);
-        p2->setDepthWriteEnabled(false);
-        p2->setDepthBias(3, 3);
-        p2->setCullingMode(Ogre::CULL_NONE);
-        p2->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
         TextureUnitState *tus2 = p2->createTextureUnitState();
         tus2->setTextureName("tile.png");
 
 
-        mat->setLightingEnabled(false);
         mat->setReceiveShadows(false);
     }
 
@@ -1464,10 +1462,13 @@ int Collisions::createCollisionDebugVisualization()
                 String matName = "mat-coll-dbg-"+TOSTRING((int)(percentd*100));
                 String cell_name="("+TOSTRING(cellx)+","+ TOSTRING(cellz)+")";
 
-                ManualObject *mo =  App::GetGfxScene()->GetSceneManager()->createManualObject("collisionDebugVisualization"+cell_name);
-                SceneNode *mo_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("collisionDebugVisualization_node"+cell_name);
+                v1::ManualObject *mo =  new Ogre::v1::ManualObject(
+                    App::GetGfxScene()->GenerateId(),
+                    &App::GetGfxScene()->GetSceneManager()->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC),
+                    App::GetGfxScene()->GetSceneManager());
+                SceneNode *mo_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
 
-                mo->begin(matName, Ogre::RenderOperation::OT_TRIANGLE_LIST);
+                mo->begin(matName, Ogre::OperationType::OT_TRIANGLE_LIST);
 
                 // 1st tri
                 mo->position(-CELL_SIZE/(float)2.0, 0, -CELL_SIZE/(float)2.0);
@@ -1490,7 +1491,8 @@ int Collisions::createCollisionDebugVisualization()
                 mo->textureCoord(0,0);
 
                 mo->end();
-                mo->setBoundingBox(AxisAlignedBox(0, 0, 0, CELL_SIZE, 1, CELL_SIZE));
+                AxisAlignedBox aabox(0, 0, 0, CELL_SIZE, 1, CELL_SIZE);
+                mo->setLocalAabb(Aabb::newFromExtents(aabox.getMinimum(), aabox.getMaximum()));
                 mo_node->attachObject(mo);
 
 #if 0
@@ -1519,7 +1521,7 @@ int Collisions::createCollisionDebugVisualization()
 int Collisions::addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre::Quaternion q, Ogre::Vector3 scale, ground_model_t *gm, std::vector<int> *collTris)
 {
     // normal, non virtual collision box
-    Entity *ent = App::GetGfxScene()->GetSceneManager()->createEntity(meshname);
+    v1::Entity *ent = App::GetGfxScene()->GetSceneManager()->createEntity(meshname);
     ent->setMaterialName("tracks/debug/collision/mesh");
 
     if (!gm)
@@ -1557,6 +1559,7 @@ int Collisions::addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre:
     
         String labelName = "collision_mesh_label_"+TOSTRING(this->GetNumCollisionTris());
         String labelCaption = "COLLMESH\nmeshname:"+meshname + "\ngroundmodel:" + String(gm->name);
+#if 0 // TODO OGRE2x
         MovableText *mt = new MovableText(labelName, labelCaption);
         mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
         mt->setFontName("CyberbitEnglish");
@@ -1566,15 +1569,17 @@ int Collisions::addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre:
         mt->setRenderingDistance(200);
         
         n->attachObject(mt);
+#endif
     }
     return 0;
 }
 
-void Collisions::getMeshInformation(Mesh* mesh,size_t &vertex_count,Vector3* &vertices,
+void Collisions::getMeshInformation(v1::Mesh* mesh,size_t &vertex_count,Vector3* &vertices,
                                               size_t &index_count, unsigned* &indices,
                                               const Vector3 &position,
                                               const Quaternion &orient,const Vector3 &scale)
 {
+    using namespace Ogre::v1;
     vertex_count = index_count = 0;
 
     bool added_shared = false;
@@ -1588,25 +1593,25 @@ void Collisions::getMeshInformation(Mesh* mesh,size_t &vertex_count,Vector3* &ve
     // Calculate how many vertices and indices we're going to need
     for (int i = 0;i < mesh->getNumSubMeshes();i++)
     {
-        SubMesh* submesh = mesh->getSubMesh(i);
+        v1::SubMesh* submesh = mesh->getSubMesh(i);
 
         // We only need to add the shared vertices once
         if (submesh->useSharedVertices)
         {
             if (!added_shared)
             {
-                VertexData* vertex_data = mesh->sharedVertexData;
+                VertexData* vertex_data = mesh->sharedVertexData[VpNormal];
                 vertex_count += vertex_data->vertexCount;
                 added_shared = true;
             }
         } else
         {
-            VertexData* vertex_data = submesh->vertexData;
+            VertexData* vertex_data = submesh->vertexData[VpNormal];
             vertex_count += vertex_data->vertexCount;
         }
 
         // Add the indices
-        Ogre::IndexData* index_data = submesh->indexData;
+        Ogre::v1::IndexData* index_data = submesh->indexData[VpNormal];
         index_count += index_data->indexCount;
     }
 
@@ -1619,9 +1624,9 @@ void Collisions::getMeshInformation(Mesh* mesh,size_t &vertex_count,Vector3* &ve
     // Run through the sub-meshes again, adding the data into the arrays
     for (int i = 0;i < mesh->getNumSubMeshes();i++)
     {
-        SubMesh* submesh = mesh->getSubMesh(i);
+        v1::SubMesh* submesh = mesh->getSubMesh(i);
 
-        Ogre::VertexData* vertex_data = submesh->useSharedVertices ? mesh->sharedVertexData : submesh->vertexData;
+        Ogre::v1::VertexData* vertex_data = submesh->useSharedVertices ? mesh->sharedVertexData[VpNormal] : submesh->vertexData[VpNormal];
         if ((!submesh->useSharedVertices)||(submesh->useSharedVertices && !added_shared))
         {
             if (submesh->useSharedVertices)
@@ -1630,9 +1635,9 @@ void Collisions::getMeshInformation(Mesh* mesh,size_t &vertex_count,Vector3* &ve
                 shared_offset = current_offset;
             }
 
-            const Ogre::VertexElement* posElem = vertex_data->vertexDeclaration->findElementBySemantic(Ogre::VES_POSITION);
-            Ogre::HardwareVertexBufferSharedPtr vbuf = vertex_data->vertexBufferBinding->getBuffer(posElem->getSource());
-            unsigned char* vertex = static_cast<unsigned char*>(vbuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+            const VertexElement* posElem = vertex_data->vertexDeclaration->findElementBySemantic(Ogre::VES_POSITION);
+            HardwareVertexBufferSharedPtr vbuf = vertex_data->vertexBufferBinding->getBuffer(posElem->getSource());
+            unsigned char* vertex = static_cast<unsigned char*>(vbuf->lock(HardwareBuffer::HBL_READ_ONLY));
             Ogre::Real* pReal;
 
             for (size_t j = 0; j < vertex_data->vertexCount; ++j, vertex += vbuf->getVertexSize())
@@ -1655,19 +1660,19 @@ void Collisions::getMeshInformation(Mesh* mesh,size_t &vertex_count,Vector3* &ve
             next_offset += vertex_data->vertexCount;
         }
 
-        Ogre::IndexData* index_data = submesh->indexData;
+        Ogre::v1::IndexData* index_data = submesh->indexData[VpNormal];
 
         size_t numTris = index_data->indexCount / 3;
         unsigned short* pShort = 0;
         unsigned int* pInt = 0;
-        Ogre::HardwareIndexBufferSharedPtr ibuf = index_data->indexBuffer;
+        Ogre::v1::HardwareIndexBufferSharedPtr ibuf = index_data->indexBuffer;
         
-        bool use32bitindexes = (ibuf->getType() == Ogre::HardwareIndexBuffer::IT_32BIT);
+        bool use32bitindexes = (ibuf->getType() == Ogre::v1::HardwareIndexBuffer::IT_32BIT);
 
         if (use32bitindexes)
-            pInt = static_cast<unsigned int*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+            pInt = static_cast<unsigned int*>(ibuf->lock(Ogre::v1::HardwareBuffer::HBL_READ_ONLY));
         else
-            pShort = static_cast<unsigned short*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+            pShort = static_cast<unsigned short*>(ibuf->lock(Ogre::v1::HardwareBuffer::HBL_READ_ONLY));
 
         for (size_t k = 0; k < numTris; ++k)
         {

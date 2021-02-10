@@ -48,8 +48,10 @@ void TextureToolWindow::Draw()
     ImGui::BeginGroup();
 
     ImGui::Checkbox(_LC("TextureToolWindow", "Dynamic only"), &m_show_dynamic_only);
+#if 0 // TODO OGRE2x
 
     ImGui::BeginChild("texture list", ImVec2(LEFT_PANE_WIDTH, 0), true);
+
     auto itor = Ogre::TextureManager::getSingleton().getResourceIterator();
     while (itor.hasMoreElements())
     {
@@ -140,9 +142,10 @@ void TextureToolWindow::Draw()
         {
             this->SaveTexture(m_display_tex->getName(), /*usePNG =*/ false);
         }
+
         ImGui::EndChild(); // buttons
     }
-
+#endif // 0 // TODO OGRE2x
     ImGui::EndGroup(); // right
 
     App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
@@ -151,6 +154,7 @@ void TextureToolWindow::Draw()
 
 void TextureToolWindow::SaveTexture(std::string texName, bool usePNG)
 {
+    #if 0 // TODO OGRE2x
     using namespace Ogre;
     try
     {
@@ -176,4 +180,5 @@ void TextureToolWindow::SaveTexture(std::string texName, bool usePNG)
         std::string str = "Exception while saving image: " + e.getFullDescription();
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, str, "error.png");
     }
+    #endif // 0 // TODO OGRE2x
 }

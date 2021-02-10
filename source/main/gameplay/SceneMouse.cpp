@@ -49,8 +49,11 @@ SceneMouse::SceneMouse() :
 void SceneMouse::InitializeVisuals()
 {
     // load 3d line for mouse picking
-    pickLine = App::GetGfxScene()->GetSceneManager()->createManualObject("PickLineObject");
-    pickLineNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("PickLineNode");
+    pickLine = new Ogre::v1::ManualObject(
+        App::GetGfxScene()->GenerateId(),
+        &App::GetGfxScene()->GetSceneManager()->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC),
+        App::GetGfxScene()->GetSceneManager());
+    pickLineNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
 
     MaterialPtr pickLineMaterial = MaterialManager::getSingleton().getByName("PickLineMaterial", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
     if (pickLineMaterial.isNull())
@@ -58,12 +61,11 @@ void SceneMouse::InitializeVisuals()
         pickLineMaterial = MaterialManager::getSingleton().create("PickLineMaterial", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
     }
     pickLineMaterial->setReceiveShadows(false);
-    pickLineMaterial->getTechnique(0)->setLightingEnabled(true);
     pickLineMaterial->getTechnique(0)->getPass(0)->setDiffuse(0, 0, 1, 0);
     pickLineMaterial->getTechnique(0)->getPass(0)->setAmbient(0, 0, 1);
     pickLineMaterial->getTechnique(0)->getPass(0)->setSelfIllumination(0, 0, 1);
 
-    pickLine->begin("PickLineMaterial", RenderOperation::OT_LINE_LIST);
+    pickLine->begin("PickLineMaterial", Ogre::OperationType::OT_LINE_LIST);
     pickLine->position(0, 0, 0);
     pickLine->position(0, 0, 0);
     pickLine->end();
@@ -75,13 +77,13 @@ void SceneMouse::DiscardVisuals()
 {
     if (pickLineNode != nullptr)
     {
-        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeAndDestroyChild("PickLineNode");
+        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeAndDestroyChild(pickLineNode);
         pickLineNode = nullptr;
     }
 
     if (pickLine != nullptr)
     {
-        App::GetGfxScene()->GetSceneManager()->destroyManualObject("PickLineObject");
+        delete pickLine;
         pickLine = nullptr;
     }
 }

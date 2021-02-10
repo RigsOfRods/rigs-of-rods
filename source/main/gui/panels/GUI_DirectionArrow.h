@@ -44,8 +44,8 @@ public:
 private:
     Ogre::SceneNode*              m_node = nullptr;
     Ogre::v1::Overlay*                m_overlay = nullptr;
-    Ogre::TextAreaOverlayElement* m_text = nullptr;
-    Ogre::TextAreaOverlayElement* m_distance_text = nullptr;
+    Ogre::v1::TextAreaOverlayElement* m_text = nullptr;
+    Ogre::v1::TextAreaOverlayElement* m_distance_text = nullptr;
 };
 
 } // namespace GUI

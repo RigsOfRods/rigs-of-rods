@@ -33,6 +33,8 @@ using namespace RoR;
 
 Airbrake::Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, node_t* ndx, node_t* ndy, node_t* nda, Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float ty1, float tx2, float ty2, float lift_coef)
 {
+    using namespace Ogre::v1;
+
     snode = 0;
     noderef = ndref;
     nodex = ndx;
@@ -44,7 +46,7 @@ Airbrake::Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, n
     char meshname[256];
     sprintf(meshname, "airbrakemesh-%s-%i", basename, num);
     /// Create the mesh via the MeshManager
-    msh = MeshManager::getSingleton().createManual(meshname, actor->GetGfxActor()->GetResourceGroup());
+    msh = v1::MeshManager::getSingleton().createManual(meshname, actor->GetGfxActor()->GetResourceGroup());
 
     union
     {
@@ -53,7 +55,7 @@ Airbrake::Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, n
     };
 
     /// Create submesh
-    SubMesh* sub = msh->createSubMesh();
+    v1::SubMesh* sub = msh->createSubMesh();
 
     //materials
     sub->setMaterialName(texname);
@@ -98,11 +100,11 @@ Airbrake::Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, n
     covertices[3].normal = Vector3(0, 1, 0);
 
     /// Create vertex data structure for vertices shared between submeshes
-    msh->sharedVertexData = new VertexData();
-    msh->sharedVertexData->vertexCount = nVertices;
+    msh->sharedVertexData[VpNormal] = new VertexData();
+    msh->sharedVertexData[VpNormal]->vertexCount = nVertices;
 
     /// Create declaration (memory format) of vertex data
-    VertexDeclaration* decl = msh->sharedVertexData->vertexDeclaration;
+    VertexDeclaration* decl = msh->sharedVertexData[VpNormal]->vertexDeclaration;
     size_t offset = 0;
     decl->addElement(0, offset, VET_FLOAT3, VES_POSITION);
     offset += VertexElement::getTypeSize(VET_FLOAT3);
@@ -117,13 +119,13 @@ Airbrake::Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, n
     /// and bytes per vertex (offset)
     HardwareVertexBufferSharedPtr vbuf =
         HardwareBufferManager::getSingleton().createVertexBuffer(
-            offset, msh->sharedVertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+            offset, msh->sharedVertexData[VpNormal]->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
     /// Upload the vertex data to the card
     vbuf->writeData(0, vbuf->getSizeInBytes(), vertices, true);
 
     /// Set vertex buffer binding so buffer 0 is bound to our vertex buffer
-    VertexBufferBinding* bind = msh->sharedVertexData->vertexBufferBinding;
+    VertexBufferBinding* bind = msh->sharedVertexData[VpNormal]->vertexBufferBinding;
     bind->setBinding(0, vbuf);
 
     /// Allocate index buffer of the requested number of vertices (ibufCount)
@@ -138,9 +140,9 @@ Airbrake::Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, n
 
     /// Set parameters of the submesh
     sub->useSharedVertices = true;
-    sub->indexData->indexBuffer = faceibuf;
-    sub->indexData->indexCount = ibufCount;
-    sub->indexData->indexStart = 0;
+    sub->indexData[VpNormal]->indexBuffer = faceibuf;
+    sub->indexData[VpNormal]->indexCount = ibufCount;
+    sub->indexData[VpNormal]->indexStart = 0;
 
     /// Set bounding information (for culling)
     msh->_setBounds(AxisAlignedBox(-1, -1, 0, 1, 1, 0), true);
@@ -152,7 +154,7 @@ Airbrake::Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, n
     // create the entity and scene node
     char entname[256];
     sprintf(entname, "airbrakenode-%s-%i", basename, num);
-    ec = App::GetGfxScene()->GetSceneManager()->createEntity(entname, meshname, actor->GetGfxActor()->GetResourceGroup());
+    ec = App::GetGfxScene()->GetSceneManager()->createEntity(meshname, actor->GetGfxActor()->GetResourceGroup());
     snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     snode->attachObject(ec);
 

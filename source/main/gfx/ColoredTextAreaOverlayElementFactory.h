@@ -31,13 +31,13 @@
 class ColoredTextAreaOverlayElementFactory : public Ogre::v1::OverlayElementFactory
 {
 public:
-    /** See OverlayElementFactory */
+    /** See v1::OverlayElementFactory */
     Ogre::v1::OverlayElement* createOverlayElement(const Ogre::String& instanceName)
     {
         return new ColoredTextAreaOverlayElement(instanceName);
     }
 
-    /** See OverlayElementFactory */
+    /** See v1::OverlayElementFactory */
     const Ogre::String& getTypeName() const
     {
         static Ogre::String name = "ColoredTextArea";
