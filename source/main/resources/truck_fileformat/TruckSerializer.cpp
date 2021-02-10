@@ -929,7 +929,7 @@ void Serializer::ProcessAxles(File::Module* module)
             auto end = def.options.end();
             for (auto itor = def.options.begin(); itor != end; ++itor)
             {
-                m_stream << *itor;
+                m_stream << (char)*itor;
             }
             m_stream << ")";
         }
@@ -958,7 +958,7 @@ void Serializer::ProcessInterAxles(File::Module* module)
             auto end = def.options.end();
             for (auto itor = def.options.begin(); itor != end; ++itor)
             {
-                m_stream << *itor;
+                m_stream << (char)*itor;
             }
             m_stream << ")";
         }

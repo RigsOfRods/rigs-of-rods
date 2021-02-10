@@ -76,6 +76,7 @@
 #include <OgreParticleSystem.h>
 #include <OgreEntity.h>
 #include <climits>
+#include <fmt/core.h>
 
 const char* ACTOR_ID_TOKEN = "@Actor_"; // Appended to material name, followed by actor ID (aka 'trucknum')
 
@@ -2438,20 +2439,20 @@ void ActorSpawner::ProcessAxle(Truck::Axle & def)
         {
             switch (*itor)
             {
-            case Truck::Axle::OPTION_l_LOCKED:
+            case Truck::DifferentialType::DIFF_l_LOCKED:
                 diff->AddDifferentialType(LOCKED_DIFF);
                 break;
-            case Truck::Axle::OPTION_o_OPEN:
+            case Truck::DifferentialType::DIFF_o_OPEN:
                 diff->AddDifferentialType(OPEN_DIFF);
                 break;
-            case Truck::Axle::OPTION_s_SPLIT:
+            case Truck::DifferentialType::DIFF_s_SPLIT:
                 diff->AddDifferentialType(SPLIT_DIFF);
                 break;
-            case Truck::Axle::OPTION_s_VISCOUS:
+            case Truck::DifferentialType::DIFF_v_VISCOUS:
                 diff->AddDifferentialType(VISCOUS_DIFF);
                 break;
             default:
-                AddMessage(Message::TYPE_WARNING, "Unknown differential type: " + *itor);
+                AddMessage(Message::TYPE_WARNING, fmt::format("Unknown differential type: '{}'", (char)*itor));
                 break;
             }
         }
@@ -2496,20 +2497,20 @@ void ActorSpawner::ProcessInterAxle(Truck::InterAxle & def)
         {
             switch (*itor)
             {
-            case Truck::Axle::OPTION_l_LOCKED:
+            case Truck::DifferentialType::DIFF_l_LOCKED:
                 diff->AddDifferentialType(LOCKED_DIFF);
                 break;
-            case Truck::Axle::OPTION_o_OPEN:
+            case Truck::DifferentialType::DIFF_o_OPEN:
                 diff->AddDifferentialType(OPEN_DIFF);
                 break;
-            case Truck::Axle::OPTION_s_SPLIT:
+            case Truck::DifferentialType::DIFF_s_SPLIT:
                 diff->AddDifferentialType(SPLIT_DIFF);
                 break;
-            case Truck::Axle::OPTION_s_VISCOUS:
+            case Truck::DifferentialType::DIFF_v_VISCOUS:
                 diff->AddDifferentialType(VISCOUS_DIFF);
                 break;
             default:
-                AddMessage(Message::TYPE_WARNING, "Unknown differential type: " + *itor);
+                AddMessage(Message::TYPE_WARNING, fmt::format("Unknown differential type: '{}'", (char)*itor));
                 break;
             }
         }
