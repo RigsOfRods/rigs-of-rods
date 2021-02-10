@@ -1805,16 +1805,16 @@ void Parser::ParseAxles()
                 switch(options_str.at(i))
                 {
                     case 'o':
-                        axle.options.push_back(Axle::OPTION_o_OPEN);
+                        axle.options.push_back(DifferentialType::DIFF_o_OPEN);
                         break;
                     case 'l':
-                        axle.options.push_back(Axle::OPTION_l_LOCKED);
+                        axle.options.push_back(DifferentialType::DIFF_l_LOCKED);
                         break;
                     case 's':
-                        axle.options.push_back(Axle::OPTION_s_SPLIT);
+                        axle.options.push_back(DifferentialType::DIFF_s_SPLIT);
                         break;
                     case 'v':
-                        axle.options.push_back(Axle::OPTION_s_VISCOUS);
+                        axle.options.push_back(DifferentialType::DIFF_v_VISCOUS);
                         break;
 
                     default: // No check needed, regex takes care of that 
@@ -1853,16 +1853,16 @@ void Parser::ParseInterAxles()
             switch(options_str.at(i))
             {
                 case 'o':
-                    interaxle.options.push_back(Axle::OPTION_o_OPEN);
+                    interaxle.options.push_back(DifferentialType::DIFF_o_OPEN);
                     break;
                 case 'l':
-                    interaxle.options.push_back(Axle::OPTION_l_LOCKED);
+                    interaxle.options.push_back(DifferentialType::DIFF_l_LOCKED);
                     break;
                 case 's':
-                    interaxle.options.push_back(Axle::OPTION_s_SPLIT);
+                    interaxle.options.push_back(DifferentialType::DIFF_s_SPLIT);
                     break;
                 case 'v':
-                    interaxle.options.push_back(Axle::OPTION_s_VISCOUS);
+                    interaxle.options.push_back(DifferentialType::DIFF_v_VISCOUS);
                     break;
 
                 default: // No check needed, regex takes care of that 

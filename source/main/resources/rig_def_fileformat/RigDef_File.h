@@ -267,6 +267,14 @@ enum Subsection
     SUBSECTION_INVALID = 0xFFFFFFFF
 };
 
+enum class DifferentialType: char
+{
+    DIFF_o_OPEN    = 'o',
+    DIFF_l_LOCKED  = 'l',
+    DIFF_s_SPLIT   = 's',
+    DIFF_v_VISCOUS = 'v'
+};
+
 /* -------------------------------------------------------------------------- */
 /* Utility                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -609,17 +617,8 @@ struct Animation
 
 struct Axle
 {
-    Axle():
-        options(0)
-    {}
-
-    static const char OPTION_o_OPEN    = 'o';
-    static const char OPTION_l_LOCKED  = 'l';
-    static const char OPTION_s_SPLIT   = 's';
-    static const char OPTION_s_VISCOUS = 'v';
-
     Node::Ref wheels[2][2];
-    std::vector<char> options; //!< Order matters!
+    std::vector<DifferentialType> options; //!< Order matters!
 };
 
 /* -------------------------------------------------------------------------- */
@@ -628,20 +627,9 @@ struct Axle
 
 struct InterAxle
 {
-    InterAxle():
-        a1(0),
-        a2(0),
-        options(0)
-    {}
-
-    static const char OPTION_o_OPEN    = 'o';
-    static const char OPTION_l_LOCKED  = 'l';
-    static const char OPTION_s_SPLIT   = 's';
-    static const char OPTION_s_VISCOUS = 'v';
-
-    int a1;
-    int a2;
-    std::vector<char> options; //!< Order matters!
+    int a1 = 0;
+    int a2 = 0;
+    std::vector<DifferentialType> options; //!< Order matters!
 };
 
 /* -------------------------------------------------------------------------- */
