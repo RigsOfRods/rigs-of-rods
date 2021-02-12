@@ -247,6 +247,7 @@ int main(int argc, char *argv[])
                 {
                     // MainMenu disabled (singleplayer mode) -> go directly to map selector (traditional behavior)
                     App::GetGuiManager()->SetVisible_GameMainMenu(false);
+                    App::GetContentManager()->InitModCache(CacheSystem::CacheValidityState::CACHE_STATE_UNKNOWN);
                     App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
                 }
             }
