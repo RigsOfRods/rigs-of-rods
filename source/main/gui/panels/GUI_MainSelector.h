@@ -100,6 +100,9 @@ private:
 
     std::map<LoaderType, int> m_last_selected_category; //!< Stores the last manually selected category index for each loader type
     std::map<LoaderType, int> m_last_selected_entry;    //!< Stores the last manually selected entry index for each loader type
+
+    bool               initialized = true;
+    int                cond_flags = 0;
 };
 
 } // namespace GUI

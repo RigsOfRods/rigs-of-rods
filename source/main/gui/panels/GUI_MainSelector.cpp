@@ -72,8 +72,18 @@ void MainSelector::Draw()
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
-    ImGui::SetNextWindowSize(ImVec2((ImGui::GetIO().DisplaySize.x / 1.4), (ImGui::GetIO().DisplaySize.y / 1.2)), ImGuiCond_Appearing);
+
+    if (initialized == true)
+    {
+        cond_flags = ImGuiCond_Appearing; // forces correct size/position when SkipMainMenu is enabled
+    }
+    else
+    {
+        cond_flags = ImGuiCond_FirstUseEver;
+    }
+
+    ImGui::SetNextWindowPosCenter(cond_flags);
+    ImGui::SetNextWindowSize(ImVec2((ImGui::GetIO().DisplaySize.x / 1.4), (ImGui::GetIO().DisplaySize.y / 1.2)), cond_flags);
     bool keep_open = true;
     if (!ImGui::Begin(_LC("MainSelector", "Loader"), &keep_open, win_flags))
     {
@@ -561,6 +571,7 @@ void MainSelector::Close()
     m_searchbox_was_active = false;
     m_loader_type = LT_None; // Hide window
     m_kb_focused = true;
+    initialized = false;
 }
 
 void MainSelector::Cancel()
