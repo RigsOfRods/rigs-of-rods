@@ -256,6 +256,7 @@ void TopMenubar::Update()
                     App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
                 }
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
             }
 
             if (ImGui::Button(_LC("TopMenubar", "Exit")))

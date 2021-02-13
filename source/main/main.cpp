@@ -380,6 +380,7 @@ int main(int argc, char *argv[])
                 case MSG_NET_SERVER_KICK:
                     App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                    App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                     App::GetGuiManager()->ShowMessageBox(
                         _LC("Network", "Network disconnected"), m.description.c_str());
                     break;
@@ -387,6 +388,7 @@ int main(int argc, char *argv[])
                 case MSG_NET_RECV_ERROR:
                     App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                    App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                     App::GetGuiManager()->ShowMessageBox(
                         _L("Network fatal error: "), m.description.c_str());
                     break;

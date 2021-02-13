@@ -930,6 +930,7 @@ void GameScript::showMessageBox(Ogre::String& title, Ogre::String& text, bool us
 void GameScript::backToMenu()
 {
     App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+    App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
 }
 
 void GameScript::quitGame()
