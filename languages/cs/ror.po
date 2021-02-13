@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-28 10:37+0100\n"
+"POT-Creation-Date: 2021-02-13 19:27+0100\n"
 "PO-Revision-Date: 2021-01-26 22:09+0000\n"
 "Last-Translator: Petr Ohlídal <petr@ohlidal.cz>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/rigs-of-rods/game/"
@@ -873,8 +873,11 @@ msgid "Resume game"
 msgstr "Pokračovat ve hře"
 
 #: gui/panels/GUI_GameMainMenu.cpp:121
+#, fuzzy
+#| msgctxt "MainMenu"
+#| msgid "Multi player"
 msgctxt "MainMenu"
-msgid "Multi player"
+msgid "Multiplayer"
 msgstr "Více hráčů"
 
 #: gui/panels/GUI_GameMainMenu.cpp:127
@@ -2757,34 +2760,34 @@ msgctxt "TopMenubar"
 msgid "Hide wheel info"
 msgstr "Skrýt detaily kol"
 
-#: gui/panels/GUI_TopMenubar.cpp:722
+#: gui/panels/GUI_TopMenubar.cpp:721
 msgctxt "TopMenubar"
 msgid "None spawned yet"
 msgstr "Prozatím žádná"
 
-#: gui/panels/GUI_TopMenubar.cpp:723
+#: gui/panels/GUI_TopMenubar.cpp:722
 msgctxt "TopMenubar"
 msgid "Use [Simulation] menu"
 msgstr "Použijte nabídku [Simulace]"
 
-#: gui/panels/GUI_TopMenubar.cpp:781
+#: gui/panels/GUI_TopMenubar.cpp:778
 #, fuzzy
 #| msgid "All physics paused, press '{}' to resume"
 msgctxt "TopMenubar"
 msgid "All physics paused, press '{}' to resume"
 msgstr "Veškerá fyzika pozastavena, pro pokračování stiskněte '{}'"
 
-#: gui/panels/GUI_TopMenubar.cpp:790
+#: gui/panels/GUI_TopMenubar.cpp:787
 msgctxt "TopMenubar"
 msgid "Vehicle physics paused, press '{}' to resume"
 msgstr "Fyzika vozidla pozastavena, pro pokračování stiskněte '{}'"
 
-#: gui/panels/GUI_TopMenubar.cpp:799
+#: gui/panels/GUI_TopMenubar.cpp:796
 msgctxt "TopMenubar"
 msgid "Replay"
 msgstr "Přehrávání"
 
-#: gui/panels/GUI_TopMenubar.cpp:837
+#: gui/panels/GUI_TopMenubar.cpp:834
 msgctxt "TopMenubar"
 msgid "Time"
 msgstr "Čas"
@@ -2820,54 +2823,54 @@ msgctxt "VehicleDescription"
 msgid "(no author information available) "
 msgstr "(žádný autor není uveden) "
 
-#: main.cpp:313
+#: main.cpp:317
 msgid "Display mode changed to fullscreen"
 msgstr "Režim zobrazení změněn na celou obrazovku"
 
-#: main.cpp:319
+#: main.cpp:323
 msgid "Display mode changed to windowed"
 msgstr "Režim zobrazení změněn na okno"
 
-#: main.cpp:376
+#: main.cpp:380
 msgctxt "Network"
 msgid "Network disconnected"
 msgstr "Síť byla odpojena"
 
-#: main.cpp:383
+#: main.cpp:387
 msgid "Network fatal error: "
 msgstr "Kritická chyba sítě: "
 
-#: main.cpp:428
+#: main.cpp:432
 msgctxt "Network"
 msgid "Multiplayer: connection failed"
 msgstr "Připojení ke hře více hráčů selhalo"
 
-#: main.cpp:460
+#: main.cpp:464
 msgid "Loading resources"
 msgstr "Načítání potřebných dat"
 
-#: main.cpp:490
+#: main.cpp:494
 #, c-format
 msgid "Press %s to start chatting"
 msgstr "Stiskněte %s pro zahájení chatu"
 
-#: main.cpp:537
+#: main.cpp:541
 msgid "Could not read savegame file"
 msgstr "Nepodařilo se přečíst soubor s uloženou hrou"
 
-#: main.cpp:616
+#: main.cpp:620
 msgid "Entered terrain editing mode"
 msgstr "Aktivovat režim úprav terénu"
 
-#: main.cpp:627
+#: main.cpp:631
 msgid "Left terrain editing mode"
 msgstr "Režim úprav terénu byl ukončen"
 
-#: main.cpp:829
+#: main.cpp:833
 msgid "An exception has occured!"
 msgstr "Došlo k výjimce!"
 
-#: main.cpp:834
+#: main.cpp:838
 msgid "An exception (std::runtime_error) has occured!"
 msgstr "Nastala interní chyba (std::runtime_error)!"
 
