@@ -59,7 +59,9 @@ void GameSettings::Draw()
     ImGui::SameLine();
     if (ImGui::Button(_LC("GameSettings", "Update cache")))
     {
+        App::GetGuiManager()->SetVisible_GameSettings(false);
         App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_UPDATE_REQUESTED));
+        App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
     }
 
     ImGui::PopStyleVar(1);
@@ -369,7 +371,9 @@ void GameSettings::Draw()
         DrawGCheckbox(App::diag_log_beam_trigger,    _LC("GameSettings", "Log beam triggers"));
         if (ImGui::Button(_LC("GameSettings", "Rebuild cache")))
         {
+            App::GetGuiManager()->SetVisible_GameSettings(false);
             App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_PURGE_REQUESTED));
+            App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
         }
     }
     else if (m_tab == SettingsTab::CONTROL)

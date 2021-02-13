@@ -101,7 +101,9 @@ void GameMainMenu::DrawMenuPanel()
             this->SetVisible(false);
             if (App::diag_preset_terrain->GetStr().empty())
             {
-                App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+                RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+                m.payload = reinterpret_cast<void*>(new LoaderType(LT_Terrain));
+                App::GetGameContext()->PushMessage(m);
             }
             else
             {
