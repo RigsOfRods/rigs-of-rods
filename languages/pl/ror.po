@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-28 10:37+0100\n"
+"POT-Creation-Date: 2021-02-13 19:27+0100\n"
 "PO-Revision-Date: 2019-05-14 16:55+0000\n"
 "Last-Translator: Karol Bieńkowski <karlossss1996@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/rigsofrods/rigs-of-rods/"
@@ -934,9 +934,12 @@ msgid "Resume game"
 msgstr ""
 
 #: gui/panels/GUI_GameMainMenu.cpp:121
+#, fuzzy
+#| msgctxt "GameSettings"
+#| msgid "Debug collisions"
 msgctxt "MainMenu"
-msgid "Multi player"
-msgstr ""
+msgid "Multiplayer"
+msgstr "Debuguj kolizje"
 
 #: gui/panels/GUI_GameMainMenu.cpp:127
 #, fuzzy
@@ -2929,12 +2932,12 @@ msgctxt "TopMenubar"
 msgid "Hide wheel info"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:722
+#: gui/panels/GUI_TopMenubar.cpp:721
 msgctxt "TopMenubar"
 msgid "None spawned yet"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:723
+#: gui/panels/GUI_TopMenubar.cpp:722
 #, fuzzy
 #| msgctxt "GameSettings"
 #| msgid "Simulation settings"
@@ -2942,24 +2945,24 @@ msgctxt "TopMenubar"
 msgid "Use [Simulation] menu"
 msgstr "Ustawienia symulacji"
 
-#: gui/panels/GUI_TopMenubar.cpp:781
+#: gui/panels/GUI_TopMenubar.cpp:778
 msgctxt "TopMenubar"
 msgid "All physics paused, press '{}' to resume"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:790
+#: gui/panels/GUI_TopMenubar.cpp:787
 msgctxt "TopMenubar"
 msgid "Vehicle physics paused, press '{}' to resume"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:799
+#: gui/panels/GUI_TopMenubar.cpp:796
 #, fuzzy
 #| msgid "Gameplay"
 msgctxt "TopMenubar"
 msgid "Replay"
 msgstr "Ogólne"
 
-#: gui/panels/GUI_TopMenubar.cpp:837
+#: gui/panels/GUI_TopMenubar.cpp:834
 msgctxt "TopMenubar"
 msgid "Time"
 msgstr ""
@@ -2999,59 +3002,59 @@ msgctxt "VehicleDescription"
 msgid "(no author information available) "
 msgstr "(brak dostępnych informacji o autorze)"
 
-#: main.cpp:313
+#: main.cpp:317
 msgid "Display mode changed to fullscreen"
 msgstr ""
 
-#: main.cpp:319
+#: main.cpp:323
 msgid "Display mode changed to windowed"
 msgstr ""
 
-#: main.cpp:376
+#: main.cpp:380
 #, fuzzy
 #| msgid "Cancel (disconnect)"
 msgctxt "Network"
 msgid "Network disconnected"
 msgstr "Anuluj (rozłącz)"
 
-#: main.cpp:383
+#: main.cpp:387
 msgid "Network fatal error: "
 msgstr "Krytyczny błąd sieci: "
 
-#: main.cpp:428
+#: main.cpp:432
 msgctxt "Network"
 msgid "Multiplayer: connection failed"
 msgstr ""
 
-#: main.cpp:460
+#: main.cpp:464
 msgid "Loading resources"
 msgstr "Ładowanie zasobów"
 
-#: main.cpp:490
+#: main.cpp:494
 #, fuzzy, c-format
 #| msgid "Press %ls to start chatting"
 msgid "Press %s to start chatting"
 msgstr "Naciśnij %ls aby pisać na czacie"
 
-#: main.cpp:537
+#: main.cpp:541
 #, fuzzy
 #| msgid "Could not write config file"
 msgid "Could not read savegame file"
 msgstr "Nie można zapisać pliku konfiguracyjnego"
 
-#: main.cpp:616
+#: main.cpp:620
 msgid "Entered terrain editing mode"
 msgstr "Wejście w tryb edycji terenu"
 
-#: main.cpp:627
+#: main.cpp:631
 msgid "Left terrain editing mode"
 msgstr "Opuszczenie trybu edycji terenu "
 
-#: main.cpp:829
+#: main.cpp:833
 msgid "An exception has occured!"
 msgstr "Wystąpił wyjątek!"
 
-#: main.cpp:834
+#: main.cpp:838
 msgid "An exception (std::runtime_error) has occured!"
 msgstr "Wystąpił wyjątek (std::runtime_error)!"
 

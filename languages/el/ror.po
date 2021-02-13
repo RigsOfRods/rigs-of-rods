@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-28 10:37+0100\n"
+"POT-Creation-Date: 2021-02-13 19:27+0100\n"
 "PO-Revision-Date: 2018-12-15 13:25+0000\n"
 "Last-Translator: f26dc946a3c9a97e25dfaeaf764d5aa3_11438aa "
 "<99f8d77593e2f043a4e5c72bc12e6d17_754573>\n"
@@ -818,7 +818,7 @@ msgstr ""
 
 #: gui/panels/GUI_GameMainMenu.cpp:121
 msgctxt "MainMenu"
-msgid "Multi player"
+msgid "Multiplayer"
 msgstr ""
 
 #: gui/panels/GUI_GameMainMenu.cpp:127
@@ -2762,12 +2762,12 @@ msgctxt "TopMenubar"
 msgid "Hide wheel info"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:722
+#: gui/panels/GUI_TopMenubar.cpp:721
 msgctxt "TopMenubar"
 msgid "None spawned yet"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:723
+#: gui/panels/GUI_TopMenubar.cpp:722
 #, fuzzy
 #| msgctxt "GameSettings"
 #| msgid "Simulation settings"
@@ -2775,24 +2775,24 @@ msgctxt "TopMenubar"
 msgid "Use [Simulation] menu"
 msgstr "Ρυθμίσεις προσομοίωσης"
 
-#: gui/panels/GUI_TopMenubar.cpp:781
+#: gui/panels/GUI_TopMenubar.cpp:778
 msgctxt "TopMenubar"
 msgid "All physics paused, press '{}' to resume"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:790
+#: gui/panels/GUI_TopMenubar.cpp:787
 msgctxt "TopMenubar"
 msgid "Vehicle physics paused, press '{}' to resume"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:799
+#: gui/panels/GUI_TopMenubar.cpp:796
 #, fuzzy
 #| msgid "Gameplay"
 msgctxt "TopMenubar"
 msgid "Replay"
 msgstr "Παιχνιδι"
 
-#: gui/panels/GUI_TopMenubar.cpp:837
+#: gui/panels/GUI_TopMenubar.cpp:834
 msgctxt "TopMenubar"
 msgid "Time"
 msgstr ""
@@ -2832,56 +2832,56 @@ msgctxt "VehicleDescription"
 msgid "(no author information available) "
 msgstr "Δεν υπάρχουν πληροφορίες απο τον συντάκτη."
 
-#: main.cpp:313
+#: main.cpp:317
 msgid "Display mode changed to fullscreen"
 msgstr ""
 
-#: main.cpp:319
+#: main.cpp:323
 msgid "Display mode changed to windowed"
 msgstr ""
 
-#: main.cpp:376
+#: main.cpp:380
 msgctxt "Network"
 msgid "Network disconnected"
 msgstr ""
 
-#: main.cpp:383
+#: main.cpp:387
 msgid "Network fatal error: "
 msgstr "δεν βρισκει δικτιο. ειπαρχει σφαλμα"
 
-#: main.cpp:428
+#: main.cpp:432
 msgctxt "Network"
 msgid "Multiplayer: connection failed"
 msgstr ""
 
-#: main.cpp:460
+#: main.cpp:464
 msgid "Loading resources"
 msgstr ""
 
-#: main.cpp:490
+#: main.cpp:494
 #, c-format
 msgid "Press %s to start chatting"
 msgstr ""
 
-#: main.cpp:537
+#: main.cpp:541
 #, fuzzy
 #| msgid "Could not write config file"
 msgid "Could not read savegame file"
 msgstr "Δεν μπόρεσε να γίνει εγγραφή στο αρχείο config"
 
-#: main.cpp:616
+#: main.cpp:620
 msgid "Entered terrain editing mode"
 msgstr ""
 
-#: main.cpp:627
+#: main.cpp:631
 msgid "Left terrain editing mode"
 msgstr ""
 
-#: main.cpp:829
+#: main.cpp:833
 msgid "An exception has occured!"
 msgstr "Μια εξαίρεση έχει συμβεί!"
 
-#: main.cpp:834
+#: main.cpp:838
 msgid "An exception (std::runtime_error) has occured!"
 msgstr ""
 
