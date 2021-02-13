@@ -94,6 +94,7 @@ void GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cleanup and u
             {
                 App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
             }
+            App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
         }
 
         if (HighlightButton(_L("Exit game"), btn_size, 2))
