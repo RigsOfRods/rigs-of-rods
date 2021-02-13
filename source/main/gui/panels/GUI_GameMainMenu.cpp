@@ -118,7 +118,7 @@ void GameMainMenu::DrawMenuPanel()
             }
         }
 
-        if (HighlightButton(_LC("MainMenu", "Multi player"), btn_size, button_index++))
+        if (HighlightButton(_LC("MainMenu", "Multiplayer"), btn_size, button_index++))
         {
             App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
             this->SetVisible(false);
