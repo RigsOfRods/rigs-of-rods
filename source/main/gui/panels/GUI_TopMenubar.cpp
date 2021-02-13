@@ -173,8 +173,11 @@ void TopMenubar::Update()
 
             if (ImGui::Button(_LC("TopMenubar", "Get new vehicle")))
             {
-                App::GetGuiManager()->GetMainSelector()->Show(LT_AllBeam);
                 m_open_menu = TopMenu::TOPMENU_NONE;
+
+                RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+                m.payload = reinterpret_cast<void*>(new LoaderType(LT_AllBeam));
+                App::GetGameContext()->PushMessage(m);
             }
 
             if (current_actor != nullptr)

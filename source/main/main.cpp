@@ -246,8 +246,13 @@ int main(int argc, char *argv[])
                 else if (App::app_skip_main_menu->GetBool())
                 {
                     // MainMenu disabled (singleplayer mode) -> go directly to map selector (traditional behavior)
-                    App::GetGuiManager()->SetVisible_GameMainMenu(false);
-                    App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+                    RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+                    m.payload = reinterpret_cast<void*>(new LoaderType(LT_Terrain));
+                    App::GetGameContext()->PushMessage(m);
+                }
+                else
+                {
+                    App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                 }
             }
         }
@@ -326,10 +331,8 @@ int main(int argc, char *argv[])
                 case MSG_APP_MODCACHE_LOAD_REQUESTED:
                     if (!App::GetCacheSystem()) // If not already loaded...
                     {
-                        App::GetGuiManager()->SetVisible_GameMainMenu(false);
                         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
                         App::GetContentManager()->InitModCache(CacheSystem::CacheValidityState::CACHE_STATE_UNKNOWN);
-                        App::GetGuiManager()->SetVisible_GameMainMenu(true);
                     }
                     break;
 
@@ -337,10 +340,8 @@ int main(int argc, char *argv[])
                     if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU) // No actors must be spawned; they keep pointers to CacheEntries
                     {
                         RoR::Log("[RoR|ModCache] Cache update requested");
-                        App::GetGuiManager()->SetVisible_GameSettings(false);
                         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
                         App::GetContentManager()->InitModCache(CacheSystem::CacheValidityState::CACHE_NEEDS_UPDATE);
-                        App::GetGuiManager()->SetVisible_GameMainMenu(true);
                     }
                     break;
 
@@ -348,10 +349,8 @@ int main(int argc, char *argv[])
                     if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU) // No actors must be spawned; they keep pointers to CacheEntries
                     {
                         RoR::Log("[RoR|ModCache] Cache rebuild requested");
-                        App::GetGuiManager()->SetVisible_GameSettings(false);
                         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
                         App::GetContentManager()->InitModCache(CacheSystem::CacheValidityState::CACHE_NEEDS_REBUILD);
-                        App::GetGuiManager()->SetVisible_GameMainMenu(true);
                     }
                     break;
 
@@ -368,7 +367,7 @@ int main(int argc, char *argv[])
                         if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
                         {
                             App::GetGuiManager()->GetMainSelector()->Close(); // We may get disconnected while still in map selection
-                            App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                            App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                         }
                     }
                     break;
@@ -390,7 +389,7 @@ int main(int argc, char *argv[])
                 case MSG_NET_CONNECT_STARTED:
                     App::GetGuiManager()->GetLoadingWindow()->SetProgressNetConnect(m.description);
                     App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
-                    App::GetGuiManager()->SetVisible_GameMainMenu(false);
+                    App::GetGameContext()->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
                     break;
 
                 case MSG_NET_CONNECT_PROGRESS:
@@ -415,7 +414,9 @@ int main(int argc, char *argv[])
                         // Connected -> go directly to map selector
                         if (App::diag_preset_terrain->GetStr().empty())
                         {
-                            App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+                            RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+                            m.payload = reinterpret_cast<void*>(new LoaderType(LT_Terrain));
+                            App::GetGameContext()->PushMessage(m);
                         }
                         else
                         {
@@ -540,7 +541,7 @@ int main(int argc, char *argv[])
                         {
                             Str<400> msg; msg << _L("Could not read savegame file") << "'" << m.description << "'";
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-                            App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                            App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                         }
                         else if (terrn_filename == App::sim_terrain_name->GetStr())
                         {
@@ -600,6 +601,28 @@ int main(int argc, char *argv[])
                         App::GetGameContext()->TeleportPlayer(pos->x, pos->z);
                         delete pos;
                     }
+                    break;
+
+                // -- GUI events ---
+
+                case MSG_GUI_OPEN_MENU_REQUESTED:
+                    if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+                    {
+                        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                    }
+                    break;
+
+                case MSG_GUI_CLOSE_MENU_REQUESTED:
+                    App::GetGuiManager()->SetVisible_GameMainMenu(false);
+                    break;
+
+                case MSG_GUI_OPEN_SELECTOR_REQUESTED:
+                    App::GetGuiManager()->GetMainSelector()->Show(*reinterpret_cast<LoaderType*>(m.payload), m.description);
+                    delete reinterpret_cast<LoaderType*>(m.payload);
+                    break;
+
+                case MSG_GUI_CLOSE_SELECTOR_REQUESTED:
+                    App::GetGuiManager()->GetMainSelector()->Close();
                     break;
 
                 // -- Editing events --

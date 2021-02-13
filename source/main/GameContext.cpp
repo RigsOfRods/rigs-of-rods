@@ -538,7 +538,10 @@ void GameContext::ShowLoaderGUI(int type, const Ogre::String& instance, const Og
     m_current_selection.asr_position = App::GetSimTerrain()->GetCollisions()->getPosition(instance, box);
     m_current_selection.asr_rotation = App::GetSimTerrain()->GetCollisions()->getDirection(instance, box);
     m_current_selection.asr_spawnbox = App::GetSimTerrain()->GetCollisions()->getBox(instance, box);
-    App::GetGuiManager()->GetMainSelector()->Show(LoaderType(type));
+
+    RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+    m.payload = reinterpret_cast<void*>(new LoaderType(LoaderType(type)));
+    App::GetGameContext()->PushMessage(m);
 }
 
 void GameContext::OnLoaderGuiCancel()
@@ -577,7 +580,7 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
             skin_query.cqy_filter_type = LT_Skin;
             if (App::GetCacheSystem()->Query(skin_query) > 0)
             {
-                App::GetGuiManager()->GetMainSelector()->Show(LT_Skin, entry->guid);
+                App::GetGuiManager()->GetMainSelector()->Show(LT_Skin, entry->guid); // Intentionally not using MSG_
             }
             else
             {
@@ -810,7 +813,9 @@ void GameContext::UpdateSimInputEvents(float dt)
     // get new vehicle
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_GET_NEW_VEHICLE))
     {
-        App::GetGuiManager()->GetMainSelector()->Show(LT_AllBeam);
+        RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+        m.payload = reinterpret_cast<void*>(new LoaderType(LT_AllBeam));
+        App::GetGameContext()->PushMessage(m);
     }
 
     // Enter/exit truck - With a toggle delay

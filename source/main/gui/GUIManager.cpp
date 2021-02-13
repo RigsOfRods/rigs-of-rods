@@ -384,7 +384,6 @@ void GUIManager::ReflectGameState()
     if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
     {
         m_impl->overlay_Wallpaper       ->show();
-        m_impl->panel_GameMainMenu       .SetVisible(!m_impl->panel_MainSelector.IsVisible());
 
         m_impl->panel_ChatBox            .SetVisible(false);
         m_impl->panel_FrictionSettings   .SetVisible(false);
