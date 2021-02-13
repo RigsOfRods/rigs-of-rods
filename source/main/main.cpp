@@ -268,6 +268,11 @@ int main(int argc, char *argv[])
         }
 #endif // USE_OPENAL
 
+        // Hack to properly init DearIMGUI integration - force rendering image
+        //  Will be properly fixed under OGRE 2x
+        App::GetGuiManager()->GetLoadingWindow()->SetProgress(100, "Hack", /*renderFrame=*/true);
+        App::GetGuiManager()->SetVisible_LoadingWindow(false);
+
         // --------------------------------------------------------------
         // Main rendering and event handling loop
         // --------------------------------------------------------------
