@@ -38,10 +38,10 @@
 #include "EngineSim.h"
 #include "ErrorUtils.h"
 #include "FlexAirfoil.h"
-#include "FlexBody.h"
-#include "FlexMesh.h"
-#include "FlexMeshWheel.h"
-#include "FlexObj.h"
+
+
+
+
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
@@ -50,7 +50,7 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "MeshObject.h"
-#include "MovableText.h"
+
 #include "Network.h"
 #include "PointColDetector.h"
 #include "Replay.h"
@@ -134,18 +134,7 @@ Actor::~Actor()
         }
         m_deletion_scene_nodes.clear();
     }
-    // remove all entities
-    if (m_deletion_entities.size() > 0)
-    {
-        for (unsigned int i = 0; i < m_deletion_entities.size(); i++)
-        {
-            if (!m_deletion_entities[i])
-                continue;
-            m_deletion_entities[i]->detachAllObjectsFromBone();
-            App::GetGfxScene()->GetSceneManager()->destroyEntity(m_deletion_entities[i]->getName());
-        }
-        m_deletion_entities.clear();
-    }
+
 
     // delete wings
     for (int i = 0; i < ar_num_wings; i++)
@@ -244,12 +233,7 @@ Actor::~Actor()
         delete (*it);
     }
 
-    if (m_net_label_mt)
-    {
-        m_net_label_mt->setVisible(false);
-        delete m_net_label_mt;
-        m_net_label_mt = nullptr;
-    }
+
 
     if (m_intra_point_col_detector)
     {
@@ -343,6 +327,7 @@ Vector3 Actor::getPosition()
 
 void Actor::PushNetwork(char* data, int size)
 {
+#if USE_SOCKETW
     NetUpdate update;
 
     update.veh_state.resize(sizeof(RoRnet::VehicleState));
@@ -415,6 +400,7 @@ void Actor::PushNetwork(char* data, int size)
     }
 
     m_net_updates.push_back(update);
+#endif // USE_SOCKETW
 }
 
 void Actor::CalcNetwork()
@@ -2879,41 +2865,8 @@ void Actor::updateSkidmarks()
 
 void Actor::prepareInside(bool inside)
 {
-    // TODO: this whole function belongs to GfxActor ~ 08/2018
-    if (inside)
-    {
-        App::GetCameraManager()->GetCamera()->setNearClipDistance(0.1f);
 
-        // enable transparent seat
-        MaterialPtr seatmat = (MaterialPtr)(MaterialManager::getSingleton().getByName("driversseat"));
-        seatmat->setDepthWriteEnabled(false);
-        seatmat->setSceneBlending(SBT_TRANSPARENT_ALPHA);
-    }
-    else
-    {
-        if (ar_dashboard)
-        {
-            ar_dashboard->setVisible(false);
-        }
 
-        App::GetCameraManager()->GetCamera()->setNearClipDistance(0.5f);
-
-        // disable transparent seat
-        MaterialPtr seatmat = (MaterialPtr)(MaterialManager::getSingleton().getByName("driversseat"));
-        seatmat->setDepthWriteEnabled(true);
-        seatmat->setSceneBlending(SBT_REPLACE);
-    }
-
-  // TEMPORARY - until this function is moved to GfxActor ~ 08/2018
-  //  if (m_cab_scene_node != nullptr)
-  //  {
-  //      m_gfx_actor->GetCabTransMaterial()->setReceiveShadows(!inside);
-  //  }
-
-    if (App::gfx_reduce_shadows->GetBool())
-    {
-        m_gfx_actor->SetCastShadows(!inside);
-    }
 }
 
 void Actor::ToggleLights()
@@ -4409,7 +4362,6 @@ Actor::Actor(
     , m_net_initialized(false)
     , m_net_brake_light(false)
     , m_net_label_node(0)
-    , m_net_label_mt(0)
     , m_net_reverse_light(false)
     , ar_initial_total_mass(0)
     , ar_parking_brake(false)

@@ -203,7 +203,7 @@ void DashBoardManager::setVisible3d(bool visibility)
     for (int i = 0; i < free_dashboard; i++)
     {
         if (dashboards[i]->getIsTextureLayer())
-            dashboards[i]->setVisible(visibility, false);
+            dashboards[i]->setVisible(visibility);
     }
 }
 
@@ -222,7 +222,7 @@ DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, bool _tex
 {
 
     memset(&controls, 0, sizeof(controls));
-    loadLayout(filename);
+    
 
 }
 

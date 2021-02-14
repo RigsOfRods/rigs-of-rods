@@ -22,6 +22,7 @@
 #include "Application.h"
 #include "Console.h"
 
+#include <fmt/core.h>
 #include <Ogre.h>
 
 using namespace RoR;
@@ -279,7 +280,7 @@ std::string CVar::ConvertStr(float val)
     }
     else if (this->HasFlag(CVAR_TYPE_INT))
     {
-        return Ogre::StringUtil::format("%d", (int)val);
+        return fmt::format("%d", (int)val);
     }
     else if (this->HasFlag(CVAR_TYPE_FLOAT))
     {

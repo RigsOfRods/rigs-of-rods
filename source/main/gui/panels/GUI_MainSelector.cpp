@@ -36,6 +36,7 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <OgreTextureGpuManager.h>
 
 using namespace RoR;
 using namespace GUI;
@@ -217,8 +218,8 @@ void MainSelector::Draw()
             try
             {
                 Ogre::TextureGpu* preview_tex =
-                    Ogre::TextureManager::getSingleton().load(
-                        sd_entry.sde_entry->filecachename, Ogre::RGN_DEFAULT);
+                    Ogre::Root::getSingleton().getRenderSystem()->getTextureGpuManager()->createOrRetrieveTexture(
+                            sd_entry.sde_entry->filecachename, Ogre::GpuPageOutStrategy::Discard, Ogre::CommonTextureTypes::Diffuse, RGN_CACHE);
                 if (preview_tex)
                 {
                     // Scale the image
@@ -231,7 +232,7 @@ void MainSelector::Draw()
                     }
                     // Draw the image
                     ImGui::SetCursorPos((cursor_pos + ImGui::GetWindowSize()) - size);
-                    ImGui::Image(reinterpret_cast<ImTextureID>(preview_tex->getHandle()), size);
+                    ImGui::Image(reinterpret_cast<ImTextureID>(preview_tex), size);
                     ImGui::SetCursorPos(cursor_pos);
                 }
             }

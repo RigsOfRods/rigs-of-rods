@@ -219,8 +219,8 @@ int OverlayWrapper::init()
     resizePanel(loadOverlayElement("tracks/vvi"));
     resizePanel(loadOverlayElement("tracks/altimeter"));
     resizePanel(loadOverlayElement("tracks/altimeter_val"));
-    m_aerial_dashboard.alt_value_textarea = (TextAreaOverlayElement*)loadOverlayElement("tracks/altimeter_val");
-    boat_depth_value_taoe = (TextAreaOverlayElement*)loadOverlayElement("tracks/boatdepthmeter_val");
+    m_aerial_dashboard.alt_value_textarea = (v1::TextAreaOverlayElement*)loadOverlayElement("tracks/altimeter_val");
+    boat_depth_value_taoe = (v1::TextAreaOverlayElement*)loadOverlayElement("tracks/boatdepthmeter_val");
     resizePanel(loadOverlayElement("tracks/adi-tape"));
     resizePanel(loadOverlayElement("tracks/adi"));
     resizePanel(loadOverlayElement("tracks/adi-bugs"));
@@ -323,24 +323,24 @@ int OverlayWrapper::init()
     guiGear = loadOverlayElement("tracks/Gear");
     guiGear3D = loadOverlayElement("tracks/3DGear");
 
-    guiAuto[0] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGearR");
-    guiAuto[1] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGearN");
-    guiAuto[2] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGearD");
-    guiAuto[3] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGear2");
-    guiAuto[4] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGear1");
+    guiAuto[0] = (v1::TextAreaOverlayElement*)loadOverlayElement("tracks/AGearR");
+    guiAuto[1] = (v1::TextAreaOverlayElement*)loadOverlayElement("tracks/AGearN");
+    guiAuto[2] = (v1::TextAreaOverlayElement*)loadOverlayElement("tracks/AGearD");
+    guiAuto[3] = (v1::TextAreaOverlayElement*)loadOverlayElement("tracks/AGear2");
+    guiAuto[4] = (v1::TextAreaOverlayElement*)loadOverlayElement("tracks/AGear1");
 
-    guiAuto3D[0] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGearR");
-    guiAuto3D[1] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGearN");
-    guiAuto3D[2] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGearD");
-    guiAuto3D[3] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGear2");
-    guiAuto3D[4] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGear1");
+    guiAuto3D[0] = (v1::TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGearR");
+    guiAuto3D[1] = (v1::TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGearN");
+    guiAuto3D[2] = (v1::TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGearD");
+    guiAuto3D[3] = (v1::TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGear2");
+    guiAuto3D[4] = (v1::TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGear1");
 
     m_truck_pressure_overlay = loadOverlay("tracks/PressureOverlay");
     m_truck_pressure_needle_overlay = loadOverlay("tracks/PressureNeedleOverlay");
 
     m_racing_overlay = loadOverlay("tracks/Racing", false);
-    laptime = (TextAreaOverlayElement*)loadOverlayElement("tracks/Racing/LapTime");
-    bestlaptime = (TextAreaOverlayElement*)loadOverlayElement("tracks/Racing/BestLapTime");
+    laptime = (v1::TextAreaOverlayElement*)loadOverlayElement("tracks/Racing/LapTime");
+    bestlaptime = (v1::TextAreaOverlayElement*)loadOverlayElement("tracks/Racing/BestLapTime");
 
     g_is_scaled = true;
 

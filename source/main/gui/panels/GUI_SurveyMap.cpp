@@ -34,7 +34,7 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "OgreImGui.h"
-#include "SurveyMapTextureCreator.h"
+
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
 

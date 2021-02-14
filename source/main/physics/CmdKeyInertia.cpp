@@ -139,7 +139,7 @@ void RoR::CmdKeyInertiaConfig::LoadDefaultInertiaModels()
 {
     try
     {
-        Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().openResource("inertia_models.cfg", Ogre::RGN_AUTODETECT);
+        Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().openResource("inertia_models.cfg");
         std::string current_model;
         while (!ds->eof())
         {

@@ -40,7 +40,6 @@ set(SOURCE_FILES
         gfx/GfxActor.{h,cpp}
         gfx/GfxData.h
         gfx/GfxScene.{h,cpp}
-        gfx/ShadowManager.{h,cpp}
         gfx/Skidmark.{h,cpp}
         gfx/SkyManager.{h,cpp}
         gfx/camera/CameraManager.{h,cpp}
@@ -126,7 +125,6 @@ set(SOURCE_FILES
         resources/rig_def_fileformat/RigDef_Prerequisites.h
         resources/rig_def_fileformat/RigDef_Regexes.h
         resources/rig_def_fileformat/RigDef_SequentialImporter.{h,cpp}
-        resources/rig_def_fileformat/RigDef_Serializer.{h,cpp}
         resources/rig_def_fileformat/RigDef_Validator.{h,cpp}
         resources/skin_fileformat/SkinFileFormat.{h,cpp}
         resources/terrn2_fileformat/Terrn2FileFormat.{h,cpp}

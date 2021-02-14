@@ -124,7 +124,7 @@ void TopMenubar::Update()
         m_savegame_names.clear();
         for (int i = 0; i <= 9; i++)
         {
-            Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
+            Ogre::String filename = fmt::format("quicksave-%d.sav", i);
             m_savegame_names.push_back(App::GetGameContext()->ExtractSceneName(filename));
         }
     }
@@ -334,10 +334,10 @@ void TopMenubar::Update()
                 {
                     name = m_savegame_names[i];
                 }
-                Ogre::String caption = Ogre::StringUtil::format("%d. %s##Save", i, name.c_str());
+                Ogre::String caption = fmt::format("%d. %s##Save", i, name.c_str());
                 if (ImGui::Button(caption.c_str()))
                 {
-                    Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
+                    Ogre::String filename = fmt::format("quicksave-%d.sav", i);
                     App::GetGameContext()->GetActorManager()->SaveScene(filename);
                     m_open_menu = TopMenu::TOPMENU_NONE;
                 }
@@ -349,10 +349,10 @@ void TopMenubar::Update()
                 if (!m_savegame_names[i].empty())
                 {
                     Ogre::String name = m_savegame_names[i];
-                    Ogre::String caption = Ogre::StringUtil::format("%d. %s##Load", i, name.c_str());
+                    Ogre::String caption = fmt::format("%d. %s##Load", i, name.c_str());
                     if (ImGui::Button(caption.c_str()))
                     {
-                        Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
+                        Ogre::String filename = fmt::format("quicksave-%d.sav", i);
                         App::GetGameContext()->PushMessage(RoR::Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, filename));
                         m_open_menu = TopMenu::TOPMENU_NONE;
                     }
@@ -681,7 +681,6 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
     Ogre::ColourValue player_color;
 #ifdef USE_SOCKETW
     player_color = App::GetNetwork()->GetPlayerColor(user.colournum);
-#endif
     ImVec4 player_gui_color(player_color.r, player_color.g, player_color.b, 1.f);
     ImGui::PushStyleColor(ImGuiCol_Text, player_gui_color);
     ImGui::Text("%s: %u (%s, Ver: %s, Lang: %s)",
@@ -689,6 +688,7 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
                 App::GetNetwork()->UserAuthToStringShort(user).c_str(),
                 user.clientversion, user.language);
     ImGui::PopStyleColor();
+#endif
 
     // Display actor list
     int i = 0;

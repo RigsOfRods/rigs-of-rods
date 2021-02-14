@@ -29,7 +29,7 @@ using namespace Ogre;
 using namespace std;
 
 ColoredTextAreaOverlayElement::ColoredTextAreaOverlayElement(const String& name)
-    : TextAreaOverlayElement(name)
+    :TextAreaOverlayElement(name)
     , m_ValueTop(1.0f)
     , m_ValueBottom(0.8f)
 {
@@ -137,7 +137,7 @@ void ColoredTextAreaOverlayElement::setCaption(const Ogre::v1::DisplayString& te
     if (noColor)
         mColoursChanged = true;
     // Set the caption using the base class, but strip the color codes from it first
-    TextAreaOverlayElement::setCaption(StripColors(text));
+    v1::TextAreaOverlayElement::setCaption(StripColors(text));
 }
 
 void ColoredTextAreaOverlayElement::updateColours(void)

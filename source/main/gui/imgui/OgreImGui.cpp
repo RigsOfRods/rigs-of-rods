@@ -37,7 +37,7 @@ using namespace RoR;
 
 void OgreImGui::Init()
 {
-    m_imgui_overlay = std::unique_ptr<Ogre::ImGuiOverlay>(new Ogre::ImGuiOverlay());
+    m_imgui_overlay = std::unique_ptr<Ogre::ImGuiOverlay>(new Ogre::ImGuiOverlay(&m_obj_memory_manager));
 
     ImGuiIO& io = ImGui::GetIO();
 

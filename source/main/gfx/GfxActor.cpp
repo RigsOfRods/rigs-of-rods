@@ -41,6 +41,7 @@
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "Utils.h"
+#include "Water.h"
 
 #include <Ogre.h>
 
@@ -1656,31 +1657,14 @@ void RoR::GfxActor::ScaleActor(Ogre::Vector3 relpos, float ratio)
             prop.pp_beacon_scene_node[3]->scale(ratio, ratio, ratio);
     }
 
-    // Old cab mesh
-    if (m_cab_mesh)
-    {
-        m_cab_mesh->ScaleFlexObj(ratio);
-    }
+
 }
 
 void RoR::GfxActor::SetRodsVisible(bool visible)
 {
-    if (m_rods_parent_scenenode == nullptr)
+    if (m_rods_parent_scenenode)
     {
-        return; // Vehicle has no visual softbody beams -> nothing to do.
-    }
-
-    // NOTE: We don't use Ogre::SceneNode::setVisible() for performance reasons:
-    //       1. That function traverses all attached Entities and updates their visibility - too much overhead
-    //       2. For OGRE up to 1.9 (I don't know about 1.10+) OGRE developers recommended to detach rather than hide.
-    //       ~ only_a_ptr, 12/2017
-    if (visible && !m_rods_parent_scenenode->isInSceneGraph())
-    {
-        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->addChild(m_rods_parent_scenenode);
-    }
-    else if (!visible && m_rods_parent_scenenode->isInSceneGraph())
-    {
-        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeChild(m_rods_parent_scenenode);
+        m_rods_parent_scenenode->setVisible(visible);
     }
 }
 
@@ -1840,10 +1824,7 @@ bool RoR::GfxActor::IsActorLive() const
 
 void RoR::GfxActor::UpdateCabMesh()
 {
-    if ((m_cab_entity != nullptr) && (m_cab_mesh != nullptr))
-    {
-        m_cab_scene_node->setPosition(m_cab_mesh->UpdateFlexObj());
-    }
+
 }
 
 void RoR::GfxActor::SetWheelVisuals(uint16_t index, WheelGfx wheel_gfx)
@@ -1857,35 +1838,11 @@ void RoR::GfxActor::SetWheelVisuals(uint16_t index, WheelGfx wheel_gfx)
 
 void RoR::GfxActor::UpdateWheelVisuals()
 {
-    m_flexwheel_tasks.clear();
-
-    for (WheelGfx& w: m_wheels)
-    {
-        if (w.wx_flex_mesh != nullptr && w.wx_flex_mesh->flexitPrepare())
-        {
-            auto func = std::function<void()>([this, w]()
-                {
-                    w.wx_flex_mesh->flexitCompute();
-                });
-            auto task_handle = App::GetThreadPool()->RunTask(func);
-            m_flexwheel_tasks.push_back(task_handle);
-        }
-    }
 }
 
 void RoR::GfxActor::FinishWheelUpdates()
 {
-    for (auto& task: m_flexwheel_tasks)
-    {
-        task->join();
-    }
-    for (WheelGfx& w: m_wheels)
-    {
-        if (w.wx_scenenode != nullptr && w.wx_flex_mesh != nullptr)
-        {
-            w.wx_scenenode->setPosition(w.wx_flex_mesh->flexitFinal());
-        }
-    }
+
 }
 
 void RoR::GfxActor::SetWheelsVisible(bool value)
@@ -1896,18 +1853,7 @@ void RoR::GfxActor::SetWheelsVisible(bool value)
         {
             w.wx_scenenode->setVisible(value);
         }
-        if (w.wx_flex_mesh != nullptr)
-        {
-            w.wx_flex_mesh->setVisible(value);
-            if (w.wx_is_meshwheel)
-            {
-                Ogre::v1::Entity* e = ((FlexMeshWheel*)(w.wx_flex_mesh))->getRimEntity();
-                if (e != nullptr)
-                {
-                    e->setVisible(false);
-                }
-            }
-        }
+
     }
 }
 
@@ -2010,39 +1956,7 @@ void RoR::GfxActor::UpdateAeroEngines()
 
 void RoR::GfxActor::UpdateNetLabels(float dt)
 {
-    // TODO: Remake network player labels via GUI... they shouldn't be billboards inside the scene ~ only_a_ptr, 05/2018
-    if (m_actor->m_net_label_node && m_actor->m_net_label_mt)
-    {
-        if (App::mp_hide_net_labels->GetBool() || (!m_simbuf.simbuf_is_remote && App::mp_hide_own_net_label->GetBool()))
-        {
-            m_actor->m_net_label_mt->setVisible(false);
-            return;
-        }
 
-        float vlen = m_simbuf.simbuf_pos.distance(App::GetCameraManager()->GetCameraNode()->getPosition());
-
-        float y_offset = (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_pos.y) + (vlen / 100.0);
-        m_actor->m_net_label_node->setPosition(m_simbuf.simbuf_pos + Ogre::Vector3::UNIT_Y * y_offset);
-
-        // this ensures that the nickname is always in a readable size
-        m_actor->m_net_label_mt->setCharacterHeight(std::max(0.6, vlen / 40.0));
-
-        if (vlen > 1000) // 1000 ... vlen
-        {
-            m_actor->m_net_label_mt->setCaption(
-                m_simbuf.simbuf_net_username + " (" + TOSTRING((float)(ceil(vlen / 100) / 10.0) ) + " km)");
-        }
-        else if (vlen > 20) // 20 ... vlen ... 1000
-        {
-            m_actor->m_net_label_mt->setCaption(
-                m_simbuf.simbuf_net_username + " (" + TOSTRING((int)vlen) + " m)");
-        }
-        else // 0 ... vlen ... 20
-        {
-            m_actor->m_net_label_mt->setCaption(m_simbuf.simbuf_net_username);
-        }
-        m_actor->m_net_label_mt->setVisible(true);
-    }
 }
 
 void RoR::GfxActor::CalculateDriverPos(Ogre::Vector3& out_pos, Ogre::Quaternion& out_rot)
@@ -2094,11 +2008,11 @@ void RoR::GfxActor::UpdateBeaconFlare(Prop & prop, float dt, bool is_player_acto
         float beacon_rotation_angle = prop.pp_beacon_rot_angle[0]; // Updated at end of block
 
         // Transform
-        pp_beacon_light->setPosition(beacon_scene_node->getPosition() + beacon_orientation * Ogre::Vector3(0, 0, 0.12));
+        beacon_scene_node->setPosition(beacon_scene_node->getPosition() + beacon_orientation * Ogre::Vector3(0, 0, 0.12));
         beacon_rotation_angle += dt * beacon_rotation_rate;//rotate baby!
         pp_beacon_light->setDirection(beacon_orientation * Ogre::Vector3(cos(beacon_rotation_angle), sin(beacon_rotation_angle), 0));
         //billboard
-        Ogre::Vector3 vdir = pp_beacon_light->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition(); // TODO: verify the position is already updated here ~ only_a_ptr, 06/2018
+        Ogre::Vector3 vdir = beacon_scene_node->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition(); // TODO: verify the position is already updated here ~ only_a_ptr, 06/2018
         float vlen = vdir.length();
         if (vlen > 100.0)
         {
@@ -2107,7 +2021,7 @@ void RoR::GfxActor::UpdateBeaconFlare(Prop & prop, float dt, bool is_player_acto
         }
         //normalize
         vdir = vdir / vlen;
-        prop.pp_beacon_scene_node[0]->setPosition(pp_beacon_light->getPosition() - vdir * 0.1);
+        prop.pp_beacon_scene_node[0]->setPosition(beacon_scene_node->getPosition() - vdir * 0.1);
         float amplitude = pp_beacon_light->getDirection().dotProduct(vdir);
         if (amplitude > 0)
         {
@@ -2132,19 +2046,19 @@ void RoR::GfxActor::UpdateBeaconFlare(Prop & prop, float dt, bool is_player_acto
             Quaternion orientation = prop.pp_scene_node->getOrientation();
             switch (k)
             {
-            case 0: prop.pp_beacon_light[k]->setPosition(prop.pp_scene_node->getPosition() + orientation * Vector3(-0.64, 0, 0.14));
+            case 0: prop.pp_beacon_scene_node[k]->setPosition(prop.pp_scene_node->getPosition() + orientation * Vector3(-0.64, 0, 0.14));
                 break;
-            case 1: prop.pp_beacon_light[k]->setPosition(prop.pp_scene_node->getPosition() + orientation * Vector3(-0.32, 0, 0.14));
+            case 1: prop.pp_beacon_scene_node[k]->setPosition(prop.pp_scene_node->getPosition() + orientation * Vector3(-0.32, 0, 0.14));
                 break;
-            case 2: prop.pp_beacon_light[k]->setPosition(prop.pp_scene_node->getPosition() + orientation * Vector3(+0.32, 0, 0.14));
+            case 2: prop.pp_beacon_scene_node[k]->setPosition(prop.pp_scene_node->getPosition() + orientation * Vector3(+0.32, 0, 0.14));
                 break;
-            case 3: prop.pp_beacon_light[k]->setPosition(prop.pp_scene_node->getPosition() + orientation * Vector3(+0.64, 0, 0.14));
+            case 3: prop.pp_beacon_scene_node[k]->setPosition(prop.pp_scene_node->getPosition() + orientation * Vector3(+0.64, 0, 0.14));
                 break;
             }
             prop.pp_beacon_rot_angle[k] += dt * prop.pp_beacon_rot_rate[k];//rotate baby!
             prop.pp_beacon_light[k]->setDirection(orientation * Vector3(cos(prop.pp_beacon_rot_angle[k]), sin(prop.pp_beacon_rot_angle[k]), 0));
             //billboard
-            Vector3 vdir = prop.pp_beacon_light[k]->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition();
+            Vector3 vdir = prop.pp_beacon_scene_node[k]->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition();
             float vlen = vdir.length();
             if (vlen > 100.0)
             {
@@ -2153,7 +2067,7 @@ void RoR::GfxActor::UpdateBeaconFlare(Prop & prop, float dt, bool is_player_acto
             }
             //normalize
             vdir = vdir / vlen;
-            prop.pp_beacon_scene_node[k]->setPosition(prop.pp_beacon_light[k]->getPosition() - vdir * 0.2);
+            prop.pp_beacon_scene_node[k]->setPosition(prop.pp_beacon_scene_node[k]->getPosition() - vdir * 0.2);
             float amplitude = prop.pp_beacon_light[k]->getDirection().dotProduct(vdir);
             if (amplitude > 0)
             {
@@ -2171,10 +2085,10 @@ void RoR::GfxActor::UpdateBeaconFlare(Prop & prop, float dt, bool is_player_acto
     {
         //update light
         Quaternion orientation = prop.pp_scene_node->getOrientation();
-        prop.pp_beacon_light[0]->setPosition(prop.pp_scene_node->getPosition() + orientation * Vector3(0, 0, 0.06));
+        prop.pp_beacon_scene_node[0]->setPosition(prop.pp_scene_node->getPosition() + orientation * Vector3(0, 0, 0.06));
         prop.pp_beacon_rot_angle[0] += dt * prop.pp_beacon_rot_rate[0];//rotate baby!
         //billboard
-        Vector3 vdir = prop.pp_beacon_light[0]->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition();
+        Vector3 vdir = prop.pp_beacon_scene_node[0]->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition();
         float vlen = vdir.length();
         if (vlen > 100.0)
         {
@@ -2183,7 +2097,7 @@ void RoR::GfxActor::UpdateBeaconFlare(Prop & prop, float dt, bool is_player_acto
         }
         //normalize
         vdir = vdir / vlen;
-        prop.pp_beacon_scene_node[0]->setPosition(prop.pp_beacon_light[0]->getPosition() - vdir * 0.1);
+        prop.pp_beacon_scene_node[0]->setPosition(prop.pp_beacon_scene_node[0]->getPosition() - vdir * 0.1);
         bool visible = false;
         if (prop.pp_beacon_rot_angle[0] > 1.0)
         {
@@ -2212,7 +2126,7 @@ void RoR::GfxActor::UpdateBeaconFlare(Prop & prop, float dt, bool is_player_acto
     else if (prop.pp_beacon_type == 'w') // Avionic navigation lights (white rotating beacon)
     {
         Vector3 mposition = nodes[prop.pp_node_ref].AbsPosition + prop.pp_offset.x * (nodes[prop.pp_node_x].AbsPosition - nodes[prop.pp_node_ref].AbsPosition) + prop.pp_offset.y * (nodes[prop.pp_node_y].AbsPosition - nodes[prop.pp_node_ref].AbsPosition);
-        prop.pp_beacon_light[0]->setPosition(mposition);
+        prop.pp_beacon_scene_node[0]->setPosition(mposition);
         prop.pp_beacon_rot_angle[0] += dt * prop.pp_beacon_rot_rate[0];//rotate baby!
         //billboard
         Vector3 vdir = mposition - App::GetCameraManager()->GetCameraNode()->getPosition();
@@ -2334,18 +2248,12 @@ void RoR::GfxActor::SetPropsVisible(bool visible)
 
 void RoR::GfxActor::SetRenderdashActive(bool active)
 {
-    if (m_renderdash != nullptr)
-    {
-        m_renderdash->setEnable(active);
-    }
+
 }
 
 void RoR::GfxActor::UpdateRenderdashRTT()
 {
-    if (m_renderdash != nullptr)
-    {
-        m_renderdash->getRenderTarget()->update();
-    }
+
 }
 
 void RoR::GfxActor::SetBeaconsEnabled(bool beacon_light_is_active)
@@ -3089,58 +2997,27 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 
 void RoR::GfxActor::SortFlexbodies()
 {
-    std::sort(m_flexbodies.begin(), m_flexbodies.end(), [](FlexBody* a, FlexBody* b) { return a->size() > b->size(); });
+    
 }
 
 void RoR::GfxActor::UpdateFlexbodies()
 {
-    m_flexbody_tasks.clear();
 
-    for (FlexBody* fb: m_flexbodies)
-    {
-        const int camera_mode = fb->getCameraMode();
-        if ((camera_mode == -2) || (camera_mode == m_simbuf.simbuf_cur_cinecam))
-        {
-            auto func = std::function<void()>([fb]()
-                {
-                    fb->ComputeFlexbody();
-                });
-            auto task_handle = App::GetThreadPool()->RunTask(func);
-            m_flexbody_tasks.push_back(task_handle);
-        }
-        else
-        {
-            fb->setVisible(false);
-        }
-    }
 }
 
 void RoR::GfxActor::ResetFlexbodies()
 {
-    for (FlexBody* fb: m_flexbodies)
-    {
-        fb->reset();
-    }
+
 }
 
 void RoR::GfxActor::SetFlexbodyVisible(bool visible)
 {
-    for (FlexBody* fb: m_flexbodies)
-    {
-        fb->setVisible(visible);
-    }
+
 }
 
 void RoR::GfxActor::FinishFlexbodyTasks()
 {
-    for (auto& task: m_flexbody_tasks)
-    {
-        task->join();
-    }
-    for (FlexBody* fb: m_flexbodies)
-    {
-        fb->UpdateFlexbodyVertexBuffers();
-    }
+
 }
 
 void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
@@ -3195,7 +3072,7 @@ void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
         }
         if (flare.light)
         {
-            flare.light->setPosition(mposition - 0.2 * amplitude * normal);
+            flare.snode->setPosition(mposition - 0.2 * amplitude * normal);
             // point the real light towards the ground a bit
             flare.light->setDirection(-normal - Ogre::Vector3(0, 0.2, 0));
         }
@@ -3243,19 +3120,10 @@ void RoR::GfxActor::SetCastShadows(bool value)
         static_cast<Ogre::v1::Entity*>(rod.rod_scenenode->getAttachedObject(0))->setCastShadows(value);
     }
 
-    // Flexbody meshes
-    for (FlexBody* fb: m_flexbodies)
-    {
-        fb->SetFlexbodyCastShadow(value);
-    }
+
 }
 
-void RoR::GfxActor::RegisterCabMesh(Ogre::v1::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj)
-{
-    m_cab_mesh = flexobj;
-    m_cab_entity = ent;
-    m_cab_scene_node = snode;
-}
+
 
 void RoR::GfxActor::SetAllMeshesVisible(bool visible)
 {

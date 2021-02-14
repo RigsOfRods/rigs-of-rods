@@ -109,7 +109,7 @@ private:
 
     float _heightAdjust;
 
-    void GetMeshInformation(const Ogre::MeshPtr mesh,
+    void GetMeshInformation(const Ogre::v1::MeshPtr mesh,
         size_t& vertex_count,
         Ogre::Vector3* & vertices,
         size_t& index_count,
@@ -118,8 +118,8 @@ private:
         const Ogre::Quaternion& orient,
         const Ogre::Vector3& scale);
 
-    void getStaticGeometry(Ogre::StaticGeometry* mesh,
-        Ogre::StaticGeometry::Region* rg,
+    void getStaticGeometry(Ogre::v1::StaticGeometry* mesh,
+        Ogre::v1::StaticGeometry::Region* rg,
         size_t& overtex_count,
         Ogre::Vector3* & overtices,
         size_t& oindex_count,

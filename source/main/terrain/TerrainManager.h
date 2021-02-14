@@ -60,7 +60,6 @@ public:
 
     SkyManager*        getSkyManager();
 
-    ShadowManager*     getShadowManager()            { return m_shadow_manager; };
     bool               isFlat();
     void               LoadTelepoints();
     void               LoadPredefinedActors();
@@ -93,7 +92,6 @@ private:
     std::unique_ptr<IWater> m_water;
     TerrainEditor  m_terrain_editor;
     Collisions*    m_collisions;
-    ShadowManager* m_shadow_manager;
     SkyManager*    m_sky_manager;
 
     Ogre::Light*   m_main_light;

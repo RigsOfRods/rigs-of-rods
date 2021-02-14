@@ -71,7 +71,7 @@ void MeshObject::createEntity(Ogre::String meshName, Ogre::String entityRG, Ogre
     {
         // Classic behavior: look in all resource groups.
         //   The mesh may live in terrain's resource bundle (aka ZIP) or ror's bundled resource ZIPs.
-        Ogre::MeshPtr mesh = Ogre::MeshManager::getSingleton().load(meshName, Ogre::RGN_AUTODETECT);
+        Ogre::v1::MeshPtr mesh = Ogre::MeshManager::getSingleton().load(meshName, Ogre::RGN_AUTODETECT);
 
         // important: you need to add the LODs before creating the entity
         // now find possible LODs, needs to be done before calling createEntity()

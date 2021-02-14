@@ -43,7 +43,7 @@ public:
 protected:
     Ogre::SceneNode* sceneNode;
     Ogre::v1::Entity* ent;
-    Ogre::MeshPtr mesh;
+    Ogre::v1::MeshPtr mesh;
 
     bool castshadows;
 

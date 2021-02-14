@@ -217,7 +217,7 @@ struct WheelGfx
 
 struct AirbrakeGfx
 {
-    Ogre::MeshPtr    abx_mesh;
+    Ogre::v1::MeshPtr    abx_mesh;
     Ogre::SceneNode* abx_scenenode;
     Ogre::v1::Entity*    abx_entity;
     Ogre::Vector3    abx_offset;

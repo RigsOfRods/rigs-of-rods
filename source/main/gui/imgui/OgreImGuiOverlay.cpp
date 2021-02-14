@@ -21,7 +21,9 @@
 namespace Ogre
 {
 
-ImGuiOverlay::ImGuiOverlay() : Overlay("ImGuiOverlay")
+ImGuiOverlay::ImGuiOverlay(Ogre::ObjectMemoryManager* memory_manager)
+    : Overlay( "ImGuiOverlay", Id::generateNewId<Overlay>(),
+               memory_manager, /*Ogre::RENDER_QUEUE_OVERLAY (100) from OGRE1x*/100 )
 {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();

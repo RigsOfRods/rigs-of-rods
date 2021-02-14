@@ -44,7 +44,7 @@ DustPool::DustPool(Ogre::SceneManager* sm, const char* dname, int dsize):
         char dename[256];
         sprintf(dename, "Dust %s %i", dname, i);
         sns[i] = sm->getRootSceneNode()->createChildSceneNode();
-        pss[i] = sm->createParticleSystem(dename, dname);
+//TODO OGRE2x        pss[i] = sm->createParticleSystem(dename, dname);
         if (pss[i])
         {
             sns[i]->attachObject(pss[i]);

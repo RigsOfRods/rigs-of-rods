@@ -139,7 +139,7 @@ void GameContext::HandleSavegameHotkeys()
     }
     if (slot != -1)
     {
-        Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
+        Ogre::String filename = Ogre::fmt::format("quicksave-%d.sav", slot);
         App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, filename));
     }
 
@@ -189,7 +189,7 @@ void GameContext::HandleSavegameHotkeys()
     }
     if (slot != -1)
     {
-        Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
+        Ogre::String filename = Ogre::fmt::format("quicksave-%d.sav", slot);
         App::GetGameContext()->SaveScene(filename);
     }
 
@@ -402,7 +402,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
     // Pretty name
     String pretty_name = App::GetCacheSystem()->GetPrettyName(App::sim_terrain_name->GetStr());
-    String scene_name = StringUtil::format("%s [%d]", pretty_name.c_str(), x_actors.size());
+    String scene_name = fmt::format("%s [%d]", pretty_name.c_str(), x_actors.size());
     j_doc.AddMember("scene_name", rapidjson::StringRef(scene_name.c_str()), j_doc.GetAllocator());
 
     // Terrain

@@ -14,7 +14,7 @@ namespace Ogre
 class ImGuiOverlay : public v1::Overlay
 {
 public:
-    ImGuiOverlay();
+    ImGuiOverlay(Ogre::ObjectMemoryManager* memory_manager);
     ~ImGuiOverlay();
 
     /// add font from ogre .fontdef file

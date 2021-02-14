@@ -79,7 +79,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
 
     if (file.HasSection("Authors"))
     {
-        for (auto& author: file.getSettings("Authors"))
+        for (auto& author: file.getSettingsIterator("Authors"))
         {
             String type = RoR::Utils::SanitizeUtf8String(author.first);  // e.g. terrain
             String name = RoR::Utils::SanitizeUtf8String(author.second); // e.g. john doe
@@ -96,7 +96,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
 
     if (file.HasSection("Objects"))
     {
-        for (auto& tobj: file.getSettings("Objects"))
+        for (auto& tobj: file.getSettingsIterator("Objects"))
         {
             Ogre::String tobj_filename = RoR::Utils::SanitizeUtf8String(tobj.first);
             def.tobj_files.push_back(RoR::Utils::TrimStr(tobj_filename));
@@ -105,7 +105,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
 
     if (file.HasSection("Scripts"))
     {
-        for (auto& script: file.getSettings("Scripts"))
+        for (auto& script: file.getSettingsIterator("Scripts"))
         {
             Ogre::String as_filename = RoR::Utils::SanitizeUtf8String(script.first);
             def.as_files.push_back(RoR::Utils::TrimStr(as_filename));

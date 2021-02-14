@@ -30,7 +30,7 @@
 #include "GUI_SurveyMap.h"
 #include "Language.h"
 #include "ScriptEngine.h"
-#include "ShadowManager.h"
+
 #include "SkyManager.h"
 #include "TerrainObjectManager.h"
 #include "Water.h"
@@ -43,7 +43,6 @@ TerrainManager::TerrainManager()
     : m_collisions(0)
     , m_geometry_manager(0)
     , m_object_manager(0)
-    , m_shadow_manager(0)
     , m_sky_manager(0)
     , m_sight_range(1000)
     , m_main_light(0)
@@ -92,11 +91,7 @@ TerrainManager::~TerrainManager()
         m_geometry_manager = nullptr;
     }
 
-    if (m_shadow_manager != nullptr)
-    {
-        delete(m_shadow_manager);
-        m_shadow_manager = nullptr;
-    }
+
 
     if (m_collisions != nullptr)
     {

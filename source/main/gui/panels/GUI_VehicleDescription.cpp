@@ -59,7 +59,7 @@ void VehicleDescription::Draw()
     RoR::GfxActor* gfx_actor = actor->GetGfxActor();
     if (gfx_actor->GetAttributes().xa_help_tex)
     {
-        ImTextureID im_tex = reinterpret_cast<ImTextureID>(gfx_actor->GetAttributes().xa_help_tex->getHandle());
+        ImTextureID im_tex = reinterpret_cast<ImTextureID>(gfx_actor->GetAttributes().xa_help_tex);
         ImGui::Image(im_tex, ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT));
     }
 

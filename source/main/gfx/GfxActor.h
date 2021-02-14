@@ -177,7 +177,7 @@ public:
         bool             xa_has_autopilot;
         bool             xa_has_engine;
         Ogre::MaterialPtr xa_help_mat;
-        //OGRE1x Ogre::TextureGpu*  xa_help_tex;
+        Ogre::TextureGpu*  xa_help_tex;
     };
 
     GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,

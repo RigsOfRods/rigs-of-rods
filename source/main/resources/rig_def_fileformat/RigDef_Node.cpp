@@ -27,6 +27,8 @@
 
 #include "Application.h"
 
+#include <sstream>
+
 using namespace RigDef;
 
 // Ctors

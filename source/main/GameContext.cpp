@@ -39,7 +39,7 @@
 #include "ScrewProp.h"
 #include "ScriptEngine.h"
 #include "SkyManager.h"
-#include "SkyXManager.h"
+
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "Utils.h"
@@ -107,10 +107,7 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
         return false; // Message box already displayed
     }
 
-    // Initialize envmap textures by rendering center of map
-    Ogre::Vector3 center = App::GetSimTerrain()->getMaxTerrainSize() / 2;
-    center.y = App::GetSimTerrain()->GetHeightAt(center.x, center.z) + 1.0f;
-    App::GetGfxScene()->GetEnvMap().UpdateEnvMap(center, nullptr);
+
 
     // Scan groundmodels
     App::GetGuiManager()->GetFrictionSettings()->AnalyzeTerrain();
@@ -915,30 +912,7 @@ void GameContext::UpdateSimInputEvents(float dt)
     }
 
 #endif // USE_CAELUM
-    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::SKYX &&
-        App::GetSimTerrain()->getSkyXManager())
-    {
-        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
-        {
-            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(1.0f);
-        }
-        else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST))
-        {
-            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(2.0f);
-        }
-        else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME))
-        {
-            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(-1.0f);
-        }
-        else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST))
-        {
-            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(-2.0f);
-        }
-        else
-        {
-            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(0.01f);
-        }
-    }
+
 
     // forward commands from character
     if (!m_player_actor)

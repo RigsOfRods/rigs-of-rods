@@ -27,7 +27,7 @@
 #include "CameraManager.h"
 #include "GfxScene.h"
 #include "TerrainManager.h"
-#include "TerrainGeometryManager.h"
+
 
 #include <Caelum.h>
 

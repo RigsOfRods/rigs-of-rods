@@ -27,6 +27,7 @@
 
 #include <imgui.h>
 #include <Ogre.h>
+#include <OgreWindow.h>
 
 using namespace RoR;
 using namespace GUI;
@@ -40,8 +41,8 @@ void SimPerfStats::Draw()
     ImGui::SetNextWindowPos(theme.screen_edge_padding);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
     ImGui::Begin("FPS", &m_is_visible, flags);
-
-    const Ogre::RenderTarget::FrameStats& stats = App::GetAppContext()->GetRenderWindow()->getStatistics();
+#if 0 // currently no FPS stats in OGRE2x?
+    const Ogre::RenderTarget::FrameStats& stats = App::GetAppContext()->GetRenderWindow()
     ImGui::Text("%s%.2f", _LC("SimPerfStats", "Current FPS: "), stats.lastFPS);
     ImGui::Text("%s%.2f", _LC("SimPerfStats", "Average FPS: "), stats.avgFPS);
     ImGui::Text("%s%.2f", _LC("SimPerfStats", "Worst FPS: "),   stats.worstFPS);
@@ -49,7 +50,7 @@ void SimPerfStats::Draw()
     ImGui::Separator();
     ImGui::Text("%s%zu", _LC("SimPerfStats", "Triangle count: "), stats.triangleCount);
     ImGui::Text("%s%zu", _LC("SimPerfStats", "Batch count: "),    stats.batchCount);
-
+#endif 
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
 }

@@ -27,7 +27,7 @@
 #include "SimData.h"
 
 #include "OgreImGui.h"
-#include "SurveyMapTextureCreator.h"
+
 
 namespace RoR {
 namespace GUI {

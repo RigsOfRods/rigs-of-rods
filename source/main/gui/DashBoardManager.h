@@ -234,6 +234,7 @@ public:
 
 
     bool getVisible() { return visible; };
+    bool setVisible(bool b) {}; // TODO OGRE2x
 
     bool getIsTextureLayer() { return textureLayer; }
 

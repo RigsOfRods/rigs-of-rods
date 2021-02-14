@@ -33,7 +33,6 @@
 #include "GameContext.h"
 
 #include <Ogre.h>
-#include <MyGUI_UString.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -180,7 +179,7 @@ void MumbleIntegration::updateMumble(Ogre::Vector3 cameraPos, Ogre::Vector3 came
     lm->fCameraTop[2] = -cameraUp.z;
 
     // Identifier which uniquely identifies a certain player in a context (e.g. the ingame Name).
-    MyGUI::UString player_name(RoR::App::mp_player_name->GetStr());
+    Ogre::UTFString player_name(RoR::App::mp_player_name->GetStr());
     wcsncpy(lm->identity, player_name.asWStr_c_str(), 256);
 
     // Context should be equal for players which should be able to hear each other _positional_ and

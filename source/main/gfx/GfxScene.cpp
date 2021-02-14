@@ -32,7 +32,7 @@
 #include "IWater.h"
 #include "OverlayWrapper.h"
 #include "SkyManager.h"
-#include "TerrainGeometryManager.h"
+
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
 
@@ -159,11 +159,7 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     }
 #endif
 
-    SkyXManager* skyx_man = App::GetSimTerrain()->getSkyXManager();
-    if (skyx_man != nullptr)
-    {
-       skyx_man->update(dt_sec); // Light update
-    }
+
 
     // GUI - race
     if (m_simbuf.simbuf_race_in_progress != m_simbuf.simbuf_race_in_progress_prev)

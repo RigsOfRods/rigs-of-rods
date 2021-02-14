@@ -32,6 +32,7 @@
 #include <OISMouse.h>
 #include <OISKeyboard.h>
 #include <memory>
+#include <Math/Array/OgreObjectMemoryManager.h>
 
 // DearIMGUI math functions, copypasted from <imgui_internal.h>
 static inline ImVec2 operator*(const ImVec2& lhs, const float rhs)              { return ImVec2(lhs.x*rhs, lhs.y*rhs); }
@@ -69,4 +70,5 @@ public:
 
 private:
     std::unique_ptr<Ogre::ImGuiOverlay> m_imgui_overlay;
+    Ogre::ObjectMemoryManager           m_obj_memory_manager; //!< Because we can't access the one in Ogre::OverlayManager
 };

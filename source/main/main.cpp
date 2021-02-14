@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
         App::CreateGfxScene(); // Creates OGRE SceneManager, needs content manager
         App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(new Ogre::v1::OverlaySystem());
         App::CreateCameraManager(); // Creates OGRE Camera
-        App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
+
 
         // Setup a basic compositor with a blue clear colour
         Ogre::CompositorManager2 *compositorManager = Ogre::Root::getSingleton().getCompositorManager2();

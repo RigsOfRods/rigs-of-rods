@@ -27,7 +27,7 @@
 #include <OgreOverlayElementFactory.h>
 #include "ColoredTextAreaOverlayElement.h"
 
-/** Factory for creating TextAreaOverlayElement instances. */
+/** Factory for creating v1::TextAreaOverlayElement instances. */
 class ColoredTextAreaOverlayElementFactory : public Ogre::v1::OverlayElementFactory
 {
 public:

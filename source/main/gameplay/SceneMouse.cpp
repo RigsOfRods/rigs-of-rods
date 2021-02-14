@@ -309,7 +309,7 @@ bool SceneMouse::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _
 
 Ray SceneMouse::getMouseRay()
 {
-    Viewport* vp = App::GetCameraManager()->GetCamera()->getViewport();
+    Viewport* vp = App::GetCameraManager()->GetCamera()->getLastViewport();
 
     return App::GetCameraManager()->GetCamera()->getCameraToViewportRay((float)lastMouseX / (float)vp->getActualWidth(), (float)lastMouseY / (float)vp->getActualHeight());
 }

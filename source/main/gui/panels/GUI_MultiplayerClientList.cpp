@@ -36,6 +36,8 @@
 #include "Network.h"
 
 #include <vector>
+#include <Ogre.h>
+#include <OgreTextureGpuManager.h>
 
 using namespace RoR;
 using namespace GUI;
@@ -43,6 +45,7 @@ using namespace Ogre;
 
 void MpClientList::Draw()
 {
+#if USE_SOCKETW
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
@@ -202,18 +205,19 @@ void MpClientList::Draw()
 
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
+#endif //USE_SOCKETW
 }
 
 Ogre::TextureGpu* MpClientList::FetchIcon(const char* name)
 {
     try
     {
-        return Ogre::static_pointer_cast<Ogre::Texture>(
-            Ogre::TextureManager::getSingleton().createOrRetrieve(name, "FlagsRG").first);
+        return Ogre::Root::getSingleton().getRenderSystem()->getTextureGpuManager()->createOrRetrieveTexture(
+            name, Ogre::GpuPageOutStrategy::Discard, Ogre::CommonTextureTypes::Diffuse, "FlagsRG");
     }
     catch (...) {}
 
-    return Ogre::TextureGpu*(); // null
+    return nullptr;
 }
 
 bool MpClientList::DrawIcon(Ogre::TextureGpu* tex, ImVec2 reference_box)
@@ -225,7 +229,7 @@ bool MpClientList::DrawIcon(Ogre::TextureGpu* tex, ImVec2 reference_box)
    // TODO: moving the cursor somehow deforms the image
    //     ImGui::SetCursorPosX(orig_pos.x + (reference_box.x - tex->getWidth()) / 2.f);
    //     ImGui::SetCursorPosY(orig_pos.y + (reference_box.y - tex->getHeight()) / 2.f);
-        ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(16, 16));
+        ImGui::Image(reinterpret_cast<ImTextureID>(tex), ImVec2(16, 16));
         hovered = ImGui::IsItemHovered();
     }
     ImGui::SetCursorPosX(orig_pos.x + reference_box.x + ImGui::GetStyle().ItemSpacing.x);

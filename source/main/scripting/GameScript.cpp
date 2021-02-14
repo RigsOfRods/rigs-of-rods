@@ -932,12 +932,12 @@ void GameScript::quitGame()
 
 float GameScript::getFPS()
 {
-    return App::GetAppContext()->GetRenderWindow()->getStatistics().lastFPS;
+    return 0.f; // TODO OGRE2x
 }
 
 float GameScript::getAvgFPS()
 {
-    return App::GetAppContext()->GetRenderWindow()->getStatistics().avgFPS;
+    return  0.f; // TODO OGRE2x
 }
 
 bool GameScript::HaveSimController(const char* func_name)
