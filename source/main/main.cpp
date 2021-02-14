@@ -558,6 +558,11 @@ int main(int argc, char *argv[])
                         {
                             App::GetGameContext()->LoadScene(m.description);
                         }
+                        else if (terrn_filename != App::sim_terrain_name->GetStr() && App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+                        {
+                            Str<400> msg; msg << _L("Not loading different terrain while in Multiplayer");
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, msg.ToCStr());
+                        }
                         else
                         {
                             if (App::sim_terrain_name->GetStr() != "")
