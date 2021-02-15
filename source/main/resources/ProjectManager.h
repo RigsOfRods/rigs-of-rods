@@ -24,6 +24,9 @@
 #include <string>
 #include <vector>
 
+#define PROJECT_FILE "project.json"
+#define PROJECT_FILE_FORMAT "1"
+
 namespace RoR {
 
 /// A .truck file in a project directory.
@@ -60,15 +63,15 @@ public:
     // Project handling
     Project*            CreateNewProject(std::string const& dirname, std::string const& project_name);
     bool                SaveProject(Project* proj);
-    bool                ImportTruckToProject(std::string const& filename, std::shared_ptr<Truck::File> def); //!< Imports truckfile to current project + opens it
+    bool                ImportTruckToProject(std::string const& filename, std::shared_ptr<Truck::File> def, CacheEntry* entry); //!< Imports truckfile to current project + opens it
     void                ImportModuleToTruck(std::shared_ptr<Truck::File::Module> m); //!< Imports module (see 'sectionconfig') to current actor
     bool                SaveTruck();
 
-    void                SetProject(Project* e) { m_entry = e; }
+    void                SetActiveProject(Project* e) { m_active_project = e; }
 
 private:
     ProjectVec                      m_projects;
-    Project*                        m_entry = nullptr;    //!< Currently open project
+    Project*                        m_active_project = nullptr;
     ProjectTruck*                   m_snapshot = nullptr; //!< Currently open truck
     std::shared_ptr<Truck::File>    m_def;                //!< Currently open truck
 };

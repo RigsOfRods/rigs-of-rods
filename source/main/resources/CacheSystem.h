@@ -38,9 +38,6 @@
 #define CACHE_FILE "mods.cache"
 #define CACHE_FILE_FORMAT 11
 
-#define PROJECT_FILE "project.json"
-#define PROJECT_FILE_FORMAT "1"
-
 namespace RoR {
 
 struct AuthorInfo

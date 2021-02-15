@@ -231,4 +231,18 @@ std::time_t GetFileLastModifiedTime(std::string const & path)
     factory.destroyInstance(fs_archive);
     return time;
 }
+
+void CopyResourceFile(std::string const & dst_name, std::string const & dst_grp,
+                      std::string const & src_name, std::string const & src_grp)
+{
+    Ogre::DataStreamPtr src_ds = Ogre::ResourceGroupManager::getSingleton().openResource(src_name, src_grp);
+    Ogre::DataStreamPtr dst_ds = Ogre::ResourceGroupManager::getSingleton().createResource(dst_name, dst_grp, /*overwrite=*/true);
+    std::vector<char> buf(src_ds->size());
+    size_t read = src_ds->read(buf.data(), src_ds->size());
+    if (read > 0)
+    {
+        dst_ds->write(buf.data(), read);
+    }
+}
+
 } // namespace RoR

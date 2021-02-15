@@ -376,8 +376,8 @@ void TopMenubar::Update()
                     Project* proj = App::GetProjectManager()->CreateNewProject(filename, prj_name.ToCStr());
                     if (proj != nullptr) // Error already logged + displayed
                     {
-                        App::GetProjectManager()->SetProject(proj);
-                        App::GetProjectManager()->ImportTruckToProject(filename, src_actor->GetDefinition());
+                        App::GetProjectManager()->SetActiveProject(proj);
+                        App::GetProjectManager()->ImportTruckToProject(filename, src_actor->GetDefinition(), src_actor->GetCacheEntry());
                     }
                 }
             }

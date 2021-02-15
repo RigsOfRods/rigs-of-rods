@@ -52,5 +52,7 @@ std::string GetExecutablePath(); //!< Returns UTF-8 path or empty string on erro
 std::string GetParentDirectory(const char* path); //!< Returns UTF-8 path without trailing slash.
 
 std::time_t GetFileLastModifiedTime(std::string const & path);
+void        CopyResourceFile(std::string const & dst_name, std::string const & dst_grp,
+                             std::string const & src_name, std::string const & src_grp); //!< Propagates Ogre::Exception!
 
 } // namespace RoR

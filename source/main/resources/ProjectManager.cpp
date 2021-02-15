@@ -86,7 +86,7 @@ Project* ProjectManager::RegisterProjectDir(std::string const& dirname)
     p.prj_dirname = dirname;
     p.prj_rg_name = fmt::format("project {}", dirname);
     std::string path = PathCombine(App::sys_projects_dir->GetStr(), dirname);
-    Ogre::ResourceGroupManager::getSingleton().addResourceLocation(path, "Directory", p.prj_rg_name, /*recursive=*/false, /*readOnly=*/false);
+    Ogre::ResourceGroupManager::getSingleton().addResourceLocation(path, "FileSystem", p.prj_rg_name, /*recursive=*/false, /*readOnly=*/false);
     Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(p.prj_rg_name);
     m_projects.push_back(p);
     return &m_projects.back();
@@ -212,7 +212,7 @@ bool ProjectManager::SaveProject(Project* proj)
     return true;
 }
 
-bool ProjectManager::ImportTruckToProject(std::string const& filename, std::shared_ptr<Truck::File> src_def)
+bool ProjectManager::ImportTruckToProject(std::string const& filename, std::shared_ptr<Truck::File> src_def, CacheEntry* entry)
 {
     // Generate filename (avoid duplicates)
     Str<200> filename_buf;
@@ -222,7 +222,7 @@ bool ProjectManager::ImportTruckToProject(std::string const& filename, std::shar
     {
         is_unique = true;
         filename_buf << "imported_" << import_counter++ << "_" << filename;
-        for (auto& t: m_entry->prj_trucks)
+        for (auto& t: m_active_project->prj_trucks)
         {
             if (t.prt_filename == filename_buf.ToCStr())
             {
@@ -278,8 +278,25 @@ bool ProjectManager::ImportTruckToProject(std::string const& filename, std::shar
     }
 
     // Persist the snapshot in project
-    m_entry->prj_trucks.push_back(snap);
-    m_snapshot = &m_entry->prj_trucks.back();
+    m_active_project->prj_trucks.push_back(snap);
+    m_snapshot = &m_active_project->prj_trucks.back();
+
+    // Import resources (use temporary RG, the existing one contains builtins, too)
+    Ogre::ResourceGroupManager::getSingleton().addResourceLocation(entry->resource_bundle_path, entry->resource_bundle_type, RGN_TEMP);
+    Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(RGN_TEMP);
+    Ogre::StringVectorPtr files = Ogre::ResourceGroupManager::getSingleton().findResourceNames(RGN_TEMP, "*", /*dirs=*/false);
+    for (size_t i = 0; i < files->size(); ++i)
+    {
+        Ogre::String basename, ext;
+        Ogre::StringUtil::splitBaseFilename(files->at(i), basename, ext);
+        if (ext != "truck" && ext != "load" && ext != "car" && ext != "machine" &&
+            ext != "airplane" && ext != "boat" && ext != "trailer" && ext != "train")
+        {
+            CopyResourceFile(files->at(i), m_active_project->prj_rg_name, files->at(i), RGN_TEMP);
+        }
+    }
+    Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_TEMP);
+
     return true;
 }
 
@@ -376,12 +393,12 @@ bool ProjectManager::SaveTruck()
 
         // Open OGRE stream for writing
         const bool overwrite = true;
-        Ogre::DataStreamPtr stream = rgm.createResource(m_snapshot->prt_filename, m_entry->prj_rg_name, overwrite);
+        Ogre::DataStreamPtr stream = rgm.createResource(m_snapshot->prt_filename, m_active_project->prj_rg_name, overwrite);
         if (stream.isNull() || !stream->isWriteable())
         {
             OGRE_EXCEPT(Ogre::Exception::ERR_CANNOT_WRITE_TO_FILE,
                 "Stream NULL or not writeable, filename: '" + m_snapshot->prt_filename
-                + "', resource group: '" + m_entry->prj_rg_name + "'");
+                + "', resource group: '" + m_active_project->prj_rg_name + "'");
         }
 
         // Serialize actor to string

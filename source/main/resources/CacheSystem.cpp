@@ -889,15 +889,7 @@ void CacheSystem::GenerateFileCache(CacheEntry& entry, String group)
 
     try
     {
-        DataStreamPtr src_ds = ResourceGroupManager::getSingleton().openResource(src_path, group);
-        DataStreamPtr dst_ds = ResourceGroupManager::getSingleton().createResource(dst_path, RGN_CACHE, true);
-        std::vector<char> buf(src_ds->size());
-        size_t read = src_ds->read(buf.data(), src_ds->size());
-        if (read > 0)
-        {
-            dst_ds->write(buf.data(), read); 
-            entry.filecachename = dst_path;
-        }
+        CopyResourceFile(src_path, group, dst_path, RGN_CACHE);
     }
     catch (Ogre::Exception& e)
     {
