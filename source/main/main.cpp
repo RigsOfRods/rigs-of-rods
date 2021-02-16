@@ -729,6 +729,7 @@ int main(int argc, char *argv[])
                     App::GetOverlayWrapper()->update(dt);
                     if (App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
                     {
+                        App::GetGameContext()->UpdateSimInputEvents(dt);
                         App::GetSimTerrain()->GetTerrainEditor()->UpdateInputEvents(dt);
                     }
                     else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
