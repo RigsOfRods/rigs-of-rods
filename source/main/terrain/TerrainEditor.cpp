@@ -41,7 +41,7 @@ void TerrainEditor::UpdateInputEvents(float dt)
     auto& object_list = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
     bool update = false;
 
-    if (ImGui::IsMouseClicked(1)) // Middle button
+    if (ImGui::IsMouseClicked(2)) // Middle button
     {
         ImVec2 mouse_screen = ImGui::GetIO().MousePos / ImGui::GetIO().DisplaySize;
         Ogre::Ray terrain_editor_mouse_ray = App::GetCameraManager()->GetCamera()->getCameraToViewportRay(mouse_screen.x, mouse_screen.y);
