@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-13 19:27+0100\n"
-"PO-Revision-Date: 2021-01-26 22:09+0000\n"
+"PO-Revision-Date: 2021-02-18 09:50+0000\n"
 "Last-Translator: Petr Ohlídal <petr@ohlidal.cz>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "cs/>\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
 "<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
-"X-Generator: Weblate 4.5-dev\n"
+"X-Generator: Weblate 4.5\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:407 AppContext.cpp:425
 #: AppContext.cpp:476 AppContext.cpp:490 AppContext.cpp:501
@@ -1267,7 +1267,7 @@ msgstr "Nastoupit do předvoleného vozidla"
 #: gui/panels/GUI_GameSettings.cpp:353
 msgctxt "GameSettings"
 msgid "Auto actor spawner report"
-msgstr ""
+msgstr "Autom. zobraz. hlášení"
 
 #: gui/panels/GUI_GameSettings.cpp:354
 msgctxt "GameSettings"
@@ -1447,11 +1447,9 @@ msgid "Please wait"
 msgstr "Prosím počkejte"
 
 #: gui/panels/GUI_MainSelector.cpp:78
-#, fuzzy
-#| msgid "Loader"
 msgctxt "MainSelector"
 msgid "Loader"
-msgstr "Nakladač"
+msgstr "Výběr"
 
 #: gui/panels/GUI_MainSelector.cpp:252
 #, fuzzy
@@ -1546,11 +1544,9 @@ msgid "Flares: "
 msgstr "Světla: "
 
 #: gui/panels/GUI_MainSelector.cpp:287
-#, fuzzy
-#| msgid "Flexbodies: "
 msgctxt "MainSelector"
 msgid "Flexbodies: "
-msgstr "Flexbodies: "
+msgstr "'Flexbodies': "
 
 #: gui/panels/GUI_MainSelector.cpp:288
 msgctxt "MainSelector"
@@ -1633,11 +1629,9 @@ msgid "Date and Time modified: "
 msgstr "Datum a čas změny: "
 
 #: gui/panels/GUI_MainSelector.cpp:308
-#, fuzzy
-#| msgid "Date and Time installed: "
 msgctxt "MainSelector"
 msgid "Date and Time installed: "
-msgstr "Datum a čas nainstalování: "
+msgstr "Datum a čas instalace: "
 
 #: gui/panels/GUI_MainSelector.cpp:309
 #, fuzzy
@@ -2176,25 +2170,19 @@ msgid "Node count: "
 msgstr "Počet nodů: "
 
 #: gui/panels/GUI_SimActorStats.cpp:97
-#, fuzzy
-#| msgid "Load Mass: "
 msgctxt "SimActorStats"
 msgid "Total mass: "
-msgstr "Zátěž: "
+msgstr "Celková hmotnost: "
 
 #: gui/panels/GUI_SimActorStats.cpp:114
-#, fuzzy
-#| msgid "Engine RPM: "
 msgctxt "SimActorStats"
 msgid "Engine RPM: "
-msgstr "Otáčky motoru: "
+msgstr "Otáčky motoru (ot/min): "
 
 #: gui/panels/GUI_SimActorStats.cpp:119
-#, fuzzy
-#| msgid "Input shaft RPM: "
 msgctxt "SimActorStats"
 msgid "Input shaft RPM: "
-msgstr "Otáčky vstupní hřídele: "
+msgstr "Otáčky vstupní hřídele (ot/min): "
 
 #: gui/panels/GUI_SimActorStats.cpp:124
 #, fuzzy
@@ -2521,11 +2509,9 @@ msgstr "Kamera:"
 
 #: gui/panels/GUI_TopMenubar.cpp:411 gui/panels/GUI_TopMenubar.cpp:421
 #: gui/panels/GUI_TopMenubar.cpp:429
-#, fuzzy
-#| msgid "FOV: "
 msgctxt "TopMenubar"
 msgid "FOV"
-msgstr "FOV:"
+msgstr "Zorný úhel"
 
 #: gui/panels/GUI_TopMenubar.cpp:412
 msgctxt "TopMenubar"
@@ -3011,11 +2997,9 @@ msgid "Guest"
 msgstr "Host"
 
 #: network/Network.cpp:804
-#, fuzzy
-#| msgid "Server Administrator"
 msgctxt "NetUserAuth"
 msgid "Server Administrator"
-msgstr "Administrátor serveru"
+msgstr "Správce serveru"
 
 #: network/Network.cpp:805
 #, fuzzy
@@ -3170,160 +3154,145 @@ msgstr "Nahrávám zipy ve skupině "
 #: resources/CacheSystem.h:255
 msgctxt "ModCategory"
 msgid "Other Land Vehicles"
-msgstr ""
+msgstr "Jiná pozemní vozidla"
 
 #: resources/CacheSystem.h:257
 msgctxt "ModCategory"
 msgid "Street Cars"
-msgstr ""
+msgstr "Osobní auta"
 
 #: resources/CacheSystem.h:258
 msgctxt "ModCategory"
 msgid "Light Racing Cars"
-msgstr ""
+msgstr "Lehká závodní auta"
 
 #: resources/CacheSystem.h:259
 msgctxt "ModCategory"
 msgid "Offroad Cars"
-msgstr ""
+msgstr "Terénní auta"
 
 #: resources/CacheSystem.h:260
 msgctxt "ModCategory"
 msgid "Fantasy Cars"
-msgstr ""
+msgstr "Sci-fi auta"
 
 #: resources/CacheSystem.h:261
 msgctxt "ModCategory"
 msgid "Bikes"
-msgstr ""
+msgstr "Motocykly"
 
 #: resources/CacheSystem.h:262
 msgctxt "ModCategory"
 msgid "Crawlers"
-msgstr ""
+msgstr "Šplhače"
 
 #: resources/CacheSystem.h:264
 msgctxt "ModCategory"
 msgid "Towercranes"
-msgstr ""
+msgstr "Věžové jeřáby"
 
 #: resources/CacheSystem.h:265
 msgctxt "ModCategory"
 msgid "Mobile Cranes"
-msgstr ""
+msgstr "Pojízdné jeřáby"
 
 #: resources/CacheSystem.h:266
 msgctxt "ModCategory"
 msgid "Other cranes"
-msgstr ""
+msgstr "Jiné jeřáby"
 
 #: resources/CacheSystem.h:268
 msgctxt "ModCategory"
 msgid "Buses"
-msgstr ""
+msgstr "Autobusy"
 
 #: resources/CacheSystem.h:269
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Actors"
 msgctxt "ModCategory"
 msgid "Tractors"
-msgstr "Aktoři"
+msgstr "Tahače"
 
 #: resources/CacheSystem.h:270
 msgctxt "ModCategory"
 msgid "Forklifts"
-msgstr ""
+msgstr "Zdvižné vozíky"
 
 #: resources/CacheSystem.h:271
 msgctxt "ModCategory"
 msgid "Fantasy Trucks"
-msgstr ""
+msgstr "Sci-fi vozidla"
 
 #: resources/CacheSystem.h:272
 msgctxt "ModCategory"
 msgid "Transport Trucks"
-msgstr ""
+msgstr "Nákladní auta"
 
 #: resources/CacheSystem.h:273
-#, fuzzy
-#| msgid "Loading resources"
 msgctxt "ModCategory"
 msgid "Racing Trucks"
-msgstr "Načítání potřebných dat"
+msgstr "Závodní stroje"
 
 #: resources/CacheSystem.h:274
-#, fuzzy
-#| msgid "reload truck"
 msgctxt "ModCategory"
 msgid "Offroad Trucks"
-msgstr "znovu načíst vozidlo"
+msgstr "Terréní vozidla"
 
 #: resources/CacheSystem.h:276
-#, fuzzy
-#| msgid "Boat"
 msgctxt "ModCategory"
 msgid "Boats"
-msgstr "Loď"
+msgstr "Loďě"
 
 #: resources/CacheSystem.h:278
 msgctxt "ModCategory"
 msgid "Helicopters"
-msgstr ""
+msgstr "Vrtulníky"
 
 #: resources/CacheSystem.h:279
 msgctxt "ModCategory"
 msgid "Aircraft"
-msgstr ""
+msgstr "Létací stroje"
 
 #: resources/CacheSystem.h:281
 msgctxt "ModCategory"
 msgid "Trailers"
-msgstr ""
+msgstr "Přívěsy"
 
 #: resources/CacheSystem.h:282
 msgctxt "ModCategory"
 msgid "Other Loads"
-msgstr ""
+msgstr "Jiné náklady"
 
 #. terrains
 #: resources/CacheSystem.h:285
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Terrain"
 msgctxt "ModCategory"
 msgid "Addon Terrains"
-msgstr "Terén"
+msgstr "Přídavné terény"
 
 #: resources/CacheSystem.h:287
 msgctxt "ModCategory"
 msgid "Container"
-msgstr ""
+msgstr "Kontejner"
 
 #: resources/CacheSystem.h:289
 msgctxt "ModCategory"
 msgid "Submarine"
-msgstr ""
+msgstr "Ponorka"
 
 #. note: these categories are NOT in the repository:
 #: resources/CacheSystem.h:292
 msgctxt "ModCategory"
 msgid "Official Terrains"
-msgstr ""
+msgstr "Oficiální terény"
 
 #: resources/CacheSystem.h:293
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Terrain"
 msgctxt "ModCategory"
 msgid "Night Terrains"
-msgstr "Terén"
+msgstr "Noční terény"
 
 #. do not use category numbers above 9000!
 #: resources/CacheSystem.h:296
 msgctxt "ModCategory"
 msgid "Unsorted"
-msgstr ""
+msgstr "Neroztříděné"
 
 #: resources/CacheSystem.h:297
 #, fuzzy
@@ -3335,12 +3304,12 @@ msgstr "Všechny"
 #: resources/CacheSystem.h:298
 msgctxt "ModCategory"
 msgid "Fresh"
-msgstr ""
+msgstr "Čerstvé"
 
 #: resources/CacheSystem.h:299
 msgctxt "ModCategory"
 msgid "Hidden"
-msgstr ""
+msgstr "Skryté"
 
 #: scripting/GameScript.cpp:800
 msgid "using Online API..."
@@ -3526,10 +3495,11 @@ msgstr "Nastav nebo vytvoř decimální CVar"
 #: system/ConsoleCmd.cpp:536
 msgid "Clear console history. Types: all/info/net/chat/terrn/actor/script"
 msgstr ""
+"Promazat historii konzole. Typy: all(vše)/info/net/chat/terrn/actor/script"
 
 #: system/ConsoleCmd.cpp:573
 msgid "No such message type: {}"
-msgstr ""
+msgstr "Takový typ zprávy neexistuje: {}"
 
 #: system/ConsoleCmd.cpp:621
 msgid ""
@@ -3737,11 +3707,9 @@ msgid "quicksave scene"
 msgstr "Rychlé uložení"
 
 #: utils/InputEngine.cpp:42
-#, fuzzy
-#| msgid "take a screenshot"
 msgctxt "InputEvent"
 msgid "take a screenshot"
-msgstr "uložit screenshot"
+msgstr "uložit snímek obrazovky"
 
 #: utils/InputEngine.cpp:43
 #, fuzzy
@@ -3765,32 +3733,24 @@ msgid "toggle render mode (solid, wireframe and points)"
 msgstr "režim vykreslování (výplň, drátěný model a body)"
 
 #: utils/InputEngine.cpp:46
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgctxt "InputEvent"
 msgid "enable or disable physics"
-msgstr "povolit nebo zakázat mód opakování"
+msgstr "povolit nebo zakázat fyziku"
 
 #: utils/InputEngine.cpp:47
-#, fuzzy
-#| msgid "decreases the current FOV value"
 msgctxt "InputEvent"
 msgid "decreases the current FOV value"
-msgstr "snižuje současnou hodnotu FOV"
+msgstr "zmenší aktuální zorný úhel"
 
 #: utils/InputEngine.cpp:48
-#, fuzzy
-#| msgid "increase the current FOV value"
 msgctxt "InputEvent"
 msgid "increase the current FOV value"
-msgstr "zvýšit současnou hodnotu FOV"
+msgstr "zvětší aktuální zorný úhel"
 
 #: utils/InputEngine.cpp:49
-#, fuzzy
-#| msgid "increase the current FOV value"
 msgctxt "InputEvent"
 msgid "reset the FOV value"
-msgstr "zvýšit současnou hodnotu FOV"
+msgstr "resetuje aktuální zorný úhel"
 
 #: utils/InputEngine.cpp:50
 #, fuzzy
@@ -3800,11 +3760,9 @@ msgid "save the currently loaded terrain to a mesh file"
 msgstr "uložit aktuálně načtený terén do mesh souboru"
 
 #: utils/InputEngine.cpp:51
-#, fuzzy
-#| msgid "toggle traction control"
 msgctxt "InputEvent"
 msgid "toggle terrain editor"
-msgstr "zapnout kontrolu trakce"
+msgstr "Zap./vyp. editor terénu"
 
 #: utils/InputEngine.cpp:52
 #, fuzzy
@@ -3850,11 +3808,9 @@ msgid "delete current truck"
 msgstr "vymazat toto vozidlo"
 
 #: utils/InputEngine.cpp:60
-#, fuzzy
-#| msgid "repair truck"
 msgctxt "InputEvent"
 msgid "respawn last truck"
-msgstr "Opravit vozidlo"
+msgstr "Znovu stvořit předchozí vozidlo"
 
 #: utils/InputEngine.cpp:61
 #, fuzzy
@@ -3878,11 +3834,9 @@ msgid "increase tire pressure (note: only very few trucks support this)"
 msgstr "zvýšit tlak pneumatik (pozn.: podporuje to jen velmi málo vozidel)"
 
 #: utils/InputEngine.cpp:64
-#, fuzzy
-#| msgid "connect hook node to a node in close proximity"
 msgctxt "InputEvent"
 msgid "connect hook node to a node in close proximity"
-msgstr "připojit hák uzlu k uzlu v těsné blízkosti"
+msgstr "připojit hák k nodu v těsné blízkosti"
 
 #: utils/InputEngine.cpp:65
 #, fuzzy
@@ -3892,11 +3846,9 @@ msgid "unlock autolock hook node"
 msgstr "odemknout samo-zamykací hák"
 
 #: utils/InputEngine.cpp:66
-#, fuzzy
-#| msgid "connect a rope to a node in close proximity"
 msgctxt "InputEvent"
 msgid "connect a rope to a node in close proximity"
-msgstr "připojit lano k uzlu v těsné blízkosti"
+msgstr "připojit lano k nodu v těsné blízkosti"
 
 #: utils/InputEngine.cpp:67
 #, fuzzy
@@ -3920,11 +3872,9 @@ msgid "reset truck to original starting position"
 msgstr "resetovat na výchozí pozici vozidla"
 
 #: utils/InputEngine.cpp:70
-#, fuzzy
-#| msgid "toggle cruise control"
 msgctxt "InputEvent"
 msgid "toggle reset mode"
-msgstr "zapnout tempomat"
+msgstr "přepnout režim obnovení"
 
 #: utils/InputEngine.cpp:71
 #, fuzzy
@@ -3934,8 +3884,6 @@ msgid "tie a load to the truck"
 msgstr "upevnit náklad k vozidlu"
 
 #: utils/InputEngine.cpp:72
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle truck beacons"
 msgstr "majáky vozidla"
