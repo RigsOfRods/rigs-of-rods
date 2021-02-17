@@ -348,15 +348,15 @@ void MainSelector::Draw()
                     static_cast<int>(sd_entry.sde_entry->sectionconfigs.size()));
             ImGui::SameLine();
         }
-        ImGui::SameLine(ImGui::GetWindowWidth()-100);
-        if (ImGui::Button(_LC("MainSelector", "OK")) ||
+        ImGui::SameLine(ImGui::GetWindowWidth()-280);
+        if (ImGui::Button(_LC("MainSelector", "OK"), ImVec2(120.f, 0.0f)) ||
             ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
         {
             this->Apply();
         }
     }
-    ImGui::SameLine(ImGui::GetWindowWidth()-70);
-    if (ImGui::Button(_LC("MainSelector", "Cancel")) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
+    ImGui::SameLine(ImGui::GetWindowWidth()-150);
+    if (ImGui::Button(_LC("MainSelector", "Cancel"), ImVec2(120.f, 0.0f)) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
     {
         this->Cancel();
     }
