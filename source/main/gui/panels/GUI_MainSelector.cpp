@@ -343,6 +343,7 @@ void MainSelector::Draw()
         DisplayEntry& sd_entry = m_display_entries[m_selected_entry];
         if (sd_entry.sde_entry->sectionconfigs.size() > 0)
         {
+            ImGui::PushItemWidth(ImGui::GetWindowWidth() / 2);
             ImGui::Combo(_LC("MainSelector", "Configuration"), &m_selected_sectionconfig,
                     &MainSelector::ScComboItemGetter, sd_entry.sde_entry,
                     static_cast<int>(sd_entry.sde_entry->sectionconfigs.size()));
