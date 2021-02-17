@@ -90,11 +90,11 @@ enum Netmask
     NETMASK_CLIGHT2      = BITMASK(10), //!< custom light 2 on
     NETMASK_CLIGHT3      = BITMASK(11), //!< custom light 3 on
     NETMASK_CLIGHT4      = BITMASK(12), //!< custom light 4 on
-    NETMASK_CLIGHT5      = BITMASK(13),  //!< custom light 5 on
+    NETMASK_CLIGHT5      = BITMASK(13), //!< custom light 5 on
     NETMASK_CLIGHT6      = BITMASK(14), //!< custom light 6 on
     NETMASK_CLIGHT7      = BITMASK(15), //!< custom light 7 on
     NETMASK_CLIGHT8      = BITMASK(16), //!< custom light 8 on
-    NETMASK_CLIGHT9      = BITMASK(17),  //!< custom light 9 on
+    NETMASK_CLIGHT9      = BITMASK(17), //!< custom light 9 on
     NETMASK_CLIGHT10     = BITMASK(18), //!< custom light 10 on
     NETMASK_POLICEAUDIO  = BITMASK(19), //!< police siren on
     NETMASK_PARTICLE     = BITMASK(20), //!< custom particles on
