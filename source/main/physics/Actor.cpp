@@ -610,6 +610,12 @@ void Actor::CalcNetwork()
     setCustomLightVisible(1, ((flagmask & NETMASK_CLIGHT2) > 0));
     setCustomLightVisible(2, ((flagmask & NETMASK_CLIGHT3) > 0));
     setCustomLightVisible(3, ((flagmask & NETMASK_CLIGHT4) > 0));
+    setCustomLightVisible(4, ((flagmask & NETMASK_CLIGHT5) > 0));
+    setCustomLightVisible(5, ((flagmask & NETMASK_CLIGHT6) > 0));
+    setCustomLightVisible(6, ((flagmask & NETMASK_CLIGHT7) > 0));
+    setCustomLightVisible(7, ((flagmask & NETMASK_CLIGHT8) > 0));
+    setCustomLightVisible(8, ((flagmask & NETMASK_CLIGHT9) > 0));
+    setCustomLightVisible(9, ((flagmask & NETMASK_CLIGHT10) > 0));
 
     m_net_brake_light = ((flagmask & NETMASK_BRAKES) != 0);
     m_net_reverse_light = ((flagmask & NETMASK_REVERSE) != 0);
@@ -1958,6 +1964,18 @@ void Actor::sendStreamData()
             send_oob->flagmask += NETMASK_CLIGHT3;
         if (getCustomLightVisible(3))
             send_oob->flagmask += NETMASK_CLIGHT4;
+        if (getCustomLightVisible(4))
+            send_oob->flagmask += NETMASK_CLIGHT5;
+        if (getCustomLightVisible(5))
+            send_oob->flagmask += NETMASK_CLIGHT6;
+        if (getCustomLightVisible(6))
+            send_oob->flagmask += NETMASK_CLIGHT7;
+        if (getCustomLightVisible(7))
+            send_oob->flagmask += NETMASK_CLIGHT8;
+        if (getCustomLightVisible(8))
+            send_oob->flagmask += NETMASK_CLIGHT9;
+        if (getCustomLightVisible(9))
+            send_oob->flagmask += NETMASK_CLIGHT10;
 
         if (getBrakeLightVisible())
             send_oob->flagmask += NETMASK_BRAKES;

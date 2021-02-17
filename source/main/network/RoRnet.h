@@ -28,7 +28,7 @@ namespace RoRnet {
 #define RORNET_LAN_BROADCAST_PORT   13000  //!< port used to send the broadcast announcement in LAN mode
 #define RORNET_MAX_USERNAME_LEN     40     //!< port used to send the broadcast announcement in LAN mode
 
-#define RORNET_VERSION              "RoRnet_2.42"
+#define RORNET_VERSION              "RoRnet_2.43"
 
 enum MessageType
 {
@@ -78,31 +78,37 @@ enum UserAuth
 
 enum Netmask
 {
-    NETMASK_HORN        = BITMASK(1),  //!< horn is in use
-    NETMASK_LIGHTS      = BITMASK(2),  //!< lights on
-    NETMASK_BRAKES      = BITMASK(3),  //!< brake lights on
-    NETMASK_REVERSE     = BITMASK(4),  //!< reverse light on
-    NETMASK_BEACONS     = BITMASK(5),  //!< beacons on
-    NETMASK_BLINK_LEFT  = BITMASK(6),  //!< left blinker on
-    NETMASK_BLINK_RIGHT = BITMASK(7),  //!< right blinker on
-    NETMASK_BLINK_WARN  = BITMASK(8),  //!< warn blinker on
-    NETMASK_CLIGHT1     = BITMASK(9),  //!< custom light 1 on
-    NETMASK_CLIGHT2     = BITMASK(10), //!< custom light 2 on
-    NETMASK_CLIGHT3     = BITMASK(11), //!< custom light 3 on
-    NETMASK_CLIGHT4     = BITMASK(12), //!< custom light 4 on
-    NETMASK_POLICEAUDIO = BITMASK(13), //!< police siren on
-    NETMASK_PARTICLE    = BITMASK(14), //!< custom particles on
-    NETMASK_PBRAKE      = BITMASK(15), //!< custom particles on
-    NETMASK_TC_ACTIVE   = BITMASK(16), //!< traction control light on?
-    NETMASK_ALB_ACTIVE  = BITMASK(17), //!< anti lock brake light on?
-    NETMASK_ENGINE_CONT = BITMASK(18), //!< ignition on?
-    NETMASK_ENGINE_RUN  = BITMASK(19), //!< engine running?
+    NETMASK_HORN         = BITMASK(1),  //!< horn is in use
+    NETMASK_LIGHTS       = BITMASK(2),  //!< lights on
+    NETMASK_BRAKES       = BITMASK(3),  //!< brake lights on
+    NETMASK_REVERSE      = BITMASK(4),  //!< reverse light on
+    NETMASK_BEACONS      = BITMASK(5),  //!< beacons on
+    NETMASK_BLINK_LEFT   = BITMASK(6),  //!< left blinker on
+    NETMASK_BLINK_RIGHT  = BITMASK(7),  //!< right blinker on
+    NETMASK_BLINK_WARN   = BITMASK(8),  //!< warn blinker on
+    NETMASK_CLIGHT1      = BITMASK(9),  //!< custom light 1 on
+    NETMASK_CLIGHT2      = BITMASK(10), //!< custom light 2 on
+    NETMASK_CLIGHT3      = BITMASK(11), //!< custom light 3 on
+    NETMASK_CLIGHT4      = BITMASK(12), //!< custom light 4 on
+    NETMASK_CLIGHT5      = BITMASK(13), //!< custom light 5 on
+    NETMASK_CLIGHT6      = BITMASK(14), //!< custom light 6 on
+    NETMASK_CLIGHT7      = BITMASK(15), //!< custom light 7 on
+    NETMASK_CLIGHT8      = BITMASK(16), //!< custom light 8 on
+    NETMASK_CLIGHT9      = BITMASK(17), //!< custom light 9 on
+    NETMASK_CLIGHT10     = BITMASK(18), //!< custom light 10 on
+    NETMASK_POLICEAUDIO  = BITMASK(19), //!< police siren on
+    NETMASK_PARTICLE     = BITMASK(20), //!< custom particles on
+    NETMASK_PBRAKE       = BITMASK(21), //!< custom particles on
+    NETMASK_TC_ACTIVE    = BITMASK(22), //!< traction control light on?
+    NETMASK_ALB_ACTIVE   = BITMASK(23), //!< anti lock brake light on?
+    NETMASK_ENGINE_CONT  = BITMASK(24), //!< ignition on?
+    NETMASK_ENGINE_RUN   = BITMASK(25), //!< engine running?
 
-    NETMASK_ENGINE_MODE_AUTOMATIC     = BITMASK(20), //!< engine mode
-    NETMASK_ENGINE_MODE_SEMIAUTO      = BITMASK(21), //!< engine mode
-    NETMASK_ENGINE_MODE_MANUAL        = BITMASK(22), //!< engine mode
-    NETMASK_ENGINE_MODE_MANUAL_STICK  = BITMASK(23), //!< engine mode
-    NETMASK_ENGINE_MODE_MANUAL_RANGES = BITMASK(24)  //!< engine mode
+    NETMASK_ENGINE_MODE_AUTOMATIC     = BITMASK(26), //!< engine mode
+    NETMASK_ENGINE_MODE_SEMIAUTO      = BITMASK(27), //!< engine mode
+    NETMASK_ENGINE_MODE_MANUAL        = BITMASK(28), //!< engine mode
+    NETMASK_ENGINE_MODE_MANUAL_STICK  = BITMASK(29), //!< engine mode
+    NETMASK_ENGINE_MODE_MANUAL_RANGES = BITMASK(30)  //!< engine mode
 };
 
 // -------------------------------- structs -----------------------------------
