@@ -512,6 +512,10 @@ int main(int argc, char *argv[])
                     }
                     else
                     {
+                        if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+                        {
+                            App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
+                        }
                         App::GetGuiManager()->SetVisible_LoadingWindow(false);
                         failed_m = true;
                     }
