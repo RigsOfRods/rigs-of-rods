@@ -898,6 +898,43 @@ void GameContext::UpdateSimInputEvents(float dt)
         App::GetGameContext()->PushMessage(m);
     }
 
+    // forward commands from character
+    if (!m_player_actor)
+    {
+        // Find nearest actor
+        const Ogre::Vector3 position = App::GetGameContext()->GetPlayerCharacter()->getPosition();
+        Actor* nearest_actor = nullptr;
+        float min_squared_distance = std::numeric_limits<float>::max();
+        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+        {
+            float squared_distance = position.squaredDistance(actor->ar_nodes[0].AbsPosition);
+            if (squared_distance < min_squared_distance)
+            {
+                min_squared_distance = squared_distance;
+                nearest_actor = actor;
+            }
+        }
+
+        // Evaluate
+        if (nearest_actor != nullptr &&
+            nearest_actor->ar_import_commands &&
+            min_squared_distance < (nearest_actor->getMinCameraRadius()*nearest_actor->getMinCameraRadius()))
+        {
+            // get commands
+            // -- here we should define a maximum numbers per actor. Some actors does not have that much commands
+            // -- available, so why should we iterate till MAX_COMMANDS?
+            for (int i = 1; i <= MAX_COMMANDS + 1; i++)
+            {
+                int eventID = EV_COMMANDS_01 + (i - 1);
+
+                nearest_actor->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
+            }
+        }
+    }
+}
+
+void GameContext::UpdateSkyInputEvents(float dt)
+{
 #ifdef USE_CAELUM
     if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM &&
         App::GetSimTerrain()->getSkyManager())
@@ -952,40 +989,6 @@ void GameContext::UpdateSimInputEvents(float dt)
         else
         {
             App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(0.01f);
-        }
-    }
-
-    // forward commands from character
-    if (!m_player_actor)
-    {
-        // Find nearest actor
-        const Ogre::Vector3 position = App::GetGameContext()->GetPlayerCharacter()->getPosition();
-        Actor* nearest_actor = nullptr;
-        float min_squared_distance = std::numeric_limits<float>::max();
-        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
-        {
-            float squared_distance = position.squaredDistance(actor->ar_nodes[0].AbsPosition);
-            if (squared_distance < min_squared_distance)
-            {
-                min_squared_distance = squared_distance;
-                nearest_actor = actor;
-            }
-        }
-
-        // Evaluate
-        if (nearest_actor != nullptr &&
-            nearest_actor->ar_import_commands &&
-            min_squared_distance < (nearest_actor->getMinCameraRadius()*nearest_actor->getMinCameraRadius()))
-        {
-            // get commands
-            // -- here we should define a maximum numbers per actor. Some actors does not have that much commands
-            // -- available, so why should we iterate till MAX_COMMANDS?
-            for (int i = 1; i <= MAX_COMMANDS + 1; i++)
-            {
-                int eventID = EV_COMMANDS_01 + (i - 1);
-
-                nearest_actor->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
-            }
         }
     }
 }

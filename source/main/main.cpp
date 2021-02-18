@@ -735,6 +735,7 @@ int main(int argc, char *argv[])
                     if (App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
                     {
                         App::GetGameContext()->UpdateSimInputEvents(dt);
+                        App::GetGameContext()->UpdateSkyInputEvents(dt);
                         App::GetSimTerrain()->GetTerrainEditor()->UpdateInputEvents(dt);
                     }
                     else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
@@ -743,6 +744,7 @@ int main(int argc, char *argv[])
                         if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
                         {
                             App::GetGameContext()->UpdateSimInputEvents(dt);
+                            App::GetGameContext()->UpdateSkyInputEvents(dt);
                             if (App::GetGameContext()->GetPlayerActor() &&
                                 App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::NETWORKED_OK) // we are in a vehicle
                             {
@@ -763,6 +765,10 @@ int main(int argc, char *argv[])
                                     }
                                 }
                             }
+                        }
+                        else // free cam mode
+                        {
+                            App::GetGameContext()->UpdateSkyInputEvents(dt);
                         }
                     }
                     App::GetGameContext()->GetRecoveryMode().UpdateInputEvents(dt);
