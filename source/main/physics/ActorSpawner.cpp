@@ -278,10 +278,7 @@ void ActorSpawner::InitializeRig()
     m_actor->ar_cinecam_node[0]=-1;
     m_actor->ar_num_cinecams=0;
     m_actor->m_deletion_scene_nodes.clear();
-    m_actor->m_net_custom_lights[0] = UINT_MAX;
-    m_actor->m_net_custom_lights[1] = UINT_MAX;
-    m_actor->m_net_custom_lights[2] = UINT_MAX;
-    m_actor->m_net_custom_lights[3] = UINT_MAX;
+    for (int i=0; i<MAX_CLIGHTS; ++i) { m_actor->m_net_custom_lights[i] = -1; }
     m_actor->m_net_custom_light_count = 0;
 
     m_actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
@@ -2141,7 +2138,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(50.0, 1.0, 1, 0.2);
 
-            if (m_actor->m_net_custom_light_count < 4)
+            if (m_actor->m_net_custom_light_count < MAX_CLIGHTS)
             {
                 m_actor->m_net_custom_lights[m_actor->m_net_custom_light_count] = static_cast<int>(m_actor->ar_flares.size());
                 m_actor->m_net_custom_light_count++;
