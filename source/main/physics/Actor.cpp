@@ -4523,30 +4523,26 @@ bool Actor::getBrakeLightVisible()
 
 bool Actor::getCustomLightVisible(int number)
 {
-    if (number < 0 || number > 3)
+    if (number < 0 || number > 9)
     {
-        LOG("AngelScript: Invalid Light ID (" + TOSTRING(number) + "), allowed range is (0 - 4)");
+        LOG("AngelScript: Invalid Light ID (" + TOSTRING(number) + "), allowed range is (0 - 9)");
         return false;
     }
 
-    unsigned int flareID = m_net_custom_lights[number];
-
-    return flareID < ar_flares.size() && ar_flares[flareID].controltoggle_status;
+    return m_net_custom_lights[number] < ar_flares.size() && ar_flares[m_net_custom_lights[number]].controltoggle_status;
 }
 
 void Actor::setCustomLightVisible(int number, bool visible)
 {
-    if (number < 0 || number > 3)
+    if (number < 0 || number > 9)
     {
-        LOG("AngelScript: Invalid Light ID (" + TOSTRING(number) + "), allowed range is (0 - 3)");
+        LOG("AngelScript: Invalid Light ID (" + TOSTRING(number) + "), allowed range is (0 - 9)");
         return;
     }
 
-    unsigned int flareID = m_net_custom_lights[number];
-
-    if (flareID < ar_flares.size() && ar_flares[flareID].snode)
+    if (m_net_custom_lights[number] !=-1 && ar_flares[m_net_custom_lights[number]].snode)
     {
-        ar_flares[flareID].controltoggle_status = visible;
+        ar_flares[m_net_custom_lights[number]].controltoggle_status = visible;
     }
 }
 
