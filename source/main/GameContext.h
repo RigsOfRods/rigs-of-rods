@@ -130,6 +130,7 @@ public:
     void                TeleportPlayer(float x, float z);
     void                UpdateGlobalInputEvents();
     void                UpdateSimInputEvents(float dt);
+    void                UpdateSkyInputEvents(float dt);
     void                UpdateCommonInputEvents(float dt);
     void                UpdateAirplaneInputEvents(float dt);
     void                UpdateBoatInputEvents(float dt);
