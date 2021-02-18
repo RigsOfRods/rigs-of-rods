@@ -67,6 +67,7 @@
 #include "Utils.h"
 #include "VehicleAI.h"
 #include "Water.h"
+#include <fmt/format.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -4523,9 +4524,9 @@ bool Actor::getBrakeLightVisible()
 
 bool Actor::getCustomLightVisible(int number)
 {
-    if (number < 0 || number > 9)
+    if (number < 0 || number >= MAX_CLIGHTS)
     {
-        LOG("AngelScript: Invalid Light ID (" + TOSTRING(number) + "), allowed range is (0 - 9)");
+        LOG(fmt::format("AngelScript: invalid custom-light ID {}, allowed range is 0-{}", number, MAX_CLIGHTS-1));
         return false;
     }
 
@@ -4534,9 +4535,9 @@ bool Actor::getCustomLightVisible(int number)
 
 void Actor::setCustomLightVisible(int number, bool visible)
 {
-    if (number < 0 || number > 9)
+    if (number < 0 || number >= MAX_CLIGHTS)
     {
-        LOG("AngelScript: Invalid Light ID (" + TOSTRING(number) + "), allowed range is (0 - 9)");
+        LOG(fmt::format("AngelScript: invalid Light ID {}, allowed range is 0-{}", number, MAX_CLIGHTS-1));
         return;
     }
 
