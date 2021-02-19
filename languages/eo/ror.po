@@ -3,20 +3,22 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# Jakub Fabijan <animatorzPolski@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-13 19:27+0100\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: Esperanto (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/eo/)\n"
+"PO-Revision-Date: 2021-02-20 07:50+0000\n"
+"Last-Translator: Jakub Fabijan <animatorzPolski@gmail.com>\n"
+"Language-Team: Esperanto <https://hosted.weblate.org/projects/rigs-of-rods/"
+"game/eo/>\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.5\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:407 AppContext.cpp:425
 #: AppContext.cpp:476 AppContext.cpp:490 AppContext.cpp:501
@@ -241,32 +243,24 @@ msgid "Notices"
 msgstr ""
 
 #: gui/panels/GUI_ConsoleView.cpp:226
-#, fuzzy
-#| msgid "Warning"
 msgctxt "Console"
 msgid "Warnings"
-msgstr "Averto"
+msgstr "Avertoj"
 
 #: gui/panels/GUI_ConsoleView.cpp:227
-#, fuzzy
-#| msgid "Mirrors"
 msgctxt "Console"
 msgid "Errors"
-msgstr "Speguloj"
+msgstr "Eraroj"
 
 #: gui/panels/GUI_ConsoleView.cpp:228
-#, fuzzy
-#| msgid "enter the chat"
 msgctxt "Console"
 msgid "Net chat"
-msgstr "eniri la babilejon"
+msgstr "Reta babilejo"
 
 #: gui/panels/GUI_ConsoleView.cpp:229 gui/panels/GUI_ConsoleWindow.cpp:52
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "Console"
 msgid "Commands"
-msgstr "Ordonoj:"
+msgstr "Ordonoj"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:47
 msgctxt "Console"
@@ -274,11 +268,9 @@ msgid "Filter options"
 msgstr ""
 
 #: gui/panels/GUI_ConsoleWindow.cpp:86
-#, fuzzy
-#| msgid "Command 1"
 msgctxt "Console"
 msgid "Command"
-msgstr "Ordono 1"
+msgstr "Ordono"
 
 #: gui/panels/GUI_DirectionArrow.cpp:91
 msgctxt "DirectionArrow"
@@ -628,11 +620,9 @@ msgid "usage: /whisper username message"
 msgstr ""
 
 #: gui/panels/GUI_GameControls.cpp:36
-#, fuzzy
-#| msgid "Controls"
 msgctxt "GameControls"
 msgid "Game Controls"
-msgstr "Regiloj"
+msgstr "Ludaj Regiloj"
 
 #: gui/panels/GUI_GameControls.cpp:47
 #, fuzzy
@@ -664,11 +654,9 @@ msgid "Character"
 msgstr ""
 
 #: gui/panels/GUI_GameControls.cpp:57
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "GameControls"
 msgid "Commands"
-msgstr "Ordonoj:"
+msgstr "Ordonoj"
 
 #: gui/panels/GUI_GameControls.cpp:59
 #, fuzzy
@@ -730,11 +718,9 @@ msgid "About"
 msgstr ""
 
 #: gui/panels/GUI_GameMainMenu.cpp:139
-#, fuzzy
-#| msgid "exit the game"
 msgctxt "MainMenu"
 msgid "Exit game"
-msgstr "eliri el la programo"
+msgstr "Eliri ludon"
 
 #: gui/panels/GUI_GameMainMenu.cpp:161
 msgctxt "MainMenu"
@@ -765,10 +751,8 @@ msgid "Return to menu"
 msgstr ""
 
 #: gui/panels/GUI_GamePauseMenu.cpp:99
-#, fuzzy
-#| msgid "exit the game"
 msgid "Exit game"
-msgstr "eliri el la programo"
+msgstr "Eliri ludon"
 
 #: gui/panels/GUI_GameSettings.cpp:41
 msgctxt "GameSettings"
