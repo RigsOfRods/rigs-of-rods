@@ -29,21 +29,12 @@
 
 namespace RoR {
 
-/// A .truck file in a project directory.
-struct ProjectTruck
-{
-    std::string prt_name; //!< Display name
-    std::string prt_filename;
-};
-
 /// A subdirectory of ROR_HOME/projects
 struct Project
 {
-    std::string   prj_name;
     std::string   prj_dirname;
     std::string   prj_rg_name; //!< OGRE resource group
-    size_t        prj_format_version = 1;
-    std::vector<ProjectTruck> prj_trucks;
+    Ogre::StringVectorPtr prj_trucks; //!< Filenames
     bool          prj_valid = false; //!< Is this object in sync with filesystem?
 };
 
@@ -55,25 +46,25 @@ public:
     // Project list management
     void                ReScanProjects();
     Project*            RegisterProjectDir(std::string const& dirname);
-    void                ReLoadProjectDir(Project* proj);
+    void                ReScanProjectDir(Project* proj);
     Project*            FindProjectByDirName(std::string const& dirname);
     void                PruneInvalidProjects();
-    ProjectVec const&   GetProjects() const {return m_projects;}
+    ProjectVec&         GetProjects() {return m_projects;}
 
     // Project handling
-    Project*            CreateNewProject(std::string const& dirname, std::string const& project_name);
-    bool                SaveProject(Project* proj);
+    Project*            CreateNewProject(std::string const& dirname);
     bool                ImportTruckToProject(std::string const& filename, std::shared_ptr<Truck::File> def, CacheEntry* entry); //!< Imports truckfile to current project + opens it
     void                ImportModuleToTruck(std::shared_ptr<Truck::File::Module> m); //!< Imports module (see 'sectionconfig') to current actor
     bool                SaveTruck();
+    void                ReLoadResources(Project* project);
 
     void                SetActiveProject(Project* e) { m_active_project = e; }
 
 private:
     ProjectVec                      m_projects;
     Project*                        m_active_project = nullptr;
-    ProjectTruck*                   m_snapshot = nullptr; //!< Currently open truck
-    std::shared_ptr<Truck::File>    m_def;                //!< Currently open truck
+    Ogre::String                    m_active_truck_filename;
+    std::shared_ptr<Truck::File>    m_active_truck_def;
 };
 
 } // namespace RoR

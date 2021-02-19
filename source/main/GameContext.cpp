@@ -277,7 +277,7 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         auto used_skin  = rq.amr_actor->GetUsedSkin();
         // Actor originates either from ModCache or Project registry
         auto cache_entry= rq.amr_actor->GetCacheEntry();
-        auto project    = rq.amr_actor->GetProjectEntry();
+        auto project    = rq.amr_actor->GetProject();
 
         reload_pos.y = m_player_actor->GetMinHeight();
 
@@ -298,7 +298,6 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         }
         else
         {
-            App::GetCacheSystem()->ReLoadResource(*cache_entry);
             srq->asr_cache_entry = cache_entry;
         }
         this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));

@@ -67,7 +67,7 @@ void ProjectManager::ReScanProjects()
             }
 
             // (Re)Load the entry
-            this->ReLoadProjectDir(p);
+            this->ReScanProjectDir(p);
         }
         catch (Ogre::Exception& oex)
         {
@@ -92,40 +92,12 @@ Project* ProjectManager::RegisterProjectDir(std::string const& dirname)
     return &m_projects.back();
 }
 
-void ProjectManager::ReLoadProjectDir(Project* proj)
+void ProjectManager::ReScanProjectDir(Project* proj)
 {
-    // Load project file
-    Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(PROJECT_FILE, proj->prj_rg_name);
-    std::string proj_file_data(stream->size() + 1, '\0');
-    stream->read(&proj_file_data[0], stream->size()); // Copy entire project file to buffer
-    rapidjson::StringStream j_stream(proj_file_data.c_str());
-    rapidjson::Document j_doc;
-    j_doc.ParseStream(j_stream);
-    if (!j_doc.IsObject() ||
-        !j_doc.HasMember("name") || !j_doc["name"].IsString() || 
-        !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber())
-    {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_ERROR,
-                                      fmt::format("Problem loading directory '{}': JSON is invalid", proj->prj_dirname));
-        proj->prj_valid = false;
-        return;
-    }
+    this->ReLoadResources(proj);
 
-    // Update project entry
-    proj->prj_name = j_doc["name"].GetString();
-    proj->prj_format_version = j_doc["format_version"].GetUint();
-
-    // List actor snapshots
-    proj->prj_trucks.clear();
-    Ogre::FileInfoListPtr truckfiles = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(proj->prj_rg_name, "*.truck"); // It's always *.truck in project folders!
-    for (Ogre::FileInfo truckfile: *truckfiles)
-    {
-        ProjectTruck t;
-        t.prt_filename = truckfile.filename;
-        t.prt_name = truckfile.filename; // TODO: load actual truckfile name
-        proj->prj_trucks.push_back(t);
-    }
-
+    // List actor snapshots (shared_ptr cleans up the old data)
+    proj->prj_trucks = Ogre::ResourceGroupManager::getSingleton().findResourceNames(proj->prj_rg_name, "*.truck"); // It's always *.truck in project folders!
     proj->prj_valid = true;
 }
 
@@ -156,7 +128,7 @@ void ProjectManager::PruneInvalidProjects()
 // --------------------------------
 // Project handling
 
-Project* ProjectManager::CreateNewProject(std::string const& dir_name, std::string const& project_name)
+Project* ProjectManager::CreateNewProject(std::string const& dir_name)
 {
     try
     {
@@ -173,19 +145,7 @@ Project* ProjectManager::CreateNewProject(std::string const& dir_name, std::stri
         RoR::CreateFolder(dir_path.ToCStr());
 
         // Create project entry
-        Project* p = this->RegisterProjectDir(dir_name_buf.ToCStr());
-        p->prj_name = project_name;
-
-        if (this->SaveProject(p))
-        {
-            return p;
-        }
-        else
-        {
-            p->prj_valid = false;
-            this->PruneInvalidProjects();
-            return nullptr;
-        }
+        return this->RegisterProjectDir(dir_name_buf.ToCStr());
     }
     catch (Ogre::Exception& oex)
     {
@@ -193,23 +153,6 @@ Project* ProjectManager::CreateNewProject(std::string const& dir_name, std::stri
                                       fmt::format("Could not creat new project: {}", oex.getFullDescription()));
         return nullptr;
     }
-}
-
-bool ProjectManager::SaveProject(Project* proj)
-{
-    // Create JSON
-    rapidjson::Document j_doc;
-    j_doc.SetObject();
-    j_doc.AddMember("name", rapidjson::StringRef(proj->prj_name.c_str()), j_doc.GetAllocator());
-    j_doc.AddMember("format_version", 1, j_doc.GetAllocator());
-
-    // Write JSON to file
-    if (!App::GetContentManager()->SerializeAndWriteJson(PROJECT_FILE, proj->prj_rg_name, j_doc))
-    {
-        App::GetGuiManager()->ShowMessageBox(_L("Error"), _L("Could not save project file, see RoR.log for details"));
-        return false;
-    }
-    return true;
 }
 
 bool ProjectManager::ImportTruckToProject(std::string const& filename, std::shared_ptr<Truck::File> src_def, CacheEntry* entry)
@@ -222,9 +165,9 @@ bool ProjectManager::ImportTruckToProject(std::string const& filename, std::shar
     {
         is_unique = true;
         filename_buf << "imported_" << import_counter++ << "_" << filename;
-        for (auto& t: m_active_project->prj_trucks)
+        for (Ogre::String& t: *m_active_project->prj_trucks)
         {
-            if (t.prt_filename == filename_buf.ToCStr())
+            if (t == filename_buf.ToCStr())
             {
                 is_unique = false;
                 break;
@@ -234,30 +177,31 @@ bool ProjectManager::ImportTruckToProject(std::string const& filename, std::shar
     while (!is_unique);
 
     // Create new blank actor
-    m_def = std::make_shared<Truck::File>();
-    m_def->name = "(Imported) " + src_def->name;
+    m_active_truck_filename = filename;
+    m_active_truck_def = std::make_shared<Truck::File>();
+    m_active_truck_def->name = "(Imported) " + src_def->name;
 
     // copy global attributes
-    m_def->file_format_version           = src_def->file_format_version;
-    m_def->guid                          = src_def->guid; // string
-    m_def->hide_in_chooser               = src_def->hide_in_chooser                ;   //bool   
-    m_def->enable_advanced_deformation   = src_def->enable_advanced_deformation    ;   //bool   
-    m_def->slide_nodes_connect_instantly = src_def->slide_nodes_connect_instantly  ;   //bool   
-    m_def->rollon                        = src_def->rollon                         ;   //bool   
-    m_def->forward_commands              = src_def->forward_commands               ;   //bool   
-    m_def->import_commands               = src_def->import_commands                ;   //bool   
-    m_def->lockgroup_default_nolock      = src_def->lockgroup_default_nolock       ;   //bool   
-    m_def->rescuer                       = src_def->rescuer                        ;   //bool   
-    m_def->disable_default_sounds        = src_def->disable_default_sounds         ;   //bool   
-    m_def->name                          = src_def->name                           ;   //String 
-    m_def->collision_range               = src_def->collision_range                ;   //float  
-    m_def->global_minimass               = src_def->global_minimass                ;   //float  
-    m_def->description                   = src_def->description                    ;   // vector<string>
-    m_def->authors                       = src_def->authors                        ;   // vector<>
-    m_def->file_info = std::make_shared<Truck::Fileinfo>();
+    m_active_truck_def->file_format_version           = src_def->file_format_version;
+    m_active_truck_def->guid                          = src_def->guid; // string
+    m_active_truck_def->hide_in_chooser               = src_def->hide_in_chooser                ;   //bool   
+    m_active_truck_def->enable_advanced_deformation   = src_def->enable_advanced_deformation    ;   //bool   
+    m_active_truck_def->slide_nodes_connect_instantly = src_def->slide_nodes_connect_instantly  ;   //bool   
+    m_active_truck_def->rollon                        = src_def->rollon                         ;   //bool   
+    m_active_truck_def->forward_commands              = src_def->forward_commands               ;   //bool   
+    m_active_truck_def->import_commands               = src_def->import_commands                ;   //bool   
+    m_active_truck_def->lockgroup_default_nolock      = src_def->lockgroup_default_nolock       ;   //bool   
+    m_active_truck_def->rescuer                       = src_def->rescuer                        ;   //bool   
+    m_active_truck_def->disable_default_sounds        = src_def->disable_default_sounds         ;   //bool   
+    m_active_truck_def->name                          = src_def->name                           ;   //String 
+    m_active_truck_def->collision_range               = src_def->collision_range                ;   //float  
+    m_active_truck_def->global_minimass               = src_def->global_minimass                ;   //float  
+    m_active_truck_def->description                   = src_def->description                    ;   // vector<string>
+    m_active_truck_def->authors                       = src_def->authors                        ;   // vector<>
+    m_active_truck_def->file_info = std::make_shared<Truck::Fileinfo>();
     if (src_def->file_info)
     {
-        *(m_def->file_info.get()) = *(src_def->file_info.get()); // Copy the object contents
+        *(m_active_truck_def->file_info.get()) = *(src_def->file_info.get()); // Copy the object contents
     }
 
     // Vehicle modules (caled 'sections' in truckfile doc)
@@ -267,19 +211,14 @@ bool ProjectManager::ImportTruckToProject(std::string const& filename, std::shar
         this->ImportModuleToTruck(module_itor.second);
     }
 
-    // Save the snapshot
-    ProjectTruck snap;
-    snap.prt_filename = filename_buf;
-    snap.prt_name = filename_buf;
-    m_snapshot = &snap; // Temporary, just for the initial save.
+    // Save the truck file
     if (!this->SaveTruck())
     {
         return false; // Error already reported
     }
 
-    // Persist the snapshot in project
-    m_active_project->prj_trucks.push_back(snap);
-    m_snapshot = &m_active_project->prj_trucks.back();
+    // Register the truck file
+    m_active_project->prj_trucks->push_back(filename);
 
     // Import resources (use temporary RG, the existing one contains builtins, too)
     Ogre::ResourceGroupManager::getSingleton().addResourceLocation(entry->resource_bundle_path, entry->resource_bundle_type, RGN_TEMP);
@@ -377,11 +316,11 @@ void ProjectManager::ImportModuleToTruck(std::shared_ptr<Truck::File::Module> sr
 
     if (src->name == Truck::ROOT_MODULE_NAME)
     {
-        m_def->root_module = dst;
+        m_active_truck_def->root_module = dst;
     }
     else
     {
-        m_def->user_modules.insert(std::make_pair(src->name, dst));
+        m_active_truck_def->user_modules.insert(std::make_pair(src->name, dst));
     }
 }
 
@@ -393,16 +332,16 @@ bool ProjectManager::SaveTruck()
 
         // Open OGRE stream for writing
         const bool overwrite = true;
-        Ogre::DataStreamPtr stream = rgm.createResource(m_snapshot->prt_filename, m_active_project->prj_rg_name, overwrite);
+        Ogre::DataStreamPtr stream = rgm.createResource(m_active_truck_filename, m_active_project->prj_rg_name, overwrite);
         if (stream.isNull() || !stream->isWriteable())
         {
             OGRE_EXCEPT(Ogre::Exception::ERR_CANNOT_WRITE_TO_FILE,
-                "Stream NULL or not writeable, filename: '" + m_snapshot->prt_filename
+                "Stream NULL or not writeable, filename: '" + m_active_truck_filename
                 + "', resource group: '" + m_active_project->prj_rg_name + "'");
         }
 
         // Serialize actor to string
-        Truck::Serializer serializer(m_def);
+        Truck::Serializer serializer(m_active_truck_def);
         serializer.Serialize();
 
         // Flush the string to file
@@ -417,5 +356,11 @@ bool ProjectManager::SaveTruck()
         App::GetGuiManager()->ShowMessageBox("Error!", msg.c_str());
         return false;
     }
+}
+
+void ProjectManager::ReLoadResources(Project* project)
+{
+    Ogre::ResourceGroupManager::getSingleton().unloadResourceGroup(project->prj_rg_name);
+    Ogre::ResourceGroupManager::getSingleton().loadResourceGroup(project->prj_rg_name);
 }
 

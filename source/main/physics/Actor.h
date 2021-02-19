@@ -178,7 +178,7 @@ public:
     CacheEntry*       GetUsedSkin() const               { return m_used_skin_entry; }
     void              SetUsedSkin(CacheEntry* skin)     { m_used_skin_entry = skin; }
     CacheEntry*       GetCacheEntry() const             { return m_cache_entry; }
-    const Project*    GetProjectEntry() const           { return m_project_entry; }
+    Project*          GetProject() const                { return m_project; }
     float             getSpeed()                        { return m_avg_node_velocity.length(); };
     Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
     TyrePressure&     GetTyrePressure()                 { return m_tyre_pressure; }
@@ -499,8 +499,8 @@ private:
     GfxFlaresMode     m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
     CacheEntry*       m_used_skin_entry;       //!< Graphics
-    CacheEntry*       m_cache_entry;           //!< Content database info (if used on spawn)
-    const Project*    m_project_entry;         //!< Project database info (if used on spawn)
+    CacheEntry*       m_cache_entry;           //!< ModCache info (if used on spawn)
+    Project*          m_project;               //!< ProjectManager info (if used on spawn)
     Skidmark*         m_skid_trails[MAX_WHEELS*2];
     bool              m_antilockbrake;         //!< GUI state
     bool              m_tractioncontrol;       //!< GUI state

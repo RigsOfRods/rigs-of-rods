@@ -324,20 +324,20 @@ void TopMenubar::Update()
         if (ImGui::Begin("Projects menu", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
             int id_counter = 0; // Project names may not be unique
-            for (Project const& p: App::GetProjectManager()->GetProjects())
+            for (Project& p: App::GetProjectManager()->GetProjects())
             {
                 ImGui::PushID(id_counter++);
-                if (ImGui::TreeNode(p.prj_name.c_str())) // TODO: EDIT button
+                if (ImGui::TreeNode(p.prj_dirname.c_str())) // TODO: EDIT button
                 {
-                    for (ProjectTruck const& t: p.prj_trucks)
+                    for (Ogre::String& t: *p.prj_trucks)
                     {
-                        if (ImGui::Button(t.prt_name.c_str()))
+                        if (ImGui::Button(t.c_str()))
                         {
-                            // Spawn the actor from project snapshot
+                            // Spawn the actor from project truck file
                             ActorSpawnRequest* rq = new ActorSpawnRequest;
                             rq->asr_origin = ActorSpawnRequest::Origin::USER;
                             rq->asr_project = &p;
-                            rq->asr_filename = t.prt_filename;
+                            rq->asr_filename = t;
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
                         }
                     }
@@ -370,14 +370,13 @@ void TopMenubar::Update()
                 if (ImGui::Button(btn_title.ToCStr()))
                 {
                     // TODO: Make it happen asynchronously!
-                    std::string filename = src_actor->GetActorFileName();
-                    Str<200> prj_name;
-                    prj_name << "(Imported) " << src_actor->GetActorDesignName();
-                    Project* proj = App::GetProjectManager()->CreateNewProject(filename, prj_name.ToCStr());
+                    std::string dirname = fmt::format("imported_{}", src_actor->GetActorFileName());
+                    Project* proj = App::GetProjectManager()->CreateNewProject(dirname);
                     if (proj != nullptr) // Error already logged + displayed
                     {
                         App::GetProjectManager()->SetActiveProject(proj);
-                        App::GetProjectManager()->ImportTruckToProject(filename, src_actor->GetDefinition(), src_actor->GetCacheEntry());
+                        App::GetProjectManager()->ImportTruckToProject(
+                            src_actor->GetActorFileName(), src_actor->GetDefinition(), src_actor->GetCacheEntry());
                     }
                 }
             }

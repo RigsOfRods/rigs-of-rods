@@ -1187,6 +1187,7 @@ std::shared_ptr<Truck::File> ActorManager::FetchActorDef(RoR::ActorSpawnRequest&
 {
     if (rq.asr_project) // Always load from disk
     {
+        App::GetProjectManager()->ReLoadResources(rq.asr_project);
         return this->LoadActorDef(rq.asr_filename, rq.asr_project->prj_rg_name);
     }
     
