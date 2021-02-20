@@ -370,7 +370,7 @@ void TopMenubar::Update()
                 if (ImGui::Button(btn_title.ToCStr()))
                 {
                     // TODO: Make it happen asynchronously!
-                    std::string dirname = fmt::format("imported_{}", src_actor->GetActorFileName());
+                    std::string dirname = fmt::format("{} - imported", src_actor->GetActorFileName());
                     Project* proj = App::GetProjectManager()->CreateNewProject(dirname);
                     if (proj != nullptr) // Error already logged + displayed
                     {

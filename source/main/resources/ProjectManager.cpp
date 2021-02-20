@@ -155,26 +155,11 @@ Project* ProjectManager::CreateNewProject(std::string const& dir_name)
     }
 }
 
-bool ProjectManager::ImportTruckToProject(std::string const& filename, std::shared_ptr<Truck::File> src_def, CacheEntry* entry)
+bool ProjectManager::ImportTruckToProject(std::string const& src_filename, std::shared_ptr<Truck::File> src_def, CacheEntry* entry)
 {
-    // Generate filename (avoid duplicates)
-    Str<200> filename_buf;
-    static int import_counter = 0;
-    bool is_unique = true;
-    do
-    {
-        is_unique = true;
-        filename_buf << "imported_" << import_counter++ << "_" << filename;
-        for (Ogre::String& t: *m_active_project->prj_trucks)
-        {
-            if (t == filename_buf.ToCStr())
-            {
-                is_unique = false;
-                break;
-            }
-        }
-    }
-    while (!is_unique);
+    ROR_ASSERT(m_active_project);
+
+    std::string filename = this->MakeFilenameUniqueInProject(src_filename);
 
     // Create new blank actor
     m_active_truck_filename = filename;
@@ -183,21 +168,21 @@ bool ProjectManager::ImportTruckToProject(std::string const& filename, std::shar
 
     // copy global attributes
     m_active_truck_def->file_format_version           = src_def->file_format_version;
-    m_active_truck_def->guid                          = src_def->guid; // string
-    m_active_truck_def->hide_in_chooser               = src_def->hide_in_chooser                ;   //bool   
-    m_active_truck_def->enable_advanced_deformation   = src_def->enable_advanced_deformation    ;   //bool   
-    m_active_truck_def->slide_nodes_connect_instantly = src_def->slide_nodes_connect_instantly  ;   //bool   
-    m_active_truck_def->rollon                        = src_def->rollon                         ;   //bool   
-    m_active_truck_def->forward_commands              = src_def->forward_commands               ;   //bool   
-    m_active_truck_def->import_commands               = src_def->import_commands                ;   //bool   
-    m_active_truck_def->lockgroup_default_nolock      = src_def->lockgroup_default_nolock       ;   //bool   
-    m_active_truck_def->rescuer                       = src_def->rescuer                        ;   //bool   
-    m_active_truck_def->disable_default_sounds        = src_def->disable_default_sounds         ;   //bool   
-    m_active_truck_def->name                          = src_def->name                           ;   //String 
-    m_active_truck_def->collision_range               = src_def->collision_range                ;   //float  
-    m_active_truck_def->global_minimass               = src_def->global_minimass                ;   //float  
-    m_active_truck_def->description                   = src_def->description                    ;   // vector<string>
-    m_active_truck_def->authors                       = src_def->authors                        ;   // vector<>
+    m_active_truck_def->guid                          = src_def->guid;
+    m_active_truck_def->hide_in_chooser               = src_def->hide_in_chooser;
+    m_active_truck_def->enable_advanced_deformation   = src_def->enable_advanced_deformation;
+    m_active_truck_def->slide_nodes_connect_instantly = src_def->slide_nodes_connect_instantly;
+    m_active_truck_def->rollon                        = src_def->rollon;
+    m_active_truck_def->forward_commands              = src_def->forward_commands;
+    m_active_truck_def->import_commands               = src_def->import_commands;
+    m_active_truck_def->lockgroup_default_nolock      = src_def->lockgroup_default_nolock;
+    m_active_truck_def->rescuer                       = src_def->rescuer;
+    m_active_truck_def->disable_default_sounds        = src_def->disable_default_sounds;
+    m_active_truck_def->name                          = src_def->name;
+    m_active_truck_def->collision_range               = src_def->collision_range;
+    m_active_truck_def->global_minimass               = src_def->global_minimass;
+    m_active_truck_def->description                   = src_def->description;
+    m_active_truck_def->authors                       = src_def->authors;
     m_active_truck_def->file_info = std::make_shared<Truck::Fileinfo>();
     if (src_def->file_info)
     {
@@ -217,9 +202,6 @@ bool ProjectManager::ImportTruckToProject(std::string const& filename, std::shar
         return false; // Error already reported
     }
 
-    // Register the truck file
-    m_active_project->prj_trucks->push_back(filename);
-
     // Import resources (use temporary RG, the existing one contains builtins, too)
     Ogre::ResourceGroupManager::getSingleton().addResourceLocation(entry->resource_bundle_path, entry->resource_bundle_type, RGN_TEMP);
     Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(RGN_TEMP);
@@ -235,6 +217,9 @@ bool ProjectManager::ImportTruckToProject(std::string const& filename, std::shar
         }
     }
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_TEMP);
+
+    // Update truck list in the project
+    this->ReScanProjectDir(m_active_project);
 
     return true;
 }
@@ -362,5 +347,18 @@ void ProjectManager::ReLoadResources(Project* project)
 {
     Ogre::ResourceGroupManager::getSingleton().unloadResourceGroup(project->prj_rg_name);
     Ogre::ResourceGroupManager::getSingleton().loadResourceGroup(project->prj_rg_name);
+}
+
+std::string ProjectManager::MakeFilenameUniqueInProject(std::string const& src_filename)
+{
+    ROR_ASSERT(m_active_project);
+
+    int count = 1;
+    std::string filename = src_filename;
+    while (Ogre::ResourceGroupManager::getSingleton().resourceExists(m_active_project->prj_rg_name, filename))
+    {
+        filename = fmt::format("({}){}", ++count, src_filename);
+    }
+    return filename;
 }
 
