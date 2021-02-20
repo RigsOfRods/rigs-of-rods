@@ -278,7 +278,7 @@ void ActorSpawner::InitializeRig()
     m_actor->ar_cinecam_node[0]=-1;
     m_actor->ar_num_cinecams=0;
     m_actor->m_deletion_scene_nodes.clear();
-    for (int i=0; i<MAX_CLIGHTS; ++i) { m_actor->m_net_custom_lights[i] = -1; }
+    m_actor->m_net_custom_light_active[0] = false;
     m_actor->m_net_custom_light_count = 0;
 
     m_actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
@@ -2140,7 +2140,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
 
             if (m_actor->m_net_custom_light_count < MAX_CLIGHTS)
             {
-                m_actor->m_net_custom_lights[m_actor->m_net_custom_light_count] = static_cast<int>(m_actor->ar_flares.size());
+                m_actor->m_net_custom_light_active[m_actor->m_net_custom_light_count] = static_cast<int>(m_actor->ar_flares.size());
                 m_actor->m_net_custom_light_count++;
             }
         }

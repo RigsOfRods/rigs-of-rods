@@ -3039,6 +3039,7 @@ void Actor::UpdateFlareStates(float dt)
                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (ar_flares[i].controlnumber - 1)) && m_custom_light_toggle_countdown <= 0)
                 {
                     ar_flares[i].controltoggle_status = ! ar_flares[i].controltoggle_status;
+                    m_net_custom_light_active[ar_flares[i].controlnumber - 1] = ar_flares[i].controltoggle_status;
                     keysleep = true;
                 }
             }
@@ -4530,7 +4531,7 @@ bool Actor::getCustomLightVisible(int number)
         return false;
     }
 
-    return m_net_custom_lights[number] < ar_flares.size() && ar_flares[m_net_custom_lights[number]].controltoggle_status;
+    return m_net_custom_light_active[number] < ar_flares.size() && ar_flares[m_net_custom_light_active[number]].controltoggle_status;
 }
 
 void Actor::setCustomLightVisible(int number, bool visible)
@@ -4541,9 +4542,9 @@ void Actor::setCustomLightVisible(int number, bool visible)
         return;
     }
 
-    if (m_net_custom_lights[number] !=-1 && ar_flares[m_net_custom_lights[number]].snode)
+    if (m_net_custom_light_active[number] !=-1 && ar_flares[m_net_custom_light_active[number]].snode)
     {
-        ar_flares[m_net_custom_lights[number]].controltoggle_status = visible;
+        ar_flares[m_net_custom_light_active[number]].controltoggle_status = visible;
     }
 }
 
