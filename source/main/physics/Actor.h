@@ -491,7 +491,7 @@ private:
     float             m_load_mass;             //!< Physics attr; predefined load mass in Kg
     int               m_masscount;             //!< Physics attr; Number of nodes loaded with l option
     float             m_dry_mass;              //!< Physics attr;
-    bool m_net_custom_light_active[MAX_CLIGHTS];  //!< Sim state
+    bool              m_net_custom_light_active[MAX_CLIGHTS];  //!< Sim state
     unsigned char     m_net_custom_light_count;//!< Sim attr
     GfxFlaresMode     m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
