@@ -65,53 +65,9 @@ namespace Regexes
 // REMEMBER! Expressions using | MUST be enclosed in E_CAPTURE()              //
 // -------------------------------------------------------------------------- //
 
-// CHARACTERS
-
-#define E_BACKSLASH "\\\\" // Each backslash \ must be escaped in C++ (\\) and then in regex (\\\\)
-
 #define E_SLASH "\\/"
 
-// NUMBERS
-
-#define E_DECIMAL_NUMBER "-?[[:digit:]]+"
-
-#define E_POSITIVE_DECIMAL_NUMBER "[[:digit:]]+"
-
-#define E_NEGATIVE_DECIMAL_NUMBER "-[[:digit:]]+"
-
-#define E_REAL_NUMBER_WITH_EXPONENT "-?[[:digit:]]*\\.[[:digit:]]+[eE][-+]?[[:digit:]]+"
-
-#define E_REAL_NUMBER_WITH_EXPONENT_NO_FRACTION "-?[[:digit:]]*[eE][-+]?[[:digit:]]+"
-
-// NOTE: Intentionally accepting format "1." for backwards compatibility, observed in http://www.rigsofrods.org/repository/view/2389
-#define E_REAL_NUMBER_SIMPLE "-?[[:digit:]]*\\.[[:digit:]]*"
-
-//NOTE: Uses |, MUST be enclosed in E_CAPTURE()
-#define E_REAL_NUMBER \
-    E_REAL_NUMBER_WITH_EXPONENT             E_OR \
-    E_REAL_NUMBER_WITH_EXPONENT_NO_FRACTION E_OR \
-    E_REAL_NUMBER_SIMPLE                    E_OR \
-    E_DECIMAL_NUMBER 
-
-#define E_MINUS_ONE_REAL "-1\\.[0]*|-1"   // Uses |, MUST be enclosed in E_CAPTURE()
-
-// STRINGS
-
-#define E_ILLEGAL_TRAILING_STRING "[^[:blank:]]+.*"
-
-#define E_STRING_NO_SPACES "[[:alnum:]" E_BACKSLASH E_SLASH "@.{}()+,;_\\-]+"
-
-#define E_STRING_NO_LEADING_DIGIT "[^[:blank:][:digit:]]+[^[:blank:]]*"
-
-#define E_STRING_ANYTHING_BUT_WHITESPACE "[^[:blank:]]+"
-
-#define E_STRING_ANYTHING_BUT_DELIMITER "[^[:blank:],]+"
-
-#define E_STRING_ALNUM_HYPHENS_USCORES_ONLY "[[:alnum:]_-]+"
-
 #define E_OPTIONAL_SPACE "[[:blank:]]*"
-
-// DELIMITERS
 
 #define E_OR "|"
 
@@ -121,23 +77,7 @@ namespace Regexes
 
 #define E_DELIMITER_SPACE "[[:blank:]]+"
 
-#define E_DELIMITER_COMMA "[[:blank:]]*,[[:blank:]]*"
-
-#define E_DELIMITER_COLON "[[:blank:]]*:[[:blank:]]*"
-
-// Universal delimiter - at least 1 space or comma
-// Multiple delimiters in row are merged into one (backwards compatibility)
-#define E_DELIMITER "[[:blank:],]+"
-
-// VALUE TYPES
-
-#define E_BOOLEAN "true|yes|1|false|no|0" // Uses |, MUST be enclosed in E_CAPTURE()
-
-#define E_NODE_ID E_STRING_ALNUM_HYPHENS_USCORES_ONLY
-
-#define E_NODE_ID_OPTIONAL E_NODE_ID E_OR E_MINUS_ONE_REAL
-
-#define E_INERTIA_FUNCTION E_STRING_ALNUM_HYPHENS_USCORES_ONLY
+#define E_NODE_ID "[[:alnum:]_-]+"
 
 // --------------------------------------------------------------------------
 // Macros                                                                    
@@ -154,7 +94,6 @@ namespace Regexes
 /// A keyword which should be on it's own line. Used in IDENTIFY_KEYWORD.
 #define E_KEYWORD_BLOCK(_NAME_) \
     "(^" _NAME_ "[[:blank:]]*$)?"
-
 /// A keyword which should have values following it. Used in IDENTIFY_KEYWORD.
 #define E_KEYWORD_INLINE(_NAME_) \
     "(^" _NAME_ E_DELIMITER_SPACE ".*$)?"
@@ -162,20 +101,6 @@ namespace Regexes
 /// Inline keyword, tolerant version: keyword and values can be delimited by either space or comma
 #define E_KEYWORD_INLINE_TOLERANT(_NAME_) \
     "(^" _NAME_ "[[:blank:],]+" ".*$)?"
-
-#define E_DELIMITED_LIST( _VALUE_, _DELIMITER_ ) \
-    E_CAPTURE(                                   \
-        E_OPTIONAL_SPACE                         \
-        _VALUE_                                  \
-        E_OPTIONAL_SPACE                         \
-        _DELIMITER_                              \
-    ) "*"                                        \
-    E_CAPTURE(                                   \
-        E_OPTIONAL_SPACE                         \
-        _VALUE_                                  \
-        E_OPTIONAL_SPACE                         \
-    ) "+"
-
 /// Actual regex definition macro.
 #define DEFINE_REGEX(_NAME_,_REGEXP_) \
     const std::regex _NAME_ = std::regex( _REGEXP_, std::regex::ECMAScript);
@@ -300,28 +225,8 @@ namespace Regexes
     E_KEYWORD_BLOCK("wheels")                                     \
     E_KEYWORD_BLOCK("wheels2")                                    \
     E_KEYWORD_BLOCK("wings")
-
 DEFINE_REGEX(            IDENTIFY_KEYWORD_RESPECT_CASE, IDENTIFY_KEYWORD_REGEX_STRING )
 DEFINE_REGEX_IGNORECASE( IDENTIFY_KEYWORD_IGNORE_CASE,  IDENTIFY_KEYWORD_REGEX_STRING )
-
-DEFINE_REGEX( POSITIVE_DECIMAL_NUMBER, E_POSITIVE_DECIMAL_NUMBER );
-
-DEFINE_REGEX( NEGATIVE_DECIMAL_NUMBER, E_NEGATIVE_DECIMAL_NUMBER );
-
-DEFINE_REGEX( DECIMAL_NUMBER, E_DECIMAL_NUMBER );
-
-DEFINE_REGEX( MINUS_ONE_REAL, E_MINUS_ONE_REAL );
-
-DEFINE_REGEX( REAL_NUMBER, E_REAL_NUMBER );
-
-DEFINE_REGEX( NODE_ID_OPTIONAL,
-    E_LEADING_WHITESPACE
-    E_CAPTURE_OPTIONAL( E_POSITIVE_DECIMAL_NUMBER ) // Numeric Id
-    E_CAPTURE_OPTIONAL( E_MINUS_ONE_REAL ) // -1 = use default
-    E_CAPTURE_OPTIONAL( E_STRING_ALNUM_HYPHENS_USCORES_ONLY ) // String Id
-    E_CAPTURE_OPTIONAL( E_TRAILING_WHITESPACE )
-    );
-
 #define E_2xCAPTURE_TRAILING_COMMENT \
     E_OPTIONAL_SPACE                 \
     E_CAPTURE_OPTIONAL(              \
@@ -367,45 +272,23 @@ DEFINE_REGEX( SECTION_AXLES_PROPERTY,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( SECTION_COLLISIONBOXES,
-    E_LEADING_WHITESPACE
-    E_DELIMITED_LIST( E_NODE_ID, "," )
-    E_TRAILING_WHITESPACE
-    );
+
 
 // -------------------------------------------------------------------------- //
 // Cleanup                                                                    //
 // -------------------------------------------------------------------------- //
 
-#undef E_BACKSLASH
+
 #undef E_SLASH
-#undef E_REAL_NUMBER
-#undef E_DELIMITER_COMMA
-#undef E_DELIMITER_COLON
 #undef E_TRAILING_WHITESPACE
 #undef E_LEADING_WHITESPACE
-#undef E_STRING_NO_SPACES
-#undef E_STRING_ALNUM_HYPHENS_USCORES_ONLY
-#undef E_DECIMAL_NUMBER
-#undef E_POSITIVE_DECIMAL_NUMBER
-#undef E_NEGATIVE_DECIMAL_NUMBER
 #undef E_DELIMITER_SPACE
 #undef E_OPTIONAL_SPACE
-#undef E_MINUS_ONE_REAL
-#undef E_BOOLEAN
 #undef E_OR
 #undef E_NODE_ID
-#undef E_NODE_ID_OPTIONAL
-#undef E_INERTIA_FUNCTION
-
 #undef E_CAPTURE
 #undef E_CAPTURE_OPTIONAL
-#undef E_KEYWORD_BLOCK
-#undef E_KEYWORD_INLINE
-#undef E_DELIMITED_LIST
 #undef DEFINE_REGEX
-#undef DEFINE_REGEX_IGNORECASE
-
 #undef E_2xCAPTURE_TRAILING_COMMENT
 
 } // namespace Regexes
