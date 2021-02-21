@@ -39,7 +39,7 @@
 
 namespace RoR {
 
-/// Processes a Truck::File data structure (result of parsing a "Truckfile" fileformat) into 'an Actor' - a simulated physical object.
+/// Processes a Truck::Document data structure (result of parsing a "Truckfile" fileformat) into 'an Actor' - a simulated physical object.
 ///
 /// HISTORY:
 ///
@@ -48,14 +48,14 @@ namespace RoR {
 /// As a result, the logic was chaotic: some features broke each other (most notably VideoCameras X MaterialFlares X SkinZips) and the sim. structs often contained parser context variables.
 /// Also, the whole system was extremely sensitive to order of definitions in truckfile - often [badly/not] documented, known only by forum/IRC users at the time.
 ///
-/// Since v0.4.5, RoR has `Truck::Parser` which reads truckfile and emits instance of `Truck::File` - all data from truckfile in memory. `Truck::File` doesn't preserve the order of definitions,
+/// Since v0.4.5, RoR has `Truck::Parser` which reads truckfile and emits instance of `Truck::Document` - all data from truckfile in memory. `Truck::Document` doesn't preserve the order of definitions,
 /// instead it's designed to resolve all order-dependent references to order-independent, see `Truck::SequentialImporter` (resources/rig_def_fileformat/RigDef_SequentialImporter.h) for more info.
 /// `ActorSpawner` was created by carefully refactoring old `SerializedRig` described above, so a lot of the dirty logic remained. Elements were still written into constant-size arrays.
 ///
 /// PRESENT (06/2017):
 ///
 /// RoR is being refactored to get rid of the MAX_[BEAMS/NODES/***] limits. Static arrays in `rig_t` are replaced with pointers to dynamically allocated memory.
-/// Memory requirements are calculated upfront from `Truck::File`.
+/// Memory requirements are calculated upfront from `Truck::Document`.
 ///
 /// FUTURE:
 ///
@@ -116,7 +116,7 @@ public:
 
     void Setup(
         Actor *actor,
-        std::shared_ptr<Truck::File> file,
+        Truck::DocumentPtr file,
         Ogre::SceneNode *parent,
         Ogre::Vector3 const & spawn_position
         );
@@ -133,7 +133,7 @@ public:
     * Adds a vehicle module to the validated configuration.
     * @param module_name A module from the validated rig-def file.
     */
-    void AddModule(std::shared_ptr<Truck::File::Module> module)
+    void AddModule(Truck::ModulePtr module)
     {
         m_selected_modules.push_back(module);
     }
@@ -677,7 +677,7 @@ private:
     node_t* GetBeamNodePointer(Truck::Node::Ref const & node_ref);
 
     /**
-    * Seeks node in both Truck::File definition and rig_t generated rig.
+    * Seeks node in both Truck::Document definition and rig_t generated rig.
     * @return Node index or -1 if the node was not found.
     */
     int FindNodeIndex(Truck::Node::Ref & node_ref, bool silent = false);
@@ -848,7 +848,7 @@ private:
     */
     void CheckSectionSingleModule(
         Ogre::String const & section_name,
-        std::list<std::shared_ptr<Truck::File::Module>> & found_items	
+        std::list<Truck::ModulePtr> & found_items	
     );
 
     /**
@@ -1040,7 +1040,7 @@ private:
     */
     void InitializeRig();
 
-    void CalcMemoryRequirements(ActorMemoryRequirements& req, Truck::File::Module* module_def);
+    void CalcMemoryRequirements(ActorMemoryRequirements& req, Truck::Module* module_def);
 
     void HandleException();
 
@@ -1075,13 +1075,13 @@ private:
     Truck::Keyword     m_current_keyword; //!< For error reports
     std::vector<RoR::NodeGfx> m_gfx_nodes;
     CustomMaterial::MirrorPropType         m_curr_mirror_prop_type;
-    std::shared_ptr<Truck::File>          m_file; //!< The parsed input file.
+    Truck::DocumentPtr          m_file; //!< The parsed input file.
     std::map<Ogre::String, unsigned int>   m_named_nodes;
     std::map<std::string, CustomMaterial>  m_material_substitutions; //!< Maps original material names (shared) to their actor-specific substitutes; There's 1 substitute per 1 material, regardless of user count.
     std::vector<BeamVisualsTicket>         m_beam_visuals_queue; //!< We want to spawn visuals asynchronously in the future
     std::vector<WheelVisualsTicket>        m_wheel_visuals_queue; //!< We want to spawn visuals asynchronously in the future
     std::map<std::string, Ogre::MaterialPtr>  m_managed_materials;
-    std::list<std::shared_ptr<Truck::File::Module>>  m_selected_modules;
+    std::list<Truck::ModulePtr>  m_selected_modules;
 
 };
 

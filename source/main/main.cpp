@@ -719,7 +719,7 @@ int main(int argc, char *argv[])
                             {
                                 filename = fmt::format("export_{}", entry->fname);
                             }
-                            App::GetGameContext()->GetActorManager()->ExportActorDef(
+                            App::GetGameContext()->GetActorManager()->ExportTruckDocument(
                                 entry->actor_def, filename, entry->resource_group);
 
                             // Update cache - also deletes all spawned actors

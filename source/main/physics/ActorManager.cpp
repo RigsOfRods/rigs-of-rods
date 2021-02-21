@@ -77,7 +77,7 @@ ActorManager::~ActorManager()
     this->SyncWithSimThread(); // Wait for sim task to finish
 }
 
-void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_ptr<Truck::File> def)
+void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, Truck::DocumentPtr def)
 {
     // ~~~~ Code ported from Actor::Actor()
 
@@ -86,7 +86,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     // ~~~~ Code ported from Actor::LoadActor()
     //      LoadActor(def, beams_parent, pos, rot, spawnbox, cache_entry_number)
     //      bool Actor::LoadActor(
-    //          std::shared_ptr<Truck::File> def,
+    //          Truck::DocumentPtr def,
     //          Ogre::SceneNode* parent_scene_node,
     //          Ogre::Vector3 const& spawn_position,
     //          Ogre::Quaternion& spawn_rotation,
@@ -336,7 +336,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     LOG(" ===== DONE LOADING VEHICLE");
 }
 
-Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<Truck::File> def)
+Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, Truck::DocumentPtr def)
 {
     Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
     actor->SetUsedSkin(rq.asr_skin_entry);
@@ -1185,7 +1185,7 @@ void HandleErrorLoadingTruckfile(std::string filename, std::string exception_msg
     HandleErrorLoadingFile("actor", filename, exception_msg);
 }
 
-std::shared_ptr<Truck::File> ActorManager::FetchActorDef(RoR::ActorSpawnRequest& rq)
+Truck::DocumentPtr ActorManager::FetchTruckDocument(RoR::ActorSpawnRequest& rq)
 {
     // Make sure we have ModCache entry
     if (!rq.asr_cache_entry)
@@ -1206,7 +1206,7 @@ std::shared_ptr<Truck::File> ActorManager::FetchActorDef(RoR::ActorSpawnRequest&
 
     // Load the truck file
     App::GetCacheSystem()->LoadResource(*rq.asr_cache_entry);
-    std::shared_ptr<Truck::File> def = this->LoadActorDef(rq.asr_cache_entry->fname, rq.asr_cache_entry->resource_group);
+    Truck::DocumentPtr def = this->LoadTruckDocument(rq.asr_cache_entry->fname, rq.asr_cache_entry->resource_group);
     if (!def)
     {
         return nullptr; // Error already reported
@@ -1232,7 +1232,7 @@ std::shared_ptr<Truck::File> ActorManager::FetchActorDef(RoR::ActorSpawnRequest&
     return def;
 }
 
-std::shared_ptr<Truck::File> ActorManager::LoadActorDef(std::string const& filename, std::string const& rg_name)
+Truck::DocumentPtr ActorManager::LoadTruckDocument(std::string const& filename, std::string const& rg_name)
 {
     try
     {
@@ -1271,7 +1271,7 @@ std::shared_ptr<Truck::File> ActorManager::LoadActorDef(std::string const& filen
     }
 }
 
-void ActorManager::ExportActorDef(std::shared_ptr<Truck::File> def, std::string filename, std::string rg_name)
+void ActorManager::ExportTruckDocument(Truck::DocumentPtr def, std::string filename, std::string rg_name)
 {
     try
     {

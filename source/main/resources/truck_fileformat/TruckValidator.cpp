@@ -31,7 +31,7 @@
 
 #define CHECK_SECTION_IN_ALL_MODULES(_CLASS_, _FIELD_, _FUNCTION_) \
 { \
-    std::list<std::shared_ptr<Truck::File::Module>>::iterator module_itor = m_selected_modules.begin(); \
+    std::list<Truck::ModulePtr>::iterator module_itor = m_selected_modules.begin(); \
     for (; module_itor != m_selected_modules.end(); module_itor++) \
     { \
         std::vector<_CLASS_>::iterator section_itor = module_itor->get()->_FIELD_.begin(); \
@@ -108,10 +108,10 @@ bool Validator::Validate()
     return valid;
 }
 
-void Validator::Setup(std::shared_ptr<Truck::File> file)
+void Validator::Setup(Truck::DocumentPtr truck)
 {
-    m_file = file;
-    m_selected_modules.push_back(file->root_module);
+    m_truck = truck;
+    m_selected_modules.push_back(m_truck->root_module);
     m_check_beams = true;
 }
 
@@ -141,7 +141,7 @@ bool Validator::CheckSectionSubmeshGroundmodel()
 {
     Ogre::String *containing_module_name = nullptr;
 
-    std::list<std::shared_ptr<Truck::File::Module>>::iterator module_itor = m_selected_modules.begin();
+    std::list<Truck::ModulePtr>::iterator module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
         if (! module_itor->get()->submeshes_ground_model_name.empty())
@@ -168,7 +168,7 @@ bool Validator::CheckSection(Truck::Keyword keyword, bool unique, bool required)
 {
     Ogre::String *containing_module_name = nullptr;
 
-    std::list<std::shared_ptr<Truck::File::Module>>::iterator module_itor = m_selected_modules.begin();
+    std::list<Truck::ModulePtr>::iterator module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
         if (HasModuleKeyword(*module_itor, keyword))
@@ -180,7 +180,7 @@ bool Validator::CheckSection(Truck::Keyword keyword, bool unique, bool required)
             else if (unique)
             {
                 std::stringstream text;
-                text << "Duplicate section '" << Truck::File::KeywordToString(keyword)
+                text << "Duplicate section '" << Truck::Document::KeywordToString(keyword)
                     << "'; found in modules: '" << *containing_module_name
                     << "' & '" << module_itor->get()->name << "'";
                 AddMessage(Message::TYPE_FATAL_ERROR, text.str());
@@ -192,14 +192,14 @@ bool Validator::CheckSection(Truck::Keyword keyword, bool unique, bool required)
     if (containing_module_name == nullptr && required)
     {
         std::stringstream text;
-        text << "Missing required section '" << Truck::File::KeywordToString(keyword) <<"'";
+        text << "Missing required section '" << Truck::Document::KeywordToString(keyword) <<"'";
         AddMessage(Message::TYPE_FATAL_ERROR, text.str());
         return false;
     }
     return true;
 }
 
-bool Validator::HasModuleKeyword(std::shared_ptr<Truck::File::Module> module, Truck::Keyword keyword)
+bool Validator::HasModuleKeyword(Truck::ModulePtr module, Truck::Keyword keyword)
 {
     using namespace Truck;
 
@@ -255,10 +255,10 @@ bool Validator::HasModuleKeyword(std::shared_ptr<Truck::File::Module> module, Tr
 
 bool Validator::AddModule(Ogre::String const & module_name)
 {
-    std::map< Ogre::String, std::shared_ptr<Truck::File::Module> >::iterator result 
-        = m_file->user_modules.find(module_name);
+    std::map< Ogre::String, Truck::ModulePtr >::iterator result 
+        = m_truck->user_modules.find(module_name);
 
-    if (result != m_file->user_modules.end())
+    if (result != m_truck->user_modules.end())
     {
         m_selected_modules.push_back(result->second);
         return true;
@@ -270,7 +270,7 @@ bool Validator::CheckGearbox()
 {
     /* Find it */
     std::shared_ptr<Truck::Engine> engine;
-    std::list<std::shared_ptr<Truck::File::Module>>::iterator module_itor = m_selected_modules.begin();
+    std::list<Truck::ModulePtr>::iterator module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
         if (module_itor->get()->engine != nullptr)

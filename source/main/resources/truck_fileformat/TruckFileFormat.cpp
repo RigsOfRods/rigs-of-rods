@@ -269,7 +269,7 @@ void Animation::AddMotorSource(unsigned int source, unsigned int motor)
 /* File                                                                       */
 /* -------------------------------------------------------------------------- */
 
-const char * File::SectionToString(Section section)
+const char * Document::SectionToString(Section section)
 {
     switch (section)
     {
@@ -347,7 +347,7 @@ const char * File::SectionToString(Section section)
     }
 }
 
-const char * File::SubsectionToString(Subsection subsection)
+const char * Document::SubsectionToString(Subsection subsection)
 {
     switch (subsection)
     {
@@ -360,7 +360,7 @@ const char * File::SubsectionToString(Subsection subsection)
     }
 }
 
-const char * File::KeywordToString(Keyword keyword)
+const char * Document::KeywordToString(Keyword keyword)
 {
     /* NOTE: Maintain alphabetical order! */
 
@@ -443,7 +443,7 @@ const char * File::KeywordToString(Keyword keyword)
     }
 }
 
-File::Module::Module(Ogre::String const & name):
+Module::Module(Ogre::String const & name):
     name(name)
 {
     /* Pre-allocate */
@@ -491,7 +491,7 @@ File::Module::Module(Ogre::String const & name):
     wings.reserve(10);
 }
 
-File::File():
+Document::Document():
     file_format_version(0), // Default = unset
     hide_in_chooser(false),
     enable_advanced_deformation(false),
@@ -507,7 +507,7 @@ File::File():
 {
     authors.reserve(10);
     description.reserve(20);
-    root_module = std::make_shared<File::Module>(ROOT_MODULE_NAME); // Required to exist.
+    root_module = std::make_shared<Module>(ROOT_MODULE_NAME); // Required to exist.
 }
 
 } /* namespace Truck */

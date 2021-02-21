@@ -70,7 +70,8 @@ public:
     Ogre::String guid;                  //!< global unique id
     int version;                        //!< file's version
     Ogre::String fext;                  //!< file's extension
-
+    std::string resource_bundle_type;   //!< Archive type recognized by OGRE resource system: 'FileSystem' or 'Zip'
+    std::string resource_bundle_path;   //!< Path of ZIP or directory which contains the media. Shared between CacheEntries, loaded only once.
     int number;                         //!< Sequential number, assigned internally, used by Selector-GUI
     std::time_t filetime;               //!< filetime
     bool deleted;                       //!< is this mod deleted?
@@ -78,13 +79,9 @@ public:
     std::vector<AuthorInfo> authors;    //!< authors
     Ogre::String filecachename;         //!< preview image filename
 
-    // Resource bundle
-    std::string  resource_bundle_path;             //!< Path of ZIP or directory which contains the media. Shared between CacheEntries, loaded only once.
-    std::string  resource_bundle_type;             //!< Archive type recognized by OGRE resource system: 'FileSystem' or 'Zip'
-    Ogre::String resource_group;                   //!< OGRE resource group of the loaded bundle. Empty if not loaded yet.
+    Ogre::String resource_group;        //!< Resource group of the loaded bundle. Empty if not loaded yet.
 
-    // Cached data
-    std::shared_ptr<Truck::File>  actor_def; //!< Cached actor definition (aka truckfile) after first spawn
+    Truck::DocumentPtr actor_def; //!< Cached actor definition (aka truckfile) after first spawn
     std::shared_ptr<RoR::SkinDef> skin_def;  //!< Cached skin info, added on first use or during cache rebuild
 
     // following all TRUCK detail information:

@@ -49,11 +49,13 @@ namespace Truck {
 
 extern const char* ROOT_MODULE_NAME;
 
-/** IMPORTANT! If you add a value here, you must also modify Regexes::IDENTIFY_KEYWORD, it relies on numeric values of this enum. */
+typedef std::shared_ptr<Truck::Document> DocumentPtr;
+typedef std::shared_ptr<Truck::Module> ModulePtr;
+
+/** IMPORTANT! If you add a value here, you must also modify IDENTIFY_KEYWORD regex, it relies on numeric values of this enum. */
 enum Keyword
 {
     KEYWORD_ADD_ANIMATION = 1,
-    //KEYWORD_ADVDRAG, // not supported yet
     KEYWORD_AIRBRAKES,
     KEYWORD_ANIMATORS,
     KEYWORD_ANTI_LOCK_BRAKES,
@@ -145,7 +147,6 @@ enum Keyword
     KEYWORD_SLOPE_BRAKE,
     KEYWORD_SOUNDSOURCES,
     KEYWORD_SOUNDSOURCES2,
-    //KEYWORD_SOUNDSOURCES3, // not supported yet
     KEYWORD_SPEEDLIMITER,
     KEYWORD_SUBMESH,
     KEYWORD_SUBMESH_GROUNDMODEL,
@@ -166,6 +167,132 @@ enum Keyword
 
     KEYWORD_INVALID = 0xFFFFFFFF
 };
+
+/// A keyword which should be on it's own line. Used in IDENTIFY_KEYWORD.
+#define E_KEYWORD_BLOCK(_NAME_)     "(^" _NAME_ "[[:blank:]]*$)?"
+
+/// A keyword which should have values following it. Used in IDENTIFY_KEYWORD.
+#define E_KEYWORD_INLINE(_NAME_)     "(^" _NAME_ "[[:blank:]]+" ".*$)?"
+    
+/// Inline keyword, tolerant version: keyword and values can be delimited by either space or comma
+#define E_KEYWORD_INLINE_TOLERANT(_NAME_)     "(^" _NAME_ "[[:blank:],]+" ".*$)?"
+
+// IMPORTANT! If you add a value here, you must also modify Keywords enum, it relies on positions in this regex
+const std::string IDENTIFY_KEYWORD_REGEX_STRING(
+    E_KEYWORD_INLINE_TOLERANT("add_animation")  /* Position 1 */  \
+    E_KEYWORD_BLOCK("airbrakes")       /* Position 2 */           \
+    E_KEYWORD_BLOCK("animators")       /* Position 3 etc... */    \
+    E_KEYWORD_INLINE("AntiLockBrakes")                            \
+    E_KEYWORD_BLOCK("axles")                                      \
+    E_KEYWORD_INLINE("author")                                    \
+    E_KEYWORD_BLOCK("backmesh")                                   \
+    E_KEYWORD_BLOCK("beams")                                      \
+    E_KEYWORD_BLOCK("brakes")                                     \
+    E_KEYWORD_BLOCK("cab")                                        \
+    E_KEYWORD_BLOCK("camerarail")                                 \
+    E_KEYWORD_BLOCK("cameras")                                    \
+    E_KEYWORD_BLOCK("cinecam")                                    \
+    E_KEYWORD_BLOCK("collisionboxes")                             \
+    E_KEYWORD_BLOCK("commands")                                   \
+    E_KEYWORD_BLOCK("commands2")                                  \
+    E_KEYWORD_BLOCK("contacters")                                 \
+    E_KEYWORD_INLINE("cruisecontrol")                             \
+    E_KEYWORD_BLOCK("description")                                \
+    E_KEYWORD_INLINE("detacher_group")                            \
+    E_KEYWORD_BLOCK("disabledefaultsounds")                       \
+    E_KEYWORD_BLOCK("enable_advanced_deformation")                \
+    E_KEYWORD_BLOCK("end")                                        \
+    E_KEYWORD_BLOCK("end_section")                                \
+    E_KEYWORD_BLOCK("engine")                                     \
+    E_KEYWORD_BLOCK("engoption")                                  \
+    E_KEYWORD_BLOCK("engturbo")                                   \
+    E_KEYWORD_BLOCK("envmap")                                     \
+    E_KEYWORD_BLOCK("exhausts")                                   \
+    E_KEYWORD_INLINE("extcamera")                                 \
+    E_KEYWORD_INLINE("fileformatversion")                         \
+    E_KEYWORD_INLINE("fileinfo")                                  \
+    E_KEYWORD_BLOCK("fixes")                                      \
+    E_KEYWORD_BLOCK("flares")                                     \
+    E_KEYWORD_BLOCK("flares2")                                    \
+    E_KEYWORD_BLOCK("flexbodies")                                 \
+    E_KEYWORD_INLINE("flexbody_camera_mode")                      \
+    E_KEYWORD_BLOCK("flexbodywheels")                             \
+    E_KEYWORD_BLOCK("forwardcommands")                            \
+    E_KEYWORD_BLOCK("fusedrag")                                   \
+    E_KEYWORD_BLOCK("globals")                                    \
+    E_KEYWORD_INLINE("guid")                                      \
+    E_KEYWORD_BLOCK("guisettings")                                \
+    E_KEYWORD_BLOCK("help")                                       \
+    E_KEYWORD_BLOCK("hideInChooser")                              \
+    E_KEYWORD_BLOCK("hookgroup")                                  \
+    E_KEYWORD_BLOCK("hooks")                                      \
+    E_KEYWORD_BLOCK("hydros")                                     \
+    E_KEYWORD_BLOCK("importcommands")                             \
+    E_KEYWORD_BLOCK("interaxles")                                 \
+    E_KEYWORD_BLOCK("lockgroups")                                 \
+    E_KEYWORD_BLOCK("lockgroup_default_nolock")                   \
+    E_KEYWORD_BLOCK("managedmaterials")                           \
+    E_KEYWORD_BLOCK("materialflarebindings")                      \
+    E_KEYWORD_BLOCK("meshwheels")                                 \
+    E_KEYWORD_BLOCK("meshwheels2")                                \
+    E_KEYWORD_BLOCK("minimass")                                   \
+    E_KEYWORD_BLOCK("nodecollision")                              \
+    E_KEYWORD_BLOCK("nodes")                                      \
+    E_KEYWORD_BLOCK("nodes2")                                     \
+    E_KEYWORD_BLOCK("particles")                                  \
+    E_KEYWORD_BLOCK("pistonprops")                                \
+    E_KEYWORD_INLINE("prop_camera_mode")                          \
+    E_KEYWORD_BLOCK("props")                                      \
+    E_KEYWORD_BLOCK("railgroups")                                 \
+    E_KEYWORD_BLOCK("rescuer")                                    \
+    E_KEYWORD_BLOCK("rigidifiers")                                \
+    E_KEYWORD_BLOCK("rollon")                                     \
+    E_KEYWORD_BLOCK("ropables")                                   \
+    E_KEYWORD_BLOCK("ropes")                                      \
+    E_KEYWORD_BLOCK("rotators")                                   \
+    E_KEYWORD_BLOCK("rotators2")                                  \
+    E_KEYWORD_BLOCK("screwprops")                                 \
+    E_KEYWORD_INLINE("section")                                   \
+    E_KEYWORD_INLINE("sectionconfig")                             \
+    E_KEYWORD_INLINE("set_beam_defaults")                         \
+    E_KEYWORD_INLINE("set_beam_defaults_scale")                   \
+    E_KEYWORD_INLINE("set_collision_range")                       \
+    E_KEYWORD_INLINE("set_default_minimass")                      \
+    E_KEYWORD_INLINE("set_inertia_defaults")                      \
+    E_KEYWORD_INLINE("set_managedmaterials_options")              \
+    E_KEYWORD_INLINE("set_node_defaults")                         \
+    E_KEYWORD_BLOCK("set_shadows")                                \
+    E_KEYWORD_INLINE("set_skeleton_settings")                     \
+    E_KEYWORD_BLOCK("shocks")                                     \
+    E_KEYWORD_BLOCK("shocks2")                                    \
+    E_KEYWORD_BLOCK("shocks3")                                    \
+    E_KEYWORD_BLOCK("slidenode_connect_instantly")                \
+    E_KEYWORD_BLOCK("slidenodes")                                 \
+    E_KEYWORD_INLINE("SlopeBrake")                                \
+    E_KEYWORD_BLOCK("soundsources")                               \
+    E_KEYWORD_BLOCK("soundsources2")                              \
+    E_KEYWORD_INLINE("speedlimiter")                              \
+    E_KEYWORD_BLOCK("submesh")                                    \
+    E_KEYWORD_INLINE("submesh_groundmodel")                       \
+    E_KEYWORD_BLOCK("texcoords")                                  \
+    E_KEYWORD_BLOCK("ties")                                       \
+    E_KEYWORD_BLOCK("torquecurve")                                \
+    E_KEYWORD_INLINE("TractionControl")                           \
+    E_KEYWORD_BLOCK("transfercase")                               \
+    E_KEYWORD_BLOCK("triggers")                                   \
+    E_KEYWORD_BLOCK("turbojets")                                  \
+    E_KEYWORD_BLOCK("turboprops")                                 \
+    E_KEYWORD_BLOCK("turboprops2")                                \
+    E_KEYWORD_BLOCK("videocamera")                                \
+    E_KEYWORD_BLOCK("wheeldetachers")                             \
+    E_KEYWORD_BLOCK("wheels")                                     \
+    E_KEYWORD_BLOCK("wheels2")                                    \
+    E_KEYWORD_BLOCK("wings")
+);
+
+#undef E_KEYWORD_BLOCK
+#undef E_KEYWORD_INLINE
+#undef E_KEYWORD_INLINE_TOLERANT
 
 enum Section
 {
@@ -2219,102 +2346,98 @@ struct Wing
     float efficacy_coef;
 };
 
-/* -------------------------------------------------------------------------- */
-/* Root document                                                              */
-/* -------------------------------------------------------------------------- */
-
-struct File
+/// Group of elements of same type, formed by i.e. ';grp:NAME' comments in nodews/beams
+struct EditorGroup
 {
-    /// Group of elements of same type, formed by i.e. ';grp:NAME' comments in nodews/beams
-    struct EditorGroup
-    {
-        EditorGroup(const char* _name, Section sect): name(_name), section(sect) {}
-        std::string name;
-        Section section;
-    }; // more attributes may be needed...
+    EditorGroup(const char* _name, Section sect): name(_name), section(sect) {}
+    std::string name;
+    Section section;
+};
 
-    /// Modular part of vehicle (part of file wrapped in 'section ~ end_section' tags)
-    struct Module
-    {
-        Module(Ogre::String const & name);
+/// Modular part of vehicle (part of file wrapped in 'section ~ end_section' tags)
+struct Module
+{
+    Module(Ogre::String const & name);
 
-        Ogre::String name;
+    Ogre::String name;
 
-        Ogre::String                       help_panel_material_name;
-        std::vector<unsigned int>          contacter_nodes;
+    Ogre::String                       help_panel_material_name;
+    std::vector<unsigned int>          contacter_nodes;
 
-        /* Sections*/
-        std::vector<Airbrake>              airbrakes;
-        std::vector<Animator>              animators;
-        std::shared_ptr<AntiLockBrakes>    anti_lock_brakes;
-        std::vector<Axle>                  axles;
-        std::vector<Beam>                  beams;
-        std::shared_ptr<Brakes>            brakes;
-        std::vector<Camera>                cameras;
-        std::vector<CameraRail>            camera_rails;
-        std::vector<CollisionBox>          collision_boxes;
-        std::vector<Cinecam>               cinecam;
-        std::vector<Command2>              commands_2; /* sections 'commands' & 'commands2' are unified */
-        std::shared_ptr<CruiseControl>     cruise_control;
-        std::vector<Node::Ref>             contacters;
-        std::shared_ptr<Engine>            engine;
-        std::shared_ptr<Engoption>         engoption;
-        std::shared_ptr<Engturbo>          engturbo;
-        std::vector<Exhaust>               exhausts;
-        std::shared_ptr<ExtCamera>         ext_camera;
-        std::vector<Node::Ref>              fixes;
-        std::vector<Flare2>                flares_2;
-        std::vector<std::shared_ptr<Flexbody>>	flexbodies;
-        std::vector<FlexBodyWheel>         flex_body_wheels;
-        std::vector<Fusedrag>              fusedrag;
-        std::shared_ptr<Globals>           globals;
-        std::shared_ptr<GuiSettings>       gui_settings;
-        std::vector<Hook>                  hooks;
-        std::vector<Hydro>                 hydros;
-        std::vector<InterAxle>             interaxles;
-        std::vector<Lockgroup>             lockgroups;
-        std::vector<ManagedMaterial>       managed_materials;
-        std::vector<MaterialFlareBinding>  material_flare_bindings;
-        std::vector<MeshWheel>             mesh_wheels;
-        std::vector<Node>                  nodes; /* Nodes and Nodes2 are unified in this parser */
-        std::vector<NodeCollision>         node_collisions;
-        std::vector<Particle>              particles;
-        std::vector<Pistonprop>            pistonprops;
-        std::vector<Prop>                  props;
-        std::vector<RailGroup>             railgroups; 
-        std::vector<Ropable>               ropables;
-        std::vector<Rope>                  ropes;
-        std::vector<Rotator>               rotators;
-        std::vector<Rotator2>              rotators_2;
-        std::vector<Screwprop>             screwprops;
-        std::vector<Shock>                 shocks;
-        std::vector<Shock2>                shocks_2;
-        std::vector<Shock3>                shocks_3;
-        SkeletonSettings                   skeleton_settings;
-        std::vector<SlideNode>             slidenodes;
-        std::shared_ptr<SlopeBrake>        slope_brake;
-        std::vector<SoundSource>           soundsources;
-        std::vector<SoundSource2>          soundsources2;
-        SpeedLimiter                       speed_limiter;
-        Ogre::String                       submeshes_ground_model_name;
-        std::vector<Submesh>               submeshes;
-        std::vector<Tie>                   ties;
-        std::shared_ptr<TorqueCurve>       torque_curve;
-        std::shared_ptr<TractionControl>   traction_control;
-        std::shared_ptr<TransferCase>      transfer_case;
-        std::vector<Trigger>               triggers;
-        std::vector<Turbojet>              turbojets;
-        std::vector<Turboprop2>            turboprops_2;
-        std::vector<VideoCamera>           videocameras;
-        std::vector<WheelDetacher>         wheeldetachers;
-        std::vector<Wheel>                 wheels;
-        std::vector<Wheel2>                wheels_2;
-        std::vector<Wing>                  wings;
+    /* Sections*/
+    std::vector<Airbrake>              airbrakes;
+    std::vector<Animator>              animators;
+    std::shared_ptr<AntiLockBrakes>    anti_lock_brakes;
+    std::vector<Axle>                  axles;
+    std::vector<Beam>                  beams;
+    std::shared_ptr<Brakes>            brakes;
+    std::vector<Camera>                cameras;
+    std::vector<CameraRail>            camera_rails;
+    std::vector<CollisionBox>          collision_boxes;
+    std::vector<Cinecam>               cinecam;
+    std::vector<Command2>              commands_2; /* sections 'commands' & 'commands2' are unified */
+    std::shared_ptr<CruiseControl>     cruise_control;
+    std::vector<Node::Ref>             contacters;
+    std::shared_ptr<Engine>            engine;
+    std::shared_ptr<Engoption>         engoption;
+    std::shared_ptr<Engturbo>          engturbo;
+    std::vector<Exhaust>               exhausts;
+    std::shared_ptr<ExtCamera>         ext_camera;
+    std::vector<Node::Ref>              fixes;
+    std::vector<Flare2>                flares_2;
+    std::vector<std::shared_ptr<Flexbody>>	flexbodies;
+    std::vector<FlexBodyWheel>         flex_body_wheels;
+    std::vector<Fusedrag>              fusedrag;
+    std::shared_ptr<Globals>           globals;
+    std::shared_ptr<GuiSettings>       gui_settings;
+    std::vector<Hook>                  hooks;
+    std::vector<Hydro>                 hydros;
+    std::vector<InterAxle>             interaxles;
+    std::vector<Lockgroup>             lockgroups;
+    std::vector<ManagedMaterial>       managed_materials;
+    std::vector<MaterialFlareBinding>  material_flare_bindings;
+    std::vector<MeshWheel>             mesh_wheels;
+    std::vector<Node>                  nodes; /* Nodes and Nodes2 are unified in this parser */
+    std::vector<NodeCollision>         node_collisions;
+    std::vector<Particle>              particles;
+    std::vector<Pistonprop>            pistonprops;
+    std::vector<Prop>                  props;
+    std::vector<RailGroup>             railgroups; 
+    std::vector<Ropable>               ropables;
+    std::vector<Rope>                  ropes;
+    std::vector<Rotator>               rotators;
+    std::vector<Rotator2>              rotators_2;
+    std::vector<Screwprop>             screwprops;
+    std::vector<Shock>                 shocks;
+    std::vector<Shock2>                shocks_2;
+    std::vector<Shock3>                shocks_3;
+    SkeletonSettings                   skeleton_settings;
+    std::vector<SlideNode>             slidenodes;
+    std::shared_ptr<SlopeBrake>        slope_brake;
+    std::vector<SoundSource>           soundsources;
+    std::vector<SoundSource2>          soundsources2;
+    SpeedLimiter                       speed_limiter;
+    Ogre::String                       submeshes_ground_model_name;
+    std::vector<Submesh>               submeshes;
+    std::vector<Tie>                   ties;
+    std::shared_ptr<TorqueCurve>       torque_curve;
+    std::shared_ptr<TractionControl>   traction_control;
+    std::shared_ptr<TransferCase>      transfer_case;
+    std::vector<Trigger>               triggers;
+    std::vector<Turbojet>              turbojets;
+    std::vector<Turboprop2>            turboprops_2;
+    std::vector<VideoCamera>           videocameras;
+    std::vector<WheelDetacher>         wheeldetachers;
+    std::vector<Wheel>                 wheels;
+    std::vector<Wheel2>                wheels_2;
+    std::vector<Wing>                  wings;
 
-        std::vector<EditorGroup>           editor_groups; // Originally ';grp:NAME' comments from Editorizer tool
-    };
+    std::vector<EditorGroup>           editor_groups; // Originally ';grp:NAME' comments from Editorizer tool
+};
 
-    File();
+struct Document
+{
+    Document();
 
     static const char * SubsectionToString(Subsection subsection);
 
@@ -2340,9 +2463,9 @@ struct File
     // File hash
     std::string hash;
 
-    // Vehicle modules (caled 'sections' in truckfile doc)
-    std::shared_ptr<Module> root_module; //!< Required to exist. `shared_ptr` is used for unified handling with other modules.
-    std::map< Ogre::String, std::shared_ptr<Module> > user_modules;
+    // Vehicle modules (caled 'sections' in truck doc)
+    Truck::ModulePtr root_module; //!< Required to exist. `shared_ptr` is used for unified handling with other modules.
+    std::map< Ogre::String, Truck::ModulePtr > user_modules;
 
     // File sections
     std::vector<Author> authors;

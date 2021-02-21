@@ -55,7 +55,7 @@ public:
     Actor(
           int actor_id
         , unsigned int vector_index
-        , std::shared_ptr<Truck::File> def
+        , Truck::DocumentPtr def
         , ActorSpawnRequest rq
         );
 
@@ -160,7 +160,7 @@ public:
     Ogre::String     GetSectionConfig()                 { return m_section_config; }
     PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
     std::vector<Actor*> GetAllLinkedActors()            { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
-    std::shared_ptr<Truck::File> GetDefinition()       { return m_definition; }
+    Truck::DocumentPtr GetDefinition()       { return m_definition; }
     Ogre::Vector3     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetCameraRoll()                   { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
@@ -429,7 +429,7 @@ private:
     // -------------------- data -------------------- //
 
     std::vector<std::shared_ptr<Task>> m_flexbody_tasks;   //!< Gfx state
-    std::shared_ptr<Truck::File>      m_definition;
+    Truck::DocumentPtr      m_definition;
     std::unique_ptr<GfxActor>          m_gfx_actor;
     PerVehicleCameraContext            m_camera_context;
     Ogre::String                       m_section_config;
