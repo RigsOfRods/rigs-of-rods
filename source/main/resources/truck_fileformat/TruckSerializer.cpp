@@ -746,28 +746,28 @@ void Serializer::ProcessPropsAndAnimations(Module* module)
             << ", " << setw(m_float_width) << def.rotation.x 
             << ", " << setw(m_float_width) << def.rotation.y
             << ", " << setw(m_float_width) << def.rotation.z
-            << ", ";
+            << ", " << def.mesh_name;
 
         // Special props
         if (def.special == Prop::SPECIAL_BEACON)
         {
-            m_stream << def.mesh_name 
-                << " " << def.special_prop_beacon.flare_material_name
-                << " " << def.special_prop_beacon.color.r
+            m_stream
+                << ", " << def.special_prop_beacon.flare_material_name
+                << ", " << def.special_prop_beacon.color.r
                 << ", " << def.special_prop_beacon.color.g
                 << ", " << def.special_prop_beacon.color.b;
         }
         else if (def.special == Prop::SPECIAL_DASHBOARD_LEFT || def.special == Prop::SPECIAL_DASHBOARD_RIGHT)
         {
-            m_stream << " " << def.special_prop_dashboard.mesh_name
-                << " " << def.special_prop_dashboard.offset.x
-                << ", " << def.special_prop_dashboard.offset.y
-                << ", " << def.special_prop_dashboard.offset.z
-                << ", " << def.special_prop_dashboard.rotation_angle;
-        }
-        else
-        {
-            m_stream << def.mesh_name;
+            m_stream << ", " << def.special_prop_dashboard.mesh_name; // The steering wheel mesh
+            if (def.special_prop_dashboard._offset_is_set)
+            {
+                m_stream
+                    << ", " << def.special_prop_dashboard.offset.x
+                    << ", " << def.special_prop_dashboard.offset.y
+                    << ", " << def.special_prop_dashboard.offset.z
+                    << ", " << def.special_prop_dashboard.rotation_angle;
+            }
         }
 
         // Animations
