@@ -3772,7 +3772,7 @@ int Parser::GetCurrentEditorGroup()
     if (!m_current_module->editor_groups.empty() &&
         m_current_module->editor_groups.rbegin()->section == m_current_section)
     {
-        return (int)m_current_module->editor_groups.size();
+        return (int)m_current_module->editor_groups.size() - 1;
     }
     else
     {
