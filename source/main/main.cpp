@@ -436,6 +436,7 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->GetLoadingWindow()->SetVisible(false);
                     App::GetNetwork()->StopConnecting();
                     App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
+                    App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                     App::GetGuiManager()->ShowMessageBox(
                         _LC("Network", "Multiplayer: connection failed"), m.description.c_str());
                     App::GetGuiManager()->ReflectGameState();
