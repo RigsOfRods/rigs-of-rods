@@ -81,7 +81,7 @@ public:
 
     Ogre::String resource_group;        //!< Resource group of the loaded bundle. Empty if not loaded yet.
 
-    std::shared_ptr<Truck::File> actor_def; //!< Cached actor definition (aka truckfile) after first spawn
+    Truck::DocumentPtr actor_def; //!< Cached actor definition (aka truckfile) after first spawn
     std::shared_ptr<RoR::SkinDef> skin_def;  //!< Cached skin info, added on first use or during cache rebuild
 
     // following all TRUCK detail information:

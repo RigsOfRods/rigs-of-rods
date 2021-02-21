@@ -155,7 +155,7 @@ Project* ProjectManager::CreateNewProject(std::string const& dir_name)
     }
 }
 
-bool ProjectManager::ImportTruckToProject(std::string const& src_filename, std::shared_ptr<Truck::File> src_def, CacheEntry* entry)
+bool ProjectManager::ImportTruckToProject(std::string const& src_filename, Truck::DocumentPtr src_def, CacheEntry* entry)
 {
     ROR_ASSERT(m_active_project);
 
@@ -163,7 +163,7 @@ bool ProjectManager::ImportTruckToProject(std::string const& src_filename, std::
 
     // Create new blank actor
     m_active_truck_filename = filename;
-    m_active_truck_def = std::make_shared<Truck::File>();
+    m_active_truck_def = std::make_shared<Truck::Document>();
     m_active_truck_def->name = "(Imported) " + src_def->name;
 
     // copy global attributes
@@ -224,9 +224,9 @@ bool ProjectManager::ImportTruckToProject(std::string const& src_filename, std::
     return true;
 }
 
-void ProjectManager::ImportModuleToTruck(std::shared_ptr<Truck::File::Module> src)
+void ProjectManager::ImportModuleToTruck(Truck::ModulePtr src)
 {
-    std::shared_ptr<Truck::File::Module> dst = std::make_shared<Truck::File::Module>(src->name);
+    Truck::ModulePtr dst = std::make_shared<Truck::Module>(src->name);
 
     dst->help_panel_material_name   = src->help_panel_material_name   ; //Ogre::String                       
     dst->contacter_nodes            = src->contacter_nodes            ; //std::vector<unsigned int>          

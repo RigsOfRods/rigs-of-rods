@@ -162,7 +162,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
         rq.asr_filename = rq.asr_cache_entry->fname;
     }
 
-    std::shared_ptr<Truck::File> def = m_actor_manager.FetchActorDef(rq);
+    Truck::DocumentPtr def = m_actor_manager.FetchTruckDocument(rq);
     if (def == nullptr)
     {
         return nullptr; // Error already reported

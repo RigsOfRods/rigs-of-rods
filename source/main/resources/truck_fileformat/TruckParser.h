@@ -45,7 +45,7 @@ namespace Truck
 ///  The Parser should preferably only read data as-is, without validation.
 ///
 ///  Every time a line of a particular section is parsed, an instance of the struct
-///  is saved into an array container in struct Truck::File. There are exceptions to this rule.
+///  is saved into an array container in struct Truck::Document. There are exceptions to this rule.
 ///
 ///  Keywords 'set_[node|beam|inertia]_defaults' are 'presets' and are managed by dyn. allocated
 ///  objects. For every preset, there are 2 pointers:
@@ -84,7 +84,7 @@ public:
     void ProcessOgreStream(Ogre::DataStream* stream, Ogre::String resource_group);
     void ProcessRawLine(const char* line);
 
-    std::shared_ptr<Truck::File> GetFile()
+    Truck::DocumentPtr GetFile()
     {
         return m_definition;
     }
@@ -280,15 +280,15 @@ private:
     ManagedMaterialsOptions              m_current_managed_material_options;
 
     // Parser state
-    std::shared_ptr<File::Module>        m_root_module;
-    std::shared_ptr<File::Module>        m_current_module;
+    Truck::ModulePtr                     m_root_module;
+    Truck::ModulePtr                     m_current_module;
 
     unsigned int                         m_current_line_number;
     char                                 m_current_line[LINE_BUFFER_LENGTH];
     Token                                m_args[LINE_MAX_ARGS];    //!< Tokens of current line.
     int                                  m_num_args;               //!< Number of tokens on current line.
-    Section                        m_current_section;        //!< Parser state.
-    Subsection                     m_current_subsection;     //!< Parser state.
+    Section                              m_current_section;        //!< Parser state.
+    Subsection                           m_current_subsection;     //!< Parser state.
     bool                                 m_in_block_comment;       //!< Parser state.
     bool                                 m_in_description_section; //!< Parser state.
     bool                                 m_any_named_node_defined; //!< Parser state.
@@ -301,7 +301,7 @@ private:
     Ogre::String                         m_filename; // Logging
     Ogre::String                         m_resource_group;
 
-    std::shared_ptr<Truck::File>        m_definition;
+    Truck::DocumentPtr                   m_definition;
 };
 
 } // namespace Truck

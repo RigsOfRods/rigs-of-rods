@@ -32,95 +32,95 @@ namespace Truck{
 /// @class  Serializer
 /// @author Petr Ohlidal
 ///
-/// @brief Serializes the `Truck::File` data structure to string.
+/// @brief Serializes the `Truck::Document` data structure to string.
 class Serializer
 {
 public:
-    Serializer(std::shared_ptr<Truck::File> rig_def);
+    Serializer(Truck::DocumentPtr truck);
     void Serialize();
     std::string GetOutput() const { return m_stream.str(); }
 
 private:
-    void SerializeModule(std::shared_ptr<Truck::File::Module> m);
+    void SerializeModule(Truck::ModulePtr m);
 
     void ProcessAuthors();
-    void ProcessGlobals(File::Module* module);
+    void ProcessGlobals(Module* module);
     void ProcessDescription();
     void ProcessGuid();
     void ProcessFileinfo();
     void WriteFlags();
-    void ProcessHelp(File::Module* module);
+    void ProcessHelp(Module* module);
 
     // Audio video
-    void ProcessCinecam(File::Module*);
+    void ProcessCinecam(Module*);
 
     // Structure
-    void ProcessNodes(File::Module*);
+    void ProcessNodes(Module*);
     void ProcessNode(Node & node);
     void ProcessNodeDefaults(NodeDefaults* node_defaults);
     void ProcessNodeOptions(unsigned int options);
     void ProcessMinimassPreset(MinimassPreset* minimass_preset);
     
-    void ProcessBeams(File::Module*);
+    void ProcessBeams(Module*);
     void ProcessBeamDefaults(BeamDefaults* beam_defaults);
     void ProcessBeam(Beam & beam);
 
-    void ProcessShocks(File::Module*);
-    void ProcessShocks2(File::Module*);
-    void ProcessShocks3(File::Module*);
+    void ProcessShocks(Module*);
+    void ProcessShocks2(Module*);
+    void ProcessShocks3(Module*);
     void ProcessShock(Shock & def);
     void ProcessShock2(Shock2 & def);
     void ProcessShock3(Shock3 & def);
 
-    void ProcessHydros(File::Module*);
+    void ProcessHydros(Module*);
     void ProcessHydro(Hydro & def);
-    void ProcessRotators(File::Module* module);
-    void ProcessRotators2(File::Module* module);
+    void ProcessRotators(Module* module);
+    void ProcessRotators2(Module* module);
 
-    void ProcessCommands2(File::Module*);
+    void ProcessCommands2(Module*);
     void ProcessCommand2(Command2 & def);
-    void ProcessSlideNodes(File::Module* module);
-    void ProcessRopes(File::Module* module);
-    void ProcessFixes(File::Module* module);
-    void ProcessTies(File::Module* module);
+    void ProcessSlideNodes(Module* module);
+    void ProcessRopes(Module* module);
+    void ProcessFixes(Module* module);
+    void ProcessTies(Module* module);
 
-    void ProcessCameras(File::Module* module);
+    void ProcessCameras(Module* module);
 
     // Land vehicle
-    void ProcessEngine(File::Module* module);
-    void ProcessEngoption(File::Module* module);
-    void ProcessBrakes(File::Module* module);
-    void ProcessAntiLockBrakes(File::Module* module);
-    void ProcessTractionControl(File::Module* module);
-    void ProcessSlopeBrake(File::Module* module);
-    void ProcessTorqueCurve(File::Module* module);
-    void ProcessCruiseControl(File::Module* module);
-    void ProcessSpeedLimiter(File::Module* module);
-    void ProcessAxles(File::Module* module);
-    void ProcessTransferCase(File::Module* module);
-    void ProcessInterAxles(File::Module* module);
+    void ProcessEngine(Module* module);
+    void ProcessEngoption(Module* module);
+    void ProcessBrakes(Module* module);
+    void ProcessAntiLockBrakes(Module* module);
+    void ProcessTractionControl(Module* module);
+    void ProcessSlopeBrake(Module* module);
+    void ProcessTorqueCurve(Module* module);
+    void ProcessCruiseControl(Module* module);
+    void ProcessSpeedLimiter(Module* module);
+    void ProcessAxles(Module* module);
+    void ProcessTransferCase(Module* module);
+    void ProcessInterAxles(Module* module);
 
     // Wheels
-    void ProcessMeshWheels(File::Module* module); // And meshwheels2
-    void ProcessWheels(File::Module* module);
-    void ProcessWheels2(File::Module* module);
-    void ProcessFlexBodyWheels(File::Module* module);
+    void ProcessMeshWheels(Module* module); // And meshwheels2
+    void ProcessWheels(Module* module);
+    void ProcessWheels2(Module* module);
+    void ProcessFlexBodyWheels(Module* module);
 
     // Features
-    void ProcessAnimators(File::Module* module);
-    void ProcessContacters(File::Module* module);
-    void ProcessTriggers(File::Module* module);
-    void ProcessLockgroups(File::Module* module);
-    void ProcessHooks(File::Module* module);
-    void ProcessRailGroups(File::Module* module);
-    void ProcessRopables(File::Module* module);
-    void ProcessParticles(File::Module* module);
-    void ProcessCollisionBoxes(File::Module* module);
-    void ProcessManagedMaterialsAndOptions(File::Module* module);
-    void ProcessFlares2(File::Module* module);
-    void ProcessMaterialFlareBindings(File::Module* module);
-    void ProcessPropsAndAnimations(File::Module* module);
-    void ProcessFlexbodies(File::Module* module);
+    void ProcessAnimators(Module* module);
+    void ProcessContacters(Module* module);
+    void ProcessTriggers(Module* module);
+    void ProcessLockgroups(Module* module);
+    void ProcessHooks(Module* module);
+    void ProcessRailGroups(Module* module);
+    void ProcessRopables(Module* module);
+    void ProcessParticles(Module* module);
+    void ProcessCollisionBoxes(Module* module);
+    void ProcessManagedMaterialsAndOptions(Module* module);
+    void ProcessFlares2(Module* module);
+    void ProcessMaterialFlareBindings(Module* module);
+    void ProcessPropsAndAnimations(Module* module);
+    void ProcessFlexbodies(Module* module);
     void ProcessDirectiveAddAnimation(Truck::Animation & anim);
     /* TODO: 
     5.5.17 Camerarail
@@ -129,26 +129,26 @@ private:
         5.5.8.4 (sub-directive) flexbody_camera_mode
     */
 
-    void ProcessSubmesh(File::Module* module);
-    void ProcessSubmeshGroundmodel(File::Module* module); // STUB!!!
-    void ProcessExhausts(File::Module* module);
-    void ProcessGuiSettings(File::Module* module);
-    void ProcessSetSkeletonSettings(File::Module* module);
-    void ProcessVideocamera(File::Module* module);
-    void ProcessExtCamera(File::Module* module);
-    void ProcessSoundsources(File::Module* module);
-    void ProcessSoundsources2(File::Module* module);
+    void ProcessSubmesh(Module* module);
+    void ProcessSubmeshGroundmodel(Module* module);
+    void ProcessExhausts(Module* module);
+    void ProcessGuiSettings(Module* module);
+    void ProcessSetSkeletonSettings(Module* module);
+    void ProcessVideocamera(Module* module);
+    void ProcessExtCamera(Module* module);
+    void ProcessSoundsources(Module* module);
+    void ProcessSoundsources2(Module* module);
 
     // Aerial
-    void ProcessWings(File::Module* module);
-    void ProcessAirbrakes(File::Module* module);
-    void ProcessTurboprops(File::Module* module);
-    void ProcessFusedrag(File::Module* module); // STUB!!!
-    void ProcessTurbojets(File::Module* module);
-    void ProcessPistonprops(File::Module* module);
+    void ProcessWings(Module* module);
+    void ProcessAirbrakes(Module* module);
+    void ProcessTurboprops(Module* module);
+    void ProcessFusedrag(Module* module);
+    void ProcessTurbojets(Module* module);
+    void ProcessPistonprops(Module* module);
 
     // Marine
-    void ProcessScrewprops(File::Module* module);
+    void ProcessScrewprops(Module* module);
 
 protected:
 
@@ -160,22 +160,22 @@ protected:
 
     // Groups = `;grp:NAME` comments
     void                ResetGroup();
-    void                UpdateGroup(File::Module* module, int group_id);
+    void                UpdateGroup(Module* module, int group_id);
 
-    std::stringstream                 m_stream;
-    std::shared_ptr<Truck::File>     m_rig_def;
+    std::stringstream  m_stream;
+    Truck::DocumentPtr m_truck;
     // Settings
-    int                               m_float_precision;
-    int                               m_float_width;
-    int                               m_bool_width;
-    int                               m_node_id_width;
-    int                               m_command_key_width;
-    int                               m_inertia_function_width;
+    int                m_float_precision;
+    int                m_float_width;
+    int                m_bool_width;
+    int                m_node_id_width;
+    int                m_command_key_width;
+    int                m_inertia_function_width;
     // State
-    BeamDefaults*     m_current_beam_preset = nullptr;
-    NodeDefaults*     m_current_node_preset = nullptr;
-    MinimassPreset*   m_current_minimass_preset = nullptr;
-    int               m_current_editor_group = -1;
+    BeamDefaults*      m_current_beam_preset = nullptr;
+    NodeDefaults*      m_current_node_preset = nullptr;
+    MinimassPreset*    m_current_minimass_preset = nullptr;
+    int                m_current_editor_group = -1;
 };
 
 } // namespace Truck

@@ -88,7 +88,7 @@ using namespace RoR;
 
 void ActorSpawner::Setup(
     Actor *rig,
-    std::shared_ptr<Truck::File> file,
+    Truck::DocumentPtr file,
     Ogre::SceneNode *parent,
     Ogre::Vector3 const & spawn_position
 )
@@ -117,7 +117,7 @@ void ActorSpawner::Setup(
     App::GetCacheSystem()->CheckResourceLoaded(m_actor->ar_filename, m_custom_resource_group);
 }
 
-void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, Truck::File::Module* module_def)
+void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, Truck::Module* module_def)
 {
     // 'nodes'
     req.num_nodes += module_def->nodes.size();
@@ -5042,7 +5042,7 @@ void ActorSpawner::ProcessEngturbo(Truck::Engturbo & def)
     
         /* Find it */
     std::shared_ptr<Truck::Engturbo> engturbo;
-    std::list<std::shared_ptr<Truck::File::Module>>::iterator module_itor = m_selected_modules.begin();
+    std::list<Truck::ModulePtr>::iterator module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
         if (module_itor->get()->engturbo != nullptr)
@@ -5066,7 +5066,7 @@ void ActorSpawner::ProcessEngoption(Truck::Engoption & def)
 
     /* Find it */
     std::shared_ptr<Truck::Engoption> engoption;
-    std::list<std::shared_ptr<Truck::File::Module>>::iterator module_itor = m_selected_modules.begin();
+    std::list<Truck::ModulePtr>::iterator module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
         if (module_itor->get()->engoption != nullptr)
@@ -5130,7 +5130,7 @@ void ActorSpawner::ProcessHelp()
     SetCurrentKeyword(Truck::KEYWORD_HELP);
     unsigned int material_count = 0;
 
-    std::list<std::shared_ptr<Truck::File::Module>>::iterator module_itor = m_selected_modules.begin();
+    std::list<Truck::ModulePtr>::iterator module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
         auto module = module_itor->get();
@@ -5461,7 +5461,7 @@ void ActorSpawner::AddMessage(ActorSpawner::Message::Type type,	Ogre::String con
     txt << m_file->name;
     if (m_current_keyword != Truck::KEYWORD_INVALID)
     {
-        txt << " (" << Truck::File::KeywordToString(m_current_keyword) << ")";
+        txt << " (" << Truck::Document::KeywordToString(m_current_keyword) << ")";
     }
     txt << ": " << text;
     RoR::Console::MessageType cm_type;
@@ -7156,7 +7156,7 @@ void ActorSpawner::HandleException()
     {
         // Add the message silently, OGRE already printed it to RoR.log
         RoR::Str<2000> txt;
-        txt << "(Keyword: " << Truck::File::KeywordToString(m_current_keyword)
+        txt << "(Keyword: " << Truck::Document::KeywordToString(m_current_keyword)
             << ") " << ogre_e.getFullDescription();
         RoR::App::GetConsole()->putMessage(
             RoR::Console::CONSOLE_MSGTYPE_ACTOR, RoR::Console::CONSOLE_SYSTEM_ERROR, txt.ToCStr());

@@ -151,17 +151,7 @@ namespace Regexes
 #define E_CAPTURE_OPTIONAL(_REGEXP_) \
     "(" _REGEXP_ ")?"
 
-/// A keyword which should be on it's own line. Used in IDENTIFY_KEYWORD.
-#define E_KEYWORD_BLOCK(_NAME_) \
-    "(^" _NAME_ "[[:blank:]]*$)?"
 
-/// A keyword which should have values following it. Used in IDENTIFY_KEYWORD.
-#define E_KEYWORD_INLINE(_NAME_) \
-    "(^" _NAME_ E_DELIMITER_SPACE ".*$)?"
-    
-/// Inline keyword, tolerant version: keyword and values can be delimited by either space or comma
-#define E_KEYWORD_INLINE_TOLERANT(_NAME_) \
-    "(^" _NAME_ "[[:blank:],]+" ".*$)?"
 
 #define E_DELIMITED_LIST( _VALUE_, _DELIMITER_ ) \
     E_CAPTURE(                                   \
@@ -187,122 +177,7 @@ namespace Regexes
 // Utility regexes                                                            //
 // -------------------------------------------------------------------------- //
 
-// IMPORTANT! If you add a value here, you must also modify File::Keywords enum, it relies on positions in this regex
-#define IDENTIFY_KEYWORD_REGEX_STRING                             \
-    /* E_KEYWORD_BLOCK("advdrag") ~~ Not supported yet */         \
-    E_KEYWORD_INLINE_TOLERANT("add_animation")  /* Position 1 */  \
-    E_KEYWORD_BLOCK("airbrakes")       /* Position 2 */           \
-    E_KEYWORD_BLOCK("animators")       /* Position 3 etc... */    \
-    E_KEYWORD_INLINE("AntiLockBrakes")                            \
-    E_KEYWORD_BLOCK("axles")                                      \
-    E_KEYWORD_INLINE("author")                                    \
-    E_KEYWORD_BLOCK("backmesh")                                   \
-    E_KEYWORD_BLOCK("beams")                                      \
-    E_KEYWORD_BLOCK("brakes")                                     \
-    E_KEYWORD_BLOCK("cab")                                        \
-    E_KEYWORD_BLOCK("camerarail")                                 \
-    E_KEYWORD_BLOCK("cameras")                                    \
-    E_KEYWORD_BLOCK("cinecam")                                    \
-    E_KEYWORD_BLOCK("collisionboxes")                             \
-    E_KEYWORD_BLOCK("commands")                                   \
-    E_KEYWORD_BLOCK("commands2")                                  \
-    E_KEYWORD_BLOCK("contacters")                                 \
-    E_KEYWORD_INLINE("cruisecontrol")                             \
-    E_KEYWORD_BLOCK("description")                                \
-    E_KEYWORD_INLINE("detacher_group")                            \
-    E_KEYWORD_BLOCK("disabledefaultsounds")                       \
-    E_KEYWORD_BLOCK("enable_advanced_deformation")                \
-    E_KEYWORD_BLOCK("end")                                        \
-    E_KEYWORD_BLOCK("end_section")                                \
-    E_KEYWORD_BLOCK("engine")                                     \
-    E_KEYWORD_BLOCK("engoption")                                  \
-    E_KEYWORD_BLOCK("engturbo")                                   \
-    E_KEYWORD_BLOCK("envmap")                                     \
-    E_KEYWORD_BLOCK("exhausts")                                   \
-    E_KEYWORD_INLINE("extcamera")                                 \
-    E_KEYWORD_INLINE("fileformatversion")                         \
-    E_KEYWORD_INLINE("fileinfo")                                  \
-    E_KEYWORD_BLOCK("fixes")                                      \
-    E_KEYWORD_BLOCK("flares")                                     \
-    E_KEYWORD_BLOCK("flares2")                                    \
-    E_KEYWORD_BLOCK("flexbodies")                                 \
-    E_KEYWORD_INLINE("flexbody_camera_mode")                      \
-    E_KEYWORD_BLOCK("flexbodywheels")                             \
-    E_KEYWORD_BLOCK("forwardcommands")                            \
-    E_KEYWORD_BLOCK("fusedrag")                                   \
-    E_KEYWORD_BLOCK("globals")                                    \
-    E_KEYWORD_INLINE("guid")                                      \
-    E_KEYWORD_BLOCK("guisettings")                                \
-    E_KEYWORD_BLOCK("help")                                       \
-    E_KEYWORD_BLOCK("hideInChooser")                              \
-    E_KEYWORD_BLOCK("hookgroup")                                  \
-    E_KEYWORD_BLOCK("hooks")                                      \
-    E_KEYWORD_BLOCK("hydros")                                     \
-    E_KEYWORD_BLOCK("importcommands")                             \
-    E_KEYWORD_BLOCK("interaxles")                                 \
-    E_KEYWORD_BLOCK("lockgroups")                                 \
-    E_KEYWORD_BLOCK("lockgroup_default_nolock")                   \
-    E_KEYWORD_BLOCK("managedmaterials")                           \
-    E_KEYWORD_BLOCK("materialflarebindings")                      \
-    E_KEYWORD_BLOCK("meshwheels")                                 \
-    E_KEYWORD_BLOCK("meshwheels2")                                \
-    E_KEYWORD_BLOCK("minimass")                                   \
-    E_KEYWORD_BLOCK("nodecollision")                              \
-    E_KEYWORD_BLOCK("nodes")                                      \
-    E_KEYWORD_BLOCK("nodes2")                                     \
-    E_KEYWORD_BLOCK("particles")                                  \
-    E_KEYWORD_BLOCK("pistonprops")                                \
-    E_KEYWORD_INLINE("prop_camera_mode")                          \
-    E_KEYWORD_BLOCK("props")                                      \
-    E_KEYWORD_BLOCK("railgroups")                                 \
-    E_KEYWORD_BLOCK("rescuer")                                    \
-    E_KEYWORD_BLOCK("rigidifiers")                                \
-    E_KEYWORD_BLOCK("rollon")                                     \
-    E_KEYWORD_BLOCK("ropables")                                   \
-    E_KEYWORD_BLOCK("ropes")                                      \
-    E_KEYWORD_BLOCK("rotators")                                   \
-    E_KEYWORD_BLOCK("rotators2")                                  \
-    E_KEYWORD_BLOCK("screwprops")                                 \
-    E_KEYWORD_INLINE("section")                                   \
-    E_KEYWORD_INLINE("sectionconfig")                             \
-    E_KEYWORD_INLINE("set_beam_defaults")                         \
-    E_KEYWORD_INLINE("set_beam_defaults_scale")                   \
-    E_KEYWORD_INLINE("set_collision_range")                       \
-    E_KEYWORD_INLINE("set_default_minimass")                      \
-    E_KEYWORD_INLINE("set_inertia_defaults")                      \
-    E_KEYWORD_INLINE("set_managedmaterials_options")              \
-    E_KEYWORD_INLINE("set_node_defaults")                         \
-    E_KEYWORD_BLOCK("set_shadows")                                \
-    E_KEYWORD_INLINE("set_skeleton_settings")                     \
-    E_KEYWORD_BLOCK("shocks")                                     \
-    E_KEYWORD_BLOCK("shocks2")                                    \
-    E_KEYWORD_BLOCK("shocks3")                                    \
-    E_KEYWORD_BLOCK("slidenode_connect_instantly")                \
-    E_KEYWORD_BLOCK("slidenodes")                                 \
-    E_KEYWORD_INLINE("SlopeBrake")                                \
-    E_KEYWORD_BLOCK("soundsources")                               \
-    E_KEYWORD_BLOCK("soundsources2")                              \
-    E_KEYWORD_INLINE("speedlimiter")                              \
-    /* E_KEYWORD_BLOCK("soundsources3") ~~ Not supported yet */   \
-    E_KEYWORD_BLOCK("submesh")                                    \
-    E_KEYWORD_INLINE("submesh_groundmodel")                       \
-    E_KEYWORD_BLOCK("texcoords")                                  \
-    E_KEYWORD_BLOCK("ties")                                       \
-    E_KEYWORD_BLOCK("torquecurve")                                \
-    E_KEYWORD_INLINE("TractionControl")                           \
-    E_KEYWORD_BLOCK("transfercase")                               \
-    E_KEYWORD_BLOCK("triggers")                                   \
-    E_KEYWORD_BLOCK("turbojets")                                  \
-    E_KEYWORD_BLOCK("turboprops")                                 \
-    E_KEYWORD_BLOCK("turboprops2")                                \
-    E_KEYWORD_BLOCK("videocamera")                                \
-    E_KEYWORD_BLOCK("wheeldetachers")                             \
-    E_KEYWORD_BLOCK("wheels")                                     \
-    E_KEYWORD_BLOCK("wheels2")                                    \
-    E_KEYWORD_BLOCK("wings")
 
-DEFINE_REGEX(            IDENTIFY_KEYWORD_RESPECT_CASE, IDENTIFY_KEYWORD_REGEX_STRING )
-DEFINE_REGEX_IGNORECASE( IDENTIFY_KEYWORD_IGNORE_CASE,  IDENTIFY_KEYWORD_REGEX_STRING )
 
 DEFINE_REGEX( POSITIVE_DECIMAL_NUMBER, E_POSITIVE_DECIMAL_NUMBER );
 

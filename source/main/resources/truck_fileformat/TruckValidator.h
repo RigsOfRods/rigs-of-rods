@@ -64,7 +64,7 @@ public:
     /**
     * Prepares the validation.
     */
-    void Setup(std::shared_ptr<Truck::File> file);
+    void Setup(Truck::DocumentPtr truck);
 
     /**
     * Adds a vehicle module to the validated configuration.
@@ -92,7 +92,7 @@ private:
     /**
     * Checks if a module contains a section.
     */
-    bool HasModuleKeyword(std::shared_ptr<Truck::File::Module> module, Truck::Keyword keyword);
+    bool HasModuleKeyword(Truck::ModulePtr module, Truck::Keyword keyword);
 
     /**
     * Inline-ection 'submesh_groundmodel', unique across all modules.
@@ -131,8 +131,8 @@ private:
 /* Properties                                                                 */
 /* -------------------------------------------------------------------------- */
 
-    std::shared_ptr<Truck::File> m_file; //!< The parsed input file.
-    std::list<std::shared_ptr<Truck::File::Module>> m_selected_modules;
+    Truck::DocumentPtr m_truck;
+    std::list<Truck::ModulePtr> m_selected_modules;
     bool m_check_beams;
 
 };

@@ -37,13 +37,14 @@
 #include <OgreString.h>
 #include <OgreStringVector.h>
 #include <OgreStringConverter.h>
+#include <regex>
 
 using namespace RoR;
 
 namespace Truck
 {
 
-using namespace RoR;
+const std::regex IDENTIFY_KEYWORD_IGNORE_CASE( IDENTIFY_KEYWORD_REGEX_STRING, std::regex::ECMAScript | std::regex::icase);
 
 inline bool IsWhitespace(char c)
 {
@@ -798,7 +799,7 @@ void Parser::ProcessGlobalDirective(Keyword keyword)   // Directives that should
     case KEYWORD_SLIDENODE_CONNECT_INSTANT: m_definition->slide_nodes_connect_instantly = true; return;
 
     default: this->AddMessage(Message::TYPE_ERROR, "INTERNAL ERROR: '"
-                 + std::string(File::KeywordToString(keyword)) + "' is not a global directive");      return;
+                 + std::string(Document::KeywordToString(keyword)) + "' is not a global directive");      return;
     }
 }
 
@@ -807,7 +808,7 @@ void Parser::VerifyModuleIsRoot(Keyword keyword)
     if (m_current_module != m_root_module)
     {
         char buf[200];
-        snprintf(buf, 200, "Keyword '%s' has global effect and should not appear in a module", File::KeywordToString(keyword));
+        snprintf(buf, 200, "Keyword '%s' has global effect and should not appear in a module", Document::KeywordToString(keyword));
         this->AddMessage(Message::TYPE_WARNING, buf);
     }
 }
@@ -3194,10 +3195,10 @@ void Parser::AddMessage(std::string const & line, Message::Type type, std::strin
     txt << " (line " << (size_t)m_current_line_number;
     if (m_current_section != Section::SECTION_INVALID)
     {
-        txt << " '" << Truck::File::SectionToString(m_current_section);
+        txt << " '" << Truck::Document::SectionToString(m_current_section);
         if (m_current_subsection != Subsection::SUBSECTION_NONE)
         {
-            txt << "/" << Truck::File::SubsectionToString(m_current_subsection);
+            txt << "/" << Truck::Document::SubsectionToString(m_current_subsection);
         }
         txt << "'";
     }
@@ -3238,25 +3239,11 @@ Keyword Parser::IdentifyKeywordInCurrentLine()
         return KEYWORD_INVALID;
     }
 
-    // Search with correct lettercase
+    // Search (always ignore case)
     std::smatch results;
-    std::string line(m_current_line);
-    std::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_RESPECT_CASE); // Always returns true.
-    Keyword keyword = FindKeywordMatch(results);
-    if (keyword != KEYWORD_INVALID)
-    {
-        return keyword;
-    }
-
-    // Search and ignore lettercase
-    std::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_IGNORE_CASE); // Always returns true.
-    keyword = FindKeywordMatch(results);
-    if (keyword != KEYWORD_INVALID)
-    {
-        this->AddMessage(line, Message::TYPE_WARNING,
-            "Keyword has invalid lettercase. Correct form is: " + std::string(File::KeywordToString(keyword)));
-    }
-    return keyword;
+    const std::string line(m_current_line);
+    std::regex_search(line, results, IDENTIFY_KEYWORD_IGNORE_CASE); // Always returns true.
+    return FindKeywordMatch(results);
 }
 
 Keyword Parser::FindKeywordMatch(std::smatch& search_results)
@@ -3281,7 +3268,7 @@ void Parser::Prepare()
     m_current_section = SECTION_TRUCK_NAME;
     m_current_subsection = SUBSECTION_NONE;
     m_current_line_number = 1;
-    m_definition = std::shared_ptr<File>(new File());
+    m_definition = std::make_shared<Document>();
     m_in_block_comment = false;
     m_in_description_section = false;
     m_any_named_node_defined = false;
@@ -3403,7 +3390,7 @@ void Parser::ProcessChangeModuleLine(Keyword keyword)
     }
     else
     {
-        m_current_module = std::make_shared<File::Module>(new_module_name);
+        m_current_module = std::make_shared<Module>(new_module_name);
         m_definition->user_modules.insert(std::make_pair(new_module_name, m_current_module));
     }
 }
@@ -3764,7 +3751,7 @@ void Parser::ProcessCommentLine()
         return;
     }
 
-    m_current_module->editor_groups.push_back(File::EditorGroup(name.ToCStr(), m_current_section));
+    m_current_module->editor_groups.push_back(EditorGroup(name.ToCStr(), m_current_section));
 }
 
 int Parser::GetCurrentEditorGroup()

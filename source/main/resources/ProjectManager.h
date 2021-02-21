@@ -53,8 +53,8 @@ public:
 
     // Project handling
     Project*            CreateNewProject(std::string const& dirname);
-    bool                ImportTruckToProject(std::string const& filename, std::shared_ptr<Truck::File> def, CacheEntry* entry); //!< Imports truckfile to current project + opens it
-    void                ImportModuleToTruck(std::shared_ptr<Truck::File::Module> m); //!< Imports module (see 'sectionconfig') to current actor
+    bool                ImportTruckToProject(std::string const& filename, Truck::DocumentPtr def, CacheEntry* entry); //!< Imports truckfile to current project + opens it
+    void                ImportModuleToTruck(Truck::ModulePtr m); //!< Imports module (see 'sectionconfig') to current actor
     bool                SaveTruck();
     void                ReLoadResources(Project* project);
 
@@ -66,7 +66,7 @@ private:
     ProjectVec                      m_projects;
     Project*                        m_active_project = nullptr;
     Ogre::String                    m_active_truck_filename;
-    std::shared_ptr<Truck::File>    m_active_truck_def;
+    Truck::DocumentPtr    m_active_truck_def;
 };
 
 } // namespace RoR

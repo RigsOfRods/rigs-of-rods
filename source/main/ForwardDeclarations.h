@@ -177,6 +177,9 @@ namespace Truck
     struct NodeDefaults;
     struct MinimassPreset;
     struct BeamDefaults;
+    struct EditorGroup;
+    struct Module;
+    struct Document;
 }
 
 #ifdef USE_SOCKETW
