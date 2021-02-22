@@ -6,13 +6,14 @@
 # João Bravo <joao.nuno19@gmail.com>, 2016
 # Rui <xymarior@yandex.com>, 2018
 # Bruno Dias Barros <brunodiasbarros09@gmail.com>, 2021.
+# ssantos <ssantos@web.de>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-13 19:27+0100\n"
-"PO-Revision-Date: 2021-01-30 02:32+0000\n"
-"Last-Translator: Bruno Dias Barros <brunodiasbarros09@gmail.com>\n"
+"PO-Revision-Date: 2021-02-23 05:50+0000\n"
+"Last-Translator: ssantos <ssantos@web.de>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/pt/>\n"
 "Language: pt\n"
@@ -20,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.5-dev\n"
+"X-Generator: Weblate 4.5\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:407 AppContext.cpp:425
 #: AppContext.cpp:476 AppContext.cpp:490 AppContext.cpp:501
@@ -750,12 +751,9 @@ msgid "Resume game"
 msgstr "Resumir jogo"
 
 #: gui/panels/GUI_GameMainMenu.cpp:121
-#, fuzzy
-#| msgctxt "MainMenu"
-#| msgid "Multi player"
 msgctxt "MainMenu"
 msgid "Multiplayer"
-msgstr "Jogadores Multiplos"
+msgstr "Multiplos jogadores"
 
 #: gui/panels/GUI_GameMainMenu.cpp:127
 msgctxt "MainMenu"
