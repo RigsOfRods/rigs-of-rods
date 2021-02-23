@@ -364,6 +364,7 @@ Vector3 Actor::getPosition()
 
 void Actor::pushNetwork(char* data, int size)
 {
+#if USE_SOCKETW
     NetUpdate update;
 
     update.veh_state.resize(sizeof(RoRnet::VehicleState));
@@ -446,6 +447,7 @@ void Actor::pushNetwork(char* data, int size)
     }
 
     m_net_updates.push_back(update);
+#endif // USE_SOCKETW
 }
 
 void Actor::calcNetwork()

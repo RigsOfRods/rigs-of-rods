@@ -332,6 +332,8 @@ void GfxScene::RemoveGfxCharacter(RoR::GfxCharacter* remove_me)
 
 void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string const& nick, int colornum)
 {
+#if USE_SOCKETW
+
         // this ensures that the nickname is always in a readable size
         float font_size = std::max(0.6, cam_dist / 40.0);
         std::string caption;
@@ -385,5 +387,7 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
         ImVec4 text_color(color.r, color.g, color.b, 1.f);
         drawlist->AddText(g->Font, g->FontSize, text_pos, ImColor(text_color), caption.c_str());
     }
+
+#endif // USE_SOCKETW
 }
 
