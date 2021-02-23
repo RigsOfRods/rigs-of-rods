@@ -393,10 +393,13 @@ int main(int argc, char *argv[])
                 // -- Network events --
 
                 case MSG_NET_CONNECT_REQUESTED:
+#if USE_SOCKETW
                     App::GetNetwork()->StartConnecting();
+#endif
                     break;
 
                 case MSG_NET_DISCONNECT_REQUESTED:
+#if USE_SOCKETW
                     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
                     {
                         App::GetNetwork()->Disconnect();
@@ -406,6 +409,7 @@ int main(int argc, char *argv[])
                             App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                         }
                     }
+#endif // USE_SOCKETW
                     break;
 
                 case MSG_NET_SERVER_KICK:
@@ -435,6 +439,7 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_NET_CONNECT_SUCCESS:
+#if USE_SOCKETW
                     App::GetGuiManager()->LoadingWindow.SetVisible(false);
                     App::GetNetwork()->StopConnecting();
                     App::mp_state->setVal((int)RoR::MpState::CONNECTED);
@@ -461,15 +466,18 @@ int main(int argc, char *argv[])
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->getStr()));
                         }
                     }
+#endif // USE_SOCKETW
                     break;
 
                 case MSG_NET_CONNECT_FAILURE:
+#if USE_SOCKETW
                     App::GetGuiManager()->LoadingWindow.SetVisible(false);
                     App::GetNetwork()->StopConnecting();
                     App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
                     App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                     App::GetGuiManager()->ShowMessageBox(
                         _LC("Network", "Multiplayer: connection failed"), m.description.c_str());
+#endif // USE_SOCKETW
                     break;
 
                 case MSG_NET_REFRESH_SERVERLIST_SUCCESS:
