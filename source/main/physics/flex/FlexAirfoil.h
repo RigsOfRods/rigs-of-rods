@@ -31,7 +31,7 @@ class FlexAirfoil : public ZeroedMemoryAllocator
 {
 public:
     FlexAirfoil(Ogre::String const& wname, Actor* actor,
-        int pnfld, int pnfrd, int pnflu, int pnfru, int pnbld, int pnbrd, int pnblu, int pnbru,
+        NodeNum_t pnfld, NodeNum_t pnfrd, NodeNum_t pnflu, NodeNum_t pnfru, NodeNum_t pnbld, NodeNum_t pnbrd, NodeNum_t pnblu, NodeNum_t pnbru,
         std::string const & texname,
         Ogre::Vector2 texlf, Ogre::Vector2 texrf, Ogre::Vector2 texlb, Ogre::Vector2 texrb,
         char mtype, float controlratio, float mind, float maxd, Ogre::String const& afname, float lift_coef, bool break_able);
@@ -53,14 +53,14 @@ public:
 
     float aoa;
     char type;
-    int nfld;
-    int nfrd;
-    int nflu;
-    int nfru;
-    int nbld;
-    int nbrd;
-    int nblu;
-    int nbru;
+    NodeNum_t nfld;
+    NodeNum_t nfrd;
+    NodeNum_t nflu;
+    NodeNum_t nfru;
+    NodeNum_t nbld;
+    NodeNum_t nbrd;
+    NodeNum_t nblu;
+    NodeNum_t nbru;
 
     bool broken;
     bool breakable;

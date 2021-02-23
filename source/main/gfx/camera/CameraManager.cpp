@@ -208,9 +208,9 @@ void CameraManager::UpdateCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: {
         CameraManager::CameraBehaviorOrbitUpdate();
 
-        int pos_node  = m_cct_player_actor->ar_camera_node_pos [m_cct_player_actor->ar_current_cinecam];
-        int dir_node  = m_cct_player_actor->ar_camera_node_dir [m_cct_player_actor->ar_current_cinecam];
-        int roll_node = m_cct_player_actor->ar_camera_node_roll[m_cct_player_actor->ar_current_cinecam];
+        const NodeNum_t pos_node  = m_cct_player_actor->ar_camera_node_pos [m_cct_player_actor->ar_current_cinecam];
+        const NodeNum_t dir_node  = m_cct_player_actor->ar_camera_node_dir [m_cct_player_actor->ar_current_cinecam];
+        const NodeNum_t roll_node = m_cct_player_actor->ar_camera_node_roll[m_cct_player_actor->ar_current_cinecam];
 
         Vector3 dir  = (m_cct_player_actor->ar_nodes[pos_node].AbsPosition
                 - m_cct_player_actor->ar_nodes[dir_node].AbsPosition).normalisedCopy();
@@ -1075,7 +1075,7 @@ bool CameraManager::CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _ar
 
 	if ( ms.buttonDown(OIS::MB_Middle) && RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) )
 	{
-		if ( m_cct_player_actor && m_cct_player_actor->ar_custom_camera_node >= 0 )
+		if ( m_cct_player_actor && m_cct_player_actor->ar_custom_camera_node != NODENUM_INVALID)
 		{
 			// Calculate new camera distance
 			Vector3 lookAt = m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_custom_camera_node].AbsPosition;

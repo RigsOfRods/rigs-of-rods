@@ -1047,7 +1047,7 @@ void Actor::resolveCollisions(float max_distance, bool consider_up)
 void Actor::calculateAveragePosition()
 {
     // calculate average position
-    if (ar_custom_camera_node >= 0)
+    if (ar_custom_camera_node != NODENUM_INVALID)
     {
         m_avg_node_position = ar_nodes[ar_custom_camera_node].AbsPosition;
     }
@@ -1056,7 +1056,7 @@ void Actor::calculateAveragePosition()
         // the new (strange) approach: reuse the cinecam node
         m_avg_node_position = ar_nodes[ar_cinecam_node[0]].AbsPosition;
     }
-    else if (ar_extern_camera_mode == 2 && ar_extern_camera_node >= 0)
+    else if (ar_extern_camera_mode == 2 && ar_extern_camera_node != NODENUM_INVALID)
     {
         // the new (strange) approach #2: reuse a specified node
         m_avg_node_position = ar_nodes[ar_extern_camera_node].AbsPosition;
@@ -1244,7 +1244,7 @@ void Actor::resetPosition(Vector3 translation, bool setInitPosition)
     calculateAveragePosition();
 }
 
-void Actor::mouseMove(int node, Vector3 pos, float force)
+void Actor::mouseMove(NodeNum_t node, Vector3 pos, float force)
 {
     m_mouse_grab_node = node;
     m_mouse_grab_move_force = force * std::pow(m_total_mass / 3000.0f, 0.75f);
@@ -2712,7 +2712,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle unlock
-                            hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, -1);
+                            hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, NODENUM_INVALID);
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
@@ -2720,7 +2720,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle lock
-                            hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, -1);
+                            hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, NODENUM_INVALID);
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
@@ -2751,7 +2751,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle unlock
-                            hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, -1);
+                            hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, NODENUM_INVALID);
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
@@ -2759,7 +2759,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle lock
-                            hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, -1);
+                            hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, NODENUM_INVALID);
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
@@ -3603,7 +3603,7 @@ void Actor::ropeToggle(int group)
     }
 }
 
-void Actor::hookToggle(int group, HookAction mode, int node_number)
+void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODENUM_INVALID*/)
 {
     // iterate over all hooks
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
@@ -4396,18 +4396,13 @@ Actor::Actor(
     , m_avg_node_position_prev(rq.asr_position)
     , ar_left_mirror_angle(0.52)
     , m_avg_node_velocity(Ogre::Vector3::ZERO)
-    , ar_custom_camera_node(-1)
     , ar_main_camera_dir_corr(Ogre::Quaternion::IDENTITY)
-    , ar_main_camera_node_pos(0)
-    , ar_main_camera_node_dir(0)
-    , ar_main_camera_node_roll(0)
     , m_preloaded_with_terrain(rq.asr_origin == RoR::ActorSpawnRequest::Origin::TERRN_DEF)
     , ar_net_source_id(0)
     , m_spawn_rotation(0.0)
     , ar_net_stream_id(0)
     , m_min_camera_radius(0.0f)
     , m_mouse_grab_move_force(0.0f)
-    , m_mouse_grab_node(-1)
     , m_mouse_grab_pos(Ogre::Vector3::ZERO)
     , m_net_initialized(false)
     , ar_initial_total_mass(0)

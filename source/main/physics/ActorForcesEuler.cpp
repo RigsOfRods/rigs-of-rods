@@ -90,7 +90,7 @@ void Actor::CalcForceFeedback(bool doUpdate)
 
 void Actor::CalcMouse()
 {
-    if (m_mouse_grab_node != -1)
+    if (m_mouse_grab_node != NODENUM_INVALID)
     {
         Vector3 dir = m_mouse_grab_pos - ar_nodes[m_mouse_grab_node].AbsPosition;
         ar_nodes[m_mouse_grab_node].Forces += m_mouse_grab_move_force * dir;
@@ -1524,7 +1524,7 @@ void Actor::CalcNodes()
     const float gravity = App::GetSimTerrain()->getGravity();
     m_water_contact = false;
 
-    for (int i = 0; i < ar_num_nodes; i++)
+    for (NodeNum_t i = 0; i < ar_num_nodes; i++)
     {
         // COLLISION
         if (!ar_nodes[i].nd_no_ground_contact)
