@@ -760,6 +760,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     j_doc.Accept(writer);
     std::string json = buffer.GetString();
 
+#if USE_CURL
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
             _L("using Online API..."), "information.png", 2000);
 
@@ -784,6 +785,10 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
             curl_slist_free_all(slist);
             slist = NULL;
         }).detach();
+#else // USE_CURL
+    RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                                       _L("Cannot use Online API in this build (CURL not available)"));
+#endif // USE_CURL
 
     return 0;
 }
