@@ -43,6 +43,7 @@ using namespace Ogre;
 
 void MpClientList::Draw()
 {
+#if USE_SOCKETW
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
@@ -202,6 +203,7 @@ void MpClientList::Draw()
 
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
+#endif // USE_SOCKETW
 }
 
 Ogre::TexturePtr MpClientList::FetchIcon(const char* name)

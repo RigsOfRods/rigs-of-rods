@@ -685,10 +685,8 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
     }
 
     // Display user in list
-    Ogre::ColourValue player_color;
 #ifdef USE_SOCKETW
-    player_color = App::GetNetwork()->GetPlayerColor(user.colournum);
-#endif
+    const Ogre::ColourValue player_color = App::GetNetwork()->GetPlayerColor(user.colournum);
     ImVec4 player_gui_color(player_color.r, player_color.g, player_color.b, 1.f);
     ImGui::PushStyleColor(ImGuiCol_Text, player_gui_color);
     ImGui::Text("%s: %u (%s, Ver: %s, Lang: %s)",
@@ -696,6 +694,7 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
                 App::GetNetwork()->UserAuthToStringShort(user).c_str(),
                 user.clientversion, user.language);
     ImGui::PopStyleColor();
+#endif // USE_SOCKETW
 
     // Display actor list
     int i = 0;
