@@ -21,6 +21,7 @@
 #pragma once
 
 #include "Application.h"
+#include "SimData.h"
 
 namespace RoR {
 
@@ -28,7 +29,7 @@ class Screwprop : public ZeroedMemoryAllocator
 {
 public:
 
-    Screwprop( node_t *nd, int nr, int nb, int nu, float power, int trucknum);
+    Screwprop( Actor* actor, NodeIdx_t noderef, NodeIdx_t nodeback, NodeIdx_t nodeup, float power);
 
     void updateForces(int update);
     void setThrottle(float val);
@@ -45,12 +46,12 @@ private:
     float fullpower; //!< in HP
     float rudder;
     float throtle;
-    int nodeback;
-    int noderef;
-    int nodeup;
-    int trucknum;
-    node_t *nodes;
 
+    // Attachment
+    Actor*    m_actor;
+    NodeIdx_t nodeback;
+    NodeIdx_t noderef;
+    NodeIdx_t nodeup;
 };
 
 } // namespace RoR

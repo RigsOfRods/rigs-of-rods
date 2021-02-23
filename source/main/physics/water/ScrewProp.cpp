@@ -21,6 +21,7 @@
 #include "ScrewProp.h"
 
 #include "Application.h"
+#include "Actor.h"
 #include "SimData.h"
 #include "ActorManager.h"
 #include "DustPool.h"
@@ -32,13 +33,12 @@
 using namespace Ogre;
 using namespace RoR;
 
-Screwprop::Screwprop(node_t* nodes, int noderef, int nodeback, int nodeup, float fullpower, int trucknum) :
-    nodes(nodes)
+Screwprop::Screwprop(Actor* a, NodeIdx_t noderef, NodeIdx_t nodeback, NodeIdx_t nodeup, float fullpower) :
+    m_actor(a)
     , noderef(noderef)
     , nodeback(nodeback)
     , nodeup(nodeup)
     , fullpower(fullpower)
-    , trucknum(trucknum)
 {
     splashp = RoR::App::GetGfxScene()->GetDustPool("splash");
     ripplep = RoR::App::GetGfxScene()->GetDustPool("ripple");
@@ -50,25 +50,25 @@ void Screwprop::updateForces(int update)
     if (!App::GetSimTerrain()->getWater())
         return;
 
-    float depth = App::GetSimTerrain()->getWater()->CalcWavesHeight(nodes[noderef].AbsPosition) - nodes[noderef].AbsPosition.y;
+    float depth = App::GetSimTerrain()->getWater()->CalcWavesHeight(m_actor->ar_nodes[noderef].AbsPosition) - m_actor->ar_nodes[noderef].AbsPosition.y;
     if (depth < 0)
         return; //out of water!
-    Vector3 dir = nodes[nodeback].RelPosition - nodes[noderef].RelPosition;
-    Vector3 rudaxis = nodes[noderef].RelPosition - nodes[nodeup].RelPosition;
+    Vector3 dir = m_actor->ar_nodes[nodeback].RelPosition - m_actor->ar_nodes[noderef].RelPosition;
+    Vector3 rudaxis = m_actor->ar_nodes[noderef].RelPosition - m_actor->ar_nodes[nodeup].RelPosition;
     dir.normalise();
     if (reverse)
         dir = -dir;
     rudaxis.normalise();
     dir = (throtle * fullpower) * (Quaternion(Degree(rudder), rudaxis) * dir);
-    nodes[noderef].Forces += dir;
+    m_actor->ar_nodes[noderef].Forces += dir;
 
     if (update && splashp && throtle > 0.1)
     {
         if (depth < 0.2)
-            splashp->allocSplash(nodes[noderef].AbsPosition, 10.0 * dir / fullpower);
+            splashp->allocSplash(m_actor->ar_nodes[noderef].AbsPosition, 10.0 * dir / fullpower);
         else
-            splashp->allocSplash(nodes[noderef].AbsPosition, 5.0 * dir / fullpower);
-        ripplep->allocRipple(nodes[noderef].AbsPosition, 10.0 * dir / fullpower);
+            splashp->allocSplash(m_actor->ar_nodes[noderef].AbsPosition, 5.0 * dir / fullpower);
+        ripplep->allocRipple(m_actor->ar_nodes[noderef].AbsPosition, 10.0 * dir / fullpower);
     }
 }
 
@@ -82,7 +82,7 @@ void Screwprop::setThrottle(float val)
     reverse = (val < 0);
     //pseudo-rpm
     float prpm = (0.5 + fabs(val) / 2.0) * 100.0;
-    SOUND_MODULATE(trucknum, SS_MOD_ENGINE, prpm);
+    SOUND_MODULATE(m_actor, SS_MOD_ENGINE, prpm);
 }
 
 void Screwprop::setRudder(float val)

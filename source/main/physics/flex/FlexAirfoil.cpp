@@ -74,7 +74,15 @@ float refairfoilpos[90]={
 
 using namespace Ogre;
 
-FlexAirfoil::FlexAirfoil(Ogre::String const & name, Actor* actor, int pnfld, int pnfrd, int pnflu, int pnfru, int pnbld, int pnbrd, int pnblu, int pnbru, std::string const & texband, Vector2 texlf, Vector2 texrf, Vector2 texlb, Vector2 texrb, char mtype, float controlratio, float mind, float maxd, Ogre::String const & afname, float lift_coef, bool break_able)
+FlexAirfoil::FlexAirfoil(Ogre::String const & name, Actor* actor, NodeIdx_t pnfld, NodeIdx_t pnfrd, NodeIdx_t pnflu, NodeIdx_t pnfru, NodeIdx_t pnbld, NodeIdx_t pnbrd, NodeIdx_t pnblu, NodeIdx_t pnbru, std::string const & texband, Vector2 texlf, Vector2 texrf, Vector2 texlb, Vector2 texrb, char mtype, float controlratio, float mind, float maxd, Ogre::String const & afname, float lift_coef, bool break_able)
+    :nfld(pnfld)
+    ,nfrd(pnfrd)
+    ,nflu(pnflu)
+    ,nfru(pnfru)
+    ,nbld(pnbld)
+    ,nbrd(pnbrd)
+    ,nblu(pnblu)
+    ,nbru(pnbru)
 {
     liftcoef=lift_coef;
     breakable=break_able;
@@ -83,14 +91,7 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, Actor* actor, int pnfld, int
     aeroengines=actor->ar_aeroengines;
     nodes=actor->ar_nodes;
     useInducedDrag=false;
-    nfld=pnfld;
-    nfrd=pnfrd;
-    nflu=pnflu;
-    nfru=pnfru;
-    nbld=pnbld;
-    nbrd=pnbrd;
-    nblu=pnblu;
-    nbru=pnbru;
+
     mindef=mind;
     maxdef=maxd;
     airfoil=new Airfoil(afname);

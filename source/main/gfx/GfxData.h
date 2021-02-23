@@ -107,9 +107,9 @@ struct Prop
         , pp_aero_propeller_spin(false)
     {}
 
-    uint16_t              pp_node_ref             = node_t::INVALID_IDX;
-    uint16_t              pp_node_x               = node_t::INVALID_IDX;
-    uint16_t              pp_node_y               = node_t::INVALID_IDX;
+    NodeIdx_t             pp_node_ref             = node_t::INVALID_IDX;
+    NodeIdx_t             pp_node_x               = node_t::INVALID_IDX;
+    NodeIdx_t             pp_node_y               = node_t::INVALID_IDX;
     Ogre::Vector3         pp_offset               = Ogre::Vector3::ZERO;
     Ogre::Vector3         pp_offset_orig          = Ogre::Vector3::ZERO; //!< Used with ANIM_FLAG_OFFSET*
     Ogre::Vector3         pp_rota                 = Ogre::Vector3::ZERO;
@@ -154,11 +154,11 @@ enum VideoCamType
 struct VideoCamera
 {
     VideoCamType         vcam_type           = VCTYPE_INVALID;
-    uint16_t             vcam_node_center    = node_t::INVALID_IDX;
-    uint16_t             vcam_node_dir_y     = node_t::INVALID_IDX;
-    uint16_t             vcam_node_dir_z     = node_t::INVALID_IDX;
-    uint16_t             vcam_node_alt_pos   = node_t::INVALID_IDX;
-    uint16_t             vcam_node_lookat    = node_t::INVALID_IDX; //!< Only for VCTYPE_TRACK_CAM
+    NodeIdx_t            vcam_node_center    = node_t::INVALID_IDX;
+    NodeIdx_t            vcam_node_dir_y     = node_t::INVALID_IDX;
+    NodeIdx_t            vcam_node_dir_z     = node_t::INVALID_IDX;
+    NodeIdx_t            vcam_node_alt_pos   = node_t::INVALID_IDX;
+    NodeIdx_t            vcam_node_lookat    = node_t::INVALID_IDX; //!< Only for VCTYPE_TRACK_CAM
     Ogre::Quaternion     vcam_rotation;
     Ogre::Vector3        vcam_pos_offset     = Ogre::Vector3::ZERO;
     Ogre::MaterialPtr    vcam_material;
@@ -174,7 +174,7 @@ struct VideoCamera
 /// Gfx attributes/state of a softbody node
 struct NodeGfx
 {
-    NodeGfx(uint16_t node_idx):
+    NodeGfx(NodeIdx_t node_idx):
         nx_node_idx(node_idx),
         nx_no_particles(false), // Bitfields can't be initialized in-class :(
         nx_may_get_wet(false),
@@ -184,7 +184,7 @@ struct NodeGfx
     {}
 
     float      nx_wet_time_sec = -1; //!< 'Wet' means "already out of water, producing dripping particles". Set to -1 when not 'wet'.
-    uint16_t   nx_node_idx = node_t::INVALID_IDX;
+    NodeIdx_t  nx_node_idx = node_t::INVALID_IDX;
 
     // Bit flags
     bool       nx_no_particles:1;     //!< User-defined attr; disable all particles
@@ -203,8 +203,8 @@ struct Rod
     uint16_t         rod_beam_index      = 0;
     uint16_t         rod_diameter_mm     = 0;                    //!< Diameter in millimeters
 
-    uint16_t         rod_node1           = node_t::INVALID_IDX;  //!< Node index - may change during simulation!
-    uint16_t         rod_node2           = node_t::INVALID_IDX;  //!< Node index - may change during simulation!
+    NodeIdx_t        rod_node1           = node_t::INVALID_IDX;  //!< Node index - may change during simulation!
+    NodeIdx_t        rod_node2           = node_t::INVALID_IDX;  //!< Node index - may change during simulation!
     Actor*           rod_target_actor    = nullptr;
     bool             rod_is_visible      = false;
 };
@@ -222,9 +222,9 @@ struct AirbrakeGfx
     Ogre::SceneNode* abx_scenenode;
     Ogre::Entity*    abx_entity;
     Ogre::Vector3    abx_offset;
-    uint16_t         abx_ref_node;
-    uint16_t         abx_x_node;
-    uint16_t         abx_y_node;
+    NodeIdx_t        abx_ref_node;
+    NodeIdx_t        abx_x_node;
+    NodeIdx_t        abx_y_node;
 };
 
 struct FlareMaterial // materialflares
@@ -232,6 +232,45 @@ struct FlareMaterial // materialflares
     int               flare_index;
     Ogre::MaterialPtr mat_instance;
     Ogre::ColourValue emissive_color;
+};
+
+struct Flare
+{
+    NodeIdx_t noderef;
+    NodeIdx_t nodex;
+    NodeIdx_t nodey;
+    float offsetx;
+    float offsety;
+    float offsetz;
+    Ogre::SceneNode *snode;
+    Ogre::BillboardSet *bbs;
+    Ogre::Light *light;
+    FlareType fl_type;
+    int controlnumber;
+    bool controltoggle_status;
+    float blinkdelay;
+    float blinkdelay_curr;
+    bool blinkdelay_state;
+    float size;
+    bool isVisible;
+};
+
+struct Exhaust
+{
+    NodeIdx_t emitterNode;
+    NodeIdx_t directionNode;
+    Ogre::SceneNode *smokeNode;
+    Ogre::ParticleSystem* smoker;
+};
+
+
+struct CParticle
+{
+    NodeIdx_t emitterNode;
+    NodeIdx_t directionNode;
+    bool active;
+    Ogre::SceneNode *snode;
+    Ogre::ParticleSystem* psys;
 };
 
 } // namespace RoR

@@ -22,6 +22,7 @@
 
 #include "Application.h"
 #include "AeroEngine.h"
+#include "SimData.h"
 #include "TruckFileFormat.h"
 
 namespace RoR {
@@ -31,7 +32,7 @@ class TurbojetVisual
 public:
     ~TurbojetVisual();
     void SetupVisuals(Truck::Turbojet & def, int num, std::string const& propname, Ogre::Entity* nozzle, Ogre::Entity* afterburner_flame, bool disable_smoke);
-    void SetNodes(int front, int back, int ref);
+    void SetNodes(NodeIdx_t front, NodeIdx_t back, NodeIdx_t ref);
     void UpdateVisuals(RoR::GfxActor* gfx_actor);
 
 private:
@@ -44,9 +45,9 @@ private:
 
     int      m_number;
     float    m_radius;
-    uint16_t m_node_back;
-    uint16_t m_node_front;
-    uint16_t m_node_ref;
+    NodeIdx_t m_node_back;
+    NodeIdx_t m_node_front;
+    NodeIdx_t m_node_ref;
 };
 
 class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
@@ -54,7 +55,7 @@ class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
 
 public:
 
-    Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, Truck::Turbojet & def);
+    Turbojet(Actor* actor, NodeIdx_t tnodefront, NodeIdx_t tnodeback, NodeIdx_t tnoderef, Truck::Turbojet & def);
     ~Turbojet();
 
     void flipStart();
@@ -88,7 +89,6 @@ public:
     TurbojetVisual tjet_visual;
 
 private:
-    Actor* m_actor;
     Ogre::Vector3 m_axis;
     bool m_afterburner_active;
     bool m_is_failed;
@@ -111,11 +111,14 @@ private:
     float m_warmup_time;
     int m_sound_ab;
     int m_sound_mod;
-    int m_node_back;
-    int m_node_front;
-    int m_node_ref;
     int m_sound_src;
     int m_sound_thr;
+
+    // Attachment
+    Actor* m_actor;
+    NodeIdx_t m_node_back;
+    NodeIdx_t m_node_front;
+    NodeIdx_t m_node_ref;
 };
 
 } // namespace RoR

@@ -207,7 +207,7 @@ Actor::~Actor()
     this->ar_flares.clear();
 
     // delete exhausts
-    for (std::vector<exhaust_t>::iterator it = exhausts.begin(); it != exhausts.end(); it++)
+    for (std::vector<Exhaust>::iterator it = exhausts.begin(); it != exhausts.end(); it++)
     {
         if (it->smokeNode)
         {
@@ -1056,7 +1056,7 @@ void Actor::calculateAveragePosition()
         // the new (strange) approach: reuse the cinecam node
         m_avg_node_position = ar_nodes[ar_cinecam_node[0]].AbsPosition;
     }
-    else if (ar_extern_camera_mode == 2 && ar_extern_camera_node >= 0)
+    else if (ar_extern_camera_mode == 2 && ar_extern_camera_node != node_t::INVALID_IDX)
     {
         // the new (strange) approach #2: reuse a specified node
         m_avg_node_position = ar_nodes[ar_extern_camera_node].AbsPosition;
@@ -3178,7 +3178,7 @@ void Actor::updateVisual(float dt)
     // TODO: Move to GfxActor, don't forget dt*m_simulation_speed
     if (!m_disable_smoke && ar_engine && exhausts.size() > 0)
     {
-        std::vector<exhaust_t>::iterator it;
+        std::vector<Exhaust>::iterator it;
         for (it = exhausts.begin(); it != exhausts.end(); it++)
         {
             if (!it->smoker)

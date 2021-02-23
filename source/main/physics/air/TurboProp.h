@@ -23,6 +23,9 @@
 #include "Application.h"
 
 #include "AeroEngine.h"
+#include "SimData.h"
+
+#include <Ogre.h>
 
 using namespace RoR;
 
@@ -36,19 +39,16 @@ public:
     float max_torque;
 
     Turboprop(
-        const char* propname,
-        node_t* nd,
-        int nr,
-        int nb,
-        int np1,
-        int np2,
-        int np3,
-        int np4,
-        int tqn,
+        Actor* a,
+        NodeIdx_t nr,
+        NodeIdx_t nb,
+        NodeIdx_t np1,
+        NodeIdx_t np2,
+        NodeIdx_t np3,
+        NodeIdx_t np4,
+        NodeIdx_t tqn,
         float power,
         Ogre::String const& propfoilname,
-        int mnumber,
-        int trucknum,
         bool disable_smoke,
         bool ispiston,
         float fpitch
@@ -85,10 +85,6 @@ public:
 
 private:
 
-    node_t* nodes;
-    int nodeback;
-    int nodep[4];
-    int torquenode;
     float torquedist;
     Airfoil* airfoil;
     float fullpower; //!< in kW
@@ -98,7 +94,6 @@ private:
     float lastflip;
     float warmupstart;
     float warmuptime;
-    int number;
     int numblades;
     float bladewidth;
     float pitchspeed;
@@ -118,12 +113,17 @@ private:
     bool failedold;
     float rpm;
     float throtle;
-    int noderef;
     char debug[256];
     float propwash;
     Ogre::Vector3 axis;
-    int trucknum;
     int mod_id;
     int src_id;
     int thr_id;
+
+    // Attachment
+    Actor* m_actor;
+    NodeIdx_t nodeback;
+    NodeIdx_t noderef;
+    NodeIdx_t nodep[4];
+    NodeIdx_t torquenode;
 };
