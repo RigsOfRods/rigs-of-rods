@@ -53,7 +53,7 @@ namespace RoR {
 // Global definitions and enumerations
 // ------------------------------------------------------------------------------------------------
 
-/// Global gameplay message loop (work in progress), see `struct Message` in GameContext.h
+/// Global gameplay message loop, see `struct Message` in GameContext.h
 enum MsgType
 {
     MSG_INVALID,
@@ -91,7 +91,7 @@ enum MsgType
     // GUI
     MSG_GUI_OPEN_MENU_REQUESTED,
     MSG_GUI_CLOSE_MENU_REQUESTED,
-    MSG_GUI_OPEN_SELECTOR_REQUESTED,         //!< Payload = LoaderType* (owner), Description = GUID | empty
+    MSG_GUI_OPEN_SELECTOR_REQUESTED,       //!< Payload = LoaderType* (owner), Description = GUID | empty
     MSG_GUI_CLOSE_SELECTOR_REQUESTED,
     // Editing
     MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  //!< Payload = ground_model_t* (weak)
@@ -316,7 +316,10 @@ extern CVar* diag_hide_wheels;
 extern CVar* diag_hide_nodes;
 extern CVar* diag_physics_dt;
 extern CVar* diag_terrn_log_roads;
-extern CVar* diag_import_grp_loose;
+
+// Editing
+extern CVar* edi_import_grp_loose;
+extern CVar* edi_file_watch_respawn;
 
 // System
 extern CVar* sys_process_dir;

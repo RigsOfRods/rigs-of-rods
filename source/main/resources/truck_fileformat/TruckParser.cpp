@@ -3742,7 +3742,7 @@ void Parser::ProcessCommentLine()
     {
         name = &m_current_line[5];
     }
-    else if (App::diag_import_grp_loose->GetBool())
+    else if (App::edi_import_grp_loose->GetBool())
     {
         name = &m_current_line[1];
     }

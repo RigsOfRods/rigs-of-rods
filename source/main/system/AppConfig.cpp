@@ -179,6 +179,7 @@ void Console::SaveConfig()
     WriteVarsHelper(f, "Application",   "app_");
     WriteVarsHelper(f, "Multiplayer",   "mp_");
     WriteVarsHelper(f, "Simulation",    "sim_");
+    WriteVarsHelper(f, "Editing",       "edi_");
     WriteVarsHelper(f, "Input/Output",  "io_");
     WriteVarsHelper(f, "Graphics",      "gfx_");
     WriteVarsHelper(f, "Audio",         "audio_");

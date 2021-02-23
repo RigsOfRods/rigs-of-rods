@@ -87,6 +87,7 @@ namespace RoR
     struct PlatformUtils;
     class  PointColDetector;
     struct Project;
+    class  ProjectFileWatcher;
     class  ProjectManager;
     struct Prop;
     struct PropAnim;

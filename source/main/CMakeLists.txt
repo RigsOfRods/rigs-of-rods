@@ -184,6 +184,7 @@ set(SOURCE_FILES
         resources/CacheSystem.{h,cpp}
         resources/ContentManager.{h,cpp}
         resources/ProjectManager.{h,cpp}
+        resources/ProjectFileWatcher.{h,cpp}
         resources/otc_fileformat/OTCFileFormat.{h,cpp}
         resources/odef_fileformat/ODefFileFormat.{h,cpp}
         resources/skin_fileformat/SkinFileFormat.{h,cpp}
@@ -473,6 +474,11 @@ else (USE_PACKAGE_MANAGER)
         target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
         target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
     endif ()
+    
+    if (TARGET efsw::efsw)
+        target_link_libraries(${BINNAME} PRIVATE efsw::efsw)
+        target_compile_definitions(${BINNAME} PRIVATE USE_EFSW)
+    endif ()    
 
 endif (USE_PACKAGE_MANAGER)
 

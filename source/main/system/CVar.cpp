@@ -87,16 +87,18 @@ void Console::CVarSetupBuiltins()
     App::diag_log_beam_break     = this->CVarCreate("diag_log_beam_break",     "Beam Break Debug",           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_log_beam_deform    = this->CVarCreate("diag_log_beam_deform",    "Beam Deform Debug",          CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_log_beam_trigger   = this->CVarCreate("diag_log_beam_trigger",   "Trigger Debug",              CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
-    App::diag_simple_materials   = this->CVarCreate("diag_simple_materials",    "SimpleMaterials",           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::diag_simple_materials   = this->CVarCreate("diag_simple_materials",   "SimpleMaterials",            CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_warning_texture    = this->CVarCreate("diag_warning_texture",    "Warning texture",            CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_hide_broken_beams  = this->CVarCreate("diag_hide_broken_beams",  "Hide broken beams",          CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_hide_beam_stress   = this->CVarCreate("diag_hide_beam_stress",   "Hide beam stress",           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::diag_hide_wheel_info    = this->CVarCreate("diag_hide_wheel_info",    "Hide wheel info",            CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::diag_hide_wheels        = this->CVarCreate("diag_hide_wheels",        "Hide wheels",                CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_hide_nodes         = this->CVarCreate("diag_hide_nodes",         "Hide nodes",                 CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
-    App::diag_physics_dt         = this->CVarCreate("diag_physics_dt",          "PhysicsTimeStep",           CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "0.0005");
+    App::diag_physics_dt         = this->CVarCreate("diag_physics_dt",         "PhysicsTimeStep",            CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "0.0005");
     App::diag_terrn_log_roads    = this->CVarCreate("diag_terrn_log_roads",    "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
-    App::diag_import_grp_loose   = this->CVarCreate("diag_import_grp_loose",   "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+
+    App::edi_import_grp_loose    = this->CVarCreate("edi_import_grp_loose",    "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::edi_file_watch_respawn  = this->CVarCreate("edi_file_watch_respawn",  "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
 
     App::sys_process_dir         = this->CVarCreate("sys_process_dir",         "",                           0);
     App::sys_user_dir            = this->CVarCreate("sys_user_dir",            "",                           0);

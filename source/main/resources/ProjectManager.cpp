@@ -25,12 +25,14 @@
 #include "GUIManager.h"
 #include "Language.h"
 #include "PlatformUtils.h"
+#include "ProjectFileWatcher.h"
 #include "TruckSerializer.h"
 
 #include <OgreDataStream.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/prettywriter.h>
 
+#include <efsw/efsw.hpp>
 #include <fmt/core.h>
 
 using namespace RoR;
@@ -347,6 +349,26 @@ void ProjectManager::ReLoadResources(Project* project)
 {
     Ogre::ResourceGroupManager::getSingleton().unloadResourceGroup(project->prj_rg_name);
     Ogre::ResourceGroupManager::getSingleton().loadResourceGroup(project->prj_rg_name);
+}
+
+void ProjectManager::SetActiveProject(Project* project, std::string const& filename)
+{
+    m_active_project = project;
+    m_active_truck_filename = filename;
+
+#if USE_EFSW
+    if (m_active_project && m_active_truck_filename != "")
+    {
+        if (!m_file_watcher)
+            m_file_watcher = std::make_unique<ProjectFileWatcher>();
+
+        m_file_watcher->StartWatching(m_active_project->prj_dirname, m_active_truck_filename);
+    }
+    else
+    {
+        m_file_watcher->StopWatching();
+    }
+#endif // USE_ESFW
 }
 
 std::string ProjectManager::MakeFilenameUniqueInProject(std::string const& src_filename)

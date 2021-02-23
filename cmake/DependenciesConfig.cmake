@@ -26,6 +26,7 @@ else (USE_PACKAGE_MANAGER)
     set(ROR_USE_CAELUM "TRUE" CACHE BOOL "use caelum sky")
     set(ROR_USE_ANGELSCRIPT "TRUE" CACHE BOOL "use angelscript")
     set(ROR_USE_CURL "TRUE" CACHE BOOL "use curl, required for communication with online services")
+    set(ROR_USE_EFSW "TRUE" CACHE BOOL "use Entropia File System Watcher, for auto-reloading truck projects")
 
     # find packages
     find_package(OGRE 1.11 REQUIRED COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
@@ -37,5 +38,6 @@ else (USE_PACKAGE_MANAGER)
     find_package(CURL)
     find_package(Caelum)
     find_package(fmt REQUIRED)
+    find_package(efsw)
 
 endif (USE_PACKAGE_MANAGER)

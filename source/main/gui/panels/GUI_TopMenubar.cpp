@@ -324,21 +324,22 @@ void TopMenubar::Update()
         if (ImGui::Begin("Projects menu", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
             int id_counter = 0; // Project names may not be unique
-            for (Project& p: App::GetProjectManager()->GetProjects())
+            for (Project& project: App::GetProjectManager()->GetProjects())
             {
                 ImGui::PushID(id_counter++);
-                if (ImGui::TreeNode(p.prj_dirname.c_str())) // TODO: EDIT button
+                if (ImGui::TreeNode(project.prj_dirname.c_str())) // TODO: EDIT button
                 {
-                    for (Ogre::String& t: *p.prj_trucks)
+                    for (Ogre::String& truck_filename: *project.prj_trucks)
                     {
-                        if (ImGui::Button(t.c_str()))
+                        if (ImGui::Button(truck_filename.c_str()))
                         {
+                            App::GetProjectManager()->SetActiveProject(&project, truck_filename);
                             // Spawn the actor from project truck file
-                            ActorSpawnRequest* rq = new ActorSpawnRequest;
-                            rq->asr_origin = ActorSpawnRequest::Origin::USER;
-                            rq->asr_project = &p;
-                            rq->asr_filename = t;
-                            App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+                            ActorSpawnRequest* request = new ActorSpawnRequest;
+                            request->asr_origin = ActorSpawnRequest::Origin::USER;
+                            request->asr_project = &project;
+                            request->asr_filename = truck_filename;
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)request));
                         }
                     }
                     ImGui::TreePop();
@@ -374,22 +375,36 @@ void TopMenubar::Update()
                     Project* proj = App::GetProjectManager()->CreateNewProject(dirname);
                     if (proj != nullptr) // Error already logged + displayed
                     {
-                        App::GetProjectManager()->SetActiveProject(proj);
+                        App::GetProjectManager()->SetActiveProject(proj, "");
                         App::GetProjectManager()->ImportTruckToProject(
                             src_actor->GetActorFileName(), src_actor->GetDefinition(), src_actor->GetCacheEntry());
                     }
                 }
             }
 
-            bool grp_loose = App::diag_import_grp_loose->GetBool();
+            // Setting - loose grp import
+            bool grp_loose = App::edi_import_grp_loose->GetBool();
             if (ImGui::Checkbox(_L("Loose ;grp: import (respawn!)"), &grp_loose))
             {
-                App::diag_import_grp_loose->SetVal(grp_loose);
+                App::edi_import_grp_loose->SetVal(grp_loose);
             }
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
                 ImGui::Text(_L("Accept all ';' comments as ';grp:' comments. Takes effect after vehicle reload."));
+                ImGui::EndTooltip();
+            }
+
+            // Setting - auto reload on file change
+            bool auto_reload = App::edi_file_watch_respawn->GetBool();
+            if (ImGui::Checkbox(_L("Watch file change & reload"), &auto_reload))
+            {
+                App::edi_file_watch_respawn->SetVal(auto_reload);
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text(_L("Watch truck file for external changes and reload actor(s) automatically."));
                 ImGui::EndTooltip();
             }
 

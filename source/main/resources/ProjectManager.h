@@ -19,7 +19,11 @@
 
 /// @file
 
+#pragma once
+
 #include "TruckFileFormat.h"
+#include "ProjectFileWatcher.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -58,15 +62,18 @@ public:
     bool                SaveTruck();
     void                ReLoadResources(Project* project);
 
-    void                SetActiveProject(Project* e) { m_active_project = e; }
+    // Active project
+    void                SetActiveProject(Project* p, std::string const& filename);
+    Project*            GetActiveProject() { return m_active_project; }
 
 private:
     std::string         MakeFilenameUniqueInProject(std::string const& src_filename);
 
-    ProjectVec                      m_projects;
-    Project*                        m_active_project = nullptr;
-    Ogre::String                    m_active_truck_filename;
+    ProjectVec            m_projects;
+    Project*              m_active_project = nullptr;
+    Ogre::String          m_active_truck_filename;
     Truck::DocumentPtr    m_active_truck_def;
+    std::unique_ptr<ProjectFileWatcher> m_file_watcher;
 };
 
 } // namespace RoR
