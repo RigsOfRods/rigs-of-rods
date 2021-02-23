@@ -65,7 +65,6 @@ static GUIManager*          g_gui_manager;
 static InputEngine*         g_input_engine;
 static LanguageEngine       g_language_engine;
 static MumbleIntegration*   g_mumble;
-static Network              g_network;
 static OverlayWrapper*      g_overlay_wrapper;
 static OutGauge             g_out_gauge;
 static ProjectManager       g_project_manager;
@@ -73,6 +72,9 @@ static ScriptEngine*        g_script_engine;
 static SoundScriptManager*  g_sound_script_manager;
 static TerrainManager*      g_sim_terrain;
 static ThreadPool*          g_thread_pool;
+#if USE_SOCKETW
+    static Network          g_network;
+#endif
 
 // App
 CVar* app_state;
@@ -255,10 +257,14 @@ SoundScriptManager*    GetSoundScriptManager () { return g_sound_script_manager;
 LanguageEngine*        GetLanguageEngine     () { return &g_language_engine; }
 ProjectManager*        GetProjectManager     () { return &g_project_manager; }
 ScriptEngine*          GetScriptEngine       () { return g_script_engine; }
-Network*               GetNetwork            () { return &g_network; }
 GameContext*           GetGameContext        () { return &g_game_context; }
 OutGauge*              GetOutGauge           () { return &g_out_gauge; }
 DiscordRpc*            GetDiscordRpc         () { return &g_discord_rpc; }
+#if USE_SOCKETW
+    Network*           GetNetwork            () { return &g_network; }
+#else
+    Network*           GetNetwork            () { return nullptr; }
+#endif
 
 // Factories
 void CreateOverlayWrapper()
@@ -307,14 +313,18 @@ void CreateGfxScene()
 
 void CreateSoundScriptManager()
 {
+#if USE_OPENAL
     ROR_ASSERT(!g_sound_script_manager);
     g_sound_script_manager = new SoundScriptManager();
+#endif
 }
 
 void CreateScriptEngine()
 {
+#if USE_ANGELSCRIPT
     ROR_ASSERT(!g_script_engine);
     g_script_engine = new ScriptEngine();
+#endif
 }
 
 // Cleanup

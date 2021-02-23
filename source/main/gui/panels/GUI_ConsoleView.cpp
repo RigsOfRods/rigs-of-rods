@@ -179,6 +179,7 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
         }
     }
 
+#if USE_SOCKETW
     // Add colored multiplayer username
     if (m.cm_net_userid)
     {
@@ -200,6 +201,9 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
     {
         line = m.cm_text;
     }
+#else // USE_SOCKETW
+    line = m.cm_text;
+#endif // USE_SOCKETW
 
     // Colorize text by type
     ImVec4 base_color = ImGui::GetStyle().Colors[ImGuiCol_Text];

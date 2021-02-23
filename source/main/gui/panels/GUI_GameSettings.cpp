@@ -27,7 +27,9 @@
 #include "Language.h"
 #include "SoundManager.h"
 
-#include <alc.h>
+#ifdef USE_OPENAL
+#   include <alc.h>
+#endif
 
 using namespace RoR;
 using namespace GUI;

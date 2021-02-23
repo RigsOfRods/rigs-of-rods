@@ -367,10 +367,13 @@ int main(int argc, char *argv[])
                 // -- Network events --
 
                 case MSG_NET_CONNECT_REQUESTED:
+#if USE_SOCKETW
                     App::GetNetwork()->StartConnecting();
+#endif
                     break;
 
                 case MSG_NET_DISCONNECT_REQUESTED:
+#if USE_SOCKETW
                     if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
                     {
                         App::GetNetwork()->Disconnect();
@@ -380,6 +383,7 @@ int main(int argc, char *argv[])
                             App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                         }
                     }
+#endif // USE_SOCKETW
                     break;
 
                 case MSG_NET_SERVER_KICK:
@@ -409,6 +413,7 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_NET_CONNECT_SUCCESS:
+#if USE_SOCKETW
                     App::GetGuiManager()->GetLoadingWindow()->SetVisible(false);
                     App::GetNetwork()->StopConnecting();
                     App::mp_state->SetVal((int)RoR::MpState::CONNECTED);
@@ -435,9 +440,11 @@ int main(int argc, char *argv[])
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->GetStr()));
                         }
                     }
+#endif // USE_SOCKETW
                     break;
 
                 case MSG_NET_CONNECT_FAILURE:
+#if USE_SOCKETW
                     App::GetGuiManager()->GetLoadingWindow()->SetVisible(false);
                     App::GetNetwork()->StopConnecting();
                     App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
@@ -445,6 +452,7 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->ShowMessageBox(
                         _LC("Network", "Multiplayer: connection failed"), m.description.c_str());
                     App::GetGuiManager()->ReflectGameState();
+#endif // USE_SOCKETW
                     break;
 
                 case MSG_NET_REFRESH_SERVERLIST_SUCCESS:
