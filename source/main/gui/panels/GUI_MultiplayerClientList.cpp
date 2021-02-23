@@ -44,12 +44,15 @@ using namespace Ogre;
 
 void MpClientList::UpdateClients()
 {
+#if USE_SOCKETW
     m_users = App::GetNetwork()->GetUserInfos();
     m_users.insert(m_users.begin(), App::GetNetwork()->GetLocalUserData());
+#endif // USE_SOCKETW
 }
 
 void MpClientList::Draw()
 {
+#if USE_SOCKETW
     if (m_users.empty())
         return; // UpdateClients() wasn't called yet.
 
@@ -228,6 +231,7 @@ void MpClientList::Draw()
 
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
+#endif // USE_SOCKETW
 }
 
 bool MpClientList::DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box)

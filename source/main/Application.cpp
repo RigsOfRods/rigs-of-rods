@@ -53,24 +53,27 @@ namespace App {
 // ------------------------------------------------------------------------------------------------
 
 // Object instances
-static AppContext       g_app_context;
-static Console          g_console;
-static ContentManager   g_content_manager;
-static OverlayWrapper*  g_overlay_wrapper;
-static GUIManager*      g_gui_manager;
-static InputEngine*     g_input_engine;
-static CacheSystem*     g_cache_system;
-static MumbleIntegration* g_mumble;
-static ThreadPool*      g_thread_pool;
-static CameraManager*   g_camera_manager;
-static GfxScene         g_gfx_scene;
-static SoundScriptManager* g_sound_script_manager;
-static LanguageEngine   g_language_engine;
-static ScriptEngine*    g_script_engine;
-static Network          g_network;
-static GameContext      g_game_context;
-static OutGauge         g_out_gauge;
-static DiscordRpc       g_discord_rpc;
+static AppContext           g_app_context;
+static CacheSystem*         g_cache_system;
+static CameraManager*       g_camera_manager;
+static Console              g_console;
+static ContentManager       g_content_manager;
+static DiscordRpc           g_discord_rpc;
+static GameContext          g_game_context;
+static GfxScene             g_gfx_scene;
+static GUIManager*          g_gui_manager;
+static InputEngine*         g_input_engine;
+static LanguageEngine       g_language_engine;
+static MumbleIntegration*   g_mumble;
+static OverlayWrapper*      g_overlay_wrapper;
+static OutGauge             g_out_gauge;
+static ScriptEngine*        g_script_engine;
+static SoundScriptManager*  g_sound_script_manager;
+static Terrain*             g_sim_terrain;
+static ThreadPool*          g_thread_pool;
+#if USE_SOCKETW
+    static Network          g_network;
+#endif
 
 // App
 CVar* app_state;
@@ -265,10 +268,14 @@ GfxScene*              GetGfxScene           () { return &g_gfx_scene; }
 SoundScriptManager*    GetSoundScriptManager () { return g_sound_script_manager; }
 LanguageEngine*        GetLanguageEngine     () { return &g_language_engine; }
 ScriptEngine*          GetScriptEngine       () { return g_script_engine; }
-Network*               GetNetwork            () { return &g_network; }
 GameContext*           GetGameContext        () { return &g_game_context; }
 OutGauge*              GetOutGauge           () { return &g_out_gauge; }
 DiscordRpc*            GetDiscordRpc         () { return &g_discord_rpc; }
+#if USE_SOCKETW
+    Network*           GetNetwork            () { return &g_network; }
+#else
+    Network*           GetNetwork            () { return nullptr; }
+#endif
 
 // Factories
 void CreateOverlayWrapper()
@@ -317,14 +324,18 @@ void CreateGfxScene()
 
 void CreateSoundScriptManager()
 {
+#if USE_OPENAL
     ROR_ASSERT(!g_sound_script_manager);
     g_sound_script_manager = new SoundScriptManager();
+#endif
 }
 
 void CreateScriptEngine()
 {
+#if USE_ANGELSCRIPT
     ROR_ASSERT(!g_script_engine);
     g_script_engine = new ScriptEngine();
+#endif
 }
 
 // Cleanup
