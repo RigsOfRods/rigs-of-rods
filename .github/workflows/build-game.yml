@@ -78,21 +78,24 @@ jobs:
     name: Windows build
     runs-on: windows-latest
     env:
-      DXSDK_DIR: C:\apps\Microsoft DirectX SDK
-      CONAN_PATH: C:\Program Files\Conan\conan\
+      DXSDK_DIR: C:\apps\Microsoft DirectX SDK\
+      BUILD_TOOLS_PATH: C:\apps\build-tools\
     steps:
-      - run: echo $env:CONAN_PATH | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - run: echo $env:BUILD_TOOLS_PATH | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - uses: actions/checkout@v2.3.4
         with:
           submodules: true
 
-      - name: Install Microsoft DirectX SDK
+      - name: Install Microsoft DirectX SDK and Build tools
         shell: cmake -P {0}
         run: |
           file(MAKE_DIRECTORY $ENV{DXSDK_DIR})
-          file(DOWNLOAD https://vps.anotherfoxguy.com/ipfs/QmZm8WtxLxpmgxmYDTMPYjsbwmipr3KtrkPgGJoYiGBqhx "$ENV{TMP}/dl.zip" SHOW_PROGRESS)
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "$ENV{TMP}/dl.zip" WORKING_DIRECTORY "$ENV{DXSDK_DIR}")
+          file(DOWNLOAD http://prdownloads.sourceforge.net/rigs-of-rods/DirectX-SDK.zip "$ENV{TMP}/DirectX.zip" SHOW_PROGRESS)
+          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "$ENV{TMP}/DirectX.zip" WORKING_DIRECTORY "$ENV{DXSDK_DIR}")
+          file(MAKE_DIRECTORY $ENV{BUILD_TOOLS_PATH})
+          file(DOWNLOAD http://prdownloads.sourceforge.net/rigs-of-rods/build-tools.zip "$ENV{TMP}/build-tools.zip" SHOW_PROGRESS)
+          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "$ENV{TMP}/build-tools.zip" WORKING_DIRECTORY "$ENV{BUILD_TOOLS_PATH}")
 
       - name: Cache conan
         uses: actions/cache@v1
@@ -105,9 +108,6 @@ jobs:
         with:
           key: conan-pkg-${{ hashFiles('**/conanfile.txt') }}
           path: C:/.conan/
-
-      - name: Install build dependencies
-        run: choco install conan ninja -y
 
       - name: Configure
         run: |
