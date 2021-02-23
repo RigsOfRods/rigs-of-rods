@@ -175,8 +175,8 @@ public:
         bool             xa_speedo_use_engine_max_rpm;
         int              xa_num_gears; //!< Gearbox
         float            xa_engine_max_rpm;
-        int              xa_camera0_pos_node;
-        int              xa_camera0_roll_node;
+        NodeNum_t        xa_camera0_pos_node;
+        NodeNum_t        xa_camera0_roll_node;
         int              xa_driveable;
         bool             xa_has_autopilot;
         bool             xa_has_engine;

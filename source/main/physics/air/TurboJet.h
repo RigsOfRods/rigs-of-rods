@@ -23,6 +23,7 @@
 #include "Application.h"
 #include "AeroEngine.h"
 #include "RigDef_File.h"
+#include "SimData.h"
 
 namespace RoR {
 
@@ -31,7 +32,7 @@ class TurbojetVisual
 public:
     ~TurbojetVisual();
     void SetupVisuals(RigDef::Turbojet & def, int num, std::string const& propname, Ogre::Entity* nozzle, Ogre::Entity* afterburner_flame);
-    void SetNodes(int front, int back, int ref);
+    void SetNodes(NodeNum_t front, NodeNum_t back, NodeNum_t ref);
     void UpdateVisuals(RoR::GfxActor* gfx_actor);
     void SetVisible(bool visible);
     bool IsVisible() const { return m_visible; }
@@ -47,9 +48,9 @@ private:
     bool     m_visible = false; // Needed for flames which are hidden by default.
     int      m_number;
     float    m_radius;
-    uint16_t m_node_back;
-    uint16_t m_node_front;
-    uint16_t m_node_ref;
+    NodeNum_t m_node_back                      = NODENUM_INVALID;
+    NodeNum_t m_node_front                     = NODENUM_INVALID;
+    NodeNum_t m_node_ref                       = NODENUM_INVALID;
 };
 
 class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
@@ -57,7 +58,7 @@ class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
 
 public:
 
-    Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, RigDef::Turbojet & def);
+    Turbojet(Actor* actor, NodeNum_t tnodefront, NodeNum_t tnodeback, NodeNum_t tnoderef, RigDef::Turbojet & def);
     ~Turbojet();
 
     void flipStart();
@@ -95,7 +96,6 @@ public:
     TurbojetVisual tjet_visual;
 
 private:
-    Actor* m_actor;
     Ogre::Vector3 m_axis;
     bool m_afterburner_active;
     bool m_is_failed;
@@ -118,11 +118,14 @@ private:
     float m_warmup_time;
     int m_sound_ab;
     int m_sound_mod;
-    int m_node_back;
-    int m_node_front;
-    int m_node_ref;
     int m_sound_src;
     int m_sound_thr;
+
+    // Attachment
+    Actor* m_actor;
+    NodeNum_t m_node_back;
+    NodeNum_t m_node_front;
+    NodeNum_t m_node_ref;
 };
 
 } // namespace RoR

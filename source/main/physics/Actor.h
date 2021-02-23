@@ -100,12 +100,12 @@ public:
     //! @}
 
     //! @{ User interaction functions
-    void              mouseMove(int node, Ogre::Vector3 pos, float force);
+    void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
     void              lightsToggle();
     void              setLightsOff();
     void              tieToggle(int group=-1);
     bool              isTied();
-    void              hookToggle(int group=-1, HookAction mode=HOOK_TOGGLE, int node_number=-1);
+    void              hookToggle(int group=-1, HookAction mode=HOOK_TOGGLE, NodeNum_t node_number=NODENUM_INVALID);
     bool              isLocked();                          //!< Are hooks locked?
     void              ropeToggle(int group=-1);
     void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
@@ -264,7 +264,7 @@ public:
     int               ar_buoycabs[MAX_CABS];
     int               ar_buoycab_types[MAX_CABS];
     int               ar_num_buoycabs;
-    int               ar_camera_rail[MAX_CAMERARAIL]; //!< Nodes defining camera-movement spline
+    NodeNum_t         ar_camera_rail[MAX_CAMERARAIL]; //!< Nodes defining camera-movement spline
     int               ar_num_camera_rails;
     bool              ar_hide_in_actor_list;      //!< Hide in list of spawned actors (available in top menubar). Useful for fixed-place machinery, i.e. cranes.
     Ogre::String      ar_design_name;             //!< Name of the vehicle/machine/object this actor represents
@@ -294,28 +294,28 @@ public:
     bool              sl_enabled;         //!< Speed limiter;
     float             sl_speed_limit;     //!< Speed limiter;
     int               ar_extern_camera_mode;
-    int               ar_extern_camera_node;
-    int               ar_exhaust_pos_node; //!< Old-format exhaust (one per vehicle) emitter node
-    int               ar_exhaust_dir_node; //!< Old-format exhaust (one per vehicle) backwards direction node
+    NodeNum_t         ar_extern_camera_node = NODENUM_INVALID;
+    NodeNum_t         ar_exhaust_pos_node   = 0;   //!< Old-format exhaust (one per vehicle) emitter node
+    NodeNum_t         ar_exhaust_dir_node   = 0;   //!< Old-format exhaust (one per vehicle) backwards direction node
     int               ar_instance_id;              //!< Static attr; session-unique ID
     unsigned int      ar_vector_index;             //!< Sim attr; actor element index in std::vector<m_actors>
     ActorType         ar_driveable;                //!< Sim attr; marks vehicle type and features
     EngineSim*        ar_engine;
-    int               ar_cinecam_node[MAX_CAMERAS];//!< Sim attr; Cine-camera node indexes
+    NodeNum_t         ar_cinecam_node[MAX_CAMERAS] = {NODENUM_INVALID}; //!< Sim attr; Cine-camera node indexes
     int               ar_num_cinecams;             //!< Sim attr;
     Autopilot*        ar_autopilot;
     float             ar_brake_force;              //!< Physics attr; filled at spawn
     float             ar_speedo_max_kph;           //!< GUI attr
     Ogre::Vector3     ar_origin;                   //!< Physics state; base position for softbody nodes
     int               ar_num_cameras;
-    Ogre::Quaternion  ar_main_camera_dir_corr;     //!< Sim attr;
-    int               ar_main_camera_node_pos;     //!< Sim attr; ar_camera_node_pos[0]  >= 0 ? ar_camera_node_pos[0]  : 0
-    int               ar_main_camera_node_dir;     //!< Sim attr; ar_camera_node_dir[0]  >= 0 ? ar_camera_node_dir[0]  : 0
-    int               ar_main_camera_node_roll;    //!< Sim attr; ar_camera_node_roll[0] >= 0 ? ar_camera_node_roll[0] : 0
-    int               ar_camera_node_pos[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; origin node
-    int               ar_camera_node_dir[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; back node
-    int               ar_camera_node_roll[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; left node
-    bool              ar_camera_node_roll_inv[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; indicates roll node is right instead of left
+    Ogre::Quaternion  ar_main_camera_dir_corr;              //!< Sim attr;
+    NodeNum_t         ar_main_camera_node_pos            = 0;    //!< Sim attr; ar_camera_node_pos[0]  >= 0 ? ar_camera_node_pos[0]  : 0
+    NodeNum_t         ar_main_camera_node_dir            = 0;    //!< Sim attr; ar_camera_node_dir[0]  >= 0 ? ar_camera_node_dir[0]  : 0
+    NodeNum_t         ar_main_camera_node_roll           = 0;    //!< Sim attr; ar_camera_node_roll[0] >= 0 ? ar_camera_node_roll[0] : 0
+    NodeNum_t         ar_camera_node_pos[MAX_CAMERAS]    = {NODENUM_INVALID};  //!< Physics attr; 'camera' = frame of reference; origin node
+    NodeNum_t         ar_camera_node_dir[MAX_CAMERAS]    = {NODENUM_INVALID};  //!< Physics attr; 'camera' = frame of reference; back node
+    NodeNum_t         ar_camera_node_roll[MAX_CAMERAS]   = {NODENUM_INVALID};  //!< Physics attr; 'camera' = frame of reference; left node
+    bool              ar_camera_node_roll_inv[MAX_CAMERAS] = {false};              //!< Physics attr; 'camera' = frame of reference; indicates roll node is right instead of left
     float             ar_posnode_spawn_height;
     VehicleAI*        ar_vehicle_ai;
     float             ar_scale;               //!< Physics state; scale of the actor (nominal = 1.0)
@@ -344,7 +344,7 @@ public:
     int               ar_aerial_flap;                 //!< Sim state; state of aircraft flaps (values: 0-5)
     Ogre::Vector3     ar_fusedrag;                    //!< Physics state
     int               ar_current_cinecam;             //!< Sim state; index of current CineCam (-1 if using 3rd-person camera)
-    int               ar_custom_camera_node;          //!< Sim state; custom tracking node for 3rd-person camera
+    NodeNum_t         ar_custom_camera_node = NODENUM_INVALID; //!< Sim state; custom tracking node for 3rd-person camera
     std::string       ar_filename;                    //!< Attribute; filled at spawn
     std::string       ar_filehash;                    //!< Attribute; filled at spawn
     int               ar_airbrake_intensity;          //!< Physics state; values 0-5
@@ -464,7 +464,7 @@ private:
     float             m_stabilizer_shock_sleep;     //!< Sim state
     Replay*           m_replay_handler;
     float             m_total_mass;            //!< Physics state; total mass in Kg
-    int               m_mouse_grab_node;       //!< Sim state; node currently being dragged by user
+    NodeNum_t         m_mouse_grab_node = NODENUM_INVALID;  //!< Sim state; node currently being dragged by user
     Ogre::Vector3     m_mouse_grab_pos;
     float             m_mouse_grab_move_force;
     float             m_spawn_rotation;

@@ -99,7 +99,7 @@ void SceneMouse::releaseMousePick()
 
 void SceneMouse::reset()
 {
-    minnode = -1;
+    minnode = NODENUM_INVALID;
     grab_truck = 0;
     mindist = 99999;
     mouseGrabState = 0;
@@ -123,7 +123,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         Ray mouseRay = getMouseRay();
 
         // walk all trucks
-        minnode = -1;
+        minnode = NODENUM_INVALID;
         grab_truck = NULL;
         for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
@@ -147,7 +147,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
                         if (pair.second < mindist)
                         {
                             mindist = pair.second;
-                            minnode = j;
+                            minnode = (NodeNum_t)j;
                             grab_truck = actor;
                         }
                     }
@@ -156,7 +156,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         }
 
         // check if we hit a node
-        if (grab_truck && minnode != -1)
+        if (grab_truck && minnode != NODENUM_INVALID)
         {
             mouseGrabState = 1;
 
@@ -264,7 +264,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
         {
             Real nearest_camera_distance = std::numeric_limits<float>::max();
             Real nearest_ray_distance = std::numeric_limits<float>::max();
-            int nearest_node_index = -1;
+            NodeNum_t nearest_node_index = NODENUM_INVALID;
 
             for (int i = 0; i < player_actor->ar_num_nodes; i++)
             {
@@ -277,7 +277,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
                     {
                         nearest_camera_distance = pair.second;
                         nearest_ray_distance = ray_distance;
-                        nearest_node_index = i;
+                        nearest_node_index = (NodeNum_t)i;
                     }
                 }
             }

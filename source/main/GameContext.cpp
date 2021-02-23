@@ -415,7 +415,7 @@ void GameContext::ChangePlayerActor(Actor* actor)
             float h = prev_player_actor->getMinCameraRadius();
             float rotation = prev_player_actor->getRotation() - Ogre::Math::HALF_PI;
             Ogre::Vector3 position = prev_player_actor->getPosition();
-            if (prev_player_actor->ar_cinecam_node[0] != -1)
+            if (prev_player_actor->ar_cinecam_node[0] != NODENUM_INVALID)
             {
                 // actor has a cinecam (find optimal exit position)
                 Ogre::Vector3 l = position - 2.0f * prev_player_actor->GetCameraRoll();
@@ -872,7 +872,7 @@ void GameContext::UpdateSimInputEvents(float dt)
             {
                 if (!actor->ar_driveable)
                     continue;
-                if (actor->ar_cinecam_node[0] == -1)
+                if (actor->ar_cinecam_node[0] == NODENUM_INVALID)
                 {
                     LOG("cinecam missing, cannot enter the actor!");
                     continue;

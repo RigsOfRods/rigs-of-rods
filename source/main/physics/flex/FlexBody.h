@@ -24,11 +24,10 @@
 #include "RigDef_Prerequisites.h"
 #include "Application.h"
 #include "Locator_t.h"
+#include "SimData.h"
+#include "RigDef_File.h"
 
-#include <OgreVector3.h>
-#include <OgreQuaternion.h>
-#include <OgreHardwareVertexBuffer.h>
-#include <OgreMesh.h>
+#include <Ogre.h>
 
 namespace RoR {
 
@@ -43,9 +42,9 @@ class FlexBody
         RoR::FlexBodyCacheData* preloaded_from_cache,
         RoR::GfxActor* gfx_actor,
         Ogre::Entity* entity,
-        int ref, 
-        int nx, 
-        int ny,
+        NodeNum_t ref, 
+        NodeNum_t nx, 
+        NodeNum_t ny,
         Ogre::Quaternion const & rot, 
         std::vector<unsigned int> & node_indices
     );
@@ -85,9 +84,9 @@ private:
     Ogre::ARGB*       m_src_colors;
     Locator_t*        m_locators; //!< 1 loc per vertex
 
-    int               m_node_center;
-    int               m_node_x;
-    int               m_node_y;
+    NodeNum_t         m_node_center;
+    NodeNum_t         m_node_x;
+    NodeNum_t         m_node_y;
     Ogre::Vector3     m_center_offset;
     Ogre::SceneNode*  m_scene_node;
     Ogre::Entity*     m_scene_entity;

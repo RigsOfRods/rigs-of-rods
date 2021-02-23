@@ -27,6 +27,7 @@
 #pragma once
 
 #include "Application.h"
+#include "SimData.h"
 #include <OIS.h>
 
 #include <OIS.h>
@@ -55,7 +56,7 @@ protected:
     Ogre::SceneNode* pickLineNode;
     int mouseGrabState;
 
-    int minnode;
+    NodeNum_t minnode = NODENUM_INVALID;
     float mindist;
     Actor* grab_truck;
     Ogre::Vector3 lastgrabpos;

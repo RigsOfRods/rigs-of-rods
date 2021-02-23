@@ -39,9 +39,9 @@ FlexBody::FlexBody(
     RoR::FlexBodyCacheData* preloaded_from_cache,
     RoR::GfxActor* gfx_actor,
     Ogre::Entity* ent,
-    int ref,
-    int nx,
-    int ny,
+    NodeNum_t ref,
+    NodeNum_t nx,
+    NodeNum_t ny,
     Ogre::Quaternion const & rot,
     std::vector<unsigned int> & node_indices
 ):
@@ -63,6 +63,8 @@ FlexBody::FlexBody(
     , m_src_colors(nullptr)
     , m_gfx_actor(gfx_actor)
 {
+    ROR_ASSERT(m_node_x != NODENUM_INVALID);
+    ROR_ASSERT(m_node_y != NODENUM_INVALID);
 
     Ogre::Vector3* vertices = nullptr;
 
@@ -72,7 +74,7 @@ FlexBody::FlexBody(
 
     RoR::GfxActor::SimBuffer::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
 
-    if (ref >= 0)
+    if (m_node_center != NODENUM_INVALID)
     {
         Vector3 diffX = nodes[nx].AbsPosition-nodes[ref].AbsPosition;
         Vector3 diffY = nodes[ny].AbsPosition-nodes[ref].AbsPosition;
@@ -395,7 +397,7 @@ FlexBody::FlexBody(
                 LOG("FLEXBODY ERROR on mesh "+def->mesh_name+": REF node not found");
                 closest_node_index = 0;
             }
-            m_locators[i].ref=closest_node_index;            
+            m_locators[i].ref=closest_node_index;
 
             //search the second nearest node as the X vector
             closest_node_distance = std::numeric_limits<float>::max();

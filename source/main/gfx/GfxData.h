@@ -107,9 +107,9 @@ struct Prop
         , pp_aero_propeller_spin(false)
     {}
 
-    uint16_t              pp_node_ref             = node_t::INVALID_IDX;
-    uint16_t              pp_node_x               = node_t::INVALID_IDX;
-    uint16_t              pp_node_y               = node_t::INVALID_IDX;
+    NodeNum_t             pp_node_ref             = NODENUM_INVALID;
+    NodeNum_t             pp_node_x               = NODENUM_INVALID;
+    NodeNum_t             pp_node_y               = NODENUM_INVALID;
     Ogre::Vector3         pp_offset               = Ogre::Vector3::ZERO;
     Ogre::Vector3         pp_offset_orig          = Ogre::Vector3::ZERO; //!< Used with ANIM_FLAG_OFFSET*
     Ogre::Vector3         pp_rota                 = Ogre::Vector3::ZERO;
@@ -154,11 +154,11 @@ enum VideoCamType
 struct VideoCamera
 {
     VideoCamType         vcam_type           = VCTYPE_INVALID;
-    uint16_t             vcam_node_center    = node_t::INVALID_IDX;
-    uint16_t             vcam_node_dir_y     = node_t::INVALID_IDX;
-    uint16_t             vcam_node_dir_z     = node_t::INVALID_IDX;
-    uint16_t             vcam_node_alt_pos   = node_t::INVALID_IDX;
-    uint16_t             vcam_node_lookat    = node_t::INVALID_IDX; //!< Only for VCTYPE_TRACK_CAM
+    NodeNum_t            vcam_node_center    = NODENUM_INVALID;
+    NodeNum_t            vcam_node_dir_y     = NODENUM_INVALID;
+    NodeNum_t            vcam_node_dir_z     = NODENUM_INVALID;
+    NodeNum_t            vcam_node_alt_pos   = NODENUM_INVALID;
+    NodeNum_t            vcam_node_lookat    = NODENUM_INVALID; //!< Only for VCTYPE_TRACK_CAM
     Ogre::Quaternion     vcam_rotation;
     Ogre::Vector3        vcam_pos_offset     = Ogre::Vector3::ZERO;
     Ogre::MaterialPtr    vcam_material;
@@ -174,7 +174,7 @@ struct VideoCamera
 /// Gfx attributes/state of a softbody node
 struct NodeGfx
 {
-    NodeGfx(uint16_t node_idx):
+    NodeGfx(NodeNum_t node_idx):
         nx_node_idx(node_idx),
         nx_no_particles(false), // Bitfields can't be initialized in-class :(
         nx_may_get_wet(false),
@@ -184,7 +184,7 @@ struct NodeGfx
     {}
 
     float      nx_wet_time_sec = -1; //!< 'Wet' means "already out of water, producing dripping particles". Set to -1 when not 'wet'.
-    uint16_t   nx_node_idx = node_t::INVALID_IDX;
+    NodeNum_t  nx_node_idx = NODENUM_INVALID;
 
     // Bit flags
     bool       nx_no_particles:1;     //!< User-defined attr; disable all particles
@@ -203,8 +203,8 @@ struct Rod
     uint16_t         rod_beam_index      = 0;
     uint16_t         rod_diameter_mm     = 0;                    //!< Diameter in millimeters
 
-    uint16_t         rod_node1           = node_t::INVALID_IDX;  //!< Node index - may change during simulation!
-    uint16_t         rod_node2           = node_t::INVALID_IDX;  //!< Node index - may change during simulation!
+    NodeNum_t        rod_node1           = NODENUM_INVALID;  //!< Node index - may change during simulation!
+    NodeNum_t        rod_node2           = NODENUM_INVALID;  //!< Node index - may change during simulation!
     Actor*           rod_target_actor    = nullptr;
     bool             rod_is_visible      = false;
 };
@@ -222,9 +222,9 @@ struct AirbrakeGfx
     Ogre::SceneNode* abx_scenenode;
     Ogre::Entity*    abx_entity;
     Ogre::Vector3    abx_offset;
-    uint16_t         abx_ref_node;
-    uint16_t         abx_x_node;
-    uint16_t         abx_y_node;
+    NodeNum_t        abx_ref_node = NODENUM_INVALID;
+    NodeNum_t        abx_x_node   = NODENUM_INVALID;
+    NodeNum_t        abx_y_node   = NODENUM_INVALID;
 };
 
 struct FlareMaterial // materialflares

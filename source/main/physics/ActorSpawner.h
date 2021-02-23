@@ -159,7 +159,7 @@ public:
     * @return Index of existing node
     * @throws Exception If the node isn't found.
     */
-    unsigned int GetNodeIndexOrThrow(RigDef::Node::Ref const & id);
+    NodeNum_t GetNodeIndexOrThrow(RigDef::Node::Ref const & id);
 
     static void SetupDefaultSoundSources(Actor *vehicle);
 
@@ -555,14 +555,14 @@ private:
 /* Partial processing functions.                                              */
 /* -------------------------------------------------------------------------- */
 
-    void BuildAerialEngine(
-        int ref_node_index,
-        int back_node_index,
-        int blade_1_node_index,
-        int blade_2_node_index,
-        int blade_3_node_index,
-        int blade_4_node_index,
-        int couplenode_index,
+    void BuildAeroEngine(
+        NodeNum_t ref_node_index,
+        NodeNum_t back_node_index,
+        NodeNum_t blade_1_node_index,
+        NodeNum_t blade_2_node_index,
+        NodeNum_t blade_3_node_index,
+        NodeNum_t blade_4_node_index,
+        NodeNum_t couplenode_index,
         bool is_turboprops,
         Ogre::String const & airfoil,
         float power,
@@ -595,7 +595,7 @@ private:
 
     RailGroup *CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
 
-    static void AddSoundSource(Actor *vehicle, SoundScriptInstance *sound_script, int node_index, int type = -2);
+    static void AddSoundSource(Actor *vehicle, SoundScriptInstance *sound_script, NodeNum_t node_index, int type = -2);
 
     static void AddSoundSourceInstance(Actor *vehicle, Ogre::String const & sound_script_name, int node_index, int type = -2);
 
@@ -680,7 +680,7 @@ private:
     * Seeks node in both RigDef::File definition and rig_t generated rig.
     * @return Node index or -1 if the node was not found.
     */
-    int FindNodeIndex(RigDef::Node::Ref & node_ref, bool silent = false);
+    NodeNum_t FindNodeIndex(RigDef::Node::Ref & node_ref, bool silent = false);
 
     /**
     * Finds wheel with given axle nodes and returns it's index.
@@ -716,7 +716,7 @@ private:
     * Finds existing node by Node::Ref
     * @return First: Index of existing node; Second: true if node was found.
     */
-    std::pair<unsigned int, bool> GetNodeIndex(RigDef::Node::Ref const & node_ref, bool quiet = false);
+    std::pair<NodeNum_t, bool> GetNodeIndex(RigDef::Node::Ref const & node_ref, bool quiet = false);
 
     /**
     * Finds existing node by Node::Ref
@@ -756,7 +756,7 @@ private:
     * Finds existing node by index.
     * @return Pointer to node or nullptr if not found.
     */
-    node_t & GetNode(unsigned int node_index);
+    node_t & GetNode(NodeNum_t node_index);
 
     /**
     * Sets up defaults & position of a node.
@@ -793,7 +793,7 @@ private:
     */
     bool CollectNodesFromRanges(
         std::vector<RigDef::Node::Range> & node_ranges,
-        std::vector<unsigned int> & out_node_indices
+        std::vector<NodeNum_t> & out_node_indices
     );
 
     /**
@@ -835,7 +835,7 @@ private:
 
     void SetBeamDamping(beam_t & beam, float damping);
 
-    beam_t *FindBeamInRig(unsigned int node_a, unsigned int node_b);
+    beam_t *FindBeamInRig(NodeNum_t node_a, NodeNum_t node_b);
 
     void SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults);
 
@@ -912,7 +912,7 @@ private:
     /**
     * Validator for the rotator reference structure
     */
-    void ValidateRotator(int id, int axis1, int axis2, int *nodes1, int *nodes2);
+    void ValidateRotator(int id, int axis1, int axis2, NodeNum_t *nodes1, NodeNum_t *nodes2);
 
     /**
     * Helper for 'SetupNewEntity()' - see it's doc.
