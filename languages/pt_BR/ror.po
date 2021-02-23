@@ -5,21 +5,23 @@
 # Translators:
 # Kassio Cruz <kassiocs16@gmail.com>, 2018
 # Bruno Dias Barros <brunodiasbarros09@gmail.com>, 2021.
+# Elton Viana Gonçalves da Luz <eltongoncalves94@hotmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-13 19:27+0100\n"
-"PO-Revision-Date: 2021-01-17 01:32+0000\n"
-"Last-Translator: Bruno Dias Barros <brunodiasbarros09@gmail.com>\n"
-"Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/rigs-"
-"of-rods/game/pt_BR/>\n"
+"PO-Revision-Date: 2021-02-24 03:50+0000\n"
+"Last-Translator: Elton Viana Gonçalves da Luz <eltongoncalves94@hotmail.com>"
+"\n"
+"Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
+"rigs-of-rods/game/pt_BR/>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.5-dev\n"
+"X-Generator: Weblate 4.5\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:407 AppContext.cpp:425
 #: AppContext.cpp:476 AppContext.cpp:490 AppContext.cpp:501
@@ -116,15 +118,15 @@ msgstr "Faixa alta selecionada"
 
 #: gameplay/Landusemap.cpp:90
 msgid "Error while loading landuse config"
-msgstr ""
+msgstr "Erro ao carregar configuração de terreno"
 
 #: gfx/camera/CameraManager.cpp:302
 msgid "FOV: Limit reached"
-msgstr ""
+msgstr "FOV: Limite alcançado"
 
 #: gfx/camera/CameraManager.cpp:314
 msgid "FOV: "
-msgstr ""
+msgstr "Campo de Visão (FOV): "
 
 #: gfx/camera/CameraManager.cpp:384
 msgid "Free camera"
@@ -132,15 +134,15 @@ msgstr "Câmera livre"
 
 #: gfx/camera/CameraManager.cpp:389
 msgid "Fixed camera"
-msgstr ""
+msgstr "Câmera fixa"
 
 #: gfx/camera/CameraManager.cpp:863
 msgid "Limited camera movement enabled"
-msgstr ""
+msgstr "Movimento limitado de câmera ativado"
 
 #: gfx/camera/CameraManager.cpp:867
 msgid "Limited camera movement disabled"
-msgstr ""
+msgstr "Movimento limitado de câmera desabilitado"
 
 #: gfx/camera/CameraManager.cpp:1142
 msgid "Auto tracking enabled"
@@ -164,15 +166,15 @@ msgstr "Melhor FPS:"
 
 #: gui/OverlayWrapper.cpp:434
 msgid "Worst FPS: "
-msgstr ""
+msgstr "FPS mais baixo: "
 
 #: gui/OverlayWrapper.cpp:435
 msgid "Triangle Count: "
-msgstr ""
+msgstr "Número de Triângulos: "
 
 #: gui/OverlayWrapper.cpp:462
 msgid "Textures: "
-msgstr ""
+msgstr "Texturas: "
 
 #: gui/OverlayWrapper.cpp:464
 msgid "Compositors: "
@@ -180,23 +182,23 @@ msgstr "Compositores: "
 
 #: gui/OverlayWrapper.cpp:466
 msgid "Fonts: "
-msgstr ""
+msgstr "Fontes: "
 
 #: gui/OverlayWrapper.cpp:468
 msgid "GPU Program: "
-msgstr ""
+msgstr "Programa da GPU: "
 
 #: gui/OverlayWrapper.cpp:470
 msgid "HL GPU Program: "
-msgstr ""
+msgstr "Programa HL GPU: "
 
 #: gui/OverlayWrapper.cpp:472 gui/OverlayWrapper.cpp:478
 msgid "Materials: "
-msgstr ""
+msgstr "Materiais: "
 
 #: gui/OverlayWrapper.cpp:474
 msgid "Meshes: "
-msgstr ""
+msgstr "Malhas: "
 
 #: gui/OverlayWrapper.cpp:476
 msgid "Skeletons: "
