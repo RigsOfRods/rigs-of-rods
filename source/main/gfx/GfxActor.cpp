@@ -3193,7 +3193,7 @@ void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
     int num_flares = static_cast<int>(m_actor->ar_flares.size());
     for (int i=0; i<num_flares; ++i)
     {
-        flare_t& flare = m_actor->ar_flares[i];
+        Flare& flare = m_actor->ar_flares[i];
         
         //TODO: Following code is a quick+dirty port from `Actor::updateFlares()` - tidy it up! ~only_a_ptr, 06/2018
 

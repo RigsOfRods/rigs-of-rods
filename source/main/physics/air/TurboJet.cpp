@@ -33,7 +33,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-Turbojet::Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, Truck::Turbojet & def)
+Turbojet::Turbojet(Actor* actor, NodeIdx_t tnodefront, NodeIdx_t tnodeback, NodeIdx_t tnoderef, Truck::Turbojet & def)
 {
     m_actor = actor;
 #ifdef USE_OPENAL
@@ -107,11 +107,11 @@ void TurbojetVisual::SetupVisuals(Truck::Turbojet & def, int num, std::string co
     }
 }
 
-void TurbojetVisual::SetNodes(int front, int back, int ref)
+void TurbojetVisual::SetNodes(NodeIdx_t front, NodeIdx_t back, NodeIdx_t ref)
 {
-    m_node_front = static_cast<uint16_t>(front);
-    m_node_back  = static_cast<uint16_t>(back);
-    m_node_ref   = static_cast<uint16_t>(ref);
+    m_node_front = front;
+    m_node_back  = back;
+    m_node_ref   = ref;
 }
 
 Turbojet::~Turbojet()

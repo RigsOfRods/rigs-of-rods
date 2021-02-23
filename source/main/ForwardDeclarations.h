@@ -47,12 +47,15 @@ namespace RoR
     class  ConfigFile;
     class  Console;
     class  ContentManager;
+    struct CParticle;
     class  CVar;
     class  DashBoard;
     class  DashBoardManager;
     class  DustPool;
     class  DiscordRpc;
     class  EngineSim;
+    struct Exhaust;
+    struct Flare;
     class  Flexable;
     class  FlexAirfoil;
     class  FlexBody;
@@ -132,10 +135,7 @@ namespace RoR
     struct wing_t;
     struct command_t;
     struct rotator_t;
-    struct flare_t;
     struct rope_t;
-    struct exhaust_t;
-    struct cparticle_t;
     struct collision_box_t;
     struct tie_t;
     struct hook_t;

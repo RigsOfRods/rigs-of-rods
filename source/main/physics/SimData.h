@@ -214,14 +214,13 @@ enum LocalizerType
 // --------------------------------
 // Soft body physics
 
+typedef uint16_t NodeIdx_t;
+
 /// Physics: A vertex in the softbody structure
 struct node_t
 {
-    // REFACTOR IN PROGRESS: Currently nodes are adressed mostly by pointers or int32_t indices,
-    //     although there was always a hidden soft limit of 2^16 nodes (because of `short node_t::pos`).
-    //     Let's use `uint16_t` indices everywhere to be clear.      ~ only_a_ptr, 04/2018
-    static const uint16_t INVALID_IDX = std::numeric_limits<uint16_t>::max();
-    static const int8_t   INVALID_BBOX = -1;
+    static const NodeIdx_t INVALID_IDX = std::numeric_limits<NodeIdx_t>::max();
+    static const int8_t    INVALID_BBOX = -1;
 
     node_t()               { memset(this, 0, sizeof(node_t)); nd_coll_bbox_id = INVALID_BBOX; }
     node_t(size_t _pos)    { memset(this, 0, sizeof(node_t)); nd_coll_bbox_id = INVALID_BBOX; pos = static_cast<short>(_pos); }
@@ -237,7 +236,7 @@ struct node_t
     Ogre::Real      surface_coef;
     Ogre::Real      volume_coef;
 
-    int16_t         pos;                     //!< This node's index in Actor::ar_nodes array.
+    NodeIdx_t       pos;                     //!< This node's index in Actor::ar_nodes array.
     int16_t         nd_coll_bbox_id;         //!< Optional attribute (-1 = none) - multiple collision bounding boxes defined in truckfile
     int16_t         nd_lockgroup;            //!< Optional attribute (-1 = default, 9999 = deny lock) - used in the hook lock logic
 
@@ -344,7 +343,7 @@ struct collcab_rate_t
 struct soundsource_t
 {
     SoundScriptInstance* ssi;
-    int nodenum;
+    NodeIdx_t nodenum;
     int type;
 };
 
@@ -512,10 +511,10 @@ struct hydrobeam_t
 struct rotator_t
 {
     bool needs_engine;
-    int nodes1[4];
-    int nodes2[4];
-    int axis1; //!< rot axis
-    int axis2;
+    NodeIdx_t nodes1[4];
+    NodeIdx_t nodes2[4];
+    NodeIdx_t axis1; //!< rot axis
+    NodeIdx_t axis2;
     float angle;
     float rate;
     float force;
@@ -523,45 +522,6 @@ struct rotator_t
     float engine_coupling;
     float debug_rate;
     float debug_aerror;
-};
-
-struct flare_t
-{
-    int noderef;
-    int nodex;
-    int nodey;
-    float offsetx;
-    float offsety;
-    float offsetz;
-    Ogre::SceneNode *snode;
-    Ogre::BillboardSet *bbs;
-    Ogre::Light *light;
-    FlareType fl_type;
-    int controlnumber;
-    bool controltoggle_status;
-    float blinkdelay;
-    float blinkdelay_curr;
-    bool blinkdelay_state;
-    float size;
-    bool isVisible;
-};
-
-struct exhaust_t
-{
-    int emitterNode;
-    int directionNode;
-    Ogre::SceneNode *smokeNode;
-    Ogre::ParticleSystem* smoker;
-};
-
-
-struct cparticle_t
-{
-    int emitterNode;
-    int directionNode;
-    bool active;
-    Ogre::SceneNode *snode;
-    Ogre::ParticleSystem* psys;
 };
 
 
