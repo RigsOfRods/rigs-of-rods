@@ -33,7 +33,9 @@
 #include <memory>
 #include <thread>
 #include <vector>
-#include <curl/curl.h>
+#ifdef USE_CURL
+#   include <curl/curl.h>
+#endif //USE_CURL
 
 namespace RoR {
 namespace GUI {
@@ -127,7 +129,9 @@ private:
     ResourceItem                        m_selected_item;
     Ogre::uint16                        m_ogre_workqueue_channel = 0;
     Ogre::TexturePtr                    m_fallback_thumbnail;
+#ifdef USE_CURL
     CURL                                *curl_th = curl_easy_init(); // One connection for fetching thumbnails using connection reuse
+#endif
 };
 
 }// namespace GUI
