@@ -183,8 +183,8 @@ set(SOURCE_FILES
         physics/water/ScrewProp.{h,cpp}
         resources/CacheSystem.{h,cpp}
         resources/ContentManager.{h,cpp}
+        resources/Project.h
         resources/ProjectManager.{h,cpp}
-        resources/ProjectFileWatcher.{h,cpp}
         resources/otc_fileformat/OTCFileFormat.{h,cpp}
         resources/odef_fileformat/ODefFileFormat.{h,cpp}
         resources/skin_fileformat/SkinFileFormat.{h,cpp}

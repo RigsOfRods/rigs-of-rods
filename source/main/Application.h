@@ -97,6 +97,7 @@ enum MsgType
     MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  //!< Payload = ground_model_t* (weak)
     MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,
     MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED,
+    MSG_EDI_PROJECT_FILESYSTEM_EVENT,      //!< Payload = ProjectFsEvent* (owner)
 };
 
 enum class AppState

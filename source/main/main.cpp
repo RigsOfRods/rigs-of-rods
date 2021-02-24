@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
         App::sys_cache_dir     ->SetStr(PathCombine(App::sys_user_dir->GetStr(), "cache"));
         App::sys_savegames_dir ->SetStr(PathCombine(App::sys_user_dir->GetStr(), "savegames"));
         App::sys_screenshot_dir->SetStr(PathCombine(App::sys_user_dir->GetStr(), "screenshots"));
-        App::sys_projects_dir  ->SetStr(PathCombine(App::sys_user_dir->GetStr(), "projects"));
+        App::sys_projects_dir  ->SetStr(PathCombine(App::sys_user_dir->GetStr(), "projects") + PATH_SLASH);
 
         // Load RoR.cfg - updates cvars
         App::GetConsole()->LoadConfig();
@@ -684,6 +684,13 @@ int main(int argc, char *argv[])
                         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                                                       _L("Left terrain editing mode"));
                     }
+                    break;
+
+                case MSG_EDI_PROJECT_FILESYSTEM_EVENT:
+#if USE_EFSW
+                    App::GetProjectManager()->HandleFilesystemEvent(reinterpret_cast<ProjectFsEvent*>(m.payload));
+                    delete reinterpret_cast<ProjectFsEvent*>(m.payload);
+#endif
                     break;
 
                 default:;

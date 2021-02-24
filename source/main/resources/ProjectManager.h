@@ -22,58 +22,60 @@
 #pragma once
 
 #include "TruckFileFormat.h"
-#include "ProjectFileWatcher.h"
+#include "Project.h"
+#include "ProjectDirWatcher.h"
 
 #include <memory>
 #include <string>
 #include <vector>
 
-#define PROJECT_FILE "project.json"
-#define PROJECT_FILE_FORMAT "1"
+#if USE_EFSW
+#   include <efsw/efsw.hpp>
+#endif
 
 namespace RoR {
 
-/// A subdirectory of ROR_HOME/projects
-struct Project
-{
-    std::string   prj_dirname;
-    std::string   prj_rg_name; //!< OGRE resource group
-    Ogre::StringVectorPtr prj_trucks; //!< Filenames
-    bool          prj_valid = false; //!< Is this object in sync with filesystem?
-};
-
-typedef std::vector<Project> ProjectVec;
-
 class ProjectManager
+#if USE_EFSW
+                    : efsw::FileWatchListener
+#endif
 {
 public:
     // Project list management
     void                ReScanProjects();
-    Project*            RegisterProjectDir(std::string const& dirname);
-    void                ReScanProjectDir(Project* proj);
-    Project*            FindProjectByDirName(std::string const& dirname);
+    ProjectPtr          RegisterProjectDir(std::string const& dirname);
+    void                ReScanProjectDir(ProjectPtr proj);
+    ProjectPtr          FindProjectByDirName(std::string const& dirname);
     void                PruneInvalidProjects();
-    ProjectVec&         GetProjects() {return m_projects;}
+    ProjectPtrVec&      GetProjects() {return m_projects;}
 
     // Project handling
-    Project*            CreateNewProject(std::string const& dirname);
+    ProjectPtr          CreateNewProject(std::string const& dirname);
     bool                ImportTruckToProject(std::string const& filename, Truck::DocumentPtr def, CacheEntry* entry); //!< Imports truckfile to current project + opens it
     void                ImportModuleToTruck(Truck::ModulePtr m); //!< Imports module (see 'sectionconfig') to current actor
     bool                SaveTruck();
-    void                ReLoadResources(Project* project);
+    void                ReLoadResources(ProjectPtr project);
 
     // Active project
-    void                SetActiveProject(Project* p, std::string const& filename);
-    Project*            GetActiveProject() { return m_active_project; }
+    void                SetActiveProject(ProjectPtr, std::string const& filename);
+    ProjectPtr          GetActiveProject() { return m_active_project; }
+
+#if USE_EFSW
+    void                handleFileAction( efsw::WatchID watchid, const std::string& dir, const std::string& filename, efsw::Action action, std::string oldFilename = "" ) override;
+    void                HandleFilesystemEvent(ProjectFsEvent* fs_event);
+#endif
 
 private:
     std::string         MakeFilenameUniqueInProject(std::string const& src_filename);
 
-    ProjectVec            m_projects;
-    Project*              m_active_project = nullptr;
+    ProjectPtrVec         m_projects;
+    ProjectPtr            m_active_project;
     Ogre::String          m_active_truck_filename;
     Truck::DocumentPtr    m_active_truck_def;
-    std::unique_ptr<ProjectFileWatcher> m_file_watcher;
+#if USE_EFSW
+    std::unique_ptr<efsw::FileWatcher> m_watcher;
+    efsw::WatchID                      m_watch_id = 0; // Valid watches are >0, error states are <0
+#endif
 };
 
 } // namespace RoR

@@ -324,20 +324,20 @@ void TopMenubar::Update()
         if (ImGui::Begin("Projects menu", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
             int id_counter = 0; // Project names may not be unique
-            for (Project& project: App::GetProjectManager()->GetProjects())
+            for (ProjectPtr& project: App::GetProjectManager()->GetProjects())
             {
                 ImGui::PushID(id_counter++);
-                if (ImGui::TreeNode(project.prj_dirname.c_str())) // TODO: EDIT button
+                if (ImGui::TreeNode(project->prj_dirname.c_str())) // TODO: EDIT button
                 {
-                    for (Ogre::String& truck_filename: *project.prj_trucks)
+                    for (Ogre::String& truck_filename: *project->prj_trucks)
                     {
                         if (ImGui::Button(truck_filename.c_str()))
                         {
-                            App::GetProjectManager()->SetActiveProject(&project, truck_filename);
+                            App::GetProjectManager()->SetActiveProject(project, truck_filename);
                             // Spawn the actor from project truck file
                             ActorSpawnRequest* request = new ActorSpawnRequest;
                             request->asr_origin = ActorSpawnRequest::Origin::USER;
-                            request->asr_project = &project;
+                            request->asr_project = project;
                             request->asr_filename = truck_filename;
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)request));
                         }
@@ -372,10 +372,10 @@ void TopMenubar::Update()
                 {
                     // TODO: Make it happen asynchronously!
                     std::string dirname = fmt::format("{} - imported", src_actor->GetActorFileName());
-                    Project* proj = App::GetProjectManager()->CreateNewProject(dirname);
-                    if (proj != nullptr) // Error already logged + displayed
+                    ProjectPtr project = App::GetProjectManager()->CreateNewProject(dirname);
+                    if (project) // Error already logged + displayed
                     {
-                        App::GetProjectManager()->SetActiveProject(proj, "");
+                        App::GetProjectManager()->SetActiveProject(project, "");
                         App::GetProjectManager()->ImportTruckToProject(
                             src_actor->GetActorFileName(), src_actor->GetDefinition(), src_actor->GetCacheEntry());
                     }

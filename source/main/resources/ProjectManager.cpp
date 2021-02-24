@@ -22,10 +22,11 @@
 #include "Application.h"
 #include "Console.h"
 #include "ContentManager.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "Language.h"
 #include "PlatformUtils.h"
-#include "ProjectFileWatcher.h"
+#include "ProjectDirWatcher.h"
 #include "TruckSerializer.h"
 
 #include <OgreDataStream.h>
@@ -50,9 +51,9 @@ void ProjectManager::ReScanProjects()
     }
 
     // Mark all entries "out of sync"
-    for (Project& p: m_projects)
+    for (ProjectPtr& project: m_projects)
     {
-        p.prj_valid = false;
+        project->prj_sync = ProjectSyncState::UNKNOWN;
     }
 
     // List project directories and check if entries exist.
@@ -62,14 +63,14 @@ void ProjectManager::ReScanProjects()
         try
         {
             // Find or create project entry
-            Project* p = this->FindProjectByDirName(proj_dir.filename);
-            if (!p)
+            ProjectPtr project = this->FindProjectByDirName(proj_dir.filename);
+            if (!project)
             {
-                p = this->RegisterProjectDir(proj_dir.filename);
+                project = this->RegisterProjectDir(proj_dir.filename);
             }
 
             // (Re)Load the entry
-            this->ReScanProjectDir(p);
+            this->ReScanProjectDir(project);
         }
         catch (Ogre::Exception& oex)
         {
@@ -80,36 +81,60 @@ void ProjectManager::ReScanProjects()
 
     // Delete entries which are still out of sync (directory missing or corrupted)
     this->PruneInvalidProjects();
+
+#if USE_EFSW
+    // Recursively watches ROR_HOME/projects
+    if (!m_watcher)
+    {
+        m_watcher = std::make_unique<efsw::FileWatcher>();
+        m_watch_id = m_watcher->addWatch(App::sys_projects_dir->GetStr(), this, /*recursive=*/true);
+        if (m_watch_id > 0)
+        {
+            m_watcher->watch();
+        }
+        else
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_ERROR,
+                                          fmt::format(_L("Could not set up filesystem watching for '{}', error code '{}'"),
+                                                      App::sys_projects_dir->GetStr(), m_watch_id));
+            m_watch_id = 0;
+        }
+    }
+#endif // USE_ESFW
 }
 
-Project* ProjectManager::RegisterProjectDir(std::string const& dirname)
+ProjectPtr ProjectManager::RegisterProjectDir(std::string const& dirname)
 {
-    Project p;
-    p.prj_dirname = dirname;
-    p.prj_rg_name = fmt::format("project {}", dirname);
+    // create entry
+    ProjectPtr project = std::make_shared<Project>();
+    project->prj_dirname = dirname;
+    project->prj_rg_name = fmt::format("project {}", dirname);
+    m_projects.push_back(project);
+
+    // create resource group
     std::string path = PathCombine(App::sys_projects_dir->GetStr(), dirname);
-    Ogre::ResourceGroupManager::getSingleton().addResourceLocation(path, "FileSystem", p.prj_rg_name, /*recursive=*/false, /*readOnly=*/false);
-    Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(p.prj_rg_name);
-    m_projects.push_back(p);
-    return &m_projects.back();
+    Ogre::ResourceGroupManager::getSingleton().addResourceLocation(path, "FileSystem", project->prj_rg_name, /*recursive=*/false, /*readOnly=*/false);
+    Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(project->prj_rg_name);
+
+    return project;
 }
 
-void ProjectManager::ReScanProjectDir(Project* proj)
+void ProjectManager::ReScanProjectDir(ProjectPtr proj)
 {
     this->ReLoadResources(proj);
 
     // List actor snapshots (shared_ptr cleans up the old data)
     proj->prj_trucks = Ogre::ResourceGroupManager::getSingleton().findResourceNames(proj->prj_rg_name, "*.truck"); // It's always *.truck in project folders!
-    proj->prj_valid = true;
+    proj->prj_sync = ProjectSyncState::OK;
 }
 
-Project* ProjectManager::FindProjectByDirName(std::string const& dirname)
+ProjectPtr ProjectManager::FindProjectByDirName(std::string const& dirname)
 {
-    for (Project& p: m_projects)
+    for (ProjectPtr& project: m_projects)
     {
-        if (p.prj_dirname == dirname)
+        if (project->prj_dirname == dirname)
         {
-            return &p;
+            return project;
         }
     }
     return nullptr;
@@ -119,9 +144,9 @@ void ProjectManager::PruneInvalidProjects()
 {
     for (auto itor = m_projects.begin(); itor != m_projects.end(); ++itor)
     {
-        if (!itor->prj_valid)
+        if (itor->get()->prj_sync != ProjectSyncState::OK)
         {
-            Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(itor->prj_rg_name);
+            Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(itor->get()->prj_rg_name);
             itor = m_projects.erase(itor);
         }
     }
@@ -130,7 +155,7 @@ void ProjectManager::PruneInvalidProjects()
 // --------------------------------
 // Project handling
 
-Project* ProjectManager::CreateNewProject(std::string const& dir_name)
+ProjectPtr ProjectManager::CreateNewProject(std::string const& dir_name)
 {
     try
     {
@@ -345,30 +370,18 @@ bool ProjectManager::SaveTruck()
     }
 }
 
-void ProjectManager::ReLoadResources(Project* project)
+void ProjectManager::ReLoadResources(ProjectPtr project)
 {
     Ogre::ResourceGroupManager::getSingleton().unloadResourceGroup(project->prj_rg_name);
     Ogre::ResourceGroupManager::getSingleton().loadResourceGroup(project->prj_rg_name);
 }
 
-void ProjectManager::SetActiveProject(Project* project, std::string const& filename)
+void ProjectManager::SetActiveProject(ProjectPtr project, std::string const& filename)
 {
     m_active_project = project;
     m_active_truck_filename = filename;
 
-#if USE_EFSW
-    if (m_active_project && m_active_truck_filename != "")
-    {
-        if (!m_file_watcher)
-            m_file_watcher = std::make_unique<ProjectFileWatcher>();
 
-        m_file_watcher->StartWatching(m_active_project->prj_dirname, m_active_truck_filename);
-    }
-    else
-    {
-        m_file_watcher->StopWatching();
-    }
-#endif // USE_ESFW
 }
 
 std::string ProjectManager::MakeFilenameUniqueInProject(std::string const& src_filename)
@@ -383,4 +396,137 @@ std::string ProjectManager::MakeFilenameUniqueInProject(std::string const& src_f
     }
     return filename;
 }
+
+// --------------------------------
+// File change monitoring
+
+#if USE_EFSW
+void ProjectManager::handleFileAction( efsw::WatchID watchid, const std::string& dir, const std::string& filename, efsw::Action action, std::string oldFilename )
+{
+    // ## IMPORTANT: This runs on EFSW's monitoring thread!
+
+    if (dir == App::sys_projects_dir->GetStr())
+    {
+        // Activity happens in projects root directory
+        if (!FolderExists(PathCombine(App::sys_projects_dir->GetStr(), filename)))
+        {
+            return; // We only care about subdirectories
+        }
+
+        if (action == efsw::Action::Add)
+        {
+            ProjectFsEvent* fs_event = new ProjectFsEvent();
+            fs_event->pfe_action = ProjectFsAction::PROJECT_ADDED;
+            fs_event->pfe_project_dir = filename;
+            App::GetGameContext()->PushMessage(Message(MSG_EDI_PROJECT_FILESYSTEM_EVENT, (void*)fs_event));
+        }
+        else if (action == efsw::Action::Moved)
+        {
+            ProjectFsEvent* fs_event = new ProjectFsEvent();
+            fs_event->pfe_action = ProjectFsAction::PROJECT_RENAMED;
+            fs_event->pfe_project_dir = oldFilename;
+            fs_event->pfe_new_name = filename;
+            App::GetGameContext()->PushMessage(Message(MSG_EDI_PROJECT_FILESYSTEM_EVENT, (void*)fs_event));
+        }
+        else if (action == efsw::Action::Delete)
+        {
+            ProjectFsEvent* fs_event = new ProjectFsEvent();
+            fs_event->pfe_action = ProjectFsAction::PROJECT_DELETED;
+            fs_event->pfe_project_dir = filename;
+            App::GetGameContext()->PushMessage(Message(MSG_EDI_PROJECT_FILESYSTEM_EVENT, (void*)fs_event));
+        }
+    }
+    else
+    {
+        std::string slash = "" + PATH_SLASH;
+        Ogre::StringVector dirs = Ogre::StringUtil::split(dir, slash);
+        std::string project_dir = dirs.at(dirs.size() - 1);
+        if (project_dir == "")
+            project_dir = dirs.at(dirs.size() - 2);
+
+        std::string base, ext;
+        Ogre::StringUtil::splitFilename(filename, base, ext);
+        const bool is_truck = ext == "truck";
+
+        if (action == efsw::Action::Add)
+        {
+            ProjectFsEvent* fs_event = new ProjectFsEvent();
+            fs_event->pfe_action = is_truck ? ProjectFsAction::TRUCK_ADDED : ProjectFsAction::RESOURCE_ADDED;
+            fs_event->pfe_project_dir = project_dir;
+            fs_event->pfe_filename = filename;
+            App::GetGameContext()->PushMessage(Message(MSG_EDI_PROJECT_FILESYSTEM_EVENT, (void*)fs_event));
+        }
+        else if (action == efsw::Action::Modified)
+        {
+            ProjectFsEvent* fs_event = new ProjectFsEvent();
+            fs_event->pfe_action = is_truck ? ProjectFsAction::TRUCK_MODIFIED : ProjectFsAction::RESOURCE_MODIFIED;
+            fs_event->pfe_project_dir = project_dir;
+            fs_event->pfe_filename = filename;
+            App::GetGameContext()->PushMessage(Message(MSG_EDI_PROJECT_FILESYSTEM_EVENT, (void*)fs_event));
+        }
+        else if (action == efsw::Action::Moved)
+        {
+            ProjectFsEvent* fs_event = new ProjectFsEvent();
+            fs_event->pfe_action = is_truck ? ProjectFsAction::TRUCK_RENAMED : ProjectFsAction::RESOURCE_RENAMED;
+            fs_event->pfe_project_dir = project_dir;
+            fs_event->pfe_filename = oldFilename;
+            fs_event->pfe_new_name = filename;
+            App::GetGameContext()->PushMessage(Message(MSG_EDI_PROJECT_FILESYSTEM_EVENT, (void*)fs_event));
+        }
+        else if (action == efsw::Action::Delete)
+        {
+            ProjectFsEvent* fs_event = new ProjectFsEvent();
+            fs_event->pfe_action = is_truck ? ProjectFsAction::TRUCK_DELETED : ProjectFsAction::RESOURCE_DELETED;
+            fs_event->pfe_project_dir = project_dir;
+            fs_event->pfe_filename = filename;
+            App::GetGameContext()->PushMessage(Message(MSG_EDI_PROJECT_FILESYSTEM_EVENT, (void*)fs_event));
+        }
+    }
+}
+
+void ProjectManager::HandleFilesystemEvent(ProjectFsEvent* fs_event)
+{
+    ProjectPtr project;
+
+    switch (fs_event->pfe_action)
+    {
+    case ProjectFsAction::PROJECT_ADDED:
+        this->RegisterProjectDir(fs_event->pfe_project_dir);
+        break;
+
+    case ProjectFsAction::PROJECT_RENAMED:
+        project = this->FindProjectByDirName(fs_event->pfe_project_dir);
+        if (project)
+        {
+            project->prj_dirname = fs_event->pfe_new_name;
+            this->ReLoadResources(project);
+        }
+        break;
+
+    case ProjectFsAction::PROJECT_DELETED:
+        //TODO
+        break;
+
+    case ProjectFsAction::TRUCK_MODIFIED:
+        project = App::GetProjectManager()->FindProjectByDirName(fs_event->pfe_project_dir);
+        if (!project)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_WARNING,
+                                          fmt::format(_L("Spurious notification about modified file '{}/{}' - no such project",
+                                                      fs_event->pfe_project_dir, fs_event->pfe_filename)));
+            return;
+        }
+
+        for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
+        {
+            if (actor->GetProject() == project && actor->GetActorFileName() == fs_event->pfe_filename)
+            {
+                ActorModifyRequest* request = new ActorModifyRequest();
+                request->amr_type = ActorModifyRequest::Type::RELOAD;
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)request));
+            }
+        }
+    }
+}
+#endif // USE_EFSW
 

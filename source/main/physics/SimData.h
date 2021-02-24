@@ -26,10 +26,11 @@
 
 #pragma once
 
-#include "ForwardDeclarations.h"
-#include "SimConstants.h"
 #include "BitFlags.h"
 #include "CmdKeyInertia.h"
+#include "ForwardDeclarations.h"
+#include "Project.h"
+#include "SimConstants.h"
 
 #include <memory>
 #include <Ogre.h>
@@ -610,7 +611,7 @@ struct ActorSpawnRequest
     };
 
     CacheEntry*         asr_cache_entry = nullptr; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
-    Project*            asr_project = nullptr;     //!< Optional, load from project folder
+    ProjectPtr          asr_project;               //!< Optional, load from project folder
     std::string         asr_filename;
     Ogre::String        asr_config;
     Ogre::Vector3       asr_position = Ogre::Vector3::ZERO;
