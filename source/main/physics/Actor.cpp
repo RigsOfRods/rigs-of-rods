@@ -618,7 +618,7 @@ void Actor::CalcNetwork()
     else
         SOUND_STOP(ar_instance_id, SS_TRIG_HORN);
 
-    if (m_net_reverse_light)
+    if (m_net_reverse_light && ar_engine->IsRunning())
         SOUND_START(ar_instance_id, SS_TRIG_REVERSE_GEAR);
     else
         SOUND_STOP(ar_instance_id, SS_TRIG_REVERSE_GEAR);
