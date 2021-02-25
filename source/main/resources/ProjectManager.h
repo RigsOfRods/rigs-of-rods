@@ -23,7 +23,6 @@
 
 #include "TruckFileFormat.h"
 #include "Project.h"
-#include "ProjectDirWatcher.h"
 
 #include <memory>
 #include <string>
@@ -61,8 +60,10 @@ public:
     ProjectPtr          GetActiveProject() { return m_active_project; }
 
 #if USE_EFSW
-    void                handleFileAction( efsw::WatchID watchid, const std::string& dir, const std::string& filename, efsw::Action action, std::string oldFilename = "" ) override;
-    void                HandleFilesystemEvent(ProjectFsEvent* fs_event);
+    void                handleFileAction( efsw::WatchID watchid, const std::string& dir, const std::string& filename, efsw::Action action, std::string oldFilename = "" ) override; //!< efsw::FileWatchListener callback, invoked on EFSW monitoring thread.
+    void                HandleFileSystemEvent(ProjectFsEvent* fs_event);
+    void                StartWatchingFileSystem();
+    void                StopWatchingFileSystem();
 #endif
 
 private:
@@ -72,6 +73,7 @@ private:
     ProjectPtr            m_active_project;
     Ogre::String          m_active_truck_filename;
     Truck::DocumentPtr    m_active_truck_def;
+
 #if USE_EFSW
     std::unique_ptr<efsw::FileWatcher> m_watcher;
     efsw::WatchID                      m_watch_id = 0; // Valid watches are >0, error states are <0

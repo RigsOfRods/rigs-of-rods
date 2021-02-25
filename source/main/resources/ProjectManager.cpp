@@ -26,7 +26,6 @@
 #include "GUIManager.h"
 #include "Language.h"
 #include "PlatformUtils.h"
-#include "ProjectDirWatcher.h"
 #include "TruckSerializer.h"
 
 #include <OgreDataStream.h>
@@ -83,23 +82,7 @@ void ProjectManager::ReScanProjects()
     this->PruneInvalidProjects();
 
 #if USE_EFSW
-    // Recursively watches ROR_HOME/projects
-    if (!m_watcher)
-    {
-        m_watcher = std::make_unique<efsw::FileWatcher>();
-        m_watch_id = m_watcher->addWatch(App::sys_projects_dir->GetStr(), this, /*recursive=*/true);
-        if (m_watch_id > 0)
-        {
-            m_watcher->watch();
-        }
-        else
-        {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_ERROR,
-                                          fmt::format(_L("Could not set up filesystem watching for '{}', error code '{}'"),
-                                                      App::sys_projects_dir->GetStr(), m_watch_id));
-            m_watch_id = 0;
-        }
-    }
+    this->StartWatchingFileSystem();
 #endif // USE_ESFW
 }
 
@@ -169,7 +152,15 @@ ProjectPtr ProjectManager::CreateNewProject(std::string const& dir_name)
             dir_name_buf.Clear() << dir_name << dir_counter++;
             dir_path.Clear() << App::sys_projects_dir->GetStr() << PATH_SLASH << dir_name_buf;
         }
+#if USE_EFSW
+        this->StartWatchingFileSystem(); // Supress while manipulating files
+#endif
+
         RoR::CreateFolder(dir_path.ToCStr());
+
+#if USE_EFSW
+        this->StartWatchingFileSystem(); // Resume
+#endif
 
         // Create project entry
         return this->RegisterProjectDir(dir_name_buf.ToCStr());
@@ -223,6 +214,10 @@ bool ProjectManager::ImportTruckToProject(std::string const& src_filename, Truck
         this->ImportModuleToTruck(module_itor.second);
     }
 
+#if USE_EFSW
+        this->StartWatchingFileSystem(); // Supress while manipulating files
+#endif
+
     // Save the truck file
     if (!this->SaveTruck())
     {
@@ -244,6 +239,10 @@ bool ProjectManager::ImportTruckToProject(std::string const& src_filename, Truck
         }
     }
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_TEMP);
+
+#if USE_EFSW
+        this->StartWatchingFileSystem(); // Resume
+#endif
 
     // Update truck list in the project
     this->ReScanProjectDir(m_active_project);
@@ -438,14 +437,14 @@ void ProjectManager::handleFileAction( efsw::WatchID watchid, const std::string&
     }
     else
     {
-        std::string slash = "" + PATH_SLASH;
+        std::string slash = {PATH_SLASH};
         Ogre::StringVector dirs = Ogre::StringUtil::split(dir, slash);
         std::string project_dir = dirs.at(dirs.size() - 1);
         if (project_dir == "")
             project_dir = dirs.at(dirs.size() - 2);
 
         std::string base, ext;
-        Ogre::StringUtil::splitFilename(filename, base, ext);
+        Ogre::StringUtil::splitBaseFilename(filename, base, ext);
         const bool is_truck = ext == "truck";
 
         if (action == efsw::Action::Add)
@@ -484,7 +483,7 @@ void ProjectManager::handleFileAction( efsw::WatchID watchid, const std::string&
     }
 }
 
-void ProjectManager::HandleFilesystemEvent(ProjectFsEvent* fs_event)
+void ProjectManager::HandleFileSystemEvent(ProjectFsEvent* fs_event)
 {
     ProjectPtr project;
 
@@ -498,22 +497,62 @@ void ProjectManager::HandleFilesystemEvent(ProjectFsEvent* fs_event)
         project = this->FindProjectByDirName(fs_event->pfe_project_dir);
         if (project)
         {
+            // Update list entry
             project->prj_dirname = fs_event->pfe_new_name;
             this->ReLoadResources(project);
+
+            // Reload actors
+            for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
+            {
+                if (actor->GetProject() == project)
+                {
+                    ActorModifyRequest* request = new ActorModifyRequest();
+                    request->amr_type = ActorModifyRequest::Type::RELOAD;
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)request));
+                }
+            }
         }
         break;
 
     case ProjectFsAction::PROJECT_DELETED:
-        //TODO
+        project = this->FindProjectByDirName(fs_event->pfe_project_dir);
+        if (project)
+        {
+            // Unlist the project
+            project->prj_sync = ProjectSyncState::DELETED;
+            this->PruneInvalidProjects();
+
+            // Destroy actors
+            for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
+            {
+                if (actor->GetProject() == project)
+                {
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
+                }
+            }
+        }
         break;
 
-    case ProjectFsAction::TRUCK_MODIFIED:
-        project = App::GetProjectManager()->FindProjectByDirName(fs_event->pfe_project_dir);
+    case ProjectFsAction::TRUCK_ADDED:
+        project = this->FindProjectByDirName(fs_event->pfe_project_dir);
         if (!project)
         {
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_WARNING,
-                                          fmt::format(_L("Spurious notification about modified file '{}/{}' - no such project",
-                                                      fs_event->pfe_project_dir, fs_event->pfe_filename)));
+                                          fmt::format(_L("Spurious notification about added file '{}/{}' - no such project"),
+                                                      fs_event->pfe_project_dir, fs_event->pfe_filename));
+            return;
+        }
+
+        this->ReScanProjectDir(project);
+        break;
+
+    case ProjectFsAction::TRUCK_MODIFIED:
+        project = this->FindProjectByDirName(fs_event->pfe_project_dir);
+        if (!project)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_WARNING,
+                                          fmt::format(_L("Spurious notification about modified file '{}/{}' - no such project"),
+                                                      fs_event->pfe_project_dir, fs_event->pfe_filename));
             return;
         }
 
@@ -526,7 +565,107 @@ void ProjectManager::HandleFilesystemEvent(ProjectFsEvent* fs_event)
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)request));
             }
         }
+        break;
+
+    case ProjectFsAction::TRUCK_RENAMED:
+        project = this->FindProjectByDirName(fs_event->pfe_project_dir);
+        if (!project)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_WARNING,
+                                          fmt::format(_L("Spurious notification about renamed file '{}/{} => {}' - no such project"),
+                                                      fs_event->pfe_project_dir, fs_event->pfe_filename, fs_event->pfe_new_name));
+            return;
+        }
+
+        this->ReScanProjectDir(project);
+
+        for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
+        {
+            if (actor->GetProject() == project && actor->GetActorFileName() == fs_event->pfe_filename)
+            {
+                // Inject new name
+                actor->ar_filename = fs_event->pfe_new_name;
+                // Reload actor from new file name
+                ActorModifyRequest* request = new ActorModifyRequest();
+                request->amr_type = ActorModifyRequest::Type::RELOAD;
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)request));
+            }
+        }
+        break;
+
+    case ProjectFsAction::TRUCK_DELETED:
+        project = this->FindProjectByDirName(fs_event->pfe_project_dir);
+        if (!project)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_WARNING,
+                                          fmt::format(_L("Spurious notification about deleted file '{}/{}' - no such project"),
+                                                      fs_event->pfe_project_dir, fs_event->pfe_filename));
+            return;
+        }
+
+        this->ReScanProjectDir(project);
+        break;
+
+    case ProjectFsAction::RESOURCE_ADDED:
+    case ProjectFsAction::RESOURCE_MODIFIED:
+    case ProjectFsAction::RESOURCE_RENAMED:
+    case ProjectFsAction::RESOURCE_DELETED:
+        project = this->FindProjectByDirName(fs_event->pfe_project_dir);
+        if (!project)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_WARNING,
+                                          fmt::format(_L("Spurious notification about resource file '{}/{}' - no such project"),
+                                                      fs_event->pfe_project_dir, fs_event->pfe_filename));
+            return;
+        }
+
+        // Reload all actors, just to be sure
+        for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
+        {
+            if (actor->GetProject() == project)
+            {
+                ActorModifyRequest* request = new ActorModifyRequest();
+                request->amr_type = ActorModifyRequest::Type::RELOAD;
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)request));
+            }
+        }
+        break;
+
+    default:
+        break;
     }
 }
+
+void ProjectManager::StartWatchingFileSystem()
+{
+    if (!m_watcher)
+    {
+        m_watcher = std::make_unique<efsw::FileWatcher>();
+    }
+
+    // Recursively watches ROR_HOME/projects
+    m_watch_id = m_watcher->addWatch(App::sys_projects_dir->GetStr(), this, /*recursive=*/true);
+    if (m_watch_id > 0)
+    {
+        m_watcher->watch();
+    }
+    else
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_ERROR,
+                                        fmt::format(_L("Could not set up filesystem watching for '{}', error code '{}'"),
+                                                    App::sys_projects_dir->GetStr(), m_watch_id));
+        m_watch_id = 0;
+    }
+}
+
+void ProjectManager::StopWatchingFileSystem()
+{
+    if (m_watcher && m_watch_id > 0)
+    {
+        m_watcher->removeWatch(m_watch_id);
+        m_watch_id = 0;
+    }
+}
+
 #endif // USE_EFSW
 

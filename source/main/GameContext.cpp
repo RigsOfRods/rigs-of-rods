@@ -271,7 +271,7 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
     if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
     {
         auto reload_pos = rq.amr_actor->getPosition();
-        auto reload_dir = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(m_player_actor->getRotation()), Ogre::Vector3::UNIT_Y);
+        auto reload_dir = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(rq.amr_actor->getRotation()), Ogre::Vector3::UNIT_Y);
         auto debug_view = rq.amr_actor->GetGfxActor()->GetDebugView();
         auto asr_config = rq.amr_actor->GetSectionConfig();
         auto used_skin  = rq.amr_actor->GetUsedSkin();

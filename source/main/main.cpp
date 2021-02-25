@@ -688,9 +688,9 @@ int main(int argc, char *argv[])
 
                 case MSG_EDI_PROJECT_FILESYSTEM_EVENT:
 #if USE_EFSW
-                    App::GetProjectManager()->HandleFilesystemEvent(reinterpret_cast<ProjectFsEvent*>(m.payload));
-                    delete reinterpret_cast<ProjectFsEvent*>(m.payload);
+                    App::GetProjectManager()->HandleFileSystemEvent(reinterpret_cast<ProjectFsEvent*>(m.payload));
 #endif
+                    delete reinterpret_cast<ProjectFsEvent*>(m.payload);
                     break;
 
                 default:;
