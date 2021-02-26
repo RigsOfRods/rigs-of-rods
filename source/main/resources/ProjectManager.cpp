@@ -34,6 +34,7 @@
 
 #include <efsw/efsw.hpp>
 #include <fmt/core.h>
+#include <memory>
 
 using namespace RoR;
 
@@ -153,7 +154,7 @@ ProjectPtr ProjectManager::CreateNewProject(std::string const& dir_name)
             dir_path.Clear() << App::sys_projects_dir->GetStr() << PATH_SLASH << dir_name_buf;
         }
 #if USE_EFSW
-        this->StartWatchingFileSystem(); // Supress while manipulating files
+        this->StopWatchingFileSystem(); // Supress while manipulating files
 #endif
 
         RoR::CreateFolder(dir_path.ToCStr());
@@ -215,7 +216,7 @@ bool ProjectManager::ImportTruckToProject(std::string const& src_filename, Truck
     }
 
 #if USE_EFSW
-        this->StartWatchingFileSystem(); // Supress while manipulating files
+        this->StopWatchingFileSystem(); // Supress while manipulating files
 #endif
 
     // Save the truck file
@@ -640,7 +641,7 @@ void ProjectManager::StartWatchingFileSystem()
 {
     if (!m_watcher)
     {
-        m_watcher = std::make_unique<efsw::FileWatcher>();
+        m_watcher = std::unique_ptr<efsw::FileWatcher>(new efsw::FileWatcher());
     }
 
     // Recursively watches ROR_HOME/projects
