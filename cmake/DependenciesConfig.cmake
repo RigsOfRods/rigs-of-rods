@@ -14,6 +14,7 @@ if (USE_PACKAGE_MANAGER)
     set(ROR_USE_CAELUM TRUE)
     set(ROR_USE_ANGELSCRIPT TRUE)
     set(ROR_USE_CURL TRUE)
+    set(ROR_USE_EFSW TRUE)
 
     include(pmm)
     pmm(CONAN REMOTES ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies BINCRAFTERS)

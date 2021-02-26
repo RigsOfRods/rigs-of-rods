@@ -384,6 +384,7 @@ if (USE_PACKAGE_MANAGER)
             CONAN_PKG::OGREdeps
             CONAN_PKG::SocketW
             CONAN_PKG::discord-rpc
+            CONAN_PKG::efsw
             CONAN_PKG::fmt
             CONAN_PKG::libcurl
             CONAN_PKG::ogre-caelum
@@ -409,6 +410,7 @@ if (USE_PACKAGE_MANAGER)
             USE_CURL
             USE_CAELUM
             USE_DISCORD_RPC
+            USE_EFSW
             )
 
     if (UNIX)
