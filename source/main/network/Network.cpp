@@ -95,7 +95,7 @@ Ogre::ColourValue Network::GetPlayerColor(int color_num)
 {
     int numColours = sizeof(MP_COLORS) / sizeof(Ogre::ColourValue);
     if (color_num < 0 || color_num >= numColours)
-        return Ogre::ColourValue::ZERO;
+        return Ogre::ColourValue::White;
 
     return MP_COLORS[color_num];
 }
