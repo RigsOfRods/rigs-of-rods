@@ -405,45 +405,48 @@ void ProjectManager::handleFileAction( efsw::WatchID watchid, const std::string&
 {
     // ## IMPORTANT: This runs on EFSW's monitoring thread!
 
-    if (dir == App::sys_projects_dir->GetStr())
+    if (dir == App::sys_projects_dir->GetStr()) // Activity happens in projects root directory?
     {
-        // Activity happens in projects root directory
-        if (!FolderExists(PathCombine(App::sys_projects_dir->GetStr(), filename)))
-        {
-            return; // We only care about subdirectories
-        }
-
         if (action == efsw::Action::Add)
         {
-            ProjectFsEvent* fs_event = new ProjectFsEvent();
-            fs_event->pfe_action = ProjectFsAction::PROJECT_ADDED;
-            fs_event->pfe_project_dir = filename;
-            App::GetGameContext()->PushMessage(Message(MSG_EDI_PROJECT_FILESYSTEM_EVENT, (void*)fs_event));
+            if (FolderExists(PathCombine(App::sys_projects_dir->GetStr(), filename))) // We only care about subdirectories
+            {
+                ProjectFsEvent* fs_event = new ProjectFsEvent();
+                fs_event->pfe_action = ProjectFsAction::PROJECT_ADDED;
+                fs_event->pfe_project_dir = filename;
+                App::GetGameContext()->PushMessage(Message(MSG_EDI_PROJECT_FILESYSTEM_EVENT, (void*)fs_event));
+            }
         }
         else if (action == efsw::Action::Moved)
         {
-            ProjectFsEvent* fs_event = new ProjectFsEvent();
-            fs_event->pfe_action = ProjectFsAction::PROJECT_RENAMED;
-            fs_event->pfe_project_dir = oldFilename;
-            fs_event->pfe_new_name = filename;
-            App::GetGameContext()->PushMessage(Message(MSG_EDI_PROJECT_FILESYSTEM_EVENT, (void*)fs_event));
+            if (FolderExists(PathCombine(App::sys_projects_dir->GetStr(), filename))) // We only care about subdirectories
+            {
+                ProjectFsEvent* fs_event = new ProjectFsEvent();
+                fs_event->pfe_action = ProjectFsAction::PROJECT_RENAMED;
+                fs_event->pfe_project_dir = oldFilename;
+                fs_event->pfe_new_name = filename;
+                App::GetGameContext()->PushMessage(Message(MSG_EDI_PROJECT_FILESYSTEM_EVENT, (void*)fs_event));
+            }
         }
         else if (action == efsw::Action::Delete)
         {
+            // We cannot verify it was a directory - just forward it.
             ProjectFsEvent* fs_event = new ProjectFsEvent();
             fs_event->pfe_action = ProjectFsAction::PROJECT_DELETED;
             fs_event->pfe_project_dir = filename;
             App::GetGameContext()->PushMessage(Message(MSG_EDI_PROJECT_FILESYSTEM_EVENT, (void*)fs_event));
         }
     }
-    else
+    else // Activity happens in a subdirectory
     {
+        // Determine subdirectory name
         std::string slash = {PATH_SLASH};
         Ogre::StringVector dirs = Ogre::StringUtil::split(dir, slash);
         std::string project_dir = dirs.at(dirs.size() - 1);
-        if (project_dir == "")
+        if (project_dir == "") // There was a trailing slash
             project_dir = dirs.at(dirs.size() - 2);
 
+        // Determine file type
         std::string base, ext;
         Ogre::StringUtil::splitBaseFilename(filename, base, ext);
         const bool is_truck = ext == "truck";
@@ -508,6 +511,7 @@ void ProjectManager::HandleFileSystemEvent(ProjectFsEvent* fs_event)
                 if (actor->GetProject() == project)
                 {
                     ActorModifyRequest* request = new ActorModifyRequest();
+                    request->amr_actor = actor;
                     request->amr_type = ActorModifyRequest::Type::RELOAD;
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)request));
                 }
@@ -517,7 +521,7 @@ void ProjectManager::HandleFileSystemEvent(ProjectFsEvent* fs_event)
 
     case ProjectFsAction::PROJECT_DELETED:
         project = this->FindProjectByDirName(fs_event->pfe_project_dir);
-        if (project)
+        if (project) // Fail silently! There is no guarantee the deleted file was actually a directory.
         {
             // Unlist the project
             project->prj_sync = ProjectSyncState::DELETED;
@@ -548,22 +552,26 @@ void ProjectManager::HandleFileSystemEvent(ProjectFsEvent* fs_event)
         break;
 
     case ProjectFsAction::TRUCK_MODIFIED:
-        project = this->FindProjectByDirName(fs_event->pfe_project_dir);
-        if (!project)
+        if (App::edi_file_watch_respawn->GetBool())
         {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_WARNING,
-                                          fmt::format(_L("Spurious notification about modified file '{}/{}' - no such project"),
-                                                      fs_event->pfe_project_dir, fs_event->pfe_filename));
-            return;
-        }
-
-        for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
-        {
-            if (actor->GetProject() == project && actor->GetActorFileName() == fs_event->pfe_filename)
+            project = this->FindProjectByDirName(fs_event->pfe_project_dir);
+            if (!project)
             {
-                ActorModifyRequest* request = new ActorModifyRequest();
-                request->amr_type = ActorModifyRequest::Type::RELOAD;
-                App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)request));
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_PROJECT, Console::CONSOLE_SYSTEM_WARNING,
+                                              fmt::format(_L("Spurious notification about modified file '{}/{}' - no such project"),
+                                                          fs_event->pfe_project_dir, fs_event->pfe_filename));
+                return;
+            }
+
+            for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
+            {
+                if (actor->GetProject() == project && actor->GetActorFileName() == fs_event->pfe_filename)
+                {
+                    ActorModifyRequest* request = new ActorModifyRequest();
+                    request->amr_actor = actor;
+                    request->amr_type = ActorModifyRequest::Type::RELOAD;
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)request));
+                }
             }
         }
         break;
@@ -588,6 +596,7 @@ void ProjectManager::HandleFileSystemEvent(ProjectFsEvent* fs_event)
                 actor->ar_filename = fs_event->pfe_new_name;
                 // Reload actor from new file name
                 ActorModifyRequest* request = new ActorModifyRequest();
+                request->amr_actor = actor;
                 request->amr_type = ActorModifyRequest::Type::RELOAD;
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)request));
             }
@@ -626,6 +635,7 @@ void ProjectManager::HandleFileSystemEvent(ProjectFsEvent* fs_event)
             if (actor->GetProject() == project)
             {
                 ActorModifyRequest* request = new ActorModifyRequest();
+                request->amr_actor = actor;
                 request->amr_type = ActorModifyRequest::Type::RELOAD;
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)request));
             }
@@ -646,7 +656,7 @@ void ProjectManager::StartWatchingFileSystem()
 
     // Recursively watches ROR_HOME/projects
     m_watch_id = m_watcher->addWatch(App::sys_projects_dir->GetStr(), this, /*recursive=*/true);
-    if (m_watch_id > 0)
+    if (m_watch_id > 0) // Valid watches are >0, error states are <0
     {
         m_watcher->watch();
     }

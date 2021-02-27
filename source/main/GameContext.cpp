@@ -255,6 +255,8 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
 
 void GameContext::ModifyActor(ActorModifyRequest& rq)
 {
+    ROR_ASSERT(rq.amr_actor);
+
     if (rq.amr_type == ActorModifyRequest::Type::SOFT_RESET)
     {
         rq.amr_actor->SoftReset();
@@ -270,36 +272,25 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
     }
     if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
     {
-        auto reload_pos = rq.amr_actor->getPosition();
-        auto reload_dir = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(rq.amr_actor->getRotation()), Ogre::Vector3::UNIT_Y);
-        auto debug_view = rq.amr_actor->GetGfxActor()->GetDebugView();
-        auto asr_config = rq.amr_actor->GetSectionConfig();
-        auto used_skin  = rq.amr_actor->GetUsedSkin();
-        // Actor originates either from ModCache or Project registry
-        auto cache_entry= rq.amr_actor->GetCacheEntry();
-        auto project    = rq.amr_actor->GetProject();
-
-        reload_pos.y = m_player_actor->GetMinHeight();
-
-        m_prev_player_actor = nullptr;
-        this->DeleteActor(rq.amr_actor);
-
         ActorSpawnRequest* srq = new ActorSpawnRequest;
-        srq->asr_position   = reload_pos;
-        srq->asr_rotation   = reload_dir;
-        srq->asr_config     = asr_config;
-        srq->asr_skin_entry = used_skin;
-        srq->asr_debugview  = (int)debug_view;
+        srq->asr_position   = Ogre::Vector3(rq.amr_actor->getPosition().x, rq.amr_actor->GetMinHeight(), rq.amr_actor->getPosition().z);
+        srq->asr_rotation   = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(m_player_actor->getRotation()), Ogre::Vector3::UNIT_Y);
+        srq->asr_config     = rq.amr_actor->GetSectionConfig();
+        srq->asr_skin_entry = rq.amr_actor->GetUsedSkin();
+        srq->asr_debugview  = (int)rq.amr_actor->GetGfxActor()->GetDebugView();
         srq->asr_origin     = ActorSpawnRequest::Origin::USER;
-        if (project)
+        if (rq.amr_actor->GetProject())
         {
-            srq->asr_project = project; // Always reloaded from filesystem
+            srq->asr_project = rq.amr_actor->GetProject(); // Always reloaded from filesystem
             srq->asr_filename = rq.amr_actor->ar_filename; // Required for project
         }
         else
         {
-            srq->asr_cache_entry = cache_entry;
+            App::GetCacheSystem()->ReLoadResource(*rq.amr_actor->GetCacheEntry());
+            srq->asr_cache_entry = rq.amr_actor->GetCacheEntry();
         }
+
+        this->DeleteActor(rq.amr_actor);
         this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));
     }
 }
@@ -342,6 +333,39 @@ void GameContext::DeleteActor(Actor* actor)
     }
 #endif //SOCKETW
 
+    // Prune message queue
+    //  On Windows, EFSW seems to send duplicate modify events. Code below prevents segfault
+    //  Since Actor pointers are not shared_ptr, this prevention is needed anyway
+    std::lock_guard<std::mutex> msg_lock(m_msg_mutex);
+    GameMsgQueue old_msg_queue = m_msg_queue;
+    while(!m_msg_queue.empty())
+    {
+        m_msg_queue.pop();
+    }
+    while (!old_msg_queue.empty())
+    {
+        Message& m = old_msg_queue.front();
+        if (m.type == MsgType::MSG_SIM_MODIFY_ACTOR_REQUESTED)
+        {
+            ActorModifyRequest* request = reinterpret_cast<ActorModifyRequest*>(m.payload);
+            if (request->amr_actor == actor)
+                delete request;
+            else
+                m_msg_queue.push(m);
+        }
+        else if (m.type == MsgType::MSG_SIM_SEAT_PLAYER_REQUESTED)
+        {
+            if (m.payload != (void*)actor)
+                m_msg_queue.push(m);
+        }
+        else
+        {
+            m_msg_queue.push(m);
+        }
+        old_msg_queue.pop();
+    }
+
+    // Invalidate the pointer
     m_actor_manager.DeleteActorInternal(actor);
 }
 
