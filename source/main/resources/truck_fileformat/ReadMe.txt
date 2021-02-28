@@ -1,104 +1,209 @@
-================================================================================
-    Softbody definition file format "Truck" specification
-    Project Rigs of Rods (http://www.rigsofrods.org)
-================================================================================
+Truck file format (technical spec)
+==================================
 
-INTRO
-=====
-
-"Truck" is a human-friendly custom format for defining softbody game entities
-- trucks, cars, boats, airplanes, loads and fixed objects.
-
-VERSION
-=======
+Truck is a human friendly text format created and used by Rigs of Rods (www.rigsofrods.org).
+Find user documentation at http://docs.rigsofrods.org/vehicle-creation/fileformat-truck.
 
 This spec applies to Rigs of Rods version 0.4.5 and further.
-This spec covers all prior versions of the format: 1, 2, 3, 450
+This spec covers all prior versions of the format: 1, 2, 3, 450 (discontinued)
+See also 'fileformatversion'.
 
-SYNTAX
-======
+Syntax
+------
 
-The format is line-based.
+The format is line-based. Empty lines and comments are skipped.
 
-Lines starting with semicolon ";" or slash "/" are comments.
-NOTE: The "/" comments were documented as "//", but the parser
-only ever checked the first character.
-IMPORTANT: Comments MUST be on separate line! Trailing comments are not supported. 
+Lines starting with semicolon ";" or slash "/" (documented as '//') are comments.
+Placing ';' or '/' anywhere else will not be considered a comment, but parsed as regular data!
 
-There are several syntaxes for parsing a line:
+Each line is treated as values separated by separators. 
+Possible separators: space, tabulator, comma ",", colon ":" or pipe "|".
+Multiple separators in a row (even if different from each other) are treated as one.
 
-    Default
-        The most usual and relaxed one
-        Entire line is treated as values separated by separators. 
-        Possible separators: space, tabulator, comma ",", colon ":" or pipe "|".
-        Whitespace and "," are well known, others weren't documented as generic.
-        Multiple separators in a row squash into one, i.e. this is a valid line:
-        set_beam_defaults |,| -1 -1 ,,,,, -1, -1
+Element types
+-------------
 
-    Keyword-space-CSV
-        More complex sections
-        Line consists of: keyword, space (separator), CSV (comma sep. values)
-        The keyword is cut away, the rest is split along ",".
+Title
+    The first non-comment & non-empty of the file is a title. 
 
-    Keyword-CSV
-        Like above, except the space is optional.
+Inline-section
+    Example: author.
+    Has a keyword at start of line and data follow on the same line.
+    Following lines do not belong to any section.
+
+Block-section
+    Example: nodes.
+    Begins with a line containing nothing but a keyword.
+    All subsequent lines belong to it until another
+      section (any type) is encountered or module closed.
+    Some may have special syntax, i.e. 'animators'              
+
+Multiline-description
+    Single instance: "description/end_description".
+    Begins with a line containing nothing but "description".
+    Ends with a line containing nothing but "end_description".
+    All lines in between belong to it. Keywords inside it are ignored.
+    <!> Subsequent lines belong to no section.
     
-    CSV
-        Classic comma-separated-values. Only separator is ','
-    
-    CommaSpaceSV
-        Separators are space or comma.
+Multiline-comment
+    Single instance: "comment/end_comment".
+    Begins with a line containing nothing but "description".
+    Ends with a line containing nothing but "end_description".
+    All lines in between belong to it. Keywords inside it are ignored.
+    <!> Can appear inside any block-section, does not affect it.
 
-The format consists of these elements:
+Directive
+    Example: set_beam_defaults
+    Consists of keyword at the beginning of the line and data on the same line.
+    May perform various task, usualy set global attributes or change
+      behavior of the parsing.
+    Directive may appear in any block-section.
 
-    Title
-        The first line of the file is a title. 
-	
-    Inline-section
-        Example: author.
-        Has a keyword at start of line and data follow on the same line.
-        Following lines do not belong to any section.
+Modularity
+----------
 
-    Block-section
-        Example: nodes.
-        Begins with a line containing nothing but a keyword.
-        All subsequent lines belong to it until another
-          section (any type) is encountered or module closed.
-          
-    Animator-section
-        Keyword: `animators`
-        Works like block-section, except lines have special syntax.
-        See chapter "SECTION ANIMATORS" for details.                
+The elements can be grouped into modules. Each module must belong to one or more configurations.
 
-    Multiline-section
-        Single instance: "description/end_description".
-        Begins with a line containing nothing but "description".
-        Ends with a line containing nothing but "end_description".
-        All lines in between belong to it. Keywords inside it are ignored.
-        Subsequent lines belong to no section.
-    	
-    Multiline-comment
-        Single instance: "comment/end_comment".
-        Begins with a line containing nothing but "description".
-        Ends with a line containing nothing but "end_description".
-        All lines in between belong to it. Keywords inside it are ignored.
-        Can appear inside any block-section, does not affect it.
+Directives 'sectionconfig' specify truck configurations the user can choose from.
+Exactly one must be selected. If none, the first defined is used.
+Syntax: "sectionconfig <number - unused> <name>"
 
-    Directive
-        Example: set_beam_defaults
-        Consists of keyword at the beginning of the line and data on the same line.
-        May perform various task, usualy set global attributes or change
-          behavior of the parsing.
-        Directive may appear in any block-section.
+A module begins with keyword "section". Syntax:
+  "section <n> <config> [<config> ...]"
+  where <n> is unused number and config is a name specified in sectionconfig.
+Module ends with keyword "end_section".
 
-    Module
-        Begins with a line containing nothing but "section".
-        Ends with a line containing nothing but "end_section".
-        A chunk of file which represents an optional modification of the vehicle.
-        See below for details.
+List of elements
+----------------
 
-COMPATIBILITY
-=============
+Order is alphabetical, lettercase matches original docs (parsing is insensitive).
+
+    NAME                         TYPE       NOTES
+                                            
+    advdrag                      BLOCK      
+    add_animation                DIRECTIVE  Special syntax
+    airbrakes                    BLOCK      
+    animators                    BLOCK      Special syntax: values separated by comma, options separated by '|'.
+    AntiLockBrakes               DIRECTIVE       
+    author                       DIRECTIVE  
+    axles                        BLOCK      Special syntax
+    beams                        BLOCK      
+    brakes                       BLOCK      
+    camerarail                   BLOCK      
+    cameras                      BLOCK      
+    cinecam                      BLOCK      
+    collisionboxes               BLOCK      
+    commands                     BLOCK      
+    commands2                    BLOCK      
+    comment                      COMMENT    
+    contacters                   BLOCK      
+    cruisecontrol                BLOCK      
+    description                  DESCRIPTION      
+    detacher_group               DIRECTIVE  
+    disabledefaultsounds         DIRECTIVE  
+    enable_advanced_deformation  DIRECTIVE  
+    engine                       BLOCK      
+    engoption                    BLOCK      
+    engturbo                     BLOCK      
+    envmap                       BLOCK      
+    exhausts                     BLOCK      
+    extcamera                    INLINE     
+    forwardcommands              DIRECTIVE  
+    fileformatversion            INLINE     
+    fileinfo                     DIRECTIVE     
+    fixes                        BLOCK      
+    flares                       BLOCK      
+    flares2                      BLOCK      
+    flexbodies                   BLOCK      
+    flexbody_camera_mode         DIRECTIVE  
+    flexbodywheels               BLOCK      
+    forset                       INLINE     
+    fusedrag                     BLOCK      
+    globals                      BLOCK      
+    guid                         DIRECTIVE  
+    guisettings                  BLOCK      
+    help                         BLOCK      
+    hideInChooser                DIRECTIVE  
+    hookgroup                    BLOCK      
+    hooks                        BLOCK      
+    hydros                       BLOCK      
+    importcommands               DIRECTIVE  
+    interaxles                   BLOCK      Special syntax
+    lockgroups                   BLOCK      
+    lockgroup_default_nolock     DIRECTIVE  
+    managedmaterials             BLOCK      
+    materialflarebindings        BLOCK      
+    meshwheels                   BLOCK      
+    meshwheels2                  BLOCK      
+    minimass                     BLOCK      
+    nodecollision                BLOCK      
+    nodes                        BLOCK      
+    nodes2                       BLOCK      
+    particles                    BLOCK      
+    pistonprops                  BLOCK      
+    prop_camera_mode             DIRECTIVE  
+    props                        BLOCK      
+    railgroups                   BLOCK      
+    rescuer                      DIRECTIVE  
+    rigidifiers                  BLOCK      
+    rollon                       DIRECTIVE  
+    ropables                     BLOCK      
+    ropes                        BLOCK      
+    rotators                     BLOCK      
+    rotators2                    BLOCK      
+    screwprops                   BLOCK      
+    sectionconfig                DIRECTIVE     
+    section                      MODULE     
+    set_beam_defaults            DIRECTIVE  
+    set_beam_defaults_scale      DIRECTIVE  
+    set_collision_range          DIRECTIVE  
+    set_default_minimass         DIRECTIVE
+    set_inertia_defaults         DIRECTIVE  
+    set_managedmaterials_options DIRECTIVE  
+    set_node_defaults            DIRECTIVE  
+    set_shadows                  DIRECTIVE  
+    set_skeleton_settings        DIRECTIVE  
+    shocks                       BLOCK      
+    shocks2                      BLOCK      
+    shocks3                      BLOCK      
+    slidenode_connect_instantly  DIRECTIVE  
+    slidenodes                   BLOCK      
+    SlopeBrake                   BLOCK      
+    soundsources                 BLOCK      
+    soundsources2                BLOCK      
+    soundsources3                BLOCK      
+    speedlimiter                 DIRECTIVE        
+    submesh                      BLOCK      
+    submesh_groundmodel          DIRECTIVE        
+    ties                         BLOCK      
+    torquecurve                  BLOCK      
+    TractionControl              DIRECTIVE      
+    transfercase                 BLOCK            
+    triggers                     BLOCK      
+    turbojets                    BLOCK      
+    turboprops                   BLOCK      
+    turboprops2                  BLOCK      
+    videocamera                  BLOCK      
+    wheels                       BLOCK      
+    wheels2                      BLOCK      
+    wings                        BLOCK      
+
+Compatibility
+-------------
+
+Existing content places a lot of compatibility constraints on the format:
+* Modules (section/end_section) must support:
+  - nodes2 with the same names in all modules (KickerRampV2.load)
+  - managedmaterials, props, help, soundsources, flexbodies, videocamera
+  - globals, author (many mods in archive - because of skins)
+  - flares (archive: BBV.zip - BBV95.truck)
+  - meshwheels, axles, commands2 (archive: Mercedess Actros 8x8_ampliroll.truck)
+  - engine, engoption, torquecurve (archive: ple002_SuperBus.truck, RockHopper.truck)
+  - //multiple sectionconfig names//(archive: ackermann_moving_trailer.zip)
+  - contacters (Betzi-tourliner.zip)
+  - TractionControl (archive: golf cart)
+  - brakes, nodes (archive: Blue&White-ScaniaR470TL.truck)
+  
 
 Since RoR v0.4.5, all elements fully support named nodes.
 In previous RoR versions, support was partial and undocumented.
@@ -149,140 +254,13 @@ Old parser had no default, though the param is optional.
 DOCUMENTATION
 =============
 
-See http://docs.rigsofrods.org/vehicle-creation/fileformat-truck
 
-Below is a list of all supported elements.
-NOTE: All keywords are case insensitive, 
-the lettercase in this list corresponds to original documentation.
-
-    NAME                         TYPE       SYNTAX
-                                            
-    advdrag                      BLOCK      
-    add_animation                DIRECTIVE  Keyword-Space-CSV + custom proc.
-    airbrakes                    BLOCK      Default
-    animators                    ANIMATORS  
-    AntiLockBrakes               DIRECTIVE  Keyword-CSV      
-    author                       DIRECTIVE  Default
-    axles                        BLOCK      CSV + custom processing
-    beams                        BLOCK      
-    brakes                       BLOCK      
-    camerarail                   BLOCK      
-    cameras                      BLOCK      
-    cinecam                      BLOCK      
-    collisionboxes               BLOCK      
-    commands                     BLOCK      
-    commands2                    BLOCK      
-    comment                      COMMENT    
-    contacters                   BLOCK      
-    cruisecontrol                BLOCK      Default
-    description                  BLOCK      
-    detacher_group               DIRECTIVE  Default
-    disabledefaultsounds         DIRECTIVE  
-    enable_advanced_deformation  DIRECTIVE  
-    engine                       BLOCK      
-    engoption                    BLOCK      
-    engturbo                     BLOCK      
-    envmap                       BLOCK      
-    exhausts                     BLOCK      
-    extcamera                    INLINE     
-    forwardcommands              DIRECTIVE  
-    fileformatversion            INLINE     
-    fileinfo                     DIRECTIVE     
-    fixes                        BLOCK      
-    flares                       BLOCK      
-    flares2                      BLOCK      
-    flexbodies                   BLOCK      
-    flexbody_camera_mode         DIRECTIVE  Default
-    flexbodywheels               BLOCK      
-    forset                       INLINE     Keyword-CSV
-    fusedrag                     BLOCK      
-    globals                      BLOCK      Default
-    guid                         DIRECTIVE  Default
-    guisettings                  BLOCK      
-    help                         BLOCK      Default
-    hideInChooser                DIRECTIVE  
-    hookgroup                    BLOCK      
-    hooks                        BLOCK      
-    hydros                       BLOCK      
-    importcommands               DIRECTIVE  
-    interaxles                   BLOCK      CSV + custom processing
-    lockgroups                   BLOCK      
-    lockgroup_default_nolock     DIRECTIVE  
-    managedmaterials             BLOCK      
-    materialflarebindings        BLOCK      Default
-    meshwheels                   BLOCK      
-    meshwheels2                  BLOCK      
-    minimass                     BLOCK      Default
-    nodecollision                BLOCK      Default
-    nodes                        BLOCK      
-    nodes2                       BLOCK      
-    particles                    BLOCK      Default
-    pistonprops                  BLOCK      
-    prop_camera_mode             DIRECTIVE  Default
-    props                        BLOCK      
-    railgroups                   BLOCK      CSV
-    rescuer                      DIRECTIVE  
-    rigidifiers                  BLOCK      
-    rollon                       DIRECTIVE  
-    ropables                     BLOCK      
-    ropes                        BLOCK      
-    rotators                     BLOCK      
-    rotators2                    BLOCK      
-    screwprops                   BLOCK      
-    sectionconfig                MODULE     
-    section                      MODULE     
-    set_beam_defaults            DIRECTIVE  Default
-    set_beam_defaults_scale      DIRECTIVE  Default
-    set_collision_range          DIRECTIVE  Default
-    set_inertia_defaults         DIRECTIVE  Default
-    set_managedmaterials_options DIRECTIVE  Default
-    set_node_defaults            DIRECTIVE  Default
-    set_shadows                  DIRECTIVE  
-    set_skeleton_settings        DIRECTIVE  Default
-    shocks                       BLOCK      
-    shocks2                      BLOCK      
-    shocks3                      BLOCK      
-    slidenode_connect_instantly  DIRECTIVE  
-    slidenodes                   BLOCK      CommaSpaceSV
-    SlopeBrake                   BLOCK      
-    soundsources                 BLOCK      
-    soundsources2                BLOCK      
-    soundsources3                BLOCK      
-    speedlimiter                 DIRECTIVE  Default      
-    submesh                      BLOCK      
-    submesh_groundmodel          DIRECTIVE  Default      
-    ties                         BLOCK      
-    torquecurve                  BLOCK      CSV
-    TractionControl              DIRECTIVE  Keyword-Space-CSV      
-    transfercase                 BLOCK      Default      
-    triggers                     BLOCK      
-    turbojets                    BLOCK      
-    turboprops                   BLOCK      
-    turboprops2                  BLOCK      
-    videocamera                  BLOCK      
-    wheels                       BLOCK      
-    wheels2                      BLOCK      
-    wings                        BLOCK      
 
 
 SPECIAL SYNTAXES
 ================
 
-SECTION ANIMATOR
-----------------
-
-All whitespace is ignored.
-Args 0 - 2 are processed normally.
-Arg 3 is split along "|", valid elements are (written as regexes):
-    * /(throttle|rpm|aerotorq|aeropit|aerostatus)([12345678])/ ~ For example `throttle2`
-    * /shortlimit[:]+([.]*)/ ~ Value should be real number, example: `shortlimit: 0.5`
-    * /longlimit[:]+([.]*)/  ~ Value should be real number, example: `longlimit: 0.5`
-    * KEYWORD:  vis,inv,airspeed,vvi,
-                altimeter100k,altimeter10k,altimeter1k,
-                aoa,flap,airbrake,roll,pitch,brakes,accel,clutch,
-                speedo,tacho,turbo,parking,shifterman1,shifterman2,
-                sequential,shifterlin,torque,difflock,
-                rudderboat,throttleboat            
+      
 
 SECTION `FORSET`
 ----------------
