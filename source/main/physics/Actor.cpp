@@ -556,6 +556,7 @@ void Actor::CalcNetwork()
     if (ar_engine)
     {
         SOUND_MODULATE(ar_instance_id, SS_MOD_ENGINE, engspeed);
+        SOUND_MODULATE(ar_instance_id, SS_MOD_INJECTOR, engforce);
     }
     if (ar_num_aeroengines > 0)
     {
