@@ -950,6 +950,16 @@ enum ImGuiKey_
     ImGuiKey_Enter,
     ImGuiKey_Escape,
     ImGuiKey_KeyPadEnter,
+    ImGuiKey_KeyPad0,
+    ImGuiKey_KeyPad1,
+    ImGuiKey_KeyPad2,
+    ImGuiKey_KeyPad3,
+    ImGuiKey_KeyPad4,
+    ImGuiKey_KeyPad5,
+    ImGuiKey_KeyPad6,
+    ImGuiKey_KeyPad7,
+    ImGuiKey_KeyPad8,
+    ImGuiKey_KeyPad9,
     ImGuiKey_A,         // for text edit CTRL+A: select all
     ImGuiKey_C,         // for text edit CTRL+C: copy
     ImGuiKey_V,         // for text edit CTRL+V: paste
