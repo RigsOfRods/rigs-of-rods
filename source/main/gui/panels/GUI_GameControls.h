@@ -33,6 +33,29 @@ private:
     enum ControlsTab {AIRPLANE, BOAT, CAMERA, SKY, CHARACTER, COMMANDS, COMMON, GRASS, MAP, MENU, TRUCK};
     ControlsTab m_tab;
     bool m_is_visible = false;
+    Str<1000> shortcut1;
+    Str<1000> shortcut2;
+    Str<1000> shortcut3;
+    Str<1000> shortcut4;
+    Str<1000> shortcut5;
+    Str<1000> shortcut6;
+    Str<1000> shortcut7;
+    Str<1000> shortcut8;
+    Str<1000> shortcut9;
+    Str<1000> shortcut10;
+    Str<1000> shortcut11;
+    Str<1000> shortcut12;
+    Str<1000> shortcut13;
+    Str<1000> shortcut14;
+    Str<1000> shortcut15;
+    Str<1000> shortcut16;
+    Str<1000> shortcut17;
+    Str<1000> shortcut18;
+    Str<1000> shortcut19;
+    Str<1000> shortcut20;
+    Str<1000> shortcut21;
+    Str<1000> shortcut22;
+    Str<1000> shortcut23;
 };
 
 } // namespace GUI

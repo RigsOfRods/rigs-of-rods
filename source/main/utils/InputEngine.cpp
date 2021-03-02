@@ -25,6 +25,9 @@
 #include "ContentManager.h"
 #include "GUIManager.h"
 #include "Language.h"
+#include <fstream>
+#include <iostream>
+#include "PlatformUtils.h"
 
 using namespace RoR;
 
@@ -2002,6 +2005,41 @@ void InputEngine::initAllKeys()
     allkeys["Y"] = KC_Y;
     allkeys["YEN"] = KC_YEN;
     allkeys["Z"] = KC_Z;
+}
+
+void InputEngine::EditInputConfig(const char* command, const char* id, Str<1000>& buf, const char* label)
+{
+    if (ImGui::InputText(label, buf.GetBuffer(), buf.GetCapacity(), ImGuiInputTextFlags_EnterReturnsTrue))
+    {
+        std::string config_file = PathCombine(App::sys_config_dir->GetStr(), CONFIGFILENAME);
+        ifstream is(config_file);
+        ostringstream content;
+        string line;
+
+        while (getline(is, line))
+        {
+            if (line.find(id) != std::string::npos) // needs to also check: is buf empty? is buf capital? is buf already used by another line with different id?
+            {
+                line.replace(line.find(command), sizeof(line.find(command)), buf);
+            }
+            content << line << endl;
+        }
+
+        ofstream os(config_file);
+        os << content.str();
+
+        command = buf.GetBuffer();
+        InputEngine::reloadConfig(CONFIGFILENAME);
+
+    }
+    if (ImGui::IsItemActive())
+    {
+        ImGui::TextDisabled("(hit Enter key to submit)");
+    }
+    else
+    {
+       buf.Assign(command);
+    }
 }
 
 String InputEngine::getKeyForCommand(int eventID)
