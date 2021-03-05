@@ -291,6 +291,11 @@ bool ODefParser::ProcessCurrentLine()
         m_def->collision_meshes.emplace_back(
             m_ctx.cbox_mesh_name, m_ctx.header_scale, m_ctx.cbox_groundmodel_name);
     }
+    else if (line_str == "nocast")
+    {
+        m_def->header.cast_shadows = false;
+    }
+
     return true;
 }
 

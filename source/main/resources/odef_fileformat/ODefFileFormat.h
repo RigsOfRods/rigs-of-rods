@@ -121,6 +121,7 @@ struct ODefFile
     {
         std::string   mesh_name;
         Ogre::Vector3 scale;
+        bool          cast_shadows = true;
     }                             header;
 
     bool                          mode_standard = false;
