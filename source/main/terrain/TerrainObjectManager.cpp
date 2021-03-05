@@ -579,6 +579,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     {
         Str<100> ebuf; ebuf << m_entity_counter++ << "-" << odef->header.mesh_name;
         mo = new MeshObject(odef->header.mesh_name, m_resource_group, ebuf.ToCStr(), tenode);
+        mo->getEntity()->setCastShadows(odef->header.cast_shadows);
         m_mesh_objects.push_back(mo);
     }
 
