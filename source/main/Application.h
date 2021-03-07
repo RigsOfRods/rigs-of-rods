@@ -317,6 +317,7 @@ extern CVar* diag_hide_wheels;
 extern CVar* diag_hide_nodes;
 extern CVar* diag_physics_dt;
 extern CVar* diag_terrn_log_roads;
+extern CVar* diag_actor_dump;
 
 // Editing
 extern CVar* edi_import_grp_loose;

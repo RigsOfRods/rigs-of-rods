@@ -68,6 +68,9 @@
 #include "VehicleAI.h"
 #include "Water.h"
 
+#include <sstream>
+#include <iomanip>
+
 using namespace Ogre;
 using namespace RoR;
 
@@ -4574,4 +4577,64 @@ Vector3 Actor::getNodePosition(int nodeNumber)
     {
         return Ogre::Vector3();
     }
+}
+
+void Actor::WriteDiagnosticDump(std::string const& fileName)
+{
+    // Purpose: to diff against output from https://github.com/only-a-ptr/rigs-of-rods/tree/retro-0407
+    std::stringstream buf;
+
+    buf << "[nodes]" << std::endl;
+    for (int i = 0; i < ar_num_nodes; i++)
+    {
+        buf 
+            << "  pos:"              << std::setw(3) << ar_nodes[i].pos // indicated pos in node buffer
+                                        << ((ar_nodes[i].pos != i) ? " !!sync " : "") // warn if the indicated pos doesn't match
+            << " (nodes)"
+            << " id:"                << std::setw(3) << ar_nodes_id[i]
+            << " name:"              << std::setw(ar_nodes_name_top_length) << ar_nodes_name[i]
+            << ", buoyancy:"         << std::setw(8) << ar_nodes[i].buoyancy
+            << ", loaded:"           << (int)(ar_nodes[i].nd_loaded_mass)
+            << " (wheels)"
+            << " wheel_rim:"         << (int)ar_nodes[i].nd_rim_node
+            << ", wheel_tyre:"       << (int)ar_nodes[i].nd_tyre_node
+            << " (set_node_defaults)"
+            << " mass:"              << std::setw(8) << ar_nodes[i].mass // param 1 load weight
+            << ", friction_coef:"    << std::setw(5) << ar_nodes[i].friction_coef // param 2 friction coef
+            << ", volume_coef:"      << ar_nodes[i].volume_coef // param 3 volume coef
+            << ", surface_coef:"     << ar_nodes[i].surface_coef // param 4 surface coef
+            << ", overrideMass:"     << ar_nodes[i].nd_override_mass // depends on param 1 load weight
+            << " (contacters)"
+            << " "                   << ar_nodes[i].nd_contacter
+            << std::endl;
+    }
+
+    buf << "[beams]" << std::endl;
+    for (int i = 0; i < ar_num_beams; i++)
+    {
+        buf
+            << "  "                  << std::setw(4) << i // actual pos in beam buffer
+            << ", node1:"            << std::setw(3) << ((ar_beams[i].p1) ? ar_nodes_id[ar_beams[i].p1->pos] : -1)
+            << ", node2:"            << std::setw(3) << ((ar_beams[i].p2) ? ar_nodes_id[ar_beams[i].p2->pos] : -1)
+            << ", refLen:"           << std::setw(9) << ar_beams[i].refL
+            << " (set_beam_defaults/scale)"
+            << " spring:"            << std::setw(8) << ar_beams[i].k //param1 default_spring
+            << ", damp:"             << std::setw(8) << ar_beams[i].d //param2 default_damp
+            << ", default_deform:"   << std::setw(8) << ar_beams[i].default_beam_deform //param3 default_deform
+            << ", strength:"         << std::setw(8) << ar_beams[i].strength //param4 default_break
+                                        //param5 default_beam_diameter ~ only visual
+                                        //param6 default_beam_material2 ~ only visual
+            << ", plastic_coef:"     << std::setw(8) << ar_beams[i].plastic_coef //param7 default_plastic_coef
+            << std::endl;
+    }
+
+    // Write out to 'logs' using OGRE resource system - complicated, but works with Unicode paths on Windows
+    Ogre::String rgName = "dumpRG";
+    Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_logs_dir->GetStr(), "FileSystem", rgName, /*recursive=*/false, /*readOnly=*/false);
+    Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(rgName);
+    Ogre::DataStreamPtr outStream = Ogre::ResourceGroupManager::getSingleton().createResource(fileName, rgName, /*overwrite=*/true);
+    std::string text = buf.str();
+    outStream->write(text.c_str(), text.length());
+    Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(rgName);
 }

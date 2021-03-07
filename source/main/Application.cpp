@@ -150,6 +150,7 @@ CVar* diag_hide_wheels;
 CVar* diag_hide_nodes;
 CVar* diag_physics_dt;
 CVar* diag_terrn_log_roads;
+CVar* diag_actor_dump;
 
 // Editing
 CVar* edi_import_grp_loose;
