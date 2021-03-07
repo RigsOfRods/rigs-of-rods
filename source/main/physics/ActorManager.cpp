@@ -322,6 +322,11 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     }
 
     LOG(" ===== DONE LOADING VEHICLE");
+
+    if (App::diag_actor_dump->getBool())
+    {
+        actor->WriteDiagnosticDump(actor->ar_filename + "_dump.txt"); // Saves file to 'logs'
+    }
 }
 
 Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
