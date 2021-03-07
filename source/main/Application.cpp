@@ -149,6 +149,7 @@ CVar* diag_hide_nodes;
 CVar* diag_physics_dt;
 CVar* diag_terrn_log_roads;
 CVar* diag_import_grp_loose;
+CVar* diag_actor_dump;
 
 // System
 CVar* sys_process_dir;

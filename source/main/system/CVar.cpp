@@ -97,6 +97,7 @@ void Console::CVarSetupBuiltins()
     App::diag_physics_dt         = this->CVarCreate("diag_physics_dt",          "PhysicsTimeStep",           CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "0.0005");
     App::diag_terrn_log_roads    = this->CVarCreate("diag_terrn_log_roads",    "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_import_grp_loose   = this->CVarCreate("diag_import_grp_loose",   "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::diag_actor_dump         = this->CVarCreate("diag_actor_dump",         "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
 
     App::sys_process_dir         = this->CVarCreate("sys_process_dir",         "",                           0);
     App::sys_user_dir            = this->CVarCreate("sys_user_dir",            "",                           0);
@@ -175,8 +176,6 @@ void Console::CVarSetupBuiltins()
     App::gfx_reduce_shadows      = this->CVarCreate("gfx_reduce_shadows",      "Shadow optimizations",       CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::gfx_enable_rtshaders    = this->CVarCreate("gfx_enable_rtshaders",    "Use RTShader System",        CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::gfx_classic_shaders     = this->CVarCreate("gfx_classic_shaders",     "Classic material shaders",   CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
-
-
 }
 
 CVar* Console::CVarCreate(std::string const& name, std::string const& long_name,

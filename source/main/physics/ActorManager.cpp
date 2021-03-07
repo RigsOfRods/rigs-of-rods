@@ -334,6 +334,11 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, Truck::Documen
     }
 
     LOG(" ===== DONE LOADING VEHICLE");
+
+    if (App::diag_actor_dump->GetBool())
+    {
+        actor->WriteDiagnosticDump(actor->ar_filename + "_dump.txt"); // Saves file to 'logs'
+    }
 }
 
 Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, Truck::DocumentPtr def)
