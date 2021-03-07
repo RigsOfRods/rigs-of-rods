@@ -98,6 +98,7 @@ void Console::cVarSetupBuiltins()
     App::diag_hide_wheels        = this->cVarCreate("diag_hide_wheels",        "Hide wheels",                CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_hide_nodes         = this->cVarCreate("diag_hide_nodes",         "Hide nodes",                 CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_terrn_log_roads    = this->cVarCreate("diag_terrn_log_roads",    "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::diag_actor_dump         = this->cVarCreate("diag_actor_dump",         "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
 
     App::sys_process_dir         = this->cVarCreate("sys_process_dir",         "",                           0);
     App::sys_user_dir            = this->cVarCreate("sys_user_dir",            "",                           0);
@@ -180,8 +181,6 @@ void Console::cVarSetupBuiltins()
     App::gfx_reduce_shadows      = this->cVarCreate("gfx_reduce_shadows",      "Shadow optimizations",       CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::gfx_enable_rtshaders    = this->cVarCreate("gfx_enable_rtshaders",    "Use RTShader System",        CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::gfx_classic_shaders     = this->cVarCreate("gfx_classic_shaders",     "Classic material shaders",   CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
-
-
 }
 
 CVar* Console::cVarCreate(std::string const& name, std::string const& long_name,

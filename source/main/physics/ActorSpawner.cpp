@@ -152,7 +152,7 @@ void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::
     req.num_nodes += module_def->cinecam.size();
     req.num_beams += module_def->cinecam.size() * 8;
 
-    // 'shocks' and 'shocks2'
+    // 'shocks', 'shocks2', 'shocks3'
     req.num_beams  += module_def->shocks.size();
     req.num_shocks += module_def->shocks.size();
     req.num_beams  += module_def->shocks_2.size();
@@ -221,6 +221,12 @@ void ActorSpawner::InitializeRig()
     // Allocate memory as needed
     m_actor->ar_beams = new beam_t[req.num_beams];
     m_actor->ar_nodes = new node_t[req.num_nodes];
+    m_actor->ar_nodes_id = new int[req.num_nodes];
+    for (size_t i = 0; i < req.num_nodes; ++i)
+    {
+        m_actor->ar_nodes_id[i] = -1;
+    }
+    m_actor->ar_nodes_name = new std::string[req.num_nodes];
 
     if (req.num_shocks > 0)
         m_actor->ar_shocks = new shock_t[req.num_shocks];
@@ -5564,6 +5570,9 @@ std::pair<unsigned int, bool> ActorSpawner::AddNode(RigDef::Node::Id & id)
             this->AddMessage(Message::TYPE_ERROR, msg.str());
             return std::make_pair(0, false);
         }
+        m_actor->ar_nodes_name[new_index] = id.Str();
+        m_actor->ar_nodes_id[new_index] = m_actor->ar_num_nodes;
+        m_actor->ar_nodes_name_top_length = std::max(m_actor->ar_nodes_name_top_length, (int)id.Str().length());
         m_actor->ar_num_nodes++;
         return std::make_pair(new_index, true);
     }
@@ -5576,6 +5585,7 @@ std::pair<unsigned int, bool> ActorSpawner::AddNode(RigDef::Node::Id & id)
             this->AddMessage(Message::TYPE_WARNING, msg.str());
         }
         unsigned int new_index = static_cast<unsigned int>(m_actor->ar_num_nodes);
+        m_actor->ar_nodes_id[new_index] = id.Num();
         m_actor->ar_num_nodes++;
         return std::make_pair(new_index, true);
     }
