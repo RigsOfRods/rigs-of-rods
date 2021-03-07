@@ -147,6 +147,7 @@ GUI::TopMenubar*            GUIManager::GetTopMenubar()        { return &m_impl-
 GUI::SurveyMap*             GUIManager::GetSurveyMap()         { return &m_impl->panel_SurveyMap           ; }
 GUI::SimActorStats*         GUIManager::GetSimActorStats()     { return &m_impl->panel_SimActorStats       ; }
 GUI::DirectionArrow*        GUIManager::GetDirectionArrow()    { return &m_impl->panel_DirectionArrow      ; }
+GUI::MpClientList*          GUIManager::GetMpClientList()      { return &m_impl->panel_MpClientList        ; }
 
 GUIManager::GUIManager()
 {

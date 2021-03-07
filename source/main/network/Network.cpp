@@ -300,6 +300,7 @@ void Network::RecvThread()
 
                 bool was_kick = (std::strstr(buffer, "disconnected on request") == nullptr); // FIXME: Add a reason code to MSG2_USER_LEAVE, this is ugly!
                 PushNetMessage((was_kick) ? MSG_NET_SERVER_KICK : MSG_NET_USER_DISCONNECT, msg.str());
+                App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
 
                 Message m((was_kick) ? MSG_NET_USER_DISCONNECT : MSG_NET_SERVER_KICK);
             }
@@ -313,6 +314,7 @@ void Network::RecvThread()
                     Str<300> text;
                     text << _L("left the game");
                     App::GetConsole()->putNetMessage(user->uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
+                    App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
                     LOG_THREAD(text);
 
                     m_disconnected_users.push_back(*user); // Copy
@@ -328,6 +330,7 @@ void Network::RecvThread()
                 memcpy(&m_userdata, buffer, sizeof(RoRnet::UserInfo));
                 m_authlevel = m_userdata.authstatus;
                 m_username = Ogre::UTFString(m_userdata.username);
+                App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
                 // TODO: Update the global variable 'mp_player_name' in a threadsafe way.
             }
             else
@@ -346,6 +349,7 @@ void Network::RecvThread()
                     // NB: Console is threadsafe
                     App::GetConsole()->putNetMessage(
                         user_info.uniqueid, Console::CONSOLE_SYSTEM_NOTICE, text.ToCStr());
+                    App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
                     // Lock and update userlist
                     std::lock_guard<std::mutex> lock(m_users_mutex);
                     m_users.push_back(user_info);
