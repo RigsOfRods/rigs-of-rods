@@ -445,51 +445,7 @@ const char * Document::KeywordToString(Keyword keyword)
 
 Module::Module(Ogre::String const & name):
     name(name)
-{
-    /* Pre-allocate */
-    airbrakes.reserve(10);
-    animators.reserve(50);
-    axles.reserve(10);
-    beams.reserve(1000);
-    cameras.reserve(10);
-    camera_rails.reserve(10);
-    collision_boxes.reserve(10);
-    commands_2.reserve(35);
-    exhausts.reserve(6);
-    flares_2.reserve(10);
-    flexbodies.reserve(15);
-    hooks.reserve(10);
-    hydros.reserve(25);
-    lockgroups.reserve(10);
-    managed_materials.reserve(25);
-    material_flare_bindings.reserve(10);
-    mesh_wheels.reserve(10);
-    nodes.reserve(2000);
-    node_collisions.reserve(100);
-    particles.reserve(25);
-    pistonprops.reserve(25);
-    props.reserve(50);
-    railgroups.reserve(10);
-    ropables.reserve(50);
-    ropes.reserve(25);
-    rotators.reserve(15);
-    rotators_2.reserve(15);
-    screwprops.reserve(10);
-    shocks.reserve(50);
-    shocks_2.reserve(50);
-    slidenodes.reserve(25);
-    soundsources.reserve(20);
-    soundsources2.reserve(20);
-    submeshes.reserve(50);
-    ties.reserve(25);
-    triggers.reserve(25);
-    turbojets.reserve(15);
-    turboprops_2.reserve(15);
-    videocameras.reserve(10);
-    wheels.reserve(6);
-    wheels_2.reserve(8);
-    wings.reserve(10);
-}
+{}
 
 Document::Document():
     file_format_version(0), // Default = unset
@@ -505,8 +461,6 @@ Document::Document():
     collision_range(DEFAULT_COLLISION_RANGE),
     minimass_skip_loaded_nodes(false)
 {
-    authors.reserve(10);
-    description.reserve(20);
     root_module = std::make_shared<Module>(ROOT_MODULE_NAME); // Required to exist.
 }
 
