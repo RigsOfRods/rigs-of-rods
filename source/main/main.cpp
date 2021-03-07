@@ -37,6 +37,7 @@
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
 #include "GUI_MultiplayerSelector.h"
+#include "GUI_MultiplayerClientList.h"
 #include "GUI_SimActorStats.h"
 #include "InputEngine.h"
 #include "Language.h"
@@ -644,6 +645,10 @@ int main(int argc, char *argv[])
 
                 case MSG_GUI_CLOSE_SELECTOR_REQUESTED:
                     App::GetGuiManager()->GetMainSelector()->Close();
+                    break;
+
+                case MSG_GUI_MP_CLIENTS_REFRESH:
+                    App::GetGuiManager()->GetMpClientList()->UpdateClients();
                     break;
 
                 // -- Editing events --

@@ -41,6 +41,12 @@ using namespace RoR;
 using namespace GUI;
 using namespace Ogre;
 
+void MpClientList::UpdateClients()
+{
+    m_users = App::GetNetwork()->GetUserInfos();
+    m_users.insert(m_users.begin(), App::GetNetwork()->GetLocalUserData());
+}
+
 void MpClientList::Draw()
 {
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
@@ -53,15 +59,14 @@ void MpClientList::Draw()
         ImGui::GetIO().DisplaySize.x - (content_width + (2*ImGui::GetStyle().WindowPadding.x) + theme.screen_edge_padding.x),
         theme.screen_edge_padding.y));
 
-    std::vector<RoRnet::UserInfo> users = App::GetNetwork()->GetUserInfos();
-    users.insert(users.begin(), App::GetNetwork()->GetLocalUserData());
-    int y = 20 + (ImGui::GetTextLineHeightWithSpacing() * users.size());
+    int y = 20 + (ImGui::GetTextLineHeightWithSpacing() * m_users.size());
 
     ImGui::SetNextWindowSize(ImVec2((content_width + (2*ImGui::GetStyle().WindowPadding.x)), y));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
     ImGui::Begin("Peers", nullptr, flags);
 
-    for (RoRnet::UserInfo const& user: users)
+    const RoRnet::UserInfo& local_user = m_users[0]; // See `UpdateClients()`
+    for (RoRnet::UserInfo const& user: m_users)
     {
         // Icon sizes: flag(16x11), auth(16x16), up(16x16), down(16x16)
         bool hovered = false;
@@ -71,7 +76,7 @@ void MpClientList::Draw()
         Ogre::TexturePtr up_tex;
 
         // Stream state indicators
-        if (user.uniqueid != App::GetNetwork()->GetLocalUserData().uniqueid &&
+        if (user.uniqueid != local_user.uniqueid &&
             App::app_state->GetEnum<AppState>() != AppState::MAIN_MENU)
         {
             switch (App::GetGameContext()->GetActorManager()->CheckNetworkStreamsOk(user.uniqueid))
@@ -155,7 +160,7 @@ void MpClientList::Draw()
             ImGui::Text("%s", App::GetNetwork()->UserAuthToStringLong(user).c_str());
 
             // Stream state
-            if (user.uniqueid != App::GetNetwork()->GetLocalUserData().uniqueid &&
+            if (user.uniqueid != local_user.uniqueid &&
                 App::app_state->GetEnum<AppState>() != AppState::MAIN_MENU)
             {
                 ImGui::Separator();

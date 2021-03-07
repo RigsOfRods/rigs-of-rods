@@ -93,6 +93,7 @@ enum MsgType
     MSG_GUI_CLOSE_MENU_REQUESTED,
     MSG_GUI_OPEN_SELECTOR_REQUESTED,       //!< Payload = LoaderType* (owner), Description = GUID | empty
     MSG_GUI_CLOSE_SELECTOR_REQUESTED,
+    MSG_GUI_MP_CLIENTS_REFRESH,
     // Editing
     MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  //!< Payload = ground_model_t* (weak)
     MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,
