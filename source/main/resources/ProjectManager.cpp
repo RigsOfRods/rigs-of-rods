@@ -126,12 +126,17 @@ ProjectPtr ProjectManager::FindProjectByDirName(std::string const& dirname)
 
 void ProjectManager::PruneInvalidProjects()
 {
-    for (auto itor = m_projects.begin(); itor != m_projects.end(); ++itor)
+    auto itor = m_projects.begin();
+    while (itor != m_projects.end())
     {
         if (itor->get()->prj_sync != ProjectSyncState::OK)
         {
             Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(itor->get()->prj_rg_name);
             itor = m_projects.erase(itor);
+        }
+        else
+        {
+            ++itor;
         }
     }
 }
