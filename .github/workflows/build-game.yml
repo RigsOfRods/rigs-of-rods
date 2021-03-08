@@ -76,7 +76,7 @@ jobs:
 
   build-msvc:
     name: Windows build
-    runs-on: windows-latest
+    runs-on: windows-2016
     env:
       DXSDK_DIR: C:\apps\Microsoft DirectX SDK\
       BUILD_TOOLS_PATH: C:\apps\build-tools\
@@ -100,35 +100,31 @@ jobs:
       - name: Cache conan
         uses: actions/cache@v1
         with:
-          key: conan-root-${{ hashFiles('**/conanfile.txt') }}
+          key: conan-root-${{ hashFiles('**/conanfile.txt') }}-1
           path: ~/.conan
 
       - name: Cache conan packages
         uses: actions/cache@v1
         with:
-          key: conan-pkg-${{ hashFiles('**/conanfile.txt') }}
+          key: conan-pkg-${{ hashFiles('**/conanfile.txt') }}-1
           path: C:/.conan/
 
       - name: Configure
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
         shell: cmd
 
       - name: Build
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           ninja
         shell: cmd
 
       - name: Create redis folder
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           ninja zip_and_copy_resources
-
           ninja install
         shell: cmd
 
