@@ -517,6 +517,10 @@ int main(int argc, char *argv[])
                         {
                             App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
                         }
+                        else
+                        {
+                            App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                        }
                         App::GetGuiManager()->SetVisible_LoadingWindow(false);
                         failed_m = true;
                     }
