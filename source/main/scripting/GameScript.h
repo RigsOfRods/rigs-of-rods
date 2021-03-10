@@ -368,7 +368,6 @@ public:
 
 private:
 
-    bool HaveSimController(const char* func_name); //!< Helper; Check if SimController instance exists, log warning if not.
     bool HaveSimTerrain(const char* func_name); //!< Helper; Check if SimController instance exists, log warning if not.
     bool HavePlayerAvatar(const char* func_name); //!< Helper; Check if local Character instance exists, log warning if not.
     bool HaveMainCamera(const char* func_name); //!< Helper; Check if main camera exists, log warning if not.

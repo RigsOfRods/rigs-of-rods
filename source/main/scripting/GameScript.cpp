@@ -89,17 +89,11 @@ void GameScript::logFormat(const char* format, ...)
 
 void GameScript::activateAllVehicles()
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return;
-
     App::GetGameContext()->GetActorManager()->WakeUpAllActors();
 }
 
 void GameScript::SetTrucksForcedAwake(bool forceActive)
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return;
-
     App::GetGameContext()->GetActorManager()->SetTrucksForcedAwake(forceActive);
 }
 
@@ -187,33 +181,21 @@ bool GameScript::getCaelumAvailable()
 
 void GameScript::stopTimer()
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return;
-
     App::GetGameContext()->GetRaceSystem().StopRaceTimer();
 }
 
 void GameScript::startTimer(int id)
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return;
-
     App::GetGameContext()->GetRaceSystem().StartRaceTimer(id);
 }
 
 void GameScript::setTimeDiff(float diff)
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return;
-
     App::GetGameContext()->GetRaceSystem().SetRaceTimeDiff(diff);
 }
 
 void GameScript::setBestLapTime(float time)
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return;
-
     App::GetGameContext()->GetRaceSystem().SetRaceBestTime(time);
 }
 
@@ -317,9 +299,6 @@ void GameScript::message(String& txt, String& icon, float timeMilliseconds, bool
 
 void GameScript::UpdateDirectionArrow(String& text, Vector3& vec)
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return;
-
     App::GetGameContext()->GetRaceSystem().UpdateDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
 }
 
@@ -335,9 +314,6 @@ void GameScript::setChatFontSize(int size)
 
 void GameScript::showChooser(const String& type, const String& instance, const String& box)
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return;
-
     LoaderType ntype = LT_None;
 
     if (type == "airplane")
@@ -372,17 +348,11 @@ void GameScript::showChooser(const String& type, const String& instance, const S
 
 void GameScript::repairVehicle(const String& instance, const String& box, bool keepPosition)
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return;
-
     App::GetGameContext()->GetActorManager()->RepairActor(App::GetSimTerrain()->GetCollisions(), instance, box, keepPosition);
 }
 
 void GameScript::removeVehicle(const String& event_source_instance_name, const String& event_source_box_name)
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return;
-
     Actor* actor = App::GetGameContext()->FindActorByCollisionBox(event_source_instance_name, event_source_box_name);
     if (actor)
     {
@@ -460,9 +430,6 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 
 void GameScript::hideDirectionArrow()
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return;
-
     App::GetGameContext()->GetRaceSystem().UpdateDirectionArrow(0, Vector3::ZERO);
 }
 
@@ -732,9 +699,6 @@ void GameScript::cameraLookAt(const Vector3& pos)
 
 int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptDictionary& dict, String& result)
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return 1;
-
     if (App::app_disable_online_api->GetBool())
         return 0;
 
@@ -826,9 +790,6 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 
 void GameScript::boostCurrentTruck(float factor)
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return;
-
     Actor* actor = App::GetGameContext()->GetPlayerActor();
     if (actor && actor->ar_engine)
     {
@@ -899,9 +860,6 @@ VehicleAI* GameScript::getTruckAIByNum(int num)
 
 Actor* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
 {
-    if (!this->HaveSimController(__FUNCTION__))
-        return nullptr;
-
     ActorSpawnRequest rq;
     rq.asr_position = pos;
     rq.asr_rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
@@ -946,16 +904,6 @@ float GameScript::getFPS()
 float GameScript::getAvgFPS()
 {
     return App::GetAppContext()->GetRenderWindow()->getStatistics().avgFPS;
-}
-
-bool GameScript::HaveSimController(const char* func_name)
-{
-    if (App::app_state->GetEnum<AppState>() != AppState::SIMULATION)
-    {
-        this->logFormat("Cannot execute '%s', simulation not ready", func_name);
-        return false;
-    }
-    return true;
 }
 
 bool GameScript::HaveSimTerrain(const char* func_name)
