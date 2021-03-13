@@ -211,6 +211,7 @@ public:
 
     CacheEntry *GetEntry(int modid);
     Ogre::String GetPrettyName(Ogre::String fname);
+    std::string ActorTypeToName(ActorType driveable);
 
 private:
 

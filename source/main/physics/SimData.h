@@ -74,12 +74,14 @@ enum HookState
 
 enum ActorType //!< Aka 'Driveable'
 {
-    NOT_DRIVEABLE,  //!< not drivable at all
-    TRUCK,          //!< its a truck (or other land vehicle)
-    AIRPLANE,       //!< its an airplane
-    BOAT,           //!< its a boat
-    MACHINE,        //!< its a machine
-    AI,             //!< machine controlled by an Artificial Intelligence
+    // DO NOT MODIFY NUMBERS - serialized into cache file, see RoR::CacheEntry
+
+    NOT_DRIVEABLE  = 0,   //!< not drivable at all
+    TRUCK          = 1,   //!< its a truck (or other land vehicle)
+    AIRPLANE       = 2,   //!< its an airplane
+    BOAT           = 3,   //!< its a boat
+    MACHINE        = 4,   //!< its a machine
+    AI             = 5,   //!< machine controlled by an Artificial Intelligence
 };
 
 enum SpecialBeam: short

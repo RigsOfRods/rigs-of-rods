@@ -633,12 +633,8 @@ MainSelector::DisplayEntry::DisplayEntry(CacheEntry* entry):
     {
         sde_addtime_str = asctime(gmtime(&sde_entry->addtimestamp));
     }
-    if (sde_entry->nodecount > 0)
-    {
-        static const char* str[] =
-            {_LC("MainSelector", "Non-Driveable"), _LC("MainSelector", "Truck"), _LC("MainSelector", "Airplane"), _LC("MainSelector", "Boat"), _LC("MainSelector", "Machine")};
-        sde_driveable_str = str[sde_entry->driveable];
-    }
+
+    sde_driveable_str = App::GetCacheSystem()->ActorTypeToName(sde_entry->driveable);
 }
 
 MainSelector::DisplayCategory::DisplayCategory(int id, std::string const& name, size_t usage)
