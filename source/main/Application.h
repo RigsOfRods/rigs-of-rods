@@ -91,12 +91,13 @@ enum MsgType
     // GUI
     MSG_GUI_OPEN_MENU_REQUESTED,
     MSG_GUI_CLOSE_MENU_REQUESTED,
-    MSG_GUI_OPEN_SELECTOR_REQUESTED,         //!< Payload = LoaderType* (owner), Description = GUID | empty
+    MSG_GUI_OPEN_SELECTOR_REQUESTED,       //!< Payload = LoaderType* (owner), Description = GUID | empty
     MSG_GUI_CLOSE_SELECTOR_REQUESTED,
     // Editing
     MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  //!< Payload = ground_model_t* (weak)
     MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,
     MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED,
+    MSG_EDI_RELOAD_BUNDLE_REQUESTED,       //!< Payload = RoR::CacheEntry* (weak)
 };
 
 enum class AppState

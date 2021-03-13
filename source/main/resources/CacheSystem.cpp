@@ -1116,8 +1116,32 @@ void CacheSystem::ReLoadResource(CacheEntry& t)
         return; // Not loaded - nothing to do
     }
 
-    Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(t.resource_group);
-    t.resource_group = "";
+    // IMPORTANT! No actors must use the bundle while reloading, use RoR::MsgType::MSG_EDI_RELOAD_BUNDLE_REQUESTED
+
+    this->UnLoadResource(t);
+    this->LoadResource(t); // Will create the same resource group again
+}
+
+void CacheSystem::UnLoadResource(CacheEntry& t)
+{
+    if (t.resource_group == "")
+    {
+        return; // Not loaded - nothing to do
+    }
+
+    // IMPORTANT! No actors must use the bundle after reloading, use RoR::MsgType::MSG_EDI_RELOAD_BUNDLE_REQUESTED
+
+    std::string resource_group = t.resource_group; // Keep local copy, the CacheEntry will be blanked!
+    for (CacheEntry& i_entry: m_entries)
+    {
+        if (i_entry.resource_group == resource_group)
+        {
+            i_entry.actor_def = nullptr; // Delete cached truck file - force reload from disk
+            i_entry.resource_group = ""; // Mark as unloaded
+        }
+    }
+
+    Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(resource_group);
     this->LoadResource(t); // Will create the same resource group again
 }
 

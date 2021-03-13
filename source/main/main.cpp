@@ -676,6 +676,33 @@ int main(int argc, char *argv[])
                     }
                     break;
 
+                case MSG_EDI_RELOAD_BUNDLE_REQUESTED:
+                    {
+                        // To reload the bundle, it's resource group must be destroyed and re-created. All actors using it must be deleted.
+                        CacheEntry* entry = reinterpret_cast<CacheEntry*>(m.payload);
+                        bool all_clear = true;
+                        for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
+                        {
+                            if (actor->GetGfxActor()->GetResourceGroup() == entry->resource_group)
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, actor));
+                                all_clear = false;
+                            }
+                        }
+
+                        if (all_clear)
+                        {
+                            // Nobody uses the RG anymore -> destroy and re-create it.
+                            App::GetCacheSystem()->ReLoadResource(*entry);
+                        }
+                        else
+                        {
+                            // Re-post the same message again so that it's message chain is executed later.
+                            App::GetGameContext()->PushMessage(m);
+                            failed_m = true;
+                        }
+                    }
+
                 default:;
                 }
 
