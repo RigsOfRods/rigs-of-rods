@@ -289,6 +289,7 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
 
         m_prev_player_actor = nullptr;
         this->DeleteActor(rq.amr_actor);
+        entry->actor_def = nullptr;
         App::GetCacheSystem()->ReLoadResource(*entry);
 
         ActorSpawnRequest* srq = new ActorSpawnRequest;
