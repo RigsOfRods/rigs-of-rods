@@ -428,6 +428,20 @@ String CacheSystem::GetPrettyName(String fname)
     return "";
 }
 
+std::string CacheSystem::ActorTypeToName(ActorType driveable)
+{
+    switch (driveable)
+    {
+    case ActorType::NOT_DRIVEABLE: return _LC("MainSelector", "Non-Driveable");
+    case ActorType::TRUCK:         return _LC("MainSelector", "Truck");
+    case ActorType::AIRPLANE:      return _LC("MainSelector", "Airplane");
+    case ActorType::BOAT:          return _LC("MainSelector", "Boat");
+    case ActorType::MACHINE:       return _LC("MainSelector", "Machine");
+    case ActorType::AI:            return _LC("MainSelector", "A.I.");
+    default:                       return "";
+    };
+}
+
 void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Document& j_doc, CacheEntry const & entry)
 {
     rapidjson::Value j_entry(rapidjson::kObjectType);
