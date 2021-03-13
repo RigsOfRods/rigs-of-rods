@@ -279,28 +279,21 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
             return;
         }
 
-        auto reload_pos = rq.amr_actor->getPosition();
-        auto reload_dir = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(m_player_actor->getRotation()), Ogre::Vector3::UNIT_Y);
-        auto debug_view = rq.amr_actor->GetGfxActor()->GetDebugView();
-        auto asr_config = rq.amr_actor->GetSectionConfig();
-        auto used_skin  = rq.amr_actor->GetUsedSkin();
-
-        reload_pos.y = m_player_actor->GetMinHeight();
-
-        m_prev_player_actor = nullptr;
-        this->DeleteActor(rq.amr_actor);
-        entry->actor_def = nullptr;
-        App::GetCacheSystem()->ReLoadResource(*entry);
-
+        // Create spawn request while actor still exists
         ActorSpawnRequest* srq = new ActorSpawnRequest;
-        srq->asr_position   = reload_pos;
-        srq->asr_rotation   = reload_dir;
-        srq->asr_config     = asr_config;
-        srq->asr_skin_entry = used_skin;
+        srq->asr_position   = Ogre::Vector3(rq.amr_actor->getPosition().x, rq.amr_actor->GetMinHeight(), rq.amr_actor->getPosition().z);
+        srq->asr_rotation   = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(rq.amr_actor->getRotation()), Ogre::Vector3::UNIT_Y);
+        srq->asr_config     = rq.amr_actor->GetSectionConfig();
+        srq->asr_skin_entry = rq.amr_actor->GetUsedSkin();
         srq->asr_cache_entry= entry;
-        srq->asr_debugview  = (int)debug_view;
+        srq->asr_debugview  = (int)rq.amr_actor->GetGfxActor()->GetDebugView();
         srq->asr_origin     = ActorSpawnRequest::Origin::USER;
-        this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));
+
+        // This deletes all actors using the resource bundle, including the one we're reloading.
+        this->PushMessage(Message(MSG_EDI_RELOAD_BUNDLE_REQUESTED, (void*)entry));
+
+        // Load our actor again, but only after all actors are deleted.
+        this->ChainMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));
     }
 }
 

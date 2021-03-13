@@ -203,6 +203,7 @@ public:
     bool CheckResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
     bool CheckResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
     void ReLoadResource(CacheEntry& t); //!< Forces reloading the associated bundle.
+    void UnLoadResource(CacheEntry& t); //!< Unloads associated bundle, destroying all spawned actors.
 
     const std::vector<CacheEntry>   &GetEntries()        const { return m_entries; }
     const CategoryIdNameMap         &GetCategories()     const { return m_categories; }
