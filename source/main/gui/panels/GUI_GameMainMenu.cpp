@@ -56,6 +56,7 @@ void GameMainMenu::DrawMenuPanel()
 {
     if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
     {
+        title = "Main menu";
         m_num_buttons = 5;
         if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
         {
@@ -64,6 +65,14 @@ void GameMainMenu::DrawMenuPanel()
     }
     else
     {
+        if (App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
+        {
+            title = "Pause";
+        }
+        else
+        {
+            title = "Menu";
+        }
         m_num_buttons = 3;
     }
 
@@ -102,7 +111,7 @@ void GameMainMenu::DrawMenuPanel()
     }
     ImGui::SetNextWindowContentWidth(WINDOW_WIDTH);
     int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
-    if (ImGui::Begin(_LC("MainMenu", "Main menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+    if (ImGui::Begin(_LC("MainMenu", title), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
     {
         int button_index = 0;
         ImVec2 btn_size(WINDOW_WIDTH, 0.f);

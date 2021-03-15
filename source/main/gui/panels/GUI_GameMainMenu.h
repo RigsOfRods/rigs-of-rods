@@ -55,8 +55,7 @@ private:
     int    m_num_buttons;
     int    m_kb_focus_index; // -1 = no focus; 0+ = button index
     int    m_kb_enter_index; // Focus positon when enter key was pressed.
-
-
+    const char* title ;
 };
 
 } // namespace GUI
