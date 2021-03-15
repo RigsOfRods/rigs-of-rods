@@ -94,7 +94,7 @@ void GameMainMenu::DrawMenuPanel()
     }
     ImGui::SetNextWindowContentWidth(WINDOW_WIDTH);
     int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
-    if (ImGui::Begin(_LC("Menu", "Main menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+    if (ImGui::Begin(_LC("MainMenu", "Main menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
     {
         int button_index = 0;
         ImVec2 btn_size(WINDOW_WIDTH, 0.f);
