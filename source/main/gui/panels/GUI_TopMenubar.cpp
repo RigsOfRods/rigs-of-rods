@@ -191,17 +191,20 @@ void TopMenubar::Update()
                 {
                     if (ImGui::Button(_LC("TopMenubar", "Reload current vehicle")))
                     {
-                        {
-                            ActorModifyRequest* rq = new ActorModifyRequest;
-                            rq->amr_type = ActorModifyRequest::Type::RELOAD;
-                            rq->amr_actor = current_actor;
-                            App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
-                        }
+                        ActorModifyRequest* rq = new ActorModifyRequest;
+                        rq->amr_type = ActorModifyRequest::Type::RELOAD;
+                        rq->amr_actor = current_actor;
+                        App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
                     }
 
                     if (ImGui::Button(_LC("TopMenubar", "Remove current vehicle")))
                     {
                         App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)current_actor));
+                    }
+
+                    if (ImGui::Button(_LC("TopMenubar", "Export current vehicle")))
+                    {
+                        App::GetGameContext()->PushMessage(Message(MSG_EDI_EXPORT_TRUCK_REQUESTED, (void*)current_actor->GetCacheEntry()));
                     }
                 }
             }

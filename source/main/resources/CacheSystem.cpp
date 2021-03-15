@@ -1086,7 +1086,8 @@ void CacheSystem::LoadResource(CacheEntry& t)
             // A vehicle bundle - use `inGlobalPool=false` to prevent resource name conflicts.
             // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
-            ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+            ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group,
+                /*recursive=*/false, /*readOnly=*/t.resource_bundle_type != "FileSystem");
 
             App::GetContentManager()->InitManagedMaterials(group);
             App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES, group);
@@ -1120,6 +1121,7 @@ void CacheSystem::ReLoadResource(CacheEntry& t)
 
     this->UnLoadResource(t);
     this->LoadResource(t); // Will create the same resource group again
+    this->ParseKnownFiles(t.resource_group); // Looks for new files (existing are skipped)
 }
 
 void CacheSystem::UnLoadResource(CacheEntry& t)
@@ -1129,7 +1131,7 @@ void CacheSystem::UnLoadResource(CacheEntry& t)
         return; // Not loaded - nothing to do
     }
 
-    // IMPORTANT! No actors must use the bundle after reloading, use RoR::MsgType::MSG_EDI_RELOAD_BUNDLE_REQUESTED
+    // IMPORTANT! No actors must use the bundle after unloading, use RoR::MsgType::MSG_EDI_RELOAD_BUNDLE_REQUESTED
 
     std::string resource_group = t.resource_group; // Keep local copy, the CacheEntry will be blanked!
     for (CacheEntry& i_entry: m_entries)
@@ -1142,7 +1144,6 @@ void CacheSystem::UnLoadResource(CacheEntry& t)
     }
 
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(resource_group);
-    this->LoadResource(t); // Will create the same resource group again
 }
 
 CacheEntry* CacheSystem::FetchSkinByName(std::string const & skin_name)

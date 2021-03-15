@@ -281,7 +281,10 @@ void ContentManager::InitModCache(CacheSystem::CacheValidityState validity)
         if (!file.archive)
             continue;
         String fullpath = PathCombine(file.archive->getName(), file.filename);
-        ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "FileSystem", RGN_CONTENT);
+
+        // Make all 'unzipped mods' (subdirectories) writable for later use, see CacheSystem::LoadResource().
+        // OGRE's ArchiveManager remembers all resource locations and their 'writable' status, even after the resource groups are destroyed.
+        ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "FileSystem", RGN_CONTENT, /*recursive=*/false, /*readOnly=*/false);
     }
     ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_TEMP);
 

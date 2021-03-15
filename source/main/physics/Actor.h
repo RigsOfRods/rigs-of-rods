@@ -174,6 +174,7 @@ public:
     VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
     float             getWheelSpeed() const             { return ar_wheel_speed; }
     int               GetNumNodes() const               { return ar_num_nodes; }
+    CacheEntry*       GetCacheEntry() const             { return m_cache_entry; }
     CacheEntry*       GetUsedSkin() const               { return m_used_skin_entry; }
     void              SetUsedSkin(CacheEntry* skin)     { m_used_skin_entry = skin; }
     float             getSpeed()                        { return m_avg_node_velocity.length(); };
@@ -495,6 +496,7 @@ private:
     unsigned char     m_net_custom_light_count;//!< Sim attr
     GfxFlaresMode     m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
+    CacheEntry*       m_cache_entry;
     CacheEntry*       m_used_skin_entry;       //!< Graphics
     Skidmark*         m_skid_trails[MAX_WHEELS*2];
     bool              m_antilockbrake;         //!< GUI state

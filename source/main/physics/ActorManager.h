@@ -80,7 +80,10 @@ public:
     Actor*         GetActorById(int actor_id);
     Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void           UpdateInputEvents(float dt);
+
+    // Truck file handling
     std::shared_ptr<RigDef::File>   FetchActorDef(std::string filename, bool predefined_on_terrain = false);
+    void                            ExportActorDef(std::shared_ptr<RigDef::File> def, std::string filename, std::string rg_name);
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet);

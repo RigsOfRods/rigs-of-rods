@@ -46,6 +46,7 @@
 #include "PointColDetector.h"
 #include "Replay.h"
 #include "RigDef_Validator.h"
+#include "RigDef_Serializer.h"
 #include "ActorSpawner.h"
 #include "ScriptEngine.h"
 #include "SoundScriptManager.h"
@@ -53,6 +54,8 @@
 #include "ThreadPool.h"
 #include "Utils.h"
 #include "VehicleAI.h"
+
+#include <fmt/format.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -1265,6 +1268,37 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, 
     {
         HandleErrorLoadingTruckfile(filename, "<Unknown exception occurred>");
         return nullptr;
+    }
+}
+
+void ActorManager::ExportActorDef(std::shared_ptr<RigDef::File> def, std::string filename, std::string rg_name)
+{
+    try
+    {
+        Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
+
+        // Open OGRE stream for writing
+        Ogre::DataStreamPtr stream = rgm.createResource(filename, rg_name, /*overwrite=*/true);
+        if (stream.isNull() || !stream->isWriteable())
+        {
+            OGRE_EXCEPT(Ogre::Exception::ERR_CANNOT_WRITE_TO_FILE,
+                "Stream NULL or not writeable, filename: '" + filename
+                + "', resource group: '" + rg_name + "'");
+        }
+
+        // Serialize actor to string
+        RigDef::Serializer serializer(def);
+        serializer.Serialize();
+
+        // Flush the string to file
+        stream->write(serializer.GetOutput().c_str(), serializer.GetOutput().size());
+        stream->close();
+    }
+    catch (Ogre::Exception& oex)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR,
+                                      fmt::format(_LC("Truck", "Failed to export truck '{}' to resource group '{}', message: {}"),
+                                                  filename, rg_name, oex.getFullDescription()));
     }
 }
 

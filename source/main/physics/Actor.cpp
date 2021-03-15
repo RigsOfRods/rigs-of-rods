@@ -4473,6 +4473,7 @@ Actor::Actor(
     , ar_top_speed(0.0f)
     , ar_last_fuzzy_ground_model(nullptr)
     , m_transfer_case(nullptr)
+    , m_cache_entry(rq.asr_cache_entry)
 {
 }
 

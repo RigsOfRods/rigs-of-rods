@@ -56,6 +56,8 @@
 #include <string>
 #include <fstream>
 
+#include <fmt/format.h>
+
 #ifdef USE_CURL
 #   include <curl/curl.h>
 #endif //USE_CURL
@@ -702,6 +704,43 @@ int main(int argc, char *argv[])
                             failed_m = true;
                         }
                     }
+                    break;
+
+                case MSG_EDI_EXPORT_TRUCK_REQUESTED:
+                    {
+                        ROR_ASSERT(m.payload);
+                        CacheEntry* entry = reinterpret_cast<CacheEntry*>(m.payload);
+                        ROR_ASSERT(entry->actor_def);
+                        if (entry->resource_bundle_type == "FileSystem")
+                        {
+                            // Export the truck file
+                            std::string filename = m.description;
+                            if (filename == "")
+                            {
+                                filename = fmt::format("export_{}", entry->fname);
+                            }
+                            App::GetGameContext()->GetActorManager()->ExportActorDef(
+                                entry->actor_def, filename, entry->resource_group);
+
+                            // Update cache - also deletes all spawned actors
+                            App::GetGameContext()->PushMessage(
+                                Message(MSG_EDI_RELOAD_BUNDLE_REQUESTED, (void*)entry));
+
+                            // Load the new actor
+                            RoR::ActorSpawnRequest* request = new ActorSpawnRequest();
+                            request->asr_filename = filename;
+                            request->asr_origin = ActorSpawnRequest::Origin::USER;
+                            App::GetGameContext()->PushMessage(
+                                Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)request));
+                        }
+                        else
+                        {
+                            App::GetConsole()->putMessage(
+                                Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR,
+                                _LC("Truck", "Export not supported for ZIP bundles"));
+                        }
+                    }
+                    break;
 
                 default:;
                 }

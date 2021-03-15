@@ -98,6 +98,7 @@ enum MsgType
     MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,
     MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED,
     MSG_EDI_RELOAD_BUNDLE_REQUESTED,       //!< Payload = RoR::CacheEntry* (weak)
+    MSG_EDI_EXPORT_TRUCK_REQUESTED,        //!< Payload = RoR::CacheEntry* (weak), Description = filename | empty
 };
 
 enum class AppState
