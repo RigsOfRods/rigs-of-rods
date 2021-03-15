@@ -67,13 +67,14 @@ void GameMainMenu::DrawMenuPanel()
     {
         if (App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
         {
+            m_num_buttons = 4;
             title = "Pause";
         }
         else
         {
+            m_num_buttons = 3;
             title = "Menu";
         }
-        m_num_buttons = 3;
     }
 
     // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
@@ -146,6 +147,21 @@ void GameMainMenu::DrawMenuPanel()
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
                 }
                 this->SetVisible(false);
+            }
+        }
+
+        if (App::app_state->GetEnum<AppState>() != AppState::MAIN_MENU && App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
+        {
+            if ( HighlightButton(_LC("MainMenu", "Change map"), btn_size, button_index++))
+            {
+                if (App::diag_preset_terrain->GetStr().empty())
+                {
+                    this->SetVisible(false);
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                    RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+                    m.payload = reinterpret_cast<void*>(new LoaderType(LT_Terrain));
+                    App::GetGameContext()->PushMessage(m);
+                }
             }
         }
 
