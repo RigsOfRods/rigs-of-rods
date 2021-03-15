@@ -40,13 +40,8 @@ using namespace RoR;
 using namespace GUI;
 
 GameMainMenu::GameMainMenu():
-    m_is_visible(false), m_num_buttons(5), m_kb_focus_index(-1), m_kb_enter_index(-1)
-{
-    if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
-    {
-        m_num_buttons++;
-    }
-}
+    m_is_visible(false), m_kb_focus_index(-1), m_kb_enter_index(-1)
+{}
 
 void GameMainMenu::Draw()
 {
@@ -59,6 +54,19 @@ void GameMainMenu::Draw()
 
 void GameMainMenu::DrawMenuPanel()
 {
+    if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+    {
+        m_num_buttons = 5;
+        if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
+        {
+            m_num_buttons++;
+        }
+    }
+    else
+    {
+        m_num_buttons = 3;
+    }
+
     // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
     if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
     {
@@ -154,7 +162,7 @@ void GameMainMenu::DrawMenuPanel()
         }
         else
         {
-            if (HighlightButton(_L("Return to menu"), btn_size, 1))
+            if (HighlightButton(_L("Return to menu"), btn_size, button_index++))
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
                 if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
