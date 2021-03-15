@@ -25,15 +25,15 @@
 
 #pragma once
 
-#include "RigDef_Prerequisites.h"
-#include "RigDef_File.h"
-#include "RigDef_SequentialImporter.h"
+#include "TruckFileFormat.h"
+#include "TruckFileFormat.h"
+#include "TruckSequentialImporter.h"
 
 #include <memory>
 #include <string>
 #include <regex>
 
-namespace RigDef
+namespace Truck
 {
 
 ///  @class  Parser
@@ -45,7 +45,7 @@ namespace RigDef
 ///  The Parser should preferably only read data as-is, without validation.
 ///
 ///  Every time a line of a particular section is parsed, an instance of the struct
-///  is saved into an array container in struct RigDef::File. There are exceptions to this rule.
+///  is saved into an array container in struct Truck::File. There are exceptions to this rule.
 ///
 ///  Keywords 'set_[node|beam|inertia]_defaults' are 'presets' and are managed by dyn. allocated
 ///  objects. For every preset, there are 2 pointers:
@@ -84,7 +84,7 @@ public:
     void ProcessOgreStream(Ogre::DataStream* stream, Ogre::String resource_group);
     void ProcessRawLine(const char* line);
 
-    std::shared_ptr<RigDef::File> GetFile()
+    std::shared_ptr<Truck::File> GetFile()
     {
         return m_definition;
     }
@@ -198,7 +198,7 @@ private:
     void             ProcessCurrentLine();
     int              TokenizeCurrentLine();
     bool             CheckNumArguments(int num_required_args);
-    void             ChangeSection(RigDef::Section new_section);
+    void             ChangeSection(Truck::Section new_section);
     void             ProcessChangeModuleLine(Keyword keyword);
 
     std::string        GetArgStr          (int index);
@@ -301,7 +301,7 @@ private:
     Ogre::String                         m_filename; // Logging
     Ogre::String                         m_resource_group;
 
-    std::shared_ptr<RigDef::File>        m_definition;
+    std::shared_ptr<Truck::File>        m_definition;
 };
 
-} // namespace RigDef
+} // namespace Truck

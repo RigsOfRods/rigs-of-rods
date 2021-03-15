@@ -30,7 +30,7 @@
 #include "FlexMeshWheel.h"
 #include "GfxScene.h"
 #include "PlatformUtils.h"
-#include "RigDef_File.h"
+#include "TruckFileFormat.h"
 #include "ActorSpawner.h"
 
 #include <OgreMeshManager.h>
@@ -60,7 +60,7 @@ FlexFactory::FlexFactory(ActorSpawner* rig_spawner):
 }
 
 FlexBody* FlexFactory::CreateFlexBody(
-    RigDef::Flexbody* def,
+    Truck::Flexbody* def,
     const int ref_node, 
     const int x_node, 
     const int y_node, 

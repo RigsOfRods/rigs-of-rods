@@ -27,7 +27,7 @@
 #include "FlexFactory.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
-#include "RigDef_File.h"
+#include "TruckFileFormat.h"
 
 #include <Ogre.h>
 
@@ -35,7 +35,7 @@ using namespace Ogre;
 using namespace RoR;
 
 FlexBody::FlexBody(
-    RigDef::Flexbody* def,
+    Truck::Flexbody* def,
     RoR::FlexBodyCacheData* preloaded_from_cache,
     RoR::GfxActor* gfx_actor,
     Ogre::Entity* ent,

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "RigDef_Prerequisites.h"
+#include "TruckFileFormat.h"
 #include "Application.h"
 #include "Locator_t.h"
 
@@ -39,7 +39,7 @@ class FlexBody
     friend class RoR::FlexBodyFileIO;
 
     FlexBody( // Private, for FlexFactory
-        RigDef::Flexbody* def,
+        Truck::Flexbody* def,
         RoR::FlexBodyCacheData* preloaded_from_cache,
         RoR::GfxActor* gfx_actor,
         Ogre::Entity* entity,

@@ -23,10 +23,10 @@
 /// @author Petr Ohlidal
 /// @date   12/2013
 
-#include "RigDef_File.h"
+#include "TruckFileFormat.h"
 #include "SimConstants.h"
 
-namespace RigDef
+namespace Truck
 {
 
 const char* ROOT_MODULE_NAME = "_Root_"; // Static
@@ -510,4 +510,4 @@ File::File():
     root_module = std::make_shared<File::Module>(ROOT_MODULE_NAME); // Required to exist.
 }
 
-} /* namespace RigDef */
+} /* namespace Truck */

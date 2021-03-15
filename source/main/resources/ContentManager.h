@@ -25,6 +25,7 @@
 
 #include "CacheSystem.h"
 #include "Application.h"
+#include "TruckFileFormat.h"
 
 #include <OgreResourceGroupManager.h>
 #include <OgreScriptCompiler.h>

@@ -23,7 +23,7 @@
 /// @author Petr Ohlidal
 /// @date   12/2013
 
-#include "RigDef_Validator.h"
+#include "TruckValidator.h"
 
 #include "SimConstants.h"
 #include "Application.h"
@@ -31,7 +31,7 @@
 
 #define CHECK_SECTION_IN_ALL_MODULES(_CLASS_, _FIELD_, _FUNCTION_) \
 { \
-    std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin(); \
+    std::list<std::shared_ptr<Truck::File::Module>>::iterator module_itor = m_selected_modules.begin(); \
     for (; module_itor != m_selected_modules.end(); module_itor++) \
     { \
         std::vector<_CLASS_>::iterator section_itor = module_itor->get()->_FIELD_.begin(); \
@@ -49,7 +49,7 @@
     } \
 }
 
-namespace RigDef
+namespace Truck
 {
 
 bool Validator::Validate()
@@ -58,32 +58,32 @@ bool Validator::Validate()
 
     /* CHECK CONFIGURATION (SELECTED MODULES TOGETHER) */
 
-    valid &= CheckSection(RigDef::KEYWORD_GLOBALS, true, true); /* Unique, required */
+    valid &= CheckSection(Truck::KEYWORD_GLOBALS, true, true); /* Unique, required */
 
-    valid &= CheckSection(RigDef::KEYWORD_NODES, false, true); /* Required; sections nodes/nodes2 are unified here. */
+    valid &= CheckSection(Truck::KEYWORD_NODES, false, true); /* Required; sections nodes/nodes2 are unified here. */
 
     if (m_check_beams)
     {
-        valid &= CheckSection(RigDef::KEYWORD_BEAMS, false, true); /* Required */
+        valid &= CheckSection(Truck::KEYWORD_BEAMS, false, true); /* Required */
     }
 
-    valid &= CheckSection(RigDef::KEYWORD_ENGINE, true, false); /* Unique */
+    valid &= CheckSection(Truck::KEYWORD_ENGINE, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::KEYWORD_ENGOPTION, true, false); /* Unique */
+    valid &= CheckSection(Truck::KEYWORD_ENGOPTION, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::KEYWORD_ENGTURBO, true, false); /* Unique */
+    valid &= CheckSection(Truck::KEYWORD_ENGTURBO, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::KEYWORD_TORQUECURVE, true, false); /* Unique */
+    valid &= CheckSection(Truck::KEYWORD_TORQUECURVE, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::KEYWORD_SPEEDLIMITER, true, false); /* Unique */
+    valid &= CheckSection(Truck::KEYWORD_SPEEDLIMITER, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::KEYWORD_MANAGEDMATERIALS, true, false); /* Unique */
+    valid &= CheckSection(Truck::KEYWORD_MANAGEDMATERIALS, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::KEYWORD_GUISETTINGS, true, false); /* Unique */
+    valid &= CheckSection(Truck::KEYWORD_GUISETTINGS, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::KEYWORD_EXTCAMERA, true, false); /* Unique */
+    valid &= CheckSection(Truck::KEYWORD_EXTCAMERA, true, false); /* Unique */
 
-    valid &= CheckSection(RigDef::KEYWORD_FUSEDRAG, true, false); /* Unique */
+    valid &= CheckSection(Truck::KEYWORD_FUSEDRAG, true, false); /* Unique */
 
     valid &= CheckSectionSubmeshGroundmodel(); /* Unique */
 
@@ -108,7 +108,7 @@ bool Validator::Validate()
     return valid;
 }
 
-void Validator::Setup(std::shared_ptr<RigDef::File> file)
+void Validator::Setup(std::shared_ptr<Truck::File> file)
 {
     m_file = file;
     m_selected_modules.push_back(file->root_module);
@@ -141,7 +141,7 @@ bool Validator::CheckSectionSubmeshGroundmodel()
 {
     Ogre::String *containing_module_name = nullptr;
 
-    std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+    std::list<std::shared_ptr<Truck::File::Module>>::iterator module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
         if (! module_itor->get()->submeshes_ground_model_name.empty())
@@ -164,11 +164,11 @@ bool Validator::CheckSectionSubmeshGroundmodel()
     return true;
 }
 
-bool Validator::CheckSection(RigDef::Keyword keyword, bool unique, bool required)
+bool Validator::CheckSection(Truck::Keyword keyword, bool unique, bool required)
 {
     Ogre::String *containing_module_name = nullptr;
 
-    std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+    std::list<std::shared_ptr<Truck::File::Module>>::iterator module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
         if (HasModuleKeyword(*module_itor, keyword))
@@ -180,7 +180,7 @@ bool Validator::CheckSection(RigDef::Keyword keyword, bool unique, bool required
             else if (unique)
             {
                 std::stringstream text;
-                text << "Duplicate section '" << RigDef::File::KeywordToString(keyword)
+                text << "Duplicate section '" << Truck::File::KeywordToString(keyword)
                     << "'; found in modules: '" << *containing_module_name
                     << "' & '" << module_itor->get()->name << "'";
                 AddMessage(Message::TYPE_FATAL_ERROR, text.str());
@@ -192,16 +192,16 @@ bool Validator::CheckSection(RigDef::Keyword keyword, bool unique, bool required
     if (containing_module_name == nullptr && required)
     {
         std::stringstream text;
-        text << "Missing required section '" << RigDef::File::KeywordToString(keyword) <<"'";
+        text << "Missing required section '" << Truck::File::KeywordToString(keyword) <<"'";
         AddMessage(Message::TYPE_FATAL_ERROR, text.str());
         return false;
     }
     return true;
 }
 
-bool Validator::HasModuleKeyword(std::shared_ptr<RigDef::File::Module> module, RigDef::Keyword keyword)
+bool Validator::HasModuleKeyword(std::shared_ptr<Truck::File::Module> module, Truck::Keyword keyword)
 {
-    using namespace RigDef;
+    using namespace Truck;
 
     switch (keyword)
     {
@@ -255,7 +255,7 @@ bool Validator::HasModuleKeyword(std::shared_ptr<RigDef::File::Module> module, R
 
 bool Validator::AddModule(Ogre::String const & module_name)
 {
-    std::map< Ogre::String, std::shared_ptr<RigDef::File::Module> >::iterator result 
+    std::map< Ogre::String, std::shared_ptr<Truck::File::Module> >::iterator result 
         = m_file->user_modules.find(module_name);
 
     if (result != m_file->user_modules.end())
@@ -269,8 +269,8 @@ bool Validator::AddModule(Ogre::String const & module_name)
 bool Validator::CheckGearbox()
 {
     /* Find it */
-    std::shared_ptr<RigDef::Engine> engine;
-    std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+    std::shared_ptr<Truck::Engine> engine;
+    std::list<std::shared_ptr<Truck::File::Module>>::iterator module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
         if (module_itor->get()->engine != nullptr)
@@ -289,7 +289,7 @@ bool Validator::CheckGearbox()
     return true;
 }
 
-bool Validator::CheckShock2(RigDef::Shock2 & shock2)
+bool Validator::CheckShock2(Truck::Shock2 & shock2)
 {
     std::list<Ogre::String> bad_fields;
 
@@ -358,7 +358,7 @@ bool Validator::CheckShock2(RigDef::Shock2 & shock2)
     return true;
 }
 
-bool Validator::CheckShock3(RigDef::Shock3 & shock3)
+bool Validator::CheckShock3(Truck::Shock3 & shock3)
 {
     std::list<Ogre::String> bad_fields;
 
@@ -435,11 +435,11 @@ bool Validator::CheckShock3(RigDef::Shock3 & shock3)
     return true;
 }
 
-bool Validator::CheckAnimator(RigDef::Animator & def)
+bool Validator::CheckAnimator(Truck::Animator & def)
 {
     unsigned int source_check = def.flags;
-    BITMASK_SET_0(source_check, RigDef::Animator::OPTION_SHORT_LIMIT);
-    BITMASK_SET_0(source_check, RigDef::Animator::OPTION_LONG_LIMIT);
+    BITMASK_SET_0(source_check, Truck::Animator::OPTION_SHORT_LIMIT);
+    BITMASK_SET_0(source_check, Truck::Animator::OPTION_LONG_LIMIT);
     if (source_check == 0)
     {
         AddMessage(Message::TYPE_ERROR, "Failed to identify animator source");
@@ -448,7 +448,7 @@ bool Validator::CheckAnimator(RigDef::Animator & def)
     return true;
 }
 
-bool Validator::CheckCommand(RigDef::Command2 & def)
+bool Validator::CheckCommand(Truck::Command2 & def)
 {
     bool ok = true;
 
@@ -475,7 +475,7 @@ bool Validator::CheckCommand(RigDef::Command2 & def)
     return ok;
 }
 
-bool Validator::CheckFlare2(RigDef::Flare2 & def)
+bool Validator::CheckFlare2(Truck::Flare2 & def)
 {
     bool ok = true;
     
@@ -498,18 +498,18 @@ bool Validator::CheckFlare2(RigDef::Flare2 & def)
     return ok;
 }
 
-bool Validator::CheckTrigger(RigDef::Trigger & def)
+bool Validator::CheckTrigger(Truck::Trigger & def)
 {
     bool ok = true;
 
     bool hook_toggle = 
-        BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_H_LOCK_HOOKGROUPS_KEY)
-        || BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_h_UNLOCK_HOOKGROUPS_KEY);
+        BITMASK_IS_1(def.options, Truck::Trigger::OPTION_H_LOCK_HOOKGROUPS_KEY)
+        || BITMASK_IS_1(def.options, Truck::Trigger::OPTION_h_UNLOCK_HOOKGROUPS_KEY);
 
-    bool trigger_blocker = BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_B_BLOCK_TRIGGERS);
-    bool inv_trigger_blocker = BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_A_INV_BLOCK_TRIGGERS);
+    bool trigger_blocker = BITMASK_IS_1(def.options, Truck::Trigger::OPTION_B_BLOCK_TRIGGERS);
+    bool inv_trigger_blocker = BITMASK_IS_1(def.options, Truck::Trigger::OPTION_A_INV_BLOCK_TRIGGERS);
 
-    if (BITMASK_IS_0(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER))
+    if (BITMASK_IS_0(def.options, Truck::Trigger::OPTION_E_ENGINE_TRIGGER))
     {
         if (! trigger_blocker && ! inv_trigger_blocker && ! hook_toggle )
         {
@@ -550,7 +550,7 @@ bool Validator::CheckTrigger(RigDef::Trigger & def)
     else
     {
         /* Engine trigger */
-        if (trigger_blocker || inv_trigger_blocker || hook_toggle || BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_s_SWITCH_CMD_NUM))
+        if (trigger_blocker || inv_trigger_blocker || hook_toggle || BITMASK_IS_1(def.options, Truck::Trigger::OPTION_s_SWITCH_CMD_NUM))
         {
             AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber. Engine trigger deactivated.");
             ok = false;
@@ -560,7 +560,7 @@ bool Validator::CheckTrigger(RigDef::Trigger & def)
     return ok;
 }
 
-bool Validator::CheckVideoCamera(RigDef::VideoCamera & def)
+bool Validator::CheckVideoCamera(Truck::VideoCamera & def)
 {
     bool ok = true;
 
@@ -592,4 +592,4 @@ bool Validator::CheckVideoCamera(RigDef::VideoCamera & def)
     return ok;
 }
 
-} // namespace RigDef
+} // namespace Truck

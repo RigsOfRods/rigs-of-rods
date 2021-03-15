@@ -23,14 +23,14 @@
 /// @author Petr Ohlidal
 /// @date   12/2013
 
-#include "RigDef_Parser.h"
+#include "TruckParser.h"
 
 #include "Application.h"
 #include "SimConstants.h"
 #include "CacheSystem.h"
 #include "Console.h"
-#include "RigDef_File.h"
-#include "RigDef_Regexes.h"
+#include "TruckFileFormat.h"
+#include "TruckRegexes.h"
 #include "Utils.h"
 
 #include <OgreException.h>
@@ -40,7 +40,7 @@
 
 using namespace RoR;
 
-namespace RigDef
+namespace Truck
 {
 
 using namespace RoR;
@@ -1203,7 +1203,7 @@ void Parser::ParseExtCamera()
     
     if (m_current_module->ext_camera == nullptr)
     {
-        m_current_module->ext_camera = std::shared_ptr<RigDef::ExtCamera>( new RigDef::ExtCamera() );
+        m_current_module->ext_camera = std::shared_ptr<Truck::ExtCamera>( new Truck::ExtCamera() );
     }
     ExtCamera* extcam = m_current_module->ext_camera.get();
     
@@ -2061,7 +2061,7 @@ void Parser::ParseTorqueCurve()
 {
     if (m_current_module->torque_curve == nullptr)
     {
-        m_current_module->torque_curve = std::shared_ptr<RigDef::TorqueCurve>(new RigDef::TorqueCurve());
+        m_current_module->torque_curve = std::shared_ptr<Truck::TorqueCurve>(new Truck::TorqueCurve());
     }
 
     Ogre::StringVector args = Ogre::StringUtil::split(m_current_line, ",");
@@ -3193,10 +3193,10 @@ void Parser::AddMessage(std::string const & line, Message::Type type, std::strin
     txt << " (line " << (size_t)m_current_line_number;
     if (m_current_section != Section::SECTION_INVALID)
     {
-        txt << " '" << RigDef::File::SectionToString(m_current_section);
+        txt << " '" << Truck::File::SectionToString(m_current_section);
         if (m_current_subsection != Subsection::SUBSECTION_NONE)
         {
-            txt << "/" << RigDef::File::SubsectionToString(m_current_subsection);
+            txt << "/" << Truck::File::SubsectionToString(m_current_subsection);
         }
         txt << "'";
     }
@@ -3305,7 +3305,7 @@ void Parser::Prepare()
     m_sequential_importer.Init(true); // Enabled=true
 }
 
-void Parser::ChangeSection(RigDef::Section new_section)
+void Parser::ChangeSection(Truck::Section new_section)
 {
     // ## Section-specific switch logic ##
 
@@ -3386,7 +3386,7 @@ void Parser::ProcessChangeModuleLine(Keyword keyword)
     }
 
     // Perform the switch
-    this->ChangeSection(RigDef::SECTION_NONE);
+    this->ChangeSection(Truck::SECTION_NONE);
     m_last_flexbody.reset(); // Set to nullptr
 
     if (new_module_name == ROOT_MODULE_NAME)
@@ -3779,4 +3779,4 @@ int Parser::GetCurrentEditorGroup()
     }
 }
 
-} // namespace RigDef
+} // namespace Truck

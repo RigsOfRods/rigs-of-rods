@@ -726,11 +726,11 @@ int main(int argc, char *argv[])
                             App::GetGameContext()->PushMessage(
                                 Message(MSG_EDI_RELOAD_BUNDLE_REQUESTED, (void*)entry));
 
-                            // Load the new actor
+                            // Load the new actor, but only after the bundle is fully reloaded (chain messages)
                             RoR::ActorSpawnRequest* request = new ActorSpawnRequest();
                             request->asr_filename = filename;
                             request->asr_origin = ActorSpawnRequest::Origin::USER;
-                            App::GetGameContext()->PushMessage(
+                            App::GetGameContext()->ChainMessage(
                                 Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)request));
                         }
                         else

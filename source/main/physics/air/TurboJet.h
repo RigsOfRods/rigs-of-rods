@@ -22,7 +22,7 @@
 
 #include "Application.h"
 #include "AeroEngine.h"
-#include "RigDef_File.h"
+#include "TruckFileFormat.h"
 
 namespace RoR {
 
@@ -30,7 +30,7 @@ class TurbojetVisual
 {
 public:
     ~TurbojetVisual();
-    void SetupVisuals(RigDef::Turbojet & def, int num, std::string const& propname, Ogre::Entity* nozzle, Ogre::Entity* afterburner_flame, bool disable_smoke);
+    void SetupVisuals(Truck::Turbojet & def, int num, std::string const& propname, Ogre::Entity* nozzle, Ogre::Entity* afterburner_flame, bool disable_smoke);
     void SetNodes(int front, int back, int ref);
     void UpdateVisuals(RoR::GfxActor* gfx_actor);
 
@@ -54,7 +54,7 @@ class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
 
 public:
 
-    Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, RigDef::Turbojet & def);
+    Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, Truck::Turbojet & def);
     ~Turbojet();
 
     void flipStart();

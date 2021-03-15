@@ -26,14 +26,13 @@
 #pragma once
 
 #include "BitFlags.h"
-
-#include "RigDef_Prerequisites.h"
+#include "ForwardDeclarations.h"
 
 #include <memory>
 #include <OgreVector3.h>
 #include <string>
 
-namespace RigDef
+namespace Truck
 {
 
 struct Node
@@ -169,4 +168,4 @@ struct Node
     int editor_group_id;
 };
 
-} //namespace RigDef
+} //namespace Truck

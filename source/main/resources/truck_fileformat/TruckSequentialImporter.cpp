@@ -24,13 +24,13 @@
 /// @date   04/2015
 
 #include <iomanip>
-#include "RigDef_SequentialImporter.h"
+#include "TruckSequentialImporter.h"
 
 #include "Application.h"
 #include "Console.h"
-#include "RigDef_Parser.h"
+#include "TruckParser.h"
 
-using namespace RigDef;
+using namespace Truck;
 
 void SequentialImporter::Init(bool enabled)
 {
@@ -81,7 +81,7 @@ void SequentialImporter::GenerateNodesForWheel(Keyword generated_from, int num_r
     }
 }
 
-void SequentialImporter::Process(std::shared_ptr<RigDef::File> def)
+void SequentialImporter::Process(std::shared_ptr<Truck::File> def)
 {
     this->ProcessModule(def->root_module);
 
@@ -230,7 +230,7 @@ Node::Ref SequentialImporter::ResolveNode(Node::Ref const & noderef_in)
         /* TODO: make optional (debug) or remove
         std::stringstream msg;
         msg << "Node resolved\n\tSource: " << noderef_in.ToString() << "\n\tResult: " << out_ref.ToString()
-            << "\n\tOrigin: " << RigDef::File::KeywordToString(entry.origin_keyword) << " SubIndex: " << entry.node_sub_index;
+            << "\n\tOrigin: " << Truck::File::KeywordToString(entry.origin_keyword) << " SubIndex: " << entry.node_sub_index;
         this->AddMessage(Message::TYPE_INFO, msg.str());
         */
         return out_ref;
@@ -390,7 +390,7 @@ void SequentialImporter::ResolveNodeRanges(std::vector<Node::Range>& ranges)
 // airbrakes = yes,yes
 // axles = NO, NO
 
-void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> module)
+void SequentialImporter::ProcessModule(std::shared_ptr<Truck::File::Module> module)
 {
     m_current_module = module;
 

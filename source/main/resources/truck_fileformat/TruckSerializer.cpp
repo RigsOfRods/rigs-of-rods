@@ -23,21 +23,21 @@
 /// @author Petr Ohlidal
 /// @date   10/2014
 
-#include "RigDef_Serializer.h"
+#include "TruckSerializer.h"
 
 #include "Application.h"
 #include "GUIManager.h"
-#include "RigDef_File.h"
+#include "TruckFileFormat.h"
 
 #include <fstream>
 #include <OgreStringConverter.h>
 #include <iomanip>
 #include <unordered_map>
 
-using namespace RigDef;
+using namespace Truck;
 using namespace std;
 
-Serializer::Serializer(std::shared_ptr<RigDef::File> def_file):
+Serializer::Serializer(std::shared_ptr<Truck::File> def_file):
     m_rig_def(def_file),
     m_node_id_width(5),
     m_float_precision(6),
@@ -92,11 +92,11 @@ void Serializer::Serialize()
     m_stream << "end" << endl;
 }
 
-void Serializer::SerializeModule(std::shared_ptr<RigDef::File::Module> m)
+void Serializer::SerializeModule(std::shared_ptr<Truck::File::Module> m)
 {
-    RigDef::File::Module* source_module = m.get();
+    Truck::File::Module* source_module = m.get();
 
-    if (m->name != RigDef::ROOT_MODULE_NAME)
+    if (m->name != Truck::ROOT_MODULE_NAME)
     {
         m_stream << "section -1 " << m->name << endl;
     }
@@ -173,7 +173,7 @@ void Serializer::SerializeModule(std::shared_ptr<RigDef::File::Module> m)
     // Marine
     ProcessScrewprops(source_module);
 
-    if (m->name != RigDef::ROOT_MODULE_NAME)
+    if (m->name != Truck::ROOT_MODULE_NAME)
     {
         m_stream << "endsection" << endl;
     }
@@ -253,7 +253,7 @@ void Serializer::ProcessScrewprops(File::Module* module)
 void Serializer::ProcessFusedrag(File::Module* module)
 {
     m_stream << "fusedrag" << endl;
-    for (RigDef::Fusedrag& def: module->fusedrag)
+    for (Truck::Fusedrag& def: module->fusedrag)
     {
         m_stream << "\n\t"
             << setw(m_node_id_width) << def.front_node.Str() << ", "
@@ -282,7 +282,7 @@ void Serializer::ProcessTurboprops(File::Module* module)
     auto end_itor = module->turboprops_2.end();
     for (auto itor = module->turboprops_2.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Turboprop2 & def = *itor;
+        Truck::Turboprop2 & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.reference_node.Str()
             << ", " << setw(m_node_id_width) << def.axis_node.Str()
@@ -306,7 +306,7 @@ void Serializer::ProcessAirbrakes(File::Module* module)
     auto end_itor = module->airbrakes.end();
     for (auto itor = module->airbrakes.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Airbrake & def = *itor;
+        Truck::Airbrake & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.reference_node.Str()
             << ", " << setw(m_node_id_width) << def.x_axis_node.Str()
@@ -337,7 +337,7 @@ void Serializer::ProcessWings(File::Module* module)
     auto end_itor = module->wings.end();
     for (auto itor = module->wings.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Wing & def = *itor;
+        Truck::Wing & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.nodes[0].Str()
             << ", " << setw(m_node_id_width) << def.nodes[1].Str()
@@ -375,7 +375,7 @@ void Serializer::ProcessSoundsources(File::Module* module)
     auto end_itor = module->soundsources.end();
     for (auto itor = module->soundsources.begin(); itor != end_itor; ++itor)
     {
-        RigDef::SoundSource & def = *itor;
+        Truck::SoundSource & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.node.Str() << ", " << def.sound_script_name;
     }
@@ -392,7 +392,7 @@ void Serializer::ProcessSoundsources2(File::Module* module)
     auto end_itor = module->soundsources2.end();
     for (auto itor = module->soundsources2.begin(); itor != end_itor; ++itor)
     {
-        RigDef::SoundSource2 & def = *itor;
+        Truck::SoundSource2 & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.node.Str() 
             << ", " << setw(2) << def.mode
@@ -407,7 +407,7 @@ void Serializer::ProcessExtCamera(File::Module* module)
     {
         return;
     }
-    RigDef::ExtCamera* def = module->ext_camera.get();
+    Truck::ExtCamera* def = module->ext_camera.get();
     m_stream << "extcamera ";
 
     switch (def->mode)
@@ -436,7 +436,7 @@ void Serializer::ProcessVideocamera(File::Module* module)
     auto end_itor = module->videocameras.end();
     for (auto itor = module->videocameras.begin(); itor != end_itor; ++itor)
     {
-        RigDef::VideoCamera & def = *itor;
+        Truck::VideoCamera & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.reference_node.Str()
             << ", " << setw(m_node_id_width) << def.left_node.Str()
@@ -467,7 +467,7 @@ void Serializer::ProcessVideocamera(File::Module* module)
 
 void Serializer::ProcessSetSkeletonSettings(File::Module* module)
 {
-    RigDef::SkeletonSettings& def = module->skeleton_settings;
+    Truck::SkeletonSettings& def = module->skeleton_settings;
     m_stream << "set_skeleton_settings " << def.visibility_range_meters << ", " << def.beam_thickness_meters << "\n\n";
 }
 
@@ -477,7 +477,7 @@ void Serializer::ProcessGuiSettings(File::Module* module)
     {
         return;
     }
-    RigDef::GuiSettings* def = module->gui_settings.get();
+    Truck::GuiSettings* def = module->gui_settings.get();
     m_stream << "guisettings"
         << "\n\tspeedoMax: " << def->speedo_highest_kph 
         << "\n\tuseMaxRPM: " << def->use_max_rpm;
@@ -530,7 +530,7 @@ void Serializer::ProcessExhausts(File::Module* module)
     auto end_itor = module->exhausts.end();
     for (auto itor = module->exhausts.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Exhaust & def = *itor;
+        Truck::Exhaust & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.reference_node.Str()
             << ", " << setw(m_node_id_width) << def.direction_node.Str()
@@ -548,7 +548,7 @@ void Serializer::ProcessSubmeshGroundmodel(File::Module* module)
 }
 
 #define CAB_PRINT_OPTION_FLAG(VAR, FLAG, CHAR) \
-    if (BITMASK_IS_1(VAR, RigDef::Cab::FLAG)) { m_stream << CHAR; }
+    if (BITMASK_IS_1(VAR, Truck::Cab::FLAG)) { m_stream << CHAR; }
 
 #define CAB_PRINT_OPTION_FUNC(DEF, FUNC, CHAR) \
     if (DEF->FUNC()) { m_stream << CHAR; }
@@ -563,7 +563,7 @@ void Serializer::ProcessSubmesh(File::Module* module)
     auto end_itor = module->submeshes.end();
     for (auto itor = module->submeshes.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Submesh & def = *itor;
+        Truck::Submesh & def = *itor;
 
         if (def.texcoords.size() > 0)
         {
@@ -618,7 +618,7 @@ inline void PropAnimFlag(std::stringstream& out, int flags, bool& join, unsigned
     }
 }
 
-void Serializer::ProcessDirectiveAddAnimation(RigDef::Animation & anim)
+void Serializer::ProcessDirectiveAddAnimation(Truck::Animation & anim)
 {
     m_stream << "\n\tadd_animation " 
         << setw(m_float_width) << anim.ratio       << ", "
@@ -692,7 +692,7 @@ void Serializer::ProcessFlexbodies(File::Module* module)
     auto end_itor = module->flexbodies.end();
     for (auto itor = module->flexbodies.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Flexbody* def = itor->get();
+        Truck::Flexbody* def = itor->get();
 
         // Prop-like line
         m_stream << "\n\t" << setw(m_node_id_width) << def->reference_node.Str()
@@ -741,7 +741,7 @@ void Serializer::ProcessPropsAndAnimations(File::Module* module)
     auto end_itor = module->props.end();
     for (auto itor = module->props.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Prop & def = *itor;
+        Truck::Prop & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.reference_node.Str()
             << ", " << setw(m_node_id_width) << def.x_axis_node.Str()
@@ -796,7 +796,7 @@ void Serializer::ProcessMaterialFlareBindings(File::Module* module)
     auto end_itor = module->material_flare_bindings.end();
     for (auto itor = module->material_flare_bindings.begin(); itor != end_itor; ++itor)
     {
-        RigDef::MaterialFlareBinding & def = *itor;
+        Truck::MaterialFlareBinding & def = *itor;
         m_stream << "\n\t" << def.flare_number << ", " << def.material_name;
     }
     m_stream << endl << endl; // Empty line
@@ -812,7 +812,7 @@ void Serializer::ProcessFlares2(File::Module* module)
     auto end_itor = module->flares_2.end();
     for (auto itor = module->flares_2.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Flare2 & def = *itor;
+        Truck::Flare2 & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.reference_node.Str()
             << ", " << setw(m_node_id_width) << def.node_axis_x.Str()
@@ -841,7 +841,7 @@ void Serializer::ProcessManagedMaterialsAndOptions(File::Module* module)
     for (ManagedMaterial& mm: module->managed_materials)
     {
         name_w = std::max(name_w, mm.name.length());
-        type_w = std::max(type_w, strlen(RigDef::ManagedMaterial::TypeToStr(mm.type)));
+        type_w = std::max(type_w, strlen(Truck::ManagedMaterial::TypeToStr(mm.type)));
         tex1_w = std::max(tex1_w, mm.diffuse_map.size());
         tex2_w = std::max(tex2_w, mm.damaged_diffuse_map.length());
         tex3_w = std::max(tex3_w, mm.specular_map.length());
@@ -853,7 +853,7 @@ void Serializer::ProcessManagedMaterialsAndOptions(File::Module* module)
     ManagedMaterialsOptions mm_options;
     for (auto itor = module->managed_materials.begin(); itor != end_itor; ++itor)
     {
-        RigDef::ManagedMaterial & def = *itor;
+        Truck::ManagedMaterial & def = *itor;
 
         if (first || (mm_options.double_sided != def.options.double_sided))
         {
@@ -863,7 +863,7 @@ void Serializer::ProcessManagedMaterialsAndOptions(File::Module* module)
 
         m_stream << "\n\t"
                  << setw(name_w) << def.name << " "
-                 << setw(type_w) << RigDef::ManagedMaterial::TypeToStr(def.type) << " "
+                 << setw(type_w) << Truck::ManagedMaterial::TypeToStr(def.type) << " "
                  << setw(tex1_w) << def.diffuse_map << " ";
 
         // Damage diffuse map - empty column if not applicable
@@ -894,7 +894,7 @@ void Serializer::ProcessCollisionBoxes(File::Module* module)
     auto end_itor = module->collision_boxes.end();
     for (auto itor = module->collision_boxes.begin(); itor != end_itor; ++itor)
     {
-        RigDef::CollisionBox & def = *itor;
+        Truck::CollisionBox & def = *itor;
 
         auto nodes_end = def.nodes.end();
         auto node_itor = def.nodes.begin();
@@ -918,7 +918,7 @@ void Serializer::ProcessAxles(File::Module* module)
     auto end_itor = module->axles.end();
     for (auto itor = module->axles.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Axle & def = *itor;
+        Truck::Axle & def = *itor;
 
         m_stream << "\n\t"
             << "w1(" << def.wheels[0][0].Str() << " " << def.wheels[0][1].Str() << "), "
@@ -947,7 +947,7 @@ void Serializer::ProcessInterAxles(File::Module* module)
     auto end_itor = module->interaxles.end();
     for (auto itor = module->interaxles.begin(); itor != end_itor; ++itor)
     {
-        RigDef::InterAxle & def = *itor;
+        Truck::InterAxle & def = *itor;
 
         m_stream << "\n\t"
             << def.a1 << ", "
@@ -1040,7 +1040,7 @@ void Serializer::ProcessParticles(File::Module* module)
     auto end_itor = module->particles.end();
     for (auto itor = module->particles.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Particle & def = *itor;
+        Truck::Particle & def = *itor;
 
         m_stream << "\n\t" 
             << setw(m_node_id_width) << def.emitter_node.Str() << ", "
@@ -1060,7 +1060,7 @@ void Serializer::ProcessRopables(File::Module* module)
     auto end_itor = module->ropables.end();
     for (auto itor = module->ropables.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Ropable & def = *itor;
+        Truck::Ropable & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.node.Str()
             << ", " << def.group
@@ -1079,7 +1079,7 @@ void Serializer::ProcessTies(File::Module* module)
     auto end_itor = module->ties.end();
     for (auto itor = module->ties.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Tie & def = *itor;
+        Truck::Tie & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.root_node.Str()
             << ", " << setw(m_float_width) << def.max_reach_length
@@ -1120,7 +1120,7 @@ void Serializer::ProcessRopes(File::Module* module)
     BeamDefaults* beam_defaults = nullptr;
     for (auto itor = module->ropes.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Rope & def = *itor;
+        Truck::Rope & def = *itor;
 
         if (first || (def.beam_defaults.get() != beam_defaults))
         {
@@ -1149,7 +1149,7 @@ void Serializer::ProcessRailGroups(File::Module* module)
     auto end_itor = module->railgroups.end();
     for (auto itor = module->railgroups.begin(); itor != end_itor; ++itor)
     {
-        RigDef::RailGroup & def = *itor;
+        Truck::RailGroup & def = *itor;
 
         m_stream << "\n\t" << def.id;
         auto node_end = def.node_list.end();
@@ -1176,7 +1176,7 @@ void Serializer::ProcessSlideNodes(File::Module* module)
     auto end_itor = module->slidenodes.end();
     for (auto itor = module->slidenodes.begin(); itor != end_itor; ++itor)
     {
-        RigDef::SlideNode & def = *itor;
+        Truck::SlideNode & def = *itor;
         this->UpdateGroup(module, def.editor_group_id);
 
         // Node ID
@@ -1229,7 +1229,7 @@ void Serializer::ProcessHooks(File::Module* module)
     auto end_itor = module->hooks.end();
     for (auto itor = module->hooks.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Hook & def = *itor;
+        Truck::Hook & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.node.Str();
 
@@ -1263,7 +1263,7 @@ void Serializer::ProcessLockgroups(File::Module* module)
     auto end_itor = module->lockgroups.end();
     for (auto itor = module->lockgroups.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Lockgroup & def = *itor;
+        Truck::Lockgroup & def = *itor;
 
         m_stream << "\n\t" << def.number;
         auto nodes_end = def.nodes.end();
@@ -1285,7 +1285,7 @@ void Serializer::ProcessTriggers(File::Module* module)
     auto end_itor = module->triggers.end();
     for (auto itor = module->triggers.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Trigger & def = *itor;
+        Truck::Trigger & def = *itor;
 
         m_stream << "\n\t"
             << setw(m_node_id_width) << def.nodes[0].Str()       << ", "
@@ -1314,21 +1314,21 @@ void Serializer::ProcessTriggers(File::Module* module)
 
 #define ANIMATOR_ADD_FLAG(DEF_VAR, AND_VAR, BITMASK_CONST, NAME_STR) \
     if (AND_VAR) { m_stream << " | "; } \
-    if (BITMASK_IS_1((DEF_VAR).flags, RigDef::Animator::BITMASK_CONST)) { \
+    if (BITMASK_IS_1((DEF_VAR).flags, Truck::Animator::BITMASK_CONST)) { \
         AND_VAR = true; \
         m_stream << NAME_STR; \
     }
 
 #define ANIMATOR_ADD_AERIAL_FLAG(DEF_VAR, AND_VAR, BITMASK_CONST, NAME_STR) \
     if (AND_VAR) { m_stream << " | "; } \
-    if (BITMASK_IS_1((DEF_VAR).aero_animator.flags, RigDef::AeroAnimator::BITMASK_CONST)) { \
+    if (BITMASK_IS_1((DEF_VAR).aero_animator.flags, Truck::AeroAnimator::BITMASK_CONST)) { \
         AND_VAR = true; \
         m_stream << NAME_STR << DEF_VAR.aero_animator.motor; \
     }
 
 #define ANIMATOR_ADD_LIMIT(DEF_VAR, AND_VAR, BITMASK_CONST, NAME_STR, VALUE) \
     if (AND_VAR) { m_stream << " | "; } \
-    if (BITMASK_IS_1((DEF_VAR).aero_animator.flags, RigDef::Animator::BITMASK_CONST)) { \
+    if (BITMASK_IS_1((DEF_VAR).aero_animator.flags, Truck::Animator::BITMASK_CONST)) { \
         AND_VAR = true; \
         m_stream << NAME_STR << ": " << VALUE; \
     }
@@ -1343,7 +1343,7 @@ void Serializer::ProcessAnimators(File::Module* module)
     auto end_itor = module->animators.end();
     for (auto itor = module->animators.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Animator & def = *itor;
+        Truck::Animator & def = *itor;
 
         m_stream << "\t"
             << setw(m_node_id_width) << def.nodes[0].Str() << ", "
@@ -1402,7 +1402,7 @@ void Serializer::ProcessContacters(File::Module* module)
     }
     m_stream << "contacters" << endl << endl;
 
-    for (RigDef::Node::Ref& node: module->contacters)
+    for (Truck::Node::Ref& node: module->contacters)
     {
         m_stream << setw(m_node_id_width) << node.Str() << endl;
     }
@@ -1465,7 +1465,7 @@ void Serializer::ProcessRotators2(File::Module* module)
 
     // Calc column widths
     size_t desc_w = 0, startf_w = 0, stopf_w = 0;
-    for (RigDef::Rotator2& def: module->rotators_2)
+    for (Truck::Rotator2& def: module->rotators_2)
     {
         desc_w   = std::max(desc_w,   def.description.length());
         startf_w = std::max(startf_w, def.inertia.start_function.length());
@@ -1474,7 +1474,7 @@ void Serializer::ProcessRotators2(File::Module* module)
 
     // Write data
     m_stream << "rotators2" << endl << endl;
-    for (RigDef::Rotator2& def: module->rotators_2)
+    for (Truck::Rotator2& def: module->rotators_2)
     {
         // Axis nodes
         m_stream
@@ -1576,7 +1576,7 @@ void Serializer::ProcessTractionControl(File::Module* module)
         return;
     }
 
-    RigDef::TractionControl* tc = module->traction_control.get();
+    Truck::TractionControl* tc = module->traction_control.get();
 
     m_stream << "TractionControl "
         << setw(m_float_width) << tc->regulation_force << ", "
@@ -1612,7 +1612,7 @@ void Serializer::ProcessAntiLockBrakes(File::Module* module)
         return;
     }
 
-    RigDef::AntiLockBrakes* alb = module->anti_lock_brakes.get();
+    Truck::AntiLockBrakes* alb = module->anti_lock_brakes.get();
 
     m_stream << "AntiLockBrakes "
         << setw(m_float_width) << alb->regulation_force << ", "
@@ -2554,7 +2554,7 @@ void Serializer::ProcessNodes(File::Module* module)
         this->ProcessNodeDefaults(preset_pair.first);
 
         int current_group_id = -1;
-        for (RigDef::Node* node: preset_pair.second)
+        for (Truck::Node* node: preset_pair.second)
         {
             if (node->id.IsTypeNumbered())
             {
@@ -2572,7 +2572,7 @@ void Serializer::ProcessNodes(File::Module* module)
         {
             this->ProcessNodeDefaults(preset_pair.first);
 
-            for (RigDef::Node* node: preset_pair.second)
+            for (Truck::Node* node: preset_pair.second)
             {
                 int current_group_id = -1;
                 if (node->id.IsTypeNamed())

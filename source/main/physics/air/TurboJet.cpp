@@ -33,7 +33,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-Turbojet::Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, RigDef::Turbojet & def)
+Turbojet::Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, Truck::Turbojet & def)
 {
     m_actor = actor;
 #ifdef USE_OPENAL
@@ -70,7 +70,7 @@ Turbojet::Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, Ri
     reset();
 }
 
-void TurbojetVisual::SetupVisuals(RigDef::Turbojet & def, int num, std::string const& propname, Ogre::Entity* nozzle, Ogre::Entity* afterburner_flame, bool disable_smoke)
+void TurbojetVisual::SetupVisuals(Truck::Turbojet & def, int num, std::string const& propname, Ogre::Entity* nozzle, Ogre::Entity* afterburner_flame, bool disable_smoke)
 {
     m_radius = def.back_diameter / 2.0;
     m_number = num;
