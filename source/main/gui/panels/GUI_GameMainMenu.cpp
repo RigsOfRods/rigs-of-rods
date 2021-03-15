@@ -51,7 +51,10 @@ GameMainMenu::GameMainMenu():
 void GameMainMenu::Draw()
 {
     this->DrawMenuPanel();
-    this->DrawVersionBox();
+    if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+    {
+        this->DrawVersionBox();
+    }
 }
 
 void GameMainMenu::DrawMenuPanel()
@@ -91,23 +94,25 @@ void GameMainMenu::DrawMenuPanel()
     }
     ImGui::SetNextWindowContentWidth(WINDOW_WIDTH);
     int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
-    if (ImGui::Begin(_LC("MainMenu", "Main menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+    if (ImGui::Begin(_LC("Menu", "Main menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
     {
         int button_index = 0;
         ImVec2 btn_size(WINDOW_WIDTH, 0.f);
-
-        if (HighlightButton(_LC("MainMenu", "Single player"), btn_size, button_index++))
+        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
         {
-            this->SetVisible(false);
-            if (App::diag_preset_terrain->GetStr().empty())
+            if (HighlightButton(_LC("MainMenu", "Single player"), btn_size, button_index++))
             {
-                RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
-                m.payload = reinterpret_cast<void*>(new LoaderType(LT_Terrain));
-                App::GetGameContext()->PushMessage(m);
-            }
-            else
-            {
-                App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->GetStr()));
+                this->SetVisible(false);
+                if (App::diag_preset_terrain->GetStr().empty())
+                {
+                    RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+                    m.payload = reinterpret_cast<void*>(new LoaderType(LT_Terrain));
+                    App::GetGameContext()->PushMessage(m);
+                }
+                else
+                {
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->GetStr()));
+                }
             }
         }
 
@@ -115,27 +120,49 @@ void GameMainMenu::DrawMenuPanel()
         {
             if ( HighlightButton(_LC("MainMenu", "Resume game"), btn_size, button_index++))
             {
-                App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, "autosave.sav"));
+                if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+                {
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, "autosave.sav"));
+                }
+                else
+                {
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
+                }
                 this->SetVisible(false);
             }
         }
 
-        if (HighlightButton(_LC("MainMenu", "Multiplayer"), btn_size, button_index++))
+        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
         {
-            App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
-            this->SetVisible(false);
-        }
+            if (HighlightButton(_LC("MainMenu", "Multiplayer"), btn_size, button_index++))
+            {
+                App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
+                this->SetVisible(false);
+            }
 
-        if (HighlightButton(_LC("MainMenu", "Settings"), btn_size, button_index++))
-        {
-            App::GetGuiManager()->SetVisible_GameSettings(true);
-            this->SetVisible(false);
-        }
+            if (HighlightButton(_LC("MainMenu", "Settings"), btn_size, button_index++))
+            {
+                App::GetGuiManager()->SetVisible_GameSettings(true);
+                this->SetVisible(false);
+            }
 
-        if (HighlightButton(_LC("MainMenu", "About"), btn_size, button_index++))
+            if (HighlightButton(_LC("MainMenu", "About"), btn_size, button_index++))
+            {
+                App::GetGuiManager()->SetVisible_GameAbout(true);
+                this->SetVisible(false);
+            }
+        }
+        else
         {
-            App::GetGuiManager()->SetVisible_GameAbout(true);
-            this->SetVisible(false);
+            if (HighlightButton(_L("Return to menu"), btn_size, 1))
+            {
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+                {
+                    App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
+                }
+                App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+            }
         }
 
         if (HighlightButton(_LC("MainMenu", "Exit game"), btn_size, button_index))
@@ -143,11 +170,6 @@ void GameMainMenu::DrawMenuPanel()
             App::GetGameContext()->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
             this->SetVisible(false);
         }
-    }
-
-    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
-    {
-        this->SetVisible(false);
     }
 
     App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());

@@ -44,7 +44,6 @@
 #include "GUI_FrictionSettings.h"
 #include "GUI_GameMainMenu.h"
 #include "GUI_GameAbout.h"
-#include "GUI_GamePauseMenu.h"
 #include "GUI_GameChatBox.h"
 #include "GUI_GameSettings.h"
 #include "GUI_LoadingWindow.h"
@@ -77,7 +76,6 @@ struct GuiManagerImpl
 {
     GUI::GameMainMenu           panel_GameMainMenu;
     GUI::GameAbout              panel_GameAbout;
-    GUI::GamePauseMenu          panel_GamePauseMenu;
     GUI::GameSettings           panel_GameSettings;
     GUI::SimActorStats          panel_SimActorStats;
     GUI::SimPerfStats           panel_SimPerfStats;
@@ -139,7 +137,6 @@ bool GUIManager::IsVisible_DirectionArrow       () { return m_impl->panel_Direct
 // GUI GetInstance*()
 GUI::MainSelector*          GUIManager::GetMainSelector()      { return &m_impl->panel_MainSelector        ; }
 GUI::GameMainMenu*          GUIManager::GetMainMenu()          { return &m_impl->panel_GameMainMenu        ; }
-GUI::GamePauseMenu*         GUIManager::GetPauseMenu()         { return &m_impl->panel_GamePauseMenu       ; }
 GUI::LoadingWindow*         GUIManager::GetLoadingWindow()     { return &m_impl->panel_LoadingWindow       ; }
 GUI::MultiplayerSelector*   GUIManager::GetMpSelector()        { return &m_impl->panel_MultiplayerSelector ; }
 GUI::FrictionSettings*      GUIManager::GetFrictionSettings()  { return &m_impl->panel_FrictionSettings    ; }
@@ -221,9 +218,9 @@ void GUIManager::DrawSimulationGui(float dt)
     {
         m_impl->panel_TopMenubar.Update();
 
-        if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
+        if (m_impl->panel_GameMainMenu.IsVisible())
         {
-            m_impl->panel_GamePauseMenu.Draw();
+            m_impl->panel_GameMainMenu.Draw();
         }
     }
 

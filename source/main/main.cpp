@@ -627,10 +627,7 @@ int main(int argc, char *argv[])
                 // -- GUI events ---
 
                 case MSG_GUI_OPEN_MENU_REQUESTED:
-                    if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
-                    {
-                        App::GetGuiManager()->SetVisible_GameMainMenu(true);
-                    }
+                    App::GetGuiManager()->SetVisible_GameMainMenu(true);
                     break;
 
                 case MSG_GUI_CLOSE_MENU_REQUESTED:

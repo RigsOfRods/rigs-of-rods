@@ -110,7 +110,6 @@ public:
     // GUI GetInstance*()
     GUI::MainSelector* GetMainSelector();
     GUI::GameMainMenu* GetMainMenu();
-    GUI::GamePauseMenu* GetPauseMenu();
     GUI::LoadingWindow* GetLoadingWindow();
     GUI::MultiplayerSelector* GetMpSelector();
     GUI::FrictionSettings* GetFrictionSettings();
