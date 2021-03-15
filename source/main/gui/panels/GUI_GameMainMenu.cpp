@@ -95,7 +95,7 @@ void GameMainMenu::DrawMenuPanel()
     else
     {
         const float btn_height = ImGui::GetTextLineHeight() + (BUTTON_PADDING.y * 2);
-        const float window_height = (6*btn_height) + (5*ImGui::GetStyle().ItemSpacing.y) + (2*ImGui::GetStyle().WindowPadding.y); // 5 buttons + titlebar; 2x spacing around separator
+        const float window_height = (m_num_buttons*btn_height) + (m_num_buttons*ImGui::GetStyle().ItemSpacing.y) + (2*ImGui::GetStyle().WindowPadding.y); // buttons + titlebar; 2x spacing around separator
         const float margin = display_size.y / 15.f;
         const float top = display_size.y - window_height - margin;
         ImGui::SetNextWindowPos(ImVec2(margin, top));
