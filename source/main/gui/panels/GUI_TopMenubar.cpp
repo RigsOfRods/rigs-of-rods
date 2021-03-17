@@ -201,11 +201,6 @@ void TopMenubar::Update()
                     {
                         App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)current_actor));
                     }
-
-                    if (ImGui::Button(_LC("TopMenubar", "Export current vehicle")))
-                    {
-                        App::GetGameContext()->PushMessage(Message(MSG_EDI_EXPORT_TRUCK_REQUESTED, (void*)current_actor->GetCacheEntry()));
-                    }
                 }
             }
 
@@ -514,6 +509,11 @@ void TopMenubar::Update()
                 {
                     App::GetGuiManager()->SetVisible_NodeBeamUtils(true);
                     m_open_menu = TopMenu::TOPMENU_NONE;
+                }
+
+                if (ImGui::Button(_LC("TopMenubar", "Export current vehicle")))
+                {
+                    App::GetGameContext()->PushMessage(Message(MSG_EDI_EXPORT_TRUCK_REQUESTED, (void*)current_actor->GetCacheEntry()));
                 }
             }
 
