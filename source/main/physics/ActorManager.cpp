@@ -879,8 +879,6 @@ void ActorManager::DeleteActorInternal(Actor* actor)
     if (actor == 0)
         return;
 
-    this->SyncWithSimThread();
-
 #ifdef USE_SOCKETW
     if (App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
     {

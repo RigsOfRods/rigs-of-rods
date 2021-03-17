@@ -286,10 +286,7 @@ int main(int argc, char *argv[])
             OgreBites::WindowEventUtilities::messagePump();
 
             // Halt physics (wait for async tasks to finish)
-            if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
-            {
-                App::GetGameContext()->GetActorManager()->SyncWithSimThread();
-            }
+            App::GetGameContext()->GetActorManager()->SyncWithSimThread();
 
             // Game events
             while (App::GetGameContext()->HasMessages())
