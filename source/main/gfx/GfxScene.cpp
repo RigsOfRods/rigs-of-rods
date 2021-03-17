@@ -86,10 +86,13 @@ void RoR::GfxScene::Init()
 void RoR::GfxScene::UpdateScene(float dt_sec)
 {
     // Actors - start threaded tasks
-    for (GfxActor* gfx_actor: m_live_gfx_actors)
+    for (GfxActor* gfx_actor: m_all_gfx_actors)
     {
-        gfx_actor->UpdateFlexbodies(); // Push flexbody tasks to threadpool
-        gfx_actor->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
+        if (gfx_actor->IsActorLive())
+        {
+            gfx_actor->UpdateFlexbodies(); // Push flexbody tasks to threadpool
+            gfx_actor->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
+        }
     }
 
     // Var
@@ -244,10 +247,13 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     App::GetGameContext()->GetSceneMouse().UpdateVisuals();
 
     // Actors - finalize threaded tasks
-    for (GfxActor* gfx_actor: m_live_gfx_actors)
+    for (GfxActor* gfx_actor: m_all_gfx_actors)
     {
-        gfx_actor->FinishWheelUpdates();
-        gfx_actor->FinishFlexbodyTasks();
+        if (gfx_actor->IsActorLive())
+        {
+            gfx_actor->FinishWheelUpdates();
+            gfx_actor->FinishFlexbodyTasks();
+        }
     }
 }
 
@@ -295,13 +301,11 @@ void RoR::GfxScene::BufferSimulationData()
     m_simbuf.simbuf_dir_arrow_text = App::GetGameContext()->GetRaceSystem().GetDirArrowText();
     m_simbuf.simbuf_dir_arrow_visible = App::GetGameContext()->GetRaceSystem().IsDirArrowVisible();
 
-    m_live_gfx_actors.clear();
     for (GfxActor* a: m_all_gfx_actors)
     {
         if (a->IsActorLive() || !a->IsActorInitialized())
         {
             a->UpdateSimDataBuffer();
-            m_live_gfx_actors.push_back(a);
             a->InitializeActor();
         }
     }

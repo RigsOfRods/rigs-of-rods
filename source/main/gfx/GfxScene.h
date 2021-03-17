@@ -85,7 +85,6 @@ private:
     std::map<std::string, DustPool *> m_dustpools;
     Ogre::SceneManager*               m_scene_manager = nullptr;
     std::vector<GfxActor*>            m_all_gfx_actors;
-    std::vector<GfxActor*>            m_live_gfx_actors;
     std::vector<GfxCharacter*>        m_all_gfx_characters;
     RoR::GfxEnvmap                    m_envmap;
     SimBuffer                         m_simbuf;
