@@ -77,18 +77,21 @@ void GameMainMenu::DrawMenuPanel()
         }
     }
 
-    // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
-    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
+    if (App::mp_state->GetEnum<MpState>() != MpState::CONNECTED) // Disable when connected, simulation is not paused
     {
-        m_kb_focus_index = (m_kb_focus_index <= 0) ? (m_num_buttons - 1) : (m_kb_focus_index - 1);
-    }
-    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
-    {
-        m_kb_focus_index = (m_kb_focus_index < (m_num_buttons - 1)) ? (m_kb_focus_index + 1) : 0;
-    }
-    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
-    {
-        m_kb_enter_index = m_kb_focus_index;
+        // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
+        {
+            m_kb_focus_index = (m_kb_focus_index <= 0) ? (m_num_buttons - 1) : (m_kb_focus_index - 1);
+        }
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
+        {
+            m_kb_focus_index = (m_kb_focus_index < (m_num_buttons - 1)) ? (m_kb_focus_index + 1) : 0;
+        }
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
+        {
+            m_kb_enter_index = m_kb_focus_index;
+        }
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, BUTTON_PADDING);
