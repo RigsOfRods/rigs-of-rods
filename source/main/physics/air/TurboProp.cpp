@@ -51,6 +51,14 @@ Turboprop::Turboprop(
 ):
     m_actor(a)
 {
+    ROR_ASSERT(nr  != node_t::INVALID_IDX);
+    ROR_ASSERT(nb  != node_t::INVALID_IDX);
+    ROR_ASSERT(np1 != node_t::INVALID_IDX);
+    ROR_ASSERT(np2 != node_t::INVALID_IDX);
+    ROR_ASSERT(np3 != node_t::INVALID_IDX);
+    ROR_ASSERT(np4 != node_t::INVALID_IDX);
+    //         tqn ~ can be invalid
+
     failed = false;
     failedold = false;
 #ifdef USE_OPENAL
@@ -82,7 +90,7 @@ Turboprop::Turboprop(
     nodeback = nb;
     nodep[0] = np1;
     nodep[1] = np2;
-    if (torquenode != -1)
+    if (torquenode != node_t::INVALID_IDX)
     {
         Plane pplane = Plane((m_actor->ar_nodes[nr].RelPosition - m_actor->ar_nodes[nb].RelPosition).normalisedCopy(), 0.0);
         Vector3 apos = pplane.projectVector(m_actor->ar_nodes[nr].RelPosition);

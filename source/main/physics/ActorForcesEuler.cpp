@@ -1518,7 +1518,7 @@ void Actor::CalcNodes()
     const float gravity = App::GetSimTerrain()->getGravity();
     m_water_contact = false;
 
-    for (int i = 0; i < ar_num_nodes; i++)
+    for (NodeIdx_t i = 0; i < ar_num_nodes; i++)
     {
         // COLLISION
         if (!ar_nodes[i].nd_no_ground_contact)

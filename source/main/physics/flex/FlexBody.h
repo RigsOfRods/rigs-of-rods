@@ -21,14 +21,12 @@
 
 #pragma once
 
-#include "TruckFileFormat.h"
 #include "Application.h"
 #include "Locator_t.h"
+#include "SimData.h"
+#include "TruckFileFormat.h"
 
-#include <OgreVector3.h>
-#include <OgreQuaternion.h>
-#include <OgreHardwareVertexBuffer.h>
-#include <OgreMesh.h>
+#include <Ogre.h>
 
 namespace RoR {
 
@@ -43,9 +41,9 @@ class FlexBody
         RoR::FlexBodyCacheData* preloaded_from_cache,
         RoR::GfxActor* gfx_actor,
         Ogre::Entity* entity,
-        int ref, 
-        int nx, 
-        int ny,
+        NodeIdx_t ref, 
+        NodeIdx_t nx, 
+        NodeIdx_t ny,
         Ogre::Quaternion const & rot, 
         std::vector<unsigned int> & node_indices
     );
@@ -85,9 +83,9 @@ private:
     Ogre::ARGB*       m_src_colors;
     Locator_t*        m_locators; //!< 1 loc per vertex
 
-    int               m_node_center;
-    int               m_node_x;
-    int               m_node_y;
+    NodeIdx_t         m_node_center;
+    NodeIdx_t         m_node_x;
+    NodeIdx_t         m_node_y;
     Ogre::Vector3     m_center_offset;
     Ogre::SceneNode*  m_scene_node;
     Ogre::Entity*     m_scene_entity;

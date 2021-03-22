@@ -441,8 +441,8 @@ bool Validator::CheckAnimator(Truck::Animator & def)
     unsigned int source_check = def.flags;
     BITMASK_SET_0(source_check, Truck::Animator::OPTION_SHORT_LIMIT);
     BITMASK_SET_0(source_check, Truck::Animator::OPTION_LONG_LIMIT);
-    BITMASK_SET_0(source_check, RigDef::Animator::OPTION_VISIBLE);
-    BITMASK_SET_0(source_check, RigDef::Animator::OPTION_INVISIBLE);
+    BITMASK_SET_0(source_check, Truck::Animator::OPTION_VISIBLE);
+    BITMASK_SET_0(source_check, Truck::Animator::OPTION_INVISIBLE);
     if (source_check != 0 || def.aero_animator.flags != 0)
     {
         return true;

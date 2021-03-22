@@ -84,6 +84,15 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, Actor* actor, NodeIdx_t pnfl
     ,nblu(pnblu)
     ,nbru(pnbru)
 {
+    ROR_ASSERT(pnfld != node_t::INVALID_IDX);
+    ROR_ASSERT(pnfrd != node_t::INVALID_IDX);
+    ROR_ASSERT(pnflu != node_t::INVALID_IDX);
+    ROR_ASSERT(pnfru != node_t::INVALID_IDX);
+    ROR_ASSERT(pnbld != node_t::INVALID_IDX);
+    ROR_ASSERT(pnbrd != node_t::INVALID_IDX);
+    ROR_ASSERT(pnblu != node_t::INVALID_IDX);
+    ROR_ASSERT(pnbru != node_t::INVALID_IDX);
+
     liftcoef=lift_coef;
     breakable=break_able;
     broken=false;

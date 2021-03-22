@@ -45,9 +45,9 @@ private:
 
     int      m_number;
     float    m_radius;
-    NodeIdx_t m_node_back;
-    NodeIdx_t m_node_front;
-    NodeIdx_t m_node_ref;
+    NodeIdx_t m_node_back                      = node_t::INVALID_IDX;
+    NodeIdx_t m_node_front                     = node_t::INVALID_IDX;
+    NodeIdx_t m_node_ref                       = node_t::INVALID_IDX;
 };
 
 class Turbojet: public AeroEngine, public ZeroedMemoryAllocator

@@ -222,9 +222,9 @@ struct AirbrakeGfx
     Ogre::SceneNode* abx_scenenode;
     Ogre::Entity*    abx_entity;
     Ogre::Vector3    abx_offset;
-    NodeIdx_t        abx_ref_node;
-    NodeIdx_t        abx_x_node;
-    NodeIdx_t        abx_y_node;
+    NodeIdx_t        abx_ref_node = node_t::INVALID_IDX;
+    NodeIdx_t        abx_x_node   = node_t::INVALID_IDX;
+    NodeIdx_t        abx_y_node   = node_t::INVALID_IDX;
 };
 
 struct FlareMaterial // materialflares
@@ -236,9 +236,9 @@ struct FlareMaterial // materialflares
 
 struct Flare
 {
-    NodeIdx_t noderef;
-    NodeIdx_t nodex;
-    NodeIdx_t nodey;
+    NodeIdx_t noderef = node_t::INVALID_IDX;
+    NodeIdx_t nodex   = node_t::INVALID_IDX;
+    NodeIdx_t nodey   = node_t::INVALID_IDX;
     float offsetx;
     float offsety;
     float offsetz;
@@ -257,8 +257,8 @@ struct Flare
 
 struct Exhaust
 {
-    NodeIdx_t emitterNode;
-    NodeIdx_t directionNode;
+    NodeIdx_t emitterNode   = node_t::INVALID_IDX;
+    NodeIdx_t directionNode = node_t::INVALID_IDX;
     Ogre::SceneNode *smokeNode;
     Ogre::ParticleSystem* smoker;
 };
@@ -266,8 +266,8 @@ struct Exhaust
 
 struct CParticle
 {
-    NodeIdx_t emitterNode;
-    NodeIdx_t directionNode;
+    NodeIdx_t emitterNode   = node_t::INVALID_IDX;
+    NodeIdx_t directionNode = node_t::INVALID_IDX;
     bool active;
     Ogre::SceneNode *snode;
     Ogre::ParticleSystem* psys;

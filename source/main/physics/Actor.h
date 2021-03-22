@@ -279,8 +279,8 @@ public:
     float             sl_speed_limit;     //!< Speed limiter;
     int               ar_extern_camera_mode;
     NodeIdx_t         ar_extern_camera_node = node_t::INVALID_IDX;
-    NodeIdx_t         ar_exhaust_pos_node   = node_t::INVALID_IDX; //!< Old-format exhaust (one per vehicle) emitter node
-    NodeIdx_t         ar_exhaust_dir_node   = node_t::INVALID_IDX; //!< Old-format exhaust (one per vehicle) backwards direction node
+    NodeIdx_t         ar_exhaust_pos_node   = 0;   //!< Old-format exhaust (one per vehicle) emitter node
+    NodeIdx_t         ar_exhaust_dir_node   = 0;   //!< Old-format exhaust (one per vehicle) backwards direction node
     int               ar_instance_id;              //!< Static attr; session-unique ID
     unsigned int      ar_vector_index;             //!< Sim attr; actor element index in std::vector<m_actors>
     ActorType         ar_driveable;                //!< Sim attr; marks vehicle type and features
@@ -293,9 +293,9 @@ public:
     Ogre::Vector3     ar_origin;                   //!< Physics state; base position for softbody nodes
     int               ar_num_cameras;
     Ogre::Quaternion  ar_main_camera_dir_corr;              //!< Sim attr;
-    NodeIdx_t         ar_main_camera_node_pos            = node_t::INVALID_IDX;    //!< Sim attr; ar_camera_node_pos[0]  >= 0 ? ar_camera_node_pos[0]  : 0
-    NodeIdx_t         ar_main_camera_node_dir            = node_t::INVALID_IDX;    //!< Sim attr; ar_camera_node_dir[0]  >= 0 ? ar_camera_node_dir[0]  : 0
-    NodeIdx_t         ar_main_camera_node_roll           = node_t::INVALID_IDX;    //!< Sim attr; ar_camera_node_roll[0] >= 0 ? ar_camera_node_roll[0] : 0
+    NodeIdx_t         ar_main_camera_node_pos            = 0;    //!< Sim attr; ar_camera_node_pos[0]  >= 0 ? ar_camera_node_pos[0]  : 0
+    NodeIdx_t         ar_main_camera_node_dir            = 0;    //!< Sim attr; ar_camera_node_dir[0]  >= 0 ? ar_camera_node_dir[0]  : 0
+    NodeIdx_t         ar_main_camera_node_roll           = 0;    //!< Sim attr; ar_camera_node_roll[0] >= 0 ? ar_camera_node_roll[0] : 0
     NodeIdx_t         ar_camera_node_pos[MAX_CAMERAS]    = {node_t::INVALID_IDX};  //!< Physics attr; 'camera' = frame of reference; origin node
     NodeIdx_t         ar_camera_node_dir[MAX_CAMERAS]    = {node_t::INVALID_IDX};  //!< Physics attr; 'camera' = frame of reference; back node
     NodeIdx_t         ar_camera_node_roll[MAX_CAMERAS]   = {node_t::INVALID_IDX};  //!< Physics attr; 'camera' = frame of reference; left node

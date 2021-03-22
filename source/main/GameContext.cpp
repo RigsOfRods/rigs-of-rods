@@ -823,7 +823,7 @@ void GameContext::UpdateSimInputEvents(float dt)
             {
                 if (!actor->ar_driveable)
                     continue;
-                if (actor->ar_cinecam_node[0] == -1)
+                if (actor->ar_cinecam_node[0] == node_t::INVALID_IDX)
                 {
                     LOG("cinecam missing, cannot enter the actor!");
                     continue;

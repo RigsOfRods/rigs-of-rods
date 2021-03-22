@@ -109,6 +109,9 @@ void TurbojetVisual::SetupVisuals(Truck::Turbojet & def, int num, std::string co
 
 void TurbojetVisual::SetNodes(NodeIdx_t front, NodeIdx_t back, NodeIdx_t ref)
 {
+    ROR_ASSERT(front != node_t::INVALID_IDX);
+    ROR_ASSERT(back != node_t::INVALID_IDX);
+
     m_node_front = front;
     m_node_back  = back;
     m_node_ref   = ref;
