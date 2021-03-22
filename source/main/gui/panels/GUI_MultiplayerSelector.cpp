@@ -364,7 +364,7 @@ void MultiplayerSelector::SetVisible(bool visible)
         this->StartAsyncRefresh();
         m_password_buf = App::mp_server_password->GetStr();
     }
-    else if (!visible && App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
+    else if (!visible && App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
     {
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
