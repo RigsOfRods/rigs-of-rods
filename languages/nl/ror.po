@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-13 19:27+0100\n"
+"POT-Creation-Date: 2021-03-22 14:46+0100\n"
 "PO-Revision-Date: 2021-02-02 05:41+0000\n"
 "Last-Translator: Quinten Steeland <quinten.steeland@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/rigs-of-rods/game/"
@@ -59,39 +59,39 @@ msgstr "Terrein niet gevonden: "
 msgid "Terrain loading error"
 msgstr "Fout tijdens het laden van het terrein"
 
-#: GameContext.cpp:531
+#: GameContext.cpp:525
 msgid "Please clear the place first"
 msgstr "Eerst het platform leeghalen AUB"
 
-#: GameContext.cpp:804
+#: GameContext.cpp:801
 msgid "Enabled hard reset mode"
 msgstr "Harde resetmodus ingeschakeld"
 
-#: GameContext.cpp:804
+#: GameContext.cpp:801
 msgid "Enabled soft reset mode"
 msgstr "Zachte resetmodus ingeschakeld"
 
-#: GameContext.cpp:922
+#: GameContext.cpp:958
 msgid "Time set to "
 msgstr "Tijd gezet op "
 
-#: GameContext.cpp:1089
+#: GameContext.cpp:1091
 msgid "No rescue truck found!"
 msgstr "Geen bergings-truck gevonden!"
 
-#: GameContext.cpp:1157
+#: GameContext.cpp:1159
 msgid "forwardcommands enabled"
 msgstr "voorwaarts-commando's ingeschakeld"
 
-#: GameContext.cpp:1161
+#: GameContext.cpp:1163
 msgid "forwardcommands disabled"
 msgstr "voorwaarts-commando's uitgeschakeld"
 
-#: GameContext.cpp:1170
+#: GameContext.cpp:1172
 msgid "importcommands enabled"
 msgstr "invoer-commando's ingeschakeld"
 
-#: GameContext.cpp:1174
+#: GameContext.cpp:1176
 msgid "importcommands disabled"
 msgstr "invoer-commando's uitgeschakeld"
 
@@ -746,12 +746,12 @@ msgctxt "MainMenu"
 msgid "Single player"
 msgstr "Singleplayer"
 
-#: gui/panels/GUI_GameMainMenu.cpp:114
+#: gui/panels/GUI_GameMainMenu.cpp:116
 msgctxt "MainMenu"
 msgid "Resume game"
 msgstr "Spel hervatten"
 
-#: gui/panels/GUI_GameMainMenu.cpp:121
+#: gui/panels/GUI_GameMainMenu.cpp:123
 #, fuzzy
 #| msgctxt "MainMenu"
 #| msgid "Multi player"
@@ -759,32 +759,32 @@ msgctxt "MainMenu"
 msgid "Multiplayer"
 msgstr "Multiplayer"
 
-#: gui/panels/GUI_GameMainMenu.cpp:127
+#: gui/panels/GUI_GameMainMenu.cpp:129
 msgctxt "MainMenu"
 msgid "Settings"
 msgstr "Instellingen"
 
-#: gui/panels/GUI_GameMainMenu.cpp:133
+#: gui/panels/GUI_GameMainMenu.cpp:135
 msgctxt "MainMenu"
 msgid "About"
 msgstr "Over"
 
-#: gui/panels/GUI_GameMainMenu.cpp:139
+#: gui/panels/GUI_GameMainMenu.cpp:141
 msgctxt "MainMenu"
 msgid "Exit game"
 msgstr "Spel afsluiten"
 
-#: gui/panels/GUI_GameMainMenu.cpp:161
+#: gui/panels/GUI_GameMainMenu.cpp:163
 msgctxt "MainMenu"
 msgid "Game version"
 msgstr "Gameversie"
 
-#: gui/panels/GUI_GameMainMenu.cpp:162
+#: gui/panels/GUI_GameMainMenu.cpp:164
 msgctxt "MainMenu"
 msgid "Net. protocol"
 msgstr "Net. protocol"
 
-#: gui/panels/GUI_GameMainMenu.cpp:175
+#: gui/panels/GUI_GameMainMenu.cpp:177
 msgctxt "MainMenu"
 msgid "Version box"
 msgstr "Versievak"
@@ -802,7 +802,7 @@ msgstr "Spel hervatten"
 msgid "Return to menu"
 msgstr "Terug naar het menu"
 
-#: gui/panels/GUI_GamePauseMenu.cpp:99
+#: gui/panels/GUI_GamePauseMenu.cpp:100
 msgid "Exit game"
 msgstr "Spel afsluiten"
 
@@ -812,7 +812,7 @@ msgid "Game settings"
 msgstr "Game-instellingen"
 
 #. Combobox for selecting the Render System
-#: gui/panels/GUI_GameSettings.cpp:46 gui/panels/GUI_GameSettings.cpp:86
+#: gui/panels/GUI_GameSettings.cpp:46 gui/panels/GUI_GameSettings.cpp:88
 msgctxt "GameSettings"
 msgid "Render System"
 msgstr "Render Systeem"
@@ -847,266 +847,266 @@ msgctxt "GameSettings"
 msgid "Update cache"
 msgstr "Update cache"
 
-#: gui/panels/GUI_GameSettings.cpp:72
+#: gui/panels/GUI_GameSettings.cpp:74
 msgctxt "GameSettings"
 msgid "Render system (changes require a restart)"
 msgstr "Render systeem (wijzigingen vereisen een herstart)"
 
-#: gui/panels/GUI_GameSettings.cpp:123
+#: gui/panels/GUI_GameSettings.cpp:125
 msgctxt "GameSettings"
 msgid "Application settings"
 msgstr "Applicatie instellingen"
 
-#: gui/panels/GUI_GameSettings.cpp:135
+#: gui/panels/GUI_GameSettings.cpp:137
 msgctxt "GameSettings"
 msgid "Language"
 msgstr "Taal"
 
-#: gui/panels/GUI_GameSettings.cpp:166
+#: gui/panels/GUI_GameSettings.cpp:168
 msgctxt "GameSettings"
 msgid "Country"
 msgstr "Land"
 
 #. Hardcoded; TODO: list available formats.
 #. Screenshot format: Can be png or jpg
-#: gui/panels/GUI_GameSettings.cpp:175
+#: gui/panels/GUI_GameSettings.cpp:177
 msgctxt "GameSettings"
 msgid "Screenshot format"
 msgstr "Screenshot format"
 
-#: gui/panels/GUI_GameSettings.cpp:181
+#: gui/panels/GUI_GameSettings.cpp:183
 msgctxt "GameSettings"
 msgid "Extra mod path"
 msgstr "Extra mod-pad"
 
-#: gui/panels/GUI_GameSettings.cpp:183
+#: gui/panels/GUI_GameSettings.cpp:185
 msgctxt "GameSettings"
 msgid "Skip main menu"
 msgstr "Hoofdmenu overslaan"
 
-#: gui/panels/GUI_GameSettings.cpp:184
+#: gui/panels/GUI_GameSettings.cpp:186
 msgctxt "GameSettings"
 msgid "Async physics"
 msgstr "Async physics"
 
-#: gui/panels/GUI_GameSettings.cpp:185
+#: gui/panels/GUI_GameSettings.cpp:187
 msgctxt "GameSettings"
 msgid "Disable online api"
 msgstr "Schakel online api uit"
 
-#: gui/panels/GUI_GameSettings.cpp:188
+#: gui/panels/GUI_GameSettings.cpp:190
 msgctxt "GameSettings"
 msgid "Simulation settings"
 msgstr "Simulatie-instellingen"
 
-#: gui/panels/GUI_GameSettings.cpp:190
+#: gui/panels/GUI_GameSettings.cpp:192
 msgctxt "GameSettings"
 msgid "Gearbox mode"
 msgstr "Versnellingsbakmodus"
 
-#: gui/panels/GUI_GameSettings.cpp:197
+#: gui/panels/GUI_GameSettings.cpp:199
 msgctxt "GameSettings"
 msgid "Digital speedometer"
 msgstr "Digitale snelheidsmeter"
 
-#: gui/panels/GUI_GameSettings.cpp:198
+#: gui/panels/GUI_GameSettings.cpp:200
 msgctxt "GameSettings"
 msgid "Imperial speedometer"
 msgstr "Imperial snelheidsmeter"
 
 #. DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
-#: gui/panels/GUI_GameSettings.cpp:202
+#: gui/panels/GUI_GameSettings.cpp:204
 msgctxt "GameSettings"
 msgid "Engines spawn running"
 msgstr "Start met draaiende motoren"
 
-#: gui/panels/GUI_GameSettings.cpp:204
+#: gui/panels/GUI_GameSettings.cpp:206
 msgctxt "GameSettings"
 msgid "Replay mode"
 msgstr "Replay-modus"
 
-#: gui/panels/GUI_GameSettings.cpp:207
+#: gui/panels/GUI_GameSettings.cpp:209
 msgctxt "GameSettings"
 msgid "Replay length"
 msgstr "Replay lengte"
 
-#: gui/panels/GUI_GameSettings.cpp:208
+#: gui/panels/GUI_GameSettings.cpp:210
 msgctxt "GameSettings"
 msgid "Replay stepping"
 msgstr "Replay stepping"
 
-#: gui/panels/GUI_GameSettings.cpp:211
+#: gui/panels/GUI_GameSettings.cpp:213
 msgctxt "GameSettings"
 msgid "Realistic forward commands"
 msgstr "Realistische forward commando's"
 
-#: gui/panels/GUI_GameSettings.cpp:213
+#: gui/panels/GUI_GameSettings.cpp:215
 msgctxt "GameSettings"
 msgid "Enable races"
 msgstr "Races inschakelen"
 
-#: gui/panels/GUI_GameSettings.cpp:215
+#: gui/panels/GUI_GameSettings.cpp:217
 msgctxt "GameSettings"
 msgid "No intra truck collisions"
 msgstr "Geen inner-voertuig collisie"
 
-#: gui/panels/GUI_GameSettings.cpp:216
+#: gui/panels/GUI_GameSettings.cpp:218
 msgctxt "GameSettings"
 msgid "No inter truck collisions"
 msgstr "Geen inner-voertuig collisie"
 
-#: gui/panels/GUI_GameSettings.cpp:218
+#: gui/panels/GUI_GameSettings.cpp:220
 msgctxt "GameSettings"
 msgid "Discord Rich Presence"
 msgstr "Discord Rich Presence"
 
-#: gui/panels/GUI_GameSettings.cpp:223
+#: gui/panels/GUI_GameSettings.cpp:225
 msgctxt "GameSettings"
 msgid "Audio settings"
 msgstr "Geluidsinstellingen"
 
-#: gui/panels/GUI_GameSettings.cpp:239
+#: gui/panels/GUI_GameSettings.cpp:241
 msgctxt "GameSettings"
 msgid "Audio device"
 msgstr "Audioapparaat"
 
-#: gui/panels/GUI_GameSettings.cpp:244
+#: gui/panels/GUI_GameSettings.cpp:246
 msgctxt "GameSettings"
 msgid "Creak sound"
 msgstr "Kraak geluid"
 
-#: gui/panels/GUI_GameSettings.cpp:245
+#: gui/panels/GUI_GameSettings.cpp:247
 msgctxt "GameSettings"
 msgid "Main menu music"
 msgstr "Hoofdmenu muziek"
 
-#: gui/panels/GUI_GameSettings.cpp:246
+#: gui/panels/GUI_GameSettings.cpp:248
 msgctxt "GameSettings"
 msgid "Master volume"
 msgstr "Master volume"
 
-#: gui/panels/GUI_GameSettings.cpp:251
+#: gui/panels/GUI_GameSettings.cpp:253
 msgctxt "GameSettings"
 msgid "Video settings"
 msgstr "Video-instellingen"
 
-#: gui/panels/GUI_GameSettings.cpp:253
+#: gui/panels/GUI_GameSettings.cpp:255
 msgctxt "GameSettings"
 msgid "Lights"
 msgstr "Lichten"
 
-#: gui/panels/GUI_GameSettings.cpp:260
+#: gui/panels/GUI_GameSettings.cpp:262
 msgctxt "GameSettings"
 msgid "Shadow type (requires restart)"
 msgstr "Schaduwtype (opnieuw opstarten vereist)"
 
-#: gui/panels/GUI_GameSettings.cpp:266
+#: gui/panels/GUI_GameSettings.cpp:268
 msgctxt "GameSettings"
 msgid "Shadow optimizations"
 msgstr "Schaduwoptimalisaties"
 
-#: gui/panels/GUI_GameSettings.cpp:269
+#: gui/panels/GUI_GameSettings.cpp:271
 msgctxt "GameSettings"
 msgid "Shadow quality"
 msgstr "Schaduw kwaliteit"
 
-#: gui/panels/GUI_GameSettings.cpp:280
+#: gui/panels/GUI_GameSettings.cpp:282
 msgctxt "GameSettings"
 msgid "Sight range (meters)"
 msgstr "Zicht bereik (meter)"
 
-#: gui/panels/GUI_GameSettings.cpp:283
+#: gui/panels/GUI_GameSettings.cpp:285
 msgctxt "GameSettings"
 msgid "Texture filtering"
 msgstr "Textuurfiltering"
 
-#: gui/panels/GUI_GameSettings.cpp:293
+#: gui/panels/GUI_GameSettings.cpp:295
 msgctxt "GameSettings"
 msgid "Anisotropy"
 msgstr "Anisotropie"
 
-#: gui/panels/GUI_GameSettings.cpp:299
+#: gui/panels/GUI_GameSettings.cpp:301
 msgctxt "GameSettings"
 msgid "Vegetation density"
 msgstr "Vegetatiedichtheid"
 
-#: gui/panels/GUI_GameSettings.cpp:305
+#: gui/panels/GUI_GameSettings.cpp:307
 msgctxt "GameSettings"
 msgid "Water gfx"
 msgstr "Water gfx"
 
-#: gui/panels/GUI_GameSettings.cpp:313
+#: gui/panels/GUI_GameSettings.cpp:315
 msgctxt "GameSettings"
 msgid "FPS limit"
 msgstr "FPS-limiet"
 
-#: gui/panels/GUI_GameSettings.cpp:315
+#: gui/panels/GUI_GameSettings.cpp:317
 msgctxt "GameSettings"
 msgid "Enable particle gfx"
 msgstr "Particle gfx inschakelen"
 
-#: gui/panels/GUI_GameSettings.cpp:316
+#: gui/panels/GUI_GameSettings.cpp:318
 msgctxt "GameSettings"
 msgid "Enable skidmarks"
 msgstr "Skidmarks inschakelen"
 
-#: gui/panels/GUI_GameSettings.cpp:318
+#: gui/panels/GUI_GameSettings.cpp:320
 msgctxt "GameSettings"
 msgid "Realtime reflections"
 msgstr "Realtime reflecties"
 
 #. Width includes [+/-] buttons
-#: gui/panels/GUI_GameSettings.cpp:322
+#: gui/panels/GUI_GameSettings.cpp:324
 msgctxt "GameSettings"
 msgid "Realtime refl. update rate"
 msgstr "Realtime refl. Update frequentie"
 
-#: gui/panels/GUI_GameSettings.cpp:326
+#: gui/panels/GUI_GameSettings.cpp:328
 msgctxt "GameSettings"
 msgid "Render video cameras"
 msgstr "Geef videocamera's weer"
 
-#: gui/panels/GUI_GameSettings.cpp:327
+#: gui/panels/GUI_GameSettings.cpp:329
 msgctxt "GameSettings"
 msgid "Overview map icons"
 msgstr "Overzichtskaartpictogrammen"
 
-#: gui/panels/GUI_GameSettings.cpp:330
+#: gui/panels/GUI_GameSettings.cpp:332
 msgctxt "GameSettings"
 msgid "Declutter overview map"
 msgstr "Overzichtskaart opruimen"
 
-#: gui/panels/GUI_GameSettings.cpp:332
+#: gui/panels/GUI_GameSettings.cpp:334
 msgctxt "GameSettings"
 msgid "Waves on water"
 msgstr "Golven op water"
 
-#: gui/panels/GUI_GameSettings.cpp:333
+#: gui/panels/GUI_GameSettings.cpp:335
 msgctxt "GameSettings"
 msgid "Classic material shaders (experimental)"
 msgstr "Klassieke materiaal shaders (experimenteel)"
 
-#: gui/panels/GUI_GameSettings.cpp:340
+#: gui/panels/GUI_GameSettings.cpp:342
 msgctxt "GameSettings"
 msgid "Static camera height (meters)"
 msgstr "Statische camerahoogte (meters)"
 
-#: gui/panels/GUI_GameSettings.cpp:341
+#: gui/panels/GUI_GameSettings.cpp:343
 msgctxt "GameSettings"
 msgid "Exterior field of view"
 msgstr "Exterieur gezichtsveld"
 
-#: gui/panels/GUI_GameSettings.cpp:342
+#: gui/panels/GUI_GameSettings.cpp:344
 msgctxt "GameSettings"
 msgid "Interior field of view"
 msgstr "Interieur gezichtsveld"
 
-#: gui/panels/GUI_GameSettings.cpp:346
+#: gui/panels/GUI_GameSettings.cpp:348
 msgctxt "GameSettings"
 msgid "Diagnostic options"
 msgstr "Diagnostische opties"
 
-#: gui/panels/GUI_GameSettings.cpp:347
+#: gui/panels/GUI_GameSettings.cpp:349
 msgctxt "GameSettings"
 msgid ""
 "These settings are for advanced users only, you should only change these if "
@@ -1115,192 +1115,192 @@ msgstr ""
 "Deze instellingen zijn alleen voor gevorderde gebruikers, u moet deze "
 "waarden alleen wijzigen als u weet wat u doet"
 
-#: gui/panels/GUI_GameSettings.cpp:349
+#: gui/panels/GUI_GameSettings.cpp:351
 msgctxt "GameSettings"
 msgid "Preselected terrain"
 msgstr "Voorgeselecteerd terrein"
 
-#: gui/panels/GUI_GameSettings.cpp:350
+#: gui/panels/GUI_GameSettings.cpp:352
 msgctxt "GameSettings"
 msgid "Preselected vehicle"
 msgstr "Voorgeselecteerd voertuig"
 
-#: gui/panels/GUI_GameSettings.cpp:351
+#: gui/panels/GUI_GameSettings.cpp:353
 msgctxt "GameSettings"
 msgid "Presel. veh. config"
 msgstr "Voork. veh. config"
 
-#: gui/panels/GUI_GameSettings.cpp:352
+#: gui/panels/GUI_GameSettings.cpp:354
 msgctxt "GameSettings"
 msgid "Enter preselected vehicle"
 msgstr "Enter voorgeselecteerde voertuig"
 
-#: gui/panels/GUI_GameSettings.cpp:353
+#: gui/panels/GUI_GameSettings.cpp:355
 msgctxt "GameSettings"
 msgid "Auto actor spawner report"
 msgstr "Auto-actor-spawnerrapport"
 
-#: gui/panels/GUI_GameSettings.cpp:354
+#: gui/panels/GUI_GameSettings.cpp:356
 msgctxt "GameSettings"
 msgid "Log node import (spawn)"
 msgstr "Log node import (spawn)"
 
-#: gui/panels/GUI_GameSettings.cpp:355
+#: gui/panels/GUI_GameSettings.cpp:357
 msgctxt "GameSettings"
 msgid "Log node stats (spawn)"
 msgstr "Log node stats (spawn)"
 
-#: gui/panels/GUI_GameSettings.cpp:356
+#: gui/panels/GUI_GameSettings.cpp:358
 msgctxt "GameSettings"
 msgid "Debug camera (rails)"
 msgstr "Debug camera (rails)"
 
-#: gui/panels/GUI_GameSettings.cpp:357
+#: gui/panels/GUI_GameSettings.cpp:359
 msgctxt "GameSettings"
 msgid "Debug collisions"
 msgstr "Debug collisions"
 
-#: gui/panels/GUI_GameSettings.cpp:358
+#: gui/panels/GUI_GameSettings.cpp:360
 msgctxt "GameSettings"
 msgid "Debug actor mass"
 msgstr "Debug acteur massa"
 
-#: gui/panels/GUI_GameSettings.cpp:359
+#: gui/panels/GUI_GameSettings.cpp:361
 msgctxt "GameSettings"
 msgid "Debug realtime reflections"
 msgstr "Debug realtime reflecties"
 
-#: gui/panels/GUI_GameSettings.cpp:360
+#: gui/panels/GUI_GameSettings.cpp:362
 msgctxt "GameSettings"
 msgid "Debug videocameras"
 msgstr "Debug videocamera's"
 
-#: gui/panels/GUI_GameSettings.cpp:361
+#: gui/panels/GUI_GameSettings.cpp:363
 msgctxt "GameSettings"
 msgid "Debug textures"
 msgstr "Debug texturen"
 
-#: gui/panels/GUI_GameSettings.cpp:362
+#: gui/panels/GUI_GameSettings.cpp:364
 msgctxt "GameSettings"
 msgid "Hide broken beams"
 msgstr "Verberg gebroken beams"
 
-#: gui/panels/GUI_GameSettings.cpp:363
+#: gui/panels/GUI_GameSettings.cpp:365
 msgctxt "GameSettings"
 msgid "Hide wheel info"
 msgstr "Verberg wielinformatie"
 
-#: gui/panels/GUI_GameSettings.cpp:364
+#: gui/panels/GUI_GameSettings.cpp:366
 msgctxt "GameSettings"
 msgid "Hide wheels"
 msgstr "Verberg wielen"
 
-#: gui/panels/GUI_GameSettings.cpp:365
+#: gui/panels/GUI_GameSettings.cpp:367
 msgctxt "GameSettings"
 msgid "Hide nodes"
 msgstr "Verberg nodes"
 
-#: gui/panels/GUI_GameSettings.cpp:366
+#: gui/panels/GUI_GameSettings.cpp:368
 msgctxt "GameSettings"
 msgid "Echo log to console"
 msgstr "Echo log naar console"
 
-#: gui/panels/GUI_GameSettings.cpp:367
+#: gui/panels/GUI_GameSettings.cpp:369
 msgctxt "GameSettings"
 msgid "Log beam breaking"
 msgstr "Log gebroken beams"
 
-#: gui/panels/GUI_GameSettings.cpp:368
+#: gui/panels/GUI_GameSettings.cpp:370
 msgctxt "GameSettings"
 msgid "Log beam deforming"
 msgstr "Log beam vervorming"
 
-#: gui/panels/GUI_GameSettings.cpp:369
+#: gui/panels/GUI_GameSettings.cpp:371
 msgctxt "GameSettings"
 msgid "Log beam triggers"
 msgstr "Log beam triggers"
 
-#: gui/panels/GUI_GameSettings.cpp:370
+#: gui/panels/GUI_GameSettings.cpp:372
 msgctxt "GameSettings"
 msgid "Rebuild cache"
 msgstr "Cache opnieuw opbouwen"
 
-#: gui/panels/GUI_GameSettings.cpp:377
+#: gui/panels/GUI_GameSettings.cpp:381
 msgctxt "GameSettings"
 msgid "Controller options"
 msgstr "Controller opties"
 
-#: gui/panels/GUI_GameSettings.cpp:379
+#: gui/panels/GUI_GameSettings.cpp:383
 msgctxt "GameSettings"
 msgid "Input grab mode"
 msgstr "Input grab mode"
 
-#: gui/panels/GUI_GameSettings.cpp:384
+#: gui/panels/GUI_GameSettings.cpp:388
 msgctxt "GameSettings"
 msgid "Analog Input Smoothing"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:385
+#: gui/panels/GUI_GameSettings.cpp:389
 msgctxt "GameSettings"
 msgid "Analog Input Sensitivity"
 msgstr "Gevoeligheid analoge input"
 
-#: gui/panels/GUI_GameSettings.cpp:386
+#: gui/panels/GUI_GameSettings.cpp:390
 msgctxt "GameSettings"
 msgid "Blinker Lock Range"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:388
+#: gui/panels/GUI_GameSettings.cpp:392
 msgctxt "GameSettings"
 msgid "Use arcade controls"
 msgstr "Gebruik arcade-besturing"
 
-#: gui/panels/GUI_GameSettings.cpp:390
+#: gui/panels/GUI_GameSettings.cpp:394
 msgctxt "GameSettings"
 msgid "Enable ForceFeedback"
 msgstr "Schakel Force Feedback in"
 
-#: gui/panels/GUI_GameSettings.cpp:394
+#: gui/panels/GUI_GameSettings.cpp:398
 msgctxt "GameSettings"
 msgid "FFB camera gain"
 msgstr "FFB-cameraversterking"
 
-#: gui/panels/GUI_GameSettings.cpp:395
+#: gui/panels/GUI_GameSettings.cpp:399
 msgctxt "GameSettings"
 msgid "FFB center gain"
 msgstr "FFB-centerversterking"
 
-#: gui/panels/GUI_GameSettings.cpp:396
+#: gui/panels/GUI_GameSettings.cpp:400
 msgctxt "GameSettings"
 msgid "FFB master gain"
 msgstr "FFB-masterversterking"
 
-#: gui/panels/GUI_GameSettings.cpp:397
+#: gui/panels/GUI_GameSettings.cpp:401
 msgctxt "GameSettings"
 msgid "FFB stress gain"
 msgstr "FFB-stresversterking"
 
-#: gui/panels/GUI_GameSettings.cpp:401
+#: gui/panels/GUI_GameSettings.cpp:405
 msgctxt "GameSettings"
 msgid "Enable OutGauge protocol"
 msgstr "Schakel OutGauge-protocol in"
 
-#: gui/panels/GUI_GameSettings.cpp:404
+#: gui/panels/GUI_GameSettings.cpp:408
 msgctxt "GameSettings"
 msgid "OutGauge IP"
 msgstr "OutGauge IP"
 
-#: gui/panels/GUI_GameSettings.cpp:406
+#: gui/panels/GUI_GameSettings.cpp:410
 msgctxt "GameSettings"
 msgid "OutGauge port"
 msgstr "OutGauge port"
 
-#: gui/panels/GUI_GameSettings.cpp:407
+#: gui/panels/GUI_GameSettings.cpp:411
 msgctxt "GameSettings"
 msgid "OutGauge ID"
 msgstr "OutGauge ID"
 
-#: gui/panels/GUI_GameSettings.cpp:408
+#: gui/panels/GUI_GameSettings.cpp:412
 msgctxt "GameSettings"
 msgid "OutGauge delay"
 msgstr "OutGauge vertraging"
@@ -1522,45 +1522,20 @@ msgctxt "MainSelector"
 msgid "Show details"
 msgstr "Toon details"
 
-#: gui/panels/GUI_MainSelector.cpp:346
+#: gui/panels/GUI_MainSelector.cpp:347
 msgctxt "MainSelector"
 msgid "Configuration"
 msgstr "Configuratie"
 
-#: gui/panels/GUI_MainSelector.cpp:352
+#: gui/panels/GUI_MainSelector.cpp:353
 msgctxt "MainSelector"
 msgid "OK"
 msgstr "Ok"
 
-#: gui/panels/GUI_MainSelector.cpp:359
+#: gui/panels/GUI_MainSelector.cpp:360
 msgctxt "MainSelector"
 msgid "Cancel"
 msgstr "Annuleren"
-
-#: gui/panels/GUI_MainSelector.cpp:638
-msgctxt "MainSelector"
-msgid "Airplane"
-msgstr "Vliegtuig"
-
-#: gui/panels/GUI_MainSelector.cpp:638
-msgctxt "MainSelector"
-msgid "Boat"
-msgstr "Boot"
-
-#: gui/panels/GUI_MainSelector.cpp:638
-msgctxt "MainSelector"
-msgid "Machine"
-msgstr "Machine"
-
-#: gui/panels/GUI_MainSelector.cpp:638
-msgctxt "MainSelector"
-msgid "Non-Driveable"
-msgstr "Niet berijdbaar"
-
-#: gui/panels/GUI_MainSelector.cpp:638
-msgctxt "MainSelector"
-msgid "Truck"
-msgstr "Vrachtwagen"
 
 #. TextDisabled() are captions, Text() are values
 #: gui/panels/GUI_MultiplayerClientList.cpp:127
@@ -2079,388 +2054,388 @@ msgctxt "TopMenubar"
 msgid "Get new vehicle"
 msgstr "Nieuw voertuig"
 
-#: gui/panels/GUI_TopMenubar.cpp:182
+#: gui/panels/GUI_TopMenubar.cpp:185
 msgctxt "TopMenubar"
 msgid "Show vehicle description"
 msgstr "Toon voertuigbeschrijving"
 
-#: gui/panels/GUI_TopMenubar.cpp:189
+#: gui/panels/GUI_TopMenubar.cpp:192
 msgctxt "TopMenubar"
 msgid "Reload current vehicle"
 msgstr "Huidig voertuig herladen"
 
-#: gui/panels/GUI_TopMenubar.cpp:199
+#: gui/panels/GUI_TopMenubar.cpp:202
 msgctxt "TopMenubar"
 msgid "Remove current vehicle"
 msgstr "Huidig voertuig verwijderen"
 
-#: gui/panels/GUI_TopMenubar.cpp:208
+#: gui/panels/GUI_TopMenubar.cpp:211
 msgctxt "TopMenubar"
 msgid "Remove all vehicles"
 msgstr "Verwijder alle voertuigen"
 
-#: gui/panels/GUI_TopMenubar.cpp:215
+#: gui/panels/GUI_TopMenubar.cpp:218
 msgctxt "TopMenubar"
 msgid " [!] Confirm removal"
 msgstr " [!] Verwijdering bevestigen"
 
-#: gui/panels/GUI_TopMenubar.cpp:230
+#: gui/panels/GUI_TopMenubar.cpp:233
 msgctxt "TopMenubar"
 msgid "Activate all vehicles"
 msgstr "Alle voertuigen activeren"
 
-#: gui/panels/GUI_TopMenubar.cpp:236
+#: gui/panels/GUI_TopMenubar.cpp:239
 msgctxt "TopMenubar"
 msgid "Activated vehicles never sleep"
 msgstr "Geactiveerde voertuigen slapen nooit"
 
-#: gui/panels/GUI_TopMenubar.cpp:241
+#: gui/panels/GUI_TopMenubar.cpp:244
 msgctxt "TopMenubar"
 msgid "Send all vehicles to sleep"
 msgstr "Stuur alle voertuigen in slaap"
 
-#: gui/panels/GUI_TopMenubar.cpp:249
+#: gui/panels/GUI_TopMenubar.cpp:252
 msgctxt "TopMenubar"
 msgid "Back to menu"
 msgstr "Terug naar menu"
 
-#: gui/panels/GUI_TopMenubar.cpp:258
+#: gui/panels/GUI_TopMenubar.cpp:262
 msgctxt "TopMenubar"
 msgid "Exit"
 msgstr "Afsluiten"
 
-#: gui/panels/GUI_TopMenubar.cpp:275
+#: gui/panels/GUI_TopMenubar.cpp:279
 msgctxt "TopMenubar"
 msgid "Actors menu"
 msgstr "Actors-menu"
 
-#: gui/panels/GUI_TopMenubar.cpp:306
+#: gui/panels/GUI_TopMenubar.cpp:310
 msgctxt "TopMenubar"
 msgid "Savegames"
 msgstr "Savegames"
 
-#: gui/panels/GUI_TopMenubar.cpp:308
+#: gui/panels/GUI_TopMenubar.cpp:312
 msgctxt "TopMenubar"
 msgid "Quicksave"
 msgstr "Quicksave"
 
-#: gui/panels/GUI_TopMenubar.cpp:318
+#: gui/panels/GUI_TopMenubar.cpp:322
 msgctxt "TopMenubar"
 msgid "Quickload"
 msgstr "Quickload"
 
-#: gui/panels/GUI_TopMenubar.cpp:329
+#: gui/panels/GUI_TopMenubar.cpp:333
 msgctxt "TopMenubar"
 msgid "(Save with 'CTRL+ALT+1..5')"
 msgstr "(Opslaan met 'CTRL+ALT+1..5')"
 
-#: gui/panels/GUI_TopMenubar.cpp:332
+#: gui/panels/GUI_TopMenubar.cpp:336
 msgctxt "TopMenubar"
 msgid "Empty Slot"
 msgstr "Leeg slot"
 
-#: gui/panels/GUI_TopMenubar.cpp:346
+#: gui/panels/GUI_TopMenubar.cpp:350
 msgctxt "TopMenubar"
 msgid "(Load with 'ALT+1..5')"
 msgstr "(Laden met 'ALT+1..5')"
 
-#: gui/panels/GUI_TopMenubar.cpp:374
+#: gui/panels/GUI_TopMenubar.cpp:378
 msgctxt "TopMenubar"
 msgid "Settings menu"
 msgstr "Instellingenmenu"
 
 #. Width includes [+/-] buttons
-#: gui/panels/GUI_TopMenubar.cpp:377
+#: gui/panels/GUI_TopMenubar.cpp:381
 msgctxt "TopMenubar"
 msgid "Audio:"
 msgstr "Audio:"
 
-#: gui/panels/GUI_TopMenubar.cpp:378
+#: gui/panels/GUI_TopMenubar.cpp:382
 msgctxt "TopMenubar"
 msgid "Volume"
 msgstr "Volume"
 
-#: gui/panels/GUI_TopMenubar.cpp:380
+#: gui/panels/GUI_TopMenubar.cpp:384
 msgctxt "TopMenubar"
 msgid "Frames per second:"
 msgstr "Frames per seconde:"
 
-#: gui/panels/GUI_TopMenubar.cpp:383
+#: gui/panels/GUI_TopMenubar.cpp:387
 msgctxt "TopMenubar"
 msgid "Reflections"
 msgstr "Reflecties"
 
-#: gui/panels/GUI_TopMenubar.cpp:385
+#: gui/panels/GUI_TopMenubar.cpp:389
 msgctxt "TopMenubar"
 msgid "Game"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:396
+#: gui/panels/GUI_TopMenubar.cpp:400
 msgctxt "TopMenubar"
 msgid "Simulation:"
 msgstr "Simulatie:"
 
-#: gui/panels/GUI_TopMenubar.cpp:398
+#: gui/panels/GUI_TopMenubar.cpp:402
 msgctxt "TopMenubar"
 msgid "Slow motion"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:403
+#: gui/panels/GUI_TopMenubar.cpp:407
 msgctxt "TopMenubar"
 msgid "Time lapse"
 msgstr "Time lapse"
 
-#: gui/panels/GUI_TopMenubar.cpp:410 gui/panels/GUI_TopMenubar.cpp:417
+#: gui/panels/GUI_TopMenubar.cpp:414 gui/panels/GUI_TopMenubar.cpp:421
 msgctxt "TopMenubar"
 msgid "Camera:"
 msgstr "Camera:"
 
-#: gui/panels/GUI_TopMenubar.cpp:411 gui/panels/GUI_TopMenubar.cpp:421
-#: gui/panels/GUI_TopMenubar.cpp:429
+#: gui/panels/GUI_TopMenubar.cpp:415 gui/panels/GUI_TopMenubar.cpp:425
+#: gui/panels/GUI_TopMenubar.cpp:433
 msgctxt "TopMenubar"
 msgid "FOV"
 msgstr "Gezichtsveld"
 
-#: gui/panels/GUI_TopMenubar.cpp:412
+#: gui/panels/GUI_TopMenubar.cpp:416
 msgctxt "TopMenubar"
 msgid "Height"
 msgstr "Hoogte"
 
-#: gui/panels/GUI_TopMenubar.cpp:436
+#: gui/panels/GUI_TopMenubar.cpp:440
 msgctxt "TopMenubar"
 msgid "Tracking"
 msgstr "Volgen"
 
-#: gui/panels/GUI_TopMenubar.cpp:443
+#: gui/panels/GUI_TopMenubar.cpp:447
 msgctxt "TopMenubar"
 msgid "Time of day:"
 msgstr "Tijdstip:"
 
-#: gui/panels/GUI_TopMenubar.cpp:455
+#: gui/panels/GUI_TopMenubar.cpp:459
 msgctxt "TopMenubar"
 msgid "Vehicle control options:"
 msgstr "Opties voor voertuigbesturing:"
 
-#: gui/panels/GUI_TopMenubar.cpp:456
+#: gui/panels/GUI_TopMenubar.cpp:460
 msgctxt "TopMenubar"
 msgid "Keyboard steering speed coupling"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:461
+#: gui/panels/GUI_TopMenubar.cpp:465
 msgctxt "TopMenubar"
 msgid "Multiplayer:"
 msgstr "Multiplayer:"
 
-#: gui/panels/GUI_TopMenubar.cpp:462
+#: gui/panels/GUI_TopMenubar.cpp:466
 msgctxt "TopMenubar"
 msgid "Collisions"
 msgstr "Collisions"
 
-#: gui/panels/GUI_TopMenubar.cpp:463
+#: gui/panels/GUI_TopMenubar.cpp:467
 msgctxt "TopMenubar"
 msgid "Hide labels"
 msgstr "Labels verbergen"
 
-#: gui/panels/GUI_TopMenubar.cpp:478
+#: gui/panels/GUI_TopMenubar.cpp:482
 #, fuzzy
 msgctxt "TopMenubar"
 msgid "Tools menu"
 msgstr "Gereedschap menu"
 
-#: gui/panels/GUI_TopMenubar.cpp:480
+#: gui/panels/GUI_TopMenubar.cpp:484
 msgctxt "TopMenubar"
 msgid "Friction settings"
 msgstr "Frictie instellingen"
 
-#: gui/panels/GUI_TopMenubar.cpp:486
+#: gui/panels/GUI_TopMenubar.cpp:490
 msgctxt "TopMenubar"
 msgid "Show console"
 msgstr "Console weergeven"
 
-#: gui/panels/GUI_TopMenubar.cpp:492
+#: gui/panels/GUI_TopMenubar.cpp:496
 msgctxt "TopMenubar"
 msgid "Texture tool"
 msgstr "Textuur tool"
 
-#: gui/panels/GUI_TopMenubar.cpp:498
+#: gui/panels/GUI_TopMenubar.cpp:502
 msgctxt "TopMenubar"
 msgid "Game controls"
 msgstr "Gamebesturing"
 
-#: gui/panels/GUI_TopMenubar.cpp:506
+#: gui/panels/GUI_TopMenubar.cpp:510
 msgctxt "TopMenubar"
 msgid "Node / Beam utility"
 msgstr "Node / Beam hulpprogramma"
 
-#: gui/panels/GUI_TopMenubar.cpp:514
+#: gui/panels/GUI_TopMenubar.cpp:518
 msgctxt "TopMenubar"
 msgid "Pre-spawn diag. options:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:517
+#: gui/panels/GUI_TopMenubar.cpp:521
 msgctxt "TopMenubar"
 msgid "Node mass recalc. logging"
 msgstr "Knooppunt massa herberekenen logging"
 
-#: gui/panels/GUI_TopMenubar.cpp:524
+#: gui/panels/GUI_TopMenubar.cpp:528
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime - mass recalculation"
 msgstr "Extra runtime logging - massaherberekening"
 
-#: gui/panels/GUI_TopMenubar.cpp:529
+#: gui/panels/GUI_TopMenubar.cpp:533
 msgctxt "TopMenubar"
 msgid "Beam break logging"
 msgstr "Gebroken beams logging"
 
-#: gui/panels/GUI_TopMenubar.cpp:536 gui/panels/GUI_TopMenubar.cpp:548
+#: gui/panels/GUI_TopMenubar.cpp:540 gui/panels/GUI_TopMenubar.cpp:552
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime"
 msgstr "Extra runtime logging"
 
-#: gui/panels/GUI_TopMenubar.cpp:541
+#: gui/panels/GUI_TopMenubar.cpp:545
 msgctxt "TopMenubar"
 msgid "Beam deform. logging"
 msgstr "Beam vervorming logging"
 
-#: gui/panels/GUI_TopMenubar.cpp:553
+#: gui/panels/GUI_TopMenubar.cpp:557
 msgctxt "TopMenubar"
 msgid "Trigger logging"
 msgstr "Trigger logging"
 
-#: gui/panels/GUI_TopMenubar.cpp:560
+#: gui/panels/GUI_TopMenubar.cpp:564
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime - trigger beams activity"
 msgstr "Extra runtime logging - trigger beams activiteit"
 
-#: gui/panels/GUI_TopMenubar.cpp:565
+#: gui/panels/GUI_TopMenubar.cpp:569
 msgctxt "TopMenubar"
 msgid "VideoCamera direction marker"
 msgstr "VideoCamera richtingmarkering"
 
-#: gui/panels/GUI_TopMenubar.cpp:572
+#: gui/panels/GUI_TopMenubar.cpp:576
 msgctxt "TopMenubar"
 msgid "Visual marker of VideoCameras direction"
 msgstr "Visuele markering van de richting van VideoCameras"
 
-#: gui/panels/GUI_TopMenubar.cpp:580
+#: gui/panels/GUI_TopMenubar.cpp:584
 msgctxt "TopMenubar"
 msgid "Live diagnostic views:"
 msgstr "Live diagnostische weergaven:"
 
-#: gui/panels/GUI_TopMenubar.cpp:581
+#: gui/panels/GUI_TopMenubar.cpp:585
 #, c-format
 msgctxt "TopMenubar"
 msgid "(Toggle with '%s')"
 msgstr "(Wisselen met '%s')"
 
-#: gui/panels/GUI_TopMenubar.cpp:582
+#: gui/panels/GUI_TopMenubar.cpp:586
 #, c-format
 msgctxt "TopMenubar"
 msgid "(Cycle with '%s')"
 msgstr "(Cycle met '%s')"
 
-#: gui/panels/GUI_TopMenubar.cpp:589
+#: gui/panels/GUI_TopMenubar.cpp:593
 msgctxt "TopMenubar"
 msgid "Normal view"
 msgstr "Normale weergave"
 
-#: gui/panels/GUI_TopMenubar.cpp:590
+#: gui/panels/GUI_TopMenubar.cpp:594
 msgctxt "TopMenubar"
 msgid "Skeleton view"
 msgstr "Skeleton weergave"
 
-#: gui/panels/GUI_TopMenubar.cpp:591
+#: gui/panels/GUI_TopMenubar.cpp:595
 msgctxt "TopMenubar"
 msgid "Node details"
 msgstr "Node details"
 
-#: gui/panels/GUI_TopMenubar.cpp:592
+#: gui/panels/GUI_TopMenubar.cpp:596
 msgctxt "TopMenubar"
 msgid "Beam details"
 msgstr "Beam details"
 
-#: gui/panels/GUI_TopMenubar.cpp:595
+#: gui/panels/GUI_TopMenubar.cpp:599
 msgctxt "TopMenubar"
 msgid "Wheel details"
 msgstr "Wiel details"
 
-#: gui/panels/GUI_TopMenubar.cpp:599
+#: gui/panels/GUI_TopMenubar.cpp:603
 msgctxt "TopMenubar"
 msgid "Shock details"
 msgstr "Schokbreker details"
 
-#: gui/panels/GUI_TopMenubar.cpp:603
+#: gui/panels/GUI_TopMenubar.cpp:607
 msgctxt "TopMenubar"
 msgid "Rotator details"
 msgstr "Rotator details"
 
-#: gui/panels/GUI_TopMenubar.cpp:607
+#: gui/panels/GUI_TopMenubar.cpp:611
 msgctxt "TopMenubar"
 msgid "Slidenode details"
 msgstr "Slidenode details"
 
-#: gui/panels/GUI_TopMenubar.cpp:611
+#: gui/panels/GUI_TopMenubar.cpp:615
 msgctxt "TopMenubar"
 msgid "Submesh details"
 msgstr "Submesh details"
 
-#: gui/panels/GUI_TopMenubar.cpp:622
+#: gui/panels/GUI_TopMenubar.cpp:626
 msgctxt "TopMenubar"
 msgid "Settings:"
 msgstr "Instellingen:"
 
-#: gui/panels/GUI_TopMenubar.cpp:623
+#: gui/panels/GUI_TopMenubar.cpp:627
 msgctxt "TopMenubar"
 msgid "Hide broken beams"
 msgstr "Verberg gebroken beams"
 
-#: gui/panels/GUI_TopMenubar.cpp:624
+#: gui/panels/GUI_TopMenubar.cpp:628
 msgctxt "TopMenubar"
 msgid "Hide beam stress"
 msgstr "Verberg beam stress"
 
-#: gui/panels/GUI_TopMenubar.cpp:625
+#: gui/panels/GUI_TopMenubar.cpp:629
 msgctxt "TopMenubar"
 msgid "Hide wheels"
 msgstr "Verberg wielen"
 
-#: gui/panels/GUI_TopMenubar.cpp:626
+#: gui/panels/GUI_TopMenubar.cpp:630
 msgctxt "TopMenubar"
 msgid "Hide nodes"
 msgstr "Verberg nodes"
 
-#: gui/panels/GUI_TopMenubar.cpp:629
+#: gui/panels/GUI_TopMenubar.cpp:633
 msgctxt "TopMenubar"
 msgid "Hide wheel info"
 msgstr "Verberg wielinformatie"
 
-#: gui/panels/GUI_TopMenubar.cpp:721
+#: gui/panels/GUI_TopMenubar.cpp:725
 #, fuzzy
 msgctxt "TopMenubar"
 msgid "None spawned yet"
 msgstr "Nog niets gespawned"
 
-#: gui/panels/GUI_TopMenubar.cpp:722
+#: gui/panels/GUI_TopMenubar.cpp:726
 msgctxt "TopMenubar"
 msgid "Use [Simulation] menu"
 msgstr "Menu [Simulatie] gebruiken"
 
-#: gui/panels/GUI_TopMenubar.cpp:778
+#: gui/panels/GUI_TopMenubar.cpp:782
 msgctxt "TopMenubar"
 msgid "All physics paused, press '{}' to resume"
 msgstr "Alle physics gepauzeerd, druk op '{}' om te hervatten"
 
-#: gui/panels/GUI_TopMenubar.cpp:787
+#: gui/panels/GUI_TopMenubar.cpp:791
 msgctxt "TopMenubar"
 msgid "Vehicle physics paused, press '{}' to resume"
 msgstr "Voertuig physics gepauzeerd, druk op '{}' om te hervatten"
 
-#: gui/panels/GUI_TopMenubar.cpp:796
+#: gui/panels/GUI_TopMenubar.cpp:800
 msgctxt "TopMenubar"
 msgid "Replay"
 msgstr "Herhaling"
 
-#: gui/panels/GUI_TopMenubar.cpp:834
+#: gui/panels/GUI_TopMenubar.cpp:838
 msgctxt "TopMenubar"
 msgid "Time"
 msgstr "Tijd"
@@ -2490,54 +2465,58 @@ msgctxt "VehicleDescription"
 msgid "(no author information available) "
 msgstr "(Geen informatie over de auteur beschikbaar) "
 
-#: main.cpp:317
+#: main.cpp:327
 msgid "Display mode changed to fullscreen"
 msgstr "Weergavemodus gewijzigd in volledig scherm"
 
-#: main.cpp:323
+#: main.cpp:333
 msgid "Display mode changed to windowed"
 msgstr "Weergavemodus gewijzigd in venster"
 
-#: main.cpp:380
+#: main.cpp:385
 msgctxt "Network"
 msgid "Network disconnected"
 msgstr "Netwerkverbinding verbroken"
 
-#: main.cpp:387
+#: main.cpp:393
 msgid "Network fatal error: "
 msgstr "Netwerk fatale error: "
 
-#: main.cpp:432
+#: main.cpp:441
 msgctxt "Network"
 msgid "Multiplayer: connection failed"
 msgstr "Multiplayer: verbinding mislukt"
 
-#: main.cpp:464
+#: main.cpp:473
 msgid "Loading resources"
 msgstr "Resources laden"
 
-#: main.cpp:494
+#: main.cpp:503
 #, c-format
 msgid "Press %s to start chatting"
 msgstr "Druk op %s om te beginnen met chatten"
 
-#: main.cpp:541
+#: main.cpp:558
 msgid "Could not read savegame file"
 msgstr "Kan savegame-bestand niet lezen"
 
-#: main.cpp:620
+#: main.cpp:568
+msgid "Not loading different terrain while in Multiplayer"
+msgstr ""
+
+#: main.cpp:664
 msgid "Entered terrain editing mode"
 msgstr "Terrein bewerkingsmodus ingeschakeld"
 
-#: main.cpp:631
+#: main.cpp:675
 msgid "Left terrain editing mode"
 msgstr "Terrein bewerkingsmodus uitgeschakeld"
 
-#: main.cpp:833
+#: main.cpp:911
 msgid "An exception has occured!"
 msgstr "Een uitzondering is opgetreden!"
 
-#: main.cpp:838
+#: main.cpp:916
 msgid "An exception (std::runtime_error) has occured!"
 msgstr "Een fout (std::runtime_error) is opgetreden!"
 
@@ -2552,46 +2531,50 @@ msgid "disconnected: remote side closed the connection"
 msgstr "verbinding verbroken: externe kant heeft de verbinding gesloten"
 
 #: network/Network.cpp:314
-msgid " left the game"
+#, fuzzy
+#| msgid " left the game"
+msgid "left the game"
 msgstr " heeft het spel verlaten"
 
-#: network/Network.cpp:345
-msgid " joined the game"
+#: network/Network.cpp:344
+#, fuzzy
+#| msgid " joined the game"
+msgid "joined the game"
 msgstr " is in het spel gekomen"
 
 #. Mark connect thread as started
-#: network/Network.cpp:398
+#: network/Network.cpp:397
 msgctxt "Network"
 msgid "Starting..."
 msgstr "Bezig met starten..."
 
-#: network/Network.cpp:404
+#: network/Network.cpp:403
 msgid "Failed to launch connection thread"
 msgstr "Kan connectionthread niet starten"
 
-#: network/Network.cpp:422
+#: network/Network.cpp:421
 msgctxt "Network"
 msgid "Estabilishing connection..."
 msgstr "Verbinding tot stand brengen ..."
 
-#: network/Network.cpp:428
+#: network/Network.cpp:427
 msgid "Could not create connection"
 msgstr "Kon geen verbinding maken"
 
-#: network/Network.cpp:432
+#: network/Network.cpp:431
 msgctxt "Network"
 msgid "Getting server info..."
 msgstr "Serverinformatie ophalen ..."
 
-#: network/Network.cpp:435
+#: network/Network.cpp:434
 msgid "Establishing network session: error sending hello"
 msgstr "Vaststellen van de netwerk sessie: Fout bij verzenden hallo"
 
-#: network/Network.cpp:445
+#: network/Network.cpp:444
 msgid "Establishing network session: error getting server version"
 msgstr "Vaststellen netwerk sessie: foutmelding bij krijgen server versie"
 
-#: network/Network.cpp:452 network/Network.cpp:476
+#: network/Network.cpp:451 network/Network.cpp:475
 #, c-format
 msgid ""
 "Establishing network session: wrong server version, you are using version "
@@ -2600,102 +2583,102 @@ msgstr ""
 "Vaststellen netwerk sessie: verkeerder server versie, je gebruikt versie "
 "'%s' en de server gebruikt '%s'"
 
-#: network/Network.cpp:461
+#: network/Network.cpp:460
 msgid "server uses a different protocol version"
 msgstr "server gebruikt een andere protocol versie"
 
-#: network/Network.cpp:466
+#: network/Network.cpp:465
 msgid "Establishing network session: error getting server hello"
 msgstr "Vaststellen netwerk sessie: foutmelding tijdens server hallo"
 
-#: network/Network.cpp:482
+#: network/Network.cpp:481
 msgctxt "Network"
 msgid "Authorizing..."
 msgstr "Autoriseren ..."
 
-#: network/Network.cpp:503
+#: network/Network.cpp:502
 msgid "Establishing network session: error sending user info"
 msgstr ""
 "Vaststellen netwerk sessie: foutmelding tijdens versturen gebruikers info"
 
-#: network/Network.cpp:510
+#: network/Network.cpp:509
 msgid "Establishing network session: error getting server authorization"
 msgstr "Vaststellen netwerk sessie: foutmelding tijdens server vergunning"
 
-#: network/Network.cpp:516
+#: network/Network.cpp:515
 msgid "Establishing network session: sorry, server has too many players"
 msgstr "Vaststellen netwerk sessie: sorry, server heeft te veel spelers"
 
 #. Do NOT `disconnect()` the m_socket in this case - causes SocketW to terminate RoR.
-#: network/Network.cpp:522
+#: network/Network.cpp:521
 msgid "Establishing network session: sorry, you are banned!"
 msgstr "Vaststellen netwerk sessie: sorry, je bent verbannen!"
 
-#: network/Network.cpp:527
+#: network/Network.cpp:526
 msgid "Establishing network session: sorry, wrong password!"
 msgstr "Vaststellen netwerk sessie: sorry, verkeerd wachtwoord!"
 
-#: network/Network.cpp:532
+#: network/Network.cpp:531
 msgid "Establishing network session: sorry, wrong protocol version!"
 msgstr "Vaststellen netwerk sessie: sorry, verkeerde protocol versie!"
 
-#: network/Network.cpp:538
+#: network/Network.cpp:537
 msgid "Establishing network session: sorry, unknown server response"
 msgstr "Vaststellen netwerk sessie: sorry, onbekende server reactie"
 
-#: network/Network.cpp:542
+#: network/Network.cpp:541
 msgctxt "Network"
 msgid "Finishing..."
 msgstr "Voltooien"
 
-#: network/Network.cpp:794
+#: network/Network.cpp:793
 msgctxt "NetUserAuth"
 msgid "Admin"
 msgstr "Admin"
 
-#: network/Network.cpp:795
+#: network/Network.cpp:794
 msgctxt "NetUserAuth"
 msgid "Mod"
 msgstr "Mod"
 
-#: network/Network.cpp:796 network/Network.cpp:806
+#: network/Network.cpp:795 network/Network.cpp:805
 msgctxt "NetUserAuth"
 msgid "Bot"
 msgstr "Bot"
 
-#: network/Network.cpp:797
+#: network/Network.cpp:796
 msgctxt "NetUserAuth"
 msgid "Ranked"
 msgstr ""
 
-#: network/Network.cpp:798
+#: network/Network.cpp:797
 msgctxt "NetUserAuth"
 msgid "Banned"
 msgstr "Verbannen"
 
-#: network/Network.cpp:799 network/Network.cpp:809
+#: network/Network.cpp:798 network/Network.cpp:808
 msgctxt "NetUserAuth"
 msgid "Guest"
 msgstr "Gast"
 
-#: network/Network.cpp:804
+#: network/Network.cpp:803
 msgctxt "NetUserAuth"
 msgid "Server Administrator"
 msgstr "Server Administrator"
 
-#: network/Network.cpp:805
+#: network/Network.cpp:804
 msgctxt "NetUserAuth"
 msgid "Server Moderator"
 msgstr "Server Moderator"
 
-#: network/Network.cpp:807
+#: network/Network.cpp:806
 #, fuzzy
 #| msgid "ranked user"
 msgctxt "NetUserAuth"
 msgid "Ranked user"
 msgstr "Gerangschikte gebruiker"
 
-#: network/Network.cpp:808
+#: network/Network.cpp:807
 msgctxt "NetUserAuth"
 msgid "Banned user"
 msgstr "Verbannen gebruiker"
@@ -2704,36 +2687,38 @@ msgstr "Verbannen gebruiker"
 msgid " content mismatch: "
 msgstr " inhoud mismatch: "
 
-#: physics/Actor.cpp:1274
+#: physics/Actor.cpp:1275
 msgid "No inter-axle differential installed on current vehicle!"
 msgstr "Geen inter-differentieel geïnstalleerd op de huidige voertuig!"
 
-#: physics/Actor.cpp:1288 physics/Actor.cpp:1314
+#: physics/Actor.cpp:1289 physics/Actor.cpp:1315
 msgid "Axle "
 msgstr "As "
 
-#: physics/Actor.cpp:1302
+#: physics/Actor.cpp:1303
 msgid "No inter-wheel differential installed on current vehicle!"
 msgstr "Geen inter-wiel differentieel geïnstalleerd op huidig voertuig!"
 
-#: physics/Actor.cpp:1328
+#: physics/Actor.cpp:1329
 msgid "Transfercase switched to: "
 msgstr "Transfer Case overgeschakeld naar: "
 
-#: physics/Actor.cpp:1333
+#: physics/Actor.cpp:1334
 msgid "No transfercase installed on current vehicle!"
 msgstr "Geen transfercase geïnstalleerd op huidig voertuig!"
 
-#: physics/Actor.cpp:1890
+#: physics/Actor.cpp:1891
 msgid "Actor is too big to be sent over the net."
 msgstr "Vrachtwagen is te groot om over het net te worden verzonden."
 
-#: physics/Actor.cpp:1890
+#: physics/Actor.cpp:1891
 msgid "Network error!"
 msgstr "Netwerk fout!"
 
 #: physics/ActorManager.cpp:406
-msgid " spawned a new vehicle: "
+#, fuzzy
+#| msgid " spawned a new vehicle: "
+msgid "spawned a new vehicle: "
 msgstr " koos een nieuw voertuig: "
 
 #: physics/ActorManager.cpp:416
@@ -2827,172 +2812,202 @@ msgstr ""
 "Je grond configuratie is te oud, kopieer skeleton/config/ground_models.cfg "
 "naar mijn documenten/Rigs of Rods/config"
 
-#: resources/CacheSystem.cpp:921
+#: resources/CacheSystem.cpp:435
+msgctxt "MainSelector"
+msgid "Non-Driveable"
+msgstr "Niet berijdbaar"
+
+#: resources/CacheSystem.cpp:436
+msgctxt "MainSelector"
+msgid "Truck"
+msgstr "Vrachtwagen"
+
+#: resources/CacheSystem.cpp:437
+msgctxt "MainSelector"
+msgid "Airplane"
+msgstr "Vliegtuig"
+
+#: resources/CacheSystem.cpp:438
+msgctxt "MainSelector"
+msgid "Boat"
+msgstr "Boot"
+
+#: resources/CacheSystem.cpp:439
+msgctxt "MainSelector"
+msgid "Machine"
+msgstr "Machine"
+
+#: resources/CacheSystem.cpp:440
+msgctxt "MainSelector"
+msgid "A.I."
+msgstr ""
+
+#: resources/CacheSystem.cpp:935
 msgid "Loading zips in group "
 msgstr "Meerde zip bestanden samen laden "
 
 #. these are the category numbers from the repository. do not modify them!
 #. vehicles
-#: resources/CacheSystem.h:255
+#: resources/CacheSystem.h:257
 msgctxt "ModCategory"
 msgid "Other Land Vehicles"
 msgstr "Andere landvoertuigen"
 
-#: resources/CacheSystem.h:257
+#: resources/CacheSystem.h:259
 msgctxt "ModCategory"
 msgid "Street Cars"
 msgstr "Straat Auto's"
 
-#: resources/CacheSystem.h:258
+#: resources/CacheSystem.h:260
 msgctxt "ModCategory"
 msgid "Light Racing Cars"
 msgstr "Lichte raceauto's"
 
-#: resources/CacheSystem.h:259
+#: resources/CacheSystem.h:261
 msgctxt "ModCategory"
 msgid "Offroad Cars"
 msgstr "Offroad Auto's"
 
-#: resources/CacheSystem.h:260
+#: resources/CacheSystem.h:262
 msgctxt "ModCategory"
 msgid "Fantasy Cars"
 msgstr "Fantasie Auto's"
 
-#: resources/CacheSystem.h:261
+#: resources/CacheSystem.h:263
 msgctxt "ModCategory"
 msgid "Bikes"
 msgstr ""
 
-#: resources/CacheSystem.h:262
+#: resources/CacheSystem.h:264
 msgctxt "ModCategory"
 msgid "Crawlers"
 msgstr "Crawlers"
 
-#: resources/CacheSystem.h:264
+#: resources/CacheSystem.h:266
 msgctxt "ModCategory"
 msgid "Towercranes"
 msgstr "Torenkranen"
 
-#: resources/CacheSystem.h:265
+#: resources/CacheSystem.h:267
 msgctxt "ModCategory"
 msgid "Mobile Cranes"
 msgstr "Mobiele kranen"
 
-#: resources/CacheSystem.h:266
+#: resources/CacheSystem.h:268
 msgctxt "ModCategory"
 msgid "Other cranes"
 msgstr "Andere kranen"
 
-#: resources/CacheSystem.h:268
+#: resources/CacheSystem.h:270
 msgctxt "ModCategory"
 msgid "Buses"
 msgstr "Bussen"
 
-#: resources/CacheSystem.h:269
+#: resources/CacheSystem.h:271
 msgctxt "ModCategory"
 msgid "Tractors"
 msgstr "Tractoren"
 
-#: resources/CacheSystem.h:270
+#: resources/CacheSystem.h:272
 msgctxt "ModCategory"
 msgid "Forklifts"
 msgstr "Vorkheftrucks"
 
-#: resources/CacheSystem.h:271
+#: resources/CacheSystem.h:273
 msgctxt "ModCategory"
 msgid "Fantasy Trucks"
 msgstr "Fantasie vrachtwagens"
 
-#: resources/CacheSystem.h:272
+#: resources/CacheSystem.h:274
 msgctxt "ModCategory"
 msgid "Transport Trucks"
 msgstr "Transporttrucks"
 
-#: resources/CacheSystem.h:273
+#: resources/CacheSystem.h:275
 msgctxt "ModCategory"
 msgid "Racing Trucks"
 msgstr "Racetrucks"
 
-#: resources/CacheSystem.h:274
+#: resources/CacheSystem.h:276
 msgctxt "ModCategory"
 msgid "Offroad Trucks"
 msgstr "Offroad vrachtwagens"
 
-#: resources/CacheSystem.h:276
+#: resources/CacheSystem.h:278
 msgctxt "ModCategory"
 msgid "Boats"
 msgstr "Boten"
 
-#: resources/CacheSystem.h:278
+#: resources/CacheSystem.h:280
 msgctxt "ModCategory"
 msgid "Helicopters"
 msgstr "Helikopters"
 
-#: resources/CacheSystem.h:279
+#: resources/CacheSystem.h:281
 msgctxt "ModCategory"
 msgid "Aircraft"
 msgstr "Vliegtuigen"
 
-#: resources/CacheSystem.h:281
+#: resources/CacheSystem.h:283
 msgctxt "ModCategory"
 msgid "Trailers"
 msgstr "Aanhangwagens"
 
-#: resources/CacheSystem.h:282
+#: resources/CacheSystem.h:284
 msgctxt "ModCategory"
 msgid "Other Loads"
 msgstr "Andere ladingen"
 
 #. terrains
-#: resources/CacheSystem.h:285
+#: resources/CacheSystem.h:287
 msgctxt "ModCategory"
 msgid "Addon Terrains"
 msgstr "Addon Terreinen"
 
-#: resources/CacheSystem.h:287
+#: resources/CacheSystem.h:289
 msgctxt "ModCategory"
 msgid "Container"
 msgstr "Container"
 
-#: resources/CacheSystem.h:289
+#: resources/CacheSystem.h:291
 msgctxt "ModCategory"
 msgid "Submarine"
 msgstr "Onderzeeër"
 
 #. note: these categories are NOT in the repository:
-#: resources/CacheSystem.h:292
+#: resources/CacheSystem.h:294
 msgctxt "ModCategory"
 msgid "Official Terrains"
 msgstr "Officiële Terreinen"
 
-#: resources/CacheSystem.h:293
+#: resources/CacheSystem.h:295
 msgctxt "ModCategory"
 msgid "Night Terrains"
 msgstr "Nacht Terreinen"
 
 #. do not use category numbers above 9000!
-#: resources/CacheSystem.h:296
+#: resources/CacheSystem.h:298
 msgctxt "ModCategory"
 msgid "Unsorted"
 msgstr "Ongesorteerd"
 
-#: resources/CacheSystem.h:297
+#: resources/CacheSystem.h:299
 msgctxt "ModCategory"
 msgid "All"
 msgstr "Alles"
 
-#: resources/CacheSystem.h:298
+#: resources/CacheSystem.h:300
 #, fuzzy
 msgctxt "ModCategory"
 msgid "Fresh"
 msgstr "Vers"
 
-#: resources/CacheSystem.h:299
+#: resources/CacheSystem.h:301
 msgctxt "ModCategory"
 msgid "Hidden"
 msgstr "Verborgen"
 
-#: scripting/GameScript.cpp:800
+#: scripting/GameScript.cpp:764
 msgid "using Online API..."
 msgstr "gebruikt Online API..."
 
