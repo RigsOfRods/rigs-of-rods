@@ -192,9 +192,7 @@ void GameMainMenu::DrawMenuPanel()
 
                 if (HighlightButton(_LC("MainMenu", "Change server"), btn_size, button_index++))
                 {
-
                     App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
-
                     this->SetVisible(false);
                 }
             }
