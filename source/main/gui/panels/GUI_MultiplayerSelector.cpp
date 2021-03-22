@@ -301,6 +301,14 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
                 MpServerInfo& server = m_serverlist_data[m_selected_item];
                 if (ImGui::Button(_LC("MultiplayerSelector", "Join"), ImVec2(200.f, 0.f)))
                 {
+                    if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING )
+                    {
+                        App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                    }
+                    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+                    {
+                        App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
+                    }
                     App::mp_server_password->SetStr(m_password_buf.GetBuffer());
                     App::mp_server_host->SetStr(server.net_host.c_str());
                     App::mp_server_port->SetVal(server.net_port);
@@ -356,7 +364,7 @@ void MultiplayerSelector::SetVisible(bool visible)
         this->StartAsyncRefresh();
         m_password_buf = App::mp_server_password->GetStr();
     }
-    else if (!visible && App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+    else if (!visible && App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
     {
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }

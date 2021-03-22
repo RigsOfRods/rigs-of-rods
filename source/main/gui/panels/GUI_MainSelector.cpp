@@ -593,6 +593,13 @@ void MainSelector::Apply()
         App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, sd_entry.sde_entry->fname));
         this->Close();
     }
+    else if (m_loader_type == LT_Terrain &&
+        App::sim_state->GetEnum<SimState>() == SimState::PAUSED && App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
+    {
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, sd_entry.sde_entry->fname));
+        this->Close();
+    }
     else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
     {
         LoaderType type = m_loader_type;

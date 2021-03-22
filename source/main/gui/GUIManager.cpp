@@ -483,6 +483,11 @@ void GUIManager::DrawCommonGui()
         m_impl->panel_MainSelector.Draw();
     }
 
+    if (m_impl->panel_MultiplayerSelector.IsVisible())
+    {
+        m_impl->panel_MultiplayerSelector.Draw();
+    }
+
     if (m_impl->panel_ConsoleWindow.IsVisible())
     {
         m_impl->panel_ConsoleWindow.Draw();
@@ -492,11 +497,6 @@ void GUIManager::DrawCommonGui()
 void GUIManager::DrawMainMenuGui()
 {
     this->DrawCommonGui();
-
-    if (m_impl->panel_MultiplayerSelector.IsVisible())
-    {
-        m_impl->panel_MultiplayerSelector.Draw();
-    }
 
     if (m_impl->panel_GameMainMenu.IsVisible())
     {

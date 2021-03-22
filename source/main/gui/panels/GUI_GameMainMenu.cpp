@@ -65,14 +65,13 @@ void GameMainMenu::DrawMenuPanel()
     }
     else
     {
+        m_num_buttons = 4;
         if (App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
         {
-            m_num_buttons = 4;
             title = "Pause";
         }
         else
         {
-            m_num_buttons = 3;
             title = "Menu";
         }
     }
@@ -130,25 +129,22 @@ void GameMainMenu::DrawMenuPanel()
                     m.payload = reinterpret_cast<void*>(new LoaderType(LT_Terrain));
                     App::GetGameContext()->PushMessage(m);
                 }
-                else
-                {
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->GetStr()));
-                }
             }
         }
 
-        if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
+        if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")) && App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
         {
-            if ( HighlightButton(_LC("MainMenu", "Resume game"), btn_size, button_index++))
+            if (HighlightButton(_LC("MainMenu", "Resume game"), btn_size, button_index++))
             {
-                if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
-                {
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, "autosave.sav"));
-                }
-                else
-                {
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
-                }
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, "autosave.sav"));
+                this->SetVisible(false);
+            }
+        }
+        else if (App::app_state->GetEnum<AppState>() != AppState::MAIN_MENU)
+        {
+            if (HighlightButton(_LC("MainMenu", "Resume game"), btn_size, button_index++))
+            {
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
                 this->SetVisible(false);
             }
         }
@@ -157,10 +153,9 @@ void GameMainMenu::DrawMenuPanel()
         {
             if ( HighlightButton(_LC("MainMenu", "Change map"), btn_size, button_index++))
             {
+                this->SetVisible(false);
                 if (App::diag_preset_terrain->GetStr().empty())
                 {
-                    this->SetVisible(false);
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
                     RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
                     m.payload = reinterpret_cast<void*>(new LoaderType(LT_Terrain));
                     App::GetGameContext()->PushMessage(m);
@@ -190,6 +185,15 @@ void GameMainMenu::DrawMenuPanel()
         }
         else
         {
+            if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+            {
+                if (HighlightButton(_LC("MainMenu", "Change server"), btn_size, button_index++))
+                {
+                    App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
+                    this->SetVisible(false);
+                }
+            }
+
             if (HighlightButton(_L("Return to menu"), btn_size, button_index++))
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));

@@ -740,15 +740,19 @@ void GameContext::UpdateGlobalInputEvents()
                 {
                     this->PushMessage(Message(MSG_SIM_PAUSE_REQUESTED));
                 }
-                this->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
             }
             else if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
             {
                 this->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
             }
+
             if (App::GetGuiManager()->IsVisible_GameMainMenu())
             {
                 this->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
+            }
+            else
+            {
+                this->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
             }
         }
     }
