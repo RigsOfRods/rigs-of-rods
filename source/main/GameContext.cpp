@@ -745,10 +745,6 @@ void GameContext::UpdateGlobalInputEvents()
                 {
                     this->PushMessage(Message(MSG_SIM_PAUSE_REQUESTED));
                 }
-                else if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED && App::GetGuiManager()->IsVisible_GameMainMenu()) // we dont pause when connected, need to check if the menu is visible
-                {
-                    this->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
-                }
             }
             else if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
             {

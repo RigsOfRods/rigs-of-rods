@@ -76,21 +76,18 @@ void GameMainMenu::DrawMenuPanel()
         }
     }
 
-    if (App::mp_state->GetEnum<MpState>() != MpState::CONNECTED) // Disable when connected, simulation is not paused
+    // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
+    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
     {
-        // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
-        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
-        {
-            m_kb_focus_index = (m_kb_focus_index <= 0) ? (m_num_buttons - 1) : (m_kb_focus_index - 1);
-        }
-        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
-        {
-            m_kb_focus_index = (m_kb_focus_index < (m_num_buttons - 1)) ? (m_kb_focus_index + 1) : 0;
-        }
-        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
-        {
-            m_kb_enter_index = m_kb_focus_index;
-        }
+        m_kb_focus_index = (m_kb_focus_index <= 0) ? (m_num_buttons - 1) : (m_kb_focus_index - 1);
+    }
+    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
+    {
+        m_kb_focus_index = (m_kb_focus_index < (m_num_buttons - 1)) ? (m_kb_focus_index + 1) : 0;
+    }
+    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
+    {
+        m_kb_enter_index = m_kb_focus_index;
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, BUTTON_PADDING);
@@ -187,9 +184,17 @@ void GameMainMenu::DrawMenuPanel()
         {
             if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
             {
+                App::GetGuiManager()->RequestGuiCaptureKeyboard(true);
+                if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
+                {
+                    this->SetVisible(false);
+                }
+
                 if (HighlightButton(_LC("MainMenu", "Change server"), btn_size, button_index++))
                 {
+
                     App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
+
                     this->SetVisible(false);
                 }
             }
