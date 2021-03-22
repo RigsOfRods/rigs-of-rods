@@ -301,7 +301,7 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
                 MpServerInfo& server = m_serverlist_data[m_selected_item];
                 if (ImGui::Button(_LC("MultiplayerSelector", "Join"), ImVec2(200.f, 0.f)))
                 {
-                    if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING )
+                    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
                     {
                         App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
                     }
