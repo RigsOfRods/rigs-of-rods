@@ -66,13 +66,13 @@ void GameMainMenu::DrawMenuPanel()
     else
     {
         m_num_buttons = 4;
-        if (App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
+        if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
         {
-            title = "Pause";
+            title = "Menu";
         }
         else
         {
-            title = "Menu";
+            title = "Pause";
         }
     }
 
@@ -140,7 +140,7 @@ void GameMainMenu::DrawMenuPanel()
                 this->SetVisible(false);
             }
         }
-        else if (App::app_state->GetEnum<AppState>() != AppState::MAIN_MENU)
+        else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
         {
             if (HighlightButton(_LC("MainMenu", "Resume game"), btn_size, button_index++))
             {
@@ -149,7 +149,7 @@ void GameMainMenu::DrawMenuPanel()
             }
         }
 
-        if (App::app_state->GetEnum<AppState>() != AppState::MAIN_MENU && App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
+        if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION && App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
         {
             if ( HighlightButton(_LC("MainMenu", "Change map"), btn_size, button_index++))
             {

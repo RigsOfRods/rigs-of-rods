@@ -734,25 +734,26 @@ void GameContext::UpdateGlobalInputEvents()
             {
                 App::GetGuiManager()->GetMainSelector()->Close();
             }
+            else if (App::GetGuiManager()->IsVisible_MultiplayerSelector())
+            {
+                App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
+            }
             else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
             {
+                this->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                 if (App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
                 {
                     this->PushMessage(Message(MSG_SIM_PAUSE_REQUESTED));
+                }
+                else if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED && App::GetGuiManager()->IsVisible_GameMainMenu()) // we dont pause when connected, need to check if the menu is visible
+                {
+                    this->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
                 }
             }
             else if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
             {
                 this->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
-            }
-
-            if (App::GetGuiManager()->IsVisible_GameMainMenu())
-            {
                 this->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
-            }
-            else
-            {
-                this->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
             }
         }
     }
