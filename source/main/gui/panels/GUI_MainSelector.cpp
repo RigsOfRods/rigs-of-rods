@@ -579,6 +579,10 @@ void MainSelector::Cancel()
     else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
     {
         App::GetGameContext()->OnLoaderGuiCancel();
+        if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
+        {
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
+        }
     }
 }
 
