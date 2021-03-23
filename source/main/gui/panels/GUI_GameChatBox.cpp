@@ -86,6 +86,7 @@ void GameChatBox::Draw()
         m_console_view.cvw_msg_duration_ms = 3600000; // 1hour
         m_console_view.cvw_filter_type_notice = false;
         m_console_view.cvw_filter_type_warning = false; 
+        m_console_view.cvw_filter_type_error = false;
         m_console_view.cvw_filter_area_script = false; 
         if (init_scroll == false) // Initialize auto scrolling
         {
@@ -100,6 +101,7 @@ void GameChatBox::Draw()
         m_console_view.cvw_smooth_scrolling = true;
         m_console_view.cvw_filter_type_notice = true;
         m_console_view.cvw_filter_type_warning = true; 
+        m_console_view.cvw_filter_type_error = true;
         m_console_view.cvw_filter_area_script = true; 
         m_console_view.cvw_msg_duration_ms = 10000; // 10sec
         if (init_scroll == true)
