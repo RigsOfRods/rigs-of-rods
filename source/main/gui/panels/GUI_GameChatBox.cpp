@@ -37,7 +37,7 @@ using namespace GUI;
 GameChatBox::GameChatBox()
 {
     m_console_view.cvw_filter_area_actor = false; // Disable vehicle spawn warnings/errors
-    m_console_view.cvw_filter_type_error = false; // Disable errors
+    m_console_view.cvw_filter_type_error = true; // Enable errors
     m_console_view.cvw_filter_type_cmd = false; // Disable commands
     m_console_view.cvw_enable_icons = true;
     m_console_view.cvw_background_padding = ImVec2(2,1);

@@ -565,8 +565,8 @@ int main(int argc, char *argv[])
                         }
                         else if (terrn_filename != App::sim_terrain_name->GetStr() && App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
                         {
-                            Str<400> msg; msg << _L("Not loading different terrain while in Multiplayer");
-                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, msg.ToCStr());
+                            Str<400> msg; msg << _L("Error while loading scene: Terrain mismatch");
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
                         }
                         else
                         {
