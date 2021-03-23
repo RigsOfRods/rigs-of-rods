@@ -169,6 +169,10 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
         {
             icon = Ogre::TextureManager::getSingleton().load("error.png", "IconsRG");
         }
+        else if (m.cm_type == Console::CONSOLE_SYSTEM_ERROR)
+        {
+            icon = Ogre::TextureManager::getSingleton().load("cancel.png", "IconsRG");
+        }
         else if (m.cm_type == Console::CONSOLE_SYSTEM_NETCHAT)
         {
             icon = Ogre::TextureManager::getSingleton().load("comment.png", "IconsRG");
