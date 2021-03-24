@@ -72,8 +72,11 @@ using namespace RoR;
     this->SetCurrentKeyword(Truck::KEYWORD_INVALID);                   \
 }
 
-Actor *ActorSpawner::SpawnActor()
+Actor *ActorSpawner::SpawnActor(std::string const& config)
 {
+    m_selected_config = config;
+    this->EvaluateSectionConfig();
+
     InitializeRig();
 
     // Vehicle name
@@ -83,12 +86,83 @@ Actor *ActorSpawner::SpawnActor()
     m_actor->ar_filehash = m_file->hash;
 
     // Flags in root module
-    m_actor->ar_forward_commands         = m_file->forward_commands;
-    m_actor->ar_import_commands          = m_file->import_commands;
+    m_actor->ar_forward_commands         = m_file->forwardcommands;
+    m_actor->ar_import_commands          = m_file->importcommands;
     m_actor->ar_rescuer_flag             = m_file->rescuer;
     m_actor->m_disable_default_sounds    = m_file->disable_default_sounds;
     m_actor->ar_hide_in_actor_list       = m_file->hide_in_chooser;
-    m_actor->ar_collision_range          = m_file->collision_range;
+
+    // Sequential elements - loop by module, then by sequence
+    for (Truck::ModulePtr modul: m_selected_modules)
+    {
+        m_cur_module = modul;
+        for (Truck::SeqSection const& elem: modul->sequence)
+        {
+            switch (elem.section)
+            {
+                // Nodes:
+            case Truck::SECTION_NODES:
+            case Truck::SECTION_NODES_2:
+                this->ProcessNode(modul->nodes[elem.index]);
+                break;
+
+                // Beams:
+            case Truck::SECTION_ANIMATORS:
+                this->ProcessAnimator(modul->animators[elem.index]);
+                break;
+            case Truck::SECTION_BEAMS:
+                this->ProcessBeam(modul->beams[elem.index]);
+                break;
+            case Truck::SECTION_COMMANDS:
+            case Truck::SECTION_COMMANDS_2:
+                this->ProcessCommand(modul->commands_2[elem.index]);
+                break;
+            case Truck::SECTION_HYDROS:
+                this->ProcessHydro(modul->hydros[elem.index]);
+                break;
+            case Truck::SECTION_ROPES:
+                this->ProcessRope(modul->ropes[elem.index]);
+                break;
+            case Truck::SECTION_SHOCKS:
+                this->ProcessShock(modul->shocks[elem.index]);
+                break;
+            case Truck::SECTION_SHOCKS_2:
+                this->ProcessShock2(modul->shocks_2[elem.index]);
+                break;
+            case Truck::SECTION_SHOCKS_3:
+                this->ProcessShock3(modul->shocks_3[elem.index]);
+                break;
+            case Truck::SECTION_TIES:
+                this->ProcessTie(modul->ties[elem.index]);
+                break;
+            case Truck::SECTION_TRIGGERS:
+                this->ProcessTrigger(modul->triggers[elem.index]);
+                break;
+
+                // Generators:
+            case Truck::SECTION_WHEELS:
+                this->ProcessWheel(modul->wheels[elem.index]);
+                break;
+            case Truck::SECTION_WHEELS_2:
+                this->ProcessWheel2(modul->wheels_2[elem.index]);
+                break;
+            case Truck::SECTION_MESH_WHEELS:
+                this->ProcessMeshWheel(modul->mesh_wheels[elem.index]);
+                break;
+            case Truck::SECTION_MESH_WHEELS_2:
+                this->ProcessMeshWheel2(modul->mesh_wheels[elem.index]); // Uses the same array as meshwheels
+                break;
+            case Truck::SECTION_FLEX_BODY_WHEELS:
+                this->ProcessFlexBodyWheel(modul->flex_body_wheels[elem.index]);
+                break;
+            case Truck::SECTION_CINECAM:
+                this->ProcessCinecam(modul->cinecam[elem.index]);
+                break;
+            }
+        }
+    }
+
+ //FIXME   m_actor->ar_collision_range          = m_file->collision_range;
 
     // Section 'authors' in root module
     ProcessAuthors();
@@ -100,7 +174,7 @@ Actor *ActorSpawner::SpawnActor()
     }
 
     // Section 'description'
-    m_actor->description.assign(m_file->description.begin(), m_file->description.end());
+ //FIXME   m_actor->description.assign(m_file->description.begin(), m_file->description.end());
 
     // Section 'managedmaterials'
     // This prepares substitute materials -> MUST be processed before any meshes are loaded.
@@ -116,11 +190,13 @@ Actor *ActorSpawner::SpawnActor()
     // Section 'engine' in any module
     PROCESS_SECTION_IN_ANY_MODULE(Truck::KEYWORD_ENGINE, engine, ProcessEngine);
 
-    // Section 'engoption' in any module
-    PROCESS_SECTION_IN_ANY_MODULE(Truck::KEYWORD_ENGOPTION, engoption, ProcessEngoption);
+    // Section 'engoption'
+    this->SetCurrentKeyword(Truck::KEYWORD_ENGOPTION);
+    this->ProcessEngoption();
 
-    /* Section 'engturbo' in any module */
-    PROCESS_SECTION_IN_ANY_MODULE(Truck::KEYWORD_ENGTURBO, engturbo, ProcessEngturbo);
+    // Section 'engturbo'
+    this->SetCurrentKeyword(Truck::KEYWORD_ENGTURBO);
+    this->ProcessEngturbo();
 
     // Section 'torquecurve' in any module.
     PROCESS_SECTION_IN_ANY_MODULE(Truck::KEYWORD_TORQUECURVE, torque_curve, ProcessTorqueCurve);
@@ -133,8 +209,7 @@ Actor *ActorSpawner::SpawnActor()
 
     // ---------------------------- User-defined nodes ----------------------------
 
-    // Sections 'nodes' & 'nodes2'
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_NODES, nodes, ProcessNode);
+
 
     // Old-format exhaust (defined by flags 'x/y' in section 'nodes', one per vehicle)
     if (m_actor->ar_exhaust_pos_node != 0 && m_actor->ar_exhaust_dir_node != 0)
@@ -142,71 +217,13 @@ Actor *ActorSpawner::SpawnActor()
         AddExhaust(m_actor->ar_exhaust_pos_node, m_actor->ar_exhaust_dir_node);
     }
 
-    // ---------------------------- Node generating sections ----------------------------
 
-    // Section 'cinecam'
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_CINECAM, cinecam, ProcessCinecam);
 
-    // ---------------------------- Wheels (also generate nodes) ----------------------------
-
-    // Section 'wheels'
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_WHEELS, wheels, ProcessWheel);
-
-    // Section 'wheels2'
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_WHEELS2, wheels_2, ProcessWheel2);
-
-    // Sections 'meshwheels' and 'meshwheels2'
-    for (auto& m : m_selected_modules)
-    {
-        for (auto& def : m->mesh_wheels)
-        {
-            if (def._is_meshwheel2)
-            {
-                this->SetCurrentKeyword(Truck::KEYWORD_MESHWHEELS2);
-                this->ProcessMeshWheel2(def);
-            }
-            else
-            {
-                this->SetCurrentKeyword(Truck::KEYWORD_MESHWHEELS);
-                this->ProcessMeshWheel(def);
-            }
-        }
-    }
-
-    // Section 'flexbodywheels'
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_FLEXBODYWHEELS, flex_body_wheels, ProcessFlexBodyWheel);
 
     // ---------------------------- WheelDetachers ----------------------------
 
     // Section 'wheeldetachers'
     PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_WHEELDETACHERS, wheeldetachers, ProcessWheelDetacher);
-
-    // ---------------------------- User-defined beams ----------------------------
-    //              (may reference any generated/user-defined node)
-
-    // Section 'beams'
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_BEAMS, beams, ProcessBeam);
-
-    // Section 'shocks'
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_SHOCKS, shocks, ProcessShock);
-
-    // Section 'shocks2'
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_SHOCKS2, shocks_2, ProcessShock2);
-
-    // Section 'shocks3'
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_SHOCKS3, shocks_3, ProcessShock3);
-
-    // Section 'commands' and 'commands2' (Use generated nodes)
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_COMMANDS2, commands_2, ProcessCommand);
-
-    // Section 'hydros'
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_HYDROS, hydros, ProcessHydro);
-
-    // Section 'triggers'
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_TRIGGERS, triggers, ProcessTrigger);
-
-    // Section 'ropes'
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_ROPES, ropes, ProcessRope);
 
     // ---------------------------- Other ----------------------------
 
@@ -303,7 +320,14 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_EXHAUSTS, exhausts, ProcessExhaust);
 
     // Section 'extcamera'
-    PROCESS_SECTION_IN_ANY_MODULE(Truck::KEYWORD_EXTCAMERA, ext_camera, ProcessExtCamera);
+    this->SetCurrentKeyword(Truck::KEYWORD_EXTCAMERA);
+    for (auto& m : m_selected_modules)
+    {
+        if (m->extcamera.size() > 0)
+        {
+            this->ProcessExtCamera(m->extcamera.back());
+        }
+    }
 
     // Section 'camerarail'
     PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_CAMERARAIL, camera_rails, ProcessCameraRail);

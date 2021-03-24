@@ -52,8 +52,8 @@
 
 #include <regex>
 
-namespace Truck
-{
+namespace RoR {
+namespace Truck {
 
 namespace Regexes
 {
@@ -166,3 +166,4 @@ DEFINE_REGEX( SECTION_AXLES_PROPERTY,
 } // namespace Regexes
 
 } // namespace Truck
+} // namespace RoR

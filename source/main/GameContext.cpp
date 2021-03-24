@@ -192,7 +192,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
     Actor* fresh_actor = m_actor_manager.CreateActorInstance(rq, def);
 
     // lock slide nodes after spawning the actor?
-    if (def->slide_nodes_connect_instantly)
+    if (def->slidenode_connect_instantly)
     {
         fresh_actor->ToggleSlideNodeLock();
     }

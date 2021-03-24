@@ -26,15 +26,13 @@
 #pragma once
 
 #include "TruckFileFormat.h"
-#include "TruckFileFormat.h"
-#include "TruckSequentialImporter.h"
 
 #include <memory>
 #include <string>
 #include <regex>
 
-namespace Truck
-{
+namespace RoR {
+namespace Truck {
 
 ///  @class  Parser
 ///  @author Petr Ohlidal
@@ -77,10 +75,7 @@ public:
         int         length;
     };
 
-    Parser();
-
     void Prepare();
-    void Finalize();
     void ProcessOgreStream(Ogre::DataStream* stream, Ogre::String resource_group);
     void ProcessRawLine(const char* line);
 
@@ -89,15 +84,12 @@ public:
         return m_definition;
     }
 
-    SequentialImporter* GetSequentialImporter() { return &m_sequential_importer; }
-
 private:
 
 // --------------------------------------------------------------------------
 //  Directive parsers
 // --------------------------------------------------------------------------
 
-    void ProcessGlobalDirective(Keyword keyword); //!< Directives that should only appear in root module
     void ParseDirectiveAddAnimation();
     void ParseDirectiveBackmesh();
     void ParseDirectiveDetacherGroup();
@@ -165,6 +157,7 @@ private:
     void ParseRopes();
     void ParseRotatorsUnified();
     void ParseScrewprops();
+    void ParseSectionconfig();
     void ParseSetCollisionRange();
     void ParseSetSkeletonSettings();
     void ParseShock();
@@ -199,7 +192,8 @@ private:
     int              TokenizeCurrentLine();
     bool             CheckNumArguments(int num_required_args);
     void             ChangeSection(Truck::Section new_section);
-    void             ProcessChangeModuleLine(Keyword keyword);
+    void             BeginModule();
+    void             EndModule();
 
     std::string        GetArgStr          (int index);
     int                GetArgInt          (int index);
@@ -217,6 +211,7 @@ private:
     Wing::Control      GetArgWingSurface  (int index);
     Flare2::Type       GetArgFlareType    (int index);
     std::string        GetArgManagedTex   (int index);
+    int                GetArgNodeOptions  (int index);
 
     float              ParseArgFloat      (const char* str);
     int                ParseArgInt        (const char* str);
@@ -243,7 +238,6 @@ private:
     {
         this->AddMessage(m_current_line, type, msg);
     }
-    void VerifyModuleIsRoot(Keyword keyword); //!< Reports warning message if we're not in root module
 
     /// Print a log INFO message.
     void _PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node);
@@ -254,7 +248,7 @@ private:
 
     void _ParseCameraSettings(CameraSettings & camera_settings, Ogre::String input_str);
 
-    void _ParseNodeOptions(unsigned int & options, const std::string & options_str);
+    void _ParseNodeOptions(int & options, const std::string & options_str);
 
     void ProcessCommentLine();
 
@@ -264,39 +258,18 @@ private:
 
 // --------------------------------------------------------------------------
 
-    // RoR defaults
-
-    std::shared_ptr<Inertia>             m_ror_default_inertia;
-    std::shared_ptr<NodeDefaults>        m_ror_node_defaults;
-    std::shared_ptr<MinimassPreset>      m_ror_minimass;
-
-    // Data from user directives
-    // Each affected section-struct has a shared_ptr to it's respective defaults
-    std::shared_ptr<Inertia>             m_user_default_inertia;
-    std::shared_ptr<BeamDefaults>        m_user_beam_defaults;
-    std::shared_ptr<NodeDefaults>        m_user_node_defaults;
-    std::shared_ptr<MinimassPreset>      m_user_minimass;
-    int                                  m_current_detacher_group;
-    ManagedMaterialsOptions              m_current_managed_material_options;
-
-    // Parser state
-    Truck::ModulePtr                     m_root_module;
-    Truck::ModulePtr                     m_current_module;
-
+    // Parser state - reading
     unsigned int                         m_current_line_number;
     char                                 m_current_line[LINE_BUFFER_LENGTH];
     Token                                m_args[LINE_MAX_ARGS];    //!< Tokens of current line.
     int                                  m_num_args;               //!< Number of tokens on current line.
+
+    // Parser state - writing
+    Truck::ModulePtr                     m_current_module;
     Section                              m_current_section;        //!< Parser state.
     Subsection                           m_current_subsection;     //!< Parser state.
     bool                                 m_in_block_comment;       //!< Parser state.
     bool                                 m_in_description_section; //!< Parser state.
-    bool                                 m_any_named_node_defined; //!< Parser state.
-    std::shared_ptr<Submesh>             m_current_submesh;        //!< Parser state.
-    std::shared_ptr<CameraRail>          m_current_camera_rail;    //!< Parser state.
-    std::shared_ptr<Flexbody>            m_last_flexbody;
-
-    SequentialImporter                   m_sequential_importer;
 
     Ogre::String                         m_filename; // Logging
     Ogre::String                         m_resource_group;
@@ -305,3 +278,4 @@ private:
 };
 
 } // namespace Truck
+} // namespace RoR

@@ -158,6 +158,16 @@ namespace RoR
         class  SurveyMap;
         class  TopMenubar;
     }
+
+    namespace Truck
+    {
+        struct NodeDefaults;
+        struct MinimassPreset;
+        struct BeamDefaults;
+        struct EditorGroup;
+        struct Module;
+        struct Document;
+    }
 } // namespace RoR
 
 namespace RoRnet
@@ -168,16 +178,6 @@ namespace RoRnet
     struct ActorStreamRegister;
     struct ServerInfo;
     struct VehicleState;
-}
-
-namespace Truck
-{
-    struct NodeDefaults;
-    struct MinimassPreset;
-    struct BeamDefaults;
-    struct EditorGroup;
-    struct Module;
-    struct Document;
 }
 
 #ifdef USE_SOCKETW

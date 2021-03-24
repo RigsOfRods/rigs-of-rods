@@ -27,6 +27,7 @@
 
 #include "TruckFileFormat.h"
 
+namespace RoR {
 namespace Truck{
 
 /// @class  Serializer
@@ -179,3 +180,4 @@ protected:
 };
 
 } // namespace Truck
+} // namespace RoR

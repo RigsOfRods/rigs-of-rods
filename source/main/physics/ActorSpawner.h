@@ -77,6 +77,8 @@ class ActorSpawner
 
 public:
 
+    ActorSpawner() {}
+
     struct ActorMemoryRequirements
     {
         ActorMemoryRequirements() { memset(this,0, sizeof(ActorMemoryRequirements)); }
@@ -121,13 +123,8 @@ public:
         Ogre::Vector3 const & spawn_position
         );
 
-    Actor *SpawnActor();
+    Actor *SpawnActor(std::string const& config);
 
-    /**
-    * Adds a vehicle module to the validated configuration.
-    * @param module_name A module from the validated rig-def file.
-    */
-    bool AddModule(Ogre::String const & module_name);
 
     /**
     * Adds a vehicle module to the validated configuration.
@@ -252,6 +249,10 @@ private:
 /* NOTE: Please maintain alphabetical order.                                  */
 /* -------------------------------------------------------------------------- */
 
+    /// Keywords 'section/end_section' and 'implicit module' which covers everything else.
+    void EvaluateSectionConfig();
+    void ValidateSectionConfig();
+
     /**
     * Section 'airbrakes'.
     */
@@ -268,7 +269,7 @@ private:
     void ProcessAntiLockBrakes(Truck::AntiLockBrakes & def);
 
     /**
-    * Section 'author' in root module.
+    * Sections 'author' in current module.
     */
     void ProcessAuthors();
 
@@ -283,7 +284,7 @@ private:
     void ProcessBeam(Truck::Beam & def);
 
     /**
-    * Section 'brakes' in any module.
+    * Section 'brakes'.
     */
     void ProcessBrakes(Truck::Brakes & def);
 
@@ -318,24 +319,24 @@ private:
     void ProcessContacter(Truck::Node::Ref & node_ref);
 
     /**
-    * Section 'cruisecontrol' in any module.
+    * Section 'cruisecontrol'.
     */
     void ProcessCruiseControl(Truck::CruiseControl & def);
 
     /**
-    * Section 'engine' in any module.
+    * Section 'engine'.
     */
     void ProcessEngine(Truck::Engine & def);
 
     /**
-    * Section 'engoption' in any module.
+    * Section 'engoption'.
     */ 
-    void ProcessEngoption(Truck::Engoption & def);
+    void ProcessEngoption();
 
     /**
-    * Section 'engturbo' in any module.
+    * Section 'engturbo'.
     */
-    void ProcessEngturbo(Truck::Engturbo & def);
+    void ProcessEngturbo();
 
     /**
     * Section 'exhausts'.
@@ -360,7 +361,7 @@ private:
     /**
     * Section 'flexbodies'.
     */
-    void ProcessFlexbody(std::shared_ptr<Truck::Flexbody> def);
+    void ProcessFlexbody(Truck::Flexbody& ref);
 
     /**
     * Section 'flexbodywheels'.
@@ -373,7 +374,7 @@ private:
     void ProcessFusedrag(Truck::Fusedrag & def);
 
     /**
-    * Section 'gobals' in any module
+    * Section 'gobals'
     */
     void ProcessGlobals(Truck::Globals & def);
 
@@ -480,7 +481,7 @@ private:
     void ProcessSlidenode(Truck::SlideNode & def);
 
     /**
-    * Section 'SlopeBrake' in any module.
+    * Section 'SlopeBrake'.
     */
     void ProcessSlopeBrake(Truck::SlopeBrake & def);
 
@@ -505,12 +506,12 @@ private:
     void ProcessTie(Truck::Tie & def);
 
     /**
-    * Section 'torquecurve' in any module. Depends on 'engine'.
+    * Section 'torquecurve'. Depends on 'engine'.
     */
     void ProcessTorqueCurve(Truck::TorqueCurve & def);
 
     /**
-    * Section 'TractionControl' in any module.
+    * Section 'TractionControl'.
     */
     void ProcessTractionControl(Truck::TractionControl & def);
 
@@ -529,17 +530,17 @@ private:
     void ProcessTurboprop2(Truck::Turboprop2 & def);
 
     /**
-    * Section 'wheeldetachers' in all modules.
+    * Section 'wheeldetachers'.
     */
     void ProcessWheelDetacher(Truck::WheelDetacher & def);
 
     /**
-    * Section 'wheels' in all modules.
+    * Section 'wheels'.
     */
     void ProcessWheel(Truck::Wheel & def);
 
     /**
-    * Section 'wheels2' in all modules.
+    * Section 'wheels2'.
     * @author Pierre-Michel Ricordel
     * @author Thomas Fischer
     */
@@ -572,12 +573,8 @@ private:
     /**
     * Fetches free beam and sets up defaults.
     */
-    beam_t & AddBeam(
-        node_t & node_1, 
-        node_t & node_2, 
-        std::shared_ptr<Truck::BeamDefaults> & defaults,
-        int detacher_group
-    );
+    beam_t & AddBeam(node_t & node_1, node_t & node_2);
+    beam_t & AddBeam(Truck::Node::Ref n1, Truck::Node::Ref n2);
 
     /**
     * Adds complete wheel (section 'wheels') to the rig.
@@ -591,7 +588,7 @@ private:
     */
     unsigned int AddWheel2(Truck::Wheel2 & wheel_2_def);
 
-    void CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::shared_ptr<Truck::BeamDefaults> const& beam_defaults, std::string material_override="");
+    void CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::string material_override="");
 
     RailGroup *CreateRail(std::vector<Truck::Node::Range> & node_ranges);
 
@@ -697,12 +694,6 @@ private:
     );
 
     /**
-    * Adds a node to the rig.
-    * @return First: node index, second: True if the node was inserted, false if duplicate.
-    */
-    std::pair<unsigned int, bool> AddNode(Truck::Node::Id & id);
-
-    /**
     * Adds a message to internal log.
     */
     void AddMessage(Message::Type type, Ogre::String const & text);
@@ -711,6 +702,8 @@ private:
         unsigned int emitter_node_idx,
         unsigned int direction_node_idx
     );
+
+    NodeIdx_t ResolveNodeRef(Truck::Node::Ref const & node_ref);
 
     /**
     * Finds existing node by Node::Ref
@@ -774,7 +767,7 @@ private:
     void InitNode(
         node_t & node, 
         Ogre::Vector3 const & position,
-        std::shared_ptr<Truck::NodeDefaults> node_defaults
+        Truck::NodeDefaults& node_defaults
     );
 
     /**
@@ -836,8 +829,6 @@ private:
     void SetBeamDamping(beam_t & beam, float damping);
 
     beam_t *FindBeamInRig(NodeIdx_t node_a, NodeIdx_t node_b);
-
-    void SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<Truck::BeamDefaults> beam_defaults);
 
     void UpdateCollcabContacterNodes();
 
@@ -950,7 +941,6 @@ private:
         float wheel_radius,
         Truck::Wheels::Propulsion propulsion,
         Truck::Wheels::Braking braking,
-        std::shared_ptr<Truck::NodeDefaults> node_defaults,
         float wheel_mass,
         float wheel_width = -1.f
     );
@@ -967,7 +957,6 @@ private:
         float tyre_damping,
         float rim_spring,
         float rim_damping,
-        std::shared_ptr<Truck::BeamDefaults> beam_defaults,
         Truck::Node::Ref const & rigidity_node_id,
         float max_extension = 0.f
     );
@@ -980,7 +969,6 @@ private:
         node_t *node_2,
         float spring,
         float damping,
-        std::shared_ptr<Truck::BeamDefaults> beam_defaults,
         float max_contraction = -1.f,
         float max_extension = -1.f,
         BeamType type = BEAM_NORMAL
@@ -1014,8 +1002,7 @@ private:
     );
 
     void _ProcessKeyInertia(
-        Truck::Inertia & inertia, 
-        Truck::Inertia & inertia_defaults, 
+        Truck::Inertia & inertia,
         RoR::CmdKeyInertia& contract_key, 
         RoR::CmdKeyInertia& extend_key
     );
@@ -1023,12 +1010,12 @@ private:
     /** 
     * For specified nodes
     */
-    void AdjustNodeBuoyancy(node_t & node, Truck::Node & node_def, std::shared_ptr<Truck::NodeDefaults> defaults);
+    void AdjustNodeBuoyancy(node_t & node, Truck::Node & node_def);
 
     /** 
     * For generated nodes
     */
-    void AdjustNodeBuoyancy(node_t & node, std::shared_ptr<Truck::NodeDefaults> defaults);
+    void AdjustNodeBuoyancy(node_t & node);
 
     /**
     * Ported from SerializedRig::loadTruck() [v0.4.0.7]
@@ -1044,12 +1031,32 @@ private:
 
     void HandleException();
 
+    // Input
+    Truck::DocumentPtr               m_file;
+    Ogre::Vector3                    m_spawn_position;
+    std::string                      m_selected_config;
+    std::vector<Truck::ModulePtr>    m_selected_modules;
+
+    // Context
+    Truck::ModulePtr                 m_cur_module;
+    Truck::Keyword                   m_current_keyword; //!< For error reports
+    std::map<std::string, NodeIdx_t> m_node_names;
+    Truck::BeamDefaults              m_cur_beam_defaults;
+    Truck::NodeDefaults              m_cur_node_defaults;
+    Truck::BeamDefaultsScale         m_cur_beam_defaults_scale;
+    Truck::Inertia                   m_cur_inertia_defaults;
+    Truck::MinimassPreset            m_cur_minimass_preset;
+    Truck::DetacherGroupPreset       m_cur_detacher_preset;
+    Truck::LockgroupPreset           m_cur_lockgroup_preset;
+    Truck::ManagedMatOptions         m_cur_managed_mat_options;
+    Truck::EnableAdvancedDeformation m_cur_enable_advanced_deformation;
+
     // Spawn
     Actor*             m_actor; //!< The output actor.
-    Ogre::Vector3      m_spawn_position;
-    bool               m_apply_simple_materials;
+    
+    bool                           m_apply_simple_materials;
     std::string        m_cab_material_name; //!< Original name defined in truckfile/globals.
-    std::string        m_custom_resource_group;
+    std::string                    m_custom_resource_group;
     std::string        m_help_material_name;
     float              m_wing_area;
     int                m_airplane_left_light;
@@ -1072,17 +1079,13 @@ private:
     std::vector<CabTexcoord>  m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;
     ActorMemoryRequirements   m_memory_requirements;
-    Truck::Keyword     m_current_keyword; //!< For error reports
     std::vector<RoR::NodeGfx> m_gfx_nodes;
     CustomMaterial::MirrorPropType         m_curr_mirror_prop_type;
-    Truck::DocumentPtr          m_file; //!< The parsed input file.
-    std::map<Ogre::String, unsigned int>   m_named_nodes;
+    
     std::map<std::string, CustomMaterial>  m_material_substitutions; //!< Maps original material names (shared) to their actor-specific substitutes; There's 1 substitute per 1 material, regardless of user count.
     std::vector<BeamVisualsTicket>         m_beam_visuals_queue; //!< We want to spawn visuals asynchronously in the future
     std::vector<WheelVisualsTicket>        m_wheel_visuals_queue; //!< We want to spawn visuals asynchronously in the future
     std::map<std::string, Ogre::MaterialPtr>  m_managed_materials;
-    std::list<Truck::ModulePtr>  m_selected_modules;
-
 };
 
 } // namespace RoR

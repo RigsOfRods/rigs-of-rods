@@ -86,7 +86,7 @@ enum ActorType //!< Aka 'Driveable'
 
 enum SpecialBeam: short
 {
-    NOSHOCK,        //!< not a shock
+    REGULAR_BEAM,   //!< formerly 'NOSHOCK'
     SHOCK1,         //!< shock1
     SHOCK2,         //!< shock2
     SHOCK3,         //!< shock3

@@ -688,8 +688,7 @@ void Actor::RecalculateNodeMasses(Real total)
     // Apply pre-defined cinecam node mass
     for (int i = 0; i < this->ar_num_cinecams; ++i)
     {
-        // TODO: this expects all cinecams to be defined in root module (i.e. outside 'section/end_section')
-        ar_nodes[ar_cinecam_node[i]].mass = m_definition->root_module->cinecam[i].node_mass;
+        ar_nodes[ar_cinecam_node[i]].mass = ar_cinecam_node_predef_mass[i];
     }
 
     //update mass

@@ -671,8 +671,6 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     Truck::Parser parser;
     parser.Prepare();
     parser.ProcessOgreStream(stream.getPointer(), group);
-    parser.GetSequentialImporter()->Disable();
-    parser.Finalize();
 
     /* RETRIEVE DATA */
 
@@ -689,55 +687,59 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* Description */
-    std::vector<Ogre::String>::iterator desc_itor = def->description.begin();
-    for (; desc_itor != def->description.end(); desc_itor++)
+    for (Truck::ModulePtr& m: def->modules)
     {
-        entry.description += *desc_itor + "\n";
+        std::vector<Ogre::String>::iterator desc_itor = m->description.begin();
+        for (; desc_itor != m->description.end(); desc_itor++)
+        {
+            entry.description += *desc_itor + "\n";
+        }
     }
 
     /* Authors */
-    std::vector<Truck::Author>::iterator author_itor = def->authors.begin();
-    for (; author_itor != def->authors.end(); author_itor++)
+    for (Truck::ModulePtr& m: def->modules)
     {
-        AuthorInfo author;
-        author.email = author_itor->email;
-        author.id = (author_itor->_has_forum_account) ? static_cast<int>(author_itor->forum_account_id) : -1;
-        author.name = author_itor->name;
-        author.type = author_itor->type;
+        std::vector<Truck::Author>::iterator author_itor = m->authors.begin();
+        for (; author_itor != m->authors.end(); author_itor++)
+        {
+            AuthorInfo author;
+            author.email = author_itor->email;
+            author.id = (author_itor->_has_forum_account) ? static_cast<int>(author_itor->forum_account_id) : -1;
+            author.name = author_itor->name;
+            author.type = author_itor->type;
 
-        entry.authors.push_back(author);
+            entry.authors.push_back(author);
+        }
     }
 
     /* Modules (previously called "sections") */
-    std::map<Ogre::String, Truck::ModulePtr>::iterator module_itor = def->user_modules.begin();
-    for (; module_itor != def->user_modules.end(); module_itor++)
+    for (std::string const& config: def->sectionconfig)
     {
-        entry.sectionconfigs.push_back(module_itor->second->name);
+        entry.sectionconfigs.push_back(config);
     }
 
     /* Engine */
-    /* TODO: Handle engines in modules */
-    if (def->root_module->engine != nullptr)
+    if (def->modules[0]->engine != nullptr) // implicit module
     {
-        std::shared_ptr<Truck::Engine> engine = def->root_module->engine;
+        std::shared_ptr<Truck::Engine> engine = def->modules[0]->engine;
         entry.numgears = static_cast<int>(engine->gear_ratios.size());
         entry.minrpm = engine->shift_down_rpm;
         entry.maxrpm = engine->shift_up_rpm;
         entry.torque = engine->torque;
         entry.enginetype = 't'; /* Truck (default) */
-        if (def->root_module->engoption != nullptr
-            && def->root_module->engoption->type == Truck::Engoption::ENGINE_TYPE_c_CAR)
+        if (def->modules[0]->engoption != nullptr
+            && def->modules[0]->engoption->type == Truck::Engoption::ENGINE_TYPE_c_CAR)
         {
             entry.enginetype = 'c';
         }
     }
 
     /* File info */
-    if (def->file_info != nullptr)
+    if (def->modules[0]->fileinfo.size() > 0)
     {
-        entry.uniqueid = def->file_info->unique_id;
-        entry.categoryid = static_cast<int>(def->file_info->category_id);
-        entry.version = static_cast<int>(def->file_info->file_version);
+        entry.uniqueid = def->modules[0]->fileinfo.back().unique_id;
+        entry.categoryid = static_cast<int>(def->modules[0]->fileinfo.back().category_id);
+        entry.version = static_cast<int>(def->modules[0]->fileinfo.back().file_version);
     }
     else
     {
@@ -751,98 +753,84 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
         This is a temporary solution which has undefined results for mixed-type vehicles.
     */
     ActorType vehicle_type = NOT_DRIVEABLE;
-    module_itor = def->user_modules.begin();
-    for (; module_itor != def->user_modules.end(); module_itor++)
+    auto module_itor = def->modules.begin();
+    for (; module_itor != def->modules.end(); module_itor++)
     {
-        if (module_itor->second->engine != nullptr)
+        if ((*module_itor)->engine != nullptr)
         {
             vehicle_type = TRUCK;
         }
-        else if (module_itor->second->screwprops.size() > 0)
+        else if ((*module_itor)->screwprops.size() > 0)
         {
             vehicle_type = BOAT;
         }
         /* Note: Sections 'turboprops' and 'turboprops2' are unified in TruckParser2013 */
-        else if (module_itor->second->turbojets.size() > 0 || module_itor->second->pistonprops.size() > 0 || module_itor->second->turboprops_2.size() > 0)
+        else if ((*module_itor)->turbojets.size() > 0 || (*module_itor)->pistonprops.size() > 0 || (*module_itor)->turboprops_2.size() > 0)
         {
             vehicle_type = AIRPLANE;
         }
     }
-    /* Root module */
-    if (def->root_module->engine != nullptr)
-    {
-        vehicle_type = TRUCK;
-    }
-    else if (def->root_module->screwprops.size() > 0)
-    {
-        vehicle_type = BOAT;
-    }
-    /* Note: Sections 'turboprops' and 'turboprops2' are unified in TruckParser2013 */
-    else if (def->root_module->turbojets.size() > 0 || def->root_module->pistonprops.size() > 0 || def->root_module->turboprops_2.size() > 0)
-    {
-        vehicle_type = AIRPLANE;
-    }
 
-    if (def->root_module->globals)
+    if (def->modules[0]->globals)
     {
-        entry.truckmass = def->root_module->globals->dry_mass;
-        entry.loadmass = def->root_module->globals->cargo_mass;
+        entry.truckmass = def->modules[0]->globals->dry_mass;
+        entry.loadmass = def->modules[0]->globals->cargo_mass;
     }
     
-    entry.forwardcommands = def->forward_commands;
-    entry.importcommands = def->import_commands;
+    entry.forwardcommands = def->forwardcommands;
+    entry.importcommands = def->importcommands;
     entry.rescuer = def->rescuer;
     entry.guid = def->guid;
-    entry.fileformatversion = def->file_format_version;
-    entry.hasSubmeshs = static_cast<int>(def->root_module->submeshes.size() > 0);
-    entry.nodecount = static_cast<int>(def->root_module->nodes.size());
-    entry.beamcount = static_cast<int>(def->root_module->beams.size());
-    entry.shockcount = static_cast<int>(def->root_module->shocks.size() + def->root_module->shocks_2.size());
-    entry.fixescount = static_cast<int>(def->root_module->fixes.size());
-    entry.hydroscount = static_cast<int>(def->root_module->hydros.size());
+    entry.fileformatversion = def->fileformatversion;
+    entry.hasSubmeshs = static_cast<int>(def->modules[0]->submeshes.size() > 0);
+    entry.nodecount = static_cast<int>(def->modules[0]->nodes.size());
+    entry.beamcount = static_cast<int>(def->modules[0]->beams.size());
+    entry.shockcount = static_cast<int>(def->modules[0]->shocks.size() + def->modules[0]->shocks_2.size());
+    entry.fixescount = static_cast<int>(def->modules[0]->fixes.size());
+    entry.hydroscount = static_cast<int>(def->modules[0]->hydros.size());
     entry.driveable = vehicle_type;
-    entry.commandscount = static_cast<int>(def->root_module->commands_2.size());
-    entry.flarescount = static_cast<int>(def->root_module->flares_2.size());
-    entry.propscount = static_cast<int>(def->root_module->props.size());
-    entry.wingscount = static_cast<int>(def->root_module->wings.size());
-    entry.turbopropscount = static_cast<int>(def->root_module->turboprops_2.size());
-    entry.rotatorscount = static_cast<int>(def->root_module->rotators.size() + def->root_module->rotators_2.size());
-    entry.exhaustscount = static_cast<int>(def->root_module->exhausts.size());
-    entry.custom_particles = def->root_module->particles.size() > 0;
-    entry.turbojetcount = static_cast<int>(def->root_module->turbojets.size());
-    entry.flexbodiescount = static_cast<int>(def->root_module->flexbodies.size());
-    entry.soundsourcescount = static_cast<int>(def->root_module->soundsources.size() + def->root_module->soundsources.size());
+    entry.commandscount = static_cast<int>(def->modules[0]->commands_2.size());
+    entry.flarescount = static_cast<int>(def->modules[0]->flares_2.size());
+    entry.propscount = static_cast<int>(def->modules[0]->props.size());
+    entry.wingscount = static_cast<int>(def->modules[0]->wings.size());
+    entry.turbopropscount = static_cast<int>(def->modules[0]->turboprops_2.size());
+    entry.rotatorscount = static_cast<int>(def->modules[0]->rotators.size() + def->modules[0]->rotators_2.size());
+    entry.exhaustscount = static_cast<int>(def->modules[0]->exhausts.size());
+    entry.custom_particles = def->modules[0]->particles.size() > 0;
+    entry.turbojetcount = static_cast<int>(def->modules[0]->turbojets.size());
+    entry.flexbodiescount = static_cast<int>(def->modules[0]->flexbodies.size());
+    entry.soundsourcescount = static_cast<int>(def->modules[0]->soundsources.size() + def->modules[0]->soundsources.size());
 
     entry.wheelcount = 0;
     entry.propwheelcount = 0;
-    for (const auto& w : def->root_module->wheels)
+    for (const auto& w : def->modules[0]->wheels)
     {
         entry.wheelcount++;
         if (w.propulsion != Truck::Wheels::PROPULSION_NONE)
             entry.propwheelcount++;
     }
-    for (const auto& w : def->root_module->wheels_2)
+    for (const auto& w : def->modules[0]->wheels_2)
     {
         entry.wheelcount++;
         if (w.propulsion != Truck::Wheels::PROPULSION_NONE)
             entry.propwheelcount++;
     }
-    for (const auto& w : def->root_module->mesh_wheels)
+    for (const auto& w : def->modules[0]->mesh_wheels)
     {
         entry.wheelcount++;
         if (w.propulsion != Truck::Wheels::PROPULSION_NONE)
             entry.propwheelcount++;
     }
-    for (const auto& w : def->root_module->flex_body_wheels)
+    for (const auto& w : def->modules[0]->flex_body_wheels)
     {
         entry.wheelcount++;
         if (w.propulsion != Truck::Wheels::PROPULSION_NONE)
             entry.propwheelcount++;
     }
 
-    if (!def->root_module->axles.empty())
+    if (!def->modules[0]->axles.empty())
     {
-        entry.propwheelcount = static_cast<int>(def->root_module->axles.size() * 2);
+        entry.propwheelcount = static_cast<int>(def->modules[0]->axles.size() * 2);
     }
 
     /* NOTE: std::shared_ptr cleans everything up. */

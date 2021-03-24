@@ -65,6 +65,7 @@
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "TorqueCurve.h"
+#include "TruckValidator.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "Utils.h"
@@ -106,13 +107,6 @@ void ActorSpawner::Setup(
     m_first_wing_index = -1;
     m_driverseat_prop_index = -1;
     m_oldstyle_renderdash = nullptr;
-
-    m_generate_wing_position_lights = true;
-    // TODO: Handle modules
-    if (file->root_module->engine.get() != nullptr) // Engine present => it's a land vehicle.
-    {
-        m_generate_wing_position_lights = false; // Disable aerial pos. lights for land vehicles.
-    }
 
     App::GetCacheSystem()->CheckResourceLoaded(m_actor->ar_filename, m_custom_resource_group);
 }
@@ -382,6 +376,13 @@ void ActorSpawner::InitializeRig()
 
     m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_NONE;
     m_curr_mirror_prop_scenenode = nullptr;
+
+    m_generate_wing_position_lights = true;
+    for (auto module: m_selected_modules)
+    {
+        if (module->engine) // Engine present => it's a land vehicle.
+            m_generate_wing_position_lights = false; // Disable aerial pos. lights for land vehicles.
+    }
 }
 
 void ActorSpawner::FinalizeRig()
@@ -839,6 +840,39 @@ void ActorSpawner::ProcessPistonprop(Truck::Pistonprop & def)
         def.turbine_power_kW,
         def.pitch
     );
+}
+
+void ActorSpawner::EvaluateSectionConfig()
+{
+    for (Truck::ModulePtr m: m_file->modules)
+    {
+        if (!m->defined_explicitly || m->sectionconfigs.size() == 0)
+        {
+            m_selected_modules.push_back(m);
+        }
+        else
+        {
+            for (std::string const& config: m->sectionconfigs)
+            {
+                if (config == m_selected_config)
+                {
+                    m_selected_modules.push_back(m);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void ActorSpawner::ValidateSectionConfig()
+{
+    Truck::Validator v;
+    v.Setup(m_file);
+    for (Truck::ModulePtr& modul: m_selected_modules)
+    {
+        v.AddModule(modul);
+    }
+    v.Validate(); // Reports issues to console
 }
 
 void ActorSpawner::ProcessAirbrake(Truck::Airbrake & def)
@@ -1455,26 +1489,26 @@ void ActorSpawner::ProcessSubmesh(Truck::Submesh & def)
     }
 }
 
-void ActorSpawner::ProcessFlexbody(std::shared_ptr<Truck::Flexbody> def)
+void ActorSpawner::ProcessFlexbody(Truck::Flexbody& ref)
 {
-    // Collect nodes
-    std::vector<unsigned int> node_indices;
-    bool nodes_found = true;
-    for (auto& node_def: def->node_list)
-    {
-        auto result = this->GetNodeIndex(node_def);
-        if (!result.second)
-        {
-            nodes_found = false;
-            break;
-        }
-        node_indices.push_back(result.first);
-    }
+    Truck::Flexbody* def = &ref; // clean this up!
 
-    if (! nodes_found)
+    // Collect nodes
+    std::vector<unsigned int> node_indices; // TODO use NodeIdx_t
+    for (Truck::Node::Range range: def->forset)
     {
-        this->AddMessage(Message::TYPE_ERROR, "Failed to collect nodes from node-ranges, skipping flexbody: " + def->mesh_name);
-        return;
+        auto start_res = this->GetNodeIndex(range.start);
+        auto end_res = this->GetNodeIndex(range.end);
+        if (!start_res.second || !end_res.second)
+        {
+            this->AddMessage(Message::TYPE_ERROR, "Failed to collect nodes from node-ranges, skipping flexbody: " + def->mesh_name);
+            return;
+        }
+
+        for (NodeIdx_t i = start_res.first; i != end_res.first; ++i)
+        {
+            node_indices.push_back(i);
+        }
     }
 
     const NodeIdx_t reference_node = this->FindNodeIndex(def->reference_node);
@@ -1493,7 +1527,7 @@ void ActorSpawner::ProcessFlexbody(std::shared_ptr<Truck::Flexbody> def)
     try
     {
         auto* flexbody = m_flex_factory.CreateFlexBody(
-            def.get(), reference_node, x_axis_node, y_axis_node, rot, node_indices, m_custom_resource_group);
+            def, reference_node, x_axis_node, y_axis_node, rot, node_indices, m_custom_resource_group);
 
         if (flexbody == nullptr)
             return; // Error already logged
@@ -2165,6 +2199,9 @@ Ogre::MaterialPtr ActorSpawner::InstantiateManagedMaterial(Ogre::String const & 
 
 void ActorSpawner::ProcessManagedMaterial(Truck::ManagedMaterial & def)
 {
+    // Update presets
+    if (def.managed_mat_options != -1) m_cur_managed_mat_options = m_cur_module->managed_mat_options[def.managed_mat_options];
+
     if (m_managed_materials.find(def.name) != m_managed_materials.end())
     {
         this->AddMessage(Message::TYPE_ERROR, "Duplicate managed material name: '" + def.name + "'. Ignoring definition...");
@@ -2321,7 +2358,7 @@ void ActorSpawner::ProcessManagedMaterial(Truck::ManagedMaterial & def)
 
     if (def.type != Truck::ManagedMaterial::TYPE_INVALID)
     {
-        if (def.options.double_sided)
+        if (m_cur_managed_mat_options.double_sided)
         {
             material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
             if (def.HasSpecularMap())
@@ -2635,14 +2672,18 @@ void ActorSpawner::ProcessRopable(Truck::Ropable & def)
 
 void ActorSpawner::ProcessTie(Truck::Tie & def)
 {
+    // Update presets
+    if (def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[def.beam_defaults];
+    if (def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[def.beam_defaults_scale];
+
     node_t & node_1 = GetNodeOrThrow(def.root_node);
     node_t & node_2 = GetNode( (node_1.pos == 0) ? 1 : 0 );
 
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
-    beam.k = def.beam_defaults->GetScaledSpringiness();
-    beam.d = def.beam_defaults->GetScaledDamping();
+    beam_t & beam = AddBeam(node_1, node_2);
+    beam.strength =  m_cur_beam_defaults.breaking_threshold * m_cur_beam_defaults_scale.breaking_threshold_constant;
+    beam.k = m_cur_beam_defaults.springiness * m_cur_beam_defaults_scale.springiness;
+    beam.d = m_cur_beam_defaults.damping_constant * m_cur_beam_defaults_scale.damping_constant;
     beam.bm_type = BEAM_HYDRO;
     beam.L = def.max_reach_length;
     beam.refL = def.max_reach_length;
@@ -2651,7 +2692,7 @@ void ActorSpawner::ProcessTie(Truck::Tie & def)
 
     if (!def.is_invisible)
     {
-        this->CreateBeamVisuals(beam, beam_index, false, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, false);
     }
 
     /* Register tie */
@@ -2673,21 +2714,25 @@ void ActorSpawner::ProcessTie(Truck::Tie & def)
 
 void ActorSpawner::ProcessRope(Truck::Rope & def)
 {
+    // Update presets
+    if (def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[def.beam_defaults];
+    if (def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[def.beam_defaults_scale];
+
     node_t & root_node = GetNodeOrThrow(def.root_node);
     node_t & end_node = GetNodeOrThrow(def.end_node);
 
     /* Add beam */
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(root_node, end_node, def.beam_defaults, def.detacher_group);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
-    beam.k = def.beam_defaults->GetScaledSpringiness();
-    beam.d = def.beam_defaults->GetScaledDamping();
+    beam_t & beam = AddBeam(root_node, end_node);
+    beam.strength = m_cur_beam_defaults.breaking_threshold * m_cur_beam_defaults_scale.breaking_threshold_constant;
+    beam.k = m_cur_beam_defaults.springiness * m_cur_beam_defaults_scale.springiness;
+    beam.d = m_cur_beam_defaults.damping_constant * m_cur_beam_defaults_scale.damping_constant;
     beam.bounded = ROPE;
     beam.bm_type = BEAM_HYDRO;
     beam.L = root_node.AbsPosition.distance(end_node.AbsPosition);
     beam.refL = beam.L;
 
-    this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults, "tracks/beam");
+    this->CreateBeamVisuals(beam, beam_index, true, "tracks/beam");
 
     /* Register rope */
     rope_t rope;
@@ -2971,7 +3016,7 @@ void ActorSpawner::ProcessHook(Truck::Hook & def)
     }
     if (def.flag_no_rope)
     {
-        hook->hk_beam->bounded = NOSHOCK;
+        hook->hk_beam->bounded = REGULAR_BEAM;
     }
     if (!def.flag_visible) // NOTE: This flag can only hide a visible beam - it won't show a beam defined with 'invisible' flag.
     {
@@ -3013,6 +3058,10 @@ void ActorSpawner::ProcessLockgroup(Truck::Lockgroup & lockgroup)
 
 void ActorSpawner::ProcessTrigger(Truck::Trigger & def)
 {
+    // Update presets
+    if (def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[def.beam_defaults];
+    if (def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[def.beam_defaults_scale];
+
     shock_t & shock = this->GetFreeShock();
 
     // Disable trigger on startup? (default enabled)
@@ -3099,9 +3148,9 @@ void ActorSpawner::ProcessTrigger(Truck::Trigger & def)
         return;
     }
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(GetNode(node_1_index), GetNode(node_2_index), def.beam_defaults, def.detacher_group);
+    beam_t & beam = AddBeam(GetNode(node_1_index), GetNode(node_2_index));
     beam.bm_type = BEAM_HYDRO;
-    SetBeamStrength(beam, def.beam_defaults->breaking_threshold);
+    SetBeamStrength(beam, m_cur_beam_defaults.breaking_threshold * m_cur_beam_defaults_scale.breaking_threshold_constant);
     SetBeamSpring(beam, 0.f);
     SetBeamDamping(beam, 0.f);
     CalculateBeamLength(beam);
@@ -3112,7 +3161,7 @@ void ActorSpawner::ProcessTrigger(Truck::Trigger & def)
 
     if (! def.HasFlag_i_Invisible())
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 
     if (m_actor->m_trigger_debug_enabled)
@@ -3167,8 +3216,8 @@ void ActorSpawner::ProcessTrigger(Truck::Trigger & def)
 
     shock.trigger_boundary_t = def.boundary_timer;
     shock.flags              = shock_flags;
-    shock.sbd_spring         = def.beam_defaults->springiness;
-    shock.sbd_damp           = def.beam_defaults->damping_constant;
+    shock.sbd_spring         = m_cur_beam_defaults.springiness;
+    shock.sbd_damp           = m_cur_beam_defaults.damping_constant;
     shock.last_debug_state   = 0;
     
 }
@@ -3181,6 +3230,9 @@ void ActorSpawner::ProcessContacter(Truck::Node::Ref & node_ref)
 
 void ActorSpawner::ProcessRotator(Truck::Rotator & def)
 {
+    // Update presets
+    if (def.inertia_defaults != -1) m_cur_inertia_defaults = m_cur_module->inertia_defaults[def.inertia_defaults];
+
     rotator_t & rotator = m_actor->ar_rotators[m_actor->ar_num_rotators];
 
     rotator.angle     = 0;
@@ -3207,7 +3259,7 @@ void ActorSpawner::ProcessRotator(Truck::Rotator & def)
     // Rotate right key
     m_actor->ar_command_key[def.spin_right_key].rotators.push_back(m_actor->ar_num_rotators + 1);
 
-    this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults,
+    this->_ProcessKeyInertia(def.inertia,
                              m_actor->ar_command_key[def.spin_left_key].rotator_inertia,
                              m_actor->ar_command_key[def.spin_right_key].rotator_inertia);
 
@@ -3250,7 +3302,7 @@ void ActorSpawner::ProcessRotator2(Truck::Rotator2 & def)
     // Rotate right key
     m_actor->ar_command_key[def.spin_right_key].rotators.push_back(m_actor->ar_num_rotators + 1);
 
-    this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults,
+    this->_ProcessKeyInertia(def.inertia,
                              m_actor->ar_command_key[def.spin_left_key].rotator_inertia,
                              m_actor->ar_command_key[def.spin_right_key].rotator_inertia);
 
@@ -3260,7 +3312,6 @@ void ActorSpawner::ProcessRotator2(Truck::Rotator2 & def)
 
 void ActorSpawner::_ProcessKeyInertia(
     Truck::Inertia & inertia,
-    Truck::Inertia & inertia_defaults,
     RoR::CmdKeyInertia& contract_cmd,
     RoR::CmdKeyInertia& extend_cmd
 )
@@ -3294,41 +3345,40 @@ void ActorSpawner::_ProcessKeyInertia(
             stop_function
         );
     }
-    else if (inertia_defaults.start_delay_factor > 0 || inertia_defaults.stop_delay_factor > 0)
+    else if (m_cur_inertia_defaults.start_delay_factor > 0 || m_cur_inertia_defaults.stop_delay_factor > 0)
     {
         contract_cmd.SetCmdKeyDelay(
             App::GetGameContext()->GetActorManager()->GetInertiaConfig(),
-            inertia_defaults.start_delay_factor,
-            inertia_defaults.stop_delay_factor,
-            inertia_defaults.start_function,
-            inertia_defaults.stop_function
+            m_cur_inertia_defaults.start_delay_factor,
+            m_cur_inertia_defaults.stop_delay_factor,
+            m_cur_inertia_defaults.start_function,
+            m_cur_inertia_defaults.stop_function
         );
 
         extend_cmd.SetCmdKeyDelay(
             App::GetGameContext()->GetActorManager()->GetInertiaConfig(),
-            inertia_defaults.start_delay_factor,
-            inertia_defaults.stop_delay_factor,
-            inertia_defaults.start_function,
-            inertia_defaults.stop_function
+            m_cur_inertia_defaults.start_delay_factor,
+            m_cur_inertia_defaults.stop_delay_factor,
+            m_cur_inertia_defaults.start_function,
+            m_cur_inertia_defaults.stop_function
         );
     }
 }
 
 void ActorSpawner::ProcessCommand(Truck::Command2 & def)
 {
-    const NodeIdx_t beam_index = m_actor->ar_num_beams;
-    const NodeIdx_t node_1_index = FindNodeIndex(def.nodes[0]);
-    const NodeIdx_t node_2_index = FindNodeIndex(def.nodes[1]);
-    if (node_1_index == node_t::INVALID_IDX || node_2_index == node_t::INVALID_IDX)
-    {
-        AddMessage(Message::TYPE_ERROR, "Failed to fetch node");
-        return;
-    }
-    beam_t & beam = AddBeam(m_actor->ar_nodes[node_1_index], m_actor->ar_nodes[node_2_index], def.beam_defaults, def.detacher_group);
+    // Update presets
+    if (def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[def.beam_defaults];
+    if (def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[def.beam_defaults_scale];
+    if (def.inertia_defaults != -1) m_cur_inertia_defaults = m_cur_module->inertia_defaults[def.inertia_defaults];
+
+    // Set up beam
+    int beam_index = m_actor->ar_num_beams;
+    beam_t & beam = AddBeam(def.nodes[0], def.nodes[1]);
     CalculateBeamLength(beam);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold()); /* Override settings from AddBeam() */
-    SetBeamSpring(beam, def.beam_defaults->GetScaledSpringiness());
-    SetBeamDamping(beam, def.beam_defaults->GetScaledDamping());
+    beam.strength = m_cur_beam_defaults.breaking_threshold * m_cur_beam_defaults_scale.breaking_threshold_constant;
+    beam.k = m_cur_beam_defaults.springiness * m_cur_beam_defaults_scale.springiness;
+    beam.d = m_cur_beam_defaults.damping_constant * m_cur_beam_defaults_scale.damping_constant;
     beam.bm_type = BEAM_HYDRO;
 
     /* Options */
@@ -3377,13 +3427,13 @@ void ActorSpawner::ProcessCommand(Truck::Command2 & def)
         extend_command->description = def.description;
     }
 
-    this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults,
+    this->_ProcessKeyInertia(def.inertia,
                              contract_command->command_inertia,
                              extend_command->command_inertia);
 
     if (! def.option_i_invisible)
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 
     m_actor->m_num_command_beams++;
@@ -3499,20 +3549,26 @@ void ActorSpawner::ProcessAnimator(Truck::Animator & def)
         anim_option = static_cast<float>(def.aero_animator.engine_idx);
     }
 
+    // Update presets
+    if (def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[def.beam_defaults];
+    if (def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[def.beam_defaults_scale];
+    if (def.inertia_defaults != -1) m_cur_inertia_defaults = m_cur_module->inertia_defaults[def.inertia_defaults];
+
+    // Set up beam
     unsigned int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(GetNode(def.nodes[0]), GetNode(def.nodes[1]), def.beam_defaults, def.detacher_group);
+    beam_t & beam = AddBeam(def.nodes[0], def.nodes[1]);
     /* set the limits to something with sense by default */
     beam.shortbound = 0.99999f;
     beam.longbound = 1000000.0f;
     beam.bm_type = BEAM_HYDRO;
     CalculateBeamLength(beam);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
-    SetBeamSpring(beam, def.beam_defaults->GetScaledSpringiness());
-    SetBeamDamping(beam, def.beam_defaults->GetScaledDamping());
+    beam.strength = m_cur_beam_defaults.breaking_threshold * m_cur_beam_defaults_scale.breaking_threshold_constant;
+    beam.k = m_cur_beam_defaults.springiness * m_cur_beam_defaults_scale.springiness;
+    beam.d = m_cur_beam_defaults.damping_constant * m_cur_beam_defaults_scale.damping_constant;
 
     if (BITMASK_IS_0(def.flags, Truck::Animator::OPTION_INVISIBLE))
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 
     if (BITMASK_IS_1(def.flags, Truck::Animator::OPTION_SHORT_LIMIT)) 
@@ -3532,43 +3588,44 @@ void ActorSpawner::ProcessAnimator(Truck::Animator & def)
     hb.hb_anim_flags = anim_flags;
     hb.hb_anim_param = anim_option;
 
-    if (def.inertia_defaults->start_delay_factor > 0 && def.inertia_defaults->stop_delay_factor > 0)
+
+    if (m_cur_inertia_defaults.start_delay_factor > 0 && m_cur_inertia_defaults.stop_delay_factor > 0)
     {
         hb.hb_inertia.SetCmdKeyDelay(
             App::GetGameContext()->GetActorManager()->GetInertiaConfig(),
-            def.inertia_defaults->start_delay_factor,
-            def.inertia_defaults->stop_delay_factor,
-            def.inertia_defaults->start_function,
-            def.inertia_defaults->stop_function
+            m_cur_inertia_defaults.start_delay_factor,
+            m_cur_inertia_defaults.stop_delay_factor,
+            m_cur_inertia_defaults.start_function,
+            m_cur_inertia_defaults.stop_function
         );
     }
 
     m_actor->ar_hydros.push_back(hb);
 }
 
-beam_t & ActorSpawner::AddBeam(
-    node_t & node_1, 
-    node_t & node_2, 
-    std::shared_ptr<Truck::BeamDefaults> & beam_defaults,
-    int detacher_group
-)
+beam_t & ActorSpawner::AddBeam(node_t & node_1, node_t & node_2)
 {
-    /* Init */
     beam_t & beam = GetAndInitFreeBeam(node_1, node_2);
-    beam.detacher_group = detacher_group;
+    beam.detacher_group = m_cur_detacher_preset.detacher_group;
     beam.bm_disabled = false;
 
-    /* Breaking threshold (strength) */
-    float strength = beam_defaults->breaking_threshold;
-    beam.strength = strength;
+    beam.strength = m_cur_beam_defaults.breaking_threshold;
 
-    /* Deformation */
-    SetBeamDeformationThreshold(beam, beam_defaults);
+    beam.default_beam_deform = m_cur_beam_defaults.deformation_threshold * m_cur_beam_defaults_scale.deformation_threshold_constant;
+    beam.minmaxposnegstress = m_cur_beam_defaults.deformation_threshold * m_cur_beam_defaults_scale.deformation_threshold_constant;
+    beam.maxposstress = m_cur_beam_defaults.deformation_threshold * m_cur_beam_defaults_scale.deformation_threshold_constant;
+    beam.maxnegstress = m_cur_beam_defaults.deformation_threshold * m_cur_beam_defaults_scale.deformation_threshold_constant;
 
-    float plastic_coef = beam_defaults->plastic_deform_coef;
-    beam.plastic_coef = plastic_coef;
+    beam.plastic_coef = m_cur_beam_defaults.plastic_deform_coef;
 
     return beam;
+}
+
+beam_t& ActorSpawner::AddBeam(Truck::Node::Ref n1, Truck::Node::Ref n2)
+{
+    return this->AddBeam(
+        m_actor->ar_nodes[this->ResolveNodeRef(n1)],
+        m_actor->ar_nodes[this->ResolveNodeRef(n2)]);
 }
 
 void ActorSpawner::SetBeamStrength(beam_t & beam, float strength)
@@ -3648,20 +3705,23 @@ void ActorSpawner::ProcessHydro(Truck::Hydro & def)
         }
     }
 
-    node_t & node_1 = GetNode(def.nodes[0]);
-    node_t & node_2 = GetNode(def.nodes[1]);
+    // Update presets
+    if (def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[def.beam_defaults];
+    if (def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[def.beam_defaults_scale];
+    if (def.inertia_defaults != -1) m_cur_inertia_defaults = m_cur_module->inertia_defaults[def.inertia_defaults];
 
+    // Set up beam
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
+    beam_t & beam = AddBeam(def.nodes[0], def.nodes[1]);
     CalculateBeamLength(beam);
     beam.bm_type              = BEAM_HYDRO;
-    beam.k                    = def.beam_defaults->GetScaledSpringiness();
-    beam.d                    = def.beam_defaults->GetScaledDamping();
+    beam.strength             = m_cur_beam_defaults.breaking_threshold * m_cur_beam_defaults_scale.breaking_threshold_constant;
+    beam.k                    = m_cur_beam_defaults.springiness * m_cur_beam_defaults_scale.springiness;
+    beam.d                    = m_cur_beam_defaults.damping_constant * m_cur_beam_defaults_scale.damping_constant;
 
     if (!invisible)
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 
     hydrobeam_t hb;
@@ -3671,13 +3731,18 @@ void ActorSpawner::ProcessHydro(Truck::Hydro & def)
     hb.hb_ref_length = beam.L;
     hb.hb_anim_flags = 0;
     hb.hb_anim_param = 0.f;
-    this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults, hb.hb_inertia, hb.hb_inertia);
+    this->_ProcessKeyInertia(def.inertia, hb.hb_inertia, hb.hb_inertia);
 
     m_actor->ar_hydros.push_back(hb);
 }
 
 void ActorSpawner::ProcessShock3(Truck::Shock3 & def)
 {
+        // Update presets
+    if (def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[def.beam_defaults];
+    if (def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[def.beam_defaults_scale];
+
+
     node_t & node_1 = GetNode(def.nodes[0]);
     node_t & node_2 = GetNode(def.nodes[1]);
     float short_bound = def.short_bound;
@@ -3714,10 +3779,11 @@ void ActorSpawner::ProcessShock3(Truck::Shock3 & def)
             short_bound = 1.f;
         }
     }
-    
+
+
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
-    SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
+    beam_t & beam = AddBeam(node_1, node_2);
+    beam.strength = m_cur_beam_defaults.breaking_threshold * m_cur_beam_defaults_scale.breaking_threshold_constant;
     beam.bm_type              = BEAM_HYDRO;
     beam.bounded              = SHOCK3;
     beam.k                    = def.spring_in;
@@ -3732,13 +3798,13 @@ void ActorSpawner::ProcessShock3(Truck::Shock3 & def)
 
     if (BITMASK_IS_0(def.options, Truck::Shock3::OPTION_i_INVISIBLE))
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 
     shock_t & shock  = GetFreeShock();
     shock.flags      = shock_flags;
-    shock.sbd_spring = def.beam_defaults->springiness;
-    shock.sbd_damp   = def.beam_defaults->damping_constant;
+    shock.sbd_spring = m_cur_beam_defaults.springiness;
+    shock.sbd_damp   = m_cur_beam_defaults.damping_constant;
     shock.springin   = def.spring_in;
     shock.dampin     = def.damp_in;
     shock.springout  = def.spring_out;
@@ -3797,10 +3863,15 @@ void ActorSpawner::ProcessShock2(Truck::Shock2 & def)
             short_bound = 1.f;
         }
     }
-    
+
+    // Update presets
+    if (def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[def.beam_defaults];
+    if (def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[def.beam_defaults_scale];
+
+    // Set up beam
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
-    SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
+    beam_t & beam = AddBeam(node_1, node_2);
+    beam.strength             = m_cur_beam_defaults.breaking_threshold * m_cur_beam_defaults_scale.breaking_threshold_constant;
     beam.bm_type              = BEAM_HYDRO;
     beam.bounded              = SHOCK2;
     beam.k                    = def.spring_in;
@@ -3815,13 +3886,13 @@ void ActorSpawner::ProcessShock2(Truck::Shock2 & def)
 
     if (BITMASK_IS_0(def.options, Truck::Shock2::OPTION_i_INVISIBLE))
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 
     shock_t & shock  = GetFreeShock();
     shock.flags      = shock_flags;
-    shock.sbd_spring = def.beam_defaults->springiness;
-    shock.sbd_damp   = def.beam_defaults->damping_constant;
+    shock.sbd_spring = m_cur_beam_defaults.springiness;
+    shock.sbd_damp   = m_cur_beam_defaults.damping_constant;
     shock.springin   = def.spring_in;
     shock.dampin     = def.damp_in;
     shock.springout  = def.spring_out;
@@ -3837,8 +3908,15 @@ void ActorSpawner::ProcessShock2(Truck::Shock2 & def)
 
 void ActorSpawner::ProcessShock(Truck::Shock & def)
 {
-    node_t & node_1 = GetNode(def.nodes[0]);
-    node_t & node_2 = GetNode(def.nodes[1]);
+    // Update presets
+    if (def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[def.beam_defaults];
+    if (def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[def.beam_defaults_scale];
+
+    // Set up beam
+    int beam_index = m_actor->ar_num_beams;
+    beam_t & beam = AddBeam(def.nodes[0], def.nodes[1]);
+
+    // Resolve options
     float short_bound = def.short_bound;
     float long_bound = def.long_bound;
     unsigned int shock_flags = SHOCK_FLAG_NORMAL;
@@ -3857,20 +3935,18 @@ void ActorSpawner::ProcessShock(Truck::Shock & def)
     }
     if (BITMASK_IS_1(def.options, Truck::Shock::OPTION_m_METRIC))
     {
-        float beam_length = node_1.AbsPosition.distance(node_2.AbsPosition);
+        float beam_length = beam.p1->AbsPosition.distance(beam.p2->AbsPosition);
         short_bound /= beam_length;
         long_bound /= beam_length;
     }
-    
-    int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
+
     beam.shortbound = short_bound;
     beam.longbound  = long_bound;
     beam.bounded    = SHOCK1;
     beam.bm_type    = BEAM_HYDRO;
     beam.k          = def.spring_rate;
     beam.d          = def.damping;
-    SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
+    SetBeamStrength(beam, m_cur_beam_defaults.breaking_threshold * 4.f);
 
     /* Length + pre-compression */
     CalculateBeamLength(beam);
@@ -3879,12 +3955,12 @@ void ActorSpawner::ProcessShock(Truck::Shock & def)
 
     shock_t & shock  = GetFreeShock();
     shock.flags      = shock_flags;
-    shock.sbd_spring = def.beam_defaults->springiness;
-    shock.sbd_damp   = def.beam_defaults->damping_constant;
+    shock.sbd_spring = m_cur_beam_defaults.springiness;
+    shock.sbd_damp   = m_cur_beam_defaults.damping_constant;
 
     if (BITMASK_IS_0(def.options, Truck::Shock::OPTION_i_INVISIBLE))
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 
     beam.shock = & shock;
@@ -3915,6 +3991,13 @@ void ActorSpawner::FetchAxisNodes(
 
 void ActorSpawner::ProcessFlexBodyWheel(Truck::FlexBodyWheel & def)
 {
+    // Update presets
+    if (def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[def.beam_defaults];
+    if (def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[def.beam_defaults_scale];
+    if (def.node_defaults != -1) m_cur_node_defaults = m_cur_module->node_defaults[def.node_defaults];
+    if (def.enable_advanced_deformation != -1) m_cur_enable_advanced_deformation = m_cur_module->enable_advanced_deformation[def.enable_advanced_deformation];
+    if (def.minimass_preset != -1) m_cur_minimass_preset = m_cur_module->minimass_preset[def.minimass_preset];
+
     unsigned int base_node_index = m_actor->ar_num_nodes;
     wheel_t & wheel = m_actor->ar_wheels[m_actor->ar_num_wheels];
 
@@ -3950,13 +4033,13 @@ void ActorSpawner::ProcessFlexBodyWheel(Truck::FlexBodyWheel & def)
         rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 
         node_t & outer_node      = GetFreeNode();
-        InitNode(outer_node, ray_point, def.node_defaults);
+        InitNode(outer_node, ray_point);
 
         outer_node.mass          = node_mass;
-        outer_node.friction_coef = def.node_defaults->friction;
+        outer_node.friction_coef = m_cur_node_defaults.friction;
         outer_node.nd_rim_node   = true;
-        AdjustNodeBuoyancy(outer_node, def.node_defaults);
-        m_actor->ar_minimass[outer_node.pos] = m_file->global_minimass->min_mass;
+        AdjustNodeBuoyancy(outer_node);
+        m_actor->ar_minimass[outer_node.pos] = m_cur_minimass_preset.min_mass;
 
         m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(outer_node.pos)));
 
@@ -3965,13 +4048,13 @@ void ActorSpawner::ProcessFlexBodyWheel(Truck::FlexBodyWheel & def)
         rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 
         node_t & inner_node      = GetFreeNode();
-        InitNode(inner_node, ray_point, def.node_defaults);
+        InitNode(inner_node, ray_point);
 
         inner_node.mass          = node_mass;
-        inner_node.friction_coef = def.node_defaults->friction;
+        inner_node.friction_coef = m_cur_node_defaults.friction;
         inner_node.nd_rim_node   = true;
-        AdjustNodeBuoyancy(inner_node, def.node_defaults);
-        m_actor->ar_minimass[inner_node.pos] = m_file->global_minimass->min_mass;
+        AdjustNodeBuoyancy(inner_node);
+        m_actor->ar_minimass[inner_node.pos] = m_cur_minimass_preset.min_mass;
 
         m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
@@ -3995,12 +4078,12 @@ void ActorSpawner::ProcessFlexBodyWheel(Truck::FlexBodyWheel & def)
         node_t & outer_node = GetFreeNode();
         InitNode(outer_node, ray_point);
         outer_node.mass          = node_mass;
-        outer_node.friction_coef = def.node_defaults->friction;
-        outer_node.volume_coef   = def.node_defaults->volume;
-        outer_node.surface_coef  = def.node_defaults->surface;
+        outer_node.friction_coef = m_cur_node_defaults.friction;
+        outer_node.volume_coef   = m_cur_node_defaults.volume;
+        outer_node.surface_coef  = m_cur_node_defaults.surface;
         outer_node.nd_contacter  = true;
         outer_node.nd_tyre_node  = true;
-        AdjustNodeBuoyancy(outer_node, def.node_defaults);
+        AdjustNodeBuoyancy(outer_node);
 
         m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(outer_node.pos)));
 
@@ -4011,12 +4094,12 @@ void ActorSpawner::ProcessFlexBodyWheel(Truck::FlexBodyWheel & def)
         node_t & inner_node = GetFreeNode();
         InitNode(inner_node, ray_point);
         inner_node.mass          = node_mass;
-        inner_node.friction_coef = def.node_defaults->friction;
-        inner_node.volume_coef   = def.node_defaults->volume;
-        inner_node.surface_coef  = def.node_defaults->surface;
+        inner_node.friction_coef = m_cur_node_defaults.friction;
+        inner_node.volume_coef   = m_cur_node_defaults.volume;
+        inner_node.surface_coef  = m_cur_node_defaults.surface;
         inner_node.nd_contacter  = true;
         inner_node.nd_tyre_node  = true;
-        AdjustNodeBuoyancy(inner_node, def.node_defaults);
+        AdjustNodeBuoyancy(inner_node);
 
         m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
@@ -4030,8 +4113,8 @@ void ActorSpawner::ProcessFlexBodyWheel(Truck::FlexBodyWheel & def)
     float rim_damp = def.rim_damping;
     float tyre_spring = def.tyre_springiness;
     float tyre_damp = def.tyre_damping;
-    float tread_spring = def.beam_defaults->springiness;
-    float tread_damp = def.beam_defaults->damping_constant;
+    float tread_spring = m_cur_beam_defaults.springiness;
+    float tread_damp = m_cur_beam_defaults.damping_constant;
 
     for (unsigned int i = 0; i < def.num_rays; i++)
     {
@@ -4042,20 +4125,20 @@ void ActorSpawner::ProcessFlexBodyWheel(Truck::FlexBodyWheel & def)
         node_t *rim_outer_node = & m_actor->ar_nodes[rim_outer_node_index];
         node_t *rim_inner_node = & m_actor->ar_nodes[rim_outer_node_index + 1];
 
-        AddWheelBeam(axis_node_1, rim_outer_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(axis_node_2, rim_inner_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(axis_node_2, rim_outer_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(axis_node_1, rim_inner_node, rim_spring, rim_damp, def.beam_defaults);
+        AddWheelBeam(axis_node_1, rim_outer_node, rim_spring, rim_damp);
+        AddWheelBeam(axis_node_2, rim_inner_node, rim_spring, rim_damp);
+        AddWheelBeam(axis_node_2, rim_outer_node, rim_spring, rim_damp);
+        AddWheelBeam(axis_node_1, rim_inner_node, rim_spring, rim_damp);
 
         // Reinforcement rim ring
         unsigned int rim_next_outer_node_index = base_node_index + (((i + 1) % def.num_rays) * 2);
         node_t *rim_next_outer_node = & m_actor->ar_nodes[rim_next_outer_node_index];
         node_t *rim_next_inner_node = & m_actor->ar_nodes[rim_next_outer_node_index + 1];
 
-        AddWheelBeam(rim_outer_node, rim_inner_node,      rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(rim_outer_node, rim_next_outer_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(rim_inner_node, rim_next_inner_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(rim_inner_node, rim_next_outer_node, rim_spring, rim_damp, def.beam_defaults);
+        AddWheelBeam(rim_outer_node, rim_inner_node,      rim_spring, rim_damp);
+        AddWheelBeam(rim_outer_node, rim_next_outer_node, rim_spring, rim_damp);
+        AddWheelBeam(rim_inner_node, rim_next_inner_node, rim_spring, rim_damp);
+        AddWheelBeam(rim_inner_node, rim_next_outer_node, rim_spring, rim_damp);
     }
 
     // Tyre beams
@@ -4066,20 +4149,20 @@ void ActorSpawner::ProcessFlexBodyWheel(Truck::FlexBodyWheel & def)
         int tyre_node_index   = base_node_index + i*2 + def.num_rays*2;
         node_t * rim_node     = & m_actor->ar_nodes[rim_node_index];
 
-        AddWheelBeam(rim_node, & m_actor->ar_nodes[tyre_node_index], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        AddWheelBeam(rim_node, & m_actor->ar_nodes[tyre_node_index], tyre_spring/2.f, tyre_damp);
 
         int tyre_base_index = (i == 0) ? tyre_node_index + (def.num_rays * 2) : tyre_node_index;
-        AddWheelBeam(rim_node, & m_actor->ar_nodes[tyre_base_index - 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
-        AddWheelBeam(rim_node, & m_actor->ar_nodes[tyre_base_index - 2], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        AddWheelBeam(rim_node, & m_actor->ar_nodes[tyre_base_index - 1], tyre_spring/2.f, tyre_damp);
+        AddWheelBeam(rim_node, & m_actor->ar_nodes[tyre_base_index - 2], tyre_spring/2.f, tyre_damp);
 
         node_t * next_rim_node = & m_actor->ar_nodes[rim_node_index + 1];
-        AddWheelBeam(next_rim_node, & m_actor->ar_nodes[tyre_node_index],     tyre_spring/2.f, tyre_damp, def.beam_defaults);
-        AddWheelBeam(next_rim_node, & m_actor->ar_nodes[tyre_node_index + 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        AddWheelBeam(next_rim_node, & m_actor->ar_nodes[tyre_node_index],     tyre_spring/2.f, tyre_damp);
+        AddWheelBeam(next_rim_node, & m_actor->ar_nodes[tyre_node_index + 1], tyre_spring/2.f, tyre_damp);
 
         {
             int index = (i == 0) ? tyre_node_index + (def.num_rays * 2) - 1 : tyre_node_index - 1;
             node_t * tyre_node = & m_actor->ar_nodes[index];
-            AddWheelBeam(next_rim_node, tyre_node, tyre_spring/2.f, tyre_damp, def.beam_defaults);
+            AddWheelBeam(next_rim_node, tyre_node, tyre_spring/2.f, tyre_damp);
         }
 
         //reinforcement (tire tread)
@@ -4089,10 +4172,10 @@ void ActorSpawner::ProcessFlexBodyWheel(Truck::FlexBodyWheel & def)
             int rimnode = rim_node_index;
             int rays = def.num_rays;
 
-            AddWheelBeam(&m_actor->ar_nodes[rimnode+rays*2], &m_actor->ar_nodes[base_node_index+i*2+1+rays*2], tread_spring, tread_damp, def.beam_defaults);
-            AddWheelBeam(&m_actor->ar_nodes[rimnode+rays*2], &m_actor->ar_nodes[base_node_index+((i+1)%rays)*2+rays*2], tread_spring, tread_damp, def.beam_defaults);
-            AddWheelBeam(&m_actor->ar_nodes[base_node_index+i*2+1+rays*2], &m_actor->ar_nodes[base_node_index+((i+1)%rays)*2+1+rays*2], tread_spring, tread_damp, def.beam_defaults);
-            AddWheelBeam(&m_actor->ar_nodes[rimnode+1+rays*2], &m_actor->ar_nodes[base_node_index+((i+1)%rays)*2+rays*2], tread_spring, tread_damp, def.beam_defaults);
+            AddWheelBeam(&m_actor->ar_nodes[rimnode+rays*2], &m_actor->ar_nodes[base_node_index+i*2+1+rays*2], tread_spring, tread_damp);
+            AddWheelBeam(&m_actor->ar_nodes[rimnode+rays*2], &m_actor->ar_nodes[base_node_index+((i+1)%rays)*2+rays*2], tread_spring, tread_damp);
+            AddWheelBeam(&m_actor->ar_nodes[base_node_index+i*2+1+rays*2], &m_actor->ar_nodes[base_node_index+((i+1)%rays)*2+1+rays*2], tread_spring, tread_damp);
+            AddWheelBeam(&m_actor->ar_nodes[rimnode+1+rays*2], &m_actor->ar_nodes[base_node_index+((i+1)%rays)*2+rays*2], tread_spring, tread_damp);
 
             if (rigidity_node != nullptr)
             {
@@ -4103,7 +4186,7 @@ void ActorSpawner::ProcessFlexBodyWheel(Truck::FlexBodyWheel & def)
                 {
                     axis_node_closest_to_rigidity_node = & m_actor->ar_nodes[base_node_index+i*2+1+rays*2];
                 };
-                unsigned int beam_index = AddWheelBeam(rigidity_node, axis_node_closest_to_rigidity_node, tyre_spring, tyre_damp, def.beam_defaults);
+                unsigned int beam_index = AddWheelBeam(rigidity_node, axis_node_closest_to_rigidity_node, tyre_spring, tyre_damp);
                 GetBeam(beam_index).bm_type = BEAM_VIRTUAL;
             }
         }
@@ -4120,12 +4203,12 @@ void ActorSpawner::ProcessFlexBodyWheel(Truck::FlexBodyWheel & def)
         unsigned int tirenode = base_node_index + i*2 + def.num_rays*2;
         unsigned int beam_index;
 
-        beam_index = AddWheelBeam(axis_node_1, &m_actor->ar_nodes[tirenode],     tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        beam_index = AddWheelBeam(axis_node_1, &m_actor->ar_nodes[tirenode],     tyre_spring/2.f, tyre_damp);
         GetBeam(beam_index).shortbound = support_beams_short_bound;
         GetBeam(beam_index).longbound  = 0.f;
         GetBeam(beam_index).bounded = SHOCK1;
 
-        beam_index = AddWheelBeam(axis_node_2, &m_actor->ar_nodes[tirenode + 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        beam_index = AddWheelBeam(axis_node_2, &m_actor->ar_nodes[tirenode + 1], tyre_spring/2.f, tyre_damp);
         GetBeam(beam_index).shortbound = support_beams_short_bound;
         GetBeam(beam_index).longbound  = 0.f;
         GetBeam(beam_index).bounded = SHOCK1;
@@ -4183,6 +4266,13 @@ void ActorSpawner::ProcessMeshWheel(Truck::MeshWheel & meshwheel_def)
         return;
     }
 
+    // Update presets
+    if (meshwheel_def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[meshwheel_def.beam_defaults];
+    if (meshwheel_def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[meshwheel_def.beam_defaults_scale];
+    if (meshwheel_def.node_defaults != -1) m_cur_node_defaults = m_cur_module->node_defaults[meshwheel_def.node_defaults];
+    if (meshwheel_def.enable_advanced_deformation != -1) m_cur_enable_advanced_deformation = m_cur_module->enable_advanced_deformation[meshwheel_def.enable_advanced_deformation];
+    if (meshwheel_def.minimass_preset != -1) m_cur_minimass_preset = m_cur_module->minimass_preset[meshwheel_def.minimass_preset];
+
     unsigned int base_node_index = m_actor->ar_num_nodes;
     node_t *axis_node_1 = GetNodePointer(meshwheel_def.nodes[0]);
     node_t *axis_node_2 = GetNodePointer(meshwheel_def.nodes[1]);
@@ -4208,7 +4298,6 @@ void ActorSpawner::ProcessMeshWheel(Truck::MeshWheel & meshwheel_def)
         meshwheel_def.tyre_radius,
         meshwheel_def.propulsion,
         meshwheel_def.braking,
-        meshwheel_def.node_defaults,
         meshwheel_def.mass
     );
 
@@ -4221,7 +4310,6 @@ void ActorSpawner::ProcessMeshWheel(Truck::MeshWheel & meshwheel_def)
         meshwheel_def.damping,     /* Tyre */
         meshwheel_def.spring,      /* Rim */
         meshwheel_def.damping,     /* Rim */
-        meshwheel_def.beam_defaults,
         meshwheel_def.rigidity_node
     );
 
@@ -4233,6 +4321,13 @@ void ActorSpawner::ProcessMeshWheel(Truck::MeshWheel & meshwheel_def)
 
 void ActorSpawner::ProcessMeshWheel2(Truck::MeshWheel & def)
 {
+    // Update presets
+    if (def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[def.beam_defaults];
+    if (def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[def.beam_defaults_scale];
+    if (def.node_defaults != -1) m_cur_node_defaults = m_cur_module->node_defaults[def.node_defaults];
+    if (def.enable_advanced_deformation != -1) m_cur_enable_advanced_deformation = m_cur_module->enable_advanced_deformation[def.enable_advanced_deformation];
+    if (def.minimass_preset != -1) m_cur_minimass_preset = m_cur_module->minimass_preset[def.minimass_preset];
+
     unsigned int base_node_index = m_actor->ar_num_nodes;
     node_t *axis_node_1 = GetNodePointer(def.nodes[0]);
     node_t *axis_node_2 = GetNodePointer(def.nodes[1]);
@@ -4264,7 +4359,6 @@ void ActorSpawner::ProcessMeshWheel2(Truck::MeshWheel & def)
         def.tyre_radius,
         def.propulsion,
         def.braking,
-        def.node_defaults,
         def.mass
     );
 
@@ -4272,8 +4366,8 @@ void ActorSpawner::ProcessMeshWheel2(Truck::MeshWheel & def)
     /* Use data from directive 'set_beam_defaults' for the tiretread beams */
     float tyre_spring = def.spring;
     float tyre_damp = def.damping;
-    float rim_spring = def.beam_defaults->springiness;
-    float rim_damp = def.beam_defaults->damping_constant;
+    float rim_spring = m_cur_beam_defaults.springiness;
+    float rim_damp = m_cur_beam_defaults.damping_constant;
 
     BuildWheelBeams(
         def.num_rays,
@@ -4284,9 +4378,8 @@ void ActorSpawner::ProcessMeshWheel2(Truck::MeshWheel & def)
         tyre_damp,
         rim_spring,
         rim_damp,
-        def.beam_defaults,
         def.rigidity_node,
-        0.15 // max_extension
+        /*max_extension:*/0.15
     );
 
     m_wheel_visuals_queue.push_back(WheelVisualsTicket(
@@ -4345,7 +4438,6 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
     float wheel_radius,
     Truck::Wheels::Propulsion propulsion,
     Truck::Wheels::Braking braking,
-    std::shared_ptr<Truck::NodeDefaults> node_defaults,
     float wheel_mass,
     float wheel_width       /* Default: -1.f */
 )
@@ -4398,11 +4490,11 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         ray_vector = ray_rotator * ray_vector;
 
         node_t & outer_node = GetFreeNode();
-        InitNode(outer_node, ray_point, node_defaults);
+        InitNode(outer_node, ray_point, m_cur_node_defaults);
         outer_node.mass          = wheel_mass / (2.f * num_rays);
         outer_node.nd_contacter  = true;
         outer_node.nd_tyre_node  = true;
-        AdjustNodeBuoyancy(outer_node, node_defaults);
+        AdjustNodeBuoyancy(outer_node);
 
         m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(outer_node.pos)));
 
@@ -4411,11 +4503,11 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         ray_vector = ray_rotator * ray_vector;
 
         node_t & inner_node = GetFreeNode();
-        InitNode(inner_node, ray_point, node_defaults);
+        InitNode(inner_node, ray_point, m_cur_node_defaults);
         inner_node.mass          = wheel_mass / (2.f * num_rays);
         inner_node.nd_contacter  = true;
         inner_node.nd_tyre_node  = true;
-        AdjustNodeBuoyancy(inner_node, node_defaults);
+        AdjustNodeBuoyancy(inner_node);
 
         m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
@@ -4446,15 +4538,15 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
     return wheel_index;
 }
 
-void ActorSpawner::AdjustNodeBuoyancy(node_t & node, Truck::Node & node_def, std::shared_ptr<Truck::NodeDefaults> defaults)
+void ActorSpawner::AdjustNodeBuoyancy(node_t & node, Truck::Node & node_def)
 {
-    unsigned int options = (defaults->options | node_def.options); // Merge flags
-    node.buoyancy = BITMASK_IS_1(options, Truck::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_actor->m_dry_mass/15.f;
+    unsigned int options = (m_cur_node_defaults.options | node_def.options); // Merge flags
+    node.buoyancy = (options & Truck::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_actor->m_dry_mass/15.f;
 }
 
-void ActorSpawner::AdjustNodeBuoyancy(node_t & node, std::shared_ptr<Truck::NodeDefaults> defaults)
+void ActorSpawner::AdjustNodeBuoyancy(node_t & node)
 {
-    node.buoyancy = BITMASK_IS_1(defaults->options, Truck::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_actor->m_dry_mass/15.f;
+    node.buoyancy = (m_cur_node_defaults.options & Truck::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_actor->m_dry_mass/15.f;
 }
 
 void ActorSpawner::BuildWheelBeams(
@@ -4466,7 +4558,6 @@ void ActorSpawner::BuildWheelBeams(
     float tyre_damping,
     float rim_spring,
     float rim_damping,
-    std::shared_ptr<Truck::BeamDefaults> beam_defaults,
     Truck::Node::Ref const & rigidity_node_id,
     float max_extension // = 0.f
 )
@@ -4489,26 +4580,26 @@ void ActorSpawner::BuildWheelBeams(
         node_t *outer_ring_node = & m_actor->ar_nodes[outer_ring_node_index];
         node_t *inner_ring_node = & m_actor->ar_nodes[outer_ring_node_index + 1];
         
-        AddWheelBeam(axis_node_1, outer_ring_node, tyre_spring, tyre_damping, beam_defaults, 0.66f, max_extension);
-        AddWheelBeam(axis_node_2, inner_ring_node, tyre_spring, tyre_damping, beam_defaults, 0.66f, max_extension);
-        AddWheelBeam(axis_node_2, outer_ring_node, tyre_spring, tyre_damping, beam_defaults);
-        AddWheelBeam(axis_node_1, inner_ring_node, tyre_spring, tyre_damping, beam_defaults);
+        AddWheelBeam(axis_node_1, outer_ring_node, tyre_spring, tyre_damping,  0.66f, max_extension);
+        AddWheelBeam(axis_node_2, inner_ring_node, tyre_spring, tyre_damping,  0.66f, max_extension);
+        AddWheelBeam(axis_node_2, outer_ring_node, tyre_spring, tyre_damping);
+        AddWheelBeam(axis_node_1, inner_ring_node, tyre_spring, tyre_damping);
 
         /* Reinforcement */
         unsigned int next_outer_ring_node_index = base_node_index + (((i + 1) % num_rays) * 2);
         node_t *next_outer_ring_node = & m_actor->ar_nodes[next_outer_ring_node_index];
         node_t *next_inner_ring_node = & m_actor->ar_nodes[next_outer_ring_node_index + 1];
 
-        AddWheelBeam(outer_ring_node, inner_ring_node,      rim_spring, rim_damping, beam_defaults);
-        AddWheelBeam(outer_ring_node, next_outer_ring_node, rim_spring, rim_damping, beam_defaults);
-        AddWheelBeam(inner_ring_node, next_inner_ring_node, rim_spring, rim_damping, beam_defaults);
-        AddWheelBeam(inner_ring_node, next_outer_ring_node, rim_spring, rim_damping, beam_defaults);
+        AddWheelBeam(outer_ring_node, inner_ring_node,      rim_spring, rim_damping);
+        AddWheelBeam(outer_ring_node, next_outer_ring_node, rim_spring, rim_damping);
+        AddWheelBeam(inner_ring_node, next_inner_ring_node, rim_spring, rim_damping);
+        AddWheelBeam(inner_ring_node, next_outer_ring_node, rim_spring, rim_damping);
 
         /* Rigidity beams */
         if (rigidity_node != nullptr)
         {
             node_t *target_node = (rigidity_beam_side_1) ? outer_ring_node : inner_ring_node;
-            unsigned int beam_index = AddWheelBeam(rigidity_node, target_node, tyre_spring, tyre_damping, beam_defaults, -1.f, -1.f, BEAM_VIRTUAL);
+            unsigned int beam_index = AddWheelBeam(rigidity_node, target_node, tyre_spring, tyre_damping, -1.f, -1.f, BEAM_VIRTUAL);
             m_actor->ar_beams[beam_index].bm_type = BEAM_VIRTUAL;
         }
     }
@@ -4551,7 +4642,6 @@ unsigned int ActorSpawner::AddWheel(Truck::Wheel & wheel_def)
         wheel_def.radius,
         wheel_def.propulsion,
         wheel_def.braking,
-        wheel_def.node_defaults,
         wheel_def.mass,
         -1.f // Set width to axis length (width in definition is ignored)
     );
@@ -4565,7 +4655,6 @@ unsigned int ActorSpawner::AddWheel(Truck::Wheel & wheel_def)
         wheel_def.damping,     /* Tyre */
         wheel_def.springiness, /* Rim */
         wheel_def.damping,     /* Rim */
-        wheel_def.beam_defaults,
         wheel_def.rigidity_node
     );
 
@@ -4640,11 +4729,11 @@ unsigned int ActorSpawner::AddWheel2(Truck::Wheel2 & wheel_2_def)
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + rim_ray_vector;
 
         node_t & outer_node    = GetFreeNode();
-        InitNode(outer_node, ray_point, wheel_2_def.node_defaults);
+        InitNode(outer_node, ray_point);
         outer_node.mass        = node_mass;
         outer_node.nd_rim_node = true;
 
-        m_actor->ar_minimass[outer_node.pos] = m_file->global_minimass->min_mass;
+        m_actor->ar_minimass[outer_node.pos] = m_cur_minimass_preset.min_mass;
 
         m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(outer_node.pos)));
 
@@ -4652,11 +4741,11 @@ unsigned int ActorSpawner::AddWheel2(Truck::Wheel2 & wheel_2_def)
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
 
         node_t & inner_node    = GetFreeNode();
-        InitNode(inner_node, ray_point, wheel_2_def.node_defaults);
+        InitNode(inner_node, ray_point);
         inner_node.mass        = node_mass;
         inner_node.nd_rim_node = true;
 
-        m_actor->ar_minimass[inner_node.pos] = m_file->global_minimass->min_mass;
+        m_actor->ar_minimass[inner_node.pos] = m_cur_minimass_preset.min_mass;
 
         m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
@@ -4681,8 +4770,8 @@ unsigned int ActorSpawner::AddWheel2(Truck::Wheel2 & wheel_2_def)
         InitNode(outer_node, ray_point);
         outer_node.mass          = (0.67f * wheel_2_def.mass) / (2.f * wheel_2_def.num_rays);
         outer_node.friction_coef = wheel.wh_width * WHEEL_FRICTION_COEF;
-        outer_node.volume_coef   = wheel_2_def.node_defaults->volume;
-        outer_node.surface_coef  = wheel_2_def.node_defaults->surface;
+        outer_node.volume_coef   = m_cur_node_defaults.volume;
+        outer_node.surface_coef  = m_cur_node_defaults.surface;
         outer_node.nd_contacter  = true;
         outer_node.nd_tyre_node  = true;
 
@@ -4695,8 +4784,8 @@ unsigned int ActorSpawner::AddWheel2(Truck::Wheel2 & wheel_2_def)
         InitNode(inner_node, ray_point);
         inner_node.mass          = (0.33f * wheel_2_def.mass) / (2.f * wheel_2_def.num_rays);
         inner_node.friction_coef = wheel.wh_width * WHEEL_FRICTION_COEF;
-        inner_node.volume_coef   = wheel_2_def.node_defaults->volume;
-        inner_node.surface_coef  = wheel_2_def.node_defaults->surface;
+        inner_node.volume_coef   = m_cur_node_defaults.volume;
+        inner_node.surface_coef  = m_cur_node_defaults.surface;
         inner_node.nd_contacter  = true;
         inner_node.nd_tyre_node  = true;
 
@@ -4859,17 +4948,17 @@ unsigned int ActorSpawner::AddWheelBeam(
     node_t *node_2, 
     float spring, 
     float damping, 
-    std::shared_ptr<Truck::BeamDefaults> beam_defaults,
     float max_contraction,   /* Default: -1.f */
     float max_extension,     /* Default: -1.f */
     BeamType type            /* Default: BEAM_INVISIBLE */
 )
 {
     unsigned int index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(*node_1, *node_2, beam_defaults, DEFAULT_DETACHER_GROUP); 
+    beam_t & beam = AddBeam(*node_1, *node_2);
     beam.bm_type = type;
     beam.k = spring;
     beam.d = damping;
+    beam.detacher_group = DEFAULT_DETACHER_GROUP;
     if (max_contraction > 0.f)
     {
         beam.shortbound = max_contraction;
@@ -4908,8 +4997,8 @@ unsigned int ActorSpawner::_SectionWheels2AddBeam(Truck::Wheel2 & wheel_2_def, n
     beam_t & beam = GetFreeBeam();
     InitBeam(beam, node_1, node_2);
     beam.bm_type = BEAM_NORMAL;
-    SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
-    SetBeamDeformationThreshold(beam, wheel_2_def.beam_defaults);
+    SetBeamStrength(beam, m_cur_beam_defaults.breaking_threshold);
+    beam.strength = m_cur_beam_defaults.deformation_threshold;
     return index;
 }
 
@@ -5011,7 +5100,7 @@ void ActorSpawner::ProcessBrakes(Truck::Brakes & def)
     }
 };
 
-void ActorSpawner::ProcessEngturbo(Truck::Engturbo & def)
+void ActorSpawner::ProcessEngturbo()
 {
     /* Is this a land vehicle? */
     if (m_actor->ar_engine == nullptr)
@@ -5022,7 +5111,7 @@ void ActorSpawner::ProcessEngturbo(Truck::Engturbo & def)
     
         /* Find it */
     std::shared_ptr<Truck::Engturbo> engturbo;
-    std::list<Truck::ModulePtr>::iterator module_itor = m_selected_modules.begin();
+    auto module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
         if (module_itor->get()->engturbo != nullptr)
@@ -5030,12 +5119,15 @@ void ActorSpawner::ProcessEngturbo(Truck::Engturbo & def)
             engturbo = module_itor->get()->engturbo;
         }
     }
+
+    if (!engturbo)
+        return;
     
         /* Process it */
     m_actor->ar_engine->SetTurboOptions(engturbo->version, engturbo->tinertiaFactor, engturbo->nturbos, engturbo->param1, engturbo->param2, engturbo->param3, engturbo->param4, engturbo->param5, engturbo->param6, engturbo->param7, engturbo->param8, engturbo->param9, engturbo->param10, engturbo->param11);
 };
 
-void ActorSpawner::ProcessEngoption(Truck::Engoption & def)
+void ActorSpawner::ProcessEngoption()
 {
     /* Is this a land vehicle? */
     if (m_actor->ar_engine == nullptr)
@@ -5046,7 +5138,7 @@ void ActorSpawner::ProcessEngoption(Truck::Engoption & def)
 
     /* Find it */
     std::shared_ptr<Truck::Engoption> engoption;
-    std::list<Truck::ModulePtr>::iterator module_itor = m_selected_modules.begin();
+    auto module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
         if (module_itor->get()->engoption != nullptr)
@@ -5054,6 +5146,9 @@ void ActorSpawner::ProcessEngoption(Truck::Engoption & def)
             engoption = module_itor->get()->engoption;
         }
     }
+
+    if (!engoption)
+        return;
 
     if (engoption->idle_rpm > 0 && engoption->stall_rpm > 0 && engoption->stall_rpm > engoption->idle_rpm)
     {
@@ -5110,7 +5205,7 @@ void ActorSpawner::ProcessHelp()
     SetCurrentKeyword(Truck::KEYWORD_HELP);
     unsigned int material_count = 0;
 
-    std::list<Truck::ModulePtr>::iterator module_itor = m_selected_modules.begin();
+    auto module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
         auto module = module_itor->get();
@@ -5135,8 +5230,8 @@ void ActorSpawner::ProcessAuthors()
 {
     SetCurrentKeyword(Truck::KEYWORD_FILEFORMATVERSION);
 
-    std::vector<Truck::Author>::iterator author_itor = m_file->authors.begin();
-    for (; author_itor != m_file->authors.end(); author_itor++)
+    std::vector<Truck::Author>::iterator author_itor = m_cur_module->authors.begin();
+    for (; author_itor != m_cur_module->authors.end(); author_itor++)
     {
         authorinfo_t author;
         author.type = author_itor->type;
@@ -5201,181 +5296,28 @@ node_t* ActorSpawner::GetBeamNodePointer(Truck::Node::Ref const & node_ref)
 
 void ActorSpawner::ProcessBeam(Truck::Beam & def)
 {
-    // Nodes
-    node_t* ar_nodes[] = {nullptr, nullptr};
-    ar_nodes[0] = GetBeamNodePointer(def.nodes[0]);
-    if (ar_nodes[0] == nullptr)
-    {
-        AddMessage(Message::TYPE_WARNING, std::string("Ignoring beam, could not find node: ") + def.nodes[0].ToString());
-        return;
-    }
-    ar_nodes[1] = GetBeamNodePointer(def.nodes[1]);
-    if (ar_nodes[1] == nullptr)
-    {
-        AddMessage(Message::TYPE_WARNING, std::string("Ignoring beam, could not find node: ") + def.nodes[1].ToString());
-        return;
-    }
+    // Update presets
+    if (def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[def.beam_defaults];
+    if (def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[def.beam_defaults_scale];
 
-    // Beam
+    // Set up beam
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(*ar_nodes[0], *ar_nodes[1], def.defaults, def.detacher_group);
-    beam.bm_type = BEAM_NORMAL;
-    beam.k = def.defaults->GetScaledSpringiness();
-    beam.d = def.defaults->GetScaledDamping();
-    beam.bounded = NOSHOCK; // Orig: if (shortbound) ... hardcoded in BTS_BEAMS
-
-    /* Calculate length */
-    // orig = precompression hardcoded to 1
+    beam_t & beam = AddBeam(def.nodes[0], def.nodes[1]);
+    beam.strength          = m_cur_beam_defaults.breaking_threshold * m_cur_beam_defaults_scale.breaking_threshold_constant;
+    beam.bm_type           = BEAM_NORMAL;
+    beam.d                 = m_cur_beam_defaults.damping_constant * m_cur_beam_defaults_scale.damping_constant;
+    beam.k                 = m_cur_beam_defaults.springiness * m_cur_beam_defaults_scale.springiness;
+    beam.bounded           = def.bounded;
     CalculateBeamLength(beam);
 
-    /* Strength */
-    float beam_strength = def.defaults->GetScaledBreakingThreshold();
-    beam.strength  = beam_strength;
-
-    /* Options */
-    if (BITMASK_IS_1(def.options, Truck::Beam::OPTION_r_ROPE))
+    if (!def.invisible)
     {
-        beam.bounded = ROPE;
-    }
-    if (BITMASK_IS_1(def.options, Truck::Beam::OPTION_s_SUPPORT))
-    {
-        beam.bounded = SUPPORTBEAM;
-        beam.longbound = def.extension_break_limit;
-    }
-
-    if (BITMASK_IS_0(def.options, Truck::Beam::OPTION_i_INVISIBLE))
-    {
-        this->CreateBeamVisuals(beam, beam_index, true, def.defaults);
+        this->CreateBeamVisuals(beam, beam_index, /*visible=*/true);
     }
 }
 
-void ActorSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<Truck::BeamDefaults> beam_defaults)
-{
-    /*
-    ---------------------------------------------------------------------------
-        Old parser logic
-    ---------------------------------------------------------------------------
 
-    VAR default_deform              = BEAM_DEFORM (400,000)
-    VAR default_deform_scale        = 1
-    VAR beam_creak                  = BEAM_CREAK_DEFAULT (100,000)
-    VAR enable_advanced_deformation = false
-
-
-    add_beam()
-        IF default_deform < beam_creak
-            default_deform = beam_creak
-        END IF
-
-        VAR beam;
-        beam.default_deform = default_deform * default_deform_scale
-    END
-
-    
-    enable_advanced_deformation:
-        READ enable_advanced_deformation
-
-
-    set_beam_defaults:
-        READ default_deform
-        VAR  default_deform_user_defined
-        READ default_deform_scale
-        VAR  plastic_coef_user_defined
-
-        IF (!enable_advanced_deformation && default_deform < BEAM_DEFORM)
-           default_deform = BEAM_DEFORM;
-        END IF
-
-        IF (plastic_coef_user_defined)
-            beam_creak = 0
-        END IF
-  
-    ---------------------------------------------------------------------------
-        TruckParser2013
-    ---------------------------------------------------------------------------    
-
-    VAR beam_defaults
-    {
-        default_deform                = BEAM_DEFORM
-        scale.default_deform          = 1
-        _enable_advanced_deformation  = false
-        _user_defined                 = false
-        _default_deform_set           = false
-        _plastic_coef_user_defined    = false
-    }
-
-
-    set_beam_defaults:
-        READ beam_defaults
-
-
-    add_beam:
-
-        // Init
-
-        VAR default_deform = BEAM_DEFORM;
-        VAR beam_creak = BEAM_CREAK_DEFAULT;
-
-        // Old 'set_beam_defaults'
-
-        IF (beam_defaults._is_user_defined)
-
-            default_deform = beam_defaults.default_deform
-            IF (!beam_defaults._enable_advanced_deformation && default_deform < BEAM_DEFORM)
-               default_deform = BEAM_DEFORM;
-            END IF
-
-            IF (beam_defaults._plastic_coef_user_defined && beam_defaults.plastic_coef >= 0)
-                beam_creak = 0
-            END IF
-
-        END IF
-
-        // Old 'add_beam'
-
-        IF default_deform < beam_creak
-            default_deform = beam_creak
-        END IF
-
-        VAR beam;
-        beam.default_deform = default_deform * beam_defaults.scale.default_deform
-    
-    ---------------------------------------------------------------------------
-    */
-
-    // Old init
-    float default_deform = BEAM_DEFORM; 
-    float beam_creak = BEAM_CREAK_DEFAULT;
-
-    // Old 'set_beam_defaults'
-    if (beam_defaults->_is_user_defined)
-    {
-        default_deform = beam_defaults->deformation_threshold;
-        if (!beam_defaults->_enable_advanced_deformation && default_deform < BEAM_DEFORM)
-        {
-            default_deform = BEAM_DEFORM;
-        }
-
-        if (beam_defaults->_is_plastic_deform_coef_user_defined && beam_defaults->plastic_deform_coef >= 0.f)
-        {
-            beam_creak = 0.f;
-        }
-    }
-
-    // Old 'add_beam'
-    if (default_deform < beam_creak)
-    {
-        default_deform = beam_creak;
-    }
-
-    float deformation_threshold = default_deform * beam_defaults->scale.deformation_threshold_constant;
-
-    beam.minmaxposnegstress = deformation_threshold;
-    beam.maxposstress       = deformation_threshold;
-    beam.maxnegstress       = -(deformation_threshold);
-}
-
-void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool visible, std::shared_ptr<Truck::BeamDefaults> const& beam_defaults, std::string material_override)
+void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool visible, std::string material_override)
 {
     std::string material_name = material_override;
     if (material_name.empty())
@@ -5386,7 +5328,7 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
         }
         else
         {
-            material_name = beam_defaults->beam_material_name;
+            material_name = m_cur_beam_defaults.beam_material_name;
             // Check for existing substitute
             auto it = m_managed_materials.find(material_name);
             if (it != m_managed_materials.end())
@@ -5400,7 +5342,7 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
         }
     }
 
-    m_beam_visuals_queue.emplace_back(beam_index, beam_defaults->visual_beam_diameter, material_name.c_str(), visible);
+    m_beam_visuals_queue.emplace_back(beam_index, m_cur_beam_defaults.visual_beam_diameter, material_name.c_str(), visible);
 }
 
 void ActorSpawner::CalculateBeamLength(beam_t & beam)
@@ -5448,146 +5390,74 @@ void ActorSpawner::AddMessage(ActorSpawner::Message::Type type,	Ogre::String con
     RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_ACTOR, cm_type, txt.ToCStr());
 }
 
+NodeIdx_t ActorSpawner::ResolveNodeRef(Truck::Node::Ref const & node_ref)
+{
+    // Equivalent of `SerializedRig::parse_node_number()`, see https://github.com/only-a-ptr/ror-legacy-svn-trunk
+
+    // Query named nodes if possible
+    if (!m_node_names.empty() && node_ref.name != "")
+    {
+        auto itor = m_node_names.find(node_ref.name);
+        if (itor != m_node_names.end())
+        {
+            return itor->second;
+        }
+    }
+
+    // Query numbered nodes
+    if (node_ref.number >= m_actor->ar_num_nodes)
+    {
+        this->AddMessage(Message::TYPE_ERROR,
+            fmt::format("Fatal: requested non-existent node number {} (highest existing is {})",
+                node_ref.number, m_actor->ar_num_nodes));
+        throw Exception("");
+    }
+
+    return node_ref.number;
+}
+
 std::pair<NodeIdx_t, bool> ActorSpawner::GetNodeIndex(Truck::Node::Ref const & node_ref, bool quiet /* = false */)
 {
-    if (!node_ref.IsValidAnyState())
-    {
-        if (! quiet)
-        {
-            AddMessage(Message::TYPE_ERROR, std::string("Attempt to resolve invalid node reference: ") + node_ref.ToString());
-        }
-        return std::make_pair(0, false);
-    }
-    bool is_imported = node_ref.GetImportState_IsValid();
-    bool is_named = (is_imported ? node_ref.GetImportState_IsResolvedNamed() : node_ref.GetRegularState_IsNamed());
-    if (is_named)
-    {
-        auto result = m_named_nodes.find(node_ref.Str());
-        if (result != m_named_nodes.end())
-        {
-            return std::make_pair((NodeIdx_t)result->second, true);
-        }
-        else if (! quiet)
-        {
-            std::stringstream msg;
-            msg << "Failed to resolve node-ref (node not found):" << node_ref.ToString();
-            AddMessage(Message::TYPE_ERROR, msg.str());
-        }
-        return std::make_pair(0, false);
-    }
-    else
-    {
-        // Imported nodes pass without check
-        if (!is_imported && (node_ref.Num() >= static_cast<unsigned int>(m_actor->ar_num_nodes)))
-        {
-            if (! quiet)
-            {
-                std::stringstream msg;
-                msg << "Failed to resolve node-ref (node index too big, node count is: "<<m_actor->ar_num_nodes<<"): " << node_ref.ToString();
-                AddMessage(Message::TYPE_ERROR, msg.str());
-            }
-            return std::make_pair(0, false);
-        }
-        return std::make_pair((NodeIdx_t)node_ref.Num(), true);
-    }
+    return std::make_pair(this->ResolveNodeRef(node_ref), true);
 }
 
 node_t* ActorSpawner::GetNodePointer(Truck::Node::Ref const & node_ref)
 {
-    std::pair<unsigned int, bool> result = GetNodeIndex(node_ref);
-    if (result.second)
-    {
-        return & m_actor->ar_nodes[result.first];
-    }
-    else
-    {
-        return nullptr;
-    }
+    return &m_actor->ar_nodes[this->ResolveNodeRef(node_ref)];
 }
 
 node_t* ActorSpawner::GetNodePointerOrThrow(Truck::Node::Ref const & node_ref)
 {
-    node_t *node = GetNodePointer(node_ref);
-    if (node == nullptr)
-    {
-        std::stringstream msg;
-        msg << "Required node not found: " << node_ref.ToString();
-        throw Exception(msg.str());
-    }
-    return node;
-}
-
-std::pair<unsigned int, bool> ActorSpawner::AddNode(Truck::Node::Id & id)
-{
-    if (!id.IsValid())
-    {
-        std::stringstream msg;
-        msg << "Attempt to add node with 'INVALID' flag: " << id.ToString() << " (number of nodes at this point: " << m_actor->ar_num_nodes << ")";
-        this->AddMessage(Message::TYPE_ERROR, msg.str());
-        return std::make_pair(0, false);
-    }
-
-    if (id.IsTypeNamed())
-    {
-        unsigned int new_index = static_cast<unsigned int>(m_actor->ar_num_nodes);
-        auto insert_result = m_named_nodes.insert(std::make_pair(id.Str(), new_index));
-        if (! insert_result.second)
-        {
-            std::stringstream msg;
-            msg << "Ignoring named node! Duplicate name: " << id.Str() << " (number of nodes at this point: " << m_actor->ar_num_nodes << ")";
-            this->AddMessage(Message::TYPE_ERROR, msg.str());
-            return std::make_pair(0, false);
-        }
-        m_actor->ar_nodes_name[new_index] = id.Str();
-        m_actor->ar_nodes_id[new_index] = m_actor->ar_num_nodes;
-        m_actor->ar_nodes_name_top_length = std::max(m_actor->ar_nodes_name_top_length, (int)id.Str().length());
-        m_actor->ar_num_nodes++;
-        return std::make_pair(new_index, true);
-    }
-    if (id.IsTypeNumbered())
-    {
-        if (id.Num() < static_cast<unsigned int>(m_actor->ar_num_nodes))
-        {
-            std::stringstream msg;
-            msg << "Duplicate node number, previous definition will be overriden! - " << id.ToString() << " (number of nodes at this point: " << m_actor->ar_num_nodes << ")";
-            this->AddMessage(Message::TYPE_WARNING, msg.str());
-        }
-        unsigned int new_index = static_cast<unsigned int>(m_actor->ar_num_nodes);
-        m_actor->ar_nodes_id[new_index] = id.Num();
-        m_actor->ar_num_nodes++;
-        return std::make_pair(new_index, true);
-    }
-    // Invalid node ID without type flag!
-    throw Exception("Invalid Node::Id without type flags!");
+    return GetNodePointer(node_ref);
 }
 
 void ActorSpawner::ProcessNode(Truck::Node & def)
 {
-    std::pair<unsigned int, bool> inserted_node = AddNode(def.id);
-    if (! inserted_node.second)
-    {
-        return;
-    }
+    // Update presets
+    if (def.node_defaults != -1) m_cur_node_defaults = m_cur_module->node_defaults[def.node_defaults];
+    if (def.node_minimass != -1) m_cur_minimass_preset = m_cur_module->minimass_preset[def.node_minimass];
+    if (def.lockgroup_preset != -1) m_cur_lockgroup_preset = m_cur_module->lockgroup_preset[def.lockgroup_preset];
 
-    node_t & node = m_actor->ar_nodes[inserted_node.first];
-    node.pos = inserted_node.first; /* Node index */
+    // Set up node
+    node_t& node = this->GetFreeNode();
+    node.friction_coef = m_cur_node_defaults.friction;
+    node.volume_coef = m_cur_node_defaults.volume;
+    node.surface_coef = m_cur_node_defaults.surface;
+    node.AbsPosition = m_spawn_position + def.position;
+    node.RelPosition = (m_spawn_position + def.position) - m_actor->ar_origin;
+    node.nd_lockgroup = m_cur_lockgroup_preset.lockgroup;
 
-    /* Positioning */
-    Ogre::Vector3 node_position = m_spawn_position + def.position;
-    node.AbsPosition = node_position; 
-    node.RelPosition = node_position - m_actor->ar_origin;
+    // Fill debug info
+    m_actor->ar_nodes_name[node.pos] = def.name;
+    m_actor->ar_nodes_id[node.pos] = node.pos;
+    m_actor->ar_nodes_name_top_length = std::max(m_actor->ar_nodes_name_top_length, (int)def.name.length());
 
-    node.friction_coef = def.node_defaults->friction;
-    node.volume_coef = def.node_defaults->volume;
-    node.surface_coef = def.node_defaults->surface;
-
-    /* Mass */
-    m_actor->ar_minimass[inserted_node.first] = def.node_minimass->min_mass;
-
-    if (def.node_defaults->load_weight >= 0.f) // The >= operator is in orig.
+    // Configure mass
+    m_actor->ar_minimass[node.pos] = m_cur_minimass_preset.min_mass;
+    if (m_cur_node_defaults.loadweight >= 0.f) // The >= operator is intentional.
     {
         // orig = further override of hardcoded default.
-        node.mass = def.node_defaults->load_weight; 
+        node.mass = m_cur_node_defaults.loadweight;
         node.nd_override_mass = true;
         node.nd_loaded_mass = true;
     }
@@ -5597,11 +5467,8 @@ void ActorSpawner::ProcessNode(Truck::Node & def)
         node.nd_loaded_mass = false;
     }
 
-    /* Lockgroup */
-    node.nd_lockgroup = (m_file->lockgroup_default_nolock) ? Truck::Lockgroup::LOCKGROUP_NOLOCK : Truck::Lockgroup::LOCKGROUP_DEFAULT;
-
     /* Options */
-    unsigned int options = def.options | def.node_defaults->options; /* Merge bit flags */
+    unsigned int options = def.options | m_cur_node_defaults.options; /* Merge bit flags */
     if (BITMASK_IS_1(options, Truck::Node::OPTION_l_LOAD_WEIGHT))
     {
         node.nd_loaded_mass = true;
@@ -5615,25 +5482,35 @@ void ActorSpawner::ProcessNode(Truck::Node & def)
             m_actor->m_masscount++;
         }
     }
+
     if (BITMASK_IS_1(options, Truck::Node::OPTION_h_HOOK_POINT))
     {
-        /* Link [current-node] -> [node-0] */
-        /* If current node is 0, link [node-0] -> [node-1] */
+        // Update presets
+        if (def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[def.beam_defaults];
+        if (def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[def.beam_defaults_scale];
+
+        // Link [current-node] -> [node-0]
+        // If current node is 0, link [node-0] -> [node-1]
         node_t & node_2 = (node.pos == 0) ? GetNode(1) : GetNode(0);
         unsigned int beam_index = m_actor->ar_num_beams;
 
-        beam_t & beam = AddBeam(node, node_2, def.beam_defaults, def.detacher_group);
-        SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold() * 100.f);
+        // Set up beam
+        beam_t & beam = AddBeam(node, node_2);
+        beam.strength          = m_cur_beam_defaults.breaking_threshold * m_cur_beam_defaults_scale.breaking_threshold_constant * 100.f;
         beam.bm_type           = BEAM_HYDRO;
-        beam.d                 = def.beam_defaults->GetScaledDamping() * 0.1f;
-        beam.k                 = def.beam_defaults->GetScaledSpringiness();
+        beam.d                 = m_cur_beam_defaults.damping_constant * m_cur_beam_defaults_scale.damping_constant * 0.1f;
+        beam.k                 = m_cur_beam_defaults.springiness * m_cur_beam_defaults_scale.springiness;
         beam.bounded           = ROPE;
         beam.bm_disabled       = true;
         beam.L                 = HOOK_RANGE_DEFAULT;
         beam.refL              = HOOK_RANGE_DEFAULT;
-        SetBeamDeformationThreshold(beam, def.beam_defaults);
-        CreateBeamVisuals(beam, beam_index, false, def.beam_defaults);
-            
+        beam.default_beam_deform = m_cur_beam_defaults.deformation_threshold * m_cur_beam_defaults_scale.deformation_threshold_constant;
+        beam.minmaxposnegstress  = m_cur_beam_defaults.deformation_threshold * m_cur_beam_defaults_scale.deformation_threshold_constant;
+        beam.maxposstress        = m_cur_beam_defaults.deformation_threshold * m_cur_beam_defaults_scale.deformation_threshold_constant;
+        beam.maxnegstress        = m_cur_beam_defaults.deformation_threshold * m_cur_beam_defaults_scale.deformation_threshold_constant;
+        
+        CreateBeamVisuals(beam, beam_index, false);
+
         // Logic cloned from SerializedRig.cpp, section BTS_NODES
         hook_t hook;
         hook.hk_hook_node         = & node;
@@ -5654,7 +5531,7 @@ void ActorSpawner::ProcessNode(Truck::Node & def)
         hook.hk_min_length        = 0.f;
         m_actor->ar_hooks.push_back(hook);
     }
-    AdjustNodeBuoyancy(node, def, def.node_defaults);
+    AdjustNodeBuoyancy(node, def);
     node.nd_no_ground_contact = BITMASK_IS_1(options, Truck::Node::OPTION_c_NO_GROUND_CONTACT);
     node.nd_no_mouse_grab  = BITMASK_IS_1(options, Truck::Node::OPTION_m_NO_MOUSE_GRAB);
 
@@ -5720,42 +5597,32 @@ void ActorSpawner::AddExhaust(
     m_actor->exhausts.push_back(exhaust);
 }
 
-bool ActorSpawner::AddModule(Ogre::String const & module_name)
-{
-    auto result = m_file->user_modules.find(module_name);
-
-    if (result != m_file->user_modules.end())
-    {
-        m_selected_modules.push_back(result->second);
-        LOG(" == ActorSpawner: Module added to configuration: " + module_name);
-        return true;
-    }
-    this->AddMessage(Message::TYPE_WARNING, "Selected module not found: " + module_name);
-    return false;
-}
-
 void ActorSpawner::ProcessCinecam(Truck::Cinecam & def)
 {
+    // Update presets
+    if (def.beam_defaults != -1) m_cur_beam_defaults = m_cur_module->beam_defaults[def.beam_defaults];
+    if (def.beam_defaults_scale != -1) m_cur_beam_defaults_scale = m_cur_module->beam_defaults_scale[def.beam_defaults_scale];
+
     // Node
     Ogre::Vector3 node_pos = m_spawn_position + def.position;
     node_t & camera_node = GetAndInitFreeNode(node_pos);
     camera_node.nd_no_ground_contact = true; // Orig: hardcoded in BTS_CINECAM
     camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT; // Node defaults are ignored here.
-    AdjustNodeBuoyancy(camera_node, def.node_defaults);
-    camera_node.volume_coef   = def.node_defaults->volume;
-    camera_node.surface_coef  = def.node_defaults->surface;
-    // NOTE: Not applying the 'node_mass' value here for backwards compatibility - this node must go through initial `Actor::RecalculateNodeMasses()` pass with default weight.
+    AdjustNodeBuoyancy(camera_node);
+    camera_node.volume_coef   = m_cur_node_defaults.volume;
+    camera_node.surface_coef  = m_cur_node_defaults.surface;
 
-    m_actor->ar_minimass[camera_node.pos] = m_file->global_minimass->min_mass;
+    m_actor->ar_minimass[camera_node.pos] = m_cur_minimass_preset.min_mass;
 
     m_actor->ar_cinecam_node[m_actor->ar_num_cinecams] = camera_node.pos;
+    m_actor->ar_cinecam_node_predef_mass[m_actor->ar_num_cinecams] = camera_node.mass;
     m_actor->ar_num_cinecams++;
 
     // Beams
     for (unsigned int i = 0; i < 8; i++)
     {
         int beam_index = m_actor->ar_num_beams;
-        beam_t & beam = AddBeam(camera_node, GetNode(def.nodes[i]), def.beam_defaults, DEFAULT_DETACHER_GROUP);
+        beam_t & beam = AddBeam(camera_node, GetNode(def.nodes[i]));
         beam.bm_type = BEAM_NORMAL;
         CalculateBeamLength(beam);
         beam.k = def.spring;
@@ -5773,13 +5640,13 @@ void ActorSpawner::InitNode(node_t & node, Ogre::Vector3 const & position)
 void ActorSpawner::InitNode(
     node_t & node, 
     Ogre::Vector3 const & position,
-    std::shared_ptr<Truck::NodeDefaults> node_defaults
+    Truck::NodeDefaults& node_defaults
 )
 {
     InitNode(node, position);
-    node.friction_coef = node_defaults->friction;
-    node.volume_coef = node_defaults->volume;
-    node.surface_coef = node_defaults->surface;
+    node.friction_coef = m_cur_node_defaults.friction;
+    node.volume_coef = m_cur_node_defaults.volume;
+    node.surface_coef = m_cur_node_defaults.surface;
 }
 
 void ActorSpawner::ProcessGlobals(Truck::Globals & def)

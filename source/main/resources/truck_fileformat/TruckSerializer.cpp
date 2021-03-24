@@ -34,6 +34,7 @@
 #include <iomanip>
 #include <unordered_map>
 
+using namespace RoR;
 using namespace Truck;
 using namespace std;
 
@@ -173,9 +174,9 @@ void Serializer::SerializeModule(Truck::ModulePtr m)
     // Marine
     ProcessScrewprops(source_module);
 
-    if (m->name != Truck::ROOT_MODULE_NAME)
+    if (!m->defined_explicitly)
     {
-        m_stream << "endsection" << endl;
+        m_stream << "end_section" << endl;
     }
 }
 
@@ -686,7 +687,7 @@ void Serializer::ProcessFlexbodies(Module* module)
     auto end_itor = module->flexbodies.end();
     for (auto itor = module->flexbodies.begin(); itor != end_itor; ++itor)
     {
-        Truck::Flexbody* def = itor->get();
+        Truck::Flexbody* def = *itor;
 
         // Prop-like line
         m_stream << "\n\t" << setw(m_node_id_width) << def->reference_node.Str()
@@ -844,7 +845,7 @@ void Serializer::ProcessManagedMaterialsAndOptions(Module* module)
     m_stream << "managedmaterials" << std::left << endl; // Set left alignment. WARNING - PERSISTENT!
     auto end_itor = module->managed_materials.end();
     bool first = true;
-    ManagedMaterialsOptions mm_options;
+    ManagedMatOptions mm_options;
     for (auto itor = module->managed_materials.begin(); itor != end_itor; ++itor)
     {
         Truck::ManagedMaterial & def = *itor;

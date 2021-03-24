@@ -27,7 +27,7 @@
 
     TERMINOLOGY:
         Module = An optional section of .truck file.
-        Root module = The default, required module.
+        Implicit module = The default, required module.
         Configuration = a set of modules the player chose.
 */
 
@@ -38,8 +38,8 @@
 #include <memory>
 #include <OgreString.h>
 
-namespace Truck
-{
+namespace RoR {
+namespace Truck {
 
 /**
 * Performs a formal validation of the file (missing required parts, conflicts of modules, etc...)
@@ -66,11 +66,8 @@ public:
     */
     void Setup(Truck::DocumentPtr truck);
 
-    /**
-    * Adds a vehicle module to the validated configuration.
-    * @param module_name A module from the validated rig-def file.
-    */
-    bool AddModule(Ogre::String const & module_name);
+
+    void AddModule(Truck::ModulePtr modul);
 
     bool Validate();
 
@@ -81,23 +78,10 @@ public:
 
 private:
 
-    /**
-    * Finds section in configuration and performs checks.
-    * @param unique Is this section required to be unique?
-    * @param required Is this section required?
-    * @return True if all conditions were met.
-    */
-    bool CheckSection(Truck::Keyword keyword, bool unique, bool required);
 
-    /**
-    * Checks if a module contains a section.
-    */
-    bool HasModuleKeyword(Truck::ModulePtr module, Truck::Keyword keyword);
 
-    /**
-    * Inline-ection 'submesh_groundmodel', unique across all modules.
-    */
-    bool CheckSectionSubmeshGroundmodel();
+
+
 
     /**
     * Checks there's at least 1 forward gear.
@@ -138,3 +122,4 @@ private:
 };
 
 } // namespace Truck
+} // namespace RoR

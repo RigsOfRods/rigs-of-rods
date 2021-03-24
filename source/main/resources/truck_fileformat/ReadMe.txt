@@ -73,6 +73,16 @@ A module begins with keyword "section". Syntax:
   where <n> is unused number and config is a name specified in sectionconfig.
 Module ends with keyword "end_section".
 
+All keywords are modular except:
+    forwardcommands
+    importcommands
+    rollon
+    rescuer
+    disabledefaultsounds
+    slidenode_connect_instantly
+    guid
+    hideInChooser
+
 List of elements
 ----------------
 
@@ -215,23 +225,6 @@ Exceptions:
     flexbody_camera_mode (must be after section 'flexbody')
 In previous versions, the order of elements defined the final result
 and some combinations resulted in a crash.
-
-Since v0.4.5, all elements can be modularized using 'section' keyword, except:
-    author
-    description
-    disabledefaultsounds
-    enable_advanced_deformation
-    fileformatversion
-    fileinfo
-    forwardcommands
-    guid
-    hideInChooser
-    importcommands
-    lockgroup_default_nolock
-    minimass
-    rescuer
-    rollon
-In previous versions, this was undocumented.
 
 Since v0.4.5, keyword 'sectionconfig' is no longer necessary and parser silently ignores it.
 Modules are created as keyword 'section' is encountered.    

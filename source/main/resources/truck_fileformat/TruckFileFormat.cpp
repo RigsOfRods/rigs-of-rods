@@ -26,8 +26,8 @@
 #include "TruckFileFormat.h"
 #include "SimConstants.h"
 
-namespace Truck
-{
+using namespace RoR;
+using namespace Truck;
 
 const char* ROOT_MODULE_NAME = "_Root_"; // Static
 
@@ -37,7 +37,7 @@ const char* ROOT_MODULE_NAME = "_Root_"; // Static
 /* This is the place to set defaults.                                         */
 /* -------------------------------------------------------------------------- */
 
-Airbrake::Airbrake():
+Truck::Airbrake::Airbrake():
     offset(Ogre::Vector3::ZERO),
     width(0),
     height(0),
@@ -56,26 +56,6 @@ AntiLockBrakes::AntiLockBrakes():
     attr_is_on(true),
     attr_no_dashboard(false),
     attr_no_toggle(false)
-{}
-
-Command2::Command2():
-    shorten_rate(0),
-    lengthen_rate(0),
-    max_contraction(0),
-    max_extension(0),
-    contract_key(0),
-    extend_key(0),
-    _format_version(1), /* 1 = 'commands', 2 = 'commands2' */
-    affect_engine(1),
-    detacher_group(0),
-    needs_engine(true),
-    plays_sound(true),
-    option_i_invisible(false),
-    option_r_rope(false),
-    option_c_auto_center(false),
-    option_f_not_faster(false),
-    option_p_1press(false),
-    option_o_1press_center(false)
 {}
 
 Engoption::Engoption():
@@ -130,14 +110,6 @@ Hook::Hook():
     option_min_range_meters(0.f)
 {}
 
-NodeDefaults::NodeDefaults():
-    load_weight(-1.f),
-    friction(1),
-    volume(1),
-    surface(1),
-    options(0)
-{}
-
 Shock::Shock():
     spring_rate(0),
     damping(0),
@@ -182,18 +154,6 @@ Shock3::Shock3():
     detacher_group(0)
 {}
 
-Tie::Tie():
-    max_reach_length(0),
-    auto_shorten_rate(0),
-    min_length(0),
-    max_length(0),
-    is_invisible(false),
-    disable_self_lock(false),
-    max_stress(100000.0f), // default, hardcoded in legacy SerializedRig.cpp, BTS_TIES
-    detacher_group(0), // Global detacher group
-    group(-1) // = group not set
-{}
-
 TractionControl::TractionControl():
     regulation_force(0),
     wheel_slip(0),
@@ -214,7 +174,7 @@ Trigger::Trigger():
     detacher_group(0)
 {}
 
-VideoCamera::VideoCamera():
+Truck::VideoCamera::VideoCamera():
     offset(Ogre::Vector3::ZERO),
     rotation(Ogre::Vector3::ZERO),
     field_of_view(0),
@@ -443,25 +403,3 @@ const char * Document::KeywordToString(Keyword keyword)
     }
 }
 
-Module::Module(Ogre::String const & name):
-    name(name)
-{}
-
-Document::Document():
-    file_format_version(0), // Default = unset
-    hide_in_chooser(false),
-    enable_advanced_deformation(false),
-    rollon(false),
-    forward_commands(false),
-    import_commands(false),
-    lockgroup_default_nolock(false),
-    rescuer(false),
-    disable_default_sounds(false),
-    slide_nodes_connect_instantly(false),
-    collision_range(DEFAULT_COLLISION_RANGE),
-    minimass_skip_loaded_nodes(false)
-{
-    root_module = std::make_shared<Module>(ROOT_MODULE_NAME); // Required to exist.
-}
-
-} /* namespace Truck */

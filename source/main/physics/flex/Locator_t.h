@@ -1,7 +1,8 @@
 #pragma once
 
+#include "SimData.h"
+
 #include <OgreVector3.h>
-#include <SimData.h>
 
 namespace RoR {
 

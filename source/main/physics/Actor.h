@@ -286,6 +286,7 @@ public:
     ActorType         ar_driveable;                //!< Sim attr; marks vehicle type and features
     EngineSim*        ar_engine;
     NodeIdx_t         ar_cinecam_node[MAX_CAMERAS] = {node_t::INVALID_IDX}; //!< Sim attr; Cine-camera node indexes
+    float             ar_cinecam_node_predef_mass[MAX_CAMERAS] = {-1.f}; //!< Original mass defined in truck file
     int               ar_num_cinecams;             //!< Sim attr;
     Autopilot*        ar_autopilot;
     float             ar_brake_force;              //!< Physics attr; filled at spawn

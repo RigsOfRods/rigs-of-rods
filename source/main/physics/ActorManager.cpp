@@ -97,13 +97,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, Truck::Documen
 
     ActorSpawner spawner;
     spawner.Setup(actor, def, parent_scene_node, rq.asr_position);
-    /* Setup modules */
-    spawner.AddModule(def->root_module);
-    if (!actor->m_section_config.empty())
-    {
-        spawner.AddModule(actor->m_section_config);
-    }
-    spawner.SpawnActor();
+    spawner.SpawnActor(rq.asr_config);
 
     if (App::diag_actor_dump->GetBool())
     {
@@ -1220,22 +1214,6 @@ Truck::DocumentPtr ActorManager::FetchTruckDocument(RoR::ActorSpawnRequest& rq)
         return nullptr; // Error already reported
     }
 
-    Truck::Validator validator;
-    validator.Setup(def);
-
-    if (rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF)
-    {
-        // Workaround: Some terrains pre-load truckfiles with special purpose:
-        //     "soundloads" = play sound effect at certain spot
-        //     "fixes"      = structures of N/B fixed to the ground
-        // These files can have no beams. Possible extensions: .load or .fixed
-        if ((rq.asr_cache_entry->fext == ".load") | (rq.asr_cache_entry->fext == ".fixed"))
-        {
-            validator.SetCheckBeams(false);
-        }
-    }
-
-    validator.Validate(); // Sends messages to console
     rq.asr_cache_entry->actor_def = def;
     return def;
 }
@@ -1256,7 +1234,6 @@ Truck::DocumentPtr ActorManager::LoadTruckDocument(std::string const& filename, 
         Truck::Parser parser;
         parser.Prepare();
         parser.ProcessOgreStream(stream.getPointer(), rg_name);
-        parser.Finalize();
 
         parser.GetFile()->hash = Utils::Sha1Hash(stream->getAsString());
 
@@ -1281,6 +1258,7 @@ Truck::DocumentPtr ActorManager::LoadTruckDocument(std::string const& filename, 
 
 void ActorManager::ExportTruckDocument(Truck::DocumentPtr def, std::string filename, std::string rg_name)
 {
+#if 0 // Disabled while remaking truck parser
     try
     {
         Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
@@ -1308,6 +1286,7 @@ void ActorManager::ExportTruckDocument(Truck::DocumentPtr def, std::string filen
                                       fmt::format(_LC("Truck", "Failed to export truck '{}' to resource group '{}', message: {}"),
                                                   filename, rg_name, oex.getFullDescription()));
     }
+#endif  // Disabled while remaking truck parser
 }
 
 std::vector<Actor*> ActorManager::GetLocalActors()

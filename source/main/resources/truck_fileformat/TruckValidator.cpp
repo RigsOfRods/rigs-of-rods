@@ -29,6 +29,9 @@
 #include "Application.h"
 #include "Console.h"
 
+using namespace RoR;
+using namespace Truck;
+
 #define CHECK_SECTION_IN_ALL_MODULES(_CLASS_, _FIELD_, _FUNCTION_) \
 { \
     std::list<Truck::ModulePtr>::iterator module_itor = m_selected_modules.begin(); \
@@ -49,43 +52,11 @@
     } \
 }
 
-namespace Truck
-{
-
 bool Validator::Validate()
 {
     bool valid = true;
 
-    /* CHECK CONFIGURATION (SELECTED MODULES TOGETHER) */
 
-    valid &= CheckSection(Truck::KEYWORD_GLOBALS, true, true); /* Unique, required */
-
-    valid &= CheckSection(Truck::KEYWORD_NODES, false, true); /* Required; sections nodes/nodes2 are unified here. */
-
-    if (m_check_beams)
-    {
-        valid &= CheckSection(Truck::KEYWORD_BEAMS, false, true); /* Required */
-    }
-
-    valid &= CheckSection(Truck::KEYWORD_ENGINE, true, false); /* Unique */
-
-    valid &= CheckSection(Truck::KEYWORD_ENGOPTION, true, false); /* Unique */
-
-    valid &= CheckSection(Truck::KEYWORD_ENGTURBO, true, false); /* Unique */
-
-    valid &= CheckSection(Truck::KEYWORD_TORQUECURVE, true, false); /* Unique */
-
-    valid &= CheckSection(Truck::KEYWORD_SPEEDLIMITER, true, false); /* Unique */
-
-    valid &= CheckSection(Truck::KEYWORD_MANAGEDMATERIALS, true, false); /* Unique */
-
-    valid &= CheckSection(Truck::KEYWORD_GUISETTINGS, true, false); /* Unique */
-
-    valid &= CheckSection(Truck::KEYWORD_EXTCAMERA, true, false); /* Unique */
-
-    valid &= CheckSection(Truck::KEYWORD_FUSEDRAG, true, false); /* Unique */
-
-    valid &= CheckSectionSubmeshGroundmodel(); /* Unique */
 
     valid &= CheckGearbox(); /* Min. 1 forward gear */
 
@@ -111,8 +82,12 @@ bool Validator::Validate()
 void Validator::Setup(Truck::DocumentPtr truck)
 {
     m_truck = truck;
-    m_selected_modules.push_back(m_truck->root_module);
     m_check_beams = true;
+}
+
+void Validator::AddModule(Truck::ModulePtr modul)
+{
+    m_selected_modules.push_back(modul);
 }
 
 void Validator::AddMessage(Validator::Message::Type type, Ogre::String const & text)
@@ -137,134 +112,6 @@ void Validator::AddMessage(Validator::Message::Type type, Ogre::String const & t
     RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_ACTOR, cm_type, text);
 }
 
-bool Validator::CheckSectionSubmeshGroundmodel()
-{
-    Ogre::String *containing_module_name = nullptr;
-
-    std::list<Truck::ModulePtr>::iterator module_itor = m_selected_modules.begin();
-    for (; module_itor != m_selected_modules.end(); module_itor++)
-    {
-        if (! module_itor->get()->submeshes_ground_model_name.empty())
-        {
-            if (containing_module_name == nullptr)
-            {
-                containing_module_name = & module_itor->get()->name;
-            }
-            else
-            {
-                std::stringstream text;
-                text << "Duplicate inline-section 'submesh_groundmodel'; found in modules: '" 
-                    << *containing_module_name << "' & '" << module_itor->get()->name << "'";
-                AddMessage(Message::TYPE_FATAL_ERROR, text.str());
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-bool Validator::CheckSection(Truck::Keyword keyword, bool unique, bool required)
-{
-    Ogre::String *containing_module_name = nullptr;
-
-    std::list<Truck::ModulePtr>::iterator module_itor = m_selected_modules.begin();
-    for (; module_itor != m_selected_modules.end(); module_itor++)
-    {
-        if (HasModuleKeyword(*module_itor, keyword))
-        {
-            if (containing_module_name == nullptr)
-            {
-                containing_module_name = & module_itor->get()->name;
-            }
-            else if (unique)
-            {
-                std::stringstream text;
-                text << "Duplicate section '" << Truck::Document::KeywordToString(keyword)
-                    << "'; found in modules: '" << *containing_module_name
-                    << "' & '" << module_itor->get()->name << "'";
-                AddMessage(Message::TYPE_FATAL_ERROR, text.str());
-                return false;
-            }
-        }
-    }
-
-    if (containing_module_name == nullptr && required)
-    {
-        std::stringstream text;
-        text << "Missing required section '" << Truck::Document::KeywordToString(keyword) <<"'";
-        AddMessage(Message::TYPE_FATAL_ERROR, text.str());
-        return false;
-    }
-    return true;
-}
-
-bool Validator::HasModuleKeyword(Truck::ModulePtr module, Truck::Keyword keyword)
-{
-    using namespace Truck;
-
-    switch (keyword)
-    {
-        /* Please maintain alphabetical order */
-
-        case (KEYWORD_BEAMS):
-            return ! module->beams.empty();
-
-        case (KEYWORD_ENGINE):
-            return (module->engine != nullptr);
-
-        case (KEYWORD_ENGOPTION):
-            return (module->engoption != nullptr);
-
-        case (KEYWORD_ENGTURBO) :
-            return (module->engturbo != nullptr);
-
-        case (KEYWORD_EXTCAMERA):
-            return (module->ext_camera != nullptr);
-
-        case (KEYWORD_FUSEDRAG):
-            return ! module->fusedrag.empty();
-
-        case (KEYWORD_GLOBALS):
-            return (module->globals != nullptr);
-
-        case (KEYWORD_GUISETTINGS):
-            return (module->gui_settings != nullptr);
-
-        case (KEYWORD_MANAGEDMATERIALS):
-            return ! module->managed_materials.empty();
-
-        case (KEYWORD_NODES):
-            return ! module->nodes.empty();
-
-        case (KEYWORD_SPEEDLIMITER):
-            return (module->speed_limiter.is_enabled);
-
-        case (KEYWORD_TORQUECURVE):
-            return (module->torque_curve != nullptr);
-        
-        /* TEMPLATE
-        case (SECTION_):
-            return (module->globals != nullptr);
-        */
-
-        default:
-            return false;
-    };
-}
-
-bool Validator::AddModule(Ogre::String const & module_name)
-{
-    std::map< Ogre::String, Truck::ModulePtr >::iterator result 
-        = m_truck->user_modules.find(module_name);
-
-    if (result != m_truck->user_modules.end())
-    {
-        m_selected_modules.push_back(result->second);
-        return true;
-    }
-    return false;
-}
 
 bool Validator::CheckGearbox()
 {
@@ -598,4 +445,3 @@ bool Validator::CheckVideoCamera(Truck::VideoCamera & def)
     return ok;
 }
 
-} // namespace Truck

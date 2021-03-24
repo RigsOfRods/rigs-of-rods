@@ -189,12 +189,11 @@ set(SOURCE_FILES
         resources/terrn2_fileformat/Terrn2FileFormat.{h,cpp}        
         resources/tobj_fileformat/TObjFileFormat.{h,cpp}
         resources/truck_fileformat/TruckFileFormat.{h,cpp}
-        resources/truck_fileformat/TruckNode.{h,cpp}
         resources/truck_fileformat/TruckParser.{h,cpp}
         resources/truck_fileformat/TruckRegexes.h
-        resources/truck_fileformat/TruckSequentialImporter.{h,cpp}
-        resources/truck_fileformat/TruckSerializer.{h,cpp}
-        resources/truck_fileformat/TruckValidator.{h,cpp}        
+        # Disabled while remaking parser 
+        #resources/truck_fileformat/TruckSerializer.{h,cpp}
+        resources/truck_fileformat/TruckValidator.{h,cpp}
         system/AppCommandLine.cpp
         system/AppConfig.cpp
         system/Console.{h,cpp}
