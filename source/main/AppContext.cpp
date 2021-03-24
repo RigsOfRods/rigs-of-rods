@@ -313,6 +313,8 @@ bool AppContext::SetUpRendering()
         "Rigs of Rods version " + Ogre::String (ROR_VERSION_STRING),
         width, height, ropts["Full Screen"].currentValue == "Yes", &miscParams);
     OgreBites::WindowEventUtilities::_addRenderWindow(m_render_window);
+
+    this->SetRenderWindowIcon(m_render_window);
     m_render_window->setActive(true);
 
     // Create viewport (without camera)
@@ -329,7 +331,6 @@ Ogre::RenderWindow* AppContext::CreateCustomRenderWindow(std::string const& wind
     misc["FSAA"] = Ogre::StringConverter::parseInt(ropts["FSAA"].currentValue, 0);
 
     Ogre::RenderWindow* rw = Ogre::Root::getSingleton().createRenderWindow(window_name, width, height, false, &misc);
-    this->SetRenderWindowIcon(rw);
     return rw;
 }
 
