@@ -3612,6 +3612,50 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         // It is ill-defined whether the back-end needs to send a \t character when pressing the TAB keys.
         // Win32 and GLFW naturally do it but not SDL.
         const bool ignore_char_inputs = (io.KeyCtrl && !io.KeyAlt) || (is_osx && io.KeySuper);
+
+#if defined(_WIN32) // fix numpad numbers on Windows
+        if (IsKeyPressedMap(ImGuiKey_KeyPad0) && !ignore_char_inputs && !io.KeyShift && !is_readonly)
+        {
+            io.AddInputCharacter('0');
+        }
+        else if (IsKeyPressedMap(ImGuiKey_KeyPad1) && !ignore_char_inputs && !io.KeyShift && !is_readonly)
+        {
+            io.AddInputCharacter('1');
+        }
+        else if (IsKeyPressedMap(ImGuiKey_KeyPad2) && !ignore_char_inputs && !io.KeyShift && !is_readonly)
+        {
+            io.AddInputCharacter('2');
+        }
+        else if (IsKeyPressedMap(ImGuiKey_KeyPad3) && !ignore_char_inputs && !io.KeyShift && !is_readonly)
+        {
+            io.AddInputCharacter('3');
+        }
+        else if (IsKeyPressedMap(ImGuiKey_KeyPad4) && !ignore_char_inputs && !io.KeyShift && !is_readonly)
+        {
+            io.AddInputCharacter('4');
+        }
+        else if (IsKeyPressedMap(ImGuiKey_KeyPad5) && !ignore_char_inputs && !io.KeyShift && !is_readonly)
+        {
+            io.AddInputCharacter('5');
+        }
+        else if (IsKeyPressedMap(ImGuiKey_KeyPad6) && !ignore_char_inputs && !io.KeyShift && !is_readonly)
+        {
+            io.AddInputCharacter('6');
+        }
+        else if (IsKeyPressedMap(ImGuiKey_KeyPad7) && !ignore_char_inputs && !io.KeyShift && !is_readonly)
+        {
+            io.AddInputCharacter('7');
+        }
+        else if (IsKeyPressedMap(ImGuiKey_KeyPad8) && !ignore_char_inputs && !io.KeyShift && !is_readonly)
+        {
+            io.AddInputCharacter('8');
+        }
+        else if (IsKeyPressedMap(ImGuiKey_KeyPad9) && !ignore_char_inputs && !io.KeyShift && !is_readonly)
+        {
+            io.AddInputCharacter('9');
+        }
+#endif
+
         if ((flags & ImGuiInputTextFlags_AllowTabInput) && IsKeyPressedMap(ImGuiKey_Tab) && !ignore_char_inputs && !io.KeyShift && !is_readonly)
             if (!io.InputQueueCharacters.contains('\t'))
             {
