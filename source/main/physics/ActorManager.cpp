@@ -105,6 +105,11 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, Truck::Documen
     }
     spawner.SpawnActor();
 
+    if (App::diag_actor_dump->GetBool())
+    {
+        actor->WriteDiagnosticDump(actor->ar_filename + "_dump_raw.txt"); // Saves file to 'logs'
+    }
+
     /* POST-PROCESSING (Old-spawn code from Actor::loadTruck2) */
 
     actor->ar_initial_node_positions.resize(actor->ar_num_nodes);
@@ -337,7 +342,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, Truck::Documen
 
     if (App::diag_actor_dump->GetBool())
     {
-        actor->WriteDiagnosticDump(actor->ar_filename + "_dump.txt"); // Saves file to 'logs'
+        actor->WriteDiagnosticDump(actor->ar_filename + "_dump_recalc.txt"); // Saves file to 'logs'
     }
 }
 
