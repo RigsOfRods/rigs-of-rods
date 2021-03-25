@@ -174,6 +174,7 @@ CacheEntry* CacheSystem::FindEntryByFilename(LoaderType type, bool partial, std:
 CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
 {
     this->GenerateHashFromFilenames();
+    this->LoadCacheFileJson();
 
     // First, open cache file and get hash for quick update check
     rapidjson::Document j_doc;
@@ -193,6 +194,20 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
     {
         RoR::Log("[RoR|ModCache] Cache file out of date");
         return CACHE_NEEDS_UPDATE;
+    }
+
+    for (auto& entry : m_entries)
+    {
+        std::string fn = entry.resource_bundle_path;
+        if (entry.resource_bundle_type == "FileSystem")
+        {
+            fn = PathCombine(fn, entry.fname);
+        }
+
+        if ((entry.filetime != RoR::GetFileLastModifiedTime(fn)))
+        {
+            return CACHE_NEEDS_UPDATE;
+        }
     }
 
     RoR::Log("[RoR|ModCache] Cache valid");
