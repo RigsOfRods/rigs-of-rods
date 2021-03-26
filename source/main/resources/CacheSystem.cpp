@@ -941,6 +941,7 @@ void CacheSystem::ParseZipArchives(String group)
     }
 
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
+    App::GetGuiManager()->ShowMessageBox(_L("Info"), "Cache updated");
 }
 
 void CacheSystem::ParseSingleZip(String path)
