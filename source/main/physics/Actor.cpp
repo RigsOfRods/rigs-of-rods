@@ -4552,8 +4552,11 @@ void Actor::WriteDiagnosticDump(std::string const& fileName)
             << ", volume_coef:"      << ar_nodes[i].volume_coef // param 3 volume coef
             << ", surface_coef:"     << ar_nodes[i].surface_coef // param 4 surface coef
             << ", overrideMass:"     << ar_nodes[i].nd_override_mass // depends on param 1 load weight
-            << " (contacters)"
-            << " "                   << ar_nodes[i].nd_contacter
+
+            // only set by `ActorSpawner::UpdateCollcabContacterNodes()` based on collcabs
+            // The 'retro-0407' equivalent is `node::contacter` set by `Beam::updateContacterNodes()` based on collcabs!
+            << " (collcabs)"
+            << " "                   << ar_nodes[i].nd_cab_node
             << std::endl;
     }
 
