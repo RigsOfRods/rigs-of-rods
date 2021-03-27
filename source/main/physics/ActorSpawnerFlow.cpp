@@ -29,6 +29,9 @@
 #include "ActorSpawner.h"
 
 #include "Actor.h"
+#include "FlexBody.h"
+#include "GfxData.h"
+#include "SimData.h"
 #include "Renderdash.h"
 
 using namespace RoR;
@@ -85,87 +88,166 @@ Actor *ActorSpawner::SpawnActor(std::string const& config)
     // File hash
     m_actor->ar_filehash = m_file->hash;
 
-    // Flags in root module
-    m_actor->ar_forward_commands         = m_file->forwardcommands;
-    m_actor->ar_import_commands          = m_file->importcommands;
-    m_actor->ar_rescuer_flag             = m_file->rescuer;
-    m_actor->m_disable_default_sounds    = m_file->disable_default_sounds;
-    m_actor->ar_hide_in_actor_list       = m_file->hide_in_chooser;
+    // Section 'managedmaterials'
+    // This prepares substitute materials -> MUST be processed before any meshes are loaded.
+    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_MANAGEDMATERIALS, managed_materials, ProcessManagedMaterial);
 
     // Sequential elements - loop by module, then by sequence
     for (Truck::ModulePtr modul: m_selected_modules)
     {
         m_cur_module = modul;
-        for (Truck::SeqSection const& elem: modul->sequence)
+        for (Truck::SeqElement const& elem: modul->sequence)
         {
-            switch (elem.section)
+            this->SetCurrentKeyword(elem.keyword);
+            switch (elem.keyword)
             {
+                // Global settings:
+            case Truck::KEYWORD_FORWARDCOMMANDS:
+                m_actor->ar_forward_commands = true;
+                break;
+            case Truck::KEYWORD_IMPORTCOMMANDS:
+                m_actor->ar_import_commands = true;
+                break;
+            case Truck::KEYWORD_RESCUER:
+                m_actor->ar_rescuer_flag = true;
+                break;
+            case Truck::KEYWORD_HIDE_IN_CHOOSER:
+                m_actor->ar_hide_in_actor_list  = true;
+                break;
+            case Truck::KEYWORD_DISABLEDEFAULTSOUNDS:
+                m_actor->m_disable_default_sounds = true;
+                break;
+            case Truck::KEYWORD_GLOBALS:
+                this->ProcessGlobals(modul->globals[elem.index]);
+                break;
+            case Truck::KEYWORD_SLIDENODE_CONNECT_INSTANT:
+                m_actor->ar_slidenodes_connect_instantly = true;
+                break;
+            case Truck::KEYWORD_HELP:
+                m_state.helpmat = modul->help[elem.index];
+                break;
+            case Truck::KEYWORD_AUTHOR:
+                this->ProcessAuthor(elem.index);
+                break;
+
+                // Presets:
+            case Truck::KEYWORD_LOCKGROUP_DEFAULT_NOLOCK:
+                m_state.lockgroup_default = NODE_LOCKGROUP_NOLOCK;
+                break;
+            case Truck::KEYWORD_SET_NODE_DEFAULTS:
+                this->ProcessNodeDefaults(elem.index);
+                break;
+            case Truck::KEYWORD_SET_INERTIA_DEFAULTS:
+                this->ProcessInertiaDefaults(elem.index);
+                break;
+            case Truck::KEYWORD_SET_BEAM_DEFAULTS:
+                this->ProcessBeamDefaults(elem.index);
+                break;
+            case Truck::KEYWORD_SET_BEAM_DEFAULTS_SCALE:
+                this->ProcessBeamDefaultsScale(elem.index);
+                break;
+            case Truck::KEYWORD_SET_COLLISION_RANGE:
+                this->ProcessCollisionRangePreset(elem.index);
+                break;
+            case Truck::KEYWORD_DETACHER_GROUP:
+                m_state.detacher_group_state = m_cur_module->detacher_group_preset[elem.index].detacher_group;
+                break;
+            case Truck::KEYWORD_SET_DEFAULT_MINIMASS:
+                m_state.default_minimass = m_cur_module->default_minimass[elem.index];
+                break;
+            case Truck::KEYWORD_ENABLE_ADVANCED_DEFORMATION:
+                m_state.enable_advanced_deformation = true;
+                break;
+            case Truck::KEYWORD_SET_MANAGEDMATERIALS_OPTIONS:
+                this->ProcessManagedMatOptions(elem.index);
+                break;
+            case Truck::KEYWORD_SET_SKELETON_SETTINGS:
+                this->ProcessSkeletonSettings(elem.index);
+                break;
+
                 // Nodes:
-            case Truck::SECTION_NODES:
-            case Truck::SECTION_NODES_2:
+            case Truck::KEYWORD_NODES:
+            case Truck::KEYWORD_NODES2:
                 this->ProcessNode(modul->nodes[elem.index]);
                 break;
 
                 // Beams:
-            case Truck::SECTION_ANIMATORS:
+            case Truck::KEYWORD_ANIMATORS:
                 this->ProcessAnimator(modul->animators[elem.index]);
                 break;
-            case Truck::SECTION_BEAMS:
+            case Truck::KEYWORD_BEAMS:
                 this->ProcessBeam(modul->beams[elem.index]);
                 break;
-            case Truck::SECTION_COMMANDS:
-            case Truck::SECTION_COMMANDS_2:
+            case Truck::KEYWORD_COMMANDS:
+            case Truck::KEYWORD_COMMANDS2:
                 this->ProcessCommand(modul->commands_2[elem.index]);
                 break;
-            case Truck::SECTION_HYDROS:
+            case Truck::KEYWORD_HYDROS:
                 this->ProcessHydro(modul->hydros[elem.index]);
                 break;
-            case Truck::SECTION_ROPES:
+            case Truck::KEYWORD_ROPES:
                 this->ProcessRope(modul->ropes[elem.index]);
                 break;
-            case Truck::SECTION_SHOCKS:
+            case Truck::KEYWORD_SHOCKS:
                 this->ProcessShock(modul->shocks[elem.index]);
                 break;
-            case Truck::SECTION_SHOCKS_2:
+            case Truck::KEYWORD_SHOCKS2:
                 this->ProcessShock2(modul->shocks_2[elem.index]);
                 break;
-            case Truck::SECTION_SHOCKS_3:
+            case Truck::KEYWORD_SHOCKS3:
                 this->ProcessShock3(modul->shocks_3[elem.index]);
                 break;
-            case Truck::SECTION_TIES:
+            case Truck::KEYWORD_TIES:
                 this->ProcessTie(modul->ties[elem.index]);
                 break;
-            case Truck::SECTION_TRIGGERS:
+            case Truck::KEYWORD_TRIGGERS:
                 this->ProcessTrigger(modul->triggers[elem.index]);
                 break;
 
                 // Generators:
-            case Truck::SECTION_WHEELS:
+            case Truck::KEYWORD_WHEELS:
                 this->ProcessWheel(modul->wheels[elem.index]);
                 break;
-            case Truck::SECTION_WHEELS_2:
+            case Truck::KEYWORD_WHEELS2:
                 this->ProcessWheel2(modul->wheels_2[elem.index]);
                 break;
-            case Truck::SECTION_MESH_WHEELS:
+            case Truck::KEYWORD_MESHWHEELS:
                 this->ProcessMeshWheel(modul->mesh_wheels[elem.index]);
                 break;
-            case Truck::SECTION_MESH_WHEELS_2:
+            case Truck::KEYWORD_MESHWHEELS2:
                 this->ProcessMeshWheel2(modul->mesh_wheels[elem.index]); // Uses the same array as meshwheels
                 break;
-            case Truck::SECTION_FLEX_BODY_WHEELS:
+            case Truck::KEYWORD_FLEXBODYWHEELS:
                 this->ProcessFlexBodyWheel(modul->flex_body_wheels[elem.index]);
                 break;
-            case Truck::SECTION_CINECAM:
+            case Truck::KEYWORD_CINECAM:
                 this->ProcessCinecam(modul->cinecam[elem.index]);
+                break;
+
+                // Drivetrain:
+            case Truck::KEYWORD_BRAKES:
+                this->ProcessBrakes(modul->brakes[elem.index]);
+                break;
+            case Truck::KEYWORD_ENGINE:
+                this->ProcessEngine(modul->engine[elem.index]);
+                break;
+            case Truck::KEYWORD_ENGOPTION:
+                this->ProcessEngoption(modul->engoption[elem.index]);
+                break;
+            case Truck::KEYWORD_ENGTURBO:
+                this->ProcessEngturbo(modul->engturbo[elem.index]);
+                break;
+            case Truck::KEYWORD_TORQUECURVE:
+                this->ProcessTorqueCurve(modul->torque_curve[elem.index]);
+                break;
+
+            default:
                 break;
             }
         }
     }
+    m_cur_module = nullptr;
 
- //FIXME   m_actor->ar_collision_range          = m_file->collision_range;
-
-    // Section 'authors' in root module
-    ProcessAuthors();
 
     // Section 'guid' in root module: unused for gameplay
     if (m_file->guid.empty())
@@ -176,36 +258,8 @@ Actor *ActorSpawner::SpawnActor(std::string const& config)
     // Section 'description'
  //FIXME   m_actor->description.assign(m_file->description.begin(), m_file->description.end());
 
-    // Section 'managedmaterials'
-    // This prepares substitute materials -> MUST be processed before any meshes are loaded.
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_MANAGEDMATERIALS, managed_materials, ProcessManagedMaterial);
-
-    // Section 'gobals' in any module
-    PROCESS_SECTION_IN_ANY_MODULE(Truck::KEYWORD_GLOBALS, globals, ProcessGlobals);
-
-    // Section 'help' in any module.
-    // NOTE: Must be done before "guisettings" (overrides help panel material)
-    ProcessHelp();
-
-    // Section 'engine' in any module
-    PROCESS_SECTION_IN_ANY_MODULE(Truck::KEYWORD_ENGINE, engine, ProcessEngine);
-
-    // Section 'engoption'
-    this->SetCurrentKeyword(Truck::KEYWORD_ENGOPTION);
-    this->ProcessEngoption();
-
-    // Section 'engturbo'
-    this->SetCurrentKeyword(Truck::KEYWORD_ENGTURBO);
-    this->ProcessEngturbo();
-
-    // Section 'torquecurve' in any module.
-    PROCESS_SECTION_IN_ANY_MODULE(Truck::KEYWORD_TORQUECURVE, torque_curve, ProcessTorqueCurve);
-
-    // Section 'brakes' in any module
-    PROCESS_SECTION_IN_ANY_MODULE(Truck::KEYWORD_BRAKES, brakes, ProcessBrakes);
-
     // Section 'guisettings' in any module
-    PROCESS_SECTION_IN_ANY_MODULE(Truck::KEYWORD_GUISETTINGS, gui_settings, ProcessGuiSettings);
+    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_GUISETTINGS, gui_settings, ProcessGuiSettings);
 
     // ---------------------------- User-defined nodes ----------------------------
 
@@ -228,7 +282,7 @@ Actor *ActorSpawner::SpawnActor(std::string const& config)
     // ---------------------------- Other ----------------------------
 
     // Section 'AntiLockBrakes' in any module.
-    PROCESS_SECTION_IN_ANY_MODULE(Truck::KEYWORD_ANTI_LOCK_BRAKES, anti_lock_brakes, ProcessAntiLockBrakes);
+    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_ANTI_LOCK_BRAKES, anti_lock_brakes, ProcessAntiLockBrakes);
 
     // Section 'SlopeBrake' in any module (feature removed).
     
@@ -239,7 +293,7 @@ Actor *ActorSpawner::SpawnActor(std::string const& config)
     PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_AXLES, axles, ProcessAxle);
 
     // Section 'transfercase'
-    PROCESS_SECTION_IN_ANY_MODULE(Truck::KEYWORD_TRANSFER_CASE, transfer_case, ProcessTransferCase);
+    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_TRANSFER_CASE, transfer_case, ProcessTransferCase);
 
     // Section 'interaxles'
     PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_INTERAXLES, interaxles, ProcessInterAxle);
@@ -282,7 +336,7 @@ Actor *ActorSpawner::SpawnActor(std::string const& config)
     PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_PROPS, props, ProcessProp);
 
     // Section 'TractionControl' in any module.
-    PROCESS_SECTION_IN_ANY_MODULE(Truck::KEYWORD_TRACTION_CONTROL, traction_control, ProcessTractionControl);
+    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_TRACTION_CONTROL, traction_control, ProcessTractionControl);
 
     // Section 'rotators'
     PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_ROTATORS, rotators, ProcessRotator);
@@ -302,16 +356,11 @@ Actor *ActorSpawner::SpawnActor(std::string const& config)
     // Section 'particles'
     PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_PARTICLES, particles, ProcessParticle);
 
-    // Section 'cruisecontrol' in any module.
-    PROCESS_SECTION_IN_ANY_MODULE(Truck::KEYWORD_CRUISECONTROL, cruise_control, ProcessCruiseControl);
+    // Section 'cruisecontrol'
+    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_CRUISECONTROL, cruise_control, ProcessCruiseControl);
 
     // Section 'speedlimiter' in any module.
-    this->SetCurrentKeyword(Truck::KEYWORD_SPEEDLIMITER);
-    for (auto& m : m_selected_modules)
-    {
-        m_actor->sl_enabled = m->speed_limiter.is_enabled;
-        m_actor->sl_speed_limit = m->speed_limiter.max_speed;
-    }
+    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_SPEEDLIMITER, speed_limiter, ProcessSpeedLimiter);
 
     // Section 'collisionboxes'
     PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_COLLISIONBOXES, collision_boxes, ProcessCollisionBox);
@@ -346,8 +395,38 @@ Actor *ActorSpawner::SpawnActor(std::string const& config)
 
     this->CreateGfxActor(); // Required in sections below
 
-    // Section 'flexbodies' (Uses generated nodes; needs GfxActor to exist)
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_FLEXBODIES, flexbodies, ProcessFlexbody);
+    // Some things need to be processed in order
+    for (Truck::ModulePtr modul: m_selected_modules)
+    {
+        m_cur_module = modul;
+        for (Truck::SeqElement const& elem: modul->sequence)
+        {
+            switch (elem.keyword)
+            {
+            case Truck::KEYWORD_FLEXBODIES:
+                this->ProcessFlexbody(modul->flexbodies[elem.index]); // needs GfxActor to exist
+                break;
+            case Truck::KEYWORD_FLEXBODY_CAMERA_MODE:
+                if (m_state.last_flexbody)
+                {
+                    m_state.last_flexbody->setCameraMode(modul->flexbody_camera_mode[elem.index]);
+                }
+                break;
+
+            case Truck::KEYWORD_PROPS:
+                this->ProcessProp(modul->props[elem.index]);
+                break;
+            case Truck::KEYWORD_PROP_CAMERA_MODE:
+                if (m_props.size() > 0)
+                {
+                    m_props.back().pp_camera_mode = modul->prop_camera_mode[elem.index];
+                }
+                break;
+            }
+        }
+    }
+
+
 
     // Section 'wings' (needs GfxActor to exist)
     PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_WINGS, wings, ProcessWing);

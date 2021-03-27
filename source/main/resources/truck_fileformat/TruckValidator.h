@@ -80,14 +80,6 @@ private:
 
 
 
-
-
-
-    /**
-    * Checks there's at least 1 forward gear.
-    */
-    bool CheckGearbox();
-
     void AddMessage(Validator::Message::Type type, Ogre::String const & text);
 
 /* -------------------------------------------------------------------------- */

@@ -33,7 +33,9 @@
 
 #include "Application.h"
 #include "BitFlags.h"
-#include "TruckNode.h"
+#include "TruckCommon.h"
+#include "TruckPresets.h"
+#include "TruckNodesBeams.h"
 #include "SimData.h"
 
 #include <list>
@@ -47,967 +49,8 @@
 namespace RoR {
 namespace Truck {
 
-extern const char* ROOT_MODULE_NAME;
-
-typedef std::shared_ptr<Truck::Document> DocumentPtr;
-typedef std::shared_ptr<Truck::Module> ModulePtr;
-
-/** IMPORTANT! If you add a value here, you must also modify IDENTIFY_KEYWORD regex, it relies on numeric values of this enum. */
-enum Keyword
-{
-    KEYWORD_ADD_ANIMATION = 1,
-    KEYWORD_AIRBRAKES,
-    KEYWORD_ANIMATORS,
-    KEYWORD_ANTI_LOCK_BRAKES,
-    KEYWORD_AXLES,
-    KEYWORD_AUTHOR,
-    KEYWORD_BACKMESH,
-    KEYWORD_BEAMS,
-    KEYWORD_BRAKES,
-    KEYWORD_CAB,
-    KEYWORD_CAMERARAIL,
-    KEYWORD_CAMERAS,
-    KEYWORD_CINECAM,
-    KEYWORD_COLLISIONBOXES,
-    KEYWORD_COMMANDS,
-    KEYWORD_COMMANDS2,
-    KEYWORD_CONTACTERS,
-    KEYWORD_CRUISECONTROL,
-    KEYWORD_DESCRIPTION,
-    KEYWORD_DETACHER_GROUP,
-    KEYWORD_DISABLEDEFAULTSOUNDS,
-    KEYWORD_ENABLE_ADVANCED_DEFORM,
-    KEYWORD_END,
-    KEYWORD_END_SECTION,
-    KEYWORD_ENGINE,
-    KEYWORD_ENGOPTION,
-    KEYWORD_ENGTURBO,
-    KEYWORD_ENVMAP,
-    KEYWORD_EXHAUSTS,
-    KEYWORD_EXTCAMERA,
-    KEYWORD_FILEFORMATVERSION,
-    KEYWORD_FILEINFO,
-    KEYWORD_FIXES,
-    KEYWORD_FLARES,
-    KEYWORD_FLARES2,
-    KEYWORD_FLEXBODIES,
-    KEYWORD_FLEXBODY_CAMERA_MODE,
-    KEYWORD_FLEXBODYWHEELS,
-    KEYWORD_FORWARDCOMMANDS,
-    KEYWORD_FUSEDRAG,
-    KEYWORD_GLOBALS,
-    KEYWORD_GUID,
-    KEYWORD_GUISETTINGS,
-    KEYWORD_HELP,
-    KEYWORD_HIDE_IN_CHOOSER,
-    KEYWORD_HOOKGROUP, // obsolete, ignored
-    KEYWORD_HOOKS,
-    KEYWORD_HYDROS,
-    KEYWORD_IMPORTCOMMANDS,
-    KEYWORD_INTERAXLES,
-    KEYWORD_LOCKGROUPS,
-    KEYWORD_LOCKGROUP_DEFAULT_NOLOCK,
-    KEYWORD_MANAGEDMATERIALS,
-    KEYWORD_MATERIALFLAREBINDINGS,
-    KEYWORD_MESHWHEELS,
-    KEYWORD_MESHWHEELS2,
-    KEYWORD_MINIMASS,
-    KEYWORD_NODECOLLISION,
-    KEYWORD_NODES,
-    KEYWORD_NODES2,
-    KEYWORD_PARTICLES,
-    KEYWORD_PISTONPROPS,
-    KEYWORD_PROP_CAMERA_MODE,
-    KEYWORD_PROPS,
-    KEYWORD_RAILGROUPS,
-    KEYWORD_RESCUER,
-    KEYWORD_RIGIDIFIERS,
-    KEYWORD_ROLLON,
-    KEYWORD_ROPABLES,
-    KEYWORD_ROPES,
-    KEYWORD_ROTATORS,
-    KEYWORD_ROTATORS2,
-    KEYWORD_SCREWPROPS,
-    KEYWORD_SECTION,
-    KEYWORD_SECTIONCONFIG,
-    KEYWORD_SET_BEAM_DEFAULTS,
-    KEYWORD_SET_BEAM_DEFAULTS_SCALE,
-    KEYWORD_SET_COLLISION_RANGE,
-    KEYWORD_SET_DEFAULT_MINIMASS,
-    KEYWORD_SET_INERTIA_DEFAULTS,
-    KEYWORD_SET_MANAGEDMATS_OPTIONS,
-    KEYWORD_SET_NODE_DEFAULTS,
-    KEYWORD_SET_SHADOWS,
-    KEYWORD_SET_SKELETON_SETTINGS,
-    KEYWORD_SHOCKS,
-    KEYWORD_SHOCKS2,
-    KEYWORD_SHOCKS3,
-    KEYWORD_SLIDENODE_CONNECT_INSTANT,
-    KEYWORD_SLIDENODES,
-    KEYWORD_SLOPE_BRAKE,
-    KEYWORD_SOUNDSOURCES,
-    KEYWORD_SOUNDSOURCES2,
-    KEYWORD_SPEEDLIMITER,
-    KEYWORD_SUBMESH,
-    KEYWORD_SUBMESH_GROUNDMODEL,
-    KEYWORD_TEXCOORDS,
-    KEYWORD_TIES,
-    KEYWORD_TORQUECURVE,
-    KEYWORD_TRACTION_CONTROL,
-    KEYWORD_TRANSFER_CASE,
-    KEYWORD_TRIGGERS,
-    KEYWORD_TURBOJETS,
-    KEYWORD_TURBOPROPS,
-    KEYWORD_TURBOPROPS2,
-    KEYWORD_VIDEOCAMERA,
-    KEYWORD_WHEELDETACHERS,
-    KEYWORD_WHEELS,
-    KEYWORD_WHEELS2,
-    KEYWORD_WINGS,
-
-    KEYWORD_INVALID = 0xFFFFFFFF
-};
-
-/// A keyword which should be on it's own line. Used in IDENTIFY_KEYWORD.
-#define E_KEYWORD_BLOCK(_NAME_)     "(^" _NAME_ "[[:blank:]]*$)?"
-
-/// A keyword which should have values following it. Used in IDENTIFY_KEYWORD.
-#define E_KEYWORD_INLINE(_NAME_)     "(^" _NAME_ "[[:blank:]]+" ".*$)?"
-    
-/// Inline keyword, tolerant version: keyword and values can be delimited by either space or comma
-#define E_KEYWORD_INLINE_TOLERANT(_NAME_)     "(^" _NAME_ "[[:blank:],]+" ".*$)?"
-
-// IMPORTANT! If you add a value here, you must also modify Keywords enum, it relies on positions in this regex
-const std::string IDENTIFY_KEYWORD_REGEX_STRING(
-    E_KEYWORD_INLINE_TOLERANT("add_animation")  /* Position 1 */  \
-    E_KEYWORD_BLOCK("airbrakes")       /* Position 2 */           \
-    E_KEYWORD_BLOCK("animators")       /* Position 3 etc... */    \
-    E_KEYWORD_INLINE("AntiLockBrakes")                            \
-    E_KEYWORD_BLOCK("axles")                                      \
-    E_KEYWORD_INLINE("author")                                    \
-    E_KEYWORD_BLOCK("backmesh")                                   \
-    E_KEYWORD_BLOCK("beams")                                      \
-    E_KEYWORD_BLOCK("brakes")                                     \
-    E_KEYWORD_BLOCK("cab")                                        \
-    E_KEYWORD_BLOCK("camerarail")                                 \
-    E_KEYWORD_BLOCK("cameras")                                    \
-    E_KEYWORD_BLOCK("cinecam")                                    \
-    E_KEYWORD_BLOCK("collisionboxes")                             \
-    E_KEYWORD_BLOCK("commands")                                   \
-    E_KEYWORD_BLOCK("commands2")                                  \
-    E_KEYWORD_BLOCK("contacters")                                 \
-    E_KEYWORD_INLINE("cruisecontrol")                             \
-    E_KEYWORD_BLOCK("description")                                \
-    E_KEYWORD_INLINE("detacher_group")                            \
-    E_KEYWORD_BLOCK("disabledefaultsounds")                       \
-    E_KEYWORD_BLOCK("enable_advanced_deformation")                \
-    E_KEYWORD_BLOCK("end")                                        \
-    E_KEYWORD_BLOCK("end_section")                                \
-    E_KEYWORD_BLOCK("engine")                                     \
-    E_KEYWORD_BLOCK("engoption")                                  \
-    E_KEYWORD_BLOCK("engturbo")                                   \
-    E_KEYWORD_BLOCK("envmap")                                     \
-    E_KEYWORD_BLOCK("exhausts")                                   \
-    E_KEYWORD_INLINE("extcamera")                                 \
-    E_KEYWORD_INLINE("fileformatversion")                         \
-    E_KEYWORD_INLINE("fileinfo")                                  \
-    E_KEYWORD_BLOCK("fixes")                                      \
-    E_KEYWORD_BLOCK("flares")                                     \
-    E_KEYWORD_BLOCK("flares2")                                    \
-    E_KEYWORD_BLOCK("flexbodies")                                 \
-    E_KEYWORD_INLINE("flexbody_camera_mode")                      \
-    E_KEYWORD_BLOCK("flexbodywheels")                             \
-    E_KEYWORD_BLOCK("forwardcommands")                            \
-    E_KEYWORD_BLOCK("fusedrag")                                   \
-    E_KEYWORD_BLOCK("globals")                                    \
-    E_KEYWORD_INLINE("guid")                                      \
-    E_KEYWORD_BLOCK("guisettings")                                \
-    E_KEYWORD_BLOCK("help")                                       \
-    E_KEYWORD_BLOCK("hideInChooser")                              \
-    E_KEYWORD_BLOCK("hookgroup")                                  \
-    E_KEYWORD_BLOCK("hooks")                                      \
-    E_KEYWORD_BLOCK("hydros")                                     \
-    E_KEYWORD_BLOCK("importcommands")                             \
-    E_KEYWORD_BLOCK("interaxles")                                 \
-    E_KEYWORD_BLOCK("lockgroups")                                 \
-    E_KEYWORD_BLOCK("lockgroup_default_nolock")                   \
-    E_KEYWORD_BLOCK("managedmaterials")                           \
-    E_KEYWORD_BLOCK("materialflarebindings")                      \
-    E_KEYWORD_BLOCK("meshwheels")                                 \
-    E_KEYWORD_BLOCK("meshwheels2")                                \
-    E_KEYWORD_BLOCK("minimass")                                   \
-    E_KEYWORD_BLOCK("nodecollision")                              \
-    E_KEYWORD_BLOCK("nodes")                                      \
-    E_KEYWORD_BLOCK("nodes2")                                     \
-    E_KEYWORD_BLOCK("particles")                                  \
-    E_KEYWORD_BLOCK("pistonprops")                                \
-    E_KEYWORD_INLINE("prop_camera_mode")                          \
-    E_KEYWORD_BLOCK("props")                                      \
-    E_KEYWORD_BLOCK("railgroups")                                 \
-    E_KEYWORD_BLOCK("rescuer")                                    \
-    E_KEYWORD_BLOCK("rigidifiers")                                \
-    E_KEYWORD_BLOCK("rollon")                                     \
-    E_KEYWORD_BLOCK("ropables")                                   \
-    E_KEYWORD_BLOCK("ropes")                                      \
-    E_KEYWORD_BLOCK("rotators")                                   \
-    E_KEYWORD_BLOCK("rotators2")                                  \
-    E_KEYWORD_BLOCK("screwprops")                                 \
-    E_KEYWORD_INLINE("section")                                   \
-    E_KEYWORD_INLINE("sectionconfig")                             \
-    E_KEYWORD_INLINE("set_beam_defaults")                         \
-    E_KEYWORD_INLINE("set_beam_defaults_scale")                   \
-    E_KEYWORD_INLINE("set_collision_range")                       \
-    E_KEYWORD_INLINE("set_default_minimass")                      \
-    E_KEYWORD_INLINE("set_inertia_defaults")                      \
-    E_KEYWORD_INLINE("set_managedmaterials_options")              \
-    E_KEYWORD_INLINE("set_node_defaults")                         \
-    E_KEYWORD_BLOCK("set_shadows")                                \
-    E_KEYWORD_INLINE("set_skeleton_settings")                     \
-    E_KEYWORD_BLOCK("shocks")                                     \
-    E_KEYWORD_BLOCK("shocks2")                                    \
-    E_KEYWORD_BLOCK("shocks3")                                    \
-    E_KEYWORD_BLOCK("slidenode_connect_instantly")                \
-    E_KEYWORD_BLOCK("slidenodes")                                 \
-    E_KEYWORD_INLINE("SlopeBrake")                                \
-    E_KEYWORD_BLOCK("soundsources")                               \
-    E_KEYWORD_BLOCK("soundsources2")                              \
-    E_KEYWORD_INLINE("speedlimiter")                              \
-    E_KEYWORD_BLOCK("submesh")                                    \
-    E_KEYWORD_INLINE("submesh_groundmodel")                       \
-    E_KEYWORD_BLOCK("texcoords")                                  \
-    E_KEYWORD_BLOCK("ties")                                       \
-    E_KEYWORD_BLOCK("torquecurve")                                \
-    E_KEYWORD_INLINE("TractionControl")                           \
-    E_KEYWORD_BLOCK("transfercase")                               \
-    E_KEYWORD_BLOCK("triggers")                                   \
-    E_KEYWORD_BLOCK("turbojets")                                  \
-    E_KEYWORD_BLOCK("turboprops")                                 \
-    E_KEYWORD_BLOCK("turboprops2")                                \
-    E_KEYWORD_BLOCK("videocamera")                                \
-    E_KEYWORD_BLOCK("wheeldetachers")                             \
-    E_KEYWORD_BLOCK("wheels")                                     \
-    E_KEYWORD_BLOCK("wheels2")                                    \
-    E_KEYWORD_BLOCK("wings")
-);
-
-#undef E_KEYWORD_BLOCK
-#undef E_KEYWORD_INLINE
-#undef E_KEYWORD_INLINE_TOLERANT
-
-enum Section
-{
-    SECTION_AIRBRAKES,
-    SECTION_AUTHOR,
-    SECTION_ANIMATORS,
-    SECTION_ANTI_LOCK_BRAKES,
-    SECTION_AXLES,
-    SECTION_BEAMS,
-    SECTION_BRAKES,
-    SECTION_CAMERAS,
-    SECTION_CAMERA_RAIL,
-    SECTION_CINECAM,
-    SECTION_COLLISION_BOXES,
-    SECTION_COMMANDS,
-    SECTION_COMMANDS_2,
-    SECTION_CONTACTERS,
-    SECTION_ENGINE,
-    SECTION_ENGOPTION,
-    SECTION_ENGTURBO,
-    SECTION_EXHAUSTS,
-    SECTION_FIXES,
-    SECTION_FLARES,
-    SECTION_FLARES_2,
-    SECTION_FLEXBODIES,
-    SECTION_FLEX_BODY_WHEELS,	
-    SECTION_FUSEDRAG,
-    SECTION_GLOBALS,
-    SECTION_GUI_SETTINGS,
-    SECTION_HELP,
-    SECTION_HOOKS,
-    SECTION_HYDROS,
-    SECTION_INTERAXLES,
-    SECTION_LOCKGROUPS,
-    SECTION_MANAGED_MATERIALS,
-    SECTION_MAT_FLARE_BINDINGS,
-    SECTION_MESH_WHEELS,
-    SECTION_MESH_WHEELS_2,
-    SECTION_MINIMASS,
-    SECTION_NODES,
-    SECTION_NODES_2,
-    SECTION_NODE_COLLISION,
-    SECTION_PARTICLES,
-    SECTION_PISTONPROPS,
-    SECTION_PROPS,
-    SECTION_RAILGROUPS,
-    SECTION_ROPABLES,
-    SECTION_ROPES,
-    SECTION_ROTATORS,
-    SECTION_ROTATORS_2,
-    SECTION_SCREWPROPS,
-    SECTION_SHOCKS,
-    SECTION_SHOCKS_2,
-    SECTION_SHOCKS_3,
-    SECTION_SLIDENODES,
-    SECTION_SOUNDSOURCES,
-    SECTION_SOUNDSOURCES2,
-    SECTION_SUBMESH,
-    SECTION_SLOPE_BRAKE,
-    SECTION_TIES,
-    SECTION_TORQUE_CURVE,
-    SECTION_TRACTION_CONTROL,
-    SECTION_TRANSFER_CASE,
-    SECTION_TRIGGERS,
-    SECTION_TRUCK_NAME, //!< The very start of file	
-    SECTION_TURBOJETS,
-    SECTION_TURBOPROPS,
-    SECTION_TURBOPROPS_2,
-    SECTION_VIDEO_CAMERA,
-    SECTION_WHEELDETACHERS,
-    SECTION_WHEELS,
-    SECTION_WHEELS_2,
-    SECTION_WINGS,
-
-    SECTION_NONE,       //!< Right after rig name, for example.
-
-    SECTION_INVALID = 0xFFFFFFFF
-};
-
-enum Subsection
-{
-    SUBSECTION_NONE = 0,
-
-    SUBSECTION__FLEXBODIES__PROPLIKE_LINE,
-    SUBSECTION__FLEXBODIES__FORSET_LINE,
-
-    SUBSECTION__SUBMESH__TEXCOORDS,
-    SUBSECTION__SUBMESH__CAB,
-
-    SUBSECTION_INVALID = 0xFFFFFFFF
-};
-
-enum class DifferentialType: char
-{
-    DIFF_o_OPEN    = 'o',
-    DIFF_l_LOCKED  = 'l',
-    DIFF_s_SPLIT   = 's',
-    DIFF_v_VISCOUS = 'v'
-};
-
-// ----------------------------------------------------------------------------
-// Presets
-
-/// Directive 'set_beam_defaults'
-struct BeamDefaults
-{
-    float springiness = -1.f;
-    float damping_constant = -1.f;
-    float deformation_threshold = -1.f;
-    float breaking_threshold = -1.f;
-    float visual_beam_diameter = -1.f;
-    std::string beam_material_name = "tracks/beam";
-    float plastic_deform_coef = 0.f;
-    bool _enable_advanced_deformation = false; //!< Informs whether "enable_advanced_deformation" directive preceded these defaults.
-    bool _is_plastic_deform_coef_user_defined = false;
-};
-
-/// Directive 'set_beam_defaults_scale'
-struct BeamDefaultsScale
-{
-    float springiness = 1.f;
-    float damping_constant = 1.f;
-    float deformation_threshold_constant = 1.f;
-    float breaking_threshold_constant = 1.f;
-};
-
-/// Directive 'set_camera_settings'
-struct CameraSettings
-{
-    CameraSettings():
-        mode(MODE_ALWAYS),
-        cinecam_index(0)
-    {}
-
-    enum Mode
-    {
-        MODE_ALWAYS   = -2,
-        MODE_EXTERNAL = -1,
-        MODE_CINECAM  = 1,
-
-        MODE_INVALID  = 0xFFFFFFFF
-    };
-
-    Mode mode;
-    unsigned int cinecam_index;
-};
-
-/// Directive 'set_collision_range'
-struct CollisionRangePreset
-{
-    int collrange = DEFAULT_COLLISION_RANGE;
-};
-
-/// Directive 'detacher_group'
-struct DetacherGroupPreset
-{
-    int detacher_group = DEFAULT_DETACHER_GROUP;
-};
-
-/// Directive 'lockgroup_default_nolock'
-struct LockgroupPreset
-{
-    int lockgroup = NODE_LOCKGROUP_DEFAULT;
-};
-
-/// Section 'minimass' & Directive 'set_default_minimass'
-struct MinimassPreset
-{
-    enum Option
-    {
-        OPTION_n_FILLER  = 'n',     //!< Updates the global minimass
-        OPTION_l_SKIP_LOADED = 'l'  //!< Only apply minimum mass to nodes without "L" option.
-    };
-
-    MinimassPreset() {};
-    explicit MinimassPreset(float m): min_mass(m)
-    {}
-
-    float min_mass = DEFAULT_MINIMASS; //!< minimum node mass in Kg
-};
-
-/// Directive 'enable_advanced_deformation'
-struct EnableAdvancedDeformation
-{
-    EnableAdvancedDeformation() {}
-    EnableAdvancedDeformation(bool e): enable(e) {}
-
-    bool enable = false;
-};
-
-/// Directive 'set_inertia_defaults', also used for 'commands*/hydros/rotator'
-struct Inertia
-{
-    float start_delay_factor = -1.f;
-    float stop_delay_factor = -1.f;
-    std::string start_function;
-    std::string stop_function;
-};
-
-/// Directive 'set_managedmaterials_options'
-struct ManagedMatOptions
-{
-    ManagedMatOptions():
-        double_sided(false)
-    {}
-
-    bool double_sided;
-};
-
-/// Directive 'set_node_defaults'
-struct NodeDefaults
-{
-    float loadweight  = NODE_LOADWEIGHT_DEFAULT;
-    float friction    = NODE_FRICTION_COEF_DEFAULT;
-    float volume      = NODE_VOLUME_COEF_DEFAULT;
-    float surface     = NODE_SURFACE_COEF_DEFAULT;
-    int options       = 0; //!< Bit flags
-};
-
-// ----------------------------------------------------------------------------
-// Sequentially ordered sections
-
-struct SeqSection
-{
-    SeqSection(Section sec, int idx): section(sec), index(idx) {}
-
-    Section section = Section::SECTION_INVALID;
-    int index = -1;
-};
-
-/// Keywords 'nodes*'
-struct Node
-{
-    struct Ref
-    {
-        Ref() {}
-        Ref(RoR::NodeIdx_t idx): number(idx) {}
-        Ref(RoR::NodeIdx_t idx, std::string const &name): number(idx), name(name) {}
-
-        std::string const & Str() const        { return name; }
-        RoR::NodeIdx_t      Num() const        { return number; }
-
-        bool Compare   (Ref const & rhs) const { return number == rhs.number; }
-        bool operator==(Ref const & rhs) const { return Compare(rhs); }
-        bool operator!=(Ref const & rhs) const { return ! Compare(rhs); }
-
-        bool     IsValidAnyState() const       { return number != RoR::node_t::INVALID_IDX || name != ""; }
-
-        void Invalidate() { number = RoR::node_t::INVALID_IDX; name = ""; }
-        std::string ToString() const { return TOSTRING(number)+"/"+name; }
-
-        RoR::NodeIdx_t number = RoR::node_t::INVALID_IDX;
-        std::string name = "";
-    };
-
-    struct Range
-    {
-        Range(Node::Ref const & start, Node::Ref const & end):
-            start(start),
-            end(end)
-        {}
-
-        Range(Node::Ref const & single):
-            start(single),
-            end(single)
-        {}
-
-        bool IsRange() const { return start != end; }
-
-        void SetSingle(Node::Ref const & ref)
-        {
-            start = ref;
-            end = ref;
-        }
-
-        Node::Ref start;
-        Node::Ref end;
-    };
-
-    enum Option
-    {
-        OPTION_n_MOUSE_GRAB         = BITMASK( 1),
-        OPTION_m_NO_MOUSE_GRAB      = BITMASK( 2),
-        OPTION_f_NO_SPARKS          = BITMASK( 3),
-        OPTION_x_EXHAUST_POINT      = BITMASK( 4),
-        OPTION_y_EXHAUST_DIRECTION  = BITMASK( 5),
-        OPTION_c_NO_GROUND_CONTACT  = BITMASK( 6),
-        OPTION_h_HOOK_POINT         = BITMASK( 7),
-        OPTION_e_TERRAIN_EDIT_POINT = BITMASK( 8),
-        OPTION_b_EXTRA_BUOYANCY     = BITMASK( 9),
-        OPTION_p_NO_PARTICLES       = BITMASK(10),
-        OPTION_L_LOG                = BITMASK(11),
-        OPTION_l_LOAD_WEIGHT        = BITMASK(12),
-    };
-
-    RoR::NodeIdx_t number = RoR::node_t::INVALID_IDX;
-    std::string name = "";
-    Ogre::Vector3 position = Ogre::Vector3::ZERO;
-    int options = 0; //!< Bit flags
-    float load_weight_override = 0.f;
-    bool _has_load_weight_override = false;
-
-    // Presets
-    int node_defaults = -1;
-    int node_minimass = -1;
-    int beam_defaults = -1; //!< Needed for hook
-    int beam_defaults_scale = -1; //!< Needed for hook
-    int detacher_group = -1;
-    int enable_advanced_deformation = -1;
-    int editor_group_id = -1;
-    int lockgroup_preset = -1;
-};
-
-/// Section 'animators'
-struct AeroAnimator
-{
-    static const unsigned int OPTION_THROTTLE = BITMASK(1);
-    static const unsigned int OPTION_RPM      = BITMASK(2);
-    static const unsigned int OPTION_TORQUE   = BITMASK(3);
-    static const unsigned int OPTION_PITCH    = BITMASK(4);
-    static const unsigned int OPTION_STATUS   = BITMASK(5);
-
-    unsigned int flags      = 0u;
-    unsigned int engine_idx = 0u;
-};
-
-/// Section 'animators'
-struct Animator
-{
-    static const unsigned int OPTION_VISIBLE           = BITMASK(1);
-    static const unsigned int OPTION_INVISIBLE         = BITMASK(2);
-    static const unsigned int OPTION_AIRSPEED          = BITMASK(3);
-    static const unsigned int OPTION_VERTICAL_VELOCITY = BITMASK(4);
-    static const unsigned int OPTION_ALTIMETER_100K    = BITMASK(5);
-    static const unsigned int OPTION_ALTIMETER_10K     = BITMASK(6);
-    static const unsigned int OPTION_ALTIMETER_1K      = BITMASK(7);
-    static const unsigned int OPTION_ANGLE_OF_ATTACK   = BITMASK(8);
-    static const unsigned int OPTION_FLAP              = BITMASK(9);
-    static const unsigned int OPTION_AIR_BRAKE         = BITMASK(10);
-    static const unsigned int OPTION_ROLL              = BITMASK(11);
-    static const unsigned int OPTION_PITCH             = BITMASK(12);
-    static const unsigned int OPTION_BRAKES            = BITMASK(13);
-    static const unsigned int OPTION_ACCEL             = BITMASK(14);
-    static const unsigned int OPTION_CLUTCH            = BITMASK(15);
-    static const unsigned int OPTION_SPEEDO            = BITMASK(16);
-    static const unsigned int OPTION_TACHO             = BITMASK(17);
-    static const unsigned int OPTION_TURBO             = BITMASK(18);
-    static const unsigned int OPTION_PARKING           = BITMASK(19);
-    static const unsigned int OPTION_SHIFT_LEFT_RIGHT  = BITMASK(20);
-    static const unsigned int OPTION_SHIFT_BACK_FORTH  = BITMASK(21);
-    static const unsigned int OPTION_SEQUENTIAL_SHIFT  = BITMASK(22);
-    static const unsigned int OPTION_GEAR_SELECT       = BITMASK(23);
-    static const unsigned int OPTION_TORQUE            = BITMASK(24);
-    static const unsigned int OPTION_DIFFLOCK          = BITMASK(25);
-    static const unsigned int OPTION_BOAT_RUDDER       = BITMASK(26);
-    static const unsigned int OPTION_BOAT_THROTTLE     = BITMASK(27);
-    static const unsigned int OPTION_SHORT_LIMIT       = BITMASK(28);
-    static const unsigned int OPTION_LONG_LIMIT        = BITMASK(29);
-
-    Node::Ref nodes[2];
-    float lenghtening_factor = 0.f;
-    int flags = 0;
-    float short_limit = 0.f;
-    float long_limit = 0.f;
-    AeroAnimator aero_animator;
-
-    // Presets
-    int inertia_defaults = -1;
-    int beam_defaults = -1;
-    int beam_defaults_scale = -1;
-    int detacher_group = -1;
-};
-
-/// Section 'beams'
-struct Beam
-{
-    Node::Ref nodes[2];
-    float extension_break_limit = 0.f;
-    bool _has_extension_break_limit = false;
-    bool invisible = false;
-    SpecialBeam bounded = SpecialBeam::REGULAR_BEAM;
-
-    // Presets
-    int detacher_group = -1;
-    int beam_defaults = -1;
-    int beam_defaults_scale = -1;
-    int enable_advanced_deformation = -1;
-    int editor_group_id = -1;
-};
-
-/// Sections 'commands/commands2'
-struct Command2
-{
-    unsigned int _format_version = 1;
-    Node::Ref nodes[2];
-    float shorten_rate = 0.f;
-    float lengthen_rate = 0.f;
-    float max_contraction = 0.f;
-    float max_extension = 0.f;
-    unsigned int contract_key = 0.f;
-    unsigned int extend_key = 0.f;
-    std::string description;
-    Inertia inertia;
-    float affect_engine = false;
-    bool needs_engine = true;
-    bool plays_sound = true;
-
-    bool option_i_invisible = false;
-    bool option_r_rope = false;
-    bool option_c_auto_center = false;
-    bool option_f_not_faster = false;
-    bool option_p_1press = false;
-    bool option_o_1press_center = false;
-
-    // Presets
-    int beam_defaults = -1;
-    int beam_defaults_scale = -1;
-    int detacher_group = -1;
-    int enable_advanced_deformation = -1;
-    int inertia_defaults = -1;
-};
-
-/// Section 'hydros'
-struct Hydro
-{
-    static const char OPTION_n_NORMAL                    = 'n';
-    static const char OPTION_i_INVISIBLE                 = 'i';
-
-    /* Useful for trucks */
-
-    static const char OPTION_s_DISABLE_ON_HIGH_SPEED     = 's';
-
-    /* Useful for planes: These can be used to control flight surfaces, or to create a thrust vectoring system.  */
-
-    static const char OPTION_a_INPUT_AILERON             = 'a';
-    static const char OPTION_r_INPUT_RUDDER              = 'r';
-    static const char OPTION_e_INPUT_ELEVATOR            = 'e';
-    static const char OPTION_u_INPUT_AILERON_ELEVATOR    = 'u';
-    static const char OPTION_v_INPUT_InvAILERON_ELEVATOR = 'v';
-    static const char OPTION_x_INPUT_AILERON_RUDDER      = 'x';
-    static const char OPTION_y_INPUT_InvAILERON_RUDDER   = 'y';
-    static const char OPTION_g_INPUT_ELEVATOR_RUDDER     = 'g';
-    static const char OPTION_h_INPUT_InvELEVATOR_RUDDER  = 'h';
-
-    inline bool HasFlag_a() { return options.find(Truck::Hydro::OPTION_a_INPUT_AILERON)             != std::string::npos; }
-    inline bool HasFlag_e() { return options.find(Truck::Hydro::OPTION_e_INPUT_ELEVATOR)            != std::string::npos; }
-    inline bool HasFlag_g() { return options.find(Truck::Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER)     != std::string::npos; }
-    inline bool HasFlag_h() { return options.find(Truck::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER)  != std::string::npos; }
-    inline bool HasFlag_i() { return options.find(Truck::Hydro::OPTION_i_INVISIBLE)                 != std::string::npos; }
-    inline bool HasFlag_r() { return options.find(Truck::Hydro::OPTION_r_INPUT_RUDDER)              != std::string::npos; }
-    inline bool HasFlag_s() { return options.find(Truck::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED)     != std::string::npos; }
-    inline bool HasFlag_u() { return options.find(Truck::Hydro::OPTION_u_INPUT_AILERON_ELEVATOR)    != std::string::npos; }
-    inline bool HasFlag_v() { return options.find(Truck::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR) != std::string::npos; }
-    inline bool HasFlag_x() { return options.find(Truck::Hydro::OPTION_x_INPUT_AILERON_RUDDER)      != std::string::npos; }
-    inline bool HasFlag_y() { return options.find(Truck::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER)   != std::string::npos; }
-
-    inline void AddFlag(char flag) { options += flag; }
-
-    Node::Ref nodes[2];
-    float lenghtening_factor = 0.f;
-    std::string options;
-    Inertia inertia;
-
-    // Presets
-    int beam_defaults = -1;
-    int beam_defaults_scale = -1;
-    int detacher_group = -1;
-    int enable_advanced_deformation = -1;
-    int inertia_defaults = -1;
-};
-
-/// Section 'ropes'
-struct Rope
-{
-    Node::Ref root_node;
-    Node::Ref end_node;
-    bool invisible = false;
-
-    // Presets
-    int beam_defaults = -1;
-    int beam_defaults_scale = -1;
-    int detacher_group = -1;
-};
-
-/// Section 'shocks'
-struct Shock
-{
-    Shock();
-
-    BITMASK_PROPERTY(options, 1, OPTION_i_INVISIBLE    , HasOption_i_Invisible,   SetOption_i_Invisible) 
-    // Stability active suspension can be made with "L" for suspension on the truck's left and "R" for suspension on the truck's right. 
-    BITMASK_PROPERTY(options, 2, OPTION_L_ACTIVE_LEFT  , HasOption_L_ActiveLeft,  SetOption_L_ActiveLeft) 
-    // Stability active suspension can be made with "L" for suspension on the truck's left and "R" for suspension on the truck's right. 
-    BITMASK_PROPERTY(options, 3, OPTION_R_ACTIVE_RIGHT , HasOption_R_ActiveRight, SetOption_R_ActiveRight)
-    BITMASK_PROPERTY(options, 4, OPTION_m_METRIC       , HasOption_m_Metric,      SetOption_m_Metric) 
-
-    Node::Ref nodes[2];
-    float spring_rate;         //!< The 'stiffness' of the shock. The higher the value, the less the shock will move for a given bump. 
-    float damping;             //!< The 'resistance to motion' of the shock. The best value is given by this equation:  2 * sqrt(suspended mass * springness)
-    float short_bound;         //!< Maximum contraction. The shortest length the shock can be, as a proportion of its original length. "0" means the shock will not be able to contract at all, "1" will let it contract all the way to zero length. If the shock tries to shorten more than this value allows, it will become as rigid as a normal beam. 
-    float long_bound;          //!< Maximum extension. The longest length a shock can be, as a proportion of its original length. "0" means the shock will not be able to extend at all. "1" means the shock will be able to double its length. Higher values allow for longer extension.
-    float precompression;      //!< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0. 
-    unsigned int options;      //!< Bit flags.
-
-    // Presets
-    int beam_defaults = -1;
-    int beam_defaults_scale = -1;
-    int detacher_group = -1;
-    int enable_advanced_deformation = -1;
-};
-
-/// Section 'shocks2'
-struct Shock2
-{
-    Shock2();
-
-    BITMASK_PROPERTY(options, 1, OPTION_i_INVISIBLE       , HasOption_i_Invisible,      SetOption_i_Invisible) 
-    // soft bump boundaries, use when shocks reach limiters too often and "jumprebound" (default is hard bump boundaries)
-    BITMASK_PROPERTY(options, 2, OPTION_s_SOFT_BUMP_BOUNDS, HasOption_s_SoftBumpBounds, SetOption_s_SoftBumpBounds)
-    // metric values for shortbound/longbound applying to the length of the beam.
-    BITMASK_PROPERTY(options, 3, OPTION_m_METRIC          , HasOption_m_Metric,         SetOption_m_Metric)
-    // Absolute metric values for shortbound/longbound, settings apply without regarding to the original length of the beam.(Use with caution, check ror.log for errors)
-    BITMASK_PROPERTY(options, 4, OPTION_M_ABSOLUTE_METRIC , HasOption_M_AbsoluteMetric, SetOption_M_AbsoluteMetric)  
-
-    Node::Ref nodes[2];
-    float spring_in;                  //!< Spring value applied when the shock is compressing.
-    float damp_in;                    //!< Damping value applied when the shock is compressing. 
-    float progress_factor_spring_in;  //!< Progression factor for springin. A value of 0 disables this option. 1...x as multipliers, example:maximum springrate == springrate + (factor*springrate)
-    float progress_factor_damp_in;    //!< Progression factor for dampin. 0 = disabled, 1...x as multipliers, example:maximum dampingrate == springrate + (factor*dampingrate)
-    float spring_out;                 //!< spring value applied when shock extending
-    float damp_out;                   //!< damping value applied when shock extending
-    float progress_factor_spring_out; //!< Progression factor springout, 0 = disabled, 1...x as multipliers, example:maximum springrate == springrate + (factor*springrate)
-    float progress_factor_damp_out;   //!< Progression factor dampout, 0 = disabled, 1...x as multipliers, example:maximum dampingrate == springrate + (factor*dampingrate)
-    float short_bound;                //!< Maximum contraction limit, in percentage ( 1.00 = 100% )
-    float long_bound;                 //!< Maximum extension limit, in percentage ( 1.00 = 100% )
-    float precompression;             //!< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0.  
-    int options;             //!< Bit flags.
-
-    // Presets
-    int beam_defaults = -1;
-    int beam_defaults_scale = -1;
-    int detacher_group = -1;
-    int enable_advanced_deformation = -1;
-};
-
-/// Section 'shocks3'
-struct Shock3
-{
-    Shock3();
-
-    BITMASK_PROPERTY(options, 1, OPTION_i_INVISIBLE       , HasOption_i_Invisible,      SetOption_i_Invisible) 
-    // metric values for shortbound/longbound applying to the length of the beam.
-    BITMASK_PROPERTY(options, 2, OPTION_m_METRIC          , HasOption_m_Metric,         SetOption_m_Metric)
-    // Absolute metric values for shortbound/longbound, settings apply without regarding to the original length of the beam.(Use with caution, check ror.log for errors)
-    BITMASK_PROPERTY(options, 3, OPTION_M_ABSOLUTE_METRIC , HasOption_M_AbsoluteMetric, SetOption_M_AbsoluteMetric)  
-
-    Node::Ref nodes[2];
-    float spring_in;                  //!< Spring value applied when the shock is compressing.
-    float damp_in;                    //!< Damping value applied when the shock is compressing. 
-    float spring_out;                 //!< Spring value applied when shock extending
-    float damp_out;                   //!< Damping value applied when shock extending
-    float damp_in_slow;               //!< Damping value applied when shock is commpressing slower than split in velocity
-    float split_vel_in;               //!< Split velocity in (m/s) - threshold for slow / fast damping during compression
-    float damp_in_fast;               //!< Damping value applied when shock is commpressing faster than split in velocity
-    float damp_out_slow;              //!< Damping value applied when shock is commpressing slower than split out velocity
-    float split_vel_out;              //!< Split velocity in (m/s) - threshold for slow / fast damping during extension
-    float damp_out_fast;              //!< Damping value applied when shock is commpressing faster than split out velocity
-    float short_bound;                //!< Maximum contraction limit, in percentage ( 1.00 = 100% )
-    float long_bound;                 //!< Maximum extension limit, in percentage ( 1.00 = 100% )
-    float precompression;             //!< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0.  
-    int options;             //!< Bit flags.
-
-    // Presets
-    int beam_defaults = -1;
-    int beam_defaults_scale = -1;
-    int detacher_group = -1;
-    int enable_advanced_deformation = -1;
-};
-
-/// Section 'ties'
-struct Tie
-{
-    static const char OPTION_n_FILLER = 'n';
-    static const char OPTION_v_FILLER = 'v';
-    static const char OPTION_i_INVISIBLE = 'i';
-    static const char OPTION_s_NO_SELF_LOCK = 's';
-
-    Node::Ref root_node;
-    float max_reach_length = 0.f;
-    float auto_shorten_rate = 0.f;
-    float min_length = 0.f;
-    float max_length = 0.f;
-    bool is_invisible = false;
-    bool disable_self_lock = false;
-    float max_stress = DEFAULT_TIE_MAX_STRESS;
-    int group = -1;
-
-    // Presets
-    int beam_defaults = -1;
-    int beam_defaults_scale = -1;
-    int detacher_group = -1;
-    int enable_advanced_deformation = -1;
-};
-
-/// Section 'triggers'
-struct Trigger
-{
-    struct EngineTrigger
-    {
-        enum Function
-        {
-            ENGINE_TRIGGER_FUNCTION_CLUTCH      = 0,
-            ENGINE_TRIGGER_FUNCTION_BRAKE       = 1,
-            ENGINE_TRIGGER_FUNCTION_ACCELERATOR = 2,
-            ENGINE_TRIGGER_FUNCTION_RPM_CONTROL = 3,
-            ENGINE_TRIGGER_FUNCTION_SHIFT_UP    = 4, //!< Do not mix with OPTION_t_CONTINUOUS
-            ENGINE_TRIGGER_FUNCTION_SHIFT_DOWN  = 5, //!< Do not mix with OPTION_t_CONTINUOUS
-
-            ENGINE_TRIGGER_FUNCTION_INVALID     = 0xFFFFFFFF
-        };
-
-        Function function;
-        unsigned int motor_index;
-    };
-
-    struct CommandKeyTrigger
-    {
-        unsigned int contraction_trigger_key;
-        unsigned int extension_trigger_key;
-    };
-
-    struct HookToggleTrigger
-    {
-        int contraction_trigger_hookgroup_id;
-        int extension_trigger_hookgroup_id;
-    };
-
-    Trigger();
-
-    BITMASK_PROPERTY(options,  1, OPTION_i_INVISIBLE             , HasFlag_i_Invisible,         SetFlag_i_Invisible         )
-    BITMASK_PROPERTY(options,  2, OPTION_c_COMMAND_STYLE         , HasFlag_c_CommandStyle,      SetFlag_c_CommandStyle      )
-    BITMASK_PROPERTY(options,  3, OPTION_x_START_OFF             , HasFlag_x_StartDisabled,     SetFlag_x_StartDisabled     )
-    BITMASK_PROPERTY(options,  4, OPTION_b_BLOCK_KEYS            , HasFlag_b_KeyBlocker,        SetFlag_b_KeyBlocker        )
-    BITMASK_PROPERTY(options,  5, OPTION_B_BLOCK_TRIGGERS        , HasFlag_B_TriggerBlocker,    SetFlag_B_TriggerBlocker    )
-    BITMASK_PROPERTY(options,  6, OPTION_A_INV_BLOCK_TRIGGERS    , HasFlag_A_InvTriggerBlocker, SetFlag_A_InvTriggerBlocker )
-    BITMASK_PROPERTY(options,  7, OPTION_s_SWITCH_CMD_NUM        , HasFlag_s_CmdNumSwitch,      SetFlag_s_CmdNumSwitch      )
-    BITMASK_PROPERTY(options,  8, OPTION_h_UNLOCK_HOOKGROUPS_KEY , HasFlag_h_UnlocksHookGroup,  SetFlag_h_UnlocksHookGroup  )
-    BITMASK_PROPERTY(options,  9, OPTION_H_LOCK_HOOKGROUPS_KEY   , HasFlag_H_LocksHookGroup,    SetFlag_H_LocksHookGroup    )
-    BITMASK_PROPERTY(options, 10, OPTION_t_CONTINUOUS            , HasFlag_t_Continuous,        SetFlag_t_Continuous        )
-    BITMASK_PROPERTY(options, 11, OPTION_E_ENGINE_TRIGGER        , HasFlag_E_EngineTrigger,     SetFlag_E_EngineTrigger     )
-
-    inline bool IsHookToggleTrigger() { return HasFlag_H_LocksHookGroup() || HasFlag_h_UnlocksHookGroup(); }
-
-    inline bool IsTriggerBlockerAnyType() { return HasFlag_B_TriggerBlocker() || HasFlag_A_InvTriggerBlocker(); }
-
-    inline void SetEngineTrigger(Trigger::EngineTrigger const & trig)
-    {
-        shortbound_trigger_action = (int) trig.function;
-        longbound_trigger_action = (int) trig.motor_index;
-    }
-
-    inline Trigger::EngineTrigger GetEngineTrigger() const
-    {
-        ROR_ASSERT(HasFlag_E_EngineTrigger());
-        EngineTrigger trig;
-        trig.function = static_cast<EngineTrigger::Function>(shortbound_trigger_action);
-        trig.motor_index = static_cast<unsigned int>(longbound_trigger_action);
-        return trig;
-    }
-
-    inline void SetCommandKeyTrigger(CommandKeyTrigger const & trig)
-    {
-        shortbound_trigger_action = (int) trig.contraction_trigger_key;
-        longbound_trigger_action = (int) trig.extension_trigger_key;
-    }
-
-    inline CommandKeyTrigger GetCommandKeyTrigger() const
-    {
-        ROR_ASSERT(BITMASK_IS_0(options, OPTION_B_BLOCK_TRIGGERS | OPTION_A_INV_BLOCK_TRIGGERS 
-            | OPTION_h_UNLOCK_HOOKGROUPS_KEY | OPTION_H_LOCK_HOOKGROUPS_KEY | OPTION_E_ENGINE_TRIGGER));
-        CommandKeyTrigger out;
-        out.contraction_trigger_key = static_cast<unsigned int>(shortbound_trigger_action);
-        out.extension_trigger_key = static_cast<unsigned int>(longbound_trigger_action);
-        return out;
-    }
-
-    inline void SetHookToggleTrigger(HookToggleTrigger const & trig)
-    {
-        shortbound_trigger_action = trig.contraction_trigger_hookgroup_id;
-        longbound_trigger_action = trig.extension_trigger_hookgroup_id;
-    }
-
-    inline HookToggleTrigger GetHookToggleTrigger() const
-    {
-        ROR_ASSERT(HasFlag_h_UnlocksHookGroup() || HasFlag_H_LocksHookGroup());
-        HookToggleTrigger trig;
-        trig.contraction_trigger_hookgroup_id = shortbound_trigger_action;
-        trig.extension_trigger_hookgroup_id = longbound_trigger_action;
-        return trig;
-    }
-
-    Node::Ref nodes[2];
-    float contraction_trigger_limit;
-    float expansion_trigger_limit;
-    unsigned int options;
-    float boundary_timer;
-    int shortbound_trigger_action;
-    int longbound_trigger_action;
-
-    // Presets
-    int beam_defaults = -1;
-    int beam_defaults_scale = -1;
-    int detacher_group = -1;
-    int enable_advanced_deformation = -1;
-};
+typedef std::shared_ptr<Document> DocumentPtr;
+typedef std::shared_ptr<Module> ModulePtr;
 
 /* -------------------------------------------------------------------------- */
 /* Directive SET_SHADOWS                                                      */
@@ -1044,12 +87,6 @@ struct Globals
 
 struct GuiSettings
 {
-    GuiSettings():
-        speedo_highest_kph(DEFAULT_SPEEDO_MAX),
-        use_max_rpm(false), /* This is default */
-        interactive_overview_map_mode(MAP_MODE_OFF)
-    {}
-
     enum MapMode
     {
         MAP_MODE_OFF = 1,
@@ -1059,14 +96,12 @@ struct GuiSettings
         MAP_MODE_INVALID = 0xFFFFFFFF,
     };
 
-    const static unsigned int DEFAULT_SPEEDO_MAX = 140;
-
-    std::string tacho_material;
-    std::string speedo_material;
-    unsigned int speedo_highest_kph;
-    bool use_max_rpm;
-    Ogre::String help_material;
-    MapMode interactive_overview_map_mode;
+    std::string tacho_material = "-1";
+    std::string speedo_material = "-1";
+    float speedo_highest_kph = -1.f;
+    int use_max_rpm = -1;
+    std::string help_material = "-1";
+    MapMode interactive_overview_map_mode = MAP_MODE_INVALID;
     std::list<std::string> dashboard_layouts;
     std::list<std::string> rtt_dashboard_layouts;
 };
@@ -1263,12 +298,6 @@ struct Cinecam
     float spring;
     float damping;
     float node_mass;
-
-    // Presets
-    int beam_defaults = -1;
-    int beam_defaults_scale = -1;
-    int enable_advanced_deformation = -1;
-    int node_defaults = -1;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -1542,30 +571,6 @@ struct WheelDetacher
 /* Section WHEELS                                                             */
 /* -------------------------------------------------------------------------- */
 
-/** Syntax-sugar struct to hold enums */
-struct Wheels
-{
-    enum Braking
-    {
-        BRAKING_NO                = 0,
-        BRAKING_YES               = 1,
-        BRAKING_DIRECTIONAL_LEFT  = 2,
-        BRAKING_DIRECTIONAL_RIGHT = 3,
-        BRAKING_ONLY_FOOT         = 4,
-
-        BRAKING_INVALID           = 0xFFFFFFFF
-    };
-
-    enum Propulsion
-    {
-        PROPULSION_NONE     = 0,
-        PROPULSION_FORWARD  = 1,
-        PROPULSION_BACKWARD = 2,
-
-        PROPULSION_INVALID  = 0xFFFFFFFF
-    };
-};
-
 /** Attributes common to all wheel definitions */
 struct BaseWheel
 {
@@ -1587,13 +592,6 @@ struct BaseWheel
     Wheels::Propulsion propulsion;
     Node::Ref reference_arm_node;
     float mass;
-
-    // Presets
-    int node_defaults = -1;
-    int beam_defaults = -1;
-    int beam_defaults_scale = -1;
-    int enable_advanced_deformation = -1;
-    int minimass_preset = -1;
 };
 
 /** The actual wheel */
@@ -1740,7 +738,7 @@ struct Flexbody
     Ogre::String mesh_name;
     std::list<Animation> animations;
     std::vector<Node::Range> forset;
-    CameraSettings camera_settings;
+    int cameramode = 0;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -1803,25 +801,6 @@ struct Hook
 };
 
 
-
-/* -------------------------------------------------------------------------- */
-/* Inline-section SET_SKELETON_DISPLAY                                        */
-/* -------------------------------------------------------------------------- */
-
-struct SkeletonSettings
-{
-    SkeletonSettings():
-        visibility_range_meters(150.f),
-        beam_thickness_meters(BEAM_SKELETON_DIAMETER)
-    {}
-
-    float visibility_range_meters;
-    float beam_thickness_meters;
-};
-
-
-
-
 /// Section 'rotators'
 struct Rotator
 {
@@ -1832,8 +811,7 @@ struct Rotator
     float rate = 0.f;
     int spin_left_key = 0;
     int spin_right_key = 0;
-    Inertia inertia;
-    int inertia_defaults = -1;
+    OptionalInertia inertia;
     float engine_coupling = 1.f;
     bool needs_engine = false;
 };
@@ -2019,7 +997,6 @@ struct Prop
     Ogre::Vector3 rotation;
     Ogre::String mesh_name;
     std::list<Animation> animations;
-    CameraSettings camera_settings;
     Special special;
     BeaconSpecial special_prop_beacon;
     DashboardSpecial special_prop_dashboard;
@@ -2138,13 +1115,7 @@ struct SoundSource2: SoundSource
 
 struct SpeedLimiter
 {
-    SpeedLimiter():
-        max_speed(0.f),
-        is_enabled(false)
-    {}
-
-    float max_speed;
-    bool is_enabled;
+    float max_speed = -1.f;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -2352,130 +1323,131 @@ struct EditorGroup
     Section section;
 };
 
+/// Section 'minimass' - does not affect 'set_default_minimass'!
+struct Minimass: Element
+{
+    float min_mass = -1; //!< minimum node mass in Kg
+    int option_skip_loaded_nodes = -1;
+};
+
 /// A segment of the truck file; may be created explicitly by 'section/end_section', otherwise is created implicitly.
 struct Module
 {
     // Metadata
-    Ogre::StringVector                     sectionconfigs;             //!< Keyword 'section', values refer to 'sectionconfig'
-    bool                                   defined_explicitly = false; //!< Created using 'section/end_section'?
+    Ogre::StringVector                 sectionconfigs;             //!< Keyword 'section', values refer to 'sectionconfig'
+    bool                               defined_explicitly = false; //!< Created using 'section/end_section'?
 
     // Informational
-    std::vector<FileInfo>                  fileinfo;
-    std::vector<Author>                    authors;
-    Ogre::StringVector                     description;                //!< Keyword 'description/end_description'
-
-    // Presets
-    std::vector<BeamDefaults>              beam_defaults;              //!< Keyword 'set_beam_defaults'
-    std::vector<BeamDefaultsScale>         beam_defaults_scale;        //!< Keyword 'set_beam_defaults_scale'
-    std::vector<CollisionRangePreset>      collision_range_preset;     //!< Keyword 'set_collision_range'
-    std::vector<DetacherGroupPreset>       detacher_group_preset;      //!< Keyword 'detacher_group'
-    std::vector<LockgroupPreset>           lockgroup_preset;           //!< Keyword 'lockgroup_default_nolock'
-    std::vector<MinimassPreset>            minimass_preset;            //!< Keyword 'set_default_minimass'
-    std::vector<EnableAdvancedDeformation> enable_advanced_deformation;//!< Keyword 'enable_advanced_deformation'
-    std::vector<Inertia>                   inertia_defaults;           //!< Keyword 'set_inertia_defaults'
-    std::vector<ManagedMatOptions>         managed_mat_options;        //!< Keyword 'set_managedmaterials_options'
-    std::vector<NodeDefaults>              node_defaults;              //!< Keyword 'set_node_defaults'
-    std::vector<EditorGroup>               editor_groups;              //!< Special comment ';grp:'
+    std::vector<FileInfo>              fileinfo;
+    std::vector<Author>                authors;
+    Ogre::StringVector                 description;                //!< Keyword 'description/end_description'
+    std::vector<int>                   fileformatversion;
 
     // Sequential ordering
-    std::vector<SeqSection>                sequence;                  //!< Node and beam generators
+    std::vector<SeqElement>            sequence;                   //!< Just references to other data arrays (most, but not all of them).
 
-    // Nodes (sequential)
-    std::vector<Node>                      nodes;                      //!< Keywords 'nodes*'
+    // Presets
+    std::vector<BeamDefaults>          beam_defaults;              //!< Keyword 'set_beam_defaults'
+    std::vector<BeamDefaultsScale>     beam_defaults_scale;        //!< Keyword 'set_beam_defaults_scale'
+    std::vector<CollisionRangePreset>  collision_range_preset;     //!< Keyword 'set_collision_range'
+    std::vector<DetacherGroupPreset>   detacher_group_preset;      //!< Keyword 'detacher_group'
+    std::vector<float>                 default_minimass;           //!< Keyword 'set_default_minimass' - minimum node mass in Kg
+    std::vector<InertiaDefaults>       inertia_defaults;           //!< Keyword 'set_inertia_defaults'
+    std::vector<ManagedMatOptions>     managed_mat_options;        //!< Keyword 'set_managedmaterials_options'
+    std::vector<NodeDefaults>          node_defaults;              //!< Keyword 'set_node_defaults'
+    std::vector<SkeletonSettings>      skeleton_settings;          //!< Keyword 'set_skeleton_display'
+    std::vector<EditorGroup>           editor_groups;              //!< Special comment ';grp:'
 
-    // Beams (sequential)
-    std::vector<Animator>                  animators;
-    std::vector<Beam>                      beams;
-    std::vector<Command2>                  commands_2;                 //!< Keywords 'commands/commands2'
-    std::vector<Hydro>                     hydros;
-    std::vector<Rope>                      ropes;
-    std::vector<Shock>                     shocks;
-    std::vector<Shock2>                    shocks_2;
-    std::vector<Shock3>                    shocks_3;
-    std::vector<Tie>                       ties;
-    std::vector<Trigger>                   triggers;
+    // Modifiers
+    std::vector<int>                   prop_camera_mode;
+    std::vector<int>                   flexbody_camera_mode;
+    std::vector<bool>                  backmesh;
+    std::vector<Animation>             add_animation;
 
-    // Node/beam generators (sequential)
-    std::vector<Cinecam>                   cinecam;
-    std::vector<FlexBodyWheel>             flex_body_wheels;
-    std::vector<MeshWheel>                 mesh_wheels;
-    std::vector<Wheel>                     wheels;
-    std::vector<Wheel2>                    wheels_2;
+    // Node/beam definitions
+    std::vector<Node>                  nodes;                      //!< Keywords 'nodes*'
+    std::vector<Animator>              animators;
+    std::vector<Beam>                  beams;
+    std::vector<Command2>              commands_2;                 //!< Keywords 'commands/commands2'
+    std::vector<Hydro>                 hydros;
+    std::vector<Rope>                  ropes;
+    std::vector<Shock>                 shocks;
+    std::vector<Shock2>                shocks_2;
+    std::vector<Shock3>                shocks_3;
+    std::vector<Tie>                   ties;
+    std::vector<Trigger>               triggers;
+
+    // Node/beam generators
+    std::vector<Cinecam>               cinecam;
+    std::vector<FlexBodyWheel>         flex_body_wheels;
+    std::vector<MeshWheel>             mesh_wheels;
+    std::vector<Wheel>                 wheels;
+    std::vector<Wheel2>                wheels_2;
 
     // Special node settings
-    std::vector<Node::Ref>                 contacters;
-    std::vector<Node::Ref>                 fixes;
-    std::vector<Hook>                      hooks;
-    std::vector<SlideNode>                 slidenodes;
-    std::vector<ExtCamera>                 extcamera;
-    std::vector<NodeCollision>             node_collisions;
-    std::vector<Ropable>                   ropables;
-
-    // --- TO BE SORTED ---
-    
-
-    Ogre::String                       help_panel_material_name;
-
-    /* Sections*/
-    std::vector<Airbrake>              airbrakes;
-    
-    std::shared_ptr<AntiLockBrakes>    anti_lock_brakes;
-    std::vector<Axle>                  axles;
-    
-    std::shared_ptr<Brakes>            brakes;
-    std::vector<Camera>                cameras;
-    std::vector<CameraRail>            camera_rails;
-    std::vector<CollisionBox>          collision_boxes;
-    
-    
-    std::shared_ptr<CruiseControl>     cruise_control;
-    
-    std::shared_ptr<Engine>            engine;
-    std::shared_ptr<Engoption>         engoption;
-    std::shared_ptr<Engturbo>          engturbo;
-    std::vector<Exhaust>               exhausts;
-    
-    std::vector<Flare2>                flares_2;
-    std::vector<Flexbody>              flexbodies;
-    
-    std::vector<Fusedrag>              fusedrag;
-    std::shared_ptr<Globals>           globals;
-    std::shared_ptr<GuiSettings>       gui_settings;
-    
-    
-    std::vector<InterAxle>             interaxles;
+    std::vector<Node::Ref>             contacters;
+    std::vector<Node::Ref>             fixes;
+    std::vector<Hook>                  hooks;
+    std::vector<SlideNode>             slidenodes;
+    std::vector<ExtCamera>             extcamera;
+    std::vector<NodeCollision>         node_collisions;
+    std::vector<Ropable>               ropables;
     std::vector<Lockgroup>             lockgroups;
-    std::vector<ManagedMaterial>       managed_materials;
-    std::vector<MaterialFlareBinding>  material_flare_bindings;
-    
-    std::vector<Particle>              particles;
+    std::vector<RailGroup>             railgroups;
+
+    // Drivetrain
+    std::vector<Axle>                  axles;
+    std::vector<AntiLockBrakes>        anti_lock_brakes;
+    std::vector<Brakes>                brakes;
+    std::vector<CruiseControl>         cruise_control;
+    std::vector<Engine>                engine;
+    std::vector<Engoption>             engoption;
+    std::vector<Engturbo>              engturbo;
+    std::vector<InterAxle>             interaxles;
+    std::vector<SpeedLimiter>          speed_limiter;
+    std::vector<TorqueCurve>           torque_curve;           //!< Not sequential, at most 1 in module
+    std::vector<TractionControl>       traction_control;
+    std::vector<TransferCase>          transfer_case;
+
+    // UI
+    std::vector<std::string>           help;
+    std::vector<GuiSettings>           gui_settings;           //!< Not sequential, at most 1 in module
+
+    // Aerodynamics
+    std::vector<Airbrake>              airbrakes;
+    std::vector<Fusedrag>              fusedrag;
     std::vector<Pistonprop>            pistonprops;
-    std::vector<Prop>                  props;
-    std::vector<RailGroup>             railgroups; 
-    
-    std::vector<Rotator>               rotators;
-    std::vector<Rotator2>              rotators_2;
-    std::vector<Screwprop>             screwprops;
-
-    SkeletonSettings                   skeleton_settings;
-    
-    std::shared_ptr<SlopeBrake>        slope_brake;
-    std::vector<SoundSource>           soundsources;
-    std::vector<SoundSource2>          soundsources2;
-    SpeedLimiter                       speed_limiter;
-    Ogre::String                       submeshes_ground_model_name;
-    std::vector<Submesh>               submeshes;
-
-    std::shared_ptr<TorqueCurve>       torque_curve;
-    std::shared_ptr<TractionControl>   traction_control;
-    std::shared_ptr<TransferCase>      transfer_case;
-;
     std::vector<Turbojet>              turbojets;
     std::vector<Turboprop2>            turboprops_2;
+    std::vector<Wing>                  wings;
+
+    // Hydrodynamics
+    std::vector<Screwprop>             screwprops;
+
+    // General physics
+    std::vector<CollisionBox>          collision_boxes;
+    std::vector<Globals>               globals;
+    std::vector<Rotator>               rotators;
+    std::vector<Rotator2>              rotators_2;
+    std::vector<SlopeBrake>            slope_brake;
+    std::vector<std::string>           submesh_groundmodel;
+    std::vector<Minimass>              minimass; //!< Does not affect 'set_default_minimas' presets, only provides fallback for nodes where 'set_default_minimass' was not used (for backwards compatibility).
+
+    // Look and feel
+    std::vector<Camera>                cameras;
+    std::vector<CameraRail>            camera_rails;
+    std::vector<Exhaust>               exhausts;
+    std::vector<Flare2>                flares_2;
+    std::vector<Flexbody>              flexbodies;
+    std::vector<ManagedMaterial>       managed_materials;
+    std::vector<MaterialFlareBinding>  material_flare_bindings;
+    std::vector<Particle>              particles;
+    std::vector<Prop>                  props;
+    std::vector<Submesh>               submeshes;
+    std::vector<SoundSource>           soundsources;
+    std::vector<SoundSource2>          soundsources2;
     std::vector<VideoCamera>           videocameras;
     std::vector<WheelDetacher>         wheeldetachers;
-
-    std::vector<Wing>                  wings;
 };
 
 struct Document
@@ -2487,16 +1459,6 @@ struct Document
     std::vector<Truck::ModulePtr> modules;        //!< Partitions of truck file (keyword 'section')
     Ogre::StringVector            sectionconfig;
 
-    // Global attributes
-    bool         rollon = false;
-    bool         rescuer = false;
-    bool         disable_default_sounds = false;
-    bool         forwardcommands = false;
-    bool         importcommands = false;
-    bool         slidenode_connect_instantly = false;
-    bool         hide_in_chooser = false;
-    int          fileformatversion = 0;
-    bool         minimass_skip_loaded_nodes = false; //!< Only apply minimum mass to nodes without "L" option. Global effect.
     std::string  guid;
     std::string  name;
     std::string  hash;

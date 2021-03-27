@@ -695,7 +695,7 @@ void Actor::RecalculateNodeMasses(Real total)
     for (int i = 0; i < ar_num_nodes; i++)
     {
         if (!ar_nodes[i].nd_tyre_node &&
-            !(m_definition->minimass_skip_loaded_nodes && ar_nodes[i].nd_loaded_mass) &&
+            !(ar_minimass_skip_loaded_nodes && ar_nodes[i].nd_loaded_mass) &&
             ar_nodes[i].mass < ar_minimass[i])
         {
             if (App::diag_truck_mass->GetBool())
@@ -4441,6 +4441,7 @@ Actor::Actor(
     , ar_last_fuzzy_ground_model(nullptr)
     , m_transfer_case(nullptr)
     , m_cache_entry(rq.asr_cache_entry)
+    , ar_slidenodes_connect_instantly(false)
 {
 }
 

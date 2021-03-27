@@ -186,10 +186,13 @@ set(SOURCE_FILES
         resources/otc_fileformat/OTCFileFormat.{h,cpp}
         resources/odef_fileformat/ODefFileFormat.{h,cpp}
         resources/skin_fileformat/SkinFileFormat.{h,cpp}
-        resources/terrn2_fileformat/Terrn2FileFormat.{h,cpp}        
+        resources/terrn2_fileformat/Terrn2FileFormat.{h,cpp}
         resources/tobj_fileformat/TObjFileFormat.{h,cpp}
+        resources/truck_fileformat/TruckCommon.h
         resources/truck_fileformat/TruckFileFormat.{h,cpp}
+        resources/truck_fileformat/TruckNodesBeams.h
         resources/truck_fileformat/TruckParser.{h,cpp}
+        resources/truck_fileformat/TruckPresets.h
         resources/truck_fileformat/TruckRegexes.h
         # Disabled while remaking parser 
         #resources/truck_fileformat/TruckSerializer.{h,cpp}

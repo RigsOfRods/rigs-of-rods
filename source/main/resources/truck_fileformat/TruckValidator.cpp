@@ -54,11 +54,7 @@ using namespace Truck;
 
 bool Validator::Validate()
 {
-    bool valid = true;
 
-
-
-    valid &= CheckGearbox(); /* Min. 1 forward gear */
 
     /* CHECK INDIVIDUAL LINES (remove invalid entries) */
 
@@ -76,7 +72,7 @@ bool Validator::Validate()
 
     CHECK_SECTION_IN_ALL_MODULES(Flare2, flares_2, CheckFlare2);
 
-    return valid;
+    return true; // FIXME
 }
 
 void Validator::Setup(Truck::DocumentPtr truck)
@@ -113,28 +109,7 @@ void Validator::AddMessage(Validator::Message::Type type, Ogre::String const & t
 }
 
 
-bool Validator::CheckGearbox()
-{
-    /* Find it */
-    std::shared_ptr<Truck::Engine> engine;
-    std::list<Truck::ModulePtr>::iterator module_itor = m_selected_modules.begin();
-    for (; module_itor != m_selected_modules.end(); module_itor++)
-    {
-        if (module_itor->get()->engine != nullptr)
-        {
-            if (module_itor->get()->engine->gear_ratios.size() > 0)
-            {
-                return true;
-            }
-            else
-            {
-                AddMessage(Message::TYPE_FATAL_ERROR, "Engine must have at least 1 forward gear.");
-                return false;
-            }
-        }
-    }
-    return true;
-}
+
 
 bool Validator::CheckShock2(Truck::Shock2 & shock2)
 {

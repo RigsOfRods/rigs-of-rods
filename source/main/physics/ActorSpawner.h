@@ -39,29 +39,7 @@
 
 namespace RoR {
 
-/// Processes a Truck::Document data structure (result of parsing a "Truckfile" fileformat) into 'an Actor' - a simulated physical object.
-///
-/// HISTORY:
-///
-/// Before v0.4.5, truckfiles were parsed&spawned on-the-fly: RoR's simulation used data structures with arrays of pre-defined sizes
-/// (i.e. MAX_NODES, MAX_BEAMS, MAX_* ...) and the spawner (class `SerializedRig`) wrote directly into them while reading data from the truckfile. Gfx elements were also created immediately.
-/// As a result, the logic was chaotic: some features broke each other (most notably VideoCameras X MaterialFlares X SkinZips) and the sim. structs often contained parser context variables.
-/// Also, the whole system was extremely sensitive to order of definitions in truckfile - often [badly/not] documented, known only by forum/IRC users at the time.
-///
-/// Since v0.4.5, RoR has `Truck::Parser` which reads truckfile and emits instance of `Truck::Document` - all data from truckfile in memory. `Truck::Document` doesn't preserve the order of definitions,
-/// instead it's designed to resolve all order-dependent references to order-independent, see `Truck::SequentialImporter` (resources/rig_def_fileformat/RigDef_SequentialImporter.h) for more info.
-/// `ActorSpawner` was created by carefully refactoring old `SerializedRig` described above, so a lot of the dirty logic remained. Elements were still written into constant-size arrays.
-///
-/// PRESENT (06/2017):
-///
-/// RoR is being refactored to get rid of the MAX_[BEAMS/NODES/***] limits. Static arrays in `rig_t` are replaced with pointers to dynamically allocated memory.
-/// Memory requirements are calculated upfront from `Truck::Document`.
-///
-/// FUTURE:
-///
-/// ActorSpawner will work in 2 steps:
-///  1. Physics/simulation data are fully prepared. This should be very fast (we can pre-calculate and cache things if needed).
-///  2. Graphics/sounds are set up, reading the completed physics/sim data. Graphics are fully managed by `GfxActor`. Similar utility will be added for sound.
+/// Processes a Truck::Document into RoR::Actor
 ///
 /// CONVENTIONS:
 ///
@@ -162,8 +140,6 @@ public:
 
     static void ComposeName(RoR::Str<100>& str, const char* type, int number, int actor_id);
 
-    std::string GetSubmeshGroundmodelName();
-
 private:
 
     struct CustomMaterial
@@ -249,7 +225,7 @@ private:
 /* NOTE: Please maintain alphabetical order.                                  */
 /* -------------------------------------------------------------------------- */
 
-    /// Keywords 'section/end_section' and 'implicit module' which covers everything else.
+    /// Keywords 'section/end_section' and <implicit module> which covers everything else.
     void EvaluateSectionConfig();
     void ValidateSectionConfig();
 
@@ -269,9 +245,9 @@ private:
     void ProcessAntiLockBrakes(Truck::AntiLockBrakes & def);
 
     /**
-    * Sections 'author' in current module.
+    * Sections 'author' 
     */
-    void ProcessAuthors();
+    void ProcessAuthor(int pos);
 
     /**
     * Section 'axles'.
@@ -331,12 +307,12 @@ private:
     /**
     * Section 'engoption'.
     */ 
-    void ProcessEngoption();
+    void ProcessEngoption(Truck::Engoption& def);
 
     /**
     * Section 'engturbo'.
     */
-    void ProcessEngturbo();
+    void ProcessEngturbo(Truck::Engturbo& def);
 
     /**
     * Section 'exhausts'.
@@ -383,7 +359,7 @@ private:
     */
     void ProcessGuiSettings(Truck::GuiSettings & def);
 
-    void ProcessHelp();
+
 
     /**
     * Depends on 'nodes'
@@ -496,6 +472,11 @@ private:
     void ProcessSoundSource2(Truck::SoundSource2 & def); 
 
     /**
+    * Section 'speedlimiter'.
+    */
+    void ProcessSpeedLimiter(Truck::SpeedLimiter & def);
+
+    /**
     * Section 'submeshes'.
     */
     void ProcessSubmesh(Truck::Submesh & def);
@@ -551,6 +532,18 @@ private:
     * @author 
     */
     void ProcessWing(Truck::Wing & def);
+
+/* -------------------------------------------------------------------------- */
+/* Presets/modifiers processing.                                              */
+/* -------------------------------------------------------------------------- */
+
+    void ProcessNodeDefaults(int pos);
+    void ProcessInertiaDefaults(int pos);
+    void ProcessBeamDefaults(int pos);
+    void ProcessBeamDefaultsScale(int pos);
+    void ProcessCollisionRangePreset(int pos);
+    void ProcessManagedMatOptions(int pos);
+    void ProcessSkeletonSettings(int pos);
 
 /* -------------------------------------------------------------------------- */
 /* Partial processing functions.                                              */
@@ -1002,7 +995,7 @@ private:
     );
 
     void _ProcessKeyInertia(
-        Truck::Inertia & inertia,
+        Truck::BaseInertia & inertia,
         RoR::CmdKeyInertia& contract_key, 
         RoR::CmdKeyInertia& extend_key
     );
@@ -1038,18 +1031,58 @@ private:
     std::vector<Truck::ModulePtr>    m_selected_modules;
 
     // Context
+    struct ActorSpawnState
+    {
+        std::string helpmat;
+
+        bool        wheel_contact_requested = false;
+        bool        rescuer = false;
+        bool        disable_default_sounds=false;
+        int         detacher_group_state=DEFAULT_DETACHER_GROUP;
+        bool        slope_brake=false;
+        float       beam_creak=BEAM_CREAK_DEFAULT;
+        int         externalcameramode=0;
+        int         externalcameranode=-1;
+        bool        slidenodes_connect_instantly=false;
+
+        float       default_spring=DEFAULT_SPRING;
+        float       default_spring_scale=1;
+        float       default_damp=DEFAULT_DAMP;
+        float       default_damp_scale=1;
+        float       default_deform=BEAM_DEFORM;
+        float       default_deform_scale=1;
+        float       default_break=BEAM_BREAK;
+        float       default_break_scale=1;
+
+        float       default_beam_diameter=DEFAULT_BEAM_DIAMETER;
+        float       default_plastic_coef=0;
+        float       skeleton_beam_diameter=BEAM_SKELETON_DIAMETER;
+        std::string default_beam_material = "tracks/beam";
+        float       default_node_friction=NODE_FRICTION_COEF_DEFAULT;
+        float       default_node_volume=NODE_VOLUME_COEF_DEFAULT;
+        float       default_node_surface=NODE_SURFACE_COEF_DEFAULT;
+        float       default_node_loadweight=NODE_LOADWEIGHT_DEFAULT;
+        std::string default_node_options;
+
+        bool        managedmaterials_doublesided=false;
+        float       inertia_startDelay=-1;
+        float       inertia_stopDelay=-1;
+        std::string inertia_default_startFunction;
+        std::string inertia_default_stopFunction;
+
+        bool        enable_advanced_deformation = false;
+        int         lockgroup_default = NODE_LOCKGROUP_DEFAULT;
+
+        float       global_minimass=DEFAULT_MINIMASS;   //!< Keyword 'minimass' - does not change default minimass (only updates global fallback value)!
+        float       default_minimass=-1;                //!< Keyword 'set_default_minimass' - does not change global minimass!
+
+        FlexBody*   last_flexbody = nullptr;            //!< Keyword 'flexbody_camera_mode' ~ not supporting flexbodywheels!
+    };
+    ActorSpawnState                  m_state;
     Truck::ModulePtr                 m_cur_module;
     Truck::Keyword                   m_current_keyword; //!< For error reports
     std::map<std::string, NodeIdx_t> m_node_names;
-    Truck::BeamDefaults              m_cur_beam_defaults;
-    Truck::NodeDefaults              m_cur_node_defaults;
-    Truck::BeamDefaultsScale         m_cur_beam_defaults_scale;
-    Truck::Inertia                   m_cur_inertia_defaults;
-    Truck::MinimassPreset            m_cur_minimass_preset;
-    Truck::DetacherGroupPreset       m_cur_detacher_preset;
-    Truck::LockgroupPreset           m_cur_lockgroup_preset;
-    Truck::ManagedMatOptions         m_cur_managed_mat_options;
-    Truck::EnableAdvancedDeformation m_cur_enable_advanced_deformation;
+    std::vector<RoR::Prop>           m_props;           //!< Keywords 'props', 'prop_camera_mode'
 
     // Spawn
     Actor*             m_actor; //!< The output actor.
@@ -1057,7 +1090,6 @@ private:
     bool                           m_apply_simple_materials;
     std::string        m_cab_material_name; //!< Original name defined in truckfile/globals.
     std::string                    m_custom_resource_group;
-    std::string        m_help_material_name;
     float              m_wing_area;
     int                m_airplane_left_light;
     int                m_airplane_right_light;
@@ -1074,7 +1106,7 @@ private:
     bool               m_generate_wing_position_lights;
     int                m_first_wing_index;
     Ogre::SceneNode*   m_curr_mirror_prop_scenenode;
-    std::vector<RoR::Prop>    m_props;
+    
     int                       m_driverseat_prop_index;
     std::vector<CabTexcoord>  m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;

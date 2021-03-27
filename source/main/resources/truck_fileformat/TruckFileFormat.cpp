@@ -116,8 +116,7 @@ Shock::Shock():
     short_bound(0),
     long_bound(0),
     precompression(1),
-    options(0),
-    detacher_group(0)
+    options(0)
 {}
 
 Shock2::Shock2():
@@ -132,8 +131,7 @@ Shock2::Shock2():
     short_bound(0),
     long_bound(0),
     precompression(0),
-    options(0),
-    detacher_group(0)
+    options(0)
 {}
 
 Shock3::Shock3():
@@ -150,8 +148,7 @@ Shock3::Shock3():
     short_bound(0),
     long_bound(0),
     precompression(0),
-    options(0),
-    detacher_group(0)
+    options(0)
 {}
 
 TractionControl::TractionControl():
@@ -170,8 +167,7 @@ Trigger::Trigger():
     contraction_trigger_limit(0),
     expansion_trigger_limit(0),
     options(0),
-    boundary_timer(1.f), /* Default */
-    detacher_group(0)
+    boundary_timer(1.f) /* Default */
 {}
 
 Truck::VideoCamera::VideoCamera():

@@ -101,7 +101,6 @@ private:
     void ParseDirectiveSetInertiaDefaults();
     void ParseDirectiveSetManagedMaterialsOptions();
     void ParseDirectiveSetNodeDefaults();
-    void LogParsedDirectiveSetNodeDefaultsData(float loadweight, float friction, float volume, float surface, unsigned int options);
 
 // --------------------------------------------------------------------------
 //  Section parsers
@@ -211,7 +210,6 @@ private:
     Wing::Control      GetArgWingSurface  (int index);
     Flare2::Type       GetArgFlareType    (int index);
     std::string        GetArgManagedTex   (int index);
-    int                GetArgNodeOptions  (int index);
 
     float              ParseArgFloat      (const char* str);
     int                ParseArgInt        (const char* str);
@@ -239,20 +237,14 @@ private:
         this->AddMessage(m_current_line, type, msg);
     }
 
-    /// Print a log INFO message.
-    void _PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node);
 
     static void _TrimTrailingComments(std::string const & line_in, std::string & line_out);
 
     Node::Ref _ParseNodeRef(std::string const & node_id_str);
 
-    void _ParseCameraSettings(CameraSettings & camera_settings, Ogre::String input_str);
-
-    void _ParseNodeOptions(int & options, const std::string & options_str);
-
     void ProcessCommentLine();
 
-    void ParseOptionalInertia(Inertia& inertia, int index);
+    void ParseOptionalInertia(OptionalInertia& inertia, int index);
 
     int GetCurrentEditorGroup(); //!< Determines group ID for current line
 
@@ -266,6 +258,7 @@ private:
 
     // Parser state - writing
     Truck::ModulePtr                     m_current_module;
+    Keyword                              m_last_keyword;           //!< Last element - a keyword other than INVALID
     Section                              m_current_section;        //!< Parser state.
     Subsection                           m_current_subsection;     //!< Parser state.
     bool                                 m_in_block_comment;       //!< Parser state.

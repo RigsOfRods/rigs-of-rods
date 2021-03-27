@@ -719,16 +719,16 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* Engine */
-    if (def->modules[0]->engine != nullptr) // implicit module
+    if (def->modules[0]->engine.size() > 0) // implicit module
     {
-        std::shared_ptr<Truck::Engine> engine = def->modules[0]->engine;
+        Truck::Engine* engine = &def->modules[0]->engine.back();
         entry.numgears = static_cast<int>(engine->gear_ratios.size());
         entry.minrpm = engine->shift_down_rpm;
         entry.maxrpm = engine->shift_up_rpm;
         entry.torque = engine->torque;
         entry.enginetype = 't'; /* Truck (default) */
-        if (def->modules[0]->engoption != nullptr
-            && def->modules[0]->engoption->type == Truck::Engoption::ENGINE_TYPE_c_CAR)
+        if (def->modules[0]->engoption.size() > 0
+            && def->modules[0]->engoption.back().type == Truck::Engoption::ENGINE_TYPE_c_CAR)
         {
             entry.enginetype = 'c';
         }
@@ -756,7 +756,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     auto module_itor = def->modules.begin();
     for (; module_itor != def->modules.end(); module_itor++)
     {
-        if ((*module_itor)->engine != nullptr)
+        if ((*module_itor)->engine.size() > 0)
         {
             vehicle_type = TRUCK;
         }
@@ -771,17 +771,32 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
         }
     }
 
-    if (def->modules[0]->globals)
+    // seek sequential data
+    for (Truck::SeqElement& elem: def->modules[0]->sequence)
     {
-        entry.truckmass = def->modules[0]->globals->dry_mass;
-        entry.loadmass = def->modules[0]->globals->cargo_mass;
+        switch (elem.keyword)
+        {
+        case Truck::KEYWORD_FORWARDCOMMANDS:
+            entry.forwardcommands = true;
+            break;
+        case Truck::KEYWORD_IMPORTCOMMANDS:
+            entry.importcommands = true;
+            break;
+        case Truck::KEYWORD_GLOBALS:
+            entry.truckmass = def->modules[0]->globals[elem.index].dry_mass;
+            entry.loadmass = def->modules[0]->globals[elem.index].cargo_mass;
+            break;
+        case Truck::KEYWORD_FILEFORMATVERSION:
+            entry.fileformatversion = def->modules[0]->fileformatversion[elem.index];
+            break;
+        case Truck::KEYWORD_RESCUER:
+            entry.rescuer = true;
+            break;
+        default:;
+        }
     }
-    
-    entry.forwardcommands = def->forwardcommands;
-    entry.importcommands = def->importcommands;
-    entry.rescuer = def->rescuer;
+
     entry.guid = def->guid;
-    entry.fileformatversion = def->fileformatversion;
     entry.hasSubmeshs = static_cast<int>(def->modules[0]->submeshes.size() > 0);
     entry.nodecount = static_cast<int>(def->modules[0]->nodes.size());
     entry.beamcount = static_cast<int>(def->modules[0]->beams.size());

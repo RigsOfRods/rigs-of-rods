@@ -210,17 +210,6 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, Truck::Documen
     }
     actor->m_min_camera_radius = std::sqrt(actor->m_min_camera_radius) * 1.2f; // twenty percent buffer
 
-    // fix up submesh collision model
-    std::string subMeshGroundModelName = spawner.GetSubmeshGroundmodelName();
-    if (!subMeshGroundModelName.empty())
-    {
-        actor->ar_submesh_ground_model = App::GetSimTerrain()->GetCollisions()->getGroundModelByString(subMeshGroundModelName);
-        if (!actor->ar_submesh_ground_model)
-        {
-            actor->ar_submesh_ground_model = App::GetSimTerrain()->GetCollisions()->defaultgm;
-        }
-    }
-
     // Set beam defaults
     for (int i = 0; i < actor->ar_num_beams; i++)
     {
@@ -350,9 +339,19 @@ Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, Truck::DocumentPt
         actor->sendStreamSetup();
     }
 
-    this->SetupActor(actor, rq, def);
-
-    m_actors.push_back(actor);
+    try
+    {
+        this->SetupActor(actor, rq, def);
+        m_actors.push_back(actor);
+    }
+    catch (std::exception& e)
+    {
+        App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format(_L("Exception ocurred while spawning: {}"), e.what()));
+        delete actor;
+        actor = nullptr;
+    }
 
     return actor;
 }
