@@ -4594,6 +4594,26 @@ void Actor::WriteDiagnosticDump(std::string const& fileName)
             << std::endl;
     }
 
+    if (ar_node_to_node_connections.size() == (size_t)ar_num_nodes
+        && ar_node_to_beam_connections.size() == (size_t)ar_num_nodes) // not present when dumping 'raw'
+    {
+        buf << "[node connections]" << std::endl;
+        for (int n1 = 0; n1 < ar_num_nodes; n1++)
+        {
+            buf << std::setw(4) << n1 << ": nodes ";
+            for (int n2: ar_node_to_node_connections[n1])
+            {
+                buf << n2 << " ";
+            }
+            buf << ", beams ";
+            for (int b: ar_node_to_beam_connections[n1])
+            {
+                buf << b << " ";
+            }
+            buf << std::endl;
+        }
+    }
+
     // Write out to 'logs' using OGRE resource system - complicated, but works with Unicode paths on Windows
     Ogre::String rgName = "dumpRG";
     Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
