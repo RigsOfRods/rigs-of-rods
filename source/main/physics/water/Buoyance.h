@@ -33,7 +33,7 @@ public:
 
     void computeNodeForce(node_t *a, node_t *b, node_t *c, bool doUpdate, int type);
 
-    enum { BUOY_NORMAL, BUOY_DRAGONLY, BUOY_DRAGLESS };
+    enum BuoyType { BUOY_NORMAL, BUOY_DRAGONLY, BUOY_DRAGLESS };
 
     bool sink;
 

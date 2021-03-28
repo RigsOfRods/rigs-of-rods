@@ -265,6 +265,11 @@ private:
     void ProcessBrakes(Truck::Brakes & def);
 
     /**
+    * Section 'cab'.
+    */
+    void ProcessCab(Truck::Cab & def);
+
+    /**
     * Section 'camerarail', depends on 'nodes'.
     */
     void ProcessCameraRail(Truck::CameraRail & def);
@@ -1012,6 +1017,9 @@ private:
     // Context
     struct ActorSpawnState
     {
+        float       truckmass=0;   //!< Keyword 'globals' - dry mass
+        float       loadmass=0;
+        std::string texname;       //!< Keyword 'globals' - submeshes texture
         std::string helpmat;
 
         bool        wheel_contact_requested = false;

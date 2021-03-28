@@ -232,7 +232,8 @@ void ActorSpawner::InitializeRig()
     if (req.num_wings > 0)
         m_actor->ar_wings = new wing_t[req.num_wings];
 
-    m_actor->ar_minimass.resize(req.num_nodes);
+    // Values of 'set_default_minimass', or -1 where global minimass from 'minimass' should be filled later.
+    m_actor->ar_minimass.resize(req.num_nodes, -1.f);
 
     // commands contain complex data structures, do not memset them ...
     for (int i=0;i<MAX_COMMANDS+1;i++)
@@ -388,6 +389,9 @@ void ActorSpawner::InitializeRig()
 
 void ActorSpawner::FinalizeRig()
 {
+    m_actor->m_dry_mass = m_state.truckmass;
+    m_actor->m_load_mass = m_state.loadmass;
+
     // we should post-process the torque curve if existing
     if (m_actor->ar_engine)
     {
@@ -4252,7 +4256,6 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         outer_node.mass          = wheel_mass / (2.f * num_rays);
         outer_node.nd_contacter  = true;
         outer_node.nd_tyre_node  = true;
-        AdjustNodeBuoyancy(outer_node);
 
         m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(outer_node.pos)));
 
@@ -4265,7 +4268,6 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         inner_node.mass          = wheel_mass / (2.f * num_rays);
         inner_node.nd_contacter  = true;
         inner_node.nd_tyre_node  = true;
-        AdjustNodeBuoyancy(inner_node);
 
         m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
@@ -5050,6 +5052,56 @@ void ActorSpawner::ProcessSubmesh()
     m_state.subisback.push_back(BACKMESH_NONE);
 }
 
+void ActorSpawner::ProcessCab(Truck::Cab & def)
+{
+    if (m_actor->ar_num_cabs >= MAX_CABS)
+    {
+        this->AddMessage(Message::TYPE_WARNING, "cabs limit reached ("+TOSTRING(MAX_CABS)+")");
+        return;
+    }
+    m_actor->ar_cabs[m_actor->ar_num_cabs*3]  =this->ResolveNodeRef(def.nodes[0]);
+    m_actor->ar_cabs[m_actor->ar_num_cabs*3+1]=this->ResolveNodeRef(def.nodes[1]);
+    m_actor->ar_cabs[m_actor->ar_num_cabs*3+2]=this->ResolveNodeRef(def.nodes[2]);
+
+    if (m_actor->ar_num_collcabs >= MAX_CABS)
+    {
+        this->AddMessage(Message::TYPE_WARNING, "unable to create collcab; cabs limit reached ("+TOSTRING(MAX_CABS)+")");
+        return;
+    }
+
+    if (def.type=='c' || def.type=='p' || def.type=='u')
+    {
+        // `collcabtype` was removed, these types are equivalent now.
+        m_actor->ar_collcabs[m_actor->ar_num_collcabs]=m_actor->ar_num_cabs; m_actor->ar_num_collcabs++;
+    }
+
+    bool buoy_add = false;
+    Buoyance::BuoyType buoy_type = Buoyance::BUOY_NORMAL;
+    if (def.type=='b') {buoy_add=true; buoy_type=Buoyance::BUOY_NORMAL;   };
+    if (def.type=='r') {buoy_add=true; buoy_type=Buoyance::BUOY_DRAGONLY; };
+    if (def.type=='s') {buoy_add=true; buoy_type=Buoyance::BUOY_DRAGLESS; };
+    if (def.type=='D' || def.type == 'F' || def.type == 'S')
+    {
+        m_actor->ar_collcabs[m_actor->ar_num_collcabs]=m_actor->ar_num_cabs;
+        m_actor->ar_num_collcabs++;
+        buoy_add = true;
+        buoy_type=Buoyance::BUOY_NORMAL;
+    }
+
+    if (buoy_add)
+    {
+        if (m_actor->ar_num_collcabs >= MAX_CABS || m_actor->ar_num_buoycabs >= MAX_CABS)
+        {
+            this->AddMessage(Message::TYPE_WARNING, "unable to create buoycab; cabs limit reached ("+TOSTRING(MAX_CABS)+")");
+            return;
+        }
+        m_actor->ar_buoycabs[m_actor->ar_num_buoycabs]=m_actor->ar_num_cabs;
+        m_actor->ar_num_buoycabs++;
+    }
+
+    m_actor->ar_num_cabs++;
+}
+
 void ActorSpawner::ProcessBackmesh()
 {
     //close the current mesh
@@ -5196,11 +5248,7 @@ void ActorSpawner::ProcessNode(Truck::Node & def)
 
     // Set up node
     node_t& node = this->GetFreeNode();
-    node.friction_coef = m_state.default_node_friction;
-    node.volume_coef = m_state.default_node_volume;
-    node.surface_coef = m_state.default_node_surface;
-    node.AbsPosition = m_spawn_position + def.position;
-    node.RelPosition = (m_spawn_position + def.position) - m_actor->ar_origin;
+    InitNode(node, m_spawn_position + def.position);
     node.nd_lockgroup = m_state.lockgroup_default;
 
     // Fill debug info
@@ -5237,6 +5285,11 @@ void ActorSpawner::ProcessNode(Truck::Node & def)
         {
             m_actor->m_masscount++;
         }
+    }
+
+    if (options.find(Truck::Node::OPTION_b_EXTRA_BUOYANCY) != std::string::npos)
+    {
+        node.buoyancy = 10000.0f;
     }
 
     if (options.find(Truck::Node::OPTION_h_HOOK_POINT) != std::string::npos)
@@ -5284,7 +5337,6 @@ void ActorSpawner::ProcessNode(Truck::Node & def)
         hook.hk_min_length        = 0.f;
         m_actor->ar_hooks.push_back(hook);
     }
-    AdjustNodeBuoyancy(node, def);
     node.nd_no_ground_contact = options.find(Truck::Node::OPTION_c_NO_GROUND_CONTACT) != std::string::npos;
 
     // Order matters for flags 'm' and 'n'
@@ -5362,27 +5414,25 @@ void ActorSpawner::AddExhaust(
 
 void ActorSpawner::ProcessCinecam(Truck::Cinecam & def)
 {
-
     // Node
-    Ogre::Vector3 node_pos = m_spawn_position + def.position;
-    node_t & camera_node = GetAndInitFreeNode(node_pos);
-    camera_node.nd_no_ground_contact = true; // Orig: hardcoded in BTS_CINECAM
-    camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT; // Node defaults are ignored here.
-    AdjustNodeBuoyancy(camera_node);
-    camera_node.volume_coef   = NODE_SURFACE_COEF_DEFAULT;
-    camera_node.surface_coef  = NODE_VOLUME_COEF_DEFAULT;
+    node_t & node = GetFreeNode();
+    InitNode(node, m_spawn_position + def.position);
+    node.nd_no_ground_contact = true; // Historical name 'contactless'
+    node.friction_coef = NODE_FRICTION_COEF_DEFAULT;
+    node.surface_coef = NODE_SURFACE_COEF_DEFAULT;
+    node.volume_coef = NODE_VOLUME_COEF_DEFAULT;
 
-    m_actor->ar_minimass[camera_node.pos] = m_state.default_minimass;
+    m_actor->ar_minimass[node.pos] = m_state.default_minimass;
 
-    m_actor->ar_cinecam_node[m_actor->ar_num_cinecams] = camera_node.pos;
-    m_actor->ar_cinecam_node_predef_mass[m_actor->ar_num_cinecams] = camera_node.mass;
+    m_actor->ar_cinecam_node[m_actor->ar_num_cinecams] = node.pos;
+    m_actor->ar_cinecam_node_predef_mass[m_actor->ar_num_cinecams] = node.mass;
     m_actor->ar_num_cinecams++;
 
     // Beams
     for (unsigned int i = 0; i < 8; i++)
     {
         int beam_index = m_actor->ar_num_beams;
-        beam_t & beam = AddBeam(camera_node, GetNode(def.nodes[i]));
+        beam_t & beam = AddBeam(node, GetNode(def.nodes[i]));
         beam.bm_type = BEAM_NORMAL;
         CalculateBeamLength(beam);
         beam.k = def.spring;
@@ -5392,9 +5442,15 @@ void ActorSpawner::ProcessCinecam(Truck::Cinecam & def)
 
 void ActorSpawner::InitNode(node_t & node, Ogre::Vector3 const & position)
 {
-    /* Position */
     node.AbsPosition = position;
     node.RelPosition = position - m_actor->ar_origin;
+
+    node.friction_coef = m_state.default_node_friction;
+    node.volume_coef = m_state.default_node_volume;
+    node.surface_coef = m_state.default_node_surface;
+
+    node.buoyancy = m_state.truckmass / 15.f; // Ignore the 'b' flag in 'set_node_defaults' for backwards compatibility
+    node.mass = 10.f;
 }
 
 void ActorSpawner::InitNode(
@@ -5411,8 +5467,8 @@ void ActorSpawner::InitNode(
 
 void ActorSpawner::ProcessGlobals(Truck::Globals & def)
 {
-    m_actor->m_dry_mass = def.dry_mass;
-    m_actor->m_load_mass = def.cargo_mass;
+    m_state.truckmass = def.dry_mass;
+    m_state.loadmass = def.cargo_mass;
 
     // NOTE: Don't do any material pre-processing here; it'll be done on actual entities (via `SetupNewEntity()`).
     if (! def.material_name.empty())
@@ -6267,6 +6323,7 @@ void ActorSpawner::FinalizeGfxSetup()
             submesh.backmesh_type = m_state.subisback[i];
             submesh.cabs_pos = m_state.subcabs[i];
             submesh.texcoords_pos = m_state.subtexcoords[i];
+            submeshes.push_back(submesh);
         }
 
         char cab_material_name_cstr[1000] = {};

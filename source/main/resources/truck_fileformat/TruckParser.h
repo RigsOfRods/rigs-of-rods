@@ -252,8 +252,6 @@ private:
     Keyword                              m_current_keyword;        //!< Any keyword other than INVALID. END stops the parsing.
     Keyword                              m_current_section;        //!< Only section keywords. INVALID means top of file (truck name).
     Keyword                              m_saved_section;          //!< Only section keywords. Used to resume after segment or comment.
-    bool                                 m_in_block_comment;       //!< Parser state.
-    bool                                 m_in_description_section; //!< Parser state.
 
     Ogre::String                         m_filename; // Logging
     Ogre::String                         m_resource_group;

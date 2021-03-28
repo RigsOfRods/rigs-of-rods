@@ -1129,34 +1129,8 @@ struct SpeedLimiter
 
 struct Cab
 {
-    Cab():
-        options(0)
-    {}
-
-    bool GetOption_D_ContactBuoyant()
-    {
-        return BITMASK_IS_1(options, OPTION_b_BUOYANT) && BITMASK_IS_1(options, OPTION_c_CONTACT);
-    }
-
-    bool GetOption_F_10xTougherBuoyant()
-    {
-        return BITMASK_IS_1(options, OPTION_b_BUOYANT) && BITMASK_IS_1(options, OPTION_p_10xTOUGHER);
-    }
-
-    bool GetOption_S_UnpenetrableBuoyant()
-    {
-        return BITMASK_IS_1(options, OPTION_b_BUOYANT) && BITMASK_IS_1(options, OPTION_u_INVULNERABLE);
-    }
-
-    static const unsigned int OPTION_c_CONTACT           = BITMASK(1);
-    static const unsigned int OPTION_b_BUOYANT           = BITMASK(2);
-    static const unsigned int OPTION_p_10xTOUGHER        = BITMASK(3);
-    static const unsigned int OPTION_u_INVULNERABLE      = BITMASK(4);
-    static const unsigned int OPTION_s_BUOYANT_NO_DRAG   = BITMASK(5);
-    static const unsigned int OPTION_r_BUOYANT_ONLY_DRAG = BITMASK(6);
-
     Node::Ref nodes[3];
-    unsigned int options;
+    char type = 'n'; // 'n' = dummy type
 };
 
 /* -------------------------------------------------------------------------- */

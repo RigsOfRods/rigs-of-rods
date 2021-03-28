@@ -253,6 +253,9 @@ Actor *ActorSpawner::SpawnActor(std::string const& config)
                     modul->texcoords[elem.index].u,
                     modul->texcoords[elem.index].v});
                 break;
+            case Truck::KEYWORD_CAB:
+                this->ProcessCab(modul->cab[elem.index]);
+                break;
             case Truck::KEYWORD_SUBMESH:
                 this->ProcessSubmesh();
                 break;

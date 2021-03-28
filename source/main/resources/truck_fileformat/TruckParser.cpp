@@ -49,8 +49,6 @@ Parser::Parser()
     m_current_section = KEYWORD_NONE;
     m_current_line_number = 1;
     m_definition = std::make_shared<Document>();
-    m_in_block_comment = false;
-    m_in_description_section = false;
 
     ModulePtr m(new Module());
     m_definition->modules.emplace_back(m);
@@ -85,37 +83,7 @@ inline bool StrEqualsNocase(std::string const & s1, std::string const & s2)
 
 void Parser::ProcessCurrentLine()
 {
-    if (m_in_block_comment)
-    {
-        if (StrEqualsNocase(m_current_line, "end_comment"))
-        {
-            m_in_block_comment = false;
-        }
-        return;
-    }
-    else if (StrEqualsNocase(m_current_line, "comment"))
-    {
-        m_in_block_comment = true;
-        return;
-    }
-    else if (m_in_description_section) // Enter logic is below in 'keywords'
-    {
-        if (StrEqualsNocase(m_current_line, "end_description"))
-        {
-            m_in_description_section = false;
-        }
-        else
-        {
-            m_current_segment->description.push_back(m_current_line);
-        }
-        return;
-    }
-    else if (StrEqualsNocase(m_current_line, "comment"))
-    {
-        m_in_block_comment = true;
-        return;
-    }
-    else if ((m_current_line[0] == ';') || (m_current_line[0] == '/'))
+    if ((m_current_line[0] == ';') || (m_current_line[0] == '/'))
     {
         this->ProcessCommentLine();
         return;
@@ -175,10 +143,10 @@ void Parser::ProcessCurrentLine()
         case KEYWORD_RIGIDIFIERS:              return;
 
             // No keyword - continue to process data
-        case KEYWORD_NONE:                     break;
+        case KEYWORD_NONE:                     break; // NOT return!
 
-            // A section keyword - continue to process data
-        default:                               m_current_section = m_current_keyword; break;
+            // A section keyword - change state
+        default:                               m_current_section = m_current_keyword; return;
     }
 
     // Parse current section, if any 
@@ -775,31 +743,7 @@ void Parser::ParseCab()
     cab.nodes[0] = this->GetArgNodeRef(0);
     cab.nodes[1] = this->GetArgNodeRef(1);
     cab.nodes[2] = this->GetArgNodeRef(2);
-    if (m_num_args > 3)
-    {
-        cab.options = 0;
-        std::string options_str = this->GetArgStr(3);
-        for (unsigned int i = 0; i < options_str.length(); i++)
-        {
-            switch (options_str.at(i))
-            {
-            case 'c': cab.options |=  Cab::OPTION_c_CONTACT;                               break;
-            case 'b': cab.options |=  Cab::OPTION_b_BUOYANT;                               break;
-            case 'D': cab.options |= (Cab::OPTION_c_CONTACT      | Cab::OPTION_b_BUOYANT); break;
-            case 'p': cab.options |=  Cab::OPTION_p_10xTOUGHER;                            break;
-            case 'u': cab.options |=  Cab::OPTION_u_INVULNERABLE;                          break;
-            case 'F': cab.options |= (Cab::OPTION_p_10xTOUGHER   | Cab::OPTION_b_BUOYANT); break;
-            case 'S': cab.options |= (Cab::OPTION_u_INVULNERABLE | Cab::OPTION_b_BUOYANT); break; 
-            case 'n': break; // Placeholder, does nothing 
-
-            default:
-                char msg[200] = "";
-                snprintf(msg, 200, "'submesh/cab' Ignoring invalid option '%c'...", options_str.at(i));
-                this->AddMessage(Message::TYPE_WARNING, msg);
-                break;
-            }
-        }
-    }
+    cab.type     = this->GetArgChar(3);
 
     m_current_segment->cab.push_back(cab);
     m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->cab.size() - 1));
