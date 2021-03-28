@@ -112,7 +112,7 @@ flares2                      SECTION
 flexbodies                   SECTION      
 flexbody_camera_mode         DIRECTIVE  
 flexbodywheels               SECTION      
-forset                       DIRECTIVE     
+forset                       DIRECTIVE    Required 1x after each flexbody.  
 fusedrag                     SECTION      
 globals                      SECTION      
 guid                         DIRECTIVE  
@@ -168,7 +168,7 @@ soundsources                 SECTION
 soundsources2                SECTION      
 soundsources3                SECTION      
 speedlimiter                 DIRECTIVE        
-submesh                      SECTION      
+submesh                      DIRECTIVE - begin a new submesh.      
 submesh_groundmodel          DIRECTIVE
 texcoords                    SECTION        
 ties                         SECTION      

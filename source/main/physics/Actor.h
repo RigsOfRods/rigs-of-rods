@@ -238,7 +238,7 @@ public:
     int               ar_num_aeroengines;
     Screwprop*        ar_screwprops[MAX_SCREWPROPS];
     int               ar_num_screwprops;
-    int               ar_cabs[MAX_CABS*3];
+    int               ar_cabs[MAX_CABS*3]; //!< Collision triangles
     int               ar_num_cabs;
     std::vector<hydrobeam_t> ar_hydros;
     int               ar_collcabs[MAX_CABS];

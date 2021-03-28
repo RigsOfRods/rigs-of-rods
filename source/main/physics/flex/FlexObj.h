@@ -31,19 +31,19 @@ namespace RoR {
 /// Texture coordinates for old-style actor body (the "cab")
 struct CabTexcoord
 {
-    int    node_id;
+    NodeIdx_t    node_id;
     float  texcoord_u;
     float  texcoord_v;
 };
 
+enum CabBackmeshType { BACKMESH_NONE, BACKMESH_OPAQUE, BACKMESH_TRANSPARENT };
+
 /// Submesh for old-style actor body (the "cab")
 struct CabSubmesh
 {
-    enum BackmeshType { BACKMESH_NONE, BACKMESH_OPAQUE, BACKMESH_TRANSPARENT };
-
     CabSubmesh(): backmesh_type(BACKMESH_NONE), texcoords_pos(0), cabs_pos(0) {}
 
-    BackmeshType  backmesh_type;
+    CabBackmeshType  backmesh_type;
     size_t        texcoords_pos;
     size_t        cabs_pos;
 };

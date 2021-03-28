@@ -34,25 +34,17 @@
 namespace RoR {
 namespace Truck {
 
-///  @class  Parser
-///  @author Petr Ohlidal
+/// @class  Parser
+/// @author Petr Ohlidal
 ///
-///  @brief Checks the rig-def file syntax and pulls data to File object
-///
-///  For every section/directive, there is a data-container struct defined in File.h.
-///  The Parser should preferably only read data as-is, without validation.
-///
-///  Every time a line of a particular section is parsed, an instance of the struct
-///  is saved into an array container in struct Truck::Document. There are exceptions to this rule.
-///
-///  Keywords 'set_[node|beam|inertia]_defaults' are 'presets' and are managed by dyn. allocated
-///  objects. For every preset, there are 2 pointers:
-///      * 'ror_*' represents game defaults as specified in documentation. Needed for resetting.
-///      * 'user_*' represent the last defaults specified in the .truck file.
+/// Loads "truck" file into a sequence of RoR::Truck::SeqSection tokens,
+/// each optionally referencing a data array. The tokens are kept in
+/// RoR::Truck::Module::sequence array.
 class Parser
 {
-
 public:
+
+    Parser();
 
     static const int LINE_BUFFER_LENGTH = 2000;
     static const int LINE_MAX_ARGS = 100;
@@ -75,7 +67,6 @@ public:
         int         length;
     };
 
-    void Prepare();
     void ProcessOgreStream(Ogre::DataStream* stream, Ogre::String resource_group);
     void ProcessRawLine(const char* line);
 
@@ -87,9 +78,10 @@ public:
 private:
 
 // --------------------------------------------------------------------------
-//  Directive parsers
+//  Directives
 // --------------------------------------------------------------------------
 
+    void ParseSimpleDirective();
     void ParseDirectiveAddAnimation();
     void ParseDirectiveBackmesh();
     void ParseDirectiveDetacherGroup();
@@ -103,7 +95,7 @@ private:
     void ParseDirectiveSetNodeDefaults();
 
 // --------------------------------------------------------------------------
-//  Section parsers
+//  Sections
 // --------------------------------------------------------------------------
 
     void ParseActorNameLine();
@@ -114,7 +106,7 @@ private:
     void ParseAxles();
     void ParseBeams();
     void ParseBrakes();
-    void ProcessKeywordCab();
+    void ParseCab();
     void ParseCameras();
     void ParseCameraRails();
     void ParseCinecam();
@@ -133,6 +125,7 @@ private:
     void ParseFlaresUnified();
     void ParseFlexbody();
     void ParseFlexBodyWheel();
+    void ParseForset();
     void ParseFusedrag();
     void ParseGlobals();
     void ParseGuid();
@@ -167,9 +160,8 @@ private:
     void ParseSoundsources();
     void ParseSoundsources2();
     void ParseSpeedLimiter();
-    void ParseSubmesh();
     void ParseSubmeshGroundModel();
-    void ProcessKeywordTexcoords();
+    void ParseTexcoords();
     void ParseTies();
     void ParseTorqueCurve();
     void ParseTractionControl();
@@ -190,9 +182,8 @@ private:
     void             ProcessCurrentLine();
     int              TokenizeCurrentLine();
     bool             CheckNumArguments(int num_required_args);
-    void             ChangeSection(Truck::Section new_section);
-    void             BeginModule();
-    void             EndModule();
+    void             BeginSegment();
+    void             EndSegment();
 
     std::string        GetArgStr          (int index);
     int                GetArgInt          (int index);
@@ -257,10 +248,10 @@ private:
     int                                  m_num_args;               //!< Number of tokens on current line.
 
     // Parser state - writing
-    Truck::ModulePtr                     m_current_module;
-    Keyword                              m_last_keyword;           //!< Last element - a keyword other than INVALID
-    Section                              m_current_section;        //!< Parser state.
-    Subsection                           m_current_subsection;     //!< Parser state.
+    Truck::ModulePtr                     m_current_segment;
+    Keyword                              m_current_keyword;        //!< Any keyword other than INVALID. END stops the parsing.
+    Keyword                              m_current_section;        //!< Only section keywords. INVALID means top of file (truck name).
+    Keyword                              m_saved_section;          //!< Only section keywords. Used to resume after segment or comment.
     bool                                 m_in_block_comment;       //!< Parser state.
     bool                                 m_in_description_section; //!< Parser state.
 

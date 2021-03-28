@@ -28,18 +28,16 @@
 namespace RoR {
 namespace Truck {
 
-/// A keyword which should be on it's own line. Used in IDENTIFY_KEYWORD.
+/// A keyword which should be on it's own line.
 #define E_KEYWORD_BLOCK(_NAME_)     "(^" _NAME_ "[[:blank:]]*$)?"
 
-/// A keyword which should have values following it. Used in IDENTIFY_KEYWORD.
-#define E_KEYWORD_INLINE(_NAME_)     "(^" _NAME_ "[[:blank:]]+" ".*$)?"
-    
-/// Inline keyword, tolerant version: keyword and values can be delimited by either space or comma
-#define E_KEYWORD_INLINE_TOLERANT(_NAME_)     "(^" _NAME_ "[[:blank:],]+" ".*$)?"
+/// A keyword which should have values following it.
+#define E_KEYWORD_INLINE(_NAME_)     "(^" _NAME_ ".*$)?"
 
 // IMPORTANT! If you add a value here, you must also modify Keywords enum, it relies on positions in this regex
-const std::string IDENTIFY_KEYWORD_REGEX_STRING(
-    E_KEYWORD_INLINE_TOLERANT("add_animation")  /* Position 1 */  \
+const std::string IDENTIFY_KEYWORD_REGEX_STRING
+(
+    E_KEYWORD_INLINE("add_animation")  /* Position 1 */           \
     E_KEYWORD_BLOCK("airbrakes")       /* Position 2 */           \
     E_KEYWORD_BLOCK("animators")       /* Position 3 etc... */    \
     E_KEYWORD_INLINE("AntiLockBrakes")                            \
@@ -55,6 +53,7 @@ const std::string IDENTIFY_KEYWORD_REGEX_STRING(
     E_KEYWORD_BLOCK("collisionboxes")                             \
     E_KEYWORD_BLOCK("commands")                                   \
     E_KEYWORD_BLOCK("commands2")                                  \
+    E_KEYWORD_BLOCK("comment")                                    \
     E_KEYWORD_BLOCK("contacters")                                 \
     E_KEYWORD_INLINE("cruisecontrol")                             \
     E_KEYWORD_BLOCK("description")                                \
@@ -62,6 +61,8 @@ const std::string IDENTIFY_KEYWORD_REGEX_STRING(
     E_KEYWORD_BLOCK("disabledefaultsounds")                       \
     E_KEYWORD_BLOCK("enable_advanced_deformation")                \
     E_KEYWORD_BLOCK("end")                                        \
+    E_KEYWORD_BLOCK("end_comment")                                \
+    E_KEYWORD_BLOCK("end_description")                            \
     E_KEYWORD_BLOCK("end_section")                                \
     E_KEYWORD_BLOCK("engine")                                     \
     E_KEYWORD_BLOCK("engoption")                                  \
@@ -77,6 +78,7 @@ const std::string IDENTIFY_KEYWORD_REGEX_STRING(
     E_KEYWORD_BLOCK("flexbodies")                                 \
     E_KEYWORD_INLINE("flexbody_camera_mode")                      \
     E_KEYWORD_BLOCK("flexbodywheels")                             \
+    E_KEYWORD_BLOCK("forset")                                     \
     E_KEYWORD_BLOCK("forwardcommands")                            \
     E_KEYWORD_BLOCK("fusedrag")                                   \
     E_KEYWORD_BLOCK("globals")                                    \
@@ -157,9 +159,10 @@ const std::string IDENTIFY_KEYWORD_REGEX_STRING(
 // --------------------------------
 // Enums
 
+// IMPORTANT! If you add a value here, you must also modify Keywords enum, it relies on positions in this regex
 enum Keyword
 {
-    // IMPORTANT! ~ This enum must match 1:1 with IDENTIFY_KEYWORD regex.
+    KEYWORD_NONE = 0,
 
     KEYWORD_ADD_ANIMATION = 1,
     KEYWORD_AIRBRAKES,
@@ -177,6 +180,7 @@ enum Keyword
     KEYWORD_COLLISIONBOXES,
     KEYWORD_COMMANDS,
     KEYWORD_COMMANDS2,
+    KEYWORD_COMMENT,
     KEYWORD_CONTACTERS,
     KEYWORD_CRUISECONTROL,
     KEYWORD_DESCRIPTION,
@@ -184,6 +188,8 @@ enum Keyword
     KEYWORD_DISABLEDEFAULTSOUNDS,
     KEYWORD_ENABLE_ADVANCED_DEFORMATION,
     KEYWORD_END,
+    KEYWORD_END_COMMENT,
+    KEYWORD_END_DESCRIPTION,
     KEYWORD_END_SECTION,
     KEYWORD_ENGINE,
     KEYWORD_ENGOPTION,
@@ -199,6 +205,7 @@ enum Keyword
     KEYWORD_FLEXBODIES,
     KEYWORD_FLEXBODY_CAMERA_MODE,
     KEYWORD_FLEXBODYWHEELS,
+    KEYWORD_FORSET,
     KEYWORD_FORWARDCOMMANDS,
     KEYWORD_FUSEDRAG,
     KEYWORD_GLOBALS,
@@ -270,99 +277,6 @@ enum Keyword
     KEYWORD_WHEELS,
     KEYWORD_WHEELS2,
     KEYWORD_WINGS,
-
-    KEYWORD_INVALID = 0xFFFFFFFF
-};
-
-enum Section
-{
-    SECTION_AIRBRAKES,
-    SECTION_AUTHOR,
-    SECTION_ANIMATORS,
-    SECTION_ANTI_LOCK_BRAKES,
-    SECTION_AXLES,
-    SECTION_BEAMS,
-    SECTION_BRAKES,
-    SECTION_CAMERAS,
-    SECTION_CAMERA_RAIL,
-    SECTION_CINECAM,
-    SECTION_COLLISION_BOXES,
-    SECTION_COMMANDS,
-    SECTION_COMMANDS_2,
-    SECTION_CONTACTERS,
-    SECTION_ENGINE,
-    SECTION_ENGOPTION,
-    SECTION_ENGTURBO,
-    SECTION_EXHAUSTS,
-    SECTION_FIXES,
-    SECTION_FLARES,
-    SECTION_FLARES_2,
-    SECTION_FLEXBODIES,
-    SECTION_FLEX_BODY_WHEELS,	
-    SECTION_FUSEDRAG,
-    SECTION_GLOBALS,
-    SECTION_GUI_SETTINGS,
-    SECTION_HELP,
-    SECTION_HOOKS,
-    SECTION_HYDROS,
-    SECTION_INTERAXLES,
-    SECTION_LOCKGROUPS,
-    SECTION_MANAGED_MATERIALS,
-    SECTION_MAT_FLARE_BINDINGS,
-    SECTION_MESH_WHEELS,
-    SECTION_MESH_WHEELS_2,
-    SECTION_MINIMASS,
-    SECTION_NODES,
-    SECTION_NODES_2,
-    SECTION_NODE_COLLISION,
-    SECTION_PARTICLES,
-    SECTION_PISTONPROPS,
-    SECTION_PROPS,
-    SECTION_RAILGROUPS,
-    SECTION_ROPABLES,
-    SECTION_ROPES,
-    SECTION_ROTATORS,
-    SECTION_ROTATORS_2,
-    SECTION_SCREWPROPS,
-    SECTION_SHOCKS,
-    SECTION_SHOCKS_2,
-    SECTION_SHOCKS_3,
-    SECTION_SLIDENODES,
-    SECTION_SOUNDSOURCES,
-    SECTION_SOUNDSOURCES2,
-    SECTION_SUBMESH,
-    SECTION_SLOPE_BRAKE,
-    SECTION_TIES,
-    SECTION_TORQUE_CURVE,
-    SECTION_TRACTION_CONTROL,
-    SECTION_TRANSFER_CASE,
-    SECTION_TRIGGERS,
-    SECTION_TRUCK_NAME, //!< The very start of file	
-    SECTION_TURBOJETS,
-    SECTION_TURBOPROPS,
-    SECTION_TURBOPROPS_2,
-    SECTION_VIDEO_CAMERA,
-    SECTION_WHEELDETACHERS,
-    SECTION_WHEELS,
-    SECTION_WHEELS_2,
-    SECTION_WINGS,
-
-    SECTION_NONE,       //!< Right after rig name, for example.
-
-    SECTION_INVALID = 0xFFFFFFFF
-};
-
-enum Subsection
-{
-    SUBSECTION_NONE = 0,
-
-    SUBSECTION__FLEXBODIES__PROPLIKE_LINE,
-    SUBSECTION__FLEXBODIES__FORSET_LINE,
-
-    SUBSECTION__SUBMESH__TEXCOORDS,
-    SUBSECTION__SUBMESH__CAB,
-
-    SUBSECTION_INVALID = 0xFFFFFFFF
 };
 
 enum class DifferentialType: char
@@ -407,12 +321,14 @@ struct Element
     int _num_args = -1;
 };
 
-/// Sequential ordering of elements - references other data arrays (most, but not all of them).
-struct SeqElement
+/// Sequential ordering of elements
+/// Each entry has `section` other than KEYWORD_NONE.
+/// Optionally, it may reference a data array associated with the keyword.
+struct SeqSection
 {
-    SeqElement(Keyword k, int idx): keyword(k), index(idx) {}
+    SeqSection(Keyword k, int idx): section(k), index(idx) {}
 
-    Keyword keyword = Keyword::KEYWORD_INVALID;
+    Keyword section = KEYWORD_NONE;
     int index = -1;
 };
 

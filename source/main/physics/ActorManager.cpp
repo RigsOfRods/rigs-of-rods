@@ -1231,7 +1231,6 @@ Truck::DocumentPtr ActorManager::LoadTruckDocument(std::string const& filename, 
 
         RoR::LogFormat("[RoR] Parsing truckfile '%s'", filename.c_str());
         Truck::Parser parser;
-        parser.Prepare();
         parser.ProcessOgreStream(stream.getPointer(), rg_name);
 
         parser.GetFile()->hash = Utils::Sha1Hash(stream->getAsString());

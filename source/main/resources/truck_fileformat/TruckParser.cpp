@@ -44,6 +44,19 @@ using namespace Truck;
 
 const std::regex IDENTIFY_KEYWORD_IGNORE_CASE( IDENTIFY_KEYWORD_REGEX_STRING, std::regex::ECMAScript | std::regex::icase);
 
+Parser::Parser()
+{
+    m_current_section = KEYWORD_NONE;
+    m_current_line_number = 1;
+    m_definition = std::make_shared<Document>();
+    m_in_block_comment = false;
+    m_in_description_section = false;
+
+    ModulePtr m(new Module());
+    m_definition->modules.emplace_back(m);
+    m_current_segment = m;
+}
+
 inline bool IsWhitespace(char c)
 {
     return (c == ' ') || (c == '\t');
@@ -93,7 +106,7 @@ void Parser::ProcessCurrentLine()
         }
         else
         {
-            m_current_module->description.push_back(m_current_line);
+            m_current_segment->description.push_back(m_current_line);
         }
         return;
     }
@@ -111,200 +124,155 @@ void Parser::ProcessCurrentLine()
     this->TokenizeCurrentLine();
 
     // Detect keywords on current line 
-    Keyword cur_keyword = IdentifyKeywordInCurrentLine();
+    m_current_keyword = IdentifyKeywordInCurrentLine();
 
-    // Keep track of current element type
-    if (cur_keyword != Keyword::KEYWORD_INVALID)
+    switch (m_current_keyword)
     {
-        m_last_keyword = cur_keyword;
-    }
-
-    switch (cur_keyword)
-    {
-        case KEYWORD_INVALID: break; // No new section  - carry on with processing data
-
+            // Directives - no change to current section.
         case KEYWORD_ADD_ANIMATION:            this->ParseDirectiveAddAnimation();                  return;
-        case KEYWORD_AIRBRAKES:                this->ChangeSection(SECTION_AIRBRAKES);        return;
-        case KEYWORD_ANIMATORS:                this->ChangeSection(SECTION_ANIMATORS);        return;
         case KEYWORD_ANTI_LOCK_BRAKES:         this->ParseAntiLockBrakes();                         return;
-        case KEYWORD_AXLES:                    this->ChangeSection(SECTION_AXLES);            return;
         case KEYWORD_AUTHOR:                   this->ParseAuthor();                                 return;
         case KEYWORD_BACKMESH:                 this->ParseDirectiveBackmesh();                      return;
-        case KEYWORD_BEAMS:                    this->ChangeSection(SECTION_BEAMS);            return;
-        case KEYWORD_BRAKES:                   this->ChangeSection(SECTION_BRAKES);           return;
-        case KEYWORD_CAB:                      this->ProcessKeywordCab();                           return;
-        case KEYWORD_CAMERAS:                  this->ChangeSection(SECTION_CAMERAS);          return;
-        case KEYWORD_CAMERARAIL:               this->ChangeSection(SECTION_CAMERA_RAIL);      return;
-        case KEYWORD_CINECAM:                  this->ChangeSection(SECTION_CINECAM);          return;
-        case KEYWORD_COLLISIONBOXES:           this->ChangeSection(SECTION_COLLISION_BOXES);  return;
-        case KEYWORD_COMMANDS:                 this->ChangeSection(SECTION_COMMANDS);         return;
-        case KEYWORD_COMMANDS2:                this->ChangeSection(SECTION_COMMANDS_2);       return;
-        case KEYWORD_CONTACTERS:               this->ChangeSection(SECTION_CONTACTERS);       return;
         case KEYWORD_CRUISECONTROL:            this->ParseCruiseControl();                          return;
-        case KEYWORD_DESCRIPTION:              this->ChangeSection(SECTION_NONE); m_in_description_section = true; return;
         case KEYWORD_DETACHER_GROUP:           this->ParseDirectiveDetacherGroup();                 return;
-        case KEYWORD_DISABLEDEFAULTSOUNDS:     m_current_module->sequence.push_back(SeqElement(m_last_keyword, -1));               return;
-        case KEYWORD_ENABLE_ADVANCED_DEFORMATION:   m_current_module->sequence.push_back(SeqElement(m_last_keyword, -1));          return;
-        case KEYWORD_END:                      this->ChangeSection(SECTION_NONE);             return;
-        case KEYWORD_END_SECTION:              this->EndModule();              return;
-        case KEYWORD_ENGINE:                   this->ChangeSection(SECTION_ENGINE);           return;
-        case KEYWORD_ENGOPTION:                this->ChangeSection(SECTION_ENGOPTION);        return;
-        case KEYWORD_ENGTURBO:                 this->ChangeSection(SECTION_ENGTURBO);         return;
-        case KEYWORD_ENVMAP:                   /* Ignored */                                        return;
-        case KEYWORD_EXHAUSTS:                 this->ChangeSection(SECTION_EXHAUSTS);         return;
+        case KEYWORD_DISABLEDEFAULTSOUNDS:     this->ParseSimpleDirective();                        return;
+        case KEYWORD_ENABLE_ADVANCED_DEFORMATION: this->ParseSimpleDirective();                     return;
         case KEYWORD_EXTCAMERA:                this->ParseExtCamera();                              return;
         case KEYWORD_FILEFORMATVERSION:        this->ParseFileFormatVersion();                      return;
         case KEYWORD_FILEINFO:                 this->ParseFileinfo();                               return;
-        case KEYWORD_FIXES:                    this->ChangeSection(SECTION_FIXES);            return;
-        case KEYWORD_FLARES:                   this->ChangeSection(SECTION_FLARES);           return;
-        case KEYWORD_FLARES2:                  this->ChangeSection(SECTION_FLARES_2);         return;
-        case KEYWORD_FLEXBODIES:               this->ChangeSection(SECTION_FLEXBODIES);       return;
         case KEYWORD_FLEXBODY_CAMERA_MODE:     this->ParseDirectiveFlexbodyCameraMode();            return;
-        case KEYWORD_FLEXBODYWHEELS:           this->ChangeSection(SECTION_FLEX_BODY_WHEELS); return;
-        case KEYWORD_FORWARDCOMMANDS:          m_current_module->sequence.push_back(SeqElement(m_last_keyword, -1));     return;
-        case KEYWORD_FUSEDRAG:                 this->ChangeSection(SECTION_FUSEDRAG);         return;
-        case KEYWORD_GLOBALS:                  this->ChangeSection(SECTION_GLOBALS);          return;
+        case KEYWORD_FORWARDCOMMANDS:          this->ParseSimpleDirective();                        return;
         case KEYWORD_GUID:                     this->ParseGuid();                                   return;
-        case KEYWORD_GUISETTINGS:              this->ChangeSection(SECTION_GUI_SETTINGS);     return;
-        case KEYWORD_HELP:                     this->ChangeSection(SECTION_HELP);             return;
-        case KEYWORD_HIDE_IN_CHOOSER:          m_current_module->sequence.push_back(SeqElement(m_last_keyword, -1));      return;
-        case KEYWORD_HOOKGROUP:                /* Obsolete, ignored */                              return;
-        case KEYWORD_HOOKS:                    this->ChangeSection(SECTION_HOOKS);            return;
-        case KEYWORD_HYDROS:                   this->ChangeSection(SECTION_HYDROS);           return;
-        case KEYWORD_IMPORTCOMMANDS:           m_current_module->sequence.push_back(SeqElement(m_last_keyword, -1));                return;
-        case KEYWORD_INTERAXLES:               this->ChangeSection(SECTION_INTERAXLES);       return;
-        case KEYWORD_LOCKGROUPS:               this->ChangeSection(SECTION_LOCKGROUPS);       return;
-        case KEYWORD_LOCKGROUP_DEFAULT_NOLOCK: m_current_module->sequence.push_back(SeqElement(m_last_keyword, -1));              return;
-        case KEYWORD_MANAGEDMATERIALS:         this->ChangeSection(SECTION_MANAGED_MATERIALS); return;
-        case KEYWORD_MATERIALFLAREBINDINGS:    this->ChangeSection(SECTION_MAT_FLARE_BINDINGS); return;
-        case KEYWORD_MESHWHEELS:               this->ChangeSection(SECTION_MESH_WHEELS);      return;
-        case KEYWORD_MESHWHEELS2:              this->ChangeSection(SECTION_MESH_WHEELS_2);    return;
-        case KEYWORD_MINIMASS:                 this->ChangeSection(SECTION_MINIMASS);         return;
-        case KEYWORD_NODECOLLISION:            this->ChangeSection(SECTION_NODE_COLLISION);   return;
-        case KEYWORD_NODES:                    this->ChangeSection(SECTION_NODES);            return;
-        case KEYWORD_NODES2:                   this->ChangeSection(SECTION_NODES_2);          return;
-        case KEYWORD_PARTICLES:                this->ChangeSection(SECTION_PARTICLES);        return;
-        case KEYWORD_PISTONPROPS:              this->ChangeSection(SECTION_PISTONPROPS);      return;
+        case KEYWORD_HIDE_IN_CHOOSER:          this->ParseSimpleDirective();                        return;
+        case KEYWORD_IMPORTCOMMANDS:           this->ParseSimpleDirective();                        return;
+        case KEYWORD_LOCKGROUP_DEFAULT_NOLOCK: this->ParseSimpleDirective();                        return;
         case KEYWORD_PROP_CAMERA_MODE:         this->ParseDirectivePropCameraMode();                return;
-        case KEYWORD_PROPS:                    this->ChangeSection(SECTION_PROPS);            return;
-        case KEYWORD_RAILGROUPS:               this->ChangeSection(SECTION_RAILGROUPS);       return;
-        case KEYWORD_RESCUER:                  m_current_module->sequence.push_back(SeqElement(m_last_keyword, -1));               return;
-        case KEYWORD_RIGIDIFIERS:              this->AddMessage(Message::TYPE_WARNING, "Rigidifiers are not supported, ignoring..."); return;
-        case KEYWORD_ROLLON:                   m_current_module->sequence.push_back(SeqElement(m_last_keyword, -1));               return;
-        case KEYWORD_ROPABLES:                 this->ChangeSection(SECTION_ROPABLES);         return;
-        case KEYWORD_ROPES:                    this->ChangeSection(SECTION_ROPES);            return;
-        case KEYWORD_ROTATORS:                 this->ChangeSection(SECTION_ROTATORS);         return;
-        case KEYWORD_ROTATORS2:                this->ChangeSection(SECTION_ROTATORS_2);       return;
-        case KEYWORD_SCREWPROPS:               this->ChangeSection(SECTION_SCREWPROPS);       return;
-        case KEYWORD_SECTION:                  this->BeginModule();              return;
-        case KEYWORD_SECTIONCONFIG:            /* Ignored */                                        return;
+        case KEYWORD_RESCUER:                  this->ParseSimpleDirective();                        return;
+        case KEYWORD_ROLLON:                   this->ParseSimpleDirective();                        return;
+        case KEYWORD_SECTIONCONFIG:            this->ParseSectionconfig();                          return;
         case KEYWORD_SET_BEAM_DEFAULTS:        this->ParseDirectiveSetBeamDefaults();               return;
         case KEYWORD_SET_BEAM_DEFAULTS_SCALE:  this->ParseDirectiveSetBeamDefaultsScale();          return;
         case KEYWORD_SET_COLLISION_RANGE:      this->ParseSetCollisionRange();                      return;
         case KEYWORD_SET_DEFAULT_MINIMASS:     this->ParseDirectiveSetDefaultMinimass();            return;
         case KEYWORD_SET_INERTIA_DEFAULTS:     this->ParseDirectiveSetInertiaDefaults();            return;
-        case KEYWORD_SET_MANAGEDMATERIALS_OPTIONS:  this->ParseDirectiveSetManagedMaterialsOptions();    return;
+        case KEYWORD_SET_MANAGEDMATERIALS_OPTIONS: this->ParseDirectiveSetManagedMaterialsOptions(); return;
         case KEYWORD_SET_NODE_DEFAULTS:        this->ParseDirectiveSetNodeDefaults();               return;
         case KEYWORD_SET_SKELETON_SETTINGS:    this->ParseSetSkeletonSettings();                    return;
-        case KEYWORD_SHOCKS:                   this->ChangeSection(SECTION_SHOCKS);           return;
-        case KEYWORD_SHOCKS2:                  this->ChangeSection(SECTION_SHOCKS_2);         return;
-        case KEYWORD_SHOCKS3:                  this->ChangeSection(SECTION_SHOCKS_3);         return;
-        case KEYWORD_SLIDENODE_CONNECT_INSTANT:
-            m_current_module->sequence.push_back(SeqElement(m_last_keyword, -1));
-            return;
-        case KEYWORD_SLIDENODES:               this->ChangeSection(SECTION_SLIDENODES);       return;
+        case KEYWORD_SLIDENODE_CONNECT_INSTANT:this->ParseSimpleDirective();                        return;
         case KEYWORD_SLOPE_BRAKE:              this->ParseSlopeBrake();                             return;
-        case KEYWORD_SOUNDSOURCES:             this->ChangeSection(SECTION_SOUNDSOURCES);     return;
-        case KEYWORD_SOUNDSOURCES2:            this->ChangeSection(SECTION_SOUNDSOURCES2);    return;
         case KEYWORD_SPEEDLIMITER:             this->ParseSpeedLimiter();                           return;
+        case KEYWORD_SUBMESH:                  this->ParseSimpleDirective();                        return;
         case KEYWORD_SUBMESH_GROUNDMODEL:      this->ParseSubmeshGroundModel();                     return;
-        case KEYWORD_SUBMESH:                  this->ChangeSection(SECTION_SUBMESH);          return;
-        case KEYWORD_TEXCOORDS:                this->ProcessKeywordTexcoords();                     return;
-        case KEYWORD_TIES:                     this->ChangeSection(SECTION_TIES);             return;
-        case KEYWORD_TORQUECURVE:              this->ChangeSection(SECTION_TORQUE_CURVE);     return;
         case KEYWORD_TRACTION_CONTROL:         this->ParseTractionControl();                        return;
-        case KEYWORD_TRANSFER_CASE:            this->ChangeSection(SECTION_TRANSFER_CASE);    return;
-        case KEYWORD_TRIGGERS:                 this->ChangeSection(SECTION_TRIGGERS);         return;
-        case KEYWORD_TURBOJETS:                this->ChangeSection(SECTION_TURBOJETS);        return;
-        case KEYWORD_TURBOPROPS:               this->ChangeSection(SECTION_TURBOPROPS);       return;
-        case KEYWORD_TURBOPROPS2:              this->ChangeSection(SECTION_TURBOPROPS_2);     return;
-        case KEYWORD_VIDEOCAMERA:              this->ChangeSection(SECTION_VIDEO_CAMERA);     return;
-        case KEYWORD_WHEELDETACHERS:           this->ChangeSection(SECTION_WHEELDETACHERS);   return;
-        case KEYWORD_WHEELS:                   this->ChangeSection(SECTION_WHEELS);           return;
-        case KEYWORD_WHEELS2:                  this->ChangeSection(SECTION_WHEELS_2);         return;
-        case KEYWORD_WINGS:                    this->ChangeSection(SECTION_WINGS);            return;
+
+            // Special keywords
+        case KEYWORD_SECTION:                  this->BeginSegment(); return;
+        case KEYWORD_END_SECTION:              this->EndSegment(); return;
+
+            // Ignored keywords
+        case KEYWORD_ENVMAP:                   return;
+        case KEYWORD_HOOKGROUP:                return;
+        case KEYWORD_RIGIDIFIERS:              return;
+
+            // No keyword - continue to process data
+        case KEYWORD_NONE:                     break;
+
+            // A section keyword - continue to process data
+        default:                               m_current_section = m_current_keyword; break;
     }
 
     // Parse current section, if any 
     switch (m_current_section)
     {
-        case (SECTION_AIRBRAKES):            this->ParseAirbrakes();               return;
-        case (SECTION_ANIMATORS):            this->ParseAnimator();                return;
-        case (SECTION_AXLES):                this->ParseAxles();                   return;
-        case (SECTION_TRUCK_NAME):           this->ParseActorNameLine();           return; 
-        case (SECTION_BEAMS):                this->ParseBeams();                   return;
-        case (SECTION_BRAKES):               this->ParseBrakes();                  return;
-        case (SECTION_CAMERAS):              this->ParseCameras();                 return;
-        case (SECTION_CAMERA_RAIL):          this->ParseCameraRails();             return;
-        case (SECTION_CINECAM):              this->ParseCinecam();                 return;
-        case (SECTION_COMMANDS):
-        case (SECTION_COMMANDS_2):           this->ParseCommandsUnified();         return;
-        case (SECTION_COLLISION_BOXES):      this->ParseCollisionBox();            return;
-        case (SECTION_CONTACTERS):           this->ParseContacter();               return;
-        case (SECTION_ENGINE):               this->ParseEngine();                  return;
-        case (SECTION_ENGOPTION):            this->ParseEngoption();               return;
-        case (SECTION_ENGTURBO) :            this->ParseEngturbo();                return;
-        case (SECTION_EXHAUSTS):             this->ParseExhaust();                 return;
-        case (SECTION_FIXES):                this->ParseFixes();                   return;
-        case (SECTION_FLARES):
-        case (SECTION_FLARES_2):             this->ParseFlaresUnified();           return;
-        case (SECTION_FLEXBODIES):           this->ParseFlexbody();                return;
-        case (SECTION_FLEX_BODY_WHEELS):     this->ParseFlexBodyWheel();           return;
-        case (SECTION_FUSEDRAG):             this->ParseFusedrag();                return;
-        case (SECTION_GLOBALS):              this->ParseGlobals();                 return;
-        case (SECTION_GUI_SETTINGS):         this->ParseGuiSettings();             return;
-        case (SECTION_HELP):                 this->ParseHelp();                    return;
-        case (SECTION_HOOKS):                this->ParseHook();                    return;
-        case (SECTION_HYDROS):               this->ParseHydros();                  return;
-        case (SECTION_INTERAXLES):           this->ParseInterAxles();              return;
-        case (SECTION_LOCKGROUPS):           this->ParseLockgroups();              return;
-        case (SECTION_MANAGED_MATERIALS):    this->ParseManagedMaterials();        return;
-        case (SECTION_MAT_FLARE_BINDINGS):   this->ParseMaterialFlareBindings();   return;
-        case (SECTION_MESH_WHEELS):
-        case (SECTION_MESH_WHEELS_2):        this->ParseMeshWheelUnified();        return;
-        case (SECTION_MINIMASS):             this->ParseMinimass();                return;
-        case (SECTION_NODE_COLLISION):       this->ParseNodeCollision();           return;
-        case (SECTION_NODES):
-        case (SECTION_NODES_2):              this->ParseNodesUnified();            return;
-        case (SECTION_PARTICLES):            this->ParseParticles();               return;
-        case (SECTION_PISTONPROPS):          this->ParsePistonprops();             return;
-        case (SECTION_PROPS):                this->ParseProps();                   return;
-        case (SECTION_RAILGROUPS):           this->ParseRailGroups();              return;
-        case (SECTION_ROPABLES):             this->ParseRopables();                return;
-        case (SECTION_ROPES):                this->ParseRopes();                   return;
-        case (SECTION_ROTATORS):
-        case (SECTION_ROTATORS_2):           this->ParseRotatorsUnified();         return;
-        case (SECTION_SCREWPROPS):           this->ParseScrewprops();              return;
-        case (SECTION_SHOCKS):               this->ParseShock();                   return;
-        case (SECTION_SHOCKS_2):             this->ParseShock2();                  return;
-        case (SECTION_SHOCKS_3):             this->ParseShock3();                  return;
-        case (SECTION_SLIDENODES):           this->ParseSlidenodes();              return;
-        case (SECTION_SOUNDSOURCES):         this->ParseSoundsources();            return;
-        case (SECTION_SOUNDSOURCES2):        this->ParseSoundsources2();           return;
-        case (SECTION_SUBMESH):              this->ParseSubmesh();                 return;
-        case (SECTION_TIES):                 this->ParseTies();                    return;
-        case (SECTION_TORQUE_CURVE):         this->ParseTorqueCurve();             return;
-        case (SECTION_TRANSFER_CASE):        this->ParseTransferCase();            return;
-        case (SECTION_TRIGGERS):             this->ParseTriggers();                return;
-        case (SECTION_TURBOJETS):            this->ParseTurbojets();               return;
-        case (SECTION_TURBOPROPS):           
-        case (SECTION_TURBOPROPS_2):         this->ParseTurbopropsUnified();       return;
-        case (SECTION_VIDEO_CAMERA):         this->ParseVideoCamera();             return;
-        case (SECTION_WHEELDETACHERS):       this->ParseWheelDetachers();          return;
-        case (SECTION_WHEELS):               this->ParseWheel();                   return;
-        case (SECTION_WHEELS_2):             this->ParseWheel2();                  return;
-        case (SECTION_WINGS):                this->ParseWing();                    return;
-        default:;
+        // The first non-comment non-empty line is truck name
+    case (KEYWORD_NONE):              this->ParseActorNameLine();           return;
+
+        // Node/beam definition sections
+    case (KEYWORD_ANIMATORS):            this->ParseAnimator();                return;
+    case (KEYWORD_BEAMS):                this->ParseBeams();                   return;
+    case (KEYWORD_COMMANDS):
+    case (KEYWORD_COMMANDS2):            this->ParseCommandsUnified();         return;
+    case (KEYWORD_HYDROS):               this->ParseHydros();                  return;
+
+        // Node/beam generator sections
+    case (KEYWORD_CINECAM):              this->ParseCinecam();                 return;
+
+        // Aerodynamics
+    case (KEYWORD_AIRBRAKES):            this->ParseAirbrakes();               return;
+    
+        // Drivetrain
+    case (KEYWORD_AXLES):                this->ParseAxles();                   return;
+    case (KEYWORD_BRAKES):               this->ParseBrakes();                  return;
+    case (KEYWORD_ENGINE):               this->ParseEngine();                  return;
+    case (KEYWORD_ENGOPTION):            this->ParseEngoption();               return;
+    case (KEYWORD_ENGTURBO):             this->ParseEngturbo();                return;
+
+        // Physics
+    case (KEYWORD_CAB):                  this->ParseCab();                     return;
+    case (KEYWORD_CAMERAS):              this->ParseCameras();                 return;
+    case (KEYWORD_COLLISIONBOXES):       this->ParseCollisionBox();            return;
+    case (KEYWORD_CONTACTERS):           this->ParseContacter();               return;
+    case (KEYWORD_FIXES):                this->ParseFixes();                   return;
+
+        // Look and feel
+    case (KEYWORD_CAMERARAIL):          this->ParseCameraRails();              return;
+    case (KEYWORD_EXHAUSTS):             this->ParseExhaust();                 return;
+    case (KEYWORD_FLARES):
+    case (KEYWORD_FLARES2):              this->ParseFlaresUnified();           return;
+    case (KEYWORD_GUISETTINGS):         this->ParseGuiSettings();             return;
+    case (KEYWORD_HELP):                 this->ParseHelp();                    return;
+
+    case KEYWORD_TEXCOORDS:             this->ParseTexcoords();                return;
+    
+
+
+        // ------ TO BE SORTED ------
+    
+    
+
+    case (KEYWORD_FLEXBODIES):           this->ParseFlexbody();                return;
+    case (KEYWORD_FLEXBODYWHEELS):     this->ParseFlexBodyWheel();           return;
+    case (KEYWORD_FUSEDRAG):             this->ParseFusedrag();                return;
+    case (KEYWORD_GLOBALS):              this->ParseGlobals();                 return;
+    case (KEYWORD_HOOKS):                this->ParseHook();                    return;
+    case (KEYWORD_INTERAXLES):           this->ParseInterAxles();              return;
+    case (KEYWORD_LOCKGROUPS):           this->ParseLockgroups();              return;
+    case (KEYWORD_MANAGEDMATERIALS):    this->ParseManagedMaterials();        return;
+    case (KEYWORD_MATERIALFLAREBINDINGS):   this->ParseMaterialFlareBindings();   return;
+    case (KEYWORD_MESHWHEELS):
+    case (KEYWORD_MESHWHEELS2):        this->ParseMeshWheelUnified();        return;
+    case (KEYWORD_MINIMASS):             this->ParseMinimass();                return;
+    case (KEYWORD_NODECOLLISION):       this->ParseNodeCollision();           return;
+    case (KEYWORD_NODES):
+    case (KEYWORD_NODES2):              this->ParseNodesUnified();            return;
+    case (KEYWORD_PARTICLES):            this->ParseParticles();               return;
+    case (KEYWORD_PISTONPROPS):          this->ParsePistonprops();             return;
+    case (KEYWORD_PROPS):                this->ParseProps();                   return;
+    case (KEYWORD_RAILGROUPS):           this->ParseRailGroups();              return;
+    case (KEYWORD_ROPABLES):             this->ParseRopables();                return;
+    case (KEYWORD_ROPES):                this->ParseRopes();                   return;
+    case (KEYWORD_ROTATORS):
+    case (KEYWORD_ROTATORS2):           this->ParseRotatorsUnified();         return;
+    case (KEYWORD_SCREWPROPS):           this->ParseScrewprops();              return;
+    case (KEYWORD_SHOCKS):               this->ParseShock();                   return;
+    case (KEYWORD_SHOCKS2):             this->ParseShock2();                  return;
+    case (KEYWORD_SHOCKS3):             this->ParseShock3();                  return;
+    case (KEYWORD_SLIDENODES):           this->ParseSlidenodes();              return;
+    case (KEYWORD_SOUNDSOURCES):         this->ParseSoundsources();            return;
+    case (KEYWORD_SOUNDSOURCES2):        this->ParseSoundsources2();           return;
+    case (KEYWORD_TIES):                 this->ParseTies();                    return;
+    case (KEYWORD_TORQUECURVE):         this->ParseTorqueCurve();             return;
+    case (KEYWORD_TRANSFER_CASE):        this->ParseTransferCase();            return;
+    case (KEYWORD_TRIGGERS):             this->ParseTriggers();                return;
+    case (KEYWORD_TURBOJETS):            this->ParseTurbojets();               return;
+    case (KEYWORD_TURBOPROPS):
+    case (KEYWORD_TURBOPROPS2):         this->ParseTurbopropsUnified();       return;
+    case (KEYWORD_VIDEOCAMERA):         this->ParseVideoCamera();             return;
+    case (KEYWORD_WHEELDETACHERS):       this->ParseWheelDetachers();          return;
+    case (KEYWORD_WHEELS):               this->ParseWheel();                   return;
+    case (KEYWORD_WHEELS2):             this->ParseWheel2();                  return;
+    case (KEYWORD_WINGS):                this->ParseWing();                    return;
+    default:;
     };
 }
 
@@ -324,10 +292,14 @@ bool Parser::CheckNumArguments(int num_required_args)
 // Parsing individual keywords                                                
 // -------------------------------------------------------------------------- 
 
+void Parser::ParseSimpleDirective()
+{
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, -1));
+}
+
 void Parser::ParseActorNameLine()
 {
     m_definition->name = m_current_line; // Already trimmed
-    this->ChangeSection(SECTION_NONE);
 }
 
 void Parser::ParseWing()
@@ -346,8 +318,8 @@ void Parser::ParseWing()
     if (m_num_args > 20)         { wing.airfoil         = this->GetArgStr         (20); }
     if (m_num_args > 21)         { wing.efficacy_coef   = this->GetArgFloat       (21); }
 
-    m_current_module->wings.push_back(wing);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->wings.size() - 1));
+    m_current_segment->wings.push_back(wing);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->wings.size() - 1));
 }
 
 void Parser::ParseSetCollisionRange()
@@ -362,8 +334,8 @@ void Parser::ParseSetCollisionRange()
         preset.collrange = DEFAULT_COLLISION_RANGE;
     }
 
-    m_current_module->collision_range_preset.push_back(preset);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->collision_range_preset.size() - 1));
+    m_current_segment->collision_range_preset.push_back(preset);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->collision_range_preset.size() - 1));
 }
 
 void Parser::ParseWheel2()
@@ -390,8 +362,8 @@ void Parser::ParseWheel2()
     wheel_2.face_material_name = this->GetArgStr          (15);
     wheel_2.band_material_name = this->GetArgStr          (16);
 
-    m_current_module->wheels_2.push_back(wheel_2);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->wheels_2.size() - 1));
+    m_current_segment->wheels_2.push_back(wheel_2);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->wheels_2.size() - 1));
 }
 
 void Parser::ParseWheel()
@@ -416,8 +388,8 @@ void Parser::ParseWheel()
     wheel.face_material_name = this->GetArgStr          (12);
     wheel.band_material_name = this->GetArgStr          (13);
 
-    m_current_module->wheels.push_back(wheel);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->wheels.size() - 1));
+    m_current_segment->wheels.push_back(wheel);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->wheels.size() - 1));
 }
 
 void Parser::ParseWheelDetachers()
@@ -429,8 +401,8 @@ void Parser::ParseWheelDetachers()
     wheeldetacher.wheel_id       = this->GetArgInt(0);
     wheeldetacher.detacher_group = this->GetArgInt(1);
 
-    m_current_module->wheeldetachers.push_back(wheeldetacher);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->wheeldetachers.size() - 1));
+    m_current_segment->wheeldetachers.push_back(wheeldetacher);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->wheeldetachers.size() - 1));
 }
 
 void Parser::ParseTractionControl()
@@ -479,8 +451,8 @@ void Parser::ParseTractionControl()
         }
     }
 
-    m_current_module->traction_control.push_back(tc);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->traction_control.size() - 1));
+    m_current_segment->traction_control.push_back(tc);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->traction_control.size() - 1));
 }
 
 void Parser::ParseTransferCase()
@@ -495,16 +467,16 @@ void Parser::ParseTransferCase()
     if (m_num_args > 3) { tc.has_2wd_lo = this->GetArgInt(3); }
     for (int i = 4; i < m_num_args; i++) { tc.gear_ratios.push_back(this->GetArgFloat(i)); }
 
-    m_current_module->transfer_case.push_back(tc);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->transfer_case.size() - 1));
+    m_current_segment->transfer_case.push_back(tc);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->transfer_case.size() - 1));
 }
 
 void Parser::ParseSubmeshGroundModel()
 {
     if (!this->CheckNumArguments(2)) { return; } // Items: keyword, arg
 
-    m_current_module->submesh_groundmodel.push_back(this->GetArgStr(1));
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->submesh_groundmodel.size() - 1));
+    m_current_segment->submesh_groundmodel.push_back(this->GetArgStr(1));
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->submesh_groundmodel.size() - 1));
 }
 
 void Parser::ParseSpeedLimiter()
@@ -519,8 +491,8 @@ void Parser::ParseSpeedLimiter()
         snprintf(msg, 200, "Invalid 'max_speed' (%f), must be > 0.0. Using it anyway (compatibility)", sl.max_speed);
         this->AddMessage(Message::TYPE_WARNING, msg);
     }
-    m_current_module->speed_limiter.push_back(sl);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->speed_limiter.size() - 1));
+    m_current_segment->speed_limiter.push_back(sl);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->speed_limiter.size() - 1));
 }
 
 void Parser::ParseSlopeBrake()
@@ -531,8 +503,8 @@ void Parser::ParseSlopeBrake()
     if (m_num_args > 2) { sb.attach_angle     = this->GetArgFloat(2); }
     if (m_num_args > 3) { sb.release_angle    = this->GetArgFloat(3); }
 
-    m_current_module->slope_brake.push_back(sb);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->slope_brake.size() - 1));
+    m_current_segment->slope_brake.push_back(sb);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->slope_brake.size() - 1));
 }
 
 void Parser::ParseSetSkeletonSettings()
@@ -543,8 +515,8 @@ void Parser::ParseSetSkeletonSettings()
     skel.visibility_range_meters = this->GetArgFloat(1);
     if (m_num_args > 2) { skel.beam_thickness_meters = this->GetArgFloat(2); }
 
-    m_current_module->skeleton_settings.push_back(skel);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->skeleton_settings.size() - 1));
+    m_current_segment->skeleton_settings.push_back(skel);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->skeleton_settings.size() - 1));
 }
 
 void Parser::ParseDirectiveSetNodeDefaults()
@@ -560,8 +532,8 @@ void Parser::ParseDirectiveSetNodeDefaults()
     if (m_num_args > 4) def.surface    = this->GetArgFloat(4);
     if (m_num_args > 5) def.options    = this->GetArgStr(5);
 
-    m_current_module->node_defaults.push_back(def);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->node_defaults.size() - 1));
+    m_current_segment->node_defaults.push_back(def);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->node_defaults.size() - 1));
 }
 
 void Parser::ParseDirectiveSetManagedMaterialsOptions()
@@ -571,8 +543,8 @@ void Parser::ParseDirectiveSetManagedMaterialsOptions()
     ManagedMatOptions def;
     def.double_sided = this->GetArgInt(1) != 0;
 
-    m_current_module->managed_mat_options.push_back(def);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->managed_mat_options.size() - 1));
+    m_current_segment->managed_mat_options.push_back(def);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->managed_mat_options.size() - 1));
 }
 
 void Parser::ParseDirectiveSetBeamDefaultsScale()
@@ -587,8 +559,8 @@ void Parser::ParseDirectiveSetBeamDefaultsScale()
     if (m_num_args > 3) { scale.deformation_threshold_constant = this->GetArgFloat(3); }
     if (m_num_args > 4) { scale.breaking_threshold_constant = this->GetArgFloat(4); }
 
-    m_current_module->beam_defaults_scale.push_back(scale);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->beam_defaults_scale.size() - 1));
+    m_current_segment->beam_defaults_scale.push_back(scale);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->beam_defaults_scale.size() - 1));
 }
 
 void Parser::ParseDirectiveSetBeamDefaults()
@@ -606,51 +578,22 @@ void Parser::ParseDirectiveSetBeamDefaults()
     if (m_num_args > 6) d.beam_material_name = this->GetArgStr(6);
     if (m_num_args > 7) d.plastic_deform_coef = this->GetArgFloat(7);
 
-    m_current_module->beam_defaults.push_back(d);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->beam_defaults.size() - 1));
+    m_current_segment->beam_defaults.push_back(d);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->beam_defaults.size() - 1));
 }
 
 void Parser::ParseDirectivePropCameraMode()
 {
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
-    m_current_module->prop_camera_mode.push_back(this->GetArgInt(1));
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->prop_camera_mode.size() - 1));
+    m_current_segment->prop_camera_mode.push_back(this->GetArgInt(1));
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->prop_camera_mode.size() - 1));
 }
 
 void Parser::ParseDirectiveBackmesh()
 {
-    if (m_current_section != SECTION_SUBMESH)
-    {
-        this->AddMessage(Message::TYPE_ERROR, "Misplaced sub-directive 'backmesh' (belongs in section 'submesh'), ignoring...");
-        return;
-    }
-
-    m_current_module->backmesh.push_back(true);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->backmesh.size() - 1));
-}
-
-void Parser::ProcessKeywordTexcoords()
-{
-    if (m_current_section == SECTION_SUBMESH)
-    {
-        m_current_subsection = SUBSECTION__SUBMESH__TEXCOORDS;
-    }
-    else
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Misplaced sub-section 'texcoords' (belongs in section 'submesh'), falling back to classic unsafe parsing method.");
-        this->ChangeSection(SECTION_SUBMESH);
-    }
-}
-
-void Parser::ProcessKeywordCab()
-{
-    m_current_subsection = SUBSECTION__SUBMESH__CAB;
-    if (m_current_section != SECTION_SUBMESH)
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Misplaced sub-section 'cab' (belongs in section 'submesh')");
-        this->ChangeSection(SECTION_SUBMESH);
-    }
+    m_current_segment->backmesh.push_back(true);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->backmesh.size() - 1));
 }
 
 void Parser::ParseMeshWheelUnified()
@@ -677,8 +620,8 @@ void Parser::ParseMeshWheelUnified()
     mesh_wheel.mesh_name          = this->GetArgStr          (14);
     mesh_wheel.material_name      = this->GetArgStr          (15);
 
-    m_current_module->mesh_wheels.push_back(mesh_wheel);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->mesh_wheels.size() - 1));
+    m_current_segment->mesh_wheels.push_back(mesh_wheel);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->mesh_wheels.size() - 1));
 }
 
 void Parser::ParseHook()
@@ -717,13 +660,13 @@ void Parser::ParseHook()
         i++;
     }
 
-    m_current_module->hooks.push_back(hook);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->hooks.size() - 1));
+    m_current_segment->hooks.push_back(hook);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->hooks.size() - 1));
 }
 
 void Parser::ParseHelp()
 {
-    m_current_module->help.push_back(m_current_line); // already trimmed
+    m_current_segment->help.push_back(m_current_line); // already trimmed
 }
 
 void Parser::ParseGuiSettings()
@@ -731,12 +674,12 @@ void Parser::ParseGuiSettings()
     if (! this->CheckNumArguments(2)) { return; }
 
     // Special behavior - not sequential, at most 1 in module
-    if (m_current_module->gui_settings.size() == 0)
+    if (m_current_segment->gui_settings.size() == 0)
     {
-        m_current_module->gui_settings.push_back(GuiSettings());
+        m_current_segment->gui_settings.push_back(GuiSettings());
     }
 
-    GuiSettings* gui_settings = &m_current_module->gui_settings.back();
+    GuiSettings* gui_settings = &m_current_segment->gui_settings.back();
 
     std::string key = this->GetArgStr(0);
     
@@ -784,8 +727,8 @@ void Parser::ParseGlobals()
 
     if (m_num_args > 2) { globals.material_name = this->GetArgStr(2); }
 
-    m_current_module->globals.push_back(globals);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->globals.size() - 1));
+    m_current_segment->globals.push_back(globals);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->globals.size() - 1));
 }
 
 void Parser::ParseFusedrag()
@@ -812,143 +755,132 @@ void Parser::ParseFusedrag()
         if (m_num_args > 3) { fusedrag.airfoil_name = this->GetArgStr(3); }
     }
 
-    m_current_module->fusedrag.push_back(fusedrag);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->fusedrag.size() - 1));
+    m_current_segment->fusedrag.push_back(fusedrag);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->fusedrag.size() - 1));
 }
 
 void Parser::ParseDirectiveFlexbodyCameraMode()
 {
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
-    m_current_module->flexbody_camera_mode.push_back(this->GetArgInt(1));
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->flexbody_camera_mode.size() - 1));
+    m_current_segment->flexbody_camera_mode.push_back(this->GetArgInt(1));
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->flexbody_camera_mode.size() - 1));
 }
 
-void Parser::ParseSubmesh()
+void Parser::ParseCab()
 {
-    if (m_current_subsection == SUBSECTION__SUBMESH__CAB)
+    if (! this->CheckNumArguments(3)) { return; }
+
+    Cab cab;
+    cab.nodes[0] = this->GetArgNodeRef(0);
+    cab.nodes[1] = this->GetArgNodeRef(1);
+    cab.nodes[2] = this->GetArgNodeRef(2);
+    if (m_num_args > 3)
     {
-        if (! this->CheckNumArguments(3)) { return; }
-
-        Cab cab;
-        cab.nodes[0] = this->GetArgNodeRef(0);
-        cab.nodes[1] = this->GetArgNodeRef(1);
-        cab.nodes[2] = this->GetArgNodeRef(2);
-        if (m_num_args > 3)
+        cab.options = 0;
+        std::string options_str = this->GetArgStr(3);
+        for (unsigned int i = 0; i < options_str.length(); i++)
         {
-            cab.options = 0;
-            std::string options_str = this->GetArgStr(3);
-            for (unsigned int i = 0; i < options_str.length(); i++)
+            switch (options_str.at(i))
             {
-                switch (options_str.at(i))
-                {
-                case 'c': cab.options |=  Cab::OPTION_c_CONTACT;                               break;
-                case 'b': cab.options |=  Cab::OPTION_b_BUOYANT;                               break;
-                case 'D': cab.options |= (Cab::OPTION_c_CONTACT      | Cab::OPTION_b_BUOYANT); break;
-                case 'p': cab.options |=  Cab::OPTION_p_10xTOUGHER;                            break;
-                case 'u': cab.options |=  Cab::OPTION_u_INVULNERABLE;                          break;
-                case 'F': cab.options |= (Cab::OPTION_p_10xTOUGHER   | Cab::OPTION_b_BUOYANT); break;
-                case 'S': cab.options |= (Cab::OPTION_u_INVULNERABLE | Cab::OPTION_b_BUOYANT); break; 
-                case 'n': break; // Placeholder, does nothing 
+            case 'c': cab.options |=  Cab::OPTION_c_CONTACT;                               break;
+            case 'b': cab.options |=  Cab::OPTION_b_BUOYANT;                               break;
+            case 'D': cab.options |= (Cab::OPTION_c_CONTACT      | Cab::OPTION_b_BUOYANT); break;
+            case 'p': cab.options |=  Cab::OPTION_p_10xTOUGHER;                            break;
+            case 'u': cab.options |=  Cab::OPTION_u_INVULNERABLE;                          break;
+            case 'F': cab.options |= (Cab::OPTION_p_10xTOUGHER   | Cab::OPTION_b_BUOYANT); break;
+            case 'S': cab.options |= (Cab::OPTION_u_INVULNERABLE | Cab::OPTION_b_BUOYANT); break; 
+            case 'n': break; // Placeholder, does nothing 
 
-                default:
-                    char msg[200] = "";
-                    snprintf(msg, 200, "'submesh/cab' Ignoring invalid option '%c'...", options_str.at(i));
-                    this->AddMessage(Message::TYPE_WARNING, msg);
-                    break;
-                }
+            default:
+                char msg[200] = "";
+                snprintf(msg, 200, "'submesh/cab' Ignoring invalid option '%c'...", options_str.at(i));
+                this->AddMessage(Message::TYPE_WARNING, msg);
+                break;
             }
         }
-
-        m_current_module->submeshes.back().cab_triangles.push_back(cab);
     }
-    else if (m_current_subsection == SUBSECTION__SUBMESH__TEXCOORDS)
-    {
-        if (! this->CheckNumArguments(3)) { return; }
 
-        Texcoord texcoord;
-        texcoord.node = this->GetArgNodeRef(0);
-        texcoord.u    = this->GetArgFloat  (1);
-        texcoord.v    = this->GetArgFloat  (2);
+    m_current_segment->cab.push_back(cab);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->cab.size() - 1));
+}
 
-        m_current_module->submeshes.back().texcoords.push_back(texcoord);
-    }
-    else
-    {
-        AddMessage(Message::TYPE_ERROR, "Section submesh has no subsection defined, line not parsed.");
-    }
+void Parser::ParseTexcoords()
+{
+    if (! this->CheckNumArguments(3)) { return; }
+
+    Texcoord texcoord;
+    texcoord.node = this->GetArgNodeRef(0);
+    texcoord.u    = this->GetArgFloat  (1);
+    texcoord.v    = this->GetArgFloat  (2);
+
+    m_current_segment->texcoords.push_back(texcoord);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->texcoords.size() - 1));
 }
 
 void Parser::ParseFlexbody()
 {
-    if (m_current_subsection == SUBSECTION__FLEXBODIES__PROPLIKE_LINE)
+
+    if (! this->CheckNumArguments(10)) { return; }
+
+    Flexbody flexbody;
+    flexbody.reference_node = this->GetArgNodeRef (0);
+    flexbody.x_axis_node    = this->GetArgNodeRef (1);
+    flexbody.y_axis_node    = this->GetArgNodeRef (2);
+    flexbody.offset.x       = this->GetArgFloat   (3);
+    flexbody.offset.y       = this->GetArgFloat   (4);
+    flexbody.offset.z       = this->GetArgFloat   (5);
+    flexbody.rotation.x     = this->GetArgFloat   (6);
+    flexbody.rotation.y     = this->GetArgFloat   (7);
+    flexbody.rotation.z     = this->GetArgFloat   (8);
+    flexbody.mesh_name      = this->GetArgStr     (9);
+
+    m_current_segment->flexbodies.push_back(flexbody);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->flexbodies.size() - 1));
+}
+
+void Parser::ParseForset()
+{
+    ForSet forset;
+    if (m_current_segment->flexbodies.size() > 0)
     {
-        if (! this->CheckNumArguments(10)) { return; }
-
-        Flexbody flexbody;
-        flexbody.reference_node = this->GetArgNodeRef (0);
-        flexbody.x_axis_node    = this->GetArgNodeRef (1);
-        flexbody.y_axis_node    = this->GetArgNodeRef (2);
-        flexbody.offset.x       = this->GetArgFloat   (3);
-        flexbody.offset.y       = this->GetArgFloat   (4);
-        flexbody.offset.z       = this->GetArgFloat   (5);
-        flexbody.rotation.x     = this->GetArgFloat   (6);
-        flexbody.rotation.y     = this->GetArgFloat   (7);
-        flexbody.rotation.z     = this->GetArgFloat   (8);
-        flexbody.mesh_name      = this->GetArgStr     (9);
-
-        m_current_module->flexbodies.push_back(flexbody);
-        m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->flexbodies.size() - 1));
-
-        // Switch subsection
-        m_current_subsection =  SUBSECTION__FLEXBODIES__FORSET_LINE;
-    }
-    else if (m_current_subsection == SUBSECTION__FLEXBODIES__FORSET_LINE)
-    {
-        if (m_current_module->flexbodies.size() > 0)
+        //parsing set definition
+        char* pos=m_current_line + 6; // skip 'forset'
+        char* end=pos;
+        char endwas='G';
+        while (endwas!=0)
         {
-            //parsing set definition
-            char* pos=m_current_line + 6; // skip 'forset'
-            char* end=pos;
-            char endwas='G';
-            while (endwas!=0)
+            unsigned int val1, val2;
+            end=pos;
+            while (*end!='-' && *end!=',' && *end!=0) end++;
+            endwas=*end;
+            *end=0;
+            val1=strtoul(pos, 0, 10);
+            if (endwas=='-')
             {
-                unsigned int val1, val2;
+                pos=end+1;
                 end=pos;
-                while (*end!='-' && *end!=',' && *end!=0) end++;
+                while (*end!=',' && *end!=0) end++;
                 endwas=*end;
                 *end=0;
-                val1=strtoul(pos, 0, 10);
-                if (endwas=='-')
-                {
-                    pos=end+1;
-                    end=pos;
-                    while (*end!=',' && *end!=0) end++;
-                    endwas=*end;
-                    *end=0;
-                    val2=strtoul(pos, 0, 10);
-                    m_current_module->flexbodies.back().forset.push_back(Node::Range(Node::Ref(val1), Node::Ref(val2)));
-                }
-                else
-                {
-                    m_current_module->flexbodies.back().forset.push_back(Node::Range(Node::Ref(val1), Node::Ref(val1)));
-                }
-                pos=end+1;
+                val2=strtoul(pos, 0, 10);
+                forset.push_back(Node::Range(Node::Ref(val1), Node::Ref(val2)));
             }
+            else
+            {
+                forset.push_back(Node::Range(Node::Ref(val1), Node::Ref(val1)));
+            }
+            pos=end+1;
         }
+    }
 
-        // Switch subsection 
-        m_current_subsection =  SUBSECTION__FLEXBODIES__PROPLIKE_LINE;
-    }
-    else
-    {
-        AddMessage(Message::TYPE_FATAL_ERROR, "Internal parser failure, section 'flexbodies' not parsed.");
-    }
+    m_current_segment->forset.push_back(forset);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->forset.size() - 1));
 }
 
 void Parser::ParseFlaresUnified()
 {
-    const bool is_flares2 = (m_current_section == SECTION_FLARES_2);
+    const bool is_flares2 = (m_current_section == KEYWORD_FLARES2);
     if (! this->CheckNumArguments(is_flares2 ? 6 : 5)) { return; }
 
     Flare2 flare2;
@@ -959,7 +891,7 @@ void Parser::ParseFlaresUnified()
     flare2.offset.x       = this->GetArgFloat  (pos++);
     flare2.offset.y       = this->GetArgFloat  (pos++);
 
-    if (m_current_section == SECTION_FLARES_2)
+    if (m_current_section == KEYWORD_FLARES2)
     {
         flare2.offset.z = this->GetArgFloat(pos++);
     }
@@ -970,14 +902,14 @@ void Parser::ParseFlaresUnified()
     if (m_num_args > pos) { flare2.size              = this->GetArgFloat    (pos++); }
     if (m_num_args > pos) { flare2.material_name     = this->GetArgStr      (pos++); }
 
-    m_current_module->flares_2.push_back(flare2);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->flares_2.size() - 1));
+    m_current_segment->flares_2.push_back(flare2);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->flares_2.size() - 1));
 }
 
 void Parser::ParseFixes()
 {
-    m_current_module->fixes.push_back(this->GetArgNodeRef(0));
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->fixes.size() - 1));
+    m_current_segment->fixes.push_back(this->GetArgNodeRef(0));
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->fixes.size() - 1));
 }
 
 void Parser::ParseExtCamera()
@@ -1000,8 +932,8 @@ void Parser::ParseExtCamera()
         extcam.node = this->GetArgNodeRef(2);
     }
 
-    m_current_module->extcamera.push_back(extcam);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->extcamera.size() - 1));
+    m_current_segment->extcamera.push_back(extcam);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->extcamera.size() - 1));
 }
 
 void Parser::ParseExhaust()
@@ -1015,18 +947,16 @@ void Parser::ParseExhaust()
     // Param [2] is unused
     if (m_num_args > 3) { exhaust.particle_name = this->GetArgStr(3); }
 
-    m_current_module->exhausts.push_back(exhaust);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->exhausts.size() - 1));
+    m_current_segment->exhausts.push_back(exhaust);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->exhausts.size() - 1));
 }
 
 void Parser::ParseFileFormatVersion()
 {
     if (! this->CheckNumArguments(2)) { return; }
 
-    m_current_module->fileformatversion.push_back(this->GetArgUint(1));
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->fileformatversion.size() - 1));
-
-    this->ChangeSection(SECTION_NONE);
+    m_current_segment->fileformatversion.push_back(this->GetArgUint(1));
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->fileformatversion.size() - 1));
 }
 
 void Parser::ParseDirectiveDetacherGroup()
@@ -1045,8 +975,8 @@ void Parser::ParseDirectiveDetacherGroup()
         def.detacher_group = this->GetArgInt(2);
     }
 
-    m_current_module->detacher_group_preset.push_back(def);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->detacher_group_preset.size() - 1));
+    m_current_segment->detacher_group_preset.push_back(def);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->detacher_group_preset.size() - 1));
 }
 
 void Parser::ParseCruiseControl()
@@ -1057,8 +987,8 @@ void Parser::ParseCruiseControl()
     cruise_control.min_speed = this->GetArgFloat(1);
     cruise_control.autobrake = this->GetArgInt(2);
 
-    m_current_module->cruise_control.push_back(cruise_control);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->cruise_control.size() - 1));
+    m_current_segment->cruise_control.push_back(cruise_control);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->cruise_control.size() - 1));
 }
 
 void Parser::ParseDirectiveAddAnimation()
@@ -1215,8 +1145,8 @@ void Parser::ParseDirectiveAddAnimation()
         }
     }
 
-    m_current_module->add_animation.push_back(animation);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->add_animation.size() - 1));
+    m_current_segment->add_animation.push_back(animation);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->add_animation.size() - 1));
 }
 
 void Parser::ParseAntiLockBrakes()
@@ -1264,8 +1194,8 @@ void Parser::ParseAntiLockBrakes()
         }
     }
 
-    m_current_module->anti_lock_brakes.push_back(alb);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->anti_lock_brakes.size() - 1));
+    m_current_segment->anti_lock_brakes.push_back(alb);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->anti_lock_brakes.size() - 1));
 }
 
 void Parser::ParseEngoption()
@@ -1290,8 +1220,8 @@ void Parser::ParseEngoption()
     if (m_num_args > 9) { engoption.min_idle_mixture = this->GetArgFloat(9); }
     if (m_num_args > 10){ engoption.braking_torque   = this->GetArgFloat(10);}
 
-    m_current_module->engoption.push_back(engoption);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->engoption.size() - 1));
+    m_current_segment->engoption.push_back(engoption);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->engoption.size() - 1));
 }
 
 void Parser::ParseEngturbo()
@@ -1321,8 +1251,8 @@ void Parser::ParseEngturbo()
         engturbo.nturbos = 4;
     }
 
-    m_current_module->engturbo.push_back(engturbo);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->engturbo.size() - 1));
+    m_current_segment->engturbo.push_back(engturbo);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->engturbo.size() - 1));
 }
 
 void Parser::ParseEngine()
@@ -1354,21 +1284,21 @@ void Parser::ParseEngine()
         return;
     }
 
-    m_current_module->engine.push_back(engine);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->engine.size() - 1));
+    m_current_segment->engine.push_back(engine);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->engine.size() - 1));
 }
 
 void Parser::ParseContacter()
 {
     if (! this->CheckNumArguments(1)) { return; }
 
-    m_current_module->contacters.push_back(this->GetArgNodeRef(0));
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->contacters.size() - 1));
+    m_current_segment->contacters.push_back(this->GetArgNodeRef(0));
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->contacters.size() - 1));
 }
 
 void Parser::ParseCommandsUnified()
 {
-    const bool is_commands2 = (m_current_section == SECTION_COMMANDS_2);
+    const bool is_commands2 = (m_current_section == KEYWORD_COMMANDS2);
     const int max_args = (is_commands2 ? 8 : 7);
     if (! this->CheckNumArguments(max_args)) { return; }
 
@@ -1396,7 +1326,7 @@ void Parser::ParseCommandsUnified()
 
     if (m_num_args <= max_args) // No more args?
     {
-        m_current_module->commands_2.push_back(command2);
+        m_current_segment->commands_2.push_back(command2);
         return;
     }
 
@@ -1462,8 +1392,8 @@ void Parser::ParseCommandsUnified()
     if (m_num_args > pos) { command2.needs_engine  = this->GetArgBool (pos++);}
     if (m_num_args > pos) { command2.plays_sound   = this->GetArgBool (pos++);}
 
-    m_current_module->commands_2.push_back(command2);
-    m_current_module->sequence.push_back(SeqSection(m_current_section, (int)m_current_module->commands_2.size() - 1));
+    m_current_segment->commands_2.push_back(command2);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->commands_2.size() - 1));
 }
 
 void Parser::ParseCollisionBox()
@@ -1477,8 +1407,8 @@ void Parser::ParseCollisionBox()
         collisionbox.nodes.push_back( this->_ParseNodeRef(*iter) );
     }
 
-    m_current_module->collision_boxes.push_back(collisionbox);
-    m_current_module->sequence.push_back(SeqSection(m_current_section, (int)m_current_module->collision_boxes.size() - 1));
+    m_current_segment->collision_boxes.push_back(collisionbox);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->collision_boxes.size() - 1));
 }
 
 void Parser::ParseCinecam()
@@ -1511,13 +1441,13 @@ void Parser::ParseCinecam()
             cinecam.node_mass = value;
     }
 
-    m_current_module->cinecam.push_back(cinecam);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->cinecam.size() - 1));
+    m_current_segment->cinecam.push_back(cinecam);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->cinecam.size() - 1));
 }
 
 void Parser::ParseCameraRails()
 {
-   m_current_module->camera_rails.back().nodes.push_back( this->GetArgNodeRef(0) );
+   m_current_segment->camera_rails.back().nodes.push_back( this->GetArgNodeRef(0) );
 }
 
 void Parser::ParseBrakes()
@@ -1528,8 +1458,8 @@ void Parser::ParseBrakes()
     b.default_braking_force = this->GetArgFloat(0);
     if (m_num_args > 1) b.parking_brake_force = this->GetArgFloat(1);
 
-    m_current_module->brakes.push_back(b);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->brakes.size() - 1));
+    m_current_segment->brakes.push_back(b);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->brakes.size() - 1));
 }
 
 void Parser::ParseAxles()
@@ -1581,8 +1511,8 @@ void Parser::ParseAxles()
         }
     }
 
-    m_current_module->axles.push_back(axle);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->axles.size() - 1));
+    m_current_segment->axles.push_back(axle);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->axles.size() - 1));
 }
 
 void Parser::ParseInterAxles()
@@ -1629,8 +1559,8 @@ void Parser::ParseInterAxles()
         }
     }
 
-    m_current_module->interaxles.push_back(interaxle);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->interaxles.size() - 1));
+    m_current_segment->interaxles.push_back(interaxle);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->interaxles.size() - 1));
 }
 
 void Parser::ParseAirbrakes()
@@ -1653,8 +1583,8 @@ void Parser::ParseAirbrakes()
     airbrake.texcoord_x2           = this->GetArgFloat  (12);
     airbrake.texcoord_y2           = this->GetArgFloat  (13);
 
-    m_current_module->airbrakes.push_back(airbrake);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->airbrakes.size() - 1));
+    m_current_segment->airbrakes.push_back(airbrake);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->airbrakes.size() - 1));
 }
 
 void Parser::ParseVideoCamera()
@@ -1685,8 +1615,8 @@ void Parser::ParseVideoCamera()
 
     if (m_num_args > 19) { videocamera.camera_name = this->GetArgStr(19); }
 
-    m_current_module->videocameras.push_back(videocamera);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->videocameras.size() - 1));
+    m_current_segment->videocameras.push_back(videocamera);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->videocameras.size() - 1));
 }
 
 void Parser::ParseCameras()
@@ -1698,13 +1628,13 @@ void Parser::ParseCameras()
     camera.back_node   = this->GetArgNodeRef(1);
     camera.left_node   = this->GetArgNodeRef(2);
 
-    m_current_module->cameras.push_back(camera);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->cameras.size() - 1));
+    m_current_segment->cameras.push_back(camera);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->cameras.size() - 1));
 }
 
 void Parser::ParseTurbopropsUnified()
 {
-    bool is_turboprop_2 = m_current_section == SECTION_TURBOPROPS_2;
+    bool is_turboprop_2 = m_current_section == KEYWORD_TURBOPROPS2;
 
     if (! this->CheckNumArguments(is_turboprop_2 ? 9 : 8)) { return; }
 
@@ -1729,8 +1659,8 @@ void Parser::ParseTurbopropsUnified()
     turboprop.turbine_power_kW   = this->GetArgFloat  (6 + offset);
     turboprop.airfoil            = this->GetArgStr    (7 + offset);
     
-    m_current_module->turboprops_2.push_back(turboprop);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->turboprops_2.size() - 1));
+    m_current_segment->turboprops_2.push_back(turboprop);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->turboprops_2.size() - 1));
 }
 
 void Parser::ParseTurbojets()
@@ -1748,8 +1678,8 @@ void Parser::ParseTurbojets()
     turbojet.back_diameter  = this->GetArgFloat  (7);
     turbojet.nozzle_length  = this->GetArgFloat  (8);
 
-    m_current_module->turbojets.push_back(turbojet);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->turbojets.size() - 1));
+    m_current_segment->turbojets.push_back(turbojet);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->turbojets.size() - 1));
 }
 
 void Parser::ParseTriggers()
@@ -1820,29 +1750,29 @@ void Parser::ParseTriggers()
         trigger.SetCommandKeyTrigger(command_keys);
     }
 
-    m_current_module->triggers.push_back(trigger);
-    m_current_module->sequence.push_back(SeqSection(m_current_section, (int)m_current_module->triggers.size() - 1));
+    m_current_segment->triggers.push_back(trigger);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->triggers.size() - 1));
 }
 
 void Parser::ParseTorqueCurve()
 {
-    if (m_current_module->torque_curve.size() == 0)
+    if (m_current_segment->torque_curve.size() == 0)
     {
-        m_current_module->torque_curve.push_back(Truck::TorqueCurve());
+        m_current_segment->torque_curve.push_back(Truck::TorqueCurve());
     }
 
     Ogre::StringVector args = Ogre::StringUtil::split(m_current_line, ",");
     
     if (args.size() == 1u)
     {
-        m_current_module->torque_curve.back().predefined_func_name = args[0];
+        m_current_segment->torque_curve.back().predefined_func_name = args[0];
     }
     else if (args.size() == 2u)
     {
         TorqueCurve::Sample sample;
         sample.power          = this->ParseArgFloat(args[0].c_str());
         sample.torque_percent = this->ParseArgFloat(args[1].c_str());
-        m_current_module->torque_curve.back().samples.push_back(sample);
+        m_current_segment->torque_curve.back().samples.push_back(sample);
     }
     else
     {
@@ -1891,8 +1821,8 @@ void Parser::ParseTies()
     if (m_num_args > 6) { tie.max_stress   =  this->GetArgFloat (6); }
     if (m_num_args > 7) { tie.group        =  this->GetArgInt   (7); }
 
-    m_current_module->ties.push_back(tie);
-    m_current_module->sequence.push_back(SeqSection(m_current_section, (int)m_current_module->ties.size() - 1));
+    m_current_segment->ties.push_back(tie);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->ties.size() - 1));
 }
 
 void Parser::ParseSoundsources()
@@ -1903,8 +1833,8 @@ void Parser::ParseSoundsources()
     soundsource.node              = this->GetArgNodeRef(0);
     soundsource.sound_script_name = this->GetArgStr(1);
 
-    m_current_module->soundsources.push_back(soundsource);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->soundsources.size() - 1));
+    m_current_segment->soundsources.push_back(soundsource);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->soundsources.size() - 1));
 }
 
 void Parser::ParseSoundsources2()
@@ -1932,8 +1862,8 @@ void Parser::ParseSoundsources2()
         soundsource2.cinecam_index = mode;
     }
 
-    m_current_module->soundsources2.push_back(soundsource2);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->soundsources2.size() - 1));
+    m_current_segment->soundsources2.push_back(soundsource2);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->soundsources2.size() - 1));
 }
 
 void Parser::ParseSlidenodes()
@@ -2013,7 +1943,8 @@ void Parser::ParseSlidenodes()
     }
 
     slidenode.editor_group_id = this->GetCurrentEditorGroup();
-    m_current_module->slidenodes.push_back(slidenode);
+    m_current_segment->slidenodes.push_back(slidenode);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->slidenodes.size() - 1));
 }
 
 void Parser::ParseShock3()
@@ -2068,8 +1999,8 @@ void Parser::ParseShock3()
         }
     }
 
-    m_current_module->shocks_3.push_back(shock_3);
-    m_current_module->sequence.push_back(SeqSection(m_current_section, (int)m_current_module->shocks_3.size() - 1));
+    m_current_segment->shocks_3.push_back(shock_3);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->shocks_3.size() - 1));
 }
 
 void Parser::ParseShock2()
@@ -2124,8 +2055,8 @@ void Parser::ParseShock2()
         }
     }
 
-    m_current_module->shocks_2.push_back(shock_2);
-    m_current_module->sequence.push_back(SeqSection(m_current_section, (int)m_current_module->shocks_2.size() - 1));
+    m_current_segment->shocks_2.push_back(shock_2);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->shocks_2.size() - 1));
 }
 
 void Parser::ParseShock()
@@ -2175,8 +2106,8 @@ void Parser::ParseShock()
             }
         }
     }
-    m_current_module->shocks.push_back(shock);
-    m_current_module->sequence.push_back(SeqSection(m_current_section, (int)m_current_module->shocks.size() - 1));
+    m_current_segment->shocks.push_back(shock);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->shocks.size() - 1));
 }
 
 void Parser::_CheckInvalidTrailingText(Ogre::String const & line, std::smatch const & results, unsigned int index)
@@ -2206,8 +2137,8 @@ void Parser::ParseDirectiveSetDefaultMinimass()
 {
     if (! this->CheckNumArguments(2)) { return; } // Directive name + parameter
 
-    m_current_module->default_minimass.push_back(this->GetArgFloat(1));
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->default_minimass.size() - 1));
+    m_current_segment->default_minimass.push_back(this->GetArgFloat(1));
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->default_minimass.size() - 1));
 }
 
 void Parser::ParseDirectiveSetInertiaDefaults()
@@ -2222,8 +2153,8 @@ void Parser::ParseDirectiveSetInertiaDefaults()
     if (m_num_args > 3) { inertia.start_function = this->GetArgStr(3); }
     if (m_num_args > 4) { inertia.stop_function  = this->GetArgStr(4); }
 
-    m_current_module->inertia_defaults.push_back(inertia);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->inertia_defaults.size() - 1));
+    m_current_segment->inertia_defaults.push_back(inertia);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->inertia_defaults.size() - 1));
 }
 
 void Parser::ParseScrewprops()
@@ -2237,8 +2168,8 @@ void Parser::ParseScrewprops()
     screwprop.top_node  = this->GetArgNodeRef(2);
     screwprop.power     = this->GetArgFloat  (3);
 
-    m_current_module->screwprops.push_back(screwprop);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->screwprops.size() - 1));
+    m_current_segment->screwprops.push_back(screwprop);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->screwprops.size() - 1));
 }
 
 void Parser::ParseSectionconfig()
@@ -2271,7 +2202,7 @@ void Parser::ParseRotatorsUnified()
     
     int offset = 0;
 
-    if (m_current_section == SECTION_ROTATORS_2)
+    if (m_current_section == KEYWORD_ROTATORS2)
     {
         if (! this->CheckNumArguments(16)) { return; }
         if (m_num_args > 13) { rotator.rotating_force  = this->GetArgFloat(13); }
@@ -2285,15 +2216,15 @@ void Parser::ParseRotatorsUnified()
     if (m_num_args > 17 + offset) { rotator.engine_coupling = this->GetArgFloat(17 + offset); }
     if (m_num_args > 18 + offset) { rotator.needs_engine    = this->GetArgBool (18 + offset); }
 
-    if (m_current_section == SECTION_ROTATORS_2)
+    if (m_current_section == KEYWORD_ROTATORS2)
     {
-        m_current_module->rotators_2.push_back(rotator);
-        m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->rotators_2.size() - 1));
+        m_current_segment->rotators_2.push_back(rotator);
+        m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->rotators_2.size() - 1));
     }
     else
     {
-        m_current_module->rotators.push_back(rotator);
-        m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->rotators.size() - 1));
+        m_current_segment->rotators.push_back(rotator);
+        m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->rotators.size() - 1));
     }
 }
 
@@ -2309,10 +2240,8 @@ void Parser::ParseFileinfo()
     if (m_num_args > 2) { fileinfo.category_id  = this->GetArgInt(2); }
     if (m_num_args > 3) { fileinfo.file_version = this->GetArgInt(3); }
 
-    m_current_module->fileinfo.push_back(fileinfo);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->fileinfo.size() - 1));
-
-    this->ChangeSection(SECTION_NONE);
+    m_current_segment->fileinfo.push_back(fileinfo);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->fileinfo.size() - 1));
 }
 
 void Parser::ParseRopes()
@@ -2326,8 +2255,8 @@ void Parser::ParseRopes()
     
     if (m_num_args > 2) { rope.invisible  = (this->GetArgChar(2) == 'i'); }
 
-    m_current_module->ropes.push_back(rope);
-    m_current_module->sequence.push_back(SeqSection(m_current_section, (int)m_current_module->ropes.size() - 1));
+    m_current_segment->ropes.push_back(rope);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->ropes.size() - 1));
 }
 
 void Parser::ParseRopables()
@@ -2340,8 +2269,8 @@ void Parser::ParseRopables()
     if (m_num_args > 1) { ropable.group         =  this->GetArgInt(1); }
     if (m_num_args > 2) { ropable.has_multilock = (this->GetArgInt(2) == 1); }
 
-    m_current_module->ropables.push_back(ropable);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->ropables.size() - 1));
+    m_current_segment->ropables.push_back(ropable);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->ropables.size() - 1));
 }
 
 void Parser::ParseRailGroups()
@@ -2361,8 +2290,8 @@ void Parser::ParseRailGroups()
         railgroup.node_list.push_back( this->_ParseNodeRef(*itor));
     }
 
-    m_current_module->railgroups.push_back(railgroup);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->railgroups.size() - 1));
+    m_current_segment->railgroups.push_back(railgroup);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->railgroups.size() - 1));
 }
 
 void Parser::ParseProps()
@@ -2413,8 +2342,8 @@ void Parser::ParseProps()
         if (m_num_args > 14) prop.special_prop_dashboard.rotation_angle = this->GetArgFloat(14);
     }
 
-    m_current_module->props.push_back(prop);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->props.size() - 1));
+    m_current_segment->props.push_back(prop);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->props.size() - 1));
 }
 
 void Parser::ParsePistonprops()
@@ -2433,8 +2362,8 @@ void Parser::ParsePistonprops()
     pistonprop.pitch              = this->GetArgFloat       (8);
     pistonprop.airfoil            = this->GetArgStr         (9);
 
-    m_current_module->pistonprops.push_back(pistonprop);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->pistonprops.size() - 1));
+    m_current_segment->pistonprops.push_back(pistonprop);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->pistonprops.size() - 1));
 }
 
 void Parser::ParseParticles()
@@ -2446,8 +2375,8 @@ void Parser::ParseParticles()
     particle.reference_node       = this->GetArgNodeRef(1);
     particle.particle_system_name = this->GetArgStr    (2);
 
-    m_current_module->particles.push_back(particle);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->particles.size() - 1));
+    m_current_segment->particles.push_back(particle);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->particles.size() - 1));
 }
 
 // Static
@@ -2488,7 +2417,7 @@ void Parser::ParseNodesUnified()
     Node node;
     node._num_args = m_num_args;
 
-    if (m_current_section == SECTION_NODES_2)
+    if (m_current_section == KEYWORD_NODES2)
     {
         node.name = this->GetArgStr(0);
     }
@@ -2510,8 +2439,8 @@ void Parser::ParseNodesUnified()
         node.load_weight_override = this->GetArgFloat(5);
     }
 
-    m_current_module->nodes.push_back(node);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->nodes.size() - 1));
+    m_current_segment->nodes.push_back(node);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->nodes.size() - 1));
 }
 
 void Parser::ParseNodeCollision()
@@ -2522,8 +2451,8 @@ void Parser::ParseNodeCollision()
     node_collision.node   = this->GetArgNodeRef(0);
     node_collision.radius = this->GetArgFloat  (1);
 
-    m_current_module->node_collisions.push_back(node_collision);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->node_collisions.size() - 1));
+    m_current_segment->node_collisions.push_back(node_collision);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->node_collisions.size() - 1));
 }
 
 void Parser::ParseMinimass()
@@ -2555,10 +2484,8 @@ void Parser::ParseMinimass()
         }
     }
 
-    m_current_module->minimass.push_back(def);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->minimass.size() - 1));
-
-    this->ChangeSection(SECTION_NONE);
+    m_current_segment->minimass.push_back(def);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->minimass.size() - 1));
 }
 
 void Parser::ParseFlexBodyWheel()
@@ -2587,8 +2514,8 @@ void Parser::ParseFlexBodyWheel()
     if (m_num_args > 16) { flexbody_wheel.rim_mesh_name  = this->GetArgStr(16); }
     if (m_num_args > 17) { flexbody_wheel.tyre_mesh_name = this->GetArgStr(17); }
 
-    m_current_module->flex_body_wheels.push_back(flexbody_wheel);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->flex_body_wheels.size() - 1));
+    m_current_segment->flex_body_wheels.push_back(flexbody_wheel);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->flex_body_wheels.size() - 1));
 }
 
 void Parser::ParseMaterialFlareBindings()
@@ -2599,8 +2526,8 @@ void Parser::ParseMaterialFlareBindings()
     binding.flare_number  = this->GetArgInt(0);
     binding.material_name = this->GetArgStr(1);
     
-    m_current_module->material_flare_bindings.push_back(binding);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->material_flare_bindings.size() - 1));
+    m_current_segment->material_flare_bindings.push_back(binding);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->material_flare_bindings.size() - 1));
 }
 
 void Parser::ParseManagedMaterials()
@@ -2609,7 +2536,7 @@ void Parser::ParseManagedMaterials()
 
     ManagedMaterial managed_mat;
     
-    managed_mat.managed_mat_options = (int)m_current_module->managed_mat_options.size() - 1;
+    managed_mat.managed_mat_options = (int)m_current_segment->managed_mat_options.size() - 1;
     managed_mat.name    = this->GetArgStr(0);
 
     const std::string type_str = this->GetArgStr(1);
@@ -2662,8 +2589,8 @@ void Parser::ParseManagedMaterials()
         managed_mat.specular_map = "-";
     }
 
-    m_current_module->managed_materials.push_back(managed_mat);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->managed_materials.size() - 1));
+    m_current_segment->managed_materials.push_back(managed_mat);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->managed_materials.size() - 1));
 }
 
 void Parser::ParseLockgroups()
@@ -2678,8 +2605,8 @@ void Parser::ParseLockgroups()
         lockgroup.nodes.push_back(this->GetArgNodeRef(i));
     }
     
-    m_current_module->lockgroups.push_back(lockgroup);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->lockgroups.size() - 1));
+    m_current_segment->lockgroups.push_back(lockgroup);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->lockgroups.size() - 1));
 }
 
 void Parser::ParseHydros()
@@ -2695,8 +2622,8 @@ void Parser::ParseHydros()
     
     this->ParseOptionalInertia(hydro.inertia, 4);
 
-    m_current_module->hydros.push_back(hydro);
-    m_current_module->sequence.push_back(SeqSection(m_current_section, (int)m_current_module->hydros.size() - 1));
+    m_current_segment->hydros.push_back(hydro);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->hydros.size() - 1));
 }
 
 void Parser::ParseOptionalInertia(OptionalInertia & inertia, int index)
@@ -2756,8 +2683,8 @@ void Parser::ParseBeams()
         beam._has_extension_break_limit = true;
     }
 
-    m_current_module->beams.push_back(beam);
-    m_current_module->sequence.push_back(SeqSection(m_current_section, (int)m_current_module->beams.size() - 1));
+    m_current_segment->beams.push_back(beam);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->beams.size() - 1));
 }
 
 void Parser::ParseAnimator()
@@ -2844,8 +2771,8 @@ void Parser::ParseAnimator()
         }
     }
 
-    m_current_module->animators.push_back(animator);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->animators.size() - 1));
+    m_current_segment->animators.push_back(animator);
+    m_current_segment->sequence.push_back(SeqSection(m_current_section, (int)m_current_segment->animators.size() - 1));
 }
 
 void Parser::ParseAuthor()
@@ -2857,10 +2784,8 @@ void Parser::ParseAuthor()
     if (m_num_args > 2) { author.forum_account_id = this->GetArgInt(2); author._has_forum_account = true; }
     if (m_num_args > 3) { author.name             = this->GetArgStr(3); }
     if (m_num_args > 4) { author.email            = this->GetArgStr(4); }
-    m_current_module->authors.push_back(author);
-    m_current_module->sequence.push_back(SeqElement(m_last_keyword, (int)m_current_module->authors.size() - 1));
-
-    this->ChangeSection(SECTION_NONE);
+    m_current_segment->authors.push_back(author);
+    m_current_segment->sequence.push_back(SeqSection(m_current_keyword, (int)m_current_segment->authors.size() - 1));
 }
 
 // -------------------------------------------------------------------------- 
@@ -2881,13 +2806,9 @@ void Parser::AddMessage(std::string const & line, Message::Type type, std::strin
     }
 
     txt << " (line " << (size_t)m_current_line_number;
-    if (m_current_section != Section::SECTION_INVALID)
+    if (m_current_section != Keyword::KEYWORD_NONE)
     {
-        txt << " '" << Truck::Document::SectionToString(m_current_section);
-        if (m_current_subsection != Subsection::SUBSECTION_NONE)
-        {
-            txt << "/" << Truck::Document::SubsectionToString(m_current_subsection);
-        }
+        txt << " '" << Truck::Document::KeywordToString(m_current_section);
         txt << "'";
     }
 
@@ -2919,7 +2840,7 @@ Keyword Parser::IdentifyKeywordInCurrentLine()
     char c = tolower(m_current_line[0]); // Note: line comes in trimmed
     if (c > 'z' || c < 'a')
     {
-        return KEYWORD_INVALID;
+        return KEYWORD_NONE;
     }
 
     // Search (always ignore case)
@@ -2943,88 +2864,50 @@ Keyword Parser::FindKeywordMatch(std::smatch& search_results)
             return Keyword(i);
         }
     }
-    return KEYWORD_INVALID;
+    return KEYWORD_NONE;
 }
 
-void Parser::Prepare()
+void Parser::BeginSegment()
 {
-    m_last_keyword = KEYWORD_INVALID;
-    m_current_section = SECTION_TRUCK_NAME;
-    m_current_subsection = SUBSECTION_NONE;
-    m_current_line_number = 1;
-    m_definition = std::make_shared<Document>();
-    m_in_block_comment = false;
-    m_in_description_section = false;
-
-    ModulePtr m(new Module());
-    m_definition->modules.emplace_back(m);
-    m_current_module = m;
-}
-
-void Parser::ChangeSection(Truck::Section new_section)
-{
-    // Exit previous section
-    if (m_current_section == SECTION_FLEXBODIES || m_current_section == SECTION_SUBMESH)
+    if (m_current_segment->defined_explicitly)
     {
-        m_current_subsection = SUBSECTION_NONE;
-    }
-
-    // Enter next section
-    m_current_section = new_section;
-    if (new_section == SECTION_SUBMESH)
-    {
-        m_current_module->submeshes.push_back(Submesh());
-    }
-    else if (new_section == SECTION_CAMERA_RAIL)
-    {
-        m_current_module->camera_rails.push_back(CameraRail());
-    }
-    else if (new_section == SECTION_FLEXBODIES)
-    {
-        m_current_subsection = SUBSECTION__FLEXBODIES__PROPLIKE_LINE;
-    }
-}
-
-void Parser::BeginModule()
-{
-    if (m_current_module->defined_explicitly)
-    {
-        this->AddMessage(Message::TYPE_ERROR, "Nesting modules is not allowed");
+        this->AddMessage(Message::TYPE_ERROR, "Misplaced 'section'; segments are not allowed to overlap.");
         return;
     }
 
-    // Finalize section
-    this->ChangeSection(SECTION_NONE);
+    // Update state
+    m_saved_section = m_current_section;
+    m_current_section = KEYWORD_NONE;
 
-    // Create explicitly defined module
+    // Create explicitly defined segment
     ModulePtr m(new Module());
     m->defined_explicitly = true;
     m_definition->modules.emplace_back(m);
-    m_current_module = m;
+    m_current_segment = m;
 
     // arg 0: 'section'
     // arg 1: version (unused)
     for (int i = 2; i < m_num_args; ++i)
     {
-        m_current_module->sectionconfigs.push_back(this->GetArgStr(i));
+        m_current_segment->sectionconfigs.push_back(this->GetArgStr(i));
     }
 }
 
-void Parser::EndModule()
+void Parser::EndSegment()
 {
-    if (!m_current_module->defined_explicitly)
+    if (!m_current_segment->defined_explicitly)
     {
         this->AddMessage(Message::TYPE_ERROR, "Misplaced 'end_section', no matching 'section'");
         return;
     }
 
-    // Finalize section
-    this->ChangeSection(SECTION_NONE);
+    // Update state
+    m_current_section = m_saved_section;
 
-    // Continue with an implicit module
+    // Continue with an implicit segment
     ModulePtr m(new Module());
     m_definition->modules.emplace_back(m);
-    m_current_module = m;
+    m_current_segment = m;
 }
 
 std::string Parser::GetArgStr(int index)
@@ -3317,8 +3200,6 @@ void Parser::ProcessOgreStream(Ogre::DataStream* stream, Ogre::String resource_g
 
         this->ProcessRawLine(raw_line_buf);
     }
-
-    this->ChangeSection(SECTION_NONE);
 }
 
 void Parser::ProcessRawLine(const char* raw_line_buf)
@@ -3374,15 +3255,15 @@ void Parser::ProcessCommentLine()
         return;
     }
 
-    m_current_module->editor_groups.push_back(EditorGroup(name.ToCStr(), m_current_section));
+    m_current_segment->editor_groups.push_back(EditorGroup(name.ToCStr(), m_current_section));
 }
 
 int Parser::GetCurrentEditorGroup()
 {
-    if (!m_current_module->editor_groups.empty() &&
-        m_current_module->editor_groups.rbegin()->section == m_current_section)
+    if (!m_current_segment->editor_groups.empty() &&
+        m_current_segment->editor_groups.rbegin()->section == m_current_section)
     {
-        return (int)m_current_module->editor_groups.size() - 1;
+        return (int)m_current_segment->editor_groups.size() - 1;
     }
     else
     {

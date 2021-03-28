@@ -215,9 +215,9 @@ private:
         Truck::FlexBodyWheel* flexbodywheel_def;
 
         uint16_t               wheel_index;
-        uint16_t               base_node_index;
-        uint16_t               axis_node_1;
-        uint16_t               axis_node_2;
+        NodeIdx_t              base_node_index;
+        NodeIdx_t              axis_node_1;
+        NodeIdx_t              axis_node_2;
     };
 
 /* -------------------------------------------------------------------------- */
@@ -333,11 +333,6 @@ private:
     * Sections 'flares' and 'flares2'.
     */
     void ProcessFlare2(Truck::Flare2 & def);
-
-    /**
-    * Section 'flexbodies'.
-    */
-    void ProcessFlexbody(Truck::Flexbody& ref);
 
     /**
     * Section 'flexbodywheels'.
@@ -477,11 +472,6 @@ private:
     void ProcessSpeedLimiter(Truck::SpeedLimiter & def);
 
     /**
-    * Section 'submeshes'.
-    */
-    void ProcessSubmesh(Truck::Submesh & def);
-
-    /**
     * Section 'ties'.
     */
     void ProcessTie(Truck::Tie & def);
@@ -544,6 +534,7 @@ private:
     void ProcessCollisionRangePreset(int pos);
     void ProcessManagedMatOptions(int pos);
     void ProcessSkeletonSettings(int pos);
+    void ProcessFlexbodyForset(int pos);
 
 /* -------------------------------------------------------------------------- */
 /* Partial processing functions.                                              */
@@ -582,6 +573,8 @@ private:
     unsigned int AddWheel2(Truck::Wheel2 & wheel_2_def);
 
     void CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::string material_override="");
+    void ProcessSubmesh();
+    void ProcessBackmesh();
 
     RailGroup *CreateRail(std::vector<Truck::Node::Range> & node_ranges);
 
@@ -606,20 +599,6 @@ private:
     * @return True if there is space left.
     */
     bool CheckAxleLimit(unsigned int count);
-
-    /**
-    * Checks there is still space left in rig_t::subtexcoords, rig_t::subcabs and rig_t::subisback arrays.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
-    bool CheckSubmeshLimit(unsigned int count);
-
-    /**
-    * Checks there is still space left in rig_t::texcoords array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
-    bool CheckTexcoordLimit(unsigned int count);
 
     /**
     * Checks there is still space left in rig_t::cabs array.
@@ -1073,20 +1052,29 @@ private:
         bool        enable_advanced_deformation = false;
         int         lockgroup_default = NODE_LOCKGROUP_DEFAULT;
 
-        float       global_minimass=DEFAULT_MINIMASS;   //!< Keyword 'minimass' - does not change default minimass (only updates global fallback value)!
-        float       default_minimass=-1;                //!< Keyword 'set_default_minimass' - does not change global minimass!
+        float       global_minimass=DEFAULT_MINIMASS;   //!< 'minimass' - does not change default minimass (only updates global fallback value)!
+        float       default_minimass=-1;                //!< 'set_default_minimass' - does not change global minimass!
 
-        FlexBody*   last_flexbody = nullptr;            //!< Keyword 'flexbody_camera_mode' ~ not supporting flexbodywheels!
+        std::vector<CabTexcoord>         texcoords;       //!< 'texcoords'
+        int                              free_sub = 0;    //!< Counter of 'submesh' (+1) or 'backmesh' (+2)
+        std::vector<CabBackmeshType>     subisback;       //!< 'backmesh'
+        std::vector<int>                 subtexcoords;    //!< maps 'texcoords' to 'submesh'
+        std::vector<int>                 subcabs;         //!< maps 'cab' to 'submesh'
     };
+    std::map<std::string, NodeIdx_t> m_node_names;
+    FlexBody*                        m_last_flexbody = nullptr;
+    int                              m_next_flexbody = -1; //!< set by 'flexbody', reset by 'forset'
+    std::vector<RoR::Prop>           m_props;              //!< 'props', 'prop_camera_mode'
+
     ActorSpawnState                  m_state;
     Truck::ModulePtr                 m_cur_module;
     Truck::Keyword                   m_current_keyword; //!< For error reports
-    std::map<std::string, NodeIdx_t> m_node_names;
-    std::vector<RoR::Prop>           m_props;           //!< Keywords 'props', 'prop_camera_mode'
 
-    // Spawn
+    // Output
     Actor*             m_actor; //!< The output actor.
     
+    // ***** TO BE SORTED ******
+
     bool                           m_apply_simple_materials;
     std::string        m_cab_material_name; //!< Original name defined in truckfile/globals.
     std::string                    m_custom_resource_group;
@@ -1108,8 +1096,6 @@ private:
     Ogre::SceneNode*   m_curr_mirror_prop_scenenode;
     
     int                       m_driverseat_prop_index;
-    std::vector<CabTexcoord>  m_oldstyle_cab_texcoords;
-    std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;
     ActorMemoryRequirements   m_memory_requirements;
     std::vector<RoR::NodeGfx> m_gfx_nodes;
     CustomMaterial::MirrorPropType         m_curr_mirror_prop_type;

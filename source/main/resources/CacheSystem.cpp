@@ -669,7 +669,6 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
 {
     /* LOAD AND PARSE THE VEHICLE */
     Truck::Parser parser;
-    parser.Prepare();
     parser.ProcessOgreStream(stream.getPointer(), group);
 
     /* RETRIEVE DATA */
@@ -772,9 +771,9 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     // seek sequential data
-    for (Truck::SeqElement& elem: def->modules[0]->sequence)
+    for (Truck::SeqSection& elem: def->modules[0]->sequence)
     {
-        switch (elem.keyword)
+        switch (elem.section)
         {
         case Truck::KEYWORD_FORWARDCOMMANDS:
             entry.forwardcommands = true;
@@ -797,7 +796,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     entry.guid = def->guid;
-    entry.hasSubmeshs = static_cast<int>(def->modules[0]->submeshes.size() > 0);
+    entry.hasSubmeshs = static_cast<int>(def->modules[0]->cab.size() > 0);
     entry.nodecount = static_cast<int>(def->modules[0]->nodes.size());
     entry.beamcount = static_cast<int>(def->modules[0]->beams.size());
     entry.shockcount = static_cast<int>(def->modules[0]->shocks.size() + def->modules[0]->shocks_2.size());

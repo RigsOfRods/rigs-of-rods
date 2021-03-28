@@ -46,9 +46,9 @@ FlexObj::FlexObj(RoR::GfxActor* gfx_actor, node_t* all_nodes, std::vector<CabTex
         Ogre::SubMesh* submesh = m_mesh->createSubMesh();
         switch (submesh_defs[j].backmesh_type)
         {
-        case CabSubmesh::BACKMESH_OPAQUE:      submesh->setMaterialName(backtexname);  break;
-        case CabSubmesh::BACKMESH_TRANSPARENT: submesh->setMaterialName(transtexname); break;
-        default:                               submesh->setMaterialName(texname);
+        case BACKMESH_OPAQUE:      submesh->setMaterialName(backtexname);  break;
+        case BACKMESH_TRANSPARENT: submesh->setMaterialName(transtexname); break;
+        default:                   submesh->setMaterialName(texname);
         }
         m_submeshes.push_back(submesh);
     };

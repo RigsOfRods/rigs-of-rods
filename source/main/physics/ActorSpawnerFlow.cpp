@@ -53,7 +53,7 @@ using namespace RoR;
             break;                                                      \
         }                                                               \
     }                                                                   \
-    this->SetCurrentKeyword(Truck::KEYWORD_INVALID);                   \
+    this->SetCurrentKeyword(Truck::KEYWORD_NONE);                   \
 }
 
 #define PROCESS_SECTION_IN_ALL_MODULES(_KEYWORD_, _FIELD_, _FUNCTION_)  \
@@ -72,7 +72,7 @@ using namespace RoR;
             }                                                           \
         }                                                               \
     }                                                                   \
-    this->SetCurrentKeyword(Truck::KEYWORD_INVALID);                   \
+    this->SetCurrentKeyword(Truck::KEYWORD_NONE);                   \
 }
 
 Actor *ActorSpawner::SpawnActor(std::string const& config)
@@ -96,10 +96,10 @@ Actor *ActorSpawner::SpawnActor(std::string const& config)
     for (Truck::ModulePtr modul: m_selected_modules)
     {
         m_cur_module = modul;
-        for (Truck::SeqElement const& elem: modul->sequence)
+        for (Truck::SeqSection const& elem: modul->sequence)
         {
-            this->SetCurrentKeyword(elem.keyword);
-            switch (elem.keyword)
+            this->SetCurrentKeyword(elem.section);
+            switch (elem.section)
             {
                 // Global settings:
             case Truck::KEYWORD_FORWARDCOMMANDS:
@@ -128,6 +128,11 @@ Actor *ActorSpawner::SpawnActor(std::string const& config)
                 break;
             case Truck::KEYWORD_AUTHOR:
                 this->ProcessAuthor(elem.index);
+                break;
+            case Truck::KEYWORD_MINIMASS:
+                m_state.global_minimass = modul->minimass[elem.index].min_mass;
+                if (modul->minimass[elem.index].option_skip_loaded_nodes == 1)
+                    m_actor->ar_minimass_skip_loaded_nodes = true;
                 break;
 
                 // Presets:
@@ -241,12 +246,30 @@ Actor *ActorSpawner::SpawnActor(std::string const& config)
                 this->ProcessTorqueCurve(modul->torque_curve[elem.index]);
                 break;
 
+                // Visuals
+            case Truck::KEYWORD_TEXCOORDS:
+                m_state.texcoords.push_back({
+                    this->ResolveNodeRef(modul->texcoords[elem.index].node),
+                    modul->texcoords[elem.index].u,
+                    modul->texcoords[elem.index].v});
+                break;
+            case Truck::KEYWORD_SUBMESH:
+                this->ProcessSubmesh();
+                break;
+            case Truck::KEYWORD_BACKMESH:
+                this->ProcessBackmesh();
+                break;
+
             default:
                 break;
             }
         }
     }
     m_cur_module = nullptr;
+
+    //                          *************************
+    //                         CODE BELOW TO BE CLEANED UP
+    //                          *************************
 
 
     // Section 'guid' in root module: unused for gameplay
@@ -297,9 +320,6 @@ Actor *ActorSpawner::SpawnActor(std::string const& config)
 
     // Section 'interaxles'
     PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_INTERAXLES, interaxles, ProcessInterAxle);
-
-    // Section 'submeshes'
-    PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_SUBMESH, submeshes, ProcessSubmesh);
 
     // Section 'contacters'
     PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_CONTACTERS, contacters, ProcessContacter);
@@ -393,24 +413,36 @@ Actor *ActorSpawner::SpawnActor(std::string const& config)
     // Section 'fixes'
     PROCESS_SECTION_IN_ALL_MODULES(Truck::KEYWORD_FIXES, fixes, ProcessFixedNode);
 
+    // --------------------------------------------------------------------
+    // VISUALS SETUP - done separately so it can be parallelized in the future.
+    // --------------------------------------------------------------------
+
     this->CreateGfxActor(); // Required in sections below
 
     // Some things need to be processed in order
+
     for (Truck::ModulePtr modul: m_selected_modules)
     {
         m_cur_module = modul;
-        for (Truck::SeqElement const& elem: modul->sequence)
+        for (Truck::SeqSection const& elem: modul->sequence)
         {
-            switch (elem.keyword)
+            switch (elem.section)
             {
             case Truck::KEYWORD_FLEXBODIES:
-                this->ProcessFlexbody(modul->flexbodies[elem.index]); // needs GfxActor to exist
+                if (m_next_flexbody != -1)
+                {
+                    this->AddMessage(Message::TYPE_WARNING, "Missing 'forset' after 'flexbody'.");
+                }
+                m_next_flexbody = elem.index;
                 break;
             case Truck::KEYWORD_FLEXBODY_CAMERA_MODE:
-                if (m_state.last_flexbody)
+                if (m_last_flexbody)
                 {
-                    m_state.last_flexbody->setCameraMode(modul->flexbody_camera_mode[elem.index]);
+                    m_last_flexbody->setCameraMode(modul->flexbody_camera_mode[elem.index]);
                 }
+                break;
+            case Truck::KEYWORD_FORSET:
+                this->ProcessFlexbodyForset(elem.index); // needs GfxActor to exist
                 break;
 
             case Truck::KEYWORD_PROPS:

@@ -43,7 +43,7 @@ FlexBody::FlexBody(
     NodeIdx_t nx,
     NodeIdx_t ny,
     Ogre::Quaternion const & rot,
-    std::vector<unsigned int> & node_indices
+    std::vector<NodeIdx_t> & node_indices
 ):
       m_camera_mode(-2)
     , m_center_offset(def->offset)

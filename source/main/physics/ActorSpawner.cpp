@@ -98,7 +98,7 @@ void ActorSpawner::Setup(
     m_file = file;
     m_particles_parent_scenenode = parent;
     m_spawn_position = spawn_position;
-    m_current_keyword = Truck::KEYWORD_INVALID;
+    m_current_keyword = Truck::KEYWORD_NONE;
     m_wing_area = 0.f;
     m_fuse_z_min = 1000.0f;
     m_fuse_z_max = -1000.0f;
@@ -1301,195 +1301,13 @@ void ActorSpawner::ProcessExhaust(Truck::Exhaust & def)
     m_actor->exhausts.push_back(exhaust);
 }
 
-void ActorSpawner::ProcessSubmesh(Truck::Submesh & def)
+void ActorSpawner::ProcessFlexbodyForset(int pos)
 {
-    if (! CheckSubmeshLimit(1))
-    {
-        return;
-    }
+    Truck::Flexbody* def = &m_cur_module->flexbodies[m_next_flexbody];
+    m_next_flexbody = -1;
 
-    /* TEXCOORDS */
-
-    std::vector<Truck::Texcoord>::iterator texcoord_itor = def.texcoords.begin();
-    for ( ; texcoord_itor != def.texcoords.end(); texcoord_itor++)
-    {
-        if (! CheckTexcoordLimit(1))
-        {
-            break;
-        }
-
-        CabTexcoord texcoord;
-        texcoord.node_id    = GetNodeIndexOrThrow(texcoord_itor->node);
-        texcoord.texcoord_u = texcoord_itor->u;
-        texcoord.texcoord_v = texcoord_itor->v;
-        m_oldstyle_cab_texcoords.push_back(texcoord);
-    }
-
-    /* CAB */
-
-    auto cab_itor = def.cab_triangles.begin();
-    auto cab_itor_end = def.cab_triangles.end();
-    for ( ; cab_itor != cab_itor_end; ++cab_itor)
-    {
-        if (! CheckCabLimit(1))
-        {
-            return;
-        }
-        else if (m_actor->ar_num_collcabs >= MAX_CABS)
-        {
-            std::stringstream msg;
-            msg << "Collcab limit (" << MAX_CABS << ") exceeded";
-            AddMessage(Message::TYPE_ERROR, msg.str());
-            return;
-        }
-
-        bool mk_buoyance = false;
-
-        m_actor->ar_cabs[m_actor->ar_num_cabs*3]=GetNodeIndexOrThrow(cab_itor->nodes[0]);
-        m_actor->ar_cabs[m_actor->ar_num_cabs*3+1]=GetNodeIndexOrThrow(cab_itor->nodes[1]);
-        m_actor->ar_cabs[m_actor->ar_num_cabs*3+2]=GetNodeIndexOrThrow(cab_itor->nodes[2]);
-
-        // TODO: Clean this up properly ~ ulteq 10/2018
-        if (BITMASK_IS_1(cab_itor->options, Truck::Cab::OPTION_c_CONTACT) ||
-            BITMASK_IS_1(cab_itor->options, Truck::Cab::OPTION_p_10xTOUGHER) ||
-            BITMASK_IS_1(cab_itor->options, Truck::Cab::OPTION_u_INVULNERABLE))
-        {
-            m_actor->ar_collcabs[m_actor->ar_num_collcabs]=m_actor->ar_num_cabs;
-            m_actor->ar_num_collcabs++;
-        }
-        if (BITMASK_IS_1(cab_itor->options, Truck::Cab::OPTION_b_BUOYANT))
-        {
-            m_actor->ar_buoycabs[m_actor->ar_num_buoycabs]=m_actor->ar_num_cabs; 
-            m_actor->ar_buoycab_types[m_actor->ar_num_buoycabs]=Buoyance::BUOY_NORMAL; 
-            m_actor->ar_num_buoycabs++;   
-            mk_buoyance = true;
-        }
-        if (BITMASK_IS_1(cab_itor->options, Truck::Cab::OPTION_r_BUOYANT_ONLY_DRAG))
-        {
-            m_actor->ar_buoycabs[m_actor->ar_num_buoycabs]=m_actor->ar_num_cabs; 
-            m_actor->ar_buoycab_types[m_actor->ar_num_buoycabs]=Buoyance::BUOY_DRAGONLY; 
-            m_actor->ar_num_buoycabs++; 
-            mk_buoyance = true;
-        }
-        if (BITMASK_IS_1(cab_itor->options, Truck::Cab::OPTION_s_BUOYANT_NO_DRAG))
-        {
-            m_actor->ar_buoycabs[m_actor->ar_num_buoycabs]=m_actor->ar_num_cabs; 
-            m_actor->ar_buoycab_types[m_actor->ar_num_buoycabs]=Buoyance::BUOY_DRAGLESS; 
-            m_actor->ar_num_buoycabs++; 
-            mk_buoyance = true;
-        }
-
-        if (cab_itor->GetOption_D_ContactBuoyant() ||
-            cab_itor->GetOption_F_10xTougherBuoyant() ||
-            cab_itor->GetOption_S_UnpenetrableBuoyant())
-        {
-
-            if (m_actor->ar_num_collcabs >= MAX_CABS)
-            {
-                std::stringstream msg;
-                msg << "Collcab limit (" << MAX_CABS << ") exceeded";
-                AddMessage(Message::TYPE_ERROR, msg.str());
-                return;
-            }
-            else if (m_actor->ar_num_buoycabs >= MAX_CABS)
-            {
-                std::stringstream msg;
-                msg << "Buoycab limit (" << MAX_CABS << ") exceeded";
-                AddMessage(Message::TYPE_ERROR, msg.str());
-                return;
-            }
-
-            m_actor->ar_collcabs[m_actor->ar_num_collcabs]=m_actor->ar_num_cabs;
-            m_actor->ar_num_collcabs++;
-            m_actor->ar_buoycabs[m_actor->ar_num_buoycabs]=m_actor->ar_num_cabs; 
-            m_actor->ar_buoycab_types[m_actor->ar_num_buoycabs]=Buoyance::BUOY_NORMAL; 
-            m_actor->ar_num_buoycabs++; 
-            mk_buoyance = true;
-        }
-
-        if (mk_buoyance && (m_actor->m_buoyance == nullptr))
-        {
-            Buoyance* buoy = new Buoyance(App::GetGfxScene()->GetDustPool("splash"), App::GetGfxScene()->GetDustPool("ripple"));
-            m_actor->m_buoyance.reset(buoy);
-        }
-        m_actor->ar_num_cabs++;
-    }
-
-    //close the current mesh
-    CabSubmesh submesh;
-    submesh.texcoords_pos = m_oldstyle_cab_texcoords.size();
-    submesh.cabs_pos = static_cast<unsigned int>(m_actor->ar_num_cabs);
-    submesh.backmesh_type = CabSubmesh::BACKMESH_NONE;
-    m_oldstyle_cab_submeshes.push_back(submesh);
-
-    /* BACKMESH */
-
-    if (def.backmesh)
-    {
-
-        // Check limit
-        if (! CheckCabLimit(1))
-        {
-            return;
-        }
-
-        // === add an extra front mesh ===
-        //texcoords
-        int uv_start = (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->texcoords_pos);
-        for (size_t i=uv_start; i<m_oldstyle_cab_submeshes.back().texcoords_pos; i++)
-        {
-            m_oldstyle_cab_texcoords.push_back(m_oldstyle_cab_texcoords[i]);
-        }
-        //cab
-        int cab_start =  (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->cabs_pos);
-        for (size_t i=cab_start; i<m_oldstyle_cab_submeshes.back().cabs_pos; i++)
-        {
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3]=m_actor->ar_cabs[i*3];
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3+1]=m_actor->ar_cabs[i*3+1];
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3+2]=m_actor->ar_cabs[i*3+2];
-            m_actor->ar_num_cabs++;
-        }
-        // Finalize
-        CabSubmesh submesh;
-        submesh.backmesh_type = CabSubmesh::BACKMESH_TRANSPARENT;
-        submesh.texcoords_pos = m_oldstyle_cab_texcoords.size();
-        submesh.cabs_pos      = static_cast<unsigned int>(m_actor->ar_num_cabs);
-        m_oldstyle_cab_submeshes.push_back(submesh);
-
-        // === add an extra back mesh ===
-        //texcoords
-        uv_start = (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->texcoords_pos);
-        for (size_t i=uv_start; i<m_oldstyle_cab_submeshes.back().texcoords_pos; i++)
-        {
-            m_oldstyle_cab_texcoords.push_back(m_oldstyle_cab_texcoords[i]);
-        }
-
-        //cab
-        cab_start =  (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->cabs_pos);
-        for (size_t i=cab_start; i<m_oldstyle_cab_submeshes.back().cabs_pos; i++)
-        {
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3]=m_actor->ar_cabs[i*3+1];
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3+1]=m_actor->ar_cabs[i*3];
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3+2]=m_actor->ar_cabs[i*3+2];
-            m_actor->ar_num_cabs++;
-        }
-    
-        //close the current mesh
-        CabSubmesh submesh2;
-        submesh2.texcoords_pos = m_oldstyle_cab_texcoords.size();
-        submesh2.cabs_pos = static_cast<unsigned int>(m_actor->ar_num_cabs);
-        submesh2.backmesh_type = CabSubmesh::BACKMESH_OPAQUE;
-        m_oldstyle_cab_submeshes.push_back(submesh2);
-    }
-}
-
-void ActorSpawner::ProcessFlexbody(Truck::Flexbody& ref)
-{
-    Truck::Flexbody* def = &ref; // clean this up!
-
-    // Collect nodes
-    std::vector<unsigned int> node_indices; // TODO use NodeIdx_t
-    for (Truck::Node::Range range: def->forset)
+    std::vector<NodeIdx_t> nodes;
+    for (Truck::Node::Range range: m_cur_module->forset[pos])
     {
         auto start_res = this->GetNodeIndex(range.start);
         auto end_res = this->GetNodeIndex(range.end);
@@ -1501,7 +1319,7 @@ void ActorSpawner::ProcessFlexbody(Truck::Flexbody& ref)
 
         for (NodeIdx_t i = start_res.first; i != end_res.first; ++i)
         {
-            node_indices.push_back(i);
+            nodes.push_back(i);
         }
     }
 
@@ -1521,14 +1339,12 @@ void ActorSpawner::ProcessFlexbody(Truck::Flexbody& ref)
     try
     {
         auto* flexbody = m_flex_factory.CreateFlexBody(
-            def, reference_node, x_axis_node, y_axis_node, rot, node_indices, m_custom_resource_group);
+            def, reference_node, x_axis_node, y_axis_node, rot, nodes, m_custom_resource_group);
 
         if (flexbody == nullptr)
             return; // Error already logged
 
-
-
-        m_state.last_flexbody = flexbody;
+        m_last_flexbody = flexbody;
         m_actor->GetGfxActor()->AddFlexbody(flexbody);
     }
     catch (Ogre::Exception& e)
@@ -5223,6 +5039,74 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
     m_beam_visuals_queue.emplace_back(beam_index, m_state.default_beam_diameter, material_name.c_str(), visible);
 }
 
+void ActorSpawner::ProcessSubmesh()
+{
+    //close the current mesh
+    m_state.subtexcoords.push_back((int)m_state.texcoords.size());
+    m_state.subcabs.push_back(m_actor->ar_num_cabs);
+    m_state.free_sub++;
+
+    //initialize the next
+    m_state.subisback.push_back(BACKMESH_NONE);
+}
+
+void ActorSpawner::ProcessBackmesh()
+{
+    //close the current mesh
+    m_state.subtexcoords.push_back((int)m_state.texcoords.size());
+    m_state.subcabs.push_back(m_actor->ar_num_cabs);
+
+    //make it normal
+    m_state.subisback.push_back(BACKMESH_NONE);
+    m_state.free_sub++;
+
+
+    //add an extra front mesh
+    int start;
+    //texcoords
+    if (m_state.free_sub==1) start=0; else start=m_state.subtexcoords[m_state.free_sub-2];
+    for (int i=start; i<m_state.subtexcoords[m_state.free_sub-1]; i++)
+    {
+        m_state.texcoords.push_back(m_state.texcoords[i]);
+    }
+    //cab
+    if (m_state.free_sub==1) start=0; else start=m_state.subcabs[m_state.free_sub-2];
+    for (int i=start; i<m_state.subcabs[m_state.free_sub-1]; i++)
+    {
+        m_actor->ar_cabs[m_actor->ar_num_cabs] = m_actor->ar_cabs[i*3];
+        m_actor->ar_cabs[m_actor->ar_num_cabs] = m_actor->ar_cabs[i*3+1];
+        m_actor->ar_cabs[m_actor->ar_num_cabs] = m_actor->ar_cabs[i*3+2];
+        m_actor->ar_num_cabs++;
+    }
+    //finish it, this is a window
+    m_state.subisback.push_back(BACKMESH_TRANSPARENT);
+    //close the current mesh
+    m_state.subtexcoords.push_back((int)m_state.texcoords.size());
+    m_state.subcabs.push_back(m_actor->ar_num_cabs);
+    //make is transparent
+    m_state.free_sub++;
+
+
+    //add an extra back mesh
+    //texcoords
+    if (m_state.free_sub==1) start=0; else start=m_state.subtexcoords[m_state.free_sub-2];
+    for (int i=start; i<m_state.subtexcoords[m_state.free_sub-1]; i++)
+    {
+        m_state.texcoords.push_back(m_state.texcoords[i]);
+    }
+    //cab
+    if (m_state.free_sub==1) start=0; else start=m_state.subcabs[m_state.free_sub-2];
+    for (int i=start; i<m_state.subcabs[m_state.free_sub-1]; i++)
+    {
+        m_actor->ar_cabs[m_actor->ar_num_cabs] = m_actor->ar_cabs[i*3];
+        m_actor->ar_cabs[m_actor->ar_num_cabs] = m_actor->ar_cabs[i*3+1];
+        m_actor->ar_cabs[m_actor->ar_num_cabs] = m_actor->ar_cabs[i*3+2];
+        m_actor->ar_num_cabs++;
+    }
+    //we don't finish, there will be a submesh statement later
+    m_state.subisback.push_back(BACKMESH_OPAQUE);
+}
+
 void ActorSpawner::CalculateBeamLength(beam_t & beam)
 {
     float beam_length = (beam.p1->RelPosition - beam.p2->RelPosition).length();
@@ -5234,8 +5118,6 @@ void ActorSpawner::InitBeam(beam_t & beam, node_t *node_1, node_t *node_2)
 {
     beam.p1 = node_1;
     beam.p2 = node_2;
-
-    /* Length */
     CalculateBeamLength(beam);
 }
 
@@ -5243,7 +5125,7 @@ void ActorSpawner::AddMessage(ActorSpawner::Message::Type type,	Ogre::String con
 {
     Str<4000> txt;
     txt << m_file->name;
-    if (m_current_keyword != Truck::KEYWORD_INVALID)
+    if (m_current_keyword != Truck::KEYWORD_NONE)
     {
         txt << " (" << Truck::Document::KeywordToString(m_current_keyword) << ")";
     }
@@ -5487,10 +5369,10 @@ void ActorSpawner::ProcessCinecam(Truck::Cinecam & def)
     camera_node.nd_no_ground_contact = true; // Orig: hardcoded in BTS_CINECAM
     camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT; // Node defaults are ignored here.
     AdjustNodeBuoyancy(camera_node);
-    camera_node.volume_coef   = m_state.default_node_surface;
-    camera_node.surface_coef  = m_state.default_node_surface;
+    camera_node.volume_coef   = NODE_SURFACE_COEF_DEFAULT;
+    camera_node.surface_coef  = NODE_VOLUME_COEF_DEFAULT;
 
-    m_actor->ar_minimass[camera_node.pos] = m_cur_minimass_preset.min_mass;
+    m_actor->ar_minimass[camera_node.pos] = m_state.default_minimass;
 
     m_actor->ar_cinecam_node[m_actor->ar_num_cinecams] = camera_node.pos;
     m_actor->ar_cinecam_node_predef_mass[m_actor->ar_num_cinecams] = camera_node.mass;
@@ -5573,30 +5455,6 @@ bool ActorSpawner::CheckAxleLimit(unsigned int count)
     {
         std::stringstream msg;
         msg << "Axle limit (" << MAX_WHEELS/2 << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
-bool ActorSpawner::CheckSubmeshLimit(unsigned int count)
-{
-    if ((m_oldstyle_cab_submeshes.size() + count) > MAX_SUBMESHES)
-    {
-        std::stringstream msg;
-        msg << "Submesh limit (" << MAX_SUBMESHES << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
-bool ActorSpawner::CheckTexcoordLimit(unsigned int count)
-{
-    if ((m_oldstyle_cab_texcoords.size() + count) > MAX_TEXCOORDS)
-    {
-        std::stringstream msg;
-        msg << "Texcoord limit (" << MAX_TEXCOORDS << ") exceeded";
         AddMessage(Message::TYPE_ERROR, msg.str());
         return false;
     }
@@ -6228,7 +6086,7 @@ void ActorSpawner::FinalizeGfxSetup()
         {
             this->SetCurrentKeyword(Truck::KEYWORD_VIDEOCAMERA); // Logging
             this->CreateVideoCamera(entry.second.video_camera_def);
-            this->SetCurrentKeyword(Truck::KEYWORD_INVALID); // Logging
+            this->SetCurrentKeyword(Truck::KEYWORD_NONE); // Logging
         }
     }
 
@@ -6335,10 +6193,9 @@ void ActorSpawner::FinalizeGfxSetup()
         m_actor->m_gfx_actor->AddRod(bv.beam_index, node1, node2, bv.material_name.c_str(), bv.visible, bv.diameter);
     }
 
+
     //add the cab visual
-    // TODO: The 'cab mesh' functionality is a legacy quagmire, 
-    //        data are scattered across `Actor`, `GfxActor` and `FlexObj` - research and unify!! ~ only_a_ptr, 04/2018
-    if (!m_oldstyle_cab_texcoords.empty() && m_actor->ar_num_cabs>0)
+    if (m_state.texcoords.size() > 0 && m_actor->ar_num_cabs > 0)
     {
         //the cab materials are as follow:
         //texname: base texture with emissive(2 pass) or without emissive if none available(1 pass), alpha cutting
@@ -6402,16 +6259,26 @@ void ActorSpawner::FinalizeGfxSetup()
         }
         backmat->compile();
 
+        // Convert retro-style defs to modern-style defs
+        std::vector<CabSubmesh> submeshes;
+        for (int i = 0; i < m_state.free_sub; i++)
+        {
+            CabSubmesh submesh;
+            submesh.backmesh_type = m_state.subisback[i];
+            submesh.cabs_pos = m_state.subcabs[i];
+            submesh.texcoords_pos = m_state.subtexcoords[i];
+        }
+
         char cab_material_name_cstr[1000] = {};
         strncpy(cab_material_name_cstr, m_cab_material_name.c_str(), 999);
         std::string mesh_name = this->ComposeName("VehicleCabMesh", 0);
         FlexObj* cab_mesh =new FlexObj(
             m_actor->m_gfx_actor.get(),
             m_actor->ar_nodes,
-            m_oldstyle_cab_texcoords,
+            m_state.texcoords,
             m_actor->ar_num_cabs,
             m_actor->ar_cabs,
-            m_oldstyle_cab_submeshes,
+            submeshes,
             cab_material_name_cstr,
             mesh_name.c_str(),
             backmatname,
@@ -6499,7 +6366,7 @@ void ActorSpawner::FinalizeGfxSetup()
                 );
 
             int num_nodes = def.num_rays * 4;
-            std::vector<unsigned int> node_indices;
+            std::vector<NodeIdx_t> node_indices;
             node_indices.reserve(num_nodes);
             for (int i = 0; i < num_nodes; ++i)
             {

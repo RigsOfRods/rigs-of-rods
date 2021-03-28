@@ -737,9 +737,14 @@ struct Flexbody
     Ogre::Vector3 rotation;
     Ogre::String mesh_name;
     std::list<Animation> animations;
-    std::vector<Node::Range> forset;
     int cameramode = 0;
 };
+
+/* -------------------------------------------------------------------------- */
+/* Section FORSET                                                             */
+/* -------------------------------------------------------------------------- */
+
+typedef std::vector<Node::Range> ForSet;
 
 /* -------------------------------------------------------------------------- */
 /* Section FLEX_BODY_WHEELS                                                   */
@@ -1119,7 +1124,7 @@ struct SpeedLimiter
 };
 
 /* -------------------------------------------------------------------------- */
-/* Section SUBMESH                                                            */
+/* Section CAB                                                            */
 /* -------------------------------------------------------------------------- */
 
 struct Cab
@@ -1154,6 +1159,10 @@ struct Cab
     unsigned int options;
 };
 
+/* -------------------------------------------------------------------------- */
+/* Section TEXCOORDS                                                            */
+/* -------------------------------------------------------------------------- */
+
 struct Texcoord
 {
     Texcoord():
@@ -1164,17 +1173,6 @@ struct Texcoord
     Node::Ref node;
     float u;
     float v;
-};
-
-struct Submesh
-{
-    Submesh():
-        backmesh(false)
-    {}
-
-    bool backmesh;
-    std::vector<Texcoord> texcoords;
-    std::vector<Cab> cab_triangles;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -1318,9 +1316,9 @@ struct Wing
 /// Special comment ';grp:'
 struct EditorGroup
 {
-    EditorGroup(const char* _name, Section sect): name(_name), section(sect) {}
+    EditorGroup(const char* _name, Keyword sect): name(_name), section(sect) {}
     std::string name;
-    Section section;
+    Keyword section;
 };
 
 /// Section 'minimass' - does not affect 'set_default_minimass'!
@@ -1344,7 +1342,7 @@ struct Module
     std::vector<int>                   fileformatversion;
 
     // Sequential ordering
-    std::vector<SeqElement>            sequence;                   //!< Just references to other data arrays (most, but not all of them).
+    std::vector<SeqSection>            sequence;                   //!< Just references to other data arrays (most, but not all of them).
 
     // Presets
     std::vector<BeamDefaults>          beam_defaults;              //!< Keyword 'set_beam_defaults'
@@ -1425,6 +1423,7 @@ struct Module
     std::vector<Screwprop>             screwprops;
 
     // General physics
+    std::vector<Camera>                cameras; //!< Important for physics, define reference XYZ axes for whole vehicle (and camera views).
     std::vector<CollisionBox>          collision_boxes;
     std::vector<Globals>               globals;
     std::vector<Rotator>               rotators;
@@ -1432,18 +1431,19 @@ struct Module
     std::vector<SlopeBrake>            slope_brake;
     std::vector<std::string>           submesh_groundmodel;
     std::vector<Minimass>              minimass; //!< Does not affect 'set_default_minimas' presets, only provides fallback for nodes where 'set_default_minimass' was not used (for backwards compatibility).
+    std::vector<Texcoord>              texcoords;
+    std::vector<Cab>                   cab; //!< Collision cab triangles
 
     // Look and feel
-    std::vector<Camera>                cameras;
     std::vector<CameraRail>            camera_rails;
     std::vector<Exhaust>               exhausts;
     std::vector<Flare2>                flares_2;
     std::vector<Flexbody>              flexbodies;
+    std::vector<ForSet>                forset;
     std::vector<ManagedMaterial>       managed_materials;
     std::vector<MaterialFlareBinding>  material_flare_bindings;
     std::vector<Particle>              particles;
     std::vector<Prop>                  props;
-    std::vector<Submesh>               submeshes;
     std::vector<SoundSource>           soundsources;
     std::vector<SoundSource2>          soundsources2;
     std::vector<VideoCamera>           videocameras;
@@ -1452,8 +1452,6 @@ struct Module
 
 struct Document
 {
-    static const char* SubsectionToString(Subsection subsection);
-    static const char* SectionToString(Section section);
     static const char* KeywordToString(Keyword keyword);
 
     std::vector<Truck::ModulePtr> modules;        //!< Partitions of truck file (keyword 'section')
