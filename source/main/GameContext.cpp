@@ -107,7 +107,7 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
     // Initialize envmap textures by rendering center of map
     Ogre::Vector3 center = App::GetSimTerrain()->getMaxTerrainSize() / 2;
     center.y = App::GetSimTerrain()->GetHeightAt(center.x, center.z) + 1.0f;
-    App::GetGfxScene()->GetEnvMap().UpdateEnvMap(center, nullptr);
+    App::GetGfxScene()->GetEnvMap().UpdateEnvMap(center, /*gfx_actor:*/nullptr, /*full:*/true);
 
     // Scan groundmodels
     App::GetGuiManager()->GetFrictionSettings()->AnalyzeTerrain();
