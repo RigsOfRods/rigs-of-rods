@@ -115,17 +115,14 @@ void GameMainMenu::DrawMenuPanel()
     {
         int button_index = 0;
         ImVec2 btn_size(WINDOW_WIDTH, 0.f);
-        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+        if (App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
         {
             if (HighlightButton(_LC("MainMenu", "Single player"), btn_size, button_index++))
             {
                 this->SetVisible(false);
-                if (App::diag_preset_terrain->GetStr().empty())
-                {
-                    RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
-                    m.payload = reinterpret_cast<void*>(new LoaderType(LT_Terrain));
-                    App::GetGameContext()->PushMessage(m);
-                }
+                RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+                m.payload = reinterpret_cast<void*>(new LoaderType(LT_Terrain));
+                App::GetGameContext()->PushMessage(m);
             }
         }
 
@@ -146,21 +143,7 @@ void GameMainMenu::DrawMenuPanel()
             }
         }
 
-        if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION && App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
-        {
-            if ( HighlightButton(_LC("MainMenu", "Change map"), btn_size, button_index++))
-            {
-                this->SetVisible(false);
-                if (App::diag_preset_terrain->GetStr().empty())
-                {
-                    RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
-                    m.payload = reinterpret_cast<void*>(new LoaderType(LT_Terrain));
-                    App::GetGameContext()->PushMessage(m);
-                }
-            }
-        }
-
-        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU || App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
         {
             if (HighlightButton(_LC("MainMenu", "Multiplayer"), btn_size, button_index++))
             {
@@ -168,6 +151,18 @@ void GameMainMenu::DrawMenuPanel()
                 this->SetVisible(false);
             }
 
+            if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+            {
+                App::GetGuiManager()->RequestGuiCaptureKeyboard(true);
+                if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
+                {
+                    this->SetVisible(false);
+                }
+            }
+        }
+
+        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+        {
             if (HighlightButton(_LC("MainMenu", "Settings"), btn_size, button_index++))
             {
                 App::GetGuiManager()->SetVisible_GameSettings(true);
@@ -182,21 +177,6 @@ void GameMainMenu::DrawMenuPanel()
         }
         else
         {
-            if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
-            {
-                App::GetGuiManager()->RequestGuiCaptureKeyboard(true);
-                if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
-                {
-                    this->SetVisible(false);
-                }
-
-                if (HighlightButton(_LC("MainMenu", "Change server"), btn_size, button_index++))
-                {
-                    App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
-                    this->SetVisible(false);
-                }
-            }
-
             if (HighlightButton(_L("Return to menu"), btn_size, button_index++))
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
