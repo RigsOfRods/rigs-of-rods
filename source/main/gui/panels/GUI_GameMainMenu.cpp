@@ -52,6 +52,11 @@ void GameMainMenu::Draw()
     }
 }
 
+void GameMainMenu::CacheUpdatedNotice()
+{
+  cache_updated = true;
+}
+
 void GameMainMenu::DrawMenuPanel()
 {
     if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
@@ -221,9 +226,14 @@ void GameMainMenu::DrawVersionBox()
         ImGuiWindowFlags_NoInputs;
     if (ImGui::Begin(_LC("MainMenu", "Version box"), nullptr, flags))
     {
+        if (cache_updated)
+        {
+            ImGui::Text("%s", "Cache updated");
+        }
         ImGui::Text("%s", game_ver.c_str());
         ImGui::Text("%s", rornet_ver.c_str());
         ImGui::End();
+
     }
     ImGui::PopStyleColor(1);
 }

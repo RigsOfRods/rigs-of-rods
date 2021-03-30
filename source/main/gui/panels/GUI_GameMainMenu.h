@@ -44,6 +44,7 @@ public:
     inline bool   IsVisible() const                { return m_is_visible; }
     inline void   SetVisible(bool v)               { m_is_visible = v; m_kb_focus_index = -1; }
     void          Draw();
+    void          CacheUpdatedNotice();
 
 private:
 
@@ -51,11 +52,12 @@ private:
     void          DrawVersionBox();
     bool          HighlightButton(const std::string &text, ImVec2 btn_size, int index) const;
 
-    bool   m_is_visible;
-    int    m_num_buttons;
-    int    m_kb_focus_index; // -1 = no focus; 0+ = button index
-    int    m_kb_enter_index; // Focus positon when enter key was pressed.
-    const char* title;
+    bool          m_is_visible;
+    int           m_num_buttons;
+    int           m_kb_focus_index; // -1 = no focus; 0+ = button index
+    int           m_kb_enter_index; // Focus positon when enter key was pressed.
+    const char*   title;
+    bool          cache_updated = false;
 };
 
 } // namespace GUI
