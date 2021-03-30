@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-03-22 14:46+0100\n"
-"PO-Revision-Date: 2021-03-10 23:20+0000\n"
+"PO-Revision-Date: 2021-03-31 11:27+0000\n"
 "Last-Translator: Joaquin Gomez <joa97@hotmail.com.ar>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/es/>\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.5.2-dev\n"
+"X-Generator: Weblate 4.6-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:407 AppContext.cpp:425
 #: AppContext.cpp:476 AppContext.cpp:490 AppContext.cpp:501
@@ -2488,6 +2488,7 @@ msgstr "No se ha podido leer el archivo del juego guardado"
 #: main.cpp:568
 msgid "Not loading different terrain while in Multiplayer"
 msgstr ""
+"No se cargan diferentes terrenos mientras se está en el modo multijugador"
 
 #: main.cpp:664
 msgid "Entered terrain editing mode"
@@ -2516,16 +2517,12 @@ msgid "disconnected: remote side closed the connection"
 msgstr "Desconectado: el sitio remoto cerró la conexión"
 
 #: network/Network.cpp:314
-#, fuzzy
-#| msgid " left the game"
 msgid "left the game"
-msgstr " se marchó del juego"
+msgstr "se marchó del juego"
 
 #: network/Network.cpp:344
-#, fuzzy
-#| msgid " joined the game"
 msgid "joined the game"
-msgstr " se unió al juego"
+msgstr "se unió al juego"
 
 #. Mark connect thread as started
 #: network/Network.cpp:397
@@ -2703,10 +2700,8 @@ msgid "Network error!"
 msgstr "¡Error de red!"
 
 #: physics/ActorManager.cpp:406
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgid "spawned a new vehicle: "
-msgstr " ha generado un nuevo vehículo: "
+msgstr "ha generado un nuevo vehículo: "
 
 #: physics/ActorManager.cpp:416
 msgid "Mod not installed: "
@@ -2827,7 +2822,7 @@ msgstr "Máquina"
 #: resources/CacheSystem.cpp:440
 msgctxt "MainSelector"
 msgid "A.I."
-msgstr ""
+msgstr "I.A."
 
 #: resources/CacheSystem.cpp:935
 msgid "Loading zips in group "
