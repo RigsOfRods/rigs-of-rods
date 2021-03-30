@@ -244,7 +244,7 @@ void GameMainMenu::DrawVersionBox()
 
 void GameMainMenu::DrawNoticeBox()
 {
-    Ogre::TexturePtr down_tex = this->FetchIcon("accept.png");
+    Ogre::TexturePtr tex = this->FetchIcon("accept.png");
 
     const float margin = ImGui::GetIO().DisplaySize.y / 30.f;
     std::string game_ver   = fmt::format("{}: {}", _LC("MainMenu", "Game version"), ROR_VERSION_STRING); // needed to align with VersionBox
@@ -263,7 +263,7 @@ void GameMainMenu::DrawNoticeBox()
         ImGuiWindowFlags_NoInputs;
     if (ImGui::Begin(_LC("MainMenu", "Notice box"), nullptr, flags))
     {
-        ImGui::Image(reinterpret_cast<ImTextureID>(down_tex->getHandle()), ImVec2(16, 16));
+        ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(16, 16));
         ImGui::SameLine();
         ImGui::Text("%s", "Cache updated");
         ImGui::End();
