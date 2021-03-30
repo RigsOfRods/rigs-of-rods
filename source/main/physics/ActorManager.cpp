@@ -259,7 +259,10 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     actor->ToggleLights();
     actor->GetGfxActor()->SetDebugView((GfxActor::DebugViewType)rq.asr_debugview);
 
-    if (actor->isPreloadedWithTerrain() || rq.asr_origin == ActorSpawnRequest::Origin::CONFIG_FILE)
+    // perform full visual update only if the vehicle won't be immediately driven by player.
+    if (actor->isPreloadedWithTerrain() ||                         // .tobj file - Spawned sleeping somewhere on terrain
+        rq.asr_origin == ActorSpawnRequest::Origin::CONFIG_FILE || // RoR.cfg or commandline - not entered by default
+        actor->ar_num_cinecams == 0)                               // Not intended for player-controlling
     {
         actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill of sim data buffers
 
@@ -268,6 +271,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
         actor->GetGfxActor()->UpdateCabMesh();
         actor->GetGfxActor()->UpdateWingMeshes();
         actor->GetGfxActor()->UpdateProps(0.f, false);
+        actor->GetGfxActor()->UpdateRods(); // beam visuals
         actor->GetGfxActor()->FinishWheelUpdates(); // Sync tasks from threadpool
         actor->GetGfxActor()->FinishFlexbodyTasks(); // Sync tasks from threadpool
     }
