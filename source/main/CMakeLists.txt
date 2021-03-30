@@ -134,7 +134,6 @@ set(SOURCE_FILES
         gui/panels/GUI_GameAbout.{h,cpp}
         gui/panels/GUI_GameChatBox.{h,cpp}
         gui/panels/GUI_GameMainMenu.{h,cpp}
-        gui/panels/GUI_GamePauseMenu.{h,cpp}
         gui/panels/GUI_GameSettings.{h,cpp}
         gui/panels/GUI_MainSelector.{h,cpp}
         gui/panels/GUI_MessageBox.{h,cpp}

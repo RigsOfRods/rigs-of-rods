@@ -31,6 +31,7 @@
 #include "ContentManager.h"
 #include "ErrorUtils.h"
 #include "GUI_LoadingWindow.h"
+#include "GUI_GameMainMenu.h"
 #include "GUIManager.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
@@ -956,6 +957,7 @@ void CacheSystem::ParseZipArchives(String group)
     }
 
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
+    App::GetGuiManager()->GetMainMenu()->CacheUpdatedNotice();
 }
 
 void CacheSystem::ParseSingleZip(String path)

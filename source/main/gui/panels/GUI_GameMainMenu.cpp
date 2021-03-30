@@ -40,22 +40,51 @@ using namespace RoR;
 using namespace GUI;
 
 GameMainMenu::GameMainMenu():
-    m_is_visible(false), m_num_buttons(5), m_kb_focus_index(-1), m_kb_enter_index(-1)
-{
-    if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
-    {
-        m_num_buttons++;
-    }
-}
+    m_is_visible(false), m_kb_focus_index(-1), m_kb_enter_index(-1)
+{}
 
 void GameMainMenu::Draw()
 {
     this->DrawMenuPanel();
-    this->DrawVersionBox();
+    if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+    {
+        this->DrawVersionBox();
+        if (cache_updated)
+        {
+            this->DrawNoticeBox();
+        }
+    }
+}
+
+void GameMainMenu::CacheUpdatedNotice()
+{
+  cache_updated = true;
 }
 
 void GameMainMenu::DrawMenuPanel()
 {
+    if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+    {
+        title = "Main menu";
+        m_num_buttons = 5;
+        if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
+        {
+            m_num_buttons++;
+        }
+    }
+    else
+    {
+        m_num_buttons = 3;
+        if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+        {
+            title = "Menu";
+        }
+        else
+        {
+            title = "Pause";
+        }
+    }
+
     // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
     if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
     {
@@ -84,58 +113,77 @@ void GameMainMenu::DrawMenuPanel()
     else
     {
         const float btn_height = ImGui::GetTextLineHeight() + (BUTTON_PADDING.y * 2);
-        const float window_height = (6*btn_height) + (5*ImGui::GetStyle().ItemSpacing.y) + (2*ImGui::GetStyle().WindowPadding.y); // 5 buttons + titlebar; 2x spacing around separator
+        const float window_height = (m_num_buttons*btn_height) + (m_num_buttons*ImGui::GetStyle().ItemSpacing.y) + (2*ImGui::GetStyle().WindowPadding.y); // buttons + titlebar; 2x spacing around separator
         const float margin = display_size.y / 15.f;
         const float top = display_size.y - window_height - margin;
         ImGui::SetNextWindowPos(ImVec2(margin, top));
     }
     ImGui::SetNextWindowContentWidth(WINDOW_WIDTH);
     int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
-    if (ImGui::Begin(_LC("MainMenu", "Main menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+    if (ImGui::Begin(_LC("MainMenu", title), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
     {
         int button_index = 0;
         ImVec2 btn_size(WINDOW_WIDTH, 0.f);
 
-        if (HighlightButton(_LC("MainMenu", "Single player"), btn_size, button_index++))
+        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
         {
-            this->SetVisible(false);
-            if (App::diag_preset_terrain->GetStr().empty())
+            if (HighlightButton(_LC("MainMenu", "Single player"), btn_size, button_index++))
             {
+                this->SetVisible(false);
                 RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
                 m.payload = reinterpret_cast<void*>(new LoaderType(LT_Terrain));
                 App::GetGameContext()->PushMessage(m);
             }
-            else
+
+            if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
             {
-                App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->GetStr()));
+                if ( HighlightButton(_LC("MainMenu", "Resume game"), btn_size, button_index++))
+                {
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, "autosave.sav"));
+                    this->SetVisible(false);
+                }
             }
         }
-
-        if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
+        else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
         {
-            if ( HighlightButton(_LC("MainMenu", "Resume game"), btn_size, button_index++))
+            if (HighlightButton(_LC("MainMenu", "Resume game"), btn_size, button_index++))
             {
-                App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, "autosave.sav"));
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
                 this->SetVisible(false);
             }
         }
 
-        if (HighlightButton(_LC("MainMenu", "Multiplayer"), btn_size, button_index++))
+        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
         {
-            App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
-            this->SetVisible(false);
-        }
+            if (HighlightButton(_LC("MainMenu", "Multiplayer"), btn_size, button_index++))
+            {
+                App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
+                this->SetVisible(false);
+            }
 
-        if (HighlightButton(_LC("MainMenu", "Settings"), btn_size, button_index++))
-        {
-            App::GetGuiManager()->SetVisible_GameSettings(true);
-            this->SetVisible(false);
-        }
+            if (HighlightButton(_LC("MainMenu", "Settings"), btn_size, button_index++))
+            {
+                App::GetGuiManager()->SetVisible_GameSettings(true);
+                this->SetVisible(false);
+            }
 
-        if (HighlightButton(_LC("MainMenu", "About"), btn_size, button_index++))
+            if (HighlightButton(_LC("MainMenu", "About"), btn_size, button_index++))
+            {
+                App::GetGuiManager()->SetVisible_GameAbout(true);
+                this->SetVisible(false);
+            }
+        }
+        else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
         {
-            App::GetGuiManager()->SetVisible_GameAbout(true);
-            this->SetVisible(false);
+            if (HighlightButton(_L("Return to menu"), btn_size, button_index++))
+            {
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+                {
+                    App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
+                }
+                App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+            }
         }
 
         if (HighlightButton(_LC("MainMenu", "Exit game"), btn_size, button_index))
@@ -145,9 +193,18 @@ void GameMainMenu::DrawMenuPanel()
         }
     }
 
-    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION && App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
     {
-        this->SetVisible(false);
+        App::GetGuiManager()->RequestGuiCaptureKeyboard(true);
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
+        {
+            this->SetVisible(false);
+        }
+    }
+
+    if (!this->IsVisible())
+    {
+        cache_updated = false;
     }
 
     App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
@@ -181,6 +238,48 @@ void GameMainMenu::DrawVersionBox()
         ImGui::End();
     }
     ImGui::PopStyleColor(1);
+}
+
+void GameMainMenu::DrawNoticeBox()
+{
+    Ogre::TexturePtr tex = this->FetchIcon("accept.png");
+
+    const float margin = ImGui::GetIO().DisplaySize.y / 30.f;
+    std::string game_ver   = fmt::format("{}: {}", _LC("MainMenu", "Game version"), ROR_VERSION_STRING); // needed to align with VersionBox
+    std::string rornet_ver = fmt::format("{}: {}", _LC("MainMenu", "Net. protocol"), RORNET_VERSION); // needed to align with VersionBox
+    std::string cache_ntc = fmt::format("{}", _LC("MainMenu", "Cache updated"));
+    float text_w = std::max(
+        ImGui::CalcTextSize(game_ver.c_str()).x, ImGui::CalcTextSize(rornet_ver.c_str()).x);
+    ImVec2 box_size(
+        (2 * ImGui::GetStyle().WindowPadding.y) + text_w,
+        (2 * ImGui::GetStyle().WindowPadding.y) + (4.5 * ImGui::GetTextLineHeight()));
+    ImGui::SetNextWindowPos(ImGui::GetIO().DisplaySize - (box_size + ImVec2(margin, margin)));
+
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, WINDOW_BG_COLOR);
+    ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoResize   | ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoInputs;
+    if (ImGui::Begin(_LC("MainMenu", "Notice box"), nullptr, flags))
+    {
+        ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(16, 16));
+        ImGui::SameLine();
+        ImGui::Text("%s", cache_ntc.c_str());
+        ImGui::End();
+    }
+    ImGui::PopStyleColor(1);
+}
+
+Ogre::TexturePtr GameMainMenu::FetchIcon(const char* name)
+{
+    try
+    {
+        return Ogre::static_pointer_cast<Ogre::Texture>(
+            Ogre::TextureManager::getSingleton().createOrRetrieve(name, "FlagsRG").first);
+    }
+    catch (...) {}
+
+    return Ogre::TexturePtr(); // null
 }
 
 bool GameMainMenu::HighlightButton(const std::string& txt,ImVec2 btn_size, int index) const{

@@ -736,11 +736,16 @@ void GameContext::UpdateGlobalInputEvents()
             }
             else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
             {
-                this->PushMessage(Message(MSG_SIM_PAUSE_REQUESTED));
+                this->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                if (App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
+                {
+                    this->PushMessage(Message(MSG_SIM_PAUSE_REQUESTED));
+                }
             }
             else if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
             {
                 this->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
+                this->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
             }
         }
     }
