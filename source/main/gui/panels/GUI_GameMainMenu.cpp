@@ -249,6 +249,7 @@ void GameMainMenu::DrawNoticeBox()
     const float margin = ImGui::GetIO().DisplaySize.y / 30.f;
     std::string game_ver   = fmt::format("{}: {}", _LC("MainMenu", "Game version"), ROR_VERSION_STRING); // needed to align with VersionBox
     std::string rornet_ver = fmt::format("{}: {}", _LC("MainMenu", "Net. protocol"), RORNET_VERSION); // needed to align with VersionBox
+    std::string cache_ntc = fmt::format("{}", _LC("MainMenu", "Cache updated"));
     float text_w = std::max(
         ImGui::CalcTextSize(game_ver.c_str()).x, ImGui::CalcTextSize(rornet_ver.c_str()).x);
     ImVec2 box_size(
@@ -265,7 +266,7 @@ void GameMainMenu::DrawNoticeBox()
     {
         ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(16, 16));
         ImGui::SameLine();
-        ImGui::Text("%s", "Cache updated");
+        ImGui::Text("%s", cache_ntc.c_str());
         ImGui::End();
     }
     ImGui::PopStyleColor(1);
