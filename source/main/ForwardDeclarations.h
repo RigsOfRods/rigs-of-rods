@@ -147,7 +147,6 @@ namespace RoR
         class  Dialog;
         class  FrictionSettings;
         class  GameMainMenu;
-        class  GamePauseMenu;
         class  LoadingWindow;
         class  MainSelector;
         class  MpClientList;
