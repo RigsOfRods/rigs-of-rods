@@ -7,13 +7,14 @@
 # Rui <xymarior@yandex.com>, 2018
 # Bruno Dias Barros <brunodiasbarros09@gmail.com>, 2021.
 # ssantos <ssantos@web.de>, 2021.
+# Joaquin Gomez <joa97@hotmail.com.ar>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-03-22 14:46+0100\n"
-"PO-Revision-Date: 2021-02-23 05:50+0000\n"
-"Last-Translator: ssantos <ssantos@web.de>\n"
+"PO-Revision-Date: 2021-03-31 11:27+0000\n"
+"Last-Translator: Joaquin Gomez <joa97@hotmail.com.ar>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/pt/>\n"
 "Language: pt\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.5\n"
+"X-Generator: Weblate 4.6-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:407 AppContext.cpp:425
 #: AppContext.cpp:476 AppContext.cpp:490 AppContext.cpp:501
@@ -2487,8 +2488,9 @@ msgid "Could not read savegame file"
 msgstr "Não foi possível ler o arquivo savegame"
 
 #: main.cpp:568
+#, fuzzy
 msgid "Not loading different terrain while in Multiplayer"
-msgstr ""
+msgstr "Não carregar terrenos diferentes enquanto estiver no Multiplayer"
 
 #: main.cpp:664
 msgid "Entered terrain editing mode"
@@ -2827,7 +2829,7 @@ msgstr "Máquina"
 #: resources/CacheSystem.cpp:440
 msgctxt "MainSelector"
 msgid "A.I."
-msgstr ""
+msgstr "A.I."
 
 #: resources/CacheSystem.cpp:935
 msgid "Loading zips in group "
