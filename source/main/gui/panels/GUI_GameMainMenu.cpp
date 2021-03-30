@@ -233,7 +233,6 @@ void GameMainMenu::DrawVersionBox()
         ImGui::Text("%s", game_ver.c_str());
         ImGui::Text("%s", rornet_ver.c_str());
         ImGui::End();
-
     }
     ImGui::PopStyleColor(1);
 }
