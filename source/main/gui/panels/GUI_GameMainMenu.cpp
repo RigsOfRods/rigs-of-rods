@@ -49,6 +49,10 @@ void GameMainMenu::Draw()
     if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
     {
         this->DrawVersionBox();
+        if (cache_updated)
+        {
+            this->DrawNoticeBox();
+        }
     }
 }
 
@@ -200,6 +204,11 @@ void GameMainMenu::DrawMenuPanel()
         }
     }
 
+    if (!this->IsVisible())
+    {
+        cache_updated = false;
+    }
+
     App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
     ImGui::PopStyleVar();
@@ -226,15 +235,52 @@ void GameMainMenu::DrawVersionBox()
         ImGuiWindowFlags_NoInputs;
     if (ImGui::Begin(_LC("MainMenu", "Version box"), nullptr, flags))
     {
-        if (cache_updated)
-        {
-            ImGui::Text("%s", "Cache updated");
-        }
         ImGui::Text("%s", game_ver.c_str());
         ImGui::Text("%s", rornet_ver.c_str());
         ImGui::End();
     }
     ImGui::PopStyleColor(1);
+}
+
+void GameMainMenu::DrawNoticeBox()
+{
+    Ogre::TexturePtr down_tex = this->FetchIcon("accept.png");
+
+    const float margin = ImGui::GetIO().DisplaySize.y / 30.f;
+    std::string game_ver   = fmt::format("{}: {}", _LC("MainMenu", "Game version"), ROR_VERSION_STRING); // needed to align with VersionBox
+    std::string rornet_ver = fmt::format("{}: {}", _LC("MainMenu", "Net. protocol"), RORNET_VERSION); // needed to align with VersionBox
+    float text_w = std::max(
+        ImGui::CalcTextSize(game_ver.c_str()).x, ImGui::CalcTextSize(rornet_ver.c_str()).x);
+    ImVec2 box_size(
+        (2 * ImGui::GetStyle().WindowPadding.y) + text_w,
+        (2 * ImGui::GetStyle().WindowPadding.y) + (4.5 * ImGui::GetTextLineHeight()));
+    ImGui::SetNextWindowPos(ImGui::GetIO().DisplaySize - (box_size + ImVec2(margin, margin)));
+
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, WINDOW_BG_COLOR);
+    ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoResize   | ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoInputs;
+    if (ImGui::Begin(_LC("MainMenu", "Notice box"), nullptr, flags))
+    {
+        ImGui::Image(reinterpret_cast<ImTextureID>(down_tex->getHandle()), ImVec2(16, 16));
+        ImGui::SameLine();
+        ImGui::Text("%s", "Cache updated");
+        ImGui::End();
+    }
+    ImGui::PopStyleColor(1);
+}
+
+Ogre::TexturePtr GameMainMenu::FetchIcon(const char* name)
+{
+    try
+    {
+        return Ogre::static_pointer_cast<Ogre::Texture>(
+            Ogre::TextureManager::getSingleton().createOrRetrieve(name, "FlagsRG").first);
+    }
+    catch (...) {}
+
+    return Ogre::TexturePtr(); // null
 }
 
 bool GameMainMenu::HighlightButton(const std::string& txt,ImVec2 btn_size, int index) const{

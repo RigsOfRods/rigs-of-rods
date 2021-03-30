@@ -48,16 +48,18 @@ public:
 
 private:
 
-    void          DrawMenuPanel();
-    void          DrawVersionBox();
-    bool          HighlightButton(const std::string &text, ImVec2 btn_size, int index) const;
+    void             DrawMenuPanel();
+    void             DrawVersionBox();
+    void             DrawNoticeBox();
+    bool             HighlightButton(const std::string &text, ImVec2 btn_size, int index) const;
+    bool             m_is_visible;
+    int              m_num_buttons;
+    int              m_kb_focus_index; // -1 = no focus; 0+ = button index
+    int              m_kb_enter_index; // Focus positon when enter key was pressed.
+    const char*      title;
+    bool             cache_updated = false;
+    Ogre::TexturePtr FetchIcon(const char* name);
 
-    bool          m_is_visible;
-    int           m_num_buttons;
-    int           m_kb_focus_index; // -1 = no focus; 0+ = button index
-    int           m_kb_enter_index; // Focus positon when enter key was pressed.
-    const char*   title;
-    bool          cache_updated = false;
 };
 
 } // namespace GUI
