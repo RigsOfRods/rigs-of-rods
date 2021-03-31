@@ -200,6 +200,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
 
     if (rq.asr_origin == ActorSpawnRequest::Origin::USER)
     {
+        m_last_spawned_actor = fresh_actor;
         if (fresh_actor->ar_driveable != NOT_DRIVEABLE)
         {
             this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)fresh_actor));
@@ -309,6 +310,11 @@ void GameContext::DeleteActor(Actor* actor)
     if (actor == m_prev_player_actor)
     {
         m_prev_player_actor = nullptr;
+    }
+
+    if (actor == m_last_spawned_actor)
+    {
+        m_last_spawned_actor = nullptr;
     }
 
     // Find linked actors and un-tie if tied

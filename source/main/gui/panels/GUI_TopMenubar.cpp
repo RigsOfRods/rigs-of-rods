@@ -206,6 +206,17 @@ void TopMenubar::Update()
                 }
             }
 
+            if (App::GetGameContext()->GetLastSpawnedActor())
+            {
+                if (ImGui::Button(_LC("TopMenubar", "Reload last spawned vehicle")))
+                {
+                    ActorModifyRequest* rq = new ActorModifyRequest;
+                    rq->amr_type = ActorModifyRequest::Type::RELOAD;
+                    rq->amr_actor = App::GetGameContext()->GetLastSpawnedActor();
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
+                }
+            }
+
             if (!App::GetGameContext()->GetActorManager()->GetLocalActors().empty())
             {
                 if (ImGui::Button(_LC("TopMenubar", "Remove all vehicles")))
