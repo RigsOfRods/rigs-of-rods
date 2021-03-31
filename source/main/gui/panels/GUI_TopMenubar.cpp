@@ -191,12 +191,10 @@ void TopMenubar::Update()
                 {
                     if (ImGui::Button(_LC("TopMenubar", "Reload current vehicle")))
                     {
-                        {
-                            ActorModifyRequest* rq = new ActorModifyRequest;
-                            rq->amr_type = ActorModifyRequest::Type::RELOAD;
-                            rq->amr_actor = current_actor;
-                            App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
-                        }
+                        ActorModifyRequest* rq = new ActorModifyRequest;
+                        rq->amr_type = ActorModifyRequest::Type::RELOAD;
+                        rq->amr_actor = current_actor;
+                        App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
                     }
 
                     if (ImGui::Button(_LC("TopMenubar", "Remove current vehicle")))
