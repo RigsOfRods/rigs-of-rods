@@ -97,6 +97,7 @@ public:
 
     Actor*              GetPlayerActor() { return m_player_actor; }
     Actor*              GetPrevPlayerActor() { return m_prev_player_actor; }
+    Actor*              GetLastSpawnedActor() { return m_last_spawned_actor; } //!< Last actor spawned by user and still alive.
     void                SetPrevPlayerActor(Actor* actor) { m_prev_player_actor = actor; }
     void                ChangePlayerActor(Actor* actor);
 
@@ -145,6 +146,7 @@ private:
     ActorManager        m_actor_manager;
     Actor*              m_player_actor = nullptr;           //!< Actor (vehicle or machine) mounted and controlled by player
     Actor*              m_prev_player_actor = nullptr;      //!< Previous actor (vehicle or machine) mounted and controlled by player
+    Actor*              m_last_spawned_actor = nullptr;     //!< Last actor spawned by user and still alive.
     
     CacheEntry*         m_last_cache_selection = nullptr;   //!< Vehicle/load
     CacheEntry*         m_last_skin_selection = nullptr;
