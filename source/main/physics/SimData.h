@@ -679,7 +679,8 @@ struct ActorModifyRequest
         RESET_ON_INIT_POS,
         RESET_ON_SPOT,
         SOFT_RESET,
-        RESTORE_SAVED
+        RESTORE_SAVED,
+        WAKE_UP
     };
 
     Actor*              amr_actor;

@@ -213,6 +213,14 @@ void TopMenubar::Update()
                     rq->amr_actor = App::GetGameContext()->GetLastSpawnedActor();
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
                 }
+
+                if (ImGui::Button(_LC("TopMenubar", "Activate last spawned vehicle")))
+                {
+                    ActorModifyRequest* rq = new ActorModifyRequest;
+                    rq->amr_type = ActorModifyRequest::Type::WAKE_UP;
+                    rq->amr_actor = App::GetGameContext()->GetLastSpawnedActor();
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
+                }
             }
 
             if (!App::GetGameContext()->GetActorManager()->GetLocalActors().empty())

@@ -270,6 +270,12 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
     {
         m_actor_manager.RestoreSavedState(rq.amr_actor, *rq.amr_saved_state.get());
     }
+    if (rq.amr_type == ActorModifyRequest::Type::WAKE_UP &&
+        rq.amr_actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
+    {
+        rq.amr_actor->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
+        rq.amr_actor->ar_sleep_counter = 0.0f;
+    }
     if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
     {
         CacheEntry* entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, rq.amr_actor->ar_filename);
