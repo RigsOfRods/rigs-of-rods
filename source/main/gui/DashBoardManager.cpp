@@ -28,6 +28,9 @@
 #include "Application.h"
 #include "Utils.h"
 
+#include <OgreOverlayManager.h>
+#include <OgreOverlayContainer.h>
+
 using namespace Ogre;
 using namespace RoR;
 
@@ -202,11 +205,7 @@ void DashBoardManager::setVisible(bool visibility)
 
 void DashBoardManager::setVisible3d(bool visibility)
 {
-    for (int i = 0; i < free_dashboard; i++)
-    {
-        if (dashboards[i]->getIsTextureLayer())
-            dashboards[i]->setVisible(visibility, false);
-    }
+
 }
 
 void DashBoardManager::windowResized()
@@ -220,20 +219,21 @@ void DashBoardManager::windowResized()
 
 // DASHBOARD class below
 
-DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, bool _textureLayer) : manager(manager), filename(filename), free_controls(0), visible(false), mainWidget(nullptr), textureLayer(_textureLayer)
+DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, bool _textureLayer) : manager(manager), filename(filename), free_controls(0), visible(false), textureLayer(_textureLayer)
 {
     // use 'this' class pointer to make layout unique
     prefix = MyGUI::utility::toString(this, "_");
     memset(&controls, 0, sizeof(controls));
     loadLayout(filename);
     // hide first
-    if (mainWidget)
-        mainWidget->setVisible(false);
+    if (m_overlay)
+        m_overlay->hide();
 }
 
 DashBoard::~DashBoard()
 {
-    MyGUI::LayoutManager::getInstance().unloadLayout(widgets);
+    Ogre::OverlayManager::getSingleton().destroy(m_overlay);
+    m_overlay = nullptr;
 }
 
 void DashBoard::updateFeatures()
@@ -406,24 +406,11 @@ void DashBoard::update(float& dt)
 
 void DashBoard::windowResized()
 {
-    if (!mainWidget)
-        return;
-    mainWidget->setPosition(0, 0);
-    if (textureLayer)
-    {
-        // texture layers are independent from the screen size, but rather from the layer texture size
-        TexturePtr tex = TextureManager::getSingleton().getByName("RTTTexture1");
-        if (!tex.isNull())
-            mainWidget->setSize(tex->getWidth(), tex->getHeight());
-    }
-    else
-    {
-        MyGUI::IntSize screenSize = MyGUI::RenderManager::getInstance().getViewSize();
-        mainWidget->setSize(screenSize);
-    }
+
 }
 
-void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
+#if 0
+void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
 {
     std::string name = w->getName();
     std::string anim = w->getUserString("anim");
@@ -712,38 +699,26 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
         loadLayoutRecursive(e.current());
     }
 }
-
+#endif
 void DashBoard::loadLayout(Ogre::String filename)
 {
-    widgets = MyGUI::LayoutManager::getInstance().loadLayout(filename, prefix, nullptr); // never has a parent
-
-    for (MyGUI::VectorWidgetPtr::iterator iter = widgets.begin(); iter != widgets.end(); ++iter)
+    m_overlay = Ogre::OverlayManager::getSingleton().getByName(filename);
+    if (m_overlay)
     {
-        loadLayoutRecursive(*iter);
+        const Overlay::OverlayContainerList& list = m_overlay->get2DElements();
+        for (OverlayContainer* container: list)
+        {
+            //this->loadLayoutRecursive(container);
+        }
     }
 
-    // if this thing should be rendered to texture, relocate the main window to the RTT layer
-    if (textureLayer && mainWidget)
-        mainWidget->detachFromWidget("RTTLayer1");
 }
 
-void DashBoard::setVisible(bool v, bool smooth)
+
+void DashBoard::setVisible(bool v)
 {
-    visible = v;
-
-    if (!mainWidget)
-    {
-        for (MyGUI::VectorWidgetPtr::iterator iter = widgets.begin(); iter != widgets.end(); ++iter)
-        {
-            (*iter)->setVisible(v);
-        }
-        return;
-    }
-
-    /*
-    // buggy for some reason
-    if (smooth)
-        mainWidget->setVisibleSmooth(v);
-    */
-    mainWidget->setVisible(v);
+    if (v)
+        m_overlay->show();
+    else
+        m_overlay->hide();
 }

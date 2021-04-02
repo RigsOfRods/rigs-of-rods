@@ -29,6 +29,7 @@
 #include "Application.h"
 
 #include <MyGUI.h>
+#include <OgreOverlay.h>
 
 #include <string>
 
@@ -233,8 +234,8 @@ public:
     DashBoard(DashBoardManager* manager, Ogre::String filename, bool textureLayer);
     ~DashBoard();
 
-    void setVisible(bool visible, bool smooth = true);
-    bool getVisible() { return visible; };
+    void setVisible(bool visible);
+    bool getVisible() { return m_overlay->isVisible(); };
 
     bool getIsTextureLayer() { return textureLayer; }
 
@@ -244,10 +245,9 @@ public:
     void windowResized();
 
 protected:
+    Ogre::Overlay* m_overlay = nullptr;
     DashBoardManager* manager;
     Ogre::String filename;
-    MyGUI::VectorWidgetPtr widgets;
-    MyGUI::WindowPtr mainWidget;
     bool visible, textureLayer;
     std::string prefix;
 
@@ -310,7 +310,7 @@ protected:
     } layoutLink_t;
 
     void loadLayout(Ogre::String filename);
-    void loadLayoutRecursive(MyGUI::WidgetPtr ptr);
+ //   void loadLayoutRecursive(Ogre::OverlayContainer* container);
     layoutLink_t controls[MAX_CONTROLS];
     int free_controls;
 };
