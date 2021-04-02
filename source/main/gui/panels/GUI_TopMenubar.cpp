@@ -203,8 +203,7 @@ void TopMenubar::Update()
                     }
                 }
             }
-
-            if (App::GetGameContext()->GetLastSpawnedActor())
+            else if (App::GetGameContext()->GetLastSpawnedActor())
             {
                 if (ImGui::Button(_LC("TopMenubar", "Reload last spawned vehicle")))
                 {
