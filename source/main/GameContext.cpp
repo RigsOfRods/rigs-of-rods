@@ -261,22 +261,25 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
     {
         rq.amr_actor->SoftReset();
     }
-    if ((rq.amr_type == ActorModifyRequest::Type::RESET_ON_SPOT) ||
-        (rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS))
+    else if (rq.amr_type == ActorModifyRequest::Type::RESET_ON_SPOT)
     {
-        rq.amr_actor->SyncReset(rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS);
+        rq.amr_actor->SyncReset(/*reset_position:*/false);
     }
-    if (rq.amr_type == ActorModifyRequest::Type::RESTORE_SAVED)
+    else if (rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS)
+    {
+        rq.amr_actor->SyncReset(/*reset_position:*/true);
+    }
+    else if (rq.amr_type == ActorModifyRequest::Type::RESTORE_SAVED)
     {
         m_actor_manager.RestoreSavedState(rq.amr_actor, *rq.amr_saved_state.get());
     }
-    if (rq.amr_type == ActorModifyRequest::Type::WAKE_UP &&
+    else if (rq.amr_type == ActorModifyRequest::Type::WAKE_UP &&
         rq.amr_actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
     {
         rq.amr_actor->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
         rq.amr_actor->ar_sleep_counter = 0.0f;
     }
-    if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
+    else if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
     {
         CacheEntry* entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, rq.amr_actor->ar_filename);
         if (!entry)
