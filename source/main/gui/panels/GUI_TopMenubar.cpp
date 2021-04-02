@@ -205,6 +205,14 @@ void TopMenubar::Update()
             }
             else if (App::GetGameContext()->GetLastSpawnedActor())
             {
+                if (ImGui::Button(_LC("TopMenubar", "Activate last spawned vehicle")))
+                {
+                    ActorModifyRequest* rq = new ActorModifyRequest;
+                    rq->amr_type = ActorModifyRequest::Type::WAKE_UP;
+                    rq->amr_actor = App::GetGameContext()->GetLastSpawnedActor();
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
+                }
+
                 if (ImGui::Button(_LC("TopMenubar", "Reload last spawned vehicle")))
                 {
                     ActorModifyRequest* rq = new ActorModifyRequest;
@@ -213,12 +221,10 @@ void TopMenubar::Update()
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
                 }
 
-                if (ImGui::Button(_LC("TopMenubar", "Activate last spawned vehicle")))
+                if (ImGui::Button(_LC("TopMenubar", "Remove last spawned vehicle")))
                 {
-                    ActorModifyRequest* rq = new ActorModifyRequest;
-                    rq->amr_type = ActorModifyRequest::Type::WAKE_UP;
-                    rq->amr_actor = App::GetGameContext()->GetLastSpawnedActor();
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED,
+                        (void*)App::GetGameContext()->GetLastSpawnedActor()));
                 }
             }
 
