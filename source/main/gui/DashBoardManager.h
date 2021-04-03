@@ -30,6 +30,8 @@
 
 #include <MyGUI.h>
 #include <OgreOverlay.h>
+#include <OgreOverlayElement.h>
+#include <OgreOverlayElementFactory.h>
 
 #include <string>
 
@@ -310,9 +312,89 @@ protected:
     } layoutLink_t;
 
     void loadLayout(Ogre::String filename);
- //   void loadLayoutRecursive(Ogre::OverlayContainer* container);
+    void loadLayoutRecursive(Ogre::OverlayContainer* container);
     layoutLink_t controls[MAX_CONTROLS];
     int free_controls;
+};
+
+// ------ prototype -------
+
+/// dashboard extension parameters for OGRE overlay elements
+/// Think of it as "partial class" or "mixin class" in other languages.
+/// ---
+/// OGRE's overlay system is extensible, but the mechanism is bloated and complicated.
+/// To add new parameter 'foo' you must:
+///   1. subclass FooCmd from ParamCommand and define doGet/doSet
+///   2. create static instance of the FooCmd - `ms_foo_cmd`
+///   3. create instance of ParameterDef with name "foo" and reference to `ms_foo_cmd`
+class BaseDashboardIndicator
+{
+public:
+    static const Ogre::String OVERLAY_ELEMENT_TYPE_NAME; // Must be defined in each subclass
+
+    virtual ~BaseDashboardIndicator() {};
+
+        // OGRE overlay param extension mechanism, step 1
+
+    class CmdAnim : public Ogre::ParamCommand
+    {
+    public:
+        virtual Ogre::String doGet( const void* target ) const override;
+        virtual void doSet( void* target, const Ogre::String& val ) override;
+    };
+
+    class CmdLink : public Ogre::ParamCommand
+    {
+    public:
+        virtual Ogre::String doGet( const void* target ) const override;
+        virtual void doSet( void* target, const Ogre::String& val ) override;
+    };
+
+        // END step 1
+
+    Ogre::String getAnimStr() const { return m_anim_str; }
+    void setAnimStr(Ogre::String const& str) { m_anim_str = str; }
+
+    Ogre::String getLinkStr() const { return m_link_str; }
+    void setLinkStr(Ogre::String const& str) { m_link_str = str; }
+
+protected:
+
+    // OGRE overlay param extension mechanism, step 2
+    static CmdAnim ms_anim_cmd;
+    static CmdLink ms_link_cmd;
+
+    // OGRE overlay param extension mechanism, step 3
+    /// @param dict must be provied by the Ogre::OverlayElement being extended.
+    void addExtensionParams(Ogre::ParamDictionary* dict);
+
+    // Variables
+    Ogre::String m_anim_str; //!< See ANIM_*
+    Ogre::String m_link_str; //!< See DD_*
+};
+
+class TextAreaDashboardIndicator:
+    public Ogre::TextAreaOverlayElement,
+    public BaseDashboardIndicator
+{
+public:
+    TextAreaDashboardIndicator(const Ogre::String& name);
+    virtual ~TextAreaDashboardIndicator() {}
+
+    /// Must be overriden here because we're extending
+    ///  a concrete overlay element type which already has a typeName.
+    virtual const Ogre::String& getTypeName(void) const override
+    {
+        return OVERLAY_ELEMENT_TYPE_NAME;
+    }
+};
+
+class TextAreaDashboardIndicatorFactory: public Ogre::OverlayElementFactory
+{
+public:
+    virtual Ogre::OverlayElement* createOverlayElement(const Ogre::String& instanceName) override;
+    virtual const Ogre::String& getTypeName() const override;
+
 };
 
 } // namespace RoR

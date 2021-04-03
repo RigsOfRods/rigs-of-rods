@@ -31,6 +31,8 @@
 #include <OgreOverlayManager.h>
 #include <OgreOverlayContainer.h>
 
+#include <fmt/format.h>
+
 using namespace Ogre;
 using namespace RoR;
 
@@ -708,6 +710,22 @@ void DashBoard::loadLayout(Ogre::String filename)
         const Overlay::OverlayContainerList& list = m_overlay->get2DElements();
         for (OverlayContainer* container: list)
         {
+            OverlayContainer::ChildIterator child_iterator = container->getChildIterator();
+            for (Ogre::OverlayContainer::ChildMap::value_type& child: child_iterator)
+            {
+                LOG(fmt::format(
+                    "DashBoard::loadLayout() - iterating child '{}' of type '{}'",
+                    child.second->getName(), child.second->getTypeName()));
+
+                if (child.second->getTypeName() == TextAreaDashboardIndicator::OVERLAY_ELEMENT_TYPE_NAME)
+                {
+                    TextAreaDashboardIndicator* di = static_cast<TextAreaDashboardIndicator*>(child.second);
+                    LOG(fmt::format(
+                        "DashBoard::loadLayout() - got indicator with link '{}' and anim '{}'",
+                        di->getLinkStr(), di->getAnimStr()));
+                }
+            }
+
             //this->loadLayoutRecursive(container);
         }
     }
@@ -722,3 +740,95 @@ void DashBoard::setVisible(bool v)
     else
         m_overlay->hide();
 }
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@ PROTOTYPE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+// ------ base dash element -------
+
+BaseDashboardIndicator::CmdAnim TextAreaDashboardIndicator::ms_anim_cmd;
+BaseDashboardIndicator::CmdLink TextAreaDashboardIndicator::ms_link_cmd;
+/*
+String BaseDashboardIndicator::CmdAnim::doGet( const void* target ) const
+{
+    return static_cast<const BaseDashboardIndicator*>(target)->getAnimStr();
+}
+String BaseDashboardIndicator::CmdLink::doGet( const void* target ) const
+{
+    return static_cast<const BaseDashboardIndicator*>(target)->getLinkStr();
+}
+
+void BaseDashboardIndicator::CmdAnim::doSet( void* target, const String& val )
+{
+    BaseDashboardIndicator* obj = static_cast<BaseDashboardIndicator*>(target);
+    obj->setAnimStr(val);
+}
+void BaseDashboardIndicator::CmdLink::doSet( void* target, const String& val )
+{
+    BaseDashboardIndicator* obj = static_cast<BaseDashboardIndicator*>(target);
+    obj->setLinkStr(val);
+}
+*/
+
+void BaseDashboardIndicator::addExtensionParams(Ogre::ParamDictionary* dict)
+{
+    // OGRE overlay param extension mechanism, step 3
+    // See commentary on class BaseDashboardIndicator
+
+    dict->addParameter(ParameterDef("ror_anim", 
+        "How to animate this dashboard control."
+        , PT_STRING),
+        &ms_anim_cmd);
+
+    dict->addParameter(ParameterDef("ror_link", 
+        "What gameplay data to display with this dashboard control."
+        , PT_STRING),
+        &ms_link_cmd);
+}
+
+// ----- textarea
+
+const Ogre::String TextAreaDashboardIndicator::OVERLAY_ELEMENT_TYPE_NAME("TextAreaDashboardIndicator");
+
+TextAreaDashboardIndicator::TextAreaDashboardIndicator(const String& name)
+    : TextAreaOverlayElement(name)
+{
+    // Register this class in OGRE parameter system, see Ogre::StringInterface.
+    this->createParamDictionary(OVERLAY_ELEMENT_TYPE_NAME);
+    // Add Ogre::TextAreaOverlayElement (and ancestor classes) parameters.
+    this->addBaseParameters();
+    // Add RoR::BaseDashboardIndicator parameters.
+    this->addExtensionParams(this->getParamDictionary());
+}
+
+String TextAreaDashboardIndicator::CmdAnim::doGet( const void* target ) const
+{
+    return static_cast<const TextAreaDashboardIndicator*>(target)->getAnimStr();
+}
+String TextAreaDashboardIndicator::CmdLink::doGet( const void* target ) const
+{
+    return static_cast<const TextAreaDashboardIndicator*>(target)->getLinkStr();
+}
+
+void TextAreaDashboardIndicator::CmdAnim::doSet( void* target, const String& val )
+{
+    TextAreaDashboardIndicator* obj = static_cast<TextAreaDashboardIndicator*>(target);
+    obj->setAnimStr(val);
+}
+void TextAreaDashboardIndicator::CmdLink::doSet( void* target, const String& val )
+{
+    TextAreaDashboardIndicator* obj = static_cast<TextAreaDashboardIndicator*>(target);
+    obj->setLinkStr(val);
+}
+
+// ------ factory
+
+Ogre::OverlayElement* TextAreaDashboardIndicatorFactory::createOverlayElement(const Ogre::String& instanceName)
+{
+    return OGRE_NEW TextAreaDashboardIndicator(instanceName);
+}
+
+const Ogre::String& TextAreaDashboardIndicatorFactory::getTypeName() const
+{
+    return TextAreaDashboardIndicator::OVERLAY_ELEMENT_TYPE_NAME;
+}
+
