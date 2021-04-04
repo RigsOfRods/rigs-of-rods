@@ -29,6 +29,7 @@
 
 #include "Application.h"
 #include "ColoredTextAreaOverlayElementFactory.h"
+#include "DashTextAreaOverlayElement.h"
 #include "DashBoardManager.h" // TextAreaDashboardIndicatorFactory
 #include "ErrorUtils.h"
 #include "SoundScriptManager.h"
@@ -215,8 +216,8 @@ void ContentManager::InitContentManager()
     ColoredTextAreaOverlayElementFactory* pCT = new ColoredTextAreaOverlayElementFactory();
     OverlayManager::getSingleton().addOverlayElementFactory(pCT);
 
-    LOG("RoR|ContentManager: Registering dasboard text area indicator factory");
-    TextAreaDashboardIndicatorFactory* pTDI = new TextAreaDashboardIndicatorFactory();
+    LOG("RoR|ContentManager: Registering dasboard text area factory");
+    DashTextAreaOverlayElementFactory* pTDI = new DashTextAreaOverlayElementFactory();
     OverlayManager::getSingleton().addOverlayElementFactory(pTDI);
 
     // set default mipmap level (NB some APIs ignore this)

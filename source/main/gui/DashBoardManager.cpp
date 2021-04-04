@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2021 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -26,6 +27,8 @@
 #include "DashBoardManager.h"
 
 #include "Application.h"
+#include "Console.h"
+#include "DashTextAreaOverlayElement.h"
 #include "Utils.h"
 
 #include <OgreOverlayManager.h>
@@ -35,6 +38,13 @@
 
 using namespace Ogre;
 using namespace RoR;
+
+                     /////////////////////////////
+    // ============= 'OVERDASH' REMAKE IN PROGRESS =================
+    //   MyGUI widgets and layout XML files are being replaced by Ogre Overlays.
+    //   Also, LOG() function is being replaced with console messages.
+    // =============================================================
+                     /////////////////////////////
 
 #define INITDATA(key, type, name) data[key] = dashData_t(type, name)
 
@@ -195,6 +205,14 @@ float DashBoardManager::getNumeric(size_t key)
     return 0;
 }
 
+std::string DashBoardManager::getString(size_t key)
+{
+    if (data[key].type == DC_CHAR)
+        return data[key].data.value_char;
+    else
+        return fmt::format("{}", this->getNumeric(key));
+}
+
 void DashBoardManager::setVisible(bool visibility)
 {
     visible = visibility;
@@ -245,7 +263,10 @@ void DashBoard::updateFeatures()
     {
         bool enabled = manager->getEnabled(controls[i].linkID);
 
-        controls[i].widget->setVisible(enabled);
+        if (enabled)
+            controls[i].element->show();
+        else
+            controls[i].element->hide();
     }
 }
 
@@ -400,8 +421,8 @@ void DashBoard::update(float& dt)
         }
         else if (controls[i].animationType == ANIM_TEXTSTRING)
         {
-            char* val = manager->getChar(controls[i].linkID);
-            controls[i].txt->setCaption(MyGUI::UString(val));
+            controls[i].element->setCaption(
+                manager->getString(controls[i].linkID));
         }
     }
 }
@@ -411,41 +432,24 @@ void DashBoard::windowResized()
 
 }
 
-#if 0
-void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
+void DashBoard::setupElement(Ogre::OverlayElement* elem)
 {
-    std::string name = w->getName();
-    std::string anim = w->getUserString("anim");
-    std::string debug = w->getUserString("debug");
-    std::string linkArgs = w->getUserString("link");
-
-    // make it unclickable
-    w->setUserString("interactive", "0");
-
-    if (!debug.empty())
+    // retrieve params
+    String anim, linkArgs;
+    if (elem->getTypeName() == DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
     {
-        w->setVisible(false);
-        return;
+        DashTextAreaOverlayElement* dta = static_cast<DashTextAreaOverlayElement*>(elem);
+        anim = dta->getAnimStr();
+        linkArgs = dta->getLinkStr();
+    }
+    else
+    {
+        return; // Unsupported element
     }
 
-    // find the root widget and ignore debug widgets
-    if (name.size() > prefix.size())
-    {
-        std::string prefixLessName = name.substr(prefix.size());
-        if (prefixLessName == "_Main")
-        {
-            mainWidget = (MyGUI::WindowPtr)w;
-            // resize it
-            windowResized();
-        }
-
-        // ignore debug widgets
-        if (prefixLessName == "DEBUG")
-        {
-            w->setVisible(false);
-            return;
-        }
-    }
+    LOG(fmt::format(
+        "DashBoard::setupElement() - processing '{}' (type: '{}') with anim '{}' and link '{}'",
+        elem->getName(), elem->getTypeName(), anim, linkArgs));
 
     // animations for this control?
     if (!linkArgs.empty())
@@ -453,11 +457,12 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
         layoutLink_t ctrl;
         memset(&ctrl, 0, sizeof(ctrl));
 
-        if (!name.empty())
-            strncpy(ctrl.name, name.c_str(), 255);
-        ctrl.widget = w;
+        strncpy(ctrl.name, elem->getName().c_str(), 255);
+        ctrl.element = elem;
+        #if 0 // OVERDASH
         ctrl.initialSize = w->getSize();
         ctrl.initialPosition = w->getPosition();
+        #endif // OVERDASH
         ctrl.last = 1337.1337f; // force update
         ctrl.lastState = true;
 
@@ -468,7 +473,7 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
             String linkName = "";
             if (linkArgs.empty())
             {
-                LOG("Dashboard ("+filename+"/"+name+"): empty Link");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): empty Link");
                 return;
             }
             // conditional checks
@@ -484,7 +489,7 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
                 }
                 else
                 {
-                    LOG("Dashboard ("+filename+"/"+name+"): error in conditional Link: " + linkArgs);
+                    LOG("Dashboard ("+filename+"/"+elem->getName()+"): error in conditional Link: " + linkArgs);
                     return;
                 }
             }
@@ -499,7 +504,7 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
                 }
                 else
                 {
-                    LOG("Dashboard ("+filename+"/"+name+"): error in conditional Link: " + linkArgs);
+                    LOG("Dashboard ("+filename+"/"+elem->getName()+"): error in conditional Link: " + linkArgs);
                     return;
                 }
             }
@@ -514,7 +519,7 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
             int linkID = manager->getLinkIDForName(linkName);
             if (linkID < 0)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): unknown Link: " + linkName);
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): unknown Link: " + linkName);
                 return;
             }
 
@@ -522,6 +527,7 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
         }
 
         // parse more attributes
+#if 0 // OVERDASH
         ctrl.wmin = StringConverter::parseReal(w->getUserString("min"));
         ctrl.wmax = StringConverter::parseReal(w->getUserString("max"));
         ctrl.vmin = StringConverter::parseReal(w->getUserString("vmin"));
@@ -546,9 +552,11 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
             ctrl.direction = DIRECTION_UP;
         else if (!direction.empty())
         {
-            LOG("Dashboard ("+filename+"/"+name+"): unknown direction: " + direction);
+            LOG("Dashboard ("+filename+"/"+elem->getName()+"): unknown direction: " + direction);
             return;
         }
+
+
         // then specializations
         if (anim == "rotate")
         {
@@ -559,7 +567,7 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
             /*
             if (manager->getDataType(ctrl.linkID) != DC_FLOAT)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): Rotating controls can only link to floats");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): Rotating controls can only link to floats");
                 continue;
             }
             */
@@ -570,12 +578,12 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
             }
             catch (...)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): Rotating controls must use the RotatingSkin");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): Rotating controls must use the RotatingSkin");
                 return;
             }
             if (!ctrl.rotImg)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): error loading rotation control");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): error loading rotation control");
                 return;
             }
 
@@ -587,7 +595,7 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
             ctrl.animationType = ANIM_SCALE;
             if (ctrl.direction == DIRECTION_NONE)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): direction empty: scale needs a direction");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): direction empty: scale needs a direction");
                 return;
             }
         }
@@ -596,7 +604,7 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
             ctrl.animationType = ANIM_TRANSLATE;
             if (ctrl.direction == DIRECTION_NONE)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): direction empty: translate needs a direction");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): direction empty: translate needs a direction");
                 return;
             }
         }
@@ -606,7 +614,7 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
             ctrl.img = (MyGUI::ImageBox *)w; //w->getSubWidgetMain()->castType<MyGUI::ImageBox>();
             if (!ctrl.img)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): error loading series control");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): error loading series control");
                 return;
             }
         }
@@ -621,7 +629,7 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
             }
             catch (...)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): textcolor controls must use the TextBox Control");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): textcolor controls must use the TextBox Control");
                 return;
             }
         }
@@ -634,7 +642,7 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
             }
             catch (...)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): Lamp controls must use the ImageBox Control");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): Lamp controls must use the ImageBox Control");
                 return;
             }
             ctrl.animationType = ANIM_TEXTFORMAT;
@@ -646,20 +654,25 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
                 std::snprintf(ctrl.format_neg_zero, 255, ctrl.format, -0.f);
             }
         }
-        else if (anim == "textstring")
+        else
+        #endif // OVERDASH
+        if (anim == "textstring")
         {
-            // try to cast, will throw
-            try
+            if (elem->getTypeName() != DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
             {
-                ctrl.txt = (MyGUI::TextBox *)w; // w->getSubWidgetMain()->castType<MyGUI::TextBox>();
+                App::GetConsole()->putMessage(
+                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format(
+                        "Dashboard element '{}' will not be animated;"
+                        "anim '{}' is not compatible with element '{}'",
+                        elem->getName(), anim, elem->getTypeName()));
             }
-            catch (...)
+            else
             {
-                LOG("Dashboard ("+filename+"/"+name+"): Lamp controls must use the ImageBox Control");
-                return;
+                ctrl.animationType = ANIM_TEXTSTRING;
             }
-            ctrl.animationType = ANIM_TEXTSTRING;
         }
+        #if 0 // OVERDASH
         else if (anim == "lamp")
         {
             // try to cast, will throw
@@ -671,7 +684,7 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
                 }
                 catch (...)
                 {
-                    LOG("Dashboard ("+filename+"/"+name+"): Lamp controls must use the ImageBox Control");
+                    LOG("Dashboard ("+filename+"/"+elem->getName()+"): Lamp controls must use the ImageBox Control");
                     continue;
                 }
             }
@@ -680,10 +693,11 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
             ctrl.img = (MyGUI::ImageBox *)w; //w->getSubWidgetMain()->castType<MyGUI::ImageBox>();
             if (!ctrl.img)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): error loading Lamp control");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): error loading Lamp control");
                 return;
             }
         }
+        #endif // OVERDASH
 
         controls[free_controls] = ctrl;
         free_controls++;
@@ -694,14 +708,8 @@ void DashBoard::loadLayoutRecursive(Ogre::OverlayContainer* container)
         }
     }
 
-    // walk the children now
-    MyGUI::EnumeratorWidgetPtr e = w->getEnumerator();
-    while (e.next())
-    {
-        loadLayoutRecursive(e.current());
-    }
 }
-#endif
+
 void DashBoard::loadLayout(Ogre::String filename)
 {
     m_overlay = Ogre::OverlayManager::getSingleton().getByName(filename);
@@ -717,16 +725,8 @@ void DashBoard::loadLayout(Ogre::String filename)
                     "DashBoard::loadLayout() - iterating child '{}' of type '{}'",
                     child.second->getName(), child.second->getTypeName()));
 
-                if (child.second->getTypeName() == TextAreaDashboardIndicator::OVERLAY_ELEMENT_TYPE_NAME)
-                {
-                    TextAreaDashboardIndicator* di = static_cast<TextAreaDashboardIndicator*>(child.second);
-                    LOG(fmt::format(
-                        "DashBoard::loadLayout() - got indicator with link '{}' and anim '{}'",
-                        di->getLinkStr(), di->getAnimStr()));
-                }
+                this->setupElement(child.second);
             }
-
-            //this->loadLayoutRecursive(container);
         }
     }
 
@@ -739,96 +739,5 @@ void DashBoard::setVisible(bool v)
         m_overlay->show();
     else
         m_overlay->hide();
-}
-
-// @@@@@@@@@@@@@@@@@@@@@@@@@ PROTOTYPE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-// ------ base dash element -------
-
-BaseDashboardIndicator::CmdAnim TextAreaDashboardIndicator::ms_anim_cmd;
-BaseDashboardIndicator::CmdLink TextAreaDashboardIndicator::ms_link_cmd;
-/*
-String BaseDashboardIndicator::CmdAnim::doGet( const void* target ) const
-{
-    return static_cast<const BaseDashboardIndicator*>(target)->getAnimStr();
-}
-String BaseDashboardIndicator::CmdLink::doGet( const void* target ) const
-{
-    return static_cast<const BaseDashboardIndicator*>(target)->getLinkStr();
-}
-
-void BaseDashboardIndicator::CmdAnim::doSet( void* target, const String& val )
-{
-    BaseDashboardIndicator* obj = static_cast<BaseDashboardIndicator*>(target);
-    obj->setAnimStr(val);
-}
-void BaseDashboardIndicator::CmdLink::doSet( void* target, const String& val )
-{
-    BaseDashboardIndicator* obj = static_cast<BaseDashboardIndicator*>(target);
-    obj->setLinkStr(val);
-}
-*/
-
-void BaseDashboardIndicator::addExtensionParams(Ogre::ParamDictionary* dict)
-{
-    // OGRE overlay param extension mechanism, step 3
-    // See commentary on class BaseDashboardIndicator
-
-    dict->addParameter(ParameterDef("ror_anim", 
-        "How to animate this dashboard control."
-        , PT_STRING),
-        &ms_anim_cmd);
-
-    dict->addParameter(ParameterDef("ror_link", 
-        "What gameplay data to display with this dashboard control."
-        , PT_STRING),
-        &ms_link_cmd);
-}
-
-// ----- textarea
-
-const Ogre::String TextAreaDashboardIndicator::OVERLAY_ELEMENT_TYPE_NAME("TextAreaDashboardIndicator");
-
-TextAreaDashboardIndicator::TextAreaDashboardIndicator(const String& name)
-    : TextAreaOverlayElement(name)
-{
-    // Register this class in OGRE parameter system, see Ogre::StringInterface.
-    this->createParamDictionary(OVERLAY_ELEMENT_TYPE_NAME);
-    // Add Ogre::TextAreaOverlayElement (and ancestor classes) parameters.
-    this->addBaseParameters();
-    // Add RoR::BaseDashboardIndicator parameters.
-    this->addExtensionParams(this->getParamDictionary());
-}
-
-String TextAreaDashboardIndicator::CmdAnim::doGet( const void* target ) const
-{
-    return static_cast<const TextAreaDashboardIndicator*>(target)->getAnimStr();
-}
-String TextAreaDashboardIndicator::CmdLink::doGet( const void* target ) const
-{
-    return static_cast<const TextAreaDashboardIndicator*>(target)->getLinkStr();
-}
-
-void TextAreaDashboardIndicator::CmdAnim::doSet( void* target, const String& val )
-{
-    TextAreaDashboardIndicator* obj = static_cast<TextAreaDashboardIndicator*>(target);
-    obj->setAnimStr(val);
-}
-void TextAreaDashboardIndicator::CmdLink::doSet( void* target, const String& val )
-{
-    TextAreaDashboardIndicator* obj = static_cast<TextAreaDashboardIndicator*>(target);
-    obj->setLinkStr(val);
-}
-
-// ------ factory
-
-Ogre::OverlayElement* TextAreaDashboardIndicatorFactory::createOverlayElement(const Ogre::String& instanceName)
-{
-    return OGRE_NEW TextAreaDashboardIndicator(instanceName);
-}
-
-const Ogre::String& TextAreaDashboardIndicatorFactory::getTypeName() const
-{
-    return TextAreaDashboardIndicator::OVERLAY_ELEMENT_TYPE_NAME;
 }
 
