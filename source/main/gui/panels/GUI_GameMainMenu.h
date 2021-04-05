@@ -58,7 +58,6 @@ private:
     int              m_kb_enter_index; // Focus positon when enter key was pressed.
     const char*      title;
     bool             cache_updated = false;
-    Ogre::TexturePtr FetchIcon(const char* name);
 };
 
 } // namespace GUI
