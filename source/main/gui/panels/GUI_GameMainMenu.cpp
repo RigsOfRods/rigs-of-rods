@@ -29,6 +29,7 @@
 #include "Application.h"
 #include "GameContext.h"
 #include "GUIManager.h"
+#include "GUIUtils.h"
 #include "GUI_MainSelector.h"
 #include "Language.h"
 
@@ -242,7 +243,7 @@ void GameMainMenu::DrawVersionBox()
 
 void GameMainMenu::DrawNoticeBox()
 {
-    Ogre::TexturePtr tex = this->FetchIcon("accept.png");
+    Ogre::TexturePtr tex = FetchIcon("accept.png");
 
     const float margin = ImGui::GetIO().DisplaySize.y / 30.f;
     std::string game_ver   = fmt::format("{}: {}", _LC("MainMenu", "Game version"), ROR_VERSION_STRING); // needed to align with VersionBox
@@ -268,18 +269,6 @@ void GameMainMenu::DrawNoticeBox()
         ImGui::End();
     }
     ImGui::PopStyleColor(1);
-}
-
-Ogre::TexturePtr GameMainMenu::FetchIcon(const char* name)
-{
-    try
-    {
-        return Ogre::static_pointer_cast<Ogre::Texture>(
-            Ogre::TextureManager::getSingleton().createOrRetrieve(name, "FlagsRG").first);
-    }
-    catch (...) {}
-
-    return Ogre::TexturePtr(); // null
 }
 
 bool GameMainMenu::HighlightButton(const std::string& txt,ImVec2 btn_size, int index) const{

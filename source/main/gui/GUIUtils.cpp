@@ -337,3 +337,15 @@ void RoR::DrawGCombo(CVar* cvar, const char* label, const char* values)
         cvar->SetVal(selection);
     }
 }
+
+Ogre::TexturePtr RoR::FetchIcon(const char* name)
+{
+    try
+    {
+        return Ogre::static_pointer_cast<Ogre::Texture>(
+            Ogre::TextureManager::getSingleton().createOrRetrieve(name, "FlagsRG").first);
+    }
+    catch (...) {}
+
+    return Ogre::TexturePtr(); // null
+}

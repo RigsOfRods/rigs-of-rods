@@ -32,6 +32,7 @@
 #include "ActorManager.h"
 #include "GameContext.h"
 #include "GUIManager.h"
+#include "GUIUtils.h"
 #include "Language.h"
 #include "Network.h"
 
@@ -84,18 +85,18 @@ void MpClientList::Draw()
         {
             switch (App::GetGameContext()->GetActorManager()->CheckNetworkStreamsOk(user.uniqueid))
             {
-            case 0: down_tex = this->FetchIcon("arrow_down_red.png");  break;
-            case 1: down_tex = this->FetchIcon("arrow_down.png");      break;
-            case 2: down_tex = this->FetchIcon("arrow_down_grey.png"); break;
+            case 0: down_tex = FetchIcon("arrow_down_red.png");  break;
+            case 1: down_tex = FetchIcon("arrow_down.png");      break;
+            case 2: down_tex = FetchIcon("arrow_down_grey.png"); break;
             default:;
             }
             
 
             switch (App::GetGameContext()->GetActorManager()->CheckNetRemoteStreamsOk(user.uniqueid))
             {
-            case 0: up_tex = this->FetchIcon("arrow_up_red.png");  break;
-            case 1: up_tex = this->FetchIcon("arrow_up.png");      break;
-            case 2: up_tex = this->FetchIcon("arrow_up_grey.png"); break;
+            case 0: up_tex = FetchIcon("arrow_up_red.png");  break;
+            case 1: up_tex = FetchIcon("arrow_up.png");      break;
+            case 2: up_tex = FetchIcon("arrow_up_grey.png"); break;
             default:;
             }
         }
@@ -104,9 +105,9 @@ void MpClientList::Draw()
         hovered |= this->DrawIcon(up_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
 
         // Auth icon
-             if (user.authstatus & RoRnet::AUTH_ADMIN ) { auth_tex = this->FetchIcon("flag_red.png");   }
-        else if (user.authstatus & RoRnet::AUTH_MOD   ) { auth_tex = this->FetchIcon("flag_blue.png");  }
-        else if (user.authstatus & RoRnet::AUTH_RANKED) { auth_tex = this->FetchIcon("flag_green.png"); }
+             if (user.authstatus & RoRnet::AUTH_ADMIN ) { auth_tex = FetchIcon("flag_red.png");   }
+        else if (user.authstatus & RoRnet::AUTH_MOD   ) { auth_tex = FetchIcon("flag_blue.png");  }
+        else if (user.authstatus & RoRnet::AUTH_RANKED) { auth_tex = FetchIcon("flag_green.png"); }
 
         hovered |= this->DrawIcon(auth_tex, ImVec2(14.f, ImGui::GetTextLineHeight()));
 
@@ -115,7 +116,7 @@ void MpClientList::Draw()
         if (parts.size() == 2)
         {
             StringUtil::toLowerCase(parts[1]);
-            flag_tex = this->FetchIcon((parts[1] + ".png").c_str());
+            flag_tex = FetchIcon((parts[1] + ".png").c_str());
             hovered |= this->DrawIcon(flag_tex, ImVec2(16.f, ImGui::GetTextLineHeight()));
         }
 
@@ -210,18 +211,6 @@ void MpClientList::Draw()
 
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
-}
-
-Ogre::TexturePtr MpClientList::FetchIcon(const char* name)
-{
-    try
-    {
-        return Ogre::static_pointer_cast<Ogre::Texture>(
-            Ogre::TextureManager::getSingleton().createOrRetrieve(name, "FlagsRG").first);
-    }
-    catch (...) {}
-
-    return Ogre::TexturePtr(); // null
 }
 
 bool MpClientList::DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box)
