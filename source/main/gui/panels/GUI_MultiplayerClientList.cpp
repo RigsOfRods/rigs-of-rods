@@ -49,6 +49,9 @@ void MpClientList::UpdateClients()
 
 void MpClientList::Draw()
 {
+    if (m_users.empty())
+        return; // UpdateClients() wasn't called yet.
+
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
