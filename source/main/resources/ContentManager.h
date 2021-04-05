@@ -85,7 +85,7 @@ public:
     void               AddResourcePack(ResourcePack const& resource_pack, std::string const& override_rgn = "");
     void               InitManagedMaterials(std::string const & rg_name);
     void               InitContentManager();
-    void               InitModCache(CacheSystem::CacheValidityState validity);
+    void               InitModCache(CacheValidity validity);
     void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
     bool               DeleteDiskFile(std::string const& filename, std::string const& rg_name);

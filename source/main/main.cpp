@@ -338,7 +338,7 @@ int main(int argc, char *argv[])
                     if (!App::GetCacheSystem()) // If not already loaded...
                     {
                         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-                        App::GetContentManager()->InitModCache(CacheSystem::CacheValidityState::CACHE_STATE_UNKNOWN);
+                        App::GetContentManager()->InitModCache(CacheValidity::UNKNOWN);
                     }
                     break;
 
@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
                     {
                         RoR::Log("[RoR|ModCache] Cache update requested");
                         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-                        App::GetContentManager()->InitModCache(CacheSystem::CacheValidityState::CACHE_NEEDS_UPDATE);
+                        App::GetContentManager()->InitModCache(CacheValidity::NEEDS_UPDATE);
                     }
                     break;
 
@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
                     {
                         RoR::Log("[RoR|ModCache] Cache rebuild requested");
                         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-                        App::GetContentManager()->InitModCache(CacheSystem::CacheValidityState::CACHE_NEEDS_REBUILD);
+                        App::GetContentManager()->InitModCache(CacheValidity::NEEDS_REBUILD);
                     }
                     break;
 

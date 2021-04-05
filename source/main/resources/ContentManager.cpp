@@ -244,7 +244,7 @@ void ContentManager::InitContentManager()
 #endif // USE_OPENAL
 }
 
-void ContentManager::InitModCache(CacheSystem::CacheValidityState validity)
+void ContentManager::InitModCache(CacheValidity validity)
 {
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_cache_dir->GetStr(), "FileSystem", RGN_CACHE, /*recursive=*/false, /*readOnly=*/false);
@@ -285,7 +285,7 @@ void ContentManager::InitModCache(CacheSystem::CacheValidityState validity)
     }
     ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_TEMP);
 
-    if (validity == CacheSystem::CacheValidityState::CACHE_STATE_UNKNOWN)
+    if (validity == CacheValidity::UNKNOWN)
     {
         validity = m_mod_cache.EvaluateCacheValidity();
     }
