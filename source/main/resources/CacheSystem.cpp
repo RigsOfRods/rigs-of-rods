@@ -113,14 +113,14 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("skin");
 }
 
-void CacheSystem::LoadModCache(CacheValidityState validity)
+void CacheSystem::LoadModCache(CacheValidity validity)
 {
     m_resource_paths.clear();
     m_update_time = getTimeStamp();
 
-    if (validity != CACHE_VALID)
+    if (validity != CacheValidity::VALID)
     {
-        if (validity == CACHE_NEEDS_REBUILD)
+        if (validity == CacheValidity::NEEDS_REBUILD)
         {
             RoR::Log("[RoR|ModCache] Performing rebuild ...");
             this->ClearCache();
@@ -173,7 +173,7 @@ CacheEntry* CacheSystem::FindEntryByFilename(LoaderType type, bool partial, std:
     return (partial) ? partial_match : nullptr;
 }
 
-CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
+CacheValidity CacheSystem::EvaluateCacheValidity()
 {
     this->GenerateHashFromFilenames();
     this->LoadCacheFileJson();
@@ -183,19 +183,19 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
     if (!App::GetContentManager()->LoadAndParseJson(CACHE_FILE, RGN_CACHE, j_doc))
     {
         RoR::Log("[RoR|ModCache] Invalid or missing cache file");
-        return CACHE_NEEDS_REBUILD;
+        return CacheValidity::NEEDS_REBUILD;
     }
 
     if (j_doc["format_version"].GetInt() != CACHE_FILE_FORMAT)
     {
         RoR::Log("[RoR|ModCache] Invalid cache file format");
-        return CACHE_NEEDS_REBUILD;
+        return CacheValidity::NEEDS_REBUILD;
     }
 
     if (j_doc["global_hash"].GetString() != m_filenames_hash)
     {
         RoR::Log("[RoR|ModCache] Cache file out of date");
-        return CACHE_NEEDS_UPDATE;
+        return CacheValidity::NEEDS_UPDATE;
     }
 
     for (auto& entry : m_entries)
@@ -208,12 +208,12 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
 
         if ((entry.filetime != RoR::GetFileLastModifiedTime(fn)))
         {
-            return CACHE_NEEDS_UPDATE;
+            return CacheValidity::NEEDS_UPDATE;
         }
     }
 
     RoR::Log("[RoR|ModCache] Cache valid");
-    return CACHE_VALID;
+    return CacheValidity::VALID;
 }
 
 void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & out_entry)

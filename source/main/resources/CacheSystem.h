@@ -169,6 +169,14 @@ struct CacheQuery
     std::time_t                    cqy_res_last_update = std::time_t();
 };
 
+enum class CacheValidity
+{
+    UNKNOWN,
+    VALID,
+    NEEDS_UPDATE,
+    NEEDS_REBUILD,
+};
+
 /// A content database
 /// MOTIVATION:
 ///    RoR users usually have A LOT of content installed. Traversing it all on every game startup would be a pain.
@@ -184,19 +192,10 @@ public:
 
     CacheSystem();
 
-    enum CacheValidityState
-    {
-        CACHE_VALID         = 0,
-        CACHE_NEEDS_UPDATE  = -1,
-        CACHE_NEEDS_REBUILD = -2,
-
-        CACHE_STATE_UNKNOWN = 0xFFFFFFFF
-    };
-
-    void                  LoadModCache(CacheValidityState validity);
+    void                  LoadModCache(CacheValidity validity);
     CacheEntry*           FindEntryByFilename(RoR::LoaderType type, bool partial, std::string filename); //!< Returns NULL if none found
     CacheEntry*           FetchSkinByName(std::string const & skin_name);
-    CacheValidityState    EvaluateCacheValidity();
+    CacheValidity         EvaluateCacheValidity();
     size_t                Query(CacheQuery& query);
 
     void LoadResource(CacheEntry& t); //!< Loads the associated resource bundle if not already done.
