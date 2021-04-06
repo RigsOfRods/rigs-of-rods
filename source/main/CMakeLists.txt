@@ -365,7 +365,6 @@ if (UNIX)
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
 endif ()
 target_link_libraries(${BINNAME} PRIVATE ${OS_LIBS} PagedGeometry version_info)
-        
 
 # --- Threading support (still needed for GCC even with C++11)
 set(CMAKE_THREAD_PREFER_PTHREAD YES)
@@ -417,11 +416,11 @@ if (USE_PACKAGE_MANAGER)
         set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=Caelum_d")
     endif ()
 
-else (USE_PACKAGE_MANAGER) 
+else (USE_PACKAGE_MANAGER)
     target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator)
 
     target_link_libraries(${BINNAME} PRIVATE fmt::fmt)
-    
+
     target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
     target_include_directories(${BINNAME} PRIVATE ${OIS_INCLUDE_DIRS})
 
@@ -479,12 +478,11 @@ if (USE_PHC)
     target_precompile_headers(${BINNAME} PRIVATE phc.h)
 endif ()
 
+extract_pot("${SOURCE_FILES}")
+
 ####################################################################################################
 #  POST-BUILD STEPS
 ####################################################################################################
-include(l10n)
-
-extract_pot("${SOURCE_FILES}")
 
 # configure plugins.cfg
 if (NOT WIN32)
@@ -494,9 +492,7 @@ endif ()
 set(CFG_COMMENT_RENDERSYSTEM_D3D11 "# ")
 set(CFG_COMMENT_RENDERSYSTEM_GL3PLUS "# ")
 
-if (BUILD_REDIST_FOLDER AND UNIX)
-    set(PLUGINS_FOLDER "lib")
-elseif (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+if (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
     set(PLUGINS_FOLDER ".")
 else ()
     set(PLUGINS_FOLDER ${OGRE_PLUGIN_DIR})
@@ -505,15 +501,76 @@ endif ()
 configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
 configure_file(plugins_d.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins_d.cfg)
 
-IF (BUILD_REDIST_FOLDER)
-    INSTALL(
-            TARGETS ${BINNAME}
-            RUNTIME DESTINATION ${REDIST_FOLDER}
-            LIBRARY DESTINATION ${REDIST_FOLDER}
-            ARCHIVE DESTINATION ${REDIST_FOLDER}
-    )
-    INSTALL(
-            FILES ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg
-            DESTINATION ${REDIST_FOLDER}
-    )
-ENDIF ()
+
+recursive_zip_folder("${CMAKE_SOURCE_DIR}/resources" "${RUNTIME_OUTPUT_DIRECTORY}/resources")
+recursive_zip_folder("${CMAKE_SOURCE_DIR}/content" "${RUNTIME_OUTPUT_DIRECTORY}/content")
+
+fast_copy("${CMAKE_SOURCE_DIR}/resources/managed_materials" "${RUNTIME_OUTPUT_DIRECTORY}/resources/managed_materials")
+fast_copy("${CMAKE_SOURCE_DIR}/resources/fonts" "${RUNTIME_OUTPUT_DIRECTORY}/languages")
+fast_copy("${CMAKE_SOURCE_DIR}/languages" "${RUNTIME_OUTPUT_DIRECTORY}/languages")
+
+
+#####################################
+#  Install targets
+#####################################
+
+install(TARGETS ${PROJECT_NAME} DESTINATION .)
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/resources/fonts/ DESTINATION languages)
+install(DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY}/languages/ DESTINATION languages FILES_MATCHING PATTERN "*.mo")
+install(DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY}/resources/ DESTINATION resources)
+install(DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY}/content/ DESTINATION content)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/resources/managed_materials DESTINATION resources/managed_materials)
+
+if (WIN32)
+    install(FILES ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg DESTINATION .)
+    install(DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}/" DESTINATION . FILES_MATCHING PATTERN "*.dll")
+    install(FILES ${CMAKE_SOURCE_DIR}/tools/windows/.itch.toml DESTINATION .)
+else ()
+    set(PLUGINS_FOLDER "lib")
+    configure_file(plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins-install.cfg)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/plugins-install.cfg DESTINATION . RENAME plugins.cfg)
+    install(DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}/" DESTINATION . FILES_MATCHING PATTERN "*.so")
+    install(PROGRAMS ${CMAKE_SOURCE_DIR}/tools/linux/RunRoR DESTINATION .)
+    install(FILES ${CMAKE_SOURCE_DIR}/tools/linux/.itch.toml DESTINATION .)
+endif ()
+
+#####################################
+#  CPack
+#####################################
+
+set(CPACK_PACKAGE_DESCRIPTION "Rigs of Rods soft-body physics simulator")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Rigs of Rods is an open source vehicle simulator based on soft-body physics.")
+set(CPACK_PACKAGE_CONTACT "Edgar@AnotherFoxGuy.com")
+set(CPACK_PACKAGE_VENDOR "AnotherFoxGuy")
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/tools/windows/license.rtf")
+set(CPACK_PACKAGE_EXECUTABLES "RoR" "Rigs of Rods Simulator")
+
+
+if (WIN32)
+    #For Windows Desktop shortcuts
+    set(CPACK_CREATE_DESKTOP_LINKS "RoR" "Rigs of Rods Simulator")
+
+    # Windows Add or Remove Program properties
+    set(CPACK_WIX_PROGRAM_MENU_FOLDER "Rigs of Rods Simulator")
+    set(CPACK_WIX_PROPERTY_ARPCOMMENTS "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}")
+    set(CPACK_WIX_PROPERTY_ARPHELPLINK "https://discord.gg/rigsofrods")
+    set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT "https://www.rigsofrods.org/")
+    set(CPACK_WIX_PROPERTY_URLUPDATEINFO "https://github.com/RigsOfRods/rigs-of-rods/releases")
+
+    set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/source/main/ror.ico")
+    set(CPACK_WIX_UI_BANNER "${CMAKE_SOURCE_DIR}/tools/windows/bannrbmp.bmp")
+    set(CPACK_WIX_UI_DIALOG "${CMAKE_SOURCE_DIR}/tools/windows/dlgbmp.bmp")
+
+    set(CPACK_WIX_LICENSE_RTF "${CPACK_RESOURCE_FILE_LICENSE}")
+    set(CPACK_WIX_UPGRADE_GUID "dc178e9c-840d-443f-b249-434433ae5fd1")
+
+    set(CPACK_PACKAGE_NAME "Rigs of Rods")
+    set(CPACK_PACKAGE_INSTALL_DIRECTORY "Rigs of Rods")
+    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}")
+    set(CPACK_GENERATOR ZIP;WIX)
+    set(CPACK_MODULE_PATH "")
+endif ()
+
+include(CPack)

@@ -19,7 +19,6 @@ project(${PROJECT_NAME_UNDERSCORE})
 ################################################################################
 option(BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
-option(BUILD_REDIST_FOLDER "Build a folder for redistributing the game" OFF)
 option(USE_PACKAGE_MANAGER "Use conan for managing packages" ON)
 option(USE_PHC "Use a Precompiled header for speeding up the build" ON)
 
@@ -34,13 +33,6 @@ SET(LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")
 SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")
 SET(EXECUTABLE_OUTPUT_PATH ${RUNTIME_OUTPUT_DIRECTORY})
 SET(LIBRARY_OUTPUT_PATH ${RUNTIME_OUTPUT_DIRECTORY})
-IF (BUILD_REDIST_FOLDER)
-    if (WIN32)
-        set(REDIST_FOLDER ${CMAKE_BINARY_DIR}/redist)
-    else ()
-        set(REDIST_FOLDER ${CMAKE_BINARY_DIR}/redist/bin)
-    endif ()
-ENDIF ()
 
 set(CMAKE_DEBUG_POSTFIX _d)
 
@@ -105,10 +97,6 @@ include(DependenciesConfig)
 add_subdirectory(external/angelscript_addons)
 add_subdirectory(source/version_info)
 add_subdirectory(source/main)
-
-include(Resources)
-include(Install)
-
 add_subdirectory(doc)
 
 feature_summary(WHAT ALL)
