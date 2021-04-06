@@ -22,3 +22,5 @@ endif ()
 if (USE_PHC)
     target_precompile_headers(angelscript_addons PRIVATE [["angelscript.h"]])
 endif ()
+
+set_property(TARGET angelscript_addons PROPERTY FOLDER "External dependencies")

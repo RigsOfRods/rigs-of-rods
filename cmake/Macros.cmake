@@ -1,4 +1,4 @@
-function(get_sub_dirs result curdir)
+macro(get_sub_dirs result curdir)
     FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
     SET(dirlist "")
     FOREACH (child ${children})
@@ -7,7 +7,7 @@ function(get_sub_dirs result curdir)
         ENDIF ()
     ENDFOREACH ()
     SET(${result} ${dirlist})
-endfunction(get_sub_dirs)
+endmacro(get_sub_dirs)
 
 function(recursive_zip_folder in_dir out_dir)
     get_filename_component(FROM_DIR_NAME ${in_dir} NAME)
@@ -47,6 +47,7 @@ function(recursive_zip_folder in_dir out_dir)
             zip_folder_${FROM_DIR_NAME} ALL
             DEPENDS ${ALL_ZIPS}
     )
+    set_property(TARGET zip_folder_${FROM_DIR_NAME} PROPERTY FOLDER "Scripts")
 endfunction(recursive_zip_folder)
 
 function(fast_copy FROM_DIR TO_DIR)
@@ -70,6 +71,7 @@ function(fast_copy FROM_DIR TO_DIR)
             fast_copy_${FROM_DIR_NAME} ALL
             DEPENDS ${ALL_FILES}
     )
+    set_property(TARGET fast_copy_${FROM_DIR_NAME} PROPERTY FOLDER "Scripts")
 endfunction()
 
 function(extract_pot source_files_list)
@@ -86,6 +88,7 @@ function(extract_pot source_files_list)
             COMMAND xgettext -i -F -k_L -k_LC:1c,2 -c -o${ROR_POT} -f ${FILELIST}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
+    set_property(TARGET extract_pot PROPERTY FOLDER "Scripts")
 endfunction()
 
 function(compile_mo)
@@ -110,4 +113,5 @@ function(compile_mo)
             compile_mo
             DEPENDS ${MO_FILES}
     )
+    set_property(TARGET compile_mo PROPERTY FOLDER "Scripts")
 endfunction()
