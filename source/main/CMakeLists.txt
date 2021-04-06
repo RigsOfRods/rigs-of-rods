@@ -1,6 +1,3 @@
-project(RoR_Main)
-
-
 ####################################################################################################
 #  SOURCE FILES
 ####################################################################################################
@@ -239,7 +236,7 @@ include(SourceFileUtils)
 expand_file_extensions(SOURCE_FILES ${SOURCE_FILES})
 
 # Generate source groups for use in IDEs
-generate_source_groups(${SOURCE_FILES})
+source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${SOURCE_FILES})
 
 if (WIN32)
     # clang-cl doesn't support resource files
@@ -264,6 +261,21 @@ if (WIN32)
     target_compile_options(${BINNAME} PRIVATE /wd4305 /wd4244)
     # Disable non-standard behavior
     target_compile_options(${BINNAME} PRIVATE /permissive-)
+endif ()
+
+if (MSVC)
+    # set startup project for Visual Studio Builds
+    set_property(
+            DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+            PROPERTY
+            VS_STARTUP_PROJECT ${BINNAME}
+    )
+    # set Visual Studio working directory to the Configuration directory
+    set_target_properties(
+            ${BINNAME}
+            PROPERTIES
+            VS_DEBUGGER_WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}"
+    )
 endif ()
 
 ####################################################################################################
@@ -484,7 +496,9 @@ extract_pot("${SOURCE_FILES}")
 #  POST-BUILD STEPS
 ####################################################################################################
 
-# configure plugins.cfg
+
+# Configure plugins.cfg
+# -----------------------
 if (NOT WIN32)
     set(CFG_COMMENT_RENDERSYSTEM_D3D9 "# ")
 endif ()
@@ -502,6 +516,8 @@ configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
 configure_file(plugins_d.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins_d.cfg)
 
 
+# Copy resources to bin directory
+# -----------------------
 recursive_zip_folder("${CMAKE_SOURCE_DIR}/resources" "${RUNTIME_OUTPUT_DIRECTORY}/resources")
 recursive_zip_folder("${CMAKE_SOURCE_DIR}/content" "${RUNTIME_OUTPUT_DIRECTORY}/content")
 
@@ -510,17 +526,14 @@ fast_copy("${CMAKE_SOURCE_DIR}/resources/fonts" "${RUNTIME_OUTPUT_DIRECTORY}/lan
 fast_copy("${CMAKE_SOURCE_DIR}/languages" "${RUNTIME_OUTPUT_DIRECTORY}/languages")
 
 
-#####################################
 #  Install targets
-#####################################
-
-install(TARGETS ${PROJECT_NAME} DESTINATION .)
+# -----------------------
+install(TARGETS ${BINNAME} DESTINATION .)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/resources/fonts/ DESTINATION languages)
-install(DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY}/languages/ DESTINATION languages FILES_MATCHING PATTERN "*.mo")
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/languages/ DESTINATION languages FILES_MATCHING PATTERN "*.mo")
 install(DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY}/resources/ DESTINATION resources)
 install(DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY}/content/ DESTINATION content)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/resources/managed_materials DESTINATION resources/managed_materials)
 
 if (WIN32)
     install(FILES ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg DESTINATION .)
@@ -535,10 +548,9 @@ else ()
     install(FILES ${CMAKE_SOURCE_DIR}/tools/linux/.itch.toml DESTINATION .)
 endif ()
 
-#####################################
-#  CPack
-#####################################
 
+#  CPack
+# -----------------------
 set(CPACK_PACKAGE_DESCRIPTION "Rigs of Rods soft-body physics simulator")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Rigs of Rods is an open source vehicle simulator based on soft-body physics.")
 set(CPACK_PACKAGE_CONTACT "Edgar@AnotherFoxGuy.com")
@@ -571,6 +583,8 @@ if (WIN32)
     set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}")
     set(CPACK_GENERATOR ZIP;WIX)
     set(CPACK_MODULE_PATH "")
+else ()
+    set(CPACK_GENERATOR ZIP)
 endif ()
 
 include(CPack)

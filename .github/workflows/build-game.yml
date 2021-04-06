@@ -1,7 +1,7 @@
 ---
 name: Build game
 
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
   build-gcc:
@@ -41,18 +41,15 @@ jobs:
         shell: bash
 
       - name: Configure
-        run: cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
+        run: cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=redist .
         shell: bash
 
       - name: Build
-        run: ninja
+        run: ninja install
         shell: bash
 
-      - name: Create redis folder
-        run: |
-          ninja zip_and_copy_resources
-          ninja install
-          cmake -P ./tools/CI/copy_libs.cmake
+      - name: Copy *.so files
+        run: cmake -P ./tools/CI/copy_libs.cmake
         shell: bash
 
       - name: Upload build to itch.io
@@ -109,23 +106,15 @@ jobs:
           key: conan-pkg-${{ hashFiles('**/conanfile.txt') }}-1
           path: C:/.conan/
 
+      - name: Enable Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1.7.0
+
       - name: Configure
-        run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
+        run: cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=redist .
         shell: cmd
 
       - name: Build
-        run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          ninja
-        shell: cmd
-
-      - name: Create redis folder
-        run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          ninja zip_and_copy_resources
-          ninja install
+        run: ninja install
         shell: cmd
 
       - name: Upload build to itch.io

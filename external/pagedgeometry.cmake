@@ -27,3 +27,5 @@ if (USE_PACKAGE_MANAGER)
 else (USE_PACKAGE_MANAGER)
     target_link_libraries(${PROJECT_NAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain)
 endif (USE_PACKAGE_MANAGER)
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "External dependencies")

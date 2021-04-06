@@ -38,3 +38,6 @@ target_include_directories(version_info PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
         )
+
+set_property(TARGET version_info PROPERTY FOLDER "Version Generation")
+set_property(TARGET generate_version PROPERTY FOLDER "Version Generation")
