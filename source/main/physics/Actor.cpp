@@ -2986,15 +2986,11 @@ void Actor::ToggleLights()
 
 void Actor::UpdateFlareStates(float dt)
 {
-    if (m_custom_light_toggle_countdown > -1)
-        m_custom_light_toggle_countdown -= dt;
-
     if (m_flares_mode == GfxFlaresMode::NONE) { return; }
 
     // NOTE: Beacon flares are now updated in GfxActor::UpdateBeaconFlares()
 
     //the flares
-    bool keysleep = false;
     for (size_t i = 0; i < this->ar_flares.size(); i++)
     {
         // let the light blink
@@ -3032,18 +3028,9 @@ void Actor::UpdateFlareStates(float dt)
             else
                 isvisible = false;
         }
-        else if (ar_flares[i].fl_type == FlareType::USER && ar_flares[i].controlnumber != -1) // controlnumber = read only attribute
+        else if (ar_flares[i].fl_type == FlareType::USER)
         {
-            if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == App::GetGameContext()->GetPlayerActor()) // no network!!
-            {
-                // networked customs are set directly, so skip this
-                if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (ar_flares[i].controlnumber - 1)) && m_custom_light_toggle_countdown <= 0)
-                {
-                    ar_flares[i].controltoggle_status = ! ar_flares[i].controltoggle_status;
-                    keysleep = true;
-                }
-            }
-            isvisible = ar_flares[i].controltoggle_status;
+            isvisible = this->getCustomLightVisible(ar_flares[i].controlnumber);
         }
         else if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT)
         {
@@ -3080,8 +3067,6 @@ void Actor::UpdateFlareStates(float dt)
 
         ar_flares[i].isVisible = isvisible; // 3D engine objects are updated in GfxActor
     }
-    if (keysleep)
-        m_custom_light_toggle_countdown = 0.2;
 }
 
 void Actor::toggleBlinkType(BlinkType blink)
@@ -4421,7 +4406,6 @@ Actor::Actor(
     , ar_net_source_id(0)
     , m_spawn_rotation(0.0)
     , ar_net_stream_id(0)
-    , m_custom_light_toggle_countdown(0)
     , m_min_camera_radius(0.0f)
     , m_mouse_grab_move_force(0.0f)
     , m_mouse_grab_node(-1)
@@ -4531,7 +4515,7 @@ bool Actor::getCustomLightVisible(int number)
         return false;
     }
 
-    return m_net_custom_lights[number] < ar_flares.size() && ar_flares[m_net_custom_lights[number]].controltoggle_status;
+    return m_custom_lights[number];
 }
 
 void Actor::setCustomLightVisible(int number, bool visible)
@@ -4542,10 +4526,7 @@ void Actor::setCustomLightVisible(int number, bool visible)
         return;
     }
 
-    if (m_net_custom_lights[number] !=-1 && ar_flares[m_net_custom_lights[number]].snode)
-    {
-        ar_flares[m_net_custom_lights[number]].controltoggle_status = visible;
-    }
+    m_custom_lights[number] = visible;
 }
 
 bool Actor::getBeaconMode() // Angelscript export

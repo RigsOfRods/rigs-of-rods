@@ -1009,6 +1009,8 @@ void GameContext::UpdateSkyInputEvents(float dt)
 
 void GameContext::UpdateCommonInputEvents(float dt)
 {
+    ROR_ASSERT(m_player_actor);
+
     // reload current truck
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f))
     {
@@ -1033,6 +1035,13 @@ void GameContext::UpdateCommonInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_WARN))
         m_player_actor->toggleBlinkType(BLINK_WARN);
+
+    // custom lights
+    for (int i = 0; i < MAX_CLIGHTS; i++)
+    {
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LIGHTTOGGLE01 + i))
+            m_player_actor->setCustomLightVisible(i, !m_player_actor->getCustomLightVisible(i));
+    }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_REMOVE))
     {
