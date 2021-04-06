@@ -458,7 +458,6 @@ private:
     Ogre::SceneNode*  m_net_label_node;
     Ogre::UTFString   m_net_username;
     Ogre::Timer       m_reset_timer;
-    float             m_custom_light_toggle_countdown; //!< Input system helper status
     Ogre::Vector3     m_rotation_request_center;
     float             m_rotation_request;         //!< Accumulator
     int               m_anglesnap_request;        //!< Accumulator
@@ -491,8 +490,7 @@ private:
     float             m_load_mass;             //!< Physics attr; predefined load mass in Kg
     int               m_masscount;             //!< Physics attr; Number of nodes loaded with l option
     float             m_dry_mass;              //!< Physics attr;
-    int               m_net_custom_lights[MAX_CLIGHTS];  //!< Sim state
-    unsigned char     m_net_custom_light_count;//!< Sim attr
+    bool              m_custom_lights[MAX_CLIGHTS] = {false};  //!< 'u' flares control number on/off states.
     GfxFlaresMode     m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
     CacheEntry*       m_used_skin_entry;       //!< Graphics

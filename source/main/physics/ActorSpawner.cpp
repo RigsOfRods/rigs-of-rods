@@ -76,6 +76,7 @@
 #include <OgreParticleSystem.h>
 #include <OgreEntity.h>
 #include <climits>
+#include <fmt/format.h>
 
 const char* ACTOR_ID_TOKEN = "@Actor_"; // Appended to material name, followed by actor ID (aka 'trucknum')
 
@@ -278,8 +279,6 @@ void ActorSpawner::InitializeRig()
     m_actor->ar_cinecam_node[0]=-1;
     m_actor->ar_num_cinecams=0;
     m_actor->m_deletion_scene_nodes.clear();
-    for (int i=0; i<MAX_CLIGHTS; ++i) { m_actor->m_net_custom_lights[i] = -1; }
-    m_actor->m_net_custom_light_count = 0;
 
     m_actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
     m_actor->m_fusealge_airfoil = nullptr;
@@ -2030,8 +2029,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
 
     flare_t flare;
     flare.fl_type              = static_cast<FlareType>(def.type);
-    flare.controlnumber        = def.control_number;
-    flare.controltoggle_status = false;
+    flare.controlnumber        = -1;
     flare.blinkdelay           = (blink_delay == -1) ? 0.5f : blink_delay / 1000.f;
     flare.blinkdelay_curr      = 0.f;
     flare.blinkdelay_state     = false;
@@ -2129,19 +2127,31 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 0));
             flare.light->setAttenuation(10.0, 1, 1, 0);
         }
-        //else if ((type == 'u') && flaresMode >= 4 && size > 0.001)
         else if (def.type == RigDef::Flare2::TYPE_u_USER)
         {
-            /* user light always white (TODO: improve this) */
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(50.0, 1.0, 1, 0.2);
 
-            if (m_actor->m_net_custom_light_count < MAX_CLIGHTS)
+            // control number: convert from 1-10 to 0-9
+            if (def.control_number < 1)
             {
-                m_actor->m_net_custom_lights[m_actor->m_net_custom_light_count] = static_cast<int>(m_actor->ar_flares.size());
-                m_actor->m_net_custom_light_count++;
+                this->AddMessage(Message::TYPE_WARNING,
+                    fmt::format("Bad flare control num {}, must be 1-{}, using 1.",
+                    def.control_number, MAX_CLIGHTS));
+                flare.controlnumber = 0;
+            }
+            else if (def.control_number > MAX_CLIGHTS)
+            {
+                this->AddMessage(Message::TYPE_WARNING,
+                    fmt::format("Bad flare control num {}, must be 1-{}, using {}.",
+                    def.control_number, MAX_CLIGHTS, MAX_CLIGHTS));
+                flare.controlnumber = MAX_CLIGHTS-1;
+            }
+            else
+            {
+                flare.controlnumber = def.control_number - 1;
             }
         }
     }
