@@ -540,7 +540,6 @@ struct flare_t
     Ogre::Light *light;
     FlareType fl_type;
     int controlnumber; //!< Only 'u' type flares, valid values 0-9, maps to EV_TRUCK_LIGHTTOGGLE01 to 10.
-    bool controltoggle_status; // UNUSED - TO BE REMOVED
     float blinkdelay;
     float blinkdelay_curr;
     bool blinkdelay_state;

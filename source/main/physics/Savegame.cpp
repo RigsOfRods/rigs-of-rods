@@ -499,12 +499,12 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_entry.AddMember("custom_particles", actor->m_custom_particles_enabled, j_doc.GetAllocator());
 
         // Flares
-        rapidjson::Value j_flares(rapidjson::kArrayType);
-        for (const auto& flare : actor->ar_flares)
+        rapidjson::Value j_custom_lights(rapidjson::kArrayType);
+        for (int i = 0; i < MAX_CLIGHTS; i++)
         {
-            j_flares.PushBack(flare.controltoggle_status, j_doc.GetAllocator());
+            j_custom_lights.PushBack(actor->m_custom_lights[i], j_doc.GetAllocator());
         }
-        j_entry.AddMember("flares", j_flares, j_doc.GetAllocator());
+        j_entry.AddMember("custom_lights", j_custom_lights, j_doc.GetAllocator());
 
         if (actor->m_buoyance)
         {
@@ -782,10 +782,13 @@ void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_ent
         actor->ToggleCustomParticles();
     }
 
-    auto flares = j_entry["flares"].GetArray();
-    for (int i = 0; i < static_cast<int>(actor->ar_flares.size()); i++)
+    if (j_entry.HasMember("custom_lights"))
     {
-        actor->ar_flares[i].controltoggle_status = flares[i].GetBool();
+        auto flares = j_entry["custom_lights"].GetArray();
+        for (int i = 0; i < MAX_CLIGHTS; i++)
+        {
+            actor->m_custom_lights[i] = flares[i].GetBool();
+        }
     }
 
     if (actor->m_buoyance)
