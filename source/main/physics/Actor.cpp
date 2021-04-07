@@ -2979,7 +2979,7 @@ void Actor::ToggleLights()
         }
     }
 
-    m_gfx_actor->SetCabLightsActive(ar_lights != 0);
+    m_gfx_actor->SetCabLightsActive(ar_lights);
 
     TRIGGER_EVENT(SE_TRUCK_LIGHT_TOGGLE, ar_instance_id);
 }
@@ -2987,8 +2987,6 @@ void Actor::ToggleLights()
 void Actor::UpdateFlareStates(float dt)
 {
     if (m_flares_mode == GfxFlaresMode::NONE) { return; }
-
-    // NOTE: Beacon flares are now updated in GfxActor::UpdateBeaconFlares()
 
     //the flares
     for (size_t i = 0; i < this->ar_flares.size(); i++)
@@ -3009,13 +3007,10 @@ void Actor::UpdateFlareStates(float dt)
         }
 
         // manage light states
-        bool isvisible = true; //this must be true to be able to switch on the frontlight
-        // NOTE: headlight (type 'f') is updated
+        bool isvisible = false;
         if (ar_flares[i].fl_type == FlareType::HEADLIGHT)
         {
-            // NOTE: Material flare is updated in GfxActor
-            if (!ar_lights)
-                continue;
+            isvisible = ar_lights;
         }
         else if (ar_flares[i].fl_type == FlareType::BRAKE_LIGHT)
         {
@@ -3025,8 +3020,6 @@ void Actor::UpdateFlareStates(float dt)
         {
             if (ar_engine || m_reverse_light_active)
                 isvisible = getReverseLightVisible();
-            else
-                isvisible = false;
         }
         else if (ar_flares[i].fl_type == FlareType::USER)
         {
@@ -4001,7 +3994,7 @@ void Actor::updateDashBoards(float dt)
     ar_dashboard->setBool(DD_LOW_PRESSURE, low_pres);
 
     // lights
-    bool lightsOn = (ar_lights > 0);
+    bool lightsOn = ar_lights;
     ar_dashboard->setBool(DD_LIGHTS, lightsOn);
 
     // turn signals
@@ -4395,7 +4388,6 @@ Actor::Actor(
     , ar_net_last_update_time(0)
     , m_avg_node_position_prev(rq.asr_position)
     , ar_left_mirror_angle(0.52)
-    , ar_lights(1)
     , m_avg_node_velocity(Ogre::Vector3::ZERO)
     , ar_custom_camera_node(-1)
     , ar_main_camera_dir_corr(Ogre::Quaternion::IDENTITY)

@@ -494,7 +494,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_entry.AddMember("wheel_speed", actor->ar_wheel_speed, j_doc.GetAllocator());
         j_entry.AddMember("wheel_spin", actor->ar_wheel_spin, j_doc.GetAllocator());
 
-        j_entry.AddMember("lights", actor->ar_lights, j_doc.GetAllocator());
+        j_entry.AddMember("lights", (int)actor->ar_lights, j_doc.GetAllocator());
         j_entry.AddMember("pp_beacon_light", actor->m_beacon_light_is_active, j_doc.GetAllocator());
         j_entry.AddMember("custom_particles", actor->m_custom_particles_enabled, j_doc.GetAllocator());
 
@@ -772,7 +772,7 @@ void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_ent
     actor->ar_wheel_speed = j_entry["wheel_speed"].GetFloat();
     actor->ar_wheel_spin = j_entry["wheel_spin"].GetFloat();
 
-    if (actor->ar_lights != j_entry["lights"].GetInt())
+    if (actor->ar_lights != (bool)j_entry["lights"].GetInt())
     {
         actor->ToggleLights();
     }

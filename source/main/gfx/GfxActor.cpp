@@ -1744,7 +1744,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_hydro_aero_rudder_state = m_actor->ar_hydro_rudder_state;
     m_simbuf.simbuf_aero_flap_state = m_actor->ar_aerial_flap;
     m_simbuf.simbuf_airbrake_state = m_actor->ar_airbrake_intensity;
-    m_simbuf.simbuf_headlight_on = m_actor->ar_lights != 0;
+    m_simbuf.simbuf_headlight_on = m_actor->ar_lights;
     m_simbuf.simbuf_direction = m_actor->getDirection();
     m_simbuf.simbuf_top_speed = m_actor->ar_top_speed;
     m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
