@@ -494,15 +494,15 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_entry.AddMember("wheel_speed", actor->ar_wheel_speed, j_doc.GetAllocator());
         j_entry.AddMember("wheel_spin", actor->ar_wheel_spin, j_doc.GetAllocator());
 
-        j_entry.AddMember("lights", (int)actor->ar_lights, j_doc.GetAllocator());
-        j_entry.AddMember("pp_beacon_light", actor->m_beacon_light_is_active, j_doc.GetAllocator());
+        j_entry.AddMember("lights", (int)actor->m_headlight_on, j_doc.GetAllocator());
+        j_entry.AddMember("pp_beacon_light", actor->m_beacon_light_on, j_doc.GetAllocator());
         j_entry.AddMember("custom_particles", actor->m_custom_particles_enabled, j_doc.GetAllocator());
 
         // Flares
         rapidjson::Value j_custom_lights(rapidjson::kArrayType);
         for (int i = 0; i < MAX_CLIGHTS; i++)
         {
-            j_custom_lights.PushBack(actor->m_custom_lights[i], j_doc.GetAllocator());
+            j_custom_lights.PushBack(actor->m_custom_lights_on[i], j_doc.GetAllocator());
         }
         j_entry.AddMember("custom_lights", j_custom_lights, j_doc.GetAllocator());
 
@@ -772,11 +772,11 @@ void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_ent
     actor->ar_wheel_speed = j_entry["wheel_speed"].GetFloat();
     actor->ar_wheel_spin = j_entry["wheel_spin"].GetFloat();
 
-    if (actor->ar_lights != (bool)j_entry["lights"].GetInt())
+    if (actor->m_headlight_on != (bool)j_entry["lights"].GetInt())
     {
         actor->ToggleLights();
     }
-    actor->m_beacon_light_is_active = j_entry["pp_beacon_light"].GetBool();
+    actor->m_beacon_light_on = j_entry["pp_beacon_light"].GetBool();
     if (actor->m_custom_particles_enabled != j_entry["custom_particles"].GetBool())
     {
         actor->ToggleCustomParticles();
@@ -787,7 +787,7 @@ void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_ent
         auto flares = j_entry["custom_lights"].GetArray();
         for (int i = 0; i < MAX_CLIGHTS; i++)
         {
-            actor->m_custom_lights[i] = flares[i].GetBool();
+            actor->m_custom_lights_on[i] = flares[i].GetBool();
         }
     }
 

@@ -42,6 +42,7 @@ class Actor : public ZeroedMemoryAllocator
     friend class ActorSpawner;
     friend class ActorManager;
     friend class GfxActor; // Temporary until all visuals are moved there. ~ only_a_ptr, 2018
+    friend class OutGauge;
 public:
 
     enum class SimState
@@ -314,7 +315,6 @@ public:
     ground_model_t*   ar_submesh_ground_model;
     bool              ar_parking_brake;
     bool              ar_trailer_parking_brake;
-    bool              ar_lights = true;               //!< Headlights on/off state.
     float             ar_left_mirror_angle;           //!< Sim state; rear view mirror angle
     float             ar_right_mirror_angle;          //!< Sim state; rear view mirror angle
     float             ar_elevator;                    //!< Sim state; aerial controller
@@ -357,9 +357,6 @@ public:
     std::pair<float, float> ar_nb_wheels_k_interval;  //!< Search interval for springiness & damping of wheel / rim beams
 
     // Bit flags
-    bool ar_left_blink_on:1;  //!< Gfx state; turn signals
-    bool ar_right_blink_on:1; //!< Gfx state; turn signals
-    bool ar_warn_blink_on:1;  //!< Gfx state; turn signals
     bool ar_update_physics:1; //!< Physics state; Should this actor be updated (locally) in the next physics step?
     bool ar_disable_aerodyn_turbulent_drag:1; //!< Physics state
     bool ar_engine_hydraulics_ready:1; //!< Sim state; does engine have enough RPM to power hydraulics?
@@ -446,7 +443,6 @@ private:
     Ogre::Real        m_min_camera_radius;
     Ogre::Vector3     m_avg_node_position_prev;
     Ogre::Vector3     m_avg_node_velocity;          //!< average node velocity (compared to the previous frame step)
-    BlinkType         m_blink_type;                 //!< Sim state; Blinker = turn signal
     float             m_stabilizer_shock_sleep;     //!< Sim state
     Replay*           m_replay_handler;
     float             m_total_mass;            //!< Physics state; total mass in Kg
@@ -490,8 +486,6 @@ private:
     float             m_load_mass;             //!< Physics attr; predefined load mass in Kg
     int               m_masscount;             //!< Physics attr; Number of nodes loaded with l option
     float             m_dry_mass;              //!< Physics attr;
-    bool              m_custom_lights[MAX_CLIGHTS] = {false};  //!< 'u' flares control number on/off states.
-    GfxFlaresMode     m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
     CacheEntry*       m_used_skin_entry;       //!< Graphics
     Skidmark*         m_skid_trails[MAX_WHEELS*2];
@@ -501,17 +495,28 @@ private:
     bool              m_has_axles_section;     //!< Temporary (legacy parsing helper) until central diffs are implemented
     TyrePressure      m_tyre_pressure;
 
+        // Light states
+
+    GfxFlaresMode     m_flares_mode = GfxFlaresMode::NONE;       //!< Snapshot of cvar 'gfx_flares_mode' on spawn.
+    bool              m_headlight_on = true;                     //!< Headlights on/off state.
+    bool              m_net_brake_light_on = false;
+    bool              m_net_reverse_light_on = false;
+    bool              m_extern_reverse_light_on = false;         //!< For trailers and such - imported state.
+    bool              m_beacon_light_on = false;
+    bool              m_custom_lights_on[MAX_CLIGHTS] = {false}; //!< 'u' flares control number on/off states.
+
+    BlinkType         m_blink_type = BLINK_NONE;                 //!< Current turn/warn signal mode.
+    bool              m_left_blink_lit = false;                  //!< Blinking state - is currently lit?
+    bool              m_right_blink_lit = false;                 //!< Blinking state - is currently lit?
+    bool              m_warn_blink_lit = false;                  //!< Blinking state - is currently lit?
+    bool              m_blinker_autoreset = false;               //!< When true, we're steering and blinker will turn off automatically.
+
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
-    bool m_blinker_autoreset:1;    //!< Gfx state; We're steering - when we finish, the blinker should turn off
     bool m_net_initialized:1;
-    bool m_net_brake_light:1;
-    bool m_net_reverse_light:1;
-    bool m_reverse_light_active:1; //!< Gfx state
     bool m_water_contact:1;        //!< Scripting state
     bool m_water_contact_old:1;    //!< Scripting state
     bool m_has_command_beams:1;    //!< Physics attr;
-    bool m_beacon_light_is_active:1;        //!< Gfx state
     bool m_custom_particles_enabled:1;      //!< Gfx state
     bool m_preloaded_with_terrain:1;        //!< Spawn context (TODO: remove!)
     bool m_beam_break_debug_enabled:1;  //!< Logging state

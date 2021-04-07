@@ -1734,7 +1734,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_tyre_pressurizing = m_actor->GetTyrePressure().IsPressurizing();
     m_simbuf.simbuf_aabb = m_actor->ar_bounding_box;
     m_simbuf.simbuf_wheel_speed = m_actor->ar_wheel_speed;
-    m_simbuf.simbuf_beaconlight_active = m_actor->m_beacon_light_is_active;
+    m_simbuf.simbuf_beaconlight_active = m_actor->m_beacon_light_on;
     m_simbuf.simbuf_cur_cinecam = m_actor->ar_current_cinecam;
     m_simbuf.simbuf_parking_brake = m_actor->ar_parking_brake;
     m_simbuf.simbuf_brake = m_actor->ar_brake;
@@ -1744,7 +1744,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_hydro_aero_rudder_state = m_actor->ar_hydro_rudder_state;
     m_simbuf.simbuf_aero_flap_state = m_actor->ar_aerial_flap;
     m_simbuf.simbuf_airbrake_state = m_actor->ar_airbrake_intensity;
-    m_simbuf.simbuf_headlight_on = m_actor->ar_lights;
+    m_simbuf.simbuf_headlight_on = m_actor->m_headlight_on;
     m_simbuf.simbuf_direction = m_actor->getDirection();
     m_simbuf.simbuf_top_speed = m_actor->ar_top_speed;
     m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
