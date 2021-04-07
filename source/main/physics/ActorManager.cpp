@@ -717,9 +717,9 @@ void ActorManager::ForwardCommands(Actor* source_actor)
             }
 
             // forward lights
-            hook.hk_locked_actor->ar_lights = source_actor->ar_lights;
+            hook.hk_locked_actor->m_headlight_on = source_actor->m_headlight_on;
             hook.hk_locked_actor->m_blink_type = source_actor->m_blink_type;
-            hook.hk_locked_actor->m_reverse_light_active = source_actor->getReverseLightVisible();
+            hook.hk_locked_actor->m_extern_reverse_light_on = source_actor->getReverseLightVisible();
         }
     }
 }

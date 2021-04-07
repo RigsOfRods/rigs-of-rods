@@ -166,15 +166,15 @@ bool OutGauge::Update(float dt, Actor* truck)
         gd.ShowLights = 0;
         if (truck->ar_parking_brake)
             gd.ShowLights |= DL_HANDBRAKE;
-        if (truck->ar_lights)
+        if (truck->m_headlight_on)
             gd.ShowLights |= DL_FULLBEAM;
         if (truck->ar_engine->HasStarterContact() && !truck->ar_engine->IsRunning())
             gd.ShowLights |= DL_BATTERY;
-        if (truck->ar_left_blink_on)
+        if (truck->m_left_blink_lit)
             gd.ShowLights |= DL_SIGNAL_L;
-        if (truck->ar_right_blink_on)
+        if (truck->m_right_blink_lit)
             gd.ShowLights |= DL_SIGNAL_R;
-        if (truck->ar_warn_blink_on)
+        if (truck->m_warn_blink_lit)
             gd.ShowLights |= DL_SIGNAL_ANY;
         if (truck->tc_mode)
             gd.ShowLights |= DL_TC;

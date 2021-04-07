@@ -589,9 +589,9 @@ void Actor::CalcNetwork()
         ToggleCustomParticles();
 
     // set lights
-    if (((flagmask & NETMASK_LIGHTS) != 0) != ar_lights)
+    if (((flagmask & NETMASK_LIGHTS) != 0) != m_headlight_on)
         ToggleLights();
-    if (((flagmask & NETMASK_BEACONS) != 0) != m_beacon_light_is_active)
+    if (((flagmask & NETMASK_BEACONS) != 0) != m_beacon_light_on)
         ToggleBeacons();
 
     m_antilockbrake = flagmask & NETMASK_ALB_ACTIVE;
@@ -618,15 +618,15 @@ void Actor::CalcNetwork()
     setCustomLightVisible(8, ((flagmask & NETMASK_CLIGHT9) > 0));
     setCustomLightVisible(9, ((flagmask & NETMASK_CLIGHT10) > 0));
 
-    m_net_brake_light = ((flagmask & NETMASK_BRAKES) != 0);
-    m_net_reverse_light = ((flagmask & NETMASK_REVERSE) != 0);
+    m_net_brake_light_on = ((flagmask & NETMASK_BRAKES) != 0);
+    m_net_reverse_light_on = ((flagmask & NETMASK_REVERSE) != 0);
 
     if ((flagmask & NETMASK_HORN))
         SOUND_START(ar_instance_id, SS_TRIG_HORN);
     else
         SOUND_STOP(ar_instance_id, SS_TRIG_HORN);
 
-    if (m_net_reverse_light && ar_engine && ar_engine->IsRunning())
+    if (m_net_reverse_light_on && ar_engine && ar_engine->IsRunning())
         SOUND_START(ar_instance_id, SS_TRIG_REVERSE_GEAR);
     else
         SOUND_STOP(ar_instance_id, SS_TRIG_REVERSE_GEAR);
@@ -1955,7 +1955,7 @@ void Actor::sendStreamData()
         else if (b == BLINK_WARN)
             send_oob->flagmask += NETMASK_BLINK_WARN;
 
-        if (ar_lights)
+        if (m_headlight_on)
             send_oob->flagmask += NETMASK_LIGHTS;
         if (getCustomLightVisible(0))
             send_oob->flagmask += NETMASK_CLIGHT1;
@@ -2948,8 +2948,8 @@ void Actor::ToggleLights()
                 actor->ToggleLights();
         }
     }
-    ar_lights = !ar_lights;
-    if (!ar_lights)
+    m_headlight_on = !m_headlight_on;
+    if (!m_headlight_on)
     {
         for (size_t i = 0; i < ar_flares.size(); i++)
         {
@@ -2979,7 +2979,7 @@ void Actor::ToggleLights()
         }
     }
 
-    m_gfx_actor->SetCabLightsActive(ar_lights);
+    m_gfx_actor->SetCabLightsActive(m_headlight_on);
 
     TRIGGER_EVENT(SE_TRUCK_LIGHT_TOGGLE, ar_instance_id);
 }
@@ -3010,7 +3010,7 @@ void Actor::UpdateFlareStates(float dt)
         bool isvisible = false;
         if (ar_flares[i].fl_type == FlareType::HEADLIGHT)
         {
-            isvisible = ar_lights;
+            isvisible = m_headlight_on;
         }
         else if (ar_flares[i].fl_type == FlareType::BRAKE_LIGHT)
         {
@@ -3018,7 +3018,7 @@ void Actor::UpdateFlareStates(float dt)
         }
         else if (ar_flares[i].fl_type == FlareType::REVERSE_LIGHT)
         {
-            if (ar_engine || m_reverse_light_active)
+            if (ar_engine || m_extern_reverse_light_on)
                 isvisible = getReverseLightVisible();
         }
         else if (ar_flares[i].fl_type == FlareType::USER)
@@ -3038,23 +3038,23 @@ void Actor::UpdateFlareStates(float dt)
 
         if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT && m_blink_type == BLINK_LEFT)
         {
-            ar_left_blink_on = isvisible;
+            m_left_blink_lit = isvisible;
 
-            if (ar_left_blink_on)
+            if (m_left_blink_lit)
                 SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_TICK);
         }
         else if (ar_flares[i].fl_type == FlareType::BLINKER_RIGHT && m_blink_type == BLINK_RIGHT)
         {
-            ar_right_blink_on = isvisible;
+            m_right_blink_lit = isvisible;
 
-            if (ar_right_blink_on)
+            if (m_right_blink_lit)
                 SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_TICK);
         }
         else if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT && m_blink_type == BLINK_WARN)
         {
-            ar_warn_blink_on = isvisible;
+            m_warn_blink_lit = isvisible;
 
-            if (ar_warn_blink_on)
+            if (m_warn_blink_lit)
                 SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_WARN_TICK);
         }
 
@@ -3074,9 +3074,9 @@ void Actor::setBlinkType(BlinkType blink)
 {
     m_blink_type = blink;
 
-    ar_left_blink_on = false;
-    ar_right_blink_on = false;
-    ar_warn_blink_on = false;
+    m_left_blink_lit = false;
+    m_right_blink_lit = false;
+    m_warn_blink_lit = false;
 
     if (blink == BLINK_NONE)
     {
@@ -3760,7 +3760,7 @@ void Actor::ToggleBeacons()
         return;
     }
 
-    m_beacon_light_is_active = !m_beacon_light_is_active;
+    m_beacon_light_on = !m_beacon_light_on;
 
     //ScriptEvent - Beacon toggle
     TRIGGER_EVENT(SE_TRUCK_BEACONS_TOGGLE, ar_instance_id);
@@ -3769,12 +3769,12 @@ void Actor::ToggleBeacons()
 bool Actor::getReverseLightVisible()
 {
     if (ar_sim_state == SimState::NETWORKED_OK)
-        return m_net_reverse_light;
+        return m_net_reverse_light_on;
 
     if (ar_engine)
         return (ar_engine->GetGear() < 0);
 
-    return m_reverse_light_active;
+    return m_extern_reverse_light_on;
 }
 
 void Actor::StopAllSounds()
@@ -3994,12 +3994,12 @@ void Actor::updateDashBoards(float dt)
     ar_dashboard->setBool(DD_LOW_PRESSURE, low_pres);
 
     // lights
-    bool lightsOn = ar_lights;
+    bool lightsOn = m_headlight_on;
     ar_dashboard->setBool(DD_LIGHTS, lightsOn);
 
     // turn signals
-    bool rightTurnOn = ar_right_blink_on || ar_warn_blink_on;
-    bool leftTurnOn = ar_left_blink_on || ar_warn_blink_on;
+    bool rightTurnOn = m_right_blink_lit || m_warn_blink_lit;
+    bool leftTurnOn = m_left_blink_lit || m_warn_blink_lit;
     ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, rightTurnOn);
     ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, leftTurnOn);
 
@@ -4342,8 +4342,6 @@ Actor::Actor(
     , m_hud_features_ok(false)
     , ar_aileron(0)
     , m_avionic_chatter_timer(11.0f) // some pseudo random number,  doesn't matter
-    , m_beacon_light_is_active(false)
-    , m_blink_type(BLINK_NONE)
     , m_blinker_autoreset(false)
     , ar_brake(0.0)
     , m_camera_gforces_accu(Ogre::Vector3::ZERO)
@@ -4403,10 +4401,8 @@ Actor::Actor(
     , m_mouse_grab_node(-1)
     , m_mouse_grab_pos(Ogre::Vector3::ZERO)
     , m_net_initialized(false)
-    , m_net_brake_light(false)
     , m_net_label_node(0)
     , m_net_label_mt(0)
-    , m_net_reverse_light(false)
     , ar_initial_total_mass(0)
     , ar_parking_brake(false)
     , ar_trailer_parking_brake(false)
@@ -4414,7 +4410,6 @@ Actor::Actor(
     , m_previous_gear(0)
     , m_tyre_pressure(this)
     , m_replay_handler(nullptr)
-    , m_reverse_light_active(false)
     , ar_right_mirror_angle(-0.52)
     , ar_rudder(0)
     , ar_update_physics(false)
@@ -4494,7 +4489,7 @@ void Actor::setMass(float m)
 bool Actor::getBrakeLightVisible()
 {
     if (ar_sim_state == SimState::NETWORKED_OK)
-        return m_net_brake_light;
+        return m_net_brake_light_on;
 
     return (ar_brake > 0.01f && !ar_parking_brake);
 }
@@ -4507,7 +4502,7 @@ bool Actor::getCustomLightVisible(int number)
         return false;
     }
 
-    return m_custom_lights[number];
+    return m_custom_lights_on[number];
 }
 
 void Actor::setCustomLightVisible(int number, bool visible)
@@ -4518,12 +4513,12 @@ void Actor::setCustomLightVisible(int number, bool visible)
         return;
     }
 
-    m_custom_lights[number] = visible;
+    m_custom_lights_on[number] = visible;
 }
 
 bool Actor::getBeaconMode() // Angelscript export
 {
-    return m_beacon_light_is_active;
+    return m_beacon_light_on;
 }
 
 BlinkType Actor::getBlinkType()
