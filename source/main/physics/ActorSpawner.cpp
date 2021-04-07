@@ -2041,6 +2041,29 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     flare.offsetz              = def.offset.z;
     flare.size                 = size;
 
+    if (def.type == RigDef::Flare2::TYPE_u_USER)
+    {
+        // control number: convert from 1-10 to 0-9
+        if (def.control_number < 1)
+        {
+            this->AddMessage(Message::TYPE_WARNING,
+                fmt::format("Bad flare control num {}, must be 1-{}, using 1.",
+                def.control_number, MAX_CLIGHTS));
+            flare.controlnumber = 0;
+        }
+        else if (def.control_number > MAX_CLIGHTS)
+        {
+            this->AddMessage(Message::TYPE_WARNING,
+                fmt::format("Bad flare control num {}, must be 1-{}, using {}.",
+                def.control_number, MAX_CLIGHTS, MAX_CLIGHTS));
+            flare.controlnumber = MAX_CLIGHTS-1;
+        }
+        else
+        {
+            flare.controlnumber = def.control_number - 1;
+        }
+    }
+
     /* Visuals */
     flare.snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     std::string flare_name = this->ComposeName("Flare", static_cast<int>(m_actor->ar_flares.size()));
@@ -2133,26 +2156,6 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(50.0, 1.0, 1, 0.2);
-
-            // control number: convert from 1-10 to 0-9
-            if (def.control_number < 1)
-            {
-                this->AddMessage(Message::TYPE_WARNING,
-                    fmt::format("Bad flare control num {}, must be 1-{}, using 1.",
-                    def.control_number, MAX_CLIGHTS));
-                flare.controlnumber = 0;
-            }
-            else if (def.control_number > MAX_CLIGHTS)
-            {
-                this->AddMessage(Message::TYPE_WARNING,
-                    fmt::format("Bad flare control num {}, must be 1-{}, using {}.",
-                    def.control_number, MAX_CLIGHTS, MAX_CLIGHTS));
-                flare.controlnumber = MAX_CLIGHTS-1;
-            }
-            else
-            {
-                flare.controlnumber = def.control_number - 1;
-            }
         }
     }
 
