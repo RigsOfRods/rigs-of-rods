@@ -252,7 +252,7 @@ void GameSettings::Draw()
     {
         ImGui::TextDisabled("%s", _LC("GameSettings", "Video settings"));
 
-        DrawGCombo(App::gfx_flares_mode, _LC("GameSettings", "Lights"),
+        DrawGCombo(App::gfx_flares_mode, _LC("GameSettings", "Light sources"),
             "None (fastest)\0"
             "No light sources\0"
             "Only current vehicle, main lights\0"
