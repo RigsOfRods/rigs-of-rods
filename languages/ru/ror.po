@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-03-22 14:46+0100\n"
-"PO-Revision-Date: 2021-02-02 05:41+0000\n"
-"Last-Translator: Rassul <r.eleuov@icloud.com>\n"
+"PO-Revision-Date: 2021-04-09 06:26+0000\n"
+"Last-Translator: Влад ххх <error.exe1234567890@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
 "Language: ru\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 4.5-dev\n"
+"X-Generator: Weblate 4.6-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:407 AppContext.cpp:425
 #: AppContext.cpp:476 AppContext.cpp:490 AppContext.cpp:501
@@ -1419,102 +1419,74 @@ msgstr "Выбор карты или транспортного средства
 #| msgid "Author(s): "
 msgctxt "MainSelector"
 msgid "Author(s): "
-msgstr "Автор(ы):"
+msgstr "Автор(ы): "
 
 #: gui/panels/GUI_MainSelector.cpp:256
-#, fuzzy
-#| msgid "Version: "
 msgctxt "MainSelector"
 msgid "Version: "
 msgstr "Версия: "
 
 #: gui/panels/GUI_MainSelector.cpp:259
-#, fuzzy
-#| msgid "Wheels: "
 msgctxt "MainSelector"
 msgid "Wheels: "
-msgstr "Тип привода: "
+msgstr "Колеса: "
 
 #: gui/panels/GUI_MainSelector.cpp:265
-#, fuzzy
-#| msgid "Mass: "
 msgctxt "MainSelector"
 msgid "Mass: "
 msgstr "Масса: "
 
 #: gui/panels/GUI_MainSelector.cpp:274
-#, fuzzy
-#| msgid "Load Mass: "
 msgctxt "MainSelector"
 msgid "Load Mass: "
 msgstr "Масса груза: "
 
 #: gui/panels/GUI_MainSelector.cpp:278
-#, fuzzy
-#| msgid "Nodes: "
 msgctxt "MainSelector"
 msgid "Nodes: "
-msgstr "Сетки: "
+msgstr "Узлы: "
 
 #: gui/panels/GUI_MainSelector.cpp:279
-#, fuzzy
-#| msgid "Beams: "
 msgctxt "MainSelector"
 msgid "Beams: "
-msgstr "Лучи: "
+msgstr "Балки: "
 
 #: gui/panels/GUI_MainSelector.cpp:280
-#, fuzzy
-#| msgid "Shocks: "
 msgctxt "MainSelector"
 msgid "Shocks: "
 msgstr "Амортизаторы: "
 
 #: gui/panels/GUI_MainSelector.cpp:281
-#, fuzzy
-#| msgid "Hydros: "
 msgctxt "MainSelector"
 msgid "Hydros: "
 msgstr "Гидравлические узлы: "
 
 #: gui/panels/GUI_MainSelector.cpp:282
-#, fuzzy
-#| msgid "SoundSources: "
 msgctxt "MainSelector"
 msgid "SoundSources: "
-msgstr "Источники звука: "
+msgstr "Звуковые источники: "
 
 #: gui/panels/GUI_MainSelector.cpp:283
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "MainSelector"
 msgid "Commands: "
-msgstr "Доп. гидравлические узлы: "
+msgstr "Команды: "
 
 #: gui/panels/GUI_MainSelector.cpp:284
-#, fuzzy
-#| msgid "Rotators: "
 msgctxt "MainSelector"
 msgid "Rotators: "
 msgstr "Вращатели: "
 
 #: gui/panels/GUI_MainSelector.cpp:285
-#, fuzzy
-#| msgid "Exhausts: "
 msgctxt "MainSelector"
 msgid "Exhausts: "
 msgstr "Выхлопные трубы: "
 
 #: gui/panels/GUI_MainSelector.cpp:286
-#, fuzzy
-#| msgid "Flares: "
 msgctxt "MainSelector"
 msgid "Flares: "
 msgstr "Источники света: "
 
 #: gui/panels/GUI_MainSelector.cpp:287
-#, fuzzy
-#| msgid "Flexbodies: "
 msgctxt "MainSelector"
 msgid "Flexbodies: "
 msgstr "Гибкие узлы: "
@@ -1728,11 +1700,9 @@ msgid "user language: "
 msgstr "Язык пользователя: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:136
-#, fuzzy
-#| msgid " user country: "
 msgctxt "MultiplayerClientList"
 msgid "user country: "
-msgstr " Страна пользователя: "
+msgstr "Страна пользователя: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:147
 #, fuzzy
