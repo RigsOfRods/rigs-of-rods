@@ -32,6 +32,7 @@
 #include "Str.h"
 #include "ZeroedMemoryAllocator.h" // Legacy
 
+#include <fmt/format.h>
 #include <OgreStringConverter.h>
 
 #include <assert.h>
