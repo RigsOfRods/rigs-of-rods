@@ -657,6 +657,14 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
     for (ODefCollisionMesh& cmesh : odef->collision_meshes)
     {
+        if (cmesh.mesh_name == "")
+        {
+            App::GetConsole()->putMessage(
+                Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING,
+                "ODEF: Skipping collision mesh with empty name");
+            continue;
+        }
+
         auto gm = terrainManager->GetCollisions()->getGroundModelByString(cmesh.groundmodel_name);
         terrainManager->GetCollisions()->addCollisionMesh(
             cmesh.mesh_name, pos, tenode->getOrientation(),
