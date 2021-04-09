@@ -16,7 +16,7 @@ if (USE_PACKAGE_MANAGER)
     set(ROR_USE_CURL TRUE)
 
     include(pmm)
-    pmm(CONAN REMOTES ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies BINCRAFTERS)
+    pmm(CONAN REMOTES rigs-of-rods-deps https://conan.cloudsmith.io/rigs-of-rods/deps/ BINCRAFTERS)
 
 else (USE_PACKAGE_MANAGER)
     # components
