@@ -410,14 +410,6 @@ void TopMenubar::Update()
             }
             DrawGIntSlider(App::gfx_fps_limit, _LC("TopMenubar", "Game"), 0, 240);
 
-            /*   //  Uncomment if you want to tweak the physics, it has no other use, really.
-                 //  Do not publish - players tend to max it out and then complain about performance. :|
-            int physics_fps = std::round(1.0f / App::diag_physics_dt->GetFloat());
-            if (ImGui::SliderInt("Physics", &physics_fps, 2000, 10000))
-            {
-                App::diag_physics_dt->SetVal(Ogre::Math::Clamp(1.0f / physics_fps, 0.0001f, 0.0005f));
-            }
-            */
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Simulation:"));
             float slowmotion = std::min(App::GetGameContext()->GetActorManager()->GetSimulationSpeed(), 1.0f);
