@@ -116,7 +116,7 @@ public:
     void              resolveCollisions(float max_distance, bool consider_up);
     void              updateSkidmarks();                   //!< Creates or updates skidmarks. No side effects.
     void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
-    void              UpdateFlareStates(float dt_sec);
+    void              updateFlareStates(float dt);
     void              updateVisual(float dt=0);
     void              ScaleActor(float value);
     Ogre::Vector3     GetGForcesCur() { return m_camera_local_gforces_cur; };
@@ -504,11 +504,7 @@ private:
     bool              m_extern_reverse_light_on = false;         //!< For trailers and such - imported state.
     bool              m_beacon_light_on = false;
     bool              m_custom_lights_on[MAX_CLIGHTS] = {false}; //!< 'u' flares control number on/off states.
-
     BlinkType         m_blink_type = BLINK_NONE;                 //!< Current turn/warn signal mode.
-    bool              m_left_blink_lit = false;                  //!< Blinking state - is currently lit?
-    bool              m_right_blink_lit = false;                 //!< Blinking state - is currently lit?
-    bool              m_warn_blink_lit = false;                  //!< Blinking state - is currently lit?
     bool              m_blinker_autoreset = false;               //!< When true, we're steering and blinker will turn off automatically.
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?

@@ -175,8 +175,9 @@ enum
     DD_ODOMETER_TOTAL,
     DD_ODOMETER_USER,
 
-    DD_SIGNAL_TURNLEFT,
-    DD_SIGNAL_TURNRIGHT,
+    DD_SIGNAL_TURNLEFT,  //!< Left blinker is lit.
+    DD_SIGNAL_TURNRIGHT, //!< Right blinker is lit.
+    DD_SIGNAL_WARNING,   //!< The warning-blink indicator is lit.
 
     DD_MAX
 };

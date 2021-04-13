@@ -2984,7 +2984,7 @@ void Actor::ToggleLights()
     TRIGGER_EVENT(SE_TRUCK_LIGHT_TOGGLE, ar_instance_id);
 }
 
-void Actor::UpdateFlareStates(float dt)
+void Actor::updateFlareStates(float dt)
 {
     if (m_flares_mode == GfxFlaresMode::NONE) { return; }
 
@@ -3038,23 +3038,25 @@ void Actor::UpdateFlareStates(float dt)
 
         if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT && m_blink_type == BLINK_LEFT)
         {
-            m_left_blink_lit = isvisible;
+            ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
 
-            if (m_left_blink_lit)
+            if (isvisible)
                 SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_TICK);
         }
         else if (ar_flares[i].fl_type == FlareType::BLINKER_RIGHT && m_blink_type == BLINK_RIGHT)
         {
-            m_right_blink_lit = isvisible;
+            ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
 
-            if (m_right_blink_lit)
+            if (isvisible)
                 SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_TICK);
         }
         else if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT && m_blink_type == BLINK_WARN)
         {
-            m_warn_blink_lit = isvisible;
+            ar_dashboard->setBool(DD_SIGNAL_WARNING, isvisible);
+            ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
+            ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
 
-            if (m_warn_blink_lit)
+            if (isvisible)
                 SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_WARN_TICK);
         }
 
@@ -3074,9 +3076,9 @@ void Actor::setBlinkType(BlinkType blink)
 {
     m_blink_type = blink;
 
-    m_left_blink_lit = false;
-    m_right_blink_lit = false;
-    m_warn_blink_lit = false;
+    ar_dashboard->setBool(DD_SIGNAL_WARNING, false);
+    ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, false);
+    ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, false);
 
     if (blink == BLINK_NONE)
     {
@@ -3094,8 +3096,10 @@ void Actor::autoBlinkReset()
     const float blink_lock_range = App::io_blink_lock_range->GetFloat();
 
     if (m_blink_type == BLINK_LEFT && ar_hydro_dir_state < -blink_lock_range)
-    // passed the threshold: the turn signal gets locked
+    {
+        // passed the threshold: the turn signal gets locked
         m_blinker_autoreset = true;
+    }
 
     if (m_blink_type == BLINK_LEFT && m_blinker_autoreset && ar_hydro_dir_state > -blink_lock_range)
     {
@@ -3113,10 +3117,6 @@ void Actor::autoBlinkReset()
         setBlinkType(BLINK_NONE);
         m_blinker_autoreset = false;
     }
-
-    bool stopblink = false;
-    ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, stopblink);
-    ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, stopblink);
 }
 
 void Actor::ToggleCustomParticles()
@@ -3997,11 +3997,7 @@ void Actor::updateDashBoards(float dt)
     bool lightsOn = m_headlight_on;
     ar_dashboard->setBool(DD_LIGHTS, lightsOn);
 
-    // turn signals
-    bool rightTurnOn = m_right_blink_lit || m_warn_blink_lit;
-    bool leftTurnOn = m_left_blink_lit || m_warn_blink_lit;
-    ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, rightTurnOn);
-    ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, leftTurnOn);
+    // turn signals already done by `updateFlareStates()` and `setBlinkType()`
 
     // Traction Control
     if (!tc_nodash)

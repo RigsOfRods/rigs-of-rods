@@ -1025,7 +1025,7 @@ void ActorManager::UpdateActors(Actor* player_actor)
         }
 
         // Blinkers (turn signals) must always be updated
-        actor->UpdateFlareStates(dt);
+        actor->updateFlareStates(dt);
 
         if (actor->ar_sim_state != Actor::SimState::LOCAL_SLEEPING)
         {

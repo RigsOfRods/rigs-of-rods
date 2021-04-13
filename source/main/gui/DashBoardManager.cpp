@@ -113,6 +113,7 @@ DashBoardManager::DashBoardManager(void) : visible(true), free_dashboard(0)
 
     INITDATA(DD_SIGNAL_TURNLEFT         , DC_BOOL, "signal_turnleft");
     INITDATA(DD_SIGNAL_TURNRIGHT        , DC_BOOL, "signal_turnright");
+    INITDATA(DD_SIGNAL_WARNING          , DC_BOOL, "signal_warning");
     // load dash fonts
     MyGUI::ResourceManager::getInstance().load("MyGUI_FontsDash.xml");
 }
