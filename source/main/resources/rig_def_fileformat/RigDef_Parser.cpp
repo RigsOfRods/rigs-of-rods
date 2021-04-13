@@ -3515,18 +3515,24 @@ unsigned Parser::GetArgUint(int index)
     return static_cast<unsigned>(this->GetArgLong(index));
 }
 
-Flare2::Type Parser::GetArgFlareType(int index)
+FlareType Parser::GetArgFlareType(int index)
 {
     char in = this->GetArgChar(index);
-    if (in != 'f' && in != 'b' && in != 'l' && in != 'r' && in != 'R' && in != 'u')
+    switch (in)
     {
-        char msg[100];
-        snprintf(msg, 100, "Invalid flare type '%c', falling back to type 'f' (front light)...", in);
-        AddMessage(Message::TYPE_WARNING, msg);
+        case (char)FlareType::HEADLIGHT:
+        case (char)FlareType::BRAKE_LIGHT:
+        case (char)FlareType::BLINKER_LEFT:
+        case (char)FlareType::BLINKER_RIGHT:
+        case (char)FlareType::REVERSE_LIGHT:
+        case (char)FlareType::USER:
+            return FlareType(in);
 
-        in = 'f';
+        default:
+            this->AddMessage(Message::TYPE_WARNING,
+                fmt::format("Invalid flare type '{}', falling back to type 'f' (front light)...", in));
+            return FlareType::NONE;
     }
-    return Flare2::Type(in);
 }
 
 float Parser::GetArgFloat(int index)

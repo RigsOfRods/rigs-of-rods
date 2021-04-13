@@ -215,7 +215,7 @@ private:
     Node::Ref          GetArgNullableNode (int index);
     MeshWheel::Side    GetArgWheelSide    (int index);
     Wing::Control      GetArgWingSurface  (int index);
-    Flare2::Type       GetArgFlareType    (int index);
+    RoR::FlareType     GetArgFlareType    (int index);
     std::string        GetArgManagedTex   (int index);
 
     float              ParseArgFloat      (const char* str);

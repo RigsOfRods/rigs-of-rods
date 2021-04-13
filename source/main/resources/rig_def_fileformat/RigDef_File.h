@@ -44,6 +44,7 @@
 #include "BitFlags.h"
 #include "RigDef_Node.h"
 #include "SimConstants.h"
+#include "SimData.h"
 
 #include <list>
 #include <memory>
@@ -947,29 +948,17 @@ struct Flare2
 {
     Flare2():
         offset(0, 0, 1), /* Section 'flares(1)' has offset.z hardcoded to 1 */
-        type(TYPE_f_HEADLIGHT),
+        type(RoR::FlareType::HEADLIGHT),
         control_number(-1),
         blink_delay_milis(-2),
         size(-1)
     {}
 
-    enum Type
-    {
-        TYPE_f_HEADLIGHT     = 'f',
-        TYPE_b_BRAKELIGHT    = 'b',
-        TYPE_l_LEFT_BLINKER  = 'l',
-        TYPE_r_RIGHT_BLINKER = 'r',
-        TYPE_R_REVERSE_LIGHT = 'R',
-        TYPE_u_USER          = 'u',
-
-        TYPE_INVALID         = 0xFFFFFFFF
-    };
-
     Node::Ref reference_node;
     Node::Ref node_axis_x;
     Node::Ref node_axis_y;
     Ogre::Vector3 offset;
-    Type type;
+    RoR::FlareType type;
     int control_number;
     int blink_delay_milis;
     float size;
