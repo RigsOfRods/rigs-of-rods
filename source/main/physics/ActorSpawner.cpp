@@ -2044,7 +2044,12 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     if (def.type == FlareType::USER)
     {
         // control number: convert from 1-10 to 0-9
-        if (def.control_number < 1)
+        if (def.control_number == 12) // Special case - legacy parking brake indicator
+        {
+            flare.fl_type = FlareType::DASHBOARD;
+            flare.dashboard_link = DD_PARKINGBRAKE;
+        }
+        else if (def.control_number < 1)
         {
             this->AddMessage(Message::TYPE_WARNING,
                 fmt::format("Bad flare control num {}, must be 1-{}, using 1.",
@@ -2092,15 +2097,15 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
         using_default_material = (material_name.length() == 0 || material_name == "default");
         if (using_default_material)
         {
-            if (def.type == FlareType::BRAKE_LIGHT)
+            if (flare.fl_type == FlareType::BRAKE_LIGHT)
             {
                 material_name = "tracks/brakeflare";
             }
-            else if (def.type == FlareType::BLINKER_LEFT || (def.type == FlareType::BLINKER_RIGHT))
+            else if (flare.fl_type == FlareType::BLINKER_LEFT || (flare.fl_type == FlareType::BLINKER_RIGHT))
             {
                 material_name = "tracks/blinkflare";
             }
-            else if (def.type == FlareType::DASHBOARD)
+            else if (flare.fl_type == FlareType::DASHBOARD)
             {
                 material_name = "tracks/greenflare";
             }
@@ -2122,7 +2127,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     if ((App::gfx_flares_mode->GetEnum<GfxFlaresMode>() >= GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && size > 0.001)
     {
         //if (type == 'f' && usingDefaultMaterial && flaresMode >=2 && size > 0.001)
-        if (def.type == FlareType::HEADLIGHT && using_default_material )
+        if (flare.fl_type == FlareType::HEADLIGHT && using_default_material )
         {
             /* front light */
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
@@ -2136,7 +2141,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     }
     if ((App::gfx_flares_mode->GetEnum<GfxFlaresMode>() >= GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS) && size > 0.001)
     {
-        if (def.type == FlareType::HEADLIGHT && ! using_default_material)
+        if (flare.fl_type == FlareType::HEADLIGHT && ! using_default_material)
         {
             /* this is a quick fix for the red backlight when frontlight is switched on */
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
@@ -2144,28 +2149,28 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setAttenuation(10.0, 1.0, 0, 0);
         }
-        else if (def.type == FlareType::REVERSE_LIGHT)
+        else if (flare.fl_type == FlareType::REVERSE_LIGHT)
         {
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour(Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour(Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(20.0, 1, 0, 0);
         }
-        else if (def.type == FlareType::BRAKE_LIGHT)
+        else if (flare.fl_type == FlareType::BRAKE_LIGHT)
         {
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setAttenuation(10.0, 1.0, 0, 0);
         }
-        else if (def.type == FlareType::BLINKER_LEFT || (def.type == FlareType::BLINKER_RIGHT))
+        else if (flare.fl_type == FlareType::BLINKER_LEFT || (flare.fl_type == FlareType::BLINKER_RIGHT))
         {
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 0));
             flare.light->setAttenuation(10.0, 1, 1, 0);
         }
-        else if (def.type == FlareType::USER)
+        else if (flare.fl_type == FlareType::USER)
         {
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));
