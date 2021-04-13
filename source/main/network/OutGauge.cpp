@@ -24,6 +24,7 @@
 #include "Application.h"
 #include "Actor.h"
 #include "ActorManager.h"
+#include "DashBoardManager.h"
 #include "EngineSim.h"
 #include "RoRVersion.h"
 
@@ -170,11 +171,11 @@ bool OutGauge::Update(float dt, Actor* truck)
             gd.ShowLights |= DL_FULLBEAM;
         if (truck->ar_engine->HasStarterContact() && !truck->ar_engine->IsRunning())
             gd.ShowLights |= DL_BATTERY;
-        if (truck->m_left_blink_lit)
+        if (truck->ar_dashboard->_getBool(DD_SIGNAL_TURNLEFT))
             gd.ShowLights |= DL_SIGNAL_L;
-        if (truck->m_right_blink_lit)
+        if (truck->ar_dashboard->_getBool(DD_SIGNAL_TURNRIGHT))
             gd.ShowLights |= DL_SIGNAL_R;
-        if (truck->m_warn_blink_lit)
+        if (truck->ar_dashboard->_getBool(DD_SIGNAL_WARNING))
             gd.ShowLights |= DL_SIGNAL_ANY;
         if (truck->tc_mode)
             gd.ShowLights |= DL_TC;
