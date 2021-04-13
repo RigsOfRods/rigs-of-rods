@@ -2008,7 +2008,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     /* Backwards compatibility */
     if (blink_delay == -2) 
     {
-        if (def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER || def.type == RigDef::Flare2::TYPE_r_RIGHT_BLINKER)
+        if (def.type == FlareType::BLINKER_LEFT || def.type == FlareType::BLINKER_RIGHT)
         {
             blink_delay = -1; /* Default blink */
         }
@@ -2018,17 +2018,17 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
         }
     }
     
-    if (size == -2.f && def.type == RigDef::Flare2::TYPE_f_HEADLIGHT)
+    if (size == -2.f && def.type == FlareType::HEADLIGHT)
     {
         size = 1.f;
     }
-    else if ((size == -2.f && def.type != RigDef::Flare2::TYPE_f_HEADLIGHT) || size == -1.f)
+    else if ((size == -2.f && def.type != FlareType::HEADLIGHT) || size == -1.f)
     {
         size = 0.5f;
     }
 
     flare_t flare;
-    flare.fl_type              = static_cast<FlareType>(def.type);
+    flare.fl_type              = def.type;
     flare.controlnumber        = -1;
     flare.blinkdelay           = (blink_delay == -1) ? 0.5f : blink_delay / 1000.f;
     flare.blinkdelay_curr      = 0.f;
@@ -2041,7 +2041,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     flare.offsetz              = def.offset.z;
     flare.size                 = size;
 
-    if (def.type == RigDef::Flare2::TYPE_u_USER)
+    if (def.type == FlareType::USER)
     {
         // control number: convert from 1-10 to 0-9
         if (def.control_number < 1)
@@ -2081,11 +2081,11 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
         using_default_material = (material_name.length() == 0 || material_name == "default");
         if (using_default_material)
         {
-            if (def.type == RigDef::Flare2::TYPE_b_BRAKELIGHT)
+            if (def.type == FlareType::BRAKE_LIGHT)
             {
                 material_name = "tracks/brakeflare";
             }
-            else if (def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER || (def.type == RigDef::Flare2::TYPE_r_RIGHT_BLINKER))
+            else if (def.type == FlareType::BLINKER_LEFT || (def.type == FlareType::BLINKER_RIGHT))
             {
                 material_name = "tracks/blinkflare";
             }
@@ -2107,7 +2107,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     if ((App::gfx_flares_mode->GetEnum<GfxFlaresMode>() >= GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && size > 0.001)
     {
         //if (type == 'f' && usingDefaultMaterial && flaresMode >=2 && size > 0.001)
-        if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && using_default_material )
+        if (def.type == FlareType::HEADLIGHT && using_default_material )
         {
             /* front light */
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
@@ -2121,7 +2121,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     }
     if ((App::gfx_flares_mode->GetEnum<GfxFlaresMode>() >= GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS) && size > 0.001)
     {
-        if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && ! using_default_material)
+        if (def.type == FlareType::HEADLIGHT && ! using_default_material)
         {
             /* this is a quick fix for the red backlight when frontlight is switched on */
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
@@ -2129,28 +2129,28 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setAttenuation(10.0, 1.0, 0, 0);
         }
-        else if (def.type == RigDef::Flare2::TYPE_R_REVERSE_LIGHT)
+        else if (def.type == FlareType::REVERSE_LIGHT)
         {
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour(Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour(Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(20.0, 1, 0, 0);
         }
-        else if (def.type == RigDef::Flare2::TYPE_b_BRAKELIGHT)
+        else if (def.type == FlareType::BRAKE_LIGHT)
         {
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setAttenuation(10.0, 1.0, 0, 0);
         }
-        else if (def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER || (def.type == RigDef::Flare2::TYPE_r_RIGHT_BLINKER))
+        else if (def.type == FlareType::BLINKER_LEFT || (def.type == FlareType::BLINKER_RIGHT))
         {
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 0));
             flare.light->setAttenuation(10.0, 1, 1, 0);
         }
-        else if (def.type == RigDef::Flare2::TYPE_u_USER)
+        else if (def.type == FlareType::USER)
         {
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));

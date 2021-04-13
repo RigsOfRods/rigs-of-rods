@@ -770,7 +770,7 @@ void Serializer::ProcessFlares2(File::Module* module)
             << ", " << def.node_axis_y.ToString()
             << ", " << def.offset.x
             << ", " << def.offset.y
-            << ", " << def.type
+            << ", " << (char)def.type
             << ", " << def.control_number
             << ", " << def.blink_delay_milis
             << ", " << def.size
