@@ -189,21 +189,21 @@ public:
     ~DashBoardManager(void);
 
     // Getter / Setter
-    inline bool _getBool(size_t key) { return data[key].data.value_bool; };
-    inline int _getInt(size_t key) { return data[key].data.value_int; };
-    inline float _getFloat(size_t key) { return data[key].data.value_float; };
-    inline float getNumeric(size_t key);
-    inline char* getChar(size_t key) { return data[key].data.value_char; };
-    inline bool getEnabled(size_t key) { return data[key].enabled; };
+    bool _getBool(size_t key) { return data[key].data.value_bool; };
+    int _getInt(size_t key) { return data[key].data.value_int; };
+    float _getFloat(size_t key) { return data[key].data.value_float; };
+    float getNumeric(size_t key);
+    char* getChar(size_t key) { return data[key].data.value_char; };
+    bool getEnabled(size_t key) { return data[key].enabled; };
 
-    inline void setBool(size_t key, bool& val) { data[key].data.value_bool = val; };
-    inline void setInt(size_t key, int& val) { data[key].data.value_int = val; };
-    inline void setFloat(size_t key, float& val) { data[key].data.value_float = val; };
-    inline void setChar(size_t key, const char* val) { strncpy(data[key].data.value_char, val, DD_MAXCHAR); };
+    void setBool(size_t key, bool val) { data[key].data.value_bool = val; };
+    void setInt(size_t key, int val) { data[key].data.value_int = val; };
+    void setFloat(size_t key, float val) { data[key].data.value_float = val; };
+    void setChar(size_t key, const char* val) { strncpy(data[key].data.value_char, val, DD_MAXCHAR); };
 
-    inline void setEnabled(size_t key, bool val) { data[key].enabled = val; };
+    void setEnabled(size_t key, bool val) { data[key].enabled = val; };
 
-    inline int getDataType(size_t key) { return data[key].type; };
+    int getDataType(size_t key) { return data[key].type; };
 
     int getLinkIDForName(Ogre::String& str);
 
