@@ -959,7 +959,8 @@ struct Flare2
     Node::Ref node_axis_y;
     Ogre::Vector3 offset;
     RoR::FlareType type;
-    int control_number;
+    int control_number; //!< Only 'u' type flares.
+    std::string dashboard_link; //!< Only 'd' type flares.
     int blink_delay_milis;
     float size;
     Ogre::String material_name;

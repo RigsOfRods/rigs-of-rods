@@ -1024,6 +1024,9 @@ void ActorManager::UpdateActors(Actor* player_actor)
             actor->ar_engine->UpdateEngineAudio();
         }
 
+        // Always update indicator states - used by 'u' type flares.
+        actor->updateDashBoards(dt);
+
         // Blinkers (turn signals) must always be updated
         actor->updateFlareStates(dt);
 
@@ -1057,7 +1060,7 @@ void ActorManager::UpdateActors(Actor* player_actor)
             player_actor->ToggleRopes(-1);
             player_actor->ar_toggle_ropes = false;
         }
-        player_actor->updateDashBoards(dt);
+
         player_actor->ForceFeedbackStep(m_physics_steps);
 
         if (player_actor->ar_sim_state == Actor::SimState::LOCAL_REPLAY)
