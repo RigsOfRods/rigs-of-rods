@@ -1175,8 +1175,19 @@ void Parser::ParseFlaresUnified()
         flare2.offset.z = this->GetArgFloat(pos++);
     }
 
-    if (m_num_args > pos) { flare2.type              = this->GetArgFlareType(pos++); }
-    if (m_num_args > pos) { flare2.control_number    = this->GetArgInt      (pos++); }
+    if (m_num_args > pos) { flare2.type = this->GetArgFlareType(pos++); }
+
+    if (m_num_args > pos)
+    {
+        switch (flare2.type)
+        {
+            case FlareType::USER:      flare2.control_number = this->GetArgInt(pos); break;
+            case FlareType::DASHBOARD: flare2.dashboard_link = this->GetArgStr(pos); break;
+            default: break;
+        }
+        pos++;
+    }
+
     if (m_num_args > pos) { flare2.blink_delay_milis = this->GetArgInt      (pos++); }
     if (m_num_args > pos) { flare2.size              = this->GetArgFloat    (pos++); }
     if (m_num_args > pos) { flare2.material_name     = this->GetArgStr      (pos++); }
@@ -3526,6 +3537,7 @@ FlareType Parser::GetArgFlareType(int index)
         case (char)FlareType::BLINKER_RIGHT:
         case (char)FlareType::REVERSE_LIGHT:
         case (char)FlareType::USER:
+        case (char)FlareType::DASHBOARD:
             return FlareType(in);
 
         default:

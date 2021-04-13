@@ -3025,6 +3025,10 @@ void Actor::updateFlareStates(float dt)
         {
             isvisible = this->getCustomLightVisible(ar_flares[i].controlnumber);
         }
+        else if (ar_flares[i].fl_type == FlareType::DASHBOARD)
+        {
+            isvisible = ar_dashboard->_getBool(ar_flares[i].dashboard_link);
+        }
         else if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT)
         {
             isvisible = (m_blink_type == BLINK_LEFT || m_blink_type == BLINK_WARN);

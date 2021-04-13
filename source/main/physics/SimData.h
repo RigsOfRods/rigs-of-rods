@@ -201,7 +201,8 @@ enum class FlareType: char
     REVERSE_LIGHT  = 'R',
     BLINKER_LEFT   = 'l',
     BLINKER_RIGHT  = 'r',
-    USER           = 'u'
+    USER           = 'u',
+    DASHBOARD      = 'd'
 };
 
 enum LocalizerType
@@ -540,6 +541,7 @@ struct flare_t
     Ogre::Light *light;
     FlareType fl_type;
     int controlnumber; //!< Only 'u' type flares, valid values 0-9, maps to EV_TRUCK_LIGHTTOGGLE01 to 10.
+    int dashboard_link; //!< Only 'd' type flares, valid values are DD_*
     float blinkdelay;
     float blinkdelay_curr;
     bool blinkdelay_state;

@@ -2064,6 +2064,17 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
         }
     }
 
+    if (def.type == FlareType::DASHBOARD)
+    {
+        flare.dashboard_link = m_actor->ar_dashboard->getLinkIDForName(def.dashboard_link);
+        if (flare.dashboard_link == -1)
+        {
+            this->AddMessage(Message::TYPE_WARNING,
+                fmt::format("Skipping 'd' flare, invalid input link '{}'", def.dashboard_link));
+            return;
+        }
+    }
+
     /* Visuals */
     flare.snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     std::string flare_name = this->ComposeName("Flare", static_cast<int>(m_actor->ar_flares.size()));
@@ -2088,6 +2099,10 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             else if (def.type == FlareType::BLINKER_LEFT || (def.type == FlareType::BLINKER_RIGHT))
             {
                 material_name = "tracks/blinkflare";
+            }
+            else if (def.type == FlareType::DASHBOARD)
+            {
+                material_name = "tracks/greenflare";
             }
             else
             {
