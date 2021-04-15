@@ -3543,7 +3543,7 @@ FlareType Parser::GetArgFlareType(int index)
         default:
             this->AddMessage(Message::TYPE_WARNING,
                 fmt::format("Invalid flare type '{}', falling back to type 'f' (front light)...", in));
-            return FlareType::NONE;
+            return FlareType::HEADLIGHT;
     }
 }
 
