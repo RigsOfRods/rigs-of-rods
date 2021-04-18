@@ -11,13 +11,14 @@
 # J. Lavoie <j.lavoie@net-c.ca>, 2021.
 # freddii <fredfire11@gmail.com>, 2021.
 # Finn Giangiacomo <finn.giangiacomo@gmail.com>, 2021.
+# Daniel Götter <daniel.goetter@gmx.de>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-03-22 14:46+0100\n"
 "PO-Revision-Date: 2021-04-19 20:29+0000\n"
-"Last-Translator: Finn Giangiacomo <finn.giangiacomo@gmail.com>\n"
+"Last-Translator: Daniel Götter <daniel.goetter@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "de/>\n"
 "Language: de\n"
@@ -79,7 +80,7 @@ msgstr "Wiedergabemodus aktivieren/deaktivieren"
 
 #: GameContext.cpp:801
 msgid "Enabled soft reset mode"
-msgstr ""
+msgstr "Soft reset mode aktiviert"
 
 #: GameContext.cpp:958
 msgid "Time set to "
@@ -685,7 +686,7 @@ msgstr ""
 #: gui/panels/GUI_GameAbout.cpp:46
 msgctxt "About"
 msgid "About Rigs of Rods"
-msgstr ""
+msgstr "Über Rigs of Rods"
 
 #: gui/panels/GUI_GameAbout.cpp:48
 #, fuzzy
@@ -718,7 +719,7 @@ msgstr "Authoren"
 #: gui/panels/GUI_GameAbout.cpp:67
 msgctxt "About"
 msgid "Current Developers"
-msgstr ""
+msgstr "Derzeitige Entwickler"
 
 #: gui/panels/GUI_GameAbout.cpp:72
 #, fuzzy
@@ -737,17 +738,17 @@ msgstr "Arcade Steuerung"
 #: gui/panels/GUI_GameAbout.cpp:106
 msgctxt "About"
 msgid "Core Content Contributors"
-msgstr ""
+msgstr "Hauptinhalt Mitwirkende"
 
 #: gui/panels/GUI_GameAbout.cpp:112
 msgctxt "About"
 msgid "Mod Contributors"
-msgstr ""
+msgstr "Mod Mitwirkende"
 
 #: gui/panels/GUI_GameAbout.cpp:116
 msgctxt "About"
 msgid "Testers"
-msgstr ""
+msgstr "Tester"
 
 #: gui/panels/GUI_GameAbout.cpp:120
 msgctxt "About"
