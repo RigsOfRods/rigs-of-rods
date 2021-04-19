@@ -10,13 +10,14 @@
 # Danny Schmarsel <danny@schmarsel.de>, 2015
 # J. Lavoie <j.lavoie@net-c.ca>, 2021.
 # freddii <fredfire11@gmail.com>, 2021.
+# Finn Giangiacomo <finn.giangiacomo@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-03-22 14:46+0100\n"
-"PO-Revision-Date: 2021-01-25 15:32+0000\n"
-"Last-Translator: freddii <fredfire11@gmail.com>\n"
+"PO-Revision-Date: 2021-04-19 20:29+0000\n"
+"Last-Translator: Finn Giangiacomo <finn.giangiacomo@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "de/>\n"
 "Language: de\n"
@@ -24,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.5-dev\n"
+"X-Generator: Weblate 4.7-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:407 AppContext.cpp:425
 #: AppContext.cpp:476 AppContext.cpp:490 AppContext.cpp:501
@@ -215,12 +216,12 @@ msgstr "Speicher (Ogre): "
 #: gui/panels/GUI_ConsoleView.cpp:217
 msgctxt "Console"
 msgid "By area:"
-msgstr ""
+msgstr "Nach Gebiet:"
 
 #: gui/panels/GUI_ConsoleView.cpp:218
 msgctxt "Console"
 msgid "Logfile echo"
-msgstr ""
+msgstr "Logdatei echo"
 
 #: gui/panels/GUI_ConsoleView.cpp:219
 #, fuzzy
@@ -232,7 +233,7 @@ msgstr "Beschreibung: "
 #: gui/panels/GUI_ConsoleView.cpp:220
 msgctxt "Console"
 msgid "Actors"
-msgstr ""
+msgstr "Darsteller"
 
 #: gui/panels/GUI_ConsoleView.cpp:221
 msgctxt "Console"
@@ -242,7 +243,7 @@ msgstr "Karte"
 #: gui/panels/GUI_ConsoleView.cpp:224
 msgctxt "Console"
 msgid "By level:"
-msgstr ""
+msgstr "Nach Level:"
 
 #: gui/panels/GUI_ConsoleView.cpp:225
 msgctxt "Console"
