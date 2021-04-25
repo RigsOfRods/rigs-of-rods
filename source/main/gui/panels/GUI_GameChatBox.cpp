@@ -156,7 +156,6 @@ void GameChatBox::Draw()
         }
     }
 
-    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
 
     ImGui::PopStyleColor(2); // 2*WindowBg
