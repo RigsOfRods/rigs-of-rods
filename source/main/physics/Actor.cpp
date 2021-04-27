@@ -1928,7 +1928,7 @@ void Actor::sendStreamData()
         exit(126);
     }
 
-    char send_buffer[8192] = {0};
+    char send_buffer[RORNET_MAX_MESSAGE_LENGTH] = {0};
 
     unsigned int packet_len = 0;
 
