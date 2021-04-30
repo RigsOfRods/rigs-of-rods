@@ -87,22 +87,21 @@ CVar* app_force_cache_update;
 CVar* app_disable_online_api;
 CVar* app_config_long_names;
 
-
 // Simulation
- CVar* sim_state;
- CVar* sim_terrain_name;
- CVar* sim_terrain_gui_name;
- CVar* sim_load_savegame;
- CVar* sim_spawn_running;
- CVar* sim_replay_enabled;
- CVar* sim_replay_length;
- CVar* sim_replay_stepping;
- CVar* sim_realistic_commands;
- CVar* sim_races_enabled;
- CVar* sim_no_collisions;
- CVar* sim_no_self_collisions;
- CVar* sim_gearbox_mode;
- CVar* sim_soft_reset_mode;
+CVar* sim_state;
+CVar* sim_terrain_name;
+CVar* sim_terrain_gui_name;
+CVar* sim_load_savegame;
+CVar* sim_spawn_running;
+CVar* sim_replay_enabled;
+CVar* sim_replay_length;
+CVar* sim_replay_stepping;
+CVar* sim_realistic_commands;
+CVar* sim_races_enabled;
+CVar* sim_no_collisions;
+CVar* sim_no_self_collisions;
+CVar* sim_gearbox_mode;
+CVar* sim_soft_reset_mode;
 
 // Multiplayer
 CVar* mp_state;
