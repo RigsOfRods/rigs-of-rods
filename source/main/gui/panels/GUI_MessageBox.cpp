@@ -69,6 +69,7 @@ void MessageBoxDialog::Show(const char* title, const char* text, bool allow_clos
         MessageBoxButton button;
         button.mbb_caption = button1_text;
         button.mbb_script_number = 1; // Standard
+        conf.mbc_buttons.push_back(button);
     }
 
     if (button2_text)
@@ -76,6 +77,7 @@ void MessageBoxDialog::Show(const char* title, const char* text, bool allow_clos
         MessageBoxButton button;
         button.mbb_caption = button2_text;
         button.mbb_script_number = 2; // Standard
+        conf.mbc_buttons.push_back(button);
     }
 
     this->Show(conf);
