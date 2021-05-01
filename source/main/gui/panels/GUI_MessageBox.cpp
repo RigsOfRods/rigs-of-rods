@@ -26,6 +26,7 @@
 #include "GUI_MessageBox.h"
 
 #include "Application.h"
+#include "Language.h"
 #include "GameContext.h"
 #include "GUIManager.h"
 #include "ScriptEngine.h"
@@ -96,6 +97,17 @@ void MessageBoxDialog::Draw()
     for (MessageBoxButton const& button: m_cfg.mbc_buttons)
     {
         this->DrawButton(button);
+    }
+
+    // Draw "always ask"
+    if (m_cfg.mbc_always_ask_conf)
+    {
+        ImGui::Separator();
+        bool ask = m_cfg.mbc_always_ask_conf->GetBool();
+        if (ImGui::Checkbox(_LC("MessageBox", "Always ask"), &ask))
+        {
+            m_cfg.mbc_always_ask_conf->SetVal(ask);
+        }
     }
 
     // Finalize
