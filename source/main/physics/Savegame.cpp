@@ -31,6 +31,7 @@
 #include "EngineSim.h"
 #include "GameContext.h"
 #include "GUIManager.h"
+#include "GUI_MessageBox.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "PlatformUtils.h"
@@ -197,8 +198,32 @@ void GameContext::HandleSavegameHotkeys()
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD, 1.0f))
     {
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED,
-                                                   App::GetGameContext()->GetQuicksaveFilename()));
+        if (App::sim_quickload_dialog->GetBool())
+        {
+            GUI::MessageBoxConfig* dialog = new GUI::MessageBoxConfig;
+            dialog->mbc_title = _LC("QuickloadDialog", "Load game?");
+            dialog->mbc_text = _LC("QuickloadDialog", "You will lose all unsaved progress!");
+            dialog->mbc_always_ask_conf = App::sim_quickload_dialog;
+
+            GUI::MessageBoxButton ok_btn;
+            ok_btn.mbb_caption = _LC("QuickloadDialog", "Load");
+            ok_btn.mbb_mq_message = MsgType::MSG_SIM_LOAD_SAVEGAME_REQUESTED;
+            ok_btn.mbb_mq_description = App::GetGameContext()->GetQuicksaveFilename();
+            dialog->mbc_buttons.push_back(ok_btn);
+
+            GUI::MessageBoxButton cancel_btn;
+            cancel_btn.mbb_caption = _LC("QuickloadDialog", "Cancel");
+            dialog->mbc_buttons.push_back(cancel_btn); // No action - just close the dialog.
+
+            App::GetGameContext()->PushMessage(
+                Message(MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED, (void*)dialog));
+        }
+        else
+        {
+            App::GetGameContext()->PushMessage(
+                Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED,
+                    App::GetGameContext()->GetQuicksaveFilename()));
+        }
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE))
