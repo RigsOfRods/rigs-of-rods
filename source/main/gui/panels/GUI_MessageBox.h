@@ -19,9 +19,10 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file
-/// @author Moncef Ben Slimane
-/// @date   12/2014
+/// @file   Generic UI dialog (not modal). Invocable from scripting.
+///         Any number of buttons. Configurable to fire script events or post MQ messages.
+/// @author Moncef Ben Slimane, 2014
+/// @author Petr Ohlidal, 2021 - extended config.
 
 #pragma once
 
@@ -32,23 +33,45 @@
 namespace RoR {
 namespace GUI {
 
+    // ----------------------------
+    // Config
+
+struct MessageBoxButton
+{
+    std::string mbb_caption;
+    MsgType     mbb_mq_message = MsgType::MSG_INVALID; //!< Message to queue on click.
+    std::string mbb_mq_description;                    //!< Message argument to queue on click.
+    void*       mbb_mq_payload = nullptr;              //!< Message argument to queue on click.
+    int         mbb_script_number = -1;                //!< Valid values are >= 1. -1 means not defined.
+};
+
+struct MessageBoxConfig
+{
+    std::string mbc_title;
+    std::string mbc_text;
+    bool*       mbc_close_handle = nullptr;            //!< External close handle - not required for `mbc_allow_close`.
+    bool        mbc_allow_close = false;               //!< Show close handle even if `dbc_close_handle` isn't set.
+
+    std::vector<MessageBoxButton> mbc_buttons;
+};
+
+    // ----------------------------
+    // Execution
+
 class MessageBoxDialog
 {
 public:
-    MessageBoxDialog();
-    ~MessageBoxDialog();
-
+    void          Show(MessageBoxConfig const& cfg);
     void          Show(const char* title, const char* text, bool allow_close, const char* button1_text, const char* button2_text);
     void          Draw();
-    inline bool   IsVisible() const { return m_is_visible; }
+    bool          IsVisible() const { return m_is_visible; }
 
 private:
-    std::string m_title;
-    std::string m_text;
-    std::string m_button1_text;
-    std::string m_button2_text;
-    bool*       m_close_handle; // If nullptr, close button is hidden. Otherwise visible.
-    bool        m_is_visible;
+    void          DrawButton(MessageBoxButton const& button);
+
+    MessageBoxConfig  m_cfg;
+    bool*             m_close_handle        = nullptr; //!< If nullptr, close button is hidden. Otherwise visible.
+    bool              m_is_visible          = false;
 };
 
 } // namespace GUI

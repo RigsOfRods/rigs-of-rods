@@ -530,6 +530,11 @@ void GUIManager::ShowMessageBox(const char* title, const char* text, bool allow_
     m_impl->panel_MessageBox.Show(title, text, allow_close, btn1_text, btn2_text);
 }
 
+void GUIManager::ShowMessageBox(GUI::MessageBoxConfig const& conf)
+{
+    m_impl->panel_MessageBox.Show(conf);
+}
+
 void GUIManager::RequestGuiCaptureKeyboard(bool val) 
 { 
     m_gui_kb_capture_queued = m_gui_kb_capture_queued || val;
