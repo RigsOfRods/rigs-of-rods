@@ -26,6 +26,7 @@
 
 #include "OgreImGui.h"
 #include "Application.h"
+#include "GUI_MessageBox.h"
 
 #include <Bites/OgreWindowEventUtilities.h>
 #include <OgreFrameListener.h>
@@ -121,6 +122,7 @@ public:
 
     // GUI manipulation
     void ShowMessageBox(const char* title, const char* text, bool allow_close = true, const char* btn1_text = "OK", const char* btn2_text = nullptr);
+    void ShowMessageBox(GUI::MessageBoxConfig const& conf);
     void RequestGuiCaptureKeyboard(bool val); //!< Pass true during frame to prevent input passing to application
     bool IsGuiCaptureKeyboardRequested() const { return m_gui_kb_capture_requested; }
     void ApplyGuiCaptureKeyboard(); //!< Call after rendered frame to apply queued value

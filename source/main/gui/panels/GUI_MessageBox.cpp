@@ -19,13 +19,14 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file
-/// @author Moncef Ben Slimane
-/// @date   12/2014
+/// @file   Generic UI dialog (not modal). Invocable from scripting.
+/// @author Moncef Ben Slimane, 2014
+/// @author Petr Ohlidal, 2021 - extended config.
 
 #include "GUI_MessageBox.h"
 
 #include "Application.h"
+#include "GameContext.h"
 #include "GUIManager.h"
 #include "ScriptEngine.h"
 
@@ -34,13 +35,52 @@
 using namespace RoR;
 using namespace GUI;
 
-MessageBoxDialog::MessageBoxDialog():
-    m_close_handle(nullptr),
-    m_is_visible(false)
-{}
+    // Setup functions
 
-MessageBoxDialog::~MessageBoxDialog()
-{}
+void MessageBoxDialog::Show(MessageBoxConfig const& cfg)
+{
+    m_is_visible = true;
+    m_cfg = cfg;
+
+    if (m_cfg.mbc_close_handle)
+    {
+        m_close_handle = m_cfg.mbc_close_handle;
+    }
+    else if (m_cfg.mbc_allow_close)
+    {
+        m_close_handle = &m_is_visible;
+    }
+    else
+    {
+        m_close_handle = nullptr;
+    }
+}
+
+void MessageBoxDialog::Show(const char* title, const char* text, bool allow_close, const char* button1_text, const char* button2_text)
+{
+    MessageBoxConfig conf;
+    conf.mbc_title = title;
+    conf.mbc_text = text;
+    conf.mbc_allow_close = allow_close;
+
+    if (button1_text)
+    {
+        MessageBoxButton button;
+        button.mbb_caption = button1_text;
+        button.mbb_script_number = 1; // Standard
+    }
+
+    if (button2_text)
+    {
+        MessageBoxButton button;
+        button.mbb_caption = button2_text;
+        button.mbb_script_number = 2; // Standard
+    }
+
+    this->Show(conf);
+}
+
+    // Draw funcions
 
 void MessageBoxDialog::Draw()
 {
@@ -49,25 +89,13 @@ void MessageBoxDialog::Draw()
     // Draw window
     ImGui::SetNextWindowContentWidth(300.f); // Initial size only
     ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing); // Initial pos. only
-    ImGui::Begin(m_title.c_str(), m_close_handle);
-    ImGui::TextWrapped("%s", m_text.c_str());
+    ImGui::Begin(m_cfg.mbc_title.c_str(), m_close_handle);
+    ImGui::TextWrapped("%s", m_cfg.mbc_text.c_str());
 
     // Draw buttons
-    if (!m_button1_text.empty())
+    for (MessageBoxButton const& button: m_cfg.mbc_buttons)
     {
-        if (ImGui::Button(m_button1_text.c_str()))
-        {
-            TRIGGER_EVENT(SE_GENERIC_MESSAGEBOX_CLICK, 1); // Scripting
-            m_is_visible = false;
-        }
-    }
-    if (!m_button2_text.empty())
-    {
-        if (ImGui::Button(m_button2_text.c_str()))
-        {
-            TRIGGER_EVENT(SE_GENERIC_MESSAGEBOX_CLICK, 2); // Scripting
-            m_is_visible = false;
-        }
+        this->DrawButton(button);
     }
 
     // Finalize
@@ -79,21 +107,26 @@ void MessageBoxDialog::Draw()
     }
 }
 
-void MessageBoxDialog::Show(const char* title, const char* text, bool allow_close, const char* button1_text, const char* button2_text)
+void MessageBoxDialog::DrawButton(MessageBoxButton const& button)
 {
-    m_is_visible = true;
-    m_title = title;
-    m_text = text;
-    m_button1_text = ((button1_text != nullptr) ? button1_text : "");
-    m_button2_text = ((button2_text != nullptr) ? button2_text : "");
+    if (ImGui::Button(button.mbb_caption.c_str()))
+    {
+        ROR_ASSERT(button.mbb_script_number != 0); // Reserved value (close button)
 
-    if (allow_close)
-    {
-        m_close_handle = &m_is_visible;
-    }
-    else
-    {
-        m_close_handle = nullptr;
+        if (button.mbb_script_number > 0)
+        {
+            TRIGGER_EVENT(SE_GENERIC_MESSAGEBOX_CLICK, button.mbb_script_number); // Scripting
+        }
+
+        if (button.mbb_mq_message != MsgType::MSG_INVALID)
+        {
+            Message m(button.mbb_mq_message);
+            m.description = button.mbb_mq_description;
+            m.payload = button.mbb_mq_payload;
+            App::GetGameContext()->PushMessage(m);
+        }
+
+        m_is_visible = false;
     }
 }
 

@@ -36,6 +36,7 @@
 #include "GUI_FrictionSettings.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
+#include "GUI_MessageBox.h"
 #include "GUI_MultiplayerSelector.h"
 #include "GUI_MultiplayerClientList.h"
 #include "GUI_SimActorStats.h"
@@ -646,6 +647,11 @@ int main(int argc, char *argv[])
 
                 case MSG_GUI_MP_CLIENTS_REFRESH:
                     App::GetGuiManager()->GetMpClientList()->UpdateClients();
+                    break;
+
+                case MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED:
+                    App::GetGuiManager()->ShowMessageBox(*(GUI::MessageBoxConfig*)m.payload);
+                    delete (GUI::MessageBoxConfig*)m.payload;
                     break;
 
                 // -- Editing events --
