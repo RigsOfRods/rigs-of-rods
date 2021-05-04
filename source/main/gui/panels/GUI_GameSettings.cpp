@@ -40,45 +40,42 @@ void GameSettings::Draw()
     bool keep_open = true;
     ImGui::Begin(_LC("GameSettings", "Game settings"), &keep_open, flags);
 
-    // 'Tabs' buttons
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 8.f));
+    ImGui::BeginTabBar("GameSettingsTabs");
 
-    if (ImGui::Button(_LC("GameSettings", "Render System"))) { m_tab = SettingsTab::RENDER_SYSTEM; }
-    ImGui::SameLine();
-    if (ImGui::Button(_LC("GameSettings", "General")))       { m_tab = SettingsTab::GENERAL;       }
-    ImGui::SameLine();
-    if (ImGui::Button(_LC("GameSettings", "Graphics")))      { m_tab = SettingsTab::GRAPHICS;      }
-    ImGui::SameLine();
-#ifdef USE_OPENAL
-    if (ImGui::Button(_LC("GameSettings", "Audio")))         { m_tab = SettingsTab::AUDIO;         }
-    ImGui::SameLine();
-#endif // USE_OPENAL
-    if (ImGui::Button(_LC("GameSettings", "Controls")))      { m_tab = SettingsTab::CONTROL;       }
-    ImGui::SameLine();
-    if (ImGui::Button(_LC("GameSettings", "Diagnostic")))    { m_tab = SettingsTab::DIAG;          }
-    ImGui::SameLine();
-    if (ImGui::Button(_LC("GameSettings", "Update cache")))
+    if (ImGui::BeginTabItem(_LC("GameSettings", "Render System")))
     {
-        App::GetGuiManager()->SetVisible_GameSettings(false);
-        App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_UPDATE_REQUESTED));
-        App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+        this->DrawRenderSystemSettings();
+        ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem(_LC("GameSettings", "General")))
+    {
+        this->DrawGeneralSettings();
+        ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem(_LC("GameSettings", "Graphics")))
+    {
+        this->DrawGraphicsSettings();
+        ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem(_LC("GameSettings", "Audio")))
+    {
+        this->DrawAudioSettings();
+        ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem(_LC("GameSettings", "Controls")))
+    {
+        this->DrawControlSettings();
+        ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem(_LC("GameSettings", "Diagnostic")))
+    {
+        this->DrawDiagSettings();
+        ImGui::EndTabItem();
     }
 
-    ImGui::PopStyleVar(1);
+    ImGui::EndTabBar();
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.f);
-    ImGui::Separator();
-
-    switch (m_tab)
-    {
-        case SettingsTab::RENDER_SYSTEM: this->DrawRenderSystemSettings(); break;
-        case SettingsTab::GENERAL: this->DrawGeneralSettings(); break;
-        case SettingsTab::GRAPHICS: this->DrawGraphicsSettings(); break;
-        case SettingsTab::AUDIO: this->DrawAudioSettings(); break;
-        case SettingsTab::CONTROL: this->DrawControlSettings(); break;
-        case SettingsTab::DIAG: this->DrawDiagSettings(); break;
-        default:;
-    }
 
     App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
@@ -205,6 +202,13 @@ void GameSettings::DrawGeneralSettings()
     DrawGCheckbox(App::app_skip_main_menu, _LC("GameSettings", "Skip main menu"));
     DrawGCheckbox(App::app_async_physics, _LC("GameSettings", "Async physics"));
     DrawGCheckbox(App::app_disable_online_api, _LC("GameSettings", "Disable online api"));
+
+    if (ImGui::Button(_LC("GameSettings", "Update cache")))
+    {
+        App::GetGuiManager()->SetVisible_GameSettings(false);
+        App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_UPDATE_REQUESTED));
+        App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+    }
 
     ImGui::Separator();
     ImGui::TextDisabled("%s", _LC("GameSettings", "Simulation settings"));
@@ -441,11 +445,7 @@ void GameSettings::DrawControlSettings()
 void GameSettings::SetVisible(bool v)
 {
     m_is_visible = v;
-    if (v)
-    {
-        m_tab = SettingsTab::RENDER_SYSTEM;
-    }
-    else if (App::app_state->GetEnum<AppState>() == RoR::AppState::MAIN_MENU)
+    if (!v && App::app_state->GetEnum<AppState>() == RoR::AppState::MAIN_MENU)
     {
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
