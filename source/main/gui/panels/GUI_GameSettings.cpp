@@ -52,6 +52,11 @@ void GameSettings::Draw()
         this->DrawGeneralSettings();
         ImGui::EndTabItem();
     }
+    if (ImGui::BeginTabItem(_LC("GameSettings", "Gameplay")))
+    {
+        this->DrawGameplaySettings();
+        ImGui::EndTabItem();
+    }
     if (ImGui::BeginTabItem(_LC("GameSettings", "Graphics")))
     {
         this->DrawGraphicsSettings();
@@ -209,8 +214,10 @@ void GameSettings::DrawGeneralSettings()
         App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_UPDATE_REQUESTED));
         App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
     }
+}
 
-    ImGui::Separator();
+void GameSettings::DrawGameplaySettings()
+{
     ImGui::TextDisabled("%s", _LC("GameSettings", "Simulation settings"));
 
     DrawGCombo(App::sim_gearbox_mode, _LC("GameSettings", "Gearbox mode"),

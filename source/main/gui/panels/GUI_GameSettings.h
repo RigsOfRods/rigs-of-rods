@@ -36,6 +36,7 @@ public:
 private:
     void DrawRenderSystemSettings();
     void DrawGeneralSettings();
+    void DrawGameplaySettings();
     void DrawGraphicsSettings();
     void DrawAudioSettings();
     void DrawControlSettings();
