@@ -263,6 +263,8 @@ void GameSettings::DrawGameplaySettings()
     DrawGCheckbox(App::sim_no_collisions, _LC("GameSettings", "No inter truck collisions"));
 
     DrawGCheckbox(App::io_discord_rpc, _LC("GameSettings", "Discord Rich Presence"));
+
+        DrawGCheckbox(App::sim_quickload_dialog, _LC("GameSettings", "Show confirm. UI dialog for quickload"));
 }
 
 void GameSettings::DrawAudioSettings()
