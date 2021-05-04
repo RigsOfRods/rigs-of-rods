@@ -28,10 +28,6 @@ namespace GUI {
 class GameSettings
 {
 public:
-    enum SettingsTab { RENDER_SYSTEM, GENERAL, GRAPHICS, AUDIO, CONTROL, DIAG };
-
-    GameSettings(): m_is_visible(false), m_tab(SettingsTab::RENDER_SYSTEM) {}
-
     void Draw();
 
     bool IsVisible() const { return m_is_visible; }
@@ -45,8 +41,7 @@ private:
     void DrawControlSettings();
     void DrawDiagSettings();
 
-    bool m_is_visible;
-    SettingsTab m_tab;
+    bool m_is_visible = false;
 
     Str<1000> m_buf_diag_preset_terrain;
     Str<1000> m_buf_diag_preset_vehicle;
