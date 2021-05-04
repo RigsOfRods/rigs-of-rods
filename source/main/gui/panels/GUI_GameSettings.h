@@ -38,6 +38,13 @@ public:
     void SetVisible(bool v);
 
 private:
+    void DrawRenderSystemSettings();
+    void DrawGeneralSettings();
+    void DrawGraphicsSettings();
+    void DrawAudioSettings();
+    void DrawControlSettings();
+    void DrawDiagSettings();
+
     bool m_is_visible;
     SettingsTab m_tab;
 
