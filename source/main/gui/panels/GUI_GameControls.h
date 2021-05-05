@@ -29,7 +29,7 @@ class GameControls
 public:
     const ImVec4 GRAY_HINT_TEXT = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
 
-    void SetVisible(bool vis) { m_is_visible = vis; }
+    void SetVisible(bool vis);
     bool IsVisible() const { return m_is_visible; }
     void Draw();
 

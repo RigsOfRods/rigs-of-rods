@@ -547,12 +547,6 @@ void TopMenubar::Update()
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
-            if (ImGui::Button(_LC("TopMenubar", "Game controls")))
-            {
-                App::GetGuiManager()->SetVisible_GameControls(true);
-                m_open_menu = TopMenu::TOPMENU_NONE;
-            }
-
             if (current_actor != nullptr)
             {
                 if (ImGui::Button(_LC("TopMenubar", "Node / Beam utility")))

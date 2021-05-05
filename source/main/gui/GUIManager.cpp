@@ -278,11 +278,6 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
         m_impl->panel_TextureToolWindow.Draw();
     }
 
-    if (this->IsVisible_GameControls())
-    {
-        m_impl->panel_GameControls.Draw();
-    }
-
     if (this->IsVisible_SurveyMap())
     {
         m_impl->panel_SurveyMap.Draw();
@@ -487,6 +482,11 @@ void GUIManager::DrawCommonGui()
     if (m_impl->panel_ConsoleWindow.IsVisible())
     {
         m_impl->panel_ConsoleWindow.Draw();
+    }
+
+    if (this->IsVisible_GameControls())
+    {
+        m_impl->panel_GameControls.Draw();
     }
 }
 
