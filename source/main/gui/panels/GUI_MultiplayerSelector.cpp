@@ -276,6 +276,13 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
                 {
                     m_selected_item = i;
                 }
+                if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) // Left doubleclick
+                {
+                    App::mp_server_password->SetStr(m_password_buf.GetBuffer());
+                    App::mp_server_host->SetStr(server.net_host.c_str());
+                    App::mp_server_port->SetVal(server.net_port);
+                    App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
+                }
                 ImGui::NextColumn();
 
                 bool compatible = (server.net_version == RORNET_VERSION);
@@ -383,3 +390,4 @@ void MultiplayerSelector::UpdateServerlist(MpServerInfoVec* data)
         m_serverlist_msg = "";
     }
 }
+
