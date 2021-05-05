@@ -19,17 +19,23 @@
 
 #pragma once
 
+#include "InputEngine.h"
+
 namespace RoR {
 namespace GUI {
 
 class GameControls
 {
 public:
+    const ImVec4 GRAY_HINT_TEXT = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
+
     void SetVisible(bool vis) { m_is_visible = vis; }
     bool IsVisible() const { return m_is_visible; }
     void Draw();
 
 private:
+    void DrawEvent(RoR::events ev_code); //!< One line in table
+
     enum ControlsTab {AIRPLANE, BOAT, CAMERA, SKY, CHARACTER, COMMANDS, COMMON, GRASS, MAP, MENU, TRUCK};
     ControlsTab m_tab;
     bool m_is_visible = false;
