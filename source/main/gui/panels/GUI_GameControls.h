@@ -35,6 +35,7 @@ public:
 
 private:
     void DrawEvent(RoR::events ev_code); //!< One line in table
+    void DrawControlsTab(const char* prefix); //!< Draws table with events matching prefix.
 
     enum ControlsTab {AIRPLANE, BOAT, CAMERA, SKY, CHARACTER, COMMANDS, COMMON, GRASS, MAP, MENU, TRUCK};
     ControlsTab m_tab;
