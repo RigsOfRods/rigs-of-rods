@@ -25,7 +25,14 @@
 
 #include "CacheSystem.h"
 
-#include <OgreException.h>
+// File formats
+#include "AddonFileFormat.h"
+#include "RigDef_Parser.h"
+#include "SkinFileFormat.h"
+#include "TerrainManager.h"
+#include "Terrn2FileFormat.h"
+
+// Game
 #include "Application.h"
 #include "SimData.h"
 #include "ContentManager.h"
@@ -37,18 +44,16 @@
 #include "GfxScene.h"
 #include "Language.h"
 #include "PlatformUtils.h"
-#include "RigDef_Parser.h"
-
-#include "SkinFileFormat.h"
-#include "TerrainManager.h"
-#include "Terrn2FileFormat.h"
 #include "Utils.h"
 
-#include <OgreFileSystem.h>
+// Deps
+#include <Ogre.h>
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/writer.h>
+
+// OS
 #include <fstream>
 
 using namespace Ogre;
@@ -111,6 +116,7 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("load");
     m_known_extensions.push_back("train");
     m_known_extensions.push_back("skin");
+    m_known_extensions.push_back("addon");
 }
 
 void CacheSystem::LoadModCache(CacheValidity validity)
@@ -610,7 +616,7 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
                 { return !e.deleted && e.fname == f.filename && e.resource_bundle_path == path; }) != m_entries.end())
         return;
 
-    RoR::LogFormat("[RoR|CacheSystem] Preparing to add file '%f'", f.filename.c_str());
+    RoR::LogFormat("[RoR|CacheSystem] Preparing to add file '%s'", f.filename.c_str());
 
     try
     {
@@ -622,6 +628,11 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
         {
             new_entries.resize(1);
             FillTerrainDetailInfo(new_entries.back(), ds, f.filename);
+        }
+        else if (ext == "addon")
+        {
+            new_entries.resize(1);
+            FillAddonDetailInfo(new_entries.back(), ds, f.filename);
         }
         else if (ext == "skin")
         {
@@ -1026,6 +1037,21 @@ void CacheSystem::FillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr d
     entry.version    = def.version;
 }
 
+void CacheSystem::FillAddonDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr ds, Ogre::String fname)
+{
+    AddonDef def;
+    AddonParser parser;
+    parser.LoadAddonFile(def, ds);
+
+    entry.authors.assign(def.authors.begin(), def.authors.end());
+
+    entry.fname      = fname;
+    entry.dname      = def.name;
+    entry.categoryid = def.category_id;
+    entry.uniqueid   = def.guid;
+    entry.version    = def.version;
+}
+
 bool CacheSystem::CheckResourceLoaded(Ogre::String & filename)
 {
     Ogre::String group = "";
@@ -1237,6 +1263,8 @@ size_t CacheSystem::Query(CacheQuery& query)
             add = (query.cqy_filter_type == LT_Terrain);
         if (entry.fext == "skin")
             add = (query.cqy_filter_type == LT_Skin);
+        if (entry.fext == "addon")
+            add = (query.cqy_filter_type == LT_Addon);
         else if (entry.fext == "truck")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck);
         else if (entry.fext == "car")

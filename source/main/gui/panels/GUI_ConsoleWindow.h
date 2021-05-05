@@ -26,6 +26,7 @@
 #include "Application.h"
 
 #include "Application.h"
+#include "CacheSystem.h"
 #include "GUI_ConsoleView.h"
 #include "OgreImGui.h"
 
@@ -44,8 +45,10 @@ public:
     void SetVisible(bool visible) { m_is_visible = visible; }
     bool IsVisible() const { return m_is_visible; }
 
-    void Draw();
     void DoCommand(std::string msg);
+
+    void Draw();
+    void DrawAddonSelector();
 
 private:
 
@@ -55,6 +58,8 @@ private:
     ConsoleView              m_console_view;
     Str<500>                 m_cmd_buffer;
     std::vector<std::string> m_cmd_history;
+    CacheQuery               m_addons_query; //!< Buffered display list of addons.
+    bool                     m_addons_refreshed = false; //!< Initial refresh.
     int                      m_cmd_history_cursor = -1;
     bool                     m_is_visible = false;
 };

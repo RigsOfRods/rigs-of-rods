@@ -237,6 +237,7 @@ private:
 
     void FillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
     void FillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname, Ogre::String group);
+    void FillAddonDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
 

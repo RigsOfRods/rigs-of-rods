@@ -72,6 +72,11 @@ void ConsoleWindow::Draw()
             ImGui::Columns(1); // reset
             ImGui::EndMenu();
         }
+        if (ImGui::BeginMenu(_LC("Console", "Addons")))
+        {
+            this->DrawAddonSelector();
+            ImGui::EndMenu();
+        }
         ImGui::EndMenuBar();
     }
 
@@ -162,3 +167,53 @@ void ConsoleWindow::TextEditCallbackProc(ImGuiTextEditCallbackData *data)
     }
 }
 
+void ConsoleWindow::DrawAddonSelector()
+{
+    // Initial refresh
+    if (!m_addons_refreshed)
+    {
+        m_addons_query.cqy_filter_type = LT_Addon;
+        App::GetCacheSystem()->Query(m_addons_query);
+        m_addons_refreshed = true;
+    }
+
+    // Setup table ... the scroll area
+    ImGui::BeginChild("scrolling", ImVec2(400.f, 150.f), false);
+    // ... and the table itself
+    const float table_width = ImGui::GetWindowContentRegionWidth();
+    ImGui::Columns(2, "addon-setup-columns");         // Col #0: Info
+    ImGui::SetColumnOffset(1, 0.7f * table_width);    // Col #1: Actions
+
+    // Draw table header
+    ImGui::Text("%s", _LC("AddonSetup", "Info"));
+    ImGui::NextColumn();
+    ImGui::Text("%s", _LC("AddonSetup", "Action"));
+    ImGui::NextColumn();
+
+    ImGui::Separator();
+    // Draw table body
+    for (int i = 0; i < (int)m_addons_query.cqy_results.size(); i++)
+    {
+        ImGui::PushID(i);
+        CacheEntry* entry = m_addons_query.cqy_results[i].cqr_entry;
+
+        // First column - selection control
+        ImGui::Text(entry->dname.c_str());
+        ImGui::NextColumn();
+
+        // 2nd column - actions
+        if (ImGui::Button(_LC("AddonSetup", "Load")))
+        {
+            // MSG_APP_LOAD_ADDON_REQUESTED
+        }
+        bool autoload = false; // TODO
+        if (ImGui::Checkbox(_LC("AddonSetup", "AutoLoad"), &autoload))
+        {
+            // MSG_APP_SETUP_ADDON_REQUESTED
+        }
+
+        ImGui::PopID();
+    }
+    ImGui::Columns(1);
+    ImGui::EndChild(); // End of scroll area
+}
