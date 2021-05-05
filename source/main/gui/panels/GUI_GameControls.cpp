@@ -39,7 +39,6 @@ void GameControls::Draw()
         return;
     }
 
-    ImVec4 GRAY_HINT_TEXT = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 8.f));
@@ -154,29 +153,14 @@ void GameControls::Draw()
     else if (m_tab == ControlsTab::BOAT)
     {
         ImGui::Columns(3, /*id=*/nullptr, /*border=*/true);
-        ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(EV_BOAT_CENTER_RUDDER).c_str());
-        ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(EV_BOAT_REVERSE).c_str());
-        ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(EV_BOAT_STEER_LEFT).c_str());
-        ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(EV_BOAT_STEER_RIGHT).c_str());
-        ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(EV_BOAT_THROTTLE_AXIS).c_str());
-        ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(EV_BOAT_THROTTLE_UP).c_str());
-        ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(EV_BOAT_THROTTLE_DOWN).c_str());
-        ImGui::NextColumn();
-        ImGui::TextColored(theme.success_text_color, "%s", App::GetInputEngine()->getEventCommand(EV_BOAT_CENTER_RUDDER).c_str());
-        ImGui::TextColored(theme.success_text_color, "%s", App::GetInputEngine()->getEventCommand(EV_BOAT_REVERSE).c_str());
-        ImGui::TextColored(theme.success_text_color, "%s", App::GetInputEngine()->getEventCommand(EV_BOAT_STEER_LEFT).c_str());
-        ImGui::TextColored(theme.success_text_color, "%s", App::GetInputEngine()->getEventCommand(EV_BOAT_STEER_RIGHT).c_str());
-        ImGui::TextColored(theme.success_text_color, "%s", App::GetInputEngine()->getEventCommand(EV_BOAT_THROTTLE_AXIS).c_str());
-        ImGui::TextColored(theme.success_text_color, "%s", App::GetInputEngine()->getEventCommand(EV_BOAT_THROTTLE_UP).c_str());
-        ImGui::TextColored(theme.success_text_color, "%s", App::GetInputEngine()->getEventCommand(EV_BOAT_THROTTLE_DOWN).c_str());
-        ImGui::NextColumn();
-        ImGui::TextColored(GRAY_HINT_TEXT, "%s", App::GetInputEngine()->eventIDToDescription(EV_BOAT_CENTER_RUDDER).c_str());
-        ImGui::TextColored(GRAY_HINT_TEXT, "%s", App::GetInputEngine()->eventIDToDescription(EV_BOAT_REVERSE).c_str());
-        ImGui::TextColored(GRAY_HINT_TEXT, "%s", App::GetInputEngine()->eventIDToDescription(EV_BOAT_STEER_LEFT).c_str());
-        ImGui::TextColored(GRAY_HINT_TEXT, "%s", App::GetInputEngine()->eventIDToDescription(EV_BOAT_STEER_RIGHT).c_str());
-        ImGui::TextColored(GRAY_HINT_TEXT, "%s", App::GetInputEngine()->eventIDToDescription(EV_BOAT_THROTTLE_AXIS).c_str());
-        ImGui::TextColored(GRAY_HINT_TEXT, "%s", App::GetInputEngine()->eventIDToDescription(EV_BOAT_THROTTLE_UP).c_str());
-        ImGui::TextColored(GRAY_HINT_TEXT, "%s", App::GetInputEngine()->eventIDToDescription(EV_BOAT_THROTTLE_DOWN).c_str());
+
+        this->DrawEvent(EV_BOAT_CENTER_RUDDER);
+        this->DrawEvent(EV_BOAT_REVERSE);
+        this->DrawEvent(EV_BOAT_STEER_LEFT);
+        this->DrawEvent(EV_BOAT_STEER_RIGHT);
+        this->DrawEvent(EV_BOAT_THROTTLE_AXIS);
+        this->DrawEvent(EV_BOAT_THROTTLE_UP);
+        this->DrawEvent(EV_BOAT_THROTTLE_DOWN);
     }
     else if (m_tab == ControlsTab::CAMERA)
     {
@@ -887,4 +871,16 @@ void GameControls::Draw()
         ImGui::TextColored(GRAY_HINT_TEXT, "%s", App::GetInputEngine()->eventIDToDescription(EV_TRUCK_TRACTION_CONTROL).c_str());
     }    
     ImGui::End();
+}
+
+void GameControls::DrawEvent(RoR::events ev_code)
+{
+    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+
+    ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(ev_code).c_str());
+    ImGui::NextColumn();
+    ImGui::TextColored(theme.success_text_color, "%s", App::GetInputEngine()->getEventCommand(ev_code).c_str());
+    ImGui::NextColumn();
+    ImGui::TextColored(GRAY_HINT_TEXT, "%s", App::GetInputEngine()->eventIDToDescription(ev_code).c_str());
+    ImGui::NextColumn();
 }
