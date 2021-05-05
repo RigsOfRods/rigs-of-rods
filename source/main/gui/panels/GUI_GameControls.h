@@ -38,7 +38,14 @@ private:
     void DrawControlsTab(const char* prefix); //!< Draws table with events matching prefix.
     void DrawControlsTabItem(const char* name, const char* prefix); //!< Wraps `DrawControlsTab()` with scrollbar and tabs-bar logic.
 
+    void ApplyChanges();
+    void CancelChanges();
+
     bool m_is_visible = false;
+
+    // Editing context
+    RoR::events m_active_event = events::EV_MODE_LAST; // Invalid
+    Str<1000> m_active_buffer;
 };
 
 } // namespace GUI

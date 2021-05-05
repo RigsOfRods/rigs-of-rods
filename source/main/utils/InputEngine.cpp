@@ -1209,7 +1209,15 @@ void InputEngine::updateEvent(int eventID, const event_trigger_t& t)
     events[eventID].push_back(t);
 }
 
-bool InputEngine::processLine(char* line, int deviceID)
+void InputEngine::clearEvents(int eventID)
+{
+    if (events.find(eventID) != events.end())
+    {
+        events[eventID].clear();
+    }
+}
+
+bool InputEngine::processLine(const char* line, int deviceID)
 {
     static String cur_comment = "";
 

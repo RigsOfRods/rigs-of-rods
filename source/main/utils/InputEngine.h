@@ -487,6 +487,7 @@ public:
     std::string getJoyVendor(int joystickNumber);
     void smoothValue(float& ref, float value, float rate);
     bool loadMapping(std::string outfile = CONFIGFILENAME, bool append = false, int deviceID = -1);
+    bool processLine(const char* line, int deviceID = -1);
 
     void destroy();
 
@@ -499,6 +500,7 @@ public:
     bool isEventDefined(int eventID);
     void addEvent(int eventID, event_trigger_t& t);
     void updateEvent(int eventID, const event_trigger_t& t);
+    void clearEvents(int eventID);
     bool deleteEventBySUID(int suid);
     OIS::MouseState getMouseState();
     // some custom methods
@@ -534,8 +536,6 @@ protected:
     // define event aliases
     std::map<int, std::vector<event_trigger_t>> events;
     std::map<int, float> event_times;
-
-    bool processLine(char* line, int deviceID = -1);
 
     void initAllKeys();
     bool setup();
