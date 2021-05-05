@@ -67,7 +67,7 @@ void GameMainMenu::DrawMenuPanel()
     if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
     {
         title = "Main menu";
-        m_num_buttons = 5;
+        m_num_buttons = 6;
         if (FileExists(PathCombine(App::sys_savegames_dir->getStr(), "autosave.sav")))
         {
             m_num_buttons++;
@@ -75,7 +75,7 @@ void GameMainMenu::DrawMenuPanel()
     }
     else
     {
-        m_num_buttons = 3;
+        m_num_buttons = 4;
         if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
         {
             title = "Menu";
@@ -168,6 +168,12 @@ void GameMainMenu::DrawMenuPanel()
                 this->SetVisible(false);
             }
 
+            if (HighlightButton(_LC("MainMenu", "Controls"), btn_size, button_index++))
+            {
+                App::GetGuiManager()->SetVisible_GameControls(true);
+                this->SetVisible(false);
+            }
+
             if (HighlightButton(_LC("MainMenu", "About"), btn_size, button_index++))
             {
                 App::GetGuiManager()->SetVisible_GameAbout(true);
@@ -176,6 +182,12 @@ void GameMainMenu::DrawMenuPanel()
         }
         else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
         {
+            if (HighlightButton(_LC("MainMenu", "Controls"), btn_size, button_index++))
+            {
+                App::GetGuiManager()->SetVisible_GameControls(true);
+                this->SetVisible(false);
+            }
+
             if (HighlightButton(_L("Return to menu"), btn_size, button_index++))
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));

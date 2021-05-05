@@ -35,11 +35,8 @@ void GameControls::Draw()
 {
     ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(800.f, 600.f), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin(_LC("GameControls", "Game Controls"), &m_is_visible))
-    {
-        ImGui::End(); // The window is collapsed
-        return;
-    }
+    bool keep_open = true;
+    ImGui::Begin(_LC("GameControls", "Game Controls"), &keep_open);
 
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
 
@@ -60,6 +57,10 @@ void GameControls::Draw()
     ImGui::EndTabBar(); // GameSettingsTabs
 
     ImGui::End();
+    if (!keep_open)
+    {
+        this->SetVisible(false);
+    }
 }
 
 void GameControls::DrawEvent(RoR::events ev_code)
@@ -193,8 +194,12 @@ void GameControls::CancelChanges()
 void GameControls::SetVisible(bool vis)
 {
     m_is_visible = vis;
-    if (!vis && App::sim_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+    if (!vis)
     {
-        App::GetGuiManager()->SetVisible_GameSettings(true);
+        this->CancelChanges();
+        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+        {
+            App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        }
     }
 }
