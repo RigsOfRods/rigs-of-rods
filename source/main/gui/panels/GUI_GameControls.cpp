@@ -26,6 +26,8 @@
 #include "GUIManager.h"
 #include "InputEngine.h"
 
+#include <fmt/format.h>
+
 using namespace RoR;
 using namespace GUI;
 
@@ -62,14 +64,48 @@ void GameControls::Draw()
 
 void GameControls::DrawEvent(RoR::events ev_code)
 {
+    ImGui::PushID((int)ev_code);
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
 
+    // Name column
     ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(ev_code).c_str());
     ImGui::NextColumn();
-    ImGui::TextColored(theme.success_text_color, "%s", App::GetInputEngine()->getEventCommand(ev_code).c_str());
+
+    // Command column
+    if (m_active_event == ev_code)
+    {
+        const int flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CharsNoBlank;
+        if (ImGui::InputText("", m_active_buffer.GetBuffer(), m_active_buffer.GetCapacity(), flags))
+        {
+            this->ApplyChanges();
+        }
+        if (ImGui::Button(_LC("GameSettings", "OK")))
+        {
+            this->ApplyChanges();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(_LC("GameSettings", "Cancel")))
+        {
+            this->CancelChanges();
+        }
+    }
+    else
+    {
+        if (ImGui::Button(_LC("GameSettings", "Edit")))
+        {
+            // Begin editing
+            m_active_event = ev_code;
+            m_active_buffer.Assign(App::GetInputEngine()->getEventCommand(ev_code).c_str());
+        }
+        ImGui::SameLine();
+        ImGui::TextColored(theme.success_text_color, "%s", App::GetInputEngine()->getEventCommand(ev_code).c_str());
+    }
     ImGui::NextColumn();
+
     ImGui::TextColored(GRAY_HINT_TEXT, "%s", App::GetInputEngine()->eventIDToDescription(ev_code).c_str());
     ImGui::NextColumn();
+
+    ImGui::PopID(); // ev_code
 }
 
 void GameControls::DrawControlsTab(const char* prefix)
@@ -82,8 +118,9 @@ void GameControls::DrawControlsTab(const char* prefix)
         const RoR::events ev_code = RoR::events(ev_pair.first);
         const std::string ev_name = App::GetInputEngine()->eventIDToName(ev_code);
 
-        // Filter event list
-        if (ev_name.find(prefix) == 0)
+        // Filter event list by Keyboard + prefix
+        if (ev_pair.second[0].eventtype == eventtypes::ET_Keyboard &&
+            ev_name.find(prefix) == 0)
         {
             this->DrawEvent(ev_code);
         }
@@ -118,5 +155,46 @@ void GameControls::DrawControlsTabItem(const char* name, const char* prefix)
         ImGui::EndChild();    // "scroll"
         ImGui::PopID();       // `prefix`
         ImGui::EndTabItem();  // `name`
+    }
+}
+
+void GameControls::ApplyChanges()
+{
+    // Validate input (the '_CharsNoBlank' flag ensures there is no whitespace)
+    if (m_active_buffer.GetLength() == 0)
+    {
+        this->CancelChanges();
+        return;
+    }
+
+    // Erase all previous configurations
+    App::GetInputEngine()->clearEvents(m_active_event);
+
+    // Format a '.map' format line with new config
+    std::string line = fmt::format("{} Keyboard {}",
+        App::GetInputEngine()->eventIDToName(m_active_event),
+        m_active_buffer.ToCStr());
+
+    // Parse the line - this updates live settings.
+    App::GetInputEngine()->processLine(line.c_str());
+
+    // Reset editing context.
+    m_active_event = events::EV_MODE_LAST; // Invalid
+    m_active_buffer.Clear();
+}
+
+void GameControls::CancelChanges()
+{
+    // Reset editing context.
+    m_active_event = events::EV_MODE_LAST; // Invalid
+    m_active_buffer.Clear();
+}
+
+void GameControls::SetVisible(bool vis)
+{
+    m_is_visible = vis;
+    if (!vis && App::sim_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+    {
+        App::GetGuiManager()->SetVisible_GameSettings(true);
     }
 }
