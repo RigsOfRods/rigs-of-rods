@@ -515,7 +515,7 @@ public:
 
     inline OIS::Keyboard* GetOisKeyboard() { return mKeyboard; }
 
-    void EditInputConfig(const char* command, const char* id, Str<1000>& buf, const char* label);
+    void EditInputConfig(const char* command, const char* id, Str<1000>& buf);
 
 protected:
 
