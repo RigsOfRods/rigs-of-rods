@@ -559,7 +559,10 @@ int main(int argc, char *argv[])
                         {
                             Str<400> msg; msg << _L("Could not read savegame file") << "'" << m.description << "'";
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-                            App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                            if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                            }
                         }
                         else if (terrn_filename == App::sim_terrain_name->GetStr())
                         {
