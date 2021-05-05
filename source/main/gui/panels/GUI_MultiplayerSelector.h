@@ -54,8 +54,6 @@ typedef std::vector<MpServerInfo> MpServerInfoVec;
 class MultiplayerSelector
 {
 public:
-    const float TABS_BOTTOM_PADDING = 4.f; // They're actually buttons in role of tabs.
-    const float CONTENT_TOP_PADDING = 4.f; // Extra space under top horizontal separator bar.
     const float BUTTONS_EXTRA_SPACE = 6.f;
     const float TABLE_PADDING_LEFT = 4.f;
 
@@ -74,13 +72,10 @@ private:
     void                DrawDirectTab();
     void                DrawServerlistTab();
 
-    enum class Mode { ONLINE, DIRECT, SETUP };
-
     MpServerInfoVec     m_serverlist_data;
     std::string         m_serverlist_msg;
     ImVec4              m_serverlist_msg_color;
     int                 m_selected_item;
-    Mode                m_mode;
     char                m_window_title[100];
     bool                m_is_visible;
     bool                m_draw_table;
