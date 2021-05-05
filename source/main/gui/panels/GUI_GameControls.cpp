@@ -152,15 +152,7 @@ void GameControls::Draw()
     }
     else if (m_tab == ControlsTab::BOAT)
     {
-        ImGui::Columns(3, /*id=*/nullptr, /*border=*/true);
-
-        this->DrawEvent(EV_BOAT_CENTER_RUDDER);
-        this->DrawEvent(EV_BOAT_REVERSE);
-        this->DrawEvent(EV_BOAT_STEER_LEFT);
-        this->DrawEvent(EV_BOAT_STEER_RIGHT);
-        this->DrawEvent(EV_BOAT_THROTTLE_AXIS);
-        this->DrawEvent(EV_BOAT_THROTTLE_UP);
-        this->DrawEvent(EV_BOAT_THROTTLE_DOWN);
+        this->DrawControlsTab("BOAT");
     }
     else if (m_tab == ControlsTab::CAMERA)
     {
@@ -883,4 +875,22 @@ void GameControls::DrawEvent(RoR::events ev_code)
     ImGui::NextColumn();
     ImGui::TextColored(GRAY_HINT_TEXT, "%s", App::GetInputEngine()->eventIDToDescription(ev_code).c_str());
     ImGui::NextColumn();
+}
+
+void GameControls::DrawControlsTab(const char* prefix)
+{
+    ImGui::Columns(3, /*id=*/nullptr, /*border=*/true);
+
+    for (auto& ev_pair: App::GetInputEngine()->getEvents())
+    {
+        // Retrieve data
+        const RoR::events ev_code = RoR::events(ev_pair.first);
+        const std::string ev_name = App::GetInputEngine()->eventIDToName(ev_code);
+
+        // Filter event list
+        if (ev_name.find(prefix) == 0)
+        {
+            this->DrawEvent(ev_code);
+        }
+    }
 }
