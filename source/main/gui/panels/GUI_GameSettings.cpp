@@ -34,7 +34,7 @@ using namespace GUI;
 
 void GameSettings::Draw()
 {
-    const int flags = ImGuiWindowFlags_NoCollapse;
+    const int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
     ImGui::SetNextWindowSize(ImVec2(670.f, 400.f), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
     bool keep_open = true;
@@ -44,37 +44,51 @@ void GameSettings::Draw()
 
     if (ImGui::BeginTabItem(_LC("GameSettings", "Render System")))
     {
+        ImGui::BeginChild("Settings-Render-scroll");
         this->DrawRenderSystemSettings();
+        ImGui::EndChild();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("GameSettings", "General")))
     {
+        ImGui::BeginChild("Settings-General-scroll");
         this->DrawGeneralSettings();
+        ImGui::EndChild();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("GameSettings", "Gameplay")))
     {
+        ImGui::BeginChild("Settings-Gameplay-scroll");
         this->DrawGameplaySettings();
+        ImGui::EndChild();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("GameSettings", "Graphics")))
     {
+        ImGui::BeginChild("Settings-Graphics-scroll");
         this->DrawGraphicsSettings();
+        ImGui::EndChild();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("GameSettings", "Audio")))
     {
+        ImGui::BeginChild("Settings-Audio-scroll");
         this->DrawAudioSettings();
+        ImGui::EndChild();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("GameSettings", "Controls")))
     {
+        ImGui::BeginChild("Settings-Controls-scroll");
         this->DrawControlSettings();
+        ImGui::EndChild();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("GameSettings", "Diagnostic")))
     {
+        ImGui::BeginChild("Settings-Diag-scroll");
         this->DrawDiagSettings();
+        ImGui::EndChild();
         ImGui::EndTabItem();
     }
 
