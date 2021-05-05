@@ -36,9 +36,8 @@ public:
 private:
     void DrawEvent(RoR::events ev_code); //!< One line in table
     void DrawControlsTab(const char* prefix); //!< Draws table with events matching prefix.
+    void DrawControlsTabItem(const char* name, const char* prefix); //!< Wraps `DrawControlsTab()` with scrollbar and tabs-bar logic.
 
-    enum ControlsTab {AIRPLANE, BOAT, CAMERA, SKY, CHARACTER, COMMANDS, COMMON, GRASS, MAP, MENU, TRUCK};
-    ControlsTab m_tab;
     bool m_is_visible = false;
 };
 
