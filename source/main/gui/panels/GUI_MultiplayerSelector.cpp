@@ -23,6 +23,7 @@
 #include "GUI_MultiplayerSelector.h"
 
 #include "Application.h"
+#include "ContentManager.h"
 #include "GameContext.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
@@ -234,6 +235,18 @@ void MultiplayerSelector::DrawServerlistTab()
     const char* draw_label_text = nullptr;
     ImVec4      draw_label_color;
 
+    // LOAD RESOURCES
+    if (!m_lock_icon)
+    {
+        try
+        {
+            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
+            m_lock_icon = Ogre::TextureManager::getSingleton().load(
+                "lock.png", ContentManager::ResourcePack::FAMICONS.resource_group_name);
+        }
+        catch (...) {} // Logged by OGRE
+    }
+
     // DETERMINE WHAT TO DRAW
     if (!m_serverlist_msg.empty())
     {
@@ -251,15 +264,13 @@ void MultiplayerSelector::DrawServerlistTab()
         ImGui::BeginChild("scrolling", ImVec2(0.f, table_height), false);
         // ... and the table itself
         const float table_width = ImGui::GetWindowContentRegionWidth();
-        ImGui::Columns(6, "mp-selector-columns");         // Col #0: Passwd
-        ImGui::SetColumnOffset(1, 0.09f * table_width);   // Col #1: Server name
-        ImGui::SetColumnOffset(2, 0.36f * table_width);   // Col #2: Terrain name
-        ImGui::SetColumnOffset(3, 0.67f * table_width);   // Col #3: Users/Max
-        ImGui::SetColumnOffset(4, 0.74f * table_width);   // Col #4: Version
-        ImGui::SetColumnOffset(5, 0.82f * table_width);   // Col #5: Host/Port
+        ImGui::Columns(5, "mp-selector-columns");         // Col #0: Server name (and lock icon)
+        ImGui::SetColumnOffset(1, 0.36f * table_width);   // Col #1: Terrain name
+        ImGui::SetColumnOffset(2, 0.67f * table_width);   // Col #2: Users/Max
+        ImGui::SetColumnOffset(3, 0.74f * table_width);   // Col #3: Version
+        ImGui::SetColumnOffset(4, 0.82f * table_width);   // Col #4: Host/Port
         // Draw table header
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + TABLE_PADDING_LEFT);
-        DrawTableHeader(_LC("MultiplayerSelector", "Passwd?"));
         DrawTableHeader(_LC("MultiplayerSelector", "Name"));
         DrawTableHeader(_LC("MultiplayerSelector", "Terrain"));
         DrawTableHeader(_LC("MultiplayerSelector", "Users"));
@@ -271,19 +282,27 @@ void MultiplayerSelector::DrawServerlistTab()
         {
             ImGui::PushID(i);
 
-            // First column - selection control
+            // First column (name)
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + TABLE_PADDING_LEFT);
             MpServerInfo& server = m_serverlist_data[i];
-            if (ImGui::Selectable(server.display_passwd.c_str(), m_selected_item == i, ImGuiSelectableFlags_SpanAllColumns))
+            if (ImGui::Selectable(server.display_name.c_str(), m_selected_item == i, ImGuiSelectableFlags_SpanAllColumns))
             {
+                // Update selection
                 m_selected_item = i;
             }
-            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) // Left doubleclick
+            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
             {
+                // Handle left doubleclick
                 App::mp_server_password->SetStr(m_password_buf.GetBuffer());
                 App::mp_server_host->SetStr(server.net_host.c_str());
                 App::mp_server_port->SetVal(server.net_port);
                 App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
+            }
+            if (server.has_password && m_lock_icon)
+            {
+                // Draw lock icon for password-protected servers.
+                ImGui::SameLine();
+                ImGui::Image(reinterpret_cast<ImTextureID>(m_lock_icon->getHandle()), ImVec2(16, 16));
             }
             ImGui::NextColumn();
 
@@ -291,7 +310,6 @@ void MultiplayerSelector::DrawServerlistTab()
             ImVec4 version_color = compatible ? ImVec4(0.0f, 0.9f, 0.0f, 1.0f) : ImVec4(0.9f, 0.0f, 0.0f, 1.0f);
 
             // Other collumns
-            ImGui::Text("%s", server.display_name.c_str());    ImGui::NextColumn();
             ImGui::Text("%s", server.display_terrn.c_str());   ImGui::NextColumn();
             ImGui::Text("%s", server.display_users.c_str());   ImGui::NextColumn();
             ImGui::PushStyleColor(ImGuiCol_Text, version_color);

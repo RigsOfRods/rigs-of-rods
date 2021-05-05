@@ -83,6 +83,7 @@ private:
     Str<1000>           m_player_name_buf;
     Str<1000>           m_password_buf;
     Str<1000>           m_server_host_buf;
+    Ogre::TexturePtr    m_lock_icon;
 };
 
 } // namespace GUI
