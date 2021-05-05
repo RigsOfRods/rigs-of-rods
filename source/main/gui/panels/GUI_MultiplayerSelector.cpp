@@ -133,7 +133,7 @@ inline void DrawTableHeader(const char* title) // Internal helper
 }
 
 MultiplayerSelector::MultiplayerSelector():
-    m_selected_item(-1), m_mode(Mode::ONLINE), m_draw_table(false), m_is_visible(false)
+    m_selected_item(-1), m_draw_table(false), m_is_visible(false)
 {
     snprintf(m_window_title, 100, "Multiplayer (Rigs of Rods %s | %s)", ROR_VERSION_STRING, RORNET_VERSION);
 }
@@ -149,40 +149,29 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
     bool keep_open = true;
     ImGui::Begin(m_window_title, &keep_open, window_flags);
 
-    // Window mode buttons
-    MultiplayerSelector::Mode next_mode = m_mode;
+    ImGui::BeginTabBar("GameSettingsTabs");
 
-    if (ImGui::Button(_LC("MultiplayerSelector", "Online (click to refresh)")))
+    if (ImGui::BeginTabItem(_LC("MultiplayerSelector", "Online (click to refresh)")))
     {
-        if (m_mode == Mode::ONLINE)
+        if (ImGui::IsItemClicked())
+        {
             this->StartAsyncRefresh();
-        else
-            next_mode = Mode::ONLINE;
+        }
+        this->DrawServerlistTab();
+        ImGui::EndTabItem();
     }
-    ImGui::SameLine();
-    if (ImGui::Button(_LC("MultiplayerSelector", "Direct IP")))
+    if (ImGui::BeginTabItem(_LC("MultiplayerSelector", "Direct IP")))
     {
-        next_mode = Mode::DIRECT;
+        this->DrawDirectTab();
+        ImGui::EndTabItem();
     }
-    ImGui::SameLine();
-    if (ImGui::Button(_LC("MultiplayerSelector", "Settings")))
+    if (ImGui::BeginTabItem(_LC("MultiplayerSelector", "Settings")))
     {
-        next_mode = Mode::SETUP;
+        this->DrawSetupTab();
+        ImGui::EndTabItem();
     }
 
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + TABS_BOTTOM_PADDING);
-    ImGui::Separator();
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
-
-    m_mode = next_mode;
-
-    switch (m_mode)
-    {
-        case Mode::SETUP: this->DrawSetupTab(); break;
-        case Mode::DIRECT: this->DrawDirectTab(); break;
-        case Mode::ONLINE: this->DrawServerlistTab(); break;
-        default:;
-    }
+    ImGui::EndTabBar();
 
     App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
@@ -206,14 +195,13 @@ void MultiplayerSelector::DrawSetupTab()
     ImGui::Separator();
 
     ImGui::PushItemWidth(250.f);
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
+
     DrawGTextEdit(App::mp_player_name,        _LC("MultiplayerSelector", "Player nickname"), m_player_name_buf);
     DrawGTextEdit(App::mp_server_password,    _LC("MultiplayerSelector", "Default server password"), m_password_buf);
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
     ImGui::Separator();
 
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
     DrawGTextEdit(App::mp_player_token,       _LC("MultiplayerSelector", "User token"), m_user_token_buf);
     ImGui::PopItemWidth();
 
@@ -259,7 +247,7 @@ void MultiplayerSelector::DrawServerlistTab()
         // Setup serverlist table ... the scroll area
         const float table_height = ImGui::GetWindowHeight()
             - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
-                + CONTENT_TOP_PADDING - ImGui::GetStyle().ItemSpacing.y);
+                + ImGui::GetStyle().ItemSpacing.y);
         ImGui::BeginChild("scrolling", ImVec2(0.f, table_height), false);
         // ... and the table itself
         const float table_width = ImGui::GetWindowContentRegionWidth();
