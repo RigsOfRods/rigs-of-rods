@@ -143,11 +143,6 @@ MultiplayerSelector::~MultiplayerSelector()
 
 void MultiplayerSelector::MultiplayerSelector::Draw()
 {
-    const float TABS_BOTTOM_PADDING = 4.f; // They're actually buttons in role of tabs.
-    const float CONTENT_TOP_PADDING = 4.f; // Extra space under top horizontal separator bar.
-    const float BUTTONS_EXTRA_SPACE = 6.f;
-    const float TABLE_PADDING_LEFT = 4.f;
-
     int window_flags = ImGuiWindowFlags_NoCollapse;
     ImGui::SetNextWindowSize(ImVec2(750.f, 400.f), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowPosCenter();
@@ -181,157 +176,12 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
 
     m_mode = next_mode;
 
-    if (m_mode == Mode::SETUP)
+    switch (m_mode)
     {
-        ImGui::PushID("setup");
-
-        DrawGCheckbox(App::mp_join_on_startup,    _LC("MultiplayerSelector", "Auto connect"));
-        DrawGCheckbox(App::mp_chat_auto_hide,     _LC("MultiplayerSelector", "Auto hide chat"));
-        DrawGCheckbox(App::mp_hide_net_labels,    _LC("MultiplayerSelector", "Hide net labels"));
-        DrawGCheckbox(App::mp_hide_own_net_label, _LC("MultiplayerSelector", "Hide own net label"));
-        DrawGCheckbox(App::mp_pseudo_collisions,  _LC("MultiplayerSelector", "Multiplayer collisions"));
-
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
-        ImGui::Separator();
-
-        ImGui::PushItemWidth(250.f);
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
-        DrawGTextEdit(App::mp_player_name,        _LC("MultiplayerSelector", "Player nickname"), m_player_name_buf);
-        DrawGTextEdit(App::mp_server_password,    _LC("MultiplayerSelector", "Default server password"), m_password_buf);
-
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
-        ImGui::Separator();
-
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
-        DrawGTextEdit(App::mp_player_token,       _LC("MultiplayerSelector", "User token"), m_user_token_buf);
-        ImGui::PopItemWidth();
-
-        ImGui::PopID();
-    }
-    else if (m_mode == Mode::DIRECT)
-    {
-        ImGui::PushID("direct");
-
-        ImGui::PushItemWidth(250.f);
-        DrawGTextEdit(App::mp_server_host,  _LC("MultiplayerSelector", "Server host"), m_server_host_buf);
-        DrawGIntBox(App::mp_server_port,    _LC("MultiplayerSelector", "Server port"));
-        ImGui::InputText(                   _LC("MultiplayerSelector", "Server password"), m_password_buf.GetBuffer(), m_password_buf.GetCapacity());
-        ImGui::PopItemWidth();
-
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
-        if (ImGui::Button(_LC("MultiplayerSelector", "Join")))
-        {
-            App::mp_server_password->SetStr(m_password_buf.GetBuffer());
-            App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
-        }
-
-        ImGui::PopID();
-    }
-    else if (m_mode == Mode::ONLINE)
-    {
-        const char* draw_label_text = nullptr;
-        ImVec4      draw_label_color;
-
-        // DETERMINE WHAT TO DRAW
-        if (!m_serverlist_msg.empty())
-        {
-            draw_label_text = m_serverlist_msg.c_str();
-            draw_label_color = m_serverlist_msg_color;
-        }
-
-        // DRAW SERVERLIST TABLE
-        if (m_draw_table)
-        {
-            // Setup serverlist table ... the scroll area
-            const float table_height = ImGui::GetWindowHeight()
-                - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
-                    + TABS_BOTTOM_PADDING + CONTENT_TOP_PADDING - ImGui::GetStyle().ItemSpacing.y);
-            ImGui::BeginChild("scrolling", ImVec2(0.f, table_height), false);
-            // ... and the table itself
-            const float table_width = ImGui::GetWindowContentRegionWidth();
-            ImGui::Columns(6, "mp-selector-columns");         // Col #0: Passwd
-            ImGui::SetColumnOffset(1, 0.09f * table_width);   // Col #1: Server name
-            ImGui::SetColumnOffset(2, 0.36f * table_width);   // Col #2: Terrain name
-            ImGui::SetColumnOffset(3, 0.67f * table_width);   // Col #3: Users/Max
-            ImGui::SetColumnOffset(4, 0.74f * table_width);   // Col #4: Version
-            ImGui::SetColumnOffset(5, 0.82f * table_width);   // Col #5: Host/Port
-            // Draw table header
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + TABLE_PADDING_LEFT);
-            DrawTableHeader(_LC("MultiplayerSelector", "Passwd?"));
-            DrawTableHeader(_LC("MultiplayerSelector", "Name"));
-            DrawTableHeader(_LC("MultiplayerSelector", "Terrain"));
-            DrawTableHeader(_LC("MultiplayerSelector", "Users"));
-            DrawTableHeader(_LC("MultiplayerSelector", "Version"));
-            DrawTableHeader(_LC("MultiplayerSelector", "Host/Port"));
-            ImGui::Separator();
-            // Draw table body
-            for (int i = 0; i < (int)m_serverlist_data.size(); i++)
-            {
-                ImGui::PushID(i);
-
-                // First column - selection control
-                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + TABLE_PADDING_LEFT);
-                MpServerInfo& server = m_serverlist_data[i];
-                if (ImGui::Selectable(server.display_passwd.c_str(), m_selected_item == i, ImGuiSelectableFlags_SpanAllColumns))
-                {
-                    m_selected_item = i;
-                }
-                if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) // Left doubleclick
-                {
-                    App::mp_server_password->SetStr(m_password_buf.GetBuffer());
-                    App::mp_server_host->SetStr(server.net_host.c_str());
-                    App::mp_server_port->SetVal(server.net_port);
-                    App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
-                }
-                ImGui::NextColumn();
-
-                bool compatible = (server.net_version == RORNET_VERSION);
-                ImVec4 version_color = compatible ? ImVec4(0.0f, 0.9f, 0.0f, 1.0f) : ImVec4(0.9f, 0.0f, 0.0f, 1.0f);
-
-                // Other collumns
-                ImGui::Text("%s", server.display_name.c_str());    ImGui::NextColumn();
-                ImGui::Text("%s", server.display_terrn.c_str());   ImGui::NextColumn();
-                ImGui::Text("%s", server.display_users.c_str());   ImGui::NextColumn();
-                ImGui::PushStyleColor(ImGuiCol_Text, version_color);
-                ImGui::Text("%s", server.display_version.c_str()); ImGui::NextColumn();
-                ImGui::PopStyleColor();
-                ImGui::Text("%s", server.display_host.c_str());    ImGui::NextColumn();
-
-                ImGui::PopID();
-            }
-            ImGui::Columns(1);
-            ImGui::EndChild(); // End of scroll area
-
-            // Simple join button (and password input box)
-            if (m_selected_item != -1 && m_serverlist_data[m_selected_item].net_version == RORNET_VERSION)
-            {
-                MpServerInfo& server = m_serverlist_data[m_selected_item];
-                if (ImGui::Button(_LC("MultiplayerSelector", "Join"), ImVec2(200.f, 0.f)))
-                {
-                    App::mp_server_password->SetStr(m_password_buf.GetBuffer());
-                    App::mp_server_host->SetStr(server.net_host.c_str());
-                    App::mp_server_port->SetVal(server.net_port);
-                    App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
-                }
-                if (server.has_password)
-                {
-                    // TODO: Find out why this is always visible ~ ulteq 01/2019
-                    ImGui::SameLine();
-                    ImGui::PushItemWidth(250.f);
-                    ImGui::InputText(_LC("MultiplayerSelector", "Server password"), m_password_buf.GetBuffer(), m_password_buf.GetCapacity());
-                    ImGui::PopItemWidth();
-                }
-            }
-        }
-
-        // DRAW CENTERED LABEL
-        if (draw_label_text != nullptr)
-        {
-            const ImVec2 label_size = ImGui::CalcTextSize(draw_label_text);
-            ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (label_size.x / 2.f));
-            ImGui::SetCursorPosY((ImGui::GetWindowSize().y / 2.f) - (label_size.y / 2.f));
-            ImGui::TextColored(draw_label_color, "%s", draw_label_text);
-        }
+        case Mode::SETUP: this->DrawSetupTab(); break;
+        case Mode::DIRECT: this->DrawDirectTab(); break;
+        case Mode::ONLINE: this->DrawServerlistTab(); break;
+        default:;
     }
 
     App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
@@ -339,6 +189,162 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
     if (!keep_open)
     {
         this->SetVisible(false);
+    }
+}
+
+void MultiplayerSelector::DrawSetupTab()
+{
+    ImGui::PushID("setup");
+
+    DrawGCheckbox(App::mp_join_on_startup,    _LC("MultiplayerSelector", "Auto connect"));
+    DrawGCheckbox(App::mp_chat_auto_hide,     _LC("MultiplayerSelector", "Auto hide chat"));
+    DrawGCheckbox(App::mp_hide_net_labels,    _LC("MultiplayerSelector", "Hide net labels"));
+    DrawGCheckbox(App::mp_hide_own_net_label, _LC("MultiplayerSelector", "Hide own net label"));
+    DrawGCheckbox(App::mp_pseudo_collisions,  _LC("MultiplayerSelector", "Multiplayer collisions"));
+
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
+    ImGui::Separator();
+
+    ImGui::PushItemWidth(250.f);
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
+    DrawGTextEdit(App::mp_player_name,        _LC("MultiplayerSelector", "Player nickname"), m_player_name_buf);
+    DrawGTextEdit(App::mp_server_password,    _LC("MultiplayerSelector", "Default server password"), m_password_buf);
+
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
+    ImGui::Separator();
+
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
+    DrawGTextEdit(App::mp_player_token,       _LC("MultiplayerSelector", "User token"), m_user_token_buf);
+    ImGui::PopItemWidth();
+
+    ImGui::PopID();
+}
+
+void MultiplayerSelector::DrawDirectTab()
+{
+    ImGui::PushID("direct");
+
+    ImGui::PushItemWidth(250.f);
+    DrawGTextEdit(App::mp_server_host,  _LC("MultiplayerSelector", "Server host"), m_server_host_buf);
+    DrawGIntBox(App::mp_server_port,    _LC("MultiplayerSelector", "Server port"));
+    ImGui::InputText(                   _LC("MultiplayerSelector", "Server password"), m_password_buf.GetBuffer(), m_password_buf.GetCapacity());
+    ImGui::PopItemWidth();
+
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
+    if (ImGui::Button(_LC("MultiplayerSelector", "Join")))
+    {
+        App::mp_server_password->SetStr(m_password_buf.GetBuffer());
+        App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
+    }
+
+    ImGui::PopID();
+}
+
+
+void MultiplayerSelector::DrawServerlistTab()
+{
+    const char* draw_label_text = nullptr;
+    ImVec4      draw_label_color;
+
+    // DETERMINE WHAT TO DRAW
+    if (!m_serverlist_msg.empty())
+    {
+        draw_label_text = m_serverlist_msg.c_str();
+        draw_label_color = m_serverlist_msg_color;
+    }
+
+    // DRAW SERVERLIST TABLE
+    if (m_draw_table)
+    {
+        // Setup serverlist table ... the scroll area
+        const float table_height = ImGui::GetWindowHeight()
+            - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
+                + CONTENT_TOP_PADDING - ImGui::GetStyle().ItemSpacing.y);
+        ImGui::BeginChild("scrolling", ImVec2(0.f, table_height), false);
+        // ... and the table itself
+        const float table_width = ImGui::GetWindowContentRegionWidth();
+        ImGui::Columns(6, "mp-selector-columns");         // Col #0: Passwd
+        ImGui::SetColumnOffset(1, 0.09f * table_width);   // Col #1: Server name
+        ImGui::SetColumnOffset(2, 0.36f * table_width);   // Col #2: Terrain name
+        ImGui::SetColumnOffset(3, 0.67f * table_width);   // Col #3: Users/Max
+        ImGui::SetColumnOffset(4, 0.74f * table_width);   // Col #4: Version
+        ImGui::SetColumnOffset(5, 0.82f * table_width);   // Col #5: Host/Port
+        // Draw table header
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + TABLE_PADDING_LEFT);
+        DrawTableHeader(_LC("MultiplayerSelector", "Passwd?"));
+        DrawTableHeader(_LC("MultiplayerSelector", "Name"));
+        DrawTableHeader(_LC("MultiplayerSelector", "Terrain"));
+        DrawTableHeader(_LC("MultiplayerSelector", "Users"));
+        DrawTableHeader(_LC("MultiplayerSelector", "Version"));
+        DrawTableHeader(_LC("MultiplayerSelector", "Host/Port"));
+        ImGui::Separator();
+        // Draw table body
+        for (int i = 0; i < (int)m_serverlist_data.size(); i++)
+        {
+            ImGui::PushID(i);
+
+            // First column - selection control
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + TABLE_PADDING_LEFT);
+            MpServerInfo& server = m_serverlist_data[i];
+            if (ImGui::Selectable(server.display_passwd.c_str(), m_selected_item == i, ImGuiSelectableFlags_SpanAllColumns))
+            {
+                m_selected_item = i;
+            }
+            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) // Left doubleclick
+            {
+                App::mp_server_password->SetStr(m_password_buf.GetBuffer());
+                App::mp_server_host->SetStr(server.net_host.c_str());
+                App::mp_server_port->SetVal(server.net_port);
+                App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
+            }
+            ImGui::NextColumn();
+
+            bool compatible = (server.net_version == RORNET_VERSION);
+            ImVec4 version_color = compatible ? ImVec4(0.0f, 0.9f, 0.0f, 1.0f) : ImVec4(0.9f, 0.0f, 0.0f, 1.0f);
+
+            // Other collumns
+            ImGui::Text("%s", server.display_name.c_str());    ImGui::NextColumn();
+            ImGui::Text("%s", server.display_terrn.c_str());   ImGui::NextColumn();
+            ImGui::Text("%s", server.display_users.c_str());   ImGui::NextColumn();
+            ImGui::PushStyleColor(ImGuiCol_Text, version_color);
+            ImGui::Text("%s", server.display_version.c_str()); ImGui::NextColumn();
+            ImGui::PopStyleColor();
+            ImGui::Text("%s", server.display_host.c_str());    ImGui::NextColumn();
+
+            ImGui::PopID();
+        }
+        ImGui::Columns(1);
+        ImGui::EndChild(); // End of scroll area
+
+        // Simple join button (and password input box)
+        if (m_selected_item != -1 && m_serverlist_data[m_selected_item].net_version == RORNET_VERSION)
+        {
+            MpServerInfo& server = m_serverlist_data[m_selected_item];
+            if (ImGui::Button(_LC("MultiplayerSelector", "Join"), ImVec2(200.f, 0.f)))
+            {
+                App::mp_server_password->SetStr(m_password_buf.GetBuffer());
+                App::mp_server_host->SetStr(server.net_host.c_str());
+                App::mp_server_port->SetVal(server.net_port);
+                App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
+            }
+            if (server.has_password)
+            {
+                // TODO: Find out why this is always visible ~ ulteq 01/2019
+                ImGui::SameLine();
+                ImGui::PushItemWidth(250.f);
+                ImGui::InputText(_LC("MultiplayerSelector", "Server password"), m_password_buf.GetBuffer(), m_password_buf.GetCapacity());
+                ImGui::PopItemWidth();
+            }
+        }
+    }
+
+    // DRAW CENTERED LABEL
+    if (draw_label_text != nullptr)
+    {
+        const ImVec2 label_size = ImGui::CalcTextSize(draw_label_text);
+        ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (label_size.x / 2.f));
+        ImGui::SetCursorPosY((ImGui::GetWindowSize().y / 2.f) - (label_size.y / 2.f));
+        ImGui::TextColored(draw_label_color, "%s", draw_label_text);
     }
 }
 
