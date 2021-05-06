@@ -751,6 +751,10 @@ void GameContext::UpdateGlobalInputEvents()
             {
                 App::GetGuiManager()->SetVisible_GameSettings(false);
             }
+            else if (App::GetGuiManager()->IsVisible_GameControls())
+            {
+                App::GetGuiManager()->SetVisible_GameControls(false);
+            }
             else if (App::GetGuiManager()->IsVisible_MultiplayerSelector())
             {
                 App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
@@ -765,6 +769,10 @@ void GameContext::UpdateGlobalInputEvents()
             if (App::GetGuiManager()->IsVisible_MainSelector())
             {
                 App::GetGuiManager()->GetMainSelector()->Close();
+            }
+            else if (App::GetGuiManager()->IsVisible_GameControls())
+            {
+                App::GetGuiManager()->SetVisible_GameControls(false);
             }
             else if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
             {

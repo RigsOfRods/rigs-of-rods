@@ -197,9 +197,6 @@ void GameControls::SetVisible(bool vis)
     if (!vis)
     {
         this->CancelChanges();
-        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
-        {
-            App::GetGuiManager()->SetVisible_GameMainMenu(true);
-        }
+        App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
 }
