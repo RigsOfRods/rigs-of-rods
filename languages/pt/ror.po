@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-26 19:46+0200\n"
-"PO-Revision-Date: 2021-05-07 04:32+0000\n"
+"PO-Revision-Date: 2021-05-07 09:27+0000\n"
 "Last-Translator: Bruno Dias Barros <brunodiasbarros09@gmail.com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/pt/>\n"
@@ -694,7 +694,7 @@ msgstr "Barco"
 #: gui/panels/GUI_GameControls.cpp:51
 msgctxt "GameControls"
 msgid "Camera"
-msgstr "Camera"
+msgstr "Câmera"
 
 #: gui/panels/GUI_GameControls.cpp:53
 msgctxt "GameControls"
@@ -793,12 +793,9 @@ msgid "Cache updated"
 msgstr "Cache Atualizada"
 
 #: gui/panels/GUI_GameMainMenu.cpp:264
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Notices"
 msgctxt "MainMenu"
 msgid "Notice box"
-msgstr "Avisos"
+msgstr "Caixa de avisos"
 
 #: gui/panels/GUI_GameSettings.cpp:41
 msgctxt "GameSettings"
@@ -985,11 +982,9 @@ msgid "Video settings"
 msgstr "Configurações de vídeo"
 
 #: gui/panels/GUI_GameSettings.cpp:255
-#, fuzzy
-#| msgid "No light sources"
 msgctxt "GameSettings"
 msgid "Light sources"
-msgstr "Nenhuma fonte de luz"
+msgstr "Recurso de Luz"
 
 #: gui/panels/GUI_GameSettings.cpp:262
 msgctxt "GameSettings"
@@ -1839,7 +1834,7 @@ msgstr "Estresse"
 #: gui/panels/GUI_NodeBeamUtils.cpp:165 gui/panels/GUI_NodeBeamUtils.cpp:169
 msgctxt "NodeBeamUtils"
 msgid "Yitter"
-msgstr "Yitter"
+msgstr "Gorjear"
 
 #: gui/panels/GUI_SimActorStats.cpp:52
 msgctxt "SimActorStats"
@@ -2058,28 +2053,19 @@ msgid "Remove current vehicle"
 msgstr "Remover veiculo atual"
 
 #: gui/panels/GUI_TopMenubar.cpp:208
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Activate all vehicles"
 msgctxt "TopMenubar"
 msgid "Activate last spawned vehicle"
-msgstr "Ativar todos os veículos"
+msgstr "Ativar Ultimo veículos Spawnado"
 
 #: gui/panels/GUI_TopMenubar.cpp:216
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reload current vehicle"
 msgctxt "TopMenubar"
 msgid "Reload last spawned vehicle"
-msgstr "Recarregar o veículo atual"
+msgstr "Recarregar ultimo veículo spawnado"
 
 #: gui/panels/GUI_TopMenubar.cpp:224
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Remove all vehicles"
 msgctxt "TopMenubar"
 msgid "Remove last spawned vehicle"
-msgstr "Remover todos os veiculos"
+msgstr "Remover Ultimo Veiculo Spawnado"
 
 #: gui/panels/GUI_TopMenubar.cpp:233
 msgctxt "TopMenubar"
@@ -2200,7 +2186,7 @@ msgstr "Lapso de tempo"
 #: gui/panels/GUI_TopMenubar.cpp:428 gui/panels/GUI_TopMenubar.cpp:435
 msgctxt "TopMenubar"
 msgid "Camera:"
-msgstr "Camera:"
+msgstr "Câmera:"
 
 #: gui/panels/GUI_TopMenubar.cpp:429 gui/panels/GUI_TopMenubar.cpp:439
 #: gui/panels/GUI_TopMenubar.cpp:447
@@ -2541,16 +2527,12 @@ msgid "disconnected: remote side closed the connection"
 msgstr "Desconectado: Lado remoto fechou a conexão"
 
 #: network/Network.cpp:315
-#, fuzzy
-#| msgid " left the game"
 msgid "left the game"
-msgstr " saiu do jogo"
+msgstr "Saiu do jogo"
 
 #: network/Network.cpp:347
-#, fuzzy
-#| msgid " joined the game"
 msgid "joined the game"
-msgstr " juntou-se ao jogo"
+msgstr "Juntou-se ao jogo"
 
 #. Mark connect thread as started
 #: network/Network.cpp:401
@@ -2728,10 +2710,8 @@ msgid "Network error!"
 msgstr "Erro na rede!"
 
 #: physics/ActorManager.cpp:410
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgid "spawned a new vehicle: "
-msgstr " Gerou um novo veiculo "
+msgstr "Gerou um novo veiculo "
 
 #: physics/ActorManager.cpp:420
 msgid "Mod not installed: "
