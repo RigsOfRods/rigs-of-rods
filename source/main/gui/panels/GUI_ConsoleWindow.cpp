@@ -177,39 +177,30 @@ void ConsoleWindow::DrawAddonSelector()
         m_addons_refreshed = true;
     }
 
-    // Setup table ... the scroll area
+    // Scroll area
     ImGui::BeginChild("scrolling", ImVec2(400.f, 150.f), false);
-    // ... and the table itself
-    const float table_width = ImGui::GetWindowContentRegionWidth();
-    ImGui::Columns(2, "addon-setup-columns");         // Col #0: Info
-    ImGui::SetColumnOffset(1, 0.7f * table_width);    // Col #1: Actions
 
-    // Draw table header
-    ImGui::Text("%s", _LC("AddonSetup", "Info"));
-    ImGui::NextColumn();
-    ImGui::Text("%s", _LC("AddonSetup", "Action"));
-    ImGui::NextColumn();
-
-    ImGui::Separator();
-    // Draw table body
+    // Addons
     for (int i = 0; i < (int)m_addons_query.cqy_results.size(); i++)
     {
         ImGui::PushID(i);
         CacheEntry* entry = m_addons_query.cqy_results[i].cqr_entry;
 
-        // First column - selection control
-        ImGui::Text(entry->dname.c_str());
-        ImGui::NextColumn();
+        if (ImGui::CollapsingHeader(entry->dname.c_str()))
+        {
+            ImGui::TextDisabled("%s", entry->resource_bundle_path.c_str());
 
-        // 2nd column - actions
-        if (ImGui::Button(_LC("AddonSetup", "Load")))
-        {
-            // MSG_APP_LOAD_ADDON_REQUESTED
-        }
-        bool autoload = false; // TODO
-        if (ImGui::Checkbox(_LC("AddonSetup", "AutoLoad"), &autoload))
-        {
-            // MSG_APP_SETUP_ADDON_REQUESTED
+            // 2nd column - actions
+            if (ImGui::Button(_LC("AddonSetup", "Load")))
+            {
+                //TODO App::GetGameContext()->PushMessage(Message(MSG_APP_LOAD_ADDON_REQUESTED, (void*)entry));
+            }
+            ImGui::SameLine();
+            bool autoload = false; // TODO
+            if (ImGui::Checkbox(_LC("AddonSetup", "AutoLoad"), &autoload))
+            {
+                // MSG_APP_SETUP_ADDON_REQUESTED
+            }
         }
 
         ImGui::PopID();
