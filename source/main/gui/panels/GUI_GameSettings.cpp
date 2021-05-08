@@ -42,51 +42,55 @@ void GameSettings::Draw()
 
     ImGui::BeginTabBar("GameSettingsTabs");
 
+    const float child_height = ImGui::GetWindowHeight()
+        - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
+            + ImGui::GetStyle().ItemSpacing.y);
+
     if (ImGui::BeginTabItem(_LC("GameSettings", "Render System")))
     {
-        ImGui::BeginChild("Settings-Render-scroll");
+        ImGui::BeginChild("Settings-Render-scroll", ImVec2(0.f, child_height), false);
         this->DrawRenderSystemSettings();
         ImGui::EndChild();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("GameSettings", "General")))
     {
-        ImGui::BeginChild("Settings-General-scroll");
+        ImGui::BeginChild("Settings-General-scroll", ImVec2(0.f, child_height), false);
         this->DrawGeneralSettings();
         ImGui::EndChild();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("GameSettings", "Gameplay")))
     {
-        ImGui::BeginChild("Settings-Gameplay-scroll");
+        ImGui::BeginChild("Settings-Gameplay-scroll", ImVec2(0.f, child_height), false);
         this->DrawGameplaySettings();
         ImGui::EndChild();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("GameSettings", "Graphics")))
     {
-        ImGui::BeginChild("Settings-Graphics-scroll");
+        ImGui::BeginChild("Settings-Graphics-scroll", ImVec2(0.f, child_height), false);
         this->DrawGraphicsSettings();
         ImGui::EndChild();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("GameSettings", "Audio")))
     {
-        ImGui::BeginChild("Settings-Audio-scroll");
+        ImGui::BeginChild("Settings-Audio-scroll", ImVec2(0.f, child_height), false);
         this->DrawAudioSettings();
         ImGui::EndChild();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("GameSettings", "Controls")))
     {
-        ImGui::BeginChild("Settings-Controls-scroll");
+        ImGui::BeginChild("Settings-Controls-scroll", ImVec2(0.f, child_height), false);
         this->DrawControlSettings();
         ImGui::EndChild();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(_LC("GameSettings", "Diagnostic")))
     {
-        ImGui::BeginChild("Settings-Diag-scroll");
+        ImGui::BeginChild("Settings-Diag-scroll", ImVec2(0.f, child_height), false);
         this->DrawDiagSettings();
         ImGui::EndChild();
         ImGui::EndTabItem();
