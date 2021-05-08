@@ -13,8 +13,8 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-26 19:46+0200\n"
-"PO-Revision-Date: 2021-05-07 09:27+0000\n"
-"Last-Translator: Bruno Dias Barros <brunodiasbarros09@gmail.com>\n"
+"PO-Revision-Date: 2021-05-09 01:32+0000\n"
+"Last-Translator: ssantos <ssantos@web.de>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/pt/>\n"
 "Language: pt\n"
@@ -71,7 +71,7 @@ msgstr "Por favor limpe o local Primeiro"
 
 #: GameContext.cpp:821
 msgid "Enabled hard reset mode"
-msgstr "Modo hard reset habilitado"
+msgstr "Modo hard reset ativado"
 
 #: GameContext.cpp:821
 msgid "Enabled soft reset mode"
@@ -147,7 +147,7 @@ msgstr "Movimento limitado da câmera desativado"
 
 #: gfx/camera/CameraManager.cpp:1142
 msgid "Auto tracking enabled"
-msgstr "Rastreamento automático habilitado"
+msgstr "Rastreamento automático ativado"
 
 #: gfx/camera/CameraManager.cpp:1146
 msgid "Auto tracking disabled"
@@ -659,7 +659,7 @@ msgstr "Bem-vindo ao Rigs of Rods!"
 #: gui/panels/GUI_GameChatBox.cpp:139
 msgctxt "ChatBox"
 msgid "Chat history (use mouse wheel to scroll)"
-msgstr "Histórico de bate-papo (use a roda do mouse para rolar)"
+msgstr "Histórico de bate-papo (use a roda do rato para rolar)"
 
 #: gui/panels/GUI_GameChatBox.cpp:140
 msgctxt "ChatBox"
@@ -669,12 +669,12 @@ msgstr "Mensagem"
 #: gui/panels/GUI_GameChatBox.cpp:189
 msgctxt "ChatBox"
 msgid "Whisper message not sent, unknown username: {}"
-msgstr "Mensagem de sussurro não enviada, nome de usuário desconhecido"
+msgstr "Mensagem de sussurro não enviada, nome de utilizador desconhecido"
 
 #: gui/panels/GUI_GameChatBox.cpp:196
 msgctxt "ChatBox"
 msgid "usage: /whisper username message"
-msgstr "uso: / sussurrar mensagem de nome de usuário"
+msgstr "uso: / sussurrar mensagem de nome de utilizador"
 
 #: gui/panels/GUI_GameControls.cpp:36
 msgctxt "GameControls"
@@ -959,7 +959,7 @@ msgstr "Configurações de áudio"
 #: gui/panels/GUI_GameSettings.cpp:241
 msgctxt "GameSettings"
 msgid "Audio device"
-msgstr "Dispositivo de áudio"
+msgstr "Aparelho de áudio"
 
 #: gui/panels/GUI_GameSettings.cpp:246
 msgctxt "GameSettings"
@@ -1103,8 +1103,8 @@ msgid ""
 "These settings are for advanced users only, you should only change these if "
 "you know what you're doing"
 msgstr ""
-"Essas configurações são apenas para usuários avançados, você só deve alterá-"
-"las se souber o que está fazendo"
+"Essas configurações são apenas para utilizadores avançados, só deve alterá-"
+"las se souber o que está a fazer"
 
 #: gui/panels/GUI_GameSettings.cpp:351
 msgctxt "GameSettings"
@@ -1531,22 +1531,22 @@ msgstr "Cancelar"
 #: gui/panels/GUI_MultiplayerClientList.cpp:136
 msgctxt "MultiplayerClientList"
 msgid "user name"
-msgstr "Nome do usuário"
+msgstr "Nome do utilizador"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:141
 msgctxt "MultiplayerClientList"
 msgid "user language: "
-msgstr "Idioma do Usuário: "
+msgstr "Idioma do utilizador: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:145
 msgctxt "MultiplayerClientList"
 msgid "user country: "
-msgstr "País do usuário: "
+msgstr "País do utilizador: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:156
 msgctxt "MultiplayerClientList"
 msgid "user authentication level"
-msgstr "Nivel de autenticação do usuário"
+msgstr "Nivel de autenticação do utilizador"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:171
 msgctxt "MultiplayerClientList"
@@ -1666,7 +1666,7 @@ msgstr "Senha padrão do servidor"
 #: gui/panels/GUI_MultiplayerSelector.cpp:206
 msgctxt "MultiplayerSelector"
 msgid "User token"
-msgstr "Token do usuário"
+msgstr "Token do utilizador"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:216
 msgctxt "MultiplayerSelector"
@@ -1708,7 +1708,7 @@ msgstr "Terreno"
 #: gui/panels/GUI_MultiplayerSelector.cpp:263
 msgctxt "MultiplayerSelector"
 msgid "Users"
-msgstr "Usuários"
+msgstr "Utilizadores"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:264
 msgctxt "MultiplayerSelector"
@@ -2463,7 +2463,7 @@ msgstr "(informação do autor não disponível) "
 
 #: main.cpp:328
 msgid "Display mode changed to fullscreen"
-msgstr "Modo de exibição alterado para tela inteira"
+msgstr "Modo de exibição alterado para o ecrã inteiro"
 
 #: main.cpp:334
 msgid "Display mode changed to windowed"
@@ -2590,7 +2590,7 @@ msgstr "Autorizando..."
 
 #: network/Network.cpp:506
 msgid "Establishing network session: error sending user info"
-msgstr "Estabelecendo conexão: erro ao enviar informação do usuário"
+msgstr "Estabelecendo conexão: erro ao enviar informação do utilizador"
 
 #: network/Network.cpp:513
 msgid "Establishing network session: error getting server authorization"
@@ -2670,12 +2670,12 @@ msgstr "Moderador do servidor"
 #: network/Network.cpp:810
 msgctxt "NetUserAuth"
 msgid "Ranked user"
-msgstr "Usuário classificado"
+msgstr "Utilizador classificado"
 
 #: network/Network.cpp:811
 msgctxt "NetUserAuth"
 msgid "Banned user"
-msgstr "Usuário Banido"
+msgstr "Utilizador Banido"
 
 #: physics/Actor.cpp:394
 msgid " content mismatch: "
@@ -3374,12 +3374,12 @@ msgstr "cena de carregamento rápido"
 #: utils/InputEngine.cpp:42
 msgctxt "InputEvent"
 msgid "take a screenshot"
-msgstr "tirar uma captura de tela"
+msgstr "tirar uma captura do ecrã"
 
 #: utils/InputEngine.cpp:43
 msgctxt "InputEvent"
 msgid "take a big screenshot (3 times the screen size)"
-msgstr "tirar um grande screenshot (3 vezes o tamanho da tela)"
+msgstr "tirar uma grande captura do ecrã (3 vezes o tamanho do ecrã)"
 
 #: utils/InputEngine.cpp:44
 msgctxt "InputEvent"
@@ -3424,7 +3424,7 @@ msgstr "alternar editor de terreno"
 #: utils/InputEngine.cpp:52
 msgctxt "InputEvent"
 msgid "toggle between windowed and fullscreen mode"
-msgstr "alternar entre o modo de janela e de tela cheia"
+msgstr "alternar entre o modo de janela e de ecrã cheio"
 
 #. Comon: actor interaction
 #: utils/InputEngine.cpp:55
