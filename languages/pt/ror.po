@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-26 19:46+0200\n"
-"PO-Revision-Date: 2021-05-09 01:32+0000\n"
+"PO-Revision-Date: 2021-05-09 21:46+0000\n"
 "Last-Translator: ssantos <ssantos@web.de>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/pt/>\n"
@@ -139,11 +139,11 @@ msgstr "Camera fixa"
 
 #: gfx/camera/CameraManager.cpp:863
 msgid "Limited camera movement enabled"
-msgstr "Movimento limitado da câmera ativado"
+msgstr "Movimento limitado da câmara ativado"
 
 #: gfx/camera/CameraManager.cpp:867
 msgid "Limited camera movement disabled"
-msgstr "Movimento limitado da câmera desativado"
+msgstr "Movimento limitado da câmara desativado"
 
 #: gfx/camera/CameraManager.cpp:1142
 msgid "Auto tracking enabled"
@@ -555,13 +555,13 @@ msgid ""
 msgstr ""
 "Na lama (ou areia), a resistência do fluido descrito pelos parâmetros acima "
 "irá impedi-lo e impedi-lo de afundar. Mas, para substâncias como a água, não "
-"é a resistência que o impede de afundar. Sua flutuabilidade. Este parâmetro "
-"está aqui para evitar que você afunde quando quiser simular fluidos com "
-"baixo arrasto (resistência). Para fluidos como lama ou areia, você pode "
-"colocá-lo em 0, mas é melhor mantê-lo em um valor mínimo. Para fluidos com "
-"índice de comportamento> = 1, ele se comportará como se você estivesse na "
-"água. Para fluidos com índice de comportamento <1, ele se comportará como se "
-"você estivesse na lama."
+"é a resistência que o impede de afundar. A sua flutuabilidade. Este "
+"parâmetro está aqui para evitar que afunde quando quiser simular fluidos com "
+"baixo arrasto (resistência). Para fluidos como lama ou areia, pode colocá-lo "
+"em 0, mas é melhor mantê-lo num valor mínimo. Para fluidos com índice de "
+"comportamento> = 1, ele se comportará como se estivesse na água. Para "
+"fluidos com índice de comportamento <1, ele se comportará como se estivesse "
+"na lama."
 
 #: gui/panels/GUI_FrictionSettings.cpp:98
 msgctxt "FrictionSettings"
@@ -694,7 +694,7 @@ msgstr "Barco"
 #: gui/panels/GUI_GameControls.cpp:51
 msgctxt "GameControls"
 msgid "Camera"
-msgstr "Câmera"
+msgstr "Câmara"
 
 #: gui/panels/GUI_GameControls.cpp:53
 msgctxt "GameControls"
@@ -846,7 +846,7 @@ msgstr "Sistema de renderização (as mudanças exigem reinicialização)"
 #: gui/panels/GUI_GameSettings.cpp:125
 msgctxt "GameSettings"
 msgid "Application settings"
-msgstr "Configurações do aplicativo"
+msgstr "Configurações da aplicação"
 
 #: gui/panels/GUI_GameSettings.cpp:137
 msgctxt "GameSettings"
@@ -1055,7 +1055,7 @@ msgstr "Reflex em tempo real. Taxa de atualização"
 #: gui/panels/GUI_GameSettings.cpp:328
 msgctxt "GameSettings"
 msgid "Render video cameras"
-msgstr "Renderizar câmeras de vídeo"
+msgstr "Renderizar câmaras de vídeo"
 
 #: gui/panels/GUI_GameSettings.cpp:329
 msgctxt "GameSettings"
@@ -1080,7 +1080,7 @@ msgstr "Shaders de material clássico (experimental)"
 #: gui/panels/GUI_GameSettings.cpp:342
 msgctxt "GameSettings"
 msgid "Static camera height (meters)"
-msgstr "Altura da câmera estática (metros)"
+msgstr "Altura da câmara estática (metros)"
 
 #: gui/panels/GUI_GameSettings.cpp:343
 msgctxt "GameSettings"
@@ -1144,7 +1144,7 @@ msgstr "Importação de nodes de log (spawn)"
 #: gui/panels/GUI_GameSettings.cpp:358
 msgctxt "GameSettings"
 msgid "Debug camera (rails)"
-msgstr "Câmera de depuração (trilhos)"
+msgstr "Câmara de depuração (trilhos)"
 
 #: gui/panels/GUI_GameSettings.cpp:359
 msgctxt "GameSettings"
@@ -1164,7 +1164,7 @@ msgstr "Depurar reflexões em tempo real"
 #: gui/panels/GUI_GameSettings.cpp:362
 msgctxt "GameSettings"
 msgid "Debug videocameras"
-msgstr "Depurar câmeras de vídeo"
+msgstr "Depurar câmaras de vídeo"
 
 #: gui/panels/GUI_GameSettings.cpp:363
 msgctxt "GameSettings"
@@ -1254,7 +1254,7 @@ msgstr "Ativar ForceFeedback"
 #: gui/panels/GUI_GameSettings.cpp:398
 msgctxt "GameSettings"
 msgid "FFB camera gain"
-msgstr "Ganho de câmera FFB"
+msgstr "Ganho de câmara FFB"
 
 #: gui/panels/GUI_GameSettings.cpp:399
 msgctxt "GameSettings"
@@ -1591,7 +1591,7 @@ msgstr "Nenhum .truck carregado"
 #: gui/panels/GUI_MultiplayerClientList.cpp:209
 msgctxt "MultiplayerClientList"
 msgid "Slow  Network  Download"
-msgstr "Rede lenta de Download"
+msgstr "Rede lenta de descarrega"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:83
 msgctxt "MultiplayerSelector"
@@ -2186,7 +2186,7 @@ msgstr "Lapso de tempo"
 #: gui/panels/GUI_TopMenubar.cpp:428 gui/panels/GUI_TopMenubar.cpp:435
 msgctxt "TopMenubar"
 msgid "Camera:"
-msgstr "Câmera:"
+msgstr "Câmara:"
 
 #: gui/panels/GUI_TopMenubar.cpp:429 gui/panels/GUI_TopMenubar.cpp:439
 #: gui/panels/GUI_TopMenubar.cpp:447
@@ -2494,7 +2494,7 @@ msgstr "Pressione %s para começar a falar"
 
 #: main.cpp:559
 msgid "Could not read savegame file"
-msgstr "Não foi possível ler o arquivo savegame"
+msgstr "Não foi possível ler o ficheiro savegame"
 
 #: main.cpp:569 physics/Savegame.cpp:241
 msgid "Error while loading scene: Terrain mismatch"
@@ -2756,11 +2756,11 @@ msgstr "Trancado"
 
 #: physics/Savegame.cpp:221
 msgid "Error while loading scene: File invalid or missing"
-msgstr "Erro ao carregar a cena: Arquivo inválido ou ausente"
+msgstr "Erro ao carregar a cena: ficheiro inválido ou ausente"
 
 #: physics/Savegame.cpp:227
 msgid "Error while loading scene: File format mismatch"
-msgstr "Erro ao carregar a cena: formato de arquivo incompatível"
+msgstr "Erro ao carregar a cena: formato de ficheiro incompatível"
 
 #: physics/Savegame.cpp:247
 msgid "Error while loading scene: Too many vehicles"
@@ -3160,7 +3160,7 @@ msgstr "Esse CVar não existe: "
 
 #: system/ConsoleCmd.cpp:512
 msgid "Set or create string CVar"
-msgstr "Definir ou criar string CVar"
+msgstr "Definir ou criar cadeia CVar"
 
 #: system/ConsoleCmd.cpp:518
 msgid "Set or create boolean CVar"
@@ -3255,7 +3255,7 @@ msgstr "Inicializando o Subsistema de Objetos"
 #. *.odef files
 #: terrain/TerrainManager.cpp:156
 msgid "Initializing Camera Subsystem"
-msgstr "Inicializando o Subsistema de Câmera"
+msgstr "Inicializando o Subsistema de Câmara"
 
 #. sky, must come after camera due to m_sight_range
 #: terrain/TerrainManager.cpp:160
@@ -3414,7 +3414,7 @@ msgstr "redefinir o valor do FOV"
 #: utils/InputEngine.cpp:50
 msgctxt "InputEvent"
 msgid "save the currently loaded terrain to a mesh file"
-msgstr "salva o terreno atualmente carregado para um arquivo de mesh"
+msgstr "grava o terreno atualmente carregado para um ficheiro de mesh"
 
 #: utils/InputEngine.cpp:51
 msgctxt "InputEvent"
@@ -3833,7 +3833,7 @@ msgstr "alternar freio antibloqueio"
 #: utils/InputEngine.cpp:142
 msgctxt "InputEvent"
 msgid "toggle videocamera"
-msgstr "alternar a câmera de vídeo"
+msgstr "alternar a câmara de vídeo"
 
 #: utils/InputEngine.cpp:143
 msgctxt "InputEvent"
@@ -4091,7 +4091,7 @@ msgstr "travao normal para um aviao"
 #: utils/InputEngine.cpp:198
 msgctxt "InputEvent"
 msgid "pull the elevator down in an aircraft."
-msgstr "puxar o elevador para baixo em um avião."
+msgstr "puxar o elevador para baixo num avião."
 
 #: utils/InputEngine.cpp:199
 msgctxt "InputEvent"
@@ -4708,7 +4708,7 @@ msgstr "rodar a visao para baixo"
 #: utils/InputEngine.cpp:332
 msgctxt "InputEvent"
 msgid "change camera mode"
-msgstr "Trocar o modo da câmera"
+msgstr "Trocar o modo da câmara"
 
 #: utils/InputEngine.cpp:333
 msgctxt "InputEvent"
@@ -4773,12 +4773,12 @@ msgstr "ativar / desativar a camera livre"
 #: utils/InputEngine.cpp:345
 msgctxt "InputEvent"
 msgid "move camera up"
-msgstr "mova a câmera para cima"
+msgstr "mova a câmara para cima"
 
 #: utils/InputEngine.cpp:346
 msgctxt "InputEvent"
 msgid "move camera down"
-msgstr "mova a câmera para baixo"
+msgstr "mova a câmara para baixo"
 
 #. Sky
 #: utils/InputEngine.cpp:349
