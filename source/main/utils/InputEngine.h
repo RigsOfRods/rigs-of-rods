@@ -538,7 +538,7 @@ protected:
     std::map<int, float> event_times;
 
     void initAllKeys();
-    bool setup();
+    void setup();
     std::map<std::string, OIS::KeyCode> allkeys;
     std::map<std::string, OIS::KeyCode>::iterator allit;
 
@@ -547,7 +547,6 @@ protected:
 
     float logval(float val);
     std::string getEventGroup(Ogre::String eventName);
-    bool mappingLoaded;
 
     event_trigger_t newEvent();
 };
