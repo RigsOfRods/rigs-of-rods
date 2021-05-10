@@ -403,7 +403,6 @@ InputEngine::InputEngine() :
     , mInputManager(0)
     , mKeyboard(0)
     , mMouse(0)
-    , mappingLoaded(false)
     , uniqueCounter(0)
 {
     for (int i = 0; i < MAX_JOYSTICKS; i++)
@@ -452,7 +451,7 @@ void InputEngine::destroy()
     }
 }
 
-bool InputEngine::setup()
+void InputEngine::setup()
 {
     size_t hWnd = 0;
     App::GetAppContext()->GetRenderWindow()->getCustomAttribute("WINDOW", &hWnd);
@@ -570,50 +569,41 @@ bool InputEngine::setup()
     }
 #endif // _WIN32
 
-    //this becomes more and more convoluted!
-    if (!mappingLoaded)
+    // load default mappings
+    loadMapping(CONFIGFILENAME);
+
+    // then load device (+OS) specific mappings
+    for (int i = 0; i < free_joysticks; ++i)
     {
-        // load default one
-        loadMapping(CONFIGFILENAME);
+        String deviceStr = mJoy[i]->vendor();
 
-        // then load device specific ones
-        for (int i = 0; i < free_joysticks; ++i)
+        // care about unsuitable chars
+        String repl = "\\/ #@?!$%^&*()+=-><.:'|\";";
+        for (unsigned int c = 0; c < repl.size(); c++)
         {
-            String deviceStr = mJoy[i]->vendor();
-
-            // care about unsuitable chars
-            String repl = "\\/ #@?!$%^&*()+=-><.:'|\";";
-            for (unsigned int c = 0; c < repl.size(); c++)
-            {
-                deviceStr = StringUtil::replaceAll(deviceStr, repl.substr(c, 1), "_");
-            }
-
-            // Look for OS-specific device mapping
-            String osSpecificMapFile;
-#if         OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-            osSpecificMapFile = deviceStr + ".windows.map";
-#elif       OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-            osSpecificMapFile = deviceStr + ".linux.map";
-#endif
-            if (osSpecificMapFile != "" &&
-                ResourceGroupManager::getSingleton().resourceExists(RGN_CONFIG, osSpecificMapFile))
-            {
-                loadMapping(osSpecificMapFile, true, i);
-            }
-            else
-            {
-                // Load generic device mapping
-                loadMapping(deviceStr + ".map", true, i);
-            }
+            deviceStr = StringUtil::replaceAll(deviceStr, repl.substr(c, 1), "_");
         }
 
-        mappingLoaded = true;
-        completeMissingEvents();
-
-        return false;
+        // Look for OS-specific device mapping
+        String osSpecificMapFile;
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+        osSpecificMapFile = deviceStr + ".windows.map";
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+        osSpecificMapFile = deviceStr + ".linux.map";
+#endif
+        if (osSpecificMapFile != "" &&
+            ResourceGroupManager::getSingleton().resourceExists(RGN_CONFIG, osSpecificMapFile))
+        {
+            loadMapping(osSpecificMapFile, true, i);
+        }
+        else
+        {
+            // Load generic device mapping
+            loadMapping(deviceStr + ".map", true, i);
+        }
     }
+    completeMissingEvents();
 
-    return true;
 }
 
 OIS::MouseState InputEngine::getMouseState()
@@ -1765,9 +1755,6 @@ bool InputEngine::updateConfigline(event_trigger_t* t)
 
 void InputEngine::completeMissingEvents()
 {
-    if (!mappingLoaded)
-        return;
-
     for (int i = 0; i < EV_MODE_LAST; i++)
     {
         if (events.find(eventInfo[i].eventID) == events.end())
