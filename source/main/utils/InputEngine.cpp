@@ -570,40 +570,14 @@ void InputEngine::setup()
 #endif // _WIN32
 
     // load default mappings
-    loadMapping(CONFIGFILENAME);
+    this->loadConfigFile(-1);
 
     // then load device (+OS) specific mappings
     for (int i = 0; i < free_joysticks; ++i)
     {
-        String deviceStr = mJoy[i]->vendor();
-
-        // care about unsuitable chars
-        String repl = "\\/ #@?!$%^&*()+=-><.:'|\";";
-        for (unsigned int c = 0; c < repl.size(); c++)
-        {
-            deviceStr = StringUtil::replaceAll(deviceStr, repl.substr(c, 1), "_");
-        }
-
-        // Look for OS-specific device mapping
-        String osSpecificMapFile;
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-        osSpecificMapFile = deviceStr + ".windows.map";
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-        osSpecificMapFile = deviceStr + ".linux.map";
-#endif
-        if (osSpecificMapFile != "" &&
-            ResourceGroupManager::getSingleton().resourceExists(RGN_CONFIG, osSpecificMapFile))
-        {
-            loadMapping(osSpecificMapFile, true, i);
-        }
-        else
-        {
-            // Load generic device mapping
-            loadMapping(deviceStr + ".map", true, i);
-        }
+        this->loadConfigFile(i);
     }
     completeMissingEvents();
-
 }
 
 OIS::MouseState InputEngine::getMouseState()
@@ -1207,6 +1181,12 @@ void InputEngine::clearEvents(int eventID)
     }
 }
 
+void InputEngine::clearAllEvents()
+{
+    events.clear(); // remove all bindings
+    this->resetKeys(); // reset input states
+}
+
 bool InputEngine::processLine(const char* line, int deviceID)
 {
     static String cur_comment = "";
@@ -1678,13 +1658,6 @@ String InputEngine::getEventGroup(String eventName)
     return "";
 }
 
-bool InputEngine::reloadConfig(std::string outfile)
-{
-    events.clear();
-    loadMapping(outfile);
-    return true;
-}
-
 bool InputEngine::updateConfigline(event_trigger_t* t)
 {
     if (t->eventtype != ET_JoystickAxisAbs && t->eventtype != ET_JoystickSliderX && t->eventtype != ET_JoystickSliderY)
@@ -1773,24 +1746,60 @@ void InputEngine::completeMissingEvents()
     }
 }
 
-bool InputEngine::loadMapping(String outfile, bool append, int deviceID)
+// Loads config file specific to a device and OS (or default config if deviceID is -1).
+bool InputEngine::loadConfigFile(int deviceID)
+{
+    String fileName;
+    if (deviceID == -1)
+    {
+        fileName = CONFIGFILENAME;
+    }
+    else
+    {
+        ROR_ASSERT(deviceID < free_joysticks);
+
+        String deviceStr = mJoy[deviceID]->vendor();
+
+        // care about unsuitable chars
+        String repl = "\\/ #@?!$%^&*()+=-><.:'|\";";
+        for (unsigned int c = 0; c < repl.size(); c++)
+        {
+            deviceStr = StringUtil::replaceAll(deviceStr, repl.substr(c, 1), "_");
+        }
+
+        // Look for OS-specific device mapping
+        String osSpecificMapFile;
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+        osSpecificMapFile = deviceStr + ".windows.map";
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+        osSpecificMapFile = deviceStr + ".linux.map";
+#endif
+        if (osSpecificMapFile != "" &&
+            ResourceGroupManager::getSingleton().resourceExists(RGN_CONFIG, osSpecificMapFile))
+        {
+            fileName = osSpecificMapFile;
+        }
+        else
+        {
+            // Load generic device mapping
+            fileName = deviceStr + ".map";
+        }
+    }
+
+    return this->loadMapping(fileName, deviceID);
+}
+
+bool InputEngine::loadMapping(String fileName, int deviceID)
 {
     char line[1025] = "";
     int oldState = uniqueCounter;
 
-    if (!append)
-    {
-        // clear everything
-        resetKeys();
-        events.clear();
-    }
-
-    LOG(" * Loading input mapping " + outfile);
+    LOG(" * Loading input mapping " + fileName);
     {
         DataStreamPtr ds;
         try
         {
-            ds = ResourceGroupManager::getSingleton().openResource(outfile, RGN_CONFIG);
+            ds = ResourceGroupManager::getSingleton().openResource(fileName, RGN_CONFIG);
         }
         catch (...)
         {
