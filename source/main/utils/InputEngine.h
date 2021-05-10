@@ -486,7 +486,6 @@ public:
     int getJoyComponentCount(OIS::ComponentType type, int joystickNumber);
     std::string getJoyVendor(int joystickNumber);
     void smoothValue(float& ref, float value, float rate);
-    bool loadMapping(std::string outfile = CONFIGFILENAME, bool append = false, int deviceID = -1);
     bool processLine(const char* line, int deviceID = -1);
 
     void destroy();
@@ -497,22 +496,23 @@ public:
     static Ogre::String eventIDToDescription(int eventID);
     event_trigger_t* getEventBySUID(int suid);
 
+    bool loadConfigFile(int deviceID = -1); //!< Loads config file specific to a device and OS (or default config if deviceID is -1).
     bool isEventDefined(int eventID);
     void addEvent(int eventID, event_trigger_t& t);
     void updateEvent(int eventID, const event_trigger_t& t);
-    void clearEvents(int eventID);
+    void clearEvents(int eventID); //!< Clears all bindings for given event.
+    void clearAllEvents(); //!< Purges all configured bindings.
     bool deleteEventBySUID(int suid);
     OIS::MouseState getMouseState();
     // some custom methods
     void windowResized(Ogre::RenderWindow* rw);
 
-    bool reloadConfig(std::string outfile = CONFIGFILENAME);
     bool updateConfigline(event_trigger_t* t);
 
     int getKeboardKeyForCommand(int eventID);
 
     void updateKeyBounces(float dt);
-    void completeMissingEvents();
+    
     OIS::ForceFeedback* getForceFeedbackDevice() { return mForceFeedback; };
 
     inline OIS::Keyboard* GetOisKeyboard() { return mKeyboard; }
@@ -536,6 +536,8 @@ protected:
     // define event aliases
     std::map<int, std::vector<event_trigger_t>> events;
     std::map<int, float> event_times;
+    bool loadMapping(Ogre::String fileName, int deviceID);
+    void completeMissingEvents();
 
     void initAllKeys();
     void setup();
