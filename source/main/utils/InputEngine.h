@@ -19,10 +19,10 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
-    @file   InputEngine.h
-    @brief  Input logic.
-*/
+///    @file
+///    @brief Handles controller inputs from player.
+///           Defines input events and binding mechanism, see `eventtypes`, `events`.
+///           Reads bindings from "*.map" file(s).
 
 #pragma once
 
@@ -60,6 +60,13 @@ enum eventtypes
     ET_JoystickPov,
     ET_JoystickSliderX,
     ET_JoystickSliderY
+};
+
+enum class InputSourceType
+{
+    IST_ANY,
+    IST_DIGITAL,
+    IST_ANALOG
 };
 
 enum events
@@ -440,13 +447,6 @@ class InputEngine : public ZeroedMemoryAllocator
 {
 public:
 
-    enum
-    {
-        ET_ANY,
-        ET_DIGITAL,
-        ET_ANALOG
-    };
-
     InputEngine();
     ~InputEngine();
 
@@ -460,8 +460,8 @@ public:
     void SetMouseListener(OIS::MouseListener* obj);
     void SetJoystickListener(OIS::JoyStickListener* obj);
 
-    //valueSource: ET_ANY=digital and analog devices, ET_DIGITAL=only digital, ET_ANALOG=only analog
-    float getEventValue(int eventID, bool pure = false, int valueSource = ET_ANY);
+    //valueSource: IST_ANY=digital and analog devices, IST_DIGITAL=only digital, IST_ANALOG=only analog
+    float getEventValue(int eventID, bool pure = false, InputSourceType valueSource = InputSourceType::IST_ANY);
 
     bool getEventBoolValue(int eventID);
     bool isEventAnalog(int eventID);

@@ -879,7 +879,7 @@ bool InputEngine::isEventAnalog(int eventID)
                     || t_vec[i].eventtype == ET_JoystickSliderY)
                 //check if value comes from analog device
                 //this way, only valid events (e.g. joystick mapped, but unplugged) are recognized as analog events
-                && getEventValue(eventID, true, 2) != 0.0)
+                && getEventValue(eventID, true, InputSourceType::IST_ANALOG) != 0.0)
             {
                 return true;
             }
@@ -906,7 +906,7 @@ bool InputEngine::isEventAnalog(int eventID)
 #endif //0
 }
 
-float InputEngine::getEventValue(int eventID, bool pure, int valueSource)
+float InputEngine::getEventValue(int eventID, bool pure, InputSourceType valueSource /*= InputSourceType::IST_ANY*/)
 {
     float returnValue = 0;
     std::vector<event_trigger_t> t_vec = events[eventID];
@@ -915,7 +915,7 @@ float InputEngine::getEventValue(int eventID, bool pure, int valueSource)
     {
         event_trigger_t t = *i;
 
-        if (valueSource == 0 || valueSource == 1)
+        if (valueSource == InputSourceType::IST_DIGITAL || valueSource == InputSourceType::IST_ANY)
         {
             switch (t.eventtype)
             {
@@ -993,7 +993,7 @@ float InputEngine::getEventValue(int eventID, bool pure, int valueSource)
                 break;
             }
         }
-        if (valueSource == 0 || valueSource == 2)
+        if (valueSource == InputSourceType::IST_ANALOG || valueSource == InputSourceType::IST_ANY)
         {
             switch (t.eventtype)
             {
