@@ -769,39 +769,6 @@ String InputEngine::getEventCommand(int eventID)
     return "";
 }
 
-event_trigger_t* InputEngine::getEventBySUID(int suid)
-{
-    std::map<int, std::vector<event_trigger_t>>::iterator a;
-    std::vector<event_trigger_t>::iterator b;
-    for (a = events.begin(); a != events.end(); a++)
-    {
-        for (b = a->second.begin(); b != a->second.end(); b++)
-        {
-            if (b->suid == suid)
-                return &(*b);
-        }
-    }
-    return 0;
-}
-
-bool InputEngine::deleteEventBySUID(int suid)
-{
-    std::map<int, std::vector<event_trigger_t>>::iterator a;
-    std::vector<event_trigger_t>::iterator b;
-    for (a = events.begin(); a != events.end(); a++)
-    {
-        for (b = a->second.begin(); b != a->second.end(); b++)
-        {
-            if (b->suid == suid)
-            {
-                a->second.erase(b);
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 bool InputEngine::isEventDefined(int eventID)
 {
     std::vector<event_trigger_t> t_vec = events[eventID];
@@ -1147,7 +1114,6 @@ String InputEngine::getEventTypeName(int type)
 void InputEngine::addEvent(int eventID, event_trigger_t& t)
 {
     uniqueCounter++;
-    t.suid = uniqueCounter;
 
     if (eventID == -1)
     //unknown event, discard

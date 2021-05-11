@@ -439,7 +439,6 @@ struct event_trigger_t
     char group[128];
     char tmp_eventname[128];
     char comments[1024];
-    int suid; //session unique id
 };
 
 /// Manages controller configuration, evaluates input events
@@ -494,7 +493,6 @@ public:
     static int resolveEventName(Ogre::String eventName);
     static Ogre::String eventIDToName(int eventID);
     static Ogre::String eventIDToDescription(int eventID);
-    event_trigger_t* getEventBySUID(int suid);
 
     bool loadConfigFile(int deviceID = -1); //!< Loads config file specific to a device and OS (or default config if deviceID is -1).
     bool isEventDefined(int eventID);
@@ -502,7 +500,6 @@ public:
     void updateEvent(int eventID, const event_trigger_t& t);
     void clearEvents(int eventID); //!< Clears all bindings for given event.
     void clearAllEvents(); //!< Purges all configured bindings.
-    bool deleteEventBySUID(int suid);
     OIS::MouseState getMouseState();
     // some custom methods
     void windowResized(Ogre::RenderWindow* rw);
