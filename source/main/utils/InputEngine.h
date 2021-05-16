@@ -37,8 +37,6 @@
 #include "OISKeyboard.h"
 #include "OISMouse.h"
 
-// config filename
-#define CONFIGFILENAME "input.map"
 #define MAX_JOYSTICKS 10
 #define MAX_JOYSTICK_POVS 4
 #define MAX_JOYSTICK_SLIDERS 4
@@ -405,6 +403,7 @@ struct event_trigger_t
 {
     // general
     enum eventtypes eventtype;
+    int configDeviceID;            //!< For which device (which config file) was this binding defined?
     // keyboard
     int keyCode;
     bool explicite;
@@ -445,6 +444,7 @@ struct event_trigger_t
 class InputEngine : public ZeroedMemoryAllocator
 {
 public:
+    std::string DEFAULT_MAPFILE = "input.map";
 
     InputEngine();
     ~InputEngine();
@@ -484,6 +484,7 @@ public:
     OIS::JoyStickState* getCurrentJoyState(int joystickNumber);
     int getJoyComponentCount(OIS::ComponentType type, int joystickNumber);
     std::string getJoyVendor(int joystickNumber);
+    int getNumJoysticks() { return free_joysticks; }
     void smoothValue(float& ref, float value, float rate);
     bool processLine(const char* line, int deviceID = -1);
 
@@ -494,12 +495,17 @@ public:
     static Ogre::String eventIDToName(int eventID);
     static Ogre::String eventIDToDescription(int eventID);
 
-    bool loadConfigFile(int deviceID = -1); //!< Loads config file specific to a device and OS (or default config if deviceID is -1).
-    bool isEventDefined(int eventID);
-    void addEvent(int eventID, event_trigger_t& t);
-    void updateEvent(int eventID, const event_trigger_t& t);
+    // Event mappings
+    bool                loadConfigFile(int deviceID = -1);        //!< Loads config file specific to a device and OS (or default config if deviceID is -1).
+    bool                saveConfigFile(int deviceID = -1);        //!< Wites events with matching deviceID to loaded file with matching deviceID (or default file if deviceID is -1).
+    std::string const&  getLoadedConfigFile(int deviceID = -1);   //!< Returns filename from `loadConfigFile()` call.
+    bool                isEventDefined(int eventID);
+    void                addEvent(int eventID, event_trigger_t& t);
+    void                updateEvent(int eventID, const event_trigger_t& t);
     void clearEvents(int eventID); //!< Clears all bindings for given event.
+    void clearEventsByDevice(int deviceID); //!< Clears all bindings with given deviceID (-1 is no exception).
     void clearAllEvents(); //!< Purges all configured bindings.
+
     OIS::MouseState getMouseState();
     // some custom methods
     void windowResized(Ogre::RenderWindow* rw);
@@ -521,7 +527,7 @@ protected:
     OIS::Mouse* mMouse;
     OIS::Keyboard* mKeyboard;
     OIS::JoyStick* mJoy[MAX_JOYSTICKS];
-    int free_joysticks;
+    int free_joysticks; //!< Number of detected game controllers
     OIS::ForceFeedback* mForceFeedback;
     int uniqueCounter;
 
@@ -533,7 +539,9 @@ protected:
     // define event aliases
     std::map<int, std::vector<event_trigger_t>> events;
     std::map<int, float> event_times;
+    std::string m_loaded_configs[MAX_JOYSTICKS];
     bool loadMapping(Ogre::String fileName, int deviceID);
+    bool saveMapping(Ogre::String fileName, int deviceID);
     void completeMissingEvents();
 
     void initAllKeys();
