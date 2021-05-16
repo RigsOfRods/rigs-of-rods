@@ -40,6 +40,8 @@ void GameControls::Draw()
 
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
 
+    this->DrawToolbar();
+
     ImGui::BeginTabBar("GameSettingsTabs");
 
     this->DrawControlsTabItem("Airplane", "AIRPLANE");
@@ -63,8 +65,56 @@ void GameControls::Draw()
     }
 }
 
+void GameControls::DrawToolbar()
+{
+    // Select mapping file to work with
+    //    - General BeginCombo() API, you have full control over your selection data and display type.
+    const int combo_min = MAPFILE_ID_ALL; // -2
+    const int combo_max = App::GetInputEngine()->getNumJoysticks();
+
+    if (ImGui::BeginCombo(_LC("GameSettings", "File"), this->GetFileComboLabel(m_active_mapping_file).c_str())) // The second parameter is the label previewed before opening the combo.
+    {
+        for (int i = combo_min; i < combo_max; i++)
+        {
+            const bool is_selected = (m_active_mapping_file == i);
+            if (ImGui::Selectable(this->GetFileComboLabel(i).c_str(), is_selected))
+            {
+                m_active_mapping_file = i;
+            }
+            if (is_selected)
+            {
+                ImGui::SetItemDefaultFocus();   // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    if (m_active_mapping_file != MAPFILE_ID_ALL)
+    {
+        ImGui::SameLine();
+        if (ImGui::Button(_LC("GameControls", "Reload")))
+        {
+            this->ReloadMapFile();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(_LC("GameControls", "Save")))
+        {
+            this->SaveMapFile();
+        }
+    }
+}
+
 void GameControls::DrawEvent(RoR::events ev_code)
 {
+    // Filter by selected map file
+    if (m_active_mapping_file != MAPFILE_ID_ALL &&
+        m_active_mapping_file != MAPFILE_ID_DEFAULT &&
+        !App::GetInputEngine()->getEvents()[ev_code].empty() &&
+        App::GetInputEngine()->getEvents()[ev_code][0].configDeviceID != m_active_mapping_file) // TODO: handle multiple mappings for one event code - currently we only check the first one.
+    {
+        return;
+    }
+
     ImGui::PushID((int)ev_code);
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
 
@@ -120,7 +170,8 @@ void GameControls::DrawControlsTab(const char* prefix)
         const std::string ev_name = App::GetInputEngine()->eventIDToName(ev_code);
 
         // Filter event list by Keyboard + prefix
-        if (ev_pair.second[0].eventtype == eventtypes::ET_Keyboard &&
+        if (ev_pair.second.size() > 0 &&
+            ev_pair.second[0].eventtype == eventtypes::ET_Keyboard &&
             ev_name.find(prefix) == 0)
         {
             this->DrawEvent(ev_code);
@@ -191,6 +242,23 @@ void GameControls::CancelChanges()
     m_active_buffer.Clear();
 }
 
+void GameControls::SaveMapFile()
+{
+    if (m_active_mapping_file > MAPFILE_ID_ALL)
+    {
+        App::GetInputEngine()->saveConfigFile(m_active_mapping_file);
+    }
+}
+
+void GameControls::ReloadMapFile()
+{
+    if (m_active_mapping_file > MAPFILE_ID_ALL)
+    {
+        App::GetInputEngine()->clearEventsByDevice(m_active_mapping_file);
+        App::GetInputEngine()->loadConfigFile(m_active_mapping_file);
+    }
+}
+
 void GameControls::SetVisible(bool vis)
 {
     m_is_visible = vis;
@@ -199,4 +267,12 @@ void GameControls::SetVisible(bool vis)
         this->CancelChanges();
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
+}
+
+std::string const& GameControls::GetFileComboLabel(int file_id)
+{
+    if (file_id == MAPFILE_ID_ALL)
+        return MAPFILE_COMBO_ALL;
+    else
+        return App::GetInputEngine()->getLoadedConfigFile(file_id); // handles -1
 }
