@@ -54,14 +54,20 @@ void GameContext::PushMessage(Message m)
 {
     std::lock_guard<std::mutex> lock(m_msg_mutex);
     m_msg_queue.push(m);
+    m_msg_chain_end = &m_msg_queue.back();
 }
 
 void GameContext::ChainMessage(Message m)
 {
     std::lock_guard<std::mutex> lock(m_msg_mutex);
-    if (!m_msg_queue.empty())
+    if (m_msg_chain_end)
     {
-        m_msg_queue.back().chain.push_back(m);
+        m_msg_chain_end->chain.push_back(m);
+        m_msg_chain_end = &m_msg_chain_end->chain.back();
+    }
+    else
+    {
+        this->PushMessage(m);
     }
 }
 
@@ -74,6 +80,11 @@ bool GameContext::HasMessages()
 Message GameContext::PopMessage()
 {
     std::lock_guard<std::mutex> lock(m_msg_mutex);
+    ROR_ASSERT(m_msg_queue.size() > 0);
+    if (m_msg_chain_end == &m_msg_queue.front())
+    {
+        m_msg_chain_end = nullptr;
+    }
     Message m = m_msg_queue.front();
     m_msg_queue.pop();
     return m;
@@ -98,7 +109,7 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
     App::GetCacheSystem()->LoadResource(*terrn_entry);
 
     // Perform the loading and setup
-    App::SetSimTerrain(TerrainManager::LoadAndPrepareTerrain(*terrn_entry));
+    App::SetSimTerrain(TerrainManager::LoadAndPrepareTerrain(terrn_entry));
     if (!App::GetSimTerrain())
     {
         return false; // Message box already displayed
