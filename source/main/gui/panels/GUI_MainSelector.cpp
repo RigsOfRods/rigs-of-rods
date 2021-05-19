@@ -306,7 +306,10 @@ void MainSelector::Draw()
             this->DrawAttrInt(_LC("MainSelector", "Times used: "), sd_entry.sde_entry->usagecounter);
             this->DrawAttrStr(_LC("MainSelector", "Date and Time modified: "), sd_entry.sde_filetime_str.ToCStr());
             this->DrawAttrStr(_LC("MainSelector", "Date and Time installed: "), sd_entry.sde_addtime_str.ToCStr());
-            this->DrawAttrStr(_LC("MainSelector", "Vehicle Type: "), sd_entry.sde_driveable_str.ToCStr());
+            if (m_loader_type != LT_Terrain && m_loader_type != LT_Skin)
+            {
+                this->DrawAttrStr(_LC("MainSelector", "Vehicle Type: "), sd_entry.sde_driveable_str.ToCStr());
+            }
 
             this->DrawAttrSpecial(sd_entry.sde_entry->forwardcommands, _LC("MainSelector", "[forwards commands]"));
             this->DrawAttrSpecial(sd_entry.sde_entry->importcommands, _LC("MainSelector", "[imports commands]"));
