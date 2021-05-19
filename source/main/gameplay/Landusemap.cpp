@@ -22,6 +22,7 @@
 
 #include "Application.h"
 #include "Collisions.h"
+#include "Console.h"
 #include "ErrorUtils.h"
 #include "Language.h"
 #include "TerrainManager.h"
@@ -85,9 +86,10 @@ int Landusemap::loadConfig(const Ogre::String& filename)
         else
             cfg.loadFromResourceSystem(filename, group, "\x09:=", true);
     }
-    catch (Ogre::Exception& e)
+    catch (Ogre::Exception& e) // Already logged by OGRE
     {
-        ErrorUtils::ShowError(_L("Error while loading landuse config"), e.getFullDescription());
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format(_L("{}: {}"), _L("Error while loading landuse config"), e.getDescription()));
         return 1;
     }
 
