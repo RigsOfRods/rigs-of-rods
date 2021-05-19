@@ -63,6 +63,25 @@ typedef std::queue < Message, std::list<Message>> GameMsgQueue;
 ///  - characters:      player-controlled avatars (local or remote), managed by `CharacterFactory`.
 ///                     they have simplified physics and can climb objects.
 /// For convenience and to help manage interactions, this class provides methods to manipulate these elements.
+///
+/// CAUTION:
+/// PushMessage() doesn't guarantee order of processing: if message handler generates additional messages, it moves the original message at the end of the queue.
+/// To illustrate:
+/// 1. Start with empty queue.
+/// 2. push A.
+/// 3. push B which needs A.
+/// 4. Process the queue.
+/// 5. pop A, which needs C done first. It pushes C and re-pushes A.
+/// 6. Queue is now BCA. B fails because A wasn't done.
+/// 
+/// Message chaining is for situations where message order must be preserved.
+/// 1. Start with empty queue
+/// 2. push A.
+/// 3. chain B which needs A. - it's added to A's chain: A{B}.
+/// 4. Process the queue.
+/// 5. pop A, which needs C done first. It pushes C and re-pushes A{B}.
+/// 6. Queue is now C, A{B}. B succeeds because A gets done first.
+
 class GameContext
 {
 public:
@@ -70,7 +89,7 @@ public:
     // ----------------------------
     // Message queue
 
-    void                PushMessage(Message m);
+    void                PushMessage(Message m);  //!< Doesn't guarantee order! Use ChainMessage() if order matters.
     void                ChainMessage(Message m); //!< Add to last pushed message's chain
     bool                HasMessages();
     Message             PopMessage();
@@ -140,6 +159,7 @@ public:
 private:
     // Message queue
     GameMsgQueue        m_msg_queue;
+    Message*            m_msg_chain_end = nullptr;
     std::mutex          m_msg_mutex;
 
     // Actors (physics and netcode)
