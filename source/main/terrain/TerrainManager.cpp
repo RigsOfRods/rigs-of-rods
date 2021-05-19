@@ -45,7 +45,7 @@
 using namespace RoR;
 using namespace Ogre;
 
-TerrainManager::TerrainManager()
+TerrainManager::TerrainManager(CacheEntry* entry)
     : m_collisions(0)
     , m_geometry_manager(0)
     , m_object_manager(0)
@@ -57,6 +57,7 @@ TerrainManager::TerrainManager()
     , m_paged_detail_factor(0.0f)
     , m_cur_gravity(DEFAULT_GRAVITY)
     , m_hydrax_water(nullptr)
+    , m_cache_entry(entry)
 {
 }
 
@@ -120,12 +121,12 @@ TerrainManager::~TerrainManager()
     }
 }
 
-TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry& entry)
+TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry* entry)
 {
-    auto terrn_mgr = std::unique_ptr<TerrainManager>(new TerrainManager());
+    auto terrn_mgr = std::unique_ptr<TerrainManager>(new TerrainManager(entry));
     auto loading_window = App::GetGuiManager()->GetLoadingWindow();
 
-    std::string const& filename = entry.fname;
+    std::string const& filename = entry->fname;
     try
     {
         Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename);

@@ -269,6 +269,16 @@ void TopMenubar::Update()
                 }
             }
 
+            if (ImGui::Button(_LC("TopMenubar", "Reload current terrain")))
+            {
+                App::GetGameContext()->PushMessage(Message(MsgType::MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                // Order is required - create chain.
+                App::GetGameContext()->ChainMessage(Message(MsgType::MSG_EDI_RELOAD_BUNDLE_REQUESTED,
+                    (void*)App::GetSimTerrain()->getCacheEntry()));
+                App::GetGameContext()->ChainMessage(Message(MsgType::MSG_SIM_LOAD_TERRN_REQUESTED,
+                    App::GetSimTerrain()->getCacheEntry()->fname));
+            }
+
             ImGui::Separator();
 
             if (ImGui::Button(_LC("TopMenubar", "Back to menu")))
