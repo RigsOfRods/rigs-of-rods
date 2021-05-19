@@ -37,7 +37,7 @@ public:
 
     static TerrainManager* LoadAndPrepareTerrain(CacheEntry* entry); //!< Factory function
 
-    TerrainManager();
+    TerrainManager(CacheEntry* entry);
     ~TerrainManager();
 
         // Terrain info
@@ -46,6 +46,7 @@ public:
     std::string             getGUID() const               { return m_def.guid; }
     int                     getCategoryID() const         { return m_def.category_id; }
     int                     getVersion() const            { return m_def.version; }
+    const CacheEntry*       getCacheEntry()               { return m_cache_entry; }
 
         // Terrain properties
 
@@ -119,6 +120,7 @@ private:
 
     // Properties
 
+    const CacheEntry*       m_cache_entry;
     RoR::Terrn2Def          m_def;
     float                   m_paged_detail_factor;
     int                     m_sight_range;
