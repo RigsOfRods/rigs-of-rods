@@ -33,47 +33,63 @@ namespace RoR {
 class TerrainManager : public ZeroedMemoryAllocator
 {
 public:
-    static TerrainManager* LoadAndPrepareTerrain(CacheEntry& entry); //!< Factory function
+    static const int UNLIMITED_SIGHTRANGE = 4999;
+
+    static TerrainManager* LoadAndPrepareTerrain(CacheEntry* entry); //!< Factory function
 
     TerrainManager();
     ~TerrainManager();
 
-    void               setGravity(float value);
-    TerrainGeometryManager* getGeometryManager()     { return m_geometry_manager; };
-    TerrainObjectManager* getObjectManager()         { return m_object_manager; };
-    Ogre::AxisAlignedBox getTerrainCollisionAAB();
-    float              getGravity() const            { return m_cur_gravity; };
-    std::string        getTerrainName() const        { return m_def.name; };
-    std::string        getGUID() const               { return m_def.guid; };
-    int                getCategoryID() const         { return m_def.category_id; };
-    int                getVersion() const            { return m_def.version; };
-    int                getFarClip() const            { return m_sight_range; }
-    float              getPagedDetailFactor() const  { return m_paged_detail_factor; };
-    float              getWaterHeight() const        { return m_def.water_height; };
-    Ogre::Vector3      getMaxTerrainSize();
-    Collisions*        GetCollisions()               { return m_collisions; };
-    TerrainEditor*     GetTerrainEditor()            { return &m_terrain_editor; }
-    IWater*            getWater()                    { return m_water.get(); };
-    Ogre::Light*       getMainLight()                { return m_main_light; };
-    Ogre::Vector3      getSpawnPos()                 { return m_def.start_position; };
-    RoR::Terrn2Def&    GetDef()                      { return m_def; }
-    HydraxWater*       getHydraxManager()            { return m_hydrax_water; }
-    SkyManager*        getSkyManager();
-    SkyXManager*       getSkyXManager()              { return SkyX_manager; };
-    ShadowManager*     getShadowManager()            { return m_shadow_manager; };
-    bool               isFlat();
-    void               LoadTelepoints();
-    void               LoadPredefinedActors();
-    bool               HasPredefinedActors();
-    void               HandleException(const char* summary);
-    float              GetHeightAt(float x, float z);
-    Ogre::Vector3      GetNormalAt(float x, float y, float z);
+        // Terrain info
 
-    static const int UNLIMITED_SIGHTRANGE = 4999;
+    std::string             getTerrainName() const        { return m_def.name; }
+    std::string             getGUID() const               { return m_def.guid; }
+    int                     getCategoryID() const         { return m_def.category_id; }
+    int                     getVersion() const            { return m_def.version; }
+
+        // Terrain properties
+
+    Terrn2Def&              GetDef()                      { return m_def; }
+    Ogre::Vector3           getSpawnPos()                 { return m_def.start_position; }
+    float                   getWaterHeight() const        { return m_def.water_height; }
+    bool                    isFlat();
+    float                   getPagedDetailFactor() const  { return m_paged_detail_factor; }
+
+        // Subsystems
+
+    TerrainGeometryManager* getGeometryManager()          { return m_geometry_manager; }
+    TerrainObjectManager*   getObjectManager()            { return m_object_manager; }
+    HydraxWater*            getHydraxManager()            { return m_hydrax_water; }
+    SkyManager*             getSkyManager();
+    SkyXManager*            getSkyXManager()              { return SkyX_manager; }
+    ShadowManager*          getShadowManager()            { return m_shadow_manager; }
+    TerrainEditor*          GetTerrainEditor()            { return &m_terrain_editor; }
+    Collisions*             GetCollisions()               { return m_collisions; }
+    IWater*                 getWater()                    { return m_water.get(); }
+
+        // Visuals
+
+    Ogre::Light*            getMainLight()                { return m_main_light; }
+    int                     getFarClip() const            { return m_sight_range; }
+
+        // Simulation
+
+    void                    setGravity(float value);
+    float                   getGravity() const            { return m_cur_gravity; }
+    float                   GetHeightAt(float x, float z);
+    Ogre::Vector3           GetNormalAt(float x, float y, float z);
+    Ogre::Vector3           getMaxTerrainSize();
+    Ogre::AxisAlignedBox    getTerrainCollisionAAB();
+
+        // Utility
+
+    void                    LoadTelepoints();
+    void                    LoadPredefinedActors();
+    bool                    HasPredefinedActors();
+    void                    HandleException(const char* summary);
 
 private:
 
-    SkyXManager *SkyX_manager;
     // internal methods
     void initCamera();
     void initTerrainCollisions();
@@ -89,19 +105,28 @@ private:
     void fixCompositorClearColor();
     void loadTerrainObjects();
 
+    // Managers
+
     TerrainObjectManager*   m_object_manager;
     TerrainGeometryManager* m_geometry_manager;
     std::unique_ptr<IWater> m_water;
-    TerrainEditor  m_terrain_editor;
-    Collisions*    m_collisions;
-    ShadowManager* m_shadow_manager;
-    SkyManager*    m_sky_manager;
-    HydraxWater*   m_hydrax_water;
-    Ogre::Light*   m_main_light;
-    RoR::Terrn2Def m_def;
-    float          m_cur_gravity;
-    float          m_paged_detail_factor;
-    int            m_sight_range;
+    TerrainEditor           m_terrain_editor;
+    Collisions*             m_collisions;
+    ShadowManager*          m_shadow_manager;
+    SkyManager*             m_sky_manager;
+    SkyXManager*            SkyX_manager;
+    HydraxWater*            m_hydrax_water;
+
+    // Properties
+
+    RoR::Terrn2Def          m_def;
+    float                   m_paged_detail_factor;
+    int                     m_sight_range;
+
+    // Gameplay
+
+    Ogre::Light*            m_main_light;
+    float                   m_cur_gravity;
 };
 
 } // namespace RoR
