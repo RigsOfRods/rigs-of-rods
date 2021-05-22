@@ -1077,7 +1077,8 @@ String InputEngine::getDeviceName(event_trigger_t const& evt)
     return "unknown";
 }
 
-String InputEngine::getEventTypeName(int type)
+// static
+const char* InputEngine::getEventTypeName(eventtypes type)
 {
     switch (type)
     {
@@ -1123,6 +1124,22 @@ void InputEngine::updateEvent(int eventID, const event_trigger_t& t)
         events[eventID].clear();
     }
     events[eventID].push_back(t);
+}
+
+void InputEngine::eraseEvent(int eventID, const event_trigger_t* t)
+{
+    if (events.find(eventID) != events.end())
+    {
+        TriggerVec& triggers = events[eventID];
+        for (size_t i = 0; i < triggers.size(); i++)
+        {
+            if (t == &triggers[i])
+            {
+                triggers.erase(triggers.begin() + i);
+                return;
+            }
+        }
+    }
 }
 
 void InputEngine::clearEvents(int eventID)
