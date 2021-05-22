@@ -1260,8 +1260,26 @@ size_t CacheSystem::Query(CacheQuery& query)
         query.cqy_res_category_usage[CacheCategoryId::CID_All]++;
 
         // Filter by category
-        if (query.cqy_filter_category_id < CacheCategoryId::CID_Max &&
-            query.cqy_filter_category_id != entry.categoryid)
+        switch (query.cqy_filter_category_id)
+        {
+        case CacheCategoryId::CID_Max:
+        case CacheCategoryId::CID_Hidden:
+        case CacheCategoryId::CID_SearchResults:
+            add = false; // Invalid query - skip all.
+            break;
+
+        case CacheCategoryId::CID_All:
+        case CacheCategoryId::CID_Fresh:
+            add = true; // Accept all (freshness is filtered externally).
+            break;
+
+        case CacheCategoryId::CID_Unsorted:
+        default:
+            add = query.cqy_filter_category_id == entry.categoryid;
+            break;
+        }
+
+        if (!add)
         {
             continue;
         }
