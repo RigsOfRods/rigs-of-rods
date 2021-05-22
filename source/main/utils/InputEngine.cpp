@@ -745,22 +745,7 @@ float InputEngine::logval(float val)
     return -log10(1.0 / (1.1 + val)) / 1.0;
 }
 
-void InputEngine::smoothValue(float& ref, float value, float rate)
-{
-    if (value < -1)
-        value = -1;
-    if (value > 1)
-        value = 1;
-    // smooth!
-    if (ref > value)
-    {
-        ref -= rate;
-        if (ref < value)
-            ref = value;
-    }
-    else if (ref < value)
-        ref += rate;
-}
+
 
 String InputEngine::getEventCommand(int eventID)
 {
@@ -1068,7 +1053,7 @@ bool InputEngine::isKeyDownValueBounce(OIS::KeyCode mod, float time)
     }
 }
 
-String InputEngine::getDeviceName(event_trigger_t evt)
+String InputEngine::getDeviceName(event_trigger_t const& evt)
 {
     switch (evt.eventtype)
     {
