@@ -57,7 +57,8 @@ enum eventtypes
     ET_JoystickAxisRel,
     ET_JoystickPov,
     ET_JoystickSliderX,
-    ET_JoystickSliderY
+    ET_JoystickSliderY,
+    ET_END
 };
 
 enum class InputSourceType
@@ -444,7 +445,8 @@ struct event_trigger_t
 class InputEngine : public ZeroedMemoryAllocator
 {
 public:
-    typedef std::map<int, std::vector<event_trigger_t>> EventMap;
+    typedef std::vector<event_trigger_t> TriggerVec;
+    typedef std::map<int, TriggerVec> EventMap;
 
     std::string DEFAULT_MAPFILE = "input.map";
 
@@ -493,6 +495,7 @@ public:
 
     void                addEvent(int eventID, event_trigger_t& t);
     void                updateEvent(int eventID, const event_trigger_t& t);
+    void                eraseEvent(int eventID, const event_trigger_t* t);
     void                clearEvents(int eventID);                           //!< Clears all bindings for given event.
     void                clearEventsByDevice(int deviceID);                  //!< Clears all bindings with given deviceID (-1 is no exception).
     void                clearAllEvents();                                   //!< Purges all configured bindings.
@@ -519,7 +522,7 @@ public:
 
         // Event utils
 
-    std::string         getEventTypeName(int type);
+    static const char*  getEventTypeName(eventtypes type);                  //!< Enum to string helper.
     static int          resolveEventName(Ogre::String eventName);
     static Ogre::String eventIDToName(int eventID);
     static Ogre::String eventIDToDescription(int eventID);
