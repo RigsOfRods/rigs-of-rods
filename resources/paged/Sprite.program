@@ -1,0 +1,21 @@
+// First shader, simple camera-alignment
+vertex_program Sprite_vp glsl hlsl
+{
+    source Sprite_vp.glsl
+    default_params
+    {
+        param_named_auto worldViewProj worldviewproj_matrix
+    }
+}
+
+// Second shader, camera alignment and distance based fading
+vertex_program SpriteFade_vp glsl hlsl
+{
+    source Sprite_vp.glsl
+    preprocessor_defines FADE
+    default_params
+    {
+        param_named_auto worldViewProj worldviewproj_matrix
+        param_named_auto camPos camera_position_object_space
+    }
+}

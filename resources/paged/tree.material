@@ -4,6 +4,11 @@ material SOLID/TEX/wood7.jpg
 	{
 		pass
 		{
+			ambient 0.4 0.4 0.4 1
+			diffuse 1 1 1 1
+
+			scene_blend alpha_blend
+
 			texture_unit
 			{
 				texture wood7.jpg
@@ -18,12 +23,16 @@ material SOLID/TEX/Leaves.png
 	{
 		pass
 		{
+			ambient 0.5 0.5 0.5 1
+			diffuse 0.6 0.6 0.6 1
+
 			cull_hardware none
 			alpha_rejection greater_equal 128
+			//scene_blend alpha_blend
 
 			texture_unit
 			{
-				texture leaves.png alpha
+				texture Leaves.png alpha
 			}
 		}
 	}
@@ -35,12 +44,15 @@ material SOLID/TEX/PineLeaves.png
 	{
 		pass
 		{
+			ambient 0.5 0.5 0.5 1
+			diffuse 0.6 0.6 0.6 1
+
 			cull_hardware none
 			alpha_rejection greater_equal 128
 
 			texture_unit
 			{
-				texture pineleaves.png alpha
+				texture PineLeaves.png alpha
 			}
 		}
 	}
