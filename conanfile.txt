@@ -5,7 +5,7 @@ cmake
 AngelScript/2.32@anotherfoxguy/stable
 MyGUI/3.4.0@anotherfoxguy/testing
 OGRE/1.12.12@anotherfoxguy/testing
-OIS/1.5@anotherfoxguy/stable
+OIS/1.5.1@anotherfoxguy/stable
 SocketW/3.10.36@anotherfoxguy/stable
 discord-rpc/3.4.0@anotherfoxguy/stable
 fmt/7.1.3
