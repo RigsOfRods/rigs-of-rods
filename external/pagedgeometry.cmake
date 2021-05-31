@@ -20,7 +20,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/external/p
 if (USE_PACKAGE_MANAGER)
     target_link_libraries(${PROJECT_NAME} PRIVATE
             CONAN_PKG::OGRE
-            CONAN_PKG::OGREdeps
             Threads::Threads
             )
 

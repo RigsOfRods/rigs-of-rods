@@ -1,3 +1,8 @@
+include(${CMAKE_SOURCE_DIR}/external/caelum.cmake)
+include(${CMAKE_SOURCE_DIR}/external/pagedgeometry.cmake)
+
+project("RoR")
+
 ####################################################################################################
 #  SOURCE FILES
 ####################################################################################################
@@ -250,17 +255,16 @@ endif ()
 #  EXECUTABLE TARGET
 ####################################################################################################
 
-set(BINNAME "RoR")
-add_executable(${BINNAME} ${SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 if (WIN32)
-    set_target_properties(${BINNAME} PROPERTIES WIN32_EXECUTABLE YES)
+    set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE YES)
     # disable some annoying VS warnings:
     # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
     # warning C4305: 'initializing' : truncation from 'double' to 'const float'
-    target_compile_options(${BINNAME} PRIVATE /wd4305 /wd4244)
+    target_compile_options(${PROJECT_NAME} PRIVATE /wd4305 /wd4244)
     # Disable non-standard behavior
-    target_compile_options(${BINNAME} PRIVATE /permissive-)
+    target_compile_options(${PROJECT_NAME} PRIVATE /permissive-)
 endif ()
 
 if (MSVC)
@@ -268,11 +272,11 @@ if (MSVC)
     set_property(
             DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
             PROPERTY
-            VS_STARTUP_PROJECT ${BINNAME}
+            VS_STARTUP_PROJECT ${PROJECT_NAME}
     )
     # set Visual Studio working directory to the Configuration directory
     set_target_properties(
-            ${BINNAME}
+            ${PROJECT_NAME}
             PROPERTIES
             VS_DEBUGGER_WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}"
     )
@@ -282,28 +286,28 @@ endif ()
 #  PREPROCESSOR DEFINITIONS
 ####################################################################################################
 
-target_compile_definitions(${BINNAME} PRIVATE
+target_compile_definitions(${PROJECT_NAME} PRIVATE
         USE_MUMBLE  # build with support for Mumble positional audio, has no dependencies but requires linking against librt on UNIX
         #FEAT_DEBUG_MUTEX
         )
 
 if (ROR_FEAT_TIMING)
-    target_compile_definitions(${BINNAME} PRIVATE FEAT_TIMING)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE FEAT_TIMING)
 endif ()
 
 if (ROR_USE_OIS_G27)
-    target_compile_definitions(${BINNAME} PRIVATE USE_OIS_G27)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_OIS_G27)
 endif ()
 
 if (WIN32)
-    target_compile_definitions(${BINNAME} PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 endif ()
 
 ####################################################################################################
 #  INCLUDE DIRECTORIES
 ####################################################################################################
 
-target_include_directories(${BINNAME} PRIVATE
+target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}/external/header_only
         .
         audio
@@ -370,32 +374,29 @@ target_include_directories(${BINNAME} PRIVATE
 #  REQUIRED DEPENDENCIES
 # -----------------------
 
-include("${CMAKE_SOURCE_DIR}/external/pagedgeometry.cmake")
+
 
 if (UNIX)
     #  include_directories(${GTK_INCLUDE_DIRS})
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
 endif ()
-target_link_libraries(${BINNAME} PRIVATE ${OS_LIBS} PagedGeometry version_info)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${OS_LIBS} Caelum PagedGeometry version_info)
 
 # --- Threading support (still needed for GCC even with C++11)
 set(CMAKE_THREAD_PREFER_PTHREAD YES)
-target_link_libraries(${BINNAME} PRIVATE Threads::Threads)
-
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 
 if (USE_PACKAGE_MANAGER)
-    target_include_directories(${BINNAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/angelscript_addons)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/angelscript_addons)
 
-    target_link_libraries(${BINNAME} PRIVATE
+    target_link_libraries(${PROJECT_NAME} PRIVATE
             CONAN_PKG::AngelScript
             CONAN_PKG::MyGUI
             CONAN_PKG::OGRE
-            CONAN_PKG::OGREdeps
             CONAN_PKG::SocketW
             CONAN_PKG::discord-rpc
             CONAN_PKG::fmt
             CONAN_PKG::libcurl
-            CONAN_PKG::ogre-caelum
             CONAN_PKG::openal
             CONAN_PKG::openssl
             CONAN_PKG::rapidjson
@@ -408,7 +409,7 @@ if (USE_PACKAGE_MANAGER)
             angelscript_addons
             )
 
-    target_compile_definitions(${BINNAME} PRIVATE
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
             AS_USE_NAMESPACE
             WIN32_LEAN_AND_MEAN
             USE_OPENAL
@@ -424,60 +425,60 @@ if (USE_PACKAGE_MANAGER)
             )
 
 else (USE_PACKAGE_MANAGER)
-    target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator)
+    target_link_libraries(${PROJECT_NAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator)
 
-    target_link_libraries(${BINNAME} PRIVATE fmt::fmt)
+    target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 
-    target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
-    target_include_directories(${BINNAME} PRIVATE ${OIS_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${OIS_LIBRARIES})
+    target_include_directories(${PROJECT_NAME} PRIVATE ${OIS_INCLUDE_DIRS})
 
     include_directories(${MYGUI_INCLUDE_DIRS})
-    target_link_libraries(${BINNAME} PRIVATE
+    target_link_libraries(${PROJECT_NAME} PRIVATE
             MyGUI::MyGUI
             MyGUI::OgrePlatform
             )
-    target_compile_definitions(${BINNAME} PRIVATE
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
             USE_MYGUI
             $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
             )
 
     if (OPENAL_FOUND)
-        target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
-        target_include_directories(${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR})
-        target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENAL_LIBRARY})
+        target_include_directories(${PROJECT_NAME} PRIVATE ${OPENAL_INCLUDE_DIR})
+        target_compile_definitions(${PROJECT_NAME} PRIVATE USE_OPENAL)
     endif ()
 
     if (TARGET SocketW::SocketW)
-        target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
-        target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
+        target_link_libraries(${PROJECT_NAME} PRIVATE SocketW::SocketW)
+        target_compile_definitions(${PROJECT_NAME} PRIVATE USE_SOCKETW)
     endif ()
 
     if (TARGET AngelScript::AngelScript)
-        target_link_libraries(${BINNAME} PRIVATE
+        target_link_libraries(${PROJECT_NAME} PRIVATE
                 AngelScript::AngelScript
                 AngelScript::use_namespace
                 )
-        target_compile_definitions(${BINNAME} PRIVATE USE_ANGELSCRIPT)
-        target_include_directories(${BINNAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/angelscript_addons)
-        target_link_libraries(${BINNAME} PRIVATE angelscript_addons)
+        target_compile_definitions(${PROJECT_NAME} PRIVATE USE_ANGELSCRIPT)
+        target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/angelscript_addons)
+        target_link_libraries(${PROJECT_NAME} PRIVATE angelscript_addons)
     endif ()
 
     if (CURL_FOUND)
-        target_link_libraries(${BINNAME} PRIVATE ${CURL_LIBRARY})
-        target_include_directories(${BINNAME} PRIVATE ${CURL_INCLUDE_DIR})
-        target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${CURL_LIBRARY})
+        target_include_directories(${PROJECT_NAME} PRIVATE ${CURL_INCLUDE_DIR})
+        target_compile_definitions(${PROJECT_NAME} PRIVATE USE_CURL)
 
         if (WIN32)
             add_compile_definitions(WIN32_LEAN_AND_MEAN)
         endif ()
     endif ()
 
-    target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_CAELUM)
 
 endif (USE_PACKAGE_MANAGER)
 
 if (USE_PHC)
-    target_precompile_headers(${BINNAME} PRIVATE phc.h)
+    target_precompile_headers(${PROJECT_NAME} PRIVATE phc.h)
 endif ()
 
 extract_pot("${SOURCE_FILES}")
@@ -517,7 +518,7 @@ fast_copy("${CMAKE_SOURCE_DIR}/languages" "${RUNTIME_OUTPUT_DIRECTORY}/languages
 
 #  Install targets
 # -----------------------
-install(TARGETS ${BINNAME} DESTINATION .)
+install(TARGETS ${PROJECT_NAME} DESTINATION .)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/resources/fonts/ DESTINATION languages)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/languages/ DESTINATION languages FILES_MATCHING PATTERN "*.mo")

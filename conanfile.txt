@@ -3,17 +3,16 @@ cmake
 
 [requires]
 AngelScript/2.32@anotherfoxguy/stable
-MyGUI/3.4.0@anotherfoxguy/stable
-OGRE/1.12.2@anotherfoxguy/testing
+MyGUI/3.4.0@anotherfoxguy/testing
+OGRE/1.12.12@anotherfoxguy/testing
+OIS/1.5@anotherfoxguy/stable
 SocketW/3.10.36@anotherfoxguy/stable
 discord-rpc/3.4.0@anotherfoxguy/stable
 fmt/7.1.3
-libcurl/7.69.1
-ogre-caelum/0.6.3-p1@anotherfoxguy/stable
-openal/1.19.1
-openssl/1.1.1g
+libcurl/7.77.0
+openal/1.21.1
+openssl/1.1.1k
 rapidjson/cci.20200410
-zlib/1.2.11
 
 [imports]
 bin, *.dll -> ./bin @ keep_path=False

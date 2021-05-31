@@ -20,7 +20,7 @@ function(recursive_zip_folder in_dir out_dir)
             continue()
         endif ()
 
-        file(GLOB_RECURSE ZIP_FILES LIST_DIRECTORIES TRUE "${in_dir}/${ZIP_DIR}/*")
+        file(GLOB_RECURSE ZIP_FILES LIST_DIRECTORIES FALSE "${in_dir}/${ZIP_DIR}/*")
 
         set(ZIP_FILES_TXT "")
         set(ZIP_FILES_DEP "")
