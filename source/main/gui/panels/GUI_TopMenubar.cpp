@@ -743,12 +743,41 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
     ImGui::PopStyleColor();
 
     // Display actor list
+    Ogre::TexturePtr tex1 = FetchIcon("control_pause.png");
+    Ogre::TexturePtr tex2 = FetchIcon("control_play.png");
+    Ogre::TexturePtr tex3 = FetchIcon("delete.png");
     int i = 0;
     for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if ((!actor->ar_hide_in_actor_list) && (actor->ar_net_source_id == user.uniqueid))
         {
-            std::string actortext_buf = fmt::format("  + {} ({}) ##[{}:{}]", actor->ar_design_name.c_str(), actor->ar_filename.c_str(), i++, user.uniqueid);
+            std::string id = fmt::format("{}:{}", i++, user.uniqueid);
+            ImGui::PushID(id.c_str());
+            if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
+            {
+                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex1->getHandle()), ImVec2(16, 16)))
+                {
+                   App::GetGameContext()->PushMessage(Message(MSG_SIM_HIDE_NET_ACTOR_REQUESTED, (void*)actor));
+                }
+            }
+            else if (actor->ar_sim_state == Actor::SimState::NETWORKED_HIDDEN)
+            {
+                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex2->getHandle()), ImVec2(16, 16)))
+                {
+                   App::GetGameContext()->PushMessage(Message(MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED, (void*)actor));
+                }
+            }
+            else // Our actor(s)
+            {
+                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(16, 16)))
+                {
+                   App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
+                }
+            }
+            ImGui::PopID();
+            ImGui::SameLine();
+
+            std::string actortext_buf = fmt::format("{} ({}) ##[{}:{}]", actor->ar_design_name.c_str(), actor->ar_filename.c_str(), i++, user.uniqueid);
             if (ImGui::Button(actortext_buf.c_str())) // Button clicked?
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));

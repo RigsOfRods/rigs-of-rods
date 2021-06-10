@@ -89,6 +89,8 @@ enum MsgType
     MSG_SIM_DELETE_ACTOR_REQUESTED,        //!< Payload = Actor* (weak)
     MSG_SIM_SEAT_PLAYER_REQUESTED,         //!< Payload = Actor* (weak) | nullptr
     MSG_SIM_TELEPORT_PLAYER_REQUESTED,     //!< Payload = Ogre::Vector3* (owner)
+    MSG_SIM_HIDE_NET_ACTOR_REQUESTED,      //!< Payload = Actor* (weak)
+    MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED,    //!< Payload = Actor* (weak)
     // GUI
     MSG_GUI_OPEN_MENU_REQUESTED,
     MSG_GUI_CLOSE_MENU_REQUESTED,
