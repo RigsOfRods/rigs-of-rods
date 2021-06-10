@@ -629,6 +629,36 @@ int main(int argc, char *argv[])
                     }
                     break;
 
+                case MSG_SIM_HIDE_NET_ACTOR_REQUESTED:
+                    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED &&
+                        ((Actor*)m.payload)->ar_sim_state == Actor::SimState::NETWORKED_OK)
+                    {
+                        Actor* actor = (Actor*)m.payload;
+                        actor->ar_sim_state = Actor::SimState::NETWORKED_HIDDEN; // Stop net. updates
+                        App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor()); // Remove visuals
+                        actor->GetGfxActor()->SetFlexbodyVisible(false);
+                        actor->GetGfxActor()->SetWheelsVisible(false);
+                        actor->GetGfxActor()->SetAllMeshesVisible(false);
+                        actor->GetGfxActor()->SetCastShadows(false);
+                        actor->GetGfxActor()->SetRodsVisible(false);
+                    }
+                    break;
+
+                case MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED:
+                    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED &&
+                        ((Actor*)m.payload)->ar_sim_state == Actor::SimState::NETWORKED_HIDDEN)
+                    {
+                        Actor* actor = (Actor*)m.payload;
+                        actor->ar_sim_state = Actor::SimState::NETWORKED_OK; // Resume net. updates
+                        App::GetGfxScene()->RegisterGfxActor(actor->GetGfxActor()); // Restore visuals
+                        actor->GetGfxActor()->SetFlexbodyVisible(true);
+                        actor->GetGfxActor()->SetWheelsVisible(true);
+                        actor->GetGfxActor()->SetAllMeshesVisible(true);
+                        actor->GetGfxActor()->SetCastShadows(true);
+                        actor->GetGfxActor()->SetRodsVisible(true);
+                    }
+                    break;
+
                 // -- GUI events ---
 
                 case MSG_GUI_OPEN_MENU_REQUESTED:
