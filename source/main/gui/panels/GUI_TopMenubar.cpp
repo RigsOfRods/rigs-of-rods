@@ -745,7 +745,7 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
     // Display actor list
     Ogre::TexturePtr tex1 = FetchIcon("control_pause.png");
     Ogre::TexturePtr tex2 = FetchIcon("control_play.png");
-    Ogre::TexturePtr tex3 = FetchIcon("delete.png");
+    Ogre::TexturePtr tex3 = FetchIcon("control_eject.png");
     int i = 0;
     for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
