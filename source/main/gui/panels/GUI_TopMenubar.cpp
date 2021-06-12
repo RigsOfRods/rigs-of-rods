@@ -745,7 +745,6 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
     // Display actor list
     Ogre::TexturePtr tex1 = FetchIcon("control_pause.png");
     Ogre::TexturePtr tex2 = FetchIcon("control_play.png");
-    Ogre::TexturePtr tex3 = FetchIcon("control_eject.png");
     int i = 0;
     for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
@@ -769,10 +768,13 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
             }
             else // Our actor(s)
             {
-                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex3->getHandle()), ImVec2(16, 16)))
+                std::string text_buf_rem = fmt::format(" X ##[{}]", i);
+                ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
+                if (ImGui::Button(text_buf_rem.c_str()))
                 {
                    App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
                 }
+                ImGui::PopStyleColor();
             }
             ImGui::PopID();
             ImGui::SameLine();
