@@ -645,14 +645,14 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
             entity->setVisible(false);
             break;
         case ActorState::NETWORKED_OK:
-            entity->setVisible(true);
+            entity->setVisible(gfx_actor->HasDriverSeatProp());
             break;
         default:
             break; // no change.
         }
 
         // If visible, update position
-        if (entity->isVisible() && gfx_actor->HasDriverSeatProp())
+        if (entity->isVisible())
         {
             if (xc_movable_text != nullptr)
             {
