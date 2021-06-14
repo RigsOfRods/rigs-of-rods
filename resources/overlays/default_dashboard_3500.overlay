@@ -1,0 +1,473 @@
+// orig res 1600 x 900
+
+overlay tracks/DefaultDashboard3500RPM
+{
+    zorder 100
+
+        overlay_element tracks/DefaultDashboard3500RPM/Turbo Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 112
+		height 112
+		//left 1460
+        left -140
+		//top  540
+        top -360
+		material tracks/DashTurbo
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/TurboNeedle1 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 99
+		height 99
+		left 1467
+		top 547
+		material tracks/DashTachoNeedle1
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/TurboNeedle2 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 15
+		height 15
+		left 1509
+		top 589
+		material tracks/DashTachoNeedle2
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/Tacho4000 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 333
+		height 250
+		//left 1237
+        left -363
+		//top  643
+        top -257
+		material tracks/DashTacho4000
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/TachoNeedle1 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 248
+		height 248
+		left 1321
+		top 644
+		material tracks/DashTachoNeedle1
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/TachoNeedle2 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 32
+		height 32
+		left 1429
+		top 752
+		material tracks/DashTachoNeedle2
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/BrakeOff Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 55
+		height 55
+		//left 1418
+        left -182
+		//top 707
+        top -193
+		material tracks/DashBrakeOff
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/BrakeOn Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 55
+		height 55
+		left 1418
+		top 707
+		material tracks/DashBrakeOn
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LeftOff Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 31
+		height 40
+		left 1389
+		top 717
+		material tracks/DashLeftOff
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LeftOn Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 31
+		height 40
+		left 1389
+		top 717
+		material tracks/DashLeftOn
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/RightOff Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 31
+		height 40
+		left 1471
+		top 717
+		material tracks/DashRightOff
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/RightOn Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 31
+		height 40
+		left 1471
+		top 717
+		material tracks/DashRightOn
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/FrontLightsOff Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 35
+		height 35
+		left 1285
+		top 774
+		material tracks/DashFrontLightsOff
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/FrontLightsOn Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 35
+		height 35
+		left 1285
+		top 774
+		material tracks/DashFrontLightsOn
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsLockedOff Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left 1265
+		top 819
+		material tracks/DashLightsLockedOff
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsLockedOn Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left 1265
+		top 819
+		material tracks/DashLightsLockedOn
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsClutchOff Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left 1253
+		top 857
+		material tracks/DashLightsClutchOn
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsClutchOn Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left 1253
+		top 857
+		material tracks/DashLightsClutchOn
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsPressureOff Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left 1279
+		top 857
+		material tracks/DashLightsPressureOff
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsPressureOn Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left 1279
+		top 857
+		material tracks/DashLightsPressureOn
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsBatteryOff Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 35
+		height 35
+		left 1304
+		top 852
+		material tracks/DashLightsBatteryOff
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsBatteryOn Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 35
+		height 35
+		left 1304
+		top 852
+		material tracks/DashLightsBatteryOn
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsIngitionOff Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 35
+		height 35
+		left 1337
+		top 852
+		material tracks/DashLightsIngitionOff
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsIngitionOn Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 35
+		height 35
+		left 1337
+		top 852
+		material tracks/DashLightsIngitionOn
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsTraction0 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left 1418
+		top 802
+		material tracks/DashLightsTraction0
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsTraction1 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left 1418
+		top 802
+		material tracks/DashLightsTraction1
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsTraction2 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left 1418
+		top 802
+		material tracks/DashLightsTraction2
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsTraction3 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left 1418
+		top 802
+		material tracks/DashLightsTraction3
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsAntilock0 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left 1448
+		top 802
+		material tracks/DashLightsAntilock0
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsAntilock1 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left 1448
+		top 802
+		material tracks/DashLightsAntilock1
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsAntilock2 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left 1448
+		top 802
+		material tracks/DashLightsAntilock2
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsAntilock3 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left 1448
+		top 802
+		material tracks/DashLightsAntilock3
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsTies0 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 30
+		height 30
+		left 1296
+		top 816
+		material tracks/DashLightsTies0
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsTies1 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 30
+		height 30
+		left 1296
+		top 816
+		material tracks/DashLightsTies1
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsTies2 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 30
+		height 30
+		left 1296
+		top 816
+		material tracks/DashLightsTies2
+	}
+    
+    
+// =============================   
+//    #################### 
+//    DEBUG elements below
+//    ####################
+// =============================
+
+    
+    overlay_element tracks/DefaultDashboard3500RPM/Root Panel
+    {
+        metrics_mode pixels
+        width 200
+        height 50
+        material tracks/transred    
+    
+
+
+        overlay_element tracks/DefaultDashboard3500RPM/SpeedLabel TextArea
+        {
+            metrics_mode pixels
+		tracks/DefaultDashboard3500RPM     
+
+            font_name CyberbitEnglish
+            char_height 20
+            caption "Speed:"
+        }
+
+        overlay_element tracks/DefaultDashboard3500RPM/SpeedDisplay DashTextArea
+        {
+            metrics_mode pixels
+            left 10
+            top 25
+            font_name CyberbitEnglish
+            char_height 20
+            
+            // ----- dashboard params -----
+            link speedo_kph
+            anim textstring
+        }
+    }
+}

@@ -2962,3 +2962,498 @@ material rigsofrods/managedmaterial-placeholder
         }
     }
 }
+
+material tracks/DashTurbo
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture turbo_v2.png
+			}
+		}
+	}
+}
+
+material tracks/DashTacho4000
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture tacho4000_digital_v2.png
+			}
+		}
+	}
+}
+
+material tracks/DashTachoNeedle1
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture redneedle_v2.png
+			}
+		}
+	}
+}
+
+material tracks/DashTachoNeedle2
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture needle_prt2.png
+			}
+		}
+	}
+}
+
+material tracks/DashBrakeOff
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture pbrake_v2-off.png
+			}
+		}
+	}
+}
+
+material tracks/DashBrakeOn
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture pbrake_v2-on.png
+			}
+		}
+	}
+}
+
+material tracks/DashLeftOff
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture turn_signal_left-off.png
+			}
+		}
+	}
+}
+
+material tracks/DashLeftOn
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture turn_signal_left-on.png
+			}
+		}
+	}
+}
+
+material tracks/DashRightOff
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture turn_signal_right-off.png
+			}
+		}
+	}
+}
+
+material tracks/DashRightOn
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture turn_signal_right-on.png
+			}
+		}
+	}
+}
+
+material tracks/DashFrontLightsOff
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture lights_v2-off.png
+			}
+		}
+	}
+}
+
+material tracks/DashFrontLightsOn
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture lights_v2-on.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsLockedOff
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture secured_v2-off.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsLockedOn
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture secured_v2-on.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsClutchOff
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture clutch_v2-off.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsClutchOn
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture clutch_v2-on.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsPressureOff
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture lopress_v2-off.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsPressureOn
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture lopress_v2-on.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsBatteryOff
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture batt_v2-off.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsBatteryOn
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture batt_v2-on.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsIngitionOff
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture ign_v2-off.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsIngitionOn
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture ign_v2-on.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsTraction0
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture tractioncontrol-0.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsTraction1
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture tractioncontrol-1.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsTraction2
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture tractioncontrol-2.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsTraction3
+{
+	technique
+	{
+		pass
+		{
+                        scene_blend alpha_blend
+			texture_unit
+			{
+				texture tractioncontrol-3.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsAntilock0
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				texture antilockbrake_v2-0.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsAntilock1
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				texture antilockbrake_v2-1.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsAntilock2
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				texture antilockbrake_v2-2.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsAntilock3
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				texture antilockbrake_v2-3.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsTies0
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				texture locked_v2-0.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsTies1
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				texture locked_v2-1.png
+			}
+		}
+	}
+}
+
+material tracks/DashLightsTies2
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				texture locked_v2-2.png
+			}
+		}
+	}
+}
