@@ -212,6 +212,7 @@ public:
     void                      SetFlexbodyVisible (bool visible);
     void                      SetWheelsVisible   (bool value);
     void                      SetAllMeshesVisible(bool value);
+    void                      SetWingsVisible    (bool visible);
     void                      SetCastShadows     (bool value);
     void                      UpdateDebugView    ();
     void                      ToggleDebugView    ();
