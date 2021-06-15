@@ -483,9 +483,12 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
         else if (packet.header.command == RoRnet::MSG2_STREAM_UNREGISTER)
         {
             Actor* b = this->GetActorByNetworkLinks(packet.header.source, packet.header.streamid);
-            if (b && b->ar_state == ActorState::NETWORKED_OK)
+            if (b)
             {
-                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)b));
+                if (b->ar_state == ActorState::NETWORKED_OK || b->ar_state == ActorState::NETWORKED_HIDDEN)
+                {
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)b));
+                }
             }
             m_stream_mismatches[packet.header.source].erase(packet.header.streamid);
         }
