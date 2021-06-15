@@ -103,6 +103,7 @@ public:
     //! @{ User interaction functions
     void              mouseMove(int node, Ogre::Vector3 pos, float force);
     void              lightsToggle();
+    void              setLightsOff();
     void              tieToggle(int group=-1);
     bool              isTied();
     void              hookToggle(int group=-1, HookAction mode=HOOK_TOGGLE, int node_number=-1);
