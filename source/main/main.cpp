@@ -640,6 +640,7 @@ int main(int argc, char *argv[])
                         actor->GetGfxActor()->SetFlexbodyVisible(false);
                         actor->GetGfxActor()->SetWheelsVisible(false);
                         actor->GetGfxActor()->SetAllMeshesVisible(false);
+                        actor->GetGfxActor()->SetWingsVisible(false);
                         actor->GetGfxActor()->SetCastShadows(false);
                         actor->GetGfxActor()->SetRodsVisible(false);
                         actor->muteAllSounds(); // Stop sounds
@@ -657,6 +658,7 @@ int main(int argc, char *argv[])
                         actor->GetGfxActor()->SetFlexbodyVisible(true);
                         actor->GetGfxActor()->SetWheelsVisible(true);
                         actor->GetGfxActor()->SetAllMeshesVisible(true);
+                        actor->GetGfxActor()->SetWingsVisible(true);
                         actor->GetGfxActor()->SetCastShadows(true);
                         actor->GetGfxActor()->SetRodsVisible(true);
                         actor->unmuteAllSounds(); // Unmute sounds

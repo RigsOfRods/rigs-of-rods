@@ -3313,6 +3313,22 @@ void RoR::GfxActor::SetAllMeshesVisible(bool visible)
     this->SetFlexbodyVisible(visible);
 }
 
+void RoR::GfxActor::SetWingsVisible(bool visible)
+{
+    for (int i = 0; i < m_actor->ar_num_wings; ++i)
+    {
+        wing_t& wing = m_actor->ar_wings[i];
+        if (!visible)
+        {
+            wing.cnode->setVisible(false);
+        }
+        else
+        {
+            wing.cnode->setVisible(true);
+        }
+    }
+}
+
 void RoR::GfxActor::UpdateWingMeshes()
 {
     for (int i = 0; i < m_actor->ar_num_wings; ++i)
