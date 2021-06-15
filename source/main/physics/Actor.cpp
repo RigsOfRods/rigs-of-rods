@@ -2992,6 +2992,14 @@ void Actor::lightsToggle()
     TRIGGER_EVENT(SE_TRUCK_LIGHT_TOGGLE, ar_instance_id);
 }
 
+void Actor::setLightsOff()
+{
+    for (size_t i = 0; i < ar_flares.size(); i++)
+    {
+        ar_flares[i].snode->setVisible(false);
+    }
+}
+
 void Actor::updateFlareStates(float dt)
 {
     if (m_flares_mode == GfxFlaresMode::NONE) { return; }

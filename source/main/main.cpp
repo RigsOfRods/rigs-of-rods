@@ -643,6 +643,7 @@ int main(int argc, char *argv[])
                         actor->GetGfxActor()->SetCastShadows(false);
                         actor->GetGfxActor()->SetRodsVisible(false);
                         actor->muteAllSounds(); // Stop sounds
+                        actor->setLightsOff(); // Turn all lights off
                     }
                     break;
 
