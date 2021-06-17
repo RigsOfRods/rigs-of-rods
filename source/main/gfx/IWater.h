@@ -40,6 +40,7 @@ public:
     virtual float          GetStaticWaterHeight() = 0; //!< Returns static water level configured in 'terrn2'
     virtual void           SetStaticWaterHeight(float value) = 0;
     virtual void           SetWaterBottomHeight(float value) {};
+    virtual void           SetWavesHeight(float value) {};
     virtual float          CalcWavesHeight(Ogre::Vector3 pos) = 0;
     virtual Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos) = 0;
     virtual void           SetWaterVisible(bool value) = 0;

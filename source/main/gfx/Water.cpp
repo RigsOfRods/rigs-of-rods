@@ -505,6 +505,11 @@ void Water::SetStaticWaterHeight(float value)
     m_waterplane_force_update_pos = true;
 }
 
+void Water::SetWavesHeight(float value)
+{
+    m_waves_height = value;
+}
+
 void Water::SetWaterBottomHeight(float value)
 {
     m_bottom_height = value;
@@ -533,7 +538,7 @@ float Water::CalcWavesHeight(Vector3 pos)
     {
         // calculate the amplitude that this wave will have. wavetrains[i].amplitude is read from the config
         // upper limit: prevent too big waves by setting an upper limit
-        float amp = std::min(m_wavetrain_defs[i].amplitude * waveheight, m_wavetrain_defs[i].maxheight);
+        float amp = std::min(m_wavetrain_defs[i].amplitude * (waveheight + m_waves_height), m_wavetrain_defs[i].maxheight);
         // now the main thing:
         // calculate the sinus with the values of the config file and add it to the result
         result += amp * sin(Math::TWO_PI * ((time_sec * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength));
