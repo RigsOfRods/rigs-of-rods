@@ -482,13 +482,16 @@ void TopMenubar::Update()
 #endif // USE_CAELUM
             if (RoR::App::gfx_water_waves->GetBool())
             {
-                ImGui::PushID("waves");
-                ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Waves Height:"));
-                if(ImGui::SliderFloat("", &m_waves_height, 0.f, 4.f, ""))
+                if (App::gfx_water_mode->GetEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->GetEnum<GfxWaterMode>() != GfxWaterMode::NONE)
                 {
-                    App::GetSimTerrain()->getWater()->SetWavesHeight(m_waves_height);
+                    ImGui::PushID("waves");
+                    ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Waves Height:"));
+                    if(ImGui::SliderFloat("", &m_waves_height, 0.f, 4.f, ""))
+                    {
+                        App::GetSimTerrain()->getWater()->SetWavesHeight(m_waves_height);
+                    }
+                    ImGui::PopID();
                 }
-                ImGui::PopID();
             }    
             
             if (current_actor != nullptr)
