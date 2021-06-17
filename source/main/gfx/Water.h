@@ -45,6 +45,7 @@ public:
     float          GetStaticWaterHeight() override;
     void           SetStaticWaterHeight(float value) override;
     void           SetWaterBottomHeight(float value) override;
+    void           SetWavesHeight(float value) override;
     float          CalcWavesHeight(Ogre::Vector3 pos) override;
     Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos) override;
     void           SetWaterVisible(bool value) override;
@@ -99,6 +100,7 @@ private:
 
     bool                  m_water_visible;
     float                 m_water_height;
+    float                 m_waves_height = 0;
     float                 m_bottom_height;
     float                 m_max_ampl;
     float                 m_waterplane_mesh_scale;
