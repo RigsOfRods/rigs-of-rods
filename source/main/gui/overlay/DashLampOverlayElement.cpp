@@ -48,8 +48,6 @@ DashLampOverlayElement::DashLampOverlayElement(const String& name)
     this->addBaseParameters();
     // Add Rigs of Rods dashboard parameters.
     this->addCommonDashParams(this->getParamDictionary());
-
-    this->locateMaterials();
 }
 
     // Functions
@@ -58,37 +56,17 @@ const Ogre::String& DashLampOverlayElement::getTypeName(void) const
 {
     return OVERLAY_ELEMENT_TYPE_NAME;
 }
-/*
-  //  Severity	Code	Description	Project	File	Line	Suppression State
-  //  Error	LNK2005	"public: virtual void __cdecl RoR::BaseDashOverlayElement::CmdLink::doSet(void *,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &)" (?doSet@CmdLink@BaseDashOverlayElement@RoR@@UEAAXPEAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z) already defined in DashTextAreaOverlayElement.obj	RoR	C:\Users\Petr\builds\rigs-of-rods\source\main\DashLampOverlayElement.obj	1	
-  //  Error	LNK2005	"public: virtual class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > __cdecl RoR::BaseDashOverlayElement::CmdAnim::doGet(void const *)const " (?doGet@CmdAnim@BaseDashOverlayElement@RoR@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBX@Z) already defined in DashTextAreaOverlayElement.obj	RoR	C:\Users\Petr\builds\rigs-of-rods\source\main\DashLampOverlayElement.obj	1	
-  //  Error	LNK2005	"public: virtual class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > __cdecl RoR::BaseDashOverlayElement::CmdLink::doGet(void const *)const " (?doGet@CmdLink@BaseDashOverlayElement@RoR@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBX@Z) already defined in DashTextAreaOverlayElement.obj	RoR	C:\Users\Petr\builds\rigs-of-rods\source\main\DashLampOverlayElement.obj	1	
-  //  Error	LNK2005	"public: virtual void __cdecl RoR::BaseDashOverlayElement::CmdAnim::doSet(void *,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &)" (?doSet@CmdAnim@BaseDashOverlayElement@RoR@@UEAAXPEAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z) already defined in DashTextAreaOverlayElement.obj	RoR	C:\Users\Petr\builds\rigs-of-rods\source\main\DashLampOverlayElement.obj	1	
-
-String DashLampOverlayElement::CmdAnim::doGet( const void* target ) const
-{
-    return static_cast<const DashLampOverlayElement*>(target)->getAnimStr();
-}
-String DashLampOverlayElement::CmdLink::doGet( const void* target ) const
-{
-    return static_cast<const DashLampOverlayElement*>(target)->getLinkStr();
-}
-
-void DashLampOverlayElement::CmdAnim::doSet( void* target, const String& val )
-{
-    DashLampOverlayElement* obj = static_cast<DashLampOverlayElement*>(target);
-    obj->setAnimStr(val);
-}
-void DashLampOverlayElement::CmdLink::doSet( void* target, const String& val )
-{
-    DashLampOverlayElement* obj = static_cast<DashLampOverlayElement*>(target);
-    obj->setLinkStr(val);
-}*/
 
 // Type-specific functions
 
 void DashLampOverlayElement::locateMaterials()
 {
+    if (!this->getMaterial())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("No material assigned - lamp '{}' will not be animated", this->getName()));
+    }
+
     /// Materials must have suffix "-on" and "-off". One must be specified in overlay script - the other will be deduced.
     if (Ogre::StringUtil::endsWith(this->getMaterial()->getName(), "-on"))
     {
@@ -105,7 +83,8 @@ void DashLampOverlayElement::locateMaterials()
     else
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
-            fmt::format("Unrecognized material '{}' - lamp will not be animated", this->getMaterial()->getName()));
+            fmt::format("Unrecognized material '{}' - lamp '{}' will not be animated",
+                this->getMaterial()->getName(), this->getName()));
     }
 }
 

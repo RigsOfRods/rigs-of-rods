@@ -53,26 +53,6 @@ const Ogre::String& DashTextAreaOverlayElement::getTypeName(void) const
     return OVERLAY_ELEMENT_TYPE_NAME;
 }
 
-String DashTextAreaOverlayElement::CmdAnim::doGet( const void* target ) const
-{
-    return static_cast<const DashTextAreaOverlayElement*>(target)->getAnimStr();
-}
-String DashTextAreaOverlayElement::CmdLink::doGet( const void* target ) const
-{
-    return static_cast<const DashTextAreaOverlayElement*>(target)->getLinkStr();
-}
-
-void DashTextAreaOverlayElement::CmdAnim::doSet( void* target, const String& val )
-{
-    DashTextAreaOverlayElement* obj = static_cast<DashTextAreaOverlayElement*>(target);
-    obj->setAnimStr(val);
-}
-void DashTextAreaOverlayElement::CmdLink::doSet( void* target, const String& val )
-{
-    DashTextAreaOverlayElement* obj = static_cast<DashTextAreaOverlayElement*>(target);
-    obj->setLinkStr(val);
-}
-
 // --------------------------------
 // The factory
 

@@ -45,11 +45,11 @@ public:
     virtual ~DashLampOverlayElement() {}
 
     virtual const Ogre::String& getTypeName(void) const override;
+    void locateMaterials();
     bool                        checkMaterialsOk() const;
     void                        setLampOn(bool on);
 
 private:
-    void locateMaterials();
 
     Ogre::MaterialPtr m_off_material;
     Ogre::MaterialPtr m_on_material;

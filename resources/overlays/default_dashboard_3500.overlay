@@ -80,7 +80,7 @@ overlay tracks/DefaultDashboard3500RPM
 		material tracks/DashTachoNeedle2
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/BrakeOff Panel
+    overlay_element tracks/DefaultDashboard3500RPM/ParkingBrake DashLamp
 	{
 		metrics_mode pixels
 		horz_align right
@@ -91,19 +91,13 @@ overlay tracks/DefaultDashboard3500RPM
         left -182
 		//top 707
         top -193
-		material tracks/DashBrakeOff
-	}
-
-        overlay_element tracks/DefaultDashboard3500RPM/BrakeOn Panel
-	{
-		metrics_mode pixels
-		horz_align right
-		vert_align bottom
-		width 55
-		height 55
-		left 1418
-		top 707
-		material tracks/DashBrakeOn
+        
+        // for DashLamp, materials "-on" and "-off" must exist
+		material tracks/DashParkingBrake-off
+        
+        // ----- dashboard params -----
+        link parkingbrake
+        anim lamp        
 	}
 
         overlay_element tracks/DefaultDashboard3500RPM/LeftOff Panel
@@ -450,7 +444,7 @@ overlay tracks/DefaultDashboard3500RPM
         overlay_element tracks/DefaultDashboard3500RPM/SpeedLabel TextArea
         {
             metrics_mode pixels
-		tracks/DefaultDashboard3500RPM     
+   
 
             font_name CyberbitEnglish
             char_height 20

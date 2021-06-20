@@ -3023,13 +3023,13 @@ material tracks/DashTachoNeedle2
 	}
 }
 
-material tracks/DashBrakeOff
+material tracks/DashParkingBrake-off
 {
 	technique
 	{
 		pass
 		{
-                        scene_blend alpha_blend
+            scene_blend alpha_blend
 			texture_unit
 			{
 				texture pbrake_v2-off.png
@@ -3038,13 +3038,13 @@ material tracks/DashBrakeOff
 	}
 }
 
-material tracks/DashBrakeOn
+material tracks/DashParkingBrake-on
 {
 	technique
 	{
 		pass
 		{
-                        scene_blend alpha_blend
+            scene_blend alpha_blend
 			texture_unit
 			{
 				texture pbrake_v2-on.png

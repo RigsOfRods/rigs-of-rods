@@ -35,33 +35,28 @@
 
 namespace RoR {
 
+    // OGRE overlay param extension mechanism, step 1
+
+class CmdAnim : public Ogre::ParamCommand
+{
+public:
+    virtual Ogre::String doGet( const void* target ) const override;
+    virtual void doSet( void* target, const Ogre::String& val ) override;
+};
+
+class CmdLink : public Ogre::ParamCommand
+{
+public:
+    virtual Ogre::String doGet( const void* target ) const override;
+    virtual void doSet( void* target, const Ogre::String& val ) override;
+};
+
 /// dashboard extension parameters for OGRE overlay elements
 /// Think of it as "partial class" or "mixin class" in other languages.
 class BaseDashOverlayElement
 {
 public:
     virtual ~BaseDashOverlayElement() {};
-
-    // OGRE overlay param extension mechanism, step 1
-    //  Special case: because this class is used as "partial" and not pure base,
-    //  these command functions must be defined in each final class
-    //  so that the void* can be casted to the final type.
-
-    class CmdAnim : public Ogre::ParamCommand
-    {
-    public:
-        virtual Ogre::String doGet( const void* target ) const override;
-        virtual void doSet( void* target, const Ogre::String& val ) override;
-    };
-
-    class CmdLink : public Ogre::ParamCommand
-    {
-    public:
-        virtual Ogre::String doGet( const void* target ) const override;
-        virtual void doSet( void* target, const Ogre::String& val ) override;
-    };
-
-    // END step 1
 
     Ogre::String getAnimStr() const { return m_anim_str; }
     void setAnimStr(Ogre::String const& str) { m_anim_str = str; }

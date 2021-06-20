@@ -21,13 +21,88 @@
 
 #include "BaseDashOverlayElement.h"
 
+#include "DashTextAreaOverlayElement.h"
+#include "DashLampOverlayElement.h"
+
+#include <Overlay/OgreOverlayElement.h>
+
 using namespace RoR;
 using namespace Ogre;
 
+// ----------------
+// Cmd classes
+
+// Because we're extending existing Ogre overlays,
+//  we can't simply cast to BaseDashOverlayElement because
+//  it doesn't directly derive from OverlayElement and it's bases.
+// To correctly propagate the values, we must cast to classes
+//  one level up in the inheritance tree.
+
+String CmdAnim::doGet( const void* target ) const
+{
+    const Ogre::OverlayElement* elem = static_cast<const Ogre::OverlayElement*>(target);
+    if (elem->getTypeName() == DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        return static_cast<const DashTextAreaOverlayElement*>(target)->getAnimStr();
+    }
+    if (elem->getTypeName() == DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        return static_cast<const DashLampOverlayElement*>(target)->getAnimStr();
+    }
+    else
+    {
+        return "";
+    }
+}
+String CmdLink::doGet( const void* target ) const
+{
+    const Ogre::OverlayElement* elem = static_cast<const Ogre::OverlayElement*>(target);
+    if (elem->getTypeName() == DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        return static_cast<const DashTextAreaOverlayElement*>(target)->getLinkStr();
+    }
+    if (elem->getTypeName() == DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        return static_cast<const DashLampOverlayElement*>(target)->getLinkStr();
+    }
+    else
+    {
+        return "";
+    }
+}
+
+void CmdAnim::doSet( void* target, const String& val )
+{
+    const Ogre::OverlayElement* elem = static_cast<const Ogre::OverlayElement*>(target);
+    if (elem->getTypeName() == DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        static_cast< DashTextAreaOverlayElement*>(target)->setAnimStr(val);
+    }
+    if (elem->getTypeName() == DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        static_cast< DashLampOverlayElement*>(target)->setAnimStr(val);
+    }
+}
+void CmdLink::doSet( void* target, const String& val )
+{
+    const Ogre::OverlayElement* elem = static_cast<const Ogre::OverlayElement*>(target);
+    if (elem->getTypeName() == DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        static_cast< DashTextAreaOverlayElement*>(target)->setLinkStr(val);
+    }
+    if (elem->getTypeName() == DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        static_cast< DashLampOverlayElement*>(target)->setLinkStr(val);
+    }
+}
+
+// ----------------
+// Base dash elem.
+
     // Static members
 
-BaseDashOverlayElement::CmdAnim BaseDashOverlayElement::ms_anim_cmd;
-BaseDashOverlayElement::CmdLink BaseDashOverlayElement::ms_link_cmd;
+CmdAnim BaseDashOverlayElement::ms_anim_cmd;
+CmdLink BaseDashOverlayElement::ms_link_cmd;
 
     // Functions
 

@@ -437,6 +437,12 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
         anim = dta->getAnimStr();
         linkArgs = dta->getLinkStr();
     }
+    else if (elem->getTypeName() == DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        DashLampOverlayElement* dash_elem = static_cast<DashLampOverlayElement*>(elem);
+        anim = dash_elem->getAnimStr();
+        linkArgs = dash_elem->getLinkStr();
+    }
     else
     {
         return; // Unsupported element
@@ -681,6 +687,7 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
             else
             {
                 DashLampOverlayElement* lamp = static_cast<DashLampOverlayElement*>(elem);
+                lamp->locateMaterials();
                 if (!lamp->checkMaterialsOk())
                 {
                     App::GetConsole()->putMessage(
@@ -717,6 +724,12 @@ void DashBoard::loadLayout(Ogre::String filename)
         const Overlay::OverlayContainerList& list = m_overlay->get2DElements();
         for (OverlayContainer* container: list)
         {
+            LOG(fmt::format(
+                "DashBoard::loadLayout() - processing element '{}' of type '{}'",
+                container->getName(), container->getTypeName()));
+            this->setupElement(container);
+
+            // TODO: recurse!
             OverlayContainer::ChildIterator child_iterator = container->getChildIterator();
             for (Ogre::OverlayContainer::ChildMap::value_type& child: child_iterator)
             {
