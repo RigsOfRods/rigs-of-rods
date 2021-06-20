@@ -43,3 +43,4 @@ void BaseDashOverlayElement::addCommonDashParams(Ogre::ParamDictionary* dict)
         , PT_STRING),
         &ms_link_cmd);
 }
+

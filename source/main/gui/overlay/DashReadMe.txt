@@ -29,6 +29,7 @@ Everything documented in the above manual.
 
 AVAILABLE 'anim' VALUES:
 * 'textstring' - Displays the value as-is. Only for 'DashTextArea'.
+* 'lamp' - Switches materials "*-on" and "*-off", only for 'DashLamp'.
 
 EXAMPLE:
 

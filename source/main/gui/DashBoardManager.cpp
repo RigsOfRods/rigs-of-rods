@@ -28,6 +28,7 @@
 
 #include "Application.h"
 #include "Console.h"
+#include "DashLampOverlayElement.h"
 #include "DashTextAreaOverlayElement.h"
 #include "Utils.h"
 
@@ -321,14 +322,8 @@ void DashBoard::update(float& dt)
             controls[i].lastState = state;
 
             // switch states
-            if (state)
-            {
-                controls[i].img->setImageTexture(String(controls[i].texture) + "-on.png");
-            }
-            else
-            {
-                controls[i].img->setImageTexture(String(controls[i].texture) + "-off.png");
-            }
+            DashLampOverlayElement* lamp = static_cast<DashLampOverlayElement*>(controls[i].element);
+            lamp->setLampOn(state);
         }
         else if (controls[i].animationType == ANIM_SERIES)
         {
@@ -468,8 +463,6 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
 
         // establish the link
         {
-            replaceString(linkArgs, "&gt;", ">");
-            replaceString(linkArgs, "&lt;", "<");
             String linkName = "";
             if (linkArgs.empty())
             {
@@ -664,40 +657,46 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
                     Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
                     fmt::format(
                         "Dashboard element '{}' will not be animated;"
-                        "anim '{}' is not compatible with element '{}'",
+                        "anim '{}' is not compatible with type '{}'",
                         elem->getName(), anim, elem->getTypeName()));
+                return;
             }
             else
             {
                 ctrl.animationType = ANIM_TEXTSTRING;
             }
         }
-        #if 0 // OVERDASH
         else if (anim == "lamp")
         {
-            // try to cast, will throw
-            /*
+            if (elem->getTypeName() != DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
             {
-                try
-                {
-                    w->getSubWidgetMain()->castType<MyGUI::ImageBox>();
-                }
-                catch (...)
-                {
-                    LOG("Dashboard ("+filename+"/"+elem->getName()+"): Lamp controls must use the ImageBox Control");
-                    continue;
-                }
-            }
-            */
-            ctrl.animationType = ANIM_LAMP;
-            ctrl.img = (MyGUI::ImageBox *)w; //w->getSubWidgetMain()->castType<MyGUI::ImageBox>();
-            if (!ctrl.img)
-            {
-                LOG("Dashboard ("+filename+"/"+elem->getName()+"): error loading Lamp control");
+                App::GetConsole()->putMessage(
+                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format(
+                        "Dashboard element '{}' will not be animated;"
+                        "anim '{}' is not compatible with type '{}'",
+                        elem->getName(), anim, elem->getTypeName()));
                 return;
             }
+            else
+            {
+                DashLampOverlayElement* lamp = static_cast<DashLampOverlayElement*>(elem);
+                if (!lamp->checkMaterialsOk())
+                {
+                    App::GetConsole()->putMessage(
+                        Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                        fmt::format(
+                            "Dashboard element '{}' will not be animated;"
+                            "materials were not located",
+                        elem->getName()));
+                    return;
+                }
+                else
+                {
+                    ctrl.animationType = ANIM_LAMP;
+                }
+            }
         }
-        #endif // OVERDASH
 
         controls[free_controls] = ctrl;
         free_controls++;
