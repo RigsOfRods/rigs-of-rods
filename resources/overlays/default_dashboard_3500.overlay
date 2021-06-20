@@ -11,10 +11,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 112
 		height 112
-		//left 1460
-        left -140
-		//top  540
-        top -360
+                left -140
+                top -360
 		material tracks/DashTurbo
 	}
 
@@ -25,8 +23,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 99
 		height 99
-		left 1467
-		top 547
+		left -133
+		top -353
 		material tracks/DashTachoNeedle1
 	}
 
@@ -37,8 +35,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 15
 		height 15
-		left 1509
-		top 589
+		left -91
+		top -311
 		material tracks/DashTachoNeedle2
 	}
 
@@ -49,10 +47,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 333
 		height 250
-		//left 1237
-        left -363
-		//top  643
-        top -257
+                left -363
+                top -257
 		material tracks/DashTacho4000
 	}
 
@@ -63,8 +59,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 248
 		height 248
-		left 1321
-		top 644
+		left -279
+		top -256
 		material tracks/DashTachoNeedle1
 	}
 
@@ -75,10 +71,14 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 32
 		height 32
-		left 1429
-		top 752
+		left -171
+		top -148
 		material tracks/DashTachoNeedle2
 	}
+    
+    
+    // ------------------------ Lamps ---------------------------
+    
 
     overlay_element tracks/DefaultDashboard3500RPM/ParkingBrake DashLamp
 	{
@@ -87,10 +87,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 55
 		height 55
-		//left 1418
-        left -182
-		//top 707
-        top -193
+                left -182
+                top -193
         
         // for DashLamp, materials "-on" and "-off" must exist
 		material tracks/DashParkingBrake-off
@@ -100,52 +98,36 @@ overlay tracks/DefaultDashboard3500RPM
         anim lamp        
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/LeftOff Panel
+        overlay_element tracks/DefaultDashboard3500RPM/LeftBlinker DashLamp
 	{
 		metrics_mode pixels
 		horz_align right
 		vert_align bottom
 		width 31
 		height 40
-		left 1389
-		top 717
-		material tracks/DashLeftOff
+		left -211
+		top -183
+        
+        // for DashLamp, materials "-on" and "-off" must exist
+		material tracks/DashLeftBlinker-off
+        link signal_turnleft
+        anim lamp    
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/LeftOn Panel
+        overlay_element tracks/DefaultDashboard3500RPM/RightBlinker DashLamp
 	{
 		metrics_mode pixels
 		horz_align right
 		vert_align bottom
 		width 31
 		height 40
-		left 1389
-		top 717
-		material tracks/DashLeftOn
-	}
+		left -129
+		top -183
 
-        overlay_element tracks/DefaultDashboard3500RPM/RightOff Panel
-	{
-		metrics_mode pixels
-		horz_align right
-		vert_align bottom
-		width 31
-		height 40
-		left 1471
-		top 717
-		material tracks/DashRightOff
-	}
-
-        overlay_element tracks/DefaultDashboard3500RPM/RightOn Panel
-	{
-		metrics_mode pixels
-		horz_align right
-		vert_align bottom
-		width 31
-		height 40
-		left 1471
-		top 717
-		material tracks/DashRightOn
+        // for DashLamp, materials "-on" and "-off" must exist
+		material tracks/DashRightBlinker-off
+        link signal_turnright
+        anim lamp   
 	}
 
         overlay_element tracks/DefaultDashboard3500RPM/FrontLightsOff Panel
@@ -155,8 +137,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 35
 		height 35
-		left 1285
-		top 774
+		left -315
+		top -126
 		material tracks/DashFrontLightsOff
 	}
 
@@ -167,8 +149,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 35
 		height 35
-		left 1285
-		top 774
+		left -315
+		top -126
 		material tracks/DashFrontLightsOn
 	}
 
@@ -179,8 +161,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 25
 		height 25
-		left 1265
-		top 819
+		left -335
+		top -81
 		material tracks/DashLightsLockedOff
 	}
 
@@ -191,8 +173,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 25
 		height 25
-		left 1265
-		top 819
+		left -335
+		top -81
 		material tracks/DashLightsLockedOn
 	}
 
@@ -203,8 +185,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 25
 		height 25
-		left 1253
-		top 857
+		left -347
+		top -43
 		material tracks/DashLightsClutchOn
 	}
 
@@ -215,8 +197,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 25
 		height 25
-		left 1253
-		top 857
+		left -347
+		top -43
 		material tracks/DashLightsClutchOn
 	}
 
@@ -227,8 +209,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 25
 		height 25
-		left 1279
-		top 857
+		left -321
+		top -43
 		material tracks/DashLightsPressureOff
 	}
 
@@ -239,8 +221,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 25
 		height 25
-		left 1279
-		top 857
+		left -321
+		top -43
 		material tracks/DashLightsPressureOn
 	}
 
@@ -251,8 +233,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 35
 		height 35
-		left 1304
-		top 852
+		left -296
+		top -48
 		material tracks/DashLightsBatteryOff
 	}
 
@@ -263,8 +245,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 35
 		height 35
-		left 1304
-		top 852
+		left -296
+		top -48
 		material tracks/DashLightsBatteryOn
 	}
 
@@ -275,8 +257,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 35
 		height 35
-		left 1337
-		top 852
+		left -263
+		top -48
 		material tracks/DashLightsIngitionOff
 	}
 
@@ -287,8 +269,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 35
 		height 35
-		left 1337
-		top 852
+		left -263
+		top -48
 		material tracks/DashLightsIngitionOn
 	}
 
@@ -299,8 +281,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 25
 		height 25
-		left 1418
-		top 802
+		left -182
+		top -98
 		material tracks/DashLightsTraction0
 	}
 
@@ -311,8 +293,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 25
 		height 25
-		left 1418
-		top 802
+		left -182
+		top -98
 		material tracks/DashLightsTraction1
 	}
 
@@ -323,8 +305,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 25
 		height 25
-		left 1418
-		top 802
+		left -182
+		top -98
 		material tracks/DashLightsTraction2
 	}
 
@@ -335,8 +317,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 25
 		height 25
-		left 1418
-		top 802
+		left -182
+		top -98
 		material tracks/DashLightsTraction3
 	}
 
@@ -347,8 +329,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 25
 		height 25
-		left 1448
-		top 802
+		left -152
+		top -98
 		material tracks/DashLightsAntilock0
 	}
 
@@ -359,8 +341,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 25
 		height 25
-		left 1448
-		top 802
+		left -152
+		top -98
 		material tracks/DashLightsAntilock1
 	}
 
@@ -371,8 +353,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 25
 		height 25
-		left 1448
-		top 802
+		left -152
+		top -98
 		material tracks/DashLightsAntilock2
 	}
 
@@ -383,8 +365,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 25
 		height 25
-		left 1448
-		top 802
+		left -152
+		top -98
 		material tracks/DashLightsAntilock3
 	}
 
@@ -395,8 +377,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 30
 		height 30
-		left 1296
-		top 816
+		left -304
+		top -84
 		material tracks/DashLightsTies0
 	}
 
@@ -407,8 +389,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 30
 		height 30
-		left 1296
-		top 816
+		left -304
+		top -84
 		material tracks/DashLightsTies1
 	}
 
@@ -419,8 +401,8 @@ overlay tracks/DefaultDashboard3500RPM
 		vert_align bottom
 		width 30
 		height 30
-		left 1296
-		top 816
+		left -304
+		top -84
 		material tracks/DashLightsTies2
 	}
     

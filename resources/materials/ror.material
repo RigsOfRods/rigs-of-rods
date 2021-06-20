@@ -3053,7 +3053,7 @@ material tracks/DashParkingBrake-on
 	}
 }
 
-material tracks/DashLeftOff
+material tracks/DashLeftBlinker-off
 {
 	technique
 	{
@@ -3068,7 +3068,7 @@ material tracks/DashLeftOff
 	}
 }
 
-material tracks/DashLeftOn
+material tracks/DashLeftBlinker-on
 {
 	technique
 	{
@@ -3083,7 +3083,7 @@ material tracks/DashLeftOn
 	}
 }
 
-material tracks/DashRightOff
+material tracks/DashRightBlinker-off
 {
 	technique
 	{
@@ -3098,7 +3098,7 @@ material tracks/DashRightOff
 	}
 }
 
-material tracks/DashRightOn
+material tracks/DashRightBlinker-on
 {
 	technique
 	{
