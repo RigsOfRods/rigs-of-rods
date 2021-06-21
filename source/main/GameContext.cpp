@@ -914,13 +914,9 @@ void GameContext::UpdateSimInputEvents(float dt)
     }
 
     // terrain editor toggle
-    bool toggle_editor = (App::GetGameContext()->GetPlayerActor() && App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE) ||
-        (!App::GetGameContext()->GetPlayerActor() && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
-    if (toggle_editor)
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR))
     {
-        Message m(App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE ?
-                    MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED : MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED);
-        App::GetGameContext()->PushMessage(m);
+        App::GetGameContext()->PushMessage(MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED);
     }
 
     // forward commands from character
