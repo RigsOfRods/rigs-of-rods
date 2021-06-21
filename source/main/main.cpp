@@ -870,7 +870,8 @@ int main(int argc, char *argv[])
             }
 
             // Create snapshot of simulation state for Gfx/GUI updates
-            if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
+            if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING ||   // Obviously
+                App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE) // Needed for character movement
             {
                 App::GetGfxScene()->BufferSimulationData();
             }
