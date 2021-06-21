@@ -914,7 +914,7 @@ void GameContext::UpdateSimInputEvents(float dt)
     }
 
     // terrain editor toggle
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR))
+    if (!App::GetGameContext()->GetPlayerActor() && App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR))
     {
         App::GetGameContext()->PushMessage(MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED);
     }
