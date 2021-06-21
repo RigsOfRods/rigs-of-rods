@@ -237,6 +237,11 @@ void TerrainEditor::UpdateInputEvents(float dt)
     {
         App::GetGameContext()->GetCharacterFactory()->Update(dt);
     }    
+
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR))
+    {
+        App::GetGameContext()->PushMessage(MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED);
+    }
 }
 
 void TerrainEditor::WriteOutputFile()
