@@ -3113,7 +3113,7 @@ material tracks/DashRightBlinker-on
 	}
 }
 
-material tracks/DashFrontLightsOff
+material tracks/DashFrontLights-off
 {
 	technique
 	{
@@ -3128,7 +3128,7 @@ material tracks/DashFrontLightsOff
 	}
 }
 
-material tracks/DashFrontLightsOn
+material tracks/DashFrontLights-on
 {
 	technique
 	{
@@ -3143,7 +3143,7 @@ material tracks/DashFrontLightsOn
 	}
 }
 
-material tracks/DashLightsLockedOff
+material tracks/DashLightsLocked-off
 {
 	technique
 	{
@@ -3158,7 +3158,7 @@ material tracks/DashLightsLockedOff
 	}
 }
 
-material tracks/DashLightsLockedOn
+material tracks/DashLightsLocked-on
 {
 	technique
 	{
@@ -3173,7 +3173,7 @@ material tracks/DashLightsLockedOn
 	}
 }
 
-material tracks/DashLightsClutchOff
+material tracks/DashLightsClutch-off
 {
 	technique
 	{
@@ -3188,7 +3188,7 @@ material tracks/DashLightsClutchOff
 	}
 }
 
-material tracks/DashLightsClutchOn
+material tracks/DashLightsClutch-on
 {
 	technique
 	{
@@ -3203,7 +3203,7 @@ material tracks/DashLightsClutchOn
 	}
 }
 
-material tracks/DashLightsPressureOff
+material tracks/DashLightsPressure-off
 {
 	technique
 	{
@@ -3218,7 +3218,7 @@ material tracks/DashLightsPressureOff
 	}
 }
 
-material tracks/DashLightsPressureOn
+material tracks/DashLightsPressure-on
 {
 	technique
 	{
@@ -3233,7 +3233,7 @@ material tracks/DashLightsPressureOn
 	}
 }
 
-material tracks/DashLightsBatteryOff
+material tracks/DashLightsBattery-off
 {
 	technique
 	{
@@ -3248,7 +3248,7 @@ material tracks/DashLightsBatteryOff
 	}
 }
 
-material tracks/DashLightsBatteryOn
+material tracks/DashLightsBattery-on
 {
 	technique
 	{
