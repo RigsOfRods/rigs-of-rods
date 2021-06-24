@@ -3263,7 +3263,7 @@ material tracks/DashLightsBattery-on
 	}
 }
 
-material tracks/DashLightsIngitionOff
+material tracks/DashLightsIngition-off
 {
 	technique
 	{
@@ -3278,7 +3278,7 @@ material tracks/DashLightsIngitionOff
 	}
 }
 
-material tracks/DashLightsIngitionOn
+material tracks/DashLightsIngition-on
 {
 	technique
 	{

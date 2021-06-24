@@ -207,7 +207,7 @@ overlay tracks/DefaultDashboard3500RPM
 	}
 
 
-        overlay_element tracks/DefaultDashboard3500RPM/LightsIngitionOff Panel
+        overlay_element tracks/DefaultDashboard3500RPM/LightsIngition DashLamp
 	{
 		metrics_mode pixels
 		horz_align right
@@ -216,20 +216,12 @@ overlay tracks/DefaultDashboard3500RPM
 		height 35
 		left -263
 		top -48
-		material tracks/DashLightsIngitionOff
+        // for DashLamp, materials "-on" and "-off" must exist
+		material tracks/DashLightsIngition-off
+        anim lamp
+        link engine_ignition
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/LightsIngitionOn Panel
-	{
-		metrics_mode pixels
-		horz_align right
-		vert_align bottom
-		width 35
-		height 35
-		left -263
-		top -48
-		material tracks/DashLightsIngitionOn
-	}
 
         overlay_element tracks/DefaultDashboard3500RPM/LightsTraction0 Panel
 	{
