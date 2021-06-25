@@ -329,13 +329,13 @@ void DashBoard::update(float& dt)
         {
             float val = manager->getNumeric(controls[i].linkID);
 
-            String fn = String(controls[i].texture) + String("-") + TOSTRING((int)val) + String(".png");
-
             if (fabs(val - controls[i].last) < 0.2f)
                 continue;
             controls[i].last = val;
 
-            controls[i].img->setImageTexture(fn);
+            // switch states
+            DashLampOverlayElement* lamp = static_cast<DashLampOverlayElement*>(controls[i].element);
+            lamp->updateAnimSeries((int)val);
         }
         else if (controls[i].animationType == ANIM_SCALE)
         {
@@ -701,6 +701,37 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
                 else
                 {
                     ctrl.animationType = ANIM_LAMP;
+                }
+            }
+        }
+        else if (anim == "series")
+        {
+            if (elem->getTypeName() != DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+            {
+                App::GetConsole()->putMessage(
+                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format(
+                        "Dashboard element '{}' will not be animated;"
+                        "anim '{}' is not compatible with type '{}'",
+                        elem->getName(), anim, elem->getTypeName()));
+                return;
+            }
+            else
+            {
+                DashLampOverlayElement* lamp = static_cast<DashLampOverlayElement*>(elem);
+                if (!lamp->setupAnimSeries())
+                {
+                    App::GetConsole()->putMessage(
+                        Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                        fmt::format(
+                            "Dashboard element '{}' will not be animated;"
+                            "materials were not located",
+                        elem->getName()));
+                    return;
+                }
+                else
+                {
+                    ctrl.animationType = ANIM_SERIES;
                 }
             }
         }

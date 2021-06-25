@@ -216,14 +216,14 @@ overlay tracks/DefaultDashboard3500RPM
 		height 35
 		left -263
 		top -48
-        // for DashLamp, materials "-on" and "-off" must exist
+        // for anim 'lamp', materials "-on" and "-off" must exist
 		material tracks/DashLightsIngition-off
         anim lamp
         link engine_ignition
 	}
 
 
-        overlay_element tracks/DefaultDashboard3500RPM/LightsTraction0 Panel
+        overlay_element tracks/DefaultDashboard3500RPM/LightsTraction DashLamp
 	{
 		metrics_mode pixels
 		horz_align right
@@ -232,46 +232,14 @@ overlay tracks/DefaultDashboard3500RPM
 		height 25
 		left -182
 		top -98
+        // for anim 'series', materials must end with whole positive number.
+        anim series
 		material tracks/DashLightsTraction0
+        link tractioncontrol_mode
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/LightsTraction1 Panel
-	{
-		metrics_mode pixels
-		horz_align right
-		vert_align bottom
-		width 25
-		height 25
-		left -182
-		top -98
-		material tracks/DashLightsTraction1
-	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/LightsTraction2 Panel
-	{
-		metrics_mode pixels
-		horz_align right
-		vert_align bottom
-		width 25
-		height 25
-		left -182
-		top -98
-		material tracks/DashLightsTraction2
-	}
-
-        overlay_element tracks/DefaultDashboard3500RPM/LightsTraction3 Panel
-	{
-		metrics_mode pixels
-		horz_align right
-		vert_align bottom
-		width 25
-		height 25
-		left -182
-		top -98
-		material tracks/DashLightsTraction3
-	}
-
-        overlay_element tracks/DefaultDashboard3500RPM/LightsAntilock0 Panel
+        overlay_element tracks/DefaultDashboard3500RPM/LightsAntilock DashLamp
 	{
 		metrics_mode pixels
 		horz_align right
@@ -280,44 +248,12 @@ overlay tracks/DefaultDashboard3500RPM
 		height 25
 		left -152
 		top -98
+        // for anim 'series', materials must end with whole positive number.
+        anim series
 		material tracks/DashLightsAntilock0
+        link antilockbrake_mode
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/LightsAntilock1 Panel
-	{
-		metrics_mode pixels
-		horz_align right
-		vert_align bottom
-		width 25
-		height 25
-		left -152
-		top -98
-		material tracks/DashLightsAntilock1
-	}
-
-        overlay_element tracks/DefaultDashboard3500RPM/LightsAntilock2 Panel
-	{
-		metrics_mode pixels
-		horz_align right
-		vert_align bottom
-		width 25
-		height 25
-		left -152
-		top -98
-		material tracks/DashLightsAntilock2
-	}
-
-        overlay_element tracks/DefaultDashboard3500RPM/LightsAntilock3 Panel
-	{
-		metrics_mode pixels
-		horz_align right
-		vert_align bottom
-		width 25
-		height 25
-		left -152
-		top -98
-		material tracks/DashLightsAntilock3
-	}
 
         overlay_element tracks/DefaultDashboard3500RPM/LightsTies0 Panel
 	{

@@ -30,10 +30,19 @@
 #include <OgreOverlay.h>
 #include <OgreOverlayElementFactory.h>
 
+#include <vector>
+
 namespace RoR {
 
-/// Simple panel which switches 2 materials: on/off.
-/// Materials must have suffix "-on" and "-off". One must be specified in overlay script - the other will be deduced.
+/// FIXME: rename to "DashPanelOverlayElement"
+/// Generic panel, supports multiple animations: "lamp", "series"
+/// 
+/// Anim "lamp":
+///     switches 2 materials: on/off.
+///     Materials must have suffix "-on" and "-off". One must be specified in overlay script - the other will be deduced.
+/// Anim "series":
+///     switches multiple numbered materials.
+///     Material names must end with positive integral number. Minimum is 0, max is 500.
 class DashLampOverlayElement:
     public Ogre::PanelOverlayElement,
     public BaseDashOverlayElement
@@ -45,14 +54,24 @@ public:
     virtual ~DashLampOverlayElement() {}
 
     virtual const Ogre::String& getTypeName(void) const override;
-    void locateMaterials();
+
+    // Animation "lamp"
+    void                        locateMaterials();
     bool                        checkMaterialsOk() const;
     void                        setLampOn(bool on);
+    // Animation "series"
+    bool                        setupAnimSeries();
+    void                        updateAnimSeries(int val);
+    int                         analyzeSeriesMaterial(Ogre::String material_name);
 
 private:
 
+    // Anim "lamp" data
     Ogre::MaterialPtr m_off_material;
     Ogre::MaterialPtr m_on_material;
+    // Anim "series" data
+    std::vector<Ogre::MaterialPtr> m_series_materials;
+    Ogre::String m_series_base_name;
 };
 
 /// Mandatory factory class

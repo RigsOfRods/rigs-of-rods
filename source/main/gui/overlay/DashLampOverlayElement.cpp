@@ -57,7 +57,7 @@ const Ogre::String& DashLampOverlayElement::getTypeName(void) const
     return OVERLAY_ELEMENT_TYPE_NAME;
 }
 
-// Type-specific functions
+    // Animation "lamp" functions
 
 void DashLampOverlayElement::locateMaterials()
 {
@@ -72,13 +72,13 @@ void DashLampOverlayElement::locateMaterials()
     {
         m_on_material = this->getMaterial();
         Ogre::String base_name = this->getMaterial()->getName().substr(0, this->getMaterial()->getName().length() - 3);
-        m_off_material = Ogre::MaterialManager::getSingleton().getByName(base_name + "-off");
+        m_off_material = Ogre::MaterialManager::getSingleton().getByName(base_name + "-off"); //FIXME: resource group!!
     }
     else if (Ogre::StringUtil::endsWith(this->getMaterial()->getName(), "-off"))
     {
         m_off_material = this->getMaterial();
         Ogre::String base_name = this->getMaterial()->getName().substr(0, this->getMaterial()->getName().length() - 4);
-        m_on_material = Ogre::MaterialManager::getSingleton().getByName(base_name + "-on");
+        m_on_material = Ogre::MaterialManager::getSingleton().getByName(base_name + "-on"); //FIXME: resource group!!
     }
     else
     {
@@ -96,6 +96,90 @@ bool DashLampOverlayElement::checkMaterialsOk() const
 void DashLampOverlayElement::setLampOn(bool on)
 {
     this->setMaterial(on ? m_on_material : m_off_material);
+}
+
+    // Animation "series" functions
+
+bool DashLampOverlayElement::setupAnimSeries()
+{
+    /// Materials must end by integer. One must be specified in overlay script - the other will be deduced.
+
+    // No material? Return error.
+    if (!this->getMaterial())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("No material assigned - series '{}' will not be animated", this->getName()));
+        return false;
+    }
+
+    // Material not ending with number? return error.
+    int initial_num = this->analyzeSeriesMaterial(this->getMaterial()->getName());
+    if (initial_num < 0)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Assigned material has no number - series '{}' will not be animated", this->getName()));
+        return false;
+    }
+
+    // Find all available materials, starting with 0, ending when a number is not found.
+    bool keep_searching = true;
+    int find_num = 0;
+    while (keep_searching)
+    {
+        Ogre::String mat_name = fmt::format("{}{}", m_series_base_name, find_num);
+        Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(mat_name);//FIXME: resource group!!
+        if (mat)
+        {
+            m_series_materials.push_back(mat);
+            find_num++;
+        }
+        else
+        {
+            keep_searching = false;
+        }
+    }
+
+    if (m_series_materials.size() < 2)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Only 1 material found '{}' - series '{}' will not be animated",
+                this->getMaterial()->getName(), this->getName()));
+        return false;
+    }
+
+    return true;
+}
+
+void DashLampOverlayElement::updateAnimSeries(int val)
+{
+    if (val >= 0 && val < (int)m_series_materials.size())
+    {
+        this->setMaterial(m_series_materials[val]);
+    }
+    else
+    {
+        RoR::LogFormat("[RoR] dash element '%s' (anim series) can't display %d - only %d materials are available",
+            this->getName().c_str(), val, (int)m_series_materials.size());
+    }
+}
+
+int DashLampOverlayElement::analyzeSeriesMaterial(Ogre::String material_name)
+{
+    size_t num_start = material_name.length();
+    while (num_start > 0 && isdigit(material_name[num_start - 1]))
+    {
+        num_start--;
+    }
+
+    if (num_start == material_name.length())
+    {
+        return -1; // No number!
+    }
+    else
+    {
+        m_series_base_name = material_name.substr(0, num_start);
+        return atoi(material_name.substr(num_start).c_str());
+    }
 }
 
 // --------------------------------
