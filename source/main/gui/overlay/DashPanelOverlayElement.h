@@ -54,23 +54,6 @@ public:
 
     virtual const Ogre::String& getTypeName(void) const override;
 
-    // Animation "lamp"
-    void                        locateMaterials();
-    bool                        checkMaterialsOk() const;
-    void                        setLampOn(bool on);
-    // Animation "series"
-    bool                        setupAnimSeries();
-    void                        updateAnimSeries(int val);
-    int                         analyzeSeriesMaterial(Ogre::String material_name);
-
-private:
-
-    // Anim "lamp" data
-    Ogre::MaterialPtr m_off_material;
-    Ogre::MaterialPtr m_on_material;
-    // Anim "series" data
-    std::vector<Ogre::MaterialPtr> m_series_materials;
-    Ogre::String m_series_base_name;
 };
 
 /// Mandatory factory class

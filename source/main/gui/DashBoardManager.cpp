@@ -240,7 +240,7 @@ void DashBoardManager::windowResized()
 
 // DASHBOARD class below
 
-DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, bool _textureLayer) : manager(manager), filename(filename), free_controls(0), visible(false), textureLayer(_textureLayer)
+DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, bool _textureLayer) : manager(manager), filename(filename), visible(false), textureLayer(_textureLayer)
 {
     // use 'this' class pointer to make layout unique
     prefix = MyGUI::utility::toString(this, "_");
@@ -260,7 +260,7 @@ DashBoard::~DashBoard()
 void DashBoard::updateFeatures()
 {
     // this hides / shows parts of the gui depending on the vehicle features
-    for (int i = 0; i < free_controls; i++)
+    for (int i = 0; i < (int)controls.size(); i++)
     {
         bool enabled = manager->getEnabled(controls[i].linkID);
 
@@ -274,7 +274,7 @@ void DashBoard::updateFeatures()
 void DashBoard::update(float& dt)
 {
     // walk all controls and animate them
-    for (int i = 0; i < free_controls; i++)
+    for (int i = 0; i < (int)controls.size(); i++)
     {
         // get its value from its linkage
         if (controls[i].animationType == ANIM_ROTATE)
@@ -323,7 +323,7 @@ void DashBoard::update(float& dt)
 
             // switch states
             DashPanelOverlayElement* lamp = static_cast<DashPanelOverlayElement*>(controls[i].element);
-            lamp->setLampOn(state);
+            lamp->setMaterial(state ? controls[i].materials[1] : controls[i].materials[0]);
         }
         else if (controls[i].animationType == ANIM_SERIES)
         {
@@ -334,8 +334,12 @@ void DashBoard::update(float& dt)
             controls[i].last = val;
 
             // switch states
+            if ((int)val < 0 || (int)val >= (int)controls[i].materials.size())
+            {
+                continue;
+            }
             DashPanelOverlayElement* lamp = static_cast<DashPanelOverlayElement*>(controls[i].element);
-            lamp->updateAnimSeries((int)val);
+            lamp->setMaterial(controls[i].materials[(int)val]);
         }
         else if (controls[i].animationType == ANIM_SCALE)
         {
@@ -427,6 +431,107 @@ void DashBoard::windowResized()
 
 }
 
+bool DashBoard::setupLampAnim(layoutLink_t& ctrl)
+{
+    /// Materials must have suffix "-on" and "-off". One must be specified in overlay script - the other will be deduced.
+
+    DashPanelOverlayElement* elem = static_cast<DashPanelOverlayElement*>(ctrl.element);
+
+    if (!elem->getMaterial())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("No material assigned - element '{}' will not be animated", elem->getName()));
+        return false;
+    }
+
+    ctrl.animationType = ANIM_LAMP;
+    ctrl.materials.resize(2);
+
+    // Fetch materials
+    if (Ogre::StringUtil::endsWith(elem->getMaterial()->getName(), "-on"))
+    {
+        ctrl.materials[1] = elem->getMaterial();
+        Ogre::String base_name = elem->getMaterial()->getName().substr(0, elem->getMaterial()->getName().length() - 3);
+        ctrl.materials[0] = Ogre::MaterialManager::getSingleton().getByName(base_name + "-off"); //FIXME: resource group!!
+    }
+    else if (Ogre::StringUtil::endsWith(elem->getMaterial()->getName(), "-off"))
+    {
+        ctrl.materials[0] = elem->getMaterial();
+        Ogre::String base_name = elem->getMaterial()->getName().substr(0, elem->getMaterial()->getName().length() - 4);
+        ctrl.materials[1] = Ogre::MaterialManager::getSingleton().getByName(base_name + "-on"); //FIXME: resource group!!
+    }
+    else
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Unrecognized material '{}' - element '{}' will not be animated",
+                elem->getMaterial()->getName(), elem->getName()));
+        return false;
+    }
+    return true;
+}
+
+bool DashBoard::setupSeriesAnim(layoutLink_t& ctrl)
+{
+    /// Materials must end by integer. One must be specified in overlay script - the other will be deduced.
+
+    DashPanelOverlayElement* elem = static_cast<DashPanelOverlayElement*>(ctrl.element);
+
+    // No material? Return error.
+    if (!elem->getMaterial())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("No material assigned - element '{}' will not be animated", elem->getName()));
+        return false;
+    }
+
+    // Analyze material
+    size_t num_start = elem->getMaterial()->getName().length();
+    while (num_start > 0 && isdigit(elem->getMaterial()->getName()[num_start - 1]))
+    {
+        num_start--;
+    }
+
+    if (num_start == elem->getMaterial()->getName().length())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Material '{}' missing number - element '{}' will not be animated",
+                elem->getMaterial()->getName(), elem->getName()));
+        return false;
+    }
+
+    ctrl.animationType = ANIM_SERIES;
+
+    // Find all available materials, starting with 0, ending when a number is not found.
+    Ogre::String series_base_name = elem->getMaterial()->getName().substr(0, num_start);
+    bool keep_searching = true;
+    int find_num = 0;
+    while (keep_searching)
+    {
+        Ogre::String mat_name = fmt::format("{}{}", series_base_name, find_num);
+        Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(mat_name);//FIXME: resource group!!
+        if (mat)
+        {
+            ctrl.materials.push_back(mat);
+            find_num++;
+        }
+        else
+        {
+            keep_searching = false;
+        }
+    }
+
+    // Check we have at least 2 materials
+    if (ctrl.materials.size() < 2)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Only 1 material found '{}' - element '{}' will not be animated",
+                elem->getMaterial()->getName(), elem->getName()));
+        return false;
+    }
+
+    return true;
+}
+
 void DashBoard::setupElement(Ogre::OverlayElement* elem)
 {
     // retrieve params
@@ -456,16 +561,11 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
     if (!linkArgs.empty())
     {
         layoutLink_t ctrl;
-        memset(&ctrl, 0, sizeof(ctrl));
-
-        strncpy(ctrl.name, elem->getName().c_str(), 255);
         ctrl.element = elem;
         #if 0 // OVERDASH
         ctrl.initialSize = w->getSize();
         ctrl.initialPosition = w->getPosition();
         #endif // OVERDASH
-        ctrl.last = 1337.1337f; // force update
-        ctrl.lastState = true;
 
         // establish the link
         {
@@ -686,22 +786,8 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
             }
             else
             {
-                DashPanelOverlayElement* lamp = static_cast<DashPanelOverlayElement*>(elem);
-                lamp->locateMaterials();
-                if (!lamp->checkMaterialsOk())
-                {
-                    App::GetConsole()->putMessage(
-                        Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
-                        fmt::format(
-                            "Dashboard element '{}' will not be animated;"
-                            "materials were not located",
-                        elem->getName()));
+                if (!this->setupLampAnim(ctrl))
                     return;
-                }
-                else
-                {
-                    ctrl.animationType = ANIM_LAMP;
-                }
             }
         }
         else if (anim == "series")
@@ -718,31 +804,11 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
             }
             else
             {
-                DashPanelOverlayElement* lamp = static_cast<DashPanelOverlayElement*>(elem);
-                if (!lamp->setupAnimSeries())
-                {
-                    App::GetConsole()->putMessage(
-                        Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
-                        fmt::format(
-                            "Dashboard element '{}' will not be animated;"
-                            "materials were not located",
-                        elem->getName()));
+                if (!this->setupSeriesAnim(ctrl))
                     return;
-                }
-                else
-                {
-                    ctrl.animationType = ANIM_SERIES;
-                }
             }
         }
-
-        controls[free_controls] = ctrl;
-        free_controls++;
-        if (free_controls >= MAX_CONTROLS)
-        {
-            LOG("maximum amount of controls reached, discarding the rest: " + TOSTRING(MAX_CONTROLS));
-            return;
-        }
+        controls.push_back(ctrl);
     }
 
 }

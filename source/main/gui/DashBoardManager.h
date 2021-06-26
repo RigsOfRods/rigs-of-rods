@@ -51,8 +51,6 @@ namespace RoR {
 #define DD_MAX_WING       6
 #define MAX_DASH          6
 
-#define MAX_CONTROLS      1024
-
 typedef union dataContainer_t
 {
     bool value_bool;
@@ -294,39 +292,43 @@ protected:
     // linking attributes
     typedef struct layoutLink_t
     {
-        int linkID; // DD_*
-        char animationType; // ANIM_*
+        int linkID = 0; // DD_*
+        char animationType = ANIM_NONE; // ANIM_*
+        int condition = CONDITION_NONE; // CONDITION_*
+        float conditionArgument = 0.f;
+        char direction = DIRECTION_NONE; // DIRECTION_*
 
+        Ogre::OverlayElement* element = nullptr;
+        std::vector<Ogre::MaterialPtr> materials;
+
+        float last = 9999.f; // force initial update
+        bool lastState = true;
+
+        // --- OBSOLETE (pre-OVERDASH) ---
         float wmin; // rotation/offset whatever (widget min/max)
         float wmax;
         float vmin; // value min/max
         float vmax;
-        int condition; // CONDITION_*
-        float conditionArgument;
-        char direction; // DIRECTION_*
+
         char format[255]; // string format
         char texture[255]; // texture filename
-        char name[255]; // widget name
         char format_neg_zero[255]; //!< Test for undesired '-0.0' on display. Only for link type "format". Empty if not applicable.
 
-        // OBSOLETE
         MyGUI::Widget* widget;
         MyGUI::RotatingSkin* rotImg;
         MyGUI::ImageBox* img;
         MyGUI::TextBox* txt;
-        // END OBSOLETE
-        Ogre::OverlayElement* element;
         MyGUI::IntSize initialSize;
         MyGUI::IntPoint initialPosition;
-
-        float last;
-        bool lastState;
+        // END OBSOLETE
     } layoutLink_t;
 
-    void loadLayout(Ogre::String filename);
+    bool setupLampAnim(layoutLink_t& ctrl);
+    bool setupSeriesAnim(layoutLink_t& ctrl);
     void setupElement(Ogre::OverlayElement* elem);
-    layoutLink_t controls[MAX_CONTROLS];
-    int free_controls;
+    void loadLayout(Ogre::String filename);
+
+    std::vector<layoutLink_t> controls;
 };
 
 } // namespace RoR
