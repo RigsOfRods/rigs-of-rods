@@ -22,7 +22,7 @@
 #include "BaseDashOverlayElement.h"
 
 #include "DashTextAreaOverlayElement.h"
-#include "DashLampOverlayElement.h"
+#include "DashPanelOverlayElement.h"
 
 #include <Overlay/OgreOverlayElement.h>
 
@@ -32,7 +32,7 @@ using namespace Ogre;
 // ----------------
 // Cmd classes
 
-// Because we're extending existing Ogre overlays,
+// Since we're extending existing Ogre overlays,
 //  we can't simply cast to BaseDashOverlayElement because
 //  it doesn't directly derive from OverlayElement and it's bases.
 // To correctly propagate the values, we must cast to classes
@@ -45,9 +45,9 @@ String CmdAnim::doGet( const void* target ) const
     {
         return static_cast<const DashTextAreaOverlayElement*>(target)->getAnimStr();
     }
-    if (elem->getTypeName() == DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    if (elem->getTypeName() == DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
     {
-        return static_cast<const DashLampOverlayElement*>(target)->getAnimStr();
+        return static_cast<const DashPanelOverlayElement*>(target)->getAnimStr();
     }
     else
     {
@@ -61,9 +61,9 @@ String CmdLink::doGet( const void* target ) const
     {
         return static_cast<const DashTextAreaOverlayElement*>(target)->getLinkStr();
     }
-    if (elem->getTypeName() == DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    if (elem->getTypeName() == DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
     {
-        return static_cast<const DashLampOverlayElement*>(target)->getLinkStr();
+        return static_cast<const DashPanelOverlayElement*>(target)->getLinkStr();
     }
     else
     {
@@ -78,9 +78,9 @@ void CmdAnim::doSet( void* target, const String& val )
     {
         static_cast< DashTextAreaOverlayElement*>(target)->setAnimStr(val);
     }
-    if (elem->getTypeName() == DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    if (elem->getTypeName() == DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
     {
-        static_cast< DashLampOverlayElement*>(target)->setAnimStr(val);
+        static_cast< DashPanelOverlayElement*>(target)->setAnimStr(val);
     }
 }
 void CmdLink::doSet( void* target, const String& val )
@@ -90,9 +90,9 @@ void CmdLink::doSet( void* target, const String& val )
     {
         static_cast< DashTextAreaOverlayElement*>(target)->setLinkStr(val);
     }
-    if (elem->getTypeName() == DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    if (elem->getTypeName() == DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
     {
-        static_cast< DashLampOverlayElement*>(target)->setLinkStr(val);
+        static_cast< DashPanelOverlayElement*>(target)->setLinkStr(val);
     }
 }
 

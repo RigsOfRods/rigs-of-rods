@@ -34,7 +34,6 @@
 
 namespace RoR {
 
-/// FIXME: rename to "DashPanelOverlayElement"
 /// Generic panel, supports multiple animations: "lamp", "series"
 /// 
 /// Anim "lamp":
@@ -42,16 +41,16 @@ namespace RoR {
 ///     Materials must have suffix "-on" and "-off". One must be specified in overlay script - the other will be deduced.
 /// Anim "series":
 ///     switches multiple numbered materials.
-///     Material names must end with positive integral number. Minimum is 0, max is 500.
-class DashLampOverlayElement:
+///     Material names must end with positive integral number, starting with 0.
+class DashPanelOverlayElement:
     public Ogre::PanelOverlayElement,
     public BaseDashOverlayElement
 {
 public:
     static const Ogre::String OVERLAY_ELEMENT_TYPE_NAME;
 
-    DashLampOverlayElement(const Ogre::String& name);
-    virtual ~DashLampOverlayElement() {}
+    DashPanelOverlayElement(const Ogre::String& name);
+    virtual ~DashPanelOverlayElement() {}
 
     virtual const Ogre::String& getTypeName(void) const override;
 
@@ -75,7 +74,7 @@ private:
 };
 
 /// Mandatory factory class
-class DashLampOverlayElementFactory: public Ogre::OverlayElementFactory
+class DashPanelOverlayElementFactory: public Ogre::OverlayElementFactory
 {
 public:
     virtual Ogre::OverlayElement* createOverlayElement(const Ogre::String& instanceName) override;

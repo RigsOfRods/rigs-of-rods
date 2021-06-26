@@ -28,7 +28,7 @@
 
 #include "Application.h"
 #include "Console.h"
-#include "DashLampOverlayElement.h"
+#include "DashPanelOverlayElement.h"
 #include "DashTextAreaOverlayElement.h"
 #include "Utils.h"
 
@@ -322,7 +322,7 @@ void DashBoard::update(float& dt)
             controls[i].lastState = state;
 
             // switch states
-            DashLampOverlayElement* lamp = static_cast<DashLampOverlayElement*>(controls[i].element);
+            DashPanelOverlayElement* lamp = static_cast<DashPanelOverlayElement*>(controls[i].element);
             lamp->setLampOn(state);
         }
         else if (controls[i].animationType == ANIM_SERIES)
@@ -334,7 +334,7 @@ void DashBoard::update(float& dt)
             controls[i].last = val;
 
             // switch states
-            DashLampOverlayElement* lamp = static_cast<DashLampOverlayElement*>(controls[i].element);
+            DashPanelOverlayElement* lamp = static_cast<DashPanelOverlayElement*>(controls[i].element);
             lamp->updateAnimSeries((int)val);
         }
         else if (controls[i].animationType == ANIM_SCALE)
@@ -437,9 +437,9 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
         anim = dta->getAnimStr();
         linkArgs = dta->getLinkStr();
     }
-    else if (elem->getTypeName() == DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    else if (elem->getTypeName() == DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
     {
-        DashLampOverlayElement* dash_elem = static_cast<DashLampOverlayElement*>(elem);
+        DashPanelOverlayElement* dash_elem = static_cast<DashPanelOverlayElement*>(elem);
         anim = dash_elem->getAnimStr();
         linkArgs = dash_elem->getLinkStr();
     }
@@ -674,7 +674,7 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
         }
         else if (anim == "lamp")
         {
-            if (elem->getTypeName() != DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+            if (elem->getTypeName() != DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
             {
                 App::GetConsole()->putMessage(
                     Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
@@ -686,7 +686,7 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
             }
             else
             {
-                DashLampOverlayElement* lamp = static_cast<DashLampOverlayElement*>(elem);
+                DashPanelOverlayElement* lamp = static_cast<DashPanelOverlayElement*>(elem);
                 lamp->locateMaterials();
                 if (!lamp->checkMaterialsOk())
                 {
@@ -706,7 +706,7 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
         }
         else if (anim == "series")
         {
-            if (elem->getTypeName() != DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+            if (elem->getTypeName() != DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
             {
                 App::GetConsole()->putMessage(
                     Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
@@ -718,7 +718,7 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
             }
             else
             {
-                DashLampOverlayElement* lamp = static_cast<DashLampOverlayElement*>(elem);
+                DashPanelOverlayElement* lamp = static_cast<DashPanelOverlayElement*>(elem);
                 if (!lamp->setupAnimSeries())
                 {
                     App::GetConsole()->putMessage(

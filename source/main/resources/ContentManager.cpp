@@ -29,7 +29,7 @@
 
 #include "Application.h"
 #include "ColoredTextAreaOverlayElementFactory.h"
-#include "DashLampOverlayElement.h"
+#include "DashPanelOverlayElement.h"
 #include "DashTextAreaOverlayElement.h"
 #include "DashBoardManager.h" // TextAreaDashboardIndicatorFactory
 #include "ErrorUtils.h"
@@ -222,7 +222,7 @@ void ContentManager::InitContentManager()
     OverlayManager::getSingleton().addOverlayElementFactory(pTDI);
 
     LOG("RoR|ContentManager: Registering dasboard lamp factory");
-    DashLampOverlayElementFactory* pDL = new DashLampOverlayElementFactory();
+    DashPanelOverlayElementFactory* pDL = new DashPanelOverlayElementFactory();
     OverlayManager::getSingleton().addOverlayElementFactory(pDL);
 
     // set default mipmap level (NB some APIs ignore this)

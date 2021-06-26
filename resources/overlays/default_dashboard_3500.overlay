@@ -80,7 +80,7 @@ overlay tracks/DefaultDashboard3500RPM
     // ------------------------ Lamps ---------------------------
     
 
-    overlay_element tracks/DefaultDashboard3500RPM/ParkingBrake DashLamp
+    overlay_element tracks/DefaultDashboard3500RPM/ParkingBrake DashPanel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -90,15 +90,14 @@ overlay tracks/DefaultDashboard3500RPM
                 left -182
                 top -193
         
-        // for DashLamp, materials "-on" and "-off" must exist
+        // for anim "lamp", materials "-on" and "-off" must exist
+        anim lamp 
 		material tracks/DashParkingBrake-off
-        
-        // ----- dashboard params -----
         link parkingbrake
-        anim lamp        
+               
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/LeftBlinker DashLamp
+        overlay_element tracks/DefaultDashboard3500RPM/LeftBlinker DashPanel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -108,13 +107,13 @@ overlay tracks/DefaultDashboard3500RPM
 		left -211
 		top -183
         
-        // for DashLamp, materials "-on" and "-off" must exist
+        // for anim "lamp", materials "-on" and "-off" must exist
 		material tracks/DashLeftBlinker-off
         link signal_turnleft
         anim lamp    
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/RightBlinker DashLamp
+        overlay_element tracks/DefaultDashboard3500RPM/RightBlinker DashPanel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -124,13 +123,13 @@ overlay tracks/DefaultDashboard3500RPM
 		left -129
 		top -183
 
-        // for DashLamp, materials "-on" and "-off" must exist
+        // for anim "lamp", materials "-on" and "-off" must exist
 		material tracks/DashRightBlinker-off
         link signal_turnright
         anim lamp   
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/FrontLights DashLamp
+        overlay_element tracks/DefaultDashboard3500RPM/FrontLights DashPanel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -139,13 +138,13 @@ overlay tracks/DefaultDashboard3500RPM
 		height 35
 		left -315
 		top -126
-        // for DashLamp, materials "-on" and "-off" must exist
+        // for anim "lamp", materials "-on" and "-off" must exist
 		material tracks/DashFrontLights-off
         link lights
         anim lamp
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/LightsLocked DashLamp
+        overlay_element tracks/DefaultDashboard3500RPM/LightsLocked DashPanel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -154,13 +153,13 @@ overlay tracks/DefaultDashboard3500RPM
 		height 25
 		left -335
 		top -81
-        // for DashLamp, materials "-on" and "-off" must exist
+        // for anim "lamp", materials "-on" and "-off" must exist
 		material tracks/DashLightsLocked-off
         link locked
         anim lamp
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/LightsClutch DashLamp
+        overlay_element tracks/DefaultDashboard3500RPM/LightsClutch DashPanel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -169,14 +168,14 @@ overlay tracks/DefaultDashboard3500RPM
 		height 25
 		left -347
 		top -43
-        // for DashLamp, materials "-on" and "-off" must exist
+        // for anim "lamp", materials "-on" and "-off" must exist
 		material tracks/DashLightsClutch-off
         link engine_clutch
         anim lamp
 	}
 
 
-        overlay_element tracks/DefaultDashboard3500RPM/LightsPressure DashLamp
+        overlay_element tracks/DefaultDashboard3500RPM/LightsPressure DashPanel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -185,13 +184,13 @@ overlay tracks/DefaultDashboard3500RPM
 		height 25
 		left -321
 		top -43
-        // for DashLamp, materials "-on" and "-off" must exist
+        // for anim "lamp", materials "-on" and "-off" must exist
 		material tracks/DashLightsPressure-off
         link low_pressure
         anim lamp
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/LightsBattery DashLamp
+        overlay_element tracks/DefaultDashboard3500RPM/LightsBattery DashPanel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -200,14 +199,14 @@ overlay tracks/DefaultDashboard3500RPM
 		height 35
 		left -296
 		top -48
-        // for DashLamp, materials "-on" and "-off" must exist
+        // for anim "lamp", materials "-on" and "-off" must exist
 		material tracks/DashLightsBattery-off
         anim lamp
         link engine_battery
 	}
 
 
-        overlay_element tracks/DefaultDashboard3500RPM/LightsIngition DashLamp
+        overlay_element tracks/DefaultDashboard3500RPM/LightsIngition DashPanel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -223,7 +222,7 @@ overlay tracks/DefaultDashboard3500RPM
 	}
 
 
-        overlay_element tracks/DefaultDashboard3500RPM/LightsTraction DashLamp
+        overlay_element tracks/DefaultDashboard3500RPM/LightsTraction DashPanel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -239,7 +238,7 @@ overlay tracks/DefaultDashboard3500RPM
 	}
 
 
-        overlay_element tracks/DefaultDashboard3500RPM/LightsAntilock DashLamp
+        overlay_element tracks/DefaultDashboard3500RPM/LightsAntilock DashPanel
 	{
 		metrics_mode pixels
 		horz_align right

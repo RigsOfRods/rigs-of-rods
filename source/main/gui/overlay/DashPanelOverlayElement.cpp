@@ -19,7 +19,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "DashLampOverlayElement.h"
+#include "DashPanelOverlayElement.h"
 
 #include "Console.h"
 
@@ -35,11 +35,11 @@ using namespace Ogre;
 
     // Static members
 
-const String DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME("DashLamp");
+const String DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME("DashPanel");
 
     // Construction/destruction
 
-DashLampOverlayElement::DashLampOverlayElement(const String& name)
+DashPanelOverlayElement::DashPanelOverlayElement(const String& name)
     : Ogre::PanelOverlayElement(name)
 {
     // Register this class in OGRE parameter system, see Ogre::StringInterface.
@@ -52,14 +52,14 @@ DashLampOverlayElement::DashLampOverlayElement(const String& name)
 
     // Functions
 
-const Ogre::String& DashLampOverlayElement::getTypeName(void) const
+const Ogre::String& DashPanelOverlayElement::getTypeName(void) const
 {
     return OVERLAY_ELEMENT_TYPE_NAME;
 }
 
     // Animation "lamp" functions
 
-void DashLampOverlayElement::locateMaterials()
+void DashPanelOverlayElement::locateMaterials()
 {
     if (!this->getMaterial())
     {
@@ -88,19 +88,19 @@ void DashLampOverlayElement::locateMaterials()
     }
 }
 
-bool DashLampOverlayElement::checkMaterialsOk() const
+bool DashPanelOverlayElement::checkMaterialsOk() const
 {
     return m_on_material && m_off_material;
 }
 
-void DashLampOverlayElement::setLampOn(bool on)
+void DashPanelOverlayElement::setLampOn(bool on)
 {
     this->setMaterial(on ? m_on_material : m_off_material);
 }
 
     // Animation "series" functions
 
-bool DashLampOverlayElement::setupAnimSeries()
+bool DashPanelOverlayElement::setupAnimSeries()
 {
     /// Materials must end by integer. One must be specified in overlay script - the other will be deduced.
 
@@ -150,7 +150,7 @@ bool DashLampOverlayElement::setupAnimSeries()
     return true;
 }
 
-void DashLampOverlayElement::updateAnimSeries(int val)
+void DashPanelOverlayElement::updateAnimSeries(int val)
 {
     if (val >= 0 && val < (int)m_series_materials.size())
     {
@@ -163,7 +163,7 @@ void DashLampOverlayElement::updateAnimSeries(int val)
     }
 }
 
-int DashLampOverlayElement::analyzeSeriesMaterial(Ogre::String material_name)
+int DashPanelOverlayElement::analyzeSeriesMaterial(Ogre::String material_name)
 {
     size_t num_start = material_name.length();
     while (num_start > 0 && isdigit(material_name[num_start - 1]))
@@ -185,13 +185,13 @@ int DashLampOverlayElement::analyzeSeriesMaterial(Ogre::String material_name)
 // --------------------------------
 // The factory
 
-Ogre::OverlayElement* DashLampOverlayElementFactory::createOverlayElement(const Ogre::String& instanceName)
+Ogre::OverlayElement* DashPanelOverlayElementFactory::createOverlayElement(const Ogre::String& instanceName)
 {
-    return OGRE_NEW DashLampOverlayElement(instanceName);
+    return OGRE_NEW DashPanelOverlayElement(instanceName);
 }
 
-const Ogre::String& DashLampOverlayElementFactory::getTypeName() const
+const Ogre::String& DashPanelOverlayElementFactory::getTypeName() const
 {
-    return DashLampOverlayElement::OVERLAY_ELEMENT_TYPE_NAME;
+    return DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME;
 }
 
