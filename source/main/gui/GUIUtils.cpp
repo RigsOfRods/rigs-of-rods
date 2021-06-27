@@ -349,3 +349,21 @@ Ogre::TexturePtr RoR::FetchIcon(const char* name)
 
     return Ogre::TexturePtr(); // null
 }
+
+ImDrawList* RoR::GetImDummyFullscreenWindow()
+{
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+
+    // Dummy fullscreen window to draw to
+    int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
+                     | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
+    ImGui::SetNextWindowPos(ImVec2(0,0));
+    ImGui::SetNextWindowSize(screen_size);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
+    ImGui::Begin("RoR_TransparentFullscreenWindow", NULL, window_flags);
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
+    ImGui::End();
+    ImGui::PopStyleColor(1); // WindowBg
+
+    return drawlist;
+}

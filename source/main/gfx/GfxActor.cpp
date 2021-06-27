@@ -29,6 +29,7 @@
 #include "EngineSim.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
+#include "GUIUtils.h"
 #include "HydraxWater.h"
 #include "FlexAirfoil.h"
 #include "FlexBody.h"
@@ -47,6 +48,8 @@
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "Utils.h"
+
+#include "imgui_internal.h"
 
 #include <Ogre.h>
 
@@ -638,16 +641,7 @@ void RoR::GfxActor::UpdateDebugView()
     World2ScreenConverter world2screen(
         App::GetCameraManager()->GetCamera()->getViewMatrix(true), App::GetCameraManager()->GetCamera()->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
 
-    // Dummy fullscreen window to draw to
-    int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
-                     | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
-    ImGui::SetNextWindowPos(ImVec2(0,0));
-    ImGui::SetNextWindowSize(screen_size);
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
-    ImGui::Begin(("RoR-SoftBodyView-" + TOSTRING(m_actor->ar_instance_id)).c_str(), NULL, window_flags);
-    ImDrawList* drawlist = ImGui::GetWindowDrawList();
-    ImGui::End();
-    ImGui::PopStyleColor(1); // WindowBg
+    ImDrawList* drawlist = GetImDummyFullscreenWindow();
 
     if (m_actor->ar_physics_paused && !App::GetGuiManager()->IsGuiHidden())
     {
@@ -2051,43 +2045,55 @@ void RoR::GfxActor::UpdateAeroEngines()
 
 void RoR::GfxActor::UpdateNetLabels(float dt)
 {
-    // TODO: Remake network player labels via GUI... they shouldn't be billboards inside the scene ~ only_a_ptr, 05/2018
-    if (m_actor->m_net_label_node && m_actor->m_net_label_mt)
-    {
         const bool is_remote = 
             m_simbuf.simbuf_actor_state == ActorState::NETWORKED_OK ||
             m_simbuf.simbuf_actor_state == ActorState::NETWORKED_HIDDEN;
 
         if (App::mp_hide_net_labels->getBool() || (!is_remote && App::mp_hide_own_net_label->getBool()))
         {
-            m_actor->m_net_label_mt->setVisible(false);
             return;
         }
 
         float vlen = m_simbuf.simbuf_pos.distance(App::GetCameraManager()->GetCameraNode()->getPosition());
 
         float y_offset = (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_pos.y) + (vlen / 100.0);
-        m_actor->m_net_label_node->setPosition(m_simbuf.simbuf_pos + Ogre::Vector3::UNIT_Y * y_offset);
+        Ogre::Vector3 scene_pos = m_simbuf.simbuf_pos + Ogre::Vector3::UNIT_Y * y_offset;
 
         // this ensures that the nickname is always in a readable size
-        m_actor->m_net_label_mt->setCharacterHeight(std::max(0.6, vlen / 40.0));
-
+        float font_size = std::max(0.6, vlen / 40.0);
+        std::string caption;
         if (vlen > 1000) // 1000 ... vlen
         {
-            m_actor->m_net_label_mt->setCaption(
-                m_simbuf.simbuf_net_username + " (" + TOSTRING((float)(ceil(vlen / 100) / 10.0) ) + " km)");
+            caption =
+                m_simbuf.simbuf_net_username + " (" + TOSTRING((float)(ceil(vlen / 100) / 10.0) ) + " km)";
         }
         else if (vlen > 20) // 20 ... vlen ... 1000
         {
-            m_actor->m_net_label_mt->setCaption(
-                m_simbuf.simbuf_net_username + " (" + TOSTRING((int)vlen) + " m)");
+            caption =
+                m_simbuf.simbuf_net_username + " (" + TOSTRING((int)vlen) + " m)";
         }
         else // 0 ... vlen ... 20
         {
-            m_actor->m_net_label_mt->setCaption(m_simbuf.simbuf_net_username);
+            caption = m_simbuf.simbuf_net_username;
         }
-        m_actor->m_net_label_mt->setVisible(true);
+
+        // draw with DearIMGUI
+
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+    World2ScreenConverter world2screen(
+        App::GetCameraManager()->GetCamera()->getViewMatrix(true), App::GetCameraManager()->GetCamera()->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
+
+    ImDrawList* drawlist = GetImDummyFullscreenWindow();
+    ImGuiContext* g = ImGui::GetCurrentContext();
+    Ogre::Vector3 pos = world2screen.Convert(scene_pos);
+
+    // only draw when in front of camera
+    if (pos.z < 0.f)
+    {
+        ImVec2 screen_pos(pos.x, pos.y);
+        drawlist->AddText(g->Font, g->FontSize, screen_pos, ImGui::GetColorU32(ImGuiCol_Text), caption.c_str());
     }
+
 }
 
 void RoR::GfxActor::CalculateDriverPos(Ogre::Vector3& out_pos, Ogre::Quaternion& out_rot)

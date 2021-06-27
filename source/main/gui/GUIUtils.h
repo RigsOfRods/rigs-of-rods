@@ -74,4 +74,6 @@ void DrawGCombo(CVar* cvar, const char* label, const char* values);
 
 Ogre::TexturePtr FetchIcon(const char* name);
 
+ImDrawList* GetImDummyFullscreenWindow();
+
 } // namespace RoR
