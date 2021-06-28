@@ -29,6 +29,7 @@
 #include "HydraxWater.h"
 #include "GameContext.h"
 #include "GUIManager.h"
+#include "GUIUtils.h"
 #include "GUI_DirectionArrow.h"
 #include "OverlayWrapper.h"
 #include "SkyManager.h"
@@ -36,6 +37,9 @@
 #include "TerrainGeometryManager.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
+#include "Utils.h"
+
+#include "imgui_internal.h"
 
 #include <Ogre.h>
 
@@ -327,5 +331,43 @@ void GfxScene::RemoveGfxCharacter(RoR::GfxCharacter* remove_me)
 {
     auto itor = std::remove(m_all_gfx_characters.begin(), m_all_gfx_characters.end(), remove_me);
     m_all_gfx_characters.erase(itor, m_all_gfx_characters.end());
+}
+
+void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string const& nick, int colornum)
+{
+        // this ensures that the nickname is always in a readable size
+        float font_size = std::max(0.6, cam_dist / 40.0);
+        std::string caption;
+        if (cam_dist > 1000) // 1000 ... vlen
+        {
+            caption =
+                nick + " (" + TOSTRING((float)(ceil(cam_dist / 100) / 10.0) ) + " km)";
+        }
+        else if (cam_dist > 20) // 20 ... vlen ... 1000
+        {
+            caption =
+                nick + " (" + TOSTRING((int)cam_dist) + " m)";
+        }
+        else // 0 ... vlen ... 20
+        {
+            caption = nick;
+        }
+
+        // draw with DearIMGUI
+
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+    World2ScreenConverter world2screen(
+        App::GetCameraManager()->GetCamera()->getViewMatrix(true), App::GetCameraManager()->GetCamera()->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
+
+    ImDrawList* drawlist = GetImDummyFullscreenWindow();
+    ImGuiContext* g = ImGui::GetCurrentContext();
+    Ogre::Vector3 pos = world2screen.Convert(scene_pos);
+
+    // only draw when in front of camera
+    if (pos.z < 0.f)
+    {
+        ImVec2 screen_pos(pos.x, pos.y);
+        drawlist->AddText(g->Font, g->FontSize, screen_pos, ImGui::GetColorU32(ImGuiCol_Text), caption.c_str());
+    }
 }
 

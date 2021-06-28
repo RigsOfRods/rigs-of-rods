@@ -314,6 +314,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
         }
 
         actor->m_net_username = rq.asr_net_username;
+        actor->m_net_color_num = rq.asr_net_color;
 
         RoR::Str<100> element_name;
         ActorSpawner::ComposeName(element_name, "NetLabel", 0, actor->ar_instance_id);

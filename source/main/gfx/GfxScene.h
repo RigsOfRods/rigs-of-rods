@@ -66,6 +66,7 @@ public:
     void           CreateDustPools();
     DustPool*      GetDustPool(const char* name);
     void           SetParticlesVisible(bool visible);
+    void           DrawNetLabel(Ogre::Vector3 pos, float cam_dist, std::string const& nick, int colornum);
     void           UpdateScene(float dt_sec);
     void           ClearScene();
     void           RegisterGfxActor(RoR::GfxActor* gfx_actor);
