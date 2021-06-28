@@ -359,15 +359,29 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
     World2ScreenConverter world2screen(
         App::GetCameraManager()->GetCamera()->getViewMatrix(true), App::GetCameraManager()->GetCamera()->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
 
-    ImDrawList* drawlist = GetImDummyFullscreenWindow();
-    ImGuiContext* g = ImGui::GetCurrentContext();
     Ogre::Vector3 pos = world2screen.Convert(scene_pos);
 
     // only draw when in front of camera
     if (pos.z < 0.f)
     {
-        ImVec2 screen_pos(pos.x, pos.y);
-        drawlist->AddText(g->Font, g->FontSize, screen_pos, ImGui::GetColorU32(ImGuiCol_Text), caption.c_str());
+        ImVec2 text_size = ImGui::CalcTextSize(caption.c_str());
+        GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+
+        ImDrawList* drawlist = GetImDummyFullscreenWindow();
+        ImGuiContext* g = ImGui::GetCurrentContext();
+
+        // Draw background quad
+        ImVec2 screen_pos(pos.x, pos.y - (text_size.y/2));
+        const ImVec2 QUAD_PAD(4.f, 4.f); // pixels
+        ImVec2 quad_tl = screen_pos - QUAD_PAD;
+        ImVec2 quad_br = quad_tl + text_size + QUAD_PAD;
+        drawlist->AddQuadFilled(quad_tl, ImVec2(quad_tl.x, quad_br.y), quad_br, ImVec2(quad_br.x, quad_tl.y), // clockwise
+            ImColor(theme.semitransparent_window_bg));
+
+        // draw colored text
+        Ogre::ColourValue color = App::GetNetwork()->GetPlayerColor(colornum);
+        ImVec4 text_color(color.r, color.g, color.b, 1.f);
+        drawlist->AddText(g->Font, g->FontSize, screen_pos, ImColor(text_color), caption.c_str());
     }
 }
 
