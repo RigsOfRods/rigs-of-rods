@@ -120,6 +120,7 @@ public:
         bool                        simbuf_tyre_pressurizing  = false;
         Ogre::AxisAlignedBox        simbuf_aabb               = Ogre::AxisAlignedBox::BOX_NULL;
         std::string                 simbuf_net_username;
+        int                         simbuf_net_colornum;
         int                         simbuf_gear               = 0;
         int                         simbuf_autoshift          = 0;
         float                       simbuf_wheel_speed        = 0;

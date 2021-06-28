@@ -1741,6 +1741,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_top_speed = m_actor->ar_top_speed;
     m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
     m_simbuf.simbuf_net_username = m_actor->m_net_username;
+    m_simbuf.simbuf_net_colornum = m_actor->m_net_color_num;
 
     // General info
     m_simbuf.simbuf_actor_state = m_actor->ar_state;
@@ -2059,40 +2060,7 @@ void RoR::GfxActor::UpdateNetLabels(float dt)
         float y_offset = (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_pos.y) + (vlen / 100.0);
         Ogre::Vector3 scene_pos = m_simbuf.simbuf_pos + Ogre::Vector3::UNIT_Y * y_offset;
 
-        // this ensures that the nickname is always in a readable size
-        float font_size = std::max(0.6, vlen / 40.0);
-        std::string caption;
-        if (vlen > 1000) // 1000 ... vlen
-        {
-            caption =
-                m_simbuf.simbuf_net_username + " (" + TOSTRING((float)(ceil(vlen / 100) / 10.0) ) + " km)";
-        }
-        else if (vlen > 20) // 20 ... vlen ... 1000
-        {
-            caption =
-                m_simbuf.simbuf_net_username + " (" + TOSTRING((int)vlen) + " m)";
-        }
-        else // 0 ... vlen ... 20
-        {
-            caption = m_simbuf.simbuf_net_username;
-        }
-
-        // draw with DearIMGUI
-
-    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
-    World2ScreenConverter world2screen(
-        App::GetCameraManager()->GetCamera()->getViewMatrix(true), App::GetCameraManager()->GetCamera()->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
-
-    ImDrawList* drawlist = GetImDummyFullscreenWindow();
-    ImGuiContext* g = ImGui::GetCurrentContext();
-    Ogre::Vector3 pos = world2screen.Convert(scene_pos);
-
-    // only draw when in front of camera
-    if (pos.z < 0.f)
-    {
-        ImVec2 screen_pos(pos.x, pos.y);
-        drawlist->AddText(g->Font, g->FontSize, screen_pos, ImGui::GetColorU32(ImGuiCol_Text), caption.c_str());
-    }
+    App::GetGfxScene()->DrawNetLabel(scene_pos, vlen, m_simbuf.simbuf_net_username, m_simbuf.simbuf_net_colornum);
 
 }
 

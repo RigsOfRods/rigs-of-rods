@@ -738,19 +738,10 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
             }
 
             float camDist = (xc_scenenode->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition()).length();
+            Ogre::Vector3 scene_pos = xc_scenenode->getPosition();
+            scene_pos.y += (1.9f + camDist / 100.0f);
 
-            xc_movable_text->setCaption(xc_simbuf.simbuf_net_username);
-            if (camDist > 1000.0f)
-                xc_movable_text->setCaption(xc_simbuf.simbuf_net_username + "  (" + TOSTRING((float)(ceil(camDist / 100) / 10.0f)) + " km)");
-            else if (camDist > 20.0f && camDist <= 1000.0f)
-                xc_movable_text->setCaption(xc_simbuf.simbuf_net_username + "  (" + TOSTRING((int)camDist) + " m)");
-            else
-                xc_movable_text->setCaption(xc_simbuf.simbuf_net_username);
-
-            float h = std::max(9.0f, camDist * 1.2f);
-            xc_movable_text->setAdditionalHeight(1.9f + camDist / 100.0f);
-            xc_movable_text->setCharacterHeight(h);
-            xc_movable_text->setVisible(true);
+            App::GetGfxScene()->DrawNetLabel(scene_pos, camDist, xc_simbuf.simbuf_net_username, xc_simbuf.simbuf_color_number);
         }
     }
 #endif // USE_SOCKETW

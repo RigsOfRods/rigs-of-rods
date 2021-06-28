@@ -470,6 +470,7 @@ private:
     MovableText*      m_net_label_mt;
     Ogre::SceneNode*  m_net_label_node;
     Ogre::UTFString   m_net_username;
+    int               m_net_color_num;
     Ogre::Timer       m_reset_timer;
     Ogre::Vector3     m_rotation_request_center;
     float             m_rotation_request;         //!< Accumulator
