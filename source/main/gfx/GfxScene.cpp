@@ -370,13 +370,9 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
         ImDrawList* drawlist = GetImDummyFullscreenWindow();
         ImGuiContext* g = ImGui::GetCurrentContext();
 
-        // Draw background quad
+        // Draw background rectangle
         ImVec2 screen_pos(pos.x, pos.y - (text_size.y/2));
-        const ImVec2 QUAD_PAD(4.f, 4.f); // pixels
-        ImVec2 quad_tl = screen_pos - QUAD_PAD;
-        ImVec2 quad_br = quad_tl + text_size + QUAD_PAD;
-        drawlist->AddQuadFilled(quad_tl, ImVec2(quad_tl.x, quad_br.y), quad_br, ImVec2(quad_br.x, quad_tl.y), // clockwise
-            ImColor(theme.semitransparent_window_bg));
+        drawlist->AddRectFilled(ImVec2(pos.x - 4.f, pos.y - text_size.y / 2), ImVec2(pos.x + text_size.x + 4.f, pos.y + text_size.y / 2), ImColor(theme.semitransparent_window_bg), 4.f);
 
         // draw colored text
         Ogre::ColourValue color = App::GetNetwork()->GetPlayerColor(colornum);
