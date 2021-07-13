@@ -22,6 +22,7 @@
 #pragma once
 
 #include <Ogre.h>
+#include <Overlay/OgreOverlayElement.h>
 
 /// @file
 /// @author Petr Ohlidal, 2021
@@ -57,6 +58,8 @@ class BaseDashOverlayElement
 {
 public:
     virtual ~BaseDashOverlayElement() {};
+
+    static BaseDashOverlayElement* ResolveDashElement(Ogre::OverlayElement* obj);
 
     Ogre::String getAnimStr() const { return m_anim_str; }
     void setAnimStr(Ogre::String const& str) { m_anim_str = str; }

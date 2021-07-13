@@ -32,67 +32,31 @@ using namespace Ogre;
 // ----------------
 // Cmd classes
 
-// Since we're extending existing Ogre overlays,
-//  we can't simply cast to BaseDashOverlayElement because
-//  it doesn't directly derive from OverlayElement and it's bases.
-// To correctly propagate the values, we must cast to classes
-//  one level up in the inheritance tree.
-
 String CmdAnim::doGet( const void* target ) const
 {
-    const Ogre::OverlayElement* elem = static_cast<const Ogre::OverlayElement*>(target);
-    if (elem->getTypeName() == DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
-    {
-        return static_cast<const DashTextAreaOverlayElement*>(target)->getAnimStr();
-    }
-    if (elem->getTypeName() == DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
-    {
-        return static_cast<const DashPanelOverlayElement*>(target)->getAnimStr();
-    }
-    else
-    {
-        return "";
-    }
+    BaseDashOverlayElement* elem = BaseDashOverlayElement::ResolveDashElement((Ogre::OverlayElement*)target); // shamelessly dropping const
+    return (elem) ? elem->getAnimStr() : "";
 }
 String CmdLink::doGet( const void* target ) const
 {
-    const Ogre::OverlayElement* elem = static_cast<const Ogre::OverlayElement*>(target);
-    if (elem->getTypeName() == DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
-    {
-        return static_cast<const DashTextAreaOverlayElement*>(target)->getLinkStr();
-    }
-    if (elem->getTypeName() == DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
-    {
-        return static_cast<const DashPanelOverlayElement*>(target)->getLinkStr();
-    }
-    else
-    {
-        return "";
-    }
+    BaseDashOverlayElement* elem = BaseDashOverlayElement::ResolveDashElement((Ogre::OverlayElement*)target); // shamelessly dropping const
+    return (elem) ? elem->getLinkStr() : "";
 }
 
 void CmdAnim::doSet( void* target, const String& val )
 {
-    const Ogre::OverlayElement* elem = static_cast<const Ogre::OverlayElement*>(target);
-    if (elem->getTypeName() == DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    BaseDashOverlayElement* elem = BaseDashOverlayElement::ResolveDashElement((Ogre::OverlayElement*)target);
+    if (elem)
     {
-        static_cast< DashTextAreaOverlayElement*>(target)->setAnimStr(val);
-    }
-    if (elem->getTypeName() == DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
-    {
-        static_cast< DashPanelOverlayElement*>(target)->setAnimStr(val);
+        elem->setAnimStr(val);
     }
 }
 void CmdLink::doSet( void* target, const String& val )
 {
-    const Ogre::OverlayElement* elem = static_cast<const Ogre::OverlayElement*>(target);
-    if (elem->getTypeName() == DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    BaseDashOverlayElement* elem = BaseDashOverlayElement::ResolveDashElement((Ogre::OverlayElement*)target);
+    if (elem)
     {
-        static_cast< DashTextAreaOverlayElement*>(target)->setLinkStr(val);
-    }
-    if (elem->getTypeName() == DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
-    {
-        static_cast< DashPanelOverlayElement*>(target)->setLinkStr(val);
+        elem->setLinkStr(val);
     }
 }
 
@@ -105,6 +69,29 @@ CmdAnim BaseDashOverlayElement::ms_anim_cmd;
 CmdLink BaseDashOverlayElement::ms_link_cmd;
 
     // Functions
+
+//static
+BaseDashOverlayElement* BaseDashOverlayElement::ResolveDashElement(Ogre::OverlayElement* elem)
+{
+    // Since we're extending existing Ogre overlays,
+    //   we can't simply cast to BaseDashOverlayElement because
+    //   it doesn't derive from Ogre::OverlayElement.
+    // We must cast to classes one level up in the inheritance tree
+    //   which derive from both BaseDashOverlayElement and Ogre::OverlayElement
+
+    if (elem->getTypeName() == DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        return static_cast<DashTextAreaOverlayElement*>(elem);
+    }
+    if (elem->getTypeName() == DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        return static_cast<DashPanelOverlayElement*>(elem);
+    }
+    else
+    {
+        return nullptr;
+    }
+}
 
 void BaseDashOverlayElement::addCommonDashParams(Ogre::ParamDictionary* dict)
 {
