@@ -23,13 +23,20 @@ see below notes.
 
 AVAILABLE ELEMENTS:
 * DashTextArea ~ Extends built-in 'TextArea'.
+* DashPanel ~ Extends built-in 'Panel'.
 
 AVAILABLE 'link' VALUES:
 Everything documented in the above manual.
 
 AVAILABLE 'anim' VALUES:
 * 'textstring' - Displays the value as-is. Only for 'DashTextArea'.
-* 'lamp' - Switches materials "*-on" and "*-off", only for 'DashLamp'.
+* 'lamp' - Switches 2 materials based on boolean input value. 
+           Material names must have suffixes "-on" and "-off". 
+           One must be specified in overlay script - the other will be deduced.
+           Only for 'DashPanel'.           
+* 'series' - Switches multiple materials based on integer input value.
+             Material names must end by integer.
+             One must be specified in overlay script - the other will be deduced.
 
 EXAMPLE:
 
@@ -69,11 +76,5 @@ Overlay script:
             }
         }
     }
-```
-
-Truck file:
-```
-    guisettings
-    dashboard TestDash
 ```
 
