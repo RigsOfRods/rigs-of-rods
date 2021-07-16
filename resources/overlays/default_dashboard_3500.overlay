@@ -1,4 +1,3 @@
-// orig res 1600 x 900
 
 overlay tracks/DefaultDashboard3500RPM
 {
@@ -16,7 +15,7 @@ overlay tracks/DefaultDashboard3500RPM
 		material tracks/DashTurbo
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/TurboNeedle1 Panel
+        overlay_element tracks/DefaultDashboard3500RPM/TurboNeedle Panel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -25,10 +24,10 @@ overlay tracks/DefaultDashboard3500RPM
 		height 99
 		left -133
 		top -353
-		material tracks/DashTachoNeedle1
+		material tracks/DashTurboNeedle
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/TurboNeedle2 Panel
+        overlay_element tracks/DefaultDashboard3500RPM/TurboKnob Panel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -37,7 +36,7 @@ overlay tracks/DefaultDashboard3500RPM
 		height 15
 		left -91
 		top -311
-		material tracks/DashTachoNeedle2
+		material tracks/DashGaugeKnob
 	}
 
         overlay_element tracks/DefaultDashboard3500RPM/Tacho4000 Panel
@@ -52,7 +51,7 @@ overlay tracks/DefaultDashboard3500RPM
 		material tracks/DashTacho4000
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/TachoNeedle1 Panel
+        overlay_element tracks/DefaultDashboard3500RPM/TachoNeedle DashPanel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -61,10 +60,17 @@ overlay tracks/DefaultDashboard3500RPM
 		height 248
 		left -279
 		top -256
-		material tracks/DashTachoNeedle1
+		material tracks/DashTachoNeedle
+        // dash params
+        transform_min -180
+        transform_max 45
+        input_min 0
+        input_max 4000
+        anim rotate
+        link rpm
 	}
 
-        overlay_element tracks/DefaultDashboard3500RPM/TachoNeedle2 Panel
+        overlay_element tracks/DefaultDashboard3500RPM/TachoKnob Panel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -73,7 +79,7 @@ overlay tracks/DefaultDashboard3500RPM
 		height 32
 		left -171
 		top -148
-		material tracks/DashTachoNeedle2
+		material tracks/DashGaugeKnob
 	}
     
     
@@ -307,17 +313,17 @@ overlay tracks/DefaultDashboard3500RPM
     
 
 
-        overlay_element tracks/DefaultDashboard3500RPM/SpeedLabel TextArea
+        overlay_element tracks/DefaultDashboard3500RPM/DbgLabel TextArea
         {
             metrics_mode pixels
    
 
             font_name CyberbitEnglish
             char_height 20
-            caption "Speed:"
+            caption "RPM:"
         }
 
-        overlay_element tracks/DefaultDashboard3500RPM/SpeedDisplay DashTextArea
+        overlay_element tracks/DefaultDashboard3500RPM/DbgDisplay DashTextArea
         {
             metrics_mode pixels
             left 10
@@ -326,7 +332,7 @@ overlay tracks/DefaultDashboard3500RPM
             char_height 20
             
             // ----- dashboard params -----
-            link speedo_kph
+            link rpm
             anim textstring
         }
     }

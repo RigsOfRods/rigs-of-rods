@@ -2993,22 +2993,41 @@ material tracks/DashTacho4000
 	}
 }
 
-material tracks/DashTachoNeedle1
+// dash material for "rotate" anim must be unique because the texture_unit gets modified.
+material tracks/DashTachoNeedle
 {
 	technique
 	{
 		pass
 		{
-                        scene_blend alpha_blend
+            scene_blend alpha_blend
 			texture_unit
 			{
 				texture redneedle_v2.png
+                tex_address_mode clamp
 			}
 		}
 	}
 }
 
-material tracks/DashTachoNeedle2
+// dash material for "rotate" anim must be unique because the texture_unit gets modified.
+material tracks/DashTurboNeedle
+{
+	technique
+	{
+		pass
+		{
+            scene_blend alpha_blend
+			texture_unit
+			{
+				texture redneedle_v2.png
+                tex_address_mode clamp
+			}
+		}
+	}
+}
+
+material tracks/DashGaugeKnob
 {
 	technique
 	{

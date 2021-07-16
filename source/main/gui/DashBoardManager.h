@@ -300,15 +300,16 @@ protected:
 
         Ogre::OverlayElement* element = nullptr;
         std::vector<Ogre::MaterialPtr> materials;
+        Ogre::TextureUnitState* tex_unit = nullptr; // For texture transforms (i.e. rotate)
+        float wmin; // rotation/offset whatever (widget min/max)
+        float wmax;
+        float vmin; // value min/max
+        float vmax;
 
         float last = 9999.f; // force initial update
         bool lastState = true;
 
         // --- OBSOLETE (pre-OVERDASH) ---
-        float wmin; // rotation/offset whatever (widget min/max)
-        float wmax;
-        float vmin; // value min/max
-        float vmax;
 
         char format[255]; // string format
         char texture[255]; // texture filename
@@ -325,6 +326,7 @@ protected:
 
     bool setupLampAnim(layoutLink_t& ctrl);
     bool setupSeriesAnim(layoutLink_t& ctrl);
+    bool setupRotateAnim(layoutLink_t& ctrl);
     void setupElement(Ogre::OverlayElement* elem);
     void loadLayout(Ogre::String filename);
 

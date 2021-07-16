@@ -294,8 +294,10 @@ void DashBoard::update(float& dt)
                 angle = controls[i].wmin;
             else if (angle > controls[i].wmax)
                 angle = controls[i].wmax;
+            // make rotation clockwise
+            angle *= -1.f;
             // rotate finally
-            controls[i].rotImg->setAngle(Ogre::Degree(angle).valueRadians());
+            controls[i].tex_unit->setTextureRotate(Ogre::Degree(angle));
         }
         else if (controls[i].animationType == ANIM_LAMP)
         {
@@ -528,6 +530,35 @@ bool DashBoard::setupSeriesAnim(layoutLink_t& ctrl)
                 elem->getMaterial()->getName(), elem->getName()));
         return false;
     }
+
+    return true;
+}
+
+bool DashBoard::setupRotateAnim(layoutLink_t& ctrl)
+{
+    /// Material must be present and have a texture unit.
+
+    DashPanelOverlayElement* elem = static_cast<DashPanelOverlayElement*>(ctrl.element);
+
+    // No material or no texture unit? Return error.
+    if (!elem->getMaterial() ||
+        elem->getMaterial()->getNumTechniques() == 0 ||
+        !elem->getMaterial()->getTechnique(0) ||
+        elem->getMaterial()->getTechnique(0)->getNumPasses() == 0 ||
+        !elem->getMaterial()->getTechnique(0)->getPass(0) ||
+        elem->getMaterial()->getTechnique(0)->getPass(0)->getNumTextureUnitStates() == 0)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Material not provided or lacking texture unit - element '{}' will not be animated", elem->getName()));
+        return false;
+    }
+
+    ctrl.tex_unit = elem->getMaterial()->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    ctrl.wmin = elem->getTransformMin();
+    ctrl.wmax = elem->getTransformMax();
+    ctrl.vmin = elem->getInputMin();
+    ctrl.vmax = elem->getInputMax();
+    ctrl.animationType = ANIM_ROTATE;
 
     return true;
 }
@@ -805,6 +836,24 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
             else
             {
                 if (!this->setupSeriesAnim(ctrl))
+                    return;
+            }
+        }
+        else if (anim == "rotate")
+        {
+            if (elem->getTypeName() != DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+            {
+                App::GetConsole()->putMessage(
+                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format(
+                        "Dashboard element '{}' will not be animated;"
+                        "anim '{}' is not compatible with type '{}'",
+                        elem->getName(), anim, elem->getTypeName()));
+                return;
+            }
+            else
+            {
+                if (!this->setupRotateAnim(ctrl))
                     return;
             }
         }
