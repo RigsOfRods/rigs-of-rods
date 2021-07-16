@@ -1,0 +1,339 @@
+
+overlay tracks/DefaultDashboard3500RPM
+{
+    zorder 100
+
+        overlay_element tracks/DefaultDashboard3500RPM/Turbo Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 112
+		height 112
+                left -140
+                top -360
+		material tracks/DashTurbo
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/TurboNeedle Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 99
+		height 99
+		left -133
+		top -353
+		material tracks/DashTurboNeedle
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/TurboKnob Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 15
+		height 15
+		left -91
+		top -311
+		material tracks/DashGaugeKnob
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/Tacho4000 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 333
+		height 250
+                left -363
+                top -257
+		material tracks/DashTacho4000
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/TachoNeedle DashPanel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 248
+		height 248
+		left -279
+		top -256
+		material tracks/DashTachoNeedle
+        // dash params
+        transform_min -180
+        transform_max 45
+        input_min 0
+        input_max 4000
+        anim rotate
+        link rpm
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/TachoKnob Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 32
+		height 32
+		left -171
+		top -148
+		material tracks/DashGaugeKnob
+	}
+    
+    
+    // ------------------------ Lamps ---------------------------
+    
+
+    overlay_element tracks/DefaultDashboard3500RPM/ParkingBrake DashPanel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 55
+		height 55
+                left -182
+                top -193
+        
+        // for anim "lamp", materials "-on" and "-off" must exist
+        anim lamp 
+		material tracks/DashParkingBrake-off
+        link parkingbrake
+               
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LeftBlinker DashPanel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 31
+		height 40
+		left -211
+		top -183
+        
+        // for anim "lamp", materials "-on" and "-off" must exist
+		material tracks/DashLeftBlinker-off
+        link signal_turnleft
+        anim lamp    
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/RightBlinker DashPanel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 31
+		height 40
+		left -129
+		top -183
+
+        // for anim "lamp", materials "-on" and "-off" must exist
+		material tracks/DashRightBlinker-off
+        link signal_turnright
+        anim lamp   
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/FrontLights DashPanel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 35
+		height 35
+		left -315
+		top -126
+        // for anim "lamp", materials "-on" and "-off" must exist
+		material tracks/DashFrontLights-off
+        link lights
+        anim lamp
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsLocked DashPanel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left -335
+		top -81
+        // for anim "lamp", materials "-on" and "-off" must exist
+		material tracks/DashLightsLocked-off
+        link locked
+        anim lamp
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsClutch DashPanel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left -347
+		top -43
+        // for anim "lamp", materials "-on" and "-off" must exist
+		material tracks/DashLightsClutch-off
+        link engine_clutch
+        anim lamp
+	}
+
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsPressure DashPanel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left -321
+		top -43
+        // for anim "lamp", materials "-on" and "-off" must exist
+		material tracks/DashLightsPressure-off
+        link low_pressure
+        anim lamp
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsBattery DashPanel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 35
+		height 35
+		left -296
+		top -48
+        // for anim "lamp", materials "-on" and "-off" must exist
+		material tracks/DashLightsBattery-off
+        anim lamp
+        link engine_battery
+	}
+
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsIngition DashPanel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 35
+		height 35
+		left -263
+		top -48
+        // for anim 'lamp', materials "-on" and "-off" must exist
+		material tracks/DashLightsIngition-off
+        anim lamp
+        link engine_ignition
+	}
+
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsTraction DashPanel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left -182
+		top -98
+        // for anim 'series', materials must end with whole positive number.
+        anim series
+		material tracks/DashLightsTraction0
+        link tractioncontrol_mode
+	}
+
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsAntilock DashPanel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 25
+		height 25
+		left -152
+		top -98
+        // for anim 'series', materials must end with whole positive number.
+        anim series
+		material tracks/DashLightsAntilock0
+        link antilockbrake_mode
+	}
+
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsTies0 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 30
+		height 30
+		left -304
+		top -84
+		material tracks/DashLightsTies0
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsTies1 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 30
+		height 30
+		left -304
+		top -84
+		material tracks/DashLightsTies1
+	}
+
+        overlay_element tracks/DefaultDashboard3500RPM/LightsTies2 Panel
+	{
+		metrics_mode pixels
+		horz_align right
+		vert_align bottom
+		width 30
+		height 30
+		left -304
+		top -84
+		material tracks/DashLightsTies2
+	}
+    
+    
+// =============================   
+//    #################### 
+//    DEBUG elements below
+//    ####################
+// =============================
+
+    
+    overlay_element tracks/DefaultDashboard3500RPM/Root Panel
+    {
+        metrics_mode pixels
+        width 200
+        height 50
+        material tracks/transred    
+    
+
+
+        overlay_element tracks/DefaultDashboard3500RPM/DbgLabel TextArea
+        {
+            metrics_mode pixels
+   
+
+            font_name CyberbitEnglish
+            char_height 20
+            caption "RPM:"
+        }
+
+        overlay_element tracks/DefaultDashboard3500RPM/DbgDisplay DashTextArea
+        {
+            metrics_mode pixels
+            left 10
+            top 25
+            font_name CyberbitEnglish
+            char_height 20
+            
+            // ----- dashboard params -----
+            link rpm
+            anim textstring
+        }
+    }
+}

@@ -23,12 +23,23 @@
 /// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
 /// @date   19th of October 2011
 
+
 #pragma once
+
+                     /////////////////////////////
+    // ============= 'OVERDASH' REMAKE IN PROGRESS =================
+    //   MyGUI widgets and layout XML files are being replaced by Ogre Overlays.
+    //   Also, LOG() function is being replaced with console messages.
+    // =============================================================
+                     /////////////////////////////
 
 
 #include "Application.h"
 
 #include <MyGUI.h>
+#include <OgreOverlay.h>
+#include <OgreOverlayElement.h>
+#include <OgreOverlayElementFactory.h>
 
 #include <string>
 
@@ -39,8 +50,6 @@ namespace RoR {
 #define DD_MAX_AEROENGINE 6
 #define DD_MAX_WING       6
 #define MAX_DASH          6
-
-#define MAX_CONTROLS      1024
 
 typedef union dataContainer_t
 {
@@ -196,6 +205,7 @@ public:
     float getNumeric(size_t key);
     char* getChar(size_t key) { return data[key].data.value_char; };
     bool getEnabled(size_t key) { return data[key].enabled; };
+    inline std::string getString(size_t key);
 
     void setBool(size_t key, bool val) { data[key].data.value_bool = val; };
     void setInt(size_t key, int val) { data[key].data.value_int = val; };
@@ -233,8 +243,8 @@ public:
     DashBoard(DashBoardManager* manager, Ogre::String filename, bool textureLayer);
     ~DashBoard();
 
-    void setVisible(bool visible, bool smooth = true);
-    bool getVisible() { return visible; };
+    void setVisible(bool visible);
+    bool getVisible() { return m_overlay->isVisible(); };
 
     bool getIsTextureLayer() { return textureLayer; }
 
@@ -244,10 +254,9 @@ public:
     void windowResized();
 
 protected:
+    Ogre::Overlay* m_overlay = nullptr;
     DashBoardManager* manager;
     Ogre::String filename;
-    MyGUI::VectorWidgetPtr widgets;
-    MyGUI::WindowPtr mainWidget;
     bool visible, textureLayer;
     std::string prefix;
 
@@ -283,19 +292,27 @@ protected:
     // linking attributes
     typedef struct layoutLink_t
     {
-        int linkID; // DD_*
-        char animationType; // ANIM_*
+        int linkID = 0; // DD_*
+        char animationType = ANIM_NONE; // ANIM_*
+        int condition = CONDITION_NONE; // CONDITION_*
+        float conditionArgument = 0.f;
+        char direction = DIRECTION_NONE; // DIRECTION_*
 
+        Ogre::OverlayElement* element = nullptr;
+        std::vector<Ogre::MaterialPtr> materials;
+        Ogre::TextureUnitState* tex_unit = nullptr; // For texture transforms (i.e. rotate)
         float wmin; // rotation/offset whatever (widget min/max)
         float wmax;
         float vmin; // value min/max
         float vmax;
-        int condition; // CONDITION_*
-        float conditionArgument;
-        char direction; // DIRECTION_*
+
+        float last = 9999.f; // force initial update
+        bool lastState = true;
+
+        // --- OBSOLETE (pre-OVERDASH) ---
+
         char format[255]; // string format
         char texture[255]; // texture filename
-        char name[255]; // widget name
         char format_neg_zero[255]; //!< Test for undesired '-0.0' on display. Only for link type "format". Empty if not applicable.
 
         MyGUI::Widget* widget;
@@ -304,15 +321,16 @@ protected:
         MyGUI::TextBox* txt;
         MyGUI::IntSize initialSize;
         MyGUI::IntPoint initialPosition;
-
-        float last;
-        bool lastState;
+        // END OBSOLETE
     } layoutLink_t;
 
+    bool setupLampAnim(layoutLink_t& ctrl);
+    bool setupSeriesAnim(layoutLink_t& ctrl);
+    bool setupRotateAnim(layoutLink_t& ctrl);
+    void setupElement(Ogre::OverlayElement* elem);
     void loadLayout(Ogre::String filename);
-    void loadLayoutRecursive(MyGUI::WidgetPtr ptr);
-    layoutLink_t controls[MAX_CONTROLS];
-    int free_controls;
+
+    std::vector<layoutLink_t> controls;
 };
 
 } // namespace RoR

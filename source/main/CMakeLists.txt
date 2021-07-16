@@ -120,6 +120,9 @@ set(SOURCE_FILES
         gui/mygui/Dialog.{h,cpp}
         gui/mygui/GuiPanelBase.h
         gui/mygui/WrapsAttribute.h
+        gui/overlay/BaseDashOverlayElement.{h,cpp}
+        gui/overlay/DashPanelOverlayElement.{h,cpp}
+        gui/overlay/DashTextAreaOverlayElement.{h,cpp}
         gui/panels/GUI_ConsoleView.{h,cpp}
         gui/panels/GUI_ConsoleWindow.{h,cpp}
         gui/panels/GUI_DirectionArrow.{h,cpp}
@@ -318,6 +321,7 @@ target_include_directories(${BINNAME} PRIVATE
         gui
         gui/imgui
         gui/mygui
+        gui/overlay
         gui/panels
         network
         physics

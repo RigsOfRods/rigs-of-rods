@@ -6550,6 +6550,7 @@ void ActorSpawner::FinalizeGfxSetup()
     }
 
     // Load dashboard layouts
+    /* DISABLED UNTIL RE/LOADING OVERLAYS IS CORRECTED IN OGRE, see https://github.com/OGRECave/ogre/issues/1335
     for (auto& module: m_selected_modules)
     {
         if (module->gui_settings != nullptr)
@@ -6564,13 +6565,15 @@ void ActorSpawner::FinalizeGfxSetup()
                 m_actor->ar_dashboard->loadDashBoard(layout, true);
             }
         }
-    }
+    }*/
 
     // If none specified, load default dashboard layouts
     if (!m_actor->ar_dashboard->WasDashboardLoaded())
     {
         if (m_actor->ar_driveable == TRUCK) // load default for a truck
         {
+            m_actor->ar_dashboard->loadDashBoard("tracks/DefaultDashboard3500RPM", false);
+            /* WIP - OVERDASH
             if (App::gfx_speedo_digital->GetBool())
             {
                 if (App::gfx_speedo_imperial->GetBool())
@@ -6597,6 +6600,7 @@ void ActorSpawner::FinalizeGfxSetup()
                     {
                         m_actor->ar_dashboard->loadDashBoard("default_dashboard3500.layout", false);
                         m_actor->ar_dashboard->loadDashBoard("default_dashboard3500.layout", true);
+                        
                     }
                 }
             }
@@ -6628,7 +6632,7 @@ void ActorSpawner::FinalizeGfxSetup()
                         m_actor->ar_dashboard->loadDashBoard("default_dashboard3500_analog.layout", true);
                     }
                 }
-            }
+            }*/
         }
         else if (m_actor->ar_driveable == BOAT)
         {

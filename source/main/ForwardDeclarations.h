@@ -50,6 +50,8 @@ namespace RoR
     class  CVar;
     class  DashBoard;
     class  DashBoardManager;
+    class  DashPanelOverlayElement;
+    class  DashTextAreaOverlayElement;
     class  DustPool;
     class  DiscordRpc;
     class  EngineSim;

@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2021 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -26,10 +27,25 @@
 #include "DashBoardManager.h"
 
 #include "Application.h"
+#include "Console.h"
+#include "DashPanelOverlayElement.h"
+#include "DashTextAreaOverlayElement.h"
 #include "Utils.h"
+
+#include <OgreOverlayManager.h>
+#include <OgreOverlayContainer.h>
+
+#include <fmt/format.h>
 
 using namespace Ogre;
 using namespace RoR;
+
+                     /////////////////////////////
+    // ============= 'OVERDASH' REMAKE IN PROGRESS =================
+    //   MyGUI widgets and layout XML files are being replaced by Ogre Overlays.
+    //   Also, LOG() function is being replaced with console messages.
+    // =============================================================
+                     /////////////////////////////
 
 #define INITDATA(key, type, name) data[key] = dashData_t(type, name)
 
@@ -190,6 +206,14 @@ float DashBoardManager::getNumeric(size_t key)
     return 0;
 }
 
+std::string DashBoardManager::getString(size_t key)
+{
+    if (data[key].type == DC_CHAR)
+        return data[key].data.value_char;
+    else
+        return fmt::format("{}", this->getNumeric(key));
+}
+
 void DashBoardManager::setVisible(bool visibility)
 {
     visible = visibility;
@@ -202,11 +226,7 @@ void DashBoardManager::setVisible(bool visibility)
 
 void DashBoardManager::setVisible3d(bool visibility)
 {
-    for (int i = 0; i < free_dashboard; i++)
-    {
-        if (dashboards[i]->getIsTextureLayer())
-            dashboards[i]->setVisible(visibility, false);
-    }
+
 }
 
 void DashBoardManager::windowResized()
@@ -220,37 +240,41 @@ void DashBoardManager::windowResized()
 
 // DASHBOARD class below
 
-DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, bool _textureLayer) : manager(manager), filename(filename), free_controls(0), visible(false), mainWidget(nullptr), textureLayer(_textureLayer)
+DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, bool _textureLayer) : manager(manager), filename(filename), visible(false), textureLayer(_textureLayer)
 {
     // use 'this' class pointer to make layout unique
     prefix = MyGUI::utility::toString(this, "_");
     memset(&controls, 0, sizeof(controls));
     loadLayout(filename);
     // hide first
-    if (mainWidget)
-        mainWidget->setVisible(false);
+    if (m_overlay)
+        m_overlay->hide();
 }
 
 DashBoard::~DashBoard()
 {
-    MyGUI::LayoutManager::getInstance().unloadLayout(widgets);
+    Ogre::OverlayManager::getSingleton().destroy(m_overlay);
+    m_overlay = nullptr;
 }
 
 void DashBoard::updateFeatures()
 {
     // this hides / shows parts of the gui depending on the vehicle features
-    for (int i = 0; i < free_controls; i++)
+    for (int i = 0; i < (int)controls.size(); i++)
     {
         bool enabled = manager->getEnabled(controls[i].linkID);
 
-        controls[i].widget->setVisible(enabled);
+        if (enabled)
+            controls[i].element->show();
+        else
+            controls[i].element->hide();
     }
 }
 
 void DashBoard::update(float& dt)
 {
     // walk all controls and animate them
-    for (int i = 0; i < free_controls; i++)
+    for (int i = 0; i < (int)controls.size(); i++)
     {
         // get its value from its linkage
         if (controls[i].animationType == ANIM_ROTATE)
@@ -270,8 +294,10 @@ void DashBoard::update(float& dt)
                 angle = controls[i].wmin;
             else if (angle > controls[i].wmax)
                 angle = controls[i].wmax;
+            // make rotation clockwise
+            angle *= -1.f;
             // rotate finally
-            controls[i].rotImg->setAngle(Ogre::Degree(angle).valueRadians());
+            controls[i].tex_unit->setTextureRotate(Ogre::Degree(angle));
         }
         else if (controls[i].animationType == ANIM_LAMP)
         {
@@ -298,26 +324,24 @@ void DashBoard::update(float& dt)
             controls[i].lastState = state;
 
             // switch states
-            if (state)
-            {
-                controls[i].img->setImageTexture(String(controls[i].texture) + "-on.png");
-            }
-            else
-            {
-                controls[i].img->setImageTexture(String(controls[i].texture) + "-off.png");
-            }
+            DashPanelOverlayElement* lamp = static_cast<DashPanelOverlayElement*>(controls[i].element);
+            lamp->setMaterial(state ? controls[i].materials[1] : controls[i].materials[0]);
         }
         else if (controls[i].animationType == ANIM_SERIES)
         {
             float val = manager->getNumeric(controls[i].linkID);
 
-            String fn = String(controls[i].texture) + String("-") + TOSTRING((int)val) + String(".png");
-
             if (fabs(val - controls[i].last) < 0.2f)
                 continue;
             controls[i].last = val;
 
-            controls[i].img->setImageTexture(fn);
+            // switch states
+            if ((int)val < 0 || (int)val >= (int)controls[i].materials.size())
+            {
+                continue;
+            }
+            DashPanelOverlayElement* lamp = static_cast<DashPanelOverlayElement*>(controls[i].element);
+            lamp->setMaterial(controls[i].materials[(int)val]);
         }
         else if (controls[i].animationType == ANIM_SCALE)
         {
@@ -398,88 +422,188 @@ void DashBoard::update(float& dt)
         }
         else if (controls[i].animationType == ANIM_TEXTSTRING)
         {
-            char* val = manager->getChar(controls[i].linkID);
-            controls[i].txt->setCaption(MyGUI::UString(val));
+            controls[i].element->setCaption(
+                manager->getString(controls[i].linkID));
         }
     }
 }
 
 void DashBoard::windowResized()
 {
-    if (!mainWidget)
-        return;
-    mainWidget->setPosition(0, 0);
-    if (textureLayer)
+
+}
+
+bool DashBoard::setupLampAnim(layoutLink_t& ctrl)
+{
+    /// Materials must have suffix "-on" and "-off". One must be specified in overlay script - the other will be deduced.
+
+    DashPanelOverlayElement* elem = static_cast<DashPanelOverlayElement*>(ctrl.element);
+
+    if (!elem->getMaterial())
     {
-        // texture layers are independent from the screen size, but rather from the layer texture size
-        TexturePtr tex = TextureManager::getSingleton().getByName("RTTTexture1");
-        if (!tex.isNull())
-            mainWidget->setSize(tex->getWidth(), tex->getHeight());
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("No material assigned - element '{}' will not be animated", elem->getName()));
+        return false;
+    }
+
+    ctrl.animationType = ANIM_LAMP;
+    ctrl.materials.resize(2);
+
+    // Fetch materials
+    if (Ogre::StringUtil::endsWith(elem->getMaterial()->getName(), "-on"))
+    {
+        ctrl.materials[1] = elem->getMaterial();
+        Ogre::String base_name = elem->getMaterial()->getName().substr(0, elem->getMaterial()->getName().length() - 3);
+        ctrl.materials[0] = Ogre::MaterialManager::getSingleton().getByName(base_name + "-off"); //FIXME: resource group!!
+    }
+    else if (Ogre::StringUtil::endsWith(elem->getMaterial()->getName(), "-off"))
+    {
+        ctrl.materials[0] = elem->getMaterial();
+        Ogre::String base_name = elem->getMaterial()->getName().substr(0, elem->getMaterial()->getName().length() - 4);
+        ctrl.materials[1] = Ogre::MaterialManager::getSingleton().getByName(base_name + "-on"); //FIXME: resource group!!
     }
     else
     {
-        MyGUI::IntSize screenSize = MyGUI::RenderManager::getInstance().getViewSize();
-        mainWidget->setSize(screenSize);
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Unrecognized material '{}' - element '{}' will not be animated",
+                elem->getMaterial()->getName(), elem->getName()));
+        return false;
     }
+    return true;
 }
 
-void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
+bool DashBoard::setupSeriesAnim(layoutLink_t& ctrl)
 {
-    std::string name = w->getName();
-    std::string anim = w->getUserString("anim");
-    std::string debug = w->getUserString("debug");
-    std::string linkArgs = w->getUserString("link");
+    /// Materials must end by integer. One must be specified in overlay script - the other will be deduced.
 
-    // make it unclickable
-    w->setUserString("interactive", "0");
+    DashPanelOverlayElement* elem = static_cast<DashPanelOverlayElement*>(ctrl.element);
 
-    if (!debug.empty())
+    // No material? Return error.
+    if (!elem->getMaterial())
     {
-        w->setVisible(false);
-        return;
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("No material assigned - element '{}' will not be animated", elem->getName()));
+        return false;
     }
 
-    // find the root widget and ignore debug widgets
-    if (name.size() > prefix.size())
+    // Analyze material
+    size_t num_start = elem->getMaterial()->getName().length();
+    while (num_start > 0 && isdigit(elem->getMaterial()->getName()[num_start - 1]))
     {
-        std::string prefixLessName = name.substr(prefix.size());
-        if (prefixLessName == "_Main")
-        {
-            mainWidget = (MyGUI::WindowPtr)w;
-            // resize it
-            windowResized();
-        }
+        num_start--;
+    }
 
-        // ignore debug widgets
-        if (prefixLessName == "DEBUG")
+    if (num_start == elem->getMaterial()->getName().length())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Material '{}' missing number - element '{}' will not be animated",
+                elem->getMaterial()->getName(), elem->getName()));
+        return false;
+    }
+
+    ctrl.animationType = ANIM_SERIES;
+
+    // Find all available materials, starting with 0, ending when a number is not found.
+    Ogre::String series_base_name = elem->getMaterial()->getName().substr(0, num_start);
+    bool keep_searching = true;
+    int find_num = 0;
+    while (keep_searching)
+    {
+        Ogre::String mat_name = fmt::format("{}{}", series_base_name, find_num);
+        Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(mat_name);//FIXME: resource group!!
+        if (mat)
         {
-            w->setVisible(false);
-            return;
+            ctrl.materials.push_back(mat);
+            find_num++;
+        }
+        else
+        {
+            keep_searching = false;
         }
     }
+
+    // Check we have at least 2 materials
+    if (ctrl.materials.size() < 2)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Only 1 material found '{}' - element '{}' will not be animated",
+                elem->getMaterial()->getName(), elem->getName()));
+        return false;
+    }
+
+    return true;
+}
+
+bool DashBoard::setupRotateAnim(layoutLink_t& ctrl)
+{
+    /// Material must be present and have a texture unit.
+
+    DashPanelOverlayElement* elem = static_cast<DashPanelOverlayElement*>(ctrl.element);
+
+    // No material or no texture unit? Return error.
+    if (!elem->getMaterial() ||
+        elem->getMaterial()->getNumTechniques() == 0 ||
+        !elem->getMaterial()->getTechnique(0) ||
+        elem->getMaterial()->getTechnique(0)->getNumPasses() == 0 ||
+        !elem->getMaterial()->getTechnique(0)->getPass(0) ||
+        elem->getMaterial()->getTechnique(0)->getPass(0)->getNumTextureUnitStates() == 0)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Material not provided or lacking texture unit - element '{}' will not be animated", elem->getName()));
+        return false;
+    }
+
+    ctrl.tex_unit = elem->getMaterial()->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    ctrl.wmin = elem->getTransformMin();
+    ctrl.wmax = elem->getTransformMax();
+    ctrl.vmin = elem->getInputMin();
+    ctrl.vmax = elem->getInputMax();
+    ctrl.animationType = ANIM_ROTATE;
+
+    return true;
+}
+
+void DashBoard::setupElement(Ogre::OverlayElement* elem)
+{
+    // retrieve params
+    String anim, linkArgs;
+    if (elem->getTypeName() == DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        DashTextAreaOverlayElement* dta = static_cast<DashTextAreaOverlayElement*>(elem);
+        anim = dta->getAnimStr();
+        linkArgs = dta->getLinkStr();
+    }
+    else if (elem->getTypeName() == DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        DashPanelOverlayElement* dash_elem = static_cast<DashPanelOverlayElement*>(elem);
+        anim = dash_elem->getAnimStr();
+        linkArgs = dash_elem->getLinkStr();
+    }
+    else
+    {
+        return; // Unsupported element
+    }
+
+    LOG(fmt::format(
+        "DashBoard::setupElement() - processing '{}' (type: '{}') with anim '{}' and link '{}'",
+        elem->getName(), elem->getTypeName(), anim, linkArgs));
 
     // animations for this control?
     if (!linkArgs.empty())
     {
         layoutLink_t ctrl;
-        memset(&ctrl, 0, sizeof(ctrl));
-
-        if (!name.empty())
-            strncpy(ctrl.name, name.c_str(), 255);
-        ctrl.widget = w;
+        ctrl.element = elem;
+        #if 0 // OVERDASH
         ctrl.initialSize = w->getSize();
         ctrl.initialPosition = w->getPosition();
-        ctrl.last = 1337.1337f; // force update
-        ctrl.lastState = true;
+        #endif // OVERDASH
 
         // establish the link
         {
-            replaceString(linkArgs, "&gt;", ">");
-            replaceString(linkArgs, "&lt;", "<");
             String linkName = "";
             if (linkArgs.empty())
             {
-                LOG("Dashboard ("+filename+"/"+name+"): empty Link");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): empty Link");
                 return;
             }
             // conditional checks
@@ -495,7 +619,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
                 }
                 else
                 {
-                    LOG("Dashboard ("+filename+"/"+name+"): error in conditional Link: " + linkArgs);
+                    LOG("Dashboard ("+filename+"/"+elem->getName()+"): error in conditional Link: " + linkArgs);
                     return;
                 }
             }
@@ -510,7 +634,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
                 }
                 else
                 {
-                    LOG("Dashboard ("+filename+"/"+name+"): error in conditional Link: " + linkArgs);
+                    LOG("Dashboard ("+filename+"/"+elem->getName()+"): error in conditional Link: " + linkArgs);
                     return;
                 }
             }
@@ -525,7 +649,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
             int linkID = manager->getLinkIDForName(linkName);
             if (linkID < 0)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): unknown Link: " + linkName);
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): unknown Link: " + linkName);
                 return;
             }
 
@@ -533,6 +657,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
         }
 
         // parse more attributes
+#if 0 // OVERDASH
         ctrl.wmin = StringConverter::parseReal(w->getUserString("min"));
         ctrl.wmax = StringConverter::parseReal(w->getUserString("max"));
         ctrl.vmin = StringConverter::parseReal(w->getUserString("vmin"));
@@ -557,9 +682,11 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
             ctrl.direction = DIRECTION_UP;
         else if (!direction.empty())
         {
-            LOG("Dashboard ("+filename+"/"+name+"): unknown direction: " + direction);
+            LOG("Dashboard ("+filename+"/"+elem->getName()+"): unknown direction: " + direction);
             return;
         }
+
+
         // then specializations
         if (anim == "rotate")
         {
@@ -570,7 +697,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
             /*
             if (manager->getDataType(ctrl.linkID) != DC_FLOAT)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): Rotating controls can only link to floats");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): Rotating controls can only link to floats");
                 continue;
             }
             */
@@ -581,12 +708,12 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
             }
             catch (...)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): Rotating controls must use the RotatingSkin");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): Rotating controls must use the RotatingSkin");
                 return;
             }
             if (!ctrl.rotImg)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): error loading rotation control");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): error loading rotation control");
                 return;
             }
 
@@ -598,7 +725,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
             ctrl.animationType = ANIM_SCALE;
             if (ctrl.direction == DIRECTION_NONE)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): direction empty: scale needs a direction");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): direction empty: scale needs a direction");
                 return;
             }
         }
@@ -607,7 +734,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
             ctrl.animationType = ANIM_TRANSLATE;
             if (ctrl.direction == DIRECTION_NONE)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): direction empty: translate needs a direction");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): direction empty: translate needs a direction");
                 return;
             }
         }
@@ -617,7 +744,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
             ctrl.img = (MyGUI::ImageBox *)w; //w->getSubWidgetMain()->castType<MyGUI::ImageBox>();
             if (!ctrl.img)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): error loading series control");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): error loading series control");
                 return;
             }
         }
@@ -632,7 +759,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
             }
             catch (...)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): textcolor controls must use the TextBox Control");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): textcolor controls must use the TextBox Control");
                 return;
             }
         }
@@ -645,7 +772,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
             }
             catch (...)
             {
-                LOG("Dashboard ("+filename+"/"+name+"): Lamp controls must use the ImageBox Control");
+                LOG("Dashboard ("+filename+"/"+elem->getName()+"): Lamp controls must use the ImageBox Control");
                 return;
             }
             ctrl.animationType = ANIM_TEXTFORMAT;
@@ -657,93 +784,118 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
                 std::snprintf(ctrl.format_neg_zero, 255, ctrl.format, -0.f);
             }
         }
-        else if (anim == "textstring")
+        else
+        #endif // OVERDASH
+        if (anim == "textstring")
         {
-            // try to cast, will throw
-            try
+            if (elem->getTypeName() != DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
             {
-                ctrl.txt = (MyGUI::TextBox *)w; // w->getSubWidgetMain()->castType<MyGUI::TextBox>();
-            }
-            catch (...)
-            {
-                LOG("Dashboard ("+filename+"/"+name+"): Lamp controls must use the ImageBox Control");
+                App::GetConsole()->putMessage(
+                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format(
+                        "Dashboard element '{}' will not be animated;"
+                        "anim '{}' is not compatible with type '{}'",
+                        elem->getName(), anim, elem->getTypeName()));
                 return;
             }
-            ctrl.animationType = ANIM_TEXTSTRING;
+            else
+            {
+                ctrl.animationType = ANIM_TEXTSTRING;
+            }
         }
         else if (anim == "lamp")
         {
-            // try to cast, will throw
-            /*
+            if (elem->getTypeName() != DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
             {
-                try
-                {
-                    w->getSubWidgetMain()->castType<MyGUI::ImageBox>();
-                }
-                catch (...)
-                {
-                    LOG("Dashboard ("+filename+"/"+name+"): Lamp controls must use the ImageBox Control");
-                    continue;
-                }
-            }
-            */
-            ctrl.animationType = ANIM_LAMP;
-            ctrl.img = (MyGUI::ImageBox *)w; //w->getSubWidgetMain()->castType<MyGUI::ImageBox>();
-            if (!ctrl.img)
-            {
-                LOG("Dashboard ("+filename+"/"+name+"): error loading Lamp control");
+                App::GetConsole()->putMessage(
+                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format(
+                        "Dashboard element '{}' will not be animated;"
+                        "anim '{}' is not compatible with type '{}'",
+                        elem->getName(), anim, elem->getTypeName()));
                 return;
             }
+            else
+            {
+                if (!this->setupLampAnim(ctrl))
+                    return;
+            }
         }
-
-        controls[free_controls] = ctrl;
-        free_controls++;
-        if (free_controls >= MAX_CONTROLS)
+        else if (anim == "series")
         {
-            LOG("maximum amount of controls reached, discarding the rest: " + TOSTRING(MAX_CONTROLS));
-            return;
+            if (elem->getTypeName() != DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+            {
+                App::GetConsole()->putMessage(
+                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format(
+                        "Dashboard element '{}' will not be animated;"
+                        "anim '{}' is not compatible with type '{}'",
+                        elem->getName(), anim, elem->getTypeName()));
+                return;
+            }
+            else
+            {
+                if (!this->setupSeriesAnim(ctrl))
+                    return;
+            }
         }
+        else if (anim == "rotate")
+        {
+            if (elem->getTypeName() != DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+            {
+                App::GetConsole()->putMessage(
+                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format(
+                        "Dashboard element '{}' will not be animated;"
+                        "anim '{}' is not compatible with type '{}'",
+                        elem->getName(), anim, elem->getTypeName()));
+                return;
+            }
+            else
+            {
+                if (!this->setupRotateAnim(ctrl))
+                    return;
+            }
+        }
+        controls.push_back(ctrl);
     }
 
-    // walk the children now
-    MyGUI::EnumeratorWidgetPtr e = w->getEnumerator();
-    while (e.next())
-    {
-        loadLayoutRecursive(e.current());
-    }
 }
 
 void DashBoard::loadLayout(Ogre::String filename)
 {
-    widgets = MyGUI::LayoutManager::getInstance().loadLayout(filename, prefix, nullptr); // never has a parent
-
-    for (MyGUI::VectorWidgetPtr::iterator iter = widgets.begin(); iter != widgets.end(); ++iter)
+    m_overlay = Ogre::OverlayManager::getSingleton().getByName(filename);
+    if (m_overlay)
     {
-        loadLayoutRecursive(*iter);
-    }
-
-    // if this thing should be rendered to texture, relocate the main window to the RTT layer
-    if (textureLayer && mainWidget)
-        mainWidget->detachFromWidget("RTTLayer1");
-}
-
-void DashBoard::setVisible(bool v, bool smooth)
-{
-    visible = v;
-
-    if (!mainWidget)
-    {
-        for (MyGUI::VectorWidgetPtr::iterator iter = widgets.begin(); iter != widgets.end(); ++iter)
+        const Overlay::OverlayContainerList& list = m_overlay->get2DElements();
+        for (OverlayContainer* container: list)
         {
-            (*iter)->setVisible(v);
+            LOG(fmt::format(
+                "DashBoard::loadLayout() - processing element '{}' of type '{}'",
+                container->getName(), container->getTypeName()));
+            this->setupElement(container);
+
+            // TODO: recurse!
+            OverlayContainer::ChildIterator child_iterator = container->getChildIterator();
+            for (Ogre::OverlayContainer::ChildMap::value_type& child: child_iterator)
+            {
+                LOG(fmt::format(
+                    "DashBoard::loadLayout() - iterating child '{}' of type '{}'",
+                    child.second->getName(), child.second->getTypeName()));
+
+                this->setupElement(child.second);
+            }
         }
-        return;
     }
 
-    /*
-    // buggy for some reason
-    if (smooth)
-        mainWidget->setVisibleSmooth(v);
-    */
-    mainWidget->setVisible(v);
 }
+
+
+void DashBoard::setVisible(bool v)
+{
+    if (v)
+        m_overlay->show();
+    else
+        m_overlay->hide();
+}
+
