@@ -220,7 +220,7 @@ public:
 
     int loadDashBoard(Ogre::String filename, bool textureLayer);
 
-    void update(float& dt);
+    void update(float dt);
     void updateFeatures();
 
     bool WasDashboardLoaded() const { return (free_dashboard > 0); };
@@ -248,7 +248,7 @@ public:
 
     bool getIsTextureLayer() { return textureLayer; }
 
-    void update(float& dt);
+    void update(float dt);
     void updateFeatures();
 
     void windowResized();

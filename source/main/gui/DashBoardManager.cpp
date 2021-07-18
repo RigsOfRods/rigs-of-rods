@@ -175,7 +175,7 @@ int DashBoardManager::loadDashBoard(Ogre::String filename, bool textureLayer)
     return 0;
 }
 
-void DashBoardManager::update(float& dt)
+void DashBoardManager::update(float dt)
 {
     // TODO: improve logic: only update visible dashboards
     for (int i = 0; i < free_dashboard; i++)
@@ -271,7 +271,7 @@ void DashBoard::updateFeatures()
     }
 }
 
-void DashBoard::update(float& dt)
+void DashBoard::update(float dt)
 {
     // walk all controls and animate them
     for (int i = 0; i < (int)controls.size(); i++)
