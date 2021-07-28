@@ -480,7 +480,7 @@ void TopMenubar::Update()
                 }
             }       
 #endif // USE_CAELUM
-            if (RoR::App::gfx_water_waves->GetBool())
+            if (RoR::App::gfx_water_waves->GetBool() && App::mp_state->GetEnum<MpState>() != MpState::CONNECTED && App::GetSimTerrain()->getWater())
             {
                 if (App::gfx_water_mode->GetEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->GetEnum<GfxWaterMode>() != GfxWaterMode::NONE)
                 {

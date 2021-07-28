@@ -64,7 +64,7 @@ private:
     bool    m_confirm_remove_all;
 
     float   m_daytime;
-    float   m_waves_height = 0;
+    float   m_waves_height;
     bool    m_quickload;
     std::string m_quicksave_name;
     std::vector<std::string> m_savegame_names;
