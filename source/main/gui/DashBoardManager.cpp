@@ -437,6 +437,17 @@ bool DashBoard::setupLampAnim(layoutLink_t& ctrl)
 {
     /// Materials must have suffix "-on" and "-off". One must be specified in overlay script - the other will be deduced.
 
+    if (ctrl.element->getTypeName() != DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format(
+                "Dashboard element '{}' will not be animated;"
+                "anim 'lamp' is not compatible with type '{}'",
+                ctrl.element->getName(), ctrl.element->getTypeName()));
+        return false;
+    }
+
     DashPanelOverlayElement* elem = static_cast<DashPanelOverlayElement*>(ctrl.element);
 
     if (!elem->getMaterial())
@@ -475,6 +486,17 @@ bool DashBoard::setupLampAnim(layoutLink_t& ctrl)
 bool DashBoard::setupSeriesAnim(layoutLink_t& ctrl)
 {
     /// Materials must end by integer. One must be specified in overlay script - the other will be deduced.
+
+    if (ctrl.element->getTypeName() != DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format(
+                "Dashboard element '{}' will not be animated;"
+                "anim 'series' is not compatible with type '{}'",
+                ctrl.element->getName(), ctrl.element->getTypeName()));
+        return false;
+    }
 
     DashPanelOverlayElement* elem = static_cast<DashPanelOverlayElement*>(ctrl.element);
 
@@ -538,6 +560,17 @@ bool DashBoard::setupRotateAnim(layoutLink_t& ctrl)
 {
     /// Material must be present and have a texture unit.
 
+    if (ctrl.element->getTypeName() != DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format(
+                "Dashboard element '{}' will not be animated;"
+                "anim 'rotate' is not compatible with type '{}'",
+                ctrl.element->getName(), ctrl.element->getTypeName()));
+        return false;
+    }
+
     DashPanelOverlayElement* elem = static_cast<DashPanelOverlayElement*>(ctrl.element);
 
     // No material or no texture unit? Return error.
@@ -563,26 +596,33 @@ bool DashBoard::setupRotateAnim(layoutLink_t& ctrl)
     return true;
 }
 
+bool DashBoard::setupTextstringAnim(layoutLink_t& ctrl)
+{
+    if (ctrl.element->getTypeName() != DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format(
+                "Dashboard element '{}' will not be animated;"
+                "anim 'textstring' is not compatible with type '{}'",
+                ctrl.element->getName(), ctrl.element->getTypeName()));
+        return false;
+    }
+    
+    ctrl.animationType = ANIM_TEXTSTRING;
+    return true;
+}
+
 void DashBoard::setupElement(Ogre::OverlayElement* elem)
 {
     // retrieve params
-    String anim, linkArgs;
-    if (elem->getTypeName() == DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    BaseDashOverlayElement* dash_elem = BaseDashOverlayElement::ResolveDashElement(elem);
+    if (!dash_elem)
     {
-        DashTextAreaOverlayElement* dta = static_cast<DashTextAreaOverlayElement*>(elem);
-        anim = dta->getAnimStr();
-        linkArgs = dta->getLinkStr();
+        return; // Unsupported element - nothing to do.
     }
-    else if (elem->getTypeName() == DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
-    {
-        DashPanelOverlayElement* dash_elem = static_cast<DashPanelOverlayElement*>(elem);
-        anim = dash_elem->getAnimStr();
-        linkArgs = dash_elem->getLinkStr();
-    }
-    else
-    {
-        return; // Unsupported element
-    }
+    String anim = dash_elem->getAnimStr();
+    String linkArgs = dash_elem->getLinkStr();
 
     LOG(fmt::format(
         "DashBoard::setupElement() - processing '{}' (type: '{}') with anim '{}' and link '{}'",
@@ -786,78 +826,30 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
         }
         else
         #endif // OVERDASH
+
+        bool setup_ok = false;
+
         if (anim == "textstring")
         {
-            if (elem->getTypeName() != DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
-            {
-                App::GetConsole()->putMessage(
-                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
-                    fmt::format(
-                        "Dashboard element '{}' will not be animated;"
-                        "anim '{}' is not compatible with type '{}'",
-                        elem->getName(), anim, elem->getTypeName()));
-                return;
-            }
-            else
-            {
-                ctrl.animationType = ANIM_TEXTSTRING;
-            }
+            setup_ok = this->setupTextstringAnim(ctrl);
         }
         else if (anim == "lamp")
         {
-            if (elem->getTypeName() != DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
-            {
-                App::GetConsole()->putMessage(
-                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
-                    fmt::format(
-                        "Dashboard element '{}' will not be animated;"
-                        "anim '{}' is not compatible with type '{}'",
-                        elem->getName(), anim, elem->getTypeName()));
-                return;
-            }
-            else
-            {
-                if (!this->setupLampAnim(ctrl))
-                    return;
-            }
+            setup_ok = this->setupLampAnim(ctrl);
         }
         else if (anim == "series")
         {
-            if (elem->getTypeName() != DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
-            {
-                App::GetConsole()->putMessage(
-                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
-                    fmt::format(
-                        "Dashboard element '{}' will not be animated;"
-                        "anim '{}' is not compatible with type '{}'",
-                        elem->getName(), anim, elem->getTypeName()));
-                return;
-            }
-            else
-            {
-                if (!this->setupSeriesAnim(ctrl))
-                    return;
-            }
+            setup_ok = this->setupSeriesAnim(ctrl);
         }
         else if (anim == "rotate")
         {
-            if (elem->getTypeName() != DashPanelOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
-            {
-                App::GetConsole()->putMessage(
-                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
-                    fmt::format(
-                        "Dashboard element '{}' will not be animated;"
-                        "anim '{}' is not compatible with type '{}'",
-                        elem->getName(), anim, elem->getTypeName()));
-                return;
-            }
-            else
-            {
-                if (!this->setupRotateAnim(ctrl))
-                    return;
-            }
+            setup_ok = this->setupRotateAnim(ctrl);
         }
-        controls.push_back(ctrl);
+
+        if (setup_ok)
+        {
+            controls.push_back(ctrl);
+        }
     }
 
 }

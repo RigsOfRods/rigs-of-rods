@@ -327,6 +327,7 @@ protected:
     bool setupLampAnim(layoutLink_t& ctrl);
     bool setupSeriesAnim(layoutLink_t& ctrl);
     bool setupRotateAnim(layoutLink_t& ctrl);
+    bool setupTextstringAnim(layoutLink_t& ctrl);
     void setupElement(Ogre::OverlayElement* elem);
     void loadLayout(Ogre::String filename);
 
