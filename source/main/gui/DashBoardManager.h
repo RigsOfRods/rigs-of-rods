@@ -269,7 +269,8 @@ protected:
         ANIM_TEXTSTRING,
         ANIM_LAMP,
         ANIM_SERIES,
-        ANIM_TRANSLATE,
+        ANIM_POSITION_X,
+        ANIM_POSITION_Y,
         ANIM_TEXTCOLOR
     };
 
@@ -328,6 +329,7 @@ protected:
     bool setupSeriesAnim(layoutLink_t& ctrl);
     bool setupRotateAnim(layoutLink_t& ctrl);
     bool setupTextstringAnim(layoutLink_t& ctrl);
+    bool setupPositionAnim(layoutLink_t& ctrl, std::string const& type);
     void setupElement(Ogre::OverlayElement* elem);
     void loadLayout(Ogre::String filename);
 

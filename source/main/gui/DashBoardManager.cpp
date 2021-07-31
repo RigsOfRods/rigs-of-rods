@@ -373,7 +373,7 @@ void DashBoard::update(float dt)
                 controls[i].widget->setSize(controls[i].initialSize.width + scale, controls[i].initialSize.height);
             }
         }
-        else if (controls[i].animationType == ANIM_TRANSLATE)
+        else if (controls[i].animationType == ANIM_POSITION_X)
         {
             float val = manager->getNumeric(controls[i].linkID);
 
@@ -381,15 +381,21 @@ void DashBoard::update(float dt)
                 continue;
             controls[i].last = val;
 
-            float translation = (val - controls[i].vmin) * (controls[i].wmax - controls[i].wmin) / (controls[i].vmax - controls[i].vmin) + controls[i].wmin;
-            if (controls[i].direction == DIRECTION_UP)
-                controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top - translation);
-            else if (controls[i].direction == DIRECTION_DOWN)
-                controls[i].widget->setPosition(controls[i].initialPosition.left, controls[i].initialPosition.top + translation);
-            else if (controls[i].direction == DIRECTION_LEFT)
-                controls[i].widget->setPosition(controls[i].initialPosition.left - translation, controls[i].initialPosition.top);
-            else if (controls[i].direction == DIRECTION_RIGHT)
-                controls[i].widget->setPosition(controls[i].initialPosition.left + translation, controls[i].initialPosition.top);
+            float left = (val - controls[i].vmin) * (controls[i].wmax - controls[i].wmin) / (controls[i].vmax - controls[i].vmin) + controls[i].wmin;
+            Ogre::Real top = controls[i].element->getTop();
+            controls[i].element->setPosition(left, top);
+        }
+        else if (controls[i].animationType == ANIM_POSITION_Y)
+        {
+            float val = manager->getNumeric(controls[i].linkID);
+
+            if (fabs(val - controls[i].last) < 0.2f)
+                continue;
+            controls[i].last = val;
+
+            float top = (val - controls[i].vmin) * (controls[i].wmax - controls[i].wmin) / (controls[i].vmax - controls[i].vmin) + controls[i].wmin;
+            Ogre::Real left = controls[i].element->getLeft();
+            controls[i].element->setPosition(left, top);
         }
         else if (controls[i].animationType == ANIM_TEXTFORMAT)
         {
@@ -610,6 +616,26 @@ bool DashBoard::setupTextstringAnim(layoutLink_t& ctrl)
     }
     
     ctrl.animationType = ANIM_TEXTSTRING;
+    return true;
+}
+
+bool DashBoard::setupPositionAnim(layoutLink_t& ctrl, std::string const& type)
+{
+    if (type == "position-x")
+    {
+        ctrl.animationType = ANIM_POSITION_X;
+    }
+    else
+    {
+        ctrl.animationType = ANIM_POSITION_Y;
+    }
+
+    DashPanelOverlayElement* elem = static_cast<DashPanelOverlayElement*>(ctrl.element);
+    ctrl.wmin = elem->getTransformMin();
+    ctrl.wmax = elem->getTransformMax();
+    ctrl.vmin = elem->getInputMin();
+    ctrl.vmax = elem->getInputMax();
+
     return true;
 }
 
@@ -844,6 +870,10 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
         else if (anim == "rotate")
         {
             setup_ok = this->setupRotateAnim(ctrl);
+        }
+        else if (anim == "position-x" || anim == "position-y")
+        {
+            setup_ok = this->setupPositionAnim(ctrl, anim);
         }
 
         if (setup_ok)
