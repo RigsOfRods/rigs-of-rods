@@ -308,7 +308,7 @@ overlay tracks/DefaultDashboard3500RPM
     {
         metrics_mode pixels
         width 200
-        height 50
+        height 100
         material tracks/transred    
     
 
@@ -335,5 +335,128 @@ overlay tracks/DefaultDashboard3500RPM
             link rpm
             anim textstring
         }
+        
+        overlay_element tracks/DefaultDashboard3500RPM/DbgDisplayFormat DashTextArea
+        {
+            metrics_mode pixels
+            left 10
+            top 45
+            font_name CyberbitEnglish
+            char_height 20
+            
+            // caption serves as format string (reference manual: https://fmt.dev/latest/syntax.html)
+            caption "RPM (format): {}"
+            
+            // ----- dashboard params -----
+            link rpm
+            anim textformat
+        }        
     }
+    
+    overlay_element tracks/DefaultDashboard3500RPM/TranslTest DashPanel
+    {
+        metrics_mode pixels
+        width 100
+        height 100
+        material tracks/wheelface 
+        
+        horz_align left
+        vert_align top
+        
+        left 250
+        top 200
+        
+        anim position-x
+        link rpm
+        transform_min 250
+        transform_max 500
+        input_min 0
+        input_max 4000
+        
+        overlay_element tracks/DefaultDashboard3500RPM/TranslLabel TextArea
+        {
+            metrics_mode pixels
+   
+
+            font_name CyberbitEnglish
+            char_height 20
+            caption "RPM = X pos"
+        }        
+    } 
+
+    overlay_element tracks/DefaultDashboard3500RPM/TranslTestY DashPanel
+    {
+        metrics_mode pixels
+        width 100
+        height 100
+        material tracks/wheelface 
+        
+        horz_align left
+        vert_align top
+        
+        left 200
+        top 250
+        
+        anim position-y
+        link rpm
+        transform_min 250
+        transform_max 500
+        input_min 0
+        input_max 4000
+        
+        overlay_element tracks/DefaultDashboard3500RPM/TranslLabelY TextArea
+        {
+            metrics_mode pixels
+   
+
+            font_name CyberbitEnglish
+            char_height 20
+            caption "RPM = Y pos"
+        }        
+    }
+
+    // //showcases 2 stacked animations: the outer panel moves -X with KPH, the innner panel moves with it and also +Y with KPH
+    overlay_element tracks/DefaultDashboard3500RPM/TranslTestNegX DashPanel
+    {
+        metrics_mode pixels
+        width 75
+        height 75
+        material tracks/wheelfaceb 
+        
+        horz_align right
+        vert_align top
+        
+        left -100
+        top 50
+        
+        anim position-x
+        link speedo_kph
+        transform_min -100
+        transform_max -400
+        input_min 0
+        input_max 150
+        
+        overlay_element tracks/DefaultDashboard3500RPM/TranslNegXLabelWrap DashPanel
+        {
+            metrics_mode pixels
+            
+            anim position-y
+            link speedo_kph
+            transform_min 0
+            transform_max 150
+            input_min 0
+            input_max 150
+        
+            overlay_element tracks/DefaultDashboard3500RPM/TranslLabelNegX TextArea
+            {
+                metrics_mode pixels
+       
+
+                font_name CyberbitEnglish
+                char_height 20
+                caption "KPH: -X&+Y"
+            }        
+        
+        }
+    }     
 }

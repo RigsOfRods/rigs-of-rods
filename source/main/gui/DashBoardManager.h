@@ -306,15 +306,15 @@ protected:
         float wmax;
         float vmin; // value min/max
         float vmax;
+        std::string format; //!< Format string
+        std::string format_neg_zero; //!< Test for undesired '-0.0' on display. Only for link type "textformat". Empty if not applicable.
 
         float last = 9999.f; // force initial update
         bool lastState = true;
 
         // --- OBSOLETE (pre-OVERDASH) ---
 
-        char format[255]; // string format
         char texture[255]; // texture filename
-        char format_neg_zero[255]; //!< Test for undesired '-0.0' on display. Only for link type "format". Empty if not applicable.
 
         MyGUI::Widget* widget;
         MyGUI::RotatingSkin* rotImg;
@@ -329,6 +329,7 @@ protected:
     bool setupSeriesAnim(layoutLink_t& ctrl);
     bool setupRotateAnim(layoutLink_t& ctrl);
     bool setupTextstringAnim(layoutLink_t& ctrl);
+    bool setupTextformatAnim(layoutLink_t& ctrl);
     bool setupPositionAnim(layoutLink_t& ctrl, std::string const& type);
     void setupElement(Ogre::OverlayElement* elem);
     void loadLayout(Ogre::String filename);

@@ -405,26 +405,23 @@ void DashBoard::update(float dt)
                 continue;
             controls[i].last = val;
 
-            MyGUI::UString s;
-            if (strlen(controls[i].format) == 0)
+            Ogre::DisplayString s;
+            if (controls[i].format == "")
             {
-                s = Ogre::StringConverter::toString(val);
+                s = manager->getString(controls[i].linkID);
             }
             else
             {
-                char tmp[1024] = "";
-                sprintf(tmp, controls[i].format, val);
+                s = fmt::format(controls[i].format, val);
 
                 // Detect and eliminate negative zero (-0) on output
-                if (strcmp(tmp, controls[i].format_neg_zero) == 0)
+                if (s == controls[i].format_neg_zero)
                 {
-                    sprintf(tmp, controls[i].format, 0.f);
+                    s = fmt::format(controls[i].format, 0);
                 }
-
-                s = MyGUI::UString(tmp);
             }
 
-            controls[i].txt->setCaption(s);
+            controls[i].element->setCaption(s);
         }
         else if (controls[i].animationType == ANIM_TEXTSTRING)
         {
@@ -616,6 +613,45 @@ bool DashBoard::setupTextstringAnim(layoutLink_t& ctrl)
     }
     
     ctrl.animationType = ANIM_TEXTSTRING;
+    return true;
+}
+
+bool DashBoard::setupTextformatAnim(layoutLink_t& ctrl)
+{
+    if (ctrl.element->getTypeName() != DashTextAreaOverlayElement::OVERLAY_ELEMENT_TYPE_NAME)
+    {
+        App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format(
+                "Dashboard element '{}' will not be animated;"
+                "anim 'textformat' is not compatible with type '{}'",
+                ctrl.element->getName(), ctrl.element->getTypeName()));
+        return false;
+    }
+    
+    ctrl.animationType = ANIM_TEXTFORMAT;
+    ctrl.format = ctrl.element->getCaption();
+
+    // Prepare for eliminating negative zero (-0.0) display
+    // Must be done on string-level because -0.001 with format "%1.0f" would still produce "-0"
+    try
+    {
+        if (ctrl.format != "")
+        {
+            ctrl.format_neg_zero = fmt::format(ctrl.format, -0.f);
+        }
+    }
+    catch (fmt::system_error& err)
+    {
+        App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format(
+                "Dashboard element '{}' (anim=textformat) will not be animated;"
+                "the format string '{}' yields an exception: '{}'",
+                ctrl.element->getName(), ctrl.format, err.what()));
+        return false;
+    }
+
     return true;
 }
 
@@ -858,6 +894,10 @@ void DashBoard::setupElement(Ogre::OverlayElement* elem)
         if (anim == "textstring")
         {
             setup_ok = this->setupTextstringAnim(ctrl);
+        }
+        else if (anim == "textformat")
+        {
+            setup_ok = this->setupTextformatAnim(ctrl);
         }
         else if (anim == "lamp")
         {
