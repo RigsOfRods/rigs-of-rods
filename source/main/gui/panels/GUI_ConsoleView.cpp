@@ -31,6 +31,7 @@
 
 #include <algorithm> // min
 #include <fmt/core.h>
+#include <string>
 
 using namespace RoR;
 using namespace GUI;
@@ -48,11 +49,18 @@ void ConsoleView::DrawConsoleMessages()
     // Gather visible (non-expired) messages
     const unsigned long curr_timestamp = App::GetConsole()->QueryMessageTimer();
     m_display_messages.clear();
+    std::string last_prefix;
     for (Console::Message& m: m_filtered_messages)
     {
         if (cvw_msg_duration_ms == 0 || curr_timestamp <= m.cm_timestamp + cvw_msg_duration_ms)
         {
+            if (m.cm_area == Console::CONSOLE_MSGTYPE_INFO && m.cm_type != Console::CONSOLE_SYSTEM_NETCHAT &&
+                m_display_messages.size() != 0 && !cvw_enable_scrolling && last_prefix == std::string(m.cm_text.substr(0, m.cm_text.find(" ")))) // same prefix with previous line
+            {
+                m_display_messages.pop_back(); // keep in same line
+            }
             m_display_messages.push_back(&m);
+            last_prefix = m.cm_text.substr(0, m.cm_text.find(" "));
         }
     }
 
