@@ -476,12 +476,12 @@ class racesManager {
 		// build the message
 		this.message("Race "+this.raceList[raceID].raceName+" started!", "bullet_go.png");
 		if( (this.raceList[raceID].laps > 1) )
-			this.message("     Laps: "+this.raceList[raceID].laps, "arrow_rotate_clockwise.png");
+			this.message("Laps: "+this.raceList[raceID].laps, "arrow_rotate_clockwise.png");
 		if( this.showBestRace and this.raceList[raceID].bestRaceTime > 0.0 )
-			this.message("     Best race time: "+this.formatTime(this.raceList[raceID].bestRaceTime)+"!", "information.png");
+			this.message("Best race time: "+this.formatTime(this.raceList[raceID].bestRaceTime)+"!", "information.png");
 		if( this.showBestLap and this.raceList[raceID].bestLapTime > 0.0 and this.raceList[raceID].laps != this.LAPS_NoLaps and this.raceList[raceID].laps != this.LAPS_One)
-			this.message("     Best lap time: "+this.formatTime(this.raceList[raceID].bestLapTime)+"!", "information.png");
-		this.message("     Good Luck!", "emoticon_smile.png");
+			this.message("Best lap time: "+this.formatTime(this.raceList[raceID].bestLapTime)+"!", "information.png");
+		this.message("Good Luck!", "emoticon_smile.png");
 		
 		// call the callback function
 		RACE_EVENT_CALLBACK @handle;
@@ -550,9 +550,9 @@ class racesManager {
 		// build the message
 		this.message("Finished in "+this.formatTime(raceTime)+"!"+raceTimeDiff, "flag_green.png");
 		if( this.showBestRace and newBestRace )
-			this.message("     New best race time!", "flag_green.png");
+			this.message("New best race time!", "flag_green.png");
 		if( this.showBestLap and newBestLap  and this.raceList[rid].laps != this.LAPS_NoLaps and this.raceList[rid].laps != this.LAPS_One)
-			this.message("     New best lap time!"+lapTimeDiff, "flag_green.png");
+			this.message("New best lap time!"+lapTimeDiff, "flag_green.png");
 		
 		// store the new race times
 		saveRace(rid);
@@ -607,9 +607,9 @@ class racesManager {
 		if( this.raceList[rid].laps != this.LAPS_Unlimited )
 			this.message("Lap "+(this.currentLap-1)+" done!", "flag_green.png");
 		if( this.showBestLap and newBestLap )
-			this.message("     New best lap time: "+this.formatTime(lapTime)+"!"+timeDiff, "flag_green.png");
+			this.message("New best lap time: "+this.formatTime(lapTime)+"!"+timeDiff, "flag_green.png");
 		else
-			this.message("     Lap time: "+this.formatTime(lapTime)+"!"+timeDiff, "flag_green.png");
+			this.message("Lap time: "+this.formatTime(lapTime)+"!"+timeDiff, "flag_green.png");
 		
 		// store the new race times
 		saveRace(rid);
