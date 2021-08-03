@@ -375,7 +375,7 @@ void AppContext::CaptureScreenshot()
     }
 
     App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                  _L("Screenshot:") + stamp.str());
+                                  _L("Screenshot: ") + stamp.str());
 
     m_prev_screenshot_time = time;
     m_prev_screenshot_index = index;
