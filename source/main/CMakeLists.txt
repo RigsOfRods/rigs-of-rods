@@ -220,7 +220,7 @@ set(SOURCE_FILES
         utils/ZeroedMemoryAllocator.h
         )
 
-if (ROR_USE_ANGELSCRIPT)
+if (USE_ANGELSCRIPT)
     list(APPEND SOURCE_FILES
             scripting/GameScript.{h,cpp}
             scripting/LocalStorage.{h,cpp}
@@ -250,7 +250,6 @@ endif ()
 ####################################################################################################
 #  EXECUTABLE TARGET
 ####################################################################################################
-
 set(BINNAME "RoR")
 add_executable(${BINNAME} ${SOURCE_FILES})
 
@@ -370,122 +369,67 @@ target_include_directories(${BINNAME} PRIVATE
 
 #  REQUIRED DEPENDENCIES
 # -----------------------
-
-include("${CMAKE_SOURCE_DIR}/external/pagedgeometry.cmake")
-
 if (UNIX)
     #  include_directories(${GTK_INCLUDE_DIRS})
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
 endif ()
-target_link_libraries(${BINNAME} PRIVATE ${OS_LIBS} PagedGeometry version_info)
+target_link_libraries(${BINNAME} PRIVATE ${OS_LIBS} version_info)
 
 # --- Threading support (still needed for GCC even with C++11)
 set(CMAKE_THREAD_PREFER_PTHREAD YES)
-target_link_libraries(${BINNAME} PRIVATE Threads::Threads)
+target_link_libraries(${BINNAME} PRIVATE
+        Threads::Threads
+        OGRE::OGRE
+        OIS::OIS
+        fmt::fmt
+        MyGUI::MyGUI
+        discord-rpc::discord-rpc
+        CURL::CURL
+        RapidJSON::RapidJSON
+        )
 
+if (TARGET MyGUI::OgrePlatform)
+    target_link_libraries(${BINNAME} PRIVATE MyGUI::OgrePlatform)
+endif ()
+target_compile_definitions(${BINNAME} PRIVATE $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>)
 
-if (USE_PACKAGE_MANAGER)
+if (USE_OPENAL)
+    target_link_libraries(${BINNAME} PRIVATE OpenAL::OpenAL)
+    target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
+endif ()
+
+if (USE_SOCKETW)
+    target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
+    target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
+endif ()
+
+if (USE_ANGELSCRIPT)
+    target_link_libraries(${BINNAME} PRIVATE AngelScript::AngelScript angelscript_addons)
     target_include_directories(${BINNAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/angelscript_addons)
+    target_compile_definitions(${BINNAME} PRIVATE USE_ANGELSCRIPT AS_USE_NAMESPACE)
+endif ()
 
-    target_link_libraries(${BINNAME} PRIVATE
-            CONAN_PKG::AngelScript
-            CONAN_PKG::MyGUI
-            CONAN_PKG::OGRE
-            CONAN_PKG::OGREdeps
-            CONAN_PKG::SocketW
-            CONAN_PKG::discord-rpc
-            CONAN_PKG::fmt
-            CONAN_PKG::libcurl
-            CONAN_PKG::ogre-caelum
-            CONAN_PKG::openal
-            CONAN_PKG::openssl
-            CONAN_PKG::rapidjson
-            CONAN_PKG::zlib
-            Threads::Threads
-            version_info
-            angelscript_addons
-            )
+if (USE_CURL)
+    target_link_libraries(${BINNAME} PRIVATE ${CURL_LIBRARY})
+    target_include_directories(${BINNAME} PRIVATE ${CURL_INCLUDE_DIR})
+    target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
 
-    target_compile_definitions(${BINNAME} PRIVATE
-            AS_USE_NAMESPACE
-            WIN32_LEAN_AND_MEAN
-            USE_OPENAL
-            USE_MOFILEREADER
-            USE_MYGUI
-            $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
-            USE_SOCKETW
-            USE_ANGELSCRIPT
-            AS_USE_NAMESPACE
-            USE_CURL
-            USE_CAELUM
-            USE_DISCORD_RPC
-            )
-
-    if (UNIX)
-        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=libCaelum.so")
-        set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=libCaelum_d.so")
-    else ()
-        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=Caelum")
-        set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=Caelum_d")
+    if (WIN32)
+        target_compile_definitions(${BINNAME} PRIVATE WIN32_LEAN_AND_MEAN)
     endif ()
+endif ()
 
-else (USE_PACKAGE_MANAGER)
-    target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator)
+if (USE_CAELUM)
+    #    set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
+    #    set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=../libCaelum_d.so")
+    target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
+    target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
+endif ()
+if (USE_PAGED)
+    target_link_libraries(${BINNAME} PRIVATE PagedGeometry::PagedGeometry)
+    target_compile_definitions(${BINNAME} PRIVATE USE_PAGED)
+endif ()
 
-    target_link_libraries(${BINNAME} PRIVATE fmt::fmt)
-
-    target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
-    target_include_directories(${BINNAME} PRIVATE ${OIS_INCLUDE_DIRS})
-
-    include_directories(${MYGUI_INCLUDE_DIRS})
-    target_link_libraries(${BINNAME} PRIVATE
-            MyGUI::MyGUI
-            MyGUI::OgrePlatform
-            )
-    target_compile_definitions(${BINNAME} PRIVATE
-            USE_MYGUI
-            $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
-            )
-
-    if (OPENAL_FOUND)
-        target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
-        target_include_directories(${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR})
-        target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
-    endif ()
-
-    if (TARGET SocketW::SocketW)
-        target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
-        target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
-    endif ()
-
-    if (TARGET AngelScript::AngelScript)
-        target_link_libraries(${BINNAME} PRIVATE
-                AngelScript::AngelScript
-                AngelScript::use_namespace
-                )
-        target_compile_definitions(${BINNAME} PRIVATE USE_ANGELSCRIPT)
-        target_include_directories(${BINNAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/angelscript_addons)
-        target_link_libraries(${BINNAME} PRIVATE angelscript_addons)
-    endif ()
-
-    if (CURL_FOUND)
-        target_link_libraries(${BINNAME} PRIVATE ${CURL_LIBRARY})
-        target_include_directories(${BINNAME} PRIVATE ${CURL_INCLUDE_DIR})
-        target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
-
-        if (WIN32)
-            add_compile_definitions(WIN32_LEAN_AND_MEAN)
-        endif ()
-    endif ()
-
-    if (TARGET Caelum::Caelum)
-        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
-        set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=../libCaelum_d.so")
-        target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
-        target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
-    endif ()
-
-endif (USE_PACKAGE_MANAGER)
 
 if (USE_PHC)
     target_precompile_headers(${BINNAME} PRIVATE phc.h)
@@ -511,11 +455,9 @@ endif ()
 set(CFG_COMMENT_RENDERSYSTEM_D3D11 "# ")
 set(CFG_COMMENT_RENDERSYSTEM_GL3PLUS "# ")
 
-if (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-    set(PLUGINS_FOLDER ".")
-else ()
-    set(PLUGINS_FOLDER ${OGRE_PLUGIN_DIR})
-endif ()
+
+set(PLUGINS_FOLDER ".")
+
 
 configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
 configure_file(plugins_d.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins_d.cfg)

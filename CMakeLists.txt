@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/3rdparty)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/find-modules)
 
 include(CMakeDependentOption)
 include(Macros)
@@ -11,6 +11,7 @@ include(FeatureSummary)
 set(PROJECT_NAME_SHORT "RoR")
 set(PROJECT_NAME_UNDERSCORE "Rigs_of_Rods")
 set(PROJECT_NAME_LONG "Rigs of Rods")
+set(_PREFIX "ROR_")
 
 project(${PROJECT_NAME_UNDERSCORE})
 
@@ -19,8 +20,12 @@ project(${PROJECT_NAME_UNDERSCORE})
 ################################################################################
 option(BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
-option(USE_PACKAGE_MANAGER "Use conan for managing packages" ON)
 option(USE_PHC "Use a Precompiled header for speeding up the build" ON)
+
+# Test if conan is installed
+find_program(CONAN_CMD_TEST conan NO_CACHE)
+cmake_dependent_option(USE_PACKAGE_MANAGER "Use conan" ON "NOT CONAN_CMD_TEST STREQUAL CONAN_CMD_TEST-NOTFOUND" OFF)
+message(STATUS "Using conan: ${USE_PACKAGE_MANAGER}")
 
 # global cmake options
 SET(BUILD_SHARED_LIBS ON)
@@ -43,6 +48,16 @@ mark_as_advanced(
         EXECUTABLE_OUTPUT_PATH
         LIBRARY_OUTPUT_PATH
 )
+
+# Allow user to globally set the library preference for external libraries
+cmd_option(${_PREFIX}LIB_PREFERENCE
+        "Library preference [SYSTEM (if available), CONAN]"
+        "CONAN"
+        STRINGS "SYSTEM" "CONAN"
+        )
+
+# Special mode, that will force dependencies to the packages provided by system unless they were set to conan explicitly.
+option(${_PREFIX}FORCE_SYSTEM_DEPENDENCIES "Force the use of system packages")
 
 if (WIN32)
     add_definitions("/D_CRT_SECURE_NO_WARNINGS /wd4005 /wd4996 /wd4251 /wd4275 /wd4099 /nologo")
@@ -90,6 +105,7 @@ endif (WIN32)
 # Check for dependencies
 ################################################################################
 include(DependenciesConfig)
+resolve_conan_dependencies()
 
 ################################################################################
 # Recurse into subdirectories
