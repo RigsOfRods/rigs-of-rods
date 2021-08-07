@@ -76,10 +76,9 @@ add_external_lib(
 )
 
 add_external_lib(
-        discord-rpc
+        discord_rpc
         discord-rpc/3.4.0@anotherfoxguy/stable
         FIND_PACKAGE
-        OPTION_NAME DISCORD_RPC
         INTERFACE_NAME discord-rpc::discord-rpc
 )
 

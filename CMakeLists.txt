@@ -21,6 +21,7 @@ project(${PROJECT_NAME_UNDERSCORE})
 option(BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
 option(USE_PHC "Use a Precompiled header for speeding up the build" ON)
+set(ROR_DEPENDENCY_DIR "${CMAKE_SOURCE_DIR}/dependencies" CACHE PATH "Path to the dependencies")
 
 # Test if conan is installed
 find_program(CONAN_CMD_TEST conan NO_CACHE)
@@ -33,6 +34,7 @@ SET(CMAKE_USE_RELATIVE_PATHS OFF)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # setup paths
+SET(CMAKE_PREFIX_PATH ${ROR_DEPENDENCY_DIR} ${CMAKE_PREFIX_PATH})
 SET(RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
 SET(LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")
 SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")

@@ -14,6 +14,11 @@
 #  OIS_INCLUDE_DIRS - the OIS include directories 
 #  OIS_LIBRARIES - link these to use OIS
 #  OIS_BINARY_REL / OIS_BINARY_DBG - DLL names (windows only)
+#
+# In addition the following imported targets are defined:
+#
+#  OIS::OIS
+#
 
 include(FindPkgMacros)
 findpkg_begin(OIS)
@@ -86,3 +91,11 @@ add_parent_dir(OIS_INCLUDE_DIRS OIS_INCLUDE_DIR)
 
 # Reset framework finding
 set(CMAKE_FIND_FRAMEWORK "FIRST")
+
+if (OIS_FOUND)
+    add_library(OIS::OIS INTERFACE IMPORTED)
+    set_target_properties(OIS::OIS PROPERTIES
+            INTERFACE_LINK_LIBRARIES "${OIS_LIBRARIES}"
+            INTERFACE_INCLUDE_DIRECTORIES "${OIS_INCLUDE_DIRS}"
+            )
+endif ()
