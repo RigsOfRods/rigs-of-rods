@@ -53,7 +53,9 @@
 
 using namespace Ogre;
 using namespace RoR;
+#ifdef USE_PAGED
 using namespace Forests;
+#endif //USE_PAGED
 
 //workaround for pagedgeometry
 inline float getTerrainHeight(Real x, Real z, void* unused = 0)
@@ -79,11 +81,13 @@ TerrainObjectManager::~TerrainObjectManager()
         if (mo)
             delete mo;
     }
+#ifdef USE_PAGED
     for (auto geom : m_paged_geometry)
     {
         delete geom->getPageLoader();
         delete geom;
     }
+#endif //USE_PAGED
     if (m_staticgeometry != nullptr)
     {
         App::GetGfxScene()->GetSceneManager()->destroyStaticGeometry("bakeSG");
@@ -269,6 +273,7 @@ void TerrainObjectManager::ProcessTree(
     float gridspacing, float highdens,
     int minDist, int maxDist, int mapsizex, int mapsizez)
 {
+#ifdef USE_PAGED
     if (strnlen(ColorMap, 3) == 0)
     {
         LOG("tree ColorMap map zero!");
@@ -375,6 +380,7 @@ void TerrainObjectManager::ProcessTree(
         }
     }
     m_paged_geometry.push_back(geom);
+#endif //USE_PAGED
 }
 
 void TerrainObjectManager::ProcessGrass(
@@ -384,6 +390,7 @@ void TerrainObjectManager::ProcessGrass(
         int growtechnique, int techn, int range,
         int mapsizex, int mapsizez)
 {
+#ifdef USE_PAGED
     //Initialize the PagedGeometry engine
     try
     {
@@ -446,6 +453,7 @@ void TerrainObjectManager::ProcessGrass(
     {
         LOG("error loading grass!");
     }
+#endif //USE_PAGED
 }
 
 void TerrainObjectManager::PostLoadTerrain()
@@ -935,11 +943,12 @@ void TerrainObjectManager::LoadPredefinedActors()
 
 bool TerrainObjectManager::UpdateTerrainObjects(float dt)
 {
+#ifdef USE_PAGED
     for (auto geom : m_paged_geometry)
     {
         geom->update();
     }
-
+#endif //USE_PAGED
     this->UpdateAnimatedObjects(dt);
 
     return true;
