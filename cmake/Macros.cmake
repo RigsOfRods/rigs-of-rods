@@ -115,3 +115,88 @@ function(compile_mo)
     )
     set_property(TARGET compile_mo PROPERTY FOLDER "Scripts")
 endfunction()
+
+# Argument parser helper. This may look like magic, but it is pretty simple:
+# - Call this at the top of a function
+# - It takes three "list" arguments: `.`, `-` and `+`.
+# - The `.` arguments specify the "option/boolean" values to parse out.
+# - The `-` arguments specify the one-value arguments to parse out.
+# - The `+` argumenst specify mult-value arguments to parse out.
+# - Specify `-nocheck` to disable warning on unparse arguments.
+# - Parse values are prefixed with `ARG`
+#
+# This macro makes use of some very horrible aspects of CMake macros:
+# - Values appear the caller's scope, so no need to set(PARENT_SCOPE)
+# - The ${${}ARGV} eldritch horror evaluates to the ARGV *OF THE CALLER*, while
+#   ${ARGV} evaluates to the macro's own ARGV value. This is because ${${}ARGV}
+#   inhibits macro argument substitution. It is painful, but it makes this magic
+#   work.
+macro(better_parse_args)
+    cmake_parse_arguments(_ "-nocheck;-hardcheck" "" ".;-;+" "${ARGV}")
+    set(__arglist "${${}ARGV}")
+    better_parse_arglist("${__.}" "${__-}" "${__+}")
+endmacro()
+
+macro(better_parse_arglist opt args list_args)
+    cmake_parse_arguments(ARG "${opt}" "${args}" "${list_args}" "${__arglist}")
+    if (NOT __-nocheck)
+        foreach (arg IN LISTS ARG_UNPARSED_ARGUMENTS)
+            message(WARNING "Unknown argument: ${arg}")
+        endforeach ()
+        if (__-hardcheck AND NOT ("${ARG_UNPARSED_ARGUMENTS}" STREQUAL ""))
+            message(FATAL_ERROR "Unknown arguments provided.")
+        endif ()
+    endif ()
+endmacro()
+
+
+macro(lift_var)
+    foreach (varname IN ITEMS ${ARGN})
+        set("${varname}" "${${varname}}" PARENT_SCOPE)
+    endforeach ()
+endmacro()
+
+# Taken from wxWidgets
+#
+# cmd_option(<name> <desc> [default] [STRINGS strings])
+# The default is ON if third parameter isn't specified
+function(cmd_option name desc)
+    cmake_parse_arguments(OPTION "" "" "STRINGS" ${ARGN})
+
+    if (ARGC EQUAL 2)
+        if (OPTION_STRINGS)
+            list(GET OPTION_STRINGS 1 default)
+        else ()
+            set(default ON)
+        endif ()
+    else ()
+        set(default ${OPTION_UNPARSED_ARGUMENTS})
+    endif ()
+
+    if (OPTION_STRINGS)
+        set(cache_type STRING)
+    else ()
+        set(cache_type BOOL)
+    endif ()
+
+    set(${name} "${default}" CACHE ${cache_type} "${desc}")
+    if (OPTION_STRINGS)
+        set_property(CACHE ${name} PROPERTY STRINGS ${OPTION_STRINGS})
+
+        # Check valid value
+        set(value_is_valid FALSE)
+        set(avail_values)
+        foreach (opt ${OPTION_STRINGS})
+            if (${name} STREQUAL opt)
+                set(value_is_valid TRUE)
+                break()
+            endif ()
+            string(APPEND avail_values " ${opt}")
+        endforeach ()
+        if (NOT value_is_valid)
+            message(FATAL_ERROR "Invalid value \"${${name}}\" for option ${name}. Valid values are: ${avail_values}")
+        endif ()
+    endif ()
+
+    set(${name} "${${name}}" PARENT_SCOPE)
+endfunction()

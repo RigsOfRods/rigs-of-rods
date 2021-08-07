@@ -1,41 +1,98 @@
+include(DependenciesFunctions)
 find_package(Threads REQUIRED)
 
-# some obsolete options:
-# disabled some options for now
-#set(ROR_FEAT_TIMING     "FALSE" CACHE BOOL "enable beam statistics. For core development only")
-set(ROR_BUILD_UPDATER OFF)
 set(ROR_FEAT_TIMING OFF)
-set(ROR_BUILD_SIM ON)
 
-if (USE_PACKAGE_MANAGER)
-    set(ROR_USE_OPENAL TRUE)
-    set(ROR_USE_SOCKETW TRUE)
-    set(ROR_USE_PAGED TRUE)
-    set(ROR_USE_CAELUM TRUE)
-    set(ROR_USE_ANGELSCRIPT TRUE)
-    set(ROR_USE_CURL TRUE)
+add_external_lib(
+        OGRE
+        ogre3d/1.11.6.1@anotherfoxguy/stable
+        REQUIRED
+        FIND_PACKAGE_OPTIONS COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain
+        INTERFACE_NAME OGRE::OGRE
+)
 
-    include(pmm)
-    pmm(CONAN REMOTES rigs-of-rods-deps https://conan.cloudsmith.io/rigs-of-rods/deps/ BINCRAFTERS)
+add_external_lib(
+        OpenAL
+        openal/1.19.1
+        FIND_PACKAGE
+        INTERFACE_NAME OpenAL::OpenAL
+)
 
-else (USE_PACKAGE_MANAGER)
-    # components
-    set(ROR_USE_OPENAL "TRUE" CACHE BOOL "use OPENAL")
-    set(ROR_USE_SOCKETW "TRUE" CACHE BOOL "use SOCKETW")
-    set(ROR_USE_PAGED "TRUE" CACHE BOOL "use paged-geometry")
-    set(ROR_USE_CAELUM "TRUE" CACHE BOOL "use caelum sky")
-    set(ROR_USE_ANGELSCRIPT "TRUE" CACHE BOOL "use angelscript")
-    set(ROR_USE_CURL "TRUE" CACHE BOOL "use curl, required for communication with online services")
+add_external_lib(
+        OIS
+        ois/1.5.1@anotherfoxguy/stable
+        REQUIRED
+        FIND_PACKAGE
+        INTERFACE_NAME OIS::OIS
+)
 
-    # find packages
-    find_package(OGRE 1.11 REQUIRED COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
-    find_package(OpenAL)
-    find_package(OIS REQUIRED)
-    find_package(MyGUI REQUIRED)
-    find_package(SocketW)
-    find_package(AngelScript)
-    find_package(CURL)
-    find_package(Caelum)
-    find_package(fmt REQUIRED)
+add_external_lib(
+        MyGUI
+        mygui/3.4.0@anotherfoxguy/stable
+        REQUIRED
+        FIND_PACKAGE
+        INTERFACE_NAME MyGUI::MyGUI
+)
+add_external_lib(
+        SocketW
+        socketw/3.10.27@anotherfoxguy/stable
+        FIND_PACKAGE
+        INTERFACE_NAME SocketW::SocketW
+)
 
-endif (USE_PACKAGE_MANAGER)
+add_external_lib(
+        AngelScript
+        angelscript/2.32.0@anotherfoxguy/stable
+        FIND_PACKAGE
+        INTERFACE_NAME AngelScript::AngelScript
+)
+
+add_external_lib(
+        CURL
+        libcurl/7.69.1
+        FIND_PACKAGE
+        INTERFACE_NAME CURL::CURL
+)
+
+add_external_lib(
+        Caelum
+        ogre3d-caelum/0.6.4@anotherfoxguy/stable
+        FIND_PACKAGE
+        INTERFACE_NAME Caelum::Caelum
+)
+add_external_lib(
+        PagedGeometry
+        ogre3d-pagedgeometry/1.2.1@anotherfoxguy/stable
+        FIND_PACKAGE
+        SYMBOL PAGED
+        INTERFACE_NAME PagedGeometry::PagedGeometry
+)
+
+add_external_lib(
+        fmt
+        fmt/7.1.3
+        FIND_PACKAGE
+        INTERFACE_NAME fmt::fmt
+)
+
+add_external_lib(
+        discord-rpc
+        discord-rpc/3.4.0@anotherfoxguy/stable
+        FIND_PACKAGE
+        OPTION_NAME DISCORD_RPC
+        INTERFACE_NAME discord-rpc::discord-rpc
+)
+
+add_external_lib(
+        RapidJSON
+        rapidjson/cci.20200410
+        FIND_PACKAGE
+        INTERFACE_NAME RapidJSON::RapidJSON
+)
+
+add_external_lib(
+        OpenSSL
+        openssl/1.1.1g
+        FIND_PACKAGE
+        INTERFACE_NAME OpenSSL::OpenSSL
+)

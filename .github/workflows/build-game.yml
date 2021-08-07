@@ -68,7 +68,7 @@ jobs:
           path: redist
 
       - name: Clean Conan pkgs
-        run: cmake -P ./cmake/3rdparty/pmm.cmake /Conan /Clean
+        run: conan remove "*" -fsb
         shell: bash
 
   build-msvc:
@@ -133,5 +133,5 @@ jobs:
           path: redist
 
       - name: Clean Conan pkgs
-        run: cmake -P ./cmake/3rdparty/pmm.cmake /Conan /Clean
+        run: conan remove "*" -fsb
         shell: cmd
