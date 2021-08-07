@@ -25,14 +25,18 @@
 
 #include "ODefFileFormat.h"
 
+
+#include "MeshObject.h"
+#include "ProceduralManager.h"
+
+#ifdef USE_PAGED
+#include "PagedGeometry.h"
+#include "TreeLoader2D.h"
+#include "TreeLoader3D.h"
 #include "BatchPage.h"
 #include "GrassLoader.h"
 #include "ImpostorPage.h"
-#include "MeshObject.h"
-#include "PagedGeometry.h"
-#include "ProceduralManager.h"
-#include "TreeLoader2D.h"
-#include "TreeLoader3D.h"
+#endif //USE_PAGED
 
 #include <map>
 #include <unordered_map>
@@ -169,7 +173,9 @@ protected:
     int                       m_entity_counter = 0;
     std::string               m_resource_group;
 
+#ifdef USE_PAGED
     std::vector<Forests::PagedGeometry*> m_paged_geometry;
+#endif //USE_PAGED
 };
 
 } // namespace RoR
