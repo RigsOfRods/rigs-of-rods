@@ -3,53 +3,56 @@ find_package(Threads REQUIRED)
 
 set(ROR_FEAT_TIMING OFF)
 
+# Some pkg-config files are broken, that is why they are commented out
+
 add_external_lib(
         OGRE
         ogre3d/1.11.6.1@anotherfoxguy/stable
         REQUIRED
-        FIND_PACKAGE_OPTIONS COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain
-        INTERFACE_NAME OGRE::OGRE
+        # PKG_CONFIG "OGRE = 1.11.6"
+        FIND_PACKAGE_OPTIONS 1.11 COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain
 )
 
 add_external_lib(
         OpenAL
         openal/1.19.1
+        PKG_CONFIG "openal >= 1.18"
         FIND_PACKAGE_OPTIONS CONFIG
-        INTERFACE_NAME OpenAL::OpenAL
 )
 
 add_external_lib(
         OIS
         ois/1.5.1@anotherfoxguy/stable
         REQUIRED
+        PKG_CONFIG "ois >= 1.4"
         FIND_PACKAGE
-        INTERFACE_NAME OIS::OIS
 )
 
 add_external_lib(
         MyGUI
         mygui/3.4.0@anotherfoxguy/stable
         REQUIRED
+        # PKG_CONFIG "MYGUI = 3.4.0"
         FIND_PACKAGE
-        INTERFACE_NAME MyGUI::MyGUI
 )
 add_external_lib(
         SocketW
         socketw/3.10.27@anotherfoxguy/stable
+        PKG_CONFIG "socketw >= 3.10"
         FIND_PACKAGE
-        INTERFACE_NAME SocketW::SocketW
 )
 
 add_external_lib(
         AngelScript
         angelscript/2.32.0@anotherfoxguy/stable
+        # PKG_CONFIG "angelscript = 2.32.0"
         FIND_PACKAGE
-        INTERFACE_NAME AngelScript::AngelScript
 )
 
 add_external_lib(
         CURL
         libcurl/7.69.1
+        PKG_CONFIG "libcurl >= 7.6"
         FIND_PACKAGE_OPTIONS CONFIG
         INTERFACE_NAME CURL::libcurl
 )
@@ -57,22 +60,22 @@ add_external_lib(
 add_external_lib(
         Caelum
         ogre3d-caelum/0.6.4@anotherfoxguy/stable
+        # PKG_CONFIG "Caelum >= 0.6.3"
         FIND_PACKAGE
-        INTERFACE_NAME Caelum::Caelum
 )
 add_external_lib(
         PagedGeometry
         ogre3d-pagedgeometry/1.2.1@anotherfoxguy/stable
+        # PKG_CONFIG "PagedGeometry >= 1.2"
         FIND_PACKAGE
         SYMBOL PAGED
-        INTERFACE_NAME PagedGeometry::PagedGeometry
 )
 
 add_external_lib(
         fmt
         fmt/8.0.1
+        PKG_CONFIG "fmt >= 6"
         FIND_PACKAGE_OPTIONS CONFIG
-        INTERFACE_NAME fmt::fmt
 )
 
 add_external_lib(
@@ -85,13 +88,14 @@ add_external_lib(
 add_external_lib(
         RapidJSON
         rapidjson/cci.20200410
+        PKG_CONFIG "RapidJSON >= 1.1"
         FIND_PACKAGE_OPTIONS CONFIG
-        INTERFACE_NAME RapidJSON::RapidJSON
 )
 
 add_external_lib(
         OpenSSL
         openssl/1.1.1g
+        PKG_CONFIG "openssl >= 1.1.1"
         FIND_PACKAGE
         INTERFACE_NAME OpenSSL::SSL
 )

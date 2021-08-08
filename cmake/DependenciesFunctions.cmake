@@ -9,6 +9,8 @@ if (USE_PACKAGE_MANAGER)
             )
 endif ()
 
+set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH TRUE)
+
 set(CONAN_BUILD_REQUIRES)
 set(CONAN_REQUIRES)
 set(CONAN_PACKAGE_OPTIONS)
@@ -283,7 +285,21 @@ macro(resolve_conan_dependencies)
     endif (USE_PACKAGE_MANAGER)
 
     file(GLOB dependency_helpers "${CMAKE_SOURCE_DIR}/cmake/dependencies-helpers/*.cmake")
-    foreach(f ${dependency_helpers})
+    foreach (f ${dependency_helpers})
         include(${f})
-    endforeach()
+    endforeach ()
+endmacro()
+
+# Helper to retrieve the settings returned from pkg_check_modules()
+macro(get_package_interface package)
+    set(INCLUDES ${${package}_INCLUDE_DIRS})
+
+    set(LINKDIRS ${${package}_LIBDIR})
+
+    # We resolve the full path of each library to ensure the
+    # correct one is referenced while linking
+    foreach (lib ${${package}_LIBRARIES})
+        find_library(LIB_${lib} ${lib} HINTS ${LINKDIRS})
+        list(APPEND LIBRARIES ${LIB_${lib}})
+    endforeach ()
 endmacro()

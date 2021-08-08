@@ -1,4 +1,5 @@
 # Add the OGRE target
+
 if (${_PREFIX}USE_OGRE STREQUAL "SYSTEM")
     if (NOT TARGET OGRE::OGRE)
         find_package(OGRE QUIET)
