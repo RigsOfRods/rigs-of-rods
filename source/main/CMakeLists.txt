@@ -383,7 +383,6 @@ target_link_libraries(${BINNAME} PRIVATE
         OIS::OIS
         fmt::fmt
         MyGUI::MyGUI
-        discord-rpc::discord-rpc
         RapidJSON::RapidJSON
         )
 
@@ -395,6 +394,11 @@ target_compile_definitions(${BINNAME} PRIVATE $<$<PLATFORM_ID:WINDOWS>:MYGUI_STA
 if (USE_OPENAL)
     target_link_libraries(${BINNAME} PRIVATE OpenAL::OpenAL)
     target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
+endif ()
+
+if (USE_DISCORD_RPC)
+    target_link_libraries(${BINNAME} PRIVATE discord-rpc::discord-rpc)
+    target_compile_definitions(${BINNAME} PRIVATE USE_DISCORD_RPC)
 endif ()
 
 if (USE_SOCKETW)
