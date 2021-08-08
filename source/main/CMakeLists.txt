@@ -422,8 +422,6 @@ if (USE_CURL)
 endif ()
 
 if (USE_CAELUM)
-    #    set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
-    #    set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=../libCaelum_d.so")
     target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
     target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
 endif ()
@@ -457,13 +455,14 @@ endif ()
 set(CFG_COMMENT_RENDERSYSTEM_D3D11 "# ")
 set(CFG_COMMENT_RENDERSYSTEM_GL3PLUS "# ")
 
-
-set(PLUGINS_FOLDER ".")
-
+if (DEFINED OGRE_PLUGIN_DIR)
+    set(PLUGINS_FOLDER "${OGRE_PLUGIN_DIR}")
+else ()
+    set(PLUGINS_FOLDER ".")
+endif ()
 
 configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
 configure_file(plugins_d.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins_d.cfg)
-
 
 # Copy resources to bin directory
 # -----------------------
