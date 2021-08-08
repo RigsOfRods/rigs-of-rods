@@ -154,12 +154,6 @@ function(add_external_lib package conan_package_name)
 
             if (${package}_FOUND)
                 message(STATUS "Using '${package}' system library (Found by find_package)")
-
-                set(dependency_helper "${CMAKE_SOURCE_DIR}/cmake/dependencies-helpers/${package}.cmake")
-                if (EXISTS ${dependency_helper})
-                    include(${dependency_helper})
-                endif ()
-
                 return()
             endif ()
         endif ()
@@ -287,4 +281,9 @@ macro(resolve_conan_dependencies)
         endforeach ()
 
     endif (USE_PACKAGE_MANAGER)
+
+    file(GLOB dependency_helpers "${CMAKE_SOURCE_DIR}/cmake/dependencies-helpers/*.cmake")
+    foreach(f ${dependency_helpers})
+        include(${f})
+    endforeach()
 endmacro()

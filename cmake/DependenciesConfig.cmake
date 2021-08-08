@@ -14,7 +14,7 @@ add_external_lib(
 add_external_lib(
         OpenAL
         openal/1.19.1
-        FIND_PACKAGE
+        FIND_PACKAGE_OPTIONS CONFIG
         INTERFACE_NAME OpenAL::OpenAL
 )
 
@@ -50,8 +50,8 @@ add_external_lib(
 add_external_lib(
         CURL
         libcurl/7.69.1
-        FIND_PACKAGE
-        INTERFACE_NAME CURL::CURL
+        FIND_PACKAGE_OPTIONS CONFIG
+        INTERFACE_NAME CURL::libcurl
 )
 
 add_external_lib(
@@ -70,8 +70,8 @@ add_external_lib(
 
 add_external_lib(
         fmt
-        fmt/7.1.3
-        FIND_PACKAGE
+        fmt/8.0.1
+        FIND_PACKAGE_OPTIONS CONFIG
         INTERFACE_NAME fmt::fmt
 )
 
@@ -85,7 +85,7 @@ add_external_lib(
 add_external_lib(
         RapidJSON
         rapidjson/cci.20200410
-        FIND_PACKAGE
+        FIND_PACKAGE_OPTIONS CONFIG
         INTERFACE_NAME RapidJSON::RapidJSON
 )
 
@@ -93,5 +93,5 @@ add_external_lib(
         OpenSSL
         openssl/1.1.1g
         FIND_PACKAGE
-        INTERFACE_NAME OpenSSL::OpenSSL
+        INTERFACE_NAME OpenSSL::SSL
 )

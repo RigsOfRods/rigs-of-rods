@@ -384,7 +384,6 @@ target_link_libraries(${BINNAME} PRIVATE
         fmt::fmt
         MyGUI::MyGUI
         discord-rpc::discord-rpc
-        CURL::CURL
         RapidJSON::RapidJSON
         )
 
@@ -399,7 +398,7 @@ if (USE_OPENAL)
 endif ()
 
 if (USE_SOCKETW)
-    target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
+    target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW OpenSSL::SSL)
     target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
 endif ()
 
@@ -410,8 +409,7 @@ if (USE_ANGELSCRIPT)
 endif ()
 
 if (USE_CURL)
-    target_link_libraries(${BINNAME} PRIVATE ${CURL_LIBRARY})
-    target_include_directories(${BINNAME} PRIVATE ${CURL_INCLUDE_DIR})
+    target_link_libraries(${BINNAME} PRIVATE CURL::libcurl)
     target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
 
     if (WIN32)
