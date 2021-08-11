@@ -3549,48 +3549,12 @@ FlareType Parser::GetArgFlareType(int index)
 
 float Parser::GetArgFloat(int index)
 {
-    errno = 0;
-    char* out_end = nullptr;
-    float res = std::strtod(m_args[index].start, &out_end);
-    const int MSG_LEN = LINE_BUFFER_LENGTH +100;
-    char msg_buf[MSG_LEN];
-    if (errno != 0)
-    {
-        snprintf(msg_buf, MSG_LEN, "Cannot parse argument [%d] as float, errno: %d", index + 1, errno);
-        this->AddMessage(Message::TYPE_ERROR, msg_buf);
-        return 0.f; // Compatibility
-    }
-    if (out_end == m_args[index].start)
-    {
-        char arg[LINE_BUFFER_LENGTH] = "";
-        strncpy(arg, m_args[index].start, m_args[index].length);
-        snprintf(msg_buf, MSG_LEN, "Argument [%d] (\"%s\") is not valid float", index + 1, arg);
-        this->AddMessage(Message::TYPE_ERROR, msg_buf);
-        return 0.f; // Compatibility
-    }
-    else if (out_end != (m_args[index].start + m_args[index].length))
-    {
-        char arg[LINE_BUFFER_LENGTH] = "";
-        ptrdiff_t offset = (out_end - m_args[index].start);
-        strncpy(arg, out_end, m_args[index].length - offset);
-        snprintf(msg_buf, MSG_LEN, "Argument [%d] (type: float) has invalid trailing characters (\"%s\")", index + 1, arg);
-        this->AddMessage(Message::TYPE_WARNING, msg_buf);
-    }
-    return static_cast<float>(res);
+    return (float) Ogre::StringConverter::parseReal(this->GetArgStr(index), 0.f);
 }
 
 float Parser::ParseArgFloat(const char* str)
 {
-    errno = 0;
-    float res = std::strtod(str, nullptr);
-    if (errno != 0)
-    {
-        char msg[100];
-        snprintf(msg, 100, "Cannot parse argument '%s' as float, errno: %d", str, errno);
-        this->AddMessage(Message::TYPE_ERROR, msg);
-        return 0.f; // Compatibility
-    }
-    return static_cast<float>(res);
+    return (float) Ogre::StringConverter::parseReal(str, 0.f);
 }
 
 float Parser::ParseArgFloat(std::string const & str)
