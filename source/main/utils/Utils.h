@@ -47,35 +47,9 @@ std::time_t getTimeStamp();
 
 Ogre::String getVersionString(bool multiline = true);
 
-std::wstring ANSI_TO_WCHAR(const Ogre::String source);
 Ogre::UTFString ANSI_TO_UTF(const Ogre::String source);
 
 void trimUTFString(Ogre::UTFString& str, bool left = true, bool right = true);
-
-inline MyGUI::UString convertToMyGUIString(char* charstr)
-{
-    return MyGUI::UString(ANSI_TO_WCHAR(charstr));
-}
-
-inline MyGUI::UString convertToMyGUIString(wchar_t* charstr, int len)
-{
-    return MyGUI::UString(charstr, len);
-}
-
-inline MyGUI::UString convertToMyGUIString(std::wstring str)
-{
-    return MyGUI::UString(str);
-}
-
-inline MyGUI::UString convertToMyGUIString(Ogre::UTFString str)
-{
-    return MyGUI::UString(str.asWStr());
-}
-
-inline Ogre::UTFString convertFromMyGUIString(MyGUI::UString str)
-{
-    return Ogre::UTFString(str.asWStr());
-}
 
 inline void replaceString(std::string& str, std::string searchString, std::string replaceString)
 {
