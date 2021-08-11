@@ -98,14 +98,6 @@ std::string SanitizeUtf8CString(const char* start, const char* end = nullptr);
     std::string Sha1Hash(std::string const & data);
 }
 
-namespace Color {
-const Ogre::UTFString CommandColour = Ogre::UTFString("#00FF00");
-const Ogre::UTFString WarningColour = Ogre::UTFString("#FF0000");
-const Ogre::UTFString NormalColour = Ogre::UTFString("#FFFFFF");
-const Ogre::UTFString WhisperColour = Ogre::UTFString("#FFCC00");
-const Ogre::UTFString ScriptCommandColour = Ogre::UTFString("#0099FF");
-}
-
 /// @author http://www.ogre3d.org/forums/viewtopic.php?p=463232#p463232
 /// @author http://www.ogre3d.org/tikiwiki/tiki-index.php?page=GetScreenspaceCoords&structure=Cookbook
 class World2ScreenConverter ///< Keeps data close for faster access.
