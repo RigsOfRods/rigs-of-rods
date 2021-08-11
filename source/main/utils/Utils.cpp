@@ -99,11 +99,6 @@ UTFString ANSI_TO_UTF(const String source)
     return UTFString(RoR::Utils::SanitizeUtf8String(source));
 }
 
-std::wstring ANSI_TO_WCHAR(const String source)
-{
-    return ANSI_TO_UTF(source).asWStr();
-}
-
 void trimUTFString(UTFString& str, bool left, bool right)
 {
     static const String delims = " \t\r";
