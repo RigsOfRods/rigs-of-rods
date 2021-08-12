@@ -28,6 +28,7 @@
 #include "Buoyance.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
+#include "Console.h"
 #include "Differentials.h"
 #include "EngineSim.h"
 #include "FlexAirfoil.h"
@@ -1211,7 +1212,7 @@ void Actor::CalcBeams(bool trigger_hooks)
                             msg << "[RoR|Diag] XXX Support-Beam " << i << " limit extended and broke. "
                                 << "Length: " << difftoBeamL << " / max. Length: " << (ar_beams[i].L*break_limit) << ". ";
                             LogBeamNodes(msg, ar_beams[i]);
-                            RoR::Log(msg.ToCStr());
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr());
                         }
                     }
                 }
@@ -1317,7 +1318,7 @@ void Actor::CalcBeams(bool trigger_hooks)
                             RoR::Str<200> msg;
                             msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / " << ar_beams[i].strength << ". ";
                             LogBeamNodes(msg, ar_beams[i]);
-                            RoR::Log(msg.ToCStr());
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr());
                         }
 
                         // detachergroup check: beam[i] is already broken, check detacher group# == 0/default skip the check ( performance bypass for beams with default setting )
@@ -1335,7 +1336,8 @@ void Actor::CalcBeams(bool trigger_hooks)
                                     ar_beams[j].bm_disabled = true;
                                     if (m_beam_break_debug_enabled)
                                     {
-                                        LOG("Deleting Detacher BeamID: " + TOSTRING(j) + ", Detacher Group: " + TOSTRING(ar_beams[i].detacher_group)+ ", actor ID: " + TOSTRING(ar_instance_id));
+                                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                            "Deleting Detacher BeamID: " + TOSTRING(j) + ", Detacher Group: " + TOSTRING(ar_beams[i].detacher_group)+ ", actor ID: " + TOSTRING(ar_instance_id));
                                     }
                                 }
                             }
@@ -1345,6 +1347,11 @@ void Actor::CalcBeams(bool trigger_hooks)
                                 if (wheeldetacher.wd_detacher_group == ar_beams[i].detacher_group)
                                 {
                                     ar_wheels[wheeldetacher.wd_wheel_id].wh_is_detached = true;
+                                    if (m_beam_break_debug_enabled)
+                                    {
+                                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                            "Detaching wheel ID: " + TOSTRING(wheeldetacher.wd_wheel_id) + ", Detacher Group: " + TOSTRING(ar_beams[i].detacher_group)+ ", actor ID: " + TOSTRING(ar_instance_id));
+                                    }
                                 }
                             }
                         }
@@ -1490,9 +1497,9 @@ void Actor::CalcBeamsInterActor()
                         if (m_beam_break_debug_enabled)
                         {
                             RoR::Str<200> msg;
-                            msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / " << ar_inter_beams[i]->strength << ". ";
+                            msg << "Beam " << i << " just broke with force " << len << " / " << ar_inter_beams[i]->strength << ". ";
                             LogBeamNodes(msg, (*ar_inter_beams[i]));
-                            RoR::Log(msg.ToCStr());
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr());
                         }
                     }
                     else
