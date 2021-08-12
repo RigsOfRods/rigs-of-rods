@@ -384,7 +384,6 @@ struct wheel_t
     Ogre::Real  wh_last_retorque;     //!< Last external forces (friction, ...)
     float       wh_net_rp;
     float       wh_width;
-    int         wh_detacher_group;
     bool        wh_is_detached;
 
     // Debug
@@ -394,6 +393,12 @@ struct wheel_t
     Ogre::Vector3 debug_slip;
     Ogre::Vector3 debug_force;
     Ogre::Vector3 debug_scaled_cforce;
+};
+
+struct wheeldetacher_t
+{
+    int wd_wheel_id;
+    int wd_detacher_group;
 };
 
 struct hook_t

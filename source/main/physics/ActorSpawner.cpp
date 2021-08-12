@@ -4983,7 +4983,10 @@ void ActorSpawner::ProcessWheelDetacher(RigDef::WheelDetacher & def)
         return;
     }
 
-    m_actor->ar_wheels[def.wheel_id].wh_detacher_group = def.detacher_group;
+    wheeldetacher_t obj;
+    obj.wd_wheel_id = def.wheel_id;
+    obj.wd_detacher_group = def.detacher_group;
+    m_actor->ar_wheeldetachers.push_back(obj);
 };
 
 void ActorSpawner::ProcessTractionControl(RigDef::TractionControl & def)

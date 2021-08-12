@@ -215,6 +215,7 @@ public:
     std::vector<float>        ar_initial_node_masses;
     std::vector<Ogre::Vector3>     ar_initial_node_positions;
     std::vector<std::pair<float, float>> ar_initial_beam_defaults;
+    std::vector<wheeldetacher_t>   ar_wheeldetachers;
     std::vector<float>             ar_minimass; //!< minimum node mass in Kg
     std::vector<std::vector<int>>  ar_node_to_node_connections;
     std::vector<std::vector<int>>  ar_node_to_beam_connections;
