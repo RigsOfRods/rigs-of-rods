@@ -1339,12 +1339,12 @@ void Actor::CalcBeams(bool trigger_hooks)
                                     }
                                 }
                             }
-                            // cycle once through all wheels
-                            for (int j = 0; j < ar_num_wheels; j++)
+                            // cycle once through all wheeldetachers
+                            for (wheeldetacher_t const& wheeldetacher: ar_wheeldetachers)
                             {
-                                if (ar_wheels[j].wh_detacher_group == ar_beams[i].detacher_group)
+                                if (wheeldetacher.wd_detacher_group == ar_beams[i].detacher_group)
                                 {
-                                    ar_wheels[j].wh_is_detached = true;
+                                    ar_wheels[wheeldetacher.wd_wheel_id].wh_is_detached = true;
                                 }
                             }
                         }
