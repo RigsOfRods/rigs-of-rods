@@ -94,11 +94,13 @@ private:
     bool               m_searchbox_was_active = false;
     CacheEntry         m_dummy_skin;
 
-    int                m_selected_category = 0;
+    int                m_selected_category = 0;    //!< Combobox position (uses display list)
+    int                m_selected_cid = 0;         //!< Category ID
     int                m_selected_entry = -1;
     int                m_selected_sectionconfig = 0;
 
-    std::map<LoaderType, int> m_last_selected_category; //!< Stores the last manually selected category index for each loader type
+    std::map<LoaderType, int> m_last_selected_category; //!< Last category-combobox position for each loader type
+    std::map<LoaderType, int> m_last_selected_cid;      //!< Last selected category-ID for each loader type
     std::map<LoaderType, int> m_last_selected_entry;    //!< Stores the last manually selected entry index for each loader type
 };
 
