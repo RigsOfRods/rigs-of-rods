@@ -6,13 +6,14 @@
 # Алексей <alexaxel705@gmail.com>, 2016
 # Влад ххх <error.exe1234567890@gmail.com>, 2021.
 # Rassul <r.eleuov@icloud.com>, 2021.
+# Лолло Нуб <lollo.samp@mail.ru>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-26 19:46+0200\n"
-"PO-Revision-Date: 2021-04-09 06:26+0000\n"
-"Last-Translator: Влад ххх <error.exe1234567890@gmail.com>\n"
+"PO-Revision-Date: 2021-08-19 12:45+0000\n"
+"Last-Translator: Лолло Нуб <lollo.samp@mail.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
 "Language: ru\n"
@@ -22,7 +23,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 4.6-dev\n"
+"X-Generator: Weblate 4.8-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -1521,7 +1522,7 @@ msgstr "Нет"
 #: gui/panels/GUI_MainSelector.cpp:294
 msgctxt "MainSelector"
 msgid "Yes"
-msgstr ""
+msgstr "Да"
 
 #: gui/panels/GUI_MainSelector.cpp:296
 #, fuzzy
@@ -1660,7 +1661,7 @@ msgstr "Имя файла: "
 #: gui/panels/GUI_MainSelector.cpp:336
 msgctxt "MainSelector"
 msgid "Show details"
-msgstr ""
+msgstr "Показать подробности"
 
 #: gui/panels/GUI_MainSelector.cpp:347
 #, fuzzy
@@ -1776,7 +1777,7 @@ msgstr "Медленная закачка"
 #: gui/panels/GUI_MultiplayerSelector.cpp:83
 msgctxt "MultiplayerSelector"
 msgid "Error connecting to server :("
-msgstr ""
+msgstr "Ошибка при подключении к серверу :("
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:94
 msgctxt "MultiplayerSelector"
@@ -1793,12 +1794,12 @@ msgstr "Нет"
 #: gui/panels/GUI_MultiplayerSelector.cpp:113
 msgctxt "MultiplayerSelector"
 msgid "Yes"
-msgstr ""
+msgstr "Да"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:160
 msgctxt "MultiplayerSelector"
 msgid "Online (click to refresh)"
-msgstr ""
+msgstr "В сети (нажмите, чтобы обновить)"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:168
 msgctxt "MultiplayerSelector"
@@ -1815,7 +1816,7 @@ msgstr "Настройки"
 #: gui/panels/GUI_MultiplayerSelector.cpp:188
 msgctxt "MultiplayerSelector"
 msgid "Auto connect"
-msgstr ""
+msgstr "Авто-подключение"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:189
 #, fuzzy
@@ -1827,17 +1828,17 @@ msgstr "войти в чат"
 #: gui/panels/GUI_MultiplayerSelector.cpp:190
 msgctxt "MultiplayerSelector"
 msgid "Hide net labels"
-msgstr ""
+msgstr "Скрыть имена игроков"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:191
 msgctxt "MultiplayerSelector"
 msgid "Hide own net label"
-msgstr ""
+msgstr "Скрыть своё имя"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:192
 msgctxt "MultiplayerSelector"
 msgid "Multiplayer collisions"
-msgstr ""
+msgstr "Коллизии в Мультиплеере"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:199
 #, fuzzy
@@ -1849,12 +1850,12 @@ msgstr "Информация об игроке"
 #: gui/panels/GUI_MultiplayerSelector.cpp:200
 msgctxt "MultiplayerSelector"
 msgid "Default server password"
-msgstr ""
+msgstr "Стандартный пароль сервера"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:206
 msgctxt "MultiplayerSelector"
 msgid "User token"
-msgstr ""
+msgstr "Токен пользователя"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:216
 #, fuzzy
@@ -1882,17 +1883,17 @@ msgstr "Модератор сервера"
 #: gui/panels/GUI_MultiplayerSelector.cpp:302
 msgctxt "MultiplayerSelector"
 msgid "Join"
-msgstr ""
+msgstr "Присоединиться"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:260
 msgctxt "MultiplayerSelector"
 msgid "Passwd?"
-msgstr ""
+msgstr "Пароль?"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:261
 msgctxt "MultiplayerSelector"
 msgid "Name"
-msgstr ""
+msgstr "Имя"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:262
 #, fuzzy
@@ -1904,7 +1905,7 @@ msgstr "Загрузка карты"
 #: gui/panels/GUI_MultiplayerSelector.cpp:263
 msgctxt "MultiplayerSelector"
 msgid "Users"
-msgstr ""
+msgstr "Пользователи"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:264
 #, fuzzy
@@ -1916,17 +1917,17 @@ msgstr "Версия"
 #: gui/panels/GUI_MultiplayerSelector.cpp:265
 msgctxt "MultiplayerSelector"
 msgid "Host/Port"
-msgstr ""
+msgstr "Хост/Порт"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:344
 msgctxt "MultiplayerSelector"
 msgid "... refreshing ..."
-msgstr ""
+msgstr "...обновляем..."
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:378
 msgctxt "MultiplayerSelector"
 msgid "There are no available servers :/"
-msgstr ""
+msgstr "Нет доступных серверов :/"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:44
 msgctxt "NodeBeamUtils"
@@ -1997,7 +1998,7 @@ msgstr ""
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
 msgid "Continue searching"
-msgstr ""
+msgstr "Продолжить поиск"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 #, fuzzy
@@ -2009,12 +2010,12 @@ msgstr "загрузка...\n"
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
 msgid "Stop searching"
-msgstr ""
+msgstr "Остановить поиск"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:147
 msgctxt "NodeBeamUtils"
 msgid "Reset search"
-msgstr ""
+msgstr "Сбросить поиск"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:156
 #, fuzzy
@@ -2036,12 +2037,12 @@ msgstr ""
 #: gui/panels/GUI_NodeBeamUtils.cpp:163 gui/panels/GUI_NodeBeamUtils.cpp:167
 msgctxt "NodeBeamUtils"
 msgid "Movement"
-msgstr ""
+msgstr "Движение"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:164 gui/panels/GUI_NodeBeamUtils.cpp:168
 msgctxt "NodeBeamUtils"
 msgid "Stress"
-msgstr ""
+msgstr "Напряжение"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:165 gui/panels/GUI_NodeBeamUtils.cpp:169
 msgctxt "NodeBeamUtils"
@@ -2298,7 +2299,7 @@ msgstr "Настройки"
 #: gui/panels/GUI_TopMenubar.cpp:64
 msgctxt "TopMenubar"
 msgid "Tools"
-msgstr ""
+msgstr "Инструменты"
 
 #: gui/panels/GUI_TopMenubar.cpp:170
 msgctxt "TopMenubar"
@@ -2330,7 +2331,7 @@ msgstr "Только текущее транспортное средство, �
 #: gui/panels/GUI_TopMenubar.cpp:200
 msgctxt "TopMenubar"
 msgid "Remove current vehicle"
-msgstr ""
+msgstr "Убрать текущий транспорт"
 
 #: gui/panels/GUI_TopMenubar.cpp:208
 msgctxt "TopMenubar"
@@ -2354,17 +2355,17 @@ msgstr "получить новый транспорт"
 #: gui/panels/GUI_TopMenubar.cpp:233
 msgctxt "TopMenubar"
 msgid "Remove all vehicles"
-msgstr ""
+msgstr "Убрать весь транспорт"
 
 #: gui/panels/GUI_TopMenubar.cpp:240
 msgctxt "TopMenubar"
 msgid " [!] Confirm removal"
-msgstr ""
+msgstr " [!] Подтвердить удаление"
 
 #: gui/panels/GUI_TopMenubar.cpp:255
 msgctxt "TopMenubar"
 msgid "Activate all vehicles"
-msgstr ""
+msgstr "Активировать весь транспорт"
 
 #: gui/panels/GUI_TopMenubar.cpp:261
 msgctxt "TopMenubar"
@@ -2379,12 +2380,12 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:274
 msgctxt "TopMenubar"
 msgid "Back to menu"
-msgstr ""
+msgstr "Вернуться в меню"
 
 #: gui/panels/GUI_TopMenubar.cpp:284
 msgctxt "TopMenubar"
 msgid "Exit"
-msgstr ""
+msgstr "Выйти"
 
 #: gui/panels/GUI_TopMenubar.cpp:301
 msgctxt "TopMenubar"
@@ -2401,27 +2402,27 @@ msgstr "Сохранить как PNG"
 #: gui/panels/GUI_TopMenubar.cpp:334
 msgctxt "TopMenubar"
 msgid "Quicksave"
-msgstr ""
+msgstr "Быстрое сохранение"
 
 #: gui/panels/GUI_TopMenubar.cpp:344
 msgctxt "TopMenubar"
 msgid "Quickload"
-msgstr ""
+msgstr "Быстрая загрузка"
 
 #: gui/panels/GUI_TopMenubar.cpp:355
 msgctxt "TopMenubar"
 msgid "(Save with 'CTRL+ALT+1..5')"
-msgstr ""
+msgstr "(Сохранить с помощью 'CTRL+ALT+1..5')"
 
 #: gui/panels/GUI_TopMenubar.cpp:358
 msgctxt "TopMenubar"
 msgid "Empty Slot"
-msgstr ""
+msgstr "Пустой Слот"
 
 #: gui/panels/GUI_TopMenubar.cpp:372
 msgctxt "TopMenubar"
 msgid "(Load with 'ALT+1..5')"
-msgstr ""
+msgstr "(Загрузить с помощью 'ALT+1..5')"
 
 #: gui/panels/GUI_TopMenubar.cpp:400
 #, fuzzy
@@ -2462,7 +2463,7 @@ msgstr "Отражение"
 #: gui/panels/GUI_TopMenubar.cpp:411
 msgctxt "TopMenubar"
 msgid "Game"
-msgstr ""
+msgstr "Игра"
 
 #: gui/panels/GUI_TopMenubar.cpp:414
 #, fuzzy
@@ -2499,7 +2500,7 @@ msgstr "Угол обзора: "
 #: gui/panels/GUI_TopMenubar.cpp:430
 msgctxt "TopMenubar"
 msgid "Height"
-msgstr ""
+msgstr "Высота"
 
 #: gui/panels/GUI_TopMenubar.cpp:454
 msgctxt "TopMenubar"
@@ -2509,7 +2510,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:461
 msgctxt "TopMenubar"
 msgid "Time of day:"
-msgstr ""
+msgstr "Время дня:"
 
 #: gui/panels/GUI_TopMenubar.cpp:473
 #, fuzzy
@@ -2526,7 +2527,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:479
 msgctxt "TopMenubar"
 msgid "Multiplayer:"
-msgstr ""
+msgstr "Мультиплеер:"
 
 #: gui/panels/GUI_TopMenubar.cpp:480
 #, fuzzy
@@ -2538,12 +2539,12 @@ msgstr "Отладка сетки деформаций"
 #: gui/panels/GUI_TopMenubar.cpp:481
 msgctxt "TopMenubar"
 msgid "Hide labels"
-msgstr ""
+msgstr "Скрыть имена"
 
 #: gui/panels/GUI_TopMenubar.cpp:496
 msgctxt "TopMenubar"
 msgid "Tools menu"
-msgstr ""
+msgstr "Меню инструментов"
 
 #: gui/panels/GUI_TopMenubar.cpp:498
 #, fuzzy
@@ -2654,7 +2655,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:607
 msgctxt "TopMenubar"
 msgid "Normal view"
-msgstr ""
+msgstr "Нормальный вид"
 
 #: gui/panels/GUI_TopMenubar.cpp:608
 #, fuzzy
@@ -2747,7 +2748,7 @@ msgstr "сбросить скорость симуляции"
 #: gui/panels/GUI_TopMenubar.cpp:796
 msgctxt "TopMenubar"
 msgid "All physics paused, press '{}' to resume"
-msgstr ""
+msgstr "Симуляция приостановлена, нажмите '{}' чтобы продолжить"
 
 #: gui/panels/GUI_TopMenubar.cpp:805
 msgctxt "TopMenubar"
@@ -2764,7 +2765,7 @@ msgstr "Геймплей"
 #: gui/panels/GUI_TopMenubar.cpp:852
 msgctxt "TopMenubar"
 msgid "Time"
-msgstr ""
+msgstr "Время"
 
 #: gui/panels/GUI_VehicleDescription.cpp:66
 #, fuzzy
@@ -2803,11 +2804,11 @@ msgstr "(информация об авторе отсутствует)"
 
 #: main.cpp:328
 msgid "Display mode changed to fullscreen"
-msgstr ""
+msgstr "Режим экрана изменен на полноэкранный"
 
 #: main.cpp:334
 msgid "Display mode changed to windowed"
-msgstr ""
+msgstr "Режим экрана изменен на оконный"
 
 #: main.cpp:386
 msgctxt "Network"
@@ -2821,11 +2822,11 @@ msgstr "Ошибка сети: "
 #: main.cpp:442
 msgctxt "Network"
 msgid "Multiplayer: connection failed"
-msgstr ""
+msgstr "Мультиплеер: не удалось подключиться"
 
 #: main.cpp:474
 msgid "Loading resources"
-msgstr ""
+msgstr "Загрузка ресурсов"
 
 #: main.cpp:504
 #, fuzzy, c-format
@@ -2847,11 +2848,11 @@ msgstr "Ошибка при загрузке настроек карты."
 
 #: main.cpp:666
 msgid "Entered terrain editing mode"
-msgstr ""
+msgstr "Режим редактирования местности включен"
 
 #: main.cpp:677
 msgid "Left terrain editing mode"
-msgstr ""
+msgstr "Режим редактирования местности выключен"
 
 #: main.cpp:913
 msgid "An exception has occured!"
@@ -2898,7 +2899,7 @@ msgstr ""
 #: network/Network.cpp:425
 msgctxt "Network"
 msgid "Estabilishing connection..."
-msgstr ""
+msgstr "Установка соединения..."
 
 #: network/Network.cpp:431
 msgid "Could not create connection"
@@ -2907,7 +2908,7 @@ msgstr ""
 #: network/Network.cpp:435
 msgctxt "Network"
 msgid "Getting server info..."
-msgstr ""
+msgstr "Получение информации о сервере..."
 
 #: network/Network.cpp:438
 msgid "Establishing network session: error sending hello"
@@ -2937,7 +2938,7 @@ msgstr "Установка соединения: ошибка получения
 #: network/Network.cpp:485
 msgctxt "Network"
 msgid "Authorizing..."
-msgstr ""
+msgstr "Авторизация..."
 
 #: network/Network.cpp:506
 msgid "Establishing network session: error sending user info"
@@ -2976,12 +2977,12 @@ msgstr ""
 #: network/Network.cpp:797
 msgctxt "NetUserAuth"
 msgid "Admin"
-msgstr ""
+msgstr "Админ"
 
 #: network/Network.cpp:798
 msgctxt "NetUserAuth"
 msgid "Mod"
-msgstr ""
+msgstr "Модератор"
 
 #: network/Network.cpp:799 network/Network.cpp:809
 #, fuzzy
@@ -2993,17 +2994,17 @@ msgstr "Лодка"
 #: network/Network.cpp:800
 msgctxt "NetUserAuth"
 msgid "Ranked"
-msgstr ""
+msgstr "Подтверждённый"
 
 #: network/Network.cpp:801
 msgctxt "NetUserAuth"
 msgid "Banned"
-msgstr ""
+msgstr "Забанен"
 
 #: network/Network.cpp:802 network/Network.cpp:812
 msgctxt "NetUserAuth"
 msgid "Guest"
-msgstr ""
+msgstr "Гость"
 
 #: network/Network.cpp:807
 #, fuzzy
@@ -3045,7 +3046,7 @@ msgstr ""
 
 #: physics/Actor.cpp:1296 physics/Actor.cpp:1322
 msgid "Axle "
-msgstr ""
+msgstr "Ось "
 
 #: physics/Actor.cpp:1310
 msgid "No inter-wheel differential installed on current vehicle!"
@@ -3110,7 +3111,7 @@ msgstr "Открыть"
 
 #: physics/Differentials.cpp:56
 msgid "Viscous"
-msgstr ""
+msgstr "Объединённый"
 
 #: physics/Differentials.cpp:57
 msgid "Locked"
@@ -3208,7 +3209,7 @@ msgstr "Машина"
 #: resources/CacheSystem.cpp:457
 msgctxt "MainSelector"
 msgid "A.I."
-msgstr ""
+msgstr "И.И."
 
 #: resources/CacheSystem.cpp:952
 msgid "Loading zips in group "
@@ -3274,7 +3275,7 @@ msgstr "Автобусы"
 #: resources/CacheSystem.h:270
 msgctxt "ModCategory"
 msgid "Tractors"
-msgstr ""
+msgstr "Тракторы"
 
 #: resources/CacheSystem.h:271
 msgctxt "ModCategory"
@@ -3494,7 +3495,7 @@ msgstr ""
 
 #: system/ConsoleCmd.cpp:333
 msgid "Scripting disabled in this build"
-msgstr ""
+msgstr "Скриптинг отключен в этой сборке"
 
 #: system/ConsoleCmd.cpp:342
 msgid "quit - exit Rigs of Rods"
