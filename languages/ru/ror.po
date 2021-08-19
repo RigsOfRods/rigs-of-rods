@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-26 19:46+0200\n"
-"PO-Revision-Date: 2021-08-19 12:45+0000\n"
+"PO-Revision-Date: 2021-08-19 15:23+0000\n"
 "Last-Translator: Лолло Нуб <lollo.samp@mail.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
@@ -32,7 +32,7 @@ msgstr "Ошибка загрузки"
 
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
-msgstr "Недоступен плагин для отрисовки. Проверьте plugins.cfg."
+msgstr "Недоступен плагин для отрисовки. Проверьте plugins.cfg"
 
 #: AppContext.cpp:378
 msgid "Screenshot:"
@@ -52,7 +52,7 @@ msgstr "Папка ресурсов не найдена. Проверьте, е�
 
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
-msgstr ""
+msgstr "Неверная папка ресурсов. Проверьте правильность установки."
 
 #: GameContext.cpp:91
 msgid "Terrain not found: "
@@ -116,7 +116,7 @@ msgstr "Выбран высокий диапозон"
 
 #: gameplay/Landusemap.cpp:90
 msgid "Error while loading landuse config"
-msgstr "Ошибка при загрузке настроек карты."
+msgstr "Ошибка при загрузке настроек карты"
 
 #: gfx/camera/CameraManager.cpp:302
 msgid "FOV: Limit reached"
@@ -550,14 +550,6 @@ msgid "Flow behavior index"
 msgstr "Поведение жидкости"
 
 #: gui/panels/GUI_FrictionSettings.cpp:90
-#, fuzzy
-#| msgid ""
-#| "If it is 1.0 then the fluid will behave like water. The lower you get "
-#| "from 1.0, the more like mud the fluid will behave, meaning that for small "
-#| "velocities the fluid will resist motion and for large velocities the "
-#| "fluid will not resist so much. The higher you get from 1.0 the more like "
-#| "sand the fluid will behave. The bigger the velocity, the bigger the "
-#| "resistance of the fluid (try to hit sand hard it'll feel like stone)."
 msgctxt "FrictionSettings"
 msgid ""
 "If it is 1.0 then the fluid will behave like water. The lower you get from "
@@ -571,7 +563,7 @@ msgstr ""
 "жидкость будет похожа на грязь, то есть на малых скоростях будет "
 "сопротивляться движению, а при больших сопротивление будет слабее. При "
 "значениях выше 1.0, жидкость будет вести себя как песок: чем больше "
-"скорость, тем больше сопротивления. (при ударе песок твёрдый как камень)"
+"скорость, тем больше сопротивления (при ударе песок твёрдый как камень)."
 
 #: gui/panels/GUI_FrictionSettings.cpp:92
 msgctxt "FrictionSettings"
@@ -2064,11 +2056,9 @@ msgid "Vehicle destruction: "
 msgstr "Позиция транспортного средства: "
 
 #: gui/panels/GUI_SimActorStats.cpp:65
-#, fuzzy
-#| msgid " user country: "
 msgctxt "SimActorStats"
 msgid "Beam count: "
-msgstr " Страна пользователя: "
+msgstr "Количество балок: "
 
 #: gui/panels/GUI_SimActorStats.cpp:70
 msgctxt "SimActorStats"
@@ -2841,10 +2831,8 @@ msgid "Could not read savegame file"
 msgstr "Невозможно записать конфигурационный файл"
 
 #: main.cpp:569 physics/Savegame.cpp:241
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: Terrain mismatch"
-msgstr "Ошибка при загрузке настроек карты."
+msgstr "Ошибка при загрузке сцены: Несоответствие местности"
 
 #: main.cpp:666
 msgid "Entered terrain editing mode"
@@ -2873,24 +2861,18 @@ msgid "disconnected: remote side closed the connection"
 msgstr "отключен: сервер закрыл соединение"
 
 #: network/Network.cpp:315
-#, fuzzy
-#| msgid " left the game"
 msgid "left the game"
-msgstr " вышел из игры"
+msgstr "вышел из игры"
 
 #: network/Network.cpp:347
-#, fuzzy
-#| msgid " joined the game"
 msgid "joined the game"
-msgstr " присоединился к игре"
+msgstr "присоединился к игре"
 
 #. Mark connect thread as started
 #: network/Network.cpp:401
-#, fuzzy
-#| msgid "loading...\n"
 msgctxt "Network"
 msgid "Starting..."
-msgstr "загрузка...\n"
+msgstr "Запуск..."
 
 #: network/Network.cpp:407
 msgid "Failed to launch connection thread"
@@ -3069,10 +3051,8 @@ msgid "Network error!"
 msgstr "Ошибка сети!"
 
 #: physics/ActorManager.cpp:410
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgid "spawned a new vehicle: "
-msgstr " создал новое транспортное средство: "
+msgstr "создал новое транспортное средство: "
 
 #: physics/ActorManager.cpp:420
 #, fuzzy
@@ -3118,22 +3098,16 @@ msgid "Locked"
 msgstr "заблокированный"
 
 #: physics/Savegame.cpp:221
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: File invalid or missing"
-msgstr "Ошибка при загрузке настроек карты."
+msgstr "Ошибка при загрузке сцены: Файл недействителен или отсутствует"
 
 #: physics/Savegame.cpp:227
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: File format mismatch"
-msgstr "Ошибка при загрузке настроек карты."
+msgstr "Ошибка при загрузке сцены: Неправильный формат файла"
 
 #: physics/Savegame.cpp:247
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: Too many vehicles"
-msgstr "Ошибка при загрузке настроек карты."
+msgstr "Ошибка при загрузке сцены: Слишком много транспорта"
 
 #: physics/Savegame.cpp:283
 msgid "Error while loading scene: Missing content (probably not installed)"
@@ -3150,10 +3124,8 @@ msgid "Error while saving scene: Too many vehicles"
 msgstr "ошибка при сохранении позиции сохранённой в текущем слоте"
 
 #: physics/Savegame.cpp:713
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while saving scene"
-msgstr "Ошибка при загрузке настроек карты."
+msgstr "Ошибка при сохранении сцены"
 
 #: physics/Savegame.cpp:720
 msgid "Scene saved"
