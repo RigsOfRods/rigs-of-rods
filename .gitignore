@@ -26,8 +26,7 @@ _build
 build/
 libangelscript_addons*.a
 .idea
-cmake-build-release
-cmake-build-debug
+cmake-build-*/
 /.vs
 build/
 tools/l10n/tx/

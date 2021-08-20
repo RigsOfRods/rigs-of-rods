@@ -461,6 +461,11 @@ else ()
     set(PLUGINS_FOLDER ".")
 endif ()
 
+if (${_PREFIX}USE_CAELUM STREQUAL "SYSTEM")
+    set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
+    set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=../libCaelum_d.so")
+endif ()
+
 configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
 configure_file(plugins_d.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins_d.cfg)
 
