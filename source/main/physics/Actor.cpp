@@ -288,7 +288,7 @@ Actor::~Actor()
 
 // This method scales actors. Stresses should *NOT* be scaled, they describe
 // the material type and they do not depend on length or scale.
-void Actor::ScaleActor(float value)
+void Actor::scaleTruck(float value)
 {
     if (value < 0)
         return;

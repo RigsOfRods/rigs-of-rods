@@ -62,6 +62,12 @@ public:
 
     ~Actor();
 
+        //! @{ Physic related functions
+
+    void              scaleTruck(float value);
+
+        //! @}
+
     void              ApplyNodeBeamScales();
     void              PushNetwork(char* data, int size);   //!< Parses network data; fills actor's data buffers and flips them. Called by the network thread.
     void              CalcNetwork();
@@ -118,7 +124,7 @@ public:
     void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
     void              updateFlareStates(float dt);
     void              updateVisual(float dt=0);
-    void              ScaleActor(float value);
+    
     Ogre::Vector3     GetGForcesCur() { return m_camera_local_gforces_cur; };
     Ogre::Vector3     GetGForcesMax() { return m_camera_local_gforces_max; };
     float             getSteeringAngle();
