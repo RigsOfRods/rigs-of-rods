@@ -875,7 +875,7 @@ void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_ent
         for (int k = 0; k < actor->m_transfer_case->tr_gear_ratios.size(); k++)
         {
             if (actor->m_transfer_case->tr_gear_ratios[0] != j_entry["transfercase"]["GearRatio"].GetFloat())
-                actor->ToggleTransferCaseGearRatio();
+                actor->toggleTransferCaseGearRatio();
         }
     }
 

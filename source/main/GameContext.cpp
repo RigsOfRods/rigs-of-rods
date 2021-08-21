@@ -1528,14 +1528,14 @@ void GameContext::UpdateTruckInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_TCASE_4WD_MODE))
     {
-        m_player_actor->ToggleTransferCaseMode();
-        m_player_actor->DisplayTransferCaseMode();
+        m_player_actor->toggleTransferCaseMode();
+        m_player_actor->displayTransferCaseMode();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_TCASE_GEAR_RATIO))
     {
-        m_player_actor->ToggleTransferCaseGearRatio();
-        m_player_actor->DisplayTransferCaseMode();
+        m_player_actor->toggleTransferCaseGearRatio();
+        m_player_actor->displayTransferCaseMode();
     }
 
     if (m_player_actor->ar_is_police)

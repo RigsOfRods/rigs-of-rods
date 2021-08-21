@@ -116,6 +116,10 @@ public:
     void              displayAxleDiffMode();               //! Writes info to console/notify box
     void              toggleWheelDiffMode();               //! Cycles through the available inter wheel diff modes
     void              displayWheelDiffMode();              //! Writes info to console/notify box
+    void              toggleTransferCaseMode();            //! Toggles between 2WD and 4WD mode
+    void              toggleTransferCaseGearRatio();       //! Toggles between Hi and Lo mode
+    Ogre::String      getTransferCaseName();               //! Gets the current transfer case mode name (4WD Hi, ...)
+    void              displayTransferCaseMode();           //! Writes info to console/notify area
     void              toggleCustomParticles();
     bool              getCustomParticleMode();
     void              beaconsToggle();
@@ -161,10 +165,6 @@ public:
     void              UpdateSoundSources();
     void              EngineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              ToggleSlideNodeLock();
-    void              ToggleTransferCaseMode();            //! Toggles between 2WD and 4WD mode
-    void              ToggleTransferCaseGearRatio();       //! Toggles between Hi and Lo mode
-    Ogre::String      GetTransferCaseName();               //! Gets the current transfer case mode name (4WD Hi, ...)
-    void              DisplayTransferCaseMode();           //! Displays the current transfer case mode
     void              UpdateCruiseControl(float dt);       //!< Defined in 'gameplay/CruiseControl.cpp'
     bool              Intersects(Actor* actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
     /// Moves the actor at most 'direction.length()' meters towards 'direction' to resolve any collisions

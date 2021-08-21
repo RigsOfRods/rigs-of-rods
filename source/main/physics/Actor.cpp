@@ -1328,12 +1328,12 @@ void Actor::displayWheelDiffMode()
     }
 }
 
-void Actor::DisplayTransferCaseMode()
+void Actor::displayTransferCaseMode()
 {
     if (m_transfer_case)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                _L("Transfercase switched to: ") + this->GetTransferCaseName(), "cog.png", 3000);
+                _L("Transfercase switched to: ") + this->getTransferCaseName(), "cog.png", 3000);
     }
     else
     {
@@ -1342,7 +1342,7 @@ void Actor::DisplayTransferCaseMode()
     }
 }
 
-void Actor::ToggleTransferCaseMode()
+void Actor::toggleTransferCaseMode()
 {
     if (!ar_engine || !m_transfer_case || m_transfer_case->tr_ax_2 < 0 || !m_transfer_case->tr_2wd)
         return;
@@ -1351,7 +1351,7 @@ void Actor::ToggleTransferCaseMode()
     {
         for (int i = 0; i < m_transfer_case->tr_gear_ratios.size(); i++)
         {
-            this->ToggleTransferCaseGearRatio();
+            this->toggleTransferCaseGearRatio();
             if (m_transfer_case->tr_gear_ratios[0] == 1.0f)
                 break;
         }
@@ -1373,7 +1373,7 @@ void Actor::ToggleTransferCaseMode()
     }
 }
 
-void Actor::ToggleTransferCaseGearRatio()
+void Actor::toggleTransferCaseGearRatio()
 {
     if (!ar_engine || !m_transfer_case || m_transfer_case->tr_gear_ratios.size() < 2)
         return;
@@ -1387,7 +1387,7 @@ void Actor::ToggleTransferCaseGearRatio()
     }
 }
 
-String Actor::GetTransferCaseName()
+String Actor::getTransferCaseName()
 {
     String name = "";
     if (m_transfer_case)
