@@ -342,7 +342,7 @@ Vector3 Actor::getPosition()
     return m_avg_node_position; //the position is already in absolute position
 }
 
-void Actor::PushNetwork(char* data, int size)
+void Actor::pushNetwork(char* data, int size)
 {
     NetUpdate update;
 
@@ -418,7 +418,7 @@ void Actor::PushNetwork(char* data, int size)
     m_net_updates.push_back(update);
 }
 
-void Actor::CalcNetwork()
+void Actor::calcNetwork()
 {
     using namespace RoRnet;
 
