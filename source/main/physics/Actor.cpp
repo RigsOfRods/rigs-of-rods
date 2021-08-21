@@ -1266,7 +1266,7 @@ void Actor::ToggleWheelDiffMode()
     }
 }
 
-void Actor::ToggleAxleDiffMode()
+void Actor::toggleAxleDiffMode()
 {
     for (int i = 0; i < m_num_axle_diffs; ++i)
     {
@@ -1274,7 +1274,7 @@ void Actor::ToggleAxleDiffMode()
     }
 }
 
-void Actor::DisplayAxleDiffMode()
+void Actor::displayAxleDiffMode()
 {
     if (m_num_axle_diffs == 0)
     {

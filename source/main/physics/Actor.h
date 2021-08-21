@@ -112,6 +112,8 @@ public:
     void              antilockbrakeToggle();
     void              tractioncontrolToggle();
     void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
+    void              toggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
+    void              displayAxleDiffMode();               //! Writes info to console/notify box
     void              toggleCustomParticles();
     bool              getCustomParticleMode();
     void              beaconsToggle();
@@ -125,7 +127,7 @@ public:
     void              setBlinkType(BlinkType blink);
     //! @}
 
-    //! @{ Visuals state
+    //! @{ Visual state updates
     void              updateSkidmarks();                   //!< Creates or updates skidmarks.
     void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
     void              updateFlareStates(float dt);
@@ -157,8 +159,6 @@ public:
     void              UpdateSoundSources();
     void              EngineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              ToggleSlideNodeLock();
-    void              ToggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
-    void              DisplayAxleDiffMode();               //! Displays the current inter axle diff mode
     void              ToggleWheelDiffMode();               //! Cycles through the available inter wheel diff modes
     void              DisplayWheelDiffMode();              //! Displays the current inter wheel diff mode
     void              ToggleTransferCaseMode();            //! Toggles between 2WD and 4WD mode
