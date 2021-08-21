@@ -804,7 +804,7 @@ void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_ent
     actor->m_beacon_light_on = j_entry["pp_beacon_light"].GetBool();
     if (actor->m_custom_particles_enabled != j_entry["custom_particles"].GetBool())
     {
-        actor->ToggleCustomParticles();
+        actor->toggleCustomParticles();
     }
 
     if (j_entry.HasMember("custom_lights"))
