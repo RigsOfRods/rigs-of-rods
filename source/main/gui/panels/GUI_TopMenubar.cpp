@@ -859,7 +859,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
                 ImGui::SameLine();
                 
                 // Progress bar with frame index/count
-                Replay* replay = App::GetGameContext()->GetPlayerActor()->GetReplay();
+                Replay* replay = App::GetGameContext()->GetPlayerActor()->getReplay();
                 float fraction = (float)std::abs(replay->getCurrentFrame())/(float)replay->getNumFrames();
                 Str<100> pbar_text; pbar_text << replay->getCurrentFrame() << "/" << replay->getNumFrames();
                 float pbar_width = content_width - (ImGui::GetStyle().ItemSpacing.x + ImGui::CalcTextSize(special_text.c_str()).x);

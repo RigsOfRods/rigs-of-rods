@@ -1213,9 +1213,9 @@ void GameContext::UpdateCommonInputEvents(float dt)
         }
     }
 
-    if (m_player_actor->GetReplay())
+    if (m_player_actor->getReplay())
     {
-        m_player_actor->GetReplay()->UpdateInputEvents();
+        m_player_actor->getReplay()->UpdateInputEvents();
     }
 }
 
