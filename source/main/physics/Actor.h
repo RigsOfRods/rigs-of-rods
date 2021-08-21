@@ -72,6 +72,7 @@ public:
     void              antilockbrakeToggle();               //!< Event handler
     void              tractioncontrolToggle();             //!< Event handler
     void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
+    void              toggleCustomParticles();
     //! @}
 
     //! @{ Organizational things
@@ -111,7 +112,7 @@ public:
     void              ToggleHooks(int group=-1, HookAction mode=HOOK_TOGGLE, int node_number=-1); //!< Event handler
     void              EngineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              ToggleSlideNodeLock();
-    void              ToggleCustomParticles();
+    
     void              ToggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
     void              DisplayAxleDiffMode();               //! Displays the current inter axle diff mode
     void              ToggleWheelDiffMode();               //! Cycles through the available inter wheel diff modes

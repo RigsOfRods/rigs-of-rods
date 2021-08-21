@@ -1079,7 +1079,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_CUSTOM_PARTICLES))
     {
-        m_player_actor->ToggleCustomParticles();
+        m_player_actor->toggleCustomParticles();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DEBUG_VIEW))

@@ -586,7 +586,7 @@ void Actor::CalcNetwork()
 
     // set particle cannon
     if (((flagmask & NETMASK_PARTICLE) != 0) != m_custom_particles_enabled)
-        ToggleCustomParticles();
+        toggleCustomParticles();
 
     // set lights
     if (((flagmask & NETMASK_LIGHTS) != 0) != m_headlight_on)
@@ -3131,7 +3131,7 @@ void Actor::autoBlinkReset()
     }
 }
 
-void Actor::ToggleCustomParticles()
+void Actor::toggleCustomParticles()
 {
     m_custom_particles_enabled = !m_custom_particles_enabled;
     for (int i = 0; i < ar_num_custom_particles; i++)
