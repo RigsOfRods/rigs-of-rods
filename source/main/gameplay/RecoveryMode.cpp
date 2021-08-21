@@ -110,15 +110,15 @@ void RecoveryMode::UpdateInputEvents(float dt)
             rotation *= Ogre::Math::Clamp(scale, 0.1f, 10.0f);
             translation *= scale;
 
-            App::GetGameContext()->GetPlayerActor()->RequestRotation(rotation, rotation_center);
-            App::GetGameContext()->GetPlayerActor()->RequestTranslation(translation);
+            App::GetGameContext()->GetPlayerActor()->requestRotation(rotation, rotation_center);
+            App::GetGameContext()->GetPlayerActor()->requestTranslation(translation);
 
             if (App::sim_soft_reset_mode->GetBool())
             {
                 for (auto actor : App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors())
                 {
-                    actor->RequestRotation(rotation, rotation_center);
-                    actor->RequestTranslation(translation);
+                    actor->requestRotation(rotation, rotation_center);
+                    actor->requestTranslation(translation);
                 }
             }
 
@@ -126,12 +126,12 @@ void RecoveryMode::UpdateInputEvents(float dt)
         }
         else if (App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
         {
-            App::GetGameContext()->GetPlayerActor()->RequestAngleSnap(45);
+            App::GetGameContext()->GetPlayerActor()->requestAngleSnap(45);
             if (App::sim_soft_reset_mode->GetBool())
             {
                 for (auto actor : App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors())
                 {
-                    actor->RequestAngleSnap(45);
+                    actor->requestAngleSnap(45);
                 }
             }
         }
