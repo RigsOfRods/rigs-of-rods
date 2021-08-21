@@ -71,6 +71,7 @@ public:
     //! @{ Organizational things
 
     std::string       getTruckName() { return ar_design_name; };
+    std::string       getTruckFileName() { return ar_filename; };
 
     //! @}
 
@@ -135,8 +136,6 @@ public:
     Ogre::Vector3     GetGForcesMax() { return m_camera_local_gforces_max; };
     float             getSteeringAngle();
     float             getMinCameraRadius() { return m_min_camera_radius; };
-    std::string       GetActorFileName() { return ar_filename; };
-    std::string       GetActorFileHash() { return ar_filehash; };
     int               GetActorType() { return ar_driveable; };
     int               GetNumActiveConnectedBeams(int nodeid);     //!< Returns the number of active (non bounded) beams connected to a node
     void              NotifyActorCameraChanged();                 //!< Logic: sound, display; Notify this vehicle that camera changed;
