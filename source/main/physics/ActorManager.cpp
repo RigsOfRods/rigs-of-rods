@@ -256,7 +256,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     // Initialize visuals
     actor->updateVisual();
-    actor->ToggleLights();
+    actor->lightsToggle();
     actor->GetGfxActor()->SetDebugView((GfxActor::DebugViewType)rq.asr_debugview);
 
     // perform full visual update only if the vehicle won't be immediately driven by player.
