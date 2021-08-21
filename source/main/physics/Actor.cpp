@@ -590,7 +590,7 @@ void Actor::calcNetwork()
 
     // set lights
     if (((flagmask & NETMASK_LIGHTS) != 0) != m_headlight_on)
-        ToggleLights();
+        lightsToggle();
     if (((flagmask & NETMASK_BEACONS) != 0) != m_beacon_light_on)
         beaconsToggle();
 
@@ -2944,7 +2944,7 @@ void Actor::prepareInside(bool inside)
     }
 }
 
-void Actor::ToggleLights()
+void Actor::lightsToggle()
 {
     // export light command
     Actor* player_actor = App::GetGameContext()->GetPlayerActor();
@@ -2953,7 +2953,7 @@ void Actor::ToggleLights()
         for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this != actor && actor->ar_import_commands)
-                actor->ToggleLights();
+                actor->lightsToggle();
         }
     }
     m_headlight_on = !m_headlight_on;

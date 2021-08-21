@@ -101,6 +101,7 @@ public:
     //! @}//! 
 
     //! @{ User interaction functions
+    void              lightsToggle();
     void              parkingbrakeToggle();
     void              antilockbrakeToggle();
     void              tractioncontrolToggle();
@@ -132,7 +133,6 @@ public:
     void              HandleAngelScriptEvents(float dt);
     void              UpdateSoundSources();
     void              HandleMouseMove(int node, Ogre::Vector3 pos, float force); //!< Event handler
-    void              ToggleLights();                      //!< Event handler
     void              ToggleTies(int group=-1);
     void              ToggleRopes(int group=-1);            //!< Event handler
     void              ToggleHooks(int group=-1, HookAction mode=HOOK_TOGGLE, int node_number=-1); //!< Event handler
