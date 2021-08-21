@@ -1516,8 +1516,8 @@ void GameContext::UpdateTruckInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_INTER_AXLE_DIFF))
     {
-        m_player_actor->ToggleAxleDiffMode();
-        m_player_actor->DisplayAxleDiffMode();
+        m_player_actor->toggleAxleDiffMode();
+        m_player_actor->displayAxleDiffMode();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_INTER_WHEEL_DIFF))
