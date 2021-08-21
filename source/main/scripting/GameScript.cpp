@@ -735,7 +735,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     j_doc.AddMember("actor-hash", rapidjson::StringRef(player_actor->ar_filehash.c_str()), j_doc.GetAllocator());
 
     rapidjson::Value j_linked_actors(rapidjson::kArrayType);
-    for (auto actor : player_actor->GetAllLinkedActors())
+    for (auto actor : player_actor->getAllLinkedActors())
     {
         rapidjson::Value j_actor(rapidjson::kObjectType);
         j_actor.AddMember("actor-name", rapidjson::StringRef(actor->ar_design_name.c_str()), j_doc.GetAllocator());
