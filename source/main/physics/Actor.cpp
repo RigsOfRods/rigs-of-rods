@@ -3740,7 +3740,7 @@ void Actor::ToggleHooks(int group, HookAction mode, int node_number)
     }
 }
 
-void Actor::ToggleParkingBrake()
+void Actor::parkingbrakeToggle()
 {
     ar_parking_brake = !ar_parking_brake;
 
@@ -3753,13 +3753,13 @@ void Actor::ToggleParkingBrake()
     TRIGGER_EVENT(SE_TRUCK_PARKINGBREAK_TOGGLE, ar_instance_id);
 }
 
-void Actor::ToggleAntiLockBrake()
+void Actor::antilockbrakeToggle()
 {
     if (!alb_notoggle)
         alb_mode = !alb_mode;
 }
 
-void Actor::ToggleTractionControl()
+void Actor::tractioncontrolToggle()
 {
     if (!tc_notoggle)
         tc_mode = !tc_mode;

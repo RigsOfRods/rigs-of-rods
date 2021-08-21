@@ -584,7 +584,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 if (element == m_aerial_dashboard.brks.element)
                 {
                     mTimeUntilNextToggle = 0.2;
-                    player_actor->ToggleParkingBrake();
+                    player_actor->parkingbrakeToggle();
                 }
                 //trims
                 if (element == m_aerial_dashboard.hdg_trim.up_button)

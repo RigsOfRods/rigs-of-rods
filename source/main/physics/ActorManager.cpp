@@ -713,7 +713,7 @@ void ActorManager::ForwardCommands(Actor* source_actor)
             hook.hk_locked_actor->ar_brake = source_actor->ar_brake;
             if (hook.hk_locked_actor->ar_parking_brake != source_actor->ar_trailer_parking_brake)
             {
-                hook.hk_locked_actor->ToggleParkingBrake();
+                hook.hk_locked_actor->parkingbrakeToggle();
             }
 
             // forward lights

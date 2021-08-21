@@ -1138,7 +1138,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
         if (m_player_actor->ar_driveable == TRUCK)
             m_player_actor->ar_trailer_parking_brake = !m_player_actor->ar_trailer_parking_brake;
         else if (m_player_actor->ar_driveable == NOT_DRIVEABLE)
-            m_player_actor->ToggleParkingBrake();
+            m_player_actor->parkingbrakeToggle();
     }
 
     // videocam
@@ -1259,7 +1259,7 @@ void GameContext::UpdateAirplaneInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_PARKING_BRAKE))
     {
-        m_player_actor->ToggleParkingBrake();
+        m_player_actor->parkingbrakeToggle();
     }
 
     // reverse
@@ -1560,22 +1560,22 @@ void GameContext::UpdateTruckInputEvents(float dt)
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_PARKING_BRAKE) &&
             !App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TRAILER_PARKING_BRAKE))
     {
-        m_player_actor->ToggleParkingBrake();
+        m_player_actor->parkingbrakeToggle();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_ANTILOCK_BRAKE))
     {
-        m_player_actor->ToggleAntiLockBrake();
+        m_player_actor->antilockbrakeToggle();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TRACTION_CONTROL))
     {
-        m_player_actor->ToggleTractionControl();
+        m_player_actor->tractioncontrolToggle();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_CRUISE_CONTROL))
     {
-        m_player_actor->ToggleCruiseControl();
+        m_player_actor->cruisecontrolToggle();
     }
 
     if (m_player_actor->GetTyrePressure().IsEnabled())
