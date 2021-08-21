@@ -828,7 +828,7 @@ void ActorManager::MuteAllActors()
 {
     for (auto actor : m_actors)
     {
-        actor->StopAllSounds();
+        actor->muteAllSounds();
     }
 }
 
@@ -836,7 +836,7 @@ void ActorManager::UnmuteAllActors()
 {
     for (auto actor : m_actors)
     {
-        actor->UnmuteAllSounds();
+        actor->unmuteAllSounds();
     }
 }
 
