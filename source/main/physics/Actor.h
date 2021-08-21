@@ -114,6 +114,8 @@ public:
     void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
     void              toggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
     void              displayAxleDiffMode();               //! Writes info to console/notify box
+    void              toggleWheelDiffMode();               //! Cycles through the available inter wheel diff modes
+    void              displayWheelDiffMode();              //! Writes info to console/notify box
     void              toggleCustomParticles();
     bool              getCustomParticleMode();
     void              beaconsToggle();
@@ -159,8 +161,6 @@ public:
     void              UpdateSoundSources();
     void              EngineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              ToggleSlideNodeLock();
-    void              ToggleWheelDiffMode();               //! Cycles through the available inter wheel diff modes
-    void              DisplayWheelDiffMode();              //! Displays the current inter wheel diff mode
     void              ToggleTransferCaseMode();            //! Toggles between 2WD and 4WD mode
     void              ToggleTransferCaseGearRatio();       //! Toggles between Hi and Lo mode
     Ogre::String      GetTransferCaseName();               //! Gets the current transfer case mode name (4WD Hi, ...)
