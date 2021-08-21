@@ -21,6 +21,8 @@
 
 
 #include "GUI_ConsoleWindow.h"
+
+#include "GameContext.h"
 #include "GUIManager.h"
 
 #include "Language.h"

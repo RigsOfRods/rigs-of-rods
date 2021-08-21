@@ -40,6 +40,27 @@
 
 namespace RoR {
 
+enum class ScriptOrigin
+{
+    INVALID,
+    TERRAIN,
+    ADDON
+};
+
+struct ScriptUnit
+{
+    ScriptOrigin scriptOrigin = ScriptOrigin::INVALID;
+    unsigned int eventMask = 0; //!< filter mask for script events
+    AngelScript::asIScriptModule* scriptModule = nullptr;
+    AngelScript::asIScriptFunction* frameStepFunctionPtr = nullptr; //!< script function pointer to the frameStep function
+    AngelScript::asIScriptFunction* eventCallbackFunctionPtr = nullptr; //!< script function pointer to the event callback function
+    AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr = nullptr; //!< script function pointer for spawner events
+    Ogre::String scriptName;
+    Ogre::String scriptHash;
+};
+
+typedef std::vector<ScriptUnit> ScriptUnitVec;
+
 /**
  *  @brief This class represents the angelscript scripting interface. It can load and execute scripts.
  *  @authors Thomas Fischer (thomas{AT}rigsofrods{DOT}com)
@@ -58,7 +79,13 @@ public:
      * @param scriptname filename to load
      * @return 0 on success, everything else on error
      */
-    int loadScript(Ogre::String scriptname);
+    int loadScript(Ogre::String scriptname, ScriptOrigin origin = ScriptOrigin::TERRAIN);
+
+    /**
+     * Unloads a script
+     * @param scriptname filename to unload
+     */
+    void unloadScript(Ogre::String scriptname, ScriptOrigin origin);
 
     /**
      * Calls the script's framestep function to be able to use timed things inside the script
@@ -68,8 +95,6 @@ public:
     int framestep(Ogre::Real dt);
 
     void activateLogging();
-
-    unsigned int eventMask; //!< filter mask for script events
 
     /**
      * triggers an event. Not to be used by the end-user
@@ -121,17 +146,11 @@ public:
     */
     int deleteVariable(const Ogre::String& arg);
 
-    Ogre::StringVector getAutoComplete(Ogre::String command);
-
     int fireEvent(std::string instanceName, float intensity);
 
     int envokeCallback(int functionId, eventsource_t* source, node_t* node = 0, int type = 0);
 
     AngelScript::asIScriptEngine* getEngine() { return engine; };
-
-    Ogre::String getScriptName() { return scriptName; }
-    Ogre::String getScriptHash() { return scriptHash; }
-    const char*  getModuleName() { return moduleName; }
 
     // method from Ogre::LogListener
     void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);
@@ -139,22 +158,12 @@ public:
     inline void SLOG(const char* msg) { this->scriptLog->logMessage(msg); } //!< Replacement of macro
     inline void SLOG(std::string msg) { this->scriptLog->logMessage(msg); } //!< Replacement of macro
 
+    ScriptUnitVec& getScriptUnits() { return m_script_units; }
+    int getTerrainScriptUnit() const { return m_terrain_script_unit; } //!< @return -1 if none exists.
+    int getCurrentlyExecutingScriptUnit() const { return m_currently_executing_script_unit; } //!< @return -1 if none is executing right now.
+
 
 protected:
-
-    AngelScript::asIScriptEngine* engine; //!< instance of the scripting engine
-    AngelScript::asIScriptContext* context; //!< context in which all scripting happens
-    AngelScript::asIScriptFunction* frameStepFunctionPtr; //!< script function pointer to the frameStep function
-    AngelScript::asIScriptFunction* eventCallbackFunctionPtr; //!< script function pointer to the event callback function
-    AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr; //!< script function pointer for spawner events
-    Ogre::String scriptName;
-    Ogre::String scriptHash;
-    Ogre::Log* scriptLog;
-    GameScript m_game_script;
-
-    InterThreadStoreVector<Ogre::String> stringExecutionQueue; //!< The string execution queue \see queueStringForExecution
-
-    static const char* moduleName;
 
     /**
      * This function initialzies the engine and registeres all types
@@ -167,6 +176,18 @@ protected:
      * @param msg arguments that contain details about the crash
      */
     void msgCallback(const AngelScript::asSMessageInfo* msg);
+
+    Ogre::String composeModuleName(Ogre::String const& scriptName, ScriptOrigin origin);
+
+    AngelScript::asIScriptEngine* engine; //!< instance of the scripting engine
+    AngelScript::asIScriptContext* context; //!< context in which all scripting happens
+    Ogre::Log*      scriptLog;
+    GameScript      m_game_script;
+    ScriptUnitVec   m_script_units;
+    int             m_terrain_script_unit = -1;
+    int             m_currently_executing_script_unit = -1;
+
+    InterThreadStoreVector<Ogre::String> stringExecutionQueue; //!< The string execution queue \see queueStringForExecution
 };
 
 // This function will register the following objects with the scriptengine:

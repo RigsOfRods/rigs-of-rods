@@ -42,7 +42,7 @@ struct AddonDef
     std::string              readme_file;
     std::list<AuthorInfo>    authors;
 
-    std::list<std::string>   as_files;
+    std::vector<std::string>   as_files;
     std::string              as_load_func_name;
     std::string              as_unload_func_name;
 };

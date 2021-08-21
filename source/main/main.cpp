@@ -361,6 +361,11 @@ int main(int argc, char *argv[])
                     }
                     break;
 
+                case MSG_APP_LOAD_ADDON_REQUESTED:
+                    //TODO: check if already loaded
+                    App::GetScriptEngine()->loadScript(((CacheEntry*)m.payload)->fname, ScriptOrigin::ADDON);
+                    break;
+
                 // -- Network events --
 
                 case MSG_NET_CONNECT_REQUESTED:

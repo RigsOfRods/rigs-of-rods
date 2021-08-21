@@ -282,7 +282,11 @@ void GameScript::registerForEvent(int eventValue)
 {
     if (App::GetScriptEngine())
     {
-        App::GetScriptEngine()->eventMask |= eventValue;
+        int unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+        if (unit_id != -1)
+        {
+            App::GetScriptEngine()->getScriptUnits()[unit_id].eventMask |= eventValue;
+        }
     }
 }
 
@@ -290,7 +294,11 @@ void GameScript::unRegisterEvent(int eventValue)
 {
     if (App::GetScriptEngine())
     {
-        App::GetScriptEngine()->eventMask &= ~eventValue;
+        int unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+        if (unit_id != -1)
+        {
+            App::GetScriptEngine()->getScriptUnits()[unit_id].eventMask &= ~eventValue;
+        }
     }
 }
 
@@ -400,12 +408,18 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
         return;
     }
 
+    if (App::GetScriptEngine()->getTerrainScriptUnit() == -1)
+    {
+        this->logFormat("spawnObject(): Cannot spawn object, no terrain script loaded!");
+        return;
+    }
+
     try
     {
-        AngelScript::asIScriptModule* module = App::GetScriptEngine()->getEngine()->GetModule(App::GetScriptEngine()->getModuleName(), AngelScript::asGM_ONLY_IF_EXISTS);
+        AngelScript::asIScriptModule* module = App::GetScriptEngine()->getScriptUnits()[App::GetScriptEngine()->getTerrainScriptUnit()].scriptModule;
         if (module == nullptr)
         {
-            this->logFormat("spawnObject(): Failed to fetch/create script module '%s'", App::GetScriptEngine()->getModuleName());
+            this->logFormat("spawnObject(): Failed to fetch/create script module '%s'", module->GetName());
             return;
         }
 
@@ -420,7 +434,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
             else
             {
                 this->logFormat("spawnObject(): Warning; Failed to find handler function '%s' in script module '%s'",
-                    eventhandler.c_str(), App::GetScriptEngine()->getModuleName());
+                    eventhandler.c_str(), module->GetName());
             }
         }
 
@@ -709,6 +723,10 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     if (App::app_disable_online_api->GetBool())
         return 0;
 
+    int unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+    if (unit_id == -1)
+        return 2;
+
     Actor* player_actor = App::GetGameContext()->GetPlayerActor();
 
     if (player_actor == nullptr)
@@ -721,8 +739,8 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 
     std::string terrain_name = App::GetSimTerrain()->getTerrainName();
 
-    std::string script_name = App::GetScriptEngine()->getScriptName();
-    std::string script_hash = App::GetScriptEngine()->getScriptHash();
+    std::string script_name = App::GetScriptEngine()->getScriptUnits()[unit_id].scriptName;
+    std::string script_hash = App::GetScriptEngine()->getScriptUnits()[unit_id].scriptHash;
 
     rapidjson::Document j_doc;
     j_doc.SetObject();
