@@ -1251,7 +1251,7 @@ void Actor::resetPosition(Vector3 translation, bool setInitPosition)
     calculateAveragePosition();
 }
 
-void Actor::HandleMouseMove(int node, Vector3 pos, float force)
+void Actor::mouseMove(int node, Vector3 pos, float force)
 {
     m_mouse_grab_node = node;
     m_mouse_grab_move_force = force * std::pow(m_total_mass / 3000.0f, 0.75f);
