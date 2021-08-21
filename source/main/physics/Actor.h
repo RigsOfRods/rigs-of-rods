@@ -62,6 +62,12 @@ public:
 
     ~Actor();
 
+    //! @{ Network related functions
+    void              sendStreamSetup();
+    void              pushNetwork(char* data, int size);   //!< Parses network data; fills actor's data buffers and flips them. Called by the network thread.//! 
+    void              calcNetwork();
+    //!
+
     //! @{ Physic related functions
     void              scaleTruck(float value);
     void              reset(bool keep_position = false); //!< call this one to reset a truck from any context
@@ -103,8 +109,6 @@ public:
     //! @}
 
     void              ApplyNodeBeamScales();
-    void              PushNetwork(char* data, int size);   //!< Parses network data; fills actor's data buffers and flips them. Called by the network thread.
-    void              CalcNetwork();
     void              UpdateInitPosition();
     /// Moves the actor.
     /// @param translation Offset to move in world coordinates
@@ -130,7 +134,6 @@ public:
     void              ToggleHooks(int group=-1, HookAction mode=HOOK_TOGGLE, int node_number=-1); //!< Event handler
     void              EngineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              ToggleSlideNodeLock();
-    
     void              ToggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
     void              DisplayAxleDiffMode();               //! Displays the current inter axle diff mode
     void              ToggleWheelDiffMode();               //! Cycles through the available inter wheel diff modes
@@ -419,7 +422,6 @@ private:
     void              RemoveInterActorBeam(beam_t* beam);
     void              DisjoinInterActorBeams();            //!< Destroys all inter-actor beams which are connected with this actor
     void              autoBlinkReset();                    //!< Resets the turn signal when the steering wheel is turned back.
-    void              sendStreamSetup();
     void              UpdateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces
     void              resetSlideNodePositions();           //!< Recalculate SlideNode positions
     void              resetSlideNodes();                   //!< Reset all the SlideNodes

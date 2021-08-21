@@ -501,7 +501,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
                     continue;
                 if (packet.header.source == actor->ar_net_source_id && packet.header.streamid == actor->ar_net_stream_id)
                 {
-                    actor->PushNetwork(packet.buffer, packet.header.size);
+                    actor->pushNetwork(packet.buffer, packet.header.size);
                     break;
                 }
             }
@@ -1041,7 +1041,7 @@ void ActorManager::UpdateActors(Actor* player_actor)
         if (App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
         {
             if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
-                actor->CalcNetwork();
+                actor->calcNetwork();
             else
                 actor->sendStreamData();
         }
