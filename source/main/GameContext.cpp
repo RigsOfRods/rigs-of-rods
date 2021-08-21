@@ -338,7 +338,7 @@ void GameContext::DeleteActor(Actor* actor)
     }
 
     // Find linked actors and un-tie if tied
-    auto linked_actors = actor->GetAllLinkedActors();
+    auto linked_actors = actor->getAllLinkedActors();
     for (auto actorx : m_actor_manager.GetLocalActors())
     {
         if (actorx->isTied() && std::find(linked_actors.begin(), linked_actors.end(), actorx) != linked_actors.end())
@@ -702,7 +702,7 @@ void GameContext::TeleportPlayer(float x, float z)
 
     Ogre::Vector3 translation = Ogre::Vector3(x, y, z) - this->GetPlayerActor()->ar_nodes[0].AbsPosition;
 
-    auto actors = this->GetPlayerActor()->GetAllLinkedActors();
+    auto actors = this->GetPlayerActor()->getAllLinkedActors();
     actors.push_back(this->GetPlayerActor());
 
     float src_agl = std::numeric_limits<float>::max(); 
@@ -1085,7 +1085,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DEBUG_VIEW))
     {
         m_player_actor->GetGfxActor()->ToggleDebugView();
-        for (auto actor : m_player_actor->GetAllLinkedActors())
+        for (auto actor : m_player_actor->getAllLinkedActors())
         {
             actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
         }
@@ -1094,7 +1094,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CYCLE_DEBUG_VIEWS))
     {
         m_player_actor->GetGfxActor()->CycleDebugViews();
-        for (auto actor : m_player_actor->GetAllLinkedActors())
+        for (auto actor : m_player_actor->getAllLinkedActors())
         {
             actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
         }
@@ -1163,7 +1163,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     // toggle physics
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_PHYSICS))
     {
-        for (auto actor : App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors())
+        for (auto actor : App::GetGameContext()->GetPlayerActor()->getAllLinkedActors())
         {
             actor->ar_physics_paused = !App::GetGameContext()->GetPlayerActor()->ar_physics_paused;
         }

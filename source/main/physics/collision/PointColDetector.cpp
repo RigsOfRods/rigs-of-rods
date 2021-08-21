@@ -45,7 +45,7 @@ void PointColDetector::UpdateIntraPoint(bool contactables)
 
 void PointColDetector::UpdateInterPoint(bool ignorestate)
 {
-    m_linked_actors = m_actor->GetAllLinkedActors();
+    m_linked_actors = m_actor->getAllLinkedActors();
 
     int contacters_size = 0;
     std::vector<Actor*> collision_partners;

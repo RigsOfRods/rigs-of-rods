@@ -783,7 +783,7 @@ void TopMenubar::DrawActorListSinglePlayer()
             ImGui::SameLine();
 
             std::string text_buf = fmt::format( "[{}] {}", i++, actor->ar_design_name.c_str());
-            auto linked_actors = actor->GetAllLinkedActors();
+            auto linked_actors = actor->getAllLinkedActors();
             if (actor == player_actor)
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, GREEN_TEXT);

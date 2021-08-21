@@ -3376,13 +3376,13 @@ void Actor::tieToggle(int group)
             {
                 this->RemoveInterActorBeam(it->ti_beam);
                 // update skeletonview on the untied actors
-                auto linked_actors = it->ti_locked_actor->GetAllLinkedActors();
+                auto linked_actors = it->ti_locked_actor->getAllLinkedActors();
                 if (!(std::find(linked_actors.begin(), linked_actors.end(), this) != linked_actors.end()))
                 {
                     if (this == player_actor)
                     {
                         it->ti_locked_actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
-                        for (auto actor : it->ti_locked_actor->GetAllLinkedActors())
+                        for (auto actor : it->ti_locked_actor->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
                         }
@@ -3390,7 +3390,7 @@ void Actor::tieToggle(int group)
                     else if (it->ti_locked_actor == player_actor)
                     {
                         m_gfx_actor->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
-                        for (auto actor : this->GetAllLinkedActors())
+                        for (auto actor : this->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
                         }
@@ -3470,7 +3470,7 @@ void Actor::tieToggle(int group)
                         if (this == player_actor)
                         {
                             nearest_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                            for (auto actor : nearest_actor->GetAllLinkedActors())
+                            for (auto actor : nearest_actor->getAllLinkedActors())
                             {
                                 actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                             }
@@ -3478,7 +3478,7 @@ void Actor::tieToggle(int group)
                         else if (nearest_actor == player_actor)
                         {
                             m_gfx_actor->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
-                            for (auto actor : this->GetAllLinkedActors())
+                            for (auto actor : this->getAllLinkedActors())
                             {
                                 actor->GetGfxActor()->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
                             }
@@ -3515,13 +3515,13 @@ void Actor::ropeToggle(int group)
             {
                 this->RemoveInterActorBeam(it->rp_beam);
                 // update skeletonview on the unroped actors
-                auto linked_actors = it->rp_locked_actor->GetAllLinkedActors();
+                auto linked_actors = it->rp_locked_actor->getAllLinkedActors();
                 if (!(std::find(linked_actors.begin(), linked_actors.end(), this) != linked_actors.end()))
                 {
                     if (this == player_actor)
                     {
                         it->rp_locked_actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
-                        for (auto actor : it->rp_locked_actor->GetAllLinkedActors())
+                        for (auto actor : it->rp_locked_actor->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
                         }
@@ -3529,7 +3529,7 @@ void Actor::ropeToggle(int group)
                     else if (it->rp_locked_actor == player_actor)
                     {
                         m_gfx_actor->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
-                        for (auto actor : this->GetAllLinkedActors())
+                        for (auto actor : this->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
                         }
@@ -3583,7 +3583,7 @@ void Actor::ropeToggle(int group)
                     if (this == player_actor)
                     {
                         nearest_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                        for (auto actor : nearest_actor->GetAllLinkedActors())
+                        for (auto actor : nearest_actor->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                         }
@@ -3591,7 +3591,7 @@ void Actor::ropeToggle(int group)
                     else if (nearest_actor == player_actor)
                     {
                         m_gfx_actor->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
-                        for (auto actor : this->GetAllLinkedActors())
+                        for (auto actor : this->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
                         }
@@ -3723,7 +3723,7 @@ void Actor::hookToggle(int group, HookAction mode, int node_number)
             if (it->hk_locked_actor)
             {
                 it->hk_locked_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                for (auto actor : it->hk_locked_actor->GetAllLinkedActors())
+                for (auto actor : it->hk_locked_actor->getAllLinkedActors())
                 {
                     actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                 }
@@ -3731,7 +3731,7 @@ void Actor::hookToggle(int group, HookAction mode, int node_number)
             else if (prev_locked_actor != this)
             {
                 prev_locked_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                for (auto actor : prev_locked_actor->GetAllLinkedActors())
+                for (auto actor : prev_locked_actor->getAllLinkedActors())
                 {
                     actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                 }
