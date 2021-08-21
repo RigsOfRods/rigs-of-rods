@@ -125,6 +125,14 @@ public:
     void              setBlinkType(BlinkType blink);
     //! @}
 
+    //! @{ Visuals state
+    void              updateSkidmarks();                   //!< Creates or updates skidmarks.
+    void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
+    void              updateFlareStates(float dt);
+    void              updateVisual(float dt=0);
+    void              updateDashBoards(float dt);
+    //! @}
+
     //! @{ Subsystems
     Replay*           getReplay();
     TyrePressure&     getTyrePressure()                 { return m_tyre_pressure; }
@@ -164,10 +172,6 @@ public:
     /// Auto detects an ideal collision avoidance direction (front, back, left, right, up)
     /// Then moves the actor at most 'max_distance' meters towards that direction to resolve any collisions
     void              resolveCollisions(float max_distance, bool consider_up);
-    void              updateSkidmarks();                   //!< Creates or updates skidmarks. No side effects.
-    void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
-    void              updateFlareStates(float dt);
-    void              updateVisual(float dt=0);
     
     Ogre::Vector3     GetGForcesCur() { return m_camera_local_gforces_cur; };
     Ogre::Vector3     GetGForcesMax() { return m_camera_local_gforces_max; };
@@ -181,7 +185,6 @@ public:
     void              setAirbrakeIntensity(float intensity);
     void              sendStreamData();
     bool              hasSlidenodes() { return !m_slidenodes.empty(); };
-    void              updateDashBoards(float dt);
     void              UpdateBoundingBoxes();
     void              calculateAveragePosition();
     void              UpdatePhysicsOrigin();
