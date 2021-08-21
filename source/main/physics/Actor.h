@@ -108,6 +108,7 @@ public:
     void              hookToggle(int group=-1, HookAction mode=HOOK_TOGGLE, int node_number=-1);
     bool              isLocked();                          //!< Are hooks locked?
     void              ropeToggle(int group=-1);
+    void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              parkingbrakeToggle();
     void              antilockbrakeToggle();
     void              tractioncontrolToggle();
@@ -163,7 +164,6 @@ public:
     void              HandleInputEvents(float dt);
     void              HandleAngelScriptEvents(float dt);
     void              UpdateSoundSources();
-    void              EngineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              ToggleSlideNodeLock();
     void              UpdateCruiseControl(float dt);       //!< Defined in 'gameplay/CruiseControl.cpp'
     bool              Intersects(Actor* actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
