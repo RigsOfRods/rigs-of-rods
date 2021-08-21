@@ -103,6 +103,8 @@ public:
     //! @{ User interaction functions
     void              mouseMove(int node, Ogre::Vector3 pos, float force);
     void              lightsToggle();
+    void              tieToggle(int group=-1);
+    bool              isTied();
     void              parkingbrakeToggle();
     void              antilockbrakeToggle();
     void              tractioncontrolToggle();
@@ -133,7 +135,6 @@ public:
     void              HandleInputEvents(float dt);
     void              HandleAngelScriptEvents(float dt);
     void              UpdateSoundSources();
-    void              ToggleTies(int group=-1);
     void              ToggleRopes(int group=-1);            //!< Event handler
     void              ToggleHooks(int group=-1, HookAction mode=HOOK_TOGGLE, int node_number=-1); //!< Event handler
     void              EngineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
@@ -170,7 +171,6 @@ public:
     float             getAvgPropedWheelRadius() { return m_avg_proped_wheel_radius; };
     void              setAirbrakeIntensity(float intensity);
     void              sendStreamData();
-    bool              isTied();
     bool              isLocked(); 
     bool              hasSlidenodes() { return !m_slidenodes.empty(); };
     void              updateDashBoards(float dt);

@@ -695,7 +695,7 @@ void ActorManager::ForwardCommands(Actor* source_actor)
                 }
                 if (source_actor->ar_toggle_ties)
                 {
-                    actor->ToggleTies();
+                    actor->tieToggle();
                 }
                 if (source_actor->ar_toggle_ropes)
                 {
@@ -1052,7 +1052,7 @@ void ActorManager::UpdateActors(Actor* player_actor)
         this->ForwardCommands(player_actor);
         if (player_actor->ar_toggle_ties)
         {
-            player_actor->ToggleTies();
+            player_actor->tieToggle();
             player_actor->ar_toggle_ties = false;
         }
         if (player_actor->ar_toggle_ropes)
