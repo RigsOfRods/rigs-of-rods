@@ -426,25 +426,12 @@ void MainSelector::UpdateDisplayLists()
     query.cqy_filter_guid = m_filter_guid;
 
     App::GetCacheSystem()->Query(query);
-    if (m_selected_cid == CacheCategoryId::CID_All)
-    {
-        m_cache_file_freshness = query.cqy_res_last_update;
-    }
 
     m_selected_entry = -1;
     for (CacheQueryResult const& res: query.cqy_results)
     {
-        const bool is_fresh = this->IsEntryFresh(res.cqr_entry);
-        if (is_fresh)
-        {
-            query.cqy_res_category_usage[CacheCategoryId::CID_Fresh]++;
-        }
-
-        if (m_selected_cid != CacheCategoryId::CID_Fresh || is_fresh)
-        {
-            m_display_entries.push_back(res.cqr_entry);
-            m_selected_entry = 0;
-        }
+        m_display_entries.push_back(res.cqr_entry);
+        m_selected_entry = 0;
     }
 
     // Sort categories alphabetically
@@ -461,11 +448,6 @@ void MainSelector::UpdateDisplayLists()
             m_display_categories.emplace_back(itor.first, itor.second, usage);
         }
     }
-}
-
-bool MainSelector::IsEntryFresh(CacheEntry* entry)
-{
-    return entry->filetime >= m_cache_file_freshness - 86400;
 }
 
 void MainSelector::UpdateSearchParams()
