@@ -240,7 +240,7 @@ public:
     SimBuffer::NodeSB*        GetSimNodeBuffer   ()                       { return m_simbuf.simbuf_nodes.get(); }
     std::set<GfxActor*>       GetLinkedGfxActors ()                       { return m_linked_gfx_actors; }
     Ogre::String              GetResourceGroup   ()                       { return m_custom_resource_group; }
-    std::string               FetchActorDesignName() const;
+    Actor*                    GetActor           ()                       { return m_actor; } // Watch out for multithreading with this!
     int                       FetchNumBeams      () const ;
     int                       FetchNumNodes      () const ;
     int                       FetchNumWheelNodes () const ;

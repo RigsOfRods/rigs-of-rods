@@ -62,11 +62,17 @@ public:
 
     ~Actor();
 
-        //! @{ Physic related functions
+    //! @{ Physic related functions
 
     void              scaleTruck(float value);
 
-        //! @}
+    //! @}
+
+    //! @{ Organizational things
+
+    std::string       getTruckName() { return ar_design_name; };
+
+    //! @}
 
     void              ApplyNodeBeamScales();
     void              PushNetwork(char* data, int size);   //!< Parses network data; fills actor's data buffers and flips them. Called by the network thread.
@@ -129,7 +135,6 @@ public:
     Ogre::Vector3     GetGForcesMax() { return m_camera_local_gforces_max; };
     float             getSteeringAngle();
     float             getMinCameraRadius() { return m_min_camera_radius; };
-    std::string       GetActorDesignName() { return ar_design_name; };
     std::string       GetActorFileName() { return ar_filename; };
     std::string       GetActorFileHash() { return ar_filehash; };
     int               GetActorType() { return ar_driveable; };
