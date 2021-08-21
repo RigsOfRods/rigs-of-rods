@@ -35,8 +35,7 @@
 namespace RoR {
 
 /// Softbody object; can be anything from soda can to a space shuttle
-/// Monsterclass; contains logic related to physics, network, sound, threading, rendering.
-/// NOTE: Until 01/2018, this class was named `Beam` (and was derived from `rig_t`), you may find references to this.
+/// Former name: `Beam` (that's why scripting uses `BeamClass`)
 class Actor : public ZeroedMemoryAllocator
 {
     friend class ActorSpawner;
@@ -64,7 +63,8 @@ public:
 
     //! @{ Network related functions
     void              sendStreamSetup();
-    void              pushNetwork(char* data, int size);   //!< Parses network data; fills actor's data buffers and flips them. Called by the network thread.//! 
+    void              sendStreamData();                    //!< Send outgoing data
+    void              pushNetwork(char* data, int size);   //!< Process incoming data; fills actor's data buffers and flips them. Called by the network thread.//! 
     void              calcNetwork();
     //!
 
@@ -183,7 +183,6 @@ public:
     void              UnmuteAllSounds();
     float             getAvgPropedWheelRadius() { return m_avg_proped_wheel_radius; };
     void              setAirbrakeIntensity(float intensity);
-    void              sendStreamData();
     bool              hasSlidenodes() { return !m_slidenodes.empty(); };
     void              UpdateBoundingBoxes();
     void              calculateAveragePosition();
