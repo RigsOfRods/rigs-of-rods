@@ -122,6 +122,9 @@ public:
     std::string       getTruckName() { return ar_design_name; }
     std::string       getTruckFileName() { return ar_filename; }
     int               getTruckType() { return ar_driveable; }
+    Ogre::String      getSectionConfig() { return m_section_config; }
+    std::vector<authorinfo_t> getAuthors();
+    std::vector<std::string>  getDescription();
     //! @}
 
     void              ForceFeedbackStep(int steps);
@@ -177,9 +180,6 @@ public:
     void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
     void              SoftReset();
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
-    std::vector<authorinfo_t>     getAuthors();
-    std::vector<std::string>      getDescription();
-    Ogre::String     GetSectionConfig()                 { return m_section_config; }
     PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
     std::vector<Actor*> GetAllLinkedActors()            { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     Ogre::Vector3     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
