@@ -2719,7 +2719,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle unlock
-                            ToggleHooks(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, -1);
+                            hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, -1);
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
@@ -2727,7 +2727,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle lock
-                            ToggleHooks(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, -1);
+                            hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, -1);
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
@@ -2758,7 +2758,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle unlock
-                            ToggleHooks(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, -1);
+                            hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, -1);
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
@@ -2766,7 +2766,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle lock
-                            ToggleHooks(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, -1);
+                            hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, -1);
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
@@ -3602,7 +3602,7 @@ void Actor::ToggleRopes(int group)
     }
 }
 
-void Actor::ToggleHooks(int group, HookAction mode, int node_number)
+void Actor::hookToggle(int group, HookAction mode, int node_number)
 {
     // iterate over all hooks
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)

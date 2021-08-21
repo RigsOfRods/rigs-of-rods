@@ -348,7 +348,7 @@ void GameContext::DeleteActor(Actor* actor)
 
         if (actorx->isLocked() && std::find(linked_actors.begin(), linked_actors.end(), actorx) != linked_actors.end())
         {
-            actorx->ToggleHooks();
+            actorx->hookToggle();
         }
     }
 
@@ -1062,13 +1062,13 @@ void GameContext::UpdateCommonInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_LOCK))
     {
-        m_player_actor->ToggleHooks(-1, HOOK_TOGGLE, -1);
+        m_player_actor->hookToggle(-1, HOOK_TOGGLE, -1);
         m_player_actor->ToggleSlideNodeLock();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_AUTOLOCK))
     {
-        m_player_actor->ToggleHooks(-2, HOOK_UNLOCK, -1); //unlock all autolocks
+        m_player_actor->hookToggle(-2, HOOK_UNLOCK, -1); //unlock all autolocks
     }
 
     //strap
