@@ -722,7 +722,7 @@ void GameContext::TeleportPlayer(float x, float z)
 
     for (auto actor : actors)
     {
-        actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
+        actor->resetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
     }
 }
 
