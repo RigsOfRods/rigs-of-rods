@@ -2732,7 +2732,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
                     {
-                        EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, EngineTriggerType(ar_beams[i].shock->trigger_cmdlong), 1.0f);
+                        engineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, EngineTriggerType(ar_beams[i].shock->trigger_cmdlong), 1.0f);
                     }
                     else
                     {
@@ -2773,7 +2773,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                     {
                         bool triggerValue = !(ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS); // 0 if trigger is continuous, 1 otherwise
 
-                        EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, EngineTriggerType(ar_beams[i].shock->trigger_cmdlong), triggerValue);
+                        engineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, EngineTriggerType(ar_beams[i].shock->trigger_cmdlong), triggerValue);
                     }
                     else
                     {
@@ -2809,7 +2809,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
 
                     if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE) // this trigger controls an engine
                     {
-                        EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, EngineTriggerType(ar_beams[i].shock->trigger_cmdlong), triggerValue);
+                        engineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, EngineTriggerType(ar_beams[i].shock->trigger_cmdlong), triggerValue);
                     }
                     else
                     {
@@ -4301,7 +4301,7 @@ void Actor::calculateLocalGForces()
     }
 }
 
-void Actor::EngineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue)
+void Actor::engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue)
 {
     // engineNumber tells us which engine
     EngineSim* e = ar_engine; // placeholder: actors do not have multiple engines yet
