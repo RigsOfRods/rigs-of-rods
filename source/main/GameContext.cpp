@@ -1107,7 +1107,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_BEACONS))
     {
-        m_player_actor->ToggleBeacons();
+        m_player_actor->beaconsToggle();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) &&

@@ -68,11 +68,12 @@ public:
     //! @}
 
     //! @{ User interaction functions
-    void              parkingbrakeToggle();                //!< Event handler
-    void              antilockbrakeToggle();               //!< Event handler
-    void              tractioncontrolToggle();             //!< Event handler
+    void              parkingbrakeToggle();
+    void              antilockbrakeToggle();
+    void              tractioncontrolToggle();
     void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
     void              toggleCustomParticles();
+    void              beaconsToggle();
     //! @}
 
     //! @{ Organizational things
@@ -123,7 +124,6 @@ public:
     void              DisplayTransferCaseMode();           //! Displays the current transfer case mode
 
     void              UpdateCruiseControl(float dt);       //!< Defined in 'gameplay/CruiseControl.cpp'
-    void              ToggleBeacons();                     //!< Event handler
     bool              Intersects(Actor* actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
     /// Moves the actor at most 'direction.length()' meters towards 'direction' to resolve any collisions
     void              resolveCollisions(Ogre::Vector3 direction);

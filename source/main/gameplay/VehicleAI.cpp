@@ -115,7 +115,7 @@ void VehicleAI::updateWaypoint()
             beam->ToggleLights();
             break;
         case AI_BEACONSTOGGLE:
-            beam->ToggleBeacons();
+            beam->beaconsToggle();
             break;
         default:
             break;

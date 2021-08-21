@@ -592,7 +592,7 @@ void Actor::CalcNetwork()
     if (((flagmask & NETMASK_LIGHTS) != 0) != m_headlight_on)
         ToggleLights();
     if (((flagmask & NETMASK_BEACONS) != 0) != m_beacon_light_on)
-        ToggleBeacons();
+        beaconsToggle();
 
     m_antilockbrake = flagmask & NETMASK_ALB_ACTIVE;
     m_tractioncontrol = flagmask & NETMASK_TC_ACTIVE;
@@ -3765,7 +3765,7 @@ void Actor::tractioncontrolToggle()
         tc_mode = !tc_mode;
 }
 
-void Actor::ToggleBeacons()
+void Actor::beaconsToggle()
 {
     if (m_flares_mode == GfxFlaresMode::NONE)
     {
