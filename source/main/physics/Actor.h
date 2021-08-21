@@ -98,13 +98,15 @@ public:
     void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
     void              searchBeamDefaults();                //!< Searches for more stable beam defaults
     void              updateInitPosition();
-    //! @}//! 
+    //! @}
 
     //! @{ User interaction functions
     void              mouseMove(int node, Ogre::Vector3 pos, float force);
     void              lightsToggle();
     void              tieToggle(int group=-1);
     bool              isTied();
+    void              hookToggle(int group=-1, HookAction mode=HOOK_TOGGLE, int node_number=-1);
+    bool              isLocked();                          //!< Are hooks locked?
     void              parkingbrakeToggle();
     void              antilockbrakeToggle();
     void              tractioncontrolToggle();
@@ -136,7 +138,6 @@ public:
     void              HandleAngelScriptEvents(float dt);
     void              UpdateSoundSources();
     void              ToggleRopes(int group=-1);            //!< Event handler
-    void              ToggleHooks(int group=-1, HookAction mode=HOOK_TOGGLE, int node_number=-1); //!< Event handler
     void              EngineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              ToggleSlideNodeLock();
     void              ToggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
@@ -171,7 +172,6 @@ public:
     float             getAvgPropedWheelRadius() { return m_avg_proped_wheel_radius; };
     void              setAirbrakeIntensity(float intensity);
     void              sendStreamData();
-    bool              isLocked(); 
     bool              hasSlidenodes() { return !m_slidenodes.empty(); };
     void              updateDashBoards(float dt);
     void              UpdateBoundingBoxes();

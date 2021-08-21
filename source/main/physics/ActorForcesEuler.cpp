@@ -1102,7 +1102,7 @@ bool Actor::CalcForcesEulerPrepare(bool doUpdate)
         return false;
 
     if (doUpdate)
-        this->ToggleHooks(-2, HOOK_LOCK, -1);
+        this->hookToggle(-2, HOOK_LOCK, -1);
 
     this->CalcHooks();
     this->CalcRopes();
