@@ -63,18 +63,21 @@ public:
     ~Actor();
 
     //! @{ Physic related functions
-
     void              scaleTruck(float value);
     void              reset(bool keep_position = false); //!< call this one to reset a truck from any context
+    //! @}
 
+    //! @{ User interaction functions
+    void              parkingbrakeToggle();                //!< Event handler
+    void              antilockbrakeToggle();               //!< Event handler
+    void              tractioncontrolToggle();             //!< Event handler
+    void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
     //! @}
 
     //! @{ Organizational things
-
     std::string       getTruckName() { return ar_design_name; };
     std::string       getTruckFileName() { return ar_filename; };
     int               getTruckType() { return ar_driveable; };
-
     //! @}
 
     void              ApplyNodeBeamScales();
@@ -117,10 +120,7 @@ public:
     void              ToggleTransferCaseGearRatio();       //! Toggles between Hi and Lo mode
     Ogre::String      GetTransferCaseName();               //! Gets the current transfer case mode name (4WD Hi, ...)
     void              DisplayTransferCaseMode();           //! Displays the current transfer case mode
-    void              ToggleParkingBrake();                //!< Event handler
-    void              ToggleAntiLockBrake();               //!< Event handler
-    void              ToggleTractionControl();             //!< Event handler
-    void              ToggleCruiseControl();               //!< Defined in 'gameplay/CruiseControl.cpp'
+
     void              UpdateCruiseControl(float dt);       //!< Defined in 'gameplay/CruiseControl.cpp'
     void              ToggleBeacons();                     //!< Event handler
     bool              Intersects(Actor* actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test

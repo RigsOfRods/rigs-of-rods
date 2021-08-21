@@ -135,7 +135,7 @@ void VehicleAI::updateWaypoint()
     {
         current_waypoint_id = 0;
         is_enabled = false;
-        beam->ToggleParkingBrake();
+        beam->parkingbrakeToggle();
     }
     current_waypoint = waypoints[current_waypoint_id];
 }
