@@ -1009,7 +1009,7 @@ void Actor::resolveCollisions(Vector3 direction)
     // Additional 20 cm safe-guard (horizontally)
     offset += 0.2f * Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
 
-    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, false, this->GetMinHeight() + offset.y);
+    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, false, this->getMinHeight() + offset.y);
 }
 
 void Actor::resolveCollisions(float max_distance, bool consider_up)
@@ -1048,7 +1048,7 @@ void Actor::resolveCollisions(float max_distance, bool consider_up)
     // Additional 20 cm safe-guard (horizontally)
     offset += 0.2f * Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
 
-    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, this->GetMinHeight() + offset.y);
+    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, this->getMinHeight() + offset.y);
 }
 
 void Actor::calculateAveragePosition()
@@ -1179,7 +1179,7 @@ void Actor::resetPosition(float px, float pz, bool setInitPosition, float miny)
     }
 
     // vertical displacement
-    float vertical_offset = miny - this->GetMinHeight();
+    float vertical_offset = miny - this->getMinHeight();
     if (App::GetSimTerrain()->getWater())
     {
         vertical_offset += std::max(0.0f, App::GetSimTerrain()->getWater()->GetStaticWaterHeight() - miny);
@@ -1419,7 +1419,7 @@ Ogre::Vector3 Actor::getRotationCenter()
     return sum / positions.size();
 }
 
-float Actor::GetMinHeight(bool skip_virtual_nodes)
+float Actor::getMinHeight(bool skip_virtual_nodes)
 {
     float height = std::numeric_limits<float>::max(); 
     for (int i = 0; i < ar_num_nodes; i++)
@@ -1429,10 +1429,10 @@ float Actor::GetMinHeight(bool skip_virtual_nodes)
             height = std::min(ar_nodes[i].AbsPosition.y, height);
         }
     }
-    return (!skip_virtual_nodes || height < std::numeric_limits<float>::max()) ? height : GetMinHeight(false);
+    return (!skip_virtual_nodes || height < std::numeric_limits<float>::max()) ? height : getMinHeight(false);
 }
 
-float Actor::GetMaxHeight(bool skip_virtual_nodes)
+float Actor::getMaxHeight(bool skip_virtual_nodes)
 {
     float height = std::numeric_limits<float>::min(); 
     for (int i = 0; i < ar_num_nodes; i++)
@@ -1442,10 +1442,10 @@ float Actor::GetMaxHeight(bool skip_virtual_nodes)
             height = std::max(height, ar_nodes[i].AbsPosition.y);
         }
     }
-    return (!skip_virtual_nodes || height > std::numeric_limits<float>::min()) ? height : GetMaxHeight(false);
+    return (!skip_virtual_nodes || height > std::numeric_limits<float>::min()) ? height : getMaxHeight(false);
 }
 
-float Actor::GetHeightAboveGround(bool skip_virtual_nodes)
+float Actor::getHeightAboveGround(bool skip_virtual_nodes)
 {
     float agl = std::numeric_limits<float>::max(); 
     for (int i = 0; i < ar_num_nodes; i++)
@@ -1456,10 +1456,10 @@ float Actor::GetHeightAboveGround(bool skip_virtual_nodes)
             agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(pos.x, pos.z), agl);
         }
     }
-    return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGround(false);
+    return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : getHeightAboveGround(false);
 }
 
-float Actor::GetHeightAboveGroundBelow(float height, bool skip_virtual_nodes)
+float Actor::getHeightAboveGroundBelow(float height, bool skip_virtual_nodes)
 {
     float agl = std::numeric_limits<float>::max(); 
     for (int i = 0; i < ar_num_nodes; i++)
@@ -1470,7 +1470,7 @@ float Actor::GetHeightAboveGroundBelow(float height, bool skip_virtual_nodes)
             agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(pos.x, pos.z, height), agl);
         }
     }
-    return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGroundBelow(height, false);
+    return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : getHeightAboveGroundBelow(height, false);
 }
 
 void Actor::reset(bool keep_position)
@@ -1485,11 +1485,11 @@ void Actor::SoftReset()
 {
     TRIGGER_EVENT(SE_TRUCK_RESET, ar_instance_id);
 
-    float agl = this->GetHeightAboveGroundBelow(this->GetMaxHeight(true), true);
+    float agl = this->getHeightAboveGroundBelow(this->getMaxHeight(true), true);
 
     if (App::GetSimTerrain()->getWater())
     {
-        agl = std::min(this->GetMinHeight(true) - App::GetSimTerrain()->getWater()->GetStaticWaterHeight(), agl);
+        agl = std::min(this->getMinHeight(true) - App::GetSimTerrain()->getWater()->GetStaticWaterHeight(), agl);
     }
 
     if (agl < 0.0f)
@@ -1642,10 +1642,10 @@ void Actor::SyncReset(bool reset_position)
     {
         this->ResetAngle(cur_rot);
         this->resetPosition(cur_position, false);
-        float agl = this->GetHeightAboveGroundBelow(this->GetMaxHeight(true), true);
+        float agl = this->getHeightAboveGroundBelow(this->getMaxHeight(true), true);
         if (App::GetSimTerrain()->getWater())
         {
-            agl = std::min(this->GetMinHeight(true) - App::GetSimTerrain()->getWater()->GetStaticWaterHeight(), agl);
+            agl = std::min(this->getMinHeight(true) - App::GetSimTerrain()->getWater()->GetStaticWaterHeight(), agl);
         }
         if (agl < 0.0f)
         {
@@ -4064,7 +4064,7 @@ void Actor::updateDashBoards(float dt)
         }
 
         // water depth display, only if we have a screw prop at least
-        float depth = this->GetHeightAboveGround();
+        float depth = this->getHeightAboveGround();
         ar_dashboard->setFloat(DD_WATER_DEPTH, depth);
 
         // water speed
