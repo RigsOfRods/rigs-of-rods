@@ -750,7 +750,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
             if (newGear < m_cur_gear && std::abs(m_cur_wheel_revolutions * (m_gear_ratios[newGear + 1] - m_gear_ratios[m_cur_gear + 1])) > m_one_third_rpm_range / 6.0f ||
                 newGear > m_cur_gear && std::abs(m_cur_wheel_revolutions * (m_gear_ratios[newGear + 1] - m_gear_ratios[m_cur_gear + 1])) > m_one_third_rpm_range / 3.0f)
             {
-                if (std::abs(m_actor->GetGForcesCur().y) < 0.25f)
+                if (std::abs(m_actor->getGForces().y) < 0.25f)
                     shiftTo(newGear);
             }
 
