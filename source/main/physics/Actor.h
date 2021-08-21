@@ -107,6 +107,7 @@ public:
     bool              isTied();
     void              hookToggle(int group=-1, HookAction mode=HOOK_TOGGLE, int node_number=-1);
     bool              isLocked();                          //!< Are hooks locked?
+    void              ropeToggle(int group=-1);
     void              parkingbrakeToggle();
     void              antilockbrakeToggle();
     void              tractioncontrolToggle();
@@ -137,7 +138,6 @@ public:
     void              HandleInputEvents(float dt);
     void              HandleAngelScriptEvents(float dt);
     void              UpdateSoundSources();
-    void              ToggleRopes(int group=-1);            //!< Event handler
     void              EngineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              ToggleSlideNodeLock();
     void              ToggleAxleDiffMode();                //! Cycles through the available inter axle diff modes

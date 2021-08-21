@@ -699,7 +699,7 @@ void ActorManager::ForwardCommands(Actor* source_actor)
                 }
                 if (source_actor->ar_toggle_ropes)
                 {
-                    actor->ToggleRopes(-1);
+                    actor->ropeToggle(-1);
                 }
             }
         }
@@ -1057,7 +1057,7 @@ void ActorManager::UpdateActors(Actor* player_actor)
         }
         if (player_actor->ar_toggle_ropes)
         {
-            player_actor->ToggleRopes(-1);
+            player_actor->ropeToggle(-1);
             player_actor->ar_toggle_ropes = false;
         }
 

@@ -3493,7 +3493,7 @@ void Actor::tieToggle(int group)
     TRIGGER_EVENT(SE_TRUCK_TIE_TOGGLE, ar_instance_id);
 }
 
-void Actor::ToggleRopes(int group)
+void Actor::ropeToggle(int group)
 {
     Actor* player_actor = App::GetGameContext()->GetPlayerActor();
 
