@@ -340,7 +340,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
 {
     Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
-    actor->SetUsedSkin(rq.asr_skin_entry);
+    actor->setUsedSkin(rq.asr_skin_entry);
 
     if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {
