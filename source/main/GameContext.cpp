@@ -343,7 +343,7 @@ void GameContext::DeleteActor(Actor* actor)
     {
         if (actorx->isTied() && std::find(linked_actors.begin(), linked_actors.end(), actorx) != linked_actors.end())
         {
-            actorx->ToggleTies();
+            actorx->tieToggle();
         }
 
         if (actorx->isLocked() && std::find(linked_actors.begin(), linked_actors.end(), actorx) != linked_actors.end())

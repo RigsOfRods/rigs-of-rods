@@ -3345,7 +3345,7 @@ void Actor::DisjoinInterActorBeams()
     }
 }
 
-void Actor::ToggleTies(int group)
+void Actor::tieToggle(int group)
 {
     Actor* player_actor = App::GetGameContext()->GetPlayerActor();
 
