@@ -66,6 +66,16 @@ public:
     void              scaleTruck(float value);
     void              reset(bool keep_position = false); //!< call this one to reset a truck from any context
     int               getNodeCount() { return ar_num_nodes; }
+    float             getTotalMass(bool withLocked=true);
+    int               getWheelNodeCount() const;
+    void              setMass(float m);
+    float             getWheelSpeed() const { return ar_wheel_speed; }
+    float             getSpeed() { return m_avg_node_velocity.length(); };
+    Ogre::Vector3     getVelocity() const { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
+    float             getRotation();
+    Ogre::Vector3     getDirection();
+    Ogre::Vector3     getPosition();
+    Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
     //! @}
 
     //! @{ User interaction functions
@@ -74,7 +84,16 @@ public:
     void              tractioncontrolToggle();
     void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
     void              toggleCustomParticles();
+    bool              getCustomParticleMode();
     void              beaconsToggle();
+    bool              getBrakeLightVisible();
+    bool              getCustomLightVisible(int number);
+    void              setCustomLightVisible(int number, bool visible);
+    bool              getReverseLightVisible();            //!< Tells if the reverse-light is currently lit.
+    bool              getBeaconMode();
+    void              toggleBlinkType(BlinkType blink);
+    BlinkType         getBlinkType();
+    void              setBlinkType(BlinkType blink);
     //! @}
 
     //! @{ Organizational things
@@ -86,9 +105,6 @@ public:
     void              ApplyNodeBeamScales();
     void              PushNetwork(char* data, int size);   //!< Parses network data; fills actor's data buffers and flips them. Called by the network thread.
     void              CalcNetwork();
-    float             getRotation();
-    Ogre::Vector3     getDirection();
-    Ogre::Vector3     getPosition();
     void              UpdateInitPosition();
     /// Moves the actor.
     /// @param translation Offset to move in world coordinates
@@ -144,19 +160,8 @@ public:
     void              NotifyActorCameraChanged();                 //!< Logic: sound, display; Notify this vehicle that camera changed;
     void              StopAllSounds();
     void              UnmuteAllSounds();
-    float             getTotalMass(bool withLocked=true);
     float             getAvgPropedWheelRadius() { return m_avg_proped_wheel_radius; };
-    int               getWheelNodeCount() const;
-    void              setMass(float m);
-    bool              getBrakeLightVisible();
-    bool              getReverseLightVisible();            //!< Tells if the reverse-light is currently lit.
-    bool              getCustomLightVisible(int number);
-    void              setCustomLightVisible(int number, bool visible);
-    bool              getBeaconMode();
-    void              toggleBlinkType(BlinkType blink);
-    void              setBlinkType(BlinkType blink);
     void              setAirbrakeIntensity(float intensity);
-    bool              getCustomParticleMode();
     void              sendStreamData();
     bool              isTied();
     bool              isLocked(); 
@@ -168,7 +173,6 @@ public:
     void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
     void              SoftReset();
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
-    BlinkType         getBlinkType();
     std::vector<authorinfo_t>     getAuthors();
     std::vector<std::string>      getDescription();
     Ogre::String     GetSectionConfig()                 { return m_section_config; }
@@ -179,18 +183,14 @@ public:
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
     GfxActor*         GetGfxActor()                     { return m_gfx_actor.get(); }
     void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
-    Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
     Ogre::Real        getMinimalCameraRadius();
     Replay*           GetReplay();
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
     bool              isPreloadedWithTerrain() const    { return m_preloaded_with_terrain; };
     bool              isBeingReset() const              { return m_ongoing_reset; };
     VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
-    float             getWheelSpeed() const             { return ar_wheel_speed; }
     CacheEntry*       GetUsedSkin() const               { return m_used_skin_entry; }
     void              SetUsedSkin(CacheEntry* skin)     { m_used_skin_entry = skin; }
-    float             getSpeed()                        { return m_avg_node_velocity.length(); };
-    Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
     TyrePressure&     GetTyrePressure()                 { return m_tyre_pressure; }
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
