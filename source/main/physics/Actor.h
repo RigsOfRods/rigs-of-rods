@@ -90,6 +90,8 @@ public:
     float             getMaxHeight(bool skip_virtual_nodes=true);
     float             getHeightAboveGround(bool skip_virtual_nodes=true);
     float             getHeightAboveGroundBelow(float height, bool skip_virtual_nodes=true);
+    Ogre::Vector3     getGForces() { return m_camera_local_gforces_cur; };
+    Ogre::Vector3     getMaxGForces() { return m_camera_local_gforces_max; };
     bool              hasSlidenodes() { return !m_slidenodes.empty(); };
     void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
     void              updateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces
@@ -183,8 +185,6 @@ public:
     /// Auto detects an ideal collision avoidance direction (front, back, left, right, up)
     /// Then moves the actor at most 'max_distance' meters towards that direction to resolve any collisions
     void              resolveCollisions(float max_distance, bool consider_up);    
-    Ogre::Vector3     GetGForcesCur() { return m_camera_local_gforces_cur; };
-    Ogre::Vector3     GetGForcesMax() { return m_camera_local_gforces_max; };
     float             getSteeringAngle();
     float             getMinCameraRadius() { return m_min_camera_radius; };
     int               GetNumActiveConnectedBeams(int nodeid);     //!< Returns the number of active (non bounded) beams connected to a node

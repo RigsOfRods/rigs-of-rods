@@ -232,8 +232,8 @@ void SimActorStats::UpdateStats(float dt, Actor* actor)
     float mass = actor->getTotalMass();
     int beambroken = 0;
     int beamdeformed = 0;
-    Ogre::Vector3 gcur = actor->GetGForcesCur();
-    Ogre::Vector3 gmax = actor->GetGForcesMax();
+    Ogre::Vector3 gcur = actor->getGForces();
+    Ogre::Vector3 gmax = actor->getMaxGForces();
 
     for (int i = 0; i < actor->ar_num_beams; i++ , beam++)
     {
