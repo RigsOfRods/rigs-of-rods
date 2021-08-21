@@ -291,7 +291,7 @@ public:
             }
             else if (b)
             {
-                b->ResetPosition(pos, false);
+                b->resetPosition(pos, false);
                 TRIGGER_EVENT(SE_TRUCK_TELEPORT, b->ar_instance_id);
                 reply << _L("Vehicle position set to: ") << "x: " << pos.x << " y: " << pos.y << " z: " << pos.z;
             }

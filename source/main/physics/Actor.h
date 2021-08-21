@@ -70,7 +70,9 @@ public:
 
     //! @{ Physic related functions
     void              scaleTruck(float value);
-    void              reset(bool keep_position = false); //!< call this one to reset a truck from any context
+    void              reset(bool keep_position = false);   //!< call this one to reset a truck from any context
+    void              resetPosition(Ogre::Vector3 translation, bool setInitPosition); //!< Moves the actor to given world coords.
+    void              resetPosition(float px, float pz, bool setInitPosition, float miny); //!< Moves the actor to given world coords.
     int               getNodeCount() { return ar_num_nodes; }
     float             getTotalMass(bool withLocked=true);
     int               getWheelNodeCount() const;
@@ -110,11 +112,6 @@ public:
 
     void              ApplyNodeBeamScales();
     void              UpdateInitPosition();
-    /// Moves the actor.
-    /// @param translation Offset to move in world coordinates
-    /// @param setInitPosition Set initial positions of nodes to current position?
-    void              ResetPosition(Ogre::Vector3 translation, bool setInitPosition);
-    void              ResetPosition(float px, float pz, bool setInitPosition, float miny);
     void              RequestRotation(float rotation, Ogre::Vector3 center) { m_rotation_request += rotation; m_rotation_request_center = center; };
     void              RequestAngleSnap(int division) { m_anglesnap_request = division; };
     void              RequestTranslation(Ogre::Vector3 translation) { m_translation_request += translation; };

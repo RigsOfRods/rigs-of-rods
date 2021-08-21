@@ -149,9 +149,9 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
         }
 
         if (rq.asr_free_position)
-            actor->ResetPosition(vehicle_position, true);
+            actor->resetPosition(vehicle_position, true);
         else
-            actor->ResetPosition(vehicle_position.x, vehicle_position.z, true, miny);
+            actor->resetPosition(vehicle_position.x, vehicle_position.z, true, miny);
 
         if (rq.asr_spawnbox != nullptr)
         {
@@ -166,13 +166,13 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
                 gpos -= rq.asr_rotation * Vector3((rq.asr_spawnbox->hi.x - rq.asr_spawnbox->lo.x + actor->ar_bounding_box.getMaximum().x - actor->ar_bounding_box.getMinimum().x) * 0.6f, 0.0f, 0.0f);
 
-                actor->ResetPosition(gpos.x, gpos.z, true, miny);
+                actor->resetPosition(gpos.x, gpos.z, true, miny);
             }
         }
     }
     else
     {
-        actor->ResetPosition(rq.asr_position, true);
+        actor->resetPosition(rq.asr_position, true);
     }
     actor->UpdateBoundingBoxes();
 

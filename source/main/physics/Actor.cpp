@@ -1009,7 +1009,7 @@ void Actor::resolveCollisions(Vector3 direction)
     // Additional 20 cm safe-guard (horizontally)
     offset += 0.2f * Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
 
-    ResetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, false, this->GetMinHeight() + offset.y);
+    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, false, this->GetMinHeight() + offset.y);
 }
 
 void Actor::resolveCollisions(float max_distance, bool consider_up)
@@ -1048,7 +1048,7 @@ void Actor::resolveCollisions(float max_distance, bool consider_up)
     // Additional 20 cm safe-guard (horizontally)
     offset += 0.2f * Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
 
-    ResetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, this->GetMinHeight() + offset.y);
+    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, this->GetMinHeight() + offset.y);
 }
 
 void Actor::calculateAveragePosition()
@@ -1168,7 +1168,7 @@ void Actor::UpdateInitPosition()
     }
 }
 
-void Actor::ResetPosition(float px, float pz, bool setInitPosition, float miny)
+void Actor::resetPosition(float px, float pz, bool setInitPosition, float miny)
 {
     // horizontal displacement
     Vector3 offset = Vector3(px, ar_nodes[0].AbsPosition.y, pz) - ar_nodes[0].AbsPosition;
@@ -1223,10 +1223,10 @@ void Actor::ResetPosition(float px, float pz, bool setInitPosition, float miny)
         ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
     }
 
-    ResetPosition(Vector3::ZERO, setInitPosition);
+    resetPosition(Vector3::ZERO, setInitPosition);
 }
 
-void Actor::ResetPosition(Vector3 translation, bool setInitPosition)
+void Actor::resetPosition(Vector3 translation, bool setInitPosition)
 {
     // total displacement
     if (translation != Vector3::ZERO)
@@ -1495,10 +1495,10 @@ void Actor::SoftReset()
     if (agl < 0.0f)
     {
         Vector3 translation = -agl * Vector3::UNIT_Y;
-        this->ResetPosition(ar_nodes[0].AbsPosition + translation, false);
+        this->resetPosition(ar_nodes[0].AbsPosition + translation, false);
         for (auto actor : m_linked_actors)
         {
-            actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
+            actor->resetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
         }
     }
 
@@ -1641,7 +1641,7 @@ void Actor::SyncReset(bool reset_position)
     if (!reset_position)
     {
         this->ResetAngle(cur_rot);
-        this->ResetPosition(cur_position, false);
+        this->resetPosition(cur_position, false);
         float agl = this->GetHeightAboveGroundBelow(this->GetMaxHeight(true), true);
         if (App::GetSimTerrain()->getWater())
         {
@@ -1649,7 +1649,7 @@ void Actor::SyncReset(bool reset_position)
         }
         if (agl < 0.0f)
         {
-            this->ResetPosition(ar_nodes[0].AbsPosition - agl * Vector3::UNIT_Y, false);
+            this->resetPosition(ar_nodes[0].AbsPosition - agl * Vector3::UNIT_Y, false);
         }
     }
     else
