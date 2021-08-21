@@ -73,7 +73,6 @@ private:
     void UpdateSearchParams();
     void Apply();
     void Cancel();
-    bool IsEntryFresh(CacheEntry* entry);
     void DrawAttrInt(const char* desc, int val) const;
     void DrawAttrFloat(const char* desc, float val) const;
     void DrawAttrSpecial(bool val, const char* label) const;
@@ -85,7 +84,6 @@ private:
     LoaderType         m_loader_type = LT_None;
     DisplayCategoryVec m_display_categories;
     DisplayEntryVec    m_display_entries;
-    std::time_t        m_cache_file_freshness;
     CacheSearchMethod  m_search_method = CacheSearchMethod::NONE;
     std::string        m_search_string;
     std::string        m_filter_guid;                //!< Used for skins
