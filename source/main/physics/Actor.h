@@ -65,6 +65,7 @@ public:
     //! @{ Physic related functions
     void              scaleTruck(float value);
     void              reset(bool keep_position = false); //!< call this one to reset a truck from any context
+    int               getNodeCount() { return ar_num_nodes; }
     //! @}
 
     //! @{ User interaction functions
@@ -77,9 +78,9 @@ public:
     //! @}
 
     //! @{ Organizational things
-    std::string       getTruckName() { return ar_design_name; };
-    std::string       getTruckFileName() { return ar_filename; };
-    int               getTruckType() { return ar_driveable; };
+    std::string       getTruckName() { return ar_design_name; }
+    std::string       getTruckFileName() { return ar_filename; }
+    int               getTruckType() { return ar_driveable; }
     //! @}
 
     void              ApplyNodeBeamScales();
@@ -186,7 +187,6 @@ public:
     bool              isBeingReset() const              { return m_ongoing_reset; };
     VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
     float             getWheelSpeed() const             { return ar_wheel_speed; }
-    int               GetNumNodes() const               { return ar_num_nodes; }
     CacheEntry*       GetUsedSkin() const               { return m_used_skin_entry; }
     void              SetUsedSkin(CacheEntry* skin)     { m_used_skin_entry = skin; }
     float             getSpeed()                        { return m_avg_node_velocity.length(); };
