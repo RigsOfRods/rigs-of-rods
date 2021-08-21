@@ -135,6 +135,9 @@ public:
     std::string       getTruckFileName() { return ar_filename; }
     int               getTruckType() { return ar_driveable; }
     Ogre::String      getSectionConfig() { return m_section_config; }
+    CacheEntry*       getUsedSkin() { return m_used_skin_entry; }
+    void              setUsedSkin(CacheEntry* skin) { m_used_skin_entry = skin; }
+    bool              isPreloadedWithTerrain() const { return m_preloaded_with_terrain; };
     std::vector<authorinfo_t> getAuthors();
     std::vector<std::string>  getDescription();
     //! @}
@@ -194,12 +197,8 @@ public:
     void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
     Ogre::Real        getMinimalCameraRadius();
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
-    bool              isPreloadedWithTerrain() const    { return m_preloaded_with_terrain; };
     bool              isBeingReset() const              { return m_ongoing_reset; };
     VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
-    CacheEntry*       GetUsedSkin() const               { return m_used_skin_entry; }
-    void              SetUsedSkin(CacheEntry* skin)     { m_used_skin_entry = skin; }
-    
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
     void              addRef()                          {};
