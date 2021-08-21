@@ -50,37 +50,37 @@ void NodeBeamUtils::Draw()
     {
         actor->ar_nb_mass_scale = cur_mass / ref_mass;
         actor->ar_nb_initialized = false;
-        actor->ApplyNodeBeamScales();
+        actor->applyNodeBeamScales();
     }
     ImGui::Separator();
     ImGui::TextColored(GRAY_HINT_TEXT, _LC("NodeBeamUtils", "Beams:"));
     if (ImGui::SliderFloat("Spring##Beams", &actor->ar_nb_beams_scale.first, 0.1f, 10.0f, "%.5f"))
     {
-        actor->ApplyNodeBeamScales();
+        actor->applyNodeBeamScales();
     }
     if (ImGui::SliderFloat("Damping##Beams", &actor->ar_nb_beams_scale.second, 0.1f, 10.0f, "%.5f"))
     {
-        actor->ApplyNodeBeamScales();
+        actor->applyNodeBeamScales();
     }
     ImGui::Separator();
     ImGui::TextColored(GRAY_HINT_TEXT, _LC("NodeBeamUtils", "Shocks:"));
     if (ImGui::SliderFloat("Spring##Shocks", &actor->ar_nb_shocks_scale.first, 0.1f, 10.0f, "%.5f"))
     {
-        actor->ApplyNodeBeamScales();
+        actor->applyNodeBeamScales();
     }
     if (ImGui::SliderFloat("Damping##Shocks", &actor->ar_nb_shocks_scale.second, 0.1f, 10.0f, "%.5f"))
     {
-        actor->ApplyNodeBeamScales();
+        actor->applyNodeBeamScales();
     }
     ImGui::Separator();
     ImGui::TextColored(GRAY_HINT_TEXT, _LC("NodeBeamUtils", "Wheels:"));
     if (ImGui::SliderFloat("Spring##Wheels", &actor->ar_nb_wheels_scale.first, 0.1f, 10.0f, "%.5f"))
     {
-        actor->ApplyNodeBeamScales();
+        actor->applyNodeBeamScales();
     }
     if (ImGui::SliderFloat("Damping##Wheels", &actor->ar_nb_wheels_scale.second, 0.1f, 10.0f, "%.5f"))
     {
-        actor->ApplyNodeBeamScales();
+        actor->applyNodeBeamScales();
     }
     ImGui::Separator();
     ImGui::Spacing();
@@ -95,7 +95,7 @@ void NodeBeamUtils::Draw()
     ImGui::SameLine();
     if (ImGui::Button(_LC("NodeBeamUtils", "Update initial node positions"), ImVec2(280.f, 25.f)))
     {
-        actor->UpdateInitPosition();
+        actor->updateInitPosition();
     }
     ImGui::PopItemWidth();
 
@@ -172,7 +172,7 @@ void NodeBeamUtils::Draw()
 
     if (m_is_searching)
     {
-        actor->SearchBeamDefaults();
+        actor->searchBeamDefaults();
     }
 
     App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
