@@ -325,7 +325,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         {
             if (j_entry["filename"].GetString() != x_actors[index]->ar_filename ||
                     (skin != nullptr && skin->dname != x_actors[index]->m_used_skin_entry->dname) ||
-                    section_config != x_actors[index]->GetSectionConfig())
+                    section_config != x_actors[index]->getSectionConfig())
             {
                 if (x_actors[index] == player_actor)
                 {

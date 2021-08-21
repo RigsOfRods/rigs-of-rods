@@ -304,7 +304,7 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         ActorSpawnRequest* srq = new ActorSpawnRequest;
         srq->asr_position   = Ogre::Vector3(rq.amr_actor->getPosition().x, rq.amr_actor->getMinHeight(), rq.amr_actor->getPosition().z);
         srq->asr_rotation   = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(rq.amr_actor->getRotation()), Ogre::Vector3::UNIT_Y);
-        srq->asr_config     = rq.amr_actor->GetSectionConfig();
+        srq->asr_config     = rq.amr_actor->getSectionConfig();
         srq->asr_skin_entry = rq.amr_actor->GetUsedSkin();
         srq->asr_cache_entry= entry;
         srq->asr_debugview  = (int)rq.amr_actor->GetGfxActor()->GetDebugView();
