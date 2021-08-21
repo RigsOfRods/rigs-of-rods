@@ -68,8 +68,7 @@ public:
     void              calcNetwork();
     //!
 
-    //! @{ Physic related functions
-    void              scaleTruck(float value);
+    //! @{ Physic state functions
     void              reset(bool keep_position = false);   //!< call this one to reset a truck from any context
     void              resetPosition(Ogre::Vector3 translation, bool setInitPosition); //!< Moves the actor to given world coords.
     void              resetPosition(float px, float pz, bool setInitPosition, float miny); //!< Moves the actor to given world coords.
@@ -79,7 +78,6 @@ public:
     int               getNodeCount() { return ar_num_nodes; }
     float             getTotalMass(bool withLocked=true);
     int               getWheelNodeCount() const;
-    void              setMass(float m);
     float             getWheelSpeed() const { return ar_wheel_speed; }
     float             getSpeed() { return m_avg_node_velocity.length(); };
     Ogre::Vector3     getVelocity() const { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
@@ -88,6 +86,14 @@ public:
     Ogre::Vector3     getPosition();
     Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
     //! @}
+
+    //! @{ Physics editing functions
+    void              scaleTruck(float value);
+    void              setMass(float m);
+    void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
+    void              searchBeamDefaults();                //!< Searches for more stable beam defaults
+    void              updateInitPosition();
+    //! @}//! 
 
     //! @{ User interaction functions
     void              parkingbrakeToggle();
@@ -113,8 +119,6 @@ public:
     int               getTruckType() { return ar_driveable; }
     //! @}
 
-    void              ApplyNodeBeamScales();
-    void              UpdateInitPosition();
     Ogre::Vector3     GetRotationCenter();
     float             GetMinHeight(bool skip_virtual_nodes=true);
     float             GetMaxHeight(bool skip_virtual_nodes=true);
@@ -352,7 +356,6 @@ public:
     ground_model_t*   ar_last_fuzzy_ground_model;     //!< GUI state
 
     // Realtime node/beam structure editing helpers
-    void                    SearchBeamDefaults();     //!< Searches for more stable beam defaults
     bool                    ar_nb_initialized;
     std::vector<float>      ar_nb_optimum;            //!< Temporary storage of the optimum search result
     std::vector<float>      ar_nb_reference;          //!< Temporary storage of the reference search result

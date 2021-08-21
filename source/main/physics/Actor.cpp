@@ -1160,7 +1160,7 @@ void Actor::ResetAngle(float rot)
     calculateAveragePosition();
 }
 
-void Actor::UpdateInitPosition()
+void Actor::updateInitPosition()
 {
     for (int i = 0; i < ar_num_nodes; i++)
     {
@@ -1553,7 +1553,7 @@ void Actor::SyncReset(bool reset_position)
         ar_beams[i].bm_disabled     = false;
     }
 
-    this->ApplyNodeBeamScales();
+    this->applyNodeBeamScales();
 
     this->DisjoinInterActorBeams();
 
@@ -1679,7 +1679,7 @@ void Actor::SyncReset(bool reset_position)
     m_ongoing_reset = true;
 }
 
-void Actor::ApplyNodeBeamScales()
+void Actor::applyNodeBeamScales()
 {
     for (int i = 0; i < ar_num_nodes; i++)
     {
@@ -1731,7 +1731,7 @@ void Actor::HandleAngelScriptEvents(float dt)
 #endif // USE_ANGELSCRIPT
 }
 
-void Actor::SearchBeamDefaults()
+void Actor::searchBeamDefaults()
 {
     SyncReset(true);
 
@@ -1760,7 +1760,7 @@ void Actor::SearchBeamDefaults()
         ar_nb_optimum   = std::vector<float>(ar_nb_reference.size(), std::numeric_limits<float>::max());
     }
 
-    this->ApplyNodeBeamScales();
+    this->applyNodeBeamScales();
 
     m_ongoing_reset = false;
     this->CalcForcesEulerPrepare(true);
