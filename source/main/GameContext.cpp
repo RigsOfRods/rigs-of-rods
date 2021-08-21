@@ -153,7 +153,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
             {
                 float h = m_player_actor->GetMaxHeight(true);
                 rq.asr_rotation = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(m_player_actor->getRotation()), Ogre::Vector3::UNIT_Y);
-                rq.asr_position = m_player_actor->GetRotationCenter();
+                rq.asr_position = m_player_actor->getRotationCenter();
                 rq.asr_position.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(rq.asr_position.x, rq.asr_position.z, h);
                 rq.asr_position.y += m_player_actor->GetHeightAboveGroundBelow(h, true); // retain height above ground
             }
@@ -322,7 +322,7 @@ void GameContext::DeleteActor(Actor* actor)
 {
     if (actor == m_player_actor)
     {
-        Ogre::Vector3 center = m_player_actor->GetRotationCenter();
+        Ogre::Vector3 center = m_player_actor->getRotationCenter();
         this->ChangePlayerActor(nullptr); // Get out of the vehicle
         this->GetPlayerCharacter()->setPosition(center);
     }
