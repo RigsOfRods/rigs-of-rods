@@ -151,11 +151,11 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
         {
             if (m_player_actor != nullptr)
             {
-                float h = m_player_actor->GetMaxHeight(true);
+                float h = m_player_actor->getMaxHeight(true);
                 rq.asr_rotation = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(m_player_actor->getRotation()), Ogre::Vector3::UNIT_Y);
                 rq.asr_position = m_player_actor->getRotationCenter();
                 rq.asr_position.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(rq.asr_position.x, rq.asr_position.z, h);
-                rq.asr_position.y += m_player_actor->GetHeightAboveGroundBelow(h, true); // retain height above ground
+                rq.asr_position.y += m_player_actor->getHeightAboveGroundBelow(h, true); // retain height above ground
             }
             else
             {
@@ -302,7 +302,7 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
 
         // Create spawn request while actor still exists
         ActorSpawnRequest* srq = new ActorSpawnRequest;
-        srq->asr_position   = Ogre::Vector3(rq.amr_actor->getPosition().x, rq.amr_actor->GetMinHeight(), rq.amr_actor->getPosition().z);
+        srq->asr_position   = Ogre::Vector3(rq.amr_actor->getPosition().x, rq.amr_actor->getMinHeight(), rq.amr_actor->getPosition().z);
         srq->asr_rotation   = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(rq.amr_actor->getRotation()), Ogre::Vector3::UNIT_Y);
         srq->asr_config     = rq.amr_actor->GetSectionConfig();
         srq->asr_skin_entry = rq.amr_actor->GetUsedSkin();

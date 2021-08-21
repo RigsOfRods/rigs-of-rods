@@ -477,7 +477,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_actor_position.PushBack(actor->ar_nodes[0].AbsPosition.z, j_doc.GetAllocator());
         j_entry.AddMember("position", j_actor_position, j_doc.GetAllocator());
         j_entry.AddMember("rotation", actor->getRotation(), j_doc.GetAllocator());
-        j_entry.AddMember("min_height", actor->GetMinHeight(), j_doc.GetAllocator());
+        j_entry.AddMember("min_height", actor->getMinHeight(), j_doc.GetAllocator());
         j_entry.AddMember("spawn_rotation", actor->m_spawn_rotation, j_doc.GetAllocator());
         j_entry.AddMember("preloaded_with_terrain", actor->isPreloadedWithTerrain(), j_doc.GetAllocator());
         j_entry.AddMember("sim_state", static_cast<int>(actor->ar_sim_state), j_doc.GetAllocator());

@@ -929,7 +929,7 @@ void OverlayWrapper::UpdateMarineHUD(Actor* vehicle)
 
     // depth
     char tmp[50] = "";
-    float height = vehicle->GetHeightAboveGround();
+    float height = vehicle->getHeightAboveGround();
     if (height > 0.1 && height < 99.9)
     {
         sprintf(tmp, "%2.1f", height);

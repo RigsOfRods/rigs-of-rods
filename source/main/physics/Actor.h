@@ -86,6 +86,10 @@ public:
     Ogre::Vector3     getPosition();
     Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
     Ogre::Vector3     getRotationCenter();
+    float             getMinHeight(bool skip_virtual_nodes=true);
+    float             getMaxHeight(bool skip_virtual_nodes=true);
+    float             getHeightAboveGround(bool skip_virtual_nodes=true);
+    float             getHeightAboveGroundBelow(float height, bool skip_virtual_nodes=true);
     //! @}
 
     //! @{ Physics editing functions
@@ -120,10 +124,6 @@ public:
     int               getTruckType() { return ar_driveable; }
     //! @}
 
-    float             GetMinHeight(bool skip_virtual_nodes=true);
-    float             GetMaxHeight(bool skip_virtual_nodes=true);
-    float             GetHeightAboveGround(bool skip_virtual_nodes=true);
-    float             GetHeightAboveGroundBelow(float height, bool skip_virtual_nodes=true);
     void              ForceFeedbackStep(int steps);
     void              HandleInputEvents(float dt);
     void              HandleAngelScriptEvents(float dt);
