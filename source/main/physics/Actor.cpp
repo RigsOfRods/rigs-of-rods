@@ -4544,7 +4544,7 @@ Ogre::Real Actor::getMinimalCameraRadius()
     return m_min_camera_radius;
 }
 
-Replay* Actor::GetReplay()
+Replay* Actor::getReplay()
 {
     if (m_replay_handler && m_replay_handler->isValid())
         return m_replay_handler;

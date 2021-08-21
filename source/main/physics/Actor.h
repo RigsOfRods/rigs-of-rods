@@ -125,6 +125,10 @@ public:
     void              setBlinkType(BlinkType blink);
     //! @}
 
+    //! @{ Subsystems
+    Replay*           getReplay();
+    //! @}
+
     //! @{ Organizational things
     std::string       getTruckName() { return ar_design_name; }
     std::string       getTruckFileName() { return ar_filename; }
@@ -188,7 +192,6 @@ public:
     GfxActor*         GetGfxActor()                     { return m_gfx_actor.get(); }
     void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
     Ogre::Real        getMinimalCameraRadius();
-    Replay*           GetReplay();
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
     bool              isPreloadedWithTerrain() const    { return m_preloaded_with_terrain; };
     bool              isBeingReset() const              { return m_ongoing_reset; };

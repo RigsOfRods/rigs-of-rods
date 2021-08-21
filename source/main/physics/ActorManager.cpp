@@ -1065,7 +1065,7 @@ void ActorManager::UpdateActors(Actor* player_actor)
 
         if (player_actor->ar_sim_state == Actor::SimState::LOCAL_REPLAY)
         {
-            player_actor->GetReplay()->replayStepActor();
+            player_actor->getReplay()->replayStepActor();
         }
     }
 

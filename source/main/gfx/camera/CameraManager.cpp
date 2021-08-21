@@ -720,7 +720,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
 
         if (m_cct_player_actor->ar_sim_state == Actor::SimState::LOCAL_REPLAY)
         {
-            speed *= m_cct_player_actor->GetReplay()->getPrecision();
+            speed *= m_cct_player_actor->getReplay()->getPrecision();
         }
     }
     else
