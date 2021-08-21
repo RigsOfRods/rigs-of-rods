@@ -42,7 +42,7 @@ void SimActorStats::Draw(RoR::GfxActor* actorx)
     ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, (theme.screen_edge_padding.y + 150)));
     ImGui::Begin("SimActorStats", nullptr, flags);
 
-    RoR::ImTextWrappedColorMarked(actorx->FetchActorDesignName());
+    RoR::ImTextWrappedColorMarked(actorx->GetActor()->getTruckName());
     ImGui::Dummy(ImGui::GetStyle().FramePadding);
 
     ImGui::Separator();
