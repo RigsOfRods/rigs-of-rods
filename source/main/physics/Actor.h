@@ -135,7 +135,8 @@ public:
 
     //! @{ Subsystems
     Replay*           getReplay();
-    TyrePressure&     getTyrePressure()                 { return m_tyre_pressure; }
+    TyrePressure&     getTyrePressure() { return m_tyre_pressure; }
+    VehicleAI*        getVehicleAI() { return ar_vehicle_ai; }
     //! @}
 
     //! @{ Organizational things
@@ -164,7 +165,6 @@ public:
     void              ToggleTransferCaseGearRatio();       //! Toggles between Hi and Lo mode
     Ogre::String      GetTransferCaseName();               //! Gets the current transfer case mode name (4WD Hi, ...)
     void              DisplayTransferCaseMode();           //! Displays the current transfer case mode
-
     void              UpdateCruiseControl(float dt);       //!< Defined in 'gameplay/CruiseControl.cpp'
     bool              Intersects(Actor* actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
     /// Moves the actor at most 'direction.length()' meters towards 'direction' to resolve any collisions
@@ -200,7 +200,6 @@ public:
     Ogre::Real        getMinimalCameraRadius();
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
     bool              isBeingReset() const              { return m_ongoing_reset; };
-    VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
     void              addRef()                          {};
