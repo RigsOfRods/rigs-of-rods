@@ -127,6 +127,7 @@ public:
 
     //! @{ Subsystems
     Replay*           getReplay();
+    TyrePressure&     getTyrePressure()                 { return m_tyre_pressure; }
     //! @}
 
     //! @{ Organizational things
@@ -198,7 +199,7 @@ public:
     VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
     CacheEntry*       GetUsedSkin() const               { return m_used_skin_entry; }
     void              SetUsedSkin(CacheEntry* skin)     { m_used_skin_entry = skin; }
-    TyrePressure&     GetTyrePressure()                 { return m_tyre_pressure; }
+    
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
     void              addRef()                          {};

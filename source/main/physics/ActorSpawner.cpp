@@ -4947,7 +4947,7 @@ unsigned int ActorSpawner::AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *nod
     beam.k = wheel_2_def.tyre_springiness;
     beam.d = wheel_2_def.tyre_damping;
 
-    m_actor->GetTyrePressure().AddBeam((int)beam_index);
+    m_actor->getTyrePressure().AddBeam((int)beam_index);
 
     return beam_index;
 }
