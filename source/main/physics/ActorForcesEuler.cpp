@@ -59,7 +59,7 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
     this->CalcMouse();
     this->CalcBeams(doUpdate);
     this->CalcCabCollisions();
-    this->UpdateSlideNodeForces(PHYSICS_DT); // must be done after the contacters are updated
+    this->updateSlideNodeForces(PHYSICS_DT); // must be done after the contacters are updated
     this->CalcForceFeedback(doUpdate);
 }
 

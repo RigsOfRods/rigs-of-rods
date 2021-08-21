@@ -1673,7 +1673,7 @@ void Actor::SyncReset(bool reset_position)
     this->resetSlideNodes();
     if (m_slidenodes_locked)
     {
-        this->ToggleSlideNodeLock();
+        this->toggleSlideNodeLock();
     }
 
     m_ongoing_reset = true;

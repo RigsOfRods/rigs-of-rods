@@ -90,6 +90,11 @@ public:
     float             getMaxHeight(bool skip_virtual_nodes=true);
     float             getHeightAboveGround(bool skip_virtual_nodes=true);
     float             getHeightAboveGroundBelow(float height, bool skip_virtual_nodes=true);
+    bool              hasSlidenodes() { return !m_slidenodes.empty(); };
+    void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
+    void              updateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces
+    void              resetSlideNodePositions();           //!< Recalculate SlideNode positions
+    void              resetSlideNodes();                   //!< Reset all the SlideNodes
     //! @}
 
     //! @{ Physics editing functions
@@ -109,6 +114,7 @@ public:
     bool              isLocked();                          //!< Are hooks locked?
     void              ropeToggle(int group=-1);
     void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
+    void              toggleSlideNodeLock();
     void              parkingbrakeToggle();
     void              antilockbrakeToggle();
     void              tractioncontrolToggle();
@@ -164,15 +170,13 @@ public:
     void              HandleInputEvents(float dt);
     void              HandleAngelScriptEvents(float dt);
     void              UpdateSoundSources();
-    void              ToggleSlideNodeLock();
     void              UpdateCruiseControl(float dt);       //!< Defined in 'gameplay/CruiseControl.cpp'
     bool              Intersects(Actor* actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
     /// Moves the actor at most 'direction.length()' meters towards 'direction' to resolve any collisions
     void              resolveCollisions(Ogre::Vector3 direction);
     /// Auto detects an ideal collision avoidance direction (front, back, left, right, up)
     /// Then moves the actor at most 'max_distance' meters towards that direction to resolve any collisions
-    void              resolveCollisions(float max_distance, bool consider_up);
-    
+    void              resolveCollisions(float max_distance, bool consider_up);    
     Ogre::Vector3     GetGForcesCur() { return m_camera_local_gforces_cur; };
     Ogre::Vector3     GetGForcesMax() { return m_camera_local_gforces_max; };
     float             getSteeringAngle();
@@ -183,11 +187,9 @@ public:
     void              UnmuteAllSounds();
     float             getAvgPropedWheelRadius() { return m_avg_proped_wheel_radius; };
     void              setAirbrakeIntensity(float intensity);
-    bool              hasSlidenodes() { return !m_slidenodes.empty(); };
     void              UpdateBoundingBoxes();
     void              calculateAveragePosition();
     void              UpdatePhysicsOrigin();
-    void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
     void              SoftReset();
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
     PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
@@ -426,9 +428,6 @@ private:
     void              RemoveInterActorBeam(beam_t* beam);
     void              DisjoinInterActorBeams();            //!< Destroys all inter-actor beams which are connected with this actor
     void              autoBlinkReset();                    //!< Resets the turn signal when the steering wheel is turned back.
-    void              UpdateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces
-    void              resetSlideNodePositions();           //!< Recalculate SlideNode positions
-    void              resetSlideNodes();                   //!< Reset all the SlideNodes
     void              ResetAngle(float rot);
     void              calculateLocalGForces();             //!< Derive the truck local g-forces from the global ones
     /// Virtually moves the actor at most 'direction.length()' meters towards 'direction' trying to resolve any collisions

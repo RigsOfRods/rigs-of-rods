@@ -206,7 +206,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
     // lock slide nodes after spawning the actor?
     if (def->slide_nodes_connect_instantly)
     {
-        fresh_actor->ToggleSlideNodeLock();
+        fresh_actor->toggleSlideNodeLock();
     }
 
     if (rq.asr_origin == ActorSpawnRequest::Origin::USER)
@@ -1063,7 +1063,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_LOCK))
     {
         m_player_actor->hookToggle(-1, HOOK_TOGGLE, -1);
-        m_player_actor->ToggleSlideNodeLock();
+        m_player_actor->toggleSlideNodeLock();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_AUTOLOCK))
