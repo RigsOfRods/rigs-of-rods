@@ -148,6 +148,12 @@ public:
     void              updateDashBoards(float dt);
     //! @}
 
+    //! @{ Audio related functions
+    void              updateSoundSources();
+    void              muteAllSounds();
+    void              unmuteAllSounds();
+    //! @}
+
     //! @{ Subsystems
     Replay*           getReplay();
     TyrePressure&     getTyrePressure() { return m_tyre_pressure; }
@@ -169,7 +175,6 @@ public:
     void              ForceFeedbackStep(int steps);
     void              HandleInputEvents(float dt);
     void              HandleAngelScriptEvents(float dt);
-    void              UpdateSoundSources();
     void              UpdateCruiseControl(float dt);       //!< Defined in 'gameplay/CruiseControl.cpp'
     bool              Intersects(Actor* actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
     /// Moves the actor at most 'direction.length()' meters towards 'direction' to resolve any collisions
@@ -183,8 +188,6 @@ public:
     float             getMinCameraRadius() { return m_min_camera_radius; };
     int               GetNumActiveConnectedBeams(int nodeid);     //!< Returns the number of active (non bounded) beams connected to a node
     void              NotifyActorCameraChanged();                 //!< Logic: sound, display; Notify this vehicle that camera changed;
-    void              StopAllSounds();
-    void              UnmuteAllSounds();
     float             getAvgPropedWheelRadius() { return m_avg_proped_wheel_radius; };
     void              setAirbrakeIntensity(float intensity);
     void              UpdateBoundingBoxes();

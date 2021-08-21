@@ -96,7 +96,7 @@ Actor::~Actor()
         SOUND_STOP(this, i);
     }
 #endif // USE_OPENAL
-    StopAllSounds();
+    muteAllSounds();
 
     if (ar_engine != nullptr)
     {
@@ -3147,7 +3147,7 @@ void Actor::toggleCustomParticles()
     TRIGGER_EVENT(SE_TRUCK_CPARTICLES_TOGGLE, ar_instance_id);
 }
 
-void Actor::UpdateSoundSources()
+void Actor::updateSoundSources()
 {
 #ifdef USE_OPENAL
     if (App::GetSoundScriptManager()->isDisabled())
@@ -3167,7 +3167,7 @@ void Actor::updateVisual(float dt)
 {
     Vector3 ref(Vector3::UNIT_Y);
     autoBlinkReset();
-    UpdateSoundSources();
+    updateSoundSources();
 
 #ifdef USE_OPENAL
     //airplane radio chatter
@@ -3789,7 +3789,7 @@ bool Actor::getReverseLightVisible()
     return m_extern_reverse_light_on;
 }
 
-void Actor::StopAllSounds()
+void Actor::muteAllSounds()
 {
 #ifdef USE_OPENAL
     for (int i = 0; i < ar_num_soundsources; i++)
@@ -3800,7 +3800,7 @@ void Actor::StopAllSounds()
 #endif // USE_OPENAL
 }
 
-void Actor::UnmuteAllSounds()
+void Actor::unmuteAllSounds()
 {
 #ifdef USE_OPENAL
     for (int i = 0; i < ar_num_soundsources; i++)

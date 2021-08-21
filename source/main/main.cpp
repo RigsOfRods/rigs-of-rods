@@ -458,7 +458,7 @@ int main(int argc, char *argv[])
                 case MSG_SIM_PAUSE_REQUESTED:
                     for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
                     {
-                        actor->StopAllSounds();
+                        actor->muteAllSounds();
                     }
                     App::sim_state->SetVal((int)SimState::PAUSED);
                     break;
@@ -466,7 +466,7 @@ int main(int argc, char *argv[])
                 case MSG_SIM_UNPAUSE_REQUESTED:
                     for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
                     {
-                        actor->UnmuteAllSounds();
+                        actor->unmuteAllSounds();
                     }
                     App::sim_state->SetVal((int)SimState::RUNNING);
                     break;
