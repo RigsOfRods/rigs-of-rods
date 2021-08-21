@@ -65,6 +65,7 @@ public:
     //! @{ Physic related functions
 
     void              scaleTruck(float value);
+    void              reset(bool keep_position = false); //!< call this one to reset a truck from any context
 
     //! @}
 

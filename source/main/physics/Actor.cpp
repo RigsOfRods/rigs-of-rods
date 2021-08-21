@@ -1473,6 +1473,14 @@ float Actor::GetHeightAboveGroundBelow(float height, bool skip_virtual_nodes)
     return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGroundBelow(height, false);
 }
 
+void Actor::reset(bool keep_position)
+{
+    ActorModifyRequest* rq = new ActorModifyRequest;
+    rq->amr_actor = this;
+    rq->amr_type  = (keep_position) ? ActorModifyRequest::Type::RESET_ON_SPOT : ActorModifyRequest::Type::RESET_ON_INIT_POS;
+    App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
+}
+
 void Actor::SoftReset()
 {
     TRIGGER_EVENT(SE_TRUCK_RESET, ar_instance_id);
