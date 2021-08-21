@@ -1401,7 +1401,7 @@ String Actor::GetTransferCaseName()
     return name;
 }
 
-Ogre::Vector3 Actor::GetRotationCenter()
+Ogre::Vector3 Actor::getRotationCenter()
 {
     Vector3 sum = Vector3::ZERO;
     std::vector<Vector3> positions;
@@ -1832,7 +1832,7 @@ void Actor::HandleInputEvents(float dt)
         float rotation = Radian(getRotation()).valueDegrees();
         float target_rotation = std::round(rotation / m_anglesnap_request) * m_anglesnap_request;
         m_rotation_request = -Degree(target_rotation - rotation).valueRadians();
-	m_rotation_request_center = GetRotationCenter();
+	m_rotation_request_center = getRotationCenter();
         m_anglesnap_request = 0;
     }
 

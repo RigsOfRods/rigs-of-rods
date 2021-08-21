@@ -105,7 +105,7 @@ void RecoveryMode::UpdateInputEvents(float dt)
             scale *= App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) ? 3.0f : 1.0f;
             scale *= App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
 
-            Ogre::Vector3 rotation_center = App::GetGameContext()->GetPlayerActor()->GetRotationCenter();
+            Ogre::Vector3 rotation_center = App::GetGameContext()->GetPlayerActor()->getRotationCenter();
 
             rotation *= Ogre::Math::Clamp(scale, 0.1f, 10.0f);
             translation *= scale;

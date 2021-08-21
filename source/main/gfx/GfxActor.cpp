@@ -1728,7 +1728,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
 {
     m_simbuf.simbuf_live_local = (m_actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED);
     m_simbuf.simbuf_physics_paused = m_actor->ar_physics_paused;
-    m_simbuf.simbuf_pos = m_actor->GetRotationCenter();
+    m_simbuf.simbuf_pos = m_actor->getRotationCenter();
     m_simbuf.simbuf_rotation = m_actor->getRotation();
     m_simbuf.simbuf_tyre_pressure = m_actor->GetTyrePressure().GetCurPressure();
     m_simbuf.simbuf_tyre_pressurizing = m_actor->GetTyrePressure().IsPressurizing();
