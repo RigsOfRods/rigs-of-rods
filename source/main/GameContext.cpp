@@ -1578,9 +1578,9 @@ void GameContext::UpdateTruckInputEvents(float dt)
         m_player_actor->cruisecontrolToggle();
     }
 
-    if (m_player_actor->GetTyrePressure().IsEnabled())
+    if (m_player_actor->getTyrePressure().IsEnabled())
     {
-        m_player_actor->GetTyrePressure().UpdateInputEvents(dt);
+        m_player_actor->getTyrePressure().UpdateInputEvents(dt);
     }
 }
 

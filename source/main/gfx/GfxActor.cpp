@@ -1730,8 +1730,8 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_physics_paused = m_actor->ar_physics_paused;
     m_simbuf.simbuf_pos = m_actor->getRotationCenter();
     m_simbuf.simbuf_rotation = m_actor->getRotation();
-    m_simbuf.simbuf_tyre_pressure = m_actor->GetTyrePressure().GetCurPressure();
-    m_simbuf.simbuf_tyre_pressurizing = m_actor->GetTyrePressure().IsPressurizing();
+    m_simbuf.simbuf_tyre_pressure = m_actor->getTyrePressure().GetCurPressure();
+    m_simbuf.simbuf_tyre_pressurizing = m_actor->getTyrePressure().IsPressurizing();
     m_simbuf.simbuf_aabb = m_actor->ar_bounding_box;
     m_simbuf.simbuf_wheel_speed = m_actor->ar_wheel_speed;
     m_simbuf.simbuf_beaconlight_active = m_actor->m_beacon_light_on;

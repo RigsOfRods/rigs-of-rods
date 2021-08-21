@@ -286,9 +286,9 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
             actor->ar_engine->OffStart();
     }
     // pressurize tires
-    if (actor->GetTyrePressure().IsEnabled())
+    if (actor->getTyrePressure().IsEnabled())
     {
-        actor->GetTyrePressure().ModifyTyrePressure(0.f); // Initialize springiness of pressure-beams.
+        actor->getTyrePressure().ModifyTyrePressure(0.f); // Initialize springiness of pressure-beams.
     }
 
     actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
