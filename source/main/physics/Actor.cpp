@@ -1258,7 +1258,7 @@ void Actor::mouseMove(int node, Vector3 pos, float force)
     m_mouse_grab_pos = pos;
 }
 
-void Actor::ToggleWheelDiffMode()
+void Actor::toggleWheelDiffMode()
 {
     for (int i = 0; i < m_num_wheel_diffs; ++i)
     {
@@ -1302,7 +1302,7 @@ void Actor::displayAxleDiffMode()
     }
 }
 
-void Actor::DisplayWheelDiffMode()
+void Actor::displayWheelDiffMode()
 {
     if (m_num_wheel_diffs == 0)
     {
