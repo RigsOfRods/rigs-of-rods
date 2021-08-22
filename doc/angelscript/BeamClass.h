@@ -10,6 +10,11 @@ public:
 	 * Gets the name of the truck.
 	 */
 	string getTruckName();
+
+	/**
+	 * Gets the name of the loaded section for a truck.
+	 */
+	string getSectionConfig();
 	
 	/**
 	 * Resets the truck.

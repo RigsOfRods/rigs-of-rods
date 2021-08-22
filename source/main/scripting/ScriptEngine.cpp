@@ -180,6 +180,7 @@ void ScriptEngine::init()
     result = engine->RegisterObjectMethod("BeamClass", "void scaleTruck(float)", AngelScript::asMETHOD(Actor,scaleTruck), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "string getTruckName()", AngelScript::asMETHOD(Actor,getTruckName), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "string getTruckFileName()", AngelScript::asMETHOD(Actor,getTruckFileName), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "string getSectionConfig()", AngelScript::asMETHOD(Actor, getSectionConfig), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int  getTruckType()", AngelScript::asMETHOD(Actor,getTruckType), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void reset(bool)", AngelScript::asMETHOD(Actor,reset), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void parkingbrakeToggle()", AngelScript::asMETHOD(Actor,parkingbrakeToggle), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
