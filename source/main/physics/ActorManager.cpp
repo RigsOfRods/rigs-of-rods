@@ -149,9 +149,9 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
         }
 
         if (rq.asr_free_position)
-            actor->ResetPosition(vehicle_position, true);
+            actor->resetPosition(vehicle_position, true);
         else
-            actor->ResetPosition(vehicle_position.x, vehicle_position.z, true, miny);
+            actor->resetPosition(vehicle_position.x, vehicle_position.z, true, miny);
 
         if (rq.asr_spawnbox != nullptr)
         {
@@ -166,13 +166,13 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
                 gpos -= rq.asr_rotation * Vector3((rq.asr_spawnbox->hi.x - rq.asr_spawnbox->lo.x + actor->ar_bounding_box.getMaximum().x - actor->ar_bounding_box.getMinimum().x) * 0.6f, 0.0f, 0.0f);
 
-                actor->ResetPosition(gpos.x, gpos.z, true, miny);
+                actor->resetPosition(gpos.x, gpos.z, true, miny);
             }
         }
     }
     else
     {
-        actor->ResetPosition(rq.asr_position, true);
+        actor->resetPosition(rq.asr_position, true);
     }
     actor->UpdateBoundingBoxes();
 
@@ -256,7 +256,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     // Initialize visuals
     actor->updateVisual();
-    actor->ToggleLights();
+    actor->lightsToggle();
     actor->GetGfxActor()->SetDebugView((GfxActor::DebugViewType)rq.asr_debugview);
 
     // perform full visual update only if the vehicle won't be immediately driven by player.
@@ -286,9 +286,9 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
             actor->ar_engine->OffStart();
     }
     // pressurize tires
-    if (actor->GetTyrePressure().IsEnabled())
+    if (actor->getTyrePressure().IsEnabled())
     {
-        actor->GetTyrePressure().ModifyTyrePressure(0.f); // Initialize springiness of pressure-beams.
+        actor->getTyrePressure().ModifyTyrePressure(0.f); // Initialize springiness of pressure-beams.
     }
 
     actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
@@ -340,7 +340,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
 {
     Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
-    actor->SetUsedSkin(rq.asr_skin_entry);
+    actor->setUsedSkin(rq.asr_skin_entry);
 
     if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {
@@ -501,7 +501,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
                     continue;
                 if (packet.header.source == actor->ar_net_source_id && packet.header.streamid == actor->ar_net_stream_id)
                 {
-                    actor->PushNetwork(packet.buffer, packet.header.size);
+                    actor->pushNetwork(packet.buffer, packet.header.size);
                     break;
                 }
             }
@@ -666,7 +666,7 @@ void ActorManager::ForwardCommands(Actor* source_actor)
 {
     if (source_actor->ar_forward_commands)
     {
-        auto linked_actors = source_actor->GetAllLinkedActors();
+        auto linked_actors = source_actor->getAllLinkedActors();
 
         for (auto actor : this->GetActors())
         {
@@ -695,11 +695,11 @@ void ActorManager::ForwardCommands(Actor* source_actor)
                 }
                 if (source_actor->ar_toggle_ties)
                 {
-                    actor->ToggleTies();
+                    actor->tieToggle();
                 }
                 if (source_actor->ar_toggle_ropes)
                 {
-                    actor->ToggleRopes(-1);
+                    actor->ropeToggle(-1);
                 }
             }
         }
@@ -713,7 +713,7 @@ void ActorManager::ForwardCommands(Actor* source_actor)
             hook.hk_locked_actor->ar_brake = source_actor->ar_brake;
             if (hook.hk_locked_actor->ar_parking_brake != source_actor->ar_trailer_parking_brake)
             {
-                hook.hk_locked_actor->ToggleParkingBrake();
+                hook.hk_locked_actor->parkingbrakeToggle();
             }
 
             // forward lights
@@ -828,7 +828,7 @@ void ActorManager::MuteAllActors()
 {
     for (auto actor : m_actors)
     {
-        actor->StopAllSounds();
+        actor->muteAllSounds();
     }
 }
 
@@ -836,7 +836,7 @@ void ActorManager::UnmuteAllActors()
 {
     for (auto actor : m_actors)
     {
-        actor->UnmuteAllSounds();
+        actor->unmuteAllSounds();
     }
 }
 
@@ -1041,7 +1041,7 @@ void ActorManager::UpdateActors(Actor* player_actor)
         if (App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
         {
             if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
-                actor->CalcNetwork();
+                actor->calcNetwork();
             else
                 actor->sendStreamData();
         }
@@ -1052,12 +1052,12 @@ void ActorManager::UpdateActors(Actor* player_actor)
         this->ForwardCommands(player_actor);
         if (player_actor->ar_toggle_ties)
         {
-            player_actor->ToggleTies();
+            player_actor->tieToggle();
             player_actor->ar_toggle_ties = false;
         }
         if (player_actor->ar_toggle_ropes)
         {
-            player_actor->ToggleRopes(-1);
+            player_actor->ropeToggle(-1);
             player_actor->ar_toggle_ropes = false;
         }
 
@@ -1065,7 +1065,7 @@ void ActorManager::UpdateActors(Actor* player_actor)
 
         if (player_actor->ar_sim_state == Actor::SimState::LOCAL_REPLAY)
         {
-            player_actor->GetReplay()->replayStepActor();
+            player_actor->getReplay()->replayStepActor();
         }
     }
 

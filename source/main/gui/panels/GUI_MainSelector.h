@@ -73,7 +73,6 @@ private:
     void UpdateSearchParams();
     void Apply();
     void Cancel();
-    bool IsEntryFresh(CacheEntry* entry);
     void DrawAttrInt(const char* desc, int val) const;
     void DrawAttrFloat(const char* desc, float val) const;
     void DrawAttrSpecial(bool val, const char* label) const;
@@ -85,7 +84,6 @@ private:
     LoaderType         m_loader_type = LT_None;
     DisplayCategoryVec m_display_categories;
     DisplayEntryVec    m_display_entries;
-    std::time_t        m_cache_file_freshness;
     CacheSearchMethod  m_search_method = CacheSearchMethod::NONE;
     std::string        m_search_string;
     std::string        m_filter_guid;                //!< Used for skins
@@ -94,11 +92,13 @@ private:
     bool               m_searchbox_was_active = false;
     CacheEntry         m_dummy_skin;
 
-    int                m_selected_category = 0;
+    int                m_selected_category = 0;    //!< Combobox position (uses display list)
+    int                m_selected_cid = 0;         //!< Category ID
     int                m_selected_entry = -1;
     int                m_selected_sectionconfig = 0;
 
-    std::map<LoaderType, int> m_last_selected_category; //!< Stores the last manually selected category index for each loader type
+    std::map<LoaderType, int> m_last_selected_category; //!< Last category-combobox position for each loader type
+    std::map<LoaderType, int> m_last_selected_cid;      //!< Last selected category-ID for each loader type
     std::map<LoaderType, int> m_last_selected_entry;    //!< Stores the last manually selected entry index for each loader type
 };
 

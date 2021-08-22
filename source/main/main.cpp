@@ -458,7 +458,7 @@ int main(int argc, char *argv[])
                 case MSG_SIM_PAUSE_REQUESTED:
                     for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
                     {
-                        actor->StopAllSounds();
+                        actor->muteAllSounds();
                     }
                     App::sim_state->SetVal((int)SimState::PAUSED);
                     break;
@@ -466,7 +466,7 @@ int main(int argc, char *argv[])
                 case MSG_SIM_UNPAUSE_REQUESTED:
                     for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
                     {
-                        actor->UnmuteAllSounds();
+                        actor->unmuteAllSounds();
                     }
                     App::sim_state->SetVal((int)SimState::RUNNING);
                     break;
@@ -559,7 +559,10 @@ int main(int argc, char *argv[])
                         {
                             Str<400> msg; msg << _L("Could not read savegame file") << "'" << m.description << "'";
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-                            App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                            if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                            }
                         }
                         else if (terrn_filename == App::sim_terrain_name->GetStr())
                         {

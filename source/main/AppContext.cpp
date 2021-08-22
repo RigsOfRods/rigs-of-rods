@@ -355,7 +355,7 @@ void AppContext::CaptureScreenshot()
             App::GetGameContext()->GetPlayerActor())
         {
             png.addData("Truck_file", App::GetGameContext()->GetPlayerActor()->ar_filename);
-            png.addData("Truck_name", App::GetGameContext()->GetPlayerActor()->GetActorDesignName());
+            png.addData("Truck_name", App::GetGameContext()->GetPlayerActor()->getTruckName());
         }
         if (App::GetSimTerrain())
         {

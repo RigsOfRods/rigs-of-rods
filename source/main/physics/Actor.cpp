@@ -96,7 +96,7 @@ Actor::~Actor()
         SOUND_STOP(this, i);
     }
 #endif // USE_OPENAL
-    StopAllSounds();
+    muteAllSounds();
 
     if (ar_engine != nullptr)
     {
@@ -288,7 +288,7 @@ Actor::~Actor()
 
 // This method scales actors. Stresses should *NOT* be scaled, they describe
 // the material type and they do not depend on length or scale.
-void Actor::ScaleActor(float value)
+void Actor::scaleTruck(float value)
 {
     if (value < 0)
         return;
@@ -342,7 +342,7 @@ Vector3 Actor::getPosition()
     return m_avg_node_position; //the position is already in absolute position
 }
 
-void Actor::PushNetwork(char* data, int size)
+void Actor::pushNetwork(char* data, int size)
 {
     NetUpdate update;
 
@@ -418,7 +418,7 @@ void Actor::PushNetwork(char* data, int size)
     m_net_updates.push_back(update);
 }
 
-void Actor::CalcNetwork()
+void Actor::calcNetwork()
 {
     using namespace RoRnet;
 
@@ -586,13 +586,13 @@ void Actor::CalcNetwork()
 
     // set particle cannon
     if (((flagmask & NETMASK_PARTICLE) != 0) != m_custom_particles_enabled)
-        ToggleCustomParticles();
+        toggleCustomParticles();
 
     // set lights
     if (((flagmask & NETMASK_LIGHTS) != 0) != m_headlight_on)
-        ToggleLights();
+        lightsToggle();
     if (((flagmask & NETMASK_BEACONS) != 0) != m_beacon_light_on)
-        ToggleBeacons();
+        beaconsToggle();
 
     m_antilockbrake = flagmask & NETMASK_ALB_ACTIVE;
     m_tractioncontrol = flagmask & NETMASK_TC_ACTIVE;
@@ -1009,7 +1009,7 @@ void Actor::resolveCollisions(Vector3 direction)
     // Additional 20 cm safe-guard (horizontally)
     offset += 0.2f * Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
 
-    ResetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, false, this->GetMinHeight() + offset.y);
+    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, false, this->getMinHeight() + offset.y);
 }
 
 void Actor::resolveCollisions(float max_distance, bool consider_up)
@@ -1048,7 +1048,7 @@ void Actor::resolveCollisions(float max_distance, bool consider_up)
     // Additional 20 cm safe-guard (horizontally)
     offset += 0.2f * Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
 
-    ResetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, this->GetMinHeight() + offset.y);
+    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, this->getMinHeight() + offset.y);
 }
 
 void Actor::calculateAveragePosition()
@@ -1160,7 +1160,7 @@ void Actor::ResetAngle(float rot)
     calculateAveragePosition();
 }
 
-void Actor::UpdateInitPosition()
+void Actor::updateInitPosition()
 {
     for (int i = 0; i < ar_num_nodes; i++)
     {
@@ -1168,7 +1168,7 @@ void Actor::UpdateInitPosition()
     }
 }
 
-void Actor::ResetPosition(float px, float pz, bool setInitPosition, float miny)
+void Actor::resetPosition(float px, float pz, bool setInitPosition, float miny)
 {
     // horizontal displacement
     Vector3 offset = Vector3(px, ar_nodes[0].AbsPosition.y, pz) - ar_nodes[0].AbsPosition;
@@ -1179,7 +1179,7 @@ void Actor::ResetPosition(float px, float pz, bool setInitPosition, float miny)
     }
 
     // vertical displacement
-    float vertical_offset = miny - this->GetMinHeight();
+    float vertical_offset = miny - this->getMinHeight();
     if (App::GetSimTerrain()->getWater())
     {
         vertical_offset += std::max(0.0f, App::GetSimTerrain()->getWater()->GetStaticWaterHeight() - miny);
@@ -1223,10 +1223,10 @@ void Actor::ResetPosition(float px, float pz, bool setInitPosition, float miny)
         ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
     }
 
-    ResetPosition(Vector3::ZERO, setInitPosition);
+    resetPosition(Vector3::ZERO, setInitPosition);
 }
 
-void Actor::ResetPosition(Vector3 translation, bool setInitPosition)
+void Actor::resetPosition(Vector3 translation, bool setInitPosition)
 {
     // total displacement
     if (translation != Vector3::ZERO)
@@ -1251,14 +1251,14 @@ void Actor::ResetPosition(Vector3 translation, bool setInitPosition)
     calculateAveragePosition();
 }
 
-void Actor::HandleMouseMove(int node, Vector3 pos, float force)
+void Actor::mouseMove(int node, Vector3 pos, float force)
 {
     m_mouse_grab_node = node;
     m_mouse_grab_move_force = force * std::pow(m_total_mass / 3000.0f, 0.75f);
     m_mouse_grab_pos = pos;
 }
 
-void Actor::ToggleWheelDiffMode()
+void Actor::toggleWheelDiffMode()
 {
     for (int i = 0; i < m_num_wheel_diffs; ++i)
     {
@@ -1266,7 +1266,7 @@ void Actor::ToggleWheelDiffMode()
     }
 }
 
-void Actor::ToggleAxleDiffMode()
+void Actor::toggleAxleDiffMode()
 {
     for (int i = 0; i < m_num_axle_diffs; ++i)
     {
@@ -1274,7 +1274,7 @@ void Actor::ToggleAxleDiffMode()
     }
 }
 
-void Actor::DisplayAxleDiffMode()
+void Actor::displayAxleDiffMode()
 {
     if (m_num_axle_diffs == 0)
     {
@@ -1302,7 +1302,7 @@ void Actor::DisplayAxleDiffMode()
     }
 }
 
-void Actor::DisplayWheelDiffMode()
+void Actor::displayWheelDiffMode()
 {
     if (m_num_wheel_diffs == 0)
     {
@@ -1328,12 +1328,12 @@ void Actor::DisplayWheelDiffMode()
     }
 }
 
-void Actor::DisplayTransferCaseMode()
+void Actor::displayTransferCaseMode()
 {
     if (m_transfer_case)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                _L("Transfercase switched to: ") + this->GetTransferCaseName(), "cog.png", 3000);
+                _L("Transfercase switched to: ") + this->getTransferCaseName(), "cog.png", 3000);
     }
     else
     {
@@ -1342,7 +1342,7 @@ void Actor::DisplayTransferCaseMode()
     }
 }
 
-void Actor::ToggleTransferCaseMode()
+void Actor::toggleTransferCaseMode()
 {
     if (!ar_engine || !m_transfer_case || m_transfer_case->tr_ax_2 < 0 || !m_transfer_case->tr_2wd)
         return;
@@ -1351,7 +1351,7 @@ void Actor::ToggleTransferCaseMode()
     {
         for (int i = 0; i < m_transfer_case->tr_gear_ratios.size(); i++)
         {
-            this->ToggleTransferCaseGearRatio();
+            this->toggleTransferCaseGearRatio();
             if (m_transfer_case->tr_gear_ratios[0] == 1.0f)
                 break;
         }
@@ -1373,7 +1373,7 @@ void Actor::ToggleTransferCaseMode()
     }
 }
 
-void Actor::ToggleTransferCaseGearRatio()
+void Actor::toggleTransferCaseGearRatio()
 {
     if (!ar_engine || !m_transfer_case || m_transfer_case->tr_gear_ratios.size() < 2)
         return;
@@ -1387,7 +1387,7 @@ void Actor::ToggleTransferCaseGearRatio()
     }
 }
 
-String Actor::GetTransferCaseName()
+String Actor::getTransferCaseName()
 {
     String name = "";
     if (m_transfer_case)
@@ -1401,7 +1401,7 @@ String Actor::GetTransferCaseName()
     return name;
 }
 
-Ogre::Vector3 Actor::GetRotationCenter()
+Ogre::Vector3 Actor::getRotationCenter()
 {
     Vector3 sum = Vector3::ZERO;
     std::vector<Vector3> positions;
@@ -1419,7 +1419,7 @@ Ogre::Vector3 Actor::GetRotationCenter()
     return sum / positions.size();
 }
 
-float Actor::GetMinHeight(bool skip_virtual_nodes)
+float Actor::getMinHeight(bool skip_virtual_nodes)
 {
     float height = std::numeric_limits<float>::max(); 
     for (int i = 0; i < ar_num_nodes; i++)
@@ -1429,10 +1429,10 @@ float Actor::GetMinHeight(bool skip_virtual_nodes)
             height = std::min(ar_nodes[i].AbsPosition.y, height);
         }
     }
-    return (!skip_virtual_nodes || height < std::numeric_limits<float>::max()) ? height : GetMinHeight(false);
+    return (!skip_virtual_nodes || height < std::numeric_limits<float>::max()) ? height : getMinHeight(false);
 }
 
-float Actor::GetMaxHeight(bool skip_virtual_nodes)
+float Actor::getMaxHeight(bool skip_virtual_nodes)
 {
     float height = std::numeric_limits<float>::min(); 
     for (int i = 0; i < ar_num_nodes; i++)
@@ -1442,10 +1442,10 @@ float Actor::GetMaxHeight(bool skip_virtual_nodes)
             height = std::max(height, ar_nodes[i].AbsPosition.y);
         }
     }
-    return (!skip_virtual_nodes || height > std::numeric_limits<float>::min()) ? height : GetMaxHeight(false);
+    return (!skip_virtual_nodes || height > std::numeric_limits<float>::min()) ? height : getMaxHeight(false);
 }
 
-float Actor::GetHeightAboveGround(bool skip_virtual_nodes)
+float Actor::getHeightAboveGround(bool skip_virtual_nodes)
 {
     float agl = std::numeric_limits<float>::max(); 
     for (int i = 0; i < ar_num_nodes; i++)
@@ -1456,10 +1456,10 @@ float Actor::GetHeightAboveGround(bool skip_virtual_nodes)
             agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(pos.x, pos.z), agl);
         }
     }
-    return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGround(false);
+    return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : getHeightAboveGround(false);
 }
 
-float Actor::GetHeightAboveGroundBelow(float height, bool skip_virtual_nodes)
+float Actor::getHeightAboveGroundBelow(float height, bool skip_virtual_nodes)
 {
     float agl = std::numeric_limits<float>::max(); 
     for (int i = 0; i < ar_num_nodes; i++)
@@ -1470,27 +1470,35 @@ float Actor::GetHeightAboveGroundBelow(float height, bool skip_virtual_nodes)
             agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(pos.x, pos.z, height), agl);
         }
     }
-    return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGroundBelow(height, false);
+    return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : getHeightAboveGroundBelow(height, false);
+}
+
+void Actor::reset(bool keep_position)
+{
+    ActorModifyRequest* rq = new ActorModifyRequest;
+    rq->amr_actor = this;
+    rq->amr_type  = (keep_position) ? ActorModifyRequest::Type::RESET_ON_SPOT : ActorModifyRequest::Type::RESET_ON_INIT_POS;
+    App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
 }
 
 void Actor::SoftReset()
 {
     TRIGGER_EVENT(SE_TRUCK_RESET, ar_instance_id);
 
-    float agl = this->GetHeightAboveGroundBelow(this->GetMaxHeight(true), true);
+    float agl = this->getHeightAboveGroundBelow(this->getMaxHeight(true), true);
 
     if (App::GetSimTerrain()->getWater())
     {
-        agl = std::min(this->GetMinHeight(true) - App::GetSimTerrain()->getWater()->GetStaticWaterHeight(), agl);
+        agl = std::min(this->getMinHeight(true) - App::GetSimTerrain()->getWater()->GetStaticWaterHeight(), agl);
     }
 
     if (agl < 0.0f)
     {
         Vector3 translation = -agl * Vector3::UNIT_Y;
-        this->ResetPosition(ar_nodes[0].AbsPosition + translation, false);
+        this->resetPosition(ar_nodes[0].AbsPosition + translation, false);
         for (auto actor : m_linked_actors)
         {
-            actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
+            actor->resetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
         }
     }
 
@@ -1545,7 +1553,7 @@ void Actor::SyncReset(bool reset_position)
         ar_beams[i].bm_disabled     = false;
     }
 
-    this->ApplyNodeBeamScales();
+    this->applyNodeBeamScales();
 
     this->DisjoinInterActorBeams();
 
@@ -1633,15 +1641,15 @@ void Actor::SyncReset(bool reset_position)
     if (!reset_position)
     {
         this->ResetAngle(cur_rot);
-        this->ResetPosition(cur_position, false);
-        float agl = this->GetHeightAboveGroundBelow(this->GetMaxHeight(true), true);
+        this->resetPosition(cur_position, false);
+        float agl = this->getHeightAboveGroundBelow(this->getMaxHeight(true), true);
         if (App::GetSimTerrain()->getWater())
         {
-            agl = std::min(this->GetMinHeight(true) - App::GetSimTerrain()->getWater()->GetStaticWaterHeight(), agl);
+            agl = std::min(this->getMinHeight(true) - App::GetSimTerrain()->getWater()->GetStaticWaterHeight(), agl);
         }
         if (agl < 0.0f)
         {
-            this->ResetPosition(ar_nodes[0].AbsPosition - agl * Vector3::UNIT_Y, false);
+            this->resetPosition(ar_nodes[0].AbsPosition - agl * Vector3::UNIT_Y, false);
         }
     }
     else
@@ -1665,13 +1673,13 @@ void Actor::SyncReset(bool reset_position)
     this->resetSlideNodes();
     if (m_slidenodes_locked)
     {
-        this->ToggleSlideNodeLock();
+        this->toggleSlideNodeLock();
     }
 
     m_ongoing_reset = true;
 }
 
-void Actor::ApplyNodeBeamScales()
+void Actor::applyNodeBeamScales()
 {
     for (int i = 0; i < ar_num_nodes; i++)
     {
@@ -1723,7 +1731,7 @@ void Actor::HandleAngelScriptEvents(float dt)
 #endif // USE_ANGELSCRIPT
 }
 
-void Actor::SearchBeamDefaults()
+void Actor::searchBeamDefaults()
 {
     SyncReset(true);
 
@@ -1752,7 +1760,7 @@ void Actor::SearchBeamDefaults()
         ar_nb_optimum   = std::vector<float>(ar_nb_reference.size(), std::numeric_limits<float>::max());
     }
 
-    this->ApplyNodeBeamScales();
+    this->applyNodeBeamScales();
 
     m_ongoing_reset = false;
     this->CalcForcesEulerPrepare(true);
@@ -1824,7 +1832,7 @@ void Actor::HandleInputEvents(float dt)
         float rotation = Radian(getRotation()).valueDegrees();
         float target_rotation = std::round(rotation / m_anglesnap_request) * m_anglesnap_request;
         m_rotation_request = -Degree(target_rotation - rotation).valueRadians();
-	m_rotation_request_center = GetRotationCenter();
+	m_rotation_request_center = getRotationCenter();
         m_anglesnap_request = 0;
     }
 
@@ -2711,7 +2719,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle unlock
-                            ToggleHooks(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, -1);
+                            hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, -1);
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
@@ -2719,12 +2727,12 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle lock
-                            ToggleHooks(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, -1);
+                            hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, -1);
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
                     {
-                        EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, EngineTriggerType(ar_beams[i].shock->trigger_cmdlong), 1.0f);
+                        engineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, EngineTriggerType(ar_beams[i].shock->trigger_cmdlong), 1.0f);
                     }
                     else
                     {
@@ -2750,7 +2758,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle unlock
-                            ToggleHooks(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, -1);
+                            hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, -1);
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
@@ -2758,14 +2766,14 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle lock
-                            ToggleHooks(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, -1);
+                            hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, -1);
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
                     {
                         bool triggerValue = !(ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS); // 0 if trigger is continuous, 1 otherwise
 
-                        EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, EngineTriggerType(ar_beams[i].shock->trigger_cmdlong), triggerValue);
+                        engineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, EngineTriggerType(ar_beams[i].shock->trigger_cmdlong), triggerValue);
                     }
                     else
                     {
@@ -2801,7 +2809,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
 
                     if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE) // this trigger controls an engine
                     {
-                        EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, EngineTriggerType(ar_beams[i].shock->trigger_cmdlong), triggerValue);
+                        engineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, EngineTriggerType(ar_beams[i].shock->trigger_cmdlong), triggerValue);
                     }
                     else
                     {
@@ -2936,7 +2944,7 @@ void Actor::prepareInside(bool inside)
     }
 }
 
-void Actor::ToggleLights()
+void Actor::lightsToggle()
 {
     // export light command
     Actor* player_actor = App::GetGameContext()->GetPlayerActor();
@@ -2945,7 +2953,7 @@ void Actor::ToggleLights()
         for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this != actor && actor->ar_import_commands)
-                actor->ToggleLights();
+                actor->lightsToggle();
         }
     }
     m_headlight_on = !m_headlight_on;
@@ -3123,7 +3131,7 @@ void Actor::autoBlinkReset()
     }
 }
 
-void Actor::ToggleCustomParticles()
+void Actor::toggleCustomParticles()
 {
     m_custom_particles_enabled = !m_custom_particles_enabled;
     for (int i = 0; i < ar_num_custom_particles; i++)
@@ -3139,7 +3147,7 @@ void Actor::ToggleCustomParticles()
     TRIGGER_EVENT(SE_TRUCK_CPARTICLES_TOGGLE, ar_instance_id);
 }
 
-void Actor::UpdateSoundSources()
+void Actor::updateSoundSources()
 {
 #ifdef USE_OPENAL
     if (App::GetSoundScriptManager()->isDisabled())
@@ -3159,7 +3167,7 @@ void Actor::updateVisual(float dt)
 {
     Vector3 ref(Vector3::UNIT_Y);
     autoBlinkReset();
-    UpdateSoundSources();
+    updateSoundSources();
 
 #ifdef USE_OPENAL
     //airplane radio chatter
@@ -3337,7 +3345,7 @@ void Actor::DisjoinInterActorBeams()
     }
 }
 
-void Actor::ToggleTies(int group)
+void Actor::tieToggle(int group)
 {
     Actor* player_actor = App::GetGameContext()->GetPlayerActor();
 
@@ -3368,13 +3376,13 @@ void Actor::ToggleTies(int group)
             {
                 this->RemoveInterActorBeam(it->ti_beam);
                 // update skeletonview on the untied actors
-                auto linked_actors = it->ti_locked_actor->GetAllLinkedActors();
+                auto linked_actors = it->ti_locked_actor->getAllLinkedActors();
                 if (!(std::find(linked_actors.begin(), linked_actors.end(), this) != linked_actors.end()))
                 {
                     if (this == player_actor)
                     {
                         it->ti_locked_actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
-                        for (auto actor : it->ti_locked_actor->GetAllLinkedActors())
+                        for (auto actor : it->ti_locked_actor->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
                         }
@@ -3382,7 +3390,7 @@ void Actor::ToggleTies(int group)
                     else if (it->ti_locked_actor == player_actor)
                     {
                         m_gfx_actor->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
-                        for (auto actor : this->GetAllLinkedActors())
+                        for (auto actor : this->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
                         }
@@ -3462,7 +3470,7 @@ void Actor::ToggleTies(int group)
                         if (this == player_actor)
                         {
                             nearest_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                            for (auto actor : nearest_actor->GetAllLinkedActors())
+                            for (auto actor : nearest_actor->getAllLinkedActors())
                             {
                                 actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                             }
@@ -3470,7 +3478,7 @@ void Actor::ToggleTies(int group)
                         else if (nearest_actor == player_actor)
                         {
                             m_gfx_actor->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
-                            for (auto actor : this->GetAllLinkedActors())
+                            for (auto actor : this->getAllLinkedActors())
                             {
                                 actor->GetGfxActor()->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
                             }
@@ -3485,7 +3493,7 @@ void Actor::ToggleTies(int group)
     TRIGGER_EVENT(SE_TRUCK_TIE_TOGGLE, ar_instance_id);
 }
 
-void Actor::ToggleRopes(int group)
+void Actor::ropeToggle(int group)
 {
     Actor* player_actor = App::GetGameContext()->GetPlayerActor();
 
@@ -3507,13 +3515,13 @@ void Actor::ToggleRopes(int group)
             {
                 this->RemoveInterActorBeam(it->rp_beam);
                 // update skeletonview on the unroped actors
-                auto linked_actors = it->rp_locked_actor->GetAllLinkedActors();
+                auto linked_actors = it->rp_locked_actor->getAllLinkedActors();
                 if (!(std::find(linked_actors.begin(), linked_actors.end(), this) != linked_actors.end()))
                 {
                     if (this == player_actor)
                     {
                         it->rp_locked_actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
-                        for (auto actor : it->rp_locked_actor->GetAllLinkedActors())
+                        for (auto actor : it->rp_locked_actor->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
                         }
@@ -3521,7 +3529,7 @@ void Actor::ToggleRopes(int group)
                     else if (it->rp_locked_actor == player_actor)
                     {
                         m_gfx_actor->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
-                        for (auto actor : this->GetAllLinkedActors())
+                        for (auto actor : this->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
                         }
@@ -3575,7 +3583,7 @@ void Actor::ToggleRopes(int group)
                     if (this == player_actor)
                     {
                         nearest_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                        for (auto actor : nearest_actor->GetAllLinkedActors())
+                        for (auto actor : nearest_actor->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                         }
@@ -3583,7 +3591,7 @@ void Actor::ToggleRopes(int group)
                     else if (nearest_actor == player_actor)
                     {
                         m_gfx_actor->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
-                        for (auto actor : this->GetAllLinkedActors())
+                        for (auto actor : this->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
                         }
@@ -3594,7 +3602,7 @@ void Actor::ToggleRopes(int group)
     }
 }
 
-void Actor::ToggleHooks(int group, HookAction mode, int node_number)
+void Actor::hookToggle(int group, HookAction mode, int node_number)
 {
     // iterate over all hooks
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
@@ -3715,7 +3723,7 @@ void Actor::ToggleHooks(int group, HookAction mode, int node_number)
             if (it->hk_locked_actor)
             {
                 it->hk_locked_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                for (auto actor : it->hk_locked_actor->GetAllLinkedActors())
+                for (auto actor : it->hk_locked_actor->getAllLinkedActors())
                 {
                     actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                 }
@@ -3723,7 +3731,7 @@ void Actor::ToggleHooks(int group, HookAction mode, int node_number)
             else if (prev_locked_actor != this)
             {
                 prev_locked_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                for (auto actor : prev_locked_actor->GetAllLinkedActors())
+                for (auto actor : prev_locked_actor->getAllLinkedActors())
                 {
                     actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                 }
@@ -3732,7 +3740,7 @@ void Actor::ToggleHooks(int group, HookAction mode, int node_number)
     }
 }
 
-void Actor::ToggleParkingBrake()
+void Actor::parkingbrakeToggle()
 {
     ar_parking_brake = !ar_parking_brake;
 
@@ -3745,19 +3753,19 @@ void Actor::ToggleParkingBrake()
     TRIGGER_EVENT(SE_TRUCK_PARKINGBREAK_TOGGLE, ar_instance_id);
 }
 
-void Actor::ToggleAntiLockBrake()
+void Actor::antilockbrakeToggle()
 {
     if (!alb_notoggle)
         alb_mode = !alb_mode;
 }
 
-void Actor::ToggleTractionControl()
+void Actor::tractioncontrolToggle()
 {
     if (!tc_notoggle)
         tc_mode = !tc_mode;
 }
 
-void Actor::ToggleBeacons()
+void Actor::beaconsToggle()
 {
     if (m_flares_mode == GfxFlaresMode::NONE)
     {
@@ -3781,7 +3789,7 @@ bool Actor::getReverseLightVisible()
     return m_extern_reverse_light_on;
 }
 
-void Actor::StopAllSounds()
+void Actor::muteAllSounds()
 {
 #ifdef USE_OPENAL
     for (int i = 0; i < ar_num_soundsources; i++)
@@ -3792,7 +3800,7 @@ void Actor::StopAllSounds()
 #endif // USE_OPENAL
 }
 
-void Actor::UnmuteAllSounds()
+void Actor::unmuteAllSounds()
 {
 #ifdef USE_OPENAL
     for (int i = 0; i < ar_num_soundsources; i++)
@@ -4056,7 +4064,7 @@ void Actor::updateDashBoards(float dt)
         }
 
         // water depth display, only if we have a screw prop at least
-        float depth = this->GetHeightAboveGround();
+        float depth = this->getHeightAboveGround();
         ar_dashboard->setFloat(DD_WATER_DEPTH, depth);
 
         // water speed
@@ -4293,7 +4301,7 @@ void Actor::calculateLocalGForces()
     }
 }
 
-void Actor::EngineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue)
+void Actor::engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue)
 {
     // engineNumber tells us which engine
     EngineSim* e = ar_engine; // placeholder: actors do not have multiple engines yet
@@ -4536,7 +4544,7 @@ Ogre::Real Actor::getMinimalCameraRadius()
     return m_min_camera_radius;
 }
 
-Replay* Actor::GetReplay()
+Replay* Actor::getReplay()
 {
     if (m_replay_handler && m_replay_handler->isValid())
         return m_replay_handler;

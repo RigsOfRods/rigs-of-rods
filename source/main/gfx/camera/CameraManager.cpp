@@ -720,7 +720,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
 
         if (m_cct_player_actor->ar_sim_state == Actor::SimState::LOCAL_REPLAY)
         {
-            speed *= m_cct_player_actor->GetReplay()->getPrecision();
+            speed *= m_cct_player_actor->getReplay()->getPrecision();
         }
     }
     else
@@ -1125,7 +1125,7 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
         m_cam_target_pitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
     }
 
-    if (m_cct_player_actor->GetAllLinkedActors().size() != m_splinecam_num_linked_beams)
+    if (m_cct_player_actor->getAllLinkedActors().size() != m_splinecam_num_linked_beams)
     {
         this->CameraBehaviorVehicleSplineCreateSpline();
     }
@@ -1243,7 +1243,7 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
         m_splinecam_spline_nodes.push_back(&m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_camera_rail[i]]);
     }
 
-    auto linkedBeams = m_cct_player_actor->GetAllLinkedActors();
+    auto linkedBeams = m_cct_player_actor->getAllLinkedActors();
 
     m_splinecam_num_linked_beams = static_cast<int>(linkedBeams.size());
 

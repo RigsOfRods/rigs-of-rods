@@ -35,8 +35,7 @@
 namespace RoR {
 
 /// Softbody object; can be anything from soda can to a space shuttle
-/// Monsterclass; contains logic related to physics, network, sound, threading, rendering.
-/// NOTE: Until 01/2018, this class was named `Beam` (and was derived from `rig_t`), you may find references to this.
+/// Former name: `Beam` (that's why scripting uses `BeamClass`)
 class Actor : public ZeroedMemoryAllocator
 {
     friend class ActorSpawner;
@@ -62,124 +61,150 @@ public:
 
     ~Actor();
 
-    void              ApplyNodeBeamScales();
-    void              PushNetwork(char* data, int size);   //!< Parses network data; fills actor's data buffers and flips them. Called by the network thread.
-    void              CalcNetwork();
+    //! @{ Network related functions
+    void              sendStreamSetup();
+    void              sendStreamData();                    //!< Send outgoing data
+    void              pushNetwork(char* data, int size);   //!< Process incoming data; fills actor's data buffers and flips them. Called by the network thread.//! 
+    void              calcNetwork();
+    //!
+
+    //! @{ Physic state functions
+    void              reset(bool keep_position = false);   //!< call this one to reset a truck from any context
+    void              resetPosition(Ogre::Vector3 translation, bool setInitPosition); //!< Moves the actor to given world coords.
+    void              resetPosition(float px, float pz, bool setInitPosition, float miny); //!< Moves the actor to given world coords.
+    void              requestRotation(float rotation, Ogre::Vector3 center) { m_rotation_request += rotation; m_rotation_request_center = center; };
+    void              requestAngleSnap(int division) { m_anglesnap_request = division; };
+    void              requestTranslation(Ogre::Vector3 translation) { m_translation_request += translation; };
+    int               getNodeCount() { return ar_num_nodes; }
+    float             getTotalMass(bool withLocked=true);
+    int               getWheelNodeCount() const;
+    float             getWheelSpeed() const { return ar_wheel_speed; }
+    float             getSpeed() { return m_avg_node_velocity.length(); };
+    Ogre::Vector3     getVelocity() const { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
     float             getRotation();
     Ogre::Vector3     getDirection();
     Ogre::Vector3     getPosition();
-    void              UpdateInitPosition();
-    /// Moves the actor.
-    /// @param translation Offset to move in world coordinates
-    /// @param setInitPosition Set initial positions of nodes to current position?
-    void              ResetPosition(Ogre::Vector3 translation, bool setInitPosition);
-    void              ResetPosition(float px, float pz, bool setInitPosition, float miny);
-    void              RequestRotation(float rotation, Ogre::Vector3 center) { m_rotation_request += rotation; m_rotation_request_center = center; };
-    void              RequestAngleSnap(int division) { m_anglesnap_request = division; };
-    void              RequestTranslation(Ogre::Vector3 translation) { m_translation_request += translation; };
-    Ogre::Vector3     GetRotationCenter();
-    float             GetMinHeight(bool skip_virtual_nodes=true);
-    float             GetMaxHeight(bool skip_virtual_nodes=true);
-    float             GetHeightAboveGround(bool skip_virtual_nodes=true);
-    float             GetHeightAboveGroundBelow(float height, bool skip_virtual_nodes=true);
+    Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
+    Ogre::Vector3     getRotationCenter();
+    float             getMinHeight(bool skip_virtual_nodes=true);
+    float             getMaxHeight(bool skip_virtual_nodes=true);
+    float             getHeightAboveGround(bool skip_virtual_nodes=true);
+    float             getHeightAboveGroundBelow(float height, bool skip_virtual_nodes=true);
+    Ogre::Vector3     getGForces() { return m_camera_local_gforces_cur; };
+    Ogre::Vector3     getMaxGForces() { return m_camera_local_gforces_max; };
+    bool              hasSlidenodes() { return !m_slidenodes.empty(); };
+    void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
+    void              updateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces
+    void              resetSlideNodePositions();           //!< Recalculate SlideNode positions
+    void              resetSlideNodes();                   //!< Reset all the SlideNodes
+    //! @}
+
+    //! @{ Physics editing functions
+    void              scaleTruck(float value);
+    void              setMass(float m);
+    void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
+    void              searchBeamDefaults();                //!< Searches for more stable beam defaults
+    void              updateInitPosition();
+    //! @}
+
+    //! @{ User interaction functions
+    void              mouseMove(int node, Ogre::Vector3 pos, float force);
+    void              lightsToggle();
+    void              tieToggle(int group=-1);
+    bool              isTied();
+    void              hookToggle(int group=-1, HookAction mode=HOOK_TOGGLE, int node_number=-1);
+    bool              isLocked();                          //!< Are hooks locked?
+    void              ropeToggle(int group=-1);
+    void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
+    void              toggleSlideNodeLock();
+    void              parkingbrakeToggle();
+    void              antilockbrakeToggle();
+    void              tractioncontrolToggle();
+    void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
+    void              toggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
+    void              displayAxleDiffMode();               //! Writes info to console/notify box
+    void              toggleWheelDiffMode();               //! Cycles through the available inter wheel diff modes
+    void              displayWheelDiffMode();              //! Writes info to console/notify box
+    void              toggleTransferCaseMode();            //! Toggles between 2WD and 4WD mode
+    void              toggleTransferCaseGearRatio();       //! Toggles between Hi and Lo mode
+    Ogre::String      getTransferCaseName();               //! Gets the current transfer case mode name (4WD Hi, ...)
+    void              displayTransferCaseMode();           //! Writes info to console/notify area
+    void              toggleCustomParticles();
+    bool              getCustomParticleMode();
+    void              beaconsToggle();
+    bool              getBrakeLightVisible();
+    bool              getCustomLightVisible(int number);
+    void              setCustomLightVisible(int number, bool visible);
+    bool              getReverseLightVisible();            //!< Tells if the reverse-light is currently lit.
+    bool              getBeaconMode();
+    void              toggleBlinkType(BlinkType blink);
+    BlinkType         getBlinkType();
+    void              setBlinkType(BlinkType blink);
+    std::vector<Actor*> getAllLinkedActors() { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
+    //! @}
+
+    //! @{ Visual state updates
+    void              updateSkidmarks();                   //!< Creates or updates skidmarks.
+    void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
+    void              updateFlareStates(float dt);
+    void              updateVisual(float dt=0);
+    void              updateDashBoards(float dt);
+    //! @}
+
+    //! @{ Audio related functions
+    void              updateSoundSources();
+    void              muteAllSounds();
+    void              unmuteAllSounds();
+    //! @}
+
+    //! @{ Subsystems
+    Replay*           getReplay();
+    TyrePressure&     getTyrePressure() { return m_tyre_pressure; }
+    VehicleAI*        getVehicleAI() { return ar_vehicle_ai; }
+    //! @}
+
+    //! @{ Organizational things
+    std::string       getTruckName() { return ar_design_name; }
+    std::string       getTruckFileName() { return ar_filename; }
+    int               getTruckType() { return ar_driveable; }
+    Ogre::String      getSectionConfig() { return m_section_config; }
+    CacheEntry*       getUsedSkin() { return m_used_skin_entry; }
+    void              setUsedSkin(CacheEntry* skin) { m_used_skin_entry = skin; }
+    bool              isPreloadedWithTerrain() const { return m_preloaded_with_terrain; };
+    std::vector<authorinfo_t> getAuthors();
+    std::vector<std::string>  getDescription();
+    //! @}
+
     void              ForceFeedbackStep(int steps);
     void              HandleInputEvents(float dt);
     void              HandleAngelScriptEvents(float dt);
-    void              UpdateSoundSources();
-    void              HandleMouseMove(int node, Ogre::Vector3 pos, float force); //!< Event handler
-    void              ToggleLights();                      //!< Event handler
-    void              ToggleTies(int group=-1);
-    void              ToggleRopes(int group=-1);            //!< Event handler
-    void              ToggleHooks(int group=-1, HookAction mode=HOOK_TOGGLE, int node_number=-1); //!< Event handler
-    void              EngineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
-    void              ToggleSlideNodeLock();
-    void              ToggleCustomParticles();
-    void              ToggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
-    void              DisplayAxleDiffMode();               //! Displays the current inter axle diff mode
-    void              ToggleWheelDiffMode();               //! Cycles through the available inter wheel diff modes
-    void              DisplayWheelDiffMode();              //! Displays the current inter wheel diff mode
-    void              ToggleTransferCaseMode();            //! Toggles between 2WD and 4WD mode
-    void              ToggleTransferCaseGearRatio();       //! Toggles between Hi and Lo mode
-    Ogre::String      GetTransferCaseName();               //! Gets the current transfer case mode name (4WD Hi, ...)
-    void              DisplayTransferCaseMode();           //! Displays the current transfer case mode
-    void              ToggleParkingBrake();                //!< Event handler
-    void              ToggleAntiLockBrake();               //!< Event handler
-    void              ToggleTractionControl();             //!< Event handler
-    void              ToggleCruiseControl();               //!< Defined in 'gameplay/CruiseControl.cpp'
     void              UpdateCruiseControl(float dt);       //!< Defined in 'gameplay/CruiseControl.cpp'
-    void              ToggleBeacons();                     //!< Event handler
     bool              Intersects(Actor* actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
     /// Moves the actor at most 'direction.length()' meters towards 'direction' to resolve any collisions
     void              resolveCollisions(Ogre::Vector3 direction);
     /// Auto detects an ideal collision avoidance direction (front, back, left, right, up)
     /// Then moves the actor at most 'max_distance' meters towards that direction to resolve any collisions
-    void              resolveCollisions(float max_distance, bool consider_up);
-    void              updateSkidmarks();                   //!< Creates or updates skidmarks. No side effects.
-    void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
-    void              updateFlareStates(float dt);
-    void              updateVisual(float dt=0);
-    void              ScaleActor(float value);
-    Ogre::Vector3     GetGForcesCur() { return m_camera_local_gforces_cur; };
-    Ogre::Vector3     GetGForcesMax() { return m_camera_local_gforces_max; };
+    void              resolveCollisions(float max_distance, bool consider_up);    
     float             getSteeringAngle();
     float             getMinCameraRadius() { return m_min_camera_radius; };
-    std::string       GetActorDesignName() { return ar_design_name; };
-    std::string       GetActorFileName() { return ar_filename; };
-    std::string       GetActorFileHash() { return ar_filehash; };
-    int               GetActorType() { return ar_driveable; };
     int               GetNumActiveConnectedBeams(int nodeid);     //!< Returns the number of active (non bounded) beams connected to a node
     void              NotifyActorCameraChanged();                 //!< Logic: sound, display; Notify this vehicle that camera changed;
-    void              StopAllSounds();
-    void              UnmuteAllSounds();
-    float             getTotalMass(bool withLocked=true);
     float             getAvgPropedWheelRadius() { return m_avg_proped_wheel_radius; };
-    int               getWheelNodeCount() const;
-    void              setMass(float m);
-    bool              getBrakeLightVisible();
-    bool              getReverseLightVisible();            //!< Tells if the reverse-light is currently lit.
-    bool              getCustomLightVisible(int number);
-    void              setCustomLightVisible(int number, bool visible);
-    bool              getBeaconMode();
-    void              toggleBlinkType(BlinkType blink);
-    void              setBlinkType(BlinkType blink);
     void              setAirbrakeIntensity(float intensity);
-    bool              getCustomParticleMode();
-    void              sendStreamData();
-    bool              isTied();
-    bool              isLocked(); 
-    bool              hasSlidenodes() { return !m_slidenodes.empty(); };
-    void              updateDashBoards(float dt);
     void              UpdateBoundingBoxes();
     void              calculateAveragePosition();
     void              UpdatePhysicsOrigin();
-    void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
     void              SoftReset();
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
-    BlinkType         getBlinkType();
-    std::vector<authorinfo_t>     getAuthors();
-    std::vector<std::string>      getDescription();
-    Ogre::String     GetSectionConfig()                 { return m_section_config; }
     PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
-    std::vector<Actor*> GetAllLinkedActors()            { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     Ogre::Vector3     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetCameraRoll()                   { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
     GfxActor*         GetGfxActor()                     { return m_gfx_actor.get(); }
     void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
-    Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
     Ogre::Real        getMinimalCameraRadius();
-    Replay*           GetReplay();
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
-    bool              isPreloadedWithTerrain() const    { return m_preloaded_with_terrain; };
     bool              isBeingReset() const              { return m_ongoing_reset; };
-    VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
-    float             getWheelSpeed() const             { return ar_wheel_speed; }
-    int               GetNumNodes() const               { return ar_num_nodes; }
-    CacheEntry*       GetUsedSkin() const               { return m_used_skin_entry; }
-    void              SetUsedSkin(CacheEntry* skin)     { m_used_skin_entry = skin; }
-    float             getSpeed()                        { return m_avg_node_velocity.length(); };
-    Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
-    TyrePressure&     GetTyrePressure()                 { return m_tyre_pressure; }
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
     void              addRef()                          {};
@@ -340,7 +365,6 @@ public:
     ground_model_t*   ar_last_fuzzy_ground_model;     //!< GUI state
 
     // Realtime node/beam structure editing helpers
-    void                    SearchBeamDefaults();     //!< Searches for more stable beam defaults
     bool                    ar_nb_initialized;
     std::vector<float>      ar_nb_optimum;            //!< Temporary storage of the optimum search result
     std::vector<float>      ar_nb_reference;          //!< Temporary storage of the reference search result
@@ -407,10 +431,6 @@ private:
     void              RemoveInterActorBeam(beam_t* beam);
     void              DisjoinInterActorBeams();            //!< Destroys all inter-actor beams which are connected with this actor
     void              autoBlinkReset();                    //!< Resets the turn signal when the steering wheel is turned back.
-    void              sendStreamSetup();
-    void              UpdateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces
-    void              resetSlideNodePositions();           //!< Recalculate SlideNode positions
-    void              resetSlideNodes();                   //!< Reset all the SlideNodes
     void              ResetAngle(float rot);
     void              calculateLocalGForces();             //!< Derive the truck local g-forces from the global ones
     /// Virtually moves the actor at most 'direction.length()' meters towards 'direction' trying to resolve any collisions

@@ -151,11 +151,11 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
         {
             if (m_player_actor != nullptr)
             {
-                float h = m_player_actor->GetMaxHeight(true);
+                float h = m_player_actor->getMaxHeight(true);
                 rq.asr_rotation = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(m_player_actor->getRotation()), Ogre::Vector3::UNIT_Y);
-                rq.asr_position = m_player_actor->GetRotationCenter();
+                rq.asr_position = m_player_actor->getRotationCenter();
                 rq.asr_position.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(rq.asr_position.x, rq.asr_position.z, h);
-                rq.asr_position.y += m_player_actor->GetHeightAboveGroundBelow(h, true); // retain height above ground
+                rq.asr_position.y += m_player_actor->getHeightAboveGroundBelow(h, true); // retain height above ground
             }
             else
             {
@@ -206,7 +206,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
     // lock slide nodes after spawning the actor?
     if (def->slide_nodes_connect_instantly)
     {
-        fresh_actor->ToggleSlideNodeLock();
+        fresh_actor->toggleSlideNodeLock();
     }
 
     if (rq.asr_origin == ActorSpawnRequest::Origin::USER)
@@ -302,10 +302,10 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
 
         // Create spawn request while actor still exists
         ActorSpawnRequest* srq = new ActorSpawnRequest;
-        srq->asr_position   = Ogre::Vector3(rq.amr_actor->getPosition().x, rq.amr_actor->GetMinHeight(), rq.amr_actor->getPosition().z);
+        srq->asr_position   = Ogre::Vector3(rq.amr_actor->getPosition().x, rq.amr_actor->getMinHeight(), rq.amr_actor->getPosition().z);
         srq->asr_rotation   = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(rq.amr_actor->getRotation()), Ogre::Vector3::UNIT_Y);
-        srq->asr_config     = rq.amr_actor->GetSectionConfig();
-        srq->asr_skin_entry = rq.amr_actor->GetUsedSkin();
+        srq->asr_config     = rq.amr_actor->getSectionConfig();
+        srq->asr_skin_entry = rq.amr_actor->getUsedSkin();
         srq->asr_cache_entry= entry;
         srq->asr_debugview  = (int)rq.amr_actor->GetGfxActor()->GetDebugView();
         srq->asr_origin     = ActorSpawnRequest::Origin::USER;
@@ -322,7 +322,7 @@ void GameContext::DeleteActor(Actor* actor)
 {
     if (actor == m_player_actor)
     {
-        Ogre::Vector3 center = m_player_actor->GetRotationCenter();
+        Ogre::Vector3 center = m_player_actor->getRotationCenter();
         this->ChangePlayerActor(nullptr); // Get out of the vehicle
         this->GetPlayerCharacter()->setPosition(center);
     }
@@ -338,17 +338,17 @@ void GameContext::DeleteActor(Actor* actor)
     }
 
     // Find linked actors and un-tie if tied
-    auto linked_actors = actor->GetAllLinkedActors();
+    auto linked_actors = actor->getAllLinkedActors();
     for (auto actorx : m_actor_manager.GetLocalActors())
     {
         if (actorx->isTied() && std::find(linked_actors.begin(), linked_actors.end(), actorx) != linked_actors.end())
         {
-            actorx->ToggleTies();
+            actorx->tieToggle();
         }
 
         if (actorx->isLocked() && std::find(linked_actors.begin(), linked_actors.end(), actorx) != linked_actors.end())
         {
-            actorx->ToggleHooks();
+            actorx->hookToggle();
         }
     }
 
@@ -702,7 +702,7 @@ void GameContext::TeleportPlayer(float x, float z)
 
     Ogre::Vector3 translation = Ogre::Vector3(x, y, z) - this->GetPlayerActor()->ar_nodes[0].AbsPosition;
 
-    auto actors = this->GetPlayerActor()->GetAllLinkedActors();
+    auto actors = this->GetPlayerActor()->getAllLinkedActors();
     actors.push_back(this->GetPlayerActor());
 
     float src_agl = std::numeric_limits<float>::max(); 
@@ -722,7 +722,7 @@ void GameContext::TeleportPlayer(float x, float z)
 
     for (auto actor : actors)
     {
-        actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
+        actor->resetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
     }
 }
 
@@ -1062,13 +1062,13 @@ void GameContext::UpdateCommonInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_LOCK))
     {
-        m_player_actor->ToggleHooks(-1, HOOK_TOGGLE, -1);
-        m_player_actor->ToggleSlideNodeLock();
+        m_player_actor->hookToggle(-1, HOOK_TOGGLE, -1);
+        m_player_actor->toggleSlideNodeLock();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_AUTOLOCK))
     {
-        m_player_actor->ToggleHooks(-2, HOOK_UNLOCK, -1); //unlock all autolocks
+        m_player_actor->hookToggle(-2, HOOK_UNLOCK, -1); //unlock all autolocks
     }
 
     //strap
@@ -1079,13 +1079,13 @@ void GameContext::UpdateCommonInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_CUSTOM_PARTICLES))
     {
-        m_player_actor->ToggleCustomParticles();
+        m_player_actor->toggleCustomParticles();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DEBUG_VIEW))
     {
         m_player_actor->GetGfxActor()->ToggleDebugView();
-        for (auto actor : m_player_actor->GetAllLinkedActors())
+        for (auto actor : m_player_actor->getAllLinkedActors())
         {
             actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
         }
@@ -1094,7 +1094,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CYCLE_DEBUG_VIEWS))
     {
         m_player_actor->GetGfxActor()->CycleDebugViews();
-        for (auto actor : m_player_actor->GetAllLinkedActors())
+        for (auto actor : m_player_actor->getAllLinkedActors())
         {
             actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
         }
@@ -1102,12 +1102,12 @@ void GameContext::UpdateCommonInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LIGHTS))
     {
-        m_player_actor->ToggleLights();
+        m_player_actor->lightsToggle();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_BEACONS))
     {
-        m_player_actor->ToggleBeacons();
+        m_player_actor->beaconsToggle();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) &&
@@ -1138,7 +1138,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
         if (m_player_actor->ar_driveable == TRUCK)
             m_player_actor->ar_trailer_parking_brake = !m_player_actor->ar_trailer_parking_brake;
         else if (m_player_actor->ar_driveable == NOT_DRIVEABLE)
-            m_player_actor->ToggleParkingBrake();
+            m_player_actor->parkingbrakeToggle();
     }
 
     // videocam
@@ -1163,7 +1163,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     // toggle physics
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_PHYSICS))
     {
-        for (auto actor : App::GetGameContext()->GetPlayerActor()->GetAllLinkedActors())
+        for (auto actor : App::GetGameContext()->GetPlayerActor()->getAllLinkedActors())
         {
             actor->ar_physics_paused = !App::GetGameContext()->GetPlayerActor()->ar_physics_paused;
         }
@@ -1213,9 +1213,9 @@ void GameContext::UpdateCommonInputEvents(float dt)
         }
     }
 
-    if (m_player_actor->GetReplay())
+    if (m_player_actor->getReplay())
     {
-        m_player_actor->GetReplay()->UpdateInputEvents();
+        m_player_actor->getReplay()->UpdateInputEvents();
     }
 }
 
@@ -1259,7 +1259,7 @@ void GameContext::UpdateAirplaneInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_PARKING_BRAKE))
     {
-        m_player_actor->ToggleParkingBrake();
+        m_player_actor->parkingbrakeToggle();
     }
 
     // reverse
@@ -1516,26 +1516,26 @@ void GameContext::UpdateTruckInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_INTER_AXLE_DIFF))
     {
-        m_player_actor->ToggleAxleDiffMode();
-        m_player_actor->DisplayAxleDiffMode();
+        m_player_actor->toggleAxleDiffMode();
+        m_player_actor->displayAxleDiffMode();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_INTER_WHEEL_DIFF))
     {
-        m_player_actor->ToggleWheelDiffMode();
-        m_player_actor->DisplayWheelDiffMode();
+        m_player_actor->toggleWheelDiffMode();
+        m_player_actor->displayWheelDiffMode();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_TCASE_4WD_MODE))
     {
-        m_player_actor->ToggleTransferCaseMode();
-        m_player_actor->DisplayTransferCaseMode();
+        m_player_actor->toggleTransferCaseMode();
+        m_player_actor->displayTransferCaseMode();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_TCASE_GEAR_RATIO))
     {
-        m_player_actor->ToggleTransferCaseGearRatio();
-        m_player_actor->DisplayTransferCaseMode();
+        m_player_actor->toggleTransferCaseGearRatio();
+        m_player_actor->displayTransferCaseMode();
     }
 
     if (m_player_actor->ar_is_police)
@@ -1560,27 +1560,27 @@ void GameContext::UpdateTruckInputEvents(float dt)
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_PARKING_BRAKE) &&
             !App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TRAILER_PARKING_BRAKE))
     {
-        m_player_actor->ToggleParkingBrake();
+        m_player_actor->parkingbrakeToggle();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_ANTILOCK_BRAKE))
     {
-        m_player_actor->ToggleAntiLockBrake();
+        m_player_actor->antilockbrakeToggle();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TRACTION_CONTROL))
     {
-        m_player_actor->ToggleTractionControl();
+        m_player_actor->tractioncontrolToggle();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_CRUISE_CONTROL))
     {
-        m_player_actor->ToggleCruiseControl();
+        m_player_actor->cruisecontrolToggle();
     }
 
-    if (m_player_actor->GetTyrePressure().IsEnabled())
+    if (m_player_actor->getTyrePressure().IsEnabled())
     {
-        m_player_actor->GetTyrePressure().UpdateInputEvents(dt);
+        m_player_actor->getTyrePressure().UpdateInputEvents(dt);
     }
 }
 

@@ -325,7 +325,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         {
             if (j_entry["filename"].GetString() != x_actors[index]->ar_filename ||
                     (skin != nullptr && skin->dname != x_actors[index]->m_used_skin_entry->dname) ||
-                    section_config != x_actors[index]->GetSectionConfig())
+                    section_config != x_actors[index]->getSectionConfig())
             {
                 if (x_actors[index] == player_actor)
                 {
@@ -477,7 +477,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_actor_position.PushBack(actor->ar_nodes[0].AbsPosition.z, j_doc.GetAllocator());
         j_entry.AddMember("position", j_actor_position, j_doc.GetAllocator());
         j_entry.AddMember("rotation", actor->getRotation(), j_doc.GetAllocator());
-        j_entry.AddMember("min_height", actor->GetMinHeight(), j_doc.GetAllocator());
+        j_entry.AddMember("min_height", actor->getMinHeight(), j_doc.GetAllocator());
         j_entry.AddMember("spawn_rotation", actor->m_spawn_rotation, j_doc.GetAllocator());
         j_entry.AddMember("preloaded_with_terrain", actor->isPreloadedWithTerrain(), j_doc.GetAllocator());
         j_entry.AddMember("sim_state", static_cast<int>(actor->ar_sim_state), j_doc.GetAllocator());
@@ -799,12 +799,12 @@ void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_ent
 
     if (actor->m_headlight_on != (bool)j_entry["lights"].GetInt())
     {
-        actor->ToggleLights();
+        actor->lightsToggle();
     }
     actor->m_beacon_light_on = j_entry["pp_beacon_light"].GetBool();
     if (actor->m_custom_particles_enabled != j_entry["custom_particles"].GetBool())
     {
-        actor->ToggleCustomParticles();
+        actor->toggleCustomParticles();
     }
 
     if (j_entry.HasMember("custom_lights"))
@@ -875,7 +875,7 @@ void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_ent
         for (int k = 0; k < actor->m_transfer_case->tr_gear_ratios.size(); k++)
         {
             if (actor->m_transfer_case->tr_gear_ratios[0] != j_entry["transfercase"]["GearRatio"].GetFloat())
-                actor->ToggleTransferCaseGearRatio();
+                actor->toggleTransferCaseGearRatio();
         }
     }
 
@@ -993,7 +993,7 @@ void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_ent
     actor->resetSlideNodes();
     if (actor->m_slidenodes_locked != j_entry["slidenodes_locked"].GetBool())
     {
-        actor->ToggleSlideNodeLock();
+        actor->toggleSlideNodeLock();
     }
 
     actor->UpdateBoundingBoxes();

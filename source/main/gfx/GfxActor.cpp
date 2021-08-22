@@ -1728,10 +1728,10 @@ void RoR::GfxActor::UpdateSimDataBuffer()
 {
     m_simbuf.simbuf_live_local = (m_actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED);
     m_simbuf.simbuf_physics_paused = m_actor->ar_physics_paused;
-    m_simbuf.simbuf_pos = m_actor->GetRotationCenter();
+    m_simbuf.simbuf_pos = m_actor->getRotationCenter();
     m_simbuf.simbuf_rotation = m_actor->getRotation();
-    m_simbuf.simbuf_tyre_pressure = m_actor->GetTyrePressure().GetCurPressure();
-    m_simbuf.simbuf_tyre_pressurizing = m_actor->GetTyrePressure().IsPressurizing();
+    m_simbuf.simbuf_tyre_pressure = m_actor->getTyrePressure().GetCurPressure();
+    m_simbuf.simbuf_tyre_pressurizing = m_actor->getTyrePressure().IsPressurizing();
     m_simbuf.simbuf_aabb = m_actor->ar_bounding_box;
     m_simbuf.simbuf_wheel_speed = m_actor->ar_wheel_speed;
     m_simbuf.simbuf_beaconlight_active = m_actor->m_beacon_light_on;
@@ -1867,7 +1867,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
 
     // Linked Actors
     m_linked_gfx_actors.clear();
-    for (auto actor : m_actor->GetAllLinkedActors())
+    for (auto actor : m_actor->getAllLinkedActors())
     {
         m_linked_gfx_actors.insert(actor->GetGfxActor());
     }
@@ -3318,7 +3318,6 @@ void RoR::GfxActor::UpdateWingMeshes()
     }
 }
 
-std::string   RoR::GfxActor::FetchActorDesignName() const                { return m_actor->GetActorDesignName(); }
 int           RoR::GfxActor::FetchNumBeams      () const                 { return m_actor->ar_num_beams; }
 int           RoR::GfxActor::FetchNumNodes      () const                 { return m_actor->ar_num_nodes; }
 int           RoR::GfxActor::FetchNumWheelNodes () const                 { return m_actor->getWheelNodeCount(); }

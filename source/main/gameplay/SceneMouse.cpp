@@ -92,7 +92,7 @@ void SceneMouse::releaseMousePick()
 
     // remove forces
     if (grab_truck)
-        grab_truck->HandleMouseMove(minnode, Vector3::ZERO, 0);
+        grab_truck->mouseMove(minnode, Vector3::ZERO, 0);
 
     this->reset();
 }
@@ -164,7 +164,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
             {
                 if (it->hk_hook_node->pos == minnode)
                 {
-                    grab_truck->ToggleHooks(it->hk_group, MOUSE_HOOK_TOGGLE, minnode);
+                    grab_truck->hookToggle(it->hk_group, MOUSE_HOOK_TOGGLE, minnode);
                 }
             }
         }
@@ -196,7 +196,7 @@ void SceneMouse::UpdateSimulation()
         lastgrabpos = mouseRay.getPoint(mindist);
 
         // add forces
-        grab_truck->HandleMouseMove(minnode, lastgrabpos, MOUSE_GRAB_FORCE);
+        grab_truck->mouseMove(minnode, lastgrabpos, MOUSE_GRAB_FORCE);
     }
 }
 

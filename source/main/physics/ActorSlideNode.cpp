@@ -31,7 +31,7 @@
 using namespace RoR;
 
 // ug... BAD PERFORMNCE, BAD!!
-void Actor::ToggleSlideNodeLock()
+void Actor::toggleSlideNodeLock()
 {
     // for every slide node on this truck
     for (std::vector<SlideNode>::iterator itNode = m_slidenodes.begin(); itNode != m_slidenodes.end(); itNode++)
@@ -100,7 +100,7 @@ std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(Actor* actor, con
 
 // SlideNode Utility functions /////////////////////////////////////////////////
 
-void Actor::UpdateSlideNodeForces(const Ogre::Real dt)
+void Actor::updateSlideNodeForces(const Ogre::Real dt)
 {
     for (std::vector<SlideNode>::iterator it = m_slidenodes.begin(); it != m_slidenodes.end(); ++it)
     {

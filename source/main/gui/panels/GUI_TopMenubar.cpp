@@ -783,7 +783,7 @@ void TopMenubar::DrawActorListSinglePlayer()
             ImGui::SameLine();
 
             std::string text_buf = fmt::format( "[{}] {}", i++, actor->ar_design_name.c_str());
-            auto linked_actors = actor->GetAllLinkedActors();
+            auto linked_actors = actor->getAllLinkedActors();
             if (actor == player_actor)
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, GREEN_TEXT);
@@ -859,7 +859,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
                 ImGui::SameLine();
                 
                 // Progress bar with frame index/count
-                Replay* replay = App::GetGameContext()->GetPlayerActor()->GetReplay();
+                Replay* replay = App::GetGameContext()->GetPlayerActor()->getReplay();
                 float fraction = (float)std::abs(replay->getCurrentFrame())/(float)replay->getNumFrames();
                 Str<100> pbar_text; pbar_text << replay->getCurrentFrame() << "/" << replay->getNumFrames();
                 float pbar_width = content_width - (ImGui::GetStyle().ItemSpacing.x + ImGui::CalcTextSize(special_text.c_str()).x);

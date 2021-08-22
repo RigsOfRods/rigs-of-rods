@@ -584,7 +584,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
                 if (element == m_aerial_dashboard.brks.element)
                 {
                     mTimeUntilNextToggle = 0.2;
-                    player_actor->ToggleParkingBrake();
+                    player_actor->parkingbrakeToggle();
                 }
                 //trims
                 if (element == m_aerial_dashboard.hdg_trim.up_button)
@@ -929,7 +929,7 @@ void OverlayWrapper::UpdateMarineHUD(Actor* vehicle)
 
     // depth
     char tmp[50] = "";
-    float height = vehicle->GetHeightAboveGround();
+    float height = vehicle->getHeightAboveGround();
     if (height > 0.1 && height < 99.9)
     {
         sprintf(tmp, "%2.1f", height);

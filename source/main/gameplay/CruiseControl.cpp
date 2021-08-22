@@ -28,7 +28,7 @@
 
 using namespace RoR;
 
-void Actor::ToggleCruiseControl()
+void Actor::cruisecontrolToggle()
 {
     cc_mode = !cc_mode;
 
@@ -54,7 +54,7 @@ void Actor::UpdateCruiseControl(float dt)
         !ar_engine->IsRunning() ||
         !ar_engine->HasStarterContact())
     {
-        this->ToggleCruiseControl();
+        this->cruisecontrolToggle();
         return;
     }
 

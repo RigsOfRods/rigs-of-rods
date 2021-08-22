@@ -55,12 +55,18 @@ using namespace GUI;
 void MainSelector::Show(LoaderType type, std::string const& filter_guid)
 {
     m_loader_type = type;
-    m_selected_category = m_last_selected_category[type]; // Bounds are checked in UpdateDisplayLists()
     m_search_method = CacheSearchMethod::NONE;
     m_search_input.Clear();
     m_search_string.clear();
     m_filter_guid = filter_guid;
+    m_selected_cid = m_last_selected_cid[type];
+    if (m_selected_cid == 0)
+        m_selected_cid = CID_All;
     this->UpdateDisplayLists();
+    if (m_last_selected_category[m_loader_type] < m_display_categories.size())
+    {
+        m_selected_category = m_last_selected_category[m_loader_type];
+    }
     if (m_last_selected_entry[m_loader_type] < m_display_entries.size())
     {
         m_selected_entry = m_last_selected_entry[m_loader_type];
@@ -90,12 +96,16 @@ void MainSelector::Draw()
         {
             m_selected_category = (m_selected_category + 1) % num_categories; // select next item and wrap around at bottom.
             m_last_selected_category[m_loader_type] = m_selected_category;
+            m_selected_cid = m_display_categories[m_selected_category].sdc_category_id;
+            m_last_selected_cid[m_loader_type] = m_selected_cid;
             this->UpdateDisplayLists();
         }
         else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow)))
         {
             m_selected_category = (m_selected_category > 0) ? (m_selected_category - 1) : (num_categories - 1); // select prev. item and wrap around on top
             m_last_selected_category[m_loader_type] = m_selected_category;
+            m_selected_cid = m_display_categories[m_selected_category].sdc_category_id;
+            m_last_selected_cid[m_loader_type] = m_selected_cid;
             this->UpdateDisplayLists();
         }
     }
@@ -107,6 +117,8 @@ void MainSelector::Draw()
         &MainSelector::CatComboItemGetter, &m_display_categories, num_categories))
     {
         m_last_selected_category[m_loader_type] = m_selected_category;
+        m_selected_cid = m_display_categories[m_selected_category].sdc_category_id;
+        m_last_selected_cid[m_loader_type] = m_selected_cid;
         this->UpdateDisplayLists();
     }
     ImGui::PopItemWidth();
@@ -306,7 +318,10 @@ void MainSelector::Draw()
             this->DrawAttrInt(_LC("MainSelector", "Times used: "), sd_entry.sde_entry->usagecounter);
             this->DrawAttrStr(_LC("MainSelector", "Date and Time modified: "), sd_entry.sde_filetime_str.ToCStr());
             this->DrawAttrStr(_LC("MainSelector", "Date and Time installed: "), sd_entry.sde_addtime_str.ToCStr());
-            this->DrawAttrStr(_LC("MainSelector", "Vehicle Type: "), sd_entry.sde_driveable_str.ToCStr());
+            if (m_loader_type != LT_Terrain && m_loader_type != LT_Skin)
+            {
+                this->DrawAttrStr(_LC("MainSelector", "Vehicle Type: "), sd_entry.sde_driveable_str.ToCStr());
+            }
 
             this->DrawAttrSpecial(sd_entry.sde_entry->forwardcommands, _LC("MainSelector", "[forwards commands]"));
             this->DrawAttrSpecial(sd_entry.sde_entry->importcommands, _LC("MainSelector", "[imports commands]"));
@@ -392,16 +407,6 @@ struct sort_cats
 
 void MainSelector::UpdateDisplayLists()
 {
-    int active_category_id = CID_All; // Fallback
-    if (!m_display_categories.empty())
-    {
-        if (m_selected_category >= m_display_categories.size())
-        {
-            m_selected_category = 0;
-        }
-        active_category_id = m_display_categories[m_selected_category].sdc_category_id;
-    }
-
     m_display_categories.clear();
     m_display_entries.clear();
 
@@ -415,31 +420,18 @@ void MainSelector::UpdateDisplayLists()
     // Find all relevant entries
     CacheQuery query;
     query.cqy_filter_type = m_loader_type;
-    query.cqy_filter_category_id = active_category_id;
+    query.cqy_filter_category_id = m_selected_cid;
     query.cqy_search_method = m_search_method;
     query.cqy_search_string = m_search_string;
     query.cqy_filter_guid = m_filter_guid;
 
     App::GetCacheSystem()->Query(query);
-    if (active_category_id == CacheCategoryId::CID_All)
-    {
-        m_cache_file_freshness = query.cqy_res_last_update;
-    }
 
     m_selected_entry = -1;
     for (CacheQueryResult const& res: query.cqy_results)
     {
-        const bool is_fresh = this->IsEntryFresh(res.cqr_entry);
-        if (is_fresh)
-        {
-            query.cqy_res_category_usage[CacheCategoryId::CID_Fresh]++;
-        }
-
-        if (active_category_id != CacheCategoryId::CID_Fresh || is_fresh)
-        {
-            m_display_entries.push_back(res.cqr_entry);
-            m_selected_entry = 0;
-        }
+        m_display_entries.push_back(res.cqr_entry);
+        m_selected_entry = 0;
     }
 
     // Sort categories alphabetically
@@ -456,11 +448,6 @@ void MainSelector::UpdateDisplayLists()
             m_display_categories.emplace_back(itor.first, itor.second, usage);
         }
     }
-}
-
-bool MainSelector::IsEntryFresh(CacheEntry* entry)
-{
-    return entry->filetime >= m_cache_file_freshness - 86400;
 }
 
 void MainSelector::UpdateSearchParams()

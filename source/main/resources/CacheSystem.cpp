@@ -1222,6 +1222,7 @@ std::shared_ptr<SkinDef> CacheSystem::FetchSkinDef(CacheEntry* cache_entry)
 size_t CacheSystem::Query(CacheQuery& query)
 {
     Ogre::StringUtil::toLowerCase(query.cqy_search_string);
+    std::time_t cur_time = std::time(nullptr);
     for (CacheEntry& entry: m_entries)
     {
         // Filter by GUID
@@ -1256,12 +1257,18 @@ size_t CacheSystem::Query(CacheQuery& query)
             continue;
         }
 
+        // Category usage stats
         query.cqy_res_category_usage[entry.categoryid]++;
+
         query.cqy_res_category_usage[CacheCategoryId::CID_All]++;
 
+        const bool is_fresh = (cur_time - entry.addtimestamp) < CACHE_FILE_FRESHNESS;
+        if (is_fresh)
+            query.cqy_res_category_usage[CacheCategoryId::CID_Fresh]++;
+
         // Filter by category
-        if (query.cqy_filter_category_id < CacheCategoryId::CID_Max &&
-            query.cqy_filter_category_id != entry.categoryid)
+        if ((query.cqy_filter_category_id <= CacheCategoryId::CID_Max && query.cqy_filter_category_id != entry.categoryid) ||
+            (query.cqy_filter_category_id == CID_Fresh && !is_fresh))
         {
             continue;
         }
