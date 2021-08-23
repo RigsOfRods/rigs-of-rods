@@ -245,13 +245,6 @@ Actor::~Actor()
         delete (*it);
     }
 
-    if (m_net_label_mt)
-    {
-        m_net_label_mt->setVisible(false);
-        delete m_net_label_mt;
-        m_net_label_mt = nullptr;
-    }
-
     if (m_intra_point_col_detector)
     {
         delete m_intra_point_col_detector;
@@ -4417,8 +4410,6 @@ Actor::Actor(
     , m_mouse_grab_node(-1)
     , m_mouse_grab_pos(Ogre::Vector3::ZERO)
     , m_net_initialized(false)
-    , m_net_label_node(0)
-    , m_net_label_mt(0)
     , ar_initial_total_mass(0)
     , ar_parking_brake(false)
     , ar_trailer_parking_brake(false)
