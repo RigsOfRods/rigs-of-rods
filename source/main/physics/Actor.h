@@ -25,7 +25,6 @@
 #include "CmdKeyInertia.h"
 #include "Differentials.h"
 #include "GfxActor.h"
-#include "MovableText.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
 #include "SimData.h"
@@ -467,8 +466,6 @@ private:
     Ogre::Vector3     m_mouse_grab_pos;
     float             m_mouse_grab_move_force;
     float             m_spawn_rotation;
-    MovableText*      m_net_label_mt;
-    Ogre::SceneNode*  m_net_label_node;
     Ogre::UTFString   m_net_username;
     int               m_net_color_num;
     Ogre::Timer       m_reset_timer;
