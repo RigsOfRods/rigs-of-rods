@@ -89,7 +89,7 @@ int Landusemap::loadConfig(const Ogre::String& filename)
     catch (Ogre::Exception& e) // Already logged by OGRE
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format(_L("{}: {}"), _L("Error while loading landuse config"), e.getDescription()));
+            fmt::format("{}: {}", _L("Error while loading landuse config"), e.getDescription()));
         return 1;
     }
 
