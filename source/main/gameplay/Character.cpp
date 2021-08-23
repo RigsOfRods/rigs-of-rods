@@ -570,7 +570,6 @@ GfxCharacter* Character::SetupGfx()
 
     m_gfx_character = new GfxCharacter();
     m_gfx_character->xc_scenenode = scenenode;
-    m_gfx_character->xc_movable_text = nullptr;
     m_gfx_character->xc_character = this;
     m_gfx_character->xc_instance_name = m_instance_name;
 
@@ -583,10 +582,6 @@ RoR::GfxCharacter::~GfxCharacter()
     xc_scenenode->detachAllObjects();
     App::GetGfxScene()->GetSceneManager()->destroySceneNode(xc_scenenode);
     App::GetGfxScene()->GetSceneManager()->destroyEntity(ent);
-    if (xc_movable_text != nullptr)
-    {
-        delete xc_movable_text;
-    }
     MaterialManager::getSingleton().unload("tracks/" + xc_instance_name);
 }
 
@@ -612,20 +607,12 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         if (xc_simbuf.simbuf_actor_coupling != nullptr)
         {
             // Entering/switching vehicle
-            if (xc_movable_text != nullptr)
-            {
-                xc_movable_text->setVisible(false);
-            }
             xc_scenenode->getAttachedObject(0)->setCastShadows(false);
             xc_scenenode->setVisible(xc_simbuf.simbuf_actor_coupling->GetGfxActor()->HasDriverSeatProp());
         }
         else if (xc_simbuf_prev.simbuf_actor_coupling != nullptr)
         {
             // Leaving vehicle
-            if (xc_movable_text != nullptr)
-            {
-                xc_movable_text->setVisible(true);
-            }
             xc_scenenode->getAttachedObject(0)->setCastShadows(true);
             xc_scenenode->resetOrientation();
         }
@@ -654,10 +641,6 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         // If visible, update position
         if (entity->isVisible())
         {
-            if (xc_movable_text != nullptr)
-            {
-                xc_movable_text->setVisible(false);
-            }
             Ogre::Vector3 pos;
             Ogre::Quaternion rot;
             xc_simbuf.simbuf_actor_coupling->GetGfxActor()->CalculateDriverPos(pos, rot);
@@ -707,14 +690,6 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
 #ifdef USE_SOCKETW
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !xc_simbuf.simbuf_actor_coupling)
     {
-        if (xc_movable_text == nullptr)
-        {
-            xc_movable_text = new MovableText("netlabel-" + xc_instance_name, "");
-            xc_movable_text->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
-            xc_movable_text->setColor(ColourValue::Black);
-            xc_scenenode->attachObject(xc_movable_text);
-        }
-
         // From 'updateCharacterNetworkColor()'
         const String materialName = "tracks/" + xc_instance_name;
 
@@ -725,18 +700,11 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
             const auto& state = mat->getTechnique(0)->getPass(1)->getTextureUnitState(1);
             Ogre::ColourValue color = App::GetNetwork()->GetPlayerColor(xc_simbuf.simbuf_color_number);
             state->setColourOperationEx(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, color);
-            if (xc_movable_text != nullptr)
-                xc_movable_text->setColor(color);
         }
 
-        if (xc_movable_text != nullptr)
+        if ((!xc_simbuf.simbuf_is_remote && !App::mp_hide_own_net_label->getBool()) ||
+            (xc_simbuf.simbuf_is_remote && !App::mp_hide_net_labels->getBool()))
         {
-            if (App::mp_hide_net_labels->getBool() || (!xc_simbuf.simbuf_is_remote && App::mp_hide_own_net_label->getBool()))
-            {
-                xc_movable_text->setVisible(false);
-                return;
-            }
-
             float camDist = (xc_scenenode->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition()).length();
             Ogre::Vector3 scene_pos = xc_scenenode->getPosition();
             scene_pos.y += (1.9f + camDist / 100.0f);

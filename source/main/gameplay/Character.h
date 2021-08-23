@@ -106,7 +106,6 @@ struct GfxCharacter
     void            UpdateCharacterInScene();
 
     Ogre::SceneNode*          xc_scenenode;
-    MovableText*              xc_movable_text; // TODO: Remake using GUI; the network labels shouldn't be part of scene. ~only_a_ptr, 05/2018
     SimBuffer                 xc_simbuf;
     SimBuffer                 xc_simbuf_prev;
     Character*                xc_character;
