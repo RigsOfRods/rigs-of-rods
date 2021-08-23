@@ -359,25 +359,34 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
     World2ScreenConverter world2screen(
         App::GetCameraManager()->GetCamera()->getViewMatrix(true), App::GetCameraManager()->GetCamera()->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
 
-    Ogre::Vector3 pos = world2screen.Convert(scene_pos);
+    Ogre::Vector3 pos_xyz = world2screen.Convert(scene_pos);
 
     // only draw when in front of camera
-    if (pos.z < 0.f)
+    if (pos_xyz.z < 0.f)
     {
+        // Align position to whole pixels, to minimize jitter.
+        ImVec2 pos((int)pos_xyz.x+0.5, (int)pos_xyz.y+0.5);
+
         ImVec2 text_size = ImGui::CalcTextSize(caption.c_str());
         GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
         ImDrawList* drawlist = GetImDummyFullscreenWindow();
         ImGuiContext* g = ImGui::GetCurrentContext();
 
+        ImVec2 text_pos(pos.x - ((text_size.x / 2)), pos.y - ((text_size.y / 2)));
+
         // Draw background rectangle
-        ImVec2 screen_pos(pos.x, pos.y - (text_size.y/2));
-        drawlist->AddRectFilled(ImVec2(pos.x - 4.f, pos.y - text_size.y / 2), ImVec2(pos.x + text_size.x + 4.f, pos.y + text_size.y / 2), ImColor(theme.semitransparent_window_bg), 4.f);
+        const float PADDING = 4.f;
+        drawlist->AddRectFilled(
+            text_pos - ImVec2(PADDING, PADDING),
+            text_pos + text_size + ImVec2(PADDING, PADDING),
+            ImColor(theme.semitransparent_window_bg),
+            ImGui::GetStyle().WindowRounding);
 
         // draw colored text
         Ogre::ColourValue color = App::GetNetwork()->GetPlayerColor(colornum);
         ImVec4 text_color(color.r, color.g, color.b, 1.f);
-        drawlist->AddText(g->Font, g->FontSize, screen_pos, ImColor(text_color), caption.c_str());
+        drawlist->AddText(g->Font, g->FontSize, text_pos, ImColor(text_color), caption.c_str());
     }
 }
 
