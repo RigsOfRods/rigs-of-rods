@@ -9,16 +9,16 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-08-23 16:29+0200\n"
-"PO-Revision-Date: 2021-01-11 13:51+0000\n"
+"PO-Revision-Date: 2021-08-24 21:38+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
-"Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/rigs-of-"
-"rods/game/nb_NO/>\n"
+"Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
+"rigs-of-rods/game/nb_NO/>\n"
 "Language: nb\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.4.1-dev\n"
+"X-Generator: Weblate 4.8.1-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -30,10 +30,8 @@ msgid "No render system plugin available. Check your plugins.cfg"
 msgstr ""
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgid "Screenshot Format:"
 msgid "Screenshot: "
-msgstr "Skjermbildes format:"
+msgstr "Skjermavbildning: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
@@ -49,7 +47,7 @@ msgstr "Resuss fil ikkke funnet. Se om det er korrekt installert."
 
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
-msgstr ""
+msgstr "Feilaktig ressursmappe. Sjekk at installasjonen er rett."
 
 #: GameContext.cpp:102
 msgid "Terrain not found: "
@@ -208,7 +206,7 @@ msgstr "Minne (Ogre): "
 #: gui/panels/GUI_ConsoleView.cpp:229
 msgctxt "Console"
 msgid "By area:"
-msgstr ""
+msgstr "Etter område:"
 
 #: gui/panels/GUI_ConsoleView.cpp:230
 msgctxt "Console"
@@ -235,7 +233,7 @@ msgstr "laster inn terreng"
 #: gui/panels/GUI_ConsoleView.cpp:236
 msgctxt "Console"
 msgid "By level:"
-msgstr ""
+msgstr "Etter nivå:"
 
 #: gui/panels/GUI_ConsoleView.cpp:237
 msgctxt "Console"
@@ -560,11 +558,9 @@ msgid "Its usual value is 2. But you can try others."
 msgstr "Den vanlige verdien er 2. Men du kan prøve andre."
 
 #: gui/panels/GUI_FrictionSettings.cpp:87
-#, fuzzy
-#| msgid "Fluid Settings"
 msgctxt "FrictionSettings"
 msgid "Fluid Settings"
-msgstr "Veske innstillinger"
+msgstr "Veskeinnstillinger"
 
 #: gui/panels/GUI_FrictionSettings.cpp:89
 #, fuzzy
@@ -710,7 +706,7 @@ msgstr "Standardmodus for girkassen når et nytt kjøretøy er lastet inn"
 #: gui/panels/GUI_GameAbout.cpp:46
 msgctxt "About"
 msgid "About Rigs of Rods"
-msgstr ""
+msgstr "Om Rigs of Rods"
 
 #: gui/panels/GUI_GameAbout.cpp:48
 msgctxt "About"
@@ -727,7 +723,7 @@ msgstr "Nettverksfeil!"
 #: gui/panels/GUI_GameAbout.cpp:56
 msgctxt "About"
 msgid "Build time"
-msgstr ""
+msgstr "Byggtid"
 
 #: gui/panels/GUI_GameAbout.cpp:62
 #, fuzzy
@@ -739,7 +735,7 @@ msgstr "Skaper(e)"
 #: gui/panels/GUI_GameAbout.cpp:67
 msgctxt "About"
 msgid "Current Developers"
-msgstr ""
+msgstr "Nåværende utviklere"
 
 #: gui/panels/GUI_GameAbout.cpp:72
 #, fuzzy
@@ -751,12 +747,12 @@ msgstr "Tjener moderatorer"
 #: gui/panels/GUI_GameAbout.cpp:80
 msgctxt "About"
 msgid "Code Contributors"
-msgstr ""
+msgstr "Kode-bidragsytere"
 
 #: gui/panels/GUI_GameAbout.cpp:106
 msgctxt "About"
 msgid "Core Content Contributors"
-msgstr ""
+msgstr "Hovedinnholdsbidragsytere"
 
 #: gui/panels/GUI_GameAbout.cpp:112
 msgctxt "About"
@@ -766,17 +762,17 @@ msgstr ""
 #: gui/panels/GUI_GameAbout.cpp:116
 msgctxt "About"
 msgid "Testers"
-msgstr ""
+msgstr "Testere"
 
 #: gui/panels/GUI_GameAbout.cpp:120
 msgctxt "About"
 msgid "Used Libs"
-msgstr ""
+msgstr "Brukte bibliotek"
 
 #: gui/panels/GUI_GameChatBox.cpp:78
 msgctxt "ChatBox"
 msgid "Welcome to Rigs of Rods!"
-msgstr ""
+msgstr "Velkommen til Rigs of Rods."
 
 #: gui/panels/GUI_GameChatBox.cpp:139
 msgctxt "ChatBox"
@@ -786,7 +782,7 @@ msgstr ""
 #: gui/panels/GUI_GameChatBox.cpp:140
 msgctxt "ChatBox"
 msgid "Message"
-msgstr ""
+msgstr "Melding"
 
 #: gui/panels/GUI_GameChatBox.cpp:188
 msgctxt "ChatBox"
@@ -806,15 +802,11 @@ msgid "Game Controls"
 msgstr "Kontroller"
 
 #: gui/panels/GUI_GameControls.cpp:47
-#, fuzzy
-#| msgid "Airplane"
 msgctxt "GameControls"
 msgid "Airplane"
 msgstr "Fly"
 
 #: gui/panels/GUI_GameControls.cpp:49
-#, fuzzy
-#| msgid "Boat"
 msgctxt "GameControls"
 msgid "Boat"
 msgstr "Båt"
@@ -822,23 +814,19 @@ msgstr "Båt"
 #: gui/panels/GUI_GameControls.cpp:51
 msgctxt "GameControls"
 msgid "Camera"
-msgstr ""
+msgstr "Kamera"
 
 #: gui/panels/GUI_GameControls.cpp:53
 msgctxt "GameControls"
 msgid "Sky"
-msgstr ""
+msgstr "Himmel"
 
 #: gui/panels/GUI_GameControls.cpp:55
-#, fuzzy
-#| msgid "Character position: "
 msgctxt "GameControls"
 msgid "Character"
-msgstr "Karakter posisjon "
+msgstr "Tegn"
 
 #: gui/panels/GUI_GameControls.cpp:57
-#, fuzzy
-#| msgid "Commands"
 msgctxt "GameControls"
 msgid "Commands"
 msgstr "Kommandoer"
@@ -848,110 +836,95 @@ msgstr "Kommandoer"
 #| msgid "Command 1"
 msgctxt "GameControls"
 msgid "Common"
-msgstr "kommando 1"
+msgstr "Vanlig"
 
 #: gui/panels/GUI_GameControls.cpp:61
 msgctxt "GameControls"
 msgid "Grass"
-msgstr ""
+msgstr "Gress"
 
 #: gui/panels/GUI_GameControls.cpp:63
 msgctxt "GameControls"
 msgid "Map"
-msgstr ""
+msgstr "Kart"
 
 #: gui/panels/GUI_GameControls.cpp:65
 msgctxt "GameControls"
 msgid "Menu"
-msgstr ""
+msgstr "Meny"
 
 #: gui/panels/GUI_GameControls.cpp:67
 #, fuzzy
 #| msgid "Truck"
 msgctxt "GameControls"
 msgid "Truck"
-msgstr "Bil"
+msgstr "Lastebil"
 
 #: gui/panels/GUI_GameMainMenu.cpp:131
 msgctxt "MainMenu"
 msgid "Single player"
-msgstr ""
+msgstr "Enkeltspiller"
 
 #: gui/panels/GUI_GameMainMenu.cpp:141 gui/panels/GUI_GameMainMenu.cpp:150
 msgctxt "MainMenu"
 msgid "Resume game"
-msgstr ""
+msgstr "Gjenoppta spill"
 
 #: gui/panels/GUI_GameMainMenu.cpp:159
 msgctxt "MainMenu"
 msgid "Multiplayer"
-msgstr ""
+msgstr "Flerspiller"
 
 #: gui/panels/GUI_GameMainMenu.cpp:165
-#, fuzzy
-#| msgid "Fluid Settings"
 msgctxt "MainMenu"
 msgid "Settings"
-msgstr "Veske innstillinger"
+msgstr "Innstillinger"
 
 #: gui/panels/GUI_GameMainMenu.cpp:171
-#, fuzzy
-#| msgid "About"
 msgctxt "MainMenu"
 msgid "About"
 msgstr "Om"
 
 #: gui/panels/GUI_GameMainMenu.cpp:179
 msgid "Return to menu"
-msgstr ""
+msgstr "Tilbake til menyen"
 
 #: gui/panels/GUI_GameMainMenu.cpp:190
-#, fuzzy
-#| msgid "exit the game"
 msgctxt "MainMenu"
 msgid "Exit game"
-msgstr "Avslutt spillet"
+msgstr "Avslutt spill"
 
 #: gui/panels/GUI_GameMainMenu.cpp:221 gui/panels/GUI_GameMainMenu.cpp:249
-#, fuzzy
-#| msgctxt "About"
-#| msgid "Version"
 msgctxt "MainMenu"
 msgid "Game version"
-msgstr "Versjon"
+msgstr "Spillversjon"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:222 gui/panels/GUI_GameMainMenu.cpp:250
-#, fuzzy
-#| msgid "Network error!"
 msgctxt "MainMenu"
 msgid "Net. protocol"
-msgstr "Nettverksfeil!"
+msgstr "Nettverksprotokoll"
 
 #: gui/panels/GUI_GameMainMenu.cpp:235
-#, fuzzy
-#| msgid "Version: "
 msgctxt "MainMenu"
 msgid "Version box"
-msgstr "Versjon "
+msgstr "Versjonsboks"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:251
-#, fuzzy
-#| msgid "Cache cleared"
 msgctxt "MainMenu"
 msgid "Cache updated"
-msgstr "Cache klargjort"
+msgstr "Hurtiglager oppdatert"
 
 #: gui/panels/GUI_GameMainMenu.cpp:264
 msgctxt "MainMenu"
 msgid "Notice box"
-msgstr ""
+msgstr "Merknadsboks"
 
 #: gui/panels/GUI_GameSettings.cpp:41
 msgctxt "GameSettings"
 msgid "Game settings"
-msgstr ""
+msgstr "Spillinnstillinger"
 
 #. Combobox for selecting the Render System
 #: gui/panels/GUI_GameSettings.cpp:49 gui/panels/GUI_GameSettings.cpp:127
@@ -962,7 +935,7 @@ msgstr "Gjengivelsesmetode"
 #: gui/panels/GUI_GameSettings.cpp:56
 msgctxt "GameSettings"
 msgid "General"
-msgstr ""
+msgstr "Generelt"
 
 #: gui/panels/GUI_GameSettings.cpp:63
 #, fuzzy
@@ -979,7 +952,7 @@ msgstr "Grafikk"
 #: gui/panels/GUI_GameSettings.cpp:77
 msgctxt "GameSettings"
 msgid "Audio"
-msgstr ""
+msgstr "Lyd"
 
 #: gui/panels/GUI_GameSettings.cpp:84
 msgctxt "GameSettings"
@@ -989,7 +962,7 @@ msgstr "Kontroller"
 #: gui/panels/GUI_GameSettings.cpp:91
 msgctxt "GameSettings"
 msgid "Diagnostic"
-msgstr ""
+msgstr "Diagnostikk"
 
 #: gui/panels/GUI_GameSettings.cpp:113
 msgctxt "GameSettings"
@@ -999,26 +972,24 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:165
 msgctxt "GameSettings"
 msgid "Application settings"
-msgstr ""
+msgstr "Programinnstillinger"
 
 #: gui/panels/GUI_GameSettings.cpp:177
 msgctxt "GameSettings"
 msgid "Language"
-msgstr ""
+msgstr "Språk"
 
 #: gui/panels/GUI_GameSettings.cpp:208
-#, fuzzy
-#| msgid "user country"
 msgctxt "GameSettings"
 msgid "Country"
-msgstr "Bruker land"
+msgstr "Land"
 
 #. Hardcoded; TODO: list available formats.
 #. Screenshot format: Can be png or jpg
 #: gui/panels/GUI_GameSettings.cpp:217
 msgctxt "GameSettings"
 msgid "Screenshot format"
-msgstr ""
+msgstr "Skjermavbildningsformat"
 
 #: gui/panels/GUI_GameSettings.cpp:223
 msgctxt "GameSettings"
@@ -1028,7 +999,7 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:225
 msgctxt "GameSettings"
 msgid "Skip main menu"
-msgstr ""
+msgstr "Hopp over hovedmeny"
 
 #: gui/panels/GUI_GameSettings.cpp:226
 msgctxt "GameSettings"
@@ -1040,29 +1011,27 @@ msgstr ""
 #| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Disable online api"
-msgstr "Deaktiver oversiktskart"
+msgstr "Skru av nettbasert API"
 
 #: gui/panels/GUI_GameSettings.cpp:229
-#, fuzzy
-#| msgid "Updates"
 msgctxt "GameSettings"
 msgid "Update cache"
-msgstr "Oppdateringer"
+msgstr "Oppdater hurtiglager"
 
 #: gui/panels/GUI_GameSettings.cpp:239
 msgctxt "GameSettings"
 msgid "Simulation settings"
-msgstr ""
+msgstr "Simuleringsinnstillinger"
 
 #: gui/panels/GUI_GameSettings.cpp:241
 msgctxt "GameSettings"
 msgid "Gearbox mode"
-msgstr ""
+msgstr "Girvekslingsmodus"
 
 #: gui/panels/GUI_GameSettings.cpp:248
 msgctxt "GameSettings"
 msgid "Digital speedometer"
-msgstr ""
+msgstr "Digitalt speedometer"
 
 #: gui/panels/GUI_GameSettings.cpp:249
 msgctxt "GameSettings"
@@ -1127,12 +1096,12 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:277
 msgctxt "GameSettings"
 msgid "Audio settings"
-msgstr ""
+msgstr "Lydinnstillinger"
 
 #: gui/panels/GUI_GameSettings.cpp:293
 msgctxt "GameSettings"
 msgid "Audio device"
-msgstr ""
+msgstr "Lydenhet"
 
 #: gui/panels/GUI_GameSettings.cpp:298
 msgctxt "GameSettings"
@@ -1142,7 +1111,7 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:299
 msgctxt "GameSettings"
 msgid "Main menu music"
-msgstr ""
+msgstr "Hovedmeny-musikk"
 
 #: gui/panels/GUI_GameSettings.cpp:300
 msgctxt "GameSettings"
@@ -1152,14 +1121,12 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:306
 msgctxt "GameSettings"
 msgid "Video settings"
-msgstr ""
+msgstr "Videoinnstillinger"
 
 #: gui/panels/GUI_GameSettings.cpp:308
-#, fuzzy
-#| msgid "No light sources"
 msgctxt "GameSettings"
 msgid "Light sources"
-msgstr "Ingen lyskilder"
+msgstr "Lyskilder"
 
 #: gui/panels/GUI_GameSettings.cpp:315
 msgctxt "GameSettings"
@@ -1169,12 +1136,12 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:321
 msgctxt "GameSettings"
 msgid "Shadow optimizations"
-msgstr ""
+msgstr "Skyggeoptimisering"
 
 #: gui/panels/GUI_GameSettings.cpp:324
 msgctxt "GameSettings"
 msgid "Shadow quality"
-msgstr ""
+msgstr "Skyggekvalitet"
 
 #: gui/panels/GUI_GameSettings.cpp:335
 msgctxt "GameSettings"
@@ -1326,7 +1293,7 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:413
 msgctxt "GameSettings"
 msgid "Debug collisions"
-msgstr ""
+msgstr "Avlus kollisjoner"
 
 #: gui/panels/GUI_GameSettings.cpp:414
 msgctxt "GameSettings"
@@ -1341,7 +1308,7 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:416
 msgctxt "GameSettings"
 msgid "Debug videocameras"
-msgstr ""
+msgstr "Avlus videokameraer"
 
 #: gui/panels/GUI_GameSettings.cpp:417
 msgctxt "GameSettings"
@@ -1356,22 +1323,22 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:419
 msgctxt "GameSettings"
 msgid "Hide wheel info"
-msgstr ""
+msgstr "Skjul hjulinfo"
 
 #: gui/panels/GUI_GameSettings.cpp:420
 msgctxt "GameSettings"
 msgid "Hide wheels"
-msgstr ""
+msgstr "Skjul hjul"
 
 #: gui/panels/GUI_GameSettings.cpp:421
 msgctxt "GameSettings"
 msgid "Hide nodes"
-msgstr ""
+msgstr "Skjul noder"
 
 #: gui/panels/GUI_GameSettings.cpp:422
 msgctxt "GameSettings"
 msgid "Echo log to console"
-msgstr ""
+msgstr "Send logg til konsoll"
 
 #: gui/panels/GUI_GameSettings.cpp:423
 msgctxt "GameSettings"
@@ -1476,14 +1443,15 @@ msgid "OutGauge delay"
 msgstr ""
 
 #: gui/panels/GUI_LoadingWindow.cpp:75
+#, fuzzy
 msgctxt "LoadingWindow"
 msgid "Joining"
-msgstr ""
+msgstr "Tar del …"
 
 #: gui/panels/GUI_LoadingWindow.cpp:96
 msgctxt "LoadingWindow"
 msgid "Please wait"
-msgstr ""
+msgstr "Vent …"
 
 #: gui/panels/GUI_MainSelector.cpp:84
 #, fuzzy
@@ -1627,7 +1595,7 @@ msgstr "Ingen"
 #: gui/panels/GUI_MainSelector.cpp:306
 msgctxt "MainSelector"
 msgid "Yes"
-msgstr ""
+msgstr "Ja"
 
 #: gui/panels/GUI_MainSelector.cpp:308
 #, fuzzy
@@ -1766,7 +1734,7 @@ msgstr "Filnavn"
 #: gui/panels/GUI_MainSelector.cpp:351
 msgctxt "MainSelector"
 msgid "Show details"
-msgstr ""
+msgstr "Vis detaljer"
 
 #: gui/panels/GUI_MainSelector.cpp:362
 #, fuzzy
@@ -1792,7 +1760,7 @@ msgstr "Avbryt"
 #: gui/panels/GUI_MessageBox.cpp:109
 msgctxt "MessageBox"
 msgid "Always ask"
-msgstr ""
+msgstr "Alltid spør"
 
 #. TextDisabled() are captions, Text() are values
 #: gui/panels/GUI_MultiplayerClientList.cpp:136
@@ -1906,7 +1874,7 @@ msgstr "Ingen"
 #: gui/panels/GUI_MultiplayerSelector.cpp:114
 msgctxt "MultiplayerSelector"
 msgid "Yes"
-msgstr ""
+msgstr "Ja"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:155
 msgctxt "MultiplayerSelector"
@@ -1928,7 +1896,7 @@ msgstr "Veske innstillinger"
 #: gui/panels/GUI_MultiplayerSelector.cpp:189
 msgctxt "MultiplayerSelector"
 msgid "Auto connect"
-msgstr ""
+msgstr "Automatisk tilkobling"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:190
 #, fuzzy
@@ -1950,7 +1918,7 @@ msgstr ""
 #: gui/panels/GUI_MultiplayerSelector.cpp:193
 msgctxt "MultiplayerSelector"
 msgid "Multiplayer collisions"
-msgstr ""
+msgstr "Flerspiller-kollisjoner"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:200
 #, fuzzy
@@ -1967,7 +1935,7 @@ msgstr ""
 #: gui/panels/GUI_MultiplayerSelector.cpp:206
 msgctxt "MultiplayerSelector"
 msgid "User token"
-msgstr ""
+msgstr "Brukersymbol"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:217
 #, fuzzy
@@ -1995,12 +1963,12 @@ msgstr "Tjener moderatorer"
 #: gui/panels/GUI_MultiplayerSelector.cpp:329
 msgctxt "MultiplayerSelector"
 msgid "Join"
-msgstr ""
+msgstr "Ta del"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:274
 msgctxt "MultiplayerSelector"
 msgid "Name"
-msgstr ""
+msgstr "Navn"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:275
 #, fuzzy
@@ -2012,7 +1980,7 @@ msgstr "laster inn terreng"
 #: gui/panels/GUI_MultiplayerSelector.cpp:276
 msgctxt "MultiplayerSelector"
 msgid "Users"
-msgstr ""
+msgstr "Brukere"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:277
 #, fuzzy
@@ -2025,7 +1993,7 @@ msgstr "Versjon"
 #: gui/panels/GUI_MultiplayerSelector.cpp:278
 msgctxt "MultiplayerSelector"
 msgid "Host/Port"
-msgstr ""
+msgstr "Vert/port"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:363
 msgctxt "MultiplayerSelector"
@@ -2408,7 +2376,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:171
 msgctxt "TopMenubar"
 msgid "Sim menu"
-msgstr ""
+msgstr "Simulatormeny"
 
 #. TODO: Display hotkeys on the right side of the menu (with different text color)
 #: gui/panels/GUI_TopMenubar.cpp:175
@@ -2434,7 +2402,7 @@ msgstr "Kun nåværende kjørelys, hovedlys"
 #: gui/panels/GUI_TopMenubar.cpp:201
 msgctxt "TopMenubar"
 msgid "Remove current vehicle"
-msgstr ""
+msgstr "Fjern nåværende kjøretøy"
 
 #: gui/panels/GUI_TopMenubar.cpp:209
 msgctxt "TopMenubar"
@@ -2467,7 +2435,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:256
 msgctxt "TopMenubar"
 msgid "Activate all vehicles"
-msgstr ""
+msgstr "Aktiver alle kjøretøy"
 
 #: gui/panels/GUI_TopMenubar.cpp:262
 msgctxt "TopMenubar"
@@ -2489,12 +2457,12 @@ msgstr "Kun nåværende kjørelys, hovedlys"
 #: gui/panels/GUI_TopMenubar.cpp:288
 msgctxt "TopMenubar"
 msgid "Back to menu"
-msgstr ""
+msgstr "Tilbake til meny"
 
 #: gui/panels/GUI_TopMenubar.cpp:298
 msgctxt "TopMenubar"
 msgid "Exit"
-msgstr ""
+msgstr "Avslutt"
 
 #: gui/panels/GUI_TopMenubar.cpp:315
 msgctxt "TopMenubar"
@@ -2511,7 +2479,7 @@ msgstr "Lagre som PNG"
 #: gui/panels/GUI_TopMenubar.cpp:348
 msgctxt "TopMenubar"
 msgid "Quicksave"
-msgstr ""
+msgstr "Hurtiglagring"
 
 #: gui/panels/GUI_TopMenubar.cpp:358
 msgctxt "TopMenubar"
@@ -2526,7 +2494,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:372
 msgctxt "TopMenubar"
 msgid "Empty Slot"
-msgstr ""
+msgstr "Tom plass"
 
 #: gui/panels/GUI_TopMenubar.cpp:386
 msgctxt "TopMenubar"
@@ -2536,7 +2504,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:414
 msgctxt "TopMenubar"
 msgid "Settings menu"
-msgstr ""
+msgstr "Innstillingsmeny"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_TopMenubar.cpp:417
@@ -2549,7 +2517,7 @@ msgstr "lyd driver"
 #: gui/panels/GUI_TopMenubar.cpp:418
 msgctxt "TopMenubar"
 msgid "Volume"
-msgstr ""
+msgstr "Lydstyrke"
 
 #: gui/panels/GUI_TopMenubar.cpp:420
 #, fuzzy
@@ -2568,7 +2536,7 @@ msgstr "Refleksjon"
 #: gui/panels/GUI_TopMenubar.cpp:425
 msgctxt "TopMenubar"
 msgid "Game"
-msgstr ""
+msgstr "Spill"
 
 #: gui/panels/GUI_TopMenubar.cpp:428
 #, fuzzy
@@ -2592,7 +2560,7 @@ msgstr "Tid satt til "
 #: gui/panels/GUI_TopMenubar.cpp:442 gui/panels/GUI_TopMenubar.cpp:449
 msgctxt "TopMenubar"
 msgid "Camera:"
-msgstr ""
+msgstr "Kamera:"
 
 #: gui/panels/GUI_TopMenubar.cpp:443 gui/panels/GUI_TopMenubar.cpp:453
 #: gui/panels/GUI_TopMenubar.cpp:461
@@ -2605,7 +2573,7 @@ msgstr "Synsfelt: "
 #: gui/panels/GUI_TopMenubar.cpp:444
 msgctxt "TopMenubar"
 msgid "Height"
-msgstr ""
+msgstr "Høyde"
 
 #: gui/panels/GUI_TopMenubar.cpp:468
 msgctxt "TopMenubar"
@@ -2615,12 +2583,12 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:475
 msgctxt "TopMenubar"
 msgid "Time of day:"
-msgstr ""
+msgstr "Tid på dagen:"
 
 #: gui/panels/GUI_TopMenubar.cpp:488
 msgctxt "TopMenubar"
 msgid "Waves Height:"
-msgstr ""
+msgstr "Bølgehøyde:"
 
 #: gui/panels/GUI_TopMenubar.cpp:500
 #, fuzzy
@@ -2637,7 +2605,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:506
 msgctxt "TopMenubar"
 msgid "Multiplayer:"
-msgstr ""
+msgstr "Flerspiller:"
 
 #: gui/panels/GUI_TopMenubar.cpp:507
 #, fuzzy
@@ -2654,7 +2622,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:523
 msgctxt "TopMenubar"
 msgid "Tools menu"
-msgstr ""
+msgstr "Verktøymeny"
 
 #: gui/panels/GUI_TopMenubar.cpp:525
 #, fuzzy
@@ -2872,7 +2840,7 @@ msgstr "Spilling"
 #: gui/panels/GUI_TopMenubar.cpp:879
 msgctxt "TopMenubar"
 msgid "Time"
-msgstr ""
+msgstr "Tid"
 
 #: gui/panels/GUI_VehicleDescription.cpp:66
 #, fuzzy
@@ -2920,7 +2888,7 @@ msgstr ""
 #: main.cpp:387
 msgctxt "Network"
 msgid "Network disconnected"
-msgstr ""
+msgstr "Nettverk frakoblet"
 
 #: main.cpp:395
 msgid "Network fatal error: "
@@ -2932,13 +2900,14 @@ msgid "Multiplayer: connection failed"
 msgstr ""
 
 #: main.cpp:475
+#, fuzzy
 msgid "Loading resources"
-msgstr ""
+msgstr "Laster inn ressurser …"
 
 #: main.cpp:505
 #, c-format
 msgid "Press %s to start chatting"
-msgstr ""
+msgstr "Trykk %s for å starte sludring"
 
 #: main.cpp:560
 #, fuzzy
@@ -3014,7 +2983,7 @@ msgstr ""
 #: network/Network.cpp:435
 msgctxt "Network"
 msgid "Getting server info..."
-msgstr ""
+msgstr "Henter tjenerinfo …"
 
 #: network/Network.cpp:438
 msgid "Establishing network session: error sending hello"
@@ -3078,17 +3047,17 @@ msgstr "Etablerer nettverkssesjon Beklager, ukjent tjener respons"
 #: network/Network.cpp:545
 msgctxt "Network"
 msgid "Finishing..."
-msgstr ""
+msgstr "Fullfører …"
 
 #: network/Network.cpp:797
 msgctxt "NetUserAuth"
 msgid "Admin"
-msgstr ""
+msgstr "Administrator"
 
 #: network/Network.cpp:798
 msgctxt "NetUserAuth"
 msgid "Mod"
-msgstr ""
+msgstr "Moderator"
 
 #: network/Network.cpp:799 network/Network.cpp:809
 #, fuzzy
@@ -3105,12 +3074,12 @@ msgstr ""
 #: network/Network.cpp:801
 msgctxt "NetUserAuth"
 msgid "Banned"
-msgstr ""
+msgstr "Bannlyst"
 
 #: network/Network.cpp:802 network/Network.cpp:812
 msgctxt "NetUserAuth"
 msgid "Guest"
-msgstr ""
+msgstr "Gjest"
 
 #: network/Network.cpp:807
 #, fuzzy
@@ -3150,7 +3119,7 @@ msgstr ""
 
 #: physics/Actor.cpp:1296 physics/Actor.cpp:1322
 msgid "Axle "
-msgstr ""
+msgstr "Aksel "
 
 #: physics/Actor.cpp:1310
 msgid "No inter-wheel differential installed on current vehicle!"
@@ -3284,7 +3253,7 @@ msgstr "Feil under lasting av landuse konfigurator"
 
 #: physics/Savegame.cpp:745
 msgid "Scene saved"
-msgstr ""
+msgstr "Scene lagret"
 
 #: physics/collision/Collisions.cpp:204
 msgid "Configuration error"
@@ -3367,7 +3336,7 @@ msgstr ""
 #: resources/CacheSystem.h:262
 msgctxt "ModCategory"
 msgid "Fantasy Cars"
-msgstr ""
+msgstr "Fantasibiler"
 
 #: resources/CacheSystem.h:263
 msgctxt "ModCategory"
@@ -3387,22 +3356,22 @@ msgstr ""
 #: resources/CacheSystem.h:267
 msgctxt "ModCategory"
 msgid "Mobile Cranes"
-msgstr ""
+msgstr "Mobilkraner"
 
 #: resources/CacheSystem.h:268
 msgctxt "ModCategory"
 msgid "Other cranes"
-msgstr ""
+msgstr "Andre kraner"
 
 #: resources/CacheSystem.h:270
 msgctxt "ModCategory"
 msgid "Buses"
-msgstr ""
+msgstr "Busser"
 
 #: resources/CacheSystem.h:271
 msgctxt "ModCategory"
 msgid "Tractors"
-msgstr ""
+msgstr "Traktorer"
 
 #: resources/CacheSystem.h:272
 msgctxt "ModCategory"
@@ -3441,7 +3410,7 @@ msgstr "Båt"
 #: resources/CacheSystem.h:280
 msgctxt "ModCategory"
 msgid "Helicopters"
-msgstr ""
+msgstr "Helikoptre"
 
 #: resources/CacheSystem.h:281
 msgctxt "ModCategory"
@@ -3474,7 +3443,7 @@ msgstr ""
 #: resources/CacheSystem.h:291
 msgctxt "ModCategory"
 msgid "Submarine"
-msgstr ""
+msgstr "U-båt"
 
 #. note: these categories are NOT in the repository:
 #: resources/CacheSystem.h:294
@@ -3493,7 +3462,7 @@ msgstr "laster inn terreng"
 #: resources/CacheSystem.h:298
 msgctxt "ModCategory"
 msgid "Unsorted"
-msgstr ""
+msgstr "Usortert"
 
 #: resources/CacheSystem.h:299
 #, fuzzy
@@ -3510,7 +3479,7 @@ msgstr ""
 #: resources/CacheSystem.h:301
 msgctxt "ModCategory"
 msgid "Hidden"
-msgstr ""
+msgstr "Skjult"
 
 #: scripting/GameScript.cpp:764
 msgid "using Online API..."
@@ -3693,7 +3662,7 @@ msgstr ""
 
 #: system/ConsoleCmd.cpp:644
 msgid "unknown command: "
-msgstr ""
+msgstr "ukjent kommando: "
 
 #: system/ConsoleCmd.cpp:660
 msgid "Only allowed when simulation is running"
