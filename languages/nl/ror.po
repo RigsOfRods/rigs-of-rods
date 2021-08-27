@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-08-23 16:29+0200\n"
-"PO-Revision-Date: 2021-02-02 05:41+0000\n"
-"Last-Translator: Quinten Steeland <quinten.steeland@gmail.com>\n"
+"PO-Revision-Date: 2021-08-28 03:32+0000\n"
+"Last-Translator: Edgar <Edgar@anotherfoxguy.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "nl/>\n"
 "Language: nl\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.5-dev\n"
+"X-Generator: Weblate 4.8.1-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -32,10 +32,8 @@ msgid "No render system plugin available. Check your plugins.cfg"
 msgstr "Geen render-systeem plugin beschikbaar. Controleer uw plugins.cfg"
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgid "Screenshot:"
 msgid "Screenshot: "
-msgstr "Screenshot:"
+msgstr "Screenshot: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
@@ -636,7 +634,7 @@ msgstr "Code-bijdragers"
 #, fuzzy
 msgctxt "About"
 msgid "Core Content Contributors"
-msgstr "Kerncontentbijdragers"
+msgstr "Hoofdinhoud bijdragers"
 
 #: gui/panels/GUI_GameAbout.cpp:112
 msgctxt "About"
@@ -749,9 +747,6 @@ msgid "Resume game"
 msgstr "Spel hervatten"
 
 #: gui/panels/GUI_GameMainMenu.cpp:159
-#, fuzzy
-#| msgctxt "MainMenu"
-#| msgid "Multi player"
 msgctxt "MainMenu"
 msgid "Multiplayer"
 msgstr "Multiplayer"
@@ -793,11 +788,9 @@ msgstr "Versievak"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:251
-#, fuzzy
-#| msgid "Cache cleared"
 msgctxt "MainMenu"
 msgid "Cache updated"
-msgstr "Cache leeg"
+msgstr "Cache bijgewerkt"
 
 #: gui/panels/GUI_GameMainMenu.cpp:264
 #, fuzzy
@@ -805,7 +798,7 @@ msgstr "Cache leeg"
 #| msgid "Notices"
 msgctxt "MainMenu"
 msgid "Notice box"
-msgstr "Mededelingen"
+msgstr "Berichtenbox"
 
 #: gui/panels/GUI_GameSettings.cpp:41
 msgctxt "GameSettings"
@@ -829,7 +822,7 @@ msgstr "Algemeen"
 #| msgid "Replay"
 msgctxt "GameSettings"
 msgid "Gameplay"
-msgstr "Herhaling"
+msgstr "Gameplay"
 
 #: gui/panels/GUI_GameSettings.cpp:70
 msgctxt "GameSettings"
@@ -1005,11 +998,9 @@ msgid "Video settings"
 msgstr "Video-instellingen"
 
 #: gui/panels/GUI_GameSettings.cpp:308
-#, fuzzy
-#| msgid "No light sources"
 msgctxt "GameSettings"
 msgid "Light sources"
-msgstr "Geen licht bronnen"
+msgstr "Lichtbronnen"
 
 #: gui/panels/GUI_GameSettings.cpp:315
 msgctxt "GameSettings"
@@ -1556,7 +1547,7 @@ msgstr "Annuleren"
 #: gui/panels/GUI_MessageBox.cpp:109
 msgctxt "MessageBox"
 msgid "Always ask"
-msgstr ""
+msgstr "Altijd vragen"
 
 #. TextDisabled() are captions, Text() are values
 #: gui/panels/GUI_MultiplayerClientList.cpp:136
@@ -1604,21 +1595,17 @@ msgstr "geen vrachtwagen geladen"
 #| msgid "remote truck loading state"
 msgctxt "MultiplayerClientList"
 msgid "remote truck loading state"
-msgstr "afstandelijke vrachtwagen laad-status"
+msgstr "Externe vrachtwagen laad-status"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:195
-#, fuzzy
-#| msgid "Remote Truck loading errors"
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loading errors"
-msgstr "Afstandelijke Vrachtwagen laad foutmeldingen"
+msgstr "Externe Vrachtwagen laad foutmeldingen"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:196
-#, fuzzy
-#| msgid "Remote Truck loaded correctly, no errors"
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loaded correctly, no errors"
-msgstr "Afstandelijke Vrachtwagen succesvol geladen, geen foutmeldingen"
+msgstr "Externe Vrachtwagen succesvol geladen, geen foutmeldingen"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:197
 msgctxt "MultiplayerClientList"
@@ -1658,7 +1645,7 @@ msgstr "Online (klik om te vernieuwen)"
 #: gui/panels/GUI_MultiplayerSelector.cpp:164
 msgctxt "MultiplayerSelector"
 msgid "Direct IP"
-msgstr ""
+msgstr "Directe IP"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:169
 msgctxt "MultiplayerSelector"
@@ -1725,7 +1712,7 @@ msgstr "Server wachtwoord"
 #: gui/panels/GUI_MultiplayerSelector.cpp:329
 msgctxt "MultiplayerSelector"
 msgid "Join"
-msgstr ""
+msgstr "Verbinden"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:274
 msgctxt "MultiplayerSelector"
@@ -1806,22 +1793,22 @@ msgstr "Physics stappen:"
 #: gui/panels/GUI_NodeBeamUtils.cpp:110
 msgctxt "NodeBeamUtils"
 msgid "Beams (spring & damping search interval):"
-msgstr "Beams (zoekinterval veer en demping):"
+msgstr "Beams (veer & demping zoekinterval):"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:118
 msgctxt "NodeBeamUtils"
 msgid "Shocks (spring & damping search interval):"
-msgstr ""
+msgstr "Schokdempers (veer & demping zoekinterval):"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:126
 msgctxt "NodeBeamUtils"
 msgid "Wheels (spring & damping search interval):"
-msgstr ""
+msgstr "Wielen (veer & demping zoekinterval):"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
 msgid "Continue searching"
-msgstr ""
+msgstr "Doorgaan met zoeken"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
@@ -1831,12 +1818,12 @@ msgstr "Begin met zoeken"
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
 msgid "Stop searching"
-msgstr ""
+msgstr "Stoppen met zoeken"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:147
 msgctxt "NodeBeamUtils"
 msgid "Reset search"
-msgstr ""
+msgstr "Reset zoekopdracht"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:156
 msgctxt "NodeBeamUtils"
@@ -1846,22 +1833,22 @@ msgstr "Zoekresultaten"
 #: gui/panels/GUI_NodeBeamUtils.cpp:158
 msgctxt "NodeBeamUtils"
 msgid "Reference"
-msgstr ""
+msgstr "Referentie"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:160
 msgctxt "NodeBeamUtils"
 msgid "Optimum"
-msgstr ""
+msgstr "Optimaal"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:163 gui/panels/GUI_NodeBeamUtils.cpp:167
 msgctxt "NodeBeamUtils"
 msgid "Movement"
-msgstr ""
+msgstr "Beweging"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:164 gui/panels/GUI_NodeBeamUtils.cpp:168
 msgctxt "NodeBeamUtils"
 msgid "Stress"
-msgstr ""
+msgstr "Spanning"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:165 gui/panels/GUI_NodeBeamUtils.cpp:169
 msgctxt "NodeBeamUtils"
@@ -2090,23 +2077,17 @@ msgstr "Huidig voertuig verwijderen"
 #| msgid "Activate all vehicles"
 msgctxt "TopMenubar"
 msgid "Activate last spawned vehicle"
-msgstr "Alle voertuigen activeren"
+msgstr "Activeer het laatst gecreëerde voertuig"
 
 #: gui/panels/GUI_TopMenubar.cpp:217
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reload current vehicle"
 msgctxt "TopMenubar"
 msgid "Reload last spawned vehicle"
-msgstr "Huidig voertuig herladen"
+msgstr "Herlaad het laatst gecreëerde voertuig"
 
 #: gui/panels/GUI_TopMenubar.cpp:225
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Remove all vehicles"
 msgctxt "TopMenubar"
 msgid "Remove last spawned vehicle"
-msgstr "Verwijder alle voertuigen"
+msgstr "Verwijder het laatst gecreëerde voertuig"
 
 #: gui/panels/GUI_TopMenubar.cpp:234
 msgctxt "TopMenubar"
@@ -2134,12 +2115,9 @@ msgid "Send all vehicles to sleep"
 msgstr "Stuur alle voertuigen in slaap"
 
 #: gui/panels/GUI_TopMenubar.cpp:275
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reload current vehicle"
 msgctxt "TopMenubar"
 msgid "Reload current terrain"
-msgstr "Huidig voertuig herladen"
+msgstr "Huidig terrein herladen"
 
 #: gui/panels/GUI_TopMenubar.cpp:288
 msgctxt "TopMenubar"
@@ -2215,7 +2193,7 @@ msgstr "Reflecties"
 #: gui/panels/GUI_TopMenubar.cpp:425
 msgctxt "TopMenubar"
 msgid "Game"
-msgstr ""
+msgstr "Spel"
 
 #: gui/panels/GUI_TopMenubar.cpp:428
 msgctxt "TopMenubar"
@@ -2259,12 +2237,9 @@ msgid "Time of day:"
 msgstr "Tijdstip:"
 
 #: gui/panels/GUI_TopMenubar.cpp:488
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Height"
 msgctxt "TopMenubar"
 msgid "Waves Height:"
-msgstr "Hoogte"
+msgstr "Golven Hoogte:"
 
 #: gui/panels/GUI_TopMenubar.cpp:500
 msgctxt "TopMenubar"
@@ -2323,9 +2298,10 @@ msgid "Node / Beam utility"
 msgstr "Node / Beam hulpprogramma"
 
 #: gui/panels/GUI_TopMenubar.cpp:559
+#, fuzzy
 msgctxt "TopMenubar"
 msgid "Pre-spawn diag. options:"
-msgstr ""
+msgstr "Pre-spawn dialoog opties:"
 
 #: gui/panels/GUI_TopMenubar.cpp:562
 msgctxt "TopMenubar"
@@ -2586,16 +2562,12 @@ msgid "disconnected: remote side closed the connection"
 msgstr "verbinding verbroken: externe kant heeft de verbinding gesloten"
 
 #: network/Network.cpp:315
-#, fuzzy
-#| msgid " left the game"
 msgid "left the game"
-msgstr " heeft het spel verlaten"
+msgstr "heeft het spel verlaten"
 
 #: network/Network.cpp:347
-#, fuzzy
-#| msgid " joined the game"
 msgid "joined the game"
-msgstr " is in het spel gekomen"
+msgstr "is in het spel gekomen"
 
 #. Mark connect thread as started
 #: network/Network.cpp:401
@@ -2771,10 +2743,8 @@ msgid "Network error!"
 msgstr "Netwerk fout!"
 
 #: physics/ActorManager.cpp:410
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgid "spawned a new vehicle: "
-msgstr " koos een nieuw voertuig: "
+msgstr "koos een nieuw voertuig: "
 
 #: physics/ActorManager.cpp:420
 msgid "Mod not installed: "
@@ -2823,25 +2793,19 @@ msgstr "vergrendeld"
 #| msgid "Loader"
 msgctxt "QuickloadDialog"
 msgid "Load game?"
-msgstr "Lader"
+msgstr "Spel laden?"
 
 #: physics/Savegame.cpp:205
 msgctxt "QuickloadDialog"
 msgid "You will lose all unsaved progress!"
-msgstr ""
+msgstr "Je verliest alle niet-opgeslagen voortgang!"
 
 #: physics/Savegame.cpp:209
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "Loader"
 msgctxt "QuickloadDialog"
 msgid "Load"
-msgstr "Lader"
+msgstr "Laad"
 
 #: physics/Savegame.cpp:215
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "Cancel"
 msgctxt "QuickloadDialog"
 msgid "Cancel"
 msgstr "Annuleren"
