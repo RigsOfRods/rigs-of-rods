@@ -12,7 +12,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-08-23 16:29+0200\n"
 "PO-Revision-Date: 2021-08-28 03:32+0000\n"
-"Last-Translator: Edgar <Edgar@anotherfoxguy.com>\n"
+"Last-Translator: Quinten Steeland <quinten.steeland@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "nl/>\n"
 "Language: nl\n"
@@ -1868,17 +1868,17 @@ msgstr "Voertuig verwoesting: "
 #: gui/panels/GUI_SimActorStats.cpp:65
 msgctxt "SimActorStats"
 msgid "Beam count: "
-msgstr "Beam count: "
+msgstr "Aantal Beams: "
 
 #: gui/panels/GUI_SimActorStats.cpp:70
 msgctxt "SimActorStats"
 msgid "Broken beams count: "
-msgstr "Gebroken Beams count: "
+msgstr "Aantal gebroken beams: "
 
 #: gui/panels/GUI_SimActorStats.cpp:75
 msgctxt "SimActorStats"
 msgid "Deformed beams count: "
-msgstr "Vervormde Beams count: "
+msgstr "Aantal vervormde beams: "
 
 #: gui/panels/GUI_SimActorStats.cpp:80
 msgctxt "SimActorStats"
@@ -2656,7 +2656,7 @@ msgstr "Vaststellen netwerk sessie: sorry, onbekende server reactie"
 #: network/Network.cpp:545
 msgctxt "Network"
 msgid "Finishing..."
-msgstr "Voltooien"
+msgstr "Voltooien..."
 
 #: network/Network.cpp:797
 msgctxt "NetUserAuth"
@@ -2676,7 +2676,7 @@ msgstr "Bot"
 #: network/Network.cpp:800
 msgctxt "NetUserAuth"
 msgid "Ranked"
-msgstr ""
+msgstr "Gerankt"
 
 #: network/Network.cpp:801
 msgctxt "NetUserAuth"
@@ -2920,7 +2920,7 @@ msgstr "Fantasie Auto's"
 #: resources/CacheSystem.h:263
 msgctxt "ModCategory"
 msgid "Bikes"
-msgstr ""
+msgstr "Motorfietsen"
 
 #: resources/CacheSystem.h:264
 msgctxt "ModCategory"
@@ -3041,10 +3041,9 @@ msgid "All"
 msgstr "Alles"
 
 #: resources/CacheSystem.h:300
-#, fuzzy
 msgctxt "ModCategory"
 msgid "Fresh"
-msgstr "Vers"
+msgstr "Nieuw"
 
 #: resources/CacheSystem.h:301
 msgctxt "ModCategory"
@@ -3571,11 +3570,9 @@ msgid "toggle reset mode"
 msgstr "switch resetmodus"
 
 #: utils/InputEngine.cpp:71
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "InputEvent"
 msgid "tie a load to the truck"
-msgstr "lading vastbinden"
+msgstr "lading vastbinden aan truck"
 
 #: utils/InputEngine.cpp:72
 msgctxt "InputEvent"
@@ -3954,7 +3951,7 @@ msgstr "verminder doelsnelheid /rpm"
 #: utils/InputEngine.cpp:148
 msgctxt "InputEvent"
 msgid "hold to start the engine"
-msgstr "Ingedrukt houden om motor te starten"
+msgstr "ingedrukt houden om motor te starten"
 
 #: utils/InputEngine.cpp:149 utils/InputEngine.cpp:208
 #, fuzzy
@@ -4317,11 +4314,9 @@ msgid "airplane parking brake."
 msgstr "parkeerrem vliegtuig."
 
 #: utils/InputEngine.cpp:205
-#, fuzzy
-#| msgid "reverse the turboprops"
 msgctxt "InputEvent"
 msgid "reverse the turboprops"
-msgstr "turboprops acteruit"
+msgstr "zet turboprops in achteruit"
 
 #: utils/InputEngine.cpp:206
 #, fuzzy
@@ -5060,25 +5055,19 @@ msgstr "Commando 84"
 
 #. Character
 #: utils/InputEngine.cpp:320
-#, fuzzy
-#| msgid "step backwards with the character"
 msgctxt "InputEvent"
 msgid "step backwards with the character"
-msgstr "Stap terug met de character"
+msgstr "stap achteruit met het karakter"
 
 #: utils/InputEngine.cpp:321
-#, fuzzy
-#| msgid "step forward with the character"
 msgctxt "InputEvent"
 msgid "step forward with the character"
-msgstr "stap naar voor met het karakter"
+msgstr "stap vooruit met het karakter"
 
 #: utils/InputEngine.cpp:322
-#, fuzzy
-#| msgid "let the character jump"
 msgctxt "InputEvent"
 msgid "let the character jump"
-msgstr "spring met het karakter"
+msgstr "laat het karakter springen"
 
 #: utils/InputEngine.cpp:323
 #, fuzzy
@@ -5116,15 +5105,11 @@ msgid "sidestep to the right"
 msgstr "zijstap naar rechts"
 
 #: utils/InputEngine.cpp:328
-#, fuzzy
-#| msgid "rotate view up"
 msgctxt "InputEvent"
 msgid "rotate view up"
-msgstr "draai beeld naar boven"
+msgstr "draai beeld omhoog"
 
 #: utils/InputEngine.cpp:329
-#, fuzzy
-#| msgid "rotate view down"
 msgctxt "InputEvent"
 msgid "rotate view down"
 msgstr "draai beeld omlaag"
@@ -5152,11 +5137,9 @@ msgid "reset the camera position"
 msgstr "Reset de camara positie"
 
 #: utils/InputEngine.cpp:335
-#, fuzzy
-#| msgid "rotate camera down"
 msgctxt "InputEvent"
 msgid "rotate camera down"
-msgstr "Draai de camera naar beneden"
+msgstr "draai de camera omlaag"
 
 #: utils/InputEngine.cpp:336
 #, fuzzy
@@ -5173,46 +5156,34 @@ msgid "rotate camera right"
 msgstr "draai de camera naar rechts"
 
 #: utils/InputEngine.cpp:338
-#, fuzzy
-#| msgid "rotate camera up"
 msgctxt "InputEvent"
 msgid "rotate camera up"
-msgstr "Draai de camera omhoog"
+msgstr "draai de camera omhoog"
 
 #: utils/InputEngine.cpp:339
-#, fuzzy
-#| msgid "zoom camera in"
 msgctxt "InputEvent"
 msgid "zoom camera in"
-msgstr "Camera inzoomen"
+msgstr "camera inzoomen"
 
 #: utils/InputEngine.cpp:340
-#, fuzzy
-#| msgid "zoom camera in faster"
 msgctxt "InputEvent"
 msgid "zoom camera in faster"
-msgstr "De camera sneller inzoomen"
+msgstr "de camera sneller inzoomen"
 
 #: utils/InputEngine.cpp:341
-#, fuzzy
-#| msgid "zoom camera out"
 msgctxt "InputEvent"
 msgid "zoom camera out"
-msgstr "Zoom camera uit"
+msgstr "camera uitzoomen"
 
 #: utils/InputEngine.cpp:342
-#, fuzzy
-#| msgid "zoom camera out faster"
 msgctxt "InputEvent"
 msgid "zoom camera out faster"
-msgstr "De camera sneller uitzoomen"
+msgstr "de camera sneller uitzoomen"
 
 #: utils/InputEngine.cpp:343
-#, fuzzy
-#| msgid "fix the camera to a position"
 msgctxt "InputEvent"
 msgid "fix the camera to a position"
-msgstr "Stel de camera op een positie vast"
+msgstr "bevestig de camera op een vaste positie"
 
 #: utils/InputEngine.cpp:344
 #, fuzzy
@@ -5229,11 +5200,9 @@ msgid "move camera up"
 msgstr "beweeg de camera omhoog"
 
 #: utils/InputEngine.cpp:346
-#, fuzzy
-#| msgid "move camera down"
 msgctxt "InputEvent"
 msgid "move camera down"
-msgstr "beweeg de camera naar beneden"
+msgstr "beweeg de camera omlaag"
 
 #. Sky
 #: utils/InputEngine.cpp:349
@@ -5309,11 +5278,9 @@ msgid "toggle map icons"
 msgstr "kaartpictogrammen in- en uitschakelen"
 
 #: utils/InputEngine.cpp:363
-#, fuzzy
-#| msgid "toggle map"
 msgctxt "InputEvent"
 msgid "toggle map"
-msgstr "kaart aan/uit"
+msgstr "kaart in- en uitschakelen"
 
 #: utils/InputEngine.cpp:364
 #, fuzzy
@@ -5330,33 +5297,25 @@ msgid "zoom in"
 msgstr "zoom in"
 
 #: utils/InputEngine.cpp:366
-#, fuzzy
-#| msgid "zoom out"
 msgctxt "InputEvent"
 msgid "zoom out"
-msgstr "uitzoomen"
+msgstr "zoom uit"
 
 #. Menu
 #: utils/InputEngine.cpp:369
-#, fuzzy
-#| msgid "select next element in current category"
 msgctxt "InputEvent"
 msgid "select next element in current category"
-msgstr "Selecteer het volgende element in de huidige catagorie"
+msgstr "selecteer het volgende element in de huidige categorie"
 
 #: utils/InputEngine.cpp:370
-#, fuzzy
-#| msgid "select previous category"
 msgctxt "InputEvent"
 msgid "select previous category"
-msgstr "Selecteer vorige categorie"
+msgstr "selecteer de vorige categorie"
 
 #: utils/InputEngine.cpp:371
-#, fuzzy
-#| msgid "select next category"
 msgctxt "InputEvent"
 msgid "select next category"
-msgstr "Selecteer volgende categorie"
+msgstr "selecteer de volgende categorie"
 
 #: utils/InputEngine.cpp:372
 #, fuzzy
