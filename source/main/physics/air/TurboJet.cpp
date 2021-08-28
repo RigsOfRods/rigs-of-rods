@@ -144,7 +144,13 @@ TurbojetVisual::~TurbojetVisual()
 
 void Turbojet::updateVisuals(RoR::GfxActor* gfx_actor)
 {
-    this->tjet_visual.UpdateVisuals(gfx_actor);
+    if (this->tjet_visual.IsVisible())
+        this->tjet_visual.UpdateVisuals(gfx_actor);
+}
+
+void Turbojet::setVisible(bool visible)
+{
+    this->tjet_visual.SetVisible(visible);
 }
 
 void TurbojetVisual::UpdateVisuals(RoR::GfxActor* gfx_actor)
@@ -203,6 +209,18 @@ void TurbojetVisual::UpdateVisuals(RoR::GfxActor* gfx_actor)
             emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.1));
             emit->setTimeToLive(0.1 / 0.1);
         }
+    }
+}
+
+void TurbojetVisual::SetVisible(bool visible)
+{
+    m_visible = visible;
+    m_smoke_particle->setVisible(visible);
+    m_nozzle_scenenode->setVisible(visible);
+    if (!visible)
+    {
+        // only hide, regular update will restore visibility if needed.
+        m_flame_scenenode->setVisible(false);
     }
 }
 

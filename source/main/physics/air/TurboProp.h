@@ -55,7 +55,6 @@ public:
     );
     ~Turboprop();
 
-    void updateVisuals(RoR::GfxActor* gfx_actor) override;
     void updateForces(float dt, int doUpdate);
 
     void setThrottle(float val);
@@ -82,6 +81,10 @@ public:
     int getNoderef() { return noderef; };
     bool getWarmup() { return warmup; };
     float getRadius() { return radius; };
+
+    // Visuals
+    void updateVisuals(RoR::GfxActor* gfx_actor) override;
+    void setVisible(bool visible) override;
 
 private:
 

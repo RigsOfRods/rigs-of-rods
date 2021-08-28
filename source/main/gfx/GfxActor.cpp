@@ -2351,6 +2351,17 @@ void RoR::GfxActor::SetPropsVisible(bool visible)
     }
 }
 
+void RoR::GfxActor::SetAeroEnginesVisible(bool visible)
+{
+    // For turbojets, this hides meshes (nozzle, abflame) and particles
+    // For turbo/piston-props, this only hides particles, meshes are in props.
+
+    for (int i = 0; i < m_actor->ar_num_aeroengines; i++)
+    {
+        m_actor->ar_aeroengines[i]->setVisible(visible);
+    }
+}
+
 void RoR::GfxActor::SetRenderdashActive(bool active)
 {
     if (m_renderdash != nullptr)
@@ -3287,6 +3298,7 @@ void RoR::GfxActor::SetAllMeshesVisible(bool visible)
     this->SetFlexbodyVisible(visible);
     this->SetWingsVisible(visible);
     this->SetRodsVisible(visible);
+    this->SetAeroEnginesVisible(visible);
 }
 
 void RoR::GfxActor::SetWingsVisible(bool visible)

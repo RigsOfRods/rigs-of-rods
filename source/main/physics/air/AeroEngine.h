@@ -37,7 +37,6 @@ public:
 
     virtual ~AeroEngine() {}
 
-    virtual void updateVisuals(RoR::GfxActor* gfx_actor) =0;
     virtual void updateForces(float dt, int doUpdate) =0;
 
     virtual void setThrottle(float val) =0;
@@ -65,6 +64,10 @@ public:
     virtual int getNoderef() =0;
     virtual bool getWarmup() =0;
     virtual float getRadius() =0;
+
+    // Visuals
+    virtual void updateVisuals(RoR::GfxActor* gfx_actor) = 0;
+    virtual void setVisible(bool visible) = 0;
 };
 
 } // namespace RoR
