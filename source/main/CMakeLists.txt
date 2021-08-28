@@ -224,7 +224,8 @@ if (ROR_USE_ANGELSCRIPT)
     list(APPEND SOURCE_FILES
             scripting/GameScript.{h,cpp}
             scripting/LocalStorage.{h,cpp}
-            scripting/OgreAngelscript.{h,cpp}
+            scripting/OgreAngelscript.cpp
+            scripting/ImGuiAngelscript.cpp
             scripting/OgreScriptBuilder.{h,cpp}
             scripting/ScriptEngine.{h,cpp}
             )

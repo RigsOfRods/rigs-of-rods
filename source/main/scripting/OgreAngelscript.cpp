@@ -23,9 +23,8 @@
 /// @author Thomas Fischer
 /// @date   31th of July 2009
 
-#include "OgreAngelscript.h"
-
 #include "Application.h"
+#include "ScriptEngine.h"
 
 using namespace Ogre;
 using namespace AngelScript;
@@ -51,6 +50,27 @@ static void Vector3InitConstructor(float x, float y, float z, Vector3* self)
 static void Vector3InitConstructorScaler(float s, Vector3* self)
 {
     new(self) Vector3(s, s, s);
+}
+
+/***VECTOR2***/
+static void Vector2DefaultConstructor(Vector2* self)
+{
+    new(self) Vector2();
+}
+
+static void Vector2CopyConstructor(const Vector2& other, Vector2* self)
+{
+    new(self) Vector2(other);
+}
+
+static void Vector2InitConstructor(float x, float y, Vector2* self)
+{
+    new(self) Vector2(x, y);
+}
+
+static void Vector2InitConstructorScaler(float s, Vector2* self)
+{
+    new(self) Vector2(s, s);
 }
 
 // not used
@@ -159,8 +179,31 @@ static void QuaternionInitConstructorScaler(float s, Quaternion* self)
     new(self) Quaternion(s, s, s, s);
 }
 
+/***COLOURVALUE***/
+static void ColourValueDefaultConstructor(ColourValue* self)
+{
+    new(self) ColourValue();
+}
+
+static void ColourValueInitConstructor(float r, float g, float b, float a, ColourValue* self)
+{
+    new(self) ColourValue(r,g,b,a);
+}
+
+static void ColourValueCopyConstructor(const ColourValue& other, ColourValue* self)
+{
+    new(self) ColourValue(other.r, other.g, other.b, other.a);
+}
+
+// forward declarations, defined below
+void registerOgreVector3(AngelScript::asIScriptEngine* engine);
+void registerOgreVector2(AngelScript::asIScriptEngine* engine);
+void registerOgreRadian(AngelScript::asIScriptEngine* engine);
+void registerOgreDegree(AngelScript::asIScriptEngine* engine);
+void registerOgreQuaternion(AngelScript::asIScriptEngine* engine);
+
 // main registration method
-void registerOgreObjects(AngelScript::asIScriptEngine* engine)
+void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
 {
     int r;
 
@@ -174,17 +217,26 @@ void registerOgreObjects(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("radian", sizeof(Radian), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
     ROR_ASSERT( r >= 0 );
 
+    // Ogre::Vector2
+    r = engine->RegisterObjectType("vector2", sizeof(Vector2), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
+    ROR_ASSERT( r >= 0 );
+
     // Ogre::Vector3
-    r = engine->RegisterObjectType("vector3", sizeof(Ogre::Vector3), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
+    r = engine->RegisterObjectType("vector3", sizeof(Vector3), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
     ROR_ASSERT( r >= 0 );
 
     // Ogre::Quaternion
     r = engine->RegisterObjectType("quaternion", sizeof(Quaternion), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
     ROR_ASSERT( r >= 0 );
 
+    // Ogre::ColourValue
+    r = engine->RegisterObjectType("color", sizeof(ColourValue), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
+    ROR_ASSERT( r >= 0 );
+
     registerOgreRadian(engine);
     registerOgreDegree(engine);
     registerOgreVector3(engine);
+    registerOgreVector2(engine);
     registerOgreQuaternion(engine);
 }
 
@@ -315,6 +367,120 @@ void registerOgreVector3(AngelScript::asIScriptEngine* engine)
     ROR_ASSERT( r >= 0 );
 
     r = engine->RegisterObjectMethod("vector3", "bool isNaN() const", asMETHOD(Vector3,isNaN), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+}
+
+
+// register Ogre::Vector2
+void registerOgreVector2(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+
+    // Register the object properties
+    r = engine->RegisterObjectProperty("vector2", "float x", offsetof(Ogre::Vector2, x));
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("vector2", "float y", offsetof(Ogre::Vector2, y));
+    ROR_ASSERT( r >= 0 );
+
+    // Register the object constructors
+    r = engine->RegisterObjectBehaviour("vector2", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(Vector2DefaultConstructor), asCALL_CDECL_OBJLAST);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("vector2", asBEHAVE_CONSTRUCT, "void f(float, float)", asFUNCTION(Vector2InitConstructor), asCALL_CDECL_OBJLAST);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("vector2", asBEHAVE_CONSTRUCT, "void f(const vector2 &in)", asFUNCTION(Vector2CopyConstructor), asCALL_CDECL_OBJLAST);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("vector2", asBEHAVE_CONSTRUCT, "void f(float)", asFUNCTION(Vector2InitConstructorScaler), asCALL_CDECL_OBJLAST);
+    ROR_ASSERT( r >= 0 );
+
+    // Register the object operators
+    r = engine->RegisterObjectMethod("vector2", "float opIndex(int) const", asMETHODPR(Vector2, operator[], (size_t) const, float), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 &f(const vector2 &in)", asMETHODPR(Vector2, operator =, (const Vector2 &), Vector2&), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "bool opEquals(const vector2 &in) const", asMETHODPR(Vector2, operator==,(const Vector2&) const, bool), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "vector2 opAdd(const vector2 &in) const", asMETHODPR(Vector2, operator+,(const Vector2&) const, Vector2), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 opSub(const vector2 &in) const", asMETHODPR(Vector2, operator-,(const Vector2&) const, Vector2), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "vector2 opMul(float) const", asMETHODPR(Vector2, operator*,(const float) const, Vector2), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 opMul(const vector2 &in) const", asMETHODPR(Vector2, operator*,(const Vector2&) const, Vector2), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 opDiv(float) const", asMETHODPR(Vector2, operator/,(const float) const, Vector2), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 opDiv(const vector2 &in) const", asMETHODPR(Vector2, operator/,(const Vector2&) const, Vector2), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "vector2 opAdd() const", asMETHODPR(Vector2, operator+,() const, const Vector2&), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 opSub() const", asMETHODPR(Vector2, operator-,() const, Vector2), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opAddAssign(const vector2 &in)", asMETHODPR(Vector2,operator+=,(const Vector2 &),Vector2&), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opAddAssign(float)", asMETHODPR(Vector2,operator+=,(const float),Vector2&), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opSubAssign(const vector2 &in)", asMETHODPR(Vector2,operator-=,(const Vector2 &),Vector2&), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opSubAssign(float)", asMETHODPR(Vector2,operator-=,(const float),Vector2&), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opMulAssign(const vector2 &in)", asMETHODPR(Vector2,operator*=,(const Vector2 &),Vector2&), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opMulAssign(float)", asMETHODPR(Vector2,operator*=,(const float),Vector2&), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opDivAssign(const vector2 &in)", asMETHODPR(Vector2,operator/=,(const Vector2 &),Vector2&), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 &opDivAssign(float)", asMETHODPR(Vector2,operator/=,(const float),Vector2&), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+
+    // Register the object methods
+
+    r = engine->RegisterObjectMethod("vector2", "float length() const", asMETHOD(Vector2,length), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "float squaredLength() const", asMETHOD(Vector2,squaredLength), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "float distance(const vector2 &in) const", asMETHOD(Vector2,distance), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "float squaredDistance(const vector2 &in) const", asMETHOD(Vector2,squaredDistance), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "float dotProduct(const vector2 &in) const", asMETHOD(Vector2,dotProduct), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "float normalise()", asMETHOD(Vector2,normalise), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "float crossProduct(const vector2 &in) const", asMETHOD(Vector2,crossProduct), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 midPoint(const vector2 &in) const", asMETHOD(Vector2,midPoint), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "void makeFloor(const vector2 &in)", asMETHOD(Vector2,makeFloor), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "void makeCeil(const vector2 &in)", asMETHOD(Vector2,makeCeil), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 perpendicular() const", asMETHOD(Vector2,perpendicular), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 randomDeviant(const radian &in, const vector2 &in) const", asMETHOD(Vector2,randomDeviant), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "radian angleBetween(const vector2 &in)", asMETHOD(Vector2,angleBetween), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "bool isZeroLength() const", asMETHOD(Vector2,isZeroLength), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 normalisedCopy() const", asMETHOD(Vector2,normalisedCopy), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectMethod("vector2", "vector2 reflect(const vector2 &in) const", asMETHOD(Vector2,reflect), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "bool positionEquals(const vector2 &in, float) const", asMETHOD(Vector2,positionEquals), asCALL_THISCALL);
+    ROR_ASSERT( r >= 0 );
+
+    r = engine->RegisterObjectMethod("vector2", "bool isNaN() const", asMETHOD(Vector2,isNaN), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
 }
 
@@ -568,4 +734,26 @@ void registerOgreQuaternion(AngelScript::asIScriptEngine* engine)
     ROR_ASSERT( r >= 0 );
     r = engine->RegisterGlobalFunction("quaternion nlerp(float, const quaternion &in, const quaternion &in, bool &in)", asFUNCTION(Quaternion::nlerp), asCALL_CDECL);
     ROR_ASSERT( r >= 0 );
+}
+
+void registerOgreColourValue(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+
+    // Register the object properties
+    r = engine->RegisterObjectProperty("color", "float r", offsetof(ColourValue, r));
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("color", "float g", offsetof(ColourValue, g));
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("color", "float b", offsetof(ColourValue, b));
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("color", "float a", offsetof(ColourValue, a));
+    ROR_ASSERT( r >= 0 );
+
+    // Register the object constructors
+    r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ColourValueDefaultConstructor), asCALL_CDECL_OBJLAST);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f(float r, float g, float b, float a)", asFUNCTION(ColourValueInitConstructor), asCALL_CDECL_OBJLAST);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f(const color &other)", asFUNCTION(QuaternionCopyConstructor), asCALL_CDECL_OBJLAST);
 }
