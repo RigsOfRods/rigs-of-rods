@@ -149,6 +149,12 @@ public:
 	 * @param eventValue \see enum scriptEvents
 	 */
 	void registerForEvent(int eventValue);
+    
+    /**
+     * unregisters from receiving event.
+     * @param eventValue \see enum scriptEvents
+     */
+    void unRegisterEvent(int eventValue);    
 
 	/**
 	 * shows a message to the user

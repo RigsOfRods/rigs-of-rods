@@ -172,6 +172,12 @@ public:
     void registerForEvent(int eventValue);
 
     /**
+     * unregisters from receiving event.
+     * @param eventValue \see enum scriptEvents
+     */
+    void unRegisterEvent(int eventValue);
+
+    /**
      * DEPRECATED: use message
      * shows a message to the user
      */
