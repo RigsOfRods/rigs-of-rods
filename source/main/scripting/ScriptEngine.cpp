@@ -48,7 +48,6 @@
 #include "GameContext.h"
 #include "GameScript.h"
 #include "LocalStorage.h"
-#include "OgreAngelscript.h"
 #include "OgreScriptBuilder.h"
 #include "PlatformUtils.h"
 #include "ScriptEvents.h"
@@ -104,6 +103,8 @@ void ScriptEngine::init()
     // Create the script engine
     engine = AngelScript::asCreateScriptEngine(ANGELSCRIPT_VERSION);
 
+    engine->SetEngineProperty(AngelScript::asEP_ALLOW_UNSAFE_REFERENCES, true); // Needed for ImGui
+
     // Set the message callback to receive information on errors in human readable form.
     // It's recommended to do this right after the creation of the engine, because if
     // some registration fails the engine may send valuable information to the message
@@ -137,11 +138,13 @@ void ScriptEngine::init()
     AngelScript::RegisterScriptDictionary(engine);
 
     // register some Ogre objects like the vector3 and the quaternion
-    registerOgreObjects(engine);
+    RegisterOgreObjects(engine);
 
     // Register the local storage object.
     // This needs to be done after the registration of the ogre objects!
     registerLocalStorage(engine);
+
+    RegisterImGuiBindings(engine);
 
     // some useful global functions
     result = engine->RegisterGlobalFunction("void log(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT( result >= 0 );
@@ -362,6 +365,7 @@ void ScriptEngine::init()
 
     // now the global instances
     result = engine->RegisterGlobalProperty("GameScriptClass game", &m_game_script); ROR_ASSERT(result>=0);
+
 
     SLOG("Type registrations done. If you see no error above everything should be working");
 }
