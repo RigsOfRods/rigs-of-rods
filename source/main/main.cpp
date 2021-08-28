@@ -637,8 +637,6 @@ int main(int argc, char *argv[])
                         actor->ar_state = ActorState::NETWORKED_HIDDEN; // Stop net. updates
                         App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor()); // Remove visuals (also stops updating SimBuffer)
                         actor->GetGfxActor()->GetSimDataBuffer().simbuf_actor_state = ActorState::NETWORKED_HIDDEN; // Hack - manually propagate the new state to SimBuffer so Character can reflect it.
-                        actor->GetGfxActor()->SetFlexbodyVisible(false);
-                        actor->GetGfxActor()->SetWheelsVisible(false);
                         actor->GetGfxActor()->SetAllMeshesVisible(false);
                         actor->GetGfxActor()->SetWingsVisible(false);
                         actor->GetGfxActor()->SetCastShadows(false);
@@ -656,8 +654,6 @@ int main(int argc, char *argv[])
                         Actor* actor = (Actor*)m.payload;
                         actor->ar_state = ActorState::NETWORKED_OK; // Resume net. updates
                         App::GetGfxScene()->RegisterGfxActor(actor->GetGfxActor()); // Restore visuals (also resumes updating SimBuffer)
-                        actor->GetGfxActor()->SetFlexbodyVisible(true);
-                        actor->GetGfxActor()->SetWheelsVisible(true);
                         actor->GetGfxActor()->SetAllMeshesVisible(true);
                         actor->GetGfxActor()->SetWingsVisible(true);
                         actor->GetGfxActor()->SetCastShadows(true);
