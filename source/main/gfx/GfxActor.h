@@ -188,76 +188,93 @@ public:
 
     ~GfxActor();
 
-    void                      AddMaterialFlare   (int flare_index, Ogre::MaterialPtr mat);
-    void                      SetMaterialFlareOn (int flare_index, bool state_on);
-    void                      RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
-    void                      RegisterCabMesh    (Ogre::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj);
-    void                      SetCabLightsActive (bool state_on);
-    void                      SetVideoCamState   (VideoCamState state);
-    void                      UpdateVideoCameras (float dt_sec);
-    void                      UpdateParticles    (float dt_sec);
-    void                      AddRod             (int beam_index, int node1_index, int node2_index, const char* material_name, bool visible, float diameter_meters);
-    void                      UpdateRods         ();
-    void                      SetRodsVisible     (bool visible);
-    void                      ScaleActor         (Ogre::Vector3 relpos, float ratio);
-    bool                      IsActorLive        () const; //!< Should the visuals be updated for this actor?
-    bool                      IsActorInitialized () const  { return m_initialized; } //!< Temporary TODO: Remove once the spawn routine is fixed
-    void                      InitializeActor    ()        { m_initialized = true; } //!< Temporary TODO: Remove once the spawn routine is fixed
-    void                      UpdateSimDataBuffer(); //!< Copies sim. data from `Actor` to `GfxActor` for later update
-    void                      SetWheelVisuals    (uint16_t index, WheelGfx wheel_gfx);
-    void                      CalculateDriverPos (Ogre::Vector3& out_pos, Ogre::Quaternion& out_rot);
-    void                      UpdateWheelVisuals ();
-    void                      FinishWheelUpdates ();
-    void                      UpdateFlexbodies   ();
-    void                      FinishFlexbodyTasks();
-    void                      SetFlexbodyVisible (bool visible);
-    void                      SetWheelsVisible   (bool value);
-    void                      SetAllMeshesVisible(bool value);
-    void                      SetWingsVisible    (bool visible);
-    void                      SetCastShadows     (bool value);
-    void                      UpdateDebugView    ();
-    void                      ToggleDebugView    ();
-    void                      CycleDebugViews    ();
-    void                      UpdateCabMesh      ();
-    void                      UpdateWingMeshes   ();
-    int                       GetActorId         () const;
-    int                       GetActorState      () const;
-    int                       GetNumFlexbodies   () const { return static_cast<int>(m_flexbodies.size()); }
-    void                      ResetFlexbodies    ();
-    void                      SetFlexbodiesVisible(bool visible);
-    ActorType                 GetActorDriveable  () const;
-    void                      RegisterAirbrakes  ();
-    void                      RegisterProps      (std::vector<Prop> const& props, int driverseat_prop_idx);
-    void                      UpdateAirbrakes    ();
-    void                      UpdateCParticles   ();
-    void                      UpdateAeroEngines  ();
-    void                      UpdateNetLabels    (float dt);
-    void                      SetDebugView       (DebugViewType dv);
-    void                      SortFlexbodies     ();
-    void                      AddFlexbody        (FlexBody* fb)           { m_flexbodies.push_back(fb); }
-    Attributes&               GetAttributes      ()                       { return m_attr; }
-    inline Ogre::MaterialPtr& GetCabTransMaterial()                       { return m_cab_mat_visual_trans; }
-    inline VideoCamState      GetVideoCamState   () const                 { return m_vidcam_state; }
-    inline DebugViewType      GetDebugView       () const                 { return m_debug_view; }
-    SimBuffer &               GetSimDataBuffer   ()                       { return m_simbuf; }
-    SimBuffer::NodeSB*        GetSimNodeBuffer   ()                       { return m_simbuf.simbuf_nodes.get(); }
-    std::set<GfxActor*>       GetLinkedGfxActors ()                       { return m_linked_gfx_actors; }
-    Ogre::String              GetResourceGroup   ()                       { return m_custom_resource_group; }
-    Actor*                    GetActor           ()                       { return m_actor; } // Watch out for multithreading with this!
-    int                       FetchNumBeams      () const ;
-    int                       FetchNumNodes      () const ;
-    int                       FetchNumWheelNodes () const ;
-    bool                 HasDriverSeatProp   () const { return m_driverseat_prop_index != -1; }
-    void                 UpdateBeaconFlare   (Prop & prop, float dt, bool is_player_actor);
-    void                 UpdateProps         (float dt, bool is_player_actor);
+    // Adding elements
+
+    void                 AddMaterialFlare(int flare_index, Ogre::MaterialPtr mat);
+    void                 RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
+    void                 RegisterCabMesh(Ogre::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj);
+    void                 AddRod(int beam_index, int node1_index, int node2_index, const char* material_name, bool visible, float diameter_meters);
+    void                 SetWheelVisuals(uint16_t index, WheelGfx wheel_gfx);
+    void                 RegisterAirbrakes();
+    void                 RegisterProps(std::vector<Prop> const& props, int driverseat_prop_idx);
+    void                 AddFlexbody(FlexBody* fb) { m_flexbodies.push_back(fb); }
+    void                 SortFlexbodies();
+
+    // Visual changes
+
+    void                 SetMaterialFlareOn(int flare_index, bool state_on);
+    void                 SetCabLightsActive(bool state_on);
+    void                 SetVideoCamState(VideoCamState state);
+    void                 ScaleActor(Ogre::Vector3 relpos, float ratio);
+    void                 ToggleDebugView();
+    void                 CycleDebugViews();
+    void                 ResetFlexbodies();
+    void                 SetRenderdashActive(bool active);
+    void                 SetBeaconsEnabled(bool beacon_light_is_active);
+    void                 SetDebugView(DebugViewType dv);
+
+    // Visibility
+
+    void                 SetRodsVisible(bool visible);
+    void                 SetFlexbodyVisible (bool visible);
+    void                 SetWheelsVisible(bool value);
+    void                 SetAllMeshesVisible(bool value);
+    void                 SetWingsVisible(bool visible);
+    void                 SetCastShadows(bool value);
+    void                 SetFlexbodiesVisible(bool visible);
+    void                 SetPropsVisible(bool visible);
+
+    // Visual updates
+
+    void                 UpdateVideoCameras(float dt_sec);
+    void                 UpdateParticles(float dt_sec);
+    void                 UpdateRods();
+    void                 UpdateWheelVisuals();
+    void                 UpdateFlexbodies();
+    void                 UpdateDebugView();
+    void                 UpdateCabMesh();
+    void                 UpdateWingMeshes();
+    void                 UpdateBeaconFlare(Prop & prop, float dt, bool is_player_actor);
+    void                 UpdateProps(float dt, bool is_player_actor);
     void                 UpdatePropAnimations(float dt, bool is_player_connected);
-    void                 SetPropsVisible     (bool visible);
-    void                 SetRenderdashActive (bool active);
+    void                 UpdateAirbrakes();
+    void                 UpdateCParticles();
+    void                 UpdateAeroEngines();
+    void                 UpdateNetLabels(float dt);
+    void                 UpdateFlares(float dt_sec, bool is_player);
     void                 UpdateRenderdashRTT ();
-    void                 SetBeaconsEnabled   (bool beacon_light_is_active);
-    void                 CalcPropAnimation   (const int flag_state, float& cstate, int& div, float timer,
+
+    // Internal updates
+
+    void                 UpdateSimDataBuffer(); //!< Copies sim. data from `Actor` to `GfxActor` for later update
+    void                 FinishWheelUpdates();
+    void                 FinishFlexbodyTasks();
+
+    // Helpers
+
+    bool                 IsActorLive() const; //!< Should the visuals be updated for this actor?
+    bool                 IsActorInitialized() const  { return m_initialized; } //!< Temporary TODO: Remove once the spawn routine is fixed
+    void                 InitializeActor() { m_initialized = true; } //!< Temporary TODO: Remove once the spawn routine is fixed
+    void                 CalculateDriverPos(Ogre::Vector3& out_pos, Ogre::Quaternion& out_rot);
+    int                  GetActorId() const;
+    int                  GetActorState() const;
+    int                  GetNumFlexbodies() const { return static_cast<int>(m_flexbodies.size()); }
+    ActorType            GetActorDriveable() const;
+    Attributes&          GetAttributes() { return m_attr; }
+    Ogre::MaterialPtr&   GetCabTransMaterial() { return m_cab_mat_visual_trans; }
+    VideoCamState        GetVideoCamState() const { return m_vidcam_state; }
+    DebugViewType        GetDebugView() const { return m_debug_view; }
+    SimBuffer &          GetSimDataBuffer() { return m_simbuf; }
+    SimBuffer::NodeSB*   GetSimNodeBuffer() { return m_simbuf.simbuf_nodes.get(); }
+    std::set<GfxActor*>  GetLinkedGfxActors() { return m_linked_gfx_actors; }
+    Ogre::String         GetResourceGroup() { return m_custom_resource_group; }
+    Actor*               GetActor() { return m_actor; } // Watch out for multithreading with this!
+    int                  FetchNumBeams() const ;
+    int                  FetchNumNodes() const ;
+    int                  FetchNumWheelNodes() const ;
+    bool                 HasDriverSeatProp() const { return m_driverseat_prop_index != -1; }
+    void                 CalcPropAnimation(const int flag_state, float& cstate, int& div, float timer,
                                               const float lower_limit, const float upper_limit, const float option3);
-    void                 UpdateFlares        (float dt_sec, bool is_player);
 
 private:
 
