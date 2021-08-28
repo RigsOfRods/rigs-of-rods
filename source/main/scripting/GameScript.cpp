@@ -282,8 +282,15 @@ void GameScript::registerForEvent(int eventValue)
 {
     if (App::GetScriptEngine())
     {
-        App::GetScriptEngine()->eventMask = -1;
-        App::GetScriptEngine()->eventMask += eventValue;
+        App::GetScriptEngine()->eventMask |= eventValue;
+    }
+}
+
+void GameScript::unRegisterEvent(int eventValue)
+{
+    if (App::GetScriptEngine())
+    {
+        App::GetScriptEngine()->eventMask &= ~eventValue;
     }
 }
 
