@@ -3285,32 +3285,20 @@ void RoR::GfxActor::SetAllMeshesVisible(bool visible)
     this->SetWheelsVisible(visible);
     this->SetPropsVisible(visible);
     this->SetFlexbodyVisible(visible);
+    this->SetWingsVisible(visible);
+    this->SetRodsVisible(visible);
 }
 
 void RoR::GfxActor::SetWingsVisible(bool visible)
 {
     for (int i = 0; i < m_actor->ar_num_wings; ++i)
     {
-        if (!visible)
-        {
-            m_actor->ar_wings[i].cnode->setVisible(false);
-        }
-        else
-        {
-            m_actor->ar_wings[i].cnode->setVisible(true);
-        }
+        m_actor->ar_wings[i].cnode->setVisible(visible);
     }
 
     for (size_t i=0; i< m_actor->ar_airbrakes.size(); ++i)
     {
-        if (!visible)
-        {
-            m_gfx_airbrakes[i].abx_scenenode->setVisible(false);
-        }
-        else
-        {
-            m_gfx_airbrakes[i].abx_scenenode->setVisible(true);
-        }
+        m_gfx_airbrakes[i].abx_scenenode->setVisible(visible);
     }
 }
 
