@@ -208,6 +208,11 @@ void Turboprop::updateVisuals(RoR::GfxActor* gfx_actor)
 #endif
 }
 
+void Turboprop::setVisible(bool visible)
+{
+    smokePS->setVisible(visible);
+}
+
 void Turboprop::updateForces(float dt, int doUpdate)
 {
     if (doUpdate)

@@ -33,6 +33,8 @@ public:
     void SetupVisuals(RigDef::Turbojet & def, int num, std::string const& propname, Ogre::Entity* nozzle, Ogre::Entity* afterburner_flame, bool disable_smoke);
     void SetNodes(int front, int back, int ref);
     void UpdateVisuals(RoR::GfxActor* gfx_actor);
+    void SetVisible(bool visible);
+    bool IsVisible() const { return m_visible; }
 
 private:
     Ogre::SceneNode*      m_smoke_scenenode;
@@ -42,6 +44,7 @@ private:
     Ogre::Entity*         m_nozzle_entity;
     Ogre::SceneNode*      m_nozzle_scenenode;
 
+    bool     m_visible = false; // Needed for flames which are hidden by default.
     int      m_number;
     float    m_radius;
     uint16_t m_node_back;
@@ -65,7 +68,6 @@ public:
     void setReverse(bool val);
     bool getReverse() { return m_reverse; };
     void updateForces(float dt, int doUpdate);
-    void updateVisuals(RoR::GfxActor* gfx_actor) override;
 
     Ogre::Vector3 getAxis() { return m_axis; };
 
@@ -83,6 +85,11 @@ public:
     float getpropwash() { return m_propwash; };
     int getNoderef() { return m_node_back; };
     int getType() { return AEROENGINE_TYPE_TURBOJET; };
+
+    // AeroEngine visuals
+
+    void updateVisuals(RoR::GfxActor* gfx_actor) override;
+    void setVisible(bool visible) override;
 
     bool tjet_afterburnable;
     TurbojetVisual tjet_visual;

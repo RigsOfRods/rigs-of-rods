@@ -223,6 +223,8 @@ public:
     void                 SetCastShadows(bool value);
     void                 SetFlexbodiesVisible(bool visible);
     void                 SetPropsVisible(bool visible);
+    void                 SetAeroEnginesVisible(bool visible);
+
 
     // Visual updates
 
