@@ -120,6 +120,7 @@ set(SOURCE_FILES
         gui/mygui/Dialog.{h,cpp}
         gui/mygui/GuiPanelBase.h
         gui/mygui/WrapsAttribute.h
+        gui/panels/GUI_AngelScriptExamples.{h,cpp}
         gui/panels/GUI_ConsoleView.{h,cpp}
         gui/panels/GUI_ConsoleWindow.{h,cpp}
         gui/panels/GUI_DirectionArrow.{h,cpp}

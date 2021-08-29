@@ -22,6 +22,7 @@
 
 #include "GUI_ConsoleWindow.h"
 #include "GUIManager.h"
+#include "GUI_AngelScriptExamples.h"
 
 #include "Language.h"
 
@@ -51,10 +52,11 @@ void ConsoleWindow::Draw()
         }
         if (ImGui::BeginMenu(_LC("Console", "Commands")))
         {
-            ImGui::Dummy(ImVec2(550.f, 1.f)); // Manually resize width (DearIMGUI bug workaround)
+            ImGui::Dummy(ImVec2(700.f, 1.f)); // Manually resize width (DearIMGUI bug workaround)
             ImGui::Columns(3);
             ImGui::SetColumnWidth(0, 100); // TODO: Calculate dynamically
             ImGui::SetColumnWidth(1, 170); // TODO: Calculate dynamically
+            ImGui::SetColumnWidth(2, 500); // TODO: Calculate dynamically
 
             for (auto& cmd_pair: App::GetConsole()->getCommands())
             {
@@ -72,6 +74,22 @@ void ConsoleWindow::Draw()
             ImGui::Columns(1); // reset
             ImGui::EndMenu();
         }
+#ifdef USE_ANGELSCRIPT
+        ImGui::SetNextWindowSize(ImVec2((ImGui::GetIO().DisplaySize.x / 2), (ImGui::GetIO().DisplaySize.y / 1.5)));
+        if (ImGui::BeginMenu(_LC("Console", "AngelScript")))
+        {
+            ImGui::Dummy(ImVec2(720.f, 1.f)); // Manually resize width (DearIMGUI bug workaround)
+            ImGui::Columns(3);
+            ImGui::SetColumnWidth(0, 230);
+            ImGui::SetColumnWidth(1, 160);
+            ImGui::SetColumnWidth(2, 400);
+
+            AngelScriptExamples().Draw();
+ 
+            ImGui::Columns(1); // reset
+            ImGui::EndMenu();
+        }
+#endif
         ImGui::EndMenuBar();
     }
 
