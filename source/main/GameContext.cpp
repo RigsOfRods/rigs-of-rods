@@ -230,6 +230,12 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
         {
             this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)fresh_actor));
         }
+        if (fresh_actor->ar_driveable != NOT_DRIVEABLE &&
+            fresh_actor->ar_num_nodes > 0 &&
+            App::cli_preset_veh_enter->GetBool())
+        {
+            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)fresh_actor));
+        }
     }
     else if (rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF)
     {
