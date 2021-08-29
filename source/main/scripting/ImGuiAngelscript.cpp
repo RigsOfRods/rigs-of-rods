@@ -169,9 +169,9 @@ void RoR::RegisterImGuiBindings(asIScriptEngine* engine)
         return ImGui::SmallButton(n.c_str()); }, (const string&), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool InvisibleButton(const string&in, vector2)", asFUNCTIONPR([](const string& id, Vector2 v) { 
         return ImGui::InvisibleButton(id.c_str(), ImVec2(v.x, v.y)); }, (const string&, Vector2), bool), asCALL_CDECL);
-    engine->RegisterGlobalFunction("void Image(uint, vector2)", asFUNCTIONPR([](unsigned u, Vector2 v) {
-        ImGui::Image((ImTextureID)u, ImVec2(v.x, v.y));
-    }, (unsigned, Vector2), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void Image(const Ogre::TexturePtr&in, vector2)", asFUNCTIONPR([](Ogre::TexturePtr const& tex, Vector2 v) {
+        ImGui::Image((ImTextureID)tex->getHandle(), ImVec2(v.x, v.y));
+    }, (Ogre::TexturePtr const&, Vector2), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool Checkbox(const string&in, bool&inout)", asFUNCTIONPR([](const string& n, bool& v) { 
         return ImGui::Checkbox(n.c_str(), &v); }, (const string&, bool&), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool CheckboxFlags(const string&in, uint&inout, uint)", asFUNCTIONPR([](const string& n, unsigned& f, unsigned v) { 
