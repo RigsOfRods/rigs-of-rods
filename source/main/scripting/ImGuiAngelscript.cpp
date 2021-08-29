@@ -145,7 +145,10 @@ void RoR::RegisterImGuiBindings(asIScriptEngine* engine)
 
     // Widgets: Text
     engine->RegisterGlobalFunction("void Text(const string&in)", asFUNCTIONPR([](const string& n) {
-        ImGui::TextUnformatted(n.c_str());
+        ImGui::Text(n.c_str());
+    }, (const string&), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void TextDisabled(const string&in)", asFUNCTIONPR([](const string& n) {
+        ImGui::TextDisabled(n.c_str());
     }, (const string&), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void TextColored(color col, const string&in)", asFUNCTIONPR([](ColourValue c, const string& n) {
         ImGui::TextColored(ImVec4(c.r, c.g, c.b, c.a), n.c_str());
