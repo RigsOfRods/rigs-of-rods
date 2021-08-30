@@ -84,7 +84,7 @@ void ConsoleWindow::Draw()
             ImGui::SetColumnWidth(1, 160);
             ImGui::SetColumnWidth(2, 400);
 
-            AngelScriptExamples().Draw();
+            m_angelscript_examples.Draw();
  
             ImGui::Columns(1); // reset
             ImGui::EndMenu();

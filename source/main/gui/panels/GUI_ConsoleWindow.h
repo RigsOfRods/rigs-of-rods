@@ -28,6 +28,7 @@
 #include "Application.h"
 #include "GUI_ConsoleView.h"
 #include "OgreImGui.h"
+#include "GUI_AngelScriptExamples.h"
 
 #include <vector>
 #include <string>
@@ -48,6 +49,8 @@ public:
     void doCommand(std::string msg);
 
 private:
+
+    AngelScriptExamples m_angelscript_examples;
 
     static int TextEditCallback(ImGuiTextEditCallbackData *data);
     void TextEditCallbackProc(ImGuiTextEditCallbackData *data);
