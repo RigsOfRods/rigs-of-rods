@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-08-23 16:29+0200\n"
-"PO-Revision-Date: 2021-08-19 15:23+0000\n"
+"PO-Revision-Date: 2021-08-31 23:32+0000\n"
 "Last-Translator: Лолло Нуб <lollo.samp@mail.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 4.8-dev\n"
+"X-Generator: Weblate 4.8.1-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -228,7 +228,7 @@ msgstr "Описание: "
 #: gui/panels/GUI_ConsoleView.cpp:232
 msgctxt "Console"
 msgid "Actors"
-msgstr ""
+msgstr "Актёры"
 
 #: gui/panels/GUI_ConsoleView.cpp:233
 msgctxt "Console"
@@ -241,10 +241,9 @@ msgid "By level:"
 msgstr ""
 
 #: gui/panels/GUI_ConsoleView.cpp:237
-#, fuzzy
 msgctxt "Console"
 msgid "Notices"
-msgstr "Сообщения"
+msgstr "Замечания"
 
 #: gui/panels/GUI_ConsoleView.cpp:238
 msgctxt "Console"
@@ -282,15 +281,11 @@ msgid "meter"
 msgstr "метр"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
-#, fuzzy
-#| msgid "Friction Settings"
 msgctxt "FrictionSettings"
 msgid "Friction Settings"
 msgstr "Настройки трения"
 
 #: gui/panels/GUI_FrictionSettings.cpp:48
-#, fuzzy
-#| msgid "Current active Ground: "
 msgctxt "FrictionSettings"
 msgid "Current active Ground: "
 msgstr "Текущая активная поверхность: "
@@ -301,8 +296,6 @@ msgid "selected Ground Type:"
 msgstr "Выделенный тип поверхности:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:61
-#, fuzzy
-#| msgid "Solid ground settings"
 msgctxt "FrictionSettings"
 msgid "Solid ground settings"
 msgstr "Настройки поверхности"
@@ -337,15 +330,11 @@ msgstr ""
 "неплотным грунтом на поверхности."
 
 #: gui/panels/GUI_FrictionSettings.cpp:66
-#, fuzzy
-#| msgid "Strength:"
 msgctxt "FrictionSettings"
 msgid "Strength:"
 msgstr "Сила трения:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:67
-#, fuzzy
-#| msgid "Strength"
 msgctxt "FrictionSettings"
 msgid "Strength"
 msgstr "Сила трения"
