@@ -358,7 +358,7 @@ public:
             Console::CONSOLE_TITLE, _L("Available commands:"));
 
         Str<500> line;
-        for (auto& cmd_pair: App::GetConsole()->GetCommands())
+        for (auto& cmd_pair: App::GetConsole()->getCommands())
         {
             line.Clear() << cmd_pair.second->GetName() << " "
                          << cmd_pair.second->GetUsage() << " - " << cmd_pair.second->GetDoc();
@@ -384,7 +384,7 @@ public:
 
     void Run(Ogre::StringVector const& args) override
     {
-        for (auto& pair: App::GetConsole()->GetCVars())
+        for (auto& pair: App::GetConsole()->getCVars())
         {
             bool match = args.size() == 1;
             for (size_t i = 1; i < args.size(); ++i)
@@ -434,12 +434,12 @@ public:
         }
         else
         {
-            CVar* cvar = App::GetConsole()->CVarFind(args[1]);
+            CVar* cvar = App::GetConsole()->cVarFind(args[1]);
             if (cvar)
             {
                 if (args.size() > 2)
                 {
-                    App::GetConsole()->CVarAssign(cvar, args[2]);
+                    App::GetConsole()->cVarAssign(cvar, args[2]);
                 }
                 reply_type = Console::CONSOLE_SYSTEM_REPLY;
                 reply << cvar->GetName() << " = " << cvar->GetStr();
@@ -490,10 +490,10 @@ public:
             }
             else
             {
-                CVar* cvar = App::GetConsole()->CVarGet(args[i], flags);
+                CVar* cvar = App::GetConsole()->cVarGet(args[i], flags);
                 if (args.size() > (i+1))
                 {
-                    App::GetConsole()->CVarAssign(cvar, args[i+1]);
+                    App::GetConsole()->cVarAssign(cvar, args[i+1]);
                 }
                 reply_type = Console::CONSOLE_SYSTEM_REPLY;
                 reply << cvar->GetName() << " = " << cvar->GetStr();
@@ -586,7 +586,7 @@ public:
 // -------------------------------------------------------------------------------------
 // Console integration
 
-void Console::RegBuiltinCommands()
+void Console::regBuiltinCommands()
 {
     ConsoleCmd* cmd = nullptr;
 
@@ -613,7 +613,7 @@ void Console::RegBuiltinCommands()
     cmd = new VarsCmd();                  m_commands.insert(std::make_pair(cmd->GetName(), cmd));
 }
 
-void Console::DoCommand(std::string msg)
+void Console::doCommand(std::string msg)
 {
     if (msg[0] == '/' || msg[0] == '\\')
     {
@@ -631,7 +631,7 @@ void Console::DoCommand(std::string msg)
         return;
     }
 
-    CVar* cvar = this->CVarFind(args[0]);
+    CVar* cvar = this->cVarFind(args[0]);
     if (cvar)
     {
         Str<200> reply;

@@ -91,56 +91,56 @@ public:
     void putMessage(MessageArea area, MessageType type, std::string const& msg,
         std::string icon = "", size_t ttl = 0, bool forcevisible = false);
     void putNetMessage(int user_id, MessageType type, const char* text);
-    void ForwardLogMessage(MessageArea area, std::string const& msg, Ogre::LogMessageLevel lml);
-    unsigned long QueryMessageTimer() { return m_msg_timer.getMilliseconds(); }
+    void forwardLogMessage(MessageArea area, std::string const& msg, Ogre::LogMessageLevel lml);
+    unsigned long queryMessageTimer() { return m_msg_timer.getMilliseconds(); }
 
     // ----------------------------
     // Commands (defined in ConsoleCmd.cpp):
 
     /// Register builtin commands
-    void RegBuiltinCommands();
+    void regBuiltinCommands();
 
     /// Identify and execute any console line
-    void DoCommand(std::string msg);
+    void doCommand(std::string msg);
 
     // ----------------------------
     // CVars (defined in CVar.cpp):
 
     /// Add CVar and parse default value if specified
-    CVar* CVarCreate(std::string const& name, std::string const& long_name,
+    CVar* cVarCreate(std::string const& name, std::string const& long_name,
         int flags, std::string const& val = std::string());
 
     /// Parse value by cvar type
-    void CVarAssign(CVar* cvar, std::string const& value);
+    void cVarAssign(CVar* cvar, std::string const& value);
 
     /// Find cvar by short/long name
-    CVar* CVarFind(std::string const& input_name);
+    CVar* cVarFind(std::string const& input_name);
 
     /// Set existing cvar by short/long name. Return the modified cvar (or NULL if not found)
-    CVar* CVarSet(std::string const& input_name, std::string const& input_val);
+    CVar* cVarSet(std::string const& input_name, std::string const& input_val);
 
     /// Get cvar by short/long name, or create new one using input as short name.
-    CVar* CVarGet(std::string const& input_name, int flags);
+    CVar* cVarGet(std::string const& input_name, int flags);
 
     /// Create builtin vars and set defaults
-    void CVarSetupBuiltins();
+    void cVarSetupBuiltins();
 
-    CVarPtrMap& GetCVars() { return m_cvars; }
+    CVarPtrMap& getCVars() { return m_cvars; }
 
-    CommandPtrMap& GetCommands() { return m_commands; }
+    CommandPtrMap& getCommands() { return m_commands; }
 
     // ----------------------------
     // Command line (defined in AppCommandLine.cpp)
 
-    void ProcessCommandLine(int argc, char *argv[]);
-    void ShowCommandLineUsage();
-    void ShowCommandLineVersion();
+    void processCommandLine(int argc, char *argv[]);
+    void showCommandLineUsage();
+    void showCommandLineVersion();
 
     // ----------------------------
     // Config file (defined in AppConfig.cpp)
 
-    void LoadConfig();
-    void SaveConfig();
+    void loadConfig();
+    void saveConfig();
 
 private:
     // Ogre::LogListener
@@ -148,7 +148,7 @@ private:
         const Ogre::String& message, Ogre::LogMessageLevel lml,
         bool maskDebug, const Ogre::String& logName, bool& skipThisMessage) override;
 
-    void HandleMessage(MessageArea area, MessageType type, std::string const& msg, int net_id = 0);
+    void handleMessage(MessageArea area, MessageType type, std::string const& msg, int net_id = 0);
 
     std::vector<Message>     m_messages;
     std::mutex               m_messages_mutex;

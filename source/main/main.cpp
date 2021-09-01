@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 #endif
 
         // Create cvars, set default values
-        App::GetConsole()->CVarSetupBuiltins();
+        App::GetConsole()->cVarSetupBuiltins();
 
         // Update cvars 'sys_process_dir', 'sys_user_dir'
         if (!App::GetAppContext()->SetUpProgramPaths())
@@ -98,19 +98,19 @@ int main(int argc, char *argv[])
         App::sys_screenshot_dir->SetStr(PathCombine(App::sys_user_dir->GetStr(), "screenshots"));
 
         // Load RoR.cfg - updates cvars
-        App::GetConsole()->LoadConfig();
+        App::GetConsole()->loadConfig();
 
         // Process command line params - updates 'cli_*' cvars
-        App::GetConsole()->ProcessCommandLine(argc, argv);
+        App::GetConsole()->processCommandLine(argc, argv);
 
         if (App::app_state->GetEnum<AppState>() == AppState::PRINT_HELP_EXIT)
         {
-            App::GetConsole()->ShowCommandLineUsage();
+            App::GetConsole()->showCommandLineUsage();
             return 0;
         }
         if (App::app_state->GetEnum<AppState>() == AppState::PRINT_VERSION_EXIT)
         {
-            App::GetConsole()->ShowCommandLineVersion();
+            App::GetConsole()->showCommandLineVersion();
             return 0;
         }
 
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 #ifndef NOLANG
         App::GetLanguageEngine()->setup();
 #endif // NOLANG
-        App::GetConsole()->RegBuiltinCommands(); // Call after localization had been set up
+        App::GetConsole()->regBuiltinCommands(); // Call after localization had been set up
 
         App::GetContentManager()->InitContentManager();
 
@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
                     {
                         App::GetGameContext()->SaveScene("autosave.sav");
                     }
-                    App::GetConsole()->SaveConfig(); // RoR.cfg
+                    App::GetConsole()->saveConfig(); // RoR.cfg
                     App::GetDiscordRpc()->Shutdown();
 #ifdef USE_SOCKETW
                     if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
