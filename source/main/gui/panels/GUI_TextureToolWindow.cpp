@@ -162,7 +162,7 @@ void TextureToolWindow::SaveTexture(std::string texName, bool usePNG)
         tex->convertToImage(img);
 
         // Save to disk!
-        std::string outname = PathCombine(App::sys_user_dir->GetStr(), StringUtil::replaceAll(texName, "/", "_"));
+        std::string outname = PathCombine(App::sys_user_dir->getStr(), StringUtil::replaceAll(texName, "/", "_"));
         if (usePNG)
             outname += ".png";
 

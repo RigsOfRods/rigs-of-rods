@@ -43,54 +43,54 @@ void AssignHelper(CVar* cvar, int val)
 
 void ParseHelper(CVar* cvar, std::string const & val)
 {
-    if (cvar->GetName() == App::gfx_envmap_rate->GetName())
+    if (cvar->getName() == App::gfx_envmap_rate->getName())
     {
         int rate = Ogre::StringConverter::parseInt(val);
         if (rate < 0) { rate = 0; }
         if (rate > 6) { rate = 6; }
         AssignHelper(App::gfx_envmap_rate, rate);
     }
-    else if (cvar->GetName() == App::gfx_shadow_quality->GetName())
+    else if (cvar->getName() == App::gfx_shadow_quality->getName())
     {
         int quality = Ogre::StringConverter::parseInt(val);
         if (quality < 0) { quality = 0; }
         if (quality > 3) { quality = 3; }
         AssignHelper(App::gfx_shadow_quality, quality);
     }
-    else if (cvar->GetName() == App::gfx_shadow_type->GetName())
+    else if (cvar->getName() == App::gfx_shadow_type->getName())
     {
         AssignHelper(App::gfx_shadow_type, (int)ParseGfxShadowType(val));
     }
-    else if (cvar->GetName() == App::gfx_extcam_mode->GetName())
+    else if (cvar->getName() == App::gfx_extcam_mode->getName())
     {
         AssignHelper(App::gfx_extcam_mode, (int)ParseGfxExtCamMode(val));
     }
-    else if (cvar->GetName() == App::gfx_texture_filter->GetName())
+    else if (cvar->getName() == App::gfx_texture_filter->getName())
     {
         AssignHelper(App::gfx_texture_filter, (int)ParseGfxTexFilter(val));
     }
-    else if (cvar->GetName() == App::gfx_vegetation_mode->GetName())
+    else if (cvar->getName() == App::gfx_vegetation_mode->getName())
     {
         AssignHelper(App::gfx_vegetation_mode, (int)ParseGfxVegetation(val));
     }
-    else if (cvar->GetName() == App::gfx_flares_mode->GetName())
+    else if (cvar->getName() == App::gfx_flares_mode->getName())
     {
         AssignHelper(App::gfx_flares_mode, (int)ParseGfxFlaresMode(val));
     }
-    else if (cvar->GetName() == App::gfx_water_mode->GetName())
+    else if (cvar->getName() == App::gfx_water_mode->getName())
     {
         AssignHelper(App::gfx_water_mode, (int)ParseGfxWaterMode(val));
     }
-    else if (cvar->GetName() == App::gfx_sky_mode->GetName())
+    else if (cvar->getName() == App::gfx_sky_mode->getName())
     {
         AssignHelper(App::gfx_sky_mode, (int)ParseGfxSkyMode(val));
     }
-    else if (cvar->GetName() == App::sim_gearbox_mode->GetName())
+    else if (cvar->getName() == App::sim_gearbox_mode->getName())
     {
         AssignHelper(App::sim_gearbox_mode, (int)ParseSimGearboxMode(val));
     }
-    else if (cvar->GetName() == App::gfx_fov_external_default->GetName() ||
-             cvar->GetName() == App::gfx_fov_internal_default->GetName())
+    else if (cvar->getName() == App::gfx_fov_external_default->getName() ||
+             cvar->getName() == App::gfx_fov_internal_default->getName())
     {
         int fov = Ogre::StringConverter::parseInt(val);
         if (fov >= 10) // FOV shouldn't be below 10
@@ -109,7 +109,7 @@ void Console::loadConfig()
     Ogre::ConfigFile cfg;
     try
     {
-        std::string path = PathCombine(App::sys_config_dir->GetStr(), CONFIG_FILE_NAME);
+        std::string path = PathCombine(App::sys_config_dir->getStr(), CONFIG_FILE_NAME);
         cfg.load(path, "=:\t", /*trimWhitespace=*/true);
 
         Ogre::ConfigFile::SettingsIterator i = cfg.getSettingsIterator();
@@ -117,9 +117,9 @@ void Console::loadConfig()
         {
             std::string cvar_name = RoR::Utils::SanitizeUtf8String(i.peekNextKey());
             CVar* cvar = App::GetConsole()->cVarFind(cvar_name);
-            if (cvar && !cvar->HasFlag(CVAR_ARCHIVE))
+            if (cvar && !cvar->hasFlag(CVAR_ARCHIVE))
             {
-                RoR::LogFormat("[RoR|Settings] CVar '%s' cannot be set from %s (defined without 'archive' flag)", cvar->GetName().c_str(), CONFIG_FILE_NAME);
+                RoR::LogFormat("[RoR|Settings] CVar '%s' cannot be set from %s (defined without 'archive' flag)", cvar->getName().c_str(), CONFIG_FILE_NAME);
                 i.moveNext();
                 continue;
             }
@@ -143,26 +143,26 @@ void WriteVarsHelper(std::stringstream& f, const char* label, const char* prefix
 
     for (auto& pair: App::GetConsole()->getCVars())
     {
-        if (pair.second->HasFlag(CVAR_ARCHIVE) && pair.first.find(prefix) == 0)
+        if (pair.second->hasFlag(CVAR_ARCHIVE) && pair.first.find(prefix) == 0)
         {
-            if (App::app_config_long_names->GetBool())
+            if (App::app_config_long_names->getBool())
             {
-                f << pair.second->GetLongName() << "=";
+                f << pair.second->getLongName() << "=";
             }
             else
             {
-                f << pair.second->GetName() << "=";
+                f << pair.second->getName() << "=";
             }
 
-                 if (pair.second->GetName() == App::gfx_shadow_type->GetName()     ){ f << GfxShadowTypeToStr(App::gfx_shadow_type     ->GetEnum<GfxShadowType>()); }
-            else if (pair.second->GetName() == App::gfx_extcam_mode->GetName()     ){ f << GfxExtCamModeToStr(App::gfx_extcam_mode     ->GetEnum<GfxExtCamMode>()); }
-            else if (pair.second->GetName() == App::gfx_texture_filter->GetName()  ){ f << GfxTexFilterToStr (App::gfx_texture_filter  ->GetEnum<GfxTexFilter>());  }
-            else if (pair.second->GetName() == App::gfx_vegetation_mode->GetName() ){ f << GfxVegetationToStr(App::gfx_vegetation_mode ->GetEnum<GfxVegetation>()); }
-            else if (pair.second->GetName() == App::gfx_flares_mode->GetName()     ){ f << GfxFlaresModeToStr(App::gfx_flares_mode     ->GetEnum<GfxFlaresMode>()); }
-            else if (pair.second->GetName() == App::gfx_water_mode->GetName()      ){ f << GfxWaterModeToStr (App::gfx_water_mode      ->GetEnum<GfxWaterMode>());  }
-            else if (pair.second->GetName() == App::gfx_sky_mode->GetName()        ){ f << GfxSkyModeToStr   (App::gfx_sky_mode        ->GetEnum<GfxSkyMode>());    }
-            else if (pair.second->GetName() == App::sim_gearbox_mode->GetName()    ){ f << SimGearboxModeToStr(App::sim_gearbox_mode->GetEnum<SimGearboxMode>());    }
-            else                                                                    { f << pair.second->GetStr(); }
+                 if (pair.second->getName() == App::gfx_shadow_type->getName()     ){ f << GfxShadowTypeToStr(App::gfx_shadow_type     ->getEnum<GfxShadowType>()); }
+            else if (pair.second->getName() == App::gfx_extcam_mode->getName()     ){ f << GfxExtCamModeToStr(App::gfx_extcam_mode     ->getEnum<GfxExtCamMode>()); }
+            else if (pair.second->getName() == App::gfx_texture_filter->getName()  ){ f << GfxTexFilterToStr (App::gfx_texture_filter  ->getEnum<GfxTexFilter>());  }
+            else if (pair.second->getName() == App::gfx_vegetation_mode->getName() ){ f << GfxVegetationToStr(App::gfx_vegetation_mode ->getEnum<GfxVegetation>()); }
+            else if (pair.second->getName() == App::gfx_flares_mode->getName()     ){ f << GfxFlaresModeToStr(App::gfx_flares_mode     ->getEnum<GfxFlaresMode>()); }
+            else if (pair.second->getName() == App::gfx_water_mode->getName()      ){ f << GfxWaterModeToStr (App::gfx_water_mode      ->getEnum<GfxWaterMode>());  }
+            else if (pair.second->getName() == App::gfx_sky_mode->getName()        ){ f << GfxSkyModeToStr   (App::gfx_sky_mode        ->getEnum<GfxSkyMode>());    }
+            else if (pair.second->getName() == App::sim_gearbox_mode->getName()    ){ f << SimGearboxModeToStr(App::sim_gearbox_mode->getEnum<SimGearboxMode>());    }
+            else                                                                    { f << pair.second->getStr(); }
 
             f << std::endl;
         }

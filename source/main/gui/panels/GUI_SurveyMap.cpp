@@ -55,7 +55,7 @@ void SurveyMap::Draw()
 
     // Handle input
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_ICONS))
-        App::gfx_surveymap_icons->SetVal(!App::gfx_surveymap_icons->GetBool());
+        App::gfx_surveymap_icons->setVal(!App::gfx_surveymap_icons->getBool());
 
     if (mMapMode == SurveyMapMode::SMALL)
     {
@@ -178,7 +178,7 @@ void SurveyMap::Draw()
         drawlist->AddText(text_pos, ImGui::GetColorU32(ImGui::GetStyle().Colors[ImGuiCol_Text]), title);
     }
 
-    if (App::gfx_surveymap_icons->GetBool())
+    if (App::gfx_surveymap_icons->getBool())
     {
         // Draw terrain object icons
         for (TerrainObjectManager::MapEntity& e: App::GetSimTerrain()->getObjectManager()->GetMapEntities())
@@ -188,7 +188,7 @@ void SurveyMap::Draw()
             Str<100> filename;
             filename << "icon_" << e.type << ".dds";
 
-            if ((visible) && (!App::gfx_declutter_map->GetBool()))
+            if ((visible) && (!App::gfx_declutter_map->getBool()))
             {
                 this->DrawMapIcon(tl_screen_pos, view_size, view_origin, filename.ToCStr(), e.name, e.pos.x, e.pos.z, e.rot);
             }
@@ -209,7 +209,7 @@ void SurveyMap::Draw()
                 fileName << "icon_" << type_str << ".dds"; // gray icon
 
             auto& simbuf = gfx_actor->GetSimDataBuffer();
-            std::string caption = (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
+            std::string caption = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
             this->DrawMapIcon(tl_screen_pos, view_size, view_origin, fileName.ToCStr(), caption, 
                 simbuf.simbuf_pos.x, simbuf.simbuf_pos.z, simbuf.simbuf_rotation);
         }
@@ -220,7 +220,7 @@ void SurveyMap::Draw()
             auto& simbuf = gfx_character->xc_simbuf;
             if (!simbuf.simbuf_actor_coupling)
             {
-                std::string caption = (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
+                std::string caption = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
                 this->DrawMapIcon(tl_screen_pos, view_size, view_origin, "icon_person_activated.dds", caption, 
                     simbuf.simbuf_character_pos.x, simbuf.simbuf_character_pos.z,
                     simbuf.simbuf_character_rot.valueRadians());

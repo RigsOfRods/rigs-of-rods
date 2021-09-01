@@ -56,31 +56,31 @@ public:
         m_value_num(0.f)
     {
         // Initialize string representation
-        if (this->HasFlag(CVAR_TYPE_BOOL | CVAR_TYPE_INT | CVAR_TYPE_FLOAT))
+        if (this->hasFlag(CVAR_TYPE_BOOL | CVAR_TYPE_INT | CVAR_TYPE_FLOAT))
         {
-            m_value_str = this->ConvertStr(m_value_num);
+            m_value_str = this->convertStr(m_value_num);
         }
     }
 
     // Data setters
 
     template <typename T>
-    void SetVal(T val)
+    void setVal(T val)
     {
         if ((T)m_value_num != val)
         {
-            std::string str = this->ConvertStr((float)val);
-            this->LogUpdate(str);
+            std::string str = this->convertStr((float)val);
+            this->logUpdate(str);
             m_value_num = (float)val;
             m_value_str = str;
         }
     }
 
-    void SetStr(std::string const& str)
+    void setStr(std::string const& str)
     {
         if (m_value_str != str)
         {
-            this->LogUpdate(str);
+            this->logUpdate(str);
             m_value_num = 0;
             m_value_str = str;
         }
@@ -88,21 +88,21 @@ public:
 
     // Data getters
 
-    std::string const&      GetStr() const   { return m_value_str; }
-    float                   GetFloat() const { return m_value_num; }
-    int                     GetInt() const   { return (int)m_value_num; }
-    bool                    GetBool() const  { return (bool)m_value_num; }
-    template<typename T> T  GetEnum() const  { return (T)this->GetInt(); }
+    std::string const&      getStr() const   { return m_value_str; }
+    float                   getFloat() const { return m_value_num; }
+    int                     getInt() const   { return (int)m_value_num; }
+    bool                    getBool() const  { return (bool)m_value_num; }
+    template<typename T> T  getEnum() const  { return (T)this->getInt(); }
 
     // Info getters
 
-    std::string const&      GetName() const       { return m_name; }
-    std::string const&      GetLongName() const   { return m_long_name; }
-    bool                    HasFlag(int f) const  { return m_flags & f; }
+    std::string const&      getName() const       { return m_name; }
+    std::string const&      getLongName() const   { return m_long_name; }
+    bool                    hasFlag(int f) const  { return m_flags & f; }
 
 private:
-    void                    LogUpdate(std::string const& new_val);
-    std::string             ConvertStr(float val);
+    void                    logUpdate(std::string const& new_val);
+    std::string             convertStr(float val);
 
     // Variables
 

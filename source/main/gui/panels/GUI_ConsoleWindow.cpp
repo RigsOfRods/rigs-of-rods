@@ -58,9 +58,9 @@ void ConsoleWindow::Draw()
 
             for (auto& cmd_pair: App::GetConsole()->getCommands())
             {
-                if (ImGui::Selectable(cmd_pair.second->GetName().c_str()))
+                if (ImGui::Selectable(cmd_pair.second->getName().c_str()))
                 {
-                    cmd_pair.second->Run(Ogre::StringVector{cmd_pair.second->GetName()});
+                    cmd_pair.second->Run(Ogre::StringVector{cmd_pair.second->getName()});
                 }
                 ImGui::NextColumn();
                 ImGui::Text("%s", cmd_pair.second->GetUsage().c_str());

@@ -54,7 +54,7 @@ const char * FlexBodyFileIO::SIGNATURE = "RoR FlexBody";
 FlexFactory::FlexFactory(ActorSpawner* rig_spawner):
     m_rig_spawner(rig_spawner),
     m_is_flexbody_cache_loaded(false),
-    m_is_flexbody_cache_enabled(App::gfx_flexbody_cache->GetBool()),
+    m_is_flexbody_cache_enabled(App::gfx_flexbody_cache->getBool()),
     m_flexbody_cache_next_index(0)
 {
 }
@@ -294,7 +294,7 @@ void FlexBodyFileIO::OpenFile(const char* fopen_mode)
         throw RESULT_CODE_ERR_CACHE_NUMBER_UNDEFINED;
     }
     char path[500];
-    sprintf(path, "%s%cflexbodies_mod_%00d.dat", App::sys_cache_dir->GetStr().c_str(), RoR::PATH_SLASH, m_cache_entry_number);
+    sprintf(path, "%s%cflexbodies_mod_%00d.dat", App::sys_cache_dir->getStr().c_str(), RoR::PATH_SLASH, m_cache_entry_number);
     m_file = fopen(path, fopen_mode);
     if (m_file == nullptr)
     {

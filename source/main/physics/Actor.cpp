@@ -701,7 +701,7 @@ void Actor::RecalculateNodeMasses(Real total)
             !(m_definition->minimass_skip_loaded_nodes && ar_nodes[i].nd_loaded_mass) &&
             ar_nodes[i].mass < ar_minimass[i])
         {
-            if (App::diag_truck_mass->GetBool())
+            if (App::diag_truck_mass->getBool())
             {
                 char buf[300];
                 snprintf(buf, 300, "Node '%d' mass (%f Kg) is too light. Resetting to 'minimass' (%f Kg)", i, ar_nodes[i].mass, ar_minimass[i]);
@@ -714,7 +714,7 @@ void Actor::RecalculateNodeMasses(Real total)
     m_total_mass = 0;
     for (int i = 0; i < ar_num_nodes; i++)
     {
-        if (App::diag_truck_mass->GetBool())
+        if (App::diag_truck_mass->getBool())
         {
             String msg = "Node " + TOSTRING(i) + " : " + TOSTRING((int)ar_nodes[i].mass) + " kg";
             if (ar_nodes[i].nd_loaded_mass)
@@ -1605,7 +1605,7 @@ void Actor::SyncReset(bool reset_position)
 
     if (ar_engine)
     {
-        if (App::sim_spawn_running->GetBool())
+        if (App::sim_spawn_running->getBool())
         {
             ar_engine->StartEngine();
         }
@@ -2938,7 +2938,7 @@ void Actor::prepareInside(bool inside)
   //      m_gfx_actor->GetCabTransMaterial()->setReceiveShadows(!inside);
   //  }
 
-    if (App::gfx_reduce_shadows->GetBool())
+    if (App::gfx_reduce_shadows->getBool())
     {
         m_gfx_actor->SetCastShadows(!inside);
     }
@@ -3105,7 +3105,7 @@ void Actor::setBlinkType(BlinkType blink)
 void Actor::autoBlinkReset()
 {
     // TODO: make this set-able per actor
-    const float blink_lock_range = App::io_blink_lock_range->GetFloat();
+    const float blink_lock_range = App::io_blink_lock_range->getFloat();
 
     if (m_blink_type == BLINK_LEFT && ar_hydro_dir_state < -blink_lock_range)
     {

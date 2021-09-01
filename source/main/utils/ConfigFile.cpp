@@ -34,7 +34,7 @@
 
 using namespace RoR;
 
-float ConfigFile::GetFloat(Ogre::String const& key, Ogre::String const& section, float defaultValue)
+float ConfigFile::getFloat(Ogre::String const& key, Ogre::String const& section, float defaultValue)
 {
     return Ogre::StringConverter::parseReal(Ogre::ConfigFile::getSetting(key, section), defaultValue);
 }
@@ -44,12 +44,12 @@ Ogre::ColourValue ConfigFile::GetColourValue(Ogre::String const& key, Ogre::Stri
     return Ogre::StringConverter::parseColourValue(Ogre::ConfigFile::getSetting(key, section), defaultValue);
 }
 
-int ConfigFile::GetInt(Ogre::String const& key, Ogre::String const& section, int defaultValue)
+int ConfigFile::getInt(Ogre::String const& key, Ogre::String const& section, int defaultValue)
 {
     return Ogre::StringConverter::parseInt(Ogre::ConfigFile::getSetting(key, section), defaultValue);
 }
 
-bool ConfigFile::GetBool(Ogre::String const& key, Ogre::String const& section, bool defaultValue)
+bool ConfigFile::getBool(Ogre::String const& key, Ogre::String const& section, bool defaultValue)
 {
     return Ogre::StringConverter::parseBool(Ogre::ConfigFile::getSetting(key, section), defaultValue);
 }

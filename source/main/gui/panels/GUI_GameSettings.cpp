@@ -119,14 +119,14 @@ void GameSettings::DrawRenderSystemSettings()
     {
         render_system_names += rs->getName() + '\0';
     }
-    const auto ro = ogre_root->getRenderSystemByName(App::app_rendersys_override->GetStr());
+    const auto ro = ogre_root->getRenderSystemByName(App::app_rendersys_override->getStr());
     const auto rs = ro ? ro : ogre_root->getRenderSystem();
     const auto it = std::find(render_systems.begin(), render_systems.end(), rs);
     int render_id = it != render_systems.end() ? std::distance(render_systems.begin(), it) : 0;
     /* Combobox for selecting the Render System*/
     if (ImGui::Combo(_LC ("GameSettings", "Render System"), &render_id, render_system_names.c_str()))
     {
-        App::app_rendersys_override->SetStr(render_systems[render_id]->getName());
+        App::app_rendersys_override->setStr(render_systems[render_id]->getName());
     }
 
     const auto config_options = ogre_root->getRenderSystem()->getConfigOptions();
@@ -172,11 +172,11 @@ void GameSettings::DrawGeneralSettings()
         lang_values += value.first + '\0';
     }
     const auto it = std::find_if(languages.begin(), languages.end(),
-            [](const std::pair<std::string, std::string>& l) { return l.second == App::app_language->GetStr(); });
+            [](const std::pair<std::string, std::string>& l) { return l.second == App::app_language->getStr(); });
     int lang_selection = it != languages.end() ? std::distance(languages.begin(), it) : 0;
     if (ImGui::Combo(_LC("GameSettings", "Language"), &lang_selection, lang_values.c_str()))
     {
-        App::app_language->SetStr(languages[lang_selection].second);
+        App::app_language->setStr(languages[lang_selection].second);
         App::GetLanguageEngine()->setup();
     }
 #endif
@@ -203,21 +203,21 @@ void GameSettings::DrawGeneralSettings()
         {
             country_values += value + '\0';
         }
-        const auto it = std::find(countries.begin(), countries.end(), App::app_country->GetStr());
+        const auto it = std::find(countries.begin(), countries.end(), App::app_country->getStr());
         int country_selection = it != countries.end() ? std::distance(countries.begin(), it) : 0;
         if (ImGui::Combo(_LC("GameSettings", "Country"), &country_selection, country_values.c_str()))
         {
-            App::app_country->SetStr(countries[country_selection].c_str());
+            App::app_country->setStr(countries[country_selection].c_str());
         }
     }
 
-    int sshot_select = (App::app_screenshot_format->GetStr() == "jpg") ? 1 : 0; // Hardcoded; TODO: list available formats.
+    int sshot_select = (App::app_screenshot_format->getStr() == "jpg") ? 1 : 0; // Hardcoded; TODO: list available formats.
 
     /* Screenshot format: Can be png or jpg*/
     if (ImGui::Combo(_LC("GameSettings", "Screenshot format"), &sshot_select, "png\0jpg\0\0"))
     {
         std::string str = (sshot_select == 1) ? "jpg" : "png";
-        App::app_screenshot_format->SetStr(str);
+        App::app_screenshot_format->setStr(str);
     }
 
     DrawGTextEdit(App::app_extra_mod_path, _LC("GameSettings", "Extra mod path"),  m_buf_app_extra_mod_dir);
@@ -253,7 +253,7 @@ void GameSettings::DrawGameplaySettings()
     DrawGCheckbox(App::sim_spawn_running, _LC("GameSettings", "Engines spawn running"));
 
     DrawGCheckbox(App::sim_replay_enabled, _LC("GameSettings", "Replay mode"));
-    if (App::sim_replay_enabled->GetBool())
+    if (App::sim_replay_enabled->getBool())
     {
         DrawGIntBox(App::sim_replay_length, _LC("GameSettings", "Replay length"));
         DrawGIntBox(App::sim_replay_stepping, _LC("GameSettings", "Replay stepping"));
@@ -288,11 +288,11 @@ void GameSettings::DrawAudioSettings()
             next += (len + 2);
     }
 
-    const auto it = std::find(audio_devices.begin(), audio_devices.end(), App::audio_device_name->GetStr());
+    const auto it = std::find(audio_devices.begin(), audio_devices.end(), App::audio_device_name->getStr());
     int device_id = it != audio_devices.end() ? std::distance(audio_devices.begin(), it) : 0;
     if (ImGui::Combo(_LC("GameSettings", "Audio device"), &device_id, devices))
     {
-        App::audio_device_name->SetStr(audio_devices[device_id]);
+        App::audio_device_name->setStr(audio_devices[device_id]);
     }
 
     DrawGCheckbox(App::audio_enable_creak,     _LC("GameSettings", "Creak sound"));
@@ -316,10 +316,10 @@ void GameSettings::DrawGraphicsSettings()
         "Disabled\0"
         "PSSM\0\0");
 
-    if (App::gfx_shadow_type->GetEnum<GfxShadowType>() != GfxShadowType::NONE)
+    if (App::gfx_shadow_type->getEnum<GfxShadowType>() != GfxShadowType::NONE)
     {
         DrawGCheckbox(App::gfx_reduce_shadows, _LC("GameSettings", "Shadow optimizations"));
-        if (App::gfx_shadow_type->GetEnum<GfxShadowType>() == GfxShadowType::PSSM)
+        if (App::gfx_shadow_type->getEnum<GfxShadowType>() == GfxShadowType::PSSM)
         {
             DrawGIntSlider(App::gfx_shadow_quality, _LC("GameSettings", "Shadow quality"), 0, 3);
         }
@@ -330,7 +330,7 @@ void GameSettings::DrawGraphicsSettings()
         "Caelum (best looking, slower)\0"
         "SkyX (best looking, slower)\0\0");
 
-    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() != GfxSkyMode::SKYX)
+    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() != GfxSkyMode::SKYX)
     {
         DrawGIntSlider(App::gfx_sight_range, _LC("GameSettings", "Sight range (meters)"), 100, 5000);
     }
@@ -341,13 +341,13 @@ void GameSettings::DrawGraphicsSettings()
         "Trilinear\0"
         "Anisotropic\0\0");
 
-    if (App::gfx_texture_filter->GetEnum<GfxTexFilter>() == GfxTexFilter::ANISOTROPIC)
+    if (App::gfx_texture_filter->getEnum<GfxTexFilter>() == GfxTexFilter::ANISOTROPIC)
     {
-        int anisotropy = Ogre::Math::Clamp(App::gfx_anisotropy->GetInt(), 1, 16);
+        int anisotropy = Ogre::Math::Clamp(App::gfx_anisotropy->getInt(), 1, 16);
         int  selection = std::log2(anisotropy);
         if (ImGui::Combo(_LC("GameSettings", "Anisotropy"), &selection, "1\0""2\0""4\0""8\0""16\0\0"))
         {
-            App::gfx_anisotropy->SetVal(std::pow(2, selection));
+            App::gfx_anisotropy->setVal(std::pow(2, selection));
         }
     }
 
@@ -371,7 +371,7 @@ void GameSettings::DrawGraphicsSettings()
     DrawGIntCheck(App::gfx_skidmarks_mode,   _LC("GameSettings", "Enable skidmarks"));
 
     DrawGCheckbox(App::gfx_envmap_enabled,   _LC("GameSettings", "Realtime reflections"));
-    if (App::gfx_envmap_enabled->GetBool())
+    if (App::gfx_envmap_enabled->getBool())
     {
         ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
         DrawGIntSlider(App::gfx_envmap_rate, _LC("GameSettings", "Realtime refl. update rate"), 0, 6);
@@ -380,7 +380,7 @@ void GameSettings::DrawGraphicsSettings()
 
     DrawGCheckbox(App::gfx_enable_videocams, _LC("GameSettings", "Render video cameras"));
     DrawGCheckbox(App::gfx_surveymap_icons,  _LC("GameSettings", "Overview map icons"));
-    if (App::gfx_surveymap_icons->GetBool())
+    if (App::gfx_surveymap_icons->getBool())
     {
         DrawGCheckbox(App::gfx_declutter_map,  _LC("GameSettings", "Declutter overview map"));
     }
@@ -447,7 +447,7 @@ void GameSettings::DrawControlSettings()
     DrawGCheckbox(App::io_arcade_controls, _LC("GameSettings", "Use arcade controls"));
 
     DrawGCheckbox(App::io_ffb_enabled, _LC("GameSettings", "Enable ForceFeedback"));
-    if (App::io_ffb_enabled->GetBool())
+    if (App::io_ffb_enabled->getBool())
     {
         ImGui::PushItemWidth(125.f);
         DrawGFloatBox(App::io_ffb_camera_gain, _LC("GameSettings", "FFB camera gain"));
@@ -458,7 +458,7 @@ void GameSettings::DrawControlSettings()
     }
 
     DrawGIntCheck(App::io_outgauge_mode, _LC("GameSettings", "Enable OutGauge protocol"));
-    if (App::io_outgauge_mode->GetBool())
+    if (App::io_outgauge_mode->getBool())
     {
         DrawGTextEdit(App::io_outgauge_ip, _LC("GameSettings", "OutGauge IP"), m_buf_io_outgauge_ip);
         ImGui::PushItemWidth(125.f);
@@ -472,7 +472,7 @@ void GameSettings::DrawControlSettings()
 void GameSettings::SetVisible(bool v)
 {
     m_is_visible = v;
-    if (!v && App::app_state->GetEnum<AppState>() == RoR::AppState::MAIN_MENU)
+    if (!v && App::app_state->getEnum<AppState>() == RoR::AppState::MAIN_MENU)
     {
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }

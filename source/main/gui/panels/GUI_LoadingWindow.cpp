@@ -73,7 +73,7 @@ void LoadingWindow::SetProgressNetConnect(const std::string& net_status)
 {
     this->SetProgress(PERC_SHOW_SPINNER,
                     fmt::format( "{} [{}:{}]\n{}", _LC("LoadingWindow", "Joining"),
-                                App::mp_server_host->GetStr(), App::mp_server_port->GetInt(), net_status));
+                                App::mp_server_host->getStr(), App::mp_server_port->getInt(), net_status));
 }
 
 void LoadingWindow::Draw()

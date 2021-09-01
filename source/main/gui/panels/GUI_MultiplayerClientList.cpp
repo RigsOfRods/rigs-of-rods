@@ -81,7 +81,7 @@ void MpClientList::Draw()
 
         // Stream state indicators
         if (user.uniqueid != local_user.uniqueid &&
-            App::app_state->GetEnum<AppState>() != AppState::MAIN_MENU)
+            App::app_state->getEnum<AppState>() != AppState::MAIN_MENU)
         {
             switch (App::GetGameContext()->GetActorManager()->CheckNetworkStreamsOk(user.uniqueid))
             {
@@ -165,7 +165,7 @@ void MpClientList::Draw()
 
             // Stream state
             if (user.uniqueid != local_user.uniqueid &&
-                App::app_state->GetEnum<AppState>() != AppState::MAIN_MENU)
+                App::app_state->getEnum<AppState>() != AppState::MAIN_MENU)
             {
                 ImGui::Separator();
                 ImGui::TextDisabled("%s", _LC("MultiplayerClientList", "truck loading state"));

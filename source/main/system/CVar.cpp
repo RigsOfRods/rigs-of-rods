@@ -206,19 +206,19 @@ CVar* Console::cVarCreate(std::string const& name, std::string const& long_name,
 
 void Console::cVarAssign(CVar* cvar, std::string const& value)
 {
-    if (cvar->HasFlag(CVAR_TYPE_BOOL | CVAR_TYPE_INT | CVAR_TYPE_FLOAT))
+    if (cvar->hasFlag(CVAR_TYPE_BOOL | CVAR_TYPE_INT | CVAR_TYPE_FLOAT))
     {
         float val = 0.f;
-             if (cvar->HasFlag(CVAR_TYPE_BOOL))  { val = (float)Ogre::StringConverter::parseBool(value); }
-        else if (cvar->HasFlag(CVAR_TYPE_INT))   { val = (float)Ogre::StringConverter::parseInt(value);  }
-        else if (cvar->HasFlag(CVAR_TYPE_FLOAT)) { val =        Ogre::StringConverter::parseReal(value); }
+             if (cvar->hasFlag(CVAR_TYPE_BOOL))  { val = (float)Ogre::StringConverter::parseBool(value); }
+        else if (cvar->hasFlag(CVAR_TYPE_INT))   { val = (float)Ogre::StringConverter::parseInt(value);  }
+        else if (cvar->hasFlag(CVAR_TYPE_FLOAT)) { val =        Ogre::StringConverter::parseReal(value); }
 
 
-        cvar->SetVal(val);
+        cvar->setVal(val);
     }
     else
     {
-        cvar->SetStr(value);
+        cvar->setStr(value);
     }
 }
 
@@ -261,29 +261,29 @@ CVar* Console::cVarGet(std::string const& input_name, int flags)
     return this->cVarCreate(input_name, input_name, flags);
 }
 
-void CVar::LogUpdate(std::string const& new_val)
+void CVar::logUpdate(std::string const& new_val)
 {
     if (!Ogre::LogManager::getSingletonPtr())
         return;
 
-    if (this->HasFlag(CVAR_NO_LOG))
+    if (this->hasFlag(CVAR_NO_LOG))
         return;
 
     LogFormat("[RoR|CVar]  %20s:  \"%s\" (was: \"%s\")",
               m_name.c_str(), new_val.c_str(), m_value_str.c_str());
 }
 
-std::string CVar::ConvertStr(float val)
+std::string CVar::convertStr(float val)
 {
-    if (this->HasFlag(CVAR_TYPE_BOOL))
+    if (this->hasFlag(CVAR_TYPE_BOOL))
     {
         return ((bool)val) ? "Yes" : "No";
     }
-    else if (this->HasFlag(CVAR_TYPE_INT))
+    else if (this->hasFlag(CVAR_TYPE_INT))
     {
         return Ogre::StringUtil::format("%d", (int)val);
     }
-    else if (this->HasFlag(CVAR_TYPE_FLOAT))
+    else if (this->hasFlag(CVAR_TYPE_FLOAT))
     {
         return std::to_string((float)val);
     }

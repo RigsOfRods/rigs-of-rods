@@ -47,7 +47,7 @@ Node::Id::Id(std::string const & id_str):
     m_id_num(0),
     m_flags(0)
 {
-    this->SetStr(id_str);
+    this->setStr(id_str);
 }
 
 // Setters
@@ -60,7 +60,7 @@ void Node::Id::SetNum(unsigned int num)
     BITMASK_SET_1(m_flags, IS_TYPE_NUMBERED | IS_VALID);
 }
 
-void Node::Id::SetStr(std::string const & id_str)
+void Node::Id::setStr(std::string const & id_str)
 {
     m_id_num = 0;
     m_id_str = id_str;

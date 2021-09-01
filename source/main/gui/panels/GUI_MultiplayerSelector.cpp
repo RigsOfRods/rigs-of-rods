@@ -222,7 +222,7 @@ void MultiplayerSelector::DrawDirectTab()
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
     if (ImGui::Button(_LC("MultiplayerSelector", "Join")))
     {
-        App::mp_server_password->SetStr(m_password_buf.GetBuffer());
+        App::mp_server_password->setStr(m_password_buf.GetBuffer());
         App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
     }
 
@@ -293,9 +293,9 @@ void MultiplayerSelector::DrawServerlistTab()
             if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
             {
                 // Handle left doubleclick
-                App::mp_server_password->SetStr(m_password_buf.GetBuffer());
-                App::mp_server_host->SetStr(server.net_host.c_str());
-                App::mp_server_port->SetVal(server.net_port);
+                App::mp_server_password->setStr(m_password_buf.GetBuffer());
+                App::mp_server_host->setStr(server.net_host.c_str());
+                App::mp_server_port->setVal(server.net_port);
                 App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
             }
             if (server.has_password && m_lock_icon)
@@ -328,9 +328,9 @@ void MultiplayerSelector::DrawServerlistTab()
             MpServerInfo& server = m_serverlist_data[m_selected_item];
             if (ImGui::Button(_LC("MultiplayerSelector", "Join"), ImVec2(200.f, 0.f)))
             {
-                App::mp_server_password->SetStr(m_password_buf.GetBuffer());
-                App::mp_server_host->SetStr(server.net_host.c_str());
-                App::mp_server_port->SetVal(server.net_port);
+                App::mp_server_password->setStr(m_password_buf.GetBuffer());
+                App::mp_server_host->setStr(server.net_host.c_str());
+                App::mp_server_port->setVal(server.net_port);
                 App::GetGameContext()->PushMessage(Message(MSG_NET_CONNECT_REQUESTED));
             }
             if (server.has_password)
@@ -363,7 +363,7 @@ void MultiplayerSelector::StartAsyncRefresh()
     m_serverlist_msg = _LC("MultiplayerSelector", "... refreshing ...");
     m_serverlist_msg_color = App::GetGuiManager()->GetTheme().in_progress_text_color;
     std::packaged_task<void(std::string)> task(FetchServerlist);
-    std::thread(std::move(task), App::mp_api_url->GetStr()).detach(); // launch on a thread
+    std::thread(std::move(task), App::mp_api_url->getStr()).detach(); // launch on a thread
 #endif // defined(USE_CURL)
 }
 
@@ -373,9 +373,9 @@ void MultiplayerSelector::SetVisible(bool visible)
     if (visible && m_serverlist_data.size() == 0) // Do an initial refresh
     {
         this->StartAsyncRefresh();
-        m_password_buf = App::mp_server_password->GetStr();
+        m_password_buf = App::mp_server_password->getStr();
     }
-    else if (!visible && App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+    else if (!visible && App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
     {
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }

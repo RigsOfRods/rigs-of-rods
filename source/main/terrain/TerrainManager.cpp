@@ -63,7 +63,7 @@ TerrainManager::TerrainManager(CacheEntry* entry)
 
 TerrainManager::~TerrainManager()
 {
-    if (App::app_state->GetEnum<AppState>() == AppState::SHUTDOWN)
+    if (App::app_state->getEnum<AppState>() == AppState::SHUTDOWN)
     {
         // Rush to exit
         return;
@@ -164,7 +164,7 @@ TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry* entry)
     loading_window->SetProgress(27, _L("Initializing Light Subsystem"));
     terrn_mgr->initLight();
 
-    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() != GfxSkyMode::CAELUM) //Caelum has its own fog management
+    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() != GfxSkyMode::CAELUM) //Caelum has its own fog management
     {
         loading_window->SetProgress(29, _L("Initializing Fog Subsystem"));
         terrn_mgr->initFog();
@@ -223,8 +223,8 @@ TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry* entry)
 
     LOG(" ===== TERRAIN LOADING DONE " + filename);
 
-    App::sim_terrain_name->SetStr(filename);
-    App::sim_terrain_gui_name->SetStr(terrn_mgr->m_def.name);
+    App::sim_terrain_name->setStr(filename);
+    App::sim_terrain_gui_name->setStr(terrn_mgr->m_def.name);
 
     return terrn_mgr.release();
 }
@@ -234,23 +234,23 @@ void TerrainManager::initCamera()
     App::GetCameraManager()->GetCamera()->getViewport()->setBackgroundColour(m_def.ambient_color);
     App::GetCameraManager()->GetCameraNode()->setPosition(m_def.start_position);
 
-    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
+    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
     {
         m_sight_range = 5000;  //Force unlimited for SkyX, lower settings are glitchy
     } 
     else
     {
-        m_sight_range = App::gfx_sight_range->GetInt();
+        m_sight_range = App::gfx_sight_range->getInt();
     } 
 
-    if (m_sight_range < UNLIMITED_SIGHTRANGE && App::gfx_sky_mode->GetEnum<GfxSkyMode>() != GfxSkyMode::SKYX)
+    if (m_sight_range < UNLIMITED_SIGHTRANGE && App::gfx_sky_mode->getEnum<GfxSkyMode>() != GfxSkyMode::SKYX)
     {
         App::GetCameraManager()->GetCamera()->setFarClipDistance(m_sight_range);
     }
     else
     {
         // disabled in global config
-        if (App::gfx_water_mode->GetEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX)
+        if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX)
             App::GetCameraManager()->GetCamera()->setFarClipDistance(0); //Unlimited
         else
             App::GetCameraManager()->GetCamera()->setFarClipDistance(9999 * 6); //Unlimited for hydrax and stuff
@@ -261,7 +261,7 @@ void TerrainManager::initSkySubSystem()
 {
 #ifdef USE_CAELUM
     // Caelum skies
-    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
     {
         m_sky_manager = new SkyManager();
 
@@ -280,7 +280,7 @@ void TerrainManager::initSkySubSystem()
     else
 #endif //USE_CAELUM
     // SkyX skies
-    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
+    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
     {
          // try to load SkyX config
          if (!m_def.skyx_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.skyx_config))
@@ -306,13 +306,13 @@ void TerrainManager::initSkySubSystem()
 
 void TerrainManager::initLight()
 {
-    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
     {
 #ifdef USE_CAELUM
         m_main_light = m_sky_manager->GetSkyMainLight();
 #endif
     }
-    else if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
+    else if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
     {
         m_main_light = SkyX_manager->getMainLight();
     }
@@ -344,7 +344,7 @@ void TerrainManager::initFog()
 
 void TerrainManager::initVegetation()
 {
-    switch (App::gfx_vegetation_mode->GetEnum<GfxVegetation>())
+    switch (App::gfx_vegetation_mode->getEnum<GfxVegetation>())
     {
     case GfxVegetation::x20PERC:
         m_paged_detail_factor = 0.2f;
@@ -390,7 +390,7 @@ void TerrainManager::fixCompositorClearColor()
 void TerrainManager::initWater()
 {
     // disabled in global config
-    if (App::gfx_water_mode->GetEnum<GfxWaterMode>() == GfxWaterMode::NONE)
+    if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::NONE)
         return;
 
     // disabled in map config
@@ -399,7 +399,7 @@ void TerrainManager::initWater()
         return;
     }
 
-    if (App::gfx_water_mode->GetEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
+    if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
     {
         // try to load hydrax config
         if (!m_def.hydrax_conf_file.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.hydrax_conf_file))

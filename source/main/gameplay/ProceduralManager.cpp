@@ -52,7 +52,7 @@ int ProceduralManager::updateObject(ProceduralObject& po)
     // create new road2 object
     po.road = new Road2((int)pObjects.size());
     // In diagnostic mode, disable collisions (speeds up terrain loading)
-    po.road->setCollisionEnabled(!App::diag_terrn_log_roads->GetBool());
+    po.road->setCollisionEnabled(!App::diag_terrn_log_roads->getBool());
 
     std::vector<ProceduralPoint>::iterator it;
     for (it = po.points.begin(); it != po.points.end(); it++)

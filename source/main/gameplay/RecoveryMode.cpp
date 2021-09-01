@@ -28,7 +28,7 @@ using namespace RoR;
 
 void RecoveryMode::UpdateInputEvents(float dt)
 {
-    if (App::sim_state->GetEnum<SimState>() != SimState::RUNNING &&
+    if (App::sim_state->getEnum<SimState>() != SimState::RUNNING &&
         App::GetGameContext()->GetPlayerActor() &&
         App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::NETWORKED_OK &&
         App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::LOCAL_REPLAY)
@@ -113,7 +113,7 @@ void RecoveryMode::UpdateInputEvents(float dt)
             App::GetGameContext()->GetPlayerActor()->requestRotation(rotation, rotation_center);
             App::GetGameContext()->GetPlayerActor()->requestTranslation(translation);
 
-            if (App::sim_soft_reset_mode->GetBool())
+            if (App::sim_soft_reset_mode->getBool())
             {
                 for (auto actor : App::GetGameContext()->GetPlayerActor()->getAllLinkedActors())
                 {
@@ -127,7 +127,7 @@ void RecoveryMode::UpdateInputEvents(float dt)
         else if (App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
         {
             App::GetGameContext()->GetPlayerActor()->requestAngleSnap(45);
-            if (App::sim_soft_reset_mode->GetBool())
+            if (App::sim_soft_reset_mode->getBool())
             {
                 for (auto actor : App::GetGameContext()->GetPlayerActor()->getAllLinkedActors())
                 {
@@ -141,7 +141,7 @@ void RecoveryMode::UpdateInputEvents(float dt)
         }
 
         auto reset_type = ActorModifyRequest::Type::RESET_ON_SPOT;
-        if (App::sim_soft_reset_mode->GetBool())
+        if (App::sim_soft_reset_mode->getBool())
         {
             reset_type = ActorModifyRequest::Type::SOFT_RESET;
             for (auto actor : App::GetGameContext()->GetPlayerActor()->getAllLinkedActors())

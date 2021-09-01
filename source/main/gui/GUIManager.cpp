@@ -148,7 +148,7 @@ GUI::MpClientList*          GUIManager::GetMpClientList()      { return &m_impl-
 
 GUIManager::GUIManager()
 {
-    std::string gui_logpath = PathCombine(App::sys_logs_dir->GetStr(), "MyGUI.log");
+    std::string gui_logpath = PathCombine(App::sys_logs_dir->getStr(), "MyGUI.log");
     auto mygui_platform = new MyGUI::OgrePlatform();
     mygui_platform->initialise(
         App::GetAppContext()->GetRenderWindow(), 
@@ -215,7 +215,7 @@ void GUIManager::ApplyGuiCaptureKeyboard()
 
 void GUIManager::DrawSimulationGui(float dt)
 {
-    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+    if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
     {
         m_impl->panel_TopMenubar.Update();
 
@@ -379,7 +379,7 @@ void GUIManager::UpdateMouseCursorVisibility()
 
 void GUIManager::ReflectGameState()
 {
-    if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+    if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
     {
         m_impl->overlay_Wallpaper       ->show();
 
@@ -392,7 +392,7 @@ void GUIManager::ReflectGameState()
         m_impl->panel_SimPerfStats       .SetVisible(false);
         m_impl->panel_DirectionArrow     .SetVisible(false);
     }
-    else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+    else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
     {
         m_impl->panel_GameMainMenu       .SetVisible(false);
         m_impl->overlay_Wallpaper       ->hide();
@@ -474,7 +474,7 @@ void GUIManager::SetupImGui()
 
 void GUIManager::DrawCommonGui()
 {
-    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED && !m_hide_gui)
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !m_hide_gui)
     {
         m_impl->panel_MpClientList.Draw();
     }
@@ -562,7 +562,7 @@ void GUIManager::UpdateInputEvents(float dt)
         App::GetGuiManager()->SetVisible_Console(! App::GetGuiManager()->IsVisible_Console());
     }
 
-    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+    if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
     {
         // EV_COMMON_HIDE_GUI
         if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_HIDE_GUI))
@@ -572,7 +572,7 @@ void GUIManager::UpdateInputEvents(float dt)
 
         // EV_COMMON_ENTER_CHATMODE
         if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) &&
-            App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+            App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
         {
             App::GetGuiManager()->SetVisible_ChatBox(!App::GetGuiManager()->IsVisible_ChatBox());
         }

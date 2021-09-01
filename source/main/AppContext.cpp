@@ -66,7 +66,7 @@ bool AppContext::SetUpInput()
     App::GetInputEngine()->SetKeyboardListener(this);
     App::GetInputEngine()->SetJoystickListener(this);
 
-    if (App::io_ffb_enabled->GetBool())
+    if (App::io_ffb_enabled->getBool())
     {
         m_force_feedback.Setup();
     }
@@ -110,7 +110,7 @@ bool AppContext::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID _id
             handled = App::GetOverlayWrapper()->mousePressed(arg, _id); // update the old airplane / autopilot gui
         }
 
-        if (!handled && App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+        if (!handled && App::app_state->getEnum<AppState>() == AppState::SIMULATION)
         {
             App::GetGameContext()->GetSceneMouse().mousePressed(arg, _id);
             App::GetCameraManager()->mousePressed(arg, _id);
@@ -136,7 +136,7 @@ bool AppContext::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID _i
         {
             handled = App::GetOverlayWrapper()->mouseReleased(arg, _id); // update the old airplane / autopilot gui
         }
-        if (!handled && App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+        if (!handled && App::app_state->getEnum<AppState>() == AppState::SIMULATION)
         {
             App::GetGameContext()->GetSceneMouse().mouseReleased(arg, _id);
         }
@@ -190,7 +190,7 @@ void AppContext::windowResized(Ogre::RenderWindow* rw)
 {
     App::GetInputEngine()->windowResized(rw); // Update mouse area
     App::GetOverlayWrapper()->windowResized();
-    if (App::sim_state->GetEnum<AppState>() == RoR::AppState::SIMULATION)
+    if (App::sim_state->getEnum<AppState>() == RoR::AppState::SIMULATION)
     {
         for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
         {
@@ -229,21 +229,21 @@ void AppContext::SetRenderWindowIcon(Ogre::RenderWindow* rw)
 bool AppContext::SetUpRendering()
 {
     // Create 'OGRE root' facade
-    std::string log_filepath = PathCombine(App::sys_logs_dir->GetStr(), "RoR.log");
-    std::string cfg_filepath = PathCombine(App::sys_config_dir->GetStr(), "ogre.cfg");
+    std::string log_filepath = PathCombine(App::sys_logs_dir->getStr(), "RoR.log");
+    std::string cfg_filepath = PathCombine(App::sys_config_dir->getStr(), "ogre.cfg");
     m_ogre_root = new Ogre::Root("", cfg_filepath, log_filepath);
 
     // load OGRE plugins manually
 #ifdef _DEBUG
-    std::string plugins_path = PathCombine(RoR::App::sys_process_dir->GetStr(), "plugins_d.cfg");
+    std::string plugins_path = PathCombine(RoR::App::sys_process_dir->getStr(), "plugins_d.cfg");
 #else
-	std::string plugins_path = PathCombine(RoR::App::sys_process_dir->GetStr(), "plugins.cfg");
+	std::string plugins_path = PathCombine(RoR::App::sys_process_dir->getStr(), "plugins.cfg");
 #endif
     try
     {
         Ogre::ConfigFile cfg;
         cfg.load(plugins_path);
-        std::string plugin_dir = cfg.getSetting("PluginFolder", /*section=*/"", /*default=*/App::sys_process_dir->GetStr());
+        std::string plugin_dir = cfg.getSetting("PluginFolder", /*section=*/"", /*default=*/App::sys_process_dir->getStr());
         Ogre::StringVector plugins = cfg.getMultiSetting("Plugin");
         for (Ogre::String plugin_filename: plugins)
         {
@@ -270,14 +270,14 @@ bool AppContext::SetUpRendering()
             ErrorUtils::ShowError (_L("Startup error"), _L("No render system plugin available. Check your plugins.cfg"));
     }
 
-    const auto rs = m_ogre_root->getRenderSystemByName(App::app_rendersys_override->GetStr());
+    const auto rs = m_ogre_root->getRenderSystemByName(App::app_rendersys_override->getStr());
     if (rs != nullptr && rs != m_ogre_root->getRenderSystem())
     {
         // The user has selected a different render system during the previous session.
         m_ogre_root->setRenderSystem(rs);
         m_ogre_root->saveConfig();
     }
-    App::app_rendersys_override->SetStr("");
+    App::app_rendersys_override->setStr("");
 
     // Start the renderer
     m_ogre_root->initialise(/*createWindow=*/false);
@@ -341,17 +341,17 @@ void AppContext::CaptureScreenshot()
 
     std::stringstream stamp;
     stamp << std::put_time(std::localtime(&time), "%Y-%m-%d_%H-%M-%S") << "_" << index
-          << "." << App::app_screenshot_format->GetStr();
-    std::string path = PathCombine(App::sys_screenshot_dir->GetStr(), "screenshot_") + stamp.str();
+          << "." << App::app_screenshot_format->getStr();
+    std::string path = PathCombine(App::sys_screenshot_dir->getStr(), "screenshot_") + stamp.str();
 
-    if (App::app_screenshot_format->GetStr() == "png")
+    if (App::app_screenshot_format->getStr() == "png")
     {
         AdvancedScreen png(m_render_window, path);
 
-        png.addData("User_NickName", App::mp_player_name->GetStr());
-        png.addData("User_Language", App::app_language->GetStr());
+        png.addData("User_NickName", App::mp_player_name->getStr());
+        png.addData("User_Language", App::app_language->getStr());
 
-        if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION && 
+        if (App::app_state->getEnum<AppState>() == AppState::SIMULATION && 
             App::GetGameContext()->GetPlayerActor())
         {
             png.addData("Truck_file", App::GetGameContext()->GetPlayerActor()->ar_filename);
@@ -359,12 +359,12 @@ void AppContext::CaptureScreenshot()
         }
         if (App::GetSimTerrain())
         {
-            png.addData("Terrn_file", App::sim_terrain_name->GetStr());
-            png.addData("Terrn_name", App::sim_terrain_gui_name->GetStr());
+            png.addData("Terrn_file", App::sim_terrain_name->getStr());
+            png.addData("Terrn_name", App::sim_terrain_gui_name->getStr());
         }
-        if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+        if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
         {
-            png.addData("MP_ServerName", App::mp_server_host->GetStr());
+            png.addData("MP_ServerName", App::mp_server_host->getStr());
         }
 
         png.write();
@@ -408,14 +408,14 @@ bool AppContext::SetUpProgramPaths()
         ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving program directory path"));
         return false;
     }
-    App::sys_process_dir->SetStr(RoR::GetParentDirectory(exe_path.c_str()).c_str());
+    App::sys_process_dir->setStr(RoR::GetParentDirectory(exe_path.c_str()).c_str());
 
     // RoR's home directory
-    std::string local_userdir = PathCombine(App::sys_process_dir->GetStr(), "config"); // TODO: Think of a better name, this is ambiguious with ~/.rigsofrods/config which stores configfiles! ~ only_a_ptr, 02/2018
+    std::string local_userdir = PathCombine(App::sys_process_dir->getStr(), "config"); // TODO: Think of a better name, this is ambiguious with ~/.rigsofrods/config which stores configfiles! ~ only_a_ptr, 02/2018
     if (FolderExists(local_userdir))
     {
         // It's a portable installation
-        App::sys_user_dir->SetStr(local_userdir.c_str());
+        App::sys_user_dir->setStr(local_userdir.c_str());
     }
     else
     {
@@ -441,7 +441,7 @@ bool AppContext::SetUpProgramPaths()
         ror_homedir << user_home << PATH_SLASH << "RigsOfRods";
 #endif
         CreateFolder(ror_homedir.ToCStr ());
-        App::sys_user_dir->SetStr(ror_homedir.ToCStr ());
+        App::sys_user_dir->setStr(ror_homedir.ToCStr ());
     }
 
     return true;
@@ -449,9 +449,9 @@ bool AppContext::SetUpProgramPaths()
 
 void AppContext::SetUpLogging()
 {
-    std::string logs_dir = PathCombine(App::sys_user_dir->GetStr(), "logs");
+    std::string logs_dir = PathCombine(App::sys_user_dir->getStr(), "logs");
     CreateFolder(logs_dir);
-    App::sys_logs_dir->SetStr(logs_dir.c_str());
+    App::sys_logs_dir->setStr(logs_dir.c_str());
 
     auto ogre_log_manager = OGRE_NEW Ogre::LogManager();
     std::string rorlog_path = PathCombine(logs_dir, "RoR.log");
@@ -465,7 +465,7 @@ void AppContext::SetUpLogging()
 
 bool AppContext::SetUpResourcesDir()
 {
-    std::string process_dir = PathCombine(App::sys_process_dir->GetStr(), "resources");
+    std::string process_dir = PathCombine(App::sys_process_dir->getStr(), "resources");
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
     if (!FolderExists(process_dir))
     {
@@ -477,13 +477,13 @@ bool AppContext::SetUpResourcesDir()
         ErrorUtils::ShowError(_L("Startup error"), _L("Resources folder not found. Check if correctly installed."));
         return false;
     }
-    App::sys_resources_dir->SetStr(process_dir);
+    App::sys_resources_dir->setStr(process_dir);
     return true;
 }
 
 bool AppContext::SetUpConfigSkeleton()
 {
-    Ogre::String src_path = PathCombine(App::sys_resources_dir->GetStr(), "skeleton.zip");
+    Ogre::String src_path = PathCombine(App::sys_resources_dir->getStr(), "skeleton.zip");
     Ogre::ResourceGroupManager::getSingleton().addResourceLocation(src_path, "Zip", "SrcRG");
     Ogre::FileInfoListPtr fl = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo("SrcRG", "*", true);
     if (fl->empty())
@@ -491,7 +491,7 @@ bool AppContext::SetUpConfigSkeleton()
         ErrorUtils::ShowError(_L("Startup error"), _L("Faulty resource folder. Check if correctly installed."));
         return false;
     }
-    Ogre::String dst_path = PathCombine(App::sys_user_dir->GetStr(), "");
+    Ogre::String dst_path = PathCombine(App::sys_user_dir->getStr(), "");
     for (auto file : *fl)
     {
         CreateFolder(dst_path + file.basename);
@@ -533,7 +533,7 @@ void AppContext::SetUpObsoleteConfMarker()
     {
         if (!FileExists(Ogre::StringUtil::format("%s\\OBSOLETE_FOLDER.txt", old_ror_homedir.c_str())))
         {
-            Ogre::String obsoleteMessage = Ogre::StringUtil::format("This folder is obsolete, please move your mods to  %s", App::sys_user_dir->GetStr());
+            Ogre::String obsoleteMessage = Ogre::StringUtil::format("This folder is obsolete, please move your mods to  %s", App::sys_user_dir->getStr());
             try
             {
                 Ogre::ResourceGroupManager::getSingleton().addResourceLocation(old_ror_homedir, "FileSystem", "homedir", false, false);
@@ -548,7 +548,7 @@ void AppContext::SetUpObsoleteConfMarker()
             Ogre::String message = Ogre::StringUtil::format(
                 "Welcome to Rigs of Rods %s\nPlease note that the mods folder has moved to:\n\"%s\"\nPlease move your mods to the new folder to continue using them",
                 ROR_VERSION_STRING_SHORT,
-                App::sys_user_dir->GetStr()
+                App::sys_user_dir->getStr()
             );
 
             RoR::App::GetGuiManager()->ShowMessageBox("Obsolete folder detected", message.c_str());

@@ -34,7 +34,7 @@ Character* CharacterFactory::CreateLocalCharacter()
     Ogre::UTFString playerName = "";
 
 #ifdef USE_SOCKETW
-    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
     {
         RoRnet::UserInfo info = App::GetNetwork()->GetLocalUserData();
         colourNum = info.colournum;

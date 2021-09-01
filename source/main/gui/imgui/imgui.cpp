@@ -1954,7 +1954,7 @@ void ImGuiStorage::BuildSortByKey()
         ImQsort(Data.Data, (size_t)Data.Size, sizeof(ImGuiStoragePair), StaticFunc::PairCompareByID);
 }
 
-int ImGuiStorage::GetInt(ImGuiID key, int default_val) const
+int ImGuiStorage::getInt(ImGuiID key, int default_val) const
 {
     ImGuiStoragePair* it = LowerBound(const_cast<ImVector<ImGuiStoragePair>&>(Data), key);
     if (it == Data.end() || it->key != key)
@@ -1962,12 +1962,12 @@ int ImGuiStorage::GetInt(ImGuiID key, int default_val) const
     return it->val_i;
 }
 
-bool ImGuiStorage::GetBool(ImGuiID key, bool default_val) const
+bool ImGuiStorage::getBool(ImGuiID key, bool default_val) const
 {
-    return GetInt(key, default_val ? 1 : 0) != 0;
+    return getInt(key, default_val ? 1 : 0) != 0;
 }
 
-float ImGuiStorage::GetFloat(ImGuiID key, float default_val) const
+float ImGuiStorage::getFloat(ImGuiID key, float default_val) const
 {
     ImGuiStoragePair* it = LowerBound(const_cast<ImVector<ImGuiStoragePair>&>(Data), key);
     if (it == Data.end() || it->key != key)
@@ -2013,7 +2013,7 @@ void** ImGuiStorage::GetVoidPtrRef(ImGuiID key, void* default_val)
     return &it->val_p;
 }
 
-// FIXME-OPT: Need a way to reuse the result of lower_bound when doing GetInt()/SetInt() - not too bad because it only happens on explicit interaction (maximum one a frame)
+// FIXME-OPT: Need a way to reuse the result of lower_bound when doing getInt()/SetInt() - not too bad because it only happens on explicit interaction (maximum one a frame)
 void ImGuiStorage::SetInt(ImGuiID key, int val)
 {
     ImGuiStoragePair* it = LowerBound(Data, key);

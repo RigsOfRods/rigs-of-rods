@@ -74,50 +74,50 @@ void Console::processCommandLine(int argc, char *argv[])
     {
         if (args.LastError() != SO_SUCCESS)
         {
-            App::app_state->SetVal((int)AppState::PRINT_HELP_EXIT);
+            App::app_state->setVal((int)AppState::PRINT_HELP_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_HELP)
         {
-            App::app_state->SetVal((int)AppState::PRINT_HELP_EXIT);
+            App::app_state->setVal((int)AppState::PRINT_HELP_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_VER)
         {
-            App::app_state->SetVal((int)AppState::PRINT_VERSION_EXIT);
+            App::app_state->setVal((int)AppState::PRINT_VERSION_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_TRUCK)
         {
-            App::cli_preset_vehicle->SetStr(args.OptionArg());
+            App::cli_preset_vehicle->setStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_TRUCKCONFIG)
         {
-            App::cli_preset_veh_config->SetStr(args.OptionArg());
+            App::cli_preset_veh_config->setStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_MAP)
         {
-            App::cli_preset_terrain->SetStr(args.OptionArg());
+            App::cli_preset_terrain->setStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_POS)
         {
-            App::cli_preset_spawn_pos->SetStr(args.OptionArg());
+            App::cli_preset_spawn_pos->setStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_ROT)
         {
-            App::cli_preset_spawn_rot->SetStr(args.OptionArg());
+            App::cli_preset_spawn_rot->setStr(args.OptionArg());
         }
         else if (args.OptionId() == OPT_RESUME)
         {
-            App::cli_resume_autosave->SetVal(true);
+            App::cli_resume_autosave->setVal(true);
         }
         else if (args.OptionId() == OPT_CHECKCACHE)
         {
-            App::cli_force_cache_update->SetVal(true);
+            App::cli_force_cache_update->setVal(true);
         }
         else if (args.OptionId() == OPT_ENTERTRUCK)
         {
-            App::cli_preset_veh_enter->SetVal(true);
+            App::cli_preset_veh_enter->setVal(true);
         }
         else if (args.OptionId() == OPT_JOINMPSERVER)
         {
@@ -137,8 +137,8 @@ void Console::processCommandLine(int argc, char *argv[])
                     host_str = server_args.substr(0, colon);
                     port_str = server_args.substr(colon + 1, server_args.length());
                 }
-                App::cli_server_host->SetStr(host_str.c_str());
-                App::cli_server_port->SetVal(Ogre::StringConverter::parseInt(port_str));
+                App::cli_server_host->setStr(host_str.c_str());
+                App::cli_server_port->setVal(Ogre::StringConverter::parseInt(port_str));
             }
         }
     }

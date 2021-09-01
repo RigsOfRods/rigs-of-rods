@@ -384,7 +384,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
 #ifdef USE_CAELUM
         // caelum needs to know that we changed the cameras
         SkyManager* sky = App::GetSimTerrain()->getSkyManager();
-        if ((sky != nullptr) && (RoR::App::app_state->GetEnum<AppState>() == RoR::AppState::SIMULATION))
+        if ((sky != nullptr) && (RoR::App::app_state->getEnum<AppState>() == RoR::AppState::SIMULATION))
         {
             sky->NotifySkyCameraChanged(vidcam.vcam_ogre_camera);
         }
@@ -677,7 +677,7 @@ void RoR::GfxActor::UpdateDebugView()
         const size_t num_beams = static_cast<size_t>(m_actor->ar_num_beams);
         for (size_t i = 0; i < num_beams; ++i)
         {
-            if (App::diag_hide_wheels->GetBool() &&
+            if (App::diag_hide_wheels->getBool() &&
                     (beams[i].p1->nd_tyre_node || beams[i].p1->nd_rim_node ||
                      beams[i].p2->nd_tyre_node || beams[i].p2->nd_rim_node))
                 continue;
@@ -692,7 +692,7 @@ void RoR::GfxActor::UpdateDebugView()
 
                 if (beams[i].bm_broken)
                 {
-                    if (!App::diag_hide_broken_beams->GetBool())
+                    if (!App::diag_hide_broken_beams->getBool())
                     {
                         drawlist->AddLine(pos1xy, pos2xy, BEAM_BROKEN_COLOR, BEAM_BROKEN_THICKNESS);
                     }
@@ -707,7 +707,7 @@ void RoR::GfxActor::UpdateDebugView()
                 else
                 {
                     ImU32 color = BEAM_COLOR;
-                    if (!App::diag_hide_beam_stress->GetBool())
+                    if (!App::diag_hide_beam_stress->getBool())
                     {
                         if (beams[i].stress > 0)
                         {
@@ -727,14 +727,14 @@ void RoR::GfxActor::UpdateDebugView()
             }
         }
 
-        if (!App::diag_hide_nodes->GetBool())
+        if (!App::diag_hide_nodes->getBool())
         {
             // Nodes
             const node_t* nodes = m_actor->ar_nodes;
             const size_t num_nodes = static_cast<size_t>(m_actor->ar_num_nodes);
             for (size_t i = 0; i < num_nodes; ++i)
             {
-                if (App::diag_hide_wheels->GetBool() && (nodes[i].nd_tyre_node || nodes[i].nd_rim_node))
+                if (App::diag_hide_wheels->getBool() && (nodes[i].nd_tyre_node || nodes[i].nd_rim_node))
                     continue;
 
                 Ogre::Vector3 pos_xyz = world2screen.Convert(nodes[i].AbsPosition);
@@ -758,7 +758,7 @@ void RoR::GfxActor::UpdateDebugView()
             {
                 for (size_t i = 0; i < num_nodes; ++i)
                 {
-                    if ((App::diag_hide_wheels->GetBool() || App::diag_hide_wheel_info->GetBool()) && 
+                    if ((App::diag_hide_wheels->getBool() || App::diag_hide_wheel_info->getBool()) && 
                             (nodes[i].nd_tyre_node || nodes[i].nd_rim_node))
                         continue;
 
@@ -788,7 +788,7 @@ void RoR::GfxActor::UpdateDebugView()
         {
             for (size_t i = 0; i < num_beams; ++i)
             {
-                if ((App::diag_hide_wheels->GetBool() || App::diag_hide_wheel_info->GetBool()) &&
+                if ((App::diag_hide_wheels->getBool() || App::diag_hide_wheel_info->getBool()) &&
                         (beams[i].p1->nd_tyre_node || beams[i].p1->nd_rim_node ||
                          beams[i].p2->nd_tyre_node || beams[i].p2->nd_rim_node))
                     continue;
@@ -2053,7 +2053,7 @@ void RoR::GfxActor::UpdateNetLabels(float dt)
     // TODO: Remake network player labels via GUI... they shouldn't be billboards inside the scene ~ only_a_ptr, 05/2018
     if (m_actor->m_net_label_node && m_actor->m_net_label_mt)
     {
-        if (App::mp_hide_net_labels->GetBool() || (!m_simbuf.simbuf_is_remote && App::mp_hide_own_net_label->GetBool()))
+        if (App::mp_hide_net_labels->getBool() || (!m_simbuf.simbuf_is_remote && App::mp_hide_own_net_label->getBool()))
         {
             m_actor->m_net_label_mt->setVisible(false);
             return;
@@ -2121,7 +2121,7 @@ void RoR::GfxActor::UpdateBeaconFlare(Prop & prop, float dt, bool is_player_acto
     // TODO: Quick and dirty port from Beam::updateFlares(), clean it up ~ only_a_ptr, 06/2018
     using namespace Ogre;
 
-    bool enableAll = !((App::gfx_flares_mode->GetEnum<GfxFlaresMode>() == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !is_player_actor);
+    bool enableAll = !((App::gfx_flares_mode->getEnum<GfxFlaresMode>() == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !is_player_actor);
     SimBuffer::NodeSB* nodes = this->GetSimNodeBuffer();
 
     if (prop.pp_beacon_type == 'b')
@@ -2340,7 +2340,7 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
         this->SetBeaconsEnabled(m_beaconlight_active);
     }
 
-    if ((App::gfx_flares_mode->GetEnum<GfxFlaresMode>() != GfxFlaresMode::NONE)
+    if ((App::gfx_flares_mode->getEnum<GfxFlaresMode>() != GfxFlaresMode::NONE)
         && m_beaconlight_active)
     {
         for (Prop& prop: m_props)
@@ -2390,7 +2390,7 @@ void RoR::GfxActor::UpdateRenderdashRTT()
 
 void RoR::GfxActor::SetBeaconsEnabled(bool beacon_light_is_active)
 {
-    const bool enableLight = (App::gfx_flares_mode->GetEnum<GfxFlaresMode>() != GfxFlaresMode::NO_LIGHTSOURCES);
+    const bool enableLight = (App::gfx_flares_mode->getEnum<GfxFlaresMode>() != GfxFlaresMode::NO_LIGHTSOURCES);
 
     for (Prop& prop: m_props)
     {
@@ -3187,7 +3187,7 @@ void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
 {
     // == Flare states are determined in simulation, this function only applies them to OGRE objects ==
 
-    bool enableAll = ((App::gfx_flares_mode->GetEnum<GfxFlaresMode>() == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !is_player);
+    bool enableAll = ((App::gfx_flares_mode->getEnum<GfxFlaresMode>() == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !is_player);
     SimBuffer::NodeSB* nodes = this->GetSimNodeBuffer();
 
     int num_flares = static_cast<int>(m_actor->ar_flares.size());

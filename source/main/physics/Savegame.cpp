@@ -53,8 +53,8 @@ using namespace RoR;
 
 std::string GameContext::GetQuicksaveFilename()
 {
-    std::string terrain_name = App::sim_terrain_name->GetStr();
-    std::string mp = (App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED) ? "_mp" : "";
+    std::string terrain_name = App::sim_terrain_name->getStr();
+    std::string mp = (App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED) ? "_mp" : "";
 
     return "quicksave_" + StringUtil::replaceAll(terrain_name, ".terrn2", "") + mp + ".sav";
 }
@@ -144,7 +144,7 @@ void GameContext::HandleSavegameHotkeys()
         App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, filename));
     }
 
-    if (App::sim_terrain_name->GetStr() == "" || App::sim_state->GetEnum<SimState>() != SimState::RUNNING)
+    if (App::sim_terrain_name->getStr() == "" || App::sim_state->getEnum<SimState>() != SimState::RUNNING)
         return;
 
     slot = -1;
@@ -198,7 +198,7 @@ void GameContext::HandleSavegameHotkeys()
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD, 1.0f))
     {
-        if (App::sim_quickload_dialog->GetBool())
+        if (App::sim_quickload_dialog->getBool())
         {
             GUI::MessageBoxConfig* dialog = new GUI::MessageBoxConfig;
             dialog->mbc_title = _LC("QuickloadDialog", "Load game?");
@@ -256,11 +256,11 @@ bool ActorManager::LoadScene(Ogre::String filename)
     // Terrain
     String terrain_name = j_doc["terrain_name"].GetString();
 
-    if (App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
+    if (App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         if (filename == "autosave.sav")
             return false;
-        if (terrain_name != App::sim_terrain_name->GetStr())
+        if (terrain_name != App::sim_terrain_name->getStr())
         {
             App::GetConsole()->putMessage(
                 Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("Error while loading scene: Terrain mismatch"));
@@ -279,7 +279,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
     App::GetGameContext()->GetActorManager()->SetSimulationPaused(j_doc["physics_paused"].GetBool());
 
 #ifdef USE_CAELUM
-    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
     {
         if (j_doc.HasMember("daytime"))
         {
@@ -409,7 +409,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 {
     std::vector<Actor*> x_actors = GetLocalActors();
 
-    if (App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
+    if (App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         if (filename == "autosave.sav")
             return false;
@@ -426,15 +426,15 @@ bool ActorManager::SaveScene(Ogre::String filename)
     j_doc.AddMember("format_version", SAVEGAME_FILE_FORMAT, j_doc.GetAllocator());
 
     // Pretty name
-    String pretty_name = App::GetCacheSystem()->GetPrettyName(App::sim_terrain_name->GetStr());
+    String pretty_name = App::GetCacheSystem()->GetPrettyName(App::sim_terrain_name->getStr());
     String scene_name = StringUtil::format("%s [%d]", pretty_name.c_str(), x_actors.size());
     j_doc.AddMember("scene_name", rapidjson::StringRef(scene_name.c_str()), j_doc.GetAllocator());
 
     // Terrain
-    j_doc.AddMember("terrain_name", rapidjson::StringRef(App::sim_terrain_name->GetStr().c_str()), j_doc.GetAllocator());
+    j_doc.AddMember("terrain_name", rapidjson::StringRef(App::sim_terrain_name->getStr().c_str()), j_doc.GetAllocator());
 
 #ifdef USE_CAELUM
-    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
     {
         j_doc.AddMember("daytime", App::GetSimTerrain()->getSkyManager()->GetTime(), j_doc.GetAllocator());
     }

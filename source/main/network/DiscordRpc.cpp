@@ -44,7 +44,7 @@ void DiscordReadyCallback(const DiscordUser *user)
 void DiscordRpc::Init()
 {
 #ifdef USE_DISCORD_RPC
-    if(App::io_discord_rpc->GetBool())
+    if(App::io_discord_rpc->getBool())
     {
         DiscordEventHandlers handlers;
         memset(&handlers, 0, sizeof(handlers));
@@ -60,23 +60,23 @@ void DiscordRpc::Init()
 void DiscordRpc::UpdatePresence()
 {
 #ifdef USE_DISCORD_RPC
-    if(App::io_discord_rpc->GetBool())
+    if(App::io_discord_rpc->getBool())
     {
         char buffer[256];
         DiscordRichPresence discordPresence;
         memset(&discordPresence, 0, sizeof(discordPresence));
-        if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+        if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
         {
             discordPresence.state = "Playing online";
             sprintf(buffer, "On server: %s:%d  on terrain: %s",
-                    RoR::App::mp_server_host->GetStr().c_str(),
-                    RoR::App::mp_server_port->GetInt(),
-                    RoR::App::sim_terrain_gui_name->GetStr().c_str());
+                    RoR::App::mp_server_host->getStr().c_str(),
+                    RoR::App::mp_server_port->getInt(),
+                    RoR::App::sim_terrain_gui_name->getStr().c_str());
         }
         else
         {
             discordPresence.state = "Playing singleplayer";
-            sprintf(buffer, "On terrain: %s", RoR::App::sim_terrain_gui_name->GetStr().c_str());
+            sprintf(buffer, "On terrain: %s", RoR::App::sim_terrain_gui_name->getStr().c_str());
         }
         discordPresence.details = buffer;
         discordPresence.startTimestamp = time(0);
