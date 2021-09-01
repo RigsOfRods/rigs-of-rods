@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-08-23 16:29+0200\n"
-"PO-Revision-Date: 2021-08-28 03:32+0000\n"
+"PO-Revision-Date: 2021-09-01 12:05+0000\n"
 "Last-Translator: Quinten Steeland <quinten.steeland@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "nl/>\n"
@@ -2765,7 +2765,7 @@ msgstr "Physics gepauzeerd"
 
 #: physics/ActorManager.cpp:1351
 msgid "Physics unpaused"
-msgstr ""
+msgstr "Physics hervat"
 
 #: physics/Differentials.cpp:50 physics/Differentials.cpp:58
 msgid "invalid"
