@@ -178,6 +178,32 @@ void ScriptEngine::init()
 
 
     // Register everything
+
+    // class CVar
+    result = engine->RegisterObjectType("CVarClass", sizeof(Console), AngelScript::asOBJ_REF | AngelScript::asOBJ_NOCOUNT); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("CVarClass", "const string& getName()", AngelScript::asMETHOD(CVar,getName), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("CVarClass", "const string& getStr()", AngelScript::asMETHOD(CVar,getStr), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("CVarClass", "int getInt()", AngelScript::asMETHOD(CVar,getInt), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("CVarClass", "float getFloat()", AngelScript::asMETHOD(CVar,getFloat), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("CVarClass", "bool getBool()", AngelScript::asMETHOD(CVar,getBool), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+
+    // enum CVarFlags
+    result = engine->RegisterEnum("CVarFlags"); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("CVarFlags", "CVAR_TYPE_BOOL", CVAR_TYPE_BOOL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("CVarFlags", "CVAR_TYPE_INT", CVAR_TYPE_INT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("CVarFlags", "CVAR_TYPE_FLOAT", CVAR_TYPE_FLOAT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("CVarFlags", "CVAR_ARCHIVE", CVAR_ARCHIVE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("CVarFlags", "CVAR_NO_LOG", CVAR_NO_LOG); ROR_ASSERT(result >= 0);
+
+    // class Console
+    result = engine->RegisterObjectType("ConsoleClass", sizeof(Console), AngelScript::asOBJ_REF | AngelScript::asOBJ_NOCOUNT); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("ConsoleClass", "CVarClass @cVarCreate(const string &in, const string &in, int, const string &in)", AngelScript::asMETHOD(Console,cVarCreate), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("ConsoleClass", "CVarClass @cVarFind(const string &in)", AngelScript::asMETHOD(Console,cVarFind), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("ConsoleClass", "CVarClass @cVarGet(const string &in, int)", AngelScript::asMETHOD(Console,cVarGet), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("ConsoleClass", "CVarClass @cVarSet(const string &in, const string &in)", AngelScript::asMETHOD(Console,cVarSet), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("ConsoleClass", "void cVarAssign(CVarClass@, const string &in)", AngelScript::asMETHOD(Console,cVarAssign), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+
+
     // class Actor (historically Beam)
     result = engine->RegisterObjectType("BeamClass", sizeof(Actor), AngelScript::asOBJ_REF); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void scaleTruck(float)", AngelScript::asMETHOD(Actor,scaleTruck), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
@@ -366,6 +392,7 @@ void ScriptEngine::init()
 
     // now the global instances
     result = engine->RegisterGlobalProperty("GameScriptClass game", &m_game_script); ROR_ASSERT(result>=0);
+    result = engine->RegisterGlobalProperty("ConsoleClass console", App::GetConsole()); ROR_ASSERT(result>=0);
 
 
     SLOG("Type registrations done. If you see no error above everything should be working");
