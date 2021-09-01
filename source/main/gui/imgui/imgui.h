@@ -1678,11 +1678,11 @@ struct ImGuiStorage
     // - Set***() functions find pair, insertion on demand if missing.
     // - Sorted insertion is costly, paid once. A typical frame shouldn't need to insert any new pair.
     void                Clear() { Data.clear(); }
-    IMGUI_API int       GetInt(ImGuiID key, int default_val = 0) const;
+    IMGUI_API int       getInt(ImGuiID key, int default_val = 0) const;
     IMGUI_API void      SetInt(ImGuiID key, int val);
-    IMGUI_API bool      GetBool(ImGuiID key, bool default_val = false) const;
+    IMGUI_API bool      getBool(ImGuiID key, bool default_val = false) const;
     IMGUI_API void      SetBool(ImGuiID key, bool val);
-    IMGUI_API float     GetFloat(ImGuiID key, float default_val = 0.0f) const;
+    IMGUI_API float     getFloat(ImGuiID key, float default_val = 0.0f) const;
     IMGUI_API void      SetFloat(ImGuiID key, float val);
     IMGUI_API void*     GetVoidPtr(ImGuiID key) const; // default_val is NULL
     IMGUI_API void      SetVoidPtr(ImGuiID key, void* val);

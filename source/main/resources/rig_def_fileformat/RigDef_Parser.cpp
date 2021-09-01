@@ -2781,7 +2781,7 @@ void Parser::ParseNodesUnified()
     if (m_current_section == File::SECTION_NODES_2)
     {
         std::string node_name = this->GetArgStr(0);
-        node.id.SetStr(node_name);
+        node.id.setStr(node_name);
         if (m_sequential_importer.IsEnabled())
         {
             m_sequential_importer.AddNamedNode(node_name);

@@ -192,7 +192,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
 #ifdef USE_SOCKETW
     if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {
-        if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+        if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
         {
             RoRnet::UserInfo info = App::GetNetwork()->GetLocalUserData();
             rq.asr_net_username = tryConvertUTF(info.username);
@@ -226,13 +226,13 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
     {
         if (fresh_actor->ar_driveable != NOT_DRIVEABLE &&
             fresh_actor->ar_num_nodes > 0 &&
-            App::diag_preset_veh_enter->GetBool())
+            App::diag_preset_veh_enter->getBool())
         {
             this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)fresh_actor));
         }
         if (fresh_actor->ar_driveable != NOT_DRIVEABLE &&
             fresh_actor->ar_num_nodes > 0 &&
-            App::cli_preset_veh_enter->GetBool())
+            App::cli_preset_veh_enter->getBool())
         {
             this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)fresh_actor));
         }
@@ -361,7 +361,7 @@ void GameContext::DeleteActor(Actor* actor)
     App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor());
 
 #ifdef USE_SOCKETW
-    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
     {
         m_character_factory.UndoRemoteActorCoupling(actor);
     }
@@ -545,7 +545,7 @@ void GameContext::SpawnPreselectedActor(std::string const& preset_vehicle, std::
 void GameContext::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
 {
     // first, test if the place if clear, BUT NOT IN MULTIPLAYER
-    if (!(App::mp_state->GetEnum<MpState>() == MpState::CONNECTED))
+    if (!(App::mp_state->getEnum<MpState>() == MpState::CONNECTED))
     {
         collision_box_t* spawnbox = App::GetSimTerrain()->GetCollisions()->getBox(instance, box);
         for (auto actor : this->GetActorManager()->GetActors())
@@ -650,27 +650,27 @@ void GameContext::CreatePlayerCharacter()
     }
 
     // Preset position - commandline has precedence
-    if (App::cli_preset_spawn_pos->GetStr() != "")
+    if (App::cli_preset_spawn_pos->getStr() != "")
     {
-        spawn_pos = Ogre::StringConverter::parseVector3(App::cli_preset_spawn_pos->GetStr(), spawn_pos);
-        App::cli_preset_spawn_pos->SetStr("");
+        spawn_pos = Ogre::StringConverter::parseVector3(App::cli_preset_spawn_pos->getStr(), spawn_pos);
+        App::cli_preset_spawn_pos->setStr("");
     }
-    else if (App::diag_preset_spawn_pos->GetStr() != "")
+    else if (App::diag_preset_spawn_pos->getStr() != "")
     {
-        spawn_pos = Ogre::StringConverter::parseVector3(App::diag_preset_spawn_pos->GetStr(), spawn_pos);
-        App::diag_preset_spawn_pos->SetStr("");
+        spawn_pos = Ogre::StringConverter::parseVector3(App::diag_preset_spawn_pos->getStr(), spawn_pos);
+        App::diag_preset_spawn_pos->setStr("");
     }
 
     // Preset rotation - commandline has precedence
-    if (App::cli_preset_spawn_rot->GetStr() != "")
+    if (App::cli_preset_spawn_rot->getStr() != "")
     {
-        spawn_rot = Ogre::StringConverter::parseReal(App::cli_preset_spawn_rot->GetStr(), spawn_rot);
-        App::cli_preset_spawn_rot->SetStr("");
+        spawn_rot = Ogre::StringConverter::parseReal(App::cli_preset_spawn_rot->getStr(), spawn_rot);
+        App::cli_preset_spawn_rot->setStr("");
     }
-    else if (App::diag_preset_spawn_rot->GetStr() != "")
+    else if (App::diag_preset_spawn_rot->getStr() != "")
     {
-        spawn_rot = Ogre::StringConverter::parseReal(App::diag_preset_spawn_rot->GetStr(), spawn_rot);
-        App::diag_preset_spawn_rot->SetStr("");
+        spawn_rot = Ogre::StringConverter::parseReal(App::diag_preset_spawn_rot->getStr(), spawn_rot);
+        App::diag_preset_spawn_rot->setStr("");
     }
 
     spawn_pos.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
@@ -737,7 +737,7 @@ void GameContext::UpdateGlobalInputEvents()
     // Generic escape key event
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
     {
-        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+        if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
         {
             if (App::GetGuiManager()->IsVisible_GameAbout())
             {
@@ -760,21 +760,21 @@ void GameContext::UpdateGlobalInputEvents()
                 this->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
             }
         }
-        else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+        else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
         {
             if (App::GetGuiManager()->IsVisible_MainSelector())
             {
                 App::GetGuiManager()->GetMainSelector()->Close();
             }
-            else if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING)
+            else if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
             {
                 this->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
-                if (App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
+                if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
                 {
                     this->PushMessage(Message(MSG_SIM_PAUSE_REQUESTED));
                 }
             }
-            else if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED)
+            else if (App::sim_state->getEnum<SimState>() == SimState::PAUSED)
             {
                 this->PushMessage(Message(MSG_SIM_UNPAUSE_REQUESTED));
                 this->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
@@ -832,10 +832,10 @@ void GameContext::UpdateGlobalInputEvents()
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_RESET_MODE))
     {
-        App::sim_soft_reset_mode->SetVal(!App::sim_soft_reset_mode->GetBool());
+        App::sim_soft_reset_mode->setVal(!App::sim_soft_reset_mode->getBool());
         App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-            (App::sim_soft_reset_mode->GetBool()) ? _L("Enabled soft reset mode") : _L("Enabled hard reset mode"));
+            (App::sim_soft_reset_mode->getBool()) ? _L("Enabled soft reset mode") : _L("Enabled hard reset mode"));
     }
 }
 
@@ -963,7 +963,7 @@ void GameContext::UpdateSimInputEvents(float dt)
 void GameContext::UpdateSkyInputEvents(float dt)
 {
 #ifdef USE_CAELUM
-    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM &&
+    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM &&
         App::GetSimTerrain()->getSkyManager())
     {
         float time_factor = 1.0f;
@@ -984,9 +984,9 @@ void GameContext::UpdateSkyInputEvents(float dt)
         {
             time_factor = -10000.0f;
         }
-        else if (App::gfx_sky_time_cycle->GetBool())
+        else if (App::gfx_sky_time_cycle->getBool())
         {
-            time_factor = App::gfx_sky_time_speed->GetInt();
+            time_factor = App::gfx_sky_time_speed->getInt();
         }
 
         if (App::GetSimTerrain()->getSkyManager()->GetSkyTimeFactor() != time_factor)
@@ -998,7 +998,7 @@ void GameContext::UpdateSkyInputEvents(float dt)
     }
 
 #endif // USE_CAELUM
-    if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::SKYX &&
+    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX &&
         App::GetSimTerrain()->getSkyXManager())
     {
         if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
@@ -1121,7 +1121,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) &&
-        App::mp_state->GetEnum<MpState>() != MpState::CONNECTED &&
+        App::mp_state->getEnum<MpState>() != MpState::CONNECTED &&
         m_player_actor->ar_driveable != AIRPLANE)
     {
         Actor* rescuer = nullptr;

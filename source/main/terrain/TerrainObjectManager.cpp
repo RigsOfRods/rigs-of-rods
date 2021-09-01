@@ -190,7 +190,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     }
 
     // Section 'trees'
-    if (App::gfx_vegetation_mode->GetEnum<GfxVegetation>() != GfxVegetation::NONE)
+    if (App::gfx_vegetation_mode->getEnum<GfxVegetation>() != GfxVegetation::NONE)
     {
         for (TObjTree tree : tobj->trees)
         {
@@ -204,7 +204,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     }
 
     // Section 'grass' / 'grass2'
-    if (App::gfx_vegetation_mode->GetEnum<GfxVegetation>() != GfxVegetation::NONE)
+    if (App::gfx_vegetation_mode->getEnum<GfxVegetation>() != GfxVegetation::NONE)
     {
         for (TObjGrass grass : tobj->grass)
         {
@@ -256,7 +256,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
         this->LoadTerrainObject(entry.odef_name, entry.position, entry.rotation, m_staticgeometry_bake_node, entry.instance_name, entry.type);
     }
 
-    if (App::diag_terrn_log_roads->GetBool())
+    if (App::diag_terrn_log_roads->getBool())
     {
         m_procedural_mgr->logDiagnostics();
     }
@@ -289,7 +289,7 @@ void TerrainObjectManager::ProcessTree(
     //densityMap->setMapBounds(TRect(0, 0, mapsizex, mapsizez));
 
     PagedGeometry* geom = new PagedGeometry();
-    geom->setTempDir(App::sys_cache_dir->GetStr() + PATH_SLASH);
+    geom->setTempDir(App::sys_cache_dir->getStr() + PATH_SLASH);
     geom->setCamera(App::GetCameraManager()->GetCamera());
     geom->setPageSize(50);
     geom->setInfinite();
@@ -915,7 +915,7 @@ void TerrainObjectManager::LoadTelepoints()
 void TerrainObjectManager::LoadPredefinedActors()
 {
     // in netmode, don't load other actors!
-    if (RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
+    if (RoR::App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         return;
     }
@@ -952,7 +952,7 @@ void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile
         bool race_event = !params.instance_name.compare(0, 10, "checkpoint") ||
                           !params.instance_name.compare(0,  4, "race");
 
-        if (params.enable_collisions && (App::sim_races_enabled->GetBool() || !race_event))
+        if (params.enable_collisions && (App::sim_races_enabled->getBool() || !race_event))
         {
             // Validate AABB (minimum corners must be less or equal to maximum corners)
             if (cbox.aabb_min.x > cbox.aabb_max.x || cbox.aabb_min.y > cbox.aabb_max.y || cbox.aabb_min.z > cbox.aabb_max.z)

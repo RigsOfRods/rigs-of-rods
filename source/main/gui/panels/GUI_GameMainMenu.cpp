@@ -47,7 +47,7 @@ GameMainMenu::GameMainMenu():
 void GameMainMenu::Draw()
 {
     this->DrawMenuPanel();
-    if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+    if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
     {
         this->DrawVersionBox();
         if (cache_updated)
@@ -64,11 +64,11 @@ void GameMainMenu::CacheUpdatedNotice()
 
 void GameMainMenu::DrawMenuPanel()
 {
-    if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+    if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
     {
         title = "Main menu";
         m_num_buttons = 5;
-        if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
+        if (FileExists(PathCombine(App::sys_savegames_dir->getStr(), "autosave.sav")))
         {
             m_num_buttons++;
         }
@@ -76,7 +76,7 @@ void GameMainMenu::DrawMenuPanel()
     else
     {
         m_num_buttons = 3;
-        if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+        if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
         {
             title = "Menu";
         }
@@ -126,7 +126,7 @@ void GameMainMenu::DrawMenuPanel()
         int button_index = 0;
         ImVec2 btn_size(WINDOW_WIDTH, 0.f);
 
-        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+        if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
         {
             if (HighlightButton(_LC("MainMenu", "Single player"), btn_size, button_index++))
             {
@@ -136,7 +136,7 @@ void GameMainMenu::DrawMenuPanel()
                 App::GetGameContext()->PushMessage(m);
             }
 
-            if (FileExists(PathCombine(App::sys_savegames_dir->GetStr(), "autosave.sav")))
+            if (FileExists(PathCombine(App::sys_savegames_dir->getStr(), "autosave.sav")))
             {
                 if ( HighlightButton(_LC("MainMenu", "Resume game"), btn_size, button_index++))
                 {
@@ -145,7 +145,7 @@ void GameMainMenu::DrawMenuPanel()
                 }
             }
         }
-        else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+        else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
         {
             if (HighlightButton(_LC("MainMenu", "Resume game"), btn_size, button_index++))
             {
@@ -154,7 +154,7 @@ void GameMainMenu::DrawMenuPanel()
             }
         }
 
-        if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+        if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
         {
             if (HighlightButton(_LC("MainMenu", "Multiplayer"), btn_size, button_index++))
             {
@@ -174,12 +174,12 @@ void GameMainMenu::DrawMenuPanel()
                 this->SetVisible(false);
             }
         }
-        else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+        else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
         {
             if (HighlightButton(_L("Return to menu"), btn_size, button_index++))
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
-                if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+                if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
                 {
                     App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
                 }
@@ -194,7 +194,7 @@ void GameMainMenu::DrawMenuPanel()
         }
     }
 
-    if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION && App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+    if (App::app_state->getEnum<AppState>() == AppState::SIMULATION && App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
     {
         App::GetGuiManager()->RequestGuiCaptureKeyboard(true);
         if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))

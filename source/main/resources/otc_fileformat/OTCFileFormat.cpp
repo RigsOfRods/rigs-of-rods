@@ -44,30 +44,30 @@ bool RoR::OTCParser::LoadMasterConfig(Ogre::DataStreamPtr &ds, const char* filen
     {
         cfg.load(ds, "\t:=", false);
 
-        m_def->disable_cache           = cfg.GetBool  ("disableCaching",  false);
-        m_def->world_size_x            = cfg.GetInt   ("WorldSizeX",      1024);
-        m_def->world_size_y            = cfg.GetInt   ("WorldSizeY",      50);
-        m_def->world_size_z            = cfg.GetInt   ("WorldSizeZ",      1024);
-        m_def->page_size               = cfg.GetInt   ("PageSize",        1025);
-        m_def->pages_max_x             = cfg.GetInt   ("PagesX",          0);
-        m_def->pages_max_z             = cfg.GetInt   ("PagesZ",          0);
+        m_def->disable_cache           = cfg.getBool  ("disableCaching",  false);
+        m_def->world_size_x            = cfg.getInt   ("WorldSizeX",      1024);
+        m_def->world_size_y            = cfg.getInt   ("WorldSizeY",      50);
+        m_def->world_size_z            = cfg.getInt   ("WorldSizeZ",      1024);
+        m_def->page_size               = cfg.getInt   ("PageSize",        1025);
+        m_def->pages_max_x             = cfg.getInt   ("PagesX",          0);
+        m_def->pages_max_z             = cfg.getInt   ("PagesZ",          0);
         m_def->page_filename_format    = cfg.GetString("PageFileFormat",  file_basename + "-page-{X}-{Z}.otc");
-        m_def->is_flat                 = cfg.GetBool  ("Flat",            false);
-        m_def->max_pixel_error         = cfg.GetInt   ("MaxPixelError",   5);
-        m_def->batch_size_min          = cfg.GetInt   ("minBatchSize",    33);
-        m_def->batch_size_max          = cfg.GetInt   ("maxBatchSize",    65);
-        m_def->lightmap_enabled        = cfg.GetBool  ("LightmapEnabled",            false);
-        m_def->norm_map_enabled        = cfg.GetBool  ("NormalMappingEnabled",       false);
-        m_def->spec_map_enabled        = cfg.GetBool  ("SpecularMappingEnabled",     false);
-        m_def->parallax_enabled        = cfg.GetBool  ("ParallaxMappingEnabled",     false);
-        m_def->blendmap_dbg_enabled    = cfg.GetBool  ("DebugBlendMaps",             false);
-        m_def->global_colormap_enabled = cfg.GetBool  ("GlobalColourMapEnabled",     false);
-        m_def->recv_dyn_shadows_depth  = cfg.GetBool  ("ReceiveDynamicShadowsDepth", false);
-        m_def->composite_map_distance  = cfg.GetInt   ("CompositeMapDistance",       4000);
-        m_def->layer_blendmap_size     = cfg.GetInt   ("LayerBlendMapSize",          1024);
-        m_def->composite_map_size      = cfg.GetInt   ("CompositeMapSize",           1024);
-        m_def->lightmap_size           = cfg.GetInt   ("LightMapSize",               1024);
-        m_def->skirt_size              = cfg.GetInt   ("SkirtSize",                  30);
+        m_def->is_flat                 = cfg.getBool  ("Flat",            false);
+        m_def->max_pixel_error         = cfg.getInt   ("MaxPixelError",   5);
+        m_def->batch_size_min          = cfg.getInt   ("minBatchSize",    33);
+        m_def->batch_size_max          = cfg.getInt   ("maxBatchSize",    65);
+        m_def->lightmap_enabled        = cfg.getBool  ("LightmapEnabled",            false);
+        m_def->norm_map_enabled        = cfg.getBool  ("NormalMappingEnabled",       false);
+        m_def->spec_map_enabled        = cfg.getBool  ("SpecularMappingEnabled",     false);
+        m_def->parallax_enabled        = cfg.getBool  ("ParallaxMappingEnabled",     false);
+        m_def->blendmap_dbg_enabled    = cfg.getBool  ("DebugBlendMaps",             false);
+        m_def->global_colormap_enabled = cfg.getBool  ("GlobalColourMapEnabled",     false);
+        m_def->recv_dyn_shadows_depth  = cfg.getBool  ("ReceiveDynamicShadowsDepth", false);
+        m_def->composite_map_distance  = cfg.getInt   ("CompositeMapDistance",       4000);
+        m_def->layer_blendmap_size     = cfg.getInt   ("LayerBlendMapSize",          1024);
+        m_def->composite_map_size      = cfg.getInt   ("CompositeMapSize",           1024);
+        m_def->lightmap_size           = cfg.getInt   ("LightMapSize",               1024);
+        m_def->skirt_size              = cfg.getInt   ("SkirtSize",                  30);
 
         m_def->world_size = std::max(m_def->world_size_x, m_def->world_size_z);
         m_def->origin_pos = Ogre::Vector3(m_def->world_size_x / 2.0f, 0.0f, m_def->world_size_z / 2.0f);
@@ -84,10 +84,10 @@ bool RoR::OTCParser::LoadMasterConfig(Ogre::DataStreamPtr &ds, const char* filen
                 char base[50], key[75];
                 snprintf(base, 50, "Heightmap.%d.%d", x, z);
 
-                snprintf(key, 75, "%s.raw.size", base);                int raw_size = cfg.GetInt(key, 1025);
-                snprintf(key, 75, "%s.raw.bpp",  base);                int raw_bpp  = cfg.GetInt(key, 2);
-                snprintf(key, 75, "%s.flipX",    base);                bool flip_x  = cfg.GetBool(key, false);
-                snprintf(key, 75, "%s.flipY",    base);                bool flip_y  = cfg.GetBool(key, false);
+                snprintf(key, 75, "%s.raw.size", base);                int raw_size = cfg.getInt(key, 1025);
+                snprintf(key, 75, "%s.raw.bpp",  base);                int raw_bpp  = cfg.getInt(key, 2);
+                snprintf(key, 75, "%s.flipX",    base);                bool flip_x  = cfg.getBool(key, false);
+                snprintf(key, 75, "%s.flipY",    base);                bool flip_y  = cfg.getBool(key, false);
 
                 m_def->pages.emplace_back(x, z, filename, flip_x, flip_y, raw_size, raw_bpp);
             }

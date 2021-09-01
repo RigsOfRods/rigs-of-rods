@@ -1287,7 +1287,7 @@ void EngineSim::UpdateInputEvents(float dt)
     }
 
     // arcade controls are only working with auto-clutch!
-    if (!App::io_arcade_controls->GetBool() || (this->GetAutoShiftMode() >= SimGearboxMode::MANUAL))
+    if (!App::io_arcade_controls->getBool() || (this->GetAutoShiftMode() >= SimGearboxMode::MANUAL))
     {
         // classic mode, realistic
         this->autoSetAcc(accl);
@@ -1418,7 +1418,7 @@ void EngineSim::UpdateInputEvents(float dt)
         else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_DOWN))
         {
             if (shiftmode > SimGearboxMode::SEMI_AUTO ||
-                shiftmode == SimGearboxMode::SEMI_AUTO && (!App::io_arcade_controls->GetBool()) ||
+                shiftmode == SimGearboxMode::SEMI_AUTO && (!App::io_arcade_controls->getBool()) ||
                 shiftmode == SimGearboxMode::SEMI_AUTO && this->GetGear() > 0 ||
                 shiftmode == SimGearboxMode::AUTO)
             {

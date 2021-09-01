@@ -156,7 +156,7 @@ void GameAbout::Draw()
 void GameAbout::SetVisible(bool v)
 {
     m_is_visible = v;
-    if(!v && (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU))
+    if(!v && (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU))
     {
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }

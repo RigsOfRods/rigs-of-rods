@@ -201,10 +201,10 @@ public:
         Console::MessageType reply_type = Console::CONSOLE_SYSTEM_REPLY;
 
         // switch to console logging
-        bool now_logging = !App::diag_log_console_echo->GetBool();
+        bool now_logging = !App::diag_log_console_echo->getBool();
         const char* msg = (now_logging) ? " logging to console enabled" : " logging to console disabled";
         reply << _L(msg);
-        App::diag_log_console_echo->SetVal(now_logging);
+        App::diag_log_console_echo->setVal(now_logging);
 
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
     }
@@ -360,7 +360,7 @@ public:
         Str<500> line;
         for (auto& cmd_pair: App::GetConsole()->getCommands())
         {
-            line.Clear() << cmd_pair.second->GetName() << " "
+            line.Clear() << cmd_pair.second->getName() << " "
                          << cmd_pair.second->GetUsage() << " - " << cmd_pair.second->GetDoc();
 
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO,
@@ -399,15 +399,15 @@ public:
             if (match)
             {
                 Str<200> reply;
-                reply << "vars: " << pair.first << "=" << pair.second->GetStr() << " (";
+                reply << "vars: " << pair.first << "=" << pair.second->getStr() << " (";
 
-                if      (pair.second->HasFlag(CVAR_TYPE_BOOL))  { reply << "bool"; }
-                else if (pair.second->HasFlag(CVAR_TYPE_INT))   { reply << "int"; }
-                else if (pair.second->HasFlag(CVAR_TYPE_FLOAT)) { reply << "float"; }
+                if      (pair.second->hasFlag(CVAR_TYPE_BOOL))  { reply << "bool"; }
+                else if (pair.second->hasFlag(CVAR_TYPE_INT))   { reply << "int"; }
+                else if (pair.second->hasFlag(CVAR_TYPE_FLOAT)) { reply << "float"; }
                 else                                            { reply << "string"; }
 
-                if (pair.second->HasFlag(CVAR_ARCHIVE)) { reply << ", archive"; }
-                if (pair.second->HasFlag(CVAR_NO_LOG))  { reply << ", no log"; }
+                if (pair.second->hasFlag(CVAR_ARCHIVE)) { reply << ", archive"; }
+                if (pair.second->hasFlag(CVAR_NO_LOG))  { reply << ", no log"; }
 
                 reply << ")";
                 App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, reply.ToCStr());
@@ -442,7 +442,7 @@ public:
                     App::GetConsole()->cVarAssign(cvar, args[2]);
                 }
                 reply_type = Console::CONSOLE_SYSTEM_REPLY;
-                reply << cvar->GetName() << " = " << cvar->GetStr();
+                reply << cvar->getName() << " = " << cvar->getStr();
             }
             else
             {
@@ -496,7 +496,7 @@ public:
                     App::GetConsole()->cVarAssign(cvar, args[i+1]);
                 }
                 reply_type = Console::CONSOLE_SYSTEM_REPLY;
-                reply << cvar->GetName() << " = " << cvar->GetStr();
+                reply << cvar->getName() << " = " << cvar->getStr();
             }
         }
 
@@ -591,26 +591,26 @@ void Console::regBuiltinCommands()
     ConsoleCmd* cmd = nullptr;
 
     // Classics
-    cmd = new GravityCmd();               m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new WaterlevelCmd();            m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new TerrainheightCmd();         m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new SpawnobjectCmd();           m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new LogCmd();                   m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new VerCmd();                   m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new PosCmd();                   m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new GotoCmd();                  m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new AsCmd();                    m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new QuitCmd();                  m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new HelpCmd();                  m_commands.insert(std::make_pair(cmd->GetName(), cmd));
+    cmd = new GravityCmd();               m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new WaterlevelCmd();            m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new TerrainheightCmd();         m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new SpawnobjectCmd();           m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new LogCmd();                   m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new VerCmd();                   m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new PosCmd();                   m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new GotoCmd();                  m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new AsCmd();                    m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new QuitCmd();                  m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new HelpCmd();                  m_commands.insert(std::make_pair(cmd->getName(), cmd));
     // Additions
-    cmd = new ClearCmd();                 m_commands.insert(std::make_pair(cmd->GetName(), cmd));
+    cmd = new ClearCmd();                 m_commands.insert(std::make_pair(cmd->getName(), cmd));
     // CVars
-    cmd = new SetCmd();                   m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new SetstringCmd();             m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new SetboolCmd();               m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new SetintCmd();                m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new SetfloatCmd();              m_commands.insert(std::make_pair(cmd->GetName(), cmd));
-    cmd = new VarsCmd();                  m_commands.insert(std::make_pair(cmd->GetName(), cmd));
+    cmd = new SetCmd();                   m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new SetstringCmd();             m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new SetboolCmd();               m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new SetintCmd();                m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new SetfloatCmd();              m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new VarsCmd();                  m_commands.insert(std::make_pair(cmd->getName(), cmd));
 }
 
 void Console::doCommand(std::string msg)
@@ -635,7 +635,7 @@ void Console::doCommand(std::string msg)
     if (cvar)
     {
         Str<200> reply;
-        reply << cvar->GetName() << " = " << cvar->GetStr();
+        reply << cvar->getName() << " = " << cvar->getStr();
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, reply.ToCStr());
         return;
     }
@@ -650,7 +650,7 @@ void Console::doCommand(std::string msg)
 
 bool ConsoleCmd::CheckAppState(AppState state)
 {
-    if (App::app_state->GetEnum<AppState>() == state)
+    if (App::app_state->getEnum<AppState>() == state)
         return true;
 
     Str<200> reply;

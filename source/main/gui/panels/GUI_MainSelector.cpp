@@ -555,15 +555,15 @@ void MainSelector::Cancel()
 {
     this->Close();
 
-    if (App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+    if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
     {
-        if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+        if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
         {
             App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
         }
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
-    else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+    else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
     {
         App::GetGameContext()->OnLoaderGuiCancel();
     }
@@ -575,12 +575,12 @@ void MainSelector::Apply()
     DisplayEntry& sd_entry = m_display_entries[m_selected_entry];
 
     if (m_loader_type == LT_Terrain &&
-        App::app_state->GetEnum<AppState>() == AppState::MAIN_MENU)
+        App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
     {
         App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, sd_entry.sde_entry->fname));
         this->Close();
     }
-    else if (App::app_state->GetEnum<AppState>() == AppState::SIMULATION)
+    else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
     {
         LoaderType type = m_loader_type;
         std::string sectionconfig;

@@ -121,7 +121,7 @@ void TopMenubar::Update()
     {
         m_open_menu = TopMenu::TOPMENU_SAVEGAMES;
         m_quicksave_name = App::GetGameContext()->GetQuicksaveFilename();
-        m_quickload = FileExists(PathCombine(App::sys_savegames_dir->GetStr(), m_quicksave_name));
+        m_quickload = FileExists(PathCombine(App::sys_savegames_dir->getStr(), m_quicksave_name));
         m_savegame_names.clear();
         for (int i = 0; i <= 9; i++)
         {
@@ -139,7 +139,7 @@ void TopMenubar::Update()
     {
         m_open_menu = TopMenu::TOPMENU_SETTINGS;
 #ifdef USE_CAELUM
-        if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+        if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
             m_daytime = App::GetSimTerrain()->getSkyManager()->GetTime();
 #endif // USE_CAELUM
     }
@@ -270,7 +270,7 @@ void TopMenubar::Update()
                 }
             }
 
-            if (App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
+            if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
             {
                 if (ImGui::Button(_LC("TopMenubar", "Reload current terrain")))
                 {
@@ -287,7 +287,7 @@ void TopMenubar::Update()
 
             if (ImGui::Button(_LC("TopMenubar", "Back to menu")))
             {
-                if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+                if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
                 {
                     App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
                 }
@@ -314,7 +314,7 @@ void TopMenubar::Update()
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin(_LC("TopMenubar", "Actors menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
-            if (App::mp_state->GetEnum<MpState>() != MpState::CONNECTED)
+            if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
             {
                 this->DrawActorListSinglePlayer();
             }
@@ -418,7 +418,7 @@ void TopMenubar::Update()
             DrawGFloatSlider(App::audio_master_volume, _LC("TopMenubar", "Volume"), 0, 1);
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Frames per second:"));
-            if (App::gfx_envmap_enabled->GetBool())
+            if (App::gfx_envmap_enabled->getBool())
             {
                 DrawGIntSlider(App::gfx_envmap_rate, _LC("TopMenubar", "Reflections"), 0, 6);
             }
@@ -449,18 +449,18 @@ void TopMenubar::Update()
                 ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Camera:"));
                 if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
                 {
-                    int fov = App::gfx_fov_internal->GetInt();
+                    int fov = App::gfx_fov_internal->getInt();
                     if (ImGui::SliderInt(_LC("TopMenubar", "FOV"), &fov, 10, 120))
                     {
-                        App::gfx_fov_internal->SetVal(fov);
+                        App::gfx_fov_internal->setVal(fov);
                     }
                 }
                 else
                 {
-                    int fov = App::gfx_fov_external->GetInt();
+                    int fov = App::gfx_fov_external->getInt();
                     if (ImGui::SliderInt(_LC("TopMenubar", "FOV"), &fov, 10, 120))
                     {
-                        App::gfx_fov_external->SetVal(fov);
+                        App::gfx_fov_external->setVal(fov);
                     }
                 }
                 if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
@@ -469,7 +469,7 @@ void TopMenubar::Update()
                 }
             }
 #ifdef USE_CAELUM
-            if (App::gfx_sky_mode->GetEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
+            if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Time of day:"));
@@ -480,15 +480,15 @@ void TopMenubar::Update()
                 }
                 ImGui::SameLine();
                 DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
-                if (App::gfx_sky_time_cycle->GetBool())
+                if (App::gfx_sky_time_cycle->getBool())
                 {
                     DrawGIntSlider(App::gfx_sky_time_speed, _LC("TopMenubar", "Speed"), 10, 2000);
                 }
             }       
 #endif // USE_CAELUM
-            if (RoR::App::gfx_water_waves->GetBool() && App::mp_state->GetEnum<MpState>() != MpState::CONNECTED && App::GetSimTerrain()->getWater())
+            if (RoR::App::gfx_water_waves->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED && App::GetSimTerrain()->getWater())
             {
-                if (App::gfx_water_mode->GetEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->GetEnum<GfxWaterMode>() != GfxWaterMode::NONE)
+                if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
                 {
                     ImGui::PushID("waves");
                     ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Waves Height:"));
@@ -506,7 +506,7 @@ void TopMenubar::Update()
                 ImGui::TextColored(GRAY_HINT_TEXT,_LC("TopMenubar",  "Vehicle control options:"));
                 DrawGCheckbox(App::io_hydro_coupling, _LC("TopMenubar", "Keyboard steering speed coupling"));
             }
-            if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+            if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT,       _LC("TopMenubar", "Multiplayer:"));
@@ -564,10 +564,10 @@ void TopMenubar::Update()
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Pre-spawn diag. options:"));
 
-            bool diag_mass = App::diag_truck_mass->GetBool();
+            bool diag_mass = App::diag_truck_mass->getBool();
             if (ImGui::Checkbox(_LC("TopMenubar", "Node mass recalc. logging"), &diag_mass))
             {
-                App::diag_truck_mass->SetVal(diag_mass);
+                App::diag_truck_mass->setVal(diag_mass);
             }
             if (ImGui::IsItemHovered())
             {
@@ -576,10 +576,10 @@ void TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
-            bool diag_break = App::diag_log_beam_break->GetBool();
+            bool diag_break = App::diag_log_beam_break->getBool();
             if (ImGui::Checkbox(_LC("TopMenubar", "Beam break logging"), &diag_break))
             {
-                App::diag_log_beam_break->SetVal(diag_break);
+                App::diag_log_beam_break->setVal(diag_break);
             }
             if (ImGui::IsItemHovered())
             {
@@ -588,10 +588,10 @@ void TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
-            bool diag_deform = App::diag_log_beam_deform->GetBool();
+            bool diag_deform = App::diag_log_beam_deform->getBool();
             if (ImGui::Checkbox(_LC("TopMenubar", "Beam deform. logging"), &diag_deform))
             {
-                App::diag_log_beam_deform->SetVal(diag_deform);
+                App::diag_log_beam_deform->setVal(diag_deform);
             }
             if (ImGui::IsItemHovered())
             {
@@ -600,10 +600,10 @@ void TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
-            bool diag_trig = App::diag_log_beam_trigger->GetBool();
+            bool diag_trig = App::diag_log_beam_trigger->getBool();
             if (ImGui::Checkbox(_LC("TopMenubar", "Trigger logging"), &diag_trig))
             {
-                App::diag_log_beam_trigger->SetVal(diag_trig);
+                App::diag_log_beam_trigger->setVal(diag_trig);
             }
             if (ImGui::IsItemHovered())
             {
@@ -612,10 +612,10 @@ void TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
-            bool diag_vcam = App::diag_videocameras->GetBool();
+            bool diag_vcam = App::diag_videocameras->getBool();
             if (ImGui::Checkbox(_LC("TopMenubar", "VideoCamera direction marker"), &diag_vcam))
             {
-                App::diag_videocameras->SetVal(diag_vcam);
+                App::diag_videocameras->setVal(diag_vcam);
             }
             if (ImGui::IsItemHovered())
             {

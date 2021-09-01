@@ -59,7 +59,7 @@ Water::Water(Ogre::Vector3 terrn_size) :
         m_waterplane_mesh_scale = 1.5f;
 
     char line[1024] = {};
-    std::string filepath = PathCombine(RoR::App::sys_config_dir->GetStr(), "wavefield.cfg");
+    std::string filepath = PathCombine(RoR::App::sys_config_dir->getStr(), "wavefield.cfg");
     FILE* fd = fopen(filepath.c_str(), "r");
     if (fd)
     {
@@ -177,7 +177,7 @@ void Water::PrepareWater()
     m_water_plane.normal = Vector3::UNIT_Y;
     m_water_plane.d = 0;
 
-    const auto type = App::gfx_water_mode->GetEnum<GfxWaterMode>();
+    const auto type = App::gfx_water_mode->getEnum<GfxWaterMode>();
     const bool full_gfx = type == GfxWaterMode::FULL_HQ || type == GfxWaterMode::FULL_FAST;
 
     if (full_gfx || type == GfxWaterMode::REFLECT)
@@ -357,7 +357,7 @@ void Water::SetWaterVisible(bool value)
 
 void Water::SetReflectionPlaneHeight(float centerheight)
 {
-    const auto type = App::gfx_water_mode->GetEnum<GfxWaterMode>();
+    const auto type = App::gfx_water_mode->getEnum<GfxWaterMode>();
     if (type == GfxWaterMode::FULL_HQ || type == GfxWaterMode::FULL_FAST || type == GfxWaterMode::REFLECT)
     {
         this->UpdateReflectionPlane(centerheight);
@@ -441,12 +441,12 @@ void Water::UpdateWater()
             m_waterplane_node->setPosition(Vector3(waterPos.x, m_water_height, waterPos.z));
             m_bottomplane_node->setPosition(bottomPos);
         }
-        if (RoR::App::gfx_water_waves->GetBool() && RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::DISABLED)
+        if (RoR::App::gfx_water_waves->getBool() && RoR::App::mp_state->getEnum<MpState>() == RoR::MpState::DISABLED)
             this->ShowWave(m_waterplane_node->getPosition());
     }
 
     m_frame_counter++;
-    if (App::gfx_water_mode->GetEnum<GfxWaterMode>() == GfxWaterMode::FULL_FAST)
+    if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::FULL_FAST)
     {
         if (m_frame_counter % 2 == 1 || m_waterplane_force_update_pos)
         {
@@ -463,7 +463,7 @@ void Water::UpdateWater()
             m_refract_rtt_target->update();
         }
     }
-    else if (App::gfx_water_mode->GetEnum<GfxWaterMode>() == GfxWaterMode::FULL_HQ)
+    else if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::FULL_HQ)
     {
         m_reflect_cam->setOrientation(camera_rot);
         m_reflect_cam->setPosition(camera_pos);
@@ -475,7 +475,7 @@ void Water::UpdateWater()
         m_refract_cam->setFOVy(camera_fov);
         m_refract_rtt_target->update();
     }
-    else if (App::gfx_water_mode->GetEnum<GfxWaterMode>() == GfxWaterMode::REFLECT)
+    else if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::REFLECT)
     {
         m_reflect_cam->setOrientation(camera_rot);
         m_reflect_cam->setPosition(camera_pos);
@@ -518,7 +518,7 @@ void Water::SetWaterBottomHeight(float value)
 float Water::CalcWavesHeight(Vector3 pos)
 {
     // no waves?
-    if (!RoR::App::gfx_water_waves->GetBool() || RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
+    if (!RoR::App::gfx_water_waves->getBool() || RoR::App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         // constant height, sea is flat as pancake
         return m_water_height;
@@ -551,7 +551,7 @@ bool Water::IsUnderWater(Vector3 pos)
 {
     float waterheight = m_water_height;
 
-    if (RoR::App::gfx_water_waves->GetBool() && RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::DISABLED)
+    if (RoR::App::gfx_water_waves->getBool() && RoR::App::mp_state->getEnum<MpState>() == RoR::MpState::DISABLED)
     {
         float waveheight = GetWaveHeight(pos);
 
@@ -566,7 +566,7 @@ bool Water::IsUnderWater(Vector3 pos)
 
 Vector3 Water::CalcWavesVelocity(Vector3 pos)
 {
-    if (!RoR::App::gfx_water_waves->GetBool() || RoR::App::mp_state->GetEnum<MpState>() == RoR::MpState::CONNECTED)
+    if (!RoR::App::gfx_water_waves->getBool() || RoR::App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
         return Vector3::ZERO;
 
     float waveheight = GetWaveHeight(pos);

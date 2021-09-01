@@ -54,7 +54,7 @@ Replay::Replay(Actor* actor, int _numFrames)
     writeIndex = 0;
     firstRun = 1;
 
-    int steps = App::sim_replay_stepping->GetInt();
+    int steps = App::sim_replay_stepping->getInt();
 
     if (steps <= 0)
         this->ar_replay_precision = 0.0f;

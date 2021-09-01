@@ -111,7 +111,7 @@ void GameChatBox::Draw()
         }
     }
 
-    if (!App::mp_chat_auto_hide->GetBool())
+    if (!App::mp_chat_auto_hide->getBool())
     {
         m_console_view.cvw_msg_duration_ms = 2629800000; // 1month, should be enough
     }
@@ -147,7 +147,7 @@ void GameChatBox::Draw()
         const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
         if (ImGui::InputText("", m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
         {
-            if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED)
+            if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {
                 this->SubmitMessage();
             }

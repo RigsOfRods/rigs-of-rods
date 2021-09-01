@@ -124,7 +124,7 @@ Collisions::Collisions(Ogre::Vector3 terrn_size):
     , landuse(0)
     , m_terrain_size(terrn_size)
 {
-    debugMode = App::diag_collisions->GetBool(); // TODO: make interactive - do not copy the value, use GVar directly
+    debugMode = App::diag_collisions->getBool(); // TODO: make interactive - do not copy the value, use GVar directly
     for (int i=0; i < HASH_POWER; i++)
     {
         hashmask = hashmask << 1;
@@ -149,7 +149,7 @@ Collisions::~Collisions()
 
 int Collisions::loadDefaultModels()
 {
-    return loadGroundModelsConfigFile(PathCombine(App::sys_config_dir->GetStr(), "ground_models.cfg"));
+    return loadGroundModelsConfigFile(PathCombine(App::sys_config_dir->getStr(), "ground_models.cfg"));
 }
 
 int Collisions::loadGroundModelsConfigFile(Ogre::String filename)

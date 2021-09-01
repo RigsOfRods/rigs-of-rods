@@ -249,7 +249,7 @@ void Road2::addBlock(Vector3 pos, Quaternion rot, int type, float width, float b
     lastbheight = bheight;
     lasttype = type;
 
-    if (App::diag_terrn_log_roads->GetBool())
+    if (App::diag_terrn_log_roads->getBool())
     {
         Str<2000> msg; msg << "[RoR] Road Block |";
         msg << " pos=(" << pos.x << " " << pos.y << " " << pos.z << ")";

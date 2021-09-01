@@ -40,7 +40,7 @@ public:
 
     virtual void Run(Ogre::StringVector const& args) = 0;
 
-    std::string const& GetName() const { return m_name; }
+    std::string const& getName() const { return m_name; }
     std::string const& GetUsage() const { return m_usage; }
     std::string const& GetDoc() const { return m_doc; }
 

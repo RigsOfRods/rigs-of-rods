@@ -305,8 +305,8 @@ void SoundScriptManager::modulate(int actor_id, int mod, float value, int linkTy
 
 void SoundScriptManager::update(float dt_sec)
 {
-    if (App::sim_state->GetEnum<SimState>() == SimState::RUNNING ||
-        App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
+    if (App::sim_state->getEnum<SimState>() == SimState::RUNNING ||
+        App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
     {
         Ogre::SceneNode* cam_node = App::GetCameraManager()->GetCameraNode();
         static Vector3 lastCameraPosition;
@@ -674,7 +674,7 @@ bool SoundScriptTemplate::setParameter(Ogre::StringVector vec)
             trigger_source = SS_TRIG_GEARSLIDE;
             return true;
         };
-        if (vec[1] == String("creak") && App::audio_enable_creak->GetBool())
+        if (vec[1] == String("creak") && App::audio_enable_creak->getBool())
         {
             trigger_source = SS_TRIG_CREAK;
             return true;

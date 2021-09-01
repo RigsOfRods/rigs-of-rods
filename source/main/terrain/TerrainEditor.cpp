@@ -247,7 +247,7 @@ void TerrainEditor::UpdateInputEvents(float dt)
 void TerrainEditor::WriteOutputFile()
 {
     const char* filename = "editor_out.log";
-    std::string editor_logpath = PathCombine(App::sys_logs_dir->GetStr(), filename);
+    std::string editor_logpath = PathCombine(App::sys_logs_dir->getStr(), filename);
     try
     {
         Ogre::DataStreamPtr stream

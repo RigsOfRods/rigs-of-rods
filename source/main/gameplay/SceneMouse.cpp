@@ -88,7 +88,7 @@ void SceneMouse::DiscardVisuals()
 
 void SceneMouse::releaseMousePick()
 {
-    if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED) { return; } // Do nothing when paused
+    if (App::sim_state->getEnum<SimState>() == SimState::PAUSED) { return; } // Do nothing when paused
 
     // remove forces
     if (grab_truck)
@@ -219,7 +219,7 @@ void SceneMouse::UpdateVisuals()
 
 bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
-    if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED) { return true; } // Do nothing when paused
+    if (App::sim_state->getEnum<SimState>() == SimState::PAUSED) { return true; } // Do nothing when paused
 
     const OIS::MouseState ms = _arg.state;
 
@@ -229,7 +229,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
         lastMouseX = ms.X.abs;
         Ray mouseRay = getMouseRay();
 
-        if (App::sim_state->GetEnum<SimState>() == SimState::EDITOR_MODE)
+        if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
         {
             return true;
         }
@@ -295,7 +295,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 
 bool SceneMouse::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
-    if (App::sim_state->GetEnum<SimState>() == SimState::PAUSED) { return true; } // Do nothing when paused
+    if (App::sim_state->getEnum<SimState>() == SimState::PAUSED) { return true; } // Do nothing when paused
 
     if (mouseGrabState == 1)
     {

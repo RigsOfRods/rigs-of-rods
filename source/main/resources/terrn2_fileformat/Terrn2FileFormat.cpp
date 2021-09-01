@@ -59,20 +59,20 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
     }
 
     def.ambient_color        = file.GetColourValue("AmbientColor",     "General", ColourValue::White);
-    def.category_id          = file.GetInt        ("CategoryID",       "General", 129);
+    def.category_id          = file.getInt        ("CategoryID",       "General", 129);
     def.guid                 = file.GetStringEx   ("GUID",             "General");
-    def.version              = file.GetInt        ("Version",          "General", 1);
-    def.gravity              = file.GetFloat      ("Gravity",          "General", -9.81);
+    def.version              = file.getInt        ("Version",          "General", 1);
+    def.gravity              = file.getFloat      ("Gravity",          "General", -9.81);
     def.caelum_config        = file.GetStringEx   ("CaelumConfigFile", "General");
     def.cubemap_config       = file.GetStringEx   ("SandStormCubeMap", "General");
-    def.caelum_fog_start     = file.GetInt        ("CaelumFogStart",   "General", -1);
-    def.caelum_fog_end       = file.GetInt        ("CaelumFogEnd",     "General", -1);
-    def.has_water            = file.GetBool       ("Water",            "General", false);
+    def.caelum_fog_start     = file.getInt        ("CaelumFogStart",   "General", -1);
+    def.caelum_fog_end       = file.getInt        ("CaelumFogEnd",     "General", -1);
+    def.has_water            = file.getBool       ("Water",            "General", false);
     def.hydrax_conf_file     = file.GetStringEx   ("HydraxConfigFile", "General");
     def.skyx_config          = file.GetStringEx   ("SkyXConfigFile",   "General");
     def.traction_map_file    = file.GetStringEx   ("TractionMap",      "General");
-    def.water_height         = file.GetFloat      ("WaterLine",        "General");
-    def.water_bottom_height  = file.GetFloat      ("WaterBottomLine",  "General");
+    def.water_height         = file.getFloat      ("WaterLine",        "General");
+    def.water_bottom_height  = file.getFloat      ("WaterBottomLine",  "General");
     def.custom_material_name = file.GetStringEx   ("CustomMaterial",   "General");
 
     def.start_position       = StringConverter::parseVector3(file.GetStringEx("StartPosition", "General"), Vector3(512.0f, 0.0f, 512.0f));

@@ -31,7 +31,7 @@ using namespace Ogre;
 
 void Console::messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String& logName, bool& skipThisMessage)
 {
-    if (App::diag_log_console_echo->GetBool())
+    if (App::diag_log_console_echo->getBool())
     {
         this->forwardLogMessage(CONSOLE_MSGTYPE_LOG, message, lml);
     }

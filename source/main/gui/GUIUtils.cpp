@@ -259,57 +259,57 @@ void RoR::ImTextWrappedColorMarked(std::string const& text)
 
 void RoR::DrawGCheckbox(CVar* cvar, const char* label)
 {
-    bool val = cvar->GetBool();
+    bool val = cvar->getBool();
     if (ImGui::Checkbox(label, &val))
     {
-        cvar->SetVal(val);
+        cvar->setVal(val);
     }
 }
 
 void RoR::DrawGIntCheck(CVar* cvar, const char* label)
 {
-    bool val = (cvar->GetInt() != 0);
+    bool val = (cvar->getInt() != 0);
     if (ImGui::Checkbox(label, &val))
     {
-        cvar->SetVal(val ? 1 : 0);
+        cvar->setVal(val ? 1 : 0);
     }
 }
 
 void RoR::DrawGIntBox(CVar* cvar, const char* label)
 {
-    int val = cvar->GetInt();
+    int val = cvar->getInt();
     if (ImGui::InputInt(label, &val, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue))
     {
-        cvar->SetVal(val);
+        cvar->setVal(val);
     }
 }
 
 void RoR::DrawGIntSlider(CVar* cvar, const char* label, int v_min, int v_max)
 {
-    int val = cvar->GetInt();
+    int val = cvar->getInt();
 
     if (ImGui::SliderInt(label, &val, v_min, v_max))
     {
-        cvar->SetVal(val);
+        cvar->setVal(val);
     }
 }
 
 void RoR::DrawGFloatSlider(CVar* cvar, const char* label, float v_min, float v_max)
 {
-    float val = cvar->GetFloat();
+    float val = cvar->getFloat();
 
     if (ImGui::SliderFloat(label, &val, v_min, v_max, "%.2f"))
     {
-        cvar->SetVal(val);
+        cvar->setVal(val);
     }
 }
 
 void RoR::DrawGFloatBox(CVar* cvar, const char* label)
 {
-    float fval = cvar->GetFloat();
+    float fval = cvar->getFloat();
     if (ImGui::InputFloat(label, &fval, 0.f, 0.f, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue))
     {
-        cvar->SetVal(fval);
+        cvar->setVal(fval);
     }
 }
 
@@ -317,7 +317,7 @@ void RoR::DrawGTextEdit(CVar* cvar, const char* label, Str<1000>& buf)
 {
     if (ImGui::InputText(label, buf.GetBuffer(), buf.GetCapacity(), ImGuiInputTextFlags_EnterReturnsTrue))
     {
-        cvar->SetStr(buf.GetBuffer());
+        cvar->setStr(buf.GetBuffer());
     }
     if (ImGui::IsItemActive())
     {
@@ -325,16 +325,16 @@ void RoR::DrawGTextEdit(CVar* cvar, const char* label, Str<1000>& buf)
     }
     else
     {
-        buf.Assign(cvar->GetStr().c_str());
+        buf.Assign(cvar->getStr().c_str());
     }
 }
 
 void RoR::DrawGCombo(CVar* cvar, const char* label, const char* values)
 {
-    int selection = cvar->GetInt();
+    int selection = cvar->getInt();
     if (ImGui::Combo(label, &selection, values))
     {
-        cvar->SetVal(selection);
+        cvar->setVal(selection);
     }
 }
 

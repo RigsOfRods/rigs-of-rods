@@ -55,7 +55,7 @@ struct Node
 
         // Setters
         void SetNum(unsigned int id_num);
-        void SetStr(std::string const & id_str);
+        void setStr(std::string const & id_str);
 
         // Getters
         inline std::string const & Str() const { return m_id_str; }

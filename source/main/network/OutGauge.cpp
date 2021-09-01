@@ -76,7 +76,7 @@ void OutGauge::Connect()
     }
 
     // get the IP of the remote side, this function is compatible with windows 2000
-    hostent* remoteHost = gethostbyname(App::io_outgauge_ip->GetStr().c_str());
+    hostent* remoteHost = gethostbyname(App::io_outgauge_ip->getStr().c_str());
     char* ip = inet_ntoa(*(struct in_addr *)*remoteHost->h_addr_list);
 
     // init socket data
@@ -84,7 +84,7 @@ void OutGauge::Connect()
     memset(&sendaddr, 0, sizeof(sendaddr));
     sendaddr.sin_family = AF_INET;
     sendaddr.sin_addr.s_addr = inet_addr(ip);
-    sendaddr.sin_port = htons(App::io_outgauge_port->GetInt());
+    sendaddr.sin_port = htons(App::io_outgauge_port->getInt());
 
     // connect
     if (connect(sockfd, (struct sockaddr *) &sendaddr, sizeof(sendaddr)) == SOCKET_ERROR)
@@ -110,7 +110,7 @@ bool OutGauge::Update(float dt, Actor* truck)
 
     // below the set delay?
     timer += dt;
-    if (timer < (0.1f * App::io_outgauge_delay->GetFloat()))
+    if (timer < (0.1f * App::io_outgauge_delay->getFloat()))
     {
         return true;
     }
@@ -122,7 +122,7 @@ bool OutGauge::Update(float dt, Actor* truck)
 
     // set some common things
     gd.Time = Root::getSingleton().getTimer()->getMilliseconds();
-    gd.ID = App::io_outgauge_id->GetInt();
+    gd.ID = App::io_outgauge_id->getInt();
     gd.Flags = 0 | OG_KM;
     sprintf(gd.Car, "RoR");
 

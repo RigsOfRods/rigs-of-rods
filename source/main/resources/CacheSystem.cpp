@@ -130,11 +130,11 @@ void CacheSystem::LoadModCache(CacheValidity validity)
             RoR::Log("[RoR|ModCache] Performing update ...");
             this->PruneCache();
         }
-        const bool orig_echo = App::diag_log_console_echo->GetBool();
-        App::diag_log_console_echo->SetVal(false);
+        const bool orig_echo = App::diag_log_console_echo->getBool();
+        App::diag_log_console_echo->setVal(false);
         this->ParseZipArchives(RGN_CONTENT);
         this->ParseKnownFiles(RGN_CONTENT);
-        App::diag_log_console_echo->SetVal(orig_echo);
+        App::diag_log_console_echo->setVal(orig_echo);
         this->DetectDuplicates();
         this->WriteCacheFileJson();
     }

@@ -105,10 +105,10 @@ void MessageBoxDialog::Draw()
     if (m_cfg.mbc_always_ask_conf)
     {
         ImGui::Separator();
-        bool ask = m_cfg.mbc_always_ask_conf->GetBool();
+        bool ask = m_cfg.mbc_always_ask_conf->getBool();
         if (ImGui::Checkbox(_LC("MessageBox", "Always ask"), &ask))
         {
-            m_cfg.mbc_always_ask_conf->SetVal(ask);
+            m_cfg.mbc_always_ask_conf->setVal(ask);
         }
     }
 
