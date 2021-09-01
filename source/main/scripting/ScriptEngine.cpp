@@ -91,7 +91,7 @@ ScriptEngine::~ScriptEngine()
 
 void ScriptEngine::messageLogged( const String& message, LogMessageLevel lml, bool maskDebug, const String &logName, bool& skipThisMessage)
 {
-    RoR::App::GetConsole()->ForwardLogMessage(Console::CONSOLE_MSGTYPE_SCRIPT, message, lml);
+    RoR::App::GetConsole()->forwardLogMessage(Console::CONSOLE_MSGTYPE_SCRIPT, message, lml);
 }
 
 // continue with initializing everything

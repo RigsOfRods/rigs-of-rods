@@ -594,7 +594,7 @@ void Network::Disconnect()
     m_disconnected_users.clear();
     m_recv_packet_buffer.clear();
     m_send_packet_buffer.clear();
-    App::GetConsole()->DoCommand("clear net");
+    App::GetConsole()->doCommand("clear net");
 
     m_shutdown = false;
     App::mp_state->SetVal((int)MpState::DISABLED);

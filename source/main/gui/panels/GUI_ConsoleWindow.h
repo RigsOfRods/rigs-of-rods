@@ -45,7 +45,7 @@ public:
     bool IsVisible() const { return m_is_visible; }
 
     void Draw();
-    void DoCommand(std::string msg);
+    void doCommand(std::string msg);
 
 private:
 

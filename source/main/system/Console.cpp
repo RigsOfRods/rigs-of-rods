@@ -33,11 +33,11 @@ void Console::messageLogged(const Ogre::String& message, Ogre::LogMessageLevel l
 {
     if (App::diag_log_console_echo->GetBool())
     {
-        this->ForwardLogMessage(CONSOLE_MSGTYPE_LOG, message, lml);
+        this->forwardLogMessage(CONSOLE_MSGTYPE_LOG, message, lml);
     }
 }
 
-void Console::ForwardLogMessage(MessageArea area, std::string const& message, Ogre::LogMessageLevel lml)
+void Console::forwardLogMessage(MessageArea area, std::string const& message, Ogre::LogMessageLevel lml)
 {
     switch (lml)
     {
@@ -55,7 +55,7 @@ void Console::ForwardLogMessage(MessageArea area, std::string const& message, Og
     }
 }
 
-void Console::HandleMessage(MessageArea area, MessageType type, std::string const& msg, int net_userid/* = 0*/)
+void Console::handleMessage(MessageArea area, MessageType type, std::string const& msg, int net_userid/* = 0*/)
 {
     if (net_userid < 0) // 0=server, positive=clients, negative=invalid
     {
@@ -91,16 +91,16 @@ void Console::HandleMessage(MessageArea area, MessageType type, std::string cons
 
     // Lock and update message list
     std::lock_guard<std::mutex> lock(m_messages_mutex); // Scoped lock
-    m_messages.emplace_back(area, type, msg, this->QueryMessageTimer(), net_userid);
+    m_messages.emplace_back(area, type, msg, this->queryMessageTimer(), net_userid);
 }
 
 void Console::putMessage(MessageArea area, MessageType type, std::string const& msg,
     std::string icon, size_t ttl, bool forcevisible)
 {
-    this->HandleMessage(area, type, msg);
+    this->handleMessage(area, type, msg);
 }
 
 void Console::putNetMessage(int user_id, MessageType type, const char* text)
 {
-    this->HandleMessage(CONSOLE_MSGTYPE_INFO, type, text, user_id);
+    this->handleMessage(CONSOLE_MSGTYPE_INFO, type, text, user_id);
 }

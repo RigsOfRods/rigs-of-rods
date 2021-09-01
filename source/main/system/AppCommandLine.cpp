@@ -66,7 +66,7 @@ CSimpleOpt::SOption cmdline_options[] = {
     SO_END_OF_OPTIONS
 };
 
-void Console::ProcessCommandLine(int argc, char *argv[])
+void Console::processCommandLine(int argc, char *argv[])
 {
     CSimpleOpt args(argc, argv, cmdline_options);
 
@@ -144,7 +144,7 @@ void Console::ProcessCommandLine(int argc, char *argv[])
     }
 }
 
-void Console::ShowCommandLineUsage()
+void Console::showCommandLineUsage()
 {
     ErrorUtils::ShowInfo(
         _L("Command Line Arguments"),
@@ -162,7 +162,7 @@ void Console::ShowCommandLineUsage()
             "For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck -enter"));
 }
 
-void Console::ShowCommandLineVersion()
+void Console::showCommandLineVersion()
 {
     ErrorUtils::ShowInfo(_L("Version Information"), getVersionString());
 #ifdef __GNUC__

@@ -38,7 +38,7 @@ using namespace RoR;
 void AssignHelper(CVar* cvar, int val)
 {
     Str<25> s; s << val;
-    App::GetConsole()->CVarAssign(cvar, s.ToCStr());
+    App::GetConsole()->cVarAssign(cvar, s.ToCStr());
 }
 
 void ParseHelper(CVar* cvar, std::string const & val)
@@ -100,11 +100,11 @@ void ParseHelper(CVar* cvar, std::string const & val)
     }
     else
     {
-        App::GetConsole()->CVarAssign(cvar, val);
+        App::GetConsole()->cVarAssign(cvar, val);
     }
 }
 
-void Console::LoadConfig()
+void Console::loadConfig()
 {
     Ogre::ConfigFile cfg;
     try
@@ -116,7 +116,7 @@ void Console::LoadConfig()
         while (i.hasMoreElements())
         {
             std::string cvar_name = RoR::Utils::SanitizeUtf8String(i.peekNextKey());
-            CVar* cvar = App::GetConsole()->CVarFind(cvar_name);
+            CVar* cvar = App::GetConsole()->cVarFind(cvar_name);
             if (cvar && !cvar->HasFlag(CVAR_ARCHIVE))
             {
                 RoR::LogFormat("[RoR|Settings] CVar '%s' cannot be set from %s (defined without 'archive' flag)", cvar->GetName().c_str(), CONFIG_FILE_NAME);
@@ -126,7 +126,7 @@ void Console::LoadConfig()
 
             if (!cvar)
             {
-                cvar = App::GetConsole()->CVarGet(cvar_name, CVAR_ARCHIVE);
+                cvar = App::GetConsole()->cVarGet(cvar_name, CVAR_ARCHIVE);
             }
 
             ParseHelper(cvar, RoR::Utils::SanitizeUtf8String(i.peekNextValue()));
@@ -141,7 +141,7 @@ void WriteVarsHelper(std::stringstream& f, const char* label, const char* prefix
 {
     f << std::endl << "; " << label << std::endl;
 
-    for (auto& pair: App::GetConsole()->GetCVars())
+    for (auto& pair: App::GetConsole()->getCVars())
     {
         if (pair.second->HasFlag(CVAR_ARCHIVE) && pair.first.find(prefix) == 0)
         {
@@ -169,7 +169,7 @@ void WriteVarsHelper(std::stringstream& f, const char* label, const char* prefix
     }    
 }
 
-void Console::SaveConfig()
+void Console::saveConfig()
 {
     std::stringstream f;
 

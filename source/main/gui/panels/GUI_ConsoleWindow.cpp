@@ -56,7 +56,7 @@ void ConsoleWindow::Draw()
             ImGui::SetColumnWidth(0, 100); // TODO: Calculate dynamically
             ImGui::SetColumnWidth(1, 170); // TODO: Calculate dynamically
 
-            for (auto& cmd_pair: App::GetConsole()->GetCommands())
+            for (auto& cmd_pair: App::GetConsole()->getCommands())
             {
                 if (ImGui::Selectable(cmd_pair.second->GetName().c_str()))
                 {
@@ -85,7 +85,7 @@ void ConsoleWindow::Draw()
     const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory;
     if (ImGui::InputText(_LC("Console", "Command"), m_cmd_buffer.GetBuffer(), m_cmd_buffer.GetCapacity(), cmd_flags, &ConsoleWindow::TextEditCallback, this))
     {
-        this->DoCommand(m_cmd_buffer.ToCStr());
+        this->doCommand(m_cmd_buffer.ToCStr());
         m_cmd_buffer.Clear();
     }
 
@@ -98,7 +98,7 @@ void ConsoleWindow::Draw()
     }
 }
 
-void ConsoleWindow::DoCommand(std::string msg) // All commands are processed here
+void ConsoleWindow::doCommand(std::string msg) // All commands are processed here
 {
     Ogre::StringUtil::trim(msg);
     if (msg.empty())
@@ -114,7 +114,7 @@ void ConsoleWindow::DoCommand(std::string msg) // All commands are processed her
     }
     m_cmd_history_cursor = -1;
 
-    App::GetConsole()->DoCommand(msg);
+    App::GetConsole()->doCommand(msg);
 }
 
 int ConsoleWindow::TextEditCallback(ImGuiTextEditCallbackData *data)
