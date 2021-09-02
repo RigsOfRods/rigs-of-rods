@@ -53,6 +53,7 @@ private:
 
     bool m_is_visible = false;
     bool m_show_empty = true;
+    float m_colum_widths[3] = {}; //!< body->header width sync
 
     // Config file selection
     int m_active_mapping_file = -2; // -2 = all, -1 = default (input.map), 0+ = device specific map file.

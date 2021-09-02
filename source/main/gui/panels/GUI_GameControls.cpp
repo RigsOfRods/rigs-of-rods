@@ -235,6 +235,10 @@ void GameControls::DrawControlsTab(const char* prefix)
         }
     }
 
+    m_colum_widths[0] = ImGui::GetColumnWidth(0);
+    m_colum_widths[1] = ImGui::GetColumnWidth(1);
+    m_colum_widths[2] = ImGui::GetColumnWidth(2);
+
     ImGui::Columns(1);
 }
 
@@ -246,6 +250,9 @@ void GameControls::DrawControlsTabItem(const char* name, const char* prefix)
 
         // Table header
         ImGui::Columns(3, /*id=*/nullptr, /*border=*/true);
+        ImGui::SetColumnWidth(0, m_colum_widths[0] + ImGui::GetStyle().FramePadding.x + 1);
+        ImGui::SetColumnWidth(1, m_colum_widths[1]);
+        ImGui::SetColumnWidth(2, m_colum_widths[2]);
         ImGui::TextColored(GRAY_HINT_TEXT, "Name");
         ImGui::NextColumn();
         ImGui::TextColored(GRAY_HINT_TEXT, "Shortcut");
