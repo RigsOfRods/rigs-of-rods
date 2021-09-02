@@ -21,36 +21,67 @@
 
 #pragma once
 
+#include <memory>
+#include <string>
+#include <regex>
+#include <future>
+#include <thread>
+#include <vector>
+
+
 #include <Ogre.h>
 #include <OgrePrerequisites.h>
 #include <Bites/OgreWindowEventUtilities.h>
+#include <Overlay/OgreFontManager.h>
+#include <OgreUTFString.h>
 #include <OIS.h>
 #include <MyGUI.h>
 #include <imgui.h>
 #include <rapidjson/rapidjson.h>
+#include <rapidjson/document.h>
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <moFileReader.hpp>
+
 
 #ifdef USE_SOCKETW
 #include <SocketW.h>
-#endif //USE_SOCKETW
-
-#ifdef USE_ANGELSCRIPT
-#include <angelscript.h>
-#endif //USE_ANGELSCRIPT
-
-#ifdef USE_CURL
-#include <curl/curl.h>
-#endif //USE_CURL
+#endif// USE_SOCKETW
 
 #ifdef USE_DISCORD_RPC
 #include <discord_rpc.h>
-#endif //USE_DISCORD_RPC
+#endif// USE_DISCORD_RPC
+
+#ifdef USE_SOCKETW
+#include <SocketW.h>
+#endif// USE_SOCKETW
+
+#ifdef USE_ANGELSCRIPT
+#include <angelscript.h>
+#endif// USE_ANGELSCRIPT
+
+#ifdef USE_CURL
+#include <curl/curl.h>
+#endif// USE_CURL
+
+#ifdef USE_DISCORD_RPC
+#include <discord_rpc.h>
+#endif// USE_DISCORD_RPC
 
 #ifdef USE_CAELUM
 #include <CaelumPrerequisites.h>
 #include <Caelum.h>
-#endif //USE_CAELUM
+#endif// USE_CAELUM
+
+#ifdef USE_PAGED
+#include <PagedGeometry.h>
+#include <TreeLoader2D.h>
+#include <TreeLoader3D.h>
+#include <BatchPage.h>
+#include <GrassLoader.h>
+#include <ImpostorPage.h>
+#endif //USE_PAGED
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #include <windows.h>
 #endif
-
