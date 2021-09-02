@@ -478,6 +478,12 @@ void TopMenubar::Update()
                 {
                     App::GetSimTerrain()->getSkyManager()->SetTime(time);
                 }
+                ImGui::SameLine();
+                DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
+                if (App::gfx_sky_time_cycle->GetBool())
+                {
+                    DrawGIntSlider(App::gfx_sky_time_speed, _LC("TopMenubar", "Speed"), 10, 2000);
+                }
             }       
 #endif // USE_CAELUM
             if (RoR::App::gfx_water_waves->GetBool() && App::mp_state->GetEnum<MpState>() != MpState::CONNECTED && App::GetSimTerrain()->getWater())

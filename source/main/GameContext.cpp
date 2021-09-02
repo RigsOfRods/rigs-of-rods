@@ -984,6 +984,10 @@ void GameContext::UpdateSkyInputEvents(float dt)
         {
             time_factor = -10000.0f;
         }
+        else if (App::gfx_sky_time_cycle->GetBool())
+        {
+            time_factor = App::gfx_sky_time_speed->GetInt();
+        }
 
         if (App::GetSimTerrain()->getSkyManager()->GetSkyTimeFactor() != time_factor)
         {
