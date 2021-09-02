@@ -145,6 +145,8 @@ void Console::CVarSetupBuiltins()
     App::gfx_shadow_type         = this->CVarCreate("gfx_shadow_type",         "Shadow technique",           CVAR_ARCHIVE | CVAR_TYPE_INT,     "1"/*(int)GfxShadowType::PSSM*/);
     App::gfx_extcam_mode         = this->CVarCreate("gfx_extcam_mode",         "External Camera Mode",       CVAR_ARCHIVE | CVAR_TYPE_INT,     "2"/*(int)GfxExtCamMode::PITCHING*/);
     App::gfx_sky_mode            = this->CVarCreate("gfx_sky_mode",            "Sky effects",                CVAR_ARCHIVE | CVAR_TYPE_INT,     "1"/*(int)GfxSkyMode::CAELUM*/);
+    App::gfx_sky_time_cycle      = this->CVarCreate("gfx_sky_time_cycle",      "",                                          CVAR_TYPE_BOOL,    "false");
+    App::gfx_sky_time_speed      = this->CVarCreate("gfx_sky_time_speed",      "",                                          CVAR_TYPE_INT,     "300");
     App::gfx_texture_filter      = this->CVarCreate("gfx_texture_filter",      "Texture Filtering",          CVAR_ARCHIVE | CVAR_TYPE_INT,     "3"/*(int)GfxTexFilter::ANISOTROPIC*/);
     App::gfx_vegetation_mode     = this->CVarCreate("gfx_vegetation_mode",     "Vegetation",                 CVAR_ARCHIVE | CVAR_TYPE_INT,     "3"/*(int)GfxVegetation::FULL*/);
     App::gfx_water_mode          = this->CVarCreate("gfx_water_mode",          "Water effects",              CVAR_ARCHIVE | CVAR_TYPE_INT,     "3"/*(int)GfxWaterMode::FULL_FAST*/);

@@ -374,6 +374,8 @@ extern CVar* gfx_flares_mode;
 extern CVar* gfx_shadow_type;
 extern CVar* gfx_extcam_mode;
 extern CVar* gfx_sky_mode;
+extern CVar* gfx_sky_time_cycle;
+extern CVar* gfx_sky_time_speed;
 extern CVar* gfx_texture_filter;
 extern CVar* gfx_vegetation_mode;
 extern CVar* gfx_water_mode;

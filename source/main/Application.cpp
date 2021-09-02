@@ -199,6 +199,8 @@ CVar* gfx_flares_mode;
 CVar* gfx_shadow_type;
 CVar* gfx_extcam_mode;
 CVar* gfx_sky_mode;
+CVar* gfx_sky_time_cycle;
+CVar* gfx_sky_time_speed;
 CVar* gfx_texture_filter;
 CVar* gfx_vegetation_mode;
 CVar* gfx_water_mode;
