@@ -147,7 +147,7 @@ void GameControls::DrawEvent(RoR::events ev_code)
                 m_active_event = ev_code;
                 m_active_trigger = &trig;
                 m_selected_evtype = trig.eventtype;
-                m_active_buffer.Assign(App::GetInputEngine()->getEventCommand(ev_code).c_str());
+                m_active_buffer.Assign(App::GetInputEngine()->getEventConfig(ev_code).c_str());
             }
             ImGui::SameLine();
             ImGui::TextColored(theme.success_text_color, "%s",
@@ -182,6 +182,8 @@ void GameControls::DrawEventEditBox()
                 case ET_MouseAxisX:
                 case ET_MouseAxisY:
                 case ET_MouseAxisZ:
+                case ET_JoystickAxisRel: // Configured as "JoystickAxis RELATIVE".
+                case ET_JoystickSliderX: // X/Y is determined by special parameter.
                     continue; // Not available
                 default:
                     break;
@@ -200,7 +202,15 @@ void GameControls::DrawEventEditBox()
     }
 
     // Combo text input
-    const int flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CharsNoBlank;
+    int flags = ImGuiInputTextFlags_EnterReturnsTrue;
+    if (m_selected_evtype == ET_Keyboard || m_selected_evtype == ET_JoystickButton)
+    {
+        flags |= ImGuiInputTextFlags_CharsNoBlank;
+    }
+    if (m_selected_evtype != ET_JoystickPov)
+    {
+        flags |= ImGuiInputTextFlags_CharsUppercase; // POV options are case-sensitive.
+    }
     if (ImGui::InputText("", m_active_buffer.GetBuffer(), m_active_buffer.GetCapacity(), flags))
     {
         this->ApplyChanges();
@@ -287,7 +297,16 @@ void GameControls::ApplyChanges()
     App::GetInputEngine()->eraseEvent(m_active_event, m_active_trigger);
 
     // Format a '.map' format line with new config
-    std::string line = fmt::format("{} {} {}",
+    std::string format_string;
+    if (m_selected_evtype == ET_Keyboard)
+    {
+        format_string = "{} {} {}"; // Name, Type, Binding
+    }
+    else // Joystick
+    {
+        format_string = "{} {} 0 {}"; // Name, Type, DeviceNumber (unused), Binding
+    }
+    std::string line = fmt::format(format_string,
         App::GetInputEngine()->eventIDToName(m_active_event),
         InputEngine::getEventTypeName(m_selected_evtype),
         m_active_buffer.ToCStr());

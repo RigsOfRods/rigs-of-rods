@@ -435,7 +435,7 @@ struct event_trigger_t
     int joystickSliderRegion;
 
     //others
-    char configline[256];
+    char configline[256]; //!< Mixed use: keyboard=key, joyButton=buttonNum, POV=direction, joyAxes=options.
     char group[128];
     char tmp_eventname[128];
     char comments[1024];
@@ -476,6 +476,7 @@ public:
     Ogre::String        getKeyForCommand(int eventID);
     Ogre::String        getDeviceName(event_trigger_t const& evt);
     Ogre::String        getEventCommand(int eventID);
+    Ogre::String        getEventConfig(int eventID);
     bool                isEventDefined(int eventID);
     int                 getKeboardKeyForCommand(int eventID);               //!< Returns -1 if not Keyboard
     int                 getJoyComponentCount(OIS::ComponentType type, int joystickNumber);
@@ -568,6 +569,8 @@ protected:
 
     float logval(float val);
     std::string getEventGroup(Ogre::String eventName);
+    std::string composeEventConfigString(event_trigger_t const& trig);
+    std::string composeEventCommandString(event_trigger_t const& trig);
 
     event_trigger_t newEvent();
 };
