@@ -749,10 +749,67 @@ float InputEngine::logval(float val)
 
 String InputEngine::getEventCommand(int eventID)
 {
-    std::vector<event_trigger_t> t_vec = events[eventID];
+    std::vector<event_trigger_t>& t_vec = events[eventID];
     if (t_vec.size() > 0)
-        return String(t_vec[0].configline); // TODO: handle multiple mappings for one event code - currently we only check the first one.
+    {
+        // TODO: handle multiple mappings for one event code - currently we only check the first one.
+        return this->composeEventCommandString(t_vec[0]);
+    }
     return "";
+}
+
+String InputEngine::getEventConfig(int eventID)
+{
+    std::vector<event_trigger_t>& t_vec = events[eventID];
+    if (t_vec.size() > 0)
+    {
+        // TODO: handle multiple mappings for one event code - currently we only check the first one.
+        return this->composeEventConfigString(t_vec[0]);
+    }
+    return "";
+}
+
+std::string InputEngine::composeEventCommandString(event_trigger_t const& trig)
+{
+    switch (trig.eventtype)
+    {
+    case ET_Keyboard:
+    case ET_JoystickButton:
+        return trig.configline; // Configline contains the key/button
+
+    case ET_JoystickPov:
+        return fmt::format("{} {}", trig.joystickPovNumber, trig.configline); // Configline contains the direction - display it.
+
+    case ET_JoystickSliderX:
+        return fmt::format("X {}", trig.joystickSliderNumber); // Must show axis separately. Configline contains just the options.
+
+    case ET_JoystickSliderY:
+        return fmt::format("Y {}", trig.joystickSliderNumber); // Must show axis separately. Configline contains just the options.
+
+    default: // Joystick axes
+        return fmt::format("{}", trig.joystickAxisNumber); // Configline contains just the options.
+    }
+}
+
+std::string InputEngine::composeEventConfigString(event_trigger_t const& trig)
+{
+    switch (trig.eventtype)
+    {
+    case ET_Keyboard:
+    case ET_JoystickButton:
+    case ET_JoystickPov:
+        return this->composeEventCommandString(trig);
+
+    // Sliders: Include redundant X/Y and options.
+    case ET_JoystickSliderX:
+        return fmt::format("X {} {}", trig.joystickSliderNumber, trig.configline); // Configline contains just the options.
+    case ET_JoystickSliderY:
+        return fmt::format("Y {} {}", trig.joystickSliderNumber, trig.configline); // Configline contains just the options.
+
+    // Joystick axes and sliders - include options.
+    default:
+        return fmt::format("{} {}", trig.joystickAxisNumber, trig.configline); // Configline contains just the options.
+    }
 }
 
 bool InputEngine::isEventDefined(int eventID)
@@ -1089,11 +1146,11 @@ const char* InputEngine::getEventTypeName(eventtypes type)
     case ET_MouseAxisY: return "MouseAxisY";
     case ET_MouseAxisZ: return "MouseAxisZ";
     case ET_JoystickButton: return "JoystickButton";
-    case ET_JoystickAxisAbs: return "JoystickAxis";
-    case ET_JoystickAxisRel: return "JoystickAxis";
+    case ET_JoystickAxisAbs:
+    case ET_JoystickAxisRel: return "JoystickAxis"; // Default is 'abs', 'rel' is created by option RELATIVE.
     case ET_JoystickPov: return "JoystickPov";
-    case ET_JoystickSliderX: return "JoystickSliderX";
-    case ET_JoystickSliderY: return "JoystickSliderY";
+    case ET_JoystickSliderX:
+    case ET_JoystickSliderY: return "JoystickSlider"; // Axis is given by special parameter.
     default: return "unknown";
     }
 }
@@ -1463,6 +1520,7 @@ bool InputEngine::processLine(const char* line, int deviceID)
             strncpy(t_pov.group, getEventGroup(eventName).c_str(), 128);
             strncpy(t_pov.tmp_eventname, eventName, 128);
             strncpy(t_pov.comments, cur_comment.c_str(), 1024);
+            strncpy(t_pov.configline, dir, 128);
             cur_comment = "";
             addEvent(eventID, t_pov);
             //LOG("added axis: " + TOSTRING(axisNo));
@@ -1841,8 +1899,6 @@ bool InputEngine::saveMapping(String fileName, int deviceID)
 
     try
     {
-        fileName += ".dbg"; // TEST
-
         // Open file for writing (overwrite existing).
         Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().createResource(
             fileName, RGN_CONFIG, /*overwrite:*/true);
@@ -1856,10 +1912,24 @@ bool InputEngine::saveMapping(String fileName, int deviceID)
                 {
                     // We found a matching event - compose config line and write it.
 
+                    string conf_string = this->composeEventConfigString(ev);
+                    switch (ev.eventtype)
+                    {
+                    case ET_JoystickButton:
+                    case ET_JoystickAxisAbs:
+                    case ET_JoystickAxisRel:
+                    case ET_JoystickPov:
+                    case ET_JoystickSliderX:
+                    case ET_JoystickSliderY:
+                        conf_string = fmt::format("0 {}", conf_string); // Dummy device number (unused)
+                        break;
+                    default:;
+                    }
+
                     std::string line = fmt::format("{:<{}} {:<{}} {}\n", // padding: ("{:<{}}", "abc", 10) writes "abc       "
                         this->eventIDToName(ev_pair.first), COL1_WIDTH,
                         this->getEventTypeName(ev.eventtype), COL2_WIDTH,
-                        ev.configline);
+                        conf_string);
                     ds->write(line.c_str(), line.size());
                 }
             }
