@@ -8,6 +8,7 @@ set(ROR_FEAT_TIMING OFF)
 add_external_lib(
         OGRE
         ogre3d/1.11.6.1@anotherfoxguy/stable
+        CONAN_PKG_NAME OGRE
         REQUIRED
         # PKG_CONFIG "OGRE = 1.11.6"
         FIND_PACKAGE_OPTIONS 1.11 COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain
@@ -61,6 +62,7 @@ add_external_lib(
         Caelum
         ogre3d-caelum/0.6.4@anotherfoxguy/stable
         # PKG_CONFIG "Caelum >= 0.6.3"
+        CONAN_PKG_NAME Caelum
         FIND_PACKAGE
 )
 add_external_lib(
@@ -68,6 +70,7 @@ add_external_lib(
         ogre3d-pagedgeometry/1.2.1@anotherfoxguy/stable
         # PKG_CONFIG "PagedGeometry >= 1.2"
         FIND_PACKAGE
+        CONAN_PKG_NAME PagedGeometry
         SYMBOL PAGED
 )
 
