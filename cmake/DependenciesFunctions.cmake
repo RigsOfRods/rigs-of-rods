@@ -40,7 +40,7 @@ function(add_external_lib package conan_package_name)
     list(REMOVE_AT ARGV 0 1)
     better_parse_args(
             . REQUIRED FIND_PACKAGE ALWAYS_ALLOW_CONAN_FALLBACK HAS_ONLY_DEBUG_RELEASE
-            - OPTION_NAME SYMBOL INTERFACE_NAME
+            - OPTION_NAME SYMBOL INTERFACE_NAME CONAN_PKG_NAME
             + CONAN_OPTIONS FIND_PACKAGE_OPTIONS PKG_CONFIG
     )
 
@@ -169,9 +169,13 @@ function(add_external_lib package conan_package_name)
         endif ()
     endif ()
 
-    # We only want the name of the library
-    string(REPLACE "/" ";" pkg_name_split ${conan_package_name})
-    list(GET pkg_name_split 0 conan_package_name_only)
+    if (ARG_CONAN_PKG_NAME)
+        set(conan_package_name_only ${ARG_CONAN_PKG_NAME})
+    else ()
+        # We only want the name of the library
+        string(REPLACE "/" ";" pkg_name_split ${conan_package_name})
+        list(GET pkg_name_split 0 conan_package_name_only)
+    endif ()
 
     list(APPEND CONAN_REQUIRES ${conan_package_name})
     list(APPEND CONAN_PACKAGE_OPTIONS ${ARG_CONAN_OPTIONS})
