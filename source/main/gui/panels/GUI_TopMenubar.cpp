@@ -30,6 +30,7 @@
 #include "ActorManager.h"
 #include "CameraManager.h"
 #include "GameContext.h"
+#include "GfxScene.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
 #include "GUI_MainSelector.h"
@@ -818,9 +819,12 @@ void TopMenubar::DrawActorListSinglePlayer()
 void TopMenubar::DrawSpecialStateBox(float top_offset)
 {
     std::string special_text;
+    std::string special_text_b;
     ImVec4 special_color = ImGui::GetStyle().Colors[ImGuiCol_Text]; // Regular color
+    ImVec4 special_color_b = ImVec4(0,0,0,0);
     float content_width = 0.f;
     bool replay_box = false;
+    bool race_box = false;
 
     // Gather state info
     if (App::GetGameContext()->GetActorManager()->IsSimulationPaused() && !App::GetGuiManager()->IsGuiHidden())
@@ -845,6 +849,33 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         content_width = 300;
         replay_box = true;
         special_text = _LC("TopMenubar", "Replay");
+    }
+    else if (App::GetGfxScene()->GetSimDataBuffer().simbuf_dir_arrow_visible)
+    {
+        race_box = true;
+
+        // Calculate distance
+        GfxScene::SimBuffer& data = App::GetGfxScene()->GetSimDataBuffer();
+        GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+        float distance = 0.0f;
+        Actor* player_actor = App::GetGfxScene()->GetSimDataBuffer().simbuf_player_actor;
+        if (player_actor != nullptr &&
+            player_actor->GetGfxActor()->GetSimDataBuffer().simbuf_live_local)
+        {
+            distance = player_actor->GetGfxActor()->GetSimDataBuffer().simbuf_pos.distance(data.simbuf_dir_arrow_target);
+        }
+        else
+        {
+            distance = data.simbuf_character_pos.distance(data.simbuf_dir_arrow_target);
+        }
+
+        // format text
+        special_text = App::GetGfxScene()->GetSimDataBuffer().simbuf_dir_arrow_text;
+        special_text_b = fmt::format("{:.1f} {}", distance, _LC("DirectionArrow", "meter"));
+        content_width = ImGui::CalcTextSize(special_text.c_str()).x + ImGui::CalcTextSize(special_text_b.c_str()).x;
+        special_color_b = (distance < 50)
+                          ? theme.success_text_color
+                          : ((distance > 200) ? theme.warning_text_color : theme.value_blue_text_color);
     }
 
     // Draw box if needed
@@ -884,6 +915,11 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
                 snprintf(str+str_pos, 200-str_pos, "%.2fsec", time_sec);
                 ImGui::TextDisabled("%s: %s", _LC("TopMenubar", "Time"), str);
                 
+            }
+            else if (race_box)
+            {
+                ImGui::SameLine();
+                ImGui::TextColored(special_color_b,"%s", special_text_b.c_str());
             }
             ImGui::End();
         }
