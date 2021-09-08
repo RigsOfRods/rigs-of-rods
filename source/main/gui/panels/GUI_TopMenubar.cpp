@@ -821,6 +821,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
     std::string special_text;
     std::string special_text_b;
     std::string special_text_c;
+    std::string special_text_d;
     ImVec4 special_color = ImGui::GetStyle().Colors[ImGuiCol_Text]; // Regular color
     ImVec4 special_color_b = ImVec4(0,0,0,0);
     ImVec4 special_color_c = ImVec4(0,0,0,0);
@@ -875,16 +876,19 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         special_text = App::GetGfxScene()->GetSimDataBuffer().simbuf_dir_arrow_text;
         special_text_b = fmt::format("{:.1f} {}", distance, _LC("DirectionArrow", "meter"));
         content_width = ImGui::CalcTextSize(special_text.c_str()).x + ImGui::CalcTextSize(special_text_b.c_str()).x;
-        special_color_b = (distance < 50)
-                          ? theme.success_text_color
-                          : ((distance > 200) ? theme.warning_text_color : theme.value_blue_text_color);
 
         float time = App::GetGfxScene()->GetSimDataBuffer().simbuf_race_time;
         special_text_c = fmt::format("{:02d}.{:02d}.{:02d}", (int)(time) / 60, (int)(time) % 60, (int)(time * 100.0) % 100);
         float time_diff = App::GetGfxScene()->GetSimDataBuffer().simbuf_race_time_diff;
         special_color_c = (time_diff > 0.0f)
                           ? theme.value_red_text_color
-                          : ((time_diff < 0.0f) ? theme.success_text_color : ImGui::GetStyle().Colors[ImGuiCol_Text]);
+                          : ((time_diff < 0.0f) ? theme.success_text_color : theme.value_blue_text_color);
+
+        if (App::GetGfxScene()->GetSimDataBuffer().simbuf_race_best_time > 0.0f)
+        {
+            float best_time = App::GetGfxScene()->GetSimDataBuffer().simbuf_race_best_time;
+            special_text_d = fmt::format("{:02d}.{:02d}.{:02d}", (int)(best_time) / 60, (int)(best_time) % 60, (int)(best_time * 100.0) % 100);
+        }
     }
 
     // Draw box if needed
@@ -928,9 +932,18 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
             else if (race_box)
             {
                 ImGui::SameLine();
-                ImGui::TextColored(special_color_b,"%s", special_text_b.c_str());
+                ImGui::Text(special_text_b.c_str());
                 ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2) - (ImGui::CalcTextSize(special_text_c.c_str()).x / 2));
                 ImGui::TextColored(special_color_c,"%s", special_text_c.c_str());
+
+                Str<300> text;
+                text << "Best Time: " << special_text_d.c_str();
+                ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2) - (ImGui::CalcTextSize(text).x / 2));
+
+                if (!special_text_d.empty())
+                {
+                    ImGui::TextDisabled(text);
+                }
             }
             ImGui::End();
         }
