@@ -820,8 +820,10 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
 {
     std::string special_text;
     std::string special_text_b;
+    std::string special_text_c;
     ImVec4 special_color = ImGui::GetStyle().Colors[ImGuiCol_Text]; // Regular color
     ImVec4 special_color_b = ImVec4(0,0,0,0);
+    ImVec4 special_color_c = ImVec4(0,0,0,0);
     float content_width = 0.f;
     bool replay_box = false;
     bool race_box = false;
@@ -876,6 +878,13 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         special_color_b = (distance < 50)
                           ? theme.success_text_color
                           : ((distance > 200) ? theme.warning_text_color : theme.value_blue_text_color);
+
+        float time = App::GetGfxScene()->GetSimDataBuffer().simbuf_race_time;
+        special_text_c = fmt::format("{:02d}.{:02d}.{:02d}", (int)(time) / 60, (int)(time) % 60, (int)(time * 100.0) % 100);
+        float time_diff = App::GetGfxScene()->GetSimDataBuffer().simbuf_race_time_diff;
+        special_color_c = (time_diff > 0.0f)
+                          ? theme.value_red_text_color
+                          : ((time_diff < 0.0f) ? theme.success_text_color : ImGui::GetStyle().Colors[ImGuiCol_Text]);
     }
 
     // Draw box if needed
@@ -920,6 +929,8 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
             {
                 ImGui::SameLine();
                 ImGui::TextColored(special_color_b,"%s", special_text_b.c_str());
+                ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2) - (ImGui::CalcTextSize(special_text_c.c_str()).x / 2));
+                ImGui::TextColored(special_color_c,"%s", special_text_c.c_str());
             }
             ImGui::End();
         }
