@@ -823,7 +823,6 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
     std::string special_text_c;
     std::string special_text_d;
     ImVec4 special_color = ImGui::GetStyle().Colors[ImGuiCol_Text]; // Regular color
-    ImVec4 special_color_b = ImVec4(0,0,0,0);
     ImVec4 special_color_c = ImVec4(0,0,0,0);
     float content_width = 0.f;
     bool replay_box = false;
