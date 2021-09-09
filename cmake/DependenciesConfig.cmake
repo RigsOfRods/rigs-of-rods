@@ -17,6 +17,7 @@ add_external_lib(
 add_external_lib(
         OpenAL
         openal/1.19.1
+        REQUIRED
         PKG_CONFIG "openal >= 1.18"
         FIND_PACKAGE_OPTIONS CONFIG
 )
@@ -77,6 +78,7 @@ add_external_lib(
 add_external_lib(
         fmt
         fmt/8.0.1
+        REQUIRED
         PKG_CONFIG "fmt >= 6"
         FIND_PACKAGE_OPTIONS CONFIG
 )
@@ -91,6 +93,7 @@ add_external_lib(
 add_external_lib(
         RapidJSON
         rapidjson/cci.20200410
+        REQUIRED
         PKG_CONFIG "RapidJSON >= 1.1"
         FIND_PACKAGE_OPTIONS CONFIG
 )
