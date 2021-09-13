@@ -1726,7 +1726,7 @@ void RoR::GfxActor::SetRodsVisible(bool visible)
 
 void RoR::GfxActor::UpdateSimDataBuffer()
 {
-    m_simbuf.simbuf_live_local = (m_actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED);
+    m_simbuf.simbuf_live_local = (m_actor->ar_state == ActorState::LOCAL_SIMULATED);
     m_simbuf.simbuf_physics_paused = m_actor->ar_physics_paused;
     m_simbuf.simbuf_pos = m_actor->getRotationCenter();
     m_simbuf.simbuf_rotation = m_actor->getRotation();
@@ -1749,7 +1749,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_top_speed = m_actor->ar_top_speed;
     m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
     m_simbuf.simbuf_net_username = m_actor->m_net_username;
-    m_simbuf.simbuf_is_remote = m_actor->ar_sim_state == Actor::SimState::NETWORKED_OK;
+    m_simbuf.simbuf_is_remote = m_actor->ar_state == ActorState::NETWORKED_OK;
 
     // nodes
     const int num_nodes = m_actor->ar_num_nodes;
@@ -1875,7 +1875,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
 
 bool RoR::GfxActor::IsActorLive() const
 {
-    return (m_actor->ar_sim_state < Actor::SimState::LOCAL_SLEEPING);
+    return (m_actor->ar_state < ActorState::LOCAL_SLEEPING);
 }
 
 void RoR::GfxActor::UpdateCabMesh()
@@ -1953,7 +1953,7 @@ void RoR::GfxActor::SetWheelsVisible(bool value)
 
 
 int RoR::GfxActor::GetActorId          () const { return m_actor->ar_instance_id; }
-int RoR::GfxActor::GetActorState       () const { return static_cast<int>(m_actor->ar_sim_state); }
+int RoR::GfxActor::GetActorState       () const { return static_cast<int>(m_actor->ar_state); }
 
 ActorType RoR::GfxActor::GetActorDriveable() const
 {

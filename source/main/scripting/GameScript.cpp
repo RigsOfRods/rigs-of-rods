@@ -266,7 +266,7 @@ int GameScript::getNumTrucksByFlag(int flag)
     int result = 0;
     for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
-        if (!flag || static_cast<int>(actor->ar_sim_state) == flag)
+        if (!flag || static_cast<int>(actor->ar_state) == flag)
             result++;
     }
     return result;

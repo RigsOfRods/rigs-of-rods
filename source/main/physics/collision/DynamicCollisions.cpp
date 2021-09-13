@@ -176,7 +176,7 @@ void RoR::ResolveInterActorCollisions(const float dt, PointColDetector &interPoi
 
                     const auto penetration_depth = collrange - distance;
 
-                    const bool remote = (hit_actor->ar_sim_state == Actor::SimState::NETWORKED_OK);
+                    const bool remote = (hit_actor->ar_state == ActorState::NETWORKED_OK);
 
                     ResolveCollisionForces(penetration_depth, *hitnode, *na, *nb, *no, coord.alpha,
                             coord.beta, coord.gamma, normal, dt, remote, submesh_ground_model);

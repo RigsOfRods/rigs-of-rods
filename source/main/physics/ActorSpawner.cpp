@@ -280,7 +280,7 @@ void ActorSpawner::InitializeRig()
     m_actor->ar_num_cinecams=0;
     m_actor->m_deletion_scene_nodes.clear();
 
-    m_actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
+    m_actor->ar_state = ActorState::LOCAL_SLEEPING;
     m_actor->m_fusealge_airfoil = nullptr;
     m_actor->m_fusealge_front = nullptr;
     m_actor->m_fusealge_back = nullptr;
@@ -660,7 +660,7 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
 
     m_actor->ar_aeroengines[m_actor->ar_num_aeroengines]=tj;
     m_actor->ar_driveable=AIRPLANE;
-    if (m_actor->ar_autopilot == nullptr && m_actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
+    if (m_actor->ar_autopilot == nullptr && m_actor->ar_state != ActorState::NETWORKED_OK)
     {
         m_actor->ar_autopilot=new Autopilot(m_actor->ar_instance_id);
     }
@@ -783,7 +783,7 @@ void ActorSpawner::BuildAerialEngine(
     m_actor->ar_driveable = AIRPLANE;
 
     /* Autopilot */
-    if (m_actor->ar_autopilot == nullptr && m_actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
+    if (m_actor->ar_autopilot == nullptr && m_actor->ar_state != ActorState::NETWORKED_OK)
     {
         m_actor->ar_autopilot = new Autopilot(m_actor->ar_instance_id);
     }
@@ -910,7 +910,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
         def.max_deflection,
         def.airfoil,
         def.efficacy_coef,
-        m_actor->ar_sim_state != Actor::SimState::NETWORKED_OK
+        m_actor->ar_state != ActorState::NETWORKED_OK
     );
 
     Ogre::Entity* entity = nullptr;

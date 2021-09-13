@@ -22,12 +22,13 @@
 #pragma once
 
 #include "Application.h"
-#include "SimData.h"
 #include "CmdKeyInertia.h"
+#include "Differentials.h"
 #include "GfxActor.h"
 #include "MovableText.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
+#include "SimData.h"
 #include "TyrePressure.h"
 
 #include <Ogre.h>
@@ -43,15 +44,6 @@ class Actor : public ZeroedMemoryAllocator
     friend class GfxActor; // Temporary until all visuals are moved there. ~ only_a_ptr, 2018
     friend class OutGauge;
 public:
-
-    enum class SimState
-    {
-        LOCAL_SIMULATED,  //!< simulated (local) actor
-        NETWORKED_OK,     //!< not simulated (remote) actor
-        NETWORKED_HIDDEN, //!< not simulated, not updated (remote)
-        LOCAL_REPLAY,
-        LOCAL_SLEEPING,   //!< sleeping (local) actor
-    };
 
     Actor(
           int actor_id
@@ -360,10 +352,12 @@ public:
     Ogre::Timer       ar_net_timer;
     unsigned long     ar_net_last_update_time;
     DashBoardManager* ar_dashboard;
-    SimState          ar_sim_state;                   //!< Sim state
     float             ar_collision_range;             //!< Physics attr
     float             ar_top_speed;                   //!< Sim state
     ground_model_t*   ar_last_fuzzy_ground_model;     //!< GUI state
+
+    // Gameplay state
+    ActorState        ar_state;
 
     // Realtime node/beam structure editing helpers
     bool                    ar_nb_initialized;

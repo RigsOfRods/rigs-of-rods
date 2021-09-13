@@ -201,9 +201,9 @@ void SurveyMap::Draw()
             int truckstate = gfx_actor->GetActorState();
             Str<100> fileName;
 
-            if (truckstate == static_cast<int>(Actor::SimState::LOCAL_SIMULATED))
+            if (truckstate == static_cast<int>(ActorState::LOCAL_SIMULATED))
                 fileName << "icon_" << type_str << "_activated.dds"; // green icon
-            else if (truckstate == static_cast<int>(Actor::SimState::NETWORKED_OK))
+            else if (truckstate == static_cast<int>(ActorState::NETWORKED_OK))
                 fileName << "icon_" << type_str << "_networked.dds"; // blue icon
             else
                 fileName << "icon_" << type_str << ".dds"; // gray icon

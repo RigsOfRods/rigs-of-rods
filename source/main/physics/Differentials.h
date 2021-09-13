@@ -23,6 +23,8 @@
 #include <vector>
 #include <OgreUTFString.h>
 
+namespace RoR {
+
 struct DifferentialData
 {
     float speed[2];
@@ -79,4 +81,6 @@ public:
 private:
     std::vector<DiffType> m_available_diffs;
 };
+
+} // namespace RoR
 

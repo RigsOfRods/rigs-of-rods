@@ -480,7 +480,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_entry.AddMember("min_height", actor->getMinHeight(), j_doc.GetAllocator());
         j_entry.AddMember("spawn_rotation", actor->m_spawn_rotation, j_doc.GetAllocator());
         j_entry.AddMember("preloaded_with_terrain", actor->isPreloadedWithTerrain(), j_doc.GetAllocator());
-        j_entry.AddMember("sim_state", static_cast<int>(actor->ar_sim_state), j_doc.GetAllocator());
+        j_entry.AddMember("sim_state", static_cast<int>(actor->ar_state), j_doc.GetAllocator());
         j_entry.AddMember("physics_paused", actor->ar_physics_paused, j_doc.GetAllocator());
         j_entry.AddMember("player_actor", actor==App::GetGameContext()->GetPlayerActor(), j_doc.GetAllocator());
         j_entry.AddMember("prev_player_actor", actor==App::GetGameContext()->GetPrevPlayerActor(), j_doc.GetAllocator());
@@ -751,7 +751,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_entry)
 {
     actor->m_spawn_rotation = j_entry["spawn_rotation"].GetFloat();
-    actor->ar_sim_state = static_cast<Actor::SimState>(j_entry["sim_state"].GetInt());
+    actor->ar_state = static_cast<ActorState>(j_entry["sim_state"].GetInt());
     actor->ar_physics_paused = j_entry["physics_paused"].GetBool();
 
     if (j_entry["player_actor"].GetBool())

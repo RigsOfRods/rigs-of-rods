@@ -127,7 +127,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         grab_truck = NULL;
         for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
-            if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
+            if (actor->ar_state == ActorState::LOCAL_SIMULATED)
             {
                 // check if our ray intersects with the bounding box of the truck
                 std::pair<bool, Real> pair = mouseRay.intersects(actor->ar_bounding_box);

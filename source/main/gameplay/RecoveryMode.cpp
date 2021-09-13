@@ -30,8 +30,8 @@ void RecoveryMode::UpdateInputEvents(float dt)
 {
     if (App::sim_state->getEnum<SimState>() != SimState::RUNNING &&
         App::GetGameContext()->GetPlayerActor() &&
-        App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::NETWORKED_OK &&
-        App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::LOCAL_REPLAY)
+        App::GetGameContext()->GetPlayerActor()->ar_state != ActorState::NETWORKED_OK &&
+        App::GetGameContext()->GetPlayerActor()->ar_state != ActorState::LOCAL_REPLAY)
     {
         return;
     }

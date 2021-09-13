@@ -22,6 +22,8 @@
 #include "Differentials.h"
 #include "Language.h"
 
+using namespace RoR;
+
 void Differential::ToggleDifferentialMode()
 {
     if (m_available_diffs.size() > 1)
