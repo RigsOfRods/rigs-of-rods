@@ -656,7 +656,7 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     std::string propname = this->ComposeName("Turbojet", m_actor->ar_num_aeroengines);
     tj->tjet_visual.SetNodes(front, back, ref);
     tj->tjet_visual.SetupVisuals(def, m_actor->ar_num_aeroengines,
-        propname, nozzle_ent, afterburn_ent, m_actor->m_disable_smoke);
+        propname, nozzle_ent, afterburn_ent);
 
     m_actor->ar_aeroengines[m_actor->ar_num_aeroengines]=tj;
     m_actor->ar_driveable=AIRPLANE;
@@ -5749,10 +5749,6 @@ void ActorSpawner::AddExhaust(
         unsigned int direction_node_idx
     )
 {
-    if (m_actor->m_disable_smoke)
-    {
-        return;
-    }
     exhaust_t exhaust;
     exhaust.emitterNode = emitter_node_idx;
     exhaust.directionNode = direction_node_idx;

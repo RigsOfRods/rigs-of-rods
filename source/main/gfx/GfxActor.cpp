@@ -1742,6 +1742,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
     m_simbuf.simbuf_net_username = m_actor->m_net_username;
     m_simbuf.simbuf_net_colornum = m_actor->m_net_color_num;
+    m_simbuf.simbuf_smoke_enabled = m_actor->getSmokeEnabled();
 
     // General info
     m_simbuf.simbuf_actor_state = m_actor->ar_state;

@@ -123,6 +123,8 @@ public:
     Ogre::String      getTransferCaseName();               //! Gets the current transfer case mode name (4WD Hi, ...)
     void              displayTransferCaseMode();           //! Writes info to console/notify area
     void              toggleCustomParticles();
+    void              setSmokeEnabled(bool enabled) { m_disable_smoke = !enabled; }
+    bool              getSmokeEnabled() const { return !m_disable_smoke; }
     bool              getCustomParticleMode();
     void              beaconsToggle();
     bool              getBrakeLightVisible();
@@ -534,7 +536,7 @@ private:
     bool m_beam_deform_debug_enabled:1; //!< Logging state
     bool m_trigger_debug_enabled:1;     //!< Logging state
     bool m_disable_default_sounds:1;    //!< Spawner context; TODO: remove
-    bool m_disable_smoke:1;             //!< Gfx state
+    bool m_disable_smoke:1;             //!< Stops/starts smoke particles (i.e. exhausts, turbojets).
 
     struct VehicleForceSensors
     {
