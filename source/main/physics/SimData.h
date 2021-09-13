@@ -213,6 +213,14 @@ enum LocalizerType
     LOCALIZER_VOR
 };
 
+enum class ActorState
+{
+    LOCAL_SIMULATED,  //!< simulated (local) actor
+    NETWORKED_OK,     //!< not simulated (remote) actor
+    NETWORKED_HIDDEN, //!< not simulated, not updated (remote)
+    LOCAL_REPLAY,
+    LOCAL_SLEEPING,   //!< sleeping (local) actor
+};
 
 // --------------------------------
 // Soft body physics

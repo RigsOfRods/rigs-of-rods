@@ -630,11 +630,11 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_SIM_HIDE_NET_ACTOR_REQUESTED:
-                    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED &&
-                        ((Actor*)m.payload)->ar_sim_state == Actor::SimState::NETWORKED_OK)
+                    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED &&
+                        ((Actor*)m.payload)->ar_state == ActorState::NETWORKED_OK)
                     {
                         Actor* actor = (Actor*)m.payload;
-                        actor->ar_sim_state = Actor::SimState::NETWORKED_HIDDEN; // Stop net. updates
+                        actor->ar_state = ActorState::NETWORKED_HIDDEN; // Stop net. updates
                         App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor()); // Remove visuals
                         actor->GetGfxActor()->SetFlexbodyVisible(false);
                         actor->GetGfxActor()->SetWheelsVisible(false);
@@ -645,11 +645,11 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED:
-                    if (App::mp_state->GetEnum<MpState>() == MpState::CONNECTED &&
-                        ((Actor*)m.payload)->ar_sim_state == Actor::SimState::NETWORKED_HIDDEN)
+                    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED &&
+                        ((Actor*)m.payload)->ar_state == ActorState::NETWORKED_HIDDEN)
                     {
                         Actor* actor = (Actor*)m.payload;
-                        actor->ar_sim_state = Actor::SimState::NETWORKED_OK; // Resume net. updates
+                        actor->ar_state = ActorState::NETWORKED_OK; // Resume net. updates
                         App::GetGfxScene()->RegisterGfxActor(actor->GetGfxActor()); // Restore visuals
                         actor->GetGfxActor()->SetFlexbodyVisible(true);
                         actor->GetGfxActor()->SetWheelsVisible(true);
@@ -818,10 +818,10 @@ int main(int argc, char *argv[])
                             App::GetGameContext()->UpdateSimInputEvents(dt);
                             App::GetGameContext()->UpdateSkyInputEvents(dt);
                             if (App::GetGameContext()->GetPlayerActor() &&
-                                App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::NETWORKED_OK) // we are in a vehicle
+                                App::GetGameContext()->GetPlayerActor()->ar_state != ActorState::NETWORKED_OK) // we are in a vehicle
                             {
                                 App::GetGameContext()->UpdateCommonInputEvents(dt);
-                                if (App::GetGameContext()->GetPlayerActor()->ar_sim_state != Actor::SimState::LOCAL_REPLAY)
+                                if (App::GetGameContext()->GetPlayerActor()->ar_state != ActorState::LOCAL_REPLAY)
                                 {
                                     if (App::GetGameContext()->GetPlayerActor()->ar_driveable == TRUCK)
                                     {

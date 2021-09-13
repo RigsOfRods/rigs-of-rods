@@ -250,13 +250,13 @@ void Replay::UpdateInputEvents()
 {
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_REPLAY_MODE))
     {
-        if (m_actor->ar_sim_state == Actor::SimState::LOCAL_REPLAY)
-            m_actor->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
+        if (m_actor->ar_state == ActorState::LOCAL_REPLAY)
+            m_actor->ar_state = ActorState::LOCAL_SIMULATED;
         else
-            m_actor->ar_sim_state = Actor::SimState::LOCAL_REPLAY;
+            m_actor->ar_state = ActorState::LOCAL_REPLAY;
     }
 
-    if (m_actor->ar_sim_state == Actor::SimState::LOCAL_REPLAY)
+    if (m_actor->ar_state == ActorState::LOCAL_REPLAY)
     {
         if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.1f) && this->ar_replay_pos <= 0)
         {

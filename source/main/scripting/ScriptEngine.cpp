@@ -377,9 +377,9 @@ void ScriptEngine::init()
     
     // enum truckStates
     result = engine->RegisterEnum("truckStates"); ROR_ASSERT(result>=0);
-    result = engine->RegisterEnumValue("truckStates", "TS_SIMULATED", static_cast<int>(Actor::SimState::LOCAL_SIMULATED)); ROR_ASSERT(result>=0);
-    result = engine->RegisterEnumValue("truckStates", "TS_SLEEPING",  static_cast<int>(Actor::SimState::LOCAL_SLEEPING)); ROR_ASSERT(result>=0);
-    result = engine->RegisterEnumValue("truckStates", "TS_NETWORKED", static_cast<int>(Actor::SimState::NETWORKED_OK)); ROR_ASSERT(result>=0);
+    result = engine->RegisterEnumValue("truckStates", "TS_SIMULATED", static_cast<int>(ActorState::LOCAL_SIMULATED)); ROR_ASSERT(result>=0);
+    result = engine->RegisterEnumValue("truckStates", "TS_SLEEPING",  static_cast<int>(ActorState::LOCAL_SLEEPING)); ROR_ASSERT(result>=0);
+    result = engine->RegisterEnumValue("truckStates", "TS_NETWORKED", static_cast<int>(ActorState::NETWORKED_OK)); ROR_ASSERT(result>=0);
 
     // enum truckTypes
     result = engine->RegisterEnum("truckTypes"); ROR_ASSERT(result>=0);

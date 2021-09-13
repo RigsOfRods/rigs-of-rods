@@ -2948,11 +2948,11 @@ void Actor::lightsToggle()
 {
     // export light command
     Actor* player_actor = App::GetGameContext()->GetPlayerActor();
-    if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == player_actor && ar_forward_commands)
+    if (ar_state == ActorState::LOCAL_SIMULATED && this == player_actor && ar_forward_commands)
     {
         for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
-            if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this != actor && actor->ar_import_commands)
+            if (actor->ar_state == ActorState::LOCAL_SIMULATED && this != actor && actor->ar_import_commands)
                 actor->lightsToggle();
         }
     }
@@ -3171,7 +3171,7 @@ void Actor::updateVisual(float dt)
 
 #ifdef USE_OPENAL
     //airplane radio chatter
-    if (ar_driveable == AIRPLANE && ar_sim_state != SimState::LOCAL_SLEEPING)
+    if (ar_driveable == AIRPLANE && ar_state != ActorState::LOCAL_SLEEPING)
     {
         // play random chatter at random time
         m_avionic_chatter_timer -= dt;
@@ -3420,7 +3420,7 @@ void Actor::tieToggle(int group)
                 // iterate over all actors
                 for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
                 {
-                    if (actor->ar_sim_state == SimState::LOCAL_SLEEPING ||
+                    if (actor->ar_state == ActorState::LOCAL_SLEEPING ||
                         (actor == this && it->ti_no_self_lock))
                     {
                         continue;
@@ -3549,7 +3549,7 @@ void Actor::ropeToggle(int group)
             // iterate over all actor_slots
             for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
-                if (actor->ar_sim_state == SimState::LOCAL_SLEEPING)
+                if (actor->ar_state == ActorState::LOCAL_SLEEPING)
                     continue;
                 // and their ropables
                 for (std::vector<ropable_t>::iterator itr = actor->ar_ropables.begin(); itr != actor->ar_ropables.end(); itr++)
@@ -3658,7 +3658,7 @@ void Actor::hookToggle(int group, HookAction mode, int node_number)
             // iterate over all actor_slots
             for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
-                if (actor->ar_sim_state == SimState::LOCAL_SLEEPING)
+                if (actor->ar_state == ActorState::LOCAL_SLEEPING)
                     continue;
                 if (this == actor && !it->hk_selflock)
                     continue; // don't lock to self
@@ -3780,7 +3780,7 @@ void Actor::beaconsToggle()
 
 bool Actor::getReverseLightVisible()
 {
-    if (ar_sim_state == SimState::NETWORKED_OK)
+    if (ar_state == ActorState::NETWORKED_OK)
         return m_net_reverse_light_on;
 
     if (ar_engine)
@@ -4496,7 +4496,7 @@ void Actor::setMass(float m)
 
 bool Actor::getBrakeLightVisible()
 {
-    if (ar_sim_state == SimState::NETWORKED_OK)
+    if (ar_state == ActorState::NETWORKED_OK)
         return m_net_brake_light_on;
 
     return (ar_brake > 0.01f && !ar_parking_brake);

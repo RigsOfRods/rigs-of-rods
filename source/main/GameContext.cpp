@@ -291,9 +291,9 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         m_actor_manager.RestoreSavedState(rq.amr_actor, *rq.amr_saved_state.get());
     }
     else if (rq.amr_type == ActorModifyRequest::Type::WAKE_UP &&
-        rq.amr_actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
+        rq.amr_actor->ar_state == ActorState::LOCAL_SLEEPING)
     {
-        rq.amr_actor->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
+        rq.amr_actor->ar_state = ActorState::LOCAL_SIMULATED;
         rq.amr_actor->ar_sleep_counter = 0.0f;
     }
     else if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
@@ -886,7 +886,7 @@ void GameContext::UpdateSimInputEvents(float dt)
         else // We're in a vehicle -> If moving slowly enough, get out
         {
             if (this->GetPlayerActor()->ar_nodes[0].Velocity.squaredLength() < 1.0f ||
-                this->GetPlayerActor()->ar_sim_state == Actor::SimState::NETWORKED_OK)
+                this->GetPlayerActor()->ar_state == ActorState::NETWORKED_OK)
             {
                 this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, nullptr));
             }

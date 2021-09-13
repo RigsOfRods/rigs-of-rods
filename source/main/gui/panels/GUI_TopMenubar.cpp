@@ -189,7 +189,7 @@ void TopMenubar::Update()
                     App::GetGuiManager()->SetVisible_VehicleDescription(true);
                 }
 
-                if (current_actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
+                if (current_actor->ar_state != ActorState::NETWORKED_OK)
                 {
                     if (ImGui::Button(_LC("TopMenubar", "Reload current vehicle")))
                     {
@@ -244,7 +244,7 @@ void TopMenubar::Update()
                         for (auto actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
                         {
                             if (!actor->ar_hide_in_actor_list && !actor->isPreloadedWithTerrain() && 
-                                    actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
+                                    actor->ar_state != ActorState::NETWORKED_OK)
                             {
                                 App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
                             }
@@ -753,14 +753,14 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
         {
             std::string id = fmt::format("{}:{}", i++, user.uniqueid);
             ImGui::PushID(id.c_str());
-            if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
+            if (actor->ar_state == ActorState::NETWORKED_OK)
             {
                 if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex1->getHandle()), ImVec2(16, 16)))
                 {
                    App::GetGameContext()->PushMessage(Message(MSG_SIM_HIDE_NET_ACTOR_REQUESTED, (void*)actor));
                 }
             }
-            else if (actor->ar_sim_state == Actor::SimState::NETWORKED_HIDDEN)
+            else if (actor->ar_state == ActorState::NETWORKED_HIDDEN)
             {
                 if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex2->getHandle()), ImVec2(16, 16)))
                 {
@@ -828,7 +828,7 @@ void TopMenubar::DrawActorListSinglePlayer()
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, ORANGE_TEXT);
             }
-            else if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
+            else if (actor->ar_state == ActorState::LOCAL_SIMULATED)
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, WHITE_TEXT);
             }
@@ -875,7 +875,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         content_width = ImGui::CalcTextSize(special_text.c_str()).x;
     }
     else if (App::GetGameContext()->GetPlayerActor() &&
-            App::GetGameContext()->GetPlayerActor()->ar_sim_state == Actor::SimState::LOCAL_REPLAY)
+            App::GetGameContext()->GetPlayerActor()->ar_state == ActorState::LOCAL_REPLAY)
     {
         content_width = 300;
         replay_box = true;

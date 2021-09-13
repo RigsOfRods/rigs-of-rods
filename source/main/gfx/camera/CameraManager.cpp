@@ -718,7 +718,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
         angle = (m_staticcam_look_at - m_staticcam_position).angleBetween(velocity);
         speed = velocity.normalise();
 
-        if (m_cct_player_actor->ar_sim_state == Actor::SimState::LOCAL_REPLAY)
+        if (m_cct_player_actor->ar_state == ActorState::LOCAL_REPLAY)
         {
             speed *= m_cct_player_actor->getReplay()->getPrecision();
         }
@@ -918,7 +918,7 @@ void CameraManager::CameraBehaviorOrbitUpdate()
     }
     else
     {
-        if (m_cct_player_actor && m_cct_player_actor->ar_sim_state == Actor::SimState::LOCAL_REPLAY && camDisplacement != Vector3::ZERO)
+        if (m_cct_player_actor && m_cct_player_actor->ar_state == ActorState::LOCAL_REPLAY && camDisplacement != Vector3::ZERO)
             this->GetCameraNode()->setPosition(desiredPosition);
         else
             this->GetCameraNode()->setPosition(camPosition);
