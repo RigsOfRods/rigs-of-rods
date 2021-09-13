@@ -70,7 +70,7 @@ Turbojet::Turbojet(Actor* actor, int tnodefront, int tnodeback, int tnoderef, Ri
     reset();
 }
 
-void TurbojetVisual::SetupVisuals(RigDef::Turbojet & def, int num, std::string const& propname, Ogre::Entity* nozzle, Ogre::Entity* afterburner_flame, bool disable_smoke)
+void TurbojetVisual::SetupVisuals(RigDef::Turbojet & def, int num, std::string const& propname, Ogre::Entity* nozzle, Ogre::Entity* afterburner_flame)
 {
     m_radius = def.back_diameter / 2.0;
     m_number = num;
@@ -88,23 +88,17 @@ void TurbojetVisual::SetupVisuals(RigDef::Turbojet & def, int num, std::string c
         m_flame_scenenode->setScale(1.0, def.back_diameter, def.back_diameter);
         m_flame_scenenode->setVisible(false);
     }
+
     //smoke visual
-    if (disable_smoke)
+    m_smoke_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    m_smoke_particle = App::GetGfxScene()->GetSceneManager()->createParticleSystem("SmokeParticle-"+propname, "tracks/TurbopropSmoke");
+    if (m_smoke_particle)
     {
-        m_smoke_scenenode = 0;
-        m_smoke_particle = 0;
+        m_smoke_particle->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
+        m_smoke_scenenode->attachObject(m_smoke_particle);
+        m_smoke_particle->setCastShadows(false);
     }
-    else
-    {
-        m_smoke_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-        m_smoke_particle = App::GetGfxScene()->GetSceneManager()->createParticleSystem("SmokeParticle-"+propname, "tracks/TurbopropSmoke");
-        if (m_smoke_particle)
-        {
-            m_smoke_particle->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
-            m_smoke_scenenode->attachObject(m_smoke_particle);
-            m_smoke_particle->setCastShadows(false);
-        }
-    }
+    
 }
 
 void TurbojetVisual::SetNodes(int front, int back, int ref)
@@ -181,8 +175,10 @@ void TurbojetVisual::UpdateVisuals(RoR::GfxActor* gfx_actor)
     }
     else
         m_flame_scenenode->setVisible(false);
+
     //smoke
-    if (m_smoke_scenenode)
+    if (m_smoke_particle &&
+        gfx_actor->GetSimDataBuffer().simbuf_smoke_enabled)
     {
         m_smoke_scenenode->setPosition(node_buf[m_node_back].AbsPosition);
         ParticleEmitter* emit = m_smoke_particle->getEmitter(0);

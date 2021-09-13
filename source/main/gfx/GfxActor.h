@@ -132,6 +132,7 @@ public:
         float                       simbuf_inputshaft_rpm     = 0;     // Land vehicle only
         float                       simbuf_drive_ratio        = 0;     // Land vehicle only
         bool                        simbuf_beaconlight_active = false;
+        bool                        simbuf_smoke_enabled      = false;
         float                       simbuf_hydro_dir_state    = 0;     // State of steering actuator ('hydro'), for steeringwheel display
         float                       simbuf_hydro_aileron_state = 0;
         float                       simbuf_hydro_elevator_state = 0;
