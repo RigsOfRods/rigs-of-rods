@@ -852,7 +852,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         replay_box = true;
         special_text = _LC("TopMenubar", "Replay");
     }
-    else if (App::GetGameContext()->GetPlayerActor() && App::GetGfxScene()->GetSimDataBuffer().simbuf_dir_arrow_visible)
+    else if (App::GetGfxScene()->GetSimDataBuffer().simbuf_dir_arrow_visible)
     {
         race_box = true;
 
@@ -861,7 +861,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
         float distance = 0.0f;
         Actor* player_actor = App::GetGfxScene()->GetSimDataBuffer().simbuf_player_actor;
-        if (player_actor != nullptr &&
+        if (player_actor != nullptr && App::GetGameContext()->GetPlayerActor() &&
             player_actor->GetGfxActor()->GetSimDataBuffer().simbuf_live_local)
         {
             distance = player_actor->GetGfxActor()->GetSimDataBuffer().simbuf_pos.distance(data.simbuf_dir_arrow_target);
