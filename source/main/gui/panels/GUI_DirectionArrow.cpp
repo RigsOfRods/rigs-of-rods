@@ -22,6 +22,7 @@
 
 #include "GUI_DirectionArrow.h"
 
+#include "Actor.h"
 #include "AppContext.h"
 #include "GfxActor.h"
 #include "GfxScene.h"

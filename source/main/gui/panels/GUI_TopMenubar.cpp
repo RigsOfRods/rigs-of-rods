@@ -891,7 +891,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         float distance = 0.0f;
         Actor* player_actor = App::GetGfxScene()->GetSimDataBuffer().simbuf_player_actor;
         if (player_actor != nullptr && App::GetGameContext()->GetPlayerActor() &&
-            player_actor->GetGfxActor()->GetSimDataBuffer().simbuf_live_local)
+            player_actor->GetGfxActor()->GetSimDataBuffer().simbuf_actor_state == ActorState::LOCAL_SIMULATED)
         {
             distance = player_actor->GetGfxActor()->GetSimDataBuffer().simbuf_pos.distance(data.simbuf_dir_arrow_target);
         }

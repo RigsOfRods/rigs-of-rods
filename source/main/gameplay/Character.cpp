@@ -632,9 +632,27 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
     }
 
     // Position + Orientation
+    Ogre::Entity* entity = static_cast<Ogre::Entity*>(xc_scenenode->getAttachedObject(0));
     if (xc_simbuf.simbuf_actor_coupling != nullptr)
     {
-        if (xc_simbuf.simbuf_actor_coupling->GetGfxActor()->HasDriverSeatProp())
+        // We're in vehicle
+        GfxActor* gfx_actor = xc_simbuf.simbuf_actor_coupling->GetGfxActor();
+
+        // Update character visibility first
+        switch (gfx_actor->GetSimDataBuffer().simbuf_actor_state)
+        {
+        case ActorState::NETWORKED_HIDDEN:
+            entity->setVisible(false);
+            break;
+        case ActorState::NETWORKED_OK:
+            entity->setVisible(true);
+            break;
+        default:
+            break; // no change.
+        }
+
+        // If visible, update position
+        if (entity->isVisible() && gfx_actor->HasDriverSeatProp())
         {
             if (xc_movable_text != nullptr)
             {
@@ -657,7 +675,6 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
     }
 
     // Animation
-    Ogre::Entity* entity = static_cast<Ogre::Entity*>(xc_scenenode->getAttachedObject(0));
     if (xc_simbuf.simbuf_anim_name != xc_simbuf_prev.simbuf_anim_name)
     {
         // 'Classic' method - enable one anim, exterminate the others ~ only_a_ptr, 06/2018

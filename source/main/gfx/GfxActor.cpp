@@ -1726,8 +1726,6 @@ void RoR::GfxActor::SetRodsVisible(bool visible)
 
 void RoR::GfxActor::UpdateSimDataBuffer()
 {
-    m_simbuf.simbuf_live_local = (m_actor->ar_state == ActorState::LOCAL_SIMULATED);
-    m_simbuf.simbuf_physics_paused = m_actor->ar_physics_paused;
     m_simbuf.simbuf_pos = m_actor->getRotationCenter();
     m_simbuf.simbuf_rotation = m_actor->getRotation();
     m_simbuf.simbuf_tyre_pressure = m_actor->getTyrePressure().GetCurPressure();
@@ -1749,7 +1747,10 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_top_speed = m_actor->ar_top_speed;
     m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
     m_simbuf.simbuf_net_username = m_actor->m_net_username;
-    m_simbuf.simbuf_is_remote = m_actor->ar_state == ActorState::NETWORKED_OK;
+
+    // General info
+    m_simbuf.simbuf_actor_state = m_actor->ar_state;
+    m_simbuf.simbuf_physics_paused = m_actor->ar_physics_paused;
 
     // nodes
     const int num_nodes = m_actor->ar_num_nodes;
@@ -2053,7 +2054,11 @@ void RoR::GfxActor::UpdateNetLabels(float dt)
     // TODO: Remake network player labels via GUI... they shouldn't be billboards inside the scene ~ only_a_ptr, 05/2018
     if (m_actor->m_net_label_node && m_actor->m_net_label_mt)
     {
-        if (App::mp_hide_net_labels->getBool() || (!m_simbuf.simbuf_is_remote && App::mp_hide_own_net_label->getBool()))
+        const bool is_remote = 
+            m_simbuf.simbuf_actor_state == ActorState::NETWORKED_OK ||
+            m_simbuf.simbuf_actor_state == ActorState::NETWORKED_HIDDEN;
+
+        if (App::mp_hide_net_labels->getBool() || (!is_remote && App::mp_hide_own_net_label->getBool()))
         {
             m_actor->m_net_label_mt->setVisible(false);
             return;

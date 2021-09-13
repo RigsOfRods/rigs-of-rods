@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "Actor.h"
 #include "AutoPilot.h"
 #include "Differentials.h"
 #include "ForwardDeclarations.h"
@@ -114,14 +115,11 @@ public:
         std::unique_ptr<NodeSB>     simbuf_nodes;
         Ogre::Vector3               simbuf_pos                = Ogre::Vector3::ZERO;
         Ogre::Vector3               simbuf_node0_velo         = Ogre::Vector3::ZERO;
-        bool                        simbuf_live_local         = false;
-        bool                        simbuf_physics_paused     = false;
         float                       simbuf_rotation           = 0;
         float                       simbuf_tyre_pressure      = 0;
         bool                        simbuf_tyre_pressurizing  = false;
         Ogre::AxisAlignedBox        simbuf_aabb               = Ogre::AxisAlignedBox::BOX_NULL;
         std::string                 simbuf_net_username;
-        bool                        simbuf_is_remote          = false;
         int                         simbuf_gear               = 0;
         int                         simbuf_autoshift          = 0;
         float                       simbuf_wheel_speed        = 0;
@@ -152,6 +150,9 @@ public:
         bool                        simbuf_headlight_on       = 0;
         Ogre::Vector3               simbuf_direction          = Ogre::Vector3::ZERO;         //!< Output of `Actor::getDirection()`
         float                       simbuf_top_speed          = 0;
+        // Gameplay state
+        ActorState                  simbuf_actor_state        = ActorState::LOCAL_SLEEPING;
+        bool                        simbuf_physics_paused     = false;
         // Autopilot
         int                         simbuf_ap_heading_mode    = Autopilot::HEADING_NONE;
         int                         simbuf_ap_heading_value   = 0;
