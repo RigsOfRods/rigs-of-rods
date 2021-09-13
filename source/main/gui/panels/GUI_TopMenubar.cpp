@@ -852,7 +852,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         replay_box = true;
         special_text = _LC("TopMenubar", "Replay");
     }
-    else if (App::GetGfxScene()->GetSimDataBuffer().simbuf_dir_arrow_visible)
+    else if (App::GetGameContext()->GetPlayerActor() && App::GetGfxScene()->GetSimDataBuffer().simbuf_dir_arrow_visible)
     {
         race_box = true;
 
