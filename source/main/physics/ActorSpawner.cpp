@@ -657,6 +657,10 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     tj->tjet_visual.SetNodes(front, back, ref);
     tj->tjet_visual.SetupVisuals(def, m_actor->ar_num_aeroengines,
         propname, nozzle_ent, afterburn_ent);
+    if (!m_actor->m_disable_smoke)
+    {
+        tj->tjet_visual.SetVisible(true);
+    }
 
     m_actor->ar_aeroengines[m_actor->ar_num_aeroengines]=tj;
     m_actor->ar_driveable=AIRPLANE;

@@ -3186,7 +3186,7 @@ void Actor::updateVisual(float dt)
 
     // update exhausts
     // TODO: Move to GfxActor, don't forget dt*m_simulation_speed
-    if (!m_disable_smoke && ar_engine && exhausts.size() > 0)
+    if (ar_engine && exhausts.size() > 0)
     {
         std::vector<exhaust_t>::iterator it;
         for (it = exhausts.begin(); it != exhausts.end(); it++)
@@ -3198,7 +3198,7 @@ void Actor::updateVisual(float dt)
             ParticleEmitter* emit = it->smoker->getEmitter(0);
             it->smokeNode->setPosition(ar_nodes[it->emitterNode].AbsPosition);
             emit->setDirection(dir);
-            if (ar_engine->GetSmoke() != -1.0)
+            if (!m_disable_smoke && ar_engine->GetSmoke() != -1.0)
             {
                 emit->setEnabled(true);
                 emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.02 + ar_engine->GetSmoke() * 0.06));
