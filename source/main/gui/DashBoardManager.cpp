@@ -470,7 +470,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
         ctrl.initialSize = w->getSize();
         ctrl.initialPosition = w->getPosition();
         ctrl.last = 1337.1337f; // force update
-        ctrl.lastState = true;
+        ctrl.lastState = false;
 
         // establish the link
         {
