@@ -520,6 +520,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_entry.AddMember("wheel_spin", actor->ar_wheel_spin, j_doc.GetAllocator());
 
         j_entry.AddMember("lights", (int)actor->m_headlight_on, j_doc.GetAllocator());
+        j_entry.AddMember("blink_type", (int)actor->getBlinkType(), j_doc.GetAllocator());
         j_entry.AddMember("pp_beacon_light", actor->m_beacon_light_on, j_doc.GetAllocator());
         j_entry.AddMember("custom_particles", actor->m_custom_particles_enabled, j_doc.GetAllocator());
 
@@ -801,6 +802,7 @@ void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_ent
     {
         actor->lightsToggle();
     }
+    actor->setBlinkType(BlinkType(j_entry["blink_type"].GetInt()));
     actor->m_beacon_light_on = j_entry["pp_beacon_light"].GetBool();
     if (actor->m_custom_particles_enabled != j_entry["custom_particles"].GetBool())
     {
