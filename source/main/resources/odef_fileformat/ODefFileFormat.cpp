@@ -272,7 +272,7 @@ bool ODefParser::ProcessCurrentLine()
         else if (!strncmp(ev_type, "airplane",  8)) { m_ctx.cbox_event_filter = EVENT_AIRPLANE; }
         else if (!strncmp(ev_type, "boat",      4)) { m_ctx.cbox_event_filter = EVENT_BOAT;     }
         else if (!strncmp(ev_type, "delete",    6)) { m_ctx.cbox_event_filter = EVENT_DELETE;   }
-        else                                        { m_ctx.cbox_event_filter = EVENT_NONE;     }
+        else                                        { m_ctx.cbox_event_filter = EVENT_ALL;      }
 
         // hack to avoid fps drops near spawnzones
         if (!strncmp(ev_name, "spawnzone", 9)) { m_ctx.cbox_event_filter = EVENT_AVATAR; }
