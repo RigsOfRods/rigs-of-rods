@@ -43,7 +43,7 @@
 #include <rapidjson/rapidjson.h>
 #include <fstream>
 
-#define SAVEGAME_FILE_FORMAT 2
+#define SAVEGAME_FILE_FORMAT 3
 
 using namespace Ogre;
 using namespace RoR;
