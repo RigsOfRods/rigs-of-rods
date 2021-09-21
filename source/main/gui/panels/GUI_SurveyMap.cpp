@@ -70,10 +70,11 @@ void SurveyMap::Draw()
     }
 
     // Calculate window position
+    Ogre::RenderWindow* rw = RoR::App::GetAppContext()->GetRenderWindow();
     ImVec2 view_size(0, 0);
     if (mMapMode == SurveyMapMode::BIG)
     {
-        view_size.y = ImGui::GetIO().DisplaySize.y -
+        view_size.y = (rw->getWidth() * 0.55f) -
             ((2 * App::GetGuiManager()->GetTheme().screen_edge_padding.y) + (2 * WINDOW_PADDING));
         Vector3 terrn_size = App::GetSimTerrain()->getMaxTerrainSize(); // Y is 'up'!
         if (!terrn_size.isZeroLength())
@@ -87,7 +88,7 @@ void SurveyMap::Draw()
     }
     else if (mMapMode == SurveyMapMode::SMALL)
     {
-        view_size.y = ImGui::GetIO().DisplaySize.y * 0.30f;
+        view_size.y = rw->getWidth() * 0.2f;
         view_size.x = view_size.y;
     }
 
@@ -256,7 +257,7 @@ void SurveyMap::CreateTerrainTextures()
     int res = std::pow(2, std::floor(std::log2(resolution)));
 
     mMapTextureCreatorStatic = std::unique_ptr<SurveyMapTextureCreator>(new SurveyMapTextureCreator(terrain_size.y));
-    mMapTextureCreatorStatic->init(res, fsaa);
+    mMapTextureCreatorStatic->init(res / 1.5, fsaa);
     mMapTextureCreatorStatic->update(mMapCenter + mMapCenterOffset, mTerrainSize);
 
     // TODO: Find out how to zoom into the static texture instead
