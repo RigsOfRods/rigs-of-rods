@@ -448,7 +448,9 @@ public:
     typedef std::vector<event_trigger_t> TriggerVec;
     typedef std::map<int, TriggerVec> EventMap;
 
-    std::string DEFAULT_MAPFILE = "input.map";
+    static const std::string DEFAULT_MAPFILE; // = "input.map";
+    static const int         DEFAULT_MAPFILE_DEVICEID = -1;
+    static const int         BUILTIN_MAPPING_DEVICEID = -2;
 
     InputEngine();
     ~InputEngine();
