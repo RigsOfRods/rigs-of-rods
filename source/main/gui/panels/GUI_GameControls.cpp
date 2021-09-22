@@ -350,7 +350,11 @@ void GameControls::ReloadMapFile()
 void GameControls::SetVisible(bool vis)
 {
     m_is_visible = vis;
-    if (!vis)
+    if (vis)
+    {
+        m_text_all_active = _LC("GameSettings", "<All active values>");
+    }
+    else
     {
         this->CancelChanges();
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
@@ -360,7 +364,7 @@ void GameControls::SetVisible(bool vis)
 std::string const& GameControls::GetFileComboLabel(int file_id)
 {
     if (file_id == MAPFILE_ID_ALL)
-        return MAPFILE_COMBO_ALL;
+        return m_text_all_active;
     else
         return App::GetInputEngine()->getLoadedConfigFile(file_id); // handles -1
 }
@@ -368,6 +372,6 @@ std::string const& GameControls::GetFileComboLabel(int file_id)
 bool GameControls::ShouldDisplay(event_trigger_t& trig)
 {
     return (m_active_mapping_file == MAPFILE_ID_ALL ||
-            m_active_mapping_file == MAPFILE_ID_DEFAULT ||
             m_active_mapping_file == trig.configDeviceID);
 }
+

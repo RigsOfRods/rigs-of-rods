@@ -398,6 +398,8 @@ using namespace std;
 using namespace Ogre;
 using namespace OIS;
 
+const std::string InputEngine::DEFAULT_MAPFILE = "input.map";
+
 InputEngine::InputEngine() :
      free_joysticks(0)
     , mForceFeedback(0)
@@ -1789,7 +1791,7 @@ void InputEngine::completeMissingEvents()
             char tmp[256] = "";
             sprintf(tmp, "%s %s", eventInfo[i].name.c_str(), eventInfo[i].defaultKey.c_str());
 
-            processLine(tmp);
+            processLine(tmp, BUILTIN_MAPPING_DEVICEID);
         }
     }
 }

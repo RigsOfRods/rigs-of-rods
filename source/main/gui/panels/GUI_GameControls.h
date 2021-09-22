@@ -28,7 +28,6 @@ class GameControls
 {
 public:
     const ImVec4      GRAY_HINT_TEXT = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
-    const std::string MAPFILE_COMBO_ALL = "<All files>";
     const int         MAPFILE_ID_ALL = -2;
     const int         MAPFILE_ID_DEFAULT = -1;
 
@@ -56,13 +55,16 @@ private:
     float m_colum_widths[3] = {}; //!< body->header width sync
 
     // Config file selection
-    int m_active_mapping_file = -2; // -2 = all, -1 = default (input.map), 0+ = device specific map file.
+    int m_active_mapping_file = MAPFILE_ID_ALL; // Negative values = MAPFILE_ID_*, 0+ = device specific map file.
 
     // Editing context
     RoR::events      m_active_event = events::EV_MODE_LAST; // Invalid
     event_trigger_t* m_active_trigger = nullptr;
     eventtypes       m_selected_evtype = eventtypes::ET_NONE;
     Str<1000>        m_active_buffer;
+
+    // Cached display strings
+    std::string      m_text_all_active; //!< file combobox <All active values>
 };
 
 } // namespace GUI
