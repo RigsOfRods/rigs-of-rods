@@ -109,6 +109,7 @@ void GameControls::DrawEvent(RoR::events ev_code)
     // Var
     InputEngine::TriggerVec& triggers = App::GetInputEngine()->getEvents()[ev_code];
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    float cursor_x = ImGui::GetCursorPosX();
 
     // Check if we have anything to show
     bool empty = true;
@@ -124,8 +125,14 @@ void GameControls::DrawEvent(RoR::events ev_code)
     // Set up
     ImGui::PushID((int)ev_code);
 
-    // Name column
+    // Name column with right-aligned [+] button
     ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(ev_code).c_str());
+    ImGui::SameLine();
+    ImGui::SetCursorPosX((cursor_x + m_colum_widths[0]) - 27); // estimate
+    if (ImGui::Button("+"))
+    {
+        App::GetInputEngine()->addEventDefault((int)ev_code, m_active_mapping_file);
+    }
     ImGui::NextColumn();
 
     // Command column
@@ -135,7 +142,7 @@ void GameControls::DrawEvent(RoR::events ev_code)
 
         ImGui::PushID(&trig);
 
-        if (m_active_event == ev_code)
+        if (m_active_trigger == &trig)
         {
             this->DrawEventEditBox();
         }
@@ -224,6 +231,12 @@ void GameControls::DrawEventEditBox()
     ImGui::SameLine();
     if (ImGui::Button(_LC("GameSettings", "Cancel")))
     {
+        this->CancelChanges();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button(_LC("GameSettings", "Delete")))
+    {
+        App::GetInputEngine()->eraseEvent(m_active_event, m_active_trigger);
         this->CancelChanges();
     }
 }

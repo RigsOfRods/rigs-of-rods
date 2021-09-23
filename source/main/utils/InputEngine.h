@@ -479,6 +479,7 @@ public:
     Ogre::String        getDeviceName(event_trigger_t const& evt);
     Ogre::String        getEventCommand(int eventID);
     Ogre::String        getEventConfig(int eventID);
+    Ogre::String        getEventDefaultConfig(int eventID);
     bool                isEventDefined(int eventID);
     int                 getKeboardKeyForCommand(int eventID);               //!< Returns -1 if not Keyboard
     int                 getJoyComponentCount(OIS::ComponentType type, int joystickNumber);
@@ -496,7 +497,8 @@ public:
 
         // Event management
 
-    void                addEvent(int eventID, event_trigger_t& t);
+    void                addEvent(int eventID, event_trigger_t& t);          //!< Registers new trigger for this event.
+    void                addEventDefault(int eventID, int deviceID = -1);    //!< Adds a new trigger with builtin value for this event.
     void                updateEvent(int eventID, const event_trigger_t& t);
     void                eraseEvent(int eventID, const event_trigger_t* t);
     void                clearEvents(int eventID);                           //!< Clears all bindings for given event.
