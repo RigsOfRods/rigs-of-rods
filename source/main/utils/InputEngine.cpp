@@ -771,6 +771,18 @@ String InputEngine::getEventConfig(int eventID)
     return "";
 }
 
+String InputEngine::getEventDefaultConfig(int eventID)
+{
+    for (int i = 0; i < EV_MODE_LAST; i++)
+    {
+        if (eventInfo[i].eventID == eventID)
+        {
+            return eventInfo[i].defaultKey;
+        }
+    }
+    return "";
+}
+
 std::string InputEngine::composeEventCommandString(event_trigger_t const& trig)
 {
     switch (trig.eventtype)
@@ -1170,6 +1182,16 @@ void InputEngine::addEvent(int eventID, event_trigger_t& t)
         events[eventID].clear();
     }
     events[eventID].push_back(t);
+}
+
+void InputEngine::addEventDefault(int eventID, int deviceID /*= -1*/)
+{
+    if (eventID == -1)
+    //unknown event, discard
+        return;
+
+    std::string line = fmt::format("{} {}", this->eventIDToName(eventID), this->getEventDefaultConfig(eventID));
+    this->processLine(line.c_str(), deviceID);
 }
 
 void InputEngine::updateEvent(int eventID, const event_trigger_t& t)
