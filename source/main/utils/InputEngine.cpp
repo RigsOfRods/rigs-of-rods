@@ -1468,15 +1468,8 @@ bool InputEngine::processLine(const char* line, int deviceID)
             int eventID = resolveEventName(String(eventName));
             if (eventID == -1)
                 return false;
-            event_trigger_t t_none = newEvent();
-            t_none.configDeviceID = deviceID;
-            t_none.eventtype = eventtype;
-            //t_none.configline = "";
-            strncpy(t_none.group, getEventGroup(eventName).c_str(), 128);
-            strncpy(t_none.tmp_eventname, eventName, 128);
-            strncpy(t_none.comments, cur_comment.c_str(), 1024);
-            cur_comment = "";
-            addEvent(eventID, t_none);
+            // Insert event with no trigger
+            events.insert(std::make_pair(eventID, std::vector<event_trigger_t>()));
             return true;
         }
     case ET_MouseButton:
@@ -1782,12 +1775,8 @@ void InputEngine::completeMissingEvents()
     {
         if (events.find(eventInfo[i].eventID) == events.end())
         {
-            if (eventInfo[i].defaultKey.empty())
-                continue;
-            if (eventInfo[i].defaultKey == "None")
-                continue;
-
             // not existing, insert default
+
             char tmp[256] = "";
             sprintf(tmp, "%s %s", eventInfo[i].name.c_str(), eventInfo[i].defaultKey.c_str());
 
