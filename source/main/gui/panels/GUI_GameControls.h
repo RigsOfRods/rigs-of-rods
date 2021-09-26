@@ -40,10 +40,12 @@ private:
     void DrawEvent(RoR::events ev_code); //!< One line in table
     void DrawControlsTab(const char* prefix); //!< Draws table with events matching prefix.
     void DrawControlsTabItem(const char* name, const char* prefix); //!< Wraps `DrawControlsTab()` with scrollbar and tabs-bar logic.
-    void DrawToolbar();
+    void DrawExpertToolbar();
 
+    // Edit bindings (used for both expert and interactive modes)
     void ApplyChanges();
     void CancelChanges();
+
     void SaveMapFile();
     void ReloadMapFile();
 
@@ -51,17 +53,19 @@ private:
     bool               ShouldDisplay(event_trigger_t& trig);
 
     bool m_is_visible = false;
-    bool m_show_empty = true;
     float m_colum_widths[3] = {}; //!< body->header width sync
 
-    // Config file selection
-    int m_active_mapping_file = MAPFILE_ID_ALL; // Negative values = MAPFILE_ID_*, 0+ = device specific map file.
+    // Mode/config file selection
+    bool m_expert_mode = false;                 //!< When disabled, only "input.map" is edited.
+    int m_active_mapping_file = MAPFILE_ID_ALL; //!< Negative values = MAPFILE_ID_*, 0+ = device specific map file.
+    bool m_unsaved_changes = false;
 
     // Editing context
     RoR::events      m_active_event = events::EV_MODE_LAST; // Invalid
     event_trigger_t* m_active_trigger = nullptr;
     eventtypes       m_selected_evtype = eventtypes::ET_NONE;
     Str<1000>        m_active_buffer;
+    bool             m_interactive_keybinding_active = false;
 
     // Cached display strings
     std::string      m_text_all_active; //!< file combobox <All active values>

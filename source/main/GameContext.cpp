@@ -819,7 +819,8 @@ void GameContext::UpdateGlobalInputEvents()
     }
 
     // Write player position to log
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_OUTPUT_POSITION))
+    if (App::app_state->getEnum<AppState>() == AppState::SIMULATION &&
+        App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_OUTPUT_POSITION))
     {
         Ogre::Vector3 position(Ogre::Vector3::ZERO);
         Ogre::Radian rotation(0);

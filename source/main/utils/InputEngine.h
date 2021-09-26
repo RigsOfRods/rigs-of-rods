@@ -521,7 +521,7 @@ public:
     OIS::JoyStickState* getCurrentJoyState(int joystickNumber);
     OIS::MouseState     getMouseState();
     bool                isKeyDown(OIS::KeyCode mod);                        //!< Asks OIS directly
-    int                 getCurrentKeyCombo(Ogre::String* combo);
+    int                 getCurrentKeyCombo(Ogre::String* combo);            //!< Returns number of non-modifier keys pressed (or modifier count as negative number).
     int                 getCurrentJoyButton(int& joystickNumber, int& button);
     int                 getCurrentPovValue(int& joystickNumber, int& pov, int& povdir);
 
