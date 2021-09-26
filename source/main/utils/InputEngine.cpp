@@ -1703,7 +1703,7 @@ int InputEngine::getCurrentKeyCombo(String* combo)
     }
     else if (keyCounter == 0 && modCounter == 0)
     {
-        *combo = "(Please press a key)";
+        *combo = _L("(Please press a key)");
         return 0;
     }
     return keyCounter;

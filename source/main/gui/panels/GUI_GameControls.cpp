@@ -23,6 +23,7 @@
 #include "Application.h"
 #include "Language.h"
 #include "OgreImGui.h"
+#include "GUI_LoadingWindow.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
 
@@ -33,39 +34,105 @@ using namespace GUI;
 
 void GameControls::Draw()
 {
-    ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(800.f, 600.f), ImGuiCond_FirstUseEver);
-    bool keep_open = true;
-    ImGui::Begin(_LC("GameControls", "Game Controls"), &keep_open);
-
-    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
-
-    this->DrawToolbar();
-
-    ImGui::BeginTabBar("GameSettingsTabs");
-
-    this->DrawControlsTabItem("Airplane", "AIRPLANE");
-    this->DrawControlsTabItem("Boat", "BOAT");
-    this->DrawControlsTabItem("Camera", "CAMERA");
-    this->DrawControlsTabItem("Sky", "SKY");
-    this->DrawControlsTabItem("Character", "CHARACTER");
-    this->DrawControlsTabItem("Commands", "COMMANDS");
-    this->DrawControlsTabItem("Common", "COMMON");
-    this->DrawControlsTabItem("Grass", "GRASS");
-    this->DrawControlsTabItem("Map", "SURVEY_MAP");
-    this->DrawControlsTabItem("Menu", "MENU");
-    this->DrawControlsTabItem("Truck", "TRUCK");
-
-    ImGui::EndTabBar(); // GameSettingsTabs
-
-    ImGui::End();
-    if (!keep_open)
+    if (m_interactive_keybinding_active)
     {
-        this->SetVisible(false);
+        // Interactive keybind mode - controls window remains 'visible', but box is drawn instead.
+
+        GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+        Ogre::String keys_pressed;
+        int num_nonmodifier_keys = App::GetInputEngine()->getCurrentKeyCombo(&keys_pressed);
+
+        if (num_nonmodifier_keys > 0)
+        {
+            m_active_buffer = keys_pressed;
+            this->ApplyChanges();
+        }
+        else
+        {
+            ImGui::SetNextWindowPosCenter();
+            ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse |
+                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize;
+            ImGui::Begin(_LC("GameControls", "Press a new key"), nullptr, flags);
+            ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(m_active_event).c_str());
+            ImGui::TextColored(GRAY_HINT_TEXT, "%s", App::GetInputEngine()->eventIDToDescription(m_active_event).c_str());
+            ImGui::NewLine();
+            ImGui::Text(keys_pressed.c_str());
+            ImGui::End();
+        }
+    }
+    else
+    {
+        // regular window display
+
+        ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(800.f, 600.f), ImGuiCond_FirstUseEver);
+        bool keep_open = true;
+        ImGui::Begin(_LC("GameControls", "Game Controls"), &keep_open);
+
+        GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+
+        // Toolbar
+
+        if (m_expert_mode)
+        {
+            this->DrawExpertToolbar();
+        }
+        else
+        {
+            if (m_unsaved_changes)
+            {
+                if (ImGui::Button(_LC("GameControls", "Save changes")))
+                {
+                    this->SaveMapFile();
+                }
+                ImGui::SameLine();
+                if (ImGui::Button(_LC("GameControls", "Reset changes")))
+                {
+                    this->ReloadMapFile();
+                }
+            }
+        }
+
+        // right-aligned "Expert mode" checkbox
+        if (!m_active_trigger) // do not display when editing in progress
+        {
+            ImGui::SameLine();
+            std::string expertmode_text = _LC("GameControls", "Expert mode");
+            ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - ImGui::CalcTextSize(expertmode_text.c_str()).x - 35); // estimate
+            if (ImGui::Checkbox(expertmode_text.c_str(), &m_expert_mode))
+            {
+                if (!m_expert_mode)
+                    m_active_mapping_file = MAPFILE_ID_DEFAULT;
+            }
+        }
+
+        // Tabs
+
+        ImGui::BeginTabBar("GameSettingsTabs");
+
+        this->DrawControlsTabItem("Airplane", "AIRPLANE");
+        this->DrawControlsTabItem("Boat", "BOAT");
+        this->DrawControlsTabItem("Camera", "CAMERA");
+        this->DrawControlsTabItem("Sky", "SKY");
+        this->DrawControlsTabItem("Character", "CHARACTER");
+        this->DrawControlsTabItem("Commands", "COMMANDS");
+        this->DrawControlsTabItem("Common", "COMMON");
+        this->DrawControlsTabItem("Grass", "GRASS");
+        this->DrawControlsTabItem("Map", "SURVEY_MAP");
+        this->DrawControlsTabItem("Menu", "MENU");
+        this->DrawControlsTabItem("Truck", "TRUCK");
+
+        ImGui::EndTabBar(); // GameSettingsTabs
+
+        ImGui::End();
+        if (!keep_open)
+        {
+            this->SetVisible(false);
+        }
     }
 }
 
-void GameControls::DrawToolbar()
+void GameControls::DrawExpertToolbar()
 {
     // Select mapping file to work with
     //    - General BeginCombo() API, you have full control over your selection data and display type.
@@ -112,12 +179,12 @@ void GameControls::DrawEvent(RoR::events ev_code)
     float cursor_x = ImGui::GetCursorPosX();
 
     // Check if we have anything to show
-    bool empty = true;
+    int display_count = 0;
     for (event_trigger_t& trig: triggers)
     {
-        empty |= this->ShouldDisplay(trig);
+        display_count += (int)this->ShouldDisplay(trig);
     }
-    if (empty && !m_show_empty)
+    if (display_count == 0 && !m_expert_mode)
     {
         return;
     }
@@ -125,42 +192,62 @@ void GameControls::DrawEvent(RoR::events ev_code)
     // Set up
     ImGui::PushID((int)ev_code);
 
-    // Name column with right-aligned [+] button
+    // Name column
     ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(ev_code).c_str());
-    ImGui::SameLine();
-    ImGui::SetCursorPosX((cursor_x + m_colum_widths[0]) - 27); // estimate
-    if (ImGui::Button("+"))
+    if (m_expert_mode)
     {
-        App::GetInputEngine()->addEventDefault((int)ev_code, m_active_mapping_file);
+        ImGui::SameLine();
+        ImGui::SetCursorPosX((cursor_x + m_colum_widths[0]) - 27); // estimate
+        if (ImGui::Button("+"))
+        {
+            App::GetInputEngine()->addEventDefault((int)ev_code, m_active_mapping_file);
+        }
     }
+
     ImGui::NextColumn();
 
     // Command column
+
     for (event_trigger_t& trig: triggers)
     {
         if (!this->ShouldDisplay(trig)) continue;
 
         ImGui::PushID(&trig);
 
-        if (m_active_trigger == &trig)
+        if (m_expert_mode)
         {
-            this->DrawEventEditBox();
-        }
-        else
-        {
-            if (ImGui::Button(_LC("GameSettings", "Edit")))
+            if (m_active_trigger == &trig)
             {
-                // Begin editing
+                this->DrawEventEditBox();
+            }
+            else
+            {
+                if (ImGui::Button(_LC("GameSettings", "Edit")))
+                {
+                    // Begin editing
+                    m_active_event = ev_code;
+                    m_active_trigger = &trig;
+                    m_selected_evtype = trig.eventtype;
+                    m_active_buffer.Assign(App::GetInputEngine()->getEventConfig(ev_code).c_str());
+                }
+                ImGui::SameLine();
+                ImGui::TextColored(theme.success_text_color, "%s",
+                    InputEngine::getEventTypeName(App::GetInputEngine()->getEvents()[ev_code][0].eventtype));
+                ImGui::SameLine();
+                ImGui::TextColored(theme.success_text_color, "%s", App::GetInputEngine()->getEventCommand(ev_code).c_str());
+            }
+        }
+        else // simple mode
+        {
+            if (ImGui::Button(App::GetInputEngine()->getEventCommand(ev_code).c_str()))
+            {
+                // Begin interactive keybind
                 m_active_event = ev_code;
                 m_active_trigger = &trig;
-                m_selected_evtype = trig.eventtype;
-                m_active_buffer.Assign(App::GetInputEngine()->getEventConfig(ev_code).c_str());
+                m_selected_evtype = eventtypes::ET_Keyboard;
+                m_active_buffer.Clear();
+                m_interactive_keybinding_active = true;
             }
-            ImGui::SameLine();
-            ImGui::TextColored(theme.success_text_color, "%s",
-                InputEngine::getEventTypeName(App::GetInputEngine()->getEvents()[ev_code][0].eventtype));
-            ImGui::SameLine();
-            ImGui::TextColored(theme.success_text_color, "%s", App::GetInputEngine()->getEventCommand(ev_code).c_str());
         }
 
         ImGui::PopID(); // &trig
@@ -325,12 +412,14 @@ void GameControls::ApplyChanges()
         m_active_buffer.ToCStr());
 
     // Parse the line - this creates new trigger.
-    App::GetInputEngine()->processLine(line.c_str());
+    App::GetInputEngine()->processLine(line.c_str(), m_active_mapping_file);
 
     // Reset editing context.
     m_active_event = events::EV_MODE_LAST; // Invalid
     m_active_trigger = nullptr;
     m_active_buffer.Clear();
+    m_interactive_keybinding_active = false;
+    m_unsaved_changes = true;
 }
 
 void GameControls::CancelChanges()
@@ -339,6 +428,7 @@ void GameControls::CancelChanges()
     m_active_event = events::EV_MODE_LAST; // Invalid
     m_active_trigger = nullptr;
     m_active_buffer.Clear();
+    m_interactive_keybinding_active = false;
 }
 
 void GameControls::SaveMapFile()
@@ -348,6 +438,7 @@ void GameControls::SaveMapFile()
     {
         App::GetInputEngine()->saveConfigFile(m_active_mapping_file);
     }
+    m_unsaved_changes = false;
 }
 
 void GameControls::ReloadMapFile()
@@ -358,6 +449,7 @@ void GameControls::ReloadMapFile()
         App::GetInputEngine()->clearEventsByDevice(m_active_mapping_file);
         App::GetInputEngine()->loadConfigFile(m_active_mapping_file);
     }
+    m_unsaved_changes = false;
 }
 
 void GameControls::SetVisible(bool vis)
@@ -384,7 +476,18 @@ std::string const& GameControls::GetFileComboLabel(int file_id)
 
 bool GameControls::ShouldDisplay(event_trigger_t& trig)
 {
-    return (m_active_mapping_file == MAPFILE_ID_ALL ||
-            m_active_mapping_file == trig.configDeviceID);
+    if (m_expert_mode)
+    {
+        // filter items by selected mapping file
+        return (m_active_mapping_file == MAPFILE_ID_ALL ||
+                m_active_mapping_file == trig.configDeviceID);
+    }
+    else
+    {
+        // display only keyboard items from "input.map" or defaults
+        return trig.eventtype == eventtypes::ET_Keyboard &&
+               (trig.configDeviceID == MAPFILE_ID_DEFAULT || // input.map
+               trig.configDeviceID == MAPFILE_ID_ALL);       // builtin defaults
+    }
 }
 
