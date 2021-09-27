@@ -747,8 +747,6 @@ float InputEngine::logval(float val)
     return -log10(1.0 / (1.1 + val)) / 1.0;
 }
 
-
-
 String InputEngine::getEventCommand(int eventID)
 {
     std::vector<event_trigger_t>& t_vec = events[eventID];
@@ -758,6 +756,11 @@ String InputEngine::getEventCommand(int eventID)
         return this->composeEventCommandString(t_vec[0]);
     }
     return "";
+}
+
+String InputEngine::getTriggerCommand(event_trigger_t const& evt)
+{
+    return this->composeEventCommandString(evt);
 }
 
 String InputEngine::getEventConfig(int eventID)
