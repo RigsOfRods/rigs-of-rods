@@ -478,6 +478,7 @@ public:
     Ogre::String        getKeyForCommand(int eventID);
     Ogre::String        getDeviceName(event_trigger_t const& evt);
     Ogre::String        getEventCommand(int eventID);
+    Ogre::String        getTriggerCommand(event_trigger_t const& evt);
     Ogre::String        getEventConfig(int eventID);
     Ogre::String        getEventDefaultConfig(int eventID);
     bool                isEventDefined(int eventID);

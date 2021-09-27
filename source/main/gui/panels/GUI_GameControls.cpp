@@ -178,7 +178,7 @@ void GameControls::DrawEvent(RoR::events ev_code)
 
         ImGui::PushID(&trig);
 
-        if (ImGui::Button(App::GetInputEngine()->getEventCommand(ev_code).c_str()))
+        if (ImGui::Button(App::GetInputEngine()->getTriggerCommand(trig).c_str()))
         {
             // Begin interactive keybind
             m_active_event = ev_code;
@@ -373,21 +373,15 @@ void GameControls::CancelChanges()
 void GameControls::SaveMapFile()
 {
     this->CancelChanges();
-    if (m_active_mapping_file > MAPFILE_ID_ALL)
-    {
-        App::GetInputEngine()->saveConfigFile(m_active_mapping_file);
-    }
+    App::GetInputEngine()->saveConfigFile(m_active_mapping_file);
     m_unsaved_changes = false;
 }
 
 void GameControls::ReloadMapFile()
 {
     this->CancelChanges();
-    if (m_active_mapping_file > MAPFILE_ID_ALL)
-    {
-        App::GetInputEngine()->clearEventsByDevice(m_active_mapping_file);
-        App::GetInputEngine()->loadConfigFile(m_active_mapping_file);
-    }
+    App::GetInputEngine()->clearEventsByDevice(m_active_mapping_file);
+    App::GetInputEngine()->loadConfigFile(m_active_mapping_file);
     m_unsaved_changes = false;
 }
 
@@ -405,19 +399,10 @@ void GameControls::SetVisible(bool vis)
     }
 }
 
-std::string const& GameControls::GetFileComboLabel(int file_id)
-{
-    if (file_id == MAPFILE_ID_ALL)
-        return m_text_all_active;
-    else
-        return App::GetInputEngine()->getLoadedConfigFile(file_id); // handles -1
-}
-
 bool GameControls::ShouldDisplay(event_trigger_t& trig)
 {
     // display only keyboard items from "input.map" or defaults
     return trig.eventtype == eventtypes::ET_Keyboard &&
-            (trig.configDeviceID == MAPFILE_ID_DEFAULT || // input.map
-            trig.configDeviceID == MAPFILE_ID_ALL);       // builtin defaults
+            (trig.configDeviceID == MAPFILE_ID_DEFAULT); // input.map
 }
 
