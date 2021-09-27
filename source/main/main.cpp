@@ -34,6 +34,7 @@
 #include "GUIManager.h"
 #include "GUI_DirectionArrow.h"
 #include "GUI_FrictionSettings.h"
+#include "GUI_GameControls.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
 #include "GUI_MessageBox.h"
@@ -797,56 +798,59 @@ int main(int argc, char *argv[])
                 App::GetInputEngine()->Capture();
                 App::GetInputEngine()->updateKeyBounces(dt);
 
-                App::GetGameContext()->HandleSavegameHotkeys();
-                App::GetGameContext()->UpdateGlobalInputEvents();
-                App::GetGuiManager()->UpdateInputEvents(dt);
-
-                if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                if (!App::GetGuiManager()->GetControlsWindow()->IsInteractiveKeyBindingActive())
                 {
-                    App::GetCameraManager()->UpdateInputEvents(dt);
-                    App::GetOverlayWrapper()->update(dt);
-                    if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
+                    App::GetGameContext()->HandleSavegameHotkeys();
+                    App::GetGameContext()->UpdateGlobalInputEvents();
+                    App::GetGuiManager()->UpdateInputEvents(dt);
+
+                    if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
                     {
-                        App::GetGameContext()->UpdateSkyInputEvents(dt);
-                        App::GetSimTerrain()->GetTerrainEditor()->UpdateInputEvents(dt);
-                    }
-                    else if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
-                    {
-                        App::GetGameContext()->GetCharacterFactory()->Update(dt);
-                        if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
+                        App::GetCameraManager()->UpdateInputEvents(dt);
+                        App::GetOverlayWrapper()->update(dt);
+                        if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
                         {
-                            App::GetGameContext()->UpdateSimInputEvents(dt);
                             App::GetGameContext()->UpdateSkyInputEvents(dt);
-                            if (App::GetGameContext()->GetPlayerActor() &&
-                                App::GetGameContext()->GetPlayerActor()->ar_state != ActorState::NETWORKED_OK) // we are in a vehicle
+                            App::GetSimTerrain()->GetTerrainEditor()->UpdateInputEvents(dt);
+                        }
+                        else if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
+                        {
+                            App::GetGameContext()->GetCharacterFactory()->Update(dt);
+                            if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
                             {
-                                App::GetGameContext()->UpdateCommonInputEvents(dt);
-                                if (App::GetGameContext()->GetPlayerActor()->ar_state != ActorState::LOCAL_REPLAY)
+                                App::GetGameContext()->UpdateSimInputEvents(dt);
+                                App::GetGameContext()->UpdateSkyInputEvents(dt);
+                                if (App::GetGameContext()->GetPlayerActor() &&
+                                    App::GetGameContext()->GetPlayerActor()->ar_state != ActorState::NETWORKED_OK) // we are in a vehicle
                                 {
-                                    if (App::GetGameContext()->GetPlayerActor()->ar_driveable == TRUCK)
+                                    App::GetGameContext()->UpdateCommonInputEvents(dt);
+                                    if (App::GetGameContext()->GetPlayerActor()->ar_state != ActorState::LOCAL_REPLAY)
                                     {
-                                        App::GetGameContext()->UpdateTruckInputEvents(dt);
-                                    }
-                                    if (App::GetGameContext()->GetPlayerActor()->ar_driveable == AIRPLANE)
-                                    {
-                                        App::GetGameContext()->UpdateAirplaneInputEvents(dt);
-                                    }
-                                    if (App::GetGameContext()->GetPlayerActor()->ar_driveable == BOAT)
-                                    {
-                                        App::GetGameContext()->UpdateBoatInputEvents(dt);
+                                        if (App::GetGameContext()->GetPlayerActor()->ar_driveable == TRUCK)
+                                        {
+                                            App::GetGameContext()->UpdateTruckInputEvents(dt);
+                                        }
+                                        if (App::GetGameContext()->GetPlayerActor()->ar_driveable == AIRPLANE)
+                                        {
+                                            App::GetGameContext()->UpdateAirplaneInputEvents(dt);
+                                        }
+                                        if (App::GetGameContext()->GetPlayerActor()->ar_driveable == BOAT)
+                                        {
+                                            App::GetGameContext()->UpdateBoatInputEvents(dt);
+                                        }
                                     }
                                 }
                             }
+                            else // free cam mode
+                            {
+                                App::GetGameContext()->UpdateSkyInputEvents(dt);
+                            }
                         }
-                        else // free cam mode
-                        {
-                            App::GetGameContext()->UpdateSkyInputEvents(dt);
-                        }
-                    }
-                    App::GetGameContext()->GetRecoveryMode().UpdateInputEvents(dt);
-                    App::GetGameContext()->GetActorManager()->UpdateInputEvents(dt);
-                }
-            }
+                        App::GetGameContext()->GetRecoveryMode().UpdateInputEvents(dt);
+                        App::GetGameContext()->GetActorManager()->UpdateInputEvents(dt);
+                    } // app state SIMULATION
+                } // interactive key binding mode
+            } // dt != 0
 
             // Update OutGauge device
             if (App::io_outgauge_mode->getInt() > 0)

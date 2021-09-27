@@ -1,6 +1,7 @@
 /*
     This source file is part of Rigs of Rods
     Copyright 2020 tritonas00
+    Copyright 2021 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -53,6 +54,7 @@ void GameControls::Draw()
                 m_active_buffer = keys_pressed;
             }
             this->ApplyChanges();
+            App::GetInputEngine()->resetKeys(); // Do not leak the pressed keys to gameplay.
         }
         else
         {
@@ -103,36 +105,16 @@ void GameControls::Draw()
 
         // Toolbar
 
-        if (m_expert_mode)
+        if (m_unsaved_changes)
         {
-            this->DrawExpertToolbar();
-        }
-        else
-        {
-            if (m_unsaved_changes)
+            if (ImGui::Button(_LC("GameControls", "Save changes")))
             {
-                if (ImGui::Button(_LC("GameControls", "Save changes")))
-                {
-                    this->SaveMapFile();
-                }
-                ImGui::SameLine();
-                if (ImGui::Button(_LC("GameControls", "Reset changes")))
-                {
-                    this->ReloadMapFile();
-                }
+                this->SaveMapFile();
             }
-        }
-
-        // right-aligned "Expert mode" checkbox
-        if (!m_active_trigger) // do not display when editing in progress
-        {
             ImGui::SameLine();
-            std::string expertmode_text = _LC("GameControls", "Expert mode");
-            ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - ImGui::CalcTextSize(expertmode_text.c_str()).x - 35); // estimate
-            if (ImGui::Checkbox(expertmode_text.c_str(), &m_expert_mode))
+            if (ImGui::Button(_LC("GameControls", "Reset changes")))
             {
-                if (!m_expert_mode)
-                    m_active_mapping_file = MAPFILE_ID_DEFAULT;
+                this->ReloadMapFile();
             }
         }
 
@@ -162,45 +144,6 @@ void GameControls::Draw()
     }
 }
 
-void GameControls::DrawExpertToolbar()
-{
-    // Select mapping file to work with
-    //    - General BeginCombo() API, you have full control over your selection data and display type.
-    const int combo_min = MAPFILE_ID_ALL; // -2
-    const int combo_max = App::GetInputEngine()->getNumJoysticks();
-
-    if (ImGui::BeginCombo(_LC("GameSettings", "File"), this->GetFileComboLabel(m_active_mapping_file).c_str())) // The second parameter is the label previewed before opening the combo.
-    {
-        for (int i = combo_min; i < combo_max; i++)
-        {
-            const bool is_selected = (m_active_mapping_file == i);
-            if (ImGui::Selectable(this->GetFileComboLabel(i).c_str(), is_selected))
-            {
-                m_active_mapping_file = i;
-            }
-            if (is_selected)
-            {
-                ImGui::SetItemDefaultFocus();   // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
-            }
-        }
-        ImGui::EndCombo();
-    }
-
-    if (m_active_mapping_file != MAPFILE_ID_ALL)
-    {
-        ImGui::SameLine();
-        if (ImGui::Button(_LC("GameControls", "Reload")))
-        {
-            this->ReloadMapFile();
-        }
-        ImGui::SameLine();
-        if (ImGui::Button(_LC("GameControls", "Save")))
-        {
-            this->SaveMapFile();
-        }
-    }
-}
-
 void GameControls::DrawEvent(RoR::events ev_code)
 {
     // Var
@@ -214,7 +157,7 @@ void GameControls::DrawEvent(RoR::events ev_code)
     {
         display_count += (int)this->ShouldDisplay(trig);
     }
-    if (display_count == 0 && !m_expert_mode)
+    if (display_count == 0)
     {
         return;
     }
@@ -224,15 +167,6 @@ void GameControls::DrawEvent(RoR::events ev_code)
 
     // Name column
     ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(ev_code).c_str());
-    if (m_expert_mode)
-    {
-        ImGui::SameLine();
-        ImGui::SetCursorPosX((cursor_x + m_colum_widths[0]) - 27); // estimate
-        if (ImGui::Button("+"))
-        {
-            App::GetInputEngine()->addEventDefault((int)ev_code, m_active_mapping_file);
-        }
-    }
 
     ImGui::NextColumn();
 
@@ -244,41 +178,15 @@ void GameControls::DrawEvent(RoR::events ev_code)
 
         ImGui::PushID(&trig);
 
-        if (m_expert_mode)
+        if (ImGui::Button(App::GetInputEngine()->getEventCommand(ev_code).c_str()))
         {
-            if (m_active_trigger == &trig)
-            {
-                this->DrawEventEditBox();
-            }
-            else
-            {
-                if (ImGui::Button(_LC("GameSettings", "Edit")))
-                {
-                    // Begin editing
-                    m_active_event = ev_code;
-                    m_active_trigger = &trig;
-                    m_selected_evtype = trig.eventtype;
-                    m_active_buffer.Assign(App::GetInputEngine()->getEventConfig(ev_code).c_str());
-                }
-                ImGui::SameLine();
-                ImGui::TextColored(theme.success_text_color, "%s",
-                    InputEngine::getEventTypeName(App::GetInputEngine()->getEvents()[ev_code][0].eventtype));
-                ImGui::SameLine();
-                ImGui::TextColored(theme.success_text_color, "%s", App::GetInputEngine()->getEventCommand(ev_code).c_str());
-            }
-        }
-        else // simple mode
-        {
-            if (ImGui::Button(App::GetInputEngine()->getEventCommand(ev_code).c_str()))
-            {
-                // Begin interactive keybind
-                m_active_event = ev_code;
-                m_active_trigger = &trig;
-                m_selected_evtype = eventtypes::ET_Keyboard;
-                m_active_buffer.Clear();
-                m_interactive_keybinding_active = true;
-                m_interactive_keybinding_expl = trig.explicite;
-            }
+            // Begin interactive keybind
+            m_active_event = ev_code;
+            m_active_trigger = &trig;
+            m_selected_evtype = eventtypes::ET_Keyboard;
+            m_active_buffer.Clear();
+            m_interactive_keybinding_active = true;
+            m_interactive_keybinding_expl = trig.explicite;
         }
 
         ImGui::PopID(); // &trig
@@ -507,18 +415,9 @@ std::string const& GameControls::GetFileComboLabel(int file_id)
 
 bool GameControls::ShouldDisplay(event_trigger_t& trig)
 {
-    if (m_expert_mode)
-    {
-        // filter items by selected mapping file
-        return (m_active_mapping_file == MAPFILE_ID_ALL ||
-                m_active_mapping_file == trig.configDeviceID);
-    }
-    else
-    {
-        // display only keyboard items from "input.map" or defaults
-        return trig.eventtype == eventtypes::ET_Keyboard &&
-               (trig.configDeviceID == MAPFILE_ID_DEFAULT || // input.map
-               trig.configDeviceID == MAPFILE_ID_ALL);       // builtin defaults
-    }
+    // display only keyboard items from "input.map" or defaults
+    return trig.eventtype == eventtypes::ET_Keyboard &&
+            (trig.configDeviceID == MAPFILE_ID_DEFAULT || // input.map
+            trig.configDeviceID == MAPFILE_ID_ALL);       // builtin defaults
 }
 
