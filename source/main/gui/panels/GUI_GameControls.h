@@ -66,6 +66,7 @@ private:
     eventtypes       m_selected_evtype = eventtypes::ET_NONE;
     Str<1000>        m_active_buffer;
     bool             m_interactive_keybinding_active = false;
+    bool             m_interactive_keybinding_expl = true;
 
     // Cached display strings
     std::string      m_text_all_active; //!< file combobox <All active values>
