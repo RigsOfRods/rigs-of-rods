@@ -44,19 +44,49 @@ void GameControls::Draw()
 
         if (num_nonmodifier_keys > 0)
         {
-            m_active_buffer = keys_pressed;
+            if (m_interactive_keybinding_expl)
+            {
+                m_active_buffer << "EXPL+" << keys_pressed;
+            }
+            else
+            {
+                m_active_buffer = keys_pressed;
+            }
             this->ApplyChanges();
         }
         else
         {
             ImGui::SetNextWindowPosCenter();
-            ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse |
-                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize;
+            ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize;
             ImGui::Begin(_LC("GameControls", "Press a new key"), nullptr, flags);
+            // Title and description
             ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(m_active_event).c_str());
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", App::GetInputEngine()->eventIDToDescription(m_active_event).c_str());
+            // Keys preview
             ImGui::NewLine();
             ImGui::Text(keys_pressed.c_str());
+            // EXPL checkbox + tooltip
+            ImGui::NewLine();
+            ImGui::Checkbox(_LC("GameControls", "EXPL"), &m_interactive_keybinding_expl);
+            const bool checkbox_hovered = ImGui::IsItemHovered();
+            ImGui::SameLine();
+            ImGui::TextDisabled("(?)");
+            const bool hint_hovered = ImGui::IsItemHovered();
+            if (checkbox_hovered || hint_hovered)
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text(_LC("GameControls",
+                    "With EXPL tag, only exactly matching key combos will be triggered.\n"
+                    "Without it, partial matches will trigger, too."));
+                ImGui::Separator();
+                ImGui::Text(_LC("GameControls",
+                    "Example: Pressing CTRL+F1 will trigger COMMANDS_03 and COMMANDS_01\n"
+                    "but not COMMANDS_02 which has EXPL tag."));
+                ImGui::TextDisabled("    COMMANDS_01    Keyboard    F1");
+                ImGui::TextDisabled("    COMMANDS_02    Keyboard    EXPL+F1");
+                ImGui::TextDisabled("    COMMANDS_03    Keyboard    CTRL+F1");
+                ImGui::EndTooltip();
+            }
             ImGui::End();
         }
     }
@@ -247,6 +277,7 @@ void GameControls::DrawEvent(RoR::events ev_code)
                 m_selected_evtype = eventtypes::ET_Keyboard;
                 m_active_buffer.Clear();
                 m_interactive_keybinding_active = true;
+                m_interactive_keybinding_expl = trig.explicite;
             }
         }
 
