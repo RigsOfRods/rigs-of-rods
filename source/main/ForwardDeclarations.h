@@ -146,6 +146,7 @@ namespace RoR
         class  ConsoleView;
         class  Dialog;
         class  FrictionSettings;
+        class  GameControls;
         class  GameMainMenu;
         class  LoadingWindow;
         class  MainSelector;

@@ -33,6 +33,7 @@ public:
 
     void SetVisible(bool vis);
     bool IsVisible() const { return m_is_visible; }
+    bool IsInteractiveKeyBindingActive() { return m_interactive_keybinding_active; }
     void Draw();
 
 private:
@@ -40,7 +41,6 @@ private:
     void DrawEvent(RoR::events ev_code); //!< One line in table
     void DrawControlsTab(const char* prefix); //!< Draws table with events matching prefix.
     void DrawControlsTabItem(const char* name, const char* prefix); //!< Wraps `DrawControlsTab()` with scrollbar and tabs-bar logic.
-    void DrawExpertToolbar();
 
     // Edit bindings (used for both expert and interactive modes)
     void ApplyChanges();
@@ -56,7 +56,6 @@ private:
     float m_colum_widths[3] = {}; //!< body->header width sync
 
     // Mode/config file selection
-    bool m_expert_mode = false;                 //!< When disabled, only "input.map" is edited.
     int m_active_mapping_file = MAPFILE_ID_ALL; //!< Negative values = MAPFILE_ID_*, 0+ = device specific map file.
     bool m_unsaved_changes = false;
 
