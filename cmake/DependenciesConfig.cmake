@@ -61,14 +61,14 @@ add_external_lib(
 
 add_external_lib(
         Caelum
-        ogre3d-caelum/0.6.4@anotherfoxguy/stable
+        ogre3d-caelum/0.6.3@anotherfoxguy/stable
         # PKG_CONFIG "Caelum >= 0.6.3"
         CONAN_PKG_NAME Caelum
         FIND_PACKAGE
 )
 add_external_lib(
         PagedGeometry
-        ogre3d-pagedgeometry/1.2.1@anotherfoxguy/stable
+        ogre3d-pagedgeometry/1.2.0@anotherfoxguy/stable
         # PKG_CONFIG "PagedGeometry >= 1.2"
         FIND_PACKAGE
         CONAN_PKG_NAME PagedGeometry
