@@ -61,7 +61,8 @@ add_external_lib(
 
 add_external_lib(
         Caelum
-        ogre3d-caelum/0.6.3@anotherfoxguy/stable
+        # Temporary switch back to the rigs of rods version, since the OGRE version is broken
+        ogre3d-caelum/0.6.3@rigs-of-rods/stable
         # PKG_CONFIG "Caelum >= 0.6.3"
         CONAN_PKG_NAME Caelum
         FIND_PACKAGE
