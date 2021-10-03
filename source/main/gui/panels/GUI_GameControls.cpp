@@ -27,6 +27,7 @@
 #include "GUI_LoadingWindow.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
+#include "GameContext.h"
 
 #include <fmt/format.h>
 
@@ -395,7 +396,7 @@ void GameControls::SetVisible(bool vis)
     else
     {
         this->CancelChanges();
-        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
     }
 }
 
