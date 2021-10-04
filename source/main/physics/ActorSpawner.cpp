@@ -3416,9 +3416,13 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     cmd_beam.cmb_center_length = center_length;
     cmd_beam.cmb_state = std::shared_ptr<commandbeam_state_t>(new commandbeam_state_t);
     contract_command->beams.push_back(cmd_beam);
-    if (contract_command->description.empty())
+    if (!def.description.empty())
     {
         contract_command->description = def.description;
+    }
+    else
+    {
+        contract_command->description = fmt::format(_L("Unnamed command {}"), commandCounter);
     }
 
     command_t* extend_command = &m_actor->ar_command_key[def.extend_key];
@@ -3426,9 +3430,13 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     cmd_beam.cmb_speed = def.lengthen_rate;
     cmd_beam.cmb_boundary_length = def.max_extension;
     extend_command->beams.push_back(cmd_beam);
-    if (extend_command->description.empty())
+    if (!def.description.empty())
     {
         extend_command->description = def.description;
+    }
+    else
+    {
+        extend_command->description = fmt::format(_L("Unnamed command {}"), commandCounter);
     }
 
     this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults,
@@ -3442,6 +3450,7 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
 
     m_actor->m_num_command_beams++;
     m_actor->m_has_command_beams = true;
+    commandCounter += 1;
 }
 
 void ActorSpawner::ProcessAnimator(RigDef::Animator & def)

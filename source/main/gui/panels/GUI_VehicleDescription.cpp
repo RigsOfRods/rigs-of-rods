@@ -83,8 +83,16 @@ void VehicleDescription::Draw()
 
             int eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", i));
             Ogre::String keya = RoR::App::GetInputEngine()->getEventCommand(eventID);
-            eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", i + 1));
-            Ogre::String keyb = RoR::App::GetInputEngine()->getEventCommand(eventID);
+            Ogre::String keyb;
+
+            for (int x = i+1; x < MAX_COMMANDS; x++)
+            {
+                if (actor->ar_command_key[x].description == actor->ar_command_key[i].description)
+                {
+                    eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", x));
+                    keyb = RoR::App::GetInputEngine()->getEventCommand(eventID);
+                }
+            }
 
             // cut off expl
             if (keya.size() > 6 && keya.substr(0, 5) == "EXPL+")
@@ -92,18 +100,13 @@ void VehicleDescription::Draw()
             if (keyb.size() > 6 && keyb.substr(0, 5) == "EXPL+")
                 keyb = keyb.substr(5);
 
-            ImGui::Text("%s/%s", keya.c_str(), keyb.c_str());
-            ImGui::NextColumn();
-
-            if (!actor->ar_command_key[i].description.empty())
+            if (!keya.empty() && !keyb.empty())
             {
+                ImGui::Text("%s/%s", keya.c_str(), keyb.c_str());
+                ImGui::NextColumn();
                 ImGui::Text("%s", actor->ar_command_key[i].description.c_str());
+                ImGui::NextColumn();
             }
-            else
-            {
-                ImGui::TextDisabled("%s", _LC("VehicleDescription", "unknown function"));
-            }
-            ImGui::NextColumn();
         }
         ImGui::Columns(1);
     }

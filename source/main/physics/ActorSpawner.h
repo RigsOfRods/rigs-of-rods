@@ -1082,7 +1082,7 @@ private:
     std::vector<WheelVisualsTicket>        m_wheel_visuals_queue; //!< We want to spawn visuals asynchronously in the future
     std::map<std::string, Ogre::MaterialPtr>  m_managed_materials;
     std::list<std::shared_ptr<RigDef::File::Module>>  m_selected_modules;
-
+    int commandCounter = 0;
 };
 
 } // namespace RoR
