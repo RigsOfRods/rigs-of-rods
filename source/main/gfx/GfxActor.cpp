@@ -2051,7 +2051,7 @@ void RoR::GfxActor::UpdateNetLabels(float dt)
             m_simbuf.simbuf_actor_state == ActorState::NETWORKED_OK ||
             m_simbuf.simbuf_actor_state == ActorState::NETWORKED_HIDDEN;
 
-        if (App::mp_hide_net_labels->getBool() || (!is_remote && App::mp_hide_own_net_label->getBool()))
+        if (App::mp_hide_net_labels->getBool() || (!is_remote && App::mp_hide_own_net_label->getBool()) || App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
         {
             return;
         }
