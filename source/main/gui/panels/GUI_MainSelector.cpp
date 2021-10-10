@@ -175,6 +175,7 @@ void MainSelector::Draw()
     // Entry list: display
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     drawlist->ChannelsSplit(2); // 0=background selection indicator, 1=text
+    bool do_apply = false;
     for (int i = 0; i < num_entries; ++i)
     {
         DisplayEntry& d_entry = m_display_entries[i];
@@ -201,13 +202,18 @@ void MainSelector::Draw()
             m_selected_entry = i;
             m_last_selected_entry[m_loader_type] = m_selected_entry;
             m_selected_sectionconfig = 0;
-            this->Apply();
+            do_apply = true;
         }
         if (is_selected && scroll_to_selected)
         {
             ImGui::SetScrollHere();
         }
         ImGui::PopID();
+    }
+
+    if (do_apply)
+    {
+        this->Apply();
     }
     drawlist->ChannelsMerge();
     ImGui::EndChild();
