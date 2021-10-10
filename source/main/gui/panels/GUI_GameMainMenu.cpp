@@ -40,10 +40,6 @@
 using namespace RoR;
 using namespace GUI;
 
-GameMainMenu::GameMainMenu():
-    m_is_visible(false), m_kb_focus_index(-1), m_kb_enter_index(-1)
-{}
-
 void GameMainMenu::Draw()
 {
     this->DrawMenuPanel();

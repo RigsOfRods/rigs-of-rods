@@ -75,10 +75,10 @@ private:
     MpServerInfoVec     m_serverlist_data;
     std::string         m_serverlist_msg;
     ImVec4              m_serverlist_msg_color;
-    int                 m_selected_item;
+    int                 m_selected_item = -1;
     char                m_window_title[100];
-    bool                m_is_visible;
-    bool                m_draw_table;
+    bool                m_is_visible = false;
+    bool                m_draw_table = false;
     Str<1000>           m_user_token_buf;
     Str<1000>           m_player_name_buf;
     Str<1000>           m_password_buf;

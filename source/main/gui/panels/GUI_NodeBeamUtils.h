@@ -28,16 +28,14 @@ namespace GUI {
 class NodeBeamUtils
 {
 public:
-    NodeBeamUtils(): m_is_visible(false), m_is_searching(false) {}
-
     void Draw();
 
     bool IsVisible() const { return m_is_visible; }
     void SetVisible(bool v);
 
 private:
-    bool m_is_visible;
-    bool m_is_searching;
+    bool m_is_visible = false;
+    bool m_is_searching = false;
 
     const ImVec4 GRAY_HINT_TEXT = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
 };
