@@ -33,14 +33,14 @@ namespace GUI {
 class SimActorStats
 {
 public:
-    void SetVisible(bool vis) { m_visible = vis; }
-    bool IsVisible() const { return m_visible; }
+    void SetVisible(bool vis) { m_is_visible = vis; }
+    bool IsVisible() const { return m_is_visible; }
 
     void UpdateStats(float dt, Actor* actor); //!< Caution: touches live data, must be synced with sim. thread
     void Draw(RoR::GfxActor* actorx);
 
 private:
-    bool  m_visible             = false;
+    bool  m_is_visible          = false;
     float m_stat_health         = 0.f;
     int   m_stat_broken_beams   = 0;
     int   m_stat_deformed_beams = 0;
