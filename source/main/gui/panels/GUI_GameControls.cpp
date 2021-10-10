@@ -61,7 +61,8 @@ void GameControls::Draw()
         {
             ImGui::SetNextWindowPosCenter();
             ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize;
-            ImGui::Begin(_LC("GameControls", "Press a new key"), nullptr, flags);
+            bool open = true;
+            ImGui::Begin(_LC("GameControls", "Press a new key"), &open, flags);
             // Title and description
             ImGui::TextColored(theme.value_blue_text_color, "%s", App::GetInputEngine()->eventIDToName(m_active_event).c_str());
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", App::GetInputEngine()->eventIDToDescription(m_active_event).c_str());
@@ -91,6 +92,10 @@ void GameControls::Draw()
                 ImGui::EndTooltip();
             }
             ImGui::End();
+            if (!open)
+            {
+                m_interactive_keybinding_active = false;
+            }
         }
     }
     else
