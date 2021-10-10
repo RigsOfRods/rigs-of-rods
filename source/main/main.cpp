@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
         }
 
         App::app_state->setVal((int)AppState::MAIN_MENU);
-        App::GetGuiManager()->ReflectGameState();
+        App::GetGuiManager()->SetVisible_MenuWallpaper(true);
 
 #ifdef USE_OPENAL
         if (App::audio_menu_music->getBool())
@@ -442,7 +442,6 @@ int main(int argc, char *argv[])
                     App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                     App::GetGuiManager()->ShowMessageBox(
                         _LC("Network", "Multiplayer: connection failed"), m.description.c_str());
-                    App::GetGuiManager()->ReflectGameState();
                     break;
 
                 case MSG_NET_REFRESH_SERVERLIST_SUCCESS:
@@ -495,7 +494,7 @@ int main(int argc, char *argv[])
                         App::GetDiscordRpc()->UpdatePresence();
                         App::sim_state->setVal((int)SimState::RUNNING);
                         App::app_state->setVal((int)AppState::SIMULATION);
-                        App::GetGuiManager()->ReflectGameState();
+                        App::GetGuiManager()->SetVisible_MenuWallpaper(false);
                         App::GetGuiManager()->SetVisible_LoadingWindow(false);
                         App::gfx_fov_external->setVal(App::gfx_fov_external_default->getInt());
                         App::gfx_fov_internal->setVal(App::gfx_fov_internal_default->getInt());
@@ -542,9 +541,9 @@ int main(int argc, char *argv[])
                     App::DestroyOverlayWrapper();
                     App::GetCameraManager()->ResetAllBehaviors();
                     App::GetGuiManager()->SetVisible_LoadingWindow(false);
+                    App::GetGuiManager()->SetVisible_MenuWallpaper(true);
                     App::sim_state->setVal((int)SimState::OFF);
                     App::app_state->setVal((int)AppState::MAIN_MENU);
-                    App::GetGuiManager()->ReflectGameState();
                     delete App::GetSimTerrain();
                     App::SetSimTerrain(nullptr);
                     App::GetGfxScene()->ClearScene();
