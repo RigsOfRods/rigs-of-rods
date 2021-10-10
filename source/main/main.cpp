@@ -688,6 +688,17 @@ int main(int argc, char *argv[])
                     delete (GUI::MessageBoxConfig*)m.payload;
                     break;
 
+                case MSG_GUI_PANEL_CLOSED:
+                    switch (*(GUIPanel*)m.payload)
+                    {
+                    case GUIPanel::GUI_GAME_CONTROLS:
+                        App::GetGameContext()->PushMessage(MSG_GUI_OPEN_MENU_REQUESTED);
+                        break;
+                    default:;
+                    }
+                    delete (GUIPanel*)m.payload;
+                    break;
+
                 // -- Editing events --
 
                 case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED:

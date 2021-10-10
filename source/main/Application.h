@@ -98,6 +98,8 @@ enum MsgType
     MSG_GUI_CLOSE_SELECTOR_REQUESTED,
     MSG_GUI_MP_CLIENTS_REFRESH,
     MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED,    //!< Payload = MessageBoxConfig* (owner)
+    MSG_GUI_PANEL_OPENED,                  //!< Payload = GUIPanel* (owner)
+    MSG_GUI_PANEL_CLOSED,                  //!< Payload = GUIPanel* (owner)
     // Editing
     MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  //!< Payload = ground_model_t* (weak)
     MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,

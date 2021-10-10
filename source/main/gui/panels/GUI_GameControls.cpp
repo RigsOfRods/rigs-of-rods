@@ -386,17 +386,26 @@ void GameControls::ReloadMapFile()
     m_unsaved_changes = false;
 }
 
-void GameControls::SetVisible(bool vis)
+void GameControls::SetVisible(bool v)
 {
-    m_is_visible = vis;
-    if (vis)
+    if (v != m_is_visible)
     {
-        m_text_all_active = _LC("GameSettings", "<All active values>");
-    }
-    else
-    {
-        this->CancelChanges();
-        App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+        // Update GUI
+        m_is_visible = v;
+        if (v)
+        {
+            m_text_all_active = _LC("GameSettings", "<All active values>");
+        }
+        else
+        {
+            this->CancelChanges();
+        }
+
+        // Update the game
+        App::GetGameContext()->PushMessage(
+            Message(
+                v ? MSG_GUI_PANEL_OPENED : MSG_GUI_PANEL_CLOSED,
+                (void*)new GUIPanel(GUIPanel::GUI_GAME_CONTROLS)));
     }
 }
 
