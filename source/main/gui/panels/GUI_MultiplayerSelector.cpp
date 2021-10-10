@@ -133,8 +133,7 @@ inline void DrawTableHeader(const char* title) // Internal helper
     ImGui::NextColumn();
 }
 
-MultiplayerSelector::MultiplayerSelector():
-    m_selected_item(-1), m_draw_table(false), m_is_visible(false)
+MultiplayerSelector::MultiplayerSelector()
 {
     snprintf(m_window_title, 100, "Multiplayer (Rigs of Rods %s | %s)", ROR_VERSION_STRING, RORNET_VERSION);
 }

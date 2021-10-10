@@ -39,8 +39,6 @@ public:
     const ImVec4  BUTTON_BG_COLOR       = ImVec4(0.25f, 0.25f, 0.24f, 0.6f); // Drawn on top of a transparent panel; make it just a shade
     const ImVec2  BUTTON_PADDING        = ImVec2(4.f, 6.f);
 
-    GameMainMenu();
-
     inline bool   IsVisible() const                { return m_is_visible; }
     inline void   SetVisible(bool v)               { m_is_visible = v; m_kb_focus_index = -1; }
     void          Draw();
@@ -52,10 +50,10 @@ private:
     void             DrawVersionBox();
     void             DrawNoticeBox();
     bool             HighlightButton(const std::string &text, ImVec2 btn_size, int index) const;
-    bool             m_is_visible;
+    bool             m_is_visible = false;
     int              m_num_buttons;
-    int              m_kb_focus_index; // -1 = no focus; 0+ = button index
-    int              m_kb_enter_index; // Focus positon when enter key was pressed.
+    int              m_kb_focus_index = -1; // -1 = no focus; 0+ = button index
+    int              m_kb_enter_index = -1; // Focus positon when enter key was pressed.
     const char*      title;
     bool             cache_updated = false;
 };
