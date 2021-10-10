@@ -471,9 +471,15 @@ void GameSettings::DrawControlSettings()
 
 void GameSettings::SetVisible(bool v)
 {
-    m_is_visible = v;
-    if (!v && App::app_state->getEnum<AppState>() == RoR::AppState::MAIN_MENU)
+    if (v != m_is_visible)
     {
-        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        // Update GUI
+        m_is_visible = v;
+
+        // Update the game
+        App::GetGameContext()->PushMessage(
+            Message(
+                v ? MSG_GUI_PANEL_OPENED : MSG_GUI_PANEL_CLOSED,
+                (void*)new GUIPanel(GUIPanel::GUI_GAME_SETTINGS)));
     }
 }
