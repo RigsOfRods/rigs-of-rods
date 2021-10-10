@@ -110,6 +110,7 @@ public:
     void SetVisible_Console             (bool visible);
     void SetVisible_SimActorStats       (bool visible);
     void SetVisible_SimPerfStats        (bool visible);
+    void SetVisible_MenuWallpaper       (bool visible);
 
     // GUI IsVisible*()
     bool IsVisible_GameMainMenu         ();
@@ -163,7 +164,6 @@ public:
     void SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager);
 
     void ShutdownMyGUI();
-    void ReflectGameState();
     void SetMouseCursorVisibility(MouseCursorVisibility visi);
     void UpdateMouseCursorVisibility();
     void SupressCursor(bool do_supress);

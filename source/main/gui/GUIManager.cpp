@@ -115,6 +115,14 @@ void GUIManager::SetVisible_NodeBeamUtils       (bool v) { m_impl->panel_NodeBea
 void GUIManager::SetVisible_SimActorStats       (bool v) { m_impl->panel_SimActorStats      .SetVisible(v); }
 void GUIManager::SetVisible_SimPerfStats        (bool v) { m_impl->panel_SimPerfStats       .SetVisible(v); }
 
+void GUIManager::SetVisible_MenuWallpaper(bool v)
+{
+    if (v)
+        m_impl->overlay_Wallpaper->show();
+    else
+        m_impl->overlay_Wallpaper->hide();
+}
+
 bool GUIManager::IsVisible_GameMainMenu         () { return m_impl->panel_GameMainMenu       .IsVisible(); }
 bool GUIManager::IsVisible_GameAbout            () { return m_impl->panel_GameAbout          .IsVisible(); }
 bool GUIManager::IsVisible_MultiplayerSelector  () { return m_impl->panel_MultiplayerSelector.IsVisible(); }
@@ -370,28 +378,6 @@ void GUIManager::UpdateMouseCursorVisibility()
     if (m_last_mousemove_time.getMilliseconds() > 5000)
     {
         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-    }
-}
-
-void GUIManager::ReflectGameState()
-{
-    if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
-    {
-        m_impl->overlay_Wallpaper       ->show();
-
-        m_impl->panel_ChatBox            .SetVisible(false);
-        m_impl->panel_FrictionSettings   .SetVisible(false);
-        m_impl->panel_TextureToolWindow  .SetVisible(false);
-        m_impl->panel_GameControls       .SetVisible(false);
-        m_impl->panel_VehicleDescription .SetVisible(false);
-        m_impl->panel_SimActorStats      .SetVisible(false);
-        m_impl->panel_SimPerfStats       .SetVisible(false);
-        m_impl->panel_DirectionArrow     .SetVisible(false);
-    }
-    else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
-    {
-        m_impl->panel_GameMainMenu       .SetVisible(false);
-        m_impl->overlay_Wallpaper       ->hide();
     }
 }
 
