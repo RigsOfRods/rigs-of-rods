@@ -706,6 +706,13 @@ int main(int argc, char *argv[])
                             App::GetGameContext()->PushMessage(MSG_GUI_OPEN_MENU_REQUESTED);
                         }
                         break;
+                    case GUIPanel::GUI_MULTIPLAYER_SELECTOR:
+                        if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU &&
+                            App::mp_state->getEnum<MpState>() == MpState::DISABLED) // Do not display when "connecting..." box is already visible.
+                        {
+                            App::GetGameContext()->PushMessage(MSG_GUI_OPEN_MENU_REQUESTED);
+                        }
+                        break;
                     default:;
                     }
                     delete (GUIPanel*)m.payload;

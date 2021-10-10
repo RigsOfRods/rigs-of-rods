@@ -367,17 +367,23 @@ void MultiplayerSelector::StartAsyncRefresh()
 #endif // defined(USE_CURL)
 }
 
-void MultiplayerSelector::SetVisible(bool visible)
+void MultiplayerSelector::SetVisible(bool v)
 {
-    m_is_visible = visible;
-    if (visible && m_serverlist_data.size() == 0) // Do an initial refresh
+    if (v != m_is_visible)
     {
-        this->StartAsyncRefresh();
-        m_password_buf = App::mp_server_password->getStr();
-    }
-    else if (!visible && App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
-    {
-        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        // Update GUI
+        m_is_visible = v;
+        if (v && m_serverlist_data.size() == 0) // Do an initial refresh
+        {
+            this->StartAsyncRefresh();
+            m_password_buf = App::mp_server_password->getStr();
+        }
+
+        // Update the game
+        App::GetGameContext()->PushMessage(
+            Message(
+                v ? MSG_GUI_PANEL_OPENED : MSG_GUI_PANEL_CLOSED,
+                (void*)new GUIPanel(GUIPanel::GUI_MULTIPLAYER_SELECTOR)));
     }
 }
 
