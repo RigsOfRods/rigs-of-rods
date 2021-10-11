@@ -94,7 +94,7 @@ void GameControls::Draw()
             ImGui::End();
             if (!open)
             {
-                m_interactive_keybinding_active = false;
+                this->CancelChanges();
             }
         }
     }
