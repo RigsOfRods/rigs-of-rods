@@ -541,6 +541,7 @@ int main(int argc, char *argv[])
                     App::GetGameContext()->GetSceneMouse().DiscardVisuals();
                     App::DestroyOverlayWrapper();
                     App::GetCameraManager()->ResetAllBehaviors();
+                    App::GetGuiManager()->GetMainSelector()->Close();
                     App::GetGuiManager()->SetVisible_LoadingWindow(false);
                     App::GetGuiManager()->SetVisible_MenuWallpaper(true);
                     App::sim_state->setVal((int)SimState::OFF);
