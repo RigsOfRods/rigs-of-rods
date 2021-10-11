@@ -494,6 +494,7 @@ int main(int argc, char *argv[])
                         App::GetDiscordRpc()->UpdatePresence();
                         App::sim_state->setVal((int)SimState::RUNNING);
                         App::app_state->setVal((int)AppState::SIMULATION);
+                        App::GetGuiManager()->SetVisible_GameMainMenu(false);
                         App::GetGuiManager()->SetVisible_MenuWallpaper(false);
                         App::GetGuiManager()->SetVisible_LoadingWindow(false);
                         App::gfx_fov_external->setVal(App::gfx_fov_external_default->getInt());
