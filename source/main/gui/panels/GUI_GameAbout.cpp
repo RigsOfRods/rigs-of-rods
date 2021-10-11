@@ -145,7 +145,6 @@ void GameAbout::Draw()
     ImGui::Text("%s%s", "pThreads:",       " POSIX threads library");
     ImGui::Text("%s%s", "RapidJSON:",      " JSON parser/generator, used for online services");
 
-    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
     if (!keep_open)
     {

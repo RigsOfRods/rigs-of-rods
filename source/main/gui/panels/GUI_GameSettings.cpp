@@ -100,7 +100,6 @@ void GameSettings::Draw()
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.f);
 
-    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
     if (!keep_open)
     {
