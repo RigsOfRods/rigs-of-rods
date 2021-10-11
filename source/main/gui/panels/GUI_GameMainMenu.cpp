@@ -208,8 +208,15 @@ void GameMainMenu::DrawMenuPanel()
 
     if (App::app_state->getEnum<AppState>() == AppState::SIMULATION && App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
     {
+        // Prevent key presses from propagating to simulation.
+        // Otherwise navigating menu with keys also moves/steers in game.
+        // CAUTION: This queues the request! It becomes effective next frame.
         App::GetGuiManager()->RequestGuiCaptureKeyboard(true);
-        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
+
+        // Before reading keys via IMGUI, make sure keyboard capturing is requested (not just queued).
+        // Otherwise game event might already have been invoked and duplicate actions may happen.
+        if (App::GetGuiManager()->IsGuiCaptureKeyboardRequested() &&
+            ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
         {
             this->SetVisible(false);
         }
