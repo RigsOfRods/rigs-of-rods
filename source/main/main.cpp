@@ -800,7 +800,12 @@ int main(int argc, char *argv[])
 
                 if (!App::GetGuiManager()->GetControlsWindow()->IsInteractiveKeyBindingActive())
                 {
-                    App::GetGameContext()->HandleSavegameHotkeys();
+                    if (!App::GetGuiManager()->IsVisible_MainSelector() && !App::GetGuiManager()->IsVisible_MultiplayerSelector() &&
+                        !App::GetGuiManager()->IsVisible_GameSettings() && !App::GetGuiManager()->IsVisible_GameControls() &&
+                        !App::GetGuiManager()->IsVisible_GameAbout())
+                    {
+                        App::GetGameContext()->HandleSavegameHotkeys();
+                    }
                     App::GetGameContext()->UpdateGlobalInputEvents();
                     App::GetGuiManager()->UpdateInputEvents(dt);
 
