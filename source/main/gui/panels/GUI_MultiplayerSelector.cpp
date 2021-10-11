@@ -174,7 +174,6 @@ void MultiplayerSelector::MultiplayerSelector::Draw()
 
     ImGui::EndTabBar();
 
-    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
     ImGui::End();
     if (!keep_open)
     {
