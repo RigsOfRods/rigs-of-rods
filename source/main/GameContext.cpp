@@ -95,6 +95,8 @@ Message GameContext::PopMessage()
 
 bool GameContext::LoadTerrain(std::string const& filename_part)
 {
+    m_last_spawned_actor = nullptr;
+
     // Find terrain in modcache
     CacheEntry* terrn_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Terrain, /*partial=*/true, filename_part);
     if (!terrn_entry)
