@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-08-23 16:29+0200\n"
-"PO-Revision-Date: 2021-02-18 09:50+0000\n"
+"PO-Revision-Date: 2021-10-13 15:59+0000\n"
 "Last-Translator: Petr Ohlídal <petr@ohlidal.cz>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "cs/>\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
 "<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
-"X-Generator: Weblate 4.5\n"
+"X-Generator: Weblate 4.9-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -37,7 +37,7 @@ msgstr "Nenalezen žádný renderovací modul. Zkontrolujte soubor \"plugins.cfg
 #, fuzzy
 #| msgid "Screenshot:"
 msgid "Screenshot: "
-msgstr "Snímek obrazovky:"
+msgstr "Snímek obrazovky: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
