@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-08-23 16:29+0200\n"
-"PO-Revision-Date: 2021-10-13 15:59+0000\n"
+"PO-Revision-Date: 2021-10-14 06:50+0000\n"
 "Last-Translator: Petr Ohlídal <petr@ohlidal.cz>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "cs/>\n"
@@ -34,8 +34,6 @@ msgid "No render system plugin available. Check your plugins.cfg"
 msgstr "Nenalezen žádný renderovací modul. Zkontrolujte soubor \"plugins.cfg\""
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgid "Screenshot:"
 msgid "Screenshot: "
 msgstr "Snímek obrazovky: "
 
@@ -245,8 +243,6 @@ msgid "Notices"
 msgstr "Oznámení"
 
 #: gui/panels/GUI_ConsoleView.cpp:238
-#, fuzzy
-#| msgid "Warning"
 msgctxt "Console"
 msgid "Warnings"
 msgstr "Varování"
@@ -282,15 +278,11 @@ msgid "meter"
 msgstr "metr"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
-#, fuzzy
-#| msgid "Friction Settings"
 msgctxt "FrictionSettings"
 msgid "Friction Settings"
 msgstr "Nastavení tření"
 
 #: gui/panels/GUI_FrictionSettings.cpp:48
-#, fuzzy
-#| msgid "Current active Ground: "
 msgctxt "FrictionSettings"
 msgid "Current active Ground: "
 msgstr "Momentálně aktivní Podklad: "
@@ -301,8 +293,6 @@ msgid "selected Ground Type:"
 msgstr "zvolený typ podkladu:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:61
-#, fuzzy
-#| msgid "Solid ground settings"
 msgctxt "FrictionSettings"
 msgid "Solid ground settings"
 msgstr "Nastavení pevné půdy"
@@ -318,12 +308,6 @@ msgid "Solid ground level"
 msgstr "Hloubka pevné země"
 
 #: gui/panels/GUI_FrictionSettings.cpp:64
-#, fuzzy
-#| msgid ""
-#| "With this you can define how deep the solid ground is. If it is 0 then "
-#| "the surface will be solid. If it is 0.1 then you'll have 10 cm of fluid "
-#| "on top of solid ground. If it is 100 then the solid ground will be way "
-#| "deep (100m), with fluid on top."
 msgctxt "FrictionSettings"
 msgid ""
 "With this you can define how deep the solid ground is. If it is 0 then the "
@@ -336,26 +320,16 @@ msgstr ""
 "hodnota 100, bude pevná půda velmi hluboko (100 m) a tekutina navrchu."
 
 #: gui/panels/GUI_FrictionSettings.cpp:66
-#, fuzzy
-#| msgid "Strength:"
 msgctxt "FrictionSettings"
 msgid "Strength:"
 msgstr "Síla:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:67
-#, fuzzy
-#| msgid "Strength"
 msgctxt "FrictionSettings"
 msgid "Strength"
 msgstr "Síla"
 
 #: gui/panels/GUI_FrictionSettings.cpp:67
-#, fuzzy
-#| msgid ""
-#| "This parameter raises or diminishes surface friction in a generic way. It "
-#| "is here so as to be able to do quick calibrations of friction. Start with "
-#| "having this to 1.0 and after tuning the rest of the surface variables, "
-#| "come back and play with this."
 msgctxt "FrictionSettings"
 msgid ""
 "This parameter raises or diminishes surface friction in a generic way. It is "
@@ -368,8 +342,6 @@ msgstr ""
 "proměnných povrchu si pohrajte s tímto parametrem."
 
 #: gui/panels/GUI_FrictionSettings.cpp:69
-#, fuzzy
-#| msgid "Static friction coef:"
 msgctxt "FrictionSettings"
 msgid "Static friction coef:"
 msgstr "Součinitel statického tření:"
@@ -395,26 +367,16 @@ msgstr ""
 "pomocí proměnné \"síla\"."
 
 #: gui/panels/GUI_FrictionSettings.cpp:72
-#, fuzzy
-#| msgid "Adhesion velocity:"
 msgctxt "FrictionSettings"
 msgid "Adhesion velocity:"
 msgstr "Adhezní rychlost:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:73
-#, fuzzy
-#| msgid "Adhesion velocity"
 msgctxt "FrictionSettings"
 msgid "Adhesion velocity"
 msgstr "Adhezní rychlost"
 
 #: gui/panels/GUI_FrictionSettings.cpp:73
-#, fuzzy
-#| msgid ""
-#| "Below this value static friction laws apply, above it dynamic friction "
-#| "laws apply. Value should be small, in the range of 0.1-0.4 . This "
-#| "velocity threshold is also used by fluid dynamics so you should always "
-#| "define it. NEVER set it to 0."
 msgctxt "FrictionSettings"
 msgid ""
 "Below this value static friction laws apply, above it dynamic friction laws "
@@ -428,8 +390,6 @@ msgstr ""
 "měla být malá, v rozmezí 0,1 - 0,4. NIKDY ji nenastavujte na 0."
 
 #: gui/panels/GUI_FrictionSettings.cpp:75
-#, fuzzy
-#| msgid "Dynamic friction coef:"
 msgctxt "FrictionSettings"
 msgid "Dynamic friction coef:"
 msgstr "Součinitel smykového tření:"
@@ -440,11 +400,6 @@ msgid "Dynamic friction coef"
 msgstr "Součinitel smykového tření"
 
 #: gui/panels/GUI_FrictionSettings.cpp:76
-#, fuzzy
-#| msgid ""
-#| "Or sliding friction coef. It should be smaller than static friction coef. "
-#| "This parameter defines how much friction you'll have when sliding. Try to "
-#| "find some values for it from the net."
 msgctxt "FrictionSettings"
 msgid ""
 "Or sliding friction coef. It should be smaller than static friction coef. "
@@ -466,14 +421,6 @@ msgid "Hydrodynamic friction coef"
 msgstr "Součinitel hydrodynamického tření"
 
 #: gui/panels/GUI_FrictionSettings.cpp:79
-#, fuzzy
-#| msgid ""
-#| "This friction defines the added friction that you'll feel from a surface "
-#| "that has a little film of fluid on it. It is kind of redundant with all "
-#| "the fluid physics below, but it is here so as for experimentally "
-#| "validated values from the net to be usable. If you decide that you'll "
-#| "simulate the film of fluid with the more complex fluid physics below, "
-#| "then just set this to 0."
 msgctxt "FrictionSettings"
 msgid ""
 "This friction defines the added friction that you'll feel from a surface "
@@ -483,11 +430,11 @@ msgid ""
 "film of fluid with the more complex fluid physics below, then just set this "
 "to 0."
 msgstr ""
-"Toto tření definuje přidané tření, které pocítíte na povrchu s tenkým filmem "
-"tekutiny. Vzhledem k veškeré fyzice tekutin níže je to poněkud nadbytečný "
-"parametr, ale je zde, aby bylo možné použít experimentálně ověřené hodnoty z "
-"internetu. Pokud se rozhodnete simulovat tekutý film pomocí komplexnější "
-"fyziky tekutin níže, ponechte na 0."
+"Toto tření definuje přidané tření, které pocítíte na povrchu s tenkým "
+"povlakem tekutiny. Vzhledem k veškeré fyzice tekutin níže je to poněkud "
+"nadbytečný parametr, ale je zde, aby bylo možné použít experimentálně "
+"ověřené hodnoty z internetu. Pokud se rozhodnete simulovat tekutý povlak "
+"pomocí komplexnější fyziky tekutin níže, ponechte na 0."
 
 #: gui/panels/GUI_FrictionSettings.cpp:81
 msgctxt "FrictionSettings"
@@ -500,12 +447,6 @@ msgid "Stribeck velocity"
 msgstr "Stribeckova rychlost"
 
 #: gui/panels/GUI_FrictionSettings.cpp:82
-#, fuzzy
-#| msgid ""
-#| "You'll either find stribeck velocity in the net, or the inverse (1/"
-#| "stribeck velocity) of it described as 'stribeck coef'. It defines the "
-#| "shape of the dynamic friction curve. Lets leave it at that. Just find "
-#| "some nice values for it from the net."
 msgctxt "FrictionSettings"
 msgid ""
 "You'll either find stribeck velocity in the net, or the inverse (1/stribeck "
@@ -519,56 +460,36 @@ msgstr ""
 "Zkrátka vyhledejte nějaké pěkné hodnoty na internetu."
 
 #: gui/panels/GUI_FrictionSettings.cpp:84
-#, fuzzy
-#| msgid "alpha:"
 msgctxt "FrictionSettings"
 msgid "alpha:"
 msgstr "alfa:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:85
-#, fuzzy
-#| msgid "Alpha"
 msgctxt "FrictionSettings"
 msgid "Alpha"
 msgstr "Alfa"
 
 #: gui/panels/GUI_FrictionSettings.cpp:85
-#, fuzzy
-#| msgid "Its usual value is 2. But you can try others."
 msgctxt "FrictionSettings"
 msgid "Its usual value is 2. But you can try others."
 msgstr "Obvyklá hodnota je 2. Ale můžete zkusit jinou."
 
 #: gui/panels/GUI_FrictionSettings.cpp:87
-#, fuzzy
-#| msgid "Fluid Settings"
 msgctxt "FrictionSettings"
 msgid "Fluid Settings"
 msgstr "Nastavení tekutin"
 
 #: gui/panels/GUI_FrictionSettings.cpp:89
-#, fuzzy
-#| msgid "Flow behavior index:"
 msgctxt "FrictionSettings"
 msgid "Flow behavior index:"
 msgstr "Index chování toku:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:90
-#, fuzzy
-#| msgid "Flow behavior index"
 msgctxt "FrictionSettings"
 msgid "Flow behavior index"
 msgstr "Index chování toku"
 
 #: gui/panels/GUI_FrictionSettings.cpp:90
-#, fuzzy
-#| msgid ""
-#| "If it is 1.0 then the fluid will behave like water. The lower you get "
-#| "from 1.0, the more like mud the fluid will behave, meaning that for small "
-#| "velocities the fluid will resist motion and for large velocities the "
-#| "fluid will not resist so much. The higher you get from 1.0 the more like "
-#| "sand the fluid will behave. The bigger the velocity, the bigger the "
-#| "resistance of the fluid (try to hit sand hard it'll feel like stone)."
 msgctxt "FrictionSettings"
 msgid ""
 "If it is 1.0 then the fluid will behave like water. The lower you get from "
@@ -586,24 +507,16 @@ msgstr ""
 "písku, bude to jako do zdi)."
 
 #: gui/panels/GUI_FrictionSettings.cpp:92
-#, fuzzy
-#| msgid "Flow consistency:"
 msgctxt "FrictionSettings"
 msgid "Flow consistency:"
 msgstr "Konzistence toku:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:93
-#, fuzzy
-#| msgid "Flow consistency"
 msgctxt "FrictionSettings"
 msgid "Flow consistency"
 msgstr "Konzistence toku"
 
 #: gui/panels/GUI_FrictionSettings.cpp:93
-#, fuzzy
-#| msgid ""
-#| "Think of it as default fluid resistance. Behavior index above changes it "
-#| "at real time. Useful values in practice are quite large."
 msgctxt "FrictionSettings"
 msgid ""
 "Think of it as default fluid resistance. Behavior index above changes it at "
@@ -613,30 +526,16 @@ msgstr ""
 "V praxi použitelné hodnoty jsou poměrně vysoké."
 
 #: gui/panels/GUI_FrictionSettings.cpp:95
-#, fuzzy
-#| msgid "Fluid density:"
 msgctxt "FrictionSettings"
 msgid "Fluid density:"
 msgstr "Hustota tekutiny:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:96
-#, fuzzy
-#| msgid "Fluid density"
 msgctxt "FrictionSettings"
 msgid "Fluid density"
 msgstr "Hustota tekutiny"
 
 #: gui/panels/GUI_FrictionSettings.cpp:96
-#, fuzzy
-#| msgid ""
-#| "In mud (or sand) the resistance of the fluid described by the parameters "
-#| "above will stop you and so keep you from sinking. But for substances like "
-#| "water it isn't the drag that stops you from sinking. Its buoyancy. This "
-#| "parameter is here so as to keep you from sinking when you wish to "
-#| "simulate fluids with low drag (resistance). For fluids like mud or sand "
-#| "you can put it at 0, but it is best to keep it at some minimum value. For "
-#| "fluids with behavior index >=1 it will behave like you are in water. For "
-#| "fluids with behavior index <1 it'll behave like you are in mud."
 msgctxt "FrictionSettings"
 msgid ""
 "In mud (or sand) the resistance of the fluid described by the parameters "
@@ -657,29 +556,16 @@ msgstr ""
 "kapaliny s indexem chování <1 se chovají jako bahno."
 
 #: gui/panels/GUI_FrictionSettings.cpp:98
-#, fuzzy
-#| msgid "Drag anisotropy:"
 msgctxt "FrictionSettings"
 msgid "Drag anisotropy:"
 msgstr "Anizotropie odporu:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:99
-#, fuzzy
-#| msgid "Drag anisotropy"
 msgctxt "FrictionSettings"
 msgid "Drag anisotropy"
 msgstr "Anizotropie odporu"
 
 #: gui/panels/GUI_FrictionSettings.cpp:99
-#, fuzzy
-#| msgid ""
-#| "This parameter is for making it easier(cheating) to get out from mud. To "
-#| "get stuck in real mud isn't fun at all, so this makes the mud push up. "
-#| "Ranges in this parameter are from 0 to 1 . If you set it at 1 then you'll "
-#| "get real mud. For values from 0 to 1, the behavior goes from real mud to "
-#| "easy mud depending on this parameter and the value of Adhesion velocity. "
-#| "For velocity 0 real mud it is. For velocity >= adhesion velocity easy mud "
-#| "it is."
 msgctxt "FrictionSettings"
 msgid ""
 "This parameter is for making it easier(cheating) to get out from mud. To get "
@@ -702,8 +588,6 @@ msgid "About Rigs of Rods"
 msgstr "O Rigs of Rods"
 
 #: gui/panels/GUI_GameAbout.cpp:48
-#, fuzzy
-#| msgid "Version"
 msgctxt "About"
 msgid "Version"
 msgstr "Verze"
@@ -719,8 +603,6 @@ msgid "Build time"
 msgstr "Čas sestavení"
 
 #: gui/panels/GUI_GameAbout.cpp:62
-#, fuzzy
-#| msgid "Authors"
 msgctxt "About"
 msgid "Authors"
 msgstr "Autoři"
@@ -766,15 +648,11 @@ msgid "Welcome to Rigs of Rods!"
 msgstr "Vítejte v Rigs of Rods!"
 
 #: gui/panels/GUI_GameChatBox.cpp:139
-#, fuzzy
-#| msgid "Chat history (use mouse wheel to scroll)"
 msgctxt "ChatBox"
 msgid "Chat history (use mouse wheel to scroll)"
 msgstr "Historie chatu (rolovat můžete kolečkem myši)"
 
 #: gui/panels/GUI_GameChatBox.cpp:140
-#, fuzzy
-#| msgid "Message"
 msgctxt "ChatBox"
 msgid "Message"
 msgstr "Zpráva"
@@ -790,22 +668,16 @@ msgid "usage: /whisper username message"
 msgstr "použití: /whisper jmenouzivatele Text zprávy"
 
 #: gui/panels/GUI_GameControls.cpp:36
-#, fuzzy
-#| msgid "Game Controls"
 msgctxt "GameControls"
 msgid "Game Controls"
 msgstr "Ovládání hry"
 
 #: gui/panels/GUI_GameControls.cpp:47
-#, fuzzy
-#| msgid "Airplane"
 msgctxt "GameControls"
 msgid "Airplane"
 msgstr "Letadlo"
 
 #: gui/panels/GUI_GameControls.cpp:49
-#, fuzzy
-#| msgid "Boat"
 msgctxt "GameControls"
 msgid "Boat"
 msgstr "Loď"
@@ -826,8 +698,6 @@ msgid "Character"
 msgstr "Postava"
 
 #: gui/panels/GUI_GameControls.cpp:57
-#, fuzzy
-#| msgid "Commands"
 msgctxt "GameControls"
 msgid "Commands"
 msgstr "Příkazy"
@@ -853,8 +723,6 @@ msgid "Menu"
 msgstr "Nabídka"
 
 #: gui/panels/GUI_GameControls.cpp:67
-#, fuzzy
-#| msgid "Truck"
 msgctxt "GameControls"
 msgid "Truck"
 msgstr "Vozidlo"
@@ -870,23 +738,16 @@ msgid "Resume game"
 msgstr "Pokračovat ve hře"
 
 #: gui/panels/GUI_GameMainMenu.cpp:159
-#, fuzzy
-#| msgctxt "MainMenu"
-#| msgid "Multi player"
 msgctxt "MainMenu"
 msgid "Multiplayer"
 msgstr "Více hráčů"
 
 #: gui/panels/GUI_GameMainMenu.cpp:165
-#, fuzzy
-#| msgid "Settings"
 msgctxt "MainMenu"
 msgid "Settings"
 msgstr "Nastavení"
 
 #: gui/panels/GUI_GameMainMenu.cpp:171
-#, fuzzy
-#| msgid "About"
 msgctxt "MainMenu"
 msgid "About"
 msgstr "O programu"
@@ -901,16 +762,12 @@ msgid "Exit game"
 msgstr "Ukončit hru"
 
 #: gui/panels/GUI_GameMainMenu.cpp:221 gui/panels/GUI_GameMainMenu.cpp:249
-#, fuzzy
-#| msgid "Game version"
 msgctxt "MainMenu"
 msgid "Game version"
 msgstr "Verze hry"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:222 gui/panels/GUI_GameMainMenu.cpp:250
-#, fuzzy
-#| msgid "Net. protocol"
 msgctxt "MainMenu"
 msgid "Net. protocol"
 msgstr "Síť. protokol"
@@ -922,16 +779,11 @@ msgstr "Rámeček s verzí"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:251
-#, fuzzy
-#| msgid "Cache cleared"
 msgctxt "MainMenu"
 msgid "Cache updated"
-msgstr "Cache smazána"
+msgstr "Cache aktualizována"
 
 #: gui/panels/GUI_GameMainMenu.cpp:264
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Notices"
 msgctxt "MainMenu"
 msgid "Notice box"
 msgstr "Oznámení"
@@ -953,12 +805,9 @@ msgid "General"
 msgstr "Obecné"
 
 #: gui/panels/GUI_GameSettings.cpp:63
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Replay"
 msgctxt "GameSettings"
 msgid "Gameplay"
-msgstr "Přehrávání"
+msgstr "Hraní"
 
 #: gui/panels/GUI_GameSettings.cpp:70
 msgctxt "GameSettings"
@@ -1101,7 +950,7 @@ msgstr "Discord Rich Presence"
 #: gui/panels/GUI_GameSettings.cpp:271
 msgctxt "GameSettings"
 msgid "Show confirm. UI dialog for quickload"
-msgstr ""
+msgstr "Žádat potvrzení před rychlým nahráním"
 
 #: gui/panels/GUI_GameSettings.cpp:277
 msgctxt "GameSettings"
@@ -1134,11 +983,9 @@ msgid "Video settings"
 msgstr "Nastavení zobrazení"
 
 #: gui/panels/GUI_GameSettings.cpp:308
-#, fuzzy
-#| msgid "No light sources"
 msgctxt "GameSettings"
 msgid "Light sources"
-msgstr "Žádné zdroje světla"
+msgstr "Zdroje světla"
 
 #: gui/panels/GUI_GameSettings.cpp:315
 msgctxt "GameSettings"
@@ -1366,8 +1213,6 @@ msgid "Log beam triggers"
 msgstr "Logovat spouštěče (triggers)"
 
 #: gui/panels/GUI_GameSettings.cpp:426
-#, fuzzy
-#| msgid "Regen cache"
 msgctxt "GameSettings"
 msgid "Rebuild cache"
 msgstr "Obnovit cache"
@@ -1468,29 +1313,21 @@ msgid "Loader"
 msgstr "Výběr"
 
 #: gui/panels/GUI_MainSelector.cpp:264
-#, fuzzy
-#| msgid "Author(s): "
 msgctxt "MainSelector"
 msgid "Author(s): "
 msgstr "Autor/ři: "
 
 #: gui/panels/GUI_MainSelector.cpp:268
-#, fuzzy
-#| msgid "Version: "
 msgctxt "MainSelector"
 msgid "Version: "
 msgstr "Verze: "
 
 #: gui/panels/GUI_MainSelector.cpp:271
-#, fuzzy
-#| msgid "Wheels: "
 msgctxt "MainSelector"
 msgid "Wheels: "
 msgstr "Kola: "
 
 #: gui/panels/GUI_MainSelector.cpp:277
-#, fuzzy
-#| msgid "Mass: "
 msgctxt "MainSelector"
 msgid "Mass: "
 msgstr "Hmotnost: "
@@ -1506,15 +1343,11 @@ msgid "Nodes: "
 msgstr "Nody: "
 
 #: gui/panels/GUI_MainSelector.cpp:291
-#, fuzzy
-#| msgid "Beams: "
 msgctxt "MainSelector"
 msgid "Beams: "
 msgstr "Paprsky: "
 
 #: gui/panels/GUI_MainSelector.cpp:292
-#, fuzzy
-#| msgid "Shocks: "
 msgctxt "MainSelector"
 msgid "Shocks: "
 msgstr "Tlumiče: "
@@ -1525,36 +1358,26 @@ msgid "Hydros: "
 msgstr "Řízení náprav: "
 
 #: gui/panels/GUI_MainSelector.cpp:294
-#, fuzzy
-#| msgid "SoundSources: "
 msgctxt "MainSelector"
 msgid "SoundSources: "
 msgstr "Zdroje zvuku: "
 
 #: gui/panels/GUI_MainSelector.cpp:295
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "MainSelector"
 msgid "Commands: "
 msgstr "Příkazy: "
 
 #: gui/panels/GUI_MainSelector.cpp:296
-#, fuzzy
-#| msgid "Rotators: "
 msgctxt "MainSelector"
 msgid "Rotators: "
 msgstr "Rotátory: "
 
 #: gui/panels/GUI_MainSelector.cpp:297
-#, fuzzy
-#| msgid "Exhausts: "
 msgctxt "MainSelector"
 msgid "Exhausts: "
 msgstr "Výfuky: "
 
 #: gui/panels/GUI_MainSelector.cpp:298
-#, fuzzy
-#| msgid "Flares: "
 msgctxt "MainSelector"
 msgid "Flares: "
 msgstr "Světla: "
@@ -1570,22 +1393,16 @@ msgid "Props: "
 msgstr "Props: "
 
 #: gui/panels/GUI_MainSelector.cpp:301
-#, fuzzy
-#| msgid "Wings: "
 msgctxt "MainSelector"
 msgid "Wings: "
 msgstr "Křídla: "
 
 #: gui/panels/GUI_MainSelector.cpp:304
-#, fuzzy
-#| msgid "Using Submeshs: "
 msgctxt "MainSelector"
 msgid "Using Submeshs: "
 msgstr "Používá submeshe: "
 
 #: gui/panels/GUI_MainSelector.cpp:306
-#, fuzzy
-#| msgid "No"
 msgctxt "MainSelector"
 msgid "No"
 msgstr "Ne"
@@ -1596,50 +1413,36 @@ msgid "Yes"
 msgstr "Ano"
 
 #: gui/panels/GUI_MainSelector.cpp:308
-#, fuzzy
-#| msgid "Torque: "
 msgctxt "MainSelector"
 msgid "Torque: "
-msgstr "Krouticí moment: "
+msgstr "Točivý moment: "
 
 #: gui/panels/GUI_MainSelector.cpp:309
-#, fuzzy
-#| msgid "Transmission Gear Count: "
 msgctxt "MainSelector"
 msgid "Transmission Gear Count: "
 msgstr "Počet převodových stupňů: "
 
 #: gui/panels/GUI_MainSelector.cpp:312
-#, fuzzy
-#| msgid "Engine RPM: "
 msgctxt "MainSelector"
 msgid "Engine RPM: "
 msgstr "Otáčky motoru: "
 
 #: gui/panels/GUI_MainSelector.cpp:316
-#, fuzzy
-#| msgid "Unique ID: "
 msgctxt "MainSelector"
 msgid "Unique ID: "
-msgstr "Specifické ID: "
+msgstr "Unikátní ID: "
 
 #: gui/panels/GUI_MainSelector.cpp:317
-#, fuzzy
-#| msgid "GUID: "
 msgctxt "MainSelector"
 msgid "GUID: "
 msgstr "GUID: "
 
 #: gui/panels/GUI_MainSelector.cpp:318
-#, fuzzy
-#| msgid "Times used: "
 msgctxt "MainSelector"
 msgid "Times used: "
 msgstr "Počet použití: "
 
 #: gui/panels/GUI_MainSelector.cpp:319
-#, fuzzy
-#| msgid "Date and Time modified: "
 msgctxt "MainSelector"
 msgid "Date and Time modified: "
 msgstr "Datum a čas změny: "
@@ -1650,36 +1453,26 @@ msgid "Date and Time installed: "
 msgstr "Datum a čas instalace: "
 
 #: gui/panels/GUI_MainSelector.cpp:323
-#, fuzzy
-#| msgid "Vehicle Type: "
 msgctxt "MainSelector"
 msgid "Vehicle Type: "
 msgstr "Typ vozidla: "
 
 #: gui/panels/GUI_MainSelector.cpp:326
-#, fuzzy
-#| msgid "[forwards commands]"
 msgctxt "MainSelector"
 msgid "[forwards commands]"
 msgstr "[přeposílá příkazy]"
 
 #: gui/panels/GUI_MainSelector.cpp:327
-#, fuzzy
-#| msgid "[imports commands]"
 msgctxt "MainSelector"
 msgid "[imports commands]"
 msgstr "[přejímá příkazy]"
 
 #: gui/panels/GUI_MainSelector.cpp:328
-#, fuzzy
-#| msgid "[is rescuer]"
 msgctxt "MainSelector"
 msgid "[is rescuer]"
 msgstr "[je vyprošťovací vůz]"
 
 #: gui/panels/GUI_MainSelector.cpp:329
-#, fuzzy
-#| msgid "[uses custom particles]"
 msgctxt "MainSelector"
 msgid "[uses custom particles]"
 msgstr "[používá vlastní částice]"
@@ -1696,29 +1489,21 @@ msgid "[car engine]"
 msgstr "[motor osobního vozidla]"
 
 #: gui/panels/GUI_MainSelector.cpp:333
-#, fuzzy
-#| msgid "[zip archive]"
 msgctxt "MainSelector"
 msgid "[zip archive]"
 msgstr "[zip archiv]"
 
 #: gui/panels/GUI_MainSelector.cpp:334
-#, fuzzy
-#| msgid "[unpacked in directory]"
 msgctxt "MainSelector"
 msgid "[unpacked in directory]"
 msgstr "[Rozbalené v adresáři]"
 
 #: gui/panels/GUI_MainSelector.cpp:338
-#, fuzzy
-#| msgid "Source: "
 msgctxt "MainSelector"
 msgid "Source: "
 msgstr "Zdroj: "
 
 #: gui/panels/GUI_MainSelector.cpp:345
-#, fuzzy
-#| msgid "Filename: "
 msgctxt "MainSelector"
 msgid "Filename: "
 msgstr "Název souboru: "
@@ -1729,22 +1514,16 @@ msgid "Show details"
 msgstr "Zobraz podrobnosti"
 
 #: gui/panels/GUI_MainSelector.cpp:362
-#, fuzzy
-#| msgid "Configuration"
 msgctxt "MainSelector"
 msgid "Configuration"
 msgstr "Konfigurace"
 
 #: gui/panels/GUI_MainSelector.cpp:368
-#, fuzzy
-#| msgid "OK"
 msgctxt "MainSelector"
 msgid "OK"
 msgstr "OK"
 
 #: gui/panels/GUI_MainSelector.cpp:375
-#, fuzzy
-#| msgid "Cancel"
 msgctxt "MainSelector"
 msgid "Cancel"
 msgstr "Storno"
@@ -1752,96 +1531,70 @@ msgstr "Storno"
 #: gui/panels/GUI_MessageBox.cpp:109
 msgctxt "MessageBox"
 msgid "Always ask"
-msgstr ""
+msgstr "Vždy se zeptat"
 
 #. TextDisabled() are captions, Text() are values
 #: gui/panels/GUI_MultiplayerClientList.cpp:136
-#, fuzzy
-#| msgid "user name"
 msgctxt "MultiplayerClientList"
 msgid "user name"
 msgstr "uživatelské jméno"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:141
-#, fuzzy
-#| msgid "user language: "
 msgctxt "MultiplayerClientList"
 msgid "user language: "
 msgstr "jazyk uživatele: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:145
-#, fuzzy
-#| msgid " user country: "
 msgctxt "MultiplayerClientList"
 msgid "user country: "
 msgstr "země uživatele: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:156
-#, fuzzy
-#| msgid "user authentication level"
 msgctxt "MultiplayerClientList"
 msgid "user authentication level"
 msgstr "úroveň ověření uživatele"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:171
-#, fuzzy
-#| msgid "truck loading state"
 msgctxt "MultiplayerClientList"
 msgid "truck loading state"
 msgstr "stav nahrávání vozidla"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:180
-#, fuzzy
-#| msgid "Truck loading errors"
 msgctxt "MultiplayerClientList"
 msgid "Truck loading errors"
 msgstr "Chyby při nahrávání vozidla"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:181
-#, fuzzy
-#| msgid "Truck loaded correctly, no errors"
 msgctxt "MultiplayerClientList"
 msgid "Truck loaded correctly, no errors"
 msgstr "Vozidlo v pořádku načteno, žádné chyby"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:182
-#, fuzzy
-#| msgid "no truck loaded"
 msgctxt "MultiplayerClientList"
 msgid "no truck loaded"
 msgstr "Není načteno žádné vozidlo"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:186
-#, fuzzy
-#| msgid "remote truck loading state"
 msgctxt "MultiplayerClientList"
 msgid "remote truck loading state"
 msgstr "stav nahrávání vzdáleného vozidla"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:195
-#, fuzzy
-#| msgid "Remote Truck loading errors"
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loading errors"
 msgstr "Chyby při načítání vzdáleného vozidla"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:196
-#, fuzzy
-#| msgid "Remote Truck loaded correctly, no errors"
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loaded correctly, no errors"
 msgstr "Vzdálené vozidlo bylo v pořádku načteno, žádné chyby"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:197
-#, fuzzy
-#| msgid "No Trucks loaded"
 msgctxt "MultiplayerClientList"
 msgid "No Trucks loaded"
 msgstr "Žádná načtená vozidla"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:209
-#, fuzzy
-#| msgid "Slow  Network  Download"
 msgctxt "MultiplayerClientList"
 msgid "Slow  Network  Download"
 msgstr "Pomalé stahování ze sítě"
@@ -1857,8 +1610,6 @@ msgid "Server returned invalid data :("
 msgstr "Server vrátil neplatná data"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:114
-#, fuzzy
-#| msgid "No"
 msgctxt "MultiplayerSelector"
 msgid "No"
 msgstr "Ne"
@@ -1879,8 +1630,6 @@ msgid "Direct IP"
 msgstr "Přímé zadání IP"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:169
-#, fuzzy
-#| msgid "Settings"
 msgctxt "MultiplayerSelector"
 msgid "Settings"
 msgstr "Nastavení"
@@ -1963,8 +1712,6 @@ msgid "Users"
 msgstr "Uživatelé"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:277
-#, fuzzy
-#| msgid "Version"
 msgctxt "MultiplayerSelector"
 msgid "Version"
 msgstr "Verze"
@@ -1995,22 +1742,16 @@ msgid "Total mass"
 msgstr "Celková hmotnost"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:56
-#, fuzzy
-#| msgid "Beams: "
 msgctxt "NodeBeamUtils"
 msgid "Beams:"
 msgstr "Paprsky:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:66
-#, fuzzy
-#| msgid "Shocks: "
 msgctxt "NodeBeamUtils"
 msgid "Shocks:"
 msgstr "Tlumiče:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:76
-#, fuzzy
-#| msgid "Wheels: "
 msgctxt "NodeBeamUtils"
 msgid "Wheels:"
 msgstr "Kola:"
@@ -2067,8 +1808,6 @@ msgid "Reset search"
 msgstr "Resetovat hledání"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:156
-#, fuzzy
-#| msgid "Search Results"
 msgctxt "NodeBeamUtils"
 msgid "Search results"
 msgstr "Výsledky hledání"
@@ -2109,46 +1848,34 @@ msgid "Vehicle destruction: "
 msgstr "Poškození vozidla: "
 
 #: gui/panels/GUI_SimActorStats.cpp:65
-#, fuzzy
-#| msgid "Beam count: "
 msgctxt "SimActorStats"
 msgid "Beam count: "
 msgstr "Počet paprsků: "
 
 #: gui/panels/GUI_SimActorStats.cpp:70
-#, fuzzy
-#| msgid "Broken beams count: "
 msgctxt "SimActorStats"
 msgid "Broken beams count: "
 msgstr "Počet zlomených paprsků: "
 
 #: gui/panels/GUI_SimActorStats.cpp:75
-#, fuzzy
-#| msgid "Deformed beams count: "
 msgctxt "SimActorStats"
 msgid "Deformed beams count: "
 msgstr "Počet deform. paprsků: "
 
 #: gui/panels/GUI_SimActorStats.cpp:80
-#, fuzzy
-#| msgid "Average deformation: "
 msgctxt "SimActorStats"
 msgid "Average deformation: "
 msgstr "Průměrná deformace: "
 
 #: gui/panels/GUI_SimActorStats.cpp:85
-#, fuzzy
-#| msgid "Average stress: "
 msgctxt "SimActorStats"
 msgid "Average stress: "
 msgstr "Průměrné napětí: "
 
 #: gui/panels/GUI_SimActorStats.cpp:93
-#, fuzzy
-#| msgid "Node count: "
 msgctxt "SimActorStats"
 msgid "Node count: "
-msgstr "Počet nodů: "
+msgstr "Počet vrcholů: "
 
 #: gui/panels/GUI_SimActorStats.cpp:97
 msgctxt "SimActorStats"
@@ -2166,22 +1893,16 @@ msgid "Input shaft RPM: "
 msgstr "Otáčky vstupní hřídele (ot/min): "
 
 #: gui/panels/GUI_SimActorStats.cpp:124
-#, fuzzy
-#| msgid "Current torque: "
 msgctxt "SimActorStats"
 msgid "Current torque: "
-msgstr "Kroutivý moment: "
+msgstr "Točivý moment: "
 
 #: gui/panels/GUI_SimActorStats.cpp:129
-#, fuzzy
-#| msgid "Current power: "
 msgctxt "SimActorStats"
 msgid "Current power: "
 msgstr "Aktuální výkon: "
 
 #: gui/panels/GUI_SimActorStats.cpp:133
-#, fuzzy
-#| msgid "Current gear: "
 msgctxt "SimActorStats"
 msgid "Current gear: "
 msgstr "Aktuální převod: "
@@ -2202,22 +1923,16 @@ msgid "Vehicle speed: "
 msgstr "Rychlost vozidla: "
 
 #: gui/panels/GUI_SimActorStats.cpp:167
-#, fuzzy
-#| msgid "Current speed: "
 msgctxt "SimActorStats"
 msgid "Current speed: "
 msgstr "Aktuální rychlost: "
 
 #: gui/panels/GUI_SimActorStats.cpp:174
-#, fuzzy
-#| msgid "Altitude: "
 msgctxt "SimActorStats"
 msgid "Altitude: "
 msgstr "Výška: "
 
 #: gui/panels/GUI_SimActorStats.cpp:181 gui/panels/GUI_SimActorStats.cpp:199
-#, fuzzy
-#| msgid "Engine "
 msgctxt "SimActorStats"
 msgid "Engine "
 msgstr "Motor "
@@ -2228,50 +1943,36 @@ msgid "Top speed: "
 msgstr "Nejvyšší rychlost: "
 
 #: gui/panels/GUI_SimActorStats.cpp:217
-#, fuzzy
-#| msgid "G-Forces:"
 msgctxt "SimActorStats"
 msgid "G-Forces:"
 msgstr "Odstředivé síly:"
 
 #: gui/panels/GUI_SimPerfStats.cpp:45
-#, fuzzy
-#| msgid "Current FPS: "
 msgctxt "SimPerfStats"
 msgid "Current FPS: "
 msgstr "Aktuální FPS: "
 
 #: gui/panels/GUI_SimPerfStats.cpp:46
-#, fuzzy
-#| msgid "Average FPS: "
 msgctxt "SimPerfStats"
 msgid "Average FPS: "
 msgstr "Průměrné FPS: "
 
 #: gui/panels/GUI_SimPerfStats.cpp:47
-#, fuzzy
-#| msgid "Worst FPS: "
 msgctxt "SimPerfStats"
 msgid "Worst FPS: "
 msgstr "Nejhorší FPS: "
 
 #: gui/panels/GUI_SimPerfStats.cpp:48
-#, fuzzy
-#| msgid "Best FPS: "
 msgctxt "SimPerfStats"
 msgid "Best FPS: "
 msgstr "Nejlepší FPS: "
 
 #: gui/panels/GUI_SimPerfStats.cpp:50
-#, fuzzy
-#| msgid "Triangle Count: "
 msgctxt "SimPerfStats"
 msgid "Triangle count: "
 msgstr "Počet polygonů: "
 
 #: gui/panels/GUI_SimPerfStats.cpp:51
-#, fuzzy
-#| msgid "Batch count: "
 msgctxt "SimPerfStats"
 msgid "Batch count: "
 msgstr "Počet dávek: "
@@ -2282,29 +1983,21 @@ msgid "Texture Tool"
 msgstr "Prohlížeč textur"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:50
-#, fuzzy
-#| msgid "Dynamic only"
 msgctxt "TextureToolWindow"
 msgid "Dynamic only"
 msgstr "Pouze dynamické"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:134
-#, fuzzy
-#| msgid "Save as PNG"
 msgctxt "TextureToolWindow"
 msgid "Save as PNG"
 msgstr "Uložit jako PNG"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:139
-#, fuzzy
-#| msgid "Save Raw"
 msgctxt "TextureToolWindow"
 msgid "Save Raw"
 msgstr "Uložit Raw"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:171
-#, fuzzy
-#| msgid "saved texture as "
 msgctxt "TextureToolWindow"
 msgid "saved texture as "
 msgstr "textura uložena jako "
@@ -2325,8 +2018,6 @@ msgid "Saves"
 msgstr "Uloženo"
 
 #: gui/panels/GUI_TopMenubar.cpp:64
-#, fuzzy
-#| msgid "Settings"
 msgctxt "TopMenubar"
 msgid "Settings"
 msgstr "Nastavení"
@@ -2363,28 +2054,19 @@ msgid "Remove current vehicle"
 msgstr "Odebrat současné vozidlo"
 
 #: gui/panels/GUI_TopMenubar.cpp:209
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Activate all vehicles"
 msgctxt "TopMenubar"
 msgid "Activate last spawned vehicle"
-msgstr "Aktivovat všechna vozidla"
+msgstr "Aktivovat naposledy přidané vozidlo"
 
 #: gui/panels/GUI_TopMenubar.cpp:217
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reload current vehicle"
 msgctxt "TopMenubar"
 msgid "Reload last spawned vehicle"
-msgstr "Znovu nahrát toto vozidlo"
+msgstr "Znovu nahrát naposled přidané vozidlo"
 
 #: gui/panels/GUI_TopMenubar.cpp:225
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Remove all vehicles"
 msgctxt "TopMenubar"
 msgid "Remove last spawned vehicle"
-msgstr "Odebrat všechna vozidla"
+msgstr "Odebrat naposledy přidané vozidlo"
 
 #: gui/panels/GUI_TopMenubar.cpp:234
 msgctxt "TopMenubar"
@@ -2412,12 +2094,9 @@ msgid "Send all vehicles to sleep"
 msgstr "Poslat všechna vozidla spát"
 
 #: gui/panels/GUI_TopMenubar.cpp:275
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reload current vehicle"
 msgctxt "TopMenubar"
 msgid "Reload current terrain"
-msgstr "Znovu nahrát toto vozidlo"
+msgstr "Znovu nahrát aktuální terén"
 
 #: gui/panels/GUI_TopMenubar.cpp:288
 msgctxt "TopMenubar"
@@ -2430,12 +2109,9 @@ msgid "Exit"
 msgstr "Konec"
 
 #: gui/panels/GUI_TopMenubar.cpp:315
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Actors"
 msgctxt "TopMenubar"
 msgid "Actors menu"
-msgstr "Aktoři"
+msgstr "Přehled aktérů"
 
 #: gui/panels/GUI_TopMenubar.cpp:346
 msgctxt "TopMenubar"
@@ -2468,11 +2144,9 @@ msgid "(Load with 'ALT+1..5')"
 msgstr "(Nahrajte pomocí 'ALT+1..5')"
 
 #: gui/panels/GUI_TopMenubar.cpp:414
-#, fuzzy
-#| msgid "Settings"
 msgctxt "TopMenubar"
 msgid "Settings menu"
-msgstr "Nastavení"
+msgstr "Nabídka nastavení"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_TopMenubar.cpp:417
@@ -2542,12 +2216,9 @@ msgid "Time of day:"
 msgstr "Denní doba:"
 
 #: gui/panels/GUI_TopMenubar.cpp:488
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Height"
 msgctxt "TopMenubar"
 msgid "Waves Height:"
-msgstr "Výška"
+msgstr "Výška vln:"
 
 #: gui/panels/GUI_TopMenubar.cpp:500
 msgctxt "TopMenubar"
@@ -2580,8 +2251,6 @@ msgid "Tools menu"
 msgstr "Nabídka nástrojů"
 
 #: gui/panels/GUI_TopMenubar.cpp:525
-#, fuzzy
-#| msgid "Friction Settings"
 msgctxt "TopMenubar"
 msgid "Friction settings"
 msgstr "Nastavení tření"
@@ -2597,8 +2266,6 @@ msgid "Texture tool"
 msgstr "Prohlížeč textur"
 
 #: gui/panels/GUI_TopMenubar.cpp:543
-#, fuzzy
-#| msgid "Game Controls"
 msgctxt "TopMenubar"
 msgid "Game controls"
 msgstr "Ovládání hry"
@@ -2624,9 +2291,6 @@ msgid "Extra logging on runtime - mass recalculation"
 msgstr "Extra logování za běhu - přepočty hmotnosti"
 
 #: gui/panels/GUI_TopMenubar.cpp:574
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Log beam breaking"
 msgctxt "TopMenubar"
 msgid "Beam break logging"
 msgstr "Logovat lámání paprsků"
@@ -2637,9 +2301,6 @@ msgid "Extra logging on runtime"
 msgstr "Extra logování za běhu"
 
 #: gui/panels/GUI_TopMenubar.cpp:586
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Log beam deforming"
 msgctxt "TopMenubar"
 msgid "Beam deform. logging"
 msgstr "Logovat deformaci paprsků"
@@ -2727,16 +2388,11 @@ msgid "Submesh details"
 msgstr "Podrob. povrchů"
 
 #: gui/panels/GUI_TopMenubar.cpp:667
-#, fuzzy
-#| msgid "Settings"
 msgctxt "TopMenubar"
 msgid "Settings:"
-msgstr "Nastavení"
+msgstr "Nastavení:"
 
 #: gui/panels/GUI_TopMenubar.cpp:668
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Hide broken beams"
 msgctxt "TopMenubar"
 msgid "Hide broken beams"
 msgstr "Skrýt zlomené paprsky"
@@ -2747,9 +2403,6 @@ msgid "Hide beam stress"
 msgstr "Skrýt napětí paprsků"
 
 #: gui/panels/GUI_TopMenubar.cpp:670
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Hide wheels"
 msgctxt "TopMenubar"
 msgid "Hide wheels"
 msgstr "Skrýt kola"
@@ -2760,9 +2413,6 @@ msgid "Hide nodes"
 msgstr "Skrýt nody"
 
 #: gui/panels/GUI_TopMenubar.cpp:674
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Hide wheel info"
 msgctxt "TopMenubar"
 msgid "Hide wheel info"
 msgstr "Skrýt detaily kol"
@@ -2778,8 +2428,6 @@ msgid "Use [Simulation] menu"
 msgstr "Použijte nabídku [Simulace]"
 
 #: gui/panels/GUI_TopMenubar.cpp:823
-#, fuzzy
-#| msgid "All physics paused, press '{}' to resume"
 msgctxt "TopMenubar"
 msgid "All physics paused, press '{}' to resume"
 msgstr "Veškerá fyzika pozastavena, pro pokračování stiskněte '{}'"
@@ -2805,8 +2453,6 @@ msgid "Description"
 msgstr "Popis"
 
 #: gui/panels/GUI_VehicleDescription.cpp:74
-#, fuzzy
-#| msgid "Commands"
 msgctxt "VehicleDescription"
 msgid "Commands"
 msgstr "Příkazy"
@@ -2817,15 +2463,11 @@ msgid "unknown function"
 msgstr "neznámá funkce"
 
 #: gui/panels/GUI_VehicleDescription.cpp:111
-#, fuzzy
-#| msgid "Authors"
 msgctxt "VehicleDescription"
 msgid "Authors"
 msgstr "Autoři"
 
 #: gui/panels/GUI_VehicleDescription.cpp:120
-#, fuzzy
-#| msgid "(no author information available) "
 msgctxt "VehicleDescription"
 msgid "(no author information available) "
 msgstr "(žádný autor není uveden) "
@@ -2896,16 +2538,12 @@ msgid "disconnected: remote side closed the connection"
 msgstr "odpojeno: vzdálená strana ukončila spojení"
 
 #: network/Network.cpp:315
-#, fuzzy
-#| msgid " left the game"
 msgid "left the game"
-msgstr " opustil hru"
+msgstr "opustil hru"
 
 #: network/Network.cpp:347
-#, fuzzy
-#| msgid " joined the game"
 msgid "joined the game"
-msgstr " se připojil do hry"
+msgstr "se připojil do hry"
 
 #. Mark connect thread as started
 #: network/Network.cpp:401
@@ -3031,8 +2669,6 @@ msgid "Server Administrator"
 msgstr "Správce serveru"
 
 #: network/Network.cpp:808
-#, fuzzy
-#| msgid "Server Moderator"
 msgctxt "NetUserAuth"
 msgid "Server Moderator"
 msgstr "Moderátor serveru"
@@ -3043,8 +2679,6 @@ msgid "Ranked user"
 msgstr "Registr. uživatel"
 
 #: network/Network.cpp:811
-#, fuzzy
-#| msgid "Banned user"
 msgctxt "NetUserAuth"
 msgid "Banned user"
 msgstr "Zakázaný uživatel"
@@ -3082,10 +2716,8 @@ msgid "Network error!"
 msgstr "Chyba sítě!"
 
 #: physics/ActorManager.cpp:410
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgid "spawned a new vehicle: "
-msgstr " stvořeno nové vozidlo: "
+msgstr "přidal nové vozidlo: "
 
 #: physics/ActorManager.cpp:420
 msgid "Mod not installed: "
@@ -3129,29 +2761,21 @@ msgid "Locked"
 msgstr "Zamčený"
 
 #: physics/Savegame.cpp:204
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "Loader"
 msgctxt "QuickloadDialog"
 msgid "Load game?"
-msgstr "Výběr"
+msgstr "Nahrát hru?"
 
 #: physics/Savegame.cpp:205
 msgctxt "QuickloadDialog"
 msgid "You will lose all unsaved progress!"
-msgstr ""
+msgstr "Neuložený postup hrou bude ztracen!"
 
 #: physics/Savegame.cpp:209
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "Loader"
 msgctxt "QuickloadDialog"
 msgid "Load"
-msgstr "Výběr"
+msgstr "Nahrát"
 
 #: physics/Savegame.cpp:215
-#, fuzzy
-#| msgid "Cancel"
 msgctxt "QuickloadDialog"
 msgid "Cancel"
 msgstr "Storno"
@@ -3201,36 +2825,26 @@ msgstr ""
 "ground_models.cfg do Dokumenty/Rigs of Rods/config"
 
 #: resources/CacheSystem.cpp:452
-#, fuzzy
-#| msgid "Non-Driveable"
 msgctxt "MainSelector"
 msgid "Non-Driveable"
 msgstr "Nelze řídit"
 
 #: resources/CacheSystem.cpp:453
-#, fuzzy
-#| msgid "Truck"
 msgctxt "MainSelector"
 msgid "Truck"
 msgstr "Vozidlo"
 
 #: resources/CacheSystem.cpp:454
-#, fuzzy
-#| msgid "Airplane"
 msgctxt "MainSelector"
 msgid "Airplane"
 msgstr "Letadlo"
 
 #: resources/CacheSystem.cpp:455
-#, fuzzy
-#| msgid "Boat"
 msgctxt "MainSelector"
 msgid "Boat"
 msgstr "Loď"
 
 #: resources/CacheSystem.cpp:456
-#, fuzzy
-#| msgid "Machine"
 msgctxt "MainSelector"
 msgid "Machine"
 msgstr "Stroj"
@@ -3238,7 +2852,7 @@ msgstr "Stroj"
 #: resources/CacheSystem.cpp:457
 msgctxt "MainSelector"
 msgid "A.I."
-msgstr ""
+msgstr "A.I."
 
 #: resources/CacheSystem.cpp:952
 msgid "Loading zips in group "
@@ -3390,8 +3004,6 @@ msgid "Unsorted"
 msgstr "Neroztříděné"
 
 #: resources/CacheSystem.h:299
-#, fuzzy
-#| msgid "All"
 msgctxt "ModCategory"
 msgid "All"
 msgstr "Všechny"
@@ -3745,31 +3357,21 @@ msgstr "Vypínám force feedback - nenalezen žádný ovladač"
 
 #. Common: generic
 #: utils/InputEngine.cpp:35
-#, fuzzy
-#| msgid "accelerate the simulation"
 msgctxt "InputEvent"
 msgid "accelerate the simulation"
 msgstr "zrychlit simulaci"
 
 #: utils/InputEngine.cpp:36
-#, fuzzy
-#| msgid "decelerate the simulation"
 msgctxt "InputEvent"
 msgid "decelerate the simulation"
 msgstr "zpomalit simulaci"
 
 #: utils/InputEngine.cpp:37
-#, fuzzy
-#| msgid "reset the simulation pace"
 msgctxt "InputEvent"
 msgid "reset the simulation pace"
 msgstr "resetovat tempo simulace"
 
 #: utils/InputEngine.cpp:38
-#, fuzzy
-#| msgid ""
-#| "write current position to log (you can open the logfile and reuse the "
-#| "position)"
 msgctxt "InputEvent"
 msgid ""
 "write current position to log (you can open the logfile and reuse the "
@@ -3779,24 +3381,16 @@ msgstr ""
 "pozici znovu použít)"
 
 #: utils/InputEngine.cpp:39
-#, fuzzy
-#| msgid "exit the game"
 msgctxt "InputEvent"
 msgid "exit the game"
-msgstr "ukončit hru"
+msgstr "opustit hru"
 
 #: utils/InputEngine.cpp:40
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Quickload"
 msgctxt "InputEvent"
 msgid "quickload scene"
 msgstr "Rychlé načtení"
 
 #: utils/InputEngine.cpp:41
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Quicksave"
 msgctxt "InputEvent"
 msgid "quicksave scene"
 msgstr "Rychlé uložení"
@@ -3807,25 +3401,19 @@ msgid "take a screenshot"
 msgstr "uložit snímek obrazovky"
 
 #: utils/InputEngine.cpp:43
-#, fuzzy
-#| msgid "take a big screenshot (3 times the screen size)"
 msgctxt "InputEvent"
 msgid "take a big screenshot (3 times the screen size)"
 msgstr "zachytit velký snímek obrazovky (3násobek velikosti obrazovky)"
 
 #: utils/InputEngine.cpp:44
-#, fuzzy
-#| msgid "debug purpose - dont use"
 msgctxt "InputEvent"
 msgid "debug purpose - dont use"
 msgstr "ladící účely -  nepoužívat"
 
 #: utils/InputEngine.cpp:45
-#, fuzzy
-#| msgid "toggle render mode (solid, wireframe and points)"
 msgctxt "InputEvent"
 msgid "toggle render mode (solid, wireframe and points)"
-msgstr "režim vykreslování (výplň, drátěný model a body)"
+msgstr "přepnout režim vykreslování (výplň, drátěný model a body)"
 
 #: utils/InputEngine.cpp:46
 msgctxt "InputEvent"
@@ -3848,8 +3436,6 @@ msgid "reset the FOV value"
 msgstr "resetuje aktuální zorný úhel"
 
 #: utils/InputEngine.cpp:50
-#, fuzzy
-#| msgid "save the currently loaded terrain to a mesh file"
 msgctxt "InputEvent"
 msgid "save the currently loaded terrain to a mesh file"
 msgstr "uložit aktuálně načtený terén do mesh souboru"
@@ -3860,44 +3446,32 @@ msgid "toggle terrain editor"
 msgstr "Zap./vyp. editor terénu"
 
 #: utils/InputEngine.cpp:52
-#, fuzzy
-#| msgid "toggle between windowed and fullscreen mode"
 msgctxt "InputEvent"
 msgid "toggle between windowed and fullscreen mode"
 msgstr "přepnout mezi režimem v okně a na celou obrazovku"
 
 #. Comon: actor interaction
 #: utils/InputEngine.cpp:55
-#, fuzzy
-#| msgid "enter or exit a truck"
 msgctxt "InputEvent"
 msgid "enter or exit a truck"
 msgstr "nastoupit nebo vystoupit z vozidla"
 
 #: utils/InputEngine.cpp:56
-#, fuzzy
-#| msgid "enter next truck"
 msgctxt "InputEvent"
 msgid "enter next truck"
-msgstr "nastoupit do dalšího vozidla"
+msgstr "nastoupit do následujícího vozidla"
 
 #: utils/InputEngine.cpp:57
-#, fuzzy
-#| msgid "enter previous truck"
 msgctxt "InputEvent"
 msgid "enter previous truck"
 msgstr "nastoupit do předchozího vozidla"
 
 #: utils/InputEngine.cpp:58
-#, fuzzy
-#| msgid "remove current truck"
 msgctxt "InputEvent"
 msgid "remove current truck"
 msgstr "odebrat současné vozidlo"
 
 #: utils/InputEngine.cpp:59
-#, fuzzy
-#| msgid "delete current truck"
 msgctxt "InputEvent"
 msgid "delete current truck"
 msgstr "vymazat toto vozidlo"
@@ -3908,22 +3482,16 @@ msgid "respawn last truck"
 msgstr "Znovu stvořit předchozí vozidlo"
 
 #: utils/InputEngine.cpp:61
-#, fuzzy
-#| msgid "get new vehicle"
 msgctxt "InputEvent"
 msgid "get new vehicle"
 msgstr "získat nové vozidlo"
 
 #: utils/InputEngine.cpp:62
-#, fuzzy
-#| msgid "decrease tire pressure (note: only very few trucks support this)"
 msgctxt "InputEvent"
 msgid "decrease tire pressure (note: only very few trucks support this)"
 msgstr "snížit tlak v pneumatikách (pozn.: podporuje jen velmi málo vozidel)"
 
 #: utils/InputEngine.cpp:63
-#, fuzzy
-#| msgid "increase tire pressure (note: only very few trucks support this)"
 msgctxt "InputEvent"
 msgid "increase tire pressure (note: only very few trucks support this)"
 msgstr "zvýšit tlak pneumatik (pozn.: podporuje to jen velmi málo vozidel)"
@@ -3934,8 +3502,6 @@ msgid "connect hook node to a node in close proximity"
 msgstr "připojit hák k nodu v těsné blízkosti"
 
 #: utils/InputEngine.cpp:65
-#, fuzzy
-#| msgid "unlock autolock hook node"
 msgctxt "InputEvent"
 msgid "unlock autolock hook node"
 msgstr "odemknout samo-zamykací hák"
@@ -3946,22 +3512,16 @@ msgid "connect a rope to a node in close proximity"
 msgstr "připojit lano k nodu v těsné blízkosti"
 
 #: utils/InputEngine.cpp:67
-#, fuzzy
-#| msgid "repair truck"
 msgctxt "InputEvent"
 msgid "repair truck"
-msgstr "Opravit vozidlo"
+msgstr "opravit vozidlo"
 
 #: utils/InputEngine.cpp:68
-#, fuzzy
-#| msgid "teleport to rescue truck"
 msgctxt "InputEvent"
 msgid "teleport to rescue truck"
 msgstr "teleportovat do záchranného vozidla"
 
 #: utils/InputEngine.cpp:69
-#, fuzzy
-#| msgid "reset truck to original starting position"
 msgctxt "InputEvent"
 msgid "reset truck to original starting position"
 msgstr "resetovat na výchozí pozici vozidla"
@@ -3972,8 +3532,6 @@ msgid "toggle reset mode"
 msgstr "přepnout režim obnovení"
 
 #: utils/InputEngine.cpp:71
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "InputEvent"
 msgid "tie a load to the truck"
 msgstr "upevnit náklad k vozidlu"
@@ -3984,280 +3542,204 @@ msgid "toggle truck beacons"
 msgstr "majáky vozidla"
 
 #: utils/InputEngine.cpp:73
-#, fuzzy
-#| msgid "toggle truck front lights"
 msgctxt "InputEvent"
 msgid "toggle truck front lights"
 msgstr "přední světla vozidla"
 
 #: utils/InputEngine.cpp:74
-#, fuzzy
-#| msgid "toggle particle cannon"
 msgctxt "InputEvent"
 msgid "toggle particle cannon"
 msgstr "zapnout částicomet"
 
 #: utils/InputEngine.cpp:75
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgctxt "InputEvent"
 msgid "enable or disable replay mode"
-msgstr "povolit nebo zakázat mód opakování"
+msgstr "aktivovat/deaktivovat režim přehrávání"
 
 #: utils/InputEngine.cpp:76
-#, fuzzy
-#| msgid "more replay forward"
 msgctxt "InputEvent"
 msgid "more replay forward"
-msgstr "opakování více dopředu"
+msgstr "přehrávání více dopředu"
 
 #: utils/InputEngine.cpp:77
-#, fuzzy
-#| msgid "more replay backward"
 msgctxt "InputEvent"
 msgid "more replay backward"
-msgstr "opakování více dozadu"
+msgstr "přehrávání více dozadu"
 
 #: utils/InputEngine.cpp:78
-#, fuzzy
-#| msgid "move replay fast forward"
 msgctxt "InputEvent"
 msgid "move replay fast forward"
-msgstr "opakování rychle dopředu"
+msgstr "přehrávání rychle dopředu"
 
 #: utils/InputEngine.cpp:79
-#, fuzzy
-#| msgid "move replay fast backward"
 msgctxt "InputEvent"
 msgid "move replay fast backward"
-msgstr "opakování rychle dozadu"
+msgstr "přehrávání rychle dozadu"
 
 #. Common: UI
 #: utils/InputEngine.cpp:82
-#, fuzzy
-#| msgid "show / hide the console"
 msgctxt "InputEvent"
 msgid "show / hide the console"
 msgstr "zobrazit/skrýt konzoli"
 
 #: utils/InputEngine.cpp:83
-#, fuzzy
-#| msgid "enter the chat"
 msgctxt "InputEvent"
 msgid "enter the chat"
 msgstr "vstoupit do chatu"
 
 #: utils/InputEngine.cpp:84
-#, fuzzy
-#| msgid "sends the entered text"
 msgctxt "InputEvent"
 msgid "sends the entered text"
-msgstr "poslat vložený text"
+msgstr "odeslat vložený text"
 
 #: utils/InputEngine.cpp:85
-#, fuzzy
-#| msgid "hide all GUI elements"
 msgctxt "InputEvent"
 msgid "hide all GUI elements"
 msgstr "skrýt všechny GUI prvky"
 
 #: utils/InputEngine.cpp:86
-#, fuzzy
-#| msgid "display or hide net chat"
 msgctxt "InputEvent"
 msgid "display or hide the dashboard overlay"
-msgstr "zobrazit nebo skrýt síťový chat"
+msgstr "zobrazit nebo skrýt přístrojovou desku"
 
 #: utils/InputEngine.cpp:87
 msgctxt "InputEvent"
 msgid "toggle debug view"
-msgstr ""
+msgstr "vyp./zap. diagnostické zobrazení"
 
 #: utils/InputEngine.cpp:88
 msgctxt "InputEvent"
 msgid "cycle debug views"
-msgstr ""
+msgstr "cyklovat skrze diagnostická zobrazení"
 
 #: utils/InputEngine.cpp:89
-#, fuzzy
-#| msgid "toggle truck HUD"
 msgctxt "InputEvent"
 msgid "toggle truck HUD"
-msgstr "HUD vozidla"
+msgstr "zap./vyp. HUD vozidla"
 
 #: utils/InputEngine.cpp:90
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle truck description"
-msgstr "majáky vozidla"
+msgstr "zobraz./skrýt popis vozidla"
 
 #: utils/InputEngine.cpp:91
-#, fuzzy
-#| msgid "display or hide net chat"
 msgctxt "InputEvent"
 msgid "display or hide net chat"
 msgstr "zobrazit nebo skrýt síťový chat"
 
 #: utils/InputEngine.cpp:92
-#, fuzzy
-#| msgid "toggle between net chat display modes"
 msgctxt "InputEvent"
 msgid "toggle between net chat display modes"
 msgstr "přepnout režim zobrazení síťového chatu"
 
 #: utils/InputEngine.cpp:93
-#, fuzzy
-#| msgid "toggle Ogre statistics (FPS etc.)"
 msgctxt "InputEvent"
 msgid "toggle Ogre statistics (FPS etc.)"
 msgstr "statistika grafického enginu Ogre (FPS atd.)"
 
 #. Common: savegames
 #: utils/InputEngine.cpp:96
-#, fuzzy
-#| msgid "save position as slot 1"
 msgctxt "InputEvent"
 msgid "save scene in slot 01"
 msgstr "uložit pozici jako slot 1"
 
 #: utils/InputEngine.cpp:97
-#, fuzzy
-#| msgid "save position as slot 2"
 msgctxt "InputEvent"
 msgid "save scene in slot 02"
 msgstr "uložit pozici jako slot 2"
 
 #: utils/InputEngine.cpp:98
-#, fuzzy
-#| msgid "save position as slot 3"
 msgctxt "InputEvent"
 msgid "save scene in slot 03"
 msgstr "uložit pozici jako slot 3"
 
 #: utils/InputEngine.cpp:99
-#, fuzzy
-#| msgid "save position as slot 4"
 msgctxt "InputEvent"
 msgid "save scene in slot 04"
 msgstr "uložit pozici jako slot 4"
 
 #: utils/InputEngine.cpp:100
-#, fuzzy
-#| msgid "save position as slot 5"
 msgctxt "InputEvent"
 msgid "save scene in slot 05"
 msgstr "uložit pozici jako slot 5"
 
 #: utils/InputEngine.cpp:101
-#, fuzzy
-#| msgid "save position as slot 6"
 msgctxt "InputEvent"
 msgid "save scene in slot 06"
 msgstr "uložit pozici jako slot 6"
 
 #: utils/InputEngine.cpp:102
-#, fuzzy
-#| msgid "save position as slot 7"
 msgctxt "InputEvent"
 msgid "save scene in slot 07"
 msgstr "uložit pozici jako slot 7"
 
 #: utils/InputEngine.cpp:103
-#, fuzzy
-#| msgid "save position as slot 8"
 msgctxt "InputEvent"
 msgid "save scene in slot 08"
 msgstr "uložit pozici jako slot 8"
 
 #: utils/InputEngine.cpp:104
-#, fuzzy
-#| msgid "save position as slot 9"
 msgctxt "InputEvent"
 msgid "save scene in slot 09"
 msgstr "uložit pozici jako slot 9"
 
 #: utils/InputEngine.cpp:105
-#, fuzzy
-#| msgid "save position as slot 10"
 msgctxt "InputEvent"
 msgid "save scene in slot 10"
 msgstr "uložit pozici jako slot 10"
 
 #: utils/InputEngine.cpp:107
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgctxt "InputEvent"
 msgid "load scene from slot 01"
-msgstr "Načtena pozice ze slotu "
+msgstr "Načtena pozice ze slotu 1"
 
 #: utils/InputEngine.cpp:108
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgctxt "InputEvent"
 msgid "load scene from slot 02"
-msgstr "Načtena pozice ze slotu "
+msgstr "Načtena pozice ze slotu 2"
 
 #: utils/InputEngine.cpp:109
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgctxt "InputEvent"
 msgid "load scene from slot 03"
-msgstr "Načtena pozice ze slotu "
+msgstr "Načtena pozice ze slotu 3"
 
 #: utils/InputEngine.cpp:110
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgctxt "InputEvent"
 msgid "load scene from slot 04"
-msgstr "Načtena pozice ze slotu "
+msgstr "Načtena pozice ze slotu 4"
 
 #: utils/InputEngine.cpp:111
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgctxt "InputEvent"
 msgid "load scene from slot 05"
-msgstr "Načtena pozice ze slotu "
+msgstr "Načtena pozice ze slotu 5"
 
 #: utils/InputEngine.cpp:112
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgctxt "InputEvent"
 msgid "load scene from slot 06"
-msgstr "Načtena pozice ze slotu "
+msgstr "Načtena pozice ze slotu 6"
 
 #: utils/InputEngine.cpp:113
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgctxt "InputEvent"
 msgid "load scene from slot 07"
-msgstr "Načtena pozice ze slotu "
+msgstr "Načtena pozice ze slotu 7"
 
 #: utils/InputEngine.cpp:114
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgctxt "InputEvent"
 msgid "load scene from slot 08"
-msgstr "Načtena pozice ze slotu "
+msgstr "Načtena pozice ze slotu 8"
 
 #: utils/InputEngine.cpp:115
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgctxt "InputEvent"
 msgid "load scene from slot 09"
-msgstr "Načtena pozice ze slotu "
+msgstr "Načtena pozice ze slotu 9"
 
 #: utils/InputEngine.cpp:116
-#, fuzzy
-#| msgid "Loaded position from slot "
 msgctxt "InputEvent"
 msgid "load scene from slot 10"
-msgstr "Načtena pozice ze slotu "
+msgstr "Načtena pozice ze slotu 10"
 
 #. Truck: generic
 #: utils/InputEngine.cpp:119
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "InputEvent"
 msgid "accelerate the truck"
 msgstr "akcelerovat vozidlo"
@@ -4265,37 +3747,29 @@ msgstr "akcelerovat vozidlo"
 #: utils/InputEngine.cpp:120
 msgctxt "InputEvent"
 msgid "accelerate with 25 percent pedal input"
-msgstr ""
+msgstr "jet na 25% plynu"
 
 #: utils/InputEngine.cpp:121
 msgctxt "InputEvent"
 msgid "accelerate with 50 percent pedal input"
-msgstr ""
+msgstr "jet na 50% plynu"
 
 #: utils/InputEngine.cpp:122
-#, fuzzy
-#| msgid "toggle left direction indicator (blinker)"
 msgctxt "InputEvent"
 msgid "toggle left direction indicator (blinker)"
-msgstr "levá směrová světla"
+msgstr "vyp./zap. levá směrová světla"
 
 #: utils/InputEngine.cpp:123
-#, fuzzy
-#| msgid "toggle right direction indicator (blinker)"
 msgctxt "InputEvent"
 msgid "toggle right direction indicator (blinker)"
-msgstr "pravá směrová světla"
+msgstr "vyp./zap. pravá směrová světla"
 
 #: utils/InputEngine.cpp:124
-#, fuzzy
-#| msgid "toggle all direction indicators"
 msgctxt "InputEvent"
 msgid "toggle all direction indicators"
-msgstr "přepnout všechny ukazatele směru"
+msgstr "vyp./zap. všechny ukazatele směru"
 
 #: utils/InputEngine.cpp:125
-#, fuzzy
-#| msgid "brake"
 msgctxt "InputEvent"
 msgid "brake"
 msgstr "brzda"
@@ -4303,165 +3777,119 @@ msgstr "brzda"
 #: utils/InputEngine.cpp:126
 msgctxt "InputEvent"
 msgid "brake with 25 percent pedal input"
-msgstr ""
+msgstr "brzdit na 25% pedálu"
 
 #: utils/InputEngine.cpp:127
 msgctxt "InputEvent"
 msgid "brake with 50 percent pedal input"
-msgstr ""
+msgstr "brzdit na 50% pedálu"
 
 #: utils/InputEngine.cpp:128
-#, fuzzy
-#| msgid "truck horn"
 msgctxt "InputEvent"
 msgid "truck horn"
 msgstr "klakson"
 
 #: utils/InputEngine.cpp:129
-#, fuzzy
-#| msgid "toggle custom light 1"
 msgctxt "InputEvent"
 msgid "toggle custom light 1"
 msgstr "přepnout uživatelská světla 1"
 
 #: utils/InputEngine.cpp:130
-#, fuzzy
-#| msgid "toggle custom light 2"
 msgctxt "InputEvent"
 msgid "toggle custom light 2"
 msgstr "přepnout uživatelská světla 2"
 
 #: utils/InputEngine.cpp:131
-#, fuzzy
-#| msgid "toggle custom light 3"
 msgctxt "InputEvent"
 msgid "toggle custom light 3"
 msgstr "přepnout uživatelská světla 3"
 
 #: utils/InputEngine.cpp:132
-#, fuzzy
-#| msgid "toggle custom light 4"
 msgctxt "InputEvent"
 msgid "toggle custom light 4"
 msgstr "přepnout uživatelská světla 4"
 
 #: utils/InputEngine.cpp:133
-#, fuzzy
-#| msgid "toggle custom light 5"
 msgctxt "InputEvent"
 msgid "toggle custom light 5"
 msgstr "přepnout uživatelská světla 5"
 
 #: utils/InputEngine.cpp:134
-#, fuzzy
-#| msgid "toggle custom light 6"
 msgctxt "InputEvent"
 msgid "toggle custom light 6"
 msgstr "přepnout uživatelská světla 6"
 
 #: utils/InputEngine.cpp:135
-#, fuzzy
-#| msgid "toggle custom light 7"
 msgctxt "InputEvent"
 msgid "toggle custom light 7"
 msgstr "přepnout uživatelská světla 7"
 
 #: utils/InputEngine.cpp:136
-#, fuzzy
-#| msgid "toggle custom light 8"
 msgctxt "InputEvent"
 msgid "toggle custom light 8"
 msgstr "přepnout uživatelská světla 8"
 
 #: utils/InputEngine.cpp:137
-#, fuzzy
-#| msgid "toggle custom light 9"
 msgctxt "InputEvent"
 msgid "toggle custom light 9"
 msgstr "přepnout uživatelská světla 9"
 
 #: utils/InputEngine.cpp:138
-#, fuzzy
-#| msgid "toggle custom light 10"
 msgctxt "InputEvent"
 msgid "toggle custom light 10"
 msgstr "přepnout uživatelská světla 10"
 
 #: utils/InputEngine.cpp:139
-#, fuzzy
-#| msgid "toggle parking brake"
 msgctxt "InputEvent"
 msgid "toggle parking brake"
 msgstr "parkovací brzda"
 
 #: utils/InputEngine.cpp:140
-#, fuzzy
-#| msgid "toggle parking brake"
 msgctxt "InputEvent"
 msgid "toggle trailer parking brake"
-msgstr "parkovací brzda"
+msgstr "parkovací brzda přívěsu"
 
 #: utils/InputEngine.cpp:141
-#, fuzzy
-#| msgid "toggle antilock brake"
 msgctxt "InputEvent"
 msgid "toggle antilock brake"
 msgstr "protiblokovací systém"
 
 #: utils/InputEngine.cpp:142
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Debug videocameras"
 msgctxt "InputEvent"
 msgid "toggle videocamera"
-msgstr "Ladit videokamery"
+msgstr "přepnout videokamery"
 
 #: utils/InputEngine.cpp:143
-#, fuzzy
-#| msgid "toggle traction control"
 msgctxt "InputEvent"
 msgid "toggle traction control"
-msgstr "zapnout kontrolu trakce"
+msgstr "přepnout kontrolu trakce"
 
 #: utils/InputEngine.cpp:144
-#, fuzzy
-#| msgid "toggle cruise control"
 msgctxt "InputEvent"
 msgid "toggle cruise control"
-msgstr "zapnout tempomat"
+msgstr "zap./vyp. tempomat"
 
 #: utils/InputEngine.cpp:145
-#, fuzzy
-#| msgid "match target speed / rpm with current truck speed / rpm"
 msgctxt "InputEvent"
 msgid "match target speed / rpm with current truck speed / rpm"
-msgstr ""
-"srovnat požadovanou rychlost / otáčky se současnou rychlostí / otáčkami"
+msgstr "srovnat požadovanou rychlost / otáčky se současnou rychlostí / otáčkami"
 
 #: utils/InputEngine.cpp:146
-#, fuzzy
-#| msgid "increase target speed / rpm"
 msgctxt "InputEvent"
 msgid "increase target speed / rpm"
 msgstr "zvýšit požadovanou rychlost / otáčky"
 
 #: utils/InputEngine.cpp:147
-#, fuzzy
-#| msgid "decrease target speed / rpm"
 msgctxt "InputEvent"
 msgid "decrease target speed / rpm"
 msgstr "snížit požadovanou rychlost / otáčky"
 
 #: utils/InputEngine.cpp:148
-#, fuzzy
-#| msgid "hold to start the engine"
 msgctxt "InputEvent"
 msgid "hold to start the engine"
 msgstr "podržet pro start motoru"
 
 #: utils/InputEngine.cpp:149 utils/InputEngine.cpp:208
-#, fuzzy
-#| msgid "steer left"
 msgctxt "InputEvent"
 msgid "steer left"
 msgstr "zatočit doleva"
@@ -4469,843 +3897,605 @@ msgstr "zatočit doleva"
 #. Airplane
 #: utils/InputEngine.cpp:150 utils/InputEngine.cpp:196
 #: utils/InputEngine.cpp:209
-#, fuzzy
-#| msgid "steer right"
 msgctxt "InputEvent"
 msgid "steer right"
 msgstr "zatočit doprava"
 
 #: utils/InputEngine.cpp:151
-#, fuzzy
-#| msgid "toggle ignition"
 msgctxt "InputEvent"
 msgid "toggle ignition"
 msgstr "zapalování"
 
 #: utils/InputEngine.cpp:152
-#, fuzzy
-#| msgid "[forwards commands]"
 msgctxt "InputEvent"
 msgid "toggle forwardcommands"
-msgstr "[přeposílá příkazy]"
+msgstr "zap./vyp. přeposílání příkazů"
 
 #: utils/InputEngine.cpp:153
-#, fuzzy
-#| msgid "[imports commands]"
 msgctxt "InputEvent"
 msgid "toggle importcommands"
-msgstr "[přejímá příkazy]"
+msgstr "zap./vyp. přejímání příkazů"
 
 #: utils/InputEngine.cpp:154
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle physics"
-msgstr "majáky vozidla"
+msgstr "pozastavit fyziku"
 
 #: utils/InputEngine.cpp:155
 msgctxt "InputEvent"
 msgid "cycle between available inter axle differential modes"
-msgstr ""
+msgstr "cyklovat dostupné režimy diferenciálu mezi osami"
 
 #: utils/InputEngine.cpp:156
 msgctxt "InputEvent"
 msgid "cycle between available inter wheel differential modes"
-msgstr ""
+msgstr "cyklovat dostupné režimy diferenciálu mezi koly"
 
 #: utils/InputEngine.cpp:157
-#, fuzzy
-#| msgid "toggle cruise control"
 msgctxt "InputEvent"
 msgid "toggle transfer case mode"
-msgstr "zapnout tempomat"
+msgstr "přepnout režim převodovky"
 
 #: utils/InputEngine.cpp:158
-#, fuzzy
-#| msgid "toggle parking brake"
 msgctxt "InputEvent"
 msgid "toggle transfer case gear ratio"
-msgstr "parkovací brzda"
+msgstr "upravit převodový poměr"
 
 #: utils/InputEngine.cpp:159
-#, fuzzy
-#| msgid "move left mirror to the left"
 msgctxt "InputEvent"
 msgid "move left mirror to the left"
 msgstr "posunout levé zrcátko doleva"
 
 #: utils/InputEngine.cpp:160
-#, fuzzy
-#| msgid "move left mirror to the right"
 msgctxt "InputEvent"
 msgid "move left mirror to the right"
 msgstr "posunout levé zrcátko doprava"
 
 #: utils/InputEngine.cpp:161
-#, fuzzy
-#| msgid "more right mirror to the left"
 msgctxt "InputEvent"
 msgid "more right mirror to the left"
 msgstr "posunout pravé zrcátko vlevo"
 
 #: utils/InputEngine.cpp:162
-#, fuzzy
-#| msgid "move right mirror to the right"
 msgctxt "InputEvent"
 msgid "move right mirror to the right"
 msgstr "posunout pravé zrcátko vpravo"
 
 #. Truck: transmission
 #: utils/InputEngine.cpp:165
-#, fuzzy
-#| msgid "shift automatic transmission one gear down"
 msgctxt "InputEvent"
 msgid "shift automatic transmission one gear down"
 msgstr "přeřadit automatickou převodovku o jeden stupeň dolů"
 
 #: utils/InputEngine.cpp:166
-#, fuzzy
-#| msgid "shift automatic transmission one gear up"
 msgctxt "InputEvent"
 msgid "shift automatic transmission one gear up"
 msgstr "přeřadit automatickou převodovku o jeden stupeň nahoru"
 
 #: utils/InputEngine.cpp:167
-#, fuzzy
-#| msgid "manual clutch (for manual transmission)"
 msgctxt "InputEvent"
 msgid "manual clutch (for manual transmission)"
 msgstr "manuální spojka (pro manuální řazení)"
 
 #: utils/InputEngine.cpp:168
-#, fuzzy
-#| msgid "shift one gear down in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift one gear down in manual transmission mode"
 msgstr "přeřadit o jednu rychlost níž u manuální převodovky"
 
 #: utils/InputEngine.cpp:169
-#, fuzzy
-#| msgid "shift to neutral gear in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift to neutral gear in manual transmission mode"
 msgstr "přeřadit na neutrál u manuální převodovky"
 
 #: utils/InputEngine.cpp:170
-#, fuzzy
-#| msgid "shift one gear up in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift one gear up in manual transmission mode"
 msgstr "přeřadit o jednu rychlost výš u manuální převodovky"
 
 #: utils/InputEngine.cpp:171
-#, fuzzy
-#| msgid "shift directly to reverse gear"
 msgctxt "InputEvent"
 msgid "shift directly to reverse gear"
 msgstr "zařadit zpátečku"
 
 #: utils/InputEngine.cpp:172
-#, fuzzy
-#| msgid "shift directly to first gear"
 msgctxt "InputEvent"
 msgid "shift directly to first gear"
 msgstr "zařadit první rychlost"
 
 #: utils/InputEngine.cpp:173
-#, fuzzy
-#| msgid "shift directly to second gear"
 msgctxt "InputEvent"
 msgid "shift directly to second gear"
 msgstr "zařadit druhou rychlost"
 
 #: utils/InputEngine.cpp:174
-#, fuzzy
-#| msgid "shift directly to third gear"
 msgctxt "InputEvent"
 msgid "shift directly to third gear"
 msgstr "zařadit třetí rychlost"
 
 #: utils/InputEngine.cpp:175
-#, fuzzy
-#| msgid "shift directly to fourth gear"
 msgctxt "InputEvent"
 msgid "shift directly to fourth gear"
 msgstr "zařadit čtvrtou rychlost"
 
 #: utils/InputEngine.cpp:176
-#, fuzzy
-#| msgid "shift directly to 5th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 5th gear"
-msgstr "zaradit patou rychlost"
+msgstr "zařadit pátou rychlost"
 
 #: utils/InputEngine.cpp:177
-#, fuzzy
-#| msgid "shift directly to 6th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 6th gear"
 msgstr "zařadit šestou rychlost"
 
 #: utils/InputEngine.cpp:178
-#, fuzzy
-#| msgid "shift directly to 7th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 7th gear"
 msgstr "zařadit sedmou rychlost"
 
 #: utils/InputEngine.cpp:179
-#, fuzzy
-#| msgid "shift directly to 8th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 8th gear"
 msgstr "zařadit osmou rychlost"
 
 #: utils/InputEngine.cpp:180
-#, fuzzy
-#| msgid "shift directly to 9th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 9th gear"
 msgstr "zařadit devátou rychlost"
 
 #: utils/InputEngine.cpp:181
-#, fuzzy
-#| msgid "shift directly to 10th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 10th gear"
 msgstr "zařadit desátou rychlost"
 
 #: utils/InputEngine.cpp:182
-#, fuzzy
-#| msgid "shift directly to 11th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 11th gear"
 msgstr "zařadit jedenáctou rychlost"
 
 #: utils/InputEngine.cpp:183
-#, fuzzy
-#| msgid "shift directly to 12th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 12th gear"
 msgstr "zařadit dvanáctou rychlost"
 
 #: utils/InputEngine.cpp:184
-#, fuzzy
-#| msgid "shift directly to 13th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 13th gear"
 msgstr "zařadit třináctou rychlost"
 
 #: utils/InputEngine.cpp:185
-#, fuzzy
-#| msgid "shift directly to 14th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 14th gear"
 msgstr "zařadit čtrnáctou rychlost"
 
 #: utils/InputEngine.cpp:186
-#, fuzzy
-#| msgid "shift directly to 15th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 15th gear"
 msgstr "zařadit patnáctou rychlost"
 
 #: utils/InputEngine.cpp:187
-#, fuzzy
-#| msgid "shift directly to 16th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 16th gear"
 msgstr "zařadit šestnáctou rychlost"
 
 #: utils/InputEngine.cpp:188
-#, fuzzy
-#| msgid "shift directly to 17th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 17th gear"
 msgstr "zařadit sedmnáctou rychlost"
 
 #: utils/InputEngine.cpp:189
-#, fuzzy
-#| msgid "shift directly to 18th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 18th gear"
 msgstr "zařadit osmnáctou rychlost"
 
 #: utils/InputEngine.cpp:190
-#, fuzzy
-#| msgid "sets low range (1-6) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets low range (1-6) for H-shaft"
 msgstr "nastavit nižší rozsah (1-16) pro H-osu"
 
 #: utils/InputEngine.cpp:191
-#, fuzzy
-#| msgid "sets middle range (7-12) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets middle range (7-12) for H-shaft"
 msgstr "nastavit střední rozsah (7-12) pro H-osu"
 
 #: utils/InputEngine.cpp:192
-#, fuzzy
-#| msgid "sets high range (13-18) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets high range (13-18) for H-shaft"
 msgstr "nastavit vyšší rozsah (13-18) pro H-osu"
 
 #: utils/InputEngine.cpp:193
-#, fuzzy
-#| msgid "toggle between transmission modes"
 msgctxt "InputEvent"
 msgid "toggle between transmission modes"
 msgstr "přepnout režim převodovky"
 
 #: utils/InputEngine.cpp:197
-#, fuzzy
-#| msgid "normal brake for an aircraft"
 msgctxt "InputEvent"
 msgid "normal brake for an aircraft"
 msgstr "běžné brzdy pro letadlo"
 
 #: utils/InputEngine.cpp:198
-#, fuzzy
-#| msgid "pull the elevator down in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator down in an aircraft."
 msgstr "Stáhnout výškové kormidlo letadla dolů."
 
 #: utils/InputEngine.cpp:199
-#, fuzzy
-#| msgid "pull the elevator up in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator up in an aircraft."
 msgstr "vytáhnout výškové kormidlo letadla nahoru."
 
 #: utils/InputEngine.cpp:200
-#, fuzzy
-#| msgid "full flaps in an aircraft."
 msgctxt "InputEvent"
 msgid "full flaps in an aircraft."
 msgstr "plné klapky v letadle"
 
 #: utils/InputEngine.cpp:201
-#, fuzzy
-#| msgid "one step less flaps."
 msgctxt "InputEvent"
 msgid "one step less flaps."
 msgstr "klapky o stupeň snížit"
 
 #: utils/InputEngine.cpp:202
-#, fuzzy
-#| msgid "one step more flaps."
 msgctxt "InputEvent"
 msgid "one step more flaps."
 msgstr "klapky o stupeň zvýšit"
 
 #: utils/InputEngine.cpp:203
-#, fuzzy
-#| msgid "no flaps."
 msgctxt "InputEvent"
 msgid "no flaps."
 msgstr "bez klapek."
 
 #: utils/InputEngine.cpp:204
-#, fuzzy
-#| msgid "airplane parking brake."
 msgctxt "InputEvent"
 msgid "airplane parking brake."
 msgstr "parkovací brzda letadla."
 
 #: utils/InputEngine.cpp:205
-#, fuzzy
-#| msgid "reverse the turboprops"
 msgctxt "InputEvent"
 msgid "reverse the turboprops"
 msgstr "revers turbomotorů"
 
 #: utils/InputEngine.cpp:206
-#, fuzzy
-#| msgid "rudder left"
 msgctxt "InputEvent"
 msgid "rudder left"
 msgstr "kormidlo doleva"
 
 #: utils/InputEngine.cpp:207
-#, fuzzy
-#| msgid "rudder right"
 msgctxt "InputEvent"
 msgid "rudder right"
 msgstr "kormidlo doprava"
 
 #: utils/InputEngine.cpp:210 utils/InputEngine.cpp:229
-#, fuzzy
-#| msgid ""
-#| "throttle axis. Only use this if you have fitting hardware :) (i.e. a "
-#| "Slider)"
 msgctxt "InputEvent"
 msgid ""
 "throttle axis. Only use this if you have fitting hardware :) (i.e. a Slider)"
-msgstr "osa plynu. Pouze když máte dobrý hardware :) (i.e. Posuvník)"
+msgstr "osa plynu. Nastavte pouze jestli máte odpovídající hardware :)"
 
 #: utils/InputEngine.cpp:211
-#, fuzzy
-#| msgid "decreases the airplane thrust"
 msgctxt "InputEvent"
 msgid "decreases the airplane thrust"
 msgstr "snižuje tah letadla"
 
 #: utils/InputEngine.cpp:212
-#, fuzzy
-#| msgid "full thrust"
 msgctxt "InputEvent"
 msgid "full thrust"
 msgstr "plný tah"
 
 #: utils/InputEngine.cpp:213 utils/InputEngine.cpp:224
-#, fuzzy
-#| msgid "no thrust"
 msgctxt "InputEvent"
 msgid "no thrust"
 msgstr "bez tahu"
 
 #: utils/InputEngine.cpp:214
-#, fuzzy
-#| msgid "increase the airplane thrust"
 msgctxt "InputEvent"
 msgid "increase the airplane thrust"
 msgstr "zvýšit tah letadla"
 
 #: utils/InputEngine.cpp:215
-#, fuzzy
-#| msgid "switch all engines on / off"
 msgctxt "InputEvent"
 msgid "switch all engines on / off"
 msgstr "zapnout/vypnout všechny motory"
 
 #: utils/InputEngine.cpp:216
-#, fuzzy
-#| msgid "no airbrakes"
 msgctxt "InputEvent"
 msgid "no airbrakes"
-msgstr "žádné vzdušné brzdy"
+msgstr "žádné brzdné štíty"
 
 #: utils/InputEngine.cpp:217
-#, fuzzy
-#| msgid "full airbrakes"
 msgctxt "InputEvent"
 msgid "full airbrakes"
-msgstr "plné vzduchové brzdy"
+msgstr "plné brzdné klapky"
 
 #: utils/InputEngine.cpp:218
-#, fuzzy
-#| msgid "less airbrakes"
 msgctxt "InputEvent"
 msgid "less airbrakes"
-msgstr "méně vzduchových brzd"
+msgstr "ubrat brzdné klapky"
 
 #: utils/InputEngine.cpp:219
-#, fuzzy
-#| msgid "more airbrakes"
 msgctxt "InputEvent"
 msgid "more airbrakes"
-msgstr "další vzduchové brzdy"
+msgstr "přidat brzdné klapky"
 
 #: utils/InputEngine.cpp:220
-#, fuzzy
-#| msgid "airplane throttle"
 msgctxt "InputEvent"
 msgid "airplane throttle"
 msgstr "tah motoru letadla"
 
 #. Boat
 #: utils/InputEngine.cpp:223
-#, fuzzy
-#| msgid "center the rudder"
 msgctxt "InputEvent"
 msgid "center the rudder"
 msgstr "vycentrovat kormidlo"
 
 #: utils/InputEngine.cpp:225
-#, fuzzy
-#| msgid "steer left a step"
 msgctxt "InputEvent"
 msgid "steer left a step"
 msgstr "zatočit o krok doleva"
 
 #: utils/InputEngine.cpp:226
-#, fuzzy
-#| msgid "steer left (analog value!)"
 msgctxt "InputEvent"
 msgid "steer left (analog value!)"
 msgstr "zatočit doleva (analogová hodnota!)"
 
 #: utils/InputEngine.cpp:227
-#, fuzzy
-#| msgid "steer right a step"
 msgctxt "InputEvent"
 msgid "steer right a step"
 msgstr "zatočit o krok doprava"
 
 #: utils/InputEngine.cpp:228
-#, fuzzy
-#| msgid "steer right (analog value!)"
 msgctxt "InputEvent"
 msgid "steer right (analog value!)"
 msgstr "zatočit doprava (analogová hodnota!)"
 
 #: utils/InputEngine.cpp:230
-#, fuzzy
-#| msgid "decrease throttle"
 msgctxt "InputEvent"
 msgid "decrease throttle"
 msgstr "ubrat plyn"
 
 #: utils/InputEngine.cpp:231
-#, fuzzy
-#| msgid "increase throttle"
 msgctxt "InputEvent"
 msgid "increase throttle"
 msgstr "přidat plyn"
 
 #. Commands
 #: utils/InputEngine.cpp:234
-#, fuzzy
-#| msgid "Command 1"
 msgctxt "InputEvent"
 msgid "Command 1"
 msgstr "Příkaz 1"
 
 #: utils/InputEngine.cpp:235
-#, fuzzy
-#| msgid "Command 2"
 msgctxt "InputEvent"
 msgid "Command 2"
 msgstr "Příkaz 2"
 
 #: utils/InputEngine.cpp:236
-#, fuzzy
-#| msgid "Command 3"
 msgctxt "InputEvent"
 msgid "Command 3"
 msgstr "Příkaz 3"
 
 #: utils/InputEngine.cpp:237
-#, fuzzy
-#| msgid "Command 4"
 msgctxt "InputEvent"
 msgid "Command 4"
 msgstr "Příkaz 4"
 
 #: utils/InputEngine.cpp:238
-#, fuzzy
-#| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 5"
 msgstr "Příkaz 5"
 
 #: utils/InputEngine.cpp:239
-#, fuzzy
-#| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 6"
 msgstr "Příkaz 6"
 
 #: utils/InputEngine.cpp:240
-#, fuzzy
-#| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 7"
 msgstr "Příkaz 7"
 
 #: utils/InputEngine.cpp:241
-#, fuzzy
-#| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 8"
 msgstr "Příkaz 8"
 
 #: utils/InputEngine.cpp:242
-#, fuzzy
-#| msgid "Command 9"
 msgctxt "InputEvent"
 msgid "Command 9"
 msgstr "Příkaz 9"
 
 #: utils/InputEngine.cpp:243
-#, fuzzy
-#| msgid "Command 10"
 msgctxt "InputEvent"
 msgid "Command 10"
 msgstr "Příkaz 10"
 
 #: utils/InputEngine.cpp:244
-#, fuzzy
-#| msgid "Command 11"
 msgctxt "InputEvent"
 msgid "Command 11"
 msgstr "Příkaz 11"
 
 #: utils/InputEngine.cpp:245
-#, fuzzy
-#| msgid "Command 12"
 msgctxt "InputEvent"
 msgid "Command 12"
 msgstr "Příkaz 12"
 
 #: utils/InputEngine.cpp:246
-#, fuzzy
-#| msgid "Command 13"
 msgctxt "InputEvent"
 msgid "Command 13"
 msgstr "Příkaz 13"
 
 #: utils/InputEngine.cpp:247
-#, fuzzy
-#| msgid "Command 14"
 msgctxt "InputEvent"
 msgid "Command 14"
 msgstr "Příkaz 14"
 
 #: utils/InputEngine.cpp:248
-#, fuzzy
-#| msgid "Command 15"
 msgctxt "InputEvent"
 msgid "Command 15"
 msgstr "Příkaz 15"
 
 #: utils/InputEngine.cpp:249
-#, fuzzy
-#| msgid "Command 16"
 msgctxt "InputEvent"
 msgid "Command 16"
 msgstr "Příkaz 16"
 
 #: utils/InputEngine.cpp:250
-#, fuzzy
-#| msgid "Command 17"
 msgctxt "InputEvent"
 msgid "Command 17"
 msgstr "Příkaz 17"
 
 #: utils/InputEngine.cpp:251
-#, fuzzy
-#| msgid "Command 18"
 msgctxt "InputEvent"
 msgid "Command 18"
 msgstr "Příkaz 18"
 
 #: utils/InputEngine.cpp:252
-#, fuzzy
-#| msgid "Command 19"
 msgctxt "InputEvent"
 msgid "Command 19"
 msgstr "Příkaz 19"
 
 #: utils/InputEngine.cpp:253
-#, fuzzy
-#| msgid "Command 20"
 msgctxt "InputEvent"
 msgid "Command 20"
 msgstr "Příkaz 20"
 
 #: utils/InputEngine.cpp:254
-#, fuzzy
-#| msgid "Command 21"
 msgctxt "InputEvent"
 msgid "Command 21"
 msgstr "Příkaz 21"
 
 #: utils/InputEngine.cpp:255
-#, fuzzy
-#| msgid "Command 22"
 msgctxt "InputEvent"
 msgid "Command 22"
 msgstr "Příkaz 22"
 
 #: utils/InputEngine.cpp:256
-#, fuzzy
-#| msgid "Command 23"
 msgctxt "InputEvent"
 msgid "Command 23"
 msgstr "Příkaz 23"
 
 #: utils/InputEngine.cpp:257
-#, fuzzy
-#| msgid "Command 24"
 msgctxt "InputEvent"
 msgid "Command 24"
 msgstr "Příkaz 24"
 
 #: utils/InputEngine.cpp:258
-#, fuzzy
-#| msgid "Command 25"
 msgctxt "InputEvent"
 msgid "Command 25"
 msgstr "Příkaz 17"
 
 #: utils/InputEngine.cpp:259
-#, fuzzy
-#| msgid "Command 26"
 msgctxt "InputEvent"
 msgid "Command 26"
 msgstr "Příkaz 26"
 
 #: utils/InputEngine.cpp:260
-#, fuzzy
-#| msgid "Command 27"
 msgctxt "InputEvent"
 msgid "Command 27"
 msgstr "Příkaz 27"
 
 #: utils/InputEngine.cpp:261
-#, fuzzy
-#| msgid "Command 28"
 msgctxt "InputEvent"
 msgid "Command 28"
 msgstr "Příkaz 28"
 
 #: utils/InputEngine.cpp:262
-#, fuzzy
-#| msgid "Command 29"
 msgctxt "InputEvent"
 msgid "Command 29"
 msgstr "Příkaz 29"
 
 #: utils/InputEngine.cpp:263
-#, fuzzy
-#| msgid "Command 30"
 msgctxt "InputEvent"
 msgid "Command 30"
 msgstr "Příkaz 30"
 
 #: utils/InputEngine.cpp:264
-#, fuzzy
-#| msgid "Command 31"
 msgctxt "InputEvent"
 msgid "Command 31"
 msgstr "Příkaz 31"
 
 #: utils/InputEngine.cpp:265
-#, fuzzy
-#| msgid "Command 32"
 msgctxt "InputEvent"
 msgid "Command 32"
 msgstr "Příkaz 32"
 
 #: utils/InputEngine.cpp:266
-#, fuzzy
-#| msgid "Command 33"
 msgctxt "InputEvent"
 msgid "Command 33"
 msgstr "Příkaz 33"
 
 #: utils/InputEngine.cpp:267
-#, fuzzy
-#| msgid "Command 34"
 msgctxt "InputEvent"
 msgid "Command 34"
 msgstr "Příkaz 34"
 
 #: utils/InputEngine.cpp:268
-#, fuzzy
-#| msgid "Command 35"
 msgctxt "InputEvent"
 msgid "Command 35"
 msgstr "Příkaz 35"
 
 #: utils/InputEngine.cpp:269
-#, fuzzy
-#| msgid "Command 36"
 msgctxt "InputEvent"
 msgid "Command 36"
 msgstr "Příkaz 36"
 
 #: utils/InputEngine.cpp:270
-#, fuzzy
-#| msgid "Command 37"
 msgctxt "InputEvent"
 msgid "Command 37"
 msgstr "Příkaz 37"
 
 #: utils/InputEngine.cpp:271
-#, fuzzy
-#| msgid "Command 38"
 msgctxt "InputEvent"
 msgid "Command 38"
 msgstr "Příkaz 38"
 
 #: utils/InputEngine.cpp:272
-#, fuzzy
-#| msgid "Command 39"
 msgctxt "InputEvent"
 msgid "Command 39"
 msgstr "Příkaz 39"
 
 #: utils/InputEngine.cpp:273
-#, fuzzy
-#| msgid "Command 40"
 msgctxt "InputEvent"
 msgid "Command 40"
 msgstr "Příkaz 40"
 
 #: utils/InputEngine.cpp:274
-#, fuzzy
-#| msgid "Command 41"
 msgctxt "InputEvent"
 msgid "Command 41"
 msgstr "Příkaz 41"
 
 #: utils/InputEngine.cpp:275
-#, fuzzy
-#| msgid "Command 42"
 msgctxt "InputEvent"
 msgid "Command 42"
 msgstr "Příkaz 42"
 
 #: utils/InputEngine.cpp:276
-#, fuzzy
-#| msgid "Command 43"
 msgctxt "InputEvent"
 msgid "Command 43"
 msgstr "Příkaz 43"
 
 #: utils/InputEngine.cpp:277
-#, fuzzy
-#| msgid "Command 44"
 msgctxt "InputEvent"
 msgid "Command 44"
 msgstr "Příkaz 44"
 
 #: utils/InputEngine.cpp:278
-#, fuzzy
-#| msgid "Command 45"
 msgctxt "InputEvent"
 msgid "Command 45"
 msgstr "Příkaz 45"
 
 #: utils/InputEngine.cpp:279
-#, fuzzy
-#| msgid "Command 46"
 msgctxt "InputEvent"
 msgid "Command 46"
 msgstr "Příkaz 46"
 
 #: utils/InputEngine.cpp:280
-#, fuzzy
-#| msgid "Command 47"
 msgctxt "InputEvent"
 msgid "Command 47"
 msgstr "Příkaz 47"
 
 #: utils/InputEngine.cpp:281
-#, fuzzy
-#| msgid "Command 48"
 msgctxt "InputEvent"
 msgid "Command 48"
 msgstr "Příkaz 48"
 
 #: utils/InputEngine.cpp:282
-#, fuzzy
-#| msgid "Command 49"
 msgctxt "InputEvent"
 msgid "Command 49"
 msgstr "Příkaz 49"
@@ -5726,11 +4916,9 @@ msgid "move camera up"
 msgstr "otočit kameru nahoru"
 
 #: utils/InputEngine.cpp:346
-#, fuzzy
-#| msgid "rotate camera down"
 msgctxt "InputEvent"
 msgid "move camera down"
-msgstr "otočit kameru dolů"
+msgstr "posunout kameru dolů"
 
 #. Sky
 #: utils/InputEngine.cpp:349
@@ -5799,25 +4987,19 @@ msgstr "EXPERIMENTÁLNÍ: uložit změny do obrazu hustoty trávy"
 
 #. Survey map
 #: utils/InputEngine.cpp:362
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle map icons"
-msgstr "majáky vozidla"
+msgstr "ikony na mapě"
 
 #: utils/InputEngine.cpp:363
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle map"
-msgstr "majáky vozidla"
+msgstr "zobraz./skrýt mapu"
 
 #: utils/InputEngine.cpp:364
-#, fuzzy
-#| msgid "change camera mode"
 msgctxt "InputEvent"
 msgid "cycle map modes"
-msgstr "změnit mód kamery"
+msgstr "cyklovat režimy mapy"
 
 #: utils/InputEngine.cpp:365
 #, fuzzy
