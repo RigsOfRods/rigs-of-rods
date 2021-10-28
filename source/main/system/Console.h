@@ -63,8 +63,8 @@ public:
     struct Message
     {
         Message(MessageArea area, MessageType type, std::string const& text,
-                size_t time, uint32_t net_user = 0):
-            cm_area(area), cm_type(type), cm_text(text), cm_timestamp(time), cm_net_userid(net_user)
+                size_t time, uint32_t net_user = 0, std::string icon = ""):
+            cm_area(area), cm_type(type), cm_text(text), cm_timestamp(time), cm_net_userid(net_user), cm_icon(icon)
         {}
 
         MessageArea cm_area;
@@ -72,6 +72,7 @@ public:
         size_t      cm_timestamp;
         uint32_t    cm_net_userid;
         std::string cm_text;
+        std::string cm_icon;
     };
 
     struct MsgLockGuard
@@ -87,7 +88,7 @@ public:
         std::lock_guard<std::mutex> lock;
     };
 
-    // Legacy function, params `icon, ttl, forcevisible` unused
+    // Legacy function, params `ttl, forcevisible` unused
     void putMessage(MessageArea area, MessageType type, std::string const& msg,
         std::string icon = "", size_t ttl = 0, bool forcevisible = false);
     void putNetMessage(int user_id, MessageType type, const char* text);
@@ -148,7 +149,7 @@ private:
         const Ogre::String& message, Ogre::LogMessageLevel lml,
         bool maskDebug, const Ogre::String& logName, bool& skipThisMessage) override;
 
-    void handleMessage(MessageArea area, MessageType type, std::string const& msg, int net_id = 0);
+    void handleMessage(MessageArea area, MessageType type, std::string const& msg, int net_id = 0, std::string icon = "");
 
     std::vector<Message>     m_messages;
     std::mutex               m_messages_mutex;
