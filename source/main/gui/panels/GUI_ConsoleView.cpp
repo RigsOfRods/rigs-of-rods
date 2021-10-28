@@ -165,7 +165,11 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
     Ogre::TexturePtr icon;
     if (cvw_enable_icons)
     {
-        if (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
+        if (m.cm_icon != "")
+        {
+            icon = Ogre::TextureManager::getSingleton().load(m.cm_icon, "IconsRG");
+        }
+        else if (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
         {
             icon = Ogre::TextureManager::getSingleton().load("script.png", "IconsRG");
         }
@@ -329,7 +333,7 @@ int ConsoleView::UpdateMessages()
                     Ogre::StringUtil::trim(s);
                     if (s != "")
                     {
-                        m_filtered_messages.emplace_back(m.cm_area, m.cm_type, s, m.cm_timestamp, m.cm_net_userid);
+                        m_filtered_messages.emplace_back(m.cm_area, m.cm_type, s, m.cm_timestamp, m.cm_net_userid, m.cm_icon);
                     }
                 }
             }
