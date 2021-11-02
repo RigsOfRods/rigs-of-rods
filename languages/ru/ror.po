@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-08-23 16:29+0200\n"
-"PO-Revision-Date: 2021-08-31 23:32+0000\n"
+"PO-Revision-Date: 2021-11-02 21:36+0000\n"
 "Last-Translator: Лолло Нуб <lollo.samp@mail.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 4.8.1-dev\n"
+"X-Generator: Weblate 4.9-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -211,7 +211,7 @@ msgstr "Память (Ogre): "
 #: gui/panels/GUI_ConsoleView.cpp:229
 msgctxt "Console"
 msgid "By area:"
-msgstr ""
+msgstr "По области:"
 
 #: gui/panels/GUI_ConsoleView.cpp:230
 msgctxt "Console"
@@ -219,11 +219,9 @@ msgid "Logfile echo"
 msgstr ""
 
 #: gui/panels/GUI_ConsoleView.cpp:231
-#, fuzzy
-#| msgid "Description: "
 msgctxt "Console"
 msgid "Scripting"
-msgstr "Описание: "
+msgstr "Скриптинг"
 
 #: gui/panels/GUI_ConsoleView.cpp:232
 msgctxt "Console"
@@ -236,9 +234,10 @@ msgid "Terrain"
 msgstr "Карта"
 
 #: gui/panels/GUI_ConsoleView.cpp:236
+#, fuzzy
 msgctxt "Console"
 msgid "By level:"
-msgstr ""
+msgstr "По уровню:"
 
 #: gui/panels/GUI_ConsoleView.cpp:237
 msgctxt "Console"
@@ -818,12 +817,9 @@ msgid "Resume game"
 msgstr "Продолжить игру"
 
 #: gui/panels/GUI_GameMainMenu.cpp:159
-#, fuzzy
-#| msgctxt "MainMenu"
-#| msgid "Multi player"
 msgctxt "MainMenu"
 msgid "Multiplayer"
-msgstr "Многопользовательская игра"
+msgstr "Мультиплеер"
 
 #: gui/panels/GUI_GameMainMenu.cpp:165
 msgctxt "MainMenu"
@@ -862,11 +858,9 @@ msgstr "Версия"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:251
-#, fuzzy
-#| msgid "Cache cleared"
 msgctxt "MainMenu"
 msgid "Cache updated"
-msgstr "Кэш очищен"
+msgstr "Кэш обновлён"
 
 #: gui/panels/GUI_GameMainMenu.cpp:264
 #, fuzzy
@@ -1071,11 +1065,9 @@ msgid "Video settings"
 msgstr "Настройки видео"
 
 #: gui/panels/GUI_GameSettings.cpp:308
-#, fuzzy
-#| msgid "No light sources"
 msgctxt "GameSettings"
 msgid "Light sources"
-msgstr "Нет источника света"
+msgstr "Источники света"
 
 #: gui/panels/GUI_GameSettings.cpp:315
 msgctxt "GameSettings"
@@ -1281,12 +1273,12 @@ msgstr "Скрыть колеса"
 #: gui/panels/GUI_GameSettings.cpp:421
 msgctxt "GameSettings"
 msgid "Hide nodes"
-msgstr ""
+msgstr "Скрыть узлы"
 
 #: gui/panels/GUI_GameSettings.cpp:422
 msgctxt "GameSettings"
 msgid "Echo log to console"
-msgstr ""
+msgstr "Выводить логи в консоль"
 
 #: gui/panels/GUI_GameSettings.cpp:423
 #, fuzzy
@@ -1306,11 +1298,9 @@ msgid "Log beam triggers"
 msgstr ""
 
 #: gui/panels/GUI_GameSettings.cpp:426
-#, fuzzy
-#| msgid "Regen cache"
 msgctxt "GameSettings"
 msgid "Rebuild cache"
-msgstr "Регенерация кэша"
+msgstr "Обновить кэш"
 
 #: gui/panels/GUI_GameSettings.cpp:436
 msgctxt "GameSettings"
