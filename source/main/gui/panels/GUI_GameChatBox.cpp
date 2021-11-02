@@ -75,7 +75,7 @@ void GameChatBox::Draw()
 
     if (initialized == true)
     {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _LC("ChatBox", "Welcome to Rigs of Rods!"), "", 10000, false);
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _LC("ChatBox", "Welcome to Rigs of Rods!"));
         initialized = false;
     }
 

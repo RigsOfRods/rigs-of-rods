@@ -186,7 +186,7 @@ public:
     /**
      * shows a message to the user over the console system
      */
-    void message(Ogre::String& txt, Ogre::String& icon, float timeMilliseconds, bool forceVisible);
+    void message(Ogre::String& txt, Ogre::String& icon);
 
     /**
      * set direction arrow

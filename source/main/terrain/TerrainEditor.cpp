@@ -135,18 +135,18 @@ void TerrainEditor::UpdateInputEvents(float dt)
             m_rotation_axis = 0;
         }
         UTFString ssmsg = _L("Rotating: ") + axis;
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png");
     }
     if (App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
     {
         m_object_tracking = !m_object_tracking;
         UTFString ssmsg = m_object_tracking ? _L("Enabled object tracking") : _L("Disabled object tracking");
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png");
     }
     if (m_object_index != -1 && update)
     {
         String ssmsg = _L("Selected object: [") + TOSTRING(m_object_index) + "/" + TOSTRING(object_list.size()) + "] (" + object_list[m_object_index].name + ")";
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png");
         if (m_object_tracking)
         {
             App::GetGameContext()->GetPlayerCharacter()->setPosition(object_list[m_object_index].node->getPosition());

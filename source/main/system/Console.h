@@ -88,9 +88,7 @@ public:
         std::lock_guard<std::mutex> lock;
     };
 
-    // Legacy function, params `ttl, forcevisible` unused
-    void putMessage(MessageArea area, MessageType type, std::string const& msg,
-        std::string icon = "", size_t ttl = 0, bool forcevisible = false);
+    void putMessage(MessageArea area, MessageType type, std::string const& msg, std::string icon = "");
     void putNetMessage(int user_id, MessageType type, const char* text);
     void forwardLogMessage(MessageArea area, std::string const& msg, Ogre::LogMessageLevel lml);
     unsigned long queryMessageTimer() { return m_msg_timer.getMilliseconds(); }

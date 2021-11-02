@@ -94,8 +94,7 @@ void Console::handleMessage(MessageArea area, MessageType type, std::string cons
     m_messages.emplace_back(area, type, msg, this->queryMessageTimer(), net_userid, icon);
 }
 
-void Console::putMessage(MessageArea area, MessageType type, std::string const& msg,
-    std::string icon, size_t ttl, bool forcevisible)
+void Console::putMessage(MessageArea area, MessageType type, std::string const& msg, std::string icon)
 {
     this->handleMessage(area, type, msg, 0, icon);
 }
