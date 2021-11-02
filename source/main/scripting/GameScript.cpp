@@ -299,9 +299,9 @@ void GameScript::flashMessage(String& txt, float time, float charHeight)
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "script_code_red.png");
 }
 
-void GameScript::message(String& txt, String& icon, float timeMilliseconds, bool forceVisible)
+void GameScript::message(String& txt, String& icon)
 {
-    RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon, timeMilliseconds, forceVisible);
+    RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon);
 }
 
 void GameScript::UpdateDirectionArrow(String& text, Vector3& vec)
@@ -768,7 +768,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     std::string json = buffer.GetString();
 
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-            _L("using Online API..."), "information.png", 2000);
+            _L("using Online API..."), "information.png");
 
     LOG("[RoR|GameScript] Submitting race results to '" + url + "'");
 

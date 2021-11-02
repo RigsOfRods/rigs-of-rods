@@ -1272,7 +1272,7 @@ void Actor::displayAxleDiffMode()
     if (m_num_axle_diffs == 0)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                _L("No inter-axle differential installed on current vehicle!"), "warning.png", 3000);
+                _L("No inter-axle differential installed on current vehicle!"), "warning.png");
     }
     else
     {
@@ -1291,7 +1291,7 @@ void Actor::displayAxleDiffMode()
             }
         }
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                "Inter-axle differentials:\n" + message, "cog.png", 3000);
+                "Inter-axle differentials:\n" + message, "cog.png");
     }
 }
 
@@ -1300,7 +1300,7 @@ void Actor::displayWheelDiffMode()
     if (m_num_wheel_diffs == 0)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                _L("No inter-wheel differential installed on current vehicle!"), "warning.png", 3000);
+                _L("No inter-wheel differential installed on current vehicle!"), "warning.png");
     }
     else
     {
@@ -1317,7 +1317,7 @@ void Actor::displayWheelDiffMode()
             }
         }
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                "Inter-wheel differentials:\n" + message, "cog.png", 3000);
+                "Inter-wheel differentials:\n" + message, "cog.png");
     }
 }
 
@@ -1326,12 +1326,12 @@ void Actor::displayTransferCaseMode()
     if (m_transfer_case)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                _L("Transfercase switched to: ") + this->getTransferCaseName(), "cog.png", 3000);
+                _L("Transfercase switched to: ") + this->getTransferCaseName(), "cog.png");
     }
     else
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                _L("No transfercase installed on current vehicle!"), "warning.png", 3000);
+                _L("No transfercase installed on current vehicle!"), "warning.png");
     }
 }
 

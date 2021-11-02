@@ -506,7 +506,7 @@ int main(int argc, char *argv[])
                             std::snprintf(text, 300, _L("Press %s to start chatting"),
                                 RoR::App::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE).c_str());
                             App::GetConsole()->putMessage(
-                                Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, text, "", 5000);
+                                Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, text);
                         }
 #endif // USE_SOCKETW
                         if (App::io_outgauge_mode->getInt() > 0)
