@@ -812,6 +812,7 @@ int main(int argc, char *argv[])
 
                     if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
                     {
+                        App::GetGameContext()->GetCharacterFactory()->Update(dt); // Character MUST be updated before CameraManager, otherwise camera position is always 1 frame behind the character position, causing stuttering.
                         App::GetCameraManager()->UpdateInputEvents(dt);
                         App::GetOverlayWrapper()->update(dt);
                         if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
@@ -821,7 +822,7 @@ int main(int argc, char *argv[])
                         }
                         else if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
                         {
-                            App::GetGameContext()->GetCharacterFactory()->Update(dt);
+
                             if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
                             {
                                 App::GetGameContext()->UpdateSimInputEvents(dt);
