@@ -26,6 +26,7 @@
 #include "Console.h"
 #include "GUIManager.h"
 #include "Language.h"
+#include "InputEngine.h"
 
 #include <cstring> // strtok, strncmp
 #include <fmt/format.h>
@@ -73,9 +74,11 @@ void GameChatBox::Draw()
         ImGui::Begin("ChatMessages", nullptr, msg_flags | ImGuiWindowFlags_NoInputs);
     }
 
-    if (initialized == true)
+    if (initialized)
     {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _LC("ChatBox", "Welcome to Rigs of Rods!"));
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                      fmt::format(_LC("ChatBox", "Press {} to spawn a vehicle"),
+                   App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_GET_NEW_VEHICLE)), "lightbulb.png");
         initialized = false;
     }
 

@@ -27,6 +27,8 @@
 #include "GUIManager.h"
 #include "Language.h"
 
+#include <regex>
+
 using namespace RoR;
 
 const char* mOISDeviceType[6] = {"Unknown Device", "Keyboard", "Mouse", "JoyStick", "Tablet", "Other Device"};
@@ -756,6 +758,12 @@ String InputEngine::getEventCommand(int eventID)
         return this->composeEventCommandString(t_vec[0]);
     }
     return "";
+}
+
+std::string InputEngine::getEventCommandTrimmed(int eventID)
+{
+    std::string result = regex_replace(App::GetInputEngine()->getEventCommand(eventID).c_str(), std::regex("EXPL\\+"), "");
+    return result;
 }
 
 String InputEngine::getTriggerCommand(event_trigger_t const& evt)
