@@ -23,19 +23,9 @@
     @file   RigDef_File.h
     @author Petr Ohlidal
     @date   12/2013
-    @brief Structures which represent a rig-definition file (1:1 match) 
-
-    Values are initialised to their defaults, or 0 if there's no default.
-
-    NOTE ON ARCHITECTURE:
-    These structs were designed for a single purpose - to bring data 
-    from rig def. file.	Do not use them for any other purpose, don't 
-    modify them beyond their original purpose. Avoid modifying their
-    contents, only Parser should do that; use them only for reading;
-
-    NOTES: 
-    * Since these are open structs, the m_ prefix for member variables is not used.
-    * Members prefixed by _ are helper flags which mark special values or missing values.
+    @brief Structures which represent a rig-definition file (1:1 match)
+           See https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/ for reference.
+           Values prefixed by `_` are helper data, for example argument count (where it matters).
 */
 
 #pragma once
@@ -58,16 +48,15 @@ namespace RigDef {
 
 extern const char* ROOT_MODULE_NAME;
 
-/** IMPORTANT! If you add a value here, you must also modify Regexes::IDENTIFY_KEYWORD, it relies on numeric values of this enum. */
+// IMPORTANT! If you add a value here, you must also modify Regexes::IDENTIFY_KEYWORD, it relies on numeric values of this enum.
 enum Keyword
 {
     KEYWORD_ADD_ANIMATION = 1,
-    //KEYWORD_ADVDRAG, // not supported yet
     KEYWORD_AIRBRAKES,
     KEYWORD_ANIMATORS,
-    KEYWORD_ANTI_LOCK_BRAKES,
-    KEYWORD_AXLES,
+    KEYWORD_ANTILOCKBRAKES,
     KEYWORD_AUTHOR,
+    KEYWORD_AXLES,
     KEYWORD_BACKMESH,
     KEYWORD_BEAMS,
     KEYWORD_BRAKES,
@@ -78,13 +67,16 @@ enum Keyword
     KEYWORD_COLLISIONBOXES,
     KEYWORD_COMMANDS,
     KEYWORD_COMMANDS2,
+    KEYWORD_COMMENT,
     KEYWORD_CONTACTERS,
     KEYWORD_CRUISECONTROL,
     KEYWORD_DESCRIPTION,
     KEYWORD_DETACHER_GROUP,
     KEYWORD_DISABLEDEFAULTSOUNDS,
-    KEYWORD_ENABLE_ADVANCED_DEFORM,
+    KEYWORD_ENABLE_ADVANCED_DEFORMATION,
     KEYWORD_END,
+    KEYWORD_END_COMMENT,
+    KEYWORD_END_DESCRIPTION,
     KEYWORD_END_SECTION,
     KEYWORD_ENGINE,
     KEYWORD_ENGOPTION,
@@ -100,13 +92,14 @@ enum Keyword
     KEYWORD_FLEXBODIES,
     KEYWORD_FLEXBODY_CAMERA_MODE,
     KEYWORD_FLEXBODYWHEELS,
+    KEYWORD_FORSET,
     KEYWORD_FORWARDCOMMANDS,
     KEYWORD_FUSEDRAG,
     KEYWORD_GLOBALS,
     KEYWORD_GUID,
     KEYWORD_GUISETTINGS,
     KEYWORD_HELP,
-    KEYWORD_HIDE_IN_CHOOSER,
+    KEYWORD_HIDEINCHOOSER,
     KEYWORD_HOOKGROUP, // obsolete, ignored
     KEYWORD_HOOKS,
     KEYWORD_HYDROS,
@@ -119,7 +112,7 @@ enum Keyword
     KEYWORD_MESHWHEELS,
     KEYWORD_MESHWHEELS2,
     KEYWORD_MINIMASS,
-    KEYWORD_NODECOLLISION,
+    KEYWORD_NODECOLLISION, // obsolete
     KEYWORD_NODES,
     KEYWORD_NODES2,
     KEYWORD_PARTICLES,
@@ -128,7 +121,7 @@ enum Keyword
     KEYWORD_PROPS,
     KEYWORD_RAILGROUPS,
     KEYWORD_RESCUER,
-    KEYWORD_RIGIDIFIERS,
+    KEYWORD_RIGIDIFIERS, // obsolete
     KEYWORD_ROLLON,
     KEYWORD_ROPABLES,
     KEYWORD_ROPES,
@@ -142,27 +135,26 @@ enum Keyword
     KEYWORD_SET_COLLISION_RANGE,
     KEYWORD_SET_DEFAULT_MINIMASS,
     KEYWORD_SET_INERTIA_DEFAULTS,
-    KEYWORD_SET_MANAGEDMATS_OPTIONS,
+    KEYWORD_SET_MANAGEDMATERIALS_OPTIONS,
     KEYWORD_SET_NODE_DEFAULTS,
     KEYWORD_SET_SHADOWS,
     KEYWORD_SET_SKELETON_SETTINGS,
     KEYWORD_SHOCKS,
     KEYWORD_SHOCKS2,
     KEYWORD_SHOCKS3,
-    KEYWORD_SLIDENODE_CONNECT_INSTANT,
+    KEYWORD_SLIDENODE_CONNECT_INSTANTLY,
     KEYWORD_SLIDENODES,
     KEYWORD_SLOPE_BRAKE,
     KEYWORD_SOUNDSOURCES,
     KEYWORD_SOUNDSOURCES2,
-    //KEYWORD_SOUNDSOURCES3, // not supported yet
     KEYWORD_SPEEDLIMITER,
     KEYWORD_SUBMESH,
     KEYWORD_SUBMESH_GROUNDMODEL,
     KEYWORD_TEXCOORDS,
     KEYWORD_TIES,
     KEYWORD_TORQUECURVE,
-    KEYWORD_TRACTION_CONTROL,
-    KEYWORD_TRANSFER_CASE,
+    KEYWORD_TRACTIONCONTROL,
+    KEYWORD_TRANSFERCASE,
     KEYWORD_TRIGGERS,
     KEYWORD_TURBOJETS,
     KEYWORD_TURBOPROPS,

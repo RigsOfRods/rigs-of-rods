@@ -119,8 +119,8 @@ namespace Regexes
     E_KEYWORD_BLOCK("airbrakes")       /* Position 2 */           \
     E_KEYWORD_BLOCK("animators")       /* Position 3 etc... */    \
     E_KEYWORD_INLINE("AntiLockBrakes")                            \
-    E_KEYWORD_BLOCK("axles")                                      \
     E_KEYWORD_INLINE("author")                                    \
+    E_KEYWORD_BLOCK("axles")                                      \
     E_KEYWORD_BLOCK("backmesh")                                   \
     E_KEYWORD_BLOCK("beams")                                      \
     E_KEYWORD_BLOCK("brakes")                                     \
@@ -131,6 +131,7 @@ namespace Regexes
     E_KEYWORD_BLOCK("collisionboxes")                             \
     E_KEYWORD_BLOCK("commands")                                   \
     E_KEYWORD_BLOCK("commands2")                                  \
+    E_KEYWORD_BLOCK("comment")                                    \
     E_KEYWORD_BLOCK("contacters")                                 \
     E_KEYWORD_INLINE("cruisecontrol")                             \
     E_KEYWORD_BLOCK("description")                                \
@@ -138,6 +139,8 @@ namespace Regexes
     E_KEYWORD_BLOCK("disabledefaultsounds")                       \
     E_KEYWORD_BLOCK("enable_advanced_deformation")                \
     E_KEYWORD_BLOCK("end")                                        \
+    E_KEYWORD_BLOCK("end_comment")                                \
+    E_KEYWORD_BLOCK("end_description")                            \
     E_KEYWORD_BLOCK("end_section")                                \
     E_KEYWORD_BLOCK("engine")                                     \
     E_KEYWORD_BLOCK("engoption")                                  \
@@ -153,6 +156,7 @@ namespace Regexes
     E_KEYWORD_BLOCK("flexbodies")                                 \
     E_KEYWORD_INLINE("flexbody_camera_mode")                      \
     E_KEYWORD_BLOCK("flexbodywheels")                             \
+    E_KEYWORD_INLINE("forset")                                    \
     E_KEYWORD_BLOCK("forwardcommands")                            \
     E_KEYWORD_BLOCK("fusedrag")                                   \
     E_KEYWORD_BLOCK("globals")                                    \
@@ -208,7 +212,6 @@ namespace Regexes
     E_KEYWORD_BLOCK("soundsources")                               \
     E_KEYWORD_BLOCK("soundsources2")                              \
     E_KEYWORD_INLINE("speedlimiter")                              \
-    /* E_KEYWORD_BLOCK("soundsources3") ~~ Not supported yet */   \
     E_KEYWORD_BLOCK("submesh")                                    \
     E_KEYWORD_INLINE("submesh_groundmodel")                       \
     E_KEYWORD_BLOCK("texcoords")                                  \
@@ -225,8 +228,10 @@ namespace Regexes
     E_KEYWORD_BLOCK("wheels")                                     \
     E_KEYWORD_BLOCK("wheels2")                                    \
     E_KEYWORD_BLOCK("wings")
+
 DEFINE_REGEX(            IDENTIFY_KEYWORD_RESPECT_CASE, IDENTIFY_KEYWORD_REGEX_STRING )
 DEFINE_REGEX_IGNORECASE( IDENTIFY_KEYWORD_IGNORE_CASE,  IDENTIFY_KEYWORD_REGEX_STRING )
+
 #define E_2xCAPTURE_TRAILING_COMMENT \
     E_OPTIONAL_SPACE                 \
     E_CAPTURE_OPTIONAL(              \
