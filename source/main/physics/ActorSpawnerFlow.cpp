@@ -211,7 +211,7 @@ Actor *ActorSpawner::SpawnActor()
     // ---------------------------- Other ----------------------------
 
     // Section 'AntiLockBrakes' in any module.
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_ANTI_LOCK_BRAKES, anti_lock_brakes, ProcessAntiLockBrakes);
+    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_ANTILOCKBRAKES, anti_lock_brakes, ProcessAntiLockBrakes);
 
     // Section 'SlopeBrake' in any module (feature removed).
     
@@ -222,7 +222,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_AXLES, axles, ProcessAxle);
 
     // Section 'transfercase'
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_TRANSFER_CASE, transfer_case, ProcessTransferCase);
+    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_TRANSFERCASE, transfer_case, ProcessTransferCase);
 
     // Section 'interaxles'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_INTERAXLES, interaxles, ProcessInterAxle);
@@ -265,7 +265,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_PROPS, props, ProcessProp);
 
     // Section 'TractionControl' in any module.
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_TRACTION_CONTROL, traction_control, ProcessTractionControl);
+    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_TRACTIONCONTROL, traction_control, ProcessTractionControl);
 
     // Section 'rotators'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_ROTATORS, rotators, ProcessRotator);

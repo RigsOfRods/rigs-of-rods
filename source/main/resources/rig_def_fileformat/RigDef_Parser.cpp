@@ -120,7 +120,7 @@ void Parser::ProcessCurrentLine()
         case KEYWORD_ADD_ANIMATION:            this->ParseDirectiveAddAnimation();                  return;
         case KEYWORD_AIRBRAKES:                this->ChangeSection(SECTION_AIRBRAKES);        return;
         case KEYWORD_ANIMATORS:                this->ChangeSection(SECTION_ANIMATORS);        return;
-        case KEYWORD_ANTI_LOCK_BRAKES:         this->ParseAntiLockBrakes();                         return;
+        case KEYWORD_ANTILOCKBRAKES:         this->ParseAntiLockBrakes();                         return;
         case KEYWORD_AXLES:                    this->ChangeSection(SECTION_AXLES);            return;
         case KEYWORD_AUTHOR:                   this->ParseAuthor();                                 return;
         case KEYWORD_BACKMESH:                 this->ParseDirectiveBackmesh();                      return;
@@ -138,7 +138,7 @@ void Parser::ProcessCurrentLine()
         case KEYWORD_DESCRIPTION:              this->ChangeSection(SECTION_NONE); m_in_description_section = true; return;
         case KEYWORD_DETACHER_GROUP:           this->ParseDirectiveDetacherGroup();                 return;
         case KEYWORD_DISABLEDEFAULTSOUNDS:     this->ProcessGlobalDirective(keyword);               return;
-        case KEYWORD_ENABLE_ADVANCED_DEFORM:   this->ProcessGlobalDirective(keyword);               return;
+        case KEYWORD_ENABLE_ADVANCED_DEFORMATION:   this->ProcessGlobalDirective(keyword);               return;
         case KEYWORD_END:                      this->ChangeSection(SECTION_NONE);             return;
         case KEYWORD_END_SECTION:              this->ProcessChangeModuleLine(keyword);              return;
         case KEYWORD_ENGINE:                   this->ChangeSection(SECTION_ENGINE);           return;
@@ -161,7 +161,7 @@ void Parser::ProcessCurrentLine()
         case KEYWORD_GUID:                     this->ParseGuid();                                   return;
         case KEYWORD_GUISETTINGS:              this->ChangeSection(SECTION_GUI_SETTINGS);     return;
         case KEYWORD_HELP:                     this->ChangeSection(SECTION_HELP);             return;
-        case KEYWORD_HIDE_IN_CHOOSER:          this->ProcessGlobalDirective(keyword);               return;
+        case KEYWORD_HIDEINCHOOSER:          this->ProcessGlobalDirective(keyword);               return;
         case KEYWORD_HOOKGROUP:                /* Obsolete, ignored */                              return;
         case KEYWORD_HOOKS:                    this->ChangeSection(SECTION_HOOKS);            return;
         case KEYWORD_HYDROS:                   this->ChangeSection(SECTION_HYDROS);           return;
@@ -197,13 +197,13 @@ void Parser::ProcessCurrentLine()
         case KEYWORD_SET_COLLISION_RANGE:      this->ParseSetCollisionRange();                      return;
         case KEYWORD_SET_DEFAULT_MINIMASS:     this->ParseDirectiveSetDefaultMinimass();            return;
         case KEYWORD_SET_INERTIA_DEFAULTS:     this->ParseDirectiveSetInertiaDefaults();            return;
-        case KEYWORD_SET_MANAGEDMATS_OPTIONS:  this->ParseDirectiveSetManagedMaterialsOptions();    return;
+        case KEYWORD_SET_MANAGEDMATERIALS_OPTIONS:  this->ParseDirectiveSetManagedMaterialsOptions();    return;
         case KEYWORD_SET_NODE_DEFAULTS:        this->ParseDirectiveSetNodeDefaults();               return;
         case KEYWORD_SET_SKELETON_SETTINGS:    this->ParseSetSkeletonSettings();                    return;
         case KEYWORD_SHOCKS:                   this->ChangeSection(SECTION_SHOCKS);           return;
         case KEYWORD_SHOCKS2:                  this->ChangeSection(SECTION_SHOCKS_2);         return;
         case KEYWORD_SHOCKS3:                  this->ChangeSection(SECTION_SHOCKS_3);         return;
-        case KEYWORD_SLIDENODE_CONNECT_INSTANT:this->ProcessGlobalDirective(keyword);               return;
+        case KEYWORD_SLIDENODE_CONNECT_INSTANTLY:this->ProcessGlobalDirective(keyword);               return;
         case KEYWORD_SLIDENODES:               this->ChangeSection(SECTION_SLIDENODES);       return;
         case KEYWORD_SLOPE_BRAKE:              this->ParseSlopeBrake();                             return;
         case KEYWORD_SOUNDSOURCES:             this->ChangeSection(SECTION_SOUNDSOURCES);     return;
@@ -214,8 +214,8 @@ void Parser::ProcessCurrentLine()
         case KEYWORD_TEXCOORDS:                this->ProcessKeywordTexcoords();                     return;
         case KEYWORD_TIES:                     this->ChangeSection(SECTION_TIES);             return;
         case KEYWORD_TORQUECURVE:              this->ChangeSection(SECTION_TORQUE_CURVE);     return;
-        case KEYWORD_TRACTION_CONTROL:         this->ParseTractionControl();                        return;
-        case KEYWORD_TRANSFER_CASE:            this->ChangeSection(SECTION_TRANSFER_CASE);    return;
+        case KEYWORD_TRACTIONCONTROL:         this->ParseTractionControl();                        return;
+        case KEYWORD_TRANSFERCASE:            this->ChangeSection(SECTION_TRANSFER_CASE);    return;
         case KEYWORD_TRIGGERS:                 this->ChangeSection(SECTION_TRIGGERS);         return;
         case KEYWORD_TURBOJETS:                this->ChangeSection(SECTION_TURBOJETS);        return;
         case KEYWORD_TURBOPROPS:               this->ChangeSection(SECTION_TURBOPROPS);       return;
@@ -781,13 +781,13 @@ void Parser::ProcessGlobalDirective(Keyword keyword)   // Directives that should
     switch (keyword)
     {
     case KEYWORD_DISABLEDEFAULTSOUNDS:      m_definition->disable_default_sounds = true;        return;
-    case KEYWORD_ENABLE_ADVANCED_DEFORM:    m_definition->enable_advanced_deformation = true;   return;
+    case KEYWORD_ENABLE_ADVANCED_DEFORMATION:    m_definition->enable_advanced_deformation = true;   return;
     case KEYWORD_FORWARDCOMMANDS:           m_definition->forward_commands = true;              return;
-    case KEYWORD_HIDE_IN_CHOOSER:           m_definition->hide_in_chooser = true;               return;
+    case KEYWORD_HIDEINCHOOSER:           m_definition->hide_in_chooser = true;               return;
     case KEYWORD_LOCKGROUP_DEFAULT_NOLOCK:  m_definition->lockgroup_default_nolock = true;      return;
     case KEYWORD_RESCUER:                   m_definition->rescuer = true;                       return;
     case KEYWORD_ROLLON:                    m_definition->rollon = true;                        return;
-    case KEYWORD_SLIDENODE_CONNECT_INSTANT: m_definition->slide_nodes_connect_instantly = true; return;
+    case KEYWORD_SLIDENODE_CONNECT_INSTANTLY: m_definition->slide_nodes_connect_instantly = true; return;
 
     default: this->AddMessage(Message::TYPE_ERROR, "INTERNAL ERROR: '"
                  + std::string(File::KeywordToString(keyword)) + "' is not a global directive");      return;
