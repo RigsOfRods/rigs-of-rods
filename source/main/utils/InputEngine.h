@@ -539,6 +539,7 @@ public:
 
     void windowResized(Ogre::RenderWindow* rw);
     OIS::ForceFeedback* getForceFeedbackDevice() { return mForceFeedback; };
+    std::string getEventCommandTrimmed(int eventID); // Removes EXPL
 
 protected:
 

@@ -352,7 +352,7 @@ void TopMenubar::Update()
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
             ImGui::SameLine();
-            ImGui::TextColored(GRAY_HINT_TEXT, "('NUMPAD: /')");
+            ImGui::TextColored(GRAY_HINT_TEXT, "(NUMPAD: /)");
 
             if (m_quickload)
             {
@@ -362,12 +362,12 @@ void TopMenubar::Update()
                     m_open_menu = TopMenu::TOPMENU_NONE;
                 }
                 ImGui::SameLine();
-                ImGui::TextColored(GRAY_HINT_TEXT, "('NUMPAD: *')");
+                ImGui::TextColored(GRAY_HINT_TEXT, "(NUMPAD: *)");
             }
 
             ImGui::Separator();
 
-            ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "(Save with 'CTRL+ALT+1..5')"));
+            ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "(Save with CTRL+ALT+1..5)"));
             for (int i = 1; i <= 5; i++)
             {
                 Ogre::String name = _LC("TopMenubar", "Empty Slot");
@@ -384,7 +384,7 @@ void TopMenubar::Update()
                 }
             }
 
-            ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "(Load with 'ALT+1..5')"));
+            ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "(Load with ALT+1..5)"));
             for (int i = 1; i <= 5; i++)
             {
                 if (!m_savegame_names[i].empty())
@@ -624,8 +624,8 @@ void TopMenubar::Update()
                 ImGui::Separator();
 
                 ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Live diagnostic views:"));
-                ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "(Toggle with '%s')"), App::GetInputEngine()->getEventCommand(EV_COMMON_TOGGLE_DEBUG_VIEW).c_str());
-                ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "(Cycle with '%s')"), App::GetInputEngine()->getEventCommand(EV_COMMON_CYCLE_DEBUG_VIEWS).c_str());
+                ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "(Toggle with %s)"), App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_DEBUG_VIEW).c_str());
+                ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "(Cycle with %s)"), App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_CYCLE_DEBUG_VIEWS).c_str());
 
                 int debug_view_type = static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NONE);
                 if (current_actor != nullptr)
@@ -857,8 +857,8 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
     if (App::GetGameContext()->GetActorManager()->IsSimulationPaused() && !App::GetGuiManager()->IsGuiHidden())
     {
         special_color = ORANGE_TEXT;
-        special_text = fmt::format(_LC("TopMenubar", "All physics paused, press '{}' to resume"),
-                                   App::GetInputEngine()->getEventCommand(EV_COMMON_TOGGLE_PHYSICS));
+        special_text = fmt::format(_LC("TopMenubar", "All physics paused, press {} to resume"),
+                                   App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_PHYSICS));
         content_width = ImGui::CalcTextSize(special_text.c_str()).x;
     }
     else if (App::GetGameContext()->GetPlayerActor() &&
@@ -866,8 +866,8 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
              !App::GetGuiManager()->IsGuiHidden())
     {
         special_color = GREEN_TEXT;
-        special_text = fmt::format(_LC("TopMenubar", "Vehicle physics paused, press '{}' to resume"),
-                                   App::GetInputEngine()->getEventCommand(EV_TRUCK_TOGGLE_PHYSICS));
+        special_text = fmt::format(_LC("TopMenubar", "Vehicle physics paused, press {} to resume"),
+                                   App::GetInputEngine()->getEventCommandTrimmed(EV_TRUCK_TOGGLE_PHYSICS));
         content_width = ImGui::CalcTextSize(special_text.c_str()).x;
     }
     else if (App::GetGameContext()->GetPlayerActor() &&
@@ -913,6 +913,13 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
             float best_time = App::GetGfxScene()->GetSimDataBuffer().simbuf_race_best_time;
             special_text_d = fmt::format("{:02d}.{:02d}.{:02d}", (int)(best_time) / 60, (int)(best_time) % 60, (int)(best_time * 100.0) % 100);
         }
+    }
+    else if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
+    {
+        special_color = GREEN_TEXT;
+        special_text = fmt::format(_LC("TopMenubar", "Terrain editing mode, press {} to save and exit"),
+                                   App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
+        content_width = ImGui::CalcTextSize(special_text.c_str()).x;
     }
 
     // Draw box if needed

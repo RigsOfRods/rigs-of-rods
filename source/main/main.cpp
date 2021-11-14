@@ -502,11 +502,9 @@ int main(int argc, char *argv[])
 #ifdef USE_SOCKETW
                         if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
                         {
-                            char text[300];
-                            std::snprintf(text, 300, _L("Press %s to start chatting"),
-                                RoR::App::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE).c_str());
-                            App::GetConsole()->putMessage(
-                                Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, text);
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                                  fmt::format(_LC("ChatBox", "Press {} to start chatting"),
+                                               App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_CHATMODE)), "lightbulb.png");
                         }
 #endif // USE_SOCKETW
                         if (App::io_outgauge_mode->getInt() > 0)
@@ -705,6 +703,9 @@ int main(int argc, char *argv[])
                         App::sim_state->setVal((int)SimState::EDITOR_MODE);
                         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                                                       _L("Entered terrain editing mode"));
+                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                      fmt::format(_L("Press {} or middle mouse click to select an object"),
+                                   App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_OR_EXIT_TRUCK)), "lightbulb.png");
                     }
                     break;
 
@@ -812,7 +813,10 @@ int main(int argc, char *argv[])
 
                     if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
                     {
-                        App::GetGameContext()->GetCharacterFactory()->Update(dt); // Character MUST be updated before CameraManager, otherwise camera position is always 1 frame behind the character position, causing stuttering.
+                        if (App::sim_state->getEnum<SimState>() != SimState::EDITOR_MODE )
+                        {
+                            App::GetGameContext()->GetCharacterFactory()->Update(dt); // Character MUST be updated before CameraManager, otherwise camera position is always 1 frame behind the character position, causing stuttering.
+                        }
                         App::GetCameraManager()->UpdateInputEvents(dt);
                         App::GetOverlayWrapper()->update(dt);
                         if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
@@ -822,7 +826,6 @@ int main(int argc, char *argv[])
                         }
                         else if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
                         {
-
                             if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
                             {
                                 App::GetGameContext()->UpdateSimInputEvents(dt);
