@@ -83,7 +83,7 @@ InputEvent eventInfo[] = {
 
     // Common: UI
     {"COMMON_CONSOLE_TOGGLE",         EV_COMMON_CONSOLE_TOGGLE,         "Keyboard EXPL+GRAVE",          _LC("InputEvent", "show / hide the console")},
-    {"COMMON_ENTER_CHATMODE",         EV_COMMON_ENTER_CHATMODE,         "Keyboard Y",                   _LC("InputEvent", "enter the chat")},
+    {"COMMON_ENTER_CHATMODE",         EV_COMMON_ENTER_CHATMODE,         "Keyboard EXPL+Y",              _LC("InputEvent", "enter the chat")},
     {"COMMON_SEND_CHAT",              EV_COMMON_SEND_CHAT,              "Keyboard RETURN",              _LC("InputEvent", "sends the entered text")},
     {"COMMON_HIDE_GUI",               EV_COMMON_HIDE_GUI,               "Keyboard EXPL+U",              _LC("InputEvent", "hide all GUI elements")},
     {"COMMON_TOGGLE_DASHBOARD",       EV_COMMON_TOGGLE_DASHBOARD,       "Keyboard EXPL+CTRL+U",         _LC("InputEvent", "display or hide the dashboard overlay")},
