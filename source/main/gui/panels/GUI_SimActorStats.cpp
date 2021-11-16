@@ -40,6 +40,7 @@ void SimActorStats::Draw(RoR::GfxActor* actorx)
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
     ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, (theme.screen_edge_padding.y + 150)));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
     ImGui::Begin("SimActorStats", nullptr, flags);
 
     RoR::ImTextWrappedColorMarked(actorx->GetActor()->getTruckName());
@@ -221,6 +222,7 @@ void SimActorStats::Draw(RoR::GfxActor* actorx)
 
     ImGui::NewLine();
     ImGui::End();
+    ImGui::PopStyleColor(1); // WindowBg
 }
 
 void SimActorStats::UpdateStats(float dt, Actor* actor)
