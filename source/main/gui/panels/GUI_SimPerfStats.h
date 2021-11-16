@@ -34,6 +34,7 @@ public:
 
 private:
     bool         m_is_visible = false;
+    std::string Convert(const float f); // converts const float to std::string with precision
 };
 
 } // namespace GUI
