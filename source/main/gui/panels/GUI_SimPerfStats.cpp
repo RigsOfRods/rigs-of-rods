@@ -68,13 +68,13 @@ void SimPerfStats::Draw()
     ImGui::SetCursorPosX((histogram_size.x * 7 + (9 * ImGui::GetStyle().ItemSpacing.x) + ImGui::GetStyle().FramePadding.x - ImGui::CalcTextSize(d.c_str()).x) * 0.5f);
     ImGui::Text("%s", _LC("SimPerfStats", d.c_str()));
 
-    ImGui::PlotHistogram("", &stats.lastFPS, 1, 0, this->Convert(stats.lastFPS).c_str(), 0.f, 300.f, histogram_size);
+    ImGui::PlotHistogram("", &stats.lastFPS, 1, 0, this->Convert(stats.lastFPS).c_str(), 0.f, stats.bestFPS, histogram_size);
     ImGui::SameLine();
-    ImGui::PlotHistogram("", &stats.avgFPS, 1, 0, this->Convert(stats.avgFPS).c_str(), 0.f, 300.f, histogram_size);
+    ImGui::PlotHistogram("", &stats.avgFPS, 1, 0, this->Convert(stats.avgFPS).c_str(), 0.f, stats.bestFPS, histogram_size);
     ImGui::SameLine();
-    ImGui::PlotHistogram("", &stats.worstFPS, 1, 0, this->Convert(stats.worstFPS).c_str(), 0.f, 300.f, histogram_size);
+    ImGui::PlotHistogram("", &stats.worstFPS, 1, 0, this->Convert(stats.worstFPS).c_str(), 0.f, stats.bestFPS, histogram_size);
     ImGui::SameLine();
-    ImGui::PlotHistogram("", &stats.bestFPS, 1, 0, this->Convert(stats.bestFPS).c_str(), 0.f, 300.f, histogram_size);
+    ImGui::PlotHistogram("", &stats.bestFPS, 1, 0, this->Convert(stats.bestFPS).c_str(), 0.f, stats.bestFPS, histogram_size);
 
     ImGui::Separator();
     ImGui::Text("%s%zu", _LC("SimPerfStats", "Triangle count: "), stats.triangleCount);
