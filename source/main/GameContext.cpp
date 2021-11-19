@@ -761,6 +761,10 @@ void GameContext::UpdateGlobalInputEvents()
             {
                 App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
             }
+            else if (App::GetGuiManager()->IsVisible_RepositorySelector())
+            {
+                App::GetGuiManager()->SetVisible_RepositorySelector(false);
+            }
             else
             {
                 this->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));

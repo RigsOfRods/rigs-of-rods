@@ -128,6 +128,7 @@ void CacheSystem::LoadModCache(CacheValidity validity)
         else
         {
             RoR::Log("[RoR|ModCache] Performing update ...");
+            this->ClearResourceGroups();
             this->PruneCache();
         }
         const bool orig_echo = App::diag_log_console_echo->getBool();
@@ -353,6 +354,19 @@ void CacheSystem::PruneCache()
         else
         {
             m_resource_paths.insert(fn);
+        }
+    }
+}
+
+void CacheSystem::ClearResourceGroups()
+{
+    for (auto& entry : m_entries)
+    {
+        String group = entry.resource_group;
+        if (!group.empty())
+        {
+            if (ResourceGroupManager::getSingleton().resourceGroupExists(group))
+                ResourceGroupManager::getSingleton().destroyResourceGroup(group);
         }
     }
 }

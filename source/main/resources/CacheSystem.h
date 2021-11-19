@@ -230,6 +230,7 @@ private:
 
     void ClearCache(); // removes                   all files from the cache
     void PruneCache(); // removes modified (or deleted) files from the cache
+    void ClearResourceGroups();
 
     void AddFile(Ogre::String group, Ogre::FileInfo f, Ogre::String ext);
 

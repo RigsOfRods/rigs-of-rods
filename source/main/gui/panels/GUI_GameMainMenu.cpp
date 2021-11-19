@@ -63,7 +63,7 @@ void GameMainMenu::DrawMenuPanel()
     if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
     {
         title = "Main menu";
-        m_num_buttons = 6;
+        m_num_buttons = 7;
         if (FileExists(PathCombine(App::sys_savegames_dir->getStr(), "autosave.sav")))
         {
             m_num_buttons++;
@@ -155,6 +155,12 @@ void GameMainMenu::DrawMenuPanel()
             if (HighlightButton(_LC("MainMenu", "Multiplayer"), btn_size, button_index++))
             {
                 App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
+                this->SetVisible(false);
+            }
+
+            if (HighlightButton(_LC("MainMenu", "Repository"), btn_size, button_index++))
+            {
+                App::GetGuiManager()->SetVisible_RepositorySelector(true);
                 this->SetVisible(false);
             }
 
