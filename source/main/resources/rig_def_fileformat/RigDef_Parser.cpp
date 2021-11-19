@@ -1479,7 +1479,7 @@ void Parser::ParseEngoption()
     if (m_num_args > 9) { engoption.min_idle_mixture = this->GetArgFloat(9); }
     if (m_num_args > 10){ engoption.braking_torque   = this->GetArgFloat(10);}
 
-    m_current_module->engoption = std::shared_ptr<Engoption>( new Engoption(engoption) );
+    m_current_module->engoption.push_back(engoption);
 }
 
 void Parser::ParseEngturbo()
@@ -1509,7 +1509,7 @@ void Parser::ParseEngturbo()
         engturbo.nturbos = 4;
     }
 
-    m_current_module->engturbo = std::shared_ptr<Engturbo>(new Engturbo(engturbo));
+    m_current_module->engturbo.push_back(engturbo);
 }
 
 void Parser::ParseEngine()
@@ -1541,7 +1541,7 @@ void Parser::ParseEngine()
         return;
     }
 
-    m_current_module->engine = std::shared_ptr<Engine>( new Engine(engine) );
+    m_current_module->engine.push_back(engine);
 }
 
 void Parser::ParseContacter()

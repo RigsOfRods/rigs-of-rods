@@ -109,7 +109,7 @@ void ActorSpawner::Setup(
 
     m_generate_wing_position_lights = true;
     // TODO: Handle modules
-    if (file->root_module->engine.get() != nullptr) // Engine present => it's a land vehicle.
+    if (file->root_module->engine.size() > 0) // Engine present => it's a land vehicle.
     {
         m_generate_wing_position_lights = false; // Disable aerial pos. lights for land vehicles.
     }
@@ -5051,20 +5051,8 @@ void ActorSpawner::ProcessEngturbo(RigDef::Engturbo & def)
         AddMessage(Message::TYPE_WARNING, "Section 'engturbo' found but no engine defined. Skipping ...");
         return;
     }
-    
-        /* Find it */
-    std::shared_ptr<RigDef::Engturbo> engturbo;
-    std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
-    for (; module_itor != m_selected_modules.end(); module_itor++)
-    {
-        if (module_itor->get()->engturbo != nullptr)
-        {
-            engturbo = module_itor->get()->engturbo;
-        }
-    }
-    
-        /* Process it */
-    m_actor->ar_engine->SetTurboOptions(engturbo->version, engturbo->tinertiaFactor, engturbo->nturbos, engturbo->param1, engturbo->param2, engturbo->param3, engturbo->param4, engturbo->param5, engturbo->param6, engturbo->param7, engturbo->param8, engturbo->param9, engturbo->param10, engturbo->param11);
+   
+    m_actor->ar_engine->SetTurboOptions(def.version, def.tinertiaFactor, def.nturbos, def.param1, def.param2, def.param3, def.param4, def.param5, def.param6, def.param7, def.param8, def.param9, def.param10, def.param11);
 };
 
 void ActorSpawner::ProcessEngoption(RigDef::Engoption & def)
@@ -5076,35 +5064,24 @@ void ActorSpawner::ProcessEngoption(RigDef::Engoption & def)
         return;
     }
 
-    /* Find it */
-    std::shared_ptr<RigDef::Engoption> engoption;
-    std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
-    for (; module_itor != m_selected_modules.end(); module_itor++)
-    {
-        if (module_itor->get()->engoption != nullptr)
-        {
-            engoption = module_itor->get()->engoption;
-        }
-    }
-
-    if (engoption->idle_rpm > 0 && engoption->stall_rpm > 0 && engoption->stall_rpm > engoption->idle_rpm)
+    if (def.idle_rpm > 0 && def.stall_rpm > 0 && def.stall_rpm > def.idle_rpm)
     {
         AddMessage(Message::TYPE_WARNING, "Stall RPM is set higher than Idle RPM.");
     }
 
     /* Process it */
     m_actor->ar_engine->SetEngineOptions(
-        engoption->inertia,
-        engoption->type,
-        engoption->clutch_force,
-        engoption->shift_time,
-        engoption->clutch_time,
-        engoption->post_shift_time,
-        engoption->idle_rpm,
-        engoption->stall_rpm,
-        engoption->max_idle_mixture,
-        engoption->min_idle_mixture,
-        engoption->braking_torque
+        def.inertia,
+        def.type,
+        def.clutch_force,
+        def.shift_time,
+        def.clutch_time,
+        def.post_shift_time,
+        def.idle_rpm,
+        def.stall_rpm,
+        def.max_idle_mixture,
+        def.min_idle_mixture,
+        def.braking_torque
     );
 };
 

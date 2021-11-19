@@ -748,16 +748,16 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
 
     /* Engine */
     /* TODO: Handle engines in modules */
-    if (def->root_module->engine != nullptr)
+    if (def->root_module->engine.size() > 0)
     {
-        std::shared_ptr<RigDef::Engine> engine = def->root_module->engine;
-        entry.numgears = static_cast<int>(engine->gear_ratios.size());
-        entry.minrpm = engine->shift_down_rpm;
-        entry.maxrpm = engine->shift_up_rpm;
-        entry.torque = engine->torque;
+        RigDef::Engine& engine = def->root_module->engine[def->root_module->engine.size() - 1];
+        entry.numgears = static_cast<int>(engine.gear_ratios.size());
+        entry.minrpm = engine.shift_down_rpm;
+        entry.maxrpm = engine.shift_up_rpm;
+        entry.torque = engine.torque;
         entry.enginetype = 't'; /* Truck (default) */
-        if (def->root_module->engoption != nullptr
-            && def->root_module->engoption->type == RigDef::Engoption::ENGINE_TYPE_c_CAR)
+        if (def->root_module->engoption.size() > 0
+            && def->root_module->engoption[def->root_module->engoption.size() - 1].type == RigDef::Engoption::ENGINE_TYPE_c_CAR)
         {
             entry.enginetype = 'c';
         }
@@ -785,7 +785,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     module_itor = def->user_modules.begin();
     for (; module_itor != def->user_modules.end(); module_itor++)
     {
-        if (module_itor->second->engine != nullptr)
+        if (module_itor->second->engine.size() > 0)
         {
             vehicle_type = TRUCK;
         }
@@ -800,7 +800,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
         }
     }
     /* Root module */
-    if (def->root_module->engine != nullptr)
+    if (def->root_module->engine.size() > 0)
     {
         vehicle_type = TRUCK;
     }

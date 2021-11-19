@@ -2146,9 +2146,9 @@ struct File
         std::vector<Command2>              commands_2; /* sections 'commands' & 'commands2' are unified */
         std::vector<CruiseControl>         cruisecontrol;
         std::vector<Node::Ref>             contacters;
-        std::shared_ptr<Engine>            engine;
-        std::shared_ptr<Engoption>         engoption;
-        std::shared_ptr<Engturbo>          engturbo;
+        std::vector<Engine>                engine;
+        std::vector<Engoption>             engoption;
+        std::vector<Engturbo>              engturbo;
         std::vector<Exhaust>               exhausts;
         std::shared_ptr<ExtCamera>         ext_camera;
         std::vector<Node::Ref>              fixes;

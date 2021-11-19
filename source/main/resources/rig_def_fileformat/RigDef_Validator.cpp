@@ -157,9 +157,9 @@ bool Validator::CheckGearbox()
     std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
-        if (module_itor->get()->engine != nullptr)
+        if (module_itor->get()->engine.size() > 0)
         {
-            if (module_itor->get()->engine->gear_ratios.size() > 0)
+            if (module_itor->get()->engine[module_itor->get()->engine.size() - 1].gear_ratios.size() > 0)
             {
                 return true;
             }
