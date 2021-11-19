@@ -58,33 +58,6 @@ bool Validator::Validate()
 
     /* CHECK CONFIGURATION (SELECTED MODULES TOGETHER) */
 
-    valid &= CheckSection(RigDef::KEYWORD_GLOBALS, true, true); /* Unique, required */
-
-    valid &= CheckSection(RigDef::KEYWORD_NODES, false, true); /* Required; sections nodes/nodes2 are unified here. */
-
-    if (m_check_beams)
-    {
-        valid &= CheckSection(RigDef::KEYWORD_BEAMS, false, true); /* Required */
-    }
-
-    valid &= CheckSection(RigDef::KEYWORD_ENGINE, true, false); /* Unique */
-
-    valid &= CheckSection(RigDef::KEYWORD_ENGOPTION, true, false); /* Unique */
-
-    valid &= CheckSection(RigDef::KEYWORD_ENGTURBO, true, false); /* Unique */
-
-    valid &= CheckSection(RigDef::KEYWORD_TORQUECURVE, true, false); /* Unique */
-
-    valid &= CheckSection(RigDef::KEYWORD_SPEEDLIMITER, true, false); /* Unique */
-
-    valid &= CheckSection(RigDef::KEYWORD_MANAGEDMATERIALS, true, false); /* Unique */
-
-    valid &= CheckSection(RigDef::KEYWORD_GUISETTINGS, true, false); /* Unique */
-
-    valid &= CheckSection(RigDef::KEYWORD_EXTCAMERA, true, false); /* Unique */
-
-    valid &= CheckSection(RigDef::KEYWORD_FUSEDRAG, true, false); /* Unique */
-
     valid &= CheckSectionSubmeshGroundmodel(); /* Unique */
 
     valid &= CheckGearbox(); /* Min. 1 forward gear */
@@ -162,95 +135,6 @@ bool Validator::CheckSectionSubmeshGroundmodel()
     }
 
     return true;
-}
-
-bool Validator::CheckSection(RigDef::Keyword keyword, bool unique, bool required)
-{
-    Ogre::String *containing_module_name = nullptr;
-
-    std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
-    for (; module_itor != m_selected_modules.end(); module_itor++)
-    {
-        if (HasModuleKeyword(*module_itor, keyword))
-        {
-            if (containing_module_name == nullptr)
-            {
-                containing_module_name = & module_itor->get()->name;
-            }
-            else if (unique)
-            {
-                std::stringstream text;
-                text << "Duplicate section '" << RigDef::File::KeywordToString(keyword)
-                    << "'; found in modules: '" << *containing_module_name
-                    << "' & '" << module_itor->get()->name << "'";
-                AddMessage(Message::TYPE_FATAL_ERROR, text.str());
-                return false;
-            }
-        }
-    }
-
-    if (containing_module_name == nullptr && required)
-    {
-        std::stringstream text;
-        text << "Missing required section '" << RigDef::File::KeywordToString(keyword) <<"'";
-        AddMessage(Message::TYPE_FATAL_ERROR, text.str());
-        return false;
-    }
-    return true;
-}
-
-bool Validator::HasModuleKeyword(std::shared_ptr<RigDef::File::Module> module, RigDef::Keyword keyword)
-{
-    using namespace RigDef;
-
-    switch (keyword)
-    {
-        /* Please maintain alphabetical order */
-
-        case (KEYWORD_BEAMS):
-            return ! module->beams.empty();
-
-        case (KEYWORD_ENGINE):
-            return (module->engine != nullptr);
-
-        case (KEYWORD_ENGOPTION):
-            return (module->engoption != nullptr);
-
-        case (KEYWORD_ENGTURBO) :
-            return (module->engturbo != nullptr);
-
-        case (KEYWORD_EXTCAMERA):
-            return (module->ext_camera != nullptr);
-
-        case (KEYWORD_FUSEDRAG):
-            return ! module->fusedrag.empty();
-
-        case (KEYWORD_GLOBALS):
-            return (module->globals != nullptr);
-
-        case (KEYWORD_GUISETTINGS):
-            return (module->gui_settings != nullptr);
-
-        case (KEYWORD_MANAGEDMATERIALS):
-            return ! module->managed_materials.empty();
-
-        case (KEYWORD_NODES):
-            return ! module->nodes.empty();
-
-        case (KEYWORD_SPEEDLIMITER):
-            return (module->speed_limiter.is_enabled);
-
-        case (KEYWORD_TORQUECURVE):
-            return (module->torque_curve != nullptr);
-        
-        /* TEMPLATE
-        case (SECTION_):
-            return (module->globals != nullptr);
-        */
-
-        default:
-            return false;
-    };
 }
 
 bool Validator::AddModule(Ogre::String const & module_name)
