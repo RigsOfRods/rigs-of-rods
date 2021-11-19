@@ -2135,7 +2135,7 @@ struct File
         /* Sections*/
         std::vector<Airbrake>              airbrakes;
         std::vector<Animator>              animators;
-        std::shared_ptr<AntiLockBrakes>    anti_lock_brakes;
+        std::vector<AntiLockBrakes>        antilockbrakes;
         std::vector<Axle>                  axles;
         std::vector<Beam>                  beams;
         std::shared_ptr<Brakes>            brakes;

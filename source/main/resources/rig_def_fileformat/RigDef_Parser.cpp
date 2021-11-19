@@ -1458,11 +1458,7 @@ void Parser::ParseAntiLockBrakes()
         }
     }
 
-    if (m_current_module->anti_lock_brakes != nullptr)
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Found multiple sections 'AntiLockBrakes' in one module, using last one.");
-    }
-    m_current_module->anti_lock_brakes = std::shared_ptr<AntiLockBrakes>( new AntiLockBrakes(alb) );
+    m_current_module->antilockbrakes.push_back(alb);
 }
 
 void Parser::ParseEngoption()
