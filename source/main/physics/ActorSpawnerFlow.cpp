@@ -114,13 +114,13 @@ Actor *ActorSpawner::SpawnActor()
     ProcessHelp();
 
     // Section 'engine' in any module
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_ENGINE, engine, ProcessEngine);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_ENGINE, engine, ProcessEngine);
 
     // Section 'engoption' in any module
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_ENGOPTION, engoption, ProcessEngoption);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_ENGOPTION, engoption, ProcessEngoption);
 
     /* Section 'engturbo' in any module */
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_ENGTURBO, engturbo, ProcessEngturbo);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_ENGTURBO, engturbo, ProcessEngturbo);
 
     // Section 'torquecurve' in any module.
     PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_TORQUECURVE, torque_curve, ProcessTorqueCurve);

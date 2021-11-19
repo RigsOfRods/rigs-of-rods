@@ -1532,10 +1532,12 @@ void Serializer::ProcessAntiLockBrakes(File::Module* module)
 
 void Serializer::ProcessEngine(File::Module* module)
 {
-    if (module->engine.get() == nullptr)
+    if (module->engine.size() == 0)
     {
         return;
     }
+
+    Engine& engine = module->engine[module->engine.size() - 1];
     
     m_stream << "engine" 
         "\n;\t"
@@ -1546,15 +1548,15 @@ void Serializer::ProcessEngine(File::Module* module)
         " ReverseGear,"
         " NeutralGear,"
         " Forward gears...\n\t"
-        << setw(12)   << module->engine->shift_down_rpm                << ", "
-        << setw(10)   << module->engine->shift_up_rpm                  << ", "
-        << setw(10)   << module->engine->torque                        << ", "
-        << setw(10)   << module->engine->global_gear_ratio             << ", "
-        << setw(11)   << module->engine->reverse_gear_ratio            << ", "
-        << setw(11)   << module->engine->neutral_gear_ratio;
+        << setw(12)   << engine.shift_down_rpm                << ", "
+        << setw(10)   << engine.shift_up_rpm                  << ", "
+        << setw(10)   << engine.torque                        << ", "
+        << setw(10)   << engine.global_gear_ratio             << ", "
+        << setw(11)   << engine.reverse_gear_ratio            << ", "
+        << setw(11)   << engine.neutral_gear_ratio;
     
-    auto itor = module->engine->gear_ratios.begin();	
-    auto end  = module->engine->gear_ratios.end();
+    auto itor = engine.gear_ratios.begin();	
+    auto end  = engine.gear_ratios.end();
     for (; itor != end; ++itor)
     {
         m_stream << ", " << *itor;
@@ -1564,10 +1566,12 @@ void Serializer::ProcessEngine(File::Module* module)
 
 void Serializer::ProcessEngoption(File::Module* module)
 {
-    if (module->engoption.get() == nullptr)
+    if (module->engoption.size() == 0)
     {
         return;
     }
+
+    Engoption& engoption = module->engoption[module->engoption.size() - 1];
     
     m_stream << "engoption"
         "\n;\t"
@@ -1583,17 +1587,17 @@ void Serializer::ProcessEngoption(File::Module* module)
         " MinIdleMixture"
         " BrakingForce"
         "\n\t" 
-        << setw(10)   << module->engoption->inertia           << ", "
-        << setw(10)   << (char)module->engoption->type        << ", "
-        << setw(11)   << module->engoption->clutch_force      << ", "
-        << setw( 9)   << module->engoption->shift_time        << ", "
-        << setw(10)   << module->engoption->clutch_time       << ", "
-        << setw(13)   << module->engoption->post_shift_time   << ", "
-        << setw( 8)   << module->engoption->stall_rpm         << ", "
-        << setw( 7)   << module->engoption->idle_rpm          << ", "
-        << setw(14)   << module->engoption->max_idle_mixture  << ", "
-        << setw(14)   << module->engoption->min_idle_mixture  << ", "
-        << setw(15)   << module->engoption->braking_torque;
+        << setw(10)   << engoption.inertia           << ", "
+        << setw(10)   << (char)engoption.type        << ", "
+        << setw(11)   << engoption.clutch_force      << ", "
+        << setw( 9)   << engoption.shift_time        << ", "
+        << setw(10)   << engoption.clutch_time       << ", "
+        << setw(13)   << engoption.post_shift_time   << ", "
+        << setw( 8)   << engoption.stall_rpm         << ", "
+        << setw( 7)   << engoption.idle_rpm          << ", "
+        << setw(14)   << engoption.max_idle_mixture  << ", "
+        << setw(14)   << engoption.min_idle_mixture  << ", "
+        << setw(15)   << engoption.braking_torque;
     
     m_stream << endl << endl;
 }
