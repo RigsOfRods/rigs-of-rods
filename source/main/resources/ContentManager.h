@@ -32,6 +32,7 @@
 
 #define RGN_TEMP "Temp"
 #define RGN_CACHE "Cache"
+#define RGN_REPO "Repo"
 #define RGN_CONFIG "Config"
 #define RGN_CONTENT "Content"
 #define RGN_SAVEGAMES "Savegames"

@@ -78,6 +78,9 @@ enum MsgType
     MSG_NET_RECV_ERROR,
     MSG_NET_REFRESH_SERVERLIST_SUCCESS,    //!< Payload = GUI::MpServerInfoVec* (owner)
     MSG_NET_REFRESH_SERVERLIST_FAILURE,
+    MSG_NET_REFRESH_REPOLIST_SUCCESS,    //!< Payload = GUI::ResourcesCollection* (owner)
+    MSG_NET_OPEN_RESOURCE_SUCCESS,    //!< Payload = GUI::ResourcesCollection* (owner)
+    MSG_NET_REFRESH_REPOLIST_FAILURE,
     // Simulation
     MSG_SIM_PAUSE_REQUESTED,
     MSG_SIM_UNPAUSE_REQUESTED,
@@ -98,6 +101,8 @@ enum MsgType
     MSG_GUI_CLOSE_SELECTOR_REQUESTED,
     MSG_GUI_MP_CLIENTS_REFRESH,
     MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED,    //!< Payload = MessageBoxConfig* (owner)
+    MSG_GUI_DOWNLOAD_PROGRESS,
+    MSG_GUI_DOWNLOAD_FINISHED,
     // Editing
     MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  //!< Payload = ground_model_t* (weak)
     MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,
@@ -295,6 +300,9 @@ extern CVar* mp_player_name;
 extern CVar* mp_player_token;
 extern CVar* mp_api_url;
 
+// New remote API
+extern CVar* remote_query_url;
+
 // Diagnostic
 extern CVar* diag_auto_spawner_report;
 extern CVar* diag_camera;
@@ -329,6 +337,7 @@ extern CVar* sys_process_dir;
 extern CVar* sys_user_dir;
 extern CVar* sys_config_dir;
 extern CVar* sys_cache_dir;
+extern CVar* sys_thumbnails_dir;
 extern CVar* sys_logs_dir;
 extern CVar* sys_resources_dir;
 extern CVar* sys_profiler_dir;

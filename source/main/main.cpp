@@ -40,6 +40,7 @@
 #include "GUI_MessageBox.h"
 #include "GUI_MultiplayerSelector.h"
 #include "GUI_MultiplayerClientList.h"
+#include "GUI_RepositorySelector.h"
 #include "GUI_SimActorStats.h"
 #include "InputEngine.h"
 #include "Language.h"
@@ -95,6 +96,7 @@ int main(int argc, char *argv[])
         // User directories
         App::sys_config_dir    ->setStr(PathCombine(App::sys_user_dir->getStr(), "config"));
         App::sys_cache_dir     ->setStr(PathCombine(App::sys_user_dir->getStr(), "cache"));
+        App::sys_thumbnails_dir->setStr(PathCombine(App::sys_user_dir->getStr(), "thumbnails"));
         App::sys_savegames_dir ->setStr(PathCombine(App::sys_user_dir->getStr(), "savegames"));
         App::sys_screenshot_dir->setStr(PathCombine(App::sys_user_dir->getStr(), "screenshots"));
 
@@ -476,6 +478,20 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->GetMpSelector()->DisplayRefreshFailed(m.description);
                     break;
 
+                case MSG_NET_REFRESH_REPOLIST_SUCCESS:
+                    App::GetGuiManager()->GetRepoSelector()->UpdateResources((GUI::ResourcesCollection*)m.payload);
+                    delete (GUI::ResourcesCollection*)m.payload;
+                    break;
+
+                case MSG_NET_OPEN_RESOURCE_SUCCESS:
+                    App::GetGuiManager()->GetRepoSelector()->UpdateFiles((GUI::ResourcesCollection*)m.payload);
+                    delete (GUI::ResourcesCollection*)m.payload;
+                    break;
+
+                case MSG_NET_REFRESH_REPOLIST_FAILURE:
+                    App::GetGuiManager()->GetRepoSelector()->ShowError(m.description);
+                    break;
+
                 // -- Gameplay events --
 
                 case MSG_SIM_PAUSE_REQUESTED:
@@ -712,6 +728,18 @@ int main(int argc, char *argv[])
                     delete (GUI::MessageBoxConfig*)m.payload;
                     break;
 
+                case MSG_GUI_DOWNLOAD_PROGRESS:
+                    App::GetGameContext()->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
+                    App::GetGuiManager()->GetLoadingWindow()->SetProgress(*reinterpret_cast<int*>(m.payload), m.description, false);
+                    delete reinterpret_cast<int*>(m.payload);
+                    break;
+
+                case MSG_GUI_DOWNLOAD_FINISHED:
+                    App::GetGuiManager()->GetLoadingWindow()->SetVisible(false);
+                    App::GetGuiManager()->GetRepoSelector()->SetVisible(true);
+                    App::GetGuiManager()->GetRepoSelector()->DownloadFinished();
+                    break;
+
                 // -- Editing events --
 
                 case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED:
@@ -829,7 +857,7 @@ int main(int argc, char *argv[])
                 {
                     if (!App::GetGuiManager()->IsVisible_MainSelector() && !App::GetGuiManager()->IsVisible_MultiplayerSelector() &&
                         !App::GetGuiManager()->IsVisible_GameSettings() && !App::GetGuiManager()->IsVisible_GameControls() &&
-                        !App::GetGuiManager()->IsVisible_GameAbout())
+                        !App::GetGuiManager()->IsVisible_GameAbout() && !App::GetGuiManager()->IsVisible_RepositorySelector())
                     {
                         App::GetGameContext()->HandleSavegameHotkeys();
                     }

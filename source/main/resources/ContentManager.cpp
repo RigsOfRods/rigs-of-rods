@@ -248,6 +248,8 @@ void ContentManager::InitModCache(CacheValidity validity)
 {
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_cache_dir->getStr(), "FileSystem", RGN_CACHE, /*recursive=*/false, /*readOnly=*/false);
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_thumbnails_dir->getStr(), "FileSystem", RGN_REPO, /*recursive=*/false, /*readOnly=*/false);
     std::string user = App::sys_user_dir->getStr();
     std::string base = App::sys_process_dir->getStr();
     std::string objects = PathCombine("resources", "beamobjects.zip");

@@ -119,6 +119,9 @@ CVar* mp_player_name;
 CVar* mp_player_token;
 CVar* mp_api_url;
 
+// New remote API
+CVar* remote_query_url;
+
 // Diagnostic
 CVar* diag_auto_spawner_report;
 CVar* diag_camera;
@@ -152,6 +155,7 @@ CVar* sys_process_dir;
 CVar* sys_user_dir;
 CVar* sys_config_dir;
 CVar* sys_cache_dir;
+CVar* sys_thumbnails_dir;
 CVar* sys_logs_dir;
 CVar* sys_resources_dir;
 CVar* sys_profiler_dir;
