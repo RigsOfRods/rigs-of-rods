@@ -935,14 +935,13 @@ void Serializer::ProcessTransferCase(File::Module* module)
 
 void Serializer::ProcessCruiseControl(File::Module* module)
 {
-    if (! module->cruise_control)
-    {
-        return;
-    }
+    RigDef::CruiseControl& cruisecontrol = module->cruisecontrol[module->cruisecontrol.size() - 1];
+    
     m_stream << "cruisecontrol " 
-        << module->cruise_control->min_speed << ", " 
-        << (int) module->cruise_control->autobrake
+        << cruisecontrol.min_speed << ", " 
+        << (int) cruisecontrol.autobrake
         << endl << endl;
+    
 }
 
 void Serializer::ProcessSpeedLimiter(File::Module* module)
