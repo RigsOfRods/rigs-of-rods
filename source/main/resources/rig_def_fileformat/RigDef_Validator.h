@@ -82,19 +82,6 @@ public:
 private:
 
     /**
-    * Finds section in configuration and performs checks.
-    * @param unique Is this section required to be unique?
-    * @param required Is this section required?
-    * @return True if all conditions were met.
-    */
-    bool CheckSection(RigDef::Keyword keyword, bool unique, bool required);
-
-    /**
-    * Checks if a module contains a section.
-    */
-    bool HasModuleKeyword(std::shared_ptr<RigDef::File::Module> module, RigDef::Keyword keyword);
-
-    /**
     * Inline-ection 'submesh_groundmodel', unique across all modules.
     */
     bool CheckSectionSubmeshGroundmodel();
