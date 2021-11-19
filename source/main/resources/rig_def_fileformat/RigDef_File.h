@@ -2138,7 +2138,7 @@ struct File
         std::vector<AntiLockBrakes>        antilockbrakes;
         std::vector<Axle>                  axles;
         std::vector<Beam>                  beams;
-        std::shared_ptr<Brakes>            brakes;
+        std::vector<Brakes>                brakes;
         std::vector<Camera>                cameras;
         std::vector<CameraRail>            camera_rails;
         std::vector<CollisionBox>          collision_boxes;
