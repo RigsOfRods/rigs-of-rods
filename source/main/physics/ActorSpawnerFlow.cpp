@@ -211,9 +211,7 @@ Actor *ActorSpawner::SpawnActor()
     // ---------------------------- Other ----------------------------
 
     // Section 'AntiLockBrakes' in any module.
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_ANTILOCKBRAKES, anti_lock_brakes, ProcessAntiLockBrakes);
-
-    // Section 'SlopeBrake' in any module (feature removed).
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_ANTILOCKBRAKES, antilockbrakes, ProcessAntiLockBrakes);
     
     // Sections 'flares' and 'flares2'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_FLARES2, flares_2, ProcessFlare2);

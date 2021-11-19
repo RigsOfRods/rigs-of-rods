@@ -1516,9 +1516,9 @@ void Serializer::ProcessBrakes(File::Module* module)
 
 void Serializer::ProcessAntiLockBrakes(File::Module* module)
 {
-    if (module->anti_lock_brakes == nullptr) { return; }
+    if (module->antilockbrakes.size() == 0) { return; }
 
-    RigDef::AntiLockBrakes* alb = module->anti_lock_brakes.get();
+    RigDef::AntiLockBrakes* alb = &module->antilockbrakes[module->antilockbrakes.size() - 1];
 
     m_stream << "AntiLockBrakes "
         << alb->regulation_force << ", "
