@@ -284,7 +284,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_PARTICLES, particles, ProcessParticle);
 
     // Section 'cruisecontrol' in any module.
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_CRUISECONTROL, cruise_control, ProcessCruiseControl);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_CRUISECONTROL, cruisecontrol, ProcessCruiseControl);
 
     // Section 'speedlimiter' in any module.
     this->SetCurrentKeyword(RigDef::KEYWORD_SPEEDLIMITER);

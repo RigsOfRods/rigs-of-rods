@@ -2144,7 +2144,7 @@ struct File
         std::vector<CollisionBox>          collision_boxes;
         std::vector<Cinecam>               cinecam;
         std::vector<Command2>              commands_2; /* sections 'commands' & 'commands2' are unified */
-        std::shared_ptr<CruiseControl>     cruise_control;
+        std::vector<CruiseControl>         cruisecontrol;
         std::vector<Node::Ref>             contacters;
         std::shared_ptr<Engine>            engine;
         std::shared_ptr<Engoption>         engoption;

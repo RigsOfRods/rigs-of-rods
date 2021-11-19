@@ -1238,11 +1238,7 @@ void Parser::ParseCruiseControl()
     cruise_control.min_speed = this->GetArgFloat(1);
     cruise_control.autobrake = this->GetArgInt(2);
 
-    if (m_current_module->cruise_control != nullptr)
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Directive 'CruiseControl' used multiple times.");
-    }
-    m_current_module->cruise_control = std::shared_ptr<CruiseControl>( new CruiseControl(cruise_control) );
+    m_current_module->cruisecontrol.push_back(cruise_control);
 }
 
 void Parser::ParseDescription()
