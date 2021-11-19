@@ -126,7 +126,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_TORQUECURVE, torque_curve, ProcessTorqueCurve);
 
     // Section 'brakes' in any module
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_BRAKES, brakes, ProcessBrakes);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_BRAKES, brakes, ProcessBrakes);
 
     // Section 'guisettings' in any module
     PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_GUISETTINGS, gui_settings, ProcessGuiSettings);
