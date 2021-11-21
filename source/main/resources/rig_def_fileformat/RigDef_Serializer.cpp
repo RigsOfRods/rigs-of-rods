@@ -1368,13 +1368,13 @@ void Serializer::ProcessRotators(File::Module* module)
 
 void Serializer::ProcessRotators2(File::Module* module)
 {
-    if (module->rotators_2.empty())
+    if (module->rotators2.empty())
     {
         return;
     }
     m_stream << "rotators2" << endl << endl;
-    auto end_itor = module->rotators_2.end();
-    for (auto itor = module->rotators_2.begin(); itor != end_itor; ++itor)
+    auto end_itor = module->rotators2.end();
+    for (auto itor = module->rotators2.begin(); itor != end_itor; ++itor)
     {
         Rotator2 & def = *itor;
 

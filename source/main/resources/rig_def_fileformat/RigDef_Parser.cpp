@@ -2442,7 +2442,7 @@ void Parser::ParseRotatorsUnified()
 
     if (m_current_block == KEYWORD_ROTATORS2)
     {
-        m_current_module->rotators_2.push_back(rotator);
+        m_current_module->rotators2.push_back(rotator);
     }
     else
     {

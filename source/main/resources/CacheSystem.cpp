@@ -837,7 +837,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     entry.propscount = static_cast<int>(def->root_module->props.size());
     entry.wingscount = static_cast<int>(def->root_module->wings.size());
     entry.turbopropscount = static_cast<int>(def->root_module->turboprops_2.size());
-    entry.rotatorscount = static_cast<int>(def->root_module->rotators.size() + def->root_module->rotators_2.size());
+    entry.rotatorscount = static_cast<int>(def->root_module->rotators.size() + def->root_module->rotators2.size());
     entry.exhaustscount = static_cast<int>(def->root_module->exhausts.size());
     entry.custom_particles = def->root_module->particles.size() > 0;
     entry.turbojetcount = static_cast<int>(def->root_module->turbojets.size());

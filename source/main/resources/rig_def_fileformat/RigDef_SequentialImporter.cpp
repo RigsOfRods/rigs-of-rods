@@ -565,7 +565,7 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
         RESOLVE(rotator.rotating_plate_nodes[3]);
     });
 
-    FOR_EACH (KEYWORD_ROTATORS2, module->rotators_2, rotator2,
+    FOR_EACH (KEYWORD_ROTATORS2, module->rotators2, rotator2,
     {
         RESOLVE(rotator2.axis_nodes[0]          );
         RESOLVE(rotator2.axis_nodes[1]          );
