@@ -480,7 +480,7 @@ void Parser::ParseSubmeshGroundModel()
 {
     if (!this->CheckNumArguments(2)) { return; } // Items: keyword, arg
 
-    m_current_module->submeshes_ground_model_name = this->GetArgStr(1);
+    m_current_module->submesh_groundmodel.push_back(this->GetArgStr(1));
 }
 
 void Parser::ParseSpeedLimiter()

@@ -117,7 +117,7 @@ bool Validator::CheckSectionSubmeshGroundmodel()
     std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
-        if (! module_itor->get()->submeshes_ground_model_name.empty())
+        if (! module_itor->get()->submesh_groundmodel.empty())
         {
             if (containing_module_name == nullptr)
             {

@@ -1264,9 +1264,9 @@ std::string ActorSpawner::GetSubmeshGroundmodelName()
     auto module_end  = m_selected_modules.end();
     for (; module_itor != module_end; ++module_itor)
     {
-        if (! module_itor->get()->submeshes_ground_model_name.empty())
+        if (! module_itor->get()->submesh_groundmodel.empty())
         {
-            return module_itor->get()->submeshes_ground_model_name;
+            return module_itor->get()->submesh_groundmodel[0];
         }
     }
     return std::string();
