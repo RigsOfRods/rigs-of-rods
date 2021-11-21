@@ -174,7 +174,7 @@ Actor *ActorSpawner::SpawnActor()
     }
 
     // Section 'flexbodywheels'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_FLEXBODYWHEELS, flex_body_wheels, ProcessFlexBodyWheel);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_FLEXBODYWHEELS, flexbodywheels, ProcessFlexBodyWheel);
 
     // ---------------------------- WheelDetachers ----------------------------
 

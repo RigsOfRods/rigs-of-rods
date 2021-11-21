@@ -1418,13 +1418,13 @@ void Serializer::ProcessRotators2(File::Module* module)
 
 void Serializer::ProcessFlexBodyWheels(File::Module* module)
 {
-    if (module->flex_body_wheels.empty())
+    if (module->flexbodywheels.empty())
     {
         return;
     }
     m_stream << "flexbodywheels" << endl << endl;
-    auto end_itor = module->flex_body_wheels.end();
-    for (auto itor = module->flex_body_wheels.begin(); itor != end_itor; ++itor)
+    auto end_itor = module->flexbodywheels.end();
+    for (auto itor = module->flexbodywheels.begin(); itor != end_itor; ++itor)
     {
         m_stream << "\t"
             << setw(m_float_width)   << itor->tyre_radius                   << ", "

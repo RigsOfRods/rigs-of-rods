@@ -194,7 +194,7 @@ void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::
     }
 
     // 'flexbodywheels'
-    for (RigDef::FlexBodyWheel& flexwheel: module_def->flex_body_wheels)
+    for (RigDef::FlexBodyWheel& flexwheel: module_def->flexbodywheels)
     {
         req.num_nodes += flexwheel.num_rays * 4;
         // Rim beams:      num_rays*8

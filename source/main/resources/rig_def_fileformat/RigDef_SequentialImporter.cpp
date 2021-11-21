@@ -489,7 +489,7 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
         flexbody.node_list_to_import.clear();
     });
 
-    FOR_EACH (KEYWORD_FLEXBODYWHEELS, module->flex_body_wheels, flexbodywheel,
+    FOR_EACH (KEYWORD_FLEXBODYWHEELS, module->flexbodywheels, flexbodywheel,
     {
         RESOLVE(flexbodywheel.nodes[0]          );
         RESOLVE(flexbodywheel.nodes[1]          );

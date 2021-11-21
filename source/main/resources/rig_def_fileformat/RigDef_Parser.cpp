@@ -2800,7 +2800,7 @@ void Parser::ParseFlexBodyWheel()
         m_sequential_importer.GenerateNodesForWheel(KEYWORD_FLEXBODYWHEELS, flexbody_wheel.num_rays, flexbody_wheel.rigidity_node.IsValidAnyState());
     }
 
-    m_current_module->flex_body_wheels.push_back(flexbody_wheel);
+    m_current_module->flexbodywheels.push_back(flexbody_wheel);
 }
 
 void Parser::ParseMaterialFlareBindings()
