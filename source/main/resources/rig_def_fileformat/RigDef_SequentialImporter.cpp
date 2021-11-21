@@ -445,7 +445,7 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
         RESOLVE_VECTOR(box.nodes);
     });
 
-    FOR_EACH (KEYWORD_COMMANDS2, module->commands_2, command,
+    FOR_EACH (KEYWORD_COMMANDS2, module->commands2, command,
     {
         RESOLVE(command.nodes[0]);
         RESOLVE(command.nodes[1]);

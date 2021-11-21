@@ -1980,15 +1980,15 @@ void Serializer::ProcessHydros(File::Module* module)
 
 void Serializer::ProcessCommands2(File::Module* module)
 {
-    if (module->commands_2.empty())
+    if (module->commands2.empty())
     {
         return;
     }
 
     // Group by presets and _format_version
     std::map< BeamDefaults*, std::vector<Command2*> > commands_by_preset;
-    auto itor_end = module->commands_2.end(); 
-    for (auto itor = module->commands_2.begin(); itor != itor_end; ++itor)
+    auto itor_end = module->commands2.end(); 
+    for (auto itor = module->commands2.begin(); itor != itor_end; ++itor)
     {
         Command2 & command = *itor;
         BeamDefaults* preset = command.beam_defaults.get();

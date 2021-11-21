@@ -1535,7 +1535,7 @@ void Parser::ParseCommandsUnified()
 
     if (m_num_args <= max_args) // No more args?
     {
-        m_current_module->commands_2.push_back(command2);
+        m_current_module->commands2.push_back(command2);
         return;
     }
 
@@ -1601,7 +1601,7 @@ void Parser::ParseCommandsUnified()
     if (m_num_args > pos) { command2.needs_engine  = this->GetArgBool (pos++);}
     if (m_num_args > pos) { command2.plays_sound   = this->GetArgBool (pos++);}
 
-    m_current_module->commands_2.push_back(command2);
+    m_current_module->commands2.push_back(command2);
 }
 
 void Parser::ParseCollisionBox()

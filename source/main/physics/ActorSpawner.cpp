@@ -161,7 +161,7 @@ void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::
     req.num_shocks += module_def->shocks_3.size();
 
     // 'commands' and 'commands2' (unified)
-    req.num_beams += module_def->commands_2.size();
+    req.num_beams += module_def->commands2.size();
 
     // 'rotators'
     req.num_rotators += module_def->rotators.size();
