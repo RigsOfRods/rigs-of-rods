@@ -719,13 +719,13 @@ void Serializer::ProcessMaterialFlareBindings(File::Module* module)
 
 void Serializer::ProcessFlares2(File::Module* module)
 {
-    if (module->flares_2.empty())
+    if (module->flares2.empty())
     {
         return;
     }
     m_stream << "flares2" << endl;
-    auto end_itor = module->flares_2.end();
-    for (auto itor = module->flares_2.begin(); itor != end_itor; ++itor)
+    auto end_itor = module->flares2.end();
+    for (auto itor = module->flares2.begin(); itor != end_itor; ++itor)
     {
         RigDef::Flare2 & def = *itor;
 

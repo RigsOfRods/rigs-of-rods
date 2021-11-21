@@ -833,7 +833,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     entry.hydroscount = static_cast<int>(def->root_module->hydros.size());
     entry.driveable = vehicle_type;
     entry.commandscount = static_cast<int>(def->root_module->commands2.size());
-    entry.flarescount = static_cast<int>(def->root_module->flares_2.size());
+    entry.flarescount = static_cast<int>(def->root_module->flares2.size());
     entry.propscount = static_cast<int>(def->root_module->props.size());
     entry.wingscount = static_cast<int>(def->root_module->wings.size());
     entry.turbopropscount = static_cast<int>(def->root_module->turboprops_2.size());

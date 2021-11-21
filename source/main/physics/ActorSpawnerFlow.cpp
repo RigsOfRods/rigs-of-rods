@@ -214,7 +214,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_ANTILOCKBRAKES, antilockbrakes, ProcessAntiLockBrakes);
     
     // Sections 'flares' and 'flares2'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_FLARES2, flares_2, ProcessFlare2);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_FLARES2, flares2, ProcessFlare2);
 
     // Section 'axles'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_AXLES, axles, ProcessAxle);
