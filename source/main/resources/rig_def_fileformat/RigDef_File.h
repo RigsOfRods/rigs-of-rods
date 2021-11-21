@@ -2099,7 +2099,7 @@ struct File
         std::vector<Node::Ref>             fixes;
         std::vector<Flare2>                flares2; // 'flares' are auto-imported as 'flares2' (only 1 extra argument)
         std::vector<Flexbody>              flexbodies;
-        std::vector<FlexBodyWheel>         flex_body_wheels;
+        std::vector<FlexBodyWheel>         flexbodywheels;
         std::vector<Fusedrag>              fusedrag;
         std::vector<Globals>               globals;
         std::vector<GuiSettings>           guisettings;
