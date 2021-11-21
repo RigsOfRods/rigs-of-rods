@@ -462,9 +462,9 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
         RESOLVE(exhaust.direction_node);
     });
 
-    RESOLVE_OPTIONAL_SECTION (KEYWORD_EXTCAMERA, module->ext_camera,
+    FOR_EACH (KEYWORD_EXTCAMERA, module->extcamera, extcamera,
     {
-        RESOLVE(module->ext_camera->node);
+        RESOLVE(extcamera.node);
     });
 
     FOR_EACH (KEYWORD_FIXES, module->fixes, fixed_node,

@@ -301,7 +301,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_EXHAUSTS, exhausts, ProcessExhaust);
 
     // Section 'extcamera'
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_EXTCAMERA, ext_camera, ProcessExtCamera);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_EXTCAMERA, extcamera, ProcessExtCamera);
 
     // Section 'camerarail'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_CAMERARAIL, camera_rails, ProcessCameraRail);
