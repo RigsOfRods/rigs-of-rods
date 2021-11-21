@@ -107,7 +107,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_MANAGEDMATERIALS, managed_materials, ProcessManagedMaterial);
 
     // Section 'gobals' in any module
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_GLOBALS, globals, ProcessGlobals);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_GLOBALS, globals, ProcessGlobals);
 
     // Section 'help' in any module.
     // NOTE: Must be done before "guisettings" (overrides help panel material)
