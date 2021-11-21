@@ -799,13 +799,13 @@ void Serializer::ProcessManagedMaterialsAndOptions(File::Module* module)
 
 void Serializer::ProcessCollisionBoxes(File::Module* module)
 {
-    if (module->collision_boxes.empty())
+    if (module->collisionboxes.empty())
     {
         return;
     }
     m_stream << "collisionboxes" << endl;
-    auto end_itor = module->collision_boxes.end();
-    for (auto itor = module->collision_boxes.begin(); itor != end_itor; ++itor)
+    auto end_itor = module->collisionboxes.end();
+    for (auto itor = module->collisionboxes.begin(); itor != end_itor; ++itor)
     {
         RigDef::CollisionBox & def = *itor;
 
