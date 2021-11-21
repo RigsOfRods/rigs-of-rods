@@ -2122,8 +2122,8 @@ struct File
         std::vector<Rotator2>              rotators2;
         std::vector<Screwprop>             screwprops;
         std::vector<Shock>                 shocks;
-        std::vector<Shock2>                shocks_2;
-        std::vector<Shock3>                shocks_3;
+        std::vector<Shock2>                shocks2;
+        std::vector<Shock3>                shocks3;
         std::vector<SkeletonSettings>      set_skeleton_settings;
         std::vector<SlideNode>             slidenodes;
         std::vector<SoundSource>           soundsources;

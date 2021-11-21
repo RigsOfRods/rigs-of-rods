@@ -66,9 +66,9 @@ bool Validator::Validate()
 
     CHECK_SECTION_IN_ALL_MODULES(Animator, animators, CheckAnimator);
 
-    CHECK_SECTION_IN_ALL_MODULES(Shock2, shocks_2, CheckShock2);
+    CHECK_SECTION_IN_ALL_MODULES(Shock2, shocks2, CheckShock2);
 
-    CHECK_SECTION_IN_ALL_MODULES(Shock3, shocks_3, CheckShock3);
+    CHECK_SECTION_IN_ALL_MODULES(Shock3, shocks3, CheckShock3);
 
     CHECK_SECTION_IN_ALL_MODULES(Command2, commands2, CheckCommand);
 

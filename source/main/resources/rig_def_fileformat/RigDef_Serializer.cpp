@@ -1815,15 +1815,15 @@ void Serializer::ProcessShocks(File::Module* module)
 
 void Serializer::ProcessShocks2(File::Module* module)
 {
-    if (module->shocks_2.empty())
+    if (module->shocks2.empty())
     {
         return;
     }
 
     // Group beams by presets
     std::map< BeamDefaults*, std::vector<Shock2*> > shocks_by_preset;
-    auto itor_end = module->shocks_2.end(); 
-    for (auto itor = module->shocks_2.begin(); itor != itor_end; ++itor)
+    auto itor_end = module->shocks2.end(); 
+    for (auto itor = module->shocks2.begin(); itor != itor_end; ++itor)
     {
         Shock2 & shock = *itor;
         BeamDefaults* preset = shock.beam_defaults.get();
@@ -1870,15 +1870,15 @@ void Serializer::ProcessShocks2(File::Module* module)
 
 void Serializer::ProcessShocks3(File::Module* module)
 {
-    if (module->shocks_3.empty())
+    if (module->shocks3.empty())
     {
         return;
     }
 
     // Group beams by presets
     std::map< BeamDefaults*, std::vector<Shock3*> > shocks_by_preset;
-    auto itor_end = module->shocks_3.end(); 
-    for (auto itor = module->shocks_3.begin(); itor != itor_end; ++itor)
+    auto itor_end = module->shocks3.end(); 
+    for (auto itor = module->shocks3.begin(); itor != itor_end; ++itor)
     {
         Shock3 & shock = *itor;
         BeamDefaults* preset = shock.beam_defaults.get();

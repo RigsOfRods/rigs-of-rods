@@ -155,10 +155,10 @@ void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::
     // 'shocks', 'shocks2', 'shocks3'
     req.num_beams  += module_def->shocks.size();
     req.num_shocks += module_def->shocks.size();
-    req.num_beams  += module_def->shocks_2.size();
-    req.num_shocks += module_def->shocks_2.size();
-    req.num_beams  += module_def->shocks_3.size();
-    req.num_shocks += module_def->shocks_3.size();
+    req.num_beams  += module_def->shocks2.size();
+    req.num_shocks += module_def->shocks2.size();
+    req.num_beams  += module_def->shocks3.size();
+    req.num_shocks += module_def->shocks3.size();
 
     // 'commands' and 'commands2' (unified)
     req.num_beams += module_def->commands2.size();

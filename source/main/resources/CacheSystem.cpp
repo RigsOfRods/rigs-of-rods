@@ -828,7 +828,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     entry.hasSubmeshs = static_cast<int>(def->root_module->submeshes.size() > 0);
     entry.nodecount = static_cast<int>(def->root_module->nodes.size());
     entry.beamcount = static_cast<int>(def->root_module->beams.size());
-    entry.shockcount = static_cast<int>(def->root_module->shocks.size() + def->root_module->shocks_2.size());
+    entry.shockcount = static_cast<int>(def->root_module->shocks.size() + def->root_module->shocks2.size());
     entry.fixescount = static_cast<int>(def->root_module->fixes.size());
     entry.hydroscount = static_cast<int>(def->root_module->hydros.size());
     entry.driveable = vehicle_type;

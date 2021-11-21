@@ -191,10 +191,10 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_SHOCKS, shocks, ProcessShock);
 
     // Section 'shocks2'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_SHOCKS2, shocks_2, ProcessShock2);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_SHOCKS2, shocks2, ProcessShock2);
 
     // Section 'shocks3'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_SHOCKS3, shocks_3, ProcessShock3);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_SHOCKS3, shocks3, ProcessShock3);
 
     // Section 'commands' and 'commands2' (Use generated nodes)
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_COMMANDS2, commands2, ProcessCommand);

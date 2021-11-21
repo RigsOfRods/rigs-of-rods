@@ -592,13 +592,13 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
         RESOLVE(shock.nodes[1]);
     });
 
-    FOR_EACH (KEYWORD_SHOCKS2, module->shocks_2, shock2,
+    FOR_EACH (KEYWORD_SHOCKS2, module->shocks2, shock2,
     {
         RESOLVE(shock2.nodes[0]);
         RESOLVE(shock2.nodes[1]);
     });
 
-    FOR_EACH (KEYWORD_SHOCKS3, module->shocks_3, shock3,
+    FOR_EACH (KEYWORD_SHOCKS3, module->shocks3, shock3,
     {
         RESOLVE(shock3.nodes[0]);
         RESOLVE(shock3.nodes[1]);
