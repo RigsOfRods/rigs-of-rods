@@ -814,10 +814,10 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
         vehicle_type = AIRPLANE;
     }
 
-    if (def->root_module->globals)
+    if (def->root_module->globals.size() > 0)
     {
-        entry.truckmass = def->root_module->globals->dry_mass;
-        entry.loadmass = def->root_module->globals->cargo_mass;
+        entry.truckmass = def->root_module->globals[def->root_module->globals.size() - 1].dry_mass;
+        entry.loadmass = def->root_module->globals[def->root_module->globals.size() - 1].cargo_mass;
     }
     
     entry.forwardcommands = def->forward_commands;

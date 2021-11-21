@@ -904,18 +904,13 @@ void Parser::ParseGlobals()
 {
     if (! this->CheckNumArguments(2)) { return; }
 
-    if (m_current_module->globals != nullptr)
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Globals defined more than once.");
-    }
-
     Globals globals;
     globals.dry_mass   = this->GetArgFloat(0);
     globals.cargo_mass = this->GetArgFloat(1);
 
     if (m_num_args > 2) { globals.material_name = this->GetArgStr(2); }
 
-    m_current_module->globals = std::shared_ptr<Globals>( new Globals(globals) );
+    m_current_module->globals.push_back(globals);
 }
 
 void Parser::ParseFusedrag()

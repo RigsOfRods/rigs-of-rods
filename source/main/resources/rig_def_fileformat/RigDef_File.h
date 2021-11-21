@@ -2156,7 +2156,7 @@ struct File
         std::vector<Flexbody>              flexbodies;
         std::vector<FlexBodyWheel>         flex_body_wheels;
         std::vector<Fusedrag>              fusedrag;
-        std::shared_ptr<Globals>           globals;
+        std::vector<Globals>               globals;
         std::shared_ptr<GuiSettings>       gui_settings;
         std::vector<Hook>                  hooks;
         std::vector<Hydro>                 hydros;
