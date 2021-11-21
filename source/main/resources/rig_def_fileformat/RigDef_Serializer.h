@@ -49,7 +49,7 @@ public:
 
 protected:
 
-    void ProcessAuthors();
+    void ProcessAuthors(File::Module* module);
     void ProcessGlobals(File::Module* module);
     void ProcessDescription();
     void ProcessGuid();

@@ -3056,11 +3056,6 @@ void Parser::ParseAnimator()
 
 void Parser::ParseAuthor()
 {
-    if (m_current_module != m_root_module)
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Inline-section 'author' has global effect and should not appear in a module");
-    }
-
     if (! this->CheckNumArguments(2)) { return; }
 
     Author author;
@@ -3069,7 +3064,7 @@ void Parser::ParseAuthor()
     if (m_num_args > 3) { author.name             = this->GetArgStr(3); }
     if (m_num_args > 4) { author.email            = this->GetArgStr(4); }
 
-    m_definition->authors.push_back(author);
+    m_current_module->author.push_back(author);
     m_current_block = KEYWORD_INVALID;
 }
 

@@ -273,7 +273,7 @@ private:
     /**
     * Section 'author' in root module.
     */
-    void ProcessAuthors();
+    void ProcessAuthor(RigDef::Author & def);
 
     /**
     * Section 'axles'.

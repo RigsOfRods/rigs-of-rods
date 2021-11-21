@@ -727,8 +727,8 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* Authors */
-    std::vector<RigDef::Author>::iterator author_itor = def->authors.begin();
-    for (; author_itor != def->authors.end(); author_itor++)
+    std::vector<RigDef::Author>::iterator author_itor = def->root_module->author.begin();
+    for (; author_itor != def->root_module->author.end(); author_itor++)
     {
         AuthorInfo author;
         author.email = author_itor->email;
