@@ -16,7 +16,7 @@ add_external_lib(
 
 add_external_lib(
         OpenAL
-        openal/1.19.1
+        openal/1.21.1
         REQUIRED
         PKG_CONFIG "openal >= 1.18"
         FIND_PACKAGE_OPTIONS CONFIG
@@ -53,7 +53,7 @@ add_external_lib(
 
 add_external_lib(
         CURL
-        libcurl/7.69.1
+        libcurl/7.79.1
         PKG_CONFIG "libcurl >= 7.6"
         FIND_PACKAGE_OPTIONS CONFIG
         INTERFACE_NAME CURL::libcurl
@@ -101,7 +101,7 @@ add_external_lib(
 
 add_external_lib(
         OpenSSL
-        openssl/1.1.1g
+        openssl/1.1.1l
         PKG_CONFIG "openssl >= 1.1.1"
         FIND_PACKAGE
         INTERFACE_NAME OpenSSL::SSL
