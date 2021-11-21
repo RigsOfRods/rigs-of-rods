@@ -1183,24 +1183,28 @@ void ActorSpawner::ProcessExtCamera(RigDef::ExtCamera & def)
 
 void ActorSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 {
-    // Currently unused (was relevant to overlay-based HUD): def.tacho_material; def.speedo_material;
-
-    if (! def.help_material.empty())
+    if (def.key == "helpMaterial")
     {
-        m_help_material_name = def.help_material;
+        m_help_material_name = (def.value != "") ? def.value : m_help_material_name;
     }
-    if (def.speedo_highest_kph > 10 && def.speedo_highest_kph < 32000)
+    else if (def.key == "speedoMax")
     {
-        m_actor->ar_speedo_max_kph = def.speedo_highest_kph; /* Handles default */
+        float maxKph = PARSEREAL(def.value);
+        if (maxKph > 10 && maxKph < 32000)
+        {
+            m_actor->ar_speedo_max_kph = maxKph;
+        }
+        else
+        {
+            this->AddMessage(Message::TYPE_ERROR,
+                fmt::format("Invalid 'speedoMax' ({}), allowed range is <10 -32000>, using default ({})", maxKph, DEFAULT_SPEEDO_MAX_KPH));
+            m_actor->ar_speedo_max_kph = DEFAULT_SPEEDO_MAX_KPH;
+        }
     }
-    else
+    else if (def.key == "useMaxRPM")
     {
-        std::stringstream msg;
-        msg << "Invalid 'speedo_highest_kph' value (" << def.speedo_highest_kph << "), allowed range is <10 -32000>. Falling back to default...";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        m_actor->ar_speedo_max_kph = RigDef::GuiSettings::DEFAULT_SPEEDO_MAX;
+        m_actor->ar_gui_use_engine_max_rpm = true;
     }
-    m_actor->ar_gui_use_engine_max_rpm = def.use_max_rpm;  /* Handles default */
 
     // NOTE: Dashboard layouts are processed later
 }
@@ -6498,16 +6502,15 @@ void ActorSpawner::FinalizeGfxSetup()
     // Load dashboard layouts
     for (auto& module: m_selected_modules)
     {
-        if (module->gui_settings != nullptr)
+        for (auto& gs: module->guisettings)
         {
-            for (std::string& layout: module->gui_settings->dashboard_layouts)
+            if (gs.key == "dashboard")
             {
-                m_actor->ar_dashboard->loadDashBoard(layout, false);
+                m_actor->ar_dashboard->loadDashBoard(gs.value, false);
             }
-
-            for (std::string& layout: module->gui_settings->rtt_dashboard_layouts)
+            else if (gs.key == "texturedashboard")
             {
-                m_actor->ar_dashboard->loadDashBoard(layout, true);
+                m_actor->ar_dashboard->loadDashBoard(gs.value, true);
             }
         }
     }

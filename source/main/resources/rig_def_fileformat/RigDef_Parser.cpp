@@ -844,36 +844,12 @@ void Parser::ParseHelp()
 void Parser::ParseGuiSettings()
 {
     if (! this->CheckNumArguments(2)) { return; }
-    
-    GuiSettings* gui_settings = m_current_module->gui_settings.get();
-   
-    std::string key = this->GetArgStr(0);
-    
-    if (key == "debugBeams") {} // Obsolete, ignored
-    
-    else if (key == "tachoMaterial")  { gui_settings->tacho_material     =  this->GetArgStr(1); }
-    else if (key == "speedoMaterial") { gui_settings->speedo_material    =  this->GetArgStr(1); }
-    else if (key == "ar_speedo_max_kph")      { gui_settings->speedo_highest_kph =  this->GetArgInt(1); }
-    else if (key == "useMaxRPM")      { gui_settings->use_max_rpm        = (this->GetArgInt(1) == 1); }
-    else if (key == "helpMaterial")   { gui_settings->help_material      =  this->GetArgStr(1); }
-    
-    else if (key == "dashboard")        { gui_settings->dashboard_layouts    .push_back(this->GetArgStr(1)); }
-    else if (key == "texturedashboard") { gui_settings->rtt_dashboard_layouts.push_back(this->GetArgStr(1)); }
-    
-    else if (key == "interactiveOverviewMap")
-    {
-        std::string val = this->GetArgStr(1);
-        
-             if (val == "off"   ) { gui_settings->interactive_overview_map_mode = GuiSettings::MAP_MODE_OFF;    }
-        else if (val == "simple") { gui_settings->interactive_overview_map_mode = GuiSettings::MAP_MODE_SIMPLE; }
-        else if (val == "zoom"  ) { gui_settings->interactive_overview_map_mode = GuiSettings::MAP_MODE_ZOOM;   }
-        
-        else { this->AddMessage(Message::TYPE_ERROR, "Unknown map mode [" + val + "], ignoring..."); }
-    }
-    else
-    {
-        this->AddMessage(Message::TYPE_ERROR, "Unknown setting [" + key + "], ignoring...");
-    }
+
+    GuiSettings gs;
+    gs.key = this->GetArgStr(0);
+    gs.value = this->GetArgStr(1);
+
+    m_current_module->guisettings.push_back(gs);
 }
 
 void Parser::ParseGuid()
@@ -3250,13 +3226,6 @@ void Parser::BeginBlock(Keyword keyword)
     {
         this->BeginBlock(KEYWORD_INVALID); // flush staged rail
         m_current_camera_rail = std::shared_ptr<CameraRail>( new CameraRail() );
-    }
-    else if (keyword == KEYWORD_GUISETTINGS)
-    {
-        if (m_current_module->gui_settings == nullptr)
-        {
-            m_current_module->gui_settings = std::shared_ptr<GuiSettings> ( new GuiSettings() );
-        }
     }
     m_current_block = keyword;
 }

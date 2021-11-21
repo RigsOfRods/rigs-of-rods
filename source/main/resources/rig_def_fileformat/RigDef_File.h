@@ -382,31 +382,8 @@ struct Globals
 
 struct GuiSettings
 {
-    GuiSettings():
-        speedo_highest_kph(DEFAULT_SPEEDO_MAX),
-        use_max_rpm(false), /* This is default */
-        interactive_overview_map_mode(MAP_MODE_OFF)
-    {}
-
-    enum MapMode
-    {
-        MAP_MODE_OFF = 1,
-        MAP_MODE_SIMPLE,
-        MAP_MODE_ZOOM,
-
-        MAP_MODE_INVALID = 0xFFFFFFFF,
-    };
-
-    const static unsigned int DEFAULT_SPEEDO_MAX = 140;
-
-    std::string tacho_material;
-    std::string speedo_material;
-    unsigned int speedo_highest_kph;
-    bool use_max_rpm;
-    Ogre::String help_material;
-    MapMode interactive_overview_map_mode;
-    std::list<std::string> dashboard_layouts;
-    std::list<std::string> rtt_dashboard_layouts;
+    std::string key;
+    std::string value;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -2125,7 +2102,7 @@ struct File
         std::vector<FlexBodyWheel>         flex_body_wheels;
         std::vector<Fusedrag>              fusedrag;
         std::vector<Globals>               globals;
-        std::shared_ptr<GuiSettings>       gui_settings;
+        std::vector<GuiSettings>           guisettings;
         std::vector<Hook>                  hooks;
         std::vector<Hydro>                 hydros;
         std::vector<InterAxle>             interaxles;
