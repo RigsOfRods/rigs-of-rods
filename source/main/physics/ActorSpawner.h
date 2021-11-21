@@ -497,6 +497,8 @@ private:
     */
     void ProcessSoundSource2(RigDef::SoundSource2 & def); 
 
+    void ProcessSpeedLimiter(RigDef::SpeedLimiter& def);
+
     /**
     * Section 'submeshes'.
     */

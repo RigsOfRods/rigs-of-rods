@@ -487,7 +487,7 @@ void Parser::ParseSpeedLimiter()
 {
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
-    SpeedLimiter& sl = m_current_module->speed_limiter;
+    SpeedLimiter sl;
     if (sl.is_enabled)
     {
         this->AddMessage(Message::TYPE_WARNING, "Multiple inline-sections 'speedlimiter' in a module, using last one ...");
@@ -501,6 +501,8 @@ void Parser::ParseSpeedLimiter()
         snprintf(msg, 200, "Invalid 'max_speed' (%f), must be > 0.0. Using it anyway (compatibility)", sl.max_speed);
         this->AddMessage(Message::TYPE_WARNING, msg);
     }
+
+    m_current_module->speedlimiter.push_back(sl);
 }
 
 void Parser::ParseSlopeBrake()
