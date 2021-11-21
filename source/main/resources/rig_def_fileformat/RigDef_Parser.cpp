@@ -1100,7 +1100,7 @@ void Parser::ParseFlaresUnified()
     if (m_num_args > pos) { flare2.size              = this->GetArgFloat    (pos++); }
     if (m_num_args > pos) { flare2.material_name     = this->GetArgStr      (pos++); }
 
-    m_current_module->flares_2.push_back(flare2);
+    m_current_module->flares2.push_back(flare2);
 }
 
 void Parser::ParseFixes()

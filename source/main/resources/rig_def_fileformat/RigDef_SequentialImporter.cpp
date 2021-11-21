@@ -472,7 +472,7 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
         RESOLVE(fixed_node);
     });
 
-    FOR_EACH (KEYWORD_FLARES2, module->flares_2, flare2,
+    FOR_EACH (KEYWORD_FLARES2, module->flares2, flare2,
     {
         RESOLVE(flare2.reference_node);
         RESOLVE(flare2.node_axis_x   );

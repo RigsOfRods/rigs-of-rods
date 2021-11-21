@@ -76,7 +76,7 @@ bool Validator::Validate()
 
     CHECK_SECTION_IN_ALL_MODULES(Trigger, triggers, CheckTrigger);
 
-    CHECK_SECTION_IN_ALL_MODULES(Flare2, flares_2, CheckFlare2);
+    CHECK_SECTION_IN_ALL_MODULES(Flare2, flares2, CheckFlare2);
 
     return valid;
 }

@@ -994,7 +994,7 @@ struct MeshWheel: BaseWheel
 /* Section FLARES FLARES2                                                     */
 /* -------------------------------------------------------------------------- */
 
-/** Used for both 'flares' and 'flares_2' sections
+/** Used for both 'flares' and 'flares2' sections
 */
 struct Flare2
 {
@@ -2088,7 +2088,7 @@ struct File
         std::vector<CameraRail>            camerarail;
         std::vector<CollisionBox>          collisionboxes;
         std::vector<Cinecam>               cinecam;
-        std::vector<Command2>              commands2; // 'commands' are auto-imported as 'commands2'
+        std::vector<Command2>              commands2; // 'commands' are auto-imported as 'commands2' (only 1 extra argument)
         std::vector<CruiseControl>         cruisecontrol;
         std::vector<Node::Ref>             contacters;
         std::vector<Engine>                engine;
@@ -2096,8 +2096,8 @@ struct File
         std::vector<Engturbo>              engturbo;
         std::vector<Exhaust>               exhausts;
         std::vector<ExtCamera>             extcamera;
-        std::vector<Node::Ref>              fixes;
-        std::vector<Flare2>                flares_2;
+        std::vector<Node::Ref>             fixes;
+        std::vector<Flare2>                flares2; // 'flares' are auto-imported as 'flares2' (only 1 extra argument)
         std::vector<Flexbody>              flexbodies;
         std::vector<FlexBodyWheel>         flex_body_wheels;
         std::vector<Fusedrag>              fusedrag;
