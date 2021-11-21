@@ -129,7 +129,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_BRAKES, brakes, ProcessBrakes);
 
     // Section 'guisettings' in any module
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_GUISETTINGS, gui_settings, ProcessGuiSettings);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_GUISETTINGS, guisettings, ProcessGuiSettings);
 
     // ---------------------------- User-defined nodes ----------------------------
 

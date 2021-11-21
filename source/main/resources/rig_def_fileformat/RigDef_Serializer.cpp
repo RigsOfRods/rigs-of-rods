@@ -431,49 +431,14 @@ void Serializer::ProcessSetSkeletonSettings(File::Module* module)
 
 void Serializer::ProcessGuiSettings(File::Module* module)
 {
-    if (!module->gui_settings)
+    if (module->guisettings.empty())
     {
         return;
     }
-    RigDef::GuiSettings* def = module->gui_settings.get();
-    m_stream << "guisettings"
-        << "\n\tspeedoMax: " << def->speedo_highest_kph 
-        << "\n\tuseMaxRPM: " << def->use_max_rpm;
-
-    switch (def->interactive_overview_map_mode)
+    m_stream << "guisettings";
+    for (GuiSettings& gs: module->guisettings)
     {
-    case GuiSettings::MAP_MODE_OFF:
-        m_stream << "\n\tinteractiveOverviewMap: off";
-        break;
-    case GuiSettings::MAP_MODE_SIMPLE:
-        m_stream << "\n\tinteractiveOverviewMap: simple";
-        break;
-    case GuiSettings::MAP_MODE_ZOOM:
-        m_stream << "\n\tinteractiveOverviewMap: zoom";
-        break;
-    default:;
-    }
-    if (!def->tacho_material.empty())
-    {
-        m_stream << "\n\ttachoMaterial: " << def->tacho_material;
-    }
-    if (!def->speedo_material.empty())
-    {
-        m_stream << "\n\tspeedoMaterial: " << def->speedo_material;
-    }
-    if (!def->help_material.empty())
-    {
-        m_stream << "\n\thelpMaterial: " << def->help_material;
-    }
-    auto end = def->dashboard_layouts.end();
-    for (auto itor = def->dashboard_layouts.begin(); itor != end; ++itor)
-    {
-        m_stream << "\n\tdashboard: " << *itor;
-    }
-    end = def->rtt_dashboard_layouts.end();
-    for (auto itor = def->rtt_dashboard_layouts.begin(); itor != end; ++itor)
-    {
-        m_stream << "\n\ttexturedashboard: " << *itor;
+        m_stream << "\n\t" << gs.key << "=" << gs.value;
     }
     m_stream << endl << endl; // Empty line
 }
