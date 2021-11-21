@@ -426,7 +426,7 @@ void Serializer::ProcessVideocamera(File::Module* module)
 
 void Serializer::ProcessSetSkeletonSettings(File::Module* module)
 {
-    RigDef::SkeletonSettings& def = module->skeleton_settings;
+    RigDef::SkeletonSettings& def = module->set_skeleton_settings[module->set_skeleton_settings.size() - 1];
     m_stream << "set_skeleton_settings " << def.visibility_range_meters << ", " << def.beam_thickness_meters << "\n\n";
 }
 

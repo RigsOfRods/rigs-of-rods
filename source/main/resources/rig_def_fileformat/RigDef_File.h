@@ -2179,7 +2179,7 @@ struct File
         std::vector<Shock>                 shocks;
         std::vector<Shock2>                shocks_2;
         std::vector<Shock3>                shocks_3;
-        SkeletonSettings                   skeleton_settings;
+        std::vector<SkeletonSettings>      set_skeleton_settings;
         std::vector<SlideNode>             slidenodes;
         std::shared_ptr<SlopeBrake>        slope_brake;
         std::vector<SoundSource>           soundsources;
