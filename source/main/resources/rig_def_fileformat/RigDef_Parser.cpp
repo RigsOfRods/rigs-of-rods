@@ -2205,7 +2205,7 @@ void Parser::ParseShock3()
         }
     }
 
-    m_current_module->shocks_3.push_back(shock_3);
+    m_current_module->shocks3.push_back(shock_3);
 }
 
 void Parser::ParseShock2()
@@ -2262,7 +2262,7 @@ void Parser::ParseShock2()
         }
     }
 
-    m_current_module->shocks_2.push_back(shock_2);
+    m_current_module->shocks2.push_back(shock_2);
 }
 
 void Parser::ParseShock()
