@@ -123,7 +123,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_ENGTURBO, engturbo, ProcessEngturbo);
 
     // Section 'torquecurve' in any module.
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_TORQUECURVE, torque_curve, ProcessTorqueCurve);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_TORQUECURVE, torquecurve, ProcessTorqueCurve);
 
     // Section 'brakes' in any module
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_BRAKES, brakes, ProcessBrakes);
@@ -220,7 +220,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_AXLES, axles, ProcessAxle);
 
     // Section 'transfercase'
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_TRANSFERCASE, transfer_case, ProcessTransferCase);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_TRANSFERCASE, transfercase, ProcessTransferCase);
 
     // Section 'interaxles'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_INTERAXLES, interaxles, ProcessInterAxle);
@@ -263,7 +263,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_PROPS, props, ProcessProp);
 
     // Section 'TractionControl' in any module.
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::KEYWORD_TRACTIONCONTROL, traction_control, ProcessTractionControl);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_TRACTIONCONTROL, tractioncontrol, ProcessTractionControl);
 
     // Section 'rotators'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_ROTATORS, rotators, ProcessRotator);

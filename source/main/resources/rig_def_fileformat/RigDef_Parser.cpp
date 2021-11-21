@@ -458,12 +458,7 @@ void Parser::ParseTractionControl()
         }
     }
 
-    if (m_current_module->traction_control != nullptr)
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Multiple inline-sections 'TractionControl' in a module, using last one ...");
-    }
-
-    m_current_module->traction_control = std::shared_ptr<TractionControl>( new TractionControl(tc) );
+    m_current_module->tractioncontrol.push_back(tc);
 }
 
 void Parser::ParseTransferCase()
@@ -478,12 +473,7 @@ void Parser::ParseTransferCase()
     if (m_num_args > 3) { tc.has_2wd_lo = this->GetArgInt(3); }
     for (int i = 4; i < m_num_args; i++) { tc.gear_ratios.push_back(this->GetArgFloat(i)); }
 
-    if (m_current_module->transfer_case != nullptr)
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Multiple inline-sections 'transfercase' in a module, using last one ...");
-    }
-
-    m_current_module->transfer_case = std::shared_ptr<TransferCase>( new TransferCase(tc) );
+    m_current_module->transfercase.push_back(tc);
 }
 
 void Parser::ParseSubmeshGroundModel()
@@ -2009,23 +1999,23 @@ void Parser::ParseTriggers()
 
 void Parser::ParseTorqueCurve()
 {
-    if (m_current_module->torque_curve == nullptr)
+    if (m_current_module->torquecurve.size() == 0)
     {
-        m_current_module->torque_curve = std::shared_ptr<RigDef::TorqueCurve>(new RigDef::TorqueCurve());
+        m_current_module->torquecurve.push_back(TorqueCurve());
     }
 
     Ogre::StringVector args = Ogre::StringUtil::split(m_current_line, ",");
     
     if (args.size() == 1u)
     {
-        m_current_module->torque_curve->predefined_func_name = args[0];
+        m_current_module->torquecurve[0].predefined_func_name = args[0];
     }
     else if (args.size() == 2u)
     {
         TorqueCurve::Sample sample;
         sample.power          = this->ParseArgFloat(args[0].c_str());
         sample.torque_percent = this->ParseArgFloat(args[1].c_str());
-        m_current_module->torque_curve->samples.push_back(sample);  
+        m_current_module->torquecurve[0].samples.push_back(sample);  
     }
     else
     {

@@ -917,16 +917,18 @@ void Serializer::ProcessInterAxles(File::Module* module)
 
 void Serializer::ProcessTransferCase(File::Module* module)
 {
-    if (! module->transfer_case)
+    if (module->transfercase.size() == 0)
     {
         return;
     }
+    TransferCase& def = module->transfercase[module->transfercase.size() - 1];
+
     m_stream << "transfercase\t" 
-        << module->transfer_case->a1 << ", "
-        << module->transfer_case->a2 << ", "
-        << module->transfer_case->has_2wd << ", "
-        << module->transfer_case->has_2wd_lo;
-        for (float gear_ratio : module->transfer_case->gear_ratios)
+        << def.a1 << ", "
+        << def.a2 << ", "
+        << def.has_2wd << ", "
+        << def.has_2wd_lo;
+        for (float gear_ratio : def.gear_ratios)
         {
             m_stream << ", " << gear_ratio;
         }
@@ -935,6 +937,11 @@ void Serializer::ProcessTransferCase(File::Module* module)
 
 void Serializer::ProcessCruiseControl(File::Module* module)
 {
+    if (module->cruisecontrol.size() == 0)
+    {
+        return;
+    }
+
     RigDef::CruiseControl& cruisecontrol = module->cruisecontrol[module->cruisecontrol.size() - 1];
     
     m_stream << "cruisecontrol " 
@@ -957,15 +964,15 @@ void Serializer::ProcessSpeedLimiter(File::Module* module)
 
 void Serializer::ProcessTorqueCurve(File::Module* module)
 {
-    if (! module->torque_curve)
+    if (module->torquecurve.size() == 0)
     {
         return;
     }
     m_stream << "torquecurve" << endl;
-    if (module->torque_curve->predefined_func_name.empty())
+    if (module->torquecurve[0].predefined_func_name.empty())
     {
-        auto itor_end = module->torque_curve->samples.end();
-        auto itor = module->torque_curve->samples.begin();
+        auto itor_end = module->torquecurve[0].samples.end();
+        auto itor = module->torquecurve[0].samples.begin();
         for (; itor != itor_end; ++itor)
         {
             m_stream << "\n\t" << itor->power << ", " << itor->torque_percent;
@@ -973,7 +980,7 @@ void Serializer::ProcessTorqueCurve(File::Module* module)
     }
     else
     {
-        m_stream << "\n\t" << module->torque_curve->predefined_func_name;
+        m_stream << "\n\t" << module->torquecurve[0].predefined_func_name;
     }
     m_stream << endl << endl; // Empty line
 }
@@ -1492,18 +1499,18 @@ void Serializer::ProcessSlopeBrake(File::Module* module)
 
 void Serializer::ProcessTractionControl(File::Module* module)
 {
-    if (module->traction_control == nullptr) { return; }
+    if (module->tractioncontrol.size() == 0) { return; }
 
-    RigDef::TractionControl* tc = module->traction_control.get();
+    RigDef::TractionControl& def = module->tractioncontrol[module->tractioncontrol.size() - 1];
 
     m_stream << "TractionControl "
-        << tc->regulation_force << ", "
-        << tc->wheel_slip << ", "
-        << tc->fade_speed << ", "
-        << tc->pulse_per_sec << ", mode: " << (tc->attr_is_on ? "ON" : "OFF");
+        << def.regulation_force << ", "
+        << def.wheel_slip << ", "
+        << def.fade_speed << ", "
+        << def.pulse_per_sec << ", mode: " << (def.attr_is_on ? "ON" : "OFF");
     // Modes
-    if (tc->attr_no_dashboard) { m_stream << " & NODASH ";   }
-    if (tc->attr_no_toggle)    { m_stream << " & NOTOGGLE "; }
+    if (def.attr_no_dashboard) { m_stream << " & NODASH ";   }
+    if (def.attr_no_toggle)    { m_stream << " & NOTOGGLE "; }
 }
 
 void Serializer::ProcessBrakes(File::Module* module)
