@@ -2588,6 +2588,12 @@ void ActorSpawner::ProcessCruiseControl(RigDef::CruiseControl & def)
     m_actor->cc_can_brake = def.autobrake != 0;
 }
 
+void ActorSpawner::ProcessSpeedLimiter(RigDef::SpeedLimiter& def)
+{
+    m_actor->sl_enabled = true;
+    m_actor->sl_speed_limit = def.max_speed;
+}
+
 void ActorSpawner::ProcessTorqueCurve(RigDef::TorqueCurve & def)
 {
     if (m_actor->ar_engine == nullptr)

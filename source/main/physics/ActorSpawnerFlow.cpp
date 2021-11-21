@@ -286,13 +286,8 @@ Actor *ActorSpawner::SpawnActor()
     // Section 'cruisecontrol' in any module.
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_CRUISECONTROL, cruisecontrol, ProcessCruiseControl);
 
-    // Section 'speedlimiter' in any module.
-    this->SetCurrentKeyword(RigDef::KEYWORD_SPEEDLIMITER);
-    for (auto& m : m_selected_modules)
-    {
-        m_actor->sl_enabled = m->speed_limiter.is_enabled;
-        m_actor->sl_speed_limit = m->speed_limiter.max_speed;
-    }
+    // Section 'speedlimiter'
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_SPEEDLIMITER, speedlimiter, ProcessSpeedLimiter);
 
     // Section 'collisionboxes'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_COLLISIONBOXES, collision_boxes, ProcessCollisionBox);

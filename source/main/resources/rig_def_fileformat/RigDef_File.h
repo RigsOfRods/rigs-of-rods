@@ -2184,7 +2184,7 @@ struct File
         std::shared_ptr<SlopeBrake>        slope_brake;
         std::vector<SoundSource>           soundsources;
         std::vector<SoundSource2>          soundsources2;
-        SpeedLimiter                       speed_limiter;
+        std::vector<SpeedLimiter>          speedlimiter;
         Ogre::String                       submeshes_ground_model_name;
         std::vector<Submesh>               submeshes;
         std::vector<Tie>                   ties;
