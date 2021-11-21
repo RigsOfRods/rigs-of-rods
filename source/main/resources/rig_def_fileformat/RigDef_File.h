@@ -2188,9 +2188,9 @@ struct File
         Ogre::String                       submeshes_ground_model_name;
         std::vector<Submesh>               submeshes;
         std::vector<Tie>                   ties;
-        std::shared_ptr<TorqueCurve>       torque_curve;
-        std::shared_ptr<TractionControl>   traction_control;
-        std::shared_ptr<TransferCase>      transfer_case;
+        std::vector<TorqueCurve>           torquecurve;
+        std::vector<TractionControl>       tractioncontrol;
+        std::vector<TransferCase>          transfercase;
         std::vector<Trigger>               triggers;
         std::vector<Turbojet>              turbojets;
         std::vector<Turboprop2>            turboprops_2;
