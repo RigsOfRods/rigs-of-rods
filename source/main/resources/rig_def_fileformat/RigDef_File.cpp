@@ -335,7 +335,7 @@ const char * File::KeywordToString(Keyword keyword)
         case KEYWORD_ROPABLES:             return "ropables";
         case KEYWORD_ROPES:                return "ropes";
         case KEYWORD_ROTATORS:             return "rotators";
-        case KEYWORD_ROTATORS2:            return "rotators_2";
+        case KEYWORD_ROTATORS2:            return "rotators2";
         case KEYWORD_SCREWPROPS:           return "screwprops";
         case KEYWORD_SECTION:              return "section";
         case KEYWORD_SECTIONCONFIG:        return "sectionconfig";

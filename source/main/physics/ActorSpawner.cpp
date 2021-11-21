@@ -165,7 +165,7 @@ void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::
 
     // 'rotators'
     req.num_rotators += module_def->rotators.size();
-    req.num_rotators += module_def->rotators_2.size();
+    req.num_rotators += module_def->rotators2.size();
 
     // 'wings'
     req.num_wings += module_def->wings.size();

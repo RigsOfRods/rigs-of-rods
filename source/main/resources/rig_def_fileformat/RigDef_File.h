@@ -2115,11 +2115,11 @@ struct File
         std::vector<Particle>              particles;
         std::vector<Pistonprop>            pistonprops;
         std::vector<Prop>                  props;
-        std::vector<RailGroup>             railgroups; 
+        std::vector<RailGroup>             railgroups;
         std::vector<Ropable>               ropables;
         std::vector<Rope>                  ropes;
         std::vector<Rotator>               rotators;
-        std::vector<Rotator2>              rotators_2;
+        std::vector<Rotator2>              rotators2;
         std::vector<Screwprop>             screwprops;
         std::vector<Shock>                 shocks;
         std::vector<Shock2>                shocks_2;
