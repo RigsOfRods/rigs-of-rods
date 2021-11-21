@@ -2075,7 +2075,6 @@ struct File
         Ogre::String name;
 
         Ogre::String                       help_panel_material_name;
-        std::vector<unsigned int>          contacter_nodes;
 
         /* Sections*/
         std::vector<Airbrake>              airbrakes;
@@ -2129,7 +2128,7 @@ struct File
         std::vector<SoundSource>           soundsources;
         std::vector<SoundSource2>          soundsources2;
         std::vector<SpeedLimiter>          speedlimiter;
-        Ogre::String                       submeshes_ground_model_name;
+        std::vector<Ogre::String>          submesh_groundmodel;
         std::vector<Submesh>               submeshes;
         std::vector<Tie>                   ties;
         std::vector<TorqueCurve>           torquecurve;
