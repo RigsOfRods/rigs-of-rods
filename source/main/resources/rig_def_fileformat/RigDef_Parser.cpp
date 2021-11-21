@@ -3217,7 +3217,7 @@ void Parser::BeginBlock(Keyword keyword)
             }
             else
             {
-                m_current_module->camera_rails.push_back(*m_current_camera_rail);
+                m_current_module->camerarail.push_back(*m_current_camera_rail);
                 m_current_camera_rail.reset();
             }
         }

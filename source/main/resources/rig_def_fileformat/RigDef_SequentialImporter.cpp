@@ -423,7 +423,7 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
         RESOLVE(camera.left_node  );
     });
 
-    FOR_EACH (KEYWORD_CAMERARAIL, module->camera_rails, rail,
+    FOR_EACH (KEYWORD_CAMERARAIL, module->camerarail, rail,
     {
         RESOLVE_VECTOR(rail.nodes);
     });
