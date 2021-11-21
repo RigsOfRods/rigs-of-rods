@@ -440,7 +440,7 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
         RESOLVE(cinecam.nodes[7]);
     });
 
-    FOR_EACH (KEYWORD_COLLISIONBOXES, module->collision_boxes, box,
+    FOR_EACH (KEYWORD_COLLISIONBOXES, module->collisionboxes, box,
     {
         RESOLVE_VECTOR(box.nodes);
     });

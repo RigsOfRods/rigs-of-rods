@@ -290,7 +290,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_SPEEDLIMITER, speedlimiter, ProcessSpeedLimiter);
 
     // Section 'collisionboxes'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_COLLISIONBOXES, collision_boxes, ProcessCollisionBox);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_COLLISIONBOXES, collisionboxes, ProcessCollisionBox);
 
     // Section 'exhausts'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_EXHAUSTS, exhausts, ProcessExhaust);

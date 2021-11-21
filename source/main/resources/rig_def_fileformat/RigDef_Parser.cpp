@@ -1615,7 +1615,7 @@ void Parser::ParseCollisionBox()
         collisionbox.nodes.push_back( this->_ParseNodeRef(*iter) );
     }
 
-    m_current_module->collision_boxes.push_back(collisionbox);
+    m_current_module->collisionboxes.push_back(collisionbox);
 }
 
 void Parser::ParseCinecam()
