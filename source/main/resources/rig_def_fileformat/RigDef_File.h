@@ -2085,7 +2085,7 @@ struct File
         std::vector<Beam>                  beams;
         std::vector<Brakes>                brakes;
         std::vector<Camera>                cameras;
-        std::vector<CameraRail>            camera_rails;
+        std::vector<CameraRail>            camerarail;
         std::vector<CollisionBox>          collision_boxes;
         std::vector<Cinecam>               cinecam;
         std::vector<Command2>              commands_2; /* sections 'commands' & 'commands2' are unified */

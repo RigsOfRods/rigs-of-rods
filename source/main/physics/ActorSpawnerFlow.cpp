@@ -299,7 +299,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_EXTCAMERA, extcamera, ProcessExtCamera);
 
     // Section 'camerarail'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_CAMERARAIL, camera_rails, ProcessCameraRail);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_CAMERARAIL, camerarail, ProcessCameraRail);
 
     // Section 'pistonprops'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_PISTONPROPS, pistonprops, ProcessPistonprop);
