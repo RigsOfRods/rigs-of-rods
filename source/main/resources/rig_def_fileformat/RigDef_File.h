@@ -2150,7 +2150,7 @@ struct File
         std::vector<Engoption>             engoption;
         std::vector<Engturbo>              engturbo;
         std::vector<Exhaust>               exhausts;
-        std::shared_ptr<ExtCamera>         ext_camera;
+        std::vector<ExtCamera>             extcamera;
         std::vector<Node::Ref>              fixes;
         std::vector<Flare2>                flares_2;
         std::vector<Flexbody>              flexbodies;

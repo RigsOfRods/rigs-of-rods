@@ -1153,11 +1153,11 @@ void Parser::ParseExtCamera()
 {
     if (! this->CheckNumArguments(2)) { return; }
     
-    if (m_current_module->ext_camera == nullptr)
+    if (m_current_module->extcamera.size() == 0)
     {
-        m_current_module->ext_camera = std::shared_ptr<RigDef::ExtCamera>( new RigDef::ExtCamera() );
+        m_current_module->extcamera.push_back(RigDef::ExtCamera());
     }
-    ExtCamera* extcam = m_current_module->ext_camera.get();
+    ExtCamera* extcam = &m_current_module->extcamera[0];
     
     auto mode_str = this->GetArgStr(1);
     if (mode_str == "classic")

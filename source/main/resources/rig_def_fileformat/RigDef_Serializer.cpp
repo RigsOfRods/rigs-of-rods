@@ -362,11 +362,11 @@ void Serializer::ProcessSoundsources2(File::Module* module)
 
 void Serializer::ProcessExtCamera(File::Module* module)
 {
-    if (!module->ext_camera)
+    if (module->extcamera.size() == 0)
     {
         return;
     }
-    RigDef::ExtCamera* def = module->ext_camera.get();
+    RigDef::ExtCamera* def = &module->extcamera[0];
     m_stream << "extcamera ";
 
     switch (def->mode)
