@@ -197,7 +197,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_SHOCKS3, shocks_3, ProcessShock3);
 
     // Section 'commands' and 'commands2' (Use generated nodes)
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_COMMANDS2, commands_2, ProcessCommand);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_COMMANDS2, commands2, ProcessCommand);
 
     // Section 'hydros'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_HYDROS, hydros, ProcessHydro);

@@ -2088,7 +2088,7 @@ struct File
         std::vector<CameraRail>            camerarail;
         std::vector<CollisionBox>          collisionboxes;
         std::vector<Cinecam>               cinecam;
-        std::vector<Command2>              commands_2; /* sections 'commands' & 'commands2' are unified */
+        std::vector<Command2>              commands2; // 'commands' are auto-imported as 'commands2'
         std::vector<CruiseControl>         cruisecontrol;
         std::vector<Node::Ref>             contacters;
         std::vector<Engine>                engine;
