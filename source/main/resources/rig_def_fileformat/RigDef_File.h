@@ -2080,6 +2080,7 @@ struct File
         std::vector<Airbrake>              airbrakes;
         std::vector<Animator>              animators;
         std::vector<AntiLockBrakes>        antilockbrakes;
+        std::vector<Author>                author;
         std::vector<Axle>                  axles;
         std::vector<Beam>                  beams;
         std::vector<Brakes>                brakes;
@@ -2171,7 +2172,6 @@ struct File
     std::map< Ogre::String, std::shared_ptr<Module> > user_modules;
 
     // File sections
-    std::vector<Author> authors;
     std::shared_ptr<Fileinfo> file_info;
     std::shared_ptr<MinimassPreset> global_minimass;
     bool minimass_skip_loaded_nodes; //!< Only apply minimum mass to nodes without "L" option. Global effect.

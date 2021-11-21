@@ -5150,25 +5150,17 @@ void ActorSpawner::ProcessHelp()
     SetCurrentKeyword(RigDef::KEYWORD_INVALID);
 };
 
-void ActorSpawner::ProcessAuthors()
+void ActorSpawner::ProcessAuthor(RigDef::Author & def)
 {
-    SetCurrentKeyword(RigDef::KEYWORD_FILEFORMATVERSION);
-
-    std::vector<RigDef::Author>::iterator author_itor = m_file->authors.begin();
-    for (; author_itor != m_file->authors.end(); author_itor++)
+    authorinfo_t author;
+    author.type = def.type;
+    author.name = def.name;
+    author.email = def.email;
+    if (def._has_forum_account)
     {
-        authorinfo_t author;
-        author.type = author_itor->type;
-        author.name = author_itor->name;
-        author.email = author_itor->email;
-        if (author_itor->_has_forum_account)
-        {
-            author.id = author_itor->forum_account_id;
-        }
-        m_actor->authors.push_back(author);
-    }	
-
-    SetCurrentKeyword(RigDef::KEYWORD_INVALID);
+        author.id = def.forum_account_id;
+    }
+    m_actor->authors.push_back(author);
 };
 
 NodeNum_t ActorSpawner::GetNodeIndexOrThrow(RigDef::Node::Ref const & node_ref)

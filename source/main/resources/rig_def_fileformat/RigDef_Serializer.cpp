@@ -73,7 +73,7 @@ void Serializer::Serialize()
 
     // Write individual elements
     ProcessDescription();
-    ProcessAuthors();
+    ProcessAuthors(source_module);
     ProcessGlobals(source_module);
     ProcessFileinfo();
     WriteFlags();
@@ -2559,9 +2559,9 @@ void Serializer::ProcessDescription()
     }
 }
 
-void Serializer::ProcessAuthors()
+void Serializer::ProcessAuthors(File::Module* module)
 {
-    for (auto itor = m_rig_def->authors.begin(); itor != m_rig_def->authors.end(); ++itor)
+    for (auto itor = module->author.begin(); itor != module->author.end(); ++itor)
     {
         Author & def = *itor;
         m_stream << "author " << def.type << " ";

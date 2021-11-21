@@ -90,8 +90,8 @@ Actor *ActorSpawner::SpawnActor()
     m_actor->ar_hide_in_actor_list       = m_file->hide_in_chooser;
     m_actor->ar_collision_range          = m_file->collision_range;
 
-    // Section 'authors' in root module
-    ProcessAuthors();
+    // Section 'authors'
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_AUTHOR, author, ProcessAuthor);
 
     // Section 'guid' in root module: unused for gameplay
     if (m_file->guid.empty())
