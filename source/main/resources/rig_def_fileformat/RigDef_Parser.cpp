@@ -520,8 +520,13 @@ void Parser::ParseSlopeBrake()
 void Parser::ParseSetSkeletonSettings()
 {
     if (! this->CheckNumArguments(2)) { return; }
+
+    if (m_current_module->set_skeleton_settings.size() == 0)
+    {
+        m_current_module->set_skeleton_settings.push_back(SkeletonSettings());
+    }
     
-    SkeletonSettings& skel = m_current_module->skeleton_settings;    
+    SkeletonSettings& skel = m_current_module->set_skeleton_settings[0];    
     skel.visibility_range_meters = this->GetArgFloat(1);
     if (m_num_args > 2) { skel.beam_thickness_meters = this->GetArgFloat(2); }
     
