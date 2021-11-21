@@ -483,14 +483,9 @@ private:
     void ProcessSlidenode(RigDef::SlideNode & def);
 
     /**
-    * Section 'SlopeBrake' in any module.
-    */
-    void ProcessSlopeBrake(RigDef::SlopeBrake & def);
-
-    /**
     * Section 'soundsources'.
     */
-    void ProcessSoundSource(RigDef::SoundSource & def); 
+    void ProcessSoundSource(RigDef::SoundSource & def);
 
     /**
     * Section 'soundsources2'.

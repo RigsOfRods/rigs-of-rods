@@ -103,7 +103,6 @@ void Serializer::Serialize()
     ProcessBrakes(source_module);
     ProcessAntiLockBrakes(source_module);
     ProcessTractionControl(source_module);
-    ProcessSlopeBrake(source_module);
     ProcessTorqueCurve(source_module);
     ProcessCruiseControl(source_module);
     ProcessSpeedLimiter(source_module);
@@ -1483,18 +1482,6 @@ void Serializer::ProcessFlexBodyWheels(File::Module* module)
     }
 
     m_stream << endl; // Empty line
-}
-
-void Serializer::ProcessSlopeBrake(File::Module* module)
-{
-    if (module->slope_brake)
-    {
-        m_stream << "SlopeBrake "
-            << module->slope_brake->regulating_force << ", "
-            << module->slope_brake->attach_angle << ", "
-            << module->slope_brake->release_angle 
-            << endl << endl;
-    }
 }
 
 void Serializer::ProcessTractionControl(File::Module* module)

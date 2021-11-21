@@ -861,38 +861,6 @@ struct TractionControl
 };
 
 /* -------------------------------------------------------------------------- */
-/* Inline-section SLOPE_BRAKE                                                 */
-/* -------------------------------------------------------------------------- */
-
-struct SlopeBrake
-{
-    SlopeBrake():
-        regulating_force(6.f),
-        attach_angle(5.f),
-        release_angle(10.f)
-    {}
-
-    static float GetDefaultRegulatingForce()
-    {
-        return 6.f;
-    }
-
-    static float GetDefaultAttachAngle()
-    {
-        return 5.f;
-    }
-
-    static float GetDefaultReleaseAngle()
-    {
-        return 10.f;
-    }
-
-    float regulating_force;
-    float attach_angle;
-    float release_angle;
-};
-
-/* -------------------------------------------------------------------------- */
 /* Section WHEELDETACHERS                                                     */
 /* -------------------------------------------------------------------------- */
 
@@ -2181,7 +2149,6 @@ struct File
         std::vector<Shock3>                shocks_3;
         std::vector<SkeletonSettings>      set_skeleton_settings;
         std::vector<SlideNode>             slidenodes;
-        std::shared_ptr<SlopeBrake>        slope_brake;
         std::vector<SoundSource>           soundsources;
         std::vector<SoundSource2>          soundsources2;
         std::vector<SpeedLimiter>          speedlimiter;

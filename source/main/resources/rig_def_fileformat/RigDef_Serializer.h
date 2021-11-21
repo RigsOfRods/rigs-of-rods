@@ -95,7 +95,6 @@ protected:
     void ProcessBrakes(File::Module* module);
     void ProcessAntiLockBrakes(File::Module* module);
     void ProcessTractionControl(File::Module* module);
-    void ProcessSlopeBrake(File::Module* module);
     void ProcessTorqueCurve(File::Module* module);
     void ProcessCruiseControl(File::Module* module);
     void ProcessSpeedLimiter(File::Module* module);

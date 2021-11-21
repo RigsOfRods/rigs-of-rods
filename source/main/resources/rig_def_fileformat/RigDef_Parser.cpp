@@ -505,20 +505,6 @@ void Parser::ParseSpeedLimiter()
     m_current_module->speedlimiter.push_back(sl);
 }
 
-void Parser::ParseSlopeBrake()
-{
-    if (m_current_module->slope_brake != nullptr)
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Multiple definitions 'SlopeBrake' in a module, using last one ...");
-    }
-    m_current_module->slope_brake = std::shared_ptr<SlopeBrake>( new SlopeBrake() );
-    
-    SlopeBrake* sb = m_current_module->slope_brake.get();
-    if (m_num_args > 1) { sb->regulating_force = this->GetArgFloat(1); }
-    if (m_num_args > 2) { sb->attach_angle     = this->GetArgFloat(2); }
-    if (m_num_args > 3) { sb->release_angle    = this->GetArgFloat(3); }
-}
-
 void Parser::ParseSetSkeletonSettings()
 {
     if (! this->CheckNumArguments(2)) { return; }
