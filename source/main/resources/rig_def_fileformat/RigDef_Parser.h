@@ -177,7 +177,6 @@ private:
     void ParseShock2();
     void ParseShock3();
     void ParseSlidenodes();
-    void ParseSlopeBrake();
     void ParseSoundsources();
     void ParseSoundsources2();
     void ParseSpeedLimiter();
