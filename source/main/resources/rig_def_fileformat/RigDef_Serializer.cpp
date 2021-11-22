@@ -75,7 +75,7 @@ void Serializer::Serialize()
     ProcessDescription();
     ProcessAuthors(source_module);
     ProcessGlobals(source_module);
-    ProcessFileinfo();
+    ProcessFileinfo(source_module);
     WriteFlags();
     ProcessManagedMaterialsAndOptions(source_module);
 
@@ -2524,14 +2524,16 @@ void Serializer::WriteFlags()
     }
 }
 
-void Serializer::ProcessFileinfo()
+void Serializer::ProcessFileinfo(File::Module* module)
 {
-    if (m_rig_def->file_info.get() != nullptr)
+    if (module->fileinfo.size() > 0)
     {
+        Fileinfo& data = module->fileinfo[module->fileinfo.size() - 1];
+
         m_stream << "fileinfo ";
-        m_stream << m_rig_def->file_info->unique_id;
-        m_stream << ", " << m_rig_def->file_info->category_id;
-        m_stream << ", " << m_rig_def->file_info->file_version;
+        m_stream << data.unique_id;
+        m_stream << ", " << data.category_id;
+        m_stream << ", " << data.file_version;
 
         m_stream << endl << endl;
     }

@@ -2454,11 +2454,6 @@ void Parser::ParseFileinfo()
 {
     if (! this->CheckNumArguments(2)) { return; }
 
-    if (m_current_module != m_root_module)
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Inline-section 'fileinfo' has global effect and should not appear in a module");
-    }
-
     Fileinfo fileinfo;
 
     fileinfo.unique_id = this->GetArgStr(1);
@@ -2467,7 +2462,7 @@ void Parser::ParseFileinfo()
     if (m_num_args > 2) { fileinfo.category_id  = this->GetArgInt(2); }
     if (m_num_args > 3) { fileinfo.file_version = this->GetArgInt(3); }
 
-    m_definition->file_info = std::shared_ptr<Fileinfo>( new Fileinfo(fileinfo) );
+    m_current_module->fileinfo.push_back(fileinfo);
 
     m_current_block = KEYWORD_INVALID;
 }
