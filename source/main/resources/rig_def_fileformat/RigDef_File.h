@@ -2097,6 +2097,7 @@ struct File
         std::vector<Exhaust>               exhausts;
         std::vector<ExtCamera>             extcamera;
         std::vector<Node::Ref>             fixes;
+        std::vector<Fileinfo>              fileinfo;
         std::vector<Flare2>                flares2; // 'flares' are auto-imported as 'flares2' (only 1 extra argument)
         std::vector<Flexbody>              flexbodies;
         std::vector<FlexBodyWheel>         flexbodywheels;
@@ -2172,7 +2173,6 @@ struct File
     std::map< Ogre::String, std::shared_ptr<Module> > user_modules;
 
     // File sections
-    std::shared_ptr<Fileinfo> file_info;
     std::shared_ptr<MinimassPreset> global_minimass;
     bool minimass_skip_loaded_nodes; //!< Only apply minimum mass to nodes without "L" option. Global effect.
 };

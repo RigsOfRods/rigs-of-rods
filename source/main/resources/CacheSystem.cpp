@@ -764,11 +764,13 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* File info */
-    if (def->file_info != nullptr)
+    if (def->root_module->fileinfo.size() > 0)
     {
-        entry.uniqueid = def->file_info->unique_id;
-        entry.categoryid = static_cast<int>(def->file_info->category_id);
-        entry.version = static_cast<int>(def->file_info->file_version);
+        RigDef::Fileinfo& data = def->root_module->fileinfo[def->root_module->fileinfo.size() - 1];
+
+        entry.uniqueid = data.unique_id;
+        entry.categoryid = static_cast<int>(data.category_id);
+        entry.version = static_cast<int>(data.file_version);
     }
     else
     {

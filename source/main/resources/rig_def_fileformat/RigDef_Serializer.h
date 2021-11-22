@@ -53,7 +53,7 @@ protected:
     void ProcessGlobals(File::Module* module);
     void ProcessDescription();
     void ProcessGuid();
-    void ProcessFileinfo();
+    void ProcessFileinfo(File::Module* module);
     void WriteFlags();
     void ProcessHelp(File::Module* module);
 
