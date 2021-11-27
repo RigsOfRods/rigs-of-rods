@@ -2402,6 +2402,14 @@ void ActorSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
     m_actor->ar_predicted_coll_bounding_boxes.push_back(Ogre::AxisAlignedBox());
 }
 
+void ActorSpawner::ProcessCollisionRange(RigDef::CollisionRange & def)
+{
+    if (def.node_collision_range >= 0.f)
+        m_actor->ar_collision_range = def.node_collision_range;
+    else
+        m_actor->ar_collision_range = DEFAULT_COLLISION_RANGE;
+}
+
 bool ActorSpawner::AssignWheelToAxle(int & _out_axle_wheel, node_t *axis_node_1, node_t *axis_node_2)
 {
     for (int i = 0; i < m_actor->ar_num_wheels; i++)

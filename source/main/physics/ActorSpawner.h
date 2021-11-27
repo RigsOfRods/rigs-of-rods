@@ -310,6 +310,8 @@ private:
     */
     void ProcessCollisionBox(RigDef::CollisionBox & def);
 
+    void ProcessCollisionRange(RigDef::CollisionRange & def);
+
     /**
     * Processes sections 'commands' and 'commands2' (unified).
     */

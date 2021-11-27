@@ -328,11 +328,10 @@ void Parser::ParseSetCollisionRange()
 {
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
-    float value = this->GetArgFloat(1);
-    if (value >= 0)
-    {
-        m_definition->collision_range = value;
-    }
+    CollisionRange cr;
+    cr.node_collision_range = this->GetArgFloat(1);
+
+    m_current_module->set_collision_range.push_back(cr);
 }
 
 void Parser::ParseWheel2()
