@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-08-23 16:29+0200\n"
-"PO-Revision-Date: 2021-11-27 23:51+0000\n"
+"PO-Revision-Date: 2021-11-28 21:50+0000\n"
 "Last-Translator: Mxt Apps <mxtapps@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/es/>\n"
@@ -960,7 +960,7 @@ msgstr "Presencia de Discord"
 #: gui/panels/GUI_GameSettings.cpp:271
 msgctxt "GameSettings"
 msgid "Show confirm. UI dialog for quickload"
-msgstr ""
+msgstr "Mostrar confirmación. Diálogo UI para la carga rápida"
 
 #: gui/panels/GUI_GameSettings.cpp:277
 msgctxt "GameSettings"
@@ -1543,7 +1543,7 @@ msgstr "Cancelar"
 #: gui/panels/GUI_MessageBox.cpp:109
 msgctxt "MessageBox"
 msgid "Always ask"
-msgstr ""
+msgstr "Preguntar siempre"
 
 #. TextDisabled() are captions, Text() are values
 #: gui/panels/GUI_MultiplayerClientList.cpp:136
@@ -2066,28 +2066,19 @@ msgid "Remove current vehicle"
 msgstr "Retirar vehículo actual"
 
 #: gui/panels/GUI_TopMenubar.cpp:209
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Activate all vehicles"
 msgctxt "TopMenubar"
 msgid "Activate last spawned vehicle"
-msgstr "Activar todos los vehículos"
+msgstr "Activar los últimos vehículos aparecidos"
 
 #: gui/panels/GUI_TopMenubar.cpp:217
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reload current vehicle"
 msgctxt "TopMenubar"
 msgid "Reload last spawned vehicle"
-msgstr "Recargar vehículo actual"
+msgstr "Recargar último vehículo aparecido"
 
 #: gui/panels/GUI_TopMenubar.cpp:225
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Remove all vehicles"
 msgctxt "TopMenubar"
 msgid "Remove last spawned vehicle"
-msgstr "Eliminar todos los vehículos"
+msgstr "Eliminar últimos vehículos aparecidos"
 
 #: gui/panels/GUI_TopMenubar.cpp:234
 msgctxt "TopMenubar"
@@ -2115,12 +2106,9 @@ msgid "Send all vehicles to sleep"
 msgstr "Enviar todos los vehículos a dormir"
 
 #: gui/panels/GUI_TopMenubar.cpp:275
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reload current vehicle"
 msgctxt "TopMenubar"
 msgid "Reload current terrain"
-msgstr "Recargar vehículo actual"
+msgstr "Recargar terreno actual"
 
 #: gui/panels/GUI_TopMenubar.cpp:288
 msgctxt "TopMenubar"
@@ -2240,12 +2228,9 @@ msgid "Time of day:"
 msgstr "Hora del día:"
 
 #: gui/panels/GUI_TopMenubar.cpp:488
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Height"
 msgctxt "TopMenubar"
 msgid "Waves Height:"
-msgstr "Altura"
+msgstr "Altura de las olas"
 
 #: gui/panels/GUI_TopMenubar.cpp:500
 msgctxt "TopMenubar"
@@ -2794,17 +2779,14 @@ msgid "Locked"
 msgstr "Bloqueado"
 
 #: physics/Savegame.cpp:204
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "Loader"
 msgctxt "QuickloadDialog"
 msgid "Load game?"
-msgstr "Cargador"
+msgstr "Cargador del juego?"
 
 #: physics/Savegame.cpp:205
 msgctxt "QuickloadDialog"
 msgid "You will lose all unsaved progress!"
-msgstr ""
+msgstr "Perderás todo el progreso sin guardar!"
 
 #: physics/Savegame.cpp:209
 #, fuzzy
