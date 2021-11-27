@@ -88,7 +88,9 @@ Actor *ActorSpawner::SpawnActor()
     m_actor->ar_rescuer_flag             = m_file->rescuer;
     m_actor->m_disable_default_sounds    = m_file->disable_default_sounds;
     m_actor->ar_hide_in_actor_list       = m_file->hide_in_chooser;
-    m_actor->ar_collision_range          = m_file->collision_range;
+
+    // 'set_collision_range'
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_SET_COLLISION_RANGE, set_collision_range, ProcessCollisionRange);
 
     // Section 'authors'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_AUTHOR, author, ProcessAuthor);

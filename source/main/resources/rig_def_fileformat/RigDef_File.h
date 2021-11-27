@@ -296,6 +296,15 @@ struct BeamDefaults
 };
 
 /* -------------------------------------------------------------------------- */
+/* Directive SET_COLLLISION_RANGE                                             */
+/* -------------------------------------------------------------------------- */
+
+struct CollisionRange
+{
+    float node_collision_range = -1;
+};
+
+/* -------------------------------------------------------------------------- */
 /* Hybrid section MINIMASS                                                    */
 /* -------------------------------------------------------------------------- */
 
@@ -2125,6 +2134,7 @@ struct File
         std::vector<Shock>                 shocks;
         std::vector<Shock2>                shocks2;
         std::vector<Shock3>                shocks3;
+        std::vector<CollisionRange>        set_collision_range;
         std::vector<SkeletonSettings>      set_skeleton_settings;
         std::vector<SlideNode>             slidenodes;
         std::vector<SoundSource>           soundsources;
@@ -2163,7 +2173,6 @@ struct File
     bool rescuer;
     bool disable_default_sounds;
     Ogre::String name;
-    float collision_range;
 
     // File hash
     std::string hash;

@@ -393,7 +393,6 @@ File::File():
     rescuer(false),
     disable_default_sounds(false),
     slide_nodes_connect_instantly(false),
-    collision_range(DEFAULT_COLLISION_RANGE),
     minimass_skip_loaded_nodes(false)
 {
     root_module = std::make_shared<File::Module>(ROOT_MODULE_NAME); // Required to exist.
