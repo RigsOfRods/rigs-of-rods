@@ -854,13 +854,11 @@ void Parser::ParseGuiSettings()
 void Parser::ParseGuid()
 {
     if (! this->CheckNumArguments(2)) { return; }
-    
-    if (! m_definition->guid.empty())
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Guid defined multiple times.");
-    }
 
-    m_definition->guid = this->GetArgStr(1);
+    Guid g;
+    g.guid = this->GetArgStr(1);
+
+    m_current_module->guid.push_back(g);
 }
 
 void Parser::ParseGlobals()

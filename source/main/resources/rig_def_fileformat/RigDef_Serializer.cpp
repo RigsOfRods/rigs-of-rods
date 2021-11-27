@@ -72,10 +72,13 @@ void Serializer::Serialize()
     File::Module* source_module = m_rig_def->root_module.get();
 
     // Write individual elements
+
+    // About
     ProcessDescription();
     ProcessAuthors(source_module);
     ProcessGlobals(source_module);
     ProcessFileinfo(source_module);
+    ProcessGuid(source_module);
     WriteFlags();
     ProcessManagedMaterialsAndOptions(source_module);
 
@@ -2539,11 +2542,11 @@ void Serializer::ProcessFileinfo(File::Module* module)
     }
 }
 
-void Serializer::ProcessGuid()
+void Serializer::ProcessGuid(File::Module* module)
 {
-    if (! m_rig_def->guid.empty())
+    if (! module->guid.empty())
     {
-        m_stream << "guid " << m_rig_def->guid << endl << endl;
+        m_stream << "guid " << module->guid[module->guid.size() - 1].guid << endl << endl;
     }
 }
 
