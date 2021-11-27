@@ -7,13 +7,14 @@
 # Lepe City <lepecity@gmail.com>, 2017
 # Joaquín Lafuente <lafuente_45@hotmail.com>, 2021.
 # Joaquin Gomez <joa97@hotmail.com.ar>, 2021.
+# Mxt Apps <mxtapps@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-08-23 16:29+0200\n"
-"PO-Revision-Date: 2021-03-31 11:27+0000\n"
-"Last-Translator: Joaquin Gomez <joa97@hotmail.com.ar>\n"
+"PO-Revision-Date: 2021-11-27 23:51+0000\n"
+"Last-Translator: Mxt Apps <mxtapps@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/es/>\n"
 "Language: es\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.6-dev\n"
+"X-Generator: Weblate 4.10-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -35,10 +36,8 @@ msgstr ""
 "cfg"
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgid "Screenshot:"
 msgid "Screenshot: "
-msgstr "Captura de pantalla:"
+msgstr "Captura de pantalla: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
@@ -787,19 +786,14 @@ msgstr "Versión de caja"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:251
-#, fuzzy
-#| msgid "Cache cleared"
 msgctxt "MainMenu"
 msgid "Cache updated"
-msgstr "cache limpiada"
+msgstr "cache actualizada"
 
 #: gui/panels/GUI_GameMainMenu.cpp:264
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Notices"
 msgctxt "MainMenu"
 msgid "Notice box"
-msgstr "Avisos"
+msgstr "Caja de notificaciones"
 
 #: gui/panels/GUI_GameSettings.cpp:41
 msgctxt "GameSettings"
