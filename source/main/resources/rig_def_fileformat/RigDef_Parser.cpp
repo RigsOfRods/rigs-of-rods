@@ -1151,18 +1151,10 @@ void Parser::ParseFileFormatVersion()
 {
     if (! this->CheckNumArguments(2)) { return; }
 
-    if (m_current_module != m_root_module)
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Inline section 'fileformatversion' has global effect and should not appear in a module");
-    }
+    FileFormatVersion ffv;
+    ffv.version = this->GetArgInt(1);
 
-    m_definition->file_format_version = this->GetArgUint(1);
-
-    if (m_definition->file_format_version >= 450)
-    {
-        m_sequential_importer.Disable();
-    }
-
+    m_current_module->fileformatversion.push_back(ffv);
     m_current_block = KEYWORD_INVALID;
 }
 
