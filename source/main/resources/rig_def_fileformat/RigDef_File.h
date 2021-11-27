@@ -799,6 +799,15 @@ struct ExtCamera
 };
 
 /* -------------------------------------------------------------------------- */
+/* Section FILEFORMATVERSION                                                  */
+/* -------------------------------------------------------------------------- */
+
+struct FileFormatVersion
+{
+    int version = -1;
+};
+
+/* -------------------------------------------------------------------------- */
 /* Section BRAKES                                                             */
 /* -------------------------------------------------------------------------- */
 
@@ -2105,6 +2114,7 @@ struct File
         std::vector<Engturbo>              engturbo;
         std::vector<Exhaust>               exhausts;
         std::vector<ExtCamera>             extcamera;
+        std::vector<FileFormatVersion>     fileformatversion;
         std::vector<Node::Ref>             fixes;
         std::vector<Fileinfo>              fileinfo;
         std::vector<Flare2>                flares2; // 'flares' are auto-imported as 'flares2' (only 1 extra argument)
@@ -2160,7 +2170,6 @@ struct File
 
     static const char * KeywordToString(Keyword keyword);
 
-    unsigned int file_format_version;
     Ogre::String guid;
     std::vector<Ogre::String> description;
     bool hide_in_chooser;

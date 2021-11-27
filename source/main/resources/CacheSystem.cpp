@@ -826,7 +826,11 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     entry.importcommands = def->import_commands;
     entry.rescuer = def->rescuer;
     entry.guid = def->guid;
-    entry.fileformatversion = def->file_format_version;
+    entry.fileformatversion = 0;
+    if (def->root_module->fileformatversion.size() > 0)
+    {
+        entry.fileformatversion = def->root_module->fileformatversion[def->root_module->fileformatversion.size() - 1].version;
+    }
     entry.hasSubmeshs = static_cast<int>(def->root_module->submeshes.size() > 0);
     entry.nodecount = static_cast<int>(def->root_module->nodes.size());
     entry.beamcount = static_cast<int>(def->root_module->beams.size());
