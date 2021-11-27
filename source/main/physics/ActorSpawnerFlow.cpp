@@ -96,7 +96,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_AUTHOR, author, ProcessAuthor);
 
     // Section 'guid' in root module: unused for gameplay
-    if (m_file->guid.empty())
+    if (m_file->root_module->guid.empty())
     {
         this->AddMessage(Message::TYPE_WARNING, "vehicle uses no GUID, skinning will be impossible");
     }

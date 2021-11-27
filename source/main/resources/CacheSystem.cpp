@@ -825,7 +825,10 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     entry.forwardcommands = def->forward_commands;
     entry.importcommands = def->import_commands;
     entry.rescuer = def->rescuer;
-    entry.guid = def->guid;
+    if (def->root_module->guid.size() > 0)
+    {
+        entry.guid = def->root_module->guid[def->root_module->guid.size() - 1].guid;
+    }
     entry.fileformatversion = 0;
     if (def->root_module->fileformatversion.size() > 0)
     {

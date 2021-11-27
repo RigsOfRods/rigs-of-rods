@@ -808,6 +808,15 @@ struct FileFormatVersion
 };
 
 /* -------------------------------------------------------------------------- */
+/* Section GUID                                                               */
+/* -------------------------------------------------------------------------- */
+
+struct Guid
+{
+    std::string guid;
+};
+
+/* -------------------------------------------------------------------------- */
 /* Section BRAKES                                                             */
 /* -------------------------------------------------------------------------- */
 
@@ -2122,6 +2131,7 @@ struct File
         std::vector<FlexBodyWheel>         flexbodywheels;
         std::vector<Fusedrag>              fusedrag;
         std::vector<Globals>               globals;
+        std::vector<Guid>                  guid;
         std::vector<GuiSettings>           guisettings;
         std::vector<Hook>                  hooks;
         std::vector<Hydro>                 hydros;
@@ -2170,7 +2180,6 @@ struct File
 
     static const char * KeywordToString(Keyword keyword);
 
-    Ogre::String guid;
     std::vector<Ogre::String> description;
     bool hide_in_chooser;
     bool enable_advanced_deformation;
