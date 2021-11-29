@@ -93,123 +93,127 @@ void Parser::ProcessCurrentLine()
         this->TokenizeCurrentLine();
     }
 
-    // Detect keywords on current line 
+    // Detect keyword on current line 
     Keyword keyword = IdentifyKeywordInCurrentLine();
     switch (keyword)
     {
-        case KEYWORD_INVALID: break; // No new section  - carry on with processing data
+        // No keyword - Continue below to process current block.
+        case KEYWORD_INVALID:
+            break; // << NOT RETURN.
 
-        case KEYWORD_ADD_ANIMATION:            this->ParseDirectiveAddAnimation(); return;
-        case KEYWORD_AIRBRAKES:                this->BeginBlock(keyword); return;
-        case KEYWORD_ANIMATORS:                this->BeginBlock(keyword); return;
-        case KEYWORD_ANTILOCKBRAKES:         this->ParseAntiLockBrakes(); return;
-        case KEYWORD_AXLES:                    this->BeginBlock(keyword); return;
-        case KEYWORD_AUTHOR:                   this->ParseAuthor(); return;
-        case KEYWORD_BACKMESH:                 this->ParseDirectiveBackmesh(); return;
-        case KEYWORD_BEAMS:                    this->BeginBlock(keyword); return;
-        case KEYWORD_BRAKES:                   this->BeginBlock(keyword); return;
-        case KEYWORD_CAB:                      this->BeginBlock(keyword); return;
-        case KEYWORD_CAMERAS:                  this->BeginBlock(keyword); return;
-        case KEYWORD_CAMERARAIL:               this->BeginBlock(keyword); return;
-        case KEYWORD_CINECAM:                  this->BeginBlock(keyword); return;
-        case KEYWORD_COLLISIONBOXES:           this->BeginBlock(keyword); return;
-        case KEYWORD_COMMANDS:                 this->BeginBlock(keyword); return;
-        case KEYWORD_COMMANDS2:                this->BeginBlock(keyword); return;
-        case KEYWORD_CONTACTERS:               this->BeginBlock(keyword); return;
-        case KEYWORD_CRUISECONTROL:            this->ParseCruiseControl(); return;
-        case KEYWORD_DESCRIPTION:              this->BeginBlock(keyword); return;
-        case KEYWORD_DETACHER_GROUP:           this->ParseDirectiveDetacherGroup(); return;
-        case KEYWORD_DISABLEDEFAULTSOUNDS:     this->ProcessGlobalDirective(keyword); return;
-        case KEYWORD_ENABLE_ADVANCED_DEFORMATION:   this->ProcessGlobalDirective(keyword); return;
-        case KEYWORD_END_SECTION:              this->ProcessChangeModuleLine(keyword);              return;
-        case KEYWORD_END:                      this->BeginBlock(KEYWORD_INVALID); return;
-        case KEYWORD_END_COMMENT:              this->BeginBlock(KEYWORD_INVALID); return;
-        case KEYWORD_END_DESCRIPTION:          this->BeginBlock(KEYWORD_INVALID); return;
-        case KEYWORD_ENGINE:                   this->BeginBlock(keyword); return;
-        case KEYWORD_ENGOPTION:                this->BeginBlock(keyword); return;
-        case KEYWORD_ENGTURBO:                 this->BeginBlock(keyword); return;
-        case KEYWORD_ENVMAP:                   /* Ignored */                                        return;
-        case KEYWORD_EXHAUSTS:                 this->BeginBlock(keyword); return;
-        case KEYWORD_EXTCAMERA:                this->ParseExtCamera(); return;
-        case KEYWORD_FILEFORMATVERSION:        this->ParseFileFormatVersion(); return;
-        case KEYWORD_FILEINFO:                 this->ParseFileinfo(); return;
-        case KEYWORD_FIXES:                    this->BeginBlock(keyword); return;
-        case KEYWORD_FLARES:                   this->BeginBlock(keyword); return;
-        case KEYWORD_FLARES2:                  this->BeginBlock(keyword); return;
-        case KEYWORD_FLEXBODIES:               this->BeginBlock(keyword); return;
-        case KEYWORD_FLEXBODY_CAMERA_MODE:     this->ParseDirectiveFlexbodyCameraMode(); return;
-        case KEYWORD_FLEXBODYWHEELS:           this->BeginBlock(keyword); return;
-        case KEYWORD_FORSET:                   this->ParseDirectiveForset();                  return;
-        case KEYWORD_FORWARDCOMMANDS:          this->ProcessGlobalDirective(keyword); return;
-        case KEYWORD_FUSEDRAG:                 this->BeginBlock(keyword); return;
-        case KEYWORD_GLOBALS:                  this->BeginBlock(keyword); return;
-        case KEYWORD_GUID:                     this->ParseGuid(); return;
-        case KEYWORD_GUISETTINGS:              this->BeginBlock(keyword); return;
-        case KEYWORD_HELP:                     this->BeginBlock(keyword); return;
-        case KEYWORD_HIDEINCHOOSER:          this->ProcessGlobalDirective(keyword); return;
-        case KEYWORD_HOOKGROUP:                /* Obsolete, ignored */                              return;
-        case KEYWORD_HOOKS:                    this->BeginBlock(keyword); return;
-        case KEYWORD_HYDROS:                   this->BeginBlock(keyword); return;
-        case KEYWORD_IMPORTCOMMANDS:           this->ProcessGlobalDirective(keyword);  return;
-        case KEYWORD_INTERAXLES:               this->BeginBlock(keyword); return;
-        case KEYWORD_LOCKGROUPS:               this->BeginBlock(keyword); return;
-        case KEYWORD_LOCKGROUP_DEFAULT_NOLOCK: this->ProcessGlobalDirective(keyword); return;
-        case KEYWORD_MANAGEDMATERIALS:         this->BeginBlock(keyword); return;
-        case KEYWORD_MATERIALFLAREBINDINGS:    this->BeginBlock(keyword); return;
-        case KEYWORD_MESHWHEELS:               this->BeginBlock(keyword); return;
-        case KEYWORD_MESHWHEELS2:              this->BeginBlock(keyword); return;
-        case KEYWORD_MINIMASS:                 this->BeginBlock(keyword); return;
-        case KEYWORD_NODECOLLISION:            this->BeginBlock(keyword); return;
-        case KEYWORD_NODES:                    this->BeginBlock(keyword); return;
-        case KEYWORD_NODES2:                   this->BeginBlock(keyword); return;
-        case KEYWORD_PARTICLES:                this->BeginBlock(keyword); return;
-        case KEYWORD_PISTONPROPS:              this->BeginBlock(keyword); return;
-        case KEYWORD_PROP_CAMERA_MODE:         this->ParseDirectivePropCameraMode(); return;
-        case KEYWORD_PROPS:                    this->BeginBlock(keyword); return;
-        case KEYWORD_RAILGROUPS:               this->BeginBlock(keyword); return;
-        case KEYWORD_RESCUER:                  this->ProcessGlobalDirective(keyword); return;
-        case KEYWORD_RIGIDIFIERS:              this->AddMessage(Message::TYPE_WARNING, "Rigidifiers are not supported, ignoring..."); return;
-        case KEYWORD_ROLLON:                   this->ProcessGlobalDirective(keyword); return;
-        case KEYWORD_ROPABLES:                 this->BeginBlock(keyword); return;
-        case KEYWORD_ROPES:                    this->BeginBlock(keyword); return;
-        case KEYWORD_ROTATORS:                 this->BeginBlock(keyword); return;
-        case KEYWORD_ROTATORS2:                this->BeginBlock(keyword); return;
-        case KEYWORD_SCREWPROPS:               this->BeginBlock(keyword); return;
-        case KEYWORD_SECTION:                  this->ProcessChangeModuleLine(keyword); return;
-        case KEYWORD_SECTIONCONFIG:            /* Ignored */                                        return;
-        case KEYWORD_SET_BEAM_DEFAULTS:        this->ParseDirectiveSetBeamDefaults(); return;
-        case KEYWORD_SET_BEAM_DEFAULTS_SCALE:  this->ParseDirectiveSetBeamDefaultsScale(); return;
-        case KEYWORD_SET_COLLISION_RANGE:      this->ParseSetCollisionRange(); return;
-        case KEYWORD_SET_DEFAULT_MINIMASS:     this->ParseDirectiveSetDefaultMinimass(); return;
-        case KEYWORD_SET_INERTIA_DEFAULTS:     this->ParseDirectiveSetInertiaDefaults(); return;
-        case KEYWORD_SET_MANAGEDMATERIALS_OPTIONS: this->ParseDirectiveSetManagedMaterialsOptions(); return;
-        case KEYWORD_SET_NODE_DEFAULTS:        this->ParseDirectiveSetNodeDefaults(); return;
-        case KEYWORD_SET_SKELETON_SETTINGS:    this->ParseSetSkeletonSettings(); return;
-        case KEYWORD_SHOCKS:                   this->BeginBlock(keyword); return;
-        case KEYWORD_SHOCKS2:                  this->BeginBlock(keyword); return;
-        case KEYWORD_SHOCKS3:                  this->BeginBlock(keyword); return;
-        case KEYWORD_SLIDENODE_CONNECT_INSTANTLY: this->ProcessGlobalDirective(keyword); return;
-        case KEYWORD_SLIDENODES:               this->BeginBlock(keyword); return;
-        case KEYWORD_SLOPE_BRAKE:              this->ParseSlopeBrake(); return;
-        case KEYWORD_SOUNDSOURCES:             this->BeginBlock(keyword); return;
-        case KEYWORD_SOUNDSOURCES2:            this->BeginBlock(keyword); return;
-        case KEYWORD_SPEEDLIMITER:             this->ParseSpeedLimiter(); return;
-        case KEYWORD_SUBMESH_GROUNDMODEL:      this->ParseSubmeshGroundModel(); return;
-        case KEYWORD_SUBMESH:                  this->ParseDirectiveSubmesh();          return;
-        case KEYWORD_TEXCOORDS:                this->BeginBlock(keyword);        return;
-        case KEYWORD_TIES:                     this->BeginBlock(keyword); return;
-        case KEYWORD_TORQUECURVE:              this->BeginBlock(keyword); return;
-        case KEYWORD_TRACTIONCONTROL:          this->ParseTractionControl(); return;
-        case KEYWORD_TRANSFERCASE:             this->BeginBlock(keyword); return;
-        case KEYWORD_TRIGGERS:                 this->BeginBlock(keyword); return;
-        case KEYWORD_TURBOJETS:                this->BeginBlock(keyword); return;
-        case KEYWORD_TURBOPROPS:               this->BeginBlock(keyword); return;
-        case KEYWORD_TURBOPROPS2:              this->BeginBlock(keyword); return;
-        case KEYWORD_VIDEOCAMERA:              this->BeginBlock(keyword); return;
-        case KEYWORD_WHEELDETACHERS:           this->BeginBlock(keyword); return;
-        case KEYWORD_WHEELS:                   this->BeginBlock(keyword); return;
-        case KEYWORD_WHEELS2:                  this->BeginBlock(keyword); return;
-        case KEYWORD_WINGS:                    this->BeginBlock(keyword); return;
+        // Directives without arguments: just record, do not change current block.
+        case KEYWORD_DISABLEDEFAULTSOUNDS:
+        case KEYWORD_ENABLE_ADVANCED_DEFORMATION:
+        case KEYWORD_FORWARDCOMMANDS:
+        case KEYWORD_HIDEINCHOOSER:
+        case KEYWORD_IMPORTCOMMANDS:
+        case KEYWORD_LOCKGROUP_DEFAULT_NOLOCK:
+        case KEYWORD_RESCUER:
+        case KEYWORD_ROLLON:
+        case KEYWORD_SLIDENODE_CONNECT_INSTANTLY:
+            this->ProcessGlobalDirective(keyword);
+            return;
+        case KEYWORD_END_SECTION:
+            this->ProcessChangeModuleLine(keyword);
+            return;
+
+        // Directives with arguments: process immediately, do not change current block.
+        case KEYWORD_ADD_ANIMATION:
+            this->ParseDirectiveAddAnimation();
+            return;
+        case KEYWORD_ANTILOCKBRAKES:
+            this->ParseAntiLockBrakes();
+            return;
+        case KEYWORD_AUTHOR:
+            this->ParseAuthor();
+            return;
+        case KEYWORD_BACKMESH:
+            this->ParseDirectiveBackmesh();
+            return;
+        case KEYWORD_CRUISECONTROL:
+            this->ParseCruiseControl();
+            return;
+        case KEYWORD_DETACHER_GROUP:
+            this->ParseDirectiveDetacherGroup();
+            return;
+        case KEYWORD_EXTCAMERA:
+            this->ParseExtCamera();
+            return;
+        case KEYWORD_FILEFORMATVERSION:
+            this->ParseFileFormatVersion();
+            return;
+        case KEYWORD_FILEINFO:
+            this->ParseFileinfo();
+            return;
+        case KEYWORD_FLEXBODY_CAMERA_MODE:
+            this->ParseDirectiveFlexbodyCameraMode();
+            return;
+        case KEYWORD_FORSET:
+            this->ParseDirectiveForset();
+            return;
+        case KEYWORD_GUID:
+            this->ParseGuid();
+            return;
+        case KEYWORD_PROP_CAMERA_MODE:
+            this->ParseDirectivePropCameraMode();
+            return;
+        case KEYWORD_SECTION:
+            this->ParseDirectiveSection();
+            return;
+        case KEYWORD_SET_BEAM_DEFAULTS:
+            this->ParseDirectiveSetBeamDefaults();
+            return;
+        case KEYWORD_SET_BEAM_DEFAULTS_SCALE:
+            this->ParseDirectiveSetBeamDefaultsScale();
+            return;
+        case KEYWORD_SET_COLLISION_RANGE:
+            this->ParseSetCollisionRange();
+            return;
+        case KEYWORD_SET_DEFAULT_MINIMASS:
+            this->ParseDirectiveSetDefaultMinimass();
+            return;
+        case KEYWORD_SET_INERTIA_DEFAULTS:
+            this->ParseDirectiveSetInertiaDefaults();
+            return;
+        case KEYWORD_SET_MANAGEDMATERIALS_OPTIONS:
+            this->ParseDirectiveSetManagedMaterialsOptions();
+            return;
+        case KEYWORD_SET_NODE_DEFAULTS:
+            this->ParseDirectiveSetNodeDefaults();
+            return;
+        case KEYWORD_SET_SKELETON_SETTINGS:
+            this->ParseSetSkeletonSettings();
+            return;
+        case KEYWORD_SPEEDLIMITER:
+            this->ParseSpeedLimiter();
+            return;
+        case KEYWORD_SUBMESH:
+            this->ParseDirectiveSubmesh();
+            return;
+        case KEYWORD_SUBMESH_GROUNDMODEL:
+            this->ParseSubmeshGroundModel();
+            return;
+        case KEYWORD_TRACTIONCONTROL:
+            this->ParseTractionControl();
+            return;
+
+        // Keywords which end current block:
+        case KEYWORD_END_COMMENT:
+        case KEYWORD_END_DESCRIPTION:
+        case KEYWORD_END:
+            this->BeginBlock(KEYWORD_INVALID);
+            return;
+
+        // Ignored keywords (obsolete):
+        case KEYWORD_ENVMAP:
+        case KEYWORD_HOOKGROUP:
+        case KEYWORD_RIGIDIFIERS:
+            return;
+
+        // Keywords which start new block:
+        default:
+            this->BeginBlock(keyword);
+            return;
     }
 
     // Parse current block, if any
@@ -3343,6 +3347,16 @@ void Parser::ProcessChangeModuleLine(Keyword keyword)
         m_current_module = std::make_shared<File::Module>(new_module_name);
         m_definition->user_modules.insert(std::make_pair(new_module_name, m_current_module));
     }
+}
+
+void Parser::ParseDirectiveSection()
+{
+    this->ProcessChangeModuleLine(KEYWORD_SECTION);
+}
+
+void Parser::ParseDirectiveSectionConfig()
+{
+    // FIXME: restore this, see branch 'retro-0407'
 }
 
 void Parser::Finalize()

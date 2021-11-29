@@ -105,6 +105,8 @@ private:
     void ParseDirectiveFlexbodyCameraMode();
     void ParseDirectiveForset();
     void ParseDirectivePropCameraMode();
+    void ParseDirectiveSection();
+    void ParseDirectiveSectionConfig();
     void ParseDirectiveSetBeamDefaults();
     void ParseDirectiveSetBeamDefaultsScale();
     void ParseDirectiveSetDefaultMinimass();
