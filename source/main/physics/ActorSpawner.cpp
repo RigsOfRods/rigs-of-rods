@@ -1450,12 +1450,12 @@ void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
     }
 }
 
-void ActorSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
+void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
 {
     // Collect nodes
     std::vector<unsigned int> node_indices;
     bool nodes_found = true;
-    for (auto& node_def: def->node_list)
+    for (auto& node_def: def.node_list)
     {
         auto result = this->GetNodeIndex(node_def);
         if (!result.second)
@@ -1468,42 +1468,42 @@ void ActorSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
 
     if (! nodes_found)
     {
-        this->AddMessage(Message::TYPE_ERROR, "Failed to collect nodes from node-ranges, skipping flexbody: " + def->mesh_name);
+        this->AddMessage(Message::TYPE_ERROR, "Failed to collect nodes from node-ranges, skipping flexbody: " + def.mesh_name);
         return;
     }
 
-    const NodeNum_t reference_node = this->FindNodeIndex(def->reference_node);
-    const NodeNum_t x_axis_node    = this->FindNodeIndex(def->x_axis_node);
-    const NodeNum_t y_axis_node    = this->FindNodeIndex(def->y_axis_node);
+    const NodeNum_t reference_node = this->FindNodeIndex(def.reference_node);
+    const NodeNum_t x_axis_node    = this->FindNodeIndex(def.x_axis_node);
+    const NodeNum_t y_axis_node    = this->FindNodeIndex(def.y_axis_node);
     if (reference_node == -1 || x_axis_node == -1 || y_axis_node == -1)
     {
-        this->AddMessage(Message::TYPE_ERROR, "Failed to find required nodes, skipping flexbody '" + def->mesh_name + "'");
+        this->AddMessage(Message::TYPE_ERROR, "Failed to find required nodes, skipping flexbody '" + def.mesh_name + "'");
         return;
     }
 
-    Ogre::Quaternion rot=Ogre::Quaternion(Ogre::Degree(def->rotation.z), Ogre::Vector3::UNIT_Z);
-    rot=rot*Ogre::Quaternion(Ogre::Degree(def->rotation.y), Ogre::Vector3::UNIT_Y);
-    rot=rot*Ogre::Quaternion(Ogre::Degree(def->rotation.x), Ogre::Vector3::UNIT_X);
+    Ogre::Quaternion rot=Ogre::Quaternion(Ogre::Degree(def.rotation.z), Ogre::Vector3::UNIT_Z);
+    rot=rot*Ogre::Quaternion(Ogre::Degree(def.rotation.y), Ogre::Vector3::UNIT_Y);
+    rot=rot*Ogre::Quaternion(Ogre::Degree(def.rotation.x), Ogre::Vector3::UNIT_X);
 
     try
     {
         auto* flexbody = m_flex_factory.CreateFlexBody(
-            def.get(), reference_node, x_axis_node, y_axis_node, rot, node_indices, m_custom_resource_group);
+            &def, reference_node, x_axis_node, y_axis_node, rot, node_indices, m_custom_resource_group);
 
         if (flexbody == nullptr)
             return; // Error already logged
 
-        if (def->camera_settings.mode == RigDef::CameraSettings::MODE_CINECAM)
-            flexbody->setCameraMode(static_cast<int>(def->camera_settings.cinecam_index));
+        if (def.camera_settings.mode == RigDef::CameraSettings::MODE_CINECAM)
+            flexbody->setCameraMode(static_cast<int>(def.camera_settings.cinecam_index));
         else
-            flexbody->setCameraMode(static_cast<int>(def->camera_settings.mode));
+            flexbody->setCameraMode(static_cast<int>(def.camera_settings.mode));
 
         m_actor->GetGfxActor()->AddFlexbody(flexbody);
     }
     catch (Ogre::Exception& e)
     {
         this->AddMessage(Message::TYPE_ERROR, 
-            "Failed to create flexbody '" + def->mesh_name + "', reason:" + e.getFullDescription());
+            "Failed to create flexbody '" + def.mesh_name + "', reason:" + e.getFullDescription());
     }
 }
 

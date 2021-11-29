@@ -642,7 +642,7 @@ void Serializer::ProcessFlexbodies(File::Module* module)
     auto end_itor = module->flexbodies.end();
     for (auto itor = module->flexbodies.begin(); itor != end_itor; ++itor)
     {
-        RigDef::Flexbody* def = itor->get();
+        RigDef::Flexbody* def = &*itor;
 
         // Prop-like line
         m_stream << "\n\t" << def->reference_node.ToString()

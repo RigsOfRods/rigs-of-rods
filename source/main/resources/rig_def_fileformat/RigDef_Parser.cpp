@@ -971,7 +971,7 @@ void Parser::_ParseCameraSettings(CameraSettings & camera_settings, Ogre::String
 
 void Parser::ParseDirectiveFlexbodyCameraMode()
 {
-    if (m_last_flexbody == nullptr)
+    if (m_current_module->flexbodies.size() == 0)
     {
         this->AddMessage(Message::TYPE_ERROR, "No flexbody to update, ignoring...");
         return;
@@ -979,7 +979,7 @@ void Parser::ParseDirectiveFlexbodyCameraMode()
 
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
-    this->_ParseCameraSettings(m_last_flexbody->camera_settings, this->GetArgStr(1));
+    this->_ParseCameraSettings(m_current_module->flexbodies[m_current_module->flexbodies.size() - 1].camera_settings, this->GetArgStr(1));
 }
 
 void Parser::ParseCab()
@@ -1047,13 +1047,12 @@ void Parser::ParseFlexbody()
     flexbody.rotation.z     = this->GetArgFloat   (8);
     flexbody.mesh_name      = this->GetArgStr     (9);
 
-    // stage the flexbody - will be flushed by directive 'forset'
-    m_last_flexbody = std::shared_ptr<Flexbody>( new Flexbody(flexbody) );
+    m_current_module->flexbodies.push_back(flexbody);
 }
 
 void Parser::ParseDirectiveForset()
 {
-    if (!m_last_flexbody)
+    if (m_current_module->flexbodies.size() == 0)
     {
         this->AddMessage(Message::TYPE_WARNING, "'forset' must come after 'flexbodies', ignoring");
         return;
@@ -1094,7 +1093,7 @@ void Parser::ParseDirectiveForset()
             b_text = std::string(item2, length);
 
             // Add interval [a-b]
-            m_last_flexbody->node_list_to_import.push_back(
+            m_current_module->flexbodies[m_current_module->flexbodies.size() - 1].node_list_to_import.push_back(
                 Node::Range(
                     Node::Ref(a_text, a, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number),
                     Node::Ref(b_text, b, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number)));
@@ -1106,12 +1105,10 @@ void Parser::ParseDirectiveForset()
             a = ::strtoul(item, nullptr, 10);
             // Add interval [a-a]
             Node::Range range_a = Node::Range(Node::Ref(std::string(item), a, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number));
-            m_last_flexbody->node_list_to_import.push_back(range_a);
+            m_current_module->flexbodies[m_current_module->flexbodies.size() - 1].node_list_to_import.push_back(range_a);
         }
         item = strtok(nullptr, ",");
     }
-    // flush the staged flexbody
-    m_current_module->flexbodies.push_back(m_last_flexbody);
 }
 
 void Parser::ParseFlaresUnified()
@@ -3226,7 +3223,6 @@ void Parser::Prepare()
     m_current_line_number = 1;
     m_definition = std::shared_ptr<File>(new File());
     m_any_named_node_defined = false;
-    m_last_flexbody.reset(); // Set to nullptr
     m_current_detacher_group = 0; // Global detacher group 
 
     m_user_default_inertia = m_ror_default_inertia;
@@ -3317,7 +3313,6 @@ void Parser::ProcessChangeModuleLine(Keyword keyword)
 
     // Perform the switch
     this->BeginBlock(KEYWORD_INVALID);
-    m_last_flexbody.reset(); // Set to nullptr
 
     if (new_module_name == ROOT_MODULE_NAME)
     {

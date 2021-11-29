@@ -292,7 +292,6 @@ private:
     bool                                 m_any_named_node_defined; //!< Parser state.
     std::shared_ptr<Submesh>             m_current_submesh;        //!< Parser state.
     std::shared_ptr<CameraRail>          m_current_camera_rail;    //!< Parser state.
-    std::shared_ptr<Flexbody>            m_last_flexbody;
 
     SequentialImporter                   m_sequential_importer;
 
