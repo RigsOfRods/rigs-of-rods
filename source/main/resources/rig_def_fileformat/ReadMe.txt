@@ -88,7 +88,8 @@ Order is alphabetical, lettercase matches original docs (parsing is insensitive)
     author                       DIRECTIVE  
     axles                        BLOCK      Special syntax
     beams                        BLOCK      
-    brakes                       BLOCK      
+    brakes                       BLOCK
+    cab                          BLOCK    
     camerarail                   BLOCK      
     cameras                      BLOCK      
     cinecam                      BLOCK      
@@ -117,7 +118,7 @@ Order is alphabetical, lettercase matches original docs (parsing is insensitive)
     flexbodies                   BLOCK      
     flexbody_camera_mode         DIRECTIVE  
     flexbodywheels               BLOCK      
-    forset                       INLINE     
+    forset                       DIRECTIVE     
     fusedrag                     BLOCK      
     globals                      BLOCK      
     guid                         DIRECTIVE  
@@ -173,8 +174,9 @@ Order is alphabetical, lettercase matches original docs (parsing is insensitive)
     soundsources2                BLOCK      
     soundsources3                BLOCK      
     speedlimiter                 DIRECTIVE        
-    submesh                      BLOCK      
-    submesh_groundmodel          DIRECTIVE        
+    submesh                      DIRECTIVE      
+    submesh_groundmodel          DIRECTIVE
+    texcoords                    BLOCK
     ties                         BLOCK      
     torquecurve                  BLOCK      
     TractionControl              DIRECTIVE      

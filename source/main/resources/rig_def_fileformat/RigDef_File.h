@@ -177,6 +177,7 @@ enum Section
     SECTION_AXLES,
     SECTION_BEAMS,
     SECTION_BRAKES,
+    SECTION_CAB,
     SECTION_CAMERAS,
     SECTION_CAMERA_RAIL,
     SECTION_CINECAM,
@@ -224,8 +225,8 @@ enum Section
     SECTION_SLIDENODES,
     SECTION_SOUNDSOURCES,
     SECTION_SOUNDSOURCES2,
-    SECTION_SUBMESH,
     SECTION_SLOPE_BRAKE,
+    SECTION_TEXCOORDS,
     SECTION_TIES,
     SECTION_TORQUE_CURVE,
     SECTION_TRACTION_CONTROL,
@@ -244,19 +245,6 @@ enum Section
     SECTION_NONE,       //!< Right after rig name, for example.
 
     SECTION_INVALID = 0xFFFFFFFF
-};
-
-enum Subsection
-{
-    SUBSECTION_NONE = 0,
-
-    SUBSECTION__FLEXBODIES__PROPLIKE_LINE,
-    SUBSECTION__FLEXBODIES__FORSET_LINE,
-
-    SUBSECTION__SUBMESH__TEXCOORDS,
-    SUBSECTION__SUBMESH__CAB,
-
-    SUBSECTION_INVALID = 0xFFFFFFFF
 };
 
 enum class DifferentialType: char
@@ -2284,8 +2272,6 @@ struct File
     };
 
     File();
-
-    static const char * SubsectionToString(Subsection subsection);
 
     static const char * SectionToString(Section section);
 
