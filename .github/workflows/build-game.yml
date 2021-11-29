@@ -13,7 +13,7 @@ jobs:
           submodules: true
 
       - name: Cache conan
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           key: conan-root-${{ hashFiles('**/conanfile.txt') }}
           path: ~/.conan/
@@ -95,13 +95,13 @@ jobs:
           execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "$ENV{TMP}/build-tools.zip" WORKING_DIRECTORY "$ENV{BUILD_TOOLS_PATH}")
 
       - name: Cache conan
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           key: conan-root-${{ hashFiles('**/conanfile.txt') }}-1
           path: ~/.conan
 
       - name: Cache conan packages
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           key: conan-pkg-${{ hashFiles('**/conanfile.txt') }}-1
           path: C:/.conan/
