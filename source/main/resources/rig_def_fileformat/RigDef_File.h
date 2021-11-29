@@ -2153,7 +2153,7 @@ struct File
         std::shared_ptr<ExtCamera>         ext_camera;
         std::vector<Node::Ref>              fixes;
         std::vector<Flare2>                flares_2;
-        std::vector<std::shared_ptr<Flexbody>>	flexbodies;
+        std::vector<Flexbody>              flexbodies;
         std::vector<FlexBodyWheel>         flex_body_wheels;
         std::vector<Fusedrag>              fusedrag;
         std::shared_ptr<Globals>           globals;

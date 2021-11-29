@@ -363,7 +363,7 @@ private:
     /**
     * Section 'flexbodies'.
     */
-    void ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def);
+    void ProcessFlexbody(RigDef::Flexbody& def);
 
     /**
     * Section 'flexbodywheels'.

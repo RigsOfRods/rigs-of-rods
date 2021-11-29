@@ -481,12 +481,12 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
 
     FOR_EACH (KEYWORD_FLEXBODIES, module->flexbodies, flexbody,
     {
-        RESOLVE(flexbody->reference_node);
-        RESOLVE(flexbody->x_axis_node   );
-        RESOLVE(flexbody->y_axis_node   );
+        RESOLVE(flexbody.reference_node);
+        RESOLVE(flexbody.x_axis_node   );
+        RESOLVE(flexbody.y_axis_node   );
 
-        ResolveFlexbodyForset(flexbody->node_list_to_import, flexbody->node_list);
-        flexbody->node_list_to_import.clear();
+        ResolveFlexbodyForset(flexbody.node_list_to_import, flexbody.node_list);
+        flexbody.node_list_to_import.clear();
     });
 
     FOR_EACH (KEYWORD_FLEXBODYWHEELS, module->flex_body_wheels, flexbodywheel,
