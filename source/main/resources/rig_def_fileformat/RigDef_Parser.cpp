@@ -126,7 +126,7 @@ void Parser::ProcessCurrentLine()
         case KEYWORD_BACKMESH:                 this->ParseDirectiveBackmesh();                      return;
         case KEYWORD_BEAMS:                    this->ChangeSection(SECTION_BEAMS);            return;
         case KEYWORD_BRAKES:                   this->ChangeSection(SECTION_BRAKES);           return;
-        case KEYWORD_CAB:                      this->ProcessKeywordCab();                           return;
+        case KEYWORD_CAB:                      this->ChangeSection(SECTION_CAB);              return;
         case KEYWORD_CAMERAS:                  this->ChangeSection(SECTION_CAMERAS);          return;
         case KEYWORD_CAMERARAIL:               this->ChangeSection(SECTION_CAMERA_RAIL);      return;
         case KEYWORD_CINECAM:                  this->ChangeSection(SECTION_CINECAM);          return;
@@ -155,6 +155,7 @@ void Parser::ProcessCurrentLine()
         case KEYWORD_FLEXBODIES:               this->ChangeSection(SECTION_FLEXBODIES);       return;
         case KEYWORD_FLEXBODY_CAMERA_MODE:     this->ParseDirectiveFlexbodyCameraMode();            return;
         case KEYWORD_FLEXBODYWHEELS:           this->ChangeSection(SECTION_FLEX_BODY_WHEELS); return;
+        case KEYWORD_FORSET:                   this->ParseDirectiveForset();                  return;
         case KEYWORD_FORWARDCOMMANDS:          this->ProcessGlobalDirective(keyword);               return;
         case KEYWORD_FUSEDRAG:                 this->ChangeSection(SECTION_FUSEDRAG);         return;
         case KEYWORD_GLOBALS:                  this->ChangeSection(SECTION_GLOBALS);          return;
@@ -210,8 +211,8 @@ void Parser::ProcessCurrentLine()
         case KEYWORD_SOUNDSOURCES2:            this->ChangeSection(SECTION_SOUNDSOURCES2);    return;
         case KEYWORD_SPEEDLIMITER:             this->ParseSpeedLimiter();                           return;
         case KEYWORD_SUBMESH_GROUNDMODEL:      this->ParseSubmeshGroundModel();                     return;
-        case KEYWORD_SUBMESH:                  this->ChangeSection(SECTION_SUBMESH);          return;
-        case KEYWORD_TEXCOORDS:                this->ProcessKeywordTexcoords();                     return;
+        case KEYWORD_SUBMESH:                  this->ParseDirectiveSubmesh();          return;
+        case KEYWORD_TEXCOORDS:                this->ChangeSection(SECTION_TEXCOORDS);        return;
         case KEYWORD_TIES:                     this->ChangeSection(SECTION_TIES);             return;
         case KEYWORD_TORQUECURVE:              this->ChangeSection(SECTION_TORQUE_CURVE);     return;
         case KEYWORD_TRACTIONCONTROL:         this->ParseTractionControl();                        return;
@@ -236,6 +237,7 @@ void Parser::ProcessCurrentLine()
         case (SECTION_TRUCK_NAME):           this->ParseActorNameLine();           return; 
         case (SECTION_BEAMS):                this->ParseBeams();                   return;
         case (SECTION_BRAKES):               this->ParseBrakes();                  return;
+        case (SECTION_CAB):                  this->ParseCab();                     return;
         case (SECTION_CAMERAS):              this->ParseCameras();                 return;
         case (SECTION_CAMERA_RAIL):          this->ParseCameraRails();             return;
         case (SECTION_CINECAM):              this->ParseCinecam();                 return;
@@ -283,7 +285,7 @@ void Parser::ProcessCurrentLine()
         case (SECTION_SLIDENODES):           this->ParseSlidenodes();              return;
         case (SECTION_SOUNDSOURCES):         this->ParseSoundsources();            return;
         case (SECTION_SOUNDSOURCES2):        this->ParseSoundsources2();           return;
-        case (SECTION_SUBMESH):              this->ParseSubmesh();                 return;
+        case (SECTION_TEXCOORDS):            this->ParseTexcoords();               return;
         case (SECTION_TIES):                 this->ParseTies();                    return;
         case (SECTION_TORQUE_CURVE):         this->ParseTorqueCurve();             return;
         case (SECTION_TRANSFER_CASE):        this->ParseTransferCase();            return;
@@ -739,38 +741,21 @@ void Parser::ParseDirectivePropCameraMode()
     this->_ParseCameraSettings(m_current_module->props.back().camera_settings, this->GetArgStr(1));
 }
 
+void Parser::ParseDirectiveSubmesh()
+{
+    this->ChangeSection(SECTION_NONE); // flush the current submesh
+    m_current_submesh = std::shared_ptr<Submesh>( new Submesh() );
+}
+
 void Parser::ParseDirectiveBackmesh()
 {
-    if (m_current_section == SECTION_SUBMESH)
+    if (m_current_submesh)
     {
         m_current_submesh->backmesh = true;
     }
     else
     {
-        this->AddMessage(Message::TYPE_ERROR, "Misplaced sub-directive 'backmesh' (belongs in section 'submesh'), ignoring...");
-    }
-}
-
-void Parser::ProcessKeywordTexcoords()
-{
-    if (m_current_section == SECTION_SUBMESH)
-    {
-        m_current_subsection = SUBSECTION__SUBMESH__TEXCOORDS;
-    }
-    else
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Misplaced sub-section 'texcoords' (belongs in section 'submesh'), falling back to classic unsafe parsing method.");
-        this->ChangeSection(SECTION_SUBMESH);
-    }
-}
-
-void Parser::ProcessKeywordCab()
-{
-    m_current_subsection = SUBSECTION__SUBMESH__CAB;
-    if (m_current_section != SECTION_SUBMESH)
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Misplaced sub-section 'cab' (belongs in section 'submesh')");
-        this->ChangeSection(SECTION_SUBMESH);
+        this->AddMessage(Message::TYPE_ERROR, "Misplaced sub-directive 'backmesh' (must come after 'submesh'), ignoring...");
     }
 }
 
@@ -1015,146 +1000,137 @@ void Parser::ParseDirectiveFlexbodyCameraMode()
     this->_ParseCameraSettings(m_last_flexbody->camera_settings, this->GetArgStr(1));
 }
 
-void Parser::ParseSubmesh()
+void Parser::ParseCab()
 {
-    if (m_current_subsection == SUBSECTION__SUBMESH__CAB)
+    if (! this->CheckNumArguments(3)) { return; }
+
+    Cab cab;
+    cab.nodes[0] = this->GetArgNodeRef(0);
+    cab.nodes[1] = this->GetArgNodeRef(1);
+    cab.nodes[2] = this->GetArgNodeRef(2);
+    if (m_num_args > 3)
     {
-        if (! this->CheckNumArguments(3)) { return; }
-
-        Cab cab;
-        cab.nodes[0] = this->GetArgNodeRef(0);
-        cab.nodes[1] = this->GetArgNodeRef(1);
-        cab.nodes[2] = this->GetArgNodeRef(2);
-        if (m_num_args > 3)
+        cab.options = 0;
+        std::string options_str = this->GetArgStr(3);
+        for (unsigned int i = 0; i < options_str.length(); i++)
         {
-            cab.options = 0;
-            std::string options_str = this->GetArgStr(3);
-            for (unsigned int i = 0; i < options_str.length(); i++)
+            switch (options_str.at(i))
             {
-                switch (options_str.at(i))
-                {
-                case 'c': cab.options |=  Cab::OPTION_c_CONTACT;                               break;
-                case 'b': cab.options |=  Cab::OPTION_b_BUOYANT;                               break;
-                case 'D': cab.options |= (Cab::OPTION_c_CONTACT      | Cab::OPTION_b_BUOYANT); break;
-                case 'p': cab.options |=  Cab::OPTION_p_10xTOUGHER;                            break;
-                case 'u': cab.options |=  Cab::OPTION_u_INVULNERABLE;                          break;
-                case 'F': cab.options |= (Cab::OPTION_p_10xTOUGHER   | Cab::OPTION_b_BUOYANT); break;
-                case 'S': cab.options |= (Cab::OPTION_u_INVULNERABLE | Cab::OPTION_b_BUOYANT); break; 
-                case 'n': break; // Placeholder, does nothing 
+            case 'c': cab.options |=  Cab::OPTION_c_CONTACT;                               break;
+            case 'b': cab.options |=  Cab::OPTION_b_BUOYANT;                               break;
+            case 'D': cab.options |= (Cab::OPTION_c_CONTACT      | Cab::OPTION_b_BUOYANT); break;
+            case 'p': cab.options |=  Cab::OPTION_p_10xTOUGHER;                            break;
+            case 'u': cab.options |=  Cab::OPTION_u_INVULNERABLE;                          break;
+            case 'F': cab.options |= (Cab::OPTION_p_10xTOUGHER   | Cab::OPTION_b_BUOYANT); break;
+            case 'S': cab.options |= (Cab::OPTION_u_INVULNERABLE | Cab::OPTION_b_BUOYANT); break; 
+            case 'n': break; // Placeholder, does nothing 
 
-                default:
-                    char msg[200] = "";
-                    snprintf(msg, 200, "'submesh/cab' Ignoring invalid option '%c'...", options_str.at(i));
-                    this->AddMessage(Message::TYPE_WARNING, msg);
-                    break;
-                }
+            default:
+                char msg[200] = "";
+                snprintf(msg, 200, "'submesh/cab' Ignoring invalid option '%c'...", options_str.at(i));
+                this->AddMessage(Message::TYPE_WARNING, msg);
+                break;
             }
         }
-
-        m_current_submesh->cab_triangles.push_back(cab);
     }
-    else if (m_current_subsection == SUBSECTION__SUBMESH__TEXCOORDS)
-    {
-        if (! this->CheckNumArguments(3)) { return; }
 
-        Texcoord texcoord;
-        texcoord.node = this->GetArgNodeRef(0);
-        texcoord.u    = this->GetArgFloat  (1);
-        texcoord.v    = this->GetArgFloat  (2);
+    m_current_submesh->cab_triangles.push_back(cab);
+}
 
-        m_current_submesh->texcoords.push_back(texcoord);
-    }
-    else
-    {
-        AddMessage(Message::TYPE_ERROR, "Section submesh has no subsection defined, line not parsed.");
-    }
+void Parser::ParseTexcoords()
+{
+    if (! this->CheckNumArguments(3)) { return; }
+
+    Texcoord texcoord;
+    texcoord.node = this->GetArgNodeRef(0);
+    texcoord.u    = this->GetArgFloat  (1);
+    texcoord.v    = this->GetArgFloat  (2);
+
+    m_current_submesh->texcoords.push_back(texcoord);
 }
 
 void Parser::ParseFlexbody()
 {
-    if (m_current_subsection == SUBSECTION__FLEXBODIES__PROPLIKE_LINE)
+    if (! this->CheckNumArguments(10)) { return; }
+
+    Flexbody flexbody;
+    flexbody.reference_node = this->GetArgNodeRef (0);
+    flexbody.x_axis_node    = this->GetArgNodeRef (1);
+    flexbody.y_axis_node    = this->GetArgNodeRef (2);
+    flexbody.offset.x       = this->GetArgFloat   (3);
+    flexbody.offset.y       = this->GetArgFloat   (4);
+    flexbody.offset.z       = this->GetArgFloat   (5);
+    flexbody.rotation.x     = this->GetArgFloat   (6);
+    flexbody.rotation.y     = this->GetArgFloat   (7);
+    flexbody.rotation.z     = this->GetArgFloat   (8);
+    flexbody.mesh_name      = this->GetArgStr     (9);
+
+    // stage the flexbody - will be flushed by directive 'forset'
+    m_last_flexbody = std::shared_ptr<Flexbody>( new Flexbody(flexbody) );
+}
+
+void Parser::ParseDirectiveForset()
+{
+    if (!m_last_flexbody)
     {
-        if (! this->CheckNumArguments(10)) { return; }
-
-        Flexbody flexbody;
-        flexbody.reference_node = this->GetArgNodeRef (0);
-        flexbody.x_axis_node    = this->GetArgNodeRef (1);
-        flexbody.y_axis_node    = this->GetArgNodeRef (2);
-        flexbody.offset.x       = this->GetArgFloat   (3);
-        flexbody.offset.y       = this->GetArgFloat   (4);
-        flexbody.offset.z       = this->GetArgFloat   (5);
-        flexbody.rotation.x     = this->GetArgFloat   (6);
-        flexbody.rotation.y     = this->GetArgFloat   (7);
-        flexbody.rotation.z     = this->GetArgFloat   (8);
-        flexbody.mesh_name      = this->GetArgStr     (9);
-
-        m_last_flexbody = std::shared_ptr<Flexbody>( new Flexbody(flexbody) );
-        m_current_module->flexbodies.push_back(m_last_flexbody);
-
-        // Switch subsection
-        m_current_subsection =  SUBSECTION__FLEXBODIES__FORSET_LINE;
+        this->AddMessage(Message::TYPE_WARNING, "'forset' must come after 'flexbodies', ignoring");
+        return;
     }
-    else if (m_current_subsection == SUBSECTION__FLEXBODIES__FORSET_LINE)
+
+    // Syntax: "forset", followed by space/comma, followed by ","-separated items.
+    // Acceptable item forms:
+    // * Single node number / node name
+    // * Pair of node numbers:" 123 - 456 ". Whitespace is optional.
+
+    char setdef[LINE_BUFFER_LENGTH] = ""; // strtok() is destructive, we need own buffer.
+    strncpy(setdef, m_current_line + 6, LINE_BUFFER_LENGTH - 6); // Cut away "forset"
+    const char* item = std::strtok(setdef, ",");
+
+    // TODO: Add error reporting
+    // It appears strtoul() sets no ERRNO for input 'x1' (parsed -> '0')
+
+    const ptrdiff_t MAX_ITEM_LEN = 200;
+    while (item != nullptr)
     {
-        // Syntax: "forset", followed by space/comma, followed by ","-separated items.
-        // Acceptable item forms:
-        // * Single node number / node name
-        // * Pair of node numbers:" 123 - 456 ". Whitespace is optional.
-
-        char setdef[LINE_BUFFER_LENGTH] = ""; // strtok() is destructive, we need own buffer.
-        strncpy(setdef, m_current_line + 6, LINE_BUFFER_LENGTH - 6); // Cut away "forset"
-        const char* item = std::strtok(setdef, ",");
-
-        // TODO: Add error reporting
-        // It appears strtoul() sets no ERRNO for input 'x1' (parsed -> '0')
-
-        const ptrdiff_t MAX_ITEM_LEN = 200;
-        while (item != nullptr)
+        const char* hyphen = strchr(item, '-');
+        if (hyphen != nullptr)
         {
-            const char* hyphen = strchr(item, '-');
-            if (hyphen != nullptr)
+            unsigned a = 0; 
+            char* a_end = nullptr;
+            std::string a_text;
+            std::string b_text;
+            if (hyphen != item)
             {
-                unsigned a = 0; 
-                char* a_end = nullptr;
-                std::string a_text;
-                std::string b_text;
-                if (hyphen != item)
-                {
-                    a = ::strtoul(item, &a_end, 10);
-                    size_t length = std::min(a_end - item, MAX_ITEM_LEN);
-                    a_text = std::string(item, length);
-                }
-                char* b_end = nullptr;
-                const char* item2 = hyphen + 1;
-                unsigned b = ::strtoul(item2, &b_end, 10);
-                size_t length = std::min(b_end - item2, MAX_ITEM_LEN);
-                b_text = std::string(item2, length);
+                a = ::strtoul(item, &a_end, 10);
+                size_t length = std::min(a_end - item, MAX_ITEM_LEN);
+                a_text = std::string(item, length);
+            }
+            char* b_end = nullptr;
+            const char* item2 = hyphen + 1;
+            unsigned b = ::strtoul(item2, &b_end, 10);
+            size_t length = std::min(b_end - item2, MAX_ITEM_LEN);
+            b_text = std::string(item2, length);
 
-                // Add interval [a-b]
-                m_last_flexbody->node_list_to_import.push_back(
-                    Node::Range(
-                        Node::Ref(a_text, a, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number),
-                        Node::Ref(b_text, b, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number)));
-            }
-            else
-            {
-                errno = 0;
-                unsigned a = 0;
-                a = ::strtoul(item, nullptr, 10);
-                // Add interval [a-a]
-                Node::Range range_a = Node::Range(Node::Ref(std::string(item), a, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number));
-                m_last_flexbody->node_list_to_import.push_back(range_a);
-            }
-            item = strtok(nullptr, ",");
+            // Add interval [a-b]
+            m_last_flexbody->node_list_to_import.push_back(
+                Node::Range(
+                    Node::Ref(a_text, a, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number),
+                    Node::Ref(b_text, b, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number)));
         }
+        else
+        {
+            errno = 0;
+            unsigned a = 0;
+            a = ::strtoul(item, nullptr, 10);
+            // Add interval [a-a]
+            Node::Range range_a = Node::Range(Node::Ref(std::string(item), a, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number));
+            m_last_flexbody->node_list_to_import.push_back(range_a);
+        }
+        item = strtok(nullptr, ",");
+    }
 
-        // Switch subsection 
-        m_current_subsection =  SUBSECTION__FLEXBODIES__PROPLIKE_LINE;
-    }
-    else
-    {
-        AddMessage(Message::TYPE_FATAL_ERROR, "Internal parser failure, section 'flexbodies' not parsed.");
-    }
+    // flush the staged flexbody
+    m_current_module->flexbodies.push_back(m_last_flexbody);
 }
 
 void Parser::ParseFlaresUnified()
@@ -3194,10 +3170,6 @@ void Parser::AddMessage(std::string const & line, Message::Type type, std::strin
     if (m_current_section != Section::SECTION_INVALID)
     {
         txt << " '" << RigDef::File::SectionToString(m_current_section);
-        if (m_current_subsection != Subsection::SUBSECTION_NONE)
-        {
-            txt << "/" << RigDef::File::SubsectionToString(m_current_subsection);
-        }
         txt << "'";
     }
 
@@ -3278,7 +3250,6 @@ Keyword Parser::FindKeywordMatch(std::smatch& search_results)
 void Parser::Prepare()
 {
     m_current_section = SECTION_TRUCK_NAME;
-    m_current_subsection = SUBSECTION_NONE;
     m_current_line_number = 1;
     m_definition = std::shared_ptr<File>(new File());
     m_in_block_comment = false;
@@ -3309,13 +3280,7 @@ void Parser::ChangeSection(RigDef::Section new_section)
 {
     // ## Section-specific switch logic ##
 
-    if (m_current_submesh != nullptr)
-    {
-        m_current_module->submeshes.push_back(*m_current_submesh);
-        m_current_submesh.reset(); // Set to nullptr
-        m_current_subsection = SUBSECTION_NONE;
-    }
-
+    
     if (m_current_camera_rail != nullptr)
     {
         if (m_current_camera_rail->nodes.size() == 0)
@@ -3329,24 +3294,20 @@ void Parser::ChangeSection(RigDef::Section new_section)
         }
     }
 
-    if (m_current_section == SECTION_FLEXBODIES)
-    {
-        m_current_subsection = SUBSECTION_NONE;
-    }
-
     // Enter sections
     m_current_section = new_section;
-    if (new_section == SECTION_SUBMESH)
+    if (new_section == SECTION_NONE)
     {
-        m_current_submesh = std::shared_ptr<Submesh>( new Submesh() );
+        // flush staged submesh, if any
+        if (m_current_submesh != nullptr)
+        {
+            m_current_module->submeshes.push_back(*m_current_submesh);
+            m_current_submesh.reset(); // Set to nullptr
+        }
     }
     else if (new_section == SECTION_CAMERA_RAIL)
     {
         m_current_camera_rail = std::shared_ptr<CameraRail>( new CameraRail() );
-    }
-    else if (new_section == SECTION_FLEXBODIES)
-    {
-        m_current_subsection = SUBSECTION__FLEXBODIES__PROPLIKE_LINE;
     }
     else if (new_section == SECTION_GUI_SETTINGS)
     {

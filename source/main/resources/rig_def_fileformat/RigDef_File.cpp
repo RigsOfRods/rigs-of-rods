@@ -268,6 +268,7 @@ const char * File::SectionToString(Section section)
         case (SECTION_AXLES):                return "axles";
         case (SECTION_BEAMS):                return "beams";
         case (SECTION_BRAKES):               return "brakes";
+        case (SECTION_CAB):                  return "cab";
         case (SECTION_CAMERAS):              return "cameras";
         case (SECTION_CAMERA_RAIL):          return "camerarail";
         case (SECTION_CINECAM):              return "cinecam";
@@ -315,7 +316,7 @@ const char * File::SectionToString(Section section)
         case (SECTION_SOUNDSOURCES):         return "soundsources";
         case (SECTION_SOUNDSOURCES2):        return "soundsources2";
         case (SECTION_SLOPE_BRAKE):          return "SlopeBrake";
-        case (SECTION_SUBMESH):              return "submesh";
+        case (SECTION_TEXCOORDS):            return "texcoords";
         case (SECTION_TIES):                 return "ties";
         case (SECTION_TORQUE_CURVE):         return "torquecurve";
         case (SECTION_TRACTION_CONTROL):     return "TractionControl";
@@ -332,19 +333,6 @@ const char * File::SectionToString(Section section)
 
         case (SECTION_NONE):                 return "SECTION_NONE";
         default:                             return "<unknown>";
-    }
-}
-
-const char * File::SubsectionToString(Subsection subsection)
-{
-    switch (subsection)
-    {
-        case (SUBSECTION_NONE):                      return "SUBSECTION_NONE";
-        case (SUBSECTION__FLEXBODIES__PROPLIKE_LINE):return "SUBSECTION_PROPLIKE_LINE";
-        case (SUBSECTION__FLEXBODIES__FORSET_LINE):  return "SUBSECTION_FORSET_LINE";
-        case (SUBSECTION__SUBMESH__TEXCOORDS):       return "SUBSECTION_TEXCOORDS";
-        case (SUBSECTION__SUBMESH__CAB):             return "SUBSECTION_CAB";
-        default:                                     return "~ UNKNOWN SUBSECTION ~";
     }
 }
 

@@ -102,6 +102,7 @@ private:
     void ParseDirectiveBackmesh();
     void ParseDirectiveDetacherGroup();
     void ParseDirectiveFlexbodyCameraMode();
+    void ParseDirectiveForset();
     void ParseDirectivePropCameraMode();
     void ParseDirectiveSetBeamDefaults();
     void ParseDirectiveSetBeamDefaultsScale();
@@ -109,6 +110,7 @@ private:
     void ParseDirectiveSetInertiaDefaults();
     void ParseDirectiveSetManagedMaterialsOptions();
     void ParseDirectiveSetNodeDefaults();
+    void ParseDirectiveSubmesh();
     void LogParsedDirectiveSetNodeDefaultsData(float loadweight, float friction, float volume, float surface, unsigned int options);
 
 // --------------------------------------------------------------------------
@@ -123,7 +125,7 @@ private:
     void ParseAxles();
     void ParseBeams();
     void ParseBrakes();
-    void ProcessKeywordCab();
+    void ParseCab();
     void ParseCameras();
     void ParseCameraRails();
     void ParseCinecam();
@@ -175,9 +177,8 @@ private:
     void ParseSoundsources();
     void ParseSoundsources2();
     void ParseSpeedLimiter();
-    void ParseSubmesh();
     void ParseSubmeshGroundModel();
-    void ProcessKeywordTexcoords();
+    void ParseTexcoords();
     void ParseTies();
     void ParseTorqueCurve();
     void ParseTractionControl();
@@ -284,7 +285,6 @@ private:
     Token                                m_args[LINE_MAX_ARGS];    //!< Tokens of current line.
     int                                  m_num_args;               //!< Number of tokens on current line.
     Section                        m_current_section;        //!< Parser state.
-    Subsection                     m_current_subsection;     //!< Parser state.
     bool                                 m_in_block_comment;       //!< Parser state.
     bool                                 m_in_description_section; //!< Parser state.
     bool                                 m_any_named_node_defined; //!< Parser state.
