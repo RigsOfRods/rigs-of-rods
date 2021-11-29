@@ -22,6 +22,7 @@
 /// @file
 /// @author Petr Ohlidal
 /// @date   12/2013
+/// @brief Checks the rig-def file syntax and loads data to memory
 
 #pragma once
 
@@ -117,7 +118,6 @@ private:
 //  Section parsers
 // --------------------------------------------------------------------------
 
-    void ParseActorNameLine();
     void ParseAirbrakes();
     void ParseAnimator();
     void ParseAntiLockBrakes();
@@ -133,6 +133,7 @@ private:
     void ParseCommandsUnified();
     void ParseContacter();
     void ParseCruiseControl();
+    void ParseDescription();
     void ParseEngine();
     void ParseEngoption();
     void ParseEngturbo();
@@ -144,6 +145,7 @@ private:
     void ParseFlaresUnified();
     void ParseFlexbody();
     void ParseFlexBodyWheel();
+    void ParseForset();
     void ParseFusedrag();
     void ParseGlobals();
     void ParseGuid();
@@ -199,7 +201,7 @@ private:
     void             ProcessCurrentLine();
     int              TokenizeCurrentLine();
     bool             CheckNumArguments(int num_required_args);
-    void             ChangeSection(RigDef::Section new_section);
+    void             BeginBlock(RigDef::Keyword keyword);
     void             ProcessChangeModuleLine(Keyword keyword);
 
     std::string        GetArgStr          (int index);
@@ -284,9 +286,7 @@ private:
     char                                 m_current_line[LINE_BUFFER_LENGTH];
     Token                                m_args[LINE_MAX_ARGS];    //!< Tokens of current line.
     int                                  m_num_args;               //!< Number of tokens on current line.
-    Section                        m_current_section;        //!< Parser state.
-    bool                                 m_in_block_comment;       //!< Parser state.
-    bool                                 m_in_description_section; //!< Parser state.
+    Keyword                              m_current_block = KEYWORD_INVALID;
     bool                                 m_any_named_node_defined; //!< Parser state.
     std::shared_ptr<Submesh>             m_current_submesh;        //!< Parser state.
     std::shared_ptr<CameraRail>          m_current_camera_rail;    //!< Parser state.
