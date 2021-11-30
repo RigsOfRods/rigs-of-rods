@@ -104,7 +104,7 @@ Actor *ActorSpawner::SpawnActor()
 
     // Section 'managedmaterials'
     // This prepares substitute materials -> MUST be processed before any meshes are loaded.
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_MANAGEDMATERIALS, managed_materials, ProcessManagedMaterial);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_MANAGEDMATERIALS, managedmaterials, ProcessManagedMaterial);
 
     // Section 'gobals' in any module
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_GLOBALS, globals, ProcessGlobals);

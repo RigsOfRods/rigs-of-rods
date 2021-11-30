@@ -745,15 +745,15 @@ void Serializer::ProcessFlares2(File::Module* module)
 
 void Serializer::ProcessManagedMaterialsAndOptions(File::Module* module)
 {
-    if (module->managed_materials.empty())
+    if (module->managedmaterials.empty())
     {
         return;
     }
     m_stream << "managedmaterials" << endl;
-    auto end_itor = module->managed_materials.end();
+    auto end_itor = module->managedmaterials.end();
     bool first = true;
     ManagedMaterialsOptions mm_options;
-    for (auto itor = module->managed_materials.begin(); itor != end_itor; ++itor)
+    for (auto itor = module->managedmaterials.begin(); itor != end_itor; ++itor)
     {
         RigDef::ManagedMaterial & def = *itor;
 
