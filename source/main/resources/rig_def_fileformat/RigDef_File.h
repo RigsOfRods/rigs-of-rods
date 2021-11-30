@@ -185,6 +185,12 @@ enum class DifferentialType: char
     DIFF_v_VISCOUS = 'v'
 };
 
+enum class MinimassOption: char
+{
+    n_DUMMY = 'n',
+    l_SKIP_LOADED = 'l'  //!< Only apply minimum mass to nodes without "L" option.
+};
+
 /* -------------------------------------------------------------------------- */
 /* Utility                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -305,24 +311,12 @@ struct CollisionRange
 };
 
 /* -------------------------------------------------------------------------- */
-/* Hybrid section MINIMASS                                                    */
+/* Directive SET_DEFAULT_MINIMASS                                             */
 /* -------------------------------------------------------------------------- */
 
-struct MinimassPreset
+struct DefaultMinimass
 {
-    enum Option
-    {
-        OPTION_n_FILLER  = 'n',     //!< Updates the global minimass
-        OPTION_l_SKIP_LOADED = 'l'  //!< Only apply minimum mass to nodes without "L" option.
-    };
-
-    MinimassPreset(): min_mass(DEFAULT_MINIMASS)
-    {}
-
-    explicit MinimassPreset(float m): min_mass(m)
-    {}
-
-    float min_mass; //!< minimum node mass in Kg
+    float min_mass_Kg = DEFAULT_MINIMASS; //!< minimum node mass in Kg
 };
 
 /* -------------------------------------------------------------------------- */
@@ -1616,6 +1610,16 @@ struct MaterialFlareBinding
 };
 
 /* -------------------------------------------------------------------------- */
+/* Section MINIMASS                                                           */
+/* -------------------------------------------------------------------------- */
+
+struct Minimass
+{
+    float global_min_mass_Kg; //!< minimum node mass in Kg - only effective where DefaultMinimass was not set.
+    MinimassOption option = MinimassOption::n_DUMMY;
+};
+
+/* -------------------------------------------------------------------------- */
 /* Section NODECOLLISION                                                      */
 /* -------------------------------------------------------------------------- */
 
@@ -2140,6 +2144,7 @@ struct File
         std::vector<ManagedMaterial>       managedmaterials;
         std::vector<MaterialFlareBinding>  materialflarebindings;
         std::vector<MeshWheel>             mesh_wheels;
+        std::vector<Minimass>              minimass;
         std::vector<Node>                  nodes; /* Nodes and Nodes2 are unified in this parser */
         std::vector<NodeCollision>         node_collisions;
         std::vector<Particle>              particles;
@@ -2199,9 +2204,6 @@ struct File
     std::shared_ptr<Module> root_module; //!< Required to exist. `shared_ptr` is used for unified handling with other modules.
     std::map< Ogre::String, std::shared_ptr<Module> > user_modules;
 
-    // File sections
-    std::shared_ptr<MinimassPreset> global_minimass;
-    bool minimass_skip_loaded_nodes; //!< Only apply minimum mass to nodes without "L" option. Global effect.
 };
 
 } // namespace RigDef

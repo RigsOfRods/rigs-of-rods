@@ -424,7 +424,7 @@ private:
     /**
     * Section 'minimass'.
     */
-    void ProcessMinimassInAnyModule();
+    void ProcessMinimass(RigDef::Minimass & def);
 
     void ProcessNode(RigDef::Node & def);
 
@@ -1046,8 +1046,15 @@ private:
 
     void HandleException();
 
+    struct ActorSpawnState
+    {
+        // Minimum node mass
+        float       global_minimass = DEFAULT_MINIMASS;   //!< 'minimass' - used where 'set_default_minimass' is not applied.
+    };
+
     // Spawn
     Actor*             m_actor; //!< The output actor.
+    ActorSpawnState    m_state;
     Ogre::Vector3      m_spawn_position;
     bool               m_apply_simple_materials;
     std::string        m_cab_material_name; //!< Original name defined in truckfile/globals.

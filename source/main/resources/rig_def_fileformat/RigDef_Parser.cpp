@@ -68,7 +68,6 @@ Parser::Parser()
     // Push defaults 
     m_ror_default_inertia = std::shared_ptr<Inertia>(new Inertia);
     m_ror_node_defaults = std::shared_ptr<NodeDefaults>(new NodeDefaults);
-    m_ror_minimass = std::shared_ptr<MinimassPreset>(new MinimassPreset);
 }
 
 void Parser::ProcessCurrentLine()
@@ -2350,7 +2349,8 @@ void Parser::ParseDirectiveSetDefaultMinimass()
 {
     if (! this->CheckNumArguments(2)) { return; } // Directive name + parameter
 
-    m_user_minimass = std::shared_ptr<MinimassPreset>(new MinimassPreset(this->GetArgFloat(1)));
+    m_set_default_minimass = std::shared_ptr<DefaultMinimass>(new DefaultMinimass());
+    m_set_default_minimass->min_mass_Kg = this->GetArgFloat(1);
 }
 
 void Parser::ParseDirectiveSetInertiaDefaults()
@@ -2664,7 +2664,7 @@ void Parser::ParseNodesUnified()
     Node node;
     node.node_defaults = m_user_node_defaults;
     node.beam_defaults = m_user_beam_defaults;
-    node.node_minimass = m_user_minimass;
+    node.default_minimass = m_set_default_minimass;
     node.detacher_group = m_current_detacher_group;
 
     if (m_current_block == KEYWORD_NODES2)
@@ -2724,30 +2724,13 @@ void Parser::ParseNodeCollision()
 
 void Parser::ParseMinimass()
 {
-    const float minimass = this->GetArgFloat(0);
-    if (m_num_args > 1)
-    {
-        const std::string options_str = this->GetArgStr(1);
-        for (char c: options_str)
-        {
-            switch (c)
-            {
-            case '\0': // Terminator NULL character
-            case (MinimassPreset::OPTION_n_FILLER):
-                break;
+    if (! this->CheckNumArguments(1)) { return; }
 
-            case (MinimassPreset::OPTION_l_SKIP_LOADED):
-                m_definition->minimass_skip_loaded_nodes = true;
-                break;
+    Minimass mm;
+    mm.global_min_mass_Kg = this->GetArgFloat(0);
+    if (m_num_args > 1) { mm.option = this->GetArgMinimassOption(1); }
 
-            default:
-                this->AddMessage(Message::TYPE_WARNING, std::string("Unknown option: ") + c);
-                break;
-            }
-        }
-    }
-
-    m_ror_minimass->min_mass = minimass;
+    m_current_module->minimass.push_back(mm);
     m_current_block = KEYWORD_INVALID;
 }
 
@@ -3160,7 +3143,6 @@ void Parser::Prepare()
 
     m_user_default_inertia = m_ror_default_inertia;
     m_user_node_defaults   = m_ror_node_defaults;
-    m_user_minimass        = m_ror_minimass;
     m_current_managed_material_options = ManagedMaterialsOptions();
 
     m_user_beam_defaults = std::shared_ptr<BeamDefaults>(new BeamDefaults);
@@ -3271,7 +3253,6 @@ void Parser::ParseDirectiveSectionConfig()
 void Parser::Finalize()
 {
     this->BeginBlock(KEYWORD_INVALID);
-    m_definition->global_minimass = m_ror_minimass;
 
     if (m_sequential_importer.IsEnabled())
     {
@@ -3481,6 +3462,23 @@ std::string Parser::GetArgManagedTex(int index)
 {
     std::string tex_name = this->GetArgStr(index);
     return (tex_name.at(0) != '-') ? tex_name : "";
+}
+
+MinimassOption Parser::GetArgMinimassOption(int index)
+{
+    switch (this->GetArgStr(index)[0])
+    {
+        case (char)MinimassOption::l_SKIP_LOADED:
+            return MinimassOption::l_SKIP_LOADED;
+
+        case (char)MinimassOption::n_DUMMY:
+            return MinimassOption::n_DUMMY;
+
+        default:
+            this->AddMessage(Message::TYPE_WARNING,
+            fmt::format("Not a valid minimass option: {}", this->GetArgStr(index)));
+            return MinimassOption::n_DUMMY;
+    }
 }
 
 int Parser::TokenizeCurrentLine()
