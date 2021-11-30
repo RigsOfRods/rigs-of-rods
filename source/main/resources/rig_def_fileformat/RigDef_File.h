@@ -2107,7 +2107,7 @@ struct File
         std::vector<Hydro>                 hydros;
         std::vector<InterAxle>             interaxles;
         std::vector<Lockgroup>             lockgroups;
-        std::vector<ManagedMaterial>       managed_materials;
+        std::vector<ManagedMaterial>       managedmaterials;
         std::vector<MaterialFlareBinding>  materialflarebindings;
         std::vector<MeshWheel>             mesh_wheels;
         std::vector<Node>                  nodes; /* Nodes and Nodes2 are unified in this parser */

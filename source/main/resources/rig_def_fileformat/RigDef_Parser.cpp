@@ -2873,7 +2873,7 @@ void Parser::ParseManagedMaterials()
         managed_mat.specular_map = "-";
     }
 
-    m_current_module->managed_materials.push_back(managed_mat);
+    m_current_module->managedmaterials.push_back(managed_mat);
 }
 
 void Parser::ParseLockgroups()
