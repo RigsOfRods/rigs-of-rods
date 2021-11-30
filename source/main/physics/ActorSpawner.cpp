@@ -6185,7 +6185,7 @@ RigDef::MaterialFlareBinding* ActorSpawner::FindFlareBindingForMaterial(std::str
 {
     for (auto& module: m_selected_modules)
     {
-        for (auto& def: module->material_flare_bindings)
+        for (auto& def: module->materialflarebindings)
         {
             if (def.material_name == material_name)
             {
