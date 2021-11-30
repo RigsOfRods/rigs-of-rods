@@ -2811,7 +2811,7 @@ void Parser::ParseMaterialFlareBindings()
     binding.flare_number  = this->GetArgInt(0);
     binding.material_name = this->GetArgStr(1);
     
-    m_current_module->material_flare_bindings.push_back(binding);
+    m_current_module->materialflarebindings.push_back(binding);
 }
 
 void Parser::ParseManagedMaterials()

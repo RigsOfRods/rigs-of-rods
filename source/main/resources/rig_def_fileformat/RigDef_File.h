@@ -2108,7 +2108,7 @@ struct File
         std::vector<InterAxle>             interaxles;
         std::vector<Lockgroup>             lockgroups;
         std::vector<ManagedMaterial>       managed_materials;
-        std::vector<MaterialFlareBinding>  material_flare_bindings;
+        std::vector<MaterialFlareBinding>  materialflarebindings;
         std::vector<MeshWheel>             mesh_wheels;
         std::vector<Node>                  nodes; /* Nodes and Nodes2 are unified in this parser */
         std::vector<NodeCollision>         node_collisions;

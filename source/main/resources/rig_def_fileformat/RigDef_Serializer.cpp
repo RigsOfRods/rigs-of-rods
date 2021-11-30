@@ -703,13 +703,13 @@ void Serializer::ProcessPropsAndAnimations(File::Module* module)
 
 void Serializer::ProcessMaterialFlareBindings(File::Module* module)
 {
-    if (module->material_flare_bindings.empty())
+    if (module->materialflarebindings.empty())
     {
         return;
     }
     m_stream << "materialflarebindings" << endl;
-    auto end_itor = module->material_flare_bindings.end();
-    for (auto itor = module->material_flare_bindings.begin(); itor != end_itor; ++itor)
+    auto end_itor = module->materialflarebindings.end();
+    for (auto itor = module->materialflarebindings.begin(); itor != end_itor; ++itor)
     {
         RigDef::MaterialFlareBinding & def = *itor;
         m_stream << "\n\t" << def.flare_number << ", " << def.material_name;
