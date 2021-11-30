@@ -391,8 +391,7 @@ File::File():
     lockgroup_default_nolock(false),
     rescuer(false),
     disable_default_sounds(false),
-    slide_nodes_connect_instantly(false),
-    minimass_skip_loaded_nodes(false)
+    slide_nodes_connect_instantly(false)
 {
     root_module = std::make_shared<File::Module>(ROOT_MODULE_NAME); // Required to exist.
 }

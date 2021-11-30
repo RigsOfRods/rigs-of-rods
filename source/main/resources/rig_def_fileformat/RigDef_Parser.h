@@ -221,6 +221,7 @@ private:
     Wing::Control      GetArgWingSurface  (int index);
     RoR::FlareType     GetArgFlareType    (int index);
     std::string        GetArgManagedTex   (int index);
+    MinimassOption     GetArgMinimassOption(int index);
 
     float              ParseArgFloat      (const char* str);
     int                ParseArgInt        (const char* str);
@@ -268,14 +269,13 @@ private:
 
     std::shared_ptr<Inertia>             m_ror_default_inertia;
     std::shared_ptr<NodeDefaults>        m_ror_node_defaults;
-    std::shared_ptr<MinimassPreset>      m_ror_minimass;
 
     // Data from user directives
     // Each affected section-struct has a shared_ptr to it's respective defaults
     std::shared_ptr<Inertia>             m_user_default_inertia;
     std::shared_ptr<BeamDefaults>        m_user_beam_defaults;
     std::shared_ptr<NodeDefaults>        m_user_node_defaults;
-    std::shared_ptr<MinimassPreset>      m_user_minimass;
+    std::shared_ptr<DefaultMinimass>     m_set_default_minimass;
     int                                  m_current_detacher_group;
     ManagedMaterialsOptions              m_current_managed_material_options;
 

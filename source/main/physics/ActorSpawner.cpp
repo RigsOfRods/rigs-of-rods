@@ -1511,6 +1511,12 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
     }
 }
 
+void ActorSpawner::ProcessMinimass(RigDef::Minimass & def)
+{
+    m_state.global_minimass = def.global_min_mass_Kg;
+    m_actor->ar_minimass_skip_loaded_nodes = (def.option == RigDef::MinimassOption::l_SKIP_LOADED);
+}
+
 void ActorSpawner::ProcessProp(RigDef::Prop & def)
 {
     RoR::Prop prop;
@@ -4003,7 +4009,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         outer_node.friction_coef = def.node_defaults->friction;
         outer_node.nd_rim_node   = true;
         AdjustNodeBuoyancy(outer_node, def.node_defaults);
-        m_actor->ar_minimass[outer_node.pos] = m_file->global_minimass->min_mass;
+        m_actor->ar_minimass[outer_node.pos] = m_state.global_minimass;
 
         m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(outer_node.pos)));
 
@@ -4018,7 +4024,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         inner_node.friction_coef = def.node_defaults->friction;
         inner_node.nd_rim_node   = true;
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
-        m_actor->ar_minimass[inner_node.pos] = m_file->global_minimass->min_mass;
+        m_actor->ar_minimass[inner_node.pos] = m_state.global_minimass;
 
         m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
@@ -4691,7 +4697,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         outer_node.mass        = node_mass;
         outer_node.nd_rim_node = true;
 
-        m_actor->ar_minimass[outer_node.pos] = m_file->global_minimass->min_mass;
+        m_actor->ar_minimass[outer_node.pos] = m_state.global_minimass;
 
         m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(outer_node.pos)));
 
@@ -4703,7 +4709,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         inner_node.mass        = node_mass;
         inner_node.nd_rim_node = true;
 
-        m_actor->ar_minimass[inner_node.pos] = m_file->global_minimass->min_mass;
+        m_actor->ar_minimass[inner_node.pos] = m_state.global_minimass;
 
         m_gfx_nodes.push_back(NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
@@ -5601,7 +5607,14 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     node.surface_coef = def.node_defaults->surface;
 
     /* Mass */
-    m_actor->ar_minimass[inserted_node.first] = def.node_minimass->min_mass;
+    if (def.default_minimass)
+    {
+        m_actor->ar_minimass[inserted_node.first] = def.default_minimass->min_mass_Kg;
+    }
+    else
+    {
+        m_actor->ar_minimass[inserted_node.first] = m_state.global_minimass;
+    }
 
     if (def.node_defaults->load_weight >= 0.f) // The >= operator is in orig.
     {
@@ -5761,7 +5774,7 @@ void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
     camera_node.surface_coef  = def.node_defaults->surface;
     // NOTE: Not applying the 'node_mass' value here for backwards compatibility - this node must go through initial `Actor::RecalculateNodeMasses()` pass with default weight.
 
-    m_actor->ar_minimass[camera_node.pos] = m_file->global_minimass->min_mass;
+    m_actor->ar_minimass[camera_node.pos] = m_state.global_minimass;
 
     m_actor->ar_cinecam_node[m_actor->ar_num_cinecams] = camera_node.pos;
     m_actor->ar_num_cinecams++;

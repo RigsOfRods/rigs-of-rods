@@ -89,6 +89,9 @@ Actor *ActorSpawner::SpawnActor()
     m_actor->m_disable_default_sounds    = m_file->disable_default_sounds;
     m_actor->ar_hide_in_actor_list       = m_file->hide_in_chooser;
 
+    // 'minimass'
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_MINIMASS, minimass, ProcessMinimass);
+
     // 'set_collision_range'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_SET_COLLISION_RANGE, set_collision_range, ProcessCollisionRange);
 
