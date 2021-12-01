@@ -207,6 +207,7 @@ void Parser::ProcessCurrentLine()
         // Ignored keywords (obsolete):
         case KEYWORD_ENVMAP:
         case KEYWORD_HOOKGROUP:
+        case KEYWORD_NODECOLLISION:
         case KEYWORD_RIGIDIFIERS:
             return;
 
@@ -255,7 +256,6 @@ void Parser::ProcessCurrentLine()
         case KEYWORD_MESHWHEELS:
         case KEYWORD_MESHWHEELS2:          this->ParseMeshWheelUnified();        return;
         case KEYWORD_MINIMASS:             this->ParseMinimass();                return;
-        case KEYWORD_NODECOLLISION:        this->ParseNodeCollision();           return;
         case KEYWORD_NODES:
         case KEYWORD_NODES2:               this->ParseNodesUnified();            return;
         case KEYWORD_PARTICLES:            this->ParseParticles();               return;
@@ -2549,17 +2549,6 @@ void Parser::ParseNodesUnified()
     }
 
     m_current_module->nodes.push_back(node);
-}
-
-void Parser::ParseNodeCollision()
-{
-    if (! this->CheckNumArguments(2)) { return; }
-    
-    NodeCollision node_collision;
-    node_collision.node   = this->GetArgNodeRef(0);
-    node_collision.radius = this->GetArgFloat  (1);
-    
-    m_current_module->node_collisions.push_back(node_collision);
 }
 
 void Parser::ParseMinimass()

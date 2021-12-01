@@ -150,7 +150,6 @@ private:
     void ParseMeshWheelUnified();
     void ParseMinimass();
     void ParseNodesUnified();
-    void ParseNodeCollision();
     void ParseParticles();
     void ParsePistonprops();
     void ParseProps();
