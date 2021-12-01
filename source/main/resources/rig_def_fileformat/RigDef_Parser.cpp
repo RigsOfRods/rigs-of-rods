@@ -1588,32 +1588,11 @@ void Parser::ParseAxles()
         }
         else if (results[5].matched)
         {
-            std::string options_str = results[6].str();
-            for (unsigned int i = 0; i < options_str.length(); i++)
-            {
-                switch(options_str.at(i))
-                {
-                    case 'o':
-                        axle.options.push_back(DifferentialType::DIFF_o_OPEN);
-                        break;
-                    case 'l':
-                        axle.options.push_back(DifferentialType::DIFF_l_LOCKED);
-                        break;
-                    case 's':
-                        axle.options.push_back(DifferentialType::DIFF_s_SPLIT);
-                        break;
-                    case 'v':
-                        axle.options.push_back(DifferentialType::DIFF_v_VISCOUS);
-                        break;
-
-                    default: // No check needed, regex takes care of that 
-                        break;
-                }
-            }
+            this->_ParseDifferentialTypes(axle.options, results[6].str());
         }
     }
 
-    m_current_module->axles.push_back(axle);	
+    m_current_module->axles.push_back(axle);
 }
 
 void Parser::ParseInterAxles()
@@ -1636,31 +1615,10 @@ void Parser::ParseInterAxles()
 
     if (results[5].matched)
     {
-        std::string options_str = results[6].str();
-        for (unsigned int i = 0; i < options_str.length(); i++)
-        {
-            switch(options_str.at(i))
-            {
-                case 'o':
-                    interaxle.options.push_back(DifferentialType::DIFF_o_OPEN);
-                    break;
-                case 'l':
-                    interaxle.options.push_back(DifferentialType::DIFF_l_LOCKED);
-                    break;
-                case 's':
-                    interaxle.options.push_back(DifferentialType::DIFF_s_SPLIT);
-                    break;
-                case 'v':
-                    interaxle.options.push_back(DifferentialType::DIFF_v_VISCOUS);
-                    break;
-
-                default: // No check needed, regex takes care of that 
-                    break;
-            }
-        }
+        this->_ParseDifferentialTypes(interaxle.options, results[6].str());
     }
 
-    m_current_module->interaxles.push_back(interaxle);	
+    m_current_module->interaxles.push_back(interaxle);
 }
 
 void Parser::ParseAirbrakes()
@@ -2713,6 +2671,27 @@ void Parser::ParseOptionalInertia(Inertia & inertia, int index)
     if (m_num_args > index) { inertia.stop_delay_factor  = this->GetArgFloat(index++); }
     if (m_num_args > index) { inertia.start_function     = this->GetArgStr  (index++); }
     if (m_num_args > index) { inertia.stop_function      = this->GetArgStr  (index++); }
+}
+
+void Parser::_ParseDifferentialTypes(DifferentialTypeVec& diff_types, std::string const& options_str)
+{
+    for (char c: options_str)
+    {
+        switch(c)
+        {
+            case (char)DifferentialType::o_OPEN:
+            case (char)DifferentialType::l_LOCKED:
+            case (char)DifferentialType::s_SPLIT:
+            case (char)DifferentialType::v_VISCOUS:
+                diff_types.push_back(DifferentialType(c));
+                break;
+
+            default:
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format("ignoring invalid differential type '{}'", c));
+                break;
+        }
+    }
 }
 
 void Parser::ParseBeams()
