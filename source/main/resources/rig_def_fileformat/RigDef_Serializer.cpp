@@ -1008,7 +1008,8 @@ void Serializer::ProcessTies(File::Module* module)
             << ", " << setw(m_float_width) << def.auto_shorten_rate
             << ", " << setw(m_float_width) << def.min_length
             << ", " << setw(m_float_width) << def.max_length
-            << ", " << (def.is_invisible ? "i" : "n") 
+            << ", " << (BITMASK_IS_1(def.options, Tie::OPTION_i_INVISIBLE) ? "i" : "n")
+            << ", " << (BITMASK_IS_1(def.options, Tie::OPTION_s_DISABLE_SELF_LOCK) ? "s" : "")
             << ", " << setw(m_float_width) << def.max_stress
             << ", " << def.group;
     }

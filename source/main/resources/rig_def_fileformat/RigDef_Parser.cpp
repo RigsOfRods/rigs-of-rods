@@ -1855,16 +1855,16 @@ void Parser::ParseTies()
         {
             switch (c)
             {
-            case Tie::OPTION_n_FILLER:
-            case Tie::OPTION_v_FILLER:
+            case (char)TieOption::n_DUMMY:
+            case (char)TieOption::v_DUMMY:
                 break;
 
-            case Tie::OPTION_i_INVISIBLE:
-                tie.is_invisible = true;
+            case (char)TieOption::i_INVISIBLE:
+                tie.options |= Tie::OPTION_i_INVISIBLE;
                 break;
 
-            case Tie::OPTION_s_NO_SELF_LOCK:
-                tie.disable_self_lock = true;
+            case (char)TieOption::s_NO_SELF_LOCK:
+                tie.options |= Tie::OPTION_s_DISABLE_SELF_LOCK;
                 break;
 
             default:

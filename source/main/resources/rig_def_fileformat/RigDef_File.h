@@ -231,6 +231,14 @@ enum class WingControlSurface: char
     j_LEFT_RUDDERVATOR      = 'j',
 };
 
+enum class TieOption: char
+{
+    n_DUMMY        = 'n',
+    v_DUMMY        = 'v',
+    i_INVISIBLE    = 'i',
+    s_NO_SELF_LOCK = 's',
+};
+
 /* -------------------------------------------------------------------------- */
 /* Utility                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -1933,24 +1941,19 @@ struct Submesh
 
 struct Tie
 {
-    Tie();
-
-    static const char OPTION_n_FILLER = 'n';
-    static const char OPTION_v_FILLER = 'v';
-    static const char OPTION_i_INVISIBLE = 'i';
-    static const char OPTION_s_NO_SELF_LOCK = 's';
+    static const BitMask_t OPTION_i_INVISIBLE         = BITMASK(1);
+    static const BitMask_t OPTION_s_DISABLE_SELF_LOCK = BITMASK(2);
 
     Node::Ref root_node;
-    float max_reach_length;
-    float auto_shorten_rate;
-    float min_length;
-    float max_length;
-    bool is_invisible;
-    bool disable_self_lock;
-    float max_stress;
+    float max_reach_length = 0.f;
+    float auto_shorten_rate = 0.f;
+    float min_length = 0.f;
+    float max_length = 0.f;
+    BitMask_t options = 0;
+    float max_stress = 100000.0f;
     std::shared_ptr<BeamDefaults> beam_defaults;
-    int detacher_group;
-    int group;
+    int detacher_group = 0;
+    int group = -1;
 };
 
 /* -------------------------------------------------------------------------- */
