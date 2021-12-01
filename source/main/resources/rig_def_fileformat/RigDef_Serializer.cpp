@@ -587,7 +587,7 @@ void Serializer::ProcessDirectiveAddAnimation(RigDef::Animation & anim)
     PROP_ANIMATION_ADD_FLAG(mode_flags, join, MODE_BOUNCE      , "bounce");
     PROP_ANIMATION_ADD_FLAG(mode_flags, join, MODE_EVENT_LOCK  , "eventlock");
             
-    if (anim.HasSource_Event())
+    if (BITMASK_IS_1(src_flags, RigDef::Animation::SOURCE_EVENT))
     {
         m_stream << ", event: " << anim.event;
     }

@@ -481,85 +481,74 @@ struct Animation
 {
     struct MotorSource
     {
-        MotorSource():
-            source(0),
-            motor(0)
-        {}
+        static const BitMask_t SOURCE_AERO_THROTTLE = BITMASK(1);
+        static const BitMask_t SOURCE_AERO_RPM      = BITMASK(2);
+        static const BitMask_t SOURCE_AERO_TORQUE   = BITMASK(3);
+        static const BitMask_t SOURCE_AERO_PITCH    = BITMASK(4);
+        static const BitMask_t SOURCE_AERO_STATUS   = BITMASK(5);
 
-        static const unsigned int SOURCE_AERO_THROTTLE = BITMASK(1);
-        static const unsigned int SOURCE_AERO_RPM      = BITMASK(2);
-        static const unsigned int SOURCE_AERO_TORQUE   = BITMASK(3);
-        static const unsigned int SOURCE_AERO_PITCH    = BITMASK(4);
-        static const unsigned int SOURCE_AERO_STATUS   = BITMASK(5);
-
-        unsigned int source;
-        unsigned int motor;
+        BitMask_t source = 0;
+        unsigned int motor = 0;
     };
 
-    Animation():
-        ratio(0),
-        lower_limit(-1.f),
-        upper_limit(-1.f),
-        source(0),
-        mode(0)
-    {}
+    // Source flags
+    static const BitMask_t SOURCE_AIRSPEED          = BITMASK( 1);
+    static const BitMask_t SOURCE_VERTICAL_VELOCITY = BITMASK( 2);
+    static const BitMask_t SOURCE_ALTIMETER_100K    = BITMASK( 3);
+    static const BitMask_t SOURCE_ALTIMETER_10K     = BITMASK( 4);
+    static const BitMask_t SOURCE_ALTIMETER_1K      = BITMASK( 5);
+    static const BitMask_t SOURCE_ANGLE_OF_ATTACK   = BITMASK( 6);
+    static const BitMask_t SOURCE_FLAP              = BITMASK( 7);
+    static const BitMask_t SOURCE_AIR_BRAKE         = BITMASK( 8);
+    static const BitMask_t SOURCE_ROLL              = BITMASK( 9);
+    static const BitMask_t SOURCE_PITCH             = BITMASK(10);
+    static const BitMask_t SOURCE_BRAKES            = BITMASK(11);
+    static const BitMask_t SOURCE_ACCEL             = BITMASK(12);
+    static const BitMask_t SOURCE_CLUTCH            = BITMASK(13);
+    static const BitMask_t SOURCE_SPEEDO            = BITMASK(14);
+    static const BitMask_t SOURCE_TACHO             = BITMASK(15);
+    static const BitMask_t SOURCE_TURBO             = BITMASK(16);
+    static const BitMask_t SOURCE_PARKING           = BITMASK(17);
+    static const BitMask_t SOURCE_SHIFT_LEFT_RIGHT  = BITMASK(18);
+    static const BitMask_t SOURCE_SHIFT_BACK_FORTH  = BITMASK(19);
+    static const BitMask_t SOURCE_SEQUENTIAL_SHIFT  = BITMASK(20);
+    static const BitMask_t SOURCE_SHIFTERLIN        = BITMASK(21);
+    static const BitMask_t SOURCE_TORQUE            = BITMASK(22);
+    static const BitMask_t SOURCE_HEADING           = BITMASK(23);
+    static const BitMask_t SOURCE_DIFFLOCK          = BITMASK(24);
+    static const BitMask_t SOURCE_BOAT_RUDDER       = BITMASK(25);
+    static const BitMask_t SOURCE_BOAT_THROTTLE     = BITMASK(26);
+    static const BitMask_t SOURCE_STEERING_WHEEL    = BITMASK(27);
+    static const BitMask_t SOURCE_AILERON           = BITMASK(28);
+    static const BitMask_t SOURCE_ELEVATOR          = BITMASK(29);
+    static const BitMask_t SOURCE_AIR_RUDDER        = BITMASK(30);
+    static const BitMask_t SOURCE_PERMANENT         = BITMASK(31);
+    static const BitMask_t SOURCE_EVENT             = BITMASK(32);
 
-    BITMASK_PROPERTY( source,  1, SOURCE_AIRSPEED          , HasSource_AirSpeed            , SetHasSource_AirSpeed )
-    BITMASK_PROPERTY( source,  2, SOURCE_VERTICAL_VELOCITY , HasSource_VerticalVelocity    , SetHasSource_VerticalVelocity )
-    BITMASK_PROPERTY( source,  3, SOURCE_ALTIMETER_100K    , HasSource_AltiMeter100k       , SetHasSource_AltiMeter100k )
-    BITMASK_PROPERTY( source,  4, SOURCE_ALTIMETER_10K     , HasSource_AltiMeter10k        , SetHasSource_AltiMeter10k )
-    BITMASK_PROPERTY( source,  5, SOURCE_ALTIMETER_1K      , HasSource_AltiMeter1k         , SetHasSource_AltiMeter1k )
-    BITMASK_PROPERTY( source,  6, SOURCE_ANGLE_OF_ATTACK   , HasSource_AOA                 , SetHasSource_AOA )
-    BITMASK_PROPERTY( source,  7, SOURCE_FLAP              , HasSource_Flap                , SetHasSource_Flap )
-    BITMASK_PROPERTY( source,  8, SOURCE_AIR_BRAKE         , HasSource_AirBrake            , SetHasSource_AirBrake )
-    BITMASK_PROPERTY( source,  9, SOURCE_ROLL              , HasSource_Roll                , SetHasSource_Roll )
-    BITMASK_PROPERTY( source, 10, SOURCE_PITCH             , HasSource_Pitch               , SetHasSource_Pitch )
-    BITMASK_PROPERTY( source, 11, SOURCE_BRAKES            , HasSource_Brakes              , SetHasSource_Brakes )
-    BITMASK_PROPERTY( source, 12, SOURCE_ACCEL             , HasSource_Accel               , SetHasSource_Accel )
-    BITMASK_PROPERTY( source, 13, SOURCE_CLUTCH            , HasSource_Clutch              , SetHasSource_Clutch )
-    BITMASK_PROPERTY( source, 14, SOURCE_SPEEDO            , HasSource_Speedo              , SetHasSource_Speedo )
-    BITMASK_PROPERTY( source, 15, SOURCE_TACHO             , HasSource_Tacho               , SetHasSource_Tacho )
-    BITMASK_PROPERTY( source, 16, SOURCE_TURBO             , HasSource_Turbo               , SetHasSource_Turbo )
-    BITMASK_PROPERTY( source, 17, SOURCE_PARKING           , HasSource_ParkingBrake        , SetHasSource_ParkingBrake )
-    BITMASK_PROPERTY( source, 18, SOURCE_SHIFT_LEFT_RIGHT  , HasSource_ManuShiftLeftRight  , SetHasSource_ManuShiftLeftRight )
-    BITMASK_PROPERTY( source, 19, SOURCE_SHIFT_BACK_FORTH  , HasSource_ManuShiftBackForth  , SetHasSource_ManuShiftBackForth )
-    BITMASK_PROPERTY( source, 20, SOURCE_SEQUENTIAL_SHIFT  , HasSource_SeqentialShift      , SetHasSource_SeqentialShift )
-    BITMASK_PROPERTY( source, 21, SOURCE_SHIFTERLIN        , HasSource_ShifterLin          , SetHasSource_ShifterLin )
-    BITMASK_PROPERTY( source, 22, SOURCE_TORQUE            , HasSource_Torque              , SetHasSource_Torque )
-    BITMASK_PROPERTY( source, 23, SOURCE_HEADING           , HasSource_Heading             , SetHasSource_Heading )
-    BITMASK_PROPERTY( source, 24, SOURCE_DIFFLOCK          , HasSource_DiffLock            , SetHasSource_DiffLock )
-    BITMASK_PROPERTY( source, 25, SOURCE_BOAT_RUDDER       , HasSource_BoatRudder          , SetHasSource_BoatRudder )
-    BITMASK_PROPERTY( source, 26, SOURCE_BOAT_THROTTLE     , HasSource_BoatThrottle        , SetHasSource_BoatThrottle )
-    BITMASK_PROPERTY( source, 27, SOURCE_STEERING_WHEEL    , HasSource_SteeringWheel       , SetHasSource_SteeringWheel )
-    BITMASK_PROPERTY( source, 28, SOURCE_AILERON           , HasSource_Aileron             , SetHasSource_Aileron )
-    BITMASK_PROPERTY( source, 29, SOURCE_ELEVATOR          , HasSource_Elevator            , SetHasSource_Elevator )
-    BITMASK_PROPERTY( source, 30, SOURCE_AIR_RUDDER        , HasSource_AerialRudder        , SetHasSource_AerialRudder )
-    BITMASK_PROPERTY( source, 31, SOURCE_PERMANENT         , HasSource_Permanent           , SetHasSource_Permanent )
-    BITMASK_PROPERTY( source, 32, SOURCE_EVENT             , HasSource_Event               , SetHasSource_Event ) // Full house32
+    // Mode flags
+    static const BitMask_t MODE_ROTATION_X          = BITMASK(1);
+    static const BitMask_t MODE_ROTATION_Y          = BITMASK(2);
+    static const BitMask_t MODE_ROTATION_Z          = BITMASK(3);
+    static const BitMask_t MODE_OFFSET_X            = BITMASK(4);
+    static const BitMask_t MODE_OFFSET_Y            = BITMASK(5);
+    static const BitMask_t MODE_OFFSET_Z            = BITMASK(6);
+    static const BitMask_t MODE_AUTO_ANIMATE        = BITMASK(7);
+    static const BitMask_t MODE_NO_FLIP             = BITMASK(8);
+    static const BitMask_t MODE_BOUNCE              = BITMASK(9);
+    static const BitMask_t MODE_EVENT_LOCK          = BITMASK(10);
 
-    static const unsigned int MODE_ROTATION_X          = BITMASK(1);
-    static const unsigned int MODE_ROTATION_Y          = BITMASK(2);
-    static const unsigned int MODE_ROTATION_Z          = BITMASK(3);
-    static const unsigned int MODE_OFFSET_X            = BITMASK(4);
-    static const unsigned int MODE_OFFSET_Y            = BITMASK(5);
-    static const unsigned int MODE_OFFSET_Z            = BITMASK(6);
-    static const unsigned int MODE_AUTO_ANIMATE        = BITMASK(7);
-    static const unsigned int MODE_NO_FLIP             = BITMASK(8);
-    static const unsigned int MODE_BOUNCE              = BITMASK(9);
-    static const unsigned int MODE_EVENT_LOCK          = BITMASK(10);
-
-    float ratio;
-    float lower_limit;
-    float upper_limit;
-    unsigned int source;
+    float ratio = 0.f;
+    float lower_limit = -1.f;
+    float upper_limit = -1.f;
+    BitMask_t source = 0;
     std::list<MotorSource> motor_sources;
-    unsigned int mode;
+    BitMask_t mode = 0;
 
     // NOTE: MSVC highlights 'event' as keyword: http://msdn.microsoft.com/en-us/library/4b612y2s%28v=vs.100%29.aspx
     // But it's ok to use as identifier in this context: http://msdn.microsoft.com/en-us/library/8d7y7wz6%28v=vs.100%29.aspx
     Ogre::String event;
 
-    void AddMotorSource(unsigned int source, unsigned int motor);
+    void AddMotorSource(BitMask_t source, unsigned int motor);
 };
 
 /* -------------------------------------------------------------------------- */
