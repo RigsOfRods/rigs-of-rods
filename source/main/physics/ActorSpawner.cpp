@@ -5138,30 +5138,9 @@ void ActorSpawner::ProcessEngine(RigDef::Engine & def)
     m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
 };
 
-void ActorSpawner::ProcessHelp()
+void ActorSpawner::ProcessHelp(RigDef::Help & def)
 {
-    SetCurrentKeyword(RigDef::KEYWORD_HELP);
-    unsigned int material_count = 0;
-
-    std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
-    for (; module_itor != m_selected_modules.end(); module_itor++)
-    {
-        auto module = module_itor->get();
-        if (! module->help_panel_material_name.empty())
-        {
-            m_help_material_name = module->help_panel_material_name;
-            material_count++;
-        }
-    }
-
-    if (material_count > 1)
-    {
-        std::stringstream msg;
-        msg << "Multiple (" << material_count << ") 'help' sections found. Using the last one...";
-        AddMessage(Message::TYPE_WARNING, msg.str());	
-    }
-
-    SetCurrentKeyword(RigDef::KEYWORD_INVALID);
+    m_help_material_name = def.material;
 };
 
 void ActorSpawner::ProcessAuthor(RigDef::Author & def)

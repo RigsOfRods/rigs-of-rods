@@ -813,6 +813,15 @@ struct Guid
 };
 
 /* -------------------------------------------------------------------------- */
+/* Section HELP                                                               */
+/* -------------------------------------------------------------------------- */
+
+struct Help
+{
+    std::string material;
+};
+
+/* -------------------------------------------------------------------------- */
 /* Section BRAKES                                                             */
 /* -------------------------------------------------------------------------- */
 
@@ -2107,9 +2116,6 @@ struct File
 
         Ogre::String name;
 
-        Ogre::String                       help_panel_material_name;
-
-        /* Sections*/
         std::vector<Airbrake>              airbrakes;
         std::vector<Animator>              animators;
         std::vector<AntiLockBrakes>        antilockbrakes;
@@ -2139,6 +2145,7 @@ struct File
         std::vector<Globals>               globals;
         std::vector<Guid>                  guid;
         std::vector<GuiSettings>           guisettings;
+        std::vector<Help>                  help;
         std::vector<Hook>                  hooks;
         std::vector<Hydro>                 hydros;
         std::vector<InterAxle>             interaxles;

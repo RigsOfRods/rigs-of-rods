@@ -387,7 +387,7 @@ private:
     */
     void ProcessGuiSettings(RigDef::GuiSettings & def);
 
-    void ProcessHelp();
+    void ProcessHelp(RigDef::Help & def);
 
     /**
     * Depends on 'nodes'

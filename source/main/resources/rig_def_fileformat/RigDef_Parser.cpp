@@ -763,8 +763,9 @@ void Parser::ParseHook()
 
 void Parser::ParseHelp()
 {
-    m_current_module->help_panel_material_name = m_current_line;
-    Ogre::StringUtil::trim(m_current_module->help_panel_material_name);
+    Help h;
+    h.material = m_current_line; // already trimmed
+    m_current_module->help.push_back(h);
 }
 
 void Parser::ParseGuiSettings()
