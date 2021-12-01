@@ -471,12 +471,6 @@ void Serializer::ProcessSubmeshGroundmodel(File::Module* module)
     m_stream << ";submesh_groundmodel -- STUB"<< endl << endl; // Empty line
 }
 
-#define CAB_PRINT_OPTION_FLAG(VAR, FLAG, CHAR) \
-    if (BITMASK_IS_1(VAR, RigDef::Cab::FLAG)) { m_stream << CHAR; }
-
-#define CAB_PRINT_OPTION_FUNC(DEF, FUNC, CHAR) \
-    if (DEF->FUNC()) { m_stream << CHAR; }
-
 void Serializer::ProcessSubmesh(File::Module* module)
 {
     if (module->submeshes.empty())
@@ -510,15 +504,15 @@ void Serializer::ProcessSubmesh(File::Module* module)
                     << ", n";
 
                 // Options
-                CAB_PRINT_OPTION_FLAG(cab_itor->options, OPTION_c_CONTACT           , 'c')
-                CAB_PRINT_OPTION_FLAG(cab_itor->options, OPTION_b_BUOYANT           , 'b')
-                CAB_PRINT_OPTION_FLAG(cab_itor->options, OPTION_p_10xTOUGHER        , 'p')
-                CAB_PRINT_OPTION_FLAG(cab_itor->options, OPTION_u_INVULNERABLE      , 'u')
-                CAB_PRINT_OPTION_FLAG(cab_itor->options, OPTION_s_BUOYANT_NO_DRAG   , 's')
-                CAB_PRINT_OPTION_FLAG(cab_itor->options, OPTION_r_BUOYANT_ONLY_DRAG , 'r')
-                CAB_PRINT_OPTION_FUNC(cab_itor, GetOption_D_ContactBuoyant		    , 'D')
-                CAB_PRINT_OPTION_FUNC(cab_itor, GetOption_F_10xTougherBuoyant	    , 'F')
-                CAB_PRINT_OPTION_FUNC(cab_itor, GetOption_S_UnpenetrableBuoyant     , 'S')
+                if (BITMASK_IS_1(cab_itor->options, Cab::OPTION_c_CONTACT             )) m_stream << (char)CabOption::c_CONTACT;
+                if (BITMASK_IS_1(cab_itor->options, Cab::OPTION_b_BUOYANT             )) m_stream << (char)CabOption::b_BUOYANT;
+                if (BITMASK_IS_1(cab_itor->options, Cab::OPTION_p_10xTOUGHER          )) m_stream << (char)CabOption::p_10xTOUGHER;
+                if (BITMASK_IS_1(cab_itor->options, Cab::OPTION_u_INVULNERABLE        )) m_stream << (char)CabOption::u_INVULNERABLE;
+                if (BITMASK_IS_1(cab_itor->options, Cab::OPTION_s_BUOYANT_NO_DRAG     )) m_stream << (char)CabOption::s_BUOYANT_NO_DRAG;
+                if (BITMASK_IS_1(cab_itor->options, Cab::OPTION_r_BUOYANT_ONLY_DRAG   )) m_stream << (char)CabOption::r_BUOYANT_ONLY_DRAG;
+                if (BITMASK_IS_1(cab_itor->options, Cab::OPTION_D_CONTACT_BUOYANT     )) m_stream << (char)CabOption::D_CONTACT_BUOYANT;
+                if (BITMASK_IS_1(cab_itor->options, Cab::OPTION_F_10xTOUGHER_BUOYANT  )) m_stream << (char)CabOption::F_10xTOUGHER_BUOYANT;
+                if (BITMASK_IS_1(cab_itor->options, Cab::OPTION_S_INVULNERABLE_BUOYANT)) m_stream << (char)CabOption::S_INVULNERABLE_BUOYANT;
             }
         }
         if (def.backmesh)

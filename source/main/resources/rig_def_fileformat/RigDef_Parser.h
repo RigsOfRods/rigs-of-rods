@@ -210,6 +210,7 @@ private:
     RoR::FlareType     GetArgFlareType    (int index);
     std::string        GetArgManagedTex   (int index);
     MinimassOption     GetArgMinimassOption(int index);
+    BitMask_t          GetArgCabOptions   (int index);
 
     float              ParseArgFloat      (const char* str);
     int                ParseArgInt        (const char* str);

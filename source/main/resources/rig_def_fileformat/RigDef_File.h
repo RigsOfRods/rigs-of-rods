@@ -239,6 +239,19 @@ enum class TieOption: char
     s_NO_SELF_LOCK = 's',
 };
 
+enum class CabOption: char
+{
+    c_CONTACT              = 'c',
+    b_BUOYANT              = 'b',
+    p_10xTOUGHER           = 'p',
+    u_INVULNERABLE         = 'u',
+    s_BUOYANT_NO_DRAG      = 's',
+    r_BUOYANT_ONLY_DRAG    = 'r',
+    D_CONTACT_BUOYANT      = 'D',
+    F_10xTOUGHER_BUOYANT   = 'F',
+    S_INVULNERABLE_BUOYANT = 'S',
+};
+
 /* -------------------------------------------------------------------------- */
 /* Utility                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -1882,34 +1895,18 @@ struct SpeedLimiter
 
 struct Cab
 {
-    Cab():
-        options(0)
-    {}
-
-    bool GetOption_D_ContactBuoyant()
-    {
-        return BITMASK_IS_1(options, OPTION_b_BUOYANT) && BITMASK_IS_1(options, OPTION_c_CONTACT);
-    }
-
-    bool GetOption_F_10xTougherBuoyant()
-    {
-        return BITMASK_IS_1(options, OPTION_b_BUOYANT) && BITMASK_IS_1(options, OPTION_p_10xTOUGHER);
-    }
-
-    bool GetOption_S_UnpenetrableBuoyant()
-    {
-        return BITMASK_IS_1(options, OPTION_b_BUOYANT) && BITMASK_IS_1(options, OPTION_u_INVULNERABLE);
-    }
-
-    static const unsigned int OPTION_c_CONTACT           = BITMASK(1);
-    static const unsigned int OPTION_b_BUOYANT           = BITMASK(2);
-    static const unsigned int OPTION_p_10xTOUGHER        = BITMASK(3);
-    static const unsigned int OPTION_u_INVULNERABLE      = BITMASK(4);
-    static const unsigned int OPTION_s_BUOYANT_NO_DRAG   = BITMASK(5);
-    static const unsigned int OPTION_r_BUOYANT_ONLY_DRAG = BITMASK(6);
+    static const BitMask_t OPTION_c_CONTACT              = BITMASK(1);
+    static const BitMask_t OPTION_b_BUOYANT              = BITMASK(2);
+    static const BitMask_t OPTION_p_10xTOUGHER           = BITMASK(3);
+    static const BitMask_t OPTION_u_INVULNERABLE         = BITMASK(4);
+    static const BitMask_t OPTION_s_BUOYANT_NO_DRAG      = BITMASK(5);
+    static const BitMask_t OPTION_r_BUOYANT_ONLY_DRAG    = BITMASK(6);
+    static const BitMask_t OPTION_D_CONTACT_BUOYANT      = OPTION_c_CONTACT | OPTION_b_BUOYANT;
+    static const BitMask_t OPTION_F_10xTOUGHER_BUOYANT   = OPTION_p_10xTOUGHER | OPTION_b_BUOYANT;
+    static const BitMask_t OPTION_S_INVULNERABLE_BUOYANT = OPTION_u_INVULNERABLE | OPTION_b_BUOYANT;
 
     Node::Ref nodes[3];
-    unsigned int options;
+    BitMask_t options = 0;
 };
 
 struct Texcoord

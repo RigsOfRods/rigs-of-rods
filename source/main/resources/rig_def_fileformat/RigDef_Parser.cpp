@@ -863,30 +863,7 @@ void Parser::ParseCab()
     cab.nodes[0] = this->GetArgNodeRef(0);
     cab.nodes[1] = this->GetArgNodeRef(1);
     cab.nodes[2] = this->GetArgNodeRef(2);
-    if (m_num_args > 3)
-    {
-        cab.options = 0;
-        std::string options_str = this->GetArgStr(3);
-        for (unsigned int i = 0; i < options_str.length(); i++)
-        {
-            switch (options_str.at(i))
-            {
-            case 'c': cab.options |=  Cab::OPTION_c_CONTACT;                               break;
-            case 'b': cab.options |=  Cab::OPTION_b_BUOYANT;                               break;
-            case 'D': cab.options |= (Cab::OPTION_c_CONTACT      | Cab::OPTION_b_BUOYANT); break;
-            case 'p': cab.options |=  Cab::OPTION_p_10xTOUGHER;                            break;
-            case 'u': cab.options |=  Cab::OPTION_u_INVULNERABLE;                          break;
-            case 'F': cab.options |= (Cab::OPTION_p_10xTOUGHER   | Cab::OPTION_b_BUOYANT); break;
-            case 'S': cab.options |= (Cab::OPTION_u_INVULNERABLE | Cab::OPTION_b_BUOYANT); break; 
-            case 'n': break; // Placeholder, does nothing 
-
-            default:
-                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
-                    fmt::format("ignoring invalid option '{}'", options_str.at(i)));
-                break;
-            }
-        }
-    }
+    if (m_num_args > 3) cab.options = this->GetArgCabOptions(3);
 
     m_current_submesh->cab_triangles.push_back(cab);
 }
@@ -3259,6 +3236,30 @@ MinimassOption Parser::GetArgMinimassOption(int index)
                 fmt::format("Not a valid minimass option: {}, falling back to 'n' (dummy)", this->GetArgStr(index)));
             return MinimassOption::n_DUMMY;
     }
+}
+
+BitMask_t Parser::GetArgCabOptions(int index)
+{
+    BitMask_t ret = 0;
+    for (char c: this->GetArgStr(index))
+    {
+        switch (c)
+        {
+            case (char)CabOption::c_CONTACT:              ret |= Cab::OPTION_c_CONTACT             ; break;
+            case (char)CabOption::b_BUOYANT:              ret |= Cab::OPTION_b_BUOYANT             ; break;
+            case (char)CabOption::p_10xTOUGHER:           ret |= Cab::OPTION_p_10xTOUGHER          ; break;
+            case (char)CabOption::u_INVULNERABLE:         ret |= Cab::OPTION_u_INVULNERABLE        ; break;
+            case (char)CabOption::s_BUOYANT_NO_DRAG:      ret |= Cab::OPTION_s_BUOYANT_NO_DRAG     ; break;
+            case (char)CabOption::r_BUOYANT_ONLY_DRAG:    ret |= Cab::OPTION_r_BUOYANT_ONLY_DRAG   ; break;
+            case (char)CabOption::D_CONTACT_BUOYANT:      ret |= Cab::OPTION_D_CONTACT_BUOYANT     ; break;
+            case (char)CabOption::F_10xTOUGHER_BUOYANT:   ret |= Cab::OPTION_F_10xTOUGHER_BUOYANT  ; break;
+            case (char)CabOption::S_INVULNERABLE_BUOYANT: ret |= Cab::OPTION_S_INVULNERABLE_BUOYANT; break;
+            default:
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format("ignoring invalid flag '{}'", c));
+        }
+    }
+    return ret;
 }
 
 int Parser::TokenizeCurrentLine()
