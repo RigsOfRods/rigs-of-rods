@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "Console.h"
 #include "RigDef_Prerequisites.h"
 #include "RigDef_File.h"
 #include "RigDef_SequentialImporter.h"
@@ -59,18 +60,6 @@ public:
 
     static const int LINE_BUFFER_LENGTH = 2000;
     static const int LINE_MAX_ARGS = 100;
-
-    struct Message // TODO: remove, use console API directly
-    {
-        enum Type
-        {
-            TYPE_WARNING,
-            TYPE_ERROR,
-            TYPE_FATAL_ERROR,
-
-            TYPE_INVALID = 0xFFFFFFFF
-        };
-    };
 
     struct Token
     {
@@ -114,7 +103,6 @@ private:
     void ParseDirectiveSetManagedMaterialsOptions();
     void ParseDirectiveSetNodeDefaults();
     void ParseDirectiveSubmesh();
-    void LogParsedDirectiveSetNodeDefaultsData(float loadweight, float friction, float volume, float surface, unsigned int options);
 
 // --------------------------------------------------------------------------
 //  Section parsers
@@ -201,6 +189,7 @@ private:
 
     void             ProcessCurrentLine();
     int              TokenizeCurrentLine();
+    Keyword          IdentifyKeywordInCurrentLine();
     bool             CheckNumArguments(int num_required_args);
     void             BeginBlock(RigDef::Keyword keyword);
     void             ProcessChangeModuleLine(Keyword keyword);
@@ -230,28 +219,11 @@ private:
     unsigned           ParseArgUint       (const std::string& s);
     float              ParseArgFloat      (const std::string& s);
 
-    void _CheckInvalidTrailingText(Ogre::String const & line, std::smatch const & results, unsigned int index);
-
-    /// Keyword scan function. 
-    Keyword IdentifyKeywordInCurrentLine();
-
     /// Keyword scan utility function. 
     Keyword FindKeywordMatch(std::smatch& search_results);
 
     /// Adds a message to console
-    void AddMessage(std::string const & line, Message::Type type, std::string const & message);
-    void AddMessage(Message::Type type, const char* msg)
-    {
-        this->AddMessage(m_current_line, type, msg);
-    }
-    void AddMessage(Message::Type type, std::string const & msg)
-    {
-        this->AddMessage(m_current_line, type, msg);
-    }
-    void VerifyModuleIsRoot(Keyword keyword); //!< Reports warning message if we're not in root module
-
-    /// Print a log INFO message.
-    void _PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node);
+    void LogMessage(RoR::Console::MessageType type, std::string const& msg);
 
     static void _TrimTrailingComments(std::string const & line_in, std::string & line_out);
 
@@ -288,6 +260,7 @@ private:
     Token                                m_args[LINE_MAX_ARGS];    //!< Tokens of current line.
     int                                  m_num_args;               //!< Number of tokens on current line.
     Keyword                              m_current_block = KEYWORD_INVALID;
+    Keyword                              m_log_keyword = KEYWORD_INVALID;
     bool                                 m_any_named_node_defined; //!< Parser state.
     std::shared_ptr<Submesh>             m_current_submesh;        //!< Parser state.
     std::shared_ptr<CameraRail>          m_current_camera_rail;    //!< Parser state.

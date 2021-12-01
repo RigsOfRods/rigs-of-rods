@@ -257,7 +257,7 @@ void Animation::AddMotorSource(unsigned int source, unsigned int motor)
 /* File                                                                       */
 /* -------------------------------------------------------------------------- */
 
-const char * File::KeywordToString(Keyword keyword)
+const char * KeywordToString(Keyword keyword)
 {
     // PLEASE maintain alphabetical order!
 
@@ -374,7 +374,7 @@ const char * File::KeywordToString(Keyword keyword)
         case KEYWORD_WHEELS2:              return "wheels2";
         case KEYWORD_WINGS:                return "wings";
 
-        default:                             return "~Unknown~";
+        default:                           return "";
     }
 }
 
