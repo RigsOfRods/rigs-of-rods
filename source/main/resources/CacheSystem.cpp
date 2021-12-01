@@ -796,7 +796,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
             vehicle_type = BOAT;
         }
         /* Note: Sections 'turboprops' and 'turboprops2' are unified in TruckParser2013 */
-        else if (module_itor->second->turbojets.size() > 0 || module_itor->second->pistonprops.size() > 0 || module_itor->second->turboprops_2.size() > 0)
+        else if (module_itor->second->turbojets.size() > 0 || module_itor->second->pistonprops.size() > 0 || module_itor->second->turboprops2.size() > 0)
         {
             vehicle_type = AIRPLANE;
         }
@@ -811,7 +811,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
         vehicle_type = BOAT;
     }
     /* Note: Sections 'turboprops' and 'turboprops2' are unified in TruckParser2013 */
-    else if (def->root_module->turbojets.size() > 0 || def->root_module->pistonprops.size() > 0 || def->root_module->turboprops_2.size() > 0)
+    else if (def->root_module->turbojets.size() > 0 || def->root_module->pistonprops.size() > 0 || def->root_module->turboprops2.size() > 0)
     {
         vehicle_type = AIRPLANE;
     }
@@ -845,7 +845,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     entry.flarescount = static_cast<int>(def->root_module->flares2.size());
     entry.propscount = static_cast<int>(def->root_module->props.size());
     entry.wingscount = static_cast<int>(def->root_module->wings.size());
-    entry.turbopropscount = static_cast<int>(def->root_module->turboprops_2.size());
+    entry.turbopropscount = static_cast<int>(def->root_module->turboprops2.size());
     entry.rotatorscount = static_cast<int>(def->root_module->rotators.size() + def->root_module->rotators2.size());
     entry.exhaustscount = static_cast<int>(def->root_module->exhausts.size());
     entry.custom_particles = def->root_module->particles.size() > 0;
