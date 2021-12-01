@@ -105,7 +105,7 @@ Actor *ActorSpawner::SpawnActor()
     }
 
     // Section 'description'
-    m_actor->description.assign(m_file->description.begin(), m_file->description.end());
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_DESCRIPTION, description, ProcessDescription);
 
     // Section 'managedmaterials'
     // This prepares substitute materials -> MUST be processed before any meshes are loaded.

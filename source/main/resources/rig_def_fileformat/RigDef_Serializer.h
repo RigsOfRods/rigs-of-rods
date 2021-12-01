@@ -51,7 +51,7 @@ protected:
 
     void ProcessAuthors(File::Module* module);
     void ProcessGlobals(File::Module* module);
-    void ProcessDescription();
+    void ProcessDescription(File::Module* module);
     void ProcessGuid(File::Module* module);
     void ProcessFileinfo(File::Module* module);
     void WriteFlags();
