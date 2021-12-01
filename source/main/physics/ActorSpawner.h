@@ -845,7 +845,7 @@ private:
 
     void UpdateCollcabContacterNodes();
 
-    wheel_t::BrakeCombo TranslateBrakingDef(RigDef::Wheels::Braking def);
+    wheel_t::BrakeCombo TranslateBrakingDef(RigDef::WheelBraking def);
 
     /**
     * Checks a section only appears in one module and reports a warning if not.
@@ -952,8 +952,8 @@ private:
         unsigned int reserve_nodes,
         unsigned int reserve_beams,
         float wheel_radius,
-        RigDef::Wheels::Propulsion propulsion,
-        RigDef::Wheels::Braking braking,
+        RigDef::WheelPropulsion propulsion,
+        RigDef::WheelBraking braking,
         std::shared_ptr<RigDef::NodeDefaults> node_defaults,
         float wheel_mass,
         float wheel_width = -1.f

@@ -3090,28 +3090,40 @@ Node::Ref Parser::GetArgRigidityNode(int index)
     return Node::Ref(); // Defaults to invalid ref
 }
 
-Wheels::Propulsion Parser::GetArgPropulsion(int index)
+WheelPropulsion Parser::GetArgPropulsion(int index)
 {
-    int propulsion = this->GetArgInt(index);
-    if (propulsion < 0 || propulsion > 2)
+    int p = this->GetArgInt(index);
+    switch (p)
     {
-        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format("Bad value of param ~{} (propulsion), using 0 (no propulsion)", index + 1));
-        return Wheels::PROPULSION_NONE;
+        case (int)WheelPropulsion::NONE:
+        case (int)WheelPropulsion::FORWARD:
+        case (int)WheelPropulsion::BACKWARD:
+            return WheelPropulsion(p);
+
+        default:
+            this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("Bad value of param ~{} (propulsion), using 0 (no propulsion)", index + 1));
+            return WheelPropulsion::NONE;
     }
-    return Wheels::Propulsion(propulsion);
 }
 
-Wheels::Braking Parser::GetArgBraking(int index)
+WheelBraking Parser::GetArgBraking(int index)
 {
-    int braking = this->GetArgInt(index);
-    if (braking < 0 || braking > 4)
+    int b = this->GetArgInt(index);
+    switch (b)
     {
-        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format("Bad value of param ~{} (braking), using 0 (no braking)", index + 1));
-        return Wheels::BRAKING_NO;
+        case (int)WheelBraking::NONE:
+        case (int)WheelBraking::FOOT_HAND:
+        case (int)WheelBraking::FOOT_HAND_SKID_LEFT:
+        case (int)WheelBraking::FOOT_HAND_SKID_RIGHT:
+        case (int)WheelBraking::FOOT_ONLY:
+            return WheelBraking(b);
+
+        default:
+            this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("Bad value of param ~{} (braking), using 0 (not braked)", index + 1));
+            return WheelBraking::NONE;
     }
-    return Wheels::Braking(braking);
 }
 
 Node::Ref Parser::GetArgNodeRef(int index)
