@@ -720,8 +720,8 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* Description */
-    std::vector<Ogre::String>::iterator desc_itor = def->description.begin();
-    for (; desc_itor != def->description.end(); desc_itor++)
+    std::vector<Ogre::String>::iterator desc_itor = def->root_module->description.begin();
+    for (; desc_itor != def->root_module->description.end(); desc_itor++)
     {
         entry.description += *desc_itor + "\n";
     }

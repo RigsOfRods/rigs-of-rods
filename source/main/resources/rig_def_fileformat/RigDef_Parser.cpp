@@ -1098,7 +1098,7 @@ void Parser::ParseCruiseControl()
 
 void Parser::ParseDescription()
 {
-    m_definition->description.push_back(m_current_line); // Already trimmed
+    m_current_module->description.push_back(m_current_line); // Already trimmed
 }
 
 void Parser::ParseDirectiveAddAnimation()

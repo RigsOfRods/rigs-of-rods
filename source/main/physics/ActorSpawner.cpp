@@ -815,6 +815,11 @@ void ActorSpawner::ProcessTurboprop2(RigDef::Turboprop2 & def)
     );
 }
 
+void ActorSpawner::ProcessDescription(Ogre::String const& line)
+{
+    m_actor->description.push_back(line);
+}
+
 void ActorSpawner::ProcessPistonprop(RigDef::Pistonprop & def)
 {
     const NodeNum_t p3_node_index = (def.blade_tip_nodes[2].IsValidAnyState()) ? GetNodeIndexOrThrow(def.blade_tip_nodes[2]) : -1;

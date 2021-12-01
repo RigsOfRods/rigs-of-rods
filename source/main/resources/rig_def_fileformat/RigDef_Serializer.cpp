@@ -74,7 +74,7 @@ void Serializer::Serialize()
     // Write individual elements
 
     // About
-    ProcessDescription();
+    ProcessDescription(source_module);
     ProcessAuthors(source_module);
     ProcessGlobals(source_module);
     ProcessFileinfo(source_module);
@@ -2550,12 +2550,12 @@ void Serializer::ProcessGuid(File::Module* module)
     }
 }
 
-void Serializer::ProcessDescription()
+void Serializer::ProcessDescription(File::Module* module)
 {
-    if (m_rig_def->description.size() != 0)
+    if (module->description.size() != 0)
     {
         m_stream << "description";
-        for (auto itor = m_rig_def->description.begin(); itor != m_rig_def->description.end(); ++itor)
+        for (auto itor = module->description.begin(); itor != module->description.end(); ++itor)
         {
             std::string line = *itor;
             m_stream << endl << line;

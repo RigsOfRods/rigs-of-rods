@@ -2116,6 +2116,7 @@ struct File
         std::vector<Command2>              commands2; // 'commands' are auto-imported as 'commands2' (only 1 extra argument)
         std::vector<CruiseControl>         cruisecontrol;
         std::vector<Node::Ref>             contacters;
+        std::vector<Ogre::String>          description;
         std::vector<Engine>                engine;
         std::vector<Engoption>             engoption;
         std::vector<Engturbo>              engturbo;
@@ -2177,7 +2178,6 @@ struct File
 
     File();
 
-    std::vector<Ogre::String> description;
     bool hide_in_chooser;
     bool enable_advanced_deformation;
     bool slide_nodes_connect_instantly;

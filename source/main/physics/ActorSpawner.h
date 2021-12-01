@@ -327,6 +327,8 @@ private:
     */
     void ProcessCruiseControl(RigDef::CruiseControl & def);
 
+    void ProcessDescription(Ogre::String const& line);
+
     /**
     * Section 'engine' in any module.
     */
