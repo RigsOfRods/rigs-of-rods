@@ -316,7 +316,7 @@ void Serializer::ProcessWings(File::Module* module)
             << ", " << def.tex_coords[5]
             << ", " << def.tex_coords[6]
             << ", " << def.tex_coords[7]
-            << ", " << def.control_surface
+            << ", " << (char)def.control_surface
             << ", " << def.chord_point
             << ", " << def.min_deflection
             << ", " << def.max_deflection

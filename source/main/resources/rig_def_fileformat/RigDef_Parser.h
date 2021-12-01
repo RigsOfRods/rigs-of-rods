@@ -206,7 +206,7 @@ private:
     Node::Ref          GetArgRigidityNode (int index);
     Node::Ref          GetArgNullableNode (int index);
     MeshWheel::Side    GetArgWheelSide    (int index);
-    Wing::Control      GetArgWingSurface  (int index);
+    WingControlSurface GetArgWingSurface  (int index);
     RoR::FlareType     GetArgFlareType    (int index);
     std::string        GetArgManagedTex   (int index);
     MinimassOption     GetArgMinimassOption(int index);

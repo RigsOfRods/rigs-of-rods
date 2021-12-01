@@ -898,7 +898,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
         Ogre::Vector2(def.tex_coords[2], def.tex_coords[3]),
         Ogre::Vector2(def.tex_coords[4], def.tex_coords[5]),
         Ogre::Vector2(def.tex_coords[6], def.tex_coords[7]),
-        def.control_surface,
+        (char)def.control_surface,
         def.chord_point,
         def.min_deflection,
         def.max_deflection,
