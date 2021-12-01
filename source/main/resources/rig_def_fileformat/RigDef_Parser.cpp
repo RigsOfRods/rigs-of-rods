@@ -94,6 +94,7 @@ void Parser::ProcessCurrentLine()
 
     // Detect keyword on current line 
     Keyword keyword = IdentifyKeywordInCurrentLine();
+    m_log_keyword = keyword;
     switch (keyword)
     {
         // No keyword - Continue below to process current block.
@@ -216,6 +217,7 @@ void Parser::ProcessCurrentLine()
     }
 
     // Parse current block, if any
+    m_log_keyword = m_current_block;
     switch (m_current_block)
     {
         case KEYWORD_AIRBRAKES:            this->ParseAirbrakes();               return;
@@ -288,13 +290,12 @@ void Parser::ProcessCurrentLine()
     };
 }
 
-bool Parser::CheckNumArguments(int num_required_args)
+bool Parser::CheckNumArguments(int min_args)
 {
-    if (num_required_args > m_num_args)
+    if (min_args > m_num_args)
     {
-        char msg[200];
-        snprintf(msg, 200, "Not enough arguments, %d required, got %d. Skipping line.", num_required_args, m_num_args);
-        this->AddMessage(Message::TYPE_WARNING, msg);
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Not enough arguments (got {}, {} needed), skipping line", m_num_args, min_args));
         return false;
     }
     return true;
@@ -413,11 +414,8 @@ void Parser::ParseWheelDetachers()
 void Parser::ParseTractionControl()
 {
     Ogre::StringVector tokens = Ogre::StringUtil::split(m_current_line + 15, ","); // "TractionControl" = 15 characters
-    if (tokens.size() < 2)
-    {
-        this->AddMessage(Message::TYPE_ERROR, "Too few arguments");
-        return;
-    }
+    m_num_args = (int)tokens.size();
+    if (! this->CheckNumArguments(2)) { return; }
 
     TractionControl tc;
                              tc.regulation_force = this->ParseArgFloat(tokens[0].c_str());
@@ -449,7 +447,7 @@ void Parser::ParseTractionControl()
         }
         else
         {
-            this->AddMessage(Message::TYPE_ERROR, "TractionControl Mode: missing");
+            this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, "missing mode");
             tc.attr_no_dashboard = false;
             tc.attr_no_toggle = false;
             tc.attr_is_on = true;
@@ -486,19 +484,8 @@ void Parser::ParseSpeedLimiter()
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
     SpeedLimiter sl;
-    if (sl.is_enabled)
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Multiple inline-sections 'speedlimiter' in a module, using last one ...");
-    }
-
     sl.is_enabled = true;
     sl.max_speed = this->GetArgFloat(1);
-    if (sl.max_speed <= 0.f)
-    {
-        char msg[200];
-        snprintf(msg, 200, "Invalid 'max_speed' (%f), must be > 0.0. Using it anyway (compatibility)", sl.max_speed);
-        this->AddMessage(Message::TYPE_WARNING, msg);
-    }
 
     m_current_module->speedlimiter.push_back(sl);
 }
@@ -519,32 +506,6 @@ void Parser::ParseSetSkeletonSettings()
     // Defaults
     if (skel.visibility_range_meters < 0.f) { skel.visibility_range_meters = 150.f; }
     if (skel.beam_thickness_meters   < 0.f) { skel.beam_thickness_meters   = BEAM_SKELETON_DIAMETER; }
-}
-
-void Parser::LogParsedDirectiveSetNodeDefaultsData(float load_weight, float friction, float volume, float surface, unsigned int options)
-{
-    std::stringstream msg;
-    msg << "Parsed data for verification:"
-        << "\n\tLoadWeight: " << load_weight
-        << "\n\t  Friction: " << friction
-        << "\n\t    Volume: " << volume
-        << "\n\t   Surface: " << surface
-        << "\n\t   Options: ";
-        
-    if (BITMASK_IS_1(options, Node::OPTION_l_LOAD_WEIGHT)       )  { msg << " l_LOAD_WEIGHT"; }
-    if (BITMASK_IS_1(options, Node::OPTION_n_MOUSE_GRAB)        )  { msg << " n_MOUSE_GRAB"; }
-    if (BITMASK_IS_1(options, Node::OPTION_m_NO_MOUSE_GRAB)     )  { msg << " m_NO_MOUSE_GRAB"; }
-    if (BITMASK_IS_1(options, Node::OPTION_f_NO_SPARKS)         )  { msg << " f_NO_SPARKS"; }
-    if (BITMASK_IS_1(options, Node::OPTION_x_EXHAUST_POINT)     )  { msg << " x_EXHAUST_POINT"; }
-    if (BITMASK_IS_1(options, Node::OPTION_y_EXHAUST_DIRECTION) )  { msg << " y_EXHAUST_DIRECTION"; }
-    if (BITMASK_IS_1(options, Node::OPTION_c_NO_GROUND_CONTACT) )  { msg << " c_NO_GROUND_CONTACT"; }
-    if (BITMASK_IS_1(options, Node::OPTION_h_HOOK_POINT)        )  { msg << " h_HOOK_POINT"; }
-    if (BITMASK_IS_1(options, Node::OPTION_e_TERRAIN_EDIT_POINT))  { msg << " e_TERRAIN_EDIT_POINT"; }
-    if (BITMASK_IS_1(options, Node::OPTION_b_EXTRA_BUOYANCY)    )  { msg << " b_EXTRA_BUOYANCY"; }
-    if (BITMASK_IS_1(options, Node::OPTION_p_NO_PARTICLES)      )  { msg << " p_NO_PARTICLES"; }
-    if (BITMASK_IS_1(options, Node::OPTION_L_LOG)               )  { msg << " L_LOG"; }
-
-    this->AddMessage(m_current_line, Message::TYPE_WARNING, msg.str());
 }
 
 void Parser::ParseDirectiveSetNodeDefaults()
@@ -619,7 +580,7 @@ void Parser::_ParseNodeOptions(unsigned int & options, const std::string & optio
                 break;
 
             default:
-                this->AddMessage(options_str, Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + c);
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, fmt::format("invalid option '{}'", c));
                 break;
         }
     }
@@ -628,16 +589,9 @@ void Parser::_ParseNodeOptions(unsigned int & options, const std::string & optio
 void Parser::ParseDirectiveSetManagedMaterialsOptions()
 {
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
-    
-    // This is what v0.3x's parser did.
-    char c = this->GetArgChar(1);
-    m_current_managed_material_options.double_sided = (c != '0');
 
-    if (c != '0' && c != '1')
-    {
-        this->AddMessage(Message::TYPE_WARNING,
-            "Param 'doublesided' should be only 1 or 0, got '" + this->GetArgStr(1) + "', parsing as 0");
-    }
+    // Legacy behavior.
+    m_current_managed_material_options.double_sided = (this->GetArgChar(1) != '0');
 }
 
 void Parser::ParseDirectiveSetBeamDefaultsScale()
@@ -691,13 +645,6 @@ void Parser::ParseDirectiveSetBeamDefaults()
 
 void Parser::ParseDirectivePropCameraMode()
 {
-    ROR_ASSERT(m_current_module != nullptr);
-    if (m_current_module->props.size() == 0)
-    {
-        this->AddMessage(Message::TYPE_ERROR, "Directive 'prop_camera_mode' found but no 'prop' defined, ignoring...");
-        return;
-    }
-
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
     this->_ParseCameraSettings(m_current_module->props.back().camera_settings, this->GetArgStr(1));
@@ -717,14 +664,12 @@ void Parser::ParseDirectiveBackmesh()
     }
     else
     {
-        this->AddMessage(Message::TYPE_ERROR, "Misplaced sub-directive 'backmesh' (must come after 'submesh'), ignoring...");
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, "must come after 'submesh'");
     }
 }
 
 void Parser::ProcessGlobalDirective(Keyword keyword)   // Directives that should only appear in root module
 {
-    this->VerifyModuleIsRoot(keyword); // Reports warning message if we're not in root module
-
     switch (keyword)
     {
     case KEYWORD_DISABLEDEFAULTSOUNDS:      m_definition->disable_default_sounds = true;        return;
@@ -737,18 +682,7 @@ void Parser::ProcessGlobalDirective(Keyword keyword)   // Directives that should
     case KEYWORD_ROLLON:                    m_definition->rollon = true;                        return;
     case KEYWORD_SLIDENODE_CONNECT_INSTANTLY: m_definition->slide_nodes_connect_instantly = true; return;
 
-    default: this->AddMessage(Message::TYPE_ERROR, "INTERNAL ERROR: '"
-                 + std::string(File::KeywordToString(keyword)) + "' is not a global directive");      return;
-    }
-}
-
-void Parser::VerifyModuleIsRoot(Keyword keyword)
-{
-    if (m_current_module != m_root_module)
-    {
-        char buf[200];
-        snprintf(buf, 200, "Keyword '%s' has global effect and should not appear in a module", File::KeywordToString(keyword));
-        this->AddMessage(Message::TYPE_WARNING, buf);
+    default: return;
     }
 }
 
@@ -819,8 +753,7 @@ void Parser::ParseHook()
         else if ((attr == "visible")  ||(attr == "vis")                               ) { hook.flag_visible    = true; }
         else
         {
-            std::string msg = "Ignoring invalid option: " + attr;
-            this->AddMessage(Message::TYPE_ERROR, msg.c_str());
+            this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, fmt::format("ignoring invalid option '{}'", attr));
         }
         i++;
     }
@@ -830,11 +763,6 @@ void Parser::ParseHook()
 
 void Parser::ParseHelp()
 {
-    if (! m_current_module->help_panel_material_name.empty())
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Secton defined more than once.");
-    }
-
     m_current_module->help_panel_material_name = m_current_line;
     Ogre::StringUtil::trim(m_current_module->help_panel_material_name);
 }
@@ -914,19 +842,13 @@ void Parser::_ParseCameraSettings(CameraSettings & camera_settings, Ogre::String
     }
     else
     {
-        AddMessage(input_str, Message::TYPE_ERROR, "Invalid value of camera setting, ignoring...");
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, fmt::format("invalid value ({}), skipping line", input));
         return;
     }
 }
 
 void Parser::ParseDirectiveFlexbodyCameraMode()
 {
-    if (m_current_module->flexbodies.size() == 0)
-    {
-        this->AddMessage(Message::TYPE_ERROR, "No flexbody to update, ignoring...");
-        return;
-    }
-
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
     this->_ParseCameraSettings(m_current_module->flexbodies[m_current_module->flexbodies.size() - 1].camera_settings, this->GetArgStr(1));
@@ -958,9 +880,8 @@ void Parser::ParseCab()
             case 'n': break; // Placeholder, does nothing 
 
             default:
-                char msg[200] = "";
-                snprintf(msg, 200, "'submesh/cab' Ignoring invalid option '%c'...", options_str.at(i));
-                this->AddMessage(Message::TYPE_WARNING, msg);
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format("ignoring invalid option '{}'", options_str.at(i)));
                 break;
             }
         }
@@ -1002,12 +923,6 @@ void Parser::ParseFlexbody()
 
 void Parser::ParseDirectiveForset()
 {
-    if (m_current_module->flexbodies.size() == 0)
-    {
-        this->AddMessage(Message::TYPE_WARNING, "'forset' must come after 'flexbodies', ignoring");
-        return;
-    }
-
     // Syntax: "forset", followed by space/comma, followed by ","-separated items.
     // Acceptable item forms:
     // * Single node number / node name
@@ -1187,19 +1102,9 @@ void Parser::ParseDescription()
 
 void Parser::ParseDirectiveAddAnimation()
 {
-    if (m_current_module->props.size() == 0)
-    {
-        AddMessage(Message::TYPE_ERROR, "Directive 'add_animation' has no prop to animate, ignoring...");
-        return;
-    }
-
     Ogre::StringVector tokens = Ogre::StringUtil::split(m_current_line + 14, ","); // "add_animation " = 14 characters
-
-    if (tokens.size() < 4)
-    {
-        AddMessage(Message::TYPE_ERROR, "Not enough arguments, skipping...");
-        return;
-    }
+    m_num_args = (int)tokens.size();
+    if (! this->CheckNumArguments(4)) { return; }
 
     Animation animation;
     animation.ratio       = this->ParseArgFloat(tokens[0].c_str());
@@ -1339,9 +1244,8 @@ void Parser::ParseDirectiveAddAnimation()
 
         if (warn_msg[0] != '\0')
         {
-            char msg[WARN_LEN + 100];
-            snprintf(msg, WARN_LEN + 100, "Invalid token: %s (%s) ignoring....", itor->c_str(), warn_msg);
-            this->AddMessage(Message::TYPE_WARNING, msg);
+            this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("Ignoring invalid token '{}' ({})", itor->c_str(), warn_msg));
         }
     }
 
@@ -1352,11 +1256,8 @@ void Parser::ParseAntiLockBrakes()
 {
     AntiLockBrakes alb;
     Ogre::StringVector tokens = Ogre::StringUtil::split(m_current_line + 15, ","); // "AntiLockBrakes " = 15 characters
-    if (tokens.size() < 2)
-    {
-        this->AddMessage(Message::TYPE_ERROR, "Too few arguments for `AntiLockBrakes`");
-        return;
-    }
+    m_num_args = (int)tokens.size();
+    if (! this->CheckNumArguments(2)) { return; }
 
     alb.regulation_force = this->ParseArgFloat(tokens[0].c_str());
     alb.min_speed        = this->ParseArgInt  (tokens[1].c_str());
@@ -1386,7 +1287,7 @@ void Parser::ParseAntiLockBrakes()
         }
         else
         {
-            this->AddMessage(Message::TYPE_ERROR, "Antilockbrakes Mode: missing");
+            this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, "missing mode");
             alb.attr_no_dashboard = false;
             alb.attr_no_toggle = false;
             alb.attr_is_on = true;
@@ -1444,7 +1345,7 @@ void Parser::ParseEngturbo()
 
     if (engturbo.nturbos > 4)
     {
-        this->AddMessage(Message::TYPE_WARNING, "You cannot have more than 4 turbos. Fallback: using 4 instead.");
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "You cannot have more than 4 turbos. Fallback: using 4 instead.");
         engturbo.nturbos = 4;
     }
 
@@ -1476,7 +1377,7 @@ void Parser::ParseEngine()
 
     if (engine.gear_ratios.size() == 0)
     {
-        AddMessage(Message::TYPE_ERROR, "Engine has no forward gear, ignoring...");
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, "no forward gear");
         return;
     }
 
@@ -1528,8 +1429,6 @@ void Parser::ParseCommandsUnified()
     }
 
     // Parse options
-    const int WARN_LEN = 200;
-    char warn_msg[WARN_LEN] = "";
     std::string options_str = this->GetArgStr(pos++);
     char winner = 0;
     for (auto itor = options_str.begin(); itor != options_str.end(); ++itor)
@@ -1546,15 +1445,15 @@ void Parser::ParseCommandsUnified()
         else if (c == 'o') { command2.option_o_1press_center = true; }
         else
         {
-            snprintf(warn_msg, WARN_LEN, "Ignoring unknown flag '%c'", c);
-            this->AddMessage(Message::TYPE_WARNING, warn_msg);
+            this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("ignoring unknown flag '{}'", c));
         }
     }
 
     // Resolve option conflicts
     if (command2.option_c_auto_center && winner != 'c' && winner != 0)
     {
-        AddMessage(Message::TYPE_WARNING, "Command cannot be one-pressed and self centering at the same time, ignoring flag 'c'");
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "Command cannot be one-pressed and self centering at the same time, ignoring flag 'c'");
         command2.option_c_auto_center = false;
     }
     char ignored = '\0';
@@ -1572,13 +1471,13 @@ void Parser::ParseCommandsUnified()
     // Report conflicts
     if (ignored != 0 && winner == 'c')
     {
-        snprintf(warn_msg, WARN_LEN, "Command cannot be one-pressed and self centering at the same time, ignoring flag '%c'", ignored);
-        AddMessage(Message::TYPE_WARNING, warn_msg);
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+            "Command cannot be one-pressed and self centering at the same time, ignoring flag '%c'");
     }
     else if (ignored != 0 && (winner == 'o' || winner == 'p'))
     {
-        snprintf(warn_msg, WARN_LEN, "Command already has a one-pressed c.mode, ignoring flag '%c'", ignored);
-        AddMessage(Message::TYPE_WARNING, warn_msg);
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+            "Command already has a one-pressed c.mode, ignoring flag '%c'");
     }
 
     if (m_num_args > pos) { command2.description   = this->GetArgStr  (pos++);}
@@ -1675,7 +1574,7 @@ void Parser::ParseAxles()
         std::smatch results;
         if (! std::regex_search(*iter, results, Regexes::SECTION_AXLES_PROPERTY))
         {
-            this->AddMessage(Message::TYPE_ERROR, "Invalid property, ignoring whole line...");
+            this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, "Invalid property, ignoring whole line...");
             return;
         }
         // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
@@ -1729,7 +1628,7 @@ void Parser::ParseInterAxles()
     std::smatch results;
     if (! std::regex_search(args[2], results, Regexes::SECTION_AXLES_PROPERTY))
     {
-        this->AddMessage(Message::TYPE_ERROR, "Invalid property, ignoring whole line...");
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, "Invalid property, ignoring whole line...");
         return;
     }
     // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
@@ -1911,7 +1810,8 @@ void Parser::ParseTriggers()
                 case 'E': trigger.options |= Trigger::OPTION_E_ENGINE_TRIGGER;        break;
 
                 default:
-                    this->AddMessage(Message::TYPE_WARNING, Ogre::String("Invalid trigger option: " + options_str.at(i)));
+                    this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                        fmt::format("ignoring invalid option '{}'", options_str.at(i)));
             }
         }
     }
@@ -1972,7 +1872,7 @@ void Parser::ParseTorqueCurve()
     else
     {
         // Consistent with 0.38's parser.
-        this->AddMessage(Message::TYPE_ERROR, "Invalid line, too many arguments");   
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, "too many arguments, skipping");
     }
 }
 
@@ -2009,7 +1909,8 @@ void Parser::ParseTies()
                 break;
 
             default:
-                this->AddMessage(Message::TYPE_WARNING, std::string("Invalid option: ") + c + ", ignoring...");
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format("ignoring invalid option '{}'", c));
                 break;
             }
         }
@@ -2045,8 +1946,8 @@ void Parser::ParseSoundsources2()
     {
         if (mode < -2)
         {
-            std::string msg = this->GetArgStr(1) + " is invalid soundsources2.mode, falling back to default -2";
-            this->AddMessage(Message::TYPE_ERROR, msg.c_str());
+            this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("invalid mode {}, falling back to default -2", mode));
             mode = -2;
         }
         soundsource2.mode = SoundSource2::Mode(mode);
@@ -2063,10 +1964,8 @@ void Parser::ParseSoundsources2()
 void Parser::ParseSlidenodes()
 {
     Ogre::StringVector args = Ogre::StringUtil::split(m_current_line, ", ");
-    if (args.size() < 2u)
-    {
-        this->AddMessage(Message::TYPE_ERROR, "Too few arguments");
-    }
+    m_num_args = (int)args.size();
+    if (! this->CheckNumArguments(2)) { return; }
 
     SlideNode slidenode;
     slidenode.slide_node = this->_ParseNodeRef(args[0]);
@@ -2124,7 +2023,8 @@ void Parser::ParseSlidenodes()
                 BITMASK_SET_1(slidenode.constraint_flags, SlideNode::CONSTRAINT_ATTACH_NONE);
                 break;
             default:
-                this->AddMessage(Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + itor->at(1));
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format("Ignoring invalid option '{}'", itor->at(1)));
                 break;
             }
             in_rail_node_list = false;
@@ -2183,11 +2083,9 @@ void Parser::ParseShock3()
                     break;
                 case 'M': BITMASK_SET_1(shock_3.options, Shock3::OPTION_M_ABSOLUTE_METRIC);
                     break;
-                default: {
-                        char msg[100] = "";
-                        snprintf(msg, 100, "Invalid option: '%c', ignoring...", c);
-                        AddMessage(Message::TYPE_WARNING, msg);
-                    }
+                default:
+                        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                            fmt::format("ignoring invalid option '{}'", c));
                     break;
             }
         }
@@ -2240,11 +2138,9 @@ void Parser::ParseShock2()
                     break;
                 case 's': BITMASK_SET_1(shock_2.options, Shock2::OPTION_s_SOFT_BUMP_BOUNDS);
                     break;
-                default: {
-                        char msg[100] = "";
-                        snprintf(msg, 100, "Invalid option: '%c', ignoring...", c);
-                        AddMessage(Message::TYPE_WARNING, msg);
-                    }
+                default:
+                        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                            fmt::format("ignoring invalid option '{}'", c));
                     break;
             }
         }
@@ -2293,26 +2189,14 @@ void Parser::ParseShock()
                 case 'l':
                 case 'L': BITMASK_SET_1(shock.options, Shock::OPTION_L_ACTIVE_LEFT);
                     break;
-                default: {
-                    char msg[100] = "";
-                    snprintf(msg, 100, "Invalid option: '%c', ignoring...", c);
-                    AddMessage(Message::TYPE_WARNING, msg);
-                }
+                default:
+                    this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                        fmt::format("ignoring invalid option '{}'", c));
                 break;
             }
         }
     }
     m_current_module->shocks.push_back(shock);
-}
-
-void Parser::_CheckInvalidTrailingText(Ogre::String const & line, std::smatch const & results, unsigned int index)
-{
-    if (results[index].matched) // Invalid trailing text 
-    {
-        std::stringstream msg;
-        msg << "Invalid text after parameters: '" << results[index] << "'. Please remove. Ignoring...";
-        AddMessage(line, Message::TYPE_WARNING, msg.str());
-    }
 }
 
 Node::Ref Parser::_ParseNodeRef(std::string const & node_id_str)
@@ -2323,9 +2207,6 @@ Node::Ref Parser::_ParseNodeRef(std::string const & node_id_str)
         int node_id_num = PARSEINT(node_id_str);
         if (node_id_num < 0)
         {
-            Str<2000> msg;
-            msg << "Invalid negative node number " << node_id_num << ", parsing as " << (node_id_num*-1) << " for backwards compatibility";
-            AddMessage(node_id_str, Message::TYPE_WARNING, msg.ToCStr());
             node_id_num *= -1;
         }
         // Since fileformatversion is not known from the beginning of parsing, 2 states must be kept 
@@ -2487,11 +2368,8 @@ void Parser::ParseRopables()
 void Parser::ParseRailGroups()
 {
     Ogre::StringVector args = Ogre::StringUtil::split(m_current_line, ",");
-    if (args.size() < 3u)
-    {
-        this->AddMessage(Message::TYPE_ERROR, "Not enough parameters");
-        return;
-    }
+    m_num_args = (int)args.size();
+    if (! this->CheckNumArguments(3)) { return; }
 
     RailGroup railgroup;
     railgroup.id = this->ParseArgInt(args[0].c_str());
@@ -2618,45 +2496,6 @@ void Parser::_TrimTrailingComments(std::string const & line_in, std::string & li
     line_out = line_in;
 }
 
-void Parser::_PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node)
-{
-    std::stringstream msg;
-    msg << "Data print for verification:";
-    msg << "\n\tPosition X: " << node.position.x << " (input text: \"" << args[1] << "\"";
-    msg << "\n\tPosition Y: " << node.position.y << " (input text: \"" << args[2] << "\"";
-    msg << "\n\tPosition Z: " << node.position.z << " (input text: \"" << args[3] << "\"";
-    if (num_args > 4) // Has options?
-    {
-        msg << "\n\tOptions: ";
-        if (BITMASK_IS_1(node.options, Node::OPTION_l_LOAD_WEIGHT))          { msg << "l_LOAD_WEIGHT ";        }
-        if (BITMASK_IS_1(node.options, Node::OPTION_n_MOUSE_GRAB))           { msg << "n_MOUSE_GRAB ";         }
-        if (BITMASK_IS_1(node.options, Node::OPTION_m_NO_MOUSE_GRAB))        { msg << "m_NO_MOUSE_GRAB ";      }
-        if (BITMASK_IS_1(node.options, Node::OPTION_f_NO_SPARKS))            { msg << "f_NO_SPARKS ";          }
-        if (BITMASK_IS_1(node.options, Node::OPTION_x_EXHAUST_POINT))        { msg << "x_EXHAUST_POINT ";      }
-        if (BITMASK_IS_1(node.options, Node::OPTION_y_EXHAUST_DIRECTION))    { msg << "y_EXHAUST_DIRECTION ";  }
-        if (BITMASK_IS_1(node.options, Node::OPTION_c_NO_GROUND_CONTACT))    { msg << "c_NO_GROUND_CONTACT ";  }
-        if (BITMASK_IS_1(node.options, Node::OPTION_h_HOOK_POINT))           { msg << "h_HOOK_POINT ";         }
-        if (BITMASK_IS_1(node.options, Node::OPTION_e_TERRAIN_EDIT_POINT))   { msg << "e_TERRAIN_EDIT_POINT "; }
-        if (BITMASK_IS_1(node.options, Node::OPTION_b_EXTRA_BUOYANCY))       { msg << "b_EXTRA_BUOYANCY ";     }
-        if (BITMASK_IS_1(node.options, Node::OPTION_p_NO_PARTICLES))         { msg << "p_NO_PARTICLES ";       }
-        if (BITMASK_IS_1(node.options, Node::OPTION_L_LOG))                  { msg << "L_LOG ";                }
-        msg << "(input text:\"" << args[4] << "\"";
-    }
-    if (num_args > 5) // Has load weight override?
-    {
-        msg << "\n\tLoad weight overide: " << node.load_weight_override << " (input text: \"" << args[5] << "\"";
-    }
-    if (num_args > 6) // Is there invalid trailing text?
-    {
-        msg << "\n\t~Invalid trailing text: ";
-        for (int i = 6; i < num_args; ++i)
-        {
-            msg << args[i];
-        }
-    }
-    this->AddMessage(line, Message::TYPE_WARNING, msg.str());
-}
-
 void Parser::ParseNodesUnified()
 {
     if (! this->CheckNumArguments(4)) { return; }
@@ -2703,7 +2542,7 @@ void Parser::ParseNodesUnified()
         }
         else
         {
-            this->AddMessage(Message::TYPE_WARNING, 
+            this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, 
                 "Node has load-weight-override value specified, but option 'l' is not present. Ignoring value...");
         }
     }
@@ -2818,7 +2657,7 @@ void Parser::ParseManagedMaterials()
     }
     else
     {
-        this->AddMessage(Message::TYPE_WARNING, type_str + " is an unkown effect");
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, type_str + " is an unkown effect");
         return;
     }
 
@@ -2826,17 +2665,17 @@ void Parser::ParseManagedMaterials()
 
     if (!rgm.resourceExists(m_resource_group, managed_mat.diffuse_map))
     {
-        this->AddMessage(Message::TYPE_WARNING, "Missing texture file: " + managed_mat.diffuse_map);
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "Missing texture file: " + managed_mat.diffuse_map);
         return;
     }
     if (managed_mat.HasDamagedDiffuseMap() && !rgm.resourceExists(m_resource_group, managed_mat.damaged_diffuse_map))
     {
-        this->AddMessage(Message::TYPE_WARNING, "Missing texture file: " + managed_mat.damaged_diffuse_map);
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "Missing texture file: " + managed_mat.damaged_diffuse_map);
         managed_mat.damaged_diffuse_map = "-";
     }
     if (managed_mat.HasSpecularMap() && !rgm.resourceExists(m_resource_group, managed_mat.specular_map))
     {
-        this->AddMessage(Message::TYPE_WARNING, "Missing texture file: " + managed_mat.specular_map);
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "Missing texture file: " + managed_mat.specular_map);
         managed_mat.specular_map = "-";
     }
 
@@ -2909,9 +2748,8 @@ void Parser::ParseBeams()
             else if (*itor == 's') { beam.options |= Beam::OPTION_s_SUPPORT; }
             else
             {
-                char msg[200] = "";
-                sprintf(msg, "Invalid flag: %c", *itor);
-                this->AddMessage(Message::TYPE_WARNING, msg);
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format("ignoring invalid option '{}'", *itor));
             }
         }
     }
@@ -3039,50 +2877,13 @@ void Parser::ParseAuthor()
 //  Utilities
 // -------------------------------------------------------------------------- 
 
-void Parser::AddMessage(std::string const & line, Message::Type type, std::string const & message)
+void Parser::LogMessage(Console::MessageType type, std::string const& msg)
 {
-    RoR::Str<4000> txt;
-
-    if (!m_definition->name.empty())
-    {
-        txt << m_definition->name;
-    }
-    else
-    {
-        txt << m_filename;
-    }
-
-    txt << " (line " << (size_t)m_current_line_number;
-    if (m_current_block != KEYWORD_INVALID)
-    {
-        txt << " '" << File::KeywordToString(m_current_block) << "'";
-    }
-
-    if (m_current_module != m_root_module)
-    {
-        txt << ", module: " << m_current_module->name;
-    }
-
-    txt << "): " << message;
-
-    RoR::Console::MessageType cm_type;
-    switch (type)
-    {
-    case Message::TYPE_FATAL_ERROR:
-        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_ERROR;
-        break;
-
-    case Message::TYPE_ERROR:
-    case Message::TYPE_WARNING:
-        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_WARNING;
-        break;
-
-    default:
-        cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_NOTICE;
-        break;
-    }
-
-    RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_ACTOR, cm_type, txt.ToCStr());
+    App::GetConsole()->putMessage(
+        Console::CONSOLE_MSGTYPE_ACTOR,
+        type,
+        fmt::format("{}:{} ({}): {}",
+            m_filename, m_current_line_number, KeywordToString(m_log_keyword), msg));
 }
 
 Keyword Parser::IdentifyKeywordInCurrentLine()
@@ -3107,11 +2908,6 @@ Keyword Parser::IdentifyKeywordInCurrentLine()
     // Search and ignore lettercase
     std::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_IGNORE_CASE); // Always returns true.
     keyword = FindKeywordMatch(results);
-    if (keyword != KEYWORD_INVALID)
-    {
-        this->AddMessage(line, Message::TYPE_WARNING,
-            "Keyword has invalid lettercase. Correct form is: " + std::string(File::KeywordToString(keyword)));
-    }
     return keyword;
 }
 
@@ -3174,7 +2970,7 @@ void Parser::BeginBlock(Keyword keyword)
         {
             if (m_current_camera_rail->nodes.size() == 0)
             {
-                this->AddMessage(Message::TYPE_WARNING, "Empty section 'camerarail', ignoring...");
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "Empty section 'camerarail', ignoring...");
             }
             else
             {
@@ -3199,7 +2995,7 @@ void Parser::ProcessChangeModuleLine(Keyword keyword)
     {
         if (m_current_module == m_root_module)
         {
-            this->AddMessage(Message::TYPE_ERROR, "Misplaced keyword 'end_section' (already in root module), ignoring...");
+            this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, "Misplaced keyword 'end_section' (already in root module), ignoring...");
             return;
         }
         new_module_name = ROOT_MODULE_NAME;
@@ -3214,7 +3010,7 @@ void Parser::ProcessChangeModuleLine(Keyword keyword)
         new_module_name = this->GetArgStr(2);
         if (new_module_name == m_current_module->name)
         {
-            this->AddMessage(Message::TYPE_ERROR, "Attempt to re-enter current module, ignoring...");
+            this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, "Attempt to re-enter current module, ignoring...");
             return;
         }
     }
@@ -3277,9 +3073,8 @@ MeshWheel::Side Parser::GetArgWheelSide(int index)
     {
         if (side_char != 'l')
         {
-            char msg[200] = "";
-            snprintf(msg, 200, "Bad arg~%d 'side' (value: %c), parsing as 'l' for backwards compatibility.", index + 1, side_char);
-            this->AddMessage(Message::TYPE_WARNING, msg);
+            this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("Bad arg~{} 'side' (value: {}), parsing as 'l' for backwards compatibility.", index + 1, side_char));
         }
         return MeshWheel::SIDE_LEFT;
     }
@@ -3290,25 +3085,23 @@ long Parser::GetArgLong(int index)
 {
     errno = 0;
     char* out_end = nullptr;
-    const int MSG_LEN = 200;
-    char msg[MSG_LEN];
     long res = std::strtol(m_args[index].start, &out_end, 10);
     if (errno != 0)
     {
-        snprintf(msg, MSG_LEN, "Cannot parse argument [%d] as integer, errno: %d", index + 1, errno);
-        this->AddMessage(Message::TYPE_ERROR, msg);
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Cannot parse argument [{}] as integer, errno: {}", index + 1, errno));
         return 0; // Compatibility
     }
     if (out_end == m_args[index].start)
     {
-        snprintf(msg, MSG_LEN, "Argument [%d] is not valid integer", index + 1);
-        this->AddMessage(Message::TYPE_ERROR, msg);
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Argument [{}] is not valid integer", index + 1));
         return 0; // Compatibility
     }
     else if (out_end != (m_args[index].start + m_args[index].length))
-    {
-        snprintf(msg, MSG_LEN, "Integer argument [%d] has invalid trailing characters", index + 1);
-        this->AddMessage(Message::TYPE_WARNING, msg);
+    {;
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Integer argument [{}] has invalid trailing characters", index + 1));
     }
     return res;
 }
@@ -3333,9 +3126,8 @@ Wheels::Propulsion Parser::GetArgPropulsion(int index)
     int propulsion = this->GetArgInt(index);
     if (propulsion < 0 || propulsion > 2)
     {
-        char msg[100] = "";
-        snprintf(msg, 100, "Bad value of param ~%d (propulsion), using 0 (no propulsion)", index + 1);
-        this->AddMessage(Message::TYPE_ERROR, msg);
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Bad value of param ~{} (propulsion), using 0 (no propulsion)", index + 1));
         return Wheels::PROPULSION_NONE;
     }
     return Wheels::Propulsion(propulsion);
@@ -3346,8 +3138,8 @@ Wheels::Braking Parser::GetArgBraking(int index)
     int braking = this->GetArgInt(index);
     if (braking < 0 || braking > 4)
     {
-        char msg[100] = "";
-        snprintf(msg, 100, "Bad value of param ~%d (braking), using 0 (no braking)", index + 1);
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Bad value of param ~{} (braking), using 0 (no braking)", index + 1));
         return Wheels::BRAKING_NO;
     }
     return Wheels::Braking(braking);
@@ -3387,7 +3179,7 @@ FlareType Parser::GetArgFlareType(int index)
             return FlareType(in);
 
         default:
-            this->AddMessage(Message::TYPE_WARNING,
+            this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
                 fmt::format("Invalid flare type '{}', falling back to type 'f' (front light)...", in));
             return FlareType::HEADLIGHT;
     }
@@ -3414,9 +3206,8 @@ unsigned Parser::ParseArgUint(const char* str)
     long res = std::strtol(str, nullptr, 10);
     if (errno != 0)
     {
-        char msg[200];
-        snprintf(msg, 200, "Cannot parse argument '%s' as int, errno: %d", str, errno);
-        this->AddMessage(Message::TYPE_ERROR, msg);
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Cannot parse argument '{}' as int, errno: {}", str, errno));
         return 0.f; // Compatibility
     }
     return static_cast<unsigned>(res);
@@ -3441,19 +3232,17 @@ Wing::Control Parser::GetArgWingSurface(int index)
 {
     std::string str = this->GetArgStr(index);
     size_t bad_pos = str.find_first_not_of(Wing::CONTROL_LEGAL_FLAGS);
-    const int MSG_LEN = 300;
-    char msg_buf[MSG_LEN] = "";
     if (bad_pos == 0)
     {
-        snprintf(msg_buf, MSG_LEN, "Invalid argument ~%d 'control surface' (value: %s), allowed are: <%s>, ignoring...",
-            index + 1, str.c_str(), Wing::CONTROL_LEGAL_FLAGS.c_str());
-        this->AddMessage(Message::TYPE_ERROR, msg_buf);
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Invalid argument ~{} 'control surface' (value: {}), allowed are: <{}>, ignoring...",
+            index + 1, str, Wing::CONTROL_LEGAL_FLAGS));
         return Wing::CONTROL_n_NONE;
     }
     if (str.size() > 1)
     {
-        snprintf(msg_buf, MSG_LEN, "Argument ~%d 'control surface' (value: %s), should be only 1 letter.", index, str.c_str());
-        this->AddMessage(Message::TYPE_WARNING, msg_buf);
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Argument ~{} 'control surface' (value: {}), should be only 1 letter.", index, str));
     }
     return Wing::Control(str.at(0));
 }
@@ -3475,8 +3264,8 @@ MinimassOption Parser::GetArgMinimassOption(int index)
             return MinimassOption::n_DUMMY;
 
         default:
-            this->AddMessage(Message::TYPE_WARNING,
-            fmt::format("Not a valid minimass option: {}", this->GetArgStr(index)));
+            this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("Not a valid minimass option: {}, falling back to 'n' (dummy)", this->GetArgStr(index)));
             return MinimassOption::n_DUMMY;
     }
 }
@@ -3530,9 +3319,8 @@ void Parser::ProcessOgreStream(Ogre::DataStream* stream, Ogre::String resource_g
         }
         catch (Ogre::Exception &ex)
         {
-            std::string msg = "Error reading truckfile! Message:\n";
-            msg += ex.getFullDescription();
-            this->AddMessage(Message::TYPE_FATAL_ERROR, msg.c_str());
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("Could not read truck file: {}", ex.getFullDescription()));
             break;
         }
 

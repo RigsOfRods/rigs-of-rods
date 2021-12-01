@@ -177,6 +177,8 @@ enum Keyword
     KEYWORD_INVALID = 0xFFFFFFFF
 };
 
+const char* KeywordToString(Keyword keyword);
+
 enum class DifferentialType: char
 {
     DIFF_o_OPEN    = 'o',
@@ -2182,8 +2184,6 @@ struct File
     };
 
     File();
-
-    static const char * KeywordToString(Keyword keyword);
 
     std::vector<Ogre::String> description;
     bool hide_in_chooser;

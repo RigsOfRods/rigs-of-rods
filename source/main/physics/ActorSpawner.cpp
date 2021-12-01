@@ -5450,7 +5450,7 @@ void ActorSpawner::AddMessage(ActorSpawner::Message::Type type,	Ogre::String con
     txt << m_file->name;
     if (m_current_keyword != RigDef::KEYWORD_INVALID)
     {
-        txt << " (" << RigDef::File::KeywordToString(m_current_keyword) << ")";
+        txt << " (" << RigDef::KeywordToString(m_current_keyword) << ")";
     }
     txt << ": " << text;
     RoR::Console::MessageType cm_type;
@@ -7148,7 +7148,7 @@ void ActorSpawner::HandleException()
     {
         // Add the message silently, OGRE already printed it to RoR.log
         RoR::Str<2000> txt;
-        txt << "(Keyword: " << RigDef::File::KeywordToString(m_current_keyword)
+        txt << "(Keyword: " << RigDef::KeywordToString(m_current_keyword)
             << ") " << ogre_e.getFullDescription();
         RoR::App::GetConsole()->putMessage(
             RoR::Console::CONSOLE_MSGTYPE_ACTOR, RoR::Console::CONSOLE_SYSTEM_ERROR, txt.ToCStr());
