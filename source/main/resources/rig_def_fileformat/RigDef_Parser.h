@@ -214,7 +214,6 @@ private:
     float              ParseArgFloat      (const char* str);
     int                ParseArgInt        (const char* str);
     unsigned           ParseArgUint       (const char* str);
-
     unsigned           ParseArgUint       (const std::string& s);
     float              ParseArgFloat      (const std::string& s);
 
@@ -227,10 +226,9 @@ private:
     static void _TrimTrailingComments(std::string const & line_in, std::string & line_out);
 
     Node::Ref _ParseNodeRef(std::string const & node_id_str);
-
     void _ParseCameraSettings(CameraSettings & camera_settings, Ogre::String input_str);
-
     void _ParseNodeOptions(unsigned int & options, const std::string & options_str);
+    void _ParseDifferentialTypes(DifferentialTypeVec& diff_types, std::string const& options_str);
 
     void ParseOptionalInertia(Inertia& inertia, int index);
 

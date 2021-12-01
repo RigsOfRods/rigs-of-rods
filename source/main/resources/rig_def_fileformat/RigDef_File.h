@@ -181,11 +181,13 @@ const char* KeywordToString(Keyword keyword);
 
 enum class DifferentialType: char
 {
-    DIFF_o_OPEN    = 'o',
-    DIFF_l_LOCKED  = 'l',
-    DIFF_s_SPLIT   = 's',
-    DIFF_v_VISCOUS = 'v'
+    o_OPEN    = 'o',
+    l_LOCKED  = 'l',
+    s_SPLIT   = 's',
+    v_VISCOUS = 'v'
 };
+
+typedef std::vector<DifferentialType> DifferentialTypeVec;
 
 enum class MinimassOption: char
 {
@@ -510,7 +512,7 @@ struct Animation
 struct Axle
 {
     Node::Ref wheels[2][2];
-    std::vector<DifferentialType> options; //!< Order matters!
+    DifferentialTypeVec options; //!< Order matters!
 };
 
 /* -------------------------------------------------------------------------- */
@@ -521,7 +523,7 @@ struct InterAxle
 {
     int a1 = 0;
     int a2 = 0;
-    std::vector<DifferentialType> options; //!< Order matters!
+    DifferentialTypeVec options; //!< Order matters!
 };
 
 /* -------------------------------------------------------------------------- */
