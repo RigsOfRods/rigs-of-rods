@@ -1631,20 +1631,6 @@ struct Minimass
 };
 
 /* -------------------------------------------------------------------------- */
-/* Section NODECOLLISION                                                      */
-/* -------------------------------------------------------------------------- */
-
-struct NodeCollision
-{
-    NodeCollision():
-        radius(0)
-    {}
-
-    Node::Ref node;
-    float radius;
-};
-
-/* -------------------------------------------------------------------------- */
 /* Section PARTICLES                                                          */
 /* -------------------------------------------------------------------------- */
 
@@ -2155,7 +2141,6 @@ struct File
         std::vector<MeshWheel>             mesh_wheels;
         std::vector<Minimass>              minimass;
         std::vector<Node>                  nodes; /* Nodes and Nodes2 are unified in this parser */
-        std::vector<NodeCollision>         node_collisions;
         std::vector<Particle>              particles;
         std::vector<Pistonprop>            pistonprops;
         std::vector<Prop>                  props;
