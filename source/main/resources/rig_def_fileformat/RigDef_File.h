@@ -2168,7 +2168,7 @@ struct File
         std::vector<TransferCase>          transfercase;
         std::vector<Trigger>               triggers;
         std::vector<Turbojet>              turbojets;
-        std::vector<Turboprop2>            turboprops_2;
+        std::vector<Turboprop2>            turboprops2;
         std::vector<VideoCamera>           videocameras;
         std::vector<WheelDetacher>         wheeldetachers;
         std::vector<Wheel>                 wheels;

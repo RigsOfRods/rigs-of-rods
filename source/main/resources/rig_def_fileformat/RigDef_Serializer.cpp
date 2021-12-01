@@ -235,13 +235,13 @@ void Serializer::ProcessFusedrag(File::Module* module)
 
 void Serializer::ProcessTurboprops(File::Module* module)
 {
-    if (module->turboprops_2.empty())
+    if (module->turboprops2.empty())
     {
         return;
     }
     m_stream << "turboprops" << endl;
-    auto end_itor = module->turboprops_2.end();
-    for (auto itor = module->turboprops_2.begin(); itor != end_itor; ++itor)
+    auto end_itor = module->turboprops2.end();
+    for (auto itor = module->turboprops2.begin(); itor != end_itor; ++itor)
     {
         RigDef::Turboprop2 & def = *itor;
 

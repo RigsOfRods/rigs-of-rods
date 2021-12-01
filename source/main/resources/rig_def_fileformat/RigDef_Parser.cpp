@@ -1756,7 +1756,7 @@ void Parser::ParseTurbopropsUnified()
     turboprop.turbine_power_kW   = this->GetArgFloat  (6 + offset);
     turboprop.airfoil            = this->GetArgStr    (7 + offset);
     
-    m_current_module->turboprops_2.push_back(turboprop);
+    m_current_module->turboprops2.push_back(turboprop);
 }
 
 void Parser::ParseTurbojets()

@@ -310,7 +310,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_PISTONPROPS, pistonprops, ProcessPistonprop);
 
     // Sections 'turboprops' and 'turboprops2'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_TURBOPROPS2, turboprops_2, ProcessTurboprop2);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_TURBOPROPS2, turboprops2, ProcessTurboprop2);
 
     // Section 'screwprops'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_SCREWPROPS, screwprops, ProcessScrewprop);

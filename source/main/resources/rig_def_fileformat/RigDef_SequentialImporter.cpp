@@ -660,7 +660,7 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
         RESOLVE(turbojet.side_node );
     });
 
-    FOR_EACH (KEYWORD_TURBOPROPS2, module->turboprops_2, turboprop2,
+    FOR_EACH (KEYWORD_TURBOPROPS2, module->turboprops2, turboprop2,
     {
         RESOLVE(turboprop2.reference_node    );
         RESOLVE(turboprop2.axis_node         );
