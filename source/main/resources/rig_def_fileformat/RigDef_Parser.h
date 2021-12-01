@@ -200,8 +200,8 @@ private:
     float              GetArgFloat        (int index);
     char               GetArgChar         (int index);
     bool               GetArgBool         (int index);
-    Wheels::Propulsion GetArgPropulsion   (int index);
-    Wheels::Braking    GetArgBraking      (int index);
+    WheelPropulsion    GetArgPropulsion   (int index);
+    WheelBraking       GetArgBraking      (int index);
     Node::Ref          GetArgNodeRef      (int index);
     Node::Ref          GetArgRigidityNode (int index);
     Node::Ref          GetArgNullableNode (int index);

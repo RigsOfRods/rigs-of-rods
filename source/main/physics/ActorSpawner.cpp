@@ -4190,7 +4190,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
     // Wheel object
     wheel.wh_braking = this->TranslateBrakingDef(def.braking);
-    wheel.wh_propulsed = def.propulsion;
+    wheel.wh_propulsed = (int)def.propulsion;
     wheel.wh_num_nodes = 2 * def.num_rays;
     wheel.wh_num_rim_nodes = wheel.wh_num_nodes;
     wheel.wh_axis_node_0 = axis_node_1;
@@ -4199,7 +4199,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     wheel.wh_rim_radius = def.rim_radius;
     wheel.wh_arm_node = this->GetNodePointer(def.reference_arm_node);
 
-    if (def.propulsion != RigDef::Wheels::PROPULSION_NONE)
+    if (def.propulsion != RigDef::WheelPropulsion::NONE)
     {
         // for inter-differential locking
         m_actor->m_proped_wheel_pairs[m_actor->m_num_proped_wheels] = m_actor->ar_num_wheels;
@@ -4219,16 +4219,16 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     m_wheel_visuals_queue.push_back(WheelVisualsTicket(wheel_index, base_node_index, &def, axis_node_1->pos, axis_node_2->pos));
 }
 
-wheel_t::BrakeCombo ActorSpawner::TranslateBrakingDef(RigDef::Wheels::Braking def)
+wheel_t::BrakeCombo ActorSpawner::TranslateBrakingDef(RigDef::WheelBraking def)
 {
     switch (def)
     {
-    case RigDef::Wheels::Braking::BRAKING_NO:                return wheel_t::BrakeCombo::NONE;
-    case RigDef::Wheels::Braking::BRAKING_YES:               return wheel_t::BrakeCombo::FOOT_HAND;
-    case RigDef::Wheels::Braking::BRAKING_DIRECTIONAL_LEFT:  return wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT;
-    case RigDef::Wheels::Braking::BRAKING_DIRECTIONAL_RIGHT: return wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT;
-    case RigDef::Wheels::Braking::BRAKING_ONLY_FOOT:         return wheel_t::BrakeCombo::FOOT_ONLY;
-    default:                                                 return wheel_t::BrakeCombo::NONE;
+    case RigDef::WheelBraking::NONE:                 return wheel_t::BrakeCombo::NONE;
+    case RigDef::WheelBraking::FOOT_HAND:            return wheel_t::BrakeCombo::FOOT_HAND;
+    case RigDef::WheelBraking::FOOT_HAND_SKID_LEFT:  return wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT;
+    case RigDef::WheelBraking::FOOT_HAND_SKID_RIGHT: return wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT;
+    case RigDef::WheelBraking::FOOT_ONLY:            return wheel_t::BrakeCombo::FOOT_ONLY;
+    default:                                         return wheel_t::BrakeCombo::NONE;
     }
 }
 
@@ -4400,8 +4400,8 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
     unsigned int reserve_nodes,
     unsigned int reserve_beams,
     float wheel_radius,
-    RigDef::Wheels::Propulsion propulsion,
-    RigDef::Wheels::Braking braking,
+    RigDef::WheelPropulsion propulsion,
+    RigDef::WheelBraking braking,
     std::shared_ptr<RigDef::NodeDefaults> node_defaults,
     float wheel_mass,
     float wheel_width       /* Default: -1.f */
@@ -4416,7 +4416,7 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
 
     /* Wheel object */
     wheel.wh_braking      = this->TranslateBrakingDef(braking);
-    wheel.wh_propulsed    = propulsion;
+    wheel.wh_propulsed    = (int)propulsion;
     wheel.wh_num_nodes    = 2 * num_rays;
     wheel.wh_axis_node_0  = axis_node_1;
     wheel.wh_axis_node_1  = axis_node_2;
@@ -4429,7 +4429,7 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
     Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.wh_arm_node->RelPosition).length();
     wheel.wh_near_attach_node = (length_1 < length_2) ? axis_node_1 : axis_node_2;
 
-    if (propulsion != RigDef::Wheels::PROPULSION_NONE)
+    if (propulsion != RigDef::WheelPropulsion::NONE)
     {
         /* for inter-differential locking */
         m_actor->m_proped_wheel_pairs[m_actor->m_num_proped_wheels] = m_actor->ar_num_wheels;
@@ -4837,7 +4837,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
     /* Wheel object */
     wheel.wh_braking       = this->TranslateBrakingDef(wheel_2_def.braking);
-    wheel.wh_propulsed     = wheel_2_def.propulsion;
+    wheel.wh_propulsed     = (int)wheel_2_def.propulsion;
     wheel.wh_num_nodes     = 2 * wheel_2_def.num_rays;
     wheel.wh_num_rim_nodes = wheel.wh_num_nodes;
     wheel.wh_axis_node_0   = axis_node_1;
@@ -4846,7 +4846,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     wheel.wh_rim_radius    = wheel_2_def.rim_radius;
     wheel.wh_arm_node      = this->GetNodePointer(wheel_2_def.reference_arm_node);
 
-    if (wheel_2_def.propulsion != RigDef::Wheels::PROPULSION_NONE)
+    if (wheel_2_def.propulsion != RigDef::WheelPropulsion::NONE)
     {
         /* for inter-differential locking */
         m_actor->m_proped_wheel_pairs[m_actor->m_num_proped_wheels] = m_actor->ar_num_wheels;

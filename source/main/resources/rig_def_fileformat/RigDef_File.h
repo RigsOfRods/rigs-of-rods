@@ -195,6 +195,22 @@ enum class MinimassOption: char
     l_SKIP_LOADED = 'l'  //!< Only apply minimum mass to nodes without "L" option.
 };
 
+enum class WheelBraking: int
+{
+    NONE                 = 0,
+    FOOT_HAND            = 1,
+    FOOT_HAND_SKID_LEFT  = 2,
+    FOOT_HAND_SKID_RIGHT = 3,
+    FOOT_ONLY            = 4,
+};
+
+enum class WheelPropulsion: int
+{
+    NONE     = 0,
+    FORWARD  = 1,
+    BACKWARD = 2,
+};
+
 /* -------------------------------------------------------------------------- */
 /* Utility                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -890,51 +906,17 @@ struct WheelDetacher
 /* Section WHEELS                                                             */
 /* -------------------------------------------------------------------------- */
 
-/** Syntax-sugar struct to hold enums */
-struct Wheels
-{
-    enum Braking
-    {
-        BRAKING_NO                = 0,
-        BRAKING_YES               = 1,
-        BRAKING_DIRECTIONAL_LEFT  = 2,
-        BRAKING_DIRECTIONAL_RIGHT = 3,
-        BRAKING_ONLY_FOOT         = 4,
-
-        BRAKING_INVALID           = 0xFFFFFFFF
-    };
-
-    enum Propulsion
-    {
-        PROPULSION_NONE     = 0,
-        PROPULSION_FORWARD  = 1,
-        PROPULSION_BACKWARD = 2,
-
-        PROPULSION_INVALID  = 0xFFFFFFFF
-    };
-};
-
 /** Attributes common to all wheel definitions */
 struct BaseWheel
 {
-    BaseWheel():
-        width(0),
-        num_rays(0),
-        braking(Wheels::BRAKING_NO),
-        mass(0)
-    {}
-
-    virtual ~BaseWheel()
-    {}
-
-    float width;
-    unsigned int num_rays;
+    float width = 0.f;
+    unsigned int num_rays = 0u;
     Node::Ref nodes[2];
     Node::Ref rigidity_node;
-    Wheels::Braking braking;
-    Wheels::Propulsion propulsion;
+    WheelBraking braking = WheelBraking::NONE;
+    WheelPropulsion propulsion = WheelPropulsion::NONE;
     Node::Ref reference_arm_node;
-    float mass;
+    float mass = 0.f;
     std::shared_ptr<NodeDefaults> node_defaults;
     std::shared_ptr<BeamDefaults> beam_defaults;
 };
@@ -943,7 +925,6 @@ struct BaseWheel
 struct Wheel: BaseWheel
 {
     Wheel():
-        BaseWheel(),
         radius(0),
         face_material_name("tracks/wheelface"),
         band_material_name("tracks/wheelband1")
@@ -964,7 +945,6 @@ struct Wheel: BaseWheel
 struct BaseWheel2: BaseWheel
 {
     BaseWheel2():
-        BaseWheel(),
         rim_radius(0),
         tyre_radius(0),
         tyre_springiness(0),
@@ -1000,7 +980,6 @@ struct Wheel2: BaseWheel2
 struct MeshWheel: BaseWheel
 {
     MeshWheel():
-        BaseWheel(),
         side(SIDE_INVALID),
         rim_radius(0),
         tyre_radius(0),
