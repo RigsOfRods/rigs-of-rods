@@ -115,8 +115,8 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_GLOBALS, globals, ProcessGlobals);
 
     // Section 'help' in any module.
-    // NOTE: Must be done before "guisettings" (overrides help panel material)
-    ProcessHelp();
+    // MUST be done before "guisettings" (overrides help panel material)
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_HELP, help, ProcessHelp);
 
     // Section 'engine' in any module
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::KEYWORD_ENGINE, engine, ProcessEngine);

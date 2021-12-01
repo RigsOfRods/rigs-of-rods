@@ -1566,11 +1566,11 @@ void Serializer::ProcessEngoption(File::Module* module)
 
 void Serializer::ProcessHelp(File::Module* module)
 {
-    if (module->help_panel_material_name.empty())
+    if (module->help.size() == 0)
     {
         return;
     }
-    m_stream << "help\n\t" << module->help_panel_material_name << endl << endl;
+    m_stream << "help\n\t" << module->help[module->help.size() - 1].material << endl << endl;
 }
 
 void Serializer::ProcessWheels2(File::Module* module)
