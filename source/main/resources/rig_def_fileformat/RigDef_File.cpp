@@ -226,25 +226,6 @@ VideoCamera::VideoCamera():
     camera_mode(0)
 {}
 
-const std::string Wing::CONTROL_LEGAL_FLAGS("nabferSTcdghUVij"); // Static member init
-
-Wing::Wing():
-    control_surface(CONTROL_n_NONE),
-    chord_point(-1.f),
-    min_deflection(-1.f),
-    max_deflection(-1.f),
-    efficacy_coef(1.f) // So-called 'liftcoef'. Default = 1
-{
-    tex_coords[0] = 0.f;
-    tex_coords[1] = 0.f;
-    tex_coords[2] = 0.f;
-    tex_coords[3] = 0.f;
-    tex_coords[4] = 0.f;
-    tex_coords[5] = 0.f;
-    tex_coords[6] = 0.f;
-    tex_coords[7] = 0.f;
-}
-
 void Animation::AddMotorSource(unsigned int source, unsigned int motor)
 {
     Animation::MotorSource motor_source;

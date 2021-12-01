@@ -3209,23 +3209,33 @@ bool Parser::GetArgBool(int index)
     return Ogre::StringConverter::parseBool(this->GetArgStr(index));
 }
 
-Wing::Control Parser::GetArgWingSurface(int index)
+WingControlSurface Parser::GetArgWingSurface(int index)
 {
-    std::string str = this->GetArgStr(index);
-    size_t bad_pos = str.find_first_not_of(Wing::CONTROL_LEGAL_FLAGS);
-    if (bad_pos == 0)
+    char c = this->GetArgChar(index);
+    switch (c)
     {
-        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format("Invalid argument ~{} 'control surface' (value: {}), allowed are: <{}>, ignoring...",
-            index + 1, str, Wing::CONTROL_LEGAL_FLAGS));
-        return Wing::CONTROL_n_NONE;
+        case (char)WingControlSurface::n_NONE:
+        case (char)WingControlSurface::a_RIGHT_AILERON:
+        case (char)WingControlSurface::b_LEFT_AILERON:
+        case (char)WingControlSurface::f_FLAP:
+        case (char)WingControlSurface::e_ELEVATOR:
+        case (char)WingControlSurface::r_RUDDER:
+        case (char)WingControlSurface::S_RIGHT_HAND_STABILATOR:
+        case (char)WingControlSurface::T_LEFT_HAND_STABILATOR:
+        case (char)WingControlSurface::c_RIGHT_ELEVON:
+        case (char)WingControlSurface::d_LEFT_ELEVON:
+        case (char)WingControlSurface::g_RIGHT_FLAPERON:
+        case (char)WingControlSurface::h_LEFT_FLAPERON:
+        case (char)WingControlSurface::U_RIGHT_HAND_TAILERON:
+        case (char)WingControlSurface::V_LEFT_HAND_TAILERON:
+        case (char)WingControlSurface::i_RIGHT_RUDDERVATOR:
+        case (char)WingControlSurface::j_LEFT_RUDDERVATOR:
+            return WingControlSurface(c);
+
+        default:
+            fmt::format("invalid WingControlSurface '{}', falling back to 'n' (none)", c);
+            return WingControlSurface::n_NONE;
     }
-    if (str.size() > 1)
-    {
-        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
-            fmt::format("Argument ~{} 'control surface' (value: {}), should be only 1 letter.", index, str));
-    }
-    return Wing::Control(str.at(0));
 }
 
 std::string Parser::GetArgManagedTex(int index)

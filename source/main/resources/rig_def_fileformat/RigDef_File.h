@@ -211,6 +211,26 @@ enum class WheelPropulsion: int
     BACKWARD = 2,
 };
 
+enum class WingControlSurface: char
+{
+    n_NONE                  = 'n',
+    a_RIGHT_AILERON         = 'a',
+    b_LEFT_AILERON          = 'b',
+    f_FLAP                  = 'f',
+    e_ELEVATOR              = 'e',
+    r_RUDDER                = 'r',
+    S_RIGHT_HAND_STABILATOR = 'S',
+    T_LEFT_HAND_STABILATOR  = 'T',
+    c_RIGHT_ELEVON          = 'c',
+    d_LEFT_ELEVON           = 'd',
+    g_RIGHT_FLAPERON        = 'g',
+    h_LEFT_FLAPERON         = 'h',
+    U_RIGHT_HAND_TAILERON   = 'U',
+    V_LEFT_HAND_TAILERON    = 'V',
+    i_RIGHT_RUDDERVATOR     = 'i',
+    j_LEFT_RUDDERVATOR      = 'j',
+};
+
 /* -------------------------------------------------------------------------- */
 /* Utility                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -2035,40 +2055,14 @@ struct VideoCamera
 
 struct Wing
 {
-    static const std::string CONTROL_LEGAL_FLAGS;
-
-    Wing();
-
-    enum Control
-    {
-        CONTROL_n_NONE                  = 'n',
-        CONTROL_a_RIGHT_AILERON         = 'a',
-        CONTROL_b_LEFT_AILERON          = 'b',
-        CONTROL_f_FLAP                  = 'f',
-        CONTROL_e_ELEVATOR              = 'e',
-        CONTROL_r_RUDDER                = 'r',
-        CONTROL_S_RIGHT_HAND_STABILATOR = 'S',
-        CONTROL_T_LEFT_HAND_STABILATOR  = 'T',
-        CONTROL_c_RIGHT_ELEVON          = 'c',
-        CONTROL_d_LEFT_ELEVON           = 'd',
-        CONTROL_g_RIGHT_FLAPERON        = 'g',
-        CONTROL_h_LEFT_FLAPERON         = 'h',
-        CONTROL_U_RIGHT_HAND_TAILERON   = 'U',
-        CONTROL_V_LEFT_HAND_TAILERON    = 'V',
-        CONTROL_i_RIGHT_RUDDERVATOR     = 'i',
-        CONTROL_j_LEFT_RUDDERVATOR      = 'j',
-
-        CONTROL_INVALID                 = 0xFFFFFFFF
-    };
-
     Node::Ref nodes[8];
-    float tex_coords[8];
-    Control control_surface;
-    float chord_point;
-    float min_deflection;
-    float max_deflection;
+    float tex_coords[8] = {};
+    WingControlSurface control_surface = WingControlSurface::n_NONE;
+    float chord_point = -1.f;
+    float min_deflection = -1.f;
+    float max_deflection = -1.f;
     Ogre::String airfoil;
-    float efficacy_coef;
+    float efficacy_coef = 1.f; // So-called 'liftcoef'.
 };
 
 /* -------------------------------------------------------------------------- */
