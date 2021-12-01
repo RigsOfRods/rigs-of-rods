@@ -1355,9 +1355,9 @@ void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
             mk_buoyance = true;
         }
 
-        if (cab_itor->GetOption_D_ContactBuoyant() ||
-            cab_itor->GetOption_F_10xTougherBuoyant() ||
-            cab_itor->GetOption_S_UnpenetrableBuoyant())
+        if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_D_CONTACT_BUOYANT) ||
+            BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_F_10xTOUGHER_BUOYANT) ||
+            BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_S_INVULNERABLE_BUOYANT))
         {
 
             if (m_actor->ar_num_collcabs >= MAX_CABS)
