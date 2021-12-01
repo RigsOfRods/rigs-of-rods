@@ -182,18 +182,6 @@ Shock3::Shock3():
     detacher_group(0)
 {}
 
-Tie::Tie():
-    max_reach_length(0),
-    auto_shorten_rate(0),
-    min_length(0),
-    max_length(0),
-    is_invisible(false),
-    disable_self_lock(false),
-    max_stress(100000.0f), // default, hardcoded in legacy SerializedRig.cpp, BTS_TIES
-    detacher_group(0), // Global detacher group
-    group(-1) // = group not set
-{}
-
 TractionControl::TractionControl():
     regulation_force(0),
     wheel_slip(0),

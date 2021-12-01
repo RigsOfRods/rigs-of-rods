@@ -4,10 +4,23 @@
 
 /// @file
 /// @brief Bit operations
+typedef unsigned int BitMask_t;
+
+#define BITMASK( OFFSET )           ( 1  << ((OFFSET) - 1) )
+
+#define BITMASK_IS_0( VAR, FLAGS )  ( ((VAR) & (FLAGS)) == 0 )
+
+#define BITMASK_IS_1( VAR, FLAGS )  ( ((VAR) & (FLAGS)) == (FLAGS) )
+
+
+
+
+
+// --------------- TO BE REMOVED --------------- //
 
 // BITMASK(1) = 0x00000001 = 0b00....0001
 // BITMASK(2) = 0x00000002 = 0b00....0010
-#define BITMASK( OFFSET )           (          1  << ((OFFSET) - 1) )
+
 #define BITMASK_64( OFFSET )        ( uint64_t(1) << ((OFFSET) - 1) )
 
 #define BITMASK_SET_0( VAR, FLAGS ) ( (VAR) &= ~ (FLAGS) )
@@ -27,9 +40,7 @@ template<typename var_T, typename flags_T> void Bitmask_SetBool(bool val, var_T 
 	_in_out_var = (val) ? var_true : var_false;
 }
 
-#define BITMASK_IS_0( VAR, FLAGS )  ( ((VAR) & (FLAGS)) == 0 )
 
-#define BITMASK_IS_1( VAR, FLAGS )  ( ((VAR) & (FLAGS)) == (FLAGS) )
 
 #define BITMASK_FILL_1_EXCEPT( FLAGS_0 ) (( 0xFFFFFFFF & ~((FLAGS_0)) ))
 

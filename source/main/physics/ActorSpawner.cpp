@@ -2706,7 +2706,7 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     beam.bounded = ROPE;
     beam.bm_disabled = true;
 
-    if (!def.is_invisible)
+    if (BITMASK_IS_0(def.options, RigDef::Tie::OPTION_i_INVISIBLE))
     {
         this->CreateBeamVisuals(beam, beam_index, false, def.beam_defaults);
     }
@@ -2722,7 +2722,7 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     tie.ti_contract_speed = def.auto_shorten_rate;
     tie.ti_max_stress = def.max_stress;
     tie.ti_min_length = def.min_length;
-    tie.ti_no_self_lock = def.disable_self_lock;
+    tie.ti_no_self_lock = BITMASK_IS_1(def.options, RigDef::Tie::OPTION_s_DISABLE_SELF_LOCK);
     m_actor->ar_ties.push_back(tie);
 
     m_actor->m_has_command_beams = true;
