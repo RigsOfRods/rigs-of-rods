@@ -79,12 +79,12 @@ struct Node
     public:
         // Since fileformatversion is not known from the beginning of parsing, 2 states must be kept 
         // at the same time: IMPORT_STATE and REGULAR_STATE. The outer logic must make the right pick.
-        BITMASK_PROPERTY     (m_flags,  1, IMPORT_STATE_IS_VALID,               GetImportState_IsValid,            SetImportState_IsValid);
+        BITMASK_PROPERTY_GET (m_flags,  1, IMPORT_STATE_IS_VALID,               GetImportState_IsValid);
         BITMASK_PROPERTY_GET (m_flags,  2, IMPORT_STATE_MUST_CHECK_NAMED_FIRST, GetImportState_MustCheckNamedFirst);
         BITMASK_PROPERTY_GET (m_flags,  3, IMPORT_STATE_IS_RESOLVED_NAMED,      GetImportState_IsResolvedNamed);
         BITMASK_PROPERTY_GET (m_flags,  4, IMPORT_STATE_IS_RESOLVED_NUMBERED,   GetImportState_IsResolvedNumbered);
 
-        BITMASK_PROPERTY     (m_flags,  5, REGULAR_STATE_IS_VALID,            GetRegularState_IsValid,           SetRegularState_IsValid);
+        BITMASK_PROPERTY_GET (m_flags,  5, REGULAR_STATE_IS_VALID,            GetRegularState_IsValid);
         BITMASK_PROPERTY_GET (m_flags,  6, REGULAR_STATE_IS_NAMED,            GetRegularState_IsNamed);
         BITMASK_PROPERTY_GET (m_flags,  7, REGULAR_STATE_IS_NUMBERED,         GetRegularState_IsNumbered);
 
