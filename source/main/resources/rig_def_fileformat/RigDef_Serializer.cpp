@@ -1207,17 +1207,17 @@ void Serializer::ProcessTriggers(File::Module* module)
             << def.shortbound_trigger_action << ", "
             << def.longbound_trigger_action  << ", ";
 
-        if (def.HasFlag_i_Invisible()          ) { m_stream << "i"; }
-        if (def.HasFlag_c_CommandStyle()       ) { m_stream << "c"; }
-        if (def.HasFlag_x_StartDisabled()      ) { m_stream << "x"; }
-        if (def.HasFlag_b_KeyBlocker()         ) { m_stream << "b"; }
-        if (def.HasFlag_B_TriggerBlocker()     ) { m_stream << "B"; }
-        if (def.HasFlag_A_InvTriggerBlocker()  ) { m_stream << "A"; }
-        if (def.HasFlag_s_CmdNumSwitch()       ) { m_stream << "s"; }
-        if (def.HasFlag_h_UnlocksHookGroup()   ) { m_stream << "h"; }
-        if (def.HasFlag_H_LocksHookGroup()     ) { m_stream << "H"; }
-        if (def.HasFlag_t_Continuous()         ) { m_stream << "t"; }
-        if (def.HasFlag_E_EngineTrigger()      ) { m_stream << "E"; }
+        if (BITMASK_IS_1(def.options, Trigger::OPTION_i_INVISIBLE           )) { m_stream << (char)TriggerOption::i_INVISIBLE; }
+        if (BITMASK_IS_1(def.options, Trigger::OPTION_c_COMMAND_STYLE       )) { m_stream << (char)TriggerOption::c_COMMAND_STYLE; }
+        if (BITMASK_IS_1(def.options, Trigger::OPTION_x_START_DISABLED      )) { m_stream << (char)TriggerOption::x_START_DISABLED; }
+        if (BITMASK_IS_1(def.options, Trigger::OPTION_b_KEY_BLOCKER         )) { m_stream << (char)TriggerOption::b_KEY_BLOCKER; }
+        if (BITMASK_IS_1(def.options, Trigger::OPTION_B_TRIGGER_BLOCKER     )) { m_stream << (char)TriggerOption::B_TRIGGER_BLOCKER; }
+        if (BITMASK_IS_1(def.options, Trigger::OPTION_A_INV_TRIGGER_BLOCKER )) { m_stream << (char)TriggerOption::A_INV_TRIGGER_BLOCKER; }
+        if (BITMASK_IS_1(def.options, Trigger::OPTION_s_CMD_NUM_SWITCH      )) { m_stream << (char)TriggerOption::s_CMD_NUM_SWITCH; }
+        if (BITMASK_IS_1(def.options, Trigger::OPTION_h_UNLOCKS_HOOK_GROUP  )) { m_stream << (char)TriggerOption::h_UNLOCKS_HOOK_GROUP; }
+        if (BITMASK_IS_1(def.options, Trigger::OPTION_H_LOCKS_HOOK_GROUP    )) { m_stream << (char)TriggerOption::H_LOCKS_HOOK_GROUP; }
+        if (BITMASK_IS_1(def.options, Trigger::OPTION_t_CONTINUOUS          )) { m_stream << (char)TriggerOption::t_CONTINUOUS; }
+        if (BITMASK_IS_1(def.options, Trigger::OPTION_E_ENGINE_TRIGGER      )) { m_stream << (char)TriggerOption::E_ENGINE_TRIGGER; }
 
         m_stream << " " << def.boundary_timer;
     }

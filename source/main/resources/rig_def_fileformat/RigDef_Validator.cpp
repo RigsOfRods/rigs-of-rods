@@ -393,11 +393,11 @@ bool Validator::CheckTrigger(RigDef::Trigger & def)
     bool ok = true;
 
     bool hook_toggle = 
-        BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_H_LOCK_HOOKGROUPS_KEY)
-        || BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_h_UNLOCK_HOOKGROUPS_KEY);
+        BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_H_LOCKS_HOOK_GROUP)
+        || BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_h_UNLOCKS_HOOK_GROUP);
 
-    bool trigger_blocker = BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_B_BLOCK_TRIGGERS);
-    bool inv_trigger_blocker = BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_A_INV_BLOCK_TRIGGERS);
+    bool trigger_blocker = BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_B_TRIGGER_BLOCKER);
+    bool inv_trigger_blocker = BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_A_INV_TRIGGER_BLOCKER);
 
     if (BITMASK_IS_0(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER))
     {
@@ -440,7 +440,7 @@ bool Validator::CheckTrigger(RigDef::Trigger & def)
     else
     {
         /* Engine trigger */
-        if (trigger_blocker || inv_trigger_blocker || hook_toggle || BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_s_SWITCH_CMD_NUM))
+        if (trigger_blocker || inv_trigger_blocker || hook_toggle || BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_s_CMD_NUM_SWITCH))
         {
             AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber. Engine trigger deactivated.");
             ok = false;

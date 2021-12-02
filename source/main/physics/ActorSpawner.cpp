@@ -3073,7 +3073,7 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     shock_t & shock = this->GetFreeShock();
 
     // Disable trigger on startup? (default enabled)
-    shock.trigger_enabled = !def.HasFlag_x_StartDisabled();
+    shock.trigger_enabled = BITMASK_IS_0(def.options, RigDef::Trigger::OPTION_x_START_DISABLED);
 
     m_actor->ar_command_key[def.shortbound_trigger_action].trigger_cmdkeyblock_state = false;
     if (def.longbound_trigger_action != -1)
@@ -3085,42 +3085,42 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     float short_limit = def.contraction_trigger_limit;
     float long_limit = def.expansion_trigger_limit;
 
-    if (def.HasFlag_B_TriggerBlocker())
+    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_B_TRIGGER_BLOCKER))
     {
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_BLOCKER);
     }
-    if (def.HasFlag_s_CmdNumSwitch()) // switch that exchanges cmdshort/cmdshort for all triggers with the same commandnumbers, default false
+    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_s_CMD_NUM_SWITCH)) // switch that exchanges cmdshort/cmdshort for all triggers with the same commandnumbers, default false
     {
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_CMD_SWITCH);
     }
-    if (def.HasFlag_c_CommandStyle()) // // trigger is set with commandstyle boundaries instead of shocksytle
+    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_c_COMMAND_STYLE)) // trigger is set with commandstyle boundaries instead of shocksytle
     {
         short_limit = fabs(short_limit - 1);
         long_limit = long_limit - 1;
     }
-    if (def.HasFlag_A_InvTriggerBlocker()) // Blocker that enable/disable other triggers, reversed activation method (inverted Blocker style, auto-ON)
+    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_A_INV_TRIGGER_BLOCKER)) // Blocker that enable/disable other triggers, reversed activation method (inverted Blocker style, auto-ON)
     {
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_BLOCKER_A);
     }
-    if (def.HasFlag_h_UnlocksHookGroup())
+    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_h_UNLOCKS_HOOK_GROUP))
     {
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_HOOK_UNLOCK);
     }
-    if (def.HasFlag_H_LocksHookGroup())
+    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_H_LOCKS_HOOK_GROUP))
     {
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_HOOK_LOCK);
     }
-    if (def.HasFlag_t_Continuous())
+    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_t_CONTINUOUS))
     {
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_CONTINUOUS); // this trigger sends values between 0 and 1
     }
-    if (def.HasFlag_E_EngineTrigger())
+    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER))
     {
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_ENGINE);
     }
 
     // Checks
-    if (!def.IsTriggerBlockerAnyType() && !def.IsHookToggleTrigger() && !def.HasFlag_E_EngineTrigger())
+    if (!def.IsTriggerBlockerAnyType() && !def.IsHookToggleTrigger() && !BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER))
     {
         if (def.shortbound_trigger_action < 1 || def.shortbound_trigger_action > MAX_COMMANDS)
         {
@@ -3130,7 +3130,7 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
             return;
         }
     }
-    else if (!def.IsHookToggleTrigger() && !def.HasFlag_E_EngineTrigger())
+    else if (!def.IsHookToggleTrigger() && !BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER))
     {
         // this is a Trigger-Blocker, make special check
         if (def.shortbound_trigger_action < 0 || def.longbound_trigger_action < 0)
@@ -3139,9 +3139,9 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
             return;
         }
     }
-    else if (def.HasFlag_E_EngineTrigger())
+    else if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER))
     {
-        if (def.IsTriggerBlockerAnyType() || def.IsHookToggleTrigger() || def.HasFlag_s_CmdNumSwitch())
+        if (def.IsTriggerBlockerAnyType() || def.IsHookToggleTrigger() || BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_s_CMD_NUM_SWITCH))
         {
             AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber (Triggers). Engine trigger deactivated.");
             return;
@@ -3167,7 +3167,7 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     beam.bounded = TRIGGER;
     beam.shock = &shock;
 
-    if (! def.HasFlag_i_Invisible())
+    if (BITMASK_IS_0(def.options, RigDef::Trigger::OPTION_i_INVISIBLE))
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
     }
@@ -3197,7 +3197,7 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     else 
     {
         // this is a trigger_blocker
-        if (!def.HasFlag_A_InvTriggerBlocker())
+        if (!BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_A_INV_TRIGGER_BLOCKER))
         {
             //normal BLOCKER
             shock_flags |= SHOCK_FLAG_TRG_BLOCKER;
@@ -3213,7 +3213,7 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
         }
     }
 
-    if (def.HasFlag_b_KeyBlocker() && !def.HasFlag_B_TriggerBlocker())
+    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_b_KEY_BLOCKER) && !BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_B_TRIGGER_BLOCKER))
     {
         m_actor->ar_command_key[def.shortbound_trigger_action].trigger_cmdkeyblock_state = true;
         if (def.longbound_trigger_action != -1)

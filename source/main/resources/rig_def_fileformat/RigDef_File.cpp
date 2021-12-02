@@ -192,16 +192,6 @@ TractionControl::TractionControl():
     attr_no_toggle(false)
 {}
 
-Trigger::Trigger():
-    shortbound_trigger_action(0),
-    longbound_trigger_action(0),
-    contraction_trigger_limit(0),
-    expansion_trigger_limit(0),
-    options(0),
-    boundary_timer(1.f), /* Default */
-    detacher_group(0)
-{}
-
 VideoCamera::VideoCamera():
     offset(Ogre::Vector3::ZERO),
     rotation(Ogre::Vector3::ZERO),
