@@ -1826,14 +1826,14 @@ struct Screwprop
 
 struct SlideNode
 {
-    BITMASK_PROPERTY( constraint_flags, 1, CONSTRAINT_ATTACH_ALL     , HasConstraint_a_AttachAll     , SetConstraint_a_AttachAll     )   
-    BITMASK_PROPERTY( constraint_flags, 2, CONSTRAINT_ATTACH_FOREIGN , HasConstraint_f_AttachForeign , SetConstraint_f_AttachForeign )
-    BITMASK_PROPERTY( constraint_flags, 3, CONSTRAINT_ATTACH_SELF    , HasConstraint_s_AttachSelf 	 , SetConstraint_s_AttachSelf	 )
-    BITMASK_PROPERTY( constraint_flags, 4, CONSTRAINT_ATTACH_NONE    , HasConstraint_n_AttachNone 	 , SetConstraint_n_AttachNone	 )
+    static const BitMask_t CONSTRAINT_ATTACH_ALL     = BITMASK(1);
+    static const BitMask_t CONSTRAINT_ATTACH_FOREIGN = BITMASK(2);
+    static const BitMask_t CONSTRAINT_ATTACH_SELF    = BITMASK(3);
+    static const BitMask_t CONSTRAINT_ATTACH_NONE    = BITMASK(4);
 
     Node::Ref slide_node;
     std::vector<Node::Range> rail_node_ranges;
-    unsigned int constraint_flags;
+    BitMask_t constraint_flags = 0;
 
     // Optional args
     float spring_rate=0.f;      bool _spring_rate_set=false;
