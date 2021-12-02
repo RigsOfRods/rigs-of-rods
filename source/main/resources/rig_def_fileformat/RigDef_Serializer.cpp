@@ -1123,10 +1123,10 @@ void Serializer::ProcessSlideNodes(File::Module* module)
         if (def._max_attach_dist_set)  { m_stream << ", d" << def.max_attach_dist; }
 
         // Constraint flags (cX)
-             if (def.HasConstraint_a_AttachAll())     { m_stream << ", ca"; }
-        else if (def.HasConstraint_f_AttachForeign()) { m_stream << ", cf"; }
-        else if (def.HasConstraint_s_AttachSelf())    { m_stream << ", cs"; }
-        else if (def.HasConstraint_n_AttachNone())    { m_stream << ", cn"; }
+             if (BITMASK_IS_1(def.constraint_flags, SlideNode::CONSTRAINT_ATTACH_ALL    )) { m_stream << ", ca"; }
+        else if (BITMASK_IS_1(def.constraint_flags, SlideNode::CONSTRAINT_ATTACH_FOREIGN)) { m_stream << ", cf"; }
+        else if (BITMASK_IS_1(def.constraint_flags, SlideNode::CONSTRAINT_ATTACH_SELF   )) { m_stream << ", cs"; }
+        else if (BITMASK_IS_1(def.constraint_flags, SlideNode::CONSTRAINT_ATTACH_NONE   )) { m_stream << ", cn"; }
     }
     m_stream << endl << endl; // Empty line
 }
