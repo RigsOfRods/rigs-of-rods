@@ -138,16 +138,6 @@ NodeDefaults::NodeDefaults():
     options(0)
 {}
 
-Shock::Shock():
-    spring_rate(0),
-    damping(0),
-    short_bound(0),
-    long_bound(0),
-    precompression(1),
-    options(0),
-    detacher_group(0)
-{}
-
 Shock2::Shock2():
     spring_in(0),
     damp_in(0),

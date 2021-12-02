@@ -292,6 +292,16 @@ enum class HydroOption: char
     h_INPUT_InvELEVATOR_RUDDER  = 'h',
 };
 
+enum class ShockOption: char
+{
+    n_DUMMY        = 'n',
+    v_DUMMY        = 'v',
+    i_INVISIBLE    = 'i',
+    L_ACTIVE_LEFT  = 'L',
+    R_ACTIVE_RIGHT = 'R',
+    m_METRIC       = 'm',
+};
+
 /* -------------------------------------------------------------------------- */
 /* Utility                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -1183,24 +1193,20 @@ struct Hook
 
 struct Shock
 {
-    Shock();
-
-    BITMASK_PROPERTY(options, 1, OPTION_i_INVISIBLE    , HasOption_i_Invisible,   SetOption_i_Invisible) 
-    // Stability active suspension can be made with "L" for suspension on the truck's left and "R" for suspension on the truck's right. 
-    BITMASK_PROPERTY(options, 2, OPTION_L_ACTIVE_LEFT  , HasOption_L_ActiveLeft,  SetOption_L_ActiveLeft) 
-    // Stability active suspension can be made with "L" for suspension on the truck's left and "R" for suspension on the truck's right. 
-    BITMASK_PROPERTY(options, 3, OPTION_R_ACTIVE_RIGHT , HasOption_R_ActiveRight, SetOption_R_ActiveRight)
-    BITMASK_PROPERTY(options, 4, OPTION_m_METRIC       , HasOption_m_Metric,      SetOption_m_Metric) 
+    static const BitMask_t OPTION_i_INVISIBLE    = BITMASK(1);
+    static const BitMask_t OPTION_L_ACTIVE_LEFT  = BITMASK(2);
+    static const BitMask_t OPTION_R_ACTIVE_RIGHT = BITMASK(3);
+    static const BitMask_t OPTION_m_METRIC       = BITMASK(4);
 
     Node::Ref nodes[2];
-    float spring_rate;         //!< The 'stiffness' of the shock. The higher the value, the less the shock will move for a given bump. 
-    float damping;             //!< The 'resistance to motion' of the shock. The best value is given by this equation:  2 * sqrt(suspended mass * springness)
-    float short_bound;         //!< Maximum contraction. The shortest length the shock can be, as a proportion of its original length. "0" means the shock will not be able to contract at all, "1" will let it contract all the way to zero length. If the shock tries to shorten more than this value allows, it will become as rigid as a normal beam. 
-    float long_bound;          //!< Maximum extension. The longest length a shock can be, as a proportion of its original length. "0" means the shock will not be able to extend at all. "1" means the shock will be able to double its length. Higher values allow for longer extension.
-    float precompression;      //!< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0. 
-    unsigned int options;      //!< Bit flags.
+    float spring_rate = 0.f;         //!< The 'stiffness' of the shock. The higher the value, the less the shock will move for a given bump. 
+    float damping = 0.f;             //!< The 'resistance to motion' of the shock. The best value is given by this equation:  2 * sqrt(suspended mass * springness)
+    float short_bound = 0.f;         //!< Maximum contraction. The shortest length the shock can be, as a proportion of its original length. "0" means the shock will not be able to contract at all, "1" will let it contract all the way to zero length. If the shock tries to shorten more than this value allows, it will become as rigid as a normal beam. 
+    float long_bound = 0.f;          //!< Maximum extension. The longest length a shock can be, as a proportion of its original length. "0" means the shock will not be able to extend at all. "1" means the shock will be able to double its length. Higher values allow for longer extension.
+    float precompression = 1.f;      //!< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0. 
+    BitMask_t options = 0;
     std::shared_ptr<BeamDefaults> beam_defaults;
-    int detacher_group;
+    int detacher_group = 0;
 };
 
 /* -------------------------------------------------------------------------- */
