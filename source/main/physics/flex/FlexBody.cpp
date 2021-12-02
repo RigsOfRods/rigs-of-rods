@@ -141,8 +141,8 @@ FlexBody::FlexBody(
     }
     else
     {
-        m_has_texture        = preloaded_from_cache->header.HasTexture();
-        m_has_texture_blend  = preloaded_from_cache->header.HasTextureBlend();
+        m_has_texture        = BITMASK_IS_1(preloaded_from_cache->header.flags, FlexBodyRecordHeader::HAS_TEXTURE);
+        m_has_texture_blend  = BITMASK_IS_1(preloaded_from_cache->header.flags, FlexBodyRecordHeader::HAS_TEXTURE_BLEND);
     }
 
     //create optimal VertexDeclaration
@@ -245,7 +245,7 @@ FlexBody::FlexBody(
     } else
     {
         m_vertex_count            = preloaded_from_cache->header.vertex_count;
-        m_uses_shared_vertex_data = preloaded_from_cache->header.UsesSharedVertexData();
+        m_uses_shared_vertex_data = BITMASK_IS_1(preloaded_from_cache->header.flags, FlexBodyRecordHeader::USES_SHARED_VERTEX_DATA);
         m_num_submesh_vbufs       = preloaded_from_cache->header.num_submesh_vbufs;
     }
     
