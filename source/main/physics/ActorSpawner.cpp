@@ -3638,71 +3638,60 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
     bool invisible = false;
     unsigned int hydro_flags = 0;
 
-    // Parse options
-    if (def.options.empty()) // Parse as if option 'n' (OPTION_n_NORMAL) was present
+    if (def.options == 0)
     {
         invisible = false;
         hydro_flags |= HYDRO_FLAG_DIR;
     }
-    else
+    if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_i_INVISIBLE))
     {
-        for (unsigned int i = 0; i < def.options.length(); ++i)
-        {
-            const char c = def.options[i];
-            switch (c)
-            {
-                case RigDef::Hydro::OPTION_i_INVISIBLE:  // i
-                    invisible = true;
-                    break;
-                case RigDef::Hydro::OPTION_n_NORMAL:  // n
-                    invisible = false;
-                    hydro_flags |= HYDRO_FLAG_DIR;
-                    break;
-                case RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED:  // 's': // speed changing hydro
-                    hydro_flags |= HYDRO_FLAG_SPEED;
-                    break;
-                case RigDef::Hydro::OPTION_a_INPUT_AILERON:  // 'a':
-                    hydro_flags |= HYDRO_FLAG_AILERON;
-                    break;
-                case RigDef::Hydro::OPTION_r_INPUT_RUDDER:  // 'r':
-                    hydro_flags |= HYDRO_FLAG_RUDDER;
-                    break;
-                case RigDef::Hydro::OPTION_e_INPUT_ELEVATOR:  // 'e':
-                    hydro_flags |= HYDRO_FLAG_ELEVATOR;
-                    break;
-                case RigDef::Hydro::OPTION_u_INPUT_AILERON_ELEVATOR:  // 'u':
-                    hydro_flags |= (HYDRO_FLAG_AILERON | HYDRO_FLAG_ELEVATOR);
-                    break;
-                case RigDef::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR:  // 'v':
-                    hydro_flags |= (HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_ELEVATOR);
-                    break;
-                case RigDef::Hydro::OPTION_x_INPUT_AILERON_RUDDER:  // 'x':
-                    hydro_flags |= (HYDRO_FLAG_AILERON | HYDRO_FLAG_RUDDER);
-                    break;
-                case RigDef::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER:  // 'y':
-                    hydro_flags |= (HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_RUDDER);
-                    break;
-                case RigDef::Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER:  // 'g':
-                    hydro_flags |= (HYDRO_FLAG_ELEVATOR | HYDRO_FLAG_RUDDER);
-                    break;
-                case RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER:  // 'h':
-                    hydro_flags |= (HYDRO_FLAG_REV_ELEVATOR | HYDRO_FLAG_RUDDER);
-                    break;
-                default:
-                    this->AddMessage(Message::TYPE_WARNING, std::string("Ignoring invalid flag:") + c);
-                    break;
-            }
-            
-            // NOTE: This is a quirk ported from v0.4.0.7 spawner (for compatibility)
-            //       This code obviously belongs after the options-loop.
-            //       However, since it's inside the loop, it only works correctly if the 'i' flag is last.
-            //
-            // ORIGINAL COMMENT: if you use the i flag on its own, add the direction to it
-            if (invisible && !hydro_flags)
-            {
-                hydro_flags |= HYDRO_FLAG_DIR;
-            }
-        }
+        invisible = true;
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED))
+    {
+        hydro_flags |= HYDRO_FLAG_SPEED;
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_a_INPUT_AILERON))
+    {
+        hydro_flags |= HYDRO_FLAG_AILERON;
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_r_INPUT_RUDDER))
+    {
+        hydro_flags |= HYDRO_FLAG_RUDDER;
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_e_INPUT_ELEVATOR))
+    {
+        hydro_flags |= HYDRO_FLAG_ELEVATOR;
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_u_INPUT_AILERON_ELEVATOR))
+    {
+        hydro_flags |= (HYDRO_FLAG_AILERON | HYDRO_FLAG_ELEVATOR);
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR))
+    {
+        hydro_flags |= (HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_ELEVATOR);
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_x_INPUT_AILERON_RUDDER))
+    {
+        hydro_flags |= (HYDRO_FLAG_AILERON | HYDRO_FLAG_RUDDER);
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER))
+    {
+        hydro_flags |= (HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_RUDDER);
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER))
+    {
+        hydro_flags |= (HYDRO_FLAG_ELEVATOR | HYDRO_FLAG_RUDDER);
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER))
+    {
+        hydro_flags |= (HYDRO_FLAG_REV_ELEVATOR | HYDRO_FLAG_RUDDER);
+    }
+
+    // if you use the 'INVISIBLE' flag on its own, add the direction to it
+    if (invisible && !hydro_flags)
+    {
+        hydro_flags |= HYDRO_FLAG_DIR;
     }
 
     node_t & node_1 = GetNode(def.nodes[0]);

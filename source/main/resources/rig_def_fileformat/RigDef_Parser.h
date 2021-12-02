@@ -213,6 +213,7 @@ private:
     BitMask_t          GetArgCabOptions   (int index);
     BitMask_t          GetArgTriggerOptions(int index);
     BitMask_t          GetArgBeamOptions  (int index);
+    BitMask_t          GetArgHydroOptions (int index);
 
     float              ParseArgFloat      (const char* str);
     int                ParseArgInt        (const char* str);
