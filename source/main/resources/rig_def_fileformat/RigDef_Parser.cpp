@@ -2076,38 +2076,8 @@ void Parser::ParseShock()
     shock.short_bound    = this->GetArgFloat  (4);
     shock.long_bound     = this->GetArgFloat  (5);
     shock.precompression = this->GetArgFloat  (6);
+    if (m_num_args > 7) shock.options = this->GetArgShockOptions(7);
 
-    shock.options = 0u;
-    if (m_num_args > 7)
-    {
-        std::string options_str = this->GetArgStr(7);
-        auto itor = options_str.begin();
-        auto endi = options_str.end();
-        while (itor != endi)
-        {
-            char c = *itor++;
-            switch (c)
-            {
-                case 'n':
-                case 'v':
-                    break; // Placeholder, does nothing.
-                case 'i': BITMASK_SET_1(shock.options, Shock::OPTION_i_INVISIBLE);
-                    break;
-                case 'm': BITMASK_SET_1(shock.options, Shock::OPTION_m_METRIC);
-                    break;
-                case 'r':
-                case 'R': BITMASK_SET_1(shock.options, Shock::OPTION_R_ACTIVE_RIGHT);
-                    break;
-                case 'l':
-                case 'L': BITMASK_SET_1(shock.options, Shock::OPTION_L_ACTIVE_LEFT);
-                    break;
-                default:
-                    this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
-                        fmt::format("ignoring invalid option '{}'", c));
-                break;
-            }
-        }
-    }
     m_current_module->shocks.push_back(shock);
 }
 
@@ -3288,6 +3258,29 @@ BitMask_t Parser::GetArgHydroOptions (int index)
             case (char)HydroOption::h_INPUT_InvELEVATOR_RUDDER : ret |= Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER ; break;
 
             case (char)HydroOption::n_DUMMY: break;
+
+            default:
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format("ignoring invalid option '{}'", c));
+        }
+    }
+    return ret;
+}
+
+BitMask_t Parser::GetArgShockOptions(int index)
+{
+    BitMask_t ret = 0;
+    for (char c: this->GetArgStr(index))
+    {
+        switch (c)
+        {
+            case (char)ShockOption::i_INVISIBLE    : ret |= Shock::OPTION_i_INVISIBLE   ; break;
+            case (char)ShockOption::L_ACTIVE_LEFT  : ret |= Shock::OPTION_L_ACTIVE_LEFT ; break;
+            case (char)ShockOption::R_ACTIVE_RIGHT : ret |= Shock::OPTION_R_ACTIVE_RIGHT; break;
+            case (char)ShockOption::m_METRIC       : ret |= Shock::OPTION_m_METRIC      ; break;
+
+            case (char)ShockOption::n_DUMMY: break;
+            case (char)ShockOption::v_DUMMY: break;
 
             default:
                 this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
