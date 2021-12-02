@@ -154,10 +154,10 @@ enum class SimState
 enum class SimGearboxMode
 {
     AUTO,          //!< Automatic shift
-    SEMI_AUTO,     //!< Manual shift - Auto clutch
-    MANUAL,        //!< Fully Manual: sequential shift
+    SEMI_AUTO,     //!< Manual shift: auto clutch
+    MANUAL,        //!< Fully manual: sequential shift
     MANUAL_STICK,  //!< Fully manual: stick shift
-    MANUAL_RANGES, //!< Fully Manual: stick shift with ranges
+    MANUAL_RANGES, //!< Fully manual: stick shift with ranges
 };
 SimGearboxMode ParseSimGearboxMode(std::string const & s);
 const char* SimGearboxModeToStr(SimGearboxMode v);
