@@ -312,6 +312,15 @@ enum class Shock2Option: char
     M_ABSOLUTE_METRIC  = 'M', //!< Absolute metric values for shortbound/longbound, settings apply without regarding to the original length of the beam.(Use with caution, check ror.log for errors)
 };
 
+enum class Shock3Option: char
+{
+    n_DUMMY            = 'n',
+    v_DUMMY            = 'v',
+    i_INVISIBLE        = 'i',
+    m_METRIC           = 'm', //!< metric values for shortbound/longbound applying to the length of the beam.
+    M_ABSOLUTE_METRIC  = 'M', //!< Absolute metric values for shortbound/longbound, settings apply without regarding to the original length of the beam.(Use with caution, check ror.log for errors)
+};
+
 /* -------------------------------------------------------------------------- */
 /* Utility                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -1257,11 +1266,9 @@ struct Shock3
 {
     Shock3();
 
-    BITMASK_PROPERTY(options, 1, OPTION_i_INVISIBLE       , HasOption_i_Invisible,      SetOption_i_Invisible) 
-    // metric values for shortbound/longbound applying to the length of the beam.
-    BITMASK_PROPERTY(options, 2, OPTION_m_METRIC          , HasOption_m_Metric,         SetOption_m_Metric)
-    // Absolute metric values for shortbound/longbound, settings apply without regarding to the original length of the beam.(Use with caution, check ror.log for errors)
-    BITMASK_PROPERTY(options, 3, OPTION_M_ABSOLUTE_METRIC , HasOption_M_AbsoluteMetric, SetOption_M_AbsoluteMetric)  
+    static const BitMask_t OPTION_i_INVISIBLE        = BITMASK(1);
+    static const BitMask_t OPTION_m_METRIC           = BITMASK(2); // metric values for shortbound/longbound applying to the length of the beam.
+    static const BitMask_t OPTION_M_ABSOLUTE_METRIC  = BITMASK(3); // Absolute metric values for shortbound/longbound, settings apply without regarding to the original length of the beam.(Use with caution, check ror.log for errors)
 
     Node::Ref nodes[2];
     float spring_in;                  //!< Spring value applied when the shock is compressing.
@@ -1277,7 +1284,7 @@ struct Shock3
     float short_bound;                //!< Maximum contraction limit, in percentage ( 1.00 = 100% )
     float long_bound;                 //!< Maximum extension limit, in percentage ( 1.00 = 100% )
     float precompression;             //!< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0.  
-    unsigned int options;             //!< Bit flags.
+    BitMask_t options;
     std::shared_ptr<BeamDefaults> beam_defaults;
     int detacher_group;
 };
