@@ -274,6 +274,24 @@ enum class BeamOption: char
     s_SUPPORT   = 's',
 };
 
+enum class HydroOption: char
+{
+    n_DUMMY                     = 'n',
+    i_INVISIBLE                 = 'i',
+    // Useful for trucks
+    s_DISABLE_ON_HIGH_SPEED     = 's',
+    // Useful for planes: These can be used to control flight surfaces, or to create a thrust vectoring system.
+    a_INPUT_AILERON             = 'a',
+    r_INPUT_RUDDER              = 'r',
+    e_INPUT_ELEVATOR            = 'e',
+    u_INPUT_AILERON_ELEVATOR    = 'u',
+    v_INPUT_InvAILERON_ELEVATOR = 'v',
+    x_INPUT_AILERON_RUDDER      = 'x',
+    y_INPUT_InvAILERON_RUDDER   = 'y',
+    g_INPUT_ELEVATOR_RUDDER     = 'g',
+    h_INPUT_InvELEVATOR_RUDDER  = 'h',
+};
+
 /* -------------------------------------------------------------------------- */
 /* Utility                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -1272,51 +1290,27 @@ struct SkeletonSettings
 
 struct Hydro
 {
-    Hydro():
-        lenghtening_factor(0),
-        detacher_group(0)
-    {}
-
-    static const char OPTION_n_NORMAL                    = 'n';
-    static const char OPTION_i_INVISIBLE                 = 'i';
-
-    /* Useful for trucks */
-
-    static const char OPTION_s_DISABLE_ON_HIGH_SPEED     = 's';
-
-    /* Useful for planes: These can be used to control flight surfaces, or to create a thrust vectoring system.  */
-
-    static const char OPTION_a_INPUT_AILERON             = 'a';
-    static const char OPTION_r_INPUT_RUDDER              = 'r';
-    static const char OPTION_e_INPUT_ELEVATOR            = 'e';
-    static const char OPTION_u_INPUT_AILERON_ELEVATOR    = 'u';
-    static const char OPTION_v_INPUT_InvAILERON_ELEVATOR = 'v';
-    static const char OPTION_x_INPUT_AILERON_RUDDER      = 'x';
-    static const char OPTION_y_INPUT_InvAILERON_RUDDER   = 'y';
-    static const char OPTION_g_INPUT_ELEVATOR_RUDDER     = 'g';
-    static const char OPTION_h_INPUT_InvELEVATOR_RUDDER  = 'h';
-
-    inline bool HasFlag_a() { return options.find(RigDef::Hydro::OPTION_a_INPUT_AILERON)             != std::string::npos; }
-    inline bool HasFlag_e() { return options.find(RigDef::Hydro::OPTION_e_INPUT_ELEVATOR)            != std::string::npos; }
-    inline bool HasFlag_g() { return options.find(RigDef::Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER)     != std::string::npos; }
-    inline bool HasFlag_h() { return options.find(RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER)  != std::string::npos; }
-    inline bool HasFlag_i() { return options.find(RigDef::Hydro::OPTION_i_INVISIBLE)                 != std::string::npos; }
-    inline bool HasFlag_r() { return options.find(RigDef::Hydro::OPTION_r_INPUT_RUDDER)              != std::string::npos; }
-    inline bool HasFlag_s() { return options.find(RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED)     != std::string::npos; }
-    inline bool HasFlag_u() { return options.find(RigDef::Hydro::OPTION_u_INPUT_AILERON_ELEVATOR)    != std::string::npos; }
-    inline bool HasFlag_v() { return options.find(RigDef::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR) != std::string::npos; }
-    inline bool HasFlag_x() { return options.find(RigDef::Hydro::OPTION_x_INPUT_AILERON_RUDDER)      != std::string::npos; }
-    inline bool HasFlag_y() { return options.find(RigDef::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER)   != std::string::npos; }
-
-    inline void AddFlag(char flag) { options += flag; }
+    static const BitMask_t OPTION_i_INVISIBLE                 = BITMASK(1);
+    // Useful for trucks:
+    static const BitMask_t OPTION_s_DISABLE_ON_HIGH_SPEED     = BITMASK(2);
+    // Useful for planes: These can be used to control flight surfaces, or to create a thrust vectoring system.
+    static const BitMask_t OPTION_a_INPUT_AILERON             = BITMASK(3);
+    static const BitMask_t OPTION_r_INPUT_RUDDER              = BITMASK(4);
+    static const BitMask_t OPTION_e_INPUT_ELEVATOR            = BITMASK(5);
+    static const BitMask_t OPTION_u_INPUT_AILERON_ELEVATOR    = BITMASK(6);
+    static const BitMask_t OPTION_v_INPUT_InvAILERON_ELEVATOR = BITMASK(7);
+    static const BitMask_t OPTION_x_INPUT_AILERON_RUDDER      = BITMASK(8);
+    static const BitMask_t OPTION_y_INPUT_InvAILERON_RUDDER   = BITMASK(9);
+    static const BitMask_t OPTION_g_INPUT_ELEVATOR_RUDDER     = BITMASK(10);
+    static const BitMask_t OPTION_h_INPUT_InvELEVATOR_RUDDER  = BITMASK(11);
 
     Node::Ref nodes[2];
-    float lenghtening_factor;
-    std::string options;
+    float lenghtening_factor = 0.f;
+    BitMask_t options = 0;
     Inertia inertia;
     std::shared_ptr<Inertia> inertia_defaults;
     std::shared_ptr<BeamDefaults> beam_defaults;
-    int detacher_group;
+    int detacher_group = 0;
 };
 
 /* -------------------------------------------------------------------------- */

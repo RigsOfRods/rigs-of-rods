@@ -2076,14 +2076,20 @@ void Serializer::ProcessHydro(Hydro & def)
         << std::setw(m_node_id_width) << def.nodes[1].ToString() << ", ";
 
     m_stream << std::setw(m_float_width) << def.lenghtening_factor      << ", ";
-    if (def.options.empty())
-    {
-        m_stream << "n"; // Placeholder, does nothing
-    }
-    else
-    {
-        m_stream << def.options;
-    }
+
+    // Options
+    if (BITMASK_IS_1(def.options, Hydro::OPTION_i_INVISIBLE                )) m_stream << (char)HydroOption::i_INVISIBLE                ;
+    if (BITMASK_IS_1(def.options, Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED    )) m_stream << (char)HydroOption::s_DISABLE_ON_HIGH_SPEED    ;
+    if (BITMASK_IS_1(def.options, Hydro::OPTION_a_INPUT_AILERON            )) m_stream << (char)HydroOption::a_INPUT_AILERON            ;
+    if (BITMASK_IS_1(def.options, Hydro::OPTION_r_INPUT_RUDDER             )) m_stream << (char)HydroOption::r_INPUT_RUDDER             ;
+    if (BITMASK_IS_1(def.options, Hydro::OPTION_e_INPUT_ELEVATOR           )) m_stream << (char)HydroOption::e_INPUT_ELEVATOR           ;
+    if (BITMASK_IS_1(def.options, Hydro::OPTION_u_INPUT_AILERON_ELEVATOR   )) m_stream << (char)HydroOption::u_INPUT_AILERON_ELEVATOR   ;
+    if (BITMASK_IS_1(def.options, Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR)) m_stream << (char)HydroOption::v_INPUT_InvAILERON_ELEVATOR;
+    if (BITMASK_IS_1(def.options, Hydro::OPTION_x_INPUT_AILERON_RUDDER     )) m_stream << (char)HydroOption::x_INPUT_AILERON_RUDDER     ;
+    if (BITMASK_IS_1(def.options, Hydro::OPTION_y_INPUT_InvAILERON_RUDDER  )) m_stream << (char)HydroOption::y_INPUT_InvAILERON_RUDDER  ;
+    if (BITMASK_IS_1(def.options, Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER    )) m_stream << (char)HydroOption::g_INPUT_ELEVATOR_RUDDER    ;
+    if (BITMASK_IS_1(def.options, Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER )) m_stream << (char)HydroOption::h_INPUT_InvELEVATOR_RUDDER ;
+    if (def.options == 0) m_stream << (char)HydroOption::n_DUMMY;
     m_stream << ", ";
 
     // Inertia

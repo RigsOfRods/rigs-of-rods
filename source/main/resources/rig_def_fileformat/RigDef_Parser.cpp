@@ -2611,7 +2611,7 @@ void Parser::ParseHydros()
     hydro.nodes[1]           = this->GetArgNodeRef(1);
     hydro.lenghtening_factor = this->GetArgFloat  (2);
     
-    if (m_num_args > 3) { hydro.options = this->GetArgStr(3); }
+    if (m_num_args > 3) { hydro.options = this->GetArgHydroOptions(3); }
     
     this->ParseOptionalInertia(hydro.inertia, 4);
 
@@ -3259,6 +3259,35 @@ BitMask_t Parser::GetArgBeamOptions(int index)
             case (char)BeamOption::i_INVISIBLE: ret |= Beam::OPTION_i_INVISIBLE; break;
             case (char)BeamOption::r_ROPE     : ret |= Beam::OPTION_r_ROPE     ; break;
             case (char)BeamOption::s_SUPPORT  : ret |= Beam::OPTION_s_SUPPORT  ; break;
+
+            default:
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format("ignoring invalid option '{}'", c));
+        }
+    }
+    return ret;
+}
+
+BitMask_t Parser::GetArgHydroOptions (int index)
+{
+    BitMask_t ret = 0;
+    for (char c: this->GetArgStr(index))
+    {
+        switch (c)
+        {
+            case (char)HydroOption::i_INVISIBLE                : ret |= Hydro::OPTION_i_INVISIBLE                ; break;
+            case (char)HydroOption::s_DISABLE_ON_HIGH_SPEED    : ret |= Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED    ; break;
+            case (char)HydroOption::a_INPUT_AILERON            : ret |= Hydro::OPTION_a_INPUT_AILERON            ; break;
+            case (char)HydroOption::r_INPUT_RUDDER             : ret |= Hydro::OPTION_r_INPUT_RUDDER             ; break;
+            case (char)HydroOption::e_INPUT_ELEVATOR           : ret |= Hydro::OPTION_e_INPUT_ELEVATOR           ; break;
+            case (char)HydroOption::u_INPUT_AILERON_ELEVATOR   : ret |= Hydro::OPTION_u_INPUT_AILERON_ELEVATOR   ; break;
+            case (char)HydroOption::v_INPUT_InvAILERON_ELEVATOR: ret |= Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR; break;
+            case (char)HydroOption::x_INPUT_AILERON_RUDDER     : ret |= Hydro::OPTION_x_INPUT_AILERON_RUDDER     ; break;
+            case (char)HydroOption::y_INPUT_InvAILERON_RUDDER  : ret |= Hydro::OPTION_y_INPUT_InvAILERON_RUDDER  ; break;
+            case (char)HydroOption::g_INPUT_ELEVATOR_RUDDER    : ret |= Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER    ; break;
+            case (char)HydroOption::h_INPUT_InvELEVATOR_RUDDER : ret |= Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER ; break;
+
+            case (char)HydroOption::n_DUMMY: break;
 
             default:
                 this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
