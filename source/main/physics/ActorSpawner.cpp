@@ -6726,7 +6726,7 @@ void ActorSpawner::FinalizeGfxSetup()
                 ticket.meshwheel_def->mesh_name,
                 ticket.meshwheel_def->material_name,
                 ticket.meshwheel_def->rim_radius,
-                ticket.meshwheel_def->side != RigDef::MeshWheel::SIDE_RIGHT
+                ticket.meshwheel_def->side != RigDef::WheelSide::RIGHT
                 );
         }
         else if (ticket.flexbodywheel_def != nullptr)
@@ -6741,7 +6741,7 @@ void ActorSpawner::FinalizeGfxSetup()
                 def.rim_mesh_name,
                 "tracks/trans", // Rim material name. Original parser: was hardcoded in BTS_FLEXBODYWHEELS
                 def.rim_radius,
-                def.side != RigDef::MeshWheel::SIDE_RIGHT
+                def.side != RigDef::WheelSide::RIGHT
                 );
 
             int num_nodes = def.num_rays * 4;
