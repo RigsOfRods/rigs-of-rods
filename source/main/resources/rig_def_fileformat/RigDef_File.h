@@ -252,6 +252,21 @@ enum class CabOption: char
     S_INVULNERABLE_BUOYANT = 'S',
 };
 
+enum class TriggerOption: char
+{
+    i_INVISIBLE             = 'i', //!< invisible
+    c_COMMAND_STYLE         = 'c', //!< trigger is set with commandstyle boundaries instead of shocksytle
+    x_START_DISABLED        = 'x', //!< this trigger is disabled on startup, default is enabled
+    b_KEY_BLOCKER           = 'b', //!< Set the CommandKeys that are set in a commandkeyblocker or trigger to blocked on startup, default is released
+    B_TRIGGER_BLOCKER       = 'B', //!< Blocker that enable/disable other triggers
+    A_INV_TRIGGER_BLOCKER   = 'A', //!< Blocker that enable/disable other triggers, reversed activation method (inverted Blocker style, auto-ON)
+    s_CMD_NUM_SWITCH        = 's', //!< switch that exchanges cmdshort/cmdshort for all triggers with the same commandnumbers, default false
+    h_UNLOCKS_HOOK_GROUP    = 'h',
+    H_LOCKS_HOOK_GROUP      = 'H',
+    t_CONTINUOUS            = 't', //!< this trigger sends values between 0 and 1
+    E_ENGINE_TRIGGER        = 'E', //!< this trigger is used to control an engine
+};
+
 /* -------------------------------------------------------------------------- */
 /* Utility                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -1454,6 +1469,20 @@ struct Rotator2: public Rotator
 
 struct Trigger
 {
+    static const BitMask_t OPTION_i_INVISIBLE             = BITMASK( 1);
+    static const BitMask_t OPTION_c_COMMAND_STYLE         = BITMASK( 2);
+    static const BitMask_t OPTION_x_START_DISABLED        = BITMASK( 3);
+    static const BitMask_t OPTION_b_KEY_BLOCKER           = BITMASK( 4);
+    static const BitMask_t OPTION_B_TRIGGER_BLOCKER       = BITMASK( 5);
+    static const BitMask_t OPTION_A_INV_TRIGGER_BLOCKER   = BITMASK( 6);
+    static const BitMask_t OPTION_s_CMD_NUM_SWITCH        = BITMASK( 7);
+    static const BitMask_t OPTION_h_UNLOCKS_HOOK_GROUP    = BITMASK( 8);
+    static const BitMask_t OPTION_H_LOCKS_HOOK_GROUP      = BITMASK( 9);
+    static const BitMask_t OPTION_t_CONTINUOUS            = BITMASK(10);
+    static const BitMask_t OPTION_E_ENGINE_TRIGGER        = BITMASK(11);
+
+    // TODO:  All the following structs+functions should really be spawner helpers
+
     struct EngineTrigger
     {
         enum Function
@@ -1484,23 +1513,17 @@ struct Trigger
         int extension_trigger_hookgroup_id;
     };
 
-    Trigger();
+    inline bool IsHookToggleTrigger() const
+    {
+        return BITMASK_IS_1(options, OPTION_H_LOCKS_HOOK_GROUP) ||
+               BITMASK_IS_1(options, OPTION_h_UNLOCKS_HOOK_GROUP);
+    }
 
-    BITMASK_PROPERTY(options,  1, OPTION_i_INVISIBLE             , HasFlag_i_Invisible,         SetFlag_i_Invisible         )
-    BITMASK_PROPERTY(options,  2, OPTION_c_COMMAND_STYLE         , HasFlag_c_CommandStyle,      SetFlag_c_CommandStyle      )
-    BITMASK_PROPERTY(options,  3, OPTION_x_START_OFF             , HasFlag_x_StartDisabled,     SetFlag_x_StartDisabled     )
-    BITMASK_PROPERTY(options,  4, OPTION_b_BLOCK_KEYS            , HasFlag_b_KeyBlocker,        SetFlag_b_KeyBlocker        )
-    BITMASK_PROPERTY(options,  5, OPTION_B_BLOCK_TRIGGERS        , HasFlag_B_TriggerBlocker,    SetFlag_B_TriggerBlocker    )
-    BITMASK_PROPERTY(options,  6, OPTION_A_INV_BLOCK_TRIGGERS    , HasFlag_A_InvTriggerBlocker, SetFlag_A_InvTriggerBlocker )
-    BITMASK_PROPERTY(options,  7, OPTION_s_SWITCH_CMD_NUM        , HasFlag_s_CmdNumSwitch,      SetFlag_s_CmdNumSwitch      )
-    BITMASK_PROPERTY(options,  8, OPTION_h_UNLOCK_HOOKGROUPS_KEY , HasFlag_h_UnlocksHookGroup,  SetFlag_h_UnlocksHookGroup  )
-    BITMASK_PROPERTY(options,  9, OPTION_H_LOCK_HOOKGROUPS_KEY   , HasFlag_H_LocksHookGroup,    SetFlag_H_LocksHookGroup    )
-    BITMASK_PROPERTY(options, 10, OPTION_t_CONTINUOUS            , HasFlag_t_Continuous,        SetFlag_t_Continuous        )
-    BITMASK_PROPERTY(options, 11, OPTION_E_ENGINE_TRIGGER        , HasFlag_E_EngineTrigger,     SetFlag_E_EngineTrigger     )
-
-    inline bool IsHookToggleTrigger() { return HasFlag_H_LocksHookGroup() || HasFlag_h_UnlocksHookGroup(); }
-
-    inline bool IsTriggerBlockerAnyType() { return HasFlag_B_TriggerBlocker() || HasFlag_A_InvTriggerBlocker(); }
+    inline bool IsTriggerBlockerAnyType() const
+    {
+        return BITMASK_IS_1(options, OPTION_B_TRIGGER_BLOCKER) ||
+               BITMASK_IS_1(options, OPTION_A_INV_TRIGGER_BLOCKER);
+    }
 
     inline void SetEngineTrigger(Trigger::EngineTrigger const & trig)
     {
@@ -1510,7 +1533,7 @@ struct Trigger
 
     inline Trigger::EngineTrigger GetEngineTrigger() const
     {
-        ROR_ASSERT(HasFlag_E_EngineTrigger());
+        ROR_ASSERT(BITMASK_IS_1(options, OPTION_E_ENGINE_TRIGGER));
         EngineTrigger trig;
         trig.function = static_cast<EngineTrigger::Function>(shortbound_trigger_action);
         trig.motor_index = static_cast<unsigned int>(longbound_trigger_action);
@@ -1525,8 +1548,8 @@ struct Trigger
 
     inline CommandKeyTrigger GetCommandKeyTrigger() const
     {
-        ROR_ASSERT(BITMASK_IS_0(options, OPTION_B_BLOCK_TRIGGERS | OPTION_A_INV_BLOCK_TRIGGERS 
-            | OPTION_h_UNLOCK_HOOKGROUPS_KEY | OPTION_H_LOCK_HOOKGROUPS_KEY | OPTION_E_ENGINE_TRIGGER));
+        ROR_ASSERT(BITMASK_IS_0(options, OPTION_B_TRIGGER_BLOCKER | OPTION_A_INV_TRIGGER_BLOCKER 
+            | OPTION_h_UNLOCKS_HOOK_GROUP | OPTION_H_LOCKS_HOOK_GROUP | OPTION_E_ENGINE_TRIGGER));
         CommandKeyTrigger out;
         out.contraction_trigger_key = static_cast<unsigned int>(shortbound_trigger_action);
         out.extension_trigger_key = static_cast<unsigned int>(longbound_trigger_action);
@@ -1541,7 +1564,7 @@ struct Trigger
 
     inline HookToggleTrigger GetHookToggleTrigger() const
     {
-        ROR_ASSERT(HasFlag_h_UnlocksHookGroup() || HasFlag_H_LocksHookGroup());
+        ROR_ASSERT(this->IsTriggerBlockerAnyType());
         HookToggleTrigger trig;
         trig.contraction_trigger_hookgroup_id = shortbound_trigger_action;
         trig.extension_trigger_hookgroup_id = longbound_trigger_action;
@@ -1549,14 +1572,14 @@ struct Trigger
     }
 
     Node::Ref nodes[2];
-    float contraction_trigger_limit;
-    float expansion_trigger_limit;
-    unsigned int options;
-    float boundary_timer;
+    float contraction_trigger_limit = 0.f;
+    float expansion_trigger_limit = 0.f;
+    BitMask_t options = 0;
+    float boundary_timer = 1.f;
     std::shared_ptr<BeamDefaults> beam_defaults;
-    int detacher_group;
-    int shortbound_trigger_action;
-    int longbound_trigger_action;
+    int detacher_group = 0;
+    int shortbound_trigger_action = 0;
+    int longbound_trigger_action = 0;
 };
 
 /* -------------------------------------------------------------------------- */

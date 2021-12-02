@@ -1726,31 +1726,7 @@ void Parser::ParseTriggers()
     
     int shortbound_trigger_action = this->GetArgInt(4); 
     int longbound_trigger_action  = this->GetArgInt(5); 
-    if (m_num_args > 6)
-    {
-        std::string options_str = this->GetArgStr(6);
-        for (unsigned int i = 0; i < options_str.length(); i++)
-        {
-            switch(options_str.at(i))
-            {
-                case 'i': trigger.options |= Trigger::OPTION_i_INVISIBLE;             break;
-                case 'c': trigger.options |= Trigger::OPTION_c_COMMAND_STYLE;         break;
-                case 'x': trigger.options |= Trigger::OPTION_x_START_OFF;             break;
-                case 'b': trigger.options |= Trigger::OPTION_b_BLOCK_KEYS;            break;
-                case 'B': trigger.options |= Trigger::OPTION_B_BLOCK_TRIGGERS;        break;
-                case 'A': trigger.options |= Trigger::OPTION_A_INV_BLOCK_TRIGGERS;    break;
-                case 's': trigger.options |= Trigger::OPTION_s_SWITCH_CMD_NUM;        break;
-                case 'h': trigger.options |= Trigger::OPTION_h_UNLOCK_HOOKGROUPS_KEY; break;
-                case 'H': trigger.options |= Trigger::OPTION_H_LOCK_HOOKGROUPS_KEY;   break;
-                case 't': trigger.options |= Trigger::OPTION_t_CONTINUOUS;            break;
-                case 'E': trigger.options |= Trigger::OPTION_E_ENGINE_TRIGGER;        break;
-
-                default:
-                    this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
-                        fmt::format("ignoring invalid option '{}'", options_str.at(i)));
-            }
-        }
-    }
+    if (m_num_args > 6) trigger.options = this->GetArgTriggerOptions(6);
 
     if (m_num_args > 7)
     {
@@ -1767,7 +1743,7 @@ void Parser::ParseTriggers()
         hook_toggle.extension_trigger_hookgroup_id = longbound_trigger_action;
         trigger.SetHookToggleTrigger(hook_toggle);
     }
-    else if (trigger.HasFlag_E_EngineTrigger())
+    else if (BITMASK_IS_1(trigger.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER))
     {
         Trigger::EngineTrigger engine_trigger;
         engine_trigger.function = Trigger::EngineTrigger::Function(shortbound_trigger_action);
@@ -3257,6 +3233,33 @@ BitMask_t Parser::GetArgCabOptions(int index)
             default:
                 this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
                     fmt::format("ignoring invalid flag '{}'", c));
+        }
+    }
+    return ret;
+}
+
+BitMask_t Parser::GetArgTriggerOptions(int index)
+{
+    BitMask_t ret = 0;
+    for (char c: this->GetArgStr(index))
+    {
+        switch(c)
+        {
+            case (char)TriggerOption::i_INVISIBLE          : ret |= Trigger::OPTION_i_INVISIBLE;           break;
+            case (char)TriggerOption::c_COMMAND_STYLE      : ret |= Trigger::OPTION_c_COMMAND_STYLE;       break;
+            case (char)TriggerOption::x_START_DISABLED     : ret |= Trigger::OPTION_x_START_DISABLED;      break;
+            case (char)TriggerOption::b_KEY_BLOCKER        : ret |= Trigger::OPTION_b_KEY_BLOCKER;         break;
+            case (char)TriggerOption::B_TRIGGER_BLOCKER    : ret |= Trigger::OPTION_B_TRIGGER_BLOCKER;     break;
+            case (char)TriggerOption::A_INV_TRIGGER_BLOCKER: ret |= Trigger::OPTION_A_INV_TRIGGER_BLOCKER; break;
+            case (char)TriggerOption::s_CMD_NUM_SWITCH     : ret |= Trigger::OPTION_s_CMD_NUM_SWITCH;      break;
+            case (char)TriggerOption::h_UNLOCKS_HOOK_GROUP : ret |= Trigger::OPTION_h_UNLOCKS_HOOK_GROUP;  break;
+            case (char)TriggerOption::H_LOCKS_HOOK_GROUP   : ret |= Trigger::OPTION_H_LOCKS_HOOK_GROUP;    break;
+            case (char)TriggerOption::t_CONTINUOUS         : ret |= Trigger::OPTION_t_CONTINUOUS;          break;
+            case (char)TriggerOption::E_ENGINE_TRIGGER     : ret |= Trigger::OPTION_E_ENGINE_TRIGGER;      break;
+
+            default:
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format("ignoring invalid option '{}'", c));
         }
     }
     return ret;
