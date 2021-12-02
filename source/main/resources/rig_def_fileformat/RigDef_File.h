@@ -1325,65 +1325,57 @@ struct Hydro
 
 struct AeroAnimator
 {
-    static const unsigned int OPTION_THROTTLE = BITMASK(1);
-    static const unsigned int OPTION_RPM      = BITMASK(2);
-    static const unsigned int OPTION_TORQUE   = BITMASK(3);
-    static const unsigned int OPTION_PITCH    = BITMASK(4);
-    static const unsigned int OPTION_STATUS   = BITMASK(5);
+    static const BitMask_t OPTION_THROTTLE = BITMASK(1);
+    static const BitMask_t OPTION_RPM      = BITMASK(2);
+    static const BitMask_t OPTION_TORQUE   = BITMASK(3);
+    static const BitMask_t OPTION_PITCH    = BITMASK(4);
+    static const BitMask_t OPTION_STATUS   = BITMASK(5);
 
-    unsigned int flags      = 0u;
+    BitMask_t flags      = 0u;
     unsigned int engine_idx = 0u;
 };
 
 struct Animator
 {
-    Animator():
-        lenghtening_factor(0),
-        flags(0),
-        short_limit(0),
-        long_limit(0),
-        detacher_group(0)
-    {}
-
-    static const unsigned int OPTION_VISIBLE           = BITMASK(1);
-    static const unsigned int OPTION_INVISIBLE         = BITMASK(2);
-    static const unsigned int OPTION_AIRSPEED          = BITMASK(3);
-    static const unsigned int OPTION_VERTICAL_VELOCITY = BITMASK(4);
-    static const unsigned int OPTION_ALTIMETER_100K    = BITMASK(5);
-    static const unsigned int OPTION_ALTIMETER_10K     = BITMASK(6);
-    static const unsigned int OPTION_ALTIMETER_1K      = BITMASK(7);
-    static const unsigned int OPTION_ANGLE_OF_ATTACK   = BITMASK(8);
-    static const unsigned int OPTION_FLAP              = BITMASK(9);
-    static const unsigned int OPTION_AIR_BRAKE         = BITMASK(10);
-    static const unsigned int OPTION_ROLL              = BITMASK(11);
-    static const unsigned int OPTION_PITCH             = BITMASK(12);
-    static const unsigned int OPTION_BRAKES            = BITMASK(13);
-    static const unsigned int OPTION_ACCEL             = BITMASK(14);
-    static const unsigned int OPTION_CLUTCH            = BITMASK(15);
-    static const unsigned int OPTION_SPEEDO            = BITMASK(16);
-    static const unsigned int OPTION_TACHO             = BITMASK(17);
-    static const unsigned int OPTION_TURBO             = BITMASK(18);
-    static const unsigned int OPTION_PARKING           = BITMASK(19);
-    static const unsigned int OPTION_SHIFT_LEFT_RIGHT  = BITMASK(20);
-    static const unsigned int OPTION_SHIFT_BACK_FORTH  = BITMASK(21);
-    static const unsigned int OPTION_SEQUENTIAL_SHIFT  = BITMASK(22);
-    static const unsigned int OPTION_GEAR_SELECT       = BITMASK(23);
-    static const unsigned int OPTION_TORQUE            = BITMASK(24);
-    static const unsigned int OPTION_DIFFLOCK          = BITMASK(25);
-    static const unsigned int OPTION_BOAT_RUDDER       = BITMASK(26);
-    static const unsigned int OPTION_BOAT_THROTTLE     = BITMASK(27);
-    static const unsigned int OPTION_SHORT_LIMIT       = BITMASK(28);
-    static const unsigned int OPTION_LONG_LIMIT        = BITMASK(29);
+    static const BitMask_t OPTION_VISIBLE           = BITMASK( 1);
+    static const BitMask_t OPTION_INVISIBLE         = BITMASK( 2);
+    static const BitMask_t OPTION_AIRSPEED          = BITMASK( 3);
+    static const BitMask_t OPTION_VERTICAL_VELOCITY = BITMASK( 4);
+    static const BitMask_t OPTION_ALTIMETER_100K    = BITMASK( 5);
+    static const BitMask_t OPTION_ALTIMETER_10K     = BITMASK( 6);
+    static const BitMask_t OPTION_ALTIMETER_1K      = BITMASK( 7);
+    static const BitMask_t OPTION_ANGLE_OF_ATTACK   = BITMASK( 8);
+    static const BitMask_t OPTION_FLAP              = BITMASK( 9);
+    static const BitMask_t OPTION_AIR_BRAKE         = BITMASK(10);
+    static const BitMask_t OPTION_ROLL              = BITMASK(11);
+    static const BitMask_t OPTION_PITCH             = BITMASK(12);
+    static const BitMask_t OPTION_BRAKES            = BITMASK(13);
+    static const BitMask_t OPTION_ACCEL             = BITMASK(14);
+    static const BitMask_t OPTION_CLUTCH            = BITMASK(15);
+    static const BitMask_t OPTION_SPEEDO            = BITMASK(16);
+    static const BitMask_t OPTION_TACHO             = BITMASK(17);
+    static const BitMask_t OPTION_TURBO             = BITMASK(18);
+    static const BitMask_t OPTION_PARKING           = BITMASK(19);
+    static const BitMask_t OPTION_SHIFT_LEFT_RIGHT  = BITMASK(20);
+    static const BitMask_t OPTION_SHIFT_BACK_FORTH  = BITMASK(21);
+    static const BitMask_t OPTION_SEQUENTIAL_SHIFT  = BITMASK(22);
+    static const BitMask_t OPTION_GEAR_SELECT       = BITMASK(23);
+    static const BitMask_t OPTION_TORQUE            = BITMASK(24);
+    static const BitMask_t OPTION_DIFFLOCK          = BITMASK(25);
+    static const BitMask_t OPTION_BOAT_RUDDER       = BITMASK(26);
+    static const BitMask_t OPTION_BOAT_THROTTLE     = BITMASK(27);
+    static const BitMask_t OPTION_SHORT_LIMIT       = BITMASK(28);
+    static const BitMask_t OPTION_LONG_LIMIT        = BITMASK(29);
 
     Node::Ref nodes[2];
-    float lenghtening_factor;
-    unsigned int flags;
-    float short_limit;
-    float long_limit;
+    float lenghtening_factor = 0.f;
+    BitMask_t flags = 0;
+    float short_limit = 0.f;
+    float long_limit = 0.f;
     AeroAnimator aero_animator;
     std::shared_ptr<Inertia> inertia_defaults;
     std::shared_ptr<BeamDefaults> beam_defaults;
-    int detacher_group;
+    int detacher_group = 0;
 };
 
 /* -------------------------------------------------------------------------- */
