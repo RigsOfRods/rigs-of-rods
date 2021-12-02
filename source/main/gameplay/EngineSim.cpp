@@ -1391,13 +1391,13 @@ void EngineSim::UpdateInputEvents(float dt)
         {
         case SimGearboxMode::AUTO: msg = "Automatic shift";
             break;
-        case SimGearboxMode::SEMI_AUTO: msg = "Manual shift - Auto clutch";
+        case SimGearboxMode::SEMI_AUTO: msg = "Manual shift: auto clutch";
             break;
-        case SimGearboxMode::MANUAL: msg = "Fully Manual: sequential shift";
+        case SimGearboxMode::MANUAL: msg = "Fully manual: sequential shift";
             break;
         case SimGearboxMode::MANUAL_STICK: msg = "Fully manual: stick shift";
             break;
-        case SimGearboxMode::MANUAL_RANGES: msg = "Fully Manual: stick shift with ranges";
+        case SimGearboxMode::MANUAL_RANGES: msg = "Fully manual: stick shift with ranges";
             break;
         }
         App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L(msg), "cog.png");

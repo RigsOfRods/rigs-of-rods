@@ -239,10 +239,10 @@ void GameSettings::DrawGameplaySettings()
 
     DrawGCombo(App::sim_gearbox_mode, _LC("GameSettings", "Gearbox mode"),
         "Automatic shift\0"
-        "Manual shift - Auto clutch\0"
-        "Fully Manual: sequential shift\0"
+        "Manual shift: auto clutch\0"
+        "Fully manual: sequential shift\0"
         "Fully manual: stick shift\0"
-        "Fully Manual: stick shift with ranges\00");
+        "Fully manual: stick shift with ranges\00");
 
     DrawGCheckbox(App::gfx_speedo_digital, _LC("GameSettings", "Digital speedometer"));
     DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial speedometer"));
