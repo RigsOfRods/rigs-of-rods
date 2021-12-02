@@ -1975,33 +1975,7 @@ void Parser::ParseShock3()
     shock_3.long_bound     = this->GetArgFloat  (13);
     shock_3.precompression = this->GetArgFloat  (14);
 
-    shock_3.options = 0u;
-    if (m_num_args > 15)
-    {
-        std::string options_str = this->GetArgStr(15);
-        auto itor = options_str.begin();
-        auto endi = options_str.end();
-        while (itor != endi)
-        {
-            char c = *itor++; // ++
-            switch (c)
-            {
-                case 'n': 
-                case 'v': 
-                    break; // Placeholder, does nothing.
-                case 'i': BITMASK_SET_1(shock_3.options, Shock3::OPTION_i_INVISIBLE);
-                    break;
-                case 'm': BITMASK_SET_1(shock_3.options, Shock3::OPTION_m_METRIC);
-                    break;
-                case 'M': BITMASK_SET_1(shock_3.options, Shock3::OPTION_M_ABSOLUTE_METRIC);
-                    break;
-                default:
-                        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
-                            fmt::format("ignoring invalid option '{}'", c));
-                    break;
-            }
-        }
-    }
+    if (m_num_args > 15) shock_3.options = this->GetArgShock3Options(15);
 
     m_current_module->shocks3.push_back(shock_3);
 }
@@ -3276,6 +3250,28 @@ BitMask_t Parser::GetArgShock2Options(int index)
 
             case (char)Shock2Option::n_DUMMY: break;
             case (char)Shock2Option::v_DUMMY: break;
+
+            default:
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format("ignoring invalid option '{}'", c));
+        }
+    }
+    return ret;
+}
+
+BitMask_t Parser::GetArgShock3Options(int index)
+{
+    BitMask_t ret = 0;
+    for (char c: this->GetArgStr(index))
+    {
+        switch (c)
+        {
+            case (char)Shock3Option::i_INVISIBLE:        ret |= Shock3::OPTION_i_INVISIBLE;        break;
+            case (char)Shock3Option::m_METRIC:           ret |= Shock3::OPTION_m_METRIC;           break;
+            case (char)Shock3Option::M_ABSOLUTE_METRIC:  ret |= Shock3::OPTION_M_ABSOLUTE_METRIC;  break;
+
+            case (char)Shock3Option::n_DUMMY: break;
+            case (char)Shock3Option::v_DUMMY: break;
 
             default:
                 this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
