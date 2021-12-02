@@ -263,8 +263,8 @@ private:
     char                                 m_current_line[LINE_BUFFER_LENGTH];
     Token                                m_args[LINE_MAX_ARGS];    //!< Tokens of current line.
     int                                  m_num_args;               //!< Number of tokens on current line.
-    Keyword                              m_current_block = KEYWORD_INVALID;
-    Keyword                              m_log_keyword = KEYWORD_INVALID;
+    Keyword                              m_current_block = Keyword::INVALID;
+    Keyword                              m_log_keyword = Keyword::INVALID;
     bool                                 m_any_named_node_defined; //!< Parser state.
     std::shared_ptr<Submesh>             m_current_submesh;        //!< Parser state.
     std::shared_ptr<CameraRail>          m_current_camera_rail;    //!< Parser state.

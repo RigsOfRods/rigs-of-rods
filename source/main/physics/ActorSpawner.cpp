@@ -97,7 +97,7 @@ void ActorSpawner::Setup(
     m_file = file;
     m_particles_parent_scenenode = parent;
     m_spawn_position = spawn_position;
-    m_current_keyword = RigDef::KEYWORD_INVALID;
+    m_current_keyword = RigDef::Keyword::INVALID;
     m_wing_area = 0.f;
     m_fuse_z_min = 1000.0f;
     m_fuse_z_max = -1000.0f;
@@ -5420,7 +5420,7 @@ void ActorSpawner::AddMessage(ActorSpawner::Message::Type type,	Ogre::String con
 {
     Str<4000> txt;
     txt << m_file->name;
-    if (m_current_keyword != RigDef::KEYWORD_INVALID)
+    if (m_current_keyword != RigDef::Keyword::INVALID)
     {
         txt << " (" << RigDef::KeywordToString(m_current_keyword) << ")";
     }
@@ -6473,9 +6473,9 @@ void ActorSpawner::FinalizeGfxSetup()
         }
         else if (entry.second.video_camera_def != nullptr) // 'videocameras'
         {
-            this->SetCurrentKeyword(RigDef::KEYWORD_VIDEOCAMERA); // Logging
+            this->SetCurrentKeyword(RigDef::Keyword::VIDEOCAMERA); // Logging
             this->CreateVideoCamera(entry.second.video_camera_def);
-            this->SetCurrentKeyword(RigDef::KEYWORD_INVALID); // Logging
+            this->SetCurrentKeyword(RigDef::Keyword::INVALID); // Logging
         }
     }
 
