@@ -2650,33 +2650,16 @@ void Parser::_ParseDifferentialTypes(DifferentialTypeVec& diff_types, std::strin
 void Parser::ParseBeams()
 {
     if (! this->CheckNumArguments(2)) { return; }
-    
+
     Beam beam;
     beam.defaults       = m_user_beam_defaults;
     beam.detacher_group = m_current_detacher_group;
-    
+
     beam.nodes[0] = this->GetArgNodeRef(0);
     beam.nodes[1] = this->GetArgNodeRef(1);
+    if (m_num_args > 2) beam.options = this->GetArgBeamOptions(2);
 
-    // Flags 
-    if (m_num_args > 2)
-    {
-        std::string options_str = this->GetArgStr(2);
-        for (auto itor = options_str.begin(); itor != options_str.end(); ++itor)
-        {
-                 if (*itor == 'v') { continue; } // Dummy flag
-            else if (*itor == 'i') { beam.options |= Beam::OPTION_i_INVISIBLE; }
-            else if (*itor == 'r') { beam.options |= Beam::OPTION_r_ROPE; }
-            else if (*itor == 's') { beam.options |= Beam::OPTION_s_SUPPORT; }
-            else
-            {
-                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
-                    fmt::format("ignoring invalid option '{}'", *itor));
-            }
-        }
-    }
-    
-    if ((m_num_args > 3) && (beam.options & Beam::OPTION_s_SUPPORT))
+    if ((m_num_args > 3) && BITMASK_IS_1(beam.options, Beam::OPTION_s_SUPPORT))
     {
         float support_break_limit = 0.0f;
         float support_break_factor = this->GetArgInt(3);
@@ -3230,6 +3213,7 @@ BitMask_t Parser::GetArgCabOptions(int index)
             case (char)CabOption::D_CONTACT_BUOYANT:      ret |= Cab::OPTION_D_CONTACT_BUOYANT     ; break;
             case (char)CabOption::F_10xTOUGHER_BUOYANT:   ret |= Cab::OPTION_F_10xTOUGHER_BUOYANT  ; break;
             case (char)CabOption::S_INVULNERABLE_BUOYANT: ret |= Cab::OPTION_S_INVULNERABLE_BUOYANT; break;
+
             default:
                 this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
                     fmt::format("ignoring invalid flag '{}'", c));
@@ -3256,6 +3240,25 @@ BitMask_t Parser::GetArgTriggerOptions(int index)
             case (char)TriggerOption::H_LOCKS_HOOK_GROUP   : ret |= Trigger::OPTION_H_LOCKS_HOOK_GROUP;    break;
             case (char)TriggerOption::t_CONTINUOUS         : ret |= Trigger::OPTION_t_CONTINUOUS;          break;
             case (char)TriggerOption::E_ENGINE_TRIGGER     : ret |= Trigger::OPTION_E_ENGINE_TRIGGER;      break;
+
+            default:
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format("ignoring invalid option '{}'", c));
+        }
+    }
+    return ret;
+}
+
+BitMask_t Parser::GetArgBeamOptions(int index)
+{
+    BitMask_t ret = 0;
+    for (char c: this->GetArgStr(index))
+    {
+        switch (c)
+        {
+            case (char)BeamOption::i_INVISIBLE: ret |= Beam::OPTION_i_INVISIBLE; break;
+            case (char)BeamOption::r_ROPE     : ret |= Beam::OPTION_r_ROPE     ; break;
+            case (char)BeamOption::s_SUPPORT  : ret |= Beam::OPTION_s_SUPPORT  ; break;
 
             default:
                 this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,

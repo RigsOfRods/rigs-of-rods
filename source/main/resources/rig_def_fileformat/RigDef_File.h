@@ -267,6 +267,13 @@ enum class TriggerOption: char
     E_ENGINE_TRIGGER        = 'E', //!< this trigger is used to control an engine
 };
 
+enum class BeamOption: char
+{
+    i_INVISIBLE = 'i',
+    r_ROPE      = 'r',
+    s_SUPPORT   = 's',
+};
+
 /* -------------------------------------------------------------------------- */
 /* Utility                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -614,22 +621,15 @@ struct TransferCase
 
 struct Beam
 {
-    Beam():
-        options(0),
-        extension_break_limit(0), /* This is default */
-        _has_extension_break_limit(false),
-        detacher_group(0) /* 0 = Default detacher group */
-    {}
-
-    BITMASK_PROPERTY(options, 1, OPTION_i_INVISIBLE, HasFlag_i_Invisible, SetFlag_i_Invisible);
-    BITMASK_PROPERTY(options, 2, OPTION_r_ROPE     , HasFlag_r_Rope     , SetFlag_r_Rope     );
-    BITMASK_PROPERTY(options, 3, OPTION_s_SUPPORT  , HasFlag_s_Support  , SetFlag_s_Support  );
+    static const BitMask_t OPTION_i_INVISIBLE = BITMASK(1);
+    static const BitMask_t OPTION_r_ROPE      = BITMASK(2);
+    static const BitMask_t OPTION_s_SUPPORT   = BITMASK(3);
 
     Node::Ref nodes[2];
-    unsigned int options; //!< Bit flags
-    float extension_break_limit;
-    bool _has_extension_break_limit;
-    int detacher_group;
+    BitMask_t options = 0;
+    float extension_break_limit = 0.f;
+    bool _has_extension_break_limit = false;
+    int detacher_group = 0;
     std::shared_ptr<BeamDefaults> defaults;
 };
 
