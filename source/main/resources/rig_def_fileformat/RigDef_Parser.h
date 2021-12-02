@@ -217,6 +217,7 @@ private:
     BitMask_t          GetArgShockOptions (int index);
     BitMask_t          GetArgShock2Options(int index);
     BitMask_t          GetArgShock3Options(int index);
+    BitMask_t          GetArgNodeOptions  (int index);
 
     float              ParseArgFloat      (const char* str);
     int                ParseArgInt        (const char* str);
@@ -234,7 +235,6 @@ private:
 
     Node::Ref _ParseNodeRef(std::string const & node_id_str);
     void _ParseCameraSettings(CameraSettings & camera_settings, Ogre::String input_str);
-    void _ParseNodeOptions(unsigned int & options, const std::string & options_str);
     void _ParseDifferentialTypes(DifferentialTypeVec& diff_types, std::string const& options_str);
 
     void ParseOptionalInertia(Inertia& inertia, int index);

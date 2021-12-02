@@ -516,7 +516,6 @@ void Parser::ParseDirectiveSetNodeDefaults()
     float friction      = (m_num_args > 2) ? this->GetArgFloat(2) : -1;
     float volume        = (m_num_args > 3) ? this->GetArgFloat(3) : -1;
     float surface       = (m_num_args > 4) ? this->GetArgFloat(4) : -1;
-    std::string opt_str = (m_num_args > 5) ? this->GetArgStr  (5) : "";
 
     m_user_node_defaults = std::shared_ptr<NodeDefaults>( new NodeDefaults(*m_user_node_defaults) );
 
@@ -525,65 +524,7 @@ void Parser::ParseDirectiveSetNodeDefaults()
     m_user_node_defaults->volume      = (volume      < 0) ? m_ror_node_defaults->volume      : volume;
     m_user_node_defaults->surface     = (surface     < 0) ? m_ror_node_defaults->surface     : surface;
 
-    this->_ParseNodeOptions(m_user_node_defaults->options, opt_str);
-
-    // Disabled until someone wants it back
-    //this->LogParsedDirectiveSetNodeDefaultsData(load_weight, friction, volume, surface, m_user_node_defaults->options);
-}
-
-void Parser::_ParseNodeOptions(unsigned int & options, const std::string & options_str)
-{
-    options = 0;
-
-    for (unsigned int i = 0; i < options_str.length(); i++)
-    {
-        const char c = options_str.at(i);
-        switch(c)
-        {
-            case 'l':
-                BITMASK_SET_1(options, Node::OPTION_l_LOAD_WEIGHT);
-                break;
-            case 'n':
-                BITMASK_SET_1(options, Node::OPTION_n_MOUSE_GRAB);
-                BITMASK_SET_0(options, Node::OPTION_m_NO_MOUSE_GRAB);
-                break;
-            case 'm':
-                BITMASK_SET_1(options, Node::OPTION_m_NO_MOUSE_GRAB);
-                BITMASK_SET_0(options, Node::OPTION_n_MOUSE_GRAB);
-                break;
-            case 'f':
-                BITMASK_SET_1(options, Node::OPTION_f_NO_SPARKS);
-                break;
-            case 'x':
-                BITMASK_SET_1(options, Node::OPTION_x_EXHAUST_POINT);
-                break;
-            case 'y':
-                BITMASK_SET_1(options, Node::OPTION_y_EXHAUST_DIRECTION);
-                break;
-            case 'c':
-                BITMASK_SET_1(options, Node::OPTION_c_NO_GROUND_CONTACT);
-                break;
-            case 'h':
-                BITMASK_SET_1(options, Node::OPTION_h_HOOK_POINT);
-                break;
-            case 'e':
-                BITMASK_SET_1(options, Node::OPTION_e_TERRAIN_EDIT_POINT);
-                break;
-            case 'b':
-                BITMASK_SET_1(options, Node::OPTION_b_EXTRA_BUOYANCY);
-                break;
-            case 'p':
-                BITMASK_SET_1(options, Node::OPTION_p_NO_PARTICLES);
-                break;
-            case 'L':
-                BITMASK_SET_1(options, Node::OPTION_L_LOG);
-                break;
-
-            default:
-                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, fmt::format("invalid option '{}'", c));
-                break;
-        }
-    }
+    if (m_num_args > 5) m_user_node_defaults->options = this->GetArgNodeOptions(5);
 }
 
 void Parser::ParseDirectiveSetManagedMaterialsOptions()
@@ -2359,7 +2300,7 @@ void Parser::ParseNodesUnified()
     node.position.z = this->GetArgFloat(3);
     if (m_num_args > 4)
     {
-        this->_ParseNodeOptions(node.options, this->GetArgStr(4));
+        node.options = this->GetArgNodeOptions(4);
     }
     if (m_num_args > 5)
     {
@@ -3272,6 +3213,35 @@ BitMask_t Parser::GetArgShock3Options(int index)
 
             case (char)Shock3Option::n_DUMMY: break;
             case (char)Shock3Option::v_DUMMY: break;
+
+            default:
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format("ignoring invalid option '{}'", c));
+        }
+    }
+    return ret;
+}
+
+BitMask_t Parser::GetArgNodeOptions(int index)
+{
+    BitMask_t ret = 0;
+    for (char c: this->GetArgStr(index))
+    {
+        switch (c)
+        {
+            case (char)NodeOption::m_NO_MOUSE_GRAB     : ret |= Node::OPTION_m_NO_MOUSE_GRAB     ; break;
+            case (char)NodeOption::f_NO_SPARKS         : ret |= Node::OPTION_f_NO_SPARKS         ; break;
+            case (char)NodeOption::x_EXHAUST_POINT     : ret |= Node::OPTION_x_EXHAUST_POINT     ; break;
+            case (char)NodeOption::y_EXHAUST_DIRECTION : ret |= Node::OPTION_y_EXHAUST_DIRECTION ; break;
+            case (char)NodeOption::c_NO_GROUND_CONTACT : ret |= Node::OPTION_c_NO_GROUND_CONTACT ; break;
+            case (char)NodeOption::h_HOOK_POINT        : ret |= Node::OPTION_h_HOOK_POINT        ; break;
+            case (char)NodeOption::e_TERRAIN_EDIT_POINT: ret |= Node::OPTION_e_TERRAIN_EDIT_POINT; break;
+            case (char)NodeOption::b_EXTRA_BUOYANCY    : ret |= Node::OPTION_b_EXTRA_BUOYANCY    ; break;
+            case (char)NodeOption::p_NO_PARTICLES      : ret |= Node::OPTION_p_NO_PARTICLES      ; break;
+            case (char)NodeOption::L_LOG               : ret |= Node::OPTION_L_LOG               ; break;
+            case (char)NodeOption::l_LOAD_WEIGHT       : ret |= Node::OPTION_l_LOAD_WEIGHT       ; break;
+
+            case (char)NodeOption::n_DUMMY: break;
 
             default:
                 this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,

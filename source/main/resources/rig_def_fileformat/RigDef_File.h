@@ -321,6 +321,22 @@ enum class Shock3Option: char
     M_ABSOLUTE_METRIC  = 'M', //!< Absolute metric values for shortbound/longbound, settings apply without regarding to the original length of the beam.(Use with caution, check ror.log for errors)
 };
 
+enum class NodeOption: char
+{
+    n_DUMMY              = 'n',
+    m_NO_MOUSE_GRAB      = 'm',
+    f_NO_SPARKS          = 'f',
+    x_EXHAUST_POINT      = 'x',
+    y_EXHAUST_DIRECTION  = 'y',
+    c_NO_GROUND_CONTACT  = 'c',
+    h_HOOK_POINT         = 'h',
+    e_TERRAIN_EDIT_POINT = 'e',
+    b_EXTRA_BUOYANCY     = 'b',
+    p_NO_PARTICLES       = 'p',
+    L_LOG                = 'L',
+    l_LOAD_WEIGHT        = 'l',
+};
+
 /* -------------------------------------------------------------------------- */
 /* Utility                                                                    */
 /* -------------------------------------------------------------------------- */
