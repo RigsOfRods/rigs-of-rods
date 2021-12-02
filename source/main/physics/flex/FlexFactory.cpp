@@ -202,10 +202,11 @@ void FlexBodyFileIO::WriteFlexbodyHeader(FlexBody* flexbody)
     header.camera_mode             = flexbody->m_camera_mode            ;
     header.shared_buf_num_verts    = flexbody->m_shared_buf_num_verts   ;
     header.num_submesh_vbufs       = flexbody->m_num_submesh_vbufs      ;
-    header.SetUsesSharedVertexData  (flexbody->m_uses_shared_vertex_data); 
-    header.SetHasTexture            (flexbody->m_has_texture            );
-    header.SetHasTextureBlend       (flexbody->m_has_texture_blend      );
-    
+
+    if (flexbody->m_uses_shared_vertex_data) BITMASK_SET_1(header.flags, FlexBodyRecordHeader::USES_SHARED_VERTEX_DATA);
+    if (flexbody->m_has_texture            ) BITMASK_SET_1(header.flags, FlexBodyRecordHeader::HAS_TEXTURE);
+    if (flexbody->m_has_texture_blend      ) BITMASK_SET_1(header.flags, FlexBodyRecordHeader::HAS_TEXTURE_BLEND);
+
     this->WriteToFile((void*)&header, sizeof(FlexBodyRecordHeader));
 }
 
@@ -275,7 +276,7 @@ void FlexBodyFileIO::WriteFlexbodyColorsBuffer(FlexBody* flexbody)
 void FlexBodyFileIO::ReadFlexbodyColorsBuffer(FlexBodyCacheData* data)
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
-    if (! data->header.HasTextureBlend())
+    if (BITMASK_IS_0(data->header.flags, FlexBodyRecordHeader::HAS_TEXTURE_BLEND))
     {
         return;
     }
@@ -362,7 +363,7 @@ FlexBodyFileIO::ResultCode FlexBodyFileIO::LoadFile()
         {
             FlexBodyCacheData* data = & m_loaded_items[i];
             this->ReadFlexbodyHeader(data);
-            if (!data->header.IsFaulty())
+            if (BITMASK_IS_0(data->header.flags, FlexBodyRecordHeader::IS_FAULTY))
             {
                 this->ReadFlexbodyLocatorList    (data);
                 this->ReadFlexbodyPositionsBuffer(data);

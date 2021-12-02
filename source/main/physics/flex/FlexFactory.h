@@ -47,10 +47,6 @@ namespace RoR
 
 struct FlexBodyRecordHeader
 {
-    FlexBodyRecordHeader():
-        flags(0)
-    {}
-
     int            vertex_count;
     int	           node_center;
     int	           node_x;
@@ -59,12 +55,12 @@ struct FlexBodyRecordHeader
     int            camera_mode;
     int            shared_buf_num_verts;
     int            num_submesh_vbufs;
-    unsigned char  flags;
+    BitMask_t      flags = 0;
 
-    BITMASK_PROPERTY(flags, 1, IS_FAULTY,              IsFaulty            , SetIsFaulty             );
-    BITMASK_PROPERTY(flags, 2, USES_SHARED_VERTEX_DATA,UsesSharedVertexData, SetUsesSharedVertexData );
-    BITMASK_PROPERTY(flags, 3, HAS_TEXTURE,            HasTexture          , SetHasTexture           );
-    BITMASK_PROPERTY(flags, 4, HAS_TEXTURE_BLEND,      HasTextureBlend     , SetHasTextureBlend      );
+    static const BitMask_t IS_FAULTY                = BITMASK(1);
+    static const BitMask_t USES_SHARED_VERTEX_DATA  = BITMASK(2);
+    static const BitMask_t HAS_TEXTURE              = BITMASK(3);
+    static const BitMask_t HAS_TEXTURE_BLEND        = BITMASK(4);
 };
 
 struct FlexBodyCacheData
