@@ -2828,19 +2828,20 @@ char Parser::GetArgChar(int index)
     return *(m_args[index].start);
 }
 
-MeshWheel::Side Parser::GetArgWheelSide(int index)
+WheelSide Parser::GetArgWheelSide(int index)
 {
-    char side_char = this->GetArgChar(index);
-    if (side_char != 'r')
+    char c = this->GetArgChar(index);
+    switch (c)
     {
-        if (side_char != 'l')
-        {
+        case (char)WheelSide::RIGHT:
+        case (char)WheelSide::LEFT:
+            return WheelSide(c);
+
+        default:
             this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
-                fmt::format("Bad arg~{} 'side' (value: {}), parsing as 'l' for backwards compatibility.", index + 1, side_char));
-        }
-        return MeshWheel::SIDE_LEFT;
+                fmt::format("Bad arg~{} 'side' (value: {}), parsing as 'l' for backwards compatibility.", index + 1, c));
+            return WheelSide::LEFT;
     }
-    return MeshWheel::SIDE_RIGHT;
 }
 
 long Parser::GetArgLong(int index)

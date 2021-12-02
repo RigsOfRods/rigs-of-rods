@@ -231,6 +231,13 @@ enum class WingControlSurface: char
     j_LEFT_RUDDERVATOR      = 'j',
 };
 
+enum class WheelSide: char
+{
+    INVALID   = 0,
+    RIGHT     = 'r',
+    LEFT      = 'l'
+};
+
 enum class TieOption: char
 {
     n_DUMMY        = 'n',
@@ -1088,20 +1095,15 @@ struct Wheel2: BaseWheel2
 struct MeshWheel: BaseWheel
 {
     MeshWheel():
-        side(SIDE_INVALID),
+        side(WheelSide::INVALID),
         rim_radius(0),
         tyre_radius(0),
         _is_meshwheel2(false)
     {}
 
-    enum Side
-    {
-        SIDE_INVALID   = 0,
-        SIDE_RIGHT     = 'r',
-        SIDE_LEFT      = 'l'
-    };
 
-    Side side;
+
+    WheelSide side;
     Ogre::String mesh_name;
     Ogre::String material_name;
     float rim_radius;
@@ -1170,12 +1172,12 @@ struct Flexbody
 struct FlexBodyWheel: BaseWheel2
 {
     FlexBodyWheel():
-        side(MeshWheel::SIDE_INVALID),
+        side(WheelSide::INVALID),
         rim_springiness(0),
         rim_damping(0)
     {}
 
-    MeshWheel::Side side;
+    WheelSide side;
 
     float rim_springiness;
     float rim_damping;
