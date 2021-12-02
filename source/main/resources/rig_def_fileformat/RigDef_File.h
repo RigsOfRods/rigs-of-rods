@@ -302,6 +302,16 @@ enum class ShockOption: char
     m_METRIC       = 'm',
 };
 
+enum class Shock2Option: char
+{
+    n_DUMMY            = 'n',
+    v_DUMMY            = 'v',
+    i_INVISIBLE        = 'i',
+    s_SOFT_BUMP_BOUNDS = 's', //!< soft bump boundaries, use when shocks reach limiters too often and "jumprebound" (default is hard bump boundaries)
+    m_METRIC           = 'm', //!< metric values for shortbound/longbound applying to the length of the beam.
+    M_ABSOLUTE_METRIC  = 'M', //!< Absolute metric values for shortbound/longbound, settings apply without regarding to the original length of the beam.(Use with caution, check ror.log for errors)
+};
+
 /* -------------------------------------------------------------------------- */
 /* Utility                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -1217,13 +1227,10 @@ struct Shock2
 {
     Shock2();
 
-    BITMASK_PROPERTY(options, 1, OPTION_i_INVISIBLE       , HasOption_i_Invisible,      SetOption_i_Invisible) 
-    // soft bump boundaries, use when shocks reach limiters too often and "jumprebound" (default is hard bump boundaries)
-    BITMASK_PROPERTY(options, 2, OPTION_s_SOFT_BUMP_BOUNDS, HasOption_s_SoftBumpBounds, SetOption_s_SoftBumpBounds)
-    // metric values for shortbound/longbound applying to the length of the beam.
-    BITMASK_PROPERTY(options, 3, OPTION_m_METRIC          , HasOption_m_Metric,         SetOption_m_Metric)
-    // Absolute metric values for shortbound/longbound, settings apply without regarding to the original length of the beam.(Use with caution, check ror.log for errors)
-    BITMASK_PROPERTY(options, 4, OPTION_M_ABSOLUTE_METRIC , HasOption_M_AbsoluteMetric, SetOption_M_AbsoluteMetric)  
+    static const BitMask_t OPTION_i_INVISIBLE        = BITMASK(1);
+    static const BitMask_t OPTION_s_SOFT_BUMP_BOUNDS = BITMASK(2); // soft bump boundaries, use when shocks reach limiters too often and "jumprebound" (default is hard bump boundaries)
+    static const BitMask_t OPTION_m_METRIC           = BITMASK(3); // metric values for shortbound/longbound applying to the length of the beam.
+    static const BitMask_t OPTION_M_ABSOLUTE_METRIC  = BITMASK(4); // Absolute metric values for shortbound/longbound, settings apply without regarding to the original length of the beam.(Use with caution, check ror.log for errors)
 
     Node::Ref nodes[2];
     float spring_in;                  //!< Spring value applied when the shock is compressing.
@@ -1237,7 +1244,7 @@ struct Shock2
     float short_bound;                //!< Maximum contraction limit, in percentage ( 1.00 = 100% )
     float long_bound;                 //!< Maximum extension limit, in percentage ( 1.00 = 100% )
     float precompression;             //!< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0.  
-    unsigned int options;             //!< Bit flags.
+    BitMask_t options;
     std::shared_ptr<BeamDefaults> beam_defaults;
     int detacher_group;
 };

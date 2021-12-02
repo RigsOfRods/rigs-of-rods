@@ -2028,35 +2028,7 @@ void Parser::ParseShock2()
     shock_2.long_bound                 = this->GetArgFloat  (11);
     shock_2.precompression             = this->GetArgFloat  (12);
 
-    shock_2.options = 0u;
-    if (m_num_args > 13)
-    {
-        std::string options_str = this->GetArgStr(13);
-        auto itor = options_str.begin();
-        auto endi = options_str.end();
-        while (itor != endi)
-        {
-            char c = *itor++; // ++
-            switch (c)
-            {
-                case 'n': 
-                case 'v': 
-                    break; // Placeholder, does nothing.
-                case 'i': BITMASK_SET_1(shock_2.options, Shock2::OPTION_i_INVISIBLE);
-                    break;
-                case 'm': BITMASK_SET_1(shock_2.options, Shock2::OPTION_m_METRIC);
-                    break;
-                case 'M': BITMASK_SET_1(shock_2.options, Shock2::OPTION_M_ABSOLUTE_METRIC);
-                    break;
-                case 's': BITMASK_SET_1(shock_2.options, Shock2::OPTION_s_SOFT_BUMP_BOUNDS);
-                    break;
-                default:
-                        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
-                            fmt::format("ignoring invalid option '{}'", c));
-                    break;
-            }
-        }
-    }
+    if (m_num_args > 13) shock_2.options = this->GetArgShock2Options(13);
 
     m_current_module->shocks2.push_back(shock_2);
 }
@@ -3281,6 +3253,29 @@ BitMask_t Parser::GetArgShockOptions(int index)
 
             case (char)ShockOption::n_DUMMY: break;
             case (char)ShockOption::v_DUMMY: break;
+
+            default:
+                this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format("ignoring invalid option '{}'", c));
+        }
+    }
+    return ret;
+}
+
+BitMask_t Parser::GetArgShock2Options(int index)
+{
+    BitMask_t ret = 0;
+    for (char c: this->GetArgStr(index))
+    {
+        switch (c)
+        {
+            case (char)Shock2Option::i_INVISIBLE:        ret |= Shock2::OPTION_i_INVISIBLE;        break;
+            case (char)Shock2Option::s_SOFT_BUMP_BOUNDS: ret |= Shock2::OPTION_s_SOFT_BUMP_BOUNDS; break;
+            case (char)Shock2Option::m_METRIC:           ret |= Shock2::OPTION_m_METRIC;           break;
+            case (char)Shock2Option::M_ABSOLUTE_METRIC:  ret |= Shock2::OPTION_M_ABSOLUTE_METRIC;  break;
+
+            case (char)Shock2Option::n_DUMMY: break;
+            case (char)Shock2Option::v_DUMMY: break;
 
             default:
                 this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
