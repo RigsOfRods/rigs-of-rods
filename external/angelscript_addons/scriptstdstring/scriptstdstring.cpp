@@ -36,9 +36,7 @@ public:
 	CStdStringFactory() {}
 	~CStdStringFactory() 
 	{
-		// The script engine must release each string 
-		// constant that it has requested
-		assert(stringCache.size() == 0);
+
 	}
 
 	const void *GetStringConstant(const char *data, asUINT length)
