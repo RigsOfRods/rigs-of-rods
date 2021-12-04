@@ -58,7 +58,7 @@ void AngelScriptExamples::DrawRowSlider(const char* nameStr, std::string codeStr
 {
     ImGui::PushID(nameStr);
     ImGui::AlignFirstTextHeightToWidgets();
-    if (ImGui::Selectable(nameStr)) { App::GetScriptEngine()->executeString(fmt::format(codeStr, var_ref)); }
+    if (ImGui::Selectable(nameStr)) { this->ExecuteString(fmt::format(codeStr, var_ref)); }
     ImGui::NextColumn();
     ImGui::AlignFirstTextHeightToWidgets();
     ImGui::PushItemWidth(-1);
@@ -74,7 +74,7 @@ void AngelScriptExamples::DrawRowSlider(const char* nameStr, std::string codeStr
 void AngelScriptExamples::DrawRowText(const char* nameStr, std::string codeStr, const char* descStr)
 {
     ImGui::AlignFirstTextHeightToWidgets();
-    if (ImGui::Selectable(nameStr)) { App::GetScriptEngine()->executeString(codeStr); }
+    if (ImGui::Selectable(nameStr)) { this->ExecuteString(codeStr); }
     ImGui::NextColumn();
     ImGui::AlignFirstTextHeightToWidgets();
     ImGui::Text("");
@@ -87,7 +87,7 @@ void AngelScriptExamples::DrawRowText(const char* nameStr, std::string codeStr, 
 void AngelScriptExamples::DrawRowCheckbox(const char* nameStr, std::string codeStr, const char* descStr, bool &var_ref, const char* label)
 {
     ImGui::AlignFirstTextHeightToWidgets();
-    if (ImGui::Selectable(nameStr)) { App::GetScriptEngine()->executeString(fmt::format(codeStr, var_ref)); }
+    if (ImGui::Selectable(nameStr)) { this->ExecuteString(fmt::format(codeStr, var_ref)); }
     ImGui::NextColumn();
     ImGui::AlignFirstTextHeightToWidgets();
     ImGui::Checkbox(label, &var_ref);
@@ -101,7 +101,7 @@ void AngelScriptExamples::DrawRowInt(const char* nameStr, std::string codeStr, c
 {
     ImGui::PushID(nameStr);
     ImGui::AlignFirstTextHeightToWidgets();
-    if (ImGui::Selectable(nameStr)) { App::GetScriptEngine()->executeString(fmt::format(codeStr, var_ref)); }
+    if (ImGui::Selectable(nameStr)) { this->ExecuteString(fmt::format(codeStr, var_ref)); }
     ImGui::NextColumn();
     ImGui::AlignFirstTextHeightToWidgets();
     ImGui::PushItemWidth(-1);
@@ -118,7 +118,7 @@ void AngelScriptExamples::DrawRowIntNode(const char* nameStr, std::string codeSt
 {
     ImGui::PushID(nameStr);
     ImGui::AlignFirstTextHeightToWidgets();
-    if (ImGui::Selectable(nameStr)) { App::GetScriptEngine()->executeString(fmt::format(codeStr, node_x, node_y, node_z)); }
+    if (ImGui::Selectable(nameStr)) { this->ExecuteString(fmt::format(codeStr, node_x, node_y, node_z)); }
     ImGui::NextColumn();
     ImGui::AlignFirstTextHeightToWidgets();
     ImGui::PushItemWidth(-1);
@@ -135,7 +135,7 @@ void AngelScriptExamples::DrawRowIntCheckbox(const char* nameStr, std::string co
 {
     ImGui::PushID(nameStr);
     ImGui::AlignFirstTextHeightToWidgets();
-    if (ImGui::Selectable(nameStr)) { App::GetScriptEngine()->executeString(fmt::format(codeStr, var_ref, on)); }
+    if (ImGui::Selectable(nameStr)) { this->ExecuteString(fmt::format(codeStr, var_ref, on)); }
     ImGui::NextColumn();
     ImGui::AlignFirstTextHeightToWidgets();
     ImGui::PushItemWidth(96);
@@ -148,4 +148,12 @@ void AngelScriptExamples::DrawRowIntCheckbox(const char* nameStr, std::string co
     ImGui::Text(descStr);
     ImGui::PopID();
     ImGui::NextColumn();
+}
+
+void AngelScriptExamples::ExecuteString(std::string const& code)
+{
+    // Use console command 'as' because it echoes the entered code,
+    // which allows the user to see it and learn.
+    // Also reports error when not usable, i.e. in main menu.
+    App::GetConsole()->doCommand(fmt::format("as {}", code));
 }
