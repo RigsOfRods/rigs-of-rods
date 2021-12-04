@@ -1683,7 +1683,7 @@ struct File
         std::vector<VideoCamera>           videocameras;
         std::vector<WheelDetacher>         wheeldetachers;
         std::vector<Wheel>                 wheels;
-        std::vector<Wheel2>                wheels_2;
+        std::vector<Wheel2>                wheels2;
         std::vector<Wing>                  wings;
     };
 
