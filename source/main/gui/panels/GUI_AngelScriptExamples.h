@@ -35,6 +35,8 @@ private:
     void DrawRowIntCheckbox(const char* nameStr, std::string codeStr, const char* descStr, int &var_ref, bool &on, const char* label);
     void DrawRowIntNode(const char* nameStr, std::string codeStr, const char* descStr, int &var_ref, int &node_x, int &node_y, int &node_z);
 
+    void ExecuteString(std::string const& code); //!< Runs code using 'as' console command.
+
     float scale = 1.f;
     float mass = 1000.f;
     bool reset = false;
