@@ -365,10 +365,10 @@ const char* CONF_VEGET_50PERC       = "50%";
 const char* CONF_VEGET_FULL         = "Full (best looking, slower)";
 
 const char* CONF_GEARBOX_AUTO       = "Automatic shift";
-const char* CONF_GEARBOX_SEMIAUTO   = "Manual shift: auto clutch";
-const char* CONF_GEARBOX_MANUAL     = "Fully manual: sequential shift";
+const char* CONF_GEARBOX_SEMIAUTO   = "Manual shift - Auto clutch";
+const char* CONF_GEARBOX_MANUAL     = "Fully Manual: sequential shift";
 const char* CONF_GEARBOX_MAN_STICK  = "Fully manual: stick shift";
-const char* CONF_GEARBOX_MAN_RANGES = "Fully manual: stick shift with ranges";
+const char* CONF_GEARBOX_MAN_RANGES = "Fully Manual: stick shift with ranges";
 
 const char* CONF_FLARES_NONE        = "None (fastest)";
 const char* CONF_FLARES_NO_LIGHT    = "No light sources";
