@@ -21,37 +21,37 @@ using namespace RoR;
 
 void AngelScriptExamples::Draw()
 {
-    this->DrawRowSlider("void scaleTruck()", "game.getCurrentTruck().scaleTruck({})", "Scales the truck", 1.f, 1.5f, scale);
-    this->DrawRowText("string getTruckName()", "game.log(game.getCurrentTruck().getTruckName())", "Gets the name of the truck");
-    this->DrawRowText("string getTruckFileName()", "game.log(game.getCurrentTruck().getTruckFileName())", "Gets the name of the truck file");
-    this->DrawRowText("string getSectionConfig()", "game.log(game.getCurrentTruck().getSectionConfig())", "Gets the name of the loaded section for a truck");
-    this->DrawRowText("int getTruckType()", "game.log(' ' + game.getCurrentTruck().getTruckType())", "Gets the type of the truck");
-    this->DrawRowCheckbox("void reset()", "game.getCurrentTruck().reset({})", "Resets the truck", reset, "Keep position");
-    this->DrawRowText("void parkingbrakeToggle()", "game.getCurrentTruck().parkingbrakeToggle()", "Toggles the parking brake");
-    this->DrawRowText("void tractioncontrolToggle()", "game.getCurrentTruck().tractioncontrolToggle()", "Toggles the tracktion control");
-    this->DrawRowText("void antilockbrakeToggle()", "game.getCurrentTruck().antilockbrakeToggle()", "Toggles the anti-lock brakes");
-    this->DrawRowText("void beaconsToggle()", "game.getCurrentTruck().beaconsToggle()", "Toggles the beacons");
-    this->DrawRowText("void toggleCustomParticles()", "game.getCurrentTruck().toggleCustomParticles()", "Toggles the custom particles");
-    this->DrawRowText("int getNodeCount()", "game.log(' ' + game.getCurrentTruck().getNodeCount())", "Gets the total amount of nodes of the truck");
-    this->DrawRowCheckbox("float getTotalMass()", "game.log(' ' + game.getCurrentTruck().getTotalMass({}))", "Gets the total mass of the truck", locked, "With locked");
-    this->DrawRowText("int getWheelNodeCount()", "game.log(' ' + game.getCurrentTruck().getWheelNodeCount())", "Gets the total amount of nodes of the wheels of the truck");
-    this->DrawRowSlider("void setMass()", "game.getCurrentTruck().setMass({})", "Sets the mass of the truck", 1000.f, 10000.f, mass);
-    this->DrawRowText("bool getBrakeLightVisible()", "game.log(' ' + game.getCurrentTruck().getBrakeLightVisible())", "Returns true if the brake light is enabled");
-    this->DrawRowInt("bool getCustomLightVisible()", "game.log(' ' + game.getCurrentTruck().getCustomLightVisible({}))", "Returns true if the custom light with the number is enabled", light);
-    this->DrawRowIntCheckbox("void setCustomLightVisible()", "game.getCurrentTruck().setCustomLightVisible({}, {})", "Enables or disables the custom light", custom_light, visible, "On");
-    this->DrawRowText("bool getBeaconMode()", "game.log(' ' + game.getCurrentTruck().getBeaconMode())", "Gets the mode of the beacon");
-    this->DrawRowInt("void setBlinkType()", "game.getCurrentTruck().setBlinkType({})", "Sets the blinking type", blink);
-    this->DrawRowText("int getBlinkType()", "game.log(' ' + game.getCurrentTruck().getBlinkType())", "Gets the blinking type");
-    this->DrawRowText("bool getCustomParticleMode()", "game.log(' ' + game.getCurrentTruck().getCustomParticleMode())", "Gets the custom particles mode");
-    this->DrawRowText("bool getReverseLightVisible()", "game.log(' ' + game.getCurrentTruck().getReverseLightVisible())", "Returns true if the reverse lights are enabled");
-    this->DrawRowText("float getHeadingDirectionAngle()", "game.log(' ' + game.getCurrentTruck().getHeadingDirectionAngle())", "Returns the angle in which the truck is heading");
-    this->DrawRowText("bool isLocked()", "game.log(' ' + game.getCurrentTruck().isLocked())", "Returns true if a hook of this truck is locked");
-    this->DrawRowText("float getWheelSpeed()", "game.log(' ' + game.getCurrentTruck().getWheelSpeed())", "Gets the current wheel speed of the vehicle");
-    this->DrawRowText("float getSpeed()", "game.log(' ' + game.getCurrentTruck().getSpeed())", "Gets the current speed of the vehicle");
-    this->DrawRowText("vector3 getGForces()", "game.log(' ' + game.getCurrentTruck().getGForces().x + ' ' + game.getCurrentTruck().getGForces().y + ' ' + game.getCurrentTruck().getGForces().z )", "Gets the G-forces that this truck is currently experiencing");
-    this->DrawRowText("float getRotation()", "game.log(' ' + game.getCurrentTruck().getRotation())", "Gets the current rotation of the vehicle");
-    this->DrawRowText("vector3 getVehiclePosition()", "game.log(' ' + game.getCurrentTruck().getVehiclePosition().x + ' ' + game.getCurrentTruck().getVehiclePosition().y + ' ' + game.getCurrentTruck().getVehiclePosition().z )", "Gets the current position of the vehicle");
-    this->DrawRowIntNode("vector3 getNodePosition()", "game.log(' ' + game.getCurrentTruck().getNodePosition({}).x + ' ' + game.getCurrentTruck().getNodePosition({}).y + ' ' + game.getCurrentTruck().getNodePosition({}).z )", "Gets the node position", node, node, node, node);
+    this->DrawRowSlider("void scaleTruck()", "game.getCurrentTruck().scaleTruck({})", _LC("AngelScript", "Scales the truck"), 1.f, 1.5f, scale);
+    this->DrawRowText("string getTruckName()", "game.log(game.getCurrentTruck().getTruckName())", _LC("AngelScript", "Gets the name of the truck"));
+    this->DrawRowText("string getTruckFileName()", "game.log(game.getCurrentTruck().getTruckFileName())", _LC("AngelScript", "Gets the name of the truck file"));
+    this->DrawRowText("string getSectionConfig()", "game.log(game.getCurrentTruck().getSectionConfig())", _LC("AngelScript", "Gets the name of the loaded section for a truck"));
+    this->DrawRowText("int getTruckType()", "game.log(' ' + game.getCurrentTruck().getTruckType())", _LC("AngelScript", "Gets the type of the truck"));
+    this->DrawRowCheckbox("void reset()", "game.getCurrentTruck().reset({})", _LC("AngelScript", "Resets the truck"), reset, "Keep position");
+    this->DrawRowText("void parkingbrakeToggle()", "game.getCurrentTruck().parkingbrakeToggle()", _LC("AngelScript", "Toggles the parking brake"));
+    this->DrawRowText("void tractioncontrolToggle()", "game.getCurrentTruck().tractioncontrolToggle()", _LC("AngelScript", "Toggles the tracktion control"));
+    this->DrawRowText("void antilockbrakeToggle()", "game.getCurrentTruck().antilockbrakeToggle()", _LC("AngelScript", "Toggles the anti-lock brakes"));
+    this->DrawRowText("void beaconsToggle()", "game.getCurrentTruck().beaconsToggle()", _LC("AngelScript", "Toggles the beacons"));
+    this->DrawRowText("void toggleCustomParticles()", "game.getCurrentTruck().toggleCustomParticles()", _LC("AngelScript", "Toggles the custom particles"));
+    this->DrawRowText("int getNodeCount()", "game.log(' ' + game.getCurrentTruck().getNodeCount())", _LC("AngelScript", "Gets the total amount of nodes of the truck"));
+    this->DrawRowCheckbox("float getTotalMass()", "game.log(' ' + game.getCurrentTruck().getTotalMass({}))", _LC("AngelScript", "Gets the total mass of the truck"), locked, "With locked");
+    this->DrawRowText("int getWheelNodeCount()", "game.log(' ' + game.getCurrentTruck().getWheelNodeCount())", _LC("AngelScript", "Gets the total amount of nodes of the wheels of the truck"));
+    this->DrawRowSlider("void setMass()", "game.getCurrentTruck().setMass({})", _LC("AngelScript", "Sets the mass of the truck"), 1000.f, 10000.f, mass);
+    this->DrawRowText("bool getBrakeLightVisible()", "game.log(' ' + game.getCurrentTruck().getBrakeLightVisible())", _LC("AngelScript", "Returns true if the brake light is enabled"));
+    this->DrawRowInt("bool getCustomLightVisible()", "game.log(' ' + game.getCurrentTruck().getCustomLightVisible({}))", _LC("AngelScript", "Returns true if the custom light with the number is enabled"), light);
+    this->DrawRowIntCheckbox("void setCustomLightVisible()", "game.getCurrentTruck().setCustomLightVisible({}, {})", _LC("AngelScript", "Enables or disables the custom light"), custom_light, visible, "On");
+    this->DrawRowText("bool getBeaconMode()", "game.log(' ' + game.getCurrentTruck().getBeaconMode())", _LC("AngelScript", "Gets the mode of the beacon"));
+    this->DrawRowInt("void setBlinkType()", "game.getCurrentTruck().setBlinkType({})", _LC("AngelScript", "Sets the blinking type"), blink);
+    this->DrawRowText("int getBlinkType()", "game.log(' ' + game.getCurrentTruck().getBlinkType())", _LC("AngelScript", "Gets the blinking type"));
+    this->DrawRowText("bool getCustomParticleMode()", "game.log(' ' + game.getCurrentTruck().getCustomParticleMode())", _LC("AngelScript", "Gets the custom particles mode"));
+    this->DrawRowText("bool getReverseLightVisible()", "game.log(' ' + game.getCurrentTruck().getReverseLightVisible())", _LC("AngelScript", "Returns true if the reverse lights are enabled"));
+    this->DrawRowText("float getHeadingDirectionAngle()", "game.log(' ' + game.getCurrentTruck().getHeadingDirectionAngle())", _LC("AngelScript", "Returns the angle in which the truck is heading"));
+    this->DrawRowText("bool isLocked()", "game.log(' ' + game.getCurrentTruck().isLocked())", _LC("AngelScript", "Returns true if a hook of this truck is locked"));
+    this->DrawRowText("float getWheelSpeed()", "game.log(' ' + game.getCurrentTruck().getWheelSpeed())", _LC("AngelScript", "Gets the current wheel speed of the vehicle"));
+    this->DrawRowText("float getSpeed()", "game.log(' ' + game.getCurrentTruck().getSpeed())", _LC("AngelScript", "Gets the current speed of the vehicle"));
+    this->DrawRowText("vector3 getGForces()", "game.log(' ' + game.getCurrentTruck().getGForces().x + ' ' + game.getCurrentTruck().getGForces().y + ' ' + game.getCurrentTruck().getGForces().z )", _LC("AngelScript", "Gets the G-forces that this truck is currently experiencing"));
+    this->DrawRowText("float getRotation()", "game.log(' ' + game.getCurrentTruck().getRotation())", _LC("AngelScript", "Gets the current rotation of the vehicle"));
+    this->DrawRowText("vector3 getVehiclePosition()", "game.log(' ' + game.getCurrentTruck().getVehiclePosition().x + ' ' + game.getCurrentTruck().getVehiclePosition().y + ' ' + game.getCurrentTruck().getVehiclePosition().z )", _LC("AngelScript", "Gets the current position of the vehicle"));
+    this->DrawRowIntNode("vector3 getNodePosition()", "game.log(' ' + game.getCurrentTruck().getNodePosition({}).x + ' ' + game.getCurrentTruck().getNodePosition({}).y + ' ' + game.getCurrentTruck().getNodePosition({}).z )", _LC("AngelScript", "Gets the node position"), node, node, node, node);
 }
 
 void AngelScriptExamples::DrawRowSlider(const char* nameStr, std::string codeStr, const char* descStr, float min, float max, float &var_ref)
