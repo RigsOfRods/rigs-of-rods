@@ -158,7 +158,7 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::WHEELS, wheels, ProcessWheel);
 
     // Section 'wheels2'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::WHEELS2, wheels_2, ProcessWheel2);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::WHEELS2, wheels2, ProcessWheel2);
 
     // Sections 'meshwheels' and 'meshwheels2'
     for (auto& m : m_selected_modules)

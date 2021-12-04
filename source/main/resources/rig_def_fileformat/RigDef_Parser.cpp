@@ -365,7 +365,7 @@ void Parser::ParseWheel2()
         m_sequential_importer.GenerateNodesForWheel(Keyword::WHEELS2, wheel_2.num_rays, wheel_2.rigidity_node.IsValidAnyState());
     }
 
-    m_current_module->wheels_2.push_back(wheel_2);
+    m_current_module->wheels2.push_back(wheel_2);
 }
 
 void Parser::ParseWheel()

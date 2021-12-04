@@ -678,7 +678,7 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
         RESOLVE(wheel.reference_arm_node);
     });
 
-    FOR_EACH (Keyword::WHEELS2, module->wheels_2, wheel2,
+    FOR_EACH (Keyword::WHEELS2, module->wheels2, wheel2,
     {
         RESOLVE(wheel2.nodes[0]          );
         RESOLVE(wheel2.nodes[1]          );

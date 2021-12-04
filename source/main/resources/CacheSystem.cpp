@@ -861,7 +861,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
         if (w.propulsion != RigDef::WheelPropulsion::NONE)
             entry.propwheelcount++;
     }
-    for (const auto& w : def->root_module->wheels_2)
+    for (const auto& w : def->root_module->wheels2)
     {
         entry.wheelcount++;
         if (w.propulsion != RigDef::WheelPropulsion::NONE)

@@ -1570,13 +1570,13 @@ void Serializer::ProcessHelp(File::Module* module)
 
 void Serializer::ProcessWheels2(File::Module* module)
 {
-    if (module->wheels_2.empty())
+    if (module->wheels2.empty())
     {
         return;
     }
     m_stream << "wheels2" << endl << endl;
-    auto end_itor = module->wheels_2.end();
-    for (auto itor = module->wheels_2.begin(); itor != end_itor; ++itor)
+    auto end_itor = module->wheels2.end();
+    for (auto itor = module->wheels2.begin(); itor != end_itor; ++itor)
     {
         m_stream << "\t"
             << setw(m_float_width)   << itor->tyre_radius                   << ", "

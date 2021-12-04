@@ -178,7 +178,7 @@ void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::
     }
 
     // 'wheels2'
-    for (RigDef::Wheel2& wheel2: module_def->wheels_2)
+    for (RigDef::Wheel2& wheel2: module_def->wheels2)
     {
         req.num_nodes += wheel2.num_rays * 4;
         // Rim beams:  num_rays*10 (*11 with valid rigidity_node)
