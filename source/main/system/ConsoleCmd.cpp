@@ -320,19 +320,25 @@ public:
         // we want to notify any running scripts that we might change something (prevent cheating)
         App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS);
 
-        Str<1000> code; // Re-compose the code snippet
+        // Re-compose the code snippet
+        Str<1000> code;
         for (int i = 1; i < args.size(); ++i)
         {
             code << " " << args[i];
         }
-        App::GetScriptEngine()->executeString(code.ToCStr());
+
+        // Echo the code back to console user.
         reply_type = Console::CONSOLE_SYSTEM_REPLY;
         reply << " >>> " << code.ToCStr();
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
+
+        // Run the code - will output script messages/AngelScript errors.
+        App::GetScriptEngine()->executeString(code.ToCStr());
 #else
         reply_type = Console::CONSOLE_SYSTEM_ERROR;
         reply << _L("Scripting disabled in this build");
-#endif
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
+#endif
     }
 };
 
