@@ -98,21 +98,28 @@ void ConsoleView::DrawConsoleMessages()
             ImGui::SetScrollY(ImGui::GetScrollMaxY() + (num_incoming * line_h) + 100.f);
         }
 
+        // Calculate visible area height
+        float view_height = ImGui::GetWindowHeight();
+        if (ImGui::GetScrollMaxX() > 0) // Account for horizontal scrollbar, if visible.
+        {
+            view_height -= ImGui::GetStyle().ScrollbarSize;
+        }
+
         // Calculate message range and cursor pos
         int msg_start = 0, msg_count = 0;
         ImVec2 cursor = ImGui::GetWindowPos();
         if (ImGui::GetScrollMaxY() == 0) // No scrolling
         {
             msg_count = (int)m_display_messages.size();
-            cursor += ImVec2(0, ImGui::GetWindowHeight() - (msg_count * line_h)); // Align to bottom
+            cursor += ImVec2(0, view_height - (msg_count * line_h)); // Align to bottom
         }
         else // Scrolling
         {
             const float scroll_rel = ImGui::GetScrollY()/ImGui::GetScrollMaxY();
-            const float scroll_offset = ((dummy_h - ImGui::GetWindowHeight()) *scroll_rel);
+            const float scroll_offset = ((dummy_h - view_height) * scroll_rel);
             msg_start = std::max(0, (int)(scroll_offset/line_h));
 
-            msg_count = std::min((int)(ImGui::GetWindowHeight() / line_h)+2, // Bias (2) for partially visible messages (1 top, 1 bottom)
+            msg_count = std::min((int)(view_height / line_h)+2, // Bias (2) for partially visible messages (1 top, 1 bottom)
                                  (int)m_display_messages.size() - msg_start);
 
             const float line_offset = scroll_offset/line_h;
