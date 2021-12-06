@@ -103,7 +103,8 @@ protected:
     void ProcessInterAxles(File::Module* module);
 
     // Wheels
-    void ProcessMeshWheels(File::Module* module); // And meshwheels2
+    void ProcessMeshWheels(File::Module* module);
+    void ProcessMeshWheels2(File::Module* module);
     void ProcessWheels(File::Module* module);
     void ProcessWheels2(File::Module* module);
     void ProcessFlexBodyWheels(File::Module* module);
@@ -153,6 +154,8 @@ protected:
     void ProcessScrewprops(File::Module* module);
 
 protected:
+
+    void ExportBaseMeshWheel(BaseMeshWheel& def);
 
     std::ofstream                     m_stream;
     Ogre::String                      m_file_path;

@@ -186,11 +186,16 @@ void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::
         req.num_beams += wheel2.num_rays * ((wheel2.rigidity_node.IsValidAnyState()) ? 25 : 24);
     }
 
-    // 'meshwheels' & 'meshwheels2' (unified)
-    for (RigDef::MeshWheel& meshwheel: module_def->mesh_wheels)
+    // 'meshwheels' & 'meshwheels2'
+    for (RigDef::MeshWheel& meshwheel: module_def->meshwheels)
     {
         req.num_nodes += meshwheel.num_rays * 2; // BuildWheelObjectAndNodes()
         req.num_beams += meshwheel.num_rays * ((meshwheel.rigidity_node.IsValidAnyState()) ? 9 : 8); // BuildWheelBeams()
+    }
+    for (RigDef::MeshWheel2& meshwheel2: module_def->meshwheels2)
+    {
+        req.num_nodes += meshwheel2.num_rays * 2; // BuildWheelObjectAndNodes()
+        req.num_beams += meshwheel2.num_rays * ((meshwheel2.rigidity_node.IsValidAnyState()) ? 9 : 8); // BuildWheelBeams()
     }
 
     // 'flexbodywheels'
@@ -4223,12 +4228,6 @@ wheel_t::BrakeCombo ActorSpawner::TranslateBrakingDef(RigDef::WheelBraking def)
 
 void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
 {
-    if (meshwheel_def._is_meshwheel2)
-    {
-        this->ProcessMeshWheel2(meshwheel_def);
-        return;
-    }
-
     unsigned int base_node_index = m_actor->ar_num_nodes;
     node_t *axis_node_1 = GetNodePointer(meshwheel_def.nodes[0]);
     node_t *axis_node_2 = GetNodePointer(meshwheel_def.nodes[1]);
@@ -4277,7 +4276,7 @@ void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
     CreateWheelSkidmarks(wheel_index);
 }
 
-void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
+void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
 {
     unsigned int base_node_index = m_actor->ar_num_nodes;
     node_t *axis_node_1 = GetNodePointer(def.nodes[0]);
@@ -6727,6 +6726,20 @@ void ActorSpawner::FinalizeGfxSetup()
                 ticket.meshwheel_def->material_name,
                 ticket.meshwheel_def->rim_radius,
                 ticket.meshwheel_def->side != RigDef::WheelSide::RIGHT
+                );
+        }
+        else if (ticket.meshwheel2_def != nullptr)
+        {
+            this->BuildMeshWheelVisuals(
+                ticket.wheel_index,
+                ticket.base_node_index,
+                ticket.axis_node_1,
+                ticket.axis_node_2,
+                ticket.meshwheel2_def->num_rays,
+                ticket.meshwheel2_def->mesh_name,
+                ticket.meshwheel2_def->material_name,
+                ticket.meshwheel2_def->rim_radius,
+                ticket.meshwheel2_def->side != RigDef::WheelSide::RIGHT
                 );
         }
         else if (ticket.flexbodywheel_def != nullptr)

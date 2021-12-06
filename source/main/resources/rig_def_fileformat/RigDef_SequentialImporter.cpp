@@ -514,12 +514,19 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
         RESOLVE(hydro.nodes[1]);
     });
 
-    FOR_EACH (Keyword::MESHWHEELS, module->mesh_wheels, meshwheel, // Also `meshwheels2`
+    FOR_EACH (Keyword::MESHWHEELS, module->meshwheels, meshwheel,
     {
         RESOLVE(meshwheel.nodes[0]          );
         RESOLVE(meshwheel.nodes[1]          );
         RESOLVE(meshwheel.rigidity_node     );
         RESOLVE(meshwheel.reference_arm_node);
+    });
+    FOR_EACH (Keyword::MESHWHEELS2, module->meshwheels2, meshwheel2,
+    {
+        RESOLVE(meshwheel2.nodes[0]          );
+        RESOLVE(meshwheel2.nodes[1]          );
+        RESOLVE(meshwheel2.rigidity_node     );
+        RESOLVE(meshwheel2.reference_arm_node);
     });
 
     FOR_EACH (Keyword::PARTICLES, module->particles, particle,

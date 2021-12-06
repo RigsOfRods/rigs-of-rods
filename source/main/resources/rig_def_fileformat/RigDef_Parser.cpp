@@ -253,8 +253,8 @@ void Parser::ProcessCurrentLine()
         case Keyword::LOCKGROUPS:           this->ParseLockgroups();              return;
         case Keyword::MANAGEDMATERIALS:     this->ParseManagedMaterials();        return;
         case Keyword::MATERIALFLAREBINDINGS:this->ParseMaterialFlareBindings();   return;
-        case Keyword::MESHWHEELS:
-        case Keyword::MESHWHEELS2:          this->ParseMeshWheelUnified();        return;
+        case Keyword::MESHWHEELS:           this->ParseMeshWheel();               return;
+        case Keyword::MESHWHEELS2:          this->ParseMeshWheel2();              return;
         case Keyword::MINIMASS:             this->ParseMinimass();                return;
         case Keyword::NODES:
         case Keyword::NODES2:               this->ParseNodesUnified();            return;
@@ -627,12 +627,8 @@ void Parser::ProcessGlobalDirective(Keyword keyword)   // Directives that should
     }
 }
 
-void Parser::ParseMeshWheelUnified()
+void Parser::_ParseBaseMeshWheel(BaseMeshWheel& mesh_wheel)
 {
-    if (! this->CheckNumArguments(16)) { return; }
-
-    MeshWheel mesh_wheel;
-    mesh_wheel._is_meshwheel2     = (m_current_block == Keyword::MESHWHEELS2);
     mesh_wheel.node_defaults      = m_user_node_defaults;
     mesh_wheel.beam_defaults      = m_user_beam_defaults;
 
@@ -652,16 +648,36 @@ void Parser::ParseMeshWheelUnified()
     mesh_wheel.side               = this->GetArgWheelSide    (13);
     mesh_wheel.mesh_name          = this->GetArgStr          (14);
     mesh_wheel.material_name      = this->GetArgStr          (15);
+}
+
+void Parser::ParseMeshWheel()
+{
+    if (! this->CheckNumArguments(16)) { return; }
+
+    MeshWheel mesh_wheel;
+    this->_ParseBaseMeshWheel(mesh_wheel);
 
     if (m_sequential_importer.IsEnabled())
     {
-        Keyword keyword = (mesh_wheel._is_meshwheel2)
-            ? Keyword::MESHWHEELS2
-            : Keyword::MESHWHEELS;
-        m_sequential_importer.GenerateNodesForWheel(keyword, mesh_wheel.num_rays, mesh_wheel.rigidity_node.IsValidAnyState());
+        m_sequential_importer.GenerateNodesForWheel(Keyword::MESHWHEELS, mesh_wheel.num_rays, mesh_wheel.rigidity_node.IsValidAnyState());
     }
 
-    m_current_module->mesh_wheels.push_back(mesh_wheel);
+    m_current_module->meshwheels.push_back(mesh_wheel);
+}
+
+void Parser::ParseMeshWheel2()
+{
+    if (! this->CheckNumArguments(16)) { return; }
+
+    MeshWheel2 mesh_wheel;
+    this->_ParseBaseMeshWheel(mesh_wheel);
+
+    if (m_sequential_importer.IsEnabled())
+    {
+        m_sequential_importer.GenerateNodesForWheel(Keyword::MESHWHEELS2, mesh_wheel.num_rays, mesh_wheel.rigidity_node.IsValidAnyState());
+    }
+
+    m_current_module->meshwheels2.push_back(mesh_wheel);
 }
 
 void Parser::ParseHook()

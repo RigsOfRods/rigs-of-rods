@@ -379,7 +379,18 @@ struct BaseWheel
     std::shared_ptr<BeamDefaults> beam_defaults;
 };
 
-struct BaseWheel2: public BaseWheel // Attributes common to WHEELS_2 and newer definitions
+struct BaseMeshWheel: public BaseWheel // common to 'meshwheels' and 'meshwheels2'
+{
+    WheelSide side = WheelSide::INVALID;
+    Ogre::String mesh_name;
+    Ogre::String material_name;
+    float rim_radius = 0.f;
+    float tyre_radius = 0.f;
+    float spring;
+    float damping;
+};
+
+struct BaseWheel2: public BaseWheel // common to 'wheels2' and 'flexbodywheels'
 {
     float rim_radius = 0.f;
     float tyre_radius = 0.f;
@@ -1038,17 +1049,11 @@ struct Minimass
     MinimassOption option = MinimassOption::n_DUMMY;
 };
 
-struct MeshWheel: public BaseWheel
-{
-    WheelSide side = WheelSide::INVALID;
-    Ogre::String mesh_name;
-    Ogre::String material_name;
-    float rim_radius = 0.f;
-    float tyre_radius = 0.f;
-    float spring;
-    float damping;
-    bool _is_meshwheel2 = false;
-};
+struct MeshWheel: public BaseMeshWheel
+{};
+
+struct MeshWheel2: public BaseMeshWheel
+{};
 
 struct NodeDefaults
 {
@@ -1650,7 +1655,8 @@ struct File
         std::vector<Lockgroup>             lockgroups;
         std::vector<ManagedMaterial>       managedmaterials;
         std::vector<MaterialFlareBinding>  materialflarebindings;
-        std::vector<MeshWheel>             mesh_wheels;
+        std::vector<MeshWheel>             meshwheels;
+        std::vector<MeshWheel2>            meshwheels2;
         std::vector<Minimass>              minimass;
         std::vector<Node>                  nodes; /* Nodes and Nodes2 are unified in this parser */
         std::vector<Particle>              particles;
