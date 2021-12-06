@@ -33,27 +33,7 @@
 
 using namespace RoR;
 
-#define PROCESS_SECTION_IN_ANY_MODULE(_KEYWORD_, _FIELD_, _FUNCTION_)   \
-{                                                                       \
-    this->SetCurrentKeyword(_KEYWORD_);                                 \
-    for (auto& m: m_selected_modules)                                   \
-    {                                                                   \
-        if (m->_FIELD_ != nullptr)                                      \
-        {                                                               \
-            try {                                                       \
-                _FUNCTION_(*(m->_FIELD_));                              \
-            }                                                           \
-            catch (...)                                                 \
-            {                                                           \
-                this->HandleException();                                \
-            }                                                           \
-            break;                                                      \
-        }                                                               \
-    }                                                                   \
-    this->SetCurrentKeyword(RigDef::Keyword::INVALID);                   \
-}
-
-#define PROCESS_SECTION_IN_ALL_MODULES(_KEYWORD_, _FIELD_, _FUNCTION_)  \
+#define PROCESS_ELEMENT(_KEYWORD_, _FIELD_, _FUNCTION_)                 \
 {                                                                       \
     this->SetCurrentKeyword(_KEYWORD_);                                 \
     for (auto& m: m_selected_modules)                                   \
@@ -69,7 +49,7 @@ using namespace RoR;
             }                                                           \
         }                                                               \
     }                                                                   \
-    this->SetCurrentKeyword(RigDef::Keyword::INVALID);                   \
+    this->SetCurrentKeyword(RigDef::Keyword::INVALID);                  \
 }
 
 Actor *ActorSpawner::SpawnActor()
@@ -89,57 +69,32 @@ Actor *ActorSpawner::SpawnActor()
     m_actor->m_disable_default_sounds    = m_file->disable_default_sounds;
     m_actor->ar_hide_in_actor_list       = m_file->hide_in_chooser;
 
-    // 'minimass'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::MINIMASS, minimass, ProcessMinimass);
+    PROCESS_ELEMENT(RigDef::Keyword::MINIMASS, minimass, ProcessMinimass);
+    PROCESS_ELEMENT(RigDef::Keyword::SET_COLLISION_RANGE, set_collision_range, ProcessCollisionRange);
+    PROCESS_ELEMENT(RigDef::Keyword::AUTHOR, author, ProcessAuthor);
 
-    // 'set_collision_range'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::SET_COLLISION_RANGE, set_collision_range, ProcessCollisionRange);
-
-    // Section 'authors'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::AUTHOR, author, ProcessAuthor);
-
-    // Section 'guid' in root module: unused for gameplay
+    // 'guid': unused for gameplay
     if (m_file->root_module->guid.empty())
     {
         this->AddMessage(Message::TYPE_WARNING, "vehicle uses no GUID, skinning will be impossible");
     }
 
-    // Section 'description'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::DESCRIPTION, description, ProcessDescription);
-
-    // Section 'managedmaterials'
+    PROCESS_ELEMENT(RigDef::Keyword::DESCRIPTION, description, ProcessDescription);
     // This prepares substitute materials -> MUST be processed before any meshes are loaded.
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::MANAGEDMATERIALS, managedmaterials, ProcessManagedMaterial);
-
-    // Section 'gobals' in any module
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::GLOBALS, globals, ProcessGlobals);
-
-    // Section 'help' in any module.
+    PROCESS_ELEMENT(RigDef::Keyword::MANAGEDMATERIALS, managedmaterials, ProcessManagedMaterial);
+    PROCESS_ELEMENT(RigDef::Keyword::GLOBALS, globals, ProcessGlobals);
     // MUST be done before "guisettings" (overrides help panel material)
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::HELP, help, ProcessHelp);
-
-    // Section 'engine' in any module
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::ENGINE, engine, ProcessEngine);
-
-    // Section 'engoption' in any module
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::ENGOPTION, engoption, ProcessEngoption);
-
-    /* Section 'engturbo' in any module */
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::ENGTURBO, engturbo, ProcessEngturbo);
-
-    // Section 'torquecurve' in any module.
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::TORQUECURVE, torquecurve, ProcessTorqueCurve);
-
-    // Section 'brakes' in any module
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::BRAKES, brakes, ProcessBrakes);
-
-    // Section 'guisettings' in any module
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::GUISETTINGS, guisettings, ProcessGuiSettings);
+    PROCESS_ELEMENT(RigDef::Keyword::HELP, help, ProcessHelp);
+    PROCESS_ELEMENT(RigDef::Keyword::ENGINE, engine, ProcessEngine);
+    PROCESS_ELEMENT(RigDef::Keyword::ENGOPTION, engoption, ProcessEngoption);
+    PROCESS_ELEMENT(RigDef::Keyword::ENGTURBO, engturbo, ProcessEngturbo);
+    PROCESS_ELEMENT(RigDef::Keyword::TORQUECURVE, torquecurve, ProcessTorqueCurve);
+    PROCESS_ELEMENT(RigDef::Keyword::BRAKES, brakes, ProcessBrakes);
+    PROCESS_ELEMENT(RigDef::Keyword::GUISETTINGS, guisettings, ProcessGuiSettings);
 
     // ---------------------------- User-defined nodes ----------------------------
 
-    // Sections 'nodes' & 'nodes2'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::NODES, nodes, ProcessNode);
+    PROCESS_ELEMENT(RigDef::Keyword::NODES, nodes, ProcessNode);
 
     // Old-format exhaust (defined by flags 'x/y' in section 'nodes', one per vehicle)
     if (m_actor->ar_exhaust_pos_node != 0 && m_actor->ar_exhaust_dir_node != 0)
@@ -149,101 +104,48 @@ Actor *ActorSpawner::SpawnActor()
 
     // ---------------------------- Node generating sections ----------------------------
 
-    // Section 'cinecam'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::CINECAM, cinecam, ProcessCinecam);
+    PROCESS_ELEMENT(RigDef::Keyword::CINECAM, cinecam, ProcessCinecam);
 
     // ---------------------------- Wheels (also generate nodes) ----------------------------
 
-    // Section 'wheels'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::WHEELS, wheels, ProcessWheel);
-
-    // Section 'wheels2'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::WHEELS2, wheels2, ProcessWheel2);
-
-    // Section 'meshwheels'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::MESHWHEELS, meshwheels, ProcessMeshWheel);
-
-    // Section 'meshwheels2'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::MESHWHEELS2, meshwheels2, ProcessMeshWheel2);
-
-    // Section 'flexbodywheels'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::FLEXBODYWHEELS, flexbodywheels, ProcessFlexBodyWheel);
+    PROCESS_ELEMENT(RigDef::Keyword::WHEELS, wheels, ProcessWheel);
+    PROCESS_ELEMENT(RigDef::Keyword::WHEELS2, wheels2, ProcessWheel2);
+    PROCESS_ELEMENT(RigDef::Keyword::MESHWHEELS, meshwheels, ProcessMeshWheel);
+    PROCESS_ELEMENT(RigDef::Keyword::MESHWHEELS2, meshwheels2, ProcessMeshWheel2);
+    PROCESS_ELEMENT(RigDef::Keyword::FLEXBODYWHEELS, flexbodywheels, ProcessFlexBodyWheel);
 
     // ---------------------------- WheelDetachers ----------------------------
 
-    // Section 'wheeldetachers'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::WHEELDETACHERS, wheeldetachers, ProcessWheelDetacher);
+    PROCESS_ELEMENT(RigDef::Keyword::WHEELDETACHERS, wheeldetachers, ProcessWheelDetacher);
 
     // ---------------------------- User-defined beams ----------------------------
     //              (may reference any generated/user-defined node)
 
-    // Section 'beams'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::BEAMS, beams, ProcessBeam);
-
-    // Section 'shocks'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::SHOCKS, shocks, ProcessShock);
-
-    // Section 'shocks2'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::SHOCKS2, shocks2, ProcessShock2);
-
-    // Section 'shocks3'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::SHOCKS3, shocks3, ProcessShock3);
-
-    // Section 'commands' and 'commands2' (Use generated nodes)
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::COMMANDS2, commands2, ProcessCommand);
-
-    // Section 'hydros'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::HYDROS, hydros, ProcessHydro);
-
-    // Section 'triggers'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::TRIGGERS, triggers, ProcessTrigger);
-
-    // Section 'ropes'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::ROPES, ropes, ProcessRope);
+    PROCESS_ELEMENT(RigDef::Keyword::BEAMS, beams, ProcessBeam);
+    PROCESS_ELEMENT(RigDef::Keyword::SHOCKS, shocks, ProcessShock);
+    PROCESS_ELEMENT(RigDef::Keyword::SHOCKS2, shocks2, ProcessShock2);
+    PROCESS_ELEMENT(RigDef::Keyword::SHOCKS3, shocks3, ProcessShock3);
+    PROCESS_ELEMENT(RigDef::Keyword::COMMANDS2, commands2, ProcessCommand); // 'commands' are auto-imported as 'commands2'.
+    PROCESS_ELEMENT(RigDef::Keyword::HYDROS, hydros, ProcessHydro);
+    PROCESS_ELEMENT(RigDef::Keyword::TRIGGERS, triggers, ProcessTrigger);
+    PROCESS_ELEMENT(RigDef::Keyword::ROPES, ropes, ProcessRope);
 
     // ---------------------------- Other ----------------------------
 
-    // Section 'AntiLockBrakes' in any module.
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::ANTILOCKBRAKES, antilockbrakes, ProcessAntiLockBrakes);
-    
-    // Sections 'flares' and 'flares2'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::FLARES2, flares2, ProcessFlare2);
-
-    // Section 'axles'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::AXLES, axles, ProcessAxle);
-
-    // Section 'transfercase'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::TRANSFERCASE, transfercase, ProcessTransferCase);
-
-    // Section 'interaxles'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::INTERAXLES, interaxles, ProcessInterAxle);
-
-    // Section 'submeshes'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::SUBMESH, submeshes, ProcessSubmesh);
-
-    // Section 'contacters'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::CONTACTERS, contacters, ProcessContacter);
-
-    // Section 'cameras'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::CAMERAS, cameras, ProcessCamera);
-
-    // Section 'hooks'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::HOOKS, hooks, ProcessHook);	
-
-    // Section 'ties'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::TIES, ties, ProcessTie);
-
-    // Section 'ropables'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::ROPABLES, ropables, ProcessRopable);
-
-    // Section 'animators'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::ANIMATORS, animators, ProcessAnimator);
-
-    // Section 'fusedrag'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::FUSEDRAG, fusedrag, ProcessFusedrag);
-
-    // Section 'turbojets'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::TURBOJETS, turbojets, ProcessTurbojet);
+    PROCESS_ELEMENT(RigDef::Keyword::ANTILOCKBRAKES, antilockbrakes, ProcessAntiLockBrakes);
+    PROCESS_ELEMENT(RigDef::Keyword::FLARES2, flares2, ProcessFlare2);
+    PROCESS_ELEMENT(RigDef::Keyword::AXLES, axles, ProcessAxle);
+    PROCESS_ELEMENT(RigDef::Keyword::TRANSFERCASE, transfercase, ProcessTransferCase);
+    PROCESS_ELEMENT(RigDef::Keyword::INTERAXLES, interaxles, ProcessInterAxle);
+    PROCESS_ELEMENT(RigDef::Keyword::SUBMESH, submeshes, ProcessSubmesh);
+    PROCESS_ELEMENT(RigDef::Keyword::CONTACTERS, contacters, ProcessContacter);
+    PROCESS_ELEMENT(RigDef::Keyword::CAMERAS, cameras, ProcessCamera);
+    PROCESS_ELEMENT(RigDef::Keyword::HOOKS, hooks, ProcessHook);	
+    PROCESS_ELEMENT(RigDef::Keyword::TIES, ties, ProcessTie);
+    PROCESS_ELEMENT(RigDef::Keyword::ROPABLES, ropables, ProcessRopable);
+    PROCESS_ELEMENT(RigDef::Keyword::ANIMATORS, animators, ProcessAnimator);
+    PROCESS_ELEMENT(RigDef::Keyword::FUSEDRAG, fusedrag, ProcessFusedrag);
+    PROCESS_ELEMENT(RigDef::Keyword::TURBOJETS, turbojets, ProcessTurbojet);
 
     // Create the built-in "renderdash" material for use in meshes.
     // Must be done before 'props' are processed because those traditionally use it.
@@ -252,78 +154,35 @@ Actor *ActorSpawner::SpawnActor()
     m_oldstyle_renderdash = new RoR::Renderdash(
         m_custom_resource_group, this->ComposeName("RenderdashTex", 0), this->ComposeName("RenderdashCam", 0));
 
-    // Section 'props'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::PROPS, props, ProcessProp);
+    PROCESS_ELEMENT(RigDef::Keyword::PROPS, props, ProcessProp);
+    PROCESS_ELEMENT(RigDef::Keyword::TRACTIONCONTROL, tractioncontrol, ProcessTractionControl);
+    PROCESS_ELEMENT(RigDef::Keyword::ROTATORS, rotators, ProcessRotator);
+    PROCESS_ELEMENT(RigDef::Keyword::ROTATORS2, rotators2, ProcessRotator2);
+    PROCESS_ELEMENT(RigDef::Keyword::LOCKGROUPS, lockgroups, ProcessLockgroup);
+    PROCESS_ELEMENT(RigDef::Keyword::RAILGROUPS, railgroups, ProcessRailGroup);
+    PROCESS_ELEMENT(RigDef::Keyword::SLIDENODES, slidenodes, ProcessSlidenode);
+    PROCESS_ELEMENT(RigDef::Keyword::PARTICLES, particles, ProcessParticle);
+    PROCESS_ELEMENT(RigDef::Keyword::CRUISECONTROL, cruisecontrol, ProcessCruiseControl);
+    PROCESS_ELEMENT(RigDef::Keyword::SPEEDLIMITER, speedlimiter, ProcessSpeedLimiter);
+    PROCESS_ELEMENT(RigDef::Keyword::COLLISIONBOXES, collisionboxes, ProcessCollisionBox);
+    PROCESS_ELEMENT(RigDef::Keyword::EXHAUSTS, exhausts, ProcessExhaust);
+    PROCESS_ELEMENT(RigDef::Keyword::EXTCAMERA, extcamera, ProcessExtCamera);
+    PROCESS_ELEMENT(RigDef::Keyword::CAMERARAIL, camerarail, ProcessCameraRail);
+    PROCESS_ELEMENT(RigDef::Keyword::PISTONPROPS, pistonprops, ProcessPistonprop);
+    PROCESS_ELEMENT(RigDef::Keyword::TURBOPROPS2, turboprops2, ProcessTurboprop2); // 'turboprops' are auto-imported as 'turboprops2'.
+    PROCESS_ELEMENT(RigDef::Keyword::SCREWPROPS, screwprops, ProcessScrewprop);
+    PROCESS_ELEMENT(RigDef::Keyword::FIXES, fixes, ProcessFixedNode);
 
-    // Section 'TractionControl' in any module.
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::TRACTIONCONTROL, tractioncontrol, ProcessTractionControl);
+    this->CreateGfxActor(); // Required in elements below
 
-    // Section 'rotators'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::ROTATORS, rotators, ProcessRotator);
-
-    // Section 'rotators2'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::ROTATORS2, rotators2, ProcessRotator2);
-
-    // Section 'lockgroups'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::LOCKGROUPS, lockgroups, ProcessLockgroup);
-
-    // Section 'railgroups'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::RAILGROUPS, railgroups, ProcessRailGroup);
-
-    // Section 'slidenodes'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::SLIDENODES, slidenodes, ProcessSlidenode);
-
-    // Section 'particles'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::PARTICLES, particles, ProcessParticle);
-
-    // Section 'cruisecontrol' in any module.
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::CRUISECONTROL, cruisecontrol, ProcessCruiseControl);
-
-    // Section 'speedlimiter'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::SPEEDLIMITER, speedlimiter, ProcessSpeedLimiter);
-
-    // Section 'collisionboxes'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::COLLISIONBOXES, collisionboxes, ProcessCollisionBox);
-
-    // Section 'exhausts'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::EXHAUSTS, exhausts, ProcessExhaust);
-
-    // Section 'extcamera'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::EXTCAMERA, extcamera, ProcessExtCamera);
-
-    // Section 'camerarail'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::CAMERARAIL, camerarail, ProcessCameraRail);
-
-    // Section 'pistonprops'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::PISTONPROPS, pistonprops, ProcessPistonprop);
-
-    // Sections 'turboprops' and 'turboprops2'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::TURBOPROPS2, turboprops2, ProcessTurboprop2);
-
-    // Section 'screwprops'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::SCREWPROPS, screwprops, ProcessScrewprop);
-
-    // Section 'fixes'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::FIXES, fixes, ProcessFixedNode);
-
-    this->CreateGfxActor(); // Required in sections below
-
-    // Section 'flexbodies' (Uses generated nodes; needs GfxActor to exist)
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::FLEXBODIES, flexbodies, ProcessFlexbody);
-
-    // Section 'wings' (needs GfxActor to exist)
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::WINGS, wings, ProcessWing);
-
-    // Section 'airbrakes' (needs GfxActor to exist)
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::AIRBRAKES, airbrakes, ProcessAirbrake);
+    PROCESS_ELEMENT(RigDef::Keyword::FLEXBODIES, flexbodies, ProcessFlexbody); // (needs GfxActor to exist)
+    PROCESS_ELEMENT(RigDef::Keyword::WINGS, wings, ProcessWing); // (needs GfxActor to exist)
+    PROCESS_ELEMENT(RigDef::Keyword::AIRBRAKES, airbrakes, ProcessAirbrake); // (needs GfxActor to exist)
 
 #ifdef USE_OPENAL
 
-    // Section 'soundsources'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::SOUNDSOURCES, soundsources, ProcessSoundSource);
-
-    // Section 'soundsources2'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::SOUNDSOURCES2, soundsources2, ProcessSoundSource2);
+    PROCESS_ELEMENT(RigDef::Keyword::SOUNDSOURCES, soundsources, ProcessSoundSource);
+    PROCESS_ELEMENT(RigDef::Keyword::SOUNDSOURCES2, soundsources2, ProcessSoundSource2);
 
 #endif // USE_OPENAL
 
