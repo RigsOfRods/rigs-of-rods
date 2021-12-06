@@ -203,6 +203,7 @@ private:
         Ogre::SceneNode*               mirror_prop_scenenode;
     };
 
+    // TODO: This "ticket system" is a joke - remove it until resource loading is actually async!
     struct BeamVisualsTicket //!< Visuals are queued for processing using this struct
     {
         BeamVisualsTicket(int idx, float diam, const char* mtr=nullptr, bool vis=true):
@@ -215,6 +216,7 @@ private:
         bool visible; // Some beams are spawned as hidden (ties, hooks) and displayed only when activated
     };
 
+    // TODO: This "ticket system" is a joke - remove it until resource loading is actually async!
     struct WheelVisualsTicket //!< Wheel visuals are queued for processing using this struct
     {
         WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::Wheel* def):
@@ -229,7 +231,12 @@ private:
 
         WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::MeshWheel* def, uint16_t axis1, uint16_t axis2):
             wheel_index(wheel_idx), base_node_index(node_idx),
-            wheel_def(nullptr), wheel2_def(nullptr), meshwheel_def(def), flexbodywheel_def(nullptr),
+            wheel_def(nullptr), wheel2_def(nullptr), meshwheel_def(def), meshwheel2_def(nullptr), flexbodywheel_def(nullptr),
+            axis_node_1(axis1), axis_node_2(axis2)
+        {}
+        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::MeshWheel2* def, uint16_t axis1, uint16_t axis2):
+            wheel_index(wheel_idx), base_node_index(node_idx),
+            wheel_def(nullptr), wheel2_def(nullptr), meshwheel_def(nullptr), meshwheel2_def(def), flexbodywheel_def(nullptr),
             axis_node_1(axis1), axis_node_2(axis2)
         {}
 
@@ -242,6 +249,7 @@ private:
         RigDef::Wheel*         wheel_def;
         RigDef::Wheel2*        wheel2_def;
         RigDef::MeshWheel*     meshwheel_def;
+        RigDef::MeshWheel2*    meshwheel2_def;
         RigDef::FlexBodyWheel* flexbodywheel_def;
 
         uint16_t               wheel_index;
@@ -416,12 +424,12 @@ private:
     /**
     * Section 'meshwheels'.
     */
-    void ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def);
+    void ProcessMeshWheel(RigDef::MeshWheel & def);
 
     /**
     * Section 'meshwheels2'.
     */
-    void ProcessMeshWheel2(RigDef::MeshWheel & def);
+    void ProcessMeshWheel2(RigDef::MeshWheel2 & def);
 
     /**
     * Section 'minimass'.

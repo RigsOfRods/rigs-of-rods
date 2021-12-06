@@ -160,23 +160,11 @@ Actor *ActorSpawner::SpawnActor()
     // Section 'wheels2'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::WHEELS2, wheels2, ProcessWheel2);
 
-    // Sections 'meshwheels' and 'meshwheels2'
-    for (auto& m : m_selected_modules)
-    {
-        for (auto& def : m->mesh_wheels)
-        {
-            if (def._is_meshwheel2)
-            {
-                this->SetCurrentKeyword(RigDef::Keyword::MESHWHEELS2);
-                this->ProcessMeshWheel2(def);
-            }
-            else
-            {
-                this->SetCurrentKeyword(RigDef::Keyword::MESHWHEELS);
-                this->ProcessMeshWheel(def);
-            }
-        }
-    }
+    // Section 'meshwheels'
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::MESHWHEELS, meshwheels, ProcessMeshWheel);
+
+    // Section 'meshwheels2'
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::MESHWHEELS2, meshwheels2, ProcessMeshWheel2);
 
     // Section 'flexbodywheels'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::Keyword::FLEXBODYWHEELS, flexbodywheels, ProcessFlexBodyWheel);

@@ -147,7 +147,8 @@ private:
     void ParseLockgroups();
     void ParseManagedMaterials();
     void ParseMaterialFlareBindings();
-    void ParseMeshWheelUnified();
+    void ParseMeshWheel();
+    void ParseMeshWheel2();
     void ParseMinimass();
     void ParseNodesUnified();
     void ParseParticles();
@@ -236,6 +237,7 @@ private:
     Node::Ref _ParseNodeRef(std::string const & node_id_str);
     void _ParseCameraSettings(CameraSettings & camera_settings, Ogre::String input_str);
     void _ParseDifferentialTypes(DifferentialTypeVec& diff_types, std::string const& options_str);
+    void _ParseBaseMeshWheel(BaseMeshWheel& mesh_wheel);
 
     void ParseOptionalInertia(Inertia& inertia, int index);
 

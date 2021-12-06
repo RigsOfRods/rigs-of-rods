@@ -95,7 +95,8 @@ void Serializer::Serialize()
     ProcessFixes(source_module);
 
     // Wheels
-    ProcessMeshWheels(source_module); // And meshwheels2
+    ProcessMeshWheels(source_module);
+    ProcessMeshWheels2(source_module);
     ProcessWheels(source_module);
     ProcessWheels2(source_module);
     ProcessFlexBodyWheels(source_module);
@@ -1635,35 +1636,51 @@ void Serializer::ProcessWheels(File::Module* module)
     m_stream << endl; // Empty line
 }
 
+void Serializer::ExportBaseMeshWheel(BaseMeshWheel& def)
+{
+    m_stream << "\t"
+    << setw(m_float_width)   << def.tyre_radius                   << ", "
+    << setw(m_float_width)   << def.rim_radius                    << ", "
+    << setw(m_float_width)   << def.width                         << ", "
+    << setw(3)               << def.num_rays                      << ", "
+    << setw(m_node_id_width) << def.nodes[0].ToString()           << ", "
+    << setw(m_node_id_width) << def.nodes[1].ToString()           << ", "
+    << setw(m_node_id_width) << def.rigidity_node.ToString()      << ", "
+    << setw(3)               << (int)def.braking                  << ", "
+    << setw(3)               << (int)def.propulsion               << ", "
+    << setw(m_node_id_width) << def.reference_arm_node.ToString() << ", "
+    << setw(m_float_width)   << def.mass                          << ", "
+    << setw(m_float_width)   << def.spring                        << ", "
+    << setw(m_float_width)   << def.damping                       << ", "
+                                << (static_cast<char>(def.side))     << ", "
+                                << def.mesh_name                     << " " // Separator = space!
+                                << def.material_name;
+    m_stream << endl;    
+}
+
 void Serializer::ProcessMeshWheels(File::Module* module)
 {
-    if (module->mesh_wheels.empty()) { return; }
+    if (module->meshwheels.empty()) { return; }
 
-    for (int i = 1; i <= 2; ++i)
+    m_stream << "meshwheels" << "\n\n";
+
+    for (MeshWheel& def: module->meshwheels)
     {
-        m_stream << "meshwheels" << ((i == 2) ? "2" : "") << "\n\n";
-        auto end_itor = module->mesh_wheels.end();
-        for (auto itor = module->mesh_wheels.begin(); itor != end_itor; ++itor)
-        {
-            m_stream << "\t"
-            << setw(m_float_width)   << itor->tyre_radius                   << ", "
-            << setw(m_float_width)   << itor->rim_radius                    << ", "
-            << setw(m_float_width)   << itor->width                         << ", "
-            << setw(3)               << itor->num_rays                      << ", "
-            << setw(m_node_id_width) << itor->nodes[0].ToString()           << ", "
-            << setw(m_node_id_width) << itor->nodes[1].ToString()           << ", "
-            << setw(m_node_id_width) << itor->rigidity_node.ToString()      << ", "
-            << setw(3)               << (int)itor->braking                  << ", "
-            << setw(3)               << (int)itor->propulsion               << ", "
-            << setw(m_node_id_width) << itor->reference_arm_node.ToString() << ", "
-            << setw(m_float_width)   << itor->mass                          << ", "
-            << setw(m_float_width)   << itor->spring                        << ", "
-            << setw(m_float_width)   << itor->damping                       << ", "
-                                     << (static_cast<char>(itor->side))     << ", "
-                                     << itor->mesh_name                     << " " // Separator = space!
-                                     << itor->material_name;
-            m_stream << endl;
-        }
+        this->ExportBaseMeshWheel(def);
+    }
+
+    m_stream << endl; // Empty line
+}
+
+void Serializer::ProcessMeshWheels2(File::Module* module)
+{
+    if (module->meshwheels2.empty()) { return; }
+
+    m_stream << "meshwheels2" << "\n\n";
+
+    for (MeshWheel2& def: module->meshwheels2)
+    {
+        this->ExportBaseMeshWheel(def);
     }
 
     m_stream << endl; // Empty line
