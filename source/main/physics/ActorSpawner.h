@@ -82,15 +82,13 @@ public:
 
     struct ActorMemoryRequirements
     {
-        ActorMemoryRequirements() { memset(this,0, sizeof(ActorMemoryRequirements)); }
-
-        size_t num_nodes;
-        size_t num_beams;
-        size_t num_shocks;
-        size_t num_rotators;
-        size_t num_wings;
-        size_t num_airbrakes;
-        size_t num_fixes;
+        size_t num_nodes     = 0;
+        size_t num_beams     = 0;
+        size_t num_shocks    = 0;
+        size_t num_rotators  = 0;
+        size_t num_wings     = 0;
+        size_t num_airbrakes = 0;
+        size_t num_fixes     = 0;
         // ... more to come ...
     };
 
@@ -263,304 +261,71 @@ private:
 /* NOTE: Please maintain alphabetical order.                                  */
 /* -------------------------------------------------------------------------- */
 
-    /**
-    * Section 'airbrakes'.
-    */
     void ProcessAirbrake(RigDef::Airbrake & def);
-
-    /**
-    * Section 'animators'.
-    */
     void ProcessAnimator(RigDef::Animator & def);
-
-    /**
-    * Section 'AntiLockBrakes'.
-    */
     void ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def);
-
-    /**
-    * Section 'author' in root module.
-    */
     void ProcessAuthor(RigDef::Author & def);
-
-    /**
-    * Section 'axles'.
-    */
     void ProcessAxle(RigDef::Axle & def);
-
-    /**
-    * Section 'beams'. Depends on 'nodes'
-    */
     void ProcessBeam(RigDef::Beam & def);
-
-    /**
-    * Section 'brakes' in any module.
-    */
     void ProcessBrakes(RigDef::Brakes & def);
-
-    /**
-    * Section 'camerarail', depends on 'nodes'.
-    */
     void ProcessCameraRail(RigDef::CameraRail & def);
-
-    /**
-    * Section 'cameras', depends on 'nodes'.
-    */
     void ProcessCamera(RigDef::Camera & def);
-
-    /**
-    * Section 'cinecam', depends on 'nodes'.
-    */
     void ProcessCinecam(RigDef::Cinecam & def);
-
-    /**
-    * Section 'collisionboxes'
-    */
     void ProcessCollisionBox(RigDef::CollisionBox & def);
-
     void ProcessCollisionRange(RigDef::CollisionRange & def);
-
-    /**
-    * Processes sections 'commands' and 'commands2' (unified).
-    */
     void ProcessCommand(RigDef::Command2 & def);
-
-    /**
-    * Section 'contacters'.
-    */
     void ProcessContacter(RigDef::Node::Ref & node_ref);
-
-    /**
-    * Section 'cruisecontrol' in any module.
-    */
     void ProcessCruiseControl(RigDef::CruiseControl & def);
-
     void ProcessDescription(Ogre::String const& line);
-
-    /**
-    * Section 'engine' in any module.
-    */
     void ProcessEngine(RigDef::Engine & def);
-
-    /**
-    * Section 'engoption' in any module.
-    */ 
     void ProcessEngoption(RigDef::Engoption & def);
-
-    /**
-    * Section 'engturbo' in any module.
-    */
     void ProcessEngturbo(RigDef::Engturbo & def);
-
-    /**
-    * Section 'exhausts'.
-    */
     void ProcessExhaust(RigDef::Exhaust & def);
-
-    /**
-    * Inline-section 'extcamera'.
-    */
     void ProcessExtCamera(RigDef::ExtCamera & def);
-
-    /**
-    * Section 'fixes'
-    */
-    void ProcessFixedNode(RigDef::Node::Ref node_ref);
-
-    /**
-    * Sections 'flares' and 'flares2'.
-    */
+    void ProcessFixedNode(RigDef::Node::Ref node_ref); // 'fixes'
     void ProcessFlare2(RigDef::Flare2 & def);
-
-    /**
-    * Section 'flexbodies'.
-    */
     void ProcessFlexbody(RigDef::Flexbody& def);
-
-    /**
-    * Section 'flexbodywheels'.
-    */
     void ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def);
-
-    /**
-    * Section 'fusedrag'.
-    */
     void ProcessFusedrag(RigDef::Fusedrag & def);
-
-    /**
-    * Section 'gobals' in any module
-    */
     void ProcessGlobals(RigDef::Globals & def);
-
-    /**
-    * Section 'guisettings'.
-    */
     void ProcessGuiSettings(RigDef::GuiSettings & def);
-
     void ProcessHelp(RigDef::Help & def);
-
-    /**
-    * Depends on 'nodes'
-    */
     void ProcessHook(RigDef::Hook & def);
-
     void ProcessHydro(RigDef::Hydro & def);
-
-    /**
-    * Section 'interaxles'.
-    */
     void ProcessInterAxle(RigDef::InterAxle & def);
-
-    /**
-    * Depends on section 'nodes'
-    */
     void ProcessLockgroup(RigDef::Lockgroup & lockgroup);
-
-    /**
-    * Section 'managedmaterials'
-    */
     void ProcessManagedMaterial(RigDef::ManagedMaterial & def);
-
-    /**
-    * Section 'meshwheels'.
-    */
     void ProcessMeshWheel(RigDef::MeshWheel & def);
-
-    /**
-    * Section 'meshwheels2'.
-    */
     void ProcessMeshWheel2(RigDef::MeshWheel2 & def);
-
-    /**
-    * Section 'minimass'.
-    */
     void ProcessMinimass(RigDef::Minimass & def);
-
     void ProcessNode(RigDef::Node & def);
-
-    /**
-    * Section 'particles'.
-    */
     void ProcessParticle(RigDef::Particle & def);
-
-    /**
-    * Section 'pistonprops'.
-    */
     void ProcessPistonprop(RigDef::Pistonprop & def);
-
-    /**
-    * Section 'props'.
-    */
     void ProcessProp(RigDef::Prop & def);
-
-    /**
-    * Section 'railgroups'.
-    */
     void ProcessRailGroup(RigDef::RailGroup & def);
-
-    /**
-    * Section 'ropables'.
-    */
     void ProcessRopable(RigDef::Ropable & def);
-
-    /**
-    * Section 'ropes'.
-    */
     void ProcessRope(RigDef::Rope & def);
-
     void ProcessRotator(RigDef::Rotator & def);
-
     void ProcessRotator2(RigDef::Rotator2 & def);
-
     void ProcessScrewprop(RigDef::Screwprop & def);
-
-    /**
-    * Section 'shocks'.
-    */
     void ProcessShock(RigDef::Shock & def);
-
-    /**
-    * Add a shock absorber (section 'shocks2') to the rig.
-    */
     void ProcessShock2(RigDef::Shock2 & def);
-
-    /**
-    * Add a shock absorber (section 'shocks3') to the rig.
-    */
     void ProcessShock3(RigDef::Shock3 & def);
-
-    /**
-    * Section 'slidenodes'. Depends on 'railgroups'
-    */
     void ProcessSlidenode(RigDef::SlideNode & def);
-
-    /**
-    * Section 'soundsources'.
-    */
     void ProcessSoundSource(RigDef::SoundSource & def);
-
-    /**
-    * Section 'soundsources2'.
-    */
     void ProcessSoundSource2(RigDef::SoundSource2 & def); 
-
     void ProcessSpeedLimiter(RigDef::SpeedLimiter& def);
-
-    /**
-    * Section 'submeshes'.
-    */
     void ProcessSubmesh(RigDef::Submesh & def);
-
-    /**
-    * Section 'ties'.
-    */
     void ProcessTie(RigDef::Tie & def);
-
-    /**
-    * Section 'torquecurve' in any module. Depends on 'engine'.
-    */
     void ProcessTorqueCurve(RigDef::TorqueCurve & def);
-
-    /**
-    * Section 'TractionControl' in any module.
-    */
     void ProcessTractionControl(RigDef::TractionControl & def);
-
-    /**
-    * Section 'transfercase'.
-    */
     void ProcessTransferCase(RigDef::TransferCase & def);
-
     void ProcessTrigger(RigDef::Trigger & def);
-
     void ProcessTurbojet(RigDef::Turbojet & def);
-
-    /**
-    * Sections 'turboprops' and 'turboprops2'
-    */
     void ProcessTurboprop2(RigDef::Turboprop2 & def);
-
-    /**
-    * Section 'wheeldetachers' in all modules.
-    */
     void ProcessWheelDetacher(RigDef::WheelDetacher & def);
-
-    /**
-    * Section 'wheels' in all modules.
-    */
     void ProcessWheel(RigDef::Wheel & def);
-
-    /**
-    * Section 'wheels2' in all modules.
-    * @author Pierre-Michel Ricordel
-    * @author Thomas Fischer
-    */
     void ProcessWheel2(RigDef::Wheel2 & def);
-
-    /**
-    * Section 'wings'.
-    * @author 
-    */
     void ProcessWing(RigDef::Wing & def);
 
 /* -------------------------------------------------------------------------- */
@@ -615,67 +380,14 @@ private:
 /* Limits.                                                                    */
 /* -------------------------------------------------------------------------- */
 
-    /**
-    * Checks there is still space left in rig_t::ar_custom_particles array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
     bool CheckParticleLimit(unsigned int count);
-    
-    /**
-    * Checks there is still space left in rig_t::axles array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
     bool CheckAxleLimit(unsigned int count);
-
-    /**
-    * Checks there is still space left in rig_t::subtexcoords, rig_t::subcabs and rig_t::subisback arrays.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
     bool CheckSubmeshLimit(unsigned int count);
-
-    /**
-    * Checks there is still space left in rig_t::texcoords array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
     bool CheckTexcoordLimit(unsigned int count);
-
-    /**
-    * Checks there is still space left in rig_t::cabs array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
     bool CheckCabLimit(unsigned int count);
-
-    /**
-    * Checks there is still space left in rig_t::ar_camera_rail array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
     bool CheckCameraRailLimit(unsigned int count);
-
-    /**
-    * Checks there is still space left in rig_t::soundsources array (static version).
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
     static bool CheckSoundScriptLimit(Actor *vehicle, unsigned int count);
-
-    /**
-    * Checks there is still space left in rig_t::aeroengines array.
-    * @param count Required number of free slots.
-    * @return True if there is enough space left.
-    */
     bool CheckAeroEngineLimit(unsigned int count);
-
-    /**
-    * Checks there is still space left in rig_t::screwprops array.
-    * @param count Required number of free slots.
-    * @return True if there is enough space left.
-    */
     bool CheckScrewpropLimit(unsigned int count);
 
 /* -------------------------------------------------------------------------- */
