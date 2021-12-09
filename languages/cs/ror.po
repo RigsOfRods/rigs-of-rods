@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-23 16:29+0200\n"
+"POT-Creation-Date: 2021-12-05 16:27+0100\n"
 "PO-Revision-Date: 2021-11-15 03:49+0000\n"
 "Last-Translator: Lukáš Zuzaňák <lukas@zuzanak.eu>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/rigs-of-rods/game/"
@@ -56,47 +56,47 @@ msgid "Faulty resource folder. Check if correctly installed."
 msgstr ""
 "Chybná složka 'resources'. Zkontrolujte jestli je správně nainstalována."
 
-#: GameContext.cpp:102
+#: GameContext.cpp:104
 msgid "Terrain not found: "
 msgstr "Terén nenalezen: "
 
-#: GameContext.cpp:104 terrain/TerrainManager.cpp:142
+#: GameContext.cpp:106 terrain/TerrainManager.cpp:142
 msgid "Terrain loading error"
 msgstr "Nelze načíst terén"
 
-#: GameContext.cpp:551
+#: GameContext.cpp:559
 msgid "Please clear the place first"
 msgstr "Prosím nejdříve uvolněte prostor"
 
-#: GameContext.cpp:832
+#: GameContext.cpp:849
 msgid "Enabled hard reset mode"
 msgstr "Zapnut režim tvrdého resetu"
 
-#: GameContext.cpp:832
+#: GameContext.cpp:849
 msgid "Enabled soft reset mode"
 msgstr "Zapnut režim měkkého resetu"
 
-#: GameContext.cpp:985
+#: GameContext.cpp:1006
 msgid "Time set to "
 msgstr "Čas nastaven na "
 
-#: GameContext.cpp:1127
+#: GameContext.cpp:1148
 msgid "No rescue truck found!"
 msgstr "Žádné vyprošťovací vozidlo nenalezeno!"
 
-#: GameContext.cpp:1195
+#: GameContext.cpp:1216
 msgid "forwardcommands enabled"
 msgstr "forwardcommands povoleny"
 
-#: GameContext.cpp:1199
+#: GameContext.cpp:1220
 msgid "forwardcommands disabled"
 msgstr "forwardcommands zakázány"
 
-#: GameContext.cpp:1208
+#: GameContext.cpp:1229
 msgid "importcommands enabled"
 msgstr "importcommands povoleny"
 
-#: GameContext.cpp:1212
+#: GameContext.cpp:1233
 msgid "importcommands disabled"
 msgstr "importcommands zakázány"
 
@@ -208,57 +208,57 @@ msgstr "Kostry: "
 msgid "Memory (Ogre): "
 msgstr "Paměť (Ogre): "
 
-#: gui/panels/GUI_ConsoleView.cpp:229
+#: gui/panels/GUI_ConsoleView.cpp:233
 msgctxt "Console"
 msgid "By area:"
 msgstr "Podle oblasti:"
 
-#: gui/panels/GUI_ConsoleView.cpp:230
+#: gui/panels/GUI_ConsoleView.cpp:234
 msgctxt "Console"
 msgid "Logfile echo"
 msgstr "Propisovat log"
 
-#: gui/panels/GUI_ConsoleView.cpp:231
+#: gui/panels/GUI_ConsoleView.cpp:235
 msgctxt "Console"
 msgid "Scripting"
 msgstr "Skriptování"
 
-#: gui/panels/GUI_ConsoleView.cpp:232
+#: gui/panels/GUI_ConsoleView.cpp:236
 msgctxt "Console"
 msgid "Actors"
 msgstr "Aktoři"
 
-#: gui/panels/GUI_ConsoleView.cpp:233
+#: gui/panels/GUI_ConsoleView.cpp:237
 msgctxt "Console"
 msgid "Terrain"
 msgstr "Terén"
 
-#: gui/panels/GUI_ConsoleView.cpp:236
+#: gui/panels/GUI_ConsoleView.cpp:240
 msgctxt "Console"
 msgid "By level:"
 msgstr "Podle úrovně:"
 
-#: gui/panels/GUI_ConsoleView.cpp:237
+#: gui/panels/GUI_ConsoleView.cpp:241
 msgctxt "Console"
 msgid "Notices"
 msgstr "Oznámení"
 
-#: gui/panels/GUI_ConsoleView.cpp:238
+#: gui/panels/GUI_ConsoleView.cpp:242
 msgctxt "Console"
 msgid "Warnings"
 msgstr "Varování"
 
-#: gui/panels/GUI_ConsoleView.cpp:239
+#: gui/panels/GUI_ConsoleView.cpp:243
 msgctxt "Console"
 msgid "Errors"
 msgstr "Chyby"
 
-#: gui/panels/GUI_ConsoleView.cpp:240
+#: gui/panels/GUI_ConsoleView.cpp:244
 msgctxt "Console"
 msgid "Net chat"
 msgstr "Síťový chat"
 
-#: gui/panels/GUI_ConsoleView.cpp:241 gui/panels/GUI_ConsoleWindow.cpp:52
+#: gui/panels/GUI_ConsoleView.cpp:245 gui/panels/GUI_ConsoleWindow.cpp:52
 msgctxt "Console"
 msgid "Commands"
 msgstr "Příkazy"
@@ -272,11 +272,6 @@ msgstr "Možnosti filtrování"
 msgctxt "Console"
 msgid "Command"
 msgstr "Příkaz"
-
-#: gui/panels/GUI_DirectionArrow.cpp:91
-msgctxt "DirectionArrow"
-msgid "meter"
-msgstr "metr"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
 msgctxt "FrictionSettings"
@@ -643,148 +638,177 @@ msgctxt "About"
 msgid "Used Libs"
 msgstr "Použité knihovny"
 
-#: gui/panels/GUI_GameChatBox.cpp:78
+#: gui/panels/GUI_GameChatBox.cpp:80
+#, fuzzy
+#| msgctxt "TopMenubar"
+#| msgid "Reload last spawned vehicle"
 msgctxt "ChatBox"
-msgid "Welcome to Rigs of Rods!"
-msgstr "Vítejte v Rigs of Rods!"
+msgid "Press {} to spawn a vehicle"
+msgstr "Znovu nahrát naposled přidané vozidlo"
 
-#: gui/panels/GUI_GameChatBox.cpp:139
+#: gui/panels/GUI_GameChatBox.cpp:142
 msgctxt "ChatBox"
 msgid "Chat history (use mouse wheel to scroll)"
 msgstr "Historie chatu (rolovat můžete kolečkem myši)"
 
-#: gui/panels/GUI_GameChatBox.cpp:140
+#: gui/panels/GUI_GameChatBox.cpp:143
 msgctxt "ChatBox"
 msgid "Message"
 msgstr "Zpráva"
 
-#: gui/panels/GUI_GameChatBox.cpp:188
+#: gui/panels/GUI_GameChatBox.cpp:191
 msgctxt "ChatBox"
 msgid "Whisper message not sent, unknown username: {}"
 msgstr "Zpráva šeptem neodeslána, neznámý uživatel: {}"
 
-#: gui/panels/GUI_GameChatBox.cpp:195
+#: gui/panels/GUI_GameChatBox.cpp:198
 msgctxt "ChatBox"
 msgid "usage: /whisper username message"
 msgstr "použití: /whisper jmenouzivatele Text zprávy"
 
-#: gui/panels/GUI_GameControls.cpp:36
+#: gui/panels/GUI_GameControls.cpp:64
+msgctxt "GameControls"
+msgid "Press a new key"
+msgstr ""
+
+#: gui/panels/GUI_GameControls.cpp:73
+msgctxt "GameControls"
+msgid "EXPL"
+msgstr ""
+
+#: gui/panels/GUI_GameControls.cpp:82
+msgctxt "GameControls"
+msgid ""
+"With EXPL tag, only exactly matching key combos will be triggered.\n"
+"Without it, partial matches will trigger, too."
+msgstr ""
+
+#: gui/panels/GUI_GameControls.cpp:86
+msgctxt "GameControls"
+msgid ""
+"Example: Pressing CTRL+F1 will trigger COMMANDS_03 and COMMANDS_01\n"
+"but not COMMANDS_02 which has EXPL tag."
+msgstr ""
+
+#: gui/panels/GUI_GameControls.cpp:107
 msgctxt "GameControls"
 msgid "Game Controls"
 msgstr "Ovládání hry"
 
-#: gui/panels/GUI_GameControls.cpp:47
+#: gui/panels/GUI_GameControls.cpp:115
+#, fuzzy
+#| msgctxt "TopMenubar"
+#| msgid "Savegames"
 msgctxt "GameControls"
-msgid "Airplane"
-msgstr "Letadlo"
+msgid "Save changes"
+msgstr "Uložené hry"
 
-#: gui/panels/GUI_GameControls.cpp:49
+#: gui/panels/GUI_GameControls.cpp:120
+#, fuzzy
+#| msgctxt "NodeBeamUtils"
+#| msgid "Reset search"
 msgctxt "GameControls"
-msgid "Boat"
-msgstr "Loď"
+msgid "Reset changes"
+msgstr "Resetovat hledání"
 
-#: gui/panels/GUI_GameControls.cpp:51
-msgctxt "GameControls"
-msgid "Camera"
-msgstr "Kamera"
+#. Device type selector
+#. - General BeginCombo() API, you have full control over your selection data and display type.
+#: gui/panels/GUI_GameControls.cpp:213
+msgctxt "GameSettings"
+msgid "EventType"
+msgstr ""
 
-#: gui/panels/GUI_GameControls.cpp:53
-msgctxt "GameControls"
-msgid "Sky"
-msgstr "Nebe"
+#. Buttons
+#: gui/panels/GUI_GameControls.cpp:258
+#, fuzzy
+#| msgctxt "MainSelector"
+#| msgid "OK"
+msgctxt "GameSettings"
+msgid "OK"
+msgstr "OK"
 
-#: gui/panels/GUI_GameControls.cpp:55
-msgctxt "GameControls"
-msgid "Character"
-msgstr "Postava"
+#: gui/panels/GUI_GameControls.cpp:263
+#, fuzzy
+#| msgctxt "MainSelector"
+#| msgid "Cancel"
+msgctxt "GameSettings"
+msgid "Cancel"
+msgstr "Storno"
 
-#: gui/panels/GUI_GameControls.cpp:57
-msgctxt "GameControls"
-msgid "Commands"
-msgstr "Příkazy"
+#: gui/panels/GUI_GameControls.cpp:268
+msgctxt "GameSettings"
+msgid "Delete"
+msgstr ""
 
-#: gui/panels/GUI_GameControls.cpp:59
-msgctxt "GameControls"
-msgid "Common"
-msgstr "Společné"
+#: gui/panels/GUI_GameControls.cpp:398
+msgctxt "GameSettings"
+msgid "<All active values>"
+msgstr ""
 
-#: gui/panels/GUI_GameControls.cpp:61
-msgctxt "GameControls"
-msgid "Grass"
-msgstr "Tráva"
-
-#: gui/panels/GUI_GameControls.cpp:63
-msgctxt "GameControls"
-msgid "Map"
-msgstr "Mapa"
-
-#: gui/panels/GUI_GameControls.cpp:65
-msgctxt "GameControls"
-msgid "Menu"
-msgstr "Nabídka"
-
-#: gui/panels/GUI_GameControls.cpp:67
-msgctxt "GameControls"
-msgid "Truck"
-msgstr "Vozidlo"
-
-#: gui/panels/GUI_GameMainMenu.cpp:131
+#: gui/panels/GUI_GameMainMenu.cpp:127
 msgctxt "MainMenu"
 msgid "Single player"
 msgstr "Jeden hráč"
 
-#: gui/panels/GUI_GameMainMenu.cpp:141 gui/panels/GUI_GameMainMenu.cpp:150
+#: gui/panels/GUI_GameMainMenu.cpp:137 gui/panels/GUI_GameMainMenu.cpp:146
 msgctxt "MainMenu"
 msgid "Resume game"
 msgstr "Pokračovat ve hře"
 
-#: gui/panels/GUI_GameMainMenu.cpp:159
+#: gui/panels/GUI_GameMainMenu.cpp:155
 msgctxt "MainMenu"
 msgid "Multiplayer"
 msgstr "Více hráčů"
 
-#: gui/panels/GUI_GameMainMenu.cpp:165
+#: gui/panels/GUI_GameMainMenu.cpp:161
 msgctxt "MainMenu"
 msgid "Settings"
 msgstr "Nastavení"
 
-#: gui/panels/GUI_GameMainMenu.cpp:171
+#: gui/panels/GUI_GameMainMenu.cpp:167 gui/panels/GUI_GameMainMenu.cpp:181
+#, fuzzy
+#| msgid "Controls"
+msgctxt "MainMenu"
+msgid "Controls"
+msgstr "Ovládací prvky"
+
+#: gui/panels/GUI_GameMainMenu.cpp:173
 msgctxt "MainMenu"
 msgid "About"
 msgstr "O programu"
 
-#: gui/panels/GUI_GameMainMenu.cpp:179
+#: gui/panels/GUI_GameMainMenu.cpp:187
 msgid "Return to menu"
 msgstr "Návrat do menu"
 
-#: gui/panels/GUI_GameMainMenu.cpp:190
+#: gui/panels/GUI_GameMainMenu.cpp:198
 msgctxt "MainMenu"
 msgid "Exit game"
 msgstr "Ukončit hru"
 
-#: gui/panels/GUI_GameMainMenu.cpp:221 gui/panels/GUI_GameMainMenu.cpp:249
+#: gui/panels/GUI_GameMainMenu.cpp:236 gui/panels/GUI_GameMainMenu.cpp:264
 msgctxt "MainMenu"
 msgid "Game version"
 msgstr "Verze hry"
 
 #. needed to align with VersionBox
-#: gui/panels/GUI_GameMainMenu.cpp:222 gui/panels/GUI_GameMainMenu.cpp:250
+#: gui/panels/GUI_GameMainMenu.cpp:237 gui/panels/GUI_GameMainMenu.cpp:265
 msgctxt "MainMenu"
 msgid "Net. protocol"
 msgstr "Síť. protokol"
 
-#: gui/panels/GUI_GameMainMenu.cpp:235
+#: gui/panels/GUI_GameMainMenu.cpp:250
 msgctxt "MainMenu"
 msgid "Version box"
 msgstr "Rámeček s verzí"
 
 #. needed to align with VersionBox
-#: gui/panels/GUI_GameMainMenu.cpp:251
+#: gui/panels/GUI_GameMainMenu.cpp:266
 msgctxt "MainMenu"
 msgid "Cache updated"
 msgstr "Cache aktualizována"
 
-#: gui/panels/GUI_GameMainMenu.cpp:264
+#: gui/panels/GUI_GameMainMenu.cpp:279
 msgctxt "MainMenu"
 msgid "Notice box"
 msgstr "Oznámení"
@@ -795,7 +819,7 @@ msgid "Game settings"
 msgstr "Nastavení hry"
 
 #. Combobox for selecting the Render System
-#: gui/panels/GUI_GameSettings.cpp:49 gui/panels/GUI_GameSettings.cpp:127
+#: gui/panels/GUI_GameSettings.cpp:49 gui/panels/GUI_GameSettings.cpp:126
 msgctxt "GameSettings"
 msgid "Render System"
 msgstr "Renderovací systém"
@@ -830,276 +854,276 @@ msgctxt "GameSettings"
 msgid "Diagnostic"
 msgstr "Diagnostika"
 
-#: gui/panels/GUI_GameSettings.cpp:113
+#: gui/panels/GUI_GameSettings.cpp:112
 msgctxt "GameSettings"
 msgid "Render system (changes require a restart)"
 msgstr "Zobraz. systém (změna vyžaduje restart)"
 
-#: gui/panels/GUI_GameSettings.cpp:165
+#: gui/panels/GUI_GameSettings.cpp:164
 msgctxt "GameSettings"
 msgid "Application settings"
 msgstr "Nastavení aplikace"
 
-#: gui/panels/GUI_GameSettings.cpp:177
+#: gui/panels/GUI_GameSettings.cpp:176
 msgctxt "GameSettings"
 msgid "Language"
 msgstr "Jazyk"
 
-#: gui/panels/GUI_GameSettings.cpp:208
+#: gui/panels/GUI_GameSettings.cpp:207
 msgctxt "GameSettings"
 msgid "Country"
 msgstr "Země"
 
 #. Hardcoded; TODO: list available formats.
 #. Screenshot format: Can be png or jpg
-#: gui/panels/GUI_GameSettings.cpp:217
+#: gui/panels/GUI_GameSettings.cpp:216
 msgctxt "GameSettings"
 msgid "Screenshot format"
 msgstr "Formát screenshotu"
 
-#: gui/panels/GUI_GameSettings.cpp:223
+#: gui/panels/GUI_GameSettings.cpp:222
 msgctxt "GameSettings"
 msgid "Extra mod path"
 msgstr "Dodatečná složka s obsahem"
 
-#: gui/panels/GUI_GameSettings.cpp:225
+#: gui/panels/GUI_GameSettings.cpp:224
 msgctxt "GameSettings"
 msgid "Skip main menu"
 msgstr "Přeskočit hlavní nabídku"
 
-#: gui/panels/GUI_GameSettings.cpp:226
+#: gui/panels/GUI_GameSettings.cpp:225
 msgctxt "GameSettings"
 msgid "Async physics"
 msgstr "Asynchronní fyzika"
 
-#: gui/panels/GUI_GameSettings.cpp:227
+#: gui/panels/GUI_GameSettings.cpp:226
 msgctxt "GameSettings"
 msgid "Disable online api"
 msgstr "Zakázat online API"
 
-#: gui/panels/GUI_GameSettings.cpp:229
+#: gui/panels/GUI_GameSettings.cpp:228
 msgctxt "GameSettings"
 msgid "Update cache"
 msgstr "Aktualizovat cache"
 
-#: gui/panels/GUI_GameSettings.cpp:239
+#: gui/panels/GUI_GameSettings.cpp:238
 msgctxt "GameSettings"
 msgid "Simulation settings"
 msgstr "Nastavení simulace"
 
-#: gui/panels/GUI_GameSettings.cpp:241
+#: gui/panels/GUI_GameSettings.cpp:240
 msgctxt "GameSettings"
 msgid "Gearbox mode"
 msgstr "Režim převodovky"
 
-#: gui/panels/GUI_GameSettings.cpp:248
+#: gui/panels/GUI_GameSettings.cpp:247
 msgctxt "GameSettings"
 msgid "Digital speedometer"
 msgstr "Digitální rychloměr"
 
-#: gui/panels/GUI_GameSettings.cpp:249
+#: gui/panels/GUI_GameSettings.cpp:248
 msgctxt "GameSettings"
 msgid "Imperial speedometer"
 msgstr "Imperiální rychloměr (v mílích)"
 
 #. DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
-#: gui/panels/GUI_GameSettings.cpp:253
+#: gui/panels/GUI_GameSettings.cpp:252
 msgctxt "GameSettings"
 msgid "Engines spawn running"
 msgstr "Motory se tvoří již nastartované"
 
-#: gui/panels/GUI_GameSettings.cpp:255
+#: gui/panels/GUI_GameSettings.cpp:254
 msgctxt "GameSettings"
 msgid "Replay mode"
 msgstr "Režim přehrávání"
 
-#: gui/panels/GUI_GameSettings.cpp:258
+#: gui/panels/GUI_GameSettings.cpp:257
 msgctxt "GameSettings"
 msgid "Replay length"
 msgstr "Délka přehrávání"
 
-#: gui/panels/GUI_GameSettings.cpp:259
+#: gui/panels/GUI_GameSettings.cpp:258
 msgctxt "GameSettings"
 msgid "Replay stepping"
 msgstr "Krokování přehrávání"
 
-#: gui/panels/GUI_GameSettings.cpp:262
+#: gui/panels/GUI_GameSettings.cpp:261
 msgctxt "GameSettings"
 msgid "Realistic forward commands"
 msgstr "Realistické přeposílání příkazů"
 
-#: gui/panels/GUI_GameSettings.cpp:264
+#: gui/panels/GUI_GameSettings.cpp:263
 msgctxt "GameSettings"
 msgid "Enable races"
 msgstr "Zapnout závodění"
 
-#: gui/panels/GUI_GameSettings.cpp:266
+#: gui/panels/GUI_GameSettings.cpp:265
 msgctxt "GameSettings"
 msgid "No intra truck collisions"
 msgstr "Žádné kolize mezi vozidly"
 
-#: gui/panels/GUI_GameSettings.cpp:267
+#: gui/panels/GUI_GameSettings.cpp:266
 msgctxt "GameSettings"
 msgid "No inter truck collisions"
 msgstr "Vypnout kolize vozidla se sebou"
 
-#: gui/panels/GUI_GameSettings.cpp:269
+#: gui/panels/GUI_GameSettings.cpp:268
 msgctxt "GameSettings"
 msgid "Discord Rich Presence"
 msgstr "Discord Rich Presence"
 
-#: gui/panels/GUI_GameSettings.cpp:271
+#: gui/panels/GUI_GameSettings.cpp:270
 msgctxt "GameSettings"
 msgid "Show confirm. UI dialog for quickload"
 msgstr "Žádat potvrzení před rychlým nahráním"
 
-#: gui/panels/GUI_GameSettings.cpp:277
+#: gui/panels/GUI_GameSettings.cpp:276
 msgctxt "GameSettings"
 msgid "Audio settings"
 msgstr "Nastavení zvuku"
 
-#: gui/panels/GUI_GameSettings.cpp:293
+#: gui/panels/GUI_GameSettings.cpp:292
 msgctxt "GameSettings"
 msgid "Audio device"
 msgstr "Zvukové zařízení"
 
-#: gui/panels/GUI_GameSettings.cpp:298
+#: gui/panels/GUI_GameSettings.cpp:297
 msgctxt "GameSettings"
 msgid "Creak sound"
 msgstr "Zvuk skřípění"
 
-#: gui/panels/GUI_GameSettings.cpp:299
+#: gui/panels/GUI_GameSettings.cpp:298
 msgctxt "GameSettings"
 msgid "Main menu music"
 msgstr "Hudba v hlavním menu"
 
-#: gui/panels/GUI_GameSettings.cpp:300
+#: gui/panels/GUI_GameSettings.cpp:299
 msgctxt "GameSettings"
 msgid "Master volume"
 msgstr "Celková hlasitost"
 
-#: gui/panels/GUI_GameSettings.cpp:306
+#: gui/panels/GUI_GameSettings.cpp:305
 msgctxt "GameSettings"
 msgid "Video settings"
 msgstr "Nastavení zobrazení"
 
-#: gui/panels/GUI_GameSettings.cpp:308
+#: gui/panels/GUI_GameSettings.cpp:307
 msgctxt "GameSettings"
 msgid "Light sources"
 msgstr "Zdroje světla"
 
-#: gui/panels/GUI_GameSettings.cpp:315
+#: gui/panels/GUI_GameSettings.cpp:314
 msgctxt "GameSettings"
 msgid "Shadow type (requires restart)"
 msgstr "Typ stínu (vyžaduje restart)"
 
-#: gui/panels/GUI_GameSettings.cpp:321
+#: gui/panels/GUI_GameSettings.cpp:320
 msgctxt "GameSettings"
 msgid "Shadow optimizations"
 msgstr "Optimalizace stínů"
 
-#: gui/panels/GUI_GameSettings.cpp:324
+#: gui/panels/GUI_GameSettings.cpp:323
 msgctxt "GameSettings"
 msgid "Shadow quality"
 msgstr "Kvalita stínů"
 
-#: gui/panels/GUI_GameSettings.cpp:335
+#: gui/panels/GUI_GameSettings.cpp:334
 msgctxt "GameSettings"
 msgid "Sight range (meters)"
 msgstr "Dohled (v metrech)"
 
-#: gui/panels/GUI_GameSettings.cpp:338
+#: gui/panels/GUI_GameSettings.cpp:337
 msgctxt "GameSettings"
 msgid "Texture filtering"
 msgstr "Filtrování textur"
 
-#: gui/panels/GUI_GameSettings.cpp:348
+#: gui/panels/GUI_GameSettings.cpp:347
 msgctxt "GameSettings"
 msgid "Anisotropy"
 msgstr "Anisotropie"
 
-#: gui/panels/GUI_GameSettings.cpp:354
+#: gui/panels/GUI_GameSettings.cpp:353
 msgctxt "GameSettings"
 msgid "Vegetation density"
 msgstr "Hustota vegetace"
 
-#: gui/panels/GUI_GameSettings.cpp:360
+#: gui/panels/GUI_GameSettings.cpp:359
 msgctxt "GameSettings"
 msgid "Water gfx"
 msgstr "Efekty vody"
 
-#: gui/panels/GUI_GameSettings.cpp:368
+#: gui/panels/GUI_GameSettings.cpp:367
 msgctxt "GameSettings"
 msgid "FPS limit"
 msgstr "Limit FPS"
 
-#: gui/panels/GUI_GameSettings.cpp:370
+#: gui/panels/GUI_GameSettings.cpp:369
 msgctxt "GameSettings"
 msgid "Enable particle gfx"
 msgstr "Zapnout částicové efekty"
 
-#: gui/panels/GUI_GameSettings.cpp:371
+#: gui/panels/GUI_GameSettings.cpp:370
 msgctxt "GameSettings"
 msgid "Enable skidmarks"
 msgstr "Zapnout stopy po smyku"
 
-#: gui/panels/GUI_GameSettings.cpp:373
+#: gui/panels/GUI_GameSettings.cpp:372
 msgctxt "GameSettings"
 msgid "Realtime reflections"
 msgstr "Realistické odlesky"
 
 #. Width includes [+/-] buttons
-#: gui/panels/GUI_GameSettings.cpp:377
+#: gui/panels/GUI_GameSettings.cpp:376
 msgctxt "GameSettings"
 msgid "Realtime refl. update rate"
 msgstr "Tempo aktualizace odlesků"
 
-#: gui/panels/GUI_GameSettings.cpp:381
+#: gui/panels/GUI_GameSettings.cpp:380
 msgctxt "GameSettings"
 msgid "Render video cameras"
 msgstr "Renderovat videokamery"
 
-#: gui/panels/GUI_GameSettings.cpp:382
+#: gui/panels/GUI_GameSettings.cpp:381
 msgctxt "GameSettings"
 msgid "Overview map icons"
 msgstr "Ikony na přehledové mapě"
 
-#: gui/panels/GUI_GameSettings.cpp:385
+#: gui/panels/GUI_GameSettings.cpp:384
 msgctxt "GameSettings"
 msgid "Declutter overview map"
 msgstr "Pročistit přehledovou mapu"
 
-#: gui/panels/GUI_GameSettings.cpp:387
+#: gui/panels/GUI_GameSettings.cpp:386
 msgctxt "GameSettings"
 msgid "Waves on water"
 msgstr "Vlny na vodě"
 
-#: gui/panels/GUI_GameSettings.cpp:388
+#: gui/panels/GUI_GameSettings.cpp:387
 msgctxt "GameSettings"
 msgid "Classic material shaders (experimental)"
 msgstr "Klasické shadery (experimentální)"
 
-#: gui/panels/GUI_GameSettings.cpp:395
+#: gui/panels/GUI_GameSettings.cpp:394
 msgctxt "GameSettings"
 msgid "Static camera height (meters)"
 msgstr "Výška statické kamery (v metrech)"
 
-#: gui/panels/GUI_GameSettings.cpp:396
+#: gui/panels/GUI_GameSettings.cpp:395
 msgctxt "GameSettings"
 msgid "Exterior field of view"
 msgstr "Venkovní zorné pole"
 
-#: gui/panels/GUI_GameSettings.cpp:397
+#: gui/panels/GUI_GameSettings.cpp:396
 msgctxt "GameSettings"
 msgid "Interior field of view"
 msgstr "Zorné pole v interiéru"
 
-#: gui/panels/GUI_GameSettings.cpp:402
+#: gui/panels/GUI_GameSettings.cpp:401
 msgctxt "GameSettings"
 msgid "Diagnostic options"
 msgstr "Možnosti diagnostiky"
 
-#: gui/panels/GUI_GameSettings.cpp:403
+#: gui/panels/GUI_GameSettings.cpp:402
 msgctxt "GameSettings"
 msgid ""
 "These settings are for advanced users only, you should only change these if "
@@ -1108,192 +1132,192 @@ msgstr ""
 "Tato nastavení jsou pro pokročilé uživatele, upravujte je pouze pokud víte "
 "co děláte"
 
-#: gui/panels/GUI_GameSettings.cpp:405
+#: gui/panels/GUI_GameSettings.cpp:404
 msgctxt "GameSettings"
 msgid "Preselected terrain"
 msgstr "Předvolený terén"
 
-#: gui/panels/GUI_GameSettings.cpp:406
+#: gui/panels/GUI_GameSettings.cpp:405
 msgctxt "GameSettings"
 msgid "Preselected vehicle"
 msgstr "Předvolené vozidlo"
 
-#: gui/panels/GUI_GameSettings.cpp:407
+#: gui/panels/GUI_GameSettings.cpp:406
 msgctxt "GameSettings"
 msgid "Presel. veh. config"
 msgstr "Konf. předvol. vozidla"
 
-#: gui/panels/GUI_GameSettings.cpp:408
+#: gui/panels/GUI_GameSettings.cpp:407
 msgctxt "GameSettings"
 msgid "Enter preselected vehicle"
 msgstr "Nastoupit do předvoleného vozidla"
 
-#: gui/panels/GUI_GameSettings.cpp:409
+#: gui/panels/GUI_GameSettings.cpp:408
 msgctxt "GameSettings"
 msgid "Auto actor spawner report"
 msgstr "Autom. zobraz. hlášení"
 
-#: gui/panels/GUI_GameSettings.cpp:410
+#: gui/panels/GUI_GameSettings.cpp:409
 msgctxt "GameSettings"
 msgid "Log node import (spawn)"
 msgstr "Logovat import nodů"
 
-#: gui/panels/GUI_GameSettings.cpp:411
+#: gui/panels/GUI_GameSettings.cpp:410
 msgctxt "GameSettings"
 msgid "Log node stats (spawn)"
 msgstr "Logovat statistiky nodů (během stváření)"
 
-#: gui/panels/GUI_GameSettings.cpp:412
+#: gui/panels/GUI_GameSettings.cpp:411
 msgctxt "GameSettings"
 msgid "Debug camera (rails)"
 msgstr "Ladit kameru (camerarail)"
 
-#: gui/panels/GUI_GameSettings.cpp:413
+#: gui/panels/GUI_GameSettings.cpp:412
 msgctxt "GameSettings"
 msgid "Debug collisions"
 msgstr "Ladit kolize"
 
-#: gui/panels/GUI_GameSettings.cpp:414
+#: gui/panels/GUI_GameSettings.cpp:413
 msgctxt "GameSettings"
 msgid "Debug actor mass"
 msgstr "Ladit hmotnost"
 
-#: gui/panels/GUI_GameSettings.cpp:415
+#: gui/panels/GUI_GameSettings.cpp:414
 msgctxt "GameSettings"
 msgid "Debug realtime reflections"
 msgstr "Ladit dynamické odlesky"
 
-#: gui/panels/GUI_GameSettings.cpp:416
+#: gui/panels/GUI_GameSettings.cpp:415
 msgctxt "GameSettings"
 msgid "Debug videocameras"
 msgstr "Ladit videokamery"
 
-#: gui/panels/GUI_GameSettings.cpp:417
+#: gui/panels/GUI_GameSettings.cpp:416
 msgctxt "GameSettings"
 msgid "Debug textures"
 msgstr "Ladit textury"
 
-#: gui/panels/GUI_GameSettings.cpp:418
+#: gui/panels/GUI_GameSettings.cpp:417
 msgctxt "GameSettings"
 msgid "Hide broken beams"
 msgstr "Skrýt zlomené paprsky"
 
-#: gui/panels/GUI_GameSettings.cpp:419
+#: gui/panels/GUI_GameSettings.cpp:418
 msgctxt "GameSettings"
 msgid "Hide wheel info"
 msgstr "Skrýt detaily kol"
 
-#: gui/panels/GUI_GameSettings.cpp:420
+#: gui/panels/GUI_GameSettings.cpp:419
 msgctxt "GameSettings"
 msgid "Hide wheels"
 msgstr "Skrýt kola"
 
-#: gui/panels/GUI_GameSettings.cpp:421
+#: gui/panels/GUI_GameSettings.cpp:420
 msgctxt "GameSettings"
 msgid "Hide nodes"
 msgstr "Skrýt nody"
 
-#: gui/panels/GUI_GameSettings.cpp:422
+#: gui/panels/GUI_GameSettings.cpp:421
 msgctxt "GameSettings"
 msgid "Echo log to console"
 msgstr "Propisovat log do konzole"
 
-#: gui/panels/GUI_GameSettings.cpp:423
+#: gui/panels/GUI_GameSettings.cpp:422
 msgctxt "GameSettings"
 msgid "Log beam breaking"
 msgstr "Logovat lámání paprsků"
 
-#: gui/panels/GUI_GameSettings.cpp:424
+#: gui/panels/GUI_GameSettings.cpp:423
 msgctxt "GameSettings"
 msgid "Log beam deforming"
 msgstr "Logovat deformaci paprsků"
 
-#: gui/panels/GUI_GameSettings.cpp:425
+#: gui/panels/GUI_GameSettings.cpp:424
 msgctxt "GameSettings"
 msgid "Log beam triggers"
 msgstr "Logovat spouštěče (triggers)"
 
-#: gui/panels/GUI_GameSettings.cpp:426
+#: gui/panels/GUI_GameSettings.cpp:425
 msgctxt "GameSettings"
 msgid "Rebuild cache"
 msgstr "Obnovit cache"
 
-#: gui/panels/GUI_GameSettings.cpp:436
+#: gui/panels/GUI_GameSettings.cpp:435
 msgctxt "GameSettings"
 msgid "Controller options"
 msgstr "Možnosti ovladače"
 
-#: gui/panels/GUI_GameSettings.cpp:438
+#: gui/panels/GUI_GameSettings.cpp:437
 msgctxt "GameSettings"
 msgid "Input grab mode"
 msgstr "Režim odchycení kurzoru myši"
 
-#: gui/panels/GUI_GameSettings.cpp:443
+#: gui/panels/GUI_GameSettings.cpp:442
 msgctxt "GameSettings"
 msgid "Analog Input Smoothing"
 msgstr "Vyhlazování analogového vstupu"
 
-#: gui/panels/GUI_GameSettings.cpp:444
+#: gui/panels/GUI_GameSettings.cpp:443
 msgctxt "GameSettings"
 msgid "Analog Input Sensitivity"
 msgstr "Citlivost analogového vstupu"
 
-#: gui/panels/GUI_GameSettings.cpp:445
+#: gui/panels/GUI_GameSettings.cpp:444
 msgctxt "GameSettings"
 msgid "Blinker Lock Range"
 msgstr "Rozmezí pro uzamknutí blinkrů"
 
-#: gui/panels/GUI_GameSettings.cpp:447
+#: gui/panels/GUI_GameSettings.cpp:446
 msgctxt "GameSettings"
 msgid "Use arcade controls"
 msgstr "Použít arkádové ovládání"
 
-#: gui/panels/GUI_GameSettings.cpp:449
+#: gui/panels/GUI_GameSettings.cpp:448
 msgctxt "GameSettings"
 msgid "Enable ForceFeedback"
 msgstr "Zapnout Force Feedback"
 
-#: gui/panels/GUI_GameSettings.cpp:453
+#: gui/panels/GUI_GameSettings.cpp:452
 msgctxt "GameSettings"
 msgid "FFB camera gain"
 msgstr "FFB síla kamery"
 
-#: gui/panels/GUI_GameSettings.cpp:454
+#: gui/panels/GUI_GameSettings.cpp:453
 msgctxt "GameSettings"
 msgid "FFB center gain"
 msgstr "FFB síla středu"
 
-#: gui/panels/GUI_GameSettings.cpp:455
+#: gui/panels/GUI_GameSettings.cpp:454
 msgctxt "GameSettings"
 msgid "FFB master gain"
 msgstr "FFB celková intenzita"
 
-#: gui/panels/GUI_GameSettings.cpp:456
+#: gui/panels/GUI_GameSettings.cpp:455
 msgctxt "GameSettings"
 msgid "FFB stress gain"
 msgstr "FFB síla z napětí"
 
-#: gui/panels/GUI_GameSettings.cpp:460
+#: gui/panels/GUI_GameSettings.cpp:459
 msgctxt "GameSettings"
 msgid "Enable OutGauge protocol"
 msgstr "Zapnout výstup OutGauge"
 
-#: gui/panels/GUI_GameSettings.cpp:463
+#: gui/panels/GUI_GameSettings.cpp:462
 msgctxt "GameSettings"
 msgid "OutGauge IP"
 msgstr "OutGauge IP"
 
-#: gui/panels/GUI_GameSettings.cpp:465
+#: gui/panels/GUI_GameSettings.cpp:464
 msgctxt "GameSettings"
 msgid "OutGauge port"
 msgstr "OutGauge port"
 
-#: gui/panels/GUI_GameSettings.cpp:466
+#: gui/panels/GUI_GameSettings.cpp:465
 msgctxt "GameSettings"
 msgid "OutGauge ID"
 msgstr "OutGauge ID"
 
-#: gui/panels/GUI_GameSettings.cpp:467
+#: gui/panels/GUI_GameSettings.cpp:466
 msgctxt "GameSettings"
 msgid "OutGauge delay"
 msgstr "OutGauge zpoždění"
@@ -1313,218 +1337,218 @@ msgctxt "MainSelector"
 msgid "Loader"
 msgstr "Výběr"
 
-#: gui/panels/GUI_MainSelector.cpp:264
+#: gui/panels/GUI_MainSelector.cpp:270
 msgctxt "MainSelector"
 msgid "Author(s): "
 msgstr "Autor/ři: "
 
-#: gui/panels/GUI_MainSelector.cpp:268
+#: gui/panels/GUI_MainSelector.cpp:274
 msgctxt "MainSelector"
 msgid "Version: "
 msgstr "Verze: "
 
-#: gui/panels/GUI_MainSelector.cpp:271
+#: gui/panels/GUI_MainSelector.cpp:277
 msgctxt "MainSelector"
 msgid "Wheels: "
 msgstr "Kola: "
 
-#: gui/panels/GUI_MainSelector.cpp:277
+#: gui/panels/GUI_MainSelector.cpp:283
 msgctxt "MainSelector"
 msgid "Mass: "
 msgstr "Hmotnost: "
 
-#: gui/panels/GUI_MainSelector.cpp:286
+#: gui/panels/GUI_MainSelector.cpp:292
 msgctxt "MainSelector"
 msgid "Load Mass: "
 msgstr "Hmotnost nákladu: "
 
-#: gui/panels/GUI_MainSelector.cpp:290
+#: gui/panels/GUI_MainSelector.cpp:296
 msgctxt "MainSelector"
 msgid "Nodes: "
 msgstr "Nody: "
 
-#: gui/panels/GUI_MainSelector.cpp:291
+#: gui/panels/GUI_MainSelector.cpp:297
 msgctxt "MainSelector"
 msgid "Beams: "
 msgstr "Paprsky: "
 
-#: gui/panels/GUI_MainSelector.cpp:292
+#: gui/panels/GUI_MainSelector.cpp:298
 msgctxt "MainSelector"
 msgid "Shocks: "
 msgstr "Tlumiče: "
 
-#: gui/panels/GUI_MainSelector.cpp:293
+#: gui/panels/GUI_MainSelector.cpp:299
 msgctxt "MainSelector"
 msgid "Hydros: "
 msgstr "Řízení náprav: "
 
-#: gui/panels/GUI_MainSelector.cpp:294
+#: gui/panels/GUI_MainSelector.cpp:300
 msgctxt "MainSelector"
 msgid "SoundSources: "
 msgstr "Zdroje zvuku: "
 
-#: gui/panels/GUI_MainSelector.cpp:295
+#: gui/panels/GUI_MainSelector.cpp:301
 msgctxt "MainSelector"
 msgid "Commands: "
 msgstr "Příkazy: "
 
-#: gui/panels/GUI_MainSelector.cpp:296
+#: gui/panels/GUI_MainSelector.cpp:302
 msgctxt "MainSelector"
 msgid "Rotators: "
 msgstr "Rotátory: "
 
-#: gui/panels/GUI_MainSelector.cpp:297
+#: gui/panels/GUI_MainSelector.cpp:303
 msgctxt "MainSelector"
 msgid "Exhausts: "
 msgstr "Výfuky: "
 
-#: gui/panels/GUI_MainSelector.cpp:298
+#: gui/panels/GUI_MainSelector.cpp:304
 msgctxt "MainSelector"
 msgid "Flares: "
 msgstr "Světla: "
 
-#: gui/panels/GUI_MainSelector.cpp:299
+#: gui/panels/GUI_MainSelector.cpp:305
 msgctxt "MainSelector"
 msgid "Flexbodies: "
 msgstr "'Flexbodies': "
 
-#: gui/panels/GUI_MainSelector.cpp:300
+#: gui/panels/GUI_MainSelector.cpp:306
 msgctxt "MainSelector"
 msgid "Props: "
 msgstr "Props: "
 
-#: gui/panels/GUI_MainSelector.cpp:301
+#: gui/panels/GUI_MainSelector.cpp:307
 msgctxt "MainSelector"
 msgid "Wings: "
 msgstr "Křídla: "
 
-#: gui/panels/GUI_MainSelector.cpp:304
+#: gui/panels/GUI_MainSelector.cpp:310
 msgctxt "MainSelector"
 msgid "Using Submeshs: "
 msgstr "Používá submeshe: "
 
-#: gui/panels/GUI_MainSelector.cpp:306
+#: gui/panels/GUI_MainSelector.cpp:312
 msgctxt "MainSelector"
 msgid "No"
 msgstr "Ne"
 
-#: gui/panels/GUI_MainSelector.cpp:306
+#: gui/panels/GUI_MainSelector.cpp:312
 msgctxt "MainSelector"
 msgid "Yes"
 msgstr "Ano"
 
-#: gui/panels/GUI_MainSelector.cpp:308
+#: gui/panels/GUI_MainSelector.cpp:314
 msgctxt "MainSelector"
 msgid "Torque: "
 msgstr "Točivý moment: "
 
-#: gui/panels/GUI_MainSelector.cpp:309
+#: gui/panels/GUI_MainSelector.cpp:315
 msgctxt "MainSelector"
 msgid "Transmission Gear Count: "
 msgstr "Počet převodových stupňů: "
 
-#: gui/panels/GUI_MainSelector.cpp:312
+#: gui/panels/GUI_MainSelector.cpp:318
 msgctxt "MainSelector"
 msgid "Engine RPM: "
 msgstr "Otáčky motoru: "
 
-#: gui/panels/GUI_MainSelector.cpp:316
+#: gui/panels/GUI_MainSelector.cpp:322
 msgctxt "MainSelector"
 msgid "Unique ID: "
 msgstr "Unikátní ID: "
 
-#: gui/panels/GUI_MainSelector.cpp:317
+#: gui/panels/GUI_MainSelector.cpp:323
 msgctxt "MainSelector"
 msgid "GUID: "
 msgstr "GUID: "
 
-#: gui/panels/GUI_MainSelector.cpp:318
+#: gui/panels/GUI_MainSelector.cpp:324
 msgctxt "MainSelector"
 msgid "Times used: "
 msgstr "Počet použití: "
 
-#: gui/panels/GUI_MainSelector.cpp:319
+#: gui/panels/GUI_MainSelector.cpp:325
 msgctxt "MainSelector"
 msgid "Date and Time modified: "
 msgstr "Datum a čas změny: "
 
-#: gui/panels/GUI_MainSelector.cpp:320
+#: gui/panels/GUI_MainSelector.cpp:326
 msgctxt "MainSelector"
 msgid "Date and Time installed: "
 msgstr "Datum a čas instalace: "
 
-#: gui/panels/GUI_MainSelector.cpp:323
+#: gui/panels/GUI_MainSelector.cpp:329
 msgctxt "MainSelector"
 msgid "Vehicle Type: "
 msgstr "Typ vozidla: "
 
-#: gui/panels/GUI_MainSelector.cpp:326
+#: gui/panels/GUI_MainSelector.cpp:332
 msgctxt "MainSelector"
 msgid "[forwards commands]"
 msgstr "[přeposílá příkazy]"
 
-#: gui/panels/GUI_MainSelector.cpp:327
+#: gui/panels/GUI_MainSelector.cpp:333
 msgctxt "MainSelector"
 msgid "[imports commands]"
 msgstr "[přejímá příkazy]"
 
-#: gui/panels/GUI_MainSelector.cpp:328
+#: gui/panels/GUI_MainSelector.cpp:334
 msgctxt "MainSelector"
 msgid "[is rescuer]"
 msgstr "[je vyprošťovací vůz]"
 
-#: gui/panels/GUI_MainSelector.cpp:329
+#: gui/panels/GUI_MainSelector.cpp:335
 msgctxt "MainSelector"
 msgid "[uses custom particles]"
 msgstr "[používá vlastní částice]"
 
-#: gui/panels/GUI_MainSelector.cpp:330
+#: gui/panels/GUI_MainSelector.cpp:336
 msgctxt "MainSelector"
 msgid "[has fixes]"
 msgstr "[je upevněn k zemi]"
 
 #. Engine type 't' (truck) is the default, do not display it
-#: gui/panels/GUI_MainSelector.cpp:332
+#: gui/panels/GUI_MainSelector.cpp:338
 msgctxt "MainSelector"
 msgid "[car engine]"
 msgstr "[motor osobního vozidla]"
 
-#: gui/panels/GUI_MainSelector.cpp:333
+#: gui/panels/GUI_MainSelector.cpp:339
 msgctxt "MainSelector"
 msgid "[zip archive]"
 msgstr "[zip archiv]"
 
-#: gui/panels/GUI_MainSelector.cpp:334
+#: gui/panels/GUI_MainSelector.cpp:340
 msgctxt "MainSelector"
 msgid "[unpacked in directory]"
 msgstr "[Rozbalené v adresáři]"
 
-#: gui/panels/GUI_MainSelector.cpp:338
+#: gui/panels/GUI_MainSelector.cpp:344
 msgctxt "MainSelector"
 msgid "Source: "
 msgstr "Zdroj: "
 
-#: gui/panels/GUI_MainSelector.cpp:345
+#: gui/panels/GUI_MainSelector.cpp:351
 msgctxt "MainSelector"
 msgid "Filename: "
 msgstr "Název souboru: "
 
-#: gui/panels/GUI_MainSelector.cpp:351
+#: gui/panels/GUI_MainSelector.cpp:357
 msgctxt "MainSelector"
 msgid "Show details"
 msgstr "Zobraz podrobnosti"
 
-#: gui/panels/GUI_MainSelector.cpp:362
+#: gui/panels/GUI_MainSelector.cpp:368
 msgctxt "MainSelector"
 msgid "Configuration"
 msgstr "Konfigurace"
 
-#: gui/panels/GUI_MainSelector.cpp:368
+#: gui/panels/GUI_MainSelector.cpp:374
 msgctxt "MainSelector"
 msgid "OK"
 msgstr "OK"
 
-#: gui/panels/GUI_MainSelector.cpp:375
+#: gui/panels/GUI_MainSelector.cpp:381
 msgctxt "MainSelector"
 msgid "Cancel"
 msgstr "Storno"
@@ -1620,114 +1644,114 @@ msgctxt "MultiplayerSelector"
 msgid "Yes"
 msgstr "Ano"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:155
+#: gui/panels/GUI_MultiplayerSelector.cpp:154
 msgctxt "MultiplayerSelector"
 msgid "Online (click to refresh)"
 msgstr "Online (klikněte pro aktualizaci)"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:164
+#: gui/panels/GUI_MultiplayerSelector.cpp:163
 msgctxt "MultiplayerSelector"
 msgid "Direct IP"
 msgstr "Přímé zadání IP"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:169
+#: gui/panels/GUI_MultiplayerSelector.cpp:168
 msgctxt "MultiplayerSelector"
 msgid "Settings"
 msgstr "Nastavení"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:189
+#: gui/panels/GUI_MultiplayerSelector.cpp:187
 msgctxt "MultiplayerSelector"
 msgid "Auto connect"
 msgstr "Připojit automaticky"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:190
+#: gui/panels/GUI_MultiplayerSelector.cpp:188
 msgctxt "MultiplayerSelector"
 msgid "Auto hide chat"
 msgstr "Automaticky skrýt chat"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:191
+#: gui/panels/GUI_MultiplayerSelector.cpp:189
 msgctxt "MultiplayerSelector"
 msgid "Hide net labels"
 msgstr "Skrýt popisky síť. hráčů"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:192
+#: gui/panels/GUI_MultiplayerSelector.cpp:190
 msgctxt "MultiplayerSelector"
 msgid "Hide own net label"
 msgstr "Skrýt vlastní síť. popisek"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:193
+#: gui/panels/GUI_MultiplayerSelector.cpp:191
 msgctxt "MultiplayerSelector"
 msgid "Multiplayer collisions"
 msgstr "Kolize ve hře více hráčů"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:200
+#: gui/panels/GUI_MultiplayerSelector.cpp:198
 msgctxt "MultiplayerSelector"
 msgid "Player nickname"
 msgstr "Hráčova přezdívka"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:201
+#: gui/panels/GUI_MultiplayerSelector.cpp:199
 msgctxt "MultiplayerSelector"
 msgid "Default server password"
 msgstr "Výchozí heslo serveru"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:206
+#: gui/panels/GUI_MultiplayerSelector.cpp:204
 msgctxt "MultiplayerSelector"
 msgid "User token"
 msgstr "Token uživatele"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:217
+#: gui/panels/GUI_MultiplayerSelector.cpp:215
 msgctxt "MultiplayerSelector"
 msgid "Server host"
 msgstr "Adresa serveru"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:218
+#: gui/panels/GUI_MultiplayerSelector.cpp:216
 msgctxt "MultiplayerSelector"
 msgid "Server port"
 msgstr "Port serveru"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:219
-#: gui/panels/GUI_MultiplayerSelector.cpp:341
+#: gui/panels/GUI_MultiplayerSelector.cpp:217
+#: gui/panels/GUI_MultiplayerSelector.cpp:339
 msgctxt "MultiplayerSelector"
 msgid "Server password"
 msgstr "Heslo serveru"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:223
-#: gui/panels/GUI_MultiplayerSelector.cpp:329
+#: gui/panels/GUI_MultiplayerSelector.cpp:221
+#: gui/panels/GUI_MultiplayerSelector.cpp:327
 msgctxt "MultiplayerSelector"
 msgid "Join"
 msgstr "Připojit se"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:274
+#: gui/panels/GUI_MultiplayerSelector.cpp:272
 msgctxt "MultiplayerSelector"
 msgid "Name"
 msgstr "Jméno"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:275
+#: gui/panels/GUI_MultiplayerSelector.cpp:273
 msgctxt "MultiplayerSelector"
 msgid "Terrain"
 msgstr "Terén"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:276
+#: gui/panels/GUI_MultiplayerSelector.cpp:274
 msgctxt "MultiplayerSelector"
 msgid "Users"
 msgstr "Uživatelé"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:277
+#: gui/panels/GUI_MultiplayerSelector.cpp:275
 msgctxt "MultiplayerSelector"
 msgid "Version"
 msgstr "Verze"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:278
+#: gui/panels/GUI_MultiplayerSelector.cpp:276
 msgctxt "MultiplayerSelector"
 msgid "Host/Port"
 msgstr "Adresa/Port"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:363
+#: gui/panels/GUI_MultiplayerSelector.cpp:361
 msgctxt "MultiplayerSelector"
 msgid "... refreshing ..."
 msgstr "... aktualizuji ..."
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:397
+#: gui/panels/GUI_MultiplayerSelector.cpp:395
 msgctxt "MultiplayerSelector"
 msgid "There are no available servers :/"
 msgstr "Žádné servery nejsou k dispozici"
@@ -1838,142 +1862,122 @@ msgctxt "NodeBeamUtils"
 msgid "Yitter"
 msgstr "Chvění"
 
-#: gui/panels/GUI_SimActorStats.cpp:52
+#: gui/panels/GUI_SimActorStats.cpp:53
 msgctxt "SimActorStats"
 msgid "Vehicle health: "
 msgstr "Kondice vozidla: "
 
-#: gui/panels/GUI_SimActorStats.cpp:58
+#: gui/panels/GUI_SimActorStats.cpp:59
 msgctxt "SimActorStats"
 msgid "Vehicle destruction: "
 msgstr "Poškození vozidla: "
 
-#: gui/panels/GUI_SimActorStats.cpp:65
+#: gui/panels/GUI_SimActorStats.cpp:66
 msgctxt "SimActorStats"
 msgid "Beam count: "
 msgstr "Počet paprsků: "
 
-#: gui/panels/GUI_SimActorStats.cpp:70
+#: gui/panels/GUI_SimActorStats.cpp:71
 msgctxt "SimActorStats"
 msgid "Broken beams count: "
 msgstr "Počet zlomených paprsků: "
 
-#: gui/panels/GUI_SimActorStats.cpp:75
+#: gui/panels/GUI_SimActorStats.cpp:76
 msgctxt "SimActorStats"
 msgid "Deformed beams count: "
 msgstr "Počet deform. paprsků: "
 
-#: gui/panels/GUI_SimActorStats.cpp:80
+#: gui/panels/GUI_SimActorStats.cpp:81
 msgctxt "SimActorStats"
 msgid "Average deformation: "
 msgstr "Průměrná deformace: "
 
-#: gui/panels/GUI_SimActorStats.cpp:85
+#: gui/panels/GUI_SimActorStats.cpp:86
 msgctxt "SimActorStats"
 msgid "Average stress: "
 msgstr "Průměrné napětí: "
 
-#: gui/panels/GUI_SimActorStats.cpp:93
+#: gui/panels/GUI_SimActorStats.cpp:94
 msgctxt "SimActorStats"
 msgid "Node count: "
 msgstr "Počet vrcholů: "
 
-#: gui/panels/GUI_SimActorStats.cpp:97
+#: gui/panels/GUI_SimActorStats.cpp:98
 msgctxt "SimActorStats"
 msgid "Total mass: "
 msgstr "Celková hmotnost: "
 
-#: gui/panels/GUI_SimActorStats.cpp:114
+#: gui/panels/GUI_SimActorStats.cpp:115
 msgctxt "SimActorStats"
 msgid "Engine RPM: "
 msgstr "Otáčky motoru (ot/min): "
 
-#: gui/panels/GUI_SimActorStats.cpp:119
+#: gui/panels/GUI_SimActorStats.cpp:120
 msgctxt "SimActorStats"
 msgid "Input shaft RPM: "
 msgstr "Otáčky vstupní hřídele (ot/min): "
 
-#: gui/panels/GUI_SimActorStats.cpp:124
+#: gui/panels/GUI_SimActorStats.cpp:125
 msgctxt "SimActorStats"
 msgid "Current torque: "
 msgstr "Točivý moment: "
 
-#: gui/panels/GUI_SimActorStats.cpp:129
+#: gui/panels/GUI_SimActorStats.cpp:130
 msgctxt "SimActorStats"
 msgid "Current power: "
 msgstr "Aktuální výkon: "
 
-#: gui/panels/GUI_SimActorStats.cpp:133
+#: gui/panels/GUI_SimActorStats.cpp:134
 msgctxt "SimActorStats"
 msgid "Current gear: "
 msgstr "Aktuální převod: "
 
-#: gui/panels/GUI_SimActorStats.cpp:137
+#: gui/panels/GUI_SimActorStats.cpp:138
 msgctxt "SimActorStats"
 msgid "Drive ratio: "
 msgstr "Poměr převodu: "
 
-#: gui/panels/GUI_SimActorStats.cpp:156
+#: gui/panels/GUI_SimActorStats.cpp:157
 msgctxt "SimActorStats"
 msgid "Wheel speed: "
 msgstr "Rychlost kol: "
 
-#: gui/panels/GUI_SimActorStats.cpp:160
+#: gui/panels/GUI_SimActorStats.cpp:161
 msgctxt "SimActorStats"
 msgid "Vehicle speed: "
 msgstr "Rychlost vozidla: "
 
-#: gui/panels/GUI_SimActorStats.cpp:167
+#: gui/panels/GUI_SimActorStats.cpp:168
 msgctxt "SimActorStats"
 msgid "Current speed: "
 msgstr "Aktuální rychlost: "
 
-#: gui/panels/GUI_SimActorStats.cpp:174
+#: gui/panels/GUI_SimActorStats.cpp:175
 msgctxt "SimActorStats"
 msgid "Altitude: "
 msgstr "Výška: "
 
-#: gui/panels/GUI_SimActorStats.cpp:181 gui/panels/GUI_SimActorStats.cpp:199
+#: gui/panels/GUI_SimActorStats.cpp:182 gui/panels/GUI_SimActorStats.cpp:200
 msgctxt "SimActorStats"
 msgid "Engine "
 msgstr "Motor "
 
-#: gui/panels/GUI_SimActorStats.cpp:211
+#: gui/panels/GUI_SimActorStats.cpp:212
 msgctxt "SimActorStats"
 msgid "Top speed: "
 msgstr "Nejvyšší rychlost: "
 
-#: gui/panels/GUI_SimActorStats.cpp:217
+#: gui/panels/GUI_SimActorStats.cpp:218
 msgctxt "SimActorStats"
 msgid "G-Forces:"
 msgstr "Odstředivé síly:"
 
-#: gui/panels/GUI_SimPerfStats.cpp:45
-msgctxt "SimPerfStats"
-msgid "Current FPS: "
-msgstr "Aktuální FPS: "
-
-#: gui/panels/GUI_SimPerfStats.cpp:46
-msgctxt "SimPerfStats"
-msgid "Average FPS: "
-msgstr "Průměrné FPS: "
-
-#: gui/panels/GUI_SimPerfStats.cpp:47
-msgctxt "SimPerfStats"
-msgid "Worst FPS: "
-msgstr "Nejhorší FPS: "
-
-#: gui/panels/GUI_SimPerfStats.cpp:48
-msgctxt "SimPerfStats"
-msgid "Best FPS: "
-msgstr "Nejlepší FPS: "
-
-#: gui/panels/GUI_SimPerfStats.cpp:50
+#: gui/panels/GUI_SimPerfStats.cpp:80
 msgctxt "SimPerfStats"
 msgid "Triangle count: "
 msgstr "Počet polygonů: "
 
-#: gui/panels/GUI_SimPerfStats.cpp:51
+#: gui/panels/GUI_SimPerfStats.cpp:81
 msgctxt "SimPerfStats"
 msgid "Batch count: "
 msgstr "Počet dávek: "
@@ -2003,447 +2007,478 @@ msgctxt "TextureToolWindow"
 msgid "saved texture as "
 msgstr "textura uložena jako "
 
-#: gui/panels/GUI_TopMenubar.cpp:61
+#: gui/panels/GUI_TopMenubar.cpp:62
 msgctxt "TopMenubar"
 msgid "Simulation"
 msgstr "Simulace"
 
-#: gui/panels/GUI_TopMenubar.cpp:62
+#: gui/panels/GUI_TopMenubar.cpp:63
 msgctxt "TopMenubar"
 msgid "Vehicles"
 msgstr "Vozidla"
 
-#: gui/panels/GUI_TopMenubar.cpp:63
+#: gui/panels/GUI_TopMenubar.cpp:64
 msgctxt "TopMenubar"
 msgid "Saves"
 msgstr "Uloženo"
 
-#: gui/panels/GUI_TopMenubar.cpp:64
+#: gui/panels/GUI_TopMenubar.cpp:65
 msgctxt "TopMenubar"
 msgid "Settings"
 msgstr "Nastavení"
 
-#: gui/panels/GUI_TopMenubar.cpp:65
+#: gui/panels/GUI_TopMenubar.cpp:66
 msgctxt "TopMenubar"
 msgid "Tools"
 msgstr "Nástroje"
 
-#: gui/panels/GUI_TopMenubar.cpp:171
+#: gui/panels/GUI_TopMenubar.cpp:172
 msgctxt "TopMenubar"
 msgid "Sim menu"
 msgstr "Nabídka simulace"
 
 #. TODO: Display hotkeys on the right side of the menu (with different text color)
-#: gui/panels/GUI_TopMenubar.cpp:175
+#: gui/panels/GUI_TopMenubar.cpp:176
 msgctxt "TopMenubar"
 msgid "Get new vehicle"
 msgstr "Získat nové vozidlo"
 
-#: gui/panels/GUI_TopMenubar.cpp:186
+#: gui/panels/GUI_TopMenubar.cpp:187
 msgctxt "TopMenubar"
 msgid "Show vehicle description"
 msgstr "Ukázat popis vozidla"
 
-#: gui/panels/GUI_TopMenubar.cpp:193
+#: gui/panels/GUI_TopMenubar.cpp:194
 msgctxt "TopMenubar"
 msgid "Reload current vehicle"
 msgstr "Znovu nahrát toto vozidlo"
 
-#: gui/panels/GUI_TopMenubar.cpp:201
+#: gui/panels/GUI_TopMenubar.cpp:202
 msgctxt "TopMenubar"
 msgid "Remove current vehicle"
 msgstr "Odebrat současné vozidlo"
 
-#: gui/panels/GUI_TopMenubar.cpp:209
+#: gui/panels/GUI_TopMenubar.cpp:210
 msgctxt "TopMenubar"
 msgid "Activate last spawned vehicle"
 msgstr "Aktivovat naposledy přidané vozidlo"
 
-#: gui/panels/GUI_TopMenubar.cpp:217
+#: gui/panels/GUI_TopMenubar.cpp:218
 msgctxt "TopMenubar"
 msgid "Reload last spawned vehicle"
 msgstr "Znovu nahrát naposled přidané vozidlo"
 
-#: gui/panels/GUI_TopMenubar.cpp:225
+#: gui/panels/GUI_TopMenubar.cpp:226
 msgctxt "TopMenubar"
 msgid "Remove last spawned vehicle"
 msgstr "Odebrat naposledy přidané vozidlo"
 
-#: gui/panels/GUI_TopMenubar.cpp:234
+#: gui/panels/GUI_TopMenubar.cpp:235
 msgctxt "TopMenubar"
 msgid "Remove all vehicles"
 msgstr "Odebrat všechna vozidla"
 
-#: gui/panels/GUI_TopMenubar.cpp:241
+#: gui/panels/GUI_TopMenubar.cpp:242
 msgctxt "TopMenubar"
 msgid " [!] Confirm removal"
 msgstr " [!] Potvrdit odebrání"
 
-#: gui/panels/GUI_TopMenubar.cpp:256
+#: gui/panels/GUI_TopMenubar.cpp:257
 msgctxt "TopMenubar"
 msgid "Activate all vehicles"
 msgstr "Aktivovat všechna vozidla"
 
-#: gui/panels/GUI_TopMenubar.cpp:262
+#: gui/panels/GUI_TopMenubar.cpp:263
 msgctxt "TopMenubar"
 msgid "Activated vehicles never sleep"
 msgstr "Aktivovaná vozidla nikdy neusnou"
 
-#: gui/panels/GUI_TopMenubar.cpp:267
+#: gui/panels/GUI_TopMenubar.cpp:268
 msgctxt "TopMenubar"
 msgid "Send all vehicles to sleep"
 msgstr "Poslat všechna vozidla spát"
 
-#: gui/panels/GUI_TopMenubar.cpp:275
+#: gui/panels/GUI_TopMenubar.cpp:276
 msgctxt "TopMenubar"
 msgid "Reload current terrain"
 msgstr "Znovu nahrát aktuální terén"
 
-#: gui/panels/GUI_TopMenubar.cpp:288
+#: gui/panels/GUI_TopMenubar.cpp:289
 msgctxt "TopMenubar"
 msgid "Back to menu"
 msgstr "Zpět do hlav. nabídky"
 
-#: gui/panels/GUI_TopMenubar.cpp:298
+#: gui/panels/GUI_TopMenubar.cpp:299
 msgctxt "TopMenubar"
 msgid "Exit"
 msgstr "Konec"
 
-#: gui/panels/GUI_TopMenubar.cpp:315
+#: gui/panels/GUI_TopMenubar.cpp:316
 msgctxt "TopMenubar"
 msgid "Actors menu"
 msgstr "Přehled aktérů"
 
-#: gui/panels/GUI_TopMenubar.cpp:346
+#: gui/panels/GUI_TopMenubar.cpp:347
 msgctxt "TopMenubar"
 msgid "Savegames"
 msgstr "Uložené hry"
 
-#: gui/panels/GUI_TopMenubar.cpp:348
+#: gui/panels/GUI_TopMenubar.cpp:349
 msgctxt "TopMenubar"
 msgid "Quicksave"
 msgstr "Rychlé uložení"
 
-#: gui/panels/GUI_TopMenubar.cpp:358
+#: gui/panels/GUI_TopMenubar.cpp:359
 msgctxt "TopMenubar"
 msgid "Quickload"
 msgstr "Rychlé načtení"
 
-#: gui/panels/GUI_TopMenubar.cpp:369
+#: gui/panels/GUI_TopMenubar.cpp:370
+#, fuzzy
+#| msgctxt "TopMenubar"
+#| msgid "(Save with 'CTRL+ALT+1..5')"
 msgctxt "TopMenubar"
-msgid "(Save with 'CTRL+ALT+1..5')"
+msgid "(Save with CTRL+ALT+1..5)"
 msgstr "(Uložte pomocí 'CTRL+ALT+1..5')"
 
-#: gui/panels/GUI_TopMenubar.cpp:372
+#: gui/panels/GUI_TopMenubar.cpp:373
 msgctxt "TopMenubar"
 msgid "Empty Slot"
 msgstr "Prázdná pozice"
 
-#: gui/panels/GUI_TopMenubar.cpp:386
+#: gui/panels/GUI_TopMenubar.cpp:387
+#, fuzzy
+#| msgctxt "TopMenubar"
+#| msgid "(Load with 'ALT+1..5')"
 msgctxt "TopMenubar"
-msgid "(Load with 'ALT+1..5')"
+msgid "(Load with ALT+1..5)"
 msgstr "(Nahrajte pomocí 'ALT+1..5')"
 
-#: gui/panels/GUI_TopMenubar.cpp:414
+#: gui/panels/GUI_TopMenubar.cpp:415
 msgctxt "TopMenubar"
 msgid "Settings menu"
 msgstr "Nabídka nastavení"
 
 #. Width includes [+/-] buttons
-#: gui/panels/GUI_TopMenubar.cpp:417
+#: gui/panels/GUI_TopMenubar.cpp:418
 msgctxt "TopMenubar"
 msgid "Audio:"
 msgstr "Zvuk:"
 
-#: gui/panels/GUI_TopMenubar.cpp:418
+#: gui/panels/GUI_TopMenubar.cpp:419
 msgctxt "TopMenubar"
 msgid "Volume"
 msgstr "Hlasitost"
 
-#: gui/panels/GUI_TopMenubar.cpp:420
+#: gui/panels/GUI_TopMenubar.cpp:421
 msgctxt "TopMenubar"
 msgid "Frames per second:"
 msgstr "Snímky za vteřinu:"
 
-#: gui/panels/GUI_TopMenubar.cpp:423
+#: gui/panels/GUI_TopMenubar.cpp:424
 msgctxt "TopMenubar"
 msgid "Reflections"
 msgstr "Odlesky"
 
-#: gui/panels/GUI_TopMenubar.cpp:425
+#: gui/panels/GUI_TopMenubar.cpp:426
 msgctxt "TopMenubar"
 msgid "Game"
 msgstr "Hra"
 
-#: gui/panels/GUI_TopMenubar.cpp:428
+#: gui/panels/GUI_TopMenubar.cpp:429
 msgctxt "TopMenubar"
 msgid "Simulation:"
 msgstr "Simulace:"
 
-#: gui/panels/GUI_TopMenubar.cpp:430
+#: gui/panels/GUI_TopMenubar.cpp:431
 msgctxt "TopMenubar"
 msgid "Slow motion"
 msgstr "Zpomalený pohyb"
 
-#: gui/panels/GUI_TopMenubar.cpp:435
+#: gui/panels/GUI_TopMenubar.cpp:436
 msgctxt "TopMenubar"
 msgid "Time lapse"
 msgstr "Zrychlený čas"
 
-#: gui/panels/GUI_TopMenubar.cpp:442 gui/panels/GUI_TopMenubar.cpp:449
+#: gui/panels/GUI_TopMenubar.cpp:443 gui/panels/GUI_TopMenubar.cpp:450
 msgctxt "TopMenubar"
 msgid "Camera:"
 msgstr "Kamera:"
 
-#: gui/panels/GUI_TopMenubar.cpp:443 gui/panels/GUI_TopMenubar.cpp:453
-#: gui/panels/GUI_TopMenubar.cpp:461
+#: gui/panels/GUI_TopMenubar.cpp:444 gui/panels/GUI_TopMenubar.cpp:454
+#: gui/panels/GUI_TopMenubar.cpp:462
 msgctxt "TopMenubar"
 msgid "FOV"
 msgstr "Zorný úhel"
 
-#: gui/panels/GUI_TopMenubar.cpp:444
+#: gui/panels/GUI_TopMenubar.cpp:445
 msgctxt "TopMenubar"
 msgid "Height"
 msgstr "Výška"
 
-#: gui/panels/GUI_TopMenubar.cpp:468
+#: gui/panels/GUI_TopMenubar.cpp:469
 msgctxt "TopMenubar"
 msgid "Tracking"
 msgstr "Sledování"
 
-#: gui/panels/GUI_TopMenubar.cpp:475
+#: gui/panels/GUI_TopMenubar.cpp:476
 msgctxt "TopMenubar"
 msgid "Time of day:"
 msgstr "Denní doba:"
 
-#: gui/panels/GUI_TopMenubar.cpp:488
+#: gui/panels/GUI_TopMenubar.cpp:483
+msgctxt "TopMenubar"
+msgid "Cycle"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:486
+msgctxt "TopMenubar"
+msgid "Speed"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:495
 msgctxt "TopMenubar"
 msgid "Waves Height:"
 msgstr "Výška vln:"
 
-#: gui/panels/GUI_TopMenubar.cpp:500
+#: gui/panels/GUI_TopMenubar.cpp:507
 msgctxt "TopMenubar"
 msgid "Vehicle control options:"
 msgstr "Možnosti ovládání vozidla:"
 
-#: gui/panels/GUI_TopMenubar.cpp:501
+#: gui/panels/GUI_TopMenubar.cpp:508
 msgctxt "TopMenubar"
 msgid "Keyboard steering speed coupling"
 msgstr "Sladit zatáčení na klávesnici s rychlostí"
 
-#: gui/panels/GUI_TopMenubar.cpp:506
+#: gui/panels/GUI_TopMenubar.cpp:513
 msgctxt "TopMenubar"
 msgid "Multiplayer:"
 msgstr "Hra více hráčů:"
 
-#: gui/panels/GUI_TopMenubar.cpp:507
+#: gui/panels/GUI_TopMenubar.cpp:514
 msgctxt "TopMenubar"
 msgid "Collisions"
 msgstr "Kolize"
 
-#: gui/panels/GUI_TopMenubar.cpp:508
+#: gui/panels/GUI_TopMenubar.cpp:515
 msgctxt "TopMenubar"
 msgid "Hide labels"
 msgstr "Skrýt štítky"
 
-#: gui/panels/GUI_TopMenubar.cpp:523
+#: gui/panels/GUI_TopMenubar.cpp:530
 msgctxt "TopMenubar"
 msgid "Tools menu"
 msgstr "Nabídka nástrojů"
 
-#: gui/panels/GUI_TopMenubar.cpp:525
+#: gui/panels/GUI_TopMenubar.cpp:532
 msgctxt "TopMenubar"
 msgid "Friction settings"
 msgstr "Nastavení tření"
 
-#: gui/panels/GUI_TopMenubar.cpp:531
+#: gui/panels/GUI_TopMenubar.cpp:538
 msgctxt "TopMenubar"
 msgid "Show console"
 msgstr "Zobrazit konzoli"
 
-#: gui/panels/GUI_TopMenubar.cpp:537
+#: gui/panels/GUI_TopMenubar.cpp:544
 msgctxt "TopMenubar"
 msgid "Texture tool"
 msgstr "Prohlížeč textur"
 
-#: gui/panels/GUI_TopMenubar.cpp:543
-msgctxt "TopMenubar"
-msgid "Game controls"
-msgstr "Ovládání hry"
-
-#: gui/panels/GUI_TopMenubar.cpp:551
+#: gui/panels/GUI_TopMenubar.cpp:552
 msgctxt "TopMenubar"
 msgid "Node / Beam utility"
 msgstr "Ladění fyzik. kostry"
 
-#: gui/panels/GUI_TopMenubar.cpp:559
+#: gui/panels/GUI_TopMenubar.cpp:560
 msgctxt "TopMenubar"
 msgid "Pre-spawn diag. options:"
 msgstr "Možnosti diag. při stváření:"
 
-#: gui/panels/GUI_TopMenubar.cpp:562
+#: gui/panels/GUI_TopMenubar.cpp:563
 msgctxt "TopMenubar"
 msgid "Node mass recalc. logging"
 msgstr "Zaznamenat přepočty hmotnosti"
 
-#: gui/panels/GUI_TopMenubar.cpp:569
+#: gui/panels/GUI_TopMenubar.cpp:570
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime - mass recalculation"
 msgstr "Extra logování za běhu - přepočty hmotnosti"
 
-#: gui/panels/GUI_TopMenubar.cpp:574
+#: gui/panels/GUI_TopMenubar.cpp:575
 msgctxt "TopMenubar"
 msgid "Beam break logging"
 msgstr "Logovat lámání paprsků"
 
-#: gui/panels/GUI_TopMenubar.cpp:581 gui/panels/GUI_TopMenubar.cpp:593
+#: gui/panels/GUI_TopMenubar.cpp:582 gui/panels/GUI_TopMenubar.cpp:594
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime"
 msgstr "Extra logování za běhu"
 
-#: gui/panels/GUI_TopMenubar.cpp:586
+#: gui/panels/GUI_TopMenubar.cpp:587
 msgctxt "TopMenubar"
 msgid "Beam deform. logging"
 msgstr "Logovat deformaci paprsků"
 
-#: gui/panels/GUI_TopMenubar.cpp:598
+#: gui/panels/GUI_TopMenubar.cpp:599
 msgctxt "TopMenubar"
 msgid "Trigger logging"
 msgstr "Logování spouští (trigger)"
 
-#: gui/panels/GUI_TopMenubar.cpp:605
+#: gui/panels/GUI_TopMenubar.cpp:606
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime - trigger beams activity"
 msgstr "Extra logování za běhu - spouštěcí paprsky (triggers)"
 
-#: gui/panels/GUI_TopMenubar.cpp:610
+#: gui/panels/GUI_TopMenubar.cpp:611
 msgctxt "TopMenubar"
 msgid "VideoCamera direction marker"
 msgstr "Ukazatel směru videokamer"
 
-#: gui/panels/GUI_TopMenubar.cpp:617
+#: gui/panels/GUI_TopMenubar.cpp:618
 msgctxt "TopMenubar"
 msgid "Visual marker of VideoCameras direction"
 msgstr "Vizuální ukazatel směru videokamer"
 
-#: gui/panels/GUI_TopMenubar.cpp:625
+#: gui/panels/GUI_TopMenubar.cpp:626
 msgctxt "TopMenubar"
 msgid "Live diagnostic views:"
 msgstr "Živá diagnostická zobrazení:"
 
-#: gui/panels/GUI_TopMenubar.cpp:626
-#, c-format
+#: gui/panels/GUI_TopMenubar.cpp:627
+#, fuzzy, c-format
+#| msgctxt "TopMenubar"
+#| msgid "(Toggle with '%s')"
 msgctxt "TopMenubar"
-msgid "(Toggle with '%s')"
+msgid "(Toggle with %s)"
 msgstr "(Přepínejte pomocí '%s')"
 
-#: gui/panels/GUI_TopMenubar.cpp:627
-#, c-format
+#: gui/panels/GUI_TopMenubar.cpp:628
+#, fuzzy, c-format
+#| msgctxt "TopMenubar"
+#| msgid "(Cycle with '%s')"
 msgctxt "TopMenubar"
-msgid "(Cycle with '%s')"
+msgid "(Cycle with %s)"
 msgstr "(Cyklujte pomocí '%s')"
 
-#: gui/panels/GUI_TopMenubar.cpp:634
+#: gui/panels/GUI_TopMenubar.cpp:635
 msgctxt "TopMenubar"
 msgid "Normal view"
 msgstr "Normální zobrazení"
 
-#: gui/panels/GUI_TopMenubar.cpp:635
+#: gui/panels/GUI_TopMenubar.cpp:636
 msgctxt "TopMenubar"
 msgid "Skeleton view"
 msgstr "Zobrazení kostry"
 
-#: gui/panels/GUI_TopMenubar.cpp:636
+#: gui/panels/GUI_TopMenubar.cpp:637
 msgctxt "TopMenubar"
 msgid "Node details"
 msgstr "Podrobnosti nodů"
 
-#: gui/panels/GUI_TopMenubar.cpp:637
+#: gui/panels/GUI_TopMenubar.cpp:638
 msgctxt "TopMenubar"
 msgid "Beam details"
 msgstr "Podrobnosti paprsků"
 
-#: gui/panels/GUI_TopMenubar.cpp:640
+#: gui/panels/GUI_TopMenubar.cpp:641
 msgctxt "TopMenubar"
 msgid "Wheel details"
 msgstr "Podrobnosti kol"
 
-#: gui/panels/GUI_TopMenubar.cpp:644
+#: gui/panels/GUI_TopMenubar.cpp:645
 msgctxt "TopMenubar"
 msgid "Shock details"
 msgstr "Podrobnosti tlumičů"
 
-#: gui/panels/GUI_TopMenubar.cpp:648
+#: gui/panels/GUI_TopMenubar.cpp:649
 msgctxt "TopMenubar"
 msgid "Rotator details"
 msgstr "Podrobnosti rotátorů"
 
-#: gui/panels/GUI_TopMenubar.cpp:652
+#: gui/panels/GUI_TopMenubar.cpp:653
 msgctxt "TopMenubar"
 msgid "Slidenode details"
 msgstr "Podrobnosti kluzných nodů"
 
-#: gui/panels/GUI_TopMenubar.cpp:656
+#: gui/panels/GUI_TopMenubar.cpp:657
 msgctxt "TopMenubar"
 msgid "Submesh details"
 msgstr "Podrob. povrchů"
 
-#: gui/panels/GUI_TopMenubar.cpp:667
+#: gui/panels/GUI_TopMenubar.cpp:668
 msgctxt "TopMenubar"
 msgid "Settings:"
 msgstr "Nastavení:"
 
-#: gui/panels/GUI_TopMenubar.cpp:668
+#: gui/panels/GUI_TopMenubar.cpp:669
 msgctxt "TopMenubar"
 msgid "Hide broken beams"
 msgstr "Skrýt zlomené paprsky"
 
-#: gui/panels/GUI_TopMenubar.cpp:669
+#: gui/panels/GUI_TopMenubar.cpp:670
 msgctxt "TopMenubar"
 msgid "Hide beam stress"
 msgstr "Skrýt napětí paprsků"
 
-#: gui/panels/GUI_TopMenubar.cpp:670
+#: gui/panels/GUI_TopMenubar.cpp:671
 msgctxt "TopMenubar"
 msgid "Hide wheels"
 msgstr "Skrýt kola"
 
-#: gui/panels/GUI_TopMenubar.cpp:671
+#: gui/panels/GUI_TopMenubar.cpp:672
 msgctxt "TopMenubar"
 msgid "Hide nodes"
 msgstr "Skrýt nody"
 
-#: gui/panels/GUI_TopMenubar.cpp:674
+#: gui/panels/GUI_TopMenubar.cpp:675
 msgctxt "TopMenubar"
 msgid "Hide wheel info"
 msgstr "Skrýt detaily kol"
 
-#: gui/panels/GUI_TopMenubar.cpp:766
+#: gui/panels/GUI_TopMenubar.cpp:798
 msgctxt "TopMenubar"
 msgid "None spawned yet"
 msgstr "Prozatím žádná"
 
-#: gui/panels/GUI_TopMenubar.cpp:767
+#: gui/panels/GUI_TopMenubar.cpp:799
 msgctxt "TopMenubar"
 msgid "Use [Simulation] menu"
 msgstr "Použijte nabídku [Simulace]"
 
-#: gui/panels/GUI_TopMenubar.cpp:823
+#: gui/panels/GUI_TopMenubar.cpp:860
+#, fuzzy
+#| msgctxt "TopMenubar"
+#| msgid "All physics paused, press '{}' to resume"
 msgctxt "TopMenubar"
-msgid "All physics paused, press '{}' to resume"
+msgid "All physics paused, press {} to resume"
 msgstr "Veškerá fyzika pozastavena, pro pokračování stiskněte '{}'"
 
-#: gui/panels/GUI_TopMenubar.cpp:832
+#: gui/panels/GUI_TopMenubar.cpp:869
+#, fuzzy
+#| msgctxt "TopMenubar"
+#| msgid "Vehicle physics paused, press '{}' to resume"
 msgctxt "TopMenubar"
-msgid "Vehicle physics paused, press '{}' to resume"
+msgid "Vehicle physics paused, press {} to resume"
 msgstr "Fyzika vozidla pozastavena, pro pokračování stiskněte '{}'"
 
-#: gui/panels/GUI_TopMenubar.cpp:841
+#: gui/panels/GUI_TopMenubar.cpp:878
 msgctxt "TopMenubar"
 msgid "Replay"
 msgstr "Přehrávání"
 
-#: gui/panels/GUI_TopMenubar.cpp:879
+#: gui/panels/GUI_TopMenubar.cpp:901
+msgctxt "DirectionArrow"
+msgid "meter"
+msgstr "metr"
+
+#: gui/panels/GUI_TopMenubar.cpp:920
+msgctxt "TopMenubar"
+msgid "Terrain editing mode, press {} to save and exit"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:960
 msgctxt "TopMenubar"
 msgid "Time"
 msgstr "Čas"
@@ -2473,24 +2508,24 @@ msgctxt "VehicleDescription"
 msgid "(no author information available) "
 msgstr "(žádný autor není uveden) "
 
-#: main.cpp:329
+#: main.cpp:330
 msgid "Display mode changed to fullscreen"
 msgstr "Režim zobrazení změněn na celou obrazovku"
 
-#: main.cpp:335
+#: main.cpp:336
 msgid "Display mode changed to windowed"
 msgstr "Režim zobrazení změněn na okno"
 
-#: main.cpp:387
+#: main.cpp:388
 msgctxt "Network"
 msgid "Network disconnected"
 msgstr "Síť byla odpojena"
 
-#: main.cpp:395
+#: main.cpp:396
 msgid "Network fatal error: "
 msgstr "Kritická chyba sítě: "
 
-#: main.cpp:443
+#: main.cpp:444
 msgctxt "Network"
 msgid "Multiplayer: connection failed"
 msgstr "Připojení ke hře více hráčů selhalo"
@@ -2499,9 +2534,11 @@ msgstr "Připojení ke hře více hráčů selhalo"
 msgid "Loading resources"
 msgstr "Načítání potřebných dat"
 
-#: main.cpp:505
-#, c-format
-msgid "Press %s to start chatting"
+#: main.cpp:506
+#, fuzzy
+#| msgid "Press %s to start chatting"
+msgctxt "ChatBox"
+msgid "Press {} to start chatting"
 msgstr "Stiskněte %s pro zahájení chatu"
 
 #: main.cpp:560
@@ -2512,19 +2549,23 @@ msgstr "Nepodařilo se přečíst soubor s uloženou hrou"
 msgid "Error while loading scene: Terrain mismatch"
 msgstr "Chyba při načítání scény: terén neodpovídá"
 
-#: main.cpp:675
+#: main.cpp:705
 msgid "Entered terrain editing mode"
 msgstr "Aktivovat režim úprav terénu"
 
-#: main.cpp:686
+#: main.cpp:707
+msgid "Press {} or middle mouse click to select an object"
+msgstr ""
+
+#: main.cpp:719
 msgid "Left terrain editing mode"
 msgstr "Režim úprav terénu byl ukončen"
 
-#: main.cpp:922
+#: main.cpp:966
 msgid "An exception has occured!"
 msgstr "Došlo k výjimce!"
 
-#: main.cpp:927
+#: main.cpp:971
 msgid "An exception (std::runtime_error) has occured!"
 msgstr "Nastala interní chyba (std::runtime_error)!"
 
@@ -2684,80 +2725,80 @@ msgctxt "NetUserAuth"
 msgid "Banned user"
 msgstr "Zakázaný uživatel"
 
-#: physics/Actor.cpp:394
+#: physics/Actor.cpp:387
 msgid " content mismatch: "
 msgstr " Obsah se neshoduje s protějškem: "
 
-#: physics/Actor.cpp:1282
+#: physics/Actor.cpp:1275
 msgid "No inter-axle differential installed on current vehicle!"
 msgstr "Toto vozidlo nemá žádný mezi-nápravový diferenciál!"
 
-#: physics/Actor.cpp:1296 physics/Actor.cpp:1322
+#: physics/Actor.cpp:1289 physics/Actor.cpp:1315
 msgid "Axle "
 msgstr "Náprava "
 
-#: physics/Actor.cpp:1310
+#: physics/Actor.cpp:1303
 msgid "No inter-wheel differential installed on current vehicle!"
 msgstr "Toto vozidlo nemá na žádné nápravě diferenciál!"
 
-#: physics/Actor.cpp:1336
+#: physics/Actor.cpp:1329
 msgid "Transfercase switched to: "
 msgstr "Rozvodovka v režimu: "
 
-#: physics/Actor.cpp:1341
+#: physics/Actor.cpp:1334
 msgid "No transfercase installed on current vehicle!"
 msgstr "Toto vozidlo nemá žádnou rozvodovku!"
 
-#: physics/Actor.cpp:1906
+#: physics/Actor.cpp:1899
 msgid "Actor is too big to be sent over the net."
 msgstr "Objekt je moc velký pro síťovou hru."
 
-#: physics/Actor.cpp:1906
+#: physics/Actor.cpp:1899
 msgid "Network error!"
 msgstr "Chyba sítě!"
 
-#: physics/ActorManager.cpp:410
+#: physics/ActorManager.cpp:397
 msgid "spawned a new vehicle: "
 msgstr "přidal nové vozidlo: "
 
-#: physics/ActorManager.cpp:420
+#: physics/ActorManager.cpp:407
 msgid "Mod not installed: "
 msgstr "Obsah není nainstalován: "
 
-#: physics/ActorManager.cpp:1299 physics/ActorManager.cpp:1308
-#: physics/ActorManager.cpp:1326
+#: physics/ActorManager.cpp:1289 physics/ActorManager.cpp:1298
+#: physics/ActorManager.cpp:1316
 msgid "New simulation speed: "
 msgstr "Nová rychlost simulace: "
 
-#: physics/ActorManager.cpp:1320
+#: physics/ActorManager.cpp:1310
 msgid "Simulation speed reset."
 msgstr "Reset rychlosti simulace."
 
-#: physics/ActorManager.cpp:1346
+#: physics/ActorManager.cpp:1336
 msgid "Physics paused"
 msgstr "Fyzika pozastavena"
 
-#: physics/ActorManager.cpp:1351
+#: physics/ActorManager.cpp:1341
 msgid "Physics unpaused"
 msgstr "Fyzika rozběhnuta"
 
-#: physics/Differentials.cpp:50 physics/Differentials.cpp:58
+#: physics/Differentials.cpp:52 physics/Differentials.cpp:60
 msgid "invalid"
 msgstr "neplatný"
 
-#: physics/Differentials.cpp:54
+#: physics/Differentials.cpp:56
 msgid "Split"
 msgstr "Rozdělení"
 
-#: physics/Differentials.cpp:55
+#: physics/Differentials.cpp:57
 msgid "Open"
 msgstr "Otevřený"
 
-#: physics/Differentials.cpp:56
+#: physics/Differentials.cpp:58
 msgid "Viscous"
 msgstr "Viskózní"
 
-#: physics/Differentials.cpp:57
+#: physics/Differentials.cpp:59
 msgid "Locked"
 msgstr "Zamčený"
 
@@ -2805,11 +2846,11 @@ msgstr "Scéna načtena"
 msgid "Error while saving scene: Too many vehicles"
 msgstr "Chyba při ukládání pozice: příliš mnoho vozidel"
 
-#: physics/Savegame.cpp:738
+#: physics/Savegame.cpp:739
 msgid "Error while saving scene"
 msgstr "Chyba při ukládání scény"
 
-#: physics/Savegame.cpp:745
+#: physics/Savegame.cpp:746
 msgid "Scene saved"
 msgstr "Scéna uložena"
 
@@ -3019,7 +3060,7 @@ msgctxt "ModCategory"
 msgid "Hidden"
 msgstr "Skryté"
 
-#: scripting/GameScript.cpp:764
+#: scripting/GameScript.cpp:771
 msgid "using Online API..."
 msgstr "používání Online API..."
 
@@ -3357,22 +3398,22 @@ msgid "Disabling force feedback - no controller found"
 msgstr "Vypínám force feedback - nenalezen žádný ovladač"
 
 #. Common: generic
-#: utils/InputEngine.cpp:35
+#: utils/InputEngine.cpp:38
 msgctxt "InputEvent"
 msgid "accelerate the simulation"
 msgstr "zrychlit simulaci"
 
-#: utils/InputEngine.cpp:36
+#: utils/InputEngine.cpp:39
 msgctxt "InputEvent"
 msgid "decelerate the simulation"
 msgstr "zpomalit simulaci"
 
-#: utils/InputEngine.cpp:37
+#: utils/InputEngine.cpp:40
 msgctxt "InputEvent"
 msgid "reset the simulation pace"
 msgstr "resetovat tempo simulace"
 
-#: utils/InputEngine.cpp:38
+#: utils/InputEngine.cpp:41
 msgctxt "InputEvent"
 msgid ""
 "write current position to log (you can open the logfile and reuse the "
@@ -3381,1365 +3422,1366 @@ msgstr ""
 "Zapsat aktuální pozici do protokolu (můžete otevřít soubor protokolu a "
 "pozici znovu použít)"
 
-#: utils/InputEngine.cpp:39
+#: utils/InputEngine.cpp:42
 msgctxt "InputEvent"
 msgid "exit the game"
 msgstr "opustit hru"
 
-#: utils/InputEngine.cpp:40
+#: utils/InputEngine.cpp:43
 msgctxt "InputEvent"
 msgid "quickload scene"
 msgstr "Rychlé načtení"
 
-#: utils/InputEngine.cpp:41
+#: utils/InputEngine.cpp:44
 msgctxt "InputEvent"
 msgid "quicksave scene"
 msgstr "Rychlé uložení"
 
-#: utils/InputEngine.cpp:42
+#: utils/InputEngine.cpp:45
 msgctxt "InputEvent"
 msgid "take a screenshot"
 msgstr "uložit snímek obrazovky"
 
-#: utils/InputEngine.cpp:43
+#: utils/InputEngine.cpp:46
 msgctxt "InputEvent"
 msgid "take a big screenshot (3 times the screen size)"
 msgstr "zachytit velký snímek obrazovky (3násobek velikosti obrazovky)"
 
-#: utils/InputEngine.cpp:44
+#: utils/InputEngine.cpp:47
 msgctxt "InputEvent"
 msgid "debug purpose - dont use"
 msgstr "ladící účely - nepoužívat"
 
-#: utils/InputEngine.cpp:45
+#: utils/InputEngine.cpp:48
 msgctxt "InputEvent"
 msgid "toggle render mode (solid, wireframe and points)"
 msgstr "přepnout režim vykreslování (výplň, drátěný model a body)"
 
-#: utils/InputEngine.cpp:46
+#: utils/InputEngine.cpp:49
 msgctxt "InputEvent"
 msgid "enable or disable physics"
 msgstr "povolit nebo zakázat fyziku"
 
-#: utils/InputEngine.cpp:47
+#: utils/InputEngine.cpp:50
 msgctxt "InputEvent"
 msgid "decreases the current FOV value"
 msgstr "zmenší aktuální zorný úhel"
 
-#: utils/InputEngine.cpp:48
+#: utils/InputEngine.cpp:51
 msgctxt "InputEvent"
 msgid "increase the current FOV value"
 msgstr "zvětší aktuální zorný úhel"
 
-#: utils/InputEngine.cpp:49
+#: utils/InputEngine.cpp:52
 msgctxt "InputEvent"
 msgid "reset the FOV value"
 msgstr "resetuje aktuální zorný úhel"
 
-#: utils/InputEngine.cpp:50
+#: utils/InputEngine.cpp:53
 msgctxt "InputEvent"
 msgid "save the currently loaded terrain to a mesh file"
 msgstr "uložit aktuálně načtený terén do mesh souboru"
 
-#: utils/InputEngine.cpp:51
+#: utils/InputEngine.cpp:54
 msgctxt "InputEvent"
 msgid "toggle terrain editor"
 msgstr "Zap./vyp. editor terénu"
 
-#: utils/InputEngine.cpp:52
+#: utils/InputEngine.cpp:55
 msgctxt "InputEvent"
 msgid "toggle between windowed and fullscreen mode"
 msgstr "přepnout mezi režimem v okně a na celou obrazovku"
 
 #. Comon: actor interaction
-#: utils/InputEngine.cpp:55
+#: utils/InputEngine.cpp:58
 msgctxt "InputEvent"
 msgid "enter or exit a truck"
 msgstr "nastoupit nebo vystoupit z vozidla"
 
-#: utils/InputEngine.cpp:56
+#: utils/InputEngine.cpp:59
 msgctxt "InputEvent"
 msgid "enter next truck"
 msgstr "nastoupit do následujícího vozidla"
 
-#: utils/InputEngine.cpp:57
+#: utils/InputEngine.cpp:60
 msgctxt "InputEvent"
 msgid "enter previous truck"
 msgstr "nastoupit do předchozího vozidla"
 
-#: utils/InputEngine.cpp:58
+#: utils/InputEngine.cpp:61
 msgctxt "InputEvent"
 msgid "remove current truck"
 msgstr "odebrat současné vozidlo"
 
-#: utils/InputEngine.cpp:59
+#: utils/InputEngine.cpp:62
 msgctxt "InputEvent"
 msgid "delete current truck"
 msgstr "vymazat toto vozidlo"
 
-#: utils/InputEngine.cpp:60
+#: utils/InputEngine.cpp:63
 msgctxt "InputEvent"
 msgid "respawn last truck"
 msgstr "Znovu stvořit předchozí vozidlo"
 
-#: utils/InputEngine.cpp:61
+#: utils/InputEngine.cpp:64
 msgctxt "InputEvent"
 msgid "get new vehicle"
 msgstr "získat nové vozidlo"
 
-#: utils/InputEngine.cpp:62
+#: utils/InputEngine.cpp:65
 msgctxt "InputEvent"
 msgid "decrease tire pressure (note: only very few trucks support this)"
 msgstr "snížit tlak v pneumatikách (pozn.: podporuje jen velmi málo vozidel)"
 
-#: utils/InputEngine.cpp:63
+#: utils/InputEngine.cpp:66
 msgctxt "InputEvent"
 msgid "increase tire pressure (note: only very few trucks support this)"
 msgstr "zvýšit tlak pneumatik (pozn.: podporuje to jen velmi málo vozidel)"
 
-#: utils/InputEngine.cpp:64
+#: utils/InputEngine.cpp:67
 msgctxt "InputEvent"
 msgid "connect hook node to a node in close proximity"
 msgstr "připojit hák k nodu v těsné blízkosti"
 
-#: utils/InputEngine.cpp:65
+#: utils/InputEngine.cpp:68
 msgctxt "InputEvent"
 msgid "unlock autolock hook node"
 msgstr "odemknout samo-zamykací hák"
 
-#: utils/InputEngine.cpp:66
+#: utils/InputEngine.cpp:69
 msgctxt "InputEvent"
 msgid "connect a rope to a node in close proximity"
 msgstr "připojit lano k nodu v těsné blízkosti"
 
-#: utils/InputEngine.cpp:67
+#: utils/InputEngine.cpp:70
 msgctxt "InputEvent"
 msgid "repair truck"
 msgstr "opravit vozidlo"
 
-#: utils/InputEngine.cpp:68
+#: utils/InputEngine.cpp:71
 msgctxt "InputEvent"
 msgid "teleport to rescue truck"
 msgstr "teleportovat do záchranného vozidla"
 
-#: utils/InputEngine.cpp:69
+#: utils/InputEngine.cpp:72
 msgctxt "InputEvent"
 msgid "reset truck to original starting position"
 msgstr "resetovat na výchozí pozici vozidla"
 
-#: utils/InputEngine.cpp:70
+#: utils/InputEngine.cpp:73
 msgctxt "InputEvent"
 msgid "toggle reset mode"
 msgstr "přepnout režim obnovení"
 
-#: utils/InputEngine.cpp:71
+#: utils/InputEngine.cpp:74
 msgctxt "InputEvent"
 msgid "tie a load to the truck"
 msgstr "upevnit náklad k vozidlu"
 
-#: utils/InputEngine.cpp:72
+#: utils/InputEngine.cpp:75
 msgctxt "InputEvent"
 msgid "toggle truck beacons"
 msgstr "majáky vozidla"
 
-#: utils/InputEngine.cpp:73
+#: utils/InputEngine.cpp:76
 msgctxt "InputEvent"
 msgid "toggle truck front lights"
 msgstr "přední světla vozidla"
 
-#: utils/InputEngine.cpp:74
+#: utils/InputEngine.cpp:77
 msgctxt "InputEvent"
 msgid "toggle particle cannon"
 msgstr "zapnout částicomet"
 
-#: utils/InputEngine.cpp:75
+#: utils/InputEngine.cpp:78
 msgctxt "InputEvent"
 msgid "enable or disable replay mode"
 msgstr "aktivovat/deaktivovat režim přehrávání"
 
-#: utils/InputEngine.cpp:76
+#: utils/InputEngine.cpp:79
 msgctxt "InputEvent"
 msgid "more replay forward"
 msgstr "přehrávání více dopředu"
 
-#: utils/InputEngine.cpp:77
+#: utils/InputEngine.cpp:80
 msgctxt "InputEvent"
 msgid "more replay backward"
 msgstr "přehrávání více dozadu"
 
-#: utils/InputEngine.cpp:78
+#: utils/InputEngine.cpp:81
 msgctxt "InputEvent"
 msgid "move replay fast forward"
 msgstr "přehrávání rychle dopředu"
 
-#: utils/InputEngine.cpp:79
+#: utils/InputEngine.cpp:82
 msgctxt "InputEvent"
 msgid "move replay fast backward"
 msgstr "přehrávání rychle dozadu"
 
 #. Common: UI
-#: utils/InputEngine.cpp:82
+#: utils/InputEngine.cpp:85
 msgctxt "InputEvent"
 msgid "show / hide the console"
 msgstr "zobrazit/skrýt konzoli"
 
-#: utils/InputEngine.cpp:83
+#: utils/InputEngine.cpp:86
 msgctxt "InputEvent"
 msgid "enter the chat"
 msgstr "vstoupit do chatu"
 
-#: utils/InputEngine.cpp:84
+#: utils/InputEngine.cpp:87
 msgctxt "InputEvent"
 msgid "sends the entered text"
 msgstr "odeslat vložený text"
 
-#: utils/InputEngine.cpp:85
+#: utils/InputEngine.cpp:88
 msgctxt "InputEvent"
 msgid "hide all GUI elements"
 msgstr "skrýt všechny GUI prvky"
 
-#: utils/InputEngine.cpp:86
+#: utils/InputEngine.cpp:89
 msgctxt "InputEvent"
 msgid "display or hide the dashboard overlay"
 msgstr "zobrazit nebo skrýt přístrojovou desku"
 
-#: utils/InputEngine.cpp:87
+#: utils/InputEngine.cpp:90
 msgctxt "InputEvent"
 msgid "toggle debug view"
 msgstr "vyp./zap. diagnostické zobrazení"
 
-#: utils/InputEngine.cpp:88
+#: utils/InputEngine.cpp:91
 msgctxt "InputEvent"
 msgid "cycle debug views"
 msgstr "cyklovat skrze diagnostická zobrazení"
 
-#: utils/InputEngine.cpp:89
+#: utils/InputEngine.cpp:92
 msgctxt "InputEvent"
 msgid "toggle truck HUD"
 msgstr "zap./vyp. HUD vozidla"
 
-#: utils/InputEngine.cpp:90
+#: utils/InputEngine.cpp:93
 msgctxt "InputEvent"
 msgid "toggle truck description"
 msgstr "zobraz./skrýt popis vozidla"
 
-#: utils/InputEngine.cpp:91
+#: utils/InputEngine.cpp:94
 msgctxt "InputEvent"
 msgid "display or hide net chat"
 msgstr "zobrazit nebo skrýt síťový chat"
 
-#: utils/InputEngine.cpp:92
+#: utils/InputEngine.cpp:95
 msgctxt "InputEvent"
 msgid "toggle between net chat display modes"
 msgstr "přepnout režim zobrazení síťového chatu"
 
-#: utils/InputEngine.cpp:93
+#: utils/InputEngine.cpp:96
 msgctxt "InputEvent"
 msgid "toggle Ogre statistics (FPS etc.)"
 msgstr "statistika grafického enginu Ogre (FPS atd.)"
 
 #. Common: savegames
-#: utils/InputEngine.cpp:96
+#: utils/InputEngine.cpp:99
 msgctxt "InputEvent"
 msgid "save scene in slot 01"
 msgstr "uložit pozici jako slot 1"
 
-#: utils/InputEngine.cpp:97
+#: utils/InputEngine.cpp:100
 msgctxt "InputEvent"
 msgid "save scene in slot 02"
 msgstr "uložit pozici jako slot 2"
 
-#: utils/InputEngine.cpp:98
+#: utils/InputEngine.cpp:101
 msgctxt "InputEvent"
 msgid "save scene in slot 03"
 msgstr "uložit pozici jako slot 3"
 
-#: utils/InputEngine.cpp:99
+#: utils/InputEngine.cpp:102
 msgctxt "InputEvent"
 msgid "save scene in slot 04"
 msgstr "uložit pozici jako slot 4"
 
-#: utils/InputEngine.cpp:100
+#: utils/InputEngine.cpp:103
 msgctxt "InputEvent"
 msgid "save scene in slot 05"
 msgstr "uložit pozici jako slot 5"
 
-#: utils/InputEngine.cpp:101
+#: utils/InputEngine.cpp:104
 msgctxt "InputEvent"
 msgid "save scene in slot 06"
 msgstr "uložit pozici jako slot 6"
 
-#: utils/InputEngine.cpp:102
+#: utils/InputEngine.cpp:105
 msgctxt "InputEvent"
 msgid "save scene in slot 07"
 msgstr "uložit pozici jako slot 7"
 
-#: utils/InputEngine.cpp:103
+#: utils/InputEngine.cpp:106
 msgctxt "InputEvent"
 msgid "save scene in slot 08"
 msgstr "uložit pozici jako slot 8"
 
-#: utils/InputEngine.cpp:104
+#: utils/InputEngine.cpp:107
 msgctxt "InputEvent"
 msgid "save scene in slot 09"
 msgstr "uložit pozici jako slot 9"
 
-#: utils/InputEngine.cpp:105
+#: utils/InputEngine.cpp:108
 msgctxt "InputEvent"
 msgid "save scene in slot 10"
 msgstr "uložit pozici jako slot 10"
 
-#: utils/InputEngine.cpp:107
+#: utils/InputEngine.cpp:110
 msgctxt "InputEvent"
 msgid "load scene from slot 01"
 msgstr "Načtena pozice ze slotu 1"
 
-#: utils/InputEngine.cpp:108
+#: utils/InputEngine.cpp:111
 msgctxt "InputEvent"
 msgid "load scene from slot 02"
 msgstr "Načtena pozice ze slotu 2"
 
-#: utils/InputEngine.cpp:109
+#: utils/InputEngine.cpp:112
 msgctxt "InputEvent"
 msgid "load scene from slot 03"
 msgstr "Načtena pozice ze slotu 3"
 
-#: utils/InputEngine.cpp:110
+#: utils/InputEngine.cpp:113
 msgctxt "InputEvent"
 msgid "load scene from slot 04"
 msgstr "Načtena pozice ze slotu 4"
 
-#: utils/InputEngine.cpp:111
+#: utils/InputEngine.cpp:114
 msgctxt "InputEvent"
 msgid "load scene from slot 05"
 msgstr "Načtena pozice ze slotu 5"
 
-#: utils/InputEngine.cpp:112
+#: utils/InputEngine.cpp:115
 msgctxt "InputEvent"
 msgid "load scene from slot 06"
 msgstr "Načtena pozice ze slotu 6"
 
-#: utils/InputEngine.cpp:113
+#: utils/InputEngine.cpp:116
 msgctxt "InputEvent"
 msgid "load scene from slot 07"
 msgstr "Načtena pozice ze slotu 7"
 
-#: utils/InputEngine.cpp:114
+#: utils/InputEngine.cpp:117
 msgctxt "InputEvent"
 msgid "load scene from slot 08"
 msgstr "Načtena pozice ze slotu 8"
 
-#: utils/InputEngine.cpp:115
+#: utils/InputEngine.cpp:118
 msgctxt "InputEvent"
 msgid "load scene from slot 09"
 msgstr "Načtena pozice ze slotu 9"
 
-#: utils/InputEngine.cpp:116
+#: utils/InputEngine.cpp:119
 msgctxt "InputEvent"
 msgid "load scene from slot 10"
 msgstr "Načtena pozice ze slotu 10"
 
 #. Truck: generic
-#: utils/InputEngine.cpp:119
+#: utils/InputEngine.cpp:122
 msgctxt "InputEvent"
 msgid "accelerate the truck"
 msgstr "akcelerovat vozidlo"
 
-#: utils/InputEngine.cpp:120
+#: utils/InputEngine.cpp:123
 msgctxt "InputEvent"
 msgid "accelerate with 25 percent pedal input"
 msgstr "jet na 25% plynu"
 
-#: utils/InputEngine.cpp:121
+#: utils/InputEngine.cpp:124
 msgctxt "InputEvent"
 msgid "accelerate with 50 percent pedal input"
 msgstr "jet na 50% plynu"
 
-#: utils/InputEngine.cpp:122
+#: utils/InputEngine.cpp:125
 msgctxt "InputEvent"
 msgid "toggle left direction indicator (blinker)"
 msgstr "vyp./zap. levá směrová světla"
 
-#: utils/InputEngine.cpp:123
+#: utils/InputEngine.cpp:126
 msgctxt "InputEvent"
 msgid "toggle right direction indicator (blinker)"
 msgstr "vyp./zap. pravá směrová světla"
 
-#: utils/InputEngine.cpp:124
+#: utils/InputEngine.cpp:127
 msgctxt "InputEvent"
 msgid "toggle all direction indicators"
 msgstr "vyp./zap. všechny ukazatele směru"
 
-#: utils/InputEngine.cpp:125
+#: utils/InputEngine.cpp:128
 msgctxt "InputEvent"
 msgid "brake"
 msgstr "brzda"
 
-#: utils/InputEngine.cpp:126
+#: utils/InputEngine.cpp:129
 msgctxt "InputEvent"
 msgid "brake with 25 percent pedal input"
 msgstr "brzdit na 25% pedálu"
 
-#: utils/InputEngine.cpp:127
+#: utils/InputEngine.cpp:130
 msgctxt "InputEvent"
 msgid "brake with 50 percent pedal input"
 msgstr "brzdit na 50% pedálu"
 
-#: utils/InputEngine.cpp:128
+#: utils/InputEngine.cpp:131
 msgctxt "InputEvent"
 msgid "truck horn"
 msgstr "klakson"
 
-#: utils/InputEngine.cpp:129
+#: utils/InputEngine.cpp:132
 msgctxt "InputEvent"
 msgid "toggle custom light 1"
 msgstr "přepnout uživatelská světla 1"
 
-#: utils/InputEngine.cpp:130
+#: utils/InputEngine.cpp:133
 msgctxt "InputEvent"
 msgid "toggle custom light 2"
 msgstr "přepnout uživatelská světla 2"
 
-#: utils/InputEngine.cpp:131
+#: utils/InputEngine.cpp:134
 msgctxt "InputEvent"
 msgid "toggle custom light 3"
 msgstr "přepnout uživatelská světla 3"
 
-#: utils/InputEngine.cpp:132
+#: utils/InputEngine.cpp:135
 msgctxt "InputEvent"
 msgid "toggle custom light 4"
 msgstr "přepnout uživatelská světla 4"
 
-#: utils/InputEngine.cpp:133
+#: utils/InputEngine.cpp:136
 msgctxt "InputEvent"
 msgid "toggle custom light 5"
 msgstr "přepnout uživatelská světla 5"
 
-#: utils/InputEngine.cpp:134
+#: utils/InputEngine.cpp:137
 msgctxt "InputEvent"
 msgid "toggle custom light 6"
 msgstr "přepnout uživatelská světla 6"
 
-#: utils/InputEngine.cpp:135
+#: utils/InputEngine.cpp:138
 msgctxt "InputEvent"
 msgid "toggle custom light 7"
 msgstr "přepnout uživatelská světla 7"
 
-#: utils/InputEngine.cpp:136
+#: utils/InputEngine.cpp:139
 msgctxt "InputEvent"
 msgid "toggle custom light 8"
 msgstr "přepnout uživatelská světla 8"
 
-#: utils/InputEngine.cpp:137
+#: utils/InputEngine.cpp:140
 msgctxt "InputEvent"
 msgid "toggle custom light 9"
 msgstr "přepnout uživatelská světla 9"
 
-#: utils/InputEngine.cpp:138
+#: utils/InputEngine.cpp:141
 msgctxt "InputEvent"
 msgid "toggle custom light 10"
 msgstr "přepnout uživatelská světla 10"
 
-#: utils/InputEngine.cpp:139
+#: utils/InputEngine.cpp:142
 msgctxt "InputEvent"
 msgid "toggle parking brake"
 msgstr "parkovací brzda"
 
-#: utils/InputEngine.cpp:140
+#: utils/InputEngine.cpp:143
 msgctxt "InputEvent"
 msgid "toggle trailer parking brake"
 msgstr "parkovací brzda přívěsu"
 
-#: utils/InputEngine.cpp:141
+#: utils/InputEngine.cpp:144
 msgctxt "InputEvent"
 msgid "toggle antilock brake"
 msgstr "protiblokovací systém"
 
-#: utils/InputEngine.cpp:142
+#: utils/InputEngine.cpp:145
 msgctxt "InputEvent"
 msgid "toggle videocamera"
 msgstr "přepnout videokamery"
 
-#: utils/InputEngine.cpp:143
+#: utils/InputEngine.cpp:146
 msgctxt "InputEvent"
 msgid "toggle traction control"
 msgstr "přepnout kontrolu trakce"
 
-#: utils/InputEngine.cpp:144
+#: utils/InputEngine.cpp:147
 msgctxt "InputEvent"
 msgid "toggle cruise control"
 msgstr "zap./vyp. tempomat"
 
-#: utils/InputEngine.cpp:145
+#: utils/InputEngine.cpp:148
 msgctxt "InputEvent"
 msgid "match target speed / rpm with current truck speed / rpm"
-msgstr "srovnat požadovanou rychlost / otáčky se současnou rychlostí / otáčkami"
+msgstr ""
+"srovnat požadovanou rychlost / otáčky se současnou rychlostí / otáčkami"
 
-#: utils/InputEngine.cpp:146
+#: utils/InputEngine.cpp:149
 msgctxt "InputEvent"
 msgid "increase target speed / rpm"
 msgstr "zvýšit požadovanou rychlost / otáčky"
 
-#: utils/InputEngine.cpp:147
+#: utils/InputEngine.cpp:150
 msgctxt "InputEvent"
 msgid "decrease target speed / rpm"
 msgstr "snížit požadovanou rychlost / otáčky"
 
-#: utils/InputEngine.cpp:148
+#: utils/InputEngine.cpp:151
 msgctxt "InputEvent"
 msgid "hold to start the engine"
 msgstr "podržet pro start motoru"
 
-#: utils/InputEngine.cpp:149 utils/InputEngine.cpp:208
+#: utils/InputEngine.cpp:152 utils/InputEngine.cpp:211
 msgctxt "InputEvent"
 msgid "steer left"
 msgstr "zatočit doleva"
 
 #. Airplane
-#: utils/InputEngine.cpp:150 utils/InputEngine.cpp:196
-#: utils/InputEngine.cpp:209
+#: utils/InputEngine.cpp:153 utils/InputEngine.cpp:199
+#: utils/InputEngine.cpp:212
 msgctxt "InputEvent"
 msgid "steer right"
 msgstr "zatočit doprava"
 
-#: utils/InputEngine.cpp:151
+#: utils/InputEngine.cpp:154
 msgctxt "InputEvent"
 msgid "toggle ignition"
 msgstr "zapalování"
 
-#: utils/InputEngine.cpp:152
+#: utils/InputEngine.cpp:155
 msgctxt "InputEvent"
 msgid "toggle forwardcommands"
 msgstr "zap./vyp. přeposílání příkazů"
 
-#: utils/InputEngine.cpp:153
+#: utils/InputEngine.cpp:156
 msgctxt "InputEvent"
 msgid "toggle importcommands"
 msgstr "zap./vyp. přejímání příkazů"
 
-#: utils/InputEngine.cpp:154
+#: utils/InputEngine.cpp:157
 msgctxt "InputEvent"
 msgid "toggle physics"
 msgstr "pozastavit fyziku"
 
-#: utils/InputEngine.cpp:155
+#: utils/InputEngine.cpp:158
 msgctxt "InputEvent"
 msgid "cycle between available inter axle differential modes"
 msgstr "cyklovat dostupné režimy diferenciálu mezi osami"
 
-#: utils/InputEngine.cpp:156
+#: utils/InputEngine.cpp:159
 msgctxt "InputEvent"
 msgid "cycle between available inter wheel differential modes"
 msgstr "cyklovat dostupné režimy diferenciálu mezi koly"
 
-#: utils/InputEngine.cpp:157
+#: utils/InputEngine.cpp:160
 msgctxt "InputEvent"
 msgid "toggle transfer case mode"
 msgstr "přepnout režim převodovky"
 
-#: utils/InputEngine.cpp:158
+#: utils/InputEngine.cpp:161
 msgctxt "InputEvent"
 msgid "toggle transfer case gear ratio"
 msgstr "upravit převodový poměr"
 
-#: utils/InputEngine.cpp:159
+#: utils/InputEngine.cpp:162
 msgctxt "InputEvent"
 msgid "move left mirror to the left"
 msgstr "posunout levé zrcátko doleva"
 
-#: utils/InputEngine.cpp:160
+#: utils/InputEngine.cpp:163
 msgctxt "InputEvent"
 msgid "move left mirror to the right"
 msgstr "posunout levé zrcátko doprava"
 
-#: utils/InputEngine.cpp:161
+#: utils/InputEngine.cpp:164
 msgctxt "InputEvent"
 msgid "more right mirror to the left"
 msgstr "posunout pravé zrcátko vlevo"
 
-#: utils/InputEngine.cpp:162
+#: utils/InputEngine.cpp:165
 msgctxt "InputEvent"
 msgid "move right mirror to the right"
 msgstr "posunout pravé zrcátko vpravo"
 
 #. Truck: transmission
-#: utils/InputEngine.cpp:165
+#: utils/InputEngine.cpp:168
 msgctxt "InputEvent"
 msgid "shift automatic transmission one gear down"
 msgstr "přeřadit automatickou převodovku o jeden stupeň dolů"
 
-#: utils/InputEngine.cpp:166
+#: utils/InputEngine.cpp:169
 msgctxt "InputEvent"
 msgid "shift automatic transmission one gear up"
 msgstr "přeřadit automatickou převodovku o jeden stupeň nahoru"
 
-#: utils/InputEngine.cpp:167
+#: utils/InputEngine.cpp:170
 msgctxt "InputEvent"
 msgid "manual clutch (for manual transmission)"
 msgstr "manuální spojka (pro manuální řazení)"
 
-#: utils/InputEngine.cpp:168
+#: utils/InputEngine.cpp:171
 msgctxt "InputEvent"
 msgid "shift one gear down in manual transmission mode"
 msgstr "přeřadit o jednu rychlost níž u manuální převodovky"
 
-#: utils/InputEngine.cpp:169
+#: utils/InputEngine.cpp:172
 msgctxt "InputEvent"
 msgid "shift to neutral gear in manual transmission mode"
 msgstr "přeřadit na neutrál u manuální převodovky"
 
-#: utils/InputEngine.cpp:170
+#: utils/InputEngine.cpp:173
 msgctxt "InputEvent"
 msgid "shift one gear up in manual transmission mode"
 msgstr "přeřadit o jednu rychlost výš u manuální převodovky"
 
-#: utils/InputEngine.cpp:171
+#: utils/InputEngine.cpp:174
 msgctxt "InputEvent"
 msgid "shift directly to reverse gear"
 msgstr "zařadit zpátečku"
 
-#: utils/InputEngine.cpp:172
+#: utils/InputEngine.cpp:175
 msgctxt "InputEvent"
 msgid "shift directly to first gear"
 msgstr "zařadit první rychlost"
 
-#: utils/InputEngine.cpp:173
+#: utils/InputEngine.cpp:176
 msgctxt "InputEvent"
 msgid "shift directly to second gear"
 msgstr "zařadit druhou rychlost"
 
-#: utils/InputEngine.cpp:174
+#: utils/InputEngine.cpp:177
 msgctxt "InputEvent"
 msgid "shift directly to third gear"
 msgstr "zařadit třetí rychlost"
 
-#: utils/InputEngine.cpp:175
+#: utils/InputEngine.cpp:178
 msgctxt "InputEvent"
 msgid "shift directly to fourth gear"
 msgstr "zařadit čtvrtou rychlost"
 
-#: utils/InputEngine.cpp:176
+#: utils/InputEngine.cpp:179
 msgctxt "InputEvent"
 msgid "shift directly to 5th gear"
 msgstr "zařadit pátou rychlost"
 
-#: utils/InputEngine.cpp:177
+#: utils/InputEngine.cpp:180
 msgctxt "InputEvent"
 msgid "shift directly to 6th gear"
 msgstr "zařadit šestou rychlost"
 
-#: utils/InputEngine.cpp:178
+#: utils/InputEngine.cpp:181
 msgctxt "InputEvent"
 msgid "shift directly to 7th gear"
 msgstr "zařadit sedmou rychlost"
 
-#: utils/InputEngine.cpp:179
+#: utils/InputEngine.cpp:182
 msgctxt "InputEvent"
 msgid "shift directly to 8th gear"
 msgstr "zařadit osmou rychlost"
 
-#: utils/InputEngine.cpp:180
+#: utils/InputEngine.cpp:183
 msgctxt "InputEvent"
 msgid "shift directly to 9th gear"
 msgstr "zařadit devátou rychlost"
 
-#: utils/InputEngine.cpp:181
+#: utils/InputEngine.cpp:184
 msgctxt "InputEvent"
 msgid "shift directly to 10th gear"
 msgstr "zařadit desátou rychlost"
 
-#: utils/InputEngine.cpp:182
+#: utils/InputEngine.cpp:185
 msgctxt "InputEvent"
 msgid "shift directly to 11th gear"
 msgstr "zařadit jedenáctou rychlost"
 
-#: utils/InputEngine.cpp:183
+#: utils/InputEngine.cpp:186
 msgctxt "InputEvent"
 msgid "shift directly to 12th gear"
 msgstr "zařadit dvanáctou rychlost"
 
-#: utils/InputEngine.cpp:184
+#: utils/InputEngine.cpp:187
 msgctxt "InputEvent"
 msgid "shift directly to 13th gear"
 msgstr "zařadit třináctou rychlost"
 
-#: utils/InputEngine.cpp:185
+#: utils/InputEngine.cpp:188
 msgctxt "InputEvent"
 msgid "shift directly to 14th gear"
 msgstr "zařadit čtrnáctou rychlost"
 
-#: utils/InputEngine.cpp:186
+#: utils/InputEngine.cpp:189
 msgctxt "InputEvent"
 msgid "shift directly to 15th gear"
 msgstr "zařadit patnáctou rychlost"
 
-#: utils/InputEngine.cpp:187
+#: utils/InputEngine.cpp:190
 msgctxt "InputEvent"
 msgid "shift directly to 16th gear"
 msgstr "zařadit šestnáctou rychlost"
 
-#: utils/InputEngine.cpp:188
+#: utils/InputEngine.cpp:191
 msgctxt "InputEvent"
 msgid "shift directly to 17th gear"
 msgstr "zařadit sedmnáctou rychlost"
 
-#: utils/InputEngine.cpp:189
+#: utils/InputEngine.cpp:192
 msgctxt "InputEvent"
 msgid "shift directly to 18th gear"
 msgstr "zařadit osmnáctou rychlost"
 
-#: utils/InputEngine.cpp:190
+#: utils/InputEngine.cpp:193
 msgctxt "InputEvent"
 msgid "sets low range (1-6) for H-shaft"
 msgstr "nastavit nižší rozsah (1-16) pro H-osu"
 
-#: utils/InputEngine.cpp:191
+#: utils/InputEngine.cpp:194
 msgctxt "InputEvent"
 msgid "sets middle range (7-12) for H-shaft"
 msgstr "nastavit střední rozsah (7-12) pro H-osu"
 
-#: utils/InputEngine.cpp:192
+#: utils/InputEngine.cpp:195
 msgctxt "InputEvent"
 msgid "sets high range (13-18) for H-shaft"
 msgstr "nastavit vyšší rozsah (13-18) pro H-osu"
 
-#: utils/InputEngine.cpp:193
+#: utils/InputEngine.cpp:196
 msgctxt "InputEvent"
 msgid "toggle between transmission modes"
 msgstr "přepnout režim převodovky"
 
-#: utils/InputEngine.cpp:197
+#: utils/InputEngine.cpp:200
 msgctxt "InputEvent"
 msgid "normal brake for an aircraft"
 msgstr "běžné brzdy pro letadlo"
 
-#: utils/InputEngine.cpp:198
+#: utils/InputEngine.cpp:201
 msgctxt "InputEvent"
 msgid "pull the elevator down in an aircraft."
 msgstr "Stáhnout výškové kormidlo letadla dolů."
 
-#: utils/InputEngine.cpp:199
+#: utils/InputEngine.cpp:202
 msgctxt "InputEvent"
 msgid "pull the elevator up in an aircraft."
 msgstr "vytáhnout výškové kormidlo letadla nahoru."
 
-#: utils/InputEngine.cpp:200
+#: utils/InputEngine.cpp:203
 msgctxt "InputEvent"
 msgid "full flaps in an aircraft."
 msgstr "plné klapky v letadle"
 
-#: utils/InputEngine.cpp:201
+#: utils/InputEngine.cpp:204
 msgctxt "InputEvent"
 msgid "one step less flaps."
 msgstr "klapky o stupeň snížit"
 
-#: utils/InputEngine.cpp:202
+#: utils/InputEngine.cpp:205
 msgctxt "InputEvent"
 msgid "one step more flaps."
 msgstr "klapky o stupeň zvýšit"
 
-#: utils/InputEngine.cpp:203
+#: utils/InputEngine.cpp:206
 msgctxt "InputEvent"
 msgid "no flaps."
 msgstr "bez klapek."
 
-#: utils/InputEngine.cpp:204
+#: utils/InputEngine.cpp:207
 msgctxt "InputEvent"
 msgid "airplane parking brake."
 msgstr "parkovací brzda letadla."
 
-#: utils/InputEngine.cpp:205
+#: utils/InputEngine.cpp:208
 msgctxt "InputEvent"
 msgid "reverse the turboprops"
 msgstr "revers turbomotorů"
 
-#: utils/InputEngine.cpp:206
+#: utils/InputEngine.cpp:209
 msgctxt "InputEvent"
 msgid "rudder left"
 msgstr "kormidlo doleva"
 
-#: utils/InputEngine.cpp:207
+#: utils/InputEngine.cpp:210
 msgctxt "InputEvent"
 msgid "rudder right"
 msgstr "kormidlo doprava"
 
-#: utils/InputEngine.cpp:210 utils/InputEngine.cpp:229
+#: utils/InputEngine.cpp:213 utils/InputEngine.cpp:232
 msgctxt "InputEvent"
 msgid ""
 "throttle axis. Only use this if you have fitting hardware :) (i.e. a Slider)"
 msgstr "osa plynu. Nastavte pouze jestli máte odpovídající hardware :)"
 
-#: utils/InputEngine.cpp:211
+#: utils/InputEngine.cpp:214
 msgctxt "InputEvent"
 msgid "decreases the airplane thrust"
 msgstr "snižuje tah letadla"
 
-#: utils/InputEngine.cpp:212
+#: utils/InputEngine.cpp:215
 msgctxt "InputEvent"
 msgid "full thrust"
 msgstr "plný tah"
 
-#: utils/InputEngine.cpp:213 utils/InputEngine.cpp:224
+#: utils/InputEngine.cpp:216 utils/InputEngine.cpp:227
 msgctxt "InputEvent"
 msgid "no thrust"
 msgstr "bez tahu"
 
-#: utils/InputEngine.cpp:214
+#: utils/InputEngine.cpp:217
 msgctxt "InputEvent"
 msgid "increase the airplane thrust"
 msgstr "zvýšit tah letadla"
 
-#: utils/InputEngine.cpp:215
+#: utils/InputEngine.cpp:218
 msgctxt "InputEvent"
 msgid "switch all engines on / off"
 msgstr "zapnout/vypnout všechny motory"
 
-#: utils/InputEngine.cpp:216
+#: utils/InputEngine.cpp:219
 msgctxt "InputEvent"
 msgid "no airbrakes"
 msgstr "žádné brzdné štíty"
 
-#: utils/InputEngine.cpp:217
+#: utils/InputEngine.cpp:220
 msgctxt "InputEvent"
 msgid "full airbrakes"
 msgstr "plné brzdné klapky"
 
-#: utils/InputEngine.cpp:218
+#: utils/InputEngine.cpp:221
 msgctxt "InputEvent"
 msgid "less airbrakes"
 msgstr "ubrat brzdné klapky"
 
-#: utils/InputEngine.cpp:219
+#: utils/InputEngine.cpp:222
 msgctxt "InputEvent"
 msgid "more airbrakes"
 msgstr "přidat brzdné klapky"
 
-#: utils/InputEngine.cpp:220
+#: utils/InputEngine.cpp:223
 msgctxt "InputEvent"
 msgid "airplane throttle"
 msgstr "tah motoru letadla"
 
 #. Boat
-#: utils/InputEngine.cpp:223
+#: utils/InputEngine.cpp:226
 msgctxt "InputEvent"
 msgid "center the rudder"
 msgstr "vycentrovat kormidlo"
 
-#: utils/InputEngine.cpp:225
+#: utils/InputEngine.cpp:228
 msgctxt "InputEvent"
 msgid "steer left a step"
 msgstr "zatočit o krok doleva"
 
-#: utils/InputEngine.cpp:226
+#: utils/InputEngine.cpp:229
 msgctxt "InputEvent"
 msgid "steer left (analog value!)"
 msgstr "zatočit doleva (analogová hodnota!)"
 
-#: utils/InputEngine.cpp:227
+#: utils/InputEngine.cpp:230
 msgctxt "InputEvent"
 msgid "steer right a step"
 msgstr "zatočit o krok doprava"
 
-#: utils/InputEngine.cpp:228
+#: utils/InputEngine.cpp:231
 msgctxt "InputEvent"
 msgid "steer right (analog value!)"
 msgstr "zatočit doprava (analogová hodnota!)"
 
-#: utils/InputEngine.cpp:230
+#: utils/InputEngine.cpp:233
 msgctxt "InputEvent"
 msgid "decrease throttle"
 msgstr "ubrat plyn"
 
-#: utils/InputEngine.cpp:231
+#: utils/InputEngine.cpp:234
 msgctxt "InputEvent"
 msgid "increase throttle"
 msgstr "přidat plyn"
 
 #. Commands
-#: utils/InputEngine.cpp:234
+#: utils/InputEngine.cpp:237
 msgctxt "InputEvent"
 msgid "Command 1"
 msgstr "Příkaz 1"
 
-#: utils/InputEngine.cpp:235
+#: utils/InputEngine.cpp:238
 msgctxt "InputEvent"
 msgid "Command 2"
 msgstr "Příkaz 2"
 
-#: utils/InputEngine.cpp:236
+#: utils/InputEngine.cpp:239
 msgctxt "InputEvent"
 msgid "Command 3"
 msgstr "Příkaz 3"
 
-#: utils/InputEngine.cpp:237
+#: utils/InputEngine.cpp:240
 msgctxt "InputEvent"
 msgid "Command 4"
 msgstr "Příkaz 4"
 
-#: utils/InputEngine.cpp:238
+#: utils/InputEngine.cpp:241
 msgctxt "InputEvent"
 msgid "Command 5"
 msgstr "Příkaz 5"
 
-#: utils/InputEngine.cpp:239
+#: utils/InputEngine.cpp:242
 msgctxt "InputEvent"
 msgid "Command 6"
 msgstr "Příkaz 6"
 
-#: utils/InputEngine.cpp:240
+#: utils/InputEngine.cpp:243
 msgctxt "InputEvent"
 msgid "Command 7"
 msgstr "Příkaz 7"
 
-#: utils/InputEngine.cpp:241
+#: utils/InputEngine.cpp:244
 msgctxt "InputEvent"
 msgid "Command 8"
 msgstr "Příkaz 8"
 
-#: utils/InputEngine.cpp:242
+#: utils/InputEngine.cpp:245
 msgctxt "InputEvent"
 msgid "Command 9"
 msgstr "Příkaz 9"
 
-#: utils/InputEngine.cpp:243
+#: utils/InputEngine.cpp:246
 msgctxt "InputEvent"
 msgid "Command 10"
 msgstr "Příkaz 10"
 
-#: utils/InputEngine.cpp:244
+#: utils/InputEngine.cpp:247
 msgctxt "InputEvent"
 msgid "Command 11"
 msgstr "Příkaz 11"
 
-#: utils/InputEngine.cpp:245
+#: utils/InputEngine.cpp:248
 msgctxt "InputEvent"
 msgid "Command 12"
 msgstr "Příkaz 12"
 
-#: utils/InputEngine.cpp:246
+#: utils/InputEngine.cpp:249
 msgctxt "InputEvent"
 msgid "Command 13"
 msgstr "Příkaz 13"
 
-#: utils/InputEngine.cpp:247
+#: utils/InputEngine.cpp:250
 msgctxt "InputEvent"
 msgid "Command 14"
 msgstr "Příkaz 14"
 
-#: utils/InputEngine.cpp:248
+#: utils/InputEngine.cpp:251
 msgctxt "InputEvent"
 msgid "Command 15"
 msgstr "Příkaz 15"
 
-#: utils/InputEngine.cpp:249
+#: utils/InputEngine.cpp:252
 msgctxt "InputEvent"
 msgid "Command 16"
 msgstr "Příkaz 16"
 
-#: utils/InputEngine.cpp:250
+#: utils/InputEngine.cpp:253
 msgctxt "InputEvent"
 msgid "Command 17"
 msgstr "Příkaz 17"
 
-#: utils/InputEngine.cpp:251
+#: utils/InputEngine.cpp:254
 msgctxt "InputEvent"
 msgid "Command 18"
 msgstr "Příkaz 18"
 
-#: utils/InputEngine.cpp:252
+#: utils/InputEngine.cpp:255
 msgctxt "InputEvent"
 msgid "Command 19"
 msgstr "Příkaz 19"
 
-#: utils/InputEngine.cpp:253
+#: utils/InputEngine.cpp:256
 msgctxt "InputEvent"
 msgid "Command 20"
 msgstr "Příkaz 20"
 
-#: utils/InputEngine.cpp:254
+#: utils/InputEngine.cpp:257
 msgctxt "InputEvent"
 msgid "Command 21"
 msgstr "Příkaz 21"
 
-#: utils/InputEngine.cpp:255
+#: utils/InputEngine.cpp:258
 msgctxt "InputEvent"
 msgid "Command 22"
 msgstr "Příkaz 22"
 
-#: utils/InputEngine.cpp:256
+#: utils/InputEngine.cpp:259
 msgctxt "InputEvent"
 msgid "Command 23"
 msgstr "Příkaz 23"
 
-#: utils/InputEngine.cpp:257
+#: utils/InputEngine.cpp:260
 msgctxt "InputEvent"
 msgid "Command 24"
 msgstr "Příkaz 24"
 
-#: utils/InputEngine.cpp:258
+#: utils/InputEngine.cpp:261
 msgctxt "InputEvent"
 msgid "Command 25"
 msgstr "Příkaz 17"
 
-#: utils/InputEngine.cpp:259
+#: utils/InputEngine.cpp:262
 msgctxt "InputEvent"
 msgid "Command 26"
 msgstr "Příkaz 26"
 
-#: utils/InputEngine.cpp:260
+#: utils/InputEngine.cpp:263
 msgctxt "InputEvent"
 msgid "Command 27"
 msgstr "Příkaz 27"
 
-#: utils/InputEngine.cpp:261
+#: utils/InputEngine.cpp:264
 msgctxt "InputEvent"
 msgid "Command 28"
 msgstr "Příkaz 28"
 
-#: utils/InputEngine.cpp:262
+#: utils/InputEngine.cpp:265
 msgctxt "InputEvent"
 msgid "Command 29"
 msgstr "Příkaz 29"
 
-#: utils/InputEngine.cpp:263
+#: utils/InputEngine.cpp:266
 msgctxt "InputEvent"
 msgid "Command 30"
 msgstr "Příkaz 30"
 
-#: utils/InputEngine.cpp:264
+#: utils/InputEngine.cpp:267
 msgctxt "InputEvent"
 msgid "Command 31"
 msgstr "Příkaz 31"
 
-#: utils/InputEngine.cpp:265
+#: utils/InputEngine.cpp:268
 msgctxt "InputEvent"
 msgid "Command 32"
 msgstr "Příkaz 32"
 
-#: utils/InputEngine.cpp:266
+#: utils/InputEngine.cpp:269
 msgctxt "InputEvent"
 msgid "Command 33"
 msgstr "Příkaz 33"
 
-#: utils/InputEngine.cpp:267
+#: utils/InputEngine.cpp:270
 msgctxt "InputEvent"
 msgid "Command 34"
 msgstr "Příkaz 34"
 
-#: utils/InputEngine.cpp:268
+#: utils/InputEngine.cpp:271
 msgctxt "InputEvent"
 msgid "Command 35"
 msgstr "Příkaz 35"
 
-#: utils/InputEngine.cpp:269
+#: utils/InputEngine.cpp:272
 msgctxt "InputEvent"
 msgid "Command 36"
 msgstr "Příkaz 36"
 
-#: utils/InputEngine.cpp:270
+#: utils/InputEngine.cpp:273
 msgctxt "InputEvent"
 msgid "Command 37"
 msgstr "Příkaz 37"
 
-#: utils/InputEngine.cpp:271
+#: utils/InputEngine.cpp:274
 msgctxt "InputEvent"
 msgid "Command 38"
 msgstr "Příkaz 38"
 
-#: utils/InputEngine.cpp:272
+#: utils/InputEngine.cpp:275
 msgctxt "InputEvent"
 msgid "Command 39"
 msgstr "Příkaz 39"
 
-#: utils/InputEngine.cpp:273
+#: utils/InputEngine.cpp:276
 msgctxt "InputEvent"
 msgid "Command 40"
 msgstr "Příkaz 40"
 
-#: utils/InputEngine.cpp:274
+#: utils/InputEngine.cpp:277
 msgctxt "InputEvent"
 msgid "Command 41"
 msgstr "Příkaz 41"
 
-#: utils/InputEngine.cpp:275
+#: utils/InputEngine.cpp:278
 msgctxt "InputEvent"
 msgid "Command 42"
 msgstr "Příkaz 42"
 
-#: utils/InputEngine.cpp:276
+#: utils/InputEngine.cpp:279
 msgctxt "InputEvent"
 msgid "Command 43"
 msgstr "Příkaz 43"
 
-#: utils/InputEngine.cpp:277
+#: utils/InputEngine.cpp:280
 msgctxt "InputEvent"
 msgid "Command 44"
 msgstr "Příkaz 44"
 
-#: utils/InputEngine.cpp:278
+#: utils/InputEngine.cpp:281
 msgctxt "InputEvent"
 msgid "Command 45"
 msgstr "Příkaz 45"
 
-#: utils/InputEngine.cpp:279
+#: utils/InputEngine.cpp:282
 msgctxt "InputEvent"
 msgid "Command 46"
 msgstr "Příkaz 46"
 
-#: utils/InputEngine.cpp:280
+#: utils/InputEngine.cpp:283
 msgctxt "InputEvent"
 msgid "Command 47"
 msgstr "Příkaz 47"
 
-#: utils/InputEngine.cpp:281
+#: utils/InputEngine.cpp:284
 msgctxt "InputEvent"
 msgid "Command 48"
 msgstr "Příkaz 48"
 
-#: utils/InputEngine.cpp:282
+#: utils/InputEngine.cpp:285
 msgctxt "InputEvent"
 msgid "Command 49"
 msgstr "Příkaz 49"
 
-#: utils/InputEngine.cpp:283
+#: utils/InputEngine.cpp:286
 #, fuzzy
 #| msgid "Command 50"
 msgctxt "InputEvent"
 msgid "Command 50"
 msgstr "Příkaz 50"
 
-#: utils/InputEngine.cpp:284
+#: utils/InputEngine.cpp:287
 #, fuzzy
 #| msgid "Command 51"
 msgctxt "InputEvent"
 msgid "Command 51"
 msgstr "Příkaz 51"
 
-#: utils/InputEngine.cpp:285
+#: utils/InputEngine.cpp:288
 #, fuzzy
 #| msgid "Command 52"
 msgctxt "InputEvent"
 msgid "Command 52"
 msgstr "Příkaz 52"
 
-#: utils/InputEngine.cpp:286
+#: utils/InputEngine.cpp:289
 #, fuzzy
 #| msgid "Command 53"
 msgctxt "InputEvent"
 msgid "Command 53"
 msgstr "Příkaz 53"
 
-#: utils/InputEngine.cpp:287
+#: utils/InputEngine.cpp:290
 #, fuzzy
 #| msgid "Command 54"
 msgctxt "InputEvent"
 msgid "Command 54"
 msgstr "Příkaz 54"
 
-#: utils/InputEngine.cpp:288
+#: utils/InputEngine.cpp:291
 #, fuzzy
 #| msgid "Command 55"
 msgctxt "InputEvent"
 msgid "Command 55"
 msgstr "Příkaz 55"
 
-#: utils/InputEngine.cpp:289
+#: utils/InputEngine.cpp:292
 #, fuzzy
 #| msgid "Command 56"
 msgctxt "InputEvent"
 msgid "Command 56"
 msgstr "Příkaz 56"
 
-#: utils/InputEngine.cpp:290
+#: utils/InputEngine.cpp:293
 #, fuzzy
 #| msgid "Command 57"
 msgctxt "InputEvent"
 msgid "Command 57"
 msgstr "Příkaz 57"
 
-#: utils/InputEngine.cpp:291
+#: utils/InputEngine.cpp:294
 #, fuzzy
 #| msgid "Command 58"
 msgctxt "InputEvent"
 msgid "Command 58"
 msgstr "Příkaz 58"
 
-#: utils/InputEngine.cpp:292
+#: utils/InputEngine.cpp:295
 #, fuzzy
 #| msgid "Command 59"
 msgctxt "InputEvent"
 msgid "Command 59"
 msgstr "Příkaz 59"
 
-#: utils/InputEngine.cpp:293
+#: utils/InputEngine.cpp:296
 #, fuzzy
 #| msgid "Command 60"
 msgctxt "InputEvent"
 msgid "Command 60"
 msgstr "Příkaz 60"
 
-#: utils/InputEngine.cpp:294
+#: utils/InputEngine.cpp:297
 #, fuzzy
 #| msgid "Command 61"
 msgctxt "InputEvent"
 msgid "Command 61"
 msgstr "Příkaz 61"
 
-#: utils/InputEngine.cpp:295
+#: utils/InputEngine.cpp:298
 #, fuzzy
 #| msgid "Command 62"
 msgctxt "InputEvent"
 msgid "Command 62"
 msgstr "Příkaz 62"
 
-#: utils/InputEngine.cpp:296
+#: utils/InputEngine.cpp:299
 #, fuzzy
 #| msgid "Command 63"
 msgctxt "InputEvent"
 msgid "Command 63"
 msgstr "Příkaz 63"
 
-#: utils/InputEngine.cpp:297
+#: utils/InputEngine.cpp:300
 #, fuzzy
 #| msgid "Command 64"
 msgctxt "InputEvent"
 msgid "Command 64"
 msgstr "Příkaz 64"
 
-#: utils/InputEngine.cpp:298
+#: utils/InputEngine.cpp:301
 #, fuzzy
 #| msgid "Command 65"
 msgctxt "InputEvent"
 msgid "Command 65"
 msgstr "Příkaz 65"
 
-#: utils/InputEngine.cpp:299
+#: utils/InputEngine.cpp:302
 #, fuzzy
 #| msgid "Command 66"
 msgctxt "InputEvent"
 msgid "Command 66"
 msgstr "Příkaz 66"
 
-#: utils/InputEngine.cpp:300
+#: utils/InputEngine.cpp:303
 #, fuzzy
 #| msgid "Command 67"
 msgctxt "InputEvent"
 msgid "Command 67"
 msgstr "Příkaz 67"
 
-#: utils/InputEngine.cpp:301
+#: utils/InputEngine.cpp:304
 #, fuzzy
 #| msgid "Command 68"
 msgctxt "InputEvent"
 msgid "Command 68"
 msgstr "Příkaz 68"
 
-#: utils/InputEngine.cpp:302
+#: utils/InputEngine.cpp:305
 #, fuzzy
 #| msgid "Command 69"
 msgctxt "InputEvent"
 msgid "Command 69"
 msgstr "Příkaz 69"
 
-#: utils/InputEngine.cpp:303
+#: utils/InputEngine.cpp:306
 #, fuzzy
 #| msgid "Command 70"
 msgctxt "InputEvent"
 msgid "Command 70"
 msgstr "Příkaz 70"
 
-#: utils/InputEngine.cpp:304
+#: utils/InputEngine.cpp:307
 #, fuzzy
 #| msgid "Command 71"
 msgctxt "InputEvent"
 msgid "Command 71"
 msgstr "Příkaz 71"
 
-#: utils/InputEngine.cpp:305
+#: utils/InputEngine.cpp:308
 #, fuzzy
 #| msgid "Command 72"
 msgctxt "InputEvent"
 msgid "Command 72"
 msgstr "Příkaz 72"
 
-#: utils/InputEngine.cpp:306
+#: utils/InputEngine.cpp:309
 #, fuzzy
 #| msgid "Command 73"
 msgctxt "InputEvent"
 msgid "Command 73"
 msgstr "Příkaz 73"
 
-#: utils/InputEngine.cpp:307
+#: utils/InputEngine.cpp:310
 #, fuzzy
 #| msgid "Command 74"
 msgctxt "InputEvent"
 msgid "Command 74"
 msgstr "Příkaz 74"
 
-#: utils/InputEngine.cpp:308
+#: utils/InputEngine.cpp:311
 #, fuzzy
 #| msgid "Command 75"
 msgctxt "InputEvent"
 msgid "Command 75"
 msgstr "Příkaz 75"
 
-#: utils/InputEngine.cpp:309
+#: utils/InputEngine.cpp:312
 #, fuzzy
 #| msgid "Command 76"
 msgctxt "InputEvent"
 msgid "Command 76"
 msgstr "Příkaz 76"
 
-#: utils/InputEngine.cpp:310
+#: utils/InputEngine.cpp:313
 #, fuzzy
 #| msgid "Command 77"
 msgctxt "InputEvent"
 msgid "Command 77"
 msgstr "Příkaz 77"
 
-#: utils/InputEngine.cpp:311
+#: utils/InputEngine.cpp:314
 #, fuzzy
 #| msgid "Command 78"
 msgctxt "InputEvent"
 msgid "Command 78"
 msgstr "Příkaz 78"
 
-#: utils/InputEngine.cpp:312
+#: utils/InputEngine.cpp:315
 #, fuzzy
 #| msgid "Command 79"
 msgctxt "InputEvent"
 msgid "Command 79"
 msgstr "Příkaz 79"
 
-#: utils/InputEngine.cpp:313
+#: utils/InputEngine.cpp:316
 #, fuzzy
 #| msgid "Command 80"
 msgctxt "InputEvent"
 msgid "Command 80"
 msgstr "Příkaz 80"
 
-#: utils/InputEngine.cpp:314
+#: utils/InputEngine.cpp:317
 #, fuzzy
 #| msgid "Command 81"
 msgctxt "InputEvent"
 msgid "Command 81"
 msgstr "Příkaz 81"
 
-#: utils/InputEngine.cpp:315
+#: utils/InputEngine.cpp:318
 #, fuzzy
 #| msgid "Command 82"
 msgctxt "InputEvent"
 msgid "Command 82"
 msgstr "Příkaz 82"
 
-#: utils/InputEngine.cpp:316
+#: utils/InputEngine.cpp:319
 #, fuzzy
 #| msgid "Command 83"
 msgctxt "InputEvent"
 msgid "Command 83"
 msgstr "Příkaz 83"
 
-#: utils/InputEngine.cpp:317
+#: utils/InputEngine.cpp:320
 #, fuzzy
 #| msgid "Command 84"
 msgctxt "InputEvent"
@@ -4747,70 +4789,70 @@ msgid "Command 84"
 msgstr "Příkaz 84"
 
 #. Character
-#: utils/InputEngine.cpp:320
+#: utils/InputEngine.cpp:323
 #, fuzzy
 #| msgid "step backwards with the character"
 msgctxt "InputEvent"
 msgid "step backwards with the character"
 msgstr "popojít s postavou dozadu"
 
-#: utils/InputEngine.cpp:321
+#: utils/InputEngine.cpp:324
 #, fuzzy
 #| msgid "step forward with the character"
 msgctxt "InputEvent"
 msgid "step forward with the character"
 msgstr "popojít s postavou dopředu"
 
-#: utils/InputEngine.cpp:322
+#: utils/InputEngine.cpp:325
 #, fuzzy
 #| msgid "let the character jump"
 msgctxt "InputEvent"
 msgid "let the character jump"
 msgstr "nechat postavu skočit"
 
-#: utils/InputEngine.cpp:323
+#: utils/InputEngine.cpp:326
 #, fuzzy
 #| msgid "rotate character left"
 msgctxt "InputEvent"
 msgid "rotate character left"
 msgstr "otočit postavu doleva"
 
-#: utils/InputEngine.cpp:324
+#: utils/InputEngine.cpp:327
 #, fuzzy
 #| msgid "rotate character right"
 msgctxt "InputEvent"
 msgid "rotate character right"
 msgstr "otočit postavu doprava"
 
-#: utils/InputEngine.cpp:325
+#: utils/InputEngine.cpp:328
 #, fuzzy
 #| msgid "let the character run"
 msgctxt "InputEvent"
 msgid "let the character run"
 msgstr "nechat postavu běžet"
 
-#: utils/InputEngine.cpp:326
+#: utils/InputEngine.cpp:329
 #, fuzzy
 #| msgid "sidestep to the left"
 msgctxt "InputEvent"
 msgid "sidestep to the left"
 msgstr "úkrok doleva"
 
-#: utils/InputEngine.cpp:327
+#: utils/InputEngine.cpp:330
 #, fuzzy
 #| msgid "sidestep to the right"
 msgctxt "InputEvent"
 msgid "sidestep to the right"
 msgstr "úkrok doprava"
 
-#: utils/InputEngine.cpp:328
+#: utils/InputEngine.cpp:331
 #, fuzzy
 #| msgid "rotate view up"
 msgctxt "InputEvent"
 msgid "rotate view up"
 msgstr "otočit pohled nahoru"
 
-#: utils/InputEngine.cpp:329
+#: utils/InputEngine.cpp:332
 #, fuzzy
 #| msgid "rotate view down"
 msgctxt "InputEvent"
@@ -4818,132 +4860,132 @@ msgid "rotate view down"
 msgstr "otočit pohled dolů"
 
 #. Camera
-#: utils/InputEngine.cpp:332
+#: utils/InputEngine.cpp:335
 #, fuzzy
 #| msgid "change camera mode"
 msgctxt "InputEvent"
 msgid "change camera mode"
 msgstr "změnit mód kamery"
 
-#: utils/InputEngine.cpp:333
+#: utils/InputEngine.cpp:336
 #, fuzzy
 #| msgid "look back (toggles between normal and lookback)"
 msgctxt "InputEvent"
 msgid "look back (toggles between normal and lookback)"
 msgstr "zpětný pohled (přepne na běžný a zpětný pohled)"
 
-#: utils/InputEngine.cpp:334
+#: utils/InputEngine.cpp:337
 #, fuzzy
 #| msgid "reset the camera position"
 msgctxt "InputEvent"
 msgid "reset the camera position"
 msgstr "resetovat pozici kamery"
 
-#: utils/InputEngine.cpp:335
+#: utils/InputEngine.cpp:338
 #, fuzzy
 #| msgid "rotate camera down"
 msgctxt "InputEvent"
 msgid "rotate camera down"
 msgstr "otočit kameru dolů"
 
-#: utils/InputEngine.cpp:336
+#: utils/InputEngine.cpp:339
 #, fuzzy
 #| msgid "rotate camera left"
 msgctxt "InputEvent"
 msgid "rotate camera left"
 msgstr "otočit kameru doleva"
 
-#: utils/InputEngine.cpp:337
+#: utils/InputEngine.cpp:340
 #, fuzzy
 #| msgid "rotate camera right"
 msgctxt "InputEvent"
 msgid "rotate camera right"
 msgstr "otočit kameru doprava"
 
-#: utils/InputEngine.cpp:338
+#: utils/InputEngine.cpp:341
 #, fuzzy
 #| msgid "rotate camera up"
 msgctxt "InputEvent"
 msgid "rotate camera up"
 msgstr "otočit kameru nahoru"
 
-#: utils/InputEngine.cpp:339
+#: utils/InputEngine.cpp:342
 #, fuzzy
 #| msgid "zoom camera in"
 msgctxt "InputEvent"
 msgid "zoom camera in"
 msgstr "přiblížit kameru"
 
-#: utils/InputEngine.cpp:340
+#: utils/InputEngine.cpp:343
 #, fuzzy
 #| msgid "zoom camera in faster"
 msgctxt "InputEvent"
 msgid "zoom camera in faster"
 msgstr "přiblížit kameru rychleji"
 
-#: utils/InputEngine.cpp:341
+#: utils/InputEngine.cpp:344
 #, fuzzy
 #| msgid "zoom camera out"
 msgctxt "InputEvent"
 msgid "zoom camera out"
 msgstr "oddálit kameru"
 
-#: utils/InputEngine.cpp:342
+#: utils/InputEngine.cpp:345
 #, fuzzy
 #| msgid "zoom camera out faster"
 msgctxt "InputEvent"
 msgid "zoom camera out faster"
 msgstr "oddálit kameru rychleji"
 
-#: utils/InputEngine.cpp:343
+#: utils/InputEngine.cpp:346
 #, fuzzy
 #| msgid "fix the camera to a position"
 msgctxt "InputEvent"
 msgid "fix the camera to a position"
 msgstr "upevnit kameru na pozici"
 
-#: utils/InputEngine.cpp:344
+#: utils/InputEngine.cpp:347
 #, fuzzy
 #| msgid "enable / disable free camera mode"
 msgctxt "InputEvent"
 msgid "enable / disable free camera mode"
 msgstr "povolit/zakázat mód volné kamery"
 
-#: utils/InputEngine.cpp:345
+#: utils/InputEngine.cpp:348
 #, fuzzy
 #| msgid "rotate camera up"
 msgctxt "InputEvent"
 msgid "move camera up"
 msgstr "otočit kameru nahoru"
 
-#: utils/InputEngine.cpp:346
+#: utils/InputEngine.cpp:349
 msgctxt "InputEvent"
 msgid "move camera down"
 msgstr "posunout kameru dolů"
 
 #. Sky
-#: utils/InputEngine.cpp:349
+#: utils/InputEngine.cpp:352
 #, fuzzy
 #| msgid "decrease day-time"
 msgctxt "InputEvent"
 msgid "decrease day-time"
 msgstr "ubrat denní dobu"
 
-#: utils/InputEngine.cpp:350
+#: utils/InputEngine.cpp:353
 #, fuzzy
 #| msgid "decrease day-time a lot faster"
 msgctxt "InputEvent"
 msgid "decrease day-time a lot faster"
 msgstr "ubrat denní dobu velmi rychle"
 
-#: utils/InputEngine.cpp:351
+#: utils/InputEngine.cpp:354
 #, fuzzy
 #| msgid "increase day-time"
 msgctxt "InputEvent"
 msgid "increase day-time"
 msgstr "posunout denní dobu vpřed"
 
-#: utils/InputEngine.cpp:352
+#: utils/InputEngine.cpp:355
 #, fuzzy
 #| msgid "increase day-time a lot faster"
 msgctxt "InputEvent"
@@ -4951,35 +4993,35 @@ msgid "increase day-time a lot faster"
 msgstr "posunout denní dobu rychle vpřed"
 
 #. Grass
-#: utils/InputEngine.cpp:355
+#: utils/InputEngine.cpp:358
 #, fuzzy
 #| msgid "EXPERIMENTAL: remove some grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove some grass"
 msgstr "EXPERIMENTÁLNÍ: ubrat trávu"
 
-#: utils/InputEngine.cpp:356
+#: utils/InputEngine.cpp:359
 #, fuzzy
 #| msgid "EXPERIMENTAL: add some grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: add some grass"
 msgstr "EXPERIMENTÁLNÍ: přidat trávu"
 
-#: utils/InputEngine.cpp:357
+#: utils/InputEngine.cpp:360
 #, fuzzy
 #| msgid "EXPERIMENTAL: set maximum amount of grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: set maximum amount of grass"
 msgstr "EXPERIMENTÁLNÍ: nastavit maximální množství trávy"
 
-#: utils/InputEngine.cpp:358
+#: utils/InputEngine.cpp:361
 #, fuzzy
 #| msgid "EXPERIMENTAL: remove grass completely"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove grass completely"
 msgstr "EXPERIMENTÁLNÍ: zcela odstranit trávu"
 
-#: utils/InputEngine.cpp:359
+#: utils/InputEngine.cpp:362
 #, fuzzy
 #| msgid "EXPERIMENTAL: save changes to the grass density image"
 msgctxt "InputEvent"
@@ -4987,29 +5029,29 @@ msgid "EXPERIMENTAL: save changes to the grass density image"
 msgstr "EXPERIMENTÁLNÍ: uložit změny do obrazu hustoty trávy"
 
 #. Survey map
-#: utils/InputEngine.cpp:362
+#: utils/InputEngine.cpp:365
 msgctxt "InputEvent"
 msgid "toggle map icons"
 msgstr "ikony na mapě"
 
-#: utils/InputEngine.cpp:363
+#: utils/InputEngine.cpp:366
 msgctxt "InputEvent"
 msgid "toggle map"
 msgstr "zobraz./skrýt mapu"
 
-#: utils/InputEngine.cpp:364
+#: utils/InputEngine.cpp:367
 msgctxt "InputEvent"
 msgid "cycle map modes"
 msgstr "cyklovat režimy mapy"
 
-#: utils/InputEngine.cpp:365
+#: utils/InputEngine.cpp:368
 #, fuzzy
 #| msgid "zoom in"
 msgctxt "InputEvent"
 msgid "zoom in"
 msgstr "přiblížit"
 
-#: utils/InputEngine.cpp:366
+#: utils/InputEngine.cpp:369
 #, fuzzy
 #| msgid "zoom out"
 msgctxt "InputEvent"
@@ -5017,35 +5059,35 @@ msgid "zoom out"
 msgstr "oddálit"
 
 #. Menu
-#: utils/InputEngine.cpp:369
+#: utils/InputEngine.cpp:372
 #, fuzzy
 #| msgid "select next element in current category"
 msgctxt "InputEvent"
 msgid "select next element in current category"
 msgstr "vybrat další položku v této kategorii"
 
-#: utils/InputEngine.cpp:370
+#: utils/InputEngine.cpp:373
 #, fuzzy
 #| msgid "select previous category"
 msgctxt "InputEvent"
 msgid "select previous category"
 msgstr "vybrat předchozí kategorii"
 
-#: utils/InputEngine.cpp:371
+#: utils/InputEngine.cpp:374
 #, fuzzy
 #| msgid "select next category"
 msgctxt "InputEvent"
 msgid "select next category"
 msgstr "vybrat další kategorii"
 
-#: utils/InputEngine.cpp:372
+#: utils/InputEngine.cpp:375
 #, fuzzy
 #| msgid "select focussed item and close menu"
 msgctxt "InputEvent"
 msgid "select focussed item and close menu"
 msgstr "vybrat zvolenou položku a zavřít menu"
 
-#: utils/InputEngine.cpp:373
+#: utils/InputEngine.cpp:376
 #, fuzzy
 #| msgid "select previous element in current category"
 msgctxt "InputEvent"
@@ -5053,12 +5095,84 @@ msgid "select previous element in current category"
 msgstr "vybrat předchozí položku v této kategorii"
 
 #. Truck editing
-#: utils/InputEngine.cpp:376
+#: utils/InputEngine.cpp:379
 #, fuzzy
 #| msgid "reload truck"
 msgctxt "InputEvent"
 msgid "reload truck"
 msgstr "znovu načíst vozidlo"
+
+#: utils/InputEngine.cpp:1717
+msgid "(Please press a key)"
+msgstr ""
+
+#~ msgctxt "ChatBox"
+#~ msgid "Welcome to Rigs of Rods!"
+#~ msgstr "Vítejte v Rigs of Rods!"
+
+#~ msgctxt "GameControls"
+#~ msgid "Airplane"
+#~ msgstr "Letadlo"
+
+#~ msgctxt "GameControls"
+#~ msgid "Boat"
+#~ msgstr "Loď"
+
+#~ msgctxt "GameControls"
+#~ msgid "Camera"
+#~ msgstr "Kamera"
+
+#~ msgctxt "GameControls"
+#~ msgid "Sky"
+#~ msgstr "Nebe"
+
+#~ msgctxt "GameControls"
+#~ msgid "Character"
+#~ msgstr "Postava"
+
+#~ msgctxt "GameControls"
+#~ msgid "Commands"
+#~ msgstr "Příkazy"
+
+#~ msgctxt "GameControls"
+#~ msgid "Common"
+#~ msgstr "Společné"
+
+#~ msgctxt "GameControls"
+#~ msgid "Grass"
+#~ msgstr "Tráva"
+
+#~ msgctxt "GameControls"
+#~ msgid "Map"
+#~ msgstr "Mapa"
+
+#~ msgctxt "GameControls"
+#~ msgid "Menu"
+#~ msgstr "Nabídka"
+
+#~ msgctxt "GameControls"
+#~ msgid "Truck"
+#~ msgstr "Vozidlo"
+
+#~ msgctxt "SimPerfStats"
+#~ msgid "Current FPS: "
+#~ msgstr "Aktuální FPS: "
+
+#~ msgctxt "SimPerfStats"
+#~ msgid "Average FPS: "
+#~ msgstr "Průměrné FPS: "
+
+#~ msgctxt "SimPerfStats"
+#~ msgid "Worst FPS: "
+#~ msgstr "Nejhorší FPS: "
+
+#~ msgctxt "SimPerfStats"
+#~ msgid "Best FPS: "
+#~ msgstr "Nejlepší FPS: "
+
+#~ msgctxt "TopMenubar"
+#~ msgid "Game controls"
+#~ msgstr "Ovládání hry"
 
 #~ msgctxt "MultiplayerSelector"
 #~ msgid "Passwd?"
@@ -5225,9 +5339,6 @@ msgstr "znovu načíst vozidlo"
 
 #~ msgid "Configure error"
 #~ msgstr "Chyba konfigurování"
-
-#~ msgid "Controls"
-#~ msgstr "Ovládací prvky"
 
 #~ msgid "Could not load position from slot "
 #~ msgstr "Nelze načíst pozici ze slotu "
