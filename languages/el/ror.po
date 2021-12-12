@@ -4,21 +4,22 @@
 #
 # Translators:
 # f26dc946a3c9a97e25dfaeaf764d5aa3_11438aa <99f8d77593e2f043a4e5c72bc12e6d17_754573>, 2018
+# A.Panagiotou <tas750@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
-"PO-Revision-Date: 2018-12-15 13:25+0000\n"
-"Last-Translator: f26dc946a3c9a97e25dfaeaf764d5aa3_11438aa "
-"<99f8d77593e2f043a4e5c72bc12e6d17_754573>\n"
-"Language-Team: Greek (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/el/)\n"
+"PO-Revision-Date: 2021-12-13 10:52+0000\n"
+"Last-Translator: A.Panagiotou <tas750@gmail.com>\n"
+"Language-Team: Greek <https://hosted.weblate.org/projects/rigs-of-rods/game/"
+"el/>\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.10-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -27,7 +28,7 @@ msgstr "Πρόβλημα εκκίνησης"
 
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
-msgstr ""
+msgstr "Κανένα σύστημα rendering διαθέσιμο. Ελέγξτε το αρχείο plugins.cfg"
 
 #: AppContext.cpp:378
 #, fuzzy
@@ -38,11 +39,11 @@ msgstr "Μορφή αρχείου στιγμιότυπου οθόνης"
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Σφάλμα κατά την ανάκτηση διαδρομής αρχείων του προγράμματος"
 
 #: AppContext.cpp:426
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Σφάλμα κατά την ανάκτηση διαδρομής αρχείων του χρήστη"
 
 #: AppContext.cpp:477
 msgid "Resources folder not found. Check if correctly installed."
@@ -52,6 +53,8 @@ msgstr ""
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
 msgstr ""
+"Λάθος φάκελος βασικών αρχείων. Ελέγξτε εάν η εφαρμογή είναι σωστά "
+"εγκατεστημένη"
 
 #: GameContext.cpp:104
 msgid "Terrain not found: "
@@ -66,10 +69,8 @@ msgid "Please clear the place first"
 msgstr "Παρακαλώ καθαρίστε τον χώρο πρώτα."
 
 #: GameContext.cpp:849
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgid "Enabled hard reset mode"
-msgstr "ενεροποίησε ή απενεροποιησε το replay"
+msgstr "Ενεργοποιημένη λειτουργία βίαιης επαναφοράς"
 
 #: GameContext.cpp:849
 msgid "Enabled soft reset mode"
@@ -77,27 +78,27 @@ msgstr ""
 
 #: GameContext.cpp:1006
 msgid "Time set to "
-msgstr ""
+msgstr "Ο χρόνος ρυθμίστηκε στις "
 
 #: GameContext.cpp:1148
 msgid "No rescue truck found!"
-msgstr ""
+msgstr "Δεν βρέθηκε φορτηγό διάσωσης!"
 
 #: GameContext.cpp:1216
 msgid "forwardcommands enabled"
-msgstr ""
+msgstr "Ενεργοποιημένες εντολές προώθησης"
 
 #: GameContext.cpp:1220
 msgid "forwardcommands disabled"
-msgstr ""
+msgstr "Απενεργοποιημένες εντολές προώθησης"
 
 #: GameContext.cpp:1229
 msgid "importcommands enabled"
-msgstr ""
+msgstr "Ενεργοποιημένες εντολές εισόδου"
 
 #: GameContext.cpp:1233
 msgid "importcommands disabled"
-msgstr ""
+msgstr "Απενεργοποιημένες εντολές εισόδου"
 
 #: gameplay/ChatSystem.cpp:55
 msgid " [whispered] "
@@ -129,27 +130,27 @@ msgstr "Πεδιο Ορατότητας: "
 
 #: gfx/camera/CameraManager.cpp:384
 msgid "Free camera"
-msgstr ""
+msgstr "Κάμερα με ελεύθερη κίνηση"
 
 #: gfx/camera/CameraManager.cpp:389
 msgid "Fixed camera"
-msgstr ""
+msgstr "Ρυθμισμένη κάμερα"
 
 #: gfx/camera/CameraManager.cpp:863
 msgid "Limited camera movement enabled"
-msgstr ""
+msgstr "Περιορισμένη κίνηση κάμερας ενεργοποιημένη"
 
 #: gfx/camera/CameraManager.cpp:867
 msgid "Limited camera movement disabled"
-msgstr ""
+msgstr "Περιορισμένη κίνηση κάμερας απενεργοποιημένη"
 
 #: gfx/camera/CameraManager.cpp:1142
 msgid "Auto tracking enabled"
-msgstr ""
+msgstr "Ενεργοποίηση αυτόματου εντοπισμού"
 
 #: gfx/camera/CameraManager.cpp:1146
 msgid "Auto tracking disabled"
-msgstr ""
+msgstr "Απενεργοποίηση αυτόματου εντοπισμού"
 
 #: gui/OverlayWrapper.cpp:431
 msgid "Current FPS: "
@@ -173,7 +174,7 @@ msgstr "Αριθμός τριγώνων:"
 
 #: gui/OverlayWrapper.cpp:462
 msgid "Textures: "
-msgstr ""
+msgstr "Λεπτομέρεια υφών: "
 
 #: gui/OverlayWrapper.cpp:464
 msgid "Compositors: "
@@ -210,7 +211,7 @@ msgstr "Μνήμη (Ogre): "
 #: gui/panels/GUI_ConsoleView.cpp:233
 msgctxt "Console"
 msgid "By area:"
-msgstr ""
+msgstr "Ανά περιοχή:"
 
 #: gui/panels/GUI_ConsoleView.cpp:234
 msgctxt "Console"
@@ -227,45 +228,37 @@ msgstr "Περιγραφή: "
 #: gui/panels/GUI_ConsoleView.cpp:236
 msgctxt "Console"
 msgid "Actors"
-msgstr ""
+msgstr "Ηθοποιοί"
 
 #: gui/panels/GUI_ConsoleView.cpp:237
-#, fuzzy
-#| msgid "Loading Terrain"
 msgctxt "Console"
 msgid "Terrain"
-msgstr "Φόρτωση του χώρου"
+msgstr "Ανάγλυφο"
 
 #: gui/panels/GUI_ConsoleView.cpp:240
 msgctxt "Console"
 msgid "By level:"
-msgstr ""
+msgstr "Ανά επίπεδο:"
 
 #: gui/panels/GUI_ConsoleView.cpp:241
 msgctxt "Console"
 msgid "Notices"
-msgstr ""
+msgstr "Παρατηρήσεις"
 
 #: gui/panels/GUI_ConsoleView.cpp:242
-#, fuzzy
-#| msgid "Warning"
 msgctxt "Console"
 msgid "Warnings"
-msgstr "Προειδοποίηση"
+msgstr "Προειδοποιήσεις"
 
 #: gui/panels/GUI_ConsoleView.cpp:243
-#, fuzzy
-#| msgid "Mirrors"
 msgctxt "Console"
 msgid "Errors"
-msgstr "Καθρέφτες"
+msgstr "Σφάλματα"
 
 #: gui/panels/GUI_ConsoleView.cpp:244
-#, fuzzy
-#| msgid "enter the chat"
 msgctxt "Console"
 msgid "Net chat"
-msgstr "μπες στην συνομιλία"
+msgstr "Διαδικτυακή συνομιλία"
 
 #: gui/panels/GUI_ConsoleView.cpp:245 gui/panels/GUI_ConsoleWindow.cpp:52
 #, fuzzy
@@ -303,25 +296,19 @@ msgid "Current active Ground: "
 msgstr "Τρέχουσα ενεργό Έδαφος:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:55
-#, fuzzy
-#| msgid "selected Ground Type:"
 msgctxt "FrictionSettings"
 msgid "selected Ground Type:"
-msgstr "επιλεγεί Ground Τύπος"
+msgstr "Επιλεγμένος τύπος εδάφους:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:61
-#, fuzzy
-#| msgid "Solid ground settings"
 msgctxt "FrictionSettings"
 msgid "Solid ground settings"
-msgstr "ρυθμίσεις στερεου έδαφους"
+msgstr "ρυθμίσεις στερεού εδάφους"
 
 #: gui/panels/GUI_FrictionSettings.cpp:63
-#, fuzzy
-#| msgid "Solid ground level:"
 msgctxt "FrictionSettings"
 msgid "Solid ground level:"
-msgstr "Στερεο επίπεδο του εδάφους"
+msgstr "Επίπεδο της συμπάγιας του εδάφους"
 
 #: gui/panels/GUI_FrictionSettings.cpp:64
 #, fuzzy
