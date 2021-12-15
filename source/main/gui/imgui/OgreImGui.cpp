@@ -137,18 +137,11 @@ void OgreImGui::renderQueueStarted(Ogre::uint8 queueGroupId,
         Ogre::Viewport* vp = Ogre::Root::getSingletonPtr()->getRenderSystem()->_getViewport();
         if(vp != NULL)
         {
-            if (vp->getOverlaysEnabled())
+            Ogre::SceneManager* sceneMgr = vp->getCamera()->getSceneManager();
+            if (vp->getOverlaysEnabled() && sceneMgr->_getCurrentRenderStage() != Ogre::SceneManager::IRS_RENDER_TO_TEXTURE)
             {
-                Ogre::SceneManager* sceneMgr = vp->getCamera()->getSceneManager();
-                if (sceneMgr->_getCurrentRenderStage() != Ogre::SceneManager::IRS_RENDER_TO_TEXTURE)
-                {
-                    //ORIG//Ogre::OverlayManager::getSingleton()._queueOverlaysForRendering(vp->getCamera(), sceneMgr->getRenderQueue(), vp);
-                    m_imgui_overlay->_findVisibleObjects(vp->getCamera(), sceneMgr->getRenderQueue(), vp);
-                }
-            }
-            else
-            {
-                ImGui::EndFrame(); // Rendering won't happen - end frame manually.
+                //ORIG//Ogre::OverlayManager::getSingleton()._queueOverlaysForRendering(vp->getCamera(), sceneMgr->getRenderQueue(), vp);
+                m_imgui_overlay->_findVisibleObjects(vp->getCamera(), sceneMgr->getRenderQueue(), vp);
             }
         }
     }
