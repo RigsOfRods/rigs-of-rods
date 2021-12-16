@@ -2711,7 +2711,7 @@ void Parser::Prepare()
 {
     m_current_block = Keyword::INVALID;
     m_current_line_number = 1;
-    m_definition = std::shared_ptr<File>(new File());
+    m_definition = RigDef::DocumentPtr(new Document());
     m_any_named_node_defined = false;
     m_current_detacher_group = 0; // Global detacher group 
 
@@ -2809,7 +2809,7 @@ void Parser::ProcessChangeModuleLine(Keyword keyword)
     }
     else
     {
-        m_current_module = std::make_shared<File::Module>(new_module_name);
+        m_current_module = std::make_shared<Document::Module>(new_module_name);
         m_definition->user_modules.insert(std::make_pair(new_module_name, m_current_module));
     }
 }

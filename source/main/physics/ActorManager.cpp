@@ -74,7 +74,7 @@ ActorManager::~ActorManager()
     this->SyncWithSimThread(); // Wait for sim task to finish
 }
 
-void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
+void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, RigDef::DocumentPtr def)
 {
     // ~~~~ Code ported from Actor::Actor()
 
@@ -83,7 +83,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     // ~~~~ Code ported from Actor::LoadActor()
     //      LoadActor(def, beams_parent, pos, rot, spawnbox, cache_entry_number)
     //      bool Actor::LoadActor(
-    //          std::shared_ptr<RigDef::File> def,
+    //          RigDef::DocumentPtr def,
     //          Ogre::SceneNode* parent_scene_node,
     //          Ogre::Vector3 const& spawn_position,
     //          Ogre::Quaternion& spawn_rotation,
@@ -334,7 +334,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     }
 }
 
-Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
+Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, RigDef::DocumentPtr def)
 {
     Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
     actor->setUsedSkin(rq.asr_skin_entry);
@@ -1189,7 +1189,7 @@ void HandleErrorLoadingTruckfile(std::string filename, std::string exception_msg
     HandleErrorLoadingFile("actor", filename, exception_msg);
 }
 
-std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, bool predefined_on_terrain)
+RigDef::DocumentPtr ActorManager::FetchActorDef(std::string filename, bool predefined_on_terrain)
 {
     // Find the user content
     CacheEntry* cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, filename);

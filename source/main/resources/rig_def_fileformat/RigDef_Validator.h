@@ -64,7 +64,7 @@ public:
     /**
     * Prepares the validation.
     */
-    void Setup(std::shared_ptr<RigDef::File> file);
+    void Setup(RigDef::DocumentPtr file);
 
     /**
     * Adds a vehicle module to the validated configuration.
@@ -118,8 +118,8 @@ private:
 /* Properties                                                                 */
 /* -------------------------------------------------------------------------- */
 
-    std::shared_ptr<RigDef::File> m_file; //!< The parsed input file.
-    std::list<std::shared_ptr<RigDef::File::Module>> m_selected_modules;
+    RigDef::DocumentPtr m_file; //!< The parsed input file.
+    std::list<std::shared_ptr<RigDef::Document::Module>> m_selected_modules;
     bool m_check_beams;
 
 };

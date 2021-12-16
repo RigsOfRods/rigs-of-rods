@@ -202,10 +202,6 @@ void Animation::AddMotorSource(unsigned int source, unsigned int motor)
     this->motor_sources.push_back(motor_source);
 }
 
-/* -------------------------------------------------------------------------- */
-/* File                                                                       */
-/* -------------------------------------------------------------------------- */
-
 const char * KeywordToString(Keyword keyword)
 {
     // PLEASE maintain alphabetical order!
@@ -327,11 +323,11 @@ const char * KeywordToString(Keyword keyword)
     }
 }
 
-File::Module::Module(Ogre::String const & name):
+Document::Module::Module(Ogre::String const & name):
     name(name)
 {}
 
-File::File():
+Document::Document():
     hide_in_chooser(false),
     enable_advanced_deformation(false),
     rollon(false),
@@ -342,7 +338,7 @@ File::File():
     disable_default_sounds(false),
     slide_nodes_connect_instantly(false)
 {
-    root_module = std::make_shared<File::Module>(ROOT_MODULE_NAME); // Required to exist.
+    root_module = std::make_shared<Document::Module>(ROOT_MODULE_NAME); // Required to exist.
 }
 
 } /* namespace RigDef */

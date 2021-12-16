@@ -31,7 +31,7 @@
 
 #define CHECK_SECTION_IN_ALL_MODULES(_CLASS_, _FIELD_, _FUNCTION_) \
 { \
-    std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin(); \
+    std::list<std::shared_ptr<RigDef::Document::Module>>::iterator module_itor = m_selected_modules.begin(); \
     for (; module_itor != m_selected_modules.end(); module_itor++) \
     { \
         std::vector<_CLASS_>::iterator section_itor = module_itor->get()->_FIELD_.begin(); \
@@ -81,7 +81,7 @@ bool Validator::Validate()
     return valid;
 }
 
-void Validator::Setup(std::shared_ptr<RigDef::File> file)
+void Validator::Setup(RigDef::DocumentPtr file)
 {
     m_file = file;
     m_selected_modules.push_back(file->root_module);
@@ -114,7 +114,7 @@ bool Validator::CheckSectionSubmeshGroundmodel()
 {
     Ogre::String *containing_module_name = nullptr;
 
-    std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+    std::list<std::shared_ptr<RigDef::Document::Module>>::iterator module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
         if (! module_itor->get()->submesh_groundmodel.empty())
@@ -139,7 +139,7 @@ bool Validator::CheckSectionSubmeshGroundmodel()
 
 bool Validator::AddModule(Ogre::String const & module_name)
 {
-    std::map< Ogre::String, std::shared_ptr<RigDef::File::Module> >::iterator result 
+    std::map< Ogre::String, std::shared_ptr<RigDef::Document::Module> >::iterator result 
         = m_file->user_modules.find(module_name);
 
     if (result != m_file->user_modules.end())
@@ -154,7 +154,7 @@ bool Validator::CheckGearbox()
 {
     /* Find it */
     std::shared_ptr<RigDef::Engine> engine;
-    std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+    std::list<std::shared_ptr<RigDef::Document::Module>>::iterator module_itor = m_selected_modules.begin();
     for (; module_itor != m_selected_modules.end(); module_itor++)
     {
         if (module_itor->get()->engine.size() > 0)

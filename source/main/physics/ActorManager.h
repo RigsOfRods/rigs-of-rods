@@ -50,7 +50,7 @@ public:
     ActorManager();
     ~ActorManager();
 
-    Actor*         CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def);
+    Actor*         CreateActorInstance(ActorSpawnRequest rq, RigDef::DocumentPtr def);
     void           UpdateActors(Actor* player_actor);
     void           SyncWithSimThread();
     void           UpdatePhysicsSimulation();
@@ -83,7 +83,7 @@ public:
     Actor*         GetActorById(int actor_id);
     Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void           UpdateInputEvents(float dt);
-    std::shared_ptr<RigDef::File>   FetchActorDef(std::string filename, bool predefined_on_terrain = false);
+    RigDef::DocumentPtr   FetchActorDef(std::string filename, bool predefined_on_terrain = false);
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet);
@@ -110,7 +110,7 @@ public:
 
 private:
 
-    void           SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def);
+    void           SetupActor(Actor* actor, ActorSpawnRequest rq, RigDef::DocumentPtr def);
     bool           CheckActorCollAabbIntersect(int a, int b);    //!< Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.
     bool           PredictActorCollAabbIntersect(int a, int b);  //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
     void           RemoveStreamSource(int sourceid);

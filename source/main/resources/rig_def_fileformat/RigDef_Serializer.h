@@ -34,14 +34,14 @@ namespace RigDef
     @class  Serializer
     @author Petr Ohlidal
 
-    @brief Serializes the RigDef::File data structure to file.
+    @brief Serializes the RigDef::Document data structure to file.
 */
 class Serializer
 {
 
 public:
 
-    Serializer(std::shared_ptr<RigDef::File> rig_def, Ogre::String const & file_path);
+    Serializer(RigDef::DocumentPtr rig_def, Ogre::String const & file_path);
 
     virtual ~Serializer();
 
@@ -49,81 +49,81 @@ public:
 
 protected:
 
-    void ProcessAuthors(File::Module* module);
-    void ProcessGlobals(File::Module* module);
-    void ProcessDescription(File::Module* module);
-    void ProcessGuid(File::Module* module);
-    void ProcessFileinfo(File::Module* module);
+    void ProcessAuthors(Document::Module* module);
+    void ProcessGlobals(Document::Module* module);
+    void ProcessDescription(Document::Module* module);
+    void ProcessGuid(Document::Module* module);
+    void ProcessFileinfo(Document::Module* module);
     void WriteFlags();
-    void ProcessHelp(File::Module* module);
+    void ProcessHelp(Document::Module* module);
 
     // Audio video
-    void ProcessCinecam(File::Module*);
+    void ProcessCinecam(Document::Module*);
 
     // Structure
-    void ProcessNodes(File::Module*);
+    void ProcessNodes(Document::Module*);
     void ProcessNode(Node & node);
     void ProcessNodeDefaults(NodeDefaults* node_defaults);
     void ProcessNodeOptions(unsigned int options);
     
-    void ProcessBeams(File::Module*);
+    void ProcessBeams(Document::Module*);
     void ProcessBeamDefaults(BeamDefaults* beam_defaults, const char* prefix = "");
     void ProcessBeam(Beam & beam);
 
-    void ProcessShocks(File::Module*);
-    void ProcessShocks2(File::Module*);
-    void ProcessShocks3(File::Module*);
+    void ProcessShocks(Document::Module*);
+    void ProcessShocks2(Document::Module*);
+    void ProcessShocks3(Document::Module*);
     void ProcessShock(Shock & def);
     void ProcessShock2(Shock2 & def);
     void ProcessShock3(Shock3 & def);
 
-    void ProcessHydros(File::Module*);
+    void ProcessHydros(Document::Module*);
     void ProcessHydro(Hydro & def);
-    void ProcessRotators(File::Module* module);
-    void ProcessRotators2(File::Module* module);
+    void ProcessRotators(Document::Module* module);
+    void ProcessRotators2(Document::Module* module);
 
-    void ProcessCommands2(File::Module*);
+    void ProcessCommands2(Document::Module*);
     void ProcessCommand2(Command2 & def);
-    void ProcessSlideNodes(File::Module* module);
-    void ProcessRopes(File::Module* module);
-    void ProcessFixes(File::Module* module);
-    void ProcessTies(File::Module* module);
+    void ProcessSlideNodes(Document::Module* module);
+    void ProcessRopes(Document::Module* module);
+    void ProcessFixes(Document::Module* module);
+    void ProcessTies(Document::Module* module);
 
     // Land vehicle
-    void ProcessEngine(File::Module* module);
-    void ProcessEngoption(File::Module* module);
-    void ProcessBrakes(File::Module* module);
-    void ProcessAntiLockBrakes(File::Module* module);
-    void ProcessTractionControl(File::Module* module);
-    void ProcessTorqueCurve(File::Module* module);
-    void ProcessCruiseControl(File::Module* module);
-    void ProcessSpeedLimiter(File::Module* module);
-    void ProcessAxles(File::Module* module);
-    void ProcessTransferCase(File::Module* module);
-    void ProcessInterAxles(File::Module* module);
+    void ProcessEngine(Document::Module* module);
+    void ProcessEngoption(Document::Module* module);
+    void ProcessBrakes(Document::Module* module);
+    void ProcessAntiLockBrakes(Document::Module* module);
+    void ProcessTractionControl(Document::Module* module);
+    void ProcessTorqueCurve(Document::Module* module);
+    void ProcessCruiseControl(Document::Module* module);
+    void ProcessSpeedLimiter(Document::Module* module);
+    void ProcessAxles(Document::Module* module);
+    void ProcessTransferCase(Document::Module* module);
+    void ProcessInterAxles(Document::Module* module);
 
     // Wheels
-    void ProcessMeshWheels(File::Module* module);
-    void ProcessMeshWheels2(File::Module* module);
-    void ProcessWheels(File::Module* module);
-    void ProcessWheels2(File::Module* module);
-    void ProcessFlexBodyWheels(File::Module* module);
+    void ProcessMeshWheels(Document::Module* module);
+    void ProcessMeshWheels2(Document::Module* module);
+    void ProcessWheels(Document::Module* module);
+    void ProcessWheels2(Document::Module* module);
+    void ProcessFlexBodyWheels(Document::Module* module);
 
     // Features
-    void ProcessAnimators(File::Module* module);
-    void ProcessContacters(File::Module* module);
-    void ProcessTriggers(File::Module* module);
-    void ProcessLockgroups(File::Module* module);
-    void ProcessHooks(File::Module* module);
-    void ProcessRailGroups(File::Module* module);
-    void ProcessRopables(File::Module* module);
-    void ProcessParticles(File::Module* module);
-    void ProcessCollisionBoxes(File::Module* module);
-    void ProcessManagedMaterialsAndOptions(File::Module* module);
-    void ProcessFlares2(File::Module* module);
-    void ProcessMaterialFlareBindings(File::Module* module);
-    void ProcessPropsAndAnimations(File::Module* module);
-    void ProcessFlexbodies(File::Module* module);
+    void ProcessAnimators(Document::Module* module);
+    void ProcessContacters(Document::Module* module);
+    void ProcessTriggers(Document::Module* module);
+    void ProcessLockgroups(Document::Module* module);
+    void ProcessHooks(Document::Module* module);
+    void ProcessRailGroups(Document::Module* module);
+    void ProcessRopables(Document::Module* module);
+    void ProcessParticles(Document::Module* module);
+    void ProcessCollisionBoxes(Document::Module* module);
+    void ProcessManagedMaterialsAndOptions(Document::Module* module);
+    void ProcessFlares2(Document::Module* module);
+    void ProcessMaterialFlareBindings(Document::Module* module);
+    void ProcessPropsAndAnimations(Document::Module* module);
+    void ProcessFlexbodies(Document::Module* module);
     void ProcessDirectiveAddAnimation(RigDef::Animation & anim);
     /* TODO: 
     5.5.17 Camerarail
@@ -132,26 +132,26 @@ protected:
         5.5.8.4 (sub-directive) flexbody_camera_mode
     */
 
-    void ProcessSubmesh(File::Module* module);
-    void ProcessSubmeshGroundmodel(File::Module* module); // STUB!!!
-    void ProcessExhausts(File::Module* module);
-    void ProcessGuiSettings(File::Module* module);
-    void ProcessSetSkeletonSettings(File::Module* module);
-    void ProcessVideocamera(File::Module* module);
-    void ProcessExtCamera(File::Module* module);
-    void ProcessSoundsources(File::Module* module);
-    void ProcessSoundsources2(File::Module* module);
+    void ProcessSubmesh(Document::Module* module);
+    void ProcessSubmeshGroundmodel(Document::Module* module); // STUB!!!
+    void ProcessExhausts(Document::Module* module);
+    void ProcessGuiSettings(Document::Module* module);
+    void ProcessSetSkeletonSettings(Document::Module* module);
+    void ProcessVideocamera(Document::Module* module);
+    void ProcessExtCamera(Document::Module* module);
+    void ProcessSoundsources(Document::Module* module);
+    void ProcessSoundsources2(Document::Module* module);
 
     // Aerial
-    void ProcessWings(File::Module* module);
-    void ProcessAirbrakes(File::Module* module);
-    void ProcessTurboprops(File::Module* module);
-    void ProcessFusedrag(File::Module* module); // STUB!!!
-    void ProcessTurbojets(File::Module* module);
-    void ProcessPistonprops(File::Module* module);
+    void ProcessWings(Document::Module* module);
+    void ProcessAirbrakes(Document::Module* module);
+    void ProcessTurboprops(Document::Module* module);
+    void ProcessFusedrag(Document::Module* module); // STUB!!!
+    void ProcessTurbojets(Document::Module* module);
+    void ProcessPistonprops(Document::Module* module);
 
     // Marine
-    void ProcessScrewprops(File::Module* module);
+    void ProcessScrewprops(Document::Module* module);
 
 protected:
 
@@ -159,7 +159,7 @@ protected:
 
     std::ofstream                     m_stream;
     Ogre::String                      m_file_path;
-    std::shared_ptr<RigDef::File>   m_rig_def;
+    RigDef::DocumentPtr   m_rig_def;
     int                               m_float_precision;
     int                               m_float_width;
     int                               m_bool_width;

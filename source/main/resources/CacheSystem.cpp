@@ -707,7 +707,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
 
     /* RETRIEVE DATA */
 
-    std::shared_ptr<RigDef::File> def = parser.GetFile();
+    RigDef::DocumentPtr def = parser.GetFile();
 
     /* Name */
     if (!def->name.empty())
@@ -740,7 +740,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* Modules (previously called "sections") */
-    std::map<Ogre::String, std::shared_ptr<RigDef::File::Module>>::iterator module_itor = def->user_modules.begin();
+    std::map<Ogre::String, std::shared_ptr<RigDef::Document::Module>>::iterator module_itor = def->user_modules.begin();
     for (; module_itor != def->user_modules.end(); module_itor++)
     {
         entry.sectionconfigs.push_back(module_itor->second->name);
@@ -780,7 +780,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* Vehicle type */
-    /* NOTE: RigDef::File allows modularization of vehicle type. Cache only supports single type.
+    /* NOTE: RigDef::Document allows modularization of vehicle type. Cache only supports single type.
         This is a temporary solution which has undefined results for mixed-type vehicles.
     */
     ActorType vehicle_type = NOT_DRIVEABLE;

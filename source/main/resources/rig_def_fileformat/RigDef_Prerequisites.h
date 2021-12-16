@@ -23,6 +23,8 @@
 /// @author Petr Ohlidal
 /// @date   12/2013
 
+#include <memory> //shared_ptr
+
 namespace Ogre
 {
     class DataStream;
@@ -32,6 +34,9 @@ namespace RigDef {
 
 // File structures declarations
 // TODO: Complete list
+
+struct Document;
+typedef std::shared_ptr<Document> DocumentPtr;
 
 struct AeroAnimator;
 struct Airbrake;
@@ -54,7 +59,6 @@ struct Engine;
 struct Engoption;
 struct Engturbo;
 struct ExtCamera;
-struct File;
 struct Flare;
 struct Flare2;
 struct Flexbody;

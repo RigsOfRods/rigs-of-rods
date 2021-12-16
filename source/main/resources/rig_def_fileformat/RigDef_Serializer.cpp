@@ -34,7 +34,7 @@
 using namespace RigDef;
 using namespace std;
 
-Serializer::Serializer(std::shared_ptr<RigDef::File> def_file, Ogre::String const & file_path):
+Serializer::Serializer(RigDef::DocumentPtr def_file, Ogre::String const & file_path):
     m_file_path(file_path),
     m_rig_def(def_file),
     m_node_id_width(5),
@@ -69,7 +69,7 @@ void Serializer::Serialize()
         << endl;
 
     // Select source
-    File::Module* source_module = m_rig_def->root_module.get();
+    Document::Module* source_module = m_rig_def->root_module.get();
 
     // Write individual elements
 
@@ -155,7 +155,7 @@ void Serializer::Serialize()
     m_stream.close();
 }
 
-void Serializer::ProcessPistonprops(File::Module* module)
+void Serializer::ProcessPistonprops(Document::Module* module)
 {
     if (module->pistonprops.empty())
     {
@@ -181,7 +181,7 @@ void Serializer::ProcessPistonprops(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessTurbojets(File::Module* module)
+void Serializer::ProcessTurbojets(Document::Module* module)
 {
     if (module->turbojets.empty())
     {
@@ -206,7 +206,7 @@ void Serializer::ProcessTurbojets(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessScrewprops(File::Module* module)
+void Serializer::ProcessScrewprops(Document::Module* module)
 {
     if (module->screwprops.empty())
     {
@@ -226,7 +226,7 @@ void Serializer::ProcessScrewprops(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessFusedrag(File::Module* module)
+void Serializer::ProcessFusedrag(Document::Module* module)
 {
     
     m_stream << ";fusedrag -- STUB" << endl;
@@ -234,7 +234,7 @@ void Serializer::ProcessFusedrag(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessTurboprops(File::Module* module)
+void Serializer::ProcessTurboprops(Document::Module* module)
 {
     if (module->turboprops2.empty())
     {
@@ -258,7 +258,7 @@ void Serializer::ProcessTurboprops(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessAirbrakes(File::Module* module)
+void Serializer::ProcessAirbrakes(Document::Module* module)
 {
     if (module->airbrakes.empty())
     {
@@ -289,7 +289,7 @@ void Serializer::ProcessAirbrakes(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessWings(File::Module* module)
+void Serializer::ProcessWings(Document::Module* module)
 {
     if (module->wings.empty())
     {
@@ -327,7 +327,7 @@ void Serializer::ProcessWings(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessSoundsources(File::Module* module)
+void Serializer::ProcessSoundsources(Document::Module* module)
 {
     if (module->soundsources.empty())
     {
@@ -344,7 +344,7 @@ void Serializer::ProcessSoundsources(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessSoundsources2(File::Module* module)
+void Serializer::ProcessSoundsources2(Document::Module* module)
 {
     if (module->soundsources2.empty())
     {
@@ -363,7 +363,7 @@ void Serializer::ProcessSoundsources2(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessExtCamera(File::Module* module)
+void Serializer::ProcessExtCamera(Document::Module* module)
 {
     if (module->extcamera.size() == 0)
     {
@@ -388,7 +388,7 @@ void Serializer::ProcessExtCamera(File::Module* module)
         m_stream << "\n\n";
 }
 
-void Serializer::ProcessVideocamera(File::Module* module)
+void Serializer::ProcessVideocamera(Document::Module* module)
 {
     if (module->videocameras.empty())
     {
@@ -427,13 +427,13 @@ void Serializer::ProcessVideocamera(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessSetSkeletonSettings(File::Module* module)
+void Serializer::ProcessSetSkeletonSettings(Document::Module* module)
 {
     RigDef::SkeletonSettings& def = module->set_skeleton_settings[module->set_skeleton_settings.size() - 1];
     m_stream << "set_skeleton_settings " << def.visibility_range_meters << ", " << def.beam_thickness_meters << "\n\n";
 }
 
-void Serializer::ProcessGuiSettings(File::Module* module)
+void Serializer::ProcessGuiSettings(Document::Module* module)
 {
     if (module->guisettings.empty())
     {
@@ -447,7 +447,7 @@ void Serializer::ProcessGuiSettings(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessExhausts(File::Module* module)
+void Serializer::ProcessExhausts(Document::Module* module)
 {
     if (module->exhausts.empty())
     {
@@ -466,13 +466,13 @@ void Serializer::ProcessExhausts(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessSubmeshGroundmodel(File::Module* module)
+void Serializer::ProcessSubmeshGroundmodel(Document::Module* module)
 {
     // TODO
     m_stream << ";submesh_groundmodel -- STUB"<< endl << endl; // Empty line
 }
 
-void Serializer::ProcessSubmesh(File::Module* module)
+void Serializer::ProcessSubmesh(Document::Module* module)
 {
     if (module->submeshes.empty())
     {
@@ -594,7 +594,7 @@ void Serializer::ProcessDirectiveAddAnimation(RigDef::Animation & anim)
     }
 }
 
-void Serializer::ProcessFlexbodies(File::Module* module)
+void Serializer::ProcessFlexbodies(Document::Module* module)
 {
     if (module->flexbodies.empty())
     {
@@ -643,7 +643,7 @@ void Serializer::ProcessFlexbodies(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessPropsAndAnimations(File::Module* module)
+void Serializer::ProcessPropsAndAnimations(Document::Module* module)
 {
     if (module->props.empty())
     {
@@ -699,7 +699,7 @@ void Serializer::ProcessPropsAndAnimations(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessMaterialFlareBindings(File::Module* module)
+void Serializer::ProcessMaterialFlareBindings(Document::Module* module)
 {
     if (module->materialflarebindings.empty())
     {
@@ -715,7 +715,7 @@ void Serializer::ProcessMaterialFlareBindings(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessFlares2(File::Module* module)
+void Serializer::ProcessFlares2(Document::Module* module)
 {
     if (module->flares2.empty())
     {
@@ -741,7 +741,7 @@ void Serializer::ProcessFlares2(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessManagedMaterialsAndOptions(File::Module* module)
+void Serializer::ProcessManagedMaterialsAndOptions(Document::Module* module)
 {
     if (module->managedmaterials.empty())
     {
@@ -795,7 +795,7 @@ void Serializer::ProcessManagedMaterialsAndOptions(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessCollisionBoxes(File::Module* module)
+void Serializer::ProcessCollisionBoxes(Document::Module* module)
 {
     if (module->collisionboxes.empty())
     {
@@ -819,7 +819,7 @@ void Serializer::ProcessCollisionBoxes(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessAxles(File::Module* module)
+void Serializer::ProcessAxles(Document::Module* module)
 {
     if (module->axles.empty())
     {
@@ -848,7 +848,7 @@ void Serializer::ProcessAxles(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessInterAxles(File::Module* module)
+void Serializer::ProcessInterAxles(Document::Module* module)
 {
     if (module->interaxles.empty())
     {
@@ -877,7 +877,7 @@ void Serializer::ProcessInterAxles(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessTransferCase(File::Module* module)
+void Serializer::ProcessTransferCase(Document::Module* module)
 {
     if (module->transfercase.size() == 0)
     {
@@ -897,7 +897,7 @@ void Serializer::ProcessTransferCase(File::Module* module)
         m_stream << endl << endl;
 }
 
-void Serializer::ProcessCruiseControl(File::Module* module)
+void Serializer::ProcessCruiseControl(Document::Module* module)
 {
     if (module->cruisecontrol.size() == 0)
     {
@@ -913,7 +913,7 @@ void Serializer::ProcessCruiseControl(File::Module* module)
     
 }
 
-void Serializer::ProcessSpeedLimiter(File::Module* module)
+void Serializer::ProcessSpeedLimiter(Document::Module* module)
 {
     if (module->speedlimiter.size() == 0)
     {
@@ -924,7 +924,7 @@ void Serializer::ProcessSpeedLimiter(File::Module* module)
         << endl << endl;
 }
 
-void Serializer::ProcessTorqueCurve(File::Module* module)
+void Serializer::ProcessTorqueCurve(Document::Module* module)
 {
     if (module->torquecurve.size() == 0)
     {
@@ -947,7 +947,7 @@ void Serializer::ProcessTorqueCurve(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessParticles(File::Module* module)
+void Serializer::ProcessParticles(Document::Module* module)
 {
     if (module->particles.empty())
     {
@@ -967,7 +967,7 @@ void Serializer::ProcessParticles(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessRopables(File::Module* module)
+void Serializer::ProcessRopables(Document::Module* module)
 {
     if (module->ropables.empty())
     {
@@ -986,7 +986,7 @@ void Serializer::ProcessRopables(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessTies(File::Module* module)
+void Serializer::ProcessTies(Document::Module* module)
 {
     if (module->ties.empty())
     {
@@ -1011,7 +1011,7 @@ void Serializer::ProcessTies(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessFixes(File::Module* module)
+void Serializer::ProcessFixes(Document::Module* module)
 {
     if (module->fixes.empty())
     {
@@ -1026,7 +1026,7 @@ void Serializer::ProcessFixes(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessRopes(File::Module* module)
+void Serializer::ProcessRopes(Document::Module* module)
 {
     if (module->ropes.empty())
     {
@@ -1057,7 +1057,7 @@ void Serializer::ProcessRopes(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessRailGroups(File::Module* module)
+void Serializer::ProcessRailGroups(Document::Module* module)
 {
     if (module->railgroups.empty())
     {
@@ -1083,7 +1083,7 @@ void Serializer::ProcessRailGroups(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessSlideNodes(File::Module* module)
+void Serializer::ProcessSlideNodes(Document::Module* module)
 {
     if (module->slidenodes.empty())
     {
@@ -1132,7 +1132,7 @@ void Serializer::ProcessSlideNodes(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessHooks(File::Module* module)
+void Serializer::ProcessHooks(Document::Module* module)
 {
     if (module->hooks.empty())
     {
@@ -1166,7 +1166,7 @@ void Serializer::ProcessHooks(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessLockgroups(File::Module* module)
+void Serializer::ProcessLockgroups(Document::Module* module)
 {
     if (module->lockgroups.empty())
     {
@@ -1188,7 +1188,7 @@ void Serializer::ProcessLockgroups(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessTriggers(File::Module* module)
+void Serializer::ProcessTriggers(Document::Module* module)
 {
     if (module->triggers.empty())
     {
@@ -1246,7 +1246,7 @@ void Serializer::ProcessTriggers(File::Module* module)
         m_stream << NAME_STR << ": " << VALUE; \
     }
 
-void Serializer::ProcessAnimators(File::Module* module)
+void Serializer::ProcessAnimators(Document::Module* module)
 {
     if (module->animators.empty())
     {
@@ -1307,7 +1307,7 @@ void Serializer::ProcessAnimators(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessContacters(File::Module* module)
+void Serializer::ProcessContacters(Document::Module* module)
 {
     if (module->contacters.empty())
     {
@@ -1321,7 +1321,7 @@ void Serializer::ProcessContacters(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessRotators(File::Module* module)
+void Serializer::ProcessRotators(Document::Module* module)
 {
     if (module->rotators.empty())
     {
@@ -1365,7 +1365,7 @@ void Serializer::ProcessRotators(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessRotators2(File::Module* module)
+void Serializer::ProcessRotators2(Document::Module* module)
 {
     if (module->rotators2.empty())
     {
@@ -1415,7 +1415,7 @@ void Serializer::ProcessRotators2(File::Module* module)
     m_stream << endl << endl; // Empty line
 }
 
-void Serializer::ProcessFlexBodyWheels(File::Module* module)
+void Serializer::ProcessFlexBodyWheels(Document::Module* module)
 {
     if (module->flexbodywheels.empty())
     {
@@ -1448,7 +1448,7 @@ void Serializer::ProcessFlexBodyWheels(File::Module* module)
     m_stream << endl; // Empty line
 }
 
-void Serializer::ProcessTractionControl(File::Module* module)
+void Serializer::ProcessTractionControl(Document::Module* module)
 {
     if (module->tractioncontrol.size() == 0) { return; }
 
@@ -1464,7 +1464,7 @@ void Serializer::ProcessTractionControl(File::Module* module)
     if (def.attr_no_toggle)    { m_stream << " & NOTOGGLE "; }
 }
 
-void Serializer::ProcessBrakes(File::Module* module)
+void Serializer::ProcessBrakes(Document::Module* module)
 {
     Brakes& brakes = module->brakes[module->brakes.size() - 1];
 
@@ -1473,7 +1473,7 @@ void Serializer::ProcessBrakes(File::Module* module)
         << brakes.parking_brake_force;
 }
 
-void Serializer::ProcessAntiLockBrakes(File::Module* module)
+void Serializer::ProcessAntiLockBrakes(Document::Module* module)
 {
     if (module->antilockbrakes.size() == 0) { return; }
 
@@ -1488,7 +1488,7 @@ void Serializer::ProcessAntiLockBrakes(File::Module* module)
     if (alb->attr_no_toggle)    { m_stream << " & NOTOGGLE "; }
 }
 
-void Serializer::ProcessEngine(File::Module* module)
+void Serializer::ProcessEngine(Document::Module* module)
 {
     if (module->engine.size() == 0)
     {
@@ -1522,7 +1522,7 @@ void Serializer::ProcessEngine(File::Module* module)
     m_stream << ", -1.0" /*terminator*/ << endl << endl;
 }
 
-void Serializer::ProcessEngoption(File::Module* module)
+void Serializer::ProcessEngoption(Document::Module* module)
 {
     if (module->engoption.size() == 0)
     {
@@ -1560,7 +1560,7 @@ void Serializer::ProcessEngoption(File::Module* module)
     m_stream << endl << endl;
 }
 
-void Serializer::ProcessHelp(File::Module* module)
+void Serializer::ProcessHelp(Document::Module* module)
 {
     if (module->help.size() == 0)
     {
@@ -1569,7 +1569,7 @@ void Serializer::ProcessHelp(File::Module* module)
     m_stream << "help\n\t" << module->help[module->help.size() - 1].material << endl << endl;
 }
 
-void Serializer::ProcessWheels2(File::Module* module)
+void Serializer::ProcessWheels2(Document::Module* module)
 {
     if (module->wheels2.empty())
     {
@@ -1604,7 +1604,7 @@ void Serializer::ProcessWheels2(File::Module* module)
     m_stream << endl; // Empty line
 }
 
-void Serializer::ProcessWheels(File::Module* module)
+void Serializer::ProcessWheels(Document::Module* module)
 {
     if (module->wheels.empty())
     {
@@ -1658,7 +1658,7 @@ void Serializer::ExportBaseMeshWheel(BaseMeshWheel& def)
     m_stream << endl;    
 }
 
-void Serializer::ProcessMeshWheels(File::Module* module)
+void Serializer::ProcessMeshWheels(Document::Module* module)
 {
     if (module->meshwheels.empty()) { return; }
 
@@ -1672,7 +1672,7 @@ void Serializer::ProcessMeshWheels(File::Module* module)
     m_stream << endl; // Empty line
 }
 
-void Serializer::ProcessMeshWheels2(File::Module* module)
+void Serializer::ProcessMeshWheels2(Document::Module* module)
 {
     if (module->meshwheels2.empty()) { return; }
 
@@ -1686,7 +1686,7 @@ void Serializer::ProcessMeshWheels2(File::Module* module)
     m_stream << endl; // Empty line
 }
 
-void Serializer::ProcessCinecam(File::Module* module)
+void Serializer::ProcessCinecam(Document::Module* module)
 {
     if (module->cinecam.empty())
     {
@@ -1718,7 +1718,7 @@ void Serializer::ProcessCinecam(File::Module* module)
     m_stream << endl; // Empty line
 }
 
-void Serializer::ProcessBeams(File::Module* module)
+void Serializer::ProcessBeams(Document::Module* module)
 {
     if (module->beams.empty())
     {
@@ -1773,7 +1773,7 @@ void Serializer::ProcessBeams(File::Module* module)
     m_stream << endl;
 }
 
-void Serializer::ProcessShocks(File::Module* module)
+void Serializer::ProcessShocks(Document::Module* module)
 {
     if (module->shocks.empty())
     {
@@ -1828,7 +1828,7 @@ void Serializer::ProcessShocks(File::Module* module)
     m_stream << endl;
 }
 
-void Serializer::ProcessShocks2(File::Module* module)
+void Serializer::ProcessShocks2(Document::Module* module)
 {
     if (module->shocks2.empty())
     {
@@ -1883,7 +1883,7 @@ void Serializer::ProcessShocks2(File::Module* module)
     m_stream << endl;
 }
 
-void Serializer::ProcessShocks3(File::Module* module)
+void Serializer::ProcessShocks3(Document::Module* module)
 {
     if (module->shocks3.empty())
     {
@@ -1938,7 +1938,7 @@ void Serializer::ProcessShocks3(File::Module* module)
     m_stream << endl;
 }
 
-void Serializer::ProcessHydros(File::Module* module)
+void Serializer::ProcessHydros(Document::Module* module)
 {
     if (module->hydros.empty())
     {
@@ -1993,7 +1993,7 @@ void Serializer::ProcessHydros(File::Module* module)
     m_stream << endl << endl;
 }
 
-void Serializer::ProcessCommands2(File::Module* module)
+void Serializer::ProcessCommands2(Document::Module* module)
 {
     if (module->commands2.empty())
     {
@@ -2320,7 +2320,7 @@ void Serializer::ProcessBeam(Beam & beam)
     m_stream << endl;
 }
 
-void Serializer::ProcessNodes(File::Module* module)
+void Serializer::ProcessNodes(Document::Module* module)
 {
     if (module->nodes.empty())
     {
@@ -2545,7 +2545,7 @@ void Serializer::WriteFlags()
     }
 }
 
-void Serializer::ProcessFileinfo(File::Module* module)
+void Serializer::ProcessFileinfo(Document::Module* module)
 {
     if (module->fileinfo.size() > 0)
     {
@@ -2560,7 +2560,7 @@ void Serializer::ProcessFileinfo(File::Module* module)
     }
 }
 
-void Serializer::ProcessGuid(File::Module* module)
+void Serializer::ProcessGuid(Document::Module* module)
 {
     if (! module->guid.empty())
     {
@@ -2568,7 +2568,7 @@ void Serializer::ProcessGuid(File::Module* module)
     }
 }
 
-void Serializer::ProcessDescription(File::Module* module)
+void Serializer::ProcessDescription(Document::Module* module)
 {
     if (module->description.size() != 0)
     {
@@ -2582,7 +2582,7 @@ void Serializer::ProcessDescription(File::Module* module)
     }
 }
 
-void Serializer::ProcessAuthors(File::Module* module)
+void Serializer::ProcessAuthors(Document::Module* module)
 {
     for (auto itor = module->author.begin(); itor != module->author.end(); ++itor)
     {
@@ -2601,7 +2601,7 @@ void Serializer::ProcessAuthors(File::Module* module)
     m_stream << endl;
 }
 
-void Serializer::ProcessGlobals(File::Module* module)
+void Serializer::ProcessGlobals(Document::Module* module)
 {
     if (module->globals.size() == 0)
     {

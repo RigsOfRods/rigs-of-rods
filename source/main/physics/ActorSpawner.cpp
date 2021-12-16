@@ -88,7 +88,7 @@ using namespace RoR;
 
 void ActorSpawner::Setup(
     Actor *rig,
-    std::shared_ptr<RigDef::File> file,
+    RigDef::DocumentPtr file,
     Ogre::SceneNode *parent,
     Ogre::Vector3 const & spawn_position
 )
@@ -117,7 +117,7 @@ void ActorSpawner::Setup(
     App::GetCacheSystem()->CheckResourceLoaded(m_actor->ar_filename, m_custom_resource_group);
 }
 
-void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::File::Module* module_def)
+void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::Document::Module* module_def)
 {
     // 'nodes'
     req.num_nodes += module_def->nodes.size();

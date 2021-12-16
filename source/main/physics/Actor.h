@@ -50,7 +50,7 @@ public:
     Actor(
           int actor_id
         , unsigned int vector_index
-        , std::shared_ptr<RigDef::File> def
+        , RigDef::DocumentPtr def
         , ActorSpawnRequest rq
         );
 
@@ -461,7 +461,7 @@ private:
     // -------------------- data -------------------- //
 
     std::vector<std::shared_ptr<Task>> m_flexbody_tasks;   //!< Gfx state
-    std::shared_ptr<RigDef::File>      m_definition;
+    RigDef::DocumentPtr      m_definition;
     std::unique_ptr<GfxActor>          m_gfx_actor;
     PerVehicleCameraContext            m_camera_context;
     Ogre::String                       m_section_config;

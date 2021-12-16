@@ -47,7 +47,7 @@ namespace RigDef
 ///  The Parser should preferably only read data as-is, without validation.
 ///
 ///  Every time a line of a particular section is parsed, an instance of the struct
-///  is saved into an array container in struct RigDef::File. There are exceptions to this rule.
+///  is saved into an array container in struct RigDef::Document. There are exceptions to this rule.
 ///
 ///  Keywords 'set_[node|beam|inertia]_defaults' are 'presets' and are managed by dyn. allocated
 ///  objects. For every preset, there are 2 pointers:
@@ -74,7 +74,7 @@ public:
     void ProcessOgreStream(Ogre::DataStream* stream, Ogre::String resource_group);
     void ProcessRawLine(const char* line);
 
-    std::shared_ptr<RigDef::File> GetFile()
+    RigDef::DocumentPtr GetFile()
     {
         return m_definition;
     }
@@ -258,8 +258,8 @@ private:
     ManagedMaterialsOptions              m_current_managed_material_options;
 
     // Parser state
-    std::shared_ptr<File::Module>        m_root_module;
-    std::shared_ptr<File::Module>        m_current_module;
+    std::shared_ptr<Document::Module>        m_root_module;
+    std::shared_ptr<Document::Module>        m_current_module;
 
     unsigned int                         m_current_line_number;
     char                                 m_current_line[LINE_BUFFER_LENGTH];
@@ -276,7 +276,7 @@ private:
     Ogre::String                         m_filename; // Logging
     Ogre::String                         m_resource_group;
 
-    std::shared_ptr<RigDef::File>        m_definition;
+    RigDef::DocumentPtr        m_definition;
 };
 
 } // namespace RigDef
