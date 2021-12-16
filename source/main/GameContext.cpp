@@ -175,7 +175,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
         rq.asr_filename = rq.asr_cache_entry->fname;
     }
 
-    std::shared_ptr<RigDef::File> def = m_actor_manager.FetchActorDef(
+    RigDef::DocumentPtr def = m_actor_manager.FetchActorDef(
         rq.asr_filename, rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF);
     if (def == nullptr)
     {

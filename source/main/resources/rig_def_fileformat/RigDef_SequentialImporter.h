@@ -58,7 +58,7 @@ namespace RigDef
        This approach would, by nature, re-order definitions and make direct index-adressing impossible.
 
     To ease code maintenance, enable bullet-proof checking and prepare grounds for visual rig editor,
-    a new approach was applied: Truckfile would be loaded to RigDef::File structure in it's entirety, 
+    a new approach was applied: Truckfile would be loaded to RigDef::Document structure in it's entirety, 
     and then parsed in pre-determined order.
     Order (section name[number of nodes generated per line]):
         1. nodes[1]
@@ -134,14 +134,14 @@ public:
     void GenerateNodesForWheel(Keyword generated_from, int num_rays, bool has_rigidity_node);
 
     /// Traverse whole rig definition and resolve all node references
-    void Process(std::shared_ptr<RigDef::File> def);
+    void Process(RigDef::DocumentPtr def);
 
     std::string GetNodeStatistics();
     std::string IterateAndPrintAllNodes();
 
 private:
 
-    void ProcessModule(std::shared_ptr<RigDef::File::Module> module);
+    void ProcessModule(std::shared_ptr<RigDef::Document::Module> module);
 
     Node::Ref ResolveNode(Node::Ref const & noderef_in);
     Node::Ref ResolveNodeByIndex(unsigned int index, unsigned int def_line_number);
@@ -167,7 +167,7 @@ private:
     int                                 m_total_resolved;
     int                                 m_num_resolved_to_self;
     Keyword                       m_current_keyword;
-    std::shared_ptr<File::Module>       m_current_module;
+    std::shared_ptr<Document::Module>       m_current_module;
 };
 
 } // namespace RigDef

@@ -1610,7 +1610,7 @@ struct Wing
 // --------------------------------
 // The document
 
-struct File
+struct Document
 {
     struct Module // represents 'section/end_section'. FIXME: flawed (each module can belong to 1 config only), to be removed.
     {
@@ -1693,7 +1693,7 @@ struct File
         std::vector<Wing>                  wings;
     };
 
-    File();
+    Document();
 
     bool hide_in_chooser;
     bool enable_advanced_deformation;
