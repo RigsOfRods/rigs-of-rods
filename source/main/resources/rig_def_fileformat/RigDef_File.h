@@ -23,9 +23,18 @@
     @file   RigDef_File.h
     @author Petr Ohlidal
     @date   12/2013
-    @brief Structures which represent a rig-definition file (1:1 match)
-           See https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/ for reference.
-           Values prefixed by `_` are helper data, for example argument count (where it matters).
+    @brief  Data structures representing 'truck' file format, see https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/ for reference.
+
+    CODING GUIDELINES (CLEANUP IN PROGRESS):
+    * each element (line) should have dedicated `struct` for data. Auto-importing to higher version (i.e. 'flares' -> 'flares2') is OK. All other "sharing" mechanisms must go away.
+    * all data should be stored in `std::vector<>`s, all other random mechanisms must go away.
+    * the data vectors should be named exactly as their file format keywords.
+    * each option-string should have dedicated `enum class` with fields named '{letter}_{MEANING}'. All other constants must go away.
+    * all bitmasks should use `BitMask_t` data type.
+    * all bitmask constants should have format `static const BitMask_t MEANING = BITMASK({number})`.
+    * all option strings should have parsing function `GetArgWhatever(int index)`.
+    * option-strings should be stored as bitmasks (unless order matters). If only single option is acceptable, use the enum directly. All other mechanisms must go away.
+    * all data structs should contain only arguments in order defined by the fileformat. Helper data must be prefixed with `_`, for example argument count (where it matters).
 */
 
 #pragma once
