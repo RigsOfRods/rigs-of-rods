@@ -1804,23 +1804,14 @@ void Parser::ParseSoundsources2()
     
     SoundSource2 soundsource2;
     soundsource2.node              = this->GetArgNodeRef(0);
+    soundsource2.mode              = this->GetArgInt(1);
     soundsource2.sound_script_name = this->GetArgStr(2);
 
-    int mode = this->GetArgInt(1);
-    if (mode < 0)
+    if (soundsource2.mode < -2)
     {
-        if (mode < -2)
-        {
-            this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
-                fmt::format("invalid mode {}, falling back to default -2", mode));
-            mode = -2;
-        }
-        soundsource2.mode = SoundSource2::Mode(mode);
-    }
-    else
-    {
-        soundsource2.mode = SoundSource2::MODE_CINECAM;
-        soundsource2.cinecam_index = mode;
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("invalid mode {}, falling back to default -2", soundsource2.mode));
+        soundsource2.mode = -2;
     }
 
     m_current_module->soundsources2.push_back(soundsource2);
