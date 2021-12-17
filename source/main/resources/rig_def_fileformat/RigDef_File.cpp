@@ -58,26 +58,6 @@ AntiLockBrakes::AntiLockBrakes():
     attr_no_toggle(false)
 {}
 
-Command2::Command2():
-    shorten_rate(0),
-    lengthen_rate(0),
-    max_contraction(0),
-    max_extension(0),
-    contract_key(0),
-    extend_key(0),
-    _format_version(1), /* 1 = 'commands', 2 = 'commands2' */
-    affect_engine(1),
-    detacher_group(0),
-    needs_engine(true),
-    plays_sound(true),
-    option_i_invisible(false),
-    option_r_rope(false),
-    option_c_auto_center(false),
-    option_f_not_faster(false),
-    option_p_1press(false),
-    option_o_1press_center(false)
-{}
-
 Engturbo::Engturbo() :
 tinertiaFactor(1),
 nturbos(1),

@@ -752,33 +752,30 @@ struct CollisionRange
     float node_collision_range = -1;
 };
 
-struct Command2 // Sections COMMANDS & COMMANDS2 (unified) 
+struct Command2 // 'commands' are auto-imported as 'commands2' (only 1 extra argument)
 {
-    Command2();
-
-    unsigned int _format_version;
     Node::Ref nodes[2];
-    float shorten_rate;
-    float lengthen_rate;
-    float max_contraction;
-    float max_extension;
-    unsigned int contract_key;
-    unsigned int extend_key;
+    float shorten_rate = 0.f;
+    float lengthen_rate = 0.f;
+    float max_contraction = 0.f;
+    float max_extension = 0.f;
+    unsigned int contract_key = 0;
+    unsigned int extend_key = 0;
     Ogre::String description;
     Inertia inertia;
-    float affect_engine;
-    bool needs_engine;
-    bool plays_sound;
+    float affect_engine = 1.f;
+    bool needs_engine = true;
+    bool plays_sound = true;
     std::shared_ptr<BeamDefaults> beam_defaults;
     std::shared_ptr<Inertia> inertia_defaults;
-    int detacher_group;
+    int detacher_group = 0;
 
-    bool option_i_invisible;
-    bool option_r_rope;
-    bool option_c_auto_center;
-    bool option_f_not_faster;
-    bool option_p_1press;
-    bool option_o_1press_center;
+    bool option_i_invisible = false;
+    bool option_r_rope = false;
+    bool option_c_auto_center = false;
+    bool option_f_not_faster = false;
+    bool option_p_1press = false;
+    bool option_o_1press_center = false;
 };
 
 struct CruiseControl
