@@ -198,6 +198,13 @@ enum class SpecialProp
 // --------------------------------
 // Enums which specify option letters/numbers and also carry value
 
+enum class EngineType
+{
+    c_CAR                    = 'c',
+    e_ECAR                   = 'e',
+    t_TRUCK                  = 't',
+};
+
 enum class DifferentialType: char
 {
     o_OPEN                   = 'o',
@@ -798,28 +805,17 @@ struct Engine
 
 struct Engoption
 {
-    Engoption();
-
-    enum EngineType
-    {
-        ENGINE_TYPE_c_CAR   = 'c',
-        ENGINE_TYPE_e_ECAR  = 'e',
-        ENGINE_TYPE_t_TRUCK = 't',
-
-        ENGINE_TYPE_INVALID = 0xFFFFFFFF
-    };
-
-    float inertia;
+    float inertia = 10.f;
     EngineType type;
-    float clutch_force;
-    float shift_time;       //!< Seconds
-    float clutch_time;      //!< Seconds
-    float post_shift_time;  //!< Seconds
-    float idle_rpm;
-    float stall_rpm;
-    float max_idle_mixture;
-    float min_idle_mixture;
-    float braking_torque;
+    float clutch_force = -1.f;
+    float shift_time = -1.f;       //!< Seconds
+    float clutch_time = -1.f;      //!< Seconds
+    float post_shift_time = -1.f;  //!< Seconds
+    float idle_rpm = -1.f;
+    float stall_rpm = -1.f;
+    float max_idle_mixture = -1.f;
+    float min_idle_mixture = -1.f;
+    float braking_torque = -1.f;
 };
  
 struct Engturbo

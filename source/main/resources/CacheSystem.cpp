@@ -756,10 +756,9 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
         entry.maxrpm = engine.shift_up_rpm;
         entry.torque = engine.torque;
         entry.enginetype = 't'; /* Truck (default) */
-        if (def->root_module->engoption.size() > 0
-            && def->root_module->engoption[def->root_module->engoption.size() - 1].type == RigDef::Engoption::ENGINE_TYPE_c_CAR)
+        if (def->root_module->engoption.size() > 0)
         {
-            entry.enginetype = 'c';
+            entry.enginetype = (char)def->root_module->engoption[def->root_module->engoption.size() - 1].type;
         }
     }
 

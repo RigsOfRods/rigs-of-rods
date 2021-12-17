@@ -5067,7 +5067,7 @@ void ActorSpawner::ProcessEngoption(RigDef::Engoption & def)
     /* Process it */
     m_actor->ar_engine->SetEngineOptions(
         def.inertia,
-        def.type,
+        (char)def.type,
         def.clutch_force,
         def.shift_time,
         def.clutch_time,
