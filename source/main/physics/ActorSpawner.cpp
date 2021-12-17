@@ -1221,8 +1221,8 @@ void ActorSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 
 void ActorSpawner::ProcessFixedNode(RigDef::Node::Ref node_ref)
 {
-    node_t & node = GetNodeOrThrow(node_ref);
-    node.nd_immovable = true;
+    NodeNum_t node = GetNodeIndexOrThrow(node_ref);
+    m_actor->ar_nodes[node].nd_immovable = true;
 }
 
 void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
@@ -2697,7 +2697,7 @@ void ActorSpawner::ProcessRopable(RigDef::Ropable & def)
 
 void ActorSpawner::ProcessTie(RigDef::Tie & def)
 {
-    node_t & node_1 = GetNodeOrThrow(def.root_node);
+    node_t & node_1 = m_actor->ar_nodes[GetNodeIndexOrThrow(def.root_node)];
     node_t & node_2 = GetNode( (node_1.pos == 0) ? 1 : 0 );
 
     int beam_index = m_actor->ar_num_beams;
@@ -2735,8 +2735,8 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
 
 void ActorSpawner::ProcessRope(RigDef::Rope & def)
 {
-    node_t & root_node = GetNodeOrThrow(def.root_node);
-    node_t & end_node = GetNodeOrThrow(def.end_node);
+    node_t & root_node = m_actor->ar_nodes[GetNodeIndexOrThrow(def.root_node)];
+    node_t & end_node = m_actor->ar_nodes[GetNodeIndexOrThrow(def.end_node)];
 
     /* Add beam */
     int beam_index = m_actor->ar_num_beams;
@@ -2769,7 +2769,7 @@ void ActorSpawner::ProcessRailGroup(RigDef::RailGroup & def)
 
 void ActorSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 {
-    node_t & node = GetNodeOrThrow(def.slide_node);
+    node_t & node = m_actor->ar_nodes[GetNodeIndexOrThrow(def.slide_node)];
     SlideNode slide_node(& node, nullptr);
 
     // Optional args
@@ -3062,7 +3062,8 @@ void ActorSpawner::ProcessLockgroup(RigDef::Lockgroup & lockgroup)
     auto end  = lockgroup.nodes.end();
     for (; itor != end; ++itor)
     {
-        GetNodeOrThrow(*itor).nd_lockgroup = lockgroup.number;
+        NodeNum_t node = this->GetNodeIndexOrThrow(*itor);
+        m_actor->ar_nodes[node].nd_lockgroup = lockgroup.number;
     }
 }
 
@@ -5153,11 +5154,6 @@ NodeNum_t ActorSpawner::GetNodeIndexOrThrow(RigDef::Node::Ref const & node_ref)
     return node;
 }
 
-node_t & ActorSpawner::GetNodeOrThrow(RigDef::Node::Ref const & node_ref)
-{
-    return m_actor->ar_nodes[GetNodeIndexOrThrow(node_ref)];
-}
-
 void ActorSpawner::ProcessCamera(RigDef::Camera & def)
 {
     if (def.center_node.IsValidAnyState())
@@ -6931,9 +6927,9 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
             return;
         }
 
-        vcam.vcam_node_center = static_cast<uint16_t>(this->GetNodeOrThrow(def->reference_node).pos);
-        vcam.vcam_node_dir_y  = static_cast<uint16_t>(this->GetNodeOrThrow(def->bottom_node).pos);
-        vcam.vcam_node_dir_z  = static_cast<uint16_t>(this->GetNodeOrThrow(def->left_node).pos);
+        vcam.vcam_node_center = this->GetNodeIndexOrThrow(def->reference_node);
+        vcam.vcam_node_dir_y  = this->GetNodeIndexOrThrow(def->bottom_node);
+        vcam.vcam_node_dir_z  = this->GetNodeIndexOrThrow(def->left_node);
         vcam.vcam_pos_offset  = def->offset;
 
         //rotate camera picture 180 degrees, skip for mirrors
@@ -6946,7 +6942,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         // set alternative camposition (optional)
         if (def->alt_reference_node.IsValidAnyState())
         {
-            vcam.vcam_node_alt_pos = static_cast<uint16_t>(this->GetNodeOrThrow(def->alt_reference_node).pos);
+            vcam.vcam_node_alt_pos = this->GetNodeIndexOrThrow(def->alt_reference_node);
         }
         else
         {
@@ -6958,7 +6954,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         {
             // This is a tracker camera
             vcam.vcam_type = VCTYPE_TRACKING_VIDEOCAM;
-            vcam.vcam_node_lookat = static_cast<uint16_t>(this->GetNodeOrThrow(def->alt_orientation_node).pos);
+            vcam.vcam_node_lookat = this->GetNodeIndexOrThrow(def->alt_orientation_node);
         }
 
         // TODO: Eliminate gEnv
