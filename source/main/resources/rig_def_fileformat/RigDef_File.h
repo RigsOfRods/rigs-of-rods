@@ -1509,18 +1509,12 @@ struct Turbojet
 
 struct Turboprop2 // Section TURBOPROPS, TURBOPROPS2 
 {
-    Turboprop2():
-        turbine_power_kW(0),
-        _format_version(2)
-    {}
-
     Node::Ref reference_node;
     Node::Ref axis_node;
     Node::Ref blade_tip_nodes[4];
     float turbine_power_kW = 0.f;
     Ogre::String airfoil;
     Node::Ref couple_node;
-    unsigned int _format_version = 2;
 };
 
 struct VideoCamera
