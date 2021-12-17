@@ -550,12 +550,11 @@ void ActorSpawner::FinalizeRig()
     //cameras workaround
     for (int i=0; i<m_actor->ar_num_cameras; i++)
     {
-        //LogManager::getSingleton().logMessage("Camera dir="+StringConverter::toString(ar_nodes[ar_camera_node_dir[i]].RelPosition-ar_nodes[ar_camera_node_pos[i]].RelPosition)+" roll="+StringConverter::toString(ar_nodes[ar_camera_node_roll[i]].RelPosition-ar_nodes[ar_camera_node_pos[i]].RelPosition));
-        Ogre::Vector3 dir_node_offset = GetNode(m_actor->ar_camera_node_dir[i]).RelPosition - GetNode(m_actor->ar_camera_node_pos[i]).RelPosition;
-        Ogre::Vector3 roll_node_offset = GetNode(m_actor->ar_camera_node_roll[i]).RelPosition - GetNode(m_actor->ar_camera_node_pos[i]).RelPosition;
+        Ogre::Vector3 dir_node_offset = m_actor->ar_nodes[m_actor->ar_camera_node_dir[i]].RelPosition - m_actor->ar_nodes[m_actor->ar_camera_node_pos[i]].RelPosition;
+        Ogre::Vector3 roll_node_offset = m_actor->ar_nodes[m_actor->ar_camera_node_roll[i]].RelPosition - m_actor->ar_nodes[m_actor->ar_camera_node_pos[i]].RelPosition;
         Ogre::Vector3 cross = dir_node_offset.crossProduct(roll_node_offset);
         
-        m_actor->ar_camera_node_roll_inv[i]=cross.y > 0;//(ar_nodes[ar_camera_node_dir[i]].RelPosition-ar_nodes[ar_camera_node_pos[i]].RelPosition).crossProduct(ar_nodes[ar_camera_node_roll[i]].RelPosition-ar_nodes[ar_camera_node_pos[i]].RelPosition).y>0;
+        m_actor->ar_camera_node_roll_inv[i]=cross.y > 0;
         if (m_actor->ar_camera_node_roll_inv[i])
         {
             AddMessage(Message::TYPE_WARNING, "camera definition is probably invalid and has been corrected. It should be center, back, left");
@@ -568,14 +567,14 @@ void ActorSpawner::FinalizeRig()
         if (m_actor->ar_autopilot != nullptr) 
         {
             m_actor->ar_autopilot->setInertialReferences(
-                & GetNode(m_airplane_left_light),
-                & GetNode(m_airplane_right_light),
+                & m_actor->ar_nodes[m_airplane_left_light],
+                & m_actor->ar_nodes[m_airplane_right_light],
                 m_actor->m_fusealge_back,
-                & GetNode(m_actor->ar_camera_node_pos[0])
+                & m_actor->ar_nodes[m_actor->ar_camera_node_pos[0]]
                 );
         }
         //inform wing segments
-        float span=GetNode(m_actor->ar_wings[m_first_wing_index].fa->nfrd).RelPosition.distance(GetNode(m_actor->ar_wings[m_actor->ar_num_wings-1].fa->nfld).RelPosition);
+        float span=m_actor->ar_nodes[m_actor->ar_wings[m_first_wing_index].fa->nfrd].RelPosition.distance(m_actor->ar_nodes[m_actor->ar_wings[m_actor->ar_num_wings-1].fa->nfld].RelPosition);
         
         m_actor->ar_wings[m_first_wing_index].fa->enableInducedDrag(span,m_wing_area, false);
         m_actor->ar_wings[m_actor->ar_num_wings-1].fa->enableInducedDrag(span,m_wing_area, true);
@@ -725,8 +724,8 @@ void ActorSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
 
         m_actor->m_fusealge_airfoil = new Airfoil(fusefoil);
 
-        m_actor->m_fusealge_front   = & GetNode(front_node_idx);
-        m_actor->m_fusealge_back    = & GetNode(front_node_idx); // This equals v0.38 / v0.4.0.7, but it's probably a bug
+        m_actor->m_fusealge_front   = & m_actor->ar_nodes[front_node_idx];
+        m_actor->m_fusealge_back    = & m_actor->ar_nodes[front_node_idx]; // This equals v0.38 / v0.4.0.7, but it's probably a bug
         m_actor->m_fusealge_width   = width;
         AddMessage(Message::TYPE_INFO, "Fusedrag autocalculation size: "+TOSTRING(width)+" m^2");
     } 
@@ -738,8 +737,8 @@ void ActorSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
 
         m_actor->m_fusealge_airfoil = new Airfoil(fusefoil);
 
-        m_actor->m_fusealge_front   = & GetNode(front_node_idx);
-        m_actor->m_fusealge_back    = & GetNode(front_node_idx); // This equals v0.38 / v0.4.0.7, but it's probably a bug
+        m_actor->m_fusealge_front   = & m_actor->ar_nodes[front_node_idx];
+        m_actor->m_fusealge_back    = & m_actor->ar_nodes[front_node_idx]; // This equals v0.38 / v0.4.0.7, but it's probably a bug
         m_actor->m_fusealge_width   = width;
     }
 }
@@ -788,7 +787,7 @@ void ActorSpawner::BuildAeroEngine(
     }
 
     /* Visuals */
-    float scale = GetNode(ref_node_index).RelPosition.distance(GetNode(blade_1_node_index).RelPosition) / 2.25f;
+    float scale = m_actor->ar_nodes[ref_node_index].RelPosition.distance(m_actor->ar_nodes[blade_1_node_index].RelPosition) / 2.25f;
     for (RoR::Prop& prop: m_props)
     {
         if ((prop.pp_node_ref == ref_node_index) && (prop.pp_aero_propeller_blade || prop.pp_aero_propeller_spin))
@@ -932,8 +931,8 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
     {
         m_first_wing_index = m_actor->ar_num_wings;
         m_wing_area=ComputeWingArea(
-            this->GetNode(flex_airfoil->nfld).AbsPosition,    this->GetNode(flex_airfoil->nfrd).AbsPosition,
-            this->GetNode(flex_airfoil->nbld).AbsPosition,    this->GetNode(flex_airfoil->nbrd).AbsPosition
+            m_actor->ar_nodes[flex_airfoil->nfld].AbsPosition,    m_actor->ar_nodes[flex_airfoil->nfrd].AbsPosition,
+            m_actor->ar_nodes[flex_airfoil->nbld].AbsPosition,    m_actor->ar_nodes[flex_airfoil->nbrd].AbsPosition
         );
     }
     else
@@ -946,7 +945,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
 
             //discontinuity
             //inform wing segments
-            float span = GetNode( start_wing.fa->nfrd).RelPosition.distance( GetNode(previous_wing.fa->nfld).RelPosition );
+            float span = m_actor->ar_nodes[start_wing.fa->nfrd].RelPosition.distance(m_actor->ar_nodes[previous_wing.fa->nfld].RelPosition );
             
             start_wing.fa->enableInducedDrag(span, m_wing_area, false);
             previous_wing.fa->enableInducedDrag(span, m_wing_area, true);
@@ -1086,15 +1085,15 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
 
             m_first_wing_index = m_actor->ar_num_wings;
             m_wing_area=ComputeWingArea(
-                this->GetNode(flex_airfoil->nfld).AbsPosition,    this->GetNode(flex_airfoil->nfrd).AbsPosition,
-                this->GetNode(flex_airfoil->nbld).AbsPosition,    this->GetNode(flex_airfoil->nbrd).AbsPosition
+                m_actor->ar_nodes[flex_airfoil->nfld].AbsPosition,    m_actor->ar_nodes[flex_airfoil->nfrd].AbsPosition,
+                m_actor->ar_nodes[flex_airfoil->nbld].AbsPosition,    m_actor->ar_nodes[flex_airfoil->nbrd].AbsPosition
             );
         }
         else 
         {
             m_wing_area+=ComputeWingArea(
-                this->GetNode(flex_airfoil->nfld).AbsPosition,    this->GetNode(flex_airfoil->nfrd).AbsPosition,
-                this->GetNode(flex_airfoil->nbld).AbsPosition,    this->GetNode(flex_airfoil->nbrd).AbsPosition
+                m_actor->ar_nodes[flex_airfoil->nfld].AbsPosition,    m_actor->ar_nodes[flex_airfoil->nfrd].AbsPosition,
+                m_actor->ar_nodes[flex_airfoil->nbld].AbsPosition,    m_actor->ar_nodes[flex_airfoil->nbrd].AbsPosition
             );
         }
     }
@@ -1254,7 +1253,7 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
 
     exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode();
     exhaust.smokeNode->attachObject(exhaust.smoker);
-    exhaust.smokeNode->setPosition(this->GetNode(exhaust.emitterNode).AbsPosition);
+    exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
 
     // Update GFX for nodes
     for (NodeGfx& nfx : m_gfx_nodes)
@@ -2671,7 +2670,7 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
 
     particle.snode = m_particles_parent_scenenode->createChildSceneNode();
     particle.snode->attachObject(particle.psys);
-    particle.snode->setPosition(this->GetNode(particle.emitterNode).AbsPosition);
+    particle.snode->setPosition(m_actor->ar_nodes[particle.emitterNode].AbsPosition);
 
     /* Shut down the emitters */
     particle.active = false; 
@@ -2698,7 +2697,7 @@ void ActorSpawner::ProcessRopable(RigDef::Ropable & def)
 void ActorSpawner::ProcessTie(RigDef::Tie & def)
 {
     node_t & node_1 = m_actor->ar_nodes[GetNodeIndexOrThrow(def.root_node)];
-    node_t & node_2 = GetNode( (node_1.pos == 0) ? 1 : 0 );
+    node_t & node_2 = m_actor->ar_nodes[( (node_1.pos == 0) ? 1 : 0 )];
 
     int beam_index = m_actor->ar_num_beams;
     beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
@@ -3155,7 +3154,7 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
         return;
     }
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(GetNode(node_1_index), GetNode(node_2_index), def.beam_defaults, def.detacher_group);
+    beam_t & beam = AddBeam(m_actor->ar_nodes[node_1_index], m_actor->ar_nodes[node_2_index], def.beam_defaults, def.detacher_group);
     beam.bm_type = BEAM_HYDRO;
     SetBeamStrength(beam, def.beam_defaults->breaking_threshold);
     SetBeamSpring(beam, 0.f);
@@ -3556,7 +3555,9 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
     }
 
     unsigned int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(GetNode(def.nodes[0]), GetNode(def.nodes[1]), def.beam_defaults, def.detacher_group);
+    NodeNum_t n1 = this->GetNodeIndexOrThrow(def.nodes[0]);
+    NodeNum_t n2 = this->GetNodeIndexOrThrow(def.nodes[1]);
+    beam_t & beam = AddBeam(m_actor->ar_nodes[n1], m_actor->ar_nodes[n2], def.beam_defaults, def.detacher_group);
     /* set the limits to something with sense by default */
     beam.shortbound = 0.99999f;
     beam.longbound = 1000000.0f;
@@ -3693,8 +3694,8 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
         hydro_flags |= HYDRO_FLAG_DIR;
     }
 
-    node_t & node_1 = GetNode(def.nodes[0]);
-    node_t & node_2 = GetNode(def.nodes[1]);
+    node_t & node_1 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[0])];
+    node_t & node_2 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[1])];
 
     int beam_index = m_actor->ar_num_beams;
     beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
@@ -3723,8 +3724,8 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
 
 void ActorSpawner::ProcessShock3(RigDef::Shock3 & def)
 {
-    node_t & node_1 = GetNode(def.nodes[0]);
-    node_t & node_2 = GetNode(def.nodes[1]);
+    node_t & node_1 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[0])];
+    node_t & node_2 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[1])];
     float short_bound = def.short_bound;
     float long_bound = def.long_bound;
     unsigned int shock_flags = SHOCK_FLAG_NORMAL | SHOCK_FLAG_ISSHOCK3;
@@ -3801,8 +3802,8 @@ void ActorSpawner::ProcessShock3(RigDef::Shock3 & def)
 
 void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
 {
-    node_t & node_1 = GetNode(def.nodes[0]);
-    node_t & node_2 = GetNode(def.nodes[1]);
+    node_t & node_1 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[0])];
+    node_t & node_2 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[1])];
     float short_bound = def.short_bound;
     float long_bound = def.long_bound;
     unsigned int shock_flags = SHOCK_FLAG_NORMAL | SHOCK_FLAG_ISSHOCK2;
@@ -3882,8 +3883,8 @@ void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
 
 void ActorSpawner::ProcessShock(RigDef::Shock & def)
 {
-    node_t & node_1 = GetNode(def.nodes[0]);
-    node_t & node_2 = GetNode(def.nodes[1]);
+    node_t & node_1 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[0])];
+    node_t & node_2 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[1])];
     float short_bound = def.short_bound;
     float long_bound = def.long_bound;
     unsigned int shock_flags = SHOCK_FLAG_NORMAL;
@@ -4654,7 +4655,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     bool rigidity_beam_side_1 = false;
     if (wheel_2_def.rigidity_node.IsValidAnyState())
     {
-        node_t & rigidity_node = GetNode(wheel_2_def.rigidity_node);
+        node_t & rigidity_node = m_actor->ar_nodes[this->GetNodeIndexOrThrow(wheel_2_def.rigidity_node)];
         Ogre::Real distance_1 = (rigidity_node.RelPosition - axis_node_1->RelPosition).length();
         Ogre::Real distance_2 = (rigidity_node.RelPosition - axis_node_2->RelPosition).length();
         rigidity_beam_side_1 = distance_1 < distance_2;
@@ -5606,7 +5607,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     {
         /* Link [current-node] -> [node-0] */
         /* If current node is 0, link [node-0] -> [node-1] */
-        node_t & node_2 = (node.pos == 0) ? GetNode(1) : GetNode(0);
+        node_t & node_2 = m_actor->ar_nodes[((node.pos == 0) ? 1 : 0)];
         unsigned int beam_index = m_actor->ar_num_beams;
 
         beam_t & beam = AddBeam(node, node_2, def.beam_defaults, def.detacher_group);
@@ -5738,7 +5739,8 @@ void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
     for (unsigned int i = 0; i < 8; i++)
     {
         int beam_index = m_actor->ar_num_beams;
-        beam_t & beam = AddBeam(camera_node, GetNode(def.nodes[i]), def.beam_defaults, DEFAULT_DETACHER_GROUP);
+        node_t& node = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[i])];
+        beam_t & beam = AddBeam(camera_node, node, def.beam_defaults, DEFAULT_DETACHER_GROUP);
         beam.bm_type = BEAM_NORMAL;
         CalculateBeamLength(beam);
         beam.k = def.spring;
@@ -5900,11 +5902,6 @@ bool ActorSpawner::CheckScrewpropLimit(unsigned int count)
         return false;
     }
     return true;
-}
-
-node_t &ActorSpawner:: GetNode(NodeNum_t node_index)
-{
-    return m_actor->ar_nodes[node_index];
 }
 
 void ActorSpawner::InitNode(unsigned int node_index, Ogre::Vector3 const & position)
