@@ -1331,7 +1331,6 @@ void Parser::ParseCommandsUnified()
     Command2 command2;
     command2.beam_defaults     = m_user_beam_defaults;
     command2.detacher_group    = m_current_detacher_group;
-    command2._format_version   = (is_commands2) ? 2 : 1;
     command2.inertia_defaults  = m_user_default_inertia;
 
     int pos = 0;
