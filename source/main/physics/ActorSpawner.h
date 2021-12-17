@@ -702,13 +702,6 @@ private:
     */
     void WashCalculator();
 
-    void FetchAxisNodes(
-        node_t* & axis_node_1, 
-        node_t* & axis_node_2, 
-        RigDef::Node::Ref const & axis_node_1_id,
-        RigDef::Node::Ref const & axis_node_2_id
-    );
-
     void _ProcessKeyInertia(
         RigDef::Inertia & inertia, 
         RigDef::Inertia & inertia_defaults, 

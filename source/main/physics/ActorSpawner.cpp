@@ -3937,36 +3937,20 @@ void ActorSpawner::ProcessShock(RigDef::Shock & def)
     shock.beamid = beam_index;
 }
 
-void ActorSpawner::FetchAxisNodes(
-    node_t* & axis_node_1, 
-    node_t* & axis_node_2, 
-    RigDef::Node::Ref const & axis_node_1_id,
-    RigDef::Node::Ref const & axis_node_2_id
-)
-{
-    axis_node_1 = GetNodePointer(axis_node_1_id);
-    axis_node_2 = GetNodePointer(axis_node_2_id);
-
-    Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
-    Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
-
-    /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
-    if (pos_1.z > pos_2.z)
-    {
-        node_t *swap = axis_node_1;
-        axis_node_1 = axis_node_2;
-        axis_node_2 = swap;
-    }
-}
-
 void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 {
     unsigned int base_node_index = m_actor->ar_num_nodes;
     wheel_t & wheel = m_actor->ar_wheels[m_actor->ar_num_wheels];
 
-    node_t *axis_node_1 = nullptr;
-    node_t *axis_node_2 = nullptr;
-    FetchAxisNodes(axis_node_1, axis_node_2, def.nodes[0], def.nodes[1]);
+    node_t *axis_node_1 = &m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[0])];
+    node_t *axis_node_2 = &m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[1])];
+    // Enforce the "second node must have a larger Z coordinate than the first" constraint
+    if (axis_node_1->AbsPosition.z > axis_node_2->AbsPosition.z)
+    {
+        node_t* swap = axis_node_1;
+        axis_node_1 = axis_node_2;
+        axis_node_2 = swap;
+    }
 
     // Rigidity node
     node_t *rigidity_node = nullptr;
