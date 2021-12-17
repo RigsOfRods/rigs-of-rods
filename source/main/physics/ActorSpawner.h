@@ -437,10 +437,9 @@ private:
     );
 
     /**
-    * Finds existing node by Node::Ref
-    * @return First: Index of existing node; Second: true if node was found.
+    * Finds existing node by Node::Ref. Returns NODENUM_INVALID if not found.
     */
-    std::pair<NodeNum_t, bool> GetNodeIndex(RigDef::Node::Ref const & node_ref, bool quiet = false);
+    NodeNum_t ResolveNodeRef(RigDef::Node::Ref const & node_ref);
 
     /**
     * Finds existing node by Node::Ref

@@ -1471,13 +1471,13 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
     bool nodes_found = true;
     for (auto& node_def: def.node_list)
     {
-        auto result = this->GetNodeIndex(node_def);
-        if (!result.second)
+        NodeNum_t node = this->ResolveNodeRef(node_def);
+        if (node == NODENUM_INVALID)
         {
             nodes_found = false;
             break;
         }
-        node_indices.push_back(result.first);
+        node_indices.push_back(node);
     }
 
     if (! nodes_found)
@@ -2398,20 +2398,20 @@ void ActorSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
     int8_t bbox_id = static_cast<int8_t>(m_actor->ar_collision_bounding_boxes.size());
     for (RigDef::Node::Ref& node_ref: def.nodes)
     {
-        std::pair<unsigned int, bool> node_result = this->GetNodeIndex(node_ref);
-        if (! node_result.second)
+        NodeNum_t node = this->ResolveNodeRef(node_ref);
+        if (node == NODENUM_INVALID)
         {
             RoR::LogFormat("[RoR|Spawner] Collision box: skipping invalid node '%s'", node_ref.ToString().c_str());
             continue;
         }
-        if (m_actor->ar_nodes[node_result.first].nd_coll_bbox_id != node_t::INVALID_BBOX)
+        if (m_actor->ar_nodes[node].nd_coll_bbox_id != node_t::INVALID_BBOX)
         {
             RoR::LogFormat("[RoR|Spawner] Collision box: re-assigning node '%s' from box ID '%d' to '%d'",
                 node_ref.ToString().c_str(),
-                m_actor->ar_nodes[node_result.first].nd_coll_bbox_id,
+                m_actor->ar_nodes[node].nd_coll_bbox_id,
                 bbox_id);
         }
-        m_actor->ar_nodes[node_result.first].nd_coll_bbox_id = bbox_id;
+        m_actor->ar_nodes[node].nd_coll_bbox_id = bbox_id;
     }
 
     m_actor->ar_collision_bounding_boxes.push_back(Ogre::AxisAlignedBox()); // Updated later
@@ -2842,21 +2842,14 @@ void ActorSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 
 NodeNum_t ActorSpawner::FindNodeIndex(RigDef::Node::Ref & node_ref, bool silent /* = false */)
 {
-    std::pair<unsigned int, bool> result = GetNodeIndex(node_ref, /* quiet= */ true);
-    if (result.second)
+    NodeNum_t node = ResolveNodeRef(node_ref);
+    if (node == NODENUM_INVALID && !silent)
     {
-        return static_cast<NodeNum_t>(result.first);
+        std::stringstream msg;
+        msg << "Failed to find node by reference: " << node_ref.ToString();
+        AddMessage(Message::TYPE_ERROR, msg.str());
     }
-    else
-    {
-        if (! silent)
-        {
-            std::stringstream msg;
-            msg << "Failed to find node by reference: " << node_ref.ToString();
-            AddMessage(Message::TYPE_ERROR, msg.str());
-        }
-        return NODENUM_INVALID;
-    }
+    return node;
 }
 
 bool ActorSpawner::CollectNodesFromRanges(
@@ -5150,14 +5143,14 @@ void ActorSpawner::ProcessAuthor(RigDef::Author & def)
 
 NodeNum_t ActorSpawner::GetNodeIndexOrThrow(RigDef::Node::Ref const & node_ref)
 {
-    std::pair<unsigned int, bool> result = GetNodeIndex(node_ref);
-    if (! result.second)
+    NodeNum_t node = this->ResolveNodeRef(node_ref);
+    if (node == NODENUM_INVALID)
     {
         std::stringstream msg;
         msg << "Failed to retrieve required node: " << node_ref.ToString();
         throw Exception(msg.str());
     }
-    return result.first;
+    return node;
 }
 
 node_t & ActorSpawner::GetNodeOrThrow(RigDef::Node::Ref const & node_ref)
@@ -5444,15 +5437,12 @@ void ActorSpawner::AddMessage(ActorSpawner::Message::Type type,	Ogre::String con
     RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_ACTOR, cm_type, txt.ToCStr());
 }
 
-std::pair<NodeNum_t, bool> ActorSpawner::GetNodeIndex(RigDef::Node::Ref const & node_ref, bool quiet /* = false */)
+NodeNum_t ActorSpawner::ResolveNodeRef(RigDef::Node::Ref const & node_ref)
 {
     if (!node_ref.IsValidAnyState())
     {
-        if (! quiet)
-        {
-            AddMessage(Message::TYPE_ERROR, std::string("Attempt to resolve invalid node reference: ") + node_ref.ToString());
-        }
-        return std::make_pair(0, false);
+        AddMessage(Message::TYPE_ERROR, std::string("Attempt to resolve invalid node reference: ") + node_ref.ToString());
+        return NODENUM_INVALID;
     }
     bool is_imported = node_ref.GetImportState_IsValid();
     bool is_named = (is_imported ? node_ref.GetImportState_IsResolvedNamed() : node_ref.GetRegularState_IsNamed());
@@ -5461,39 +5451,37 @@ std::pair<NodeNum_t, bool> ActorSpawner::GetNodeIndex(RigDef::Node::Ref const & 
         auto result = m_named_nodes.find(node_ref.Str());
         if (result != m_named_nodes.end())
         {
-            return std::make_pair((NodeNum_t)result->second, true);
+            return (NodeNum_t)result->second;
         }
-        else if (! quiet)
-        {
-            std::stringstream msg;
-            msg << "Failed to resolve node-ref (node not found):" << node_ref.ToString();
-            AddMessage(Message::TYPE_ERROR, msg.str());
-        }
-        return std::make_pair(0, false);
+
+        std::stringstream msg;
+        msg << "Failed to resolve node-ref (node not found):" << node_ref.ToString();
+        AddMessage(Message::TYPE_ERROR, msg.str());
+
+        return NODENUM_INVALID;
     }
     else
     {
         // Imported nodes pass without check
         if (!is_imported && (node_ref.Num() >= static_cast<unsigned int>(m_actor->ar_num_nodes)))
         {
-            if (! quiet)
-            {
-                std::stringstream msg;
-                msg << "Failed to resolve node-ref (node index too big, node count is: "<<m_actor->ar_num_nodes<<"): " << node_ref.ToString();
-                AddMessage(Message::TYPE_ERROR, msg.str());
-            }
-            return std::make_pair(0, false);
+
+            std::stringstream msg;
+            msg << "Failed to resolve node-ref (node index too big, node count is: "<<m_actor->ar_num_nodes<<"): " << node_ref.ToString();
+            AddMessage(Message::TYPE_ERROR, msg.str());
+
+            return NODENUM_INVALID;
         }
-        return std::make_pair((NodeNum_t)node_ref.Num(), true);
+        return (NodeNum_t)node_ref.Num();
     }
 }
 
 node_t* ActorSpawner::GetNodePointer(RigDef::Node::Ref const & node_ref)
 {
-    std::pair<unsigned int, bool> result = GetNodeIndex(node_ref);
-    if (result.second)
+    NodeNum_t node = ResolveNodeRef(node_ref);
+    if (node != NODENUM_INVALID)
     {
-        return & m_actor->ar_nodes[result.first];
+        return & m_actor->ar_nodes[node];
     }
     else
     {
