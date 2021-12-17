@@ -665,14 +665,14 @@ void Serializer::ProcessPropsAndAnimations(Document::Module* module)
             << ", " << def.rotation.y
             << ", " << def.rotation.z
             << ", ";
-        if (def.special == Prop::SPECIAL_INVALID)
+        if (def.special == SpecialProp::NONE)
         {
             m_stream << def.mesh_name;
             continue;
         }
 
         // Special props
-        if (def.special == Prop::SPECIAL_BEACON)
+        if (def.special == SpecialProp::BEACON)
         {
             m_stream << def.mesh_name 
                 << " " << def.special_prop_beacon.flare_material_name
@@ -680,7 +680,7 @@ void Serializer::ProcessPropsAndAnimations(Document::Module* module)
                 << ", " << def.special_prop_beacon.color.g
                 << ", " << def.special_prop_beacon.color.b;
         }
-        else if (def.special == Prop::SPECIAL_DASHBOARD_LEFT || def.special == Prop::SPECIAL_DASHBOARD_RIGHT)
+        else if (def.special == SpecialProp::DASHBOARD_LEFT || def.special == SpecialProp::DASHBOARD_RIGHT)
         {
             m_stream << " " << def.special_prop_dashboard.mesh_name
                 << " " << def.special_prop_dashboard.offset.x
