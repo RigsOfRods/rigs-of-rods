@@ -957,27 +957,12 @@ void Parser::ParseFixes()
 void Parser::ParseExtCamera()
 {
     if (! this->CheckNumArguments(2)) { return; }
-    
-    if (m_current_module->extcamera.size() == 0)
-    {
-        m_current_module->extcamera.push_back(RigDef::ExtCamera());
-    }
-    ExtCamera* extcam = &m_current_module->extcamera[0];
-    
-    auto mode_str = this->GetArgStr(1);
-    if (mode_str == "classic")
-    {
-        extcam->mode = ExtCamera::MODE_CLASSIC;
-    }
-    else if (mode_str == "cinecam")
-    {
-        extcam->mode = ExtCamera::MODE_CINECAM;
-    }
-    else if ((mode_str == "node") && (m_num_args > 2))
-    {
-        extcam->mode = ExtCamera::MODE_NODE;
-        extcam->node = this->GetArgNodeRef(2);
-    }
+
+    ExtCamera extcam;
+    extcam.mode = this->GetArgExtCameraMode(1);
+    if (m_num_args > 2) { extcam.node = this->GetArgNodeRef(2); }
+
+    m_current_module->extcamera.push_back(extcam);
 }
 
 void Parser::ParseExhaust()
@@ -2950,6 +2935,18 @@ FlareType Parser::GetArgFlareType(int index)
                 fmt::format("Invalid flare type '{}', falling back to type 'f' (front light)...", in));
             return FlareType::HEADLIGHT;
     }
+}
+
+ExtCameraMode Parser::GetArgExtCameraMode(int index)
+{
+    std::string str = this->GetArgStr(index);
+    if (str == "classic") return ExtCameraMode::CLASSIC;
+    if (str == "cinecam") return ExtCameraMode::CINECAM;
+    if (str == "node")    return ExtCameraMode::NODE;
+
+    this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+        fmt::format("Invalid ExtCameraMode '{}', falling back to type 'classic'...", str));
+    return ExtCameraMode::CLASSIC;
 }
 
 float Parser::GetArgFloat(int index)

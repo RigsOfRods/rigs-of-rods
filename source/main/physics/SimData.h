@@ -49,6 +49,14 @@ enum CollisionEventFilter: short
     EVENT_DELETE
 };
 
+enum class ExtCameraMode
+{
+    INVALID = -1,
+    CLASSIC = 0,
+    CINECAM = 1,
+    NODE    = 2,
+};
+
 /// @addtogroup Gameplay
 /// @{
 

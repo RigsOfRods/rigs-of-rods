@@ -268,7 +268,6 @@ void ActorSpawner::InitializeRig()
     memset(m_actor->m_skid_trails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
     m_actor->description.clear();
 
-    m_actor->ar_extern_camera_mode=0;
     m_actor->authors.clear();
 
     m_actor->m_odometer_total = 0;

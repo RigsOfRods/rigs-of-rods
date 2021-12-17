@@ -31,6 +31,7 @@
 #include <OgreStringConverter.h>
 #include <iomanip>
 
+using namespace RoR;
 using namespace RigDef;
 using namespace std;
 
@@ -374,13 +375,13 @@ void Serializer::ProcessExtCamera(Document::Module* module)
 
     switch (def->mode)
     {
-    case ExtCamera::MODE_NODE:
+    case ExtCameraMode::NODE:
         m_stream << "node " << def->node.ToString();
         break;
-    case ExtCamera::MODE_CINECAM:
+    case ExtCameraMode::CINECAM:
         m_stream << "cinecam";
         break;
-    case ExtCamera::MODE_CLASSIC:
+    case ExtCameraMode::CLASSIC:
     default:
         m_stream << "classic";
         break;

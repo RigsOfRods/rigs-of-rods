@@ -844,20 +844,7 @@ struct Exhaust
 
 struct ExtCamera
 {
-    ExtCamera():
-        mode(MODE_CLASSIC)
-    {}
-
-    enum Mode
-    {
-        MODE_CLASSIC = 0, // Hardcoded in simulation code, do not change
-        MODE_CINECAM = 1, // Hardcoded in simulation code, do not change
-        MODE_NODE    = 2, // Hardcoded in simulation code, do not change
-
-        MODE_INVALID = 0xFFFFFFFF
-    };
-
-    Mode mode;
+    RoR::ExtCameraMode mode = RoR::ExtCameraMode::CLASSIC;
     Node::Ref node;
 };
 
