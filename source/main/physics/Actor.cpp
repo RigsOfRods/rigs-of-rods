@@ -1054,12 +1054,12 @@ void Actor::calculateAveragePosition()
     {
         m_avg_node_position = ar_nodes[ar_custom_camera_node].AbsPosition;
     }
-    else if (ar_extern_camera_mode == 1 && ar_num_cinecams > 0)
+    else if (ar_extern_camera_mode == ExtCameraMode::CINECAM && ar_num_cinecams > 0)
     {
         // the new (strange) approach: reuse the cinecam node
         m_avg_node_position = ar_nodes[ar_cinecam_node[0]].AbsPosition;
     }
-    else if (ar_extern_camera_mode == 2 && ar_extern_camera_node != NODENUM_INVALID)
+    else if (ar_extern_camera_mode == ExtCameraMode::NODE && ar_extern_camera_node != NODENUM_INVALID)
     {
         // the new (strange) approach #2: reuse a specified node
         m_avg_node_position = ar_nodes[ar_extern_camera_node].AbsPosition;

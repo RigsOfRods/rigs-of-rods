@@ -312,7 +312,7 @@ public:
     std::deque<float> cc_accs;            //!< Cruise Control
     bool              sl_enabled;         //!< Speed limiter;
     float             sl_speed_limit;     //!< Speed limiter;
-    int               ar_extern_camera_mode;
+    ExtCameraMode     ar_extern_camera_mode = ExtCameraMode::CLASSIC;
     NodeNum_t         ar_extern_camera_node = NODENUM_INVALID;
     NodeNum_t         ar_exhaust_pos_node   = 0;   //!< Old-format exhaust (one per vehicle) emitter node
     NodeNum_t         ar_exhaust_dir_node   = 0;   //!< Old-format exhaust (one per vehicle) backwards direction node

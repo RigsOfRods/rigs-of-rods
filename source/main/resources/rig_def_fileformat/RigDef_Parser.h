@@ -209,6 +209,7 @@ private:
     WheelSide          GetArgWheelSide    (int index);
     WingControlSurface GetArgWingSurface  (int index);
     RoR::FlareType     GetArgFlareType    (int index);
+    RoR::ExtCameraMode GetArgExtCameraMode(int index);
     std::string        GetArgManagedTex   (int index);
     MinimassOption     GetArgMinimassOption(int index);
     BitMask_t          GetArgCabOptions   (int index);
