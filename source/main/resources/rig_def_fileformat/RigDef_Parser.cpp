@@ -2181,22 +2181,11 @@ void Parser::ParseProps()
     prop.rotation.x     = this->GetArgFloat  (6);
     prop.rotation.y     = this->GetArgFloat  (7);
     prop.rotation.z     = this->GetArgFloat  (8);
-    prop.mesh_name      = this->GetArgStr    (9);
+    // Attention - arg 9 evaluated twice!
+    prop.mesh_name      = this->GetArgStr(9);
+    prop.special        = this->GetArgSpecialProp(9);
 
-    bool is_dash = false;
-         if (prop.mesh_name.find("leftmirror"  ) != std::string::npos) { prop.special = Prop::SPECIAL_MIRROR_LEFT; }
-    else if (prop.mesh_name.find("rightmirror" ) != std::string::npos) { prop.special = Prop::SPECIAL_MIRROR_RIGHT; }
-    else if (prop.mesh_name.find("dashboard-rh") != std::string::npos) { prop.special = Prop::SPECIAL_DASHBOARD_RIGHT; is_dash = true; }
-    else if (prop.mesh_name.find("dashboard"   ) != std::string::npos) { prop.special = Prop::SPECIAL_DASHBOARD_LEFT;  is_dash = true; }
-    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "spinprop", false) ) { prop.special = Prop::SPECIAL_AERO_PROP_SPIN; }
-    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "pale", false)     ) { prop.special = Prop::SPECIAL_AERO_PROP_BLADE; }
-    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "seat", false)     ) { prop.special = Prop::SPECIAL_DRIVER_SEAT; }
-    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "seat2", false)    ) { prop.special = Prop::SPECIAL_DRIVER_SEAT_2; }
-    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "beacon", false)   ) { prop.special = Prop::SPECIAL_BEACON; }
-    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "redbeacon", false)) { prop.special = Prop::SPECIAL_REDBEACON; }
-    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "lightb", false)   ) { prop.special = Prop::SPECIAL_LIGHTBAR; } // Previously: 'strncmp("lightbar", meshname, 6)'
-
-    if ((prop.special == Prop::SPECIAL_BEACON) && (m_num_args >= 14))
+    if ((prop.special == SpecialProp::BEACON) && (m_num_args >= 14))
     {
         prop.special_prop_beacon.flare_material_name = this->GetArgStr(10);
         Ogre::StringUtil::trim(prop.special_prop_beacon.flare_material_name);
@@ -2204,7 +2193,8 @@ void Parser::ParseProps()
         prop.special_prop_beacon.color = Ogre::ColourValue(
             this->GetArgFloat(11), this->GetArgFloat(12), this->GetArgFloat(13));
     }
-    else if (is_dash)
+    else if (prop.special == SpecialProp::DASHBOARD_LEFT ||
+             prop.special == SpecialProp::DASHBOARD_RIGHT)
     {
         if (m_num_args > 10) prop.special_prop_dashboard.mesh_name = this->GetArgStr(10);
         if (m_num_args > 13)
@@ -3267,6 +3257,25 @@ BitMask_t Parser::GetArgNodeOptions(int index)
     }
     return ret;
 }
+
+SpecialProp Parser::GetArgSpecialProp(int index)
+{
+    std::string str = this->GetArgStr(index);
+
+    if (str.find("leftmirror"  ) != std::string::npos)         { return SpecialProp::MIRROR_LEFT; }
+    if (str.find("rightmirror" ) != std::string::npos)         { return SpecialProp::MIRROR_RIGHT; }
+    if (str.find("dashboard-rh") != std::string::npos)         { return SpecialProp::DASHBOARD_RIGHT; }
+    if (str.find("dashboard"   ) != std::string::npos)         { return SpecialProp::DASHBOARD_LEFT; }
+    if (Ogre::StringUtil::startsWith(str, "spinprop", false) ) { return SpecialProp::AERO_PROP_SPIN; }
+    if (Ogre::StringUtil::startsWith(str, "pale", false)     ) { return SpecialProp::AERO_PROP_BLADE; }
+    if (Ogre::StringUtil::startsWith(str, "seat", false)     ) { return SpecialProp::DRIVER_SEAT; }
+    if (Ogre::StringUtil::startsWith(str, "seat2", false)    ) { return SpecialProp::DRIVER_SEAT_2; }
+    if (Ogre::StringUtil::startsWith(str, "beacon", false)   ) { return SpecialProp::BEACON; }
+    if (Ogre::StringUtil::startsWith(str, "redbeacon", false)) { return SpecialProp::REDBEACON; }
+    if (Ogre::StringUtil::startsWith(str, "lightb", false)   ) { return SpecialProp::LIGHTBAR; }
+    return SpecialProp::NONE;
+}
+
 
 int Parser::TokenizeCurrentLine()
 {

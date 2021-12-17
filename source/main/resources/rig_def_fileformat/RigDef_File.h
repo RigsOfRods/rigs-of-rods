@@ -179,6 +179,22 @@ enum class Keyword
 
 const char* KeywordToString(Keyword keyword);
 
+enum class SpecialProp
+{
+    NONE,
+    MIRROR_LEFT,
+    MIRROR_RIGHT,
+    DASHBOARD_LEFT,
+    DASHBOARD_RIGHT,
+    AERO_PROP_SPIN,
+    AERO_PROP_BLADE,
+    DRIVER_SEAT,
+    DRIVER_SEAT_2,
+    BEACON,
+    REDBEACON,
+    LIGHTBAR,
+};
+
 // --------------------------------
 // Enums which specify option letters/numbers and also carry value
 
@@ -1112,39 +1128,15 @@ struct Prop
         Ogre::ColourValue color;
     };
 
-    Prop():
-        offset(Ogre::Vector3::ZERO),
-        rotation(Ogre::Vector3::ZERO),
-        special(SPECIAL_INVALID)
-    {}
-
-    /* IMPORTANT! Values must match results from Regexes::SPECIAL_PROPS */
-    enum Special
-    {
-        SPECIAL_MIRROR_LEFT = 1,
-        SPECIAL_MIRROR_RIGHT,
-        SPECIAL_DASHBOARD_LEFT,
-        SPECIAL_DASHBOARD_RIGHT,
-        SPECIAL_AERO_PROP_SPIN,
-        SPECIAL_AERO_PROP_BLADE,
-        SPECIAL_DRIVER_SEAT,
-        SPECIAL_DRIVER_SEAT_2,
-        SPECIAL_BEACON,
-        SPECIAL_REDBEACON,
-        SPECIAL_LIGHTBAR,
-
-        SPECIAL_INVALID = 0xFFFFFFFF
-    };
-
     Node::Ref reference_node;
     Node::Ref x_axis_node;
     Node::Ref y_axis_node;
-    Ogre::Vector3 offset;
-    Ogre::Vector3 rotation;
+    Ogre::Vector3 offset = Ogre::Vector3::ZERO;
+    Ogre::Vector3 rotation = Ogre::Vector3::ZERO;
     Ogre::String mesh_name;
     std::list<Animation> animations;
     CameraSettings camera_settings;
-    Special special;
+    SpecialProp special = SpecialProp::NONE;
     BeaconSpecial special_prop_beacon;
     DashboardSpecial special_prop_dashboard;
 };

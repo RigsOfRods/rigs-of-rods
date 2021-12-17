@@ -1550,24 +1550,24 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     /* SPECIAL PROPS */
 
     /* Rear view mirror (left) */
-    if (def.special == RigDef::Prop::SPECIAL_MIRROR_LEFT)
+    if (def.special == RigDef::SpecialProp::MIRROR_LEFT)
     {
         m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_LEFT;
     }
 
     /* Rear view mirror (right) */
-    if (def.special == RigDef::Prop::SPECIAL_MIRROR_RIGHT)
+    if (def.special == RigDef::SpecialProp::MIRROR_RIGHT)
     {
         m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_RIGHT;
     }
 
     /* Custom steering wheel */
     Ogre::Vector3 steering_wheel_offset = Ogre::Vector3::ZERO;
-    if (def.special == RigDef::Prop::SPECIAL_DASHBOARD_LEFT)
+    if (def.special == RigDef::SpecialProp::DASHBOARD_LEFT)
     {
         steering_wheel_offset = Ogre::Vector3(-0.67, -0.61,0.24);
     }
-    if (def.special == RigDef::Prop::SPECIAL_DASHBOARD_RIGHT)
+    if (def.special == RigDef::SpecialProp::DASHBOARD_RIGHT)
     {
         steering_wheel_offset = Ogre::Vector3(0.67, -0.61,0.24);
     }
@@ -1597,17 +1597,17 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     prop.pp_mesh_obj = new MeshObject(def.mesh_name, m_custom_resource_group, instance_name, prop.pp_scene_node);
     prop.pp_mesh_obj->setCastShadows(true); // Orig code {{ prop.pp_mesh_obj->setCastShadows(shadowmode != 0); }}, shadowmode has default value 1 and changes with undocumented directive 'set_shadows'
 
-    if (def.special == RigDef::Prop::SPECIAL_AERO_PROP_SPIN)
+    if (def.special == RigDef::SpecialProp::AERO_PROP_SPIN)
     {
         prop.pp_aero_propeller_spin = true;
         prop.pp_mesh_obj->setCastShadows(false);
         prop.pp_scene_node->setVisible(false);
     }
-    else if(def.special == RigDef::Prop::SPECIAL_AERO_PROP_BLADE)
+    else if(def.special == RigDef::SpecialProp::AERO_PROP_BLADE)
     {
         prop.pp_aero_propeller_blade = true;
     }
-    else if(def.special == RigDef::Prop::SPECIAL_DRIVER_SEAT)
+    else if(def.special == RigDef::SpecialProp::DRIVER_SEAT)
     {
         //driver seat, used to position the driver and make the seat translucent at times
         if (m_driverseat_prop_index == -1)
@@ -1620,7 +1620,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             this->AddMessage(Message::TYPE_INFO, "Found more than one 'seat[2]' special props. Only the first one will be the driver's seat.");
         }
     }
-    else if(def.special == RigDef::Prop::SPECIAL_DRIVER_SEAT_2)
+    else if(def.special == RigDef::SpecialProp::DRIVER_SEAT_2)
     {
         // Same as DRIVER_SEAT, except it doesn't force the "driversseat" material
         if (m_driverseat_prop_index == -1)
@@ -1634,7 +1634,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     }
     else if (m_actor->m_flares_mode != GfxFlaresMode::NONE)
     {
-        if(def.special == RigDef::Prop::SPECIAL_BEACON)
+        if(def.special == RigDef::SpecialProp::BEACON)
         {
             prop.pp_beacon_type = 'b';
             prop.pp_beacon_rot_angle[0] = 2.0 * 3.14 * frand();
@@ -1665,7 +1665,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             prop.pp_beacon_bbs[0] = flare_billboard_sys;
             prop.pp_beacon_light[0] = pp_beacon_light;
         }
-        else if(def.special == RigDef::Prop::SPECIAL_REDBEACON)
+        else if(def.special == RigDef::SpecialProp::REDBEACON)
         {
             prop.pp_beacon_rot_angle[0] = 0.f;
             prop.pp_beacon_rot_rate[0] = 1.0;
@@ -1697,7 +1697,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             prop.pp_beacon_bbs[0] = flare_billboard_sys;
             
         }
-        else if(def.special == RigDef::Prop::SPECIAL_LIGHTBAR)
+        else if(def.special == RigDef::SpecialProp::LIGHTBAR)
         {
             m_actor->ar_is_police = true;
             prop.pp_beacon_type='p';
