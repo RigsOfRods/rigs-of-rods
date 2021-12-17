@@ -455,13 +455,6 @@ private:
     node_t* GetNodePointerOrThrow(RigDef::Node::Ref const & node_ref);
 
     /**
-    * Finds existing node by Node::Ref; throws an exception if the node doesn't exist.
-    * @return Reference to existing node.
-    * @throws Exception If the node isn't found.
-    */
-    node_t & GetNodeOrThrow(RigDef::Node::Ref const & node_ref);
-
-    /**
     * Finds existing pointer by Node::Id
     * @return Ref. to node.
     */
