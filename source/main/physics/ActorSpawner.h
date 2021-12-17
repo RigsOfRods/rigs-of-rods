@@ -455,26 +455,6 @@ private:
     node_t* GetNodePointerOrThrow(RigDef::Node::Ref const & node_ref);
 
     /**
-    * Finds existing pointer by Node::Id
-    * @return Ref. to node.
-    */
-    node_t & GetNode(RigDef::Node::Ref & node_ref)
-    {
-        node_t * node = GetNodePointer(node_ref);
-        if (node == nullptr)
-        {
-            throw Exception(std::string("Failed to retrieve node from reference: ") + node_ref.ToString());
-        }
-        return * node;
-    }
-
-    /**
-    * Finds existing node by index.
-    * @return Pointer to node or nullptr if not found.
-    */
-    node_t & GetNode(NodeNum_t node_index);
-
-    /**
     * Sets up defaults & position of a node.
     */
     void InitNode(node_t & node, Ogre::Vector3 const & position);
