@@ -1239,11 +1239,7 @@ void Parser::ParseEngoption()
     Engoption engoption;
     engoption.inertia = this->GetArgFloat(0);
 
-    if (m_num_args > 1)
-    {
-        engoption.type = Engoption::EngineType(this->GetArgChar(1));
-    }
-
+    if (m_num_args > 1) { engoption.type             = this->GetArgEngineType(1); }
     if (m_num_args > 2) { engoption.clutch_force     = this->GetArgFloat(2); }
     if (m_num_args > 3) { engoption.shift_time       = this->GetArgFloat(3); }
     if (m_num_args > 4) { engoption.clutch_time      = this->GetArgFloat(4); }
@@ -3276,6 +3272,21 @@ SpecialProp Parser::GetArgSpecialProp(int index)
     return SpecialProp::NONE;
 }
 
+EngineType Parser::GetArgEngineType(int index)
+{
+    char c = this->GetArgChar(index);
+    switch (c)
+    {
+        case (char)EngineType::t_TRUCK:
+        case (char)EngineType::c_CAR:
+        case (char)EngineType::e_ECAR:
+            return EngineType(c);
+
+        default:
+            fmt::format("invalid EngineType '{}', falling back to 't' (truck)", c);
+            return EngineType::t_TRUCK;
+    }
+}
 
 int Parser::TokenizeCurrentLine()
 {

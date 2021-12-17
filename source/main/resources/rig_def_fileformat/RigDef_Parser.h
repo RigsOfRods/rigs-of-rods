@@ -220,6 +220,7 @@ private:
     BitMask_t          GetArgShock3Options(int index);
     BitMask_t          GetArgNodeOptions  (int index);
     SpecialProp        GetArgSpecialProp  (int index);
+    EngineType         GetArgEngineType   (int index);
 
     float              ParseArgFloat      (const char* str);
     int                ParseArgInt        (const char* str);

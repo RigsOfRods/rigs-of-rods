@@ -78,20 +78,6 @@ Command2::Command2():
     option_o_1press_center(false)
 {}
 
-Engoption::Engoption():
-    inertia(10.f),
-    clutch_force(-1.f),
-    shift_time(-1.f),
-    clutch_time(-1.f),
-    type(ENGINE_TYPE_t_TRUCK),
-    post_shift_time(-1.f),
-    idle_rpm(-1.f),
-    stall_rpm(-1.f),
-    max_idle_mixture(-1.f),
-    min_idle_mixture(-1.f),
-    braking_torque(-1.f)
-{}
-
 Engturbo::Engturbo() :
 tinertiaFactor(1),
 nturbos(1),
