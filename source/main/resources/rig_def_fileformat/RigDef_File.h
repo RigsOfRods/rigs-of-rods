@@ -1298,22 +1298,10 @@ struct SoundSource
 
 struct SoundSource2: public SoundSource
 {
-    enum Mode
-    {
-        MODE_ALWAYS  = -2,
-        MODE_OUTSIDE = -1,
-        MODE_CINECAM = 1,
+    static const int MODE_ALWAYS = -2;
+    static const int MODE_EXTERIOR = -1;
 
-        MODE_INVALID = 0xFFFFFFFF
-    };
-
-    SoundSource2():
-        mode(MODE_INVALID),
-        cinecam_index(0)
-    {}
-
-    Mode mode;
-    unsigned int cinecam_index;
+    int mode = MODE_ALWAYS; //!< A special constant or cinecam index.
 };
 
 struct SpeedLimiter

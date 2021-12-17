@@ -1114,17 +1114,16 @@ float ActorSpawner::ComputeWingArea(Ogre::Vector3 const & ref, Ogre::Vector3 con
 void ActorSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
 {
 #ifdef USE_OPENAL
-    int mode = (def.mode == RigDef::SoundSource2::MODE_CINECAM) ? def.cinecam_index : def.mode;
-    NodeNum_t node_index = FindNodeIndex(def.node);
-    if (node_index == -1)
+    NodeNum_t node = ResolveNodeRef(def.node);
+    if (node == NODENUM_INVALID)
     {
         return;
     }
     AddSoundSource(
             m_actor,
             App::GetSoundScriptManager()->createInstance(def.sound_script_name, m_actor->ar_instance_id), 
-            node_index,
-            mode
+            node,
+            def.mode
         );
 #endif // USE_OPENAL
 }
