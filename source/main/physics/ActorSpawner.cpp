@@ -1504,10 +1504,7 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
         if (flexbody == nullptr)
             return; // Error already logged
 
-        if (def.camera_settings.mode == RigDef::CameraSettings::MODE_CINECAM)
-            flexbody->setCameraMode(static_cast<int>(def.camera_settings.cinecam_index));
-        else
-            flexbody->setCameraMode(static_cast<int>(def.camera_settings.mode));
+        flexbody->setCameraMode(def.camera_settings.mode);
 
         m_actor->GetGfxActor()->AddFlexbody(flexbody);
     }
