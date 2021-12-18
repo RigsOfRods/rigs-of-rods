@@ -222,6 +222,7 @@ private:
     BitMask_t          GetArgNodeOptions  (int index);
     SpecialProp        GetArgSpecialProp  (int index);
     EngineType         GetArgEngineType   (int index);
+    ManagedMaterialType GetArgManagedMatType(int index);
 
     float              ParseArgFloat      (const char* str);
     int                ParseArgInt        (const char* str);

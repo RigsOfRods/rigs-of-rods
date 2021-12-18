@@ -2360,61 +2360,30 @@ void Parser::ParseManagedMaterials()
     if (! this->CheckNumArguments(2)) { return; }
 
     ManagedMaterial managed_mat;
-    
     managed_mat.options = m_current_managed_material_options;
     managed_mat.name    = this->GetArgStr(0);
+    managed_mat.type    = this->GetArgManagedMatType(1);
 
-    const std::string type_str = this->GetArgStr(1);
-    if (type_str == "mesh_standard" || type_str == "mesh_transparent")
+    if (managed_mat.type != ManagedMaterialType::INVALID)
     {
         if (! this->CheckNumArguments(3)) { return; }
 
-        managed_mat.type = (type_str == "mesh_standard")
-            ? ManagedMaterial::TYPE_MESH_STANDARD
-            : ManagedMaterial::TYPE_MESH_TRANSPARENT;
-        
         managed_mat.diffuse_map = this->GetArgStr(2);
-        
-        if (m_num_args > 3) { managed_mat.specular_map = this->GetArgManagedTex(3); }
-    }
-    else if (type_str == "flexmesh_standard" || type_str == "flexmesh_transparent")
-    {
-        if (! this->CheckNumArguments(3)) { return; }
 
-        managed_mat.type = (type_str == "flexmesh_standard")
-            ? ManagedMaterial::TYPE_FLEXMESH_STANDARD
-            : ManagedMaterial::TYPE_FLEXMESH_TRANSPARENT;
-            
-        managed_mat.diffuse_map = this->GetArgStr(2);
-        
-        if (m_num_args > 3) { managed_mat.damaged_diffuse_map = this->GetArgManagedTex(3); }
-        if (m_num_args > 4) { managed_mat.specular_map        = this->GetArgManagedTex(4); }
-    }
-    else
-    {
-        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, type_str + " is an unkown effect");
-        return;
-    }
+        if (managed_mat.type == ManagedMaterialType::MESH_STANDARD ||
+            managed_mat.type == ManagedMaterialType::MESH_TRANSPARENT)
+        {
+            if (m_num_args > 3) { managed_mat.specular_map = this->GetArgManagedTex(3); }
+        }
+        else if (managed_mat.type == ManagedMaterialType::FLEXMESH_STANDARD ||
+            managed_mat.type == ManagedMaterialType::FLEXMESH_TRANSPARENT)
+        {
+            if (m_num_args > 3) { managed_mat.damaged_diffuse_map = this->GetArgManagedTex(3); }
+            if (m_num_args > 4) { managed_mat.specular_map        = this->GetArgManagedTex(4); }
+        }
 
-    Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
-
-    if (!rgm.resourceExists(m_resource_group, managed_mat.diffuse_map))
-    {
-        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "Missing texture file: " + managed_mat.diffuse_map);
-        return;
+        m_current_module->managedmaterials.push_back(managed_mat);
     }
-    if (managed_mat.HasDamagedDiffuseMap() && !rgm.resourceExists(m_resource_group, managed_mat.damaged_diffuse_map))
-    {
-        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "Missing texture file: " + managed_mat.damaged_diffuse_map);
-        managed_mat.damaged_diffuse_map = "-";
-    }
-    if (managed_mat.HasSpecularMap() && !rgm.resourceExists(m_resource_group, managed_mat.specular_map))
-    {
-        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "Missing texture file: " + managed_mat.specular_map);
-        managed_mat.specular_map = "-";
-    }
-
-    m_current_module->managedmaterials.push_back(managed_mat);
 }
 
 void Parser::ParseLockgroups()
@@ -3273,6 +3242,19 @@ EngineType Parser::GetArgEngineType(int index)
             fmt::format("invalid EngineType '{}', falling back to 't' (truck)", c);
             return EngineType::t_TRUCK;
     }
+}
+
+ManagedMaterialType Parser::GetArgManagedMatType(int index)
+{
+    std::string str = this->GetArgStr(index);
+    if (str == "mesh_standard")        return ManagedMaterialType::MESH_STANDARD;
+    if (str == "mesh_transparent")     return ManagedMaterialType::MESH_TRANSPARENT;
+    if (str == "flexmesh_standard")    return ManagedMaterialType::FLEXMESH_STANDARD;
+    if (str == "flexmesh_transparent") return ManagedMaterialType::FLEXMESH_TRANSPARENT;
+
+    this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+        fmt::format("Not a valid ManagedMaterialType: '{}'", str));
+    return ManagedMaterialType::INVALID;
 }
 
 int Parser::TokenizeCurrentLine()

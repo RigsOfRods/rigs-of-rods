@@ -57,6 +57,9 @@ namespace RigDef {
 
 extern const char* ROOT_MODULE_NAME;
 
+// --------------------------------
+// Enums which only carry value
+
 // IMPORTANT! If you add a value here, you must also modify Regexes::IDENTIFY_KEYWORD, it relies on numeric values of this enum.
 enum class Keyword
 {
@@ -193,6 +196,15 @@ enum class SpecialProp
     BEACON,
     REDBEACON,
     LIGHTBAR,
+};
+
+enum class ManagedMaterialType
+{
+    INVALID,
+    FLEXMESH_STANDARD,
+    FLEXMESH_TRANSPARENT,
+    MESH_STANDARD,
+    MESH_TRANSPARENT,
 };
 
 // --------------------------------
@@ -1000,37 +1012,12 @@ struct ManagedMaterialsOptions
 
 struct ManagedMaterial
 {
-    /* IMPORTANT! Order of these values must match Regexes::IDENTIFY_MANAGED_MATERIAL_TYPE enum from Regexes.h */
-    enum Type
-    {
-        TYPE_FLEXMESH_STANDARD = 1,
-        TYPE_FLEXMESH_TRANSPARENT,
-        TYPE_MESH_STANDARD,
-        TYPE_MESH_TRANSPARENT,
-
-        TYPE_INVALID = 0xFFFFFFFF
-    };
-
     Ogre::String name;
-    
-    /* Attributes */
-    Type type;
+    ManagedMaterialType type = ManagedMaterialType::INVALID;
     ManagedMaterialsOptions options;
-    
-    /* Textures */
     Ogre::String diffuse_map;
     Ogre::String damaged_diffuse_map;
     Ogre::String specular_map;
-
-    bool HasDamagedDiffuseMap()
-    {
-        return (damaged_diffuse_map.length() != 0 && damaged_diffuse_map[0] != '-');
-    }
-
-    bool HasSpecularMap()
-    {
-        return (specular_map.length() != 0 && specular_map[0] != '-');
-    }
 };
 
 struct MaterialFlareBinding
